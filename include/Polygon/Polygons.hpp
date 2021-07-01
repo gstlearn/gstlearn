@@ -1,0 +1,61 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#pragma once
+
+#include "geoslib_enum.h"
+#include "Polygon/PolySet.hpp"
+#include "Basic/Vector.hpp"
+#include "Basic/AStringable.hpp"
+
+class Db;
+
+class Polygons: public AStringable
+{
+public:
+  Polygons();
+  Polygons(const String& filename,
+           int flag_header = true,
+           int nskip = 0,
+           const String& char_sep = ",",
+           const String& char_dec = ".",
+           const String& na_string = "NA",
+           int verbose = false,
+           int ncol_max = -1,
+           int nrow_max = -1,
+           int flag_add_rank = 1);
+  Polygons(const Db* db);
+  Polygons(const Polygons& r);
+  Polygons& operator=(const Polygons& r);
+  virtual ~Polygons();
+
+  int getPolySetNumber() const { return _polysets.size(); }
+  void addPolySet(const PolySet& polyset);
+  virtual std::string toString(int level = 0) const override;
+
+  const std::vector<PolySet>& getPolySets() const { return _polysets; }
+  const PolySet& getPolySet(int ipol) const { return _polysets[ipol]; }
+  const VectorDouble& getX(int ipol) const { return _polysets[ipol].getX(); }
+  const VectorDouble& getY(int ipol) const { return _polysets[ipol].getY(); }
+  void getExtension(double *xmin,
+                    double *xmax,
+                    double *ymin,
+                    double *ymax) const;
+  double getSurface() const;
+
+private:
+  PolySet _extractFromTab(int ideb,
+                          int ifin,
+                          int ncol,
+                          const VectorDouble& tab);
+
+private:
+  std::vector<PolySet> _polysets;
+};

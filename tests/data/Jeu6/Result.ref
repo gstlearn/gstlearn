@@ -1,0 +1,233 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of fields             = 5
+Maximum Number of attributes = 5
+Total number of samples      = 102
+
+Data Base Extension
+-------------------
+Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
+Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =      1.000
+ Maximum value       =    102.000
+ Mean value          =     51.500
+ Standard Deviation  =     29.443
+ Variance            =    866.917
+2 - Name x1 - Locator x1
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =    109.850
+ Maximum value       =    143.010
+ Mean value          =    119.802
+ Standard Deviation  =      6.516
+ Variance            =     42.461
+3 - Name x2 - Locator x2
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =    483.660
+ Maximum value       =    513.040
+ Mean value          =    498.778
+ Standard Deviation  =      7.987
+ Variance            =     63.791
+4 - Name z1 - Locator z1
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =      1.090
+ Maximum value       =     33.200
+ Mean value          =      3.642
+ Standard Deviation  =      4.705
+ Variance            =     22.137
+5 - Name z2 - Locator z2
+ Nb of data          =        102
+ Nb of active values =        101
+ Minimum value       =      3.000
+ Maximum value       =     31.600
+ Mean value          =      6.104
+ Standard Deviation  =      3.594
+ Variance            =     12.916
+
+Data Base Contents
+------------------
+                 rank        x1        x2        z1        z2
+     [  1,]     1.000   119.500   509.330     2.150     4.600
+     [  2,]     2.000   120.450   510.000     2.480     4.500
+     [  3,]     3.000   120.600   511.480    33.200       N/A
+     [  4,]     4.000   121.600   510.940     2.210     4.700
+     [  5,]     5.000   121.850   511.930     2.080     5.400
+     [  6,]     6.000   122.130   510.680     2.250     4.200
+     [  7,]     7.000   121.980   509.990     2.130     5.100
+(Ncols=5,Nrows=7[from 102])
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 2
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix
+               [,  1]    [,  2]
+     [  1,]    22.137    11.738
+     [  2,]    11.738    12.916
+
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (% of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389     0.100
+         1   130.000     1.084    20.350
+         2   190.000     2.039    12.706
+         3   214.000     3.003    17.873
+         4   239.000     4.011    14.732
+         5   238.000     5.040    14.961
+         6   205.000     5.962    13.323
+         7   199.000     7.003    23.891
+         8   220.000     7.989    24.853
+         9   198.000     8.996    25.194
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389    -0.122
+         1   127.000     1.079     8.309
+         2   187.000     2.039     3.905
+         3   209.000     3.004     5.649
+         4   234.000     4.011     4.346
+         5   233.000     5.038     4.497
+         6   202.000     5.963     5.439
+         7   194.000     7.006     9.577
+         8   218.000     7.991    18.662
+         9   198.000     8.996    20.995
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389     0.462
+         1   127.000     1.079     9.213
+         2   187.000     2.039     4.667
+         3   209.000     3.004     7.320
+         4   234.000     4.011     5.729
+         5   233.000     5.038     5.443
+         6   202.000     5.963     6.384
+         7   194.000     7.006    10.182
+         8   218.000     7.991    19.214
+         9   198.000     8.996    21.639
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of fields             = 9
+Maximum Number of attributes = 9
+Total number of samples      = 102
+
+Data Base Extension
+-------------------
+Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
+Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =      1.000
+ Maximum value       =    102.000
+ Mean value          =     51.500
+ Standard Deviation  =     29.443
+ Variance            =    866.917
+2 - Name x1 - Locator x1
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =    109.850
+ Maximum value       =    143.010
+ Mean value          =    119.802
+ Standard Deviation  =      6.516
+ Variance            =     42.461
+3 - Name x2 - Locator x2
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =    483.660
+ Maximum value       =    513.040
+ Mean value          =    498.778
+ Standard Deviation  =      7.987
+ Variance            =     63.791
+4 - Name z1 - Locator NA
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =      1.090
+ Maximum value       =     33.200
+ Mean value          =      3.642
+ Standard Deviation  =      4.705
+ Variance            =     22.137
+5 - Name z2 - Locator NA
+ Nb of data          =        102
+ Nb of active values =        101
+ Minimum value       =      3.000
+ Maximum value       =     31.600
+ Mean value          =      6.104
+ Standard Deviation  =      3.594
+ Variance            =     12.916
+6 - Name Kriging.z1.esterr - Locator z1
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =    -30.990
+ Maximum value       =      8.872
+ Mean value          =      0.165
+ Standard Deviation  =      4.841
+ Variance            =     23.434
+7 - Name Kriging.z2.esterr - Locator z2
+ Nb of data          =        102
+ Nb of active values =        101
+ Minimum value       =    -22.014
+ Maximum value       =      8.767
+ Mean value          =      0.333
+ Standard Deviation  =      3.455
+ Variance            =     11.940
+8 - Name Kriging.z1.stderr - Locator NA
+ Nb of data          =        102
+ Nb of active values =        102
+ Minimum value       =     -6.892
+ Maximum value       =      1.973
+ Mean value          =      0.037
+ Standard Deviation  =      1.082
+ Variance            =      1.171
+9 - Name Kriging.z2.stderr - Locator NA
+ Nb of data          =        102
+ Nb of active values =        101
+ Minimum value       =     -7.198
+ Maximum value       =      2.837
+ Mean value          =      0.108
+ Standard Deviation  =      1.127
+ Variance            =      1.270
+
+Data Base Contents
+------------------
+                   rank          x1          x2          z1          z2 *.z1.esterr *.z2.esterr
+     [  1,]       1.000     119.500     509.330       2.150       4.600       4.559       3.015
+     [  2,]       2.000     120.450     510.000       2.480       4.500       4.199       2.851
+     [  3,]       3.000     120.600     511.480      33.200         N/A     -30.990         N/A
+     [  4,]       4.000     121.600     510.940       2.210       4.700       3.880       1.607
+     [  5,]       5.000     121.850     511.930       2.080       5.400       6.256       1.604
+     [  6,]       6.000     122.130     510.680       2.250       4.200      -0.143       0.214
+     [  7,]       7.000     121.980     509.990       2.130       5.100       0.099      -0.787
+(Ncols=7[from 9],Nrows=7[from 102])

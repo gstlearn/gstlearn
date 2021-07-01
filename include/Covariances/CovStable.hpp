@@ -1,0 +1,35 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#pragma once
+
+#include "Covariances/ACovFunc.hpp"
+
+class CovContext;
+
+class CovStable : public ACovFunc
+{
+public:
+  CovStable(const CovContext& ctx);
+  CovStable(const CovStable &r);
+  CovStable& operator= (const CovStable &r);
+  virtual ~CovStable();
+
+  bool   hasParam() const override { return true; }
+  double getScadef() const override;
+  double getParMax() const override { return 2; }
+
+  virtual String getFormula() const override { return String("Equation not yet implemented"); }
+  String         getCovName() const override { return "Stable"; }
+
+protected:
+  double _evaluateCov(double h) const override;
+};
+

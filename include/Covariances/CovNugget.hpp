@@ -1,0 +1,33 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#pragma once
+
+#include "Covariances/ACovFunc.hpp"
+
+class CovContext;
+
+class CovNugget : public ACovFunc
+{
+public:
+  CovNugget(const CovContext& ctx);
+  CovNugget(const CovNugget &r);
+  CovNugget& operator= (const CovNugget &r);
+  virtual ~CovNugget();
+
+  virtual String getFormula() const override;
+  String         getCovName() const override { return "Nugget Effect"; }
+
+  int    hasRange() const override { return 0; }
+
+protected:
+  double _evaluateCov(double h) const override;
+};
+

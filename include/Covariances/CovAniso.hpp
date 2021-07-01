@@ -1,0 +1,207 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#pragma once
+
+#include "Basic/Vector.hpp"
+#include "Basic/IClonable.hpp"
+
+#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Basic/Tensor.hpp"
+#include "Covariances/ACov.hpp"
+#include "Covariances/ACovFunc.hpp"
+#include "Covariances/CovContext.hpp"
+
+class Rotation;
+
+class CovAniso: public ACov, public IClonable
+{
+public:
+  CovAniso(const ENUM_COVS& type, const CovContext& ctxt);
+  CovAniso(const ENUM_COVS& type,
+           double range,
+           double param,
+           double sill,
+           const CovContext& ctxt);
+  CovAniso(const CovAniso& r);
+  CovAniso& operator=(const CovAniso& r);
+  virtual ~CovAniso();
+
+  virtual IClonable* clone() const override;
+
+  void setContext(const CovContext& ctxt);
+  void setParam(double param);
+
+  void setSill(double sill); /// Only valid when there is only one variable (in the context)
+  void setSill(const MatrixCSGeneral& sill);
+  void setSill(const VectorDouble& sill);
+  void setSill(int ivar, int jvar, double sill);
+
+  /// Practical range
+  void setRange(double range); /// Make the covariance isotropic
+  void setRange(int idim, double range);
+  void setRanges(const VectorDouble& range);
+
+  void setScale(double scale); /// Make the covariance isotropic
+  void setScale(int idim, double scale);
+  void setScales(const VectorDouble& scale);
+
+  void setAnisoRotation(const Rotation& rot);
+  void setAnisoRotation(const VectorDouble& rot);
+  void setAnisoAngles(const VectorDouble& angles);
+  void setAnisoAngle(int idim, double angle);
+
+  ///////////////////////////////////////////////////
+  /// ASpaceObject Interface
+  virtual bool isConsistent(const ASpace* space) const override;
+  ///////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////
+  /// ACov Interface
+  virtual int getNVariables() const override { return _ctxt.getNVar(); }
+  ///////////////////////////////////////////////////
+
+  /**
+   * Evaluate the covariance for a pair of variables and a zero distance
+   * @param ivar Rank of the first variable
+   * @param jvar Rank of the second variable
+   * @param mode Reference to the CovCalcMode embedded class
+   * @return The covariance value at the origin
+   */
+  virtual double eval0(int ivar,
+                       int jvar,
+                       const CovCalcMode& mode = CovCalcMode()) const override;
+
+  /**
+   * Evaluate covariance between two points (p1, p2) for two variables (ivar, jvar)
+   * @param ivar Rank of the first variable
+   * @param jvar Rank of the second variable
+   * @param p1   Rank of the first point
+   * @param p2   Rank of the second point
+   * @param mode Reference to the CovCalcMode embedded class
+   * @return The covariance value
+   */
+  virtual double eval(int ivar,
+                      int jvar,
+                      const SpacePoint& p1,
+                      const SpacePoint& p2,
+                      const CovCalcMode& mode = CovCalcMode()) const override;
+
+  virtual std::string toString(int level = 0) const override;
+
+  virtual double getIntegralRange(int ndisc, double hmax) const;
+
+  virtual String getFormula() const { return _cova->getFormula(); }
+  const MatrixCSGeneral& getSill() const { return _sill; }
+  double getSill(int ivar, int jvar) const;
+  VectorDouble getRanges() const;
+  const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
+  const VectorDouble& getScales() const { return _aniso.getRadius(); }
+
+  /// TODO : For backward compatibility with Cova.hpp (to be removed?)
+  void   setType(ENUM_COVS type);
+  double getRange() const;
+  double getTheoretical() const;
+  bool   getFlagAniso() const { return !isIsotrop(); }
+  bool   getFlagRotation() const { return hasRotation(); }
+  double getRange(int idim) const { return getRanges()[idim]; }
+  double getScale(int idim) const { return getScales()[idim]; }
+  const VectorDouble getAnisoAngles() const { return _aniso.getRotation().getAngles(); }
+  const VectorDouble getAnisoRotMatVec() const
+  {
+    return _aniso.getRotation().getMatrixDirect().getValues();
+  }
+  const MatrixCSGeneral& getAnisoRotMat() const
+  {
+    return _aniso.getRotation().getMatrixDirect();
+  }
+  const VectorDouble getAnisoInvMatVec() const
+  {
+    return _aniso.getRotation().getMatrixInverse().getValues();
+  }
+  const MatrixCSGeneral& getAnisoInvMat() const
+  {
+    return _aniso.getRotation().getMatrixInverse();
+  }
+
+  const VectorDouble getAnisoCoeffs() const;
+  double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
+  double getAnisoRotMat(int idim, int jdim) const
+  {
+    return _aniso.getRotation().getMatrixDirect().getValue(idim, jdim);
+  }
+  double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
+  const CovContext& getContext() const { return _ctxt; }
+  ENUM_COVS getType() const { return _cova->getType(); }
+  double getParam() const;
+  double getScadef() const { return _cova->getScadef(); }
+  double getParMax() const { return _cova->getParMax(); }
+  int    getMaxNDim() const { return _cova->getMaxNDim(); }
+  int    getMinOrder() const { return _cova->getMinOrder(); }
+  bool hasInt1D() const
+  {
+    return _cova->hasInt1D();
+  }
+  bool hasInt2D() const
+  {
+    return _cova->hasInt2D();
+  }
+  bool hasRange() const
+  {
+    return _cova->hasRange();
+  }
+  int hasParam() const
+  {
+    return _cova->hasParam();
+  }
+  String getCovName() const
+  {
+    return _cova->getCovName();
+  }
+  bool isIsotrop() const
+  {
+    return _aniso.isIsotrop();
+  }
+  bool isAsymptotic() const
+  {
+    return getScadef() != 1.;
+  }
+  bool hasRotation() const
+  {
+    return _aniso.hasRotation();
+  }
+  const Tensor& getAniso() const
+  {
+    return _aniso;
+  }
+  void setAniso(const Tensor& aniso)
+  {
+    _aniso = aniso;
+  }
+  const ACovFunc* getCova() const
+  {
+    return _cova;
+  }
+  int getGradParamNumber() const;
+
+protected:
+  /// Update internal parameters consistency with the context
+  virtual void  _updateFromContext();
+
+private:
+  void   _checkVariable(int ivar) const;
+
+private:
+  CovContext      _ctxt;   /// Context (space, irfDegree, field, ...)
+  ACovFunc*       _cova;   /// Covariance basic function
+  MatrixCSGeneral _sill;   /// Sill matrix (nvar x nvar)
+  Tensor          _aniso;  /// Anisotropy parameters
+};
+

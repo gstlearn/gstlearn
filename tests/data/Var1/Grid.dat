@@ -1,0 +1,6 @@
+Db 
+1 # File organization (0:Points; 1:Grid)
+# Grid characteristics (NX,X0,DX)
+2 # Space Dimension
+100 0.000000 0.010000 
+100 0.000000 0.010000 

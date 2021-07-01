@@ -1,0 +1,446 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#ifndef GEOSLIB_F_H
+#define GEOSLIB_F_H
+
+#include "geoslib_d.h"
+#include "csparse_d.h"
+#include "csparse_f.h"
+#include "Mesh/tetgen.h"
+#include "segy.h"
+#include "Neigh/Neigh.hpp"
+#include "Variogram/Vario.hpp"
+#include "Variogram/Dir.hpp"
+#include "Model/Model.hpp"
+#include "Model/Cova.hpp"
+#include "Db/Db.hpp"
+#include "Anamorphosis/Anam.hpp"
+#include "Anamorphosis/AnamDiscreteDD.hpp"
+#include "Anamorphosis/AnamDiscreteIR.hpp"
+#include "Anamorphosis/AnamEmpirical.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Anamorphosis/AnamUser.hpp"
+#include "Model/Constraints.hpp"
+#include "Stats/PCA.hpp"
+#include "Mesh/MeshEStandard.hpp"
+#include "Polygon/Polygons.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Model/Option_VarioFit.hpp"
+#include "LithoRule/Rule.hpp"
+#include "Model/ANoStat.hpp"
+
+#include "geoslib_old_f.h"
+
+/*************************/
+/* Functions for License */
+/*************************/
+
+GEOSLIB_API int setup_license(const char *target_name);
+
+/***********************/
+/* Functions for Basic */
+/***********************/
+
+GEOSLIB_API void print_ivector(const char *title,
+                                int flag_limit,
+                                int ntab,
+                                const int *itab);
+GEOSLIB_API void print_ivector(const char *title,
+                               int flag_limit,
+                               int ntab,
+                               const VectorInt& itab);
+GEOSLIB_API VectorInt util_string_search(const VectorString& list_strings,
+                                         const String& string,
+                                         int verbose);
+
+GEOSLIB_API VectorDouble util_set_array_double(int ntab, const double *rtab);
+GEOSLIB_API VectorInt util_set_array_integer(int ntab, const int *itab);
+GEOSLIB_API VectorString util_set_array_char(int ntab, char **names);
+GEOSLIB_API std::vector<char *> util_vs_to_vs(VectorString vs);
+
+/*********************/
+/* Functions for CSV */
+/*********************/
+
+GEOSLIB_API int csv_manage(const char *filename,
+                           int mode,
+                           int nitem,
+                           bool flag_integer = 0,
+                           const char *char_sep = ",",
+                           const char *na_string = "NA",
+                           bool verbose = false);
+GEOSLIB_API void csv_print_string(const char *string);
+GEOSLIB_API void csv_print_double(double value);
+GEOSLIB_API void csv_print_eol(void);
+
+/***************************/
+/* Functions for Data Base */
+/***************************/
+
+GEOSLIB_API Db *db_create_point(int nech,
+                                int ncol = 0,
+                                int order = 0,
+                                int flag_add_rank = 0,
+                                const VectorDouble& tab = VectorDouble());
+GEOSLIB_API Db *db_create_grid_generic(int flag_rot,
+                                       int ndim,
+                                       int ncol,
+                                       int order,
+                                       int flag_add_rank,
+                                       const VectorInt& nx,
+                                       const VectorDouble& tab = VectorDouble());
+GEOSLIB_API Db *db_create_grid(int flag_g_rot,
+                               int ndim,
+                               int nvar,
+                               int order,
+                               int flag_add_rank,
+                               const VectorInt& nx,
+                               const VectorDouble& x0,
+                               const VectorDouble& dx,
+                               const VectorDouble& angles = VectorDouble(),
+                               const VectorDouble& tab = VectorDouble());
+GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
+                                  int ncol,
+                                  int order,
+                                  int flag_add_rank,
+                                  int nx,
+                                  int ny,
+                                  double x0 = 0.,
+                                  double y0 = 0.,
+                                  double dx = 1.,
+                                  double dy = 1.,
+                                  double angle = 0.,
+                                  const VectorDouble& tab = VectorDouble());
+GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
+                                  int ncol,
+                                  int order,
+                                  int flag_add_rank,
+                                  int nx,
+                                  int ny,
+                                  int nz,
+                                  double x0 = 0.,
+                                  double y0 = 0.,
+                                  double z0 = 0.,
+                                  double dx = 1.,
+                                  double dy = 1.,
+                                  double dz = 1.,
+                                  double angle_z = 0.,
+                                  double angle_y = 0.,
+                                  double angle_x = 0.,
+                                  const VectorDouble& tab = VectorDouble());
+GEOSLIB_API VectorDouble db_get_grid_axis(Db *dbgrid, int idim);
+GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose= false);
+GEOSLIB_API VectorInt db_identify_variables_by_name(Db *db,
+                                                    const String& pattern,
+                                                    int verbose = 0);
+GEOSLIB_API void db_print(Db *db,
+                          int flag_resume = 1,
+                          int flag_vars = 1,
+                          int flag_extend = 0,
+                          int flag_stats = 0,
+                          int flag_array = 0,
+                          int nrank = 0,
+                          int *ranks = NULL);
+GEOSLIB_API void db_stats_print(Db *db,
+                                const VectorInt& iatts = VectorInt(),
+                                const VectorString& opers = VectorString(),
+                                int flag_iso = 0,
+                                int flag_correl = 0,
+                                const String& title = String(),
+                                const String& radix = String());
+GEOSLIB_API void db_stats_print(Db *db,
+                                const VectorString& names,
+                                const VectorString& opers = VectorString(),
+                                int flag_iso = 0,
+                                int flag_correl = 0,
+                                const String& title = String(),
+                                const String& radix = String());
+GEOSLIB_API ES db_angle2grad(Db *db,
+                             const VectorString& angles,
+                             double radius = 1.,
+                             NamingConvention namconv = NamingConvention("Angle2Grad"));
+GEOSLIB_API ES db_grad2angle(Db *db,
+                             const VectorString& grads,
+                             NamingConvention namconv = NamingConvention("Grad2Angle"));
+
+/***************************/
+/* Functions for Variogram */
+/***************************/
+
+GEOSLIB_API Vario *variogram_init(const String& cov_name,
+                                  double scale = 1,
+                                  const VectorDouble& dates = VectorDouble());
+GEOSLIB_API int variogram_direction_add(Vario *vario,
+                                        int npas,
+                                        int opt_code,
+                                        int idate,
+                                        double dpas,
+                                        double toldis,
+                                        double tolang,
+                                        double bench,
+                                        double cylrad,
+                                        double tolcode,
+                                        const VectorDouble& breaks,
+                                        const VectorDouble& codir,
+                                        const VectorDouble& grincr);
+GEOSLIB_API int variogram_cloud(Db *db,
+                                Vario *vario,
+                                Db *dbgrid,
+                                NamingConvention namconv = NamingConvention("Cloud"));
+GEOSLIB_API Db* db_variogram_cloud(Db *db,
+                                   Vario* vario,
+                                   double lagmax = TEST,
+                                   double varmax = TEST,
+                                   int lagnb = 100,
+                                   int varnb = 100,
+                                   NamingConvention namconv = NamingConvention("Cloud"));
+GEOSLIB_API int variogram_compute(Db* db,
+                                  Vario* vario,
+                                  const VectorDouble& means = VectorDouble(),
+                                  const VectorDouble& vars = VectorDouble(),
+                                  int flag_grid = 0,
+                                  int flag_gen = 0,
+                                  int flag_sample = 0,
+                                  int verr_mode = 0,
+                                  int flag_model = 0,
+                                  Model* model = nullptr,
+                                  int verbose = 0);
+GEOSLIB_API double variogram_extract_variance(Vario *vario,
+                                              int ivar = 1,
+                                              int jvar = 1);
+GEOSLIB_API VectorDouble variogram_extract_hh(Vario *vario,
+                                              int idir = 1,
+                                              int ivar = 1,
+                                              int jvar = 1);
+GEOSLIB_API VectorDouble variogram_extract_gg(Vario *vario,
+                                              int idir = 1,
+                                              int ivar = 1,
+                                              int jvar = 1);
+GEOSLIB_API VectorDouble variogram_extract_sw(Vario *vario,
+                                              int idir = 1,
+                                              int ivar = 1,
+                                              int jvar = 1);
+GEOSLIB_API void variogram_print(Vario *vario, int verbose = false);
+GEOSLIB_API int variogram_pgs(Db *db,
+                              Vario* vario,
+                              Vario* varioind,
+                              Rule* rule,
+                              const VectorDouble& propcst = VectorDouble(),
+                              Db* dbprop = nullptr,
+                              int flag_stat = true,
+                              int flag_rho = false,
+                              int opt_correl = 2);
+GEOSLIB_API int vmap_compute(Db *db,
+                             Db* dbmap,
+                             int calcul_type = 0,
+                             int radius = 0,
+                             bool flag_FFT = true,
+                             NamingConvention namconv = NamingConvention("VMAP"));
+GEOSLIB_API Db* db_vmap_compute(Db *db,
+                                int calcul_type = 0,
+                                int nxx = 20,
+                                int nyy = 20,
+                                double dx = TEST,
+                                double dy = TEST,
+                                int radius = 0.,
+                                bool flag_FFT = true,
+                                NamingConvention namconv = NamingConvention("VMAP"));
+
+/***********************/
+/* Functions for Model */
+/***********************/
+
+GEOSLIB_API Model *model_init(int ndim = 2,
+                              int nvar = 1,
+                              double field = 0,
+                              int flag_linked = 0,
+                              double ball_radius = 0.,
+                              bool flag_gradient = false,
+                              const VectorDouble& mean = VectorDouble(),
+                              const VectorDouble& covar0 = VectorDouble());
+GEOSLIB_API int model_auto_fit(Vario *vario,
+                               Model *model,
+                               bool verbose = false,
+                               Option_AutoFit mauto = Option_AutoFit(),
+                               const Constraints& constraints = Constraints(),
+                               Option_VarioFit optvar = Option_VarioFit());
+GEOSLIB_API int vmap_auto_fit(Db *dbvmap,
+                              Model *model,
+                              bool verbose = false,
+                              Option_AutoFit mauto = Option_AutoFit(),
+                              const Constraints& constraints = Constraints(),
+                              Option_VarioFit optvar = Option_VarioFit());
+GEOSLIB_API int db_model_nostat(Db *db,
+                                Model *model,
+                                int icov = 0,
+                                NamingConvention namconv = NamingConvention("Nostat"));
+
+/******************************/
+/* Functions for Anamorphosis */
+/******************************/
+
+GEOSLIB_API VectorDouble anam_selectivity(Anam *anam,
+                                          int nclass,
+                                          VectorDouble zcut,
+                                          int flag_correct = 0,
+                                          int verbose = 0);
+
+/******************************/
+/* Functions for Neighborhood */
+/******************************/
+
+GEOSLIB_API int test_neigh(Db *dbin, Db *dbout, Model *model, Neigh *neigh,
+                           NamingConvention namconv = NamingConvention("Neigh"));
+
+/**********************************/
+/* High-level Interface Functions */
+/**********************************/
+
+GEOSLIB_API int migrateByAttribute(Db* db1,
+                                   Db* db2,
+                                   const VectorInt& iatts = VectorInt(),
+                                   int ldmax = 0,
+                                   const VectorDouble& dmax = VectorDouble(),
+                                   int flag_fill = false,
+                                   int flag_inter = false,
+                                   NamingConvention namconv = NamingConvention("Migrate"));
+GEOSLIB_API int migrate(Db* db1,
+                        Db* db2,
+                        const String& name,
+                        int ldmax = 0,
+                        const VectorDouble& dmax = VectorDouble(),
+                        int flag_fill = 0,
+                        int flag_inter = 0,
+                        NamingConvention namconv = NamingConvention("Migrate"));
+GEOSLIB_API int migrateByLocator(Db* db1,
+                                 Db* db2,
+                                 ENUM_LOCS locatorType,
+                                 int ldmax = 0,
+                                 const VectorDouble& dmax = VectorDouble(),
+                                 int flag_fill = false,
+                                 int flag_inter = false,
+                                 NamingConvention namconv = NamingConvention("Migrate"));
+GEOSLIB_API int db_selhull(Db *db1,
+                           Db *db2,
+                           bool verbose = false,
+                           NamingConvention namconv = NamingConvention("Hull"));
+GEOSLIB_API void db_polygon(Db *db,
+                            Polygons *polygon,
+                            int flag_sel = 0,
+                            int flag_period = 0,
+                            int flag_nested = 0,
+                            NamingConvention namconv = NamingConvention("Polygon"));
+GEOSLIB_API int db_grid_fill(Db *dbgrid,
+                             int mode = 0,
+                             int seed = 34243,
+                             int radius = 1,
+                             bool verbose = false,
+                             NamingConvention namconv = NamingConvention("Fill"));
+GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
+                               int mode = 0,
+                               int seed = 34243,
+                               NamingConvention namconv = NamingConvention("Fill"));
+GEOSLIB_API int kriging(Db *dbin,
+                        Db *dbout,
+                        Model *model,
+                        Neigh *neigh,
+                        int calcul = KOPTION_PONCTUAL,
+                        int flag_est = 1,
+                        int flag_std = 1,
+                        int flag_var = 0,
+                        VectorInt ndisc = VectorInt(),
+                        VectorInt rank_colcok = VectorInt(),
+                        VectorDouble matCL = VectorDouble(),
+                        NamingConvention namconv = NamingConvention("Kriging"));
+GEOSLIB_API int xvalid(Db *db,
+                       Model *model,
+                       Neigh *neigh,
+                       int flag_xvalid = 1,
+                       int flag_code = 0,
+                       int flag_est = 1,
+                       int flag_std = 1,
+                       VectorInt rank_colcok = VectorInt(),
+                       NamingConvention namconv = NamingConvention("Xvalid"));
+GEOSLIB_API int simtub(Db *dbin,
+                       Db *dbout,
+                       Model *model,
+                       Neigh *neigh = nullptr,
+                       int nbsimu = 1,
+                       int seed = 43431,
+                       int nbtuba = 100,
+                       int flag_check = 0,
+                       NamingConvention namconv = NamingConvention("Simu"));
+GEOSLIB_API int simpgs(Db *dbin,
+                       Db *dbout,
+                       Db *dbprop,
+                       Rule *rule,
+                       Model *model1,
+                       Model *model2,
+                       Neigh *neigh,
+                       const VectorDouble& propcst = VectorDouble(),
+                       int nbsimu = 1,
+                       int seed = 1321421,
+                       int flag_stat = true,
+                       int flag_gaus = false,
+                       int flag_prop = false,
+                       int flag_check = false,
+                       int flag_show = false,
+                       int nbtuba = 100,
+                       int nboot = 10,
+                       int niter = 100,
+                       double percent = 5.,
+                       double gibbs_eps = 1.e-3,
+                       double delta = 1.,
+                       NamingConvention namconv = NamingConvention(String()));
+GEOSLIB_API int simpgs_spde(Db *dbin,
+                            Db *dbout,
+                            Db *dbprop,
+                            Rule *rule,
+                            Model *model1,
+                            Model *model2,
+                            const VectorDouble& propcst,
+                            const String& triswitch,
+                            const VectorDouble& gext,
+                            int flag_stat,
+                            int flag_gaus,
+                            int flag_modif,
+                            int flag_check,
+                            int flag_show,
+                            int nfacies,
+                            int seed,
+                            int nbsimu,
+                            int gibbs_nburn,
+                            int gibbs_niter,
+                            int ngibbs_int,
+                            int verbose,
+                            double percent);
+GEOSLIB_API Db *db_read_csv(const char *file_name,
+                            int verbose = 0,
+                            int flag_header = 1,
+                            int nskip = 0,
+                            ENUM_LOAD_DATA order = LOAD_BY_SAMPLE,
+                            const char *char_sep = ",",
+                            const char *char_dec = ".",
+                            const char *na_string = "NA",
+                            int ncol_max = -1,
+                            int nrow_max = -1,
+                            int flag_add_rank = 0);
+GEOSLIB_API int db_write_csv(Db *db,
+                             const char *filename,
+                             int flag_header = 1,
+                             int flag_allcol = 1,
+                             int flag_coor = 1,
+                             bool flag_integer = false,
+                             const char *char_sep = ",",
+                             const char *na_string = "NA");
+
+#endif

@@ -1,0 +1,34 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#pragma once
+
+#include "Covariances/ACovFunc.hpp"
+
+class CovContext;
+
+class CovBesselJ : public ACovFunc
+{
+public:
+  CovBesselJ(const CovContext& ctx);
+  CovBesselJ(const CovBesselJ &r);
+  CovBesselJ& operator= (const CovBesselJ &r);
+  virtual ~CovBesselJ();
+
+  bool         hasParam() const override { return true; }
+  double       getParMax() const override { return 2; }
+
+  virtual String getFormula() const override;
+  String         getCovName() const override { return "J-Bessel"; }
+
+protected:
+  double _evaluateCov(double h) const override;
+};
+

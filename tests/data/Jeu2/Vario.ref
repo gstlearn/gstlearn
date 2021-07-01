@@ -1,0 +1,28 @@
+Vario 
+2 # Space Dimension
+1 # Number of variables
+1 # Number of directions
+1.000000 # Scale
+1 # Calculation Flag
+# Variance
+2.340242 
+# Direction characteristics
+1 # Regular lags
+10 # Number of lags
+0 0.000000 # Code selection: Option - Tolerance
+10.000000 # Lag value
+0.500000 # Tolerance on distance
+90.000000 # Tolerance on angle
+1.000000 0.000000 # Direction coefficients
+1.000000 0.000000 # Direction increments on grid
+# Variogram results (Weight, Distance, Variogram)
+10.000000 3.616352 0.093655 
+66.000000 11.056145 1.880086 
+119.000000 19.931699 2.077629 
+154.000000 30.104419 2.927806 
+184.000000 40.086197 2.395111 
+183.000000 50.292697 2.531089 
+191.000000 60.046806 2.472563 
+166.000000 69.449982 2.344290 
+105.000000 79.707191 2.408900 
+82.000000 89.813644 2.300088 

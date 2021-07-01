@@ -1,0 +1,23 @@
+This file contains the logs between consecutive releases
+********************************************************
+
+Release 0.0.2
+==============
+
+New functions :
+---------------
+
+Modification in functions :
+---------------------------
+
+Bug Fixes :
+-----------
+
+
+Release 0.0.1
+==============
+
+This is the first version of the 'gstlearn' C++ Library!
+Previous changes are listed in the CHANGELOG file of the Geoslib Library (its ancestor).
+For more details, please look at config/CHANGELOG.Geoslib.
+

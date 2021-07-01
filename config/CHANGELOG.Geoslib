@@ -1,0 +1,738 @@
+This file contains the Logs between consecutive releases
+********************************************************
+
+Release 12.1.1
+==============
+
+New functions :
+---------------
+
+Modification in functions :
+---------------------------
+- Correction in kribayes for multivariate aspect.
+
+Release 12.1.0
+==============
+
+New architecture :
+------------------
+- Major refactoring
+
+
+Release 12.0.1
+==============
+
+New architecture :
+------------------
+- pygeostats and rgeostats wrapper now are standalone (no more dependency to libgeoslib.so)
+
+Modification in functions :
+---------------------------
+- printing in python does not add an extra new line anymore
+
+Release 12.0.0
+==============
+
+New targets in Makefiles :
+--------------------------
+- Big source code refactoring
+- pygeostats (swig)
+- rgeostats (swig) which is different from RGeostats package (Rcpp)
+- old_pygeos (deprecated)
+
+Modification in functions :
+---------------------------
+db_multstat: calculation of experimental Metal Quantity
+
+Release 11.2.6
+==============
+
+New architecture :
+------------------
+A new class: Rotation
+A new class organization has been installed for Meshing
+Add a MeshFactory()
+
+Modification in functions :
+---------------------------
+polygon_inside: allow the new flag-nested option
+OptimCostSeismic: Modification in minimize function
+pca.print: Change the explanations for matrices pcaz2f and pcaf2z
+db_grid_patch: Additional features
+Major corrections in PCA functions.
+gridcell_neigh(): This function now calculates the indices of the cells surrounding a target cell, for any size of the dilation radius
+When deleting an attribute (db_attribute_del), the corresponding name is now also
+deleted.
+The following functions have disappeared: 
+- db_vector_get_col(): Use db_vector_get_att() instead
+- db_vector_get_col_sel(): Use db_vector_get_att_sel() instead
+- db_vector_get_col_sel_compress(): Use db_vector_get_att_sel_compress() instead
+- db_vector_put_col(): Use db_vector_put_att() instead
+- db_vector_put_col_sel(): Not used
+- db_sample_get_col(): Use db_sample_get_att() instead
+- db_sample_put_col(): Use db_sample_put_att() instead
+- db_column_init(): Not used
+
+db_sample_add(): extra argument for setting the default value to added samples
+The new Db (in C) contains the variable names
+krige*: Possibility to handle support on Data
+simtub: Renaming the 1-D process generators with genuine names
+spde: Correction (may be not final) for correcting spde on sphere
+db_normalize: Add the operator 'scal'
+Normalization of name convention for meshing functions + meshing in 1D added
+Modification in the prototype of the external covariance function
+law_exp_sample: Adding the way data are stored and constraints
+Adding possibility of log-transform for variogram calculation
+	
+New functions :
+---------------
+cs_matvecnorm_inplace: Same as cs_matvecnorm without any core allocation
+db_distance_polygon: To calculate the distance between a Db and a Polygon
+csv_table_read: To read a table encoded in a CSV file
+db_name_identify: which returns the rank of the attribute given its name
+spde_eval: new function
+set_last_message: to store a string in an array of messages
+print_last_message: to print the array of messages
+Adding new operators from N. Desassis
+db_grid2point_sampling to sample a fine grid by cell
+expand_point_to_coor: Export variable from a Point Db in a set of coordinates
+law_exp_sample: To Sample an experimental multivariate distribution
+db_grid_read_f2g: Function to read Flumy F2G grid files
+db_grid_patch: Patch a variable of a sub-grid within a compatible main grid
+db_grid_print: Print the grid characteristics
+	
+Bug Fixes :
+-----------
+spde: Memory leak in non-stationary case (array 'blin')
+db.distance: problem with large Db, even with few active samples
+db_read_format: Correcting CSV reading when na_string is an empty string
+db_grid_define_coordinates: The function did not pay attention to rotation
+The names are now associated to Columns (rather than to Attribute). This avoids
+a major crash when deleteing attributes.
+spde: Several fixes:
+	- Correction of a Memory leak
+	- Possibility to create a sparse matrix from R via arguments
+Correction of the SEGV when running krigtest
+Kriging: The extraction of a cov or drift component did not function. Corrected
+Xvalid: When using flag.xvalid=2, the cross-validation was not operating correctly (the data was not removed).
+SPDE: The bug (which specifically crashed the Windows version) has been fixed
+tokens_free: Correct (small) memory leak
+manage_pgs: Function has been corrected.
+Meshing: Correction in ranking when using the Turbo Meshing
+	
+Release 11.2.5
+==============
+
+Modification in functions :
+---------------------------
+	
+Bug Fixes :
+-----------
+Corrections of syntax for writing "%" on windows
+	
+Release 11.2.4
+==============
+
+Modification in functions :
+---------------------------
+cluster: Ajout de modules de classification
+	
+Bug Fixes :
+-----------
+
+
+Release 11.2.3
+==============
+
+Modification in functions :
+---------------------------
+
+Bug Fixes :
+-----------
+
+
+Release 11.2.2
+==============
+
+Modification in functions :
+---------------------------
+
+Bug Fixes :
+-----------
+
+
+Release 11.2.1
+==============
+
+Bug Fixes :
+-----------
+- Fix SPDE non conditional simulation under Windows
+
+
+Release 11.2.0
+==============
+	
+Modification in functions :
+---------------------------
+spde: possibility to simulate nugget effect
+	
+New functions :
+---------------
+Adding the VTK printout facility
+Adding a test for non-conditional simulation using SPDE
+	
+Bug Fixes :
+-----------
+
+Release 11.1.2
+==============
+	
+Modification in functions :
+---------------------------
+
+New functions :
+---------------
+
+Bug Fixes :
+-----------
+
+Release 11.1.1
+==============
+	
+Modification in functions :
+---------------------------
+
+New functions :
+---------------
+
+Bug Fixes :
+-----------
+
+Release 11.1.0
+==============
+	
+Modification in functions :
+---------------------------
+
+New functions :
+---------------
+
+Bug Fixes :
+-----------
+	
+Release 11.0.5
+==============
+	
+Modification in functions :
+---------------------------
+ut_statistics: Possibility to calculate weighted statistics
+Argument 'filnug' added to functions spde(), spde_matrices(), build_Q()
+	
+New functions :
+---------------
+db.diffusion: Calculate the average diffusion coefficient on large scale blocks.
+	Possibility to calculate it along one space direction.
+db_point_init_poisson: To generate points according to a Poisson Process
+db_point_init_poisreg: To generate points according to a Regionalized
+	Poisson Process
+db_point_init_poisthin: To generate points according to a Thinning Poisson
+	Process
+condexp: Calculation of the experimental conditional expectation
+ut_vandercorput: Regular sampling on Sphere
+	
+Bug Fixes :
+-----------
+	
+Release 11.0.4
+==============
+
+Modification in functions :
+---------------------------
+vardir_tab_extract: Always return the location of the Center for Asymetric case	
+model_auto: Adding the possibility to check the validity of the resulting
+	model, in particular if sill matrices are definite positive.
+model.print: Print the matrix of the total sills (if can be calculated)
+	even in the multivariate case.
+kd: It is now called dk().
+stats_point_to_grid: New option for calculating ore and metal quantty
+keypair: The machanism can work with matrices rather than scalar only
+model_auto: Storing the sill matrices in keypair
+	
+New functions :
+---------------
+- A declustering facility has been added with 3 calculation modes.
+- The function forUniform Conditioning (uc)
+- A function to fill the Pascal Triangle
+- Adding TETGEN for computing tetraherons
+- points_to_block to calculate the surface and volume of the Voronoi cells
+	
+Bug Fixes :
+-----------
+- in neigh.input(), the definition of the anisotropic neighbrohood extension
+	was not stored correctly.
+- in neigh_select: Correct the rotation of the neighborhood anisotropic search
+	
+Release 11.0.3
+==============
+
+Modification in functions :
+---------------------------
+	
+New functions :
+---------------
+	
+Bug Fixes :
+-----------
+	
+Release 11.0.2
+==============
+
+Modification in functions :
+---------------------------
+	
+New functions :
+---------------
+string_to_uppercase() and string_to_lowercase() : converts character strings
+	
+Bug Fixes :
+-----------
+	
+Release 11.0.1
+==============
+
+Modification in functions :
+---------------------------
+	
+New functions :
+---------------
+	
+Bug Fixes :
+-----------
+- Corrections in the calculation of experimental covariances.
+	
+Release 11.0.0
+==============
+
+Modification in functions :
+---------------------------
+db_print: Possibility to print the RGeostats variable name (passed as argument)
+manage_external_drift() has been generalized into manage_external_info().
+migrate_point_to_grid() has been strongly optimized
+license: Modification in the license principle.
+	
+New functions :
+---------------
+tessellation_poisson : tessellation according to Poisson polyhedra	
+line_distance: calculation of 2-points distance going though a line
+	
+Bug Fixes :
+-----------
+- db_indicator: correction when flag_indic = FALSE
+- in kd: when the number of factors is not defined, it is defined according to
+	the number of variables (nvar+1).
+	
+Release 10.2.6
+==============
+
+Modification in functions :
+---------------------------
+The arguments opt_code and tolcode have been migrated from vario to vardir.
+Therefore, the following functions have been modified:
+- variogram_init()
+- variogram_direction_add()
+- variogram_extract()
+- vardir_extract()
+	
+New functions :
+---------------
+	
+	
+Bug Fixes :
+-----------
+- correction on the bounds for parameter in K-bessel covariance
+	
+Release 10.2.5
+==============
+
+Modification in functions :
+---------------------------
+Various modificaitons in anam.c
+	
+	
+New functions :
+---------------
+	
+	
+Bug Fixes :
+-----------
+
+Release 10.2.4
+==============
+
+Modification in functions :
+---------------------------
+model_auto: Possibility to perform the fitting with the constraint that there 
+	is at least one intrinsic basic structure in the final model
+
+matrix_invgen: requires an additional output argument (double *cond) to return the condition number (largest abs(eigen value)/lowest abs(eigen value)).
+	
+	
+New functions :
+---------------
+matrix_qoci: minimize 1/2 t(x) %*% H %*% x + t(g) %*% x under the constraints t(Ae) %*% x = be and t(Ai) %*% x = bi.
+	
+	
+Bug Fixes :
+-----------
+
+	
+Release 10.2.3
+==============
+
+
+Release 10.2.2
+==============
+
+Modification in functions :
+---------------------------
+	
+New functions :
+---------------
+	
+Bug Fixes :
+-----------
+kd: Correction in the calculations of esitmation over Panel subdivided into SMUS
+vario_model_pgs() and variogram_pgs(): Bench and cylrad arguments were not 
+	taken into account
+	
+Release 10.2.1
+==============
+
+Modification in functions :
+---------------------------
+model_auto: Possibility to perform the fitting with the constraint that there 
+	is at least one intrinsic basic structure in the final model
+	
+New functions :
+---------------
+	
+Bug Fixes :
+-----------
+
+Release 10.1.5
+==============
+
+Modification in functions :
+---------------------------
+Slicing arguments (bench and radius) have been added to 3 functions:
+variogram_direction_add(), correlation() and vardir_extract()
+- Simbool: many small corrections in the Boolean Simulation procedure
+- Modification in the management of the Tokens structure
+- Adding the calculation of correlation in db_stat()
+- db_create_grid() requires an array of angles rather than a rotation matrix
+	
+New functions :
+---------------
+db_locator_print_list(): Print the list of available locator keywords
+anam_update_point_to_block(): Transform the anamorphosis from Point to Block,
+	given the coefficient of change of support.
+variogram_cloud_ident(): to identify the pairs located within a Polygon
+	digitized from the variogram cloud
+anam_selectivity: calculate theoretical grade-tonnage values
+PCA structure has been implemented
+maf_calcul: function to establish the MAF (PCA-type) calculations
+db_is_isotropic: which tests if the set of variables for a given target sample
+	is isotropic (all variables defined) or not
+matrix_cholesky_norme: calculation based on the Cholesky decomposition
+matrix_eigen_tridiagonal: for calculating the eigen values and vectors based
+	on a non-symmetric tridiagonal real matrix
+	
+Bug Fixes :
+-----------
+- When kriging with Unique Neighborhood a Data with lots of samples,
+	core memory problem happens, even if a severe selection is applied
+	(letting few active samples).
+- In general, when a target has been specified using debug_reference(), the
+	debug option is left ON afterwards, if the target is the last sample
+	to be treated.
+
+Release 10.1.4
+==============
+
+Modification in functions :
+---------------------------
+
+New functions :
+---------------
+
+Bug Fixes :
+-----------
+
+
+Release 10.1.3
+==============
+
+Modification in functions :
+---------------------------
+- surface: the output vector gtab (Dimension: number of grid cells) now contains
+	   the surface of influence of the polygon to which it belongs
+	
+New functions :
+---------------
+	
+Bug Fixes :
+-----------
+
+Release 10.1.2
+==============
+
+Modification in functions :
+---------------------------
+- License message modification
+
+Release 10.1.1
+==============
+
+Modification in functions :
+---------------------------
+- In gibbs(), the method used for the propagation algorithm has been optimized.
+- In regression, possibility to specify the regression using the list of drift
+  components as in the kriging function.	
+	
+New functions :
+---------------
+- bitmap_size(): returns the dimension of an IMAGE
+- bitmap_print(): to print the contents of an IMAGE (0/1 bit array)
+- bitmap_get_value(): to return the value of a bit from an IMAGE
+- bitmap_set_value(): to set the value of a bit within an IMAGE
+- law_random_path: to generate a random path within a set of samples
+	
+Bug Fixes :
+-----------
+- db_limits(): corrected as it functions on an attribute specified by its rank 
+	       rather than a variable
+- migrate_grid_to_grid() and expand_grid_to_grid() have been fixed
+- variogram_calcul: correction in the calculation of the transitive covariogram
+	
+Release 10.1.0
+==============
+
+Modification in functions :
+---------------------------
+- The structure Model has changed in order to save:
+	. the substructure Model_Nostat for handling the non-stationarity
+	. the value theoretical to store the theoretical range value
+	. the array of anisotropy rotation angles (in addition to the matrix)
+- Improvement of the calculation of square matrix determinant.
+- In simtub_c(), the argument func_valid() has one more return code
+- In regression(), arguments have been modified in order to allow multivariate
+	regression.
+- Additional option in morpho_labelling().
+	
+New functions :
+---------------
+- The set of cholesky-based function has been incremented:
+  . matrix_cholesky_to_invert: invert a square matrix starting from its 
+	Cholesky decomposition
+  . matrix_cholesky_invert: invert the lower triangular matrix resulting
+	from the Cholesky decomposition
+- model_calcul_cov_nostat() : to calculate the non-stationary covariance
+    (varying parameters stored in the Db)
+- fracture_to_block: to calculate the permeability induced by a set of fractures
+- db_grid_define_coordinates: to define the coordinates of the grid nodes
+- gibbs_propagatif is implemented
+- model_covmat_nostat() which returns the non-stationary covariance matrix
+- model_vector_nostat() which returns the non-stationary covariance vector
+- migrate_grid_to_grid: to migrate a variable from a Grid Db into a Grid Db
+- expand_grid_to_grid: to fill a variable from a Grid Db into a Grid Db
+	
+Modification in functions :
+---------------------------
+- Major modification (suppressing the working arrays d2, d3 and covwork 
+  [or covwrk]) in the following functions:
+  . model_calcul_basic()
+  . model_calcul_cov()
+  . model_variance0()
+  . model_integral()
+- Modification of model_covtab_init (first argument).
+- Modification of the argument of simtub_constraints() in order to return
+  the percentage of valid simulations already processed.
+- print_matrix: additional parameter to describe how tab argument is sorted
+- matrix_square() to perform B = t(A) %*% A
+- matrix_product_by_diag() to perform B = A %*% diag(c)
+- matrix_linear to perform X = a1 * A + b1 * B
+	
+Bug Fixes :
+-----------
+- A major bug in the calculation of the residuals from the regression has been
+  fixed.
+- A minor error in the fracture_input method.
+- A bug in image filtering when the skip parameter was not equal to 1.
+	
+Release 10.0.1
+==============
+
+New functions :
+---------------
+- Functions for discretization of 2-D surfaces along traces for visualization 
+  along a section
+	
+	
+Modification in functions :
+---------------------------
+- substitution: possibility to define non-stationary desorientation 
+  vector and factor
+	
+	
+Bug Fixes :
+-----------
+- Correction in the calculation of the Poisson variogram
+- Correction in the License creation program to handle Site license correctly
+- Correction in db_locator_set() to recognize the rank of the attribute when
+	the locator name has more than 1 character
+- Correction of the use of intensity during Substitution simulation
+- Correction when creating a Model or a Vario from a buffer string (discovered
+  by ENI)
+	
+Release 10.0.0
+==============
+
+New functions :
+---------------
+- db_extreme_distance_and_z: calculates the sample extreme taking into account
+	the Z_locator variables.
+- substitution: Simulation according to the Substitution Model
+	
+Modification in functions :
+---------------------------
+- the function db_scale() is now called db_stats_grid()
+- in the function variogram_calcul(): some arguments have been added in order
+  to calculate the Unbiased variogram of residuals when fitering a global drift
+- regression: Possibility to use input data from two Db (similar organization)
+- correlation: Possibility to use input data from two Db (similar organization)
+- show Geoslib version in license messages
+	
+Bug Fixes :
+-----------
+- in the case of non-conditional simulations using Turning Bands method, corect
+  by the mean
+- Xvalidation in presence of masked samples or test values
+- in Turning Bands simulation, the angles of the bands are different from one
+  simulation to another one.
+- in Turning Bands simulation, the K-Bessel model is simulated  correctly.
+- in the Regression function, the correlation coefficient has the good sign.
+	
+Release 9.5.3
+==============
+
+New functions :
+---------------
+- mlayers: Multi-Layers estimation
+	
+Modification in functions :
+---------------------------
+	
+Bug Fixes :
+-----------
+- migrate: Set to FFFF the result for samples located outside the grid
+- model_auto: Modify the initial status (for range detection) by suppressing
+	the impact of the nugget effect basic structure
+	
+Release 9.5.2
+==============
+
+New functions :
+---------------
+- regiter_license now becomes register_license_key
+- register_license_file is added
+- inquire_Geoslib: returns the Library release and date as array of characters
+	
+Modification in functions :
+---------------------------
+- setup_license: now better described and allowing definition of the complete
+  pass to the License File using the environment variable GEOSLIB_LICENSE 
+  on LINUX machines.
+- anam_fit_hermitian: possibility to handle the weight in the anamorphosis 
+  fitting procedure.
+	
+Bug Fixes :
+-----------
+	
+Release 9.5.1
+==============
+
+New functions :
+---------------
+- model_get_field: to return the field parameter from a Model structure
+	
+Modification in functions :
+---------------------------
+	
+Bug Fixes :
+-----------
+- ascii_model_read_buffer: Crash when buffer was incomplet
+	
+Release 9.4.0
+==============
+
+New functions :
+---------------
+- Possibility to handle SITE License (do not pay attention to activation code)
+- Simulation under constraints (For ENI)
+- Reading and Writing Fracture neutral files
+- ascii_vario_read_buffer and ascii_vario_write_buffer to read/write variogram
+  via a buffer
+- ascii_model_read_buffer and ascii_model_write_buffer to read/write model
+  via a buffer
+	
+Modification in functions :
+---------------------------
+- regression: adding the output of the correlation coefficient between response
+              and regression variable(s)
+- vardir_tab_extract: it now also returns an array containing the rank of lag.
+	
+Bug Fixes :
+-----------
+
+Release 9.3.0
+==============
+
+New functions :
+---------------
+- get_ICOL: Reads one column of a sample
+- set_ICOL: Writes one column of a sample
+- interpolate_grid_to_point: Interpolation
+- vardir_dimension: To return the dimension of the variogram arrays
+- vardir_tab_extract: To extract the variogram arrays (sw, gg and hh)
+- model.dimension: To return the number of basic structures
+- db.extreme_dimensions: To calculate the minimum and maximum distances between 
+  samples within a Db
+- model_scale2range: to convert the theoretical range to practical range
+- structure_has_range: to check if a given basic structure has range or not
+- anam_define_z2y : to define the external function for gaussian transform Z->Y
+- anam_define_y2z : to define the external function for gaussian transform Y->Z
+- The structure Dir from Vario has been slightly modified: the additional array
+  'utilize' is only used internally.
+- law_poisson() to simulate a value according to Poisson law
+	
+Modification in functions :
+---------------------------
+- Use ENUM_LOAD_DATA in db_create*
+- model_calcul_cov: The weight is passed as an additional argument
+- in global(calcul="krige"): print the Lagrange parameter(s)
+- in simtub for STABLE model: change it into Exponential if param is close to
+	and to Gaussian is param is close to 2
+- Adding the trace arguments to variogram_pgs.c
+- variogram_calcul: possibility to account for Variance of Measurement Error
+  (Due to ENI, under specific license)
+- the function correlation() returns the value of the correlation factor
+- function anam_init() contains the type of anamorphosis as argument
+- function anam_fit() is repaced by anam_fit_hermitian()
+	
+Bug Fixes :
+-----------
+- migrate_point_to_grid: Correction of the algorithm
+- display of covariance is corrected
+- correction of the Cvv calculation in global
+- correction of the calculation of db_extension_epsilon()
+- correction of the display of theoretical ranges (anisotropic case)

@@ -1,0 +1,13 @@
+Db 
+0 # File organization (0:Points; 1:Grid)
+3 # Number of variables
+# Locators
+x1 x2 z1 
+# Names
+x1 x2 z1 
+# Array of values
+10.000000 20.000000 0.000000 
+21.000000 30.000000 0.000000 
+40.000000 20.000000 1.000000 
+50.000000 30.000000 2.000000 
+50.000000 50.000000 1.000000 

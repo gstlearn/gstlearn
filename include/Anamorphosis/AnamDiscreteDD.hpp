@@ -1,0 +1,65 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#pragma once
+
+#include "Anamorphosis/AnamDiscrete.hpp"
+#include "Basic/Vector.hpp"
+#include "Stats/PCA.hpp"
+
+class AnamDiscreteDD: public AnamDiscrete
+{
+
+private:
+  double _mu;
+  double _sCoef;
+  PCA    _maf;
+  VectorDouble _i2Chi;
+
+public:
+  AnamDiscreteDD();
+  AnamDiscreteDD(const AnamDiscreteDD &m);
+  AnamDiscreteDD& operator= (const AnamDiscreteDD &m);
+  virtual ~AnamDiscreteDD();
+
+  void setNCut(int ncut) override;
+  void setZCut(const VectorDouble& zcut) override;
+
+  int  fit(const VectorDouble& tab, int verbose=0);
+  void calculateMeanAndVariance() override;
+  virtual String toString(int level) const override;
+  VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const override;
+  VectorDouble factors_exp(int verbose);
+  VectorDouble factors_maf(int verbose);
+  VectorDouble factors_mod();
+  VectorDouble chi2I(const VectorDouble& chi, int mode);
+
+  PCA& getMAF() { return _maf; }
+  double getMu() const { return _mu; }
+  double getSCoef() const { return _sCoef; }
+  const VectorDouble& getI2Chi() const { return _i2Chi; }
+  VectorDouble getPcaZ2F() const { return _maf.getZ2F(); }
+  VectorDouble getPcaF2Z() const { return _maf.getF2Z(); }
+
+  void setMu(double mu) { _mu = mu; }
+  void setSCoef(double scoef) { _sCoef = scoef; }
+  void setPcaZ2F(VectorDouble pcaz2f) { _maf.setPcaZ2F(pcaz2f); }
+  void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
+  void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
+
+private:
+  int _stats(int nech, const VectorDouble& tab);
+  VectorDouble _generator(const VectorDouble& vecc,
+                          const VectorDouble& veca,
+                          const VectorDouble& vecb,
+                          VectorDouble& eigvec,
+                          VectorDouble& eigval);
+  void _lambda_to_mul();
+};

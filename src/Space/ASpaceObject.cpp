@@ -1,0 +1,105 @@
+#include "Space/ASpaceObject.hpp"
+#include "Space/ASpace.hpp"
+#include "Space/SpaceRN.hpp"
+#include "Space/SpaceSN.hpp"
+#include "Basic/Tensor.hpp"
+
+#include "Basic/AException.hpp"
+
+#include <iostream>
+
+ASpace* ASpaceObject::_globalSpace = nullptr;
+
+ASpaceObject::ASpaceObject(const ASpace* space)
+: _space(space) /// TODO : ASpace shared pointer
+{
+  if (nullptr == _space)
+    _space = getGlobalSpace();
+}
+
+ASpaceObject::ASpaceObject(const ASpaceObject& r)
+: _space(r._space) /// TODO : ASpace shared pointer
+{
+
+}
+ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
+{
+  if (this != &r)
+  {
+    /// TODO : ASpace shared pointer
+    _space = r._space;
+  }
+  return *this;
+}
+
+ASpaceObject::~ASpaceObject()
+{
+}
+
+const ASpace* ASpaceObject::createGlobalSpace(SpaceType type,
+                                              unsigned int ndim,
+                                              double param)
+{
+  if (nullptr != _globalSpace)
+  {
+    delete _globalSpace;
+  }
+  switch (type)
+  {
+    case SPACE_SN:
+    {
+      _globalSpace = new SpaceSN(ndim, param);
+      break;
+    }
+    case SPACE_RN:
+    {
+      _globalSpace = new SpaceRN(ndim);
+      break;
+    }
+    default:
+    {
+      my_throw("Unknown space type!");
+    }
+  }
+  return _globalSpace;
+}
+
+const ASpace* ASpaceObject::getGlobalSpace()
+{
+  if (nullptr == _globalSpace)
+  {
+    std::cout << "Creating default global space: SpaceRN 2D..." << std::endl;
+    std::cout << "Call ASpaceObject::createGlobalSpace to avoid this message!" << std::endl;
+    createGlobalSpace(SPACE_RN, 2);
+  }
+  return _globalSpace;
+}
+
+VectorDouble ASpaceObject::getUnitaryVector() const
+{
+  VectorDouble uni;
+  uni.resize(getNDim(), 0.);
+  uni[0] = 1;
+  return uni;
+}
+
+unsigned int ASpaceObject::getNDim() const
+{
+  return (getSpace()->getNDim());
+}
+
+const SpacePoint& ASpaceObject::getOrigin() const
+{
+  return (getSpace()->getOrigin());
+}
+
+double ASpaceObject::getDistance(const SpacePoint& p1, const SpacePoint& p2) const
+{
+  return (getSpace()->getDistance(p1, p2));
+}
+
+VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& p2) const
+{
+  return (getSpace()->getIncrement(p1, p2));
+}
+
