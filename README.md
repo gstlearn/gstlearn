@@ -1,5 +1,6 @@
 ## Overview
-*gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paristech - PSL University.
+*gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paristech - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
+Copyright (c) MINES Paristech / PSL University
 
 The name 'gstlearn' stands for several purposes:
   * GeoSTatistics & Machine Learning toolbox
