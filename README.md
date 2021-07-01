@@ -19,7 +19,7 @@ For using (compiling) this Library, the following tools must be available (See r
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
   * [Git](https://git-scm.com/downloads) client
-  * Following environment variable must be set:
+  * Following environment variables must be set:
       + ARCH to one of this: {linux, macosx, windows} and
       + WIN_TYPE (windows only) to one of {32, 64} 
   
