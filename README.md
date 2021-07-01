@@ -15,7 +15,7 @@ The name 'gstlearn' stands for several purposes:
 The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats)
 
 ## Requirements
-For using (compiling) this Library, the following tools must be available (See required tools installation instructions below):
+For using (compiling) *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
   * [Git](https://git-scm.com/downloads) client
