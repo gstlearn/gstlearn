@@ -5,7 +5,6 @@ doxygen/html
 doxygen/xml
 .project
 .cproject
-.pydevproject
 .settings
 core
 
