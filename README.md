@@ -7,8 +7,8 @@ The name 'gstlearn' stands for several purposes:
   * Learning Geosciences & Spatio-Temporal Models
 
 *gstlearn* comes in different forms:
-  * A C++ Library (this repository): https://github.com/gstlearn/gstlearn
-  * A Python Package: https://github.com/gstlearn/pygstlearn
+  * A C++ Library (this repository): [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
+  * A Python Package: [https://github.com/gstlearn/pygstlearn](https://github.com/gstlearn/pygstlearn)
   * A R Package: TODO: coming soon (meanwhile, you may use [RGeostats R package](http://cg.ensmp.fr/rgeostats))
 
 ## References
@@ -18,8 +18,10 @@ The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library 
 For using (compiling) this Library, the following tools must be available (See required tools installation instructions below):
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
-  * [Git](https://git-scm.com/downloads) client (only if your are installing from source)
-  * Following environment variable must be set: ARCH to one of this: {linux, macosx, windows} and WIN_TYPE (windows only) to one of {32, 64} 
+  * [Git](https://git-scm.com/downloads) client
+  * Following environment variable must be set:
+      + ARCH to one of this: {linux, macosx, windows} and
+      + WIN_TYPE (windows only) to one of {32, 64} 
   
 ## Library compilation
 Cloning the repository and compiling
