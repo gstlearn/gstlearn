@@ -3,7 +3,7 @@
 Copyright (c) MINES Paristech / PSL University
 
 The name 'gstlearn' stands for several purposes:
-  * GeoSTatistics & Machine Learning toolbox
+  * GeoSTatistics & Machine Learning Library
   * Geostatistical Spatio-Temporal Learning
   * Learning Geosciences & Spatio-Temporal Models
 
@@ -21,13 +21,13 @@ For using (compiling) *gstlearn* C++ Library, the following tools must be availa
   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
   * [Git](https://git-scm.com/downloads) client
   * Following environment variables must be set:
-      + ARCH to one of this: {linux, macosx, windows} and
+      + ARCH to one of this: {linux64, macosx, windows} and
       + WIN_TYPE (windows only) to one of {32, 64} 
   
 ## Library compilation
 Cloning the repository and compiling
 ```sh
-git clone https://github.com/gstlearn/gstlearn
+git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 make gstlearn
 ```
