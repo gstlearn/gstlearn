@@ -20,9 +20,11 @@ For using (compiling) *gstlearn* C++ Library, the following tools must be availa
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
   * [Git](https://git-scm.com/downloads) client
+  * [Boost](https://www.boost.org/users/download) library (MacOS and Windows)
   * Following environment variables must be set:
       + ARCH to one of this: {linux64, macosx, windows} and
-      + WIN_TYPE (windows only) to one of {32, 64} 
+      + WIN_TYPE (Windows only) to one of {32, 64}
+      + BOOST_DIR (MacOS and Windows only) to the Boost library root folder (See below)
   
 ## Library compilation
 Cloning the repository and compiling
@@ -57,6 +59,7 @@ Download and install the following tools:
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (installed in the directory *C:\\doxygen* for example)
   * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below)
   * Git client [from here](https://gitforwindows.org)
+  * Boost Library [from here](https://www.boost.org/users/download) (download and extract the zip file anywhere)
   
 Notes:
   * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (1,4Go!) (more details [here](https://stackoverflow.com/a/44398715))
