@@ -38,6 +38,7 @@ CovGCspline::~CovGCspline()
 
 double CovGCspline::_evaluateCov(double h) const
 {
+	// Defining some constant values
   int ndim = getContext().getNDim();
   double r = getContext().getField();
   double r2 = r * r;
