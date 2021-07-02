@@ -38,7 +38,6 @@ CovGCspline2::~CovGCspline2()
 
 double CovGCspline2::_evaluateCov(double h) const
 {
-	// Defining some constant values
   double B = 1.;
   double A = (7. - 10. * B) / 12.;
   double C = (-7. - 2. * B) / 12.;
