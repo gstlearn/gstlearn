@@ -52,10 +52,10 @@ double CovGaussian::_evaluateCov(double h) const
 double CovGaussian::_evaluateCovDerivate(int degree, double h) const
 {
   static double MAX_EXP2 = 10.;
-  double cov, r2;
   if (h > MAX_EXP2) return (0.);
-  r2 = h * h;
+  double r2 = h * h;
 
+  double cov = 0.;
   switch (degree)
   {
     case 1:   // First order derivative

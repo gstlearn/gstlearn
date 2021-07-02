@@ -1,8 +1,9 @@
 ## Overview
-*gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paristech - PSL University.
+*gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paristech - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
+Copyright (c) MINES Paristech / PSL University
 
 The name 'gstlearn' stands for several purposes:
-  * GeoSTatistics & Machine Learning toolbox
+  * GeoSTatistics & Machine Learning Library
   * Geostatistical Spatio-Temporal Learning
   * Learning Geosciences & Spatio-Temporal Models
 
@@ -15,18 +16,18 @@ The name 'gstlearn' stands for several purposes:
 The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats)
 
 ## Requirements
-For using (compiling) this Library, the following tools must be available (See required tools installation instructions below):
+For using (compiling) *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
   * [Git](https://git-scm.com/downloads) client
-  * Following environment variable must be set:
-      + ARCH to one of this: {linux, macosx, windows} and
+  * Following environment variables must be set:
+      + ARCH to one of this: {linux64, macosx, windows} and
       + WIN_TYPE (windows only) to one of {32, 64} 
   
 ## Library compilation
 Cloning the repository and compiling
 ```sh
-git clone https://github.com/gstlearn/gstlearn
+git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 make gstlearn
 ```

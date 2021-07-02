@@ -38,14 +38,15 @@ CovGCspline::~CovGCspline()
 
 double CovGCspline::_evaluateCov(double h) const
 {
-  double cov;
-
+	// Defining some constant values
   int ndim = getContext().getNDim();
   double r = getContext().getField();
   double r2 = r * r;
   double h2 = h * h;
   double logval = (r < 10.e-5 || h < r * 10.e-5) ? 0. : log(h / r);
 
+  // Code for the first 3 Space dimensions
+  double cov = 0.;
   if (ndim == 1)
     cov = 0.5 * r2 - h2 * (1.5 - log(2) - logval);
   else if (ndim == 2)
