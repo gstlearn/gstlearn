@@ -3,7 +3,7 @@
 Copyright (c) MINES Paristech / PSL University
 
 The name 'gstlearn' stands for several purposes:
-  * GeoSTatistics & Machine Learning toolbox
+  * GeoSTatistics & Machine Learning Library
   * Geostatistical Spatio-Temporal Learning
   * Learning Geosciences & Spatio-Temporal Models
 
