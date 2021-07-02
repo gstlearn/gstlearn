@@ -27,7 +27,7 @@ For using (compiling) *gstlearn* C++ Library, the following tools must be availa
 ## Library compilation
 Cloning the repository and compiling
 ```sh
-git clone https://github.com/gstlearn/gstlearn
+git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 make gstlearn
 ```
