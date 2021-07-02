@@ -51,13 +51,12 @@ double CovGCspline2::_evaluateCov(double h) const
 
 double CovGCspline2::_evaluateCovDerivate(int degree, double h) const
 {
-  double h2, cov, logval, B, C;
-  B = 1.;
-  C = (-7. - 2. * B) / 12.;
+  double B = 1.;
+  double C = (-7. - 2. * B) / 12.;
+  double h2 = h * h;
+  double logval = (h < 10.e-5) ? 0. : log(h);
 
-  h2 = h * h;
-  logval = (h < 10.e-5) ? 0. : log(h);
-
+  double cov = 0.;
   switch (degree)
   {
     case 1:
