@@ -88,7 +88,7 @@ int Chebychev::_countCoeffs(std::function<double(double)> f,double x,double a,do
 {
   double y, y0, T1, Tx, Tm1, Tm2;
 
-  /* Get the true value */
+  /* Get the true value  */
 
   y0 = f(x);
 
