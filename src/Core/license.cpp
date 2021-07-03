@@ -24,6 +24,8 @@
  * \remarks The name of the License File can also be passed using the
  * \remarks Environment Variable GEOSLIB_LICENSE (on LINUX system only)
  *
+ * \remarks This fnction should become deprecated soon
+ *
  ****************************************************************************/
 GEOSLIB_API int setup_license(const char *target_name)
 {
