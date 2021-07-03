@@ -591,21 +591,6 @@ GEOSLIB_API void set_IDIM(Db *db, int iech, int idim, double value)
 
 /****************************************************************************/
 /*!
- **  Returns the number of variables in the Db
- **
- ** \return  Number of variables
- **
- ** \param[in]  db Db descriptor
- **
- *****************************************************************************/
-GEOSLIB_API int get_NVAR(Db *db)
-{
-  if (db == (Db *) NULL) return (0);
-  return db->getVariableNumber();
-}
-
-/****************************************************************************/
-/*!
  **  Writes one gradient of a sample
  **
  ** \param[in]  db     Db structure
