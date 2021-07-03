@@ -731,7 +731,7 @@ GEOSLIB_API int spill_point(Db      *dbgrid,
     messerr("The Fluid Propagation is restricted to regular grid");
     return(1);
   }
-  if (get_NDIM(dbgrid) != 2)
+  if (dbgrid->getNDim() != 2)
   {
     messerr("Spill point is limited to 2-D space");
     return(1);

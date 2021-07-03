@@ -84,7 +84,7 @@ int NoStatArray::attachMesh(Db* db, const AMesh* mesh, bool verbose)
     messerr("Db must be defined");
     return 1;
   }
-  int ndim = get_NDIM(db);
+  int ndim = db->getNDim();
   int flag_grid = is_grid(db);
   int npar = getNoStatElemNumber();
 

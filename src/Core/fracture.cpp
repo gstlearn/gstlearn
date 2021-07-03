@@ -2146,13 +2146,13 @@ GEOSLIB_API int fracture_to_block(Db           *dbgrid,
     messerr("The Db file must be organized as a regular Grid");
     goto label_end;
   }
-  if (get_NDIM(dbgrid) != 2)
+  if (dbgrid->getNDim() != 2)
   {
     messerr("This application is limited to 2-D grid");
     goto label_end;
   }
   dmin = 1.e30;
-  for (idim=0; idim<get_NDIM(dbgrid); idim++)
+  for (idim=0; idim<dbgrid->getNDim(); idim++)
   {
     if (get_DX(dbgrid,idim) < dmin) dmin = get_DX(dbgrid,idim);
   }
@@ -2429,13 +2429,13 @@ GEOSLIB_API int fracture_well_to_block(Db           *dbgrid,
     messerr("The Db file must be organized as a regular Grid");
     goto label_end;
   }
-  if (get_NDIM(dbgrid) != 2)
+  if (dbgrid->getNDim() != 2)
   {
     messerr("This application is limited to 2-D grid");
     goto label_end;
   }
   dmin = 1.e30;
-  for (idim=0; idim<get_NDIM(dbgrid); idim++)
+  for (idim=0; idim<dbgrid->getNDim(); idim++)
   {
     if (get_DX(dbgrid,idim) < dmin) dmin = get_DX(dbgrid,idim);
   }

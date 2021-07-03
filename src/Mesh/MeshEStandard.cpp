@@ -115,12 +115,12 @@ int MeshEStandard::create(Db*                 dbin,
   // Discover the space dimension
   int ndim = 0;
   if (dbin != NULL)
-    ndim = get_NDIM(dbin);
+    ndim = dbin->getNDim();
   if (dbout != NULL)
   {
-    if (ndim > 0 && ndim != get_NDIM(dbout))
+    if (ndim > 0 && ndim != dbout->getNDim())
       my_throw("'dbin' and 'dbout' are both defined but with different 'ndim'");
-    ndim = get_NDIM(dbout);
+    ndim = dbout->getNDim();
   }
   setNDim(ndim);
 

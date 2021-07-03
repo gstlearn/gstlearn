@@ -3954,7 +3954,7 @@ static int st_alter_vmap_optvar(Db         *dbmap,
 
   optvar.setAuthAniso(1);
   optvar.setAuthRotation(1);
-  optvar.setLockNo3d(get_NDIM(dbmap) <= 2);
+  optvar.setLockNo3d(dbmap->getNDim() <= 2);
 
   /* Case when properties are defined: Goulard is switch off */
 
@@ -4349,7 +4349,7 @@ static void st_vmap_varchol_manage(Db *dbmap,
 
   /* Initializations */
 
-  nvar  = get_NVAR(dbmap);
+  nvar  = dbmap->getVariableNumber();
   size  = nvar * (nvar+1) /  2;
   nvar2 = nvar * nvar;
   
@@ -4802,10 +4802,10 @@ static int st_vmap_auto_count(Db         *dbmap,
   
   /* Check the number of Variogram Maps */
 
-  if (nvar * (nvar+1) / 2 != get_NVAR(dbmap))
+  if (nvar * (nvar+1) / 2 != dbmap->getVariableNumber())
   {
     messerr("The number of items in the Db Grid for Variogram maps (%d)",
-            get_NVAR(dbmap));
+            dbmap->getVariableNumber());
     messerr("is not compatible with the number of variables in the Model (%d)",
             nvar);
     return(-1);
@@ -4919,7 +4919,7 @@ static void st_load_vmap(int     npadir,
   /* Initializations */
 
   nech = get_NECH(DBMAP);
-  nvar = get_NVAR(DBMAP);
+  nvar = DBMAP->getVariableNumber();
   nvs2  = nvar  * (nvar + 1) /2;
   db_index_sample_to_grid(DBMAP,nech/2,INDG1);
   
@@ -5003,10 +5003,10 @@ GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
     goto label_end;
   }
   nvar = model->getVariableNumber();
-  if (nvar != get_NVAR(dbmap))
+  if (nvar != dbmap->getVariableNumber())
   {
     messerr("Number of variables in Db (%d) must match the one in Model (%d)",
-            model->getVariableNumber(),get_NVAR(dbmap));
+            model->getVariableNumber(),dbmap->getVariableNumber());
     goto label_end;
   }
   if (! FFFF(mauto.getConstantSillValue()))

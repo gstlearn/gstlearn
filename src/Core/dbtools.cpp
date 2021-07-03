@@ -1689,11 +1689,7 @@ GEOSLIB_API int db_grid_fill(Db *dbgrid,
     messerr("This function is limited to Grid Db");
     return (1);
   }
-  if (get_NVAR(dbgrid) != 1)
-  {
-    messerr("This function requires the definition of a single variable");
-    return (1);
-  }
+  if (! dbgrid->isVariableNumberComparedTo(1)) return(1);
   ndim = dbgrid->getNDim();
   if (ndim > 3)
   {
@@ -4147,7 +4143,7 @@ static VectorDouble st_point_init_poisreg(int verbose,
     messerr("This function requires the Db organized as a grid");
     goto label_end;
   }
-  if (get_NVAR(dbgrid) < 1)
+  if (dbgrid->isVariableNumberComparedTo(0))
   {
     messerr("This function requires the density to be defined in the Db");
     goto label_end;
@@ -4506,11 +4502,7 @@ GEOSLIB_API int db_gradient_components(Db *dbgrid)
     messerr("The Db should be organized as a Grid");
     goto label_end;
   }
-  if (get_NVAR(dbgrid) != 1)
-  {
-    messerr("This function requires a single Z-variable to be defined");
-    goto label_end;
-  }
+  if (! dbgrid->isVariableNumberComparedTo(1)) goto label_end;
   if (ndim > 3)
   {
     messerr("This function is limited to Space Dimension <= 3");
@@ -5200,7 +5192,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
     return (dbnew);
   }
 
-  if (get_NVAR(db) < 1)
+  if (db->isVariableNumberComparedTo(0))
   {
     messerr("You should define some Z-variables in input 'db'");
     return (dbnew);
@@ -5209,7 +5201,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
   // Core allocation 
 
   nz = get_NX(dbgrid, 2);
-  nvar = get_NVAR(db);
+  nvar = db->getVariableNumber();
   ndim = db->getNDim();
   size = ndim + nvar + 1;
 

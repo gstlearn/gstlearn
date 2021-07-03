@@ -579,7 +579,7 @@ GEOSLIB_API int db_stats_grid(Db           *db,
   indg  = indg0 = (int    *) NULL;
   coor  = medtab = (double *) NULL;
   nxyz  = dbgrid->getSampleNumber();
-  ndim  = get_NDIM(dbgrid);
+  ndim  = dbgrid->getNDim();
   count = (int) pow(2. * radius + 1.,(double) ndim);
 
   /* Preliminary check */
@@ -1242,7 +1242,7 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(dbin);
+  ndim = dbin->getNDim();
   if (ndim != 2 && ndim != 3)
   {
     messerr("This function is limited to 2-D or 3-D input grids");
@@ -1260,12 +1260,7 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
     messerr("The 1-D output grid does not match input grid");
     goto label_end;
   }
-  if (get_NVAR(dbin) != 1)
-  {
-    messerr("This function is designed for the monovariate case (nvar=%d)",
-            get_NVAR(dbin));
-    goto label_end;
-  }
+  if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Core allocation */
 
@@ -1365,7 +1360,7 @@ GEOSLIB_API int stats_transition(Db     *dbin,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(dbin);
+  ndim = dbin->getNDim();
   if (ndim != 2 && ndim != 3)
   {
     messerr("This function is limited to 2-D or 3-D input grids");
@@ -1383,12 +1378,7 @@ GEOSLIB_API int stats_transition(Db     *dbin,
     messerr("The 1-D output grid does not match input grid");
     goto label_end;
   }
-  if (get_NVAR(dbin) != 1)
-  {
-    messerr("This function is designed for the monovariate case (nvar=%d)",
-            get_NVAR(dbin));
-    goto label_end;
-  }
+  if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Core allocation */
 
@@ -1497,7 +1487,7 @@ static double st_extract_subgrid(int     verbose,
 
   /* Initializations */
 
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   VectorInt iwork2(ndim);
   for (int i=0; i<ntot; i++)
   {
@@ -2015,7 +2005,7 @@ static int st_is_subgrid(int  verbose,
 
   /* Initializations */
 
-  ndim = get_NDIM(dbgrid1);
+  ndim = dbgrid1->getNDim();
 
   (*ntot) = 1;
   for (int idim=0; idim<ndim; idim++)
@@ -2093,18 +2083,13 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(dbgrid1);
+  ndim = dbgrid1->getNDim();
   if (ndim < 1 || ndim > 3)
   {
     messerr("This function is limited to 2-D or 3-D input grids");
     goto label_end;
   }
-  if (get_NVAR(dbgrid1) != 1)
-  {
-    messerr("This function is designed for the monovariate case (nvar=%d)",
-            get_NVAR(dbgrid1));
-    goto label_end;
-  }
+  if (! dbgrid1->isVariableNumberComparedTo(1)) goto label_end;
   if (orient < 1 || orient > ndim)
   {
     messerr("Inconsistency between Orientation (%d) and Space dimension (%d)",
@@ -2712,7 +2697,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(dbgrid1);
+  ndim = dbgrid1->getNDim();
   nech = get_NECH(dbgrid2);
   if (ndim < 1 || ndim > 3)
   {
@@ -2725,12 +2710,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
             orient);
     goto label_end;
   }
-  if (get_NVAR(dbgrid1) != 1)
-  {
-    messerr("This function is designed for the monovariate case (nvar=%d)",
-            get_NVAR(dbgrid1));
-    goto label_end;
-  }
+  if (! dbgrid1->isVariableNumberComparedTo(1)) goto label_end;
   if (pmid < 5 || pmid > 95)
   {
     messerr("'PMid' must lie between 5% and 95%");

@@ -485,7 +485,7 @@ GEOSLIB_API int simfine_f(Db *dbin,
 
   error   = 1;
   db1     = db2 = (Db *) NULL;
-  NDIM    = get_NDIM(dbin);
+  NDIM    = dbin->getNDim();
   NMULT   = nmult;
   db1     = dbin;
   FLAG_KS = flag_ks;
@@ -498,11 +498,7 @@ GEOSLIB_API int simfine_f(Db *dbin,
     messerr("This simulation refinement is dedicated to Grid File");
     goto label_end;
   }
-  if (get_NVAR(dbin) != 1)
-  {
-    messerr("This simulation refinement is limited to the monovariate case");
-    goto label_end;
-  }
+  if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Patch the model with maximum dimension for OK */
 
@@ -605,7 +601,7 @@ GEOSLIB_API int simfine_dim(Db     *dbin,
     return(1);
   }
   rmult = pow(2.,(double) nmult);
-  NDIM = *ndim = get_NDIM(dbin);
+  NDIM = *ndim = dbin->getNDim();
   *ntot = 1;
   for (i=0; i<NDIM; i++) 
   {

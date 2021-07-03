@@ -99,7 +99,7 @@ static double *st_extend_grid(Db     *db,
   /* Initializations */
 
   error  = 1;
-  ndim   = get_NDIM(db);
+  ndim   = db->getNDim();
   number = (int) pow(2.,ndim);
   ndiv0  = (int) pow(2.,ndim - 1);
   indg   = (int *) NULL;
@@ -170,7 +170,7 @@ static double *st_extend_point(Db     *db,
   /* Initializations */
 
   error  = 1;
-  ndim   = get_NDIM(db);
+  ndim   = db->getNDim();
   number = (int) pow(2.,ndim);
   ndiv0  = (int) pow(2.,ndim - 1);
   mini   = maxi = ext = (double *) NULL;
@@ -254,7 +254,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
   /* Initializations */
 
   error      = 1;
-  ndim       = get_NDIM(dbin);
+  ndim       = dbin->getNDim();
   indg       = (int    *) NULL;
   coor_in    = (double *) NULL;
   coor_out   = (double *) NULL;
@@ -625,7 +625,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
   if (db == (Db *) NULL) return(0);
   error = 1;
   nech  = get_NECH(db);
-  ndim  = get_NDIM(db);
+  ndim  = db->getNDim();
   ncode = db->getCodeNumber();
   if (ndim > 2) ndim = 2;
   
@@ -721,8 +721,8 @@ static double *st_get_db_extension(Db  *dbin,
   ext = coor = mini_loc= maxi_loc = mini_abs = maxi_abs = (double *) NULL;
   error = 1;
   ndim = 0;
-  if (dbin  != (Db *) NULL) ndim = get_NDIM(dbin);
-  if (dbout != (Db *) NULL) ndim = get_NDIM(dbout);
+  if (dbin  != (Db *) NULL) ndim = dbin->getNDim();
+  if (dbout != (Db *) NULL) ndim = dbout->getNDim();
   if (ndim <= 0) goto label_end;
   number = (int) pow(2.,ndim);
   ndiv0  = (int) pow(2.,ndim - 1);
@@ -1800,7 +1800,7 @@ GEOSLIB_API void meshes_2D_extended_domain(Db            *dbout,
   /* Check that the extension parameters are correctly defined */
 
   flag_extend = 0;
-  for (int idim=0; idim<get_NDIM(dbout); idim++) 
+  for (int idim=0; idim<dbout->getNDim(); idim++)
     if (gext[idim] > 0) flag_extend = 1;
   if (! flag_extend) return;
 
@@ -2060,7 +2060,7 @@ GEOSLIB_API int meshes_2D_sph_from_db(Db  *db,
   if (db == (Db *) NULL) return(0);
   error = 1;
   nech  = get_NECH(db);
-  ndim  = get_NDIM(db);
+  ndim  = db->getNDim();
   if (ndim != 2)
   {
     messerr("In Spherical System, the Space Dimension of the data base Db must be 2 (%d)\n",
@@ -2932,7 +2932,7 @@ GEOSLIB_API int meshes_3D_from_db(Db  *db,
   if (db == (Db *) NULL) return(0);
   error = 1;
   nech  = get_NECH(db);
-  ndim  = get_NDIM(db);
+  ndim  = db->getNDim();
   if (ndim > 3) ndim = 3;
   
   /* Count the number of active samples */
@@ -3089,7 +3089,7 @@ GEOSLIB_API void meshes_3D_extended_domain(Db       *dbout,
   /* Check that the extension parameters are correctly defined */
 
   flag_extend = 0;
-  for (int idim=0; idim<get_NDIM(dbout); idim++) 
+  for (int idim=0; idim<dbout->getNDim(); idim++)
     if (gext[idim] > 0) flag_extend = 1;
   if (! flag_extend) return;
 
@@ -3338,7 +3338,7 @@ GEOSLIB_API int meshes_1D_from_db(Db  *db,
   if (db == (Db *) NULL) return(0);
   error = 1;
   nech  = get_NECH(db);
-  ndim  = get_NDIM(db);
+  ndim  = db->getNDim();
   if (ndim > 1) ndim = 1;
   
   /* Count the number of active samples */
@@ -3762,7 +3762,7 @@ GEOSLIB_API void meshes_1D_extended_domain(Db            *dbout,
   /* Check that the extension parameters are correctly defined */
 
   flag_extend = 0;
-  for (int idim=0; idim<get_NDIM(dbout); idim++) 
+  for (int idim=0; idim<dbout->getNDim(); idim++)
     if (gext[idim] > 0) flag_extend = 1;
   if (! flag_extend) return;
 

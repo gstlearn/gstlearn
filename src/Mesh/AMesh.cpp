@@ -127,10 +127,10 @@ String AMesh::_display(int level) const
 *****************************************************************************/
 int AMesh::isCompatibleDb(Db *db) const
 {
-  if (getNDim() == get_NDIM(db)) return 0;
+  if (getNDim() == db->getNDim()) return 0;
 
   messerr("Inconsistent Space dimension between Meshing (%d) and Db (%d)",
-          getNDim(),get_NDIM(db));
+          getNDim(),db->getNDim());
   return 1;
 }
 

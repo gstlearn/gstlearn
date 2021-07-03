@@ -1885,10 +1885,10 @@ static int st_check_model(Db *dbin, Db *dbout, Model *model)
   nvar = model->getVariableNumber();
   if (dbin != (Db *) NULL)
   {
-    if (get_NDIM(dbin) != ndim)
+    if (dbin->getNDim() != ndim)
     {
       messerr("Model (%d) and Input Db (%d) must have the same space dimension",
-              ndim, get_NDIM(dbin));
+              ndim, dbin->getNDim());
       return (1);
     }
     flag_mult_data = (int) get_keypone("Flag_Mult_Data", 0);
@@ -1902,22 +1902,22 @@ static int st_check_model(Db *dbin, Db *dbout, Model *model)
     }
     else
     {
-      if (get_NVAR(dbin) != nvar && S_DECIDE.flag_case != CASE_MATRICES
+      if (dbin->getVariableNumber() != nvar && S_DECIDE.flag_case != CASE_MATRICES
           && !S_DECIDE.flag_gibbs)
       {
         messerr(
             "Model (%d) and Input Db (%d) must refer to the same number of variables",
-            nvar, get_NVAR(dbin));
+            nvar, dbin->getVariableNumber());
         return (1);
       }
     }
   }
   if (dbout != (Db *) NULL)
   {
-    if (get_NDIM(dbout) != ndim)
+    if (dbout->getNDim() != ndim)
     {
       messerr("Model(%d) and output Db(%d) must have same space dimension",
-              ndim, get_NDIM(dbout));
+              ndim, dbout->getNDim());
       return (1);
     }
   }
@@ -6358,8 +6358,8 @@ static int st_load_all_meshes(Db *dbin,
   }
 
   ndim_loc = 0;
-  if (dbin != (Db *) NULL) ndim_loc = MAX(ndim_loc, get_NDIM(dbin));
-  if (dbout != (Db *) NULL) ndim_loc = MAX(ndim_loc, get_NDIM(dbout));
+  if (dbin != (Db *) NULL) ndim_loc = MAX(ndim_loc, dbin->getNDim());
+  if (dbout != (Db *) NULL) ndim_loc = MAX(ndim_loc, dbout->getNDim());
   variety_query(&flag_sphere);
 
   // Manage the mask 
@@ -7207,7 +7207,7 @@ static void st_environ_print(Db *dbout, const VectorDouble& gext)
   if (is_grid(dbout) && ! gext.empty())
   {
     message("- The resulting Grid is dilated: %lf", gext[0]);
-    for (int idim = 1; idim < get_NDIM(dbout); idim++)
+    for (int idim = 1; idim < dbout->getNDim(); idim++)
       message(" * %lf", gext[idim]);
     message("\n");
   }
@@ -9811,7 +9811,7 @@ GEOSLIB_API cs *db_mesh_neigh(Db *db,
 
   /* Core allocation */
 
-  ndimd = get_NDIM(db);
+  ndimd = db->getNDim();
   ndimv = s_mesh->ndim;
   ndim = MIN(ndimd, ndimv);
   coor = db_sample_alloc(db, LOC_X);

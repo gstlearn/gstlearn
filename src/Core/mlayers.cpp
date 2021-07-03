@@ -241,7 +241,7 @@ static int st_locate_sample_in_output(LMlayers *lmlayers,
   }
 
   /* The files are different */
-  for (idim=0; idim<get_NDIM(dbin); idim++) 
+  for (idim=0; idim<dbin->getNDim(); idim++)
     coor[idim] = get_IDIM(dbin,iech,idim);
   if (point_to_grid(dbout,coor,0,indg) != 0) return(1);
   *igrid = db_index_grid_to_sample(dbout,indg);
@@ -2045,21 +2045,17 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
   nechmax  = get_NECH(dbin);
   ptime    = (match_time) ? LOC_F : LOC_TIME;
   if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
-  if (get_NDIM(dbin) != 2)
+  if (dbin->getNDim() != 2)
   {
     messerr("The input Db must be defined in 2-D");
     goto label_end;
   }
-  if (get_NDIM(dbout) != 2)
+  if (dbout->getNDim() != 2)
   {
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (get_NVAR(dbin) != 1)
-  {
-    messerr("The input Db must contain a single Z variable");
-    goto label_end;
-  }
+  if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
   if (! flag_same && ! is_grid(dbout))
   {
     messerr("If Input and Output are different, Output should be a Grid Db");
@@ -2536,21 +2532,17 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
   vorder   = (Vario_Order *) NULL;
   nechmax  = get_NECH(dbin);
   ptime    = (match_time) ? LOC_F : LOC_TIME;
-  if (get_NDIM(dbin) != 2)
+  if (dbin->getNDim() != 2)
   {
     messerr("The input Db must be defined in 2-D");
     goto label_end;
   }
-  if (flag_vel && get_NDIM(dbout) != 2)
+  if (flag_vel && dbout->getNDim() != 2)
   {
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (get_NVAR(dbin) != 1)
-  {
-    messerr("The input Db must contain a single Z variable");
-    goto label_end;
-  }
+  if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
   if (! exist_LOCATOR(dbin,LOC_LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
@@ -2814,21 +2806,17 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
   nechmax  = get_NECH(dbin);
   ptime    = (match_time) ? LOC_F : LOC_TIME;
   if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
-  if (get_NDIM(dbin) != 2)
+  if (dbin->getNDim() != 2)
   {
     messerr("The input Db must be defined in 2-D");
     goto label_end;
   }
-  if (get_NDIM(dbout) != 2)
+  if (dbout->getNDim() != 2)
   {
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (get_NVAR(dbin) != 1)
-  {
-    messerr("The input Db must contain a single Z variable");
-    goto label_end;
-  }
+  if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
   if (! flag_same && ! is_grid(dbout))
   {
     messerr("If Input and Output are different, Output should be a Grid Db");

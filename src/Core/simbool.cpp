@@ -2036,7 +2036,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
     messerr("The output Db file must be a grid");
     return(1);
   }
-  NDIM = get_NDIM(dbout);
+  NDIM = dbout->getNDim();
 
   /* Add the attributes for storing the simulation */
 

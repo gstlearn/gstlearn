@@ -53,23 +53,23 @@ AMesh* MeshFactory::createMesh(int variety,
       }
       if (dbin != (Db *) NULL)
       {
-        if (ndim > 0 && get_NDIM(dbin) != ndim)
+        if (ndim > 0 && dbin->getNDim() != ndim)
         {
           messerr("Dbin's space dimension (%d) should match 'ndim' (%d)",
-                  get_NDIM(dbin), ndim);
+                  dbin->getNDim(), ndim);
           return (NULL);
         }
-        ndim = get_NDIM(dbin);
+        ndim = dbin->getNDim();
       }
       if (dbout != (Db *) NULL)
       {
-        if (ndim > 0 && get_NDIM(dbout) != ndim)
+        if (ndim > 0 && dbout->getNDim() != ndim)
         {
           messerr("Dbout's space dimension (%d) should match 'ndim' (%d)",
-                  get_NDIM(dbout), ndim);
+                  dbout->getNDim(), ndim);
           return (NULL);
         }
-        ndim = get_NDIM(dbout);
+        ndim = dbout->getNDim();
       }
       MeshEStandard* mesh = new MeshEStandard();
       if (!mesh->create(dbin, dbout, dilate, triswitch, verbose))

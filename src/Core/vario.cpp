@@ -343,16 +343,16 @@ static void st_variogram_stats(Db     *db,
 
   /* Initializations */
 
-  for (int ivar=0; ivar<get_NVAR(db); ivar++)
+  for (int ivar=0; ivar<db->getVariableNumber(); ivar++)
   {
     vario->setMeans(ivar,0.);
-    for (int jvar=0; jvar<get_NVAR(db); jvar++)
+    for (int jvar=0; jvar<db->getVariableNumber(); jvar++)
       vario->setVars(ivar,jvar,0.);
   }
 
   /* Loop on the variables */
 
-  for (int ivar = 0; ivar < get_NVAR(db); ivar++)
+  for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
   {
     double s1w = 0.;
     double s1z = 0.;
@@ -370,7 +370,7 @@ static void st_variogram_stats(Db     *db,
     vario->setMeans(ivar,s1z / s1w);
   }
 
-  for (int ivar = 0; ivar < get_NVAR(db); ivar++)
+  for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
 
@@ -414,7 +414,7 @@ static void st_variogram_stats(Db     *db,
 
   if (vario->getCalculType() == CALCUL_TRANS1)
   {
-    for (int ivar=0; ivar<get_NVAR(db); ivar++)
+    for (int ivar=0; ivar<db->getVariableNumber(); ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
       {
         double value = -vario->getVars(ivar, jvar) / vario->getVars(jvar, jvar);
@@ -424,7 +424,7 @@ static void st_variogram_stats(Db     *db,
   }
   else if (vario->getCalculType() == CALCUL_TRANS2)
   {
-    for (int ivar=0; ivar<get_NVAR(db); ivar++)
+    for (int ivar=0; ivar<db->getVariableNumber(); ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
       {
         double value = -vario->getVars(ivar, jvar) / vario->getVars(ivar, ivar);
@@ -434,8 +434,8 @@ static void st_variogram_stats(Db     *db,
   }
   else if (vario->getCalculType() == CALCUL_BINORMAL)
   {
-    for (int ivar=0; ivar<get_NVAR(db); ivar++)
-      for (int jvar=0; jvar<get_NVAR(db); jvar++)
+    for (int ivar=0; ivar<db->getVariableNumber(); ivar++)
+      for (int jvar=0; jvar<db->getVariableNumber(); jvar++)
         if (ivar != jvar)
           vario->setVars(ivar,jvar,
                          vario->getVars(ivar,jvar) /
@@ -1053,7 +1053,7 @@ static void st_variogram_patch_c00(Db    *db,
 
   /* Calculate the C00 term */
 
-  for (ivar=0; ivar<get_NVAR(db); ivar++)
+  for (ivar=0; ivar<db->getVariableNumber(); ivar++)
     for (jvar=0; jvar<=ivar; jvar++)
     {
       i = dir.getAddress(ivar,jvar,0,false,0);
@@ -2205,7 +2205,7 @@ static int st_variogram_grid(Db    *db,
 
     for (ipas=1; ipas<npas; ipas++)
     {
-      for (idim=0; idim<get_NDIM(db); idim++)
+      for (idim=0; idim<db->getNDim(); idim++)
         indg2[idim] = indg1[idim] + (int) (ipas * dir.getGrincr(idim));
       jech = db_index_grid_to_sample(db,indg2);
       if (jech < 0) continue;
@@ -2397,7 +2397,7 @@ static int st_variogen_grid(Db    *db,
       for (iwgt=keep=1; iwgt<NWGT[norder] && keep; iwgt++)
       {
         keep = 0;
-        for (idim=0; idim<get_NDIM(db); idim++)
+        for (idim=0; idim<db->getNDim(); idim++)
           indg2[idim] = indg1[idim] + (int) (ipas * iwgt * dir.getGrincr(idim));
 
         jech = db_index_grid_to_sample(db,indg2);
@@ -2481,10 +2481,10 @@ static int st_variogen_grid_calcul(Db    *db,
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != vario->getDimensionNumber() || get_NVAR(db) != vario->getVariableNumber())
+  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber() != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d NVAR=%d",get_NDIM(db),get_NVAR(db));
+    messerr("Data Base: NDIM=%d NVAR=%d",db->getNDim(),db->getVariableNumber());
     messerr("Variogram: NDIM=%d NVAR=%d",vario->getDimensionNumber(),vario->getVariableNumber());
     return(1);
   }
@@ -2544,10 +2544,10 @@ static int st_variogen_line_calcul(Db    *db,
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != vario->getDimensionNumber() || get_NVAR(db) != vario->getVariableNumber())
+  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber() != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d NVAR=%d",get_NDIM(db),get_NVAR(db));
+    messerr("Data Base: NDIM=%d NVAR=%d",db->getNDim(),db->getVariableNumber());
     messerr("Variogram: NDIM=%d NVAR=%d",vario->getDimensionNumber(),vario->getVariableNumber());
     return(1);
   }
@@ -2780,10 +2780,10 @@ static int st_variogram_general(Db    *db,
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != vario->getDimensionNumber() || get_NVAR(db) != vario->getVariableNumber())
+  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber() != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d NVAR=%d",get_NDIM(db),get_NVAR(db));
+    messerr("Data Base: NDIM=%d NVAR=%d",db->getNDim(),db->getVariableNumber());
     messerr("Variogram: NDIM=%d NVAR=%d",vario->getDimensionNumber(),vario->getVariableNumber());
     goto label_end;
   }
@@ -2833,11 +2833,7 @@ static int st_variogram_general(Db    *db,
       messerr("The special Variogram option is incompatible with flag.sample");
       goto label_end;
     }
-    if (get_NVAR(db) > 1)
-    {
-      messerr("The Special Variogram option is only valid in the univariate case");
-      goto label_end;
-    }
+    if (! db->isVariableNumberComparedTo(1)) goto label_end;
   }
 
   /* Evaluate the drift coefficients */
@@ -2928,11 +2924,11 @@ GEOSLIB_API int variovect_compute(Db    *db,
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != vario->getDimensionNumber() ||
-      get_NVAR(db) != vario->getVariableNumber() * ncomp)
+  if (db->getNDim() != vario->getDimensionNumber() ||
+      db->getVariableNumber() != vario->getVariableNumber() * ncomp)
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d NVAR=%d",get_NDIM(db),get_NVAR(db));
+    messerr("Data Base: NDIM=%d NVAR=%d",db->getNDim(),db->getVariableNumber());
     messerr("Variogram: NDIM=%d NVAR=%d",vario->getDimensionNumber(),vario->getVariableNumber());
     messerr("Number of components = %d",ncomp);
     return(1);
@@ -3002,7 +2998,7 @@ static int st_find_neigh_cell(Db  *dbmap,
 
   // Initializations
 
-  ndim = get_NDIM(dbmap);
+  ndim = dbmap->getNDim();
   
   // Get the indices of the neighboring cell
 
@@ -3047,24 +3043,24 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
     messerr("to store the Variogram Maps");
     return(1);
   }
-  if (get_NDIM(db) != 2 && get_NDIM(db) != 3)
+  if (db->getNDim() != 2 && db->getNDim() != 3)
   {
     messerr("The Variogram Map can only be calculated on a grid data set");
     messerr("with dimension equal to 2 or 3");
     return(1);
   }
-  if (get_NDIM(dbmap) > get_NDIM(db))
+  if (dbmap->getNDim() > db->getNDim())
   {
-    messerr("The space dimension of the VMAP (%d)",get_NDIM(dbmap));
+    messerr("The space dimension of the VMAP (%d)",dbmap->getNDim());
     messerr("must not be larger than the space dimension of the input Grid (%d)",
-            get_NDIM(db));
+            db->getNDim());
     return(1);
   }
 
   /* Initializations */
 
-  ndim  = get_NDIM(dbmap);
-  nvar  = get_NVAR(db);
+  ndim  = dbmap->getNDim();
+  nvar  = db->getVariableNumber();
   nech  = get_NECH(db);
   npas  = get_NECH(dbmap);
   nv2   = nvar * (nvar + 1) / 2;
@@ -3217,20 +3213,20 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
     messerr("to store the Variogram Maps");
     return(1);
   }
-  if (get_NDIM(dbgrid) != 2 && get_NDIM(dbgrid) != 3)
+  if (dbgrid->getNDim() != 2 && dbgrid->getNDim() != 3)
   {
     messerr("The Variogram Map can only be calculated on a grid data set");
     messerr("with dimension equal to 2 or 3");
     return(1);
   }
-  if (get_NDIM(dbmap) > get_NDIM(dbgrid))
+  if (dbmap->getNDim() > dbgrid->getNDim())
   {
-    messerr("The space dimension of the VMAP (%d)",get_NDIM(dbmap));
+    messerr("The space dimension of the VMAP (%d)",dbmap->getNDim());
     messerr("must not be larger than the space dimension of the input Grid (%d)",
-            get_NDIM(dbgrid));
+            dbgrid->getNDim());
     return(1);
   }
-  for (idim=0; idim<get_NDIM(dbmap); idim++)
+  for (idim=0; idim<dbmap->getNDim(); idim++)
   {
     if (ABS(get_DX(dbmap,idim) - get_DX(dbgrid,idim)) > 1.e-03)
     {
@@ -3245,8 +3241,8 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
   /* Initializations */
 
   npas = get_NECH(dbmap);
-  ndim = get_NDIM(dbmap);
-  nvar = get_NVAR(dbgrid);
+  ndim = dbmap->getNDim();
+  nvar = dbgrid->getVariableNumber();
   nv2  = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
@@ -3477,10 +3473,10 @@ static int st_variogrid_calcul(Db    *db,
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != vario->getDimensionNumber() || get_NVAR(db) != vario->getVariableNumber())
+  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber() != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d NVAR=%d",get_NDIM(db),get_NVAR(db));
+    messerr("Data Base: NDIM=%d NVAR=%d",db->getNDim(),db->getVariableNumber());
     messerr("Variogram: NDIM=%d NVAR=%d",vario->getDimensionNumber(),vario->getVariableNumber());
     goto label_end;
   }
@@ -3840,7 +3836,7 @@ GEOSLIB_API int correlation_f(Db     *db1,
 
     /* Shifted correlation */
 
-    vario_fix_codir(get_NDIM(db1),codir);
+    vario_fix_codir(db1->getNDim(),codir);
     psmin = _variogram_convert_angular_tolerance(tolang);
 
     for (iech=0; iech<nech-1; iech++)
@@ -4170,7 +4166,7 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
 
         db_index_sample_to_grid(dbgrid,igrid,indg);
         grid_to_point(dbgrid,indg,NULL,coor);
-        zcoor = (get_NDIM(dbgrid) > 2) ? coor[2] : TEST;
+        zcoor = (dbgrid->getNDim() > 2) ? coor[2] : TEST;
         if (! polygon_inside(coor[0],coor[1],zcoor,0,polygon)) continue;
 
         /* Add the references */
@@ -4297,19 +4293,15 @@ GEOSLIB_API int variogram_cloud(Db *db,
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != vario->getDimensionNumber())
+  if (db->getNDim() != vario->getDimensionNumber())
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d",get_NDIM(db));
+    messerr("Data Base: NDIM=%d",db->getNDim());
     messerr("Variogram: NDIM=%d",vario->getDimensionNumber());
     return(1);
   }
-  if (get_NVAR(db) != 1)
-  {
-    messerr("Variogram cloud is only available for a monovariate case");
-    return(1);
-  }
-  if (get_NDIM(dbgrid) != 2)
+  if (! db->isVariableNumberComparedTo(1)) return 1;
+  if (dbgrid->getNDim() != 2)
   {
     messerr("The output Db for storing the variogram cloud must be 2-D");
     return(1);
@@ -4364,19 +4356,14 @@ GEOSLIB_API int variogram_cloud_dim(Db     *db,
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != vario->getDimensionNumber())
+  if (db->getNDim() != vario->getDimensionNumber())
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d",get_NDIM(db));
+    messerr("Data Base: NDIM=%d",db->getNDim());
     messerr("Variogram: NDIM=%d",vario->getDimensionNumber());
     return(1);
   }
-  if (get_NVAR(db) != 1)
-  {
-    messerr("Variogram cloud is only available for a monovariate case");
-    return(1);
-
-  }
+  if (! db->isVariableNumberComparedTo(1)) return 1;
 
   /* Loop on the directions to evaluate */
 
@@ -4450,7 +4437,7 @@ GEOSLIB_API int regression_f(Db     *db1,
   /* Initializations */
 
   error  = 1;
-  nvar   = get_NVAR(db1);
+  nvar   = db1->getVariableNumber();
   nfex   = db2->getExternalDriftNumber();
   nech   = get_NECH(db1);
   size   = 0;
@@ -5029,7 +5016,7 @@ static void st_vmap_store(Db     *dbmap,
 {
   int ix,iy,iz,ecr,iech,indice[3];
   VectorDouble dims(3);
-  int ndim = get_NDIM(dbmap);
+  int ndim = dbmap->getNDim();
 
   for (int idim=0; idim<3; idim++)
   {
@@ -5466,20 +5453,20 @@ static int st_vmap_grid_fft(Db *dbgrid,
     messerr("to store the Variogram Maps");
     return(1);
   }
-  if (get_NDIM(dbgrid) != 2 && get_NDIM(dbgrid) != 3)
+  if (dbgrid->getNDim() != 2 && dbgrid->getNDim() != 3)
   {
     messerr("The Variogram Map can only be calculated on a grid data set");
     messerr("with dimension equal to 2 or 3");
     return(1);
   }
-  if (get_NDIM(dbmap) > get_NDIM(dbgrid))
+  if (dbmap->getNDim() > dbgrid->getNDim())
   {
-    messerr("The space dimension of the VMAP (%d)",get_NDIM(dbmap));
+    messerr("The space dimension of the VMAP (%d)",dbmap->getNDim());
     messerr("must not be larger than the space dimension of the input Grid (%d)",
-            get_NDIM(dbgrid));
+            dbgrid->getNDim());
     return(1);
   } 
-  for (idim=0; idim<get_NDIM(dbmap); idim++)
+  for (idim=0; idim<dbmap->getNDim(); idim++)
   {
     if (ABS(get_DX(dbmap,idim) - get_DX(dbgrid,idim)) > 1.e-03)
     {
@@ -5492,14 +5479,14 @@ static int st_vmap_grid_fft(Db *dbgrid,
   }
 
   for (idim=0; idim<3; idim++) nxgrid[idim] = nxmap[idim] = 1;
-  for (idim=0; idim<get_NDIM(dbgrid); idim++) 
+  for (idim=0; idim<dbgrid->getNDim(); idim++)
     nxgrid[idim] = get_NX(dbgrid,idim);
-  for (idim=0; idim<get_NDIM(dbmap);  idim++) 
+  for (idim=0; idim<dbmap->getNDim();  idim++)
     nxmap[idim]  = get_NX(dbmap,idim);
   
   /* Preliminary calculations */
 
-  nvar  = get_NVAR(dbgrid);
+  nvar  = dbgrid->getVariableNumber();
   nvs2  = nvar * (nvar + 1) / 2;
   ndim  = 0;
   sizetot = sizemap = sizegrid = 1;
@@ -5792,7 +5779,7 @@ static void st_calculate_normalization(int     flag_normalize,
   // Initializations
 
   niso = 0;
-  nvar = get_NVAR(db);
+  nvar = db->getVariableNumber();
   nech = get_NECH(db);
 
   if (flag_normalize)
@@ -5877,7 +5864,7 @@ static VectorDouble st_pca_covariance0(int verbose,
   
   /* Cleaning the previous contents of PCA structure */
 
-  nvar = get_NVAR(db);
+  nvar = db->getVariableNumber();
   nech = get_NECH(db);
   niso = 0;
 
@@ -5963,7 +5950,7 @@ static VectorDouble st_pca_covarianceh(int verbose,
   /* Initializations */
   
   nech   = get_NECH(db);
-  nvar   = get_NVAR(db);
+  nvar   = db->getVariableNumber();
   npairs = 0;
   psmin  = _variogram_convert_angular_tolerance(tolang);
 
@@ -6018,7 +6005,7 @@ static VectorDouble st_pca_covarianceh(int verbose,
   if (verbose)
   {
     mestitle(1,"MAF calculations");
-    st_vario_params_print(get_NDIM(db),codir,tolang,bench,cylrad);
+    st_vario_params_print(db->getNDim(),codir,tolang,bench,cylrad);
     message("Reference Distance          = %lf\n",h0);
     message("Tolerance on Distance       = %lf\n",dh);
     message("Number of variables         = %d\n",nvar);
@@ -6053,7 +6040,7 @@ static void st_pca_f2z(int     flag_norm_out,
   
   /* Initializations */
   
-  nvar = get_NVAR(db);
+  nvar = db->getVariableNumber();
   nech = get_NECH(db);
   
   /* Loop on the samples */
@@ -6111,7 +6098,7 @@ static void st_pca_z2f(int     flag_norm_out,
   
   /* Initializations */
   
-  nvar = get_NVAR(db);
+  nvar = db->getVariableNumber();
   nech = get_NECH(db);
   
   /* Loop on the samples */
@@ -6248,10 +6235,10 @@ GEOSLIB_API int maf_compute(Db     *db,
   /* Preliminary checks */
 
   nvar = pca->getNVar();
-  if (nvar != get_NVAR(db))
+  if (nvar != db->getVariableNumber())
   {
     messerr("Number of variables in the PCA (%d) and in the Db (%d) are inconsistent",
-            nvar,get_NVAR(db));
+            nvar,db->getVariableNumber());
     goto label_end;
   }
 
@@ -6354,10 +6341,10 @@ GEOSLIB_API int pca_compute(Db     *db,
   /* Preliminary checks */
 
   nvar = pca->getNVar();
-  if (nvar != get_NVAR(db))
+  if (nvar != db->getVariableNumber())
   {
     messerr("Number of variables in the PCA (%d) and in the Db (%d) are inconsistent",
-            nvar,get_NVAR(db));
+            nvar,db->getVariableNumber());
     goto label_end;
   }
 
@@ -6409,7 +6396,7 @@ GEOSLIB_API int pca_z2f(Db    *db,
   /* Preliminary checks */
 
   error = 1;
-  nvar  = get_NVAR(db);
+  nvar  = db->getVariableNumber();
   data  = (double *) NULL;
   if (nvar <= 0)
   {
@@ -6485,7 +6472,7 @@ GEOSLIB_API int pca_f2z(Db    *db,
   /* Preliminary checks */
 
   error = 1;
-  nvar  = get_NVAR(db);
+  nvar  = db->getVariableNumber();
   data  = (double *) NULL;
   if (nvar <= 0)
   {
@@ -6561,10 +6548,10 @@ GEOSLIB_API int geometry_compute(Db    *db,
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != vario->getDimensionNumber() || get_NVAR(db) != vario->getVariableNumber())
+  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber() != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d NVAR=%d",get_NDIM(db),get_NVAR(db));
+    messerr("Data Base: NDIM=%d NVAR=%d",db->getNDim(),db->getVariableNumber());
     messerr("Variogram: NDIM=%d NVAR=%d",vario->getDimensionNumber(),vario->getVariableNumber());
     goto label_end;
   }

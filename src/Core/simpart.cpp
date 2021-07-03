@@ -240,7 +240,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   if (!is_grid(dbgrid))
   {
     messerr("The output Db file must be a grid");
@@ -401,7 +401,7 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   if (!is_grid(dbgrid))
   {
     messerr("The output Db file must be a grid");

@@ -946,7 +946,7 @@ GEOSLIB_API int fluid_propagation(Db     *dbgrid,
     messerr("The Fluid Propagation is restricted to regular grid");
     return(1);
   }
-  if (get_NDIM(dbgrid) > 3)
+  if (dbgrid->getNDim() > 3)
   {
     messerr("Fluid propagation is limited to 3-D space (maximum)");
     return(1);
@@ -1179,7 +1179,7 @@ GEOSLIB_API int fluid_extract(Db      *dbgrid,
     messerr("The Fluid Propagation is restricted to regular grid");
     return(1);
   }
-  if (get_NDIM(dbgrid) > 3)
+  if (dbgrid->getNDim() > 3)
   {
     messerr("Fluid propagation is limited to 3-D space (maximum)");
     return(1);

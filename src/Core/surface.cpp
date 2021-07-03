@@ -675,7 +675,7 @@ GEOSLIB_API int db_trisurf(Db         *db,
   *ntcode_arg    = (int    *) NULL;
   ntricum        = npoicum = *ncode_arg    = *ntri_arg = *npoint_arg = 0;
   VERBOSE        = verbose;
-  ndim           = get_NDIM(db);
+  ndim           = db->getNDim();
   iptr_sel       = -1;
   surf_reference = (Surf_Def *) NULL;
   for (int idim=0; idim<ndim; idim++) iptr_init[idim] = iptr_proj[idim] = -1;

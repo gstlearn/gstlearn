@@ -2930,7 +2930,7 @@ GEOSLIB_API int db_write_csv(Db *db,
   int ncol = db->getFieldNumber();
   int ndim = db->getNDim();
   int nech = get_NECH(db);
-  int nvar = get_NVAR(db);
+  int nvar = db->getVariableNumber();
 
   // Count the number of items per line
 

@@ -748,7 +748,7 @@ double Rule::st_grid_eval(Db *dbgrid,
 {
   double top = 0.;
   double bot = 0.;
-  int ndim = get_NDIM(dbgrid);
+  int ndim = dbgrid->getNDim();
 
   /* First point */
   int iech = db_index_grid_to_sample(dbgrid,_ind2.data());

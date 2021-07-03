@@ -500,21 +500,6 @@ GEOSLIB_API int get_NACTIVE_AND_DEFINED(Db *db, int item)
   return (nech);
 }
 
-/****************************************************************************/
-/*!
- **  Returns the space dimension for Db definition
- **
- ** \return  Space dimension
- **
- ** \param[in]  db Db descriptor
- **
- *****************************************************************************/
-GEOSLIB_API int get_NDIM(Db *db)
-{
-  if (db == (Db *) NULL) return (0);
-  return db->getNDim();
-}
-
 /*************************************************************************/
 /*!
  **  Reads one coordinate of a sample
@@ -1483,7 +1468,7 @@ GEOSLIB_API void db_sample_print(Db *db,
     else
       message("Coordinate #%d = %lf\n", idim + 1, get_IDIM(db, iech, idim));
   }
-  if (flag_nvar) for (ivar = 0; ivar < get_NVAR(db); ivar++)
+  if (flag_nvar) for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
   {
     value = db->getVariable(iech, ivar);
     if (FFFF(value))
@@ -2435,7 +2420,7 @@ GEOSLIB_API int db_gradient_update(Db *db)
 {
   int ndim = db->getNDim();
   int ngrad = db->getGradientNumber();
-  int nvar = get_NVAR(db);
+  int nvar = db->getVariableNumber();
 
   /* Preliminary checks */
 
@@ -3276,7 +3261,7 @@ GEOSLIB_API int db_proportion(Db *db,
   /* Initializations */
 
   error = 1;
-  nvar = get_NVAR(db);
+  nvar = db->getVariableNumber();
   nech = get_NECH(db);
   nclass = 0;
   coor = tab = sel = (double *) NULL;
@@ -3782,12 +3767,12 @@ GEOSLIB_API double *db_distances_general(Db *db1,
 
   /* Preliminary checks */
 
-  if (niso > get_NVAR(db1) || niso > get_NVAR(db2))
+  if (niso > db1->getVariableNumber() || niso > db2->getVariableNumber())
   {
     messerr("You ask for distances between samples with %d variables defined",
             niso);
     messerr("But the input 'Db' have %d and %d variables defined",
-            get_NVAR(db1), get_NVAR(db2));
+            db1->getVariableNumber(), db2->getVariableNumber());
     return (dist);
   }
 
@@ -3886,7 +3871,7 @@ GEOSLIB_API int db_is_isotropic(Db *db, int iech, double *data)
   double value;
 
   if (!get_ACTIVE(db, iech)) return (0);
-  for (ivar = 0; ivar < get_NVAR(db); ivar++)
+  for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
   {
     value = db->getVariable(iech, ivar);
     if (FFFF(value)) return (0);

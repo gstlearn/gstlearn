@@ -4116,12 +4116,8 @@ static int st_vario_pgs_check(int    flag_db,
     }
     if (db != (Db *) NULL)
     {
-      if (get_NVAR(db) != 1)
-      {
-        messerr("This application requires one variable in the Input File");
-        return(1);
-      }
-      if (get_NDIM(db) != vario->getDimensionNumber())
+      if (! db->isVariableNumberComparedTo(1)) return 1;
+      if (db->getNDim() != vario->getDimensionNumber())
       {
         messerr("Space Dimension inconsistency between Input Db and Vario");
         return(1);
@@ -4147,7 +4143,7 @@ static int st_vario_pgs_check(int    flag_db,
 
   /* Optional Proportion File */
 
-  if (dbprop != (Db *) NULL && get_NDIM(dbprop) != vario->getDimensionNumber())
+  if (dbprop != (Db *) NULL && dbprop->getNDim() != vario->getDimensionNumber())
   {
     messerr("Space Dimension inconsistency between Dbprop and Vario");
     return(1);
@@ -5031,21 +5027,21 @@ GEOSLIB_API int model_pgs(Db     *db,
       messerr("You must define the Input Db");
       return(1);
     }
-    if (get_NDIM(db) != vario->getDimensionNumber())
+    if (db->getNDim() != vario->getDimensionNumber())
     {
       messerr("Inconsistent parameters:");
-      messerr("Input DB : NDIM=%d",get_NDIM(db));
+      messerr("Input DB : NDIM=%d",db->getNDim());
       messerr("Variogram: NDIM=%d",vario->getDimensionNumber());
       return(1);
     }
-    if (dbprop != (Db *) NULL && get_NDIM(dbprop) != vario->getDimensionNumber())
+    if (dbprop != (Db *) NULL && dbprop->getNDim() != vario->getDimensionNumber())
     {
       messerr("Space Dimension inconsistency between Dbprop and Vario");
       return(1);
     }
-    if (new_model->getDimensionNumber() != get_NDIM(db))
+    if (new_model->getDimensionNumber() != db->getNDim())
     {
-      messerr("The Space Dimension of the Db structure (%d)",get_NDIM(db));
+      messerr("The Space Dimension of the Db structure (%d)",db->getNDim());
       messerr("Does not correspond to the Space Dimension of the model (%d)",
               new_model->getDimensionNumber());
       goto label_end;

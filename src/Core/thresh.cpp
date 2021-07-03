@@ -315,7 +315,7 @@ GEOSLIB_API int rule_gaus2fac_result_shadow(Props  *propdef,
   del   = (double *) NULL;
   dy    = 0.;
   nstep = 0;
-  ndim  = get_NDIM(dbout);
+  ndim  = dbout->getNDim();
   icase = get_rank_from_propdef(propdef,ipgs,0);
   VectorDouble xyz(ndim);
   VectorInt ind1(ndim);
@@ -429,7 +429,7 @@ GEOSLIB_API int rule_gaus2fac_result(Props  *propdef,
   check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_FACIES);
   check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_SIMU);
   error  = 1;
-  ndim   = get_NDIM(dbout);
+  ndim   = dbout->getNDim();
   VectorDouble xyz(ndim);
   VectorInt ind1(ndim);
   VectorInt ind2(ndim);
@@ -1176,7 +1176,7 @@ GEOSLIB_API int db_bounds_shadow(Db     *db,
                                  int     flag_stat,
                                  int     nfacies)
 {
-  int     flag_used[2],nvar,ngrf,error,iptr,igrf;
+  int     flag_used[2],ngrf,error,iptr,igrf;
   double *coor;
   Props  *propdef;
 
@@ -1198,13 +1198,7 @@ GEOSLIB_API int db_bounds_shadow(Db     *db,
     messerr("The Db is not defined");
     goto label_end;
   }
-  nvar = get_NVAR(db);
-  if (nvar != 1)
-  {
-    messerr("This function requires a single variable in the Db (currently=%d)",
-            nvar);
-    goto label_end;
-  }
+  if (! db->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Rule */
 
@@ -1310,13 +1304,8 @@ GEOSLIB_API int db_bounds(Db     *db,
     messerr("The Db is not defined");
     goto label_end;
   }
-  nvar = get_NVAR(db);
-  if (nvar != 1)
-  {
-    messerr("This function requires a single variable in the Db (currently=%d)",
-            nvar);
-    goto label_end;
-  }
+  nvar = db->getVariableNumber();
+  if (! db->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Rule */
 
@@ -1496,7 +1485,7 @@ GEOSLIB_API Props *proportion_manage(int     mode,
           goto label_end;
         }
         propdef->dbprop = dbprop;
-        propdef->coor.resize(get_NDIM(dbprop));
+        propdef->coor.resize(dbprop->getNDim());
       }
       
       /* Set memory proportion so as to provoke the update at first usage */

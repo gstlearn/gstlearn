@@ -535,7 +535,7 @@ GEOSLIB_API int seismic_z2t_grid(int     verbose,
   }
   error = 1;
   vv    = (double *) NULL;
-  ndim  = get_NDIM(db_z);
+  ndim  = db_z->getNDim();
   nech  = get_NECH(db_z);
 
   /* Core allocation */
@@ -615,7 +615,7 @@ GEOSLIB_API int seismic_t2z_grid(int     verbose,
   }
   error = 1;
   vv    = (double *) NULL;
-  ndim  = get_NDIM(db_t);
+  ndim  = db_t->getNDim();
   nech  = get_NECH(db_t);
 
   /* Core allocation */
@@ -680,7 +680,7 @@ static void st_copy(int     mode,
                     int     ival,
                     double *tab)
 {
-  int ndim = get_NDIM(db);
+  int ndim = db->getNDim();
   int nech = get_NECH(db);
   int nval = get_NX(db,ndim-1);
   int nby  = nech / nval;
@@ -724,14 +724,14 @@ static int st_match(Db *db_z,
   NTRACE = 0;
   error  = 1;
   nech   = get_NECH(db_z);
-  ndim   = get_NDIM(db_z);
+  ndim   = db_z->getNDim();
   nz     = get_NX(db_z,ndim-1);
 
   /* Check the grid characteristics */
 
   if (db_t != (Db *) NULL)
   {
-    if (get_NDIM(db_z) != get_NDIM(db_t)) goto label_end;
+    if (db_z->getNDim() != db_t->getNDim()) goto label_end;
     for (idim=0; idim<ndim-1; idim++)
     {
       if (get_NX(db_z,idim) != get_NX(db_t,idim)) goto label_end;
@@ -749,7 +749,7 @@ label_end:
   {
     messerr("Error for one of the following reasons:");
     messerr("- Different space dimensions: Depth(%d) - Time(%d)",
-            get_NDIM(db_z),get_NDIM(db_t));
+            db_z->getNDim(),db_t->getNDim());
     for (idim=0; idim<ndim-1; idim++)
     {
       messerr("- Number of mesh (axe #%d): Depth(%d) - Time(%d)",
@@ -1552,8 +1552,8 @@ GEOSLIB_API int seismic_z2t_convert(Db *db_z,
   if (st_match(db_z,db_t)) return(1);
   error  = 1;
   db_v   = db_z;
-  ndim   = get_NDIM(db_z);
-  natt   = get_NVAR(db_z);
+  ndim   = db_z->getNDim();
+  natt   = db_z->getVariableNumber();
   nz     = get_NX(db_z,ndim-1);
   nt     = get_NX(db_t,ndim-1);
   z0     = get_X0(db_z,ndim-1);
@@ -1628,8 +1628,8 @@ GEOSLIB_API int seismic_t2z_convert(Db *db_t,
   if (st_match(db_z,db_t)) return(1);
   error  = 1;
   db_v   = db_t;
-  ndim   = get_NDIM(db_t);
-  natt   = get_NVAR(db_t);
+  ndim   = db_t->getNDim();
+  natt   = db_t->getVariableNumber();
   nz     = get_NX(db_z,ndim-1);
   nt     = get_NX(db_t,ndim-1);
   z0     = get_X0(db_z,ndim-1);
@@ -1698,8 +1698,8 @@ GEOSLIB_API int seismic_operate(Db  *db,
   /* Initializations */
 
   if (st_match(db,(Db *) NULL)) return(1);
-  ndim   = get_NDIM(db);
-  natt   = get_NVAR(db);
+  ndim   = db->getNDim();
+  natt   = db->getVariableNumber();
   nt     = get_NX(db,ndim-1);
   dt     = get_DX(db,ndim-1);
 
@@ -1857,8 +1857,8 @@ GEOSLIB_API int seismic_convolve(Db     *db,
 
   if (st_match(db,(Db *) NULL)) return(1);
   tab0    = tab1 = tab2 = (double *) NULL;
-  ndim    = get_NDIM(db);
-  natt    = get_NVAR(db);
+  ndim    = db->getNDim();
+  natt    = db->getVariableNumber();
   nz      = get_NX(db,ndim-1);
   dz      = get_DX(db,ndim-1);
   error   = size = 0;
@@ -3100,7 +3100,7 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
   NZ    = get_NX(db,2);
   DX    = get_DX(db,0);
   DZ    = get_DX(db,2);
-  NVAR  = get_NVAR(db);
+  NVAR  = db->getVariableNumber();
   iatt_z1 = db_attribute_identify(db,LOC_Z,0);
   iatt_z2 = db_attribute_identify(db,LOC_Z,1);
 
@@ -3368,7 +3368,7 @@ GEOSLIB_API int seismic_simulate_XZ(Db    *db,
   NZ    = get_NX(db,2);
   DX    = get_DX(db,0);
   DZ    = get_DX(db,2);
-  NVAR  = get_NVAR(db);
+  NVAR  = db->getVariableNumber();
 
   if (! (NX > 1 && NY == 1 && NZ > 1))
   {

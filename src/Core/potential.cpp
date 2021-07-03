@@ -261,7 +261,7 @@ static int st_update_isopot(Db      *dbiso,
       for (j=0; j<pot_env->nb_per_layer[ic]; j++)
       {
         message("Iso-%2d/%3d: Coor=(",ic+1,j);
-        for (int idim=0; idim<get_NDIM(dbiso); idim++)
+        for (int idim=0; idim<dbiso->getNDim(); idim++)
           message(" %lf",ISO_COO(ic,j,idim));
         message(")\n");
       }
@@ -335,10 +335,10 @@ static int st_update_gradient(Db      *dbgrd,
     for (int ig=0; ig<pot_env->ngrd; ig++)
     {
       message("Gradient-%d: Coor=(",ig+1);
-      for (int idim=0; idim<get_NDIM(dbgrd); idim++)
+      for (int idim=0; idim<dbgrd->getNDim(); idim++)
         message(" %lf",GRD_COO(ig,idim));
       message(") - Grad=(");
-      for (int idim=0; idim<get_NDIM(dbgrd); idim++)
+      for (int idim=0; idim<dbgrd->getNDim(); idim++)
         message(" %lf",GRD_VAL(ig,idim));
       message(")\n");
     }
@@ -399,10 +399,10 @@ static int st_update_tangent(Db      *dbtgt,
     for (int it=0; it<pot_env->ntgt; it++)
     {
       message("Tangent-%d: Coor=(",it+1);
-      for (int idim=0; idim<get_NDIM(dbtgt); idim++)
+      for (int idim=0; idim<dbtgt->getNDim(); idim++)
         message(" %lf",TGT_COO(it,idim));
       message(") - Tangent=(");
-      for (int idim=0; idim<get_NDIM(dbtgt); idim++)
+      for (int idim=0; idim<dbtgt->getNDim(); idim++)
         message(" %lf",TGT_VAL(it,idim));
       message(")\n");
     }
@@ -1360,7 +1360,7 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
   // Initializations 
 
   nequa = pot_env->nequa;
-  ndim  = get_NDIM(dbgrd);
+  ndim  = dbgrd->getNDim();
 
   // Blank out the vector
 
@@ -2277,7 +2277,7 @@ static void st_simcond(Pot_Env *pot_env,
   int    nequa,ndim;
 
   nequa = pot_env->nequa;
-  ndim  = get_NDIM(dbgrd);
+  ndim  = dbgrd->getNDim();
   for (int iech=0; iech<get_NECH(dbout); iech++)
   {
     mes_process("Potential Simulation on 3-D Grid",get_NECH(dbout),iech);
@@ -2393,7 +2393,7 @@ static void st_save_manage(int     mode,
   static double *potval,*potgrd;
 
   nech = get_NECH(db);
-  ndim = get_NDIM(db);
+  ndim = db->getNDim();
 
   /* Dispatch */
 
@@ -2961,7 +2961,7 @@ static int st_pot_ext_manage(int      mode,
       return(0);
       
     case 1:                     /* Allocation */
-      pot_ext->ndim   = get_NDIM(dbout);
+      pot_ext->ndim   = dbout->getNDim();
       pot_ext->nring  = nring;
       pot_ext->range  = range;
       if (st_extdrift_calc_init(dbout,pot_ext)) return(1);
@@ -3048,18 +3048,18 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
   // Preliminary checks
 
   if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
-  pot_env.ndim = get_NDIM(dbiso);
+  pot_env.ndim = dbiso->getNDim();
   if (pot_env.ndim > 3)
   {
     messerr("The input Db must be defined in Space with dimension < 3");
     goto label_end;
   }
-  if (dbgrd != (Db *) NULL && get_NDIM(dbgrd) != pot_env.ndim)
+  if (dbgrd != (Db *) NULL && dbgrd->getNDim() != pot_env.ndim)
   {
     messerr("The Gradient and Data Db must share the same space dimension");
     goto label_end;
   }
-  if (dbtgt != (Db *) NULL && get_NDIM(dbtgt) != pot_env.ndim)
+  if (dbtgt != (Db *) NULL && dbtgt->getNDim() != pot_env.ndim)
   {
     messerr("The Tangent and Data Db must share the same space dimension");
     goto label_end;
@@ -3069,7 +3069,7 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
     messerr("The Model and Data Db must have the same space dimension");
     goto label_end;
   }
-  if (get_NDIM(dbout) != pot_env.ndim)
+  if (dbout->getNDim() != pot_env.ndim)
   {
     messerr("The Db files 'dbin' and 'dbout' should have the same dimension");
     goto label_end;
@@ -3295,7 +3295,7 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
   // Preliminary checks
 
   if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
-  pot_env.ndim = get_NDIM(dbiso);
+  pot_env.ndim = dbiso->getNDim();
   if (db_extension_diag(dbiso,&delta)) goto label_end;
   delta /= 1000.;
   if (pot_env.ndim > 3)
@@ -3303,17 +3303,17 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
     messerr("The input Db must be defined in Space with dimension < 3");
     goto label_end;
   }
-  if (dbgrd != (Db *) NULL && get_NDIM(dbgrd) != pot_env.ndim)
+  if (dbgrd != (Db *) NULL && dbgrd->getNDim() != pot_env.ndim)
   {
     messerr("The Gradient and Data Db must share the same space dimension");
     goto label_end;
   }
-  if (dbtgt != (Db *) NULL && get_NDIM(dbtgt) != pot_env.ndim)
+  if (dbtgt != (Db *) NULL && dbtgt->getNDim() != pot_env.ndim)
   {
     messerr("The Tangent and Data Db must share the same space dimension");
     goto label_end;
   }
-  if (get_NDIM(dbout) != pot_env.ndim)
+  if (dbout->getNDim() != pot_env.ndim)
   {
     messerr("The Output and Data Db must share the same space dimension");
     goto label_end;
@@ -3545,18 +3545,18 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
   // Preliminary checks
 
   if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
-  pot_env.ndim = get_NDIM(dbiso);
+  pot_env.ndim = dbiso->getNDim();
   if (pot_env.ndim > 3)
   {
     messerr("The input Db must be defined in Space with dimension < 3");
     goto label_end;
   }
-  if (dbgrd != (Db *) NULL && get_NDIM(dbgrd) != pot_env.ndim)
+  if (dbgrd != (Db *) NULL && dbgrd->getNDim() != pot_env.ndim)
   {
     messerr("The Gradient and Data Db must share the same space dimension");
     goto label_end;
   }
-  if (dbtgt != (Db *) NULL && get_NDIM(dbtgt) != pot_env.ndim)
+  if (dbtgt != (Db *) NULL && dbtgt->getNDim() != pot_env.ndim)
   {
     messerr("The Tangent and Data Db must share the same space dimension");
     goto label_end;

@@ -458,7 +458,7 @@ GEOSLIB_API int simsph_f(Db    *db,
     goto label_end;
   }
   if (! ut_is_legendre_defined()) goto label_end;
-  if (get_NDIM(db) != 2)
+  if (db->getNDim() != 2)
   {
     messerr("The Simulation on Sphere is restricted to 2-D case");
     goto label_end;

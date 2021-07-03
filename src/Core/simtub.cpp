@@ -371,7 +371,7 @@ static int st_check_simtub_environment(Db    *dbin,
   nvar = ndim = nfex = 0;
   dbin_mini = dbin_maxi = dbout_mini = dbout_maxi = (double *) NULL;
   flag_cond = (dbin != (Db *) NULL) && (neigh != (Neigh *) NULL);
-  ndim = get_NDIM(dbout);
+  ndim = dbout->getNDim();
 
   /**************************************************************/
   /* Check if the Space dimension is compatible with the method */
@@ -402,9 +402,9 @@ static int st_check_simtub_environment(Db    *dbin,
       messerr("The number of variables must be positive = %d",model->getVariableNumber());
       goto label_end;
     }
-    if (flag_cond && get_NVAR(dbin) != nvar)
+    if (flag_cond && dbin->getVariableNumber() != nvar)
     {
-      messerr("The number of variables of the Data (%d)",get_NVAR(dbin));
+      messerr("The number of variables of the Data (%d)",dbin->getVariableNumber());
       messerr("does not match the number of variables of the Model (%d)",
               nvar);
       goto label_end;
@@ -1576,7 +1576,7 @@ static double st_project_point(Db     *db,
   int    idim;
 
   t = 0.;
-  for (idim=0; idim<get_NDIM(db); idim++)
+  for (idim=0; idim<db->getNDim(); idim++)
     t += get_IDIM(db,iech,idim) * situba->codir[ibs]->ang[idim];
 
   return(t);
@@ -1612,7 +1612,7 @@ static double st_project_grid(Db     *db,
   grid_to_point(db,indg,(double *) NULL,xyz);
 
   t = 0.;
-  for (idim=0; idim<get_NDIM(db); idim++)
+  for (idim=0; idim<db->getNDim(); idim++)
     t += xyz[idim] * situba->codir[ibs]->ang[idim];
   return(t);
 }
@@ -1782,9 +1782,9 @@ static void st_minmax(Db     *db,
 
   if (is_grid(db))
   {
-    nx = (get_NDIM(db) >= 1) ? get_NX(db,0) : 1;
-    ny = (get_NDIM(db) >= 2) ? get_NX(db,1) : 1;
-    nz = (get_NDIM(db) >= 3) ? get_NX(db,2) : 1;
+    nx = (db->getNDim() >= 1) ? get_NX(db,0) : 1;
+    ny = (db->getNDim() >= 2) ? get_NX(db,1) : 1;
+    nz = (db->getNDim() >= 3) ? get_NX(db,2) : 1;
 
     /* Case when the data obeys to a grid organization */
     /* This test is programmed for 3-D (maximum) grid  */
@@ -2038,9 +2038,9 @@ static int st_simulate_grid(Db     *db,
   theta1 = 1. / situba->theta;
   nvar   = model->getVariableNumber();
   ncova  = model->getCovaNumber();
-  nx     = (get_NDIM(db) >= 1) ? get_NX(db,0) : 1;
-  ny     = (get_NDIM(db) >= 2) ? get_NX(db,1) : 1;
-  nz     = (get_NDIM(db) >= 3) ? get_NX(db,2) : 1;
+  nx     = (db->getNDim() >= 1) ? get_NX(db,0) : 1;
+  ny     = (db->getNDim() >= 2) ? get_NX(db,1) : 1;
+  nz     = (db->getNDim() >= 3) ? get_NX(db,2) : 1;
   nech   = nx * ny * nz;
   norme  = sqrt(1. / nbtuba);
   nt     = iech = 0;
@@ -2810,7 +2810,7 @@ static void st_update_data2target(Db     *dbin,
   if (get_NECH(dbin) <= 0) return;
   if (FLAG_DGM) return;
   nvar   = model->getVariableNumber();
-  ndim   = get_NDIM(dbin);
+  ndim   = dbin->getNDim();
   nbsimu = situba->nbsimu;
 
   coor1 = db_vector_alloc(dbin);
@@ -2996,7 +2996,7 @@ static int st_simulate_gradient(Db     *dbgrd,
   error  = 1;
   icase  = 0;
   nbsimu = situba->nbsimu;
-  ndim   = get_NDIM(dbgrd);
+  ndim   = dbgrd->getNDim();
 
   for (int idim=0; idim<ndim; idim++)
   {
@@ -3105,7 +3105,7 @@ static int st_simulate_tangent(Db     *dbtgt,
       if (! get_ACTIVE(dbtgt,iech)) continue;
       
       value = 0.;
-      for (int idim=0; idim<get_NDIM(dbtgt); idim++)
+      for (int idim=0; idim<dbtgt->getNDim(); idim++)
         value += dbtgt->getTangent(iech,idim) *
           dbtgt->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,nvar);
       dbtgt->setSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,nvar,value);
@@ -3154,7 +3154,7 @@ static void st_check_gaussian_data2grid(Db     *dbin,
 
   /* Core allocation */
 
-  coor.resize(get_NDIM(dbin));
+  coor.resize(dbin->getNDim());
 
   /* Loop on the data */
 
@@ -3192,13 +3192,13 @@ static void st_check_gaussian_data2grid(Db     *dbin,
       message("Inconsistency for Simulation (%d) between :\n",isimu+1);
       message("- Value (%lf) at Data (#%d) ",valdat,iech+1);
       message("at (");
-      for (int idim=0; idim<get_NDIM(dbin); idim++)
+      for (int idim=0; idim<dbin->getNDim(); idim++)
         message(" %lf",get_IDIM(dbin,iech,idim));
       message(")\n");
 
       message("- Value (%lf) at Grid (#%d) ",valres,jech+1);
       message("at (");
-      for (int idim=0; idim<get_NDIM(dbout); idim++)
+      for (int idim=0; idim<dbout->getNDim(); idim++)
         message(" %lf",get_IDIM(dbout,jech,idim));
       message(")\n");
 
@@ -3753,7 +3753,7 @@ static void st_print_condata(Props *propdef,
   /* Print the sample and coordinates */
 
   message("Sample (%3d) - Coordinates: ",iech+1);
-  for (idim=0; idim<get_NDIM(db); idim++)
+  for (idim=0; idim<db->getNDim(); idim++)
     message(" %lf",get_IDIM(db,iech,idim));
   message("\n");
 
@@ -3803,7 +3803,7 @@ static int st_replicate_invalid(Db     *dbin,
 
   for (iech=0; iech<jech; iech++)
   {
-    for (idim=0; idim<get_NDIM(dbin); idim++)
+    for (idim=0; idim<dbin->getNDim(); idim++)
     {
       delta = ABS(get_IDIM(dbin,iech,idim) - get_IDIM(dbin,jech,idim));
       if (delta >= get_DX(dbout,idim)) return(0);
@@ -3898,7 +3898,7 @@ GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
       {
         dist = 0.;
         alea = law_uniform(0.,1.);
-        for (idim=0; idim<get_NDIM(dbin); idim++)
+        for (idim=0; idim<dbin->getNDim(); idim++)
         {
           dval = alea * rule->getDMax() * rule->getShift(idim);
           set_IDIM(dbin,jech,idim,get_IDIM(dbin,iech,idim) - dval);
@@ -3954,7 +3954,7 @@ GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
 	
         /* Set the coordinates of the replicate */
         dist = 0.;
-        for (idim=0; idim<get_NDIM(dbin); idim++)
+        for (idim=0; idim<dbin->getNDim(); idim++)
         {
           dval = dinc * rule->getShift(idim) * istep;
           set_IDIM(dbin,jech,idim,get_IDIM(dbin,iech,idim) - dval);
@@ -4102,7 +4102,7 @@ GEOSLIB_API int rule_evaluate_bounds(Props  *propdef,
         if (jech < 0) return(1);
 
         /* Set the coordinates of the replicate */
-        for (idim=0; idim<get_NDIM(dbin); idim++)
+        for (idim=0; idim<dbin->getNDim(); idim++)
           set_IDIM(dbin,jech,idim,get_IDIM(dbin,iech,idim) - rule->getShift(idim));
 
         /* Can the replicate be added */
@@ -4630,7 +4630,7 @@ static void st_print_ineq(Db    *db,
   /* Print the coordinates */
 
   message(" at point (");
-  for (idim=0; idim<get_NDIM(db); idim++)
+  for (idim=0; idim<db->getNDim(); idim++)
   {
     if (idim != 0) message(",");
     message("%8.4lf",get_IDIM(db,iech,idim));
@@ -5712,11 +5712,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   if (flag_cond)
   {
     nechin = get_NECH(dbin);
-    if (get_NVAR(dbin) != 1)
-    {
-      messerr("The PGS application requires one variable in the Input File");
-      goto label_end;
-    }
+    if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
   }
 
   /* Output Db */
@@ -6124,11 +6120,7 @@ GEOSLIB_API int simbipgs(Db     *dbin,
   if (flag_cond)
   {
     nechin = get_NECH(dbin);
-    if (get_NVAR(dbin) != 2)
-    {
-      messerr("The Bi_PGS application requires two variables");
-      goto label_end;
-    }
+    if (! dbin->isVariableNumberComparedTo(2)) goto label_end;
     iatt_z[0] = db_attribute_identify(dbin,LOC_Z,0);
     iatt_z[1] = db_attribute_identify(dbin,LOC_Z,1);
   }
@@ -6865,7 +6857,7 @@ GEOSLIB_API int simtub_constraints(Db       *dbin,
   /* Preliminary check */
 
   flag_grid = is_grid(dbout);
-  ndim = get_NDIM(dbout);
+  ndim = dbout->getNDim();
   nech = get_NECH(dbout);
   tab.resize(dbout->getSampleNumber());
   if (flag_grid)
@@ -7462,11 +7454,7 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
   if (flag_cond)
   {
     nechin = get_NECH(dbin);
-    if (get_NVAR(dbin) != 1)
-    {
-      messerr("The PGS application requires one variable in the Input File");
-      goto label_end;
-    }
+    if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
   }
 
   /* Output Db */

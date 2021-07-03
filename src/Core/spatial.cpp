@@ -78,7 +78,7 @@ static int st_cgi_data(Db     *db,
   /* Check if the sample has defined coordinates */
 
   db_sample_load(db,LOC_X,iech,coor);
-  for (idim=0; idim<get_NDIM(db); idim++) 
+  for (idim=0; idim<db->getNDim(); idim++)
     if (FFFF(coor[idim])) return(1);
 
   /* Returning argument */
@@ -122,7 +122,7 @@ GEOSLIB_API int cgi(Db     *db,
 
   error = 1;
   nech  = db->getSampleNumber();
-  ndim  = get_NDIM(db);
+  ndim  = db->getNDim();
   coor  = mm = (double *) NULL;
   flag_z = db->isAttributeDefined(iatt);
   flag_w = db->hasWeight();

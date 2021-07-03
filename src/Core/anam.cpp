@@ -1294,7 +1294,7 @@ GEOSLIB_API int anam_discrete_z2factor(Anam   *anam,
   AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
 
-  nvar = get_NVAR(db);
+  nvar = db->getVariableNumber();
   if (nvar != 1)
   {
     messerr("This function is only coded for the monovariate Db");

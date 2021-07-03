@@ -1484,6 +1484,44 @@ int Db::getVariableNumber() const
   return getFromLocatorNumber(LOC_Z);
 }
 
+/**
+ * Checks the number of variables in 'this' compared to the required 'nvar'
+ * - compare=0: they should be equal
+ * - compare<0: 'this' should contain less (or equal) than 'nvar'
+ * - compare>0: 'this' should contain more (or equal) than 'nvar'
+ */
+bool Db::isVariableNumberComparedTo(int nvar, int compare) const
+{
+  if (compare == 0)
+  {
+    if (! (getVariableNumber() == nvar))
+    {
+      messerr("This function requires %d variables (locator 'Z'). The 'Db' contains %d variables",
+              nvar,getVariableNumber());
+      return false;
+    }
+  }
+  else if (compare < 0)
+  {
+    if (! (getVariableNumber() <= nvar))
+    {
+      messerr("This function requires nvar <= %d variables (locator 'Z'). The 'Db' contains %d variables",
+              nvar,getVariableNumber());
+      return false;
+    }
+  }
+  else
+  {
+    if (! (getVariableNumber() > nvar))
+    {
+      messerr("This function requires nvar >= %d variables (locator 'Z'). The 'Db' contains %d variables",
+              nvar,getVariableNumber());
+      return false;
+    }
+  }
+  return true;
+}
+
 bool Db::hasVariable() const
 {
   return (getVariableNumber() > 0);

@@ -328,7 +328,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   if (! is_grid(dbgrid) || ndim > 3)
   {
     messerr("The substitution is available for Grid File with dimension <= 3");

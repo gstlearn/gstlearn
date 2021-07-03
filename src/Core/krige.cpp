@@ -862,8 +862,8 @@ static int st_check_environment(int    flag_in,
   /*********************************/
 
   ndim = 0;
-  if (flag_in  && ndim == 0) ndim = get_NDIM(DBIN);
-  if (flag_out && ndim == 0) ndim = get_NDIM(DBOUT);
+  if (flag_in  && ndim == 0) ndim = DBIN->getNDim();
+  if (flag_out && ndim == 0) ndim = DBOUT->getNDim();
   if (flag_in && flag_out && ! DBIN->hasSameDimension(DBOUT)) goto label_end;
 
   /**********************/
@@ -880,9 +880,9 @@ static int st_check_environment(int    flag_in,
     }
     // The following test is avoided in the case of simulations
     // as there may be no Z-variable defined as this stage (Gibbs)
-    if (flag_in && ! FLAG_SIMU && get_NVAR(DBIN) != nvar)
+    if (flag_in && ! FLAG_SIMU && DBIN->getVariableNumber() != nvar)
     {
-      messerr("The number of variables of the Data (%d)",get_NVAR(DBIN));
+      messerr("The number of variables of the Data (%d)",DBIN->getVariableNumber());
       messerr("does not match the number of variables of the Model (%d)",
               nvar);
       goto label_end;
@@ -1058,12 +1058,12 @@ static int st_model_manage(int    mode,
     /* Allocation */
 
     if (MODEL_INIT) return(1);
-    d1.resize(get_NDIM(DBIN));
+    d1.resize(DBIN->getNDim());
     d1_1 = db_sample_alloc(DBIN,LOC_X);
     if (d1_1 == (double *) NULL) return(1);
     d1_2 = db_sample_alloc(DBIN,LOC_X);
     if (d1_2 == (double *) NULL) return(1);
-    d1_t.resize(get_NDIM(DBIN));
+    d1_t.resize(DBIN->getNDim());
     covtab = st_core(nvar,nvar);
     if (covtab == (double *) NULL) return(1);
     covaux = st_core(nvar,nvar);
@@ -1208,14 +1208,14 @@ static int st_bench_nmax(Neigh *neigh)
   tab   = (double *) NULL;
   nech  = get_NECH(DBIN);
   nmax  = nech;
-  if (get_NDIM(DBIN) <= 2) return(nmax);
+  if (DBIN->getNDim() <= 2) return(nmax);
 
   /* Core allocation */
   tab = db_vector_alloc(DBIN);
   if (tab == (double *) NULL) goto label_end;
 
   /* Read the vector of the third coordinates */
-  if (db_coorvec_get(DBIN,get_NDIM(DBIN)-1,tab)) goto label_end;
+  if (db_coorvec_get(DBIN,DBIN->getNDim()-1,tab)) goto label_end;
 
   /* Sort the third coordinate vector */
   ut_sort_double(0,nech,NULL,tab);
@@ -1471,7 +1471,7 @@ GEOSLIB_API int krige_koption_manage(int       mode,
   /* Initializations */
 
   error   = 1;
-  ndim    = get_NDIM(DBOUT);
+  ndim    = DBOUT->getNDim();
 
   /* Dispatch */
 
@@ -1579,10 +1579,10 @@ static void st_flag_define(Model *model,
   for (iech=0; iech<nech; iech++)
   {
     valid = 1;
-    for (idim=0; idim<get_NDIM(DBIN); idim++)
+    for (idim=0; idim<DBIN->getNDim(); idim++)
       if (FFFF(st_get_idim(rank[iech],idim))) valid = 0;
     if (! valid)
-      for (ivar=0; ivar<get_NVAR(DBIN); ivar++) FLAG(iech,ivar) = 0;
+      for (ivar=0; ivar<DBIN->getVariableNumber(); ivar++) FLAG(iech,ivar) = 0;
   }
 
   /* Check on the data values */
@@ -1596,7 +1596,7 @@ static void st_flag_define(Model *model,
   for (iech=0; iech<nech; iech++)
     for (ibfl=0; ibfl<model_nfex(model); ibfl++)
       if (FFFF(st_get_fext(rank[iech],ibfl)))
-        for (ivar=0; ivar<get_NVAR(DBIN); ivar++) FLAG(iech,ivar) = 0;
+        for (ivar=0; ivar<DBIN->getVariableNumber(); ivar++) FLAG(iech,ivar) = 0;
 
   /* Check on the drift */
 
@@ -1610,7 +1610,7 @@ static void st_flag_define(Model *model,
         for (iech=0; iech<nech; iech++)
           if (! FFFF(st_get_ivar(rank[iech],ivar))) valid++;
       }
-    FLAG(nech+ib,get_NVAR(DBIN)-1) = (valid > 0);
+    FLAG(nech+ib,DBIN->getVariableNumber()-1) = (valid > 0);
   }
   
   /* Calculate the new number of equations */
@@ -1834,7 +1834,7 @@ static void st_lhs(Model  *model,
     for (jech=0; jech<nech; jech++)
     {
       model_covtab_init(1,model,covtab);
-      for (idim=0; idim<get_NDIM(DBIN); idim++)
+      for (idim=0; idim<DBIN->getNDim(); idim++)
         d1[idim] = (st_get_idim(rank[jech],idim) -
                     st_get_idim(rank[iech],idim));
       st_cov_dd(model,0,0,0,MEMBER_LHS,-1,1.,rank[iech],rank[jech],d1,covtab);
@@ -2029,7 +2029,7 @@ static int st_neigh(Neigh   *neigh,
 
   *status  = 0;
   flag_new = 0;
-  nvarin   = get_NVAR(DBIN);
+  nvarin   = DBIN->getVariableNumber();
 
   /* Should the neighborhood search be performed again */
 
@@ -2044,7 +2044,7 @@ static int st_neigh(Neigh   *neigh,
       break;
 
     case NEIGH_BENCH:
-      ndim = get_NDIM(DBOUT);
+      ndim = DBOUT->getNDim();
       if (IECH_NBGH < 0 || IECH_NBGH > get_NECH(DBOUT)) break;
       if (IECH_OUT  < 0 || IECH_OUT  > get_NECH(DBOUT)) break;
       if (is_grid(DBOUT))
@@ -2282,7 +2282,7 @@ static void st_rhs(Model   *model,
       case KOPTION_PONCTUAL:
         nscale = 1;
         model_covtab_init(1,model,covtab);
-        for (idim=0; idim<get_NDIM(DBIN); idim++)
+        for (idim=0; idim<DBIN->getNDim(); idim++)
         {
           d1[idim] = (get_IDIM(DBOUT,IECH_OUT,idim) -
                       st_get_idim(rank[iech],idim));
@@ -2299,7 +2299,7 @@ static void st_rhs(Model   *model,
         model_covtab_init(1,model,covtab);
         for (i=0; i<nscale; i++)
         {
-          for (idim=0; idim<get_NDIM(DBIN); idim++)
+          for (idim=0; idim<DBIN->getNDim(); idim++)
             d1[idim] = (get_IDIM(DBOUT,IECH_OUT,idim) -
                         st_get_idim(rank[iech],idim) + DISC1(i,idim));
           st_cov_dg(model,0,0,0,MEMBER_RHS,-1,1.,rank[iech],-1,d1,covtab);
@@ -2818,7 +2818,7 @@ static void krige_wgt_print(int     status,
 
   /* Initializations */
 
-  ndim  = get_NDIM(DBIN);
+  ndim  = DBIN->getNDim();
   sum   = (double *) st_core(nvar_m,1);
   if (sum == (double *) NULL) return;
 
@@ -3165,7 +3165,7 @@ static Db *st_image_build(Neigh *neigh,
   /* Preliminary checks */
 
   if (! is_grid(DBOUT)) goto label_end;
-  ndim  = get_NDIM(DBOUT);
+  ndim  = DBOUT->getNDim();
   natt  = ndim + nvar;
   seuil = 1. / neigh->getSkip();
 
@@ -3332,7 +3332,7 @@ static int st_check_colcok(Db  *dbin,
 
   /* Loop on the ranks of the colocated variables */
 
-  for (ivar=0; ivar<get_NVAR(dbin); ivar++)
+  for (ivar=0; ivar<dbin->getVariableNumber(); ivar++)
   {
     jvar = rank_colcok[ivar];
     if (IFFFF(jvar)) jvar = 0;
@@ -4010,7 +4010,7 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
 
   /* Preliminary checks */
 
-  if (get_NVAR(dbin) != 1)
+  if (! dbin->isVariableNumberComparedTo(1))
   {
     messerr("This method is restricted to the monovariate case");
     return(1);
@@ -4030,7 +4030,7 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
   FLAG_STD  = flag_std;
   FLAG_WGT  = flag_std;
   FLAG_PROF = 1;
-  nvar  = get_NVAR(dbin);
+  nvar  = dbin->getVariableNumber();
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
@@ -4272,7 +4272,7 @@ static int bayes_precalc(Model  *model,
   for (int iech = 0; iech < get_NECH(DBIN); iech++)
   {
     if (! get_ACTIVE(DBIN,iech)) continue;
-    for (int ivar = 0; ivar < get_NVAR(DBIN); ivar++)
+    for (int ivar = 0; ivar < DBIN->getVariableNumber(); ivar++)
     {
       double value = DBIN->getVariable(rank[iech],ivar);
       if (FFFF(value)) continue;
@@ -4884,7 +4884,7 @@ GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
   st_global_init(dbgrid,dbgrid);
   nvar  = model->getVariableNumber();
   nfeq  = model->getDriftEquationNumber();
-  ndim  = get_NDIM(dbgrid);
+  ndim  = dbgrid->getNDim();
   FLAG_EST  = 1;
   FLAG_STD  = 1;
   FLAG_WGT  = 1;
@@ -5033,10 +5033,10 @@ GEOSLIB_API int global_arithmetic(Db     *dbin,
   /* Preliminary checks */
 
   if (st_check_environment(1,1,model,NULL)) goto label_end;
-  if (ivar < 0 || ivar >= get_NVAR(dbin))
+  if (ivar < 0 || ivar >= dbin->getVariableNumber())
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-            ivar+1,get_NVAR(dbin));
+            ivar+1,dbin->getVariableNumber());
     goto label_end;
   }
   
@@ -5156,12 +5156,12 @@ GEOSLIB_API int global_kriging(Db     *dbin,
   nvar    = 0;
   rhs_tot = (double  *) NULL;
   st_global_init(dbin,dbout);
-  neigh = neigh_init_unique(get_NDIM(dbin));
+  neigh = neigh_init_unique(dbin->getNDim());
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (ivar < 0 || ivar >= get_NVAR(dbin))
+  if (ivar < 0 || ivar >= dbin->getVariableNumber())
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-            ivar+1,get_NVAR(dbin));
+            ivar+1,dbin->getVariableNumber());
     goto label_end;
   }
   FLAG_EST  = 1;
@@ -5366,7 +5366,7 @@ GEOSLIB_API int global_transitive(Db     *dbgrid,
   flag_value = 0;
   st_global_init(dbgrid,dbgrid);
   if (st_check_environment(0,1,model,NULL)) goto label_end;
-  ndim  = get_NDIM(dbgrid);
+  ndim  = dbgrid->getNDim();
   d1.resize(2);
 
   if (ndim < 1 || ndim > 2)
@@ -5393,7 +5393,7 @@ GEOSLIB_API int global_transitive(Db     *dbgrid,
   /* Abundance estimation */
 
   flag_value = 0;
-  if (get_NVAR(dbgrid) == 1)
+  if (dbgrid->getVariableNumber() == 1)
   {
     for (i=0; i<get_NECH(dbgrid); i++)
     {
@@ -5567,7 +5567,7 @@ static void st_grid_invdist(int     exponent,
 
   /* Initializations */
 
-  ndim  = get_NDIM(DBIN);
+  ndim  = DBIN->getNDim();
   maxneigh = (int) pow(2., (double) ndim);
   (void) db_extension_diag(DBOUT,&dmin);
   dmin /= 1.e5;
@@ -5692,7 +5692,7 @@ static void st_point_invdist(int     exponent,
 
   /* Initializations */
 
-  ndim  = get_NDIM(DBIN);
+  ndim  = DBIN->getNDim();
   (void) db_extension_diag(DBOUT,&dmin);
   dmin /= 1.e5;
 
@@ -5839,7 +5839,7 @@ static int st_get_limits(Db     *db,
 
   /* Initializations */
 
-  ndim = get_NDIM(db);
+  ndim = db->getNDim();
   z0   = get_X0(db,ndim-1);
   nz   = get_NX(db,ndim-1);
   dz   = get_DX(db,ndim-1);
@@ -6086,8 +6086,8 @@ GEOSLIB_API int anakexp_f(Db     *db,
   st_global_init(db,db);
   FLAG_EST = 1;
   lhs    = rhs = wgt = (double *) NULL;
-  ndim   = get_NDIM(db);
-  nvarin = get_NVAR(db);
+  ndim   = db->getNDim();
+  nvarin = db->getVariableNumber();
   nbefore_mem = nafter_mem = -1;
   size = nech = 0;
 
@@ -6771,8 +6771,8 @@ GEOSLIB_API int anakexp_3D(Db     *db,
   cov_tot  = cov_res = (double *) NULL;
   num_tot  = nei_cur = nei_ref = (int *) NULL;
   lhs      = rhs = wgt = (double *) NULL;
-  ndim     = get_NDIM(db);
-  nvarin   = get_NVAR(db);
+  ndim     = db->getNDim();
+  nvarin   = db->getVariableNumber();
   size_nei = 0;
 
   /* Prepare the Koption structure */
@@ -6826,7 +6826,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
   nei_nn[1] = MIN(get_NX(db,1) - 1,neigh_hor);
   nei_nn[2] = MIN(get_NX(db,2) - 1,neigh_ver);
   size_nei = size_cov = 1;
-  for (i=0; i<get_NDIM(db); i++)
+  for (i=0; i<db->getNDim(); i++)
   {
     nei_ss[i] = 2 * nei_nn[i] + 1;
     cov_nn[i] = 2 * nei_nn[i];
@@ -7094,8 +7094,8 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
   dbaux = (Db *) NULL;
   indn0 = indnl = indg0 = indgl = (int *) NULL;
   st_global_init(dbgrid,dbgrid);
-  nvarin = get_NVAR(dbgrid);
-  ndim   = get_NDIM(dbgrid);
+  nvarin = dbgrid->getVariableNumber();
+  ndim   = dbgrid->getNDim();
   r2     = (type == 1) ? 1. : range * range;
   if (nvarin != 1)
   {
@@ -7220,7 +7220,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
   st_global_init(dbin,dbout);
   icols      = active = (int     *) NULL;
   lterm      = (double  *) NULL;
-  nvarin     = get_NVAR(dbin);
+  nvarin     = dbin->getVariableNumber();
   nvarmod    = model->getVariableNumber();
   FLAG_EST   = 1;
   FLAG_LTERM = 1;
@@ -7532,7 +7532,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
   st_global_init(dbin,db3grid);
   icols      = (int     *) NULL;
   lterm      = lback = proptab = cc = xx = bb = (double  *) NULL;
-  nvarin     = get_NVAR(dbin);
+  nvarin     = dbin->getVariableNumber();
   nvarmod    = model->getVariableNumber();
   nfeq       = model->getDriftEquationNumber();
   iptr_prop  = iter = nsize = 0;
@@ -7921,7 +7921,7 @@ GEOSLIB_API int krigtest_dimension(Db    *dbin,
   /* Set the error return flag */
 
   error     = 0;
-  *ndim_ret = get_NDIM(dbin);
+  *ndim_ret = dbin->getNDim();
   *nech_ret = nech;
   *nred_ret = nred;
   *nrhs_ret = nvar;
@@ -7996,7 +7996,7 @@ GEOSLIB_API int krigtest_f(Db     *dbin,
                            &inostat)) goto label_end;
   nvar  = model->getVariableNumber();
   nfeq  = model->getDriftEquationNumber();
-  ndim  = get_NDIM(dbin);
+  ndim  = dbin->getNDim();
 
   /* Add the attributes for storing the results */
 
@@ -8561,14 +8561,14 @@ GEOSLIB_API int dk_f(Db *dbin,
   {
     /* In the gaussian case, calculate the 'nfactor-1' factors */
 
-    if (get_NVAR(DBIN) != 1)
+    if (! DBIN->isVariableNumberComparedTo(1))
     {
       messerr("In Gaussian case, Input File must contain a single variable");
       goto label_end;
     }
     if (st_calculate_hermite_factors(DBIN,nfactor-1)) goto label_end;
   }
-  nvarz  = get_NVAR(DBIN);
+  nvarz  = DBIN->getVariableNumber();
 
   if (nfactor-1 != nvarz)
   {
@@ -8823,7 +8823,7 @@ GEOSLIB_API int *neigh_calc(Db     *dbin,
   /* Modification of 'dbin' */
 
   if (dbin != (Db *) NULL && model != (Model *) NULL &&
-      get_NVAR(dbin) != model->getVariableNumber() && model->getVariableNumber() == 1)
+      dbin->getVariableNumber() != model->getVariableNumber() && model->getVariableNumber() == 1)
   {
     zloc = dbin->getColumnByLocator(LOC_Z,0);
     dbin->clearLocators(LOC_Z);
@@ -9884,7 +9884,7 @@ static int st_declustering_1(Db     *db,
       /* Normalize the distance */
       
       dist = 0.;
-      for (int idim=0; idim<get_NDIM(db); idim++)
+      for (int idim=0; idim<db->getNDim(); idim++)
       {
         vect[idim] /= radius[idim];
         dist += vect[idim] * vect[idim];
@@ -9944,7 +9944,7 @@ static int st_declustering_2(Db     *db,
   /* Initializations */
 
   error = 1;
-  ndim  = get_NDIM(db);
+  ndim  = db->getNDim();
   neigh = neigh_init_unique(ndim);
   nvar  = model->getVariableNumber();
   st_global_init(db,db);
@@ -10157,11 +10157,7 @@ GEOSLIB_API int declustering_f(Db     *dbin,
 
   /* Preliminary checks */
 
-  if (get_NVAR(dbin) < 1)
-  {
-    messerr("Declustering needs at least one variable to be defined");
-    goto label_end;
-  }
+  if (dbin->isVariableNumberComparedTo(0)) goto label_end;
 
   /* Add the kriging weight as a new variable */
 
@@ -10280,7 +10276,7 @@ static double *st_calcul_covmat(const char *title,
         if (! get_ACTIVE(db2,ii2)) continue;
       }
 
-      for (int idim=0; idim<get_NDIM(db1); idim++)
+      for (int idim=0; idim<db1->getNDim(); idim++)
         d1[idim] = (get_IDIM(db1,ii1,idim) - get_IDIM(db2,ii2,idim));
 
       model_calcul_cov(model,mode,1,1.,d1,&COVGEN(i1,i2));
@@ -10386,7 +10382,7 @@ static double *st_calcul_distmat(const char *title,
 
   n1   = (test_def1) ? get_NACTIVE_AND_DEFINED(db1,0) : db1->getActiveSampleNumber();
   ns   = (test_def2) ? get_NACTIVE_AND_DEFINED(db2,0) : db2->getActiveSampleNumber();
-  ndim = get_NDIM(db1);
+  ndim = db1->getNDim();
 
   /* Core allocation */
 
@@ -10836,7 +10832,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   /* Preliminary checks */
 
   error = nvar = 1;
-  neigh = neigh_init_unique(get_NDIM(dbdat));
+  neigh = neigh_init_unique(dbdat->getNDim());
   st_global_init(dbdat,dbout);
   FLAG_EST  = 1;
   FLAG_STD  = 1;

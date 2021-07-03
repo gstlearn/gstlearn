@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
   /* Define the Default Space according to the Dimension of the Input Db */
 
-  ASpaceObject::createGlobalSpace(SPACE_RN,get_NDIM(dbin));
+  ASpaceObject::createGlobalSpace(SPACE_RN,dbin->getNDim());
 
   /* Define the variogram (optional) */
   
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 
   /* Define the neighborhood */
 
-  neigh = neigh_init_unique(get_NDIM(dbout));
+  neigh = neigh_init_unique(dbout->getNDim());
 
   /* Perform the Pluri-Gaussian Simulations */
 

@@ -73,9 +73,9 @@ GEOSLIB_API void model_nostat_update(CovNostatInternal *cov_nostat,
  *****************************************************************************/
 static int st_check_environ(Model *model, Db *db)
 {
-  if (model->getDimensionNumber() == get_NDIM(db)) return (0);
+  if (model->getDimensionNumber() == db->getNDim()) return (0);
   messerr("Dimension of the Db (%d) does not match dimension of the Model (%d)",
-          get_NDIM(db), model->getDimensionNumber());
+          db->getNDim(), model->getDimensionNumber());
   return (1);
 }
 
@@ -4513,7 +4513,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
 
   if (npivot_max <= 0) npivot_max = nech;
   npivot_max = MIN(npivot_max, nech);
-  d1.resize(get_NDIM(db));
+  d1.resize(db->getNDim());
   diag = (double *) mem_alloc(sizeof(double) * nech, 0);
   if (diag == (double *) NULL) goto label_end;
   crit = (double *) mem_alloc(sizeof(double) * (1 + nech), 0);
@@ -4793,7 +4793,7 @@ GEOSLIB_API double model_calcul_stdev(Model *model,
 
   /* Initializations */
 
-  ndim = get_NDIM(db1);
+  ndim = db1->getNDim();
 
   /* Covariance at origin */
 

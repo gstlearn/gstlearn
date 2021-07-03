@@ -167,7 +167,7 @@ static void st_simfft_init(Db     *db,
   
   /* Definition according to the grid */
 
-  simu->ndim = get_NDIM(db);
+  simu->ndim = db->getNDim();
   simu->nxyz = 1;
   for (i=0; i<3; i++)
   {

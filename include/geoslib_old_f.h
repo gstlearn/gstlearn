@@ -1711,11 +1711,9 @@
   GEOSLIB_API int get_NECH(Db *db);
   GEOSLIB_API int get_NACTIVE_AND_DEFINED(Db *db, int item);
   GEOSLIB_API double get_ARRAY(Db *db, int iech, int iatt);
-  GEOSLIB_API int    get_NDIM(Db *db);
   GEOSLIB_API double get_IDIM(Db *db, int iech, int idim);
   GEOSLIB_API void   set_IDIM(Db *db, int iech, int idim, double value);
   GEOSLIB_API double get_grid_IDIM(Db *db, int iech, int idim);
-  GEOSLIB_API int    get_NVAR(Db *db);
   GEOSLIB_API int    match_domain_ref(double value);
   GEOSLIB_API int    get_DOMAIN(Db *db, int iech);
   GEOSLIB_API void   domain_ref_define(int value, int verbose);

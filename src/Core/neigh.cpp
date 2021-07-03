@@ -117,7 +117,7 @@ static int st_discard_undefined(Db  *dbin,
 
   if (! FLAG_SIMU)
   {
-    for (ivar=0; ivar<get_NVAR(dbin); ivar++)
+    for (ivar=0; ivar<dbin->getVariableNumber(); ivar++)
       if (! FFFF(dbin->getVariable(iech,ivar))) return(0);
   }
   else
@@ -234,7 +234,7 @@ static void st_bench(Db     *dbin,
 
   /* Initializations */
 
-  idim_bench = get_NDIM(dbin) - 1;
+  idim_bench = dbin->getNDim() - 1;
   z0 = get_IDIM(dbout,iech_out,idim_bench);
 
   /* Loop on samples */
@@ -362,7 +362,7 @@ static double st_moving_dist(Db     *dbin,
     
   /* Initializations */
 
-  ndim = get_NDIM(dbin);
+  ndim = dbin->getNDim();
 
   /* Calculate the distance to the target */
 
