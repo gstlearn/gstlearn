@@ -27,7 +27,7 @@ For using (compiling) *gstlearn* C++ Library, the following tools must be availa
       + BOOST_DIR (MacOS and Windows only) to the Boost library root folder (See below)
   
 ## Library compilation
-Cloning the repository and compiling
+Cloning the repository and compiling (Currently, **only the Linux version** has been tested)
 ```sh
 git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
@@ -62,7 +62,7 @@ Download and install the following tools:
   * Boost Library [from here](https://www.boost.org/users/download) (download and extract the zip file anywhere)
   
 Notes:
-  * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (1,4Go!) (more details [here](https://stackoverflow.com/a/44398715))
+  * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (1,4Go!) (more details [here](https://stackoverflow.com/a/44398715)). If you prefer using another smaller compiler (i.e. MinGW), you could [try this](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) (not tested)
   * The *Path* environment variable must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
