@@ -61,7 +61,7 @@ int Chebychev::fit(std::function<double(double)> f, double a, double b, double t
      value  += incr;
    }
 
-   /* Optional printout */
+   /* Optional printout  */
 
    if (_verbose)
    {
