@@ -4961,8 +4961,6 @@ label_end:
 ** \remark  of indicators.
 ** \remark  However, the models(s) are defined for a single variable
 **
-** \note Needs license for Keyword simpgs
-**
 *****************************************************************************/
 GEOSLIB_API int model_pgs(Db     *db,
                           Db     *dbprop,
@@ -4984,7 +4982,6 @@ GEOSLIB_API int model_pgs(Db     *db,
   /* Initializations */
   /*******************/
 
-  if (! LicenseKey::isAuthorized("simpgs")) return(1);
   st_timer_start("model_pgs");
   TEST_DISCRET = (int) get_keypone("TEST_DISCRET",
                                    st_def_test_discret(rule,0));
@@ -5212,8 +5209,6 @@ label_end:
 ** \param[in]  flag_rho     1 if the correlation coefficient must be regressed
 ** \param[in]  opt_correl   0 full model; 1 symmetrical; 2 residuals
 **
-** \note Needs license for Keyword variopgs
-**
 ** \remarks This is simply a routine dispatching between the stationary function
 ** \remarks and the non-stationary one
 **
@@ -5232,7 +5227,6 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("variopgs")) return(1);
   st_timer_start("variogram_pgs");
   TEST_DISCRET = (int) get_keypone("TEST_DISCRET",
                                    st_def_test_discret(rule,0));
@@ -5288,8 +5282,6 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 ** \param[in]  flag_stat    1 for stationary and 0 otherwise
 ** \param[in]  verbose      Verbosity flag
 **
-** \note Needs license for Keyword variopgs
-**
 *****************************************************************************/
 GEOSLIB_API Rule *rule_auto(Db     *db,
                             Db     *dbprop,
@@ -5314,7 +5306,6 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
   error        = 1;
   rule         = (Rule *) NULL;
-  if (! LicenseKey::isAuthorized("variopgs")) return(rule);
   scores       = (double *) NULL;
   facies       = fcmp = fgrf = string = (int *) NULL;
   Pile_Relem   = (Relem *) NULL;

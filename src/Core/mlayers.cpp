@@ -2000,8 +2000,6 @@ label_end:
 ** \param[in]  colrefb    Rank of the Bottom Depth variable in Dbout (or -1)
 ** \param[in]  verbose    Verbose option
 **
-** \note Needs license for Keyword mlayers
-**
 *****************************************************************************/
 GEOSLIB_API int multilayers_kriging(Db     *dbin,
                                     Db     *dbout,
@@ -2034,7 +2032,6 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
   /* Preliminary checks */
 
   error = 1;
-  if (! LicenseKey::isAuthorized("mlayers")) return(1);
   
   iptr     = -1;
   seltab   = (int *) NULL;
@@ -2511,8 +2508,6 @@ label_end:
 ** \param[in]  colreft    Rank of the reference Time variable in Dbout
 ** \param[in]  verbose    1 for a  verbose option
 **
-** \note Needs license for Keyword mlayers
-**
 *****************************************************************************/
 GEOSLIB_API int multilayers_vario(Db      *dbin,
                                   Db      *dbout,
@@ -2535,7 +2530,6 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
   /* Preliminary checks */
 
   error = 1;
-  if (! LicenseKey::isAuthorized("mlayers")) return(1);
   seltab   = (int *) NULL;
   prop1    = zval = (double *) NULL;
   lmlayers = (LMlayers *) NULL;
@@ -2786,8 +2780,6 @@ label_end:
 ** \param[out] mean       Array of means
 ** \param[out] vars       Array of variances
 **
-** \note Needs license for Keyword mlayers
-**
 *****************************************************************************/
 GEOSLIB_API int multilayers_get_prior(Db      *dbin,
                                       Db      *dbout,
@@ -2814,8 +2806,6 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
   /* Preliminary checks */
 
   error = 1;
-  if (! LicenseKey::isAuthorized("mlayers")) return(1);
-  
   iptr     = -1;
   seltab   = (int *) NULL;
   fftab    = zval = props = (double *) NULL;

@@ -914,8 +914,6 @@ static int st_fluid_check(void)
 ** \remark  Volume_max represents the volumic part of the invaded area:
 ** \remark  it is always <= number of cells invaded.
 **
-** \note Needs license for Keyword simeden
-**
 *****************************************************************************/
 GEOSLIB_API int fluid_propagation(Db     *dbgrid,
                                   int     verbose,
@@ -940,7 +938,6 @@ GEOSLIB_API int fluid_propagation(Db     *dbgrid,
 
   error = 1;
   stats = (Eden_Stats *) NULL;
-  if (! LicenseKey::isAuthorized("simeden")) return(1);
 
   /* Preliminary checks */
 
@@ -1156,8 +1153,6 @@ static int st_get_time_interval(double date,
 ** \param[in]  dtime         Time interval
 ** \param[in]  tab           Array of extracted statistics
 **
-** \note Needs license for Keyword simeden
-**
 *****************************************************************************/
 GEOSLIB_API int fluid_extract(Db      *dbgrid,
                               int      verbose,
@@ -1176,10 +1171,6 @@ GEOSLIB_API int fluid_extract(Db      *dbgrid,
 {
   int    itime,iech;
   double totnum,totvol,locnum,locvol,volume,datmax,date;
-
-  /* Initializations */
-
-  if (! LicenseKey::isAuthorized("simeden")) return(1);
 
   /* Preliminary checks */
 

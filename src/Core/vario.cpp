@@ -2465,8 +2465,6 @@ label_end:
 ** \param[in]  db         Db descriptor
 ** \param[in]  vario      Vario structure
 **
-** \note Needs license for Keyword variogram
-**
 *****************************************************************************/
 static int st_variogen_grid_calcul(Db    *db,
                                      Vario *vario)
@@ -2476,7 +2474,6 @@ static int st_variogen_grid_calcul(Db    *db,
   /* Initializations */
 
   error = 1;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
   norder = st_get_generalized_variogram_order(vario);
@@ -2531,8 +2528,6 @@ static int st_variogen_grid_calcul(Db    *db,
 ** \param[in]  db           Db descriptor
 ** \param[in]  vario        Vario structure
 **
-** \note Needs license for Keyword variogram
-**
 *****************************************************************************/
 static int st_variogen_line_calcul(Db    *db,
                                      Vario *vario)
@@ -2542,7 +2537,6 @@ static int st_variogen_line_calcul(Db    *db,
   /* Initializations */
 
   error = 1;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
   norder = st_get_generalized_variogram_order(vario);
@@ -2759,10 +2753,6 @@ label_end:
 **                          This parameter is only valid for KU option
 ** \param[in]  verbose      Verbose flag
 **
-** \note Needs license for Keyword variogram
-** \note and Keyword varioerr (for particular case of measurement error)
-** \note and Keyword varioKU (for particular case of drift removal)
-**
 ** \note The number of iterations in KU is given can be updated using the
 ** \note keypair technique with name "KU_Niter".
 **
@@ -2782,7 +2772,6 @@ static int st_variogram_general(Db    *db,
 
   error = 1;
   flag_verr = flag_ku = nbfl = 0;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
   rindex = (int    *) NULL;
@@ -2813,13 +2802,8 @@ static int st_variogram_general(Db    *db,
 
   if (db->getVarianceErrorNumber() > 0 && verr_mode > 0)
   {
-    if (LicenseKey::isAuthorized("varioerr"))
-    {
-      vorder = vario_order_manage(1,1,0,vorder);
-      flag_verr = 1;    
-    }
-    else
-      messerr("Your license does not allow correction for the Variance of Error Measurements");
+    vorder = vario_order_manage(1,1,0,vorder);
+    flag_verr = 1;
   }
 
   /* Auxiliary check for Drift removal */
@@ -2827,15 +2811,10 @@ static int st_variogram_general(Db    *db,
   if (model != (Model *) NULL && 
       (model->getDriftNumber() > 1 || model->getDriftType(0) != DRIFT_1))
   {
-    if (LicenseKey::isAuthorized("varioerr"))
-    {
-      if (vorder == (Vario_Order *) NULL)
-        vorder = vario_order_manage(1,1,0,vorder);
-      flag_ku = 1;
-      st_manage_drift_removal(1,db,model);
-    }
-    else
-      messerr("Your license does not allow correcting for bias after Drift Removal");
+    if (vorder == (Vario_Order *) NULL)
+      vorder = vario_order_manage(1,1,0,vorder);
+    flag_ku = 1;
+    st_manage_drift_removal(1,db,model);
   }  
 
   /* Complementary checks */
@@ -2932,8 +2911,6 @@ label_end:
 ** \param[in]  vario  Vario structure
 ** \param[in]  ncomp  Number of components
 **
-** \note Needs license for Keyword variogram
-**
 *****************************************************************************/
 GEOSLIB_API int variovect_compute(Db    *db,
                                  Vario *vario,
@@ -2944,7 +2921,6 @@ GEOSLIB_API int variovect_compute(Db    *db,
   /* Initializations */
 
   error = 0;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
   rindex = (int *) NULL;
@@ -3048,8 +3024,6 @@ static int st_find_neigh_cell(Db  *dbmap,
 ** \param[in]  radius    Dilation radius (used to smooth the resulting maps)
 ** \param[in]  namconv   Naming convention
 **
-** \note Needs license for Keyword variogram
-**
 *****************************************************************************/
 static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
                            NamingConvention namconv)
@@ -3064,7 +3038,6 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
   error = 0;
   indg0 = indg1 = ind1 = (int *) NULL;
   delta = coor = mid = (double *) NULL;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db     == (Db    *) NULL) return(1);
   if (dbmap  == (Db    *) NULL) return(1);
 
@@ -3219,8 +3192,6 @@ label_end:
 ** \param[in]  calcul_type  Type of calculation (::ENUM_CALCUL_VARIO)
 ** \param[in]  namconv   Naming Convention
 **
-** \note Needs license for Keyword variogram
-**
 *****************************************************************************/
 static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
                         NamingConvention namconv)
@@ -3232,7 +3203,6 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
 
   error = 0;
   ind0 = ind1 = ind2 = (int *) NULL;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (dbgrid == (Db    *) NULL) return(1);
   if (dbmap  == (Db    *) NULL) return(1);
 
@@ -3490,8 +3460,6 @@ GEOSLIB_API void variogram_extension(Vario  *vario,
 ** \param[in]  db           Db descriptor
 ** \param[in]  vario        Vario structure
 **
-** \note Needs license for Keyword variogram
-**
 *****************************************************************************/
 static int st_variogrid_calcul(Db    *db,
                                  Vario *vario)
@@ -3503,7 +3471,6 @@ static int st_variogrid_calcul(Db    *db,
 
   error = 1;
   iadd_new = iatt_old = -1;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
   st_manage_drift_removal(0,NULL,NULL);
@@ -4313,8 +4280,6 @@ static void st_variogram_cloud_dim(Db     *db,
 ** \param[in]  dbgrid       Output grid for storing the variogram cloud
 ** \param[in]  namconv      Naming convention
 **
-** \note Needs license for Keyword variogram
-**
 *****************************************************************************/
 GEOSLIB_API int variogram_cloud(Db *db,
                                 Vario *vario,
@@ -4325,7 +4290,6 @@ GEOSLIB_API int variogram_cloud(Db *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db     == (Db    *) NULL) return(1);
   if (dbgrid == (Db    *) NULL) return(1);
   if (vario  == (Vario *) NULL) return(1);
@@ -6189,8 +6153,6 @@ static void st_pca_z2f(int     flag_norm_out,
 **
 ** \param[out] pca        Output PCA structure
 **
-** \note Needs license for Keyword variogram
-**
 ** \remarks Note that the LOC_Z is redefined in this function
 **
 *****************************************************************************/
@@ -6254,8 +6216,6 @@ static int st_pca_calculate(int flag_norm,
 ** 
 ** \param[out] pca        Output PCA structure
 **
-** \note Needs license for Keyword variogram
-**
 ** \remarks Note that the LOC_Z is redefined in this function
 **
 *****************************************************************************/
@@ -6281,7 +6241,6 @@ GEOSLIB_API int maf_compute(Db     *db,
 
   error = 0;
   iptr  = -1;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db    == (Db    *) NULL) return(1);
   data1 = data2 = identity = (double *) NULL;
   pca2 = (PCA *) NULL;
@@ -6377,8 +6336,6 @@ label_end:
 ** 
 ** \param[out] pca        Output PCA structure
 **
-** \note Needs license for Keyword variogram
-**
 *****************************************************************************/
 GEOSLIB_API int pca_compute(Db     *db,
                            int     verbose,
@@ -6391,7 +6348,6 @@ GEOSLIB_API int pca_compute(Db     *db,
   /* Initializations */
 
   error = 0;
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db == (Db *) NULL) return(1);
   c0 = data1 = (double *) NULL;
 
@@ -6438,8 +6394,6 @@ label_end:
 ** \param[in]  pca          PCA descriptor
 ** \param[in]  flag_norm_in 1 if the variable must be normalized
 ** \param[in]  verbose      1 for a verbose output
-**
-** \note Needs license for Keyword variogram
 **
 *****************************************************************************/
 GEOSLIB_API int pca_z2f(Db    *db,
@@ -6517,8 +6471,6 @@ label_end:
 ** \param[in]  pca          PCA descriptor
 ** \param[in]  flag_norm_out 1 if the output variable must be denormalized
 ** \param[in]  verbose      1 for a verbose output
-**
-** \note Needs license for Keyword variogram
 **
 *****************************************************************************/
 GEOSLIB_API int pca_f2z(Db    *db,
@@ -6602,7 +6554,6 @@ GEOSLIB_API int geometry_compute(Db    *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
   rindex = (int *) NULL;
@@ -6815,7 +6766,6 @@ GEOSLIB_API int variogram_mlayers(Db    *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("variogram")) return(1);
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
 
@@ -7088,10 +7038,6 @@ GEOSLIB_API void condexp(Db     *db1,
 **                          This parameter is only valid for KU option
 ** \param[in]  model        Model structure (triggers the KU option)
 ** \param[in]  verbose      Verbose flag
-**
-** \note Needs license for Keyword variogram
-** \note and Keyword varioerr (for particular case of measurement error)
-** \note and Keyword varioKU (for particular case of drift removal)
 **
 ** \note The number of iterations in KU is given can be updated using the
 ** \note keypair technique with name "KU_Niter".

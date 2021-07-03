@@ -469,8 +469,6 @@ static void st_simulate_nodes(Db    *db,
 **
 ** \param[out] tab        Output array
 **
-** \note Needs license for Keyword simfine
-**
 *****************************************************************************/
 GEOSLIB_API int simfine_f(Db *dbin,
                           Model *model,
@@ -485,7 +483,6 @@ GEOSLIB_API int simfine_f(Db *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simfine")) return(1);
   error   = 1;
   db1     = db2 = (Db *) NULL;
   NDIM    = get_NDIM(dbin);

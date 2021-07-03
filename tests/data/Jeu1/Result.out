@@ -1,0 +1,110 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 4
+Number of fields             = 10
+Maximum Number of attributes = 10
+Total number of samples      = 4
+
+Data Base Extension
+-------------------
+Coor #1 - Min =      1.000 - Max =      4.000 - Ext = 3
+Coor #2 - Min =     11.000 - Max =     14.000 - Ext = 3
+Coor #3 - Min =     51.000 - Max =     54.000 - Ext = 3
+Coor #4 - Min =     61.000 - Max =     64.000 - Ext = 3
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =      1.000
+ Maximum value       =      4.000
+ Mean value          =      2.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+2 - Name x1 - Locator x1
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =      1.000
+ Maximum value       =      4.000
+ Mean value          =      2.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+3 - Name x2 - Locator x2
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     11.000
+ Maximum value       =     14.000
+ Mean value          =     12.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+4 - Name z1 - Locator z1
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     21.000
+ Maximum value       =     24.000
+ Mean value          =     22.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+5 - Name z2 - Locator z2
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     31.000
+ Maximum value       =     34.000
+ Mean value          =     32.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+6 - Name z3 - Locator z3
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     41.000
+ Maximum value       =     44.000
+ Mean value          =     42.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+7 - Name x3 - Locator x3
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     51.000
+ Maximum value       =     54.000
+ Mean value          =     52.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+8 - Name x4 - Locator x4
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     61.000
+ Maximum value       =     64.000
+ Mean value          =     62.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+9 - Name f1 - Locator f1
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     71.000
+ Maximum value       =     74.000
+ Mean value          =     72.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+10 - Name f2 - Locator f2
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     81.000
+ Maximum value       =     84.000
+ Mean value          =     82.500
+ Standard Deviation  =      1.118
+ Variance            =      1.250
+
+Data Base Contents
+------------------
+                 rank        x1        x2        z1        z2        z3        x3
+     [  1,]     1.000     1.000    11.000    21.000    31.000    41.000    51.000
+     [  2,]     2.000     2.000    12.000    22.000    32.000    42.000    52.000
+     [  3,]     3.000     3.000    13.000    23.000    33.000    43.000    53.000
+     [  4,]     4.000     4.000    14.000    24.000    34.000    44.000    54.000
+(Ncols=7[from 10],Nrows=4)

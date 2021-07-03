@@ -1359,8 +1359,6 @@ static void st_layers_read(int      nlayers_in,
 **                            Dimension: ninfos * (nlayers+1)
 ** \param[out]  frac_list     List of the finally defined fractures
 **
-** \note Needs license for Keyword fracture
-**
 ** \remark The number of discretization steps used to establish the fracture
 ** \remark density can be defined using:
 ** \remark set_keypair("Fracture_Discretization_Count",newval)
@@ -1395,7 +1393,6 @@ GEOSLIB_API int fracture_simulate(Frac_Environ *frac_environ,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("fracture")) return(1);
   NDISC      = (int) get_keypone("Fracture_Discretization_Count",NDISC_DEF);
   FLAG_CHECK = (int) get_keypone("Fracture_Check_Intersect",FLAG_CHECK_DEF);
   LOW0       = get_keypone("Fracture_Repulsion_Low0",LOW0_DEF);

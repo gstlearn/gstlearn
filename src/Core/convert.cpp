@@ -911,7 +911,7 @@ GEOSLIB_API int db_grid_write_zycor(const char *filename,
 
   /* Preliminary checks */
 
-  if (! is_grid(db) || get_NDIM(db) != 2)
+  if (! is_grid(db) || db->getNDim() != 2)
   {
     messerr("The Db structure should correspond to a 2-D Grid");
     return(1);
@@ -1131,10 +1131,10 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
     messerr("The Db structure should correspond to a Grid");
     return(1);
   }
-  if (get_NDIM(db) > 2)
+  if (db->getNDim() > 2)
   {
     number = 1;
-    for (idim=2; idim<get_NDIM(db); idim++) number *= get_NX(db,idim);
+    for (idim=2; idim<db->getNDim(); idim++) number *= get_NX(db,idim);
     if (number > 1)
     {
       messerr("The Db structure corresponds to a 3-D Grid");
@@ -1290,7 +1290,7 @@ GEOSLIB_API int db_grid_write_irap(const char *filename,
     messerr("The IRAP dump is only designed for a Grid DB");
     goto label_end;
   }
-  if (get_NDIM(db) != 2)
+  if (db->getNDim() != 2)
   {
     messerr("The IRAP dump is only designed for 2-D Grid");
     goto label_end;
@@ -1481,7 +1481,7 @@ GEOSLIB_API int db_grid_write_eclipse(const char   *filename,
     return(1);
   }
   nxyz = 1;
-  for (idim=0; idim<get_NDIM(db); idim++) nxyz *= get_NX(db,idim);
+  for (idim=0; idim<db->getNDim(); idim++) nxyz *= get_NX(db,idim);
 
   /* Open the file */
 
@@ -1792,7 +1792,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(db);
+  ndim = db->getNDim();
   ncol = cols.size();
   if (ndim > 3)
   {
@@ -2684,7 +2684,7 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
     messerr("The Db structure should correspond to a Grid");
     return(1);
   }
-  if (get_NDIM(db) != 2)
+  if (db->getNDim() != 2)
   {
     messerr("This FORMAT is limited to the 2-D case");
     return(1);
@@ -2710,7 +2710,7 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
   for (int ix=0; ix<get_NX(db,0); ix++)
     for (int iy=0; iy<get_NX(db,1); iy++)
     {
-      for (int i = 0; i < get_NDIM(db); i++)
+      for (int i = 0; i < db->getNDim(); i++)
         fprintf(file, "%lf,", get_IDIM(db, lec, i));
       double value = get_ARRAY(db, lec, icol);
       if (FFFF(value))
@@ -2928,7 +2928,7 @@ GEOSLIB_API int db_write_csv(Db *db,
 {
   if (db == (Db *) NULL) return 1;
   int ncol = db->getFieldNumber();
-  int ndim = get_NDIM(db);
+  int ndim = db->getNDim();
   int nech = get_NECH(db);
   int nvar = get_NVAR(db);
 

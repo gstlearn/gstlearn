@@ -213,8 +213,6 @@ static int st_larger_than_dmax(int ndim,
  **
  ** \param[out]  tab      Output array (Dimension: number of samples in db_point)
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 static int st_migrate_grid_to_point(Db *db_grid,
                                     Db *db_point,
@@ -223,10 +221,9 @@ static int st_migrate_grid_to_point(Db *db_grid,
                                     const VectorDouble& dmax,
                                     VectorDouble& tab)
 {
-  if (!LicenseKey::isAuthorized("dbtools")) return 1;
   if (! db_grid->hasLargerDimension(db_point)) return 1;
-  int ndim_min = MIN(get_NDIM(db_grid),get_NDIM(db_point));
-  int ndim_max = MIN(get_NDIM(db_grid),get_NDIM(db_point));
+  int ndim_min = MIN(db_grid->getNDim(),db_point->getNDim());
+  int ndim_max = MIN(db_grid->getNDim(),db_point->getNDim());
   VectorDouble dvect(ndim_max);
   VectorDouble coor(ndim_max);
 
@@ -290,8 +287,6 @@ static int st_get_ndim(double *xp, double *yp, double *zp)
  **
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int migrate_grid_to_coor(Db *db_grid,
                                      int iatt,
@@ -301,12 +296,10 @@ GEOSLIB_API int migrate_grid_to_coor(Db *db_grid,
                                      double *zp,
                                      double *tab)
 {
-  if (!LicenseKey::isAuthorized("dbtools")) return 1;
-
   int ndim = st_get_ndim(xp, yp, zp);
-  if (get_NDIM(db_grid) != ndim)
+  if (db_grid->getNDim() != ndim)
   {
-    messerr("The Space Dimension of the First Db (%d)", get_NDIM(db_grid));
+    messerr("The Space Dimension of the First Db (%d)", db_grid->getNDim());
     messerr("must be equal to the Space Dimension of the coordinate arrays",
             ndim);
     return 1;
@@ -342,8 +335,6 @@ GEOSLIB_API int migrate_grid_to_coor(Db *db_grid,
  **
  ** \param[out] tab       Output array
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 static int st_migrate_point_to_grid(Db *db_point,
                                     Db *db_grid,
@@ -359,13 +350,12 @@ static int st_migrate_point_to_grid(Db *db_point,
   /* Initializations */
 
   error = 1;
-  if (!LicenseKey::isAuthorized("dbtools")) goto label_end;
 
   /* Preliminary checks */
 
   if (! db_point->hasLargerDimension(db_grid)) goto label_end;
-  ndim_min = MIN(get_NDIM(db_point),get_NDIM(db_grid));
-  ndim_max = MIN(get_NDIM(db_point),get_NDIM(db_grid));
+  ndim_min = MIN(db_point->getNDim(),db_grid->getNDim());
+  ndim_max = MIN(db_point->getNDim(),db_grid->getNDim());
 
   /* Core allocation */
 
@@ -442,8 +432,6 @@ static int st_migrate_point_to_grid(Db *db_point,
  **
  ** \param[out]  tab      Output array
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 static int st_migrate_grid_to_grid(Db *db_gridin,
                                    Db *db_gridout,
@@ -460,13 +448,12 @@ static int st_migrate_grid_to_grid(Db *db_gridin,
 
   error = 1;
   dist = (double *) NULL;
-  if (!LicenseKey::isAuthorized("dbtools")) goto label_end;
 
   /* Preliminary checks */
 
   if (! db_gridin->hasLargerDimension(db_gridout)) goto label_end;
-  ndim_min = MIN(get_NDIM(db_gridin),get_NDIM(db_gridout));
-  ndim_max = MAX(get_NDIM(db_gridin),get_NDIM(db_gridout));
+  ndim_min = MIN(db_gridin->getNDim(),db_gridout->getNDim());
+  ndim_max = MAX(db_gridin->getNDim(),db_gridout->getNDim());
   if (!is_grid(db_gridin)) goto label_end;
   if (!is_grid(db_gridout)) goto label_end;
 
@@ -541,8 +528,8 @@ static int st_expand_point_to_point(Db *db1,
                                     VectorDouble& tab)
 {
   if (! db1->hasLargerDimension(db2)) return 1;
-  int ndim_min = MIN(get_NDIM(db1),get_NDIM(db2));
-  int ndim_max = MAX(get_NDIM(db1),get_NDIM(db2));
+  int ndim_min = MIN(db1->getNDim(),db2->getNDim());
+  int ndim_max = MAX(db1->getNDim(),db2->getNDim());
 
   /* Core allocation (using the smallest possible space dimension: db2) */
 
@@ -600,13 +587,12 @@ GEOSLIB_API int expand_point_to_coor(Db *db1,
                                      double *zp,
                                      double *tab)
 {
-  if (!LicenseKey::isAuthorized("dbtools")) return 1;
   double* tab1 = (double *) NULL;
   double* tab2 = (double *) NULL;
 
   /* Preliminary checks */
 
-  int ndim = get_NDIM(db1);
+  int ndim = db1->getNDim();
   if (ndim > 3)
   {
     messerr("Function 'expand_point_to_coor' is limited to space <= 3");
@@ -672,8 +658,6 @@ GEOSLIB_API int expand_point_to_coor(Db *db1,
  **
  ** \param[out]  tab      Output array
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 static int st_expand_grid_to_grid(Db *db_gridin,
                                   Db *db_gridout,
@@ -682,12 +666,11 @@ static int st_expand_grid_to_grid(Db *db_gridin,
                                   const VectorDouble& dmax,
                                   VectorDouble& tab)
 {
-  if (! LicenseKey::isAuthorized("dbtools")) return 1;
   if (! db_gridin->hasLargerDimension(db_gridout)) return 1;
   if (! is_grid(db_gridin,true)) return 1;
   if (! is_grid(db_gridout,true)) return 1;
-  int ndim_min = MIN(get_NDIM(db_gridin),get_NDIM(db_gridout));
-  int ndim_max = MAX(get_NDIM(db_gridin),get_NDIM(db_gridout));
+  int ndim_min = MIN(db_gridin->getNDim(),db_gridout->getNDim());
+  int ndim_max = MAX(db_gridin->getNDim(),db_gridout->getNDim());
 
   /* Core allocation */
 
@@ -734,8 +717,6 @@ static int st_expand_grid_to_grid(Db *db_gridin,
  **
  ** \param[out]  sel       Array containing the selection
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int db_duplicate(Db *db1,
                              Db *db2,
@@ -746,13 +727,11 @@ GEOSLIB_API int db_duplicate(Db *db1,
                              double *dist,
                              double *sel)
 {
-  int idim, iech1, iech2, flag_diff, error, flag_code;
+  int idim, iech1, iech2, flag_diff, flag_code;
   double v1, v2;
 
   /* Initializations */
 
-  error = 1;
-  if (!LicenseKey::isAuthorized("dbtools")) goto label_end;
   flag_code = db1->hasCode() && db2->hasCode();
 
   /* Set the selection */
@@ -776,7 +755,7 @@ GEOSLIB_API int db_duplicate(Db *db1,
 
       /* Check if the two points are collocated */
 
-      for (idim = flag_diff = 0; idim < get_NDIM(db1) && flag_diff == 0; idim++)
+      for (idim = flag_diff = 0; idim < db1->getNDim() && flag_diff == 0; idim++)
       {
         v1 = get_IDIM(db1, iech1, idim);
         v2 = get_IDIM(db2, iech2, idim);
@@ -803,11 +782,7 @@ GEOSLIB_API int db_duplicate(Db *db1,
     }
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -828,8 +803,6 @@ GEOSLIB_API int db_duplicate(Db *db1,
  **                      polygon to which it belongs (or TEST)
  **                      (Dimension = Number of samples in db_grid)
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int surface(Db *db_point,
                         Db *db_grid,
@@ -843,9 +816,8 @@ GEOSLIB_API int surface(Db *db_point,
 
   /* Initializations */
 
-  if (!LicenseKey::isAuthorized("dbtools")) return (1);
   if (! db_grid->hasSameDimension(db_point)) return (1);
-  ndim = get_NDIM(db_point);
+  ndim = db_point->getNDim();
 
   /* Preliminary calculations */
 
@@ -1211,8 +1183,6 @@ static int st_edit_ask(int *item, int *rank, double *vmin, double *vmax)
  **
  ** \param[out] flag_valid: 1 for 'stop' and 0 for 'quit'
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int db_edit(Db *db, int *flag_valid)
 
@@ -1227,7 +1197,6 @@ GEOSLIB_API int db_edit(Db *db, int *flag_valid)
   ivar = iech = 0;
   ok = nrds = nrdv = incr = 1;
   vmin = vmax = TEST;
-  if (!LicenseKey::isAuthorized("dbtools")) return (1);
   if (nech < 1 || nvar < 1) return (1);
 
   while (ok)
@@ -1310,8 +1279,6 @@ GEOSLIB_API int db_edit(Db *db, int *flag_valid)
  ** \param[in]  center Theoretical Mean value
  ** \param[in]  stdv   Theoretical Standard Deviation value
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int db_normalize(Db *db,
                              const char *oper,
@@ -1327,7 +1294,6 @@ GEOSLIB_API int db_normalize(Db *db,
 
   nech = db->getSampleNumber();
   num = mm = vv = (double *) NULL;
-  if (!LicenseKey::isAuthorized("dbtools")) return (1);
 
   /* Check that all variables are defined */
 
@@ -1700,8 +1666,6 @@ static int st_grid_fill_calculate(int ipos,
  ** \param[in]  verbose Verbose flag
  ** \param[in]  namconv Naming convention
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int db_grid_fill(Db *dbgrid,
                              int mode,
@@ -1717,7 +1681,6 @@ GEOSLIB_API int db_grid_fill(Db *dbgrid,
   /* Initializations */
 
   error = 1;
-  if (!LicenseKey::isAuthorized("dbtools")) return (1);
 
   /* Preliminary checks */
 
@@ -1731,7 +1694,7 @@ GEOSLIB_API int db_grid_fill(Db *dbgrid,
     messerr("This function requires the definition of a single variable");
     return (1);
   }
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   if (ndim > 3)
   {
     messerr("This function is limited to a maximum 3-D space");
@@ -2190,10 +2153,6 @@ GEOSLIB_API int db_selhull(Db *db1, Db *db2, bool verbose, NamingConvention namc
 {
   Polygons* polygons = (Polygons *) NULL;
 
-  /* Initializations */
-
-  if (!LicenseKey::isAuthorized("dbtools")) return 1;
-
   // Create the variable in the output Db
 
   int isel = db2->addFields(1, 1.);
@@ -2293,7 +2252,7 @@ static void st_shift(int rank,
   double wgt;
 
   wgt  = 1.;
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   ndiv = (int) pow(2., ndim - 1);
   for (idim = ndim - 1; idim >= 0; idim--)
   {
@@ -2326,7 +2285,7 @@ static double st_multilinear_interpolation(Db *dbgrid,
                                            const VectorDouble& dmax,
                                            double *coor)
 {
-  int ndim = get_NDIM(dbgrid);
+  int ndim = dbgrid->getNDim();
   int number = (int) pow(2., ndim);
   VectorInt iwork2(ndim);
   VectorInt indg(ndim);
@@ -2408,8 +2367,6 @@ static double st_multilinear_interpolation(Db *dbgrid,
  **
  ** \param[out]  tab      Output array
  **
- ** \note Needs license for Keyword dbtools
- **
  ** \remark A point which does not lie between two valuated grid nodes
  ** \remark (in all space dimensions) is always set to FFFF
  **
@@ -2428,7 +2385,6 @@ static int st_interpolate_grid_to_point(Db *db_grid,
 
   error = 1;
   coor = (double *) NULL;
-  if (!LicenseKey::isAuthorized("dbtools")) goto label_end;
 
   /* Preliminary checks */
 
@@ -2471,8 +2427,6 @@ static int st_interpolate_grid_to_point(Db *db_grid,
  **
  ** \param[out]  tab      Output array
  **
- ** \note Needs license for Keyword dbtools
- **
  ** \remark The arguments 'xp', 'yp' and 'zp' must be defined in accordance
  ** \remark with the space dimension in argument 'db_grid'
  **
@@ -2494,10 +2448,9 @@ GEOSLIB_API int interpolate_variable_to_point(Db *db_grid,
   /* Initializations */
 
   error = 1;
-  if (!LicenseKey::isAuthorized("dbtools")) goto label_end;
   for (int idim = 0; idim < 3; idim++)
     coor[idim] = 0.;
-  ndim = get_NDIM(db_grid);
+  ndim = db_grid->getNDim();
   if (ndim > 3)
   {
     messerr("This procedure is limited to 3-D grid");
@@ -2872,8 +2825,6 @@ GEOSLIB_API int manage_external_info(int mode,
  ** \param[in]  db_grid    descriptor of the grid parameters
  ** \param[in]  eps_random Randomisation Epsilon
  **
- ** \note Needs license for Keyword dbtools
- **
  ** \remark The argument 'eps_random' allows perturbating the centered
  ** \remark coordinate so that it does not lie exactly on the node.
  ** \remark This possibility makes sense in order to identify migrated data
@@ -2900,7 +2851,7 @@ GEOSLIB_API int db_center_point_to_grid(Db *db_point,
   if (db_grid == (Db *) NULL) goto label_end;
   if (!is_grid(db_grid)) goto label_end;
   if (! db_point->hasSameDimension(db_grid)) goto label_end;
-  ndim = get_NDIM(db_point);
+  ndim = db_point->getNDim();
 
   /* Core allocation */
 
@@ -3069,7 +3020,7 @@ static int st_get_closest_sample(Db *dbgrid,
   int ndim;
 
   // Default values
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   angle = 0.;
   scaleu = 1.;
   scalev = 1.;
@@ -3178,8 +3129,6 @@ static int st_get_closest_sample(Db *dbgrid,
  **
  ** \param[out]  tab        Output array
  **
- ** \note Needs license for Keyword dbtools
- **
  ** \remarks When a Time Shift is present, this corresponds to Johnson-Mehl
  ** \remarks The Time Shift is an optional variable which increases the
  ** \remarks distance (the time-to-distance conversion is assumed to be 1)
@@ -3199,13 +3148,11 @@ GEOSLIB_API int expand_point_to_grid(Db *db_point,
                                      const VectorDouble& dmax,
                                      VectorDouble& tab)
 {
-  if (!LicenseKey::isAuthorized("dbtools")) return 1;
-
   /* Preliminary checks */
 
   if (! db_point->hasLargerDimension(db_grid)) return 1;
-  int ndim_min = MIN(get_NDIM(db_point),get_NDIM(db_grid));
-  int ndim_max = MAX(get_NDIM(db_point),get_NDIM(db_grid));
+  int ndim_min = MIN(db_point->getNDim(),db_grid->getNDim());
+  int ndim_max = MAX(db_point->getNDim(),db_grid->getNDim());
   bool flag_aniso = 0;
   if (ndim_min >= 1 && iatt_scaleu >= 0) flag_aniso = 1;
   if (ndim_min >= 2 && iatt_scalev >= 0) flag_aniso = 1;
@@ -3676,8 +3623,6 @@ GEOSLIB_API int db_compositional_transform(Db *db,
  ** \param[in]  nvert   Number of segments in the polyline
  ** \param[in]  xl      Array of X-coordinates of the polyline
  ** \param[in]  yl      Array of Y-coordinates of the polyline
-
- ** \note Needs license for Keyword dbtools
  **
  *****************************************************************************/
 GEOSLIB_API int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
@@ -3690,11 +3635,10 @@ GEOSLIB_API int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
 
   error = 1;
   pldist = pldist0 = (PL_Dist *) NULL;
-  if (!LicenseKey::isAuthorized("dbtools")) goto label_end;
 
   /* Preliminary checks */
 
-  if (get_NDIM(db) != 2)
+  if (db->getNDim() != 2)
   {
     messerr("This function is restricted to 2-D Db");
     goto label_end;
@@ -3756,8 +3700,6 @@ GEOSLIB_API int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
  ** \param[in]  xl      Array of X-coordinates of the polyline
  ** \param[in]  yl      Array of Y-coordinates of the polyline
 
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int db_fold_polyline(Db *dbin,
                                  Db *dbout,
@@ -3776,16 +3718,15 @@ GEOSLIB_API int db_fold_polyline(Db *dbin,
 
   error = 1;
   pldist = pldist0 = (PL_Dist *) NULL;
-  if (!LicenseKey::isAuthorized("dbtools")) goto label_end;
 
   /* Preliminary checks */
 
-  if (get_NDIM(dbin) != 2 || !is_grid(dbin))
+  if (dbin->getNDim() != 2 || !is_grid(dbin))
   {
     messerr("This function is restricted to 2-D Input Grid Db");
     goto label_end;
   }
-  if (get_NDIM(dbout) != 2)
+  if (dbout->getNDim() != 2)
   {
     messerr("This function is restricted to 2-D Output Db");
     goto label_end;
@@ -3870,7 +3811,7 @@ static void st_expand(int flag_size,
                       VectorDouble& tab2)
 {
   int nech = get_NECH(dbgrid);
-  int ndim = get_NDIM(dbgrid);
+  int ndim = dbgrid->getNDim();
 
   /* Loop on the grid nodes */
 
@@ -3947,7 +3888,7 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
   indg = indg0 = (int *) NULL;
   iatt_edge = iatt_rank = iatt_surf = iatt_vol = iatt_code = -1;
   if (! dbgrid->hasSameDimension(dbpoint)) goto label_end;
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   flag_index = get_keypone("PTB_Flag_Index", 0);
 
   /* Core allocation */
@@ -4200,7 +4141,7 @@ static VectorDouble st_point_init_poisreg(int verbose,
   *count = number = 0;
   extend = (double *) NULL;
   indg = (int *) NULL;
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   if (!is_grid(dbgrid))
   {
     messerr("This function requires the Db organized as a grid");
@@ -4514,7 +4455,7 @@ static void st_gradient_normalize(Db *dbgrid)
 
   /* Initializations */
 
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
 
   /* Loop on the samples */
 
@@ -4559,7 +4500,7 @@ GEOSLIB_API int db_gradient_components(Db *dbgrid)
   error = number = 1;
   iptrz = iptr = -1;
   indg = (int *) NULL;
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   if (!is_grid(dbgrid))
   {
     messerr("The Db should be organized as a Grid");
@@ -4674,7 +4615,7 @@ static int st_is_undefined(Db *dbgrid, int iptr_grad, int iech)
 {
   int ndim;
 
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   for (int idim = 0; idim < ndim; idim++)
   {
     if (FFFF(get_ARRAY(dbgrid, iech, iptr_grad + idim))) return (1);
@@ -4699,7 +4640,7 @@ static int st_is_zero(Db *dbgrid, int iptr_grad, int iech)
   int ndim;
 
   grad = 0.;
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   for (int idim = 0; idim < ndim; idim++)
   {
     delta = get_ARRAY(dbgrid, iech, iptr_grad + idim);
@@ -4797,7 +4738,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
 
   /* Preliminary checks */
 
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   if (ndim < 2 || ndim > 3)
   {
     messerr("This function is limited to 2-D or 3-D case");
@@ -5064,7 +5005,7 @@ GEOSLIB_API int db_smooth_vpc(Db *db, int width, double range)
 
   /* Preliminary checks */
 
-  if (!is_grid(db) || get_NDIM(db) != 3) goto label_end;
+  if (!is_grid(db) || db->getNDim() != 3) goto label_end;
 
   /* Loop on the 2-D grid cells */
 
@@ -5241,13 +5182,13 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
     return (dbnew);
   }
 
-  if (get_NDIM(db) < 3)
+  if (db->getNDim() < 3)
   {
     messerr("This function requires the 'db' to be defined in 3D or more");
     return (dbnew);
   }
 
-  if (get_NDIM(dbgrid) < 3)
+  if (dbgrid->getNDim() < 3)
   {
     messerr("This function requires the 'dbgrid' to be defined in 3D or more");
     return (dbnew);
@@ -5269,7 +5210,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
 
   nz = get_NX(dbgrid, 2);
   nvar = get_NVAR(db);
-  ndim = get_NDIM(db);
+  ndim = db->getNDim();
   size = ndim + nvar + 1;
 
   codes = db->getCodeList();
@@ -5435,7 +5376,7 @@ GEOSLIB_API double *db_grid_sampling(Db *dbgrid,
 
   *nval_ret = 0;
   res = xi1 = xi2 = (double *) NULL;
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   iatt = dbgrid->getColumnByLocator(LOC_Z, 0);
 
   /* Preliminary checks */
@@ -5549,7 +5490,7 @@ GEOSLIB_API int db_grid2point_sampling(Db *dbgrid,
   nech = 0;
   coor = data = rndval = (double *) NULL;
   ranks = retain = (int *) NULL;
-  ndim = get_NDIM(dbgrid);
+  ndim = dbgrid->getNDim();
   nfine = get_NECH(dbgrid);
   nmini = MAX(nmini, npcell);
   if (ndim > 3)
@@ -6080,16 +6021,12 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
  ** \param[in]  seed    Seed used for the random number generation
  ** \param[in]  namconv Naming convention
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
                                int mode,
                                int seed,
                                NamingConvention namconv)
 {
-  if (!LicenseKey::isAuthorized("dbtools")) return (1);
-
   /* Preliminary checks */
 
   if (!is_grid(dbgrid))
@@ -6097,7 +6034,7 @@ GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
     messerr("This function is limited to Grid Db");
     return (1);
   }
-  int ndim = get_NDIM(dbgrid);
+  int ndim = dbgrid->getNDim();
   if (ndim != 1)
   {
     messerr("This function is limited to 1-D space");
@@ -6280,8 +6217,6 @@ static int st_migrate(Db* db1,
  ** \param[in]  flag_inter Interpolation
  ** \param[in]  namconv    Naming Convention
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int migrateByAttribute(Db* db1,
                                    Db* db2,
@@ -6337,8 +6272,6 @@ GEOSLIB_API int migrateByAttribute(Db* db1,
  ** \param[in]  flag_inter Interpolation
  ** \param[in]  namconv    Naming convention
  **
- ** \note Needs license for Keyword dbtools
- **
  *****************************************************************************/
 GEOSLIB_API int migrate(Db* db1,
                         Db* db2,
@@ -6380,8 +6313,6 @@ GEOSLIB_API int migrate(Db* db1,
  ** \param[in]  flag_fill   Filling option
  ** \param[in]  flag_inter  Interpolation
  ** \param[in]  namconv     Naming convention
- **
- ** \note Needs license for Keyword dbtools
  **
  *****************************************************************************/
 GEOSLIB_API int migrateByLocator(Db* db1,

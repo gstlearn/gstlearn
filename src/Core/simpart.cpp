@@ -214,8 +214,6 @@ static int st_stack_search(Stack *stack, double valref, double *valsim)
  ** \param[in]  nbtuba      Number of bands (for the gaussian field simulation)
  ** \param[in]  verbose     Verbose option
  **
- ** \note Needs license for Keyword simpart
- **
  *****************************************************************************/
 GEOSLIB_API int tessellation_poisson(Db *dbgrid,
                                      Model *model,
@@ -232,7 +230,6 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
 
   /* Initializations */
 
-  if (!LicenseKey::isAuthorized("simpart")) return (1);
   law_set_random_seed(seed);
   error = 1;
   np = 0;
@@ -381,8 +378,6 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
  ** \param[in]  nbtuba      Number of bands (for the gaussian field simulation)
  ** \param[in]  verbose     Verbose option
  **
- ** \note Needs license for Keyword simpart
- **
  *****************************************************************************/
 GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
                                      Model *model,
@@ -399,7 +394,6 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
 
   /* Initializations */
 
-  if (!LicenseKey::isAuthorized("simpart")) return (1);
   law_set_random_seed(seed);
   error = 1;
   iatts = iattp = -1;

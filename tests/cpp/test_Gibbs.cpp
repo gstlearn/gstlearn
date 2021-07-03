@@ -283,8 +283,6 @@ int main(int argc, char *argv[])
   seed     = 31415;
   ndim     = 2;
 
-  // Connect the Geoslib Library
-
   if (setup_license("Demonstration")) goto label_end;
 
   // Setup constants

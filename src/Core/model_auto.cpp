@@ -4500,8 +4500,6 @@ static void st_regularize_init()
 ** \param[in]  constraints Constraints structure
 ** \param[in]  optvar      Opt_Vario structure
 **
-** \note Needs license for Keyword model
-**
 *****************************************************************************/
 GEOSLIB_API int model_auto_fit(Vario      *vario,
                                Model      *model,
@@ -4520,7 +4518,6 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("model")) return(1);
   nbexp   = status = npadir = 0;
   strmod  = (StrMod  *) NULL;
   ncova   = model->getCovaNumber();
@@ -4709,8 +4706,6 @@ label_end:
 **
 ** \param[out] model        Fitted Model structure
 **
-** \note Needs license for Keyword model
-**
 *****************************************************************************/
 GEOSLIB_API int model_fitting_sills(Vario *vario,
                                     Model *model,
@@ -4723,7 +4718,6 @@ GEOSLIB_API int model_fitting_sills(Vario *vario,
   /* Initializations */
   /*******************/
 
-  if (! LicenseKey::isAuthorized("model")) return(1);
   if (model == (Model *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
   ndir   = vario->getDirectionNumber();
@@ -4975,8 +4969,6 @@ static void st_load_vmap(int     npadir,
 ** \param[in]  constraints Constraints structure
 ** \param[in]  optvar      Opt_Vario structure
 **
-** \note Needs license for Keyword model
-**
 *****************************************************************************/
 GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
                               Model      *model,
@@ -4993,7 +4985,6 @@ GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("model")) return(1);
   nbexp   = status = norder = npadir = 0;
   hmax    = gmax = 0.;
   strmod  = (StrMod  *) NULL;

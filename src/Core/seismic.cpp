@@ -515,8 +515,6 @@ static void st_seismic_debug(int    rankz,
 ** \param[out] x0      Origin of the grid along each direction
 ** \param[out] dx      Mesh of the grid along each direction
 **
-** \note Needs license for Keyword seismic
-**
 *****************************************************************************/
 GEOSLIB_API int seismic_z2t_grid(int     verbose,
                                  Db     *db_z,
@@ -530,7 +528,6 @@ GEOSLIB_API int seismic_z2t_grid(int     verbose,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("seismic")) return(1);
   if (! is_grid(db_z))
   {
     messerr("This procedure requires an input Grid Db");
@@ -598,8 +595,6 @@ label_end:
 ** \param[out] x0      Origin of the grid along each direction
 ** \param[out] dx      Mesh of the grid along each direction
 **
-** \note Needs license for Keyword seismic
-**
 *****************************************************************************/
 GEOSLIB_API int seismic_t2z_grid(int     verbose,
                                  Db     *db_t,
@@ -613,7 +608,6 @@ GEOSLIB_API int seismic_t2z_grid(int     verbose,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("seismic")) return(1);
   if (! is_grid(db_t))
   {
     messerr("This procedure requires an input Grid Db");
@@ -1544,8 +1538,6 @@ static void st_seismic_convolve(int     nx,
 ** \remark Linear interpolation and constant extrapolation is used to
 ** \remark determine interval velocities at times not specified.
 **
-** \note Needs license for Keyword seismic
-**
 *****************************************************************************/
 GEOSLIB_API int seismic_z2t_convert(Db *db_z,
                                     int iatt_v,
@@ -1557,7 +1549,6 @@ GEOSLIB_API int seismic_z2t_convert(Db *db_z,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("seismic")) return(1);
   if (st_match(db_z,db_t)) return(1);
   error  = 1;
   db_v   = db_z;
@@ -1623,8 +1614,6 @@ label_end:
 ** \remark Linear interpolation and constant extrapolation is used to
 ** \remark determine interval velocities at times not specified.
 **
-** \note Needs license for Keyword seismic
-**
 *****************************************************************************/
 GEOSLIB_API int seismic_t2z_convert(Db *db_t,
                                     int iatt_v,
@@ -1636,7 +1625,6 @@ GEOSLIB_API int seismic_t2z_convert(Db *db_t,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("seismic")) return(1);
   if (st_match(db_z,db_t)) return(1);
   error  = 1;
   db_v   = db_t;
@@ -1700,8 +1688,6 @@ label_end:
 ** \remark Operations inv, slog and slog10 are "punctuated", meaning that if,
 ** \remark the input contains 0 values, 0 values are returned.
 **
-** \note Needs license for Keyword seismic
-**
 *****************************************************************************/
 GEOSLIB_API int seismic_operate(Db  *db,
                                 int  oper)
@@ -1711,7 +1697,6 @@ GEOSLIB_API int seismic_operate(Db  *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("seismic")) return(1);
   if (st_match(db,(Db *) NULL)) return(1);
   ndim   = get_NDIM(db);
   natt   = get_NVAR(db);
@@ -1848,8 +1833,6 @@ static void st_seismic_contrast(int     nz,
 **                         after last defined sample
 ** \param[in]  wavelet     Wavelet defined as input (Dimension: 2*ntw+1)
 **
-** \note Needs license for Keyword seismic
-**
 *****************************************************************************/
 GEOSLIB_API int seismic_convolve(Db     *db,
                                  int     flag_operate,
@@ -1872,7 +1855,6 @@ GEOSLIB_API int seismic_convolve(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("seismic")) return(1);
   if (st_match(db,(Db *) NULL)) return(1);
   tab0    = tab1 = tab2 = (double *) NULL;
   ndim    = get_NDIM(db);
@@ -3073,8 +3055,6 @@ static int st_estimate_sort(int *presence,
 **
 ** \param[out]  db        Grid Db structure (with added variables)
 **
-** \note Needs license for Keyword seismic
-**
 *****************************************************************************/
 GEOSLIB_API int seismic_estimate_XZ(Db    *db,
                                     Model *model,
@@ -3093,7 +3073,6 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("seismic")) return(1);
   error = 1;
   nvois = size = nred = nb_total = nb_process = nb_calcul = 0;
   lhs   = rhs = wgt = var0 = covtab = (double *) NULL;
@@ -3345,8 +3324,6 @@ static void st_copy_attribute(Db  *db,
 **
 ** \param[out]  db        Grid Db structure (with added variables)
 **
-** \note Needs license for Keyword seismic
-**
 *****************************************************************************/
 GEOSLIB_API int seismic_simulate_XZ(Db    *db,
                                     Model *model,
@@ -3366,7 +3343,6 @@ GEOSLIB_API int seismic_simulate_XZ(Db    *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("seismic")) return(1);
   error = 1;
   nvois = size = nred = nb_total = nb_process = nb_calcul = 0;
   lhs   = rhs = wgt = c00 = covtab = (double *) NULL;

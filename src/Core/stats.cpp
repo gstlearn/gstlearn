@@ -254,8 +254,6 @@ static int st_oper_check(const String& oper,
 ** \param[out] result    Resulting array
 **                       (Dimension: ncol (if flag_mono) or ncol*ncol)
 **
-** \note Needs license for Keyword dbtools
-**
 *****************************************************************************/
 GEOSLIB_API int db_stats(Db     *db,
                          const   String& oper,
@@ -276,7 +274,6 @@ GEOSLIB_API int db_stats(Db     *db,
   ncol2 = ncol * ncol;
   num   = m1 = m2 = v1 = v2 = v12 = mini = maxi = (double *) NULL;
   plus  = moins = zero = (double *) NULL;
-  if (! LicenseKey::isAuthorized("dbtools")) return(1);
 
   /* Check that all variables are defined */
 
@@ -563,8 +560,6 @@ static void st_get_neighboring_cell(int    ndim,
 ** \param[in]  cols   Ranks of the variables
 ** \param[in]  radius Neighborhood radius
 **
-** \note Needs license for Keyword dbtools
-**
 *****************************************************************************/
 GEOSLIB_API int db_stats_grid(Db           *db,
                               Db           *dbgrid,
@@ -579,7 +574,6 @@ GEOSLIB_API int db_stats_grid(Db           *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("dbtools")) return(1);
   error = 1;
   iptm  = iptn = 0;
   indg  = indg0 = (int    *) NULL;
@@ -836,8 +830,6 @@ label_end:
 **
 ** \param[out]  tab       Output array (Dimension: 1 or ncut)
 **
-** \note Needs license for Keyword dbtools
-**
 *****************************************************************************/
 GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
                                     Db     *db,
@@ -854,7 +846,6 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("dbtools")) return(1);
   error = 1;
   z1 = z2 = 0.;
   nn = s1 = s2 = v1 = v2 = v12 = mini = maxi = cutval = (double *) NULL;
@@ -1233,8 +1224,6 @@ static void st_scale_and_affect(Db     *dbout,
 ** \param[in]  nfacies    Number of facies
 ** \param[in]  radius     Radius of the neighborhood
 **
-** \note Needs license for Keyword dbtools
-**
 *****************************************************************************/
 GEOSLIB_API int stats_proportion(Db     *dbin,
                                  Db     *dbout,
@@ -1247,7 +1236,6 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("dbtools")) return(1);
   error = 1;
   indg  = (int *) NULL;
   prop  = (double *) NULL;
@@ -1357,8 +1345,6 @@ label_end:
 ** \param[in]  radius     Radius of the neighborhood
 ** \param[in]  orient     Orientation (+1 or -1)
 **
-** \note Needs license for Keyword dbtools
-**
 *****************************************************************************/
 GEOSLIB_API int stats_transition(Db     *dbin,
                                  Db     *dbout,
@@ -1373,7 +1359,6 @@ GEOSLIB_API int stats_transition(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("dbtools")) return(1);
   error = 1;
   indg  = (int *) NULL;
   trans = (double *) NULL;
@@ -2088,8 +2073,6 @@ static int st_is_subgrid(int  verbose,
 ** \param[in]  orient     Upscaling direction (0 to 2)
 ** \param[in]  verbose    Verbose flag
 **
-** \note Needs license for Keyword dbtools
-**
 *****************************************************************************/
 GEOSLIB_API int db_upscale(Db     *dbgrid1,
                            Db     *dbgrid2,
@@ -2103,7 +2086,6 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("dbtools")) return(1);
   valtab0   = valtab1 = valtab2 = numtab0 = numtab1 = numtab2 = (double *) NULL;
   error     = 1;
   flag_save = 0;
@@ -2679,8 +2661,6 @@ static double st_get_diff_coeff(int     niter,
 ** \param[in]  seed       Seed for the random number generation
 ** \param[in]  verbose    Verbose Option
 **
-** \note Needs license for Keyword dbtools
-**
 ** \remarks The user may specify the type of storage
 ** \remarks 0: average squared distance; 1: slope; 2: origin
 ** \remarks      get.keypair("Diffusion.Converge.Option",0)
@@ -2719,7 +2699,6 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
   
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("dbtools")) return(1);
   valtab0 = valwrk = numtab0 = cvdist2 = cvsave = trsave = (double *) NULL;
   tabini = tabcur = tabwrk = numrank = (int *) NULL;
   n_nbgh  = flag_save = 0;
@@ -2880,8 +2859,6 @@ label_end:
 ** \param[in]  name        Variables name
 ** \param[in]  string      String array
 **
-** \note Needs license for Keyword dbtools
-**
 *****************************************************************************/
 static void st_get_rowname(const String& radix,
                            int         ncol,
@@ -2912,8 +2889,6 @@ static void st_get_rowname(const String& radix,
 ** \param[in]  title       Title for the printout (optional)
 ** \param[in]  radix       Radix for the different variables (optional)
 ** \param[in]  opers       Array of operators
-**
-** \note Needs license for Keyword dbtools
 **
 *****************************************************************************/
 GEOSLIB_API void db_stats_print(Db *db,

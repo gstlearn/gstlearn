@@ -3460,8 +3460,6 @@ label_end:
 ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
 ** \remark  be defined only for conditional simulations
 **
-** \note Needs license for Keyword simtub
- **
  *****************************************************************************/
 GEOSLIB_API int simtub(Db *dbin,
                        Db *dbout,
@@ -3478,7 +3476,6 @@ GEOSLIB_API int simtub(Db *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simtub")) return(1);
   error = 1;
   nvar  = model->getVariableNumber();
   iptr_in = iptr_out = -1;
@@ -3548,8 +3545,6 @@ label_end:
 ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
 ** \remark  be defined only for conditional simulations
 **
-** \note Needs license for Keyword simtub
-**
 *****************************************************************************/
 GEOSLIB_API int simdgm(Db    *dbin,
                        Db    *dbout,
@@ -3566,7 +3561,6 @@ GEOSLIB_API int simdgm(Db    *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simtub")) return(1);
   error = 1;
   nvar  = model->getVariableNumber();
   iptr = -1;
@@ -3640,8 +3634,6 @@ label_end:
 ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
 ** \remark  be defined only for conditional simulations
 **
-** \note Needs license for Keyword bayes
-**
 *****************************************************************************/
 GEOSLIB_API int simbayes(Db     *dbin,
                          Db     *dbout,
@@ -3659,7 +3651,6 @@ GEOSLIB_API int simbayes(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("bayes")) return(1);
   error = 1;
   nvar  = model->getVariableNumber();
   iptr  = -1;
@@ -5654,8 +5645,6 @@ label_end:
 ** \remark  The argument 'dbin' is optional: it must be defined only for
 ** \remark  conditional simulations
 **
-** \note Needs license for Keyword simpgs
-**
 *****************************************************************************/
 GEOSLIB_API int simpgs(Db *dbin,
                        Db *dbout,
@@ -5690,7 +5679,6 @@ GEOSLIB_API int simpgs(Db *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simpgs")) return(1);
   error     = 1;
   nvar      = 1;
   nechin    = 0;
@@ -6043,8 +6031,6 @@ label_end:
 ** \remark  The proportions (nfac1 * nfac2) must be ordered as follows:
 ** \remark  f1af2a, f1bf2a, f1cf2a, ..., f1bf2a, f1bf2b, ..., f1nf2m
 **
-** \note Needs license for Keyword simpgs
-**
 *****************************************************************************/
 GEOSLIB_API int simbipgs(Db     *dbin,
                          Db     *dbout,
@@ -6084,7 +6070,6 @@ GEOSLIB_API int simbipgs(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simpgs")) return(1);
   error     = 1;
   nvar      = 1;
   npgs      = 2;
@@ -6629,8 +6614,6 @@ label_end:
 **                         should be returned instead of simulations
 ** \param[in]  verbose     Verbose flag
 **
-** \note Needs license for Keyword gibbs
-**
 *****************************************************************************/
 GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               Model  *model,
@@ -6652,7 +6635,6 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("gibbs")) return(1);
   error   = 1;
   mean    = y = covmat = (double *) NULL;
   iptr_ce = iptr_cstd = -1;
@@ -6846,8 +6828,6 @@ label_end:
 **   }
 ** \endcode
 ** 
-** \note Needs license for Keyword simconst
-**
 *****************************************************************************/
 GEOSLIB_API int simtub_constraints(Db       *dbin,
                                    Db       *dbout,
@@ -6876,7 +6856,6 @@ GEOSLIB_API int simtub_constraints(Db       *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simconst")) return(1);
   error  = 1;
   law_set_random_seed(seed);
   nx = (int *) NULL;
@@ -7076,8 +7055,6 @@ static void st_maxstable_combine(Db     *dbout,
 ** \param[in]  flag_rank 1 if the iteration rank must be stored
 ** \param[in]  verbose   Verbose flag
 **
-** \note Needs license for Keyword simplus
-** 
 ** \remarks This function uses a threshold that can be defined using 
 ** \remarks keypair mechanism with keyword "MaxStableThresh".
 **
@@ -7098,7 +7075,6 @@ GEOSLIB_API int simmaxstable(Db    *dbout,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simplus")) return(1);
   error  = 1;
   iptrv  = iptrg = iptrs = iptrr = -1;
   situba = (Situba *) NULL;
@@ -7251,8 +7227,6 @@ static double st_quantile(Db     *dbout,
 ** \param[in]  nbtuba    Number of turning bands
 ** \param[in]  verbose   Verbose flag
 **
-** \note Needs license for Keyword simplus
-** 
 *****************************************************************************/
 GEOSLIB_API int simRI(Db     *dbout,
                       Model  *model,
@@ -7269,7 +7243,6 @@ GEOSLIB_API int simRI(Db     *dbout,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simplus")) return(1);
   error  = 1;
   iptrg  = iptrs = -1;
   pres   = pton = sort = (double *) NULL;
@@ -7431,8 +7404,6 @@ label_end:
 ** \remark  When conditional, the unique variable in the input Db structure
 ** \remark  should correspond to the facies index (starting from 1)
 **
-** \note Needs license for Keyword simpgs
-**
 *****************************************************************************/
 GEOSLIB_API int simpgs_spde(Db     *dbin,
                             Db     *dbout,
@@ -7465,7 +7436,6 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("spde")) return(1);
   error     = 1;
   nvar      = 1;
   nechin    = 0;
@@ -7720,8 +7690,6 @@ GEOSLIB_API int simtub_workable(Model  *model)
 **                         should be returned instead of simulations
 ** \param[in]  verbose     Verbose flag
 **
-** \note Needs license for Keyword simtub
-**
 ** \remarks The Neighborhood does not have to be defined as this method
 ** \remarks only functions using a Unique Neighborhood. For consistency
 ** \remarks it is generated internally.
@@ -7749,7 +7717,6 @@ GEOSLIB_API int simcond(Db    *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simtub")) return(1);
   error   = 1;
   neigh   = (Neigh *) NULL;
   nech    = get_NECH(dbin);

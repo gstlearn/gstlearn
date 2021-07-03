@@ -3441,8 +3441,6 @@ static void st_save_keypair_weights(int     status,
 **                         (Dimension: nvarCL * model->getNVar())
 ** \param[in]  namconv     Naming convention
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 GEOSLIB_API int kriging(Db *dbin,
                         Db *dbout,
@@ -3463,7 +3461,6 @@ GEOSLIB_API int kriging(Db *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error =  1;
   iext  = -1;
   nvar  =  0;
@@ -3616,8 +3613,6 @@ label_end:
 ** \param[in]  rank_colcok Option for running Collocated Cokriging
 ** \param[in]  namconv     Naming Convention
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 static int st_xvalid_unique(Db *dbin,
                             Model *model,
@@ -3633,7 +3628,6 @@ static int st_xvalid_unique(Db *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error  =  1;
   iext   = -1;
   nvar   =  0;
@@ -3790,8 +3784,6 @@ label_end:
 ** \param[in]  rank_colcok Option for running Collocated Cokriging
 ** \param[in]  namconv     Naming Convention
 **
-** \note Needs license for Keyword kriging
-**
 ** \details When flag_xvalid = 1, the outputs are:
 ** \details - estimation: Z*-Z, st. dev: (Z*-Z)/S
 ** \details When flag_xvalid = 2, the outputs are:
@@ -3847,8 +3839,6 @@ GEOSLIB_API int xvalid(Db    *db,
 ** \param[in]  flag_varz   Option for storing the variance of the estimator
 ** \param[in]  rval        Change of support coefficient
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 GEOSLIB_API int krigdgm_f(Db     *dbin,
                         Db     *dbout,
@@ -3865,7 +3855,6 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error =  1;
   iext  = -1;
   nvar  =  0;
@@ -4006,8 +3995,6 @@ label_end:
 ** \param[in]  flag_est  Option for the storing the estimation
 ** \param[in]  flag_std  Option for the storing the standard deviation
 **
-** \note Needs license for Keyword krigprof
-**
 *****************************************************************************/
 GEOSLIB_API int krigprof_f(Db    *dbin,
                          Db    *dbout,
@@ -4023,7 +4010,6 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("krigprof")) return(1);
   if (get_NVAR(dbin) != 1)
   {
     messerr("This method is restricted to the monovariate case");
@@ -4443,8 +4429,6 @@ static void st_bayes_correct(Model  *model,
 ** \param[in]  flag_est  Pointer for the storing the estimation
 ** \param[in]  flag_std  Pointer for the storing the standard deviation
 **
-** \note Needs license for Keyword bayes
-**
 *****************************************************************************/
 GEOSLIB_API int kribayes_f(Db *dbin,
                            Db *dbout,
@@ -4462,7 +4446,6 @@ GEOSLIB_API int kribayes_f(Db *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("bayes")) return(1);
   error      =  1;
   iext       = -1;
   nvar       =  0;
@@ -4611,8 +4594,6 @@ label_end:
 ** \remark 4 - The number of non-empty sectors
 ** \remark 5 - The number of consecutive empty sectors
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 GEOSLIB_API int test_neigh(Db    *dbin,
                            Db    *dbout,
@@ -4625,7 +4606,6 @@ GEOSLIB_API int test_neigh(Db    *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error = 1;
   iext  = -1;
   ntab  = 5;
@@ -4715,8 +4695,6 @@ label_end:
 ** \param[in]  flag_dgm   1 if the DGM version of kriging should be used
 ** \param[in]  rval       Change of support coefficient
 **
-** \note Needs license for Keyword simtub
-**
 *****************************************************************************/
 GEOSLIB_API int krigsim(const char *strloc,
                         Db     *dbin,
@@ -4736,7 +4714,6 @@ GEOSLIB_API int krigsim(const char *strloc,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("simtub")) return(1);
   error      =  1;
   iext       = -1;
   nvar       =  0;
@@ -4891,8 +4868,6 @@ label_end:
 ** \param[in]  model     Model structure
 ** \param[in]  neigh     Neigh structure
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
 {
@@ -4903,7 +4878,6 @@ GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error = 1;
   dbaux = (Db *) NULL;
   indn0 = indnl = indg0 = indgl = (int *) NULL;
@@ -5034,8 +5008,6 @@ label_end:
 ** \param[out]  sse    global estimation standard devation
 ** \param[out]  cvgeo  CV geo
 **
-** \note Needs license for Keyword global
-**
 ** \remark  This function erases any Weight variable already defined
 **
 *****************************************************************************/
@@ -5055,7 +5027,6 @@ GEOSLIB_API int global_arithmetic(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("global")) return(1);
   error = 1;
   st_global_init(dbin,dbgrid);
 
@@ -5160,8 +5131,6 @@ label_end:
 ** \param[out]  weights  Array of weights attached to data
 **                       (Dimension: nvar * nech)
 **
-** \note Needs license for Keyword global
-**
 *****************************************************************************/
 GEOSLIB_API int global_kriging(Db     *dbin,
                                Db     *dbout,
@@ -5183,7 +5152,6 @@ GEOSLIB_API int global_kriging(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("global")) return(1);
   error   = 1;
   nvar    = 0;
   rhs_tot = (double  *) NULL;
@@ -5375,8 +5343,6 @@ label_end:
 ** \param[out]  sse         Global standard deviation
 ** \param[out]  cvtrans     CV transitive
 **
-** \note Needs license for Keyword global
-**
 *****************************************************************************/
 GEOSLIB_API int global_transitive(Db     *dbgrid,
                                   Model  *model,
@@ -5395,7 +5361,6 @@ GEOSLIB_API int global_transitive(Db     *dbgrid,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("global")) return(1);
   error =  1;
   cvv = wtot = dsse = gint = dsum = 0.;
   flag_value = 0;
@@ -6100,8 +6065,6 @@ static double st_estim_exp(Db     *db,
 ** \param[in]  flag_sym      1 for symmetrized covariance
 ** \param[in]  nfeq          0 or 1 drift function(s)
 **
-** \note Needs license for Keyword anakexp
-**
 *****************************************************************************/
 GEOSLIB_API int anakexp_f(Db     *db,
                         double *covdd,
@@ -6119,7 +6082,6 @@ GEOSLIB_API int anakexp_f(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("anakexp")) return(1);
   error = 1;
   st_global_init(db,db);
   FLAG_EST = 1;
@@ -6780,8 +6742,6 @@ static void st_vario_dump(FILE   *file,
 **
 ** \remark  If dbg_ix < -1 || dbg_iy < -1, no variogram debug file is created
 **
-** \note Needs license for Keyword anakexp
-**
 *****************************************************************************/
 GEOSLIB_API int anakexp_3D(Db     *db,
                            double *cov_ref,
@@ -6804,7 +6764,6 @@ GEOSLIB_API int anakexp_3D(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("anakexp")) return(1);
   error = 1;
   st_global_init(db,db);
   FLAG_EST = 1;
@@ -7118,8 +7077,6 @@ label_end:
 ** \param[in]  type      1 for Uniform; 2 for Gaussian
 ** \param[in]  range     Range (used for Gaussian only)
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 GEOSLIB_API int image_smoother(Db    *dbgrid,
                                Neigh *neigh,
@@ -7133,7 +7090,6 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error = 1;
   dbaux = (Db *) NULL;
   indn0 = indnl = indg0 = indgl = (int *) NULL;
@@ -7247,8 +7203,6 @@ label_end:
 ** \remark  - the problem is multivariate ("z" variables)
 ** \remark  - the constraints is stored in "f" (only used in dbout)
 **
-** \note Needs license for Keyword krigsum
-**
 *****************************************************************************/
 GEOSLIB_API int krigsum_f(Db    *dbin,
                         Db    *dbout,
@@ -7262,7 +7216,6 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("krigsum")) return(1);
   error      = 1;
   st_global_init(dbin,dbout);
   icols      = active = (int     *) NULL;
@@ -7559,8 +7512,6 @@ static int st_check_constraint_seismic(int ix,
 ** \param[in]  model     Model structure (monovariate)
 ** \param[in]  neigh     Neigh structure (Unique or Bench)
 **
-** \note Needs license for Keyword krigmvp
-**
 *****************************************************************************/
 GEOSLIB_API int krigmvp_f(Db    *dbin,
                         Db    *db3grid,
@@ -7577,7 +7528,6 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("krigmvp")) return(1);
   error      =  1;
   st_global_init(dbin,db3grid);
   icols      = (int     *) NULL;
@@ -7911,8 +7861,6 @@ label_end:
 ** \param[out] nred_ret  Output number of equations
 ** \param[out] nrhs_ret  Output number of RHS
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 GEOSLIB_API int krigtest_dimension(Db    *dbin,
                                    Db    *dbout,
@@ -7930,7 +7878,6 @@ GEOSLIB_API int krigtest_dimension(Db    *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error =  1;
   iext  = -1;
   nvar  =  0;
@@ -8012,8 +7959,6 @@ label_end:
 ** \param[out] zam_out   Output ZAM matrix (Dimension: nred_out)
 ** \param[out] var_out   Output variance matrix (Dimension: nrhs_out * nrhs_out)
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 GEOSLIB_API int krigtest_f(Db     *dbin,
                          Db     *dbout,
@@ -8038,7 +7983,6 @@ GEOSLIB_API int krigtest_f(Db     *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error =  1;
   iext  = -1;
   nvar  =  nred = 0;
@@ -8200,8 +8144,6 @@ static void st_transform_gaussian_to_raw(Anam *anam)
 ** \param[in]  model     Model structure
 ** \param[in]  neigh     Neigh structrue
 **
-** \note Needs license for Keyword kriggam
-**
 *****************************************************************************/
 GEOSLIB_API int kriggam_f(Db    *dbin,
                         Db    *dbout,
@@ -8214,7 +8156,6 @@ GEOSLIB_API int kriggam_f(Db    *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriggam")) return(1);
   error = 1;
   nvar  = 0;
   st_global_init(dbin,dbout);
@@ -8341,8 +8282,6 @@ label_end:
 ** \param[in]  flag_std    Option for the storing the standard deviation
 ** \param[in]  rank_colcok Option for running Collocated Cokriging
 **
-** \note Needs license for Keyword kriging
-**
 *****************************************************************************/
 GEOSLIB_API int krigcell_f(Db    *dbin,
                          Db    *dbout,
@@ -8358,7 +8297,6 @@ GEOSLIB_API int krigcell_f(Db    *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error =  1;
   iext  = -1;
   nvar  =  0;
@@ -8551,8 +8489,6 @@ label_end:
 ** \param[in]  flag_est  Option for the storing the estimation
 ** \param[in]  flag_std  Option for the storing the standard deviation
 **
-** \note Needs license for Keyword dk
-**
 ** \remark In case the Model handles a Ponctual Anamophossis, the
 ** \remark estimation of block average quantities is performed. This initiates
 ** \remark a block estimation kriging and therefore requires the definition of
@@ -8592,7 +8528,6 @@ GEOSLIB_API int dk_f(Db *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("dk")) return(1);
   error   = 1;
   iptr_est_bck = iptr_std_bck = -1;
   rhs_cum = (double *) NULL;
@@ -8855,8 +8790,6 @@ label_end:
 **
 ** \remarks The resulting array must be freed by the calling procedure
 **
-** \note Needs license for Keyword kriging
-**
 ** \remark The number of variables in the 'dbin' may be different from
 ** \remark the number of variables in the 'model´.
 ** \remark This happens when the monovariate model is applied systematically
@@ -8875,7 +8808,6 @@ GEOSLIB_API int *neigh_calc(Db     *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(NULL);
   neigh_tab = (int *) NULL;
   dbout = (Db *) NULL;
   *nech_out = 0;
@@ -9635,7 +9567,6 @@ GEOSLIB_API int krigsampling_f(Db     *dbin,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("kriging")) return(1);
   error =  1;
   rutil = rother = (int    *) NULL;
   tutil = invsig = data = datm = s = c00 = (double *) NULL;
@@ -10887,8 +10818,6 @@ static void st_drift_update(int     np,
 ** \param[in]  model_dat   Model structure for the data
 ** \param[in]  model_src   Model structure for the sources
 **
-** \note Needs license for Keyword mapdose
-**
 *****************************************************************************/
 GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
                                       Db     *dbsrc,
@@ -10906,7 +10835,6 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
 
   /* Preliminary checks */
 
-  if (! LicenseKey::isAuthorized("mapdose")) return(1);
   error = nvar = 1;
   neigh = neigh_init_unique(get_NDIM(dbdat));
   st_global_init(dbdat,dbout);

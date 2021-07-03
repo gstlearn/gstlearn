@@ -3010,8 +3010,6 @@ static int st_pot_ext_manage(int      mode,
 ** \li                       5 : the external drift contribution only
 ** \param[in]  verbose    Verbose option
 **
-** \note Needs license for Keyword potential
-**
 ** \remark The results will be stored in the dbout file
 ** \remark - the estimation in the variable LOC_Z
 ** \remark - the gradient components in the variables LOC_GRD
@@ -3049,8 +3047,6 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
 
   // Preliminary checks
 
-  if (! LicenseKey::isAuthorized("potential")) return(1);
-  
   if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
   pot_env.ndim = get_NDIM(dbiso);
   if (pot_env.ndim > 3)
@@ -3262,8 +3258,6 @@ static int st_distance_to_isoline(Db *dbout)
 ** \param[in]  nbtuba       Number of turning bands
 ** \param[in]  verbose      Verbose option
 **
-** \note Needs license for Keyword potential
-**
 ** \remark The simulations will be stored in the dbout file (LOC_SIMU)
 **
 *****************************************************************************/
@@ -3300,8 +3294,6 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
 
   // Preliminary checks
 
-  if (! LicenseKey::isAuthorized("potential")) return(1);
-  
   if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
   pot_env.ndim = get_NDIM(dbiso);
   if (db_extension_diag(dbiso,&delta)) goto label_end;
@@ -3527,8 +3519,6 @@ label_end:
 ** \param[in]  flag_dist_conv Flag for converting into distance
 ** \param[in]  verbose        Verbose option
 **
-** \note Needs license for Keyword potential
-**
 *****************************************************************************/
 GEOSLIB_API int potential_xvalid(Db    *dbiso,
                                  Db    *dbgrd,
@@ -3554,8 +3544,6 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
 
   // Preliminary checks
 
-  if (! LicenseKey::isAuthorized("potential")) return(1);
-  
   if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
   pot_env.ndim = get_NDIM(dbiso);
   if (pot_env.ndim > 3)
@@ -3743,8 +3731,6 @@ static void st_print_type(int rank,
 ** \param[out] n2         Number of returned columns in "covtab"
 ** \param[out] covtab     Array of returned values
 **
-** \note Needs license for Keyword potential
-**
 ** \remarks The output array "covtab" must be dimensioned to ndim*ndim
 **
 *****************************************************************************/
@@ -3776,7 +3762,6 @@ GEOSLIB_API int potential_cov(Model  *model,
     
   // Preliminary checks
 
-  if (! LicenseKey::isAuthorized("potential")) return(1);
   *n1 = *n2 = 0;
   ndim  = model->getDimensionNumber();
   for (i=0; i<ndim * ndim; i++) covtab[i] = TEST;

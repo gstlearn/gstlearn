@@ -106,8 +106,6 @@ static int st_cgi_data(Db     *db,
 ** \remark The array mvalue must be dimensionned to ndim
 ** \remark The array mvector must be dimensionned to ndim * ndim
 **
-** \note Needs license for Keyword spatial
-**
 *****************************************************************************/
 GEOSLIB_API int cgi(Db     *db,
                     int     iatt,
@@ -122,7 +120,6 @@ GEOSLIB_API int cgi(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("spatial")) return(1);
   error = 1;
   nech  = db->getSampleNumber();
   ndim  = get_NDIM(db);
@@ -219,8 +216,6 @@ label_end:
 ** \remark This functions have been developped in the scope of the UE
 ** \remark program Fisboat, DG-Fish, STREP #502572
 **
-** \note Needs license for Keyword spatial
-**
 *****************************************************************************/
 GEOSLIB_API int spatial(Db     *db,
                         double *totab,
@@ -232,7 +227,6 @@ GEOSLIB_API int spatial(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("spatial")) return(1);
   top = bot = sum = 0.;
   maille = (is_grid(db)) ? db_grid_maille(db) : 1.;
 

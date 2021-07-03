@@ -1964,8 +1964,6 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
  **
  ** \param[out] g          Array containing the model values
  **
- ** \note Needs license for Keyword model
- **
  *****************************************************************************/
 GEOSLIB_API int model_grid(Model *model,
                            Db *db,
@@ -1981,7 +1979,6 @@ GEOSLIB_API int model_grid(Model *model,
 
   /* Initializations */
 
-  if (!LicenseKey::isAuthorized("model")) return (1);
   error = 1;
   covtab = (double *) NULL;
   CovCalcMode mode;
@@ -3826,8 +3823,6 @@ GEOSLIB_API void model_cova_characteristics(int rank,
  ** \param[in]  flag_norm  1 if the model is normalized
  ** \param[in]  flag_cov  1 if the result must be given in covariance
  **
- ** \note Needs license for Keyword model
- **
  *****************************************************************************/
 GEOSLIB_API int model_sample(Vario *vario,
                              Model *model,
@@ -3838,7 +3833,6 @@ GEOSLIB_API int model_sample(Vario *vario,
   int i, idir, ndir, ipas, npas, idim, ndim, error, nvar, ivar, jvar, ijvar;
   VectorDouble d1;
 
-  if (!LicenseKey::isAuthorized("model")) return (1);
   error = 1;
   ndim = vario->getDimensionNumber();
   ndir = vario->getDirectionNumber();

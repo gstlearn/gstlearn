@@ -4569,22 +4569,6 @@ GEOSLIB_API std::vector<std::string> util_set_array_char(int ntab, char **names)
 
 /****************************************************************************/
 /*!
- ** Check if the license is authorized
- ** This function is called by a function at a higher level then Geoslib
- ** although it keeps the LicenseKey file hidden
- **
- ** \return  1 if authorized and 0 otherwise
- **
- ** \param[in]  keyword    keyword
- **
- *****************************************************************************/
-GEOSLIB_API int is_license_authorized(const char *keyword)
-{
-  return (LicenseKey::isAuthorized(keyword));
-}
-
-/****************************************************************************/
-/*!
  **  Deposit a last message
  **
  ** \param[in]  mode           Type of operation

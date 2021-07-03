@@ -295,8 +295,6 @@ static void st_calcul_value(SubPlan& plan,
  ** \param[in]  trans       Transition matrix (Dimension: nfacies * nfacies)
  ** \param[in]  verbose     Verbose option
  **
- ** \note Needs license for Keyword simtub
- **
  *****************************************************************************/
 GEOSLIB_API int substitution(Db      *dbgrid,
                              int      seed,
@@ -321,7 +319,6 @@ GEOSLIB_API int substitution(Db      *dbgrid,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simsub")) return(1);
   law_set_random_seed(seed);
   error    = 1;
   status   = indg = (int    *) NULL;

@@ -1167,8 +1167,6 @@ label_end:
 ** \param[in]  flag_stat 1 for stationary; 0 otherwise
 ** \param[in]  nfacies   Number of facies
 **
-** \note Needs license for Keyword simpgs
-**
 *****************************************************************************/
 GEOSLIB_API int db_bounds_shadow(Db     *db,
                                  Db     *dbprop,
@@ -1184,7 +1182,6 @@ GEOSLIB_API int db_bounds_shadow(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simpgs")) return(1);
   error   = 1;
   ngrf    = 0;
   coor    = (double *) NULL;
@@ -1282,8 +1279,6 @@ label_end:
 ** \param[in]  flag_stat 1 for stationary; 0 otherwise
 ** \param[in]  nfacies   Number of facies
 **
-** \note Needs license for Keyword simpgs
-**
 *****************************************************************************/
 GEOSLIB_API int db_bounds(Db     *db,
                           Db     *dbprop,
@@ -1299,7 +1294,6 @@ GEOSLIB_API int db_bounds(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simpgs")) return(1);
   error   = 1;
   ngrf    = 0;
   coor    = (double *) NULL;
@@ -1551,8 +1545,6 @@ label_end:
 ** \param[in]  propcst   Array of proportions for the facies
 ** \param[in]  flag_stat 1 for stationary; 0 otherwise
 **
-** \note Needs license for Keyword simpgs
-**
 *****************************************************************************/
 GEOSLIB_API int db_prop_thresh(Db     *db,
                                Db     *dbprop,
@@ -1567,7 +1559,6 @@ GEOSLIB_API int db_prop_thresh(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simpgs")) return(1);
   error   = 1;
   ngrf    = nfacies = 0;
   propdef = (Props *) NULL;

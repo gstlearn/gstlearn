@@ -1997,8 +1997,6 @@ static void st_print_grain(Bool_Cond *cdgrain)
 ** \param[in]  tmax          Maximum time 
 ** \param[in]  verbose       1 for a verbose output
 **
-** \note Needs license for Keyword simbool
-**
 *****************************************************************************/
 GEOSLIB_API int simbool_f(Db     *dbin,
                         Db     *dbout,
@@ -2023,7 +2021,6 @@ GEOSLIB_API int simbool_f(Db     *dbin,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simbool")) return(1);
   Start_object_init = Start_object = (Bool_Object *) NULL;
   Nb_object_init = Nb_object = memo_init = nbgrain = nbpore = 0;
   iptr_simu = iptr_rank = -1;

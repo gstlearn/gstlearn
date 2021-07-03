@@ -1429,13 +1429,13 @@ GEOSLIB_API int ascii_db_write(const char *file_name,
 
     /* Writing the header */
 
-    st_record_write("%d", get_NDIM(db));
+    st_record_write("%d", db->getNDim());
     st_record_write("#", "Space Dimension");
 
     /* Writing the grid characteristics */
 
     st_record_write("#", "Grid characteristics (NX,X0,DX)");
-    for (idim = 0; idim < get_NDIM(db); idim++)
+    for (idim = 0; idim < db->getNDim(); idim++)
     {
       st_record_write("%d", get_NX(db, idim));
       st_record_write("%lf", get_X0(db, idim));

@@ -7859,7 +7859,6 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
 
   /* Initializations */
 
-  if (!LicenseKey::isAuthorized("spde")) return (1);
   error = 1;
   zcur = work = data = (double *) NULL;
   *nmesh_arg = *nvertex_arg = 0;
@@ -7995,7 +7994,6 @@ GEOSLIB_API int spde_f(Db *dbin,
 
   /* Initializations */
 
-  if (!LicenseKey::isAuthorized("spde")) return (1);
   error = 1;
 
   if (spde_check(dbin, dbout, model, NULL, verbose, gext, mesh_dbin, mesh_dbout,
@@ -10638,7 +10636,6 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
   /* Initializations */
 
-  if (!LicenseKey::isAuthorized("spde")) return (1);
   error = 1;
   iatt_f = iatt_out = -1;
   ydat = ymean = yvert = rhs = zkrig = gwork = vwork = (double *) NULL;

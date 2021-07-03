@@ -193,7 +193,6 @@
   /* Prototyping the functions in util.c */
   /***************************************/
 
-  GEOSLIB_API int is_license_authorized(const char *keyword);
   GEOSLIB_API double ut_deg2rad(double angle);
   GEOSLIB_API double ut_rad2deg(double angle);
   GEOSLIB_API int get_mirror_sample(int nx, int ix);

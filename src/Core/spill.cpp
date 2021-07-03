@@ -702,8 +702,6 @@ static int st_spill(SPIMG  *in,
 ** \remark  The numbering of the grid node corresponding to the spill point
 ** \remark  must start with 1
 **
-** \note Needs license for Keyword spill
-**
 *****************************************************************************/
 GEOSLIB_API int spill_point(Db      *dbgrid,
                             int      ind_depth,
@@ -725,7 +723,6 @@ GEOSLIB_API int spill_point(Db      *dbgrid,
   /* Preliminary tests */
 
   error  = 1;
-  if (! LicenseKey::isAuthorized("spill")) return(1);
 
   /* Preliminary checks */
 

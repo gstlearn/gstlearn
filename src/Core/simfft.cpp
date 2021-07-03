@@ -1177,8 +1177,6 @@ static void st_simfft_final(Db     *db,
 **                      covariance is considered as small enough for dilation
 ** \param[in]  flag_aliasing  1 for anti-aliasing procedure; 0 otherwise
 **
-** \note Needs license for Keyword simfft
-**
 *****************************************************************************/
 GEOSLIB_API int simfft_f(Db    *db,
                        Model *model,
@@ -1192,7 +1190,6 @@ GEOSLIB_API int simfft_f(Db    *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simfft")) return(1);
   error = 1;
   FLAG_ALIASING = flag_aliasing;
   if (seed != 0) law_set_random_seed(seed);
@@ -1420,8 +1417,6 @@ static double st_support(ST_FFT *simu,
 ** \param[out] r2val   r^2 coefficients
 ** \param[out] coeffs  r^2 coefficients for given logarithmic variances
 **
-** \note Needs license for Keyword simfft
-**
 *****************************************************************************/
 GEOSLIB_API int simfft_support(Db     *db,
                                Model  *model,
@@ -1437,7 +1432,6 @@ GEOSLIB_API int simfft_support(Db     *db,
 
   /* Initializations */
 
-  if (! LicenseKey::isAuthorized("simfft")) return(1);
   error = 1;
   FLAG_ALIASING = flag_aliasing;
   st_simfft_init(db,&simu);

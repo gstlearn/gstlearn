@@ -376,7 +376,6 @@ GEOSLIB_API int time_3db(double *HS, double *T, int NX, int NY, int NZ,
                          double HS_EPS_INIT, int MSG)
 {
   int    signal;
-  if (! LicenseKey::isAuthorized("geophysics")) return(1);
    
 #ifdef DEBUG_ARGS
   messerr("******** time_3db: Option DEBUG_ARGS is on.");
