@@ -170,7 +170,7 @@ static int st_update_isopot(Db      *dbiso,
 
   for (int iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(dbiso,iech)) continue;
+    if (! dbiso->isActive(iech)) continue;
     value = get_LOCATOR_ITEM(dbiso,LOC_LAYER,0,iech);
     if (FFFF(value)) continue;
     ival = (int) value;
@@ -234,7 +234,7 @@ static int st_update_isopot(Db      *dbiso,
   {
     for (int iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(dbiso,iech)) continue;
+      if (! dbiso->isActive(iech)) continue;
       value = get_LOCATOR_ITEM(dbiso,LOC_LAYER,0,iech);
       if (FFFF(value)) continue;
       ival = (int) value;
@@ -306,7 +306,7 @@ static int st_update_gradient(Db      *dbgrd,
 
   for (int iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(dbgrd,iech)) continue;
+    if (! dbgrd->isActive(iech)) continue;
     found = 0;
     for (int idim=0; idim<pot_env->ndim && found==0; idim++)
       if (FFFF(dbgrd->getGradient(iech,idim))) found = 1;
@@ -376,7 +376,7 @@ static int st_update_tangent(Db      *dbtgt,
 
   for (int iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(dbtgt,iech)) continue;
+    if (! dbtgt->isActive(iech)) continue;
     found = 0;
     for (int idim=0; idim<pot_env->ndim && found==0; idim++)
       if (FFFF(dbtgt->getTangent(iech,idim))) found = 1;
@@ -704,22 +704,22 @@ static int st_extdrift_neigh(Db      *dbgrid,
   /* Loop on the neighboring samples defined in the neighboring grid */
 
   ecr = 0;
-  for (int iz=0; iz<get_NX(pot_ext->db,2); iz++)
-    for (int iy=0; iy<get_NX(pot_ext->db,1); iy++)
-      for (int ix=0; ix<get_NX(pot_ext->db,0); ix++)
+  for (int iz=0; iz<pot_ext->db->getNX(2); iz++)
+    for (int iy=0; iy<pot_ext->db->getNX(1); iy++)
+      for (int ix=0; ix<pot_ext->db->getNX(0); ix++)
       {
 
         /* Calculate the index of the sample within the Ext Drift grid */
 
         pot_ext->indg[0] = pot_ext->indg0[0] + ix - pot_ext->nring;
         if (pot_ext->indg[0] < 0 || 
-            pot_ext->indg[0] > get_NX(dbgrid,0)) return(1);
+            pot_ext->indg[0] > dbgrid->getNX(0)) return(1);
         pot_ext->indg[1] = pot_ext->indg0[1] + iy - pot_ext->nring;
         if (pot_ext->indg[1] < 0 || 
-            pot_ext->indg[1] > get_NX(dbgrid,1)) return(1);
+            pot_ext->indg[1] > dbgrid->getNX(1)) return(1);
         pot_ext->indg[2] = pot_ext->indg0[2] + iz - pot_ext->nring;
         if (pot_ext->indg[2] < 0 || 
-            pot_ext->indg[2] > get_NX(dbgrid,2)) return(1);
+            pot_ext->indg[2] > dbgrid->getNX(2)) return(1);
         iech = db_index_grid_to_sample(dbgrid,pot_ext->indg);
         
         /* Check that the external drift value is defined */
@@ -765,7 +765,7 @@ static int st_extdrift_solve(Pot_Ext *pot_ext,
   ecr = 0;
   for (int iech=0; iech<pot_ext->nfull; iech++)
   {
-    if (! get_ACTIVE(pot_ext->db,iech)) continue;
+    if (! pot_ext->db->isActive(iech)) continue;
     st_cov(pot_ext->model,1,
            get_IDIM(pot_ext->db,iech,0),
            get_IDIM(pot_ext->db,iech,1),
@@ -1860,7 +1860,7 @@ static void st_estimate(Pot_Env *pot_env,
   {
     mes_process("Potential Estimation on 3-D Grid",get_NECH(dbout),iech);
     debug_index(iech+1);
-    if (! get_ACTIVE(dbout,iech)) continue;
+    if (! dbout->isActive(iech)) continue;
 
     // Perform the estimation
 
@@ -2282,7 +2282,7 @@ static void st_simcond(Pot_Env *pot_env,
   {
     mes_process("Potential Simulation on 3-D Grid",get_NECH(dbout),iech);
     debug_index(iech+1);
-    if (! get_ACTIVE(dbout,iech)) continue;
+    if (! dbout->isActive(iech)) continue;
 
     if (! FFFF(dist_tempere))
     {
@@ -2475,7 +2475,7 @@ static void st_check_data(Pot_Env *pot_env,
     for (int iech=0; iech<get_NECH(dbiso); iech++)
     {
       debug_index(iech+1);
-      if (! get_ACTIVE(dbiso,iech)) continue;
+      if (! dbiso->isActive(iech)) continue;
       st_calc_point(pot_env,pot_ext,1,0,dbiso,dbgrd,dbtgt,dbgrid,
                     model,zdual,rhs,dbiso,iech,result);
 
@@ -2521,7 +2521,7 @@ static void st_check_data(Pot_Env *pot_env,
     for (int iech=0; iech<get_NECH(dbgrd); iech++)
     {
       debug_index(iech+1);
-      if (! get_ACTIVE(dbgrd,iech)) continue;
+      if (! dbgrd->isActive(iech)) continue;
       st_calc_point(pot_env,pot_ext,1,0,dbiso,dbgrd,dbtgt,dbgrid,
                     model,zdual,rhs,dbgrd,iech,result);
 
@@ -2566,7 +2566,7 @@ static void st_check_data(Pot_Env *pot_env,
     for (int iech=0; iech<get_NECH(dbtgt); iech++)
     {
       debug_index(iech+1);
-      if (! get_ACTIVE(dbtgt,iech)) continue;
+      if (! dbtgt->isActive(iech)) continue;
       st_calc_point(pot_env,pot_ext,1,0,dbiso,dbgrd,dbtgt,dbgrid,
                     model,zdual,rhs,dbtgt,iech,result);
 
@@ -2829,7 +2829,7 @@ static int st_extdrift_create_db(Db      *dbout,
   for (int idim=0; idim<pot_ext->ndim; idim++)
   {
     nx[idim] = 2 * pot_ext->nring + 1;
-    x0[idim] = -get_DX(dbout,idim) * pot_ext->nring;
+    x0[idim] = -dbout->getDX(idim) * pot_ext->nring;
     nech    *= nx[idim];
   }
 
@@ -3111,7 +3111,7 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
       messerr("The External Drift requires an Output Grid File");
       goto label_end;
     }
-    range = 3. * MAX(get_DX(dbout,0), get_DX(dbout,1));
+    range = 3. * MAX(dbout->getDX(0), dbout->getDX(1));
     if (st_pot_ext_manage(1,&pot_ext,nring,range,dbout)) goto label_end;
   }
 
@@ -3358,7 +3358,7 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
       messerr("The External Drift requires an Output Grid File");
       goto label_end;
     }
-    range = 3. * MAX(get_DX(dbout,0), get_DX(dbout,1));
+    range = 3. * MAX(dbout->getDX(0), dbout->getDX(1));
     if (st_pot_ext_manage(1,&pot_ext,nring,range,dbout)) goto label_end;
   }
 

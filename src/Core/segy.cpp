@@ -1592,8 +1592,8 @@ GEOSLIB_API int db_segy(const char *filesegy,
   if (st_surface_identify(surf2D,
                           name_bot,flag_bot,&iatt_bot,
                           name_top,flag_top,&iatt_top)) return 1;
-  z0 = get_X0(grid3D,2);
-  nz = get_NX(grid3D,2);
+  z0 = grid3D->getX0(2);
+  nz = grid3D->getNX(2);
 
   // Open Input SEGY file
 

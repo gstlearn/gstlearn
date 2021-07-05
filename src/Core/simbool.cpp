@@ -1310,7 +1310,7 @@ static int st_check_intensity(void)
   else
   {
     for (i=0; i<3; i++)
-      ind[i] = (int) ((Coor[i] - get_X0(Dbout,i)) / get_DX(Dbout,i));
+      ind[i] = (int) ((Coor[i] - Dbout->getX0(i)) / Dbout->getDX(i));
     iech  = db_index_grid_to_sample(Dbout,ind);
     theta = Dbout->getProportion(iech,0);
   }
@@ -1886,18 +1886,18 @@ static void st_project_objects(double background,
 
     /* Look for the nodes in the box of influence of the object */
 
-    ix0 = (int) ((object->box[0][0] - get_X0(Dbout,0)) / get_DX(Dbout,0) - 1);
+    ix0 = (int) ((object->box[0][0] - Dbout->getX0(0)) / Dbout->getDX(0) - 1);
     ix0 = MAX(ix0, 0);
-    ix1 = (int) ((object->box[0][1] - get_X0(Dbout,0)) / get_DX(Dbout,0) + 1);
-    ix1 = MIN(ix1, get_NX(Dbout,0) - 1);
-    iy0 = (int) ((object->box[1][0] - get_X0(Dbout,1)) / get_DX(Dbout,1) - 1);
+    ix1 = (int) ((object->box[0][1] - Dbout->getX0(0)) / Dbout->getDX(0) + 1);
+    ix1 = MIN(ix1, Dbout->getNX(0) - 1);
+    iy0 = (int) ((object->box[1][0] - Dbout->getX0(1)) / Dbout->getDX(1) - 1);
     iy0 = MAX(iy0, 0);
-    iy1 = (int) ((object->box[1][1] - get_X0(Dbout,1)) / get_DX(Dbout,1) + 1);
-    iy1 = MIN(iy1, get_NX(Dbout,1) - 1);
-    iz0 = (int) ((object->box[2][0] - get_X0(Dbout,2)) / get_DX(Dbout,2) - 1);
+    iy1 = (int) ((object->box[1][1] - Dbout->getX0(1)) / Dbout->getDX(1) + 1);
+    iy1 = MIN(iy1, Dbout->getNX(1) - 1);
+    iz0 = (int) ((object->box[2][0] - Dbout->getX0(2)) / Dbout->getDX(2) - 1);
     iz0 = MAX(iz0, 0);
-    iz1 = (int) ((object->box[2][1] - get_X0(Dbout,2)) / get_DX(Dbout,2) + 1);
-    iz1 = MIN(iz1, get_NX(Dbout,2) - 1);
+    iz1 = (int) ((object->box[2][1] - Dbout->getX0(2)) / Dbout->getDX(2) + 1);
+    iz1 = MIN(iz1, Dbout->getNX(2) - 1);
 
     /* Check the pixels within the box */
 
@@ -1906,9 +1906,9 @@ static void st_project_objects(double background,
       for (iy=iy0; iy<=iy1; iy++)
         for (iz=iz0; iz<=iz1; iz++)
         {
-          xyz[0] = get_X0(Dbout,0) + ix * get_DX(Dbout,0);
-          xyz[1] = get_X0(Dbout,1) + iy * get_DX(Dbout,1);
-          xyz[2] = get_X0(Dbout,2) + iz * get_DX(Dbout,2);
+          xyz[0] = Dbout->getX0(0) + ix * Dbout->getDX(0);
+          xyz[1] = Dbout->getX0(1) + iy * Dbout->getDX(1);
+          xyz[2] = Dbout->getX0(2) + iz * Dbout->getDX(2);
           if (! st_check_object(xyz,object)) continue;
           ind[0] = ix;
           ind[1] = iy;
@@ -1917,7 +1917,7 @@ static void st_project_objects(double background,
 
           /* Bypass writing if the cell is masked off */
 
-          if (! get_ACTIVE(Dbout,iad)) continue;
+          if (! Dbout->isActive(iad)) continue;
           
           /* Set the values */
 
@@ -2060,9 +2060,9 @@ GEOSLIB_API int simbool_f(Db     *dbin,
   Angle_Z    = 0.;
   for (i=0; i<NDIM; i++)
   {
-    Origin[i] = get_X0(dbout,i) - get_DX(dbout,i) / 2.;
+    Origin[i] = dbout->getX0(i) - dbout->getDX(i) / 2.;
     if (dilate != (double *) NULL) Origin[i] -= dilate[i];
-    Field[i]  = get_DX(dbout,i) * get_NX(dbout,i);
+    Field[i]  = dbout->getDX(i) * dbout->getNX(i);
     if (dilate != (double *) NULL) Field[i] += 2. * dilate[i];
   }
   if (verbose)

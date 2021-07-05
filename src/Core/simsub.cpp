@@ -461,7 +461,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
   vmax = -1.e30;
   for (iech=0; iech<get_NECH(dbgrid); iech++)
   {
-    if (! get_ACTIVE(dbgrid,iech)) continue;
+    if (! dbgrid->isActive(iech)) continue;
     value = (flag_direct) ? 
       get_ARRAY(dbgrid,iech,iptr) : dbgrid->getVariable(iech,0);
     if (value < vmin) vmin = value;
@@ -517,7 +517,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
     
     for (iech=0; iech<get_NECH(dbgrid); iech++)
     {
-      if (! get_ACTIVE(dbgrid,iech)) continue;
+      if (! dbgrid->isActive(iech)) continue;
       value = (flag_direct) ? 
         get_ARRAY(dbgrid,iech,iptr) : dbgrid->getVariable(iech,0);
       ival = (int) ((value - vmin) / (vmax - vmin) * nstates);

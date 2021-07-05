@@ -192,7 +192,7 @@ static void st_unique(Db     *dbin,
   {
     /* Discard the masked input sample */
 
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
 
     /* Discard samples where all variables are undefined */
 
@@ -243,7 +243,7 @@ static void st_bench(Db     *dbin,
   {
     /* Discard the masked input sample */
 
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
 
     /* Discard samples where all variables are undefined */
 
@@ -583,7 +583,7 @@ static int st_moving(Db     *dbin,
     
     /* Discard the masked input sample */
 
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
 
     /* Discard samples where all variables are undefined */
 

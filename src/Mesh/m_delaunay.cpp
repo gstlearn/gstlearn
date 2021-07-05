@@ -123,11 +123,11 @@ static double *st_extend_grid(Db     *db,
     ndiv = ndiv0;
     for (int idim=ndim-1; idim>=0; idim--)
     {
-      delta = (ceil) (gext[idim] / get_DX(db,idim));
+      delta = (ceil) (gext[idim] / db->getDX(idim));
       ival  = rank / ndiv;
       rank  = rank - ndiv * ival;
       ndiv /= 2;
-      indg[idim] = (ival == 0) ? -delta : get_NX(db,idim) + delta;
+      indg[idim] = (ival == 0) ? -delta : db->getNX(idim) + delta;
     }
     grid_to_point(db,indg,NULL,coor);
     
@@ -295,7 +295,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
     iiech = -1;
     for (int iech=0; iech<get_NECH(dbin); iech++)
     {
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       iiech++;
       for (int idim=0; idim<ndim; idim++)
         coor_in[idim] = get_IDIM(dbin,iech,idim);
@@ -309,7 +309,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
         if (point_to_grid(dbout,coor_in,0,indg) < 0) continue;
         iclose = jclose = db_index_grid_to_sample(dbout,indg);
         if (iclose < 0) continue;
-        if (! get_ACTIVE(dbout,iclose)) continue;
+        if (! dbout->isActive(iclose)) continue;
         
         /* Calculate the smallest relative distance */
         
@@ -330,7 +330,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
         jjech = 0;
         for (jech=0; jech<get_NECH(dbout); jech++)
         {
-          if (! get_ACTIVE(dbout,jech)) continue;
+          if (! dbout->isActive(jech)) continue;
           for (int idim=0; idim<ndim; idim++)
             coor_out[idim] = get_IDIM(dbout,jech,idim);
           
@@ -634,7 +634,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
   neff = nhole = 0;
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     if (use_code && ncode > 0 && db->getCode(iech) < 0)
       nhole++;
@@ -652,7 +652,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
 
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     if (use_code && ncode > 0 && db->getCode(iech) < 0) continue;
     for (int idim=0; idim<ndim; idim++)
@@ -671,7 +671,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
     if (t->holelist == (double *) NULL) goto label_end;
     for (iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
       if (! (use_code && ncode > 0 && db->getCode(iech) < 0)) continue;
       for (int idim=0; idim<ndim; idim++)
         t->holelist[ecr++] = get_IDIM(db,iech,idim);
@@ -1226,13 +1226,13 @@ static int st_load_segment(Db  *dbgrid,
   indg[0]  = ix1;
   iech1    = db_index_grid_to_sample(dbgrid,indg);
   mesh[0]  = iech1;
-  imask1   = get_ACTIVE(dbgrid,iech1);
+  imask1   = dbgrid->isActive(iech1);
   nactive += imask1;
   
   indg[0]  = ix2;
   iech2    = db_index_grid_to_sample(dbgrid,indg);
   mesh[1]  = iech2;
-  imask2   = get_ACTIVE(dbgrid,iech2);
+  imask2   = dbgrid->isActive(iech2);
   nactive += imask2;
 
   if (nactive <= 0) return(0);
@@ -1283,21 +1283,21 @@ static int st_load_triangle(Db  *dbgrid,
   indg[1]  = iy1;
   iech1    = db_index_grid_to_sample(dbgrid,indg);
   mesh[0]  = iech1;
-  imask1   = get_ACTIVE(dbgrid,iech1);
+  imask1   = dbgrid->isActive(iech1);
   nactive += imask1;
   
   indg[0]  = ix2;
   indg[1]  = iy2;
   iech2    = db_index_grid_to_sample(dbgrid,indg);
   mesh[1]  = iech2;
-  imask2   = get_ACTIVE(dbgrid,iech2);
+  imask2   = dbgrid->isActive(iech2);
   nactive += imask2;
 
   indg[0]  = ix3;
   indg[1]  = iy3;
   iech3    = db_index_grid_to_sample(dbgrid,indg);
   mesh[2]  = iech3;
-  imask3   = get_ACTIVE(dbgrid,iech3);
+  imask3   = dbgrid->isActive(iech3);
   nactive += imask3;
   
   if (nactive <= 0) return(0);
@@ -1361,7 +1361,7 @@ static int st_load_tetra(Db  *dbgrid,
   indg[2]  = iz1;
   iech1    = db_index_grid_to_sample(dbgrid,indg);
   mesh[0]  = iech1;
-  imask1   = get_ACTIVE(dbgrid,iech1);
+  imask1   = dbgrid->isActive(iech1);
   nactive += imask1;
 
   indg[0]  = ix2;
@@ -1369,7 +1369,7 @@ static int st_load_tetra(Db  *dbgrid,
   indg[2]  = iz2;
   iech2    = db_index_grid_to_sample(dbgrid,indg);
   mesh[1]  = iech2;
-  imask2   = get_ACTIVE(dbgrid,iech2);
+  imask2   = dbgrid->isActive(iech2);
   nactive += imask1;
 
   indg[0]  = ix3;
@@ -1377,7 +1377,7 @@ static int st_load_tetra(Db  *dbgrid,
   indg[2]  = iz3;
   iech3    = db_index_grid_to_sample(dbgrid,indg);
   mesh[2]  = iech3;
-  imask3   = get_ACTIVE(dbgrid,iech3);
+  imask3   = dbgrid->isActive(iech3);
   nactive += imask1;
 
   indg[0]  = ix4;
@@ -1385,7 +1385,7 @@ static int st_load_tetra(Db  *dbgrid,
   indg[2]  = iz4;
   iech4    = db_index_grid_to_sample(dbgrid,indg);
   mesh[3]  = iech4;
-  imask4   = get_ACTIVE(dbgrid,iech4);
+  imask4   = dbgrid->isActive(iech4);
   nactive += imask1;
 
   if (nactive <= 0) return(0);
@@ -1581,8 +1581,8 @@ GEOSLIB_API int meshes_turbo_2D_grid_build(int        verbose,
   ndim    = 2;
   ncorner = 3;
   order   = meshes = indg = ranks = (int * ) NULL;
-  nx      = get_NX(dbgrid,0);
-  ny      = get_NX(dbgrid,1);
+  nx      = dbgrid->getNX(0);
+  ny      = dbgrid->getNX(1);
   number  = nx * ny;
   
   /* Core allocation */
@@ -2073,7 +2073,7 @@ GEOSLIB_API int meshes_2D_sph_from_db(Db  *db,
   neff = 0;
   for (int iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     neff++;
   }
@@ -2096,7 +2096,7 @@ GEOSLIB_API int meshes_2D_sph_from_db(Db  *db,
 
   for (int iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     util_convert_sph2cart(get_IDIM(db,iech,0),get_IDIM(db,iech,1),&xx,&yy,&zz);
     t->sph_x[ecr] = xx;
@@ -2940,7 +2940,7 @@ GEOSLIB_API int meshes_3D_from_db(Db  *db,
   neff = 0;
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     neff++;
   }
@@ -2955,7 +2955,7 @@ GEOSLIB_API int meshes_3D_from_db(Db  *db,
 
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     for (int idim=0; idim<ndim; idim++)
       t->pointlist[ecr++] = get_IDIM(db,iech,idim);
@@ -3206,9 +3206,9 @@ GEOSLIB_API int meshes_turbo_3D_grid_build(int        verbose,
   ndim    = 3;
   ncorner = 4;
   order   = meshes = indg = (int * ) NULL;
-  nx      = get_NX(dbgrid,0);
-  ny      = get_NX(dbgrid,1);
-  nz      = get_NX(dbgrid,2);
+  nx      = dbgrid->getNX(0);
+  ny      = dbgrid->getNX(1);
+  nz      = dbgrid->getNX(2);
   number  = nx * ny * nz;
   
   /* Core allocation */
@@ -3346,7 +3346,7 @@ GEOSLIB_API int meshes_1D_from_db(Db  *db,
   neff = 0;
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     neff++;
   }
@@ -3361,7 +3361,7 @@ GEOSLIB_API int meshes_1D_from_db(Db  *db,
 
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     for (int idim=0; idim<ndim; idim++)
       t->pointlist[ecr++] = get_IDIM(db,iech,idim);
@@ -3616,7 +3616,7 @@ GEOSLIB_API int meshes_turbo_1D_grid_build(int        verbose,
   ndim    = 1;
   ncorner = 2;
   order   = meshes = indg = ranks = (int * ) NULL;
-  nx      = get_NX(dbgrid,0);
+  nx      = dbgrid->getNX(0);
   number  = nx - 1;
   
   /* Core allocation */

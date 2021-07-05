@@ -71,7 +71,7 @@ static int st_skin_grid_shift(Skin *skin,
   for (i=0; i<skin->ndim; i++) 
   {
     indg[i] = indg0[i] + id[dir][i];
-    if (indg[i] < 0 || indg[i] >= get_NX(skin->db,i)) return(0);
+    if (indg[i] < 0 || indg[i] >= skin->db->getNX(i)) return(0);
   }
 
   /* Calculate the absolute address of the shifted grid node */

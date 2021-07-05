@@ -192,6 +192,14 @@ int GridC::getNTotal() const
   return ntotal;
 }
 
+double GridC::getCellSize() const
+{
+  double size = 1.;
+  for (int idim=0; idim<_nDim; idim++)
+    size *= _dx[idim];
+  return size;
+}
+
 String GridC::toString(int level) const
 {
   std::stringstream sstr;

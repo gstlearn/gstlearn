@@ -161,7 +161,7 @@ static void st_manage_drift_removal(int    type,
       if (model != (Model *) NULL)
       {
         nbfl    = model->getDriftNumber();
-        nech    = get_NACTIVE_AND_DEFINED(db,0);
+        nech    = db->getActiveAndDefinedNumber(0);
         MODEL   = model;
         DRFLOC  = (double *) mem_alloc(sizeof(double) * nbfl,1);
         BETA    = (double *) mem_alloc(sizeof(double) * nbfl,1);
@@ -358,7 +358,7 @@ static void st_variogram_stats(Db     *db,
     double s1z = 0.;
     for (int iech=0; iech<get_NECH(db); iech++)
      {
-       if (! get_ACTIVE(db,iech)) continue;
+       if (! db->isActive(iech)) continue;
        ww = db->getWeight(iech);
        if (FFFF(ww) || ww < 0.) continue;
        z1 = st_get_IVAR(db,iech,ivar);
@@ -383,7 +383,7 @@ static void st_variogram_stats(Db     *db,
 
       for (int iech = 0; iech < get_NECH(db); iech++)
       {
-        if (!get_ACTIVE(db, iech)) continue;
+        if (!db->isActive(iech)) continue;
         ww = db->getWeight(iech);
         if (FFFF(ww) || ww < 0.) continue;
 
@@ -475,7 +475,7 @@ static void st_variovect_stats(Db    *db,
 
       for (iech=0; iech<get_NECH(db); iech++)
       {
-        if (! get_ACTIVE(db,iech)) continue;
+        if (! db->isActive(iech)) continue;
         ww = db->getWeight(iech);
         if (FFFF(ww)) continue;
         if (ww < 0.)
@@ -998,7 +998,7 @@ static void st_covariance_center(Db    *db,
       m1 = m2 = sumw = 0.;
       for (iech=0; iech<get_NECH(db); iech++)
       {
-        if (! get_ACTIVE(db,iech)) continue;
+        if (! db->isActive(iech)) continue;
         ww = db->getWeight(iech);
         if (FFFF(ww) || ww < 0.) continue;
         z1 = st_get_IVAR(db,iech,ivar);
@@ -1066,7 +1066,7 @@ static void st_variogram_patch_c00(Db    *db,
 
       for (iech=0; iech<get_NECH(db); iech++)
       {
-        if (! get_ACTIVE(db,iech)) continue;
+        if (! db->isActive(iech)) continue;
         ww = db->getWeight(iech);
         if (FFFF(ww) || ww < 0.) continue;
         z1 = st_get_IVAR(db,iech,ivar);
@@ -1396,7 +1396,7 @@ static int st_get_relative_sample_rank(Db *db,
 
   for (iech=iiech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE_AND_DEFINED(db,iech,0)) continue;
+    if (! db->isActiveAndDefined(iech,0)) continue;
     if (iech == iech0) return(iiech);
     iiech++;
   }
@@ -1423,7 +1423,7 @@ static double st_get_bias_value(Db  *db,
 
   /* Get the relative sample ranks */
 
-  nech  = get_NACTIVE_AND_DEFINED(db,0);
+  nech  = db->getActiveAndDefinedNumber(0);
   bias0 = bias1 = bias2 = 0.;
 
   for (il=0; il<nbfl; il++)
@@ -1507,7 +1507,7 @@ static void st_calculate_bias_global(Db     *db,
 
   nbfl = MODEL->getDriftNumber();
   ndim = MODEL->getDimensionNumber();
-  nech = get_NACTIVE_AND_DEFINED(db,0);
+  nech = db->getActiveAndDefinedNumber(0);
 
   /* Calculate the c00 term */
 
@@ -1518,13 +1518,13 @@ static void st_calculate_bias_global(Db     *db,
   
   for (iech=iiech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE_AND_DEFINED(db,iech,0)) continue;
+    if (! db->isActiveAndDefined(iech,0)) continue;
     for (il=0; il<nbfl; il++)
     {
       value = 0;
       for (jech=jjech=0; jech<get_NECH(db); jech++)
       {
-        if (! get_ACTIVE_AND_DEFINED(db,jech,0)) continue;
+        if (! db->isActiveAndDefined(jech,0)) continue;
         for (idim=0; idim<ndim; idim++)
           d1[idim] = get_IDIM(db,iech,idim) - get_IDIM(db,jech,idim);
         model_calcul_cov(MODEL,mode,1,1.,d1,&covtab);
@@ -1551,7 +1551,7 @@ static void st_calculate_bias_global(Db     *db,
 
   for (iech=iiech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE_AND_DEFINED(db,iech,0)) continue;
+    if (! db->isActiveAndDefined(iech,0)) continue;
     DRFDIAG[iiech] = st_get_bias_value(db,nbfl,iiech,iiech);
     iiech++;
   }
@@ -1803,7 +1803,7 @@ static int st_variogram_calcul1(Db    *db,
   for (iiech=0; iiech<nech-1; iiech++)
   {
     iech = rindex[iiech];
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getWeight(iech))) continue;
 
     ideb = (st_date_is_used(vario,db,db)) ? 0 : iiech + 1;
@@ -1811,7 +1811,7 @@ static int st_variogram_calcul1(Db    *db,
     {
       jech = rindex[jjech];
       if (variogram_maximum_dist1D_reached(db,iech,jech,maxdist)) break;
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       if (FFFF(db->getWeight(jech))) continue;
 
       /* Check if the pair must be kept (Code criterion) */
@@ -1944,7 +1944,7 @@ static int st_variogram_calcul2(Db    *db,
   for (iiech=0; iiech<nech; iiech++)
   {
     iech = rindex[iiech];
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     w1 = db->getWeight(iech);
     if (FFFF(w1)) continue;
 
@@ -1959,7 +1959,7 @@ static int st_variogram_calcul2(Db    *db,
     {
       jech = rindex[jjech];
       if (variogram_maximum_dist1D_reached(db,iech,jech,maxdist)) break;
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       if (FFFF(db->getWeight(jech))) continue;
 
       /* Check if the pair must be kept (Code criterion) */
@@ -2072,14 +2072,14 @@ static int st_variovect_calcul(Db    *db,
   for (iiech=0; iiech<nech-1; iiech++)
   {
     iech = rindex[iiech];
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getWeight(iech))) continue;
 
     for (jjech=iiech+1; jjech<nech; jjech++)
     {
       jech = rindex[jjech];
       if (variogram_maximum_dist1D_reached(db,iech,jech,maxdist)) break;
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       if (FFFF(db->getWeight(jech))) continue;
 
       /* Check if the pair must be kept (distance criterion) */
@@ -2199,7 +2199,7 @@ static int st_variogram_grid(Db    *db,
 
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getWeight(iech))) continue;
     db_index_sample_to_grid(db,iech,indg1);
 
@@ -2210,7 +2210,7 @@ static int st_variogram_grid(Db    *db,
       jech = db_index_grid_to_sample(db,indg2);
       if (jech < 0) continue;
 
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       if (FFFF(db->getWeight(jech))) continue;
 
       /* Check if the pair must be kept (Code criterion) */
@@ -2286,7 +2286,7 @@ static void st_variogen_line(Db    *db,
 
   for (iech=0; iech<nech-1; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
 
     for (ipas=1; ipas<npas; ipas++)
     {
@@ -2299,7 +2299,7 @@ static void st_variogen_line(Db    *db,
         keep = 0;
         jech = iech + iwgt * ipas;
         if (jech < 0 || jech > nech) break;
-        if (! get_ACTIVE(db,jech)) break;
+        if (! db->isActive(jech)) break;
 
         /* Calculate the distance */
 
@@ -2385,7 +2385,7 @@ static int st_variogen_grid(Db    *db,
 
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     db_index_sample_to_grid(db,iech,indg1);
 
     for (ipas=1; ipas<npas; ipas++)
@@ -2402,7 +2402,7 @@ static int st_variogen_grid(Db    *db,
 
         jech = db_index_grid_to_sample(db,indg2);
         if (jech < 0) continue;
-        if (! get_ACTIVE(db,jech)) continue;
+        if (! db->isActive(jech)) continue;
 
         /* Check if the pair must be kept (Code criterion) */
 
@@ -2678,7 +2678,7 @@ static int st_estimate_drift_coefficients(Db *db,
   if (MODEL == (Model *) NULL) return(0);
   error = 1;
   nbfl  = MODEL->getDriftNumber();
-  nech  = get_NACTIVE_AND_DEFINED(db,0);
+  nech  = db->getActiveAndDefinedNumber(0);
   b     = (double *) NULL;
 
   /* Core allocation */
@@ -2690,7 +2690,7 @@ static int st_estimate_drift_coefficients(Db *db,
 
   for (iech=iiech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE_AND_DEFINED(db,iech,0)) continue;
+    if (! db->isActiveAndDefined(iech,0)) continue;
     model_calcul_drift(MODEL,MEMBER_LHS,db,iech,DRFLOC);
 
     for (il=0; il<nbfl; il++)
@@ -3094,7 +3094,7 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
   /* Calculate the VMAP half-extension */
 
   for (idim=0; idim<ndim; idim++)
-    mid[idim] = get_NX(dbmap,idim) * get_DX(dbmap,idim) / 2;
+    mid[idim] = dbmap->getNX(idim) * dbmap->getDX(idim) / 2;
 
   /* Sorting the samples according to their first coordinate */
 
@@ -3107,7 +3107,7 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
   for (jech1=0; jech1<nech; jech1++)
   {
     iech1 = ind1[jech1];
-    if (! get_ACTIVE(db,iech1)) continue;
+    if (! db->isActive(iech1)) continue;
     x0 = get_IDIM(db,iech1,0);
 
     /* Loop on the second data */
@@ -3115,7 +3115,7 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
     for (jech2=jech1; jech2<nech; jech2++)
     {
       iech2 = ind1[jech2];
-      if (! get_ACTIVE(db,iech2)) continue;
+      if (! db->isActive(iech2)) continue;
       delta[0] = get_IDIM(db,iech2,0) - x0;
       if (delta[0] > mid[0]) break;
       
@@ -3228,12 +3228,12 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
   }
   for (idim=0; idim<dbmap->getNDim(); idim++)
   {
-    if (ABS(get_DX(dbmap,idim) - get_DX(dbgrid,idim)) > 1.e-03)
+    if (ABS(dbmap->getDX(idim) - dbgrid->getDX(idim)) > 1.e-03)
     {
       messerr("The grid mesh in the direction %d (dx=%lf)",
-              idim+1,get_DX(dbgrid,idim));
+              idim+1,dbgrid->getDX(idim));
       messerr("must match the mesh of the Variogram Map grid (dx=%lf)",
-              get_DX(dbmap,idim));
+              dbmap->getDX(idim));
       return(1);
     }
   }
@@ -3265,20 +3265,20 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
 
   for (iech1=0; iech1<get_NECH(dbgrid); iech1++)
   {
-    if (! get_ACTIVE(dbgrid,iech1)) continue;
+    if (! dbgrid->isActive(iech1)) continue;
     db_index_sample_to_grid(dbgrid,iech1,ind1);
     
     /* Loop on the second data */
     
     for (iech2=0; iech2<get_NECH(dbgrid); iech2++)
     {
-      if (! get_ACTIVE(dbgrid,iech2)) continue;
+      if (! dbgrid->isActive(iech2)) continue;
       db_index_sample_to_grid(dbgrid,iech2,ind2);
       
       for (idim=flag_out=0; idim<ndim && flag_out==0; idim++)
       {
         delta  = ind1[idim] - ind2[idim];
-        int moitie = (get_NX(dbmap,idim) - 1) / 2;
+        int moitie = (dbmap->getNX(idim) - 1) / 2;
         if (delta < -moitie || delta > moitie) flag_out = 1;
         ind0[idim] = delta + moitie;
       }	
@@ -3797,7 +3797,7 @@ GEOSLIB_API int correlation_f(Db     *db1,
 
     for (iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(db1,iech)) continue;
+      if (! db1->isActive(iech)) continue;
       val1 = get_ARRAY(db1,iech,icol1);
       if (FFFF(val1)) continue;
       val2 = get_ARRAY(db2,iech,icol2);
@@ -3841,13 +3841,13 @@ GEOSLIB_API int correlation_f(Db     *db1,
 
     for (iech=0; iech<nech-1; iech++)
     {
-      if (! get_ACTIVE(db1,iech)) continue;
+      if (! db1->isActive(iech)) continue;
       val1 = get_ARRAY(db1,iech,icol1);
       if (FFFF(val1)) continue;
 
       for (jech=iech+1; jech<nech; jech++)
       {
-        if (! get_ACTIVE(db1,jech)) continue;
+        if (! db1->isActive(jech)) continue;
         val2 = get_ARRAY(db1,jech,icol2);
         if (FFFF(val2)) continue;
 
@@ -3989,7 +3989,7 @@ GEOSLIB_API int correlation_ident(Db     *db1,
   
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db1,iech)) continue;
+    if (! db1->isActive(iech)) continue;
     val1 = get_ARRAY(db1,iech,icol1);
     if (FFFF(val1)) continue;
     val2 = get_ARRAY(db2,iech,icol2);
@@ -4041,7 +4041,7 @@ static void st_variogram_cloud(Db     *db,
 
   for (iech=0; iech<nech-1; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     w1 = db->getWeight(iech);
     if (FFFF(w1)) continue;
     z1 = st_get_IVAR(db,iech,0);
@@ -4050,7 +4050,7 @@ static void st_variogram_cloud(Db     *db,
     ideb = (st_date_is_used(vario,db,db)) ? 0 : iech + 1;
     for (jech=ideb; jech<nech; jech++)
     {
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       w2 = db->getWeight(jech);
       if (FFFF(w2)) continue;
       z2 = st_get_IVAR(db,jech,0);
@@ -4121,7 +4121,7 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
 
   for (iech=0; iech<nech-1; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     w1 = db->getWeight(iech);
     if (FFFF(w1)) continue;
     z1 = st_get_IVAR(db,iech,0);
@@ -4130,7 +4130,7 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
     ideb = (st_date_is_used(vario,db,db)) ? 0 : iech + 1;
     for (jech=ideb; jech<nech; jech++)
     {
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       w2 = db->getWeight(jech);
       if (FFFF(w2)) continue;
       z2 = st_get_IVAR(db,jech,0);
@@ -4226,13 +4226,13 @@ static void st_variogram_cloud_dim(Db     *db,
 
   for (iech=0; iech<nech-1; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getWeight(iech))) continue;
 
     ideb = (st_date_is_used(vario,db,db)) ? 0 : iech + 1;
     for (jech=ideb; jech<nech; jech++)
     {
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       if (FFFF(db->getWeight(jech))) continue;
 
       /* Check if the pair must be kept (Code criterion) */
@@ -4520,7 +4520,7 @@ GEOSLIB_API int regression_f(Db     *db1,
 
   for (iech=number=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db1,iech)) continue;
+    if (! db1->isActive(iech)) continue;
 
     /* Get the information for the current sample */
 
@@ -4631,7 +4631,7 @@ GEOSLIB_API int regression_f(Db     *db1,
   for (iech=0; iech<nech; iech++)
   {
     value = TEST;
-    if (get_ACTIVE(db1,iech))
+    if (db1->isActive(iech))
     {
       
       /* Get the information for the current sample */
@@ -5021,7 +5021,7 @@ static void st_vmap_store(Db     *dbmap,
   for (int idim=0; idim<3; idim++)
   {
     if (idim < ndim)
-      dims[idim] = get_NX(dbmap,idim);
+      dims[idim] = dbmap->getNX(idim);
     else
       dims[idim] = 1;
   }
@@ -5179,9 +5179,9 @@ static int st_vmap_load(Db     *dbgrid,
     for (iy=0; iy<dims[1]; iy++)
       for (iz=0; iz<dims[2]; iz++,ecr++)
       {
-        if (ndim >= 1 && ix >= get_NX(dbgrid,0)) continue;
-        if (ndim >= 2 && iy >= get_NX(dbgrid,1)) continue;
-        if (ndim >= 3 && iz >= get_NX(dbgrid,2)) continue;
+        if (ndim >= 1 && ix >= dbgrid->getNX(0)) continue;
+        if (ndim >= 2 && iy >= dbgrid->getNX(1)) continue;
+        if (ndim >= 3 && iz >= dbgrid->getNX(2)) continue;
         indice[0] = ix;
         indice[1] = iy;
         indice[2] = iz;
@@ -5468,21 +5468,21 @@ static int st_vmap_grid_fft(Db *dbgrid,
   } 
   for (idim=0; idim<dbmap->getNDim(); idim++)
   {
-    if (ABS(get_DX(dbmap,idim) - get_DX(dbgrid,idim)) > 1.e-03)
+    if (ABS(dbmap->getDX(idim) - dbgrid->getDX(idim)) > 1.e-03)
     {
       messerr("The grid mesh in the direction %d (dx=%lf)",
-              idim+1,get_DX(dbgrid,idim));
+              idim+1,dbgrid->getDX(idim));
       messerr("must match the mesh of the Variogram Map grid (dx=%lf)",
-              get_DX(dbmap,idim));
+              dbmap->getDX(idim));
       return(1);
     }
   }
 
   for (idim=0; idim<3; idim++) nxgrid[idim] = nxmap[idim] = 1;
   for (idim=0; idim<dbgrid->getNDim(); idim++)
-    nxgrid[idim] = get_NX(dbgrid,idim);
+    nxgrid[idim] = dbgrid->getNX(idim);
   for (idim=0; idim<dbmap->getNDim();  idim++)
-    nxmap[idim]  = get_NX(dbmap,idim);
+    nxmap[idim]  = dbmap->getNX(idim);
   
   /* Preliminary calculations */
 
@@ -6047,7 +6047,7 @@ static void st_pca_f2z(int     flag_norm_out,
 
   for (int iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     flag_anisotropy = ! db_is_isotropic(db,iech,data1);
 
     /* Loop on the factors */
@@ -6105,7 +6105,7 @@ static void st_pca_z2f(int     flag_norm_out,
 
   for (int iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     flag_anisotropy = ! db_is_isotropic(db,iech,data1);
     st_center(nvar,data1,mean,sigma);
     
@@ -6580,7 +6580,7 @@ GEOSLIB_API int geometry_compute(Db    *db,
     for (iiech=0; iiech<nech-1; iiech++)
     {
       iech = rindex[iiech];
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
       if (FFFF(db->getWeight(iech))) continue;
       
       ideb = (st_date_is_used(vario,db,db)) ? 0 : iiech + 1;
@@ -6588,7 +6588,7 @@ GEOSLIB_API int geometry_compute(Db    *db,
       {
         jech = rindex[jjech];
         if (variogram_maximum_dist1D_reached(db,iech,jech,maxdist)) break;
-        if (! get_ACTIVE(db,jech)) continue;
+        if (! db->isActive(jech)) continue;
         if (FFFF(db->getWeight(jech))) continue;
         
         /* Check if the pair must be kept (Code criterion) */
@@ -6769,14 +6769,14 @@ GEOSLIB_API int variogram_mlayers(Db    *db,
     
     for (iech=iiech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
       if (seltab[iech] == 0) continue;
       for (int ifois=0; ifois<seltab[iech]; ifois++,iiech++)
       {
 
         for (jech=jjech=0; jech<nech; jech++)
         {
-          if (! get_ACTIVE(db,jech)) continue;
+          if (! db->isActive(jech)) continue;
           if (seltab[jech] == 0) continue;
           for (int jfois=0; jfois<seltab[jech]; jfois++,jjech++)
           {
@@ -6962,7 +6962,7 @@ GEOSLIB_API void condexp(Db     *db1,
   
   for (int iech=0; iech<get_NECH(db1); iech++)
   {
-    if (! get_ACTIVE(db1,iech)) continue;
+    if (! db1->isActive(iech)) continue;
     val1 = get_ARRAY(db1,iech,icol1);
     if (FFFF(val1)) continue;
     val2 = get_ARRAY(db2,iech,icol2);

@@ -115,7 +115,7 @@ static int st_reference_define(Db  *db,
   for (int i=0; i<3; i++) gg[i] = 0.;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     x   = get_ARRAY(db,iech,iptr_init[0]);
     y   = get_ARRAY(db,iech,iptr_init[1]);
     z   = get_ARRAY(db,iech,iptr_init[2]);
@@ -134,7 +134,7 @@ static int st_reference_define(Db  *db,
   for (int i=0; i<9; i++) mat[i] = 0.;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     x   = get_ARRAY(db,iech,iptr_init[0]) - surf_reference->xg;
     y   = get_ARRAY(db,iech,iptr_init[1]) - surf_reference->yg;
     z   = get_ARRAY(db,iech,iptr_init[2]) - surf_reference->zg;
@@ -285,7 +285,7 @@ static void st_transform_init2proj(Surf_Def *surf_reference,
   n = 0;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
 
     /* Load the initial coordinates */
 

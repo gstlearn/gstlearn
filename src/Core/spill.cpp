@@ -753,8 +753,8 @@ GEOSLIB_API int spill_point(Db      *dbgrid,
   FLAG_VERBOSE = flag_verbose;
   FLAG_CROSS   = flag_cross;
   DB = dbgrid;
-  SX = get_NX(DB,0);
-  SY = get_NX(DB,1);
+  SX = DB->getNX(0);
+  SY = DB->getNX(1);
   TX = SX + 2 * BORD;
   TY = SY + 2 * BORD;
   in = out = mark = (SPIMG *) NULL;

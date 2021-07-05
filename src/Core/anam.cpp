@@ -1219,7 +1219,7 @@ GEOSLIB_API int anam_discrete_DD_z2factor(Anam   *anam,
   anam_discrete_DD->setI2Chi(i2chi);
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     double zval = db->getVariable(iech, 0);
     if (!FFFF(zval))
     {
@@ -1254,7 +1254,7 @@ GEOSLIB_API int anam_discrete_IR_z2factor(Anam   *anam,
   AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     double zval = db->getVariable(iech,0);
     if (FFFF(zval)) continue;
     VectorDouble factors = anam_discrete_IR->z2f(nfact,ifacs,zval);
@@ -1584,7 +1584,7 @@ static int st_is_sample_skipped(Db     *db,
 {
   double value;
 
-  if (! get_ACTIVE(db,iech)) return(1);
+  if (! db->isActive(iech)) return(1);
 
   if (cols_est != (int *) NULL)
     for (int ivar=0; ivar<nb_est; ivar++)
@@ -2728,7 +2728,7 @@ GEOSLIB_API int uc_f(Db *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     anam_hermite->setPsiHn(psi_hn);
     anam_hermite->calculateMeanAndVariance();
     zvstar = get_ARRAY(db,iech,att_est);
@@ -2747,7 +2747,7 @@ GEOSLIB_API int uc_f(Db *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     sv  = get_ARRAY(db,iech,iptr_sV);
     yv  = get_ARRAY(db,iech,iptr_yV);
 
@@ -2920,7 +2920,7 @@ static void st_ce_get_vectors(Db *db,
   krigstd.resize(nech);
   for (int iech = 0; iech < nech; iech++)
   {
-    if (! get_ACTIVE(db, iech)) continue;
+    if (! db->isActive(iech)) continue;
     st_correct_from_OK(db, iech, att_est, att_std, flag_OK,
                        &krigest[iech], &krigstd[iech]);
   }
@@ -2975,7 +2975,7 @@ static int st_ce_compute_Z(Db     *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (iptr_est >= 0) db->setArray(iech,iptr_est,valest[iech]);
     if (iptr_std >= 0) db->setArray(iech,iptr_std,valstd[iech]);
   }
@@ -3095,7 +3095,7 @@ static int st_ce_compute_T(int     mode,
 
     for (int iech=0; iech<get_NECH(db); iech++)
     {
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
       if (iptr_est >= 0)
       {
         if (mode == 1)
@@ -3139,7 +3139,7 @@ static int st_ce_compute_quant(Db     *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     st_correct_from_OK(db,iech,att_est,att_std,flag_OK,&krigest,&krigstd);
     quant = krigest + krigstd * law_invcdf_gaussian(proba);
     quant = anam_y2z(anam,quant,0);
@@ -3205,7 +3205,7 @@ static int st_ce_compute_Q(Db     *db,
 
     for (int iech = 0; iech < get_NECH(db); iech++)
     {
-      if (!get_ACTIVE(db, iech)) continue;
+      if (!db->isActive(iech)) continue;
       if (iptr_est >= 0) db->setArray(iech, iptr_est, valest[iech]);
       if (iptr_std >= 0) db->setArray(iech, iptr_std, valstd[iech]);
     }
@@ -3244,7 +3244,7 @@ static int st_ce_compute_B(Db     *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
 
     /* Loop on the cutoffs */
 
@@ -3293,7 +3293,7 @@ static int st_ce_compute_M(Db     *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
 
     /* Loop on the cutoffs */
 

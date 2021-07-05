@@ -544,9 +544,9 @@ GEOSLIB_API int seismic_z2t_grid(int     verbose,
   if (vv == (double *) NULL) goto label_end;
   for (i=0; i<ndim; i++)
   {
-    nx[i] = get_NX(db_z,i);
-    dx[i] = get_DX(db_z,i);
-    x0[i] = get_X0(db_z,i);
+    nx[i] = db_z->getNX(i);
+    dx[i] = db_z->getDX(i);
+    x0[i] = db_z->getX0(i);
   }
 
   /* Read the velocity variable */
@@ -556,9 +556,9 @@ GEOSLIB_API int seismic_z2t_grid(int     verbose,
 
   /* Update the vertical direction */
 
-  nz = get_NX(db_z,ndim-1);
-  z0 = get_X0(db_z,ndim-1);
-  dz = get_DX(db_z,ndim-1);
+  nz = db_z->getNX(ndim-1);
+  z0 = db_z->getX0(ndim-1);
+  dz = db_z->getDX(ndim-1);
   dt = 2. * dz / vmin;
   t0 = 2. * z0 / v0;
   nt = (int)(1 + (nz - 1) * (2. * dz) / (dt * vmax));
@@ -624,9 +624,9 @@ GEOSLIB_API int seismic_t2z_grid(int     verbose,
   if (vv == (double *) NULL) goto label_end;
   for (i=0; i<ndim; i++)
   {
-    nx[i] = get_NX(db_t,i);
-    dx[i] = get_DX(db_t,i);
-    x0[i] = get_X0(db_t,i);
+    nx[i] = db_t->getNX(i);
+    dx[i] = db_t->getDX(i);
+    x0[i] = db_t->getX0(i);
   }
 
   /* Read the velocity variable */
@@ -636,9 +636,9 @@ GEOSLIB_API int seismic_t2z_grid(int     verbose,
 
   /* Update the vertical direction */
 
-  nt = get_NX(db_t,ndim-1);
-  t0 = get_X0(db_t,ndim-1);
-  dt = get_DX(db_t,ndim-1);
+  nt = db_t->getNX(ndim-1);
+  t0 = db_t->getX0(ndim-1);
+  dt = db_t->getDX(ndim-1);
   dz = vmin * dt / 2.;
   z0 = v0 * t0 / 2.;
   nz = (int)( 1 + (nt - 1) * (dt * vmax) / (2. * dz));
@@ -682,7 +682,7 @@ static void st_copy(int     mode,
 {
   int ndim = db->getNDim();
   int nech = get_NECH(db);
-  int nval = get_NX(db,ndim-1);
+  int nval = db->getNX(ndim-1);
   int nby  = nech / nval;
 
   /* Dispatch */
@@ -725,7 +725,7 @@ static int st_match(Db *db_z,
   error  = 1;
   nech   = get_NECH(db_z);
   ndim   = db_z->getNDim();
-  nz     = get_NX(db_z,ndim-1);
+  nz     = db_z->getNX(ndim-1);
 
   /* Check the grid characteristics */
 
@@ -734,9 +734,9 @@ static int st_match(Db *db_z,
     if (db_z->getNDim() != db_t->getNDim()) goto label_end;
     for (idim=0; idim<ndim-1; idim++)
     {
-      if (get_NX(db_z,idim) != get_NX(db_t,idim)) goto label_end;
-      if (get_X0(db_z,idim) != get_X0(db_t,idim)) goto label_end;
-      if (get_DX(db_z,idim) != get_DX(db_t,idim)) goto label_end;
+      if (db_z->getNX(idim) != db_t->getNX(idim)) goto label_end;
+      if (db_z->getX0(idim) != db_t->getX0(idim)) goto label_end;
+      if (db_z->getDX(idim) != db_t->getDX(idim)) goto label_end;
     }
   }
 
@@ -753,11 +753,11 @@ label_end:
     for (idim=0; idim<ndim-1; idim++)
     {
       messerr("- Number of mesh (axe #%d): Depth(%d) - Time(%d)",
-              get_NX(db_z,idim),get_NX(db_t,idim));
+              db_z->getNX(idim),db_t->getNX(idim));
       messerr("- Origin of the Grid (axe #%d): Depth(%d) - Time(%d)",
-              get_X0(db_z,idim),get_X0(db_t,idim));
+              db_z->getX0(idim),db_t->getX0(idim));
       messerr("- Mesh of the Grid (axe #%d): Depth(%d) - Time(%d)",
-              get_DX(db_z,idim),get_DX(db_t,idim));
+              db_z->getDX(idim),db_t->getDX(idim));
     }
   }
   else
@@ -1554,12 +1554,12 @@ GEOSLIB_API int seismic_z2t_convert(Db *db_z,
   db_v   = db_z;
   ndim   = db_z->getNDim();
   natt   = db_z->getVariableNumber();
-  nz     = get_NX(db_z,ndim-1);
-  nt     = get_NX(db_t,ndim-1);
-  z0     = get_X0(db_z,ndim-1);
-  t0     = get_X0(db_t,ndim-1);
-  dz     = get_DX(db_z,ndim-1);
-  dt     = get_DX(db_t,ndim-1);
+  nz     = db_z->getNX(ndim-1);
+  nt     = db_t->getNX(ndim-1);
+  z0     = db_z->getX0(ndim-1);
+  t0     = db_t->getX0(ndim-1);
+  dz     = db_z->getDX(ndim-1);
+  dt     = db_t->getDX(ndim-1);
   t1     = t0 + (nt-1) * dt;
   z1     = z0 + (nz-1) * dz;
   zt = tz = az = at = (double *) NULL;
@@ -1630,12 +1630,12 @@ GEOSLIB_API int seismic_t2z_convert(Db *db_t,
   db_v   = db_t;
   ndim   = db_t->getNDim();
   natt   = db_t->getVariableNumber();
-  nz     = get_NX(db_z,ndim-1);
-  nt     = get_NX(db_t,ndim-1);
-  z0     = get_X0(db_z,ndim-1);
-  t0     = get_X0(db_t,ndim-1);
-  dz     = get_DX(db_z,ndim-1);
-  dt     = get_DX(db_t,ndim-1);
+  nz     = db_z->getNX(ndim-1);
+  nt     = db_t->getNX(ndim-1);
+  z0     = db_z->getX0(ndim-1);
+  t0     = db_t->getX0(ndim-1);
+  dz     = db_z->getDX(ndim-1);
+  dt     = db_t->getDX(ndim-1);
   t1     = t0 + (nt-1) * dt;
   z1     = z0 + (nz-1) * dz;
   zt = tz = az = at = (double *) NULL;
@@ -1700,8 +1700,8 @@ GEOSLIB_API int seismic_operate(Db  *db,
   if (st_match(db,(Db *) NULL)) return(1);
   ndim   = db->getNDim();
   natt   = db->getVariableNumber();
-  nt     = get_NX(db,ndim-1);
-  dt     = get_DX(db,ndim-1);
+  nt     = db->getNX(ndim-1);
+  dt     = db->getDX(ndim-1);
 
   /* Create the output variables */
 
@@ -1859,8 +1859,8 @@ GEOSLIB_API int seismic_convolve(Db     *db,
   tab0    = tab1 = tab2 = (double *) NULL;
   ndim    = db->getNDim();
   natt    = db->getVariableNumber();
-  nz      = get_NX(db,ndim-1);
-  dz      = get_DX(db,ndim-1);
+  nz      = db->getNX(ndim-1);
+  dz      = db->getDX(ndim-1);
   error   = size = 0;
 
   /* Generation of the wavelet */
@@ -2038,7 +2038,7 @@ static void st_sample_add(Db  *db,
   /* Calculate the absolute sample address */
 
   iech = st_absolute_index(db,ix,iz);
-  if (! get_ACTIVE(db,iech)) return;
+  if (! db->isActive(iech)) return;
 
   /* Read the new values */
 
@@ -3095,11 +3095,11 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
     messerr("The Db structure must be a Grid Db");
     return(1);
   }
-  NX    = get_NX(db,0);
-  NY    = get_NX(db,1);
-  NZ    = get_NX(db,2);
-  DX    = get_DX(db,0);
-  DZ    = get_DX(db,2);
+  NX    = db->getNX(0);
+  NY    = db->getNX(1);
+  NZ    = db->getNX(2);
+  DX    = db->getDX(0);
+  DZ    = db->getDX(2);
   NVAR  = db->getVariableNumber();
   iatt_z1 = db_attribute_identify(db,LOC_Z,0);
   iatt_z2 = db_attribute_identify(db,LOC_Z,1);
@@ -3189,7 +3189,7 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
       nb_total++;
       IECH_OUT = st_absolute_index(db,ix0,iz0);
       debug_index(IECH_OUT+1);
-      if (! get_ACTIVE(db,IECH_OUT)) continue;
+      if (! db->isActive(IECH_OUT)) continue;
 
       /* Look for the neighborhood */
 
@@ -3363,11 +3363,11 @@ GEOSLIB_API int seismic_simulate_XZ(Db    *db,
     messerr("The Db structure must be a Grid Db");
     return(1);
   }
-  NX    = get_NX(db,0);
-  NY    = get_NX(db,1);
-  NZ    = get_NX(db,2);
-  DX    = get_DX(db,0);
-  DZ    = get_DX(db,2);
+  NX    = db->getNX(0);
+  NY    = db->getNX(1);
+  NZ    = db->getNX(2);
+  DX    = db->getDX(0);
+  DZ    = db->getDX(2);
   NVAR  = db->getVariableNumber();
 
   if (! (NX > 1 && NY == 1 && NZ > 1))
@@ -3451,7 +3451,7 @@ GEOSLIB_API int seismic_simulate_XZ(Db    *db,
       nb_total++;
       IECH_OUT = st_absolute_index(db,ix0,iz0);
       debug_index(IECH_OUT+1);
-      if (! get_ACTIVE(db,IECH_OUT)) continue;
+      if (! db->isActive(IECH_OUT)) continue;
 
       /* Look for the neighborhood */
 

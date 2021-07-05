@@ -482,7 +482,7 @@ static void st_set_rho(double rho,
     ngrf = local_pgs->ngrf;
     for (iech=0; iech<get_NECH(db); iech++)
     {
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
       ifac = (int) db->getVariable(iech,0);
       if (rule_thresh_define(propdef,db,rule,ifac,iech,0,0,0,
                              &t1min,&t1max,&t2min,&t2max)) return;
@@ -652,7 +652,7 @@ static int st_vario_pgs_variable(int    mode,
       nloop = (flag_one) ? 1 : nfacies;
       for (int iech=0; iech<get_NECH(db); iech++)
       {
-        if (! get_ACTIVE(db,iech)) continue;
+        if (! db->isActive(iech)) continue;
         
         for (int i=0; i<nloop; i++)
         {
@@ -3479,7 +3479,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
   for (iiech=0; iiech<nech-1; iiech++)
   {
     iech = rindex[iiech];
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getWeight(iech))) continue;
     if (st_discard_point(local_pgs,iech)) continue;
     mes_process("Calculating Variogram Geometry",nech,iech);
@@ -3488,7 +3488,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
     {
       jech = rindex[jjech];
       if (variogram_maximum_dist1D_reached(db,iech,jech,maxdist)) break;
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       if (FFFF(db->getWeight(jech))) continue;
       if (st_discard_point(local_pgs,jech)) continue;
     
@@ -4866,7 +4866,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
   
   for (iech=number=0; iech<get_NECH(dbin); iech++)
   {
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     
     /* Loop on the variables */
 

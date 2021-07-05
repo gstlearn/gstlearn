@@ -330,7 +330,7 @@ GEOSLIB_API int db_stats(Db     *db,
 
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     weight = db->getWeight(iech);
 
     /* Loop on the first variable */
@@ -656,7 +656,7 @@ GEOSLIB_API int db_stats_grid(Db           *db,
 
       /* Read a sample */
 
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
       db_sample_load(db,LOC_X,iech,coor);
       if (point_to_grid(dbgrid,coor,0,indg0) < 0) continue;
       value = get_ARRAY(db,iech,jcol);
@@ -964,7 +964,7 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
 
   for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
 
     /* Check the variable(s) */
 
@@ -1167,7 +1167,7 @@ static void st_update_trans(Db     *dbin,
   int ifac1,ifac2,jpos;
 
   jpos = indg[pos] + orient;
-  if (jpos <= 0 || jpos >= get_NX(dbin,pos)) return;
+  if (jpos <= 0 || jpos >= dbin->getNX(pos)) return;
   ifac1 = (int) dbin->getVariable(db_index_grid_to_sample(dbin,indg),0);
   indg[pos] += orient;
   ifac2 = (int) dbin->getVariable(db_index_grid_to_sample(dbin,indg),0);
@@ -1253,9 +1253,9 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
     messerr("The rank of the 'montee' axis should lie between 1 and %d",ndim);
     goto label_end;
   }
-  if (get_NX(dbin,pos) != get_NX(dbout,0) || 
-      get_X0(dbin,pos) != get_X0(dbout,0) ||
-      get_DX(dbin,pos) != get_DX(dbout,0))
+  if (dbin->getNX(pos) != dbout->getNX(0) ||
+      dbin->getX0(pos) != dbout->getX0(0) ||
+      dbin->getDX(pos) != dbout->getDX(0))
   {
     messerr("The 1-D output grid does not match input grid");
     goto label_end;
@@ -1264,7 +1264,7 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
 
   /* Core allocation */
 
-  ngrid = get_NX(dbin,pos);
+  ngrid = dbin->getNX(pos);
   indg  = db_indg_alloc(dbin);
   prop  = (double *) mem_alloc(sizeof(double) * nfacies,0);
   if (prop == (double *) NULL) goto label_end;
@@ -1287,7 +1287,7 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
       {
         indg[pos] = iech + ishift;
         if (indg[pos] < 0 || indg[pos] >= ngrid) continue;
-        for (i1=0; i1<get_NX(dbin,aux1); i1++)
+        for (i1=0; i1<dbin->getNX(aux1); i1++)
         {
           indg[aux1] = i1;
           st_update_prop(dbin,indg,nfacies,prop);
@@ -1305,8 +1305,8 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
       {
         indg[pos] = iech + ishift;
         if (indg[pos] < 0 || indg[pos] >= ngrid) continue;
-        for (i1=0; i1<get_NX(dbin,aux1); i1++)
-          for (i2=0; i2<get_NX(dbin,aux2); i2++)
+        for (i1=0; i1<dbin->getNX(aux1); i1++)
+          for (i2=0; i2<dbin->getNX(aux2); i2++)
           {
             indg[aux1] = i1;
             indg[aux2] = i2;
@@ -1371,9 +1371,9 @@ GEOSLIB_API int stats_transition(Db     *dbin,
     messerr("The rank of the 'montee' axis should lie between 1 and %d",ndim);
     goto label_end;
   }
-  if (get_NX(dbin,pos) != get_NX(dbout,0) || 
-      get_X0(dbin,pos) != get_X0(dbout,0) ||
-      get_DX(dbin,pos) != get_DX(dbout,0))
+  if (dbin->getNX(pos) != dbout->getNX(0) ||
+      dbin->getX0(pos) != dbout->getX0(0) ||
+      dbin->getDX(pos) != dbout->getDX(0))
   {
     messerr("The 1-D output grid does not match input grid");
     goto label_end;
@@ -1382,7 +1382,7 @@ GEOSLIB_API int stats_transition(Db     *dbin,
 
   /* Core allocation */
 
-  ngrid = get_NX(dbin,pos);
+  ngrid = dbin->getNX(pos);
   indg  = db_indg_alloc(dbin);
   nitem = nfacies * nfacies;
   trans = (double *) mem_alloc(sizeof(double) * nitem,0);
@@ -1407,7 +1407,7 @@ GEOSLIB_API int stats_transition(Db     *dbin,
       {
         indg[pos] = iech + ishift;
         if (indg[pos] < 0 || indg[pos] >= ngrid) continue;
-        for (i1=0; i1<get_NX(dbin,aux1); i1++)
+        for (i1=0; i1<dbin->getNX(aux1); i1++)
         {
           indg[aux1] = i1;
           st_update_trans(dbin,pos,indg,nfacies,orient,trans);
@@ -1425,8 +1425,8 @@ GEOSLIB_API int stats_transition(Db     *dbin,
       {
         indg[pos] = iech + ishift;
         if (indg[pos] < 0 || indg[pos] >= ngrid) continue;
-        for (i1=0; i1<get_NX(dbin,aux1); i1++)
-          for (i2=0; i2<get_NX(dbin,aux2); i2++)
+        for (i1=0; i1<dbin->getNX(aux1); i1++)
+          for (i2=0; i2<dbin->getNX(aux2); i2++)
           {
             indg[aux1] = i1;
             indg[aux2] = i2;
@@ -1513,11 +1513,11 @@ static double st_extract_subgrid(int     verbose,
         /* Get the address of a sample of the subgrid */
 
         jx = ind0[0] + ixyz[0] * nxyz[0] + ix;
-        if (jx < 0 || jx > get_NX(dbgrid,0)) continue;
+        if (jx < 0 || jx > dbgrid->getNX(0)) continue;
         jy = ind0[1] + ixyz[1] * nxyz[1] + iy;
-        if (jy < 0 || jy > get_NX(dbgrid,1)) continue;
+        if (jy < 0 || jy > dbgrid->getNX(1)) continue;
         jz = ind0[2] + ixyz[2] * nxyz[2] + iz;
-        if (jz < 0 || jz > get_NX(dbgrid,2)) continue;
+        if (jz < 0 || jz > dbgrid->getNX(2)) continue;
 
         /* Get the node index within the Input Db */
 
@@ -1526,7 +1526,7 @@ static double st_extract_subgrid(int     verbose,
         if (ndim >= 3) iwork2[2] = jz;
         ind = db_index_grid_to_sample(dbgrid,iwork2.data());
         numtab1[ecr] = 1.;
-        value = get_ACTIVE(dbgrid,ind) ? dbgrid->getVariable(ind,0) : TEST;
+        value = dbgrid->isActive(ind) ? dbgrid->getVariable(ind,0) : TEST;
         if (FFFF(value))
           valtab1[ecr] = (flag_ffff) ? 0 : TEST;
         else
@@ -2017,7 +2017,7 @@ static int st_is_subgrid(int  verbose,
 
     /* Is origin of the output grid is located on a node of input grid */
 
-    d = (get_X0(dbgrid2,idim) - get_X0(dbgrid1,idim)) / get_DX(dbgrid1,idim);
+    d = (dbgrid2->getX0(idim) - dbgrid1->getX0(idim)) / dbgrid1->getDX(idim);
     if (! isInteger(d))
     {
       messerr("The origin of the Output Grid does not coincide with a node of the Input Grid");
@@ -2027,7 +2027,7 @@ static int st_is_subgrid(int  verbose,
 
     /* Are grid meshes multiple */
 
-    d = get_DX(dbgrid2,idim) / get_DX(dbgrid1,idim);
+    d = dbgrid2->getDX(idim) / dbgrid1->getDX(idim);
     if (! isInteger(d))
     {
       messerr("The grid cell of the Output Grid is not a multiple of the grid cell of the Input Grid");
@@ -2132,7 +2132,7 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
     result1 = result2 = result = TEST;
     debug_index(iech+1);
     flag_save = (iech == iech_save-1);
-    if (get_ACTIVE(dbgrid2,iech)) 
+    if (dbgrid2->isActive(iech))
     {
       db_index_sample_to_grid(dbgrid2,iech,ixyz);
       
@@ -2764,7 +2764,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
     diff_coeff = TEST;
     debug_index(iech+1);
     flag_save = (iech == iech_save-1);
-    if (get_ACTIVE(dbgrid2,iech)) 
+    if (dbgrid2->isActive(iech))
     {
       db_index_sample_to_grid(dbgrid2,iech,ixyz);
       
@@ -2798,7 +2798,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
               for (int idim=0; idim<ndim; idim++)
                 TRAJEC(iseed,iter,idim) =
                   get_IDIM(dbgrid2,iech,idim) + 
-                  TRAJEC(iseed,iter,idim) * get_DX(dbgrid1,idim);
+                  TRAJEC(iseed,iter,idim) * dbgrid1->getDX(idim);
             set_keypair(name,1,niter,ndim,&TRAJEC(iseed,0,0));
           }
         }
@@ -2939,7 +2939,7 @@ GEOSLIB_API void db_stats_print(Db *db,
 
   for (iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
 
     /* Look for isotopic sample */
 

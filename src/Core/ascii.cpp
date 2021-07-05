@@ -1437,9 +1437,9 @@ GEOSLIB_API int ascii_db_write(const char *file_name,
     st_record_write("#", "Grid characteristics (NX,X0,DX)");
     for (idim = 0; idim < db->getNDim(); idim++)
     {
-      st_record_write("%d", get_NX(db, idim));
-      st_record_write("%lf", get_X0(db, idim));
-      st_record_write("%lf", get_DX(db, idim));
+      st_record_write("%d",  db->getNX(idim));
+      st_record_write("%lf", db->getX0(idim));
+      st_record_write("%lf", db->getDX(idim));
       st_record_write("\n");
     }
   }

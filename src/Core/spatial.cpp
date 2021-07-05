@@ -147,7 +147,7 @@ GEOSLIB_API int cgi(Db     *db,
   (*wztot) = 0.;
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_cgi_data(db,flag_z,flag_w,iech,iatt,coor,&wz)) continue;
     for (idim=0; idim<ndim; idim++) center[idim] += wz * coor[idim];
     (*wztot) += wz;
@@ -164,7 +164,7 @@ GEOSLIB_API int cgi(Db     *db,
   (*inertia) = 0.;
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (st_cgi_data(db,flag_z,flag_w,iech,iatt,coor,&wz)) continue;
     for (idim=0; idim<ndim; idim++) coor[idim] -= center[idim];
     for (idim=0; idim<ndim; idim++) 
@@ -234,7 +234,7 @@ GEOSLIB_API int spatial(Db     *db,
 
   for (iech=0; iech<db->getSampleNumber(); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     z = db->getVariable(iech,0);
     if (FFFF(z)) continue;
     w = db->getWeight(iech);

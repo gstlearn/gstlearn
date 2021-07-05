@@ -643,7 +643,7 @@ String NoStatArray::displayStats(int ipar, int icas) const
     int iatt = _attIn[ipar];
     for (int iech = 0; iech < get_NECH(_dbin); iech++)
     {
-      if (! get_ACTIVE(_dbin, iech)) continue;
+      if (! _dbin->isActive(iech)) continue;
       vec.push_back(get_ARRAY(_dbin,iech,iatt));
     }
   }
@@ -653,7 +653,7 @@ String NoStatArray::displayStats(int ipar, int icas) const
     int iatt = _attOut[ipar];
     for (int iech = 0; iech < get_NECH(_dbout); iech++)
     {
-      if (! get_ACTIVE(_dbout, iech)) continue;
+      if (! _dbout->isActive(iech)) continue;
       vec.push_back(get_ARRAY(_dbout,iech,iatt));
     }
   }

@@ -1488,7 +1488,7 @@ static void st_estimate(LMlayers *lmlayers,
   for (iechout=0; iechout<get_NECH(dbout); iechout++)
   {
     debug_index(iechout+1);
-    if (! get_ACTIVE(dbout,iechout)) continue;
+    if (! dbout->isActive(iechout)) continue;
     coor[0] = get_IDIM(dbout,iechout,0);
     coor[1] = get_IDIM(dbout,iechout,1);
     if (debug_query("kriging") ||

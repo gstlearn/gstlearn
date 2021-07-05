@@ -652,7 +652,7 @@ int Rule::particularities_shadow(Db *db,
 
   _incr = 1.e30;
   for (int idim=0; idim<ndim; idim++)
-    if (_shift[idim] != 0) _incr = MIN(_incr, get_DX(db,idim));
+    if (_shift[idim] != 0) _incr = MIN(_incr, db->getDX(idim));
 
   /* Calculate the maximum distance */
 
@@ -707,7 +707,7 @@ int Rule::_st_shift_on_grid(Db     *db,
   }
 
   for (int idim=0; idim<ndim; idim++)
-    _xyz[idim] = _shift[idim] + get_X0(db,idim);
+    _xyz[idim] = _shift[idim] + db->getX0(idim);
 
   (void) point_to_grid(db,_xyz.data(),-1,_ind1.data());
 

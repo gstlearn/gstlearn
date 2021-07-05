@@ -164,7 +164,7 @@ GEOSLIB_API int rule_gaus2fac_data_shadow(Props  *propdef,
 
   for (iech=0; iech<get_NECH(dbin); iech++)
   {
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     
     /* Initializations */
     
@@ -242,7 +242,7 @@ GEOSLIB_API int rule_gaus2fac_data(Props  *propdef,
 
   for (iech=0; iech<get_NECH(dbin); iech++)
   {
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     
     /* Initializations */
     
@@ -334,7 +334,7 @@ GEOSLIB_API int rule_gaus2fac_result_shadow(Props  *propdef,
 
   for (iech=0; iech<get_NECH(dbout); iech++)
   {
-    if (! get_ACTIVE(dbout,iech)) continue;
+    if (! dbout->isActive(iech)) continue;
     
     /* Initializations */
     
@@ -438,7 +438,7 @@ GEOSLIB_API int rule_gaus2fac_result(Props  *propdef,
 
   for (iech=0; iech<get_NECH(dbout); iech++)
   {
-    if (! get_ACTIVE(dbout,iech)) continue;
+    if (! dbout->isActive(iech)) continue;
     
     /* Initializations */
     
@@ -1612,7 +1612,7 @@ GEOSLIB_API int db_prop_thresh(Db     *db,
 
   for (iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     for (ifac=ivar=0; ifac<nfacies; ifac++)
     {
       if (rule_thresh_define(propdef,db,rule,ifac+1,iech,0,0,0,

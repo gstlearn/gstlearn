@@ -362,6 +362,7 @@ public:
                  double value);
 
   bool isActive(int iech) const;
+  bool isActiveAndDefined(int iech, int item) const;
   int getActiveAndDefinedNumber(int item) const;
 
   VectorDouble getField(const String& name, bool useSel = false) const;
@@ -435,6 +436,8 @@ public:
   bool isGridRotated() const;
   int  getNDim() const;
   int  getNX(int idim) const;
+  int  getNTotal() const { return _grid.getNTotal(); }
+  double getCellSize() const { return _grid.getCellSize(); }
   bool hasSameDimension(const Db* dbaux, bool verbose = true) const;
   bool hasLargerDimension(const Db* dbaux, bool verbose = true) const;
   VectorInt getNX() const { return _grid.getNX(); }

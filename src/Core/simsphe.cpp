@@ -443,8 +443,8 @@ GEOSLIB_API int simsph_f(Db    *db,
   ndisc  = (int) get_keypone("Simsph_Ndisc",360);
   shunt  = (int) get_keypone("Simsph_Shunt",0);
   tol    = get_keypone("Simsph_Spectrum_Tolerance",1.e-5);
-  nx     = get_NX(db,0);
-  ny     = get_NX(db,1);
+  nx     = db->getNX(0);
+  ny     = db->getNX(1);
   nech   = get_NECH(db);
   if (flag_test) nbf = 1;
 
@@ -566,7 +566,7 @@ GEOSLIB_API int simsph_f(Db    *db,
       {
         iech = IPTR(ix,iy);
         mes_process("Simulation on Sphere",ntot,ecr);
-        if (! get_ACTIVE(db,iech)) continue;
+        if (! db->isActive(iech)) continue;
         phi = ut_deg2rad(get_IDIM(db,iech,0));       // Longitude [0,360]
         t2  = cos(phi * order_loc + phase_loc);
         db->updArray(iech,iptr,0,t1*t2);
@@ -579,7 +579,7 @@ GEOSLIB_API int simsph_f(Db    *db,
   val = 2. / sqrt((double) nbf);
   for (int iech=0; iech<nech; iech++)
   {
-    if (get_ACTIVE(db,iech)) db->updArray(iech,iptr,3,val);
+    if (db->isActive(iech)) db->updArray(iech,iptr,3,val);
   }
 
   /* Set the error return code */

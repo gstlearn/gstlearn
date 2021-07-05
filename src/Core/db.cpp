@@ -68,7 +68,7 @@ GEOSLIB_API int same_mesh(Db *db1, Db *db2)
   }
   for (int idim = 0; idim < db1->getNDim(); idim++)
   {
-    if (get_DX(db1, idim) != get_DX(db2, idim))
+    if (db1->getDX(idim) != db2->getDX(idim))
     {
       messerr("The two Grid files do not have the same Grid mesh");
       return (0);
@@ -404,66 +404,6 @@ GEOSLIB_API int is_grid(Db *db, bool verbose)
 
 /****************************************************************************/
 /*!
- **  Returns the number of grid mesh along one direction
- **
- ** \return  Returned value
- **
- ** \param[in]  db    Db structure
- ** \param[in]  idim  Rank of the dimension
- **
- ** \remark  Return -1 if the Db does not exist or is not a grid
- ** \remark  Return +1 if the rank of the direction is larger than the number
- ** \remark            of dimensions in the Db
- **
- *****************************************************************************/
-GEOSLIB_API int get_NX(Db *db, int idim)
-{
-  if (db == (Db *) NULL) return (-1);
-  return db->getNX(idim);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the grid mesh along one direction
- **
- ** \return  Returned value
- **
- ** \param[in]  db    Db structure
- ** \param[in]  idim  Rank of the dimension
- **
- ** \remark  Return -1 if the Db does not exist of is not a grid
- ** \remark  or if the rank of the direction is larger than
- ** \remark  the number of dimensions in the Db
- **
- *****************************************************************************/
-GEOSLIB_API double get_DX(Db *db, int idim)
-{
-  if (db == (Db *) NULL) return (-1);
-  return db->getDX(idim);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the origin of the grid along one direction
- **
- ** \return  Returned value
- **
- ** \param[in]  db    Db structure
- ** \param[in]  idim  Rank of the dimension
- **
- ** \remark  Return -1 if the Db does not exist or is not a grid
- ** \remark  or if the rank of the direction is larger than
- ** \remark  the number of dimensions in the Db
- **
- *****************************************************************************/
-GEOSLIB_API double get_X0(Db *db, int idim)
-{
-  if (db == (Db *) NULL) return (-1);
-  return db->getX0(idim);
-}
-
-/****************************************************************************/
-/*!
  **  Returns the number of samples in a Db
  **
  ** \return  Returned number of samples
@@ -475,29 +415,6 @@ GEOSLIB_API int get_NECH(Db *db)
 {
   if (db == (Db *) NULL) return (0);
   return (db->getSampleNumber());
-}
-
-/****************************************************************************/
-/*!
- **  Returns the number of samples which are active defined for a given variable
- **
- ** \return  Returned number of active samples
- **
- ** \param[in]  db     Db structure
- ** \param[in]  item   Rank of the item in the LOC_Z
- **
- *****************************************************************************/
-GEOSLIB_API int get_NACTIVE_AND_DEFINED(Db *db, int item)
-{
-  int nech = 0;
-  if (db == (Db *) NULL) return (nech);
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!get_ACTIVE(db, iech)) continue;
-    if (FFFF(db->getVariable(iech, item))) continue;
-    nech++;
-  }
-  return (nech);
 }
 
 /*************************************************************************/
@@ -544,7 +461,7 @@ GEOSLIB_API double get_grid_IDIM(Db *db, int iech, int r_dim)
   /* Calculate the coordinates in the grid system */
 
   for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = iwork1[idim] * get_DX(db, idim);
+    work1[idim] = iwork1[idim] * db->getDX(idim);
 
   /* Process the grid rotation (if any) */
 
@@ -553,40 +470,9 @@ GEOSLIB_API double get_grid_IDIM(Db *db, int iech, int r_dim)
   /* Shift the origin */
 
   for (int idim = 0; idim < ndim; idim++)
-    work2[idim] += get_X0(db, idim);
+    work2[idim] += db->getX0(idim);
 
   return (work2[r_dim]);
-}
-
-/****************************************************************************/
-/*!
- **  Writes one coordinate of a sample
- **
- ** \param[in]  db     Db structure
- ** \param[in]  iech   Rank of the sample
- ** \param[in]  idim   Rank of the coordinate
- ** \param[in]  value  value to be written
- **
- ** \remark  For efficiency reason, argument validity is not tested
- **
- *****************************************************************************/
-GEOSLIB_API void set_IDIM(Db *db, int iech, int idim, double value)
-{
-  if (db->isGrid())
-  {
-
-    /* Particular case of the grid */
-
-    messerr("Writing the coordinate of a grid sample is forbidden");
-  }
-  else
-  {
-
-    /* Other types of file */
-
-    db->setFromLocator(LOC_X, iech, idim, value);
-  }
-  return;
 }
 
 /****************************************************************************/
@@ -680,39 +566,6 @@ GEOSLIB_API void domain_ref_print(void)
     message("Domain Reference value = %d\n", domain_ref_query());
     message("Use 'domain.define' to modify or cancel the Domaining\n");
   }
-}
-
-/****************************************************************************/
-/*!
- **  Defines if a sample should be processed or not
- **
- ** \return  Returned value: 1 if sample is selected; 0 if sample is masked
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iech Rank of the sample
- **
- *****************************************************************************/
-GEOSLIB_API int get_ACTIVE(Db *db, int iech)
-{
-  return (db->getSelection(iech) && get_DOMAIN(db, iech));
-}
-
-/****************************************************************************/
-/*!
- **  Defines if a sample should be processed or not
- **  as it may be masked or its variable can be defined
- **
- ** \return  Returned value: 1 if sample is selected; 0 if sample is masked
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iech Rank of the sample
- ** \param[in]  item Rank of the item in the LOC_Z
- **
- *****************************************************************************/
-GEOSLIB_API int get_ACTIVE_AND_DEFINED(Db *db, int iech, int item)
-{
-  return (db->getSelection(iech) && get_DOMAIN(db, iech)
-          && !FFFF(db->getVariable(iech, item)));
 }
 
 /****************************************************************************/
@@ -1233,7 +1086,7 @@ GEOSLIB_API double distance_grid(Db *db,
   {
     int number = ABS(iwork1[idim] - iwork2[idim]);
     if (flag_moins1 && number > 1) number--;
-    double delta = number * get_DX(db, idim);
+    double delta = number * db->getDX(idim);
     if (dist_vect != (double *) NULL) dist_vect[idim] = delta;
     dist += delta * delta;
   }
@@ -1358,11 +1211,11 @@ GEOSLIB_API int db_index_grid_to_sample(Db *db, const int *indg)
 {
   int ndim = db->getNDim();
   int ival = indg[ndim - 1];
-  if (ival < 0 || ival >= get_NX(db, ndim - 1)) return (-1);
+  if (ival < 0 || ival >= db->getNX(ndim - 1)) return (-1);
   for (int idim = ndim - 2; idim >= 0; idim--)
   {
-    if (indg[idim] < 0 || indg[idim] >= get_NX(db, idim)) return (-1);
-    ival = ival * get_NX(db, idim) + indg[idim];
+    if (indg[idim] < 0 || indg[idim] >= db->getNX(idim)) return (-1);
+    ival = ival * db->getNX(idim) + indg[idim];
   }
   return (ival);
 }
@@ -1382,11 +1235,11 @@ GEOSLIB_API void db_index_sample_to_grid(Db *db, int iech, int *indg)
   int ndim = db->getNDim();
   int nval = 1;
   for (int idim = 0; idim < ndim; idim++)
-    nval *= get_NX(db, idim);
+    nval *= db->getNX(idim);
 
   for (int idim = ndim - 1; idim >= 0; idim--)
   {
-    nval /= get_NX(db, idim);
+    nval /= db->getNX(idim);
     indg[idim] = iech / nval;
     iech -= indg[idim] * nval;
   }
@@ -1418,7 +1271,7 @@ GEOSLIB_API int db_index_sorted_in_grid(Db *db, int iech, int *indg)
   for (idim = ndim - 1; idim >= 0; idim--)
   {
     indref = indg[idim + 1];
-    if (indref % 2 == 1) indg[idim] = get_NX(db, idim) - indg[idim] - 1;
+    if (indref % 2 == 1) indg[idim] = db->getNX(idim) - indg[idim] - 1;
   }
   jech = db_index_grid_to_sample(db, indg);
   return (jech);
@@ -1733,7 +1586,7 @@ GEOSLIB_API double db_epsilon_distance(Db *db)
   {
     diag = 1.e30;
     for (idim = 0; idim < db->getNDim(); idim++)
-      if (get_DX(db, idim) < diag) diag = get_DX(db, idim);
+      if (db->getDX(idim) < diag) diag = db->getDX(idim);
   }
   else
   {
@@ -2371,20 +2224,8 @@ GEOSLIB_API int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
 GEOSLIB_API double db_grid_maille(Db *db)
 
 {
-  double maille;
-  int idim;
-
-  /* Initializations */
-
   if (!db->isGrid()) return (TEST);
-
-  /* Loop on the space dimensions */
-
-  maille = 1.;
-  for (idim = 0; idim < db->getNDim(); idim++)
-    maille *= get_DX(db, idim);
-
-  return (maille);
+  return (db->getCellSize());
 }
 
 /****************************************************************************/
@@ -2657,7 +2498,7 @@ GEOSLIB_API int db_grid_copy(Db *db1,
     if (ind2[idim] != 0) iwork1[ind2[idim] - 1] = 1;
   for (int idim = 0; idim < ndim1; idim++)
   {
-    if (iwork1[idim] < 0 || iwork1[idim] >= get_NX(db1, idim))
+    if (iwork1[idim] < 0 || iwork1[idim] >= db1->getNX(idim))
     {
       messerr("The index %d of the input Grid Db is not assigned", idim);
       messerr("Copy operation is cancelled");
@@ -2682,7 +2523,7 @@ GEOSLIB_API int db_grid_copy(Db *db1,
       if (ind2[idim] > 0)
         iwork1[ind2[idim] - 1] = iwork1[idim];
       else
-        iwork1[-ind2[idim] - 1] = get_NX(db2, idim) - iwork1[idim] - 1;
+        iwork1[-ind2[idim] - 1] = db2->getNX(idim) - iwork1[idim] - 1;
     }
 
     /* Restrain the indices to the extension of the first Grid Db */
@@ -2692,7 +2533,7 @@ GEOSLIB_API int db_grid_copy(Db *db1,
       int indice = iwork1[idim];
       if (FFFF(indice)) messageAbort("This error should not happen");
       if (indice < 0) indice = 0;
-      if (indice >= get_NX(db1, idim)) indice = get_NX(db1, idim) - 1;
+      if (indice >= db1->getNX(idim)) indice = db1->getNX(idim) - 1;
       iwork1[idim] = indice;
     }
 
@@ -2803,7 +2644,7 @@ GEOSLIB_API void grid_to_point(Db *db, int *indg, double *percent, double *coor)
   {
     work1[idim] = indg[idim];
     if (percent != (double *) NULL) work1[idim] += percent[idim];
-    work1[idim] *= get_DX(db, idim);
+    work1[idim] *= db->getDX(idim);
   }
 
   /* Process the grid rotation (if any) */
@@ -2813,7 +2654,7 @@ GEOSLIB_API void grid_to_point(Db *db, int *indg, double *percent, double *coor)
   /* Shift the origin */
 
   for (int idim = 0; idim < ndim; idim++)
-    coor[idim] = work2[idim] + get_X0(db, idim);
+    coor[idim] = work2[idim] + db->getX0(idim);
 
   return;
 }
@@ -2839,7 +2680,7 @@ GEOSLIB_API int point_to_point(Db *db, double *coor)
   distmin = 1.e30;
   for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
-    if (!get_ACTIVE(db, iech)) continue;
+    if (!db->isActive(iech)) continue;
 
     dist = 0.;
     for (idim = 0; idim < db->getNDim(); idim++)
@@ -2895,7 +2736,7 @@ GEOSLIB_API int point_to_grid(Db *db, double *coor, int flag_outside, int *indg)
   /* Process the grid rotation (if any) */
 
   for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = coor[idim] - get_X0(db, idim);
+    work1[idim] = coor[idim] - db->getX0(idim);
 
   db->getGrid().getRotation().rotateInverse(work1, work2);
 
@@ -2904,7 +2745,7 @@ GEOSLIB_API int point_to_grid(Db *db, double *coor, int flag_outside, int *indg)
   int out = 0;
   for (int idim = 0; idim < ndim; idim++)
   {
-    int ix = (int) (floor(work2[idim] / get_DX(db, idim) + 0.5));
+    int ix = (int) (floor(work2[idim] / db->getDX(idim) + 0.5));
     if (ix < 0)
     {
       if (flag_outside > 0)
@@ -2912,10 +2753,10 @@ GEOSLIB_API int point_to_grid(Db *db, double *coor, int flag_outside, int *indg)
       else if (flag_outside == 0) ix = -1;
       out = 1;
     }
-    else if (ix >= get_NX(db, idim))
+    else if (ix >= db->getNX(idim))
     {
       if (flag_outside > 0)
-        ix = get_NX(db, idim) - 1;
+        ix = db->getNX(idim) - 1;
       else if (flag_outside == 0) ix = -1;
       out = 1;
     }
@@ -2970,7 +2811,7 @@ GEOSLIB_API int point_to_bench(Db *db,
   /* Process the grid rotation (if any) */
 
   for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = coor[idim] - get_X0(db, idim);
+    work1[idim] = coor[idim] - db->getX0(idim);
 
   db->getGrid().getRotation().rotateInverse(work1, work2);
 
@@ -2979,8 +2820,8 @@ GEOSLIB_API int point_to_bench(Db *db,
   int out = 0;
 
   double z = work2[idim0];
-  double dz = get_DX(db, idim0);
-  double nz = get_NX(db, idim0);
+  double dz = db->getDX(idim0);
+  double nz = db->getNX(idim0);
 
   int iz;
   if (dz <= 0.)
@@ -3076,7 +2917,7 @@ GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid)
   /* Process the grid rotation (if any) */
 
   for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = get_IDIM(db, iech, idim) - get_X0(dbgrid, idim);
+    work1[idim] = get_IDIM(db, iech, idim) - dbgrid->getX0(idim);
 
   dbgrid->getGrid().getRotation().rotateInverse(work1, work2);
 
@@ -3084,8 +2925,8 @@ GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid)
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    int ix = (int) (floor(work2[idim] / get_DX(dbgrid, idim) + 0.5));
-    if (ix < 0 || ix >= get_NX(dbgrid, idim)) return (0);
+    int ix = (int) (floor(work2[idim] / dbgrid->getDX(idim) + 0.5));
+    if (ix < 0 || ix >= dbgrid->getNX(idim)) return (0);
   }
   return (1);
 }
@@ -3126,7 +2967,7 @@ GEOSLIB_API void db_monostat(Db *db,
 
   for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
-    if (!get_ACTIVE(db, iech)) continue;
+    if (!db->isActive(iech)) continue;
     value = db->getArray(iech, iatt);
     if (FFFF(value)) continue;
     weight = db->getWeight(iech);
@@ -3189,7 +3030,7 @@ GEOSLIB_API void db_polygon(Db *db,
   {
     mes_process("Checking if sample belongs to a polygon", get_NECH(db), iech);
     int selval = 0;
-    if (!(flag_sel && !get_ACTIVE(db, iech)))
+    if (!(flag_sel && !db->isActive(iech)))
     {
       double xx = get_IDIM(db, iech, 0);
       double yy = get_IDIM(db, iech, 1);
@@ -3592,15 +3433,15 @@ GEOSLIB_API int db_prop_read(Db *db, int ix, int iy, double *props)
   /* Initializations */
 
   nprop = db->getProportionNumber();
-  nz = get_NX(db, 2);
+  nz = db->getNX(2);
   for (i = 0; i < nz * nprop; i++)
     props[i] = 0.;
 
   /* Preliminary checks */
 
   if (!db->isGrid() || db->getNDim() != 3) return (1);
-  if (ix < 0 || ix >= get_NX(db, 0)) return (1);
-  if (iy < 0 || iy >= get_NX(db, 1)) return (1);
+  if (ix < 0 || ix >= db->getNX(0)) return (1);
+  if (iy < 0 || iy >= db->getNX(1)) return (1);
 
   /* Blank out the array */
 
@@ -3655,13 +3496,13 @@ GEOSLIB_API int db_prop_write(Db *db, int ix, int iy, double *props)
   /* Initializations */
 
   nprop = db->getProportionNumber();
-  nz = get_NX(db, 2);
+  nz = db->getNX(2);
 
   /* Preliminary checks */
 
   if (!db->isGrid() || db->getNDim() != 3) return (1);
-  if (ix < 0 || ix >= get_NX(db, 0)) return (1);
-  if (iy < 0 || iy >= get_NX(db, 1)) return (1);
+  if (ix < 0 || ix >= db->getNX(0)) return (1);
+  if (iy < 0 || iy >= db->getNX(1)) return (1);
 
   /* Blank out the array */
 
@@ -3778,7 +3619,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
   ecr = nvalid = 0;
   for (iech2 = 0; iech2 < nech2; iech2++)
   {
-    if (!get_ACTIVE(db2, iech2)) continue;
+    if (!db2->isActive(iech2)) continue;
     if (st_is_isotopic(db2, iech2, niso)) continue;
     nvalid++;
     dlocmin = 1.e30;
@@ -3788,7 +3629,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
     for (iech1 = 0; iech1 < nech1; iech1++)
     {
       if (mode != 2 && flag_same && iech1 == iech2) continue;
-      if (!get_ACTIVE(db1, iech1)) continue;
+      if (!db1->isActive(iech1)) continue;
       if (st_is_isotopic(db1, iech1, niso)) continue;
 
       /* Calculate distance */
@@ -3855,7 +3696,7 @@ GEOSLIB_API int db_is_isotropic(Db *db, int iech, double *data)
   int ivar;
   double value;
 
-  if (!get_ACTIVE(db, iech)) return (0);
+  if (!db->isActive(iech)) return (0);
   for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
   {
     value = db->getVariable(iech, ivar);
@@ -3902,7 +3743,7 @@ GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
 
   for (idim = 0; idim < ndim; idim++)
   {
-    ratio = get_DX(db2, idim) / get_DX(db1, idim);
+    ratio = db2->getDX(idim) / db1->getDX(idim);
     if (!isInteger(ratio)) goto label_end;
   }
 
@@ -3920,7 +3761,7 @@ GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
 
   for (idim = 0; idim < ndim; idim++)
   {
-    delta = (coor1[idim] - coor2[idim]) / get_DX(db1, idim);
+    delta = (coor1[idim] - coor2[idim]) / db1->getDX(idim);
     if (ABS(delta) > EPSILON3) goto label_end;
   }
 
@@ -3965,7 +3806,7 @@ GEOSLIB_API void get_grid_multiple(Db *db,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    double value = (double) get_NX(db, idim);
+    double value = (double) db->getNX(idim);
     if (flag_cell)
       nx[idim] = (int) floor(value / (double) nmult[idim]);
     else
@@ -3975,7 +3816,7 @@ GEOSLIB_API void get_grid_multiple(Db *db,
   /* Get the new grid meshes */
 
   for (int idim = 0; idim < ndim; idim++)
-    dx[idim] = get_DX(db, idim) * nmult[idim];
+    dx[idim] = db->getDX(idim) * nmult[idim];
 
   /* Get the lower left corner of the small grid */
 
@@ -3996,7 +3837,7 @@ GEOSLIB_API void get_grid_multiple(Db *db,
     if (flag_cell)
       x0[idim] = coor1[idim] + delta * (double) nmult[idim];
     else
-      x0[idim] = get_X0(db, idim);
+      x0[idim] = db->getX0(idim);
   }
 
   return;
@@ -4033,15 +3874,15 @@ GEOSLIB_API void get_grid_divider(Db *db,
   for (int idim = 0; idim < ndim; idim++)
   {
     if (flag_cell)
-      nx[idim] = get_NX(db, idim) * nmult[idim];
+      nx[idim] = db->getNX(idim) * nmult[idim];
     else
-      nx[idim] = 1 + (get_NX(db, idim) - 1) * nmult[idim];
+      nx[idim] = 1 + (db->getNX(idim) - 1) * nmult[idim];
   }
 
   /* Get the new grid meshes */
 
   for (int idim = 0; idim < ndim; idim++)
-    dx[idim] = get_DX(db, idim) / ((double) nmult[idim]);
+    dx[idim] = db->getDX(idim) / ((double) nmult[idim]);
 
   /* Get the lower left corner of the small grid */
 
@@ -4062,7 +3903,7 @@ GEOSLIB_API void get_grid_divider(Db *db,
     if (flag_cell)
       x0[idim] = coor1[idim] + delta / (double) nmult[idim];
     else
-      x0[idim] = get_X0(db, idim);
+      x0[idim] = db->getX0(idim);
   }
   return;
 }
@@ -4105,9 +3946,9 @@ GEOSLIB_API int get_grid_dilate(Db *db,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    nx[idim] = get_NX(db, idim) + 2 * mode * nshift[idim];
+    nx[idim] = db->getNX(idim) + 2 * mode * nshift[idim];
     if (nx[idim] <= 0) return 1;
-    dx[idim] = get_DX(db, idim);
+    dx[idim] = db->getDX(idim);
   }
 
   /* Get the lower left corner of the small grid */
@@ -4368,7 +4209,7 @@ GEOSLIB_API int db_gradient_component_to_modang(Db *db,
   maxi = -1.e30;
   for (iech = 0; iech < get_NECH(db); iech++)
   {
-    if (!get_ACTIVE(db, iech)) continue;
+    if (!db->isActive(iech)) continue;
     alpha = 1. / (1. + ve);
     surr = 1 + v1[iech] * (1. - alpha) / (vmax * alpha);
     v1[iech] = surr * scale;
@@ -4419,7 +4260,7 @@ GEOSLIB_API int db_get_rank_absolute_to_relative(Db *db, int iech0)
 
   for (iech = jech = 0; iech < db->getSampleNumber(); iech++)
   {
-    if (!get_ACTIVE(db, iech)) continue;
+    if (!db->isActive(iech)) continue;
     if (iech == iech0) return (jech);
     jech++;
   }
@@ -4446,7 +4287,7 @@ GEOSLIB_API int db_get_rank_relative_to_absolute(Db *db, int iech0)
 
   for (iech = jech = 0; iech < db->getSampleNumber(); iech++)
   {
-    if (!get_ACTIVE(db, iech)) continue;
+    if (!db->isActive(iech)) continue;
     if (jech == iech0) return (iech);
     jech++;
   }
@@ -4583,7 +4424,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
 
   for (int i = 0; i < get_NECH(db_grid); i++)
   {
-    if (!get_ACTIVE(db_grid, i)) continue;
+    if (!db_grid->isActive(i)) continue;
     value = db_grid->getArray(i, iptr);
     if (value < vmin || value >= vmax) continue;
     db_index_sample_to_grid(db_grid, i, indcur);
@@ -4601,7 +4442,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
   for (int idim = 0; idim < ndim && !flag_refuse; idim++)
   {
     if (indmin[idim] > indmax[idim]) flag_refuse = 1;
-    size = get_NX(db_grid, idim);
+    size = db_grid->getNX(idim);
     mini = indmin[idim];
     if (margin != (int *) NULL) mini = MAX(0, mini - margin[idim]);
     maxi = indmax[idim];
@@ -4681,7 +4522,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
       iech = db_index_grid_to_sample(db_grid, indcur);
 
       retval = 1.;
-      if (!get_ACTIVE(db_grid, iech)) retval = 0.;
+      if (!db_grid->isActive(iech)) retval = 0.;
       if (retval)
       {
         value = db_grid->getArray(iech, iptr);
@@ -4768,7 +4609,7 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
   /* Find the coordinates of the origin of the sub-grid within the main grid */
 
   for (int idim = 0; idim < ndim; idim++)
-    coor1[idim] = get_X0(ss_grid, idim);
+    coor1[idim] = ss_grid->getX0(idim);
   (void) point_to_grid(db_grid, coor1, -1, indg0);
   if (point_to_grid(db_grid, coor1, -1, indg0) == -1)
   {
@@ -4787,7 +4628,7 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
   {
 
     // Sample masked off in the subgrid
-    if (!get_ACTIVE(ss_grid, iech))
+    if (!ss_grid->isActive(iech))
     {
       nmask++;
       continue;
@@ -4862,7 +4703,7 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
     ndef = nbnomask = 0;
     for (int iech = 0; iech < get_NECH(db_grid); iech++)
     {
-      if (!get_ACTIVE(db_grid, iech)) continue;
+      if (!db_grid->isActive(iech)) continue;
       value = db_grid->getArray(iech, iptr_db);
       nbnomask++;
       if (!FFFF(value)) ndef++;
@@ -4872,7 +4713,7 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
     message("(Naming convention: *_S for subgrid and _G for main grid)\n");
     for (int idim = 0; idim < ndim; idim++)
       message("- Dimension %d: NX_S =%4d - NX_G =%4d - Shift =%4d\n", idim + 1,
-              get_NX(ss_grid, idim), get_NX(db_grid, idim), indg0[idim]);
+              ss_grid->getNX(idim), db_grid->getNX(idim), indg0[idim]);
     message("Subgrid                               = %d\n", get_NECH(ss_grid));
     message("- Number of masked off samples        = %d\n", nmask);
     message("- Number of undefined values          = %d\n", nundef);
@@ -5089,9 +4930,9 @@ GEOSLIB_API VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
   if (!is_grid(dbgrid)) return (vect);
   if (idim < 0 || idim >= dbgrid->getNDim()) return (vect);
 
-  int nvect = get_NX(dbgrid, idim);
-  double origin = get_X0(dbgrid, idim);
-  double pas = get_DX(dbgrid, idim);
+  int nvect = dbgrid->getNX(idim);
+  double origin = dbgrid->getX0(idim);
+  double pas = dbgrid->getDX(idim);
   vect.resize(nvect);
 
   for (int i = 0; i < nvect; i++)

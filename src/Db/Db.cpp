@@ -770,6 +770,11 @@ VectorVectorDouble Db::getCoordinates(bool useSel) const
 void Db::setCoordinate(int iech, int idim, double value)
 {
   if (!isSampleIndexValid(iech)) return;
+  if (isGrid())
+  {
+    messerr("Writing the coordinate of a grid sample is forbidden");
+    return;
+  }
   int icol = getColumnByAttribute(idim);
   if (!isColumnIndexValid(icol)) return;
   _array[_getAddress(iech, icol)] = value;
@@ -1926,8 +1931,7 @@ int Db::getDomain(int iech, int domain_ref) const
 
 void Db::setDomain(int iech, int value)
 {
-  setFromLocator(LOC_DOM, iech, 0, (value == 0) ? 0. :
-                                                  1.);
+  setFromLocator(LOC_DOM, iech, 0, (value == 0) ? 0. : 1.);
 }
 
 int Db::getDipDirectionNumber() const
@@ -2105,6 +2109,13 @@ void Db::updSimvar(ENUM_LOCS locatorType,
 bool Db::isActive(int iech) const
 {
   return (getSelection(iech) && getDomain(iech));
+}
+
+bool Db::isActiveAndDefined(int iech, int item) const
+{
+  if (!isActive(iech)) return false;;
+  if (FFFF(getVariable(iech, item))) return false;
+  return true;
 }
 
 int Db::getActiveAndDefinedNumber(int item) const

@@ -2006,7 +2006,7 @@ GEOSLIB_API int model_grid(Model *model,
 
   for (iech = 0; iech < get_NECH(db); iech++)
   {
-    if (!get_ACTIVE(db, iech)) continue;
+    if (!db->isActive(iech)) continue;
     db_sample_load(db, LOC_X, iech, d1.data());
     model_calcul_cov(model, mode, 1, 1., d1, covtab);
     g[iech] = COVTAB(ivar, jvar);
@@ -2118,7 +2118,7 @@ GEOSLIB_API double model_cxx(Model *model,
   norme = 0.;
   for (iech1 = 0; iech1 < get_NECH(db1); iech1++)
   {
-    if (!get_ACTIVE(db1, iech1)) continue;
+    if (!db1->isActive(iech1)) continue;
     w1 = db1->getWeight(iech1);
     if (w1 == 0.) continue;
 
@@ -2126,7 +2126,7 @@ GEOSLIB_API double model_cxx(Model *model,
 
     for (iech2 = 0; iech2 < get_NECH(db2); iech2++)
     {
-      if (!get_ACTIVE(db2, iech2)) continue;
+      if (!db2->isActive(iech2)) continue;
       w2 = db2->getWeight(iech2);
       if (w2 == 0.) continue;
 
@@ -2237,7 +2237,7 @@ GEOSLIB_API void model_covmat(Model *model,
 
     for (iech1 = 0; iech1 < nech1; iech1++)
     {
-      if (!get_ACTIVE(db1, iech1)) continue;
+      if (!db1->isActive(iech1)) continue;
 
       /* Loop on the second variable */
 
@@ -2249,7 +2249,7 @@ GEOSLIB_API void model_covmat(Model *model,
 
         for (iech2 = 0; iech2 < nech2; iech2++)
         {
-          if (!get_ACTIVE(db2, iech2)) continue;
+          if (!db2->isActive(iech2)) continue;
 
           /* Loop on the dimension of the space */
 
@@ -2467,7 +2467,7 @@ GEOSLIB_API void model_drift_mat(Model *model,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      if (!get_ACTIVE(db, iech)) continue;
+      if (!db->isActive(iech)) continue;
       model_calcul_drift(model, member, db, iech, drftab);
 
       /* Loop on the drift functions */
@@ -2636,7 +2636,7 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
 
     for (iech1 = 0; iech1 < nech1; iech1++)
     {
-      if (!get_ACTIVE(db1, iech1)) continue;
+      if (!db1->isActive(iech1)) continue;
 
       /* Loop on the second variable */
 
@@ -2648,7 +2648,7 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
 
         for (iech2 = 0; iech2 < nech2; iech2++)
         {
-          if (!get_ACTIVE(db2, iech2)) continue;
+          if (!db2->isActive(iech2)) continue;
 
           /* Loop on the dimension of the space */
 
@@ -2764,14 +2764,14 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
   for (ivar1 = 0; ivar1 < nvar; ivar1++)
     for (iech1 = 0; iech1 < nech; iech1++)
     {
-      if (!get_ACTIVE(db, iech1)) continue;
+      if (!db->isActive(iech1)) continue;
 
       /* Loop on the second sample */
 
       for (ivar2 = 0; ivar2 < nvar; ivar2++)
         for (iech2 = 0; iech2 < nech; iech2++)
         {
-          if (!get_ACTIVE(db, iech2)) continue;
+          if (!db->isActive(iech2)) continue;
 
           /* Loop on the dimension of the space */
 
@@ -3948,7 +3948,7 @@ GEOSLIB_API void model_vector_multivar(Model *model,
   for (jvar = 0; jvar < nvar; jvar++)
     for (jech = 0; jech < nech; jech++)
     {
-      if (!get_ACTIVE(db, jech)) continue;
+      if (!db->isActive(jech)) continue;
 
       /* Loop on the dimension of the space */
 
@@ -4032,7 +4032,7 @@ GEOSLIB_API void model_vector(Model *model,
 
   for (iech = 0; iech < nech; iech++)
   {
-    if (!get_ACTIVE(db1, iech)) continue;
+    if (!db1->isActive(iech)) continue;
 
     /* Loop on the dimension of the space */
 
@@ -4107,7 +4107,7 @@ GEOSLIB_API void model_vector_nostat(Model *model,
 
   for (jech = 0; jech < nech; jech++)
   {
-    if (!get_ACTIVE(db, jech)) continue;
+    if (!db->isActive(jech)) continue;
 
     /* Loop on the dimension of the space */
 

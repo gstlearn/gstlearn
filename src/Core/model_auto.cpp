@@ -2294,7 +2294,7 @@ static void st_evaluate_vmap(int      imod,
   {
     db_index_sample_to_grid(DBMAP,iech,INDG2);
     for (int idim=0; idim<ndim; idim++)
-      d0[idim] = (INDG2[idim]-INDG1[idim]) * get_DX(DBMAP,idim);
+      d0[idim] = (INDG2[idim]-INDG1[idim]) * DBMAP->getDX(idim);
 
     int ijvar = 0;
     for (int ivar=0; ivar<nvar; ivar++)
@@ -4211,7 +4211,7 @@ static void st_prepar_goulard_vmap(int imod)
     {
       db_index_sample_to_grid(DBMAP,ipadir,INDG2);
       for (int idim=0; idim<ndim; idim++)
-        d0[idim] = (INDG2[idim]-INDG1[idim]) * get_DX(DBMAP,idim);
+        d0[idim] = (INDG2[idim]-INDG1[idim]) * DBMAP->getDX(idim);
       model_calcul_cov(model, mode, 1, 1., d0, tab.data());
 
       /* Loop on the variables */

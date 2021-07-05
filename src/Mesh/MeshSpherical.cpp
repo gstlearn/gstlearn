@@ -300,7 +300,7 @@ cs* MeshSpherical::getMeshToDb(Db  *db,
   imesh0 = ip_max = iech_max = 0;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (iech > iech_max) iech_max = iech;
 
     /* Identification */
@@ -412,7 +412,7 @@ double* MeshSpherical::interpolateMeshToDb(Db *db,
   imesh0 = ip_max = iech_max = 0;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (iech > iech_max) iech_max = iech;
 
     /* Identification */

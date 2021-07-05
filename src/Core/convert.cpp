@@ -941,9 +941,9 @@ GEOSLIB_API int db_grid_write_zycor(const char *filename,
 
   for (i=0; i<2; i++)
   {
-    nx[i] = get_NX(db,i);
-    x0[i] = get_X0(db,i);
-    dx[i] = get_DX(db,i);
+    nx[i] = db->getNX(i);
+    x0[i] = db->getX0(i);
+    dx[i] = db->getDX(i);
     xf[i] = x0[i] + (nx[i] - 1) * dx[i];
   }
   
@@ -1134,7 +1134,7 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
   if (db->getNDim() > 2)
   {
     number = 1;
-    for (idim=2; idim<db->getNDim(); idim++) number *= get_NX(db,idim);
+    for (idim=2; idim<db->getNDim(); idim++) number *= db->getNX(idim);
     if (number > 1)
     {
       messerr("The Db structure corresponds to a 3-D Grid");
@@ -1150,8 +1150,8 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
 
   /* Initializations */
 
-  nx = get_NX(db,0);
-  ny = get_NX(db,1);
+  nx = db->getNX(0);
+  ny = db->getNX(1);
 
   /* Calculate the statistics */
 
@@ -1307,12 +1307,12 @@ GEOSLIB_API int db_grid_write_irap(const char *filename,
   if (file == (FILE *) NULL) goto label_end;
 
   /* Preliminary calculations */
-  nx   = N_SAMPLE(get_NX(db,0),nsamplex);
-  ny   = N_SAMPLE(get_NX(db,1),nsampley);
-  dx   = get_DX(db,0) * nsamplex;
-  dy   = get_DX(db,1) * nsampley;
-  xmin = get_X0(db,0);
-  ymin = get_X0(db,1);
+  nx   = N_SAMPLE(db->getNX(0),nsamplex);
+  ny   = N_SAMPLE(db->getNX(1),nsampley);
+  dx   = db->getDX(0) * nsamplex;
+  dy   = db->getDX(1) * nsampley;
+  xmin = db->getX0(0);
+  ymin = db->getX0(1);
   xmax = xmin + dx * (nx - 1);
   ymax = ymin + dy * (ny - 1);
 
@@ -1481,7 +1481,7 @@ GEOSLIB_API int db_grid_write_eclipse(const char   *filename,
     return(1);
   }
   nxyz = 1;
-  for (idim=0; idim<db->getNDim(); idim++) nxyz *= get_NX(db,idim);
+  for (idim=0; idim<db->getNDim(); idim++) nxyz *= db->getNX(idim);
 
   /* Open the file */
 
@@ -1823,7 +1823,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
   /* Define the reading parameters */
 
   for (int idim=0; idim<3; idim++)
-    dims[idim] = (idim < ndim) ? get_NX(db,idim) : 1;
+    dims[idim] = (idim < ndim) ? db->getNX(idim) : 1;
 
   /* Core allocation */
 
@@ -1852,15 +1852,15 @@ GEOSLIB_API int db_write_vtk(const char *filename,
     xcoor = (float *) mem_alloc(sizeof(float) * dims[0],0);
     if (xcoor == (float *) NULL) goto label_end;
     for (int i=0; i<dims[0]; i++) 
-      xcoor[i] = factx * (get_X0(db,0) + i * get_DX(db,0));
+      xcoor[i] = factx * (db->getX0(0) + i * db->getDX(0));
     ycoor = (float *) mem_alloc(sizeof(float) * dims[1],0);
     if (ycoor == (float *) NULL) goto label_end;
     for (int i=0; i<dims[1]; i++) 
-      ycoor[i] = facty * (get_X0(db,1) + i * get_DX(db,1));
+      ycoor[i] = facty * (db->getX0(1) + i * db->getDX(1));
     zcoor = (float *) mem_alloc(sizeof(float) * dims[2],0);
     if (zcoor == (float *) NULL) goto label_end;
     for (int i=0; i<dims[2]; i++) 
-      zcoor[i] = factz * (get_X0(db,2) + i * get_DX(db,2));
+      zcoor[i] = factz * (db->getX0(2) + i * db->getDX(2));
   }
   else
   {
@@ -1875,7 +1875,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
     ecr = 0;
     for (int iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
       for (int idim=0; idim<3; idim++)
       {
         fact = 1.;
@@ -1895,7 +1895,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
     {
       ecr = 0;
       for (int iech=0; iech<nech; iech++)
-        if (get_ACTIVE(db,iech))
+        if (db->isActive(iech))
         {
           value = get_ARRAY(db,iech,cols[icol]);
           if (FFFF(value))
@@ -1913,7 +1913,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
           for (int ix=0; ix<dims[0]; ix++)
           {
             iad = ix + dims[0] * (iy + dims[1] * iz);
-            if (get_ACTIVE(db,iad))
+            if (db->isActive(iad))
             {
               value = db->getByColumn(iad,cols[icol]);
               if (FFFF(value)) 
@@ -2707,8 +2707,8 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
   /* Write the set of values */
 
   lec = 0;
-  for (int ix=0; ix<get_NX(db,0); ix++)
-    for (int iy=0; iy<get_NX(db,1); iy++)
+  for (int ix=0; ix<db->getNX(0); ix++)
+    for (int iy=0; iy<db->getNX(1); iy++)
     {
       for (int i = 0; i < db->getNDim(); i++)
         fprintf(file, "%lf,", get_IDIM(db, lec, i));
@@ -2985,7 +2985,7 @@ GEOSLIB_API int db_write_csv(Db *db,
 
   for (int iech = 0; iech < nech; iech++)
   {
-    if (!get_ACTIVE(db, iech)) continue;
+    if (!db->isActive(iech)) continue;
 
     if (flag_allcol)
     {

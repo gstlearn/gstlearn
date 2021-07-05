@@ -49,6 +49,7 @@ public:
   double  getDX(int idim) const;
   int     getNX(int idim) const;
   int     getNTotal() const;
+  double  getCellSize() const;
 
   virtual String toString(int level = 0) const override;
 

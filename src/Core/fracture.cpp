@@ -2154,7 +2154,7 @@ GEOSLIB_API int fracture_to_block(Db           *dbgrid,
   dmin = 1.e30;
   for (idim=0; idim<dbgrid->getNDim(); idim++)
   {
-    if (get_DX(dbgrid,idim) < dmin) dmin = get_DX(dbgrid,idim);
+    if (dbgrid->getDX(idim) < dmin) dmin = dbgrid->getDX(idim);
   }
   delta = dmin / (double) ndisc;
 
@@ -2437,7 +2437,7 @@ GEOSLIB_API int fracture_well_to_block(Db           *dbgrid,
   dmin = 1.e30;
   for (idim=0; idim<dbgrid->getNDim(); idim++)
   {
-    if (get_DX(dbgrid,idim) < dmin) dmin = get_DX(dbgrid,idim);
+    if (dbgrid->getDX(idim) < dmin) dmin = dbgrid->getDX(idim);
   }
   delta = dmin / (double) ndisc;
 

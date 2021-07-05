@@ -171,7 +171,7 @@ static void st_simfft_init(Db     *db,
   simu->nxyz = 1;
   for (i=0; i<3; i++)
   {
-    simu->nx[i] = get_NX(db,i);
+    simu->nx[i] = db->getNX(i);
     simu->nxyz *= simu->nx[i];
   }
 
@@ -224,7 +224,7 @@ static void st_simfft_prepar(Db     *db,
     indg[i] = 1;
     grid_to_point(db,indg,(double *) NULL,xyz1[i]);
     for (j=0; j<3; j++) xyz1[i][j] -= xyz0[j];
-    delta[i] = get_DX(db,i) * get_NX(db,i);
+    delta[i] = db->getDX(i) * db->getNX(i);
     if (i < ndim) continue;
     delta[i] = 0.;
     for (j=0; j<3; j++) xyz1[i][j] = 0.;
@@ -733,7 +733,7 @@ static int st_simfft_alloc(Db     *db,
   {
     if (i < ndim)
     {
-      nval = st_get_optimal_even_number(simu->shift[i] + get_NX(db,i));
+      nval = st_get_optimal_even_number(simu->shift[i] + db->getNX(i));
       simu->dims[i] = nval;
       simu->dim2[i] = nval / 2;
     }
@@ -1150,9 +1150,9 @@ static void st_simfft_final(Db     *db,
   
   /* Retrieving the simulation */
   
-  for (iz=ecr=0; iz<get_NX(db,2); iz++)
-    for (iy=0; iy<get_NX(db,1); iy++)
-      for (ix=0; ix<get_NX(db,0); ix++,ecr++)
+  for (iz=ecr=0; iz<db->getNX(2); iz++)
+    for (iy=0; iy<db->getNX(1); iy++)
+      for (ix=0; ix<db->getNX(0); ix++,ecr++)
       {
         jx = ix + simu->shift[0];
         jy = iy + simu->shift[1];

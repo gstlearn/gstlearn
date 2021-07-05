@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
   if (flag_grid)
   {
-    delta = get_DX(dbout,0);
+    delta = dbout->getDX(0);
     if (npgs == 1)
     {
       if (simpgs(dbin,dbout,dbout,rule[0],model[0][0],model[0][1],

@@ -141,7 +141,7 @@ GEOSLIB_API void simu_func_continuous_update(Db  *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     simval = get_LOCATOR_ITEM(db,LOC_SIMU,iptr_simu,iech);
     db->updVariable(iech,0,0,simval);
     db->updVariable(iech,1,0,simval * simval);
@@ -182,7 +182,7 @@ GEOSLIB_API void simu_func_categorical_update(Db  *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     facies = (int) get_LOCATOR_ITEM(db,LOC_FACIES,iptr_simu,iech) - 1;
     rank   = st_facies(ModCat.props,ipgs,facies);
     prop   = db->getProportion(iech,rank) + 1.;
@@ -218,7 +218,7 @@ GEOSLIB_API void simu_func_continuous_scale(Db  *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     mean = db->getVariable(iech,0) / nbsimu;
     db->setVariable(iech,0,mean);
     stdv = db->getVariable(iech,1) / nbsimu - mean * mean;
@@ -260,7 +260,7 @@ GEOSLIB_API void simu_func_categorical_scale(Db  *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     for (int ifac=0; ifac<nfacies; ifac++)
     {
       rank = st_facies(propdef,ipgs,ifac);
@@ -1782,9 +1782,9 @@ static void st_minmax(Db     *db,
 
   if (is_grid(db))
   {
-    nx = (db->getNDim() >= 1) ? get_NX(db,0) : 1;
-    ny = (db->getNDim() >= 2) ? get_NX(db,1) : 1;
-    nz = (db->getNDim() >= 3) ? get_NX(db,2) : 1;
+    nx = (db->getNDim() >= 1) ? db->getNX(0) : 1;
+    ny = (db->getNDim() >= 2) ? db->getNX(1) : 1;
+    nz = (db->getNDim() >= 3) ? db->getNX(2) : 1;
 
     /* Case when the data obeys to a grid organization */
     /* This test is programmed for 3-D (maximum) grid  */
@@ -1813,7 +1813,7 @@ static void st_minmax(Db     *db,
     {
       for (ibs=0; ibs<situba->nbands; ibs++)
       {
-        if (! get_ACTIVE(db,iech)) continue;
+        if (! db->isActive(iech)) continue;
         tt = st_project_point(db,situba,ibs,iech);
         if (tt < situba->codir[ibs]->tmin) situba->codir[ibs]->tmin = tt;
         if (tt > situba->codir[ibs]->tmax) situba->codir[ibs]->tmax = tt;
@@ -1890,7 +1890,7 @@ static void st_difference(Db     *dbin,
     
     for (iech=0; iech<get_NECH(dbin); iech++)
     {
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       if (debug_query("simulate")) tab_printi(NULL,1,GD_J_RIGHT,iech+1);
       for (ivar=0; ivar<nvar; ivar++)
       {
@@ -1951,7 +1951,7 @@ static void st_difference(Db     *dbin,
     
     for (iech=0; iech<get_NECH(dbin); iech++)
     {
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       if (debug_query("simulate")) tab_printi(NULL,1,GD_J_RIGHT,iech+1);
       for (isimu=0; isimu<nbsimu; isimu++)
       {
@@ -2038,9 +2038,9 @@ static int st_simulate_grid(Db     *db,
   theta1 = 1. / situba->theta;
   nvar   = model->getVariableNumber();
   ncova  = model->getCovaNumber();
-  nx     = (db->getNDim() >= 1) ? get_NX(db,0) : 1;
-  ny     = (db->getNDim() >= 2) ? get_NX(db,1) : 1;
-  nz     = (db->getNDim() >= 3) ? get_NX(db,2) : 1;
+  nx     = (db->getNDim() >= 1) ? db->getNX(0) : 1;
+  ny     = (db->getNDim() >= 2) ? db->getNX(1) : 1;
+  nz     = (db->getNDim() >= 3) ? db->getNX(2) : 1;
   nech   = nx * ny * nz;
   norme  = sqrt(1. / nbtuba);
   nt     = iech = 0;
@@ -2127,7 +2127,7 @@ static int st_simulate_grid(Db     *db,
                     s0y = s1;
                     for (ix=0; ix<nx; ix++,ind++)
                     {
-                      if (get_ACTIVE(db,ind)) tab[ind] = c0x - correc0;
+                      if (db->isActive(ind)) tab[ind] = c0x - correc0;
                       c1  = c0x * cxp - s0x * sxp;
                       s1  = s0x * cxp + c0x * sxp;
                       c0x = c1;
@@ -2155,7 +2155,7 @@ static int st_simulate_grid(Db     *db,
                     t0y += dyp;
                     for (ix=0; ix<nx; ix++,ind++)
                     {
-                      if (get_ACTIVE(db,ind))
+                      if (db->isActive(ind))
                       {
                         nt0 = st_rank_in_poisson(nt0,t0,t,nt);
                         tab[ind] = (2. * t0 > t[nt0+1]+t[nt0]) ? -vexp : vexp;
@@ -2200,7 +2200,7 @@ static int st_simulate_grid(Db     *db,
                     s0y = s1;
                     for (ix=0; ix<nx; ix++,ind++)
                     {
-                      if (get_ACTIVE(db,ind)) tab[ind] = c0x - correc0;
+                      if (db->isActive(ind)) tab[ind] = c0x - correc0;
                       c1  = c0x * cxp - s0x * sxp;
                       s1  = s0x * cxp + c0x * sxp;
                       c0x = c1;
@@ -2227,7 +2227,7 @@ static int st_simulate_grid(Db     *db,
                     t0y += dyp;
                     for (ix=0; ix<nx; ix++,ind++)
                     {
-                      if (get_ACTIVE(db,ind))
+                      if (db->isActive(ind))
                       {
                         nt0 = st_rank_in_poisson(nt0,t0,t,nt);
                         tab[ind] = (2. * t0 > t[nt0+1]+t[nt0]) ? -vexp : vexp;
@@ -2256,7 +2256,7 @@ static int st_simulate_grid(Db     *db,
                   t0y += dyp;
                   for (ix=0; ix<nx; ix++,ind++)
                   {
-                    if (get_ACTIVE(db,ind))
+                    if (db->isActive(ind))
                     {
                       nt0 = st_rank_in_poisson(nt0,t0,t,nt);
                       tab[ind] = (2. * t0 > t[nt0+1]+t[nt0]) ? -vexp : vexp;
@@ -2282,7 +2282,7 @@ static int st_simulate_grid(Db     *db,
                   t0y += dyp;
                   for (ix=0; ix<nx; ix++,ind++)
                   {
-                    if (get_ACTIVE(db,ind))
+                    if (db->isActive(ind))
                     {
                       dt  = (t0 - tdeb);
                       nt0 = (int) dt;
@@ -2310,7 +2310,7 @@ static int st_simulate_grid(Db     *db,
                   t0y += dyp;
                   for (ix=0; ix<nx; ix++,ind++)
                   {
-                    if (get_ACTIVE(db,ind))
+                    if (db->isActive(ind))
                     {
                       dt  = (t0 - tdeb);
                       nt0 = (int) dt;
@@ -2376,7 +2376,7 @@ static int st_simulate_grid(Db     *db,
                   s0y = s1;
                   for (ix=0; ix<nx; ix++,ind++)
                   {
-                    if (get_ACTIVE(db,ind)) tab[ind] = c0x - correc0;
+                    if (db->isActive(ind)) tab[ind] = c0x - correc0;
                     c1  = c0x * cxp - s0x * sxp;
                     s1  = s0x * cxp + c0x * sxp;
                     c0x = c1;
@@ -2406,7 +2406,7 @@ static int st_simulate_grid(Db     *db,
                   t0y += dyp;
                   for (ix=0; ix<nx; ix++,ind++)
                   {
-                    if (get_ACTIVE(db,ind))
+                    if (db->isActive(ind))
                     {
                       nt0 = st_rank_in_poisson(nt0,t0,t,nt);
                       tab[ind] = st_irf_process_sample(type,nt0,t0,t,v0,v1,v2);
@@ -2423,7 +2423,7 @@ static int st_simulate_grid(Db     *db,
 
           if (type != COV_NUGGET)
             for (iech=0; iech<nech; iech++)
-              if (get_ACTIVE(db,iech))
+              if (db->isActive(iech))
                 for (jvar=0; jvar<nvar; jvar++)
                   db->updSimvar(LOC_SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, 0,
@@ -2435,7 +2435,7 @@ static int st_simulate_grid(Db     *db,
   for (isimu=0; isimu<nbsimu; isimu++)
     for (iech=0; iech<nech; iech++)
       for (jvar=0; jvar<nvar; jvar++)
-        if (get_ACTIVE(db,iech))
+        if (db->isActive(iech))
           db->updSimvar(LOC_SIMU, iech, shift + isimu, jvar, icase, nbsimu,
                         nvar, 1, norme);
 
@@ -2504,7 +2504,7 @@ static void st_simulate_nugget(Db     *db,
         
         for (iech=0; iech<nech; iech++)
         {
-          if (! get_ACTIVE(db,iech)) continue;
+          if (! db->isActive(iech)) continue;
           nugget = law_gaussian();
           for (jvar=0; jvar<nvar; jvar++)
             db->updSimvar(LOC_SIMU, iech, isimu, jvar, icase, nbsimu, nvar, 0,
@@ -2613,7 +2613,7 @@ static int st_simulate_point(Db     *db,
                 st_spectral(type,scale,param,&omega,&phi);
                 for (iech=0; iech<nech; iech++)
                 {
-                  if (! get_ACTIVE(db,iech)) continue;
+                  if (! db->isActive(iech)) continue;
                   t0  = st_project_point(db,situba,ibs,iech);
                   tab[iech] = cos(omega * t0 + phi);
                 }
@@ -2627,7 +2627,7 @@ static int st_simulate_point(Db     *db,
 		
                 for (iech=nt0=0; iech<nech; iech++)
                 {
-                  if (! get_ACTIVE(db,iech)) continue;
+                  if (! db->isActive(iech)) continue;
                   t0  = st_project_point(db,situba,ibs,iech);
                   nt0 = st_rank_in_poisson(nt0,t0,t,nt);
                   tab[iech] = (2. * t0 > t[nt0+1]+t[nt0]) ? -vexp : vexp;
@@ -2642,7 +2642,7 @@ static int st_simulate_point(Db     *db,
               
               for (iech=nt0=0; iech<nech; iech++)
               {
-                if (! get_ACTIVE(db,iech)) continue;
+                if (! db->isActive(iech)) continue;
                 t0  = st_project_point(db,situba,ibs,iech);
                 nt0 = st_rank_in_poisson(nt0,t0,t,nt);
                 tab[iech] = (2. * t0 > t[nt0+1]+t[nt0]) ? -vexp : vexp;
@@ -2654,7 +2654,7 @@ static int st_simulate_point(Db     *db,
               st_dilution(tmin,tmax,scale,t,&tdeb,&nt);
               for (iech=0; iech<nech; iech++)
               {
-                if (! get_ACTIVE(db,iech)) continue;
+                if (! db->isActive(iech)) continue;
                 t0  = st_project_point(db,situba,ibs,iech);
                 nt0 = st_rank_regular(t0,tdeb,scale,nt);
                 dt0 = (t0 - tdeb) - scale * nt0;
@@ -2668,7 +2668,7 @@ static int st_simulate_point(Db     *db,
               st_dilution(tmin,tmax,scale,t,&tdeb,&nt);
               for (iech=0; iech<nech; iech++)
               {
-                if (! get_ACTIVE(db,iech)) continue;
+                if (! db->isActive(iech)) continue;
                 t0  = st_project_point(db,situba,ibs,iech);
                 nt0 = st_rank_regular(t0,tdeb,scale,nt);
                 dt0 = (t0 - tdeb) - scale * nt0;
@@ -2681,7 +2681,7 @@ static int st_simulate_point(Db     *db,
               st_set_power_1D(ib,scale,param,&omega,&phi,&correc,&correc0);
               for (iech=0; iech<nech; iech++)
               {
-                if (! get_ACTIVE(db,iech)) continue;
+                if (! db->isActive(iech)) continue;
                 t0  = st_project_point(db,situba,ibs,iech);
                 tab[iech] = cos(omega * t0 + phi)-correc0;
               }
@@ -2691,7 +2691,7 @@ static int st_simulate_point(Db     *db,
               st_set_spline_1D(ib,scale,1,&omega,&phi,&correc,&correc0); 
               for (iech=0; iech<nech; iech++)
               {
-                if (! get_ACTIVE(db,iech)) continue;
+                if (! db->isActive(iech)) continue;
                 t0  = st_project_point(db,situba,ibs,iech);
                 tab[iech] = cos(omega * t0 + phi)-correc0;
               }
@@ -2717,7 +2717,7 @@ static int st_simulate_point(Db     *db,
 	    
               for (iech=0; iech<nech; iech++)
               {
-                if (! get_ACTIVE(db,iech)) continue;
+                if (! db->isActive(iech)) continue;
                 t0  = st_project_point(db,situba,ibs,iech);
                 tab[iech] = cos(omega * t0 + phi);
               }
@@ -2733,7 +2733,7 @@ static int st_simulate_point(Db     *db,
 	    
               for (iech=nt0=0; iech<nech; iech++)
               {
-                if (! get_ACTIVE(db,iech)) continue;
+                if (! db->isActive(iech)) continue;
                 t0  = st_project_point(db,situba,ibs,iech);
                 nt0 = st_rank_in_poisson(nt0,t0,t,nt);
                 tab[iech] = st_irf_process_sample(type,nt0,t0,t,v0,v1,v2);
@@ -2746,7 +2746,7 @@ static int st_simulate_point(Db     *db,
 	  
           if (type != COV_NUGGET)
             for (iech=0; iech<nech; iech++)
-              if (get_ACTIVE(db,iech))
+              if (db->isActive(iech))
                 for (jvar=0; jvar<nvar; jvar++)
                   db->updSimvar(LOC_SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, 0,
@@ -2758,7 +2758,7 @@ static int st_simulate_point(Db     *db,
   for (isimu=0; isimu<nbsimu; isimu++)
     for (iech=0; iech<nech; iech++)
       for (jvar=0; jvar<nvar; jvar++)
-        if (get_ACTIVE(db,iech))
+        if (db->isActive(iech))
           db->updSimvar(LOC_SIMU, iech, shift + isimu, jvar, icase, nbsimu,
                         nvar, 1, norme);
   
@@ -2834,11 +2834,11 @@ static void st_update_data2target(Db     *dbin,
 
     for (ip=0; ip<get_NECH(dbin); ip++)
     {
-      if (! get_ACTIVE(dbin,ip)) continue;
+      if (! dbin->isActive(ip)) continue;
       db_sample_load(dbin,LOC_X,ip,coor2);
       if (point_to_grid(dbout,coor2,1,indg)) continue;
       ik = db_index_grid_to_sample(dbout,indg);
-      if (! get_ACTIVE(dbout,ik)) continue;
+      if (! dbout->isActive(ik)) continue;
       grid_to_point(dbout,indg,(double *) NULL,coor1);
 
       /* Get the distance to the target point */
@@ -2874,7 +2874,7 @@ static void st_update_data2target(Db     *dbin,
     
     for (ik=0; ik<get_NECH(dbout); ik++)
     {
-      if (! get_ACTIVE(dbout,ik)) continue;
+      if (! dbout->isActive(ik)) continue;
       db_sample_load(dbout,LOC_X,ik,coor1);
 
       /* Look for the closest data point */
@@ -2882,7 +2882,7 @@ static void st_update_data2target(Db     *dbin,
       ip_close = -1;
       for (ip=0; ip<get_NECH(dbin) && ip_close<0; ip++)
       {
-        if (! get_ACTIVE(dbin,ip)) continue;
+        if (! dbin->isActive(ip)) continue;
         db_sample_load(dbin,LOC_X,ip,coor2);
 
         /* Get the distance to the target point */
@@ -2951,7 +2951,7 @@ static void st_mean_correct(Db    *dbout,
 
       for (iech=0; iech<get_NECH(dbout); iech++)
       {
-        if (! get_ACTIVE(dbout,iech)) continue;
+        if (! dbout->isActive(iech)) continue;
         dbout->updSimvar(LOC_SIMU, iech, isimu, ivar, icase, nbsimu,
                          model->getVariableNumber(), 0,
                          model->getContext().getMean(ivar));
@@ -3013,8 +3013,8 @@ static int st_simulate_gradient(Db     *dbgrd,
     /* Shift the information */
 
     for (int iech=0; iech<get_NECH(dbgrd); iech++)
-      if (get_ACTIVE(dbgrd,iech))
-        set_IDIM(dbgrd,iech,idim,get_IDIM(dbgrd,iech,idim) + delta);
+      if (dbgrd->isActive(iech))
+        dbgrd->setCoordinate(iech,idim,get_IDIM(dbgrd,iech,idim) + delta);
 
     /* Simulation at the shift location */
 
@@ -3028,15 +3028,15 @@ static int st_simulate_gradient(Db     *dbgrd,
     /* Un-Shift the information */
 
     for (int iech=0; iech<get_NECH(dbgrd); iech++)
-      if (get_ACTIVE(dbgrd,iech))
-        set_IDIM(dbgrd,iech,idim,get_IDIM(dbgrd,iech,idim) - delta);
+      if (dbgrd->isActive(iech))
+        dbgrd->setCoordinate(iech,idim,get_IDIM(dbgrd,iech,idim) - delta);
 
     /* Scaling */
 
     for (int isimu=0; isimu<nbsimu; isimu++)
       for (int iech=0; iech<get_NECH(dbgrd); iech++)
       {
-        if (! get_ACTIVE(dbgrd,iech)) continue;
+        if (! dbgrd->isActive(iech)) continue;
         jsimu = isimu + idim * nbsimu + ndim * nbsimu;
         value2 = dbgrd->getSimvar(LOC_SIMU,iech,jsimu,0,icase,
                             2*ndim*nbsimu,1);
@@ -3102,7 +3102,7 @@ static int st_simulate_tangent(Db     *dbtgt,
   for (int isimu=0; isimu<nbsimu; isimu++)
     for (int iech=0; iech<get_NECH(dbtgt); iech++)
     {
-      if (! get_ACTIVE(dbtgt,iech)) continue;
+      if (! dbtgt->isActive(iech)) continue;
       
       value = 0.;
       for (int idim=0; idim<dbtgt->getNDim(); idim++)
@@ -3160,7 +3160,7 @@ static void st_check_gaussian_data2grid(Db     *dbin,
 
   for (iech=0; iech<get_NECH(dbin); iech++)
   {
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
 
 
     // Find the index of the closest grid node and derive tolerance
@@ -3806,7 +3806,7 @@ static int st_replicate_invalid(Db     *dbin,
     for (idim=0; idim<dbin->getNDim(); idim++)
     {
       delta = ABS(get_IDIM(dbin,iech,idim) - get_IDIM(dbin,jech,idim));
-      if (delta >= get_DX(dbout,idim)) return(0);
+      if (delta >= dbout->getDX(idim)) return(0);
     }
     message("Replicate invalid\n");
     return(1);
@@ -3863,7 +3863,7 @@ GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
   for (iech=0; iech<nech; iech++)
   {
     /* Convert the proportions into thresholds for data point */
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     if (! point_inside_grid(dbin,iech,dbout)) continue;
     facies = (int) dbin->getVariable(iech,0);
     if (rule_thresh_define_shadow(propdef,dbin,rule,facies,iech,isimu,nbsimu,1,
@@ -3901,7 +3901,7 @@ GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
         for (idim=0; idim<dbin->getNDim(); idim++)
         {
           dval = alea * rule->getDMax() * rule->getShift(idim);
-          set_IDIM(dbin,jech,idim,get_IDIM(dbin,iech,idim) - dval);
+          dbin->setCoordinate(jech,idim,get_IDIM(dbin,iech,idim) - dval);
           dist += dval * dval;
         }
         dist = sqrt(dist);
@@ -3957,7 +3957,7 @@ GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
         for (idim=0; idim<dbin->getNDim(); idim++)
         {
           dval = dinc * rule->getShift(idim) * istep;
-          set_IDIM(dbin,jech,idim,get_IDIM(dbin,iech,idim) - dval);
+          dbin->setCoordinate(jech,idim,get_IDIM(dbin,iech,idim) - dval);
           dist += dval * dval;
         }
         dist = sqrt(dist);
@@ -4051,7 +4051,7 @@ GEOSLIB_API int rule_evaluate_bounds(Props  *propdef,
     case RULE_STD:
       for (iech=0; iech<nech; iech++)
       {
-        if (! get_ACTIVE(dbin,iech)) continue;
+        if (! dbin->isActive(iech)) continue;
         facies = (int) dbin->getVariable(iech,0);
         if (rule_thresh_define(propdef,dbin,rule,facies,
                                iech,isimu,nbsimu,1,
@@ -4083,7 +4083,7 @@ GEOSLIB_API int rule_evaluate_bounds(Props  *propdef,
       for (iech=0; iech<nech; iech++)
       {
         /* Convert the proportions into thresholds for data point */
-        if (! get_ACTIVE(dbin,iech)) continue;
+        if (! dbin->isActive(iech)) continue;
         facies = (int) dbin->getVariable(iech,0);
         if (rule_thresh_define(propdef,dbin,rule,facies,
                                iech,isimu,nbsimu,1,
@@ -4103,7 +4103,7 @@ GEOSLIB_API int rule_evaluate_bounds(Props  *propdef,
 
         /* Set the coordinates of the replicate */
         for (idim=0; idim<dbin->getNDim(); idim++)
-          set_IDIM(dbin,jech,idim,get_IDIM(dbin,iech,idim) - rule->getShift(idim));
+          dbin->setCoordinate(jech,idim,get_IDIM(dbin,iech,idim) - rule->getShift(idim));
 
         /* Can the replicate be added */
         if (st_replicate_invalid(dbin,dbout,jech))
@@ -4223,7 +4223,7 @@ static void st_check_facies_data2grid(Props  *propdef,
 
   for (iech=0; iech<nechin; iech++)
   {
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     facdat = (int) dbin->getVariable(iech,0);
     if (facdat < 1 || facdat > nfacies) continue;
     jech = index_point_to_grid(dbin,iech,0,dbout,coor);
@@ -4301,7 +4301,7 @@ static void st_check_gibbs(Props  *propdef,
   
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
 
     /* Read the bounds */
 
@@ -4674,7 +4674,7 @@ static void st_gibbs_init_print(const char *title,
   for (ivar=0; ivar<nvar; ivar++)
     for (iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       vmin = dbin->getLowerBound(iech,icase);
       vmax = dbin->getUpperBound(iech,icase);
       simval = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,ivar,icase,
@@ -4726,7 +4726,7 @@ static void st_gibbs_iter_print(const char *title,
   for (ivar=0; ivar<nvar; ivar++)
     for (iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       vmin = dbin->getLowerBound(iech,icase);
       vmax = dbin->getUpperBound(iech,icase);
       simval = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,ivar,icase,
@@ -4796,7 +4796,7 @@ GEOSLIB_API int _gibbs_init_multivar(int     flag_category,
 
     for (iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       if (st_correct_bounds_order(flag_category,flag_order,propdef,
                                   dbin,iech,ivar,icase,nvar,
                                   &vmin,&vmax)) return(1);
@@ -4884,7 +4884,7 @@ GEOSLIB_API int _gibbs_init_monovariate(int     flag_category,
   ratio = (igrf == 0) ? 1. : GIBBS_SQR;
   for (iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     if (st_correct_bounds_order(flag_category,flag_order,propdef,
                                 dbin,iech,0,icase,1,
                                 &vmin,&vmax)) goto label_end;
@@ -5040,7 +5040,7 @@ GEOSLIB_API int gibbs_iter_monovariate(Props  *propdef,
   for (iech=iiech=0; iech<nech; iech++)
   {
     mean[iech] = 0.;
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     y[iiech] = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1);
     iiech++;
   }
@@ -5051,7 +5051,7 @@ GEOSLIB_API int gibbs_iter_monovariate(Props  *propdef,
   for (iech=0; iech<nech; iech++)
   {
     flag_h[iech] = 0;
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     vmin = dbin->getLowerBound(iech,icase);
     vmax = dbin->getUpperBound(iech,icase);
     flag_h[iech] = (vmin >= vmax) ?  1 : -1;
@@ -5148,7 +5148,7 @@ GEOSLIB_API int gibbs_iter_monovariate(Props  *propdef,
       ncumul++;
       for (iech=iiech=0; iech<nech; iech++)
       {
-        if (! get_ACTIVE(dbin,iech)) continue;
+        if (! dbin->isActive(iech)) continue;
         old_mean     = (ncumul > 1) ? mean[iech] / (ncumul - 1) : 0.;
         mean[iech]  += y[iiech];
         new_mean     = mean[iech] / (ncumul);
@@ -5181,7 +5181,7 @@ GEOSLIB_API int gibbs_iter_monovariate(Props  *propdef,
 label_store:
   for (iech=iiech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     dbin->setSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1,y[iiech]);
     iiech++;
   }
@@ -5280,7 +5280,7 @@ GEOSLIB_API int gibbs_iter_multivar(Props  *propdef,
     for (iech=0; iech<nech; iech++)
     {
       MEAN(ivar,iech) = 0.;
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       y[iecr] = dbin->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
       iecr++;
     }
@@ -5307,7 +5307,7 @@ GEOSLIB_API int gibbs_iter_multivar(Props  *propdef,
     for (ivar=0; ivar<nvar; ivar++)
       for (iech=0; iech<nech; iech++)
       {
-        if (! get_ACTIVE(dbin,iech)) continue;
+        if (! dbin->isActive(iech)) continue;
         vmin = dbin->getLowerBound(iech,icase);
         vmax = dbin->getUpperBound(iech,icase);
         sk = 1. / COVMAT(iecr,iecr);
@@ -5319,7 +5319,7 @@ GEOSLIB_API int gibbs_iter_multivar(Props  *propdef,
         for (jvar=0; jvar<nvar; jvar++)
           for (jech=0; jech<nech; jech++)
           {
-            if (! get_ACTIVE(dbin,jech)) continue;
+            if (! dbin->isActive(jech)) continue;
             if (iecr != jecr) yk -= y[jecr] * COVMAT(iecr,jecr);
             jecr++;
           }
@@ -5346,7 +5346,7 @@ GEOSLIB_API int gibbs_iter_multivar(Props  *propdef,
       for (ivar=0; ivar<nvar; ivar++)
         for (iech=0; iech<nech; iech++)
         {
-          if (! get_ACTIVE(dbin,iech)) continue;
+          if (! dbin->isActive(iech)) continue;
           old_mean         = (ncumul > 1) ? MEAN(ivar,iech) / (ncumul - 1) : 0.;
           MEAN(ivar,iech) += y[iecr];
           new_mean         = MEAN(ivar,iech) / (ncumul);
@@ -5377,7 +5377,7 @@ label_store:
   for (ivar=0; ivar<nvar; ivar++)
     for (iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       dbin->setSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar,y[iecr]);
       iecr++;
     }
@@ -5492,7 +5492,7 @@ GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
 
   for (iech=0; iech<nech; iech++)
   {
-    y[iech] = (! get_ACTIVE(dbin,iech)) ? 
+    y[iech] = (! dbin->isActive(iech)) ?
       TEST : dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1);
     mean[iech] = 0.;
   }
@@ -5509,7 +5509,7 @@ GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
     for (iech=iiech=0; iech<nech; iech++,itest++)
     {
       mes_process("Propagation",(gibbs_nburn+gibbs_niter)*nech,itest);
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
 
       /* Covariance vector between the current datum and the other samples */
 
@@ -5526,7 +5526,7 @@ GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
 	
       for (jech=jjech=0; jech<nech; jech++)
       {
-        if (! get_ACTIVE(dbin,jech)) continue;
+        if (! dbin->isActive(jech)) continue;
 
         if (iter > 0 && ! bitmap_get_value(nx,img,iiech,jjech,0)) continue;
 
@@ -5558,7 +5558,7 @@ GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
       ncumul++;
       for (iech=iiech=0; iech<nech; iech++)
       {
-        if (! get_ACTIVE(dbin,iech)) continue;
+        if (! dbin->isActive(iech)) continue;
         old_mean    = (ncumul > 1) ? mean[iech] / (ncumul - 1) : 0.;
         mean[iech] += y[iech];
         new_mean    = mean[iech] / (ncumul);
@@ -6520,7 +6520,7 @@ GEOSLIB_API int db_simulations_to_ce(Db    *db,
 
     for (int iech=0; iech<nech; iech++)
     {
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
 
       // Loop on the variables
 
@@ -6540,7 +6540,7 @@ GEOSLIB_API int db_simulations_to_ce(Db    *db,
 
   for (int iech=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
 
     for (int ivar=0; ivar<nvar; ivar++)
     {
@@ -6871,9 +6871,9 @@ GEOSLIB_API int simtub_constraints(Db       *dbin,
 
     for (i=0; i<ndim; i++)
     {
-      nx[i] = get_NX(dbout,i);
-      dx[i] = get_DX(dbout,i);
-      x0[i] = get_X0(dbout,i);
+      nx[i] = dbout->getNX(i);
+      dx[i] = dbout->getDX(i);
+      x0[i] = dbout->getX0(i);
     }
   }
 
@@ -6982,7 +6982,7 @@ static int st_maxstable_mask(Db     *dbout,
 
   for (iech=number=0; iech<get_NECH(dbout); iech++)
   {
-    if (! get_ACTIVE(dbout,iech)) continue;
+    if (! dbout->isActive(iech)) continue;
     valsim = get_ARRAY(dbout,iech,iptrv);
     if (valsim > seuil / scale) 
       dbout->setArray(iech,iptrs,0.);
@@ -7019,7 +7019,7 @@ static void st_maxstable_combine(Db     *dbout,
 
   for (iech=0; iech<get_NECH(dbout); iech++)
   {
-    if (! get_ACTIVE(dbout,iech)) continue;
+    if (! dbout->isActive(iech)) continue;
     valold = get_ARRAY(dbout,iech,iptrv);
     valsim = get_ARRAY(dbout,iech,iptrg) / scale;
     if (valsim > valold)
@@ -7190,7 +7190,7 @@ static double st_quantile(Db     *dbout,
 
   for (iech=nval=0; iech<nech; iech++)
   {
-    if (! get_ACTIVE(dbout,iech)) continue;
+    if (! dbout->isActive(iech)) continue;
     sort[nval++] = dbout->getSimvar(LOC_SIMU,iech,0,0,0,1,1);
   }
 

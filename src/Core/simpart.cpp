@@ -294,7 +294,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
 
   for (iech = 0; iech < get_NECH(dbgrid); iech++)
   {
-    if (!get_ACTIVE(dbgrid, iech)) continue;
+    if (!dbgrid->isActive(iech)) continue;
     db_index_sample_to_grid(dbgrid, iech, indg);
     for (idim = 0; idim < ndim; idim++)
       cen[idim] = get_IDIM(dbgrid, iech, idim);
@@ -327,7 +327,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
 
   for (iech = 0; iech < get_NECH(dbgrid); iech++)
   {
-    if (!get_ACTIVE(dbgrid, iech)) continue;
+    if (!dbgrid->isActive(iech)) continue;
     valref = get_ARRAY(dbgrid, iech, iatts);
     if (FFFF(valref)) continue;
 
@@ -428,10 +428,9 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
   for (i = 0; i < ndim; i++)
   {
     dil = (dilate != (double *) NULL) ? dilate[i] : 0.;
-    field[i] = get_DX(dbgrid, i) * get_NX(dbgrid, i);
-    origin[i] = get_X0(dbgrid, i) - get_DX(dbgrid, i) / 2.
-                - dil * field[i] / 2.;
-    field[i] = field[i] * (1. + dil);
+    field[i]  = dbgrid->getDX(i) * dbgrid->getNX(i);
+    origin[i] = dbgrid->getX0(i) - dbgrid->getDX(i) / 2. - dil * field[i] / 2.;
+    field[i]  = field[i] * (1. + dil);
     volume *= field[i];
   }
 

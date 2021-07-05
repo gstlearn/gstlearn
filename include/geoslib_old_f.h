@@ -1709,22 +1709,15 @@
   GEOSLIB_API int same_mesh(Db *db1, Db *db2);
   GEOSLIB_API int same_rotation(Db *db1, Db *db2);
   GEOSLIB_API int get_NECH(Db *db);
-  GEOSLIB_API int get_NACTIVE_AND_DEFINED(Db *db, int item);
   GEOSLIB_API double get_ARRAY(Db *db, int iech, int iatt);
   GEOSLIB_API double get_IDIM(Db *db, int iech, int idim);
-  GEOSLIB_API void   set_IDIM(Db *db, int iech, int idim, double value);
   GEOSLIB_API double get_grid_IDIM(Db *db, int iech, int idim);
   GEOSLIB_API int    match_domain_ref(double value);
   GEOSLIB_API int    get_DOMAIN(Db *db, int iech);
   GEOSLIB_API void   domain_ref_define(int value, int verbose);
   GEOSLIB_API int    domain_ref_query(void);
   GEOSLIB_API void   domain_ref_print(void);
-  GEOSLIB_API int    get_ACTIVE(Db *db, int iech);
-  GEOSLIB_API int    get_ACTIVE_AND_DEFINED(Db *db, int iech, int item);
   GEOSLIB_API double get_ARRAY(Db *db, int iech, int iatt);
-  GEOSLIB_API int    get_NX(Db *db, int idim);
-  GEOSLIB_API double get_DX(Db *db, int idim);
-  GEOSLIB_API double get_X0(Db *db, int idim);
   GEOSLIB_API double get_grid_value(Db *dbgrid,
                                     int iptr,
                                     int *indg,

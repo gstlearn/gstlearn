@@ -392,7 +392,7 @@ cs* MeshEStandard::getMeshToDb(Db *db,
   imesh0 = ip_max = iech = 0;
   for (int jech=0; jech<get_NECH(db); jech++)
   {
-    if (! get_ACTIVE(db,jech)) continue;
+    if (! db->isActive(jech)) continue;
 
     /* Identification */
 
@@ -512,7 +512,7 @@ double* MeshEStandard::interpolateMeshToDb(Db *db,
   imesh0 = iech = 0;
   for (int jech=0; jech<get_NECH(db); jech++)
   {
-    if (! get_ACTIVE(db,jech)) continue;
+    if (! db->isActive(jech)) continue;
 
     /* Identification */
 

@@ -1430,7 +1430,7 @@ static void st_block_discretize(int mode,
     nval = ntot;
     for (idim=ndim-1; idim>=0; idim--)
     {
-      taille = (mode == 0) ? get_DX(DBOUT,idim) : DBOUT->getBlockExtension(iech,idim);
+      taille = (mode == 0) ? DBOUT->getDX(idim) : DBOUT->getBlockExtension(iech,idim);
       nd     = KOPTION->ndisc[idim];
       nval  /= nd;
       j      = jech / nval;
@@ -2050,7 +2050,7 @@ static int st_neigh(Neigh   *neigh,
       if (is_grid(DBOUT))
       {
         nval = 1;
-        for (idim=0; idim<ndim-1; idim++) nval *= get_NX(DBOUT,idim);
+        for (idim=0; idim<ndim-1; idim++) nval *= DBOUT->getNX(idim);
         if ((IECH_OUT / nval) == (IECH_NBGH / nval)) goto label_suite;
       }
       else
@@ -3520,7 +3520,7 @@ GEOSLIB_API int kriging(Db *dbin,
   {
     mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -3692,7 +3692,7 @@ static int st_xvalid_unique(Db *dbin,
     debug_index(iech+1);
     if (FLAG_EST) dbin->setArray(iech,IPTR_EST,TEST);
     if (FLAG_STD) dbin->setArray(iech,IPTR_STD,TEST);
-    if (! get_ACTIVE(dbin,iech)) continue;
+    if (! dbin->isActive(iech)) continue;
     valref = dbin->getVariable(iech,0);
     if (FFFF(valref)) continue;
     if (debug_query("kriging") ||
@@ -3729,7 +3729,7 @@ static int st_xvalid_unique(Db *dbin,
     value = (ABS(neigh->getFlagXvalid()) == 1) ? -valref : 0.;
     for (jech=jjech=0; jech<get_NECH(dbin); jech++)
     {
-      if (! get_ACTIVE(dbin,jech)) continue;
+      if (! dbin->isActive(jech)) continue;
       if (FFFF(dbin->getVariable(jech,0))) continue;
       if (iiech != jjech)
         value -= LHS_C(iiech,jjech) * variance * dbin->getVariable(jech,0);
@@ -3912,7 +3912,7 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
   {
     mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -4070,7 +4070,7 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
   {
     mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -4271,7 +4271,7 @@ static int bayes_precalc(Model  *model,
   ib = 0;
   for (int iech = 0; iech < get_NECH(DBIN); iech++)
   {
-    if (! get_ACTIVE(DBIN,iech)) continue;
+    if (! DBIN->isActive(iech)) continue;
     for (int ivar = 0; ivar < DBIN->getVariableNumber(); ivar++)
     {
       double value = DBIN->getVariable(rank[iech],ivar);
@@ -4503,7 +4503,7 @@ GEOSLIB_API int kribayes_f(Db *dbin,
   {
     mes_process("Bayesian estimation",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -4633,7 +4633,7 @@ GEOSLIB_API int test_neigh(Db    *dbin,
   {
     mes_process("Neighborhood Test",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -4783,7 +4783,7 @@ GEOSLIB_API int krigsim(const char *strloc,
   {
     mes_process(strloc,get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -4929,7 +4929,7 @@ GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
   {
     mes_process("Image filtering",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(DBOUT,IECH_OUT)) continue;
+    if (! DBOUT->isActive(IECH_OUT)) continue;
     db_index_sample_to_grid(DBOUT,IECH_OUT,indg0);
 
     /* Loop on the target variables */
@@ -4954,7 +4954,7 @@ GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
           for (i=0; i<ndim; i++)
           {
             indgl[i] = indg0[i] - indn0[i] + indnl[i];
-            indgl[i] = get_mirror_sample(get_NX(DBOUT,i),indgl[i]);
+            indgl[i] = get_mirror_sample(DBOUT->getNX(i),indgl[i]);
           }
           jech = db_index_grid_to_sample(DBOUT,indgl);
           data = DBOUT->getVariable(jech,jvar);
@@ -5204,7 +5204,7 @@ GEOSLIB_API int global_kriging(Db     *dbin,
   {
     mes_process("Global estimation",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("nbgh")    ||
         debug_query("results"))
     {
@@ -5407,10 +5407,10 @@ GEOSLIB_API int global_transitive(Db     *dbgrid,
 
   if (ndim == 2)
   {
-    dx = get_DX(dbgrid,0);
-    dy = get_DX(dbgrid,1);
-    nx = get_NX(dbgrid,0);
-    ny = get_NX(dbgrid,1);
+    dx = dbgrid->getDX(0);
+    dy = dbgrid->getDX(1);
+    nx = dbgrid->getNX(0);
+    ny = dbgrid->getNX(1);
     if (flag_value) dsum *= dx * dy;
 
     /* Estimation */
@@ -5456,8 +5456,8 @@ GEOSLIB_API int global_transitive(Db     *dbgrid,
 
     /* 1-D case */
 
-    dx = get_DX(dbgrid,0);
-    nx = get_NX(dbgrid,0);
+    dx = dbgrid->getDX(0);
+    nx = dbgrid->getNX(0);
     if (flag_value) dsum *= dx;
 
     if (flag_regular)
@@ -5577,7 +5577,7 @@ static void st_grid_invdist(int     exponent,
   for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
   {
     mes_process("Estimation by Inverse distance",get_NECH(DBOUT),IECH_OUT);
-    if (! get_ACTIVE(DBOUT,IECH_OUT)) continue;
+    if (! DBOUT->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -5614,7 +5614,7 @@ static void st_grid_invdist(int     exponent,
 
       for (idim=incorrect=0; idim<ndim && incorrect==0; idim++)
       {
-        if (indg[idim] >= get_NX(DBIN,idim))
+        if (indg[idim] >= DBIN->getNX(idim))
         {
           if (flag_expand)
             indg[idim]--;
@@ -5701,7 +5701,7 @@ static void st_point_invdist(int     exponent,
   for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
   {
     mes_process("Estimation by Inverse distance",get_NECH(DBOUT),IECH_OUT);
-    if (! get_ACTIVE(DBOUT,IECH_OUT)) continue;
+    if (! DBOUT->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -5717,7 +5717,7 @@ static void st_point_invdist(int     exponent,
     result = total = 0.;
     for (iech_in=0; iech_in<get_NECH(DBIN); iech_in++)
     {
-      if (! get_ACTIVE(DBIN,iech_in)) continue;
+      if (! DBIN->isActive(iech_in)) continue;
       for (idim=0; idim<ndim; idim++)
         coor[idim] = get_IDIM(DBIN,iech_in,idim);
       val_neigh = DBIN->getVariable(iech_in,0);
@@ -5840,9 +5840,9 @@ static int st_get_limits(Db     *db,
   /* Initializations */
 
   ndim = db->getNDim();
-  z0   = get_X0(db,ndim-1);
-  nz   = get_NX(db,ndim-1);
-  dz   = get_DX(db,ndim-1);
+  z0   = db->getX0(ndim-1);
+  nz   = db->getNX(ndim-1);
+  dz   = db->getDX(ndim-1);
 
   /* Preliminary checks */
 
@@ -6107,7 +6107,7 @@ GEOSLIB_API int anakexp_f(Db     *db,
     messerr("This procedure is limited to the monovariate case");
     goto label_end;
   }
-  nech = get_NX(db,ndim-1);
+  nech = db->getNX(ndim-1);
   if (nfeq != 0 && nfeq != 1)
   {
     messerr("This procedure is limited to Stationary or Intrinsic case");
@@ -6149,7 +6149,7 @@ GEOSLIB_API int anakexp_f(Db     *db,
   {
     mes_process("Factorial Kriging Analysis",nech,IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(db,IECH_OUT)) continue;
+    if (! db->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -6252,8 +6252,8 @@ static void st_calculate_covres(Db     *db,
   /* Initializations */
 
   d1.resize(3);
-  dx = get_DX(db,0);
-  dy = get_DX(db,1);
+  dx = db->getDX(0);
+  dy = db->getDX(1);
   covtot = COV_REF(0);
   for (i=0; i<3; i++) d1[i] = 0.;
   model_calcul_cov(model,mode,1,1.,d1,&c00);
@@ -6319,21 +6319,21 @@ static void st_calculate_covtot(Db     *db,
 
   /* Loop on the first point */
 
-  for (iz1=0; iz1<get_NX(db,2); iz1++)
+  for (iz1=0; iz1<db->getNX(2); iz1++)
     for (iy1=-cov_nn[1]; iy1<=cov_nn[1]; iy1++)
       for (ix1=-cov_nn[0]; ix1<=cov_nn[0]; ix1++)
       {
         jx1 = ix0 + ix1;
-        if (jx1 < 0 || jx1 >= get_NX(db,0)) continue;
+        if (jx1 < 0 || jx1 >= db->getNX(0)) continue;
         jy1 = iy0 + iy1;
-        if (jy1 < 0 || jy1 >= get_NX(db,1)) continue;
+        if (jy1 < 0 || jy1 >= db->getNX(1)) continue;
         jz1 = iz1;
 
         indg[0] = jx1;
         indg[1] = jy1;
         indg[2] = jz1;
         iad  = db_index_grid_to_sample(db,indg);
-        if (! get_ACTIVE(db,iad)) continue;
+        if (! db->isActive(iad)) continue;
         val1 = db->getVariable(iad,0);
         if (FFFF(val1)) continue;
 
@@ -6344,11 +6344,11 @@ static void st_calculate_covtot(Db     *db,
             for (idx=-cov_nn[0]; idx<=cov_nn[0]; idx++)
             {
               jx2 = jx1 + idx;
-              if (jx2 < 0 || jx2 >= get_NX(db,0)) continue;
+              if (jx2 < 0 || jx2 >= db->getNX(0)) continue;
               jy2 = jy1 + idy;
-              if (jy2 < 0 || jy2 >= get_NX(db,1)) continue;
+              if (jy2 < 0 || jy2 >= db->getNX(1)) continue;
               jz2 = jz1 + idz;
-              if (jz2 < 0 || jz2 >= get_NX(db,2)) continue;
+              if (jz2 < 0 || jz2 >= db->getNX(2)) continue;
 
               jdx = jx2 - ix0;
               if (jdx < -cov_nn[0] || jdx > cov_nn[0]) continue;
@@ -6359,7 +6359,7 @@ static void st_calculate_covtot(Db     *db,
               indg[1] = jy2;
               indg[2] = jz2;
               jad  = db_index_grid_to_sample(db,indg);
-              if (! get_ACTIVE(db,jad)) continue;
+              if (! db->isActive(jad)) continue;
               val2 = db->getVariable(jad,0);
               if (FFFF(val2)) continue;
 
@@ -6458,11 +6458,11 @@ static void st_neigh_find(Db     *db,
       {
         NEI_CUR(ix,iy,iz) = -1;
         jx = ix0 + ix;
-        if (jx < 0 || jx >= get_NX(db,0)) continue;
+        if (jx < 0 || jx >= db->getNX(0)) continue;
         jy = iy0 + iy;
-        if (jy < 0 || jy >= get_NX(db,1)) continue;
+        if (jy < 0 || jy >= db->getNX(1)) continue;
         jz = iz0 + iz;
-        if (jz < 0 || jz >= get_NX(db,2)) continue;
+        if (jz < 0 || jz >= db->getNX(2)) continue;
         indg[0] = jx;
         indg[1] = jy;
         indg[2] = jz;
@@ -6807,8 +6807,8 @@ GEOSLIB_API int anakexp_3D(Db     *db,
 
   /* Open the Variogram debugging file */
 
-  if (dbg_ix >= -1 && dbg_ix < get_NX(db,0) &&
-      dbg_iy >= -1 && dbg_iy < get_NX(db,1))
+  if (dbg_ix >= -1 && dbg_ix < db->getNX(0) &&
+      dbg_iy >= -1 && dbg_iy < db->getNX(1))
   {
     fildmp = fopen("Vario.dat","w");
     if (fildmp == (FILE *) NULL) goto label_end;
@@ -6822,9 +6822,9 @@ GEOSLIB_API int anakexp_3D(Db     *db,
 
   /* Define essential variables */
 
-  nei_nn[0] = MIN(get_NX(db,0) - 1,neigh_hor);
-  nei_nn[1] = MIN(get_NX(db,1) - 1,neigh_hor);
-  nei_nn[2] = MIN(get_NX(db,2) - 1,neigh_ver);
+  nei_nn[0] = MIN(db->getNX(0) - 1,neigh_hor);
+  nei_nn[1] = MIN(db->getNX(1) - 1,neigh_hor);
+  nei_nn[2] = MIN(db->getNX(2) - 1,neigh_ver);
   size_nei = size_cov = 1;
   for (i=0; i<db->getNDim(); i++)
   {
@@ -6862,8 +6862,8 @@ GEOSLIB_API int anakexp_3D(Db     *db,
 
   status = nech = neq = 0;
   IECH_OUT = ecr = 0;
-  for (ix=0; ix<get_NX(db,0); ix++)
-    for (iy=0; iy<get_NX(db,1); iy++)
+  for (ix=0; ix<db->getNX(0); ix++)
+    for (iy=0; iy<db->getNX(1); iy++)
     {
       flag_col = 1;
 
@@ -6873,7 +6873,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
       if (dbg_ix == ix && dbg_iy == iy)
         st_vario_dump(fildmp,ix,iy,cov_ss,cov_nn,num_tot,cov_tot);
 
-      for (iz=0; iz<get_NX(db,2); iz++,ecr++)
+      for (iz=0; iz<db->getNX(2); iz++,ecr++)
       {
         mes_process("3-D Factorial Kriging Analysis",get_NECH(DBOUT),ecr);
         indg[0] = ix;
@@ -6887,7 +6887,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
         DBOUT->setArray(IECH_OUT,IPTR_EST,TEST);
 
         if (FFFF(db->getVariable(IECH_OUT,0)) ||
-            ! get_ACTIVE(db,IECH_OUT)) continue;
+            ! db->isActive(IECH_OUT)) continue;
         if (debug_query("kriging") ||
             debug_query("nbgh")    ||
             debug_query("results"))
@@ -7139,7 +7139,7 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
   {
     mes_process("Image smoother",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(DBOUT,IECH_OUT)) continue;
+    if (! DBOUT->isActive(IECH_OUT)) continue;
     db_index_sample_to_grid(DBOUT,IECH_OUT,indg0);
 
     /* Loop on the neighboring points */
@@ -7153,10 +7153,10 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
       for (i=0; i<ndim; i++)
       {
         idelta   = (indnl[i] - indn0[i]);
-        delta    = idelta * get_DX(DBOUT,i);
+        delta    = idelta * DBOUT->getDX(i);
         d2      += delta * delta;
         indgl[i] = indg0[i] +idelta;
-        indgl[i] = get_mirror_sample(get_NX(DBOUT,i),indgl[i]);
+        indgl[i] = get_mirror_sample(DBOUT->getNX(i),indgl[i]);
       }
       jech = db_index_grid_to_sample(DBOUT,indgl);
       data = DBOUT->getVariable(jech,0);
@@ -7294,7 +7294,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
     {
       mes_process(string,get_NECH(DBOUT),IECH_OUT);
       debug_index(IECH_OUT+1);
-      if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+      if (! dbout->isActive(IECH_OUT)) continue;
       if (debug_query("kriging") ||
           debug_query("nbgh")    ||
           debug_query("results"))
@@ -7428,11 +7428,11 @@ static int st_check_positivity(Db      *db3grid,
   indg[0] = ix;
   indg[1] = iy;
   n_wrong = 0;
-  for (iz=0; iz<get_NX(db3grid,2); iz++)
+  for (iz=0; iz<db3grid->getNX(2); iz++)
   {
     indg[2] = iz;
     iech = db_index_grid_to_sample(db3grid,indg);
-    if (! get_ACTIVE(db3grid,iech)) continue;
+    if (! db3grid->isActive(iech)) continue;
 
     /* No estimated proportion at this level */
 
@@ -7584,7 +7584,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
       goto label_end;
     }
   }
-  nz = get_NX(db3grid,2);
+  nz = db3grid->getNX(2);
 
   /* Core allocation */
 
@@ -7634,14 +7634,14 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
 
     /* Loop on the target grid nodes */
 
-    for (iz=IECH_OUT=0; iz<get_NX(db3grid,2); iz++)
+    for (iz=IECH_OUT=0; iz<db3grid->getNX(2); iz++)
     {
-      for (iy=0; iy<get_NX(db3grid,1); iy++)
-        for (ix=0; ix<get_NX(db3grid,0); ix++,IECH_OUT++)
+      for (iy=0; iy<db3grid->getNX(1); iy++)
+        for (ix=0; ix<db3grid->getNX(0); ix++,IECH_OUT++)
         {
           mes_process(string,get_NECH(DBOUT),IECH_OUT);
           debug_index(IECH_OUT+1);
-          if (! get_ACTIVE(db3grid,IECH_OUT)) continue;
+          if (! db3grid->isActive(IECH_OUT)) continue;
           if (debug_query("kriging") ||
               debug_query("nbgh")    ||
               debug_query("results"))
@@ -7716,8 +7716,8 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
 
   /* Posterior corrections */
 
-  for (iy=0; iy<get_NX(db3grid,1); iy++)
-    for (ix=0; ix<get_NX(db3grid,0); ix++)
+  for (iy=0; iy<db3grid->getNX(1); iy++)
+    for (ix=0; ix<db3grid->getNX(0); ix++)
     {
       iter = 0;
       for (i=0; i<nvarin*nz; i++) lterm[i] = lback[i];
@@ -7741,7 +7741,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
       /* Establish the system */
       
       for (i=0; i<nloc * nloc; i++) cc[i] = 0.;
-      for (iz=0; iz<get_NX(db3grid,2); iz++) 
+      for (iz=0; iz<db3grid->getNX(2); iz++)
       {
         bb[iz]  = -1;
         indg[2] = iz;
@@ -7756,7 +7756,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
       if (nloc > nz)
       {
         bb[nz] = -2 * seisval;
-        for (iz=0; iz<get_NX(db3grid,2); iz++) 
+        for (iz=0; iz<db3grid->getNX(2); iz++)
         {
           indg[2] = iz;
           iech = db_index_grid_to_sample(db3grid,indg);
@@ -7786,7 +7786,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
 
       /* Perform the correction */
 
-      for (iz=0; iz<get_NX(db3grid,2); iz++)
+      for (iz=0; iz<db3grid->getNX(2); iz++)
       {
         indg[2] = iz;
         iech = db_index_grid_to_sample(db3grid,indg);
@@ -8201,7 +8201,7 @@ GEOSLIB_API int kriggam_f(Db    *dbin,
   {
     mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -8350,7 +8350,7 @@ GEOSLIB_API int krigcell_f(Db    *dbin,
   {
     mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -8449,7 +8449,7 @@ static int st_calculate_hermite_factors(Db  *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
 
     /* Calculate the factors */
 
@@ -8668,7 +8668,7 @@ GEOSLIB_API int dk_f(Db *dbin,
   {
     mes_process("Disjunctive Kriging for cell",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(DBOUT,IECH_OUT)) continue;
+    if (! DBOUT->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -9208,7 +9208,7 @@ GEOSLIB_API int st_krige_data(Db     *db,
   for (iech=0; iech<nech; iech++)
   {
     data_est[iech] = data_var[iech] = TEST;
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
     c00 = model_covmat_by_ranks(model,db,1,&iech,db,1,&iech,-1,-1,0,1);
     if (c00 == (double *) NULL) goto label_end;
@@ -9325,7 +9325,7 @@ GEOSLIB_API int st_crit_global(Db     *db,
   for (iech=ecr=0; iech<ndat; iech++)
   {
     temp_loc = &temp[ecr * nsize1];
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
 
     c00 = model_covmat_by_ranks(model,db,1,&iech,db,1,&iech,-1,-1,0,1);
@@ -9351,7 +9351,7 @@ GEOSLIB_API int st_crit_global(Db     *db,
   for (iech=ecr=0; iech<ndat; iech++)
   {
     crit[iech] = TEST;
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
 
     cs = model_covmat_by_ranks(model,db,1,&iech,db,nsize1,ranks1,-1,-1,0,1);
@@ -9657,7 +9657,7 @@ GEOSLIB_API int krigsampling_f(Db     *dbin,
   {
     mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -9752,7 +9752,7 @@ static void st_declustering_stats(int mode,
   maxi = -1.e30;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     zval = db->getVariable(iech,0);
     if (FFFF(zval)) continue;
     coeff   = (mode == 0) ? 1. : get_ARRAY(db,iech,iptr);
@@ -9813,7 +9813,7 @@ static void st_declustering_truncate(Db     *db,
   total = 0;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
     coeff = get_ARRAY(db,iech,iptr);
     if (coeff < 0) 
@@ -9831,7 +9831,7 @@ static void st_declustering_truncate(Db     *db,
 
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
     db->updArray(iech,iptr,3,total);
   }
@@ -9869,14 +9869,14 @@ static int st_declustering_1(Db     *db,
   
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
     
     /* Loop on the second sample */
     
     for (int jech=0; jech<get_NECH(db); jech++)
     {
-      if (! get_ACTIVE(db,jech)) continue;
+      if (! db->isActive(jech)) continue;
       value = db->getVariable(iech,0);
       if (FFFF(value)) continue;
       (void) distance_intra(db,iech,jech,vect);
@@ -9899,14 +9899,14 @@ static int st_declustering_1(Db     *db,
   total = 0.;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
     value = 1. / get_ARRAY(db,iech,iptr);
     total += value;
   }
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
     value = 1. / get_ARRAY(db,iech,iptr) / total;
     db->setArray(iech,iptr,value);
@@ -9991,7 +9991,7 @@ static int st_declustering_2(Db     *db,
   ecr = 0;
   for (int iech=0; iech<get_NECH(db); iech++)
   {
-    if (! get_ACTIVE(db,iech)) continue;
+    if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
     db->setArray(rank[ecr],iptr,wgt[ecr]);
     ecr++;
@@ -10066,7 +10066,7 @@ static int st_declustering_3(Db     *db,
   status = 0;
   for (IECH_OUT=0; IECH_OUT<get_NECH(dbgrid); IECH_OUT++)
   {
-    if (! get_ACTIVE(DBOUT,IECH_OUT)) continue;
+    if (! DBOUT->isActive(IECH_OUT)) continue;
 
     /* Select the Neighborhood */
     
@@ -10097,7 +10097,7 @@ static int st_declustering_3(Db     *db,
     ecr = 0;
     for (int iech=0; iech<get_NECH(db); iech++)
     {
-      if (! get_ACTIVE(db,iech)) continue;
+      if (! db->isActive(iech)) continue;
       if (FFFF(db->getVariable(iech,0))) continue;
       db->updArray(rank[ecr],iptr,0,wgt[ecr]);
       ecr++;
@@ -10199,7 +10199,7 @@ GEOSLIB_API int declustering_f(Db     *dbin,
     for (int iech=0; iech<get_NECH(dbin); iech++)
     {
       dbin->setArray(iech,iptr_sel,0.);
-      if (! get_ACTIVE(dbin,iech)) continue;
+      if (! dbin->isActive(iech)) continue;
       indic = (get_ARRAY(dbin,iech,iptr) > 0.);
       dbin->setArray(iech,iptr_sel,indic);
     }
@@ -10246,8 +10246,8 @@ static double *st_calcul_covmat(const char *title,
 
   /* Initializations */
 
-  n1   = (test_def1) ? get_NACTIVE_AND_DEFINED(db1,0) : db1->getActiveSampleNumber();
-  n2   = (test_def2) ? get_NACTIVE_AND_DEFINED(db2,0) : db2->getActiveSampleNumber();
+  n1   = (test_def1) ? db1->getActiveAndDefinedNumber(0) : db1->getActiveSampleNumber();
+  n2   = (test_def2) ? db2->getActiveAndDefinedNumber(0) : db2->getActiveSampleNumber();
 
   /* Core allocation */
 
@@ -10258,22 +10258,22 @@ static double *st_calcul_covmat(const char *title,
   {
     if (test_def1)
     {
-      if (! get_ACTIVE_AND_DEFINED(db1,ii1,0)) continue;
+      if (! db1->isActiveAndDefined(ii1,0)) continue;
     }
     else
     {
-      if (! get_ACTIVE(db1,ii1)) continue;
+      if (! db1->isActive(ii1)) continue;
     }
     
     for (int ii2=i2=0; ii2<get_NECH(db2); ii2++)
     {
       if (test_def2)
       {
-        if (! get_ACTIVE_AND_DEFINED(db2,ii2,0)) continue;
+        if (! db2->isActiveAndDefined(ii2,0)) continue;
       }
       else
       {
-        if (! get_ACTIVE(db2,ii2)) continue;
+        if (! db2->isActive(ii2)) continue;
       }
 
       for (int idim=0; idim<db1->getNDim(); idim++)
@@ -10317,7 +10317,7 @@ static double *st_calcul_drfmat(const char *title,
 
   /* Initializations */
 
-  n1   = (test_def1) ? get_NACTIVE_AND_DEFINED(db1,0) : db1->getActiveSampleNumber();
+  n1   = (test_def1) ? db1->getActiveAndDefinedNumber(0) : db1->getActiveSampleNumber();
   nbfl = model->getDriftNumber();
 
   /* Core allocation */
@@ -10332,11 +10332,11 @@ static double *st_calcul_drfmat(const char *title,
   {
     if (test_def1)
     {
-      if (! get_ACTIVE_AND_DEFINED(db1,ii1,0)) continue;
+      if (! db1->isActiveAndDefined(ii1,0)) continue;
     }
     else
     {
-      if (! get_ACTIVE(db1,ii1)) continue;
+      if (! db1->isActive(ii1)) continue;
     }
     
     model_calcul_drift(model,MEMBER_LHS,db1,ii1,&drftab[i1 * nbfl]);
@@ -10380,8 +10380,8 @@ static double *st_calcul_distmat(const char *title,
 
   /* Initializations */
 
-  n1   = (test_def1) ? get_NACTIVE_AND_DEFINED(db1,0) : db1->getActiveSampleNumber();
-  ns   = (test_def2) ? get_NACTIVE_AND_DEFINED(db2,0) : db2->getActiveSampleNumber();
+  n1   = (test_def1) ? db1->getActiveAndDefinedNumber(0) : db1->getActiveSampleNumber();
+  ns   = (test_def2) ? db2->getActiveAndDefinedNumber(0) : db2->getActiveSampleNumber();
   ndim = db1->getNDim();
 
   /* Core allocation */
@@ -10393,22 +10393,22 @@ static double *st_calcul_distmat(const char *title,
   {
     if (test_def1)
     {
-      if (! get_ACTIVE_AND_DEFINED(db1,ii1,0)) continue;
+      if (! db1->isActiveAndDefined(ii1,0)) continue;
     }
     else
     {
-      if (! get_ACTIVE(db1,ii1)) continue;
+      if (! db1->isActive(ii1)) continue;
     }
     
     for (int iis=is=0; iis<get_NECH(db2); iis++)
     {
       if (test_def2)
       {
-        if (! get_ACTIVE_AND_DEFINED(db2,iis,0)) continue;
+        if (! db2->isActiveAndDefined(iis,0)) continue;
       }
       else
       {
-        if (! get_ACTIVE(db2,iis)) continue;
+        if (! db2->isActive(iis)) continue;
       }
 
       dist = 0.;
@@ -10503,7 +10503,7 @@ static double *st_inhomogeneous_covpp(Db     *dbdat,
   error = 1;
   covpp = (double *) NULL;
   
-  np = get_NACTIVE_AND_DEFINED(dbdat,0);
+  np = dbdat->getActiveAndDefinedNumber(0);
   ns = dbsrc->getActiveSampleNumber();
 
   /* Covariance matrix between Mesures */
@@ -10565,7 +10565,7 @@ static double *st_inhomogeneous_covgp(Db     *dbdat,
   error = 1;
   covgp = (double *) NULL;
   
-  np = get_NACTIVE_AND_DEFINED(dbdat,0);
+  np = dbdat->getActiveAndDefinedNumber(0);
   ns = dbsrc->getActiveSampleNumber();
   ng = dbout->getActiveSampleNumber();
 
@@ -10867,7 +10867,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
     IPTR_STD = dbout->addFields(nvar,0.);
     if (IPTR_STD < 0) goto label_end;
   }
-  nred = neq = np = get_NACTIVE_AND_DEFINED(dbdat,0);
+  nred = neq = np = dbdat->getActiveAndDefinedNumber(0);
   nfeq = 0;
   ns   = dbsrc->getActiveSampleNumber();
   ng   = dbout->getActiveSampleNumber();
@@ -10890,7 +10890,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
 
   for (int iip=ip=0; iip<get_NECH(dbdat); iip++)
   {
-    if (! get_ACTIVE_AND_DEFINED(dbdat,iip,0)) continue;
+    if (! dbdat->isActiveAndDefined(iip,0)) continue;
     data[ip] = dbdat->getVariable(iip,0);
     rank[ip] = iip;
     ip++;
@@ -10981,7 +10981,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   {
     mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
     debug_index(IECH_OUT+1);
-    if (! get_ACTIVE(dbout,IECH_OUT)) continue;
+    if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
