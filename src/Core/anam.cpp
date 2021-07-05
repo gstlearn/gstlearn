@@ -1217,7 +1217,7 @@ GEOSLIB_API int anam_discrete_DD_z2factor(Anam   *anam,
   /* Loop on the variables */
 
   anam_discrete_DD->setI2Chi(i2chi);
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     double zval = db->getVariable(iech, 0);
