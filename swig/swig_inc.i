@@ -63,6 +63,10 @@
 #include "LinearOp/IProjMatrix.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "LinearOp/IOptimCost.hpp"
+#include "LinearOp/OptimCostBinary.hpp"
+#include "LinearOp/OptimCostColored.hpp"
+
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Neigh/Neigh.hpp"

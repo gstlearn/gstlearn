@@ -24,9 +24,9 @@ public:
   virtual ~OptimCostBinary();
   void init(const PrecisionOp* pmat,
             const ProjMatrix* projdata,
-            const ProjMatrix* projseis,
-            const VectorDouble& propseis,
-            const VectorDouble& varseis);
+            const ProjMatrix* projseis = nullptr,
+            const VectorDouble& propseis = VectorDouble(),
+            const VectorDouble& varseis = VectorDouble());
   int minimize(VectorDouble& indic,
                VectorDouble& propfac,
                bool verbose = false,
