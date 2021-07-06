@@ -43,7 +43,7 @@ OptimCostColored::~OptimCostColored()
 **
 *****************************************************************************/
 void OptimCostColored::init(int                 nprop,
-                            const PrecisionOp*  pmat,
+                            PrecisionOp*  		pmat,
                             const ProjMatrix*   projdata,
                             const ProjMatrix*   projseis,
                             const VectorDouble& propseis,

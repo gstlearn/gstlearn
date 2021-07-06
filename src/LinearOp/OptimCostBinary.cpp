@@ -59,7 +59,7 @@ OptimCostBinary::~OptimCostBinary()
 ** \param[in]  varseis  Array of variance attached to the seismic
 **
 *****************************************************************************/
-void OptimCostBinary::init(const PrecisionOp* pmat, 
+void OptimCostBinary::init(PrecisionOp* pmat,
                            const ProjMatrix*   projdata,
                            const ProjMatrix*   projseis,
                            const VectorDouble& propseis,
@@ -325,7 +325,7 @@ double OptimCostBinary::_evaluateCost(const VectorDouble& indic,
 
   for (int i=0; i<_projData->getApexNumber(); i++) 
     _lambdav[i] = lambda[i] - _meanPropGaus;
-  _pMat->getShiftOp()->evalDirect(_lambdav, _workv);
+  _pMat->eval(_lambdav, _workv);
 
   double sum_str = 0.;
   for (int i=0; i<_projData->getApexNumber(); i++)
@@ -368,7 +368,7 @@ void OptimCostBinary::_evaluateGrad(const VectorDouble& indic,
 
   for (int i=0; i<_projData->getApexNumber(); i++) 
     _lambdav[i] = lambda[i] - _meanPropGaus;
-  _pMat->getShiftOp()->evalDirect(_lambdav,_grad);
+  _pMat->eval(_lambdav,_grad);
 
   // Contribution of the Data
 

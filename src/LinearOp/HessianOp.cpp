@@ -49,7 +49,7 @@ HessianOp::~HessianOp()
 ** \param[in]  varseis  Array of variance attached to the seismic
 **
 *****************************************************************************/
-int HessianOp::init(const PrecisionOp*  pmat,
+int HessianOp::init(PrecisionOp*  pmat,
                     const ProjMatrix*   projdata,
                     const ProjMatrix*   projseis,
                     const VectorDouble& indic,
@@ -115,7 +115,7 @@ void HessianOp::_evalDirect(const VectorDouble& in,
 
   // Contribution of the spatial structure
 
-  _pMat->getShiftOp()->evalDirect(in,out);
+  _pMat->eval(in,out);
 
   // Contribution of the Data
 

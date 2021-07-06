@@ -22,7 +22,7 @@ public:
 	HessianOp();
 	virtual ~HessianOp();
 
-  int  init(const PrecisionOp*  pmat,
+  int  init(PrecisionOp*  pmat,
             const ProjMatrix*   projdata,
             const ProjMatrix*   projseis,
             const VectorDouble& indic,
@@ -39,7 +39,7 @@ protected:
 private:
   bool                 _isInitialized;
   bool                 _flagSeismic;
-  const PrecisionOp*   _pMat;
+  PrecisionOp*   _pMat;
   const ProjMatrix*    _projData;
   const ProjMatrix*    _projSeis;
   VectorDouble         _indic;

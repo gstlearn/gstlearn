@@ -22,7 +22,7 @@ class OptimCostBinary: public IOptimCost
 public:
   OptimCostBinary();
   virtual ~OptimCostBinary();
-  void init(const PrecisionOp* pmat,
+  void init(PrecisionOp* pmat,
             const ProjMatrix* projdata,
             const ProjMatrix* projseis = nullptr,
             const VectorDouble& propseis = VectorDouble(),
@@ -72,7 +72,7 @@ private:
   bool _isInitialized;
   bool _flagSeismic;
   double _meanPropGaus;
-  const PrecisionOp* _pMat;
+  PrecisionOp* _pMat;
   const ProjMatrix*  _projData;
   const ProjMatrix*  _projSeis;
   VectorDouble _propSeis;
