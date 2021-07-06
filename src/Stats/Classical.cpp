@@ -361,6 +361,65 @@ VectorDouble dbStatisticsMono(Db *db,
 
 /****************************************************************************/
 /*!
+**  Considering that the Unique variable is a Facies (integer)
+**  returns the vector of proportions
+
+** \return  The vector of proportions per Facies
+**
+** \param[in]  db         Db structure
+**
+*****************************************************************************/
+VectorDouble dbStatisticsFacies(Db *db)
+{
+  VectorDouble props;
+
+  if (db->getLocatorNumber(LOC_Z) != 1)
+  {
+    messerr("This function requires the number of variables (%d) to be equal to 1",
+            db->getLocatorNumber(LOC_Z));
+    return props;
+  }
+  int nech = db->getSampleNumber();
+  int iatt = db->getAttribute(LOC_Z,0);
+
+  // Find the number of Facies
+
+  /* Loop on the samples */
+
+  int nfac = 0;
+  int neff = 0;
+  for (int iech=0; iech<nech; iech++)
+  {
+    if (! db->isActiveAndDefined(iech,iatt)) continue;
+    int ifac = (int) db->getVariable(iech,iatt);
+    if (ifac < 0) continue;
+    if (ifac > nfac) nfac = ifac;
+    neff++;
+  }
+
+  // Calculate the proportions
+
+  props.resize(nfac,0.);
+  for (int iech=0; iech<nech; iech++)
+  {
+    if (! db->isActiveAndDefined(iech,iatt)) continue;
+    int ifac = (int) db->getVariable(iech,iatt);
+    if (ifac < 0) continue;
+    props[ifac] += 1.;
+  }
+
+  // Normalization
+
+  if (neff > 0)
+  {
+    for (int ifac = 0 ; ifac < nfac; ifac++)
+      props[ifac] /= nech;
+  }
+  return props;
+}
+
+/****************************************************************************/
+/*!
 **  Print the correlation matrix for a set of variables of a Db
 **
 ** \return  Error Return code

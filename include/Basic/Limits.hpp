@@ -49,11 +49,10 @@ public:
                   int OptionIndicator = 1,
                   NamingConvention namconv = NamingConvention("Indicator"));
 
-private:
-  int _toCategory(Db* db, int iatt, NamingConvention namconv);
-  int _toIndicator(Db* db,
-                   int iatt,
-                   int OptionIndicator = 1,
-                   NamingConvention namconv = NamingConvention("Indicator"));
+  int toCategory(Db* db, int iatt, NamingConvention namconv);
+  int toIndicator(Db* db,
+                  int iatt,
+                  int OptionIndicator = 1,
+                  NamingConvention namconv = NamingConvention("Indicator"));
 
 };

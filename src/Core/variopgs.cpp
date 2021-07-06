@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
+#include "Stats/Classical.hpp"
 
 /*! \cond */
 typedef struct {
@@ -5197,7 +5198,6 @@ label_end:
 **
 ** \param[in]  db           Db structure
 ** \param[in]  vario        Vario structure for the GRFs to be filled
-** \param[in]  varioind     Indicator Vario structure
 ** \param[in]  rule         Lithotype Rule definition
 ** \param[in]  propcst      Array of proportions for the facies
 ** \param[in]  dbprop       Db Grid used for proportions (non-stationary)
@@ -5211,7 +5211,6 @@ label_end:
 *****************************************************************************/
 GEOSLIB_API int variogram_pgs(Db     *db,
                               Vario*  vario,
-                              Vario*  varioind,
                               Rule*   rule,
                               const   VectorDouble& propcst,
                               Db     *dbprop,
@@ -5219,6 +5218,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
                               int     flag_rho,
                               int     opt_correl)
 {
+  Vario* varioind;
   int error;
 
   /* Initializations */
@@ -5239,6 +5239,43 @@ GEOSLIB_API int variogram_pgs(Db     *db,
   {
     messerr("The variogram must contain at least one calculation Direciton");
     return 1;
+  }
+
+  if (db->getVariableNumber() != 1)
+  {
+    messerr("The number of variables (%d) must be equal to 1",db->getVariableNumber());
+    return 1;
+  }
+  int iatt = db->getAttribute(LOC_Z,0);
+
+  // In Stationary case, create the variogram of indicators to speed up calculations
+
+  if (flag_stat)
+  {
+    // Calculate the number of Facies in 'Db'
+    VectorDouble props = dbStatisticsFacies(db);
+    int nclass = props.size();
+    if (nclass <= 0)
+    {
+      messerr("No Facies class have been found");
+      return 1;
+    }
+
+    // Translate the 'Facies' into 'categories'
+    Limits limits = Limits(nclass);
+    if (limits.toIndicator(db,iatt))
+    {
+      messerr("Problem when translating Facies into Catoegories");
+      return 1;
+    }
+
+    // Calculate the variogram of Indicators
+    varioind = vario;
+    if (varioind->compute(db,props))
+    {
+      messerr("Error when calculating the Variogram of Indicators");
+      return 1;
+    }
   }
 
   /* Pre-calculation of integrals: Define the structure */

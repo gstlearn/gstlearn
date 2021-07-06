@@ -232,7 +232,6 @@ GEOSLIB_API VectorDouble variogram_extract_sw(Vario *vario,
 GEOSLIB_API void variogram_print(Vario *vario, int verbose = false);
 GEOSLIB_API int variogram_pgs(Db *db,
                               Vario* vario,
-                              Vario* varioind,
                               Rule* rule,
                               const VectorDouble& propcst = VectorDouble(),
                               Db* dbprop = nullptr,

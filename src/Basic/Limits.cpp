@@ -120,7 +120,7 @@ VectorDouble Limits::getUpperBounds() const
   return upper;
 }
 
-VectorBool    Limits::getLowerIncluded() const
+VectorBool Limits::getLowerIncluded() const
 {
   int nclass = getLimitNumber();
   VectorBool mininc(nclass);
@@ -129,7 +129,7 @@ VectorBool    Limits::getLowerIncluded() const
   return mininc;
 }
 
-VectorBool    Limits::getUpperIncluded() const
+VectorBool Limits::getUpperIncluded() const
 {
   int nclass = getLimitNumber();
   VectorBool maxinc(nclass);
@@ -138,7 +138,7 @@ VectorBool    Limits::getUpperIncluded() const
   return maxinc;
 }
 
-int Limits::_toCategory(Db* db, int iatt, NamingConvention namconv)
+int Limits::toCategory(Db* db, int iatt, NamingConvention namconv)
 {
   return db_category(db, iatt, getLowerBounds(), getUpperBounds(),
                      getLowerIncluded(), getUpperIncluded(), namconv);
@@ -149,7 +149,7 @@ int Limits::toCategory(Db* db, const String& name, NamingConvention namconv)
   VectorString exp_names = db->expandNameList(name,true);
   int iatt = db->getAttribute(exp_names[0]);
   if (iatt < 0) return 1;
-  return _toCategory(db, iatt, namconv);
+  return toCategory(db, iatt, namconv);
 }
 
 int Limits::toIndicator(Db* db,
@@ -160,10 +160,10 @@ int Limits::toIndicator(Db* db,
   VectorString exp_names = db->expandNameList(name, true);
   int iatt = db->getAttribute(exp_names[0]);
   if (iatt < 0) return 1;
-  return _toIndicator(db, iatt, OptionIndicator, namconv);
+  return toIndicator(db, iatt, OptionIndicator, namconv);
 }
 
-int Limits::_toIndicator(Db* db,
+int Limits::toIndicator(Db* db,
                          int iatt,
                          int OptionIndicator,
                          NamingConvention namconv)
@@ -172,4 +172,3 @@ int Limits::_toIndicator(Db* db,
                       getUpperBounds(), getLowerIncluded(),
                       getUpperIncluded(), namconv);
 }
-

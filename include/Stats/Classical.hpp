@@ -55,6 +55,7 @@ VectorDouble dbStatisticsMono(Db *db,
 VectorDouble dbStatisticsMulti(Db *db,
                                const VectorInt& iatts,
                                bool flagIso = true);
+VectorDouble dbStatisticsFacies(Db *db);
 
 String statisticsMonoPrint(const VectorDouble& tab,
                            const VectorInt& iopers = VectorInt(STAT_MEAN),

@@ -181,8 +181,8 @@ public:
                          ENUM_LOCS *ret_locatorType,
                          int *ret_locatorIndex) const;
   bool getLocator(int iatt,
-                 ENUM_LOCS *ret_locatorType,
-                 int *ret_locatorIndex) const;
+                  ENUM_LOCS *ret_locatorType,
+                  int *ret_locatorIndex) const;
   bool getLocator(const String& name,
                  ENUM_LOCS *ret_locatorType,
                  int *ret_locatorIndex) const;

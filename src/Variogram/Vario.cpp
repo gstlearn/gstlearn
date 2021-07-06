@@ -128,9 +128,9 @@ int Vario::compute(Db *db,
   setMeans(means);
   setVars(vars);
 
-  int error = variogram_compute(db,this,means,vars,
-                               flag_grid, flag_gen, flag_sample, verr_mode,
-                               flag_model, model, verbose);
+  int error = variogram_compute(db, this, means, vars, flag_grid, flag_gen,
+                                flag_sample, verr_mode, flag_model, model,
+                                verbose);
   return error;
 }
 

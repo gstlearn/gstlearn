@@ -770,11 +770,6 @@ VectorVectorDouble Db::getCoordinates(bool useSel) const
 void Db::setCoordinate(int iech, int idim, double value)
 {
   if (!isSampleIndexValid(iech)) return;
-  if (isGrid())
-  {
-    messerr("Writing the coordinate of a grid sample is forbidden");
-    return;
-  }
   int icol = getColumnByAttribute(idim);
   if (!isColumnIndexValid(icol)) return;
   _array[_getAddress(iech, icol)] = value;
