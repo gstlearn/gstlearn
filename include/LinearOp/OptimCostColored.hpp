@@ -19,7 +19,7 @@ public:
 	virtual ~OptimCostColored();
 
   void    init(int                 nprop,
-               PrecisionOp*  	   pmat,
+               PrecisionOp*  	     pmat,
                const ProjMatrix*   projdata,
                const ProjMatrix*   projseis,
                const VectorDouble& propseis,
