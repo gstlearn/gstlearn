@@ -19,6 +19,7 @@
 #include "Model/Option_VarioFit.hpp"
 #include "LithoRule/Rule.hpp"
 #include "csparse_d.h"
+#include <pthread.h>
 #include "ctpl.h"
 #include <vector>
 #include <regex>
