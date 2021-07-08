@@ -11,15 +11,19 @@
 #pragma once
 
 #include "Polynomials/APolynomial.hpp"
+#include "Basic/IClonable.hpp"
 #include "Basic/Vector.hpp"
 
+class ShiftOpCs;
 class ClassicalPolynomial : public APolynomial
 {
 public:
   ClassicalPolynomial();
   ClassicalPolynomial(const VectorDouble&);
   virtual ~ClassicalPolynomial();
-
+  virtual IClonable* clone() const override {return new ClassicalPolynomial(*this);}
   double eval(double x) const override;
-  void evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const override;
+  void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& in,
+                   VectorDouble& out,int iapex,int igparam)const;
+  void evalOp(cs* Op, const VectorDouble& in, VectorDouble& out,bool cumul) const override;
 };

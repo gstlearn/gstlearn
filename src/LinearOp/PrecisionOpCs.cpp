@@ -10,6 +10,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/Vector.hpp"
@@ -17,6 +18,7 @@
 #include "geoslib_e.h"
 #include "csparse_d.h"
 #include "LinearOp/ShiftOpCs.hpp"
+#include "Polynomials/ClassicalPolynomial.hpp"
 
 PrecisionOpCs::PrecisionOpCs(const ShiftOpCs* shiftop,
                              const Model* model,
@@ -36,6 +38,59 @@ VectorDouble PrecisionOpCs::getCoeffs()
 {
   VectorDouble coeffs = getPoly(POPT_ONE)->getCoeffs();
   return coeffs;
+}
+
+void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
+{
+  const VectorDouble* inPtr = &in;
+
+  if(getPower() == POPT_MINUSONE)
+     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
+  if(getPower() == POPT_MINUSHALF)
+     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
+  if(getPower() == POPT_LOG)
+     my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
+
+  // Pre-processing
+
+  if (getPower() == POPT_ONE)
+  {
+    getShiftOp()->prodTildeC(in, _work, POPT_HALF);
+    inPtr = &_work;
+  }
+  else if (getPower() == POPT_MINUSONE)
+  {
+    getShiftOp()->prodTildeC(in, _work, POPT_MINUSHALF);
+    inPtr = &_work;
+
+  }
+
+  // Polynomial evaluation
+
+
+    ((ClassicalPolynomial*)getPoly(getPower()))->evalDerivOp(getShiftOp(),
+                                                             *inPtr,
+                                                             out,
+                                                             iapex,
+                                                             igparam);
+
+    // Post-processing
+
+    if (getPower() == POPT_ONE)
+    {
+      getShiftOp()->prodTildeC(out, out, POPT_HALF);
+      getShiftOp()->prodLambdaOnSqrtTildeC(out, out, 2.);
+    }
+    else if (getPower() == POPT_MINUSONE)
+    {
+      getShiftOp()->prodTildeC(out, out, POPT_MINUSHALF);
+      getShiftOp()->prodLambdaOnSqrtTildeC(out, out, -2.);
+    }
+    else if (getPower() == POPT_MINUSHALF)
+    {
+      getShiftOp()->prodLambda(out, out, POPT_MINUSONE);
+    }
+
 }
 
 cs *PrecisionOpCs::getQ()

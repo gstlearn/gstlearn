@@ -11,17 +11,21 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "Basic/IClonable.hpp"
 #include "Basic/Vector.hpp"
 #include "geoslib_define.h"
 #include "csparse_d.h"
 
 #include <functional>
 
-class APolynomial: public AStringable
+class APolynomial: public AStringable, public IClonable
 {
 public:
   APolynomial() {};
   APolynomial(VectorDouble coeffs);
+  APolynomial(const APolynomial& p): _coeffs(p._coeffs){}
+  APolynomial & operator=(const APolynomial& p);
+  virtual IClonable* clone() const = 0;
   void init(VectorDouble coeffs);
   virtual ~APolynomial() {};
 
@@ -29,9 +33,9 @@ public:
 
   virtual void evalOp(cs* Op,
                       const VectorDouble& in,
-                      VectorDouble& out) const {};
+                      VectorDouble& out,bool cumul = false) const {};
   VectorDouble evalOp(cs* Op, const VectorDouble& in) const;
-  VectorDouble getCoeffs(){ return _coeffs;}
+  VectorDouble getCoeffs()const{ return _coeffs;}
   virtual int fit(std::function<double(double)> f,
                   double from = 0.,
                   double to = 1.,

@@ -37,11 +37,17 @@ public:
            bool verbose = false);
 
   void   eval(const VectorDouble& in, VectorDouble& out);
+  virtual void   evalDeriv(const VectorDouble& in, VectorDouble& out){};
 
   int    getSize() const { return _shiftOp->getSize(); }
   double computeLogDet(int nsimus = 1, int seed = 0);
 
-  const ShiftOpCs* getShiftOp() const { return _shiftOp; }
+  ShiftOpCs* getShiftOp() const { return _shiftOp; }
+
+protected:
+  APolynomial* getPoly(ENUM_POPTS power);
+  ENUM_POPTS getPower()const{return _power;}
+  const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
 
 private:
   int  _preparePoly(ENUM_POPTS power);
@@ -51,14 +57,15 @@ private:
   int  _evalPoly(ENUM_POPTS power,const VectorDouble& in, VectorDouble& out);
   void _purge();
 
-protected :
-  APolynomial* getPoly(ENUM_POPTS power);
 
 private:
-  const ShiftOpCs*     _shiftOp;
+  ShiftOpCs*     _shiftOp;
   const CovAniso*      _cova;
   ENUM_POPTS           _power;
   std::map<ENUM_POPTS, APolynomial*> _polynomials;
   bool                 _verbose;
+
+protected :
   mutable VectorDouble _work;
+
 };

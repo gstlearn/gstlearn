@@ -6,6 +6,7 @@
  */
 #pragma once
 #include "Polynomials/APolynomial.hpp"
+#include "Basic/IClonable.hpp"
 #include "geoslib_define.h"
 #include "csparse_d.h"
 
@@ -16,6 +17,7 @@ class Chebychev: public APolynomial
 public:
   Chebychev();
   virtual ~Chebychev();
+  IClonable* clone() const override {return new Chebychev(*this);}
   void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
   int getNcMax() const {return _ncMax;}
   int getNDisc() const {return _nDisc;}
@@ -26,7 +28,7 @@ public:
   void setNDisc(int nDisc){_nDisc=nDisc;}
   void setVerbose(bool verbose){_verbose = verbose;}
 
-  void evalOp(cs* Op,const VectorDouble& in,VectorDouble& out) const override;
+  void evalOp(cs* Op,const VectorDouble& in,VectorDouble& out,bool cumul=false) const override;
   double eval(double x) const override;
   int fit(std::function<double(double)> f,
           double a = 0.,

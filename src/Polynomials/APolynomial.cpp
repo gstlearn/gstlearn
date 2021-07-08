@@ -14,10 +14,18 @@
 #include "Basic/Vector.hpp"
 #include "csparse_d.h"
 
+APolynomial & APolynomial::operator=(const APolynomial& p)
+{
+  if(this!=&p)
+    _coeffs=p._coeffs;
+
+  return *this;
+}
+
 VectorDouble APolynomial::evalOp(cs* Op, const VectorDouble& in) const
 {
   VectorDouble result(in.size());
-  evalOp(Op,in,result);
+  evalOp(Op,in,result,false);
   return result;
 }
 
