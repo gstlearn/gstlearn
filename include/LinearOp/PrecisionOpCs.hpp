@@ -24,7 +24,7 @@ class Model;
 class PrecisionOpCs : public PrecisionOp
 {
 public:
-  PrecisionOpCs(const ShiftOpCs* shiftop = nullptr,
+  PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
                 const Model* model = nullptr,
                 int icov = 0,
                 ENUM_POPTS power = POPT_UNDEFINED,

@@ -21,7 +21,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 
-PrecisionOp::PrecisionOp(const ShiftOpCs* shiftop,
+PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
                          const Model* model,
                          int icov,
                          ENUM_POPTS power,
@@ -189,7 +189,7 @@ int PrecisionOp::init(const ShiftOpCs* shiftop,
       _cova = nullptr;
     _power   = power;
     _verbose = verbose;
-    _shiftOp = shiftop;
+    _shiftOp = new ShiftOpCs(*shiftop);
 
     _purge();
   }

@@ -21,7 +21,7 @@ class APolynomial;
 class PrecisionOp {
 
 public:
-  PrecisionOp(const ShiftOpCs* shiftop = nullptr,
+  PrecisionOp(ShiftOpCs* shiftop = nullptr,
               const Model* model = nullptr,
               int icov = 0,
               ENUM_POPTS power = POPT_UNDEFINED,
@@ -59,7 +59,7 @@ private:
 
 
 private:
-  ShiftOpCs*     _shiftOp;
+  mutable ShiftOpCs*     _shiftOp;
   const CovAniso*      _cova;
   ENUM_POPTS           _power;
   std::map<ENUM_POPTS, APolynomial*> _polynomials;

@@ -20,7 +20,7 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 
-PrecisionOpCs::PrecisionOpCs(const ShiftOpCs* shiftop,
+PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const Model* model,
                              int icov,
                              ENUM_POPTS power,
