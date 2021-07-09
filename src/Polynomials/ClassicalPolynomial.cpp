@@ -106,7 +106,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 
   auto coeffsCur = polycur->getCoeffs();
 
-  for(int i = 0; i < n - 1 ;i++)
+  for(int i = 0; i < degree - 1 ;i++)
   {
     cs_vecmult(derivOp,swap1->data(),swap2->data());
     coeffsCur.erase(coeffsCur.begin(),coeffsCur.begin()+1);

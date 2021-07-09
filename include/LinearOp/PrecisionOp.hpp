@@ -37,7 +37,9 @@ public:
            bool verbose = false);
 
   void   eval(const VectorDouble& in, VectorDouble& out);
-  virtual void   evalDeriv(const VectorDouble& in, VectorDouble& out){};
+  virtual void   evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
+
+  virtual void   evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
 
   int    getSize() const { return _shiftOp->getSize(); }
   double computeLogDet(int nsimus = 1, int seed = 0);

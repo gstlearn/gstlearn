@@ -29,7 +29,8 @@ public:
                 int icov = 0,
                 ENUM_POPTS power = POPT_UNDEFINED,
                 bool verbose = false);
-  void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam);
+  void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
+  void evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
   virtual ~PrecisionOpCs();
   VectorDouble getCoeffs();
   cs* getQ();
