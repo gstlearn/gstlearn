@@ -46,8 +46,23 @@ double ClassicalPolynomial::eval(double x) const
   return result;
 }
 
+void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const
+{
+  int n = in.size();
+  VectorDouble work= in;
+  VectorDouble work2(n);
 
-void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& out,bool cumul) const
+  for(int j=0;j<_coeffs.size();j++)
+  {
+    cs_vecmult(Op,work.data(),work2.data());
+    for (int i = 0; i<n ; i++)
+    {
+        out[i] = _coeffs[j] * work[i];
+    }
+  }
+}
+
+void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const
 {
   int n = in.size();
   VectorDouble work(n);
@@ -55,14 +70,7 @@ void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& o
 
   for(int i = 0; i < n ;i++)
   {
-    if(cumul)
-    {
-      out[i] += _coeffs.back() * in[i];
-    }
-    else
-    {
-      out[i] = _coeffs.back() * in[i];
-    }
+     out[i] = _coeffs.back() * in[i];
   }
 
   for(int j=_coeffs.size()-2;j>=0;j--)
@@ -111,7 +119,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
     cs_vecmult(derivOp,swap1->data(),swap2->data());
     coeffsCur.erase(coeffsCur.begin(),coeffsCur.begin()+1);
     polycur->init(coeffsCur);
-    polycur->evalOp(Op,*swap2,out,true);
+    polycur->evalOpCumul(Op,*swap2,out);
 
     if(i<degree-2)
     {

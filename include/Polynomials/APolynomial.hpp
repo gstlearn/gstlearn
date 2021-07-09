@@ -33,7 +33,7 @@ public:
 
   virtual void evalOp(cs* Op,
                       const VectorDouble& in,
-                      VectorDouble& out,bool cumul = false) const {};
+                      VectorDouble& out) const {};
   VectorDouble evalOp(cs* Op, const VectorDouble& in) const;
   VectorDouble getCoeffs()const{ return _coeffs;}
   virtual int fit(std::function<double(double)> f,

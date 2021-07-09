@@ -25,5 +25,6 @@ public:
   double eval(double x) const override;
   void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& in,
                    VectorDouble& out,int iapex,int igparam)const;
-  void evalOp(cs* Op, const VectorDouble& in, VectorDouble& out,bool cumul) const override;
+  void evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const;
+  void evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const override;
 };

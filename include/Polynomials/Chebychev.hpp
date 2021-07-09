@@ -28,7 +28,7 @@ public:
   void setNDisc(int nDisc){_nDisc=nDisc;}
   void setVerbose(bool verbose){_verbose = verbose;}
 
-  void evalOp(cs* Op,const VectorDouble& in,VectorDouble& out,bool cumul=false) const override;
+  void evalOp(cs* Op,const VectorDouble& in,VectorDouble& out) const override;
   double eval(double x) const override;
   int fit(std::function<double(double)> f,
           double a = 0.,

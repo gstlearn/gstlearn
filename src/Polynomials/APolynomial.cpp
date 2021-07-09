@@ -25,7 +25,7 @@ APolynomial & APolynomial::operator=(const APolynomial& p)
 VectorDouble APolynomial::evalOp(cs* Op, const VectorDouble& in) const
 {
   VectorDouble result(in.size());
-  evalOp(Op,in,result,false);
+  evalOp(Op,in,result);
   return result;
 }
 
