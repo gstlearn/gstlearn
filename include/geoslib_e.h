@@ -53,6 +53,7 @@
 #include <limits.h> 
 #include <stdarg.h>
 #include <ctype.h>
+#include <pthread.h>
 #include <sys/types.h>
 
 #include <cstdio>

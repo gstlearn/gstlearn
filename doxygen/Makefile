@@ -11,3 +11,4 @@ clean:
 	@echo "Cleaning doxygen ..."
 	@rm -rf html
 	@rm -rf xml
+	@rm -rf *.tmp

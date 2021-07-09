@@ -3,6 +3,8 @@ bin
 doxygen/latex
 doxygen/html
 doxygen/xml
+doxygen/*.tmp
+tests/data/*/*.out
 .project
 .cproject
 .settings
