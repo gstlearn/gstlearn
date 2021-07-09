@@ -68,8 +68,8 @@ const ASpace* ASpaceObject::getGlobalSpace()
 {
   if (nullptr == _globalSpace)
   {
-    std::cout << "Creating default global space: SpaceRN 2D..." << std::endl;
-    std::cout << "Call ASpaceObject::createGlobalSpace to avoid this message!" << std::endl;
+//    std::cout << "Creating default global space: SpaceRN 2D..." << std::endl;
+//    std::cout << "Call ASpaceObject::createGlobalSpace to avoid this message!" << std::endl;
     createGlobalSpace(SPACE_RN, 2);
   }
   return _globalSpace;

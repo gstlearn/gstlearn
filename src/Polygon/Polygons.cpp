@@ -12,6 +12,9 @@
 #include "Basic/AStringable.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/ASerializable.hpp"
+#include "Basic/CSVformat.hpp"
+#include "Basic/AException.hpp"
 #include "geoslib_f.h"
 
 Polygons::Polygons()
@@ -20,16 +23,14 @@ Polygons::Polygons()
 }
 
 Polygons::Polygons(const String& filename,
-                   int flag_header,
-                   int nskip,
-                   const String& char_sep,
-                   const String& char_dec,
-                   const String& na_string,
+                   const CSVformat& csv,
                    int verbose,
                    int ncol_max,
                    int nrow_max,
                    int flag_add_rank)
-    : _polysets()
+    : AStringable(),
+      ASerializable(),
+      _polysets()
 {
   VectorString names;
   VectorDouble tab;
@@ -37,8 +38,8 @@ Polygons::Polygons(const String& filename,
 
   /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
 
-  if (csv_table_read(filename.c_str(), verbose, flag_header, nskip,
-                     char_sep.c_str(), char_dec.c_str(), na_string.c_str(),
+  if (csv_table_read(filename.c_str(), verbose, csv.getFlagHeader(), csv.getNSkip(),
+                     csv.getCharSep().c_str(), csv.getCharDec().c_str(), csv.getNaString().c_str(),
                      ncol_max, nrow_max, &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
@@ -76,7 +77,9 @@ Polygons::Polygons(const String& filename,
  * @param db
  */
 Polygons::Polygons(const Db* db)
-    : _polysets()
+    : AStringable(),
+      ASerializable(),
+      _polysets()
 {
   VectorDouble x;
   VectorDouble y;
@@ -84,6 +87,15 @@ Polygons::Polygons(const Db* db)
 
   PolySet polyset = PolySet(x, y, TEST, TEST);
   addPolySet(polyset);
+}
+
+Polygons::Polygons(const String& neutralFileName, bool verbose)
+    : AStringable(),
+      ASerializable(),
+      _polysets()
+{
+  if (deSerialize(neutralFileName, verbose))
+    my_throw("Problem reading the Neutral File");
 }
 
 Polygons::Polygons(const Polygons& r)
@@ -169,4 +181,76 @@ PolySet Polygons::_extractFromTab(int ideb,
   }
   PolySet polyset = PolySet(x,y);
   return polyset;
+}
+
+int Polygons::deSerialize(const String& filename, bool verbose)
+{
+  int npol, nvert;
+  double zmin = TEST;
+  double zmax = TEST;
+
+  /* Opening the Data file */
+
+  if (_fileOpen(filename, "Polygon", "r")) return 1;
+
+  /* Create the Model structure */
+
+  if (_recordRead("Number of Polygons", "%d", &npol)) return 1;
+
+  /* Loop on the PolySets */
+
+  for (int ipol = 0; ipol < npol; ipol++)
+  {
+    if (_recordRead("Number of Vertices", "%d", &nvert)) return 1;
+    VectorDouble x(nvert);
+    VectorDouble y(nvert);
+
+    /* Loop on the Vertices */
+
+    for (int i = 0; i < nvert; i++)
+    {
+      if (_recordRead("X-Coordinate of a Polyset", "%lf", &x[i])) return 1;
+      if (_recordRead("Y-Coordinate of a Polyset", "%lf", &y[i])) return 1;
+    }
+
+    /* Add the polyset */
+
+    PolySet polyset = PolySet();
+    polyset.init(x,y,zmin,zmax);
+    addPolySet(polyset);
+  }
+
+  _fileClose();
+  return 0;
+}
+
+int Polygons::serialize(const String& filename, bool verbose)
+{
+  if (_fileOpen(filename, "Polygon", "w")) return (1);
+
+  /* Create the Model structure */
+
+  _recordWrite("%d", getPolySetNumber());
+  _recordWrite("#", "Number of Polygons");
+
+  /* Writing the covariance part */
+
+  for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
+  {
+    const PolySet& polyset = getPolySet(ipol);
+    _recordWrite("%d", polyset.getNVertices());
+    _recordWrite("#", "Number of Vertices");
+
+    for (int i = 0; i < polyset.getNVertices(); i++)
+    {
+      _recordWrite("%lf", polyset.getX(i));
+      _recordWrite("%lf", polyset.getY(i));
+      _recordWrite("\n");
+    }
+  }
+
+  // Close the Neutral File
+  _fileClose();
+
+  return 0;
 }

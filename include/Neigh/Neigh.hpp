@@ -11,30 +11,11 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class Neigh: public AStringable {
-
-public:
-  int _nDim;                     /* Space dimension */
-  int _type;                     /* Neighborhood type: NEIGH_* */
-  int _flagXvalid;               /* 1 to suppress the target */
-  int _flagSector;               /* 1 if MOVING neigh. used sector search */
-  int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */
-  int _flagRotation;             /* 1 if the anisotropy is rotated */
-  int _flagContinuous;           /* 1 for continuous moving neighborhood */
-  int _nMini;                    /* Minimum number of points in neigh. */
-  int _nMaxi;                    /* Maximum number of points in neigh. */
-  int _nSect;                    /* Number of 2-D angular sectors */
-  int _nSMax;                    /* Maximum number of points per 2-D sector */
-  int _skip;                     /* Skipping factor */
-  double _width;                 /* Width of the slice - bench */
-  double _radius;                /* Maximum isotropic distance */
-  double _distCont;              /* Distance for continuous neighborhood */
-  VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
-  VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
-  VectorDouble _imageRadius;     /* Vector of image neighborhood radius */
-
+class Neigh: public AStringable , ASerializable
+{
 public:
   Neigh();
   Neigh(int ndim);
@@ -42,11 +23,14 @@ public:
         int nmini=1, int nsect=1, int nsmax=ITEST, double width=0, double distcont=0,
         VectorDouble coeffs = VectorDouble(), VectorDouble angles = VectorDouble());
   Neigh(int ndim, int skip, VectorDouble image);
+  Neigh(const String& neutralFileName, bool verbose);
   Neigh(const Neigh& r);
   Neigh& operator=(const Neigh& r);
   virtual ~Neigh();
 
   virtual std::string toString(int level = 0) const override;
+  int deSerialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) override;
 
   const VectorDouble& getAnisoCoeff() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
@@ -92,4 +76,42 @@ public:
 
 private:
   bool _isDimensionValid(int idim) const;
+  void _init(int ndim,
+             int type,
+             int flag_xvalid,
+             int flag_sector,
+             int flag_aniso,
+             int flag_rotation,
+             int flag_continuous,
+             int nmini,
+             int nmaxi,
+             int nsect,
+             int nsmax,
+             int skip,
+             double width,
+             double radius,
+             double dist_cont,
+             const VectorDouble& nbgh_radius,
+             const VectorDouble& nbgh_rotmat,
+             const VectorDouble& nbgh_image);
+
+public:
+  int _nDim;                     /* Space dimension */
+  int _type;                     /* Neighborhood type: NEIGH_* */
+  int _flagXvalid;               /* 1 to suppress the target */
+  int _flagSector;               /* 1 if MOVING neigh. used sector search */
+  int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */
+  int _flagRotation;             /* 1 if the anisotropy is rotated */
+  int _flagContinuous;           /* 1 for continuous moving neighborhood */
+  int _nMini;                    /* Minimum number of points in neigh. */
+  int _nMaxi;                    /* Maximum number of points in neigh. */
+  int _nSect;                    /* Number of 2-D angular sectors */
+  int _nSMax;                    /* Maximum number of points per 2-D sector */
+  int _skip;                     /* Skipping factor */
+  double _width;                 /* Width of the slice - bench */
+  double _radius;                /* Maximum isotropic distance */
+  double _distCont;              /* Distance for continuous neighborhood */
+  VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
+  VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
+  VectorDouble _imageRadius;     /* Vector of image neighborhood radius */
 };

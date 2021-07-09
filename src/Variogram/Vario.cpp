@@ -11,13 +11,17 @@
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Basic/Utilities.hpp"
+#include "Basic/AException.hpp"
 #include "geoslib_f.h"
 
 Vario::Vario(const String& calculName,
-             bool flagSample,
              double scale,
+             bool flagSample,
              VectorDouble dates)
-  : _calculName(calculName)
+  : AStringable()
+  , ASerializable()
+  , _calculName(calculName)
   , _nDim(0)
   , _nVar(0)
   , _flagSample(flagSample)
@@ -27,6 +31,24 @@ Vario::Vario(const String& calculName,
   , _dates(dates)
   , _dirs()
 {
+}
+
+Vario::Vario(const String& neutralFileName,
+             bool verbose)
+  : AStringable()
+  , ASerializable()
+  , _calculName()
+  , _nDim(0)
+  , _nVar(0)
+  , _flagSample(false)
+  , _scale(0.)
+  , _means()
+  , _vars()
+  , _dates()
+  , _dirs()
+{
+  if (deSerialize(neutralFileName, verbose))
+    my_throw("Problem reading the Neutral File");
 }
 
 Vario::Vario(const Vario& r)
@@ -438,4 +460,174 @@ bool Vario::_isDateValid(int idate) const
     return false;
   }
   return true;
+}
+
+int Vario::deSerialize(const String& filename, bool verbose)
+{
+  int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
+  double dpas, tolang, scale, tolcode, toldis;
+  VectorDouble codir, grincr, vars;
+
+  // Open the Neutral File
+
+  if (_fileOpen(filename, "Vario", "r")) return 1;
+
+  /* Create the Vario structure */
+
+  if (_recordRead("Space Dimension", "%d", &ndim)) goto label_end;
+  if (_recordRead("Number of Variables", "%d", &nvar)) goto label_end;
+  if (_recordRead("Number of Variogram Directions", "%d", &ndir)) goto label_end;
+  if (_recordRead("Scale", "%lf", &scale)) goto label_end;
+
+  /* Read the variances (optional) */
+
+  if (_recordRead("Variogram calculation Option", "%d", &flag_calcul))  goto label_end;
+  vars.resize(nvar * nvar);
+  if (flag_calcul)
+  {
+    int ecr = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++, ecr++)
+        if (_recordRead("Experimental Variance term", "%lf", &vars[ecr])) goto label_end;
+  }
+
+  /* Initialize the variogram structure */
+
+  resize(ndim, nvar);
+  setCalculName("vg");
+  setScale(scale);
+  setVars(vars);
+
+  /* Reading the variogram calculation directions */
+
+  for (int idir = 0; idir < ndir; idir++)
+  {
+    if (_recordRead("Regular Variogram Calculation", "%d", &flag_regular)) goto label_end;
+    if (_recordRead("Number of Variogram Lags", "%d", &npas)) goto label_end;
+    if (_recordRead("Variogram Code Option", "%d", &opt_code)) goto label_end;
+    if (_recordRead("Tolerance on Code", "%lf", &tolcode)) goto label_end;
+    if (_recordRead("Lag Value", "%lf", &dpas)) goto label_end;
+    if (_recordRead("Tolerance on Distance", "%lf", &toldis)) goto label_end;
+    if (_recordRead("Tolerance on Direction", "%lf", &tolang)) goto label_end;
+    codir.resize(ndim);
+    grincr.resize(ndim);
+    for (int idim = 0; idim < ndim; idim++)
+      if (_recordRead("Direction vector", "%lf", &codir[idim]))
+        goto label_end;
+    for (int idim = 0; idim < ndim; idim++)
+      if (_recordRead("Grid Increment", "%lf", &grincr[idim]))
+        goto label_end;
+
+    Dir dir = Dir(ndim);
+    dir.init(ndim, npas, dpas, toldis, tolang, getFlagAsym(),
+             opt_code, 0, TEST, TEST, tolcode, VectorDouble(), codir, grincr);
+
+
+    /* Read the arrays of results (optional) */
+
+    if (flag_calcul)
+    {
+      dir.resize(nvar, getFlagAsym());
+      for (int i = 0; i < dir.getSize(); i++)
+      {
+        double sw, hh, gg;
+        if (_recordRead("Experimental Variogram Weight", "%lf", &sw)) goto label_end;
+        dir.setSw(i, sw);
+        if (_recordRead("Experimental Variogram Distance", "%lf", &hh)) goto label_end;
+        dir.setHh(i, hh);
+        if (_recordRead("Experimental Variogram Value", "%lf", &gg)) goto label_end;
+        dir.setGg(i, gg);
+      }
+    }
+    addDirs(dir);
+  }
+
+  label_end:
+
+  /* Close the file */
+  _fileClose();
+
+  return 0;
+}
+
+int Vario::serialize(const String& filename, bool verbose)
+{
+  double value;
+  static int flag_calcul = 1;
+
+  if (_fileOpen(filename, "Vario", "w")) return 1;
+
+  /* Write the Vario structure */
+
+  _recordWrite("%d", getDimensionNumber());
+  _recordWrite("#", "Space Dimension");
+  _recordWrite("%d", getVariableNumber());
+  _recordWrite("#", "Number of variables");
+  _recordWrite("%d", getDirectionNumber());
+  _recordWrite("#", "Number of directions");
+  _recordWrite("%lf", getScale());
+  _recordWrite("#", "Scale");
+  _recordWrite("%d", flag_calcul);
+  _recordWrite("#", "Calculation Flag");
+
+  /* Dumping the Variances */
+
+  if (flag_calcul)
+  {
+    _recordWrite("#", "Variance");
+    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+    {
+      for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+        _recordWrite("%lf", getVars(ivar,jvar));
+      _recordWrite("\n");
+    }
+  }
+
+  /* Loop on the directions */
+
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    _recordWrite("#", "Direction characteristics");
+    Dir& dir = getDirs(idir);
+    _recordWrite("%d", dir.getLagRegular());
+    _recordWrite("#", "Regular lags");
+    _recordWrite("%d", dir.getNPas());
+    _recordWrite("#", "Number of lags");
+    _recordWrite("%d", dir.getOptionCode());
+    _recordWrite("%lf", dir.getTolCode());
+    _recordWrite("#", "Code selection: Option - Tolerance");
+    _recordWrite("%lf", dir.getDPas());
+    _recordWrite("#", "Lag value");
+    _recordWrite("%lf", dir.getTolDist());
+    _recordWrite("#", "Tolerance on distance");
+    _recordWrite("%lf", dir.getTolAngle());
+    _recordWrite("#", "Tolerance on angle");
+
+    for (int idim = 0; idim < getDimensionNumber(); idim++)
+      _recordWrite("%lf", dir.getCodir(idim));
+    _recordWrite("#", "Direction coefficients");
+
+    for (int idim = 0; idim < getDimensionNumber(); idim++)
+      _recordWrite("%lf", dir.getGrincr(idim));
+    _recordWrite("#", "Direction increments on grid");
+
+    if (!flag_calcul) continue;
+    _recordWrite("#", "Variogram results (Weight, Distance, Variogram)");
+    for (int i = 0; i < dir.getSize(); i++)
+    {
+      value = FFFF(dir.getSw(i)) ? 0. : dir.getSw(i);
+      _recordWrite("%lf", value);
+      value = FFFF(dir.getHh(i)) ? 0. : dir.getHh(i);
+      _recordWrite("%lf", value);
+      value = FFFF(dir.getGg(i)) ? 0. : dir.getGg(i);
+      _recordWrite("%lf", value);
+      _recordWrite("\n");
+    }
+  }
+
+  /* Close the file */
+
+  _fileClose();
+
+  return 0;
 }

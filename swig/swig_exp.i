@@ -43,6 +43,7 @@ namespace std {
 %include geoslib_f.h
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
+%include Basic/ASerializable.hpp
 %include Basic/Rotation.hpp
 %include Basic/Tensor.hpp
 %include Basic/GridC.hpp

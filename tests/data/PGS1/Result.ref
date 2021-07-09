@@ -58,7 +58,6 @@ Data Base Contents
      [  3,]     3.000    40.000    20.000     1.000
      [  4,]     4.000    50.000    30.000     2.000
      [  5,]     5.000    50.000    50.000     1.000
-Error when opening the file PGS1/Vario.dat
 
 Lithotype Rule
 ==============
@@ -70,7 +69,6 @@ Lithotype Rule
 Node F1 - Facies 1
 Node F2 - Facies 2
 Node F3 - Facies 3
-Error when opening the file PGS1/Rule1.dat
 Convergence reached after 63 iterations
 
 Data Base Characteristics

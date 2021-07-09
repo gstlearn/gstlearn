@@ -378,7 +378,7 @@ static void st_load_data(Db *db,
  ** \param[in]  iatt Rank of the attribute
  **
  *****************************************************************************/
-GEOSLIB_API double get_ARRAY(Db *db, int iech, int iatt)
+GEOSLIB_API double get_ARRAY(const Db *db, int iech, int iatt)
 {
   double value = db->getArray(iech, iatt);
   return value;
@@ -394,7 +394,7 @@ GEOSLIB_API double get_ARRAY(Db *db, int iech, int iatt)
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-GEOSLIB_API int is_grid(Db *db, bool verbose)
+GEOSLIB_API int is_grid(const Db *db, bool verbose)
 {
   if (db == (Db *) NULL) return (0);
   if (db->isGrid()) return 1;
@@ -411,7 +411,7 @@ GEOSLIB_API int is_grid(Db *db, bool verbose)
  ** \param[in]  db    Db structure
  **
  *****************************************************************************/
-GEOSLIB_API int get_NECH(Db *db)
+GEOSLIB_API int get_NECH(const Db *db)
 {
   if (db == (Db *) NULL) return (0);
   return (db->getSampleNumber());
@@ -1783,15 +1783,9 @@ GEOSLIB_API Db *db_create_grid(int flag_rot,
 
   error = 1;
 
-  /* Calculate the number of samples */
-
-  int nech = 1;
-  for (int idim = 0; idim < ndim; idim++)
-    nech *= nx[idim];
-
   /* Allocate the main structure */
 
-  db->reset(natt + flag_add_rank, nech);
+  db->reset(natt + flag_add_rank, ut_ivector_prod(nx));
 
   /* Dimension the data arrays */
 
@@ -2086,7 +2080,7 @@ GEOSLIB_API Db *db_create_from_target(double *target,
  ** \param[in]  iatt   Rank of the attribute (starting at 0)
  **
  *****************************************************************************/
-GEOSLIB_API std::string db_name_get_by_att(Db *db, int iatt)
+GEOSLIB_API std::string db_name_get_by_att(const Db *db, int iatt)
 {
   static char na_string[3] = "NA";
   int icol = db->getColumnByAttribute(iatt);

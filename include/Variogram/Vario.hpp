@@ -12,6 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 
 int identifyCalculType(const String& calcul_name);
 int identifyFlagAsym(const String& calcul_name);
@@ -20,30 +21,22 @@ class Dir;
 class Db;
 class Model;
 
-class Vario : public AStringable
+class Vario : public AStringable, ASerializable
 {
-private:
-  String _calculName;
-  int _nDim;
-  int _nVar;
-  bool _flagSample;
-  double _scale;
-  VectorDouble _means;
-  VectorDouble _vars;
-  VectorDouble _dates;
-  std::vector<Dir> _dirs;
-
 public:
   Vario(const String& calculName = "vg",
-        bool flagSample = false,
         double scale = 0.,
+        bool flagSample = false,
         VectorDouble dates = VectorDouble());
+  Vario(const String& neutralFileName, bool verbose);
   Vario(const Vario& r);
   Vario& operator=(const Vario& r);
   virtual ~Vario();
 
 public:
   virtual String toString(int level = 0) const override;
+  int deSerialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) override;
 
   void addDirs(const Dir& dir);
   void addDirs(const std::vector<Dir> dirs);
@@ -116,4 +109,15 @@ private:
   bool _isDirectionValid(int idir) const;
   bool _isBivariableValid(int i) const;
   bool _isDateValid(int idate) const;
+
+private:
+  String _calculName;
+  int _nDim;
+  int _nVar;
+  bool _flagSample;
+  double _scale;
+  VectorDouble _means;
+  VectorDouble _vars;
+  VectorDouble _dates;
+  std::vector<Dir> _dirs;
 };

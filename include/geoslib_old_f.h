@@ -840,36 +840,6 @@
                                   int rank,
                                   int mode,
                                   char *filename);
-  GEOSLIB_API int ascii_db_write(const char *file_name,
-                                 Db *db,
-                                 int no_grid,
-                                 int flag_calcul,
-                                 int verbose);
-  GEOSLIB_API int ascii_model_write(const char *file_name,
-                                    Model *model,
-                                    int verbose);
-  GEOSLIB_API int ascii_model_write_buffer(Model *model,
-                                           int verbose,
-                                           char **buffer,
-                                           int *buf_length);
-  GEOSLIB_API int ascii_neigh_write(const char *file_name,
-                                    Neigh *neigh,
-                                    int verbose);
-  GEOSLIB_API int ascii_vario_write(const char *file_name,
-                                    Vario *vario,
-                                    int verbose,
-                                    int flag_calcul);
-  GEOSLIB_API int ascii_vario_write_buffer(Vario *vario,
-                                           int verbose,
-                                           int flag_calcul,
-                                           char **buffer,
-                                           int *buf_length);
-  GEOSLIB_API int ascii_rule_write(const char *file_name,
-                                   Rule *rule,
-                                   int verbose);
-  GEOSLIB_API int ascii_polygon_write(const char *file_name,
-                                      Polygons *polygon,
-                                      int verbose);
   GEOSLIB_API int ascii_anam_write(const char *file_name,
                                    const Anam *anam,
                                    int verbose,
@@ -880,18 +850,15 @@
   GEOSLIB_API Db *ascii_db_read(const char *file_name,
                                 int must_grid,
                                 int verbose);
-  GEOSLIB_API Vario *ascii_vario_read(const char *file_name, int verbose);
-  GEOSLIB_API Vario *ascii_vario_read_buffer(char *buffer, int verbose);
+  GEOSLIB_API Vario *ascii_vario_read(const char *file_name, bool verbose);
   GEOSLIB_API Neigh *ascii_neigh_read(const char *file_name, int verbose);
   GEOSLIB_API Model *ascii_model_read(const char *file_name, int verbose);
-  GEOSLIB_API Model *ascii_model_read_buffer(char *buffer, int verbose);
   GEOSLIB_API void ascii_simu_read(char *file_name,
                                    int verbose,
                                    int *nbsimu,
                                    int *nbtuba,
                                    int *seed);
   GEOSLIB_API Rule *ascii_rule_read(const char *file_name, int verbose);
-  GEOSLIB_API Polygons *ascii_polygon_read(const char *file_name, int verbose);
   GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose);
   GEOSLIB_API Frac_Environ *ascii_frac_read(const char *file_name, int verbose);
   GEOSLIB_API int ascii_option_defined(const char *file_name,
@@ -1630,7 +1597,7 @@
   GEOSLIB_API int db_vector_get_att(Db *db, int iatt, double *tab);
   GEOSLIB_API int db_vector_get_att_sel(Db *db, int iatt, double *tab);
   GEOSLIB_API int db_name_set(Db *db, int iatt, const String& name);
-  GEOSLIB_API String db_name_get_by_att(Db *db, int iatt);
+  GEOSLIB_API String db_name_get_by_att(const Db *db, int iatt);
   GEOSLIB_API String db_name_get_by_col(Db *db, int icol);
   GEOSLIB_API int db_name_identify(Db *db, const String& string);
   GEOSLIB_API void db_attribute_del_mult(Db *db, int i_del, int n_del);
@@ -1708,8 +1675,8 @@
   GEOSLIB_API int compat_NDIM(Db *db1, Db *db2);
   GEOSLIB_API int same_mesh(Db *db1, Db *db2);
   GEOSLIB_API int same_rotation(Db *db1, Db *db2);
-  GEOSLIB_API int get_NECH(Db *db);
-  GEOSLIB_API double get_ARRAY(Db *db, int iech, int iatt);
+  GEOSLIB_API int get_NECH(const Db *db);
+  GEOSLIB_API double get_ARRAY(const Db *db, int iech, int iatt);
   GEOSLIB_API double get_IDIM(Db *db, int iech, int idim);
   GEOSLIB_API double get_grid_IDIM(Db *db, int iech, int idim);
   GEOSLIB_API int    match_domain_ref(double value);
@@ -1717,7 +1684,6 @@
   GEOSLIB_API void   domain_ref_define(int value, int verbose);
   GEOSLIB_API int    domain_ref_query(void);
   GEOSLIB_API void   domain_ref_print(void);
-  GEOSLIB_API double get_ARRAY(Db *db, int iech, int iatt);
   GEOSLIB_API double get_grid_value(Db *dbgrid,
                                     int iptr,
                                     int *indg,
@@ -1741,7 +1707,7 @@
                                     double value);
   GEOSLIB_API int db_get_rank_absolute_to_relative(Db *db, int iech0);
   GEOSLIB_API int db_get_rank_relative_to_absolute(Db *db, int iech0);
-  GEOSLIB_API int is_grid(Db *db, bool verbose=false);
+  GEOSLIB_API int is_grid(const Db *db, bool verbose=false);
   GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2);
   GEOSLIB_API void get_grid_multiple(Db *db1,
                                      int *nmult,

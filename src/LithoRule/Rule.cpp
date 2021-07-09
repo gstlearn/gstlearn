@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
+#include "Basic/AException.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
 #include "geoslib_f.h"
@@ -91,7 +92,9 @@ Rule::Rule(int mode_rule,
            double sh_down,
            double sh_dsup,
            const VectorDouble& shift)
-    : _modeRule(mode_rule),
+    : AStringable(),
+      ASerializable(),
+      _modeRule(mode_rule),
       _flagProp(0),
       _rho(rho),
       _shDsup(sh_dsup),
@@ -108,23 +111,23 @@ Rule::Rule(int mode_rule,
 {
 }
 
-Rule::Rule(const VectorInt& n_type,
-           const VectorInt& n_facs,
-           double rho)
-: _modeRule(RULE_STD),
-  _flagProp(0),
-  _rho(rho),
-  _shDsup(TEST),
-  _shDown(TEST),
-  _slope(TEST),
-  _dMax(TEST),
-  _tgte(TEST),
-  _incr(TEST),
-  _shift(),
-  _xyz(),
-  _ind1(),
-  _ind2(),
-  _mainNode(nullptr)
+Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
+    : AStringable(),
+      ASerializable(),
+      _modeRule(RULE_STD),
+      _flagProp(0),
+      _rho(rho),
+      _shDsup(TEST),
+      _shDown(TEST),
+      _slope(TEST),
+      _dMax(TEST),
+      _tgte(TEST),
+      _incr(TEST),
+      _shift(),
+      _xyz(),
+      _ind1(),
+      _ind2(),
+      _mainNode(nullptr)
 {
   int ipos = 0;
   int n_fac = 0;
@@ -134,20 +137,22 @@ Rule::Rule(const VectorInt& n_type,
 }
 
 Rule::Rule(const VectorString& nodnames, double rho)
-: _modeRule(RULE_STD),
-  _flagProp(0),
-  _rho(rho),
-  _shDsup(TEST),
-  _shDown(TEST),
-  _slope(TEST),
-  _dMax(TEST),
-  _tgte(TEST),
-  _incr(TEST),
-  _shift(),
-  _xyz(),
-  _ind1(),
-  _ind2(),
-  _mainNode(nullptr)
+    : AStringable(),
+      ASerializable(),
+      _modeRule(RULE_STD),
+      _flagProp(0),
+      _rho(rho),
+      _shDsup(TEST),
+      _shDown(TEST),
+      _slope(TEST),
+      _dMax(TEST),
+      _tgte(TEST),
+      _incr(TEST),
+      _shift(),
+      _xyz(),
+      _ind1(),
+      _ind2(),
+      _mainNode(nullptr)
 {
   VectorInt n_type;
   VectorInt n_facs;
@@ -170,7 +175,9 @@ Rule::Rule(double slope,
            double sh_dsup,
            double sh_down,
            const VectorDouble& shift)
-    : _modeRule(RULE_SHADOW),
+    : AStringable(),
+      ASerializable(),
+      _modeRule(RULE_SHADOW),
       _flagProp(0),
       _rho(0.),
       _shDsup(sh_dsup),
@@ -190,7 +197,6 @@ Rule::Rule(double slope,
 //  rule->main->r1->r1 = st_node_alloc("F3",THRESH_IDLE,SHADOW_SHADOW);
 //  rule->main->r1->r2 = st_node_alloc("F2",THRESH_IDLE,SHADOW_WATER);
 //  rule->main->r2     = st_node_alloc("F1",THRESH_IDLE,SHADOW_ISLAND);
-
 }
 
 /**
@@ -198,7 +204,9 @@ Rule::Rule(double slope,
  * @param shift Vector defining the shift
  */
 Rule::Rule(const VectorDouble& shift)
-    : _modeRule(RULE_SHIFT),
+    : AStringable(),
+      ASerializable(),
+      _modeRule(RULE_SHIFT),
       _flagProp(0),
       _rho(0.),
       _shDsup(0.),
@@ -213,6 +221,28 @@ Rule::Rule(const VectorDouble& shift)
       _ind2(),
       _mainNode(nullptr)
 {
+}
+
+Rule::Rule(const String& neutralFileName, bool verbose)
+    : AStringable(),
+      ASerializable(),
+      _modeRule(RULE_STD),
+      _flagProp(0),
+      _rho(0.),
+      _shDsup(0.),
+      _shDown(0.),
+      _slope(0.),
+      _dMax(TEST),
+      _tgte(TEST),
+      _incr(TEST),
+      _shift(),
+      _xyz(),
+      _ind1(),
+      _ind2(),
+      _mainNode(nullptr)
+{
+  if (deSerialize(neutralFileName, verbose))
+    my_throw("Problem reading the Neutral File");
 }
 
 Rule::Rule(const Rule& m)
@@ -966,5 +996,124 @@ int Rule::setProportions(const VectorDouble& proportions)
   if (debug_query("props")) display(true,true);
 
   return(0);
+}
+
+int Rule::deSerialize(const String& filename, bool verbose)
+{
+  int nb_node;
+
+  if (_fileOpen(filename, "Rule", "r")) return 1;
+
+  /* Create the Rule structure */
+
+  _shift.resize(3);
+  if (_recordRead("Rule definition", "%d", &_modeRule)) return 1;
+  if (_recordRead("Correlation Coefficient of GRFs", "%lf", &_rho)) return 1;
+  if (_recordRead("Slope for Shadow Rule", "%lf", &_slope)) return 1;
+  if (_recordRead("Lower Threshold for Shadow Rule", "%lf", &_shDown)) return 1;
+  if (_recordRead("Upper Threshold for Shadow Rule", "%lf", &_shDsup)) return 1;
+  if (_recordRead("Shift along first direction", "%lf", &_shift[0]))  return 1;
+  if (_recordRead("Shift along second direction", "%lf", &_shift[1])) return 1;
+  if (_recordRead("Shift along third direction", "%lf", &_shift[2]))  return 1;
+
+  /* Read the number of nodes */
+
+  if (_recordRead("Number of Rule Nodes", "%d", &nb_node)) return 1;
+  VectorInt nodes(6 * nb_node);
+
+  /* Loop on the nodes for reading: */
+  /* - from_type: Type of the parent */
+  /* - from_rank: Rank of the parent */
+  /* - from_vers: Orientation of the parent */
+  /* - node_type: 0 (idle) - 1 (Thresh along Y1) - 2 (Thresh along Y2) */
+  /* - node_rank: Rank of the node (starting from 1) */
+  /* - facies   : Rank of the facies */
+  int lec = 0;
+  for (int inode =  0; inode < nb_node; inode++)
+    for (int i = 0; i < 6; i++)
+      if (_recordRead("Rule Node Definition", "%d", &nodes[lec++])) return 1;
+  init(nodes);
+
+  _fileClose();
+
+  return 0;
+}
+
+int Rule::serialize(const String& filename, bool verbose)
+{
+  int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
+  double prop_tot;
+
+  if (_fileOpen(filename, "Rule", "w")) return 1;
+
+  /* Create the Rule structure */
+
+  _recordWrite("%d", getModeRule());
+  _recordWrite("#", "Type of Rule");
+  _recordWrite("%lf", getRho());
+  _recordWrite("#", "Correlation coefficient between GRFs");
+  _recordWrite("%lf", getSlope());
+  _recordWrite("%lf", getShDown());
+  _recordWrite("%lf", getShDsup());
+  _recordWrite("#", "Parameters for Shadow option");
+  _recordWrite("%lf", getShift(0));
+  _recordWrite("%lf", getShift(1));
+  _recordWrite("%lf", getShift(2));
+  _recordWrite("#", "Parameters for Shift option");
+
+  /* Count the number of nodes */
+
+  statistics(0,&nb_node,&nfacies,&nmax_tot,&ny1_tot,&ny2_tot,&prop_tot);
+  _recordWrite("%d", nb_node);
+  _recordWrite("#", "Number of nodes");
+
+  /* Fill the nodes characteristics recursively */
+
+  rank = 0;
+  _ruleDefine(getMainNode(), 0, 0, 0, &rank);
+
+  _fileClose();
+
+  return 0;
+}
+
+void Rule::_ruleDefine(Node *node,
+                       int from_type,
+                       int from_rank,
+                       int from_vers,
+                       int *rank)
+{
+  int cur_rank;
+
+  /* Calling node */
+
+  _recordWrite("%d", from_type);
+  _recordWrite("%d", from_rank);
+  _recordWrite("%d", from_vers);
+
+  /* Current node */
+
+  _recordWrite("%d", node->getOrient());
+  if (IFFFF(node->getFacies()))
+  {
+    cur_rank = *rank = (*rank) + 1;
+    _recordWrite("%d", cur_rank);
+    _recordWrite("%d", 0);
+  }
+  else
+  {
+    cur_rank = *rank;
+    _recordWrite("%d", cur_rank);
+    _recordWrite("%d", node->getFacies());
+  }
+
+  /* Comment */
+
+  _recordWrite("#", "Node characteristics");
+
+  if (node->getR1() != (Node *) NULL)
+    _ruleDefine(node->getR1(), node->getOrient(), cur_rank, 1, rank);
+  if (node->getR2() != (Node *) NULL)
+    _ruleDefine(node->getR2(), node->getOrient(), cur_rank, 2, rank);
 }
 

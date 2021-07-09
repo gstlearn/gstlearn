@@ -9,10 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Anamorphosis/Anam.hpp"
+#include "Basic/AException.hpp"
 #include "geoslib_f.h"
 
 Anam::Anam(int type)
-    : _type(type)
+    : AStringable(),
+      _type(type)
 {
 }
 
@@ -42,3 +44,4 @@ String Anam::toString(int level) const
   sstr << toTitle(1,"Anamorphosis characteristics");
   return sstr.str();
 }
+

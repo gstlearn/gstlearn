@@ -20,6 +20,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/SpaceRN.hpp"
@@ -34,17 +35,20 @@ class CovCalcMode;
 class Vario;
 class CovAniso;
 
-class Model : public AStringable
+class Model : public AStringable, ASerializable
 {
 public:
   Model(const CovContext& ctxt, bool flagGradient = false, bool flagLinked = false);
   Model(const Db *db, bool flagGradient = false, bool flagLinked = false);
+  Model(const String& neutralFileName, bool verbose);
   Model(const Model &m);
   Model& operator= (const Model &m);
   virtual ~Model();
 
 public:
   virtual String toString(int level = 0) const override;
+  int deSerialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) override;
 
   /// TODO : to be converted as internal member
   const CovContext& getContext() const { return _ctxt; }
@@ -157,6 +161,10 @@ public:
           Option_AutoFit mauto = Option_AutoFit(),
           const Constraints& constraints = Constraints(),
           Option_VarioFit optvar = Option_VarioFit());
+
+private:
+  void _create(bool flagGradient, bool flagLinked);
+  void _destroy();
 
 private:
   bool           _flagGradient;

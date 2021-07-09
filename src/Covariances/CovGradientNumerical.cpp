@@ -160,9 +160,7 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
   //  Calculate covariance between point and gradient
 
   for (int i = 0; i < 3; i++)
-  {
     covGp[i] += _evalZGrad(0,0,i,p1,p2,mode);
-  }
 
   //  Calculate the covariance between gradient and gradient
 
@@ -171,8 +169,6 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
     int ecr = 0;
     for (int i = 0; i < 3; i++)
       for (int j = 0; j < 3; j++)
-      {
         covGg[ecr++] += _evalGradGrad(0, 0, i, j, p1, p2, mode);
-      }
   }
 }

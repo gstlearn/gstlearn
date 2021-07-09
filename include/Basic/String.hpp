@@ -25,11 +25,11 @@ int decodeInString(const String& symbol,
                    const String& node,
                    int *facies,
                    bool caseSensitive = true);
-int  decodeInList(const VectorString& symbols,
-                  const String& node,
-                  int *rank,
-                  int *facies,
-                  bool caseSenstive = true);
+int decodeInList(const VectorString& symbols,
+                 const String& node,
+                 int *rank,
+                 int *facies,
+                 bool caseSenstive = true);
 int  correctNamesForDuplicates(VectorString& list);
 void correctNewNameForDuplicates(VectorString& list, int rank);
 

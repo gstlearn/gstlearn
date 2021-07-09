@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     if (variogram_compute(dbin,vario)) messageAbort("variogram_calcul");
     variogram_print(vario,1); 
     ascii_filename("Vario",0,1,filename);
-    if (ascii_vario_write(filename,vario,verbose,1)) 
+    if (vario->serialize(filename,verbose))
       messageAbort("ascii_vario_write");
   }
 
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   {
     if (model_fitting_sills(vario,model,mauto)) goto label_end;
     ascii_filename("Model",0,1,filename);
-    if (ascii_model_write(filename,model,verbose))
+    if (model->serialize(filename,verbose))
       messageAbort("ascii_model_write");
   }
   new_model = st_modify(model,dbin);

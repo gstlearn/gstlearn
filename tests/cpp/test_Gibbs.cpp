@@ -51,7 +51,7 @@ static int st_save(Db    *dbgrid,
 
   /* Save the resulting 'dbgrid' in a neutral file */
 
-  if (ascii_db_write("Colored_Gibbs",dbgrid,0,1,1)) return(1);
+  if (dbgrid->serialize("Colored_Gibbs",1)) return(1);
   return(0);
 }
 

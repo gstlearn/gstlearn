@@ -21,10 +21,13 @@
 #include "Basic/AException.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMGradient.hpp"
+#include "Covariances/CovGradientNumerical.hpp"
 #include "Model/NoStatArray.hpp"
 
 Model::Model(const CovContext& ctxt, bool flagGradient, bool flagLinked)
-    : _flagGradient(flagGradient),
+    : AStringable(),
+      ASerializable(),
+      _flagGradient(flagGradient),
       _flagLinked(flagLinked),
       _covaList(nullptr),
       _driftList(nullptr),
@@ -33,16 +36,13 @@ Model::Model(const CovContext& ctxt, bool flagGradient, bool flagLinked)
       _ctxt(ctxt),
       generic_cov_function(nullptr)
 {
-  // Create the multi-Covariance structure adequately
-  if (flagGradient)
-    _covaList = new CovLMGradient(_ctxt.getSpace());
-  else
-    _covaList = new CovLMC(_ctxt.getSpace());
-  _driftList = new ADriftList(flagLinked);
+  _create(flagGradient, flagLinked);
 }
 
 Model::Model(const Db *db, bool flagGradient, bool flagLinked)
-    : _flagGradient(flagGradient),
+    : AStringable(),
+      ASerializable(),
+      _flagGradient(flagGradient),
       _flagLinked(flagLinked),
       _covaList(nullptr),
       _driftList(nullptr),
@@ -52,13 +52,23 @@ Model::Model(const Db *db, bool flagGradient, bool flagLinked)
       generic_cov_function(nullptr)
 {
   _ctxt = CovContext(db);
+  _create(flagGradient, flagLinked);
+}
 
-  // Create the multi-Covariance structure adequately
-  if (flagGradient)
-    _covaList = new CovLMGradient(_ctxt.getSpace());
-  else
-    _covaList = new CovLMC(_ctxt.getSpace());
-  _driftList = new ADriftList(flagLinked);
+Model::Model(const String& neutralFileName, bool verbose)
+    : AStringable(),
+      ASerializable(),
+      _flagGradient(false),
+      _flagLinked(false),
+      _covaList(nullptr),
+      _driftList(nullptr),
+      _modTrans(),
+      _noStat(),
+      _ctxt(),
+      generic_cov_function(nullptr)
+{
+  if (deSerialize(neutralFileName, verbose))
+    my_throw("Problem reading the Neutral File");
 }
 
 Model::Model(const Model &m)
@@ -90,10 +100,7 @@ Model& Model::operator= (const Model &m)
 
 Model::~Model()
 {
-  _covaList->delAllCov();
-  _driftList->delAllDrift();
-  delete _covaList;
-  delete _driftList;
+  _destroy();
 }
 
 String Model::toString(int level) const
@@ -275,4 +282,247 @@ int Model::fit(Vario *vario,
   }
 
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
+}
+
+int Model::deSerialize(const String& filename, bool verbose)
+{
+  double field, range, value, param, radius;
+  int ndim, nvar, ncova, nbfl, type, flag_aniso, flag_rotation;
+  VectorDouble aniso_ranges, aniso_rotmat;
+
+  // Open the Neutral File
+
+  if (_fileOpen(filename, "Model", "r")) return 1;
+
+  // Delete previous Model contents (if any)
+  _destroy();
+
+  /* Create the Model structure */
+
+  if (_recordRead("Space Dimension", "%d", &ndim)) return 1;
+  if (_recordRead("Number of Variables", "%d", &nvar)) return 1;
+  if (_recordRead("Field dimension", "%lf", &field)) return 1;
+  if (_recordRead("Radius for Model", "%lf", &radius)) return 1;
+  if (_recordRead("Number of Basic Structures", "%d", &ncova)) return 1;
+  if (_recordRead("Number of Basic Drift Functions", "%d", &nbfl)) return 1;
+
+  //TODO Move this horrible setting which is used only because the Space is not known beforehand
+  ASpaceObject::createGlobalSpace(SPACE_RN, ndim); // TODO Avoid this artificial setting
+  _ctxt = CovContext(nvar, 2, field);
+  _ctxt.setBallRadius(radius);
+  _create(false, false);
+
+  /* Reading the covariance part */
+
+  for (int icova = 0; icova < ncova; icova++)
+  {
+    flag_aniso = flag_rotation = 0;
+
+    if (_recordRead("Covariance Type", "%d", &type)) return 1;
+    if (_recordRead("Isotropic Range", "%lf", &range)) return 1;
+    if (_recordRead("Model third Parameter", "%lf", &param)) return 1;
+    if (_recordRead("Flag for Anisotropy", "%d", &flag_aniso)) return 1;
+    if (flag_aniso)
+    {
+      aniso_ranges.resize(ndim);
+      // In fact, the file contains the anisotropy coefficients
+      // After reading, we must turn them into anisotropic ranges
+      for (int idim = 0; idim < ndim; idim++)
+        if (_recordRead("Anisotropy coefficient", "%lf",
+                           &aniso_ranges[idim])) return 1;
+      for (int idim = 0; idim < ndim; idim++) aniso_ranges[idim] *= range;
+
+      if (_recordRead("Flag for Anisotropy Rotation", "%d", &flag_rotation))  return 1;
+      if (flag_rotation)
+      {
+        // Warning: the storage in the File is performed by Column
+        // whereas the internal storage (Cova) is by column
+        aniso_rotmat.resize(ndim * ndim);
+        int lec = 0;
+        for (int idim = 0; idim < ndim; idim++)
+          for (int jdim = 0; jdim < ndim; jdim++)
+            if (_recordRead("Anisotropy Rotation Matrix", "%lf",
+                               &aniso_rotmat[lec++])) return 1;
+      }
+    }
+
+    if (isFlagGradient())
+    {
+      CovGradientNumerical covgrad((ENUM_COVS) type, getContext());
+      covgrad.setParam(param);
+      if (flag_aniso)
+      {
+        covgrad.setRanges(aniso_ranges);
+        if (flag_rotation) covgrad.setAnisoRotation(aniso_rotmat);
+      }
+      else
+        covgrad.setRange(range);
+      addCova(&covgrad);
+    }
+    else
+    {
+      CovAniso cova((ENUM_COVS) type, getContext());
+      cova.setParam(param);
+      if (flag_aniso)
+      {
+        cova.setRanges(aniso_ranges);
+        if (flag_rotation) cova.setAnisoRotation(aniso_rotmat);
+      }
+      else
+        cova.setRange(range);
+      addCova(&cova);
+    }
+  }
+
+  /* Reading the drift part */
+
+  for (int ibfl = 0; ibfl < nbfl; ibfl++)
+  {
+    if (_recordRead("Drift Function", "%d", &type)) return 1;
+    ADriftElem *drift;
+    drift = DriftFactory::createDriftFunc((ENUM_DRIFTS) type, getContext());
+    drift->setRankFex(0);
+    addDrift(drift);
+  }
+
+  /* Reading the matrix of means (only if nbfl <= 0) */
+
+  if (nbfl <= 0)
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      double mean;
+      if (_recordRead("Mean of Variable", "%lf", &mean)) return 1;
+      setMean(ivar,mean);
+    }
+
+  /* Reading the matrices of sills (optional) */
+
+  for (int icova = 0; icova < ncova; icova++)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+      {
+        if (_recordRead("Matrix of Sills", "%lf", &value)) continue;
+        setSill(icova,ivar,jvar,value);
+      }
+  }
+
+  /* Reading the variance-covariance at the origin (optional) */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      if (_recordRead("Variance-covariance at Origin", "%lf", &value)) continue;
+      setCovar0(ivar, jvar, value);
+    }
+
+  _fileClose();
+
+  return 0;
+}
+
+int Model::serialize(const String& filename, bool verbose)
+{
+  ADriftElem *drift;
+
+  if (_fileOpen(filename, "Model", "w")) return 1;
+
+  /* Write the Model structure */
+
+  _recordWrite("%d",  getDimensionNumber());
+  _recordWrite("%d",  getVariableNumber());
+  _recordWrite("%lf", getField());
+  _recordWrite("%lf", getContext().getBallRadius());
+  _recordWrite("#", "General parameters");
+  _recordWrite("%d", getCovaNumber());
+  _recordWrite("#", "Number of basic covariance terms");
+  _recordWrite("%d", getDriftNumber());
+  _recordWrite("#", "Number of drift terms");
+
+  /* Writing the covariance part */
+
+  for (int icova = 0; icova < getCovaNumber(); icova++)
+  {
+    CovAniso* cova = getCova(icova);
+    _recordWrite("%d",  cova->getType());
+    _recordWrite("%lf", cova->getRange());
+    _recordWrite("%lf", cova->getParam());
+    _recordWrite("#", "Covariance characteristics");
+
+    // Writing the Anisotropy information
+
+    _recordWrite("%d", cova->getFlagAniso());
+    _recordWrite("#", "Anisotropy Flag");
+
+    if (! cova->getFlagAniso()) continue;
+    for (int idim = 0; idim < getDimensionNumber(); idim++)
+      _recordWrite("%lf", cova->getAnisoCoeffs(idim));
+    _recordWrite("#", "Anisotropy Coefficients");
+    _recordWrite("%d", cova->getFlagRotation());
+    _recordWrite("#", "Anisotropy Rotation Flag");
+    if (! cova->getFlagRotation()) continue;
+    // Storing the rotation matrix by Column (compatibility)
+    for (int idim = 0; idim < getDimensionNumber(); idim++)
+      for (int jdim = 0; jdim < getDimensionNumber(); jdim++)
+        _recordWrite("%lf", cova->getAnisoRotMat(jdim,idim));
+    _recordWrite("#", "Anisotropy Rotation Matrix");
+  }
+
+  /* Writing the drift part */
+
+  for (int ibfl = 0; ibfl < getDriftNumber(); ibfl++)
+  {
+    drift = getDrift(ibfl);
+    _recordWrite("%d", drift->getType());
+    _recordWrite("#", "Drift characteristics");
+  }
+
+  /* Writing the matrix of means (if nbfl <= 0) */
+
+  if (getDriftNumber() <= 0)
+    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+  {
+    _recordWrite("%lf", getContext().getMean(ivar));
+    _recordWrite("#", "Mean of Variables");
+  }
+
+  /* Writing the matrices of sills (optional) */
+
+  for (int icova = 0; icova < getCovaNumber(); icova++)
+  {
+    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+      for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+        _recordWrite("%lf",getSill(icova,ivar,jvar));
+    _recordWrite("#", "Matrix of sills");
+  }
+
+  /* Writing the variance-covariance at the origin (optional) */
+
+  for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+    for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+      _recordWrite("%lf", getContext().getCovar0(ivar, jvar));
+  _recordWrite("#", "Var-Covar at origin");
+
+  /* Close the file */
+
+  _fileClose();
+
+  return 0;
+}
+
+void Model::_create(bool flagGradient, bool flagLinked)
+{
+  if (flagGradient)
+    _covaList = new CovLMGradient(_ctxt.getSpace());
+  else
+    _covaList = new CovLMC(_ctxt.getSpace());
+  _driftList = new ADriftList(flagLinked);
+}
+
+void Model::_destroy()
+{
+  if (_covaList != nullptr)  _covaList->delAllCov();
+  if (_driftList != nullptr) _driftList->delAllDrift();
+  delete _covaList;
+  delete _driftList;
 }

@@ -129,15 +129,6 @@ For variable 2
          8   218.000     7.991    19.214
          9   198.000     8.996    21.639
 
-Neighborhood characteristics
-============================
-Moving neighborhood option
-Space dimension                     = 2
-Minimum number of samples           = 1
-Maximum number of samples           = 8
-Number of angular sectors           = 4
-Maximum number of points per sector = 2
-
 Target location
 ---------------
 Sample #1 (from 4)

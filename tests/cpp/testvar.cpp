@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
   {
     if (variogram_compute(dbout,vario)) messageAbort("variogram_calcul");
     ascii_filename("Vario",0,1,filename);
-    if (ascii_vario_write(filename,vario,verbose,1)) 
+    if (vario->serialize(filename,verbose))
       messageAbort("ascii_vario_write");
   }
   
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
   (void) model_auto_fit(vario,model,verbose,mauto,constraints,options);
   model->display();
   ascii_filename("Model",0,1,filename);
-  if (ascii_model_write(filename,model,verbose))
+  if (model->serialize(filename,verbose))
     messageAbort("ascii_model_write");
   
 /* Core deallocation */

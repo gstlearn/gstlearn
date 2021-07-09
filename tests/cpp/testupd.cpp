@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     db = ascii_db_read(filename,0,verbose);
     if (db != (Db *) NULL) 
     {
-      ascii_db_write(filename,db,0,1,verbose);
+      db->serialize(filename,verbose);
       db  = db_delete(db);
     }
 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     db = ascii_db_read(filename,1,verbose);
     if (db != (Db *) NULL) 
     {
-      ascii_db_write(filename,db,0,1,verbose);
+      db->serialize(filename,verbose);
       db  = db_delete(db);
     }
 
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     vario = ascii_vario_read(filename,verbose);
     if (vario != (Vario *) NULL) 
     {
-      ascii_vario_write(filename,vario,verbose,0);
+      vario->serialize(filename,verbose);
       vario  = variogram_delete(vario);
     }
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     model = ascii_model_read(filename,verbose);
     if (model != (Model *) NULL) 
     {
-      ascii_model_write(filename,model,verbose);
+      model->serialize(filename,verbose);
       model = model_free(model);
     }
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     neigh = ascii_neigh_read(filename,verbose);
     if (neigh != (Neigh *) NULL) 
     {
-      ascii_neigh_write(filename,neigh,verbose);
+      neigh->serialize(filename,verbose);
       neigh = neigh_free(neigh);
     }
 
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     rule = ascii_rule_read(filename,verbose);
     if (rule != (Rule *) NULL) 
     {
-      ascii_rule_write(filename,rule,verbose);
+      rule->serialize(filename,verbose);
       rule = rule_free(rule);
     }
   }

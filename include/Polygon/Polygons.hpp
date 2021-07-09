@@ -14,31 +14,33 @@
 #include "Polygon/PolySet.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
+#include "Basic/CSVformat.hpp"
 
 class Db;
 
-class Polygons: public AStringable
+class Polygons: public AStringable, ASerializable
 {
 public:
   Polygons();
   Polygons(const String& filename,
-           int flag_header = true,
-           int nskip = 0,
-           const String& char_sep = ",",
-           const String& char_dec = ".",
-           const String& na_string = "NA",
+           const CSVformat& csv,
            int verbose = false,
            int ncol_max = -1,
            int nrow_max = -1,
            int flag_add_rank = 1);
+  Polygons(const String& neutralFilename, bool verbose = false);
   Polygons(const Db* db);
   Polygons(const Polygons& r);
   Polygons& operator=(const Polygons& r);
   virtual ~Polygons();
 
+  int deSerialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) override;
+  virtual std::string toString(int level = 0) const override;
+
   int getPolySetNumber() const { return _polysets.size(); }
   void addPolySet(const PolySet& polyset);
-  virtual std::string toString(int level = 0) const override;
 
   const std::vector<PolySet>& getPolySets() const { return _polysets; }
   const PolySet& getPolySet(int ipol) const { return _polysets[ipol]; }

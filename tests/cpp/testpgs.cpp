@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
       if (variogram_compute(dbin,vario)) goto label_end;
       if (verbose) variogram_print(vario,1);
       ascii_filename("Vario",0,1,filename);
-      if (ascii_vario_write(filename,vario,verbose,1)) 
+      if (vario->serialize(filename,verbose))
         messageAbort("ascii_vario_write");
       
       /* Delete the indicator variables */

@@ -47,8 +47,6 @@ static Constant CST[CST_NUMBER] = {
   { 2,  0, 1.0e-15, "EPSSVD", "Tolerance value for SVD Matrix calculations"}
 };
 
-static double ASCII_TEST = -999.;
-
 static char TABSTR[BUFFER_LENGTH];
 static char FORMAT[STRING_LENGTH];
 static char DECODE[STRING_LENGTH];

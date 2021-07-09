@@ -13,30 +13,15 @@
 #include "LithoRule/Node.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "geoslib_enum.h"
 
 
 class Db;
 class Model;
 
-class Rule: public AStringable {
-
-private:
-    int    _modeRule;    /* Type of usage */
-    int    _flagProp;    /* 1 if proportions are defined; 0 otherwise */
-    double _rho;         /* Correlation between GRFs */
-    double _shDsup;      /* Upper limit */
-    double _shDown;      /* Downwards limit */
-    double _slope;       /* Slope used for shadow option */
-    double _dMax;        /* Longest distance for shadow */
-    double _tgte;        /* Tangent of the slope */
-    double _incr;        /* Increments used for creating replicates */
-    VectorDouble _shift; /* Shadow or translation orientation */
-    VectorDouble _xyz;
-    VectorInt    _ind1;
-    VectorInt    _ind2;
-    Node*        _mainNode;
-
+class Rule: public AStringable, ASerializable
+{
 public:
   Rule(int mode_rule = RULE_STD,
        double rho = 0.,
@@ -54,12 +39,15 @@ public:
   Rule(const VectorDouble& shift);
   // Constructor for Shadow option
   Rule(double slope, double sh_dsup, double sh_down, const VectorDouble& shift);
+  Rule(const String& neutralFileName, bool verbose);
 
   Rule(const Rule& r);
   Rule& operator=(const Rule& r);
   virtual ~Rule();
 
   virtual std::string toString(int level = 0) const override;
+  int deSerialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) override;
 
   double getDMax() const { return _dMax; }
   int    getFlagProp() const { return _flagProp; }
@@ -124,6 +112,27 @@ private:
                       double *sh_down_max);
   int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check);
   void _nodNamesToIds(const VectorString& nodes, VectorInt &n_type, VectorInt& n_facs);
+  void _ruleDefine(Node *node,
+                   int from_type,
+                   int from_rank,
+                   int from_vers,
+                   int *rank);
+
+private:
+  int    _modeRule;    /* Type of usage */
+  int    _flagProp;    /* 1 if proportions are defined; 0 otherwise */
+  double _rho;         /* Correlation between GRFs */
+  double _shDsup;      /* Upper limit */
+  double _shDown;      /* Downwards limit */
+  double _slope;       /* Slope used for shadow option */
+  double _dMax;        /* Longest distance for shadow */
+  double _tgte;        /* Tangent of the slope */
+  double _incr;        /* Increments used for creating replicates */
+  VectorDouble _shift; /* Shadow or translation orientation */
+  VectorDouble _xyz;
+  VectorInt    _ind1;
+  VectorInt    _ind2;
+  Node*        _mainNode;
 };
 
 void   set_rule_mode(int rule_mode);

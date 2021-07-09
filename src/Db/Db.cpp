@@ -15,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/AException.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_f_private.h"
 #include "geoslib_f.h"
@@ -22,7 +23,9 @@
 #include <functional>
 
 Db::Db()
-    : _ncol(0),
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
       _nech(0),
       _isGrid(0),
       _array(),
@@ -40,7 +43,9 @@ Db::Db(int nech,
        const VectorString& names,
        const VectorString& locatorNames,
        int flag_add_rank)
-    : _ncol(0),
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
       _nech(0),
       _isGrid(false),
       _array(),
@@ -72,7 +77,9 @@ Db::Db(const VectorInt& nx,
        const VectorString& names,
        const VectorString& locatorNames,
        int flag_add_rank)
-    : _ncol(0),
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
       _nech(0),
       _isGrid(true),
       _array(),
@@ -114,17 +121,25 @@ Db::Db(const VectorInt& nx,
   _defineDefaultLocators(flag_add_rank + ndim, locatorNames);
 }
 
+/**
+ * Creating a Db by reading a CSV file
+ *
+ * @param filename   Name of the CSV file
+ * @param csv        Description of the CSV format
+ * @param verbose    Verbose flag
+ * @param ncol_max   Maximum number of columns
+ * @param nrow_max   Maximum number of rows
+ * @param flag_add_rank 1 if the sample rank must be generated
+ */
 Db::Db(const String& filename,
-       int flag_header,
-       int nskip,
-       const String& char_sep,
-       const String& char_dec,
-       const String& na_string,
+       const CSVformat& csv,
        int verbose,
        int ncol_max,
        int nrow_max,
        int flag_add_rank)
-    : _ncol(0),
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
       _nech(0),
       _isGrid(false),
       _array(),
@@ -140,8 +155,9 @@ Db::Db(const String& filename,
 
   /* Reading the CSV file */
 
-  if (csv_table_read(filename.c_str(), verbose, flag_header, nskip,
-                     char_sep.c_str(), char_dec.c_str(), na_string.c_str(),
+  if (csv_table_read(filename.c_str(), verbose,
+                     csv.getFlagHeader(), csv.getNSkip(),
+                     csv.getCharSep().c_str(), csv.getCharDec().c_str(),csv.getNaString().c_str(),
                      ncol_max, nrow_max, &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
@@ -166,12 +182,31 @@ Db::Db(const String& filename,
   _defineDefaultLocatorsByNames(flag_add_rank, names);
 }
 
+/**
+ * Creating a grid Db which covers the extension of the input 'Db'
+ *
+ * @param nodes    Vector of the expected number of grid nodes
+ * @param dcell    Vector of the expected sizes for the grid meshes
+ * @param origin   Vector of the expected origin of the grid
+ * @param margin   Vector of the expected margins of the grid
+ * @param flag_add_rank 1 if the sample rank must be generated
+ */
 Db::Db(Db* db,
        const VectorInt&    nodes,
        const VectorDouble& dcell,
        const VectorDouble& origin,
        const VectorDouble& margin,
        int flag_add_rank)
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
+      _nech(0),
+      _isGrid(false),
+      _array(),
+      _attcol(),
+      _colNames(),
+      _p(),
+      _grid(0)
 {
   _initP();
   int ndim = db->getNDim();
@@ -234,10 +269,50 @@ Db::Db(Db* db,
   setLocatorsByAttribute(ndim, jcol, LOC_X);
 }
 
+/**
+ * Create a Db by loading the contents of a Neutral File
+ *
+ * @param neutralFileName Name of the Neutral File (Db format)
+ * @param verbose         Verbosity flag
+ */
+Db::Db(const String& neutralFileName, bool verbose)
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
+      _nech(0),
+      _isGrid(false),
+      _array(),
+      _attcol(),
+      _colNames(),
+      _p(),
+      _grid(0)
+{
+  if (deSerialize(neutralFileName, verbose))
+    my_throw("Problem reading the Neutral File");
+}
+
+/**
+ * Creating a regular grid Db which covers the input Polygon
+ *
+ * @param polygon    Pointer to the input Polygon
+ * @param nodes      Vector of the expected number of nodes
+ * @param dcell      Vector of the expected dimensions for the grid cells
+ * @param flag_add_rank 1 if the sample rank must be generated
+ */
 Db::Db(Polygons* polygon,
        const VectorInt& nodes,
        const VectorDouble& dcell,
        int flag_add_rank)
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
+      _nech(0),
+      _isGrid(false),
+      _array(),
+      _attcol(),
+      _colNames(),
+      _p(),
+      _grid(0)
 {
   _initP();
   double xmin, xmax, ymin, ymax;
@@ -297,6 +372,7 @@ Db::Db(Polygons* polygon,
 
 /**
  * Sampling an input Db to create the output Db by selecting a subset of samples
+ *
  * @param dbin       Pointer to the input Db
  * @param proportion Proportion of samples to be retained
  * @param names      Vector of Names to be copied (empty: all names)
@@ -310,6 +386,16 @@ Db::Db(const Db* dbin,
        const VectorString& names,
        int seed,
        bool verbose)
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
+      _nech(0),
+      _isGrid(false),
+      _array(),
+      _attcol(),
+      _colNames(),
+      _p(),
+      _grid(0)
 {
   _initP();
 
@@ -351,6 +437,64 @@ Db::Db(const Db* dbin,
       values[iech] = dbin->getByColumn(ranks[iech],jcol);
     setColumnByRank(values, icol);
   }
+}
+
+/**
+ * Create a Db generating samples randomly
+ *
+ * @param nech    Number of samples to be generated
+ * @param coormin Vector giving the smallest values of the coordinates
+ * @param coormax Vector giving the largest values for the coordinates
+ * @param ndim    Space dimension (used if 'coormin' and 'coormax' are empty)
+ * @param seed    Seed for the random number generator
+ * @param flag_add_rank 1 if the Sample ranks must be generated
+ */
+Db::Db(int nech,
+       const VectorDouble& coormin,
+       const VectorDouble& coormax,
+       int ndim,
+       int seed,
+       int flag_add_rank)
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
+      _nech(0),
+      _isGrid(false),
+      _array(),
+      _attcol(),
+      _colNames(),
+      _p(),
+      _grid(0)
+{
+  _initP();
+  if (! coormin.empty()) ndim = (int) coormin.size();
+  if (! coormax.empty()) ndim = MIN(ndim, (int) coormax.size());
+  _ncol = ndim + flag_add_rank;
+  _nech = nech;
+  reset(_ncol, _nech);
+
+  // Generate the sample number
+  if (flag_add_rank) _createRank(0);
+
+  // Generate the coordinates
+  law_set_random_seed(seed);
+  VectorDouble tab(ndim * nech);
+  int ecr = 0;
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double mini = (coormin.empty()) ? 0. : coormin[idim];
+    double maxi = (coormax.empty()) ? 1. : coormax[idim];
+    for (int iech = 0; iech < nech; iech++)
+      tab[ecr++] = law_uniform(mini,maxi);
+  }
+
+  // Load the coordinates
+  VectorString names = generateMultipleNames("x", ndim);
+  _loadData(tab, names, VectorString(), LOAD_BY_SAMPLE, flag_add_rank);
+
+  int jcol = 0;
+  if (flag_add_rank) jcol++;
+  setLocatorsByAttribute(ndim, jcol, LOC_X);
 }
 
 Db::Db(const Db& r)
@@ -2883,7 +3027,7 @@ void Db::_defineDefaultLocators(int shift, const VectorString& locatorNames)
   for (int icol = 0; icol < ncol; icol++)
   {
     if (!locatorIdentify(locatorNames[icol], &locatorType, &locatorIndex, &mult))
-      setLocatorByAttribute(icol + shift, locatorType, locatorIndex + icol);
+      setLocatorByAttribute(icol + shift, locatorType, locatorIndex);
   }
 }
 
@@ -2899,7 +3043,7 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   for (int icol = 0; icol < ncol; icol++)
   {
     if (!locatorIdentify(names[icol], &locatorType, &locatorIndex, &mult))
-      setLocatorByAttribute(icol + shift, locatorType, locatorIndex + icol + 1);
+      setLocatorByAttribute(icol + shift, locatorType, locatorIndex);
   }
 }
 
@@ -3013,5 +3157,308 @@ VectorDouble Db::statisticsMulti(const VectorString& names,
 int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar)
 {
   return (isimu + nbsimu * (ivar + nvar * icase));
+}
+
+int Db::deSerialize(const String& filename, bool verbose)
+{
+  int ndim, ndim2, ntot, natt, nech, i, flag_grid;
+  VectorInt tabnum;
+  std::vector<ENUM_LOCS> tabatt;
+  VectorInt nx;
+  VectorString tabnam;
+  VectorDouble x0;
+  VectorDouble dx;
+  VectorDouble tab;
+  static int flag_add_rank = 1;
+
+  /* Initializations */
+
+  natt = ndim = nech = ntot = 0;
+
+  /* Opening the Data file */
+
+  if (_fileOpen(filename, "Db", "r")) return 1;
+
+  /* Check the grid organization */
+
+  if (_recordRead("Grid Flag", "%d", &flag_grid)) goto label_end;
+
+  /* Grid case; read the grid header */
+
+  if (flag_grid)
+  {
+
+    /* Decoding the header */
+
+    if (_recordRead("Space Dimension", "%d", &ndim)) goto label_end;
+
+    /* Core allocation */
+
+    nx.resize(ndim);
+    dx.resize(ndim);
+    x0.resize(ndim);
+
+    /* Read the grid characteristics */
+
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (_recordRead("Grid Number of Nodes", "%d", &nx[idim])) goto label_end;
+      if (_recordRead("Grid Origin", "%lf", &x0[idim])) goto label_end;
+      if (_recordRead("Grid Mesh", "%lf", &dx[idim])) goto label_end;
+    }
+    ntot = ut_ivector_prod(nx);
+  }
+
+  /* Reading the tail of the file */
+
+  _variableRead(&natt, &ndim2, &nech, tabatt, tabnum, tabnam, tab);
+
+  /* Creating the Db */
+
+  if (flag_grid)
+  {
+    if (natt > 0 && nech != ntot)
+    {
+      messerr("The number of lines read from the Grid file (%d)", nech);
+      messerr("is not a multiple of the number of samples (%d)", ntot);
+      messerr("The Grid Db is created with no sample attached");
+      natt = 0;
+    }
+    reset(natt + flag_add_rank, ut_ivector_prod(nx));
+    (void) gridDefine(nx, dx, x0, VectorDouble());
+    _loadData(1, flag_add_rank, tab);
+  }
+  else
+  {
+    reset(natt + flag_add_rank, nech);
+    _loadData(1, flag_add_rank, tab);
+  }
+
+  /* Loading the names */
+
+  if (natt > 0)
+    for (i = 0; i < natt; i++)
+      setName(i + flag_add_rank, tabnam[i]);
+
+  /* Create the locators */
+
+  if (natt > 0) for (i = 0; i < natt; i++)
+    setLocatorByAttribute(i + flag_add_rank, tabatt[i], tabnum[i]);
+
+  /* Core deallocation */
+
+  label_end:
+  _fileClose();
+  return 0;
+}
+
+int Db::serialize(const String& filename, bool verbose)
+{
+  bool flag_grid = isGrid();
+
+  /* Opening the Data file */
+
+  if (_fileOpen(filename, "Db", "w")) return 1;
+
+  /* Writing the file organization */
+
+  _recordWrite("%d", flag_grid);
+  _recordWrite("#", "File organization (0:Points; 1:Grid)");
+
+  if (flag_grid)
+  {
+
+    /* Writing the header */
+
+    _recordWrite("%d", getNDim());
+    _recordWrite("#", "Space Dimension");
+
+    /* Writing the grid characteristics */
+
+    _recordWrite("#", "Grid characteristics (NX,X0,DX)");
+    for (int idim = 0; idim < getNDim(); idim++)
+    {
+      _recordWrite("%d",  getNX(idim));
+      _recordWrite("%lf", getX0(idim));
+      _recordWrite("%lf", getDX(idim));
+      _recordWrite("\n");
+    }
+  }
+
+  /* Writing the tail of the file */
+
+  if (_variableWrite(flag_grid)) return 1;
+
+  // Close the Neutral file
+  _fileClose();
+
+  return 0;
+}
+
+int Db::_variableWrite(bool flag_grid)
+{
+  int ecr, item;
+  ENUM_LOCS locatorType;
+
+  /* Preliminary check */
+
+  if (getFieldNumber() <= 0 || getSampleNumber() <= 0) return 0;
+
+  /* Count the number of variables to be written */
+
+  int ncol = 0;
+  for (int icol = 0; icol < getFieldNumber(); icol++)
+  {
+    if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
+    if (flag_grid && locatorType == LOC_X) continue;
+    ncol++;
+  }
+  _recordWrite("%d", ncol);
+  _recordWrite("#", "Number of variables");
+
+  /* Print the locators */
+
+  _recordWrite("#", "Locators");
+  ecr = 0;
+  for (int icol =  0; icol < getFieldNumber(); icol++)
+  {
+    if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
+    if (flag_grid && locatorType == LOC_X) continue;
+    if (ecr >= ncol) break;
+    String string = getLocatorName(locatorType, item);
+    _recordWrite("%s", string.c_str());
+    ecr++;
+  }
+  _recordWrite("\n");
+
+  /* Print the variable names */
+
+  _recordWrite("#", "Names");
+  ecr = 0;
+  for (int icol = 0; icol < getFieldNumber(); icol++)
+  {
+    if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
+    if (flag_grid && locatorType == LOC_X) continue;
+    if (ecr >= ncol) break;
+    _recordWrite("%s", getNameByColumn(icol).c_str());
+  }
+  _recordWrite("\n");
+
+  /* Print the array of values */
+
+  _recordWrite("#", "Array of values");
+  for (int iech = 0; iech < getSampleNumber(); iech++)
+  {
+    if (!flag_grid && !getSelection(iech)) continue;
+    for (int icol = 0; icol < getFieldNumber(); icol++)
+    {
+      if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
+      if (flag_grid && locatorType == LOC_X) continue;
+      _recordWrite("%lf", getArray(iech, icol));
+    }
+    _recordWrite("\n");
+  }
+  return (0);
+}
+
+void Db::_variableRead(int *natt_r,
+                       int *ndim_r,
+                       int *nech_r,
+                       std::vector<ENUM_LOCS>& tabatt,
+                       VectorInt& tabnum,
+                       VectorString& tabnam,
+                       VectorDouble& tab)
+{
+  char line[LONG_SIZE];
+  int  inum, natt, ndim, nval, ecr, mult;
+  ENUM_LOCS iatt;
+  double value;
+
+  /* Initializations */
+
+  natt = nval = ndim = 0;
+
+  /* Read the number of variables */
+
+  if (_recordRead("Number of Variables", "%d", &natt)) goto label_end;
+
+  /* Decoding the locators */
+
+  ecr = 0;
+  while (1)
+  {
+    if (ecr >= natt) break;
+    if (_recordRead("Locator Name", "%s", line)) goto label_end;
+    if (locatorIdentify(line, &iatt, &inum, &mult)) break;
+    tabatt.push_back(iatt);
+    tabnum.push_back(inum);
+    if (iatt == LOC_X) ndim++;
+    ecr++;
+  }
+
+  /* Decoding the names */
+
+  ecr = 0;
+  while (1)
+  {
+    if (ecr >= natt) break;
+    if (_recordRead("Variable Name", "%s", line)) goto label_end;
+    tabnam.push_back(line);
+    ecr++;
+  }
+
+  /* Read the numeric values */
+
+  while (1)
+  {
+    if (_recordRead("Numerical value", "%lf", &value)) goto label_end;
+    tab.push_back(value);
+    nval++;
+  }
+
+  label_end:
+
+  /* Returning arguments */
+
+  *natt_r = natt;
+  *nech_r = (natt > 0) ? nval / natt : 0;
+  *ndim_r = ndim;
+  return;
+}
+
+void Db::_loadData(int order, int flag_add_rank, const VectorDouble& tab)
+{
+  // Preliminary check
+
+  if (getFieldNumber() <= 0) return;
+  int jcol = 0;
+
+  // Add the rank (optional)
+
+  if (flag_add_rank)
+  {
+    for (int iech = 0; iech < getSampleNumber(); iech++)
+      setByColumn(iech, jcol, iech + 1);
+    setName(jcol, "rank");
+    jcol++;
+  }
+
+  // Add the input array 'tab' (if provided)
+
+  if (tab.empty()) return;
+  int ntab = (flag_add_rank) ? getFieldNumber() - 1 : getFieldNumber();
+  int ecr = 0;
+  for (int icol = 0; icol < ntab; icol++)
+  {
+    for (int iech = 0; iech < getSampleNumber(); iech++, ecr++)
+    {
+      if (order == LOAD_BY_SAMPLE)
+        setByColumn(iech, jcol, tab[icol + ntab * iech]);
+      else
+        setByColumn(iech, jcol, tab[ecr]);
+    }
+    jcol++;
+  }
+  return;
 }
 

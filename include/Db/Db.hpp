@@ -18,7 +18,9 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 
 typedef enum
 {
@@ -33,7 +35,7 @@ typedef enum
  * Class containing the Data Set.
  * It can be organized as a set of Isolated Points or as a regular Grid
  */
-class Db: public AStringable
+class Db: public AStringable, ASerializable
 {
 public:
   Db();
@@ -53,11 +55,7 @@ public:
      const VectorString& locatorNames = VectorString(),
      int flag_add_rank = 1);
   Db(const String& filename,
-     int flag_header = true,
-     int nskip = 0,
-     const String& char_sep = ",",
-     const String& char_dec = ".",
-     const String& na_string = "NA",
+     const CSVformat& csv = CSVformat(),
      int verbose = false,
      int ncol_max = -1,
      int nrow_max = -1,
@@ -68,6 +66,7 @@ public:
      const VectorDouble& origin = VectorDouble(),
      const VectorDouble& margin = VectorDouble(),
      int flag_add_rank = 1);
+  Db(const String& neutralFileName, bool verbose);
   Db(Polygons* polygon,
      const VectorInt& nodes,
      const VectorDouble& dcell,
@@ -77,6 +76,12 @@ public:
      const VectorString& names = VectorString(),
      int seed = 23241,
      bool verbose = false);
+  Db(int nech,
+     const VectorDouble& coormin,
+     const VectorDouble& coormax,
+     int ndim = 2,
+     int seed = 321415,
+     int flag_add_rank = 1);
   Db(const Db& r);
   Db& operator=(const Db& r);
   virtual ~Db();
@@ -93,6 +98,8 @@ private:
 
 public:
   virtual String toString(int level = 0) const override;
+  int deSerialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) override;
 
   const VectorDouble& getArrays() const { return _array; }
   const String getNameByColumn(int icol) const { return _colNames[icol]; }
@@ -551,4 +558,13 @@ private:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
+  int  _variableWrite(bool flag_grid);
+  void _variableRead(int *natt_r,
+                     int *ndim_r,
+                     int *nech_r,
+                     std::vector<ENUM_LOCS>& tabatt,
+                     VectorInt& tabnum,
+                     VectorString& tabnam,
+                     VectorDouble& tab);
+  void _loadData(int order, int flag_add_rank, const VectorDouble& tab);
 };

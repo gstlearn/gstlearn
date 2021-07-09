@@ -58,6 +58,9 @@ void ut_ivector_addval(VectorInt& vec, int v);
 void ut_vector_divide_vec(VectorDouble& vec, const VectorDouble& v);
 int  ut_vector_count_undefined(const VectorDouble& vec);
 
-VectorDouble ut_vector_uniform(int n, double mini = 0., double maxi = 1.);
-VectorDouble ut_vector_gaussian(int n, double mean = 0., double sigma = 1.);
 VectorInt    ut_vector_sample(int ntotal, double proportion, int seed = 242141);
+
+VectorDouble ut_vector_simulate_uniform(int n, double mini = 0., double maxi = 1.);
+VectorDouble ut_vector_simulate_gaussian(int n, double mean = 0., double sigma = 1.);
+
+int ut_ivector_prod(const VectorInt nx);

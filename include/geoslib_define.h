@@ -25,6 +25,8 @@
 #define TEST_COMP 1.000e30
 #define ITEST    -1234567
 
+#define ASCII_TEST    -999.
+
 #define BUFFER_LENGTH 10000
 #define STRING_LENGTH   100
 #define LOCAL_SIZE       10

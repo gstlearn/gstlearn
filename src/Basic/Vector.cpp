@@ -275,7 +275,7 @@ VectorDouble ut_vector_power(const VectorDouble&vec, double power)
   return res;
 }
 
-VectorDouble ut_vector_uniform(int n, double mini, double maxi)
+VectorDouble ut_vector_simulate_uniform(int n, double mini, double maxi)
 {
   VectorDouble vec(n);
   for (int i = 0; i < n; i++)
@@ -296,7 +296,7 @@ void ut_vector_subtract_inplace(VectorDouble& vec1, const VectorDouble& vec2)
     vec1[i] -= vec2[i];
 }
 
-VectorDouble ut_vector_gaussian(int n, double mean, double sigma)
+VectorDouble ut_vector_simulate_gaussian(int n, double mean, double sigma)
 {
   VectorDouble vec(n);
   for (int i = 0; i < n; i++)
@@ -389,4 +389,13 @@ int ut_vector_count_undefined(const VectorDouble& vec)
     if (FFFF(vec[i])) count++;
   }
   return count;
+}
+
+int ut_ivector_prod(const VectorInt vec)
+{
+  if (vec.empty()) return 0;
+  int nprod = 1;
+  for (int i = 0; i < (int) vec.size(); i++) nprod *= vec[i];
+  return nprod;
+
 }

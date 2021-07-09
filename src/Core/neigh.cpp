@@ -793,26 +793,6 @@ static void st_get_neigh_anisotropy(Neigh *neigh,
 
 /****************************************************************************/
 /*!
-**  Save anisotropy argument in the Neigh structure
-**
-** \param[in]  nbgh_radius Array of anisotropic search radii
-**                         (only used for NEIGH_MOVING)
-**
-** \param[out] neigh       Neigh structure
-**
-*****************************************************************************/
-static void st_set_neigh_anisotropy(const double *nbgh_radius,
-                                    Neigh *neigh)
-{
-  neigh->setRadius(0.);
-  for (int i=0; i<neigh->getNDim(); i++)
-    neigh->setRadius(MAX(neigh->getRadius(),nbgh_radius[i]));
-  for (int i=0; i<neigh->getNDim(); i++)
-    neigh->setAnisoCoeff(i, nbgh_radius[i] / neigh->getRadius());
-}
-
-/****************************************************************************/
-/*!
 **  Allocate the Neigh structure
 **
 ** \return  Pointer on the Neigh structure allocated
@@ -904,16 +884,16 @@ GEOSLIB_API Neigh *neigh_init(int ndim,
 
   if (neigh->getFlagAniso() && ! nbgh_radius.empty())
   {
-    st_set_neigh_anisotropy(nbgh_radius.data(),neigh);
+    neigh->setRadius(0.);
+    for (int i=0; i<neigh->getNDim(); i++)
+      neigh->setRadius(MAX(neigh->getRadius(),nbgh_radius[i]));
+    for (int i=0; i<neigh->getNDim(); i++)
+      neigh->setAnisoCoeff(i, nbgh_radius[i] / neigh->getRadius());
   }
   if (neigh->getFlagRotation() && ! nbgh_rotmat.empty())
-  {
     neigh->setAnisoRotMat(nbgh_rotmat);
-  }
   if (type == NEIGH_IMAGE && ! nbgh_image.empty())
-  {
     neigh->setImageRadius(nbgh_image);
-  }
 
   return(neigh);
 }

@@ -4,4 +4,5 @@ Model
 0 # Number of drift terms
 0 0.000000 0.000000 # Covariance characteristics
 0 # Anisotropy Flag
-1.000000 # Mean of Variables
+0.000000 # Mean of Variables
+1.000000 # Matrix of sills
