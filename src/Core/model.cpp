@@ -3846,7 +3846,7 @@ GEOSLIB_API int model_sample(Vario *vario,
   d1.resize(ndim);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == (double *) NULL) goto label_end;
-  vario->resize(ndim, nvar);
+  vario->internalResize(ndim, nvar);
 
   /* Calculate the C(0) constant term */
 
@@ -4372,7 +4372,7 @@ GEOSLIB_API int model_regularize(Model *model,
   }
   nech = get_NECH(db);
   norme = nech * nech;
-  vario->resize(ndim, nvar);
+  vario->internalResize(ndim, nvar);
 
   /* Core allocation */
 

@@ -299,6 +299,7 @@ GEOSLIB_API void check_mandatory_attribute(const char *method,
 **
 ** \return  1 if the field must be kept; 0 otherwise
 **
+** \param[in]  db         Db where the variable should be deleted or kept
 ** \param[in]  flag_gaus  1 gaussian results; otherwise facies
 ** \param[in]  flag_modif 1 for facies proportion
 ** \param[in]  file       DATA or RESULT
@@ -5938,34 +5939,43 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Free the temporary variables */
   /********************************/
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,PROP) && iptr_RP)
-    dbout->deleteFieldByLocator(LOC_P);
-  else
-    namconv.setNamesAndLocators(NULL,LOC_Z,-1,dbout,iptr_RP,"Props",nbsimu,false);
+  if (dbout != nullptr)
+  {
+    if (!st_keep(flag_gaus, flag_modif, RESULT, PROP) && iptr_RP)
+      dbout->deleteFieldByLocator(LOC_P);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RP, "Props",
+                                  nbsimu, false);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, GAUS))
+      dbout->deleteFieldByLocator(LOC_SIMU);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RN, "Gaus",
+                                  ngrf * nbsimu, false);
 
-  if (! st_keep(flag_gaus,flag_modif,DATA,GAUS))
-    dbin->deleteFieldByLocator(LOC_SIMU);
-  else
-    namconv.setNamesAndLocators(NULL,LOC_Z,-1,dbin,iptr_DN,"Gaus",ngrf*nbsimu,false);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, FACIES) && iptr_RF)
+      dbout->deleteFieldByLocator(LOC_FACIES);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RF, "Facies",
+                                  nbsimu, true);
+  }
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,GAUS))
-    dbout->deleteFieldByLocator(LOC_SIMU);
-  else
-    namconv.setNamesAndLocators(NULL,LOC_Z,-1,dbout,iptr_RN,"Gaus",ngrf*nbsimu,false);
+  if (dbin != nullptr)
+  {
+    if (!st_keep(flag_gaus, flag_modif, DATA, GAUS))
+      dbin->deleteFieldByLocator(LOC_SIMU);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DN, "Gaus",
+                                  ngrf * nbsimu, false);
+    if (!st_keep(flag_gaus, flag_modif, DATA, FACIES) && iptr_DF)
+      dbin->deleteFieldByLocator(LOC_FACIES);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DF, "Facies",
+                                  nbsimu, false);
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,FACIES) && iptr_RF)
-    dbout->deleteFieldByLocator(LOC_FACIES);
-  else
-    namconv.setNamesAndLocators(NULL,LOC_Z,-1,dbout,iptr_RF,"Facies",nbsimu,true);
-
-  if (! st_keep(flag_gaus,flag_modif,DATA,FACIES) && iptr_DF)
-    dbin->deleteFieldByLocator(LOC_FACIES);
-  else
-    namconv.setNamesAndLocators(NULL,LOC_Z,-1,dbin,iptr_DF,"Facies",nbsimu,false);
-
-  dbin->deleteFieldByLocator(LOC_GAUSFAC);
-  dbin->deleteFieldByLocator(LOC_L);
-  dbin->deleteFieldByLocator(LOC_U);
+    dbin->deleteFieldByLocator(LOC_GAUSFAC);
+    dbin->deleteFieldByLocator(LOC_L);
+    dbin->deleteFieldByLocator(LOC_U);
+  }
 
   /* Set the error return flag */
 

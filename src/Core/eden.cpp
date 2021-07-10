@@ -632,7 +632,7 @@ static int WT(int    ifacies,
 ** \return  The weight
 **
 ** \param[in]  ipos    Cell location
-** \param[in]  idir    Direciton value
+** \param[in]  idir    Direction value
 **
 *****************************************************************************/
 static double GET_WEIGHT(int ipos,

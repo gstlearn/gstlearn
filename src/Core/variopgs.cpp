@@ -926,13 +926,13 @@ static double st_func_search_stat(double  correl,
       }
 
       double logp = (proba <= 0.) ? -1.e30 : log(proba);
-      int iad     = 0;
-      double gg   = 0;
-      iad         = dir.getAddress(ifac1,ifac2,ipas,false,1);
+      int iad     = dir.getAddress(ifac1,ifac2,ipas,false,1);
       double sw   = dir.getSw(iad);
-      gg         += dir.getGg(iad);
+      double gg   = dir.getGg(iad);
+      message("iad1=%d ipas=%d ifac=%d %d sw=%lf gg=%lf\n",iad,ipas,ifac1,ifac2,sw,gg);
       iad         = dir.getAddress(ifac1,ifac2,ipas,false,-1);
       gg         += dir.getGg(iad);
+      message("iad2=%d ipas=%d ifac=%d %d sw=%lf gg=%lf\n",iad,ipas,ifac1,ifac2,sw,gg);
       sum -= logp * gg * sw / 2.;
     }
   return(0.5 * sum);
@@ -4103,8 +4103,9 @@ static int st_vario_pgs_check(int    flag_db,
     messerr("Only the Variogram is calculated here");
     return(1);
   }
+
   // Resize to the number of Underlying GRF
-  // vario->resize(vario->getDimensionNumber(), rule->getGRFNumber());
+  vario->internalResize(db->getNDim(), rule->getGRFNumber());
 
   /* Input Db file (optional) */
 
@@ -5120,13 +5121,15 @@ label_end:
 **
 ** \return  Error return code
 **
+** \param[in]  db           Db structure (for Space dimension)
 ** \param[in]  vario        Vario structure for the GRFs to be filled
 ** \param[in]  varioind     Indicator Vario structure 
 ** \param[in]  rule         Lithotype Rule definition
 ** \param[in]  propcst      Array of proportions for the facies
 **
 *****************************************************************************/
-static int st_variogram_pgs_stat(Vario  *vario,
+static int st_variogram_pgs_stat(Db     *db,
+                                 Vario  *vario,
                                  Vario  *varioind,
                                  Rule   *rule,
                                  const   VectorDouble& propcst)
@@ -5146,7 +5149,7 @@ static int st_variogram_pgs_stat(Vario  *vario,
 
   /* Preliminary checks */
 
-  if (st_vario_pgs_check(0,1,1,NULL,NULL,vario,varioind,rule)) goto label_end;
+  if (st_vario_pgs_check(0,1,1,db,NULL,vario,varioind,rule)) goto label_end;
 
   /*******************/
   /* Core allocation */
@@ -5219,6 +5222,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
                               int     opt_correl)
 {
   Vario* varioind;
+  VectorDouble props;
   int error;
 
   /* Initializations */
@@ -5235,9 +5239,9 @@ GEOSLIB_API int variogram_pgs(Db     *db,
     messerr("The output Variogram must be provided (empty)");
     return 1;
   }
-  if (vario->getDimensionNumber() <= 0)
+  if (vario->getDirectionNumber() <= 0)
   {
-    messerr("The variogram must contain at least one calculation Direciton");
+    messerr("The variogram must contain at least one calculation Direction");
     return 1;
   }
 
@@ -5247,18 +5251,38 @@ GEOSLIB_API int variogram_pgs(Db     *db,
     return 1;
   }
   int iatt = db->getAttribute(LOC_Z,0);
+  int nclass = rule->getFaciesNumber();
+  if (nclass <= 0)
+  {
+    messerr("No Facies class have been found");
+    return 1;
+  }
 
   // In Stationary case, create the variogram of indicators to speed up calculations
 
   if (flag_stat)
   {
-    // Calculate the number of Facies in 'Db'
-    VectorDouble props = dbStatisticsFacies(db);
-    int nclass = props.size();
-    if (nclass <= 0)
+    if (! propcst.empty())
     {
-      messerr("No Facies class have been found");
-      return 1;
+      if ((int) propcst.size() != nclass)
+      {
+        messerr("Number of proportions in 'propcst' (%d) should match Number of Facies in 'rule' (%d)",
+                (int) propcst.size(),rule->getFaciesNumber());
+        return 1;
+      }
+      props.resize(nclass);
+      props = propcst;
+    }
+    else
+    {
+      // Calculate the number of Facies in 'Db'
+      props = dbStatisticsFacies(db);
+      if ((int) props.size() != nclass)
+      {
+        messerr("Number of Facies in 'db' (%d) should match Number of facies in 'rule' (%d)",
+                (int) props.size(), rule->getFaciesNumber());
+        return 1;
+      }
     }
 
     // Translate the 'Facies' into 'categories'
@@ -5270,7 +5294,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
     }
 
     // Calculate the variogram of Indicators
-    varioind = vario;
+    varioind = (Vario*) vario->clone();
     if (varioind->compute(db,props))
     {
       messerr("Error when calculating the Variogram of Indicators");
@@ -5286,10 +5310,9 @@ GEOSLIB_API int variogram_pgs(Db     *db,
   /* Perform the calculations */
 
   if (flag_stat)
-    error = st_variogram_pgs_stat(vario,varioind,rule,propcst);
+    error = st_variogram_pgs_stat(db,vario,varioind,rule,props);
   else
-    error = st_variogram_pgs_nostat(db,dbprop,vario,rule,propcst,
-                                    flag_rho,opt_correl);
+    error = st_variogram_pgs_nostat(db,dbprop,vario,rule,props,flag_rho,opt_correl);
 
   /* Final operations */
 
@@ -5363,7 +5386,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   /* Preliminary tasks (as in variogram.pgs) */
 
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
-  if (st_vario_pgs_check(0,0,flag_stat,NULL,NULL,vario,varioind,NULL)) 
+  if (st_vario_pgs_check(0,0,flag_stat,db,NULL,vario,varioind,NULL))
     goto label_end;
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);

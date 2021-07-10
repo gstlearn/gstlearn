@@ -21,6 +21,7 @@ Vario::Vario(const String& calculName,
              VectorDouble dates)
   : AStringable()
   , ASerializable()
+  , IClonable()
   , _calculName(calculName)
   , _nDim(0)
   , _nVar(0)
@@ -37,6 +38,7 @@ Vario::Vario(const String& neutralFileName,
              bool verbose)
   : AStringable()
   , ASerializable()
+  , IClonable()
   , _calculName()
   , _nDim(0)
   , _nVar(0)
@@ -85,8 +87,15 @@ Vario::~Vario()
 {
 }
 
-void Vario::resize(int ndim, int nvar)
+void Vario::internalResize(int ndim, int nvar)
 {
+  if (ndim <= 0 || nvar <= 0)
+  {
+    messerr("The Internal Dimension assigned to he variogram are incorrect:");
+    messerr("- Space Dimension = %d",ndim);
+    messerr("- Number of variables = %d",nvar);
+    my_throw("Error in Internal Variogram dimensioning");
+  }
   _nDim = ndim;
   _nVar = nvar;
 
@@ -98,6 +107,12 @@ void Vario::resize(int ndim, int nvar)
   for (int idir = 0; idir < getDirectionNumber(); idir++)
     _dirs[idir].resize(nvar, getFlagAsym());
 }
+
+IClonable* Vario::clone() const
+{
+  return new Vario(*this);
+}
+
 
 double Vario::getHmax(int ivar, int jvar) const
 {
@@ -145,7 +160,7 @@ int Vario::compute(Db *db,
 {
   int ndim = db->getNDim();
   int nvar = db->getVariableNumber();
-  resize(ndim, nvar);
+  internalResize(ndim, nvar);
 
   setMeans(means);
   setVars(vars);
@@ -493,7 +508,7 @@ int Vario::deSerialize(const String& filename, bool verbose)
 
   /* Initialize the variogram structure */
 
-  resize(ndim, nvar);
+  internalResize(ndim, nvar);
   setCalculName("vg");
   setScale(scale);
   setVars(vars);

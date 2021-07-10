@@ -52,7 +52,7 @@ void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDoub
   VectorDouble work= in;
   VectorDouble work2(n);
 
-  for(int j=0;j<_coeffs.size();j++)
+  for(unsigned int j=0; j <_coeffs.size(); j++)
   {
     cs_vecmult(Op,work.data(),work2.data());
     for (int i = 0; i<n ; i++)
