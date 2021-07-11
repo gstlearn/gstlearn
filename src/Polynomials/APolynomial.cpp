@@ -14,6 +14,12 @@
 #include "Basic/Vector.hpp"
 #include "csparse_d.h"
 
+#include <string>
+#include <algorithm>
+#include <sstream>
+#include <iterator>
+#include <iostream>
+
 APolynomial & APolynomial::operator=(const APolynomial& p)
 {
   if(this!=&p)
@@ -34,6 +40,19 @@ APolynomial::APolynomial(VectorDouble coeffs)
   init(coeffs);
 }
 
+String APolynomial::toString(int level) const
+{
+  String str;
+  std::ostringstream oss;
+  str += "Polynomials of degree " + std::to_string(_coeffs.size()-1) + "\n";
+  if (!_coeffs.empty())
+  {
+    std::copy(_coeffs.begin(), _coeffs.end(),
+    std::ostream_iterator<double>(oss, " "));
+  }
+  str +=oss.str() + "\n";
+  return str;
+}
 void APolynomial::init(VectorDouble coeffs)
 {
   _coeffs = coeffs;

@@ -28,7 +28,7 @@ public:
   virtual IClonable* clone() const = 0;
   void init(VectorDouble coeffs);
   virtual ~APolynomial() {};
-
+  String toString(int level = 0) const override;
   virtual double eval(double x) const = 0;
 
   virtual void evalOp(cs* Op,
