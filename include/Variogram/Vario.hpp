@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
+#include "Basic/IClonable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
@@ -21,7 +22,7 @@ class Dir;
 class Db;
 class Model;
 
-class Vario : public AStringable, ASerializable
+class Vario : public AStringable, ASerializable, IClonable
 {
 public:
   Vario(const String& calculName = "vg",
@@ -37,6 +38,7 @@ public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) override;
+  virtual IClonable* clone() const override;
 
   void addDirs(const Dir& dir);
   void addDirs(const std::vector<Dir> dirs);
@@ -87,7 +89,7 @@ public:
   const std::vector<Dir>& getDirs() const { return _dirs; }
   Dir& getDirs(int idir)  { return _dirs[idir]; } // TODO Dangerous (not const)
 
-  void resize(int ndim, int nvar);
+  void internalResize(int ndim, int nvar);
 
   double getHmax(int ivar=0, int jvar=0) const;
 

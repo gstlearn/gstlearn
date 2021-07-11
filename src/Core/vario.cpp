@@ -7044,7 +7044,7 @@ GEOSLIB_API int variogram_compute(Db    *db,
 {
   int error;
 
-  vario->resize(db->getNDim(), db->getVariableNumber());
+  vario->internalResize(db->getNDim(), db->getVariableNumber());
   vario->setFlagSample(flag_sample);
   if (flag_grid)
   {
@@ -7287,7 +7287,7 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
 {
   int ndim = db->getNDim();
   int nvar = db->getVariableNumber();
-  vario->resize(ndim, nvar);
+  vario->internalResize(ndim, nvar);
 
   // Determining the missing information
 

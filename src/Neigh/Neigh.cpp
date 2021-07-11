@@ -37,6 +37,9 @@ Neigh::Neigh()
 {
 }
 
+/**
+ * Constructor of a Unique Neighborhood
+ */
 Neigh::Neigh(int ndim)
     : AStringable(),
       ASerializable(),

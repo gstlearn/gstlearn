@@ -380,7 +380,6 @@ VectorDouble dbStatisticsFacies(Db *db)
     return props;
   }
   int nech = db->getSampleNumber();
-  int iatt = db->getAttribute(LOC_Z,0);
 
   // Find the number of Facies
 
@@ -390,8 +389,8 @@ VectorDouble dbStatisticsFacies(Db *db)
   int neff = 0;
   for (int iech=0; iech<nech; iech++)
   {
-    if (! db->isActiveAndDefined(iech,iatt)) continue;
-    int ifac = (int) db->getVariable(iech,iatt);
+    if (! db->isActiveAndDefined(iech,0)) continue;
+    int ifac = (int) db->getVariable(iech,0);
     if (ifac < 0) continue;
     if (ifac > nfac) nfac = ifac;
     neff++;
@@ -402,8 +401,8 @@ VectorDouble dbStatisticsFacies(Db *db)
   props.resize(nfac,0.);
   for (int iech=0; iech<nech; iech++)
   {
-    if (! db->isActiveAndDefined(iech,iatt)) continue;
-    int ifac = (int) db->getVariable(iech,iatt);
+    if (! db->isActiveAndDefined(iech,0)) continue;
+    int ifac = (int) db->getVariable(iech,0);
     if (ifac < 0) continue;
     props[ifac] += 1.;
   }

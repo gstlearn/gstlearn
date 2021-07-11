@@ -46,7 +46,6 @@ double ClassicalPolynomial::eval(double x) const
   return result;
 }
 
-// Horner scheme starting from the lowest degree (since it add the result to the input vector)
 void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const
 {
   int n = in.size();
@@ -54,8 +53,8 @@ void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDoub
   VectorDouble work2(n);
   VectorDouble *swap1,*swap2,*swap3;
 
-  swap1 = &work;
-  swap2 = &work2;
+  swap1   VectorDouble work= in;
+2;
 
   for (int i = 0; i<n ; i++)
   {

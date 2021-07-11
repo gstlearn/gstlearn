@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   // ===== Create the Db db1
   int nech = 20;
   int ndim = 2;
-  Db db1 = Db(nech,VectorDouble(),VectorDouble(),ndim);
+  Db db1(nech,VectorDouble(),VectorDouble(),ndim);
   VectorDouble vec = ut_vector_simulate_gaussian(nech);
   db1.addFields(vec,"myvar",LOC_Z);
   db1.display();
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   db2.display();
 
   // ===== Create the Polygon poly1
-  Polygons poly1 = Polygons(&db1);
+  Polygons poly1(&db1);
   poly1.display();
 
   // Serialize poly1
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
   poly2.display();
 
   // ===== Compute an experimental variogram
-  Vario vario1 = Vario("vg");
-  Dir dir = Dir(2, 10, 0.02);
+  Vario vario1("vg");
+  Dir dir(2, 10, 0.02);
   vario1.addDirs(dir);
   vario1.compute(&db1);
   vario1.display();
@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
   vario2.display();
 
   // ===== Compute a Model
-  Model model1 = Model(&db1);
-  CovAniso cova = CovAniso(COV_EXPONENTIAL, 0.3, 1., 0.2, model1.getContext());
+  Model model1(&db1);
+  CovAniso cova(COV_EXPONENTIAL, 0.3, 1., 0.2, model1.getContext());
   model1.addCova(&cova);
   model1.display();
 

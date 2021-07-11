@@ -11,7 +11,6 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
-
 #define VERBOSE 0
 
 static double deg(double a)

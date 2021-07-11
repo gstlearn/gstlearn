@@ -86,16 +86,6 @@ public:
   Db& operator=(const Db& r);
   virtual ~Db();
 
-private:
-  int _ncol;                 //!< Number of Columns of data
-  int _nech;                 //!< Number of samples
-  int _isGrid;               //!< Is the Data Base organized as a Grid
-  VectorDouble _array;       //!< Array of values
-  VectorInt _attcol;         //!< Attribute to Column
-  VectorString _colNames;    //!< Names of the variables
-  PtrGeos _p[MAXIMUM_LOC];   //!< Locator characteristics
-  GridC _grid;               //!< Grid characteristics
-
 public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
@@ -567,4 +557,14 @@ private:
                      VectorString& tabnam,
                      VectorDouble& tab);
   void _loadData(int order, int flag_add_rank, const VectorDouble& tab);
+
+private:
+  int _ncol;                 //!< Number of Columns of data
+  int _nech;                 //!< Number of samples
+  int _isGrid;               //!< Is the Data Base organized as a Grid
+  VectorDouble _array;       //!< Array of values
+  VectorInt _attcol;         //!< Attribute to Column
+  VectorString _colNames;    //!< Names of the variables
+  PtrGeos _p[MAXIMUM_LOC];   //!< Locator characteristics
+  GridC _grid;               //!< Grid characteristics
 };
