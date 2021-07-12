@@ -25,8 +25,7 @@ class Model;
 class Vario : public AStringable, ASerializable, IClonable
 {
 public:
-  Vario(const String& calculName = "vg",
-        double scale = 0.,
+  Vario(double scale = 0.,
         bool flagSample = false,
         VectorDouble dates = VectorDouble());
   Vario(const Vario& vario, const VectorInt& varcols, const VectorInt& dircols, bool flagVario);
@@ -90,11 +89,12 @@ public:
   const std::vector<Dir>& getDirs() const { return _dirs; }
   const Dir& getDirs(int idir) const { return _dirs[idir]; }
 
-  void internalResize(int ndim, int nvar);
+  void internalResize(int ndim, int nvar, const String& calculName);
 
   double getHmax(int ivar=0, int jvar=0) const;
 
   int compute(Db *db,
+              const String& calculName = "vg",
               const VectorDouble& means = VectorDouble(),
               const VectorDouble& vars = VectorDouble(),
               bool flag_grid = false,

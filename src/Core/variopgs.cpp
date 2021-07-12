@@ -4103,7 +4103,7 @@ static int st_vario_pgs_check(int    flag_db,
   }
 
   // Resize to the number of Underlying GRF
-  vario->internalResize(db->getNDim(), rule->getGRFNumber());
+  vario->internalResize(db->getNDim(), rule->getGRFNumber(), "cov");
 
   /* Input Db file (optional) */
 
@@ -5324,8 +5324,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 
     // Calculate the variogram of Indicators
     varioind = (Vario*) vario->clone();
-    varioind->setCalculName("covnc");
-    if (varioind->compute(db,props))
+    if (varioind->compute(db,"covnc",props))
     {
       messerr("Error when calculating the Variogram of Indicators");
       return 1;

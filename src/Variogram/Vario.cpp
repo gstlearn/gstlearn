@@ -16,14 +16,13 @@
 #include "Basic/Vector.hpp"
 #include "geoslib_f.h"
 
-Vario::Vario(const String& calculName,
-             double scale,
+Vario::Vario(double scale,
              bool flagSample,
              VectorDouble dates)
   : AStringable()
   , ASerializable()
   , IClonable()
-  , _calculName(calculName)
+  , _calculName("undefined")
   , _nDim(0)
   , _nVar(0)
   , _flagSample(flagSample)
@@ -62,7 +61,7 @@ Vario::Vario(const Vario& vario,
       _dirs()
 {
   if (flagVario)
-    _calculName = CALCUL_VARIOGRAM;
+    _calculName = "vg";
   else
     _calculName = vario.getCalculName();
   _nDim = vario.getDimensionNumber();
@@ -225,17 +224,20 @@ Vario::~Vario()
 {
 }
 
-void Vario::internalResize(int ndim, int nvar)
+void Vario::internalResize(int ndim, int nvar, const String& calculName)
 {
-  if (ndim <= 0 || nvar <= 0)
+  if (ndim <= 0 || nvar <= 0 || identifyCalculType(calculName) == CALCUL_UNDEFINED)
   {
-    messerr("The Internal Dimension assigned to he variogram are incorrect:");
+    messerr("The Internal Dimension assigned to the variogram cannot be calculated:");
     messerr("- Space Dimension = %d",ndim);
     messerr("- Number of variables = %d",nvar);
+    messerr("- The Calculation type has not been defined yet");
     my_throw("Error in Internal Variogram dimensioning");
   }
+
   _nDim = ndim;
   _nVar = nvar;
+  _calculName = calculName;
 
   // for backwards compatibility, these arrays are updated only if their dimension
   // is not consistent with the current dimension
@@ -286,6 +288,7 @@ void Vario::delAllDirs()
 }
 
 int Vario::compute(Db *db,
+                   const String& calculName,
                    const VectorDouble& means,
                    const VectorDouble& vars,
                    bool flag_grid,
@@ -298,7 +301,7 @@ int Vario::compute(Db *db,
 {
   int ndim = db->getNDim();
   int nvar = db->getVariableNumber();
-  internalResize(ndim, nvar);
+  internalResize(ndim, nvar, calculName);
 
   setMeans(means);
   setVars(vars);
@@ -333,6 +336,10 @@ String Vario::toString(int level) const
 
   switch (getCalculType())
   {
+    case CALCUL_UNDEFINED:
+      sstr << toTitle(0,"Undefined");
+      break;
+
     case CALCUL_VARIOGRAM:
       sstr << toTitle(0,"Variogram characteristics");
       break;
@@ -405,6 +412,8 @@ String Vario::toString(int level) const
   sstr << toMatrix("Variance-Covariance Matrix",VectorString(),VectorString(),
                     0,nvar,nvar,getVars());
 
+  if (getCalculType() == CALCUL_UNDEFINED) return sstr.str();
+
   /* Loop on the directions */
 
   sstr << std::endl;
@@ -425,7 +434,9 @@ int identifyCalculType(const String& calcul_name)
 {
   int calcul_type;
 
-  if (!strcmp(calcul_name.c_str(), "vg"))
+  if (!strcmp(calcul_name.c_str(), "undefined"))
+    calcul_type = CALCUL_UNDEFINED;
+  else if (!strcmp(calcul_name.c_str(), "vg"))
     calcul_type = CALCUL_VARIOGRAM;
   else if (!strcmp(calcul_name.c_str(), "cov"))
     calcul_type = CALCUL_COVARIANCE;
@@ -646,8 +657,7 @@ int Vario::deSerialize(const String& filename, bool verbose)
 
   /* Initialize the variogram structure */
 
-  internalResize(ndim, nvar);
-  setCalculName("vg");
+  internalResize(ndim, nvar, "vg");
   setScale(scale);
   setVars(vars);
 
