@@ -980,7 +980,7 @@
                                         double cylrad,
                                         const VectorDouble& codir,
                                         double *ps);
-  GEOSLIB_API void variogram_scale(Vario *vario, Dir& dir);
+  GEOSLIB_API void variogram_scale(Vario *vario, int idir);
   GEOSLIB_API int variogram_get_lag(Vario *vario,
                                     const Dir& dir,
                                     double ps,
@@ -988,7 +988,6 @@
                                     double *dist);
   GEOSLIB_API int vario_identify_calcul_type(const String& cov_name);
   GEOSLIB_API void vardir_print(Vario *vario, int idir, int verbose);
-  GEOSLIB_API void vardir_clean(Dir& dir);
   GEOSLIB_API void vardir_copy(Vario *vario_in,
                                int idir_in,
                                Vario *vario_out,
@@ -1073,7 +1072,7 @@
   GEOSLIB_API int vario_get_rank(Vario *vario, int idir, int idate);
   GEOSLIB_API int vardir_dimension(Dir& dir);
   GEOSLIB_API void vardir_tab_extract(Vario *vario,
-                                      Dir& dir,
+                                      int idir,
                                       int ivar,
                                       int jvar,
                                       int *count,

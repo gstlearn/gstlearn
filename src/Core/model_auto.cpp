@@ -555,7 +555,7 @@ static int st_get_vario_dimension(Vario *vario,
   
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    Dir& dir = vario->getDirs(idir);
+    const Dir& dir = vario->getDirs(idir);
     npadir += dir.getLagTotalNumber();
     for (ipas=0; ipas<dir.getNPas(); ipas++)
       for (ivar=0; ivar<nvar; ivar++)
@@ -732,7 +732,7 @@ static void st_compress_array(Vario  *vario,
   ecr = 0;
   for (idir=ipadir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    Dir& dir = vario->getDirs(idir);
+    const Dir& dir = vario->getDirs(idir);
     for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
       for (ivar=ijvar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++,ijvar++)
@@ -759,7 +759,7 @@ static void st_compress_array(Vario  *vario,
 ** \remark value
 **
 *****************************************************************************/
-static double st_get_c00(Dir& dir,
+static double st_get_c00(const Dir& dir,
                          int ivar,
                          int jvar)
 {
@@ -809,7 +809,7 @@ static void st_load_gg(Vario   *vario,
   ecr = 0;
   for (idir=ipadir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    Dir& dir  = vario->getDirs(idir);
+    const Dir& dir  = vario->getDirs(idir);
     for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
       for (ivar=ijvar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++, ijvar++)
@@ -961,7 +961,7 @@ static void st_load_ge(Vario  *vario,
     int ipadir = 0;
     for (int idir = 0; idir < ndir; idir++)
     {
-      Dir& dir = vario->getDirs(idir);
+      const Dir& dir = vario->getDirs(idir);
       for (int ipas = 0; ipas < dir.getNPas(); ipas++, ipadir++)
       {
         int ijvar = 0;
@@ -1031,7 +1031,7 @@ static void st_load_wt(Vario  *vario,
 
   for (idir=0; idir<ndir; idir++)
   {
-    Dir& dir = vario->getDirs(idir);
+    const Dir& dir = vario->getDirs(idir);
     flag[idir] = 0.;
     for (ipas=0; ipas<dir.getNPas(); ipas++)
       for (ijvar=0; ijvar<nvs2; ijvar++)
@@ -1060,7 +1060,7 @@ static void st_load_wt(Vario  *vario,
     case 1:
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        Dir& dir = vario->getDirs(idir);
+        const Dir& dir = vario->getDirs(idir);
         for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
         {
           if (flag[idir] == 0.) continue;
@@ -1088,7 +1088,7 @@ static void st_load_wt(Vario  *vario,
     case 2:
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        Dir& dir = vario->getDirs(idir);
+        const Dir& dir = vario->getDirs(idir);
         for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
         {
           if (flag[idir] == 0.) continue;
@@ -1124,7 +1124,7 @@ static void st_load_wt(Vario  *vario,
     case 3:
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        Dir& dir = vario->getDirs(idir);
+        const Dir& dir = vario->getDirs(idir);
         for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
         {
           if (flag[idir] == 0.) continue;
@@ -1152,7 +1152,7 @@ static void st_load_wt(Vario  *vario,
     default:
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        Dir& dir = vario->getDirs(idir);
+        const Dir& dir = vario->getDirs(idir);
         for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
         {
           if (flag[idir] == 0.) continue;
@@ -1185,7 +1185,7 @@ static void st_load_wt(Vario  *vario,
     for (idir=ipadir=0; idir<ndir; idir++)
     {
       total = 0.;
-      Dir& dir = vario->getDirs(idir);
+      const Dir& dir = vario->getDirs(idir);
       for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
       {
         if (flag[idir] == 0.) continue;
@@ -1212,7 +1212,7 @@ static void st_load_wt(Vario  *vario,
         sqrt(vario->getVars(ivar,jvar) * vario->getVars(jvar,ivar)) : 1.;
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        Dir& dir = vario->getDirs(idir);
+        const Dir& dir = vario->getDirs(idir);
         for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
           if (! FFFF(WT(ijvar,ipadir))) WT(ijvar,ipadir) /= ratio;
       }
@@ -3871,7 +3871,7 @@ static int st_alter_model_optvar(Vario      *vario,
   {
     for (idir=0; idir<ndir; idir++)
     {
-      Dir& dir = vario->getDirs(idir);
+      const Dir& dir = vario->getDirs(idir);
       if (dir.getCodir(2) == 0)
         n_2d++;
       else

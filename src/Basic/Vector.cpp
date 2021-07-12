@@ -399,3 +399,18 @@ int ut_ivector_prod(const VectorInt vec)
   return nprod;
 
 }
+
+/**
+ * Create an output vector containing the 'number' consecutive numbers starting from 'ideb'
+ *
+ * @param number  Length of the output vector
+ * @param ideb    Index of the first element of the output vector
+ */
+VectorInt ut_ivector_sequence(int number, int ideb)
+{
+  VectorInt vec(number);
+
+  for (int i = 0; i < number; i++)
+    vec[i] = ideb + i;
+  return vec;
+}

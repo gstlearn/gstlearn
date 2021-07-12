@@ -2385,12 +2385,12 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
   /* Initializations */
 
   error = 1;
-  Dir& dir = vario->getDirs(idir);
   sill  = atab = btab = phia = phib = (double *) NULL;
   stat  = (int *) NULL;
   nlayers = lmlayers->nlayers;
   nhalf   = nlayers * (nlayers + 1) / 2;
   nhalf2  = nhalf * nhalf;
+  const Dir& dir = vario->getDirs(idir);
 
   /* Core allocation */
   
@@ -2460,15 +2460,13 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
       for (jlayer=0; jlayer<=ilayer; jlayer++,ijl++)
       {
         iadlag = dir.getAddress(ilayer,jlayer,ipas,false,1);
-        dir.setGg(iadlag,sill[ijl]);
-        dir.setHh(iadlag,ipas * dir.getDPas());
-        dir.setHh(iadlag,distsum);
-        dir.setSw(iadlag,nval);
+        vario->setGg(idir,iadlag,sill[ijl]);
+        vario->setHh(idir,iadlag,distsum);
+        vario->setSw(idir,iadlag,nval);
         iadlag = dir.getAddress(ilayer,jlayer,ipas,false,-1);
-        dir.setGg(iadlag,sill[ijl]);
-        dir.setHh(iadlag,-ipas * dir.getDPas());
-        dir.setHh(iadlag,-distsum);
-        dir.setSw(iadlag,nval);
+        vario->setGg(idir,iadlag,sill[ijl]);
+        vario->setHh(idir,iadlag,-distsum);
+        vario->setSw(idir,iadlag,nval);
       }
   }
 

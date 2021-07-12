@@ -15,27 +15,6 @@
 
 class Dir : public AStringable
 {
-private:
-  int _ndim;
-  int _nvar;
-  int _flagAsym;
-  int _nPas;
-  int _optionCode;
-  int _idate;
-  double _dPas;
-  double _bench;
-  double _cylRad;
-  double _tolDist;
-  double _tolAngle;
-  double _tolCode;
-  VectorDouble _breaks;
-  VectorDouble _codir;
-  VectorDouble _grincr;
-  VectorDouble _sw;      /* Array for number of lags */
-  VectorDouble _gg;      /* Array for average variogram values */
-  VectorDouble _hh;      /* Array for average distance values */
-  VectorDouble _utilize; /* Array to mention if a lag is used or not */
-
 public:
   Dir(int ndim      = 2,
       int npas      = 0,
@@ -157,6 +136,27 @@ private:
   bool _isVariableValid(int ivar) const;
   bool _isDimensionValid(int idim) const;
   bool _isAddressValid(int iad) const;
+
+private:
+  int _ndim;
+  int _nvar;
+  int _flagAsym;
+  int _nPas;
+  int _optionCode;
+  int _idate;
+  double _dPas;
+  double _bench;
+  double _cylRad;
+  double _tolDist;
+  double _tolAngle;
+  double _tolCode;
+  VectorDouble _breaks;
+  VectorDouble _codir;
+  VectorDouble _grincr;
+  VectorDouble _sw;      /* Array for number of lags */
+  VectorDouble _gg;      /* Array for average variogram values */
+  VectorDouble _hh;      /* Array for average distance values */
+  VectorDouble _utilize; /* Array to mention if a lag is used or not */
 };
 
 std::vector<Dir> generateMultipleDirs(int ndim,

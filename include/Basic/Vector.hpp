@@ -64,3 +64,5 @@ VectorDouble ut_vector_simulate_uniform(int n, double mini = 0., double maxi = 1
 VectorDouble ut_vector_simulate_gaussian(int n, double mean = 0., double sigma = 1.);
 
 int ut_ivector_prod(const VectorInt nx);
+VectorInt ut_ivector_sequence(int number, int ideb = 0);
+

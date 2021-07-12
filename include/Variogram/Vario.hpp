@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Variogram/Dir.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
 #include "Basic/AStringable.hpp"
@@ -18,7 +19,6 @@
 int identifyCalculType(const String& calcul_name);
 int identifyFlagAsym(const String& calcul_name);
 
-class Dir;
 class Db;
 class Model;
 
@@ -29,6 +29,7 @@ public:
         double scale = 0.,
         bool flagSample = false,
         VectorDouble dates = VectorDouble());
+  Vario(const Vario& vario, const VectorInt& varcols, const VectorInt& dircols, bool flagVario);
   Vario(const String& neutralFileName, bool verbose);
   Vario(const Vario& r);
   Vario& operator=(const Vario& r);
@@ -87,7 +88,7 @@ public:
   void setDates(VectorDouble dates) { _dates = dates; }
 
   const std::vector<Dir>& getDirs() const { return _dirs; }
-  Dir& getDirs(int idir)  { return _dirs[idir]; } // TODO Dangerous (not const)
+  const Dir& getDirs(int idir) const { return _dirs[idir]; }
 
   void internalResize(int ndim, int nvar);
 
@@ -104,6 +105,52 @@ public:
               Model *model = nullptr,
               bool verbose = false);
   bool isCalculated() const;
+
+  // Pipe the Dir methods for setting values
+  void setSw(int idir, int iad, double sw)
+  {
+    _dirs[idir].setSw(iad, sw);
+  }
+  void setHh(int idir, int iad, double hh)
+  {
+    _dirs[idir].setHh(iad, hh);
+  }
+  void setGg(int idir, int iad, double gg)
+  {
+    _dirs[idir].setGg(iad, gg);
+  }
+  void setSw(int idir, int ivar, int jvar, int ipas, double sw)
+  {
+    return _dirs[idir].setSw(ivar, jvar, ipas, sw);
+  }
+  void setHh(int idir, int ivar, int jvar, int ipas, double hh)
+  {
+    return _dirs[idir].setHh(ivar, jvar, ipas, hh);
+  }
+  void setGg(int idir, int ivar, int jvar, int ipas, double gg)
+  {
+    return _dirs[idir].setGg(ivar, jvar, ipas, gg);
+  }
+  void updSw(int idir, int iad, double sw)
+  {
+    return _dirs[idir].updSw(iad, sw);
+  }
+  void updHh(int idir, int iad, double hh)
+  {
+    return _dirs[idir].updHh(iad, hh);
+  }
+  void updGg(int idir, int iad, double gg)
+  {
+    return _dirs[idir].updGg(iad, gg);
+  }
+  void setUtilize(int idir, int iad, double val)
+  {
+    return _dirs[idir].setUtilize(iad, val);
+  }
+  void clean(int idir)
+  {
+    return _dirs[idir].clean();
+  }
 
 private:
   int  _getAddress(int ivar, int jvar) const;

@@ -13,6 +13,7 @@
 #include "Model/Model.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Vector.hpp"
 #include "geoslib_f.h"
 
 Vario::Vario(const String& calculName,
@@ -32,6 +33,143 @@ Vario::Vario(const String& calculName,
   , _dates(dates)
   , _dirs()
 {
+}
+
+/**
+ * Constructing a Variogram by extracting a subset of variables and/or directions
+ * from an Input variogram
+ *
+ * @param vario The input variogram
+ * @param varcols Vector of variable ranks (starting from 0)
+ * @param dircols Vector of direction ranks (starting from 0)
+ * @param flagVario True if the output should be a variogram (rather than a covariance)
+ */
+Vario::Vario(const Vario& vario,
+             const VectorInt& varcols,
+             const VectorInt& dircols,
+             bool flagVario)
+    : AStringable(),
+      ASerializable(),
+      IClonable(),
+      _calculName(),
+      _nDim(0),
+      _nVar(0),
+      _flagSample(false),
+      _scale(0.),
+      _means(),
+      _vars(),
+      _dates(),
+      _dirs()
+{
+  if (flagVario)
+    _calculName = CALCUL_VARIOGRAM;
+  else
+    _calculName = vario.getCalculName();
+  _nDim = vario.getDimensionNumber();
+  _flagSample = vario.getFlagSample();
+  _scale = vario.getScale();
+  _dates = vario.getDates();
+
+  VectorInt selvars;
+  if (varcols.empty())
+    selvars = ut_ivector_sequence(vario.getVariableNumber());
+  else
+  {
+    selvars = varcols;
+    for (int i = 0; i < (int) varcols.size(); i++)
+    {
+      if (selvars[i] < 0 || selvars[i] >= vario.getVariableNumber())
+      {
+        messerr(
+            "Argument 'varcols' is incorrect: item(%d)=%d should lie between 0 and %d",
+            i + 1, selvars[i], vario.getVariableNumber());
+        my_throw("Error when extracting a variogram");
+      }
+    }
+  }
+
+  VectorInt seldirs;
+  if (seldirs.empty())
+    seldirs = ut_ivector_sequence(vario.getDimensionNumber());
+  else
+  {
+    seldirs = dircols;
+    for (int i = 0; i < (int) vario.getDimensionNumber(); i++)
+    {
+      if (seldirs[i] < 0 || seldirs[i] >= vario.getDirectionNumber())
+      {
+        messerr(
+            "Argument 'dircols' is incorrect: item(%d)=%d should lie between 0 and %d",
+            i + 1, seldirs[i], vario.getDirectionNumber());
+        my_throw("Error when extracting a variogram");
+      }
+    }
+  }
+
+  // Dimension the new 'vario'
+  _nDim = vario.getDimensionNumber();
+  _nVar = (int) selvars.size();
+
+  // Reset Mean and variance arrays (only if variable number has been modified)
+  if (_nVar != vario.getDimensionNumber())
+  {
+    _means.resize(_nVar);
+    for (int ivar = 0; ivar < _nVar; ivar++)
+      setMeans(ivar, vario.getMeans(varcols[ivar]));
+
+    _vars.resize(_nVar * _nVar);
+    for (int ivar = 0; ivar < _nVar; ivar++)
+      for (int jvar = 0; jvar < _nVar; jvar++)
+        setVars(ivar, jvar, vario.getVars(varcols[ivar], varcols[jvar]));
+  }
+  else
+  {
+    _means = vario.getMeans();
+    _vars = vario.getVars();
+  }
+
+  // Add the directions
+
+  for (int idir = 0; idir < (int) seldirs.size(); idir++)
+  {
+    const Dir& dirFrom = vario.getDirs(seldirs[idir]);
+
+    // Add the direction to the new Variogram
+    addDirs(dirFrom);
+
+    // Resize it to the correct number of variables
+    _dirs[idir].resize(_nVar, getFlagAsym());
+
+    // Load the relevant information
+    int npas = _dirs[idir].getNPas();
+    for (int ivar = 0; ivar < _nVar; ivar++)
+    {
+      int ivarp = selvars[ivar];
+      for (int jvar = 0; jvar < _nVar; jvar++)
+      {
+        int jvarp = selvars[jvar];
+        for (int ipas = 0; ipas < npas; ipas++)
+        {
+          int iadFrom = dirFrom.getAddress(ivarp, jvarp, ipas, false, 1);
+          double sw = dirFrom.getSw(iadFrom);
+          double gg = dirFrom.getGg(iadFrom);
+          double hh = dirFrom.getHh(iadFrom);
+
+          if (flagVario && dirFrom.getFlagAsym())
+          {
+            int iadFrom = dirFrom.getAddress(ivarp, jvarp, ipas, false, -1);
+            sw = (sw + dirFrom.getSw(iadFrom)) / 2.;
+            gg = (gg + dirFrom.getGg(iadFrom)) / 2.;
+            hh = (hh + dirFrom.getHh(iadFrom)) / 2.;
+          }
+
+          setSw(idir, ivar, jvar, ipas, sw);
+          setGg(idir, ivar, jvar, ipas, gg);
+          setHh(idir, ivar, jvar, ipas, hh);
+        }
+      }
+    }
+  }
 }
 
 Vario::Vario(const String& neutralFileName,
@@ -105,7 +243,7 @@ void Vario::internalResize(int ndim, int nvar)
   if ((int) _vars.size() != _nVar * _nVar) _vars.resize(_nVar * _nVar);
 
   for (int idir = 0; idir < getDirectionNumber(); idir++)
-    _dirs[idir].resize(nvar, getFlagAsym());
+    _dirs[idir].resize(_nVar, getFlagAsym());
 }
 
 IClonable* Vario::clone() const
@@ -603,7 +741,7 @@ int Vario::serialize(const String& filename, bool verbose)
   for (int idir = 0; idir < getDirectionNumber(); idir++)
   {
     _recordWrite("#", "Direction characteristics");
-    Dir& dir = getDirs(idir);
+    const Dir& dir = getDirs(idir);
     _recordWrite("%d", dir.getLagRegular());
     _recordWrite("#", "Regular lags");
     _recordWrite("%d", dir.getNPas());

@@ -606,4 +606,3 @@ std::vector<Dir> generateMultipleDirs(int ndim,
   }
   return dirs;
 }
-

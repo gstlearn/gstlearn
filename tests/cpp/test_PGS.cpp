@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   db.display();
 
   // Determination of the variogram of the Underlying GRF
-  Vario vario("vg");
+  Vario vario("cov");
   int nlag = 19;
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
   vario.addDirs(dir);

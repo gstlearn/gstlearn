@@ -3858,7 +3858,7 @@ GEOSLIB_API int model_sample(Vario *vario,
 
   for (idir = 0; idir < ndir; idir++)
   {
-    Dir& dir = vario->getDirs(idir);
+    const Dir& dir = vario->getDirs(idir);
     npas = dir.getNPas();
 
     /* Loop on the variogram lags */
@@ -3872,12 +3872,12 @@ GEOSLIB_API int model_sample(Vario *vario,
         for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           i = dir.getAddress(ivar, jvar, ipas, false, 0);
-          dir.setSw(i, 1.);
-          dir.setHh(i, ipas * dir.getDPas());
+          vario->setSw(idir, i, 1.);
+          vario->setHh(idir, i, ipas * dir.getDPas());
           for (idim = 0; idim < ndim; idim++)
             d1[idim] = dir.getHh(i) * dir.getCodir(idim);
           model_calcul_cov(model, mode, 1, 1., d1, covtab);
-          dir.setGg(i, COVTAB(ivar, jvar));
+          vario->setGg(idir, i, COVTAB(ivar, jvar));
         }
     }
   }
@@ -4408,7 +4408,7 @@ GEOSLIB_API int model_regularize(Model *model,
 
   for (idir = 0; idir < vario->getDirectionNumber(); idir++)
   {
-    Dir& dir = vario->getDirs(idir);
+    const Dir& dir = vario->getDirs(idir);
 
     /* Loop on the number of lags */
 
@@ -4434,9 +4434,9 @@ GEOSLIB_API int model_regularize(Model *model,
         for (jvar = 0; jvar <= ivar; jvar++)
         {
           iad = dir.getAddress(ivar, jvar, ipas, false, 0);
-          dir.setGg(iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
-          dir.setHh(iad, dist);
-          dir.setSw(iad, 1);
+          vario->setGg(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
+          vario->setHh(idir, iad, dist);
+          vario->setSw(idir, iad, 1);
         }
     }
   }
