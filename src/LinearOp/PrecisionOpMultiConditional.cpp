@@ -14,8 +14,8 @@
 #include "geoslib_e.h"
 
 PrecisionOpMultiConditional::PrecisionOpMultiConditional()
-  :_pMat(std::vector<PrecisionOp*>())
-  ,_projData(std::vector<IProjMatrix*>())
+  :_multiPrecisionOp(std::vector<PrecisionOp*>())
+  ,_multiProjData(std::vector<IProjMatrix*>())
   ,_nugget(0.)
   ,_ndat(0)
   ,_work1(VectorDouble())
@@ -28,14 +28,14 @@ PrecisionOpMultiConditional::PrecisionOpMultiConditional()
 void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
                                             IProjMatrix* projDataElem)
 {
-  _pMat.push_back(pmatElem);
+  _multiPrecisionOp.push_back(pmatElem);
   _work2.push_back(VectorDouble(pmatElem->getSize()));
-  if (_projData.size() == 0)
+  if (_multiProjData.size() == 0)
   {
     _ndat = projDataElem->getPointNumber(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
     _work1.resize(_ndat);
   }
-  _projData.push_back(projDataElem);
+  _multiProjData.push_back(projDataElem);
   _updated();
 }
 
@@ -55,19 +55,19 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
                                               VectorVectorDouble& out) const
 {
   _init();
-  double inugg = 1. / _nugget;
+  double invNugg = 1. / _nugget;
   for (int imod = 0; imod < size(); imod++)
   {
-    _pMat[imod]->eval(in[imod], out[imod]);
+    _multiPrecisionOp[imod]->eval(in[imod], out[imod]);
 
     for (int jmod = 0; jmod < size(); jmod++)
     {
-      _projData[jmod]->mesh2point(in[jmod], _work1);
+      _multiProjData[jmod]->mesh2point(in[jmod], _work1);
       for (int idat = 0; idat < _ndat; idat++)
       {
-         _work1[idat] *= inugg;
+         _work1[idat] *= invNugg;
       }
-      _projData[imod]->point2mesh(_work1, _work2[imod]);
+      _multiProjData[imod]->point2mesh(_work1, _work2[imod]);
       _linearComb(1., _work2, 1., out, out);
 
     }

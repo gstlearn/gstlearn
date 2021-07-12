@@ -100,6 +100,7 @@ namespace std {
 %include Model/Cova.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
+//%include Model/ConsItem.hpp
 %include Model/Constraints.hpp
 %include Covariances/ACov.hpp
 %include Covariances/ACovFunc.hpp
