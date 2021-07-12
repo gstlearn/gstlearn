@@ -175,3 +175,8 @@ String ConsItem::toString(int level) const
   sstr << std::endl;
   return sstr.str();
 }
+
+IClonable* ConsItem::clone() const
+{
+  return new ConsItem(*this);
+}

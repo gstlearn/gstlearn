@@ -78,6 +78,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
+#include "Model/ConsItem.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/ACovAnisoList.hpp"

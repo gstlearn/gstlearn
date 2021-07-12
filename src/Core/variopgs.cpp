@@ -5123,13 +5123,13 @@ static void st_copy_swhh(Local_Pgs* local_pgs)
   {
     const Dir& dir1 = vario->getDirs(idir);
     const Dir& dir2 = varioind->getDirs(idir);
-    for (int ipas = 0; ipas < (int) dir1.getNPas(); ipas++)
+    for (int ipas = 0; ipas < (int) dir1.getLagTotalNumber(); ipas++)
     {
-      int iad2 = dir2.getAddress(0,0,ipas,false,1);
+      int iad2 = dir2.getAddress(0,0,ipas,true,0);
       for (int igrf = 0; igrf < ngrf; igrf++)
         for (int jgrf = 0; jgrf < ngrf; jgrf++)
         {
-          int iad1 = dir1.getAddress(igrf,jgrf,ipas,false,1);
+          int iad1 = dir1.getAddress(igrf,jgrf,ipas,true,0);
           vario->setSw(idir,iad1, dir2.getSw(iad2));
           vario->setHh(idir,iad1, dir2.getHh(iad2));
         }
@@ -5206,6 +5206,9 @@ static int st_variogram_pgs_stat(Db     *db,
 
   st_varcalc_from_vario_stat(vario,rule,propdef,&local_pgs,ngrf);
 
+  /* Bring the calculations back from a covariance to a variogram */
+
+
   /* Set the error return flag */
 
   error = 0;
@@ -5247,7 +5250,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
                               int     flag_rho,
                               int     opt_correl)
 {
-  Vario* varioind;
+  Vario* varioind = nullptr;
   VectorDouble props;
   int error;
 

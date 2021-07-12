@@ -38,13 +38,9 @@ Constraints::~Constraints()
     delete _consItems[i];
 }
 
-ConsItem* Constraints::addItem()
+void Constraints::addItem(const ConsItem* item)
 {
-  int nitems = _consItems.size();
-  _consItems.resize(nitems + 1);
-  ConsItem* consitem = new (ConsItem);
-  _consItems[nitems] = consitem;
-  return consitem;
+  _consItems.push_back(dynamic_cast<ConsItem*>(item->clone()));
 }
 
 String Constraints::toString(int level) const
@@ -71,4 +67,14 @@ int Constraints::isDefinedForSill() const
     if (_consItems[i]->getType() == CONS_SILL) return(1);
   }
   return(0);
+}
+
+void Constraints::modifyConstraintsForSill()
+{
+  for (int i=0; i<(int) getConsItemNumber(); i++)
+  {
+    const ConsItem* consitem = getConsItems(i);
+    if (consitem->getType() != CONS_SILL) continue;
+    if (consitem->getValue() > 0) setValue(i,sqrt(consitem->getValue()));
+  }
 }

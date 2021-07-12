@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "Basic/IClonable.hpp"
 #include "geoslib_enum.h"
 
 /**
@@ -18,16 +19,16 @@
  * - to define the constraints for the Model Automatic Fitting (authAssign true)
  * - to define the non-stationary parameters of a Model
  */
-class ConsItem : public AStringable
+class ConsItem : public AStringable, public IClonable
 {
 private:
   ENUM_CONS_TYPE _icase; /* 0: Parameter; -1: Lower; 1: Upper; 2: Equal */
-  int _igrf;        /* Rank of the Gaussian Random Function */
-  int _icov;        /* Structure rank */
-  ENUM_CONS _type;  /* Type of element */
-  int _iv1;         /* Rank of the first variable */
-  int _iv2;         /* Rank of the second variable */
-  double _value;    /* Assigned value */
+  int _igrf;         /* Rank of the Gaussian Random Function */
+  int _icov;         /* Structure rank */
+  ENUM_CONS _type;   /* Type of element */
+  int _iv1;          /* Rank of the first variable */
+  int _iv2;          /* Rank of the second variable */
+  double _value;     /* Assigned value */
   bool _authAssign; /* Authorize the assignment of a value */
 
 public:
@@ -52,6 +53,7 @@ public:
            double value = TEST);
 
   virtual String toString(int level = 0) const override;
+  virtual IClonable* clone() const override;
 
   ENUM_CONS getType() const { return _type; }
   int getIGrf()  const { return _igrf; }

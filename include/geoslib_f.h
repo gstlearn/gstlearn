@@ -270,7 +270,7 @@ GEOSLIB_API int model_auto_fit(Vario *vario,
                                Model *model,
                                bool verbose = false,
                                Option_AutoFit mauto = Option_AutoFit(),
-                               const Constraints& constraints = Constraints(),
+                               const Constraints& consarg = Constraints(),
                                Option_VarioFit optvar = Option_VarioFit());
 GEOSLIB_API int vmap_auto_fit(Db *dbvmap,
                               Model *model,

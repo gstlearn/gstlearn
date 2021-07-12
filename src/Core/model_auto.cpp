@@ -3846,7 +3846,7 @@ static int st_model_define(Model     *model,
 *****************************************************************************/
 static int st_alter_model_optvar(Vario      *vario,
                                  Model      *model,
-                                 const Constraints& constraints,
+                                 Constraints& constraints,
                                  Option_VarioFit& optvar)
 {
   int ndim,ndir,idir,n_2d,n_3d;
@@ -3947,7 +3947,7 @@ static int st_alter_model_optvar(Vario      *vario,
 *****************************************************************************/
 static int st_alter_vmap_optvar(Db         *dbmap,
                                 Model      *model,
-                                const Constraints& constraints,
+                                Constraints& constraints,
                                 Option_VarioFit& optvar)
 {
   /* Clever setting of options */
@@ -4014,7 +4014,7 @@ static int st_alter_vmap_optvar(Db         *dbmap,
 static int st_model_auto_count(Vario      *vario,
                                Model      *model1,
                                Model      *model2,
-                               const Constraints& constraints,
+                               Constraints& constraints,
                                Option_VarioFit& optvar,
                                VectorDouble& param,
                                VectorDouble& lower,
@@ -4497,7 +4497,7 @@ static void st_regularize_init()
 ** \param[in]  model       Model structure containing the basic structures
 ** \param[in]  verbose     Verbose flag
 ** \param[in]  mauto       Option_AutoFit structure
-** \param[in]  constraints Constraints structure
+** \param[in]  consarg     Constraints structure
 ** \param[in]  optvar      Opt_Vario structure
 **
 *****************************************************************************/
@@ -4505,7 +4505,7 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
                                Model      *model,
                                bool        verbose,
                                Option_AutoFit     mauto,
-                               const Constraints& constraints,
+                               const Constraints& consarg,
                                Option_VarioFit    optvar)
 {
   int      i,error,status,nbexp,norder,npar,npadir,npar0;
@@ -4526,6 +4526,7 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
   VectorDouble angles;
   st_regularize_init();
   mauto.setVerbose(verbose);
+  Constraints constraints = consarg;
 
   /* Preliminary checks */
 
@@ -4784,7 +4785,7 @@ GEOSLIB_API int model_fitting_sills(Vario *vario,
 *****************************************************************************/
 static int st_vmap_auto_count(Db         *dbmap,
                               Model      *model,
-                              const Constraints& constraints,
+                              Constraints& constraints,
                               Option_VarioFit& optvar,
                               VectorDouble& param,
                               VectorDouble& lower,
@@ -4966,7 +4967,7 @@ static void st_load_vmap(int     npadir,
 ** \param[in]  model       Model structure containing the basic structures
 ** \param[in]  verbose     Verbose flag
 ** \param[in]  mauto       Option_AutoFit structure
-** \param[in]  constraints Constraints structure
+** \param[in]  consarg     Constraints structure
 ** \param[in]  optvar      Opt_Vario structure
 **
 *****************************************************************************/
@@ -4974,7 +4975,7 @@ GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
                               Model      *model,
                               bool        verbose,
                               Option_AutoFit mauto,
-                              const Constraints& constraints,
+                              const Constraints& consarg,
                               Option_VarioFit optvar)
 {
   int      i,error,status,nbexp,norder,npar0,npar,npadir,ndim;
@@ -4982,6 +4983,7 @@ GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
   double   hmax,gmax;
   StrMod  *strmod;
   VectorDouble varchol, scale, param, lower, upper;
+  Constraints constraints = consarg;
 
   /* Initializations */
 
@@ -5147,18 +5149,15 @@ GEOSLIB_API void constraints_print(const Constraints& constraints)
 ** \param[in]  constraints  Constraints structure
 **
 *****************************************************************************/
-GEOSLIB_API int modify_constraints_on_sill(const Constraints& constraints)
+GEOSLIB_API int modify_constraints_on_sill(Constraints& constraints)
 
 {
-  int i;
-  ConsItem *consitem;
-
-  for (i=0; i<(int) constraints.getConsItemNumber(); i++)
+  for (int i=0; i<(int) constraints.getConsItemNumber(); i++)
   {
-    consitem = constraints.getConsItems(i);
+    const ConsItem* consitem = constraints.getConsItems(i);
     if (consitem->getType() != CONS_SILL) continue;
     if (consitem->getValue() < 0) return(1);
-    consitem->setValue(sqrt(consitem->getValue()));
+    constraints.setValue(i,sqrt(consitem->getValue()));
   }
   return(0);
 }
@@ -5189,14 +5188,11 @@ GEOSLIB_API double constraints_get(const Constraints& constraints,
                                    int iv1,
                                    int iv2)
 {
-  ConsItem *item;
-  int i;
-
   if (! constraints.isDefined()) return(TEST);
 
-  for (i=0; i<(int) constraints.getConsItemNumber(); i++)
+  for (int i=0; i<(int) constraints.getConsItemNumber(); i++)
   {
-    item = constraints.getConsItems(i);
+    const ConsItem* item = constraints.getConsItems(i);
     if (item->getIGrf()  != igrf ||
         item->getICov()  != icov ||
         item->getType()  != type ||

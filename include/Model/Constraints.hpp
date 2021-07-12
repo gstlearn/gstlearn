@@ -22,7 +22,7 @@ public:
   Constraints& operator= (const Constraints &m);
   virtual ~Constraints();
 
-  ConsItem* addItem();
+  void addItem(const ConsItem* item);
   virtual String toString(int level = 0) const override;
 
   int isDefined() const { return _consItems.size() > 0; }
@@ -30,7 +30,11 @@ public:
   int getConsItemNumber() const { return _consItems.size(); }
 
   const std::vector<ConsItem*>& getConsItems() const { return _consItems; }
-  ConsItem* getConsItems(int i) const { return _consItems[i]; }
+  const ConsItem* getConsItems(int i) const { return _consItems[i]; }
+  void modifyConstraintsForSill();
+
+  // Pipe to Consitem
+  void setValue(int item, double value) { _consItems[item]->setValue(value); }
 
 private:
   std::vector<ConsItem *> _consItems;

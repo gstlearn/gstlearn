@@ -1390,7 +1390,7 @@
                                      int v1,
                                      int v2);
   GEOSLIB_API void constraints_print(const Constraints& constraints);
-  GEOSLIB_API int modify_constraints_on_sill(const Constraints& constraints);
+  GEOSLIB_API int modify_constraints_on_sill(Constraints& constraints);
   GEOSLIB_API void fill_external_cov_model(External_Cov& E_Cov);
 
   /****************************************/
