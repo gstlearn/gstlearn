@@ -40,57 +40,35 @@ VectorDouble PrecisionOpCs::getCoeffs()
   return coeffs;
 }
 
-void PrecisionOpCs::evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
+
+void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble result)
 {
-  const VectorDouble* inPtr = &in;
+  eval(X,_work);
+  double temp,val;
+  int iadress;
 
-  if(getPower() == POPT_MINUSONE)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
-  if(getPower() == POPT_MINUSHALF)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
-  if(getPower() == POPT_LOG)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
-
-  // Pre-processing
-
-  if (getPower() == POPT_ONE)
+  for(int igparam = 0;igparam<getShiftOp()->getNModelGradParam();igparam++)
   {
-    getShiftOp()->prodTildeC(in, _work, POPT_HALF);
-    inPtr = &_work;
+    for(int iapex=0;iapex<getSize();iapex++)
+    {
+      evalDeriv(X,_work2,iapex,igparam);
+      iadress = getShiftOp()->getSGradAddress(iapex,igparam);
+      if(igparam < getShiftOp()->getDim())
+      {
+        val = getShiftOp()->getLambda(iapex);
+        temp = getShiftOp()->getLambdaGrad(igparam,iapex);
+        result[iadress]= 2 * Y[iapex] * temp * _work[iapex] / val;
+      }
+      else
+      {
+        result[iadress] = 0.;
+      }
+      for(int i = 0;i<getSize();i++)
+      {
+        result[iadress] += _work2[i]*Y[i];
+      }
+    }
   }
-  else if (getPower() == POPT_MINUSONE)
-  {
-    getShiftOp()->prodTildeC(in, _work, POPT_MINUSHALF);
-    inPtr = &_work;
-
-  }
-
-  // Polynomial evaluation
-
-
-    ((ClassicalPolynomial*)getPoly(getPower()))->evalDerivOp(getShiftOp(),
-                                                             *inPtr,
-                                                             out,
-                                                             iapex,
-                                                             igparam);
-
-    // Post-processing
-
-    if (getPower() == POPT_ONE)
-    {
-      getShiftOp()->prodTildeC(out, out, POPT_HALF);
-      getShiftOp()->prodLambdaOnSqrtTildeC(out, out, 2.);
-    }
-    else if (getPower() == POPT_MINUSONE)
-    {
-      getShiftOp()->prodTildeC(out, out, POPT_MINUSHALF);
-      getShiftOp()->prodLambdaOnSqrtTildeC(out, out, -2.);
-    }
-    else if (getPower() == POPT_MINUSHALF)
-    {
-      getShiftOp()->prodLambda(out, out, POPT_MINUSONE);
-    }
-
 }
 
 
@@ -132,8 +110,8 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
 
     if (getPower() == POPT_ONE)
     {
-      getShiftOp()->prodTildeC(out, out, POPT_HALF);
-      getShiftOp()->prodLambdaOnSqrtTildeC(out, out, 2.);
+       getShiftOp()->prodTildeC(out, out, POPT_HALF);
+       getShiftOp()->prodLambdaOnSqrtTildeC(out, out, 2.);
     }
     else if (getPower() == POPT_MINUSONE)
     {
@@ -144,6 +122,21 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
     {
       getShiftOp()->prodLambda(out, out, POPT_MINUSONE);
     }
+
+}
+
+
+void PrecisionOpCs::evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
+{
+
+  if(getPower() == POPT_ONE)
+     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
+  if(getPower() == POPT_MINUSONE)
+     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
+  if(getPower() == POPT_MINUSHALF)
+     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
+  if(getPower() == POPT_LOG)
+     my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
 
 }
 

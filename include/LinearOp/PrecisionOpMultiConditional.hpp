@@ -13,6 +13,9 @@
 #include <vector>
 #include "ProjMatrix.hpp"
 
+/**
+ * Class to store objects for SPDE
+ */
 class PrecisionOpMultiConditional : public ALinearOpMulti {
 
 public:
@@ -24,16 +27,16 @@ public:
                  IProjMatrix* projDataElem);
   void setNugget(double nugg){_nugget = nugg;}
   /*!  Returns the dimension of the matrix */
-  int  size() const override { return _pMat.size(); }
-  int  size(int i) const override { return _pMat[i]->getSize(); }
+  int  size() const override { return _multiPrecisionOp.size(); }
+  int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
 
 protected:
   void _evalDirect(const VectorVectorDouble& in,
                    VectorVectorDouble& out) const override;
 
 private:
-  std::vector<PrecisionOp*> _pMat;
-  std::vector<IProjMatrix*> _projData;
+  std::vector<PrecisionOp*> _multiPrecisionOp;
+  std::vector<IProjMatrix*> _multiProjData;
   double _nugget;
   int    _ndat;
   mutable VectorDouble       _work1;

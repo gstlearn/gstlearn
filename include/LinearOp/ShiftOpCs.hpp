@@ -77,7 +77,8 @@ public:
                  Model* model,
                  bool verbose = false);
   int getSize() const override { return _S->n; }
-
+  int getDim() const { return _dim; }
+  int getNModelGradParam() const { return _nModelGradParam; }
   void prodTildeC(const VectorDouble& in, VectorDouble& out, ENUM_POPTS power) const;
   void prodLambda(const VectorDouble& in, VectorDouble& out, ENUM_POPTS power) const;
   void prodLambdaOnSqrtTildeC(const VectorDouble& out,
@@ -90,8 +91,10 @@ public:
   cs *getSGrad(int iapex, int igparam) const;
   const VectorDouble& getTildeC() const { return _TildeC; }
   const VectorDouble& getLambda() const { return _Lambda; }
+  double getLambda(int iapex) const { return _Lambda[iapex]; }
   const VectorDouble& getLambdaGrad(int idim) const { return _LambdaGrad[idim]; }
-
+  double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
+  int getSGradAddress(int iapex, int igparam) const;
 private:
   int _buildS(AMesh *amesh,
               const CovAniso& cova,
@@ -184,7 +187,6 @@ private:
                       MatrixCSGeneral& matu,
                       MatrixCRectangular& matw) const;
   cs* _BuildSfromMap(std::map<std::pair<int, int>, double> &tab);
-  int _getSGradAddress(int iapex, int igparam) const;
   void _updateCova(CovAniso& cova, int igrf, int icov, int ip, int ndim, ANoStat* nostat);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
 
@@ -195,4 +197,5 @@ private:
   int _nModelGradParam;
   std::vector<cs *> _SGrad;
   std::vector<VectorDouble> _LambdaGrad;
+  int _dim;
 };

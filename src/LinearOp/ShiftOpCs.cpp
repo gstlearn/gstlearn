@@ -30,7 +30,8 @@ ShiftOpCs::ShiftOpCs()
       _S(nullptr),
       _nModelGradParam(0),
       _SGrad(),
-      _LambdaGrad()
+      _LambdaGrad(),
+      _dim(0)
 {
 }
 
@@ -47,7 +48,8 @@ ShiftOpCs::ShiftOpCs(AMesh* amesh,
       _S(nullptr),
       _nModelGradParam(0),
       _SGrad(),
-      _LambdaGrad()
+      _LambdaGrad(),
+      _dim(amesh->getNDim())
 {
   (void) initFromMesh(amesh, model, dbout, nostat, igrf, icov, verbose);
 }
@@ -63,7 +65,8 @@ ShiftOpCs::ShiftOpCs(const cs* S,
       _S(nullptr),
       _nModelGradParam(0),
       _SGrad(),
-      _LambdaGrad()
+      _LambdaGrad(),
+      _dim(0)
 {
   (void) initFromCS(S, TildeC, Lambda, model, verbose);
 }
@@ -74,7 +77,8 @@ ShiftOpCs::ShiftOpCs(const ShiftOpCs &shift)
       _Lambda(),
       _S(nullptr),
       _nModelGradParam(0),
-      _SGrad()
+      _SGrad(),
+      _dim(shift.getDim())
 {
   _reallocate(shift);
 }
@@ -269,6 +273,8 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
 
     if (! flagAdvection)
       cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
+
+    _dim = amesh->getNDim();
   }
 
   catch (const char * str)
@@ -383,7 +389,7 @@ int ShiftOpCs::initFromCS(const cs* S,
 
     _TildeC = TildeC;
     _Lambda = Lambda;
-
+    _dim = model->getDimensionNumber();
     // Duplicate the Shift Operator sparse matrix
 
     _S = cs_duplicate(S);
@@ -529,7 +535,7 @@ cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
     messerr("You must initialize the Gradients with 'initGradFromMesh' beforehand");
     return nullptr;
   }
-  int iad = _getSGradAddress(iapex, igparam);
+  int iad = getSGradAddress(iapex, igparam);
   if (iad < 0) return nullptr;
 
   return _SGrad[iad];
@@ -945,7 +951,7 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
       int igp0 = amesh->getApex(imesh, j2);
       for (int igparam = 0; igparam < ngparam; igparam++)
       {
-        int iad = _getSGradAddress(igp0, igparam);
+        int iad = getSGradAddress(igp0, igparam);
 
         // Loop on apices of the current mesh
 
@@ -1509,7 +1515,7 @@ void ShiftOpCs::_projectMesh(AMesh *amesh,
  * @param igparam  Rank of the target parameter
  * @return
  */
-int ShiftOpCs::_getSGradAddress(int iapex, int igparam) const
+int ShiftOpCs::getSGradAddress(int iapex, int igparam) const
 {
   int ngparam = _nModelGradParam;
   int napex = getSize();

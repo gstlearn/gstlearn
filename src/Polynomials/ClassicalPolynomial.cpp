@@ -46,7 +46,8 @@ double ClassicalPolynomial::eval(double x) const
   return result;
 }
 
-// Horner scheme starting from the lowest degree (since it add the result to the input vector)
+// Horner scheme starting from the lowest degree
+//(since it adds the result to the input vector, the classical scheme can t be used)
 void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const
 {
   int n = in.size();
@@ -74,12 +75,12 @@ void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDoub
     }
 
     if(j <(int) _coeffs.size()-1)
-     {
+    {
          cs_vecmult(Op,swap1->data(),swap2->data());
          swap3 = swap1;
          swap1 = swap2;
          swap2 = swap3;
-     }
+    }
   }
 }
 
@@ -129,6 +130,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
   {
     e = 0;
   }
+
   for(int i = 0 ; i< n; i++)
   {
     work[i] = in[i];
@@ -139,19 +141,19 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
   for(int i = 0; i < degree - 1 ;i++)
   {
     cs_vecmult(derivOp,swap1->data(),swap2->data());
-    coeffsCur.erase(coeffsCur.begin(),coeffsCur.begin()+1);
     polycur->display();
+    coeffsCur.erase(coeffsCur.begin());
     polycur->init(coeffsCur);
+    polycur->display();
     polycur->evalOpCumul(Op,*swap2,out);
 
-    if(i<degree-2)
+    if(i<degree-2) // to avoid useless and time consuming computation since it prepares next iteration
     {
       cs_vecmult(Op,swap1->data(),swap2->data());
+      swap3 = swap1;
+      swap1 = swap2;
+      swap2 = swap3;
     }
-
-    swap3 = swap1;
-    swap1 = swap2;
-    swap2 = swap3;
    }
 
    delete polycur;
