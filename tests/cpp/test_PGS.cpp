@@ -33,15 +33,11 @@ int main(int argc, char *argv[])
   db.display(FLAG_STATS);
 
   // Creating the Model of the Underlying GRF
-  Model model(ctxt,false,false);
+  Model model(ctxt);
   double range = 0.2;
   CovAniso cova(COV_CUBIC,range,1.,1.,ctxt);
   model.addCova(&cova);
   model.display();
-
-  // Creating the Rule
-  Rule rule({"S","S","F1","F2","F3"});
-  rule.display();
 
   // Creating the Neighborhood
   Neigh neigh = Neigh(ndim);
@@ -51,7 +47,21 @@ int main(int argc, char *argv[])
   VectorDouble props({0.2, 0.5, 0.3});
   (void) simpgs(nullptr,&db,nullptr,&rule,&model,nullptr,&neigh,props);
   db.setLocator(db.getLastName(),LOC_Z);
-  db.display();
+
+  // Adding constant proportions as Vectors in the Db
+  int nfac = props.size();
+  VectorString names = generateMultipleNames("Props",nfac);
+  for (int ifac = 0; ifac < nfac; ifac++)
+  {
+    db.addFields(1,props[ifac]);
+    db.setName(db.getLastName(),names[ifac]);
+  }
+  db.setLocator(names,LOC_P);
+  db.display(FLAG_STATS);
+
+  // Creating the Rule
+  Rule rule({"S","S","F1","F2","F3"});
+  rule.display();
 
   // Determination of the variogram of the Underlying GRF
   Vario cov = Vario();
@@ -63,5 +73,14 @@ int main(int argc, char *argv[])
   Vario vario(cov,VectorInt(),VectorInt(),true);
   vario.display(1);
 
+  // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
+  Model model
+//  myModelConstrained = Model(mydb)
+//  constr = Constraints()
+//  range_val = 1.
+//  constr.addItem(ConsItem(False,CONS_TYPE_EQUAL,0,0,CONS_RANGE,0,0,range_val))
+//  err = myModelConstrained.fit(myVarioOmni,[COV_SPHERICAL],
+//                               False,Option_AutoFit(),constr)
+//
   return(0);
 }

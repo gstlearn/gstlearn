@@ -26,6 +26,26 @@ OptimCostColored::OptimCostColored()
 {
 }
 
+OptimCostColored::OptimCostColored(const OptimCostColored &m)
+    : OptimCostBinary(),
+      _nprop(m._nprop),
+      _splits(m._splits),
+      _meanProps(m._meanProps)
+{
+
+}
+
+OptimCostColored& OptimCostColored::operator= (const OptimCostColored &m)
+{
+  if (this != &m)
+  {
+    _nprop = m._nprop;
+    _splits = m._splits;
+    _meanProps = m._meanProps;
+  }
+  return *this;
+}
+
 OptimCostColored::~OptimCostColored() 
 {
 }
@@ -75,9 +95,9 @@ void OptimCostColored::init(int                 nprop,
 ** \remarks Argument 'facies' should contain values ranging from 1 to _nprop
 **
 *****************************************************************************/
-int OptimCostColored::minimize(VectorDouble& facies,
-                               std::vector<VectorDouble>& propfacs,
-                               std::vector<VectorInt>&    splits,
+int OptimCostColored::minimize(VectorDouble&       facies,
+                               VectorVectorDouble& propfacs,
+                               VectorVectorInt&    splits,
                                VectorDouble& meanprops,
                                bool          verbose,
                                int           maxiter,
@@ -256,7 +276,7 @@ void OptimCostColored::_printSplits() const
 **                        (Dimension: nfacies * (nfacies-1))
 **
 *****************************************************************************/
-int OptimCostColored::_checkSplits(const std::vector<VectorInt>& splits)
+int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
 {
   int nlevel = _nprop - 1;
 
@@ -384,7 +404,7 @@ int OptimCostColored::_checkMeanProportions(const VectorDouble& meanprops)
 void OptimCostColored::_copyMultProportions(int level,
                                             int ip,
                                             const VectorDouble& propfac,
-                                            std::vector<VectorDouble>& propfacs)
+                                            VectorVectorDouble& propfacs)
 {
   int nvertex = getNVertex();
   int mode = _splits[level][ip];
@@ -408,4 +428,25 @@ void OptimCostColored::_copyMultProportions(int level,
       for (int ivert=0; ivert<nvertex; ivert++)
         propfacs[ip][ivert] *= 1. - propfac[ivert];
   }                                       
+}
+
+VectorVectorInt OptimCostColored::createSplit(int nfacies) const
+{
+  VectorVectorInt splits;
+
+  int nlevel = nfacies - 1;
+  for (int ilevel = 0; ilevel < nlevel; ilevel++)
+  {
+    VectorInt ss(nfacies,0);
+    for (int ifacies = 0; ifacies < nfacies; ifacies++)
+    {
+      if (ifacies > nfacies - ilevel - 1) continue;
+      if (ifacies == nfacies - ilevel - 1)
+        ss[ifacies] = 2;
+      else
+        ss[ifacies] = 1;
+    }
+    splits.push_back(ss);
+  }
+  return splits;
 }
