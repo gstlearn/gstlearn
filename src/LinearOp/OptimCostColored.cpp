@@ -140,7 +140,7 @@ int OptimCostColored::minimize(const VectorDouble&       facies,
     // Check the split contents
     if (_checkSplits(splits))
       my_throw("Error in argument 'splits'");
-    if (verbose) _printSplits();
+    if (verbose) printSplits();
 
     // Check the mean proportions
     if (_checkMeanProportions(meanprops))
@@ -268,11 +268,20 @@ int OptimCostColored::_checkFacies(const VectorDouble& facies) const
 **  Internal function to print the Splits
 **
 *****************************************************************************/
-void OptimCostColored::_printSplits() const
+void OptimCostColored::printSplits(const VectorVectorInt& splits) const
 {
   int nlevel = _nprop - 1;
-  for (int level = 0; level < nlevel; level++)
-    ut_ivector_display(String(),_splits[level]);
+
+  if (splits.empty())
+  {
+    for (int level = 0; level < nlevel; level++)
+      ut_ivector_display(String(),_splits[level]);
+  }
+  else
+  {
+    for (int level = 0; level < nlevel; level++)
+      ut_ivector_display(String(),splits[level]);
+  }
 }
 
 /*****************************************************************************/
@@ -290,24 +299,26 @@ int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
   int nlevel = _nprop - 1;
 
   // Check that split values are 0, 1 or 2 only
-  int ntotal = _nprop * nlevel;
   int nerr = 0;
-  for (int i=0; i<ntotal; i++)
+  for (int level = 0; level < nlevel; level++)
   {
-    if (splits[0][i] != 0 && splits[0][i] != 1 && splits[0][i] != 2)
+    for (int ip=0; ip <_nprop; ip++)
     {
-      messerr("For index #%d/%d, argument 'splits' is invalid (%d)",
-              i+1,ntotal,splits[0][i]);
-      messerr("       It should be either 0, 1 or 2");
-      nerr++;
+      if (splits[level][ip] != 0 && splits[level][ip] != 1 && splits[level][ip] != 2)
+      {
+        messerr("For Level=%d/%d and Facies=%d/%d, argument 'splits' is invalid (%d)",
+                level+1,nlevel,ip+1,_nprop,splits[level][ip]);
+        messerr("       It should be either 0, 1 or 2");
+        nerr++;
+      }
     }
   }
   if (nerr > 0) goto label_error;
 
   // The first level should only contain 1 and 2
 
-  for (int ip=0; ip<_nprop; ip++)
-    if (_splits[0][ip] != 1 && _splits[0][ip] != 2)
+  for (int ip=0; ip <_nprop; ip++)
+    if (splits[0][ip] != 1 && splits[0][ip] != 2)
     {
       messerr("SPLIT(1,%d) is incorrect (%d)",ip+1);
       messerr("It should either 1 or 2");
@@ -317,14 +328,14 @@ int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
 
   // Each level must have at least a 1 and a 2
 
-  for (int level=0; level<nlevel; level++)
+  for (int level = 0; level < nlevel; level++)
   {
     int none = 0;
     int ntwo = 0;
-    for (int ip=0; ip<_nprop; ip++)
+    for (int ip=0; ip <_nprop; ip++)
     {
-      if (_splits[level][ip] == 0) continue;
-      if (_splits[level][ip] == 1)
+      if (splits[level][ip] == 0) continue;
+      if (splits[level][ip] == 1)
         none++;
       else
         ntwo++;
@@ -340,17 +351,17 @@ int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
 
   // All non-zero of level L should have same value at level L-1
 
-  for (int level=1; level<nlevel; level++)
+  for (int level = 1; level < nlevel; level++)
   {
     int previous = -1;
-    for (int ip=0; ip<_nprop; ip++)
+    for (int ip = 0; ip <_nprop; ip++)
     {
-      if (_splits[level][ip] == 0) continue;
+      if (splits[level][ip] == 0) continue;
       if (previous < 0)
-        previous = _splits[level-1][ip];
+        previous = splits[level-1][ip];
       else
       {
-        if (previous != _splits[level-1][ip])
+        if (previous != splits[level-1][ip])
         {
           messerr("Non-zero values at level #%d should share same value previous level",
                   level+1);
@@ -361,7 +372,7 @@ int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
   }
   if (nerr > 0) goto label_error;
 
-  // The argument 'split' is correct, store it
+  // The argument 'splits' is correct, store it
 
   _splits = splits;
   return 0;
@@ -369,7 +380,7 @@ int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
   // Print the array of splits in case of error
 
 label_error:
-  _printSplits();
+  printSplits();
   return 1;
 }
 
@@ -439,23 +450,26 @@ void OptimCostColored::_copyMultProportions(int level,
   }                                       
 }
 
-VectorVectorInt OptimCostColored::createSplit(int nfacies) const
+VectorVectorInt OptimCostColored::createSplit(int nfacies, bool verbose) const
 {
-  VectorVectorInt splits;
-
   int nlevel = nfacies - 1;
+
+  VectorVectorInt splits;
+  splits.resize(nlevel, VectorInt(nfacies, 0));
+
   for (int ilevel = 0; ilevel < nlevel; ilevel++)
   {
-    VectorInt ss(nfacies,0);
     for (int ifacies = 0; ifacies < nfacies; ifacies++)
     {
       if (ifacies > nfacies - ilevel - 1) continue;
       if (ifacies == nfacies - ilevel - 1)
-        ss[ifacies] = 2;
+        splits[ilevel][ifacies] = 2;
       else
-        ss[ifacies] = 1;
+        splits[ilevel][ifacies] = 1;
     }
-    splits.push_back(ss);
   }
+
+  if (verbose) printSplits(splits);
+
   return splits;
 }

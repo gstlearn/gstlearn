@@ -36,7 +36,8 @@ public:
                    int           maxiter = 100,
                    double        eps = 5.e-4);
 
-  VectorVectorInt createSplit(int nfacies) const;
+  VectorVectorInt createSplit(int nfacies, bool verbose = false) const;
+  void   printSplits(const VectorVectorInt& splits = VectorVectorInt()) const;
 
 private:
   void   _getFaciesToIndic(const VectorDouble& facies,
@@ -50,7 +51,6 @@ private:
                               int ip,
                               const VectorDouble& propfac,
                               VectorVectorDouble& propfacs);
-  void   _printSplits() const;
                                 
 private:
   int             _nprop;
