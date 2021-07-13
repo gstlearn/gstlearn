@@ -41,7 +41,7 @@ VectorDouble PrecisionOpCs::getCoeffs()
 }
 
 
-void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble result)
+void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result)
 {
   eval(X,_work);
   double temp,val;

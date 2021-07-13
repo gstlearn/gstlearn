@@ -141,10 +141,8 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
   for(int i = 0; i < degree - 1 ;i++)
   {
     cs_vecmult(derivOp,swap1->data(),swap2->data());
-    polycur->display();
     coeffsCur.erase(coeffsCur.begin());
     polycur->init(coeffsCur);
-    polycur->display();
     polycur->evalOpCumul(Op,*swap2,out);
 
     if(i<degree-2) // to avoid useless and time consuming computation since it prepares next iteration

@@ -95,15 +95,25 @@ void OptimCostColored::init(int                 nprop,
 ** \remarks Argument 'facies' should contain values ranging from 1 to _nprop
 **
 *****************************************************************************/
-int OptimCostColored::minimize(VectorDouble&       facies,
+int OptimCostColored::minimize(const VectorDouble&       facies,
                                VectorVectorDouble& propfacs,
-                               VectorVectorInt&    splits,
-                               VectorDouble& meanprops,
+                               VectorVectorInt    splits,
+                               VectorDouble meanprops,
                                bool          verbose,
                                int           maxiter,
                                double        eps)
 {
   VectorDouble indic,propfac;
+
+  if (meanprops.empty())
+  {
+    meanprops.resize(_nprop);
+    for (auto &e : meanprops)
+    {
+      e = 1. / _nprop;
+    }
+  }
+  if (splits.empty()) splits = createSplit(_nprop);
 
   // Initialization
   int error = 0;
