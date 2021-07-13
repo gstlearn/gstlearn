@@ -33,6 +33,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
   , _verbose(verbose)
   , _work()
   , _work2()
+  , _work3()
 {
   if (model != nullptr)
     _cova = model->getCova(icov);
@@ -40,6 +41,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
   {
     _work.resize(_shiftOp->getSize());
     _work2.resize(_shiftOp->getSize());
+    _work3.resize(_shiftOp->getSize());
   }
 }
 
@@ -51,6 +53,7 @@ PrecisionOp::PrecisionOp(const PrecisionOp &pmat)
   , _verbose(pmat._verbose)
   , _work(pmat._work)
   , _work2(pmat._work2)
+  , _work3(pmat._work3)
 {
 }
 
@@ -63,6 +66,7 @@ PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
   _verbose       = pmat._verbose;
   _work          = pmat._work;
   _work2         = pmat._work2;
+  _work3         = pmat._work3;
   return *this;
 }
 

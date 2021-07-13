@@ -43,7 +43,7 @@ VectorDouble PrecisionOpCs::getCoeffs()
 
 void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result)
 {
-  eval(X,_work);
+  eval(X,_work3);
   double temp,val;
   int iadress;
 
@@ -57,7 +57,8 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
       {
         val = getShiftOp()->getLambda(iapex);
         temp = getShiftOp()->getLambdaGrad(igparam,iapex);
-        result[iadress]= 2 * Y[iapex] * temp * _work[iapex] / val;
+        result[iadress]= 2 * Y[iapex] * temp * _work3[iapex] / val;
+
       }
       else
       {

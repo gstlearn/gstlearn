@@ -70,5 +70,5 @@ private:
 protected :
   mutable VectorDouble _work;
   mutable VectorDouble _work2;
-
+  mutable VectorDouble _work3;
 };
