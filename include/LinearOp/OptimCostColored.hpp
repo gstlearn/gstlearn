@@ -30,8 +30,8 @@ public:
 
   int     minimize(VectorDouble& facies,
                    VectorVectorDouble& propfacs,
-                   VectorVectorInt& splits=VectorVectorInt(),
-                   VectorDouble& meanprops=VectorDouble(),
+                   VectorVectorInt splits=VectorVectorInt(),
+                   VectorDouble  meanprops=VectorDouble(),
                    bool          verbose = false,
                    int           maxiter = 100,
                    double        eps = 5.e-4);

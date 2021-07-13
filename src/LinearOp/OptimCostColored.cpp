@@ -97,8 +97,8 @@ void OptimCostColored::init(int                 nprop,
 *****************************************************************************/
 int OptimCostColored::minimize(VectorDouble&       facies,
                                VectorVectorDouble& propfacs,
-                               VectorVectorInt&    splits,
-                               VectorDouble& meanprops,
+                               VectorVectorInt    splits,
+                               VectorDouble  meanprops,
                                bool          verbose,
                                int           maxiter,
                                double        eps)
