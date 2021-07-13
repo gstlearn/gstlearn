@@ -780,6 +780,7 @@ static double st_extract_trace(Local_Pgs *local_pgs)
   tracepgs = &local_pgs->tracepgs;
   nrow = tracepgs->nrow;
   ncol = tracepgs->ncol;
+  if (nrow <= 0 || ncol <= 0) return TEST;
 
   /* Evaluate the sum of the score */
 
@@ -4103,7 +4104,7 @@ static int st_vario_pgs_check(int    flag_db,
   }
 
   // Resize to the number of Underlying GRF
-  vario->internalResize(db->getNDim(), rule->getGRFNumber());
+  vario->internalResize(db->getNDim(), rule->getGRFNumber(), "cov");
 
   /* Input Db file (optional) */
 
@@ -5273,12 +5274,12 @@ GEOSLIB_API int variogram_pgs(Db     *db,
     messerr("The variogram must contain at least one calculation Direction");
     return 1;
   }
-
   if (db->getVariableNumber() != 1)
   {
     messerr("The number of variables (%d) must be equal to 1",db->getVariableNumber());
     return 1;
   }
+  vario->setCalculName("covnc");
   int iatt = db->getAttribute(LOC_Z,0);
   int nclass = rule->getFaciesNumber();
   if (nclass <= 0)
@@ -5318,14 +5319,18 @@ GEOSLIB_API int variogram_pgs(Db     *db,
     Limits limits = Limits(nclass);
     if (limits.toIndicator(db,iatt))
     {
-      messerr("Problem when translating Facies into Catoegories");
+      messerr("Problem when translating Facies into Categories");
       return 1;
     }
 
     // Calculate the variogram of Indicators
     varioind = (Vario*) vario->clone();
-    varioind->setCalculName("covnc");
-    if (varioind->compute(db,props))
+    VectorDouble vars(nclass * nclass,0.);
+    int ecr = 0;
+    for (int iclass = 0; iclass < nclass; iclass++)
+      for (int jclass = 0 ; jclass < nclass; jclass++)
+        vars[ecr++] = (iclass != jclass) ? 0. : props[iclass] * (1. - props[iclass]);
+    if (varioind->compute(db,"covnc",props,vars))
     {
       messerr("Error when calculating the Variogram of Indicators");
       return 1;

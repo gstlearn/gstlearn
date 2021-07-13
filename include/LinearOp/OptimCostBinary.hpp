@@ -21,7 +21,10 @@ class OptimCostBinary: public IOptimCost
 
 public:
   OptimCostBinary();
+  OptimCostBinary(const OptimCostBinary &m);
+  OptimCostBinary& operator = (const OptimCostBinary &m);
   virtual ~OptimCostBinary();
+
   void init(PrecisionOp* pmat,
             const ProjMatrix* projdata,
             const ProjMatrix* projseis = nullptr,

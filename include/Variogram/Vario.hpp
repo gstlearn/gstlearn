@@ -25,8 +25,7 @@ class Model;
 class Vario : public AStringable, ASerializable, IClonable
 {
 public:
-  Vario(const String& calculName = "vg",
-        double scale = 0.,
+  Vario(double scale = 0.,
         bool flagSample = false,
         VectorDouble dates = VectorDouble());
   Vario(const Vario& vario, const VectorInt& varcols, const VectorInt& dircols, bool flagVario);
@@ -60,7 +59,7 @@ public:
   const VectorDouble& getDates() const { return _dates; }
   double getDates(int idate, int icas) const;
   const VectorDouble& getMeans() const { return _means; }
-  double getMeans(int ivar) const { return _means[ivar]; }
+  double getMeans(int ivar) const;
   const VectorDouble& getVars()  const { return _vars; }
   double getVars(int ivar, int jvar) const;
   double getVars(int i) const;
@@ -73,9 +72,9 @@ public:
   void setCalculName(std::string calcul_name) { _calculName = calcul_name; }
   void setScale(double scale) { _scale = scale; }
   void setFlagSample(int flag_sample) { _flagSample = flag_sample; }
-  void setMeans(const VectorDouble& means) { _means = means; }
-  void setMeans(int ivar, double mean) { _means[ivar] = mean; }
-  void setVars(const VectorDouble& vars) { _vars = vars; }
+  void setMeans(const VectorDouble& means);
+  void setMeans(int ivar, double mean);
+  void setVars(const VectorDouble& vars);
   void setVars(int i, double value);
   void setVars(int ivar, int jvar, double value);
 
@@ -90,11 +89,12 @@ public:
   const std::vector<Dir>& getDirs() const { return _dirs; }
   const Dir& getDirs(int idir) const { return _dirs[idir]; }
 
-  void internalResize(int ndim, int nvar);
+  void internalResize(int ndim, int nvar, const String& calculName);
 
   double getHmax(int ivar=0, int jvar=0) const;
 
   int compute(Db *db,
+              const String& calculName = "vg",
               const VectorDouble& means = VectorDouble(),
               const VectorDouble& vars = VectorDouble(),
               bool flag_grid = false,
@@ -158,6 +158,8 @@ private:
   bool _isDirectionValid(int idir) const;
   bool _isBivariableValid(int i) const;
   bool _isDateValid(int idate) const;
+  void _initMeans();
+  void _initVars();
 
 private:
   String _calculName;

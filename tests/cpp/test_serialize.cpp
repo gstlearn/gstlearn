@@ -49,10 +49,10 @@ int main(int argc, char *argv[])
   poly2.display();
 
   // ===== Compute an experimental variogram
-  Vario vario1("vg");
+  Vario vario1 = Vario();
   Dir dir(2, 10, 0.02);
   vario1.addDirs(dir);
-  vario1.compute(&db1);
+  vario1.compute(&db1,"vg");
   vario1.display();
 
   // Serialize vario1

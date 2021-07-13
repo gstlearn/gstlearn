@@ -66,7 +66,7 @@ Dir::Dir(int ndim,
       _utilize()
 {
   _completeDefinition();
-  resize(nvar, flagAsym);
+  internalResize(nvar, flagAsym);
 
   if ((int) gg.size() != getSize())
     throw("Wrong dimension for Input 'gg'");
@@ -227,7 +227,7 @@ bool Dir::_isDimensionValid(int idim) const
   return true;
 }
 
-void Dir::resize(int nvar, int flagAsym)
+void Dir::internalResize(int nvar, int flagAsym)
 {
   _nvar = nvar;
   _flagAsym = flagAsym;

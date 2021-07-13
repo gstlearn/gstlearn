@@ -21,6 +21,7 @@ typedef std::vector<std::string> VectorString;
 typedef std::vector<unsigned char> VectorUChar;
 typedef std::string String;
 typedef std::vector<VectorDouble> VectorVectorDouble;
+typedef std::vector<VectorInt>    VectorVectorInt;
 
 /// TODO to be removed when VectorDouble will be OK
 void ut_vector_display(const String& title, const VectorDouble& vect);

@@ -44,6 +44,51 @@ OptimCostBinary::OptimCostBinary()
 {
 }
 
+OptimCostBinary::OptimCostBinary(const OptimCostBinary &m)
+    : IOptimCost(),
+      _isInitialized(m._isInitialized),
+      _flagSeismic(m._flagSeismic),
+      _meanPropGaus(m._meanPropGaus),
+      _pMat(m._pMat),
+      _projData(m._projData),
+      _projSeis(m._projSeis),
+      _propSeis(m._propSeis),
+      _varSeis(m._varSeis),
+      _cgMaxIter(m._cgMaxIter),
+      _cgEps(m._cgEps),
+      _flagCgPreCond(m._flagCgPreCond),
+      _chebNcmax(m._chebNcmax),
+      _chebTol(m._chebTol),
+      _grad(),
+      _workp(),
+      _workx(),
+      _workv(),
+      _lambdav()
+{
+
+}
+
+OptimCostBinary& OptimCostBinary::operator = (const OptimCostBinary &m)
+{
+  if (this != &m)
+  {
+    _isInitialized = m._isInitialized;
+    _flagSeismic = m._flagSeismic;
+    _meanPropGaus = m._meanPropGaus;
+    _pMat = m._pMat;
+    _projData = m._projData;
+    _projSeis = m._projSeis;
+    _propSeis = m._propSeis;
+    _varSeis = m._varSeis;
+    _cgMaxIter = m._cgMaxIter;
+    _cgEps = m._cgEps;
+    _flagCgPreCond = m._flagCgPreCond;
+    _chebNcmax = m._chebNcmax;
+    _chebTol = m._chebTol;
+  }
+  return *this;
+}
+
 OptimCostBinary::~OptimCostBinary() 
 {
 }

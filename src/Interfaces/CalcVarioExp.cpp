@@ -109,7 +109,7 @@ Vario* CalcVarioExp::getVario() const
   }
   //:WARNING: 0 (first) : covariance Model (ParamVariofit??) 
 
-  variogram_compute(_data->toGeoslib(), vario, VectorDouble(), VectorDouble(),
+  vario->compute(_data->toGeoslib(), "vg", VectorDouble(), VectorDouble(),
                    1, (int)_param.rules);
 
   return(vario);
