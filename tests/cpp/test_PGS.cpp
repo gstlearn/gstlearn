@@ -11,8 +11,10 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "Neigh/Neigh.hpp"
+#include "Model/Model.hpp"
+#include "Variogram/Vario.hpp"
 
 /****************************************************************************/
 /*!
@@ -52,11 +54,13 @@ int main(int argc, char *argv[])
   db.display();
 
   // Determination of the variogram of the Underlying GRF
-  Vario vario = Vario();
+  Vario cov = Vario();
   int nlag = 19;
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
-  vario.addDirs(dir);
-  (void) variogram_pgs(&db,&vario,&rule,props);
+  cov.addDirs(dir);
+  (void) variogram_pgs(&db,&cov,&rule,props);
+  cov.display(1);
+  Vario vario(cov,VectorInt(),VectorInt(),true);
   vario.display(1);
 
   return(0);

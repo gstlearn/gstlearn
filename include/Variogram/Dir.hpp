@@ -126,7 +126,7 @@ public:
   void setGg(int ivar, int jvar, int ipas, double gg);
   void setUtilize(int iad, double val);
 
-  void resize(int nvar, int flagAsym);
+  void internalResize(int nvar, int flagAsym);
 
   double getHmax(int ivar=0, int jvar=0) const;
 

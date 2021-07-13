@@ -7029,7 +7029,7 @@ GEOSLIB_API void condexp(Db     *db1,
 ** \note keypair technique with name "KU_Niter".
 **
 *****************************************************************************/
-GEOSLIB_API int variogram_compute(Db    *db,
+GEOSLIB_API int variogram_compute(Db   *db,
                                  Vario *vario,
                                  const VectorDouble& means,
                                  const VectorDouble& vars,
@@ -7043,7 +7043,6 @@ GEOSLIB_API int variogram_compute(Db    *db,
 {
   int error;
 
-  vario->internalResize(db->getNDim(), db->getVariableNumber(), "vg");
   vario->setFlagSample(flag_sample);
   if (flag_grid)
   {

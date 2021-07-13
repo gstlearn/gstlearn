@@ -89,7 +89,7 @@ Vario::Vario(const Vario& vario,
 
   VectorInt seldirs;
   if (seldirs.empty())
-    seldirs = ut_ivector_sequence(vario.getDimensionNumber());
+    seldirs = ut_ivector_sequence(vario.getDirectionNumber());
   else
   {
     seldirs = dircols;
@@ -114,12 +114,12 @@ Vario::Vario(const Vario& vario,
   {
     _means.resize(_nVar);
     for (int ivar = 0; ivar < _nVar; ivar++)
-      setMeans(ivar, vario.getMeans(varcols[ivar]));
+      setMeans(ivar, vario.getMeans(selvars[ivar]));
 
     _vars.resize(_nVar * _nVar);
     for (int ivar = 0; ivar < _nVar; ivar++)
       for (int jvar = 0; jvar < _nVar; jvar++)
-        setVars(ivar, jvar, vario.getVars(varcols[ivar], varcols[jvar]));
+        setVars(ivar, jvar, vario.getVars(selvars[ivar], selvars[jvar]));
   }
   else
   {
@@ -137,7 +137,7 @@ Vario::Vario(const Vario& vario,
     addDirs(dirFrom);
 
     // Resize it to the correct number of variables
-    _dirs[idir].resize(_nVar, getFlagAsym());
+    _dirs[idir].internalResize(_nVar, getFlagAsym());
 
     // Load the relevant information
     int npas = _dirs[idir].getNPas();
@@ -163,7 +163,7 @@ Vario::Vario(const Vario& vario,
           }
 
           setSw(idir, ivar, jvar, ipas, sw);
-          setGg(idir, ivar, jvar, ipas, gg);
+          setGg(idir, ivar, jvar, ipas, getVars(ivar, jvar) - gg);
           setHh(idir, ivar, jvar, ipas, hh);
         }
       }
@@ -242,10 +242,10 @@ void Vario::internalResize(int ndim, int nvar, const String& calculName)
   // for backwards compatibility, these arrays are updated only if their dimension
   // is not consistent with the current dimension
   if ((int) _means.size() != _nVar) _means.resize(_nVar);
-  if ((int) _vars.size() != _nVar * _nVar) _vars.resize(_nVar * _nVar);
+  if ((int) _vars.size() != _nVar * _nVar) _initVars();
 
   for (int idir = 0; idir < getDirectionNumber(); idir++)
-    _dirs[idir].resize(_nVar, getFlagAsym());
+    _dirs[idir].internalResize(_nVar, getFlagAsym());
 }
 
 IClonable* Vario::clone() const
@@ -517,6 +517,12 @@ int identifyFlagAsym(const String& calcul_name)
   return flagAsym;
 }
 
+double Vario::getMeans(int ivar) const
+{
+  if (! _isVariableValid(ivar)) return TEST;
+  return _means[ivar];
+}
+
 double Vario::getVars(int ivar, int jvar) const
 {
   if (! _isVariableValid(ivar)) return TEST;
@@ -536,14 +542,53 @@ double Vario::getDates(int idate, int icas) const
   return _dates[2 * idate + icas];
 }
 
+void Vario::_initMeans()
+{
+  _means.resize(_nVar);
+  for (int ivar = 0; ivar < _nVar; ivar++)
+    _means[ivar] = 0.;
+}
+
+void Vario::setMeans(const VectorDouble& means)
+{
+  if (_means.empty()) _initMeans();
+  if (! means.empty() && (int) means.size() == _nVar)
+    _means = means;
+}
+
+void Vario::setMeans(int ivar, double mean)
+{
+  if (_means.empty()) _initMeans();
+  if (! _isVariableValid(ivar)) return;
+  _means[ivar] = mean;
+}
+
+void Vario::_initVars()
+{
+  _vars.resize(_nVar * _nVar);
+  int ecr = 0;
+  for (int ivar = 0; ivar < _nVar; ivar++)
+    for (int jvar = 0; jvar < _nVar; jvar++)
+      _vars[ecr++] = (ivar == jvar);
+}
+
+void Vario::setVars(const VectorDouble& vars)
+{
+  if (_vars.empty()) _initVars();
+  if (! vars.empty() && (int) vars.size() == _nVar * _nVar)
+    _vars = vars;
+}
+
 void Vario::setVars(int i, double value)
 {
+  if (_vars.empty()) _initVars();
   if (! _isBivariableValid(i)) return;
   _vars[i] = value;
 }
 
 void Vario::setVars(int ivar, int jvar, double value)
 {
+  if (_vars.empty()) _initVars();
   if (! _isVariableValid(ivar)) return;
   if (! _isVariableValid(jvar)) return;
   _vars[_getAddress(ivar,jvar)] = value;
@@ -690,7 +735,7 @@ int Vario::deSerialize(const String& filename, bool verbose)
 
     if (flag_calcul)
     {
-      dir.resize(nvar, getFlagAsym());
+      dir.internalResize(nvar, getFlagAsym());
       for (int i = 0; i < dir.getSize(); i++)
       {
         double sw, hh, gg;

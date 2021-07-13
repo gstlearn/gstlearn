@@ -59,7 +59,7 @@ public:
   const VectorDouble& getDates() const { return _dates; }
   double getDates(int idate, int icas) const;
   const VectorDouble& getMeans() const { return _means; }
-  double getMeans(int ivar) const { return _means[ivar]; }
+  double getMeans(int ivar) const;
   const VectorDouble& getVars()  const { return _vars; }
   double getVars(int ivar, int jvar) const;
   double getVars(int i) const;
@@ -72,9 +72,9 @@ public:
   void setCalculName(std::string calcul_name) { _calculName = calcul_name; }
   void setScale(double scale) { _scale = scale; }
   void setFlagSample(int flag_sample) { _flagSample = flag_sample; }
-  void setMeans(const VectorDouble& means) { _means = means; }
-  void setMeans(int ivar, double mean) { _means[ivar] = mean; }
-  void setVars(const VectorDouble& vars) { _vars = vars; }
+  void setMeans(const VectorDouble& means);
+  void setMeans(int ivar, double mean);
+  void setVars(const VectorDouble& vars);
   void setVars(int i, double value);
   void setVars(int ivar, int jvar, double value);
 
@@ -158,6 +158,8 @@ private:
   bool _isDirectionValid(int idir) const;
   bool _isBivariableValid(int i) const;
   bool _isDateValid(int idate) const;
+  void _initMeans();
+  void _initVars();
 
 private:
   String _calculName;
