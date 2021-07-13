@@ -25,13 +25,13 @@ public:
                PrecisionOp*  	     pmat,
                const ProjMatrix*   projdata,
                const ProjMatrix*   projseis = nullptr,
-               const VectorDouble& propseis = VectorDouble(),
-               const VectorDouble& varseis  = VectorDouble());
+               const VectorDouble&  propseis = VectorDouble(),
+               const VectorDouble&  varseis  = VectorDouble());
 
-  int     minimize(VectorDouble& facies,
+  int     minimize(const VectorDouble& facies,
                    VectorVectorDouble& propfacs,
-                   VectorVectorInt splits=VectorVectorInt(),
-                   VectorDouble  meanprops=VectorDouble(),
+                   VectorVectorInt splits = VectorVectorInt(),
+                   VectorDouble   meanprops = VectorDouble(),
                    bool          verbose = false,
                    int           maxiter = 100,
                    double        eps = 5.e-4);
