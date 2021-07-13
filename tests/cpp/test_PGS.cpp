@@ -43,6 +43,10 @@ int main(int argc, char *argv[])
   Neigh neigh = Neigh(ndim);
   neigh.display();
 
+  // Creating the Rule
+  Rule rule({"S","S","F1","F2","F3"});
+  rule.display();
+
   // Perform a non-conditional simulation on the Db
   VectorDouble props({0.2, 0.5, 0.3});
   (void) simpgs(nullptr,&db,nullptr,&rule,&model,nullptr,&neigh,props);
@@ -59,10 +63,6 @@ int main(int argc, char *argv[])
   db.setLocator(names,LOC_P);
   db.display(FLAG_STATS);
 
-  // Creating the Rule
-  Rule rule({"S","S","F1","F2","F3"});
-  rule.display();
-
   // Determination of the variogram of the Underlying GRF
   Vario cov = Vario();
   int nlag = 19;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
   vario.display(1);
 
   // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
-  Model model
+  Model modelPGS = Model(&db);
 //  myModelConstrained = Model(mydb)
 //  constr = Constraints()
 //  range_val = 1.
