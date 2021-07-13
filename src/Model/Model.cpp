@@ -251,7 +251,7 @@ VectorDouble Model::sampleModel(double hmax,
 /**
  * Automatic Fitting procedure
  * @param vario   Experimental variogram to be fitted
- * @param types   Vector of ENUM_COVS (treated as int due to compiler problem)
+ * @param types   Vector of ENUM_COVS (treated as 'int' due to compiler problem)
  * @param verbose Verbose option
  * @param mauto   Special parameters for Automatic fitting procedure
  * @param constraints Set of Constraints
@@ -267,7 +267,7 @@ int Model::fit(Vario *vario,
 {
   if (vario == (Vario *) NULL) return 1;
 
-  // Clean out possible covariances in tRG  he existing model
+  // Clean out possible covariances in the existing model
 
   delAllCovas();
 
@@ -281,6 +281,30 @@ int Model::fit(Vario *vario,
     addCova(&cov);
   }
 
+  return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
+}
+
+int Model::fit(Vario *vario,
+               const std::vector<ENUM_COVS>& types,
+               bool verbose,
+               Option_AutoFit mauto,
+               const Constraints& constraints,
+               Option_VarioFit optvar)
+{
+  if (vario == (Vario *) NULL) return 1;
+
+  // Clean out possible covariances in the existing model
+
+  delAllCovas();
+
+  // Add the relevant covariances
+
+  CovContext ctxt = CovContext(vario->getVariableNumber());
+  for (int is = 0; is < (int) types.size(); is++)
+  {
+    CovAniso cov = CovAniso(types[is],ctxt);
+    addCova(&cov);
+  }
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
 }
 

@@ -168,9 +168,9 @@ String ConsItem::toString(int level) const
   if (_authAssign)
   {
     if (FFFF(_value))
-      sstr << "Value=NA" << std::endl;
+      sstr << " Value=NA" << std::endl;
     else
-      sstr << "Value=" << _value << std::endl;
+      sstr << " Value=" << _value << std::endl;
   }
   sstr << std::endl;
   return sstr.str();

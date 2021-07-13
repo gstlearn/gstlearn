@@ -4946,27 +4946,27 @@ label_end:
 ** \return  Error return code
 **
 ** \param[in]  db         Db descriptor
-** \param[in]  dbprop     Db descriptor for the grid of proportions
 ** \param[in]  vario      Vario structure
 ** \param[in]  rule       Lithotype Rule definition for first point
-** \param[in]  propcst    Array giving the constant proportions
-** \param[in]  flag_stat  1 for stationary; 0 otherwise
 ** \param[in]  model1     First Model structure
 ** \param[in]  model2     Second Model structure (optional)
+** \param[in]  propcst    Array giving the constant proportions
+** \param[in]  dbprop     Db descriptor for the grid of proportions
+** \param[in]  flag_stat  1 for stationary; 0 otherwise
 **
 ** \remark  At this stage, the number of variables is equal to the number
 ** \remark  of indicators.
 ** \remark  However, the models(s) are defined for a single variable
 **
 *****************************************************************************/
-GEOSLIB_API int model_pgs(Db     *db,
-                          Db     *dbprop,
-                          Vario  *vario,
-                          Rule   *rule,
+GEOSLIB_API int model_pgs(Db*     db,
+                          Vario*  vario,
+                          Rule*   rule,
+                          Model*  model1,
+                          Model*  model2,
                           const   VectorDouble& propcst,
-                          int     flag_stat,
-                          Model  *model1,
-                          Model  *model2)
+                          Db*     dbprop,
+                          int     flag_stat)
 {
   Local_Pgs local_pgs;
   int     error,nfacies,ngrf,node_tot,nmax_tot;
@@ -5325,16 +5325,15 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 
     // Calculate the variogram of Indicators
     varioind = (Vario*) vario->clone();
-    VectorDouble vars(nclass * nclass,0.);
-    int ecr = 0;
-    for (int iclass = 0; iclass < nclass; iclass++)
-      for (int jclass = 0 ; jclass < nclass; jclass++)
-        vars[ecr++] = (iclass != jclass) ? 0. : props[iclass] * (1. - props[iclass]);
-    if (varioind->compute(db,"covnc",props,vars))
+    if (varioind->compute(db,"covnc"))
     {
       messerr("Error when calculating the Variogram of Indicators");
       return 1;
     }
+
+    // Delete the Indicators (created locally)
+    db->deleteFieldByLocator(LOC_Z);
+    db->setLocatorByAttribute(iatt,LOC_Z);
   }
 
   /* Pre-calculation of integrals: Define the structure */

@@ -2972,14 +2972,6 @@
                                              int ipair,
                                              char *aux_iech,
                                              char *aux_jech);
-  GEOSLIB_API int model_pgs(Db *db,
-                            Db *dbprop,
-                            Vario *vario,
-                            Rule *rule,
-                            const VectorDouble& propcst,
-                            int flag_stat,
-                            Model *model1,
-                            Model *model2);
   GEOSLIB_API Rule *rule_auto(Db *db,
                               Db *dbprop,
                               Vario *vario,

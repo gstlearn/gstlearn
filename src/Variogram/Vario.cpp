@@ -159,7 +159,7 @@ Vario::Vario(const Vario& vario,
             int iadFrom = dirFrom.getAddress(ivarp, jvarp, ipas, false, -1);
             sw = (sw + dirFrom.getSw(iadFrom)) / 2.;
             gg = (gg + dirFrom.getGg(iadFrom)) / 2.;
-            hh = (hh + dirFrom.getHh(iadFrom)) / 2.;
+            hh = (ABS(hh) + ABS(dirFrom.getHh(iadFrom))) / 2.;
           }
 
           setSw(idir, ivar, jvar, ipas, sw);

@@ -18,16 +18,22 @@ Constraints::Constraints()
 }
 
 Constraints::Constraints(const Constraints &m)
-    : _consItems(m._consItems)
+    : _consItems()
 {
-
+  for (auto e: m._consItems)
+  {
+    _consItems.push_back(dynamic_cast<ConsItem*>(e->clone()));
+  }
 }
 
 Constraints& Constraints::operator=(const Constraints &m)
 {
   if (this != &m)
   {
-    _consItems = m._consItems;
+    for (auto e: m._consItems)
+    {
+      _consItems.push_back(dynamic_cast<ConsItem*>(e->clone()));
+    }
   }
   return *this;
 }

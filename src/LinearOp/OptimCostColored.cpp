@@ -84,7 +84,7 @@ void OptimCostColored::init(int                 nprop,
 ** \param[in]  facies     Array containing the Facies values (see remarks)
 **                        (Dimension: npoint)
 ** \param[out] propfacs   Array of facies proportions
-**                        (Dimension: nvertex * _nprop)
+**                        (Dimension: [nprop][nvertex])
 ** \param[in]  splits     Array giving the facies split
 **                        (Dimension: nfacies * (nfacies-1))
 ** \param[in]  meanprops  Array of mean of proportions (Dimension: nfacies)
@@ -103,11 +103,10 @@ int OptimCostColored::minimize(VectorDouble&       facies,
                                int           maxiter,
                                double        eps)
 {
-  int     error;
   VectorDouble indic,propfac;
 
   // Initialization
-  error = 0;
+  int error = 0;
 
   try 
   {

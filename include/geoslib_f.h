@@ -282,6 +282,14 @@ GEOSLIB_API int db_model_nostat(Db *db,
                                 Model *model,
                                 int icov = 0,
                                 NamingConvention namconv = NamingConvention("Nostat"));
+GEOSLIB_API int model_pgs(Db *db,
+                          Vario *vario,
+                          Rule *rule,
+                          Model* model1,
+                          Model* model2 = nullptr,
+                          const VectorDouble& propcst = VectorDouble(),
+                          Db* dbprop = nullptr,
+                          int flag_stat = true);
 
 /******************************/
 /* Functions for Anamorphosis */

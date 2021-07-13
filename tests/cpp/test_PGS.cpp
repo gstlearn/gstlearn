@@ -24,6 +24,7 @@
 int main(int argc, char *argv[])
 
 {
+  int error = 0;
   int ndim = 2;
   CovContext ctxt(1,2,1.);
 
@@ -49,7 +50,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional simulation on the Db
   VectorDouble props({0.2, 0.5, 0.3});
-  (void) simpgs(nullptr,&db,nullptr,&rule,&model,nullptr,&neigh,props);
+  error = simpgs(nullptr,&db,nullptr,&rule,&model,nullptr,&neigh,props);
   db.setLocator(db.getLastName(),LOC_Z);
 
   // Adding constant proportions as Vectors in the Db
@@ -68,19 +69,23 @@ int main(int argc, char *argv[])
   int nlag = 19;
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
   cov.addDirs(dir);
-  (void) variogram_pgs(&db,&cov,&rule,props);
-  cov.display(1);
+  error = variogram_pgs(&db,&cov,&rule,props);
   Vario vario(cov,VectorInt(),VectorInt(),true);
   vario.display(1);
 
   // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
-  Model modelPGS = Model(&db);
-//  myModelConstrained = Model(mydb)
-//  constr = Constraints()
-//  range_val = 1.
-//  constr.addItem(ConsItem(False,CONS_TYPE_EQUAL,0,0,CONS_RANGE,0,0,range_val))
-//  err = myModelConstrained.fit(myVarioOmni,[COV_SPHERICAL],
-//                               False,Option_AutoFit(),constr)
-//
-  return(0);
+  Model modelPGS(ctxt);
+
+  Option_AutoFit option = Option_AutoFit();
+  option.setConstantSillValue(1.);
+
+  std::vector<ENUM_COVS> covs {COV_CUBIC};
+  modelPGS.fit(&vario,covs,true,option);
+  modelPGS.display();
+
+  // Check by running the Model derived on the indicators
+
+  db.display();
+  error = model_pgs(&db, &vario, &rule, &modelPGS, nullptr, props);
+  return(error);
 }

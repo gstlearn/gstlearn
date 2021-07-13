@@ -161,6 +161,12 @@ public:
           Option_AutoFit mauto = Option_AutoFit(),
           const Constraints& constraints = Constraints(),
           Option_VarioFit optvar = Option_VarioFit());
+  int fit(Vario *vario,
+          const std::vector<ENUM_COVS>& types,
+          bool verbose = false,
+          Option_AutoFit mauto = Option_AutoFit(),
+          const Constraints& constraints = Constraints(),
+          Option_VarioFit optvar = Option_VarioFit());
 
 private:
   void _create(bool flagGradient, bool flagLinked);

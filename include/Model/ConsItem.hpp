@@ -21,16 +21,6 @@
  */
 class ConsItem : public AStringable, public IClonable
 {
-private:
-  ENUM_CONS_TYPE _icase; /* 0: Parameter; -1: Lower; 1: Upper; 2: Equal */
-  int _igrf;         /* Rank of the Gaussian Random Function */
-  int _icov;         /* Structure rank */
-  ENUM_CONS _type;   /* Type of element */
-  int _iv1;          /* Rank of the first variable */
-  int _iv2;          /* Rank of the second variable */
-  double _value;     /* Assigned value */
-  bool _authAssign; /* Authorize the assignment of a value */
-
 public:
   ConsItem(bool authAssign = false,
            ENUM_CONS_TYPE type = CONS_TYPE_DEFAULT,
@@ -73,4 +63,14 @@ public:
   bool matchType(ENUM_CONS type0) const { return (type0 == CONS_UNKNOWN || _type == type0); }
   bool matchIV1(int iv10) const { return (iv10 < 0 || _iv1 == iv10); }
   bool matchIV2(int iv20) const { return (iv20 < 0 || _iv2 == iv20); }
+
+private:
+  ENUM_CONS_TYPE _icase; /* 0: Parameter; -1: Lower; 1: Upper; 2: Equal */
+  int _igrf;             /* Rank of the Gaussian Random Function */
+  int _icov;             /* Structure rank */
+  ENUM_CONS _type;       /* Type of element */
+  int _iv1;              /* Rank of the first variable */
+  int _iv2;              /* Rank of the second variable */
+  double _value;         /* Assigned value */
+  bool _authAssign;      /* Authorize the assignment of a value */
 };
