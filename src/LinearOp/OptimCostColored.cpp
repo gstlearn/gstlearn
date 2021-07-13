@@ -105,7 +105,16 @@ int OptimCostColored::minimize(VectorDouble&       facies,
 {
   int     error;
   VectorDouble indic,propfac;
-
+  if(splits.size()==0)
+    splits = createSplit(_nprop);
+  if(meanprops.size()==0)
+  {
+    meanprops.resize(_nprop);
+    for(auto &e : meanprops)
+    {
+      e= 1./_nprop;
+    }
+  }
   // Initialization
   error = 0;
 
