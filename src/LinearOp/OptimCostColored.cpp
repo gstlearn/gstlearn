@@ -153,7 +153,7 @@ int OptimCostColored::minimize(const VectorDouble&       facies,
 
     for (int level=0; level<nlevel; level++)
     {
-      message("\nProcessing Level %d/%d\n",level+1,nlevel);
+      if (verbose) message("\nProcessing Level %d/%d\n",level+1,nlevel);
 
       // Cancel the Seismic for level higher than the first one
       toggleSeismic(level == 0);

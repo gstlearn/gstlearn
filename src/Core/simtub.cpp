@@ -299,7 +299,6 @@ GEOSLIB_API void check_mandatory_attribute(const char *method,
 **
 ** \return  1 if the field must be kept; 0 otherwise
 **
-** \param[in]  db         Db where the variable should be deleted or kept
 ** \param[in]  flag_gaus  1 gaussian results; otherwise facies
 ** \param[in]  flag_modif 1 for facies proportion
 ** \param[in]  file       DATA or RESULT
