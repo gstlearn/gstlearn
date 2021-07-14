@@ -71,8 +71,7 @@ void OptimCostColored::init(int                 nprop,
 {
   // Assignment of pointers
   _nprop  = nprop;
-  _meanProps.resize(_nprop);
-  ut_vector_fill(_meanProps, 1./_nprop);
+  ut_vector_fill(_meanProps, 1./_nprop, _nprop);
   _splits = createSplit(_nprop);
   
   // Pass arguments to the OptimCostBinary class
