@@ -103,8 +103,6 @@ public:
               bool verbose = false);
   bool isCalculated() const;
 
-  int duplicate(const Vario* vario2, bool flagSw, bool flagHh, bool flagGg);
-
   // Pipe the Dir methods for setting values
   void setSw(int idir, int iad, double sw) { _dirs[idir].setSw(iad, sw); }
   void setHh(int idir, int iad, double hh) { _dirs[idir].setHh(iad, hh); }
