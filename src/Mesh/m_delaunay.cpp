@@ -3699,7 +3699,7 @@ GEOSLIB_API void meshes_1D_create(int        verbose,
   /* Create pointattributelist */
 
   number = in->numberofpointattributes;
-  out->numberofpointattributes = out->numberofpointattributes;
+  out->numberofpointattributes = number;
   out->pointattributelist = (double *) mem_alloc(sizeof(double) * number,1);
   for (int i=0; i<number; i++)
     out->pointattributelist[i] = in->pointattributelist[i];
