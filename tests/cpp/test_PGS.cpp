@@ -83,9 +83,8 @@ int main(int argc, char *argv[])
   modelPGS.fit(&vario,covs,true,option);
   modelPGS.display();
 
-  // Check by running the Model derived on the indicators
+  // Deriving the experimental variograms of the indicators
 
-  db.display();
   error = model_pgs(&db, &vario, &rule, &modelPGS, nullptr, props);
   vario.display(1);
 

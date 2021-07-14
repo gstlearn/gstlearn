@@ -64,10 +64,7 @@ public:
   double getVars(int ivar, int jvar) const;
   double getVars(int i) const;
 
-  int hasDate() const
-  {
-    return (getDateNumber() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30));
-  }
+  int hasDate() const { return (getDateNumber() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }
 
   void setCalculName(std::string calcul_name) { _calculName = calcul_name; }
   void setScale(double scale) { _scale = scale; }
@@ -106,51 +103,20 @@ public:
               bool verbose = false);
   bool isCalculated() const;
 
+  int duplicate(const Vario* vario2, bool flagSw, bool flagHh, bool flagGg);
+
   // Pipe the Dir methods for setting values
-  void setSw(int idir, int iad, double sw)
-  {
-    _dirs[idir].setSw(iad, sw);
-  }
-  void setHh(int idir, int iad, double hh)
-  {
-    _dirs[idir].setHh(iad, hh);
-  }
-  void setGg(int idir, int iad, double gg)
-  {
-    _dirs[idir].setGg(iad, gg);
-  }
-  void setSw(int idir, int ivar, int jvar, int ipas, double sw)
-  {
-    return _dirs[idir].setSw(ivar, jvar, ipas, sw);
-  }
-  void setHh(int idir, int ivar, int jvar, int ipas, double hh)
-  {
-    return _dirs[idir].setHh(ivar, jvar, ipas, hh);
-  }
-  void setGg(int idir, int ivar, int jvar, int ipas, double gg)
-  {
-    return _dirs[idir].setGg(ivar, jvar, ipas, gg);
-  }
-  void updSw(int idir, int iad, double sw)
-  {
-    return _dirs[idir].updSw(iad, sw);
-  }
-  void updHh(int idir, int iad, double hh)
-  {
-    return _dirs[idir].updHh(iad, hh);
-  }
-  void updGg(int idir, int iad, double gg)
-  {
-    return _dirs[idir].updGg(iad, gg);
-  }
-  void setUtilize(int idir, int iad, double val)
-  {
-    return _dirs[idir].setUtilize(iad, val);
-  }
-  void clean(int idir)
-  {
-    return _dirs[idir].clean();
-  }
+  void setSw(int idir, int iad, double sw) { _dirs[idir].setSw(iad, sw); }
+  void setHh(int idir, int iad, double hh) { _dirs[idir].setHh(iad, hh); }
+  void setGg(int idir, int iad, double gg) { _dirs[idir].setGg(iad, gg); }
+  void setSw(int idir, int ivar, int jvar, int ipas, double sw) { return _dirs[idir].setSw(ivar, jvar, ipas, sw); }
+  void setHh(int idir, int ivar, int jvar, int ipas, double hh) { return _dirs[idir].setHh(ivar, jvar, ipas, hh); }
+  void setGg(int idir, int ivar, int jvar, int ipas, double gg) { return _dirs[idir].setGg(ivar, jvar, ipas, gg); }
+  void updSw(int idir, int iad, double sw) { return _dirs[idir].updSw(iad, sw); }
+  void updHh(int idir, int iad, double hh) { return _dirs[idir].updHh(iad, hh); }
+  void updGg(int idir, int iad, double gg) { return _dirs[idir].updGg(iad, gg); }
+  void setUtilize(int idir, int iad, double val) { return _dirs[idir].setUtilize(iad, val); }
+  void clean(int idir) { return _dirs[idir].clean(); }
 
 private:
   int  _getAddress(int ivar, int jvar) const;

@@ -4296,7 +4296,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   /* Calculate the covariance for the zero distance */
   for (i=0; i<local_pgs->model->getDimensionNumber(); i++) local_pgs->d0[i] = 0.;
   model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covtab);
-  cij00 = covtab[1];
+  cij00 = covtab[0];
 
   /* Calculate the covariance for the given shift */
   model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d1,covtab);
@@ -4634,12 +4634,7 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
     /* Clean the distance and variogram */
 
-    for (i=0; i<dir.getSize(); i++)
-    {
-      vario->setSw(idir, i,0.);
-      vario->setHh(idir, i,0.);
-      vario->setGg(idir, i,0.);
-    }
+    vario->clean(idir);
 
     /* Loop on the lags */
 
@@ -4703,6 +4698,59 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
 /****************************************************************************/
 /*!
+**  Duplicate the information from the input variogram to the output variogram
+**  This operation considers (Sw, Hh, Gg) and replicates this information for
+**  all directions.
+**  Per direction, the information of the first simple input variogram is
+**  replicated to all simple and cross-variograms output variograms
+**
+** \return  Error return code
+**
+** \param[in]  vario1       Input Variogram
+** \param[out] vario2       Output Variogram
+** \param[in]  flagSw       True if Sw must be replicated
+** \param[in]  flagHh       True if Hh must be replicated
+** \param[in]  flagGg       True if Gg must be replicated
+**
+*****************************************************************************/
+static int st_copy_swhh(const Vario* vario1,
+                        Vario* vario2,
+                        bool flagSw,
+                        bool flagHh,
+                        bool flagGg)
+{
+  if (vario1->getDirectionNumber() != vario2->getDirectionNumber())
+  {
+    messerr("Both variograms should share the same number of Directions");
+    return 1;
+  }
+  int nvar = vario2->getVariableNumber();
+
+  for (int idir = 0; idir < vario2->getDirectionNumber(); idir++)
+  {
+    const Dir& dir1 = vario1->getDirs(idir);
+    const Dir& dir2 = vario2->getDirs(idir);
+    for (int ipas = 0; ipas < dir1.getLagTotalNumber(); ipas++)
+    {
+      int iad1 = dir1.getAddress(0,0,ipas,true,0);
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+        {
+          int iad2 = dir2.getAddress(ivar,jvar,ipas,true,0);
+          if (flagSw)
+            vario2->setSw(idir, iad2, dir1.getSw(iad1));
+          if (flagHh)
+            vario2->setHh(idir, iad2, dir1.getHh(iad1));
+          if (flagGg)
+            vario2->setGg(idir, iad2, dir1.getGg(iad1));
+        }
+    }
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
 **  Performing the variogram calculations in the stationary case
 **
 ** \return  Error return code
@@ -4722,6 +4770,10 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
   nfacies = local_pgs->nfacies;
   vario   = local_pgs->vario;
   
+  // Duplicate Number and Distance for all lags (from the first simple variogram)
+
+  if (st_copy_swhh(local_pgs->vario, local_pgs->vario, true, true, false)) return 1;
+
   /* Loop on the directions */
   
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
@@ -5002,8 +5054,6 @@ GEOSLIB_API int model_pgs(Db*     db,
   /* Merge the models */
 
   new_model = model_rule_combine(model1,model2,rule);
-  if (new_model == (Model *) NULL) goto label_end;
-
   if (new_model == (Model *) NULL)
   {
     messerr("The Model(s) must be defined");
@@ -5063,21 +5113,11 @@ GEOSLIB_API int model_pgs(Db*     db,
   st_manage_pgs(1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
 
-  if (! flag_stat)
-  {
-    if (st_vario_pgs_variable(1,ngrf,nfacies,0,1,db,propdef,rule,
-                              &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
-      goto label_end;
-  }
-  else
-  {
-    if (st_calculate_thresh_stat(&local_pgs)) goto label_end;
-  }
-
-  /* Calculate the variance matrix and the variogram */
+  /* Calculate the variogram and the variance matrix */
 
   if (flag_stat)
   {
+    if (st_calculate_thresh_stat(&local_pgs)) goto label_end;
     if (st_vario_indic_model_stat(&local_pgs)) goto label_end;
     st_update_variance_stat(&local_pgs);
   }
@@ -5106,30 +5146,6 @@ label_end:
                               db,dbprop,propcst,propdef);
   st_timer_print();
   return(error);
-}
-
-static void st_copy_swhh(Local_Pgs* local_pgs)
-{
-  Vario* vario    = local_pgs->vario;
-  Vario* varioind = local_pgs->varioind;
-  int ngrf = local_pgs->ngrf;
-
-  for (int idir = 0; idir < (int) vario->getDirectionNumber(); idir++)
-  {
-    const Dir& dir1 = vario->getDirs(idir);
-    const Dir& dir2 = varioind->getDirs(idir);
-    for (int ipas = 0; ipas < (int) dir1.getLagTotalNumber(); ipas++)
-    {
-      int iad2 = dir2.getAddress(0,0,ipas,true,0);
-      for (int igrf = 0; igrf < ngrf; igrf++)
-        for (int jgrf = 0; jgrf < ngrf; jgrf++)
-        {
-          int iad1 = dir1.getAddress(igrf,jgrf,ipas,true,0);
-          vario->setSw(idir,iad1, dir2.getSw(iad2));
-          vario->setHh(idir,iad1, dir2.getHh(iad2));
-        }
-    }
-  }
 }
 
 /****************************************************************************/
@@ -5196,7 +5212,7 @@ static int st_variogram_pgs_stat(Db     *db,
 
   // Copy the count and distance information from indicator variogram into calculation one
 
-  st_copy_swhh(&local_pgs);
+  if (st_copy_swhh(local_pgs.varioind, local_pgs.vario, true, true, false)) goto label_end;
 
   /* Infer the variogram of PGS */
 
