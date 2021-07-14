@@ -132,7 +132,7 @@ int ASerializable::_recordRead(const String& title, const String& format, ...)
 
   if (error > 0)
   {
-    messerr("Error when reading '%s' from %s", title, _fileName);
+    messerr("Error when reading '%s' from %s", title.c_str(), _fileName.c_str());
     messerr("Current Line: %s", _currentRecord.c_str());
   }
   va_end(ap);
@@ -164,6 +164,7 @@ int ASerializable::_fileRead(const String& format, va_list ap)
   char DEL_COM = '#';
   char DEL_SEP = ' ';
   char DEL_BLK = ' ';
+  char DEL_TAB = '\t';
 
   const char *fmt;
   int    *ret_i;
@@ -191,14 +192,19 @@ int ASerializable::_fileRead(const String& format, va_list ap)
       /* Read the next line */
 
       if (fgets(LINE, LONG_SIZE, _file) == NULL) return (-1);
-      LINE[strlen(LINE) - 1] = '\0';
+      size_t wsize = strcspn(LINE, "\r\n");
+      if (wsize > 0)
+        LINE[wsize] = 0;
+      else
+        LINE[strlen(LINE)-1] = '\0';
       (void) strcpy(LINE_MEM, LINE);
 
-      /* Eliminate the comments */
+      /* Eliminate the comments and replace <TAB> by blank*/
 
       int flag_com = 0;
       for (unsigned int i = 0; i < strlen(LINE); i++)
       {
+        if (LINE[i] == DEL_TAB) LINE[i] = DEL_BLK;
         if (LINE[i] == DEL_COM)
         {
           flag_com = 1 - flag_com;
