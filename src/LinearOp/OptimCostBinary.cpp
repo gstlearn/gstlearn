@@ -145,10 +145,10 @@ void OptimCostBinary::init(PrecisionOp* pmat,
 /*!
 **  Perform the minimization
 **
+**  \return The array of facies proportions (Dimension: nvertex)
+**
 ** \param[in]  indic      Array containing the Facies indicators (see remarks)
 **                        (Dimension: npoint)
-** \param[out] propfac    Array of facies proportions
-**                        (Dimension: nvertex)
 ** \param[in]  verbose    Verbose flag
 ** \param[in]  maxiter    Maximum number of iterations for Optimization algo.
 ** \param[in]  eps        Tolerance for Optimization algorithm
@@ -157,11 +157,10 @@ void OptimCostBinary::init(PrecisionOp* pmat,
 ** \remarks The inactive constraints should be set to TEST.
 **
 *****************************************************************************/
-int OptimCostBinary::minimize(VectorDouble& indic,
-                              VectorDouble& propfac,
-                              bool       verbose,
-                              int        maxiter,
-                              double     eps)
+VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
+                                       bool verbose,
+                                       int maxiter,
+                                       double eps)
 {
   double normgrad, costv;
   bool flagContinue;
@@ -170,14 +169,15 @@ int OptimCostBinary::minimize(VectorDouble& indic,
   VectorDouble lambdat, step;
 
   // Initialization
-  int error = 0;
   hess    = (HessianOp *) NULL;
+  VectorDouble propfac;
 
   try 
   {
     if (! _isInitialized) 
       my_throw("'OptimCostBinary' must be initialized beforehand");
     int nvertex = _pMat->getSize();
+    propfac.resize(nvertex);
 
     // Instantiate the Hessian
 
@@ -245,12 +245,11 @@ int OptimCostBinary::minimize(VectorDouble& indic,
 
   catch(const char * str)
   {
-    error = 1;
     std::cout << str << std::endl;
   }
 
   delete(hess);
-  return error;
+  return propfac;
 }
 
 /*****************************************************************************/

@@ -63,7 +63,7 @@ OptimCostColored::~OptimCostColored()
 **
 *****************************************************************************/
 void OptimCostColored::init(int                 nprop,
-                            PrecisionOp*  		pmat,
+                            PrecisionOp*  		  pmat,
                             const ProjMatrix*   projdata,
                             const ProjMatrix*   projseis,
                             const VectorDouble& propseis,
@@ -71,6 +71,9 @@ void OptimCostColored::init(int                 nprop,
 {
   // Assignment of pointers
   _nprop  = nprop;
+  _meanProps.resize(_nprop);
+  ut_vector_fill(_meanProps, 1./_nprop);
+  _splits = createSplit(_nprop);
   
   // Pass arguments to the OptimCostBinary class
   
@@ -81,12 +84,12 @@ void OptimCostColored::init(int                 nprop,
 /*!
 **  Perform the minimization
 **
+** \return Array of facies proportions (Dimension: [nprop][nvertex]
+**
 ** \param[in]  facies     Array containing the Facies values (see remarks)
 **                        (Dimension: npoint)
-** \param[out] propfacs   Array of facies proportions
-**                        (Dimension: [nprop][nvertex])
 ** \param[in]  splits     Array giving the facies split
-**                        (Dimension: nfacies * (nfacies-1))
+**                        (Dimension: [nfacies-1][nfacies])
 ** \param[in]  meanprops  Array of mean of proportions (Dimension: nfacies)
 ** \param[in]  verbose    Verbose flag
 ** \param[in]  maxiter    Maximum number of iterations for Optimization algorithm
@@ -95,28 +98,22 @@ void OptimCostColored::init(int                 nprop,
 ** \remarks Argument 'facies' should contain values ranging from 1 to _nprop
 **
 *****************************************************************************/
-int OptimCostColored::minimize(const VectorDouble&       facies,
-                               VectorVectorDouble& propfacs,
-                               VectorVectorInt    splits,
-                               VectorDouble meanprops,
-                               bool          verbose,
-                               int           maxiter,
-                               double        eps)
+VectorVectorDouble OptimCostColored::minimize(const VectorDouble& facies,
+                                              const VectorVectorInt& splits,
+                                              const VectorDouble& meanprops,
+                                              bool verbose,
+                                              int maxiter,
+                                              double eps)
 {
   VectorDouble indic,propfac;
-
-  if (meanprops.empty())
-  {
-    meanprops.resize(_nprop);
-    for (auto &e : meanprops)
-    {
-      e = 1. / _nprop;
-    }
-  }
-  if (splits.empty()) splits = createSplit(_nprop);
+  VectorVectorDouble propfacs;
 
   // Initialization
-  int error = 0;
+  if (_checkFacies(facies)) return propfacs;
+  // Check the split contents
+  if (_checkSplits(splits)) return propfacs;
+  // Check the mean proportions
+  if (_checkMeanProportions(meanprops)) return propfacs;
 
   try 
   {
@@ -125,28 +122,19 @@ int OptimCostColored::minimize(const VectorDouble&       facies,
     int npoint  = getNPoint();
     int nvertex = getNVertex();
     int nlevel  = _nprop - 1;
+    propfacs.resize(_nprop, VectorDouble(nvertex, 0));
+
+    // Optional printout
     if (verbose)
     {
       message("Number of points   = %d\n",npoint);
       message("Number of vertices = %d\n",nvertex);
       message("Number of facies   = %d\n",_nprop);
       message("Number of levels   = %d\n",nlevel);
+      printSplits();
     }
 
-    // Check the facies contents
-    if (_checkFacies(facies))
-      my_throw("Error in argument 'facies'");
-  
-    // Check the split contents
-    if (_checkSplits(splits))
-      my_throw("Error in argument 'splits'");
-    if (verbose) printSplits();
-
-    // Check the mean proportions
-    if (_checkMeanProportions(meanprops))
-      my_throw("Error in argument 'meanprops'");
-    
-    // Local Core allocation
+     // Local Core allocation
 
     indic.resize(npoint);
     propfac.resize(nvertex);
@@ -166,7 +154,8 @@ int OptimCostColored::minimize(const VectorDouble&       facies,
         my_throw("Error in '_getFaciesToProportion'");
 
       // Perform the minimization
-      if (OptimCostBinary::minimize(indic,propfac,verbose,maxiter,eps))
+      propfac = OptimCostBinary::minimize(indic,verbose,maxiter,eps);
+      if (propfac.empty())
         my_throw("Error in 'OptimCostBinary'");
 
       // Convert the results into conditional proportions
@@ -177,10 +166,9 @@ int OptimCostColored::minimize(const VectorDouble&       facies,
 
   catch(const char * str)
   {
-    error = 1;
     std::cout << str << std::endl;
   }
-  return error;
+  return propfacs;
 }
 
 /**
@@ -296,6 +284,7 @@ void OptimCostColored::printSplits(const VectorVectorInt& splits) const
 *****************************************************************************/
 int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
 {
+  if (splits.empty()) return 0;
   int nlevel = _nprop - 1;
 
   // Check that split values are 0, 1 or 2 only
@@ -395,6 +384,7 @@ label_error:
 *****************************************************************************/
 int OptimCostColored::_checkMeanProportions(const VectorDouble& meanprops)
 {
+  if (meanprops.empty()) return 0;
   double total = 0.;
   for (int ip=0; ip<_nprop; ip++)
     total += meanprops[ip];

@@ -30,11 +30,10 @@ public:
             const ProjMatrix* projseis = nullptr,
             const VectorDouble& propseis = VectorDouble(),
             const VectorDouble& varseis = VectorDouble());
-  int minimize(VectorDouble& indic,
-               VectorDouble& propfac,
-               bool verbose = false,
-               int maxiter = 100,
-               double eps = 5.e-4);
+  VectorDouble minimize(VectorDouble& indic,
+                        bool verbose = false,
+                        int maxiter = 100,
+                        double eps = 5.e-4);
   void calculateGradient(const VectorDouble& indic,
                          const VectorDouble& lambda,
                          double* out);
@@ -45,7 +44,7 @@ public:
     _cgMaxIter = cgmaxiter;
     _cgEps = cgeps;
   }
-  /*!  Set the constant parameters for internal Pre-Doncitioner */
+  /*!  Set the constant parameters for internal Pre-Conditioner */
   void setPreCondParams(int chebncmax = 10001, double chebtol = 5.e-3)
   {
     _flagCgPreCond = true;

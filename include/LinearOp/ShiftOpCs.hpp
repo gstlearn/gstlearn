@@ -84,7 +84,6 @@ public:
   void prodLambdaOnSqrtTildeC(const VectorDouble& out,
                               VectorDouble& in,
                               double puis = 2) const;
-//  void prodSGrad(int iapex, int iparam, const VectorDouble& in, VectorDouble& out) const {};
   double getMaxEigenValue() const;
 
   cs* getS() const { return _S; }

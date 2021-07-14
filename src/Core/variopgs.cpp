@@ -4103,9 +4103,6 @@ static int st_vario_pgs_check(int    flag_db,
     return(1);
   }
 
-  // Resize to the number of Underlying GRF
-  vario->internalResize(db->getNDim(), rule->getGRFNumber(), "cov");
-
   /* Input Db file (optional) */
 
   if (flag_db != 0)
@@ -4204,6 +4201,7 @@ static int st_variogram_pgs_nostat(Db      *db,
   /* Preliminary checks */
 
   if (st_vario_pgs_check(1,1,0,db,dbprop,vario,NULL,rule)) goto label_end;
+  vario->internalResize(db->getNDim(), rule->getGRFNumber(), "cov");
 
   /*******************/
   /* Core allocation */
@@ -4990,26 +4988,22 @@ GEOSLIB_API int model_pgs(Db*     db,
   propdef   = (Props *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
 
+  /* Extract information from Rule */
+
+  ngrf = rule->getGRFNumber();
+  rule->statistics(0,&node_tot,&nfacies,&nmax_tot,&ny1,&ny2,&prop_tot);
+  if(rule->getModeRule() == RULE_SHIFT) ngrf++;
+
   /* Preliminary checks */
 
   if (st_vario_pgs_check(-1,1,0,db,dbprop,vario,NULL,rule)) goto label_end;
+  vario->internalResize(db->getNDim(), nfacies, "vg");
   
   /* Merge the models */
 
   new_model = model_rule_combine(model1,model2,rule);
   if (new_model == (Model *) NULL) goto label_end;
 
-  ngrf = rule->getGRFNumber();
-  rule->statistics(0,&node_tot,&nfacies,&nmax_tot,&ny1,&ny2,&prop_tot);
-  if(rule->getModeRule() == RULE_SHIFT) ngrf++;
-
-  if (nfacies != vario->getVariableNumber())
-  {
-    messerr("Inconsistency between the Variogram and the Rule");
-    messerr("- Number of variables in the Variogram = %d",vario->getVariableNumber());
-    messerr("- Number of facies in the Rule = %d",nfacies);
-    return(1);
-  }
   if (new_model == (Model *) NULL)
   {
     messerr("The Model(s) must be defined");
@@ -5173,6 +5167,7 @@ static int st_variogram_pgs_stat(Db     *db,
   /* Preliminary checks */
 
   if (st_vario_pgs_check(0,1,1,db,NULL,vario,varioind,rule)) goto label_end;
+  vario->internalResize(db->getNDim(), rule->getGRFNumber(), "cov");
 
   /*******************/
   /* Core allocation */
@@ -5420,8 +5415,9 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   /* Preliminary tasks (as in variogram.pgs) */
 
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
-  if (st_vario_pgs_check(0,0,flag_stat,db,NULL,vario,varioind,NULL))
-    goto label_end;
+  if (st_vario_pgs_check(0,0,flag_stat,db,NULL,vario,varioind,NULL)) goto label_end;
+  vario->internalResize(db->getNDim(), ngrf, "cov");
+
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
   if (propdef == (Props *) NULL) goto label_end;

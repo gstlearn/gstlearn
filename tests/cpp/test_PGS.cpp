@@ -87,5 +87,7 @@ int main(int argc, char *argv[])
 
   db.display();
   error = model_pgs(&db, &vario, &rule, &modelPGS, nullptr, props);
+  vario.display(1);
+
   return(error);
 }

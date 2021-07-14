@@ -960,8 +960,7 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
           {
             int ip0 = amesh->getApex(imesh, j0);
             int ip1 = amesh->getApex(imesh, j1);
-            _loadHHGradPerMesh(hh, amesh, cova, igp0, igparam, igrf, icov,
-                               imesh, nostat);
+            _loadHHGradPerMesh(hh, amesh, cova, igp0, igparam, igrf, icov, imesh, nostat);
             mat.normMatrix(hh, matw);
 
             double vald = mat.getValue(j0, j1) * meshSize;

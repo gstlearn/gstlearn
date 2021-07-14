@@ -28,16 +28,18 @@ public:
                const VectorDouble&  propseis = VectorDouble(),
                const VectorDouble&  varseis  = VectorDouble());
 
-  int     minimize(const VectorDouble& facies,
-                   VectorVectorDouble& propfacs,
-                   VectorVectorInt splits = VectorVectorInt(),
-                   VectorDouble   meanprops = VectorDouble(),
-                   bool          verbose = false,
-                   int           maxiter = 100,
-                   double        eps = 5.e-4);
+  VectorVectorDouble minimize(const VectorDouble& facies,
+                              const VectorVectorInt& splits = VectorVectorInt(),
+                              const VectorDouble& meanprops = VectorDouble(),
+                              bool verbose = false,
+                              int maxiter = 100,
+                              double eps = 5.e-4);
 
   VectorVectorInt createSplit(int nfacies, bool verbose = false) const;
   void   printSplits(const VectorVectorInt& splits = VectorVectorInt()) const;
+
+  void setMeanProps(const VectorDouble& meanProps) { _meanProps = meanProps; }
+  void setSplits(const VectorVectorInt& splits) { _splits = splits; }
 
 private:
   void   _getFaciesToIndic(const VectorDouble& facies,
