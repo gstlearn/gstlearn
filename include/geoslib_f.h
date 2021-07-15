@@ -403,7 +403,7 @@ GEOSLIB_API int simpgs(Db *dbin,
                        double percent = 5.,
                        double gibbs_eps = 1.e-3,
                        double delta = 1.,
-                       NamingConvention namconv = NamingConvention("Facies"));
+                       NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
 GEOSLIB_API int simpgs_spde(Db *dbin,
                             Db *dbout,
                             Db *dbprop,
