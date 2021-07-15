@@ -111,15 +111,12 @@ public:
   int getActiveSampleNumber() const;
   int isGrid() const { return _isGrid; }
 
-  VectorString expandNameList(const VectorString& names, bool onlyOne = false) const;
-  VectorString expandNameList(const String& name, bool onlyOne = false) const;
-  VectorString ids(const String& name) const;
-  VectorString ids(const VectorString& names) const;
-  VectorString ids(ENUM_LOCS locatorType = LOC_Z) const;
-  VectorString ids(const VectorInt& iatts) const;
-  String id(const String& name) const;
-  String id(ENUM_LOCS locatorType = LOC_Z, int locatorIndex = 0) const;
-  String id(int iatt) const;
+  VectorString expandNameList(const VectorString& names) const;
+  VectorString expandNameList(const String& names) const;
+  VectorInt ids(const String& name, bool flagOne) const;
+  VectorInt ids(const VectorString& names, bool flagOne) const;
+  VectorInt ids(ENUM_LOCS locatorType, bool flagOne) const;
+  VectorInt ids(const VectorInt& iatts, bool flagOne) const;
 
   void reset(int ncol, int nech);
 
@@ -132,7 +129,7 @@ public:
   void setLocator(const VectorString& names,
                   ENUM_LOCS locatorType = LOC_UNKNOWN,
                   int locatorIndex = 1);
-  void setLocator(const String& name,
+  void setLocator(const String& names,
                   ENUM_LOCS locatorType = LOC_UNKNOWN,
                   int locatorIndex = 1);
   void setLocatorsByAttribute(int number,
@@ -160,6 +157,7 @@ public:
 
   int getColumn(const String& name) const;
   int getColumnByAttribute(int iatt) const;
+  VectorInt getColumnByAttribute(const VectorInt iatts) const;
   int getColumnByLocator(ENUM_LOCS locatorType, int locatorIndex) const;
   VectorDouble getColumnByRank(int icol, bool useSel = false) const;
   void setColumnByRank(const VectorDouble& tab, int icol, bool useSel = false);
@@ -192,6 +190,7 @@ public:
   VectorInt getAttributes(const VectorString& names) const;
   VectorInt getAttributes(ENUM_LOCS locatorType) const;
   VectorInt getAttributes() const;
+  VectorInt getAttributesBasic(const VectorString& names) const;
 
   // Accessing elements of the contents
 
@@ -383,7 +382,7 @@ public:
                                     int iatt_end,
                                     bool useSel = false) const;
 
-  void deleteField(const String& name);
+  void deleteField(const String& names);
   void deleteField(const VectorString& names);
   void deleteFieldByAttribute(int iatt_del);
   void deleteFieldByLocator(ENUM_LOCS locatorType);
@@ -557,6 +556,7 @@ private:
                      VectorString& tabnam,
                      VectorDouble& tab);
   void _loadData(int order, int flag_add_rank, const VectorDouble& tab);
+  bool _isCountValid(const VectorInt iatts, bool flagOne) const;
 
 private:
   int _ncol;                 //!< Number of Columns of data

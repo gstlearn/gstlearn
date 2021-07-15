@@ -44,6 +44,12 @@ int main(int argc, char *argv[])
   Neigh neigh = Neigh(ndim);
   neigh.display();
 
+  // Pour voir
+  error = simtub(nullptr,&db,&model,&neigh,4);
+  db.display(1);
+  db.setLocator("Simu*",LOC_F);
+  db.display(1);
+
   // Creating the Rule
   Rule rule({"S","S","F1","F2","F3"});
   rule.display();

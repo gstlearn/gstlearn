@@ -149,6 +149,10 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
     if (nvar <= 0) nvar = names.size();
     if (nvar < (int) names.size()) names.resize(nvar);
   }
+  else
+  {
+    if (nvar < 0) nvar = 1;
+  }
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
 }

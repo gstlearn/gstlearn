@@ -586,6 +586,14 @@ int Db::getColumnByAttribute(int iatt) const
   return icol;
 }
 
+VectorInt Db::getColumnByAttribute(const VectorInt iatts) const
+{
+  VectorInt cols(iatts.size());
+  for (unsigned int i = 0; i < iatts.size(); i++)
+    cols[i] = getColumnByAttribute(iatts[i]);
+  return cols;
+}
+
 int Db::_getAttributeByColumn(int icol) const
 {
   if (!isColumnIndexValid(icol)) return -1;
@@ -681,12 +689,12 @@ bool Db::getLocator(int iatt,
 }
 
 bool Db::getLocator(const String& name,
-                   ENUM_LOCS *ret_locatorType,
-                   int *ret_locatorIndex) const
+                    ENUM_LOCS *ret_locatorType,
+                    int *ret_locatorIndex) const
 {
-  int icol = getColumn(name);
-  if (icol < 0) return -1;
-  return getLocatorByColumn(icol, ret_locatorType, ret_locatorIndex);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return -1;
+  return getLocator(iatts[0], ret_locatorType, ret_locatorIndex);
 }
 
 VectorString Db::getLocators(void) const
@@ -708,59 +716,45 @@ bool Db::isAttributeDefined(int iatt) const
   return (_attcol[icol] >= 0);
 }
 
-VectorString Db::expandNameList(const VectorString& names, bool onlyOne) const
+VectorString Db::expandNameList(const VectorString& names) const
 {
   return expandList(_colNames, names);
 }
 
-VectorString Db::expandNameList(const String& name, bool onlyOne) const
+VectorString Db::expandNameList(const String& names) const
 {
-  return expandList(_colNames, name);
+  return expandList(_colNames, names);
 }
 
-VectorString Db::ids(const String& name) const
+VectorInt Db::ids(const String& name, bool flagOne) const
 {
   VectorString exp_names = expandNameList(name);
-  return exp_names;
+  VectorInt iatts = getAttributesBasic(exp_names);
+  if (! _isCountValid(iatts, flagOne)) return VectorInt();
+  return iatts;
 }
 
-VectorString Db::ids(const VectorString& names) const
+VectorInt Db::ids(const VectorString& names, bool flagOne) const
 {
   VectorString exp_names = expandNameList(names);
-  return exp_names;
+  VectorInt iatts = getAttributesBasic(exp_names);
+  if (! _isCountValid(iatts, flagOne)) return VectorInt();
+  return iatts;
 }
 
-VectorString Db::ids(ENUM_LOCS locatorType) const
+VectorInt Db::ids(ENUM_LOCS locatorType, bool flagOne) const
 {
   VectorString exp_names = getNames(locatorType);
-  return exp_names;
+  VectorInt iatts = getAttributesBasic(exp_names);
+  if (! _isCountValid(iatts, flagOne)) return VectorInt();
+  return iatts;
 }
 
-VectorString Db::ids(const VectorInt& iatts) const
+VectorInt Db::ids(const VectorInt& iatts, bool flagOne) const
 {
   VectorString exp_names = getNames(iatts);
-  return exp_names;
-}
-
-String Db::id(const String& name) const
-{
-  VectorString exp_names = expandNameList(name, true);
-  if (exp_names.size() == 1)
-    return exp_names[0];
-  else
-    return String();
-}
-
-String Db::id(ENUM_LOCS locatorType, int locatorIndex) const
-{
-  String name = getName(locatorType, locatorIndex);
-  return name;
-}
-
-String Db::id(int iatt) const
-{
-  String name = getName(iatt);
-  return name;
+  if (! _isCountValid(iatts, flagOne)) return VectorInt();
+  return iatts;
 }
 
 void Db::reset(int ncol, int nech)
@@ -803,6 +797,12 @@ void Db::setArray(int iech, int iatt, double value)
   _array[_getAddress(iech, icol)] = value;
 }
 
+/**
+ * Returns the value of the 'iech' sample of the variable 'name'
+ *
+ * This function does not use 'ids' mechanism in order to allow
+ * referring to a non-existing variable
+ */
 double Db::getValue(const String& name, int iech) const
 {
   int iatt = getAttribute(name);
@@ -810,6 +810,12 @@ double Db::getValue(const String& name, int iech) const
   return getArray(iech, iatt);
 }
 
+/**
+ * Sets the value of the 'iech' sample of the variable 'name'
+ *
+ * This function does not use 'ids' mechanism in order to allow
+ * referring to a non-existing variable
+ */
 void Db::setValue(const String& name, int iech, double value)
 {
   int iatt  = getAttribute(name);
@@ -1012,18 +1018,19 @@ void Db::setLocator(const VectorString& names,
                     int locatorIndex)
 {
   if (!isLocatorTypeValid(locatorType)) return;
-  for (int i = 0; i < (int) names.size(); i++)
-  {
-    int iatt = getAttribute(names[i]);
-    setLocatorByAttribute(iatt, locatorType, locatorIndex + i);
-  }
+  VectorInt iatts = ids(names, false);
+  if (iatts.empty()) return;
+  for (unsigned int i = 0; i < iatts.size(); i++)
+    setLocatorByAttribute(iatts[i], locatorType, locatorIndex + i);
 }
 
-void Db::setLocator(const String& name, ENUM_LOCS locatorType, int locatorIndex)
+void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex)
 {
   if (!isLocatorTypeValid(locatorType)) return;
-  int iatt = getAttribute(name);
-  setLocatorByAttribute(iatt, locatorType, locatorIndex);
+  VectorInt iatts = ids(names, false);
+  if (iatts.empty()) return;
+  for (unsigned int i = 0; i < iatts.size(); i++)
+    setLocatorByAttribute(iatts[i], locatorType, locatorIndex + i);
 }
 
 /**
@@ -1250,8 +1257,9 @@ void Db::setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel)
 
 void Db::setField(const VectorDouble& tab, const String& name, bool useSel)
 {
-  int iatt = getAttribute(name);
-  setFieldByAttribute(tab.data(), iatt, useSel);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return;
+  setFieldByAttribute(tab.data(), iatts[0], useSel);
 }
 
 void Db::duplicateColumnByAttribute(int iatt_in, int iatt_out)
@@ -1265,24 +1273,22 @@ void Db::duplicateColumnByAttribute(int iatt_in, int iatt_out)
   }
 }
 
-void Db::deleteField(const String& name)
+void Db::deleteField(const String& names)
 {
-  VectorString exp_names = expandNameList(name);
-  if (exp_names.empty()) return;
+  VectorInt iatts = ids(names, false);
+  if (iatts.empty()) return;
 
-  for (int i = 0; i < (int) exp_names.size(); i++)
-  {
-    int iatt = getAttribute(exp_names[i]);
-    if (iatt < 0) continue;
-    deleteFieldByAttribute(iatt);
-  }
+  for (unsigned int i = 0; i < iatts.size(); i++)
+    deleteFieldByAttribute(iatts[i]);
 }
 
 void Db::deleteField(const VectorString& names)
 {
-  int number = names.size();
-  for (int i = 0; i < number; i++)
-    deleteField(names[i]);
+  VectorInt iatts = ids(names, false);
+  if (iatts.empty()) return;
+
+  for (unsigned int i = 0; i < iatts.size(); i++)
+    deleteFieldByAttribute(iatts[i]);
 }
 
 int Db::addSelection(const VectorDouble& tab, const String& name)
@@ -1451,31 +1457,41 @@ double Db::getFieldSize(bool useSel) const
 
 double Db::getMinimum(const String& name, bool useSel) const
 {
-  VectorDouble tab = getField(name, useSel);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return TEST;
+  VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_min(tab);
 }
 
 double Db::getMaximum(const String& name, bool useSel) const
 {
-  VectorDouble tab = getField(name, useSel);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return TEST;
+  VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_max(tab);
 }
 
 double Db::getMean(const String& name, bool useSel) const
 {
-  VectorDouble tab = getField(name, useSel);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return TEST;
+  VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_mean(tab);
 }
 
 double Db::getVariance(const String& name, bool useSel) const
 {
-  VectorDouble tab = getField(name, useSel);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return TEST;
+  VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_var(tab);
 }
 
 double Db::getStdv(const String& name, bool useSel) const
 {
-  VectorDouble tab = getField(name, useSel);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return TEST;
+  VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_stdv(tab);
 }
 
@@ -1598,7 +1614,7 @@ void Db::switchLocator(ENUM_LOCS locatorType_in, ENUM_LOCS locatorType_out)
 {
   PtrGeos& p_in = _p[locatorType_in];
   PtrGeos& p_out = _p[locatorType_out];
-  int n_in = getFromLocatorNumber(locatorType_in);
+  int n_in  = getFromLocatorNumber(locatorType_in);
   int n_out = getFromLocatorNumber(locatorType_out);
 
   /* Move the gradient components into additional variables */
@@ -2636,7 +2652,9 @@ void Db::display(unsigned char params,
                  bool flagSel,
                  int mode) const
 {
-  VectorInt cols = getColumns(names);
+  VectorInt iatts = ids(names, false);
+  if (iatts.empty()) return;
+  VectorInt cols = getColumnByAttribute(iatts);
   messageFlush(_display(params, cols, flagSel, mode));
 }
 
@@ -2742,7 +2760,9 @@ VectorDouble Db::getFieldByLocator(ENUM_LOCS locatorType,
 
 VectorDouble Db::getField(const String& name, bool useSel) const
 {
-  int icol = getColumn(name);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return VectorDouble();
+  int icol = getColumnByAttribute(iatts[0]);
   if (icol < 0) return VectorDouble();
   return getColumnByRank(icol, useSel);
 }
@@ -2810,12 +2830,11 @@ VectorDouble Db::getFieldsByAttribute(int iatt_beg,
 
 VectorDouble Db::getFields(const VectorString& names, bool useSel) const
 {
-  VectorString exp_names = expandNameList(names);
   VectorInt iatts;
-  if (exp_names.empty())
+  if (names.empty())
     iatts = getAttributes();
   else
-    iatts = getAttributes(exp_names);
+    iatts = ids(names, false);
   return getFieldsByAttribute(iatts, useSel);
 }
 
@@ -2848,18 +2867,17 @@ VectorDouble Db::getCoordinate(int idim, bool useSel) const
  */
 int Db::getColumn(const String& name) const
 {
-  VectorString exp_name = expandNameList(name, true);
+  VectorString exp_name = expandNameList(name);
   if (exp_name.empty()) return -1;
   return getRankInList(_colNames, exp_name[0]);
 }
 
 VectorInt Db::getColumns(const VectorString& names) const
 {
-  VectorInt icols;
-  VectorString exp_names = expandNameList(names, false);
-  if (exp_names.size() <= 0) return icols;
+  VectorString exp_names = expandNameList(names);
+  if (exp_names.size() <= 0) return VectorInt();
   int number = exp_names.size();
-  icols.resize(number);
+  VectorInt icols(number);
   for (int i = 0; i < number; i++)
     icols[i] = getColumn(exp_names[i]);
   return icols;
@@ -2879,26 +2897,42 @@ VectorInt Db::getColumnsByAttribute(ENUM_LOCS locatorType) const
 }
 
 /**
- * Returns the Single Attribute which corresponds to te searched name
+ * Returns the Single Attribute which corresponds to the searched name
  * @param name Name to be searched for
  * @return Rank of the Attribute or -1
  */
 int Db::getAttribute(const String& name) const
 {
-  int icol = getColumn(name);
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return -1;
+  int icol = getColumnByAttribute(iatts[0]);
   return _getAttributeByColumn(icol);
 }
 
-/// TODO : add bool OnlyOne
+/**
+ * This is a BASIC function returning the the vector of ranks of the Attribute
+ * which corresponds to a set of existing names
+ */
+VectorInt Db::getAttributesBasic(const VectorString& names) const
+{
+  if (names.empty()) return VectorInt();
+
+  VectorInt iatts(names.size());
+  for (unsigned int i = 0; i < names.size(); i++)
+  {
+    int icol = getRankInList(_colNames, names[i]);
+    iatts[i] = _getAttributeByColumn(icol);
+  }
+  return iatts;
+}
+
 VectorInt Db::getAttributes(const VectorString& names) const
 {
-  VectorInt iatts;
-  VectorString exp_names = expandNameList(names);
-  if (exp_names.size() <= 0) return iatts;
-  int number = exp_names.size();
-  iatts.resize(number);
-  for (int i = 0; i < number; i++)
-    iatts[i] = getAttribute(exp_names[i]);
+  if (names.empty()) return VectorInt();
+
+  VectorInt iatts(names.size());
+  for (unsigned int i = 0; i < names.size(); i++)
+    iatts[i] = getAttribute(names[i]);
   return iatts;
 }
 
@@ -3105,8 +3139,8 @@ VectorDouble Db::statistics(const VectorString& names,
                             const String& title,
                             NamingConvention namconv)
 {
-  VectorString exp_names = ids(names);
-  VectorInt iatts = getAttributes(exp_names);
+  VectorInt iatts = ids(names, false);
+  if (iatts.empty()) return VectorDouble();
   return _statistics(iatts, opers, flagIso, flagVariableWise, flagPrint, proba,
                      vmin, vmax, title, namconv);
 }
@@ -3136,8 +3170,9 @@ VectorDouble Db::statisticsMulti(const VectorString& names,
                                  bool flagPrint,
                                  const String& title)
 {
-  VectorString exp_names = ids(names);
-  VectorInt iatts = getAttributes(exp_names);
+  VectorInt iatts = ids(names, false);
+  if (iatts.empty()) return VectorDouble();
+
   return _statisticsMulti(iatts, flagIso, flagPrint, title);
 }
 
@@ -3460,5 +3495,26 @@ void Db::_loadData(int order, int flag_add_rank, const VectorDouble& tab)
     jcol++;
   }
   return;
+}
+
+bool Db::_isCountValid(const VectorInt iatts, bool flagOne) const
+{
+  if (iatts.empty())
+  {
+    messerr("No variable name corresponding to your criterion");
+    return false;
+  }
+  else
+  {
+    if (iatts.size() > 1 && flagOne)
+    {
+      messerr("You wanted to designate a SINGLE variable.");
+      messerr("There are several variables matching your criterion:");
+      for (unsigned int i = 0; i < iatts.size(); i++)
+        messerr("- %s", getName(iatts[i]).c_str());
+      return false;
+    }
+  }
+  return true;
 }
 

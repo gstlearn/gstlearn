@@ -6270,7 +6270,8 @@ GEOSLIB_API int migrate(Db* db1,
                         int flag_inter,
                         NamingConvention namconv)
 {
-  int iatt1 = db1->getAttribute(name);
+  VectorInt iatts = db1->ids(name, true);
+  if (iatts.empty()) return 1;
 
   // Create the output variables
 
@@ -6278,7 +6279,7 @@ GEOSLIB_API int migrate(Db* db1,
 
   // Perform the migration
 
-  if (st_migrate(db1, db2, iatt1, iatt0, ldmax, dmax, flag_fill, flag_inter))
+  if (st_migrate(db1, db2, iatts[0], iatt0, ldmax, dmax, flag_fill, flag_inter))
     return 1;
 
   // Set the output variable names and locators

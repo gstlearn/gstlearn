@@ -146,10 +146,9 @@ int Limits::toCategory(Db* db, int iatt, NamingConvention namconv)
 
 int Limits::toCategory(Db* db, const String& name, NamingConvention namconv)
 {
-  VectorString exp_names = db->expandNameList(name,true);
-  int iatt = db->getAttribute(exp_names[0]);
-  if (iatt < 0) return 1;
-  return toCategory(db, iatt, namconv);
+  VectorInt iatts = db->ids(name, true);
+  if (iatts.empty()) return 1;
+  return toCategory(db, iatts[0], namconv);
 }
 
 int Limits::toIndicator(Db* db,
@@ -157,16 +156,15 @@ int Limits::toIndicator(Db* db,
                         int OptionIndicator,
                         NamingConvention namconv)
 {
-  VectorString exp_names = db->expandNameList(name, true);
-  int iatt = db->getAttribute(exp_names[0]);
-  if (iatt < 0) return 1;
-  return toIndicator(db, iatt, OptionIndicator, namconv);
+  VectorInt iatts = db->ids(name, true);
+  if (iatts.empty()) return 1;
+  return toIndicator(db, iatts[0], OptionIndicator, namconv);
 }
 
 int Limits::toIndicator(Db* db,
-                         int iatt,
-                         int OptionIndicator,
-                         NamingConvention namconv)
+                        int iatt,
+                        int OptionIndicator,
+                        NamingConvention namconv)
 {
   return db_indicator(db, iatt, OptionIndicator, getLowerBounds(),
                       getUpperBounds(), getLowerIncluded(),
