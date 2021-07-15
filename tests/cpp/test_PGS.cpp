@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   //db.display(1);
 
   // Creating the Rule
-  Rule rule({"S","T","F1","F2","F3"});
+  Rule rule({"S","S","F1","F2","F3"});
   rule.display();
 
   // Perform a non-conditional simulation on the Db
@@ -90,12 +90,6 @@ int main(int argc, char *argv[])
   modelPGS.serialize(pygst+ "data/modelpgs.ascii");
 
   // Compute the experimental variograms of the indicators
-
-//  Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
-//  Vario vario2 = Vario();
-//  vario2.addDirs(dir2);
-//  error = vario2.computeIndic(&db);
-//  vario2.serialize(pygst+ "data/varioindic.ascii");
 
   Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
   Vario vario2 = Vario();
