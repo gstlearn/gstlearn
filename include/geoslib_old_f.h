@@ -2675,17 +2675,6 @@
   /*****************************************/
 
   GEOSLIB_API Rule *rule_free(Rule *rule);
-  GEOSLIB_API Rule *rule_init(int mode_rule,
-                              double rho,
-                              double slope,
-                              double dinf,
-                              double dsup,
-                              const VectorDouble& shift,
-                              const VectorInt& nodes,
-                              int *nfacies,
-                              int *ngrf,
-                              int *ny1,
-                              int *ny2);
   GEOSLIB_API Model *model_rule_combine(Model * model1,
                                         Model * model2,
                                         Rule * rule);
@@ -2776,13 +2765,6 @@
                                    const VectorDouble& propcst,
                                    int flag_stat,
                                    int nfacies);
-  GEOSLIB_API int db_bounds(Db *db,
-                            Db *dbprop,
-                            Rule *rule,
-                            Model *model,
-                            const VectorDouble& propcst,
-                            int flag_stat,
-                            int nfacies);
   GEOSLIB_API void proportion_rule_process(Props *propdef, int mode);
   GEOSLIB_API Props *proportion_manage(int mode,
                                        int flag_facies,

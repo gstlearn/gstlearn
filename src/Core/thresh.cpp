@@ -38,68 +38,6 @@ GEOSLIB_API Rule *rule_free(Rule *rule)
 
 /****************************************************************************/
 /*!
-**  Checks if the first Model is required
-**
-** \return  1 if the First Model is required; 0 otherwise
-**
-** \param[in]  rule     Rule structure
-**
-*****************************************************************************/
-GEOSLIB_API int rule_is_model1_used(Rule *rule)
-
-{
-  int    node_tot,nfac_tot,nmax_tot,ny1_tot,ny2_tot;
-  double prop_tot;
-
-  rule->statistics(0, &node_tot, &nfac_tot, &nmax_tot, &ny1_tot, &ny2_tot, &prop_tot);
-  return(ny1_tot > 0);
-}
-
-/****************************************************************************/
-/*!
-**  Create a Rule from the list of node definitions
-**
-** \return  Pointer to the newly created Rule
-**
-** \param[in]  mode_rule  Rule Definition mode (::ENUM_RULES)
-** \param[in]  rho        Correlation between the GRF
-** \param[in]  slope      Slope (in degrees)
-** \param[in]  sh_down    Downwards shift from the main threshold
-** \param[in]  sh_dsup    Upwards shift from the main threshold
-** \param[in]  shift      Translation vector
-** \param[in]  nodes      List of node definitions
-**
-** \param[out] nfacies  Number of facies
-** \param[out] ngrf     Number of underlying GRFs
-** \param[out] ny1      Number of thresholds along Y1
-** \param[out] ny2      Number of thresholds along Y2
-**
-*****************************************************************************/
-GEOSLIB_API Rule *rule_init(int     mode_rule,
-                            double  rho,
-                            double  slope,
-                            double  sh_down,
-                            double  sh_dsup,
-                            const   VectorDouble& shift,
-                            const   VectorInt&    nodes,
-                            int    *nfacies,
-                            int    *ngrf,
-                            int    *ny1,
-                            int    *ny2)
-{
-  Rule* rule = new Rule(mode_rule,rho,slope,sh_down,sh_dsup,shift);
-  rule->init(nodes);
-
-  *nfacies = rule->getFaciesNumber();
-  *ngrf = rule->getGRFNumber();
-  *ny1 = rule->getY1Number();
-  *ny2 = rule->getY2Number();
-
-  return(rule);
-}
-
-/****************************************************************************/
-/*!
 **  Print the Gaussian to Facies translation
 **
 ** \param[in]  string     Type of set on which translation is carried on
@@ -611,8 +549,7 @@ static int st_proportion_transform(Props  *propdef)
 ** \li                  PROCESS_CONDITIONAL
 **
 ****************************************************************************/
-GEOSLIB_API void proportion_rule_process(Props *propdef,
-                                         int mode)
+GEOSLIB_API void proportion_rule_process(Props *propdef, int mode)
 {
   /* Assignments */
 
@@ -1276,36 +1213,26 @@ label_end:
 ** \return  Error return code
 **
 ** \param[in]  db        Db structure
-** \param[in]  dbprop    Db structure used for proportions (non-stationary case)
 ** \param[in]  rule      Lithotype Rule definition
-** \param[in]  model     First Model structure (only for SHIFT)
 ** \param[in]  props     Array of proportions for the facies
+** \param[in]  dbprop    Db structure used for proportions (non-stationary case)
 ** \param[in]  flag_stat 1 for stationary; 0 otherwise
-** \param[in]  nfacies   Number of facies
+** \param[in]  model     First Model structure (only for SHIFT)
+** \param[in]  namconv   Naming convention
 **
 *****************************************************************************/
 GEOSLIB_API int db_bounds(Db     *db,
-                          Db     *dbprop,
                           Rule   *rule,
-                          Model  *model,
                           const   VectorDouble& props,
+                          Db     *dbprop,
                           int     flag_stat,
-                          int     nfacies)
+                          Model  *model,
+                          NamingConvention namconv)
 {
-  int     flag_used[2],nvar,ngrf,error,iptr,igrf;
-  double *coor;
-  Props  *propdef;
-
-  /* Initializations */
-
-  error   = 1;
-  ngrf    = 0;
-  coor    = (double *) NULL;
-  propdef = (Props *) NULL;
-
-  /**********************/
-  /* Preliminary checks */
-  /**********************/
+  int iptrl, iptru, ngrf, nvar, nfacies;
+  VectorInt flagUsed;
+  Props* propdef = nullptr;
+  int error = 1;
 
   /* Input Db */
 
@@ -1325,8 +1252,8 @@ GEOSLIB_API int db_bounds(Db     *db,
     goto label_end;
   }
   ngrf = rule->getGRFNumber();
-  for (igrf=0; igrf<2; igrf++) 
-    flag_used[igrf] = rule->isYUsed(igrf);
+  flagUsed = rule->whichGRFUsed();
+  nfacies = rule->getFaciesNumber();
 
   /* Model */
 
@@ -1350,46 +1277,44 @@ GEOSLIB_API int db_bounds(Db     *db,
   /* Core allocation */
   /*******************/
 
-  coor = db_sample_alloc(db,LOC_X);
-  if (coor == (double *) NULL) goto label_end;
-
-  propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
-                              db,dbprop,props,propdef);
+  propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
+                              props, propdef);
   if (propdef == (Props *) NULL) goto label_end;
 
   /* General setting for lithotype */
 
-  if (rule->particularities(db,dbprop,model,1,flag_stat)) goto label_end;
-  proportion_rule_process(propdef,PROCESS_COPY);
+  if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
+  proportion_rule_process(propdef, PROCESS_COPY);
 
   /**********************/
   /* Add the attributes */
   /**********************/
 
   /* Lower bound at input data points */
-  if (db_locator_attribute_add(db,LOC_L,ngrf,0,0.,&iptr))
+  if (db_locator_attribute_add(db,LOC_L,ngrf,0,0.,&iptrl))
     goto label_end;
   
   /* Upper bound at input data points */
-  if (db_locator_attribute_add(db,LOC_U,ngrf,0,0.,&iptr))
+  if (db_locator_attribute_add(db,LOC_U,ngrf,0,0.,&iptru))
     goto label_end;
 
   /* Calculate the thresholds and store them in the Db file */
 
-  for (igrf=0; igrf<ngrf; igrf++)
+  for (int igrf=0; igrf<ngrf; igrf++)
   {
-    if (! flag_used[igrf]) continue;
+    if (! flagUsed[igrf]) continue;
     if (rule_evaluate_bounds(propdef,db,db,rule,0,igrf,0,0)) goto label_end;
   }
 
-  /* Set the error return flag */
+  // Naming convention
 
+  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
+  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
   error = 0;
 
-label_end:
+ label_end:
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,props,propdef);
-  coor = db_sample_free(coor);
   return(error);
 }
 
