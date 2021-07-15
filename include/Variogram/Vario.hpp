@@ -101,6 +101,18 @@ public:
               bool flag_model = false,
               Model *model = nullptr,
               bool verbose = false);
+  int computeIndic(Db *db,
+                   const String& calculName = "vg",
+                   const VectorDouble& means = VectorDouble(),
+                   const VectorDouble& vars = VectorDouble(),
+                   bool flag_grid = false,
+                   bool flag_gen = false,
+                   bool flag_sample = false,
+                   bool verr_mode = false,
+                   bool flag_model = false,
+                   Model *model = nullptr,
+                   bool verbose = false,
+                   int nfacmax = 10);
   bool isCalculated() const;
 
   // Pipe the Dir methods for setting values

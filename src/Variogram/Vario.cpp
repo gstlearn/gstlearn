@@ -14,6 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
+#include "Stats/Classical.hpp"
 #include "geoslib_f.h"
 
 Vario::Vario(double scale,
@@ -306,10 +307,73 @@ int Vario::compute(Db *db,
   setMeans(means);
   setVars(vars);
 
-  int error = variogram_compute(db, this, means, vars, flag_grid, flag_gen,
-                                flag_sample, verr_mode, flag_model, model,
-                                verbose);
-  return error;
+  return variogram_compute(db, this, means, vars, flag_grid, flag_gen,
+                           flag_sample, verr_mode, flag_model, model, verbose);
+}
+
+/**
+ * Compute the Variogram of the Indicator of the input variable
+ * It is assumed that the Single input variable is already a Facies
+ * (starting from 1)
+ */
+int Vario::computeIndic(Db *db,
+                        const String& calculName,
+                        const VectorDouble& means,
+                        const VectorDouble& vars,
+                        bool flag_grid,
+                        bool flag_gen,
+                        bool flag_sample,
+                        bool verr_mode,
+                        bool flag_model,
+                        Model *model,
+                        bool verbose,
+                        int nfacmax)
+{
+  int ndim = db->getNDim();
+  int nvar = db->getVariableNumber();
+  if (nvar != 1)
+  {
+    messerr("This method is only considered for a Single input Variable");
+    return 1;
+  }
+
+  // Calculate the number of Facies in 'Db'
+  VectorDouble props = dbStatisticsFacies(db);
+  int nclass = props.size();
+  if (props.empty() || nclass > nfacmax)
+  {
+    messerr("The input variable should exhibit Facies");
+    messerr("Number of Facies (%d) should be positive and smaller than 'nfacmax'",
+            nclass);
+    messerr("Note: the value of 'nfacmax'(%d) can be changed in argument list",
+            nfacmax);
+    return 1;
+  }
+
+  // Translate the 'Facies' into 'categories'
+  Limits limits = Limits(nclass);
+  int iatt = db->getAttribute(LOC_Z, 0);
+  if (limits.toIndicator(db, iatt))
+  {
+    messerr("Problem when translating Facies into Categories");
+    return 1;
+  }
+
+  internalResize(ndim, nclass, calculName);
+
+  // Calculate the variogram of Indicators
+  if (compute(db, calculName, props, VectorDouble(), flag_grid, flag_gen,
+              flag_sample, verr_mode, flag_model, model, verbose))
+  {
+    messerr("Error when calculating the Variogram of Indicators");
+    return 1;
+  }
+
+  // Delete the Indicators (created locally)
+  db->deleteFieldByLocator(LOC_Z);
+  db->setLocatorByAttribute(iatt, LOC_Z);
+
+  return 0;
 }
 
 bool Vario::isCalculated() const
