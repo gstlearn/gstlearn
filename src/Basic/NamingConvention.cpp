@@ -217,7 +217,7 @@ void NamingConvention::setLocators(Db *dbout,
                                    bool flagLocate) const
 {
   if (! flagLocate) return;
-  if (_locatorOutType != LOC_UNKNOWN) return;
+  if (_locatorOutType == LOC_UNKNOWN) return;
 
   // Erase already existing locators of the same Type
   if (_flagClean)

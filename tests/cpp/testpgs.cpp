@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
       
       /* Calculate the experimental variograms */
       
-      if (variogram_compute(dbin,vario)) goto label_end;
+      vario->compute(dbin,"vg");
       if (verbose) variogram_print(vario,1);
       ascii_filename("Vario",0,1,filename);
       if (vario->serialize(filename,verbose))

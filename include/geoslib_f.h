@@ -203,17 +203,6 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
                                    int lagnb = 100,
                                    int varnb = 100,
                                    NamingConvention namconv = NamingConvention("Cloud"));
-GEOSLIB_API int variogram_compute(Db* db,
-                                  Vario* vario,
-                                  const VectorDouble& means = VectorDouble(),
-                                  const VectorDouble& vars = VectorDouble(),
-                                  int flag_grid = 0,
-                                  int flag_gen = 0,
-                                  int flag_sample = 0,
-                                  int verr_mode = 0,
-                                  int flag_model = 0,
-                                  Model* model = nullptr,
-                                  int verbose = 0);
 GEOSLIB_API double variogram_extract_variance(Vario *vario,
                                               int ivar = 1,
                                               int jvar = 1);

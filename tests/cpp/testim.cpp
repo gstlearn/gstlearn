@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
   vario = ascii_vario_read(filename,verbose);
   if (vario != (Vario *) NULL)
   {
-    if (variogram_compute(dbin,vario)) messageAbort("variogram_calcul");
+    vario->compute(dbin,"vg");
     variogram_print(vario,1); 
     ascii_filename("Vario",0,1,filename);
     if (vario->serialize(filename,verbose))

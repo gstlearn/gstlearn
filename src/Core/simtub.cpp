@@ -5954,7 +5954,7 @@ GEOSLIB_API int simpgs(Db *dbin,
     if (!st_keep(flag_gaus, flag_modif, RESULT, FACIES) && iptr_RF)
       dbout->deleteFieldByLocator(LOC_FACIES);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RF, "Facies",
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RF, String(),
                                   nbsimu);
   }
 
@@ -5968,7 +5968,7 @@ GEOSLIB_API int simpgs(Db *dbin,
     if (!st_keep(flag_gaus, flag_modif, DATA, FACIES) && iptr_DF)
       dbin->deleteFieldByLocator(LOC_FACIES);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DF, "Facies",
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DF, String(),
                                   nbsimu, false);
 
     dbin->deleteFieldByLocator(LOC_GAUSFAC);

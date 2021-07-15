@@ -943,6 +943,17 @@
                                                    int jech,
                                                    double maxdist);
   GEOSLIB_API double variogram_maximum_distance(const Dir& dir);
+  GEOSLIB_API int variogram_compute(Db* db,
+                                    Vario* vario,
+                                    const VectorDouble& means = VectorDouble(),
+                                    const VectorDouble& vars = VectorDouble(),
+                                    int flag_grid = 0,
+                                    int flag_gen = 0,
+                                    int flag_sample = 0,
+                                    int verr_mode = 0,
+                                    int flag_model = 0,
+                                    Model* model = nullptr,
+                                    int verbose = 0);
   GEOSLIB_API int geometry_compute(Db *db,
                                   Vario *vario,
                                   Vario_Order *vorder,
