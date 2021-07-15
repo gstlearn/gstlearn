@@ -3161,7 +3161,7 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
   /* Set the error return code */
 
   namconv.setNamesAndLocators(db,LOC_Z,-1,dbmap,IPTW,"Nb",1,false);
-  namconv.setNamesAndLocators(db,LOC_Z,-1,dbmap,IPTV,"Var",1,true);
+  namconv.setNamesAndLocators(db,LOC_Z,-1,dbmap,IPTV,"Var");
   error = 0;
 
 label_end:
@@ -3298,7 +3298,7 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
   /* Set the error return code */
 
   namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTW,"Nb",1,false);
-  namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTV,"Var",1,true);
+  namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTV,"Var");
   error = 0;
 
 label_end:
@@ -5637,7 +5637,7 @@ static int st_vmap_grid_fft(Db *dbgrid,
   /* Set the error return code */
   
   namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTW,"Nb",1,false);
-  namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTV,"Var",1,true);
+  namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTV,"Var",1);
   error = 0;
   
 label_end:

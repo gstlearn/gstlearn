@@ -1704,7 +1704,7 @@ GEOSLIB_API int db_segy(const char *filesegy,
 
   // Assign Name and Locator to the newly created variable
 
-  namconv.setNamesAndLocators(grid3D,iatt,String(),1,true);
+  namconv.setNamesAndLocators(grid3D,iatt,String());
 
   if (file != NULL) fclose(file);
   return 0;

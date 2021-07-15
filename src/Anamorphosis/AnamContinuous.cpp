@@ -9,8 +9,9 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Anamorphosis/AnamContinuous.hpp"
-
+#include "Db/Db.hpp"
 #include "Basic/String.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "geoslib_f.h"
 
 AnamContinuous::AnamContinuous(int type)

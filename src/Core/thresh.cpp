@@ -1120,8 +1120,9 @@ GEOSLIB_API int db_rule(Db     *db,
   for (int igrf=0; igrf<2; igrf++)
   {
     if (! flagUsed[igrf]) continue;
-    iptr = db_attribute_identify(db,LOC_SIMU,igrf);
-    if (iptr < 0)
+    if (db->getLocatorNumber(LOC_SIMU) == ngrf)
+      iptr = db_attribute_identify(db,LOC_SIMU,igrf);
+    else
       iptr = db_attribute_identify(db,LOC_Z,igrf);
     db->setLocatorByAttribute(iptr,LOC_SIMU,igrf+1);
   }
@@ -1132,7 +1133,7 @@ GEOSLIB_API int db_rule(Db     *db,
 
   // Naming convention
 
-  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptr, "Facies", 1, LOC_FACIES);
+  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptr);
   error = 0;
 
 label_end:

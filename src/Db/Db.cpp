@@ -3075,7 +3075,7 @@ VectorDouble Db::_statistics(const VectorInt& iatts,
 
     dbStatisticsVariables(this, iatts, iopers, iattn, vmin, vmax, proba);
 
-    namconv.setNamesAndLocators(this, iattn, String(), 1, true);
+    namconv.setNamesAndLocators(this, iattn);
     for (int i = 0; i < noper; i++)
       namconv.setNamesAndLocators(this, iattn + i, opers[i]);
     return VectorDouble();

@@ -15,13 +15,13 @@
 #include <string>
 
 NamingConvention::NamingConvention(String radix,
-                                   ENUM_LOCS locatorType,
+                                   ENUM_LOCS locatorOutType,
                                    String delim,
                                    bool flagvariter,
                                    bool flagclean)
     : _radix(radix),
       _delim(delim),
-      _locatorType(locatorType),
+      _locatorOutType(locatorOutType),
       _flagVarIter(flagvariter),
       _flagClean(flagclean)
 {
@@ -31,7 +31,7 @@ NamingConvention::NamingConvention(String radix,
 NamingConvention::NamingConvention(const NamingConvention &m)
     : _radix(m._radix),
       _delim(m._delim),
-      _locatorType(m._locatorType),
+      _locatorOutType(m._locatorOutType),
       _flagVarIter(m._flagVarIter),
       _flagClean(m._flagClean)
 {
@@ -43,7 +43,7 @@ NamingConvention& NamingConvention::operator=(const NamingConvention &m)
   if (this != &m)
   {
     _radix = m._radix;
-    _locatorType = m._locatorType;
+    _locatorOutType = m._locatorOutType;
     _delim = m._delim;
     _flagVarIter = m._flagVarIter;
     _flagClean = m._flagClean;
@@ -62,17 +62,16 @@ NamingConvention::~NamingConvention()
  * @param iattout_start Starting attribute index
  * @param suffix Optional suffix
  * @param nitems Number of items
- * @param flagLocator true if the Locators must be set
+ * @param flagLocate True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(Db* dbout,
                                            int iattout_start,
                                            const String& suffix,
                                            int nitems,
-                                           bool flagLocator) const
+                                           bool flagLocate) const
 {
   _setNames(dbout, iattout_start, VectorString(), suffix, nitems);
-
-  if (flagLocator) setLocators(dbout, iattout_start, 1, nitems);
+  setLocators(dbout, iattout_start, 1, nitems, flagLocate);
 }
 
 /**
@@ -82,20 +81,20 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
  * @param iattout_start Starting attribute index
  * @param suffix Optional suffix
  * @param nitems Number of items
- * @param flagLocator true if the Locators must be set
+ * @param flagLocate True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(const VectorString& names,
                                            Db* dbout,
                                            int iattout_start,
                                            const String& suffix,
                                            int nitems,
-                                           bool flagLocator) const
+                                           bool flagLocate) const
 {
   if (iattout_start <= 0) return;
   int nvar = names.size();
   if (nvar <= 0) return;
   _setNames(dbout, iattout_start, names, suffix, nitems);
-  if (flagLocator) setLocators(dbout, iattout_start, nvar, nitems);
+  setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
 }
 
 /**
@@ -105,20 +104,20 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
  * @param iattout_start Starting attribute index
  * @param suffix Optional suffix
  * @param nitems Number of items
- * @param flagLocator true if the Locators must be set
+ * @param flagLocate True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(const String& namin,
                                            Db* dbout,
                                            int iattout_start,
                                            const String& suffix,
                                            int nitems,
-                                           bool flagLocator) const
+                                           bool flagLocate) const
 {
   if (iattout_start <= 0) return;
   VectorString names;
   names.push_back(namin);
   _setNames(dbout, iattout_start, names, suffix, nitems);
-  if (flagLocator) setLocators(dbout, iattout_start, 1, nitems);
+  setLocators(dbout, iattout_start, 1, nitems, flagLocate);
 }
 
 /**
@@ -131,7 +130,7 @@ void NamingConvention::setNamesAndLocators(const String& namin,
  * @param iattout_start Starting attribute index
  * @param suffix Optional suffix
  * @param nitems Number of items
- * @param flagLocator true if the Locators must be set
+ * @param flagLocate True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(Db *dbin,
                                            ENUM_LOCS locatorInType,
@@ -140,7 +139,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
                                            int iattout_start,
                                            const String& suffix,
                                            int nitems,
-                                           bool flagLocator) const
+                                           bool flagLocate) const
 {
   if (iattout_start <= 0) return;
   VectorString names;
@@ -151,7 +150,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
     if (nvar < (int) names.size()) names.resize(nvar);
   }
   _setNames(dbout, iattout_start, names, suffix, nitems);
-  if (flagLocator) setLocators(dbout, iattout_start, nvar, nitems);
+  setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
 }
 
 /**
@@ -162,7 +161,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
  * @param iattout_start Starting attribute index
  * @param suffix Optional suffix
  * @param nitems Number of items
- * @param flagLocator true if the Locators must be set
+ * @param flagLocate True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(Db *dbin,
                                            const VectorInt& iatts,
@@ -170,7 +169,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
                                            int iattout_start,
                                            const String& suffix,
                                            int nitems,
-                                           bool flagLocator) const
+                                           bool flagLocate) const
 {
   if (iattout_start <= 0) return;
   if (dbin == nullptr) return;
@@ -181,18 +180,18 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
   for (int ivar = 0; ivar < nvar; ivar++)
     names.push_back(dbin->getName(iatts[ivar]));
   _setNames(dbout, iattout_start, names, suffix, nitems);
-  if (flagLocator) setLocators(dbout, iattout_start, nvar, nitems);
+  setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
  }
 
 /**
  * Naming from a set of variables identified by their attribute indices
  * @param dbin  Pointer to the input Db (kept for symmetry)
- * @param iatt  Attribute index of the variablesin Input Db
+ * @param iatt  Attribute index of the variables in Input Db
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
  * @param suffix Optional suffix
  * @param nitems Number of items
- * @param flagLocator true if the Locators must be set
+ * @param flagLocate True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(Db *dbin,
                                            int iatt,
@@ -200,7 +199,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
                                            int iattout_start,
                                            const String& suffix,
                                            int nitems,
-                                           bool flagLocator) const
+                                           bool flagLocate) const
 {
   if (iattout_start <= 0) return;
   if (dbin == nullptr) return;
@@ -208,24 +207,25 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
   VectorString names;
   names.push_back(dbin->getName(iatt));
   _setNames(dbout, iattout_start, names, suffix, nitems);
-  if (flagLocator) setLocators(dbout, iattout_start, 1, nitems);
+  setLocators(dbout, iattout_start, 1, nitems, flagLocate);
  }
 
 void NamingConvention::setLocators(Db *dbout,
-                                    int iattout_start,
-                                    int nvar,
-                                    int nitems) const
+                                   int iattout_start,
+                                   int nvar,
+                                   int nitems,
+                                   bool flagLocate) const
 {
-  if (_locatorType < 0) return;
+  if (! flagLocate) return;
+  if (_locatorOutType != LOC_UNKNOWN) return;
 
+  // Erase already existing locators of the same Type
   if (_flagClean)
-  {
-    // Erase already existing locators of the same Type
-    dbout->clearLocators(_locatorType);
-  }
+    dbout->clearLocators(_locatorOutType);
 
+  // Set the locator for all variables
   for (int ecr = 0; ecr < nvar * nitems; ecr++)
-    dbout->setLocatorByAttribute(iattout_start + ecr, _locatorType, ecr + 1);
+    dbout->setLocatorByAttribute(iattout_start + ecr, _locatorOutType, ecr + 1);
 }
 
 /**

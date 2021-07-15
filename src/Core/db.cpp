@@ -3044,8 +3044,7 @@ GEOSLIB_API void db_polygon(Db *db,
   }
 
   // Setting the output variable
-  namconv.setLocatorType(LOC_SEL);
-  namconv.setNamesAndLocators(db, iatt, String(), 1, true);
+  namconv.setNamesAndLocators(db, iatt);
 
   return;
 }

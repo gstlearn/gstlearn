@@ -3577,15 +3577,15 @@ GEOSLIB_API int kriging(Db *dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin,LOC_Z,nvar,dbout,IPTR_VARZ,"varz");
+  namconv.setNamesAndLocators(dbin,LOC_Z,nvar,dbout,IPTR_VARZ,"varz",1,false);
   if (ABS(neigh->getFlagXvalid()) == 1)
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_STD,"stderr");
+    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_STD,"stderr",1,false);
   else
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_STD,"stdev");
+    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_STD,"stdev",1,false);
   if (ABS(neigh->getFlagXvalid()) == 1)
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_EST,"esterr",1,true);
+    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_EST,"esterr");
   else
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_EST,"estim",1,true);
+    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_EST,"estim");
 
 label_end:
   debug_index(0);
@@ -3749,13 +3749,13 @@ static int st_xvalid_unique(Db *dbin,
 
   error = 0;
   if (ABS(neigh->getFlagXvalid()) == 1)
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_STD,"stderr");
+    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_STD,"stderr",1,false);
   else
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_STD,"stdev");
+    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_STD,"stdev",1,false);
   if (ABS(neigh->getFlagXvalid()) == 1)
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_EST,"esterr",1,true);
+    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_EST,"esterr");
   else
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_EST,"estim",1,true);
+    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_EST,"estim");
 
 label_end:
   debug_index(0);

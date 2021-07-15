@@ -17,16 +17,9 @@ class Db;
 
 class NamingConvention
 {
-private:
-  String   _radix;
-  String   _delim;
-  ENUM_LOCS _locatorType;
-  bool     _flagVarIter;
-  bool     _flagClean;
-
 public:
   NamingConvention(String radix = String(),
-                   ENUM_LOCS locatorType = LOC_Z,
+                   ENUM_LOCS locatorOutType = LOC_Z,
                    String delim = ".",
                    bool flagvariter = true,
                    bool flagclean = true);
@@ -38,19 +31,19 @@ public:
                            int iattout_start,
                            const String& suffix = String(),
                            int nitems = 1,
-                           bool flagLocator = false) const;
+                           bool flagLocate = true) const;
   void setNamesAndLocators(const VectorString& names,
                            Db* dbout,
                            int iattout_start,
                            const String& suffix = String(),
                            int nitems = 1,
-                           bool flagLocator = false) const;
+                           bool flagLocate = true) const;
   void setNamesAndLocators(const String& namin,
                            Db* dbout,
                            int iattout_start,
                            const String& suffix = String(),
                            int nitems = 1,
-                           bool flagLocator = false) const;
+                           bool flagLocate = true) const;
   void setNamesAndLocators(Db *dbin,
                            ENUM_LOCS locatorInType,
                            int nvar,
@@ -58,33 +51,43 @@ public:
                            int iattout_start,
                            const String& suffix = String(),
                            int nitems = 1,
-                           bool flagLocator = false) const;
+                           bool flagLocate = true) const;
   void setNamesAndLocators(Db *dbin,
                            const VectorInt& iatts,
                            Db* dbout,
                            int iattout_start,
                            const String& suffix = String(),
                            int nitems = 1,
-                           bool flagLocator = false) const;
+                           bool flagLocate = true) const;
   void setNamesAndLocators(Db *dbin,
                            int iatt,
                            Db* dbout,
                            int iattout_start,
                            const String& suffix = String(),
                            int nitems = 1,
-                           bool flagLocator = false) const;
-  void setLocators(Db *dbout, int iattout_start, int nvar, int nitems = 1) const;
+                           bool flagLocate = true) const;
 
   void setDelim(const String& delim)    { _delim = delim; }
-  void setLocatorType(ENUM_LOCS locatorType)  { _locatorType = locatorType; }
+  void setLocatorOutType(ENUM_LOCS locatorOutType)  { _locatorOutType = locatorOutType; }
   void setRadix(const String& radix)    { _radix = radix; }
   void setFlagClean(bool flagClean)     { _flagClean = flagClean; }
   void setFlagVarIter(bool flagVarIter) { _flagVarIter = flagVarIter; }
-
+  void setLocators(Db *dbout,
+                   int iattout_start,
+                   int nvar,
+                   int nitems = 1,
+                   bool flagLocate = true) const;
 private:
   void _setNames(Db *dbout,
                  int iattout_start,
                  VectorString names,
                  const String& suffix,
                  int nitems) const;
+
+private:
+  String   _radix;
+  String   _delim;
+  ENUM_LOCS _locatorOutType;
+  bool     _flagVarIter;
+  bool     _flagClean;
 };

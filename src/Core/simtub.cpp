@@ -3516,7 +3516,7 @@ GEOSLIB_API int simtub(Db *dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,iptr_out,String(),nbsimu,true);
+  namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,iptr_out,String(),nbsimu,LOC_Z);
 
 label_end:
   (void) manage_external_info(-1,LOC_F,dbin,dbout,&iext);
@@ -5955,7 +5955,7 @@ GEOSLIB_API int simpgs(Db *dbin,
       dbout->deleteFieldByLocator(LOC_FACIES);
     else
       namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RF, "Facies",
-                                  nbsimu, true);
+                                  nbsimu);
   }
 
   if (dbin != nullptr)

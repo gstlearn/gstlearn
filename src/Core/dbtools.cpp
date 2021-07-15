@@ -1765,7 +1765,7 @@ GEOSLIB_API int db_grid_fill(Db *dbgrid,
   /* Set the error return code */
 
   error = 0;
-  namconv.setNamesAndLocators(dbgrid, LOC_Z, -1, dbgrid, iatt_out, String(), 1,true);
+  namconv.setNamesAndLocators(dbgrid, LOC_Z, -1, dbgrid, iatt_out);
 
 label_end:
   skin = skin_undefine(skin);
@@ -1923,7 +1923,7 @@ GEOSLIB_API int db_category(Db *db,
     db->setArray(iech, iptr, (double) ival);
   }
 
-  namconv.setNamesAndLocators(db, iatt, db, iptr, String(), 1, true);
+  namconv.setNamesAndLocators(db, iatt, db, iptr);
 
   return (0);
 }
@@ -2121,9 +2121,9 @@ GEOSLIB_API int db_indicator(Db *db,
 
   // Naming convention
   if (flag_indic == 1)
-    namconv.setNamesAndLocators(db, iatt, db, iptr, "Class", nclass, true);
+    namconv.setNamesAndLocators(db, iatt, db, iptr, "Class", nclass);
   else
-    namconv.setNamesAndLocators(db, iatt, db, iptr, "Mean", 1, true);
+    namconv.setNamesAndLocators(db, iatt, db, iptr, "Mean", 1);
 
   return (0);
 }
@@ -2189,8 +2189,7 @@ GEOSLIB_API int db_selhull(Db *db1, Db *db2, bool verbose, NamingConvention namc
   }
 
   // Set the Naming Convention
-  namconv.setLocatorType(LOC_SEL);
-  namconv.setNamesAndLocators(db2, isel, String(), 1, true);
+  namconv.setNamesAndLocators(db2, isel);
   return 0;
 }
 
@@ -6091,8 +6090,7 @@ GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(dbgrid, LOC_Z, -1, dbgrid, iatt_out, String(), 1,
-                              true);
+  namconv.setNamesAndLocators(dbgrid, LOC_Z, -1, dbgrid, iatt_out);
 
   return 0;
 }
@@ -6242,7 +6240,7 @@ GEOSLIB_API int migrateByAttribute(Db* db1,
   }
 
   // Set the output variable names and locators
-  namconv.setNamesAndLocators(db1, atts, db2, iatt0, String(), 1, true);
+  namconv.setNamesAndLocators(db1, atts, db2, iatt0);
   return 0;
 }
 
@@ -6284,7 +6282,7 @@ GEOSLIB_API int migrate(Db* db1,
     return 1;
 
   // Set the output variable names and locators
-  namconv.setNamesAndLocators(name, db2, iatt0, String(), 1, true);
+  namconv.setNamesAndLocators(name, db2, iatt0);
   return 0;
 }
 
@@ -6333,7 +6331,6 @@ GEOSLIB_API int migrateByLocator(Db* db1,
   }
 
   // Set the output variable names and locators
-  namconv.setNamesAndLocators(db1, locatorType, -1, db2, iatt0, String(), 1,
-                              true);
+  namconv.setNamesAndLocators(db1, locatorType, -1, db2, iatt0);
   return 0;
 }

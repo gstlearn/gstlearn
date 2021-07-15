@@ -296,7 +296,7 @@ GEOSLIB_API int db_rule(Db *db,
                         Db *dbprop = nullptr,
                         int flag_stat = true,
                         Model *model = nullptr,
-                        NamingConvention namconv = NamingConvention("Facies"));
+                        NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
 
 /******************************/
 /* Functions for Anamorphosis */
@@ -346,13 +346,13 @@ GEOSLIB_API int migrateByLocator(Db* db1,
 GEOSLIB_API int db_selhull(Db *db1,
                            Db *db2,
                            bool verbose = false,
-                           NamingConvention namconv = NamingConvention("Hull"));
+                           NamingConvention namconv = NamingConvention("Hull",LOC_SEL));
 GEOSLIB_API void db_polygon(Db *db,
                             Polygons *polygon,
                             int flag_sel = 0,
                             int flag_period = 0,
                             int flag_nested = 0,
-                            NamingConvention namconv = NamingConvention("Polygon"));
+                            NamingConvention namconv = NamingConvention("Polygon",LOC_SEL));
 GEOSLIB_API int db_grid_fill(Db *dbgrid,
                              int mode = 0,
                              int seed = 34243,
@@ -414,7 +414,7 @@ GEOSLIB_API int simpgs(Db *dbin,
                        double percent = 5.,
                        double gibbs_eps = 1.e-3,
                        double delta = 1.,
-                       NamingConvention namconv = NamingConvention(String()));
+                       NamingConvention namconv = NamingConvention("Facies"));
 GEOSLIB_API int simpgs_spde(Db *dbin,
                             Db *dbout,
                             Db *dbprop,
