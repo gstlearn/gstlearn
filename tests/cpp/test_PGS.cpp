@@ -64,10 +64,7 @@ int main(int argc, char *argv[])
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
-  {
-    db.addFields(1,props[ifac]);
-    db.setName(db.getLastName(),names[ifac]);
-  }
+    db.addFields(1,props[ifac],names[ifac]);
   db.setLocator(names,LOC_P);
   db.display(FLAG_STATS);
 
@@ -99,6 +96,21 @@ int main(int argc, char *argv[])
 //  vario2.addDirs(dir2);
 //  error = vario2.computeIndic(&db);
 //  vario2.serialize(pygst+ "data/varioindic.ascii");
+
+  Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
+  Vario vario2 = Vario();
+  vario2.addDirs(dir2);
+  error = vario2.computeIndic(&db);
+  vario2.serialize(pygst+ "data/varioindic.ascii");
+
+
+  VectorDouble hhexp = vario.getHh(0,0,0);
+  double hmax = ut_vector_max(hhexp);
+  int nh = 100;
+  VectorDouble hh = ut_vector_sequence(0., hmax, hmax/nh);
+  VectorDouble codir = vario.getCodir(0);
+  VectorDouble gg = model.sample(hmax, nh, 0, 0, codir);
+
   //error = model_pgs(&db, &vario2, &rule, &modelPGS, nullptr, props);
 
 //  vario.display(1);

@@ -4493,7 +4493,7 @@ GEOSLIB_API int regression_f(Db     *db1,
       break;
 
     case 2:
-      if (model_setup(model)) goto label_end;
+      model_setup(model);
       break;
   }
 

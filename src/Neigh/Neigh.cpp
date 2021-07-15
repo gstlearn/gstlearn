@@ -309,7 +309,7 @@ int Neigh::deSerialize(const String& filename, bool verbose)
 
   /* Opening the Data file */
 
-  if (_fileOpen(filename, "Neigh", "r")) return 1;
+  if (_fileOpen(filename, "Neigh", "r", verbose)) return 1;
 
   /* Create the Model structure */
 
@@ -375,7 +375,7 @@ int Neigh::deSerialize(const String& filename, bool verbose)
             0., 0., VectorDouble(), VectorDouble(), radius);
   }
 
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }
@@ -440,7 +440,7 @@ void Neigh::_init(int ndim,
 int Neigh::serialize(const String& filename, bool verbose)
 {
   int ecr;
-  if (_fileOpen(filename, "Neigh", "r")) return 1;
+  if (_fileOpen(filename, "Neigh", "w", verbose)) return 1;
 
   /* Create the Model structure */
 
@@ -503,7 +503,7 @@ int Neigh::serialize(const String& filename, bool verbose)
       break;
   }
 
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }

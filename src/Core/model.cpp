@@ -196,13 +196,13 @@ GEOSLIB_API double model_calcul_basic(Model *model,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-static void st_model_calcul_cov_direct(CovNostatInternal *cov_nostat,
-                                       Model* model,
-                                       const CovCalcMode& mode,
-                                       int flag_init,
-                                       double weight,
-                                       VectorDouble d1,
-                                       double *covtab)
+GEOSLIB_API void model_calcul_cov_direct(CovNostatInternal *cov_nostat,
+                                         Model* model,
+                                         const CovCalcMode& mode,
+                                         int flag_init,
+                                         double weight,
+                                         VectorDouble d1,
+                                         double *covtab)
 {
   // Load the non-stationary parameters if needed
 
@@ -306,7 +306,7 @@ static void st_model_calcul_cov_anam_hermitian(CovNostatInternal *cov_nostat,
 
     /* Calculate the generic variogram value */
 
-    st_model_calcul_cov_direct(NULL, model, mode, 1, 1, d1, &rho);
+    model_calcul_cov_direct(NULL, model, mode, 1, 1, d1, &rho);
   }
 
   /* Update the covariance */
@@ -467,9 +467,9 @@ static void st_model_calcul_cov_anam_DD(CovNostatInternal *cov_nostat,
 
     /* Calculate the generic variogram value */
 
-    st_model_calcul_cov_direct(NULL, model, mode, 1, 1., VectorDouble(),
-                               covint.data());
-    st_model_calcul_cov_direct(NULL, model, mode, 0, -1, d1, covint.data());
+    model_calcul_cov_direct(NULL, model, mode, 1, 1., VectorDouble(),
+                            covint.data());
+    model_calcul_cov_direct(NULL, model, mode, 0, -1, d1, covint.data());
     gamref = covint[0];
   }
 
@@ -673,8 +673,7 @@ static void st_model_calcul_cov_anam_IR(CovNostatInternal *cov_nostat,
 
   /* Calculate the generic variogram value */
 
-  st_model_calcul_cov_direct(NULL, model, mode, flag_init, 1., d1,
-                             covint.data());
+  model_calcul_cov_direct(NULL, model, mode, flag_init, 1., d1, covint.data());
 
   /* Modification of the covariance */
 
@@ -753,7 +752,7 @@ static void st_model_calcul_cov_tapering(CovNostatInternal *cov_nostat,
 
   /* Calculate the generic covariance value */
 
-  st_model_calcul_cov_direct(NULL, model, mode, flag_init, weight, d1, covtab);
+  model_calcul_cov_direct(NULL, model, mode, flag_init, weight, d1, covtab);
 
   /* Calculate the tapering effect */
 
@@ -1193,7 +1192,6 @@ GEOSLIB_API Model *model_init(int ndim,
                               const VectorDouble& mean,
                               const VectorDouble& covar0)
 {
-  int error = 1;
   Model* model = (Model *) NULL;
 
   ASpaceObject::createGlobalSpace(SPACE_RN, ndim); // TODO Avoid this artificial setting
@@ -1206,13 +1204,8 @@ GEOSLIB_API Model *model_init(int ndim,
 
   /* Set the error return flag */
 
-  if (model_setup(model)) goto label_end;
+  model_setup(model);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: if (error) model = model_free(model);
   return (model);
 }
 
@@ -1248,7 +1241,7 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
 
   /* Set the error return flag */
 
-  if (model_setup(model)) goto label_end;
+  model_setup(model);
   error = 0;
 
   label_end: if (error) model = model_free(model);
@@ -1326,7 +1319,7 @@ GEOSLIB_API int model_add_cova(Model *model,
 
   /* Set the error return code */
 
-  if (model_setup(model)) return 1;
+  model_setup(model);
 
   return 0;
 }
@@ -1365,7 +1358,7 @@ GEOSLIB_API int model_add_drift(Model *model, int type, int rank_fex)
 
   /* Set the error return code */
 
-  if (model_setup(model)) goto label_end;
+  model_setup(model);
   error = 0;
 
   label_end: return (error);
@@ -1398,7 +1391,7 @@ GEOSLIB_API int model_add_no_property(Model *model)
 
   /* Set the calling function */
 
-  if (model_setup(model)) goto label_end;
+  model_setup(model);
 
   /* Set the error return code */
 
@@ -1441,7 +1434,7 @@ GEOSLIB_API int model_add_convolution(Model *model,
 
   /* Set the calling function */
 
-  if (model_setup(model)) goto label_end;
+  model_setup(model);
 
   /* Set the error return code */
 
@@ -1554,7 +1547,7 @@ GEOSLIB_API int model_add_anamorphosis(Model *model,
 
   /* Set the calling function */
 
-  if (model_setup(model)) goto label_end;
+  model_setup(model);
 
   /* Set the error return code */
 
@@ -1602,7 +1595,7 @@ GEOSLIB_API int model_add_tapering(Model *model,
 
   /* Set the calling function */
 
-  if (model_setup(model)) goto label_end;
+  model_setup(model);
 
   /* Set the error return code */
 
@@ -1636,11 +1629,10 @@ GEOSLIB_API double cova_get_scale_factor(int type, double param)
  ** \param[in,out]  model Model structure
  **
  *****************************************************************************/
-GEOSLIB_API int model_setup(Model* model)
+GEOSLIB_API void model_setup(Model* model)
 
 {
-  int error = 1;
-  if (st_check_model(model)) goto label_end;
+  if (model == nullptr) return;
 
   /**********************************/
   /* Allocation of auxiliary arrays */
@@ -1651,7 +1643,7 @@ GEOSLIB_API int model_setup(Model* model)
   switch (model->getModTransMode())
   {
     case MODEL_PROPERTY_NONE:
-      model->generic_cov_function = st_model_calcul_cov_direct;
+      model->generic_cov_function = model_calcul_cov_direct;
       break;
 
     case MODEL_PROPERTY_CONV:
@@ -1677,7 +1669,7 @@ GEOSLIB_API int model_setup(Model* model)
           messerr("The Model modified by Properties is not available");
           messerr("For the following Anamorphosis type (%d)",
                   model->getModTrans().getAnam()->getType());
-          goto label_end;
+          break;
       }
       break;
 
@@ -1685,12 +1677,6 @@ GEOSLIB_API int model_setup(Model* model)
       model->generic_cov_function = st_model_calcul_cov_tapering;
       break;
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
 }
 
 /*****************************************************************************/
@@ -3106,7 +3092,7 @@ GEOSLIB_API Model *model_duplicate(Model *model, double ball_radius, int mode)
 
   // Set the error return code
 
-  if (model_setup(new_model)) return new_model;
+  model_setup(new_model);
 
   return (new_model);
 }

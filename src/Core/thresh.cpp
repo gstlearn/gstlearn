@@ -1028,6 +1028,7 @@ GEOSLIB_API int db_rule(Db     *db,
   int ngrf    = rule->getGRFNumber();
   VectorInt flagUsed = rule->whichGRFUsed();
   int nfacies = rule->getFaciesNumber();
+  bool flagReturn = false;
 
   /* Preliminary checks */
 
@@ -1054,7 +1055,7 @@ GEOSLIB_API int db_rule(Db     *db,
   if (iptr < 0) goto label_end;
 
   /* Identify the Non conditional simulations at target points */
-  bool flagReturn;
+
   for (int igrf=0; igrf<2; igrf++)
   {
     if (! flagUsed[igrf]) continue;
@@ -1229,8 +1230,10 @@ GEOSLIB_API int db_bounds(Db     *db,
                           Model  *model,
                           NamingConvention namconv)
 {
-  int iptrl, iptru, ngrf, nvar, nfacies;
+  int iptrl, iptru, nvar;
   VectorInt flagUsed;
+  int nfacies = 0;
+  int ngrf = 0;
   Props* propdef = nullptr;
   int error = 1;
 

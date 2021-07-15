@@ -28,8 +28,11 @@ public:
   const String& getFileType() const { return _fileType; }
 
 protected:
-  int  _fileOpen(const String& filename, const String& filetype, const String& mode);
-  int  _fileClose();
+  int _fileOpen(const String& filename,
+                const String& filetype,
+                const String& mode,
+                bool verbose = false);
+  int  _fileClose(bool verbose = false);
   int  _recordRead(const String& title, const String& format, ...);
   void _recordWrite(const String& format, ...);
   int  _fileRead(const String& format, va_list ap);

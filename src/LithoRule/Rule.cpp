@@ -1010,7 +1010,7 @@ int Rule::deSerialize(const String& filename, bool verbose)
 {
   int nb_node;
 
-  if (_fileOpen(filename, "Rule", "r")) return 1;
+  if (_fileOpen(filename, "Rule", "r", verbose)) return 1;
 
   /* Create the Rule structure */
 
@@ -1042,7 +1042,7 @@ int Rule::deSerialize(const String& filename, bool verbose)
       if (_recordRead("Rule Node Definition", "%d", &nodes[lec++])) return 1;
   init(nodes);
 
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }
@@ -1052,7 +1052,7 @@ int Rule::serialize(const String& filename, bool verbose)
   int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
   double prop_tot;
 
-  if (_fileOpen(filename, "Rule", "w")) return 1;
+  if (_fileOpen(filename, "Rule", "w", verbose)) return 1;
 
   /* Create the Rule structure */
 
@@ -1080,7 +1080,7 @@ int Rule::serialize(const String& filename, bool verbose)
   rank = 0;
   _ruleDefine(getMainNode(), 0, 0, 0, &rank);
 
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }

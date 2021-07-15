@@ -336,11 +336,12 @@ int Vario::computeIndic(Db *db,
     messerr("This method is only considered for a Single input Variable");
     return 1;
   }
+  db->display(FLAG_STATS);
 
   // Calculate the number of Facies in 'Db'
   VectorDouble props = dbStatisticsFacies(db);
   int nclass = props.size();
-  if (props.empty() || nclass > nfacmax)
+  if (nclass <= 0 || nclass > nfacmax)
   {
     messerr("The input variable should exhibit Facies");
     messerr("Number of Facies (%d) should be positive and smaller than 'nfacmax'",
@@ -743,7 +744,7 @@ int Vario::deSerialize(const String& filename, bool verbose)
 
   // Open the Neutral File
 
-  if (_fileOpen(filename, "Vario", "r")) return 1;
+  if (_fileOpen(filename, "Vario", "r", verbose)) return 1;
 
   /* Create the Vario structure */
 
@@ -817,7 +818,7 @@ int Vario::deSerialize(const String& filename, bool verbose)
   label_end:
 
   /* Close the file */
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }
@@ -827,7 +828,7 @@ int Vario::serialize(const String& filename, bool verbose)
   double value;
   static int flag_calcul = 1;
 
-  if (_fileOpen(filename, "Vario", "w")) return 1;
+  if (_fileOpen(filename, "Vario", "w", verbose)) return 1;
 
   /* Write the Vario structure */
 
@@ -899,7 +900,7 @@ int Vario::serialize(const String& filename, bool verbose)
 
   /* Close the file */
 
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }
