@@ -502,6 +502,14 @@ bool Rule::isYUsed(int igrf) const
     return getY2Number() > 0;
 }
 
+VectorInt Rule::whichGRFUsed() const
+{
+  VectorInt flag(2);
+  for (int igrf = 0; igrf < 2; igrf++)
+    flag[igrf] = isYUsed(igrf);
+  return flag;
+}
+
 /****************************************************************************/
 /*!
 **  Calculates the statistics from the Lithotype Rule

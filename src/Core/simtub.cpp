@@ -3498,7 +3498,7 @@ GEOSLIB_API int simtub(Db *dbin,
     if (db_locator_attribute_add(dbin, LOC_SIMU, nvar * nbsimu, 0, 0.,
                                  &iptr_in)) goto label_end;
   }
-  if (db_locator_attribute_add(dbout,LOC_SIMU,nvar*nbsimu,0,0.,
+  if (db_locator_attribute_add(dbout, LOC_SIMU, nvar * nbsimu, 0, 0.,
                                &iptr_out)) goto label_end;
 
   /* Processing the Turning Bands algorithm */

@@ -70,10 +70,9 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
                                            int nitems,
                                            bool flagLocator) const
 {
-  _setNames(dbout,iattout_start,VectorString(),suffix,nitems);
+  _setNames(dbout, iattout_start, VectorString(), suffix, nitems);
 
-  if (flagLocator)
-    setLocators(dbout,iattout_start,1,nitems);
+  if (flagLocator) setLocators(dbout, iattout_start, 1, nitems);
 }
 
 /**
@@ -95,9 +94,8 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
   if (iattout_start <= 0) return;
   int nvar = names.size();
   if (nvar <= 0) return;
-  _setNames(dbout,iattout_start,names,suffix,nitems);
-  if (flagLocator)
-    setLocators(dbout,iattout_start,nvar,nitems);
+  _setNames(dbout, iattout_start, names, suffix, nitems);
+  if (flagLocator) setLocators(dbout, iattout_start, nvar, nitems);
 }
 
 /**
@@ -119,9 +117,8 @@ void NamingConvention::setNamesAndLocators(const String& namin,
   if (iattout_start <= 0) return;
   VectorString names;
   names.push_back(namin);
-  _setNames(dbout,iattout_start,names,suffix,nitems);
-  if (flagLocator)
-    setLocators(dbout,iattout_start,1,nitems);
+  _setNames(dbout, iattout_start, names, suffix, nitems);
+  if (flagLocator) setLocators(dbout, iattout_start, 1, nitems);
 }
 
 /**
@@ -153,10 +150,8 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
     if (nvar <= 0) nvar = names.size();
     if (nvar < (int) names.size()) names.resize(nvar);
   }
-
-  _setNames(dbout,iattout_start,names,suffix,nitems);
-  if (flagLocator)
-    setLocators(dbout,iattout_start,nvar,nitems);
+  _setNames(dbout, iattout_start, names, suffix, nitems);
+  if (flagLocator) setLocators(dbout, iattout_start, nvar, nitems);
 }
 
 /**
@@ -185,9 +180,8 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
   VectorString names;
   for (int ivar = 0; ivar < nvar; ivar++)
     names.push_back(dbin->getName(iatts[ivar]));
-  _setNames(dbout,iattout_start,names,suffix,nitems);
-  if (flagLocator)
-    setLocators(dbout,iattout_start,nvar,nitems);
+  _setNames(dbout, iattout_start, names, suffix, nitems);
+  if (flagLocator) setLocators(dbout, iattout_start, nvar, nitems);
  }
 
 /**
@@ -213,9 +207,8 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
 
   VectorString names;
   names.push_back(dbin->getName(iatt));
-  _setNames(dbout,iattout_start,names,suffix,nitems);
-  if (flagLocator)
-    setLocators(dbout,iattout_start,1,nitems);
+  _setNames(dbout, iattout_start, names, suffix, nitems);
+  if (flagLocator) setLocators(dbout, iattout_start, 1, nitems);
  }
 
 void NamingConvention::setLocators(Db *dbout,
@@ -235,6 +228,16 @@ void NamingConvention::setLocators(Db *dbout,
     dbout->setLocatorByAttribute(iattout_start + ecr, _locatorType, ecr + 1);
 }
 
+/**
+ * Defines the names given to the output variables
+ *
+ * @param dbout   Pointer to the output Db structure
+ * @param iattout_start Rank of the first variable to be named
+ * @param names Vector of Names (dimension: nvar) or String()
+ * @param suffix Suffix provided to construct the names
+ * @param nitems Number of items to be renamed
+ *
+ */
 void NamingConvention::_setNames(Db *dbout,
                                  int iattout_start,
                                  VectorString names,
@@ -246,7 +249,7 @@ void NamingConvention::_setNames(Db *dbout,
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    String local = (names.empty()) ? String() : names[ivar];
+    String local = (names.empty() || (int) names.size() != nvar) ? String() : names[ivar];
 
     for (int item = 0; item < nitems; item++)
     {

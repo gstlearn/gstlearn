@@ -83,6 +83,7 @@ public:
   int  getY1Number() const;
   int  getY2Number() const;
   bool isYUsed(int igrf) const;
+  VectorInt whichGRFUsed() const;
   double getProportion(int facies);
   VectorDouble getThresh(int facies);
   VectorDouble getThreshFromRectangle(int rect, int *facies);

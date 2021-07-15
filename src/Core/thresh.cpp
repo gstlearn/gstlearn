@@ -1068,9 +1068,9 @@ label_end:
 ** \param[in]  db        Output Db structure
 ** \param[in]  dbprop    Db structure used for proportions (non-stationary case)
 ** \param[in]  rule      Lithotype Rule definition
-** \param[in]  model     First Model structure (only for SHIFT)
 ** \param[in]  props     Array of proportions for the facies
 ** \param[in]  flag_stat 1 for stationary; 0 otherwise
+** \param[in]  model     First Model structure (only for SHIFT)
 ** \param[in]  namconv   Naming convention
 **
 ** \remark The input variable must be locatorized as Z or LOC_SIMU
@@ -1079,29 +1079,25 @@ label_end:
 *****************************************************************************/
 GEOSLIB_API int db_rule(Db     *db,
                         Rule   *rule,
-                        Model  *model,
                         const   VectorDouble& props,
                         Db     *dbprop,
                         int     flag_stat,
+                        Model  *model,
                         NamingConvention namconv)
 {
-  int    flag_used[2];
-
-  /* Initializations */
-
   int error = 1;
   int iptr    = -1;
   Props* propdef = (Props *) NULL;
   int ngrf    = rule->getGRFNumber();
-  for (int igrf=0; igrf<2; igrf++)
-    flag_used[igrf] = rule->isYUsed(igrf);
+  VectorInt flagUsed = rule->whichGRFUsed();
   int nfacies = rule->getFaciesNumber();
 
   /* Preliminary checks */
 
-  if (db->getLocatorNumber(LOC_SIMU) != ngrf ||
+  if (db->getLocatorNumber(LOC_SIMU) != ngrf &&
       db->getLocatorNumber(LOC_Z) != ngrf)
   {
+    messerr("The Rule specifies the use of %d underlying GRF(s)",ngrf);
     messerr("The input 'db' should have one variable per GRF with locator 'SIMU' or 'Z'");
     goto label_end;
   }
@@ -1123,7 +1119,7 @@ GEOSLIB_API int db_rule(Db     *db,
   /* Identify the Non conditional simulations at target points */
   for (int igrf=0; igrf<2; igrf++)
   {
-    if (! flag_used[igrf]) continue;
+    if (! flagUsed[igrf]) continue;
     iptr = db_attribute_identify(db,LOC_SIMU,igrf);
     if (iptr < 0)
       iptr = db_attribute_identify(db,LOC_Z,igrf);
@@ -1132,7 +1128,7 @@ GEOSLIB_API int db_rule(Db     *db,
 
   /* Translate Gaussian into Facies */
 
-  if (rule_gaus2fac_result(propdef,db,rule,flag_used,0,0,1)) goto label_end;
+  if (rule_gaus2fac_result(propdef,db,rule,flagUsed.data(),0,0,1)) goto label_end;
 
   // Naming convention
 
