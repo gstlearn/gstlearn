@@ -1061,7 +1061,8 @@ label_end:
 
 /****************************************************************************/
 /*!
-**  Apply the Rule transformation to the GRFs of a Db
+**  Apply the Rule transformation to convert a set of Gaussian vectors
+**  into the corresponding Facies in a Db
 **
 ** \return  Error return code
 **
@@ -1074,7 +1075,6 @@ label_end:
 ** \param[in]  namconv   Naming convention
 **
 ** \remark The input variable must be locatorized as Z or LOC_SIMU
-** \remark It will be changed in this function to locator LOC_SIMU
 **
 *****************************************************************************/
 GEOSLIB_API int db_rule(Db     *db,
@@ -1117,19 +1117,39 @@ GEOSLIB_API int db_rule(Db     *db,
   if (iptr < 0) goto label_end;
 
   /* Identify the Non conditional simulations at target points */
+  bool flagReturn;
   for (int igrf=0; igrf<2; igrf++)
   {
     if (! flagUsed[igrf]) continue;
     if (db->getLocatorNumber(LOC_SIMU) == ngrf)
+    {
       iptr = db_attribute_identify(db,LOC_SIMU,igrf);
+      flagReturn = false;
+    }
     else
+    {
       iptr = db_attribute_identify(db,LOC_Z,igrf);
+      flagReturn = true;
+    }
     db->setLocatorByAttribute(iptr,LOC_SIMU,igrf+1);
   }
 
   /* Translate Gaussian into Facies */
 
   if (rule_gaus2fac_result(propdef,db,rule,flagUsed.data(),0,0,1)) goto label_end;
+
+  // Returning to the initial locators (if the initial variable
+  // had a LOC_Z locator which has been temporarily modified into LOC_SIMU)
+
+  if (flagReturn)
+  {
+    for (int igrf=0; igrf<2; igrf++)
+    {
+      if (! flagUsed[igrf]) continue;
+      iptr = db_attribute_identify(db,LOC_SIMU,igrf);
+      db->setLocatorByAttribute(iptr,LOC_SIMU,igrf+1);
+    }
+  }
 
   // Naming convention
 
