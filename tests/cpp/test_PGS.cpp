@@ -64,10 +64,7 @@ int main(int argc, char *argv[])
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
-  {
-    db.addFields(1,props[ifac]);
-    db.setName(db.getLastName(),names[ifac]);
-  }
+    db.addFields(1,props[ifac],names[ifac]);
   db.setLocator(names,LOC_P);
   db.display(FLAG_STATS);
 

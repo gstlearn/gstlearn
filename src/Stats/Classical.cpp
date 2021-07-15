@@ -383,7 +383,7 @@ VectorDouble dbStatisticsFacies(Db *db)
 
   // Find the number of Facies
 
-  /* Loop on the samples */
+  /* Loop on the samples to count the number of facies (labelled starting from 1) */
 
   int nfac = 0;
   int neff = 0;
@@ -391,7 +391,7 @@ VectorDouble dbStatisticsFacies(Db *db)
   {
     if (! db->isActiveAndDefined(iech,0)) continue;
     int ifac = (int) db->getVariable(iech,0);
-    if (ifac < 0) continue;
+    if (ifac <= 0) continue;
     if (ifac > nfac) nfac = ifac;
     neff++;
   }
@@ -403,8 +403,8 @@ VectorDouble dbStatisticsFacies(Db *db)
   {
     if (! db->isActiveAndDefined(iech,0)) continue;
     int ifac = (int) db->getVariable(iech,0);
-    if (ifac < 0) continue;
-    props[ifac] += 1.;
+    if (ifac <= 0) continue;
+    props[ifac-1] += 1.;
   }
 
   // Normalization

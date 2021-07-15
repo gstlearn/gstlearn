@@ -16,9 +16,6 @@
 
 class Limits : public AStringable
 {
-private:
-  std::vector<Interval> _bounds;
-
 public:
   Limits();
   Limits(const VectorDouble& mini,
@@ -55,4 +52,6 @@ public:
                   int OptionIndicator = 1,
                   NamingConvention namconv = NamingConvention("Indicator"));
 
+private:
+  std::vector<Interval> _bounds;
 };

@@ -336,11 +336,12 @@ int Vario::computeIndic(Db *db,
     messerr("This method is only considered for a Single input Variable");
     return 1;
   }
+  db->display(FLAG_STATS);
 
   // Calculate the number of Facies in 'Db'
   VectorDouble props = dbStatisticsFacies(db);
   int nclass = props.size();
-  if (props.empty() || nclass > nfacmax)
+  if (nclass <= 0 || nclass > nfacmax)
   {
     messerr("The input variable should exhibit Facies");
     messerr("Number of Facies (%d) should be positive and smaller than 'nfacmax'",
