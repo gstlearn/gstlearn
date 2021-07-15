@@ -93,6 +93,9 @@ int main(int argc, char *argv[])
 
   error = model_pgs(&db, &vario, &rule, &modelPGS, nullptr, props);
   vario.display(1);
+  auto pygst  = std::string(std::getenv("PYGSTLEARN_DIR"));
 
+  vario.serialize(pygst+ "data/variopgs.ascii");
+  model.serialize(pygst+ "data/modelpgs.ascii");
   return(error);
 }
