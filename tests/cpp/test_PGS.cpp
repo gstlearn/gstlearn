@@ -29,14 +29,14 @@ int main(int argc, char *argv[])
   CovContext ctxt(1,2,1.);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
-  int nech = 100;
+  int nech = 1000;
   Db db(nech,VectorDouble(2,0.),VectorDouble(2,1.));
   db.display(FLAG_STATS);
 
   // Creating the Model of the Underlying GRF
   Model model(ctxt);
   double range = 0.2;
-  CovAniso cova(COV_CUBIC,range,1.,1.,ctxt);
+  CovAniso cova(COV_BESSEL_K,range,1.,1.,ctxt);
   model.addCova(&cova);
   model.display();
 
@@ -81,21 +81,21 @@ int main(int argc, char *argv[])
 
   // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
   Model modelPGS(ctxt);
-
   Option_AutoFit option = Option_AutoFit();
   option.setConstantSillValue(1.);
 
-  std::vector<ENUM_COVS> covs {COV_CUBIC};
+  std::vector<ENUM_COVS> covs {COV_BESSEL_K};
   modelPGS.fit(&vario,covs,true,option);
   modelPGS.display();
 
   // Deriving the experimental variograms of the indicators
 
-  error = model_pgs(&db, &vario, &rule, &modelPGS, nullptr, props);
-  vario.display(1);
-  auto pygst  = std::string(std::getenv("PYGSTLEARN_DIR"));
+//  error = model_pgs(&db, &vario, &rule, &modelPGS, nullptr, props);
+//  vario.display(1);
 
+
+  auto pygst  = std::string(std::getenv("PYGSTLEARN_DIR"));
   vario.serialize(pygst+ "data/variopgs.ascii");
-  model.serialize(pygst+ "data/modelpgs.ascii");
+  modelPGS.serialize(pygst+ "data/modelpgs.ascii");
   return(error);
 }
