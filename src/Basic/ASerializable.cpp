@@ -34,17 +34,26 @@ ASerializable::ASerializable()
  ** \param[in]  filename Local file name
  ** \param[in]  filetype Type of the file (optional [NULL] when 'w')
  ** \param[in]  mode     "r" or "w"
+ ** \param[in]  verbose  Verbose flag
  **
  *****************************************************************************/
 int ASerializable::_fileOpen(const String& filename,
                              const String& filetype,
-                             const String& mode)
+                             const String& mode,
+                             bool verbose)
 {
   // Preliminary check
   if (filename.empty())
   {
     messerr("The Neutral File Name cannot be left empty");
     return 1;
+  }
+
+  // Optional printout
+  if (verbose)
+  {
+    message("Attempt to Open the File (%s) in mode (%s)\n",
+            filename.c_str(), mode.c_str());
   }
 
   // Check that the file is not already opened (in 'w' mode)
@@ -75,7 +84,7 @@ int ASerializable::_fileOpen(const String& filename,
     char idtype[LONG_SIZE];
     if (_recordRead("File Type", "%s", idtype))
     {
-      _fileClose();
+      _fileClose(false);
       return 1;
     }
     if (strcmp(idtype,filetype.c_str()))
@@ -83,7 +92,7 @@ int ASerializable::_fileOpen(const String& filename,
       messerr(
           "Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
           _fileName.c_str(), idtype, filetype.c_str());
-      _fileClose();
+      _fileClose(false);
       return 1;
     }
   }
@@ -100,7 +109,7 @@ int ASerializable::_fileOpen(const String& filename,
   return 0;
 }
 
-int ASerializable::_fileClose()
+int ASerializable::_fileClose(bool verbose)
 {
   if (_file == nullptr)
   {
@@ -108,6 +117,13 @@ int ASerializable::_fileClose()
     return 1;
   }
   fclose(_file);
+
+  // Optional printout
+
+  if (verbose)
+  {
+    message("File %s is successfully closed\n",_fileName.c_str());
+  }
   _fileName = String();
   _fileType = String();
   _currentRecord = String();

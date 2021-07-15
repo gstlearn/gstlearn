@@ -3212,7 +3212,7 @@ int Db::deSerialize(const String& filename, bool verbose)
 
   /* Opening the Data file */
 
-  if (_fileOpen(filename, "Db", "r")) return 1;
+  if (_fileOpen(filename, "Db", "r", verbose)) return 1;
 
   /* Check the grid organization */
 
@@ -3283,7 +3283,7 @@ int Db::deSerialize(const String& filename, bool verbose)
   /* Core deallocation */
 
   label_end:
-  _fileClose();
+  _fileClose(verbose);
   return 0;
 }
 
@@ -3293,7 +3293,7 @@ int Db::serialize(const String& filename, bool verbose)
 
   /* Opening the Data file */
 
-  if (_fileOpen(filename, "Db", "w")) return 1;
+  if (_fileOpen(filename, "Db", "w", verbose)) return 1;
 
   /* Writing the file organization */
 
@@ -3325,7 +3325,7 @@ int Db::serialize(const String& filename, bool verbose)
   if (_variableWrite(flag_grid)) return 1;
 
   // Close the Neutral file
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }

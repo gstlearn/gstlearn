@@ -96,6 +96,15 @@ int main(int argc, char *argv[])
   vario2.addDirs(dir2);
   error = vario2.computeIndic(&db);
   vario2.serialize(pygst+ "data/varioindic.ascii");
+
+
+  VectorDouble hhexp = vario.getHh(0,0,0);
+  double hmax = ut_vector_max(hhexp);
+  int nh = 100;
+  VectorDouble hh = ut_vector_sequence(0., hmax, hmax/nh);
+  VectorDouble codir = vario.getCodir(0);
+  VectorDouble gg = model.sample(hmax, nh, 0, 0, codir);
+
   //error = model_pgs(&db, &vario2, &rule, &modelPGS, nullptr, props);
 
 //  vario.display(1);

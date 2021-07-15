@@ -1197,7 +1197,14 @@
                                Model *model,
                                int flag_norm,
                                int flag_cov);
-  GEOSLIB_API int model_setup(Model *model);
+  GEOSLIB_API void model_setup(Model *model);
+  GEOSLIB_API void model_calcul_cov_direct(CovNostatInternal *cov_nostat,
+                                           Model* model,
+                                           const CovCalcMode& mode,
+                                           int flag_init,
+                                           double weight,
+                                           VectorDouble d1,
+                                           double *covtab);
   GEOSLIB_API int model_fitting_sills(Vario *vario,
                                       Model *model,
                                       Option_AutoFit mauto);

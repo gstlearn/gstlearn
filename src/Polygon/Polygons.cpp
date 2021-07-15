@@ -191,7 +191,7 @@ int Polygons::deSerialize(const String& filename, bool verbose)
 
   /* Opening the Data file */
 
-  if (_fileOpen(filename, "Polygon", "r")) return 1;
+  if (_fileOpen(filename, "Polygon", "r", verbose)) return 1;
 
   /* Create the Model structure */
 
@@ -220,13 +220,13 @@ int Polygons::deSerialize(const String& filename, bool verbose)
     addPolySet(polyset);
   }
 
-  _fileClose();
+  _fileClose(verbose);
   return 0;
 }
 
 int Polygons::serialize(const String& filename, bool verbose)
 {
-  if (_fileOpen(filename, "Polygon", "w")) return (1);
+  if (_fileOpen(filename, "Polygon", "w", verbose)) return (1);
 
   /* Create the Model structure */
 
@@ -250,7 +250,7 @@ int Polygons::serialize(const String& filename, bool verbose)
   }
 
   // Close the Neutral File
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }

@@ -414,3 +414,19 @@ VectorInt ut_ivector_sequence(int number, int ideb)
     vec[i] = ideb + i;
   return vec;
 }
+
+/**
+ * Create an output vector going from 'valFrom' to 'ValTo' by step of 'valStep'
+ */
+VectorDouble ut_vector_sequence(double valFrom, double valTo, double valStep)
+{
+  VectorDouble vec;
+
+  double value = valFrom;
+  while (value <= valTo)
+  {
+    vec.push_back(value);
+    value = value + valStep;
+  }
+  return vec;
+}

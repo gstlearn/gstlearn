@@ -2173,8 +2173,8 @@ static void st_model_auto_strmod_define(StrMod *strmod,
 
   // Update the internal function (which may have changed during the fit 
 
-  for (imod=0; imod<strmod->nmodel; imod++)
-    (void) model_setup(strmod->models[imod]);
+  for (imod = 0; imod < strmod->nmodel; imod++)
+    model_setup(strmod->models[imod]);
   return;
 }
 

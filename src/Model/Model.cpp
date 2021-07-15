@@ -69,6 +69,7 @@ Model::Model(const String& neutralFileName, bool verbose)
 {
   if (deSerialize(neutralFileName, verbose))
     my_throw("Problem reading the Neutral File");
+;
 }
 
 Model::Model(const Model &m)
@@ -158,6 +159,7 @@ void Model::delAllCovas()
 void Model::addCova(const CovAniso* cov)
 {
   _covaList->addCov(cov);
+  model_setup(this);
 }
 
 void Model::addDrift(const ADriftElem* drift)
@@ -221,12 +223,12 @@ double Model::evaluateDrift(const Db* db, int iech, int il, int member) const
  *
  * @return
  */
-VectorDouble Model::sampleModel(double hmax,
-                                int nh,
-                                int ivar,
-                                int jvar,
-                                VectorDouble codir,
-                                int nostd)
+VectorDouble Model::sample(double hmax,
+                           int nh,
+                           int ivar,
+                           int jvar,
+                           VectorDouble codir,
+                           int nostd)
 {
   VectorDouble hh, gg;
 
@@ -316,7 +318,7 @@ int Model::deSerialize(const String& filename, bool verbose)
 
   // Open the Neutral File
 
-  if (_fileOpen(filename, "Model", "r")) return 1;
+  if (_fileOpen(filename, "Model", "r", verbose)) return 1;
 
   // Delete previous Model contents (if any)
   _destroy();
@@ -440,7 +442,11 @@ int Model::deSerialize(const String& filename, bool verbose)
       setCovar0(ivar, jvar, value);
     }
 
-  _fileClose();
+  // Set the default function for calculations
+  generic_cov_function = model_calcul_cov_direct;
+
+      // Close the file
+  _fileClose(verbose);
 
   return 0;
 }
@@ -449,7 +455,7 @@ int Model::serialize(const String& filename, bool verbose)
 {
   ADriftElem *drift;
 
-  if (_fileOpen(filename, "Model", "w")) return 1;
+  if (_fileOpen(filename, "Model", "w", verbose)) return 1;
 
   /* Write the Model structure */
 
@@ -529,7 +535,7 @@ int Model::serialize(const String& filename, bool verbose)
 
   /* Close the file */
 
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }
@@ -541,6 +547,9 @@ void Model::_create(bool flagGradient, bool flagLinked)
   else
     _covaList = new CovLMC(_ctxt.getSpace());
   _driftList = new ADriftList(flagLinked);
+
+  // Default function used for calculations
+  generic_cov_function = model_calcul_cov_direct;
 }
 
 void Model::_destroy()

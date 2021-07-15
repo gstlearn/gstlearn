@@ -744,7 +744,7 @@ int Vario::deSerialize(const String& filename, bool verbose)
 
   // Open the Neutral File
 
-  if (_fileOpen(filename, "Vario", "r")) return 1;
+  if (_fileOpen(filename, "Vario", "r", verbose)) return 1;
 
   /* Create the Vario structure */
 
@@ -818,7 +818,7 @@ int Vario::deSerialize(const String& filename, bool verbose)
   label_end:
 
   /* Close the file */
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }
@@ -828,7 +828,7 @@ int Vario::serialize(const String& filename, bool verbose)
   double value;
   static int flag_calcul = 1;
 
-  if (_fileOpen(filename, "Vario", "w")) return 1;
+  if (_fileOpen(filename, "Vario", "w", verbose)) return 1;
 
   /* Write the Vario structure */
 
@@ -900,7 +900,7 @@ int Vario::serialize(const String& filename, bool verbose)
 
   /* Close the file */
 
-  _fileClose();
+  _fileClose(verbose);
 
   return 0;
 }
