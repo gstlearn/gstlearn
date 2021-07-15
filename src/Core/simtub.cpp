@@ -3516,7 +3516,7 @@ GEOSLIB_API int simtub(Db *dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,iptr_out,String(),nbsimu,LOC_Z);
+  namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,iptr_out,String(),nbsimu);
 
 label_end:
   (void) manage_external_info(-1,LOC_F,dbin,dbout,&iext);
