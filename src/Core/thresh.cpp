@@ -1071,42 +1071,44 @@ label_end:
 ** \param[in]  model     First Model structure (only for SHIFT)
 ** \param[in]  props     Array of proportions for the facies
 ** \param[in]  flag_stat 1 for stationary; 0 otherwise
-** \param[in]  nfacies   Number of facies
+** \param[in]  namconv   Naming convention
 **
 ** \remark The input variable must be locatorized as Z or LOC_SIMU
 ** \remark It will be changed in this function to locator LOC_SIMU
 **
 *****************************************************************************/
 GEOSLIB_API int db_rule(Db     *db,
-                        Db     *dbprop,
                         Rule   *rule,
                         Model  *model,
                         const   VectorDouble& props,
+                        Db     *dbprop,
                         int     flag_stat,
-                        int     nfacies)
+                        NamingConvention namconv)
 {
-  int    iptr,error,flag_used[2],nbsimu,igrf,ngrf;
-  Props *propdef;
+  int    flag_used[2];
 
   /* Initializations */
 
-  error   = 1;
-  nbsimu  = 1;
-  iptr    = -1;
-  propdef = (Props *) NULL;
+  int error = 1;
+  int iptr    = -1;
+  Props* propdef = (Props *) NULL;
+  int ngrf    = rule->getGRFNumber();
+  for (int igrf=0; igrf<2; igrf++)
+    flag_used[igrf] = rule->isYUsed(igrf);
+  int nfacies = rule->getFaciesNumber();
 
   /* Preliminary checks */
 
-  ngrf    = rule->getGRFNumber();
-  for (igrf=0; igrf<2; igrf++) 
-    flag_used[igrf] = rule->isYUsed(igrf);
+  if (db->getLocatorNumber(LOC_SIMU) != ngrf ||
+      db->getLocatorNumber(LOC_Z) != ngrf)
+  {
+    messerr("The input 'db' should have one variable per GRF with locator 'SIMU' or 'Z'");
+    goto label_end;
+  }
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,props,propdef);
   if (propdef == (Props *) NULL) goto label_end;
-
-  /* General setting for lithotype */
-
   if (rule->particularities(db,dbprop,model,1,flag_stat)) goto label_end;
   proportion_rule_process(propdef,PROCESS_COPY);
 
@@ -1115,35 +1117,26 @@ GEOSLIB_API int db_rule(Db     *db,
   /**********************/
 
   /* Storage of the simulations in the output file */
-  iptr = db->addFields(nbsimu,0.);
+  iptr = db->addFields(1,0.,"Facies",LOC_FACIES);
   if (iptr < 0) goto label_end;
-  db->setLocatorsByAttribute(nbsimu,iptr,LOC_FACIES);
 
   /* Identify the Non conditional simulations at target points */
-  for (igrf=0; igrf<2; igrf++)
+  for (int igrf=0; igrf<2; igrf++)
   {
     if (! flag_used[igrf]) continue;
     iptr = db_attribute_identify(db,LOC_SIMU,igrf);
     if (iptr < 0)
-    {
       iptr = db_attribute_identify(db,LOC_Z,igrf);
-      if (iptr < 0)
-      {
-        messerr("The variable containing the simulation of the GRF %d is missing in the Db",igrf+1);
-        goto label_end;
-      }
-      db->setLocatorByAttribute(iptr,LOC_SIMU,igrf+1);
-    }
+    db->setLocatorByAttribute(iptr,LOC_SIMU,igrf+1);
   }
 
-  /* Combine the conditional simulation for each GRF */
+  /* Translate Gaussian into Facies */
 
-  for (int isimu=0; isimu<nbsimu; isimu++)
-    if (rule_gaus2fac_result(propdef,db,rule,flag_used,
-                             0,isimu,nbsimu)) goto label_end;
+  if (rule_gaus2fac_result(propdef,db,rule,flag_used,0,0,1)) goto label_end;
 
-  /* Set the error return flag */
+  // Naming convention
 
+  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptr, "Facies", 1, LOC_FACIES);
   error = 0;
 
 label_end:

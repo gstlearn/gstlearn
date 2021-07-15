@@ -2758,13 +2758,6 @@
                                  const VectorDouble& propcst,
                                  int flag_stat,
                                  int nfacies);
-  GEOSLIB_API int db_rule(Db *db,
-                          Db *dbprop,
-                          Rule *rule,
-                          Model *model1,
-                          const VectorDouble& propcst,
-                          int flag_stat,
-                          int nfacies);
   GEOSLIB_API int db_bounds_shadow(Db *db,
                                    Db *dbprop,
                                    Rule *rule,

@@ -290,6 +290,13 @@ GEOSLIB_API int model_pgs(Db *db,
                           const VectorDouble& propcst = VectorDouble(),
                           Db* dbprop = nullptr,
                           int flag_stat = true);
+GEOSLIB_API int db_rule(Db *db,
+                        Rule *rule,
+                        Model *model1,
+                        const VectorDouble& propcst,
+                        Db *dbprop = nullptr,
+                        int flag_stat = true,
+                        NamingConvention namconv = NamingConvention("Facies"));
 
 /******************************/
 /* Functions for Anamorphosis */
