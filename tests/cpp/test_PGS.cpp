@@ -24,6 +24,7 @@
 int main(int argc, char *argv[])
 
 {
+  auto pygst  = std::string(std::getenv("PYGSTLEARN_DIR"));
   int error = 0;
   int ndim = 2;
   CovContext ctxt(1,2,1.);
@@ -88,14 +89,20 @@ int main(int argc, char *argv[])
   modelPGS.fit(&vario,covs,true,option);
   modelPGS.display();
 
-  // Deriving the experimental variograms of the indicators
+  vario.serialize(pygst+ "data/variopgs.ascii");
+  modelPGS.serialize(pygst+ "data/modelpgs.ascii");
 
-//  error = model_pgs(&db, &vario, &rule, &modelPGS, nullptr, props);
+  // Compute the experimental variograms of the indicators
+
+  Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
+  Vario vario2 = Vario();
+  vario2.addDirs(dir2);
+  error = vario2.computeIndic(&db);
+  vario2.serialize(pygst+ "data/varioindic.ascii");
+  //error = model_pgs(&db, &vario2, &rule, &modelPGS, nullptr, props);
+
 //  vario.display(1);
 
 
-  auto pygst  = std::string(std::getenv("PYGSTLEARN_DIR"));
-  vario.serialize(pygst+ "data/variopgs.ascii");
-  modelPGS.serialize(pygst+ "data/modelpgs.ascii");
   return(error);
 }
