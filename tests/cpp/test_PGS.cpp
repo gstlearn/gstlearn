@@ -123,11 +123,9 @@ int main(int argc, char *argv[])
   Dir dir4 = Dir(ndim, nlag, 0.5 / nlag);
   varioParamIndic.addDirs(dir4);
 
-  Rule* ruleFit = rule_auto(&db,&varioParam,&varioIndic,props);
+  Rule* ruleFit = rule_auto(&db,&varioParam,&varioIndic,props,nullptr,flag_stat,
+                            1,true);
   ruleFit->serialize(pygst + "ruleFit.ascii");
-//  error = model_pgs(&db, &varioIndic, &rule, &modelPGS1, &modelPGS2, props);
-//  varioIndic.serialize(pygst+ "modelpgs.ascii");
-//  varioIndic.display(1);
 
   return(error);
 }

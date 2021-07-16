@@ -41,7 +41,6 @@ double CovGaussian::getScadef() const
   return (1.730818);
 }
 
-
 double CovGaussian::_evaluateCov(double h) const
 {
   if (h > 10) return (0.);

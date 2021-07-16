@@ -117,11 +117,10 @@ static Relem *st_relem_alloc(Split *old_split)
   /* Initializations of the New Relem structure */
 
   relem = (Relem *) mem_alloc(sizeof(Relem),1);
-  relem->nfacies   = 0;
   relem->nsplit    = 0;
   relem->nrule     = 0;
   relem->nbyrule   = 0;
-  relem->facies    = (int *) NULL;
+  relem->facies    = VectorInt();
   relem->rules     = (int *) NULL;
   relem->fipos     = (int *) NULL;
   relem->old_split = old_split;
@@ -187,7 +186,7 @@ static int st_define_fipos(int oper,
  *****************************************************************************/
 static void st_relem_define(Relem *relem,
                             int    nfacies,
-                            int   *facies,
+                            const VectorInt& facies,
                             int    side,
                             int   *poss)
 {
@@ -204,8 +203,7 @@ static void st_relem_define(Relem *relem,
       if (poss[i] == side) number++;
   }
 
-  relem->nfacies = number;
-  relem->facies  = (int *) mem_alloc(sizeof(int) * number,1);
+  relem->facies.resize(number,0);
   relem->fipos   = (int *) mem_alloc(sizeof(int) * NCOLOR,1);
   for (int i=0; i<NCOLOR; i++) relem->fipos[i] = 0;
 
@@ -327,7 +325,7 @@ static void st_relem_subdivide(Relem *relem0,
   int   *divs,ndiv,number,ncur,previous_oper,verbose;
 
   verbose = 0;
-  ncur    = relem0->nfacies;
+  ncur    = relem0->facies.size();
   if (ncur <= 1) return;
 
   previous_oper = 1;
@@ -414,7 +412,6 @@ static Relem *st_relem_free(Relem *relem)
 
   /* Free the local arrays */
 
-  relem->facies = (int *) mem_free((char *) relem->facies);
   relem->rules  = (int *) mem_free((char *) relem->rules);
   relem->fipos  = (int *) mem_free((char *) relem->fipos);
 
@@ -1373,7 +1370,7 @@ static int st_permut(int value,
  ** \param[in] fgrf      Array of codes (skipped if < 0)
  **
  *****************************************************************************/
-static int st_fipos_encode(int *fgrf)
+static int st_fipos_encode(VectorInt& fgrf)
 {
   int nmax,found,fipos;
 
@@ -1400,7 +1397,7 @@ static int st_fipos_encode(int *fgrf)
  **
  *****************************************************************************/
 static void st_fipos_decode(int  fipos,
-                            int *fgrf)
+                            VectorInt& fgrf)
 {
   int nmax,div;
 
@@ -1422,7 +1419,7 @@ static void st_fipos_decode(int  fipos,
  *****************************************************************************/
 static int st_update_orientation(int  fac0,
                                  int  igrf_cas,
-                                 int *fgrf)
+                                 VectorInt& fgrf)
 {
   int fac,facp,nmax,loc0,loc1;
 
@@ -1470,8 +1467,8 @@ static int st_update_orientation(int  fac0,
 static int st_same_score(Relem *relem,
                          int    ir0,
                          int    igrf_cas,
-                         int   *fgrf,
-                         int   *fcmp)
+                         VectorInt& fgrf,
+                         VectorInt& fcmp)
 {
   int *fipos,flag_same;
 
@@ -1503,17 +1500,18 @@ static int st_same_score(Relem *relem,
  ** FUNCTION: st_relem_evaluate
  **
  *****************************************************************************/
-static double *st_relem_evaluate(Relem *relem,
-                                 int    verbose,
-                                 int   *fgrf,
-                                 int   *fcmp,
-                                 Local_Pgs *local_pgs,
-                                 int   *nscore,
-                                 int   *r_opt)
+static VectorDouble st_relem_evaluate(Relem *relem,
+                                      int verbose,
+                                      VectorInt& fgrf,
+                                      VectorInt& fcmp,
+                                      Local_Pgs *local_pgs,
+                                      int *nscore,
+                                      int *r_opt)
 {
   int    *rules,*fipos;
   int     nrule,indice,nmax,flag_check,flag_skip,igrf_cas,number,igrf_opt;
-  double *scores,score_ref;
+  double  score_ref;
+  VectorDouble scores;
 
   /* Initializations */
 
@@ -1527,7 +1525,7 @@ static double *st_relem_evaluate(Relem *relem,
   
   /* Core allocation */
 
-  scores = (double *) mem_alloc(sizeof(double) * nrule,1);
+  scores.resize(nrule);
   
   *r_opt = number = 0;
   for (int ir=0; ir<nrule; ir++)
@@ -1581,7 +1579,7 @@ static double *st_relem_evaluate(Relem *relem,
 
   // Store the different rules as well as the scores in keypair mechanism
 
-  set_keypair("rule_auto_scores",1,1,nrule,scores);
+  set_keypair("rule_auto_scores",1,1,nrule,scores.data());
   set_keypair_int("rule_auto_allrules",1,nrule,NRULE,rules);
   set_keypair_int("rule_auto_best_rule",1,1,NRULE,&RULES(*r_opt,0));
 
@@ -1707,7 +1705,7 @@ static void st_split_collapse(Split *split,
     for (int i=0; i<2; i++)
     {
       relem = split->relems[i];
-      if (relem->nfacies <= 1)
+      if (relem->facies.size() <= 1)
       {
         num[i]   = 1;
         nby[i]   = 1;
@@ -5378,21 +5376,23 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
                             int     ngrf,
                             int     verbose)
 {
-  int    *facies,*fcmp,*fgrf,*string,error,nscore,r_opt;
+  int    *string,error,nscore,r_opt;
   int     iptr_p,iptr_l,iptr_u,iptr_rl,iptr_ru;
   int    *rules,flag_rho,flag_correl,opt_correl;
   Rule   *rule;
   Relem  *Pile_Relem;
-  double *scores;
   Props  *propdef;
   Local_Pgs local_pgs;
+  VectorInt facies;
+  VectorInt fcmp;
+  VectorInt fgrf;
+  VectorDouble scores;
 
   /* Initializations */
 
   error        = 1;
   rule         = (Rule *) NULL;
-  scores       = (double *) NULL;
-  facies       = fcmp = fgrf = string = (int *) NULL;
+  string       = (int *) NULL;
   Pile_Relem   = (Relem *) NULL;
   propdef      = (Props *) NULL;
 
@@ -5412,7 +5412,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
   /* Core allocation */
 
-  facies = (int *) mem_alloc(sizeof(int) * NCOLOR,1);
+  facies.resize(NCOLOR);
   for (int i=0; i<NCOLOR; i++) facies[i] = i+1;
 
   /* Preliminary tasks (as in variogram.pgs) */
@@ -5468,16 +5468,14 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   Pile_Relem = st_relem_alloc(NULL);
   st_relem_define(Pile_Relem,NCOLOR,facies,ITEST,NULL);
   st_relem_subdivide(Pile_Relem,1,1);
-  st_relem_explore(Pile_Relem,0);
+  st_relem_explore(Pile_Relem,verbose);
 
   // Evaluate all possibilities
 
-  fcmp = (int *) mem_alloc(sizeof(int) * NCOLOR,1);
-  fgrf = (int *) mem_alloc(sizeof(int) * (1+NGRF),1);
+  fcmp.resize(NCOLOR);
+  fgrf.resize(1+NGRF);
   scores = st_relem_evaluate(Pile_Relem,verbose,fgrf,fcmp,
                              &local_pgs,&nscore,&r_opt);
-  fcmp = (int *) mem_free((char *) fcmp);
-  fgrf = (int *) mem_free((char *) fgrf);
 
   /* Get the resulting optimal Rule */
 
@@ -5497,8 +5495,6 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
 label_end:
   Pile_Relem = st_relem_free(Pile_Relem);
-  facies = (int    *) mem_free((char *) facies);
-  scores = (double *) mem_free((char *) scores);
   CTABLES = ct_tables_manage(-1,verbose,1,2,200,100,-1.,1.,CTABLES);
   st_manage_pgs(-1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
                 flag_stat,1,0,ngrf,NCOLOR,vario->getCalculType());

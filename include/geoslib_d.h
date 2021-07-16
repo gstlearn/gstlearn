@@ -500,8 +500,7 @@ struct Local_Split
 
 struct Local_Relem
 {
-  int nfacies;                // Number of facies
-  int *facies;                // List of facies
+  VectorInt facies;           // List of facies
   int nrule;                  // Number of generated rules
   int nbyrule;                // Number of symbols in the Rules
   int nsplit;                 // Number of splits
