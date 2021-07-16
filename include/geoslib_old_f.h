@@ -1534,7 +1534,7 @@
                                      int iatt,
                                      double valinit);
   GEOSLIB_API void db_attribute_copy(Db *db, int iatt_in, int iatt_out);
-  GEOSLIB_API int db_attribute_identify(Db *db, ENUM_LOCS locatorType, int locatorIndex);
+  GEOSLIB_API int db_attribute_identify(const Db *db, ENUM_LOCS locatorType, int locatorIndex);
   GEOSLIB_API int db_sample_get_att(Db *db,
                                     int iech,
                                     int number,
@@ -1605,7 +1605,7 @@
   GEOSLIB_API int same_rotation(Db *db1, Db *db2);
   GEOSLIB_API int get_NECH(const Db *db);
   GEOSLIB_API double get_ARRAY(const Db *db, int iech, int iatt);
-  GEOSLIB_API double get_IDIM(Db *db, int iech, int idim);
+  GEOSLIB_API double get_IDIM(const Db *db, int iech, int idim);
   GEOSLIB_API double get_grid_IDIM(Db *db, int iech, int idim);
   GEOSLIB_API int    match_domain_ref(double value);
   GEOSLIB_API int    get_DOMAIN(Db *db, int iech);
@@ -1715,14 +1715,14 @@
                                       double *coor);
   GEOSLIB_API int point_to_point(Db *db, double *coor);
   GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid);
-  GEOSLIB_API int migrate_grid_to_coor(Db *db_grid,
+  GEOSLIB_API int migrate_grid_to_coor(const Db *db_grid,
                                        int iv_grid,
                                        int np,
                                        double *xp,
                                        double *yp,
                                        double *zp,
                                        double *tab);
-  GEOSLIB_API int expand_point_to_coor(Db *db1,
+  GEOSLIB_API int expand_point_to_coor(const Db *db1,
                                        int iatt,
                                        int np,
                                        double *xp,
@@ -3251,8 +3251,8 @@
   /***************************************/
   GEOSLIB_API QChol *qchol_manage(int mode, QChol *qchol);
   GEOSLIB_API double spde_compute_correc(int ndim, double param);
-  GEOSLIB_API int spde_check(Db *dbin,
-                             Db *dbout,
+  GEOSLIB_API int spde_check(const Db *dbin,
+                             const Db *dbout,
                              Model *model1,
                              Model *model2,
                              int verbose,

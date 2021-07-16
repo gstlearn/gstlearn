@@ -71,7 +71,7 @@ NoStatArray::~NoStatArray()
 
 }
 
-int NoStatArray::attachMesh(Db* db, const AMesh* mesh, bool verbose)
+int NoStatArray::attachMesh(const Db* db, const AMesh* mesh, bool verbose)
 {
   double* coorloc[3];
 
@@ -188,7 +188,7 @@ int NoStatArray::attachMesh(Db* db, const AMesh* mesh, bool verbose)
  * @param verbose Verbose flag
  * @return
  */
-int NoStatArray::attachDb(Db* db, int icas, bool verbose)
+int NoStatArray::attachDb(const Db* db, int icas, bool verbose)
 {
   int npar = getNoStatElemNumber();
 

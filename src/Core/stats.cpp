@@ -2872,7 +2872,7 @@ static void st_get_rowname(const String& radix,
 ** \param[in]  opers       Array of operators
 **
 *****************************************************************************/
-GEOSLIB_API void db_stats_print(Db *db,
+GEOSLIB_API void db_stats_print(const Db *db,
                                 const VectorInt& iatts_arg,
                                 const VectorString& opers,
                                 int flag_iso,
@@ -3083,7 +3083,7 @@ label_end:
   return;
 }
 
-GEOSLIB_API void db_stats_print(Db *db,
+GEOSLIB_API void db_stats_print(const Db *db,
                                 const VectorString& names,
                                 const VectorString& opers,
                                 int flag_iso,

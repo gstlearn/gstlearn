@@ -189,7 +189,7 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
  */
 int ShiftOpCs::initFromMesh(AMesh* amesh,
                             Model* model,
-                            Db* dbout,
+                            const Db* dbout,
                             ANoStat* nostat,
                             int igrf,
                             int icov,

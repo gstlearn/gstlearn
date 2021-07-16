@@ -1873,7 +1873,7 @@ GEOSLIB_API int spde_attach_model(Model *model)
  ** \param[in]  model        Model structure
  **
  *****************************************************************************/
-static int st_check_model(Db *dbin, Db *dbout, Model *model)
+static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
 {
   CovAniso* cova;
   int ndim, nvar, flag_mult_data, flag_nugget;
@@ -7180,7 +7180,7 @@ GEOSLIB_API int spde_prepar(Db *dbin,
  ** \param[in]  gext          Array of domain dilation
  **
  *****************************************************************************/
-static void st_environ_print(Db *dbout, const VectorDouble& gext)
+static void st_environ_print(const Db *dbout, const VectorDouble& gext)
 {
   if (S_DECIDE.flag_case == CASE_KRIGING)
   {
@@ -7680,8 +7680,8 @@ GEOSLIB_API void spde_free_all(void)
  ** \param[in]  flag_modif    1 for post-processing simulations
  **
  *****************************************************************************/
-GEOSLIB_API int spde_check(Db *dbin,
-                           Db *dbout,
+GEOSLIB_API int spde_check(const Db *dbin,
+                           const Db *dbout,
                            Model *model1,
                            Model *model2,
                            int verbose,

@@ -66,8 +66,8 @@ static Db *DB_GRID_FILL;
  ** \remark  even if the sample does not lie within the grid
  **
  *****************************************************************************/
-static int st_locate_point_on_grid(Db *db_point,
-                                   Db *db_grid,
+static int st_locate_point_on_grid(const Db *db_point,
+                                   const Db *db_grid,
                                    VectorDouble& coor,
                                    VectorDouble& tab)
 {
@@ -114,7 +114,7 @@ static int st_locate_coor_on_grid(int np,
                                   double *xp,
                                   double *yp,
                                   double *zp,
-                                  Db *db_grid,
+                                  const Db *db_grid,
                                   double *tab)
 {
   int iech, iad, number;
@@ -289,7 +289,7 @@ static int st_get_ndim(double *xp, double *yp, double *zp)
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
-GEOSLIB_API int migrate_grid_to_coor(Db *db_grid,
+GEOSLIB_API int migrate_grid_to_coor(const Db *db_grid,
                                      int iatt,
                                      int np,
                                      double *xp,
@@ -580,7 +580,7 @@ static int st_expand_point_to_point(Db *db1,
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
-GEOSLIB_API int expand_point_to_coor(Db *db1,
+GEOSLIB_API int expand_point_to_coor(const Db *db1,
                                      int iatt,
                                      int np,
                                      double *xp,

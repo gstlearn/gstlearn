@@ -430,7 +430,7 @@ GEOSLIB_API int get_NECH(const Db *db)
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-GEOSLIB_API double get_IDIM(Db *db, int iech, int idim)
+GEOSLIB_API double get_IDIM(const Db *db, int iech, int idim)
 {
   if (db == (Db *) NULL) return (0);
   return db->getCoordinate(iech, idim);
@@ -815,7 +815,7 @@ GEOSLIB_API int db_coorvec_put(Db *db, int idim, double *tab)
  ** \param[in]  item   Rank of the attribute in the pointer
  **
  *****************************************************************************/
-GEOSLIB_API int db_attribute_identify(Db *db, ENUM_LOCS locatorType, int item)
+GEOSLIB_API int db_attribute_identify(const Db *db, ENUM_LOCS locatorType, int item)
 {
   int iatt = db->getAttribute(locatorType, item);
   return (iatt);

@@ -31,8 +31,8 @@ public:
                   int rank) const override;
   double getValue(int ipar, int icas, int rank) const override;
 
-  int  attachMesh(Db* db, const AMesh* mesh, bool verbose = false);
-  int  attachDb(Db* db, int icas, bool verbose = false);
+  int  attachMesh(const Db* db, const AMesh* mesh, bool verbose = false);
+  int  attachDb(const Db* db, int icas, bool verbose = false);
   String displayStats(int ipar, int icas) const;
   String displayStats(int icas) const;
 
@@ -50,9 +50,9 @@ private:
   double _interpolate(int ipar, int iech1, int iech2);
 
 private:
-  Db*       _dbin;
+  const Db*       _dbin;
   VectorInt _attIn;
-  Db*       _dbout;
+  const Db*       _dbout;
   VectorInt _attOut;
 	MatrixCRectangular _tab; // Dimension: nvertex * npar
 };
