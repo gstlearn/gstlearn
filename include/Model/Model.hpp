@@ -149,11 +149,11 @@ public:
   int hasExternalCov() const;
 
   VectorDouble sample(double hmax,
-                      int nh = 100,
-                      int ivar = 0,
-                      int jvar = 0,
-                      VectorDouble codir = VectorDouble(),
-                      int norder = 0);
+                    int nh = 100,
+                    int ivar = 0,
+                    int jvar = 0,
+                    VectorDouble codir = VectorDouble(),
+                    int norder = 0);
 
   int fit(Vario *vario,
           const std::vector<int>& types,

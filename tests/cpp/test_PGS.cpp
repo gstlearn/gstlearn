@@ -40,14 +40,14 @@ int main(int argc, char *argv[])
   CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
   model1.addCova(&cova1);
   model1.display();
-  model1.serialize(pygst+ "data/truemodel1.ascii");
+  model1.serialize(pygst+ "truemodel1.ascii");
 
   Model model2(ctxt);
   double range2 = 0.3;
   CovAniso cova2(COV_EXPONENTIAL,range2,1.,1.,ctxt);
   model2.addCova(&cova2);
   model2.display();
-  model2.serialize(pygst+ "data/truemodel2.ascii");
+  model2.serialize(pygst+ "truemodel2.ascii");
 
   // Creating the Neighborhood
   Neigh neigh = Neigh(ndim);
@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
   modelPGS.fit(&vario,covs,true,option);
   modelPGS.display();
 
-  vario.serialize(pygst+ "data/variopgs.ascii");
-  modelPGS.serialize(pygst+ "data/modelfitpgs.ascii");
+  vario.serialize(pygst+ "variopgs.ascii");
+  modelPGS.serialize(pygst+ "modelfitpgs.ascii");
 
   // Compute the experimental variograms of the indicators
 
@@ -103,10 +103,10 @@ int main(int argc, char *argv[])
   Vario vario2 = Vario();
   vario2.addDirs(dir2);
   error = vario2.computeIndic(&db);
-  vario2.serialize(pygst+ "data/varioindic.ascii");
+  vario2.serialize(pygst+ "varioindic.ascii");
 
   error = model_pgs(&db, &vario2, &rule, &modelPGS, nullptr, props);
-  vario2.serialize(pygst+ "data/modelpgs.ascii");
+  vario2.serialize(pygst+ "modelpgs.ascii");
 //
 ////  vario.display(1);
 
