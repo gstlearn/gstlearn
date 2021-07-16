@@ -381,9 +381,7 @@ VectorDouble dbStatisticsFacies(Db *db)
   }
   int nech = db->getSampleNumber();
 
-  // Find the number of Facies
-
-  /* Loop on the samples to count the number of facies (labelled starting from 1) */
+  // Find the number of Facies (labelled starting from 1)
 
   int nfac = 0;
   int neff = 0;

@@ -18,9 +18,7 @@
 #define COVAL(ctables,iconf) (ctables->cmin + iconf * ctables->dc)
 #define NELEM(ctables)       ((ctables->flag_cumul) ?               \
                               ctables->ndisc + 1 : ctables->ndisc)
-
 /*! \endcond */
-
 
 /****************************************************************************
  **
@@ -95,7 +93,7 @@ static void st_tableone_manage(CTables *ctables,
  **
  ** FUNCTION: ct_tableone_covrank
  **
- ** PURPOSE: Returns the rank of the taget Ctable
+ ** PURPOSE: Returns the rank of the target Ctable
  **
  ** RETURNS: Rank of the Target Ctable Rank
  **
