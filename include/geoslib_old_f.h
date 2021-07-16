@@ -2870,15 +2870,6 @@
                                              int ipair,
                                              char *aux_iech,
                                              char *aux_jech);
-  GEOSLIB_API Rule *rule_auto(Db *db,
-                              Db *dbprop,
-                              Vario *vario,
-                              Vario *varioind,
-                              const VectorDouble& propcst,
-                              int ncolor,
-                              int ngrf,
-                              int flag_stat,
-                              int verbose);
 
   /**************************/
   /* Prototyping fracture.c */

@@ -63,18 +63,19 @@ int main(int argc, char *argv[])
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
 
-  // Perform a non-conditional simulation on the Db
+  // Prepare proportions
   VectorDouble props({0.2, 0.5, 0.3});
-  error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props);
-  db.setLocator(db.getLastName(),LOC_Z);
-
-  // Adding constant proportions as Vectors in the Db
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
     db.addFields(1,props[ifac],names[ifac]);
   db.setLocator(names,LOC_P);
   db.display(FLAG_STATS);
+
+  // Perform a non-conditional simulation on the Db
+
+  error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props);
+  db.setLocator(db.getLastName(),LOC_Z);
 
   // Determination of the variogram of the Underlying GRF
   Vario cov = Vario();
@@ -105,6 +106,7 @@ int main(int argc, char *argv[])
 
   vario2.serialize(pygst+ "variopgs2.ascii");
   modelPGS2.serialize(pygst+ "modelfitpgs2.ascii");
+
   // Compute the experimental variograms of the indicators
 
   Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
@@ -115,9 +117,7 @@ int main(int argc, char *argv[])
 
   error = model_pgs(&db, &varioIndic, &rule, &modelPGS1, &modelPGS2, props);
   varioIndic.serialize(pygst+ "modelpgs.ascii");
-//
-////  vario.display(1);
-
+  varioIndic.display(1);
 
   return(error);
 }

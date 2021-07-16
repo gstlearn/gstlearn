@@ -5380,23 +5380,21 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 ** \param[in]  vario        Vario structure for the GRFs to be filled
 ** \param[in]  varioind     Indicator Vario structure 
 ** \param[in]  propcst      Array of proportions for the facies
-** \param[in]  ncolor       Number of different facies
 ** \param[in]  ngrf         Number of underlying GRFs (1 or 2)
 ** \param[in]  flag_stat    1 for stationary and 0 otherwise
 ** \param[in]  verbose      Verbosity flag
 **
 *****************************************************************************/
 GEOSLIB_API Rule *rule_auto(Db     *db,
-                            Db     *dbprop,
                             Vario  *vario,
                             Vario  *varioind,
                             const   VectorDouble& propcst,
-                            int     ncolor,
-                            int     ngrf,
+                            Db     *dbprop,
                             int     flag_stat,
+                            int     ngrf,
                             int     verbose)
 {
-  int    *facies,*fcmp,*fgrf,*string,error,nscore,r_opt,nfacies;
+  int    *facies,*fcmp,*fgrf,*string,error,nscore,r_opt;
   int     iptr_p,iptr_l,iptr_u,iptr_rl,iptr_ru;
   int    *rules,flag_rho,flag_correl,opt_correl;
   Rule   *rule;
@@ -5413,10 +5411,13 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   facies       = fcmp = fgrf = string = (int *) NULL;
   Pile_Relem   = (Relem *) NULL;
   propdef      = (Props *) NULL;
+
   st_timer_start("rule_auto");
   TEST_DISCRET = 1;
   TEST_TIME    = (int) get_keypone("TEST_TIME",0);
-  NCOLOR       = nfacies = ncolor;
+
+  VectorDouble props = dbStatisticsFacies(db);
+  NCOLOR       = props.size();
   NGRF         = ngrf;
   NRULE        = 2 * NCOLOR - 1;
   BASE         = 2 * NGRF;
@@ -5436,7 +5437,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   if (st_vario_pgs_check(0,0,flag_stat,db,NULL,vario,varioind,NULL)) goto label_end;
   vario->internalResize(db->getNDim(), ngrf, "cov");
 
-  propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
+  propdef = proportion_manage(1,1,flag_stat,ngrf,0,NCOLOR,0,
                               db,dbprop,propcst,propdef);
   if (propdef == (Props *) NULL) goto label_end;
   proportion_rule_process(propdef,0);
@@ -5448,7 +5449,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   /* Allocation */
 
   st_manage_pgs(1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
-                flag_stat,1,0,ngrf,nfacies,vario->getCalculType());
+                flag_stat,1,0,ngrf,NCOLOR,vario->getCalculType());
 
   if (flag_stat)
   {
@@ -5473,7 +5474,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
     // The thresholds are added lately in order to allow calculation of 
     // geometry (without checking the threshold interval (not defined yet)
-    if (st_vario_pgs_variable(1,ngrf,nfacies,1,0,db,propdef,NULL,
+    if (st_vario_pgs_variable(1,ngrf,NCOLOR,1,0,db,propdef,NULL,
                               &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
       goto label_end;
   }
@@ -5516,8 +5517,8 @@ label_end:
   scores = (double *) mem_free((char *) scores);
   CTABLES = ct_tables_manage(-1,verbose,1,2,200,100,-1.,1.,CTABLES);
   st_manage_pgs(-1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
-                flag_stat,1,0,ngrf,nfacies,vario->getCalculType());
-  propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,
+                flag_stat,1,0,ngrf,NCOLOR,vario->getCalculType());
+  propdef = proportion_manage(-1,1,flag_stat,ngrf,0,NCOLOR,0,
                               db,dbprop,propcst,propdef);
   if (error) rule = rule_free(rule);
   st_timer_print();
