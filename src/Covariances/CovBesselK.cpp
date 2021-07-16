@@ -9,11 +9,10 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovBesselK.hpp"
-
-#include "math.h"
-
 #include "Covariances/CovContext.hpp"
+#include "Basic/MathFunc.hpp"
 #include "geoslib_f.h"
+#include "math.h"
 
 #define MAXTAB 100
 

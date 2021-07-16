@@ -12,6 +12,7 @@
 #include "Basic/String.hpp"
 #include "Basic/Law.hpp"
 #include "LithoRule/Node.hpp"
+#include "Basic/MathFunc.hpp"
 #include "geoslib_f.h"
 #include "geoslib_enum.h"
 

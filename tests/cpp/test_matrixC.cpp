@@ -17,6 +17,7 @@
 #include "MatrixC/MatrixCSGeneral.hpp"
 #include "MatrixC/MatrixCSSym.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/Law.hpp"
 
 void reset_to_initial_contents(AMatrixC* M,
                                MatrixCSDiagCst& D,

@@ -13,6 +13,7 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Basic/Law.hpp"
 
 /****************************************************************************/
 /*!

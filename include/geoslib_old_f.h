@@ -100,49 +100,6 @@
                                                  VectorDouble& work),
                            VectorDouble& tabexp,
                            VectorDouble& tabwgt);
-  GEOSLIB_API int mvndst_infin(double low, double sup);
-  GEOSLIB_API void mvndst(int n,
-                          double *lower,
-                          double *upper,
-                          int *infin,
-                          double *correl,
-                          int maxpts,
-                          double abseps,
-                          double releps,
-                          double *error,
-                          double *value,
-                          int *inform);
-  GEOSLIB_API void mvndst2n(double *lower,
-                            double *upper,
-                            double *means,
-                            double *correl,
-                            int maxpts,
-                            double abseps,
-                            double releps,
-                            double *error,
-                            double *value,
-                            int *inform);
-  GEOSLIB_API void mvndst4(double *lower,
-                           double *upper,
-                           double *correl,
-                           int maxpts,
-                           double abseps,
-                           double releps,
-                           double *error,
-                           double *value,
-                           int *inform);
-
-  /*****************************************/
-  /* Prototyping the functions in bessel.c */
-  /*****************************************/
-
-  GEOSLIB_API int bessel_j(double x, double alpha, int nb, double *b);
-  GEOSLIB_API int bessel_k(double x, double alpha, int nb, double *bk);
-
-  /**************************************/
-  /* Prototyping the functions in law.c */
-  /**************************************/
-
 
   /***************************************/
   /* Prototyping the functions in util.c */
@@ -280,7 +237,6 @@
                                    double c0,
                                    double *testval,
                                    double *niter);
-  GEOSLIB_API double loggamma(double parameter);
   GEOSLIB_API void set_last_message(int mode, const char *string);
   GEOSLIB_API void print_last_message(void);
   GEOSLIB_API void set_keypair(const char *keyword,

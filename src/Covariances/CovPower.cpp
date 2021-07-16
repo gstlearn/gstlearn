@@ -9,8 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovPower.hpp"
-
 #include "Covariances/CovContext.hpp"
+#include "Basic/MathFunc.hpp"
 #include "geoslib_f.h"
 
 CovPower::CovPower(const CovContext& ctxt)
@@ -58,3 +58,4 @@ double CovPower::_evaluateCov(double h) const
   if (h > 0) cov -= pow(h, getParam());
   return (cov);
 }
+

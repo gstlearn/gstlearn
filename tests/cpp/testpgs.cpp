@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Basic/Law.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 

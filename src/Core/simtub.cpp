@@ -8,13 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
-
 #include "Morpho/Morpho.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Basic/MathFunc.hpp"
+#include "geoslib_e.h"
 
 /*! \cond */
 #define DATA   0

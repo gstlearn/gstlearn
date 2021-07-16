@@ -20,6 +20,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/MathFunc.hpp"
 
 /*! \cond */
 #define VT_NONE      -1

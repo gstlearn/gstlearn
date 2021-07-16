@@ -1484,12 +1484,14 @@ GEOSLIB_API int db_threshold(Db *db,
                              Model *model,
                              NamingConvention namconv)
 {
-  int    rank, nfacies, iptr, ngrf;
+  int    rank, iptr;
   double t1min,t1max,t2min,t2max;
 
   /* Initializations */
 
   int error   = 1;
+  int ngrf = 0;
+  int nfacies = 0;
   Props* propdef = (Props *) NULL;
 
   /**********************/

@@ -11,6 +11,7 @@
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/MathFunc.hpp"
 #include "Stats/Classical.hpp"
 
 /*! \cond */

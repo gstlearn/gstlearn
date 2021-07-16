@@ -524,8 +524,7 @@ double law_invcdf_gaussian(double value)
 ** \param[in]  bsup upper bound of the interval
 **
 *****************************************************************************/
-double law_gaussian_between_bounds(double binf,
-                                               double bsup)
+double law_gaussian_between_bounds(double binf, double bsup)
 {
   double atab[4],btab[4],ptab[4];
   double a,b,aa,bb,total,a2,b2,c2,u,wgt,x;
@@ -752,9 +751,7 @@ label_end:
 ** \param[in]  corr  Correlation matrix (Dimension: nvar*nvar)
 **
 *****************************************************************************/
-double law_df_multigaussian(int     nvar,
-                                        double *vect,
-                                        double *corr)
+double law_df_multigaussian(int nvar, double *vect, double *corr)
 
 {
   double *eigval,*eigvec,*invcor,density;
@@ -854,8 +851,7 @@ int law_poisson(double parameter)
 ** \param[out] path      : Array giving the random path (Dimension: nech)
 **
 *****************************************************************************/
-void law_random_path(int  nech,
-                                 int *path)
+void law_random_path(int nech, int *path)
 {
   double *order;
   int i;
@@ -881,8 +877,7 @@ void law_random_path(int  nech,
 ** \param[in]  p    Event probability
 **
 *****************************************************************************/
-int law_binomial(int n,
-                             double p)
+int law_binomial(int n, double p)
 {
   const double q = 1 - p;
   if (n*p < 30.0) /* Algorithm BINV */
@@ -1039,15 +1034,15 @@ int law_binomial(int n,
 **
 *****************************************************************************/
 double *law_exp_sample(double *tabin,
-                                   int     mode,
-                                   int     nvar,
-                                   int     nechin,
-                                   int     nechout,
-                                   int     niter,
-                                   int     nconst,
-                                   double *consts,
-                                   int     seed,
-                                   double  percent)
+                       int mode,
+                       int nvar,
+                       int nechin,
+                       int nechout,
+                       int niter,
+                       int nconst,
+                       double *consts,
+                       int seed,
+                       double percent)
 {
   double *tabout,*mean,*stdv,*mini,*maxi,*temp,value,rab,total;
   int     error,iechin,selec,nvarin,nvarout,nvar1,flag_cont,flag_ok;
