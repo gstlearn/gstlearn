@@ -67,9 +67,7 @@ Model::Model(const String& neutralFileName, bool verbose)
       _ctxt(),
       generic_cov_function(nullptr)
 {
-  if (deSerialize(neutralFileName, verbose))
-    my_throw("Problem reading the Neutral File");
-;
+  (void) deSerialize(neutralFileName, verbose);
 }
 
 Model::Model(const Model &m)
@@ -275,11 +273,11 @@ int Model::fit(Vario *vario,
 
   // Add the relevant covariances
 
-  CovContext ctxt = CovContext(vario->getVariableNumber());
+  _ctxt = CovContext(vario);
   for (int is = 0; is < (int) types.size(); is++)
   {
     ENUM_COVS covtype = ENUM_COVS(types[is]);
-    CovAniso cov = CovAniso(covtype,ctxt);
+    CovAniso cov = CovAniso(covtype,_ctxt);
     addCova(&cov);
   }
 
@@ -301,10 +299,10 @@ int Model::fit(Vario *vario,
 
   // Add the relevant covariances
 
-  CovContext ctxt = CovContext(vario->getVariableNumber());
+  _ctxt = CovContext(vario);
   for (int is = 0; is < (int) types.size(); is++)
   {
-    CovAniso cov = CovAniso(types[is],ctxt);
+    CovAniso cov = CovAniso(types[is],_ctxt);
     addCova(&cov);
   }
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);

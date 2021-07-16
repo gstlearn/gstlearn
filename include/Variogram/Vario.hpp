@@ -88,7 +88,10 @@ public:
 
   void internalResize(int ndim, int nvar, const String& calculName);
 
-  double getHmax(int ivar=0, int jvar=0) const;
+  double getHmax(int ivar, int jvar=0) const;
+  double getHmax() const;
+  double getGmax(int ivar, int jvar=0, bool flagAbs=false) const;
+  double getGmax(bool flagAbs=false) const;
 
   int compute(Db *db,
               const String& calculName = "vg",

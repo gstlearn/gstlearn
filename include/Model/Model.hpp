@@ -40,7 +40,7 @@ class Model : public AStringable, ASerializable
 public:
   Model(const CovContext& ctxt, bool flagGradient = false, bool flagLinked = false);
   Model(const Db *db, bool flagGradient = false, bool flagLinked = false);
-  Model(const String& neutralFileName, bool verbose);
+  Model(const String& neutralFileName, bool verbose = false);
   Model(const Model &m);
   Model& operator= (const Model &m);
   virtual ~Model();

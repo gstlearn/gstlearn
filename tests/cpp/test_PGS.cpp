@@ -34,13 +34,21 @@ int main(int argc, char *argv[])
   Db db(nech,VectorDouble(2,0.),VectorDouble(2,1.));
   db.display(FLAG_STATS);
 
-  // Creating the Model of the Underlying GRF
-  Model model(ctxt);
-  double range = 0.2;
-  CovAniso cova(COV_BESSEL_K,range,1.,1.,ctxt);
-  model.addCova(&cova);
-  model.display();
-  model.serialize(pygst+ "data/truemodel.ascii");
+  // Creating the Model(s) of the Underlying GRF(s)
+  Model model1(ctxt);
+  double range1 = 0.2;
+  CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
+  model1.addCova(&cova1);
+  model1.display();
+  model1.serialize(pygst+ "data/truemodel1.ascii");
+
+  Model model2(ctxt);
+  double range2 = 0.3;
+  CovAniso cova2(COV_EXPONENTIAL,range2,1.,1.,ctxt);
+  model2.addCova(&cova2);
+  model2.display();
+  model2.serialize(pygst+ "data/truemodel2.ascii");
+
   // Creating the Neighborhood
   Neigh neigh = Neigh(ndim);
   neigh.display();
@@ -57,7 +65,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional simulation on the Db
   VectorDouble props({0.2, 0.5, 0.3});
-  error = simpgs(nullptr,&db,nullptr,&rule,&model,nullptr,&neigh,props);
+  error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props);
   db.setLocator(db.getLastName(),LOC_Z);
 
   // Adding constant proportions as Vectors in the Db
@@ -82,7 +90,7 @@ int main(int argc, char *argv[])
   Option_AutoFit option = Option_AutoFit();
   option.setConstantSillValue(1.);
 
-  std::vector<ENUM_COVS> covs {COV_BESSEL_K};
+  std::vector<ENUM_COVS> covs {COV_BESSEL_K, COV_EXPONENTIAL};
   modelPGS.fit(&vario,covs,true,option);
   modelPGS.display();
 
@@ -96,15 +104,6 @@ int main(int argc, char *argv[])
   vario2.addDirs(dir2);
   error = vario2.computeIndic(&db);
   vario2.serialize(pygst+ "data/varioindic.ascii");
-//
-//
-  VectorDouble hhexp = vario.getHh(0,0,0);
-  double hmax = ut_vector_max(hhexp);
-  int nh = 100;
-  VectorDouble hh = ut_vector_sequence(0., hmax, hmax/nh);
-  VectorDouble codir = vario.getCodir(0);
-  VectorDouble gg = model.sample(hmax, nh, 0, 0, codir);
-
 
   error = model_pgs(&db, &vario2, &rule, &modelPGS, nullptr, props);
   vario2.serialize(pygst+ "data/modelpgs.ascii");

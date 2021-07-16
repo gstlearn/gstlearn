@@ -32,16 +32,14 @@ CovContext::CovContext(int nvar,
     _space = ASpaceObject::getGlobalSpace();
 }
 
-CovContext::CovContext(const Db *db,
-                       int irfMaxDegree,
-                       const ASpace* space)
-: _nVar(0),
-  _irfMaxDegree(irfMaxDegree),
-  _field(0.),
-  _ballRadius(0.),
-  _mean(),
-  _covar0(),
-  _space(space)
+CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
+    : _nVar(0),
+      _irfMaxDegree(irfMaxDegree),
+      _field(0.),
+      _ballRadius(0.),
+      _mean(),
+      _covar0(),
+      _space(space)
 {
   _nVar = db->getVariableNumber();
   // As it does not make sense not to have any variable, this number is set to 1 at least
@@ -52,6 +50,21 @@ CovContext::CovContext(const Db *db,
     _space = ASpaceObject::getGlobalSpace();
 }
 
+CovContext::CovContext(const Vario* vario, int irfMaxDegree, const ASpace* space)
+    : _nVar(0),
+      _irfMaxDegree(irfMaxDegree),
+      _field(0.),
+      _ballRadius(0.),
+      _mean(),
+      _covar0(),
+      _space(space)
+{
+  _nVar = vario->getVariableNumber();
+  _field = vario->getHmax();
+  _update();
+  if (_space == nullptr)
+    _space = ASpaceObject::getGlobalSpace();
+}
 
 CovContext::CovContext(const CovContext &r)
 : _nVar(r._nVar),

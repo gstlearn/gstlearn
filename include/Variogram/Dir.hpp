@@ -129,6 +129,7 @@ public:
   void internalResize(int nvar, int flagAsym);
 
   double getHmax(int ivar=0, int jvar=0) const;
+  double getGmax(int ivar=0, int jvar=0, bool flagAbs = false) const;
 
 private:
   void _completeDefinition();

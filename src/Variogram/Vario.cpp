@@ -254,16 +254,55 @@ IClonable* Vario::clone() const
   return new Vario(*this);
 }
 
-
 double Vario::getHmax(int ivar, int jvar) const
 {
   double hmax = 0.;
-  for (int idir = 0; idir < (int) getDirectionNumber(); idir++)
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
   {
     double hloc = _dirs[idir].getHmax(ivar,jvar);
     if (hloc > hmax) hmax = hloc;
   }
   return hmax;
+}
+
+
+double Vario::getHmax() const
+{
+  double hmax = 0.;
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+      for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+      {
+        double hloc = _dirs[idir].getHmax(ivar,jvar);
+        if (hloc > hmax) hmax = hloc;
+      }
+  return hmax;
+}
+
+double Vario::getGmax(int ivar, int jvar, bool flagAbs) const
+{
+  double gmax = 0.;
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    double gloc = _dirs[idir].getGmax(ivar,jvar);
+    if (flagAbs) gloc = ABS(gloc);
+    if (gloc > gmax) gmax = gloc;
+  }
+  return gmax;
+}
+
+double Vario::getGmax(bool flagAbs) const
+{
+  double gmax = 0.;
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+      for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+      {
+        double gloc = _dirs[idir].getGmax(ivar,jvar);
+        if (flagAbs) gloc = ABS(gloc);
+        if (gloc > gmax) gmax = gloc;
+      }
+  return gmax;
 }
 
 void Vario::addDirs(const Dir& dir)

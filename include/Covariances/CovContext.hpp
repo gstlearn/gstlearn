@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Db/Db.hpp"
+#include "Variogram/Vario.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AStringable.hpp"
@@ -35,7 +36,12 @@ public:
              int irfMaxDegree = 1000,
              double field = 1,
              const ASpace* space = nullptr);
-  CovContext(const Db *db, int irfMaxDegree = 1000, const ASpace* space = nullptr);
+  CovContext(const Db *db,
+             int irfMaxDegree = 1000,
+             const ASpace* space = nullptr);
+  CovContext(const Vario* vario,
+             int irfMaxDegree = 1000,
+             const ASpace* space = nullptr);
   CovContext(const CovContext &r);
   CovContext& operator= (const CovContext &r);
   virtual ~CovContext();

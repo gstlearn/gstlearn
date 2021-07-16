@@ -104,21 +104,27 @@ void ut_ivector_display(const String& title,const VectorInt& vect)
   messageFlush(ut_ivector_string(vect));
 }
 
-double ut_vector_max(const VectorDouble& vec)
+double ut_vector_max(const VectorDouble& vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0.;
   double max = std::numeric_limits<double>::min();
   for (auto v : vec)
+  {
+    if (flagAbs) v = ABS(v);
     if (v > max) max = v;
+  }
   return (max);
 }
 
-double ut_vector_min(const VectorDouble& vec)
+double ut_vector_min(const VectorDouble& vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0.;
   double min = std::numeric_limits<double>::max();
   for (auto v : vec)
+  {
+    if (flagAbs) v = ABS(v);
     if (v < min) min = v;
+  }
   return (min);
 }
 
