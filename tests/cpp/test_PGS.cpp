@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional simulation on the Db
 
-  error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props,1,10,0);
+  error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props);
   db.setLocator(db.getLastName(),LOC_Z);
 
   // Determination of the variogram of the Underlying GRF
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   int nlag = 19;
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
   cov.addDirs(dir);
-  error = variogram_pgs(&db,&cov,&rule,props,0);
+  error = variogram_pgs(&db,&cov,&rule,props);
   Vario vario1(cov,VectorInt(1,0),VectorInt(),true);
   Vario vario2(cov,VectorInt(1,1),VectorInt(),true);
   vario1.display(1);
@@ -115,9 +115,20 @@ int main(int argc, char *argv[])
   error = varioIndic.computeIndic(&db);
   varioIndic.serialize(pygst+ "varioindic.ascii");
 
-  error = model_pgs(&db, &varioIndic, &rule, &modelPGS1, &modelPGS2, props,0);
-  varioIndic.serialize(pygst+ "modelpgs.ascii");
-  varioIndic.display(1);
+  Vario varioParam = Vario();
+  Dir dir3 = Dir(ndim, nlag, 0.5 / nlag);
+  varioParam.addDirs(dir3);
+  varioParam.setCalculName("vg");
+  Vario varioParamIndic = Vario();
+  Dir dir4 = Dir(ndim, nlag, 0.5 / nlag);
+  varioParamIndic.addDirs(dir4);
+
+  Rule* ruleFit = rule_auto(&db,&varioParam,&varioIndic,props);
+  ruleFit->serialize(pygst + "ruleFit.ascii");
+//  error = model_pgs(&db, &varioIndic, &rule, &modelPGS1, &modelPGS2, props);
+//  varioIndic.serialize(pygst+ "modelpgs.ascii");
+//  varioIndic.display(1);
+
 
   return(error);
 }
