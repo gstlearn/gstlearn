@@ -293,6 +293,13 @@ GEOSLIB_API int db_bounds(Db *db,
                           int flag_stat = true,
                           Model *model = nullptr,
                           NamingConvention namconv = NamingConvention("Bounds"));
+GEOSLIB_API int db_threshold(Db *db,
+                             Rule *rule,
+                             const VectorDouble& propcst,
+                             Db *dbprop,
+                             int flag_stat,
+                             Model *model,
+                             NamingConvention namconv = NamingConvention("Thresh"));
 
 /******************************/
 /* Functions for Anamorphosis */

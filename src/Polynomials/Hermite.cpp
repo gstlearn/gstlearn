@@ -11,6 +11,7 @@
 #include "Polynomials/Hermite.hpp"
 #include "MatrixC/MatrixCSGeneral.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 #include "geoslib_f.h"
 #include "math.h"
 

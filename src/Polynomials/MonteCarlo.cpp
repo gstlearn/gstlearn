@@ -9,8 +9,9 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Polynomials/Hermite.hpp"
-#include "geoslib_f.h"
 #include "Polynomials/MonteCarlo.hpp"
+#include "Basic/Law.hpp"
+#include "geoslib_f.h"
 
 /**
  * Calculate: int phi(r*y + u * sqrt(1-r^2)) g(u) du

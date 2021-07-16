@@ -13,6 +13,7 @@
 #include "geoslib_e.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 #include <iomanip>
 
 AMatrixC::AMatrixC(int nrow, int ncol, bool sparse)

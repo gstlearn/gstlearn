@@ -12,6 +12,7 @@
 #include "geoslib_e.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 #include <iomanip>
 
 String ut_vector_string(const VectorDouble& vec)

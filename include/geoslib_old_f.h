@@ -33,7 +33,6 @@
 #include "Stats/PCA.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Polygon/Polygons.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "LithoRule/Rule.hpp"
@@ -144,50 +143,6 @@
   /* Prototyping the functions in law.c */
   /**************************************/
 
-  GEOSLIB_API int law_get_random_seed(void);
-  GEOSLIB_API void law_set_random_seed(int seed);
-  GEOSLIB_API double law_uniform(double mini, double maxi);
-  GEOSLIB_API int law_int_uniform(int mini, int maxi);
-  GEOSLIB_API double law_gaussian(void);
-  GEOSLIB_API double law_exponential(void);
-  GEOSLIB_API double law_gamma(double parameter);
-  GEOSLIB_API int law_poisson(double parameter);
-  GEOSLIB_API double law_stable_standard_agd(double alpha, double beta);
-  GEOSLIB_API double law_stable_standard_a1gd(double beta);
-  GEOSLIB_API double law_stable_standard_abgd(double alpha);
-  GEOSLIB_API double law_stable_a(double alpha,
-                                  double beta,
-                                  double gamma,
-                                  double delta);
-  GEOSLIB_API double law_stable_a1(double beta, double gamma, double delta);
-  GEOSLIB_API double law_stable(double alpha,
-                                double beta,
-                                double gamma,
-                                double delta);
-  GEOSLIB_API int law_binomial(int n, double p);
-  GEOSLIB_API double law_beta1(double parameter1, double parameter2);
-  GEOSLIB_API double law_beta2(double parameter1, double parameter2);
-  GEOSLIB_API double law_df_gaussian(double value);
-  GEOSLIB_API double law_dnorm(double value, double mean, double std);
-  GEOSLIB_API double law_cdf_gaussian(double value);
-  GEOSLIB_API double law_invcdf_gaussian(double value);
-  GEOSLIB_API double law_gaussian_between_bounds(double binf, double bsup);
-  GEOSLIB_API double law_df_bigaussian(double *vect,
-                                       double *mean,
-                                       double *corr);
-  GEOSLIB_API double law_df_quadgaussian(double *vect, double *corr);
-  GEOSLIB_API double law_df_multigaussian(int nvar, double *vect, double *corr);
-  GEOSLIB_API void law_random_path(int nech, int *path);
-  GEOSLIB_API double *law_exp_sample(double *tabin,
-                                     int mode,
-                                     int nvar,
-                                     int nechin,
-                                     int nechout,
-                                     int niter,
-                                     int nconst,
-                                     double *consts,
-                                     int seed,
-                                     double percent);
 
   /***************************************/
   /* Prototyping the functions in util.c */
@@ -1919,12 +1874,6 @@
   GEOSLIB_API int db_prop_read(Db *db, int ix, int iy, double *props);
   GEOSLIB_API int db_prop_write(Db *db, int ix, int iy, double *props);
   GEOSLIB_API int db_resind(Db *db, int ivar, int ncut, double *zcut);
-  GEOSLIB_API int db_prop_thresh(Db *db,
-                                 Db *dbprop,
-                                 Rule *rule,
-                                 Model *model,
-                                 const VectorDouble& propcst,
-                                 int flag_stat);
   GEOSLIB_API int db_gradient_modang_to_component(Db *db,
                                                   int ang_conv,
                                                   int iad_mod,

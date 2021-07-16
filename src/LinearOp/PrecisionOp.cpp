@@ -15,11 +15,11 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "Basic/Vector.hpp"
-#include "geoslib_e.h"
-
 #include "Basic/AException.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
+#include "Basic/Law.hpp"
+#include "geoslib_e.h"
 
 PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
                          const Model* model,

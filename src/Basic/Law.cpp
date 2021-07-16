@@ -8,7 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "math.h"
 #include "geoslib_e.h"
+#include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 
 static int Random_factor    = 105;
@@ -27,10 +29,10 @@ static int Random_value     = 43241421;
 /*!
 **  read the seed for the random number generator
 **
-** \return  The current value of the seed (integer) 
+** \return  The current value of the seed (integer)
 **
 *****************************************************************************/
-GEOSLIB_API int law_get_random_seed(void)
+int law_get_random_seed(void)
 
 {
   return(Random_value);
@@ -38,12 +40,12 @@ GEOSLIB_API int law_get_random_seed(void)
 
 /*****************************************************************************/
 /*!
-**  Sets the seed for the random number generator 
+**  Sets the seed for the random number generator
 **
-** \param[in]  seed the new value given to the seed 
+** \param[in]  seed the new value given to the seed
 **
 *****************************************************************************/
-GEOSLIB_API void law_set_random_seed(int seed)
+void law_set_random_seed(int seed)
 
 {
   if (seed > 0) Random_value = seed;
@@ -53,7 +55,7 @@ GEOSLIB_API void law_set_random_seed(int seed)
 
 /*****************************************************************************/
 /*!
-**  Draw a random number according to a uniform distribution 
+**  Draw a random number according to a uniform distribution
 **
 ** \return  Uniform random value within an interval
 **
@@ -61,7 +63,7 @@ GEOSLIB_API void law_set_random_seed(int seed)
 ** \param[in]  maxi  maximum value
 **
 *****************************************************************************/
-GEOSLIB_API double law_uniform(double mini,
+double law_uniform(double mini,
                                double maxi)
 
 {
@@ -79,7 +81,7 @@ GEOSLIB_API double law_uniform(double mini,
 
 /*****************************************************************************/
 /*!
-**  Draw an integer random number according to a uniform distribution 
+**  Draw an integer random number according to a uniform distribution
 **
 ** \return  Integer Uniform random value within an interval
 **
@@ -87,7 +89,7 @@ GEOSLIB_API double law_uniform(double mini,
 ** \param[in]  maxi  maximum value
 **
 *****************************************************************************/
-GEOSLIB_API int law_int_uniform(int mini,
+int law_int_uniform(int mini,
                                 int maxi)
 {
   double rndval;
@@ -101,16 +103,16 @@ GEOSLIB_API int law_int_uniform(int mini,
 
 /*****************************************************************************/
 /*!
-**  Generate random numbers according to a gaussian distribution 
+**  Generate random numbers according to a gaussian distribution
 **
-** \return  Gaussian random value 
+** \return  Gaussian random value
 **
 *****************************************************************************/
-GEOSLIB_API double law_gaussian(void)
+double law_gaussian(void)
 
 {
   double random1,random2,val;
-  
+
   random1 = law_uniform(0.,1.);
   random2 = law_uniform(0.,2. * GV_PI);
   val = sqrt( -2. * log(random1)) * cos(random2);
@@ -120,12 +122,12 @@ GEOSLIB_API double law_gaussian(void)
 
 /*****************************************************************************/
 /*!
-**  Generate random numbers according to exponential distribution 
+**  Generate random numbers according to exponential distribution
 **
-** \return  Exponential random value 
+** \return  Exponential random value
 **
 *****************************************************************************/
-GEOSLIB_API double law_exponential(void)
+double law_exponential(void)
 
 {
   double result;
@@ -138,14 +140,14 @@ GEOSLIB_API double law_exponential(void)
 
 /*****************************************************************************/
 /*!
-**  Generate random numbers according to a gamma distribution 
+**  Generate random numbers according to a gamma distribution
 **
-** \return  Gamma random value 
+** \return  Gamma random value
 **
-** \param[in]  parameter parameter of the gamma distribution 
+** \param[in]  parameter parameter of the gamma distribution
 **
 *****************************************************************************/
-GEOSLIB_API double law_gamma(double parameter)
+double law_gamma(double parameter)
 
 {
   double c1,c2,c3,t,v,res;
@@ -203,10 +205,10 @@ GEOSLIB_API double law_gamma(double parameter)
 **
 ** \param[in]  alpha  value of the alpha parameter
 *****************************************************************************/
-GEOSLIB_API double law_stable_standard_abgd(double alpha)
+double law_stable_standard_abgd(double alpha)
 {
   double unif,expo,temp,ialpha,b,res;
- 
+
   b         = GV_PI/2;
   unif      = law_uniform(-b,b);
   expo      = law_exponential();
@@ -228,13 +230,13 @@ GEOSLIB_API double law_stable_standard_abgd(double alpha)
 ** \param[in]  alpha  value of the alpha parameter
 ** \param[in]  beta   value of the beta parameter
 *****************************************************************************/
-GEOSLIB_API double law_stable_standard_agd(double alpha,
+double law_stable_standard_agd(double alpha,
                                            double beta)
 {
   double unif,expo,unif_norm,ialpha,temp,temp1,b,temp2,temp3,res;
- 
+
   temp      = alpha * GV_PI/2;
-  ialpha    = 1. / alpha; 
+  ialpha    = 1. / alpha;
   unif      = law_uniform(-temp,temp);
   expo      = law_exponential();
   unif_norm = unif * ialpha;
@@ -256,7 +258,7 @@ GEOSLIB_API double law_stable_standard_agd(double alpha,
 **
 ** \param[in]  beta   value of the beta parameter
 *****************************************************************************/
-GEOSLIB_API double law_stable_standard_a1gd(double beta)
+double law_stable_standard_a1gd(double beta)
 {
   double unif,expo,temp,temp2,res;
 
@@ -275,16 +277,16 @@ GEOSLIB_API double law_stable_standard_a1gd(double beta)
 /*!
 **  Generate random numbers according to a stable distribution (alpha != 1)
 **
-** \return  Stable value with unit parameters 
+** \return  Stable value with unit parameters
 
 ** \param[in]  alpha  value of the alpha parameter
 ** \param[in]  beta   value of the beta  parameter
 ** \param[in]  gamma  value of the gamma parameter
 ** \param[in]  delta  value of the delta parameter
 *****************************************************************************/
-GEOSLIB_API double law_stable_a(double alpha, 
+double law_stable_a(double alpha,
                                 double beta,
-                                double gamma, 
+                                double gamma,
                                 double delta)
 {
   double stable,res;
@@ -298,14 +300,14 @@ GEOSLIB_API double law_stable_a(double alpha,
 /*!
 **  Generate random numbers according to a stable distribution (alpha=1)
 **
-** \return  Stable value with unit parameters 
+** \return  Stable value with unit parameters
 
 ** \param[in]  beta   value of the beta parameter
 ** \param[in]  gamma  value of the gamma parameter
 ** \param[in]  delta  value of the delta parameter
 *****************************************************************************/
-GEOSLIB_API double law_stable_a1(double beta,
-                                 double gamma, 
+double law_stable_a1(double beta,
+                                 double gamma,
                                  double delta)
 {
   double stable,res;
@@ -319,7 +321,7 @@ GEOSLIB_API double law_stable_a1(double beta,
 /*!
 **  Generate random numbers according to a stable distribution
 **
-** \return  Stable value with unit parameters 
+** \return  Stable value with unit parameters
 **
 ** \param[in]  alpha  value of the alpha parameter
 ** \param[in]  beta   value of the beta parameter
@@ -327,15 +329,15 @@ GEOSLIB_API double law_stable_a1(double beta,
 ** \param[in]  delta  value of the delta parameter
 **
 *****************************************************************************/
-GEOSLIB_API double law_stable(double alpha, 
+double law_stable(double alpha,
                               double beta,
-                              double gamma, 
+                              double gamma,
                               double delta)
 {
   double res;
-  if (alpha==1) 
+  if (alpha==1)
     res = law_stable_a1(beta,gamma,delta);
-  else  
+  else
     res = law_stable_a(alpha,beta,gamma,delta);
   return(res);
 }
@@ -346,11 +348,11 @@ GEOSLIB_API double law_stable(double alpha,
 **
 ** \return  Beta random value (first kind)
 **
-** \param[in]  parameter1 first parameter of the beta distribution 
-** \param[in]  parameter2 first parameter of the beta distribution 
+** \param[in]  parameter1 first parameter of the beta distribution
+** \param[in]  parameter2 first parameter of the beta distribution
 **
 *****************************************************************************/
-GEOSLIB_API double law_beta1(double parameter1,
+double law_beta1(double parameter1,
                              double parameter2)
 {
   double a,b,res;
@@ -368,11 +370,11 @@ GEOSLIB_API double law_beta1(double parameter1,
 **
 ** \return  Beta random value (second kind)
 **
-** \param[in]  parameter1 first parameter of the beta distribution 
-** \param[in]  parameter2 first parameter of the beta distribution 
+** \param[in]  parameter1 first parameter of the beta distribution
+** \param[in]  parameter2 first parameter of the beta distribution
 **
 *****************************************************************************/
-GEOSLIB_API double law_beta2(double parameter1,
+double law_beta2(double parameter1,
                              double parameter2)
 {
   double a,b,res;
@@ -386,14 +388,14 @@ GEOSLIB_API double law_beta2(double parameter1,
 
 /*****************************************************************************/
 /*!
-**  Density function of a gaussian distribution 
+**  Density function of a gaussian distribution
 **
-** \return  Gaussian density function 
+** \return  Gaussian density function
 **
-** \param[in]  value raw value 
+** \param[in]  value raw value
 **
 *****************************************************************************/
-GEOSLIB_API double law_df_gaussian(double value)
+double law_df_gaussian(double value)
 
 {
   double val;
@@ -404,23 +406,23 @@ GEOSLIB_API double law_df_gaussian(double value)
 
 /*****************************************************************************/
 /*!
-**  Density function of a (non-normalized) gaussian distribution 
+**  Density function of a (non-normalized) gaussian distribution
 **
-** \return  Gaussian density function 
+** \return  Gaussian density function
 **
-** \param[in]  value Raw value 
+** \param[in]  value Raw value
 ** \param[in]  mean  Mean value
 ** \param[in]  std   Standard deviation
 **
 *****************************************************************************/
-GEOSLIB_API double law_dnorm(double value,
+double law_dnorm(double value,
                              double mean,
                              double std)
 {
   double val,center;
 
   center = (value - mean) / std;
-  
+
   if (ABS(center) > 10)
     val = 0.;
   else
@@ -431,16 +433,16 @@ GEOSLIB_API double law_dnorm(double value,
 
 /*****************************************************************************/
 /*!
-**  Cumulated density function of a gaussian distribution 
+**  Cumulated density function of a gaussian distribution
 **
-** \return  Gaussian cumulated density function 
+** \return  Gaussian cumulated density function
 **
-** \param[in]  value raw value 
+** \param[in]  value raw value
 **
-** \remark  Handbook P932 (26.2.17)  precision <7.5 E-08 
+** \remark  Handbook P932 (26.2.17)  precision <7.5 E-08
 **
 *****************************************************************************/
-GEOSLIB_API double law_cdf_gaussian(double value)
+double law_cdf_gaussian(double value)
 
 {
   static double b[] = {
@@ -470,14 +472,14 @@ GEOSLIB_API double law_cdf_gaussian(double value)
 
 /*****************************************************************************/
 /*!
-**  Inverse cumulated density function of a gaussian distribution 
+**  Inverse cumulated density function of a gaussian distribution
 **
-** \return  Inverse of gaussian cumulated density function 
+** \return  Inverse of gaussian cumulated density function
 **
 ** \param[in]  value cumulative density
 **
 *****************************************************************************/
-GEOSLIB_API double law_invcdf_gaussian(double value)
+double law_invcdf_gaussian(double value)
 
 {
   static double b[] = {
@@ -516,13 +518,13 @@ GEOSLIB_API double law_invcdf_gaussian(double value)
 /*!
 **  Generates a gaussian value which lies in an interval
 **
-** \return  The gaussian value 
+** \return  The gaussian value
 **
 ** \param[in]  binf lower bound of the interval
 ** \param[in]  bsup upper bound of the interval
 **
 *****************************************************************************/
-GEOSLIB_API double law_gaussian_between_bounds(double binf,
+double law_gaussian_between_bounds(double binf,
                                                double bsup)
 {
   double atab[4],btab[4],ptab[4];
@@ -597,35 +599,35 @@ label_norme:
     total  += wgt;
     ptab[k] = total;
   }
-  
+
   /* Normalization */
-  
+
   if (total <= 0.)
   {
     rank = (int)((double)n * law_uniform(0.,1.));
     x = atab[rank];
     return(x);
   }
-  
+
   for (k=0; k<n; k++) ptab[k] /= total;
-  
+
   /* Simulation by acceptance and reject method */
-  
+
   ok = 1;
   while (ok)
   {
     isim = 0;
     u = law_uniform(0.,1.);
     while (ptab[isim] < u) isim++;
-    
+
     /* Simulate a value in the interval */
-    
+
     type = itab[isim];
     aa   = atab[isim];
     bb   = btab[isim];
     a2   = aa * aa;
     b2   = bb * bb;
-    
+
     u    = law_uniform(0.,1.);
     switch (type)
     {
@@ -633,39 +635,39 @@ label_norme:
         c2 = 1. -  exp((b2 - a2) / 2.);
         x  = -sqrt(b2 - 2. * log(1. - u * c2));
         break;
-        
+
       case 2:
         wgt =  exp( aa) * (1. - u) + exp( bb) * u;
         x =  log(exp( aa) * (1. - u) + exp( bb) * u);
         break;
-        
+
       case 3:
         x = -log(exp(-aa) * (1. - u) + exp(-bb) * u);
         break;
-        
+
       case 4:
         c2 = 1. - exp((a2 - b2) / 2.);
         x  =   sqrt(a2 - 2. * log(1. - u * c2));
         break;
     }
-    
+
     /* Accept or reject the value */
-    
+
     u = law_uniform(0.,1.);
     switch(type)
     {
       case 1:
         if (x * u >= bb) ok = 0;
         break;
-        
+
       case 2:
         if (log(u) <= -(x+1.)*(x+1.)/2.) ok = 0;
         break;
-        
+
       case 3:
         if (log(u) <= -(x-1.)*(x-1.)/2.) ok = 0;
         break;
-        
+
       case 4:
         if (x * u <= aa) ok = 0;
         break;
@@ -676,22 +678,22 @@ label_norme:
 
 /*****************************************************************************/
 /*!
-**  Density function of a bigaussian distribution 
+**  Density function of a bigaussian distribution
 **
-** \return  Gaussian density function 
+** \return  Gaussian density function
 **
 ** \param[in]  vect  Array of values (Dimension = 2)
 ** \param[in]  mean  Array of means (Dimension = 2)
 ** \param[in]  corr  Correlation matrix (Dimension: 2*2)
 **
 *****************************************************************************/
-GEOSLIB_API double law_df_bigaussian(double *vect,
+double law_df_bigaussian(double *vect,
                                      double *mean,
                                      double *corr)
 
 {
   double xc[2],detv,det2,logres,density;
-  
+
   xc[0] = vect[0] - mean[0];
   xc[1] = vect[1] - mean[1];
   detv  = corr[0] * corr[3] - corr[1] * corr[2];
@@ -705,15 +707,15 @@ GEOSLIB_API double law_df_bigaussian(double *vect,
 
 /*****************************************************************************/
 /*!
-**  Density function of a quadrigaussian distribution 
+**  Density function of a quadrigaussian distribution
 **
-** \return  Gaussian density function 
+** \return  Gaussian density function
 **
 ** \param[in]  vect  Array of values (Dimension = nvar)
 ** \param[in]  corr  Correlation matrix (Dimension: nvar*nvar)
 **
 *****************************************************************************/
-GEOSLIB_API double law_df_quadgaussian(double *vect,
+double law_df_quadgaussian(double *vect,
                                        double *corr)
 {
   double eigval[4],eigvec[16],invcor[16],density;
@@ -741,16 +743,16 @@ label_end:
 
 /*****************************************************************************/
 /*!
-**  Density function of a multigaussian distribution 
+**  Density function of a multigaussian distribution
 **
-** \return  Gaussian density function 
+** \return  Gaussian density function
 **
 ** \param[in]  nvar  Number of variables
 ** \param[in]  vect  Array of values (Dimension = nvar)
 ** \param[in]  corr  Correlation matrix (Dimension: nvar*nvar)
 **
 *****************************************************************************/
-GEOSLIB_API double law_df_multigaussian(int     nvar,
+double law_df_multigaussian(int     nvar,
                                         double *vect,
                                         double *corr)
 
@@ -789,16 +791,16 @@ label_end:
 
 /****************************************************************************/
 /*!
-** Generate random number according to a poisson distribution 
+** Generate random number according to a poisson distribution
 **
-** \return Poisson random value 
+** \return Poisson random value
 **
-** \param[in] parameter parameter of the Poisson distribution 
+** \param[in] parameter parameter of the Poisson distribution
 **
-** \remarks  Method Ahrens-Dieter (1973) 
+** \remarks  Method Ahrens-Dieter (1973)
 **
 *****************************************************************************/
-GEOSLIB_API int law_poisson(double parameter)
+int law_poisson(double parameter)
 {
   double x,t,p,q;
   int    k,n,ok;
@@ -852,7 +854,7 @@ GEOSLIB_API int law_poisson(double parameter)
 ** \param[out] path      : Array giving the random path (Dimension: nech)
 **
 *****************************************************************************/
-GEOSLIB_API void law_random_path(int  nech,
+void law_random_path(int  nech,
                                  int *path)
 {
   double *order;
@@ -871,15 +873,15 @@ GEOSLIB_API void law_random_path(int  nech,
 
 /*****************************************************************************/
 /*!
-**  Generates a binomial value 
+**  Generates a binomial value
 **
-** \return  The binomial value 
+** \return  The binomial value
 **
 ** \param[in]  n    Number of trials
 ** \param[in]  p    Event probability
 **
 *****************************************************************************/
-GEOSLIB_API int law_binomial(int n,
+int law_binomial(int n,
                              double p)
 {
   const double q = 1 - p;
@@ -1028,7 +1030,7 @@ GEOSLIB_API int law_binomial(int n,
 ** \remarks The input array must be isotopic (otherwise, an error is issued)
 **
 ** \remarks The resulting array if dimensionned to nvar * nechout
-** \remarks The created (and returned) array must be freed by the calling 
+** \remarks The created (and returned) array must be freed by the calling
 ** \remarks function
 **
 ** \remarks Consider nvar1 = nvar + 1
@@ -1036,7 +1038,7 @@ GEOSLIB_API int law_binomial(int n,
 ** \remarks  Sum_ivar1^{1:nvar1) consts[iconst,ivar1) * temp[ivar1] > 0
 **
 *****************************************************************************/
-GEOSLIB_API double *law_exp_sample(double *tabin,
+double *law_exp_sample(double *tabin,
                                    int     mode,
                                    int     nvar,
                                    int     nechin,
@@ -1065,7 +1067,7 @@ GEOSLIB_API double *law_exp_sample(double *tabin,
   stdv = (double *) mem_alloc(sizeof(double) * nvarin,1);
   mini = (double *) mem_alloc(sizeof(double) * nvarin,1);
   maxi = (double *) mem_alloc(sizeof(double) * nvarin,1);
-  for (int ivar=0; ivar<nvarin; ivar++) 
+  for (int ivar=0; ivar<nvarin; ivar++)
   {
     mean[ivar] = stdv[ivar] = 0.;
     mini[ivar] = +1.e30;
@@ -1078,9 +1080,9 @@ GEOSLIB_API double *law_exp_sample(double *tabin,
   {
     for (int ivar=0; ivar<nvarin; ivar++)
     {
-      value = (mode == 1) ? 
+      value = (mode == 1) ?
         TABIN_BY_COL(iechin,ivar) : TABIN_BY_LINE(iechin,ivar);
-      if (FFFF(value)) 
+      if (FFFF(value))
       {
         messerr("The sample %d of the Training Data Base",iechin+1);
         messerr("is not isotopic. This is an error");
@@ -1125,9 +1127,9 @@ GEOSLIB_API double *law_exp_sample(double *tabin,
       iechin  = (int) (selec + 0.5);
       if (iechin < 0)       iechin = 0;
       if (iechin >= nechin) iechin = nechin - 1;
-      
+
       /* Generate values around the reference */
-      
+
       for (int ivar=0; ivar<nvarout; ivar++)
       {
         rab = stdv[ivar] * law_gaussian();
@@ -1137,9 +1139,9 @@ GEOSLIB_API double *law_exp_sample(double *tabin,
           temp[ivar] = TABIN_BY_LINE(iechin,ivar) + rab;
       }
       temp[nvar] = 1;
-      
+
       /* Check if the generated vector is authorized or not */
-      
+
       flag_ok = 1;
       if (nconst > 0 && consts != (double *) NULL)
       {

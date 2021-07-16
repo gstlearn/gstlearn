@@ -16,6 +16,7 @@
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 
 /*! \cond */
 #define EPS_TON    0.001

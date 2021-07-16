@@ -16,6 +16,7 @@
 /* 4-6-1 Shirokanedai, Minato-ku, Tokyo 108-8639, Japan.                      */
 /******************************************************************************/
 #include "geoslib_e.h"
+#include "Basic/Law.hpp"
 
 #define DBL_MAXIMUM 1.e30
 #define DATA(iech,ivar)         (data[(iech)    * nvar + (ivar)])
