@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   //db.display(1);
 
   // Creating the Rule
-  Rule rule({"S","S","F1","F2","F3"});
+  Rule rule({"S","T","F1","F2","F3"});
   rule.display();
 
   // Perform a non-conditional simulation on the Db
