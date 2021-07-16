@@ -5360,12 +5360,12 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 ** \return  The newly created Rule structure
 **
 ** \param[in]  db           Db structure
-** \param[in]  dbprop       Db Grid used for proportions (non-stationary)
 ** \param[in]  vario        Vario structure for the GRFs to be filled
 ** \param[in]  varioind     Indicator Vario structure 
 ** \param[in]  propcst      Array of proportions for the facies
-** \param[in]  ngrf         Number of underlying GRFs (1 or 2)
+** \param[in]  dbprop       Db Grid used for proportions (non-stationary)
 ** \param[in]  flag_stat    1 for stationary and 0 otherwise
+** \param[in]  ngrf         Number of underlying GRFs (1 or 2)
 ** \param[in]  verbose      Verbosity flag
 **
 *****************************************************************************/

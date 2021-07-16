@@ -115,5 +115,19 @@ int main(int argc, char *argv[])
   varioIndic.serialize(pygst+ "modelpgs.ascii");
   varioIndic.display(1);
 
+  Vario varioParam = Vario();
+  Dir dir3 = Dir(ndim, nlag, 0.5 / nlag);
+  varioParam.addDirs(dir3);
+  varioParam.setCalculName("vg");
+  Vario varioParamIndic = Vario();
+  Dir dir4 = Dir(ndim, nlag, 0.5 / nlag);
+  varioParamIndic.addDirs(dir4);
+
+  Rule* ruleFit = rule_auto(&db,&varioParam,&varioIndic,props);
+  ruleFit->serialize(pygst + "ruleFit.ascii");
+//  error = model_pgs(&db, &varioIndic, &rule, &modelPGS1, &modelPGS2, props);
+//  varioIndic.serialize(pygst+ "modelpgs.ascii");
+//  varioIndic.display(1);
+
   return(error);
 }
