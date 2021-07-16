@@ -9,7 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_e.h"
-
+#include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 

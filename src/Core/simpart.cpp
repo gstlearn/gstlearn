@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 
 /*! \cond */
 

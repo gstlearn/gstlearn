@@ -15,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_f_private.h"

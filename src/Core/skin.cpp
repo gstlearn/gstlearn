@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_e.h"
+#include "Basic/Law.hpp"
 
 /*! \cond */
 #define SKIN_QUANT  1000

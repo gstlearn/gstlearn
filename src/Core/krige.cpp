@@ -12,6 +12,7 @@
 #include "Polynomials/Hermite.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 
 /*! \cond */
 #define NBYPAS 5

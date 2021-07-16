@@ -1311,7 +1311,9 @@ GEOSLIB_API int db_bounds(Db     *db,
 
   // Naming convention
 
+  namconv.setLocatorOutType(LOC_L);
   namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
+  namconv.setLocatorOutType(LOC_U);
   namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
   error = 0;
 
@@ -1466,29 +1468,29 @@ label_end:
 ** \return  Error return code
 **
 ** \param[in]  db        Db structure
-** \param[in]  dbprop    Db structure used for proportions (non-stationary case)
 ** \param[in]  rule      Lithotype Rule definition
-** \param[in]  model     First Model structure (only for SHIFT)
 ** \param[in]  propcst   Array of proportions for the facies
+** \param[in]  dbprop    Db structure used for proportions (non-stationary case)
 ** \param[in]  flag_stat 1 for stationary; 0 otherwise
+** \param[in]  model     First Model structure (only for SHIFT)
+** \param[in]  namconv   Naming Convention
 **
 *****************************************************************************/
-GEOSLIB_API int db_prop_thresh(Db     *db,
-                               Db     *dbprop,
-                               Rule   *rule,
-                               Model  *model,
-                               const   VectorDouble& propcst,
-                               int     flag_stat)
+GEOSLIB_API int db_threshold(Db *db,
+                             Rule *rule,
+                             const VectorDouble& propcst,
+                             Db *dbprop,
+                             int flag_stat,
+                             Model *model,
+                             NamingConvention namconv)
 {
-  int    ngrf,error,iptr,iech,ivar,ifac,nfacies;
+  int    rank, nfacies, iptr, ngrf;
   double t1min,t1max,t2min,t2max;
-  Props *propdef;
 
   /* Initializations */
 
-  error   = 1;
-  ngrf    = nfacies = 0;
-  propdef = (Props *) NULL;
+  int error   = 1;
+  Props* propdef = (Props *) NULL;
 
   /**********************/
   /* Preliminary checks */
@@ -1548,27 +1550,45 @@ GEOSLIB_API int db_prop_thresh(Db     *db,
 
   /* Calculate the thresholds and store them in the Db file */
 
-  for (iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<get_NECH(db); iech++)
   {
     if (! db->isActive(iech)) continue;
-    for (ifac=ivar=0; ifac<nfacies; ifac++)
+    rank = 0;
+    for (int ifac=0; ifac<nfacies; ifac++)
     {
       if (rule_thresh_define(propdef,db,rule,ifac+1,iech,0,0,0,
                              &t1min,&t1max,&t2min,&t2max)) goto label_end;
-      db->setArray(iech,iptr+ivar,t1min);
-      ivar++;
-      db->setArray(iech,iptr+ivar,t1max);
-      ivar++;
+      db->setArray(iech,iptr+rank,t1min);
+      rank++;
+      db->setArray(iech,iptr+rank,t1max);
+      rank++;
       if (ngrf == 1) continue;
-      db->setArray(iech,iptr+ivar,t2min);
-      ivar++;
-      db->setArray(iech,iptr+ivar,t2max);
-      ivar++;
+      db->setArray(iech,iptr+rank,t2min);
+      rank++;
+      db->setArray(iech,iptr+rank,t2max);
+      rank++;
     }
   }
 
-  /* Set the error return flag */
+  // Naming convention
 
+  rank = 0;
+  for (int ifac = 0; ifac < nfacies; ifac++)
+  {
+    namconv.setNamesAndLocators(db, iptr + rank,
+        concatenateStrings("Thresh-F", intToString(ifac + 1), "-Y1-Low"));
+    rank++;
+    namconv.setNamesAndLocators(db, iptr + rank,
+        concatenateStrings("Thresh-F", intToString(ifac + 1), "-Y1-Up"));
+    rank++;
+    if (ngrf == 1) continue;
+    namconv.setNamesAndLocators(db, iptr + rank,
+        concatenateStrings("Thresh-F", intToString(ifac + 1), "-Y2-Low"));
+    rank++;
+    namconv.setNamesAndLocators(db, iptr + rank,
+        concatenateStrings("Thresh-F", intToString(ifac + 1), "-Y2-Up"));
+    rank++;
+  }
   error = 0;
 
 label_end:

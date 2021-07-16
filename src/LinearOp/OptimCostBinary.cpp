@@ -11,14 +11,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <LinearOp/OptimCostBinary.hpp>
-#include <LinearOp/HessianOp.hpp>
-#include <LinearOp/IOptimCost.hpp>
-#include <LinearOp/PrecisionOp.hpp>
-#include "../../include/LinearOp/ProjMatrix.hpp"
-#include "geoslib_e.h"
+
+#include "LinearOp/OptimCostBinary.hpp"
+#include "LinearOp/HessianOp.hpp"
+#include "LinearOp/IOptimCost.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ProjMatrix.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "geoslib_e.h"
 
 OptimCostBinary::OptimCostBinary() 
   : IOptimCost()

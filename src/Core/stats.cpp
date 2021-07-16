@@ -12,6 +12,7 @@
 #include "Morpho/Morpho.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 
 /*! \cond */
 #define G_ADDRESS(ix,iy,iz,nxyz)    ((ix) + nxyz[0] * ((iy) + nxyz[1] * (iz)))

@@ -13,6 +13,7 @@
 #include "Morpho/Morpho.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 
 /*! \cond */

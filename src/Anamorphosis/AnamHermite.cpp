@@ -12,6 +12,7 @@
 #include "Polynomials/Hermite.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 #include "geoslib_f.h"
 
 #define ANAM_YMIN -10.

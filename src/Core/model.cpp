@@ -18,6 +18,7 @@
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Basic/Law.hpp"
 
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)

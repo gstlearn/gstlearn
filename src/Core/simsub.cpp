@@ -9,6 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_e.h"
+#include "Basic/Law.hpp"
+
 /*! \cond */
 
 #define TRANS(i,j)     (trans[(j) + nfacies * (i)])

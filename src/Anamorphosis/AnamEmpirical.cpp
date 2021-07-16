@@ -9,11 +9,11 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Anamorphosis/AnamEmpirical.hpp"
-
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "geoslib_f.h"
+#include "Basic/Law.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "geoslib_f.h"
 
 #define ANAM_YMIN -10.
 #define ANAM_YMAX  10.

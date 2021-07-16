@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 
 static Bool_Object *Start_object_init,*Start_object;
 static Token_Def   *Def;

@@ -14,6 +14,7 @@
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Law.hpp"
 
 HessianOp::HessianOp() 
   : ALinearOp()

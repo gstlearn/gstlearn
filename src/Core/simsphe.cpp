@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovAniso.hpp"
+#include "Basic/Law.hpp"
 #include "geoslib_e.h"
 
 /*! \cond */
