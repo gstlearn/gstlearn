@@ -69,6 +69,7 @@ public:
   void setCalculName(std::string calcul_name) { _calculName = calcul_name; }
   void setScale(double scale) { _scale = scale; }
   void setFlagSample(int flag_sample) { _flagSample = flag_sample; }
+  void setDimensionNumber(int ndim) { _nDim = ndim; }
   void setMeans(const VectorDouble& means);
   void setMeans(int ivar, double mean);
   void setVars(const VectorDouble& vars);
