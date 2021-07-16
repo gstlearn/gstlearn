@@ -53,15 +53,10 @@ int main(int argc, char *argv[])
   Neigh neigh = Neigh(ndim);
   neigh.display();
 
-  // Pour voir
-  //error = simtub(nullptr,&db,&model,&neigh,4);
-  //db.display(1);
-  //db.setLocator("Simu*",LOC_F);
-  //db.display(1);
-
   // Creating the Rule
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
+  int flag_stat = 0;
 
   // Prepare proportions
   VectorDouble props({0.2, 0.5, 0.3});
@@ -74,7 +69,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional simulation on the Db
 
-  error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props,1,10,0);
+  error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props);
   db.setLocator(db.getLastName(),LOC_Z);
 
   // Determination of the variogram of the Underlying GRF
@@ -82,7 +77,7 @@ int main(int argc, char *argv[])
   int nlag = 19;
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
   cov.addDirs(dir);
-  error = variogram_pgs(&db,&cov,&rule,props,0);
+  error = variogram_pgs(&db,&cov,&rule,props,nullptr,flag_stat);
   Vario vario1(cov,VectorInt(1,0),VectorInt(),true);
   Vario vario2(cov,VectorInt(1,1),VectorInt(),true);
   vario1.display(1);
@@ -115,7 +110,8 @@ int main(int argc, char *argv[])
   error = varioIndic.computeIndic(&db);
   varioIndic.serialize(pygst+ "varioindic.ascii");
 
-  error = model_pgs(&db, &varioIndic, &rule, &modelPGS1, &modelPGS2, props,0);
+  error = model_pgs(&db, &varioIndic, &rule, &modelPGS1, &modelPGS2, props,
+                    nullptr, flag_stat);
   varioIndic.serialize(pygst+ "modelpgs.ascii");
   varioIndic.display(1);
 

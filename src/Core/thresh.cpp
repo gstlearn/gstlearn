@@ -1396,7 +1396,33 @@ GEOSLIB_API Props *proportion_manage(int     mode,
       
       // Case of facies: Use of the proportions
       
-      if (flag_stat)
+      if (!flag_stat)
+      {
+        // Non-stationary case
+
+        db_loc = (propdef->case_prop_interp) ? dbprop : db;
+        if (db == nullptr)
+        {
+          messerr("You have requested Non-stationary proportions");
+          messerr("No file is provided containing Proportion variables");
+          messerr("Please provide variables with 'proportion' locators");
+          messerr("either in the input 'Db' or in 'dbprop'");
+          goto label_end;
+        }
+        if (db_loc->getProportionNumber() != nfacprod)
+        {
+          messerr(
+              "In the non-stationary case, the number of proportion variables (%d)",
+              db_loc->getProportionNumber());
+          messerr(
+              "must be equal to the number of facies (%d) in the Lithotype Rule",
+              nfacprod);
+          goto label_end;
+        }
+        propdef->dbprop = db_loc;
+        propdef->coor.resize(db_loc->getNDim());
+      }
+      else
       {
         
         // Stationary case
@@ -1410,23 +1436,6 @@ GEOSLIB_API Props *proportion_manage(int     mode,
           propdef->propmem[ifac] = (propcst.empty()) ? pref : propcst[ifac];
         }
       }    
-      else
-      {
-        
-        // Non-stationary case
-        
-        db_loc = (propdef->case_prop_interp) ? dbprop : db;
-        if (db_loc->getProportionNumber() != nfacprod)
-        {
-          messerr("In the non-stationary case, the number of proportion variables (%d)",
-                  db_loc->getProportionNumber());
-          messerr("must be equal to the number of facies (%d) in the Lithotype Rule",
-                  nfacprod);
-          goto label_end;
-        }
-        propdef->dbprop = dbprop;
-        propdef->coor.resize(dbprop->getNDim());
-      }
       
       /* Set memory proportion so as to provoke the update at first usage */
       

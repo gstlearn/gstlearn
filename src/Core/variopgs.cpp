@@ -13,6 +13,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Stats/Classical.hpp"
+#include "Basic/AException.hpp"
 
 /*! \cond */
 typedef struct {
@@ -489,12 +490,23 @@ static void st_set_rho(double rho,
       ifac = (int) db->getVariable(iech,0);
       if (rule_thresh_define(propdef,db,rule,ifac,iech,0,0,0,
                              &t1min,&t1max,&t2min,&t2max)) return;
-      db->setLowerBound(iech,0,t1min);
-      db->setUpperBound(iech,0,t1max);
-      if (ngrf > 1)
+
+      if (! TEST_DISCRET)
       {
-        db->setLowerBound(iech,1,t2min);
-        db->setUpperBound(iech,1,t2max);
+        db->setLowerBound(iech, 0, t1min);
+        db->setUpperBound(iech, 0, t1max);
+        if (ngrf > 1)
+        {
+          db->setLowerBound(iech, 1, t2min);
+          db->setUpperBound(iech, 1, t2max);
+        }
+      }
+      else
+      {
+        db->setLowerInterval(iech, 0,
+            (double) ct_tableone_getrank_from_proba(CTABLES, t1min));
+        db->setUpperInterval(iech, 0,
+            (double) ct_tableone_getrank_from_proba(CTABLES, t1max));
       }
     }
   }
@@ -660,7 +672,6 @@ static int st_vario_pgs_variable(int    mode,
         for (int i=0; i<nloop; i++)
         {
           ifac = (flag_one) ? (int) db->getVariable(iech,0) : i;
-          
           jfac = (flag_one) ? ifac : ifac+1;
           if (rule_thresh_define(propdef,db,rule,jfac,iech,0,0,0,
                                  &t1min,&t1max,&t2min,&t2max)) return(1);
@@ -865,6 +876,59 @@ static void trace_add_row(Local_Pgs *local_pgs)
 
 /****************************************************************************/
 /*!
+**  Calculate the probability for two independent GRFs
+**
+** \return  Evaluation value
+**
+** \param[in] correl    Correlation between covariance
+** \param[in] low       Array of lower thresholds or lower indices
+**                      (Dimension: 2)
+** \param[in] up        Array of upper thresholds or upper indices
+**                      (Dimension: 2)
+** \param[in] iconf     Rank for the discrete calculation
+**
+*****************************************************************************/
+static double st_get_proba_ind(double correl,
+                               double *low,
+                               double *up,
+                               int iconf)
+{
+  int ier, infin[2];
+  double p1min, p1max, p2min, p2max, proba, err;
+
+  double releps = 0.;
+  double abseps = EPS;
+  double maxpts = 8000;
+
+  proba = TEST;
+
+  if (! TEST_DISCRET)
+  {
+    if (correl == 0.)
+    {
+      p1min = law_cdf_gaussian(low[0]);
+      p1max = law_cdf_gaussian(up[0]);
+      p2min = law_cdf_gaussian(low[1]);
+      p2max = law_cdf_gaussian(up[1]);
+      proba = (p1max - p1min) * (p2max - p2min);
+    }
+    else
+    {
+      infin[0] = mvndst_infin(low[0], up[0]);
+      infin[1] = mvndst_infin(low[1], up[1]);
+      mvndst(2, low, up, infin, &correl, maxpts, abseps, releps, &err, &proba,
+             &ier);
+    }
+  }
+  else
+  {
+    proba = ct_tableone_calculate_by_rank(CTABLES,iconf,low,up);
+  }
+  return proba;
+}
+
+/****************************************************************************/
+/*!
 **  Local searching function
 **
 ** \return  Evaluation value
@@ -876,17 +940,13 @@ static void trace_add_row(Local_Pgs *local_pgs)
 static double st_func_search_stat(double  correl,
                                   void *user_data)
 {
-  double  low[2],up[2],err,cround;
-  int     infin[2],ier;
+  double  low[2],up[2],cround;
   Local_Pgs *local_pgs;
 
   /* Initializations */
 
   local_pgs         = (Local_Pgs *) user_data;
   int iconf0        = 0;
-  double releps     = 0.;
-  double abseps     = EPS;
-  double maxpts     = 8000;
 
   int nfacies    = local_pgs->nfacies;
   int ipas       = local_pgs->ipascur;
@@ -905,28 +965,7 @@ static double st_func_search_stat(double  correl,
       up[0]   = STAT_THRESH(ifac1,igrf,1);
       low[1]  = STAT_THRESH(ifac2,igrf,0);
       up[1]   = STAT_THRESH(ifac2,igrf,1);
-      double proba;
-      if (! TEST_DISCRET)
-      {
-        if (correl == 0.)
-        {
-          double p1min = law_cdf_gaussian(low[0]);
-          double p1max = law_cdf_gaussian( up[0]);
-          double p2min = law_cdf_gaussian(low[1]);
-          double p2max = law_cdf_gaussian( up[1]);
-          proba = (p1max - p1min) * (p2max - p2min);
-        }
-        else
-        {
-          infin[0] = mvndst_infin(low[0],up[0]);
-          infin[1] = mvndst_infin(low[1],up[1]);
-          mvndst(2,low,up,infin,&correl,maxpts,abseps,releps,&err,&proba,&ier);
-        }
-      }
-      else
-      {
-        proba = ct_tableone_calculate_by_rank(CTABLES,iconf0,low,up);
-      }
+      double proba = st_get_proba_ind(correl,low,up, iconf0);
 
       double logp = (proba <= 0.) ? -1.e30 : log(proba);
       int iad     = dir.getAddress(ifac1,ifac2,ipas,false,1);
@@ -952,18 +991,14 @@ static double st_func_search_stat(double  correl,
 static double st_func_search_nostat(double  correl,
                                     void *user_data)
 {
-  double  low[2],up[2],rlow[2],rup[2],abseps,releps,err,proba,sum;
-  double  p1min,p1max,p2min,p2max,dist,w1,w2,logp,cround;
-  int     ipair,i,i1,i2,infin[2],maxpts,ier,ifac1,ifac2,iconf0;
+  double  low[2],up[2],proba,sum,dist,w1,w2,logp,cround;
+  int     ipair,i,i1,i2,ifac1,ifac2,iconf0;
   Local_Pgs *local_pgs;
 
   /* Initializations */
 
   local_pgs  = (Local_Pgs *) user_data;
   iconf0     = 0;
-  releps     = 0.;
-  abseps     = EPS;
-  maxpts     = 8000;
 
   if (TEST_DISCRET)
     iconf0 = ct_tableone_covrank(CTABLES,correl,&cround); 
@@ -1000,30 +1035,16 @@ static double st_func_search_nostat(double  correl,
         up[0]  = local_pgs->db->getUpperBound(i1,local_pgs->igrfcur);
         low[1] = local_pgs->db->getLowerBound(i2,local_pgs->igrfcur);
         up[1]  = local_pgs->db->getUpperBound(i2,local_pgs->igrfcur);
-        
-        if (correl == 0.)
-        {
-          p1min = law_cdf_gaussian(low[0]);
-          p1max = law_cdf_gaussian( up[0]);
-          p2min = law_cdf_gaussian(low[1]);
-          p2max = law_cdf_gaussian( up[1]);
-          proba = (p1max - p1min) * (p2max - p2min);
-        }
-        else
-        {
-          infin[0] = mvndst_infin(low[0],up[0]);
-          infin[1] = mvndst_infin(low[1],up[1]);
-          mvndst(2,low,up,infin,&correl,maxpts,abseps,releps,&err,&proba,&ier);
-        }
+
       }
       else
       {
-        rlow[0] = local_pgs->db->getLowerInterval(i1,local_pgs->igrfcur);
-        rup[0]  = local_pgs->db->getUpperInterval(i1,local_pgs->igrfcur);
-        rlow[1] = local_pgs->db->getLowerInterval(i2,local_pgs->igrfcur);
-        rup[1]  = local_pgs->db->getUpperInterval(i2,local_pgs->igrfcur);
-        proba = ct_tableone_calculate_by_rank(CTABLES,iconf0,rlow,rup);
+        low[0] = local_pgs->db->getLowerInterval(i1,local_pgs->igrfcur);
+        up[0]  = local_pgs->db->getUpperInterval(i1,local_pgs->igrfcur);
+        low[1] = local_pgs->db->getLowerInterval(i2,local_pgs->igrfcur);
+        up[1]  = local_pgs->db->getUpperInterval(i2,local_pgs->igrfcur);
       }
+      proba = st_get_proba_ind(correl, low, up, iconf0);
       if (local_pgs->flag_stat) 
         STAT_PROBA(ifac1,ifac2) = STAT_PROBA(ifac2,ifac1) = proba;
     }
@@ -4048,6 +4069,9 @@ static void st_timer_print(void)
 static int st_def_test_discret(Rule *rule,
                                int   flag_rho)
 {
+  // Dans cette version, on ne discretse JAMAIS
+  return 0; // TODO a verifier
+
   if (rule->getModeRule() == RULE_SHIFT)
     return(0);
   else if (rule->getModeRule() == RULE_STD)
@@ -4287,57 +4311,59 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
                                 double    *cov)
 {
   Rule *rule;
-  double covtab[4],cij00,cround;
-  int    i;
-  int nvar;
+  double cov0[4],covh[4],cround;
+  int    i, nvar, ngrf;
   CovCalcMode mode;
   
   nvar = local_pgs->model->getVariableNumber();
   rule = local_pgs->rule;
+  ngrf = local_pgs->rule->getGRFNumber();
 
   /* Calculate the covariance for the zero distance */
   for (i=0; i<local_pgs->model->getDimensionNumber(); i++) local_pgs->d0[i] = 0.;
-  model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covtab);
-  cij00 = covtab[0];
+  model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,cov0);
 
   /* Calculate the covariance for the given shift */
-  model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d1,covtab);
+  model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d1,covh);
 
   if (rule->getModeRule() == RULE_STD)
   {
-    cov[0] = covtab[0];         /* C11(h)  */
-    cov[1] = cij00;             /* C21(0)  */
-    cov[2] = covtab[2];         /* C21(-h) */
-    cov[3] = covtab[1];         /* C21(h)  */
-    cov[4] = cij00;             /* C21(0)  */
-    cov[5] = covtab[3];         /* C22(h)  */
+    cov[0] = covh[0]; /* C11(h)  */
+    if (ngrf > 1)
+    {
+      cov[1] = cov0[1]; /* C21(0)  */
+      cov[2] = covh[2]; /* C21(-h) */
+      cov[3] = covh[1]; /* C21(h)  */
+      cov[4] = cov0[2]; /* C21(0)  */
+      cov[5] = covh[3]; /* C22(h)  */
+    }
   }
   else if (rule->getModeRule() == RULE_SHIFT)
   {
-    cov[0] = covtab[0];                          /* C11(h)  */
-    cov[5] = (nvar==1) ? covtab[0] : covtab[3];  /* C22(h)  */
+    cov[0] = covh[0];                           /* C11(h)  */
+    cov[5] = (nvar==1) ? covh[0] : covh[3];     /* C22(h)  */
     
     for (i=0; i<local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = rule->getShift(i);
     
-    model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covtab);
-    cov[1] = (nvar==1) ? covtab[0] : covtab[1];		/* C21(s)  */
-    cov[4] = (nvar==1) ? covtab[0] : covtab[1];		/* C21(s)  */
+    model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covh);
+    cov[1] = (nvar==1) ? covh[0] : covh[1];		/* C21(s)  */
+    cov[4] = (nvar==1) ? covh[0] : covh[1];		/* C21(s)  */
     
     for (i=0; i<local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] - rule->getShift(i);
-    model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covtab);
-    cov[2] = (nvar==1) ? covtab[0] : covtab[1];		/* C21(h-s) */
+    model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covh);
+    cov[2] = (nvar==1) ? covh[0] : covh[1];		/* C21(h-s) */
     
     for (i=0; i<local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] + rule->getShift(i);
-    model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covtab);
-    cov[3] = (nvar==1) ? covtab[0] : covtab[1];		/* C21(h+s)  */
+    model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covh);
+    cov[3] = (nvar==1) ? covh[0] : covh[1];		/* C21(h+s)  */
   }
   else
     messageAbort("This rule is not expected in st_calcul_covmatrix");
 
-  /* Check if the two GRFs are independent */
+  /* Check if the two GRFs are spatially independent */
 
   (*flag_ind) = 1;
   for (i=1; i<=4; i++)
@@ -4376,91 +4402,45 @@ static double st_get_proba(Local_Pgs *local_pgs,
                            int       *iconf,
                            double    *cov)
 {
-  double  abseps,releps,err,proba1,proba2,proba;
-  double  p1min,p1max,p2min,p2max;
-  int     infin[4],maxpts,ngrf,ier;
+  double proba = TEST;
+  int ngrf = local_pgs->ngrf;
 
-  /* Initializations */
-
-  releps  = 0.;
-  abseps  = EPS;
-  maxpts  = 8000;
-  ngrf    = local_pgs->ngrf;
-  proba   = TEST;
-  
-  /* First GRF */
-  
-  if (ngrf == 1 || flag_ind)
+  if (ngrf == 1)
   {
-    if (! TEST_DISCRET)
-    {
-      if (ABS(cov[0]) <= 0.)
-      {
-        
-        /* Case where the covariance of first GRF between samples is zero */
-        
-        p1min  = law_cdf_gaussian(low[0]);
-        p1max  = law_cdf_gaussian( up[0]);
-        p2min  = law_cdf_gaussian(low[1]);
-        p2max  = law_cdf_gaussian( up[1]);
-        proba1 = (p1max - p1min) * (p2max - p2min);
-      }
-      else
-      {
-        infin[0] = mvndst_infin(low[0],up[0]);
-        infin[1] = mvndst_infin(low[1],up[1]);
-        mvndst(2,&low[0],&up[0],&infin[0],&cov[0],
-               maxpts,abseps,releps,&err,&proba1,&ier);
-      }
-    }
-    else
-    {
-      proba1 = ct_tableone_calculate_by_rank(CTABLES,iconf[0],low,up);
-    }
-    proba = proba1;
+    proba = st_get_proba_ind(cov[1], low, up, iconf[0]);
   }
-  
-  /* Second GRF */
-  
-  if (ngrf == 2)
+  else
   {
     if (flag_ind)
     {
-      if (! TEST_DISCRET)
-      {
-        if (ABS(cov[5]) <= 0.)
-        {
-          
-          /* Case where the covariance of second GRF between samples is zero */
-          
-          p1min  = law_cdf_gaussian(low[2]);
-          p1max  = law_cdf_gaussian( up[2]);
-          p2min  = law_cdf_gaussian(low[3]);
-          p2max  = law_cdf_gaussian( up[3]);
-          proba2 = (p1max - p1min) * (p2max - p2min);
-        }
-        else
-        {
-          infin[2] = mvndst_infin(low[2],up[2]);
-          infin[3] = mvndst_infin(low[3],up[3]);
-          mvndst(2,&low[2],&up[2],&infin[2],&cov[5],
-                 maxpts,abseps,releps,&err,&proba2,&ier);
-        }
-      }
-      else
-      {
-        proba2 = ct_tableone_calculate_by_rank(CTABLES,
-                                               iconf[1],&low[2],&up[2]);
-      }
-      proba *= proba2;
+      proba = st_get_proba_ind(cov[0], low, up, iconf[0])
+          * st_get_proba_ind(cov[5], &low[2], &up[2], iconf[1]);
     }
     else
     {
-      infin[0] = mvndst_infin(low[0],up[0]);
-      infin[1] = mvndst_infin(low[1],up[1]);
-      infin[2] = mvndst_infin(low[2],up[2]);
-      infin[3] = mvndst_infin(low[3],up[3]);
-      mvndst(4,low,up,infin,cov,maxpts,abseps,releps,&err,&proba,&ier);
+      // Case when the two GRFs are correlated (presence of RHO)
+
+      if (!TEST_DISCRET)
+      {
+        int ier;
+        double err;
+        double releps = 0.;
+        double abseps = EPS;
+        int maxpts = 8000;
+
+        int infin[4];
+        infin[0] = mvndst_infin(low[0], up[0]);
+        infin[1] = mvndst_infin(low[1], up[1]);
+        infin[2] = mvndst_infin(low[2], up[2]);
+        infin[3] = mvndst_infin(low[3], up[3]);
+        mvndst(4, low, up, infin, cov, maxpts, abseps, releps, &err, &proba,
+               &ier);
+      }
+      else
+      {
+        my_throw(
+            "Discrete calculation for correlated GRFs is not performed yet");
+      }
     }
   }
  
@@ -5125,6 +5105,9 @@ GEOSLIB_API int model_pgs(Db*     db,
   }
   else
   {
+    if (st_vario_pgs_variable(1,ngrf,nfacies,0,1,db,propdef,rule,
+                              &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
+      goto label_end;
     if (st_vario_pgs_variable(0,ngrf,nfacies,0,1,db,propdef,rule,
                               &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
       goto label_end;
@@ -5293,6 +5276,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
     return 1;
   }
   vario->setCalculName("covnc");
+  vario->setDimensionNumber(db->getNDim());
   int iatt = db->getAttribute(LOC_Z,0);
   int nclass = rule->getFaciesNumber();
   if (nclass <= 0)
