@@ -19,14 +19,13 @@
 #include "geoslib_enum.h"
 
 class ShiftOpCs;
-class Model;
+class CovAniso;
 
 class PrecisionOpCs : public PrecisionOp
 {
 public:
   PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
-                const Model* model = nullptr,
-                int icov = 0,
+                const CovAniso* cova = nullptr,
                 ENUM_POPTS power = POPT_UNDEFINED,
                 bool verbose = false);
   void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;

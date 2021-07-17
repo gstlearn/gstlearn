@@ -22,12 +22,11 @@
 #include "geoslib_e.h"
 
 PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
-                         const Model* model,
-                         int icov,
+                         const CovAniso* cova,
                          ENUM_POPTS power,
                          bool verbose)
   : _shiftOp(shiftop)
-  , _cova(nullptr)
+  , _cova(cova)
   , _power(power)
   , _polynomials()
   , _verbose(verbose)
@@ -35,8 +34,6 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
   , _work2()
   , _work3()
 {
-  if (model != nullptr)
-    _cova = model->getCova(icov);
   if (_shiftOp != nullptr)
   {
     _work.resize(_shiftOp->getSize());
@@ -176,10 +173,9 @@ double PrecisionOp::computeLogDet(int nsimus,int seed)
 }
 
 int PrecisionOp::init(const ShiftOpCs* shiftop,
-                      const Model*   model,
-                      int            icov,
-                      ENUM_POPTS     power,
-                      bool           verbose)
+                      const CovAniso*  cova,
+                      ENUM_POPTS       power,
+                      bool             verbose)
 {
   // Initializations
 
@@ -193,10 +189,7 @@ int PrecisionOp::init(const ShiftOpCs* shiftop,
 
     // Store the members
 
-    if (model != nullptr)
-      _cova = model->getCova(icov);
-    else
-      _cova = nullptr;
+    _cova    = cova;
     _power   = power;
     _verbose = verbose;
     _shiftOp = new ShiftOpCs(*shiftop);

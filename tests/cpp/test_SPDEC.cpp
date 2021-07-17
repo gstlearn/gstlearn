@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
   NoStatArray NoStat({"A"});
   ShiftOpCs S(&mesh, &model, &workingDbc, &NoStat);
-  PrecisionOp Qsimu(&S, &model, POPT_MINUSHALF);
+  PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
 
 
   ///////////////////////////////////////////////////
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
      e/=nug;
    }
 
-   PrecisionOp Qkriging(&S, &model,POPT_ONE);
+   PrecisionOp Qkriging(&S, &cova,POPT_ONE);
    PrecisionOpMultiConditional A;
    A.push_back(&Qkriging,&B);
    A.setNugget(0.01);

@@ -33,7 +33,7 @@ public:
   ShiftOpCs();
   ShiftOpCs(AMesh* amesh,
             Model* model,
-            Db* dbout = nullptr,
+            const Db* dbout = nullptr,
             ANoStat* nostat = nullptr,
             int igrf = 0,
             int icov = 0,

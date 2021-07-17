@@ -22,8 +22,7 @@ class PrecisionOp {
 
 public:
   PrecisionOp(ShiftOpCs* shiftop = nullptr,
-              const Model* model = nullptr,
-              int icov = 0,
+              const CovAniso* cova = nullptr,
               ENUM_POPTS power = POPT_UNDEFINED,
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
@@ -31,8 +30,7 @@ public:
   virtual ~PrecisionOp();
 
   int init(const ShiftOpCs* shiftop,
-           const Model* model = nullptr,
-           int icov = 0,
+           const CovAniso* cova = nullptr,
            ENUM_POPTS power = POPT_UNDEFINED,
            bool verbose = false);
 

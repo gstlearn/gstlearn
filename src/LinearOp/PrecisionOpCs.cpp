@@ -21,11 +21,10 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
-                             const Model* model,
-                             int icov,
+                             const CovAniso* cova,
                              ENUM_POPTS power,
                              bool verbose)
-    : PrecisionOp(shiftop, model, icov, power, verbose)
+    : PrecisionOp(shiftop, cova, power, verbose)
 {
 }
 

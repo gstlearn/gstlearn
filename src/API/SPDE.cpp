@@ -4,33 +4,41 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
-
+#include "LinearOp/PrecisionOpCs.hpp"
+#include <iostream>
 SPDE::SPDE(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
 {
-  init(model,field,nostat,dat);
-
+    init(model,field,nostat,dat);
 }
 
 void SPDE::init(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
 {
   double nugget=0.;
   double totalSill = 0.;
-  MeshETurbo mesh;
-  ShiftOpCs shiftOp;
+  ShiftOpCs* shiftOp;
+  PrecisionOpCs precision;
+  MeshETurbo* mesh;
+
 
   for(int icov = 0 ; icov < model.getCovaNumber();icov++)
   {
-    auto cova = model.getCova(icov);
+    const auto cova = model.getCova(icov);
+
     if(cova->getType()==COV_NUGGET)
     {
       nugget = cova->getSill(0,0);
     }
     else if(cova->getType()==COV_BESSEL_K)
     {
+      std::cout<<"Bessel"<<std::endl;
       totalSill += cova->getSill(0,0);
+      mesh = createMeshing(*cova,field,14.,0.2);
+      mesh->display(0);
+      shiftOp = new ShiftOpCs(mesh, &model,&field, nostat);
+     // delete mesh;
 
-      mesh = createMeshing(*cova,field,14);
-      shiftOp.initFromMesh(&mesh,&model,&field,nostat,0,icov);
+     _pileShiftOp.push_back(shiftOp);
+      _precistionLists.push_back(PrecisionOpCs(shiftOp,cova,POPT_MINUSHALF));
 
       if(dat!=nullptr)
       {
@@ -49,7 +57,7 @@ void SPDE::init(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
   _precisionsKriging.setNugget(nugget);
 }
 
-MeshETurbo SPDE::createMeshing(const CovAniso & cova, const Db& field,double discr)
+MeshETurbo* SPDE::createMeshing(const CovAniso & cova, const Db& field,double discr,double ext)
 {
   VectorDouble extendMin,extendMax;
   int dim = cova.getNDim();
@@ -59,14 +67,25 @@ MeshETurbo SPDE::createMeshing(const CovAniso & cova, const Db& field,double dis
       extendMin.push_back(limits[0]);
       extendMax.push_back(limits[1]);
   }
-  VectorDouble cellSize = VectorDouble(dim,ut_vector_min(cova.getAnisoCoeffs())/discr);
+  VectorDouble cellSize = VectorDouble(dim,ut_vector_min(cova.getRanges())/discr);
 
-  MeshETurbo mesh;
-  mesh.initFromExtend(extendMin,extendMax,cellSize,field.getRotMat());
-  return mesh;
+  VectorInt nx;
+  VectorDouble dx;
+  VectorDouble x0;
+  double delta;
+  for(int idim=0;idim<dim;idim++)
+  {
+    delta = extendMax[idim]-extendMin[idim];
+    nx.push_back((int)(( delta * ( 1 + 2 * ext ) ) / cellSize[idim] ));
+    x0.push_back(field.getX0(idim)- delta * ext);
+  }
+  return new MeshETurbo(nx,cellSize,x0,field.getRotMat());
 }
 SPDE::~SPDE()
 {
-  // TODO Auto-generated destructor stub
+  for(auto &e : _pileShiftOp)
+  {
+    delete &e;
+  }
 }
 

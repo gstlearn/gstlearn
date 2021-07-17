@@ -37,7 +37,7 @@ ShiftOpCs::ShiftOpCs()
 
 ShiftOpCs::ShiftOpCs(AMesh* amesh,
                      Model* model,
-                     Db* dbout,
+                     const Db* dbout,
                      ANoStat* nostat,
                      int igrf,
                      int icov,
@@ -179,12 +179,12 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
  *
  * @param amesh Meshing description (New format)
  * @param model Pointer to the Model structure
- * @param verbose Verbose flag
  * @param dbout Pointer to the Db structure (used for nostat)
  * @param nostat Pointer to the ANoStat for non-stationary parameters
  * @param igrf Rank of the GRF
  * @param icov Rank of the Covariance within the Model
  * @param flagAdvection When TRUE, S is replaced by G
+ * @param verbose Verbose flag
  * @return Error return code
  */
 int ShiftOpCs::initFromMesh(AMesh* amesh,
