@@ -492,8 +492,8 @@ struct Local_Split
   int oper;                   // Rank of operator
   int nrule;                  // Number of generated rules
   int nbyrule;                // Number of symbols in the Rules
-  int *rules;                 // List of rules (Dim: NRULE * nitem)
-  int *fipos;                 // Position of all facies (Dim: NCOLOR * nitem)
+  int *Srules;                 // List of rules (Dim: [nitem][NRULE])
+  int *Sfipos;                 // Position of all facies (Dim: [nprod][NCOLOR])
   Local_Relem *old_relem;     // Not allocated
   Local_Relem *relems[2];
 };
@@ -504,8 +504,8 @@ struct Local_Relem
   int nrule;                  // Number of generated rules
   int nbyrule;                // Number of symbols in the Rules
   int nsplit;                 // Number of splits
-  int *rules;                 // List of rules (Dim: NRULE * ntem)
-  int *fipos;                 // Position of all facies (Dim: NCOLOR * nprod)
+  int *Rrules;                 // List of rules (Dim: [nitem][NRULE])
+  int *Rfipos;                 // Position of all facies (Dim: [nprod][NCOLOR])
   Local_Split *old_split;     // Not allocated
   Local_Split **splits;
 };

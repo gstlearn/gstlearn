@@ -24,7 +24,7 @@
 int main(int argc, char *argv[])
 
 {
-  auto pygst  = std::string(std::getenv("PYGSTLEARN_DIR"));
+  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int error = 0;
   int ndim = 2;
   CovContext ctxt(1,2,1.);

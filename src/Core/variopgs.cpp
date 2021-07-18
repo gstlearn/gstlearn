@@ -119,8 +119,8 @@ static Relem *st_relem_alloc(Split *old_split)
   relem->nrule     = 0;
   relem->nbyrule   = 0;
   relem->facies    = VectorInt();
-  relem->rules     = (int *) NULL;
-  relem->fipos     = (int *) NULL;
+  relem->Rrules     = (int *) NULL;
+  relem->Rfipos     = (int *) NULL;
   relem->old_split = old_split;
   return(relem);
 }
@@ -146,8 +146,8 @@ static Split *st_split_alloc(Relem *old_relem)
   split->nrule     = 0;
   split->nbyrule   = 0;
   split->old_relem = old_relem;
-  split->rules     = (int *) NULL;
-  split->fipos     = (int *) NULL;
+  split->Srules     = (int *) NULL;
+  split->Sfipos     = (int *) NULL;
   for (int i=0; i<2; i++) split->relems[i] = (Relem *) NULL;
   return(split);
 }
@@ -202,8 +202,8 @@ static void st_relem_define(Relem *relem,
   }
 
   relem->facies.resize(number,0);
-  relem->fipos   = (int *) mem_alloc(sizeof(int) * NCOLOR,1);
-  for (int i=0; i<NCOLOR; i++) relem->fipos[i] = 0;
+  relem->Rfipos   = (int *) mem_alloc(sizeof(int) * NCOLOR,1);
+  for (int i=0; i<NCOLOR; i++) relem->Rfipos[i] = 0;
 
   ecr = 0;
   for (int i=0; i<nfacies; i++) 
@@ -213,7 +213,7 @@ static void st_relem_define(Relem *relem,
   }
 
   if (number == 1)
-    relem->fipos[relem->facies[0]-1] = 1;
+    relem->Rfipos[relem->facies[0]-1] = 1;
 }
 
 /****************************************************************************
@@ -380,8 +380,8 @@ static Split *st_split_free(Split *split)
 
   /* Free the local arrays */
 
-  split->rules = (int *) mem_free((char *) split->rules);
-  split->fipos = (int *) mem_free((char *) split->fipos);
+  split->Srules = (int *) mem_free((char *) split->Srules);
+  split->Sfipos = (int *) mem_free((char *) split->Sfipos);
 
   /* Free the Split structure itself */
 
@@ -410,8 +410,8 @@ static Relem *st_relem_free(Relem *relem)
 
   /* Free the local arrays */
 
-  relem->rules  = (int *) mem_free((char *) relem->rules);
-  relem->fipos  = (int *) mem_free((char *) relem->fipos);
+  relem->Rrules  = (int *) mem_free((char *) relem->Rrules);
+  relem->Rfipos  = (int *) mem_free((char *) relem->Rfipos);
 
   /* Free the Relem structure itself */
 
@@ -1470,7 +1470,7 @@ static int st_same_score(Relem *relem,
 {
   int *fipos,flag_same;
 
-  fipos = relem->fipos;
+  fipos = relem->Rfipos;
   if (ir0 <= 0) return(-1);
 
   // Modify the orientation of 'grf' for the current 'fipos'
@@ -1517,8 +1517,8 @@ static VectorDouble st_relem_evaluate(Relem *relem,
   flag_skip  = (int) get_keypone("Multi_Score_Skip_Print",0.);
   nmax       = (int) pow(2.,(double) NGRF);
   nrule      = relem->nrule;
-  rules      = relem->rules;
-  fipos      = relem->fipos;
+  rules      = relem->Rrules;
+  fipos      = relem->Rfipos;
   *nscore    = nrule;
   
   /* Core allocation */
@@ -1603,10 +1603,10 @@ static void st_rule_glue(Relem *relem,
   nrule = ir = relem->nrule;
   nnew  = nrule + nrule1;
 
-  relem->rules = rules = (int *)
-    mem_realloc((char *) relem->rules,sizeof(int) * NRULE  * nnew,1);
-  relem->fipos = fipos = (int *)
-    mem_realloc((char *) relem->fipos,sizeof(int) * NCOLOR * nnew,1);
+  relem->Rrules = rules = (int *)
+    mem_realloc((char *) relem->Rrules,sizeof(int) * NRULE  * nnew,1);
+  relem->Rfipos = fipos = (int *)
+    mem_realloc((char *) relem->Rfipos,sizeof(int) * NCOLOR * nnew,1);
 
   for (int i1=0; i1<nrule1; i1++,ir++)
   {
@@ -1638,9 +1638,9 @@ static void st_rule_product(Split *split,
   int *rules,*fipos,ir,ic,oper;
   int flag_debug = 0;
 
-  split->rules = rules = (int *) mem_alloc(sizeof(int) * NRULE  * nprod,1);
+  split->Srules = rules = (int *) mem_alloc(sizeof(int) * NRULE  * nprod,1);
   for (int i=0; i<NRULE  * nprod; i++) rules[i] = 0;
-  split->fipos = fipos = (int *) mem_alloc(sizeof(int) * NCOLOR * nprod,1);
+  split->Sfipos = fipos = (int *) mem_alloc(sizeof(int) * NCOLOR * nprod,1);
   for (int i=0; i<NCOLOR * nprod; i++) fipos[i] = 0;
 
   ir = 0;
@@ -1714,7 +1714,7 @@ static void st_split_collapse(Split *split,
       {
         num[i]   = relem->nrule;
         nby[i]   = relem->nbyrule;
-        ptr[i]   = relem->rules;
+        ptr[i]   = relem->Rrules;
       }
     }
     
@@ -1725,11 +1725,11 @@ static void st_split_collapse(Split *split,
     if (nprod > 0)
     {
       st_rule_product(split,nprod,
-                      num[0],nby[0],ptr[0],split->relems[0]->fipos,
-                      num[1],nby[1],ptr[1],split->relems[1]->fipos);
+                      num[0],nby[0],ptr[0],split->relems[0]->Rfipos,
+                      num[1],nby[1],ptr[1],split->relems[1]->Rfipos);
       if (verbose)
         st_rules_print("Split",split->nrule,split->nbyrule,
-                       split->rules,split->fipos);
+                       split->Srules,split->Sfipos);
     }
   }
 }
@@ -1751,10 +1751,10 @@ static void st_relem_explore(Relem *relem,
     split = relem->splits[is];
     st_split_collapse(split,verbose);
     st_rule_glue(relem,split->nrule,split->nbyrule,
-                 split->rules,split->fipos);
+                 split->Srules,split->Sfipos);
     if (verbose)
       st_rules_print("Relem",relem->nrule,relem->nbyrule,
-                     relem->rules,relem->fipos);
+                     relem->Rrules,relem->Rfipos);
   }
 }
 
@@ -5477,8 +5477,8 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
   /* Get the resulting optimal Rule */
 
-  st_rule_print(r_opt,NRULE,Pile_Relem->rules,Pile_Relem->fipos,0,-1,-1,TEST);
-  rules = Pile_Relem->rules;
+  st_rule_print(r_opt,NRULE,Pile_Relem->Rrules,Pile_Relem->Rfipos,0,-1,-1,TEST);
+  rules = Pile_Relem->Rrules;
   rule = st_rule_encode(&RULES(r_opt,0));
 
   /* Clean the geometry (non-stationary case) */
