@@ -76,9 +76,7 @@ typedef struct {
 #define RULES1(ir,i)    (rules1[(ir) * NRULE  + (i)])
 #define RULES2(ir,i)    (rules2[(ir) * NRULE  + (i)])
 #define DIVS(is,i)      (divs[(is)   * ncur   + (i)])
-#define FIPOS(ir,i)     (fipos[(ir)  * NCOLOR + (i)])
-#define FIPOS1(ir,i)    (fipos1[(ir) * NCOLOR + (i)])
-#define FIPOS2(ir,i)    (fipos2[(ir) * NCOLOR + (i)])
+#define FIPOSAD(ir,i)   ((ir) * NCOLOR + (i))
 
 #define QUANT_DIR 10000
 #define F(i,j) (st_index(i,j))
@@ -264,7 +262,7 @@ static void st_rule_print(int    rank,
 
   message(" (");
   for (int ic=0; ic<NCOLOR; ic++) 
-    message(" %3d",FIPOS(rank,ic));
+    message(" %3d",fipos[FIPOSAD(rank,ic)]);
   message(" )");
 
   // Print the similar score
@@ -1478,7 +1476,7 @@ static int st_same_score(Relem *relem,
   // Modify the orientation of 'grf' for the current 'fipos'
 
   for (int ic=0; ic<NCOLOR; ic++)
-    fcmp[ic] = st_update_orientation(FIPOS(ir0,ic),igrf_cas,fgrf);
+    fcmp[ic] = st_update_orientation(fipos[FIPOSAD(ir0,ic)],igrf_cas,fgrf);
 
   // Look if the same 'fipos' has already been calculated
 
@@ -1487,7 +1485,7 @@ static int st_same_score(Relem *relem,
     flag_same = 1;
     for (int ic=0; ic<NCOLOR && flag_same; ic++)
     {
-      if (FIPOS(ir,ic) != fcmp[ic]) flag_same = 0;
+      if (fipos[FIPOSAD(ir,ic)] != fcmp[ic]) flag_same = 0;
     }
     if (flag_same) return(ir);
   }
@@ -1613,7 +1611,8 @@ static void st_rule_glue(Relem *relem,
   for (int i1=0; i1<nrule1; i1++,ir++)
   {
     for (int ic=0; ic<nbyrule1; ic++) RULES(ir,ic) = RULES1(i1,ic);
-    for (int ic=0; ic<NCOLOR;   ic++) FIPOS(ir,ic) = FIPOS1(i1,ic);
+    for (int ic=0; ic<NCOLOR;   ic++)
+      fipos[FIPOSAD(ir,ic)] = fipos1[FIPOSAD(i1,ic)];
   }
 
   relem->nrule   = nnew;
@@ -1663,10 +1662,10 @@ static void st_rule_product(Split *split,
       for (int i=0; i<nbyrule2; i++) RULES(ir,ic++) = RULES2(i2,i);
       for (int i=0; i<NCOLOR;   i++)
       {
-        if (FIPOS1(i1,i) > 0)
-          FIPOS(ir,i) = FIPOS1(i1,i) * BASE + st_define_fipos(oper,1);
-        if (FIPOS2(i2,i) > 0)
-          FIPOS(ir,i) = FIPOS2(i2,i) * BASE + st_define_fipos(oper,0);
+        if (fipos1[FIPOSAD(i1,i)] > 0)
+          fipos[FIPOSAD(ir,i)] = fipos1[FIPOSAD(i1,i)] * BASE + st_define_fipos(oper,1);
+        if (fipos2[FIPOSAD(i2,i)] > 0)
+          fipos[FIPOSAD(ir,i)] = fipos2[FIPOSAD(i2,i)] * BASE + st_define_fipos(oper,0);
       }
 
       if (flag_debug)
@@ -5376,7 +5375,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
                             int     ngrf,
                             int     verbose)
 {
-  int    *string,error,nscore,r_opt;
+  int     error,nscore,r_opt;
   int     iptr_p,iptr_l,iptr_u,iptr_rl,iptr_ru;
   int    *rules,flag_rho,flag_correl,opt_correl;
   Rule   *rule;
@@ -5392,7 +5391,6 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
   error        = 1;
   rule         = (Rule *) NULL;
-  string       = (int *) NULL;
   Pile_Relem   = (Relem *) NULL;
   propdef      = (Props *) NULL;
 
@@ -5481,8 +5479,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
   st_rule_print(r_opt,NRULE,Pile_Relem->rules,Pile_Relem->fipos,0,-1,-1,TEST);
   rules = Pile_Relem->rules;
-  string = &RULES(r_opt,0);
-  rule = st_rule_encode(string);
+  rule = st_rule_encode(&RULES(r_opt,0));
 
   /* Clean the geometry (non-stationary case) */
 
