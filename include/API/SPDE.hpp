@@ -21,10 +21,14 @@ public:
             ANoStat* nostat,
             const Db* dat=nullptr);
 
-  MeshETurbo* createMeshing(const CovAniso& cova, const Db& field,double discr,double ext = 0.);
+  MeshETurbo* createMeshing(const CovAniso& cova,
+                            const Db& field,
+                            double discr,
+                            double ext = 0.);
   virtual ~SPDE();
+
 private:
   std::vector<ShiftOpCs*>     _pileShiftOp;
   PrecisionOpMultiConditional _precisionsKriging;
-  std::vector<PrecisionOpCs> _precistionLists;
+  std::vector<PrecisionOpCs>  _precistionLists;
 };

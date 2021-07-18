@@ -1,11 +1,15 @@
 
 #include "API/SPDE.hpp"
 #include "Model/ANoStat.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
+#include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "Db/Db.hpp"
 #include <iostream>
+
 SPDE::SPDE(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
 {
     init(model,field,nostat,dat);
