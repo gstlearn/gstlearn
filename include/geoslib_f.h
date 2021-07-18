@@ -271,6 +271,7 @@ GEOSLIB_API int db_model_nostat(Db *db,
                                 Model *model,
                                 int icov = 0,
                                 NamingConvention namconv = NamingConvention("Nostat"));
+GEOSLIB_API void set_test_discrete(bool flag_discret);
 GEOSLIB_API int model_pgs(Db *db,
                           Vario *vario,
                           Rule *rule,

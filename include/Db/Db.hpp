@@ -238,6 +238,7 @@ public:
   bool   hasUpperInterval() const;
   double getUpperInterval(int iech, int item) const;
   void   setUpperInterval(int iech, int item, double rkup);
+  void   setIntervals(int iech, int item, double rklow, double rkup);
 
   int    getIntervalNumber() const;
 
@@ -250,6 +251,7 @@ public:
   bool   hasUpperBound() const;
   double getUpperBound(int iech, int item) const;
   void   setUpperBound(int iech, int item, double upper);
+  void   setBounds(int iech, int item, double lower, double upper);
 
   int    getGradientNumber() const;
   bool   hasGradient() const;

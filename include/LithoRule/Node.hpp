@@ -19,25 +19,6 @@ class Model;
 
 class Node: public AStringable
 {
-private:
-  String _nodnam;  /* Name of the node */
-  Node  *_r1;      /* Pointer to the left-side */
-  Node  *_r2;      /* Pointer to the right-side */
-  int    _orient;  /* Orientation */
-  int    _facies;  /* Facies number */
-  double _prop;    /* Proportion */
-  double _thresh;  /* Threshold value */
-  double _p1;      /* Cumulative proportion on the left-side */
-  double _p2;      /* Cumulative proportion on the right-side */
-  double _t1min;   /* Lower bound along first gaussian */
-  double _t1max;   /* Upper bound along first gaussian */
-  double _t2min;   /* Lower bound along second gaussian */
-  double _t2max;   /* Upper bound along second gaussian */
-  double _cdf1min; /* CDF for Lower bound along first gaussian */
-  double _cdf1max; /* CDF for Upper bound along first gaussian */
-  double _cdf2min; /* CDF for Lower bound along second gaussian */
-  double _cdf2max; /* CDF for Upper bound along second gaussian */
-
 public:
   Node(const String& nodnam, int orient, int facies);
   Node(const String& nodnam,
@@ -129,9 +110,23 @@ private:
   double _transform(int mode, double value);
   double _threshFromPropcum(double rho);
   double _threshDichotomy(double rho);
+
+private:
+  String _nodnam;  /* Name of the node */
+  Node  *_r1;      /* Pointer to the left-side */
+  Node  *_r2;      /* Pointer to the right-side */
+  int    _orient;  /* Orientation */
+  int    _facies;  /* Facies number */
+  double _prop;    /* Proportion */
+  double _thresh;  /* Threshold value */
+  double _p1;      /* Cumulative proportion on the left-side */
+  double _p2;      /* Cumulative proportion on the right-side */
+  double _t1min;   /* Lower bound along first gaussian */
+  double _t1max;   /* Upper bound along first gaussian */
+  double _t2min;   /* Lower bound along second gaussian */
+  double _t2max;   /* Upper bound along second gaussian */
+  double _cdf1min; /* CDF for Lower bound along first gaussian */
+  double _cdf1max; /* CDF for Upper bound along first gaussian */
+  double _cdf2min; /* CDF for Lower bound along second gaussian */
+  double _cdf2max; /* CDF for Upper bound along second gaussian */
 };
-
-Node* node_create(const String& nodnam,
-                  const VectorInt& n_type,
-                  const VectorInt& n_facs);
-

@@ -241,7 +241,6 @@ int decodeInList(const VectorString& symbols,
 {
   String local = node;
 
-  // Search for the symbol
   for (int i = 0; i < (int) symbols.size(); i++)
   {
     if (decodeInString(symbols[i], node, facies, caseSensitive)) continue;

@@ -85,18 +85,29 @@ static double EPS = 1.e-05;
 static double GS_TOLSTOP     = 5.e-02;
 static double GS_TOLSTOP_RHO = 1.e-01;
 static CTables *CTABLES      = NULL;
-static int TEST_DISCRET      = 0;
-static int TEST_TIME         = 0;
+static bool TEST_DISCRET     = false;
 static int NCOLOR            = 0;
 static int NGRF              = 0;
 static int NRULE             = 0;
 static int BASE              = 0;
-static double clock_start    = 0;
 
 // Needed declarations due to intricated recursions
 static Relem *st_relem_free(Relem *relem);
 static void   st_relem_explore(Relem *relem,int verbose);
 /*! \endcond */
+
+/****************************************************************************
+ **
+ ** PURPOSE: Define if the calculations must be performed using
+ ** PURPOSE: the Discretized version or not
+ **
+ ** IN_ARGS:  flag_discret  : Flag for the discrete option
+ **
+ *****************************************************************************/
+GEOSLIB_API void set_test_discrete(bool flag_discret)
+{
+  TEST_DISCRET = flag_discret;
+}
 
 /****************************************************************************
  **
@@ -114,7 +125,7 @@ static Relem *st_relem_alloc(Split *old_split)
 
   /* Initializations of the New Relem structure */
 
-  relem = (Relem *) mem_alloc(sizeof(Relem),1);
+  relem = new Relem;
   relem->nsplit    = 0;
   relem->nrule     = 0;
   relem->nbyrule   = 0;
@@ -141,14 +152,15 @@ static Split *st_split_alloc(Relem *old_relem)
 
   /* Initializations of the New Split structure */
 
-  split = (Split *) mem_alloc(sizeof(Split),1);
+  split = new Split;
   split->oper      = 0;
   split->nrule     = 0;
   split->nbyrule   = 0;
   split->old_relem = old_relem;
   split->Srules     = (int *) NULL;
   split->Sfipos     = (int *) NULL;
-  for (int i=0; i<2; i++) split->relems[i] = (Relem *) NULL;
+  split->relems.resize(2);
+  for (int i=0; i<2; i++) split->relems[i] = nullptr;
   return(split);
 }
 
@@ -334,7 +346,7 @@ static void st_relem_subdivide(Relem *relem0,
   number = ndiv * noper;
   divs = (int *) mem_free((char *) divs);
   
-  relem0->splits = (Local_Split **) mem_alloc(sizeof(Local_Split *) * number,1);
+  relem0->splits.resize(number);
   
   number = 0;
   for (int oper=1; oper<=noper; oper++)
@@ -356,7 +368,7 @@ static void st_relem_subdivide(Relem *relem0,
     divs = (int *) mem_free((char *) divs);
   }
 
-  relem0->splits = (Local_Split **) mem_alloc(sizeof(Local_Split *) * number,1);
+  relem0->splits.resize(number);
   relem0->nsplit = number;
 }
 
@@ -385,7 +397,8 @@ static Split *st_split_free(Split *split)
 
   /* Free the Split structure itself */
 
-  split = (Split *) mem_free((char *) split);
+  delete split;
+  split = nullptr;
 
   return(split);
 }
@@ -415,7 +428,8 @@ static Relem *st_relem_free(Relem *relem)
 
   /* Free the Relem structure itself */
 
-  relem = (Relem *) mem_free((char *) relem);
+  delete relem;
+  relem = nullptr;
 
   return(relem);
 }
@@ -443,6 +457,49 @@ static void st_variogram_define_vars(Vario *vario,
       else
         vario->setVars(igrf,jgrf,rule->getRho());
     }
+}
+
+/****************************************************************************/
+/*!
+**  Define the bounds for Gaussian integrals and store them in relevant variables
+**
+*****************************************************************************/
+static void st_set_bounds(Db *db,
+                          int flag_one,
+                          int ngrf,
+                          int nfacies,
+                          int ifac,
+                          int iech,
+                          double t1min,
+                          double t1max,
+                          double t2min,
+                          double t2max)
+{
+  int jfac;
+  if (! TEST_DISCRET)
+  {
+    jfac = (flag_one) ? 0 : ifac;
+    db->setBounds(iech, jfac, t1min, t1max);
+    if (ngrf > 1)
+    {
+      jfac = (flag_one) ? 1 : nfacies + ifac;
+      db->setBounds(iech, jfac, t2min, t2max);
+    }
+  }
+  else
+  {
+    jfac = (flag_one) ? 0 : ifac;
+    db->setIntervals(iech, jfac,
+                     (double) ct_tableone_getrank_from_proba(CTABLES, t1min),
+                     (double) ct_tableone_getrank_from_proba(CTABLES, t1max));
+    if (ngrf > 1)
+    {
+      jfac = (flag_one) ? 1 : nfacies + ifac;
+      db->setIntervals(iech, jfac,
+                       (double) ct_tableone_getrank_from_proba(CTABLES, t2min),
+                       (double) ct_tableone_getrank_from_proba(CTABLES, t2max));
+    }
+  }
 }
 
 /****************************************************************************/
@@ -485,24 +542,8 @@ static void st_set_rho(double rho,
       ifac = (int) db->getVariable(iech,0);
       if (rule_thresh_define(propdef,db,rule,ifac,iech,0,0,0,
                              &t1min,&t1max,&t2min,&t2max)) return;
-
-      if (! TEST_DISCRET)
-      {
-        db->setLowerBound(iech, 0, t1min);
-        db->setUpperBound(iech, 0, t1max);
-        if (ngrf > 1)
-        {
-          db->setLowerBound(iech, 1, t2min);
-          db->setUpperBound(iech, 1, t2max);
-        }
-      }
-      else
-      {
-        db->setLowerInterval(iech, 0,
-            (double) ct_tableone_getrank_from_proba(CTABLES, t1min));
-        db->setUpperInterval(iech, 0,
-            (double) ct_tableone_getrank_from_proba(CTABLES, t1max));
-      }
+      st_set_bounds(db,1,ngrf,local_pgs->nfacies,ifac,iech,
+                    t1min,t1max,t2min,t2max);
     }
   }
   
@@ -586,12 +627,6 @@ static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
 ** \param[in]  propdef       Props structure
 ** \param[in]  rule          Lithotype Rule definition
 **
-** \param[out] iptr_p        Pointer to the proportions
-** \param[out] iptr_l        Pointer to the lower bound(s)
-** \param[out] iptr_u        Pointer to the upper bound(s)
-** \param[out] iptr_rl       Pointer to the discretized lower bound indice(s)
-** \param[out] iptr_ru       Pointer to the discretized upper bound indice(s)
-**
 *****************************************************************************/
 static int st_vario_pgs_variable(int    mode,
                                  int    ngrf, 
@@ -600,15 +635,11 @@ static int st_vario_pgs_variable(int    mode,
                                  int    flag_prop,
                                  Db    *db,
                                  Props *propdef,
-                                 Rule  *rule,
-                                 int   *iptr_p,
-                                 int   *iptr_l,
-                                 int   *iptr_u,
-                                 int   *iptr_rl,
-                                 int   *iptr_ru)
+                                 Rule  *rule)
 {
-  int    number,ifac,jfac,nloop;
+  int    number,ifac,jfac,nloop,iptr;
   double t1min,t1max,t2min,t2max;
+  static bool is_prop_defined;
 
   // Dispatch
 
@@ -617,40 +648,33 @@ static int st_vario_pgs_variable(int    mode,
   {
     case 1:
       
-      /* Allocation */
-      
-      (*iptr_p) = (*iptr_l) = (*iptr_u) = (*iptr_rl) = (*iptr_ru) = -1;
-      
       /* The proportions */
       
+      is_prop_defined = false;
       if (flag_prop && db->getProportionNumber() == 0)
       {
-        (*iptr_p) = db->addFields(nfacies,0.);
-        if ((*iptr_p) < 0) return(1);
-        db->setLocatorsByAttribute(nfacies,*iptr_p,LOC_P);
+        iptr = db->addFields(nfacies,0.,String(),LOC_P);
+        if (iptr < 0) return(1);
+        is_prop_defined = true;
       }
       
       /* The bounds */
       
       if (! TEST_DISCRET)
       {
-        (*iptr_l) = db->addFields(number,0.);
-        if ((*iptr_l) < 0) return(1);
-        db->setLocatorsByAttribute(number,*iptr_l,LOC_L);
+        iptr = db->addFields(number,0.,"Lower",LOC_L);
+        if (iptr < 0) return(1);
         
-        (*iptr_u) = db->addFields(number,0.);
-        if ((*iptr_u) < 0) return(1);
-        db->setLocatorsByAttribute(number,*iptr_u,LOC_U);
+        iptr = db->addFields(number,0.,"Upper",LOC_U);
+        if (iptr < 0) return(1);
       }
       else
       {
-        (*iptr_rl) = db->addFields(number,0.);
-        if ((*iptr_rl) < 0) return(1);
-        db->setLocatorsByAttribute(number,*iptr_rl,LOC_RKLOW);
+        iptr = db->addFields(number,0.,"Lower Rank",LOC_RKLOW);
+        if (iptr < 0) return(1);
         
-        (*iptr_ru) = db->addFields(number,0.);
-        if ((*iptr_ru) < 0) return(1);
-        db->setLocatorsByAttribute(number,*iptr_ru,LOC_RKUP);
+        iptr = db->addFields(number,0.,"Upper Rank",LOC_RKUP);
+        if (iptr < 0) return(1);
       }
       break;
 
@@ -666,45 +690,20 @@ static int st_vario_pgs_variable(int    mode,
         
         for (int i=0; i<nloop; i++)
         {
-          ifac = (flag_one) ? (int) db->getVariable(iech,0) : i;
+          ifac = (flag_one) ? (int) db->getVariable(iech,0)-1 : i;
           jfac = (flag_one) ? ifac : ifac+1;
           if (rule_thresh_define(propdef,db,rule,jfac,iech,0,0,0,
                                  &t1min,&t1max,&t2min,&t2max)) return(1);
           
           /* Define the proportions */
           
-          if ((*iptr_p) >= 0) db->setProportion(iech,ifac,propdef->propmem[ifac]);
+          if (flag_prop)
+            db->setProportion(iech,ifac,propdef->propmem[ifac]);
           
           /* Define the bounds */
           
-          if (! TEST_DISCRET)
-          {
-            jfac = (flag_one) ? 0 : ifac;
-            db->setLowerBound(iech,jfac,t1min);
-            db->setUpperBound(iech,jfac,t1max);
-            if (ngrf > 1)
-            {
-              jfac = (flag_one) ? 1 : nfacies + ifac;
-              db->setLowerBound(iech,jfac,t2min);
-              db->setUpperBound(iech,jfac,t2max);
-            }
-          }
-          else
-          {
-            jfac = (flag_one) ? 0 : ifac;
-            db->setLowerInterval(iech,jfac,
-                      (double) ct_tableone_getrank_from_proba(CTABLES,t1min));
-            db->setUpperInterval(iech,jfac,
-                      (double) ct_tableone_getrank_from_proba(CTABLES,t1max));
-            if (ngrf > 1)
-            {
-              jfac = (flag_one) ? 1 : nfacies + ifac;
-              db->setLowerInterval(iech,jfac,
-                        (double) ct_tableone_getrank_from_proba(CTABLES,t2min));
-              db->setUpperInterval(iech,jfac,
-                        (double) ct_tableone_getrank_from_proba(CTABLES,t2max));
-            }
-          }
+          st_set_bounds(db,flag_one,ngrf,nfacies,ifac,iech,
+                        t1min,t1max,t2min,t2max);
         }
       }
       break;
@@ -713,16 +712,20 @@ static int st_vario_pgs_variable(int    mode,
       
       /* Deallocation */
       
-      if ((*iptr_p) >= 0) 
-        (void) db_attribute_del_mult(db,*iptr_p,nfacies);
-      if ((*iptr_l) >= 0) 
-        (void) db_attribute_del_mult(db,*iptr_l,number);
-      if ((*iptr_u) >= 0) 
-        (void) db_attribute_del_mult(db,*iptr_u,number);
-      if ((*iptr_rl) >= 0) 
-        (void) db_attribute_del_mult(db,*iptr_rl,number);
-      if ((*iptr_ru) >= 0) 
-        (void) db_attribute_del_mult(db,*iptr_ru,number);
+      if (flag_prop && is_prop_defined)
+      {
+        db->deleteFieldByLocator(LOC_P);
+      }
+      if (! TEST_DISCRET)
+      {
+        db->deleteFieldByLocator(LOC_L);
+        db->deleteFieldByLocator(LOC_U);
+      }
+      else
+      {
+        db->deleteFieldByLocator(LOC_RKLOW);
+        db->deleteFieldByLocator(LOC_RKUP);
+      }
       break;
   }
   return(0);
@@ -1030,7 +1033,6 @@ static double st_func_search_nostat(double  correl,
         up[0]  = local_pgs->db->getUpperBound(i1,local_pgs->igrfcur);
         low[1] = local_pgs->db->getLowerBound(i2,local_pgs->igrfcur);
         up[1]  = local_pgs->db->getUpperBound(i2,local_pgs->igrfcur);
-
       }
       else
       {
@@ -1288,7 +1290,6 @@ static double st_rule_calcul(Local_Pgs *local_pgs,
                              int       *string)
 {
   double score;
-  int iptr_p,iptr_l,iptr_u,iptr_rl,iptr_ru;
 
   /* Preliminary assignments */
 
@@ -1309,8 +1310,7 @@ static double st_rule_calcul(Local_Pgs *local_pgs,
   {
     (void) st_vario_pgs_variable(0,local_pgs->ngrf,local_pgs->nfacies,
                                  1,0,local_pgs->db,local_pgs->propdef,
-                                 local_pgs->rule,
-                                 &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru);
+                                 local_pgs->rule);
     st_set_rho(0.,local_pgs);
     for (int idir=0; idir<local_pgs->vario->getDirectionNumber(); idir++)
     {
@@ -4024,63 +4024,38 @@ static int st_variopgs_calcul_rho(Db    *db,
   
 /****************************************************************************/
 /*!
-**  Initialize the computing time
+**  Check if the Discrete Calculations make sens or not
 **
-** \param[in] where   Name of the calling function
+** \return  Error code
 **
-*****************************************************************************/
-static void st_timer_start(const char *where)
-{
-  if (! TEST_TIME) return;
-  clock_start = clock();
-  message("CPU time started in %s\n",where);
-}
-
-/****************************************************************************/
-/*!
-**  Print the computing time
-**
-*****************************************************************************/
-static void st_timer_print(void)
-{
-  double cpu_process,new_clock;
-
-  if (! TEST_TIME) return;
-  new_clock = clock();
-  cpu_process = 1000. * (new_clock - clock_start);
-  message("CPU elapsed (Discret=%d): %lf (ms)\n",
-          TEST_DISCRET,cpu_process  / CLOCKS_PER_SEC);
-  clock_start = new_clock;
-}
-
-/****************************************************************************/
-/*!
-**  Returns the defaulted value for TEST_DISCRET parameters
-**
-** \return  Default value for TEST_DISCRET parameter
-**
-** \param[in]  rule        Lithotype Rule definition
+** \param[in]  mode        Lithotype mode (RULE_STD, RULE_SHIFT or RULE_SHADOW)
 ** \param[in]  flag_rho    1 if rho has to be calculated, 0 otherwise
 **
 *****************************************************************************/
-static int st_def_test_discret(Rule *rule,
-                               int   flag_rho)
+static int st_check_test_discret(int mode,
+                                 int flag_rho)
 {
-  // Dans cette version, on ne discretse JAMAIS
-  return 0; // TODO a verifier
+  // Avoiding Discretizing calculation is always valid
+  if (! TEST_DISCRET) return 0;
 
-  if (rule->getModeRule() == RULE_SHIFT)
-    return(0);
-  else if (rule->getModeRule() == RULE_STD)
+  // Case where the Discrete calculation option has been switch ON
+  if (mode == RULE_STD)
   {
-    if (rule->getRho() <= 0. && ! flag_rho)
-      return(1);
-    else
-      return(0);
+    // Only authorized when GRFs are not correlated
+    if (flag_rho)
+    {
+      messerr("Calculations may not be perfored using Discretized Version");
+      messerr("when underlying GRFs are correlated");
+      return 1;
+    }
   }
   else
-    messageAbort("This rule is not expected in st_def_test_discret");
-  return(0);
+  {
+    messerr("Calculations may not be performed using Discretized version");
+    messerr("when the Rule is not Standard (RULE_STD)");
+    return 1;
+  }
+  return 0;
 }
 
 /****************************************************************************/
@@ -4207,7 +4182,7 @@ static int st_variogram_pgs_nostat(Db      *db,
                                    int      opt_correl)
 {
   Local_Pgs local_pgs;
-  int    flag_correl,flag_stat,iptr_p,iptr_l,iptr_u,iptr_rl,iptr_ru;
+  int    flag_correl,flag_stat;
   int    node_tot,nmax_tot,ny1,ny2,error,nfacies,ngrf;
   double prop_tot;
   Props *propdef;
@@ -4217,7 +4192,6 @@ static int st_variogram_pgs_nostat(Db      *db,
   error  = 1;
   ngrf   = 0;
   flag_stat = nfacies = 0;
-  iptr_p = iptr_l = iptr_u = iptr_rl = iptr_ru = -1;
   propdef = (Props *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
 
@@ -4244,9 +4218,7 @@ static int st_variogram_pgs_nostat(Db      *db,
   /* Allocate the variables */
   /**************************/
 
-  if (st_vario_pgs_variable(1,ngrf,nfacies,1,0,db,propdef,rule,
-                            &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
-    goto label_end;
+  if (st_vario_pgs_variable(1,ngrf,nfacies,1,0,db,propdef,rule)) goto label_end;
 
   /****************************/
   /* Perform the calculations */
@@ -4261,9 +4233,7 @@ static int st_variogram_pgs_nostat(Db      *db,
 
   /* Infer the variogram of PGS */
 
-  if (st_vario_pgs_variable(0,ngrf,nfacies,1,0,db,propdef,rule,
-                            &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
-    goto label_end;
+  if (st_vario_pgs_variable(0,ngrf,nfacies,1,0,db,propdef,rule)) goto label_end;
   if (! flag_rho)
   {
     st_set_rho(rule->getRho(),&local_pgs);
@@ -4284,8 +4254,7 @@ label_end:
   (void) st_extract_trace(&local_pgs);
   st_manage_pgs(-1,&local_pgs,db,rule,vario,NULL,NULL,propdef,
                 flag_stat,1,0,ngrf,nfacies,vario->getCalculType());
-  (void) st_vario_pgs_variable(-1,ngrf,nfacies,1,0,db,propdef,rule,
-                               &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru);
+  (void) st_vario_pgs_variable(-1,ngrf,nfacies,1,0,db,propdef,rule);
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
   return(error);
@@ -4999,7 +4968,7 @@ GEOSLIB_API int model_pgs(Db*     db,
 {
   Local_Pgs local_pgs;
   int     error,nfacies,ngrf,node_tot,nmax_tot;
-  int     ny1,ny2,iptr_l,iptr_u,iptr_p,iptr_rl,iptr_ru;
+  int     ny1,ny2;
   double  prop_tot;
   Props  *propdef;
   Model  *new_model;
@@ -5008,16 +4977,12 @@ GEOSLIB_API int model_pgs(Db*     db,
   /* Initializations */
   /*******************/
 
-  st_timer_start("model_pgs");
-  TEST_DISCRET = (int) get_keypone("TEST_DISCRET",
-                                   st_def_test_discret(rule,0));
-  TEST_TIME    = (int) get_keypone("TEST_TIME",0);
   error  = 1;
   ngrf   = nfacies = 0;
-  iptr_l = iptr_u = iptr_p = iptr_rl = iptr_ru = -1;
   new_model = (Model *) NULL;
   propdef   = (Props *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
+  if (st_check_test_discret(rule->getModeRule(), 0)) goto label_end;
 
   /* Extract information from Rule */
 
@@ -5087,7 +5052,7 @@ GEOSLIB_API int model_pgs(Db*     db,
   /* Pre-calculation of integrals: Define the structure */
 
   if (TEST_DISCRET)
-    CTABLES = ct_tables_manage(1,0,1,2,200,100,-1.,1.,NULL);
+    CTABLES = ct_tables_manage(1,0,1,200,100,-1.,1.,NULL);
 
   st_manage_pgs(1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
@@ -5102,12 +5067,8 @@ GEOSLIB_API int model_pgs(Db*     db,
   }
   else
   {
-    if (st_vario_pgs_variable(1,ngrf,nfacies,0,1,db,propdef,rule,
-                              &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
-      goto label_end;
-    if (st_vario_pgs_variable(0,ngrf,nfacies,0,1,db,propdef,rule,
-                              &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
-      goto label_end;
+    if (st_vario_pgs_variable(1,ngrf,nfacies,0,1,db,propdef,rule)) goto label_end;
+    if (st_vario_pgs_variable(0,ngrf,nfacies,0,1,db,propdef,rule)) goto label_end;
     if (st_vario_indic_model_nostat(&local_pgs)) goto label_end;
     if (st_update_variance_nostat(&local_pgs)) goto label_end;
   }
@@ -5118,15 +5079,13 @@ GEOSLIB_API int model_pgs(Db*     db,
 
 label_end:
   if (TEST_DISCRET)
-    CTABLES = ct_tables_manage(-1,0,1,2,200,100,-1.,1.,CTABLES);
+    CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
   st_manage_pgs(-1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
   new_model = model_free(new_model);
-  (void) st_vario_pgs_variable(-1,ngrf,nfacies,0,1,db,propdef,rule,
-                               &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru);
+  (void) st_vario_pgs_variable(-1,ngrf,nfacies,0,1,db,propdef,rule);
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
-  st_timer_print();
   return(error);
 }
 
@@ -5248,15 +5207,9 @@ GEOSLIB_API int variogram_pgs(Db     *db,
   VectorDouble props;
   int error;
 
-  /* Initializations */
-
-  st_timer_start("variogram_pgs");
-  TEST_DISCRET = (int) get_keypone("TEST_DISCRET",
-                                   st_def_test_discret(rule,0));
-  TEST_TIME    = (int) get_keypone("TEST_TIME",0);
-
   // Preliminary checks
 
+  if (st_check_test_discret(rule->getModeRule(), flag_rho)) return 1;
   if (vario == NULL)
   {
     messerr("The output Variogram must be provided (empty)");
@@ -5333,7 +5286,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
   /* Pre-calculation of integrals: Define the structure */
 
   if (TEST_DISCRET)
-    CTABLES = ct_tables_manage(1,0,1,2,200,100,-1.,1.,NULL);
+    CTABLES = ct_tables_manage(1,0,1,200,100,-1.,1.,NULL);
 
   /* Perform the calculations */
 
@@ -5345,8 +5298,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
   /* Final operations */
 
   if (TEST_DISCRET)
-    CTABLES = ct_tables_manage(-1,0,1,2,200,100,-1.,1.,CTABLES);
-  st_timer_print();
+    CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
   return(error);
 }
   
@@ -5376,7 +5328,6 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
                             int     verbose)
 {
   int     error,nscore,r_opt;
-  int     iptr_p,iptr_l,iptr_u,iptr_rl,iptr_ru;
   int    *rules,flag_rho,flag_correl,opt_correl;
   Rule   *rule;
   Relem  *Pile_Relem;
@@ -5390,13 +5341,9 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   /* Initializations */
 
   error        = 1;
-  rule         = (Rule *) NULL;
+  rule         = (Rule  *) NULL;
   Pile_Relem   = (Relem *) NULL;
   propdef      = (Props *) NULL;
-
-  st_timer_start("rule_auto");
-  TEST_DISCRET = 1;
-  TEST_TIME    = (int) get_keypone("TEST_TIME",0);
 
   VectorDouble props = dbStatisticsFacies(db);
   NCOLOR       = props.size();
@@ -5406,7 +5353,6 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   flag_rho     = 0;
   flag_correl  = 0;
   opt_correl   = 0;
-  iptr_p       = iptr_l = iptr_u = iptr_rl = iptr_ru = -1;
 
   /* Core allocation */
 
@@ -5415,6 +5361,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
   /* Preliminary tasks (as in variogram.pgs) */
 
+  if (st_check_test_discret(RULE_STD,0)) goto label_end;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
   if (st_vario_pgs_check(0,0,flag_stat,db,NULL,vario,varioind,NULL)) goto label_end;
   vario->internalResize(db->getNDim(), ngrf, "cov");
@@ -5426,7 +5373,8 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   
   /* Pre-calculation of integrals: Define the structure */
 
-  CTABLES = ct_tables_manage(1,verbose,1,2,200,100,-1.,1.,NULL);
+  if (TEST_DISCRET)
+    CTABLES = ct_tables_manage(1,verbose,1,200,100,-1.,1.,NULL);
 
   /* Allocation */
 
@@ -5455,10 +5403,8 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
     if (st_variogram_geometry_pgs_final(&local_pgs)) goto label_end;
 
     // The thresholds are added lately in order to allow calculation of 
-    // geometry (without checking the threshold interval (not defined yet)
-    if (st_vario_pgs_variable(1,ngrf,NCOLOR,1,0,db,propdef,NULL,
-                              &iptr_p,&iptr_l,&iptr_u,&iptr_rl,&iptr_ru))
-      goto label_end;
+    // geometry (without checking the threshold interval (not defined yst_relem_evaluateet)
+    if (st_vario_pgs_variable(1,ngrf,NCOLOR,1,0,db,propdef,NULL)) goto label_end;
   }
 
   /* Elaborate the whole tree */
@@ -5477,7 +5423,8 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
   /* Get the resulting optimal Rule */
 
-  st_rule_print(r_opt,NRULE,Pile_Relem->Rrules,Pile_Relem->Rfipos,0,-1,-1,TEST);
+  if (verbose)
+    st_rule_print(r_opt,NRULE,Pile_Relem->Rrules,Pile_Relem->Rfipos,0,-1,-1,TEST);
   rules = Pile_Relem->Rrules;
   rule = st_rule_encode(&RULES(r_opt,0));
 
@@ -5492,12 +5439,12 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
 label_end:
   Pile_Relem = st_relem_free(Pile_Relem);
-  CTABLES = ct_tables_manage(-1,verbose,1,2,200,100,-1.,1.,CTABLES);
+  if (TEST_DISCRET)
+    CTABLES = ct_tables_manage(-1,verbose,1,200,100,-1.,1.,CTABLES);
   st_manage_pgs(-1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
                 flag_stat,1,0,ngrf,NCOLOR,vario->getCalculType());
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,NCOLOR,0,
                               db,dbprop,propcst,propdef);
   if (error) rule = rule_free(rule);
-  st_timer_print();
   return(rule);
 }

@@ -29,7 +29,7 @@ public:
        double sh_down = 0.,
        double sh_dsup = 0.,
        const VectorDouble& shift = VectorDouble());
-  // Constructor for standard option using the String definition
+  // Constructor for Standard option using the String definition
   Rule(const VectorString& nodnames,double rho = 0.);
   // Constructor for Standard option
   Rule(const VectorInt& n_type,
@@ -39,7 +39,7 @@ public:
   Rule(const VectorDouble& shift);
   // Constructor for Shadow option
   Rule(double slope, double sh_dsup, double sh_down, const VectorDouble& shift);
-  Rule(const String& neutralFileName, bool verbose);
+  Rule(const String& neutralFileName, bool verbose = false);
 
   Rule(const Rule& r);
   Rule& operator=(const Rule& r);
@@ -57,7 +57,7 @@ public:
   double getShDown() const { return _shDown; }
   double getShDsup() const { return _shDsup; }
   const VectorDouble& getShift() const { return _shift; }
-  double getShift(int idim) const { return _shift[idim]; }
+  double getShift(int idim) const { return _shift.empty() ? 0 : _shift[idim]; }
   double getSlope() const { return _slope; }
   double getTgte() const { return _tgte; }
   Node*  getMainNode() { return _mainNode; }

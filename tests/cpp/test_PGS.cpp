@@ -29,6 +29,9 @@ int main(int argc, char *argv[])
   int ndim = 2;
   CovContext ctxt(1,2,1.);
 
+  // Prepare the Discrete process with Discretized Option
+  set_test_discrete(0);
+
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
   Db db(nech,VectorDouble(2,0.),VectorDouble(2,1.));
@@ -56,6 +59,7 @@ int main(int argc, char *argv[])
   // Creating the Rule
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
+  rule.serialize(pygst+ "truerule.ascii");
   int flag_stat = 0;
 
   // Prepare proportions
@@ -65,7 +69,6 @@ int main(int argc, char *argv[])
   for (int ifac = 0; ifac < nfac; ifac++)
     db.addFields(1,props[ifac],names[ifac]);
   db.setLocator(names,LOC_P);
-  db.display(FLAG_STATS);
 
   // Perform a non-conditional simulation on the Db
 
@@ -123,8 +126,8 @@ int main(int argc, char *argv[])
   Dir dir4 = Dir(ndim, nlag, 0.5 / nlag);
   varioParamIndic.addDirs(dir4);
 
-  Rule* ruleFit = rule_auto(&db,&varioParam,&varioIndic,props,nullptr,flag_stat,
-                            1,true);
+  Rule* ruleFit = rule_auto(&db,&varioParam,&varioIndic,props,nullptr,flag_stat,1);
+  ruleFit->display(1);
   ruleFit->serialize(pygst + "ruleFit.ascii");
 
   return(error);

@@ -1134,8 +1134,9 @@ int Db::addFields(int nadd,
     _colNames[ncol] = radix;
   else
   {
+    VectorString names = generateMultipleNames(radix,nadd);
     for (int i = 0; i < nadd; i++)
-      _colNames[ncol + i] = radix;
+      _colNames[ncol + i] = names[i];
   }
   (void) correctNamesForDuplicates(_colNames);
 
@@ -1144,7 +1145,7 @@ int Db::addFields(int nadd,
 
   // Set the locator (if defined)
   if (locatorType != LOC_UNKNOWN)
-    setLocatorsByAttribute(nadd, _ncol, locatorType);
+    setLocatorsByAttribute(nadd, nmax, locatorType);
 
   _ncol += nadd;
 
@@ -1769,7 +1770,19 @@ void Db::setLowerInterval(int iech, int item, double rklow)
 
 void Db::setUpperInterval(int iech, int item, double rkup)
 {
-  setFromLocator(LOC_RKLOW, iech, item, rkup);
+  setFromLocator(LOC_RKUP, iech, item, rkup);
+}
+
+void Db::setIntervals(int iech, int item, double rklow, double rkup)
+{
+  if (rklow > rkup)
+  {
+    messerr("Setting Intervals: Lower (%lf) cannot be larger than upper (%lf)",
+            rklow,rkup);
+    return;
+  }
+  setFromLocator(LOC_RKLOW, iech, item, rklow);
+  setFromLocator(LOC_RKUP,  iech, item, rkup);
 }
 
 int Db::getLowerBoundNumber() const
@@ -1812,6 +1825,17 @@ void Db::setLowerBound(int iech, int item, double lower)
 void Db::setUpperBound(int iech, int item, double upper)
 {
   setFromLocator(LOC_U, iech, item, upper);
+}
+void Db::setBounds(int iech, int item, double lower, double upper)
+{
+  if (lower > upper)
+  {
+    messerr("Setting bounds: Lower (%lf) cannot be larger than upper (%lf)",
+            lower,upper);
+    return;
+  }
+  setLowerBound(iech,item,lower);
+  setUpperBound(iech,item,upper);
 }
 
 int Db::getGradientNumber() const

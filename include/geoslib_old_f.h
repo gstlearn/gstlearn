@@ -3399,14 +3399,13 @@
   GEOSLIB_API CTables *ct_tables_manage(int mode,
                                         int verbose,
                                         int flag_cumul,
-                                        int ndim,
                                         int nconf,
                                         int ndisc,
                                         double cmin,
                                         double cmax,
                                         CTables *ctables_old);
   GEOSLIB_API void ct_tables_print(CTables *ctables, int flag_print);
-  GEOSLIB_API int ct_tableone_covrank(CTables *ctables,
+  GEOSLIB_API int ct_tableone_covrank(const CTables *ctables,
                                       double cova,
                                       double *cround);
   GEOSLIB_API int ct_tableone_getrank_from_proba(CTables *ctables,

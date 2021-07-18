@@ -472,7 +472,6 @@ typedef struct
 
 typedef struct
 {
-  int ndim;                 // Space dimension for +
   int nconf;                // Number of covariance configurations
   int ndisc;                // Number of discretization steps
   int flag_cumul;           // 1 if storing integer from -infinity to value
@@ -495,7 +494,7 @@ struct Local_Split
   int *Srules;                // List of rules (Dim: [nitem][NRULE])
   int *Sfipos;                // Position of facies (Dim: [nprod][NCOLOR])
   Local_Relem *old_relem;     // Not allocated
-  Local_Relem *relems[2];
+  std::vector<Local_Relem *> relems;
 };
 
 struct Local_Relem
@@ -507,7 +506,7 @@ struct Local_Relem
   int *Rrules;                // List of rules (Dim: [nitem][NRULE])
   int *Rfipos;                // Position of facies (Dim: [nprod][NCOLOR])
   Local_Split *old_split;     // Not allocated
-  Local_Split **splits;
+  std::vector<Local_Split *> splits;
 };
 
 typedef struct Local_Relem Relem;

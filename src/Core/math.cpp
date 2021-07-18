@@ -49,7 +49,7 @@ static void st_tableone_manage(CTables *ctables,
   // Initializations
 
   nelem    = NELEM(ctables);
-  size     = (ctables->ndim == 2) ? nelem * nelem : nelem * nelem * nelem;
+  size     = nelem * nelem;
   *nb_used = 0;
   *nb_max  = size;
     
@@ -103,7 +103,7 @@ static void st_tableone_manage(CTables *ctables,
  ** OUT_ARGS: cround  : Round discretized covariance value
  **
  *****************************************************************************/
-GEOSLIB_API int ct_tableone_covrank(CTables *ctables,
+GEOSLIB_API int ct_tableone_covrank(const CTables *ctables,
                                     double   cova,
                                     double  *cround)
 {
@@ -142,8 +142,8 @@ GEOSLIB_API double ct_INTRES2(CTables *ctables,
                               int      idisc0,
                               int      jdisc0)
 {
-  double  lower[3],upper[3],error,value,cova;
-  int     infin[3],inform,nelem,iad,nb_used,nb_max;
+  double  lower[2],upper[2],error,value,cova;
+  int     infin[2],inform,nelem,iad,nb_used,nb_max;
   static  double abseps = 1.e-8;
   static  double releps = 0.;
   static  int    maxpts = 25000;
@@ -194,7 +194,6 @@ GEOSLIB_API double ct_INTRES2(CTables *ctables,
       
     lower[0] = THRESH_INF;
     lower[1] = THRESH_INF;
-    lower[2] = THRESH_INF;
       
     upper[0] = ctables->v[idisc0];
     infin[0] = 0;
@@ -327,15 +326,13 @@ GEOSLIB_API double ct_INTRES3(CTables *ctables,
 GEOSLIB_API void ct_tables_print(CTables *ctables,
                                  int      flag_print)
 {
-  int ndisc,ndim,nconf,nelem;
+  int ndisc,nconf,nelem;
 
   ndisc = ctables->ndisc;
-  ndim  = ctables->ndim;
   nconf = ctables->nconf;
   nelem = NELEM(ctables);
 
   mestitle(0,"Precalculation of Gaussian integral");
-  message("Point-statistics number                     = %d\n",ndim);
   message("Number of Covariance Discretizations steps  = %d\n",nconf);
   message("Lower Bound of Covariance Discretization    = %lf\n",ctables->cmin);
   message("Upper Bound of Covariance Discretization    = %lf\n",ctables->cmax);
@@ -366,12 +363,7 @@ GEOSLIB_API void ct_tables_print(CTables *ctables,
                 iconf+1,ctables->nconf,COVAL(ctables,iconf));
 
       if (flag_print == 2)
-      {
-        if (ndim == 2)
-          print_matrix(NULL,0,1,nelem,nelem,NULL,&INTRESX(iconf,0));
-        else
-          print_matrix(NULL,0,1,nelem,nelem*nelem,NULL,&INTRESX(iconf,0));
-      }
+        print_matrix(NULL,0,1,nelem,nelem,NULL,&INTRESX(iconf,0));
     }
     message("\n");
   }
@@ -390,7 +382,6 @@ GEOSLIB_API void ct_tables_print(CTables *ctables,
  ** IN_ARGS:  verbose     : Verbose flag
  ** IN_ARGS:  flag_cumul  : 1 for storing gauss integral from -inf
  ** IN_ARGS:                0 for storing gauss integral per pixel
- ** IN_ARGS:  ndim        : Space dimension for discretization
  ** IN_ARGS:  nconf       : Number of configurations
  ** IN_ARGS:  ndisc       : Number of Discretization steps
  ** IN_ARGS:  cmin        : Minimum value allowed for the correlation
@@ -401,7 +392,6 @@ GEOSLIB_API void ct_tables_print(CTables *ctables,
 GEOSLIB_API CTables *ct_tables_manage(int      mode,
                                       int      verbose,
                                       int      flag_cumul,
-                                      int      ndim,
                                       int      nconf,
                                       int      ndisc,
                                       double   cmin,
@@ -423,7 +413,6 @@ GEOSLIB_API CTables *ct_tables_manage(int      mode,
               ndisc,ndisc,nconf);
     ctables = (CTables *) mem_alloc(sizeof(CTables),1);
     ctables->flag_cumul = flag_cumul;
-    ctables->ndim  = ndim;
     ctables->nconf = nconf;
     ctables->ndisc = ndisc;
     ctables->cmin  = cmin;
@@ -491,7 +480,7 @@ GEOSLIB_API CTables *ct_tables_manage(int      mode,
  ** REMARKS:  use them in a loop
  **
  *****************************************************************************/
-static void st_tableone_getrank(CTables *ctables,
+static void st_tableone_getrank(const CTables *ctables,
                                 double   low,
                                 double   up,
                                 int     *indmin,
@@ -572,11 +561,10 @@ GEOSLIB_API double ct_tableone_calculate(CTables *ctables,
                                          double  *ups)
 {
   double result;
-  int    ndim,i1min,i1max,i2min,i2max,i3min,i3max;
+  int    i1min,i1max,i2min,i2max;
 
   // Initializations 
 
-  ndim   = ctables->ndim;
   result = 0;
 
   // Dispatch
@@ -586,58 +574,23 @@ GEOSLIB_API double ct_tableone_calculate(CTables *ctables,
 
     // Pixelated case
 
-    if (ndim == 2)
-    {
-
-      // 2-D case
-      
-      st_tableone_getrank(ctables,lows[0],ups[0],&i1min,&i1max);
-      st_tableone_getrank(ctables,lows[1],ups[1],&i2min,&i2max);
-      for (int idisc=i1min; idisc<i1max; idisc++)
-        for (int jdisc=i2min; jdisc<i2max; jdisc++)
-          result += ct_INTRES2(ctables,iconf0,idisc,jdisc);
-    }
-    else
-    {
-      st_tableone_getrank(ctables,lows[0],ups[0],&i1min,&i1max);
-      st_tableone_getrank(ctables,lows[1],ups[1],&i2min,&i2max);
-      st_tableone_getrank(ctables,lows[2],ups[2],&i3min,&i3max);
-
-      // 3-D Case
-      
-      for (int idisc=i1min; idisc<i1max; idisc++)
-        for (int jdisc=i2min; jdisc<i2max; jdisc++)
-          for (int kdisc=i3min; kdisc<i3max; kdisc++)
-            result += ct_INTRES3(ctables,iconf0,idisc,jdisc,kdisc);
-    }
+    st_tableone_getrank(ctables,lows[0],ups[0],&i1min,&i1max);
+    st_tableone_getrank(ctables,lows[1],ups[1],&i2min,&i2max);
+    for (int idisc=i1min; idisc<i1max; idisc++)
+      for (int jdisc=i2min; jdisc<i2max; jdisc++)
+        result += ct_INTRES2(ctables,iconf0,idisc,jdisc);
   }
   else
   {
     
     // Cumulative case
 
-    if (ctables->ndim == 2)
-    {
-
-      // 2-D Case
-
-      st_tableone_getrank(ctables,lows[0],ups[0],&i1min,&i1max);
-      st_tableone_getrank(ctables,lows[1],ups[1],&i2min,&i2max);
-      result = (ct_INTRES2(ctables,iconf0,i1max,i2max) -
-                ct_INTRES2(ctables,iconf0,i1min,i2max) -
-                ct_INTRES2(ctables,iconf0,i1max,i2min) + 
-                ct_INTRES2(ctables,iconf0,i1min,i2min));
-    }
-    else
-    {
-
-      // 3-D Case
-
-      st_tableone_getrank(ctables,lows[0],ups[0],&i1min,&i1max);
-      st_tableone_getrank(ctables,lows[1],ups[1],&i2min,&i2max);
-      st_tableone_getrank(ctables,lows[2],ups[2],&i3min,&i3max);
-      message("Not calculated yet\n");
-    }
+    st_tableone_getrank(ctables,lows[0],ups[0],&i1min,&i1max);
+    st_tableone_getrank(ctables,lows[1],ups[1],&i2min,&i2max);
+    result = (ct_INTRES2(ctables,iconf0,i1max,i2max) -
+        ct_INTRES2(ctables,iconf0,i1min,i2max) -
+        ct_INTRES2(ctables,iconf0,i1max,i2min) +
+        ct_INTRES2(ctables,iconf0,i1min,i2min));
   }
   return(result);
 }
@@ -666,11 +619,9 @@ GEOSLIB_API double ct_tableone_calculate_by_rank(CTables *ctables,
                                                  double  *rkups)
 {
   double result;
-  int    ndim;
 
   // Initializations 
 
-  ndim   = ctables->ndim;
   result = 0;
 
   // Dispatch
@@ -680,50 +631,21 @@ GEOSLIB_API double ct_tableone_calculate_by_rank(CTables *ctables,
 
     // Pixelated case
 
-    if (ndim == 2)
-    {
-
-      // 2-D case
-      
-      for (int idisc=(int) rklows[0]; idisc<(int) rkups[0]; idisc++)
-        for (int jdisc=(int) rklows[1]; jdisc<(int) rkups[1]; jdisc++)
-          result += ct_INTRES2(ctables,iconf0,idisc,jdisc);
-    }
-    else
-    {
-
-      // 3-D Case
-      
-      for (int idisc=(int) rklows[0]; idisc<(int) rkups[0]; idisc++)
-        for (int jdisc=(int) rklows[1]; jdisc<(int) rkups[1]; jdisc++)
-          for (int kdisc=(int) rklows[2]; kdisc<(int) rkups[3]; kdisc++)
-            result += ct_INTRES3(ctables,iconf0,idisc,jdisc,kdisc);
-    }
+    for (int idisc=(int) rklows[0]; idisc<(int) rkups[0]; idisc++)
+      for (int jdisc=(int) rklows[1]; jdisc<(int) rkups[1]; jdisc++)
+        result += ct_INTRES2(ctables,iconf0,idisc,jdisc);
   }
   else
   {
     
     // Cumulative case
 
-    if (ctables->ndim == 2)
-    {
-
-      // 2-D Case
-
-      result = (ct_INTRES2(ctables,iconf0,(int) rkups[0] ,(int) rkups[1]) -
-                ct_INTRES2(ctables,iconf0,(int) rklows[0],(int) rkups[1]) -
-                ct_INTRES2(ctables,iconf0,(int) rkups[0] ,(int) rklows[1]) + 
-                ct_INTRES2(ctables,iconf0,(int) rklows[0],(int) rklows[1]));
-    }
-    else
-    {
-
-      // 3-D Case
-
-      message("Not calculated yet\n");
-    }
+    result = (ct_INTRES2(ctables,iconf0,(int) rkups[0] ,(int) rkups[1]) -
+        ct_INTRES2(ctables,iconf0,(int) rklows[0],(int) rkups[1]) -
+        ct_INTRES2(ctables,iconf0,(int) rkups[0] ,(int) rklows[1]) +
+        ct_INTRES2(ctables,iconf0,(int) rklows[0],(int) rklows[1]));
   }
-  return(result);
+   return(result);
 }
 
 /****************************************************************************

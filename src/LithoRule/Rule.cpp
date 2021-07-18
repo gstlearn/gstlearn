@@ -299,9 +299,8 @@ Rule::~Rule()
 int Rule::init(const VectorInt& nodes)
 {
   int nb_node = nodes.size() / 6;
-  std::vector<Node *> n1tab = std::vector<Node *>(nb_node);
-  std::vector<Node *> n2tab = std::vector<Node *>(nb_node);
-  for (int i = 0; i < nb_node; i++) n1tab[i] = n2tab[i] = (Node *) NULL;
+  std::vector<Node *> n1tab(nb_node, nullptr);
+  std::vector<Node *> n2tab(nb_node, nullptr);
 
   // Loop on the nodes
 
@@ -314,7 +313,8 @@ int Rule::init(const VectorInt& nodes)
         NODE_TYPE(inode) != THRESH_Y1   &&
         NODE_TYPE(inode) != THRESH_Y2)
     {
-      messerr("Error in the type of the node #%d (%d)", inode + 1,NODE_TYPE(inode));
+      messerr("Error in the type of the node #%d (%d)",
+              inode + 1,NODE_TYPE(inode));
       return 1;
     }
     if (NODE_RANK(inode) < 1 || NODE_RANK(inode) > nb_node)
@@ -359,6 +359,9 @@ int Rule::init(const VectorInt& nodes)
       name << symbol[NODE_TYPE(inode)] << FACIES(inode);
     else
       name << symbol[NODE_TYPE(inode)];
+
+    // Allocate the new node
+
     Node* node_loc = new Node(name.str(), NODE_TYPE(inode), facies);
     if (inode == 0) _mainNode = node_loc;
 
@@ -1060,9 +1063,12 @@ int Rule::serialize(const String& filename, bool verbose)
   _recordWrite("#", "Type of Rule");
   _recordWrite("%lf", getRho());
   _recordWrite("#", "Correlation coefficient between GRFs");
-  _recordWrite("%lf", getSlope());
-  _recordWrite("%lf", getShDown());
-  _recordWrite("%lf", getShDsup());
+  double slope = (FFFF(getSlope())) ? 0. : getSlope();
+  _recordWrite("%lf", slope);
+  double shdown = (FFFF(getShDown())) ? 0. : getShDown();
+  _recordWrite("%lf", shdown);
+  double shdsup = (FFFF(getShDsup())) ? 0. : getShDsup();
+  _recordWrite("%lf", shdsup);
   _recordWrite("#", "Parameters for Shadow option");
   _recordWrite("%lf", getShift(0));
   _recordWrite("%lf", getShift(1));
@@ -1102,7 +1108,7 @@ void Rule::_ruleDefine(Node *node,
   /* Current node */
 
   _recordWrite("%d", node->getOrient());
-  if (IFFFF(node->getFacies()))
+  if (node->getFacies() <= 0)
   {
     cur_rank = *rank = (*rank) + 1;
     _recordWrite("%d", cur_rank);
@@ -1119,9 +1125,9 @@ void Rule::_ruleDefine(Node *node,
 
   _recordWrite("#", "Node characteristics");
 
-  if (node->getR1() != (Node *) NULL)
+  if (node->getR1() != nullptr)
     _ruleDefine(node->getR1(), node->getOrient(), cur_rank, 1, rank);
-  if (node->getR2() != (Node *) NULL)
+  if (node->getR2() != nullptr)
     _ruleDefine(node->getR2(), node->getOrient(), cur_rank, 2, rank);
 }
 
