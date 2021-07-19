@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int error = 0;
   int ndim = 2;
+  int flag_stat = 0;
   CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option
@@ -60,7 +61,6 @@ int main(int argc, char *argv[])
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
   rule.serialize(pygst+ "truerule.ascii");
-  int flag_stat = 0;
 
   // Prepare proportions
   VectorDouble props({0.2, 0.5, 0.3});
@@ -122,11 +122,8 @@ int main(int argc, char *argv[])
   Dir dir3 = Dir(ndim, nlag, 0.5 / nlag);
   varioParam.addDirs(dir3);
   varioParam.setCalculName("vg");
-  Vario varioParamIndic = Vario();
-  Dir dir4 = Dir(ndim, nlag, 0.5 / nlag);
-  varioParamIndic.addDirs(dir4);
 
-  Rule* ruleFit = rule_auto(&db,&varioParam,&varioIndic,props,nullptr,flag_stat,1);
+  Rule* ruleFit = rule_auto(&db,&varioParam,props,nullptr,flag_stat,1);
   ruleFit->display(1);
   ruleFit->serialize(pygst + "ruleFit.ascii");
 

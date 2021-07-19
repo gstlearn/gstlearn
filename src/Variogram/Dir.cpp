@@ -612,3 +612,21 @@ std::vector<Dir> generateMultipleDirs(int ndim,
   }
   return dirs;
 }
+
+void Dir::patchCenter(int nech, double rho)
+{
+  if (! _flagAsym) return;
+  for (int ivar=0; ivar<_nvar; ivar++)
+    for (int jvar=0; jvar<=ivar; jvar++)
+    {
+      // Get the central address
+      int iad = getAddress(ivar,jvar,0,false,0);
+      setSw(iad,nech);
+      setHh(iad,0.);
+      if (ivar == jvar)
+        setGg(iad,1.);
+      else
+        setGg(iad,rho);
+    }
+}
+

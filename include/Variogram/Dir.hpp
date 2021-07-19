@@ -131,6 +131,8 @@ public:
   double getHmax(int ivar=0, int jvar=0) const;
   double getGmax(int ivar=0, int jvar=0, bool flagAbs = false) const;
 
+  void patchCenter(int nech, double rho);
+
 private:
   void _completeDefinition();
   bool _isLagValid(int ilag) const;

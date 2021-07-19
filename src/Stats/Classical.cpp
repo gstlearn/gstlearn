@@ -380,29 +380,19 @@ VectorDouble dbStatisticsFacies(Db *db)
     return props;
   }
   int nech = db->getSampleNumber();
+  int nfac = db->getFaciesNumber();
 
-  // Find the number of Facies (labelled starting from 1)
+  // Calculate the proportions
 
-  int nfac = 0;
+  props.resize(nfac,0.);
   int neff = 0;
   for (int iech=0; iech<nech; iech++)
   {
     if (! db->isActiveAndDefined(iech,0)) continue;
     int ifac = (int) db->getVariable(iech,0);
     if (ifac <= 0) continue;
-    if (ifac > nfac) nfac = ifac;
-    neff++;
-  }
-
-  // Calculate the proportions
-
-  props.resize(nfac,0.);
-  for (int iech=0; iech<nech; iech++)
-  {
-    if (! db->isActiveAndDefined(iech,0)) continue;
-    int ifac = (int) db->getVariable(iech,0);
-    if (ifac <= 0) continue;
     props[ifac-1] += 1.;
+    neff++;
   }
 
   // Normalization

@@ -131,6 +131,7 @@ public:
   void updGg(int idir, int iad, double gg) { return _dirs[idir].updGg(iad, gg); }
   void setUtilize(int idir, int iad, double val) { return _dirs[idir].setUtilize(iad, val); }
   void clean(int idir) { return _dirs[idir].clean(); }
+  void patchCenter(int idir, int nech, double rho) { _dirs[idir].patchCenter(nech, rho); }
 
 private:
   int  _getAddress(int ivar, int jvar) const;

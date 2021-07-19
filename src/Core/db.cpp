@@ -5143,3 +5143,4 @@ GEOSLIB_API ES db_grad2angle(Db *db,
 
   return ES_NOERROR;
 }
+

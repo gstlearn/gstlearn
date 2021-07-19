@@ -303,7 +303,6 @@ GEOSLIB_API int db_threshold(Db *db,
                              NamingConvention namconv = NamingConvention("Thresh"));
 GEOSLIB_API Rule *rule_auto(Db *db,
                             Vario *vario,
-                            Vario *varioind,
                             const VectorDouble& propcst,
                             Db *dbprop = nullptr,
                             int flag_stat = true,

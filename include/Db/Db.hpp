@@ -191,6 +191,7 @@ public:
   VectorInt getAttributes(ENUM_LOCS locatorType) const;
   VectorInt getAttributes() const;
   VectorInt getAttributesBasic(const VectorString& names) const;
+  int getFaciesNumber(void);
 
   // Accessing elements of the contents
 

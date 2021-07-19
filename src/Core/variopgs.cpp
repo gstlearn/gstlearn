@@ -828,22 +828,8 @@ static void st_variogram_patch_C00(Local_Pgs *local_pgs,
                                    double rho)
 {
   Db* db  = local_pgs->db;
-  int nech = 0.;
-  if (db != nullptr) nech = db->getActiveSampleNumber();
-
-  const Dir& dir = vario->getDirs(idir);
-  for (int igrf=0; igrf<ngrf; igrf++)
-    for (int jgrf=0; jgrf<=igrf; jgrf++)
-    {      
-      // Get the central address
-      int iad = dir.getAddress(igrf,jgrf,0,false,0);
-      vario->setSw(idir,iad,nech);
-      vario->setHh(idir,iad,0.);
-      if (igrf == jgrf)
-        vario->setGg(idir,iad,1.);
-      else
-        vario->setGg(idir,iad,rho);
-    }
+  int nech = (db == nullptr) ? 0 : db->getActiveSampleNumber();
+  vario->patchCenter(idir,nech, rho);
 }
 
 /****************************************************************************/
@@ -5227,7 +5213,6 @@ GEOSLIB_API int variogram_pgs(Db     *db,
   }
   vario->setCalculName("covnc");
   vario->setDimensionNumber(db->getNDim());
-  int iatt = db->getAttribute(LOC_Z,0);
   int nclass = rule->getFaciesNumber();
   if (nclass <= 0)
   {
@@ -5262,25 +5247,13 @@ GEOSLIB_API int variogram_pgs(Db     *db,
       }
     }
 
-    // Translate the 'Facies' into 'categories'
-    Limits limits = Limits(nclass);
-    if (limits.toIndicator(db,iatt))
-    {
-      messerr("Problem when translating Facies into Categories");
-      return 1;
-    }
-
     // Calculate the variogram of Indicators
     varioind = (Vario*) vario->clone();
-    if (varioind->compute(db,"covnc"))
+    if (varioind->computeIndic(db,"covnc"))
     {
       messerr("Error when calculating the Variogram of Indicators");
       return 1;
     }
-
-    // Delete the Indicators (created locally)
-    db->deleteFieldByLocator(LOC_Z);
-    db->setLocatorByAttribute(iatt,LOC_Z);
   }
 
   /* Pre-calculation of integrals: Define the structure */
@@ -5310,7 +5283,6 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 **
 ** \param[in]  db           Db structure
 ** \param[in]  vario        Vario structure for the GRFs to be filled
-** \param[in]  varioind     Indicator Vario structure 
 ** \param[in]  propcst      Array of proportions for the facies
 ** \param[in]  dbprop       Db Grid used for proportions (non-stationary)
 ** \param[in]  flag_stat    1 for stationary and 0 otherwise
@@ -5320,7 +5292,6 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 *****************************************************************************/
 GEOSLIB_API Rule *rule_auto(Db     *db,
                             Vario  *vario,
-                            Vario  *varioind,
                             const   VectorDouble& propcst,
                             Db     *dbprop,
                             int     flag_stat,
@@ -5332,6 +5303,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   Rule   *rule;
   Relem  *Pile_Relem;
   Props  *propdef;
+  Vario  *varioind = nullptr;
   Local_Pgs local_pgs;
   VectorInt facies;
   VectorInt fcmp;
@@ -5345,8 +5317,7 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   Pile_Relem   = (Relem *) NULL;
   propdef      = (Props *) NULL;
 
-  VectorDouble props = dbStatisticsFacies(db);
-  NCOLOR       = props.size();
+  NCOLOR       = db->getFaciesNumber();
   NGRF         = ngrf;
   NRULE        = 2 * NCOLOR - 1;
   BASE         = 2 * NGRF;
@@ -5360,6 +5331,17 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
   for (int i=0; i<NCOLOR; i++) facies[i] = i+1;
 
   /* Preliminary tasks (as in variogram.pgs) */
+
+  if (flag_stat)
+  {
+    // Calculate the variogram of Indicators
+    varioind = (Vario*) vario->clone();
+    if (varioind->computeIndic(db,vario->getCalculName()))
+    {
+      messerr("Error when calculating the Variogram of Indicators");
+      goto label_end;
+    }
+  }
 
   if (st_check_test_discret(RULE_STD,0)) goto label_end;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);

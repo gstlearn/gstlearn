@@ -3543,3 +3543,30 @@ bool Db::_isCountValid(const VectorInt iatts, bool flagOne) const
   return true;
 }
 
+/**
+ * Returns the Number of different facies (labelling starts at 1)
+ * The facies variable must be locatorized as LOC_Z and be unique
+ */
+int Db::getFaciesNumber(void)
+{
+  if (getLocatorNumber(LOC_Z) != 1)
+  {
+    messerr("This function requires the number of variables (%d) to be equal to 1",
+            getLocatorNumber(LOC_Z));
+    return ITEST;
+  }
+  int nech = getSampleNumber();
+
+  // Find the number of Facies (labelled starting from 1)
+
+  int nfac = 0;
+  for (int iech=0; iech<nech; iech++)
+  {
+    if (! isActiveAndDefined(iech,0)) continue;
+    int ifac = (int) getVariable(iech,0);
+    if (ifac <= 0) continue;
+    if (ifac > nfac) nfac = ifac;
+  }
+  return nfac;
+}
+
