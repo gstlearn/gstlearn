@@ -41,5 +41,7 @@ public:
                                  VectorDouble& covGg,
                                  const CovCalcMode& mode = CovCalcMode(),
                                  bool flagGrad = false) const = 0;
-};
 
+private:
+  bool _validVariable(int ivar) const;
+};

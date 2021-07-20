@@ -544,6 +544,7 @@ void Model::_create(bool flagGradient, bool flagLinked)
     _covaList = new CovLMGradient(_ctxt.getSpace());
   else
     _covaList = new CovLMC(_ctxt.getSpace());
+
   _driftList = new ADriftList(flagLinked);
 
   // Default function used for calculations

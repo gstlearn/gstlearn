@@ -34,6 +34,15 @@ public:
 
   virtual IClonable* clone() const override;
 
+  virtual double eval0(int ivar,
+                       int jvar,
+                       const CovCalcMode& mode = CovCalcMode()) const override;
+  virtual double eval(int ivar,
+                      int jvar,
+                      const SpacePoint& p1,
+                      const SpacePoint& p2,
+                      const CovCalcMode& mode = CovCalcMode()) const override;
+
   void evalZAndGradients(const SpacePoint& p1,
                          const SpacePoint& p2,
                          double& covVal,

@@ -12,7 +12,8 @@
 
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
-
+#include "Covariances/CovContext.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include <math.h>
@@ -97,28 +98,49 @@ double CovGradientNumerical::_evalGradGrad(int ivar,
   int ndim = getContext().getNDim();
   VectorDouble vec(ndim, 0);
 
-  vec[idim] = -radius / 2.;
-  vec[jdim] =  radius / 2.;
-  paux = p2;
-  paux.move(vec);
-  double covmp = eval(ivar, jvar, p1, paux, mode);
-  vec[idim] = -radius / 2.;
-  vec[jdim] = -radius / 2.;
-  paux = p2;
-  paux.move(vec);
-  double covmm = eval(ivar, jvar, p1, paux, mode);
-  vec[idim] =  radius / 2.;
-  vec[jdim] = -radius / 2.;
-  paux = p2;
-  paux.move(vec);
-  double covpm = eval(ivar, jvar, p1, paux, mode);
-  vec[idim] = radius / 2.;
-  vec[jdim] = radius / 2.;
-  paux = p2;
-  paux.move(vec);
-  double covpp = eval(ivar, jvar, p1, paux, mode);
+  double cov;
+  if (idim != jdim)
+  {
+    vec[idim] = -radius / 2.;
+    vec[jdim] = radius / 2.;
+    paux = p2;
+    paux.move(vec);
+    double covmp = eval(ivar, jvar, p1, paux, mode);
+    vec[idim] = -radius / 2.;
+    vec[jdim] = -radius / 2.;
+    paux = p2;
+    paux.move(vec);
+    double covmm = eval(ivar, jvar, p1, paux, mode);
+    vec[idim] = radius / 2.;
+    vec[jdim] = -radius / 2.;
+    paux = p2;
+    paux.move(vec);
+    double covpm = eval(ivar, jvar, p1, paux, mode);
+    vec[idim] = radius / 2.;
+    vec[jdim] = radius / 2.;
+    paux = p2;
+    paux.move(vec);
+    double covpp = eval(ivar, jvar, p1, paux, mode);
 
-  double cov = (covmm + covpp - covmp - covpm) / (radius * radius);
+    cov = (covmm + covpp - covmp - covpm) / (radius * radius);
+  }
+  else
+  {
+    vec[idim] = radius;
+    paux = p2;
+    paux.move(vec);
+    double cov2m = eval(ivar, jvar, p1, paux, mode);
+    vec[idim] = -radius;
+    paux = p2;
+    paux.move(vec);
+    double cov2p = eval(ivar, jvar, p1, paux, mode);
+    vec[idim] = 0;
+    paux = p2;
+    paux.move(vec);
+    double cov00 = eval(ivar, jvar, p1, paux, mode);
+
+    cov = -2. * (cov2p - 2.*cov00 + cov2m) / (radius*radius);
+  }
   return(cov);
 }
 
@@ -171,4 +193,50 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
       for (int j = 0; j < 3; j++)
         covGg[ecr++] += _evalGradGrad(0, 0, i, j, p1, p2, mode);
   }
+}
+
+double CovGradientNumerical::eval0(int ivar, int jvar, const CovCalcMode& mode) const
+{
+  SpacePoint p1;
+  SpacePoint p2;
+  return eval(ivar, jvar, p1, p2, mode);
+}
+
+/**
+ * Calculate the covariance between variable (Z) and a gradient component (Gi)
+ * @param ivar 0 for the variable (Z); idim=ivar-1 for the gradient G_idim
+ * @param jvar 0 for the variable (Z); idim=ivar-1 for the gradient G_idim
+ * @param p1   First point
+ * @param p2   Second point
+ * @param mode CovCalcMode structure
+ * @return
+ */
+double CovGradientNumerical::eval(int ivar,
+                                  int jvar,
+                                  const SpacePoint& p1,
+                                  const SpacePoint& p2,
+                                  const CovCalcMode& mode) const
+{
+  double cov = 0.;
+
+  if (ivar == 0 && jvar == 0)
+    cov = _evalZZ(0, 0, p1, p2, mode);
+  else
+  {
+    int idim = ivar - 1;
+    int jdim = jvar - 1;
+    if (ivar == 0)
+      cov = - _evalZGrad(0, 0, jdim, p1, p2, mode);
+    else if (jvar == 0)
+      cov = _evalZGrad(0, 0, idim, p1, p2, mode);
+    else
+    {
+      if (jdim == idim)
+        cov = _evalGradGrad(0, 0, idim, jdim, p1, p2, mode);
+      else
+        cov = - _evalGradGrad(0, 0, idim, jdim, p1, p2, mode);
+    }
+  }
+  cov *= getSill(0, 0);
+  return cov;
 }

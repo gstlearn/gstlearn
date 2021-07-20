@@ -150,7 +150,6 @@ double _st_cov_exp2dfact(Cova *covariance,
                          VectorDouble d,
                          double h)
 {
-  static double MAX_EXP = 100.;
   double h1, h2, cov;
   int i;
 
@@ -164,7 +163,7 @@ double _st_cov_exp2dfact(Cova *covariance,
   {
     h2 = (! d.empty()) ? ABS(d[i]) :
                                   0.;
-    if (h2 > MAX_EXP) return (0.);
+    if (h2 > MAX_EXP2) return (0.);
     cov *= exp(-h2);
   }
 
@@ -177,7 +176,6 @@ double _st_cov_expfact(Cova *covariance,
                        VectorDouble d,
                        double h)
 {
-  static double MAX_EXP = 100.;
   double cov;
   int i;
 

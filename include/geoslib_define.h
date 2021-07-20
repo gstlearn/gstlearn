@@ -40,8 +40,10 @@
 #define M_R(tab,n,i,j) (tab[(n) * (i) + (j)])
 #define IS_GAUSS_DEF(x) (x > THRESH_INF && x < THRESH_SUP)
 
-#define MAX_INT    1000000000
-#define MAX_PARAM  1000
+#define MAX_INT     1000000000
+#define MAX_PARAM   1000
+#define MAX_EXP     5      // Maximum value for exp(-h)
+#define MAX_EXP2    10     // Maximum value for exp(-h^2)
 
 #define THRESH_INF      -10
 #define THRESH_SUP       10

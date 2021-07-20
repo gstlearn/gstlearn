@@ -102,9 +102,9 @@ VectorDouble ACov::eval(int ivar,
 }
 
 MatrixCSGeneral ACov::eval(double step,
-                       const VectorDouble& dir,
-                       const SpacePoint& center,
-                       const CovCalcMode& mode) const
+                           const VectorDouble& dir,
+                           const SpacePoint& center,
+                           const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
   MatrixCSGeneral mat(nvar);

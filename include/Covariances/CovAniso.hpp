@@ -113,29 +113,16 @@ public:
   bool   getFlagRotation() const { return hasRotation(); }
   double getRange(int idim) const { return getRanges()[idim]; }
   double getScale(int idim) const { return getScales()[idim]; }
-  const VectorDouble getAnisoAngles() const { return _aniso.getRotation().getAngles(); }
-  const VectorDouble getAnisoRotMatVec() const
-  {
-    return _aniso.getRotation().getMatrixDirect().getValues();
-  }
-  const MatrixCSGeneral& getAnisoRotMat() const
-  {
-    return _aniso.getRotation().getMatrixDirect();
-  }
-  const VectorDouble getAnisoInvMatVec() const
-  {
-    return _aniso.getRotation().getMatrixInverse().getValues();
-  }
-  const MatrixCSGeneral& getAnisoInvMat() const
-  {
-    return _aniso.getRotation().getMatrixInverse();
-  }
-
+  const VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
+  const MatrixCSGeneral& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
+  const VectorDouble getAnisoRotMatVec() const { return getAnisoRotMat().getValues(); }
+  const MatrixCSGeneral& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
+  const VectorDouble getAnisoInvMatVec() const { return getAnisoInvMat().getValues(); }
   const VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const
   {
-    return _aniso.getRotation().getMatrixDirect().getValue(idim, jdim);
+    return _aniso.getMatrixDirect().getValue(idim, jdim);
   }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
   const CovContext& getContext() const { return _ctxt; }
@@ -145,50 +132,17 @@ public:
   double getParMax() const { return _cova->getParMax(); }
   int    getMaxNDim() const { return _cova->getMaxNDim(); }
   int    getMinOrder() const { return _cova->getMinOrder(); }
-  bool hasInt1D() const
-  {
-    return _cova->hasInt1D();
-  }
-  bool hasInt2D() const
-  {
-    return _cova->hasInt2D();
-  }
-  bool hasRange() const
-  {
-    return _cova->hasRange();
-  }
-  int hasParam() const
-  {
-    return _cova->hasParam();
-  }
-  String getCovName() const
-  {
-    return _cova->getCovName();
-  }
-  bool isIsotrop() const
-  {
-    return _aniso.isIsotrop();
-  }
-  bool isAsymptotic() const
-  {
-    return getScadef() != 1.;
-  }
-  bool hasRotation() const
-  {
-    return _aniso.hasRotation();
-  }
-  const Tensor& getAniso() const
-  {
-    return _aniso;
-  }
-  void setAniso(const Tensor& aniso)
-  {
-    _aniso = aniso;
-  }
-  const ACovFunc* getCova() const
-  {
-    return _cova;
-  }
+  bool hasInt1D() const { return _cova->hasInt1D(); }
+  bool hasInt2D() const { return _cova->hasInt2D(); }
+  bool hasRange() const { return _cova->hasRange(); }
+  int hasParam() const  { return _cova->hasParam(); }
+  String getCovName() const { return _cova->getCovName(); }
+  bool isIsotrop() const { return _aniso.isIsotrop(); }
+  bool isAsymptotic() const { return getScadef() != 1.; }
+  bool hasRotation() const { return _aniso.hasRotation(); }
+  const Tensor& getAniso() const { return _aniso; }
+  void setAniso(const Tensor& aniso) { _aniso = aniso; }
+  const ACovFunc* getCova() const { return _cova; }
   int getGradParamNumber() const;
 
 protected:

@@ -381,7 +381,7 @@ static void st_cov(Model  *model,
     COV_EXTERNAL_ECH_2 = iech2;
   }
 
-  CovCalcMode mode;
+  CovCalcMode mode(MEMBER_LHS);
   mode.update(nugget_opt,nostd,member,icov_r,0,1);
   model_calcul_cov_nostat(model,mode,flag_init,weight,
                           db1,iech1,db2,iech2,d1,covtab);

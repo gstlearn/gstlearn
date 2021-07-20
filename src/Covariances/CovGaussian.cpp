@@ -9,7 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovGaussian.hpp"
-
 #include "math.h"
 #include "Covariances/CovContext.hpp"
 
@@ -43,14 +42,13 @@ double CovGaussian::getScadef() const
 
 double CovGaussian::_evaluateCov(double h) const
 {
-  if (h > 10) return (0.);
+  if (h > MAX_EXP2) return (0.);
   double cov = exp(-h * h);
   return (cov);
 }
 
 double CovGaussian::_evaluateCovDerivate(int degree, double h) const
 {
-  static double MAX_EXP2 = 10.;
   if (h > MAX_EXP2) return (0.);
   double r2 = h * h;
 
@@ -65,7 +63,7 @@ double CovGaussian::_evaluateCovDerivate(int degree, double h) const
       cov = (4. * r2 - 2.) * exp(-r2);
       break;
 
-    case 3: // Third-order derivative
+    case 3: // Third order derivative
       cov = 4. * exp(-r2) * h * (3 - 2. * r2);
       break;
 
