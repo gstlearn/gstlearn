@@ -36,6 +36,8 @@ public:
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
+  /// Compatibility with gradient calculations
+  virtual bool isGradientCompatible() const;
 
   /////////////////////////////////////////////////////////////////////////
   /// Convenient shortcut methods

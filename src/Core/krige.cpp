@@ -304,11 +304,11 @@ static double st_get_idim(int rank,
 
   if (rank >= 0)
   {
-    value = get_IDIM(DBIN,rank,idim);
+    value = DBIN->getCoordinate(rank,idim);
   }
   else
   {
-    value = get_IDIM(DBOUT,IECH_OUT,idim);
+    value = DBOUT->getCoordinate(IECH_OUT,idim);
   }
   return(value);
 }
@@ -743,7 +743,7 @@ static double st_get_ivar(int rank,
     if (jvar < 0)
       value = TEST;
     else
-      value = get_ARRAY(DBOUT,IECH_OUT,jvar);
+      value = DBOUT->getArray(IECH_OUT,jvar);
   }
 
   return(value);
@@ -2056,8 +2056,8 @@ static int st_neigh(Neigh   *neigh,
       }
       else
       {
-        if (get_IDIM(DBOUT,IECH_NBGH,ndim-1) ==
-            get_IDIM(DBOUT,IECH_OUT ,ndim-1)) goto label_suite;
+        if (DBOUT->getCoordinate(IECH_NBGH,ndim-1) ==
+            DBOUT->getCoordinate(IECH_OUT ,ndim-1)) goto label_suite;
       }
       break;
 
@@ -2083,7 +2083,7 @@ label_suite:
     {
       jvar = RANK_COLCOK[ivar];
       if (jvar < 0) continue;
-      if (! FFFF(get_ARRAY(DBOUT,IECH_OUT,jvar))) found = 1;
+      if (! FFFF(DBOUT->getArray(IECH_OUT,jvar))) found = 1;
     }
     if (! found) return(flag_new);
 
@@ -2285,7 +2285,7 @@ static void st_rhs(Model   *model,
         model_covtab_init(1,model,covtab);
         for (idim=0; idim<DBIN->getNDim(); idim++)
         {
-          d1[idim] = (get_IDIM(DBOUT,IECH_OUT,idim) -
+          d1[idim] = (DBOUT->getCoordinate(IECH_OUT,idim) -
                       st_get_idim(rank[iech],idim));
           // The next option is plugged for the case of target randomization
           // for the case of Point-Block Model
@@ -2301,7 +2301,7 @@ static void st_rhs(Model   *model,
         for (i=0; i<nscale; i++)
         {
           for (idim=0; idim<DBIN->getNDim(); idim++)
-            d1[idim] = (get_IDIM(DBOUT,IECH_OUT,idim) -
+            d1[idim] = (DBOUT->getCoordinate(IECH_OUT,idim) -
                         st_get_idim(rank[iech],idim) + DISC1(i,idim));
           st_cov_dg(model,0,0,0,MEMBER_RHS,-1,1.,rank[iech],-1,d1,covtab);
         }
@@ -2672,7 +2672,7 @@ static void st_estimate(Model  *model,
 
         if (ABS(flag_xvalid) == 1)
         {
-          estim = get_ARRAY(DBOUT,IECH_OUT,IPTR_EST+ivar);
+          estim = DBOUT->getArray(IECH_OUT,IPTR_EST+ivar);
           stdv  = (FFFF(estim) || stdv <= 0.) ? TEST : estim / stdv;
         }
       }
@@ -2764,7 +2764,7 @@ static void st_simulate(Model  *model,
         
         if (debug_query("kriging"))
         {
-          value = get_ARRAY(DBOUT,IECH_OUT,IPTR_EST+ecr);
+          value = DBOUT->getArray(IECH_OUT,IPTR_EST+ecr);
           message("Non-conditional simulation #%d = %lf\n",
                   isimu+1,value);
           message("Kriged difference = %lf\n",-simu);
@@ -3003,7 +3003,7 @@ static void st_result_kriging_print(int flag_xvalid,
       if (FLAG_EST)
       {
         trueval = (status == 0) ? DBIN->getVariable(IECH_OUT,ivar) : TEST;
-        estim   = (status == 0) ? get_ARRAY(DBOUT,IECH_OUT,IPTR_EST+ivar) :TEST;
+        estim   = (status == 0) ? DBOUT->getArray(IECH_OUT,IPTR_EST+ivar) :TEST;
 
         if (ABS(flag_xvalid) == 1)
         {
@@ -3025,7 +3025,7 @@ static void st_result_kriging_print(int flag_xvalid,
 
         if (FLAG_STD)
         {
-          stdev = (status == 0) ? get_ARRAY(DBOUT,IECH_OUT,IPTR_STD+ivar):TEST;
+          stdev = (status == 0) ? DBOUT->getArray(IECH_OUT,IPTR_STD+ivar):TEST;
 
           if (ABS(flag_xvalid) == 1)
           {
@@ -3050,13 +3050,13 @@ static void st_result_kriging_print(int flag_xvalid,
       message("Variable Z%-2d\n",ivar+1);
       if (FLAG_EST)
       {
-        value = (status == 0) ? get_ARRAY(DBOUT,IECH_OUT,IPTR_EST+ivar) : TEST;
+        value = (status == 0) ? DBOUT->getArray(IECH_OUT,IPTR_EST+ivar) : TEST;
         tab_printg(" - Estimate  = ",1,GD_J_RIGHT,value);
         message("\n");
       }
       if (FLAG_STD)
       {
-        value = (status == 0) ? get_ARRAY(DBOUT,IECH_OUT,IPTR_STD+ivar) : TEST;
+        value = (status == 0) ? DBOUT->getArray(IECH_OUT,IPTR_STD+ivar) : TEST;
         tab_printg(" - Std. Dev. = ",1,GD_J_RIGHT,value);
         value = (status == 0) ? VAR0(ivar,ivar) : TEST;
         message("\n");
@@ -3065,7 +3065,7 @@ static void st_result_kriging_print(int flag_xvalid,
       }
       if (FLAG_VARZ)
       {
-        value = (status == 0) ? get_ARRAY(DBOUT,IECH_OUT,IPTR_VARZ+ivar) : TEST;
+        value = (status == 0) ? DBOUT->getArray(IECH_OUT,IPTR_VARZ+ivar) : TEST;
         tab_printg(" - Var(Z*)   = ",1,GD_J_RIGHT,value);
         message("\n");
       }
@@ -3100,7 +3100,7 @@ static void st_result_simulate_print(int nbsimu,
     for (ivar = 0; ivar <nvar; ivar++,ecr++)
     {
       message("Simulation #%d of Z%-2d : ",isimu+1,ivar+1);
-      value = (status == 0) ? get_ARRAY(DBOUT,IECH_OUT,IPTR_EST+ecr) : TEST;
+      value = (status == 0) ? DBOUT->getArray(IECH_OUT,IPTR_EST+ecr) : TEST;
       tab_printg(" = ",1,GD_J_RIGHT,value);
       message("\n");
     }
@@ -5590,7 +5590,7 @@ static void st_grid_invdist(int     exponent,
     /* Find the grid index corresponding to the target */
 
     for (idim=0; idim<ndim; idim++)
-      cooref[idim] = get_IDIM(DBOUT,IECH_OUT,idim);
+      cooref[idim] = DBOUT->getCoordinate(IECH_OUT,idim);
     point_to_grid(DBIN,cooref,flag_expand,indref);
 
     /* Loop on the neighbors */
@@ -5711,7 +5711,7 @@ static void st_point_invdist(int     exponent,
       db_sample_print(DBOUT,IECH_OUT,1,0,0);
     }
     for (idim=0; idim<ndim; idim++)
-      cooref[idim] = get_IDIM(DBOUT,IECH_OUT,idim);
+      cooref[idim] = DBOUT->getCoordinate(IECH_OUT,idim);
 
     /* Loop on the data points */
 
@@ -5720,7 +5720,7 @@ static void st_point_invdist(int     exponent,
     {
       if (! DBIN->isActive(iech_in)) continue;
       for (idim=0; idim<ndim; idim++)
-        coor[idim] = get_IDIM(DBIN,iech_in,idim);
+        coor[idim] = DBIN->getCoordinate(iech_in,idim);
       val_neigh = DBIN->getVariable(iech_in,0);
       if (FFFF(val_neigh)) continue;
 
@@ -7352,7 +7352,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
       {
         if (active[ivar]) continue;
         seistot += lterm[ivar];
-        seisloc -= get_ARRAY(dbout,IECH_OUT,iptr_mem + ivar);
+        seisloc -= dbout->getArray(IECH_OUT,iptr_mem + ivar);
       }
       if (seistot == 0.) 
       {
@@ -7365,7 +7365,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
         if (active[ivar])
           estim = 0;
         else
-          estim = (get_ARRAY(dbout,IECH_OUT,iptr_mem+ivar) + 
+          estim = (dbout->getArray(IECH_OUT,iptr_mem+ivar) +
                    lterm[ivar] * seisloc / seistot);
         dbout->setArray(IECH_OUT,iptr_mem+ivar,estim);
       }
@@ -7373,7 +7373,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
       correct = 1;
       for (ivar=0; ivar<nvarin; ivar++)
       {
-        active[ivar] = (get_ARRAY(dbout,IECH_OUT,iptr_mem+ivar) < 0);
+        active[ivar] = (dbout->getArray(IECH_OUT,iptr_mem+ivar) < 0);
         if (active[ivar]) correct = 0;
       }
       if (! flag_positive) correct = 1;
@@ -7749,7 +7749,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
         iech = db_index_grid_to_sample(db3grid,indg);
         for (ivar=0; ivar<nvarin; ivar++)
         {
-          bb[iz] += get_ARRAY(db3grid,iech,iptr_prop+ivar);
+          bb[iz] += db3grid->getArray(iech,iptr_prop+ivar);
           CC(iz,iz) += LTERM(ivar,iz);
         }
       }
@@ -7761,7 +7761,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
         {
           indg[2] = iz;
           iech = db_index_grid_to_sample(db3grid,indg);
-          bb[nz]    += get_ARRAY(db3grid,iech,iptr_prop+fsum);
+          bb[nz]    += db3grid->getArray(iech,iptr_prop+fsum);
           CC(iz,nz) += LTERM(fsum,iz);
           CC(nz,nz) += LTERM(fsum,iz);
         }
@@ -7793,7 +7793,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
         iech = db_index_grid_to_sample(db3grid,indg);
         for (ivar=0; ivar<nvarin; ivar++)
         {
-          proploc = get_ARRAY(db3grid,iech,iptr_prop+ivar);
+          proploc = db3grid->getArray(iech,iptr_prop+ivar);
           correc  = xx[iz];
           if (nloc > nz && ivar == fsum) correc += xx[nz];
           PROPTAB(ivar,iz) = proploc - correc * LTERM(ivar,iz);
@@ -8115,11 +8115,11 @@ static void st_transform_gaussian_to_raw(Anam *anam)
 
   /* Get the estimation */
 
-  double est = get_ARRAY(DBOUT,IECH_OUT,IPTR_EST);
+  double est = DBOUT->getArray(IECH_OUT,IPTR_EST);
 
   /* Get the variance of the kriging error */
 
-  double std = sqrt(get_ARRAY(DBOUT,IECH_OUT,IPTR_STD));
+  double std = sqrt(DBOUT->getArray(IECH_OUT,IPTR_STD));
 
   /* Calculate the conditional expectation */
 
@@ -9756,7 +9756,7 @@ static void st_declustering_stats(int mode,
     if (! db->isActive(iech)) continue;
     zval = db->getVariable(iech,0);
     if (FFFF(zval)) continue;
-    coeff   = (mode == 0) ? 1. : get_ARRAY(db,iech,iptr);
+    coeff   = (mode == 0) ? 1. : db->getArray(iech,iptr);
     coeff   = ABS(coeff);
     sumwgt += coeff;
     mean   += coeff * zval;
@@ -9816,7 +9816,7 @@ static void st_declustering_truncate(Db     *db,
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
-    coeff = get_ARRAY(db,iech,iptr);
+    coeff = db->getArray(iech,iptr);
     if (coeff < 0) 
     {
       if (verbose) 
@@ -9902,14 +9902,14 @@ static int st_declustering_1(Db     *db,
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
-    value = 1. / get_ARRAY(db,iech,iptr);
+    value = 1. / db->getArray(iech,iptr);
     total += value;
   }
   for (int iech=0; iech<get_NECH(db); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
-    value = 1. / get_ARRAY(db,iech,iptr) / total;
+    value = 1. / db->getArray(iech,iptr) / total;
     db->setArray(iech,iptr,value);
   }
 
@@ -10201,7 +10201,7 @@ GEOSLIB_API int declustering_f(Db     *dbin,
     {
       dbin->setArray(iech,iptr_sel,0.);
       if (! dbin->isActive(iech)) continue;
-      indic = (get_ARRAY(dbin,iech,iptr) > 0.);
+      indic = (dbin->getArray(iech,iptr) > 0.);
       dbin->setArray(iech,iptr_sel,indic);
     }
   }
@@ -10278,7 +10278,7 @@ static double *st_calcul_covmat(const char *title,
       }
 
       for (int idim=0; idim<db1->getNDim(); idim++)
-        d1[idim] = (get_IDIM(db1,ii1,idim) - get_IDIM(db2,ii2,idim));
+        d1[idim] = db1->getDistance1D(ii1,ii2,idim);
 
       model_calcul_cov(model,mode,1,1.,d1,&COVGEN(i1,i2));
       i2++;
@@ -10415,7 +10415,7 @@ static double *st_calcul_distmat(const char *title,
       dist = 0.;
       for (int idim=0; idim<ndim; idim++)
       {
-        d1[idim] = (get_IDIM(db1,ii1,idim) - get_IDIM(db2,iis,idim));
+        d1[idim] = db1->getDistance1D(ii1,iis,idim);
         dist += d1[idim] * d1[idim];
       }
 

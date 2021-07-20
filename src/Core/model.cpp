@@ -886,8 +886,8 @@ GEOSLIB_API double model_calcul_cov_ij(Model *model,
 //  if (ndim != (int) X2_LOCAL.size()) X2_LOCAL.resize(ndim);
 //  for (int idim=0; idim<ndim; idim++)
 //  {
-//    X1_LOCAL[idim] = get_IDIM(cov_nostat->db1,cov_nostat->iech1,idim);
-//    X2_LOCAL[idim] = get_IDIM(cov_nostat->db2,cov_nostat->iech2,idim);
+//    X1_LOCAL[idim] = cov_nostat->db1->getCoordinate(cov_nostat->iech1,idim);
+//    X2_LOCAL[idim] = cov_nostat->db2->getCoordinate(cov_nostat->iech2,idim);
 //  }
 //}
 /****************************************************************************/
@@ -1290,6 +1290,7 @@ GEOSLIB_API int model_add_cova(Model *model,
   if (model->isFlagGradient())
   {
     CovGradientNumerical covgrad((ENUM_COVS) type, model->getContext());
+    if (! covgrad.isGradientCompatible()) return 1;
     covgrad.setParam(param);
     if (flag_aniso)
     {
@@ -2121,8 +2122,8 @@ GEOSLIB_API double model_cxx(Model *model,
 
       for (i = skip = 0; i < ndim && skip == 0; i++)
       {
-        v1 = get_IDIM(db1, iech1, i);
-        v2 = get_IDIM(db2, iech2, i);
+        v1 = db1->getCoordinate(iech1, i);
+        v2 = db2->getCoordinate(iech2, i);
         if (eps != 0.) v2 += eps * law_uniform(-0.5, 0.5);
         if (FFFF(v1) || FFFF(v2)) skip = 1;
         d1[i] = v1 - v2;
@@ -2243,8 +2244,8 @@ GEOSLIB_API void model_covmat(Model *model,
           value = TEST;
           for (i = skip = 0; i < ndim && skip == 0; i++)
           {
-            v1 = get_IDIM(db1, iech1, i);
-            v2 = get_IDIM(db2, iech2, i);
+            v1 = db1->getCoordinate(iech1, i);
+            v2 = db2->getCoordinate(iech2, i);
             if (FFFF(v1) || FFFF(v2)) skip = 1;
             d1[i] = v1 - v2;
           }
@@ -2380,8 +2381,8 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
           value = TEST;
           for (i = skip = 0; i < ndim && skip == 0; i++)
           {
-            v1 = get_IDIM(db1, iech1, i);
-            v2 = get_IDIM(db2, iech2, i);
+            v1 = db1->getCoordinate(iech1, i);
+            v2 = db2->getCoordinate(iech2, i);
             if (FFFF(v1) || FFFF(v2)) skip = 1;
             d1[i] = v1 - v2;
           }
@@ -2642,8 +2643,8 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
           value = TEST;
           for (i = skip = 0; i < ndim && skip == 0; i++)
           {
-            v1 = get_IDIM(db1, iech1, i);
-            v2 = get_IDIM(db2, iech2, i);
+            v1 = db1->getCoordinate(iech1, i);
+            v2 = db2->getCoordinate(iech2, i);
             if (FFFF(v1) || FFFF(v2)) skip = 1;
             d1[i] = v1 - v2;
           }
@@ -2718,7 +2719,7 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
                                        int flag_cov,
                                        double *covmat)
 {
-  double *covtab, *c00tab, v1, v2, value;
+  double *covtab, *c00tab, value;
   int ndim, nvar, nech, ivar1, ivar2, iech1, iech2, i, skip, ecr;
   VectorDouble d1;
 
@@ -2765,10 +2766,8 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
           value = TEST;
           for (i = skip = 0; i < ndim && skip == 0; i++)
           {
-            v1 = get_IDIM(db, iech1, i);
-            v2 = get_IDIM(db, iech2, i);
-            if (FFFF(v1) || FFFF(v2)) skip = 1;
-            d1[i] = v1 - v2;
+            d1[i] = db->getDistance1D(iech1, iech2, i);
+            if (FFFF(d1[i])) skip = 1;
           }
           if (!skip)
           {
@@ -2932,7 +2931,7 @@ static void st_drift_derivative(int iv,
 
 /****************************************************************************/
 /*!
- **  Duplicates a Model from another Model (1 variable in 2-D)
+ **  Duplicates a Model from another Model
  **
  ** \return  The modified Model structure
  **
@@ -3901,7 +3900,7 @@ GEOSLIB_API void model_vector_multivar(Model *model,
                                        int flag_cov,
                                        double *vector)
 {
-  double *covtab, *c00tab, v1, v2;
+  double *covtab, *c00tab;
   int ndim, nvar, jech, i, skip, nech, ecr, jvar;
   VectorDouble d1;
 
@@ -3941,10 +3940,8 @@ GEOSLIB_API void model_vector_multivar(Model *model,
 
       for (i = skip = 0; i < ndim && skip == 0; i++)
       {
-        v1 = get_IDIM(db, iech, i);
-        v2 = get_IDIM(db, jech, i);
-        if (FFFF(v1) || FFFF(v2)) skip = 1;
-        d1[i] = v1 - v2;
+        d1[i] = db->getDistance1D(iech, jech, i);
+        if (FFFF(d1[i])) skip = 1;
       }
       if (skip) continue;
 
@@ -4025,8 +4022,8 @@ GEOSLIB_API void model_vector(Model *model,
 
     for (i = skip = 0; i < ndim && skip == 0; i++)
     {
-      v1 = get_IDIM(db1, iech, i);
-      v2 = get_IDIM(db2, jech, i);
+      v1 = db1->getCoordinate(iech, i);
+      v2 = db2->getCoordinate(jech, i);
       if (FFFF(v1) || FFFF(v2)) skip = 1;
       d1[i] = v1 - v2;
     }
@@ -4063,7 +4060,7 @@ GEOSLIB_API void model_vector_nostat(Model *model,
                                      int iech,
                                      double *vector)
 {
-  double *covtab, v1, v2, value;
+  double *covtab,  value;
   int ndim, nvar, jech, i, skip, nech;
   VectorDouble d1;
   CovCalcMode mode;
@@ -4100,10 +4097,8 @@ GEOSLIB_API void model_vector_nostat(Model *model,
 
     for (i = skip = 0; i < ndim && skip == 0; i++)
     {
-      v1 = get_IDIM(db, iech, i);
-      v2 = get_IDIM(db, jech, i);
-      if (FFFF(v1) || FFFF(v2)) skip = 1;
-      d1[i] = v1 - v2;
+      d1[i] = db->getDistance1D(iech, jech, i);
+      if (FFFF(d1[i])) skip = 1;
     }
     if (skip) continue;
 
@@ -4377,9 +4372,7 @@ GEOSLIB_API int model_regularize(Model *model,
     {
       for (idim = 0; idim < ndim; idim++)
       {
-        v1 = get_IDIM(db, iech, idim);
-        v2 = get_IDIM(db, jech, idim);
-        dd[idim] = v1 - v2;
+        dd[idim] = db->getDistance1D(iech, jech, idim);
       }
       model_calcul_cov(model, mode, 0, 1, dd, c00tab);
     }
@@ -4409,8 +4402,8 @@ GEOSLIB_API int model_regularize(Model *model,
         {
           for (idim = 0; idim < ndim; idim++)
           {
-            v1 = get_IDIM(db, iech, idim);
-            v2 = get_IDIM(db, jech, idim) + dist * dir.getCodir(idim);
+            v1 = db->getCoordinate(iech, idim);
+            v2 = db->getCoordinate(jech, idim) + dist * dir.getCodir(idim);
             dd[idim] = v1 - v2;
           }
           model_calcul_cov(model, mode, 0, 1, dd, covtab);
@@ -4519,7 +4512,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
       double covar2;
 
       for (int idim = 0; idim < 3; idim++)
-        d1[idim] = get_IDIM(db, pvec[i], idim) - center[idim];
+        d1[idim] = db->getCoordinate(pvec[i], idim) - center[idim];
       model_calcul_cov(model, mode, 1, 1., d1, &covar2);
       diag[i] = 2. * (c00 - covar2);
     }
@@ -4594,11 +4587,11 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
         model_calcul_cov(model, mode, 1, 1., d1, &covar1);
 
         for (int idim = 0; idim < 3; idim++)
-          d1[idim] = get_IDIM(db, pvec[npivot], idim) - center[idim];
+          d1[idim] = db->getCoordinate(pvec[npivot], idim) - center[idim];
         model_calcul_cov(model, mode, 1, 1., d1, &covar2);
 
         for (int idim = 0; idim < 3; idim++)
-          d1[idim] = get_IDIM(db, pvec[i], idim) - center[idim];
+          d1[idim] = db->getCoordinate(pvec[i], idim) - center[idim];
         model_calcul_cov(model, mode, 1, 1., d1, &covar3);
 
         G(npivot,i) = covar1 - covar2 - covar3 + c00;
@@ -4627,7 +4620,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
         double covar2;
 
         for (int idim = 0; idim < 3; idim++)
-          d1[idim] = get_IDIM(db, pvec[i], idim) - center[idim];
+          d1[idim] = db->getCoordinate(pvec[i], idim) - center[idim];
         model_calcul_cov(model, mode, 1, 1., d1, &covar2);
 
         b = 2. * (c00 - covar2);
@@ -4790,7 +4783,7 @@ GEOSLIB_API double model_calcul_stdev(Model *model,
   /* Covariance at increment */
 
   for (int idim = 0; idim < ndim; idim++)
-    d1[idim] = get_IDIM(db1, iech1, idim) - get_IDIM(db2, iech2, idim);
+    d1[idim] = db1->getDistance1D(iech1, iech2, idim);
   model_calcul_cov(model, mode, 1, 1., d1, &cov);
 
   stdev = factor * sqrt(c00 - cov);

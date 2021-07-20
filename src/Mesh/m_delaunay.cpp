@@ -299,7 +299,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
       if (! dbin->isActive(iech)) continue;
       iiech++;
       for (int idim=0; idim<ndim; idim++)
-        coor_in[idim] = get_IDIM(dbin,iech,idim);
+        coor_in[idim] = dbin->getCoordinate(iech,idim);
       
       iclose = -1;
       if (is_grid(dbout) && ! dbout->hasSelection())
@@ -317,7 +317,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
         d2 = 0.;
         for (int idim=0; idim<ndim; idim++)
         {
-          part = (coor_in[idim] - get_IDIM(dbout,jclose,idim)) / extend[idim];
+          part = (coor_in[idim] - dbout->getCoordinate(jclose,idim)) / extend[idim];
           d2  += part * part;
         }
         d2min = d2;
@@ -333,7 +333,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
         {
           if (! dbout->isActive(jech)) continue;
           for (int idim=0; idim<ndim; idim++)
-            coor_out[idim] = get_IDIM(dbout,jech,idim);
+            coor_out[idim] = dbout->getCoordinate(jech,idim);
           
           /* Calculate the smallest relative distance */
           
@@ -387,11 +387,11 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
         {
           message("- Data  (%5d) = ",iech+1);
           for (int idim=0; idim<ndim; idim++)
-            message(" %lf",get_IDIM(dbin,iech,idim));
+            message(" %lf",dbin->getCoordinate(iech,idim));
           message("\n");
           message("  Target(%5d) = ",iclose+1);
           for (int idim=0; idim<ndim; idim++)
-            message(" %lf",get_IDIM(dbout,jclose,idim));
+            message(" %lf",dbout->getCoordinate(jclose,idim));
           message(" - Rel. Dist. = %lg",d2min);
           message("\n");
         }
@@ -657,7 +657,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     if (use_code && ncode > 0 && db->getCode(iech) < 0) continue;
     for (int idim=0; idim<ndim; idim++)
-      t->pointlist[ecr++] = get_IDIM(db,iech,idim);
+      t->pointlist[ecr++] = db->getCoordinate(iech,idim);
   }
   t->numberofpoints = nold + neff;
 
@@ -675,7 +675,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
       if (! db->isActive(iech)) continue;
       if (! (use_code && ncode > 0 && db->getCode(iech) < 0)) continue;
       for (int idim=0; idim<ndim; idim++)
-        t->holelist[ecr++] = get_IDIM(db,iech,idim);
+        t->holelist[ecr++] = db->getCoordinate(iech,idim);
     }
     t->numberofholes = nold + nhole;
   }
@@ -1531,7 +1531,7 @@ static int st_ultimate_regular_grid(Db  *dbgrid,
     if (IFFFF(local)) continue;
     jech = ranks[iech];
     for (int idim=0; idim<ndim; idim++)
-      points[jech*ndim + idim] = get_IDIM(dbgrid,iech,idim);
+      points[jech*ndim + idim] = dbgrid->getCoordinate(iech,idim);
   }
 
   // Update the point ranks in the mesh */
@@ -2099,7 +2099,7 @@ GEOSLIB_API int meshes_2D_sph_from_db(Db  *db,
   {
     if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
-    util_convert_sph2cart(get_IDIM(db,iech,0),get_IDIM(db,iech,1),&xx,&yy,&zz);
+    util_convert_sph2cart(db->getCoordinate(iech,0),db->getCoordinate(iech,1),&xx,&yy,&zz);
     t->sph_x[ecr] = xx;
     t->sph_y[ecr] = yy;
     t->sph_z[ecr] = zz;
@@ -2959,7 +2959,7 @@ GEOSLIB_API int meshes_3D_from_db(Db  *db,
     if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     for (int idim=0; idim<ndim; idim++)
-      t->pointlist[ecr++] = get_IDIM(db,iech,idim);
+      t->pointlist[ecr++] = db->getCoordinate(iech,idim);
   }
   t->numberofpoints = nold + neff;
 
@@ -3365,7 +3365,7 @@ GEOSLIB_API int meshes_1D_from_db(Db  *db,
     if (! db->isActive(iech)) continue;
     if (st_is_masked(nb_mask,is_mask,iech)) continue;
     for (int idim=0; idim<ndim; idim++)
-      t->pointlist[ecr++] = get_IDIM(db,iech,idim);
+      t->pointlist[ecr++] = db->getCoordinate(iech,idim);
   }
   t->numberofpoints = nold + neff;
 

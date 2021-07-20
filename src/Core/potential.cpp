@@ -30,11 +30,11 @@
 #define B(isol,i)        (b[(isol) * number + (i)])
 #define POTVAL(isimu,il) (potval[(isimu) * pot_env->nlayers + (il)])
 #define POTSIM(isimu,il) (potsim[(isimu) * nlayers + (il)])
-#define TGT_COO(it,i)    (get_IDIM(dbtgt,IAD_TGT(it),i))
+#define TGT_COO(it,i)    (dbtgt->getCoordinate(IAD_TGT(it),i))
 #define TGT_VAL(it,i)    (dbtgt->getTangent(IAD_TGT(it),i))
-#define GRD_COO(ig,i)    (get_IDIM(dbgrd,IAD_GRD(ig),i))
+#define GRD_COO(ig,i)    (dbgrd->getCoordinate(IAD_GRD(ig),i))
 #define GRD_VAL(ig,i)    (dbgrd->getGradient(IAD_GRD(ig),i))
-#define ISO_COO(ic,j,i)  (get_IDIM(dbiso,IAD_ISO(ic,j),i))
+#define ISO_COO(ic,j,i)  (dbiso->getCoordinate(IAD_ISO(ic,j),i))
 #define ZDUALS(isimu,i)  (zduals[(isimu) * nequa + (i)])
 
 typedef struct {
@@ -768,9 +768,9 @@ static int st_extdrift_solve(Pot_Ext *pot_ext,
   {
     if (! pot_ext->db->isActive(iech)) continue;
     st_cov(pot_ext->model,1,
-           get_IDIM(pot_ext->db,iech,0),
-           get_IDIM(pot_ext->db,iech,1),
-           get_IDIM(pot_ext->db,iech,2),
+           pot_ext->db->getCoordinate(iech,0),
+           pot_ext->db->getCoordinate(iech,1),
+           pot_ext->db->getCoordinate(iech,2),
            &covar,covGp,covGG);
     B(0,ecr) =  covar;
     B(1,ecr) = -covGp[0];
@@ -1743,7 +1743,7 @@ static void st_calc_point(Pot_Env *pot_env,
   /* Load the coordinates */
 
   for (int idim=0; idim<pot_env->ndim; idim++)
-    coor[idim] = get_IDIM(db_target,iech0,idim);
+    coor[idim] = db_target->getCoordinate(iech0,idim);
 
   /* Optional printout */
 

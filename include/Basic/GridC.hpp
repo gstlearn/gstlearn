@@ -89,11 +89,14 @@ public:
   const VectorDouble    getDX() const { return _dx; }
   const Rotation&       getRotation() const { return _rotation; }
   bool  isSame(const GridC& grid) const;
+  bool  isSameMesh(const GridC& grid) const;
   bool  isRotated() const { return _rotation.isRotated(); }
+  bool  isSameRotation(const GridC& grid) const { return _rotation.isSame(grid.getRotation()); }
   VectorDouble getAxis(int idim) const;
 
   void iteratorInit(const VectorInt& order = VectorInt());
   VectorInt iteratorNext(void);
+  bool empty() const;
 
 private:
   const MatrixCSGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }

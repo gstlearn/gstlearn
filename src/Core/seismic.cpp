@@ -16,9 +16,9 @@
 #define LTABLE 8
 #define NTABLE 513
 
-#define ARRAY(ix,iy)  (array[(iy) * NX + (ix)])
-#define LIMIT(ix,iy)  (limit[(iy) * NX + (ix)])
-#define VV(itr,iz)          (get_ARRAY(db_v,iatt_v,NTRACE * (iz) + itr) / VFACT)
+#define ARRAY(ix,iy)      (array[(iy) * NX + (ix)])
+#define LIMIT(ix,iy)      (limit[(iy) * NX + (ix)])
+#define VV(itr,iz)        (db_v->getArray(iatt_v,NTRACE * (iz) + itr) / VFACT)
 #define COVTAB(ivar,jvar) (covtab[(jvar) * NVAR + (ivar)])
 #define C00(ivar,jvar)    (c00   [(jvar) * NVAR + (ivar)])
 #define LB(ivar,jvar)     (lb    [(jvar) * NVAR + (ivar)])
@@ -974,7 +974,7 @@ static double TR_IN(Db *db,
                     int itrace,
                     int it)
 {
-  return(get_ARRAY(db,iatt_in+iatt ,NTRACE * (it) + (itrace)));
+  return(db->getArray(iatt_in+iatt ,NTRACE * (it) + (itrace)));
 }
 
 /****************************************************************************/
@@ -2043,9 +2043,9 @@ static void st_sample_add(Db  *db,
 
   /* Read the new values */
 
-  v1 = get_ARRAY(db,iech,iatt_z1);
+  v1 = db->getArray(iech,iatt_z1);
   if (flag_test == 1 && FFFF(v1)) return;
-  v2 = get_ARRAY(db,iech,iatt_z2);
+  v2 = db->getArray(iech,iatt_z2);
   if (flag_test == 2 && FFFF(v2)) return;
   if (flag_test == 0 && FFFF(v1) && FFFF(v2)) return;
 
@@ -2947,7 +2947,7 @@ static void st_simulate_result(Db     *db,
         {
           if (! flag[jvar * nech + i]) continue;
           iech = st_absolute_index(db,ix0+ngh->ix_ngh[i],iz0+ngh->iz_ngh[i]);
-          value = get_ARRAY(db,iech,iatt_sim[jvar]+isimu);
+          value = db->getArray(iech,iatt_sim[jvar]+isimu);
           result[ivar] += wgt[lec++] * value;
         }
     }
@@ -2957,10 +2957,10 @@ static void st_simulate_result(Db     *db,
     sigma1 = C00(0,0) - LB(0,0);
     sigma2 = C00(1,1) - LB(1,1);
 
-    z2 = get_ARRAY(db,IECH_OUT,iatt_sim[1]+isimu);
+    z2 = db->getArray(IECH_OUT,iatt_sim[1]+isimu);
     if (FFFF(z2))
       z2 = result[1] + sqrt(MAX(0,sigma2)) * law_gaussian();
-    z1 = get_ARRAY(db,IECH_OUT,iatt_sim[0]+isimu);
+    z1 = db->getArray(IECH_OUT,iatt_sim[0]+isimu);
     if (FFFF(z1) && sigma2 > 0)
     {
       l0     = (C00(0,1) - LB(0,1)) / sigma2;

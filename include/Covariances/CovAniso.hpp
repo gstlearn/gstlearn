@@ -147,10 +147,10 @@ public:
 
 protected:
   /// Update internal parameters consistency with the context
-  virtual void  _updateFromContext();
+  virtual void _updateFromContext();
 
 private:
-  void   _checkVariable(int ivar) const;
+  bool   _isVariableValid(int ivar) const;
 
 private:
   CovContext      _ctxt;   /// Context (space, irfDegree, field, ...)

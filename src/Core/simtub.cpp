@@ -1578,7 +1578,7 @@ static double st_project_point(Db     *db,
 
   t = 0.;
   for (idim=0; idim<db->getNDim(); idim++)
-    t += get_IDIM(db,iech,idim) * situba->codir[ibs]->ang[idim];
+    t += db->getCoordinate(iech,idim) * situba->codir[ibs]->ang[idim];
 
   return(t);
 }
@@ -3015,7 +3015,7 @@ static int st_simulate_gradient(Db     *dbgrd,
 
     for (int iech=0; iech<get_NECH(dbgrd); iech++)
       if (dbgrd->isActive(iech))
-        dbgrd->setCoordinate(iech,idim,get_IDIM(dbgrd,iech,idim) + delta);
+        dbgrd->setCoordinate(iech,idim,dbgrd->getCoordinate(iech,idim) + delta);
 
     /* Simulation at the shift location */
 
@@ -3030,7 +3030,7 @@ static int st_simulate_gradient(Db     *dbgrd,
 
     for (int iech=0; iech<get_NECH(dbgrd); iech++)
       if (dbgrd->isActive(iech))
-        dbgrd->setCoordinate(iech,idim,get_IDIM(dbgrd,iech,idim) - delta);
+        dbgrd->setCoordinate(iech,idim,dbgrd->getCoordinate(iech,idim) - delta);
 
     /* Scaling */
 
@@ -3194,13 +3194,13 @@ static void st_check_gaussian_data2grid(Db     *dbin,
       message("- Value (%lf) at Data (#%d) ",valdat,iech+1);
       message("at (");
       for (int idim=0; idim<dbin->getNDim(); idim++)
-        message(" %lf",get_IDIM(dbin,iech,idim));
+        message(" %lf",dbin->getCoordinate(iech,idim));
       message(")\n");
 
       message("- Value (%lf) at Grid (#%d) ",valres,jech+1);
       message("at (");
       for (int idim=0; idim<dbout->getNDim(); idim++)
-        message(" %lf",get_IDIM(dbout,jech,idim));
+        message(" %lf",dbout->getCoordinate(jech,idim));
       message(")\n");
 
       message("- Tolerance = %lf\n",eps);
@@ -3756,7 +3756,7 @@ static void st_print_condata(Props *propdef,
 
   message("Sample (%3d) - Coordinates: ",iech+1);
   for (idim=0; idim<db->getNDim(); idim++)
-    message(" %lf",get_IDIM(db,iech,idim));
+    message(" %lf",db->getCoordinate(iech,idim));
   message("\n");
 
   /* Print the Facies information */
@@ -3807,7 +3807,7 @@ static int st_replicate_invalid(Db     *dbin,
   {
     for (idim=0; idim<dbin->getNDim(); idim++)
     {
-      delta = ABS(get_IDIM(dbin,iech,idim) - get_IDIM(dbin,jech,idim));
+      delta = ABS(dbin->getCoordinate(iech,idim) - dbin->getCoordinate(jech,idim));
       if (delta >= dbout->getDX(idim)) return(0);
     }
     message("Replicate invalid\n");
@@ -3903,7 +3903,7 @@ GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
         for (idim=0; idim<dbin->getNDim(); idim++)
         {
           dval = alea * rule->getDMax() * rule->getShift(idim);
-          dbin->setCoordinate(jech,idim,get_IDIM(dbin,iech,idim) - dval);
+          dbin->setCoordinate(jech,idim,dbin->getCoordinate(iech,idim) - dval);
           dist += dval * dval;
         }
         dist = sqrt(dist);
@@ -3959,7 +3959,7 @@ GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
         for (idim=0; idim<dbin->getNDim(); idim++)
         {
           dval = dinc * rule->getShift(idim) * istep;
-          dbin->setCoordinate(jech,idim,get_IDIM(dbin,iech,idim) - dval);
+          dbin->setCoordinate(jech,idim,dbin->getCoordinate(iech,idim) - dval);
           dist += dval * dval;
         }
         dist = sqrt(dist);
@@ -4105,7 +4105,7 @@ GEOSLIB_API int rule_evaluate_bounds(Props  *propdef,
 
         /* Set the coordinates of the replicate */
         for (idim=0; idim<dbin->getNDim(); idim++)
-          dbin->setCoordinate(jech,idim,get_IDIM(dbin,iech,idim) - rule->getShift(idim));
+          dbin->setCoordinate(jech,idim,dbin->getCoordinate(iech,idim) - rule->getShift(idim));
 
         /* Can the replicate be added */
         if (st_replicate_invalid(dbin,dbout,jech))
@@ -4635,7 +4635,7 @@ static void st_print_ineq(Db    *db,
   for (idim=0; idim<db->getNDim(); idim++)
   {
     if (idim != 0) message(",");
-    message("%8.4lf",get_IDIM(db,iech,idim));
+    message("%8.4lf",db->getCoordinate(iech,idim));
   }
   message(")");
 
@@ -5533,7 +5533,7 @@ GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
         if (iter > 0 && ! bitmap_get_value(nx,img,iiech,jjech,0)) continue;
 
         for (idim=0; idim<ndim; idim++)
-          d1[idim] = get_IDIM(dbin,iech,idim) - get_IDIM(dbin,jech,idim);
+          d1[idim] = dbin->getCoordinate(iech,idim) - dbin->getCoordinate(jech,idim);
         if (model->isNoStat())
           model_calcul_cov_nostat(model,mode,1,1.,
                                   dbin,iech,dbin,jech,d1,&sigloc);
@@ -6555,7 +6555,7 @@ GEOSLIB_API int db_simulations_to_ce(Db    *db,
 
     for (int ivar=0; ivar<nvar; ivar++)
     {
-      count = get_ARRAY(db,iech,iptr_nb+ivar);
+      count = db->getArray(iech,iptr_nb+ivar);
       if (count <= 0)
       {
         db->setArray(iech,iptr_ce  +ivar,TEST);
@@ -6563,9 +6563,9 @@ GEOSLIB_API int db_simulations_to_ce(Db    *db,
       }
       else
       {
-        mean = get_ARRAY(db,iech,iptr_ce  +ivar) / count;
+        mean = db->getArray(iech,iptr_ce  +ivar) / count;
         db->setArray(iech,iptr_ce+ivar,mean);
-        var  = get_ARRAY(db,iech,iptr_cstd+ivar) / count - mean * mean;
+        var  = db->getArray(iech,iptr_cstd+ivar) / count - mean * mean;
         var  = (var > 0.) ? sqrt(var) : 0.;
         db->setArray(iech,iptr_cstd+ivar,var);
       }
@@ -6994,7 +6994,7 @@ static int st_maxstable_mask(Db     *dbout,
   for (iech=number=0; iech<get_NECH(dbout); iech++)
   {
     if (! dbout->isActive(iech)) continue;
-    valsim = get_ARRAY(dbout,iech,iptrv);
+    valsim = dbout->getArray(iech,iptrv);
     if (valsim > seuil / scale) 
       dbout->setArray(iech,iptrs,0.);
     else
@@ -7031,8 +7031,8 @@ static void st_maxstable_combine(Db     *dbout,
   for (iech=0; iech<get_NECH(dbout); iech++)
   {
     if (! dbout->isActive(iech)) continue;
-    valold = get_ARRAY(dbout,iech,iptrv);
-    valsim = get_ARRAY(dbout,iech,iptrg) / scale;
+    valold = dbout->getArray(iech,iptrv);
+    valsim = dbout->getArray(iech,iptrg) / scale;
     if (valsim > valold)
     {
       dbout->setArray(iech,iptrv,valsim);

@@ -218,65 +218,6 @@ GEOSLIB_API double variogram_maximum_distance(const Dir& dir)
 
 /****************************************************************************/
 /*!
-**  Return the order of the samples by increasing coordinate along X
-**
-** \return    Array contining the increasing order
-**
-** \param[in]  db    Db descriptor
-**
-** \remarks  The returned array must be desallocated
-**
-*****************************************************************************/
-GEOSLIB_API int *variogram_sort(Db *db)
-{
-  int    *rindex,error,iech,nech;
-  double *xval;
-
-  /* Initializations */
-
-  error  = 1;
-  nech   = get_NECH(db);
-  rindex = (int    *) NULL;
-  xval   = (double *) NULL;
-  
-  /* Core allocation */
-  
-  xval    = (double *) mem_alloc(nech * sizeof(double),0);
-  if (xval   == (double *) NULL) goto label_end;
-  rindex  = (int    *) mem_alloc(nech * sizeof(int),0);
-  if (rindex == (int    *) NULL) goto label_end;
-
-  /* Load the arrays */
-
-  for (iech=0; iech<nech; iech++)
-  {
-    rindex[iech] = iech;
-    xval[iech]   = get_IDIM(db,iech,0);
-  }
-
-  /* Sorting */
-
-  ut_sort_double(0,nech,rindex,xval);
-
-  /* Core deallocation */
-
-  xval = (double *) mem_free((char *) xval);
-
-  /* Set the error returned code */
-
-  error = 0;
-
-label_end:
-  if (error) 
-  {
-    rindex = (int    *) mem_free((char *) rindex);
-    xval   = (double *) mem_free((char *) xval);
-  }
-  return(rindex);
-}
-
-/****************************************************************************/
-/*!
 **  Checks if the maximum variogram distance has been passed
 **
 ** \return    1 if the maximum distance has been passed and 0 otherwise
@@ -292,11 +233,8 @@ GEOSLIB_API int variogram_maximum_dist1D_reached(Db    *db,
                                                  int    jech,
                                                  double maxdist)
 {
-  double x1,x2;
-  
-  x1 = get_IDIM(db,iech,0);
-  x2 = get_IDIM(db,jech,0);
-  return (ABS(x1 - x2) > maxdist);
+  double dist = db->getDistance1D(iech, jech, 0, true);
+  return (dist > maxdist);
 }
 
 /****************************************************************************/
@@ -1532,7 +1470,7 @@ static void st_calculate_bias_global(Db     *db,
       {
         if (! db->isActiveAndDefined(jech,0)) continue;
         for (idim=0; idim<ndim; idim++)
-          d1[idim] = get_IDIM(db,iech,idim) - get_IDIM(db,jech,idim);
+          d1[idim] = db->getDistance1D(iech,jech,idim);
         model_calcul_cov(MODEL,mode,1,1.,d1,&covtab);
         value += (c00 - covtab) * X_DRFTAB(il,jjech);
         jjech++;
@@ -1754,7 +1692,7 @@ GEOSLIB_API int variogram_reject_pair(Db     *db,
 
   /* Calculate the cosine between the pairs and the direction */
 
-  *ps = cosdir(db,iech,jech,codir);
+  *ps = db->getCosineToDirection(iech,jech,codir);
 
   /* Angular tolerance */
 
@@ -2762,8 +2700,9 @@ static int st_variogram_general(Db    *db,
                                 int flag_model,
                                 int verbose)
 {
-  int *rindex, idir, error, flag_verr, flag_ku, nbfl;
+  int idir, error, flag_verr, flag_ku, nbfl;
   Vario_Order *vorder;
+  VectorInt rindex;
 
   /* Initializations */
 
@@ -2771,7 +2710,6 @@ static int st_variogram_general(Db    *db,
   flag_verr = flag_ku = nbfl = 0;
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
-  rindex = (int    *) NULL;
   vorder = (Vario_Order *) NULL;
   st_manage_drift_removal(0,NULL,NULL);
 
@@ -2846,17 +2784,17 @@ static int st_variogram_general(Db    *db,
 
   /* Loop on the directions to evaluate */
 
-  rindex = variogram_sort(db);
+  rindex = db->getSortArray();
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
     if (! flag_sample)
     {
-      if (st_variogram_calcul1(db,vario,idir,rindex,vorder))
+      if (st_variogram_calcul1(db,vario,idir,rindex.data(),vorder))
         goto label_end;
     }
     else
     {
-      if (st_variogram_calcul2(db,vario,idir,rindex)) 
+      if (st_variogram_calcul2(db,vario,idir,rindex.data()))
         goto label_end;
     }
 
@@ -2888,7 +2826,6 @@ static int st_variogram_general(Db    *db,
   error = 0;
 
 label_end:
-  rindex = (int *) mem_free((char *) rindex);
   vorder = vario_order_manage(-1,1,0,vorder);
   st_manage_drift_removal(-1,db,model);
   return(error);
@@ -2909,14 +2846,14 @@ GEOSLIB_API int variovect_compute(Db    *db,
                                  Vario *vario,
                                  int    ncomp)
 {
-  int *rindex,idir,error;
+  int idir,error;
+  VectorInt rindex;
 
   /* Initializations */
 
   error = 0;
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
-  rindex = (int *) NULL;
   st_manage_drift_removal(0,NULL,NULL);
 
   /* Preliminary checks */
@@ -2937,13 +2874,12 @@ GEOSLIB_API int variovect_compute(Db    *db,
 
   /* Loop on the directions to evaluate */
 
-  rindex = variogram_sort(db);
+  rindex = db->getSortArray();
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    error = st_variovect_calcul(db,vario,idir,ncomp,rindex);
+    error = st_variovect_calcul(db,vario,idir,ncomp,rindex.data());
     if (error) break;
   }
-  rindex = (int *) mem_free((char *) rindex);
   return(error);
 }
 
@@ -2961,7 +2897,7 @@ static void st_vmap_scale(Db *dbmap, int nv2)
   {
     for (int ijvar=0; ijvar<nv2; ijvar++)
     {
-      double value = get_ARRAY(dbmap,iech,IPTW+ijvar);
+      double value = dbmap->getArray(iech,IPTW+ijvar);
       if (value <= 0.)
         dbmap->setArray(iech,IPTV+ijvar,TEST);
       else
@@ -3105,7 +3041,7 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
   {
     iech1 = ind1[jech1];
     if (! db->isActive(iech1)) continue;
-    x0 = get_IDIM(db,iech1,0);
+    x0 = db->getCoordinate(iech1,0);
 
     /* Loop on the second data */
 
@@ -3113,12 +3049,12 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
     {
       iech2 = ind1[jech2];
       if (! db->isActive(iech2)) continue;
-      delta[0] = get_IDIM(db,iech2,0) - x0;
+      delta[0] = db->getCoordinate(iech2,0) - x0;
       if (delta[0] > mid[0]) break;
       
       for (idim=1, flag_out=0; idim<ndim && flag_out==0; idim++)
       {
-        delta[idim] = get_IDIM(db,iech2,idim) - get_IDIM(db,iech1,idim);
+        delta[idim] = db->getDistance1D(iech2,iech1,idim);
         if (delta[idim] > mid[idim]) flag_out = 1;
       }
       if (flag_out) continue;
@@ -3529,24 +3465,6 @@ label_end:
 
 /****************************************************************************/
 /*!
-**  Deletes a calculation direction
-**
-** \param[in]  vario Vario structure
-** \param[in]  idir  Rank of the direction to be deleted
-**
-*****************************************************************************/
-GEOSLIB_API void variogram_direction_del(Vario *vario,
-                                         int idir)
-
-{
-  if (vario == (Vario *) NULL) return;
-  if (idir < 0 || idir >= vario->getDirectionNumber()) return;
-  vario->delDir(idir);
-  return;
-}
-
-/****************************************************************************/
-/*!
 **  Initialize a new calculation direction
 **
 ** \return  Error return code
@@ -3604,16 +3522,12 @@ GEOSLIB_API int variogram_direction_add(Vario  *vario,
 GEOSLIB_API Vario *variogram_delete(Vario *vario)
 
 {
-  int idir;
-
-  /* Initializations */
-
   if (vario == (Vario *) NULL) return(vario);
 
   /* Free the directions */
 
-  for (idir=vario->getDirectionNumber()-1; idir>=0; idir--)
-    variogram_direction_del(vario,idir);
+  for (int idir=vario->getDirectionNumber()-1; idir>=0; idir--)
+    vario->delDir(idir);
 
   return(vario);
 }
@@ -3663,7 +3577,7 @@ static void st_final_discretization_grid(Db    *db,
   nech = get_NECH(db);
   for (iech=0; iech<nech; iech++)
   {
-    value = get_ARRAY(db,iech,iptr);
+    value = db->getArray(iech,iptr);
     if (value != 0.) continue;
     db->setArray(iech,iptr,TEST);
   }
@@ -3794,9 +3708,9 @@ GEOSLIB_API int correlation_f(Db     *db1,
     for (iech=0; iech<nech; iech++)
     {
       if (! db1->isActive(iech)) continue;
-      val1 = get_ARRAY(db1,iech,icol1);
+      val1 = db1->getArray(iech,icol1);
       if (FFFF(val1)) continue;
-      val2 = get_ARRAY(db2,iech,icol2);
+      val2 = db2->getArray(iech,icol2);
       if (FFFF(val2)) continue;
 
       /* Global statistics */
@@ -3838,13 +3752,13 @@ GEOSLIB_API int correlation_f(Db     *db1,
     for (iech=0; iech<nech-1; iech++)
     {
       if (! db1->isActive(iech)) continue;
-      val1 = get_ARRAY(db1,iech,icol1);
+      val1 = db1->getArray(iech,icol1);
       if (FFFF(val1)) continue;
 
       for (jech=iech+1; jech<nech; jech++)
       {
         if (! db1->isActive(jech)) continue;
-        val2 = get_ARRAY(db1,jech,icol2);
+        val2 = db1->getArray(jech,icol2);
         if (FFFF(val2)) continue;
 
         /* Check if the pair must be kept (Code criterion) */
@@ -3986,9 +3900,9 @@ GEOSLIB_API int correlation_ident(Db     *db1,
   for (iech=0; iech<nech; iech++)
   {
     if (! db1->isActive(iech)) continue;
-    val1 = get_ARRAY(db1,iech,icol1);
+    val1 = db1->getArray(iech,icol1);
     if (FFFF(val1)) continue;
-    val2 = get_ARRAY(db2,iech,icol2);
+    val2 = db2->getArray(iech,icol2);
     if (FFFF(val2)) continue;
     
     /* Check of the sample belongs to the polygon */
@@ -4526,9 +4440,9 @@ GEOSLIB_API int regression_f(Db     *db1,
     switch(flag_mode)
     {
       case 0:
-        value = get_ARRAY(db1,iech,icol);
+        value = db1->getArray(iech,icol);
         if (flag_one) x[ecr++] = 1.;
-        for (i=0; i<ncol; i++) x[ecr++] = get_ARRAY(db2,iech,icols[i]);
+        for (i=0; i<ncol; i++) x[ecr++] = db2->getArray(iech,icols[i]);
         break;
       case 1:
         value = st_get_IVAR(db1,iech,0);
@@ -4638,9 +4552,9 @@ GEOSLIB_API int regression_f(Db     *db1,
       switch (flag_mode)
       {
         case 0:
-          value = get_ARRAY(db1,iech,icol);
+          value = db1->getArray(iech,icol);
           if (flag_one) x[ecr++] = 1.;
-          for (i=0; i<ncol; i++) x[ecr++] = get_ARRAY(db2,iech,icols[i]);
+          for (i=0; i<ncol; i++) x[ecr++] = db2->getArray(iech,icols[i]);
           break;
         case 1:
           value = st_get_IVAR(db1,iech,0);
@@ -6536,13 +6450,13 @@ GEOSLIB_API int geometry_compute(Db    *db,
                                 int   *npair)
 {
   double psmin,ps,dist,maxdist;
-  int   *rindex,iiech,iech,jjech,jech,nech,ipas,error,idir,ideb;
+  int    iiech,iech,jjech,jech,nech,ipas,error,idir,ideb;
+  VectorInt rindex;
 
   /* Initializations */
 
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
-  rindex = (int *) NULL;
   error  = 1;
 
   /* Preliminary checks */
@@ -6562,7 +6476,7 @@ GEOSLIB_API int geometry_compute(Db    *db,
 
   /* Sort the data */
 
-  rindex = variogram_sort(db);
+  rindex = db->getSortArray();
 
   /* Loop on the directions */
 
@@ -6627,8 +6541,6 @@ GEOSLIB_API int geometry_compute(Db    *db,
   error = 0;
 
 label_end:
-  rindex = (int *) mem_free((char *) rindex);
-
   return(error);
 }
 
@@ -6962,9 +6874,9 @@ GEOSLIB_API void condexp(Db     *db1,
   for (int iech=0; iech<get_NECH(db1); iech++)
   {
     if (! db1->isActive(iech)) continue;
-    val1 = get_ARRAY(db1,iech,icol1);
+    val1 = db1->getArray(iech,icol1);
     if (FFFF(val1)) continue;
-    val2 = get_ARRAY(db2,iech,icol2);
+    val2 = db2->getArray(iech,icol2);
     if (FFFF(val2)) continue;
     if (val2 < mini || val2 > maxi) continue;
     
@@ -7029,7 +6941,7 @@ GEOSLIB_API void condexp(Db     *db1,
 ** \note keypair technique with name "KU_Niter".
 **
 *****************************************************************************/
-GEOSLIB_API int variogram_compute(Db   *db,
+GEOSLIB_API int _variogram_compute(Db   *db,
                                  Vario *vario,
                                  const VectorDouble& means,
                                  const VectorDouble& vars,

@@ -104,15 +104,20 @@ int MatrixCSDiagCst::_invert()
 
 double& MatrixCSDiagCst::_getValueRef(int irow, int icol)
 {
-  _checkValidIndex(irow,icol);
+  if (! _isValidIndex(irow,icol))
+    my_throw("Impossible to return the Address of the non-existant element");
   return _cstDiagMatrix;
 }
 
-void MatrixCSDiagCst::_checkValidIndex(int irow, int icol) const
+bool MatrixCSDiagCst::_isValidIndex(int irow, int icol) const
 {
   AMatrixC::_isIndexValid(irow,icol);
   if (irow != icol)
-    my_throw("Argument 'irow' and 'icol' should be equal for Diagonal Matrix");
+  {
+    messerr("Argument 'irow' and 'icol' should be equal for Diagonal Matrix");
+    return false;
+  }
+  return true;
 }
 
 void MatrixCSDiagCst::_setValues(const double* values, bool byCol)

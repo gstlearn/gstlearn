@@ -358,8 +358,8 @@ int main(int argc, char *argv[])
   rank  = dbgrid->getFieldNumber();
   for (int i=0; i<nvertex; i++)
   {
-    consmin[i] = MIN(get_ARRAY(dbgrid,i,rank-1), get_ARRAY(dbgrid,i,rank-2));
-    consmax[i] = MAX(get_ARRAY(dbgrid,i,rank-1), get_ARRAY(dbgrid,i,rank-2));
+    consmin[i] = MIN(dbgrid->getArray(i,rank-1), dbgrid->getArray(i,rank-2));
+    consmax[i] = MAX(dbgrid->getArray(i,rank-1), dbgrid->getArray(i,rank-2));
     z[i] = (consmin[i] + consmax[i]) / 2.;
   }
   

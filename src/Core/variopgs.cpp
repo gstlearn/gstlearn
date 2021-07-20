@@ -3457,14 +3457,14 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
                                             Vario *vario,
                                             int    idir)
 {
-  int *rindex,iech,jech,iiech,jjech,nech,ipas,iad,ivar,jvar,nvar,error;
+  int  iech,jech,iiech,jjech,nech,ipas,iad,ivar,jvar,nvar,error;
   Db  *db;
   double psmin,ps,dist,maxdist;
+  VectorInt rindex;
 
   /* Retrieve information from Local_pgs structure */
 
   error   = 1;
-  rindex  = (int *) NULL;
   db      = local_pgs->db;
   nech    = get_NECH(db);
   nvar    = vario->getVariableNumber();
@@ -3478,7 +3478,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 
   /* Sort the data */
 
-  rindex = variogram_sort(db);
+  rindex = db->getSortArray();
 
   /* Loop on the first point */
 
@@ -3554,7 +3554,6 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
   error = 0;
 
 label_end:
-  rindex = (int *) mem_free((char *) rindex);
   return(error);
 }
 

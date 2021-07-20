@@ -7518,7 +7518,7 @@ GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
     /* Identification */
 
     for (int idim = 0; idim < ndim; idim++)
-      coor[idim] = get_IDIM(db, jech, idim);
+      coor[idim] = db->getCoordinate(jech, idim);
 
     /* Loop on the meshes */
 
@@ -8441,7 +8441,7 @@ static double st_m2d_get_M(M2D_Environ *m2denv,
     iatt = m2denv->iatt_fd;
   else
     iatt = m2denv->iatt_fg;
-  value = get_ARRAY(db, iech, iatt + ilayer);
+  value = db->getArray(iech, iatt + ilayer);
   return (value);
 }
 
@@ -8558,7 +8558,7 @@ static void st_m2d_set_M(M2D_Environ *m2denv,
       {
         drift = st_m2d_get_drift(m2denv, db, ilayer, iech);
         if (!FFFF(drift) && ilayer > 0 && icol_pinch >= 0)
-          drift *= get_ARRAY(db, iech, icol_pinch);
+          drift *= db->getArray(iech, icol_pinch);
       }
       else
       {
@@ -9409,7 +9409,7 @@ static int st_active_sample(Db *db, int ndim, int nlayer, int iech, int bypass)
   /* Check on the coordinates */
 
   for (int idim = 0; idim < ndim; idim++)
-    if (FFFF(get_IDIM(db, iech, idim))) return (0);
+    if (FFFF(db->getCoordinate(iech, idim))) return (0);
 
   /* Check on the inequality bounds */
 
@@ -9475,7 +9475,7 @@ static int st_record_sample(M2D_Environ *m2denv,
   // Set the coordinates
 
   for (int idim = 0; idim < ndim; idim++)
-    tab[ecr++] = get_IDIM(db, iech, idim);
+    tab[ecr++] = db->getCoordinate(iech, idim);
 
   // For each layer, set the bounds and the initial value
 
@@ -9833,7 +9833,7 @@ GEOSLIB_API cs *db_mesh_neigh(Db *db,
     /* Identification of the sample in the meshing */
 
     for (int idim = 0; idim < ndim; idim++)
-      coor[idim] = get_IDIM(db, iech, idim);
+      coor[idim] = db->getCoordinate(iech, idim);
 
     /* Blank out the array of hitting points */
 

@@ -306,7 +306,7 @@ cs* MeshSpherical::getMeshToDb(Db  *db,
     /* Identification */
 
     for (int idim=0; idim<ndim; idim++)
-      coor[idim] = get_IDIM(db,iech,idim);
+      coor[idim] = db->getCoordinate(iech,idim);
     
     /* Loop on the meshes */
     
@@ -418,7 +418,7 @@ double* MeshSpherical::interpolateMeshToDb(Db *db,
     /* Identification */
 
     for (int idim=0; idim<ndim; idim++)
-      coor[idim] = get_IDIM(db,iech,idim);
+      coor[idim] = db->getCoordinate(iech,idim);
     
     /* Loop on the meshes */
     

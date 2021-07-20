@@ -408,7 +408,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
     for (iech=0; iech<get_NECH(dbgrid); iech++)
     {
       db_index_sample_to_grid(dbgrid,iech,indg);
-      for (idim=0; idim<ndim; idim++) cen[idim] = get_IDIM(dbgrid,iech,idim);
+      for (idim=0; idim<ndim; idim++) cen[idim] = dbgrid->getCoordinate(iech,idim);
 
       /* Loop on the planes */
       
@@ -423,13 +423,13 @@ GEOSLIB_API int substitution(Db      *dbgrid,
         {
           if (colfac >= 0) 
           {
-            factor = get_ARRAY(dbgrid,iech,colfac);
+            factor = dbgrid->getArray(iech,colfac);
             (void) st_check_factor(&factor,0);
           }
           if (flag_angloc)
           {
             for (i=0; i<3; i++)
-              if (colang[i] >= 0) vector[i] = get_ARRAY(dbgrid,iech,colang[i]);
+              if (colang[i] >= 0) vector[i] = dbgrid->getArray(iech,colang[i]);
             (void) st_check_orientation(vector,0);
           }	  
           st_calcul_value(plan,factor,vector);
@@ -465,7 +465,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
   {
     if (! dbgrid->isActive(iech)) continue;
     value = (flag_direct) ? 
-      get_ARRAY(dbgrid,iech,iptr) : dbgrid->getVariable(iech,0);
+      dbgrid->getArray(iech,iptr) : dbgrid->getVariable(iech,0);
     if (value < vmin) vmin = value;
     if (value > vmax) vmax = value;
   }
@@ -521,7 +521,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
     {
       if (! dbgrid->isActive(iech)) continue;
       value = (flag_direct) ? 
-        get_ARRAY(dbgrid,iech,iptr) : dbgrid->getVariable(iech,0);
+        dbgrid->getArray(iech,iptr) : dbgrid->getVariable(iech,0);
       ival = (int) ((value - vmin) / (vmax - vmin) * nstates);
       if (ival < 0)        ival = 0;
       if (ival >= nstates) ival = nstates - 1;

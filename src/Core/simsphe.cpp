@@ -555,7 +555,7 @@ GEOSLIB_API int simsph_f(Db    *db,
   ntot = nbf * nech;
   for (int iy=0; iy<ny; iy++)
   {
-    theta  = ut_deg2rad(get_IDIM(db,IPTR(0,iy),1) + 90.); // Latitude[-90,90] 
+    theta  = ut_deg2rad(db->getCoordinate(IPTR(0,iy),1) + 90.); // Latitude[-90,90]
     ctheta = cos(theta);
     for (int ibf=0; ibf<nbf; ibf++)
     {
@@ -568,7 +568,7 @@ GEOSLIB_API int simsph_f(Db    *db,
         iech = IPTR(ix,iy);
         mes_process("Simulation on Sphere",ntot,ecr);
         if (! db->isActive(iech)) continue;
-        phi = ut_deg2rad(get_IDIM(db,iech,0));       // Longitude [0,360]
+        phi = ut_deg2rad(db->getCoordinate(iech,0));       // Longitude [0,360]
         t2  = cos(phi * order_loc + phase_loc);
         db->updArray(iech,iptr,0,t1*t2);
       }

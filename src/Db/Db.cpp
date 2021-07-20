@@ -19,6 +19,7 @@
 #include "Basic/AException.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_f_private.h"
+#include "geoslib_old_f.h"
 #include "geoslib_f.h"
 #include <algorithm>
 #include <functional>
@@ -900,6 +901,17 @@ void Db::getCoordinate(int iech, VectorDouble& coor) const
     coor[idim] = getCoordinate(iech, idim);
 }
 
+double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
+{
+  double v1 = getCoordinate(iech, idim);
+  if (FFFF(v1)) return TEST;
+  double v2 = getCoordinate(jech, idim);
+  if (FFFF(v2)) return TEST;
+  double delta = v1 - v2;
+  if (flagAbs) delta = ABS(delta);
+  return delta;
+}
+
 /**
  * Constitute a Vector of Vector of coordinates at a given sample, for all (active) samples
  * @param useSel
@@ -1513,7 +1525,33 @@ void Db::gridCopyParams(int mode, const GridC& gridaux)
 
 bool Db::isSameGrid(const GridC& grid) const
 {
+  if (! isGrid() || grid.empty())
+  {
+    messerr("Both files should be organized as grids");
+    return false;
+  }
   return _grid.isSame(grid);
+}
+
+bool Db::isSameGridMesh(const Db& dbaux) const
+{
+  if (! isGrid() || ! dbaux.isGrid())
+  {
+    messerr("Both files should be organized as grids");
+    return false;
+  }
+  return _grid.isSameMesh(dbaux.getGrid());
+}
+
+bool Db::isSameGridRotation(const Db& dbaux) const
+{
+  if (! isGrid() || ! dbaux.isGrid())
+  {
+    messerr("Both files should be organized as grids");
+    return false;
+  }
+  if (! isGridRotated() && ! dbaux.isGridRotated()) return true;
+  return _grid.isSameRotation(dbaux.getGrid());
 }
 
 bool Db::isGridRotated() const
@@ -3570,3 +3608,75 @@ int Db::getFaciesNumber(void)
   return nfac;
 }
 
+VectorInt getSortArray();
+/****************************************************************************/
+/*!
+**  Return the vector of ordered samples by increasing coordinate along X
+**
+** \return    Array containing the increasing order
+**
+** \param[in]  db    Db descriptor
+**
+** \remarks  The returned array must be desallocated
+**
+*****************************************************************************/
+VectorInt Db::getSortArray() const
+{
+  VectorInt rindex;
+  VectorDouble xval;
+
+  /* Initializations */
+
+  int nech = getSampleNumber();
+
+  /* Core allocation */
+
+  xval.resize(nech);
+  rindex.resize(nech);
+
+  /* Load the arrays */
+
+  for (int iech=0; iech<nech; iech++)
+  {
+    rindex[iech] = iech;
+    xval[iech]   = getCoordinate(iech,0);
+  }
+
+  /* Sorting */
+
+  ut_sort_double(0,nech,rindex.data(),xval.data());
+
+  return(rindex);
+}
+
+/****************************************************************************/
+/*!
+ **  Calculates the cosine of the angle between a reference direction
+ **  and the increment between two points in the same Db
+ **
+ ** \return  Cosine of the angle
+ **
+ ** \param[in]  iech1  rank of the first sample
+ ** \param[in]  iech2  rank of the second sample
+ ** \param[in]  codir  Direction coefficient
+ **
+ *****************************************************************************/
+double Db::getCosineToDirection(int iech1,
+                                int iech2,
+                                const VectorDouble& codir) const
+{
+  double cosdir = 0.;
+  double dn1 = 0.;
+  double dn2 = 0.;
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    double delta = getDistance1D(iech1, iech2, idim);
+    if (FFFF(delta)) return TEST;
+    cosdir += delta * codir[idim];
+    dn1 += delta * delta;
+    dn2 += codir[idim] * codir[idim];
+  }
+  double prod = dn1 * dn2;
+  if (prod <= 0.) return (1.);
+  return (cosdir / sqrt(prod));
+}

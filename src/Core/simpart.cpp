@@ -298,7 +298,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
     if (!dbgrid->isActive(iech)) continue;
     db_index_sample_to_grid(dbgrid, iech, indg);
     for (idim = 0; idim < ndim; idim++)
-      cen[idim] = get_IDIM(dbgrid, iech, idim);
+      cen[idim] = dbgrid->getCoordinate(iech, idim);
 
     /* Loop on the planes */
 
@@ -329,7 +329,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
   for (iech = 0; iech < get_NECH(dbgrid); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
-    valref = get_ARRAY(dbgrid, iech, iatts);
+    valref = dbgrid->getArray(iech, iatts);
     if (FFFF(valref)) continue;
 
     /* Check if the value has already been treated */
@@ -339,7 +339,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
 
       /* Not in the stack: read the value from the Gaussian field */
 
-      valsim = get_ARRAY(dbgrid, iech, iattg);
+      valsim = dbgrid->getArray(iech, iattg);
 
       /* Add this new value to the stack */
 

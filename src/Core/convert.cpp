@@ -75,7 +75,7 @@ static int st_color_rank(Db    *db,
   if (! db->getSelection(iech)) return(COLOR_MASK);
 
   /* Read the value */
-  value = get_ARRAY(db,iech,icol);
+  value = db->getArray(iech,icol);
 
   /* Check if the value is defined */
   if (FFFF(value)) return(COLOR_FFFF);
@@ -961,7 +961,7 @@ GEOSLIB_API int db_grid_write_zycor(const char *filename,
      ii = ( ( nx[1] * nx[0] ) - ( jj+1 ) );
      for ( loop=1; loop <= nx[1]; loop++ )
      {
-        buff[kk++] = get_ARRAY(db,ii,icol);
+        buff[kk++] = db->getArray(ii,icol);
         ii -= nx[0];
         if ( kk == nbyline )
         {
@@ -1160,7 +1160,7 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
   for (i=0; i<nx * ny; i++)
   {
     if (! db->getSelection(i)) continue;
-    value = get_ARRAY(db,i,icol);
+    value = db->getArray(i,icol);
     if (FFFF(value)) continue;
     if (value < vmin) vmin = value;
     if (value > vmax) vmax = value;
@@ -1444,7 +1444,7 @@ GEOSLIB_API int db_grid_write_prop(const char *filename,
   for (j=0; j<ncol; j++)
     for (i=0; i<ntot; i++)
     {
-      value = get_ARRAY(db,i,icols[j]);
+      value = db->getArray(i,icols[j]);
       st_ifpen_write(file,2,NULL,0,value,NULL);
     }
 
@@ -1504,7 +1504,7 @@ GEOSLIB_API int db_grid_write_eclipse(const char   *filename,
     valprt = valtest;
     if (db->getSelection(i))
     {
-      value = get_ARRAY(db,i,icol);
+      value = db->getArray(i,icol);
       if (! FFFF(value)) valprt = value;
     }
     fprintf(file,"%lf ",valprt);
@@ -1882,7 +1882,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
         if (idim == 0) fact = factx;
         if (idim == 1) fact = facty;
         if (idim == 2) fact = factz;
-        points[ecr++] = (idim < ndim) ? fact * get_IDIM(db,iech,idim) : 0.;
+        points[ecr++] = (idim < ndim) ? fact * db->getCoordinate(iech,idim) : 0.;
       }
     }
   }
@@ -1897,7 +1897,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
       for (int iech=0; iech<nech; iech++)
         if (db->isActive(iech))
         {
-          value = get_ARRAY(db,iech,cols[icol]);
+          value = db->getArray(iech,cols[icol]);
           if (FFFF(value))
             tab[icol][ecr] = TEST;
           else
@@ -2711,8 +2711,8 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
     for (int iy=0; iy<db->getNX(1); iy++)
     {
       for (int i = 0; i < db->getNDim(); i++)
-        fprintf(file, "%lf,", get_IDIM(db, lec, i));
-      double value = get_ARRAY(db, lec, icol);
+        fprintf(file, "%lf,", db->getCoordinate(lec, i));
+      double value = db->getArray(lec, icol);
       if (FFFF(value))
         fprintf(file,"1E+30\n");
       else
@@ -2999,7 +2999,7 @@ GEOSLIB_API int db_write_csv(Db *db,
         for (int idim = 0; idim < ndim; idim++)
         {
           int iatt = db_attribute_identify(db, LOC_X, idim);
-          csv_print_double(get_IDIM(db, iech, iatt));
+          csv_print_double(db->getCoordinate(iech, iatt));
           rank++;
         }
       for (int ivar = 0; ivar < nvar; ivar++)

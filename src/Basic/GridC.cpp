@@ -581,6 +581,20 @@ bool GridC::isSame(const GridC& grid) const
   return 1;
 }
 
+bool GridC::isSameMesh(const GridC& grid) const
+{
+  int ndim = MIN(_nDim, grid.getNDim());
+
+  /* Compare the grid parameters */
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    if (_dx[idim] != grid.getDX(idim)) return 0;
+  }
+  return 1;
+}
+
+
 /**
  * Returns a vector with the coordinates along one axis. This is needed
  * for the label of Grid representation
@@ -665,4 +679,10 @@ VectorInt GridC::iteratorNext(void)
   if (_iter < _nprod - 1) _iter++;
 
   return indices;
+}
+
+bool GridC::empty() const
+{
+  bool empty = _nDim <= 0 || _nx.empty();
+  return empty;
 }

@@ -116,9 +116,9 @@ static int st_reference_define(Db  *db,
   for (int iech=0; iech<get_NECH(db); iech++)
   {
     if (! db->isActive(iech)) continue;
-    x   = get_ARRAY(db,iech,iptr_init[0]);
-    y   = get_ARRAY(db,iech,iptr_init[1]);
-    z   = get_ARRAY(db,iech,iptr_init[2]);
+    x   = db->getArray(iech,iptr_init[0]);
+    y   = db->getArray(iech,iptr_init[1]);
+    z   = db->getArray(iech,iptr_init[2]);
     gg[0] += x;
     gg[1] += y;
     gg[2] += z;
@@ -135,9 +135,9 @@ static int st_reference_define(Db  *db,
   for (int iech=0; iech<get_NECH(db); iech++)
   {
     if (! db->isActive(iech)) continue;
-    x   = get_ARRAY(db,iech,iptr_init[0]) - surf_reference->xg;
-    y   = get_ARRAY(db,iech,iptr_init[1]) - surf_reference->yg;
-    z   = get_ARRAY(db,iech,iptr_init[2]) - surf_reference->zg;
+    x   = db->getArray(iech,iptr_init[0]) - surf_reference->xg;
+    y   = db->getArray(iech,iptr_init[1]) - surf_reference->yg;
+    z   = db->getArray(iech,iptr_init[2]) - surf_reference->zg;
     MAT(0,0) += x * x;
     MAT(0,1) += x * y;
     MAT(0,2) += x * z;
@@ -289,9 +289,9 @@ static void st_transform_init2proj(Surf_Def *surf_reference,
 
     /* Load the initial coordinates */
 
-    x = get_ARRAY(db,iech,iptr_init[0]);
-    y = get_ARRAY(db,iech,iptr_init[1]);
-    z = get_ARRAY(db,iech,iptr_init[2]);
+    x = db->getArray(iech,iptr_init[0]);
+    y = db->getArray(iech,iptr_init[1]);
+    z = db->getArray(iech,iptr_init[2]);
 
     /* Update statistics */
 

@@ -76,7 +76,7 @@ private:
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
   double _determinant() const override;
 
-  void   _checkValidIndex(int irow, int icol) const;
+  bool   _isValidIndex(int irow, int icol) const;
 
 private:
   double _cstDiagMatrix;

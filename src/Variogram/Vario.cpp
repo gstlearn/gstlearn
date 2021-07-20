@@ -16,6 +16,7 @@
 #include "Basic/Vector.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_f.h"
+#include "geoslib_f_private.h"
 
 Vario::Vario(double scale,
              bool flagSample,
@@ -346,8 +347,8 @@ int Vario::compute(Db *db,
   setMeans(means);
   setVars(vars);
 
-  return variogram_compute(db, this, means, vars, flag_grid, flag_gen,
-                           flag_sample, verr_mode, flag_model, model, verbose);
+  return _variogram_compute(db, this, means, vars, flag_grid, flag_gen,
+                            flag_sample, verr_mode, flag_model, model, verbose);
 }
 
 /**

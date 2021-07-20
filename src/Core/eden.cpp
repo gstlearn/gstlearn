@@ -184,7 +184,7 @@ static int get_FACIES(int iech)
 {
   int ifacies;
 
-  ifacies = (int) get_ARRAY(DB,iech,IND_FACIES);
+  ifacies = (int) DB->getArray(iech,IND_FACIES);
   if (ifacies < 0 || ifacies > NFACIES || IFFFF(ifacies)) ifacies = SHALE;
   return(ifacies);
 }
@@ -202,7 +202,7 @@ static int get_FLUID(int iech)
 {
   int ifluid;
 
-  ifluid = (int) get_ARRAY(DB,iech,IPTR_FLUID);
+  ifluid = (int) DB->getArray(iech,IPTR_FLUID);
   if (ifluid < 0 || ifluid > NFLUIDS || IFFFF(ifluid)) ifluid = UNDEF_FLUID;
   return(ifluid);
 }
@@ -221,7 +221,7 @@ static int get_PERM(int iech)
   double perm;
 
   if (IND_PERM <= 0) return(1);
-  perm = get_ARRAY(DB,iech,IND_PERM);
+  perm = DB->getArray(iech,IND_PERM);
   if (FFFF(perm) || perm < 0.) perm = 0.;
   return((int) perm);
 }
@@ -240,7 +240,7 @@ static double get_PORO(int iech)
   double poro;
 
   if (IND_PORO <= 0) return(1);
-  poro = get_ARRAY(DB,iech,IND_PORO);
+  poro = DB->getArray(iech,IND_PORO);
   if (FFFF(poro)) return(0);
   poro = MIN(1., MAX(0., poro));
   return(poro);
@@ -260,7 +260,7 @@ static double get_DATE(int iech)
   double date;
 
   if (IND_DATE <= 0) return(0);
-  date = get_ARRAY(DB,iech,IND_DATE);
+  date = DB->getArray(iech,IND_DATE);
   if (FFFF(date)) return(0);
   date = MAX(1., date);
   return(date);
@@ -312,7 +312,7 @@ static int get_FLUID_OLD(int iech)
 {
   double ifluid;
 
-  ifluid = get_ARRAY(DB,iech,IND_FLUID);
+  ifluid = DB->getArray(iech,IND_FLUID);
   if (ifluid < 0 || ifluid > NFLUIDS) ifluid = UNDEF_FLUID;
   return((int)ifluid);
 }
@@ -344,7 +344,7 @@ static void set_FACIES_CORK(int iech)
 {
   int ifacies;
 
-  ifacies = (int) get_ARRAY(DB,iech,IND_FACIES);
+  ifacies = (int) DB->getArray(iech,IND_FACIES);
   DB->setArray(iech,IND_FACIES,-ifacies);
   return;
 }
@@ -507,7 +507,7 @@ static void st_update_results(int reset_facies,
   for (iech=0; iech<NXYZ; iech++)
   {
     ifluid  = get_FLUID_OLD(iech);
-    ifacies = (int) get_ARRAY(DB,iech,IND_FACIES);
+    ifacies = (int) DB->getArray(iech,IND_FACIES);
 
     /* Update the Facies information */
 
@@ -560,7 +560,7 @@ static void st_calculate_cumul(void)
 
     /* Update the Cork statistics */
 
-    ifacies = (int)get_ARRAY(DB,iech,IND_FACIES);
+    ifacies = (int) DB->getArray(iech,IND_FACIES);
     if (ifacies < 0)
       DB->updArray(iech,IPTR_STAT_CORK,0,1);
   }

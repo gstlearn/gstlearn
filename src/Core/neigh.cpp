@@ -79,7 +79,7 @@ static void st_neigh_print(Db     *dbin,
     if (dbin->hasCode() > 0)
       tab_printi(NULL,1,GD_J_RIGHT,dbin->getCode(iech));
     for (idim=0; idim<ndim; idim++)
-      tab_printg(NULL,1,GD_J_RIGHT,get_IDIM(dbin,iech,idim));
+      tab_printg(NULL,1,GD_J_RIGHT,dbin->getCoordinate(iech,idim));
     if (flag_ext)
     {
       for (idim=0; idim<ndim; idim++)
@@ -235,7 +235,7 @@ static void st_bench(Db     *dbin,
   /* Initializations */
 
   idim_bench = dbin->getNDim() - 1;
-  z0 = get_IDIM(dbout,iech_out,idim_bench);
+  z0 = dbout->getCoordinate(iech_out,idim_bench);
 
   /* Loop on samples */
 
@@ -258,7 +258,7 @@ static void st_bench(Db     *dbin,
 
     /* Discard sample located outside the bench */
 
-    if (ABS(get_IDIM(dbin,iech,idim_bench) - z0) <= neigh->getWidth())
+    if (ABS(dbin->getCoordinate(iech,idim_bench) - z0) <= neigh->getWidth())
       rank[iech] = 0;
   }
 
@@ -305,7 +305,7 @@ GEOSLIB_API double neigh_continuous_variance(Neigh *neigh,
   /* Calculate the distance increment */
 
   for (int idim=0; idim<ndim; idim++)
-    dd[idim] = get_IDIM(db1,rank1,idim) - get_IDIM(db2,rank2,idim);
+    dd[idim] = db1->getCoordinate(rank1,idim) - db2->getCoordinate(rank2,idim);
 
   /* Anisotropic neighborhood */
 
@@ -368,7 +368,7 @@ static double st_moving_dist(Db     *dbin,
 
   for (idim=0; idim<ndim; idim++)
     NBGH_x1[idim] = 
-      get_IDIM(dbout,iech_out,idim) - get_IDIM(dbin,iech_in,idim);
+      dbout->getCoordinate(iech_out,idim) - dbin->getCoordinate(iech_in,idim);
 
   /* Anisotropic neighborhood */
 

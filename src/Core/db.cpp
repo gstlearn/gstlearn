@@ -51,65 +51,6 @@ GEOSLIB_API int compat_NDIM(Db *db1, Db *db2)
 
 /****************************************************************************/
 /*!
- **  Checks if two Db are compatible (same grid mesh))
- **
- ** \return  Error return code. If an error is found, a message is issued
- **
- ** \param[in]  db1    first Db descriptor
- ** \param[in]  db2    second Db descriptor
- **
- *****************************************************************************/
-GEOSLIB_API int same_mesh(Db *db1, Db *db2)
-{
-  if (db1->isGrid() != db2->isGrid())
-  {
-    messerr("The two files are not both Grid organized");
-    return (0);
-  }
-  for (int idim = 0; idim < db1->getNDim(); idim++)
-  {
-    if (db1->getDX(idim) != db2->getDX(idim))
-    {
-      messerr("The two Grid files do not have the same Grid mesh");
-      return (0);
-    }
-  }
-  return (1);
-}
-
-/****************************************************************************/
-/*!
- **  Checks if two Db are compatible (same rotation)
- **
- ** \return  Error return code. If an error is found, a message is issued
- **
- ** \param[in]  db1     first Db descriptor
- ** \param[in]  db2     second Db descriptor
- **
- *****************************************************************************/
-GEOSLIB_API int same_rotation(Db *db1, Db *db2)
-
-{
-  int i, ndim1;
-
-  if (!db1->isGridRotated() && !db2->isGridRotated()) return (1);
-
-  // We only work with the minor dimension
-  ndim1 = std::min(db1->getNDim(), db2->getNDim());
-  for (i = 0; i < ndim1; i++)
-  {
-    if (ABS(db1->getAngles(i) - db2->getAngles(i)) > EPSILON3)
-    {
-      messerr("Angle for Dimension #%d are different: %lf vs. %lf", i + 1,
-              db1->getAngles(i), db2->getAngles(i));
-      return (0);
-    }
-  }
-  return (1);
-}
-
-/****************************************************************************/
-/*!
  **  Print the Summary of the Grid structure
  **
  ** \param[in]  db  Pointer to the Db structure (organized as a grid)
@@ -369,23 +310,6 @@ static void st_load_data(Db *db,
 
 /****************************************************************************/
 /*!
- **  Returns a value from the array
- **
- ** \return  Returned value
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iech Rank of the sample
- ** \param[in]  iatt Rank of the attribute
- **
- *****************************************************************************/
-GEOSLIB_API double get_ARRAY(const Db *db, int iech, int iatt)
-{
-  double value = db->getArray(iech, iatt);
-  return value;
-}
-
-/****************************************************************************/
-/*!
  **  Checks if the Db corresponds to a Grid organization
  **
  ** \return  1 if the Db exists and is a grid
@@ -415,64 +339,6 @@ GEOSLIB_API int get_NECH(const Db *db)
 {
   if (db == (Db *) NULL) return (0);
   return (db->getSampleNumber());
-}
-
-/*************************************************************************/
-/*!
- **  Reads one coordinate of a sample
- **
- ** \return  Returned value
- **
- ** \param[in]  db    Db structure
- ** \param[in]  iech  Rank of the sample
- ** \param[in]  idim  Rank of the coordinate
- **
- ** \remark  For efficiency reason, argument validity is not tested
- **
- *****************************************************************************/
-GEOSLIB_API double get_IDIM(const Db *db, int iech, int idim)
-{
-  if (db == (Db *) NULL) return (0);
-  return db->getCoordinate(iech, idim);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the coordinate of the grid node
- **
- ** \return  Returned value
- **
- ** \param[in]  db    Db structure
- ** \param[in]  iech  Rank of the grid node
- ** \param[in]  r_dim Rank of the coordinate
- **
- *****************************************************************************/
-GEOSLIB_API double get_grid_IDIM(Db *db, int iech, int r_dim)
-{
-  int ndim = db->getNDim();
-  VectorInt iwork1(ndim);
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
-
-  /* Convert a sample number into grid indices */
-
-  db_index_sample_to_grid(db, iech, iwork1.data());
-
-  /* Calculate the coordinates in the grid system */
-
-  for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = iwork1[idim] * db->getDX(idim);
-
-  /* Process the grid rotation (if any) */
-
-  db->getGrid().getRotation().rotateDirect(work1, work2);
-
-  /* Shift the origin */
-
-  for (int idim = 0; idim < ndim; idim++)
-    work2[idim] += db->getX0(idim);
-
-  return (work2[r_dim]);
 }
 
 /****************************************************************************/
@@ -760,7 +626,7 @@ GEOSLIB_API int db_coorvec_get(Db *db, int idim, double *tab)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (db->isGrid())
-      tab[iech] = get_grid_IDIM(db, iech, idim);
+      tab[iech] = db->getCoordinate(iech, idim);
     else
     {
       int icol = db->getColumnByLocator(LOC_X, idim);
@@ -893,7 +759,7 @@ GEOSLIB_API int db_sample_load(Db *db,
     /* Particular case of the grid */
 
     if (locatorType == LOC_X && db->isGrid())
-      tab[item] = get_grid_IDIM(db, iech, item);
+      tab[item] = db->getCoordinate(iech, item);
     else
     {
       int icol = db->getColumnByLocator(locatorType, item);
@@ -992,8 +858,8 @@ GEOSLIB_API double distance_inter(Db *db1,
 
   for (idim = 0; idim < ndim; idim++)
   {
-    v1 = get_IDIM(db1, iech1, idim);
-    v2 = get_IDIM(db2, iech2, idim);
+    v1 = db1->getCoordinate(iech1, idim);
+    v2 = db2->getCoordinate(iech2, idim);
     if (FFFF(v1) || FFFF(v2)) return (TEST);
     tab1[idim] = v1;
     tab2[idim] = v2;
@@ -1029,8 +895,8 @@ GEOSLIB_API double distance_intra(Db *db,
 
   for (idim = 0; idim < ndim; idim++)
   {
-    v1 = get_IDIM(db, iech1, idim);
-    v2 = get_IDIM(db, iech2, idim);
+    v1 = db->getCoordinate(iech1, idim);
+    v2 = db->getCoordinate(iech2, idim);
     if (FFFF(v1) || FFFF(v2)) return (TEST);
     tab1[idim] = v1;
     tab2[idim] = v2;
@@ -1096,43 +962,6 @@ GEOSLIB_API double distance_grid(Db *db,
 
 /****************************************************************************/
 /*!
- **  Calculates the cosine of the angle between a reference direction
- **  and the increment between two points in the same Db
- **
- ** \return  Cosine of the angle
- **
- ** \param[in]  db     Db structure
- ** \param[in]  iech1  rank of the first sample
- ** \param[in]  iech2  rank of the second sample
- ** \param[in]  codir  Direction coefficient
- **
- *****************************************************************************/
-GEOSLIB_API double cosdir(Db *db,
-                          int iech1,
-                          int iech2,
-                          const VectorDouble& codir)
-{
-  double cosdir, delta, dn1, dn2, v1, v2, prod;
-  int idim;
-
-  cosdir = dn1 = dn2 = 0.;
-  for (idim = 0; idim < db->getNDim(); idim++)
-  {
-    v1 = get_IDIM(db, iech1, idim);
-    v2 = get_IDIM(db, iech2, idim);
-    if (FFFF(v1) || FFFF(v2)) return (TEST);
-    delta = v1 - v2;
-    cosdir += delta * codir[idim];
-    dn1 += delta * delta;
-    dn2 += codir[idim] * codir[idim];
-  }
-  prod = dn1 * dn2;
-  if (prod <= 0.) return (1.);
-  return (cosdir / sqrt(prod));
-}
-
-/****************************************************************************/
-/*!
  **  Calculate the bench separation for the current pair
  **
  ** \return  Bench separation;
@@ -1148,16 +977,9 @@ GEOSLIB_API double cosdir(Db *db,
  *****************************************************************************/
 GEOSLIB_API double bench_distance(Db *db, int iech1, int iech2)
 {
-  double v1, v2;
-  int idim0;
-
-  idim0 = 2;
+  int idim0 = 2;
   if (db->getNDim() <= idim0) return (0.);
-
-  v1 = get_IDIM(db, iech1, idim0);
-  v2 = get_IDIM(db, iech2, idim0);
-  if (FFFF(v1) || FFFF(v2)) return (TEST);
-  return (ABS(v1 - v2));
+  return db->getDistance1D(iech1, iech2, idim0, true);
 }
 
 /****************************************************************************/
@@ -1177,16 +999,13 @@ GEOSLIB_API double cylinder_radius(Db *db,
                                    int iech2,
                                    const VectorDouble& codir)
 {
-  double delta, dproj, v1, v2, v, dn1, dn2;
-  int idim;
+  double delta, dproj, v, dn1, dn2;
 
   dn1 = dn2 = v = dproj = 0.;
-  for (idim = 0; idim < db->getNDim(); idim++)
+  for (int idim = 0; idim < db->getNDim(); idim++)
   {
-    v1 = get_IDIM(db, iech1, idim);
-    v2 = get_IDIM(db, iech2, idim);
-    if (FFFF(v1) || FFFF(v2)) return (TEST);
-    delta = v1 - v2;
+    delta = db->getDistance1D(iech1, iech2, idim);
+    if (FFFF(delta)) return (TEST);
     dproj += delta * codir[idim];
     dn1 += codir[idim] * codir[idim];
     dn2 += delta * delta;
@@ -1300,11 +1119,11 @@ GEOSLIB_API void db_sample_print(Db *db,
   message("Sample #%d (from %d)\n", iech + 1, db->getSampleNumber());
   if (flag_ndim) for (idim = 0; idim < db->getNDim(); idim++)
   {
-    value = get_IDIM(db, iech, idim);
+    value = db->getCoordinate(iech, idim);
     if (FFFF(value))
       message("Coordinate #%d = NA\n", idim + 1);
     else
-      message("Coordinate #%d = %lf\n", idim + 1, get_IDIM(db, iech, idim));
+      message("Coordinate #%d = %lf\n", idim + 1, db->getCoordinate(iech, idim));
   }
   if (flag_nvar) for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
   {
@@ -2679,7 +2498,7 @@ GEOSLIB_API int point_to_point(Db *db, double *coor)
     dist = 0.;
     for (idim = 0; idim < db->getNDim(); idim++)
     {
-      x = get_IDIM(db, iech, idim);
+      x = db->getCoordinate(iech, idim);
       if (FFFF(x)) continue;
       delta = x - coor[idim];
       dist += delta * delta;
@@ -2878,7 +2697,7 @@ GEOSLIB_API int index_point_to_grid(Db *dbin,
 
   if (iech < 0 || iech >= nech) return (-1);
   for (int idim = 0; idim < ndim; idim++)
-    coor[idim] = get_IDIM(dbin, iech, idim);
+    coor[idim] = dbin->getCoordinate(iech, idim);
 
   /* Get the indices of the grid node */
 
@@ -2911,7 +2730,7 @@ GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid)
   /* Process the grid rotation (if any) */
 
   for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = get_IDIM(db, iech, idim) - dbgrid->getX0(idim);
+    work1[idim] = db->getCoordinate(iech, idim) - dbgrid->getX0(idim);
 
   dbgrid->getGrid().getRotation().rotateInverse(work1, work2);
 
@@ -3026,9 +2845,9 @@ GEOSLIB_API void db_polygon(Db *db,
     int selval = 0;
     if (!(flag_sel && !db->isActive(iech)))
     {
-      double xx = get_IDIM(db, iech, 0);
-      double yy = get_IDIM(db, iech, 1);
-      double zz = get_IDIM(db, iech, 2);
+      double xx = db->getCoordinate(iech, 0);
+      double yy = db->getCoordinate(iech, 1);
+      double zz = db->getCoordinate(iech, 2);
       selval = polygon_inside(xx, yy, zz, flag_nested, polygon);
 
       if (flag_period)
@@ -4584,9 +4403,9 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
 
   /* Check that the two grids are compatible */
 
-  if (!ss_grid->hasSameDimension(db_grid)) goto label_end;
-  if (!same_mesh(ss_grid, db_grid)) goto label_end;
-  if (!same_rotation(ss_grid, db_grid)) goto label_end;
+  if (! db_grid->hasSameDimension(ss_grid)) goto label_end;
+  if (! db_grid->isSameGridMesh(ss_grid)) goto label_end;
+  if (! db_grid->isSameGridRotation(ss_grid)) goto label_end;
 
   /* Core allocation */
 

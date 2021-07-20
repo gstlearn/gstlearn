@@ -48,7 +48,7 @@ static int st_cgi_data(Db     *db,
   value = 1.;
   if (flag_z)
   { 
-    value = get_ARRAY(db,iech,iatt);
+    value = db->getArray(iech,iatt);
     if (FFFF(value)) return(1);
     if (value < 0.)
     {

@@ -1590,14 +1590,14 @@ static int st_is_sample_skipped(Db     *db,
   if (cols_est != (int *) NULL)
     for (int ivar=0; ivar<nb_est; ivar++)
     {
-      value = get_ARRAY(db,iech,cols_est[ivar]);
+      value = db->getArray(iech,cols_est[ivar]);
       if (FFFF(value)) return(1);
     }
   
   if (cols_std != (int *) NULL)
     for (int ivar=0; ivar<nb_std; ivar++)
     {
-      value = get_ARRAY(db,iech,cols_std[ivar]);
+      value = db->getArray(iech,cols_std[ivar]);
       if (FFFF(value)) return(1);
     }
   return(0);
@@ -1631,14 +1631,14 @@ static void st_print_qtvars(const char *title,
 ** \param[in]  ncut         Number of cutoffs
 **
 *****************************************************************************/
-static int st_check_ncut(int ncut)
+static bool isNcutValid(int ncut)
 {
   if (ncut <= 0)
   {
     messerr("The computing option requires Cutoffs to be defiend");
-    return(1);
+    return false;
   }
-  return(0);
+  return true;
 }
 
 /*****************************************************************************/
@@ -1731,7 +1731,7 @@ static int st_code_analyze(int    verbose,
         break;
 
       case ANAM_QT_T:
-        if (st_check_ncut(ncut)) return(0);
+        if (! isNcutValid(ncut)) return(0);
         if (flag_est)
         {
           QT_VARS(QT_EST,ANAM_QT_T) = ncut;
@@ -1745,7 +1745,7 @@ static int st_code_analyze(int    verbose,
         break;
 
       case ANAM_QT_Q:
-        if (st_check_ncut(ncut)) return(0);
+        if (! isNcutValid(ncut)) return(0);
         if (flag_est) 
         {
           QT_VARS(QT_EST,ANAM_QT_Q) = ncut;
@@ -1759,7 +1759,7 @@ static int st_code_analyze(int    verbose,
         break;
 
       case ANAM_QT_B:
-        if (st_check_ncut(ncut)) return(0);
+        if (! isNcutValid(ncut)) return(0);
         if (flag_est) 
         {
           QT_VARS(QT_EST,ANAM_QT_B) = ncut;
@@ -1768,7 +1768,7 @@ static int st_code_analyze(int    verbose,
         break;
 
       case ANAM_QT_M:
-        if (st_check_ncut(ncut)) return(0);
+        if (! isNcutValid(ncut)) return(0);
         if (flag_est) 
         {
           QT_VARS(QT_EST,ANAM_QT_M) = ncut;
@@ -1777,7 +1777,7 @@ static int st_code_analyze(int    verbose,
         break;
 
       case ANAM_QT_PROBA:	
-        if (st_check_ncut(ncut)) return(0);
+        if (! isNcutValid(ncut)) return(0);
         if (flag_est) 
         {
           QT_VARS(QT_EST,ANAM_QT_PROBA) = ncut;
@@ -1879,7 +1879,7 @@ static int st_anam_factor2qt_hermitian(Db     *db,
       total = anam_hermite->getPsiHn(0);
       for (int ivar=0; ivar<nb_est; ivar++)
       {
-        value  = get_ARRAY(db,iech,cols_est[ivar]);
+        value  = db->getArray(iech,cols_est[ivar]);
         coeff  = anam_hermite->getPsiHn(ivar+1);
         total += coeff * value;
       }
@@ -1893,7 +1893,7 @@ static int st_anam_factor2qt_hermitian(Db     *db,
       total = 0.;
       for (int ivar=0; ivar<nb_std; ivar++)
       {
-        value  = get_ARRAY(db,iech,cols_std[ivar]);
+        value  = db->getArray(iech,cols_std[ivar]);
         coeff  = anam_hermite->getPsiHn(ivar+1);
         total += coeff * coeff * value;
       }
@@ -1917,7 +1917,7 @@ static int st_anam_factor2qt_hermitian(Db     *db,
           CALEST(ncutmine,CAL_TEST,icut) = s_cc[0];
           for (int ivar=0; ivar<nb_est; ivar++)
           {
-            value = get_ARRAY(db,iech,cols_est[ivar]);
+            value = db->getArray(iech,cols_est[ivar]);
             CALEST(ncutmine,CAL_TEST,icut) += s_cc[ivar+1] * value;
           }
         }
@@ -1929,7 +1929,7 @@ static int st_anam_factor2qt_hermitian(Db     *db,
           total = 0.;
           for (int ivar=0; ivar<nb_std; ivar++)
           {
-            value = get_ARRAY(db,iech,cols_std[ivar]);
+            value = db->getArray(iech,cols_std[ivar]);
             total += s_cc[ivar+1] * s_cc[ivar+1] * value;
           }
           CALEST(ncutmine,CAL_TSTD,icut) = sqrt(total);
@@ -1947,7 +1947,7 @@ static int st_anam_factor2qt_hermitian(Db     *db,
           CALEST(ncutmine,CAL_QEST,icut) = 0.;
           for (int ivar=0; ivar<nb_est; ivar++)
           {
-            value = get_ARRAY(db,iech,cols_est[ivar]);
+            value = db->getArray(iech,cols_est[ivar]);
             fn = 0.;	 
             for (int jvar=0; jvar<nbpoly; jvar++)
             {
@@ -1965,7 +1965,7 @@ static int st_anam_factor2qt_hermitian(Db     *db,
           total = 0.;
           for (int ivar=0; ivar<nb_std; ivar++)
           {
-            value = get_ARRAY(db,iech,cols_std[ivar]);
+            value = db->getArray(iech,cols_std[ivar]);
             fn = 0.;	 
             for (int jvar=0; jvar<nbpoly; jvar++)
             {
@@ -2065,7 +2065,7 @@ static int st_anam_factor2qt_discrete_DD(Db     *db,
       CALEST(nclass,CAL_TEST,iclass) = CT(iclass,0);
       for (int ivar=0; ivar<nb_est; ivar++)
       {
-        value = get_ARRAY(db,iech,cols_est[ivar]);
+        value = db->getArray(iech,cols_est[ivar]);
         CALEST(nclass,CAL_TEST,iclass) += value * CT(iclass,ivar+1);
       }
     }
@@ -2084,7 +2084,7 @@ static int st_anam_factor2qt_discrete_DD(Db     *db,
         total = 0.;
         for (int ivar=0; ivar<nclass-1; ivar++)
         {
-          value  = (ivar < nb_std) ? get_ARRAY(db,iech,cols_std[ivar]) : 1.;
+          value  = (ivar < nb_std) ? db->getArray(iech,cols_std[ivar]) : 1.;
           prod   = value * CT(iclass,ivar+1);
           total += prod * prod;
         }
@@ -2113,7 +2113,7 @@ static int st_anam_factor2qt_discrete_DD(Db     *db,
         total = 0.;
         for (int ivar=0; ivar<nclass-1; ivar++)
         {
-          value  = (ivar < nb_std) ? get_ARRAY(db,iech,cols_std[ivar]) : 1.;
+          value  = (ivar < nb_std) ? db->getArray(iech,cols_std[ivar]) : 1.;
           prod   = value * CQ(iclass,ivar+1);
           total += prod * prod;
         }
@@ -2138,7 +2138,7 @@ static int st_anam_factor2qt_discrete_DD(Db     *db,
       total = 0;
       for (int ivar=0; ivar<nclass-1; ivar++)
       {
-        value  = (ivar < nb_std) ? get_ARRAY(db,iech,cols_std[ivar]) : 1.;
+        value  = (ivar < nb_std) ? db->getArray(iech,cols_std[ivar]) : 1.;
         prod   = value * anam_discrete_DD->getDDStatCnorm(ivar);
         total += prod * prod;
       }
@@ -2234,7 +2234,7 @@ static int st_anam_factor2qt_discrete_IR(Db     *db,
     total = 0.;
     for (int ivar=0; ivar<ncleff; ivar++)
     {
-      value  = get_ARRAY(db,iech,cols_est[ivar]);
+      value  = db->getArray(iech,cols_est[ivar]);
       total += value;
       CALEST(nclass,CAL_TEST,ivar) = total * anam_discrete_IR->getIRStatT(ivar+1);
     }
@@ -2251,7 +2251,7 @@ static int st_anam_factor2qt_discrete_IR(Db     *db,
       total = 0.;
       for (int ivar=0; ivar<ncleff; ivar++)
       {
-        value  = get_ARRAY(db,iech,cols_std[ivar]);
+        value  = db->getArray(iech,cols_std[ivar]);
         total += value * value;
         CALEST(nclass,CAL_TSTD,ivar) = sqrt(total) * anam_discrete_IR->getIRStatT(ivar+1);
       }
@@ -2278,7 +2278,7 @@ static int st_anam_factor2qt_discrete_IR(Db     *db,
         total = 0.;
         for (int jvar=0; jvar<ivar; jvar++)
         {
-          value  = get_ARRAY(db,iech,cols_std[jvar]);
+          value  = db->getArray(iech,cols_std[jvar]);
           total += value * value;
         }
         prod   = anam_discrete_IR->getIRStatB(ivar+1) +
@@ -2286,7 +2286,7 @@ static int st_anam_factor2qt_discrete_IR(Db     *db,
         total *= prod * prod;
         for (int jvar=ivar+1; jvar<ncleff; jvar++)
         {
-          value  = get_ARRAY(db,iech,cols_std[jvar]) * anam_discrete_IR->getIRStatB(ivar+1);
+          value  = db->getArray(iech,cols_std[jvar]) * anam_discrete_IR->getIRStatB(ivar+1);
           total += prod * prod;
         }
         CALEST(nclass,CAL_QSTD,ivar) = sqrt(total);
@@ -2310,7 +2310,7 @@ static int st_anam_factor2qt_discrete_IR(Db     *db,
       total = 0.;
       for (int ivar=0; ivar<ncleff; ivar++)
       {
-        prod   = get_ARRAY(db,iech,cols_std[ivar]) * anam_discrete_IR->getIRStatB(ivar+1);
+        prod   = db->getArray(iech,cols_std[ivar]) * anam_discrete_IR->getIRStatB(ivar+1);
         total += prod * prod;
       }
       zestim[1] = sqrt(total);
@@ -2732,8 +2732,8 @@ GEOSLIB_API int uc_f(Db *db,
     if (! db->isActive(iech)) continue;
     anam_hermite->setPsiHn(psi_hn);
     anam_hermite->calculateMeanAndVariance();
-    zvstar = get_ARRAY(db,iech,att_est);
-    varv   = get_ARRAY(db,iech,att_var);
+    zvstar = db->getArray(iech,att_est);
+    varv   = db->getArray(iech,att_var);
     if (anam_point_to_block(anam,0,varv,TEST,TEST)) goto label_end;
     db->setArray(iech,iptr_sV,anam_hermite->getRCoef());
     db->setArray(iech,iptr_yV,anam_hermite->RawToGaussianValue(zvstar));
@@ -2749,8 +2749,8 @@ GEOSLIB_API int uc_f(Db *db,
   for (int iech=0; iech<get_NECH(db); iech++)
   {
     if (! db->isActive(iech)) continue;
-    sv  = get_ARRAY(db,iech,iptr_sV);
-    yv  = get_ARRAY(db,iech,iptr_yV);
+    sv  = db->getArray(iech,iptr_sV);
+    yv  = db->getArray(iech,iptr_yV);
 
     /* Loop on the cutoffs */
 
@@ -2834,8 +2834,8 @@ static void st_correct_from_OK(Db     *db,
                                double *krigest,
                                double *krigstd)
 {
-  *krigest = get_ARRAY(db,iech,att_est);
-  *krigstd = get_ARRAY(db,iech,att_std);
+  *krigest = db->getArray(iech,att_est);
+  *krigstd = db->getArray(iech,att_std);
 
 //  if (flag_OK)
 //  {
@@ -3254,8 +3254,8 @@ static int st_ce_compute_B(Db     *db,
     jptr_B = iptr_B;
     for (int icut=0; icut<ncutmine; icut++)
     {
-      t = get_ARRAY(db,iech,jptr_T);
-      q = get_ARRAY(db,iech,jptr_Q);
+      t = db->getArray(iech,jptr_T);
+      q = db->getArray(iech,jptr_Q);
       b = q - t * cutmine[icut];
       db->setArray(iech,jptr_B,b);
       jptr_T += count;
@@ -3303,8 +3303,8 @@ static int st_ce_compute_M(Db     *db,
     jptr_M = iptr_M;
     for (int icut=0; icut<ncutmine; icut++)
     {
-      t = get_ARRAY(db,iech,jptr_T);
-      q = get_ARRAY(db,iech,jptr_Q);
+      t = db->getArray(iech,jptr_T);
+      q = db->getArray(iech,jptr_Q);
       m = (t > EPSILON3) ? q / t : TEST;
       db->setArray(iech,jptr_M,m);
       jptr_T += count;

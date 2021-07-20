@@ -242,7 +242,7 @@ static int st_locate_sample_in_output(LMlayers *lmlayers,
 
   /* The files are different */
   for (idim=0; idim<dbin->getNDim(); idim++)
-    coor[idim] = get_IDIM(dbin,iech,idim);
+    coor[idim] = dbin->getCoordinate(iech,idim);
   if (point_to_grid(dbout,coor,0,indg) != 0) return(1);
   *igrid = db_index_grid_to_sample(dbout,indg);
   return(0);
@@ -308,7 +308,7 @@ static int st_get_props_result(LMlayers *lmlayers,
     /* Working in velocities */
     
     t0 = (lmlayers->colreft >= 0) ? 
-      get_ARRAY(dbout,iech,lmlayers->colreft) : 0.;
+      dbout->getArray(iech,lmlayers->colreft) : 0.;
     if (FFFF(t0)) return(1);
     t1 = get_LOCATOR_ITEM(dbout,lmlayers->ptime,ilayer0-1,iech);
     if (FFFF(t1)) return(1);
@@ -705,8 +705,8 @@ static int st_lhs_one(LMlayers *lmlayers,
   for (jech=jjech=0; jech<get_NECH(dbin); jech++)
   {
     if (seltab[jech] == 0) continue;
-    coor2[0] = get_IDIM(dbin,jech,0);
-    coor2[1] = get_IDIM(dbin,jech,1);
+    coor2[0] = dbin->getCoordinate(jech,0);
+    coor2[1] = dbin->getCoordinate(jech,1);
     for (jfois=0; jfois<seltab[jech]; jfois++,jjech++)
     {
       jlayer = (jfois == 0) ?
@@ -776,8 +776,8 @@ static int st_rhs(LMlayers *lmlayers,
 
   nlayers = lmlayers->nlayers;
   st_check_layer("st_rhs",lmlayers,ilayer0);
-  coor[0] = get_IDIM(dbout,iechout,0);
-  coor[1] = get_IDIM(dbout,iechout,1);
+  coor[0] = dbout->getCoordinate(iechout,0);
+  coor[1] = dbout->getCoordinate(iechout,1);
 
   /* Initialize the vector with zeroes */
 
@@ -788,8 +788,8 @@ static int st_rhs(LMlayers *lmlayers,
   for (jech=jjech=0; jech<get_NECH(dbin); jech++)
   {
     if (seltab[jech] == 0) continue;
-    coor2[0] = get_IDIM(dbin,jech,0);
-    coor2[1] = get_IDIM(dbin,jech,1);
+    coor2[0] = dbin->getCoordinate(jech,0);
+    coor2[1] = dbin->getCoordinate(jech,1);
     for (ifois=0; ifois<seltab[jech]; ifois++,jjech++)
     {
       jlayer = (ifois == 0) ?
@@ -869,8 +869,8 @@ static int st_lhs(LMlayers *lmlayers,
   for (iech=iiech=0; iech<get_NECH(dbin); iech++)
   {
     if (seltab[iech] == 0) continue;
-    coor[0] = get_IDIM(dbin,iech,0);
-    coor[1] = get_IDIM(dbin,iech,1);
+    coor[0] = dbin->getCoordinate(iech,0);
+    coor[1] = dbin->getCoordinate(iech,1);
     for (ifois=0; ifois<seltab[iech]; ifois++, iiech++)
     {
       ilayer = (ifois == 0) ? 
@@ -962,13 +962,13 @@ static void st_data_vector(LMlayers *lmlayers,
         
         /* Depth of the collocated bottom sample */
         
-        value = get_ARRAY(dbout,igrid,lmlayers->colrefb);
+        value = dbout->getArray(igrid,lmlayers->colrefb);
       }
       
       /* Centering to the reference Depth surface */
       
       if (lmlayers->colrefd >= 0)
-        value -= get_ARRAY(dbout,igrid,lmlayers->colrefd);
+        value -= dbout->getArray(igrid,lmlayers->colrefd);
       
       /* Converting into velocities */
       
@@ -976,7 +976,7 @@ static void st_data_vector(LMlayers *lmlayers,
       {
         dtime  = get_LOCATOR_ITEM(dbout,lmlayers->ptime,ilayer-1,igrid);
         if (lmlayers->colreft >= 0) 
-          dtime -= get_ARRAY(dbout,igrid,lmlayers->colreft);
+          dtime -= dbout->getArray(igrid,lmlayers->colreft);
         value /= dtime;
       }
       zval[iiech] = value;
@@ -1056,8 +1056,8 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
       /* Get the coordinates of the samples */
 
-      coor[0] = get_IDIM(dbin,iech,0);
-      coor[1] = get_IDIM(dbin,iech,1);
+      coor[0] = dbin->getCoordinate(iech,0);
+      coor[1] = dbin->getCoordinate(iech,1);
       
       /* Get the drift vector */
 
@@ -1107,8 +1107,8 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
       /* Get the coordinates of the samples */
 
-      coor[0] = get_IDIM(dbin,iech,0);
-      coor[1] = get_IDIM(dbin,iech,1);
+      coor[0] = dbin->getCoordinate(iech,0);
+      coor[1] = dbin->getCoordinate(iech,1);
       
       /* Get the drift vector */
 
@@ -1178,9 +1178,9 @@ static int st_get_close_sample(LMlayers *lmlayers,
 
   for (iech=0; iech<iech0; iech++)
   {
-    dx = get_IDIM(dbin,iech,0) - coor[0];
+    dx = dbin->getCoordinate(iech,0) - coor[0];
     if (ABS(dx) > EPS) continue;
-    dy = get_IDIM(dbin,iech,1) - coor[1];
+    dy = dbin->getCoordinate(iech,1) - coor[1];
     if (ABS(dy) > EPS) continue;
     return(0);
   }
@@ -1190,9 +1190,9 @@ static int st_get_close_sample(LMlayers *lmlayers,
 
   for (iech=iech0+1; iech<get_NECH(dbin); iech++)
   {
-    dx = get_IDIM(dbin,iech,0) - coor[0];
+    dx = dbin->getCoordinate(iech,0) - coor[0];
     if (ABS(dx) > EPS) continue;
-    dy = get_IDIM(dbin,iech,1) - coor[1];
+    dy = dbin->getCoordinate(iech,1) - coor[1];
     if (ABS(dy) > EPS) continue;
     ilayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech);
     if (ilayer == lmlayers->nlayers) return(0);
@@ -1245,9 +1245,9 @@ static int st_collocated_prepare(LMlayers *lmlayers,
   neq     = lmlayers->neq;
   nlayers = lmlayers->nlayers;
 
-  botval = get_ARRAY(dbout,iechout,lmlayers->colrefb);
+  botval = dbout->getArray(iechout,lmlayers->colrefb);
   if (lmlayers->colrefd >= 0) 
-    botval -= get_ARRAY(dbout,iechout,lmlayers->colrefd);
+    botval -= dbout->getArray(iechout,lmlayers->colrefd);
   if (st_get_props_result(lmlayers,dbout,iechout,nlayers,prop1))
     return(1);
   c0 = st_cij(lmlayers,model,nlayers,prop1,nlayers,prop1,NULL,covtab);
@@ -1489,8 +1489,8 @@ static void st_estimate(LMlayers *lmlayers,
   {
     debug_index(iechout+1);
     if (! dbout->isActive(iechout)) continue;
-    coor[0] = get_IDIM(dbout,iechout,0);
-    coor[1] = get_IDIM(dbout,iechout,1);
+    coor[0] = dbout->getCoordinate(iechout,0);
+    coor[1] = dbout->getCoordinate(iechout,1);
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
         debug_query("results"))
@@ -1601,8 +1601,8 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
   for (iech=0; iech<get_NECH(dbin); iech++)
   {
     if (seltab[iech] == 0) continue;
-    coor[0] = get_IDIM(dbin,iech,0);
-    coor[1] = get_IDIM(dbin,iech,1);
+    coor[0] = dbin->getCoordinate(iech,0);
+    coor[1] = dbin->getCoordinate(iech,1);
     ilayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech);
     if (st_locate_sample_in_output(lmlayers,dbin,dbout,iech,
                                    &igrid)) goto label_suppress;
@@ -1619,7 +1619,7 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
 
     if (lmlayers->colrefd >= 0)
     {
-      value = get_ARRAY(dbout,igrid,lmlayers->colrefd);
+      value = dbout->getArray(igrid,lmlayers->colrefd);
       if (FFFF(value)) goto label_suppress;
     }
 
@@ -1628,7 +1628,7 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
     newval = 1;
     if (lmlayers->colrefb >= 0)
     {
-      value = get_ARRAY(dbout,igrid,lmlayers->colrefb);
+      value = dbout->getArray(igrid,lmlayers->colrefb);
       if (FFFF(value)) goto label_suppress;
 
       /* Check if a duplicate sample must be added:       */
@@ -1691,12 +1691,12 @@ static void st_convert_results(LMlayers *lmlayers,
     /* Identify the reference surface */
     
     depth0 = (lmlayers->colrefd >= 0) ? 
-      get_ARRAY(dbout,iechout,lmlayers->colrefd) : 0.;
+      dbout->getArray(iechout,lmlayers->colrefd) : 0.;
     
     /* Identify the reference time (for velocity) */
     
     time0 = (lmlayers->colreft >= 0) ? 
-      get_ARRAY(dbout,iechout,lmlayers->colreft) : 0.;
+      dbout->getArray(iechout,lmlayers->colreft) : 0.;
     
     depth_prev = depth0;
     time_prev  = time0;
@@ -1790,8 +1790,8 @@ static int st_drift_data(LMlayers *lmlayers,
   for (iech=iiech=0; iech<get_NECH(dbin); iech++)
   {
     if (seltab[iech] == 0) continue;
-    coor[0] = get_IDIM(dbin,iech,0);
-    coor[1] = get_IDIM(dbin,iech,1);
+    coor[0] = dbin->getCoordinate(iech,0);
+    coor[1] = dbin->getCoordinate(iech,1);
     for (int ifois=0; ifois<seltab[iech]; ifois++, iiech++)
     {
       ilayer = (ifois == 0) ? 

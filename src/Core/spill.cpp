@@ -104,7 +104,7 @@ static void st_copy_center(int    mode,
   for (ix=lec=0; ix<SX; ix++)
     for (iy=0; iy<SY; iy++,lec++)
     {
-      value = get_ARRAY(DB,lec,iatt);
+      value = DB->getArray(lec,iatt);
 
       if (mode)
       {

@@ -339,7 +339,7 @@ GEOSLIB_API int db_stats(Db     *db,
     for (icol1=0; icol1<ncol; icol1++)
     {
       jcol1 = cols[icol1];
-      val1  = get_ARRAY(db,iech,jcol1);
+      val1  = db->getArray(iech,jcol1);
       if (FFFF(val1)) continue;
 
       /* Loop on the second variable */
@@ -347,7 +347,7 @@ GEOSLIB_API int db_stats(Db     *db,
       for (icol2=0; icol2<ncol; icol2++)
       {
         jcol2 = cols[icol2];
-        val2  = get_ARRAY(db,iech,jcol2);
+        val2  = db->getArray(iech,jcol2);
         if (FFFF(val2)) continue;
 
         /* Update statistics */
@@ -660,7 +660,7 @@ GEOSLIB_API int db_stats_grid(Db           *db,
       if (! db->isActive(iech)) continue;
       db_sample_load(db,LOC_X,iech,coor);
       if (point_to_grid(dbgrid,coor,0,indg0) < 0) continue;
-      value = get_ARRAY(db,iech,jcol);
+      value = db->getArray(iech,jcol);
       if (FFFF(value)) continue;
 
       /* Loop on the neighboring cells */
@@ -688,12 +688,12 @@ GEOSLIB_API int db_stats_grid(Db           *db,
         }
         else if (! strcmp(oper,"mini"))
         {
-          if (value < get_ARRAY(dbgrid,iad,iptr))
+          if (value < dbgrid->getArray(iad,iptr))
             dbgrid->setArray(iad,iptr,value);
         }
         else if (! strcmp(oper,"maxi"))
         {
-          if (value > get_ARRAY(dbgrid,iad,iptr))
+          if (value > dbgrid->getArray(iad,iptr))
             dbgrid->setArray(iad,iptr,value);
         }
         else if (! strcmp(oper,"med"))
@@ -725,7 +725,7 @@ GEOSLIB_API int db_stats_grid(Db           *db,
     {
       for (i=0; i<nxyz; i++)
       {
-        ratio = get_ARRAY(dbgrid,i,iptn);
+        ratio = dbgrid->getArray(i,iptn);
         if (ratio <= 0.)
           dbgrid->setArray(i,iptr,TEST);
         else
@@ -736,13 +736,13 @@ GEOSLIB_API int db_stats_grid(Db           *db,
     {
       for (i=0; i<nxyz; i++)
       {
-        ratio = get_ARRAY(dbgrid,i,iptn);
+        ratio = dbgrid->getArray(i,iptn);
         if (ratio <= 0.)
           dbgrid->setArray(i,iptr,TEST);
         else
         {
-          mean  = get_ARRAY(dbgrid,i,iptm) / ratio;
-          value = get_ARRAY(dbgrid,i,iptr) / ratio - mean * mean;
+          mean  = dbgrid->getArray(i,iptm) / ratio;
+          value = dbgrid->getArray(i,iptr) / ratio - mean * mean;
           if (value < 0) value = 0.;
           if (! strcmp(oper,"var"))
             dbgrid->setArray(i,iptr,value);
@@ -763,7 +763,7 @@ GEOSLIB_API int db_stats_grid(Db           *db,
     {
       for (i=0; i<nxyz; i++)
       {
-        value = get_ARRAY(dbgrid,i,iptr);
+        value = dbgrid->getArray(i,iptr);
         if (value == 1.e30) dbgrid->setArray(i,iptr,TEST);
       }
     }
@@ -771,7 +771,7 @@ GEOSLIB_API int db_stats_grid(Db           *db,
     {
       for (i=0; i<nxyz; i++)
       {
-        value = get_ARRAY(dbgrid,i,iptr);
+        value = dbgrid->getArray(i,iptr);
         if (value == -1.e30) dbgrid->setArray(i,iptr,TEST);
       }
     }
@@ -971,12 +971,12 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
 
     if (flag1)
     {
-      z1 = get_ARRAY(db,iech,iatt);
+      z1 = db->getArray(iech,iatt);
       if (FFFF(z1)) continue;
     }
     if (flag2)
     {
-      z2 = get_ARRAY(db,iech,jatt);
+      z2 = db->getArray(iech,jatt);
       if (FFFF(z2)) continue;
     }
 
@@ -2798,7 +2798,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
             for (int iter=0; iter<niter; iter++)
               for (int idim=0; idim<ndim; idim++)
                 TRAJEC(iseed,iter,idim) =
-                  get_IDIM(dbgrid2,iech,idim) + 
+                  dbgrid2->getCoordinate(iech,idim) +
                   TRAJEC(iseed,iter,idim) * dbgrid1->getDX(idim);
             set_keypair(name,1,niter,ndim,&TRAJEC(iseed,0,0));
           }
@@ -2946,7 +2946,7 @@ GEOSLIB_API void db_stats_print(const Db *db,
 
     for (icol=nundef=0; icol<ncol; icol++)
     {
-      data[icol] = get_ARRAY(db,iech,iatts[icol]);
+      data[icol] = db->getArray(iech,iatts[icol]);
       if (FFFF(data[icol])) nundef++;
     }
     if (flag_iso && nundef > 0) continue;

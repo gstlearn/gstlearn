@@ -131,7 +131,7 @@ static double st_read(Db *db,
   ind[1] = iy;
   ind[2] = iz;
   iad   = db_index_grid_to_sample(db,ind);
-  value = get_ARRAY(db,iad,iatt);
+  value = db->getArray(iad,iatt);
   return(value);
 }
 

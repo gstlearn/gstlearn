@@ -202,6 +202,7 @@ public:
   void   getCoordinate(int iech, VectorDouble& coor) const;
   void   setCoordinate(int iech, int idim, double value);
   VectorDouble getCoordinate(int idim, bool useSel = false) const;
+  double getDistance1D(int iech, int jech, int idim, bool flagAbs = false) const;
 
   VectorVectorDouble getCoordinates(bool useSel = false) const;
 
@@ -363,6 +364,8 @@ public:
   bool isActive(int iech) const;
   bool isActiveAndDefined(int iech, int item) const;
   int getActiveAndDefinedNumber(int item) const;
+  VectorInt getSortArray() const;
+  double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
 
   VectorDouble getField(const String& name, bool useSel = false) const;
   VectorDouble getFieldByAttribute(int iatt, bool useSel = false) const;
@@ -432,6 +435,8 @@ public:
                   const VectorDouble& angles = VectorDouble());
   void gridCopyParams(int mode, const GridC& gridaux);
   bool isSameGrid(const GridC& grid) const;
+  bool isSameGridMesh(const Db& dbaux) const;
+  bool isSameGridRotation(const Db& dbaux) const;
   bool isGridRotated() const;
   int  getNDim() const;
   int  getNX(int idim) const;

@@ -397,7 +397,7 @@ cs* MeshEStandard::getMeshToDb(Db *db,
     /* Identification */
 
     for (int idim=0; idim<ndim; idim++)
-      coor[idim] = get_IDIM(db,jech,idim);
+      coor[idim] = db->getCoordinate(jech,idim);
     
     /* Loop on the meshes */
     
@@ -517,7 +517,7 @@ double* MeshEStandard::interpolateMeshToDb(Db *db,
     /* Identification */
 
     for (int idim=0; idim<ndim; idim++)
-      coor[idim] = get_IDIM(db,jech,idim);
+      coor[idim] = db->getCoordinate(jech,idim);
     
     /* Loop on the meshes */
     

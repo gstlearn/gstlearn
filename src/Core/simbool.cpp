@@ -1927,7 +1927,7 @@ static void st_project_objects(double background,
             Dbout->setArray(iad,iptr_simu,facies);
           if (iptr_rank >= 0)
           {
-            if (FFFF(get_ARRAY(Dbout,iad,iptr_rank)))
+            if (FFFF(Dbout->getArray(iad,iptr_rank)))
               Dbout->setArray(iad,iptr_rank,(double) (rank+1));
           }
         }
@@ -2084,7 +2084,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
     {
       for (i=0; i<NDIM; i++)
       {
-        coor[i] = get_IDIM(dbout,iech,i);
+        coor[i] = dbout->getCoordinate(iech,i);
         if (coor[i] < Origin[i] || coor[i] > Origin[i] + Field[i]) continue;
       }
       data = dbin->getVariable(iech,0);
@@ -2129,7 +2129,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
     {
       for (i=0; i<NDIM; i++)
       {
-        coor[i] = get_IDIM(dbin,iech,i);
+        coor[i] = dbin->getCoordinate(iech,i);
         if (coor[i] < Origin[i] || coor[i] > Origin[i] + Field[i]) continue;
       }
       data = dbin->getVariable(iech,0);

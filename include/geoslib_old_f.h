@@ -847,24 +847,11 @@
   GEOSLIB_API int pca_f2z(Db *db, PCA *pca, int flag_norm, int flag_verbose);
 
   GEOSLIB_API Vario *variogram_delete(Vario *vario);
-  GEOSLIB_API void variogram_direction_del(Vario *vario, int idir);
-  GEOSLIB_API int *variogram_sort(Db *db);
   GEOSLIB_API int variogram_maximum_dist1D_reached(Db *db,
                                                    int iech,
                                                    int jech,
                                                    double maxdist);
   GEOSLIB_API double variogram_maximum_distance(const Dir& dir);
-  GEOSLIB_API int variogram_compute(Db* db,
-                                    Vario* vario,
-                                    const VectorDouble& means = VectorDouble(),
-                                    const VectorDouble& vars = VectorDouble(),
-                                    int flag_grid = 0,
-                                    int flag_gen = 0,
-                                    int flag_sample = 0,
-                                    int verr_mode = 0,
-                                    int flag_model = 0,
-                                    Model* model = nullptr,
-                                    int verbose = 0);
   GEOSLIB_API int geometry_compute(Db *db,
                                   Vario *vario,
                                   Vario_Order *vorder,
@@ -1248,11 +1235,6 @@
   GEOSLIB_API void model_drift_filter(Model *model, int rank, int filter);
   GEOSLIB_API Model *model_duplicate(Model *model, double ball_radius,
                                      int mode);
-//  GEOSLIB_API Model *model_modify(Model *model,
-//                                  int new_nvar,
-//                                  double *mean,
-//                                  double *vars,
-//                                  double *corr);
   GEOSLIB_API int model_stabilize(Model *model,
                                   int flag_verbose,
                                   double percent);
@@ -1601,12 +1583,7 @@
   GEOSLIB_API Db *db_extract(Db *db, int *ranks);
   GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center);
   GEOSLIB_API int compat_NDIM(Db *db1, Db *db2);
-  GEOSLIB_API int same_mesh(Db *db1, Db *db2);
-  GEOSLIB_API int same_rotation(Db *db1, Db *db2);
   GEOSLIB_API int get_NECH(const Db *db);
-  GEOSLIB_API double get_ARRAY(const Db *db, int iech, int iatt);
-  GEOSLIB_API double get_IDIM(const Db *db, int iech, int idim);
-  GEOSLIB_API double get_grid_IDIM(Db *db, int iech, int idim);
   GEOSLIB_API int    match_domain_ref(double value);
   GEOSLIB_API int    get_DOMAIN(Db *db, int iech);
   GEOSLIB_API void   domain_ref_define(int value, int verbose);
@@ -1688,8 +1665,6 @@
                                            int *n2,
                                            double *dmin,
                                            double *dmax);
-  GEOSLIB_API double cosdir(Db *db, int iech1, int iech2,
-                            const VectorDouble& codir);
   GEOSLIB_API double bench_distance(Db *db, int iech1, int iech2);
   GEOSLIB_API double cylinder_radius(Db *db,
                                      int iech1,

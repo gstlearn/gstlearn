@@ -247,7 +247,7 @@ static int st_migrate_grid_to_point(Db *db_grid,
       (void) distance_inter(db_grid, db_point, rank, iech, dvect.data());
       if (st_larger_than_dmax(ndim_min, dvect, ldmax, dmax)) continue;
     }
-    tab[iech] = get_ARRAY(db_grid, rank, iatt);
+    tab[iech] = db_grid->getArray(rank, iatt);
   }
   return 0;
 }
@@ -315,7 +315,7 @@ GEOSLIB_API int migrate_grid_to_coor(const Db *db_grid,
   for (int iech = 0; iech < np; iech++)
   {
     if (FFFF(tab[iech])) continue;
-    tab[iech] = get_ARRAY(db_grid, (int) tab[iech], iatt);
+    tab[iech] = db_grid->getArray((int) tab[iech], iatt);
   }
   return 0;
 }
@@ -374,7 +374,7 @@ static int st_migrate_point_to_grid(Db *db_point,
   for (iech = nb_assign = 0; iech < get_NECH(db_point); iech++)
   {
     if (FFFF(local[iech])) continue;
-    if (FFFF(get_ARRAY(db_point, iech, iatt))) continue;
+    if (FFFF(db_point->getArray(iech, iatt))) continue;
     inode = (int) local[iech];
     nb_assign++;
     if (FFFF(tab[inode]))
@@ -404,7 +404,7 @@ static int st_migrate_point_to_grid(Db *db_point,
   for (inode = 0; inode < get_NECH(db_grid); inode++)
   {
     if (FFFF(tab[inode])) continue;
-    tab[inode] = get_ARRAY(db_point, (int) tab[inode], iatt);
+    tab[inode] = db_point->getArray((int) tab[inode], iatt);
   }
 
   /* Set the error return code */
@@ -473,7 +473,7 @@ static int st_migrate_grid_to_grid(Db *db_gridin,
 
   for (iech = 0; iech < get_NECH(db_gridin); iech++)
   {
-    value = get_ARRAY(db_gridin, iech, iatt);
+    value = db_gridin->getArray(iech, iatt);
     if (FFFF(value)) continue;
 
     /* Get the coordinates of the node from the input grid node */
@@ -557,7 +557,7 @@ static int st_expand_point_to_point(Db *db1,
         iechmin = iech1;
       }
     }
-    if (iechmin >= 0) tab[iech2] = get_ARRAY(db1, iechmin, iatt);
+    if (iechmin >= 0) tab[iech2] = db1->getArray(iechmin, iatt);
   }
   return 0;
 }
@@ -628,7 +628,7 @@ GEOSLIB_API int expand_point_to_coor(const Db *db1,
     {
       if (!db1->isActive(iech1)) continue;
       for (int idim = 0; idim < ndim; idim++)
-        tab1[idim] = get_IDIM(db1, iech1, idim);
+        tab1[idim] = db1->getCoordinate(iech1, idim);
 
       double dist = ut_distance(ndim, tab1, tab2);
       if (dist < distmin)
@@ -637,7 +637,7 @@ GEOSLIB_API int expand_point_to_coor(const Db *db1,
         iechmin = iech1;
       }
     }
-    if (iechmin >= 0) tab[iech2] = get_ARRAY(db1, iechmin, iatt);
+    if (iechmin >= 0) tab[iech2] = db1->getArray(iechmin, iatt);
   }
   return 0;
 }
@@ -693,7 +693,7 @@ static int st_expand_grid_to_grid(Db *db_gridin,
     double dist_loc = distance_inter(db_gridin, db_gridout, jech, iech, dvect.data());
     if (st_larger_than_dmax(ndim_min, dvect, ldmax, dmax)) continue;
     if (dist_loc > dist[iech]) continue;
-    tab[iech] = get_ARRAY(db_gridin, jech, iatt);
+    tab[iech] = db_gridin->getArray(jech, iatt);
     dist[iech] = dist_loc;
   }
   return 0;
@@ -758,8 +758,8 @@ GEOSLIB_API int db_duplicate(Db *db1,
 
       for (idim = flag_diff = 0; idim < db1->getNDim() && flag_diff == 0; idim++)
       {
-        v1 = get_IDIM(db1, iech1, idim);
-        v2 = get_IDIM(db2, iech2, idim);
+        v1 = db1->getCoordinate(iech1, idim);
+        v2 = db2->getCoordinate(iech2, idim);
         if (flag_code)
         {
           if (code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
@@ -847,8 +847,8 @@ GEOSLIB_API int surface(Db *db_point,
       dist = 0.;
       for (idim = 0; idim < ndim && !FFFF(dist); idim++)
       {
-        v1 = get_IDIM(db_grid, igrid, idim);
-        v2 = get_IDIM(db_point, iech, idim);
+        v1 = db_grid->getCoordinate(igrid, idim);
+        v2 = db_point->getCoordinate(iech, idim);
         if (FFFF(v1) || FFFF(v2)) dist = TEST;
         delta = v1 - v2;
         dist += delta * delta;
@@ -972,7 +972,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
     else
       message(" ");
     for (jvar = ivar_deb; jvar <= ivar_fin; jvar++)
-      tab_printg(NULL, 1, GD_J_RIGHT, get_ARRAY(db, jech, jvar));
+      tab_printg(NULL, 1, GD_J_RIGHT, db->getArray(jech, jvar));
     message("\n");
   }
   return;
@@ -1008,7 +1008,7 @@ static int st_edit_find(Db *db,
   {
     for (i = iech + 1; i < db->getSampleNumber(); i++)
     {
-      value = get_ARRAY(db, i, ivar);
+      value = db->getArray(i, ivar);
       if (FFFF(value)) continue;
       if (!FFFF(vmin) && value < vmin) continue;
       if (!FFFF(vmax) && value > vmax) continue;
@@ -1021,7 +1021,7 @@ static int st_edit_find(Db *db,
   {
     for (i = iech - 1; i >= 0; i--)
     {
-      value = get_ARRAY(db, i, ivar);
+      value = db->getArray(i, ivar);
       if (FFFF(value)) continue;
       if (!FFFF(vmin) && value < vmin) continue;
       if (!FFFF(vmax) && value > vmax) continue;
@@ -1241,8 +1241,7 @@ GEOSLIB_API int db_edit(Db *db, int *flag_valid)
         break;
 
       case 6: /* Modify the Value */
-        value = _lire_double("New value", 1, get_ARRAY(db, iech, ivar), TEST,
-                             TEST);
+        value = _lire_double("New value", 1, db->getArray(iech, ivar), TEST,TEST);
         db->setArray(iech, ivar, value);
         break;
 
@@ -1367,7 +1366,7 @@ GEOSLIB_API int db_normalize(Db *db,
     proptot = 0.;
     for (icol = 0; icol < ncol; icol++)
     {
-      value = get_ARRAY(db, iech, cols[icol]);
+      value = db->getArray(iech, cols[icol]);
       if (FFFF(value)) continue;
       if (!strcmp(oper, "prop")) value = MIN(1., MAX(0.,value));
 
@@ -1386,7 +1385,7 @@ GEOSLIB_API int db_normalize(Db *db,
     {
       for (icol = 0; icol < ncol; icol++)
       {
-        value = get_ARRAY(db, iech, cols[icol]);
+        value = db->getArray(iech, cols[icol]);
         value = MIN(1., MAX(0.,value));
         if (ndef == ncol && proptot > 0.)
           db->setArray(iech, iptr + icol, value / proptot);
@@ -1420,7 +1419,7 @@ GEOSLIB_API int db_normalize(Db *db,
       for (icol = 0; icol < ncol; icol++)
       {
         jcol = cols[icol];
-        value = get_ARRAY(db, iech, jcol);
+        value = db->getArray(iech, jcol);
         if (!strcmp(oper, "mean"))
         {
           if (!FFFF(mm[icol]))
@@ -2167,8 +2166,9 @@ GEOSLIB_API int db_selhull(Db *db1, Db *db2, bool verbose, NamingConvention namc
   {
     if (!db2->isActive(iech)) continue;
     nactive++;
-    if (!polygon_inside(get_IDIM(db2, iech, 0), get_IDIM(db2, iech, 1),
-                        get_IDIM(db2, iech, 2), 0, polygons))
+    if (!polygon_inside(db2->getCoordinate(iech, 0),
+                        db2->getCoordinate(iech, 1),
+                        db2->getCoordinate(iech, 2), 0, polygons))
     {
       db2->setArray(iech, isel, 0.);
       nout++;
@@ -2216,7 +2216,7 @@ static int st_multilinear(Db *db_grid,
   int jech = db_index_grid_to_sample(db_grid, indg.data());
   if (jech < 0) return (1);
   if (!db_grid->isActive(jech)) return (1);
-  *value = get_ARRAY(db_grid, jech, iatt);
+  *value = db_grid->getArray(jech, iatt);
   if (FFFF(*value)) return (1);
   return (0);
 }
@@ -2635,8 +2635,8 @@ GEOSLIB_API void ut_trace_sample(Db *db,
 
     /* Coordinates of the sample point */
 
-    xx = get_IDIM(db, iech, 0);
-    yy = get_IDIM(db, iech, 1);
+    xx = db->getCoordinate(iech, 0);
+    yy = db->getCoordinate(iech, 1);
 
     /* Loop on the discretized samples */
 
@@ -2862,7 +2862,7 @@ GEOSLIB_API int db_center_point_to_grid(Db *db_point,
     /* Read the coordinates of the point sample */
 
     for (idim = 0; idim < ndim; idim++)
-      coor[idim] = get_IDIM(db_point, iech, idim);
+      coor[idim] = db_point->getCoordinate(iech, idim);
 
     /* Get the indices of the grid node */
 
@@ -2964,7 +2964,7 @@ GEOSLIB_API Db *db_grid_sample(Db *dbin, int *nmult)
  *****************************************************************************/
 static double st_get_1d_distance(Db *dbpoint, int ip, int idim_ref, double xtarget)
 {
-  return ABS(get_IDIM(dbpoint, ip, idim_ref) - xtarget);
+  return ABS(dbpoint->getCoordinate(ip, idim_ref) - xtarget);
 }
 
 /*****************************************************************************/
@@ -3032,7 +3032,7 @@ static int st_get_closest_sample(Db *dbgrid,
     // Rotation angle in degrees (optional)
     if (iatt_angle >= 0 && ndim >= 2)
     {
-      angle = get_ARRAY(dbgrid, ig, iatt_angle);
+      angle = dbgrid->getArray(ig, iatt_angle);
       ut_rotation_sincos(angle, &cosa, &sina);
       x = dvect[0];
       y = dvect[1];
@@ -3044,7 +3044,7 @@ static int st_get_closest_sample(Db *dbgrid,
     dd = 0;
     if (ndim >= 1)
     {
-      if (iatt_scaleu >= 0) scaleu = get_ARRAY(dbgrid, ig, iatt_scaleu);
+      if (iatt_scaleu >= 0) scaleu = dbgrid->getArray(ig, iatt_scaleu);
       if (!FFFF(scaleu) && scaleu > 0)
       {
         dloc = dvect[0] / scaleu;
@@ -3053,7 +3053,7 @@ static int st_get_closest_sample(Db *dbgrid,
     }
     if (ndim >= 2)
     {
-      if (iatt_scalev >= 0) scalev = get_ARRAY(dbgrid, ig, iatt_scalev);
+      if (iatt_scalev >= 0) scalev = dbgrid->getArray(ig, iatt_scalev);
       if (!FFFF(scalev) && scalev > 0.)
       {
         dloc = dvect[1] / scalev;
@@ -3062,7 +3062,7 @@ static int st_get_closest_sample(Db *dbgrid,
     }
     if (ndim >= 3)
     {
-      if (iatt_scalew >= 0) scalew = get_ARRAY(dbgrid, ig, iatt_scalew);
+      if (iatt_scalew >= 0) scalew = dbgrid->getArray(ig, iatt_scalew);
       if (!FFFF(scalew) && scalew > 0.)
       {
         dloc = dvect[2] / scalew;
@@ -3087,7 +3087,7 @@ static int st_get_closest_sample(Db *dbgrid,
   // Add the Time Shift penalty (optional)
   if (iatt_time >= 0)
   {
-    time = get_ARRAY(dbpoint, ip, iatt_time);
+    time = dbpoint->getArray(ip, iatt_time);
     if (time > 0) dd += time;
   }
 
@@ -3167,9 +3167,9 @@ GEOSLIB_API int expand_point_to_grid(Db *db_point,
   for (int ip = np = 0; ip < get_NECH(db_point); ip++)
   {
     if (!db_point->isActive(ip)) continue;
-    if (FFFF(get_ARRAY(db_point, ip, iatt))) continue;
+    if (FFFF(db_point->getArray(ip, iatt))) continue;
     rank[np] = ip;
-    xtab[np] = get_IDIM(db_point, ip, idim_ref);
+    xtab[np] = db_point->getCoordinate(ip, idim_ref);
     np++;
   }
   ut_sort_double(1, np, rank.data(), xtab.data());
@@ -3181,7 +3181,7 @@ GEOSLIB_API int expand_point_to_grid(Db *db_point,
   {
     for (int ip = 0; ip < np; ip++)
     {
-      double time = get_ARRAY(db_point, ip, iatt_time);
+      double time = db_point->getArray(ip, iatt_time);
       if (time > time_max) time_max = time;
     }
   }
@@ -3192,7 +3192,7 @@ GEOSLIB_API int expand_point_to_grid(Db *db_point,
   for (int ig = 0; ig < ng; ig++)
   {
     if (! db_grid->isActive(ig)) continue;
-    double xtarget = get_IDIM(db_grid, ig, idim_ref);
+    double xtarget = db_grid->getCoordinate(ig, idim_ref);
 
     /* Locate the grid node within the ordered list (1D coordinate) */
 
@@ -3261,7 +3261,7 @@ GEOSLIB_API int expand_point_to_grid(Db *db_point,
     if (flag_index)
       tab[ig] = (ipmin < 0) ? TEST : (double) ipmin;
     else
-      tab[ig] = (ipmin < 0) ? TEST : get_ARRAY(db_point, ipmin, iatt);
+      tab[ig] = (ipmin < 0) ? TEST : db_point->getArray(ipmin, iatt);
   }
   return 0;
 }
@@ -3324,7 +3324,7 @@ static int st_read_active_sample(Db *db,
 
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    tab[ivar] = get_ARRAY(db, iech, iatt[ivar]);
+    tab[ivar] = db->getArray(iech, iatt[ivar]);
     if (FFFF(tab[ivar])) return (0);
   }
 
@@ -3662,8 +3662,8 @@ GEOSLIB_API int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
   for (int iech = 0; iech < get_NECH(db); iech++)
   {
     if (!db->isActive(iech)) continue;
-    xx = get_IDIM(db, iech, 0);
-    yy = get_IDIM(db, iech, 1);
+    xx = db->getCoordinate(iech, 0);
+    yy = db->getCoordinate(iech, 1);
     distance_point_to_polyline(xx, yy, nvert, xl, yl, pldist);
     newx = pldist->dist;
     newy = distance_along_polyline(pldist0, pldist, xl, yl);
@@ -3750,8 +3750,8 @@ GEOSLIB_API int db_fold_polyline(Db *dbin,
   for (int iech = 0; iech < get_NECH(dbout); iech++)
   {
     if (!dbout->isActive(iech)) continue;
-    xx = get_IDIM(dbout, iech, 0);
-    yy = get_IDIM(dbout, iech, 1);
+    xx = dbout->getCoordinate(iech, 0);
+    yy = dbout->getCoordinate(iech, 1);
 
     /* Project the target point according to the line */
 
@@ -3768,7 +3768,7 @@ GEOSLIB_API int db_fold_polyline(Db *dbin,
 
     for (int icol = 0; icol < ncol; icol++)
     {
-      value = get_ARRAY(dbin, iad, cols[icol]);
+      value = dbin->getArray(iad, cols[icol]);
       dbout->setArray(iech, iptr + icol, value);
     }
   }
@@ -3970,7 +3970,7 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
 
         /* Set the edge */
 
-        tab2[iech] = (iatt_size >= 0) ? get_ARRAY(dbpoint, val_iech, iatt_size) : 1.;
+        tab2[iech] = (iatt_size >= 0) ? dbpoint->getArray(val_iech, iatt_size) : 1.;
       }
     }
   }
@@ -4390,7 +4390,7 @@ GEOSLIB_API int db_resind(Db *db, int rank, int ncut, double *zcut)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    value = get_ARRAY(db, iech, rank);
+    value = db->getArray(iech, rank);
     if (FFFF(value)) continue;
     ntot++;
 
@@ -4410,7 +4410,7 @@ GEOSLIB_API int db_resind(Db *db, int rank, int ncut, double *zcut)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    value = get_ARRAY(db, iech, rank);
+    value = db->getArray(iech, rank);
     if (FFFF(value)) continue;
 
     /* Loop on the cutoffs */
@@ -4608,7 +4608,7 @@ static int st_is_undefined(Db *dbgrid, int iptr_grad, int iech)
   ndim = dbgrid->getNDim();
   for (int idim = 0; idim < ndim; idim++)
   {
-    if (FFFF(get_ARRAY(dbgrid, iech, iptr_grad + idim))) return (1);
+    if (FFFF(dbgrid->getArray(iech, iptr_grad + idim))) return (1);
   }
   return (0);
 }
@@ -4633,7 +4633,7 @@ static int st_is_zero(Db *dbgrid, int iptr_grad, int iech)
   ndim = dbgrid->getNDim();
   for (int idim = 0; idim < ndim; idim++)
   {
-    delta = get_ARRAY(dbgrid, iech, iptr_grad + idim);
+    delta = dbgrid->getArray(iech, iptr_grad + idim);
     grad += delta * delta;
   }
   return (grad < 1.e-5);
@@ -4798,7 +4798,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
     for (int i = 0; i < niter; i++)
     {
       for (idim = ecr = 0; idim < ndim; idim++)
-        coor[idim] -= step * get_ARRAY(dbgrid, knd, iptr_grad + idim);
+        coor[idim] -= step * dbgrid->getArray(knd, iptr_grad + idim);
       if (st_get_next(dbgrid, iptr_grad, coor, indg, &knd, &surf)) break;
 
       /* Store the new point in the Streamline */
@@ -4819,7 +4819,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
 
       /* Update variables in the grid Db */
 
-      date = MIN(get_ARRAY(dbgrid, knd, iptr_time), i + 1.);
+      date = MIN(dbgrid->getArray(knd, iptr_time), i + 1.);
       dbgrid->setArray(knd, iptr_time, date);
       dbgrid->updArray(knd, iptr_accu, 0, 1.);
     }
@@ -5107,7 +5107,7 @@ GEOSLIB_API Db *db_extract(Db *db, int *ranks)
     if (!db->isActive(iech)) continue;
     if (ranks[iech] == 0) continue;
     for (int iatt = 0; iatt < natt; iatt++)
-      tab[ecr++] = get_ARRAY(db, iech, iatt);
+      tab[ecr++] = db->getArray(iech, iatt);
   }
 
   // Create the new db
@@ -5248,7 +5248,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
     // Load the coordinates
 
     for (int idim = 0; idim < ndim; idim++)
-      coor[idim] = get_IDIM(db, iech, idim);
+      coor[idim] = db->getCoordinate(iech, idim);
 
     int err = point_to_bench(dbgrid, coor, 0, &iz);
     if (err < 0) continue;
@@ -5265,7 +5265,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
 
     WCNT(iz,icode) += 1.;
     for (int idim = 0; idim < ndim; idim++)
-      WCOR(iz,icode,idim) += get_IDIM(db, iech, idim);
+      WCOR(iz,icode,idim) += db->getCoordinate(iech, idim);
     for (int ivar = 0; ivar < nvar; ivar++)
       WTAB(iz,icode,ivar) += db->getVariable(iech, ivar);
   }
@@ -5610,9 +5610,9 @@ GEOSLIB_API int db_grid2point_sampling(Db *dbgrid,
   {
     iech = retain[i];
     for (int idim = 0; idim < ndim; idim++)
-      coor[ecrc++] = get_IDIM(dbgrid, iech, idim);
+      coor[ecrc++] = dbgrid->getCoordinate(iech, idim);
     for (int ivar = 0; ivar < nvar; ivar++)
-      data[ecrd++] = get_ARRAY(dbgrid, iech, vars[ivar]);
+      data[ecrd++] = dbgrid->getArray(iech, vars[ivar]);
   }
 
   // Set the error return code
@@ -5688,12 +5688,12 @@ GEOSLIB_API int db_polygon_distance(Db *db,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      distance_point_to_polyline(get_IDIM(db, iech, 0), get_IDIM(db, iech, 1),
+      distance_point_to_polyline(db->getCoordinate(iech, 0), db->getCoordinate(iech, 1),
                                  polyset.getNVertices(), polyset.getX().data(),
                                  polyset.getY().data(), pldist);
       distloc = pldist->dist;
       if (FFFF(distloc)) continue;
-      distmin = get_ARRAY(db, iech, iptr);
+      distmin = db->getArray(iech, iptr);
       if (FFFF(distmin))
         distmin = distloc;
       else
@@ -5713,11 +5713,11 @@ GEOSLIB_API int db_polygon_distance(Db *db,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      distloc = get_ARRAY(db, iech, iptr);
+      distloc = db->getArray(iech, iptr);
       if (FFFF(distloc)) continue;
       if (polin != 0)
       {
-        inside = polygon_inside(get_IDIM(db, iech, 0), get_IDIM(db, iech, 1),
+        inside = polygon_inside(db->getCoordinate(iech, 0), db->getCoordinate(iech, 1),
                                 TEST, 0, polygon);
         if (polin > 0)
         {
@@ -5742,7 +5742,7 @@ GEOSLIB_API int db_polygon_distance(Db *db,
       for (int iech = 0; iech < nech; iech++)
       {
         if (!db->isActive(iech)) continue;
-        distloc = get_ARRAY(db, iech, iptr);
+        distloc = db->getArray(iech, iptr);
         if (FFFF(distloc)) continue;
         value = (distloc - distmin) / (distmax - distmin);
         db->setArray(iech, iptr, value);
@@ -5753,7 +5753,7 @@ GEOSLIB_API int db_polygon_distance(Db *db,
       for (int iech = 0; iech < nech; iech++)
       {
         if (!db->isActive(iech)) continue;
-        distloc = get_ARRAY(db, iech, iptr);
+        distloc = db->getArray(iech, iptr);
         if (FFFF(distloc)) continue;
         value = (distloc - distmax) / (distmin - distmax);
         db->setArray(iech, iptr, value);
@@ -5772,7 +5772,7 @@ GEOSLIB_API int db_polygon_distance(Db *db,
     if (ABS(polin) == 3) valtest = distmax;
     for (int iech = 0; iech < nech; iech++)
     {
-      inside = polygon_inside(get_IDIM(db, iech, 0), get_IDIM(db, iech, 1),
+      inside = polygon_inside(db->getCoordinate(iech, 0), db->getCoordinate(iech, 1),
                               TEST, 0, polygon);
       if (polin > 0 && !inside) db->setArray(iech, iptr, valtest);
       if (polin < 0 && inside)  db->setArray(iech, iptr, valtest);
@@ -5907,7 +5907,7 @@ static void st_grid1D_interpolate_linear(Db* dbgrid,
   for (int iech = 0; iech < nech; iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
-    double x = get_grid_IDIM(dbgrid, iech, 0);
+    double x = dbgrid->getCoordinate(iech, 0);
     int k = st_find_interval(x, ndef, X);
     if (k < 0) continue;
     double y = Y[k] + (Y[k + 1] - Y[k]) * (x - X[k]) / (X[k + 1] - X[k]);
@@ -5982,7 +5982,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
     double y = TEST;
     if (dbgrid->isActive(iech))
     {
-      double x = get_grid_IDIM(dbgrid, iech, 0);
+      double x = dbgrid->getCoordinate(iech, 0);
       int k = st_find_interval(x, ndef, X);
       if (k >= 0)
       {
@@ -6073,7 +6073,7 @@ GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
       if (!dbgrid->isActive(iech)) continue;
       double value = dbgrid->getVariable(iech, ivar);
       if (FFFF(value)) continue;
-      X[ndef] = get_grid_IDIM(dbgrid, iech, 0);
+      X[ndef] = dbgrid->getCoordinate(iech, 0);
       Y[ndef] = value;
       ndef++;
     }

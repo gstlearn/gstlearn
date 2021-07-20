@@ -132,8 +132,8 @@ void CovAniso::setSill(const VectorDouble& sill)
 
 void CovAniso::setSill(int ivar, int jvar, double sill)
 {
-  _checkVariable(ivar);
-  _checkVariable(jvar);
+  if (! _isVariableValid(ivar)) return;
+  if (! _isVariableValid(jvar)) return;
   /// TODO : Test if sill matrix is positive definite (if not, generate a warning)
   if (!_sill.isValid(ivar, jvar))
   my_throw("Invalid indices in setSill");
@@ -240,8 +240,8 @@ bool CovAniso::isConsistent(const ASpace* space) const
 
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode& mode) const
 {
-  _checkVariable(ivar);
-  _checkVariable(jvar);
+  if (! _isVariableValid(ivar)) return TEST;
+  if (! _isVariableValid(jvar)) return TEST;
 
   // Calculate unit distance by applying anisotropy
   double cov = _cova->evalCov(0);
@@ -276,8 +276,8 @@ double CovAniso::eval(int ivar,
                       const SpacePoint& p2,
                       const CovCalcMode& mode) const
 {
-  _checkVariable(ivar);
-  _checkVariable(jvar);
+  if (! _isVariableValid(ivar)) return TEST;
+  if (! _isVariableValid(jvar)) return TEST;
   double cov = 0;
 
   // Calculate unit distance by applying anisotropy
@@ -382,8 +382,8 @@ std::string CovAniso::toString(int level) const
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
-  _checkVariable(ivar);
-  _checkVariable(jvar);
+  if (! _isVariableValid(ivar)) return TEST;
+  if (! _isVariableValid(jvar)) return TEST;
   if (!_sill.isValid(ivar, jvar))
   my_throw("Wrong variable index while getting the sill");
   return _sill.getValue(ivar, jvar);
@@ -504,10 +504,14 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
   return total;
 }
 
-void CovAniso::_checkVariable(int ivar) const
+bool CovAniso::_isVariableValid(int ivar) const
 {
   if (ivar < 0 || ivar >= getNVariables())
-    my_throw("Error in the Rank of the Variable");
+  {
+    mesArg("Rank of the Variable",1,getNVariables());
+    return false;
+  }
+  return true;
 }
 
 int CovAniso::getGradParamNumber() const

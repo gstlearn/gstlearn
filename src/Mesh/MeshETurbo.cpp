@@ -342,7 +342,7 @@ cs* MeshETurbo::getMeshToDb(Db  *db,
     /* Identification */
 
     for (int idim=0; idim<ndim; idim++)
-      coor[idim] = get_IDIM(db,jech,idim);
+      coor[idim] = db->getCoordinate(jech,idim);
     
     /* Calculate the grid indices */
 
@@ -460,7 +460,7 @@ double* MeshETurbo::interpolateMeshToDb(Db *db,
     /* Identification */
 
     for (int idim=0; idim<ndim; idim++)
-      coor[idim] = get_IDIM(db,jech,idim);
+      coor[idim] = db->getCoordinate(jech,idim);
     
     /* Calculate the grid indices */
 
