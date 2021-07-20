@@ -13,15 +13,6 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 
-/*! \cond */
-#define ARRAY(iech,icol) (db->array[(iech) + db->getNech() * (icol)])
-#define NEW_ARRAY(iech,icol) (new_array[(iech) + nnew * (icol)])
-#define F_IECH(iech)     ((iech)   < 0 || (iech)   >= db->getNech())
-#define F_ITEM(p,item)   ((item)   < 0 || (item)   >= p->nitem)
-#define DBTAB(ivar,iech) (dbtab[nech * (ivar) + (iech)])
-
-/*! \endcond */
-
 static int DOMAIN_REF = 0;
 
 /****************************************************************************/

@@ -34,7 +34,8 @@ Db::Db()
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   _initP();
 }
@@ -54,7 +55,8 @@ Db::Db(int nech,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   _initP();
   int natt = (tab.empty()) ? 0 :
@@ -88,7 +90,8 @@ Db::Db(const VectorInt& nx,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   _initP();
   int ndim = nx.size();
@@ -148,7 +151,8 @@ Db::Db(const String& filename,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   _initP();
   VectorString names;
@@ -208,7 +212,8 @@ Db::Db(Db* db,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   _initP();
   int ndim = db->getNDim();
@@ -287,7 +292,8 @@ Db::Db(const String& neutralFileName, bool verbose)
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   if (deSerialize(neutralFileName, verbose))
     my_throw("Problem reading the Neutral File");
@@ -314,7 +320,8 @@ Db::Db(Polygons* polygon,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   _initP();
   double xmin, xmax, ymin, ymax;
@@ -397,7 +404,8 @@ Db::Db(const Db* dbin,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   _initP();
 
@@ -466,7 +474,8 @@ Db::Db(int nech,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0)
+      _grid(0),
+      _domainReference(0)
 {
   _initP();
   if (! coormin.empty()) ndim = (int) coormin.size();
@@ -505,7 +514,8 @@ Db::Db(const Db& r)
       _isGrid(r._isGrid),
       _array(r._array),
       _colNames(r._colNames),
-      _grid(r._grid)
+      _grid(r._grid),
+      _domainReference(r._domainReference)
 {
   for (int i = 0; i < MAXIMUM_LOC; i++)
     _p[i] = r._p[i];
@@ -521,6 +531,7 @@ Db& Db::operator=(const Db& r)
     _array = r._array;
     _colNames = r._colNames;
     _grid = r._grid;
+    _domainReference = r._domainReference;
 
     for (int i = 0; i < MAXIMUM_LOC; i++)
       _p[i] = r._p[i];

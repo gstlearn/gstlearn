@@ -575,4 +575,5 @@ private:
   VectorString _colNames;    //!< Names of the variables
   PtrGeos _p[MAXIMUM_LOC];   //!< Locator characteristics
   GridC _grid;               //!< Grid characteristics
+  int _domainReference;      //!< Reference Domain number
 };
