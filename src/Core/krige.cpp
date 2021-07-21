@@ -1207,7 +1207,7 @@ static int st_bench_nmax(Neigh *neigh)
   /* Initializations */
 
   tab   = (double *) NULL;
-  nech  = get_NECH(DBIN);
+  nech  = DBIN->getSampleNumber();
   nmax  = nech;
   if (DBIN->getNDim() <= 2) return(nmax);
 
@@ -1264,7 +1264,7 @@ static int st_get_nmax(Neigh *neigh)
 {
   int nmax; 
 
-  nmax    = get_NECH(DBIN);
+  nmax    = DBIN->getSampleNumber();
   if (neigh->getType() == NEIGH_MOVING)
     nmax = (neigh->getFlagSector()) ?
         neigh->getNSect() * neigh->getNSMax() : neigh->getNMaxi();
@@ -1310,7 +1310,7 @@ static int st_krige_manage(int    mode,
 
   nvar    = model->getVariableNumber();
   nfeq    = model->getDriftEquationNumber();
-  nech    = get_NECH(DBIN);
+  nech    = DBIN->getSampleNumber();
   nmax    = st_get_nmax(neigh);
   IECH_NBGH = -1;
 
@@ -2046,8 +2046,8 @@ static int st_neigh(Neigh   *neigh,
 
     case NEIGH_BENCH:
       ndim = DBOUT->getNDim();
-      if (IECH_NBGH < 0 || IECH_NBGH > get_NECH(DBOUT)) break;
-      if (IECH_OUT  < 0 || IECH_OUT  > get_NECH(DBOUT)) break;
+      if (IECH_NBGH < 0 || IECH_NBGH > DBOUT->getSampleNumber()) break;
+      if (IECH_OUT  < 0 || IECH_OUT  > DBOUT->getSampleNumber()) break;
       if (is_grid(DBOUT))
       {
         nval = 1;
@@ -3517,9 +3517,9 @@ GEOSLIB_API int kriging(Db *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Kriging sample",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -3686,10 +3686,10 @@ static int st_xvalid_unique(Db *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (iech=iiech=0; iech<get_NECH(dbin); iech++)
+  for (iech=iiech=0; iech<dbin->getSampleNumber(); iech++)
   {
     IECH_OUT = iech;
-    mes_process("Cross-Validation sample",get_NECH(dbin),iech);
+    mes_process("Cross-Validation sample",dbin->getSampleNumber(),iech);
     debug_index(iech+1);
     if (FLAG_EST) dbin->setArray(iech,IPTR_EST,TEST);
     if (FLAG_STD) dbin->setArray(iech,IPTR_STD,TEST);
@@ -3728,7 +3728,7 @@ static int st_xvalid_unique(Db *dbin,
     /* Perform the estimation */
 
     value = (ABS(neigh->getFlagXvalid()) == 1) ? -valref : 0.;
-    for (jech=jjech=0; jech<get_NECH(dbin); jech++)
+    for (jech=jjech=0; jech<dbin->getSampleNumber(); jech++)
     {
       if (! dbin->isActive(jech)) continue;
       if (FFFF(dbin->getVariable(jech,0))) continue;
@@ -3909,9 +3909,9 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Kriging sample",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -4067,9 +4067,9 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Kriging sample",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -4240,7 +4240,7 @@ static int bayes_precalc(Model  *model,
 
   /* Core allocation */
 
-  IECH_OUT = get_NECH(DBIN) / 2;
+  IECH_OUT = DBIN->getSampleNumber() / 2;
 
   /* Check that the variance-covariance matrix is symmetric */
 
@@ -4270,7 +4270,7 @@ static int bayes_precalc(Model  *model,
   // Create the array of variables
 
   ib = 0;
-  for (int iech = 0; iech < get_NECH(DBIN); iech++)
+  for (int iech = 0; iech < DBIN->getSampleNumber(); iech++)
   {
     if (! DBIN->isActive(iech)) continue;
     for (int ivar = 0; ivar < DBIN->getVariableNumber(); ivar++)
@@ -4500,9 +4500,9 @@ GEOSLIB_API int kribayes_f(Db *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Bayesian estimation",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Bayesian estimation",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -4630,9 +4630,9 @@ GEOSLIB_API int test_neigh(Db    *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Neighborhood Test",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Neighborhood Test",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -4780,9 +4780,9 @@ GEOSLIB_API int krigsim(const char *strloc,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process(strloc,get_NECH(DBOUT),IECH_OUT);
+    mes_process(strloc,DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -4906,7 +4906,7 @@ GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
   dbaux = st_image_build(neigh,nvar);
   if (dbaux == (Db *) NULL) goto label_end;
 
-  nb_neigh = get_NECH(dbaux);
+  nb_neigh = dbaux->getSampleNumber();
   indn0 = db_indg_alloc(dbaux);
   indnl = db_indg_alloc(dbaux);
   db_index_sample_to_grid(dbaux,nb_neigh/2,indn0);
@@ -4926,9 +4926,9 @@ GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
 
   DBIN   = dbaux;
   DBOUT  = dbgrid;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(dbgrid); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<dbgrid->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Image filtering",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Image filtering",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! DBOUT->isActive(IECH_OUT)) continue;
     db_index_sample_to_grid(DBOUT,IECH_OUT,indg0);
@@ -5078,7 +5078,7 @@ GEOSLIB_API int global_arithmetic(Db     *dbin,
   {
     message("Global estimation by arithmetic average\n");
     message("=======================================\n");
-    message("Total number of data             = %d\n" ,get_NECH(dbin));
+    message("Total number of data             = %d\n" ,dbin->getSampleNumber());
     message("Number of active data            = %d\n" ,np);
     message("Sample variance                  = %lf\n",var);
     message("CVsample                         = %lf\n",cvsam);
@@ -5176,7 +5176,7 @@ GEOSLIB_API int global_kriging(Db     *dbin,
   nbfl = model->getDriftNumber();
   nfeq = model->getDriftEquationNumber();
   nvar = model->getVariableNumber();
-  ntot = get_NECH(dbin);
+  ntot = dbin->getSampleNumber();
   if (FFFF(surface)) surface = ng * db_grid_maille(dbout);
   if (seed != 0) law_set_random_seed(seed);
 
@@ -5201,9 +5201,9 @@ GEOSLIB_API int global_kriging(Db     *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Global estimation",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Global estimation",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("nbgh")    ||
@@ -5396,7 +5396,7 @@ GEOSLIB_API int global_transitive(Db     *dbgrid,
   flag_value = 0;
   if (dbgrid->getVariableNumber() == 1)
   {
-    for (i=0; i<get_NECH(dbgrid); i++)
+    for (i=0; i<dbgrid->getSampleNumber(); i++)
     {
       value = dbgrid->getVariable(i,0);
       if (! FFFF(value)) dsum += value;
@@ -5575,9 +5575,9 @@ static void st_grid_invdist(int     exponent,
 
   /* Loop on the targets to be processed */
 
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Estimation by Inverse distance",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Estimation by Inverse distance",DBOUT->getSampleNumber(),IECH_OUT);
     if (! DBOUT->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
@@ -5699,9 +5699,9 @@ static void st_point_invdist(int     exponent,
 
   /* Loop on the targets to be processed */
 
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Estimation by Inverse distance",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Estimation by Inverse distance",DBOUT->getSampleNumber(),IECH_OUT);
     if (! DBOUT->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
         debug_query("nbgh")    ||
@@ -5716,7 +5716,7 @@ static void st_point_invdist(int     exponent,
     /* Loop on the data points */
 
     result = total = 0.;
-    for (iech_in=0; iech_in<get_NECH(DBIN); iech_in++)
+    for (iech_in=0; iech_in<DBIN->getSampleNumber(); iech_in++)
     {
       if (! DBIN->isActive(iech_in)) continue;
       for (idim=0; idim<ndim; idim++)
@@ -6876,7 +6876,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
 
       for (iz=0; iz<db->getNX(2); iz++,ecr++)
       {
-        mes_process("3-D Factorial Kriging Analysis",get_NECH(DBOUT),ecr);
+        mes_process("3-D Factorial Kriging Analysis",DBOUT->getSampleNumber(),ecr);
         indg[0] = ix;
         indg[1] = iy;
         indg[2] = iz;
@@ -7123,7 +7123,7 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
 
   dbaux = st_image_build(neigh,1);
   if (dbaux == (Db *) NULL) goto label_end;
-  nb_neigh = get_NECH(dbaux);
+  nb_neigh = dbaux->getSampleNumber();
   indn0 = db_indg_alloc(dbaux);
   indnl = db_indg_alloc(dbaux);
   db_index_sample_to_grid(dbaux,nb_neigh/2,indn0);
@@ -7136,9 +7136,9 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
 
   DBIN   = dbaux;
   DBOUT  = dbgrid;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(dbgrid); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<dbgrid->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Image smoother",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Image smoother",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! DBOUT->isActive(IECH_OUT)) continue;
     db_index_sample_to_grid(DBOUT,IECH_OUT,indg0);
@@ -7291,9 +7291,9 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
 
     /* Loop on the targets to be processed */
 
-    for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+    for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
     {
-      mes_process(string,get_NECH(DBOUT),IECH_OUT);
+      mes_process(string,DBOUT->getSampleNumber(),IECH_OUT);
       debug_index(IECH_OUT+1);
       if (! dbout->isActive(IECH_OUT)) continue;
       if (debug_query("kriging") ||
@@ -7337,7 +7337,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
 
   /* Posterior scaling */
   
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
     correct = 0;
     for (ivar=0; ivar<nvarin; ivar++) active[ivar] = 0;
@@ -7640,7 +7640,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
       for (iy=0; iy<db3grid->getNX(1); iy++)
         for (ix=0; ix<db3grid->getNX(0); ix++,IECH_OUT++)
         {
-          mes_process(string,get_NECH(DBOUT),IECH_OUT);
+          mes_process(string,DBOUT->getSampleNumber(),IECH_OUT);
           debug_index(IECH_OUT+1);
           if (! db3grid->isActive(IECH_OUT)) continue;
           if (debug_query("kriging") ||
@@ -7903,7 +7903,7 @@ GEOSLIB_API int krigtest_dimension(Db    *dbin,
 
   status = 0;
   IECH_OUT = iech0;
-  if (iech0 < 0 || iech0 >= get_NECH(dbout)) goto label_end;
+  if (iech0 < 0 || iech0 >= dbout->getSampleNumber()) goto label_end;
 
   /* Select the Neighborhood */
 
@@ -8024,7 +8024,7 @@ GEOSLIB_API int krigtest_f(Db     *dbin,
 
   status = 0;
   IECH_OUT = iech0;
-  if (iech0 < 0 || iech0 >= get_NECH(dbout)) goto label_end;
+  if (iech0 < 0 || iech0 >= dbout->getSampleNumber()) goto label_end;
 
   /* Select the Neighborhood */
 
@@ -8198,9 +8198,9 @@ GEOSLIB_API int kriggam_f(Db    *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Kriging sample",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -8347,9 +8347,9 @@ GEOSLIB_API int krigcell_f(Db    *dbin,
   /* Loop on the targets to be processed */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Kriging sample",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -8448,7 +8448,7 @@ static int st_calculate_hermite_factors(Db  *db,
 
   /* Loop on the samples */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
 
@@ -8665,9 +8665,9 @@ GEOSLIB_API int dk_f(Db *dbin,
   /* Loop on the targets to be processed */
   
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Disjunctive Kriging for cell",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Disjunctive Kriging for cell",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! DBOUT->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -9174,7 +9174,7 @@ GEOSLIB_API int st_krige_data(Db     *db,
   /* Core allocation */
 
   nutil = ntot = 0;
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   data  = db_vector_alloc(db);
   if (data == (double *) NULL) goto label_end;
   
@@ -9438,7 +9438,7 @@ GEOSLIB_API int sampling_f(Db     *db,
   error    = 1;
   data_est = data_var = (double *) NULL;
   rother   = (int *) NULL;
-  nech     = get_NECH(db);
+  nech     = db->getSampleNumber();
 
   /* Preliminary checks */
 
@@ -9577,7 +9577,7 @@ GEOSLIB_API int krigsampling_f(Db     *dbin,
   FLAG_STD  = flag_std;
   if (st_check_environment(1,1,model,NULL)) goto label_end;
   nvar = model->getVariableNumber();
-  nech = get_NECH(dbin);
+  nech = dbin->getSampleNumber();
 
   /* Preliminary checks */
 
@@ -9654,9 +9654,9 @@ GEOSLIB_API int krigsampling_f(Db     *dbin,
   
   /* Loop on the target samples */
 
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Kriging sample",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||
@@ -9751,7 +9751,7 @@ static void st_declustering_stats(int mode,
   mean = var = sumwgt = 0.;
   mini =  1.e30;
   maxi = -1.e30;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     zval = db->getVariable(iech,0);
@@ -9812,7 +9812,7 @@ static void st_declustering_truncate(Db     *db,
   /* Truncate the negative weights */
 
   total = 0;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
@@ -9830,7 +9830,7 @@ static void st_declustering_truncate(Db     *db,
 
   /* Rescale */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
@@ -9868,14 +9868,14 @@ static int st_declustering_1(Db     *db,
 
   /* Loop on the target sample */
   
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
     
     /* Loop on the second sample */
     
-    for (int jech=0; jech<get_NECH(db); jech++)
+    for (int jech=0; jech<db->getSampleNumber(); jech++)
     {
       if (! db->isActive(jech)) continue;
       value = db->getVariable(iech,0);
@@ -9898,14 +9898,14 @@ static int st_declustering_1(Db     *db,
   /* Normalization step */
 
   total = 0.;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
     value = 1. / db->getArray(iech,iptr);
     total += value;
   }
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
@@ -9990,7 +9990,7 @@ static int st_declustering_2(Db     *db,
   /* Store the weights */
 
   ecr = 0;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech,0))) continue;
@@ -10065,7 +10065,7 @@ static int st_declustering_3(Db     *db,
   /* Loop on the grid cells */
 
   status = 0;
-  for (IECH_OUT=0; IECH_OUT<get_NECH(dbgrid); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<dbgrid->getSampleNumber(); IECH_OUT++)
   {
     if (! DBOUT->isActive(IECH_OUT)) continue;
 
@@ -10096,7 +10096,7 @@ static int st_declustering_3(Db     *db,
     /* Cumulate the weights */
 
     ecr = 0;
-    for (int iech=0; iech<get_NECH(db); iech++)
+    for (int iech=0; iech<db->getSampleNumber(); iech++)
     {
       if (! db->isActive(iech)) continue;
       if (FFFF(db->getVariable(iech,0))) continue;
@@ -10197,7 +10197,7 @@ GEOSLIB_API int declustering_f(Db     *dbin,
   {
     iptr_sel = dbin->addFields(1,0.);
     if (iptr_sel < 0) goto label_end;
-    for (int iech=0; iech<get_NECH(dbin); iech++)
+    for (int iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       dbin->setArray(iech,iptr_sel,0.);
       if (! dbin->isActive(iech)) continue;
@@ -10255,7 +10255,7 @@ static double *st_calcul_covmat(const char *title,
   covgen = (double *) mem_alloc(sizeof(double) * n1 * n2,0);
   if (covgen == (double *) NULL) return(covgen);
   
-  for (int ii1=i1=0; ii1<get_NECH(db1); ii1++)
+  for (int ii1=i1=0; ii1<db1->getSampleNumber(); ii1++)
   {
     if (test_def1)
     {
@@ -10266,7 +10266,7 @@ static double *st_calcul_covmat(const char *title,
       if (! db1->isActive(ii1)) continue;
     }
     
-    for (int ii2=i2=0; ii2<get_NECH(db2); ii2++)
+    for (int ii2=i2=0; ii2<db2->getSampleNumber(); ii2++)
     {
       if (test_def2)
       {
@@ -10329,7 +10329,7 @@ static double *st_calcul_drfmat(const char *title,
   /* Loop on the samples */
 
   i1 = 0;
-  for (int ii1=0; ii1<get_NECH(db1); ii1++)
+  for (int ii1=0; ii1<db1->getSampleNumber(); ii1++)
   {
     if (test_def1)
     {
@@ -10390,7 +10390,7 @@ static double *st_calcul_distmat(const char *title,
   distgen = (double *) mem_alloc(sizeof(double) * n1 * ns,0);
   if (distgen == (double *) NULL) return(distgen);
   
-  for (int ii1=i1=0; ii1<get_NECH(db1); ii1++)
+  for (int ii1=i1=0; ii1<db1->getSampleNumber(); ii1++)
   {
     if (test_def1)
     {
@@ -10401,7 +10401,7 @@ static double *st_calcul_distmat(const char *title,
       if (! db1->isActive(ii1)) continue;
     }
     
-    for (int iis=is=0; iis<get_NECH(db2); iis++)
+    for (int iis=is=0; iis<db2->getSampleNumber(); iis++)
     {
       if (test_def2)
       {
@@ -10889,7 +10889,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
 
   /* Constitute the Data vector */
 
-  for (int iip=ip=0; iip<get_NECH(dbdat); iip++)
+  for (int iip=ip=0; iip<dbdat->getSampleNumber(); iip++)
   {
     if (! dbdat->isActiveAndDefined(iip,0)) continue;
     data[ip] = dbdat->getVariable(iip,0);
@@ -10978,9 +10978,9 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   
   /* Loop on the targets to be processed */
 
-  for (IECH_OUT=0; IECH_OUT<get_NECH(DBOUT); IECH_OUT++)
+  for (IECH_OUT=0; IECH_OUT<DBOUT->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Kriging sample",get_NECH(DBOUT),IECH_OUT);
+    mes_process("Kriging sample",DBOUT->getSampleNumber(),IECH_OUT);
     debug_index(IECH_OUT+1);
     if (! dbout->isActive(IECH_OUT)) continue;
     if (debug_query("kriging") ||

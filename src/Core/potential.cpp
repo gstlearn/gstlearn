@@ -163,7 +163,7 @@ static int st_update_isopot(Db      *dbiso,
 
   if (dbiso == (Db *) NULL) return(0);
   error = 1;
-  nech = get_NECH(dbiso);
+  nech = dbiso->getSampleNumber();
   nlayers = niso = size_iso = 0;
   layval = laycnt = (int *) NULL;
 
@@ -295,7 +295,7 @@ static int st_update_gradient(Db      *dbgrd,
   int found,ngrd,nech;
 
   if (dbgrd == (Db *) NULL) return(0);
-  nech = get_NECH(dbgrd);
+  nech = dbgrd->getSampleNumber();
   ngrd = 0;
 
   // Core allocation 
@@ -365,7 +365,7 @@ static int st_update_tangent(Db      *dbtgt,
   int found,ntgt,nech;
 
   if (dbtgt == (Db *) NULL) return(0);
-  nech = get_NECH(dbtgt);
+  nech = dbtgt->getSampleNumber();
   ntgt = 0;
 
   // Core allocation 
@@ -1857,9 +1857,9 @@ static void st_estimate(Pot_Env *pot_env,
 {
   double result[4];
 
-  for (int iech=0; iech<get_NECH(dbout); iech++)
+  for (int iech=0; iech<dbout->getSampleNumber(); iech++)
   {
-    mes_process("Potential Estimation on 3-D Grid",get_NECH(dbout),iech);
+    mes_process("Potential Estimation on 3-D Grid",dbout->getSampleNumber(),iech);
     debug_index(iech+1);
     if (! dbout->isActive(iech)) continue;
 
@@ -2279,9 +2279,9 @@ static void st_simcond(Pot_Env *pot_env,
 
   nequa = pot_env->nequa;
   ndim  = dbgrd->getNDim();
-  for (int iech=0; iech<get_NECH(dbout); iech++)
+  for (int iech=0; iech<dbout->getSampleNumber(); iech++)
   {
-    mes_process("Potential Simulation on 3-D Grid",get_NECH(dbout),iech);
+    mes_process("Potential Simulation on 3-D Grid",dbout->getSampleNumber(),iech);
     debug_index(iech+1);
     if (! dbout->isActive(iech)) continue;
 
@@ -2393,7 +2393,7 @@ static void st_save_manage(int     mode,
   int nech,ndim;
   static double *potval,*potgrd;
 
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   ndim = db->getNDim();
 
   /* Dispatch */
@@ -2473,7 +2473,7 @@ static void st_check_data(Pot_Env *pot_env,
     if (flag_save)
       st_save_manage(1,"Isopotential",dbiso,0,NULL);
 
-    for (int iech=0; iech<get_NECH(dbiso); iech++)
+    for (int iech=0; iech<dbiso->getSampleNumber(); iech++)
     {
       debug_index(iech+1);
       if (! dbiso->isActive(iech)) continue;
@@ -2519,7 +2519,7 @@ static void st_check_data(Pot_Env *pot_env,
     if (flag_save)
       st_save_manage(1,"Gradient",dbgrd,0,NULL);
 
-    for (int iech=0; iech<get_NECH(dbgrd); iech++)
+    for (int iech=0; iech<dbgrd->getSampleNumber(); iech++)
     {
       debug_index(iech+1);
       if (! dbgrd->isActive(iech)) continue;
@@ -2564,7 +2564,7 @@ static void st_check_data(Pot_Env *pot_env,
     if (flag_save)
       st_save_manage(1,"Tangent",dbtgt,0,NULL);
 
-    for (int iech=0; iech<get_NECH(dbtgt); iech++)
+    for (int iech=0; iech<dbtgt->getSampleNumber(); iech++)
     {
       debug_index(iech+1);
       if (! dbtgt->isActive(iech)) continue;
@@ -3224,7 +3224,7 @@ static int st_distance_to_isoline(Db *dbout)
   memo   = law_get_random_seed();
 
   // Highlight the isoline of interest
-  for (int iech=0; iech<get_NECH(dbout); iech++)
+  for (int iech=0; iech<dbout->getSampleNumber(); iech++)
   {
     value = dbout->getVariable(iech,0);
     if (! FFFF(value) && ABS(value) > eps) dbout->setVariable(iech,0,TEST);

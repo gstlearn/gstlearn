@@ -335,7 +335,7 @@ cs* MeshETurbo::getMeshToDb(Db  *db,
   /* Loop on the samples */
 
   ip_max = iech = 0;
-  for (int jech=0; jech<get_NECH(db); jech++)
+  for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
 
@@ -453,7 +453,7 @@ double* MeshETurbo::interpolateMeshToDb(Db *db,
   /* Loop on the samples */
 
   iech = 0;
-  for (int jech=0; jech<get_NECH(db); jech++)
+  for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
 

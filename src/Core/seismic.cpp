@@ -537,7 +537,7 @@ GEOSLIB_API int seismic_z2t_grid(int     verbose,
   error = 1;
   vv    = (double *) NULL;
   ndim  = db_z->getNDim();
-  nech  = get_NECH(db_z);
+  nech  = db_z->getSampleNumber();
 
   /* Core allocation */
 
@@ -617,7 +617,7 @@ GEOSLIB_API int seismic_t2z_grid(int     verbose,
   error = 1;
   vv    = (double *) NULL;
   ndim  = db_t->getNDim();
-  nech  = get_NECH(db_t);
+  nech  = db_t->getSampleNumber();
 
   /* Core allocation */
 
@@ -682,7 +682,7 @@ static void st_copy(int     mode,
                     double *tab)
 {
   int ndim = db->getNDim();
-  int nech = get_NECH(db);
+  int nech = db->getSampleNumber();
   int nval = db->getNX(ndim-1);
   int nby  = nech / nval;
 
@@ -724,7 +724,7 @@ static int st_match(Db *db_z,
 
   NTRACE = 0;
   error  = 1;
-  nech   = get_NECH(db_z);
+  nech   = db_z->getSampleNumber();
   ndim   = db_z->getNDim();
   nz     = db_z->getNX(ndim-1);
 
@@ -732,13 +732,7 @@ static int st_match(Db *db_z,
 
   if (db_t != (Db *) NULL)
   {
-    if (db_z->getNDim() != db_t->getNDim()) goto label_end;
-    for (idim=0; idim<ndim-1; idim++)
-    {
-      if (db_z->getNX(idim) != db_t->getNX(idim)) goto label_end;
-      if (db_z->getX0(idim) != db_t->getX0(idim)) goto label_end;
-      if (db_z->getDX(idim) != db_t->getDX(idim)) goto label_end;
-    }
+    if (! db_t->isSameGrid(db_z->getGrid())) goto label_end;
   }
 
   /* Set the error return code */
@@ -3282,7 +3276,7 @@ static void st_copy_attribute(Db  *db,
 
   /* Initializations */
 
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
 
   /* Loop on the variables */
 

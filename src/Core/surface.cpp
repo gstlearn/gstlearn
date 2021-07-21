@@ -113,7 +113,7 @@ static int st_reference_define(Db  *db,
 
   nn = 0;
   for (int i=0; i<3; i++) gg[i] = 0.;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     x   = db->getArray(iech,iptr_init[0]);
@@ -132,7 +132,7 @@ static int st_reference_define(Db  *db,
   /* Establish the mean plane */
 
   for (int i=0; i<9; i++) mat[i] = 0.;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     x   = db->getArray(iech,iptr_init[0]) - surf_reference->xg;
@@ -283,7 +283,7 @@ static void st_transform_init2proj(Surf_Def *surf_reference,
   st_mima_init(mima_out,&nundefs_out);
   
   n = 0;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
 
@@ -430,7 +430,7 @@ static int st_selection_per_code(Db *db,
   int number;
 
   number = 0;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (IFFFF(icode) || (int) db->getCode(iech) == icode)
     {

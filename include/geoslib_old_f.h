@@ -1583,7 +1583,6 @@
   GEOSLIB_API Db *db_extract(Db *db, int *ranks);
   GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center);
   GEOSLIB_API int compat_NDIM(Db *db1, Db *db2);
-  GEOSLIB_API int get_NECH(const Db *db);
   GEOSLIB_API int    match_domain_ref(double value);
   GEOSLIB_API int    get_DOMAIN(Db *db, int iech);
   GEOSLIB_API void   domain_ref_define(int value, int verbose);

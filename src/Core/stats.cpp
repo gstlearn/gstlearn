@@ -2128,7 +2128,7 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
   
   /* Loop on the cells of the Output Grid */
 
-  for (iech=0; iech<get_NECH(dbgrid2); iech++)
+  for (iech=0; iech<dbgrid2->getSampleNumber(); iech++)
   {
     result1 = result2 = result = TEST;
     debug_index(iech+1);
@@ -2139,7 +2139,7 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
       
       /* Load the subgrid to be upscaled */
       
-      probtot = st_extract_subgrid(verbose,0,iech,get_NECH(dbgrid2),ntot,
+      probtot = st_extract_subgrid(verbose,0,iech,dbgrid2->getSampleNumber(),ntot,
                                    dbgrid1,ind0,ixyz,nxyz,numtab0,valtab0);
       
       if (probtot > 0)
@@ -2699,7 +2699,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
   /* Preliminary checks */
 
   ndim = dbgrid1->getNDim();
-  nech = get_NECH(dbgrid2);
+  nech = dbgrid2->getSampleNumber();
   if (ndim < 1 || ndim > 3)
   {
     messerr("This function is limited to 2-D or 3-D input grids");
@@ -2938,7 +2938,7 @@ GEOSLIB_API void db_stats_print(const Db *db,
       
   /* Loop on the samples */
 
-  for (iech=0; iech<get_NECH(db); iech++)
+  for (iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
 

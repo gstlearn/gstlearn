@@ -146,7 +146,7 @@ GEOSLIB_API Skin *skin_define(Db      *db,
   skin = (Skin *) mem_alloc(sizeof(Skin),0);
   if (skin == (Skin *) NULL) goto label_end;
   skin->db         = db;
-  skin->nxyz       = get_NECH(db);
+  skin->nxyz       = db->getSampleNumber();
   skin->ndim       = db->getNDim();
   skin->nval       = 0;
   skin->size       = 0;

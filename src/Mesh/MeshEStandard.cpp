@@ -390,7 +390,7 @@ cs* MeshEStandard::getMeshToDb(Db *db,
   /* Loop on the samples */
 
   imesh0 = ip_max = iech = 0;
-  for (int jech=0; jech<get_NECH(db); jech++)
+  for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
 
@@ -510,7 +510,7 @@ double* MeshEStandard::interpolateMeshToDb(Db *db,
   /* Loop on the samples */
 
   imesh0 = iech = 0;
-  for (int jech=0; jech<get_NECH(db); jech++)
+  for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
 

@@ -1290,7 +1290,7 @@ GEOSLIB_API int model_add_cova(Model *model,
   if (model->isFlagGradient())
   {
     CovGradientNumerical covgrad((ENUM_COVS) type, model->getContext());
-    if (! covgrad.isGradientCompatible()) return 1;
+//    if (! covgrad.isGradientCompatible()) return 1; TODO incorporte this type of selection
     covgrad.setParam(param);
     if (flag_aniso)
     {
@@ -1987,12 +1987,12 @@ GEOSLIB_API int model_grid(Model *model,
 
   /* Initialization */
 
-  for (iech = 0; iech < get_NECH(db); iech++)
+  for (iech = 0; iech < db->getSampleNumber(); iech++)
     g[iech] = TEST;
 
   /* Loop on the lags */
 
-  for (iech = 0; iech < get_NECH(db); iech++)
+  for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     db_sample_load(db, LOC_X, iech, d1.data());
@@ -2104,7 +2104,7 @@ GEOSLIB_API double model_cxx(Model *model,
   /* Loop on the first sample */
 
   norme = 0.;
-  for (iech1 = 0; iech1 < get_NECH(db1); iech1++)
+  for (iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
   {
     if (!db1->isActive(iech1)) continue;
     w1 = db1->getWeight(iech1);
@@ -2112,7 +2112,7 @@ GEOSLIB_API double model_cxx(Model *model,
 
     /* Loop on the second sample */
 
-    for (iech2 = 0; iech2 < get_NECH(db2); iech2++)
+    for (iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
     {
       if (!db2->isActive(iech2)) continue;
       w2 = db2->getWeight(iech2);
@@ -2187,8 +2187,8 @@ GEOSLIB_API void model_covmat(Model *model,
   if (st_check_environ(model, db2)) goto label_end;
   ndim = model->getDimensionNumber();
   nvar = model->getVariableNumber();
-  nech1 = get_NECH(db1);
-  nech2 = get_NECH(db2);
+  nech1 = db1->getSampleNumber();
+  nech2 = db2->getSampleNumber();
   nvar1 = nvar2 = nvar;
   if (ivar0 >= 0)
   {
@@ -2437,7 +2437,7 @@ GEOSLIB_API void model_drift_mat(Model *model,
   nvar = model->getVariableNumber();
   nbfl = model->getDriftNumber();
   nfeq = model->getDriftEquationNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
 
   /* Core allocation */
 
@@ -2587,8 +2587,8 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
   if (st_check_environ(model, db2)) goto label_end;
   ndim = model->getDimensionNumber();
   nvar = model->getVariableNumber();
-  nech1 = get_NECH(db1);
-  nech2 = get_NECH(db2);
+  nech1 = db1->getSampleNumber();
+  nech2 = db2->getSampleNumber();
   nvar1 = nvar2 = nvar;
   if (ivar0 >= 0)
   {
@@ -2732,7 +2732,7 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
   if (st_check_environ(model, db)) goto label_end;
   ndim = model->getDimensionNumber();
   nvar = model->getVariableNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
 
   /* Core allocation */
 
@@ -3913,7 +3913,7 @@ GEOSLIB_API void model_vector_multivar(Model *model,
   if (st_check_environ(model, db)) goto label_end;
   ndim = model->getDimensionNumber();
   nvar = model->getVariableNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   if (st_check_variable(nvar, ivar)) goto label_end;
 
   /* Core allocation */
@@ -3997,7 +3997,7 @@ GEOSLIB_API void model_vector(Model *model,
   if (st_check_environ(model, db2)) goto label_end;
   ndim = model->getDimensionNumber();
   nvar = model->getVariableNumber();
-  nech = get_NECH(db1);
+  nech = db1->getSampleNumber();
   if (st_check_variable(nvar, ivar)) goto label_end;
   if (st_check_variable(nvar, jvar)) goto label_end;
 
@@ -4072,7 +4072,7 @@ GEOSLIB_API void model_vector_nostat(Model *model,
   if (st_check_environ(model, db)) goto label_end;
   ndim = model->getDimensionNumber();
   nvar = model->getVariableNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   if (st_check_variable(nvar, ivar)) goto label_end;
   if (st_check_variable(nvar, jvar)) goto label_end;
 
@@ -4352,7 +4352,7 @@ GEOSLIB_API int model_regularize(Model *model,
     messerr("This calculation facility is dedicated to grid architecture");
     goto label_end;
   }
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   norme = nech * nech;
   vario->internalResize(ndim, nvar, "vg");
 
@@ -4486,7 +4486,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
   CovCalcMode mode;
 
   error = 1;
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   pvec = (int *) NULL;
   diag = crit = G = Gmatrix = (double *) NULL;
   flag_incr = (center != (double *) NULL);

@@ -298,7 +298,7 @@ cs* MeshSpherical::getMeshToDb(Db  *db,
   /* Loop on the samples */
 
   imesh0 = ip_max = iech_max = 0;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (iech > iech_max) iech_max = iech;
@@ -392,7 +392,7 @@ double* MeshSpherical::interpolateMeshToDb(Db *db,
   nmeshes   = getNMeshes();
   ncorner   = getNApexPerMesh();
   ndim      = getNDim();
-  nech      = get_NECH(db);
+  nech      = db->getSampleNumber();
 
   // Preliminary checks 
 
@@ -410,7 +410,7 @@ double* MeshSpherical::interpolateMeshToDb(Db *db,
   /* Loop on the samples */
 
   imesh0 = ip_max = iech_max = 0;
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (iech > iech_max) iech_max = iech;

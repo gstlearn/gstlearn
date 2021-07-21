@@ -70,7 +70,7 @@ static void st_neigh_print(Db     *dbin,
 
   /* Loop on the sample points */
 
-  for (iech=sel=0; iech<get_NECH(dbin); iech++)
+  for (iech=sel=0; iech<dbin->getSampleNumber(); iech++)
   {
     if (rank[iech] < 0) continue;
     
@@ -188,7 +188,7 @@ static void st_unique(Db     *dbin,
 
   /* Loop on samples */
 
-  for (iech=0; iech<get_NECH(dbin); iech++)
+  for (iech=0; iech<dbin->getSampleNumber(); iech++)
   {
     /* Discard the masked input sample */
 
@@ -239,7 +239,7 @@ static void st_bench(Db     *dbin,
 
   /* Loop on samples */
 
-  for (iech=0; iech<get_NECH(dbin); iech++)
+  for (iech=0; iech<dbin->getSampleNumber(); iech++)
   {
     /* Discard the masked input sample */
 
@@ -573,12 +573,12 @@ static int st_moving(Db     *dbin,
   /* Initializations */
 
   isect = 0;
-  if (get_NECH(dbin) < neigh->getNMini()) return(1);
+  if (dbin->getSampleNumber() < neigh->getNMini()) return(1);
 
   /* Loop on the data points */
 
   distmax = 0.;
-  for (iech=nsel=0; iech<get_NECH(dbin); iech++)
+  for (iech=nsel=0; iech<dbin->getSampleNumber(); iech++)
   {
     
     /* Discard the masked input sample */
@@ -1018,7 +1018,7 @@ GEOSLIB_API void neigh_echo(Db     *dbin,
   /* Number of selected samples */
 
   number = 0;
-  for (iech=0; iech<get_NECH(dbin); iech++)
+  for (iech=0; iech<dbin->getSampleNumber(); iech++)
   {
     if (rank[iech] < 0) continue;
     number++;
@@ -1105,7 +1105,7 @@ GEOSLIB_API int neigh_select(Db     *dbin,
   /* Initializations */
 
   if (! NBGH_INITIALIZED) return(1);
-  for (iech=0; iech<get_NECH(dbin); iech++) rank[iech] = -1;
+  for (iech=0; iech<dbin->getSampleNumber(); iech++) rank[iech] = -1;
   FLAG_SIMU = flag_simu;
 
   /* Select the active data points */
@@ -1132,12 +1132,12 @@ GEOSLIB_API int neigh_select(Db     *dbin,
 
   /* Count and rank the active points */
 
-  for (iech=(*nsel)=0; iech<get_NECH(dbin); iech++)
+  for (iech=(*nsel)=0; iech<dbin->getSampleNumber(); iech++)
     if (rank[iech] >= 0) rank[(*nsel)++] = iech;
 
   /* Blank out the rest of the array */
 
-  for (iech=(*nsel); iech<get_NECH(dbin); iech++) rank[iech] = -1;
+  for (iech=(*nsel); iech<dbin->getSampleNumber(); iech++) rank[iech] = -1;
 
   return(0);
 }
@@ -1163,9 +1163,9 @@ GEOSLIB_API int neigh_start(Db    *dbin,
 
   /* Core allocation */
 
-  NBGH_ind   = (int    *) mem_alloc(sizeof(int)    * get_NECH(dbin),0);
+  NBGH_ind   = (int    *) mem_alloc(sizeof(int)    * dbin->getSampleNumber(),0);
   if (NBGH_ind   == (int    *) NULL) return(1);
-  NBGH_dst   = (double *) mem_alloc(sizeof(double) * get_NECH(dbin),0);
+  NBGH_dst   = (double *) mem_alloc(sizeof(double) * dbin->getSampleNumber(),0);
   if (NBGH_dst   == (double *) NULL) return(1);
   NBGH_isect = (int    *) mem_alloc(sizeof(int)    * neigh->getNSect(),0);
   if (NBGH_isect == (int    *) NULL) return(1);

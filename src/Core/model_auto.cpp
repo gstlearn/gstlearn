@@ -604,7 +604,7 @@ static int st_get_vmap_dimension(Db    *dbmap,
 
   nbexp = npadir = 0;
   nvs2  = nvar  * (nvar + 1) /2;
-  nech  = get_NECH(dbmap);
+  nech  = dbmap->getSampleNumber();
 
   /* Calculate the total number of lags */
   
@@ -2278,7 +2278,7 @@ static void st_evaluate_vmap(int      imod,
   Model* model  = strmod->models[imod];
   int ndim   = model->getDimensionNumber();
   int nvar   = model->getVariableNumber();
-  int nech   = get_NECH(DBMAP);
+  int nech   = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar*nvar);
   db_index_sample_to_grid(DBMAP,nech/2,INDG1);
@@ -4192,7 +4192,7 @@ static void st_prepar_goulard_vmap(int imod)
   int nvar     = model->getVariableNumber();
   int ncova    = model->getCovaNumber();
   int nvs2     = nvar  * (nvar + 1) /2;
-  int nech     = get_NECH(DBMAP);
+  int nech     = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
   db_index_sample_to_grid(DBMAP,nech/2,INDG1);
@@ -4919,7 +4919,7 @@ static void st_load_vmap(int     npadir,
   
   /* Initializations */
 
-  nech = get_NECH(DBMAP);
+  nech = DBMAP->getSampleNumber();
   nvar = DBMAP->getVariableNumber();
   nvs2  = nvar  * (nvar + 1) /2;
   db_index_sample_to_grid(DBMAP,nech/2,INDG1);

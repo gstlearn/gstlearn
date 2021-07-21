@@ -293,7 +293,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
 
   /* Simulating the directing function */
 
-  for (iech = 0; iech < get_NECH(dbgrid); iech++)
+  for (iech = 0; iech < dbgrid->getSampleNumber(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
     db_index_sample_to_grid(dbgrid, iech, indg);
@@ -326,7 +326,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
   /* Coding process */
   /******************/
 
-  for (iech = 0; iech < get_NECH(dbgrid); iech++)
+  for (iech = 0; iech < dbgrid->getSampleNumber(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
     valref = dbgrid->getArray(iech, iatts);
@@ -419,7 +419,7 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
 
   iatts = dbgrid->addFields(1, TEST);
   if (iatts < 0) goto label_end;
-  simgrid.resize(get_NECH(dbgrid));
+  simgrid.resize(dbgrid->getSampleNumber());
 
   /************************************/
   /* Simulation of the Gaussian field */
@@ -460,7 +460,7 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
 
   dbpoint = db_create_point(nbpoints, ndim, LOAD_BY_SAMPLE, 1, coor);
   dbpoint->setLocatorsByAttribute(ndim, 0, LOC_X);
-  simpoint.resize(get_NECH(dbpoint));
+  simpoint.resize(dbpoint->getSampleNumber());
 
   /* Perform the simulation at the seed points */
 

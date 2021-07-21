@@ -963,7 +963,7 @@ GEOSLIB_API int fluid_propagation(Db     *dbgrid,
   /* Define global variables */
 
   DB         = dbgrid;
-  NXYZ       = get_NECH(DB);
+  NXYZ       = DB->getSampleNumber();
   NFACIES    = nfacies;
   NFLUIDS    = nfluids;
   SPEEDS     = speeds;
@@ -1203,7 +1203,7 @@ GEOSLIB_API int fluid_extract(Db      *dbgrid,
   /* Define global variables */
 
   DB         = dbgrid;
-  NXYZ       = get_NECH(DB);
+  NXYZ       = DB->getSampleNumber();
   NFACIES    = nfacies;
   NFLUIDS    = nfluids;
   IND_FACIES = ind_facies;

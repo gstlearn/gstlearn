@@ -294,7 +294,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
     /* Look for duplicates */
 
     iiech = -1;
-    for (int iech=0; iech<get_NECH(dbin); iech++)
+    for (int iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       if (! dbin->isActive(iech)) continue;
       iiech++;
@@ -329,7 +329,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
         
         d2min = 1.e30;
         jjech = 0;
-        for (jech=0; jech<get_NECH(dbout); jech++)
+        for (jech=0; jech<dbout->getSampleNumber(); jech++)
         {
           if (! dbout->isActive(jech)) continue;
           for (int idim=0; idim<ndim; idim++)
@@ -625,7 +625,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
 
   if (db == (Db *) NULL) return(0);
   error = 1;
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   ndim  = db->getNDim();
   ncode = db->getCodeNumber();
   if (ndim > 2) ndim = 2;
@@ -1488,7 +1488,7 @@ static int st_ultimate_regular_grid(Db  *dbgrid,
 
   error  = 1;
   points = (double *) NULL;
-  number = get_NECH(dbgrid);
+  number = dbgrid->getSampleNumber();
 
   // Rescale the meshing array
 
@@ -2060,7 +2060,7 @@ GEOSLIB_API int meshes_2D_sph_from_db(Db  *db,
   
   if (db == (Db *) NULL) return(0);
   error = 1;
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   ndim  = db->getNDim();
   if (ndim != 2)
   {
@@ -2932,7 +2932,7 @@ GEOSLIB_API int meshes_3D_from_db(Db  *db,
 
   if (db == (Db *) NULL) return(0);
   error = 1;
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   ndim  = db->getNDim();
   if (ndim > 3) ndim = 3;
   
@@ -3338,7 +3338,7 @@ GEOSLIB_API int meshes_1D_from_db(Db  *db,
 
   if (db == (Db *) NULL) return(0);
   error = 1;
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   ndim  = db->getNDim();
   if (ndim > 1) ndim = 1;
   

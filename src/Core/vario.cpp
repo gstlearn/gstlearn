@@ -295,7 +295,7 @@ static void st_variogram_stats(Db     *db,
   {
     double s1w = 0.;
     double s1z = 0.;
-    for (int iech=0; iech<get_NECH(db); iech++)
+    for (int iech=0; iech<db->getSampleNumber(); iech++)
      {
        if (! db->isActive(iech)) continue;
        ww = db->getWeight(iech);
@@ -320,7 +320,7 @@ static void st_variogram_stats(Db     *db,
       double s12wz2 = 0.;
       double s12wzz = 0.;
 
-      for (int iech = 0; iech < get_NECH(db); iech++)
+      for (int iech = 0; iech < db->getSampleNumber(); iech++)
       {
         if (!db->isActive(iech)) continue;
         ww = db->getWeight(iech);
@@ -412,7 +412,7 @@ static void st_variovect_stats(Db    *db,
 
       s12ww = s12wzz = 0.;
 
-      for (iech=0; iech<get_NECH(db); iech++)
+      for (iech=0; iech<db->getSampleNumber(); iech++)
       {
         if (! db->isActive(iech)) continue;
         ww = db->getWeight(iech);
@@ -938,7 +938,7 @@ static void st_covariance_center(Db    *db,
       /* Calculate the mean for each variable */
 
       m1 = m2 = sumw = 0.;
-      for (iech=0; iech<get_NECH(db); iech++)
+      for (iech=0; iech<db->getSampleNumber(); iech++)
       {
         if (! db->isActive(iech)) continue;
         ww = db->getWeight(iech);
@@ -1007,7 +1007,7 @@ static void st_variogram_patch_c00(Db    *db,
 
       /* Calculate the statistics for each variable */
 
-      for (iech=0; iech<get_NECH(db); iech++)
+      for (iech=0; iech<db->getSampleNumber(); iech++)
       {
         if (! db->isActive(iech)) continue;
         ww = db->getWeight(iech);
@@ -1338,7 +1338,7 @@ static int st_get_relative_sample_rank(Db *db,
 {
   int iech,iiech;
 
-  for (iech=iiech=0; iech<get_NECH(db); iech++)
+  for (iech=iiech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActiveAndDefined(iech,0)) continue;
     if (iech == iech0) return(iiech);
@@ -1460,13 +1460,13 @@ static void st_calculate_bias_global(Db     *db,
 
   /* Calculate the term: G %*% X */
   
-  for (iech=iiech=0; iech<get_NECH(db); iech++)
+  for (iech=iiech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActiveAndDefined(iech,0)) continue;
     for (il=0; il<nbfl; il++)
     {
       value = 0;
-      for (jech=jjech=0; jech<get_NECH(db); jech++)
+      for (jech=jjech=0; jech<db->getSampleNumber(); jech++)
       {
         if (! db->isActiveAndDefined(jech,0)) continue;
         for (idim=0; idim<ndim; idim++)
@@ -1493,7 +1493,7 @@ static void st_calculate_bias_global(Db     *db,
 
   /* Calculate the term: diag(bias) */
 
-  for (iech=iiech=0; iech<get_NECH(db); iech++)
+  for (iech=iiech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActiveAndDefined(iech,0)) continue;
     DRFDIAG[iiech] = st_get_bias_value(db,nbfl,iiech,iiech);
@@ -1739,7 +1739,7 @@ static int st_variogram_calcul1(Db    *db,
   ps      = 0.;
   const Dir& dir = vario->getDirs(idir);
   psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
-  nech    = get_NECH(db);
+  nech    = db->getSampleNumber();
   npas    = dir.getNPas();
   maxdist = variogram_maximum_distance(dir);
 
@@ -1852,7 +1852,7 @@ static int st_variogram_calcul2(Db    *db,
   const Dir& dir = vario->getDirs(idir);
   gg_sum  = hh_sum = sw_sum = (double *) NULL;
   psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
-  nech    = get_NECH(db);
+  nech    = db->getSampleNumber();
   size    = dir.getSize();
   npas    = dir.getNPas();
   maxdist = variogram_maximum_distance(dir);
@@ -1997,7 +1997,7 @@ static int st_variovect_calcul(Db    *db,
   const Dir& dir = vario->getDirs(idir);
   ps      = 0.;
   psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
-  nech    = get_NECH(db);
+  nech    = db->getSampleNumber();
   nvar    = vario->getVariableNumber();
   maxdist = variogram_maximum_distance(dir);
 
@@ -2119,7 +2119,7 @@ static int st_variogram_grid(Db    *db,
 
   error = 1;
   const Dir& dir = vario->getDirs(idir);
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   indg1 = indg2 = (int *) NULL;
   npas  = dir.getNPas();
 
@@ -2215,7 +2215,7 @@ static void st_variogen_line(Db    *db,
 
   const Dir& dir = vario->getDirs(idir);
   psmin = _variogram_convert_angular_tolerance(dir.getTolAngle());
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   npas  = dir.getNPas();
 
   /* Loop on the first point */
@@ -2307,7 +2307,7 @@ static int st_variogen_grid(Db    *db,
 
   error = 1;
   const Dir& dir = vario->getDirs(idir);
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   indg1 = indg2 = (int *) NULL;
   npas  = dir.getNPas();
 
@@ -2623,7 +2623,7 @@ static int st_estimate_drift_coefficients(Db *db,
 
   /* Calculate: t(X) %*% X */
 
-  for (iech=iiech=0; iech<get_NECH(db); iech++)
+  for (iech=iiech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActiveAndDefined(iech,0)) continue;
     model_calcul_drift(MODEL,MEMBER_LHS,db,iech,DRFLOC);
@@ -2893,7 +2893,7 @@ GEOSLIB_API int variovect_compute(Db    *db,
 *****************************************************************************/
 static void st_vmap_scale(Db *dbmap, int nv2)
 {
-  for (int iech=0; iech<get_NECH(dbmap); iech++)
+  for (int iech=0; iech<dbmap->getSampleNumber(); iech++)
   {
     for (int ijvar=0; ijvar<nv2; ijvar++)
     {
@@ -2994,8 +2994,8 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
 
   ndim  = dbmap->getNDim();
   nvar  = db->getVariableNumber();
-  nech  = get_NECH(db);
-  npas  = get_NECH(dbmap);
+  nech  = db->getSampleNumber();
+  npas  = dbmap->getSampleNumber();
   nv2   = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
@@ -3173,7 +3173,7 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
 
   /* Initializations */
 
-  npas = get_NECH(dbmap);
+  npas = dbmap->getSampleNumber();
   ndim = dbmap->getNDim();
   nvar = dbgrid->getVariableNumber();
   nv2  = nvar * (nvar + 1) / 2;
@@ -3196,14 +3196,14 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
 
   /* Loop on the first data */
 
-  for (iech1=0; iech1<get_NECH(dbgrid); iech1++)
+  for (iech1=0; iech1<dbgrid->getSampleNumber(); iech1++)
   {
     if (! dbgrid->isActive(iech1)) continue;
     db_index_sample_to_grid(dbgrid,iech1,ind1);
     
     /* Loop on the second data */
     
-    for (iech2=0; iech2<get_NECH(dbgrid); iech2++)
+    for (iech2=0; iech2<dbgrid->getSampleNumber(); iech2++)
     {
       if (! dbgrid->isActive(iech2)) continue;
       db_index_sample_to_grid(dbgrid,iech2,ind2);
@@ -3432,7 +3432,7 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
     if (iadd_new < 0) goto label_end;
     db->setLocatorByAttribute(iadd_new,LOC_W);
     maille = db_grid_maille(db);
-    for (iech=0; iech<get_NECH(db); iech++) db->setWeight(iech,maille);
+    for (iech=0; iech<db->getSampleNumber(); iech++) db->setWeight(iech,maille);
   }
 
   /* Update the global statistics */
@@ -3574,7 +3574,7 @@ static void st_final_discretization_grid(Db    *db,
   int    iech,nech;
   double value;
 
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   for (iech=0; iech<nech; iech++)
   {
     value = db->getArray(iech,iptr);
@@ -3681,7 +3681,7 @@ GEOSLIB_API int correlation_f(Db     *db1,
   if (db1    == (Db *) NULL) return(1);
   if (db2    == (Db *) NULL) return(1);
   if (dbgrid == (Db *) NULL) return(1);
-  nech  = get_NECH(db1);
+  nech  = db1->getSampleNumber();
   error = 1;
   iptr  = nalloc = 0;
   *correl  = 0.;
@@ -3892,7 +3892,7 @@ GEOSLIB_API int correlation_ident(Db     *db1,
 
   if (db1    == (Db *) NULL) return(1);
   if (db2    == (Db *) NULL) return(1);
-  nech   = get_NECH(db1);
+  nech   = db1->getSampleNumber();
   number = 0;
 
   /* Correlation */
@@ -3946,7 +3946,7 @@ static void st_variogram_cloud(Db     *db,
 
   const Dir& dir = vario->getDirs(idir);
   psmin = _variogram_convert_angular_tolerance(dir.getTolAngle());
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
 
   /* Loop on the first point */
 
@@ -4017,7 +4017,7 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
 
   /* Core allocation */
 
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
   indg = db_indg_alloc(dbgrid);
   if (indg == (int *) NULL) goto label_end;
   coor = db_sample_alloc(dbgrid,LOC_X);
@@ -4132,7 +4132,7 @@ static void st_variogram_cloud_dim(Db     *db,
 
   const Dir& dir = vario->getDirs(idir);
   psmin = _variogram_convert_angular_tolerance(dir.getTolAngle());
-  nech  = get_NECH(db);
+  nech  = db->getSampleNumber();
 
   /* Loop on the first point */
 
@@ -4351,7 +4351,7 @@ GEOSLIB_API int regression_f(Db     *db1,
   error  = 1;
   nvar   = db1->getVariableNumber();
   nfex   = db2->getExternalDriftNumber();
-  nech   = get_NECH(db1);
+  nech   = db1->getSampleNumber();
   size   = 0;
   switch (flag_mode)
   {
@@ -5693,7 +5693,7 @@ static void st_calculate_normalization(int     flag_normalize,
 
   niso = 0;
   nvar = db->getVariableNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
 
   if (flag_normalize)
   {
@@ -5778,7 +5778,7 @@ static VectorDouble st_pca_covariance0(int verbose,
   /* Cleaning the previous contents of PCA structure */
 
   nvar = db->getVariableNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   niso = 0;
 
   /* Core allocation */
@@ -5862,7 +5862,7 @@ static VectorDouble st_pca_covarianceh(int verbose,
   
   /* Initializations */
   
-  nech   = get_NECH(db);
+  nech   = db->getSampleNumber();
   nvar   = db->getVariableNumber();
   npairs = 0;
   psmin  = _variogram_convert_angular_tolerance(tolang);
@@ -5954,7 +5954,7 @@ static void st_pca_f2z(int     flag_norm_out,
   /* Initializations */
   
   nvar = db->getVariableNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   
   /* Loop on the samples */
 
@@ -6012,7 +6012,7 @@ static void st_pca_z2f(int     flag_norm_out,
   /* Initializations */
   
   nvar = db->getVariableNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   
   /* Loop on the samples */
 
@@ -6485,7 +6485,7 @@ GEOSLIB_API int geometry_compute(Db    *db,
     ps      = 0.;
     const Dir& dir = vario->getDirs(idir);
     psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
-    nech    = get_NECH(db);
+    nech    = db->getSampleNumber();
     maxdist = variogram_maximum_distance(dir);
     
     /* Loop on the first point */
@@ -6674,7 +6674,7 @@ GEOSLIB_API int variogram_mlayers(Db    *db,
     ps      = 0.;
     const Dir& dir = vario->getDirs(idir);
     psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
-    nech    = get_NECH(db);
+    nech    = db->getSampleNumber();
 
     /* Loop on the first point */
     
@@ -6871,7 +6871,7 @@ GEOSLIB_API void condexp(Db     *db1,
 
   /* Loop on the samples */
   
-  for (int iech=0; iech<get_NECH(db1); iech++)
+  for (int iech=0; iech<db1->getSampleNumber(); iech++)
   {
     if (! db1->isActive(iech)) continue;
     val1 = db1->getArray(iech,icol1);

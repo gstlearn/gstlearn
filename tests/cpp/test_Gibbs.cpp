@@ -32,7 +32,7 @@ static int st_save(Db    *dbgrid,
 
   /* Initializations */
   
-  nech = get_NECH(dbgrid);
+  nech = dbgrid->getSampleNumber();
 
   /* Add the terms to 'dbgrid' */
   

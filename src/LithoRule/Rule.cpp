@@ -722,7 +722,7 @@ void Rule::_st_shadow_max(Db *dbprop,
   else
   {
     *sh_dsup_max = *sh_down_max = 0.;
-    for (iech=0; iech<get_NECH(dbprop); iech++)
+    for (iech=0; iech<dbprop->getSampleNumber(); iech++)
     {
       val2 = dbprop->getProportion(iech,1);
       if (val2 > (*sh_dsup_max)) (*sh_dsup_max) = val2;

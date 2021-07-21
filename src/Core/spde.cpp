@@ -2490,7 +2490,7 @@ static void st_vertype_load(Vertype *vertype,
 
   if (dbout != (Db *) NULL && S_DECIDE.flag_mesh_dbout)
   {
-    for (int iech = 0; iech < get_NECH(dbout); iech++)
+    for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
     {
       if (!dbout->isActive(iech)) continue;
       vertype_loc = VT_FREE;
@@ -2524,7 +2524,7 @@ static void st_vertype_load(Vertype *vertype,
 
   if (dbin != (Db *) NULL && S_DECIDE.flag_mesh_dbin)
   {
-    for (int iech = 0; iech < get_NECH(dbin); iech++)
+    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
       if (st_is_duplicated(vercoloc, 1, iech) >= 0) continue;
@@ -3121,7 +3121,7 @@ static int st_fill_Bnugget(Db *dbin)
   /* Loop on the active samples */
 
   ecr = 0;
-  for (int iech = 0; iech < get_NECH(dbin); iech++)
+  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
 
@@ -4294,7 +4294,7 @@ static void st_load_data(SPDE_Mesh *s_mesh,
 
     if (dbout != (Db *) NULL)
     {
-      for (int iech = 0; iech < get_NECH(dbout); iech++)
+      for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
       {
         if (!dbout->isActive(iech)) continue;
         ijoint = st_is_duplicated(s_mesh->vercoloc, 2, iech);
@@ -4342,7 +4342,7 @@ static void st_load_data(SPDE_Mesh *s_mesh,
 
     if (dbin != (Db *) NULL)
     {
-      for (int iech = 0; iech < get_NECH(dbin); iech++)
+      for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
       {
         if (!dbin->isActive(iech)) continue;
         if (S_DECIDE.flag_several) data[ecrd++] = dbin->getVariable(iech, ivar);
@@ -7511,7 +7511,7 @@ GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
   /* Loop on the samples */
 
   imesh0 = ip_max = iech = 0;
-  for (int jech = 0; jech < get_NECH(db); jech++)
+  for (int jech = 0; jech < db->getSampleNumber(); jech++)
   {
     if (!db->isActive(jech)) continue;
 
@@ -8218,7 +8218,7 @@ static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
   // Initializations
 
   error = 1;
-  nech = get_NECH(dbgrid);
+  nech = dbgrid->getSampleNumber();
   tab = db_vector_alloc(dbgrid);
   if (tab == (double *) NULL) return (1);
   if (db_vector_get_att(dbgrid, icol_pinch, tab)) goto label_end;
@@ -8394,7 +8394,7 @@ static int st_check_validity_MS(Db *db,
   if (error == 0) return (0);
   if (flag_verbose)
   {
-    messerr("Error at Sample #%d/%d for Layer #%d", iech + 1, get_NECH(db),
+    messerr("Error at Sample #%d/%d for Layer #%d", iech + 1, db->getSampleNumber(),
             ilayer + 1);
     if (FFFF(M))
       messerr("- Mean is undefined");
@@ -8552,7 +8552,7 @@ static void st_m2d_set_M(M2D_Environ *m2denv,
 
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    for (int iech = 0; iech < get_NECH(db); iech++)
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (db->isActive(iech))
       {
@@ -8671,7 +8671,7 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
 
     /* Check validity of drift at data points */
 
-    for (int iech = 0; iech < get_NECH(dbc); iech++)
+    for (int iech = 0; iech < dbc->getSampleNumber(); iech++)
     {
       if (!dbc->isActive(iech)) continue;
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
@@ -8725,7 +8725,7 @@ static void st_m2d_stats_init(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  nech = get_NECH(dbin);
+  nech = dbin->getSampleNumber();
   nb = mm = vv = 0.;
   mini = 1.e30;
   maxi = -1.e30;
@@ -8828,7 +8828,7 @@ static void st_m2d_stats_updt(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  nech = get_NECH(dbc);
+  nech = dbc->getSampleNumber();
   nb = mm = vv = 0.;
   mini = 1.e30;
   maxi = -1.e30;
@@ -8918,7 +8918,7 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  nech = get_NECH(dbc);
+  nech = dbc->getSampleNumber();
   eps = m2denv->zeps;
 
   /* Loop on the samples */
@@ -9066,7 +9066,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
   /* Initializations */
 
   error = 1;
-  nechin = get_NECH(dbin);
+  nechin = dbin->getSampleNumber();
   dval = (double *) NULL;
   (*iatt_f) = -1;
 
@@ -9106,7 +9106,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
       // Calculate the statistics of the external drift on the grid
 
-      for (int iech = 0; iech < get_NECH(dbout); iech++)
+      for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
       {
         if (!dbout->isActive(iech)) continue;
         value = dbout->getExternalDrift(iech,ilayer);
@@ -9226,7 +9226,7 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
   /* Initializations */
 
   error = 1;
-  nech = MIN(number_hard, get_NECH(dbc));
+  nech = MIN(number_hard, dbc->getSampleNumber());
   nbfl = 1;
   a = b = (double *) NULL;
 
@@ -9363,7 +9363,7 @@ static void st_m2d_drift_save(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  ngrid = get_NECH(dbout);
+  ngrid = dbout->getSampleNumber();
 
   /* Loop on the target nodes */
 
@@ -9611,7 +9611,7 @@ static Db *st_m2d_create_constraints(M2D_Environ *m2denv,
   /* Load information from 'dbin' */
 
   number = 0;
-  for (int iech = 0; iech < get_NECH(dbin); iech++)
+  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
     if (st_record_sample(m2denv, dbin, iech, ndim, natt, nlayer, 0, &number,
@@ -9621,7 +9621,7 @@ static Db *st_m2d_create_constraints(M2D_Environ *m2denv,
 
   /* Load information from 'dbout' */
 
-  for (int iech = 0; iech < get_NECH(dbout); iech++)
+  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     if (st_record_sample(m2denv, dbout, iech, ndim, natt, nlayer, 0, &number,
@@ -9632,7 +9632,7 @@ static Db *st_m2d_create_constraints(M2D_Environ *m2denv,
 
   if (number <= 0)
   {
-    for (int iech = 0; iech < get_NECH(dbin); iech++)
+    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
       if (st_record_sample(m2denv, dbin, iech, ndim, natt, nlayer, 1, &number,
@@ -9791,7 +9791,7 @@ GEOSLIB_API cs *db_mesh_neigh(Db *db,
   pts = (int *) NULL;
   Atriplet = A = (cs *) NULL;
   ncorner = s_mesh->ncorner;
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   variety_query(&flag_sphere);
   if (flag_sphere)
   {
@@ -10176,7 +10176,7 @@ static void st_print_sample(const char *title,
   int nech;
   double zmin, zmax;
 
-  nech = get_NECH(dbc);
+  nech = dbc->getSampleNumber();
   message("%s - Sample #%d/%d\n", title, iech + 1, nech);
 
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
@@ -10226,7 +10226,7 @@ static int st_global_gibbs(M2D_Environ *m2denv,
 
   // Initializations
 
-  nech = get_NECH(dbc);
+  nech = dbc->getSampleNumber();
 
   // Loop on the samples
 
@@ -10343,7 +10343,7 @@ static int st_check_gibbs_data(const char *title,
   // Initializations
 
   error = 0;
-  nech = get_NECH(dbc);
+  nech = dbc->getSampleNumber();
   eps = m2denv->zeps;
 
   // Loop on the constraints samples
@@ -10476,7 +10476,7 @@ static void st_m2d_vector_extract(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  nech = get_NECH(dbc);
+  nech = dbc->getSampleNumber();
 
   /* Loop on the samples */
 
@@ -10534,7 +10534,7 @@ static void st_print_db_constraints(const char *title,
   // Printout
 
   mestitle(1, title);
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   if (nprint > 0) nech = MIN(nech, nprint);
   for (int iech = 0; iech < nech; iech++)
   {
@@ -10709,7 +10709,7 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
   if (st_m2d_check_pinchout(dbout, icol_pinch)) goto label_end;
 
   law_set_random_seed(seed);
-  ngrid = get_NECH(dbout);
+  ngrid = dbout->getSampleNumber();
 
   /* Prepare the M2D_Environ structure */
 

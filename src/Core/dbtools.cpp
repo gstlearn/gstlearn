@@ -74,7 +74,7 @@ static int st_locate_point_on_grid(const Db *db_point,
   int ndim = db_grid->getNDim();
 
   int number = 0;
-  for (int iech = 0; iech < get_NECH(db_point); iech++)
+  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
   {
     tab[iech] = TEST;
     if (!db_point->isActive(iech)) continue;
@@ -360,7 +360,7 @@ static int st_migrate_point_to_grid(Db *db_point,
 
   /* Core allocation */
 
-  local.resize(get_NECH(db_point));
+  local.resize(db_point->getSampleNumber());
   dvect.resize(ndim_max);
   coor.resize(ndim_max);
   db_grid->getCoordinate(0,coor);
@@ -371,7 +371,7 @@ static int st_migrate_point_to_grid(Db *db_point,
 
   /* Assign the index of the closest sample to each grid node */
 
-  for (iech = nb_assign = 0; iech < get_NECH(db_point); iech++)
+  for (iech = nb_assign = 0; iech < db_point->getSampleNumber(); iech++)
   {
     if (FFFF(local[iech])) continue;
     if (FFFF(db_point->getArray(iech, iatt))) continue;
@@ -397,11 +397,11 @@ static int st_migrate_point_to_grid(Db *db_point,
   }
   if (debug_query("db"))
     message("Number of nodes directly assigned = %d/%d\n", nb_assign,
-            get_NECH(db_grid));
+            db_grid->getSampleNumber());
 
   /* Convert into data values */
 
-  for (inode = 0; inode < get_NECH(db_grid); inode++)
+  for (inode = 0; inode < db_grid->getSampleNumber(); inode++)
   {
     if (FFFF(tab[inode])) continue;
     tab[inode] = db_point->getArray((int) tab[inode], iatt);
@@ -462,16 +462,16 @@ static int st_migrate_grid_to_grid(Db *db_gridin,
 
   coor.resize(ndim_max);
   dvect.resize(ndim_max);
-  dist = (double *) mem_alloc(sizeof(double) * get_NECH(db_gridout), 0);
+  dist = (double *) mem_alloc(sizeof(double) * db_gridout->getSampleNumber(), 0);
   if (dist == (double *) NULL) goto label_end;
-  for (jech = 0; jech < get_NECH(db_gridout); jech++) dist[jech] = 1.e30;
+  for (jech = 0; jech < db_gridout->getSampleNumber(); jech++) dist[jech] = 1.e30;
 
   // Initialize 'coor' as the first target sample
   db_gridout->rankToCoordinate(0, coor);
 
   /* Loop on the input grid nodes */
 
-  for (iech = 0; iech < get_NECH(db_gridin); iech++)
+  for (iech = 0; iech < db_gridin->getSampleNumber(); iech++)
   {
     value = db_gridin->getArray(iech, iatt);
     if (FFFF(value)) continue;
@@ -677,12 +677,12 @@ static int st_expand_grid_to_grid(Db *db_gridin,
 
   VectorDouble coor(ndim_max);
   VectorDouble dvect(ndim_max);
-  VectorDouble dist(get_NECH(db_gridout));
-  for (int jech = 0; jech < get_NECH(db_gridout); jech++) dist[jech] = 1.e30;
+  VectorDouble dist(db_gridout->getSampleNumber());
+  for (int jech = 0; jech < db_gridout->getSampleNumber(); jech++) dist[jech] = 1.e30;
 
   /* Loop on the output grid nodes */
 
-  for (int iech = 0; iech < get_NECH(db_gridout); iech++)
+  for (int iech = 0; iech < db_gridout->getSampleNumber(); iech++)
   {
     if (!db_gridout->isActive(iech)) continue;
 
@@ -2629,7 +2629,7 @@ GEOSLIB_API void ut_trace_sample(Db *db,
 
   /* Loop on the samples */
 
-  for (iech = 0; iech < get_NECH(db); iech++)
+  for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -2740,7 +2740,7 @@ GEOSLIB_API int manage_external_info(int mode,
   VectorDouble tab;
 
   if (dbin == (Db *) NULL) return (0);
-  nechin = get_NECH(dbin);
+  nechin = dbin->getSampleNumber();
   ninfo = get_LOCATOR_NITEM(dbout, locatorType);
   if (ninfo <= 0) return (0);
 
@@ -2856,7 +2856,7 @@ GEOSLIB_API int db_center_point_to_grid(Db *db_point,
 
   /* Loop on the samples of the Point Db */
 
-  for (iech = 0; iech < get_NECH(db_point); iech++)
+  for (iech = 0; iech < db_point->getSampleNumber(); iech++)
   {
 
     /* Read the coordinates of the point sample */
@@ -2933,7 +2933,7 @@ GEOSLIB_API Db *db_grid_sample(Db *dbin, int *nmult)
 
   /* Loop on the samples of the output grid */
 
-  for (iech = 0; iech < get_NECH(dbout); iech++)
+  for (iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     db_sample_load(dbout, LOC_X, iech, coor.data());
@@ -3155,8 +3155,8 @@ GEOSLIB_API int expand_point_to_grid(Db *db_point,
 
   // Core allocation
 
-  int ng = get_NECH(db_grid);
-  int np = get_NECH(db_point);
+  int ng = db_grid->getSampleNumber();
+  int np = db_point->getSampleNumber();
   VectorDouble xtab(np);
   VectorDouble dvect(ndim_max);
   VectorDouble dvmin(ndim_max);
@@ -3164,7 +3164,7 @@ GEOSLIB_API int expand_point_to_grid(Db *db_point,
 
   /* Sort the point samples according to their coordinate ranked 'idim_ref' */
 
-  for (int ip = np = 0; ip < get_NECH(db_point); ip++)
+  for (int ip = np = 0; ip < db_point->getSampleNumber(); ip++)
   {
     if (!db_point->isActive(ip)) continue;
     if (FFFF(db_point->getArray(ip, iatt))) continue;
@@ -3400,7 +3400,7 @@ GEOSLIB_API int db_compositional_transform(Db *db,
   /* Initializations */
 
   error = 1;
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   tabin = tabout = (double *) NULL;
   eps = get_keypone("CompositionalEps", EPSILON3);
 
@@ -3659,7 +3659,7 @@ GEOSLIB_API int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
 
   /* Loop on the samples of the Db */
 
-  for (int iech = 0; iech < get_NECH(db); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     xx = db->getCoordinate(iech, 0);
@@ -3747,7 +3747,7 @@ GEOSLIB_API int db_fold_polyline(Db *dbin,
 
   /* Loop on the samples of the output Db */
 
-  for (int iech = 0; iech < get_NECH(dbout); iech++)
+  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     xx = dbout->getCoordinate(iech, 0);
@@ -3804,7 +3804,7 @@ static void st_expand(int flag_size,
                       int *indg,
                       VectorDouble& tab2)
 {
-  int nech = get_NECH(dbgrid);
+  int nech = dbgrid->getSampleNumber();
   int ndim = dbgrid->getNDim();
 
   /* Loop on the grid nodes */
@@ -3891,8 +3891,8 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
   if (indg0 == (int *) NULL) goto label_end;
   indg = db_indg_alloc(dbgrid);
   if (indg == (int *) NULL) goto label_end;
-  tab1.resize(get_NECH(dbgrid));
-  tab2.resize(get_NECH(dbgrid),-1.);
+  tab1.resize(dbgrid->getSampleNumber());
+  tab2.resize(dbgrid->getSampleNumber(),-1.);
 
   /* Variable allocation */
 
@@ -3909,7 +3909,7 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
 
   /* Create the sample rank attribute and expand it over the grid */
 
-  for (int iech = 0; iech < get_NECH(dbpoint); iech++)
+  for (int iech = 0; iech < dbpoint->getSampleNumber(); iech++)
     dbpoint->setArray(iech, iatt_rank, (double) iech);
   if (expand_point_to_grid(dbpoint, dbgrid, iatt_rank, iatt_time, iatt_angle,
                            iatt_scaleu, iatt_scalev, iatt_scalew, flag_index, 0,
@@ -3919,7 +3919,7 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
 
   if (flag_index)
   {
-    for (int i = 0; i < get_NECH(dbgrid); i++)
+    for (int i = 0; i < dbgrid->getSampleNumber(); i++)
       tab2[i] = tab1[i];
     goto label_suite;
   }
@@ -3930,7 +3930,7 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
 
   /* Loop on the grid nodes */
 
-  for (int iech = 0; iech < get_NECH(dbgrid); iech++)
+  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
 
@@ -3979,13 +3979,13 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
 
   if (iatt_size >= 0)
   {
-    for (int i = 0; i < get_NECH(dbgrid); i++) tab1[i] = tab2[i];
+    for (int i = 0; i < dbgrid->getSampleNumber(); i++) tab1[i] = tab2[i];
     st_expand(flag_size, dbgrid, tab1, indg0, indg, tab2);
   }
 
   /* Transform values into 0 and 1 */
 
-  for (int i = 0; i < get_NECH(dbgrid); i++)
+  for (int i = 0; i < dbgrid->getSampleNumber(); i++)
   {
     if (flag_size)
       tab2[i] = (tab2[i] < 0) ? 0 : tab2[i];
@@ -4164,7 +4164,7 @@ static VectorDouble st_point_init_poisreg(int verbose,
   /* Look for the maximum intensity */
 
   densmax = density = 0.;
-  for (int iech = 0; iech < get_NECH(dbgrid); iech++)
+  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
     densloc = dbgrid->getVariable(iech, 0);
@@ -4172,7 +4172,7 @@ static VectorDouble st_point_init_poisreg(int verbose,
     if (densmax < densloc) densmax = densloc;
     density += densloc;
   }
-  density /= get_NECH(dbgrid);
+  density /= dbgrid->getSampleNumber();
 
   /* Draw the count of samples */
 
@@ -4367,7 +4367,7 @@ GEOSLIB_API int db_resind(Db *db, int rank, int ncut, double *zcut)
 
   /* Initializations */
 
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   iptr = 0;
   tonnage = (double *) NULL;
   for (int icut = 1; icut < ncut; icut++)
@@ -4453,7 +4453,7 @@ static void st_gradient_normalize(Db *dbgrid)
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < get_NECH(dbgrid); iech++)
+  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
   {
 
     norme = 0.;
@@ -4773,7 +4773,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
 
   /* Loop on the drop points */
 
-  for (int iech = 0; iech < get_NECH(dbpoint); iech++)
+  for (int iech = 0; iech < dbpoint->getSampleNumber(); iech++)
   {
     if (!dbpoint->isActive(iech)) continue;
     if (iech % nbyech != 0) continue;
@@ -5071,7 +5071,7 @@ GEOSLIB_API Db *db_extract(Db *db, int *ranks)
   dbnew = (Db *) NULL;
   iatts = (int *) NULL;
   if (db == (Db *) NULL || ranks == (int *) NULL) return (dbnew);
-  nech_all = get_NECH(db);
+  nech_all = db->getSampleNumber();
   natt = db->getFieldNumber();
 
   // Count the number of samples in 'ranks'
@@ -5228,7 +5228,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
 
   // Loop on the different samples
 
-  ntot = get_NECH(db);
+  ntot = db->getSampleNumber();
 
   //message("Before regularization: ncode = %d, nz = %d, ntot = %d\n", (int)ncode, (int)nz, (int)ntot);
 
@@ -5481,7 +5481,7 @@ GEOSLIB_API int db_grid2point_sampling(Db *dbgrid,
   coor = data = rndval = (double *) NULL;
   ranks = retain = (int *) NULL;
   ndim = dbgrid->getNDim();
-  nfine = get_NECH(dbgrid);
+  nfine = dbgrid->getSampleNumber();
   nmini = MAX(nmini, npcell);
   if (ndim > 3)
   {
@@ -5667,7 +5667,7 @@ GEOSLIB_API int db_polygon_distance(Db *db,
   // Initializations
 
   iptr = -1;
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   distmin = distmax = 0.;
 
   // Create a new attribute
@@ -5900,7 +5900,7 @@ static void st_grid1D_interpolate_linear(Db* dbgrid,
                                          double* X,
                                          double* Y)
 {
-  int nech = get_NECH(dbgrid);
+  int nech = dbgrid->getSampleNumber();
 
   // Loop on the grid nodes
 
@@ -5936,7 +5936,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
                                         double* Y)
 {
   VectorDouble h, F, R, M, C, Cp;
-  int nech = get_NECH(dbgrid);
+  int nech = dbgrid->getSampleNumber();
 
   // Preliminary calculations
 
@@ -6051,7 +6051,7 @@ GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
     dbgrid->duplicateColumnByAttribute(iatt_in, iatt_out + ivar);
   }
 
-  int nech = get_NECH(dbgrid);
+  int nech = dbgrid->getSampleNumber();
 
   /* Core allocation */
 

@@ -39,7 +39,7 @@ ACov::~ACov()
 
 bool ACov::isGradientCompatible() const
 {
-  messerr("Tis covariance is not compatible with Gradient calculations");
+  messerr("This covariance is not compatible with Gradient calculations");
   return false;
 }
 

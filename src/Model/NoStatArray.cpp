@@ -341,7 +341,7 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 
     // From Dbin
 
-    if (rank < 0 || rank > get_NECH(_dbin))
+    if (rank < 0 || rank > _dbin->getSampleNumber())
       my_throw(
           "Error: Invalid Rank in Dbin when searching for NonStat parameter");
     return _dbin->getArray( rank, _attIn[ipar]);
@@ -351,7 +351,7 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 
     // From Dbout
 
-    if (rank < 0 || rank > get_NECH(_dbout))
+    if (rank < 0 || rank > _dbout->getSampleNumber())
       my_throw(
           "Error: Invalid Rank in Dbout when searching for NonStat parameter");
     return _dbout->getArray(rank, _attOut[ipar]);
@@ -641,7 +641,7 @@ String NoStatArray::displayStats(int ipar, int icas) const
   {
     if (_dbin == (Db *) NULL) return sstr.str();
     int iatt = _attIn[ipar];
-    for (int iech = 0; iech < get_NECH(_dbin); iech++)
+    for (int iech = 0; iech < _dbin->getSampleNumber(); iech++)
     {
       if (! _dbin->isActive(iech)) continue;
       vec.push_back(_dbin->getArray(iech,iatt));
@@ -651,7 +651,7 @@ String NoStatArray::displayStats(int ipar, int icas) const
   {
     if (_dbout == (Db *) NULL) return sstr.str();
     int iatt = _attOut[ipar];
-    for (int iech = 0; iech < get_NECH(_dbout); iech++)
+    for (int iech = 0; iech < _dbout->getSampleNumber(); iech++)
     {
       if (! _dbout->isActive(iech)) continue;
       vec.push_back(_dbout->getArray(iech,iatt));

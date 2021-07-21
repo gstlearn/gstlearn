@@ -319,21 +319,6 @@ GEOSLIB_API int is_grid(const Db *db, bool verbose)
 
 /****************************************************************************/
 /*!
- **  Returns the number of samples in a Db
- **
- ** \return  Returned number of samples
- **
- ** \param[in]  db    Db structure
- **
- *****************************************************************************/
-GEOSLIB_API int get_NECH(const Db *db)
-{
-  if (db == (Db *) NULL) return (0);
-  return (db->getSampleNumber());
-}
-
-/****************************************************************************/
-/*!
  **  Writes one gradient of a sample
  **
  ** \param[in]  db     Db structure
@@ -1511,7 +1496,7 @@ GEOSLIB_API int db_grid_define_coordinates(Db *db)
   if (db == (Db *) NULL) return (0);
   if (!is_grid(db)) return (1);
   int ndim = db->getNDim();
-  int nech = get_NECH(db);
+  int nech = db->getSampleNumber();
   VectorInt ntab(ndim, 0);
   VectorDouble coor(ndim);
   VectorDouble cbis(ndim);
@@ -2316,7 +2301,7 @@ GEOSLIB_API int db_grid_copy(Db *db1,
 
   /* Loop on the output grid Db */
 
-  for (int iech = 0; iech < get_NECH(db2); iech++)
+  for (int iech = 0; iech < db2->getSampleNumber(); iech++)
   {
 
     /* Find the indices of the target grid node */
@@ -2401,7 +2386,7 @@ GEOSLIB_API int db_grid_copy_dilate(Db *db1,
 
   /* Loop on the samples of the second Db */
 
-  for (iech2 = 0; iech2 < get_NECH(db2); iech2++)
+  for (iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
   {
     db_index_sample_to_grid(db2, iech2, indg);
     for (idim = 0; idim < ndim; idim++)
@@ -2830,9 +2815,9 @@ GEOSLIB_API void db_polygon(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < get_NECH(db); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
-    mes_process("Checking if sample belongs to a polygon", get_NECH(db), iech);
+    mes_process("Checking if sample belongs to a polygon", db->getSampleNumber(), iech);
     int selval = 0;
     if (!(flag_sel && !db->isActive(iech)))
     {
@@ -2891,7 +2876,7 @@ GEOSLIB_API int db_proportion(Db *db,
 
   error = 1;
   nvar = db->getVariableNumber();
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   nclass = 0;
   coor = tab = sel = (double *) NULL;
   if (nvar <= 0 || nvar > 2)
@@ -2976,7 +2961,7 @@ GEOSLIB_API int db_proportion(Db *db,
 
   /* Normalization phase */
 
-  for (jech = 0; jech < get_NECH(dbgrid); jech++)
+  for (jech = 0; jech < dbgrid->getSampleNumber(); jech++)
   {
     /* Cumulate the proportions */
 
@@ -3037,7 +3022,7 @@ GEOSLIB_API int db_merge(Db *db, int ncol, int *cols)
 
   /* Loop on the samples */
 
-  for (iech = 0; iech < get_NECH(db); iech++)
+  for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
 
     /* Loop on the other variables until a defined value is found */
@@ -3919,7 +3904,7 @@ GEOSLIB_API int db_gradient_modang_to_component(Db *db,
 
   /* Gradient conversion */
 
-  for (iech = 0; iech < get_NECH(db); iech++)
+  for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (FFFF(v1[iech]) || FFFF(v2[iech])) continue;
     modulus = v1[iech];
@@ -3996,7 +3981,7 @@ GEOSLIB_API int db_gradient_component_to_modang(Db *db,
   /* Convert gradient components into modulus and azimuth */
 
   vmax = 0.;
-  for (iech = 0; iech < get_NECH(db); iech++)
+  for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (FFFF(v1[iech]) || FFFF(v2[iech])) continue;
     norme = sqrt(v1[iech] * v1[iech] + v2[iech] * v2[iech]);
@@ -4010,7 +3995,7 @@ GEOSLIB_API int db_gradient_component_to_modang(Db *db,
 
   mini = 1.e30;
   maxi = -1.e30;
-  for (iech = 0; iech < get_NECH(db); iech++)
+  for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     alpha = 1. / (1. + ve);
@@ -4208,7 +4193,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
 
   // Core allocation
 
-  nech = get_NECH(db_grid);
+  nech = db_grid->getSampleNumber();
   ndim = db_grid->getNDim();
   indcur = db_indg_alloc(db_grid);
   if (indcur == (int *) NULL) goto label_end;
@@ -4225,7 +4210,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
 
   // Loop on the input grid
 
-  for (int i = 0; i < get_NECH(db_grid); i++)
+  for (int i = 0; i < db_grid->getSampleNumber(); i++)
   {
     if (!db_grid->isActive(i)) continue;
     value = db_grid->getArray(i, iptr);
@@ -4300,7 +4285,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
   if (flag_sel)
   {
     isel = ss_grid->addFields(1, 0., String(), LOC_SEL);
-    for (int i = 0; i < get_NECH(ss_grid); i++)
+    for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
       db_index_sample_to_grid(ss_grid, i, indcur);
       for (int idim = 0; idim < ndim; idim++)
@@ -4317,7 +4302,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
   if (flag_copy)
   {
     icopy = ss_grid->addFields(1, 0., String(), LOC_SEL);
-    for (int i = 0; i < get_NECH(ss_grid); i++)
+    for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
       db_index_sample_to_grid(ss_grid, i, indcur);
       for (int idim = 0; idim < ndim; idim++)
@@ -4427,7 +4412,7 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
   /* Patch the values */
 
   nused = noused = nundef = nout = nmask = 0;
-  for (int iech = 0; iech < get_NECH(ss_grid); iech++)
+  for (int iech = 0; iech < ss_grid->getSampleNumber(); iech++)
   {
 
     // Sample masked off in the subgrid
@@ -4504,7 +4489,7 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
   if (verbose)
   {
     ndef = nbnomask = 0;
-    for (int iech = 0; iech < get_NECH(db_grid); iech++)
+    for (int iech = 0; iech < db_grid->getSampleNumber(); iech++)
     {
       if (!db_grid->isActive(iech)) continue;
       value = db_grid->getArray(iech, iptr_db);
@@ -4517,13 +4502,13 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
     for (int idim = 0; idim < ndim; idim++)
       message("- Dimension %d: NX_S =%4d - NX_G =%4d - Shift =%4d\n", idim + 1,
               ss_grid->getNX(idim), db_grid->getNX(idim), indg0[idim]);
-    message("Subgrid                               = %d\n", get_NECH(ss_grid));
+    message("Subgrid                               = %d\n", ss_grid->getSampleNumber());
     message("- Number of masked off samples        = %d\n", nmask);
     message("- Number of undefined values          = %d\n", nundef);
     message("- Number of samples outside main grid = %d\n", nout);
     message("- Number of valid values (save)       = %d\n", nused);
     message("- Number of valid values (skip)       = %d\n", noused);
-    message("Main Grid                             = %d\n", get_NECH(db_grid));
+    message("Main Grid                             = %d\n", db_grid->getSampleNumber());
     message("- Number of non-masked values         = %d\n", nbnomask);
     message("- Number of valid values              = %d\n", ndef);
   }
@@ -4761,7 +4746,7 @@ GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
     if (verbose) messerr("Function 'db_get_attribute' requires a valid 'Db'");
     return (vect);
   }
-  int nvect = get_NECH(db);
+  int nvect = db->getSampleNumber();
   vect.resize(nvect);
 
   for (int i = 0; i < nvect; i++)

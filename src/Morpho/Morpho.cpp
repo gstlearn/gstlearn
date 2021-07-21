@@ -1186,7 +1186,7 @@ VectorInt gridcell_neigh(int ndim,
 
   /* (Maximum) core allocation */
 
-  nech = get_NECH(grid);
+  nech = grid->getSampleNumber();
   indret.resize(nech * ndim);
   indg0 = db_indg_alloc(grid);
   if (indg0 == (int *) NULL) goto label_end;

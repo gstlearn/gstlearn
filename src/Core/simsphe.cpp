@@ -446,7 +446,7 @@ GEOSLIB_API int simsph_f(Db    *db,
   tol    = get_keypone("Simsph_Spectrum_Tolerance",1.e-5);
   nx     = db->getNX(0);
   ny     = db->getNX(1);
-  nech   = get_NECH(db);
+  nech   = db->getSampleNumber();
   if (flag_test) nbf = 1;
 
   /* Preliminary checks */

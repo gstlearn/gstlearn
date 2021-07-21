@@ -1811,7 +1811,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
   vardim    = center = (int *) NULL;
   tab       = (float **) NULL;
   points    = xcoor = ycoor = zcoor = (float  *) NULL;
-  nech      = get_NECH(db);
+  nech      = db->getSampleNumber();
   nactive   = db->getActiveSampleNumber();
   flag_grid = is_grid(db);
   useBinary = (int) get_keypone("VTK_Use_Binary",1);
@@ -2929,7 +2929,7 @@ GEOSLIB_API int db_write_csv(Db *db,
   if (db == (Db *) NULL) return 1;
   int ncol = db->getFieldNumber();
   int ndim = db->getNDim();
-  int nech = get_NECH(db);
+  int nech = db->getSampleNumber();
   int nvar = db->getVariableNumber();
 
   // Count the number of items per line

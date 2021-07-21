@@ -536,7 +536,7 @@ static void st_set_rho(double rho,
   else
   {
     ngrf = local_pgs->ngrf;
-    for (iech=0; iech<get_NECH(db); iech++)
+    for (iech=0; iech<db->getSampleNumber(); iech++)
     {
       if (! db->isActive(iech)) continue;
       ifac = (int) db->getVariable(iech,0);
@@ -684,7 +684,7 @@ static int st_vario_pgs_variable(int    mode,
       /* Use dummy rho value in order to avoid discarding pairs in geometry */
     
       nloop = (flag_one) ? 1 : nfacies;
-      for (int iech=0; iech<get_NECH(db); iech++)
+      for (int iech=0; iech<db->getSampleNumber(); iech++)
       {
         if (! db->isActive(iech)) continue;
         
@@ -3466,7 +3466,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 
   error   = 1;
   db      = local_pgs->db;
-  nech    = get_NECH(db);
+  nech    = db->getSampleNumber();
   nvar    = vario->getVariableNumber();
   const Dir& dir = vario->getDirs(idir);
   maxdist = variogram_maximum_distance(dir);
@@ -4848,7 +4848,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
 
   /* Loop on the samples */
   
-  for (iech=number=0; iech<get_NECH(dbin); iech++)
+  for (iech=number=0; iech<dbin->getSampleNumber(); iech++)
   {
     if (! dbin->isActive(iech)) continue;
     
@@ -4892,7 +4892,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
       {
         const Dir& dir = vario->getDirs(idir);
         iad = dir.getAddress(ivar,jvar,0,false,0);
-        vario->setSw(idir,iad,get_NECH(dbin));
+        vario->setSw(idir,iad,dbin->getSampleNumber());
         vario->setHh(idir,iad,0);
         
         switch (local_pgs->covtype)

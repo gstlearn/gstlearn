@@ -1872,7 +1872,7 @@ static void st_project_objects(double background,
 
   /* Initialize the output result */
 
-  for (i=0; i<get_NECH(Dbout); i++)
+  for (i=0; i<Dbout->getSampleNumber(); i++)
   {
     if (iptr_simu >= 0) Dbout->setArray(i,iptr_simu,background);
     if (iptr_rank >= 0) Dbout->setArray(i,iptr_rank,TEST);
@@ -2080,7 +2080,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
 
   if (dbin != (Db *) NULL)
   {
-    for (iech=0; iech<get_NECH(dbin); iech++)
+    for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       for (i=0; i<NDIM; i++)
       {
@@ -2125,7 +2125,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
       }
     }
     
-    for (iech=nbgrain=nbpore=0; iech<get_NECH(dbin); iech++)
+    for (iech=nbgrain=nbpore=0; iech<dbin->getSampleNumber(); iech++)
     {
       for (i=0; i<NDIM; i++)
       {
@@ -2298,7 +2298,7 @@ label_end:
             "Boolean simulation\n"
             "==================\n");
 
-    if (dbin != (Db *) NULL && get_NECH(dbin) > 0)
+    if (dbin != (Db *) NULL && dbin->getSampleNumber() > 0)
     {
       message("Conditioning option               = YES\n");
       message("Number of conditioning grains     = %d\n", nbgrain);
@@ -2310,7 +2310,7 @@ label_end:
     message("Ending simulation time            = %g\n", tmax);
     message("Average number of objects         = %d\n", nb_average);
 
-    if (dbin != (Db *) NULL && get_NECH(dbin) > 0)
+    if (dbin != (Db *) NULL && dbin->getSampleNumber() > 0)
     {
       message("Initial number of primary objects = %d\n", memo_init);
       message("Ending number of primary objects  = %d\n", Nb_object_init);

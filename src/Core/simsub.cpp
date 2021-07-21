@@ -405,7 +405,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
 
     /* Simulating the directing function */
 
-    for (iech=0; iech<get_NECH(dbgrid); iech++)
+    for (iech=0; iech<dbgrid->getSampleNumber(); iech++)
     {
       db_index_sample_to_grid(dbgrid,iech,indg);
       for (idim=0; idim<ndim; idim++) cen[idim] = dbgrid->getCoordinate(iech,idim);
@@ -461,7 +461,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
   
   vmin =  1.e30;
   vmax = -1.e30;
-  for (iech=0; iech<get_NECH(dbgrid); iech++)
+  for (iech=0; iech<dbgrid->getSampleNumber(); iech++)
   {
     if (! dbgrid->isActive(iech)) continue;
     value = (flag_direct) ? 
@@ -517,7 +517,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
 
     /* Simulating the directing function */
     
-    for (iech=0; iech<get_NECH(dbgrid); iech++)
+    for (iech=0; iech<dbgrid->getSampleNumber(); iech++)
     {
       if (! dbgrid->isActive(iech)) continue;
       value = (flag_direct) ? 

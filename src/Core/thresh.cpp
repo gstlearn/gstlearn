@@ -100,7 +100,7 @@ GEOSLIB_API int rule_gaus2fac_data_shadow(Props  *propdef,
 
   /* Processing the translation */
 
-  for (iech=0; iech<get_NECH(dbin); iech++)
+  for (iech=0; iech<dbin->getSampleNumber(); iech++)
   {
     if (! dbin->isActive(iech)) continue;
     
@@ -178,7 +178,7 @@ GEOSLIB_API int rule_gaus2fac_data(Props  *propdef,
 
   /* Processing the translation */
 
-  for (iech=0; iech<get_NECH(dbin); iech++)
+  for (iech=0; iech<dbin->getSampleNumber(); iech++)
   {
     if (! dbin->isActive(iech)) continue;
     
@@ -270,7 +270,7 @@ GEOSLIB_API int rule_gaus2fac_result_shadow(Props  *propdef,
 
   /* Processing the translation */
 
-  for (iech=0; iech<get_NECH(dbout); iech++)
+  for (iech=0; iech<dbout->getSampleNumber(); iech++)
   {
     if (! dbout->isActive(iech)) continue;
     
@@ -374,7 +374,7 @@ GEOSLIB_API int rule_gaus2fac_result(Props  *propdef,
 
   /* Processing the translation */
 
-  for (iech=0; iech<get_NECH(dbout); iech++)
+  for (iech=0; iech<dbout->getSampleNumber(); iech++)
   {
     if (! dbout->isActive(iech)) continue;
     
@@ -1561,7 +1561,7 @@ GEOSLIB_API int db_threshold(Db *db,
 
   /* Calculate the thresholds and store them in the Db file */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     rank = 0;

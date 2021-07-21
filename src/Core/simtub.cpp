@@ -140,7 +140,7 @@ GEOSLIB_API void simu_func_continuous_update(Db  *db,
 
   /* Loop on the grid cells */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     simval = get_LOCATOR_ITEM(db,LOC_SIMU,iptr_simu,iech);
@@ -181,7 +181,7 @@ GEOSLIB_API void simu_func_categorical_update(Db  *db,
 
   /* Loop on the grid cells */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     facies = (int) get_LOCATOR_ITEM(db,LOC_FACIES,iptr_simu,iech) - 1;
@@ -217,7 +217,7 @@ GEOSLIB_API void simu_func_continuous_scale(Db  *db,
 
   /* Loop on the grid cells */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     mean = db->getVariable(iech,0) / nbsimu;
@@ -259,7 +259,7 @@ GEOSLIB_API void simu_func_categorical_scale(Db  *db,
 
   /* Loop on the grid cells */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     for (int ifac=0; ifac<nfacies; ifac++)
@@ -1810,7 +1810,7 @@ static void st_minmax(Db     *db,
 
     /* Case of an isolated set of data */
 
-    for (iech=0; iech<get_NECH(db); iech++)
+    for (iech=0; iech<db->getSampleNumber(); iech++)
     {
       for (ibs=0; ibs<situba->nbands; ibs++)
       {
@@ -1823,7 +1823,7 @@ static void st_minmax(Db     *db,
       }
     }
   }
-  situba->nb_points_simu += get_NECH(db);
+  situba->nb_points_simu += db->getSampleNumber();
 
   return;
 }
@@ -1889,7 +1889,7 @@ static void st_difference(Db     *dbin,
     
     /* Processing */
     
-    for (iech=0; iech<get_NECH(dbin); iech++)
+    for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       if (! dbin->isActive(iech)) continue;
       if (debug_query("simulate")) tab_printi(NULL,1,GD_J_RIGHT,iech+1);
@@ -1950,7 +1950,7 @@ static void st_difference(Db     *dbin,
     
     /* Processing */
     
-    for (iech=0; iech<get_NECH(dbin); iech++)
+    for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       if (! dbin->isActive(iech)) continue;
       if (debug_query("simulate")) tab_printi(NULL,1,GD_J_RIGHT,iech+1);
@@ -2477,7 +2477,7 @@ static void st_simulate_nugget(Db     *db,
 
   /* Initializations */
 
-  nech   = get_NECH(db);
+  nech   = db->getSampleNumber();
   ncova  = model->getCovaNumber();
   nvar   = model->getVariableNumber();
   nbtuba = situba->nbtuba;
@@ -2553,7 +2553,7 @@ static int st_simulate_point(Db     *db,
 
   /* Initializations */
 
-  nech   = get_NECH(db);
+  nech   = db->getSampleNumber();
   ncova  = model->getCovaNumber();
   nvar   = model->getVariableNumber();
   nbtuba = situba->nbtuba;
@@ -2808,7 +2808,7 @@ static void st_update_data2target(Db     *dbin,
 
   /* Initialization */
 
-  if (get_NECH(dbin) <= 0) return;
+  if (dbin->getSampleNumber() <= 0) return;
   if (FLAG_DGM) return;
   nvar   = model->getVariableNumber();
   ndim   = dbin->getNDim();
@@ -2833,7 +2833,7 @@ static void st_update_data2target(Db     *dbin,
     /* Case where the output file is a grid file */
     /*********************************************/
 
-    for (ip=0; ip<get_NECH(dbin); ip++)
+    for (ip=0; ip<dbin->getSampleNumber(); ip++)
     {
       if (! dbin->isActive(ip)) continue;
       db_sample_load(dbin,LOC_X,ip,coor2);
@@ -2873,7 +2873,7 @@ static void st_update_data2target(Db     *dbin,
     /* Case where the output file is a point file */
     /**********************************************/
     
-    for (ik=0; ik<get_NECH(dbout); ik++)
+    for (ik=0; ik<dbout->getSampleNumber(); ik++)
     {
       if (! dbout->isActive(ik)) continue;
       db_sample_load(dbout,LOC_X,ik,coor1);
@@ -2881,7 +2881,7 @@ static void st_update_data2target(Db     *dbin,
       /* Look for the closest data point */
 
       ip_close = -1;
-      for (ip=0; ip<get_NECH(dbin) && ip_close<0; ip++)
+      for (ip=0; ip<dbin->getSampleNumber() && ip_close<0; ip++)
       {
         if (! dbin->isActive(ip)) continue;
         db_sample_load(dbin,LOC_X,ip,coor2);
@@ -2950,7 +2950,7 @@ static void st_mean_correct(Db    *dbout,
 
       /* Loop on the samples */
 
-      for (iech=0; iech<get_NECH(dbout); iech++)
+      for (iech=0; iech<dbout->getSampleNumber(); iech++)
       {
         if (! dbout->isActive(iech)) continue;
         dbout->updSimvar(LOC_SIMU, iech, isimu, ivar, icase, nbsimu,
@@ -3013,7 +3013,7 @@ static int st_simulate_gradient(Db     *dbgrd,
 
     /* Shift the information */
 
-    for (int iech=0; iech<get_NECH(dbgrd); iech++)
+    for (int iech=0; iech<dbgrd->getSampleNumber(); iech++)
       if (dbgrd->isActive(iech))
         dbgrd->setCoordinate(iech,idim,dbgrd->getCoordinate(iech,idim) + delta);
 
@@ -3028,14 +3028,14 @@ static int st_simulate_gradient(Db     *dbgrd,
 
     /* Un-Shift the information */
 
-    for (int iech=0; iech<get_NECH(dbgrd); iech++)
+    for (int iech=0; iech<dbgrd->getSampleNumber(); iech++)
       if (dbgrd->isActive(iech))
         dbgrd->setCoordinate(iech,idim,dbgrd->getCoordinate(iech,idim) - delta);
 
     /* Scaling */
 
     for (int isimu=0; isimu<nbsimu; isimu++)
-      for (int iech=0; iech<get_NECH(dbgrd); iech++)
+      for (int iech=0; iech<dbgrd->getSampleNumber(); iech++)
       {
         if (! dbgrd->isActive(iech)) continue;
         jsimu = isimu + idim * nbsimu + ndim * nbsimu;
@@ -3101,7 +3101,7 @@ static int st_simulate_tangent(Db     *dbtgt,
   /* Calculate the simulated tangent */
 
   for (int isimu=0; isimu<nbsimu; isimu++)
-    for (int iech=0; iech<get_NECH(dbtgt); iech++)
+    for (int iech=0; iech<dbtgt->getSampleNumber(); iech++)
     {
       if (! dbtgt->isActive(iech)) continue;
       
@@ -3159,7 +3159,7 @@ static void st_check_gaussian_data2grid(Db     *dbin,
 
   /* Loop on the data */
 
-  for (iech=0; iech<get_NECH(dbin); iech++)
+  for (iech=0; iech<dbin->getSampleNumber(); iech++)
   {
     if (! dbin->isActive(iech)) continue;
 
@@ -3852,7 +3852,7 @@ GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
 
   if (dbin == (Db *) NULL) return(0);
   nadd = 0;
-  nech = get_NECH(dbin);
+  nech = dbin->getSampleNumber();
   dist = 0.;
   dinc  = (FFFF(delta)) ? rule->getIncr() : delta;
   nstep = (int)floor(rule->getDMax() / dinc);
@@ -4044,7 +4044,7 @@ GEOSLIB_API int rule_evaluate_bounds(Props  *propdef,
 
   if (dbin == (Db *) NULL) return(0);
   nadd = nstep = 0;
-  nech = get_NECH(dbin);
+  nech = dbin->getSampleNumber();
 
   /* Dispatch */
 
@@ -4163,7 +4163,7 @@ static void st_suppress_added_samples(Db *db,
   int iech;
 
   if (nech <= 0) return;
-  for (iech=get_NECH(db)-1; iech>=nech; iech--)
+  for (iech=db->getSampleNumber()-1; iech>=nech; iech--)
     db->deleteSample(iech);
   return;
 }
@@ -4293,7 +4293,7 @@ static void st_check_gibbs(Props  *propdef,
 
   check_mandatory_attribute("st_check_gibbs",dbin,LOC_GAUSFAC);
   number = 0;
-  nech   = get_NECH(dbin);
+  nech   = dbin->getSampleNumber();
   icase  = get_rank_from_propdef(propdef,ipgs,igrf);
   icase0 = get_rank_from_propdef(propdef,ipgs,0);
   mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d GRF=%d Simu=%d)",
@@ -4522,7 +4522,7 @@ static int st_correct_bounds_order(int     flag_category,
         if (st_bounds_check(dbin,iech0,data,&vlmin,&vlmax,
                             iech,value,vemin,vemax)) return(1);
       }
-      for (iech=iech0+1; iech<get_NECH(dbin); iech++)
+      for (iech=iech0+1; iech<dbin->getSampleNumber(); iech++)
       {
         value = dbin->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
         if (!FFFF(value) && (FFFF(vlmin) || value > vlmin)) vlmin = value;
@@ -4549,7 +4549,7 @@ static int st_correct_bounds_order(int     flag_category,
         if (st_bounds_check(dbin,iech0,data,&vlmin,&vlmax,
                             iech,value,vemin,vemax)) return(1);
       }
-      for (iech=iech0+1; iech<get_NECH(dbin); iech++)
+      for (iech=iech0+1; iech<dbin->getSampleNumber(); iech++)
       {
         value = dbin->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
         if (!FFFF(value) && (FFFF(vlmax) || value < vlmax)) vlmax = value;
@@ -4671,7 +4671,7 @@ static void st_gibbs_init_print(const char *title,
   int    nech,iech,ivar;
   double simval,vmin,vmax;
 
-  nech = get_NECH(dbin);
+  nech = dbin->getSampleNumber();
   mestitle(1,"%s (Simu:%d)",title,isimu+1);
   for (ivar=0; ivar<nvar; ivar++)
     for (iech=0; iech<nech; iech++)
@@ -4715,7 +4715,7 @@ static void st_gibbs_iter_print(const char *title,
   int    nech,iech,ivar,iecr;
   double simval,vmin,vmax;
 
-  nech = get_NECH(dbin);
+  nech = dbin->getSampleNumber();
   mestitle(1,"%s (Simu:%d)",title,isimu+1);
   message("Number of samples              = %d\n",nech);
   message("Number of bootstrap iterations = %d\n",gibbs_nburn);
@@ -4774,7 +4774,7 @@ GEOSLIB_API int _gibbs_init_multivar(int     flag_category,
   /* Core allocation */
 
   check_mandatory_attribute("gibbs_init",dbin,LOC_GAUSFAC);
-  nech  = get_NECH(dbin);
+  nech  = dbin->getSampleNumber();
   nvar  = model->getVariableNumber();
   icase = get_rank_from_propdef(propdef,ipgs,0);
 
@@ -4863,7 +4863,7 @@ GEOSLIB_API int _gibbs_init_monovariate(int     flag_category,
 
   check_mandatory_attribute("gibbs_init",dbin,LOC_GAUSFAC);
   error  = 1;
-  nech   = get_NECH(dbin);
+  nech   = dbin->getSampleNumber();
   icase  = get_rank_from_propdef(propdef,ipgs,igrf);
   icase0 = get_rank_from_propdef(propdef,ipgs,0);
 
@@ -5012,7 +5012,7 @@ GEOSLIB_API int gibbs_iter_monovariate(Props  *propdef,
 
   check_mandatory_attribute("gibbs_iter",dbin,LOC_GAUSFAC);
   error   = 1;
-  nech    = get_NECH(dbin);
+  nech    = dbin->getSampleNumber();
   nactive = dbin->getActiveSampleNumber();
   y       = yhard = (double *) NULL;
   flag_h  = (int *) NULL;
@@ -5254,7 +5254,7 @@ GEOSLIB_API int gibbs_iter_multivar(Props  *propdef,
 
   check_mandatory_attribute("gibbs_iter_multivar",dbin,LOC_GAUSFAC);
   error   = 1;
-  nech    = get_NECH(dbin);
+  nech    = dbin->getSampleNumber();
   nvar    = model->getVariableNumber();
   nactive = dbin->getActiveSampleNumber();
   neq     = nvar * nactive;
@@ -5465,7 +5465,7 @@ GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
   check_mandatory_attribute("gibbs_iter_propagation",dbin,LOC_GAUSFAC);
   error   = 1;
   nfois   = 0;
-  nech    = get_NECH(dbin);
+  nech    = dbin->getSampleNumber();
   nactive = dbin->getActiveSampleNumber();
   y       = (double *) NULL;
   delloc  = new_mean = 0.;
@@ -5713,7 +5713,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = get_NECH(dbin);
+    nechin = dbin->getSampleNumber();
     if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
   }
 
@@ -6130,7 +6130,7 @@ GEOSLIB_API int simbipgs(Db     *dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = get_NECH(dbin);
+    nechin = dbin->getSampleNumber();
     if (! dbin->isVariableNumberComparedTo(2)) goto label_end;
     iatt_z[0] = db_attribute_identify(dbin,LOC_Z,0);
     iatt_z[1] = db_attribute_identify(dbin,LOC_Z,1);
@@ -6511,7 +6511,7 @@ GEOSLIB_API int db_simulations_to_ce(Db    *db,
   error = 1;
   iptr_ce = iptr_cstd = iptr_nb = -1;
   if (db == (Db *) NULL) goto label_end;
-  nech = get_NECH(db);
+  nech = db->getSampleNumber();
   if (nbsimu <= 0 || nvar <= 0 || nech <= 0) return(1);
 
   // Allocate the new attributes:
@@ -6649,7 +6649,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
   /* Db */
 
-  nech = get_NECH(dbin);
+  nech = dbin->getSampleNumber();
   nint = dbin->getIntervalNumber();
   nvar = model->getVariableNumber();
   if (flag_propagation)
@@ -6869,7 +6869,7 @@ GEOSLIB_API int simtub_constraints(Db       *dbin,
 
   flag_grid = is_grid(dbout);
   ndim = dbout->getNDim();
-  nech = get_NECH(dbout);
+  nech = dbout->getSampleNumber();
   tab.resize(dbout->getSampleNumber());
   if (flag_grid)
   {
@@ -6991,7 +6991,7 @@ static int st_maxstable_mask(Db     *dbout,
   int    iech,number;
   double valsim;
 
-  for (iech=number=0; iech<get_NECH(dbout); iech++)
+  for (iech=number=0; iech<dbout->getSampleNumber(); iech++)
   {
     if (! dbout->isActive(iech)) continue;
     valsim = dbout->getArray(iech,iptrv);
@@ -7028,7 +7028,7 @@ static void st_maxstable_combine(Db     *dbout,
   int    iech;
   double valsim,valold;
 
-  for (iech=0; iech<get_NECH(dbout); iech++)
+  for (iech=0; iech<dbout->getSampleNumber(); iech++)
   {
     if (! dbout->isActive(iech)) continue;
     valold = dbout->getArray(iech,iptrv);
@@ -7118,7 +7118,7 @@ GEOSLIB_API int simmaxstable(Db    *dbout,
 
   if (verbose)
   {
-    message("Total number of cells = %d\n",get_NECH(dbout));
+    message("Total number of cells = %d\n",dbout->getSampleNumber());
     message("Maximum simulation value = %lf\n",seuil);
   }
 
@@ -7195,7 +7195,7 @@ static double st_quantile(Db     *dbout,
 
   /* Initializations */
 
-  nech = get_NECH(dbout);
+  nech = dbout->getSampleNumber();
 
   /* Load the non-masked simulated values */
 
@@ -7250,7 +7250,7 @@ GEOSLIB_API int simRI(Db     *dbout,
   iptrg  = iptrs = -1;
   pres   = pton = sort = (double *) NULL;
   situba = (Situba *) NULL;
-  nech   = get_NECH(dbout);
+  nech   = dbout->getSampleNumber();
   law_set_random_seed(seed);
   if (st_check_simtub_environment(NULL,dbout,model,NULL)) goto label_end;
 
@@ -7464,7 +7464,7 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = get_NECH(dbin);
+    nechin = dbin->getSampleNumber();
     if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
   }
 
@@ -7718,7 +7718,7 @@ GEOSLIB_API int simcond(Db    *dbin,
 
   error   = 1;
   neigh   = (Neigh *) NULL;
-  nech    = get_NECH(dbin);
+  nech    = dbin->getSampleNumber();
   nint    = dbin->getIntervalNumber();
   nvar    = model->getVariableNumber();
   ndim    = model->getDimensionNumber();

@@ -1253,7 +1253,7 @@ GEOSLIB_API int anam_discrete_IR_z2factor(Anam   *anam,
                                           VectorInt ifacs)
 {
   AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     double zval = db->getVariable(iech,0);
@@ -1868,7 +1868,7 @@ static int st_anam_factor2qt_hermitian(Db     *db,
 
   /* Loop on the samples */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (st_is_sample_skipped(db,iech,nb_est,cols_est,nb_std,cols_std)) continue;
 
@@ -2040,7 +2040,7 @@ static int st_anam_factor2qt_discrete_DD(Db     *db,
   AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   error    = 1;
   nclass   = anam_discrete_DD->getNClass();
-  nech     = get_NECH(db);
+  nech     = db->getSampleNumber();
 
   /* Modeling the diffusion process */
 
@@ -2219,7 +2219,7 @@ static int st_anam_factor2qt_discrete_IR(Db     *db,
   /* Initializations */
 
   AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  nech    = get_NECH(db);
+  nech    = db->getSampleNumber();
   nclass  = anam_discrete_IR->getNCut();
   ncleff  = MAX(nb_est,nb_std);
 
@@ -2727,7 +2727,7 @@ GEOSLIB_API int uc_f(Db *db,
 
   /* Computing S and Y on panels */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     anam_hermite->setPsiHn(psi_hn);
@@ -2746,7 +2746,7 @@ GEOSLIB_API int uc_f(Db *db,
   
   /* Loop on the panels to compute the grade-tonnage functions */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     sv  = db->getArray(iech,iptr_sV);
@@ -2915,7 +2915,7 @@ static void st_ce_get_vectors(Db *db,
                               VectorDouble& krigest,
                               VectorDouble& krigstd)
 {
-  int nech = get_NECH(db);
+  int nech = db->getSampleNumber();
 
   krigest.resize(nech);
   krigstd.resize(nech);
@@ -2974,7 +2974,7 @@ static int st_ce_compute_Z(Db     *db,
     valstd = MCCondStd(krigest, krigstd, phis, nbsimu);
   }
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (iptr_est >= 0) db->setArray(iech,iptr_est,valest[iech]);
@@ -3094,7 +3094,7 @@ static int st_ce_compute_T(int     mode,
        valstd = MCIndicatorStd(yc[icut], krigest, krigstd, nbsimu);
     }
 
-    for (int iech=0; iech<get_NECH(db); iech++)
+    for (int iech=0; iech<db->getSampleNumber(); iech++)
     {
       if (! db->isActive(iech)) continue;
       if (iptr_est >= 0)
@@ -3138,7 +3138,7 @@ static int st_ce_compute_quant(Db     *db,
 
   /* Loop on the samples */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     st_correct_from_OK(db,iech,att_est,att_std,flag_OK,&krigest,&krigstd);
@@ -3204,7 +3204,7 @@ static int st_ce_compute_Q(Db     *db,
       valstd = MCMetalStd(yc[icut], krigest, krigstd, phis, nbsimu);
     }
 
-    for (int iech = 0; iech < get_NECH(db); iech++)
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (!db->isActive(iech)) continue;
       if (iptr_est >= 0) db->setArray(iech, iptr_est, valest[iech]);
@@ -3243,7 +3243,7 @@ static int st_ce_compute_B(Db     *db,
 
   /* Loop on the samples */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
 
@@ -3292,7 +3292,7 @@ static int st_ce_compute_M(Db     *db,
 
   /* Loop on the samples */
 
-  for (int iech=0; iech<get_NECH(db); iech++)
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
 
