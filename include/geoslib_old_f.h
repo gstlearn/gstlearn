@@ -963,7 +963,7 @@
                                 int *ndate,
                                 double *scale,
                                 double **dates);
-  GEOSLIB_API int vardir_extract(Dir& dir,
+  GEOSLIB_API int vardir_extract(const Dir& dir,
                                  int ndim,
                                  int *flag_regular,
                                  int *npas,

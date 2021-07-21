@@ -77,9 +77,14 @@ public:
   void setVars(int ivar, int jvar, double value);
 
   int getLagNumber(int idir) const;
+  int getLagTotalNumber(int idir) const;
+  int getSize(int idir) const;
   VectorDouble getGg(int ivar = 0, int jvar = 0, int idir = 0) const;
   VectorDouble getHh(int ivar = 0, int jvar = 0, int idir = 0) const;
   VectorDouble getSw(int ivar = 0, int jvar = 0, int idir = 0) const;
+  const VectorDouble& getGgVec(int idir) const { return _dirs[idir].getGg(); }
+  const VectorDouble& getHhVec(int idir) const { return _dirs[idir].getHh(); }
+  const VectorDouble& getSwVec(int idir) const { return _dirs[idir].getSw(); }
   VectorDouble getCodir(int idir = 0) const;
 
   void setDates(VectorDouble dates) { _dates = dates; }
@@ -132,6 +137,12 @@ public:
   void setUtilize(int idir, int iad, double val) { return _dirs[idir].setUtilize(iad, val); }
   void clean(int idir) { return _dirs[idir].clean(); }
   void patchCenter(int idir, int nech, double rho) { _dirs[idir].patchCenter(nech, rho); }
+  int fill(int idir,
+           int nvar,
+           int flagAsym,
+           const VectorDouble& sw,
+           const VectorDouble& gg,
+           const VectorDouble& hh);
 
 private:
   int  _getAddress(int ivar, int jvar) const;

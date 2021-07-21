@@ -4764,7 +4764,7 @@ GEOSLIB_API int vario_get_rank(Vario *vario,
 ** \remark  For an example, see remarks of function vario_extract()
 **
 *****************************************************************************/
-GEOSLIB_API int vardir_extract(Dir&    dir,
+GEOSLIB_API int vardir_extract(const Dir&    dir,
                                int     ndim,
                                int    *flag_regular,
                                int    *npas,

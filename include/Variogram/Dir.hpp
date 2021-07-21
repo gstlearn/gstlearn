@@ -133,6 +133,12 @@ public:
 
   void patchCenter(int nech, double rho);
 
+  int fill(int nvar,
+           int flagAsym,
+           const VectorDouble& sw,
+           const VectorDouble& gg,
+           const VectorDouble& hh);
+
 private:
   void _completeDefinition();
   bool _isLagValid(int ilag) const;

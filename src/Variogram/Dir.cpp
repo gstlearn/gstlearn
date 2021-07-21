@@ -630,3 +630,25 @@ void Dir::patchCenter(int nech, double rho)
     }
 }
 
+int Dir::fill(int nvar,
+              int flagAsym,
+              const VectorDouble& sw,
+              const VectorDouble& gg,
+              const VectorDouble& hh)
+{
+  internalResize(nvar, flagAsym);
+  int size = getSize();
+  if (size != (int) sw.size() ||
+      size != (int) hh.size() || size != (int) gg.size())
+  {
+    messerr("The argument do not have correct dimension");
+    return 1;
+  }
+  for (int i=0; i<(int) size; i++)
+  {
+    setSw(i, sw[i]);
+    setHh(i, hh[i]);
+    setGg(i, gg[i]);
+  }
+  return 0;
+}

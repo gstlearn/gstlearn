@@ -704,6 +704,18 @@ int Vario::getLagNumber(int idir) const
   return _dirs[idir].getLagNumber();
 }
 
+int Vario::getLagTotalNumber(int idir) const
+{
+  if (! _isDirectionValid(idir)) return 0;
+  return _dirs[idir].getLagTotalNumber();
+}
+
+int Vario::getSize(int idir) const
+{
+  if (! _isDirectionValid(idir)) return 0;
+  return _dirs[idir].getSize();
+}
+
 VectorDouble Vario::getGg(int ivar, int jvar, int idir) const
 {
   if (! _isDirectionValid(idir)) return VectorDouble();
@@ -943,3 +955,14 @@ int Vario::serialize(const String& filename, bool verbose)
 
   return 0;
 }
+
+int Vario::fill(int idir,
+                int nvar,
+                int flagAsym,
+                const VectorDouble& sw,
+                const VectorDouble& gg,
+                const VectorDouble& hh)
+{
+  return _dirs[idir].fill(nvar, flagAsym, sw, gg, hh);
+}
+
