@@ -2450,21 +2450,21 @@ int Db::_getLastColumn(int number) const
     return (_ncol - number);
 }
 
-const String Db::getName(ENUM_LOCS locatorType, int locatorIndex) const
+String Db::getName(ENUM_LOCS locatorType, int locatorIndex) const
 {
   int icol = getColumnByLocator(locatorType, locatorIndex);
   if (icol < 0) return String();
   return _colNames[icol];
 }
 
-const String Db::getName(int iatt) const
+String Db::getName(int iatt) const
 {
   int icol = getColumnByAttribute(iatt);
   if (icol < 0) return ("");
   return getNameByColumn(icol);
 }
 
-const VectorString Db::getNames(ENUM_LOCS locatorType) const
+VectorString Db::getNames(ENUM_LOCS locatorType) const
 {
   VectorString namelist;
   if (!isLocatorTypeValid(locatorType)) return namelist;
@@ -2477,7 +2477,7 @@ const VectorString Db::getNames(ENUM_LOCS locatorType) const
   return namelist;
 }
 
-const VectorString Db::getNames(const VectorInt& iatts) const
+VectorString Db::getNames(const VectorInt& iatts) const
 {
   VectorString namelist;
   int count = iatts.size();
@@ -2489,17 +2489,17 @@ const VectorString Db::getNames(const VectorInt& iatts) const
   return namelist;
 }
 
-const VectorString Db::getNames(const String& name) const
+VectorString Db::getNames(const String& name) const
 {
   return expandNameList(name);
 }
 
-const VectorString Db::getNames(const VectorString& names) const
+VectorString Db::getNames(const VectorString& names) const
 {
   return expandNameList(names);
 }
 
-const VectorString Db::getNames() const
+VectorString Db::getNames() const
 {
   VectorString names = _colNames;
   return names;

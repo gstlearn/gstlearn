@@ -92,14 +92,14 @@ public:
   int serialize(const String& filename, bool verbose = false) override;
 
   const VectorDouble& getArrays() const { return _array; }
-  const String getNameByColumn(int icol) const { return _colNames[icol]; }
-  const String getName(int iatt) const;
-  const String getName(ENUM_LOCS locatorType, int locatorIndex) const;
-  const VectorString getNames(const VectorString& names) const;
-  const VectorString getNames(const String& name) const;
-  const VectorString getNames(ENUM_LOCS locatorType) const;
-  const VectorString getNames(const VectorInt& iatts) const;
-  const VectorString getNames() const;
+  String getNameByColumn(int icol) const { return _colNames[icol]; }
+  String getName(int iatt) const;
+  String getName(ENUM_LOCS locatorType, int locatorIndex) const;
+  VectorString getNames(const VectorString& names) const;
+  VectorString getNames(const String& name) const;
+  VectorString getNames(ENUM_LOCS locatorType) const;
+  VectorString getNames(const VectorInt& iatts) const;
+  VectorString getNames() const;
   void setName(const String& old_name, const String& name);
   void setName(const VectorString list, const String& name);
   void setName(int iatt, const String& name);
