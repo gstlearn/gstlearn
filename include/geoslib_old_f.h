@@ -3390,27 +3390,6 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                             int npass,
                             int verbose);
 
-  /******************************************/
-  /* Prototyping the functions in pthread.c */
-  /******************************************/
-  GEOSLIB_API Th_Rank th_delete();
-  GEOSLIB_API Th_Rank th_create(void *(*func)(void *), void *arg);
-  GEOSLIB_API int th_wait_for_all(int number, Th_Rank *th_ranks);
-  GEOSLIB_API void th_mutex_init(Th_Mutex *th_mutex);
-  GEOSLIB_API void th_mutex_lock(Th_Mutex *th_mutex);
-  GEOSLIB_API void th_mutex_unlock(Th_Mutex *th_mutex);
-  GEOSLIB_API void th_cond_init(Th_Cond *th_cond);
-  GEOSLIB_API void th_cond_signal(Th_Cond *th_cond);
-  GEOSLIB_API void th_cond_wait(Th_Cond *th_cond, Th_Mutex *th_mutex);
-  GEOSLIB_API void th_cond_release_all(Th_Cond *th_cond);
-  GEOSLIB_API int  ThC_get_ncores(void);
-  GEOSLIB_API void ThC_create(ctpl::thread_pool &tp,
-                              std::vector<std::future<void>> &futures,
-                              int nTasks,
-                              void *(*func)(int, int, void *),
-                              void *arg);
-  GEOSLIB_API void ThC_wait_for_all(std::vector<std::future<void>> &futures);
-
 //#ifdef __cplusplus
 //}
 //#endif

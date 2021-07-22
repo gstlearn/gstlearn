@@ -25,20 +25,20 @@ BINDIR = $(TOP)/bin/$(ARCH)$(WIN_TYPE)
 EXEDIR = $(BINDIR)/$(LIB_MODE)
 
 ifeq ($(ARCH),linux)
-     CXXFLAGS += -fPIC -D_REENTRANT -pthread
+     CXXFLAGS += -fPIC -D_REENTRANT
      LDFLAGS  += -z defs -Wl,--hash-style=both 
      LSO       = $(LIBDIR)/lib$(TARGET).so
      LA        = $(LIBDIR)/$(TARGET).a
-     LIBS      = -lm -lpthread
+     LIBS      = -lm
      CHMODCMD  = chmod 777
 endif
 
 ifeq ($(ARCH),linux64)
-     CXXFLAGS += -fPIC -D_REENTRANT -pthread
+     CXXFLAGS += -fPIC -D_REENTRANT
      LDFLAGS  += -z defs -Wl,--hash-style=both
      LSO       = $(LIBDIR)/lib$(TARGET).so
      LA        = $(LIBDIR)/$(TARGET).a
-     LIBS      = -lm -lpthread
+     LIBS      = -lm
      CHMODCMD  = chmod 777
 endif
 
@@ -48,16 +48,16 @@ ifeq ($(ARCH),macosx)
      CXXFLAGS += -fPIC -Wno-c++11-narrowing
      LSO       = $(LIBDIR)/lib$(TARGET).dylib
      LA        = $(LIBDIR)/$(TARGET).a
-     LIBS      = -lm -lpthread -framework CoreFoundation -framework IOKit
+     LIBS      = -lm -framework CoreFoundation -framework IOKit
      CHMODCMD  = chmod 777
 endif
 
 ifeq ($(ARCH),windows)
      INCLUDE  += -I$(BOOST_DIR)
-     CXXFLAGS += -m$(WIN_TYPE) -Wno-array-bounds
+     CXXFLAGS += -m$(WIN_TYPE) -Wno-array-bounds -D_CRT_NO_VA_START_VALIDATION -DNOMINMAX -DNO_TIMER
      LSO       = $(LIBDIR)/$(TARGET).dll
      LA        = $(LIBDIR)/$(TARGET).lib
-     LIBS      = -liphlpapi -lrpcrt4 -lpthread
+     LIBS      = -liphlpapi -lrpcrt4
      CHMODCMD  = echo 
 endif
 

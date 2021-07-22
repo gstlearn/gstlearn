@@ -4259,8 +4259,8 @@ void cs_print_file(const char *radix, int rank, cs *A)
 ** \remarks If the decomposition is already performed, nothing is done
 **
 *****************************************************************************/
-GEOSLIB_API int qchol_cholesky(int verbose,
-                               QChol *QC)
+int qchol_cholesky(int verbose,
+                   QChol *QC)
 
 {
   int nmax = 8;
@@ -4444,14 +4444,14 @@ static void st_multigrid_set_default_params(cs_MGS *mgs)
 ** \param[in]  tolnmg	   Tolerance for the Multigrid algorithm
 **
 *****************************************************************************/
-GEOSLIB_API void cs_multigrid_params(cs_MGS *mgs,
-                                     int flag_cg,
-                                     int type_coarse,
-                                     int ngc,
-                                     int nmg,
-                                     int ngs,
-                                     double tolcg,
-                                     double tolnmg)
+void cs_multigrid_params(cs_MGS *mgs,
+                         int flag_cg,
+                         int type_coarse,
+                         int ngc,
+                         int nmg,
+                         int ngs,
+                         double tolcg,
+                         double tolnmg)
 {
   if (mgs == (cs_MGS *) NULL) return;
   mgs->flag_cg	   = flag_cg;
@@ -4509,10 +4509,10 @@ static cs_MG *st_monogrid_manage(int	mode,
 ** \param[in]  path_type   Type of the Path (1:V; 2:W, 3:F) (only for mode > 0)
 **
 *****************************************************************************/
-GEOSLIB_API cs_MGS *cs_multigrid_manage(cs_MGS *mgs,
-                                        int mode,
-                                        int nlevels,
-                                        int path_type)
+cs_MGS *cs_multigrid_manage(cs_MGS *mgs,
+                            int mode,
+                            int nlevels,
+                            int path_type)
 {
   /* Dispatch */
 
@@ -4586,7 +4586,7 @@ static void st_mg_print(cs_MGS *mgs,
 ** \param[in] mgs     cs_MGS structure
 **
 *****************************************************************************/
-GEOSLIB_API void cs_multigrid_print(cs_MGS *mgs)
+void cs_multigrid_print(cs_MGS *mgs)
 {
   mestitle(1,"Multigrid Levels");
   st_path_print(mgs->nlevels,mgs->npath,mgs->path);
@@ -4601,7 +4601,7 @@ GEOSLIB_API void cs_multigrid_print(cs_MGS *mgs)
 ** \param[in] mgs     cs_MGS structure
 **
 *****************************************************************************/
-GEOSLIB_API int cs_multigrid_get_nlevels(cs_MGS *mgs)
+int cs_multigrid_get_nlevels(cs_MGS *mgs)
 {
   if (mgs == (cs_MGS *) NULL)
     return(0);
@@ -4700,9 +4700,9 @@ static void st_multigrid_ascent(cs_MGS	 *mgs,
 ** \remark Arguments 'z' and 'work' maust be dimensioned to the finest size
 **
 *****************************************************************************/
-GEOSLIB_API void cs_multigrid_coarse2fine(cs_MGS *mgs,
-                                          double *z,
-                                          double *work)
+void cs_multigrid_coarse2fine(cs_MGS *mgs,
+                              double *z,
+                              double *work)
 {
   for (int ilevel=mgs->nlevels-1; ilevel>=0; ilevel--)
     st_multigrid_ascent(mgs,ilevel,1,1,z,z,work);
@@ -4749,10 +4749,10 @@ static void st_multigrid_descent(cs_MGS	  *mgs,
 ** \param[out] work	   Working array
 **
 *****************************************************************************/
-GEOSLIB_API void cs_chol_invert(QChol	 *qctt,
-                                double *xcr,
-                                double *rhs,
-                                double *work)
+void cs_chol_invert(QChol	 *qctt,
+                    double *xcr,
+                    double *rhs,
+                    double *work)
 {
   int n;
 
@@ -4774,9 +4774,9 @@ GEOSLIB_API void cs_chol_invert(QChol	 *qctt,
 ** \param[out] work	   Working array
 **
 *****************************************************************************/
-GEOSLIB_API void cs_chol_simulate(QChol	 *qctt,
-                                  double *simu,
-                                  double *work)
+void cs_chol_simulate(QChol	 *qctt,
+                      double *simu,
+                      double *work)
 {
   int n;
 
@@ -5104,12 +5104,12 @@ label_end:
 ** \param[out] work	   Working array
 **
 *****************************************************************************/
-GEOSLIB_API int cs_multigrid_process(cs_MGS *mgs,
-                                     QChol  *qctt,
-                                     int     verbose,
-                                     double *x0,
-                                     double *b,
-                                     double *work)
+int cs_multigrid_process(cs_MGS *mgs,
+                         QChol  *qctt,
+                         int     verbose,
+                         double *x0,
+                         double *b,
+                         double *work)
 {
   // Perform the setup (if not already done)
 
@@ -5191,11 +5191,11 @@ static void st_selection_update(int	ncur,
 ** \param[out] sel_arg	  Vector of selection (in double as used in db)
 **
 *****************************************************************************/
-GEOSLIB_API int cs_multigrid_setup(cs_MGS  *mgs,
-                                   QChol   *qctt,
-                                   int	    flag_sel,
-                                   int	    verbose,
-                                   double **sel_arg)
+int cs_multigrid_setup(cs_MGS  *mgs,
+                       QChol   *qctt,
+                       int	    flag_sel,
+                       int	    verbose,
+                       double **sel_arg)
 {
   int *indCo,error,flag_print;
   cs  *L;
@@ -5354,9 +5354,9 @@ static int st_find_color(int	*Qp,
 ** \remarks The returned array must be freed by the calling function
 **
 *****************************************************************************/
-GEOSLIB_API int *cs_color_coding(cs  *Q,
-                                 int  start,
-                                 int *ncols)
+int *cs_color_coding(cs  *Q,
+                     int  start,
+                     int *ncols)
 {
   int	 *colors,*temp,error,ncolor,nmesh,next_col;
   double *Qx;

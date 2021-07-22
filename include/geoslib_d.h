@@ -20,7 +20,6 @@
 #include "LithoRule/Rule.hpp"
 #include "Neigh/Neigh.hpp"
 #include "csparse_d.h"
-#include <pthread.h>
 #include "ctpl.h"
 #include <vector>
 #include <regex>
@@ -512,10 +511,6 @@ struct Local_Relem
 
 typedef struct Local_Relem Relem;
 typedef struct Local_Split Split;
-
-typedef pthread_t       Th_Rank;
-typedef pthread_cond_t  Th_Cond;
-typedef pthread_mutex_t Th_Mutex;
 
 #include "INIParser.hpp"
 
