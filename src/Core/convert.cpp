@@ -2059,7 +2059,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
                                  double **tab)
 {
   FILE *file;
-  char string[1000],*lcur,sep_blank[2],sep_point[2],*saveptr,*token,**varloc;
+  char string[1000],*lcur,sep_blank[2],sep_point[2],*token,**varloc;
   int  error,numline,nvar,nech,ecr,nquant,nvarlu;
   double *tabloc,test,value;
   static int s_length = 1000;
@@ -2174,7 +2174,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
       lcur = string;
 
     label_decode:
-      token = strtok_r(lcur, sep_blank, &saveptr);
+      token = strtok(lcur, sep_blank);
       lcur  = NULL;
       if (token == NULL || sscanf(token,"%lf",&value) == EOF) goto label_line;
       if (value == test) value = TEST;
