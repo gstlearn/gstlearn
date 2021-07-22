@@ -54,7 +54,7 @@ endif
 
 ifeq ($(ARCH),windows)
      INCLUDE  += -I$(BOOST_DIR)
-     CXXFLAGS += -m$(WIN_TYPE) -Wno-array-bounds
+     CXXFLAGS += -m$(WIN_TYPE) -Wno-array-bounds -D_CRT_NO_VA_START_VALIDATION -DNOMINMAX -DNO_TIMER
      LSO       = $(LIBDIR)/$(TARGET).dll
      LA        = $(LIBDIR)/$(TARGET).lib
      LIBS      = -liphlpapi -lrpcrt4
