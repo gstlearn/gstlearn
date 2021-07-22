@@ -2587,8 +2587,7 @@ GEOSLIB_API void vardir_print(Vario *vario,
 GEOSLIB_API void variogram_print(Vario *vario,
                                  int    verbose)
 {
-  if (vario == (Vario *) NULL) return;
-  messageFlush(vario->toString());
+  if (vario != (Vario *) NULL) messageFlush(vario->toString());
 }
 
 /****************************************************************************/
@@ -4646,28 +4645,6 @@ label_end:
 ** \remark The array 'dates' must be freed by calling function.
 ** \remark The following code shows how to extract the calculation results
 ** \remark from a variogram
-** \remark See documentation of vario_extract to retrieve calculation results
-**
-** \code
-**
-**  int calcul_type,ndim,nvar,ndir,npas,npatot,size,count;
-**  double scale,dlag,toldis,codir[2],grincr[2];
-**
-**  if (vario_extract(vario,&calcul_type,&ndim,&nvar,&ndir,&ndate,
-**                    &scale,&dates)) return;
-**
-**  // Extract the first direction (assuming ndir >= 1)
-**  if (vardir_extract(vario->dirs[0],ndim,&flag_regular,&npas,&npatot,
-**                     &opt_code,&size,&dlag,&toldis,&tolang,&bench,
-**                     &cylrad,&tolcode,codir,grincr)) return;
-**
-**  // Extract the simple variogram arrays in this direction, for the first
-**  // variable. We assume that the arrays (sw,gg,hh) used for storage have
-**  // been allocated beforehand to size*sizeof(double) each.
-**  // 
-**  vardir_tab_extract(vario,vario->dirs[0],0,0,&count,rank,sw,gg,hh);
-**
-** \endcode
 **
 *****************************************************************************/
 GEOSLIB_API int vario_extract(Vario   *vario,
@@ -4814,73 +4791,6 @@ GEOSLIB_API int vardir_dimension(Dir& dir)
 
 {
   return(dir.getLagTotalNumber());
-}
-
-/****************************************************************************/
-/*!
-**  Ask the arrays of the Dir structure
-**
-** \param[in]  vario   Vario structure
-** \param[in]  idir    Rank of the direction
-** \param[in]  ivar    Rank of the first variable (from 0)
-** \param[in]  jvar    Rank of the second variable (from 0)
-**
-** \param[out]  count  Number of valid lags
-** \param[out]  center Location of the Center (only for asymetric case or -1)
-** \param[out]  rank   Array of variogram ranks
-** \param[out]  sw     Array of weights (or number of pairs)
-** \param[out]  gg     Array of variogram values
-** \param[out]  hh     Array of distances
-**
-** \remark  The output arrays must be allocated as arrays of double 
-** \remark  with dimension size.
-** \remark  For an example, see remarks of function vario_extract()
-**
-*****************************************************************************/
-GEOSLIB_API void vardir_tab_extract(Vario  *vario,
-                                    int     idir,
-                                    int     ivar,
-                                    int     jvar,
-                                    int    *count,
-                                    int    *center,
-                                    int    *rank,
-                                    double *sw,
-                                    double *gg,
-                                    double *hh)
-{
-  int    i,lec,nval;
-  double ww;
-
-  /* Load the values in the output arrays */
-
-  const Dir& dir = vario->getDirs(idir);
-  (*center) = -1;
-  for (i=nval=0; i<dir.getLagTotalNumber(); i++)
-  {
-    lec = dir.getAddress(ivar,jvar,i,true,0);
-    ww = dir.getSw(lec);
-    if (vario->getFlagAsym())
-    {
-      if (i == dir.getNPas())
-        (*center) = nval+1;
-      else
-      {
-        if (ww <= 0) continue;
-      }
-    }
-    else
-    {
-      if (ww <= 0) continue;
-    }
-    rank[nval] = i+1;
-    sw[nval]   = ww;
-    hh[nval]   = dir.getHh(lec);
-    gg[nval]   = dir.getGg(lec);
-    nval++;
-  }
-
-  *count = nval;
-  return;
 }
 
 /****************************************************************************/
@@ -7042,134 +6952,6 @@ GEOSLIB_API int vario_identify_calcul_type(const String& calcul_name)
     calcul_type = CALCUL_UNDEFINED;
   }
   return(calcul_type);
-}
-
-/****************************************************************************/
-/*!
-**  Ask the array hh from a  Vario structure
-**
-** \param[in]  vario   Vario structure
-** \param[in]  idir    Rank of the Direction (from 0)
-** \param[in]  ivar    Rank of the first variable (from 0)
-** \param[in]  jvar    Rank of the second variable (from 0)
-**
-*****************************************************************************/
-GEOSLIB_API VectorDouble variogram_extract_hh(Vario *vario,
-                                              int idir,
-                                              int ivar,
-                                              int jvar)
-{
-  VectorDouble hh;
-
-  if (idir < 0 || idir >= vario->getDirectionNumber()) return hh;
-  if (ivar < 0 || ivar >= vario->getVariableNumber()) return hh;
-  if (jvar < 0 || jvar >= vario->getVariableNumber()) return hh;
-
-  const Dir& dir  = vario->getDirs(idir);
-  int size = dir.getSize();
-
-  VectorInt    rank(size);
-  VectorDouble sw_loc(size);
-  VectorDouble hh_loc(size);
-  VectorDouble gg_loc(size);
-
-  int count, center;
-  vardir_tab_extract(vario, idir, ivar, jvar, &count, &center,
-                     rank.data(), sw_loc.data(), gg_loc.data(), hh_loc.data());
-
-  hh.resize(count);
-  for (int i=0; i<count; i++) hh[i] = hh_loc[i];
-  return hh;
-}
-
-/****************************************************************************/
-/*!
-**  Ask the array gg from a  Vario structure
-**
-** \param[in]  vario   Vario structure
-** \param[in]  idir    Rank of the Direction (from 0)
-** \param[in]  ivar    Rank of the first variable (from 0)
-** \param[in]  jvar    Rank of the second variable (from 0)
-**
-*****************************************************************************/
-GEOSLIB_API VectorDouble variogram_extract_gg(Vario *vario,
-                                              int idir,
-                                              int ivar,
-                                              int jvar)
-{
-  VectorDouble gg;
-
-  if (idir < 0 || idir >= vario->getDirectionNumber()) return gg;
-  if (ivar < 0 || ivar >= vario->getVariableNumber()) return gg;
-  if (jvar < 0 || jvar >= vario->getVariableNumber()) return gg;
-
-  const Dir& dir = vario->getDirs(idir);
-  int size = dir.getSize();
-
-  VectorInt    rank(size);
-  VectorDouble sw_loc(size);
-  VectorDouble hh_loc(size);
-  VectorDouble gg_loc(size);
-
-  int count, center;
-  vardir_tab_extract(vario, idir, ivar, jvar, &count, &center,
-                     rank.data(), sw_loc.data(), gg_loc.data(), hh_loc.data());
-
-  gg.resize(count);
-  for (int i=0; i<count; i++) gg[i] = gg_loc[i];
-  return gg;
-}
-
-/****************************************************************************/
-/*!
-**  Ask the array sw from a  Vario structure
-**
-** \param[in]  vario   Vario structure
-** \param[in]  idir    Rank of the Direction (from 0)
-** \param[in]  ivar    Rank of the first variable (from 0)
-** \param[in]  jvar    Rank of the second variable (from 0)
-**
-*****************************************************************************/
-GEOSLIB_API VectorDouble variogram_extract_sw(Vario *vario,
-                                              int idir,
-                                              int ivar,
-                                              int jvar)
-{
-  VectorDouble sw;
-
-  if (idir < 1 || idir > vario->getDirectionNumber()) return sw;
-  if (ivar < 1 || ivar > vario->getVariableNumber()) return sw;
-  if (jvar < 1 || jvar > vario->getVariableNumber()) return sw;
-
-  const Dir& dir = vario->getDirs(idir);
-  int size = dir.getSize();
-
-  VectorInt    rank(size);
-  VectorDouble sw_loc(size);
-  VectorDouble hh_loc(size);
-  VectorDouble gg_loc(size);
-
-  int count, center;
-  vardir_tab_extract(vario, idir, ivar, jvar, &count, &center,
-                     rank.data(), sw_loc.data(), gg_loc.data(), hh_loc.data());
-
-  sw.resize(count);
-  for (int i=0; i<count; i++) sw[i] = sw_loc[i];
-  return sw;
-}
-
-/****************************************************************************/
-/*!
- **  Ask the variance/covariance value from a  Vario structure
- **
- ** \param[in]  vario   Vario structure
- ** \param[in]  ivar    Rank of the first variable (from 1)
- ** \param[in]  jvar    Rank of the second variable (from 1)
- **
- *****************************************************************************/
-GEOSLIB_API double variogram_extract_variance(Vario *vario, int ivar, int jvar)
-{
-  return vario->getVars(ivar, jvar);
 }
 
 /****************************************************************************/

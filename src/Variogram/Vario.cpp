@@ -733,6 +733,11 @@ VectorDouble Vario::getSw(int ivar, int jvar, int idir) const
   if (! _isDirectionValid(idir)) return VectorDouble();
   return _dirs[idir].getSw(ivar,jvar);
 }
+int Vario::getCenter(int ivar, int jvar, int idir) const
+{
+  if (! _isDirectionValid(idir)) return ITEST;
+  return _dirs[idir].getCenter(ivar,jvar);
+}
 
 VectorDouble Vario::getCodir(int idir) const
 {

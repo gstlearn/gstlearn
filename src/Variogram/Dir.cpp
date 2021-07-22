@@ -429,6 +429,24 @@ VectorDouble Dir::getSw(int ivar, int jvar) const
   return sw;
 }
 
+int Dir::getCenter(int ivar, int jvar) const
+{
+  int center = ITEST;
+  if (!_isVariableValid(ivar)) return center;
+  if (!_isVariableValid(jvar)) return center;
+
+  if (! getFlagAsym()) return -1;
+
+  int nval = 0;
+  for (int i = 0; i < getLagTotalNumber(); i++)
+  {
+    double ww = getSw(ivar, jvar, i);
+    if (i == getNPas()) return (nval + 1);
+    if (ww <= 0) continue;
+  }
+  return center;
+}
+
 void Dir::setSw(int iad, double sw)
  {
    if (! isCalculated()) return;

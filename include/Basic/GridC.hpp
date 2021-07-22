@@ -98,6 +98,22 @@ public:
   VectorInt iteratorNext(void);
   bool empty() const;
 
+  void dilate(int mode,
+              const VectorInt& nshift,
+              VectorInt& nx,
+              VectorDouble& dx,
+              VectorDouble& x0) const;
+  void multiple(const VectorInt& nmult,
+                int flag_cell,
+                VectorInt& nx,
+                VectorDouble& dx,
+                VectorDouble& x0) const;
+  void divider(const VectorInt& nmult,
+               int flag_cell,
+               VectorInt& nx,
+               VectorDouble& dx,
+               VectorDouble& x0) const;
+
 private:
   const MatrixCSGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }
   const MatrixCSGeneral _getRotInv() const { return _rotation.getMatrixInverse(); }

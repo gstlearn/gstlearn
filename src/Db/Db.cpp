@@ -17,6 +17,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/GlobalEnvironment.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -34,8 +35,7 @@ Db::Db()
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   _initP();
 }
@@ -55,8 +55,7 @@ Db::Db(int nech,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   _initP();
   int natt = (tab.empty()) ? 0 :
@@ -90,8 +89,7 @@ Db::Db(const VectorInt& nx,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   _initP();
   int ndim = nx.size();
@@ -151,8 +149,7 @@ Db::Db(const String& filename,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   _initP();
   VectorString names;
@@ -212,8 +209,7 @@ Db::Db(Db* db,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   _initP();
   int ndim = db->getNDim();
@@ -292,8 +288,7 @@ Db::Db(const String& neutralFileName, bool verbose)
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   if (deSerialize(neutralFileName, verbose))
     my_throw("Problem reading the Neutral File");
@@ -320,8 +315,7 @@ Db::Db(Polygons* polygon,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   _initP();
   double xmin, xmax, ymin, ymax;
@@ -404,8 +398,7 @@ Db::Db(const Db* dbin,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   _initP();
 
@@ -474,8 +467,7 @@ Db::Db(int nech,
       _attcol(),
       _colNames(),
       _p(),
-      _grid(0),
-      _domainReference(0)
+      _grid(0)
 {
   _initP();
   if (! coormin.empty()) ndim = (int) coormin.size();
@@ -508,14 +500,49 @@ Db::Db(int nech,
   setLocatorsByAttribute(ndim, jcol, LOC_X);
 }
 
+/**
+ * Create a Db starting from a single sample whose coordinates are provided in 'tab'
+ * @param tab Array containing the coordinates of the single sample
+ * @param flag_add_rank 1 if the Sample ranks must be generated
+ */
+Db::Db(const VectorDouble& tab, int flag_add_rank)
+    : AStringable(),
+      ASerializable(),
+      _ncol(0),
+      _nech(0),
+      _isGrid(false),
+      _array(),
+      _attcol(),
+      _colNames(),
+      _p(),
+      _grid(0)
+{
+  _initP();
+
+  int ndim = tab.size();
+  _ncol = ndim + flag_add_rank;
+  _nech = 1;
+  reset(_ncol, _nech);
+
+  // Generate the sample number
+  if (flag_add_rank) _createRank(0);
+
+  // Load the coordinates
+  VectorString names = generateMultipleNames("x", ndim);
+  _loadData(tab, names, VectorString(), LOAD_BY_SAMPLE, flag_add_rank);
+
+  int jcol = 0;
+  if (flag_add_rank) jcol++;
+  setLocatorsByAttribute(ndim, jcol, LOC_X);
+}
+
 Db::Db(const Db& r)
     : _ncol(r._ncol),
       _nech(r._nech),
       _isGrid(r._isGrid),
       _array(r._array),
       _colNames(r._colNames),
-      _grid(r._grid),
-      _domainReference(r._domainReference)
+      _grid(r._grid)
 {
   for (int i = 0; i < MAXIMUM_LOC; i++)
     _p[i] = r._p[i];
@@ -531,7 +558,6 @@ Db& Db::operator=(const Db& r)
     _array = r._array;
     _colNames = r._colNames;
     _grid = r._grid;
-    _domainReference = r._domainReference;
 
     for (int i = 0; i < MAXIMUM_LOC; i++)
       _p[i] = r._p[i];
@@ -1644,7 +1670,8 @@ void Db::_columnInit(int ncol, int icol0, double valinit)
   {
     int icol = jcol + icol0;
 
-    if (!domain_ref_query() || getFromLocatorNumber(LOC_DOM) == 0)
+    if (! GlobalEnvironment::getEnv()->isDomainReference() ||
+        getFromLocatorNumber(LOC_DOM) == 0)
       for (int iech = 0; iech < _nech; iech++)
         _array[_getAddress(iech, icol)] = valinit;
     else
@@ -1652,7 +1679,7 @@ void Db::_columnInit(int ncol, int icol0, double valinit)
       {
         double value = getFromLocator(LOC_DOM, iech, 0);
         int iad = _getAddress(iech, icol);
-        if (match_domain_ref(value))
+        if (GlobalEnvironment::getEnv()->matchDomainReference(value))
           _array[iad] = valinit;
         else
           _array[iad] = TEST;
@@ -2148,14 +2175,25 @@ bool Db::hasDomain() const
   return (getFromLocatorNumber(LOC_DOM) > 0);
 }
 
-int Db::getDomain(int iech, int domain_ref) const
+/****************************************************************************/
+/*!
+ **  Reads the domain flag of a sample
+ **
+ ** \return  1 if the Domain variable is not defined
+ ** \return    or if the Domain variable is defined and equal to the
+ ** \return    the Reference Domain value
+ **
+ ** \param[in]  iech Rank of the sample
+ **
+ *****************************************************************************/
+int Db::getDomain(int iech) const
 {
-  if (domain_ref == 0) return 1;
-  if (!hasDomain()) return 1;
+  if (! GlobalEnvironment::getEnv()->isDomainReference()) return 1;
+  if (! hasDomain()) return 1;
   double value = getFromLocator(LOC_DOM, iech, 0);
   if (FFFF(value)) return (0);
-  if (value == domain_ref) return 1;
-  return (0);
+  if (! GlobalEnvironment::getEnv()->matchDomainReference(value)) return 1;
+  return 0;
 }
 
 void Db::setDomain(int iech, int value)
@@ -3691,3 +3729,4 @@ double Db::getCosineToDirection(int iech1,
   if (prod <= 0.) return (1.);
   return (cosdir / sqrt(prod));
 }
+

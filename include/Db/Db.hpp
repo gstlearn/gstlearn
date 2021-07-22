@@ -82,6 +82,7 @@ public:
      int ndim = 2,
      int seed = 321415,
      int flag_add_rank = 1);
+  Db(const VectorDouble& tab, int flag_add_rank = 1);
   Db(const Db& r);
   Db& operator=(const Db& r);
   virtual ~Db();
@@ -302,7 +303,7 @@ public:
   void setVarianceError(int iech, int item, double value);
 
   bool hasDomain() const;
-  int getDomain(int iech, int domain_ref = 0) const;
+  int getDomain(int iech) const;
   void setDomain(int iech, int value);
 
   int getDipDirectionNumber() const;
@@ -575,5 +576,4 @@ private:
   VectorString _colNames;    //!< Names of the variables
   PtrGeos _p[MAXIMUM_LOC];   //!< Locator characteristics
   GridC _grid;               //!< Grid characteristics
-  int _domainReference;      //!< Reference Domain number
 };

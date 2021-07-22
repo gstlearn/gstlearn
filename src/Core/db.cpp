@@ -12,8 +12,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-
-static int DOMAIN_REF = 0;
+#include "Basic/GlobalEnvironment.hpp"
 
 /****************************************************************************/
 /*!
@@ -333,81 +332,6 @@ GEOSLIB_API void set_IGRD(Db *db, int iech, int item, double value)
 {
   if (db == NULL) return;
   db->setGradient(iech, item, value);
-}
-
-/****************************************************************************/
-/*!
- **  Reads the domain flag of a sample
- **
- ** \return  1 if the Domain variable is not defined
- ** \return    or if the Domain variable is defined and equal to the
- ** \return    the Reference Domain value
- **
- ** \param[in]  db   Db structure
- ** \param[in]  iech Rank of the sample
- **
- ** \remark  For efficiency reason, argument validity is not tested
- **
- *****************************************************************************/
-GEOSLIB_API int get_DOMAIN(Db *db, int iech)
-{
-  return db->getDomain(iech, DOMAIN_REF);
-}
-
-/****************************************************************************/
-/*!
- **  Check if the Domain value matches the Reference value for the Domain
- **
- ** \param[in]  value    Reference Domain value
- **
- *****************************************************************************/
-GEOSLIB_API int match_domain_ref(double value)
-{
-  if (FFFF(value)) return 0;
-  if (value == DOMAIN_REF) return 1;
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Define the Reference value for the Domain
- **
- ** \param[in]  value    Reference Domain value
- ** \param[in]  verbose  1 for a verbose output
- **
- *****************************************************************************/
-GEOSLIB_API void domain_ref_define(int value, int verbose)
-{
-  if (value < 0) value = 0;
-  DOMAIN_REF = value;
-  if (DOMAIN_REF == 0) return;
-  if (verbose) domain_ref_print();
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Check if the Reference value for the Domain has been defined
- **
- *****************************************************************************/
-GEOSLIB_API int domain_ref_query(void)
-{
-  return (DOMAIN_REF);
-}
-
-/****************************************************************************/
-/*!
- **  Print the Reference value for the Domain
- **
- *****************************************************************************/
-GEOSLIB_API void domain_ref_print(void)
-{
-  if (DOMAIN_REF > 0)
-  {
-    mestitle(1, "Parameters for Domaining");
-    message("Domain Reference value = %d\n", domain_ref_query());
-    message("Use 'domain.define' to modify or cancel the Domaining\n");
-  }
 }
 
 /****************************************************************************/
@@ -1005,14 +929,9 @@ GEOSLIB_API double cylinder_radius(Db *db,
 GEOSLIB_API int db_index_grid_to_sample(Db *db, const int *indg)
 {
   int ndim = db->getNDim();
-  int ival = indg[ndim - 1];
-  if (ival < 0 || ival >= db->getNX(ndim - 1)) return (-1);
-  for (int idim = ndim - 2; idim >= 0; idim--)
-  {
-    if (indg[idim] < 0 || indg[idim] >= db->getNX(idim)) return (-1);
-    ival = ival * db->getNX(idim) + indg[idim];
-  }
-  return (ival);
+  VectorInt local(ndim);
+  for (int idim = 0; idim < ndim; idim++) local[idim] = indg[idim];
+  return db->getGrid().indiceToRank(local);
 }
 
 /****************************************************************************/
@@ -1945,12 +1864,12 @@ GEOSLIB_API void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
     jatt = iatt + jcol;
     icol = db->getColumnByAttribute(jatt);
 
-    if (DOMAIN_REF == 0 || !db->hasDomain())
+    if (! GlobalEnvironment::getEnv()->isDomainReference() || !db->hasDomain())
       for (iech = 0; iech < db->getSampleNumber(); iech++)
         db->setArray(iech, icol, valinit);
     else
       for (iech = 0; iech < db->getSampleNumber(); iech++)
-        if (get_DOMAIN(db, iech))
+        if (db->getDomain(iech))
           db->setArray(iech, icol, valinit);
         else
           db->setArray(iech, icol, TEST);
@@ -3566,195 +3485,6 @@ GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
 
 /****************************************************************************/
 /*!
- **  Returns the characteristics of a multiple grid
- **
- ** \param[in]  db    Db reference grid structure
- ** \param[in]  nmult Array of multiplicity coefficients
- ** \param[in]  flag_cell 1 for cell matching; 0 for point matching
- **
- ** \param[out] nx    Array of number of grid meshes
- ** \param[out] dx    Array of grid meshes
- ** \param[out] x0    Array of grid origins
- **
- *****************************************************************************/
-GEOSLIB_API void get_grid_multiple(Db *db,
-                                   int *nmult,
-                                   int flag_cell,
-                                   VectorInt& nx,
-                                   VectorDouble& dx,
-                                   VectorDouble& x0)
-{
-  int ndim = db->getNDim();
-  VectorInt indg(ndim);
-  VectorDouble perc(ndim);
-  VectorDouble coor1(ndim);
-  VectorDouble coor2(ndim);
-
-  /* Get the number of grid nodes */
-
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    double value = (double) db->getNX(idim);
-    if (flag_cell)
-      nx[idim] = (int) floor(value / (double) nmult[idim]);
-    else
-      nx[idim] = 1 + (int) floor((value - 1.) / (double) nmult[idim]);
-  }
-
-  /* Get the new grid meshes */
-
-  for (int idim = 0; idim < ndim; idim++)
-    dx[idim] = db->getDX(idim) * nmult[idim];
-
-  /* Get the lower left corner of the small grid */
-
-  for (int idim = 0; idim < ndim; idim++)
-    indg[idim] = 0;
-  for (int idim = 0; idim < ndim; idim++)
-    perc[idim] = -0.5;
-  grid_to_point(db, indg.data(), perc.data(), coor1.data());
-  for (int idim = 0; idim < ndim; idim++)
-    perc[idim] = 0.5;
-  grid_to_point(db, indg.data(), perc.data(), coor2.data());
-
-  /* Calculate the center of the lower left cell */
-
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    double delta = (coor2[idim] - coor1[idim]) / 2.;
-    if (flag_cell)
-      x0[idim] = coor1[idim] + delta * (double) nmult[idim];
-    else
-      x0[idim] = db->getX0(idim);
-  }
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the characteristics of a divider grid
- **
- ** \param[in]  db    Db reference grid structure
- ** \param[in]  nmult Array of subdivision coefficients
- ** \param[in]  flag_cell 1 for cell matching; 0 for point matching
- **
- ** \param[out] nx    Array of number of grid meshes
- ** \param[out] dx    Array of grid meshes
- ** \param[out] x0    Array of grid origins
- **
- *****************************************************************************/
-GEOSLIB_API void get_grid_divider(Db *db,
-                                  int *nmult,
-                                  int flag_cell,
-                                  VectorInt& nx,
-                                  VectorDouble& dx,
-                                  VectorDouble& x0)
-{
-  int ndim = db->getNDim();
-  VectorInt indg(ndim);
-  VectorDouble perc(ndim);
-  VectorDouble coor1(ndim);
-  VectorDouble coor2(ndim);
-
-  /* Get the number of grid nodes */
-
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    if (flag_cell)
-      nx[idim] = db->getNX(idim) * nmult[idim];
-    else
-      nx[idim] = 1 + (db->getNX(idim) - 1) * nmult[idim];
-  }
-
-  /* Get the new grid meshes */
-
-  for (int idim = 0; idim < ndim; idim++)
-    dx[idim] = db->getDX(idim) / ((double) nmult[idim]);
-
-  /* Get the lower left corner of the small grid */
-
-  for (int idim = 0; idim < ndim; idim++)
-    indg[idim] = 0;
-  for (int idim = 0; idim < ndim; idim++)
-    perc[idim] = -0.5;
-  grid_to_point(db, indg.data(), perc.data(), coor1.data());
-  for (int idim = 0; idim < ndim; idim++)
-    perc[idim] = 0.5;
-  grid_to_point(db, indg.data(), perc.data(), coor2.data());
-
-  /* Calculate the center of the lower left cell */
-
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    double delta = (coor2[idim] - coor1[idim]) / 2.;
-    if (flag_cell)
-      x0[idim] = coor1[idim] + delta / (double) nmult[idim];
-    else
-      x0[idim] = db->getX0(idim);
-  }
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the characteristics of a dilated grid
- **
- ** \return Error return code (compression too strong)
- **
- ** \param[in]  db     Db reference grid structure
- ** \param[in]  mode   1 for extending; -1 for compressing
- ** \param[in]  nshift Array of shifts
- **
- ** \param[out] nx    Array of number of grid meshes
- ** \param[out] dx    Array of grid meshes
- ** \param[out] x0    Array of grid origins
- **
- *****************************************************************************/
-GEOSLIB_API int get_grid_dilate(Db *db,
-                                int mode,
-                                int *nshift,
-                                VectorInt& nx,
-                                VectorDouble& dx,
-                                VectorDouble& x0)
-{
-  int ndim = db->getNDim();
-  VectorInt indg(ndim);
-  VectorDouble coor(ndim);
-
-  /* Preliminary checks */
-
-  if (mode != 1 && mode != -1)
-  {
-    messerr("'mode' can only be 1 or -1");
-    return 1;
-  }
-
-  /* Get the number of grid nodes */
-
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    nx[idim] = db->getNX(idim) + 2 * mode * nshift[idim];
-    if (nx[idim] <= 0) return 1;
-    dx[idim] = db->getDX(idim);
-  }
-
-  /* Get the lower left corner of the small grid */
-
-  for (int idim = 0; idim < ndim; idim++)
-    indg[idim] = -mode * nshift[idim];
-  grid_to_point(db, indg.data(), NULL, coor.data());
-
-  /* Calculate the center of the lower left cell */
-
-  for (int idim = 0; idim < ndim; idim++)
-    x0[idim] = coor[idim];
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
  **  Create a Grid Db as a multiple of another Grid Db
  **
  ** \return  Pointer to the newly created Db grid structure
@@ -3764,7 +3494,9 @@ GEOSLIB_API int get_grid_dilate(Db *db,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_multiple(Db *dbin, int *nmult, int flag_add_rank)
+GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
+                                        const VectorInt& nmult,
+                                        int flag_add_rank)
 {
   Db* dbout = (Db *) NULL;
   if (dbin == (Db *) NULL) return (dbin);
@@ -3778,7 +3510,7 @@ GEOSLIB_API Db *db_create_grid_multiple(Db *dbin, int *nmult, int flag_add_rank)
 
   /* Get the new grid characteristics */
 
-  get_grid_multiple(dbin, nmult, 1, nx, dx, x0);
+  dbin->getGrid().multiple(nmult, 1, nx, dx, x0);
 
   /* Create the new grid */
 
@@ -3799,10 +3531,14 @@ GEOSLIB_API Db *db_create_grid_multiple(Db *dbin, int *nmult, int flag_add_rank)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_divider(Db *dbin, int *nmult, int flag_add_rank)
+GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
+                                       const VectorInt& nmult,
+                                       int flag_add_rank)
 {
   Db* dbout = (Db *) NULL;
-  if (dbin == (Db *) NULL) return (dbin);
+  if (dbin == (Db *) NULL) return dbin;
+  if (! dbin->isGrid()) return dbin;
+
   int ndim = dbin->getNDim();
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
@@ -3810,7 +3546,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin, int *nmult, int flag_add_rank)
 
   /* Get the new grid characteristics */
 
-  get_grid_divider(dbin, nmult, 1, nx, dx, x0);
+  dbin->getGrid().divider(nmult, 1, nx, dx, x0);
 
   /* Create the new grid */
 
@@ -3834,19 +3570,20 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin, int *nmult, int flag_add_rank)
  *****************************************************************************/
 GEOSLIB_API Db *db_create_grid_dilate(Db *dbin,
                                       int mode,
-                                      int *nshift,
+                                      const VectorInt& nshift,
                                       int flag_add_rank)
 {
   Db* dbout = (Db *) NULL;
-  if (dbin == (Db *) NULL) return (dbin);
+  if (dbin == (Db *) NULL) return dbin;
+  if (! dbin->isGrid()) return dbin;
+
+  /* Get the new grid characteristics */
+
   int ndim = dbin->getNDim();
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-
-  /* Get the new grid characteristics */
-
-  get_grid_dilate(dbin, mode, nshift, nx, dx, x0);
+  dbin->getGrid().dilate(mode, nshift, nx, dx, x0);
 
   /* Create the new grid */
 

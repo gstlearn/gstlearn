@@ -8515,8 +8515,8 @@ GEOSLIB_API int dk_f(Db *dbin,
                      Model *model,
                      Neigh *neigh,
                      int nfactor,
-                     VectorInt nmult,
-                     VectorInt ndisc,
+                     const VectorInt& nmult,
+                     const VectorInt& ndisc,
                      int flag_est,
                      int flag_std)
 {
@@ -8638,7 +8638,7 @@ GEOSLIB_API int dk_f(Db *dbin,
   {
     if (flag_panel)
     {
-      dbsmu = db_create_grid_divider(dbgrid,nmult.data(),1);
+      dbsmu = db_create_grid_divider(dbgrid,nmult,1);
       if (db_center_point_to_grid(DBIN,dbsmu,perturb)) goto label_end;
       dbsmu = db_delete(dbsmu);
     }

@@ -203,21 +203,6 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
                                    int lagnb = 100,
                                    int varnb = 100,
                                    NamingConvention namconv = NamingConvention("Cloud"));
-GEOSLIB_API double variogram_extract_variance(Vario *vario,
-                                              int ivar = 1,
-                                              int jvar = 1);
-GEOSLIB_API VectorDouble variogram_extract_hh(Vario *vario,
-                                              int idir = 1,
-                                              int ivar = 1,
-                                              int jvar = 1);
-GEOSLIB_API VectorDouble variogram_extract_gg(Vario *vario,
-                                              int idir = 1,
-                                              int ivar = 1,
-                                              int jvar = 1);
-GEOSLIB_API VectorDouble variogram_extract_sw(Vario *vario,
-                                              int idir = 1,
-                                              int ivar = 1,
-                                              int jvar = 1);
 GEOSLIB_API void variogram_print(Vario *vario, int verbose = false);
 GEOSLIB_API int variogram_pgs(Db *db,
                               Vario* vario,

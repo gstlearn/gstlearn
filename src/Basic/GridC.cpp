@@ -686,3 +686,176 @@ bool GridC::empty() const
   bool empty = _nDim <= 0 || _nx.empty();
   return empty;
 }
+
+/****************************************************************************/
+/*!
+ **  Returns the characteristics of a dilated grid
+ **
+ ** \param[in]  mode   1 for extending; -1 for compressing
+ ** \param[in]  nshift Array of shifts
+ **
+ ** \param[out] nx    Array of number of grid meshes
+ ** \param[out] dx    Array of grid meshes
+ ** \param[out] x0    Array of grid origins
+ **
+ *****************************************************************************/
+void GridC::dilate(int mode,
+                  const VectorInt& nshift,
+                  VectorInt& nx,
+                  VectorDouble& dx,
+                  VectorDouble& x0) const
+{
+  int ndim = _nDim;
+  VectorInt indg(ndim);
+  VectorDouble coor(ndim);
+
+  /* Preliminary checks */
+
+  if (mode != 1 && mode != -1) return;
+
+  /* Get the number of grid nodes */
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    nx[idim] = getNX(idim) + 2 * mode * nshift[idim];
+    if (nx[idim] <= 0) return;
+    dx[idim] = getDX(idim);
+  }
+
+  /* Get the lower left corner of the small grid */
+
+  for (int idim = 0; idim < ndim; idim++)
+    indg[idim] = -mode * nshift[idim];
+  indiceToCoordinate(indg, coor);
+
+  /* Calculate the center of the lower left cell */
+
+  for (int idim = 0; idim < ndim; idim++)
+    x0[idim] = coor[idim];
+}
+
+/****************************************************************************/
+/*!
+ **  Returns the characteristics of a multiple grid
+ **
+ ** \param[in]  nmult Array of multiplicity coefficients
+ ** \param[in]  flag_cell 1 for cell matching; 0 for point matching
+ **
+ ** \param[out] nx    Array of number of grid meshes
+ ** \param[out] dx    Array of grid meshes
+ ** \param[out] x0    Array of grid origins
+ **
+ *****************************************************************************/
+void GridC::multiple(const VectorInt& nmult,
+                     int flag_cell,
+                     VectorInt& nx,
+                     VectorDouble& dx,
+                     VectorDouble& x0) const
+{
+  int ndim = _nDim;
+  VectorInt indg(ndim);
+  VectorDouble perc(ndim);
+  VectorDouble coor1(ndim);
+  VectorDouble coor2(ndim);
+
+  /* Get the number of grid nodes */
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double value = (double) getNX(idim);
+    if (flag_cell)
+      nx[idim] = (int) floor(value / (double) nmult[idim]);
+    else
+      nx[idim] = 1 + (int) floor((value - 1.) / (double) nmult[idim]);
+  }
+
+  /* Get the new grid meshes */
+
+  for (int idim = 0; idim < ndim; idim++)
+    dx[idim] = getDX(idim) * nmult[idim];
+
+  /* Get the lower left corner of the small grid */
+
+  for (int idim = 0; idim < ndim; idim++)
+    indg[idim] = 0;
+  for (int idim = 0; idim < ndim; idim++)
+    perc[idim] = -0.5;
+  indiceToCoordinate(indg, coor1, perc);
+  for (int idim = 0; idim < ndim; idim++)
+    perc[idim] = 0.5;
+  indiceToCoordinate(indg, coor2, perc);
+
+  /* Calculate the center of the lower left cell */
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double delta = (coor2[idim] - coor1[idim]) / 2.;
+    if (flag_cell)
+      x0[idim] = coor1[idim] + delta * (double) nmult[idim];
+    else
+      x0[idim] = getX0(idim);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Returns the characteristics of a divider grid
+ **
+ ** \param[in]  nmult Array of subdivision coefficients
+ ** \param[in]  flag_cell 1 for cell matching; 0 for point matching
+ **
+ ** \param[out] nx    Array of number of grid meshes
+ ** \param[out] dx    Array of grid meshes
+ ** \param[out] x0    Array of grid origins
+ **
+ *****************************************************************************/
+void GridC::divider(const VectorInt& nmult,
+                    int flag_cell,
+                    VectorInt& nx,
+                    VectorDouble& dx,
+                    VectorDouble& x0) const
+{
+  int ndim = _nDim;
+  VectorInt indg(ndim);
+  VectorDouble perc(ndim);
+  VectorDouble coor1(ndim);
+  VectorDouble coor2(ndim);
+
+  /* Get the number of grid nodes */
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    if (flag_cell)
+      nx[idim] = getNX(idim) * nmult[idim];
+    else
+      nx[idim] = 1 + (getNX(idim) - 1) * nmult[idim];
+  }
+
+  /* Get the new grid meshes */
+
+  for (int idim = 0; idim < ndim; idim++)
+    dx[idim] = getDX(idim) / ((double) nmult[idim]);
+
+  /* Get the lower left corner of the small grid */
+
+  for (int idim = 0; idim < ndim; idim++)
+    indg[idim] = 0;
+  for (int idim = 0; idim < ndim; idim++)
+    perc[idim] = -0.5;
+  indiceToCoordinate(indg, coor1, perc);
+  for (int idim = 0; idim < ndim; idim++)
+    perc[idim] = 0.5;
+  indiceToCoordinate(indg, coor2, perc);
+
+  /* Calculate the center of the lower left cell */
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double delta = (coor2[idim] - coor1[idim]) / 2.;
+    if (flag_cell)
+      x0[idim] = coor1[idim] + delta / (double) nmult[idim];
+    else
+      x0[idim] = getX0(idim);
+  }
+}
+

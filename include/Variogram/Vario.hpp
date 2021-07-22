@@ -82,6 +82,7 @@ public:
   VectorDouble getGg(int ivar = 0, int jvar = 0, int idir = 0) const;
   VectorDouble getHh(int ivar = 0, int jvar = 0, int idir = 0) const;
   VectorDouble getSw(int ivar = 0, int jvar = 0, int idir = 0) const;
+  int getCenter(int ivar = 0, int jvar = 0, int idir = 0) const;
   const VectorDouble& getGgVec(int idir) const { return _dirs[idir].getGg(); }
   const VectorDouble& getHhVec(int idir) const { return _dirs[idir].getHh(); }
   const VectorDouble& getSwVec(int idir) const { return _dirs[idir].getSw(); }

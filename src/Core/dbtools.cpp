@@ -2902,7 +2902,7 @@ GEOSLIB_API int db_center_point_to_grid(Db *db_point,
  ** \param[in]  nmult Array of multiplicity coefficients
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_grid_sample(Db *dbin, int *nmult)
+GEOSLIB_API Db *db_grid_sample(Db *dbin, const VectorInt& nmult)
 {
   Db *dbout;
   VectorDouble coor;

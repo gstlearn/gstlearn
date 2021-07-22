@@ -980,16 +980,6 @@
                                  double *grincr);
   GEOSLIB_API int vario_get_rank(Vario *vario, int idir, int idate);
   GEOSLIB_API int vardir_dimension(Dir& dir);
-  GEOSLIB_API void vardir_tab_extract(Vario *vario,
-                                      int idir,
-                                      int ivar,
-                                      int jvar,
-                                      int *count,
-                                      int *center,
-                                      int *rank,
-                                      double *sw,
-                                      double *gg,
-                                      double *hh);
   GEOSLIB_API int maf_compute(Db *db,
                               int opt_code,
                               double tolcode,
@@ -1543,11 +1533,15 @@
   GEOSLIB_API int db_is_isotropic(Db *db, int iech, double *data);
   GEOSLIB_API void db_grid_print(Db *db);
 
-  GEOSLIB_API Db *db_create_grid_multiple(Db *dbin, int *nmult, int flag_add_rank);
-  GEOSLIB_API Db *db_create_grid_divider(Db *dbin, int *nmult, int flag_add_rank);
-  GEOSLIB_API Db *db_create_grid_dilate(Db *dbin, int mode, int *nshift,
+GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
+                                        const VectorInt& nmult,
                                         int flag_add_rank);
-  GEOSLIB_API Db *db_grid_sample(Db *dbin, int *nmult);
+GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
+                                       const VectorInt& nmult,
+                                       int flag_add_rank);
+  GEOSLIB_API Db *db_create_grid_dilate(Db *dbin, int mode, const VectorInt& nshift,
+                                        int flag_add_rank);
+  GEOSLIB_API Db *db_grid_sample(Db *dbin, const VectorInt& nmult);
   GEOSLIB_API int db_grid_define_coordinates(Db *db);
   GEOSLIB_API Db *db_create_from_target(double *target, int ndim, int flag_add_rank);
   GEOSLIB_API void db_sample_print(Db *db,
@@ -1572,7 +1566,7 @@
                                      double *delta);
   GEOSLIB_API int db_extension_diag(Db *db, double *diag);
   GEOSLIB_API double db_epsilon_distance(Db *db);
-  GEOSLIB_API int db_index_grid_to_sample(Db *db, const int *indg);
+  GEOSLIB_API int db_index_grid_to_sample(Db *db, const int* indg);
   GEOSLIB_API void db_index_sample_to_grid(Db *db, int iech, int *indg);
   GEOSLIB_API int db_index_sorted_in_grid(Db *db, int iech, int *indg);
   GEOSLIB_API int db_selref(int ndim,
@@ -1583,11 +1577,6 @@
   GEOSLIB_API Db *db_extract(Db *db, int *ranks);
   GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center);
   GEOSLIB_API int compat_NDIM(Db *db1, Db *db2);
-  GEOSLIB_API int    match_domain_ref(double value);
-  GEOSLIB_API int    get_DOMAIN(Db *db, int iech);
-  GEOSLIB_API void   domain_ref_define(int value, int verbose);
-  GEOSLIB_API int    domain_ref_query(void);
-  GEOSLIB_API void   domain_ref_print(void);
   GEOSLIB_API double get_grid_value(Db *dbgrid,
                                     int iptr,
                                     int *indg,
@@ -1613,24 +1602,6 @@
   GEOSLIB_API int db_get_rank_relative_to_absolute(Db *db, int iech0);
   GEOSLIB_API int is_grid(const Db *db, bool verbose=false);
   GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2);
-  GEOSLIB_API void get_grid_multiple(Db *db1,
-                                     int *nmult,
-                                     int flag_cell,
-                                     VectorInt& nx,
-                                     VectorDouble& dx,
-                                     VectorDouble& x0);
-  GEOSLIB_API void get_grid_divider(Db *db1,
-                                    int *nmult,
-                                    int flag_cell,
-                                    VectorInt& nx,
-                                    VectorDouble& dx,
-                                    VectorDouble& x0);
-  GEOSLIB_API int get_grid_dilate(Db *db,
-                                  int mode,
-                                  int *nshift,
-                                  VectorInt& nx,
-                                  VectorDouble& dx,
-                                  VectorDouble& x0);
   GEOSLIB_API int db_grid_copy_params(Db *dbin, int mode, Db *dbout);
   GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
                                  int iptr,
@@ -2185,8 +2156,8 @@
                        Model *model,
                        Neigh *neigh,
                        int nfactor,
-                       VectorInt nmult,
-                       VectorInt ndisc,
+                       const VectorInt& nmult,
+                       const VectorInt& ndisc,
                        int flag_est,
                        int flag_std);
   GEOSLIB_API int global_arithmetic(Db *dbin,

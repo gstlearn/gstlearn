@@ -91,6 +91,8 @@ public:
   double getSw(int ivar, int jvar, int ipas) const;
   VectorDouble getSw(int ivar, int jvar) const;
 
+  int getCenter(int ivar, int jvar) const;
+
   const  VectorDouble& getGrincr() const { return _grincr; }
   double getGrincr(int i) const;
 
