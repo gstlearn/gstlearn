@@ -27,7 +27,7 @@ public:
 
   int isDefined() const { return _consItems.size() > 0; }
   int isDefinedForSill() const;
-  int getConsItemNumber() const { return _consItems.size(); }
+  int getConsItemNumber() const { return static_cast<int>(_consItems.size()); }
 
   const std::vector<ConsItem*>& getConsItems() const { return _consItems; }
   const ConsItem* getConsItems(int i) const { return _consItems[i]; }

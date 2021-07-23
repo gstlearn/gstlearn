@@ -39,7 +39,7 @@ public:
   int serialize(const String& filename, bool verbose = false) override;
   virtual std::string toString(int level = 0) const override;
 
-  int getPolySetNumber() const { return _polysets.size(); }
+  int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }
   void addPolySet(const PolySet& polyset);
 
   const std::vector<PolySet>& getPolySets() const { return _polysets; }

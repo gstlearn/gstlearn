@@ -30,7 +30,7 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  int getLimitNumber() const { return _bounds.size(); }
+  int getLimitNumber() const { return static_cast<int>(_bounds.size()); }
   std::vector<Interval>& getBounds() { return _bounds; }
   VectorDouble getLowerBounds() const;
   VectorDouble getUpperBounds() const;

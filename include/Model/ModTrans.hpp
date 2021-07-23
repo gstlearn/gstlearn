@@ -46,7 +46,7 @@ public:
   int getAnamNClass() const           { return _anamNClass; }
   int getAnamPointBlock() const       { return _anamPointBlock;  }
   void setAnamIClass(int iclass)      { _anamIClass = iclass; }
-  void setAnamVar(double var)         { _anamPointBlock = var; }
+  void setAnamVar(int var)            { _anamPointBlock = var; }
   const VectorDouble& getAnamStrCount() const { return _anamStrCount; }
   const VectorDouble& getAnamMeans() const { return _anamMeans; }
   double getAnamMeans(int iclass) const { return _anamMeans[iclass]; }

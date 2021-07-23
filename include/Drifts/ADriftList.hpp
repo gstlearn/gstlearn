@@ -46,7 +46,7 @@ public:
   virtual double eval(const Db* db, int iech) const override;
   int getNVariables() const override;
 
-  int getDriftNumber() const { return _drifts.size(); }
+  int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
 
   // Add an elementary drift structure
   void addDrift(const ADriftElem* drift);
