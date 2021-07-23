@@ -102,7 +102,7 @@ public:
  ** Contain the following attribute:
  **
  **    bool flagGrid       : if calculation are performed on a regular grid
- **    SpacePoint gridIncr : (only if flagGrid) define increment along Grid axes
+ **    VectorInt gridIncr  : (only if flagGrid) define increment along Grid axes
  **    SpacePoint normDir  : Calculation normalized direction
  **    bool flagRegular    : True if calculation are performed on regular lags
  **    double lag          : value of the regular lag
@@ -120,7 +120,7 @@ public:
   ParamVarioDir(const ASpace* space = nullptr)
       : ASpaceObject(space),
         flagGrid(false),
-        gridIncr(space),
+        gridIncr(),
         normDir(space),
         flagRegular(true),
         lag(1),
@@ -170,7 +170,7 @@ public:
 
   virtual bool isConsistent(const ASpace* space) const override
   {
-    return (gridIncr.isConsistent(space) && normDir.isConsistent(space));
+    return ( normDir.isConsistent(space));
   }
 
   /********************************************************************
@@ -240,7 +240,7 @@ public:
 #endif
 
   bool flagGrid;
-  SpacePoint gridIncr;
+  VectorInt gridIncr;
   SpacePoint normDir;
   bool flagRegular;
   double lag;

@@ -97,8 +97,11 @@ public:
 
   double getHmax(int ivar, int jvar=0) const;
   double getHmax() const;
-  double getGmax(int ivar, int jvar=0, bool flagAbs=false) const;
-  double getGmax(bool flagAbs=false) const;
+  double getGmax(int ivar,
+                 int jvar = 0,
+                 bool flagAbs = false,
+                 bool flagSill = false) const;
+  double getGmax(bool flagAbs=false, bool flagSill = false) const;
 
   int compute(Db *db,
               const String& calculName = "vg",
@@ -138,6 +141,7 @@ public:
   void setUtilize(int idir, int iad, double val) { return _dirs[idir].setUtilize(iad, val); }
   void clean(int idir) { return _dirs[idir].clean(); }
   void patchCenter(int idir, int nech, double rho) { _dirs[idir].patchCenter(nech, rho); }
+  void setDPas(int idir, const Db* db) { _dirs[idir].setDPas(db); }
   int fill(int idir,
            int nvar,
            int flagAsym,

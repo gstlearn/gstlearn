@@ -108,7 +108,7 @@ Dir* VarioDir::getDir(int nvar, bool flag_asym) const
             _paramVarioDir.dlag, _paramVarioDir.pencil.angle, bench,
             _paramVarioDir.pencil.radius, _paramVarioDir.getFirstTol(ROLE_CODE),
             _paramVarioDir.irregularLags, _paramVarioDir.normDir.getCoord(),
-            _paramVarioDir.gridIncr.getCoord());
+            _paramVarioDir.gridIncr);
 
   // Load the variogram contents
 

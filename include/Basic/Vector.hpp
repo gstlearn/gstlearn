@@ -45,6 +45,7 @@ bool ut_vector_same(const VectorDouble& v1,
                     double eps = EPSILON10);
 bool ut_ivector_same(const VectorInt& v1, const VectorInt& v2);
 void ut_vector_fill(VectorDouble& vec, double v, int size = 0);
+void ut_ivector_fill(VectorInt& vec, int v, int size = 0);
 VectorDouble ut_vector_add(const VectorDouble& vec1, const VectorDouble& vec2);
 void ut_vector_add_inplace(VectorDouble& vec1, const VectorDouble& vec2);
 VectorDouble ut_vector_subtract(const VectorDouble& vec1,

@@ -239,6 +239,12 @@ void ut_vector_fill(VectorDouble& vec, double value, int size)
   std::fill(vec.begin(), vec.end(), value);
 }
 
+void ut_ivector_fill(VectorInt& vec, int value, int size)
+{
+  if (size > 0) vec.resize(size);
+  std::fill(vec.begin(), vec.end(), value);
+}
+
 VectorDouble ut_vector_add(const VectorDouble& vec1, const VectorDouble& vec2)
 {
   VectorDouble res;

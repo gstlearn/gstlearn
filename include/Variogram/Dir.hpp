@@ -13,6 +13,8 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
+class Db;
+
 class Dir : public AStringable
 {
 public:
@@ -21,6 +23,9 @@ public:
       double dpas   = 0.,
       double toldis = 0.5,
       double tolang = 90.);
+  Dir(int ndim,
+      int npas,
+      const VectorInt& grincr);
   Dir(int ndim,
       int nvar,
       int npas,
@@ -48,8 +53,8 @@ public:
             double cylrad = TEST,
             double tolcode = 0,
             VectorDouble breaks = VectorDouble(),
-            VectorDouble codir = VectorDouble(),
-            VectorDouble grincr = VectorDouble());
+            VectorDouble codir  = VectorDouble(),
+            VectorInt grincr    = VectorInt());
   bool isCalculated() const;
   void copy(const Dir &dir);
   void clean(void);
@@ -93,8 +98,8 @@ public:
 
   int getCenter(int ivar, int jvar) const;
 
-  const  VectorDouble& getGrincr() const { return _grincr; }
-  double getGrincr(int i) const;
+  const  VectorInt& getGrincr() const { return _grincr; }
+  int getGrincr(int i) const;
 
   int  getBreakNumber() const { return ((int) _breaks.size() / 2); }
   bool getLagRegular() const { return (getBreakNumber() <= 0); }
@@ -107,14 +112,16 @@ public:
   void setIdate(int idate) {_idate = idate; }
   void setDPas(double dpas) {_dPas = dpas; }
   void setDLag(double dlag) {_dPas = dlag; }
+  void setDPas(const Db* db);
   void setBench(double bench) {_bench = bench; }
   void setCylRad(double cylrad) {_cylRad = cylrad; }
   void setTolDist(double toldist) {_tolDist = toldist; }
   void setTolAngle(double tolang) {_tolAngle = tolang; }
+
   void setTolCode(double tolcode) {_tolCode = tolcode; }
   void setBreaks(VectorDouble breaks) {_breaks = breaks; }
   void setCodir(VectorDouble codir) {_codir = codir; }
-  void setGrincr(VectorDouble grincr) {_grincr = grincr; }
+  void setGrincr(VectorInt grincr) {_grincr = grincr; }
 
   void setSw(int iad, double sw);
   void setHh(int iad, double hh);
@@ -163,7 +170,7 @@ private:
   double _tolCode;
   VectorDouble _breaks;
   VectorDouble _codir;
-  VectorDouble _grincr;
+  VectorInt    _grincr;
   VectorDouble _sw;      /* Array for number of lags */
   VectorDouble _gg;      /* Array for average variogram values */
   VectorDouble _hh;      /* Array for average distance values */
@@ -175,3 +182,5 @@ std::vector<Dir> generateMultipleDirs(int ndim,
                                       int npas = 0,
                                       double dpas = 0.,
                                       double toldis = 0.5);
+std::vector<Dir> generateMultipleGridDirs(int ndim,
+                                          int npas);

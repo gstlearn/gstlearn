@@ -58,8 +58,7 @@ Db::Db(int nech,
       _grid(0)
 {
   _initP();
-  int natt = (tab.empty()) ? 0 :
-                             (int) (tab.size() / nech);
+  int natt = (tab.empty()) ? 0 : (int) (tab.size() / nech);
   _ncol = natt + flag_add_rank;
   _nech = nech;
   reset(_ncol, _nech);

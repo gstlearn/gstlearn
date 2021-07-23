@@ -34,7 +34,6 @@
 static Vario  *VARIO;
 static Model  *MODEL;
 static Db     *DBMAP;
-static const Dir    *DIRLOC;
 static int     IDIRLOC;
 static double *BETA,*DRFLOC,*DRFTAB,*MATDRF,*DRFXA,*DRFGX,*DRFXGX,*DRFDIAG;
 static int     NVAR,IECH1,IECH2,IPTV,IPTW;
@@ -220,7 +219,7 @@ GEOSLIB_API double variogram_maximum_distance(const Dir& dir)
 /*!
 **  Checks if the maximum variogram distance has been passed
 **
-** \return    1 if the maximum distance has been passed and 0 otherwise
+** \return    1 if the maximum distance has been passed and 0 otherwise      IDIRLOC = idir;
 **
 ** \param[in]  db      Db descriptor
 ** \param[in]  iech    Rank of the first sample
@@ -1634,7 +1633,6 @@ static void st_variogram_calcul_internal(Db    *db,
       
       VARIO   = vario;
       IDIRLOC = idir;
-      DIRLOC  = &dir;
       NVAR    = vario->getVariableNumber();
       IECH1   = iech;
       IECH2   = jech;
@@ -1791,7 +1789,6 @@ static int st_variogram_calcul1(Db    *db,
         
         VARIO   = vario;
         IDIRLOC = idir;
-        DIRLOC  = &dir;
         NVAR    = vario->getVariableNumber();
         IECH1   = iech;
         IECH2   = jech;
@@ -1919,7 +1916,6 @@ static int st_variogram_calcul2(Db    *db,
       /* Evaluate the variogram */
 
       VARIO  = vario;
-      DIRLOC = &dir;
       NVAR   = vario->getVariableNumber();
       IECH1  = iech;
       IECH2  = jech;
@@ -2118,6 +2114,7 @@ static int st_variogram_grid(Db    *db,
   /* Initializations */
 
   error = 1;
+  vario->setDPas(idir,db);
   const Dir& dir = vario->getDirs(idir);
   nech  = db->getSampleNumber();
   indg1 = indg2 = (int *) NULL;
@@ -2159,12 +2156,12 @@ static int st_variogram_grid(Db    *db,
 
       /* Evaluate the variogram */
 
-      dist = ipas * dir.getDPas();
-      VARIO  = vario;
-      DIRLOC = &dir;
-      NVAR   = vario->getVariableNumber();
-      IECH1  = iech;
-      IECH2  = jech;
+      dist    = ipas * dir.getDPas();
+      VARIO   = vario;
+      IDIRLOC = idir;
+      NVAR    = vario->getVariableNumber();
+      IECH1   = iech;
+      IECH2   = jech;
       st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
                             iech,jech,ipas,npas,dist,1,st_variogram_set);
     }
@@ -2260,7 +2257,6 @@ static void st_variogen_line(Db    *db,
       {
         value  = value * value / NORWGT[norder];
         VARIO  = vario;
-        DIRLOC = &dir;
         NVAR   = vario->getVariableNumber();
         st_variogram_set(vario->getCalculType(),ipas,0,0,0.,1.,dist0,value);
       }
@@ -2361,7 +2357,6 @@ static int st_variogen_grid(Db    *db,
       {
         value  = value * value / NORWGT[norder];
         VARIO  = vario;
-        DIRLOC = &dir;
         NVAR   = vario->getVariableNumber();
         st_variogram_set(vario->getCalculType(),ipas,0,0,0.,1.,dist,value);
       }
@@ -3499,7 +3494,7 @@ GEOSLIB_API int variogram_direction_add(Vario  *vario,
                                         double  tolcode,
                                         const   VectorDouble& breaks,
                                         const   VectorDouble& codir,
-                                        const   VectorDouble& grincr)
+                                        const   VectorInt&    grincr)
 {
   if (vario == (Vario *) NULL) return (1);
   Dir dir = Dir(vario->getDimensionNumber());

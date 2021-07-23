@@ -105,7 +105,7 @@ Vario* CalcVarioExp::getVario() const
                             dir.pencil.radius,
                             tol, dir.irregularLags,
                             dir.normDir.getCoord(),
-                            dir.gridIncr.getCoord());
+                            dir.gridIncr);
   }
   //:WARNING: 0 (first) : covariance Model (ParamVariofit??) 
 

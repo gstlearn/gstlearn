@@ -191,7 +191,7 @@ GEOSLIB_API int variogram_direction_add(Vario *vario,
                                         double tolcode,
                                         const VectorDouble& breaks,
                                         const VectorDouble& codir,
-                                        const VectorDouble& grincr);
+                                        const VectorInt&    grincr);
 GEOSLIB_API int variogram_cloud(Db *db,
                                 Vario *vario,
                                 Db *dbgrid,

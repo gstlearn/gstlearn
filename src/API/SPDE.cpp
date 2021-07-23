@@ -15,6 +15,14 @@ SPDE::SPDE(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
     init(model,field,nostat,dat);
 }
 
+SPDE::~SPDE()
+{
+  for(auto &e : _pileShiftOp)
+  {
+    delete &e;
+  }
+}
+
 void SPDE::init(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
 {
   double nugget=0.;
@@ -23,26 +31,25 @@ void SPDE::init(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
   PrecisionOpCs precision;
   MeshETurbo* mesh;
 
-
   for(int icov = 0 ; icov < model.getCovaNumber();icov++)
   {
     const auto cova = model.getCova(icov);
 
-    if(cova->getType()==COV_NUGGET)
+    if (cova->getType() == COV_NUGGET)
     {
       nugget = cova->getSill(0,0);
     }
-    else if(cova->getType()==COV_BESSEL_K)
+    else if(cova->getType() == COV_BESSEL_K)
     {
-      std::cout<<"Bessel"<<std::endl;
-      totalSill += cova->getSill(0,0);
-      mesh = createMeshing(*cova,field,14.,0.2);
+      std::cout << "Bessel" << std::endl;
+      totalSill += cova->getSill(0, 0);
+      mesh = createMeshing(*cova, field, 14., 0.2);
       mesh->display(0);
-      shiftOp = new ShiftOpCs(mesh, &model,&field, nostat);
-     // delete mesh;
+      shiftOp = new ShiftOpCs(mesh, &model, &field, nostat);
+      // delete mesh;
 
-     _pileShiftOp.push_back(shiftOp);
-      _precistionLists.push_back(PrecisionOpCs(shiftOp,cova,POPT_MINUSHALF));
+      _pileShiftOp.push_back(shiftOp);
+      _precistionLists.push_back(PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF));
 
       if(dat!=nullptr)
       {
@@ -54,14 +61,17 @@ void SPDE::init(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
       my_throw("SPDE is only implemented for Matérn covariances (BESSEL_K)");
     }
   }
-  if(nugget == 0.)
+  if (nugget == 0.)
   {
     nugget = 0.01 * totalSill;
   }
   _precisionsKriging.setNugget(nugget);
 }
 
-MeshETurbo* SPDE::createMeshing(const CovAniso & cova, const Db& field,double discr,double ext)
+MeshETurbo* SPDE::createMeshing(const CovAniso & cova,
+                                const Db& field,
+                                double discr,
+                                double ext)
 {
   VectorDouble extendMin,extendMax;
   int dim = cova.getNDim();
@@ -84,12 +94,5 @@ MeshETurbo* SPDE::createMeshing(const CovAniso & cova, const Db& field,double di
     x0.push_back(field.getX0(idim)- delta * ext);
   }
   return new MeshETurbo(nx,cellSize,x0,field.getRotMat());
-}
-SPDE::~SPDE()
-{
-  for(auto &e : _pileShiftOp)
-  {
-    delete &e;
-  }
 }
 

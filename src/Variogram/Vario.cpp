@@ -280,19 +280,25 @@ double Vario::getHmax() const
   return hmax;
 }
 
-double Vario::getGmax(int ivar, int jvar, bool flagAbs) const
+double Vario::getGmax(int ivar, int jvar, bool flagAbs, bool flagSill) const
 {
   double gmax = 0.;
+
   for (int idir = 0; idir < getDirectionNumber(); idir++)
   {
-    double gloc = _dirs[idir].getGmax(ivar,jvar);
+    double gloc = _dirs[idir].getGmax(ivar, jvar);
     if (flagAbs) gloc = ABS(gloc);
-    if (gloc > gmax) gmax = gloc;
+    if (gmax < gloc) gmax = gloc;
+    if (flagSill)
+    {
+      double sill = ABS(getVars(ivar, jvar));
+      if (gmax < sill) gmax = sill;
+    }
   }
   return gmax;
 }
 
-double Vario::getGmax(bool flagAbs) const
+double Vario::getGmax(bool flagAbs, bool flagSill) const
 {
   double gmax = 0.;
   for (int idir = 0; idir < getDirectionNumber(); idir++)
@@ -301,7 +307,12 @@ double Vario::getGmax(bool flagAbs) const
       {
         double gloc = _dirs[idir].getGmax(ivar,jvar);
         if (flagAbs) gloc = ABS(gloc);
-        if (gloc > gmax) gmax = gloc;
+        if (gmax < gloc) gmax = gloc;
+        if (flagSill)
+        {
+          double sill = ABS(getVars(ivar,jvar));
+          if (gmax < sill) gmax = sill;
+        }
       }
   return gmax;
 }
@@ -796,7 +807,8 @@ int Vario::deSerialize(const String& filename, bool verbose)
 {
   int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
   double dpas, tolang, scale, tolcode, toldis;
-  VectorDouble codir, grincr, vars;
+  VectorDouble codir, grloc, vars;
+  VectorInt grincr;
 
   // Open the Neutral File
 
@@ -840,14 +852,16 @@ int Vario::deSerialize(const String& filename, bool verbose)
     if (_recordRead("Tolerance on Direction", "%lf", &tolang)) goto label_end;
     codir.resize(ndim);
     grincr.resize(ndim);
+    grloc.resize(ndim);
     for (int idim = 0; idim < ndim; idim++)
       if (_recordRead("Direction vector", "%lf", &codir[idim]))
         goto label_end;
     for (int idim = 0; idim < ndim; idim++)
-      if (_recordRead("Grid Increment", "%lf", &grincr[idim]))
+      if (_recordRead("Grid Increment", "%lf", &grloc[idim]))
         goto label_end;
 
     Dir dir = Dir(ndim);
+    for (int idim = 0; idim < ndim; idim++) grincr[idim] = (int) grloc[idim];
     dir.init(ndim, npas, dpas, toldis, tolang, getFlagAsym(),
              opt_code, 0, TEST, TEST, tolcode, VectorDouble(), codir, grincr);
 
@@ -937,7 +951,7 @@ int Vario::serialize(const String& filename, bool verbose)
     _recordWrite("#", "Direction coefficients");
 
     for (int idim = 0; idim < getDimensionNumber(); idim++)
-      _recordWrite("%lf", dir.getGrincr(idim));
+      _recordWrite("%lf", (double) dir.getGrincr(idim));
     _recordWrite("#", "Direction increments on grid");
 
     if (!flag_calcul) continue;

@@ -129,7 +129,7 @@ Vario* VarioExp::toGeoslib() const
   {
     Dir res_dir = Dir();
     res_dir.init(getNDim(),getNDim(), res->getFlagAsym(), 0, 0, 1., 0., 0., 0.,
-                  0., 0., VectorDouble(), VectorDouble(), VectorDouble());
+                  0., 0., VectorDouble(), VectorDouble(), VectorInt());
     res->addDirs(res_dir);
     // DR: Je ne vois pas ou on donne les informations pour le calcul
     i++;

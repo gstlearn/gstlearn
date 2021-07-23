@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Variogram/Dir.hpp"
+#include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
@@ -29,6 +30,30 @@ Dir::Dir(int ndim, int npas, double dpas, double toldis, double tolang)
       _breaks(),
       _codir(),
       _grincr(),
+      _sw(),
+      _gg(),
+      _hh(),
+      _utilize()
+{
+  _completeDefinition();
+}
+
+Dir::Dir(int ndim, int npas, const VectorInt& grincr)
+    : _ndim(ndim),
+      _nvar(0),
+      _flagAsym(0),
+      _nPas(npas),
+      _optionCode(0),
+      _idate(0),
+      _dPas(TEST),
+      _bench(0.),
+      _cylRad(0.),
+      _tolDist(0.),
+      _tolAngle(0.),
+      _tolCode(0.),
+      _breaks(),
+      _codir(),
+      _grincr(grincr),
       _sw(),
       _gg(),
       _hh(),
@@ -149,7 +174,7 @@ void Dir::init(int ndim,
                double tolcode,
                VectorDouble breaks,
                VectorDouble codir,
-               VectorDouble grincr)
+               VectorInt    grincr)
 {
   _ndim = ndim;
   _flagAsym = flag_asym;
@@ -270,6 +295,23 @@ bool Dir::isCalculated() const
     return false;
   }
   return true;
+}
+
+/**
+ * Set the value of the lag as computed from the Db (Grid organized)
+ * @param db Db structure
+ */
+void Dir::setDPas(const Db* db)
+{
+  if (! db->isGrid()) return;
+  if (_grincr.empty()) return;
+  double dpas = 0;
+  for (int idim = 0; idim < _ndim; idim++)
+  {
+    double delta = _grincr[idim] * db->getDX(idim);
+    dpas += delta * delta;
+  }
+  _dPas = sqrt(dpas);
 }
 
 void Dir::copy(const Dir& dir)
@@ -516,7 +558,7 @@ void Dir::setGg(int ivar, int jvar, int ipas, double gg)
   _gg[getAddress(ivar,jvar,ipas,true,0)] = gg;
 }
 
-double Dir::getGrincr(int idim) const
+int Dir::getGrincr(int idim) const
 {
   if (_grincr.empty()) return 0.;
   if (! _isDimensionValid(idim)) return 0.;
@@ -538,37 +580,49 @@ String Dir::toString(int level) const
   sstr << "Number of lags              = " << getNPas() << std::endl;
   int ndim = getDimensionNumber();
 
-  sstr << toVector("Direction coefficients      = ", _codir);
-  if (ndim > 1)
+  if (_grincr.empty())
   {
-    VectorDouble angles(ndim);
-    (void) ut_angles_from_codir(ndim,1,_codir,angles);
-    sstr << toVector("Direction angles (degrees)  = ", angles);
-  }
-  // TODO : Display Grid Incr if so
 
-  if (! FFFF(_tolAngle))
-    sstr << "Tolerance on direction      = " << toDouble(_tolAngle)
-         << " (degrees)" << std::endl;
-  if (! FFFF(_bench)  && _bench > 0.)
-    sstr << "Slice bench                 = " << toDouble(_bench) << std::endl;
-  if (! FFFF(_cylRad) && _cylRad > 0.)
-    sstr << "Slice radius                = " << toDouble(_cylRad) << std::endl;
+    // Case of a Direction defined for a non-grid Db
 
-  if (getLagRegular())
-  {
-    sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
-    sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
-         << " (\% of the lag value)" << std::endl;
+    sstr << toVector("Direction coefficients      = ", _codir);
+    if (ndim > 1)
+    {
+      VectorDouble angles(ndim);
+      (void) ut_angles_from_codir(ndim,1,_codir,angles);
+      sstr << toVector("Direction angles (degrees)  = ", angles);
+    }
+
+    if (! FFFF(_tolAngle))
+      sstr << "Tolerance on direction      = " << toDouble(_tolAngle)
+      << " (degrees)" << std::endl;
+    if (! FFFF(_bench)  && _bench > 0.)
+      sstr << "Slice bench                 = " << toDouble(_bench) << std::endl;
+    if (! FFFF(_cylRad) && _cylRad > 0.)
+      sstr << "Slice radius                = " << toDouble(_cylRad) << std::endl;
+
+    if (getLagRegular())
+    {
+      sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
+      sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
+             << " (\% of the lag value)" << std::endl;
+    }
+    else
+    {
+      sstr << "Calculation intervals       = " << std::endl;
+      for (int i = 0; i < getBreakNumber(); i++)
+      {
+        sstr << " - Interval " << i + 1 << " = ["
+            << toInterval(getBreaks(i), getBreaks(i + 1)) << "]" << std::endl;
+      }
+    }
   }
   else
   {
-    sstr << "Calculation intervals       = " << std::endl;
-    for (int i = 0; i < getBreakNumber(); i++)
-    {
-      sstr << " - Interval " << i + 1 << " = ["
-           << toInterval(getBreaks(i), getBreaks(i + 1)) << "]" << std::endl;
-    }
+
+    // Case of a variogram defined on a Grid db
+
+    sstr << toVector("Grid Direction coefficients = ", _grincr);
   }
 
   /* Selection on the 'code' */
@@ -626,6 +680,22 @@ std::vector<Dir> generateMultipleDirs(int ndim,
     Dir dir = Dir(ndim, npas, dpas, toldis);
     dir.setTolAngle(90. / (double) ndir);
     dir.setCodir(codir);
+    dirs.push_back(dir);
+  }
+  return dirs;
+}
+
+std::vector<Dir> generateMultipleGridDirs(int ndim,
+                                          int npas)
+{
+  VectorInt grincr = VectorInt(ndim);
+  std::vector<Dir> dirs;
+  int ndir = ndim;
+  for (int idir = 0; idir < ndir; idir++)
+  {
+    ut_ivector_fill(grincr, 0);
+    grincr[idir] = 1;
+    Dir dir = Dir(ndim, npas, grincr);
     dirs.push_back(dir);
   }
   return dirs;
