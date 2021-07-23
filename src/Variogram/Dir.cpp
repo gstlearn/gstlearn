@@ -273,8 +273,8 @@ double Dir::getHmax(int ivar, int jvar) const
 
 double Dir::getGmax(int ivar, int jvar, bool flagAbs) const
 {
-  VectorDouble hh = getHh(ivar,jvar);
-  return ut_vector_max(hh, flagAbs);
+  VectorDouble gg = getGg(ivar,jvar);
+  return ut_vector_max(gg, flagAbs);
 }
 
 int Dir::getLagTotalNumber() const

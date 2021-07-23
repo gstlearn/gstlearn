@@ -108,7 +108,7 @@ void ut_ivector_display(const String& title,const VectorInt& vect)
 double ut_vector_max(const VectorDouble& vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0.;
-  double max = std::numeric_limits<double>::min();
+  double max = -1.e30;
   for (auto v : vec)
   {
     if (flagAbs) v = ABS(v);
@@ -120,7 +120,7 @@ double ut_vector_max(const VectorDouble& vec, bool flagAbs)
 double ut_vector_min(const VectorDouble& vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0.;
-  double min = std::numeric_limits<double>::max();
+  double min = 1.e30;
   for (auto v : vec)
   {
     if (flagAbs) v = ABS(v);

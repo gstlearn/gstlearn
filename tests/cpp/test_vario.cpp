@@ -15,6 +15,7 @@
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
+#include "Basic/AStringable.hpp"
 
 /****************************************************************************/
 /*!
@@ -65,6 +66,7 @@ int main(int argc, char *argv[])
   variod.addDirs(dirs);
   error = variod.compute(&db,"vg");
   variod.display(1);
+  message("Maximum Variogram Value = %lf\n",variod.getGmax());
 
   // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
