@@ -3005,8 +3005,8 @@ GEOSLIB_API void db_locators_correct(VectorString& strings,
 
   /* Dispatch */
 
-  int number = strings.size();
-  int ncur = current.size();
+  int number = static_cast<int> (strings.size());
+  int ncur = static_cast<int> (current.size());
   if (number <= 0 || ncur <= 0) return;
   VectorInt rank(number);
   VectorInt ind(number);
@@ -4554,7 +4554,7 @@ GEOSLIB_API ES db_angle2grad(Db *db,
 
   // Preliminary checks
 
-  int nbang = angles.size();
+  int nbang = static_cast<int> (angles.size());
   if (nbang > ndim)
   {
     messerr(
