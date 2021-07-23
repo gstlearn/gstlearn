@@ -19,7 +19,7 @@
 
 class Db;
 
-class Polygons: public AStringable, ASerializable
+class Polygons: public AStringable, public ASerializable
 {
 public:
   Polygons();

@@ -35,7 +35,7 @@ class CovCalcMode;
 class Vario;
 class CovAniso;
 
-class Model : public AStringable, ASerializable
+class Model : public AStringable, public ASerializable
 {
 public:
   Model(const CovContext& ctxt, bool flagGradient = false, bool flagLinked = false);

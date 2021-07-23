@@ -14,7 +14,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class Neigh: public AStringable , ASerializable
+class Neigh: public AStringable , public ASerializable
 {
 public:
   Neigh();

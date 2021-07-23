@@ -16,7 +16,6 @@
 #include "Polygon/Polygons.hpp"
 #include "Basic/GridC.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
@@ -35,7 +34,7 @@ typedef enum
  * Class containing the Data Set.
  * It can be organized as a set of Isolated Points or as a regular Grid
  */
-class Db: public AStringable, ASerializable
+class Db: public AStringable, public ASerializable
 {
 public:
   Db();
@@ -52,7 +51,7 @@ public:
      int order = LOAD_BY_SAMPLE,
      const VectorDouble& tab = VectorDouble(),
      const VectorString& names = VectorString(),
-     const VectorString& locatorNames = VectorString(),
+     const VectorString& locatorNames = VectorString(),include/Model/Model.hpp
      int flag_add_rank = 1);
   Db(const String& filename,
      const CSVformat& csv = CSVformat(),

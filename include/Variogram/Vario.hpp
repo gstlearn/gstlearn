@@ -22,7 +22,7 @@ int identifyFlagAsym(const String& calcul_name);
 class Db;
 class Model;
 
-class Vario : public AStringable, ASerializable, IClonable
+class Vario : public AStringable, public ASerializable, public IClonable
 {
 public:
   Vario(double scale = 0.,

@@ -20,7 +20,7 @@
 class Db;
 class Model;
 
-class Rule: public AStringable, ASerializable
+class Rule: public AStringable, public ASerializable
 {
 public:
   Rule(int mode_rule = RULE_STD,

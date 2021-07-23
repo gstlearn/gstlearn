@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
   int nlag = 19;
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
   cov.addDirs(dir);
+
   error = variogram_pgs(&db,&cov,&rule,props,nullptr,flag_stat);
   Vario vario1(cov,VectorInt(1,0),VectorInt(),true);
   Vario vario2(cov,VectorInt(1,1),VectorInt(),true);

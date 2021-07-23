@@ -400,7 +400,7 @@ VectorDouble dbStatisticsFacies(Db *db)
   if (neff > 0)
   {
     for (int ifac = 0 ; ifac < nfac; ifac++)
-      props[ifac] /= nech;
+      props[ifac] /= (double) neff;
   }
   return props;
 }

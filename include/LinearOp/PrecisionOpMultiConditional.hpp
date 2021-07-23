@@ -27,7 +27,7 @@ public:
                  IProjMatrix* projDataElem);
   void setNugget(double nugg){_nugget = nugg;}
   /*!  Returns the dimension of the matrix */
-  int  size() const override { return _multiPrecisionOp.size(); }
+  int  size() const override { return static_cast<int> (_multiPrecisionOp.size()); }
   int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
 
 protected:

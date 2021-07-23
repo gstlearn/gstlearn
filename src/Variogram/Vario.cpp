@@ -11,6 +11,7 @@
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
