@@ -33,8 +33,8 @@ protected:
                 const String& mode,
                 bool verbose = false);
   int  _fileClose(bool verbose = false);
-  int  _recordRead(const String& title, const String& format, ...);
-  void _recordWrite(const String& format, ...);
+  int  _recordRead(const String& title, String format, ...); // No ref here
+  void _recordWrite(String format, ...); // No ref here
   int  _fileRead(const String& format, va_list ap);
   void _fileWrite(const String& format, va_list ap);
   bool _onlyBlanks(char *string);

@@ -45,7 +45,7 @@ endif
 ifeq ($(ARCH),macosx)
      CXX       = clang++
      INCLUDE  += -I$(BOOST_DIR)
-     CXXFLAGS += -fPIC -Wno-c++11-narrowing
+     CXXFLAGS += -fPIC
      LSO       = $(LIBDIR)/lib$(TARGET).dylib
      LA        = $(LIBDIR)/$(TARGET).a
      LIBS      = -lm -framework CoreFoundation -framework IOKit
@@ -54,7 +54,7 @@ endif
 
 ifeq ($(ARCH),windows)
      INCLUDE  += -I$(BOOST_DIR)
-     CXXFLAGS += -m$(WIN_TYPE) -Wno-array-bounds -D_CRT_NO_VA_START_VALIDATION -DNOMINMAX -DNO_TIMER
+     CXXFLAGS += -m$(WIN_TYPE) -DNOMINMAX -DNO_TIMER
      LSO       = $(LIBDIR)/$(TARGET).dll
      LA        = $(LIBDIR)/$(TARGET).lib
      LIBS      = -liphlpapi -lrpcrt4
