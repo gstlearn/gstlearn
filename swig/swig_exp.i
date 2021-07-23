@@ -13,7 +13,7 @@ namespace std {
 %template(VectorString)       vector< string >;
 %template(VectorBool)         vector< bool >;
 %template(VectorUChar)        vector< unsigned char >;
-%template(VectorVectorInt) vector< vector< int > >;
+%template(VectorVectorInt)    vector< vector< int > >;
 %template(VectorVectorDouble) vector< vector< double > >;
 %template(VectorEnumCovs)     vector< ENUM_COVS >;
 };

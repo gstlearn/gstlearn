@@ -54,7 +54,7 @@ public:
   ENUM_CONS getType(int ipar) const { return _items[ipar].getType(); }
   int getIV1 (int ipar) const { return _items[ipar].getIV1(); }
   int getIV2 (int ipar) const { return _items[ipar].getIV2(); }
-  int getNoStatElemNumber() const { return _items.size(); }
+  int getNoStatElemNumber() const { return static_cast<int>(_items.size()); }
   const std::vector<ConsItem>& getNoStat() const { return _items; }
   const ConsItem getNoStat(int ipar) const { return _items[ipar]; }
 

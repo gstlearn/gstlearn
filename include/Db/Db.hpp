@@ -105,7 +105,7 @@ public:
   void setName(const VectorString list, const String& name);
   void setName(int iatt, const String& name);
   const GridC& getGrid() const { return _grid; }
-  int getAttributeMaxNumber() const { return _attcol.size(); }
+  int getAttributeMaxNumber() const { return static_cast<int>(_attcol.size()); }
   int getFieldNumber() const { return _ncol; }
   double getFieldSize(bool useSel = false) const;
   int getSampleNumber() const { return _nech; }

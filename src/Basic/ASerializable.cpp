@@ -134,10 +134,13 @@ int ASerializable::_fileClose(bool verbose)
 /**
  *
  * @param title
- * @param format
+ * @param format String to be completed
  * @return
+ *
+ * @Note: Format is not a reference here:
+ * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
  */
-int ASerializable::_recordRead(const String& title, const String& format, ...)
+int ASerializable::_recordRead(const String& title, String format, ...)
 {
   va_list ap;
   int error;
@@ -155,7 +158,16 @@ int ASerializable::_recordRead(const String& title, const String& format, ...)
   return (error);
 }
 
-void ASerializable::_recordWrite(const String& format, ...)
+/**
+ *
+ * @param format String to be completed
+ * @return
+ *
+ * @Note: Format is not a reference here:
+ * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
+ */
+
+void ASerializable::_recordWrite(String format, ...)
 {
   va_list ap;
   va_start(ap, format);

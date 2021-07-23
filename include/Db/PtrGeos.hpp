@@ -27,7 +27,7 @@ public:
   bool isLocatorIndexValid(int locatorIndex) const;
   int  getLocatorByIndex(int locatorIndex) const { return _r[locatorIndex]; }
   void setLocatorByIndex(int locatorIndex, int value) { _r[locatorIndex] = value; }
-  int  getLocatorNumber() const { return _r.size(); }
+  int  getLocatorNumber() const { return static_cast<int>(_r.size()); }
   void erase(int locatorIndex);
   void clear();
   void print(int rank, ENUM_LOCS locatorType) const;

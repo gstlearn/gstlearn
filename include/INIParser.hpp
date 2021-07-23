@@ -6,14 +6,6 @@
 #include <string>
 #include <map>
 
-/* Windows __declspec definition */
-
-#if defined(_WIN32) || defined(_WIN64)
-#define GEOSLIB_API2 __declspec(dllexport)
-#else
-#define GEOSLIB_API2
-#endif
-
 /**
  * Class for Managing a Resource File
  *
@@ -45,7 +37,7 @@
  * to the end of the line.
  *
  */
-class GEOSLIB_API2 INIParser
+class INIParser
 {
   public:
     // Constructor
