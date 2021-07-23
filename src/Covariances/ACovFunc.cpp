@@ -51,6 +51,7 @@ ACovFunc::~ACovFunc()
 void ACovFunc::setParam(double param)
 {
   /// TODO : Do not throw in setter. Check range and build the error message here.
+  if (! hasParam()) return;
   double max = getParMax();
   if (param < 0. || (!FFFF(max) && param > max))
     my_throw("Wrong third parameter value");
