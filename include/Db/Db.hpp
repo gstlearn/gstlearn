@@ -51,7 +51,7 @@ public:
      int order = LOAD_BY_SAMPLE,
      const VectorDouble& tab = VectorDouble(),
      const VectorString& names = VectorString(),
-     const VectorString& locatorNames = VectorString(),include/Model/Model.hpp
+     const VectorString& locatorNames = VectorString(),
      int flag_add_rank = 1);
   Db(const String& filename,
      const CSVformat& csv = CSVformat(),

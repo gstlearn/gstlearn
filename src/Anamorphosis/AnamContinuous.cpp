@@ -100,7 +100,7 @@ void AnamContinuous::calculateMeanAndVariance()
 
 VectorDouble AnamContinuous::RawToGaussianVector(const VectorDouble& z) const
 {
-  int number = z.size();
+  int number = static_cast<int> (z.size());
   VectorDouble y;
   y.resize(number);
   for (int i=0; i<number; i++)
