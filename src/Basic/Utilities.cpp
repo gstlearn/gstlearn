@@ -21,7 +21,7 @@ bool isInteger(double value, double eps)
 
 int getClosestInteger(double value)
 {
-  int iclose = round(value);
+  int iclose = (int) round(value);
   return iclose;
 }
 

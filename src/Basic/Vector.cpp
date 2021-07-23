@@ -188,7 +188,7 @@ double ut_vector_inner_product(const VectorDouble& vec1,
   if (vec1.size() != vec2.size())
     my_throw("Wrong size");
   double prod = 0.;
-  for (int i = 0, n = vec1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (vec1.size()); i < n; i++)
     prod += vec1.at(i) * vec2.at(i);
   return prod;
 }
@@ -220,7 +220,7 @@ VectorDouble ut_vector_cross_product(const VectorDouble& vec1,
 bool ut_vector_same(const VectorDouble& v1, const VectorDouble& v2, double eps)
 {
   if (v1.size() != v2.size()) return false;
-  for (int i = 0, n = v1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (v1.size()); i < n; i++)
     if (abs(v1.at(i) - v2.at(i)) > eps) return false;
   return true;
 }
@@ -228,7 +228,7 @@ bool ut_vector_same(const VectorDouble& v1, const VectorDouble& v2, double eps)
 bool ut_ivector_same(const VectorInt& v1, const VectorInt& v2)
 {
   if (v1.size() != v2.size()) return false;
-  for (int i = 0, n = v1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (v1.size()); i < n; i++)
     if (abs(v1.at(i) - v2.at(i)) > 0) return false;
   return true;
 }
@@ -250,7 +250,7 @@ VectorDouble ut_vector_add(const VectorDouble& vec1, const VectorDouble& vec2)
   VectorDouble res;
   if (vec1.size() != vec2.size())
     my_throw("Wrong size");
-  for (int i = 0, n = vec1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (vec1.size()); i < n; i++)
     res.push_back(vec1.at(i) + vec2.at(i));
   return res;
 }
@@ -265,7 +265,7 @@ void ut_vector_add_inplace(VectorDouble& vec1, const VectorDouble& vec2)
   VectorDouble res;
   if (vec1.size() != vec2.size())
     my_throw("Wrong size");
-  for (int i = 0, n = vec1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (vec1.size()); i < n; i++)
     vec1[i] += vec2[i];
 }
 
@@ -274,14 +274,14 @@ VectorDouble ut_vector_subtract(const VectorDouble& vec1, const VectorDouble& ve
   VectorDouble res;
   if (vec1.size() != vec2.size())
     my_throw("Wrong size");
-  for (int i = 0, n = vec1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (vec1.size()); i < n; i++)
     res.push_back(vec2.at(i) - vec1.at(i));
   return res;
 }
 
 VectorDouble ut_vector_power(const VectorDouble&vec, double power)
 {
-  int size = vec.size();
+  int size = static_cast<int> (vec.size());
   VectorDouble res(size);
   for (int i = 0; i < size; i++)
     res[i] = pow(vec[i], power);
@@ -305,7 +305,7 @@ void ut_vector_subtract_inplace(VectorDouble& vec1, const VectorDouble& vec2)
   VectorDouble res;
   if (vec1.size() != vec2.size())
     my_throw("Wrong size");
-  for (int i = 0, n = vec1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (vec1.size()); i < n; i++)
     vec1[i] -= vec2[i];
 }
 
@@ -348,7 +348,7 @@ void ut_vector_cumul(VectorDouble& vec1, const VectorDouble& vec2, double coeff)
 {
   if (vec1.size() != vec2.size())
     my_throw("Wrong size");
-  for (int i = 0, n = vec1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (vec1.size()); i < n; i++)
     vec1[i] += coeff * vec2[i];
 }
 
@@ -356,7 +356,7 @@ void ut_vector_copy(VectorDouble& vec1, const VectorDouble& vec2)
 {
   if (vec1.size() != vec2.size())
     my_throw("Wrong size");
-  for (int i = 0, n = vec1.size(); i < n; i++)
+  for (int i = 0, n = static_cast<int> (vec1.size()); i < n; i++)
     vec1[i] = vec2[i];
 }
 

@@ -125,7 +125,7 @@ VectorString generateMultipleNames(const String& radix,
 int correctNamesForDuplicates(VectorString& list)
 {
   int numberRenamed = 0;
-  int number = list.size();
+  int number = static_cast<int> (list.size());
   for (int i = 1; i < number; i++)
   {
     // Check that a similar name does not appear among the previous names in list
@@ -148,7 +148,7 @@ int correctNamesForDuplicates(VectorString& list)
 
 void correctNewNameForDuplicates(VectorString& list, int rank)
 {
-   int number = list.size();
+   int number = static_cast<int> (list.size());
    int found = 1;
    while (found > 0)
    {
@@ -315,7 +315,7 @@ VectorString expandList(const VectorString& list,
       sublist.push_back(list[i]);
   }
 
-  int number = sublist.size();
+  int number = static_cast<int> (sublist.size());
   if (onlyOne && number != 1)
   {
     if (number > 1)
@@ -365,7 +365,7 @@ int getMaxStringSize(const VectorString& list)
   if (list.empty()) return size;
   for (int i = 0; i < (int) list.size(); i++)
   {
-    int local = list[i].length();
+    int local = static_cast<int> (list[i].length());
     if (local > size) size = local;
   }
   return size;

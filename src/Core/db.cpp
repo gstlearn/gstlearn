@@ -117,7 +117,7 @@ GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
   VectorDouble local = db->getFieldByAttribute(iatt, true);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
-  *number = local.size();
+  *number = static_cast<int> (local.size());
   return (0);
 }
 
@@ -1143,8 +1143,8 @@ GEOSLIB_API int db_extension(Db *db,
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
     VectorDouble coor = db->getCoordinate(idim, true);
-    ut_statistics(coor.size(), coor.data(), NULL, NULL, &nval, &vmin, &vmax,
-                  &diff, &mean, &stdv);
+    ut_statistics(static_cast<int> (coor.size()), coor.data(), NULL, NULL,
+                  &nval, &vmin, &vmax, &diff, &mean, &stdv);
     mini[idim] = vmin;
     maxi[idim] = vmax;
     delta[idim] = diff;
@@ -2529,7 +2529,7 @@ GEOSLIB_API int point_to_bench(Db *db,
 
   double z = work2[idim0];
   double dz = db->getDX(idim0);
-  double nz = db->getNX(idim0);
+  int nz = db->getNX(idim0);
 
   int iz;
   if (dz <= 0.)

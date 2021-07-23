@@ -97,7 +97,7 @@ int law_int_uniform(int mini,
 
   number = maxi - mini + 1;
   rndval = law_uniform(0.,(double) number);
-  rank   = floor(rndval);
+  rank   = (int) floor(rndval);
   return(rank + mini);
 }
 
@@ -1118,7 +1118,7 @@ double *law_exp_sample(double *tabin,
 
       /* Get the closest experimental sample (the reference) */
 
-      selec = law_uniform(1.,(double) nechin);
+      selec = (int) law_uniform(1.,(double) nechin);
       iechin  = (int) (selec + 0.5);
       if (iechin < 0)       iechin = 0;
       if (iechin >= nechin) iechin = nechin - 1;

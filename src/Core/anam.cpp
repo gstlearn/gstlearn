@@ -3003,7 +3003,7 @@ GEOSLIB_API double ce_compute_Z2(double krigest,
 
   /* Core allocation */
 
-  int nbpoly = phis.size();
+  int nbpoly = static_cast<int> (phis.size());
   dd.resize(nbpoly * nbpoly);
 
   /* Loading the Conditional Expectation arrays */

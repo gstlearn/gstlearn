@@ -51,7 +51,7 @@ std::stringstream _formatColumn(int justify, int localSize = 0)
 String _tabPrintString(const String& string, int justify, int localSize = 0)
 {
   std::stringstream sstr = _formatColumn(justify, localSize);
-  int size = string.size();
+  int size = static_cast<int> (string.size());
   int truncSize = (localSize > 0) ? localSize : _columnSize;
   if (size > truncSize)
   {
@@ -970,7 +970,7 @@ String toVector(const String& title, const VectorDouble& tab)
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncutil = tab.size();
+  int ncutil = static_cast<int> (tab.size());
   bool multi_row = ncutil > _nBatch;
 
   /* Print the title (optional) */
@@ -1010,7 +1010,7 @@ String toVector(const String& title, const VectorInt& tab)
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncutil = tab.size();
+  int ncutil = static_cast<int> (tab.size());
   bool multi_row = ncutil > _nBatch;
 
   /* Print the title (optional) */

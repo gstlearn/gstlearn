@@ -33,7 +33,7 @@ Limits::Limits(const VectorDouble& mini,
 {
   if (mini.size() != maxi.size())
     throw("Arguments 'mini' and 'maxi' should have the same dimension");
-  int nclass = mini.size();
+  int nclass = static_cast<int> (mini.size());
   if (nclass <= 0)
     throw("You must define at least one item in 'mini' and 'maxi'");
   if (incmini.size() != 0 && (int) incmini.size() != nclass)
@@ -53,7 +53,7 @@ Limits::Limits(const VectorDouble& mini,
 
 Limits::Limits(VectorDouble bounds)
 {
-  int nclass = bounds.size() - 1;
+  int nclass = static_cast<int> (bounds.size()) - 1;
   if (nclass <= 0)
     throw("The argument 'bounds' should have at least 2 items");
 

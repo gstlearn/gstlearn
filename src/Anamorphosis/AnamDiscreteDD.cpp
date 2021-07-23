@@ -65,7 +65,7 @@ void AnamDiscreteDD::setNCut(int ncut)
 void AnamDiscreteDD::setZCut(const VectorDouble& zcut)
 {
   AnamDiscrete::setZCut(zcut);
-  int ncut = zcut.size();
+  int ncut = static_cast<int> (zcut.size());
   _maf.init(ncut);
 }
 
@@ -116,7 +116,7 @@ int AnamDiscreteDD::fit(const VectorDouble& tab, int verbose)
 {
   VectorDouble chi;
 
-  int nech = tab.size();
+  int nech = static_cast<int> (tab.size());
 
   // Calculate statistics on data
 

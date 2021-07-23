@@ -25,15 +25,14 @@ GEOSLIB_API void inquire_Geoslib(char **release,
                                  char **date)
 {
   char *buffer;
-  int size;
 
-  size  = strlen(GEOSLIB_RELEASE);
+  int size  = static_cast<int> (strlen(GEOSLIB_RELEASE));
   buffer = (char *) mem_alloc(sizeof(char) * (size+1),1);
   (void) strcpy(buffer,GEOSLIB_RELEASE);
   buffer[size] = '\0';
   *release = buffer;
 
-  size  = strlen(GEOSLIB_DATE);
+  size  = static_cast<int> (strlen(GEOSLIB_DATE));
   buffer = (char *) mem_alloc(sizeof(char) * (size+1),1);
   (void) strcpy(buffer,GEOSLIB_DATE);
   buffer[size] = '\0';

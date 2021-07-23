@@ -103,7 +103,7 @@ int Rotation::setAngles(const VectorDouble& angles)
       my_throw("Wrong dimension number for 'angles' argument");
 
     _angles.resize(_nDim,0.);
-    int nval = MAX(_nDim, angles.size());
+    int nval = MAX((int) _nDim, static_cast<int> (angles.size()));
     for (int idim = 0; idim < nval; idim++)
       _angles[idim] = angles[idim];
     if (_nDim == 2) _angles[1] = 0.;

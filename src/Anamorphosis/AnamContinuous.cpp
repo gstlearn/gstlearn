@@ -110,7 +110,7 @@ VectorDouble AnamContinuous::RawToGaussianVector(const VectorDouble& z) const
 
 VectorDouble AnamContinuous::GaussianToRawVector(const VectorDouble& y) const
 {
-  int number = y.size();
+  int number = static_cast<int> (y.size());
   VectorDouble z;
   z.resize(number);
   for (int i=0; i<number; i++)
@@ -124,7 +124,7 @@ int AnamContinuous::RawToGaussian(Db *db, const String& name, NamingConvention n
   VectorString exp_names = expandList(db->getNames(),name);
   if (exp_names.empty()) return 1;
 
-  int nadd = exp_names.size();
+  int nadd = static_cast<int> (exp_names.size());
   int iatt = db->addFields(nadd);
   if (iatt < 0) return 1;
 
@@ -166,7 +166,7 @@ int AnamContinuous::GaussianToRaw(Db *db,const String& name, NamingConvention na
   VectorString exp_names = expandList(db->getNames(), name);
   if (exp_names.empty()) return 1;
 
-  int nadd = exp_names.size();
+  int nadd = static_cast<int> (exp_names.size());
   int iatt = db->addFields(nadd);
   if (iatt < 0) return 1;
 

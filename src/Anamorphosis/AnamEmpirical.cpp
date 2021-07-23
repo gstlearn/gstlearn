@@ -79,7 +79,7 @@ void AnamEmpirical::setNDisc(int ndisc)
 void AnamEmpirical::setTDisc(const VectorDouble& tdisc)
 {
   _tDisc = tdisc;
-  _nDisc = tdisc.size() / 2;
+  _nDisc = static_cast<int> (tdisc.size()) / 2;
 }
 
 double AnamEmpirical::RawToGaussianValue(double zz) const
@@ -165,7 +165,7 @@ int AnamEmpirical::fit(const VectorDouble& tab)
 
   /* Calculate the constants */
 
-  int nech = tab.size();
+  int nech = static_cast<int> (tab.size());
   number = 0;
   dmean  = dmean2 = 0.;
   dmaxi  = -1.e30;

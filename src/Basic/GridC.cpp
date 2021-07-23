@@ -58,7 +58,7 @@ int GridC::init(const VectorInt& nx,
                 const VectorDouble& x0,
                 const VectorDouble& angles)
 {
-  _nDim = nx.size();
+  _nDim = static_cast<int> (nx.size());
   _allocate();
   _nx = nx;
   for (int idim = 0; idim < _nDim; idim++)

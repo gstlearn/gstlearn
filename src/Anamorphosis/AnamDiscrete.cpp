@@ -86,7 +86,7 @@ void AnamDiscrete::setNCut(int ncut)
 void AnamDiscrete::setZCut(const VectorDouble& zcut)
 {
   _zCut = zcut;
-  _nCut = _zCut.size();
+  _nCut = static_cast<int> (_zCut.size());
   _resize();
 }
 

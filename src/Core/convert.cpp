@@ -285,7 +285,7 @@ static int st_ifpen_read(FILE       *file,
   if (comment != NULL)
   {
     if (strcmp(line,comment) < 0) return(1);
-    start = strlen(comment);
+    start = static_cast<int> (strlen(comment));
   }
 
   /* Decoding the value */
@@ -1793,7 +1793,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
   /* Preliminary checks */
 
   ndim = db->getNDim();
-  ncol = cols.size();
+  ncol = static_cast<int> (cols.size());
   if (ndim > 3)
   {
     messerr("VTK files are limited to 3D");
@@ -1814,11 +1814,11 @@ GEOSLIB_API int db_write_vtk(const char *filename,
   nech      = db->getSampleNumber();
   nactive   = db->getActiveSampleNumber();
   flag_grid = is_grid(db);
-  useBinary = (int) get_keypone("VTK_Use_Binary",1);
-  factx     = get_keypone("VTK_Fact_X",1);
-  facty     = get_keypone("VTK_Fact_Y",1);
-  factz     = get_keypone("VTK_Fact_Z",1);
-  factvar   = get_keypone("VTK_Fact_Var",1);
+  useBinary = (int) get_keypone("VTK_Use_Binary",1.);
+  factx     = get_keypone("VTK_Fact_X",1.);
+  facty     = get_keypone("VTK_Fact_Y",1.);
+  factz     = get_keypone("VTK_Fact_Z",1.);
+  factvar   = get_keypone("VTK_Fact_Var",1.);
 
   /* Define the reading parameters */
 
@@ -1852,15 +1852,15 @@ GEOSLIB_API int db_write_vtk(const char *filename,
     xcoor = (float *) mem_alloc(sizeof(float) * dims[0],0);
     if (xcoor == (float *) NULL) goto label_end;
     for (int i=0; i<dims[0]; i++) 
-      xcoor[i] = factx * (db->getX0(0) + i * db->getDX(0));
+      xcoor[i] = (float) (factx * (db->getX0(0) + i * db->getDX(0)));
     ycoor = (float *) mem_alloc(sizeof(float) * dims[1],0);
     if (ycoor == (float *) NULL) goto label_end;
     for (int i=0; i<dims[1]; i++) 
-      ycoor[i] = facty * (db->getX0(1) + i * db->getDX(1));
+      ycoor[i] = (float) (facty * (db->getX0(1) + i * db->getDX(1)));
     zcoor = (float *) mem_alloc(sizeof(float) * dims[2],0);
     if (zcoor == (float *) NULL) goto label_end;
     for (int i=0; i<dims[2]; i++) 
-      zcoor[i] = factz * (db->getX0(2) + i * db->getDX(2));
+      zcoor[i] = (float) (factz * (db->getX0(2) + i * db->getDX(2)));
   }
   else
   {
@@ -1882,7 +1882,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
         if (idim == 0) fact = factx;
         if (idim == 1) fact = facty;
         if (idim == 2) fact = factz;
-        points[ecr++] = (idim < ndim) ? fact * db->getCoordinate(iech,idim) : 0.;
+        points[ecr++] = (idim < ndim) ? (float) (fact * db->getCoordinate(iech,idim)) : 0.;
       }
     }
   }
@@ -1897,9 +1897,9 @@ GEOSLIB_API int db_write_vtk(const char *filename,
       for (int iech=0; iech<nech; iech++)
         if (db->isActive(iech))
         {
-          value = db->getArray(iech,cols[icol]);
+          value = (float) (db->getArray(iech,cols[icol]));
           if (FFFF(value))
-            tab[icol][ecr] = TEST;
+            tab[icol][ecr] = (float) (TEST);
           else
             tab[icol][ecr] = factvar * value;
           ecr++;
@@ -1915,14 +1915,14 @@ GEOSLIB_API int db_write_vtk(const char *filename,
             iad = ix + dims[0] * (iy + dims[1] * iz);
             if (db->isActive(iad))
             {
-              value = db->getByColumn(iad,cols[icol]);
+              value = (float) (db->getByColumn(iad,cols[icol]));
               if (FFFF(value)) 
-                tab[icol][ecr] = TEST;
+                tab[icol][ecr] = (float) (TEST);
               else
                 tab[icol][ecr] = factvar * value;
             }
             else
-              tab[icol][ecr] = TEST;
+              tab[icol][ecr] = (float) (TEST);
             ecr++;
           }
     }
@@ -1982,7 +1982,7 @@ static int st_read_next(int   s_length,
 
   (*numline)++;
   if (fgets(string,s_length,file) == NULL) return(1);
-  size = strlen(string);
+  size = static_cast<int> (strlen(string));
 
   // Suppress the trailing newline
   if (string[size-1] == '\n') string[size-1] = '\0';
@@ -2575,9 +2575,9 @@ GEOSLIB_API int csv_table_read(const char *filename,
     ncol = 0;
     while ((token = strsep(&strbis,char_sep)) != NULL)
     {
-      size = strlen(token);
+      size = static_cast<int> (strlen(token));
       string_strip_quotes(token);
-      size = strlen(token);
+      size = static_cast<int> (strlen(token));
       names.resize(ncol+1);
       names[ncol].assign(token);
       if (verbose) message("Column Name (%d): %s\n",ncol+1,names[ncol].c_str());
@@ -2608,7 +2608,7 @@ GEOSLIB_API int csv_table_read(const char *filename,
     ncol2 = 0;
     while ((token = strsep(&strbis,char_sep)) != NULL)
     {
-      size = strlen(token);
+      size = static_cast<int> (strlen(token));
       if (necr >= nquant * quantum)
       {
         tab.resize(quantum * (nquant+1));

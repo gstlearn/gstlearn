@@ -78,7 +78,7 @@ void Tensor::setRadius(double radius)
 {
   if (ABS(radius) < EPSILON10)
     my_throw ("Ellipsoid radius cannot be null");
-  ut_vector_fill(_radius, radius, _radius.size());
+  ut_vector_fill(_radius, radius, static_cast<int> (_radius.size()));
   _isotrop = true;
   _fillTensors();
 }

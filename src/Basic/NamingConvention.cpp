@@ -91,7 +91,7 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
                                            bool flagLocate) const
 {
   if (iattout_start <= 0) return;
-  int nvar = names.size();
+  int nvar = static_cast<int> (names.size());
   if (nvar <= 0) return;
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
@@ -146,7 +146,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
   if (dbin != nullptr)
   {
     names = dbin->getNames(locatorInType);
-    if (nvar <= 0) nvar = names.size();
+    if (nvar <= 0) nvar = static_cast<int> (names.size());
     if (nvar < (int) names.size()) names.resize(nvar);
   }
   else
@@ -177,7 +177,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
 {
   if (iattout_start <= 0) return;
   if (dbin == nullptr) return;
-  int nvar = iatts.size();
+  int nvar = static_cast<int> (iatts.size());
   if (nvar <= 0) return;
 
   VectorString names;
@@ -249,7 +249,7 @@ void NamingConvention::_setNames(Db *dbout,
                                  int nitems) const
 {
   int ecr = 0;
-  int nvar = (names.empty()) ? 1 : names.size();
+  int nvar = (names.empty()) ? 1 : static_cast<int> (names.size());
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {

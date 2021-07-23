@@ -126,9 +126,8 @@ static void st_record_write(const char *format, ...)
   else
   {
     _buffer_write(buf, format, ap);
-    long1 = strlen(buf);
-    long2 = (ASCII_BUFFER != NULL) ? strlen(ASCII_BUFFER) :
-                                     0;
+    long1 = static_cast<int> (strlen(buf));
+    long2 = (ASCII_BUFFER != NULL) ? static_cast<int> (strlen(ASCII_BUFFER)) : 0;
     while (long1 + long2 > ASCII_BUFFER_LENGTH)
     {
       ASCII_BUFFER_LENGTH += ASCII_BUFFER_QUANT;

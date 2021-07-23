@@ -247,7 +247,7 @@ int AnamHermite::fit(const VectorDouble& tab, const VectorDouble& wt)
   double  Gcy1,Gcy2,Gy1,Gy2;
   VectorDouble psi, h1, h2, zs, ys;
 
-  int nech = tab.size();
+  int nech = static_cast<int> (tab.size());
   if (nech <= 0) return 1;
   zs.resize(nech+2);
   ys.resize(nech+2);
@@ -331,7 +331,7 @@ double AnamHermite::getPsiHn(int i) const
 void AnamHermite::setPsiHn(VectorDouble psi_hn)
 {
   _psiHn = psi_hn;
-  _nbPoly = _psiHn.size();
+  _nbPoly = static_cast<int> (_psiHn.size());
 }
 
 void AnamHermite::setPsiHn(int i, double psi_hn)

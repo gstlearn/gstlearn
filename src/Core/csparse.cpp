@@ -1264,14 +1264,14 @@ int cs_ltsolve ( const cs *L, double *x )
   void *cs_malloc (int n, size_t size)
   {
     return (CS_OVERFLOW (n,size) ? 
-	    NULL : mem_alloc(CS_MAX (n,1) * size,0)) ;
+	    NULL : mem_alloc(CS_MAX (n,1) * static_cast<int> (size),0)) ;
  }
 
  /* wrapper for calloc */
  void *cs_calloc (int n, size_t size)
  {
    return (CS_OVERFLOW (n,size) ? 
-	   NULL : (void *) mem_calloc(CS_MAX (n,1), size,0)) ;
+	   NULL : (void *) mem_calloc(CS_MAX (n,1), static_cast<int> (size),0)) ;
  }
 
  /* wrapper for free */
@@ -1291,7 +1291,7 @@ int cs_ltsolve ( const cs *L, double *x )
      *ok = !CS_OVERFLOW (n,size) ;	    /* guard against int overflow */
      if (!(*ok)) return (p) ;		    /* p unchanged if n too large */
      /* realloc the block */
-     p2 = (void *) mem_realloc ((char *) p, CS_MAX (n,1) * size,0) ; 
+     p2 = (void *) mem_realloc ((char *) p, CS_MAX (n,1) * static_cast<int> (size),0) ;
      *ok = (p2 != NULL) ;
      return ((*ok) ? p2 : p) ;		    /* return original p if failure */
  }
@@ -4879,7 +4879,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
   ncur	   = mgs->ncur;
   nlevels  = mgs->nlevels;
   norm	   = matrix_norm(b,ncur);
-  flag_sym = get_keypone("MG_Flag_Symmetric",1);
+  flag_sym = get_keypone("MG_Flag_Symmetric",1.);
   if (verbose) message("Pre-conditioning phase (Niter=%d Tol=%15.10lf)\n",
 		       mgs->nmg,mgs->tolnmg);
 
@@ -5173,7 +5173,7 @@ static void st_selection_update(int	ncur,
   {
     if (sel[iech] == 0) continue;
     sel[iech] = indCo[ecr++];
-    nval += sel[iech];
+    nval += static_cast<int> (sel[iech]);
   }
 }
 
@@ -5205,7 +5205,7 @@ int cs_multigrid_setup(cs_MGS  *mgs,
   // Initializations
 
   error = 1;
-  flag_print = get_keypone("MG_Flag_Print",0);
+  flag_print = get_keypone("MG_Flag_Print",0.);
   indCo = (int	  *) NULL;
   L	= (cs	  *) NULL;
   sel	= (double *) NULL;
