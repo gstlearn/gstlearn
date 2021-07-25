@@ -280,12 +280,17 @@ double Vario::getHmax() const
   return hmax;
 }
 
-VectorDouble Vario::getHRange() const
+VectorDouble Vario::getHRange(int ivar, int jvar) const
 {
   VectorDouble vec(2);
-
-  vec[0] = 0.;
-  vec[1] = getHmax();
+  vec[0] =  1.e30;
+  vec[1] = -1.e30;
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    double hloc = _dirs[idir].getHmax(ivar,jvar);
+    if (hloc < vec[0]) vec[0] = hloc;
+    if (hloc > vec[1]) vec[1] = hloc;
+  }
   return vec;
 }
 
@@ -324,6 +329,27 @@ double Vario::getGmax(bool flagAbs, bool flagSill) const
         }
       }
   return gmax;
+}
+
+VectorDouble Vario::getGRange(int ivar, int jvar, bool flagSill) const
+{
+  VectorDouble vec(2);
+  vec[0] =  1.e30;
+  vec[1] = -1.e30;
+
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    double gloc = _dirs[idir].getGmax(ivar, jvar);
+    if (gloc < vec[0]) vec[0] = gloc;
+    if (gloc > vec[1]) vec[1] = gloc;
+    if (flagSill)
+    {
+      double sill = getVars(ivar, jvar);
+      if (sill < vec[0]) vec[0] = sill;
+      if (sill > vec[1]) vec[1] = sill;
+    }
+  }
+  return vec;
 }
 
 void Vario::addDirs(const Dir& dir)

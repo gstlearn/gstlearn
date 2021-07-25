@@ -4924,7 +4924,7 @@ label_end:
 
 /****************************************************************************/
 /*!
-**  Evaluate the experimental variogram of indicators in Plurigaussian case
+**  Evaluate the experimental variogram of indicators in PluriGaussian case
 **
 ** \return  Error return code
 **
@@ -4936,10 +4936,6 @@ label_end:
 ** \param[in]  propcst    Array giving the constant proportions
 ** \param[in]  dbprop     Db descriptor for the grid of proportions
 ** \param[in]  flag_stat  1 for stationary; 0 otherwise
-**
-** \remark  At this stage, the number of variables is equal to the number
-** \remark  of indicators.
-** \remark  However, the models(s) are defined for a single variable
 **
 *****************************************************************************/
 GEOSLIB_API int model_pgs(Db*     db,

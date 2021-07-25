@@ -1110,10 +1110,13 @@ void Db::setLocatorByAttribute(int iatt, ENUM_LOCS locatorType, int locatorIndex
 
   // Check if this locator already exists for the current pointer type
 
-  PtrGeos& p = _p[locatorType];
-  int nitem = p.getLocatorNumber();
-  if (local >= nitem) p.resize(local + 1);
-  p.setLocatorByIndex(local, iatt);
+  if (locatorType != LOC_UNKNOWN)
+  {
+    PtrGeos& p = _p[locatorType];
+    int nitem = p.getLocatorNumber();
+    if (local >= nitem) p.resize(local + 1);
+    p.setLocatorByIndex(local, iatt);
+  }
 }
 
 String Db::_getLocatorNameByColumn(int icol) const

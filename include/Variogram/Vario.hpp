@@ -28,7 +28,10 @@ public:
   Vario(double scale = 0.,
         bool flagSample = false,
         VectorDouble dates = VectorDouble());
-  Vario(const Vario& vario, const VectorInt& varcols, const VectorInt& dircols, bool flagVario);
+  Vario(const Vario& vario,
+        const VectorInt& varcols,
+        const VectorInt& dircols,
+        bool flagVario);
   Vario(const String& neutralFileName, bool verbose);
   Vario(const Vario& r);
   Vario& operator=(const Vario& r);
@@ -97,12 +100,13 @@ public:
 
   double getHmax(int ivar, int jvar=0) const;
   double getHmax() const;
-  VectorDouble getHRange() const;
+  VectorDouble getHRange(int ivar, int jvar=0) const;
   double getGmax(int ivar,
                  int jvar = 0,
                  bool flagAbs = false,
                  bool flagSill = false) const;
   double getGmax(bool flagAbs=false, bool flagSill = false) const;
+  VectorDouble getGRange(int ivar, int jvar = 0, bool flagSill = false) const;
 
   int compute(Db *db,
               const String& calculName = "vg",
