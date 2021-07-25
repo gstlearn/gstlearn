@@ -1313,7 +1313,7 @@
   GEOSLIB_API Neigh *neigh_init_image(int ndim,
                                       int flag_xvalid,
                                       int skip,
-                                      const VectorDouble& nbgh_image = VectorDouble());
+                                      const VectorInt& nbgh_image = VectorInt());
   GEOSLIB_API Neigh *neigh_init(int ndim,
                                 int type,
                                 int flag_xvalid,
@@ -1331,7 +1331,7 @@
                                 double dist_cont,
                                 const VectorDouble& nbgh_radius = VectorDouble(),
                                 const VectorDouble& nbgh_rotmat = VectorDouble(),
-                                const VectorDouble& nbgh_image  = VectorDouble());
+                                const VectorInt& nbgh_image  = VectorInt());
   GEOSLIB_API void neigh_print(const Neigh *neigh);
   GEOSLIB_API void neigh_echo(Db *dbin,
                               Neigh *neigh,
@@ -1354,7 +1354,7 @@
                                 double *dist_cont,
                                 VectorDouble& nbgh_rotmat,
                                 VectorDouble& nbgh_radius,
-                                VectorDouble& nbgh_image);
+                                VectorInt& nbgh_image);
   GEOSLIB_API int *neigh_calc(Db *dbin,
                               Model *model,
                               Neigh *neigh,

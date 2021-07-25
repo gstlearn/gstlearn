@@ -201,7 +201,7 @@ SPDE_Mesh* AMesh::_convertToOldMesh(AMesh* a_mesh) const
   s_mesh->points = (double *) mem_alloc(sizeof(double) * number,1);
   for (int i=0; i<number; i++) s_mesh->points[i] = vect[i];
 
-  number = meshes.size();
+  number = static_cast<int> (meshes.size());
   s_mesh->meshes = (int *) mem_alloc(sizeof(int) * number,1);
   for (int i=0; i<number; i++) s_mesh->meshes[i] = meshes[i];
 

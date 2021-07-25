@@ -207,7 +207,7 @@ void Dir::_completeDefinition()
   }
   if (_grincr.empty())
   {
-    _grincr.resize(_ndim,0.);
+    _grincr.resize(_ndim,0);
     _grincr[0] = 1;
   }
 }
@@ -560,8 +560,8 @@ void Dir::setGg(int ivar, int jvar, int ipas, double gg)
 
 int Dir::getGrincr(int idim) const
 {
-  if (_grincr.empty()) return 0.;
-  if (! _isDimensionValid(idim)) return 0.;
+  if (_grincr.empty()) return 0;
+  if (! _isDimensionValid(idim)) return 0;
   return _grincr[idim];
 }
 
@@ -605,7 +605,7 @@ String Dir::toString(int level) const
     {
       sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
       sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
-             << " (\% of the lag value)" << std::endl;
+             << " (Percent of the lag value)" << std::endl;
     }
     else
     {

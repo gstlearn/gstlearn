@@ -1105,7 +1105,7 @@ static int st_edit_ask(int *item, int *rank, double *vmin, double *vmax)
     if (EDIT[found].flag_rank)
     {
       string_strip_blanks(decode, 1);
-      mem_long = strlen(decode);
+      mem_long = static_cast<int> (strlen(decode));
       if (mem_long > 0)
       {
         *rank = strtol(decode, &decode, 0);
@@ -1124,7 +1124,7 @@ static int st_edit_ask(int *item, int *rank, double *vmin, double *vmax)
     if (EDIT[found].flag_bounds)
     {
       string_strip_blanks(decode, 1);
-      mem_long = strlen(decode);
+      mem_long = static_cast<int> (strlen(decode));
       if (mem_long > 0)
       {
         *vmin = strtod(decode, &decode);
@@ -1138,7 +1138,7 @@ static int st_edit_ask(int *item, int *rank, double *vmin, double *vmax)
         *vmin = _lire_double("Minimum value", 1, mem_vmin, TEST, TEST);
 
       string_strip_blanks(decode, 1);
-      mem_long = strlen(decode);
+      mem_long = static_cast<int> (strlen(decode));
       if (mem_long > 0)
       {
         *vmax = strtod(decode, &decode);
@@ -1804,7 +1804,7 @@ static int st_check_bound_consistency(const VectorDouble& mini,
               nclass);
       return 1;
     }
-    nclass = mini.size();
+    nclass = static_cast<int> (mini.size());
   }
   if (!maxi.empty())
   {
@@ -1814,7 +1814,7 @@ static int st_check_bound_consistency(const VectorDouble& mini,
               nclass);
       return 1;
     }
-    nclass = maxi.size();
+    nclass = static_cast<int> (maxi.size());
   }
   if (!incmini.empty())
   {
@@ -1824,7 +1824,7 @@ static int st_check_bound_consistency(const VectorDouble& mini,
               incmini.size(), nclass);
       return 1;
     }
-    nclass = incmini.size();
+    nclass = static_cast<int> (incmini.size());
   }
   if (!incmaxi.empty())
   {
@@ -1834,7 +1834,7 @@ static int st_check_bound_consistency(const VectorDouble& mini,
               incmaxi.size(), nclass);
       return 1;
     }
-    nclass = incmaxi.size();
+    nclass = static_cast<int> (incmaxi.size());
   }
   if (nclass <= 0)
   {
@@ -1992,7 +1992,7 @@ GEOSLIB_API int db_indicator(Db *db,
   int nbelow = 0;
   int nabove = 0;
   int mbelow = 0;
-  int mabove = 0.;
+  int mabove = 0;
 
   /* Find extrema of all classes to sort too small or too large samples */
 
@@ -2069,13 +2069,13 @@ GEOSLIB_API int db_indicator(Db *db,
       {
         nbelow += 1;
         iclass = -1;
-        mbelow += value;
+        mbelow += (int) value;
       }
       else
       {
         nabove += 1;
         iclass = nclass;
-        mabove += value;
+        mabove += (int) value;
       }
     }
     else
@@ -2098,8 +2098,8 @@ GEOSLIB_API int db_indicator(Db *db,
     else
       mean[iclass] /= (double) count[iclass];
   }
-  if (nbelow > 0) mbelow /= (double) nbelow;
-  if (nabove > 0) mabove /= (double) nabove;
+  if (nbelow > 0) mbelow = (int) (mbelow / (double) nbelow);
+  if (nabove > 0) mabove = (int) (mabove / (double) nabove);
 
   /* Calculate the discretized variable */
 
@@ -3883,7 +3883,7 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
   iatt_edge = iatt_rank = iatt_surf = iatt_vol = iatt_code = -1;
   if (! dbgrid->hasSameDimension(dbpoint)) goto label_end;
   ndim = dbgrid->getNDim();
-  flag_index = get_keypone("PTB_Flag_Index", 0);
+  flag_index = get_keypone("PTB_Flag_Index", 0.);
 
   /* Core allocation */
 
@@ -4974,7 +4974,7 @@ GEOSLIB_API int db_smooth_vpc(Db *db, int width, double range)
   if (FFFF(range))
     range = dz * width / quant0;
   else if (IFFFF(width))
-    width = range * quant0 / dz;
+    width = (int) (range * quant0 / dz);
   else
   {
     messerr("You must define either 'width' or 'range'");
@@ -5204,7 +5204,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
   size = ndim + nvar + 1;
 
   codes = db->getCodeList();
-  ncode = codes.size();
+  ncode = static_cast<int> (codes.size());
   coor = (double *) mem_alloc(sizeof(double) * ndim, 0);
   if (coor == (double *) NULL) goto label_end;
 
@@ -6219,11 +6219,11 @@ GEOSLIB_API int migrateByAttribute(Db* db1,
   // CDesignate the input variables
 
   VectorInt atts = atts_arg;
-  int ncol = atts.size();
+  int ncol = static_cast<int> (atts.size());
   if (atts.empty())
   {
     atts = db1->getAttributes();
-    ncol = atts.size();
+    ncol = static_cast<int> (atts.size());
   }
 
   // Create the output variables
@@ -6315,7 +6315,7 @@ GEOSLIB_API int migrateByLocator(Db* db1,
                                  NamingConvention namconv)
 {
   VectorString names = db1->getNames(locatorType);
-  int natt = names.size();
+  int natt = static_cast<int> (names.size());
   if (natt <= 0) return 0;
 
   // Create the output variables

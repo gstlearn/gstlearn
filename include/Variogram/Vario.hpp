@@ -142,6 +142,7 @@ public:
   void clean(int idir) { return _dirs[idir].clean(); }
   void patchCenter(int idir, int nech, double rho) { _dirs[idir].patchCenter(nech, rho); }
   void setDPas(int idir, const Db* db) { _dirs[idir].setDPas(db); }
+  void setGrincr(int idir, const VectorInt& grincr) { _dirs[idir].setGrincr(grincr); }
   int fill(int idir,
            int nvar,
            int flagAsym,

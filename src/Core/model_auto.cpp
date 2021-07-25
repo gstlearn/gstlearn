@@ -3684,7 +3684,7 @@ static int st_model_auto_strmod_reduce(StrMod    *strmod,
 
   if (ncovleft <= 0)
   {
-    message("Due to the tolerance (%lf\%), no basic structure would be left\n",
+    message("Due to the tolerance (%lf (percent)), no basic structure would be left\n",
             mauto.getTolsigma());
     message("No structure is discarded\n");
     flag_modified = 0;
@@ -4563,7 +4563,7 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
 
   // Define regularizing constraints (temporarily) using "keypair" mechanism
 
-  flag_regular = get_keypone("Data_Discretization", 0);
+  flag_regular = get_keypone("Data_Discretization", 0.);
   if (flag_regular)
   {
     REGULARIZE.flag_regularize = 1;

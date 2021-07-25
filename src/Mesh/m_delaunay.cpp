@@ -124,7 +124,7 @@ static double *st_extend_grid(Db     *db,
     ndiv = ndiv0;
     for (int idim=ndim-1; idim>=0; idim--)
     {
-      delta = (ceil) (gext[idim] / db->getDX(idim));
+      delta = static_cast<int> ((ceil) (gext[idim] / db->getDX(idim)));
       ival  = rank / ndiv;
       rank  = rank - ndiv * ival;
       ndiv /= 2;

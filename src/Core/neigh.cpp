@@ -76,8 +76,8 @@ static void st_neigh_print(Db     *dbin,
     
     tab_printi(NULL,1,GD_J_RIGHT,sel+1);
     tab_printi(NULL,1,GD_J_RIGHT,iech+1);
-    if (dbin->hasCode() > 0)
-      tab_printi(NULL,1,GD_J_RIGHT,dbin->getCode(iech));
+    if (dbin->hasCode())
+      tab_printi(NULL,1,GD_J_RIGHT,static_cast<int> (dbin->getCode(iech)));
     for (idim=0; idim<ndim; idim++)
       tab_printg(NULL,1,GD_J_RIGHT,dbin->getCoordinate(iech,idim));
     if (flag_ext)
@@ -677,7 +677,7 @@ GEOSLIB_API Neigh *neigh_init_bench(int    ndim,
   Neigh *neigh;
 
   neigh = neigh_init(ndim,NEIGH_BENCH,flag_xvalid,0,0,0,0,0,0,0,0,0,
-                     width,0.,0.,VectorDouble(),VectorDouble(),VectorDouble());
+                     width,0.,0.,VectorDouble(),VectorDouble(),VectorInt());
 
   return(neigh);
 }
@@ -697,7 +697,7 @@ GEOSLIB_API Neigh *neigh_init_bench(int    ndim,
 GEOSLIB_API Neigh *neigh_init_image(int     ndim,
                                     int     flag_xvalid,
                                     int     skip,
-                                    const VectorDouble& nbgh_image)
+                                    const VectorInt& nbgh_image)
 {
   Neigh *neigh;
 
@@ -725,7 +725,7 @@ GEOSLIB_API Neigh *neigh_init_unique(int ndim)
   Neigh *neigh;
 
   neigh = neigh_init(ndim,NEIGH_UNIQUE,0,0,0,0,0,0,0,0,0,0,
-                     0.,0.,0.,VectorDouble(),VectorDouble(),VectorDouble());
+                     0.,0.,0.,VectorDouble(),VectorDouble(),VectorInt());
 
   return(neigh);
 }
@@ -763,7 +763,7 @@ static Neigh *st_neigh_alloc(void)
   neigh->setFlagContinuous(0);
   neigh->setAnisoCoeff(VectorDouble());
   neigh->setAnisoRotMat(VectorDouble());
-  neigh->setImageRadius(VectorDouble());
+  neigh->setImageRadius(VectorInt());
 
   return(neigh);
 }
@@ -849,7 +849,7 @@ GEOSLIB_API Neigh *neigh_init(int ndim,
                               double  dist_cont,
                               const VectorDouble& nbgh_radius,
                               const VectorDouble& nbgh_rotmat,
-                              const VectorDouble& nbgh_image)
+                              const VectorInt& nbgh_image)
 {
   Neigh *neigh;
 
@@ -976,7 +976,7 @@ GEOSLIB_API void neigh_print(const Neigh *neigh)
     case NEIGH_IMAGE:
       message("Image neighborhood option\n");
       message("Skipping factor = %d\n",neigh->getSkip());
-      print_matrix("Image radius :",0,1,ndim,1,(double *) NULL,
+      print_imatrix("Image radius :",0,1,ndim,1,(double *) NULL,
                    neigh->getImageRadius().data());
       break;
   }
@@ -1259,7 +1259,7 @@ GEOSLIB_API int neigh_extract(Neigh  *neigh,
                               double *dist_cont,
                               VectorDouble& nbgh_rotmat,
                               VectorDouble& nbgh_radius,
-                              VectorDouble& nbgh_image)
+                              VectorInt& nbgh_image)
 {
   int i,j,ecr,ndim;
 

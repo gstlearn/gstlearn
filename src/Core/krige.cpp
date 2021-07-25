@@ -3176,7 +3176,7 @@ static Db *st_image_build(Neigh *neigh,
   nech = 1;
   for (i=0; i<ndim; i++)
   {
-    nx[i] = 2 * (int) neigh->getImageRadius(i) + 1;
+    nx[i] = 2 * neigh->getImageRadius(i) + 1;
     nech *= nx[i];
   }
 
@@ -3479,7 +3479,7 @@ GEOSLIB_API int kriging(Db *dbin,
   if (matCL.empty())
     nvar = model->getVariableNumber();
   else
-    nvar = matCL.size() / model->getVariableNumber();
+    nvar = static_cast<int> (matCL.size()) / model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
   nred = neq = 0;
   if (neigh->getType() == NEIGH_IMAGE)

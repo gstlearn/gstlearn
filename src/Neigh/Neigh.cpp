@@ -107,7 +107,7 @@ Neigh::Neigh(int ndim, int nmaxi, double radius, int nmini, int nsect,
   }
 }
 
-Neigh::Neigh(int ndim, int skip, VectorDouble image)
+Neigh::Neigh(int ndim, int skip, const VectorInt& image)
     : AStringable(),
       ASerializable(),
       _nDim(ndim),
@@ -303,7 +303,7 @@ int Neigh::deSerialize(const String& filename, bool verbose)
   int type, idim, ndim, flag_sector, flag_xvalid, nmini, nmaxi, nsect, nsmax, skip;
   int flag_aniso, flag_rotation, lec, jdim;
   double width, dmax;
-  VectorDouble radius;
+  VectorInt radius;
   VectorDouble nbgh_coeffs;
   VectorDouble nbgh_rotmat;
 
@@ -326,14 +326,14 @@ int Neigh::deSerialize(const String& filename, bool verbose)
   {
     case NEIGH_UNIQUE:
       _init(ndim, NEIGH_UNIQUE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0., 0., 0.,
-            VectorDouble(), VectorDouble(), VectorDouble());
+            VectorDouble(), VectorDouble(), VectorInt());
       break;
 
     case NEIGH_BENCH:
       if (_recordRead("Flag for Cross-validation", "%d", &flag_xvalid)) return 1;
       if (_recordRead("Bench Width", "%lf", &width)) return 1;
       _init(ndim, NEIGH_BENCH, flag_xvalid, 0, 0, 0, 0, 0, 0, 0, 0, 0, width,
-            0., 0., VectorDouble(), VectorDouble(), VectorDouble());
+            0., 0., VectorDouble(), VectorDouble(), VectorInt());
       break;
 
     case NEIGH_MOVING:
@@ -363,14 +363,18 @@ int Neigh::deSerialize(const String& filename, bool verbose)
 
       _init(ndim, NEIGH_MOVING, flag_xvalid, flag_sector, flag_aniso,
             flag_rotation, 0, nmini, nmaxi, nsect, nsmax, 0, 0., dmax, 0.,
-            nbgh_coeffs, nbgh_rotmat, VectorDouble());
+            nbgh_coeffs, nbgh_rotmat, VectorInt());
       break;
 
     case NEIGH_IMAGE:
       if (_recordRead("Flag for Cross-Validation", "%d", &flag_xvalid)) return 1;
       if (_recordRead("Skipping factor", "%d", &skip)) return 1;
       for (idim = 0; idim < ndim; idim++)
-        if (_recordRead("Image Neighborhood Radius", "%lf", &radius[idim])) return 1;
+      {
+        double loc_radius;
+        if (_recordRead("Image Neighborhood Radius", "%lf", &loc_radius)) return 1;
+        radius[idim] = static_cast<int> (loc_radius);
+      }
       _init(ndim, NEIGH_IMAGE, flag_xvalid, 0, 0, 0, 0, 0, 0, 0, 0, skip, 0.,
             0., 0., VectorDouble(), VectorDouble(), radius);
   }
@@ -397,7 +401,7 @@ void Neigh::_init(int ndim,
                   double dist_cont,
                   const VectorDouble& nbgh_radius,
                   const VectorDouble& nbgh_rotmat,
-                  const VectorDouble& nbgh_image)
+                  const VectorInt& nbgh_image)
 {
   setNDim(ndim);
   setType(type);
@@ -498,7 +502,7 @@ int Neigh::serialize(const String& filename, bool verbose)
       _recordWrite("#", "Cross-Validation flag");
       _recordWrite("%d", getSkip());
       for (int idim = 0; idim < getNDim(); idim++)
-        _recordWrite("%lf", getImageRadius(idim));
+        _recordWrite("%lf", (double) getImageRadius(idim));
       _recordWrite("#", "Image neighborhood parameters");
       break;
   }

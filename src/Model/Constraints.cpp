@@ -52,7 +52,7 @@ void Constraints::addItem(const ConsItem* item)
 String Constraints::toString(int level) const
 {
   std::stringstream sstr;
-  int nitem = _consItems.size();
+  int nitem = static_cast<int> (_consItems.size());
 
   if (nitem > 0)
     sstr << toTitle(0, "Constraints to be fulfilled in Fitting procedure");

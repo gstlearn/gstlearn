@@ -378,7 +378,7 @@ int Node::isValid(VectorInt& facies)
   }
 
   if (_orient != THRESH_IDLE) return(0);
-  int nfac = facies.size();
+  int nfac = static_cast<int> (facies.size());
   if (IFFFF(_facies))
   {
     messerr("The facies of node %s has not been defined",_nodnam.c_str());

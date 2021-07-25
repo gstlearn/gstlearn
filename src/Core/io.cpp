@@ -233,7 +233,7 @@ GEOSLIB_API void string_strip_blanks(char *string,
   int  i, ecr, length, flag_test;
 
   flag_test = 0;
-  length = strlen(string);
+  length = static_cast<int> (strlen(string));
   for (i = ecr = 0; i < length; i++)
   {
     if (string[i] == ' ' && ! flag_test) continue;
@@ -261,7 +261,7 @@ GEOSLIB_API void string_strip_quotes(char *string)
 {
   int ecr,length;
 
-  length = strlen(string);
+  length = static_cast<int> (strlen(string));
 
   if (string[0] != '"') return;
   ecr = 0;
@@ -423,7 +423,7 @@ static int st_only_blanks(char *string)
 {
   int number;
 
-  number = strlen(string);
+  number = static_cast<int> (strlen(string));
   for (int i=0; i<number; i++)
   {
     if (string[i] != ' ') return(0);
@@ -537,7 +537,7 @@ GEOSLIB_API int _file_read(FILE *file,
       ret_f = va_arg(ap,float *);
       if (sscanf(LCUR,"%f",ret_f) <= 0) return(1);
       ideb += 2;
-      if (*ret_f == ASCII_TEST) *ret_f = TEST;
+      if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
       if (debug_query("interface"))
         message("Decoded Float = %s\n",*ret_f);
     }
@@ -743,7 +743,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
       ret_f = va_arg(ap,float *);
       if (sscanf(LCUR,"%f",ret_f) <= 0) return(1);
       ideb += 2;
-      if (*ret_f == ASCII_TEST) *ret_f = TEST;
+      if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
       if (debug_query("interface"))
         message("Decoded Float = %s\n",*ret_f);
     }
@@ -1047,10 +1047,10 @@ GEOSLIB_API void constant_define(const  char *name,
     if (CST[found].mode == 1)
     {
       CST[found].ival = (flag_defined) ? (int) value : -1;
-      if (found == CST_NTCAR) setFormatColumnSize(value);
-      if (found == CST_NTDEC) setFormatDecimalNumber(value);
-      if (found == CST_NTCOL) setFormatMaxNCols(value);
-      if (found == CST_NTROW) setFormatMaxNRows(value);
+      if (found == CST_NTCAR) setFormatColumnSize(static_cast<int> (value));
+      if (found == CST_NTDEC) setFormatDecimalNumber(static_cast<int> (value));
+      if (found == CST_NTCOL) setFormatMaxNCols(static_cast<int> (value));
+      if (found == CST_NTROW) setFormatMaxNRows(static_cast<int> (value));
     }
     else
     {
@@ -1158,7 +1158,7 @@ GEOSLIB_API void tab_prints(const char *title,
   int i,size,neff,nrst,n1,n2,taille;
 
   taille = CST[CST_NTCAR].ival * ncol;
-  size   = strlen(string);
+  size   = static_cast<int> (strlen(string));
   neff   = MIN(taille, size);
   nrst   = taille - neff;
   n1     = nrst / 2;
@@ -1214,7 +1214,7 @@ GEOSLIB_API void tab_print_rowname(const char *string,
 {
   int i,size,neff,nrst;
 
-  size   = strlen(string);
+  size   = static_cast<int> (strlen(string));
   neff   = MIN(taille, size);
   nrst   = taille - neff;
 
@@ -2132,7 +2132,7 @@ GEOSLIB_API void mes_process(const char *string,
   /* Conditional printout */
 
   if (percent != memo)
-    message("%s : %d\%\n",string,percent);
+    message("%s : %d (percent)\n",string,percent);
   memo = percent;
 
   return;

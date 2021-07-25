@@ -185,7 +185,7 @@ void OptimCostColored::_getFaciesToIndic(const VectorDouble& facies,
   
   for (int i=0; i<npoint; i++)
   {
-    facloc = facies[i];
+    facloc = static_cast<int> (facies[i]);
     indic[i] = TEST;
     if (facloc < 1 || facloc > _nprop) continue;
 

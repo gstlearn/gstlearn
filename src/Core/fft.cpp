@@ -202,7 +202,7 @@ static int fftradix (double Re [],
   else
   {
     /* allow full use of alloc'd space */
-    maxFactors = SpaceAlloced / sizeof (double);
+    maxFactors = static_cast<int> (SpaceAlloced / sizeof (double));
   }
   if (MaxPermAlloced < (size_t) maxPerm)
   {
@@ -212,7 +212,7 @@ static int fftradix (double Re [],
   else
   {
     /* allow full use of alloc'd space */
-    maxPerm = MaxPermAlloced;
+    maxPerm = static_cast<int> (MaxPermAlloced);
   }
   if (!Tmp0 || !Tmp1 || !Tmp2 || !Tmp3 || !Perm) goto Memory_Error;
 
@@ -235,12 +235,12 @@ static int fftradix (double Re [],
   }
 
   /* adjust for strange increments */
-  nt = inc * nTotal;
-  ns = inc * nSpan;
+  nt = static_cast<int> (inc * nTotal);
+  ns = static_cast<int> (inc * nSpan);
   kspan = ns;
 
   nn = nt - inc;
-  jc = ns / nPass;
+  jc = static_cast<int> (ns / nPass);
   radf = pi2 * (double) jc;
   pi2 *= 2.0;            /* use 2 PI from here on */
 
@@ -248,7 +248,7 @@ static int fftradix (double Re [],
   jf = 0;
   /* determine the factors of n */
 
-  nFactor = factorize (nPass, &kt);
+  nFactor = factorize (static_cast<int> (nPass), &kt);
   /* test that nFactors is in range */
   if (nFactor > NFACTOR)
   {

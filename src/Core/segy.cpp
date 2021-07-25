@@ -117,7 +117,7 @@ static float st_ibm2ieee(const float ibm) {
     + src.c[3];
 
   float Mantissa  = float(IntMantissa) / float(0x1000000);
-  float PosResult = Mantissa * pow( 16.0, double((src.c[0] & 0x7F) - 64) );
+  float PosResult = Mantissa * (float) pow( 16.0, double((src.c[0] & 0x7F) - 64) );
 
   if (src.c[0] & 0x80)
     return -PosResult;
@@ -354,7 +354,7 @@ static int st_read_trace(FILE   *file,
       values[i] = (double) fvalue;
       if (ABS(values[i]) < 0.01) values[i] = TEST;
       cotes[i]  = (double) cote;
-      cote -= delta;
+      cote -= (float) delta;
     }
     if (verbOption >= 2)
       message("Min(%6d) = %11.0f - Max(%6d) = %11.0f\n", 
@@ -389,7 +389,7 @@ static int st_read_trace(FILE   *file,
       values[i] = (double) ivalue;
       if (ABS(values[i]) < 0.01) values[i] = TEST;
       cotes[i]  = (double) cote;
-      cote -= delta;
+      cote -= (float) delta;
     }
     if (verbOption >= 2)
       message("Min(%6d) = %11d - Max(%6d) = %11d\n", 
@@ -640,7 +640,7 @@ static void st_grid_from_3refpt(RefPt     refpt[3],
   dj10 = refpt[0].xline  - refstats.xlming;
   x0   = refpt[0].xtrace - di10 * dx * cost + dj10 * dy * sint;
   y0   = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
-  nz   = (refstats.zmaxl - refstats.zminl) / dz;
+  nz   = static_cast<int> ((refstats.zmaxl - refstats.zminl) / dz);
 
   // Fill the GridC structure
 
@@ -719,7 +719,7 @@ static void st_grid_from_2refpt(RefPt     refpt[3],
   dj10 = refpt[0].xline  - refstats.xlming;
   x0   = refpt[0].xtrace - di10 * dx * cost + dj10 * dy * sint;
   y0   = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
-  nz   = (refstats.zmaxl - refstats.zminl) / dz;
+  nz   = static_cast<int> ((refstats.zmaxl - refstats.zminl) / dz);
 
   // Fill the GridC structure
 
@@ -867,17 +867,17 @@ static bool st_vertical_limits(double z0,
   switch (option)
   {
     case 0: // No flattening
-      iz1 = iz2 = (cote - z0) / delta;
+      iz1 = iz2 = static_cast<int> ((cote - z0) / delta);
       break;
 
     case -1: // Flattening from Bottom surface
       if (FFFF(czbot)) return true;
-      iz1 = iz2 = (cote - czbot) / delta;
+      iz1 = iz2 = static_cast<int> ((cote - czbot) / delta);
       break;
 
     case 1: // Flattening from Top surface
       if (FFFF(cztop)) return true;
-      iz1 = iz2 = (nz - 1) - (cztop - cote) / delta;
+      iz1 = iz2 = static_cast<int> ((nz - 1) - (cztop - cote) / delta);
       break;
 
     case 2: // Vertical averaging (iz1 & iz2 are not used)
@@ -888,8 +888,8 @@ static bool st_vertical_limits(double z0,
       if (FFFF(czbot)) return true;
       if (FFFF(cztop)) return true;
       double dz = (cztop - czbot) / (double) (nz - 1);
-      iz1 = floor((cote - czbot) / dz);
-      iz2 = ceil ((cote - czbot + delta) / dz);
+      iz1 = static_cast<int> (floor((cote - czbot) / dz));
+      iz2 = static_cast<int> (ceil ((cote - czbot + delta) / dz));
       break;
   }
 

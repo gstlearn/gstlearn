@@ -199,7 +199,7 @@ int MeshETurbo::initFromGrid(const VectorInt& nx,
                              bool flag_polarized,
                              int verbose)
 {
-  int ndim = nx.size();
+  int ndim = static_cast<int> (nx.size());
   setNDim(ndim);
 
   /* Create the internal (rotated) grid */
@@ -253,7 +253,7 @@ int MeshETurbo::initFromExtend(const VectorDouble& extendmin,
                                  bool flag_polarized,
                                  int verbose)
 {
-  int ndim = extendmin.size();
+  int ndim = static_cast<int> (extendmin.size());
   setNDim(ndim);
   if (setExtend(extendmin,extendmax)) return(1);
 
@@ -551,8 +551,8 @@ int MeshETurbo::_defineGrid(const VectorDouble& cellsize)
   {
     _grid.setX0(idim, getExtendMin(idim));
     _grid.setDX(idim, cellsize[idim]);
-    _grid.setNX(idim, ceil((getExtendMax(idim) - getExtendMin(idim)) / 
-                           cellsize[idim]) + 1);
+    _grid.setNX(idim, static_cast<int> (ceil((getExtendMax(idim) - getExtendMin(idim)) /
+                           cellsize[idim]) + 1));
   }
 
   return 0;

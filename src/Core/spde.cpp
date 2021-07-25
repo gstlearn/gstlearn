@@ -217,7 +217,7 @@ GEOSLIB_API void spde_option_update(SPDE_Option& s_option,
 {
   /* Add a new SPDE_SS_Option structure */
 
-   int noption = s_option.options.size();
+   int noption = static_cast<int> (s_option.options.size());
 
    /* Resize the array 'options' */
 
@@ -308,7 +308,7 @@ static int st_get_current_icov(void)
 static String st_get_current_triswitch(SPDE_Option& s_option)
 {
   int rank_cov = st_get_current_icov();
-  int noption = s_option.options.size();
+  int noption = static_cast<int> (s_option.options.size());
   int rank = MIN(rank_cov, noption - 1);
   String triswitch = s_option.options[rank].triswitch;
   return (triswitch);
@@ -984,8 +984,8 @@ static void st_qchol_print(const char *title, QChol *QC)
 
   if (title != NULL) message("%s\n", title);
   cs_rowcol(QC->Q, &nrows, &ncols, &count, &percent);
-  message("- Nrows(%d) x Ncols(%d) - Non-zeros(%d) [%6.2lf\%]", nrows, ncols,
-          count, percent);
+  message("- Nrows(%d) x Ncols(%d) - Non-zeros(%d) [%6.2lf (percent)]",
+          nrows, ncols, count, percent);
   if (QC->S != NULL || QC->N != NULL) message(" (Cholesky)");
   message("\n");
 }
@@ -1321,7 +1321,7 @@ static double st_get_cova_param(void)
  **  for all GRFS (nugget included)
  **
  *****************************************************************************/
-static double st_get_ncova_max(void)
+static int st_get_ncova_max(void)
 {
   int ncova, ncova_max, igrf_memo;
 
@@ -1569,7 +1569,7 @@ static void st_print_all(const char *title)
 
   /* Linear combination */
 
-  int nblin = Calcul.blin.size();
+  int nblin = static_cast<int> (Calcul.blin.size());
   message("Number of terms in Linear Combination         = %d\n", nblin);
   print_matrix("Coefficients of the Linear Combination", 0, 1, 1, nblin, NULL,
                Calcul.blin.data());
@@ -4156,7 +4156,7 @@ static int st_build_Q(SPDE_Matelem& Matelem)
 
   Matelem.QC = qchol_manage(1, NULL);
 
-  int nblin = Calcul.blin.size();
+  int nblin = static_cast<int> (Calcul.blin.size());
   Matelem.QC->Q = spde_build_Q(Matelem.S, Matelem.Lambda, nblin,
                                Calcul.blin.data());
   if (Matelem.QC->Q == (cs *) NULL) goto label_end;
@@ -5486,8 +5486,8 @@ GEOSLIB_API Cheb_Elem *spde_cheb_manage(int mode,
     if (cheb_elem == (Cheb_Elem *) NULL) goto label_end;
     cheb_elem->coeffs = (double *) NULL;
 
-    ncmax = get_keypone("Number_Polynomials_Chebychev", 10001);
-    ndisc = get_keypone("Number_Discretization_Chebychev", 100);
+    ncmax = get_keypone("Number_Polynomials_Chebychev", 10001.);
+    ndisc = get_keypone("Number_Discretization_Chebychev", 100.);
     tol = get_keypone("Chebychev_Tolerance", 5.e-3);
 
     /* Calculate key values */
@@ -7151,7 +7151,7 @@ GEOSLIB_API int spde_prepar(Db *dbin,
 
       if (S_DECIDE.simu_cheb)
       {
-        nblin = Calcul.blin.size();
+        nblin = static_cast<int> (Calcul.blin.size());
         Matelem.s_cheb = spde_cheb_manage(1, VERBOSE, -0.5, nblin,
                                           Calcul.blin.data(), Matelem.S, NULL);
         if (Matelem.s_cheb == (Cheb_Elem *) NULL) goto label_end;
@@ -9277,7 +9277,7 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
       /* Update statistics */
 
-      numb += 1.;
+      numb += 1;
       mean += epais;
       stdv += epais * epais;
       ffmean += ff;
@@ -10528,7 +10528,7 @@ static void st_print_db_constraints(const char *title,
 
   // Initializations
 
-  nprint = get_keypone("Print_Data", 10);
+  nprint = get_keypone("Print_Data", 10.);
   if (!verbose || nprint == 0) return;
 
   // Printout

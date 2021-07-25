@@ -820,7 +820,7 @@ void ShiftOpCs::_loadAuxPerMesh(VectorDouble& tab,
 {
   if (tab.empty()) return;
   int number = amesh->getNApexPerMesh();
-  int size = tab.size();
+  int size = static_cast<int> (tab.size());
 
   VectorDouble tabloc(size, 0.);
   for (int i = 0; i < size; i++)

@@ -2258,7 +2258,7 @@ static void st_variogen_line(Db    *db,
         value  = value * value / NORWGT[norder];
         VARIO  = vario;
         NVAR   = vario->getVariableNumber();
-        st_variogram_set(vario->getCalculType(),ipas,0,0,0.,1.,dist0,value);
+        st_variogram_set(vario->getCalculType(),ipas,0,0,0,1.,dist0,value);
       }
     }
   }
@@ -2358,7 +2358,7 @@ static int st_variogen_grid(Db    *db,
         value  = value * value / NORWGT[norder];
         VARIO  = vario;
         NVAR   = vario->getVariableNumber();
-        st_variogram_set(vario->getCalculType(),ipas,0,0,0.,1.,dist,value);
+        st_variogram_set(vario->getCalculType(),ipas,0,0,0,1.,dist,value);
       }
     }
   }
@@ -6870,6 +6870,11 @@ GEOSLIB_API int _variogram_compute(Db   *db,
   }
   else
   {
+    // Invalid grincr when calculations are not performed on the grid
+    // This patch enables correct printout
+    for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+      vario->setGrincr(idir, VectorInt());
+
     if (flag_gen)
       error = st_variogen_line_calcul(db, vario);
     else

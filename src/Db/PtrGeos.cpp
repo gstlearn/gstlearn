@@ -129,7 +129,7 @@ int getLocatorTypeFromName(const String& name_type)
 {
   for (int i = 0; i < MAXIMUM_LOC; i++)
   {
-    unsigned int lng = strlen(DEF_LOCATOR[i].SREF);
+    unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[i].SREF));
     if (name_type.compare(0,lng,DEF_LOCATOR[i].SREF) == 0) return i;
   }
   return -1;
@@ -153,11 +153,11 @@ int locatorIdentify(String string, ENUM_LOCS *ret_locatorType, int *ret_item, in
   bool mult  =  0;
   for (int i = 0; i < MAXIMUM_LOC && found < 0; i++)
   {
-    unsigned int lng = strlen(DEF_LOCATOR[i].SREF);
+    unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[i].SREF));
     if (string.compare(0,lng,DEF_LOCATOR[i].SREF) == 0) found = i;
   }
   if (found < 0) return 1;
-  unsigned int lng = strlen(DEF_LOCATOR[found].SREF);
+  unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[found].SREF));
   if (string.size() > lng) inum = atoi(&string[lng]);
   mult = DEF_LOCATOR[found].IREF == 0;
   if (! mult && inum > 1)

@@ -62,7 +62,7 @@ void PolySet::init(const VectorDouble& x,
                    double zmin,
                    double zmax)
 {
-  int nvert = x.size();
+  int nvert = static_cast<int> (x.size());
 
   /* Check if the polygon must be closed */
 
@@ -96,7 +96,7 @@ std::string PolySet::toString(int level) const
 {
   std::stringstream sstr;
 
-  int nvert = _x.size();
+  int nvert = static_cast<int> (_x.size());
   sstr << "Number of vertices = " << nvert << std::endl;
 
   if (! IFFFF(level) && level > 0)

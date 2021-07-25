@@ -391,7 +391,7 @@ int Vario::computeIndic(Db *db,
 
   // Calculate the number of Facies in 'Db'
   VectorDouble props = dbStatisticsFacies(db);
-  int nclass = props.size();
+  int nclass = static_cast<int> (props.size());
   if (nclass <= 0 || nclass > nfacmax)
   {
     messerr("The input variable should exhibit Facies");

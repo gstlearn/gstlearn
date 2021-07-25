@@ -172,7 +172,7 @@ int ANoStat::getRank(int igrf, int icov, ENUM_CONS type, int iv1, int iv2) const
  */
 void ANoStat::addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2)
 {
-  int nelem = _items.size();
+  int nelem = static_cast<int> (_items.size());
   _items.resize(nelem+1);
   _items[nelem].init(CONS_TYPE_DEFAULT, igrf, icov, type, iv1, iv2, TEST);
 }
@@ -267,7 +267,7 @@ int ANoStat::_understandCode(const String& code,
   bool flagSTR = false;
   bool flagV1  = false;
   bool flagV2  = false;
-  int size = keywords.size();
+  int size = static_cast<int> (keywords.size());
   int lec = 0;
 
   // Decoding the GRF keyword (keyword "G")

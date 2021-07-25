@@ -562,7 +562,7 @@ GEOSLIB_API int simsph_f(Db    *db,
       degree_loc = degree[ibf];
       order_loc  = order[ibf];
       phase_loc  = phase[ibf];
-      t1 = ut_flegendre(1,degree_loc,order_loc,ctheta);
+      t1 = ut_flegendre(1,(int) degree_loc,(int) order_loc,ctheta);
       for (int ix=0; ix<nx; ix++,ecr++)
       {
         iech = IPTR(ix,iy);

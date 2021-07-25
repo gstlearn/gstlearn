@@ -674,7 +674,7 @@ GEOSLIB_API int ct_tableone_getrank_from_proba(CTables *ctables,
 
   proba = law_cdf_gaussian(gaussian);
 
-  iad   = proba / dp;
+  iad   = static_cast<int> (proba / dp);
   vmin  = dp * iad;
   vmax  = dp * (iad+1);
   if (vmax - proba < proba - vmin) iad++;

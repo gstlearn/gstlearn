@@ -90,7 +90,7 @@ static void st_copy_result(int     nx,
 static int st_oper_exists(const VectorString& opers,
                           const String& refe)
 {
-  int noper = opers.size();
+  int noper = static_cast<int> (opers.size());
   if (noper == 0) return(1);
   for (int i=0; i<noper; i++)
   {
@@ -271,7 +271,7 @@ GEOSLIB_API int db_stats(Db     *db,
   /* Initializations */
   error = 1;
   nech  = db->getSampleNumber();
-  ncol  = cols.size();
+  ncol  = static_cast<int> (cols.size());
   ncol2 = ncol * ncol;
   num   = m1 = m2 = v1 = v2 = v12 = mini = maxi = (double *) NULL;
   plus  = moins = zero = (double *) NULL;
@@ -2887,10 +2887,10 @@ GEOSLIB_API void db_stats_print(const Db *db,
   /* Initializations */
 
   data = mean = mini = maxi = var = cov = num = (double *) NULL;
-  noper = opers.size();
+  noper = static_cast<int> (opers.size());
   VectorInt iatts = iatts_arg;
   if (iatts.empty()) iatts = db->getAttributes();
-  ncol  = iatts.size();
+  ncol  = static_cast<int> (iatts.size());
   
   /* Preliminary checks */
 

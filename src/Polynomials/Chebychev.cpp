@@ -120,9 +120,9 @@ void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
 
   double minsubdiv = pow(2., 20.);
   if (minsubdiv >= (_ncMax + 1) / 2)
-    n = minsubdiv;
+    n = static_cast<int> (minsubdiv);
   else
-    n = ceil((double) (_ncMax + 1) / 2);
+    n = static_cast<int> (ceil((double) (_ncMax + 1) / 2));
 
   /* Core allocation */
 

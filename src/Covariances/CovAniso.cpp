@@ -122,7 +122,7 @@ void CovAniso::setSill(const MatrixCSGeneral& sill)
 
 void CovAniso::setSill(const VectorDouble& sill)
 {
-  int size = sill.size();
+  int size = static_cast<int> (sill.size());
   int nvar = getNVariables();
   if (size != nvar * nvar)
     my_throw("Number of provided sills doesn't match number of variables");

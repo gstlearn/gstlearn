@@ -566,7 +566,7 @@ void AMatrixC::setValues(const VectorInt irows,
     messerr("Operation cancelled");
     return;
   }
-    int nelements = values.size();
+    int nelements = static_cast<int> (values.size());
   if (_sparse)
   {
     cs* Mtriplet = cs_spalloc(0,0,1,1,1);

@@ -298,7 +298,7 @@ Rule::~Rule()
  */
 int Rule::init(const VectorInt& nodes)
 {
-  int nb_node = nodes.size() / 6;
+  int nb_node = static_cast<int> (nodes.size()) / 6;
   std::vector<Node *> n1tab(nb_node, nullptr);
   std::vector<Node *> n2tab(nb_node, nullptr);
 
@@ -883,7 +883,7 @@ void Rule::_nodNamesToIds(const VectorString& nodes,
                           VectorInt& n_type,
                           VectorInt& n_facs)
 {
-  int nb_node = nodes.size();
+  int nb_node = static_cast<int> (nodes.size());
   n_type.resize(nb_node,0);
   n_facs.resize(nb_node,0);
 

@@ -3176,7 +3176,7 @@ GEOSLIB_API void string_to_lowercase(char *string)
 {
   int i, n;
 
-  n = strlen(string);
+  n = static_cast<int> (strlen(string));
   for (i = 0; i < n; i++)
     if (string[i] >= 'A' && string[i] <= 'Z')
       string[i] = ('a' + string[i] - 'A');
@@ -3196,7 +3196,7 @@ GEOSLIB_API void string_to_uppercase(char *string)
 {
   int i, n;
 
-  n = strlen(string);
+  n = static_cast<int> (strlen(string));
   for (i = 0; i < n; i++)
     if (string[i] >= 'a' && string[i] <= 'z')
       string[i] = ('A' + string[i] - 'a');
@@ -3744,9 +3744,9 @@ GEOSLIB_API int ut_chebychev_coeffs(double (*func)(double,
 
   minsubdiv = pow(2., 20.);
   if (minsubdiv >= (ncmax + 1) / 2)
-    n = minsubdiv;
+    n = static_cast<int> (minsubdiv);
   else
-    n = ceil((double) (ncmax + 1) / 2);
+    n = static_cast<int> (ceil((double) (ncmax + 1) / 2));
 
   /* Core allocation */
 
@@ -4292,10 +4292,10 @@ GEOSLIB_API void rgb2num(int red, int green, int blue, int a, unsigned char *c)
  *****************************************************************************/
 GEOSLIB_API void num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
 {
-  *r = (value >> 24) & 0xff;
-  *g = (value >> 16) & 0xff;
-  *b = (value >> 8) & 0xff;
-  *a = (value) & 0xff;
+  *r = static_cast<int> ((value >> 24) & 0xff);
+  *g = static_cast<int> ((value >> 16) & 0xff);
+  *b = static_cast<int> ((value >>  8) & 0xff);
+  *a = static_cast<int> ((value)       & 0xff);
 }
 
 /*****************************************************************************/
@@ -4602,7 +4602,7 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
       break;
 
     case 1:                       // Add string to array of messages
-      size = strlen(string);
+      size = static_cast<int> (strlen(string));
       if (size <= 0) return;
 
       if (NB_LAST_MESSAGE <= 0)
@@ -4617,7 +4617,7 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
       break;
 
     case -1:                    // Concatenate
-      size = strlen(string);
+      size = static_cast<int> (strlen(string));
       if (size <= 0) return;
 
       if (NB_LAST_MESSAGE <= 0)
@@ -4626,7 +4626,7 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
         return;
       }
 
-      sizaux = strlen(LAST_MESSAGE[NB_LAST_MESSAGE - 1]);
+      sizaux = static_cast<int> (strlen(LAST_MESSAGE[NB_LAST_MESSAGE - 1]));
       LAST_MESSAGE[NB_LAST_MESSAGE - 1] = address = (char *) realloc(
           (char *) LAST_MESSAGE[NB_LAST_MESSAGE - 1], size + sizaux + 2);
       address[sizaux] = ' ';
@@ -4767,9 +4767,8 @@ GEOSLIB_API int *ut_split_into_two(int ncolor,
 
   /* Initializations */
 
-  p = (flag_half) ? floor((double) ncolor / 2.) :
-                    ncolor - 1;
-  nmax = pow(2, ncolor);
+  p = (flag_half) ? static_cast<int> (floor((double) ncolor / 2.)) : ncolor - 1;
+  nmax = static_cast<int> (pow(2, ncolor));
   mattab = comb = (int *) NULL;
   np = 0;
 
@@ -5286,7 +5285,7 @@ GEOSLIB_API VectorInt util_string_search(const VectorString& list_string,
                                          int verbose)
 {
   VectorInt ranks;
-  int ns = list_string.size();
+  int ns = static_cast<int> (list_string.size());
   for (int is = 0; is < ns; is++)
   {
     if (st_string_search(list_string[is], pattern, verbose))

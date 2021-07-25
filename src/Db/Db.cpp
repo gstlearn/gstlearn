@@ -91,7 +91,7 @@ Db::Db(const VectorInt& nx,
       _grid(0)
 {
   _initP();
-  int ndim = nx.size();
+  int ndim = static_cast<int> (nx.size());
   int nech = 1;
   for (int idim = 0; idim < ndim; idim++)
     nech *= nx[idim];
@@ -242,7 +242,7 @@ Db::Db(Db* db,
     if (ndim == (int) dcell.size())
     {
       dx = dcell[idim];
-      nx = ext / dx;
+      nx = static_cast<int> (ext / dx);
     }
 
     nx_tab.push_back(nx);
@@ -343,7 +343,7 @@ Db::Db(Polygons* polygon,
     if (ndim == (int) dcell.size())
     {
       dx = dcell[idim];
-      nx = ext / dx;
+      nx = static_cast<int> (ext / dx);
     }
 
     nx_tab.push_back(nx);
@@ -405,7 +405,7 @@ Db::Db(const Db* dbin,
 
   int nfrom = dbin->getSampleNumber();
   VectorInt ranks = ut_vector_sample(nfrom, proportion);
-  _nech = ranks.size();
+  _nech = static_cast<int> (ranks.size());
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n", nfrom,
             _nech);
@@ -415,7 +415,7 @@ Db::Db(const Db* dbin,
   VectorString namloc = names;
   if (namloc.empty())
     namloc = dbin->getNames();
-  _ncol = namloc.size();
+  _ncol = static_cast<int> (namloc.size());
   reset(_ncol, _nech);
 
   // Create Variables and Locators
@@ -518,7 +518,7 @@ Db::Db(const VectorDouble& tab, int flag_add_rank)
 {
   _initP();
 
-  int ndim = tab.size();
+  int ndim = static_cast<int> (tab.size());
   _ncol = ndim + flag_add_rank;
   _nech = 1;
   reset(_ncol, _nech);
@@ -694,7 +694,7 @@ int Db::_findColumnInLocator(ENUM_LOCS locatorType, int icol) const
  * @param ret_locatorIndex Locator index (starting from 1)
  * @return
  */
-bool Db::getLocatorByColumn(int icol,
+int Db::getLocatorByColumn(int icol,
                             ENUM_LOCS *ret_locatorType,
                             int *ret_locatorIndex) const
 {
@@ -717,7 +717,7 @@ bool Db::getLocatorByColumn(int icol,
   return false;
 }
 
-bool Db::getLocator(int iatt,
+int Db::getLocator(int iatt,
                     ENUM_LOCS *ret_locatorType,
                     int *ret_locatorIndex) const
 {
@@ -726,7 +726,7 @@ bool Db::getLocator(int iatt,
   return getLocatorByColumn(icol, ret_locatorType, ret_locatorIndex);
 }
 
-bool Db::getLocator(const String& name,
+int Db::getLocator(const String& name,
                     ENUM_LOCS *ret_locatorType,
                     int *ret_locatorIndex) const
 {
@@ -1220,7 +1220,7 @@ int Db::addFields(const VectorDouble& tab,
 {
   // Particular case where the Db is empty.
   // Set its dimension to the number of samples of the input array 'tab'
-  if (_nech <= 0) _nech = tab.size() / nvar;
+  if (_nech <= 0) _nech = static_cast<int> (tab.size()) / nvar;
 
   // Check dimensions
   int nech = (useSel) ? getActiveSampleNumber() :
@@ -2465,7 +2465,7 @@ int Db::getLastAttribute(int number) const
   VectorInt ranks;
   for (int i = 0; i < (int) _attcol.size(); i++)
     if (_attcol[i] >= 0) ranks.push_back(i);
-  int size = ranks.size();
+  int size = static_cast<int> (ranks.size());
   if (number > size)
     return -1;
   else
@@ -2517,7 +2517,7 @@ VectorString Db::getNames(ENUM_LOCS locatorType) const
 VectorString Db::getNames(const VectorInt& iatts) const
 {
   VectorString namelist;
-  int count = iatts.size();
+  int count = static_cast<int> (iatts.size());
   for (int i = 0; i < count; i++)
   {
     int icol = getColumnByAttribute(iatts[i]);
@@ -2663,8 +2663,7 @@ String Db::_summaryVariableStat(VectorInt cols, int mode, int maxNClass) const
 
   // Loop on the columns
 
-  int ncol = (cols.empty()) ? getFieldNumber() :
-                              cols.size();
+  int ncol = (cols.empty()) ? getFieldNumber() : static_cast<int> (cols.size());
   for (int jcol = 0; jcol < ncol; jcol++)
   {
     int icol = (cols.empty()) ? jcol :
@@ -2674,7 +2673,8 @@ String Db::_summaryVariableStat(VectorInt cols, int mode, int maxNClass) const
     tab = getColumnByRank(icol, true);
     wgt = getWeight(true);
 
-    ut_statistics(tab.size(), tab.data(), NULL, wgt.data(), &nval, &vmin, &vmax,
+    ut_statistics(static_cast<int> (tab.size()), tab.data(), NULL,
+                  wgt.data(), &nval, &vmin, &vmax,
                   &delta, &mean, &stdv);
 
     sstr << icol + 1 << " - Name " << getNameByColumn(icol) << " - Locator "
@@ -2702,7 +2702,8 @@ String Db::_summaryVariableStat(VectorInt cols, int mode, int maxNClass) const
         sstr << " Number of classes is truncated to " << maxNClass << std::endl;
       nclass = MIN(maxNClass, nclass);
       VectorInt classe(nclass);
-      ut_classify(tab.size(), tab.data(), NULL, nclass, vmin, 1., &nmask,
+      ut_classify(static_cast<int> (tab.size()), tab.data(), NULL,
+                  nclass, vmin, 1., &nmask,
                   &ntest, &nout, classe.data());
       if (ntest > 0)
         sstr << " Unknown values      = " << toInt(ntest) << std::endl;
@@ -2728,10 +2729,8 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
 
   sstr << toTitle(1, "Data Base Contents");
 
-  int ncol = (cols.empty()) ? getFieldNumber() :
-                              cols.size();
-  int number = (flagSel) ? getActiveSampleNumber() :
-                           getSampleNumber();
+  int ncol = (cols.empty()) ? getFieldNumber() : static_cast<int> (cols.size());
+  int number = (flagSel) ? getActiveSampleNumber() : getSampleNumber();
 
   VectorDouble tab;
   VectorString colnames;
@@ -2888,7 +2887,7 @@ VectorDouble Db::getFieldsByAttribute(const VectorInt& iatts, bool useSel) const
 {
   int nech = (useSel) ? getActiveSampleNumber() :
                         getSampleNumber();
-  int nvar = iatts.size();
+  int nvar = static_cast<int> (iatts.size());
   VectorDouble retval(nvar * nech);
 
   /* Loop on the variables to be retrieved */
@@ -2906,7 +2905,7 @@ VectorDouble Db::getFieldsByAttribute(const VectorInt& iatts, bool useSel) const
 VectorDouble Db::getColumnsByRank(const VectorInt& icols, bool useSel) const
 {
   int nech = getSampleNumber();
-  int nvar = icols.size();
+  int nvar = static_cast<int> (icols.size());
   VectorDouble retval(nvar * nech);
 
   /* Loop on the variables to be retrieved */
@@ -2987,7 +2986,7 @@ VectorInt Db::getColumns(const VectorString& names) const
 {
   VectorString exp_names = expandNameList(names);
   if (exp_names.size() <= 0) return VectorInt();
-  int number = exp_names.size();
+  int number = static_cast<int> (exp_names.size());
   VectorInt icols(number);
   for (int i = 0; i < number; i++)
     icols[i] = getColumn(exp_names[i]);
@@ -3077,13 +3076,13 @@ void Db::_loadData(const VectorDouble& tab,
 
   if (_ncol <= 0) return;
   if (tab.empty()) return;
-  if (!isMultiple(tab.size(), _nech))
+  if (!isMultiple(static_cast<int> (tab.size()), _nech))
   {
     messerr("The Dimension of the array (%d) is inconsistent", tab.size());
     messerr("It should be a multiple of the number of samples (%d)", _nech);
     return;
   }
-  int ntab = tab.size() / _nech;
+  int ntab = static_cast<int> (tab.size()) / _nech;
   int ecr = 0;
   for (int icol = 0; icol < ntab; icol++)
   {
@@ -3205,11 +3204,11 @@ VectorDouble Db::_statistics(const VectorInt& iatts,
 {
   VectorDouble stats;
 
-  int natt = iatts.size();
+  int natt = static_cast<int> (iatts.size());
   if (natt <= 0) return stats;
 
   VectorInt iopers = statsList(opers);
-  int noper = iopers.size();
+  int noper = static_cast<int> (iopers.size());
   if (noper <= 0) return stats;
 
   // Add the variables for PointWise statistics
@@ -3263,7 +3262,7 @@ VectorDouble Db::_statisticsMulti(const VectorInt& iatts,
 {
   VectorDouble stats;
 
-  int natt = iatts.size();
+  int natt = static_cast<int> (iatts.size());
   if (natt <= 0) return stats;
 
   stats = dbStatisticsMulti(this, iatts, flagIso);

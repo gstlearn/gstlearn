@@ -12,7 +12,7 @@
 
 /*! \cond */
 #define STORE_NAME_LENGTH 10
-#define SHIFT()  ((MEMORY_DEBUG) ? sizeof(int) : 0)
+#define SHIFT()  ((MEMORY_DEBUG) ? (unsigned int) sizeof(int) : 0)
 
 typedef struct {
   char call_name[STORE_NAME_LENGTH];
@@ -319,7 +319,7 @@ GEOSLIB_API void memory_leak_report(void)
       chunk = MemLeak[i];
       message("Leak %s (line:%d) : %d words\n",
               chunk->call_file,chunk->call_line,chunk->size);
-      total += chunk->size;
+      total += static_cast<int> (chunk->size);
     }
     message("Total leak = %d\n",total);
   }

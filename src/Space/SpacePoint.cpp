@@ -38,7 +38,7 @@ SpacePoint::~SpacePoint()
 
 void SpacePoint::setCoord(double coord)
 {
-  ut_vector_fill(_coord, coord, _coord.size());
+  ut_vector_fill(_coord, coord, static_cast<int> (_coord.size()));
 }
 
 void SpacePoint::setCoord(const VectorDouble& coord)

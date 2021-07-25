@@ -471,7 +471,7 @@ static void st_dump(const char *title,
 
   if (pt_out != (double *) NULL) 
   {
-    shift = pt_out - out->bitmap;
+    shift = static_cast<int> (pt_out - out->bitmap);
     ix    = shift / TY;
     iy    = shift - TY * ix;
     (void)sprintf(&STRING[strlen(STRING)],
@@ -516,8 +516,8 @@ static void st_get_coordinates(double *pt_out,
                                int    *ix0,
                                int    *iy0)
 {
-  *ix0 = (pt_out - out->bitmap) / TY - BORD + 1;
-  *iy0 = (pt_out - out->bitmap) % TY - BORD + 1;
+  *ix0 = static_cast<int> ((pt_out - out->bitmap) / TY - BORD + 1);
+  *iy0 = static_cast<int> ((pt_out - out->bitmap) % TY - BORD + 1);
 
   if (debug_query("morpho"))
     message("Processed grid node : IX=%d IY=%d - Status=%d\n",
@@ -562,8 +562,8 @@ static int st_spill(SPIMG  *in,
 
   found = 0;
   pt_out = NULL;
-  Offset_out_in   = in->bitmap  - out->bitmap;
-  Offset_mark_out = out->bitmap - mark->bitmap;
+  Offset_out_in   = static_cast<int> (in->bitmap  - out->bitmap);
+  Offset_mark_out = static_cast<int> (out->bitmap - mark->bitmap);
   if (FLAG_CROSS)
   {
     n = n4;

@@ -62,7 +62,7 @@ VectorDouble ACov::eval(int ivar,
   VectorDouble vec;
   if (vec_p1.size() != vec_p2.size())
     my_throw ("Error: 'p1' and 'p2' should have same dimension");
-  for (int i=0, n=vec_p1.size(); i < n; i++)
+  for (int i=0, n=static_cast<int> (vec_p1.size()); i < n; i++)
     vec.push_back(eval(ivar, jvar, vec_p1[i], vec_p2[i], mode)); // pure virtual method
   return vec;
 }
@@ -102,7 +102,7 @@ VectorDouble ACov::eval(int ivar,
                         const CovCalcMode& mode) const
 {
   VectorDouble vec;
-  for (int i=0, n=vec_step.size(); i < n; i++)
+  for (int i=0, n=static_cast<int> (vec_step.size()); i < n; i++)
     vec.push_back(eval(ivar, jvar, vec_step[i], dir, center, mode));
   return vec;
 }

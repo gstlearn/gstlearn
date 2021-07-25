@@ -125,7 +125,7 @@ std::string Polygons::toString(int level) const
 {
   std::stringstream sstr;
 
-  int npol = _polysets.size();
+  int npol = static_cast<int> (_polysets.size());
 
   sstr << toTitle(1, "Polygons");
   sstr << "Number of Polygon Sets = " << npol << std::endl;

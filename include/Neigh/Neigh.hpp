@@ -19,10 +19,17 @@ class Neigh: public AStringable , public ASerializable
 public:
   Neigh();
   Neigh(int ndim);
-  Neigh(int ndim, int nmaxi, double radius,
-        int nmini=1, int nsect=1, int nsmax=ITEST, double width=0, double distcont=0,
-        VectorDouble coeffs = VectorDouble(), VectorDouble angles = VectorDouble());
-  Neigh(int ndim, int skip, VectorDouble image);
+  Neigh(int ndim,
+        int nmaxi,
+        double radius,
+        int nmini = 1,
+        int nsect = 1,
+        int nsmax = ITEST,
+        double width = 0,
+        double distcont = 0,
+        VectorDouble coeffs = VectorDouble(),
+        VectorDouble angles = VectorDouble());
+  Neigh(int ndim, int skip, const VectorInt& image);
   Neigh(const String& neutralFileName, bool verbose);
   Neigh(const Neigh& r);
   Neigh& operator=(const Neigh& r);
@@ -42,8 +49,8 @@ public:
   int getFlagRotation() const { return _flagRotation; }
   int getFlagSector() const { return _flagSector; }
   int getFlagXvalid() const { return _flagXvalid; }
-  const VectorDouble& getImageRadius() const { return _imageRadius; }
-  double getImageRadius(int idim) const { return _imageRadius[idim]; }
+  const VectorInt& getImageRadius() const { return _imageRadius; }
+  int getImageRadius(int idim) const { return _imageRadius[idim]; }
   int getNDim() const { return _nDim; }
   int getNMaxi() const { return _nMaxi; }
   int getNMini() const { return _nMini; }
@@ -63,7 +70,7 @@ public:
   void setFlagRotation(int flagRotation) { _flagRotation = flagRotation; }
   void setFlagSector(int flagSector) { _flagSector = flagSector; }
   void setFlagXvalid(int flagXvalid) { _flagXvalid = flagXvalid; }
-  void setImageRadius(const VectorDouble& imageRadius) { _imageRadius = imageRadius; }
+  void setImageRadius(const VectorInt& imageRadius) { _imageRadius = imageRadius; }
   void setNDim(int ndim)   { _nDim = ndim; }
   void setNMaxi(int nmaxi) { _nMaxi = nmaxi; }
   void setNMini(int nmini) { _nMini = nmini; }
@@ -93,7 +100,7 @@ private:
              double dist_cont,
              const VectorDouble& nbgh_radius,
              const VectorDouble& nbgh_rotmat,
-             const VectorDouble& nbgh_image);
+             const VectorInt& nbgh_image);
 
 public:
   int _nDim;                     /* Space dimension */
@@ -113,5 +120,5 @@ public:
   double _distCont;              /* Distance for continuous neighborhood */
   VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
-  VectorDouble _imageRadius;     /* Vector of image neighborhood radius */
+  VectorInt _imageRadius;        /* Vector of image neighborhood radius */
 };

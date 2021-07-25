@@ -4642,7 +4642,7 @@ static void st_print_ineq(Db    *db,
   /* Print the mean and the evolution increment */
 
   if (flag_cv)
-    message(" - Mean = %8.4lf (Delta = %5.2lf\%)",mean,delta);
+    message(" - Mean = %8.4lf (Delta = %5.2lf (percent))",mean,delta);
 
   message("\n");
 

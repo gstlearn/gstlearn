@@ -688,7 +688,7 @@ GEOSLIB_API int db_trisurf(Db         *db,
   if (db->hasCode())
   {
     codetab = db->getCodeList();
-    ncode_eff = codetab.size();
+    ncode_eff = static_cast<int> (codetab.size());
     if (! IFFFF(icode0))
     {
       if (icode0 < 0 || icode0 >= ncode_eff) 

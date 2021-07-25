@@ -72,7 +72,7 @@ public:
 
   int getNElems() const
   {
-    return _elems.size();
+    return static_cast<int> (_elems.size());
   }
 
   double getParam1() const

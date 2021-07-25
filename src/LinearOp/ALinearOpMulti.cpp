@@ -262,7 +262,7 @@ double ALinearOpMulti::_prod(const VectorDouble& x,
                              const VectorDouble& y) const
 {
   double prod = 0.;
-  int n = x.size();
+  int n = static_cast<int> (x.size());
   for(int i=0; i<n;i++)
   {
       prod += x[i] * y[i];

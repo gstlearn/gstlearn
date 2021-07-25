@@ -3199,6 +3199,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
               k++;
             }
             workstring[k] = '\0';
+            // TODO: Strange cast which was not corrected (non personal code)
             hilbert_order = (DREAL) strtod(workstring, (char **) NULL);
           }
         }
@@ -11155,7 +11156,7 @@ void tetgenmesh::brio_multiscale_sort(point* vertexarray, int arraysize,
   middle = 0;
   if (arraysize >= threshold) {
     (*depth)++;
-    middle = arraysize * ratio;
+    middle = static_cast<int> (arraysize * ratio);
     brio_multiscale_sort(vertexarray, middle, threshold, ratio, depth);
   }
   // Sort the right-array (rnd-th round) using the Hilbert curve.

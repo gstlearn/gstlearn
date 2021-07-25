@@ -140,14 +140,14 @@ void kriging2(const Database & dbin, Database &dbout, Model* model, Neigh* neigh
 Neigh* neigh_unique(int ndim)
 {
   return(neigh_init(ndim, 0, false, false, false, false, false, 1, 1, 1, 1, 1, 1, 1, 0.5,
-                    VectorDouble(), VectorDouble(), VectorDouble()));
+                    VectorDouble(), VectorDouble(), VectorInt()));
 }
 
 Neigh* neigh_moving(int ndim,int flag_sector, int flag_rotation, int nmini,int nmaxi,int nsect, int nsmax,
                     int radius,VectorDouble Rotation)
 {
   return(neigh_init(ndim, 2, false, flag_sector, false, flag_rotation,false, nmini, nmaxi, nsect, nsmax,
-                    1, 1 , radius, 0.5, VectorDouble(), Rotation, VectorDouble()));
+                    1, 1 , radius, 0.5, VectorDouble(), Rotation, VectorInt()));
 }
 
 Neigh* my_neigh_init(int ndim, int type, int flag_xvalid, int flag_sector,
@@ -155,7 +155,7 @@ Neigh* my_neigh_init(int ndim, int type, int flag_xvalid, int flag_sector,
                      int nmini, int nmaxi, int nsect, int nsmax, int skip,
                      double width, double radius, double dist_count,
                      VectorDouble nbgh_radius, VectorDouble nbgh_rotmat,
-                     VectorDouble nbgh_image)
+                     VectorInt nbgh_image)
 {
   return(neigh_init(ndim,type,flag_xvalid,flag_sector,flag_aniso,flag_rotation,
         flag_continuous,nmini,nmaxi,nsect,nsmax,skip,width,

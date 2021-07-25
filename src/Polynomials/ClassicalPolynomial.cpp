@@ -38,7 +38,7 @@ ClassicalPolynomial::~ClassicalPolynomial()
 double ClassicalPolynomial::eval(double x) const
 {
   double result=_coeffs.back();
-  for (int i = _coeffs.size()-2; i >= 0; i--)
+  for (int i = static_cast<int> (_coeffs.size())-2; i >= 0; i--)
   {
     result *= x;
     result +=_coeffs[i];
@@ -50,7 +50,7 @@ double ClassicalPolynomial::eval(double x) const
 //(since it adds the result to the input vector, the classical scheme can t be used)
 void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const
 {
-  int n = in.size();
+  int n = static_cast<int> (in.size());
   VectorDouble work(n);
   VectorDouble work2(n);
   VectorDouble *swap1,*swap2,*swap3;
@@ -87,7 +87,7 @@ void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDoub
 // Classical Hörner scheme starting from the highest degree
 void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const
 {
-  int n = in.size();
+  int n = static_cast<int> (in.size());
   VectorDouble work(n);
 
 
@@ -96,7 +96,7 @@ void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& o
      out[i] = _coeffs.back() * in[i];
   }
 
-  for(int j=_coeffs.size()-2;j>=0;j--)
+  for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
   {
     cs_vecmult(Op,out.data(),work.data());
     for (int i = 0; i<n ; i++)
@@ -114,8 +114,8 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
                                       int iapex,
                                       int igparam)const
 {
-  int n = in.size();
-  int degree = getCoeffs().size();
+  int n = static_cast<int> (in.size());
+  int degree = static_cast<int> (getCoeffs().size());
   ClassicalPolynomial* polycur = (ClassicalPolynomial*)this->clone();
   VectorDouble work(n);
   VectorDouble work2(n);

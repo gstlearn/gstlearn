@@ -257,7 +257,7 @@ void TurboOptimizer::_printVector(const std::string& title,
                                   int width,
                                   int ndec) const
 {
-  int nval = uu.size();
+  int nval = static_cast<int> (uu.size());
   std::cout << title << std::endl;
   for (int i = 0; i < nval; i++)
   {
@@ -534,7 +534,7 @@ std::vector<double> TurboOptimizer::_buildBlin() const
   double PI = 3.14159265358979323846;
   double v1, v2;
 
-  int ndims2 = TO_ndim / 2.;
+  int ndims2 = static_cast<int> (TO_ndim / 2.);
   int p = _param + ndims2;
 
   double gammap = 0.;
@@ -570,7 +570,7 @@ std::vector<double> TurboOptimizer::_buildQ(const std::vector<double>& ss,
                                             const std::vector<double>& lambda) const
 {
   int nvertex = _getNVertices();
-  int nblin = blin.size();
+  int nblin = static_cast<int> (blin.size());
   std::vector<double> qq(nvertex * nvertex, 0.);
   std::vector<double> bi(nvertex * nvertex, 0.);
   std::vector<double> be(nvertex * nvertex, 0.);
@@ -827,7 +827,7 @@ TripletND TurboOptimizer::getS() const
  */
 TripletND TurboOptimizer::getQ() const
 {
-  int nbp1 = _Blin.size() - 1;
+  int nbp1 = static_cast<int> (_Blin.size()) - 1;
   int nperline = 4 * nbp1 * nbp1;
   return _getMatrixFromTemplate(_Q_T, nperline);
 }
@@ -906,7 +906,7 @@ TripletND TurboOptimizer::interpolate(const std::vector<double>& x,
   std::vector<int> indg0(2);
   std::vector<int> indices(TO_ncorner);
   std::vector<double> lambda(TO_ncorner);
-  int nech = x.size();
+  int nech = static_cast<int> (x.size());
 
   // Pre-allocate the triplet structure
 
@@ -968,7 +968,7 @@ std::vector<double> TurboOptimizer::_expandTripletToMatrix(int row_begin,
   int nrows = row_end - row_begin + 1;
   int ncols = col_end - col_begin + 1;
   std::vector<double> mat(nrows * ncols, 0.);
-  int size = triplet.rows.size();
+  int size = static_cast<int> (triplet.rows.size());
 
   for (int i = 0; i < size; i++)
   {

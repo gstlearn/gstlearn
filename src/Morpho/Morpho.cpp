@@ -51,7 +51,7 @@ void _st_morpho_image_size_define(const VectorInt& nx)
 {
   int size;
 
-  size = nx.size();
+  size = static_cast<int> (nx.size());
   NX[0] = (size > 0) ? nx[0] : 1;
   NX[1] = (size > 1) ? nx[1] : 1;
   NX[2] = (size > 2) ? nx[2] : 1;
@@ -69,7 +69,7 @@ void _st_morpho_image_size_define(const VectorInt& nx)
 *****************************************************************************/
 void _st_morpho_image_radius_define(const VectorInt& radius)
 {
-  int size = radius.size();
+  int size = static_cast<int> (radius.size());
   RADIUS[0] = (size > 0) ? radius[0] : 0;
   RADIUS[1] = (size > 1) ? radius[1] : 0;
   RADIUS[2] = (size > 2) ? radius[2] : 0;
@@ -333,7 +333,7 @@ int morpho_labelling(const VectorInt& nx,
     else
     {
       message("Number of connected components = %d\n\n", nbcomp);
-      message("   Component     Number         Total     Cumul (\%)\n");
+      message("   Component     Number         Total     Cumul (percent)\n");
       ref = sizes[order[nbcomp-1]-1];
       count = part_grain = 0;
       for (i=nbcomp-1; i>=0; i--)

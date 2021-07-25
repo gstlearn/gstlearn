@@ -23,7 +23,7 @@ Neigh* my_neigh_init(int ndim, int type, int flag_xvalid, int flag_sector,
                     int nmini, int nmaxi, int nsect, int nsmax, int skip,
                     double width, double radius, double dist_count,
                     VectorDouble nbgh_radius, VectorDouble nbgh_rotmat,
-                    VectorDouble nbgh_image);
+                    VectorInt nbgh_image);
 
 void kriging2(const Database & dbin, Database &dbout, Model* model, Neigh* neigh);
 

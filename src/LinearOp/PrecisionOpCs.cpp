@@ -144,6 +144,6 @@ cs *PrecisionOpCs::getQ()
 {
   VectorDouble blin = getPoly(POPT_ONE)->getCoeffs();
   cs* Q = spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambda(),
-                       blin.size(), blin.data());
+                       static_cast<int> (blin.size()), blin.data());
   return Q;
 }

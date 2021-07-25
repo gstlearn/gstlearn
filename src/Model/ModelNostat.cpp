@@ -119,7 +119,7 @@ void ModelNostat::init(const CovAniso* cova)
 
 ElemNostat* ModelNostat::addElemNostat()
 {
-  int nparam = _elems.size();
+  int nparam = static_cast<int> (_elems.size());
   _elems.resize(nparam + 1);
   ElemNostat* elem = new(ElemNostat);
   _elems[nparam] = elem;

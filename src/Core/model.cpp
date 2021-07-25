@@ -1237,7 +1237,8 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
   /* Add the nugget effect variogram model */
 
   sill = 1.;
-  if (model_add_cova(model, COV_NUGGET, 0, 0, 0., 0., VectorDouble(),
+  if (model_add_cova(model, (int) COV_NUGGET, 0, 0, 0., 0.,
+                     VectorDouble(),
                      VectorDouble(), VectorDouble(sill))) goto label_end;
 
   /* Set the error return flag */
@@ -3359,7 +3360,7 @@ GEOSLIB_API int model_stabilize(Model *model, int flag_verbose, double percent)
 
   /* Add a NUGGET EFFECT component */
 
-  if (model_add_cova(model, COV_NUGGET, 0, 0, 0., 0., VectorDouble(),
+  if (model_add_cova(model, (int) COV_NUGGET, 0, 0, 0., 0., VectorDouble(),
                      VectorDouble(), VectorDouble(total))) goto label_end;
 
   /* Printout */

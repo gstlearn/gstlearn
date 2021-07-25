@@ -335,7 +335,7 @@ static void st_relem_subdivide(Relem *relem0,
   int   *divs,ndiv,number,ncur,previous_oper,verbose;
 
   verbose = 0;
-  ncur    = relem0->facies.size();
+  ncur    = static_cast<int> (relem0->facies.size());
   if (ncur <= 1) return;
 
   previous_oper = 1;
@@ -882,7 +882,7 @@ static double st_get_proba_ind(double correl,
 
   double releps = 0.;
   double abseps = EPS;
-  double maxpts = 8000;
+  int    maxpts = 8000;
 
   proba = TEST;
 

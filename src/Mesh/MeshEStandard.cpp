@@ -60,7 +60,7 @@ int MeshEStandard::getNApices() const
 *****************************************************************************/
 int MeshEStandard::getNMeshes() const
 {
-  return (_meshes.size() / getNApexPerMesh());
+  return (static_cast<int> (_meshes.size()) / getNApexPerMesh());
 }
 
 /****************************************************************************/
@@ -221,7 +221,7 @@ int MeshEStandard::create(int                 ndim,
                           bool                verbose)
 {
   setNDim(ndim);
-  int npoints = apices.size() / ndim;
+  int npoints = static_cast<int> (apices.size()) / ndim;
 
   // Core allocation
 

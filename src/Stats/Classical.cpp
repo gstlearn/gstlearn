@@ -110,7 +110,7 @@ String statsName(int ioper)
 
 VectorInt statsList(const VectorString& opers)
 {
-  int noper = opers.size();
+  int noper = static_cast<int> (opers.size());
   VectorInt iopers(noper);
   for (int i = 0; i < noper; i++)
   {
@@ -138,9 +138,9 @@ void dbStatisticsVariables(Db *db,
                            double vmax,
                            double proba)
 {
-  int noper = iopers.size();
+  int noper = static_cast<int> (iopers.size());
   if (noper <= 0) return;
-  int natt  = iatts.size();
+  int natt  = static_cast<int> (iatts.size());
   if (natt <= 0) return;
 
   /* Loop on the samples */
@@ -253,8 +253,8 @@ VectorDouble dbStatisticsMono(Db *db,
                               double vmin,
                               double vmax)
 {
-  int noper = iopers.size();
-  int natt  = iatts.size();
+  int noper = static_cast<int> (iopers.size());
+  int natt  = static_cast<int> (iatts.size());
   int nech  = db->getSampleNumber();
 
   // Find the Isotopic samples (optional)
@@ -418,7 +418,7 @@ VectorDouble dbStatisticsFacies(Db *db)
 *****************************************************************************/
 VectorDouble dbStatisticsMulti(Db *db, const VectorInt& iatts, bool flagIso)
 {
-  int natt = iatts.size();
+  int natt = static_cast<int> (iatts.size());
 
   /* Preliminary checks */
 
@@ -515,8 +515,8 @@ String statisticsMonoPrint(const VectorDouble& stats,
                            const VectorString& varnames,
                            const String& title)
 {
-  int noper = iopers.size();
-  int natt  = varnames.size();
+  int noper = static_cast<int> (iopers.size());
+  int natt  = static_cast<int> (varnames.size());
   std::stringstream sstr;
 
   // Constitute the vector of row and column names
@@ -543,7 +543,7 @@ String statisticsMultiPrint(const VectorDouble& stats,
                             const VectorString& varnames,
                             const String& title)
 {
-  int natt = varnames.size();
+  int natt = static_cast<int> (varnames.size());
   std::stringstream sstr;
 
   sstr << toMatrix(title, VectorString(), VectorString(), true,

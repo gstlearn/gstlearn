@@ -57,7 +57,7 @@ int MeshSpherical::getNApices() const
 *****************************************************************************/
 int MeshSpherical::getNMeshes() const
 {
-  return _meshes.size() / getNApexPerMesh();
+  return static_cast<int> (_meshes.size()) / getNApexPerMesh();
 }
 
 /****************************************************************************/

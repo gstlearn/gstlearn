@@ -196,7 +196,7 @@ std::string ACovAnisoList::toString(int level) const
 
 int ACovAnisoList::getCovNumber() const
 {
-  return _covs.size();
+  return static_cast<int> (_covs.size());
 }
 
 bool ACovAnisoList::isFiltered(unsigned int i) const

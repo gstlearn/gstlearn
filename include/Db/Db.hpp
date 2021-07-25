@@ -172,13 +172,13 @@ public:
                                 int icol_end,
                                 bool useSel = false) const;
 
-  bool getLocatorByColumn(int icol,
+  int getLocatorByColumn(int icol,
                          ENUM_LOCS *ret_locatorType,
                          int *ret_locatorIndex) const;
-  bool getLocator(int iatt,
+  int getLocator(int iatt,
                   ENUM_LOCS *ret_locatorType,
                   int *ret_locatorIndex) const;
-  bool getLocator(const String& name,
+  int getLocator(const String& name,
                  ENUM_LOCS *ret_locatorType,
                  int *ret_locatorIndex) const;
   VectorString getLocators(void) const;

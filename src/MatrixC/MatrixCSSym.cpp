@@ -185,7 +185,8 @@ int MatrixCSSym::_getMatrixSize() const
 int MatrixCSSym::_solve(const VectorDouble& b, VectorDouble& x) const
 {
   int pivot;
-  return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),b.size(),1,&pivot);
+  return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),
+                      static_cast<int> (b.size()),1,&pivot);
 }
 
 double MatrixCSSym::_determinant() const

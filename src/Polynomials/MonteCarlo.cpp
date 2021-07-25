@@ -23,7 +23,7 @@
  */
 double integralGaussHermite(double yc, double r, const VectorDouble& psi)
 {
-  int nbpoly = psi.size() - 1;
+  int nbpoly = static_cast<int> (psi.size()) - 1;
   VectorDouble vect = hermitePolynomials(yc,1.,nbpoly);
   double value = hermiteSeries(vect,psi);
   return r * r * value;
@@ -46,7 +46,7 @@ VectorDouble MCCondExp(VectorDouble krigest,
 {
   VectorDouble condexp;
 
-  int nech = krigest.size();
+  int nech = static_cast<int> (krigest.size());
   condexp.resize(nech,0.);
 
   for (int iech=0; iech<nech; iech++)
@@ -87,7 +87,7 @@ VectorDouble MCCondStd(VectorDouble krigest,
 {
   VectorDouble condstd;
 
-  int nech = krigest.size();
+  int nech = static_cast<int> (krigest.size());
   condstd.resize(nech);
 
   for (int iech = 0; iech < nech; iech++)
@@ -132,7 +132,7 @@ VectorDouble MCIndicator(double yc,
 {
   VectorDouble proba;
 
-  int nech = krigest.size();
+  int nech = static_cast<int> (krigest.size());
   proba.resize(nech, 0.);
 
   for (int iech = 0; iech < nech; iech++)
@@ -174,7 +174,7 @@ VectorDouble MCIndicatorStd(double yc,
 {
   VectorDouble probstd = MCIndicator(yc, krigest, krigstd, nbsimu);
 
-  int nech = krigest.size();
+  int nech = static_cast<int> (krigest.size());
 
   for (int iech = 0; iech < nech; iech++)
   {
@@ -202,7 +202,7 @@ VectorDouble MCMetal(double yc,
 {
   VectorDouble metal;
 
-  int nech = krigest.size();
+  int nech = static_cast<int> (krigest.size());
   metal.resize(nech, 0.);
 
   for (int iech = 0; iech < nech; iech++)
@@ -249,7 +249,7 @@ VectorDouble MCMetalStd(double yc,
 {
   VectorDouble metstd;
 
-  int nech = krigest.size();
+  int nech = static_cast<int> (krigest.size());
   metstd.resize(nech, 0.);
 
   for (int iech = 0; iech < nech; iech++)

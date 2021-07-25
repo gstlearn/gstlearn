@@ -597,7 +597,8 @@ std::string LicenseKey::appendVersion(const std::string & version,
 {
   std::string pair  = "Version," + stringClean(version);
   if (DEBUG) message("Append Version: %s\n",pair.c_str());
-  md5_append(&state, (const md5_byte_t*) pair.c_str(), pair.size());
+  md5_append(&state, (const md5_byte_t*) pair.c_str(),
+             static_cast<int> (pair.size()));
   return pair;
 }
 
@@ -617,7 +618,8 @@ std::string LicenseKey::appendFeature(const std::string feature,
 {
   std::string pair = stringClean(feature) + "," + stringClean(target); 
   if (DEBUG) message("Append Feature: %s\n",pair.c_str());
-  md5_append(&state, (const md5_byte_t*) pair.c_str(), pair.size());
+  md5_append(&state, (const md5_byte_t*) pair.c_str(),
+             static_cast<int> (pair.size()));
   return pair;
 }
 
@@ -635,7 +637,8 @@ std::string LicenseKey::appendActivationCode(const std::string activation_code,
 {
   std::string code = stringClean(activation_code);
   if (DEBUG) message("Append Code: %s\n",code.c_str());
-  md5_append(&state, (const md5_byte_t*) code.c_str(), code.size());
+  md5_append(&state, (const md5_byte_t*) code.c_str(),
+             static_cast<int> (code.size()));
   return code;
 }
 
