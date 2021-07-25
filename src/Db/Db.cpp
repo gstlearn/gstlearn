@@ -3655,7 +3655,6 @@ int Db::getFaciesNumber(void)
   return nfac;
 }
 
-VectorInt getSortArray();
 /****************************************************************************/
 /*!
 **  Return the vector of ordered samples by increasing coordinate along X

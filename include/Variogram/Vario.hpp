@@ -97,6 +97,7 @@ public:
 
   double getHmax(int ivar, int jvar=0) const;
   double getHmax() const;
+  VectorDouble getHRange() const;
   double getGmax(int ivar,
                  int jvar = 0,
                  bool flagAbs = false,

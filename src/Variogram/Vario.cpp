@@ -267,7 +267,6 @@ double Vario::getHmax(int ivar, int jvar) const
   return hmax;
 }
 
-
 double Vario::getHmax() const
 {
   double hmax = 0.;
@@ -279,6 +278,15 @@ double Vario::getHmax() const
         if (hloc > hmax) hmax = hloc;
       }
   return hmax;
+}
+
+VectorDouble Vario::getHRange() const
+{
+  VectorDouble vec(2);
+
+  vec[0] = 0.;
+  vec[1] = getHmax();
+  return vec;
 }
 
 double Vario::getGmax(int ivar, int jvar, bool flagAbs, bool flagSill) const

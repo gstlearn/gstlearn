@@ -77,7 +77,7 @@ Direction coefficients      =      1.000     0.000
 Direction angles (degrees)  =      0.000     0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =     10.000
-Tolerance on distance       =     50.000 (% of the lag value)
+Tolerance on distance       =     50.000 (Percent of the lag value)
 
 For variable 1
       Rank    Npairs  Distance     Value
