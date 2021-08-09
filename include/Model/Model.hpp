@@ -63,7 +63,6 @@ public:
   bool   isFlagGradient() const { return _flagGradient; }
   bool   isFlagLinked() const { return _flagLinked; }
 
-
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
   const ACovAnisoList* getCovAnisoList()           const { return _covaList; }
@@ -189,5 +188,4 @@ public:
                                double weight,
                                VectorDouble d1,
                                double *covtab);
-
 };

@@ -23,7 +23,7 @@ SPDE::~SPDE()
   }
 }
 
-void SPDE::init(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
+void SPDE::init(Model& model, const Db& field, ANoStat* nostat, const Db* dat)
 {
   double nugget=0.;
   double totalSill = 0.;
@@ -39,7 +39,7 @@ void SPDE::init(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
     {
       nugget = cova->getSill(0,0);
     }
-    else if(cova->getType() == COV_BESSEL_K)
+    else if (cova->getType() == COV_BESSEL_K)
     {
       std::cout << "Bessel" << std::endl;
       totalSill += cova->getSill(0, 0);
@@ -51,7 +51,7 @@ void SPDE::init(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
       _pileShiftOp.push_back(shiftOp);
       _precistionLists.push_back(PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF));
 
-      if(dat!=nullptr)
+      if (dat != nullptr)
       {
 
       }
@@ -95,4 +95,3 @@ MeshETurbo* SPDE::createMeshing(const CovAniso & cova,
   }
   return new MeshETurbo(nx,cellSize,x0,field.getRotMat());
 }
-
