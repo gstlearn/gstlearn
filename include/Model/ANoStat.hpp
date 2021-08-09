@@ -29,11 +29,11 @@ public:
   virtual String toString(int level = 0) const override;
 
   bool isDefined() const { return ! _items.empty(); }
-  bool isDefinedByCov(int igrf, int icov);
-  bool isDefinedByType(int igrf, ENUM_CONS type);
-  bool isDefinedByCovType(int igrf, int icov, ENUM_CONS type);
-  bool isDefined(int igrf, int icov, ENUM_CONS type, int iv1=0, int iv2=0);
-  bool isDefinedforAnisotropy(int igrf, int icov);
+  bool isDefinedByCov(int igrf, int icov) const;
+  bool isDefinedByType(int igrf, ENUM_CONS type) const;
+  bool isDefinedByCovType(int igrf, int icov, ENUM_CONS type) const;
+  bool isDefined(int igrf, int icov, ENUM_CONS type, int iv1=0, int iv2=0) const;
+  bool isDefinedforAnisotropy(int igrf, int icov) const;
 
   virtual double getValue(int igrf,
                           int icov,

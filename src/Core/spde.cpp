@@ -1852,11 +1852,14 @@ GEOSLIB_API int spde_attach_model(Model *model)
   }
   /* Check incompatibility between non-stationary and multivariate */
 
-  if (st_get_nvar() > 1 &&
-      st_get_model()->getNoStat().isDefinedByType(-1, CONS_SILL))
+  if (st_get_nvar() > 1)
   {
-    messerr("Non-stationary Sill parameter is incompatible with multivariate");
-    return (1);
+    const ANoStat* nostat = st_get_model()->getNoStat();
+    if (nostat != nullptr && nostat->isDefinedByType(-1, CONS_SILL))
+    {
+      messerr("Non-stationary Sill parameter incompatible with multivariate");
+      return (1);
+    }
   }
 
   return (0);
@@ -1988,11 +1991,14 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
 
   /* Check incompatibility between non-stationary and multivariate */
 
-  if (st_get_nvar() > 1 &&
-      st_get_model()->getNoStat().isDefinedByType(-1, CONS_SILL))
+  if (st_get_nvar() > 1)
   {
-    messerr("Non-stationary Sill parameter is incompatible with multivariate");
-    return (1);
+    const ANoStat* nostat = model->getNoStat();
+    if (nostat != nullptr && nostat->isDefinedByType(-1, CONS_SILL))
+    {
+      messerr("Non-stationary Sill parameter incompatible with multivariate");
+      return (1);
+    }
   }
 
   if (st_get_ncova() > 1 || st_get_nvar() > 1 || st_is_model_nugget())
@@ -2018,9 +2024,10 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
  *****************************************************************************/
 static int st_identify_nostat_param(int icov0, ENUM_CONS type0, int ivar0, int jvar0)
 {
-  NoStatArray nostat = st_get_model()->getNoStat();
+  const NoStatArray* nostatarray =
+      dynamic_cast<const NoStatArray*>(st_get_model()->getNoStat());
   int igrf0 = st_get_current_igrf();
-  int ipar = nostat.getRank(igrf0, icov0, type0, ivar0, jvar0);
+  int ipar = nostatarray->getRank(igrf0, icov0, type0, ivar0, jvar0);
   return ipar;
 }
 
@@ -2886,7 +2893,8 @@ static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
 
 {
   Model* model = st_get_model();
-  NoStatArray& nostat = model->getNoStat();
+  const NoStatArray* nostatarray =
+      dynamic_cast<const NoStatArray*>(model->getNoStat());
 
   /* Initializations */
 
@@ -2898,12 +2906,12 @@ static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
 
   /* Update the Tensor 'hh' */
 
-  if (nostat.isDefinedforAnisotropy(igrf0, icov0))
+  if (nostatarray->isDefinedforAnisotropy(igrf0, icov0))
   {
     VectorDouble hhtot(ndim * ndim, 0.);
     for (int ic = 0; ic < ncorner; ic++)
     {
-      nostat.updateModel(model, amesh->getApex(imesh0, ic));
+      nostatarray->updateModel(model, amesh->getApex(imesh0, ic));
       st_compute_hh();
       ut_vector_cumul(hhtot, Calcul.hh, 1.);
     }
@@ -2914,32 +2922,32 @@ static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
 
   /* Update the Spherical Rotation array */
 
-  if (nostat.isDefined(igrf0, icov0, CONS_SPHEROT, -1, -1))
+  if (nostatarray->isDefined(igrf0, icov0, CONS_SPHEROT, -1, -1))
   {
     VectorDouble srot(2, 0.);
     for (int i = 0; i < 2; i++)
     {
-      int ipar = nostat.getRank(igrf0, icov0, CONS_SPHEROT, i, -1);
+      int ipar = nostatarray->getRank(igrf0, icov0, CONS_SPHEROT, i, -1);
       if (ipar < 0) continue;
       double total = 0.;
       for (int ic = 0; ic < ncorner; ic++)
-        total += nostat.getValue(ipar, 0, amesh->getApex(imesh0, ic));
+        total += nostatarray->getValue(ipar, 0, amesh->getApex(imesh0, ic));
       Calcul.srot[i] = total / (double) ncorner;
     }
   }
 
   /* Update the Velocity array */
 
-  if (nostat.isDefined(igrf0, icov0, CONS_VELOCITY, -1, -1))
+  if (nostatarray->isDefined(igrf0, icov0, CONS_VELOCITY, -1, -1))
   {
     VectorDouble vv(ndim, 0.);
     for (int idim = 0; idim < ndim; idim++)
     {
-      int ipar = nostat.getRank(igrf0, icov0, CONS_VELOCITY, idim, -1);
+      int ipar = nostatarray->getRank(igrf0, icov0, CONS_VELOCITY, idim, -1);
       if (ipar < 0) continue;
       double total = 0.;
       for (int ic = 0; ic < ncorner; ic++)
-        total += nostat.getValue(ipar, 0, amesh->getApex(imesh0, ic));
+        total += nostatarray->getValue(ipar, 0, amesh->getApex(imesh0, ic));
       Calcul.vv[idim] = total / (double) ncorner;
     }
   }
@@ -3763,7 +3771,8 @@ GEOSLIB_API VectorDouble spde_fill_Lambda(Model *model,
                                           MeshEStandard* amesh,
                                           const VectorDouble& TildeC)
 {
-  NoStatArray& nostat = model->getNoStat();
+  const NoStatArray* nostatarray =
+      dynamic_cast<const NoStatArray*>(model->getNoStat());
   VectorDouble Lambda;
   int igrf0   = st_get_current_igrf();
   int icov0   = st_get_current_icov();
@@ -3773,11 +3782,12 @@ GEOSLIB_API VectorDouble spde_fill_Lambda(Model *model,
 
   /* Fill the array */
 
-  if (st_is_model_nostat() && nostat.isDefinedforAnisotropy(igrf0, icov0))
+  if (st_is_model_nostat() &&
+      nostatarray->isDefinedforAnisotropy(igrf0, icov0))
   {
     for (int ip = 0; ip < nvertex; ip++)
     {
-      nostat.updateModel(model, ip);
+      nostatarray->updateModel(model, ip);
       st_compute_hh();
       double sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
       Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
@@ -7092,10 +7102,11 @@ GEOSLIB_API int spde_prepar(Db *dbin,
 
       /* Preparation in non-stationary case */
 
-      if (st_is_model_nostat() && !flag_AQ_defined)
+      if (st_is_model_nostat() && ! flag_AQ_defined)
       {
-        NoStatArray& nostat(st_get_model()->getNoStat());
-        nostat.attachMesh(dbout, amesh);
+        const NoStatArray* nostatarray =
+            dynamic_cast<const NoStatArray*>(st_get_model()->getNoStat());
+        nostatarray->attachMesh(amesh);
       }
 
       /* Prepare the projection matrix */

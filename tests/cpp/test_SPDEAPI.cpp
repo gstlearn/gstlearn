@@ -95,10 +95,10 @@ int main(int argc, char *argv[])
   /////////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
 
-  NoStatArray NoStat({"A"});
-  SPDE spde(model,workingDbc,&NoStat);
-  std::cout<<"end creation "<<std::endl;
-
+//  NoStatArray NoStat({"A"},&workingDbc);
+//  SPDE spde(model,workingDbc,&NoStat);
+//  std::cout<<"end creation "<<std::endl;
+//
 //  ShiftOpCs S(&mesh, &model, &workingDbc, &NoStat);
 //  PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
 //

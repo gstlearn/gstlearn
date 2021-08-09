@@ -62,7 +62,8 @@ public:
   double getWidth() const { return _width; }
 
   void setAnisoCoeff(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
-  void setAnisoCoeff(int idim, double value) { _anisoCoeffs[idim] = value; }
+  void setAnisoCoeff(int idim, double value);
+  void anisoRescale();
   void setAnisoRotMat(const VectorDouble& anisoRotMat) { _anisoRotMat = anisoRotMat; }
   void setDistCont(double distCont) { _distCont = distCont; }
   void setFlagAniso(int flagAniso) { _flagAniso = flagAniso; }

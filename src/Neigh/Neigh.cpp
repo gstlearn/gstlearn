@@ -511,3 +511,16 @@ int Neigh::serialize(const String& filename, bool verbose)
 
   return 0;
 }
+
+void Neigh::setAnisoCoeff(int idim, double value)
+{
+  if ((int) _anisoCoeffs.size() != _nDim)
+    _anisoCoeffs.resize(_nDim,1.);
+  _anisoCoeffs[idim] = value;
+}
+
+void Neigh::anisoRescale()
+{
+  for (int idim = 0; idim < _nDim; idim++)
+    _anisoCoeffs[idim] /= _radius;
+}

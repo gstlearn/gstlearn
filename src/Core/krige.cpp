@@ -907,7 +907,7 @@ static int st_check_environment(int    flag_in,
     }
     if (model->isNoStat())
     {
-      nparam = model->getNoStat().getNoStatElemNumber();
+      nparam = model->getNoStatElemNumber();
       
       if (flag_out && nparam != get_LOCATOR_NITEM(DBOUT,LOC_NOSTAT))
       {

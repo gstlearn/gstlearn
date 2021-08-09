@@ -86,7 +86,8 @@ int main(int argc, char *argv[])
   model.addCova(&cova);
 
   // Non-stationary part
-  NoStatArray NoStat({"A"});
+  NoStatArray nostat({"A"}, &workingDbc);
+  model.addNoStat(&nostat);
 
   //////////////////////
   // Creating the Meshing
@@ -94,7 +95,7 @@ int main(int argc, char *argv[])
 
   /////////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
-  ShiftOpCs S(&mesh, &model, &workingDbc, &NoStat);
+  ShiftOpCs S(&mesh, &model, &workingDbc, &nostat);
   PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
 
   ///////////////////////////////////////////////////

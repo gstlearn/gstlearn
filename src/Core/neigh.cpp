@@ -887,8 +887,8 @@ GEOSLIB_API Neigh *neigh_init(int ndim,
     neigh->setRadius(0.);
     for (int i=0; i<neigh->getNDim(); i++)
       neigh->setRadius(MAX(neigh->getRadius(),nbgh_radius[i]));
-    for (int i=0; i<neigh->getNDim(); i++)
-      neigh->setAnisoCoeff(i, nbgh_radius[i] / neigh->getRadius());
+    neigh->setAnisoCoeff(nbgh_radius);
+    neigh->anisoRescale();
   }
   if (neigh->getFlagRotation() && ! nbgh_rotmat.empty())
     neigh->setAnisoRotMat(nbgh_rotmat);

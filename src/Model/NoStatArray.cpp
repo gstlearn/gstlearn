@@ -23,6 +23,7 @@
 
 NoStatArray::NoStatArray()
     : ANoStat(),
+      _dbnostat(nullptr),
       _dbin(nullptr),
       _attIn(),
       _dbout(nullptr),
@@ -31,18 +32,22 @@ NoStatArray::NoStatArray()
 {
 }
 
-NoStatArray::NoStatArray(const VectorString& codes)
+NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
     : ANoStat(codes),
+      _dbnostat(dbnostat),
       _dbin(nullptr),
       _attIn(),
       _dbout(nullptr),
       _attOut(),
       _tab()
 {
+  if (! _checkValid())
+    my_throw("Error in the Definition of Non-Stationarity Parameters");
 }
 
 NoStatArray::NoStatArray(const NoStatArray &m)
     : ANoStat(m),
+      _dbnostat(m._dbnostat),
       _dbin(m._dbin),
       _attIn(m._attIn),
       _dbout(m._dbout),
@@ -57,6 +62,7 @@ NoStatArray& NoStatArray::operator= (const NoStatArray &m)
   if (this != &m)
   {
     ANoStat::operator=(m);
+    _dbnostat = m._dbnostat;
     _dbin = m._dbin;
     _attIn = m._attIn;
     _dbout = m._dbout;
@@ -71,7 +77,25 @@ NoStatArray::~NoStatArray()
 
 }
 
-int NoStatArray::attachMesh(const Db* db, const AMesh* mesh, bool verbose)
+bool NoStatArray::_checkValid() const
+{
+  // Get the number of non-stationary parameters from codes
+  int nparcd = getNoStatElemNumber();
+  if (nparcd <= 0) return false;
+
+  // Get the number of non-stationary parameters from Dbnostat
+  if (_dbnostat == nullptr) return false;
+  int npardb = _dbnostat->getLocatorNumber(LOC_NOSTAT);
+  if (npardb < nparcd)
+  {
+    messerr("The Non-Stationary codes require %d parameters", nparcd);
+    messerr("The Dbnostat only contains %d LOC_NOSTAT attributes", npardb);
+    return false;
+  }
+  return true;
+}
+
+int NoStatArray::attachMesh(const AMesh* mesh, bool verbose) const
 {
   double* coorloc[3];
 
@@ -79,13 +103,13 @@ int NoStatArray::attachMesh(const Db* db, const AMesh* mesh, bool verbose)
 
   // Preliminary checks
 
-  if (db == (Db *) NULL)
+  if (_dbnostat == nullptr)
   {
-    messerr("Db must be defined");
+    messerr("Dbnostat must be defined beforehand");
     return 1;
   }
-  int ndim = db->getNDim();
-  int flag_grid = is_grid(db);
+  int ndim = _dbnostat->getNDim();
+  int flag_grid = is_grid(_dbnostat);
   int npar = getNoStatElemNumber();
 
   // Local array
@@ -114,10 +138,11 @@ int NoStatArray::attachMesh(const Db* db, const AMesh* mesh, bool verbose)
   {
     // Identify the attribute in the Db
 
-    int iatt = db_attribute_identify(db,LOC_NOSTAT,ipar);
+    int iatt = db_attribute_identify(_dbnostat,LOC_NOSTAT,ipar);
     if (iatt < 0)
     {
-      messerr("The Non-stationary attribute (%d) is not defined in Db", ipar);
+      messerr("The Non-stationary attribute (%d) is not defined in Dbnostat",
+              ipar);
       goto label_end;
     }
 
@@ -125,13 +150,13 @@ int NoStatArray::attachMesh(const Db* db, const AMesh* mesh, bool verbose)
 
     if (flag_grid)
     {
-      if (migrate_grid_to_coor(db,iatt,nvertex,
+      if (migrate_grid_to_coor(_dbnostat,iatt,nvertex,
                                coorloc[0],coorloc[1],coorloc[2],
                                tab.data())) goto label_end;
     }
     else
     {
-      if (expand_point_to_coor(db,iatt,nvertex,
+      if (expand_point_to_coor(_dbnostat,iatt,nvertex,
                                coorloc[0],coorloc[1],coorloc[2],
                                tab.data())) goto label_end;
     }
@@ -188,7 +213,7 @@ int NoStatArray::attachMesh(const Db* db, const AMesh* mesh, bool verbose)
  * @param verbose Verbose flag
  * @return
  */
-int NoStatArray::attachDb(const Db* db, int icas, bool verbose)
+int NoStatArray::attachDb(const Db* db, int icas, bool verbose) const
 {
   int npar = getNoStatElemNumber();
 
@@ -341,6 +366,8 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 
     // From Dbin
 
+    if (_dbin == nullptr)
+      my_throw("Error: Dbin not defined");
     if (rank < 0 || rank > _dbin->getSampleNumber())
       my_throw(
           "Error: Invalid Rank in Dbin when searching for NonStat parameter");
@@ -351,9 +378,10 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 
     // From Dbout
 
+    if (_dbout == nullptr)
+      my_throw("Error: Dbout not defined");
     if (rank < 0 || rank > _dbout->getSampleNumber())
-      my_throw(
-          "Error: Invalid Rank in Dbout when searching for NonStat parameter");
+      my_throw("Error: Invalid Rank in Dbout when searching for NonStat parameter");
     return _dbout->getArray(rank, _attOut[ipar]);
   }
   else
@@ -363,7 +391,7 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
   return 0.;
 }
 
-double NoStatArray::_interpolate(int ipar, int iech1, int iech2)
+double NoStatArray::_interpolate(int ipar, int iech1, int iech2) const
 {
   double val1 = TEST;
   double val2 = TEST;
@@ -393,7 +421,7 @@ void NoStatArray::_getInfoFromDb(int ipar,
                                  int iech1,
                                  int iech2,
                                  double *val1,
-                                 double *val2)
+                                 double *val2) const
 {
   *val1 = *val2 = TEST;
   *val2 = TEST;
@@ -417,22 +445,26 @@ void NoStatArray::_getInfoFromDb(int ipar,
  * @param iech1 Rank of the target within Db1 (or -1)
  * @param iech2 Rank of the target within Dbout (or -2)
  */
-void NoStatArray::updateModel(Model* model, int iech1, int iech2)
+void NoStatArray::updateModel(Model* model, int iech1, int iech2) const
 {
   double val1, val2;
 
+  // If no non-stationary parameter is defined, simply skip
+  const ANoStat* nostat = model->getNoStat();
+  if (nostat == nullptr) return;
+
   // Loop on the elements that can be updated one-by-one
 
-  for (int ipar = 0; ipar < model->getNoStatElemNumber(); ipar++)
+  for (int ipar = 0; ipar < nostat->getNoStatElemNumber(); ipar++)
   {
-    int icov = model->getNoStat().getICov(ipar);
-    int type = model->getNoStat().getType(ipar);
+    int icov = nostat->getICov(ipar);
+    int type = nostat->getType(ipar);
 
     if (type == CONS_SILL)
     {
       _getInfoFromDb(ipar, iech1, iech2, &val1, &val2);
-      int iv1  = model->getNoStat().getIV1(ipar);
-      int iv2  = model->getNoStat().getIV2(ipar);
+      int iv1  = nostat->getIV1(ipar);
+      int iv2  = nostat->getIV2(ipar);
       model->setSill(icov, iv1, iv2, sqrt(val1 * val2));
     }
     else if (type == CONS_PARAM)
@@ -539,21 +571,24 @@ void NoStatArray::updateModel(Model* model, int iech1, int iech2)
  * @param model Model to be patched
  * @param vertex Rank of the target vertex
  */
-void NoStatArray::updateModel(Model* model, int vertex)
+void NoStatArray::updateModel(Model* model, int vertex) const
 {
+  // If no non-stationary parameter is defined, simply skip
+  const ANoStat* nostat = model->getNoStat();
+  if (nostat == nullptr) return;
 
   // Loop on the elements that can be updated one-by-one
 
   for (int ipar = 0; ipar < model->getNoStatElemNumber(); ipar++)
   {
-    int icov = model->getNoStat().getICov(ipar);
-    ENUM_CONS type = model->getNoStat().getType(ipar);
+    int icov = nostat->getICov(ipar);
+    ENUM_CONS type = nostat->getType(ipar);
 
     if (type == CONS_SILL)
     {
       double sill = getValue(ipar, 0, vertex);
-      int iv1  = model->getNoStat().getIV1(ipar);
-      int iv2  = model->getNoStat().getIV2(ipar);
+      int iv1  = nostat->getIV1(ipar);
+      int iv2  = nostat->getIV2(ipar);
       model->setSill(icov, iv1, iv2, sill);
     }
   }

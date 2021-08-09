@@ -16,7 +16,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/NoStatArray.hpp"
+#include "Model/ANoStat.hpp"
 
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
@@ -60,6 +60,7 @@ public:
   void   addDrift(const VectorString& driftSymbols);
   void   delDrift(int rank);
   void   delAllDrifts();
+  void   addNoStat(ANoStat* anostat);
   bool   isFlagGradient() const { return _flagGradient; }
   bool   isFlagLinked() const { return _flagLinked; }
 
@@ -116,25 +117,18 @@ public:
 
   /////////////////////////////////////////////////
   /// Shortcut for Non-stationary
-  int  getNoStatElemNumber() const { return _noStat.getNoStatElemNumber(); }
-  void addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2)
-  {
-    _noStat.addNoStatElem(igrf, icov, type, iv1, iv2);
-  }
-  void addNoStatElems(const VectorString& codes)
-  {
-    _noStat.addNoStatElems(codes);
-  }
-  ConsItem getConsItem(int ipar) const { return _noStat.getItems(ipar); }
+  int isNoStat() const;
+  const ANoStat* getNoStat() { return _noStat; }
+  int  getNoStatElemNumber() const;
+  void addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2);
+  void addNoStatElems(const VectorString& codes);
+  ConsItem getConsItem(int ipar) const;
   ////////////////////////////////////////////////
 
   double getField() const            { return _ctxt.getField(); }
-  int isNoStat() const               { return _noStat.isDefined(); }
-  NoStatArray& getNoStat()           { return _noStat; }
   ModTrans& getModTrans()            { return _modTrans; }
   int getDimensionNumber() const     { return _ctxt.getNDim(); }
-
-  void setField(double field)        {  _ctxt.setField(field); }
+  void setField(double field)        { _ctxt.setField(field); }
   int getModTransMode() const        { return _modTrans.getModTransMode(); }
 
   int getVariableNumber() const
@@ -177,7 +171,7 @@ private:
   ACovAnisoList* _covaList;     /* Series of Covariance structures */
   ADriftList*    _driftList;    /* Series of Drift functions */
   ModTrans       _modTrans;     /* Covariance Transformation */
-  NoStatArray    _noStat;       /* Description of Non-stationary Model */
+  ANoStat*       _noStat;       /* Description of Non-stationary Model */
   CovContext     _ctxt;         /* Context */
 
 public:
