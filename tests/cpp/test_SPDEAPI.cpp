@@ -61,7 +61,7 @@ double spirale(std::vector<double> pos)
 int main(int argc, char *argv[])
 
 {
-
+  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int seed = 10355;
   std::normal_distribution<double> d{0,1};
   std::uniform_real_distribution <double> u{0,1};
@@ -95,79 +95,81 @@ int main(int argc, char *argv[])
   /////////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
 
-//  NoStatArray NoStat({"A"},&workingDbc);
-//  SPDE spde(model,workingDbc,&NoStat);
-//  std::cout<<"end creation "<<std::endl;
-//
-//  ShiftOpCs S(&mesh, &model, &workingDbc, &NoStat);
-//  PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
-//
+  NoStatArray NoStat({"A"},&workingDbc);
+  model.addNoStat(&NoStat);
+  SPDE spde(model,workingDbc);
+  std::cout<<"end creation "<<std::endl;
+
+  ShiftOpCs S(&mesh, &model, &workingDbc);
+  PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
+
 //
 //  ///////////////////////////////////////////////////
 //  // Simulation (Chebyshev)
 //
-//  VectorDouble tab;
-//  VectorDouble resultSimu;
-//
-//  for (int iech = 0; iech < mesh.getNApices(); iech++)
-//  {
-//    tab.push_back(d(gen));
-//  }
-//
-//  resultSimu.resize(tab.size());
-//  Qsimu.eval(tab,resultSimu);
-//  workingDbc.addFields(resultSimu,"Simu",LOC_Z);
-//
-//
+  VectorDouble tab;
+  VectorDouble resultSimu;
+
+  for (int iech = 0; iech < mesh.getNApices(); iech++)
+  {
+    tab.push_back(d(gen));
+  }
+
+  resultSimu.resize(tab.size());
+  Qsimu.eval(tab,resultSimu);
+  workingDbc.addFields(resultSimu,"Simu",LOC_Z);
+
+
 //  // Création des données (peut-être qu'on pourrait utiliser un équivalent de db.grid.init)
-//  int ndata = 1000;
-//
-//
-//  VectorDouble coordsX,coordsY;
-//
-//  for (int iech = 0; iech < ndata; iech++)
-//  {
-//      coordsX.push_back(99. * u(gen));
-//      coordsY.push_back(99. * u(gen));
-//  }
-//
-//
-//  Db dat;
-//  dat.addFields(coordsX,"X");
-//  dat.addFields(coordsY,"Y");
-//  VectorString vct={"X","Y"};
-//  dat.setLocator(vct,LOC_X);
-//
-//  // Simulating Data points
-//
-//   ProjMatrix B(&dat,&mesh);
-//   VectorDouble datval(ndata);
-//   B.mesh2point(resultSimu,datval);
-//   dat.addFields(datval,"Simu",LOC_Z);
-//
-//   // Kriging
-//   double nug = 0.1;
-//   VectorDouble rhs(S.getSize());
-//   B.point2mesh(dat.getField("Simu"),rhs);
-//   for(auto &e:rhs)
-//   {
-//     e/=nug;
-//   }
-//
-//   PrecisionOp Qkriging(&S, &cova,POPT_ONE);
-//   PrecisionOpMultiConditional A;
-//   A.push_back(&Qkriging,&B);
-//   A.setNugget(0.01);
-//
-//
-//   VectorVectorDouble Rhs,resultvc;
-//   VectorDouble vc(S.getSize());
-//
-//   resultvc.push_back(vc);
-//   Rhs.push_back(VectorDouble(rhs));
-//
-////  A.evalInverse(Rhs,resultvc);
-////  workingDbc.addFields(resultvc[0],"Kriging");
+  int ndata = 1000;
+
+
+  VectorDouble coordsX,coordsY;
+
+  for (int iech = 0; iech < ndata; iech++)
+  {
+      coordsX.push_back(99. * u(gen));
+      coordsY.push_back(99. * u(gen));
+  }
+
+
+  Db dat;
+  dat.addFields(coordsX,"X");
+  dat.addFields(coordsY,"Y");
+  VectorString vct={"X","Y"};
+  dat.setLocator(vct,LOC_X);
+
+  // Simulating Data points
+
+   ProjMatrix B(&dat,&mesh);
+   VectorDouble datval(ndata);
+   B.mesh2point(resultSimu,datval);
+   dat.addFields(datval,"Simu",LOC_Z);
+
+   // Kriging
+   double nug = 0.1;
+   VectorDouble rhs(S.getSize());
+   B.point2mesh(dat.getField("Simu"),rhs);
+   for(auto &e:rhs)
+   {
+     e/=nug;
+   }
+
+   PrecisionOp Qkriging(&S, &cova,POPT_ONE);
+   PrecisionOpMultiConditional A;
+   A.push_back(&Qkriging,&B);
+   A.setNugget(0.01);
+
+
+   VectorVectorDouble Rhs,resultvc;
+   VectorDouble vc(S.getSize());
+
+   resultvc.push_back(vc);
+   Rhs.push_back(VectorDouble(rhs));
+
+   A.evalInverse(Rhs,resultvc);
+   workingDbc.addFields(resultvc[0],"Kriging");
+   workingDbc.serialize(pygst + "spde.ascii");
 //
   return 0;
 }

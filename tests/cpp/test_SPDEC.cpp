@@ -5,15 +5,10 @@
 #include "Db/Db.hpp"
 #include "geoslib_e.h"
 
-#include "LinearOp/PrecisionOpMultiConditional.hpp"
-#include "LinearOp/ProjMatrix.hpp"
+#include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
-#include "Mesh/AMesh.hpp"
-#include "Mesh/MeshETurbo.hpp"
-#include "Mesh/MeshFactory.hpp"
 
-#include "MatrixC/MatrixCRectangular.hpp"
 
 #include <algorithm>
 #include <math.h>
@@ -89,27 +84,8 @@ int main(int argc, char *argv[])
   NoStatArray nostat({"A"}, &workingDbc);
   model.addNoStat(&nostat);
 
-  //////////////////////
-  // Creating the Meshing
-  MeshETurbo mesh(workingDbc);
-
-  /////////////////////////////////////////////////////
-  // Creating the Precision Operator for simulation
-  ShiftOpCs S(&mesh, &model, &workingDbc);
-  PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
-
   ///////////////////////////////////////////////////
   // Simulation (Chebyshev)
-  VectorDouble tab;
-  VectorDouble resultSimu;
-  for (int iech = 0; iech < mesh.getNApices(); iech++)
-  {
-    tab.push_back(law_gaussian());
-  }
-
-  resultSimu.resize(tab.size());
-  Qsimu.eval(tab,resultSimu);
-  workingDbc.addFields(resultSimu,"Simu",LOC_Z);
 
   // Creating the Data
   int ndata = 1000;
@@ -120,35 +96,15 @@ int main(int argc, char *argv[])
   coormax[0] = 100.;
   coormax[1] = 100.;
   Db dat = Db(ndata, coormin, coormax);
+  VectorDouble tab;
 
-  // Simulating the Data points
-  ProjMatrix B(&dat, &mesh);
-  VectorDouble datval(ndata);
-  B.mesh2point(resultSimu, datval);
-  dat.addFields(datval, "Simu", LOC_Z);
-
-  // Kriging
-  double nug = 0.1;
-  VectorDouble rhs(S.getSize());
-  B.point2mesh(dat.getField("Simu"), rhs);
-  for (auto &e : rhs)
+  for (int iech = 0; iech < dat.getSampleNumber(); iech++)
   {
-    e /= nug;
+    tab.push_back(law_gaussian());
   }
 
-  PrecisionOp Qkriging(&S, &cova, POPT_ONE);
-  PrecisionOpMultiConditional A;
-  A.push_back(&Qkriging, &B);
-  A.setNugget(0.01);
+  dat.addFields(tab, "Simu", LOC_Z);
 
-  VectorVectorDouble Rhs, resultvc;
-  VectorDouble vc(S.getSize());
-
-  resultvc.push_back(vc);
-  Rhs.push_back(VectorDouble(rhs));
-
-  A.evalInverse(Rhs, resultvc);
-  workingDbc.addFields(resultvc[0], "Kriging");
-
+  SPDE spde(model,workingDbc,&dat);
   return 0;
 }
