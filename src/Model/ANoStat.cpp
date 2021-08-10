@@ -58,7 +58,7 @@ String ANoStat::toString(int level) const
  * @param icov Rank of Target Covariance (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedByCov(int igrf, int icov)
+bool ANoStat::isDefinedByCov(int igrf, int icov) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -75,7 +75,7 @@ bool ANoStat::isDefinedByCov(int igrf, int icov)
  * @param type Rank of Target Type (or CONS_UNKNOWN for any)
  * @return
  */
-bool ANoStat::isDefinedByType(int igrf, ENUM_CONS type)
+bool ANoStat::isDefinedByType(int igrf, ENUM_CONS type) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -93,7 +93,7 @@ bool ANoStat::isDefinedByType(int igrf, ENUM_CONS type)
  * @param type Rank of Target Type (or CONS_UNKNOWN for any)
  * @return
  */
-bool ANoStat::isDefinedByCovType(int igrf, int icov, ENUM_CONS type)
+bool ANoStat::isDefinedByCovType(int igrf, int icov, ENUM_CONS type) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -105,7 +105,11 @@ bool ANoStat::isDefinedByCovType(int igrf, int icov, ENUM_CONS type)
   return false;
 }
 
-bool ANoStat::isDefined(int igrf, int icov, ENUM_CONS type, int iv1, int iv2)
+bool ANoStat::isDefined(int igrf,
+                        int icov,
+                        ENUM_CONS type,
+                        int iv1,
+                        int iv2) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -125,7 +129,7 @@ bool ANoStat::isDefined(int igrf, int icov, ENUM_CONS type, int iv1, int iv2)
  * @param icov Rank of the Target Covariance (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedforAnisotropy(int igrf, int icov)
+bool ANoStat::isDefinedforAnisotropy(int igrf, int icov) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)

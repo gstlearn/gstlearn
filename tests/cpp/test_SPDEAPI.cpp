@@ -33,7 +33,6 @@ double fa(double x,double y,double a,double b)
 
 double spirale(std::vector<double> pos)
 {
-
   auto  a=0.;
   auto  b=-1.4;
   auto  c=1.;
@@ -74,7 +73,7 @@ int main(int argc, char *argv[])
   auto nx={ 101,101 };
   Db workingDbc(nx);
   VectorDouble angle;
-  // Génération des angles
+  // Generating angles
   for(auto &e : workingDbc.getCoordinates())
   {
     angle.push_back(spirale(e));
@@ -83,23 +82,23 @@ int main(int argc, char *argv[])
   workingDbc.addFields(angle,"angle",LOC_NOSTAT);
 
   ///////////////////////
-  // Création du modèle
+  // Creating the Model
   Model model = Model(&workingDbc);
   CovAniso cova = CovAniso(COV_BESSEL_K,model.getContext());
   cova.setRanges({10,45});
   model.addCova(&cova);
 
   //////////////////////
-  //Création du meshing
-
+  //Creating the Mesh
   MeshETurbo mesh(workingDbc);
 
   /////////////////////////////////////////////////////
-  //Création de l'opérateur de précision pour simulation
+  // Creating the Precision Operator for simulation
 
-  NoStatArray NoStat({"A"});
-  SPDE spde(model,workingDbc,&NoStat);
-  std::cout<<"end creation "<<std::endl;
+//  NoStatArray NoStat({"A"},&workingDbc);
+//  SPDE spde(model,workingDbc,&NoStat);
+//  std::cout<<"end creation "<<std::endl;
+//
 //  ShiftOpCs S(&mesh, &model, &workingDbc, &NoStat);
 //  PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
 //
@@ -139,14 +138,14 @@ int main(int argc, char *argv[])
 //  VectorString vct={"X","Y"};
 //  dat.setLocator(vct,LOC_X);
 //
-//  // Simulation des points de données
+//  // Simulating Data points
 //
 //   ProjMatrix B(&dat,&mesh);
 //   VectorDouble datval(ndata);
 //   B.mesh2point(resultSimu,datval);
 //   dat.addFields(datval,"Simu",LOC_Z);
 //
-//   //Kriging
+//   // Kriging
 //   double nug = 0.1;
 //   VectorDouble rhs(S.getSize());
 //   B.point2mesh(dat.getField("Simu"),rhs);
@@ -170,7 +169,5 @@ int main(int argc, char *argv[])
 ////  A.evalInverse(Rhs,resultvc);
 ////  workingDbc.addFields(resultvc[0],"Kriging");
 //
-
-
   return 0;
 }

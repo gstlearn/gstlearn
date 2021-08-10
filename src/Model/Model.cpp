@@ -135,7 +135,7 @@ String Model::toString(int level) const
 
   // Non-stationary parameters
 
-  sstr << _noStat.toString();
+  if (isNoStat()) sstr << _noStat->toString();
 
   // Model Transformation Option
 
@@ -196,6 +196,41 @@ int Model::hasExternalCov() const
     if (_covaList->getType(icov) == COV_FUNCTION) return 1;
   }
   return 0;
+}
+
+void Model::addNoStat(ANoStat* anostat)
+{
+  _noStat = anostat;
+}
+
+int Model::isNoStat() const
+{
+  return _noStat != nullptr;
+}
+
+int Model::getNoStatElemNumber() const
+{
+  if (! isNoStat()) return 0;
+  return _noStat->getNoStatElemNumber();
+}
+
+void Model::addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2)
+{
+  if (! isNoStat()) return;
+  _noStat->addNoStatElem(igrf, icov, type, iv1, iv2);
+}
+
+void Model::addNoStatElems(const VectorString& codes)
+{
+  if (! isNoStat()) return;
+  _noStat->addNoStatElems(codes);
+}
+
+ConsItem Model::getConsItem(int ipar) const
+{
+  if (isNoStat())
+    my_throw("Nostat is not defined and cannot be returned");
+  return _noStat->getItems(ipar);
 }
 
 double Model::evaluateDrift(const Db* db, int iech, int il, int member) const

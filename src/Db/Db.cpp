@@ -3023,7 +3023,7 @@ int Db::getAttribute(const String& name) const
 }
 
 /**
- * This is a BASIC function returning the the vector of ranks of the Attribute
+ * This is a BASIC function returning the vector of ranks of the Attribute
  * which corresponds to a set of existing names
  */
 VectorInt Db::getAttributesBasic(const VectorString& names) const

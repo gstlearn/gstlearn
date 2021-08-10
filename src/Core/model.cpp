@@ -17,6 +17,7 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
+#include "Model/NoStatArray.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
 
@@ -59,7 +60,9 @@ GEOSLIB_API void model_nostat_update(CovNostatInternal *cov_nostat,
   int iech1 = cov_nostat->iech1;
   int iech2 = cov_nostat->iech2;
 
-  model->getNoStat().updateModel(model, iech1, iech2);
+  const NoStatArray* nostatarray =
+      dynamic_cast<const NoStatArray*>(model->getNoStat());
+  nostatarray->updateModel(model, iech1, iech2);
 }
 
 /****************************************************************************/
@@ -1159,8 +1162,9 @@ GEOSLIB_API Model *model_free(Model *model)
  *****************************************************************************/
 GEOSLIB_API int is_model_nostat_param(Model *model, ENUM_CONS type0)
 {
-  NoStatArray& nostat = model->getNoStat();
-  if (nostat.isDefinedByType(-1, type0)) return 1;
+  if (! model->isNoStat()) return 1;
+  const ANoStat* nostat = model->getNoStat();
+  if (nostat->isDefinedByType(-1, type0)) return 1;
 
   return (0);
 }

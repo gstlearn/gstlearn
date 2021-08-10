@@ -22,6 +22,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/ANoStat.hpp"
+#include "Model/NoStatArray.hpp"
 
 ShiftOpCs::ShiftOpCs()
     : ALinearOp(),
@@ -219,7 +220,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
         messerr("Problem when attaching 'dbout' to Non-Stationary Parameters");
         return 1;
       }
-      if (nostatarray->attachMesh(dbout, amesh, verbose))
+      if (nostatarray->attachMesh(amesh, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
@@ -326,7 +327,7 @@ int ShiftOpCs::initGradFromMesh(AMesh* amesh,
         return 1;
       }
       NoStatArray* nostatarray = dynamic_cast<NoStatArray*>(nostat);
-      if (nostatarray->attachMesh(dbout, amesh, verbose))
+      if (nostatarray->attachMesh(amesh, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;

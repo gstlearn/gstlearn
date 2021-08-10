@@ -13,6 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Model/NoStatArray.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 
@@ -4891,7 +4892,14 @@ GEOSLIB_API int db_model_nostat(Db *db,
 
   // Attach the Non-stationary description to the model
 
-  model->getNoStat().attachDb(db, 1);
+  // Nothing is done if there is no non-stationary parameter
+  const ANoStat* nostat = model->getNoStat();
+  if (nostat == nullptr) return 0;
+
+  // The Non-stationary must be defined in the tabulated way
+  const NoStatArray* nostatarray =
+      dynamic_cast<const NoStatArray*>(model->getNoStat());
+  nostatarray->attachDb(db, 1);
 
   /* Create the new variables */
 
