@@ -31,8 +31,10 @@ public:
                   int rank) const override;
   double getValue(int ipar, int icas, int rank) const override;
 
-  int attachMesh(const AMesh* mesh, bool verbose = false) const;
-  int attachDb(const Db* db, int icas, bool verbose = false) const;
+  int attachToMesh(const AMesh* mesh, bool verbose = false) const;
+  void detachFromMesh(bool verbose) const;
+  int attachToDb(Db* db, bool verbose = false) const;
+  void detachFromDb(Db* db, bool verbose) const;
   String displayStats(int ipar, int icas) const;
   String displayStats(int icas) const;
 
@@ -49,6 +51,11 @@ private:
                       double *val1,
                       double *val2) const;
   double _interpolate(int ipar, int iech1, int iech2) const;
+  int _informField(int ipar,
+                   int nech,
+                   double* coor[3],
+                   VectorDouble& tab,
+                   bool verbose) const;
 
 private:
   const Db* _dbnostat;

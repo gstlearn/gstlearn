@@ -4899,7 +4899,7 @@ GEOSLIB_API int db_model_nostat(Db *db,
   // The Non-stationary must be defined in the tabulated way
   const NoStatArray* nostatarray =
       dynamic_cast<const NoStatArray*>(model->getNoStat());
-  nostatarray->attachDb(db, 1);
+  nostatarray->attachToDb(db);
 
   /* Create the new variables */
 

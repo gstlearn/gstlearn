@@ -107,11 +107,11 @@ ShiftOpCs::~ShiftOpCs()
  * @return Error return code
  */
 int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
-                             Model* model,
-                             Db * dbout,
-                             ANoStat* nostat,
-                             bool flagAdvection,
-                             bool verbose)
+                               Model* model,
+                               Db* dbout,
+                               ANoStat* nostat,
+                               bool flagAdvection,
+                               bool verbose)
 {
   double* units;
 
@@ -215,12 +215,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
         return 1;
       }
       NoStatArray* nostatarray = dynamic_cast<NoStatArray*>(nostat);
-      if (nostatarray->attachDb(dbout, 2, verbose))
-      {
-        messerr("Problem when attaching 'dbout' to Non-Stationary Parameters");
-        return 1;
-      }
-      if (nostatarray->attachMesh(amesh, verbose))
+      if (nostatarray->attachToMesh(amesh, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
@@ -327,7 +322,7 @@ int ShiftOpCs::initGradFromMesh(AMesh* amesh,
         return 1;
       }
       NoStatArray* nostatarray = dynamic_cast<NoStatArray*>(nostat);
-      if (nostatarray->attachMesh(amesh, verbose))
+      if (nostatarray->attachToMesh(amesh, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;

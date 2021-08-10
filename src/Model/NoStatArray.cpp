@@ -95,183 +95,118 @@ bool NoStatArray::_checkValid() const
   return true;
 }
 
-int NoStatArray::attachMesh(const AMesh* mesh, bool verbose) const
+int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
 {
   double* coorloc[3];
 
-  int error = 1;
-
   // Preliminary checks
-
   if (_dbnostat == nullptr)
   {
     messerr("Dbnostat must be defined beforehand");
     return 1;
   }
-  int ndim = _dbnostat->getNDim();
-  int flag_grid = is_grid(_dbnostat);
-  int npar = getNoStatElemNumber();
-
-  // Local array
-
-  int nvertex = mesh->getNApices();
-  VectorDouble tab(nvertex,0);
-  double* coor = (double *) mem_alloc(sizeof(double) * ndim * nvertex, 1);
 
   // Create the array of coordinates
 
+  int ndim    = _dbnostat->getNDim();
+  int nvertex = mesh->getNApices();
+  VectorDouble tab(nvertex,0);
+  double* coor = (double *) mem_alloc(sizeof(double) * ndim * nvertex, 1);
   int ecr = 0;
   for (int idim=0; idim<ndim; idim++)
     for (int ip=0; ip<nvertex; ip++,ecr++)
       coor[ecr] = mesh->getApexCoor(ip,idim);
-
   for (int idim=0; idim<3; idim++)
     coorloc[idim] = (idim < ndim) ? &coor[idim * nvertex] : NULL;
 
   // Create the internal array
 
+  int npar = getNoStatElemNumber();
   _tab.reset(nvertex, npar);
 
   /* Evaluate the non-stationary parameters */
 
   for (int ipar=0; ipar<npar; ipar++)
   {
-    // Identify the attribute in the Db
-
-    int iatt = db_attribute_identify(_dbnostat,LOC_NOSTAT,ipar);
-    if (iatt < 0)
-    {
-      messerr("The Non-stationary attribute (%d) is not defined in Dbnostat",
-              ipar);
-      goto label_end;
-    }
-
-    // Migrate the information from Db onto the Vertex locations
-
-    if (flag_grid)
-    {
-      if (migrate_grid_to_coor(_dbnostat,iatt,nvertex,
-                               coorloc[0],coorloc[1],coorloc[2],
-                               tab.data())) goto label_end;
-    }
-    else
-    {
-      if (expand_point_to_coor(_dbnostat,iatt,nvertex,
-                               coorloc[0],coorloc[1],coorloc[2],
-                               tab.data())) goto label_end;
-    }
-
-    int ndef = ut_vector_count_undefined(tab);
-    if (ndef > 0)
-    {
-
-      // Calculate local statistics
-
-      double mean = ut_vector_mean(tab);
-      if (FFFF(mean))
-      {
-        messageFlush(getItems(ipar).toString());
-        messerr("This Non-Stationary parameter is not valid");
-        return 1;
-      }
-
-      message("For Non-Stationary Parameter (%d), there are some undefined values (%d)\n",
-          ipar + 1, ndef);
-      message("They have been replaced by its average value (%lf)\n", mean);
-
-      // Modify the TEST values to the mean value
-
-      for (int ip = 0; ip < nvertex; ip++)
-      {
-        if (FFFF(tab[ip])) tab[ip] = mean;
-      }
-    }
+    // Evaluate the non-stationary attribute at the target points
+    if (_informField(ipar, nvertex, coorloc, tab, verbose)) return 1;
 
     // Store the local vector within the Matrix
-
     _tab.setColumn(ipar, tab);
-
-    // Printout some statistics (optional)
-
-    if (verbose)
-      ut_vector_display_stats(stringCompose("Statistics for Non-Stationary Parameter #%d on Mesh",ipar+1),tab);
   }
 
-  // Set the error return code
-
-  error = 0;
-
-  label_end:
   coor = (double *) mem_free((char *) coor);
-  return error;
+  return 0;
+}
+
+void NoStatArray::detachFromMesh(bool verbose) const
+{
+  _tab.reset(0,0);
 }
 
 /**
  * Attaching the current Non-Stationary parameters to the Db
- * @param db      Db containing the LOC_NOSTAT fields
- * @param icas    Type of Db: 1 for 'dbin' and 2 for 'dbout
+ * This function creates new fields set to the locator LOC_NOSTAT.
+ * They will be deleted using the detachFromDb() method.
+ * @param db      Db where the new LOC_NOSTAT fields must be added
  * @param verbose Verbose flag
  * @return
  */
-int NoStatArray::attachDb(const Db* db, int icas, bool verbose) const
+int NoStatArray::attachToDb(Db* db, bool verbose) const
 {
-  int npar = getNoStatElemNumber();
+  double* coorloc[3];
 
   // Preliminary checks
-
-  if (db == (Db *) NULL)
+  if (_dbnostat == nullptr)
   {
-    messerr("Db must be defined");
-    return 1;
-  }
-  if (icas != 1 && icas != 2)
-  {
-    messerr("Argument 'icas' should be 1 or 2");
+    messerr("Dbnostat must be defined beforehand");
     return 1;
   }
 
-  // Save the pointers to the Data Bases
+  // If the Db to be attached coincides with _dbnostat, do nothing
+  if (db == _dbnostat) return 0;
 
-  if (icas == 1)
-  {
-    _dbin = db;
-    _attIn.clear();
-  }
-  else
-  {
-    _dbout = db;
-    _attOut.clear();
-  }
+  // Create the array of coordinates
+
+  int ndim = _dbnostat->getNDim();
+  int nech = db->getActiveSampleNumber();
+
+  VectorDouble tab(nech,0);
+  double* coor = (double *) mem_alloc(sizeof(double) * ndim * nech, 1);
+  int ecr = 0;
+  for (int idim=0; idim<ndim; idim++)
+    for (int iech=0; iech<db->getSampleNumber(); iech++)
+    {
+      if (! db->isActive(iech)) continue;
+      coor[ecr] = db->getCoordinate(iech,idim);
+      ecr++;
+    }
+  for (int idim=0; idim<3; idim++)
+    coorloc[idim] = (idim < ndim) ? &coor[idim * nech] : NULL;
 
   /* Identify the non-stationary parameters within data base(s) */
 
+  int npar = getNoStatElemNumber();
+  VectorString names = generateMultipleNames("Nostat",npar);
   for (int ipar=0; ipar<npar; ipar++)
   {
-    // Identify the attribute in the input Db
+    // Evaluate the non-stationary attribute at the target points
+    if (_informField(ipar, nech, coorloc, tab, verbose)) return 1;
 
-    int attIn = db_attribute_identify(db, LOC_NOSTAT, ipar);
-    if (attIn < 0)
-    {
-      messerr("The Non-stationary attribute (%d) is not defined in Db", ipar+1);
-      return 1;
-    }
-    _attIn.push_back(attIn);
-
-    // Printout some statistics (optional)
-
-    if (verbose)
-    {
-      VectorInt atts;
-      atts.push_back(attIn);
-      VectorString opers;
-      opers.push_back("mean");
-      db_stats_print(db,atts,opers,0,0,
-                     stringCompose("Statistics for Non-Stationary Parameter #%d on Mesh",
-                                   ipar+1));
-    }
+    // Store the local vector within the Db as a new field
+    db->addFields(tab,names[ipar],LOC_UNKNOWN,true);
   }
 
+  // Set locators to the newly created variables
+  db->setLocator(names,LOC_NOSTAT);
+
+  coor = (double *) mem_free((char *) coor);
   return 0;
+}
+
+void NoStatArray::detachFromDb(Db* db, bool verbose) const
+{
+  db->deleteFieldByLocator(LOC_NOSTAT);
 }
 
 /**
@@ -719,3 +654,66 @@ String NoStatArray::toString(int level) const
   return sstr.str();
 }
 
+int NoStatArray::_informField(int ipar,
+                              int nech,
+                              double* coor[3],
+                              VectorDouble& tab,
+                              bool verbose) const
+{
+  // Identify the attribute in the Db
+
+  int iatt = db_attribute_identify(_dbnostat, LOC_NOSTAT, ipar);
+  if (iatt < 0)
+  {
+    messerr("The Non-stationary attribute (%d) is not defined in Dbnostat",
+            ipar);
+    return 1;
+  }
+
+  // Migrate the information from Db onto the Vertex locations
+
+  if (is_grid(_dbnostat))
+  {
+    if (migrate_grid_to_coor(_dbnostat, iatt, nech, coor[0], coor[1],
+                             coor[2], tab.data())) return 1;
+  }
+  else
+  {
+    if (expand_point_to_coor(_dbnostat, iatt, nech, coor[0], coor[1],
+                             coor[2], tab.data())) return 1;
+  }
+
+  int ndef = ut_vector_count_undefined(tab);
+  if (ndef > 0)
+  {
+
+    // Calculate local statistics
+
+    double mean = ut_vector_mean(tab);
+    if (FFFF(mean))
+    {
+      messageFlush(getItems(ipar).toString());
+      messerr("This Non-Stationary parameter is not valid");
+      return 1;
+    }
+
+    message("For Non-Stationary Parameter (%d), there are some undefined values (%d)\n",
+        ipar + 1, ndef);
+    message("They have been replaced by its average value (%lf)\n", mean);
+
+    // Modify the TEST values to the mean value
+
+    for (int ip = 0; ip < nech; ip++)
+    {
+      if (FFFF(tab[ip])) tab[ip] = mean;
+    }
+  }
+
+  // Printout some statistics (optional)
+
+  if (verbose)
+    ut_vector_display_stats(stringCompose("Statistics for Non-Stationary Parameter #%d on Mesh",
+                                          ipar + 1),tab);
+
+  return 0;
+}
