@@ -7106,7 +7106,7 @@ GEOSLIB_API int spde_prepar(Db *dbin,
       {
         const NoStatArray* nostatarray =
             dynamic_cast<const NoStatArray*>(st_get_model()->getNoStat());
-        nostatarray->attachMesh(amesh);
+        nostatarray->attachToMesh(amesh);
       }
 
       /* Prepare the projection matrix */
@@ -7181,6 +7181,32 @@ GEOSLIB_API int spde_prepar(Db *dbin,
   label_end: st_set_current_igrf(0);
   st_set_current_icov(0);
   return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Cleaning operation after SPDE
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Db structure for the conditioning data
+ ** \param[in]  dbout       Db structure of the grid
+ ** \param[in]  gext        Array of domain dilation
+ ** \param[in]  s_option    SPDE_Option structure
+ **
+ *****************************************************************************/
+GEOSLIB_API int spde_posterior(Db *dbin,
+                               Db *dbout,
+                               const VectorDouble& gext,
+                               SPDE_Option& s_option)
+{
+  if (st_is_model_nostat())
+  {
+    const NoStatArray* nostatarray =
+        dynamic_cast<const NoStatArray*>(st_get_model()->getNoStat());
+    nostatarray->detachFromMesh(false);
+  }
+  return 0;
 }
 
 /****************************************************************************/
@@ -7881,8 +7907,7 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
   /* Preliminary checks */
 
   if (spde_check(dbin, NULL, model, NULL, verbose, VectorDouble(),
-                 1, 1, 1, 1, 0, 0, 0))
-    goto label_end;
+                 1, 1, 1, 1, 0, 0, 0)) goto label_end;
   if (st_get_number_grf() != 1)
   {
     messerr("This function should be called in the case of a single Model");
@@ -7946,6 +7971,10 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
   (void) memcpy((char *) *meshes_arg, (char *) s_mesh->meshes,
                 sizeof(int) * size);
   *nmesh_arg = s_mesh->nmesh;
+
+  /* Cleaning procedure */
+
+  spde_posterior(NULL, dbin, VectorDouble(), s_option);
 
   /* Set the error code */
 
@@ -8061,6 +8090,10 @@ GEOSLIB_API int spde_f(Db *dbin,
 
   if (spde_process(dbin, dbout, s_option, nbsimu, ngibbs_burn, ngibbs_iter,
                    ngibbs_int)) goto label_end;
+
+  /* Garbage collector */
+
+  spde_posterior(dbin, dbout, gext, s_option);
 
   /* Set the error return code */
 
@@ -11017,6 +11050,7 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
   /* Set the error code */
 
+  spde_posterior(dbc, dbout, VectorDouble(), s_option);
   error = 0;
 
   label_end: (void) st_m2d_drift_inc_manage(m2denv, -1, nlayer, icol_pinch, dbc,

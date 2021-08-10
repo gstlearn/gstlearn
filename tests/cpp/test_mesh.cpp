@@ -145,9 +145,9 @@ int main(int argc, char *argv[])
   /* Instantiate the ShiftOp */
 
   if (! flag_mesh)
-    shiftop.initFromMesh(mesh,model,NULL,NULL);
+    shiftop.initFromMesh(mesh,model,NULL);
   else
-    shiftop.initFromMesh(meshb,model,NULL,NULL,0,verbose);
+    shiftop.initFromMesh(meshb,model,NULL,0,0,verbose);
   
   return(0);
 }

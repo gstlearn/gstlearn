@@ -60,7 +60,7 @@ public:
   void   addDrift(const VectorString& driftSymbols);
   void   delDrift(int rank);
   void   delAllDrifts();
-  void   addNoStat(ANoStat* anostat);
+  int    addNoStat(ANoStat* anostat);
   bool   isFlagGradient() const { return _flagGradient; }
   bool   isFlagLinked() const { return _flagLinked; }
 
@@ -122,6 +122,8 @@ public:
   int  getNoStatElemNumber() const;
   void addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2);
   void addNoStatElems(const VectorString& codes);
+  int  getNoStatElemIcov(int ipar);
+  ENUM_CONS getNoStatElemType(int ipar);
   ConsItem getConsItem(int ipar) const;
   ////////////////////////////////////////////////
 

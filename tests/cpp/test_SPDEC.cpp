@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
   /////////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
-  ShiftOpCs S(&mesh, &model, &workingDbc, &nostat);
+  ShiftOpCs S(&mesh, &model, &workingDbc);
   PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
 
   ///////////////////////////////////////////////////
