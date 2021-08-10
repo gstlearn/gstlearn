@@ -13,12 +13,10 @@ class SPDE
 public:
   SPDE(Model& model,
        const Db& field,
-       ANoStat* nostat=nullptr,
        const Db* dat=nullptr);
 
   void init(Model& model,
             const Db& field,
-            ANoStat* nostat,
             const Db* dat=nullptr);
 
   MeshETurbo* createMeshing(const CovAniso& cova,

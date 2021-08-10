@@ -22,6 +22,7 @@
 
 class Model;
 class CovAniso;
+class NoStatArray;
 
 /**
  * \brief Shift Operator for performing the basic tasks of SPDE
@@ -34,7 +35,6 @@ public:
   ShiftOpCs(AMesh* amesh,
             Model* model,
             const Db* dbout = nullptr,
-            ANoStat* nostat = nullptr,
             int igrf = 0,
             int icov = 0,
             bool verbose = false);
@@ -52,13 +52,11 @@ public:
   int initFromOldMesh(SPDE_Mesh* s_mesh,
                       Model* model,
                       Db* dbout = nullptr,
-                      ANoStat* nostat = nullptr,
                       bool flagAdvection = false,
                       bool verbose = false);
   int initFromMesh(AMesh* amesh,
                    Model* model,
                    const Db* dbout = nullptr,
-                   ANoStat* nostat = nullptr,
                    int igrf = 0,
                    int icov = 0,
                    bool flagAdvection = false,
@@ -66,7 +64,6 @@ public:
   int initGradFromMesh(AMesh* amesh,
                        Model* model,
                        Db* dbout,
-                       ANoStat* nostat = nullptr,
                        int igrf = 0,
                        int icov = 0,
                        bool verbose = false,
@@ -94,86 +91,48 @@ public:
   const VectorDouble& getLambdaGrad(int idim) const { return _LambdaGrad[idim]; }
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
+
+
 private:
-  int _buildS(AMesh *amesh,
-              const CovAniso& cova,
-              int igrf,
-              int icov,
-              ANoStat* nostat,
-              double tol = EPSILON10);
-  int _buildSVel(AMesh *amesh,
-                 const CovAniso& cova,
-                 int igrf,
-                 int icov,
-                 ANoStat* nostat,
-                 double tol = EPSILON10);
-  int _buildSSphere(AMesh *amesh,
-                    const CovAniso& cova,
-                    int igrf,
-                    int icov,
-                    ANoStat* nostat,
-                    double tol = EPSILON10);
-  int _buildSGrad(AMesh *amesh,
-                  const CovAniso& cova,
-                  int igrf,
-                  int icov,
-                  ANoStat* nostat,
-                  double tol = EPSILON10);
+  int _getIcov() const { return _icov; }
+  void _setIcov(int icov) { _icov = icov; }
+  int _getIgrf() const { return _igrf; }
+  void _setIgrf(int igrf) { _igrf = igrf; }
+  Model* _getModel() const { return _model; }
+  void _setModel(Model* model) { _model = model; }
+  bool _isNoStat();
+  bool _isVelocity();
+  const NoStatArray* _getNoStatArray();
+  const CovAniso* _getCova();
+
+  int _buildS(AMesh *amesh, double tol = EPSILON10);
+  int _buildSVel(AMesh *amesh, double tol = EPSILON10);
+  int _buildSSphere(AMesh *amesh, double tol = EPSILON10);
+  int _buildSGrad(AMesh *amesh, double tol = EPSILON10);
   int  _buildTildeC(AMesh *amesh, const VectorDouble& units);
-  void _buildLambda(AMesh *amesh,
-                    const CovAniso& cova,
-                    int igrf,
-                    int icov,
-                    ANoStat* nostat);
-  bool _buildLambdaGrad(AMesh *amesh,
-                      CovAniso& cova,
-                      int igrf,
-                      int icov,
-                      ANoStat* nostat);
-  void _loadHHByApex(MatrixCSGeneral& hh,
-                     const CovAniso& cova,
-                     int igrf = 0,
-                     int icov = 0,
-                     int ip = 0,
-                     ANoStat* nostat = nullptr);
+  void _buildLambda(AMesh *amesh);
+  bool _buildLambdaGrad(AMesh *amesh);
+  void _loadHHByApex(MatrixCSGeneral& hh, int ip);
   void _loadHHGradByApex(MatrixCSGeneral& hh,
-                         const CovAniso& covini,
                          int igparam,
-                         int igrf,
-                         int icov,
                          int ip,
-                         ANoStat* nostat,
                          bool flagFormal = true);
   void _loadAux(VectorDouble& tab,
-                int igrf,
-                int icov,
                 ENUM_CONS type,
-                int ip = 0,
-                ANoStat *nostat = nullptr);
+                int ip);
   void _loadHHPerMesh(MatrixCSGeneral& hh,
                       AMesh* amesh,
-                      const CovAniso& cova,
-                      int igrf = 0,
-                      int icov = 0,
-                      int imesh = 0,
-                      ANoStat* nostat = nullptr);
+                      int imesh = 0);
   void _loadHHGradPerMesh(MatrixCSGeneral& hh,
                           AMesh* amesh,
-                          const CovAniso& cova,
                           int igp0,
                           int igparam,
-                          int igrf = 0,
-                          int icov = 0,
                           int imesh = 0,
-                          ANoStat* nostat = nullptr,
                           bool flagFormal = true);
   void _loadAuxPerMesh(VectorDouble& tab,
                        AMesh* amesh,
-                       int igrf,
-                       int icov,
                        ENUM_CONS type,
-                       int imesh = 0,
-                       ANoStat* nostat = nullptr);
+                       int imesh = 0);
   void _reset();
   void _resetGrad();
   void _reallocate(const ShiftOpCs& shift);
@@ -186,7 +145,7 @@ private:
                       MatrixCSGeneral& matu,
                       MatrixCRectangular& matw) const;
   cs* _BuildSfromMap(std::map<std::pair<int, int>, double> &tab);
-  void _updateCova(CovAniso& cova, int igrf, int icov, int ip, int ndim, ANoStat* nostat);
+  void _updateCova(CovAniso* cova, int ip, int ndim);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
 
 private:
@@ -197,4 +156,9 @@ private:
   std::vector<cs *> _SGrad;
   std::vector<VectorDouble> _LambdaGrad;
   int _dim;
+
+  // Following list f members are there to ease the manipulation and reduce argument list
+  Model* _model;
+  int _igrf;
+  int _icov;
 };

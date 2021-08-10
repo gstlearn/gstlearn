@@ -198,9 +198,38 @@ int Model::hasExternalCov() const
   return 0;
 }
 
-void Model::addNoStat(ANoStat* anostat)
+int Model::addNoStat(ANoStat* anostat)
 {
+  if (getDimensionNumber() > 3)
+  {
+    messerr("Non stationary model is restricted to Space Dimension <= 3");
+    return 1;
+  }
+
+  for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
+  {
+    int icov = getNoStatElemIcov(ipar);
+    ENUM_CONS type = getNoStatElemType(ipar);
+
+    // Check that the Non-stationary parameter is valid with respect
+    // to the Model definition
+
+    if (icov < 0 || icov >= getCovaNumber())
+    {
+      messerr(
+          "Invalid Covariance rank (%d) for the Non-Stationary Parameter (%d)",
+          icov, ipar);
+      return 1;
+    }
+    if (type == CONS_PARAM)
+    {
+      messerr(
+          "The current methodology does not handle constraint on third parameter");
+      return 1;
+    }
+  }
   _noStat = anostat;
+  return 0;
 }
 
 int Model::isNoStat() const
@@ -228,9 +257,23 @@ void Model::addNoStatElems(const VectorString& codes)
 
 ConsItem Model::getConsItem(int ipar) const
 {
-  if (isNoStat())
+  if (! isNoStat())
     my_throw("Nostat is not defined and cannot be returned");
   return _noStat->getItems(ipar);
+}
+
+int Model::getNoStatElemIcov(int ipar)
+{
+  if (! isNoStat())
+    my_throw("Nostat is not defined");
+  return _noStat->getICov(ipar);
+}
+
+ENUM_CONS Model::getNoStatElemType(int ipar)
+{
+  if (! isNoStat())
+    my_throw("Nostat is not defined");
+  return _noStat->getType(ipar);
 }
 
 double Model::evaluateDrift(const Db* db, int iech, int il, int member) const

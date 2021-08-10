@@ -217,7 +217,7 @@ const int ANoStat::attachModel(const Model* model)
     return 1;
   }
 
-  // Patch. It may happen that the Model already contain the parameters of the ANostat
+  // Patch. It may happen that the Model already contains the parameters of the ANostat
   // which are better defined than in the Current ANostat structure
   // In this case copy the ANostat parameters from Model to Current
   // TODO: Remove this part of code

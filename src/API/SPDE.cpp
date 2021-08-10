@@ -10,9 +10,9 @@
 #include "Db/Db.hpp"
 #include <iostream>
 
-SPDE::SPDE(Model& model,const Db& field,ANoStat* nostat,const Db* dat)
+SPDE::SPDE(Model& model,const Db& field,const Db* dat)
 {
-    init(model,field,nostat,dat);
+    init(model,field,dat);
 }
 
 SPDE::~SPDE()
@@ -23,7 +23,7 @@ SPDE::~SPDE()
   }
 }
 
-void SPDE::init(Model& model, const Db& field, ANoStat* nostat, const Db* dat)
+void SPDE::init(Model& model, const Db& field, const Db* dat)
 {
   double nugget=0.;
   double totalSill = 0.;
@@ -45,7 +45,7 @@ void SPDE::init(Model& model, const Db& field, ANoStat* nostat, const Db* dat)
       totalSill += cova->getSill(0, 0);
       mesh = createMeshing(*cova, field, 14., 0.2);
       mesh->display(0);
-      shiftOp = new ShiftOpCs(mesh, &model, &field, nostat);
+      shiftOp = new ShiftOpCs(mesh, &model, &field);
       // delete mesh;
 
       _pileShiftOp.push_back(shiftOp);
