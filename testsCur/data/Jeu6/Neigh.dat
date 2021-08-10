@@ -1,9 +1,0 @@
-Neigh 
-2 # Space Dimension
-2 # Neighborhood type
-1 # Cross-Validation flag
-1 # Use angular sectors
-1. # Bench Width
-1 8 4 2 # Parameters (nmini,nmaxi,nsect,nsmax)
--999.0 # Maximum distance radius
-0 # Anisotropy
