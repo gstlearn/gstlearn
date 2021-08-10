@@ -1,0 +1,140 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of fields             = 6
+Maximum Number of attributes = 6
+Total number of samples      = 10
+
+Data Base Extension
+-------------------
+Coor #1 - Min =      5.055 - Max =     90.004 - Ext = 84.9489
+Coor #2 - Min =      1.354 - Max =     94.996 - Ext = 93.6414
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =         10
+ Nb of active values =         10
+ Minimum value       =      1.000
+ Maximum value       =     10.000
+ Mean value          =      5.500
+ Standard Deviation  =      2.872
+ Variance            =      8.250
+2 - Name x1 - Locator x1
+ Nb of data          =         10
+ Nb of active values =         10
+ Minimum value       =      5.055
+ Maximum value       =     90.004
+ Mean value          =     41.520
+ Standard Deviation  =     23.518
+ Variance            =    553.079
+3 - Name x2 - Locator x2
+ Nb of data          =         10
+ Nb of active values =         10
+ Minimum value       =      1.354
+ Maximum value       =     94.996
+ Mean value          =     35.921
+ Standard Deviation  =     33.053
+ Variance            =   1092.518
+4 - Name z1 - Locator z1
+ Nb of data          =         10
+ Nb of active values =         10
+ Minimum value       =      0.616
+ Maximum value       =      8.390
+ Mean value          =      5.187
+ Standard Deviation  =      2.651
+ Variance            =      7.027
+5 - Name lower1 - Locator lower1
+ Nb of data          =         10
+ Nb of active values =          9
+ Minimum value       =      0.616
+ Maximum value       =      8.390
+ Mean value          =      5.390
+ Standard Deviation  =      2.467
+ Variance            =      6.084
+6 - Name upper1 - Locator upper1
+ Nb of data          =         10
+ Nb of active values =         10
+ Minimum value       =      0.616
+ Maximum value       =      8.390
+ Mean value          =      5.351
+ Standard Deviation  =      2.547
+ Variance            =      6.489
+
+Data Base Contents
+------------------
+                 rank        x1        x2        z1    lower1    upper1
+     [  1,]     1.000    57.057    22.931     6.790     6.000     7.000
+     [  2,]     2.000    46.235     6.756     5.749     5.000     6.000
+     [  3,]     3.000    26.752     1.354     7.369     7.369     7.369
+     [  4,]     4.000    60.937    88.942     6.211     6.211     6.211
+     [  5,]     5.000     5.055    62.643     8.390     8.390     8.390
+     [  6,]     6.000    18.088     4.048     1.335       N/A     2.000
+     [  7,]     7.000    90.004    21.970     8.359     8.359     8.359
+(Ncols=6,Nrows=7[from 10])
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of fields             = 3
+Maximum Number of attributes = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Data Base Extension
+-------------------
+Coor #1 - Min =      0.000 - Max =     99.000 - Ext = 99
+Coor #2 - Min =      0.000 - Max =     99.000 - Ext = 99
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =  10000.000
+ Mean value          =   5000.500
+ Standard Deviation  =   2886.751
+ Variance            = 8333333.250
+2 - Name Kriging.z1.estim - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.650
+ Maximum value       =      8.354
+ Mean value          =      5.306
+ Standard Deviation  =      1.154
+ Variance            =      1.332
+3 - Name Kriging.z1.stdev - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.055
+ Maximum value       =      1.064
+ Mean value          =      0.926
+ Standard Deviation  =      0.163
+ Variance            =      0.027
+
+Data Base Contents
+------------------
+                   rank *g.z1.estim *g.z1.stdev
+     [  1,]       1.000       4.044       1.025
+     [  2,]       2.000       3.884       1.015
+     [  3,]       3.000       3.728       1.003
+     [  4,]       4.000       3.578       0.990
+     [  5,]       5.000       3.433       0.975
+     [  6,]       6.000       3.293       0.958
+     [  7,]       7.000       3.161       0.939
+(Ncols=3,Nrows=7[from 10000])

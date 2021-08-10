@@ -1,0 +1,149 @@
+
+Optimization Conditions
+=======================
+- Number of variables       1  
+- Space dimension           3  
+- Number of experiments     138  
+- Number of parameters      6  
+- Constrained Minimization  OFF
+- Intrinsic option          OFF
+- Anisotropy                ON
+- Anisotropy Rotation       OFF
+- Global Rotation           OFF
+- Rotation around Z only    ON
+- Lock third dimension      ON
+- Lock 2-D Isotropy         OFF
+- Keep Intrinsic structure  OFF
+- Use the Goulard option    ON
+- Keep all structures       OFF
+
+Model
+-----
+Structure : Gaussian
+ 1 - Range U : 3455.033333 [0.010365,NA[
+ 2 - Range V : 3455.033333 [0.010365,NA[
+Structure : Exponential
+ 3 - Range U : 5182.550000 [0.010365,NA[
+ 4 - Range V : 5182.550000 [0.010365,NA[
+Structure : Spherical
+ 5 - Range U : 6910.066667 [0.010365,NA[
+ 6 - Range V : 6910.066667 [0.010365,NA[
+
+Trajectory of parameters in Foxleg Algorithm
+--------------------------------------------
+ Iteration     Score     Delta     Par-1     Par-2     Par-3     Par-4     Par-5     Par-6
+         1  0.000534         1  3455.033  3455.033  5182.550  5182.550  6910.067  6910.067
+         2  0.000288         3  2988.850  1727.517  6910.067  3455.033  8637.583  8637.583
+         3  0.000257         3  3687.950   863.764  8982.714  1727.522 11246.741 13820.133
+         4  0.000228         3  2280.524  1511.637 13019.933  1040.349 10121.915  8637.583
+         5  0.000186         3  2996.305  1280.758 18202.483  2189.486 10998.874 13820.133
+         6  0.000186       1.5  2996.305  1280.758 18202.483  2189.486 10998.874 13820.133
+         7  0.000165       4.5  3485.927  1291.565 20793.758  1529.125 13590.149 11228.858
+         8   0.00015       4.5  2996.705  1086.977 28567.583  2083.758 21363.974 18821.260
+         9  0.000127      13.5  3511.080  1167.059 34711.848  1041.884 29137.799 18851.634
+        10  0.000118      13.5  3400.343  1093.505 45799.212   520.947 52459.274 33031.800
+        11  0.000115      13.5  3541.516  1037.124 69120.687   260.479 75780.749 44612.568
+        12  0.000113      40.5  3457.027  1079.414 45799.212   130.245 99102.224 56724.905
+        13  0.000113      20.2  3457.027  1079.414 45799.212   130.245 99102.224 56724.905
+        14  0.000113      10.1  3457.027  1079.414 45799.212   130.245 99102.224 56724.905
+        15  0.000113      30.4  3463.820  1080.666 28308.106    65.127116593.330 65874.845
+        16  0.000113      15.2  3463.820  1080.666 28308.106    65.127116593.330 65874.845
+        17  0.000113      7.59  3463.820  1080.666 28308.106    65.127116593.330 65874.845
+        18  0.000113      22.8  3461.002  1080.967 15189.777    32.569129711.660 72971.587
+        19  0.000113      22.8  3460.454  1081.545  7594.893    16.290169066.649 94990.749
+        20  0.000113      22.8  3461.721  1081.481 46949.883     8.150208421.638117128.572
+        21  0.000112      68.3  3459.805  1081.923 86304.872     4.080247776.627138939.919
+        22  0.000112      68.3  3458.350  1082.833204369.839     2.045365841.594204504.207
+        23  0.000112      68.3  3459.943  1081.906204369.845     2.045365608.808204920.522
+
+Model
+-----
+Structure : Gaussian
+ 1 - Range U : 3459.942995 [0.010365,NA[
+ 2 - Range V : 1081.905754 [0.010365,NA[
+Structure : Exponential
+ 3 - Range U : 204369.844897 [0.010365,NA[
+ 4 - Range V : 2.045275 [0.010365,NA[
+Structure : Spherical
+ 5 - Range U : 365608.807786 [0.010365,NA[
+ 6 - Range V : 204920.522121 [0.010365,NA[
+
+Suppressing the unnecessary basic structures
+============================================
+Structure 'Nugget Effect' in model #1 is suppressed
+Structure 'Exponential' in model #1 is suppressed
+
+Optimization Conditions
+=======================
+- Number of variables       1  
+- Space dimension           3  
+- Number of experiments     138  
+- Number of parameters      4  
+- Constrained Minimization  OFF
+- Intrinsic option          OFF
+- Anisotropy                ON
+- Anisotropy Rotation       OFF
+- Global Rotation           OFF
+- Rotation around Z only    ON
+- Lock third dimension      ON
+- Lock 2-D Isotropy         OFF
+- Keep Intrinsic structure  OFF
+- Use the Goulard option    ON
+- Keep all structures       OFF
+
+Model
+-----
+Structure : Gaussian
+ 1 - Range U : 3459.942995 [0.010365,NA[
+ 2 - Range V : 1081.905754 [0.010365,NA[
+Structure : Spherical
+ 3 - Range U : 365608.807786 [0.010365,NA[
+ 4 - Range V : 204920.522121 [0.010365,NA[
+
+Trajectory of parameters in Foxleg Algorithm
+--------------------------------------------
+ Iteration     Score     Delta     Par-1     Par-2     Par-3     Par-4
+         1  0.000142         1  3459.943  1081.906365608.808204920.522
+         2  0.000135      1.38  3278.963   961.265364941.089206111.559
+         3  0.000135      1.38  3269.820   955.645364712.537206516.138
+         4  0.000135      1.38  3269.003   954.840364667.746206595.222
+
+Model
+-----
+Structure : Gaussian
+ 1 - Range U : 3269.003396 [0.010365,NA[
+ 2 - Range V : 954.840338 [0.010365,NA[
+Structure : Spherical
+ 3 - Range U : 364667.745702 [0.010365,NA[
+ 4 - Range V : 206595.221541 [0.010365,NA[
+
+Model characteristics
+=====================
+Space dimension              = 3
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Gaussian
+- Sill         =    157.719
+- Ranges       =   3269.003   954.840  3269.003
+- Theo. Ranges =   1888.704   551.670  1888.704
+- Angles       =     90.000     0.000     0.000
+- Rotation Matrix
+               [,  1]    [,  2]    [,  3]
+     [  1,]     0.000    -1.000     0.000
+     [  2,]     1.000     0.000     0.000
+     [  3,]     0.000     0.000     1.000
+Spherical
+- Sill         =   2665.241
+- Ranges       = 364667.746206595.222364667.746
+- Angles       =     90.000     0.000     0.000
+- Rotation Matrix
+               [,  1]    [,  2]    [,  3]
+     [  1,]     0.000    -1.000     0.000
+     [  2,]     1.000     0.000     0.000
+     [  3,]     0.000     0.000     1.000
+Total Sill     =   2822.960

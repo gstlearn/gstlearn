@@ -1,0 +1,17 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =    235.442
+Spherical
+- Sill         =    191.921
+- Range        =  51535.821
+Total Sill     =    427.363
