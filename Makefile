@@ -1,5 +1,5 @@
 
-.PHONY: all gstlearn tests total doxygen clean check-arch
+.PHONY: all gstlearn tests testsCur total doxygen clean check-arch
 
 ARCH_XX = XX_$(ARCH)_XX
 WIN_TYPE_XX = XX_$(WIN_TYPE)_XX
@@ -11,6 +11,9 @@ gstlearn: check-arch
 
 tests: gstlearn
 	@+make -sC tests $@
+	
+testsCur: gstlearn
+	@+make -sC testsCur $@
 
 total: gstlearn
 	@+make -sC tests $@
