@@ -32,7 +32,8 @@ public:
   const std::string& getDescr() const { return _descr; }
 
   //! Cast to constexpr integer (for switch usage)
-  constexpr operator int() const { return _value; }
+  //! TODO To be restored wg=hen corrected for UBUNTU 16
+  // constexpr operator int() const { return _value; }
 
 protected:
   AEnum(const std::string& key, int value, const std::string& descr);

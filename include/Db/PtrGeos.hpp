@@ -36,7 +36,7 @@ public:
 
 int    getLocatorTypeFromName(const String& name_type);
 int    locatorIdentify(String string, ENUM_LOCS *locatorType, int *locatorIndex, int *mult);
-bool   isLocatorTypeValid(ENUM_LOCS locatorType);
+bool   isLocatorTypeValid(ENUM_LOCS locatorType, bool unknownValid = false);
 String getLocatorName(ENUM_LOCS locatorType, int locatorIndex=1);
 void   printLocatorList();
 VectorString getLocatorNames();

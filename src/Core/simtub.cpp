@@ -5517,8 +5517,10 @@ GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
 
       for (idim=0; idim<ndim; idim++) d1[idim] = 0.;
       if (model->isNoStat())
-        model_calcul_cov_nostat(model,mode,1,1.,
-                                dbin,iech,dbin,iech,d1,&sigval);
+      {
+        CovInternal covint(1,iech,1,iech,ndim,dbin,dbin);
+        model_calcul_cov_nostat(model,mode,&covint,1,1.,d1,&sigval);
+      }
       else
         model_calcul_cov(model,mode,1,1.,d1,&sigval);
       if (sigval <= 0) continue;
@@ -5535,8 +5537,10 @@ GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
         for (idim=0; idim<ndim; idim++)
           d1[idim] = dbin->getCoordinate(iech,idim) - dbin->getCoordinate(jech,idim);
         if (model->isNoStat())
-          model_calcul_cov_nostat(model,mode,1,1.,
-                                  dbin,iech,dbin,jech,d1,&sigloc);
+        {
+          CovInternal covint(1,iech,1,jech,ndim,dbin,dbin);
+          model_calcul_cov_nostat(model,mode,&covint,1,1.,d1,&sigloc);
+        }
         else
           model_calcul_cov(model,mode,1,1.,d1,&sigloc);
 

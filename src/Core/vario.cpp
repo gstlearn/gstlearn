@@ -4320,20 +4320,20 @@ GEOSLIB_API int variogram_cloud_dim(Db     *db,
 ** \remark  been calculated).
 **
 *****************************************************************************/
-GEOSLIB_API int regression_f(Db     *db1,
-                           Db     *db2,
-                           int     flag_mode,
-                           int     icol,
-                           int     ncol,
-                           int    *icols,
-                           Model  *model,
-                           int     flag_one,
-                           int     flag_verbose,
-                           int    *count,
-                           double *coeff,
-                           double *variance,
-                           double *varres,
-                           double *correl)
+GEOSLIB_API int regression_f(Db *db1,
+                             Db *db2,
+                             int flag_mode,
+                             int icol,
+                             int ncol,
+                             int *icols,
+                             Model *model,
+                             int flag_one,
+                             int flag_verbose,
+                             int *count,
+                             double *coeff,
+                             double *variance,
+                             double *varres,
+                             double *correl)
 {
   int     nfex,nech,size,siztri,iech,i,j,error,iptr,ecr,pivot,number,nvar;
   int     flag_test;

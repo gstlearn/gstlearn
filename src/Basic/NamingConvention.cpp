@@ -143,7 +143,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
 {
   if (iattout_start <= 0) return;
   VectorString names;
-  if (dbin != nullptr)
+  if (dbin != nullptr && locatorInType == LOC_UNKNOWN)
   {
     names = dbin->getNames(locatorInType);
     if (nvar <= 0) nvar = static_cast<int> (names.size());

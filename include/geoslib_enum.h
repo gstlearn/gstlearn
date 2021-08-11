@@ -186,7 +186,7 @@ typedef enum
 
 typedef enum
 {
-  MODEL_PROPERTY_NONE = 0,      //!< No specfici property
+  MODEL_PROPERTY_NONE = 0,      //!< No specific property
   MODEL_PROPERTY_CONV = 1,      //!< Convolution mode
   MODEL_PROPERTY_ANAM = 2,      //!< Anamorphosis mode
   MODEL_PROPERTY_TAPE = 3,      //!< Tapering mode
@@ -292,7 +292,7 @@ typedef enum
 
 typedef enum
 {
-  KOPTION_PONCTUAL = 0,     //!< Ponctual estimation
+  KOPTION_PONCTUAL = 0,     //!< Punctual estimation
   KOPTION_BLOCK = 1,        //!< Block average estimation
   KOPTION_DRIFT = 2,        //!< Large scale Drift estimation
 } ENUM_KOPTIONS;
@@ -302,8 +302,8 @@ typedef enum
   ANAM_UNDEFINED = -1,     //!< Undefined anamorphosis
   ANAM_EXTERNAL = 0,       //!< External anamorphosis
   ANAM_HERMITIAN = 1,      //!< Hermitian anamorphosis
-  ANAM_EMPIRICAL = 2,      //!< Empirical anamoprhosis
-  ANAM_DISCRETE_DD = 3,    //!< Discrete anamophosis
+  ANAM_EMPIRICAL = 2,      //!< Empirical anamorphosis
+  ANAM_DISCRETE_DD = 3,    //!< Discrete anamorphosis
   ANAM_DISCRETE_IR = 4,    //!< Discrete Indicator Residuals anamorphosis
 } ENUM_ANAMS;
 
@@ -317,7 +317,7 @@ typedef enum
   CONS_SCALE = 5,    //!< Non-stationary scale
   CONS_T_RANGE = 6,  //!< Non-stationary tapering range
   CONS_VELOCITY = 7, //!< Non-stationary velocity (advection)
-  CONS_SPHEROT = 8,  //!< Non-stationary rotation anglefor Sphere
+  CONS_SPHEROT = 8,  //!< Non-stationary rotation angle for Sphere
 } ENUM_CONS;
 
 typedef enum

@@ -11,6 +11,7 @@
 #ifndef GEOSLIB_OLDF_H
 #define GEOSLIB_OLDF_H
 
+#include <Model/CovInternal.hpp>
 #include "geoslib_d.h"
 #include "csparse_d.h"
 #include "csparse_f.h"
@@ -28,7 +29,6 @@
 #include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamUser.hpp"
-#include "Model/CovNostatInternal.hpp"
 #include "Model/Constraints.hpp"
 #include "Stats/PCA.hpp"
 #include "Mesh/MeshEStandard.hpp"
@@ -1026,12 +1026,9 @@
                                         double factor);
   GEOSLIB_API void model_calcul_cov_nostat(Model *model,
                                            CovCalcMode& mode,
+                                           CovInternal* covint,
                                            int flag_init,
                                            double weight,
-                                           Db *db1,
-                                           int iech1,
-                                           Db *db2,
-                                           int iech2,
                                            VectorDouble& d1,
                                            double *covtab);
   GEOSLIB_API void model_calcul_drift(Model *model,
@@ -1045,13 +1042,11 @@
                                    double *var0);
   GEOSLIB_API void model_variance0_nostat(Model *model,
                                           Koption *koption,
-                                          Db *db0,
-                                          int iech0,
+                                          CovInternal* covint,
                                           double *covtab,
                                           double *var0);
   GEOSLIB_API Model *model_free(Model *model);
-  GEOSLIB_API void model_nostat_update(CovNostatInternal *cov_nostat,
-                                       Model* model);
+  GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model);
   GEOSLIB_API int model_add_cova(Model *model,
                                  int type,
                                  int flag_anisotropy,
@@ -1086,7 +1081,7 @@
                                int flag_norm,
                                int flag_cov);
   GEOSLIB_API void model_setup(Model *model);
-  GEOSLIB_API void model_calcul_cov_direct(CovNostatInternal *cov_nostat,
+  GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
                                            Model* model,
                                            const CovCalcMode& mode,
                                            int flag_init,
@@ -1722,6 +1717,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                        Db *dbin,
                                        Db *dbout,
                                        int *istart);
+  GEOSLIB_API int manage_nostat_info(int mode, Model* model, Db *dbin, Db *dbout);
   GEOSLIB_API int db_locate_in_grid(Db *dbgrid, double *coor);
   GEOSLIB_API void db_monostat(Db *db,
                                int ivar,

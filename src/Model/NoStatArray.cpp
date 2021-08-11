@@ -25,9 +25,7 @@ NoStatArray::NoStatArray()
     : ANoStat(),
       _dbnostat(nullptr),
       _dbin(nullptr),
-      _attIn(),
       _dbout(nullptr),
-      _attOut(),
       _tab()
 {
 }
@@ -36,9 +34,7 @@ NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
     : ANoStat(codes),
       _dbnostat(dbnostat),
       _dbin(nullptr),
-      _attIn(),
       _dbout(nullptr),
-      _attOut(),
       _tab()
 {
   if (! _checkValid())
@@ -49,9 +45,7 @@ NoStatArray::NoStatArray(const NoStatArray &m)
     : ANoStat(m),
       _dbnostat(m._dbnostat),
       _dbin(m._dbin),
-      _attIn(m._attIn),
       _dbout(m._dbout),
-      _attOut(m._attOut),
       _tab(m._tab)
 {
 
@@ -64,9 +58,7 @@ NoStatArray& NoStatArray::operator= (const NoStatArray &m)
     ANoStat::operator=(m);
     _dbnostat = m._dbnostat;
     _dbin = m._dbin;
-    _attIn = m._attIn;
     _dbout = m._dbout;
-    _attOut = m._attOut;
     _tab = m._tab;
   }
   return *this;
@@ -149,12 +141,14 @@ void NoStatArray::detachFromMesh(bool verbose) const
  * This function creates new fields set to the locator LOC_NOSTAT.
  * They will be deleted using the detachFromDb() method.
  * @param db      Db where the new LOC_NOSTAT fields must be added
+ * @param icas    1 for Dbin and 2 for Dbout
  * @param verbose Verbose flag
  * @return
  */
-int NoStatArray::attachToDb(Db* db, bool verbose) const
+int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
 {
   double* coorloc[3];
+  if (db == nullptr) return 0;
 
   // Preliminary checks
   if (_dbnostat == nullptr)
@@ -162,6 +156,12 @@ int NoStatArray::attachToDb(Db* db, bool verbose) const
     messerr("Dbnostat must be defined beforehand");
     return 1;
   }
+
+  // Store the reference to the Db
+  if (icas == 1)
+    _dbin = db;
+  else
+    _dbout = db;
 
   // If the Db to be attached coincides with _dbnostat, do nothing
   if (db == _dbnostat) return 0;
@@ -178,8 +178,7 @@ int NoStatArray::attachToDb(Db* db, bool verbose) const
     for (int iech=0; iech<db->getSampleNumber(); iech++)
     {
       if (! db->isActive(iech)) continue;
-      coor[ecr] = db->getCoordinate(iech,idim);
-      ecr++;
+      coor[ecr++] = db->getCoordinate(iech,idim);
     }
   for (int idim=0; idim<3; idim++)
     coorloc[idim] = (idim < ndim) ? &coor[idim * nech] : NULL;
@@ -204,9 +203,15 @@ int NoStatArray::attachToDb(Db* db, bool verbose) const
   return 0;
 }
 
-void NoStatArray::detachFromDb(Db* db, bool verbose) const
+void NoStatArray::detachFromDb(Db* db, int icas, bool verbose) const
 {
+  if (db == nullptr) return;
+  if (db == _dbnostat) return;
   db->deleteFieldByLocator(LOC_NOSTAT);
+  if (icas == 1)
+    _dbin = nullptr;
+  else
+    _dbout = nullptr;
 }
 
 /**
@@ -234,39 +239,25 @@ double NoStatArray::getValue(int igrf,
 
 /**
  * Check if the non-stationary values defined or not
- * @param ipar Rank of the Non-Stationary parameter
- * @param icas Type of information (0: meshing; 1: Dbin; 2: Dbout; -1: Any)
+ * @param icas Type of information (0: meshing; 1: Dbin; 2: Dbout)
  * @return
  */
-bool NoStatArray::isEmpty(int ipar, int icas) const
+bool NoStatArray::isEmpty(int icas) const
 {
 
   // Dispatch
 
-  if (icas < 0 || icas == 0)
+  if (icas == 0)
   {
-    if (_tab.isEmpty())
-      return true;
-    if (ipar >= 0 && ipar >= _tab.getNCols())
-      return true;
+    if (_tab.isEmpty()) return true;
   }
-  if (icas < 0 || icas == 1)
+  if (icas == 1)
   {
-    if (_dbin == (Db *) NULL)
-      return true;
-    if (_attIn.empty())
-      return true;
-    if (ipar >= 0 && ipar >= (int) _attIn.size())
-      return true;
+    if (_dbin == (Db *) NULL) return true;
   }
-  if (icas < 0 || icas == 2)
+  if (icas == 2)
   {
-    if (_dbout == (Db *) NULL)
-      return true;
-    if (_attOut.empty())
-      return true;
-    if (ipar >= 0 && ipar >= (int) _attOut.size())
-      return true;
+    if (_dbout == (Db *) NULL) return true;
   }
   return false;
 }
@@ -274,7 +265,7 @@ bool NoStatArray::isEmpty(int ipar, int icas) const
 /**
  * Return the value of the non-stationary parameter (ipar) at target (rank)
  * @param ipar  Rank of the non-stationary parameter
- * @param icas  Additional identifier (useless here)
+ * @param icas  Additional identifier
  * @param rank  Rank of the target
  * @return
  */
@@ -282,7 +273,7 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 {
   if (ipar < 0)
     my_throw("Invalid rank when searching for Non-stationary parameter");
-  if (isEmpty(ipar, icas))
+  if (isEmpty(icas))
     my_throw("The Non-Stationary storage must be defined beforehand");
 
   // Dispatch
@@ -292,8 +283,7 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 
     // From Meshing
 
-    if (rank < 0 || rank > _tab.getNRows())
-      my_throw("Invalid Vertex index when searching for Non-stationary parameter");
+    if (rank < 0 || rank > _tab.getNRows()) return TEST;
     return _tab(rank, ipar);
   }
   else if (icas == 1)
@@ -301,23 +291,18 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 
     // From Dbin
 
-    if (_dbin == nullptr)
-      my_throw("Error: Dbin not defined");
-    if (rank < 0 || rank > _dbin->getSampleNumber())
-      my_throw(
-          "Error: Invalid Rank in Dbin when searching for NonStat parameter");
-    return _dbin->getArray( rank, _attIn[ipar]);
+    if (_dbin == nullptr) return TEST;
+    if (rank < 0 || rank > _dbin->getSampleNumber()) return TEST;
+    return _dbin->getFromLocator(LOC_NOSTAT, rank, ipar);
   }
   else if (icas == 2)
   {
 
     // From Dbout
 
-    if (_dbout == nullptr)
-      my_throw("Error: Dbout not defined");
-    if (rank < 0 || rank > _dbout->getSampleNumber())
-      my_throw("Error: Invalid Rank in Dbout when searching for NonStat parameter");
-    return _dbout->getArray(rank, _attOut[ipar]);
+    if (_dbout == nullptr) return TEST;
+    if (rank < 0 || rank > _dbout->getSampleNumber()) return TEST;
+    return _dbout->getFromLocator(LOC_NOSTAT, rank, ipar);
   }
   else
   {
@@ -326,14 +311,14 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
   return 0.;
 }
 
-double NoStatArray::_interpolate(int ipar, int iech1, int iech2) const
+double NoStatArray::_interpolate(int ipar,
+                                 int icas1,
+                                 int iech1,
+                                 int icas2,
+                                 int iech2) const
 {
-  double val1 = TEST;
-  double val2 = TEST;
-  if (_dbin != (Db *) NULL)
-    val1 = getValue(ipar, 1, iech1);
-  if (_dbout != (Db *) NULL)
-    val2 = getValue(ipar, 2, iech2);
+  double val1 = getValue(ipar, icas1, iech1);
+  double val2 = getValue(ipar, icas2, iech2);
 
   if (! FFFF(val1) && ! FFFF(val2))
     return sqrt(val1 * val2);
@@ -347,26 +332,25 @@ double NoStatArray::_interpolate(int ipar, int iech1, int iech2) const
 /**
  * Get the information from the storage in Dbin and/or Dbout
  * @param ipar  Rank of the non-stationary parameter
+ * @param icas1 Type of first Db: 1 for Input; 2 for Output
  * @param iech1 Rank of the first sample (in Dbin)
+ * @param icas2 Type of first Db: 1 for Input; 2 for Output
  * @param iech2 Rank of the second sample (in Dbout)
  * @param val1  Returned value at first sample
  * @param val2  Returned value at the second sample
  */
 void NoStatArray::_getInfoFromDb(int ipar,
+                                 int icas1,
                                  int iech1,
+                                 int icas2,
                                  int iech2,
                                  double *val1,
                                  double *val2) const
 {
-  *val1 = *val2 = TEST;
-  *val2 = TEST;
-  if (_dbin != (Db *) NULL && ! _attIn.empty())
-    *val1 = getValue(ipar, 1, iech1);
-  if (_dbout != (Db *) NULL && ! _attOut.empty())
-    *val2 = getValue(ipar, 2, iech2);
+  *val1 = getValue(ipar, icas1, iech1);
+  *val2 = getValue(ipar, icas2, iech2);
 
-  if (FFFF(*val1) && FFFF(*val2))
-    my_throw("Non-stationary information may not be undefined");
+  if (FFFF(*val1) && FFFF(*val2)) return;
 
   if (! FFFF(*val1))
     *val2 = *val1;
@@ -377,10 +361,16 @@ void NoStatArray::_getInfoFromDb(int ipar,
 /**
  * Update the Model according to the Non-stationary parameters
  * @param model Model to be patched
+ * @param icas1 Type of first Db: 1 for Input; 2 for Output
  * @param iech1 Rank of the target within Db1 (or -1)
+ * @param icas2 Type of first Db: 1 for Input; 2 for Output
  * @param iech2 Rank of the target within Dbout (or -2)
  */
-void NoStatArray::updateModel(Model* model, int iech1, int iech2) const
+void NoStatArray::updateModel(Model* model,
+                              int icas1,
+                              int iech1,
+                              int icas2,
+                              int iech2) const
 {
   double val1, val2;
 
@@ -397,14 +387,14 @@ void NoStatArray::updateModel(Model* model, int iech1, int iech2) const
 
     if (type == CONS_SILL)
     {
-      _getInfoFromDb(ipar, iech1, iech2, &val1, &val2);
+      _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
       int iv1  = nostat->getIV1(ipar);
       int iv2  = nostat->getIV2(ipar);
       model->setSill(icov, iv1, iv2, sqrt(val1 * val2));
     }
     else if (type == CONS_PARAM)
     {
-      _getInfoFromDb(ipar, iech1, iech2, &val1, &val2);
+      _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
       model->getCova(icov)->setParam(0.5 * (val1 + val2));
     }
   }
@@ -439,7 +429,8 @@ void NoStatArray::updateModel(Model* model, int iech1, int iech2) const
         {
           int ipar = getRank(-1, icov, CONS_ANGLE, idim, -1);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, iech1, iech2, &angle1[idim], &angle2[idim]);
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
+                         &angle1[idim], &angle2[idim]);
         }
       }
     }
@@ -456,7 +447,8 @@ void NoStatArray::updateModel(Model* model, int iech1, int iech2) const
         {
           int ipar = getRank(-1, icov, CONS_SCALE, idim, -1);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, iech1, iech2, &scale1[idim], &scale2[idim]);
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
+                         &scale1[idim], &scale2[idim]);
         }
       }
     }
@@ -473,7 +465,8 @@ void NoStatArray::updateModel(Model* model, int iech1, int iech2) const
         {
           int ipar = getRank(-1, icov, CONS_RANGE, idim, -1);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, iech1, iech2, &range1[idim], &range2[idim]);
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
+                         &range1[idim], &range2[idim]);
         }
       }
     }
@@ -610,22 +603,12 @@ String NoStatArray::displayStats(int ipar, int icas) const
   else if (icas == 1)
   {
     if (_dbin == (Db *) NULL) return sstr.str();
-    int iatt = _attIn[ipar];
-    for (int iech = 0; iech < _dbin->getSampleNumber(); iech++)
-    {
-      if (! _dbin->isActive(iech)) continue;
-      vec.push_back(_dbin->getArray(iech,iatt));
-    }
+    vec = _dbin->getFromLocatorVector(LOC_NOSTAT,ipar,true);
   }
   else
   {
     if (_dbout == (Db *) NULL) return sstr.str();
-    int iatt = _attOut[ipar];
-    for (int iech = 0; iech < _dbout->getSampleNumber(); iech++)
-    {
-      if (! _dbout->isActive(iech)) continue;
-      vec.push_back(_dbout->getArray(iech,iatt));
-    }
+    vec = _dbout->getFromLocatorVector(LOC_NOSTAT,ipar,true);
   }
 
   // Produce the statistics

@@ -46,23 +46,21 @@ VectorDouble X2_LOCAL = VectorDouble();
  **  Update the Model in the case of Non-stationary parameters
  **  This requires the knowledge of the two end-points
  **
- ** \param[in]  cov_nostat   Internal structure for non-stationarity
+ ** \param[in]  covint       Internal structure for non-stationarity
  **                          or NULL (for stationary case)
  ** \param[in]  model        Model structure
  **
  *****************************************************************************/
-GEOSLIB_API void model_nostat_update(CovNostatInternal *cov_nostat,
-                                     Model* model)
+GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model)
 {
   if (!model->isNoStat()) return;
-  if (cov_nostat == NULL) return;
-
-  int iech1 = cov_nostat->iech1;
-  int iech2 = cov_nostat->iech2;
+  if (covint == NULL) return;
 
   const NoStatArray* nostatarray =
       dynamic_cast<const NoStatArray*>(model->getNoStat());
-  nostatarray->updateModel(model, iech1, iech2);
+  nostatarray->updateModel(model,
+                           covint->getIcas1(), covint->getIech1(),
+                           covint->getIcas2(), covint->getIech2());
 }
 
 /****************************************************************************/
@@ -189,7 +187,7 @@ GEOSLIB_API double model_calcul_basic(Model *model,
  **  This is the generic internal function
  **  It can be called for stationary or non-stationary case
  **
- ** \param[in]  cov_nostat   Internal structure for non-stationarity
+ ** \param[in]  covint       Internal structure for non-stationarity
  **                          or NULL (for stationary case)
  ** \param[in]  model        Model structure
  ** \param[in]  mode         CovCalcMode structure
@@ -200,7 +198,7 @@ GEOSLIB_API double model_calcul_basic(Model *model,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-GEOSLIB_API void model_calcul_cov_direct(CovNostatInternal *cov_nostat,
+GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
                                          Model* model,
                                          const CovCalcMode& mode,
                                          int flag_init,
@@ -210,7 +208,7 @@ GEOSLIB_API void model_calcul_cov_direct(CovNostatInternal *cov_nostat,
 {
   // Load the non-stationary parameters if needed
 
-  if (model->isNoStat()) model_nostat_update(cov_nostat, model);
+  if (model->isNoStat()) model_nostat_update(covint, model);
 
   // Evaluate the Model
 
@@ -222,16 +220,16 @@ GEOSLIB_API void model_calcul_cov_direct(CovNostatInternal *cov_nostat,
 
   int nvar = model->getVariableNumber();
   if (mat.getNTotal() != nvar * nvar)
-  my_throw("Error in loading Covariance calculation into COVTAB");
+   my_throw("Error in loading Covariance calculation into COVTAB");
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = mat.getValue(ivar, jvar);
       if (flag_init)
         COVTAB(ivar,jvar)= value;
-        else
+      else
         COVTAB(ivar,jvar) += value;
-      }
+    }
 
   return;
 }
@@ -251,7 +249,7 @@ GEOSLIB_API void model_calcul_cov_direct(CovNostatInternal *cov_nostat,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-static void st_model_calcul_cov_convolution(CovNostatInternal *cov_nostat,
+static void st_model_calcul_cov_convolution(CovInternal *cov_nostat,
                                             Model *model,
                                             const CovCalcMode& mode,
                                             int flag_init,
@@ -285,7 +283,7 @@ static void st_model_calcul_cov_convolution(CovNostatInternal *cov_nostat,
  ** \remark This function is only programmed in the monovariate case
  **
  *****************************************************************************/
-static void st_model_calcul_cov_anam_hermitian(CovNostatInternal *cov_nostat,
+static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
                                                Model *model,
                                                const CovCalcMode& mode,
                                                int flag_init,
@@ -444,7 +442,7 @@ static void st_model_calcul_cov_anam_hermitian(CovNostatInternal *cov_nostat,
  ** \remark This function is only programmed in the monovariate case
  **
  *****************************************************************************/
-static void st_model_calcul_cov_anam_DD(CovNostatInternal *cov_nostat,
+static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
                                         Model *model,
                                         const CovCalcMode& mode,
                                         int flag_init,
@@ -651,7 +649,7 @@ static double st_covsum_residual(Model *model,
  ** \remark This function is only programmed in the monovariate case
  **
  *****************************************************************************/
-static void st_model_calcul_cov_anam_IR(CovNostatInternal *cov_nostat,
+static void st_model_calcul_cov_anam_IR(CovInternal *cov_nostat,
                                         Model *model,
                                         const CovCalcMode& mode,
                                         int flag_init,
@@ -743,7 +741,7 @@ static void st_model_calcul_cov_anam_IR(CovNostatInternal *cov_nostat,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-static void st_model_calcul_cov_tapering(CovNostatInternal *cov_nostat,
+static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
                                          Model *model,
                                          const CovCalcMode& mode,
                                          int flag_init,
@@ -917,12 +915,9 @@ GEOSLIB_API void fill_external_cov_model(External_Cov& E_Cov)
  **
  ** \param[in]  model       Structure containing the model
  ** \param[in]  mode        CovCalcMode structure
+ ** \param[in]  covint      Pointer to the Internal Covariance structure
  ** \param[in]  flag_init   initialize the array beforehand
  ** \param[in]  weight      Weight attached to this calculation
- ** \param[in]  db1         First Db structure
- ** \param[in]  iech1       Rank of the sample in the First Db
- ** \param[in]  db2         Second Db structure
- ** \param[in]  iech2       Rank of the sample in the Second Db
  **
  ** \param[out] d1          Working array (dimension = ndim) or NULL
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
@@ -930,24 +925,12 @@ GEOSLIB_API void fill_external_cov_model(External_Cov& E_Cov)
  *****************************************************************************/
 GEOSLIB_API void model_calcul_cov_nostat(Model *model,
                                          CovCalcMode& mode,
+                                         CovInternal* covint,
                                          int flag_init,
                                          double weight,
-                                         Db *db1,
-                                         int iech1,
-                                         Db *db2,
-                                         int iech2,
                                          VectorDouble& d1,
                                          double *covtab)
 {
-  CovNostatInternal cov_nostat;
-
-  /* Load the non_stationary parameters */
-
-  cov_nostat.iech1 = iech1;
-  cov_nostat.iech2 = iech2;
-  cov_nostat.db1 = db1;
-  cov_nostat.db2 = db2;
-
   /* Modify the member in case of properties */
 
   if (model->getModTransMode() != MODEL_PROPERTY_NONE)
@@ -967,7 +950,7 @@ GEOSLIB_API void model_calcul_cov_nostat(Model *model,
   // st_model_nostat_for_external(&cov_nostat,model);
   /* Call the generic model calculation module */
 
-  model->generic_cov_function(&cov_nostat, model, mode, flag_init, weight, d1,
+  model->generic_cov_function(covint, model, mode, flag_init, weight, d1,
                               covtab);
 
   return;
@@ -1071,8 +1054,7 @@ GEOSLIB_API void model_variance0(Model *model,
  **
  ** \param[in]  model     Model structure
  ** \param[in]  koption   Koption structure
- ** \param[in]  db0       Db structure
- ** \param[in]  iech0     Rank of the sample in the Db
+ ** \param[in]  covint    Covariance Internal structure
  ** \param[in]  covtab    array of cumulated covariances
  **
  ** \param[out]  var0     array for C0[] (Dimension = nvar * nvar)
@@ -1080,8 +1062,7 @@ GEOSLIB_API void model_variance0(Model *model,
  *****************************************************************************/
 GEOSLIB_API void model_variance0_nostat(Model *model,
                                         Koption *koption,
-                                        Db *db0,
-                                        int iech0,
+                                        CovInternal* covint,
                                         double *covtab,
                                         double *var0)
 {
@@ -1100,8 +1081,7 @@ GEOSLIB_API void model_variance0_nostat(Model *model,
   {
     case KOPTION_PONCTUAL:
       nscale = 1;
-      model_calcul_cov_nostat(model, mode, 1, 1., db0, iech0, db0, iech0, d1,
-                              covtab);
+      model_calcul_cov_nostat(model, mode, covint, 1, 1., d1, covtab);
       break;
 
     case KOPTION_BLOCK:
@@ -1112,8 +1092,7 @@ GEOSLIB_API void model_variance0_nostat(Model *model,
         {
           for (idim = 0; idim < model->getDimensionNumber(); idim++)
             d1[idim] = DISC1(i,idim) - DISC2(j, idim);
-          model_calcul_cov_nostat(model, mode, 0, 1., db0, iech0, db0, iech0,
-                                  d1, covtab);
+          model_calcul_cov_nostat(model, mode, covint, 0, 1., d1, covtab);
         }
       nscale = nscale * nscale;
       break;
@@ -1895,6 +1874,7 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
   error = 1;
   covtab = (double *) NULL;
   CovCalcMode mode;
+  CovInternal covint;
   mode.update(nugget_opt, nostd, member, rank_sel, flag_norm, flag_cov);
   if (norder > 0) mode.setOrderVario(norder);
 
@@ -1919,8 +1899,8 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
 
   c00 = model->getContext().getCovar0(ivar, jvar);
   d1.resize(ndim, 0.);
-  model_calcul_cov_nostat(model, mode, 1, 1., db1, iech1, db2, iech2, d1,
-                          covtab);
+  covint.init(1,iech1,2,iech2,ndim,db1,db2);
+  model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
   var0 = COVTAB(ivar, jvar);
   if (c00 <= 0. || FFFF(c00)) c00 = var0;
 
@@ -1930,8 +1910,7 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
   {
     for (idim = 0; idim < ndim; idim++)
       d1[idim] = h[ih] * codir[idim];
-    model_calcul_cov_nostat(model, mode, 1, 1., db1, iech1, db2, iech2, d1,
-                            covtab);
+    model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
     g[ih] = COVTAB(ivar, jvar);
   }
 
@@ -2655,8 +2634,8 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
           }
           if (!skip)
           {
-            model_calcul_cov_nostat(model, mode, 1, 1., db1, iech1, db2, iech2,
-                                    d1, covtab);
+            CovInternal covint(1, iech1, 2, iech2, ndim, db1, db2);
+            model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
             value = COVTAB(ivar, jvar);
           }
           covmat[ecr++] = value;
@@ -4107,7 +4086,8 @@ GEOSLIB_API void model_vector_nostat(Model *model,
     }
     if (skip) continue;
 
-    model_calcul_cov_nostat(model, mode, 1, 1., db, iech, db, jech, d1, covtab);
+    CovInternal covint(1, iech, 1, jech, ndim, db, db);
+    model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
     value = COVTAB(ivar, jvar);
     vector[jech] = value;
   }
