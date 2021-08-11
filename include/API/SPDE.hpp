@@ -29,4 +29,6 @@ private:
   std::vector<ShiftOpCs*>     _pileShiftOp;
   PrecisionOpMultiConditional _precisionsKriging;
   std::vector<PrecisionOpCs>  _precistionLists;
+
+  Model* _model;
 };

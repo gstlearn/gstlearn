@@ -25,7 +25,8 @@ public:
 
   void push_back(PrecisionOp*  pmatElem,
                  IProjMatrix* projDataElem);
-  void setNugget(double nugg){_nugget = nugg;}
+  void setVarianceData(double nugg){ _varianceData = VectorDouble(_ndat,nugg);}
+  void setVarianceData(const VectorDouble& nugg){_varianceData = nugg;}
   /*!  Returns the dimension of the matrix */
   int  size() const override { return static_cast<int> (_multiPrecisionOp.size()); }
   int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
@@ -37,7 +38,7 @@ protected:
 private:
   std::vector<PrecisionOp*> _multiPrecisionOp;
   std::vector<IProjMatrix*> _multiProjData;
-  double _nugget;
+  VectorDouble _varianceData; //dimension: _ndat
   int    _ndat;
   mutable VectorDouble       _work1;
   mutable VectorVectorDouble _work2;

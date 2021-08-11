@@ -19,14 +19,16 @@ SPDE::~SPDE()
 {
   for(auto &e : _pileShiftOp)
   {
-    delete &e;
+    //delete &e;
   }
 }
 
 void SPDE::init(Model& model, const Db& field, const Db* dat)
 {
-  double nugget=0.;
+  _model = &model;
+  VectorDouble varianceData;
   double totalSill = 0.;
+  double nugget = 0.;
   ShiftOpCs* shiftOp;
   PrecisionOpCs precision;
   MeshETurbo* mesh;
@@ -50,22 +52,26 @@ void SPDE::init(Model& model, const Db& field, const Db* dat)
 
       _pileShiftOp.push_back(shiftOp);
       _precistionLists.push_back(PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF));
-
-      if (dat != nullptr)
-      {
-
-      }
     }
     else
     {
       my_throw("SPDE is only implemented for Matérn covariances (BESSEL_K)");
     }
   }
-  if (nugget == 0.)
+
+  if (dat != nullptr)
   {
-    nugget = 0.01 * totalSill;
+    if(dat->getVarianceErrorNumber()>0)
+    {
+      varianceData = dat->getFieldByLocator(LOC_V,0,true);
+    }
+    for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
+    {
+      double *temp = &varianceData[iech];
+      *temp = MAX(*temp+nugget,0.01 * totalSill);
+    }
   }
-  _precisionsKriging.setNugget(nugget);
+  _precisionsKriging.setVarianceData(varianceData);
 }
 
 MeshETurbo* SPDE::createMeshing(const CovAniso & cova,

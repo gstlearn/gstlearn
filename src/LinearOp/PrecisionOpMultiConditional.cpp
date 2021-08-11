@@ -16,7 +16,7 @@
 PrecisionOpMultiConditional::PrecisionOpMultiConditional()
   :_multiPrecisionOp(std::vector<PrecisionOp*>())
   ,_multiProjData(std::vector<IProjMatrix*>())
-  ,_nugget(0.)
+  ,_varianceData()
   ,_ndat(0)
   ,_work1(VectorDouble())
   ,_work2(VectorVectorDouble())
@@ -55,7 +55,6 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
                                               VectorVectorDouble& out) const
 {
   _init();
-  double invNugg = 1. / _nugget;
   for (int imod = 0; imod < size(); imod++)
   {
     _multiPrecisionOp[imod]->eval(in[imod], out[imod]);
@@ -65,7 +64,7 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
       _multiProjData[jmod]->mesh2point(in[jmod], _work1);
       for (int idat = 0; idat < _ndat; idat++)
       {
-         _work1[idat] *= invNugg;
+         _work1[idat] /= _varianceData[idat];
       }
       _multiProjData[imod]->point2mesh(_work1, _work2[imod]);
       _linearComb(1., _work2, 1., out, out);
