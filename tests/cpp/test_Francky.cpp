@@ -1,5 +1,6 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_e.h"
@@ -59,64 +60,47 @@ double spirale(std::vector<double> pos)
 int main(int argc, char *argv[])
 
 {
-
   int seed = 10355;
-  std::normal_distribution<double> d{0,1};
-  std::uniform_real_distribution <double> u{0,1};
-  std::mt19937 gen{seed};
+  law_set_random_seed(seed);
 
-  ///////////////////////
-  // Création de la db //
-
-  auto nx={ 101,101 };
+  // Creating the 2-D Db
+  auto nx = { 101, 101 };
   Db workingDbc(nx);
-  VectorDouble angle;
-  // Génération des angles
-  for(auto &e : workingDbc.getCoordinates())
-  {
-    angle.push_back(spirale(e));
-  }
 
+  // Generating a vector of angles (spirale)
+  VectorDouble angle;
+  for(auto &e : workingDbc.getCoordinates())
+    angle.push_back(spirale(e));
   workingDbc.addFields(angle,"angle",LOC_NOSTAT);
 
-  ///////////////////////
-  // Création du modèle
+  // Creating the Non-stationary Model
   Model model = Model(&workingDbc);
   CovAniso cova = CovAniso(COV_BESSEL_K,model.getContext());
   cova.setRanges({10,45});
   model.addCova(&cova);
-
-
   NoStatArray NoStat({"A"},&workingDbc);
   model.addNoStat(&NoStat);
 
+  // Creating the 2-D Data Db with a Normal Variable
+  int ndata    = 10;
+  auto coormin = {0., 0.};
+  auto coormax = {100., 100.};
+  Db dat = Db(ndata, coormin, coormax);
+  VectorDouble Z = ut_vector_simulate_gaussian(ndata);
+  dat.addFields(Z, "Z");
+  dat.setLocator("Z", LOC_Z);
 
-  // Création des données (peut-être qu'on pourrait utiliser un équivalent de db.grid.init)
-  int ndata = 10;
-
-
-  VectorDouble coordsX,coordsY,Z;
-
-  for (int iech = 0; iech < ndata; iech++)
-  {
-      coordsX.push_back(99. * u(gen));
-      coordsY.push_back(99. * u(gen));
-      Z.push_back(d(gen));
-  }
-
-//
-  Db dat;
-  dat.addFields(coordsX,"X");
-  dat.addFields(coordsY,"Y");
-  VectorString vct={"X","Y"};
-  dat.setLocator(vct,LOC_X);
-  dat.addFields(Z,"Z");
-  dat.setLocator("Z",LOC_Z);
-
+  // Creating the Neighborhood (Unique)
   Neigh neigh(2);
-  kriging(&dat,&workingDbc,&model,&neigh);
-//
 
+  // Testing Kriging
+  kriging(&dat,&workingDbc,&model,&neigh);
+  dat.display(1);
+  workingDbc.display(1);
+
+  // Testing the storage of the non-stationary parameters within Db
+  db_model_nostat(&dat,&model,0);
+  dat.display(1);
 
   return 0;
 }

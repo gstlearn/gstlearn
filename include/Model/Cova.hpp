@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/CovInternal.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 class Cova;
@@ -46,7 +47,7 @@ private:
   VectorDouble _anisoRotMat; // TODO Should become a square matrix (ndim * ndim)
 
   double (*_st_cov_external)(int, int, int, int, int,
-                             double, double *, double *, double *);
+                             const double* , const double*, double, double*);
 
 public:
   Cova();
@@ -70,11 +71,13 @@ public:
   {
     return (_st_cov_external != NULL);
   }
-  double evaluateExternalCov(External_Cov& E_Cov, double h, VectorDouble d)
+  double evaluateExternalCov(const CovInternal* covint, double h, VectorDouble d)
   {
-    return _st_cov_external(E_Cov.ndim, E_Cov.rank_db1, E_Cov.rank_ech1,
-                            E_Cov.rank_db2, E_Cov.rank_ech2, h, d.data(),
-                            E_Cov.x1.data(), E_Cov.x2.data());
+    return _st_cov_external(covint->getNdim(),
+                            covint->getIcas1(), covint->getIech1(),
+                            covint->getIcas2(), covint->getIech2(),
+                            covint->getX1().data(), covint->getX2().data(),
+                            h, d.data());
   }
 
   /****************************************************************************/
@@ -91,10 +94,10 @@ public:
                                          int,
                                          int,
                                          int,
+                                         const double*,
+                                         const double*,
                                          double,
-                                         double *,
-                                         double *,
-                                         double *))
+                                         double*))
   {
     _st_cov_external = cov_func;
   }

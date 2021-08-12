@@ -29,7 +29,7 @@ class Model;
 class Cova;
 class Drift;
 class ModTrans;
-class CovNostatInternal;
+class CovInternal;
 class MatrixCSSym;
 class CovCalcMode;
 class Vario;
@@ -177,7 +177,7 @@ private:
   CovContext     _ctxt;         /* Context */
 
 public:
-  void (*generic_cov_function)(CovNostatInternal *cov_nostat,
+  void (*generic_cov_function)(CovInternal *cov_nostat,
                                Model *model,
                                const CovCalcMode& mode,
                                int flag_init,

@@ -13,6 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
@@ -2772,8 +2773,11 @@ GEOSLIB_API int manage_external_info(int mode,
 
       /* If the drift vector is present in the input file, skip the rest */
 
-      jatt = db_attribute_identify(dbin, locatorType, info);
-      if (jatt >= 0) continue;
+      if (dbin->getLocatorNumber(locatorType) > 0)
+      {
+        jatt = db_attribute_identify(dbin, locatorType, info);
+        if (jatt >= 0) continue;
+      }
 
       /* Add the Drift vector in the Input file */
 
@@ -2806,6 +2810,50 @@ GEOSLIB_API int manage_external_info(int mode,
       jatt = db_attribute_identify(dbin, locatorType, info);
       if (jatt >= *istart) dbin->deleteFieldByAttribute(jatt);
     }
+  }
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Derive the non-stationary information(s) from the Output db (if Grid)
+ **  to the Input Db
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  mode        1 for allocation; -1 for deallocation
+ ** \param[in]  model       Descriptor of the Model
+ ** \param[in]  dbin        Descriptor of the input Db
+ ** \param[in]  dbout       Descriptor of the output Db
+ **
+ *****************************************************************************/
+GEOSLIB_API int manage_nostat_info(int mode, Model* model, Db *dbin, Db *dbout)
+{
+  VectorDouble tab;
+
+  if (! model->isNoStat()) return 0;
+  const NoStatArray* nostatarray =
+      dynamic_cast<const NoStatArray*>(model->getNoStat());
+
+  /* Dispatch */
+
+  if (mode > 0)
+  {
+
+    // Attach the Input Db
+    if (nostatarray->attachToDb(dbin,1)) return 1;
+
+    // Attach the Output Db
+    if (nostatarray->attachToDb(dbout,2)) return 1;
+  }
+  else
+  {
+
+    // Detach the Input Db
+    nostatarray->detachFromDb(dbin,1);
+
+    // Detach the output Db
+    nostatarray->detachFromDb(dbout,2);
   }
   return (0);
 }
@@ -4884,26 +4932,16 @@ GEOSLIB_API int db_model_nostat(Db *db,
                                 int icov,
                                 NamingConvention namconv)
 {
-  CovNostatInternal cov_nostat;
-
-  /* Preliminary checks */
-
   if (icov < 0 || icov >= model->getCovaNumber()) return 1;
-
-  // Attach the Non-stationary description to the model
-
-  // Nothing is done if there is no non-stationary parameter
-  const ANoStat* nostat = model->getNoStat();
-  if (nostat == nullptr) return 0;
+  if (! model->isNoStat()) return 0;
 
   // The Non-stationary must be defined in the tabulated way
-  const NoStatArray* nostatarray =
-      dynamic_cast<const NoStatArray*>(model->getNoStat());
-  nostatarray->attachToDb(db);
+  if (manage_nostat_info(1, model, db, nullptr)) return 1;
 
   /* Create the new variables */
 
   int ndim = model->getDimensionNumber();
+  CovInternal covint(1,-1,1,-1,ndim,db,db);
   int iptr = db->addFields(2 * ndim + 1, 0.);
   if (iptr < 0) return 1;
 
@@ -4915,9 +4953,9 @@ GEOSLIB_API int db_model_nostat(Db *db,
 
     /* Load the non_stationary parameters */
 
-    cov_nostat.iech1 = iech;
-    cov_nostat.iech2 = -1;
-    model_nostat_update(&cov_nostat, model);
+    covint.setIech1(iech);
+    covint.setIech2(iech);
+    model_nostat_update(&covint, model);
     CovAniso* cova = model->getCova(icov);
 
     /* Store the variables */
@@ -4940,13 +4978,15 @@ GEOSLIB_API int db_model_nostat(Db *db,
 
   int jptr = iptr;
   for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(db, LOC_UNKNOWN, -1, db, jptr++,
+    namconv.setNamesAndLocators(nullptr, LOC_UNKNOWN, -1, db, jptr++,
                                 concatenateStrings("-","Range",intToString(idim+1)));
   for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(db, LOC_UNKNOWN, -1, db, jptr++,
+    namconv.setNamesAndLocators(nullptr, LOC_UNKNOWN, -1, db, jptr++,
                                 concatenateStrings("-","Angle",intToString(idim+1)));
-  namconv.setNamesAndLocators(db, LOC_UNKNOWN, -1, db, jptr++, "Sill");
+  namconv.setNamesAndLocators(nullptr, LOC_UNKNOWN, -1, db, jptr++, "Sill");
+  namconv.setLocators(db, iptr, 1, 2*ndim+1);
 
+  (void) manage_nostat_info(-1, model, db, nullptr);
   return 0;
 }
 

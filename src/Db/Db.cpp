@@ -187,6 +187,7 @@ Db::Db(const String& filename,
 /**
  * Creating a grid Db which covers the extension of the input 'Db'
  *
+ * @param db       Input Db from which the newly created Db is constructed
  * @param nodes    Vector of the expected number of grid nodes
  * @param dcell    Vector of the expected sizes for the grid meshes
  * @param origin   Vector of the expected origin of the grid
@@ -1058,7 +1059,7 @@ void Db::clearLocators(ENUM_LOCS locatorType)
 /**
  * Setting the locator for a set of variables designated by their names
  * @param names        Vector if variable names
- * @param locatorType  Locator type
+ * @param locatorType  Locator type (include LOC_UNKNOWN)
  * @param locatorIndex Starting locator rank
  * @return
  */
@@ -1066,7 +1067,7 @@ void Db::setLocator(const VectorString& names,
                     ENUM_LOCS locatorType,
                     int locatorIndex)
 {
-  if (!isLocatorTypeValid(locatorType)) return;
+  if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iatts = ids(names, false);
   if (iatts.empty()) return;
   for (unsigned int i = 0; i < iatts.size(); i++)
@@ -1075,7 +1076,7 @@ void Db::setLocator(const VectorString& names,
 
 void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex)
 {
-  if (!isLocatorTypeValid(locatorType)) return;
+  if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iatts = ids(names, false);
   if (iatts.empty()) return;
   for (unsigned int i = 0; i < iatts.size(); i++)
@@ -1085,7 +1086,7 @@ void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex
 /**
  * Setting the locator for a variable designated by its attribute
  * @param iatt          Index of the Attribute
- * @param locatorType   Type of locator
+ * @param locatorType   Type of locator (include LOC_UNKNOWN)
  * @param locatorIndex  Rank in the Locator (starting from 1)
  * @return Error return code
  * @remark: At this stage, no check is performed to see if items
@@ -1095,7 +1096,7 @@ void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex
 void Db::setLocatorByAttribute(int iatt, ENUM_LOCS locatorType, int locatorIndex)
 {
   if (!isAttributeIndexValid(iatt)) return;
-  if (!isLocatorTypeValid(locatorType)) return;
+  if (!isLocatorTypeValid(locatorType, true)) return;
   if (locatorIndex < 1) return;
   int local = locatorIndex - 1;
 
@@ -1131,7 +1132,7 @@ String Db::_getLocatorNameByColumn(int icol) const
  * Set the Locators for a set of variables identified by their attribute rank
  * @param number        Number of variables to be set
  * @param iatt          Rank of the first attribute
- * @param locatorType   Type of the Locator
+ * @param locatorType   Type of the Locator (include LOC_UNKNOWN)
  * @param locatorIndex  Rank of the first Locator index (starting from 1)
  */
 void Db::setLocatorsByAttribute(int number,
@@ -1139,7 +1140,7 @@ void Db::setLocatorsByAttribute(int number,
                                 ENUM_LOCS locatorType,
                                 int locatorIndex)
 {
-  if (!isLocatorTypeValid(locatorType)) return;
+  if (!isLocatorTypeValid(locatorType, true)) return;
   for (int i = 0; i < number; i++)
     setLocatorByAttribute(iatt+i, locatorType, locatorIndex+i);
 }
@@ -3663,8 +3664,6 @@ int Db::getFaciesNumber(void)
 **  Return the vector of ordered samples by increasing coordinate along X
 **
 ** \return    Array containing the increasing order
-**
-** \param[in]  db    Db descriptor
 **
 ** \remarks  The returned array must be desallocated
 **

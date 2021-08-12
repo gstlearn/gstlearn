@@ -112,11 +112,13 @@ String getLocatorName(ENUM_LOCS locatorType, int locatorIndex)
  * Check if the Locator type is valid or not
  * Note that the locator type is returned as -1 for non identified locator (such as rank)
  * @param locatorType The locator type to be identified
+ * @param unknownValid True if LOC_UNKNOWN is considered as valid
  * @return
  */
-bool isLocatorTypeValid(ENUM_LOCS locatorType)
+bool isLocatorTypeValid(ENUM_LOCS locatorType, bool unknownValid)
 {
-  if (locatorType < -1 || locatorType >= MAXIMUM_LOC)
+  int lower_bound = (unknownValid) ? -1 : 0;
+  if (locatorType < lower_bound || locatorType >= MAXIMUM_LOC)
   {
     messerr("Error in the Locator Type (%d)",locatorType);
     messerr("It should be defined using the ENUM_LOCS");

@@ -95,11 +95,8 @@ static int      INH_FLAG_VERBOSE = 0;
 static int      INH_FLAG_LIMIT   = 1;
 static double   EPS = 1.e-5;
 static char     string[100];
-static int      NDIM_EXTERNAL      =  0;
-static int      COV_EXTERNAL_DB_1  =  0;
-static int      COV_EXTERNAL_DB_2  =  0;
-static int      COV_EXTERNAL_ECH_1 = -1;
-static int      COV_EXTERNAL_ECH_2 = -1;
+
+static CovInternal COVINT;
 
 typedef struct {
   int     ndtot;
@@ -112,26 +109,6 @@ typedef struct {
   int     icov_r;
   double  weight;
 } Disc_Structure;
-
-/****************************************************************************/
-/*!
-**  Identify the indices of the Db and the sample ranks
-**  (used by the external covariance function in case of Kriging)
-**
-** \param[out] E_Cov    The External_Cov structure
-**
-** \remarks The arguments 'rank_db1', 'rank_ech1', 'rank_db2' and 'rank_ech2
-** \remarks are assigned
-**
-*****************************************************************************/
-GEOSLIB_API void fill_external_cov_kriging(External_Cov& E_Cov)
-{
-  E_Cov.ndim      = NDIM_EXTERNAL;
-  E_Cov.rank_db1  = COV_EXTERNAL_DB_1;
-  E_Cov.rank_db2  = COV_EXTERNAL_DB_2;
-  E_Cov.rank_ech1 = COV_EXTERNAL_ECH_1;
-  E_Cov.rank_ech2 = COV_EXTERNAL_ECH_2;
-}
 
 /****************************************************************************/
 /*!
@@ -346,45 +323,38 @@ static void st_cov(Model  *model,
                    VectorDouble d1,
                    double *covtab)
 {
-  Db *db1,*db2;
-  int iech1,iech2;
 
   /* Initializations */
   
   if (rank1 >= 0)
   {
-    db1   = DBIN;
-    iech1 = rank1;
-    COV_EXTERNAL_DB_1  = 1;
-    COV_EXTERNAL_ECH_1 = iech1;
+    COVINT.setDb1(DBIN);
+    COVINT.setIcas1(1);
+    COVINT.setIech1(rank1);
   }
   else
   {
-    db1   = DBOUT;
-    iech1 = IECH_OUT;
-    COV_EXTERNAL_DB_1  = 2;
-    COV_EXTERNAL_ECH_1 = iech1;
+    COVINT.setDb1(DBOUT);
+    COVINT.setIcas1(2);
+    COVINT.setIech1(IECH_OUT);
   }
 
   if (rank2 >= 0)
   {
-    db2   = DBIN;
-    iech2 = rank2;
-    COV_EXTERNAL_DB_2  = 1;
-    COV_EXTERNAL_ECH_2 = iech2;
+    COVINT.setDb2(DBIN);
+    COVINT.setIcas2(1);
+    COVINT.setIech2(rank2);
   }
   else
   {
-    db2   = DBOUT;
-    iech2 = IECH_OUT;
-    COV_EXTERNAL_DB_2  = 2;
-    COV_EXTERNAL_ECH_2 = iech2;
+    COVINT.setDb2(DBOUT);
+    COVINT.setIcas2(2);
+    COVINT.setIech2(IECH_OUT);
   }
 
   CovCalcMode mode(MEMBER_LHS);
   mode.update(nugget_opt,nostd,member,icov_r,0,1);
-  model_calcul_cov_nostat(model,mode,flag_init,weight,
-                          db1,iech1,db2,iech2,d1,covtab);
+  model_calcul_cov_nostat(model,mode,&COVINT,flag_init,weight,d1,covtab);
 }
 
 /****************************************************************************/
@@ -1704,11 +1674,11 @@ static void st_variance0(Model  *model,
   }
   else
   {
-    COV_EXTERNAL_DB_1  = 2;
-    COV_EXTERNAL_DB_2  = 2;
-    COV_EXTERNAL_ECH_1 = 0;
-    COV_EXTERNAL_ECH_2 = 0;
-    NDIM_EXTERNAL      = model->getDimensionNumber();
+    COVINT.setIcas1(2);
+    COVINT.setIcas2(2);
+    COVINT.setIech1(0);
+    COVINT.setIech2(0);
+    COVINT.setNdim(model->getDimensionNumber());
     model_variance0(model,KOPTION,covtab,var0);
     
     // If 'mat' is provided, some extra-calculations are needed
@@ -1756,12 +1726,12 @@ static double st_variance(Model *model,
 
   if (model->isNoStat() || model->hasExternalCov())
   {
-    COV_EXTERNAL_DB_1  = 2;
-    COV_EXTERNAL_DB_2  = 2;
-    COV_EXTERNAL_ECH_1 = IECH_OUT;
-    COV_EXTERNAL_ECH_2 = IECH_OUT;
-    NDIM_EXTERNAL      = model->getDimensionNumber();
-    model_variance0_nostat(model,KOPTION,DBOUT,IECH_OUT,covtab,var0);
+    COVINT.setIcas1(2);
+    COVINT.setIcas2(2);
+    COVINT.setIech1(IECH_OUT);
+    COVINT.setIech2(IECH_OUT);
+    COVINT.setNdim(model->getDimensionNumber());
+    model_variance0_nostat(model,KOPTION,&COVINT,covtab,var0);
   }
 
   var = VAR0(ivar,jvar);
@@ -3456,7 +3426,7 @@ GEOSLIB_API int kriging(Db *dbin,
                         VectorDouble matCL,
                         NamingConvention namconv)
 {
-  int iext,inostat,error,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq;
+  int iext,error,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq;
   int save_keypair;
   double ldum;
 
@@ -3474,8 +3444,7 @@ GEOSLIB_API int kriging(Db *dbin,
   if (st_check_colcok(dbin,dbout,rank_colcok.data())) goto label_end;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   if (matCL.empty())
     nvar = model->getVariableNumber();
   else
@@ -3594,7 +3563,7 @@ label_end:
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,calcul,1,ndisc);
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }
@@ -3624,7 +3593,7 @@ static int st_xvalid_unique(Db *dbin,
                             NamingConvention namconv)
 {
   int iext,error,status,nech,neq,nred,nvar,flag_xvalid_memo,flag_new_nbgh;
-  int iech,iiech,jech,jjech,inostat;
+  int iech,iiech,jech,jjech;
   double variance,value,stdv,valref;
 
   /* Preliminary checks */
@@ -3639,8 +3608,7 @@ static int st_xvalid_unique(Db *dbin,
   if (st_check_colcok(dbin,dbin,rank_colcok.data())) goto label_end;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar = model->getVariableNumber();
 
   /* Additional checks */
@@ -3764,7 +3732,7 @@ label_end:
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }
@@ -3850,7 +3818,7 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
                         int     flag_varz,
                         double  rval)
 {
-  int iext,inostat,error,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq;
+  int iext,error,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq;
   int save_keypair;
   double ldum;
 
@@ -3869,8 +3837,7 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
   R_COEFF   = rval;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
   nred = neq = 0;
@@ -3977,7 +3944,7 @@ label_end:
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }
@@ -4005,7 +3972,7 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
                          int    flag_est,
                          int    flag_std)
 {
-  int iext,inostat,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq,iptr_dat,icode;
+  int iext,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq,iptr_dat,icode;
   int error;
   double ldum;
 
@@ -4034,8 +4001,7 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
   nvar  = dbin->getVariableNumber();
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
 
   /* Add the attributes for storing the results */
 
@@ -4129,7 +4095,7 @@ label_end:
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   if (iptr_dat >= 0)
     for (icode=0; icode<ncode; icode++)
       dbin->deleteFieldByAttribute(iptr_dat+icode);
@@ -4440,8 +4406,7 @@ GEOSLIB_API int kribayes_f(Db *dbin,
                            int flag_est,
                            int flag_std)
 {
-  int      iext,error,status,nech,neq,nred,nvar;
-  int      flag_new_nbgh,inostat;
+  int      iext,error,status,nech,neq,nred,nvar,flag_new_nbgh;
   double  *rmean,*rcov,*smean,ldum;
   Model   *model_sk;
 
@@ -4459,8 +4424,7 @@ GEOSLIB_API int kribayes_f(Db *dbin,
   FLAG_WGT   = flag_std;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar = model->getVariableNumber();
 
   /* Add the attributes for storing the results */
@@ -4571,7 +4535,7 @@ label_end:
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }
@@ -4602,7 +4566,7 @@ GEOSLIB_API int test_neigh(Db    *dbin,
                            Neigh *neigh,
                            NamingConvention namconv)
 {
-  int error,status,nech,ntab,iext,inostat;
+  int error,status,nech,ntab,iext;
   double tab[5];
 
   /* Preliminary checks */
@@ -4613,8 +4577,7 @@ GEOSLIB_API int test_neigh(Db    *dbin,
   st_global_init(dbin,dbout);
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
 
   /* Add the attributes for storing the results */
 
@@ -4672,7 +4635,7 @@ label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,model->getVariableNumber(),model,neigh);
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }
@@ -4709,7 +4672,7 @@ GEOSLIB_API int krigsim(const char *strloc,
                         int     flag_dgm,
                         double  rval)
 {
-  int      error,status,nech,neq,nred,nvar,flag_new_nbgh,iext,nfeq,inostat;
+  int      error,status,nech,neq,nred,nvar,flag_new_nbgh,iext,nfeq;
   double  *rmean,*rcov,*smean;
   Model   *model_sk;
 
@@ -4731,8 +4694,7 @@ GEOSLIB_API int krigsim(const char *strloc,
   IPTR_EST   = dbout->getColumnByLocator(LOC_SIMU,0);
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
 
@@ -4854,7 +4816,7 @@ label_end:
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }
@@ -7875,7 +7837,7 @@ GEOSLIB_API int krigtest_dimension(Db    *dbin,
                                    int   *nred_ret,
                                    int   *nrhs_ret)
 {
-  int iext,error,status,nech,neq,nred,nvar,inostat;
+  int iext,error,status,nech,neq,nred,nvar;
 
   /* Preliminary checks */
 
@@ -7888,8 +7850,7 @@ GEOSLIB_API int krigtest_dimension(Db    *dbin,
   FLAG_WGT  = 1;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar  = model->getVariableNumber();
 
   /* Pre-calculations */
@@ -7931,7 +7892,7 @@ label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }
@@ -7978,8 +7939,7 @@ GEOSLIB_API int krigtest_f(Db     *dbin,
                          double *zam_out,
                          double *var_out)
 {
-  int iext,ivar,jvar,ecr,inostat,status,nech,neq,nred,nvar,nfeq,iech,idim,ndim;
-  int error;
+  int iext,ivar,jvar,ecr,status,nech,neq,nred,nvar,nfeq,iech,idim,ndim,error;
   double ldum;
 
   /* Preliminary checks */
@@ -7993,8 +7953,7 @@ GEOSLIB_API int krigtest_f(Db     *dbin,
   FLAG_WGT  = 1;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar  = model->getVariableNumber();
   nfeq  = model->getDriftEquationNumber();
   ndim  = dbin->getNDim();
@@ -8092,7 +8051,7 @@ label_end:
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,calcul,1,ndisc);
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }
@@ -8293,7 +8252,7 @@ GEOSLIB_API int krigcell_f(Db    *dbin,
                          int    flag_std,
                          VectorInt rank_colcok)
 {
-  int iext,error,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq,ndim,inostat;
+  int iext,error,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq,ndim;
   double ldum;
 
   /* Preliminary checks */
@@ -8308,8 +8267,7 @@ GEOSLIB_API int krigcell_f(Db    *dbin,
   if (st_check_colcok(dbin,dbout,rank_colcok.data())) goto label_end;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
   if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,DBIN,DBOUT,
-                           &inostat)) goto label_end;
+  if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar  = model->getVariableNumber();
   nfeq  = model->getDriftEquationNumber();
   ndim  = model->getDimensionNumber();
@@ -8413,7 +8371,7 @@ label_end:
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,0,KOPTION_BLOCK,1,ndisc);
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,DBIN,DBOUT,&inostat);
+  (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
 }

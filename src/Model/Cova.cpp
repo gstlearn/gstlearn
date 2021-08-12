@@ -197,12 +197,9 @@ double _st_cov_func(Cova *covariance,
                     VectorDouble d,
                     double h)
 {
-  External_Cov E_Cov;
+  const CovInternal* covint = get_external_covariance();
 
-  fill_external_cov_kriging(E_Cov);
-  fill_external_cov_model(E_Cov);
-
-  return covariance->evaluateExternalCov(E_Cov, h, d);
+  return covariance->evaluateExternalCov(covint, h, d);
 }
 
 //static Def_Cova DEF_FUNC =
