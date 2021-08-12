@@ -187,6 +187,7 @@ Db::Db(const String& filename,
 /**
  * Creating a grid Db which covers the extension of the input 'Db'
  *
+ * @param db       Input Db from which the newly created Db is constructed
  * @param nodes    Vector of the expected number of grid nodes
  * @param dcell    Vector of the expected sizes for the grid meshes
  * @param origin   Vector of the expected origin of the grid
@@ -993,15 +994,6 @@ double Db::getFromLocator(ENUM_LOCS locatorType,
   int icol = getColumnByLocator(locatorType, locatorIndex);
   if (!isColumnIndexValid(icol)) return (TEST);
   return (_array[_getAddress(iech, icol)]);
-}
-
-VectorDouble Db::getFromLocatorVector(ENUM_LOCS locatorType,
-                                      int locatorIndex,
-                                      bool useSel) const
-{
-  int iatt = getAttribute(locatorType, locatorIndex);
-  if (!isAttributeIndexValid(iatt)) return VectorDouble();
-  return getArray(iatt, useSel);
 }
 
 int Db::getFromLocatorNumber(ENUM_LOCS locatorType) const
@@ -3672,8 +3664,6 @@ int Db::getFaciesNumber(void)
 **  Return the vector of ordered samples by increasing coordinate along X
 **
 ** \return    Array containing the increasing order
-**
-** \param[in]  db    Db descriptor
 **
 ** \remarks  The returned array must be desallocated
 **

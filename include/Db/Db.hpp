@@ -220,8 +220,6 @@ public:
                         int iech,
                         int locatorIndex,
                         double value);
-  VectorDouble getFromLocatorVector(ENUM_LOCS locatorType, int locatorIndex,
-                                    bool useSel = false) const;
 
   double getByColumn(int iech, int icol) const;
   void   setByColumn(int iech, int icol, double value);

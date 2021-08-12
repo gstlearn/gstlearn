@@ -137,7 +137,7 @@ int ASerializable::_fileClose(bool verbose)
  * @param format String to be completed
  * @return
  *
- * @Note: Format is not a reference here:
+ * @remarks: Format is not a reference here:
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
  */
 int ASerializable::_recordRead(const String& title, String format, ...)

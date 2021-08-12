@@ -603,12 +603,12 @@ String NoStatArray::displayStats(int ipar, int icas) const
   else if (icas == 1)
   {
     if (_dbin == (Db *) NULL) return sstr.str();
-    vec = _dbin->getFromLocatorVector(LOC_NOSTAT,ipar,true);
+    vec = _dbin->getFieldByLocator(LOC_NOSTAT,ipar,true);
   }
   else
   {
     if (_dbout == (Db *) NULL) return sstr.str();
-    vec = _dbout->getFromLocatorVector(LOC_NOSTAT,ipar,true);
+    vec = _dbout->getFieldByLocator(LOC_NOSTAT,ipar,true);
   }
 
   // Produce the statistics

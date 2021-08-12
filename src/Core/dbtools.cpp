@@ -2822,6 +2822,7 @@ GEOSLIB_API int manage_external_info(int mode,
  ** \return  Error return code
  **
  ** \param[in]  mode        1 for allocation; -1 for deallocation
+ ** \param[in]  model       Descriptor of the Model
  ** \param[in]  dbin        Descriptor of the input Db
  ** \param[in]  dbout       Descriptor of the output Db
  **
