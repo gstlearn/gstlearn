@@ -35,8 +35,7 @@
 #define Gmatrix(i,j)           (Gmatrix[(j) * nech + i])
 /*! \endcond */
 
-static double EPS = 1.e-6;
-
+static CovInternal* COVINT = nullptr;
 int NDIM_LOCAL = 0;
 VectorDouble X1_LOCAL = VectorDouble();
 VectorDouble X2_LOCAL = VectorDouble();
@@ -55,6 +54,7 @@ GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model)
 {
   if (!model->isNoStat()) return;
   if (covint == NULL) return;
+  COVINT = covint;
 
   const NoStatArray* nostatarray =
       dynamic_cast<const NoStatArray*>(model->getNoStat());
@@ -847,64 +847,17 @@ GEOSLIB_API double model_calcul_cov_ij(Model *model,
   return value;
 }
 
-///*****************************************************************************/
-///*!
-// **  In the non-stationary case and if an external covariance function is
-// **  present in the Model, allocate the relevant arrays and store
-// **  the coordinates of the two end-points
-// **
-// ** \param[in]  cov_nostat   Internal structure for non-stationarity
-// **                          or NULL (for stationary case)
-// ** \param[in]  model        Model structure
-// **
-// *****************************************************************************/
-//static void st_model_nostat_for_external(CovNostatInternal *cov_nostat,
-//                                         Model *model)
-//{
-//  /// TODO [Cova] : Lea to be restored
-//  int is_external,ndim;
-//  Cova *cova;
-//
-//  // Check if an external structure is required
-//
-//  is_external = 0;
-//  for (int icov=0; icov<model->getNCova(); icov++)
-//  {
-//    cova = model->getCova(icov);
-//    if (cova->getType() < 0) is_external = 1;
-//  }
-//  if (! is_external) return;
-//
-//  // Check the dimension of already existing arrays
-//
-//  if (cov_nostat->db1 == (Db *) NULL) return;
-//  if (cov_nostat->db2 == (Db *) NULL) return;
-//  ndim = get_NDIM(cov_nostat->db1);
-//
-//  // Load the coordinates
-//
-//  if (ndim != (int) X1_LOCAL.size()) X1_LOCAL.resize(ndim);
-//  if (ndim != (int) X2_LOCAL.size()) X2_LOCAL.resize(ndim);
-//  for (int idim=0; idim<ndim; idim++)
-//  {
-//    X1_LOCAL[idim] = cov_nostat->db1->getCoordinate(cov_nostat->iech1,idim);
-//    X2_LOCAL[idim] = cov_nostat->db2->getCoordinate(cov_nostat->iech2,idim);
-//  }
-//}
 /****************************************************************************/
 /*!
  **  Identify the coordinates of the two end-points
  **  (used by the external covariance function)
  **
- ** \param[out] E_Cov    The External_Cov structure
- **
- ** \remarks The arguments 'x1' and 'x2' are assigned
+ ** \return A (protected) pointer on the Covariance Internal class
  **
  *****************************************************************************/
-GEOSLIB_API void fill_external_cov_model(External_Cov& E_Cov)
+GEOSLIB_API const CovInternal* get_external_covariance()
 {
-  E_Cov.x1 = X1_LOCAL;
-  E_Cov.x2 = X2_LOCAL;
+  return COVINT;
 }
 
 /*****************************************************************************/
@@ -943,11 +896,6 @@ GEOSLIB_API void model_calcul_cov_nostat(Model *model,
     if (anam_var >= 0) mode.setMember((ENUM_MEMBERS) anam_var);
   }
 
-  /* Store the information from the data base if needed by an external */
-  /* covariance function */
-
-  /// TODO [Cova] : Lea to be restored
-  // st_model_nostat_for_external(&cov_nostat,model);
   /* Call the generic model calculation module */
 
   model->generic_cov_function(covint, model, mode, flag_init, weight, d1,
@@ -1865,26 +1813,25 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
                                       double *h,
                                       double *g)
 {
-  double *covtab, var0, c00;
-  int ih, nvar, idim, ndim, error;
+  double *covtab, c00, var0;
   VectorDouble d1;
 
   /* Initializations */
 
-  error = 1;
+  int error = 1;
   covtab = (double *) NULL;
   CovCalcMode mode;
-  CovInternal covint;
   mode.update(nugget_opt, nostd, member, rank_sel, flag_norm, flag_cov);
   if (norder > 0) mode.setOrderVario(norder);
 
   /* Preliminary checks */
 
-  if (st_check_model(model)) goto label_end;
-  ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
-  if (st_check_variable(nvar, ivar)) goto label_end;
-  if (st_check_variable(nvar, jvar)) goto label_end;
+  if (st_check_model(model)) return 1;
+  int ndim = model->getDimensionNumber();
+  int nvar = model->getVariableNumber();
+  if (st_check_variable(nvar, ivar)) return 1;
+  if (st_check_variable(nvar, jvar)) return 1;
+  CovInternal covint(1,iech1,2,iech2,ndim,db1,db2);
 
   /* Core allocation */
 
@@ -1899,16 +1846,16 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
 
   c00 = model->getContext().getCovar0(ivar, jvar);
   d1.resize(ndim, 0.);
-  covint.init(1,iech1,2,iech2,ndim,db1,db2);
+
   model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
   var0 = COVTAB(ivar, jvar);
   if (c00 <= 0. || FFFF(c00)) c00 = var0;
 
   /* Loop on the lags */
 
-  for (ih = 0; ih < nh; ih++)
+  for (int ih = 0; ih < nh; ih++)
   {
-    for (idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
       d1[idim] = h[ih] * codir[idim];
     model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
     g[ih] = COVTAB(ivar, jvar);
@@ -1920,7 +1867,6 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
 
   label_end: covtab = (double *) mem_free((char * ) covtab);
   return (error);
-  return 0;
 }
 
 /****************************************************************************/
@@ -3259,7 +3205,7 @@ GEOSLIB_API int model_normalize(Model *model, int flag_verbose)
     total[ivar] = model->getCovAnisoList()->getTotalSill(ivar, ivar);
     if (total[ivar] == 0.) goto label_end;
     total[ivar] = sqrt(total[ivar]);
-    if (ABS(total[ivar] - 1.) > EPS) flag_norm = 1;
+    if (ABS(total[ivar] - 1.) > EPSILON6) flag_norm = 1;
   }
 
   /* Scale the different sills for the different variables */

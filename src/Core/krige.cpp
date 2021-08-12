@@ -112,26 +112,6 @@ typedef struct {
 
 /****************************************************************************/
 /*!
-**  Identify the indices of the Db and the sample ranks
-**  (used by the external covariance function in case of Kriging)
-**
-** \param[out] E_Cov    The External_Cov structure
-**
-** \remarks The arguments 'rank_db1', 'rank_ech1', 'rank_db2' and 'rank_ech2
-** \remarks are assigned
-**
-*****************************************************************************/
-GEOSLIB_API void fill_external_cov_kriging(External_Cov& E_Cov)
-{
-  E_Cov.ndim      = COVINT.getNdim();
-  E_Cov.rank_db1  = COVINT.getIcas1();
-  E_Cov.rank_db2  = COVINT.getIcas2();
-  E_Cov.rank_ech1 = COVINT.getIech1();
-  E_Cov.rank_ech2 = COVINT.getIech2();
-}
-
-/****************************************************************************/
-/*!
 **  Local function checking if the continuous Kriging as been required.
 **  Then the LHS must be updated for each target
 **
