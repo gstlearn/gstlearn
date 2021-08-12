@@ -394,4 +394,12 @@ typedef enum
   ES_TYPE_ERROR            = 8
 } ENUM_ERRORS;
 
+typedef enum
+{
+  CALCUL_KRIGING     = 0,    //!< Kriging
+  CALCUL_SIMUCOND    = 1,   //!< Conditional simulations
+  CALCUL_SIMUNONCOND = 2 //!< Non conditional simulations
+} ENUM_CALCUL_MODE;
+
+
 typedef ENUM_ERRORS ES;
