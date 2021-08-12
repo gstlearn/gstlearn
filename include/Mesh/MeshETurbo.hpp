@@ -63,7 +63,7 @@ public:
                    bool flag_polarized = true,
                    int verbose = 0);
   bool isNodeMasked(int iabs) const;
-  cs*  getMeshToDb(Db *db, int verbose = 0) const override;
+  cs*  getMeshToDb(const Db *db, int verbose = 0) const override;
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
   const GridC& getGrid() const

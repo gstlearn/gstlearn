@@ -25,6 +25,32 @@ PrecisionOpMultiConditional::PrecisionOpMultiConditional()
 }
 
 
+VectorVectorDouble PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal) const
+{
+  VectorVectorDouble rhs(size());
+  for(int i = 0; i< size(); i++)
+  {
+    rhs[i].resize(size(i));
+  }
+  computeRhs(datVal,rhs);
+  return rhs;
+
+}
+
+void PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal, VectorVectorDouble& rhs) const
+{
+  VectorDouble temp = datVal;
+  for(int i = 0; i < (int)datVal.size() ; i++)
+  {
+    temp[i] /= getVarianceData(i);
+  }
+
+  for(int i = 0; i < size(); i++)
+  {
+    _multiProjData[i]->point2mesh(temp,rhs[i]);
+  }
+}
+
 void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
                                             IProjMatrix* projDataElem)
 {

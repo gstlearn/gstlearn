@@ -23,7 +23,7 @@ ProjMatrix::ProjMatrix()
 {
 }
 
-ProjMatrix::ProjMatrix(Db* db, AMesh *a_mesh, int verbose)
+ProjMatrix::ProjMatrix(const Db* db, AMesh *a_mesh, int verbose)
 
   : IProjMatrix()
   , _nPoint(0)
@@ -77,7 +77,7 @@ ProjMatrix::~ProjMatrix()
   _Aproj = cs_spfree(_Aproj);
 }
 
-int ProjMatrix::init(Db* db, AMesh *a_mesh, int verbose)
+int ProjMatrix::init(const Db* db, AMesh *a_mesh, int verbose)
 {
   _Aproj = a_mesh->getMeshToDb(db,verbose);
   if (_Aproj == (cs *) NULL) return 1;
@@ -106,7 +106,7 @@ int ProjMatrix::init(Db* db, SPDE_Mesh* s_mesh, int verbose)
   return 0;
 }
 
-int ProjMatrix::init(Db* db,
+int ProjMatrix::init(const Db* db,
                      SPDE_Mesh* s_mesh,
                      double radius,
                      int flag_exact,

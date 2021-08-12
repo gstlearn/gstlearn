@@ -125,7 +125,7 @@ String AMesh::_display(int level) const
 ** \param[in]  db        Db structure
 **
 *****************************************************************************/
-int AMesh::isCompatibleDb(Db *db) const
+int AMesh::isCompatibleDb(const Db *db) const
 {
   if (getNDim() == db->getNDim()) return 0;
 

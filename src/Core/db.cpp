@@ -344,7 +344,7 @@ GEOSLIB_API void set_IGRD(Db *db, int iech, int item, double value)
  ** \param[in]  locatorType Rank of the pointer (::ENUM_LOCS)
  **
  *****************************************************************************/
-GEOSLIB_API int get_LOCATOR_NITEM(Db *db, ENUM_LOCS locatorType)
+GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, ENUM_LOCS locatorType)
 {
   if (db == (Db *) NULL) return (0);
   if (db->isGrid() && locatorType == LOC_X)
@@ -616,7 +616,7 @@ GEOSLIB_API double *db_sample_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API double *db_sample_alloc(Db *db, ENUM_LOCS locatorType)
+GEOSLIB_API double *db_sample_alloc(const Db *db, ENUM_LOCS locatorType)
 {
   double *tab;
   int size;

@@ -47,7 +47,7 @@ public:
   int  setExtend(const VectorDouble extendmin, const VectorDouble extendmax);
   void getDuplicates(int verbose, Db *dbin, Db *dbout,
                      int *nbdupl,int **dupl1,int **dupl2) const;
-  int  isCompatibleDb(Db *db) const;
+  int  isCompatibleDb(const Db *db) const;
   VectorDouble getMeshSizes() const;
 
   /*! Returns the number of apex per mesh */
@@ -65,7 +65,7 @@ public:
   /*! Returns the mesh size */
   virtual double getMeshSize(int imesh) const = 0;
   /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
-  virtual cs* getMeshToDb(Db *db, int verbose = 0) const = 0;
+  virtual cs* getMeshToDb(const Db *db, int verbose = 0) const = 0;
   /*! Interpolates an array from Mesh to Db */
   virtual double* interpolateMeshToDb(Db *db, double* mtab) const = 0;
   /*! Print the list of meshes and apices */

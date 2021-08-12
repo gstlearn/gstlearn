@@ -295,7 +295,7 @@ bool MeshETurbo::isNodeMasked(int iabs) const
 ** \param[in]  verbose   Verbose flag
 **
 *****************************************************************************/
-cs* MeshETurbo::getMeshToDb(Db  *db,
+cs* MeshETurbo::getMeshToDb(const Db  *db,
                             int verbose) const
 {
   double *rhs,*lambda;

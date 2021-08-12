@@ -349,7 +349,7 @@ void MeshEStandard::getDuplicates(int   verbose,
 ** \param[in]  verbose   Verbosity flag
 **
 *****************************************************************************/
-cs* MeshEStandard::getMeshToDb(Db *db,
+cs* MeshEStandard::getMeshToDb(const Db *db,
                                int verbose) const
 {
   double *coor,*container,*weight;

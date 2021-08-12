@@ -1478,7 +1478,7 @@
   GEOSLIB_API int *db_indg_alloc(Db *db);
   GEOSLIB_API int *db_indg_free(int *indice);
   GEOSLIB_API double *db_sample_free(double *tab);
-  GEOSLIB_API double *db_sample_alloc(Db *db, ENUM_LOCS locatorType);
+  GEOSLIB_API double *db_sample_alloc(const Db *db, ENUM_LOCS locatorType);
   GEOSLIB_API int db_sample_load(Db *db, ENUM_LOCS locatorType, int iech, double *tab);
   GEOSLIB_API double *db_vector_free(double *tab);
   GEOSLIB_API double *db_vector_alloc(Db *db);
@@ -1585,7 +1585,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                   int iy,
                                   int iz,
                                   double value);
-  GEOSLIB_API int get_LOCATOR_NITEM(Db *db, ENUM_LOCS locatorType);
+  GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, ENUM_LOCS locatorType);
   GEOSLIB_API int exist_LOCATOR(Db *db, ENUM_LOCS locatorType);
   GEOSLIB_API double get_LOCATOR_ITEM(Db *db, ENUM_LOCS locatorType, int locatorIndex, int iech);
   GEOSLIB_API void set_LOCATOR_ITEM(Db *db,
@@ -3311,7 +3311,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                  int **triangles,
                                  double **points);
   GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose);
-  GEOSLIB_API cs *db_mesh_neigh(Db *db,
+  GEOSLIB_API cs *db_mesh_neigh(const Db *db,
                                 SPDE_Mesh *s_mesh,
                                 double radius,
                                 int flag_exact,

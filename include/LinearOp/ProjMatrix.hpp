@@ -24,7 +24,7 @@ class ProjMatrix: public IProjMatrix, public AStringable
 {
 public:
   ProjMatrix();
-  ProjMatrix(Db* db, AMesh *a_mesh, int verbose = 0);
+  ProjMatrix(const Db* db, AMesh *a_mesh, int verbose = 0);
   ProjMatrix(int npoint, int napices, const cs *aproj);
   ProjMatrix(const ProjMatrix &m);
   ProjMatrix& operator= (const ProjMatrix &m);
@@ -32,10 +32,10 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  int init(Db* db, AMesh *a_mesh, int verbose = 0);
+  int init(const Db* db, AMesh *a_mesh, int verbose = 0);
   int init(int npoint, int napices, const cs *aproj);
   int init(Db* db, SPDE_Mesh* s_mesh, int verbose = 0);
-  int init(Db* db,
+  int init(const Db* db,
            SPDE_Mesh* s_mesh,
            double radius,
            int flag_exact = 0,
