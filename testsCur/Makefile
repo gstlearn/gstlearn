@@ -13,7 +13,7 @@ total: testsCur
 	@+make -sC data
 
 clean:
-	@echo "Cleaning tests ..."
+	@echo "Cleaning testsCur ..."
 	@+make -sC cpp  clean
 	@+make -sC data clean
 

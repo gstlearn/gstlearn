@@ -53,6 +53,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
       if(_calculSimu())
       {
         mesh = _createMeshing(*cova, field, 14., 0.2);
+        _simuMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, &model, &field);
         precision = new PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF);
         _pileShiftOp.push_back(shiftOp);
@@ -61,6 +62,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
       if(_calculKriging())
       {
         mesh = _createMeshing(*cova, field, 11., 0.2);
+        _krigingMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, &model, &field);
         precision = new PrecisionOpCs(shiftOp, cova, POPT_ONE);
         proj = new ProjMatrix(_data,mesh);
@@ -77,7 +79,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
     }
   }
 
-  if (dat != nullptr && _calculKriging())
+  if (_calculKriging())
   {
     if(dat->getVarianceErrorNumber()>0)
     {
@@ -107,6 +109,7 @@ void SPDE::computeKriging() const
   _precisionsKriging.evalInverse(rhs,_workKriging);
 }
 
+
 MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
                                 const Db& field,
                                 double discr,
@@ -132,5 +135,25 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
     nx.push_back((int)(( delta * ( 1 + 2 * ext ) ) / cellSize[idim] ));
     x0.push_back(field.getX0(idim)- delta * ext);
   }
-  return new MeshETurbo(nx,cellSize,x0,field.getRotMat());
+  MeshETurbo* mesh = new MeshETurbo(nx,cellSize,x0,field.getRotMat());
+  mesh->display();
+  return mesh;
+}
+
+void SPDE::query(Db* db)
+{
+  VectorDouble temp(db->getActiveSampleNumber());
+  VectorDouble result(db->getActiveSampleNumber(),0);
+  db->addFields(1,TEST,"SPDE",LOC_UNKNOWN);
+  if(_calcul == CALCUL_KRIGING)
+  {
+    for(int i = 0 ; i< (int)_krigingMeshing.size(); i++)
+    {
+      _krigingMeshing[i]->display();
+      ProjMatrix proj(db,_krigingMeshing[i]);
+      proj.mesh2point(_workKriging[i],temp);
+      ut_vector_add_inplace(result,temp);
+    }
+  }
+  db->setField(result,"SPDE");
 }

@@ -23,7 +23,7 @@ public:
             const Db* dat=nullptr,
             ENUM_CALCUL_MODE = CALCUL_SIMUCOND);
   void computeKriging() const;
-
+  void query(Db* db);
   virtual ~SPDE();
 
 private:
@@ -37,6 +37,7 @@ private:
   {
     return (_calcul == CALCUL_SIMUCOND || _calcul == CALCUL_KRIGING) && _data!=nullptr;
   }
+
 private:
   const Db*                   _data;
   ENUM_CALCUL_MODE            _calcul;
@@ -45,7 +46,10 @@ private:
   std::vector<ShiftOpCs*>     _pileShiftOp;
   std::vector<PrecisionOpCs*> _pilePrecisions;
   std::vector<ProjMatrix*>    _pileProjMatrix;
-
+  std::vector<MeshETurbo*>    _simuMeshing;
+  std::vector<MeshETurbo*>    _krigingMeshing;
   Model* _model;
   mutable VectorVectorDouble _workKriging;
+  std::vector<ProjMatrix*>   _projOnDbOut;
+  // query sur aproj ou
 };

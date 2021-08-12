@@ -23,9 +23,9 @@ doxygen:
 
 clean:
 	@echo "Cleaning gstlearn ..."
-	@+make -sC src     clean
-	@+make -sC tests   clean
-	@+make -sC doxygen clean
+	@+make -sC src      clean
+	@+make -sC tests    clean
+	@+make -sC doxygen  clean
 
 check-arch:
 ifeq ($(ARCH_XX),XX__XX)
