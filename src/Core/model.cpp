@@ -56,11 +56,9 @@ GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model)
   if (covint == NULL) return;
   COVINT = covint;
 
-  const NoStatArray* nostatarray =
-      dynamic_cast<const NoStatArray*>(model->getNoStat());
-  nostatarray->updateModel(model,
-                           covint->getIcas1(), covint->getIech1(),
-                           covint->getIcas2(), covint->getIech2());
+  const ANoStat* nostat = model->getNoStat();
+  nostat->updateModel(model, covint->getIcas1(), covint->getIech1(),
+                      covint->getIcas2(), covint->getIech2());
 }
 
 /****************************************************************************/

@@ -11,29 +11,43 @@
 #include "Model/ANoStat.hpp"
 
 #include "Model/Model.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
 
 ANoStat::ANoStat()
-  : _items()
+    : _items(),
+      _amesh(nullptr),
+      _dbin(nullptr),
+      _dbout(nullptr)
 {
 }
 
 ANoStat::ANoStat(const VectorString& codes)
-  : _items()
+  : _items(),
+    _amesh(nullptr),
+    _dbin(nullptr),
+    _dbout(nullptr)
 {
   addNoStatElems(codes);
 }
 
 ANoStat::ANoStat(const ANoStat &m)
-  : _items(m._items)
+  : _items(m._items),
+    _amesh(m._amesh),
+    _dbin(m._dbin),
+    _dbout(m._dbout)
 {
 }
 
 ANoStat& ANoStat::operator= (const ANoStat &m)
 {
-  _items       = m._items;
+  _items = m._items;
+  _amesh = m._amesh;
+  _dbin  = m._dbin;
+  _dbout = m._dbout;
+
   return *this;
 }
 
@@ -373,4 +387,290 @@ void ANoStat::_updateFromModel(const Model* model)
     ConsItem item = model->getConsItem(ipar);
     addNoStatElem(item);
   }
+}
+
+/**
+ * Update the Model according to the Non-stationary parameters
+ * @param model Model to be patched
+ * @param icas1 Type of first Db: 1 for Input; 2 for Output
+ * @param iech1 Rank of the target within Db1 (or -1)
+ * @param icas2 Type of first Db: 1 for Input; 2 for Output
+ * @param iech2 Rank of the target within Dbout (or -2)
+ */
+void ANoStat::updateModel(Model* model,
+                          int icas1,
+                          int iech1,
+                          int icas2,
+                          int iech2) const
+{
+  double val1, val2;
+
+  // If no non-stationary parameter is defined, simply skip
+  if (! model->isNoStat()) return;
+
+  // Loop on the elements that can be updated one-by-one
+
+  for (int ipar = 0; ipar < getNoStatElemNumber(); ipar++)
+  {
+    int icov = getICov(ipar);
+    int type = getType(ipar);
+
+    if (type == CONS_SILL)
+    {
+      _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
+      int iv1  = getIV1(ipar);
+      int iv2  = getIV2(ipar);
+      model->setSill(icov, iv1, iv2, sqrt(val1 * val2));
+    }
+    else if (type == CONS_PARAM)
+    {
+      _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
+      model->getCova(icov)->setParam(0.5 * (val1 + val2));
+    }
+  }
+
+  // Loop on the other parameters (Anisotropy) that must be processed globally
+
+  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  {
+    if (! isDefinedforAnisotropy(-1, icov)) continue;
+    CovAniso* cova = model->getCova(icov);
+
+    VectorDouble angle0(cova->getAnisoAngles());
+    VectorDouble angle1(angle0);
+    VectorDouble angle2(angle0);
+
+    VectorDouble scale0(cova->getScales());
+    VectorDouble scale1(scale0);
+    VectorDouble scale2(scale0);
+
+    VectorDouble range0(cova->getRanges());
+    VectorDouble range1(range0);
+    VectorDouble range2(range0);
+
+    // Define the angles (for all space dimensions)
+    bool flagRot = false;
+    if (isDefined(-1, icov, CONS_ANGLE, -1, -1))
+    {
+      flagRot = true;
+      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      {
+        if (isDefined(-1, icov, CONS_ANGLE, idim, 0))
+        {
+          int ipar = getRank(-1, icov, CONS_ANGLE, idim, -1);
+          if (ipar < 0) continue;
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
+                         &angle1[idim], &angle2[idim]);
+        }
+      }
+    }
+
+    // Define the Theoretical ranges (for all space dimensions)
+
+    bool flagScale = false;
+    if (isDefined(-1, icov, CONS_SCALE, -1, -1))
+    {
+      flagScale = true;
+      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      {
+        if (isDefined(-1, icov, CONS_SCALE, idim, -1))
+        {
+          int ipar = getRank(-1, icov, CONS_SCALE, idim, -1);
+          if (ipar < 0) continue;
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
+                         &scale1[idim], &scale2[idim]);
+        }
+      }
+    }
+
+    // Define the Practical ranges (for all space dimensions)
+
+    bool flagRange = false;
+    if (isDefined(-1, icov, CONS_RANGE, -1, -1))
+    {
+      flagRange = true;
+      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      {
+        if (isDefined(-1, icov, CONS_RANGE, idim, -1))
+        {
+          int ipar = getRank(-1, icov, CONS_RANGE, idim, -1);
+          if (ipar < 0) continue;
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
+                         &range1[idim], &range2[idim]);
+        }
+      }
+    }
+
+    // Create and exploit the Tensor for First location
+    if (flagRot || flagRange || flagScale)
+    {
+      if (flagRot)   cova->setAnisoAngles(angle1);
+      if (flagRange) cova->setRanges(range1);
+      if (flagScale) cova->setScales(scale1);
+      const MatrixCSGeneral direct1 = cova->getAniso().getTensorDirect();
+
+      // Create and exploit the Tensor for the second location
+      if (flagRot)   cova->setAnisoAngles(angle2);
+      if (flagRange) cova->setRanges(range2);
+      if (flagScale) cova->setScales(scale2);
+
+      // Build the new Tensor (as average of tensors at end-points)
+      Tensor tensor = cova->getAniso();
+      MatrixCSGeneral direct = tensor.getTensorDirect();
+      direct.linearCombination(0.5, 0.5, direct1);
+      tensor.setTensorDirect(direct);
+      cova->setAniso(tensor);
+    }
+  }
+}
+
+/**
+ * Update the Model according to the Non-stationary parameters
+ * @param model Model to be patched
+ * @param vertex Rank of the target vertex
+ */
+void ANoStat::updateModel(Model* model, int vertex) const
+{
+  // If no non-stationary parameter is defined, simply skip
+  if (! model->isNoStat()) return;
+
+  // Loop on the elements that can be updated one-by-one
+
+  for (int ipar = 0; ipar < model->getNoStatElemNumber(); ipar++)
+  {
+    int icov = getICov(ipar);
+    ENUM_CONS type = getType(ipar);
+
+    if (type == CONS_SILL)
+    {
+      double sill = getValue(ipar, 0, vertex);
+      int iv1  = getIV1(ipar);
+      int iv2  = getIV2(ipar);
+      model->setSill(icov, iv1, iv2, sill);
+    }
+  }
+
+  // Loop on the other parameters (Anisotropy) that must be processed globally
+
+  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  {
+    if (! isDefinedforAnisotropy(-1, icov)) continue;
+    CovAniso* cova = model->getCova(icov);
+
+    VectorDouble angle(cova->getAnisoAngles());
+    VectorDouble scale(cova->getScales());
+    VectorDouble range(cova->getRanges());
+
+    // Define the angles (for all space dimensions)
+    bool flagRot = false;
+    if (isDefined(-1, icov, CONS_ANGLE, -1, -1))
+    {
+      flagRot = true;
+      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      {
+        if (isDefined(-1, icov, CONS_ANGLE, idim, 0))
+        {
+          int ipar = getRank(-1, icov, CONS_ANGLE, idim, -1);
+          if (ipar < 0) continue;
+          angle[idim] = getValue(ipar, 0, vertex);
+        }
+      }
+    }
+
+    // Define the Theoretical ranges (for all space dimensions)
+
+    bool flagScale = false;
+    if (isDefined(-1, icov, CONS_SCALE, -1, -1))
+    {
+      flagScale = true;
+      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      {
+        if (isDefined(-1, icov, CONS_SCALE, idim, -1))
+        {
+          int ipar = getRank(-1, icov, CONS_SCALE, idim, -1);
+          if (ipar < 0) continue;
+          scale[idim] = getValue(ipar, 0, vertex);
+        }
+      }
+    }
+
+    // Define the Practical ranges (for all space dimensions)
+
+    bool flagRange = false;
+    if (isDefined(-1, icov, CONS_RANGE, -1, -1))
+    {
+      flagRange = true;
+      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      {
+        if (isDefined(-1, icov, CONS_RANGE, idim, -1))
+        {
+          int ipar = getRank(-1, icov, CONS_RANGE, idim, -1);
+          if (ipar < 0) continue;
+          range[idim] = getValue(ipar, 0, vertex);
+        }
+      }
+    }
+
+    // Exploit the Anisotropy
+    if (flagRot)   cova->setAnisoAngles(angle);
+    if (flagRange) cova->setRanges(range);
+    if (flagScale) cova->setScales(scale);
+  }
+}
+
+/**
+ * Get the information from the storage in Dbin and/or Dbout
+ * @param ipar  Rank of the non-stationary parameter
+ * @param icas1 Type of first Db: 1 for Input; 2 for Output
+ * @param iech1 Rank of the first sample (in Dbin)
+ * @param icas2 Type of first Db: 1 for Input; 2 for Output
+ * @param iech2 Rank of the second sample (in Dbout)
+ * @param val1  Returned value at first sample
+ * @param val2  Returned value at the second sample
+ */
+void ANoStat::_getInfoFromDb(int ipar,
+                             int icas1,
+                             int iech1,
+                             int icas2,
+                             int iech2,
+                             double *val1,
+                             double *val2) const
+{
+  *val1 = getValue(ipar, icas1, iech1);
+  *val2 = getValue(ipar, icas2, iech2);
+
+  if (FFFF(*val1) && FFFF(*val2)) return;
+
+  if (! FFFF(*val1))
+    *val2 = *val1;
+  if (! FFFF(*val2))
+    *val1 = *val2;
+}
+
+int ANoStat::attachToMesh(const AMesh* mesh, bool verbose) const
+{
+  setAmesh(mesh);
+  return 0;
+}
+
+int ANoStat::attachToDb(Db* db, int icas, bool verbose) const
+{
+  if (icas == 1)
+    setDbin(db);
+  else
+    setDbout(db);
+  return 0;
+}
+
+void ANoStat::detachFromMesh() const
+{
+  setAmesh(nullptr);
+}
+
+void ANoStat::detachFromDb(Db* db, int icas) const
+{
+  if (icas == 1)
+    setDbin(nullptr);
+  else
+    setDbout(nullptr);
 }

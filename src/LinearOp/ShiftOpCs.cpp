@@ -218,8 +218,8 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
 
     if (model->isNoStat())
     {
-      const NoStatArray* nostatarray = _getNoStatArray();
-      if (nostatarray->attachToMesh(amesh, verbose))
+      const ANoStat* nostat = model->getNoStat();
+      if (nostat->attachToMesh(amesh, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
@@ -319,8 +319,8 @@ int ShiftOpCs::initGradFromMesh(AMesh* amesh,
 
     if (model->isNoStat())
     {
-      const NoStatArray* nostatarray = _getNoStatArray();
-      if (nostatarray->attachToMesh(amesh, verbose))
+      const ANoStat* nostat = model->getNoStat();
+      if (nostat->attachToMesh(amesh, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
@@ -961,14 +961,6 @@ void ShiftOpCs::_mapUpdate(std::map<std::pair<int, int>, double>& tab,
   std::pair<int, int> key(ip0, ip1);
   ret = tab.insert(std::pair<std::pair<int, int>, double>(key, value));
   if (!ret.second) ret.first->second += value;
-}
-
-const NoStatArray* ShiftOpCs::_getNoStatArray()
-{
-  Model* model = _getModel();
-  if (! _model->isNoStat()) return nullptr;
-  const NoStatArray* nostatarray = dynamic_cast<const NoStatArray*>(model->getNoStat());
-  return nostatarray;
 }
 
 const CovAniso* ShiftOpCs::_getCova()

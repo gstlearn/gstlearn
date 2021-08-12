@@ -9,9 +9,11 @@
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Model/NoStatFunctional.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshFactory.hpp"
+#include "Basic/Law.hpp"
 
 #include "MatrixC/MatrixCRectangular.hpp"
 
@@ -63,23 +65,25 @@ int main(int argc, char *argv[])
 {
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int seed = 10355;
-  std::normal_distribution<double> d{0,1};
-  std::uniform_real_distribution <double> u{0,1};
-  std::mt19937 gen{seed};
+  law_set_random_seed(seed);
 
   ///////////////////////
   // Création de la db //
 
   auto nx={ 101,101 };
   Db workingDbc(nx);
-  VectorDouble angle;
-  // Generating angles
-  for(auto &e : workingDbc.getCoordinates())
-  {
-    angle.push_back(spirale(e));
-  }
 
-  workingDbc.addFields(angle,"angle",LOC_NOSTAT);
+  //////////////////////
+  //Creating the Mesh
+  MeshETurbo mesh(workingDbc);
+
+//  VectorDouble angle;
+//  // Generating angles
+//  for(auto &e : workingDbc.getCoordinates())
+//  {
+//    angle.push_back(spirale(e));
+//  }
+//  workingDbc.addFields(angle,"angle",LOC_NOSTAT);
 
   ///////////////////////
   // Creating the Model
@@ -88,14 +92,11 @@ int main(int argc, char *argv[])
   cova.setRanges({10,45});
   model.addCova(&cova);
 
-  //////////////////////
-  //Creating the Mesh
-  MeshETurbo mesh(workingDbc);
-
   /////////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
 
-  NoStatArray NoStat({"A"},&workingDbc);
+  //  NoStatArray NoStatold({"A"},&workingDbc);
+  NoStatFunctional NoStat(0., -1.4, 1., 1., 50., 50.);
   model.addNoStat(&NoStat);
   SPDE spde(model,workingDbc);
   std::cout<<"end creation "<<std::endl;
@@ -103,73 +104,48 @@ int main(int argc, char *argv[])
   ShiftOpCs S(&mesh, &model, &workingDbc);
   PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
 
-//
-//  ///////////////////////////////////////////////////
-//  // Simulation (Chebyshev)
-//
-  VectorDouble tab;
+  //  ///////////////////////////////////////////////////
+  //  // Simulation (Chebyshev)
+  //
   VectorDouble resultSimu;
-
-  for (int iech = 0; iech < mesh.getNApices(); iech++)
-  {
-    tab.push_back(d(gen));
-  }
+  VectorDouble tab = ut_vector_simulate_gaussian(mesh.getNApices());
 
   resultSimu.resize(tab.size());
   Qsimu.eval(tab,resultSimu);
   workingDbc.addFields(resultSimu,"Simu",LOC_Z);
 
-
-//  // Création des données (peut-être qu'on pourrait utiliser un équivalent de db.grid.init)
-  int ndata = 1000;
-
-
-  VectorDouble coordsX,coordsY;
-
-  for (int iech = 0; iech < ndata; iech++)
-  {
-      coordsX.push_back(99. * u(gen));
-      coordsY.push_back(99. * u(gen));
-  }
-
-
-  Db dat;
-  dat.addFields(coordsX,"X");
-  dat.addFields(coordsY,"Y");
-  VectorString vct={"X","Y"};
-  dat.setLocator(vct,LOC_X);
+  // Creating Data
+  auto ndata = 1000;
+  Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
 
   // Simulating Data points
+  ProjMatrix B(&dat, &mesh);
+  VectorDouble datval(ndata);
+  B.mesh2point(resultSimu, datval);
+  dat.addFields(datval, "Simu", LOC_Z);
 
-   ProjMatrix B(&dat,&mesh);
-   VectorDouble datval(ndata);
-   B.mesh2point(resultSimu,datval);
-   dat.addFields(datval,"Simu",LOC_Z);
+  // Kriging
+  double nug = 0.1;
+  VectorDouble rhs(S.getSize());
+  B.point2mesh(dat.getField("Simu"), rhs);
+  for (auto &e : rhs)
+  {
+    e /= nug;
+  }
 
-   // Kriging
-   double nug = 0.1;
-   VectorDouble rhs(S.getSize());
-   B.point2mesh(dat.getField("Simu"),rhs);
-   for(auto &e:rhs)
-   {
-     e/=nug;
-   }
+  PrecisionOp Qkriging(&S, &cova, POPT_ONE);
+  PrecisionOpMultiConditional A;
+  A.push_back(&Qkriging, &B);
+  A.setVarianceData(0.01);
 
-   PrecisionOp Qkriging(&S, &cova,POPT_ONE);
-   PrecisionOpMultiConditional A;
-   A.push_back(&Qkriging,&B);
-   A.setVarianceData(0.01);
+  VectorVectorDouble Rhs, resultvc;
+  VectorDouble vc(S.getSize());
 
+  resultvc.push_back(vc);
+  Rhs.push_back(VectorDouble(rhs));
 
-   VectorVectorDouble Rhs,resultvc;
-   VectorDouble vc(S.getSize());
-
-   resultvc.push_back(vc);
-   Rhs.push_back(VectorDouble(rhs));
-
-   A.evalInverse(Rhs,resultvc);
-   workingDbc.addFields(resultvc[0],"Kriging");
-   workingDbc.serialize(pygst + "spde.ascii");
-//
+  A.evalInverse(Rhs, resultvc);
+  workingDbc.addFields(resultvc[0], "Kriging");
+  workingDbc.serialize(pygst + "spde.ascii");
   return 0;
 }

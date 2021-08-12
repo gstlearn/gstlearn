@@ -2832,8 +2832,7 @@ GEOSLIB_API int manage_nostat_info(int mode, Model* model, Db *dbin, Db *dbout)
   VectorDouble tab;
 
   if (! model->isNoStat()) return 0;
-  const NoStatArray* nostatarray =
-      dynamic_cast<const NoStatArray*>(model->getNoStat());
+  const ANoStat* nostat = model->getNoStat();
 
   /* Dispatch */
 
@@ -2841,19 +2840,19 @@ GEOSLIB_API int manage_nostat_info(int mode, Model* model, Db *dbin, Db *dbout)
   {
 
     // Attach the Input Db
-    if (nostatarray->attachToDb(dbin,1)) return 1;
+    if (nostat->attachToDb(dbin,1)) return 1;
 
     // Attach the Output Db
-    if (nostatarray->attachToDb(dbout,2)) return 1;
+    if (nostat->attachToDb(dbout,2)) return 1;
   }
   else
   {
 
     // Detach the Input Db
-    nostatarray->detachFromDb(dbin,1);
+    nostat->detachFromDb(dbin,1);
 
     // Detach the output Db
-    nostatarray->detachFromDb(dbout,2);
+    nostat->detachFromDb(dbout,2);
   }
   return (0);
 }

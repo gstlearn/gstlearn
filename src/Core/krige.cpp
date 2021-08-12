@@ -820,7 +820,7 @@ static int st_check_environment(int    flag_in,
                                 Neigh *neigh)
 {
   double *dbin_mini,*dbin_maxi,*dbout_mini,*dbout_maxi;
-  int     error,ndim,nvar,nfex,nparam;
+  int     error,ndim,nvar,nfex;
 
   /* Initializations */
 
@@ -874,30 +874,6 @@ static int st_check_environment(int    flag_in,
       messerr("Does not correspond to the Space Dimension of the model (%d)",
               model->getDimensionNumber());
       goto label_end;
-    }
-    if (model->isNoStat())
-    {
-      nparam = model->getNoStatElemNumber();
-      
-      if (flag_out && nparam != get_LOCATOR_NITEM(DBOUT,LOC_NOSTAT))
-      {
-        messerr("The number of non-stationary parameters in the Model (%d)",
-                nparam);
-        messerr("is not equal to the number of Non-stationary locators in the Output Db (%d)",
-                get_LOCATOR_NITEM(DBOUT,LOC_NOSTAT));
-        goto label_end;
-      }
-      if (flag_in && nparam != get_LOCATOR_NITEM(DBIN,LOC_NOSTAT))
-      {
-        if (! (flag_out && is_grid(DBOUT)))
-        {
-          messerr("The number of non-stationary parameters in the Model (%d)",
-                  nparam);
-          messerr("is not equal to the number of Non-stationary locators in the Input Db (%d)",
-                  get_LOCATOR_NITEM(DBIN,LOC_NOSTAT));
-          goto label_end;
-        }
-      }
     }
 
     // External drifts

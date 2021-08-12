@@ -102,7 +102,6 @@ private:
   void _setModel(Model* model) { _model = model; }
   bool _isNoStat();
   bool _isVelocity();
-  const NoStatArray* _getNoStatArray();
   const CovAniso* _getCova();
 
   int _buildS(AMesh *amesh, double tol = EPSILON10);

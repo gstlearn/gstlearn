@@ -31,41 +31,26 @@ public:
                   int icas, int rank) const override;
   double getValue(int ipar, int icas, int rank) const override;
 
-  int attachToMesh(const AMesh* mesh, bool verbose = false) const;
-  void detachFromMesh(bool verbose = false) const;
-  int attachToDb(Db* db, int icas, bool verbose = false) const;
-  void detachFromDb(Db* db, int icas, bool verbose = false) const;
-  String displayStats(int ipar, int icas) const;
-  String displayStats(int icas) const;
+  int  attachToMesh(const AMesh* mesh, bool verbose = false) const override;
+  void detachFromMesh() const override;
+  int  attachToDb(Db* db, int icas, bool verbose = false) const override;
+  void detachFromDb(Db* db, int icas) const override;
 
-  void updateModel(Model* model,
-                   int icas1,
-                   int iech1,
-                   int icas2,
-                   int iech2) const;
-  void   updateModel(Model* model, int vertex) const;
   bool   isEmpty(int icas) const;
 
 private:
   bool _checkValid() const;
   int  _getNpoints() const { return _tab.getNRows(); }
-  void _getInfoFromDb(int ipar,
-                      int icas1,
-                      int iech1,
-                      int icas2,
-                      int iech2,
-                      double *val1,
-                      double *val2) const;
   double _interpolate(int ipar, int icas1, int iech1, int icas2, int iech2) const;
   int _informField(int ipar,
                    int nech,
                    double* coor[3],
                    VectorDouble& tab,
                    bool verbose) const;
+  String _displayStats(int ipar, int icas) const;
+  String _displayStats(int icas) const;
 
 private:
   const Db* _dbnostat;
-  mutable const Db* _dbin;
-  mutable const Db* _dbout;
 	mutable MatrixCRectangular _tab; // Dimension: nvertex * npar
 };

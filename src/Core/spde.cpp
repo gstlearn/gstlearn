@@ -1577,16 +1577,6 @@ static void st_print_all(const char *title)
 
 /****************************************************************************/
 /*!
- **  Return if the Model is non-stationary
- **
- *****************************************************************************/
-static int st_is_model_nostat(void)
-{
-  return (st_get_model()->isNoStat());
-}
-
-/****************************************************************************/
-/*!
  **  Compute the variance correction term
  **  Store in the SPDE_Calcul structure
  **
@@ -2024,10 +2014,9 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
  *****************************************************************************/
 static int st_identify_nostat_param(int icov0, ENUM_CONS type0, int ivar0, int jvar0)
 {
-  const NoStatArray* nostatarray =
-      dynamic_cast<const NoStatArray*>(st_get_model()->getNoStat());
+  const ANoStat* nostat = st_get_model()->getNoStat();
   int igrf0 = st_get_current_igrf();
-  int ipar = nostatarray->getRank(igrf0, icov0, type0, ivar0, jvar0);
+  int ipar = nostat->getRank(igrf0, icov0, type0, ivar0, jvar0);
   return ipar;
 }
 
@@ -2893,12 +2882,10 @@ static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
 
 {
   Model* model = st_get_model();
-  const NoStatArray* nostatarray =
-      dynamic_cast<const NoStatArray*>(model->getNoStat());
+  const ANoStat* nostat = model->getNoStat();
 
   /* Initializations */
 
-  model = st_get_model();
   int ndim = st_get_ndim();
   int igrf0 = st_get_current_igrf();
   int icov0 = st_get_current_icov();
@@ -2906,12 +2893,12 @@ static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
 
   /* Update the Tensor 'hh' */
 
-  if (nostatarray->isDefinedforAnisotropy(igrf0, icov0))
+  if (nostat->isDefinedforAnisotropy(igrf0, icov0))
   {
     VectorDouble hhtot(ndim * ndim, 0.);
     for (int ic = 0; ic < ncorner; ic++)
     {
-      nostatarray->updateModel(model, amesh->getApex(imesh0, ic));
+      nostat->updateModel(model, amesh->getApex(imesh0, ic));
       st_compute_hh();
       ut_vector_cumul(hhtot, Calcul.hh, 1.);
     }
@@ -2922,32 +2909,32 @@ static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
 
   /* Update the Spherical Rotation array */
 
-  if (nostatarray->isDefined(igrf0, icov0, CONS_SPHEROT, -1, -1))
+  if (nostat->isDefined(igrf0, icov0, CONS_SPHEROT, -1, -1))
   {
     VectorDouble srot(2, 0.);
     for (int i = 0; i < 2; i++)
     {
-      int ipar = nostatarray->getRank(igrf0, icov0, CONS_SPHEROT, i, -1);
+      int ipar = nostat->getRank(igrf0, icov0, CONS_SPHEROT, i, -1);
       if (ipar < 0) continue;
       double total = 0.;
       for (int ic = 0; ic < ncorner; ic++)
-        total += nostatarray->getValue(ipar, 0, amesh->getApex(imesh0, ic));
+        total += nostat->getValue(ipar, 0, amesh->getApex(imesh0, ic));
       Calcul.srot[i] = total / (double) ncorner;
     }
   }
 
   /* Update the Velocity array */
 
-  if (nostatarray->isDefined(igrf0, icov0, CONS_VELOCITY, -1, -1))
+  if (nostat->isDefined(igrf0, icov0, CONS_VELOCITY, -1, -1))
   {
     VectorDouble vv(ndim, 0.);
     for (int idim = 0; idim < ndim; idim++)
     {
-      int ipar = nostatarray->getRank(igrf0, icov0, CONS_VELOCITY, idim, -1);
+      int ipar = nostat->getRank(igrf0, icov0, CONS_VELOCITY, idim, -1);
       if (ipar < 0) continue;
       double total = 0.;
       for (int ic = 0; ic < ncorner; ic++)
-        total += nostatarray->getValue(ipar, 0, amesh->getApex(imesh0, ic));
+        total += nostat->getValue(ipar, 0, amesh->getApex(imesh0, ic));
       Calcul.vv[idim] = total / (double) ncorner;
     }
   }
@@ -3771,8 +3758,7 @@ GEOSLIB_API VectorDouble spde_fill_Lambda(Model *model,
                                           MeshEStandard* amesh,
                                           const VectorDouble& TildeC)
 {
-  const NoStatArray* nostatarray =
-      dynamic_cast<const NoStatArray*>(model->getNoStat());
+  const ANoStat* nostat = model->getNoStat();
   VectorDouble Lambda;
   int igrf0   = st_get_current_igrf();
   int icov0   = st_get_current_icov();
@@ -3782,12 +3768,12 @@ GEOSLIB_API VectorDouble spde_fill_Lambda(Model *model,
 
   /* Fill the array */
 
-  if (st_is_model_nostat() &&
-      nostatarray->isDefinedforAnisotropy(igrf0, icov0))
+  if (st_get_model()->isNoStat() &&
+      nostat->isDefinedforAnisotropy(igrf0, icov0))
   {
     for (int ip = 0; ip < nvertex; ip++)
     {
-      nostatarray->updateModel(model, ip);
+      nostat->updateModel(model, ip);
       st_compute_hh();
       double sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
       Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
@@ -7102,11 +7088,10 @@ GEOSLIB_API int spde_prepar(Db *dbin,
 
       /* Preparation in non-stationary case */
 
-      if (st_is_model_nostat() && ! flag_AQ_defined)
+      if (st_get_model()->isNoStat() && ! flag_AQ_defined)
       {
-        const NoStatArray* nostatarray =
-            dynamic_cast<const NoStatArray*>(st_get_model()->getNoStat());
-        nostatarray->attachToMesh(amesh);
+        const ANoStat* nostat = st_get_model()->getNoStat();
+        nostat->attachToMesh(amesh);
       }
 
       /* Prepare the projection matrix */
@@ -7200,11 +7185,10 @@ GEOSLIB_API int spde_posterior(Db *dbin,
                                const VectorDouble& gext,
                                SPDE_Option& s_option)
 {
-  if (st_is_model_nostat())
+  if (st_get_model()->isNoStat())
   {
-    const NoStatArray* nostatarray =
-        dynamic_cast<const NoStatArray*>(st_get_model()->getNoStat());
-    nostatarray->detachFromMesh(false);
+    const ANoStat* nostat = st_get_model()->getNoStat();
+    nostat->detachFromMesh();
   }
   return 0;
 }

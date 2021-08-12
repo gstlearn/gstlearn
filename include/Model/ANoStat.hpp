@@ -15,7 +15,9 @@
 #include "Basic/AStringable.hpp"
 #include "geoslib_enum.h"
 
+class AMesh;
 class Model;
+class Db;
 
 class ANoStat : public AStringable
 {
@@ -44,6 +46,11 @@ public:
                           int rank) const = 0;
   virtual double getValue(int ipar, int icas, int iech) const = 0;
 
+  virtual int  attachToMesh(const AMesh* mesh, bool verbose = false) const;
+  virtual void detachFromMesh() const;
+  virtual int  attachToDb(Db* db, int icas, bool verbose = false) const;
+  virtual void detachFromDb(Db* db, int icas) const;
+
   void addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2);
   void addNoStatElems(const VectorString& codes);
   void addNoStatElem(const ConsItem& item);
@@ -69,6 +76,18 @@ public:
   const std::vector<ConsItem>& getItems() const { return _items; }
   const ConsItem getItems(int ipar) const { return _items[ipar]; }
 
+  void updateModel(Model* model,
+                   int icas1,
+                   int iech1,
+                   int icas2,
+                   int iech2) const;
+  void updateModel(Model* model, int vertex) const;
+
+protected:
+  void setAmesh(const AMesh* amesh) const { _amesh = amesh; }
+  void setDbin(const Db* dbin) const { _dbin = dbin; }
+  void setDbout(const Db* dbout) const { _dbout = dbout; }
+
 private:
   int _understandCode(const String& code,
                       int *igrf,
@@ -77,7 +96,21 @@ private:
                       int *iv1,
                       int *iv2);
   void _updateFromModel(const Model* model);
+  void _getInfoFromDb(int ipar,
+                      int icas1,
+                      int iech1,
+                      int icas2,
+                      int iech2,
+                      double *val1,
+                      double *val2) const;
 
 private:
   std::vector<ConsItem> _items;
+
+protected:
+  // The following arguments are stored as pointer to ease communication
+  // Their list is established as large as possible
+  mutable const AMesh* _amesh;
+  mutable const Db*    _dbin;
+  mutable const Db*    _dbout;
 };
