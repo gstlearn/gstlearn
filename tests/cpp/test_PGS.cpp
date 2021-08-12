@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
-  Db db(nech,VectorDouble(2,0.),VectorDouble(2,1.));
+  Db db(nech,{0.,0.},{1.,1.});
   db.display(FLAG_STATS);
 
   // Creating the Model(s) of the Underlying GRF(s)

@@ -14,7 +14,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/FunctionalSpirale.hpp"
+#include "Basic/AFunctional.hpp"
 #include "Model/ANoStat.hpp"
 
 /**
@@ -22,11 +22,11 @@
  * It can be considered as an example of a 2-D implementation of a spirale with
  * a single non-stationary parameter (the angle)
  */
-class NoStatFunctional : public ANoStat, public FunctionalSpirale
+class NoStatFunctional : public ANoStat
 {
 public:
 	NoStatFunctional();
-	NoStatFunctional(double a, double b, double c, double d, double sx, double sy);
+	NoStatFunctional(const AFunctional* func);
   NoStatFunctional(const NoStatFunctional &m);
   NoStatFunctional& operator=(const NoStatFunctional &m);
   virtual ~NoStatFunctional();
@@ -39,4 +39,7 @@ public:
   double getValue(int igrf, int icov, ENUM_CONS type, int iv1, int iv2,
                   int icas, int rank) const override;
   double getValue(int ipar, int icas, int rank) const override;
+
+private:
+  const AFunctional* _func;
 };

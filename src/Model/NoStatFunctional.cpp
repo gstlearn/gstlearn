@@ -22,23 +22,24 @@
 
 NoStatFunctional::NoStatFunctional()
     : ANoStat(),
-      FunctionalSpirale()
+      _func(nullptr)
 {
   VectorString code = {"A"};
   addNoStatElems(code);
 }
 
-NoStatFunctional::NoStatFunctional(double a, double b, double c, double d, double sx, double sy)
+NoStatFunctional::NoStatFunctional(const AFunctional* func)
     : ANoStat(),
-      FunctionalSpirale(a,b,c,d,sx,sy)
+      _func(nullptr)
 {
   VectorString code = {"A"};
   addNoStatElems(code);
+  _func = func;
 }
 
 NoStatFunctional::NoStatFunctional(const NoStatFunctional &m)
     : ANoStat(m),
-      FunctionalSpirale(m)
+      _func(m._func)
 {
 }
 
@@ -47,7 +48,7 @@ NoStatFunctional& NoStatFunctional::operator= (const NoStatFunctional &m)
   if (this != &m)
   {
     ANoStat::operator=(m);
-    FunctionalSpirale::operator=(m);
+    _func = m._func;
   }
   return *this;
 }
@@ -150,7 +151,7 @@ double NoStatFunctional::getValue(int ipar, int icas, int rank) const
   {
     my_throw("Invalid argument 'icas'");
   }
-  return getFunctionValue(vec);
+  return _func->getFunctionValue(vec);
 }
 
 String NoStatFunctional::toString(int level) const

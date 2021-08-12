@@ -14,6 +14,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/FunctionalSpirale.hpp"
 
 #include "MatrixC/MatrixCRectangular.hpp"
 
@@ -27,33 +28,6 @@
 
 #define __USE_MATH_DEFINES
 #include <cmath>
-
-double fa(double x,double y,double a,double b)
-{
-    return a*x + b*y;
-}
-
-double spirale(std::vector<double> pos)
-{
-  auto  a=0.;
-  auto  b=-1.4;
-  auto  c=1.;
-  auto  d=1.;
-
-  auto x = pos[0];
-  auto y = pos[1];
-  auto u1=fa(x-50.,y-50.,a,b);
-  auto u2=fa(x-50.,y-50.,c,d);
-  auto norm = sqrt(u1*u1+u2*u2);
-  if(norm >0)
-  {
-    return acos(u2/norm)/M_PI*180.* ((u1>=0)?1.:-1.);
-  }
-  else
-  {
-    return 0.;
-  }
-}
 
 /****************************************************************************/
 /*!
@@ -77,13 +51,9 @@ int main(int argc, char *argv[])
   //Creating the Mesh
   MeshETurbo mesh(workingDbc);
 
-//  VectorDouble angle;
-//  // Generating angles
-//  for(auto &e : workingDbc.getCoordinates())
-//  {
-//    angle.push_back(spirale(e));
-//  }
-//  workingDbc.addFields(angle,"angle",LOC_NOSTAT);
+  FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
+  VectorDouble angle = spirale.getFunctionValues(&workingDbc);
+  workingDbc.addFields(angle,"angle",LOC_NOSTAT);
 
   ///////////////////////
   // Creating the Model
@@ -95,8 +65,7 @@ int main(int argc, char *argv[])
   /////////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
 
-  //  NoStatArray NoStatold({"A"},&workingDbc);
-  NoStatFunctional NoStat(0., -1.4, 1., 1., 50., 50.);
+  NoStatArray NoStat({"A"},&workingDbc);
   model.addNoStat(&NoStat);
   SPDE spde(model,workingDbc);
   std::cout<<"end creation "<<std::endl;
