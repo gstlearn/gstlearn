@@ -262,7 +262,7 @@ void MeshSpherical::getDuplicates(Db   *dbin,
 ** \param[in]  verbose   Verbosity flag
 **
 *****************************************************************************/
-cs* MeshSpherical::getMeshToDb(Db  *db,
+cs* MeshSpherical::getMeshToDb(const Db  *db,
                                int verbose) const
 {
   double *coor,*weight;

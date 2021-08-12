@@ -57,7 +57,7 @@ public:
              const VectorDouble& apices,
              const VectorInt& meshes,
              bool verbose = false);
-  cs*        getMeshToDb(Db *db, int verbose = 0) const override;
+  cs*        getMeshToDb(const Db *db, int verbose = 0) const override;
   double*    interpolateMeshToDb(Db *db, double* mtab) const override;
   int        convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose);
 

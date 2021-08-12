@@ -1,4 +1,3 @@
-
 #include "API/SPDE.hpp"
 #include "Model/ANoStat.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -7,31 +6,38 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include <iostream>
 
-SPDE::SPDE(Model& model,const Db& field,const Db* dat)
+SPDE::SPDE(Model& model,const Db& field,const Db* dat,ENUM_CALCUL_MODE calc)
 {
-    init(model,field,dat);
+    init(model,field,dat,calc);
 }
 
 SPDE::~SPDE()
 {
-  for(auto &e : _pileShiftOp)
-  {
-    //delete &e;
-  }
+  _purge();
 }
 
-void SPDE::init(Model& model, const Db& field, const Db* dat)
+void SPDE::_purge()
 {
+
+}
+
+void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE calc)
+{
+  _purge();
   _model = &model;
+  _calcul = calc;
+  _data =  dat;
   VectorDouble varianceData;
   double totalSill = 0.;
   double nugget = 0.;
   ShiftOpCs* shiftOp;
-  PrecisionOpCs precision;
+  PrecisionOpCs* precision;
   MeshETurbo* mesh;
+  ProjMatrix* proj;
 
   for(int icov = 0 ; icov < model.getCovaNumber();icov++)
   {
@@ -43,15 +49,27 @@ void SPDE::init(Model& model, const Db& field, const Db* dat)
     }
     else if (cova->getType() == COV_BESSEL_K)
     {
-      std::cout << "Bessel" << std::endl;
       totalSill += cova->getSill(0, 0);
-      mesh = createMeshing(*cova, field, 14., 0.2);
-      mesh->display(0);
-      shiftOp = new ShiftOpCs(mesh, &model, &field);
-      // delete mesh;
-
-      _pileShiftOp.push_back(shiftOp);
-      _precistionLists.push_back(PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF));
+      if(_calculSimu())
+      {
+        mesh = _createMeshing(*cova, field, 14., 0.2);
+        shiftOp = new ShiftOpCs(mesh, &model, &field);
+        precision = new PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF);
+        _pileShiftOp.push_back(shiftOp);
+        _pilePrecisions.push_back(precision);
+      }
+      if(_calculKriging())
+      {
+        mesh = _createMeshing(*cova, field, 11., 0.2);
+        shiftOp = new ShiftOpCs(mesh, &model, &field);
+        precision = new PrecisionOpCs(shiftOp, cova, POPT_ONE);
+        proj = new ProjMatrix(_data,mesh);
+        _pileShiftOp.push_back(shiftOp);
+        _pilePrecisions.push_back(precision);
+        _pileProjMatrix.push_back(proj);
+        _precisionsKriging.push_back(precision,proj);
+        _workKriging.push_back(VectorDouble(shiftOp->getSize()));
+      }
     }
     else
     {
@@ -59,22 +77,37 @@ void SPDE::init(Model& model, const Db& field, const Db* dat)
     }
   }
 
-  if (dat != nullptr)
+  if (dat != nullptr && _calculKriging())
   {
     if(dat->getVarianceErrorNumber()>0)
     {
       varianceData = dat->getFieldByLocator(LOC_V,0,true);
+      for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
+      {
+        double *temp = &varianceData[iech];
+        *temp = MAX(*temp+nugget,0.01 * totalSill);
+      }
     }
-    for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
+    else
     {
-      double *temp = &varianceData[iech];
-      *temp = MAX(*temp+nugget,0.01 * totalSill);
+      varianceData = VectorDouble(dat->getActiveSampleNumber());
+      for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
+      {
+        varianceData[iech] = MAX(nugget, 0.01 * totalSill);
+      }
     }
   }
   _precisionsKriging.setVarianceData(varianceData);
 }
 
-MeshETurbo* SPDE::createMeshing(const CovAniso & cova,
+void SPDE::computeKriging() const
+{
+  VectorDouble datVect = _data->getFieldByLocator(LOC_Z,0,true);
+  VectorVectorDouble rhs = _precisionsKriging.computeRhs(datVect);
+  _precisionsKriging.evalInverse(rhs,_workKriging);
+}
+
+MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
                                 const Db& field,
                                 double discr,
                                 double ext)

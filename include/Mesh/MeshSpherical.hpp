@@ -38,7 +38,7 @@ public:
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
 
   int     create(int verbose,Db* dbin,Db *dbout,const String& triswitch);
-  cs*     getMeshToDb(Db  *db, int verbose = 0) const override;
+  cs*     getMeshToDb(const Db  *db, int verbose = 0) const override;
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
 private:

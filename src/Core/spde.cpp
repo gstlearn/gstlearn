@@ -9814,7 +9814,7 @@ static QChol *st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem& Matelem)
  ** \remarks if the smallest value between the Db et Mesh space dimensions.
  **
  *****************************************************************************/
-GEOSLIB_API cs *db_mesh_neigh(Db *db,
+GEOSLIB_API cs *db_mesh_neigh(const Db *db,
                               SPDE_Mesh *s_mesh,
                               double radius,
                               int flag_exact,
