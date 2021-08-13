@@ -4065,7 +4065,7 @@ static int st_vario_pgs_check(int    flag_db,
                               int    flag_rule,
                               int    flag_varioind,
                               Db    *db,
-                              Db    *dbprop,
+                              const Db    *dbprop,
                               Vario *vario,
                               Vario *varioind,
                               Rule  *rule)
@@ -4158,18 +4158,17 @@ static int st_vario_pgs_check(int    flag_db,
 ** \param[in]  opt_correl   0 full model; 1 symmetrical; 2 residuals
 **
 *****************************************************************************/
-static int st_variogram_pgs_nostat(Db      *db,
-                                   Db      *dbprop,
-                                   Vario   *vario,
-                                   Rule    *rule,
-                                   const    VectorDouble& propcst,
-                                   int      flag_rho,
-                                   int      opt_correl)
+static int st_variogram_pgs_nostat(Db*       db,
+                                   const Db* dbprop,
+                                   Vario*    vario,
+                                   Rule*     rule,
+                                   const     VectorDouble& propcst,
+                                   int       flag_rho,
+                                   int       opt_correl)
 {
   Local_Pgs local_pgs;
   int    flag_correl,flag_stat;
-  int    node_tot,nmax_tot,ny1,ny2,error,nfacies,ngrf;
-  double prop_tot;
+  int    error,nfacies,ngrf;
   Props *propdef;
   
   /* Initializations */
@@ -4190,8 +4189,7 @@ static int st_variogram_pgs_nostat(Db      *db,
   /*******************/
 
   ngrf = rule->getGRFNumber();
-  rule->statistics(0,&node_tot,&nfacies,&nmax_tot,&ny1,&ny2,&prop_tot);
-
+  nfacies = rule->getFaciesNumber();
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
   if (propdef == (Props *) NULL) goto label_end;
@@ -4930,27 +4928,29 @@ label_end:
 **
 ** \param[in]  db         Db descriptor
 ** \param[in]  vario      Vario structure
-** \param[in]  rule       Lithotype Rule definition for first point
+** \param[in]  ruleprop   RuleProp structure
 ** \param[in]  model1     First Model structure
 ** \param[in]  model2     Second Model structure (optional)
-** \param[in]  propcst    Array giving the constant proportions
-** \param[in]  dbprop     Db descriptor for the grid of proportions
-** \param[in]  flag_stat  1 for stationary; 0 otherwise
 **
 *****************************************************************************/
-GEOSLIB_API int model_pgs(Db*     db,
-                          Vario*  vario,
-                          Rule*   rule,
-                          Model*  model1,
-                          Model*  model2,
-                          const   VectorDouble& propcst,
-                          Db*     dbprop,
-                          int     flag_stat)
+GEOSLIB_API int model_pgs(Db*       db,
+                          Vario*    vario,
+                          RuleProp* ruleprop,
+                          Model*    model1,
+                          Model*    model2)
 {
+  if (ruleprop == nullptr)
+  {
+    messerr("RuleProp must be defined");
+    return 1;
+  }
+  int flag_stat = ruleprop->isFlagStat();
+  Rule rule(*ruleprop->getRule());
+  const VectorDouble& propcst = ruleprop->getPropCst();
+  const Db* dbprop = ruleprop->getDbprop();
+
   Local_Pgs local_pgs;
-  int     error,nfacies,ngrf,node_tot,nmax_tot;
-  int     ny1,ny2;
-  double  prop_tot;
+  int     ngrf;
   Props  *propdef;
   Model  *new_model;
   
@@ -4958,27 +4958,27 @@ GEOSLIB_API int model_pgs(Db*     db,
   /* Initializations */
   /*******************/
 
-  error  = 1;
-  ngrf   = nfacies = 0;
+  int error  = 1;
+  int nfacies = 0;
   new_model = (Model *) NULL;
   propdef   = (Props *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
-  if (st_check_test_discret(rule->getModeRule(), 0)) goto label_end;
+  if (st_check_test_discret(rule.getModeRule(), 0)) goto label_end;
 
   /* Extract information from Rule */
 
-  ngrf = rule->getGRFNumber();
-  rule->statistics(0,&node_tot,&nfacies,&nmax_tot,&ny1,&ny2,&prop_tot);
-  if(rule->getModeRule() == RULE_SHIFT) ngrf++;
+  ngrf = rule.getGRFNumber();
+  nfacies = rule.getFaciesNumber();
+  if(rule.getModeRule() == RULE_SHIFT) ngrf++;
 
   /* Preliminary checks */
 
-  if (st_vario_pgs_check(-1,1,0,db,dbprop,vario,NULL,rule)) goto label_end;
+  if (st_vario_pgs_check(-1,1,0,db,dbprop,vario,NULL,&rule)) goto label_end;
   vario->internalResize(db->getNDim(), nfacies, "vg");
   
   /* Merge the models */
 
-  new_model = model_rule_combine(model1,model2,rule);
+  new_model = model_rule_combine(model1,model2,&rule);
   if (new_model == (Model *) NULL)
   {
     messerr("The Model(s) must be defined");
@@ -5026,7 +5026,7 @@ GEOSLIB_API int model_pgs(Db*     db,
                               db,dbprop,propcst,propdef);
   if (propdef == (Props *) NULL) goto label_end;
 
-  if (rule->particularities(db,dbprop,new_model,0,flag_stat)) goto label_end;
+  if (rule.particularities(db,dbprop,new_model,0,flag_stat)) goto label_end;
 
   proportion_rule_process(propdef,0);
 
@@ -5035,7 +5035,7 @@ GEOSLIB_API int model_pgs(Db*     db,
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(1,0,1,200,100,-1.,1.,NULL);
 
-  st_manage_pgs(1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
+  st_manage_pgs(1,&local_pgs,db,&rule,vario,NULL,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
 
   /* Calculate the variogram and the variance matrix */
@@ -5048,8 +5048,8 @@ GEOSLIB_API int model_pgs(Db*     db,
   }
   else
   {
-    if (st_vario_pgs_variable(1,ngrf,nfacies,0,1,db,propdef,rule)) goto label_end;
-    if (st_vario_pgs_variable(0,ngrf,nfacies,0,1,db,propdef,rule)) goto label_end;
+    if (st_vario_pgs_variable(1,ngrf,nfacies,0,1,db,propdef,&rule)) goto label_end;
+    if (st_vario_pgs_variable(0,ngrf,nfacies,0,1,db,propdef,&rule)) goto label_end;
     if (st_vario_indic_model_nostat(&local_pgs)) goto label_end;
     if (st_update_variance_nostat(&local_pgs)) goto label_end;
   }
@@ -5061,10 +5061,10 @@ GEOSLIB_API int model_pgs(Db*     db,
 label_end:
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
-  st_manage_pgs(-1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
+  st_manage_pgs(-1,&local_pgs,db,&rule,vario,NULL,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
   new_model = model_free(new_model);
-  (void) st_vario_pgs_variable(-1,ngrf,nfacies,0,1,db,propdef,rule);
+  (void) st_vario_pgs_variable(-1,ngrf,nfacies,0,1,db,propdef,&rule);
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
   return(error);
@@ -5164,10 +5164,7 @@ label_end:
 **
 ** \param[in]  db           Db structure
 ** \param[in]  vario        Vario structure for the GRFs to be filled
-** \param[in]  rule         Lithotype Rule definition
-** \param[in]  propcst      Array of proportions for the facies
-** \param[in]  dbprop       Db Grid used for proportions (non-stationary)
-** \param[in]  flag_stat    1 for stationary and 0 otherwise
+** \param[in]  ruleprop     RuleProp structure
 ** \param[in]  flag_rho     1 if the correlation coefficient must be regressed
 ** \param[in]  opt_correl   0 full model; 1 symmetrical; 2 residuals
 **
@@ -5175,27 +5172,38 @@ label_end:
 ** \remarks and the non-stationary one
 **
 *****************************************************************************/
-GEOSLIB_API int variogram_pgs(Db     *db,
-                              Vario*  vario,
-                              Rule*   rule,
-                              const   VectorDouble& propcst,
-                              Db     *dbprop,
-                              int     flag_stat,
-                              int     flag_rho,
-                              int     opt_correl)
+GEOSLIB_API int variogram_pgs(Db*       db,
+                              Vario*    vario,
+                              RuleProp* ruleprop,
+                              int       flag_rho,
+                              int       opt_correl)
 {
-  Vario* varioind = nullptr;
-  VectorDouble props;
-  int error;
-
-  // Preliminary checks
-
-  if (st_check_test_discret(rule->getModeRule(), flag_rho)) return 1;
+  if (db == NULL)
+  {
+    messerr("The Db must be provided");
+    return 1;
+  }
   if (vario == NULL)
   {
     messerr("The output Variogram must be provided (empty)");
     return 1;
   }
+  if (ruleprop == nullptr)
+  {
+    messerr("RuleProp must be defined");
+    return 1;
+  }
+  int flag_stat = ruleprop->isFlagStat();
+  Rule rule(*ruleprop->getRule());
+  const VectorDouble& propcst = ruleprop->getPropCst();
+  const Db* dbprop = ruleprop->getDbprop();
+
+  Vario* varioind = nullptr;
+  int error;
+
+  // Preliminary checks
+
+  if (st_check_test_discret(rule.getModeRule(), flag_rho)) return 1;
   if (vario->getDirectionNumber() <= 0)
   {
     messerr("The variogram must contain at least one calculation Direction");
@@ -5208,7 +5216,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
   }
   vario->setCalculName("covnc");
   vario->setDimensionNumber(db->getNDim());
-  int nclass = rule->getFaciesNumber();
+  int nclass = rule.getFaciesNumber();
   if (nclass <= 0)
   {
     messerr("No Facies class have been found");
@@ -5217,6 +5225,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 
   // In Stationary case, create the variogram of indicators to speed up calculations
 
+  VectorDouble props;
   if (flag_stat)
   {
     if (! propcst.empty())
@@ -5224,10 +5233,9 @@ GEOSLIB_API int variogram_pgs(Db     *db,
       if ((int) propcst.size() != nclass)
       {
         messerr("Number of proportions in 'propcst' (%d) should match Number of Facies in 'rule' (%d)",
-                (int) propcst.size(),rule->getFaciesNumber());
+                (int) propcst.size(),rule.getFaciesNumber());
         return 1;
       }
-      props.resize(nclass);
       props = propcst;
     }
     else
@@ -5237,7 +5245,7 @@ GEOSLIB_API int variogram_pgs(Db     *db,
       if ((int) props.size() != nclass)
       {
         messerr("Number of Facies in 'db' (%d) should match Number of facies in 'rule' (%d)",
-                (int) props.size(), rule->getFaciesNumber());
+                (int) props.size(), rule.getFaciesNumber());
         return 1;
       }
     }
@@ -5259,9 +5267,9 @@ GEOSLIB_API int variogram_pgs(Db     *db,
   /* Perform the calculations */
 
   if (flag_stat)
-    error = st_variogram_pgs_stat(db,vario,varioind,rule,props);
+    error = st_variogram_pgs_stat(db,vario,varioind,&rule,props);
   else
-    error = st_variogram_pgs_nostat(db,dbprop,vario,rule,props,flag_rho,opt_correl);
+    error = st_variogram_pgs_nostat(db,dbprop,vario,&rule,props,flag_rho,opt_correl);
 
   /* Final operations */
 
@@ -5282,22 +5290,26 @@ GEOSLIB_API int variogram_pgs(Db     *db,
 ** \param[in]  dbprop       Db Grid used for proportions (non-stationary)
 ** \param[in]  flag_stat    1 for stationary and 0 otherwise
 ** \param[in]  ngrf         Number of underlying GRFs (1 or 2)
-** \param[in]  verbose      Verbosity flag
+** \param[in]  verbose      Verbose flag
 **
 *****************************************************************************/
-GEOSLIB_API Rule *rule_auto(Db     *db,
-                            Vario  *vario,
-                            const   VectorDouble& propcst,
-                            Db     *dbprop,
-                            int     flag_stat,
-                            int     ngrf,
-                            int     verbose)
+GEOSLIB_API Rule *rule_auto(Db*       db,
+                            Vario*    vario,
+                            RuleProp* ruleprop,
+                            int       ngrf,
+                            int       verbose)
 {
-  int     error,nscore,r_opt;
+  if (ruleprop == nullptr)
+  {
+    messerr("RuleProp must be defined");
+    return nullptr;
+  }
+  int flag_stat = ruleprop->isFlagStat();
+  const VectorDouble& propcst = ruleprop->getPropCst();
+  const Db* dbprop = ruleprop->getDbprop();
+
+  int     nscore,r_opt;
   int    *rules,flag_rho,flag_correl,opt_correl;
-  Rule   *rule;
-  Relem  *Pile_Relem;
-  Props  *propdef;
   Vario  *varioind = nullptr;
   Local_Pgs local_pgs;
   VectorInt facies;
@@ -5307,10 +5319,10 @@ GEOSLIB_API Rule *rule_auto(Db     *db,
 
   /* Initializations */
 
-  error        = 1;
-  rule         = (Rule  *) NULL;
-  Pile_Relem   = (Relem *) NULL;
-  propdef      = (Props *) NULL;
+  int error    = 1;
+  Rule* rule   = (Rule  *) NULL;
+  Relem* Pile_Relem   = (Relem *) NULL;
+  Props* propdef      = (Props *) NULL;
 
   NCOLOR       = db->getFaciesNumber();
   NGRF         = ngrf;

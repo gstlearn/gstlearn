@@ -36,6 +36,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleProp.hpp"
 #include "Model/ANoStat.hpp"
 
 #include "geoslib_old_f.h"
@@ -206,10 +207,7 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
 GEOSLIB_API void variogram_print(Vario *vario, int verbose = false);
 GEOSLIB_API int variogram_pgs(Db *db,
                               Vario* vario,
-                              Rule* rule,
-                              const VectorDouble& propcst = VectorDouble(),
-                              Db* dbprop = nullptr,
-                              int flag_stat = true,
+                              RuleProp* ruleprop,
                               int flag_rho = false,
                               int opt_correl = 2);
 GEOSLIB_API int vmap_compute(Db *db,
@@ -259,38 +257,24 @@ GEOSLIB_API int db_model_nostat(Db *db,
 GEOSLIB_API void set_test_discrete(bool flag_discret);
 GEOSLIB_API int model_pgs(Db *db,
                           Vario *vario,
-                          Rule *rule,
+                          RuleProp* ruleprop,
                           Model* model1,
-                          Model* model2 = nullptr,
-                          const VectorDouble& propcst = VectorDouble(),
-                          Db* dbprop = nullptr,
-                          int flag_stat = true);
-GEOSLIB_API int db_rule(Db *db,
-                        Rule *rule,
-                        const VectorDouble& propcst,
-                        Db *dbprop = nullptr,
-                        int flag_stat = true,
+                          Model* model2 = nullptr);
+GEOSLIB_API int db_rule(Db* db,
+                        RuleProp* ruleprop,
                         Model *model = nullptr,
                         NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
 GEOSLIB_API int db_bounds(Db *db,
-                          Rule *rule,
-                          const VectorDouble& propcst,
-                          Db *dbprop = nullptr,
-                          int flag_stat = true,
+                          RuleProp* ruleprop,
                           Model *model = nullptr,
                           NamingConvention namconv = NamingConvention("Bounds"));
 GEOSLIB_API int db_threshold(Db *db,
-                             Rule *rule,
-                             const VectorDouble& propcst,
-                             Db *dbprop = nullptr,
-                             int flag_stat = true,
+                             RuleProp* ruleprop,
                              Model *model = nullptr,
                              NamingConvention namconv = NamingConvention("Thresh"));
 GEOSLIB_API Rule *rule_auto(Db *db,
                             Vario *vario,
-                            const VectorDouble& propcst,
-                            Db *dbprop = nullptr,
-                            int flag_stat = true,
+                            RuleProp* ruleprop,
                             int ngrf = 1,
                             int verbose = false);
 

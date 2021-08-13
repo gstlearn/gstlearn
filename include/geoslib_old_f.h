@@ -1561,9 +1561,9 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                      double *delta);
   GEOSLIB_API int db_extension_diag(Db *db, double *diag);
   GEOSLIB_API double db_epsilon_distance(Db *db);
-  GEOSLIB_API int db_index_grid_to_sample(Db *db, const int* indg);
-  GEOSLIB_API void db_index_sample_to_grid(Db *db, int iech, int *indg);
-  GEOSLIB_API int db_index_sorted_in_grid(Db *db, int iech, int *indg);
+  GEOSLIB_API int db_index_grid_to_sample(const Db *db, const int* indg);
+  GEOSLIB_API void db_index_sample_to_grid(const Db *db, int iech, int *indg);
+  GEOSLIB_API int db_index_sorted_in_grid(const Db *db, int iech, int *indg);
   GEOSLIB_API int db_selref(int ndim,
                             int *nx,
                             int *ref,
@@ -1636,22 +1636,22 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                      int iech2,
                                      const VectorDouble& codir);
   GEOSLIB_API double db_grid_maille(Db *db);
-  GEOSLIB_API int point_to_grid(Db *db,
+  GEOSLIB_API int point_to_grid(const Db *db,
                                 double *coor,
                                 int flag_expand,
                                 int *indg);
-  GEOSLIB_API int point_to_bench(Db *db,
+  GEOSLIB_API int point_to_bench(const Db *db,
                                  double *coor,
                                  int flag_outside,
                                  int *indb);
-  GEOSLIB_API void grid_to_point(Db *db,
+  GEOSLIB_API void grid_to_point(const Db *db,
                                  int *indg,
                                  double *percent,
                                  double *coor);
-  GEOSLIB_API int index_point_to_grid(Db *db,
+  GEOSLIB_API int index_point_to_grid(const Db *db,
                                       int iech,
                                       int flag_expand,
-                                      Db *dbout,
+                                      const Db *dbout,
                                       double *coor);
   GEOSLIB_API int point_to_point(Db *db, double *coor);
   GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid);
@@ -2626,7 +2626,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                        int nfac1,
                                        int nfac2,
                                        Db *db,
-                                       Db *dbprop,
+                                       const Db *dbprop,
                                        const VectorDouble& propcst,
                                        Props *proploc);
   GEOSLIB_API void proportion_print(Props *propdef);

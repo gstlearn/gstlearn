@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int error = 0;
   int ndim = 2;
-  int flag_stat = 0;
   CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option
@@ -71,7 +70,6 @@ int main(int argc, char *argv[])
   db.setLocator(names,LOC_P);
 
   // Perform a non-conditional simulation on the Db
-
   error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props);
   db.setLocator(db.getLastName(),LOC_Z);
 
@@ -81,7 +79,8 @@ int main(int argc, char *argv[])
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
   cov.addDirs(dir);
 
-  error = variogram_pgs(&db,&cov,&rule,props,nullptr,flag_stat);
+  RuleProp ruleprop = RuleProp(&rule, props);
+  error = variogram_pgs(&db,&cov,&ruleprop);
   Vario vario1(cov,VectorInt(1,0),VectorInt(),true);
   Vario vario2(cov,VectorInt(1,1),VectorInt(),true);
   vario1.display(1);
@@ -108,25 +107,27 @@ int main(int argc, char *argv[])
 
   // Compute the experimental variograms of the indicators
 
+  Vario varioParam = Vario();
+  Dir dir3 = Dir(ndim, nlag, 0.5 / nlag);
+  varioParam.addDirs(dir3);
+  varioParam.setCalculName("vg");
+
+  RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
+  Rule* ruleFit = rule_auto(&db,&varioParam,&ruleprop2,1);
+  ruleprop2.setRule(ruleFit);
+  ruleFit->display(1);
+  ruleFit->serialize(pygst + "ruleFit.ascii");
+
   Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
   Vario varioIndic = Vario();
   varioIndic.addDirs(dir2);
   error = varioIndic.computeIndic(&db);
   varioIndic.serialize(pygst+ "varioindic.ascii");
 
-  error = model_pgs(&db, &varioIndic, &rule, &modelPGS1, &modelPGS2, props,
-                    nullptr, flag_stat);
+  error = model_pgs(&db, &varioIndic, &ruleprop2, &modelPGS1, &modelPGS2);
   varioIndic.serialize(pygst+ "modelpgs.ascii");
   varioIndic.display(1);
 
-  Vario varioParam = Vario();
-  Dir dir3 = Dir(ndim, nlag, 0.5 / nlag);
-  varioParam.addDirs(dir3);
-  varioParam.setCalculName("vg");
-
-  Rule* ruleFit = rule_auto(&db,&varioParam,props,nullptr,flag_stat,1);
-  ruleFit->display(1);
-  ruleFit->serialize(pygst + "ruleFit.ascii");
 
   return(error);
 }

@@ -8,7 +8,7 @@
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Basic/FunctionalSpirale.hpp"
-
+#include "Basic/Law.hpp"
 
 /****************************************************************************/
 /*!
@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
 {
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int seed = 10355;
+  law_set_random_seed(seed);
 
   ///////////////////////
   // Création de la db //
@@ -49,7 +50,6 @@ int main(int argc, char *argv[])
   // Creating Data
   auto ndata = 1000;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
-
 
   SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
   spde.computeKriging();

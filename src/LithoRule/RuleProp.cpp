@@ -9,42 +9,70 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "LithoRule/RuleProp.hpp"
+#include "LithoRule/Rule.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
 
 RuleProp::RuleProp()
     : _flagStat(true),
-      _props(),
+      _propcst(),
       _dbprop(nullptr),
-      _rule(nullptr)
+      _rule(nullptr),
+      _ruleInternal(false)
 {
 }
 
-RuleProp::RuleProp(const Rule* rule, const VectorDouble& props)
+/**
+ * This constructor is used in the exceptional case where the Rule is not yet defined
+ * (typically when inferring the Rule)
+ * @param dbprop  Db containing the Proportion information (LOC_P fields)
+ * @param propcst Vector of constant proportions
+ */
+RuleProp::RuleProp(const Db* dbprop, const VectorDouble& propcst)
     : _flagStat(true),
-      _props(props),
-      _dbprop(nullptr),
-      _rule(rule)
+      _propcst(propcst),
+      _dbprop(dbprop),
+      _rule(nullptr),
+      _ruleInternal(true)
 {
-  if (_checkConsistency())
+  if (! _checkConsistency())
+    my_throw("Inconsistent arguments");
+
+  // A generic rule is created on the fly
+  int nfacies = _getNFacies();
+  Rule rule = Rule();
+  rule.init(nfacies);
+  _rule = new Rule(rule);
+}
+
+RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)
+    : _flagStat(true),
+      _propcst(propcst),
+      _dbprop(nullptr),
+      _rule(rule),
+      _ruleInternal(false)
+{
+  if (! _checkConsistency())
     my_throw("Inconsistent arguments");
 }
 
 RuleProp::RuleProp(const Rule* rule, const Db* dbprop)
     : _flagStat(true),
-      _props(),
+      _propcst(),
       _dbprop(dbprop),
-      _rule(rule)
+      _rule(rule),
+      _ruleInternal(false)
 {
-  if (_checkConsistency())
+  if (! _checkConsistency())
     my_throw("Inconsistent arguments");
 }
 
 RuleProp::RuleProp(const RuleProp& m)
   : _flagStat(m._flagStat),
-    _props(m._props),
+    _propcst(m._propcst),
     _dbprop(m._dbprop),
-    _rule(m._rule)
+    _rule(m._rule),
+    _ruleInternal(m._ruleInternal)
 {
 }
 
@@ -53,15 +81,17 @@ RuleProp& RuleProp::operator=(const RuleProp& m)
   if (this != &m)
   {
     _flagStat = m._flagStat;
-    _props = m._props;
+    _propcst = m._propcst;
     _dbprop = m._dbprop;
     _rule = m._rule;
+    _ruleInternal = m._ruleInternal;
   }
   return *this;
 }
 
 RuleProp::~RuleProp()
 {
+  if (_ruleInternal) delete _rule;
 }
 
 std::string RuleProp::toString(int level) const
@@ -77,48 +107,89 @@ std::string RuleProp::toString(int level) const
 
 bool RuleProp::_checkConsistency()
 {
-  if (_rule == nullptr) return false;
-  int nfacrule = _rule->getFaciesNumber();
+  int nfacies = 0;
+
+  // Check the number of facies against the Rule
+  if (_rule != nullptr)
+  {
+    int nfacrule = _rule->getFaciesNumber();
+    if (nfacies > 0 && nfacrule != nfacies)
+    {
+      messerr("Mismatch between:");
+      message("- Number of facies passed as argument (%d)", nfacies);
+      messerr("- Number of Facies in Rule (%d)",nfacrule);
+      return false;
+    }
+    nfacies = nfacrule;
+  }
 
   // Non-stationary case: proportions are provided using Dbprop
   if (_dbprop != nullptr)
   {
     _flagStat = false;
-    _props.clear();
+    _propcst.clear();
 
     // Check consistency of the number of facies
     int nfacdb = _dbprop->getFromLocatorNumber(LOC_P);
-    if (nfacrule != nfacdb)
+    if (nfacies > 0 && nfacies != nfacdb)
     {
       messerr("Mismatch between:");
-      messerr("- Number of Facies in Rule (%d)",nfacrule);
+      messerr("- Number of Facies in Rule (%d)",nfacies);
       messerr("- Number of Proportion fields in Db (%d)",nfacdb);
       return false;
     }
     return true;
   }
 
-  // Stationary proportions provided by 'props'
-  if (! _props.empty())
+  // Stationary proportions provided by 'propcst'
+  if (! _propcst.empty())
   {
     _flagStat = true;
     _dbprop = nullptr;
 
     // Check consistency of the number of facies
-    int nfacprop = _props.size();
-    if (nfacrule != nfacprop)
+    int nfacprop = _propcst.size();
+    if (nfacies > 0 && nfacies != nfacprop)
     {
       messerr("Mismatch between:");
-      messerr("- Number of Facies in Rule (%d)",nfacrule);
-      messerr("- Number of Proportion in 'props' (%d)",nfacprop);
+      messerr("- Number of Facies in Rule (%d)",nfacies);
+      messerr("- Number of Proportion in Propcst (%d)",nfacprop);
       return false;
     }
     return true;
   }
 
   // Stationary case with proportions not provided
+  if (nfacies <= 0)
+  {
+    messerr("No solution to determine the number of Facies");
+    return false;
+  }
   _flagStat = true;
   _dbprop = nullptr;
-  _props.resize(nfacrule, 1./(double) nfacrule);
+  _propcst.resize(nfacies, 1./(double) nfacies);
   return true;
+}
+
+int RuleProp::_getNFacies()
+{
+  // Check the number of facies against the Rule
+  if (_rule != nullptr)
+  {
+    return _rule->getFaciesNumber();
+  }
+
+  // Non-stationary case: proportions are provided using Dbprop
+  if (_dbprop != nullptr)
+  {
+    return _dbprop->getFromLocatorNumber(LOC_P);
+  }
+
+  // Stationary proportions provided by 'propcst'
+  if (! _propcst.empty())
+  {
+    return _propcst.size();
+  }
+
+  return 0;
 }

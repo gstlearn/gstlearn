@@ -47,138 +47,36 @@ public:
 
   int getFlagNoStat() const { return getNElems() > 0; }
 
-  const VectorDouble& getAngles1() const
-  {
-    return _angles1;
-  }
-  double getAngles1(int i) const
-  {
-    return _angles1[i];
-  }
-
-  const VectorDouble& getAngles2() const
-  {
-    return _angles2;
-  }
-  double getAngles2(int i) const
-  {
-    return _angles2[i];
-  }
-
-  int getNDim() const
-  {
-    return _nDim;
-  }
-
-  int getNElems() const
-  {
-    return static_cast<int> (_elems.size());
-  }
-
-  double getParam1() const
-  {
-    return _param1;
-  }
-
-  double getParam2() const
-  {
-    return _param2;
-  }
-
-  double getScadef1() const
-  {
-    return _scadef1;
-  }
-
-  double getScadef2() const
-  {
-    return _scadef2;
-  }
-
-  const VectorDouble& getScale1() const
-  {
-    return _scale1;
-  }
-  double getScale1(int i) const
-  {
-    return _scale1[i];
-  }
-
-  const VectorDouble& getScale2() const
-  {
-    return _scale2;
-  }
-  double getScale2(int i) const
-   {
-     return _scale2[i];
-   }
-
-  double getSill1() const
-  {
-    return _sill1;
-  }
-
-  double getSill2() const
-  {
-    return _sill2;
-  }
-
-  const std::vector<ElemNostat*>& getElems() const
-  {
-    return _elems;
-  }
-  ElemNostat* getElems(int i) const
-  {
-    return _elems[i];
-  }
-  void setAngles1(int idim, double value)
-  {
-    _setAngles1(idim, value);
-  }
-  void setAngles2(int idim, double value)
-  {
-    _setAngles2(idim, value);
-  }
-  void setScale1(VectorDouble scales)
-  {
-    _setScale1(scales);
-  }
-  void setScale1(int idim, double scale)
-  {
-    _setScale1(idim,scale);
-  }
-  void setScale2(VectorDouble scales)
-  {
-    _setScale2(scales);
-  }
-  void setScale2(int idim, double scale)
-  {
-    _setScale2(idim,scale);
-  }
+  const VectorDouble& getAngles1() const { return _angles1; }
+  double getAngles1(int i) const { return _angles1[i]; }
+  const VectorDouble& getAngles2() const { return _angles2; }
+  double getAngles2(int i) const { return _angles2[i]; }
+  int getNDim() const { return _nDim; }
+  int getNElems() const { return static_cast<int> (_elems.size()); }
+  double getParam1() const { return _param1; }
+  double getParam2() const { return _param2; }
+  double getScadef1() const { return _scadef1; }
+  double getScadef2() const { return _scadef2; }
+  const VectorDouble& getScale1() const { return _scale1; }
+  double getScale1(int i) const { return _scale1[i]; }
+  const VectorDouble& getScale2() const { return _scale2; }
+  double getScale2(int i) const { return _scale2[i]; }
+  double getSill1() const { return _sill1; }
+  double getSill2() const { return _sill2; }
+  const std::vector<ElemNostat*>& getElems() const { return _elems; }
+  ElemNostat* getElems(int i) const { return _elems[i]; }
+  void setAngles1(int idim, double value) { _setAngles1(idim, value); }
+  void setAngles2(int idim, double value) { _setAngles2(idim, value); }
+  void setScale1(VectorDouble scales) { _setScale1(scales); }
+  void setScale1(int idim, double scale) { _setScale1(idim,scale); }
+  void setScale2(VectorDouble scales) { _setScale2(scales); }
+  void setScale2(int idim, double scale) { _setScale2(idim,scale); }
 
 private:
-  void _setAngles1(int idim, double value)
-  {
-    _angles1[idim] = value;
-  }
-  void _setAngles2(int idim, double value)
-  {
-    _angles2[idim] = value;
-  }
-  void _setScale1(VectorDouble scales)
-  {
-    _scale1 = scales;
-  }
-  void _setScale1(int idim, double scale)
-  {
-    _scale1[idim] = scale;
-  }
-  void _setScale2(VectorDouble scales)
-  {
-    _scale2 = scales;
-  }
-  void _setScale2(int idim, double scale)
-  {
-    _scale2[idim] = scale;
-  }
+  void _setAngles1(int idim, double value) { _angles1[idim] = value; }
+  void _setAngles2(int idim, double value) { _angles2[idim] = value; }
+  void _setScale1(VectorDouble scales) { _scale1 = scales; }
+  void _setScale1(int idim, double scale) { _scale1[idim] = scale; }
+  void _setScale2(VectorDouble scales) { _scale2 = scales; }
+  void _setScale2(int idim, double scale) { _scale2[idim] = scale; }
 };

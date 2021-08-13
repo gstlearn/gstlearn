@@ -285,6 +285,21 @@ Rule::~Rule()
     delete _mainNode;
 }
 
+void Rule::init(int nfacies)
+{
+  if (nfacies <= 1)
+    my_throw("This class requires at least TWO facies");
+  VectorString nodnames = _buildNodNames(nfacies);
+  VectorInt n_type;
+  VectorInt n_facs;
+  _nodNamesToIds(nodnames, n_type, n_facs);
+  int ipos = 0;
+  int n_fac = 0;
+  int n_y1 = 0;
+  int n_y2 = 0;
+  _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+}
+
 /**
  * Initialization of the nodes of the Rule (from the ASCII file).
  * @param nodes Node description (6 * number of nodes)
@@ -618,13 +633,14 @@ int Rule::statistics(int  verbose,
 **
 *****************************************************************************/
 int Rule::particularities(Db *db,
-                          Db *dbprop,
+                          const Db *dbprop,
                           Model *model,
                           int flag_grid_check,
                           int flag_stat)
 {
   int ndim = (model != (Model *) NULL) ? model->getDimensionNumber() : 0;
   VectorDouble wxyz(ndim);
+  double rhoval;
 
   /* Dispatch */
 
@@ -648,10 +664,11 @@ int Rule::particularities(Db *db,
       for (int idim = 0; idim < ndim; idim++) wxyz[idim] = _xyz[idim];
       if (model->getVariableNumber() == 1)
         model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0, MEMBER_LHS, 1, wxyz,
-                       &hval, &_rho);
+                       &hval, &rhoval);
       else
         model_evaluate(model, 0, 1, -1, 0, 1, 0, 0, 0, MEMBER_LHS, 1, wxyz,
-                       &hval, &_rho);
+                       &hval, &rhoval);
+      setRho(rhoval);
 
       /* Translate the shift into grid increments */
 
@@ -910,7 +927,7 @@ double Rule::getProportion(int facies)
  * @param facies Rank of the target facies (starting from 1)
  * @return The vector of bounds organized as [t1min, t1max, t2min, t2max]
  */
-VectorDouble Rule::getThresh(int facies)
+VectorDouble Rule::getThresh(int facies) const
 {
   VectorDouble bounds;
 
@@ -957,7 +974,7 @@ VectorDouble Rule::getThreshFromRectangle(int rect, int *facies)
 ** \remark  If one of the two GRF is undefined, the resulting facies is 0
 **
 *****************************************************************************/
-int Rule::getFaciesFromGaussian(double y1, double y2)
+int Rule::getFaciesFromGaussian(double y1, double y2) const
 {
   double facies;
 
@@ -1131,3 +1148,15 @@ void Rule::_ruleDefine(Node *node,
     _ruleDefine(node->getR2(), node->getOrient(), cur_rank, 2, rank);
 }
 
+VectorString Rule::_buildNodNames(int nfacies)
+{
+  VectorString nodnames;
+
+  for (int i = 1; i < nfacies; i++)
+    nodnames.push_back("S");
+
+  for (int i = 0; i < nfacies; i++)
+    nodnames.push_back(incrementStringVersion("F",i+1,""));
+
+  return nodnames;
+}

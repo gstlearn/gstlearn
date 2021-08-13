@@ -14,6 +14,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/IClonable.hpp"
 #include "geoslib_enum.h"
 
 
@@ -67,6 +68,7 @@ public:
   int    setProportions(const VectorDouble& proportions = VectorDouble());
 
   int init(const VectorInt& nodes);
+  void init(int nfacies);
   int statistics(int  verbose,
                  int *node_tot,
                  int *nfac_tot,
@@ -85,11 +87,11 @@ public:
   bool isYUsed(int igrf) const;
   VectorInt whichGRFUsed() const;
   double getProportion(int facies);
-  VectorDouble getThresh(int facies);
+  VectorDouble getThresh(int facies) const;
   VectorDouble getThreshFromRectangle(int rect, int *facies);
-  int getFaciesFromGaussian(double y1, double y2);
+  int getFaciesFromGaussian(double y1, double y2) const;
   int particularities(Db *db,
-                      Db *dbprop,
+                      const Db *dbprop,
                       Model *model,
                       int flag_grid_check,
                       int flag_stat);
@@ -118,6 +120,7 @@ private:
                    int from_rank,
                    int from_vers,
                    int *rank);
+  VectorString _buildNodNames(int nfacies);
 
 private:
   int    _modeRule;    /* Type of usage */
@@ -130,7 +133,7 @@ private:
   double _tgte;        /* Tangent of the slope */
   double _incr;        /* Increments used for creating replicates */
   VectorDouble _shift; /* Shadow or translation orientation */
-  VectorDouble _xyz;
+  mutable VectorDouble _xyz;
   VectorInt    _ind1;
   VectorInt    _ind2;
   Node*        _mainNode;

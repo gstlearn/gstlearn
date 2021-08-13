@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   Rule      *rule[2];
   Option_VarioFit options;
   double  delta,total;
-  int     i,j,lec,nbsimu,seed,nbtuba,npgs,nodes,nmax,ny1,ny2,ntot,nfac[2];
+  int     i,j,lec,nbsimu,seed,nbtuba,npgs,ntot,nfac[2];
   int     flag_vario,flag_grid,iatt_z,iatt_ind,ifac,nclass;
   VectorDouble props;
   static int    niter   = 100;
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 
     npgs++;
     if (verbose) rule[i]->display(false, false);
-    rule[i]->statistics(0,&nodes,&nfac[i],&nmax,&ny1,&ny2,&total);
+    nfac[i] = rule[i]->getFaciesNumber();
 
     /* Define the models */
     

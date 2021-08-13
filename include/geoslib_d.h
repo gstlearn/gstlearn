@@ -216,7 +216,7 @@ typedef struct
   VectorDouble propwrk;
   VectorDouble proploc;
   VectorDouble coor;
-  Db *dbprop; /* Pointer to the Proportion file */
+  const Db *dbprop; /* Pointer to the Proportion file */
 } Props;
 
 typedef struct

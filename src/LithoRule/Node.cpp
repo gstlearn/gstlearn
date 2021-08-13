@@ -148,8 +148,8 @@ Node::Node(bool flagShadow)
 
 Node::Node(const Node& m)
     : _nodnam(m._nodnam),
-      _r1(new Node(*m._r1)),
-      _r2(new Node(*m._r2)),
+      _r1(nullptr),
+      _r2(nullptr),
       _orient(m._orient),
       _facies(m._facies),
       _prop(m._prop),
@@ -165,6 +165,10 @@ Node::Node(const Node& m)
       _cdf2min(m._cdf2min),
       _cdf2max(m._cdf2max)
 {
+  if (m._r1 != nullptr)
+    _r1 = new Node(*m._r1);
+  if (m._r2 != nullptr)
+    _r2 = new Node(*m._r2);
 }
 
 Node& Node::operator=(const Node& m)
@@ -172,8 +176,14 @@ Node& Node::operator=(const Node& m)
   if (this != &m)
   {
     _nodnam = m._nodnam;
-    _r1 = new Node(*m._r1);
-    _r2 = new Node(*m._r2);
+    if (m._r1 != nullptr)
+      _r1 = new Node(*m._r1);
+    else
+      _r1 = nullptr;
+    if (m._r2 != nullptr)
+      _r2 = new Node(*m._r2);
+    else
+      _r2 = nullptr;
     _orient = m._orient;
     _facies = m._facies;
     _prop = m._prop;

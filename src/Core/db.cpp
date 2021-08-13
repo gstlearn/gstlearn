@@ -926,7 +926,7 @@ GEOSLIB_API double cylinder_radius(Db *db,
  ** \remark  If one grid index does not lie within the grid, -1 is returned
  **
  *****************************************************************************/
-GEOSLIB_API int db_index_grid_to_sample(Db *db, const int *indg)
+GEOSLIB_API int db_index_grid_to_sample(const Db *db, const int *indg)
 {
   int ndim = db->getNDim();
   VectorInt local(ndim);
@@ -944,7 +944,7 @@ GEOSLIB_API int db_index_grid_to_sample(Db *db, const int *indg)
  ** \param[out]  indg Grid indices
  **
  *****************************************************************************/
-GEOSLIB_API void db_index_sample_to_grid(Db *db, int iech, int *indg)
+GEOSLIB_API void db_index_sample_to_grid(const Db *db, int iech, int *indg)
 {
   int ndim = db->getNDim();
   int nval = 1;
@@ -975,7 +975,7 @@ GEOSLIB_API void db_index_sample_to_grid(Db *db, int iech, int *indg)
  ** \remark which minimizes the distance between any pair of successive indices
  **
  *****************************************************************************/
-GEOSLIB_API int db_index_sorted_in_grid(Db *db, int iech, int *indg)
+GEOSLIB_API int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
 {
   int jech, idim, ndim, indref;
 
@@ -2340,7 +2340,7 @@ GEOSLIB_API int db_grid_copy_dilate(Db *db1,
  ** \param[out] coor     coordinates of the point
  **
  *****************************************************************************/
-GEOSLIB_API void grid_to_point(Db *db, int *indg, double *percent, double *coor)
+GEOSLIB_API void grid_to_point(const Db *db, int *indg, double *percent, double *coor)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2430,7 +2430,7 @@ GEOSLIB_API int point_to_point(Db *db, double *coor)
  ** \param[out] indg          indices of the closest grid node
  **
  *****************************************************************************/
-GEOSLIB_API int point_to_grid(Db *db, double *coor, int flag_outside, int *indg)
+GEOSLIB_API int point_to_grid(const Db *db, double *coor, int flag_outside, int *indg)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2496,7 +2496,7 @@ GEOSLIB_API int point_to_grid(Db *db, double *coor, int flag_outside, int *indg)
  ** \remarks as reference
  **
  *****************************************************************************/
-GEOSLIB_API int point_to_bench(Db *db,
+GEOSLIB_API int point_to_bench(const Db *db,
                                double *coor,
                                int flag_outside,
                                int *indb)
@@ -2578,10 +2578,10 @@ GEOSLIB_API int point_to_bench(Db *db,
  ** \param[out] coor          Working array (dimension: ndim)
  **
  *****************************************************************************/
-GEOSLIB_API int index_point_to_grid(Db *dbin,
+GEOSLIB_API int index_point_to_grid(const Db *dbin,
                                     int iech,
                                     int flag_outside,
-                                    Db *dbout,
+                                    const Db *dbout,
                                     double *coor)
 {
   int ndim = dbin->getNDim();

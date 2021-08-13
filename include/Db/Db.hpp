@@ -342,7 +342,7 @@ public:
                    int ivar,
                    int icase,
                    int nbsimu,
-                   int nvar);
+                   int nvar) const;
   void setSimvar(ENUM_LOCS locatorType,
                  int iech,
                  int isimu,
@@ -530,7 +530,7 @@ private:
   void _defineDefaultNames(int shift, const VectorString& names);
   void _defineDefaultLocators(int shift, const VectorString& locatorNames);
   void _defineDefaultLocatorsByNames(int shift, const VectorString& names);
-  int  _getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar);
+  int  _getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
 
   // Column dependent indexing
   void _setNameByColumn(int icol, const String& name);

@@ -380,7 +380,7 @@ Db::Db(Polygons* polygon,
  * @param proportion Proportion of samples to be retained
  * @param names      Vector of Names to be copied (empty: all names)
  * @param seed       Seed used for the random number generator
- * @param verbose    Verbosity flag
+ * @param verbose    Verbose flag
  *
  * @remark A possible selection in 'dbin' will not be taken into account
  */
@@ -2340,7 +2340,7 @@ double Db::getSimvar(ENUM_LOCS locatorType,
                      int ivar,
                      int icase,
                      int nbsimu,
-                     int nvar)
+                     int nvar) const
 {
   int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
 
@@ -3303,7 +3303,7 @@ VectorDouble Db::statisticsMulti(const VectorString& names,
  ** \param[in]  nvar      Number of variables
  **
  *****************************************************************************/
-int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar)
+int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
 {
   return (isimu + nbsimu * (ivar + nvar * icase));
 }
