@@ -128,6 +128,5 @@ int main(int argc, char *argv[])
   varioIndic.serialize(pygst+ "modelpgs.ascii");
   varioIndic.display(1);
 
-
   return(error);
 }
