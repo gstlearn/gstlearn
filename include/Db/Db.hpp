@@ -140,6 +140,7 @@ public:
                 const String& radix = "New",
                 ENUM_LOCS locatorType = LOC_UNKNOWN,
                 bool useSel = false,
+                double valinit = 0.,
                 int nvar = 1);
   int addFields(int nadd,
                 double valinit = 0.,

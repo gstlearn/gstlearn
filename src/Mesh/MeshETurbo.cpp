@@ -613,8 +613,10 @@ int MeshETurbo::_addWeights(int  verbose,
 
   // Check that all weights are positive
   for (int icorner=0; icorner<ncorner; icorner++)
-    if (lambda[icorner] < 0) return 1;
-  
+  {
+    if (lambda[icorner] < -EPSILON10) return 1;
+    if (lambda[icorner] < 0) lambda[icorner] = 0.;
+  }
   // Optional printout
   if (verbose) 
   {
