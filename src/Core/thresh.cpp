@@ -836,7 +836,7 @@ GEOSLIB_API int rule_thresh_define(Props  *propdef,
                                    double *t2min,
                                    double *t2max)
 {
-  int    unmodify,facloc,jech;
+  int unmodify,facloc,jech;
 
   /* Set the debugging information */
 

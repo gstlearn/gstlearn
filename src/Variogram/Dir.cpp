@@ -701,6 +701,11 @@ std::vector<Dir> generateMultipleGridDirs(int ndim,
   return dirs;
 }
 
+/**
+ * Set the Central Value (distance zero) for an asymmetric function
+ * @param nech : Number of valid samples (will provide an information on the number of pairs)
+ * @param rho  : Correlation between pairs of (different) variables
+ */
 void Dir::patchCenter(int nech, double rho)
 {
   if (! _flagAsym) return;

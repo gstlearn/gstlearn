@@ -3613,7 +3613,7 @@ void Db::_loadData(int order, int flag_add_rank, const VectorDouble& tab)
 
 bool Db::_isCountValid(const VectorInt iatts, bool flagOne) const
 {
-  if (iatts.empty())
+  if (iatts.empty() && flagOne)
   {
     messerr("No variable name corresponding to your criterion");
     return false;

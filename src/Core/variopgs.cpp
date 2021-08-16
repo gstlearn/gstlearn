@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_e.h"
+#include "geoslib_define.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
@@ -47,7 +48,6 @@ typedef struct {
   int     ngrf;
   int     npair;
   int     nfacies;
-  int     nfac2;
   int     ifirst;
   int     ilast;
   VectorDouble   d0;
@@ -237,7 +237,7 @@ static void st_rule_print(int    rank,
                           int    nbyrule,
                           int   *rules,
                           int   *fipos,
-                          int    flag_rank,
+                          bool   flag_rank,
                           int    flag_similar,
                           int    flag_igrf,
                           double score)
@@ -287,7 +287,7 @@ static void st_rule_print(int    rank,
     for (int igrf=0; igrf<NGRF; igrf++)
     {
       loc1 = loc0 / 2;
-      if (loc0 - 2 * loc1 > 0) message(" G%d",igrf+1);
+      if (loc0 - 2 * loc1 > 0) message(" by Symmetry around G%d",igrf+1);
       loc0 = loc1;
     }
     message(" )]");
@@ -312,7 +312,7 @@ static void st_rules_print(const char *title,
   if (nrule <= 0) return;
   message("%s (Nrule=%d, Nbyrule=%d):\n",title,nrule,nbyrule);
   for (int ir=0; ir<nrule; ir++)
-    st_rule_print(ir,nbyrule,rules,fipos,0,-1,-1,TEST);
+    st_rule_print(ir,nbyrule,rules,fipos,false,-1,-1,TEST);
 }
 
 /****************************************************************************
@@ -560,6 +560,59 @@ static void st_set_rho(double rho,
 
 /****************************************************************************/
 /*!
+**  Calculate the probability for two independent GRFs
+**
+** \return  Evaluation value
+**
+** \param[in] correl    Correlation between covariance
+** \param[in] low       Array of lower thresholds or lower indices
+**                      (Dimension: 2)
+** \param[in] up        Array of upper thresholds or upper indices
+**                      (Dimension: 2)
+** \param[in] iconf     Rank for the discrete calculation
+**
+*****************************************************************************/
+static double st_get_proba_ind(double correl,
+                               double *low,
+                               double *up,
+                               int iconf)
+{
+  int ier, infin[2];
+  double p1min, p1max, p2min, p2max, proba, err;
+
+  double releps = 0.;
+  double abseps = EPS;
+  int    maxpts = 8000;
+
+  proba = TEST;
+
+  if (! TEST_DISCRET)
+  {
+    if (correl == 0.)
+    {
+      p1min = law_cdf_gaussian(low[0]);
+      p1max = law_cdf_gaussian(up[0]);
+      p2min = law_cdf_gaussian(low[1]);
+      p2max = law_cdf_gaussian(up[1]);
+      proba = (p1max - p1min) * (p2max - p2min);
+    }
+    else
+    {
+      infin[0] = mvndst_infin(low[0], up[0]);
+      infin[1] = mvndst_infin(low[1], up[1]);
+      mvndst(2, low, up, infin, &correl, maxpts, abseps, releps, &err, &proba,
+             &ier);
+    }
+  }
+  else
+  {
+    proba = ct_tableone_calculate_by_rank(CTABLES,iconf,low,up);
+  }
+  return proba;
+}
+
+/****************************************************************************/
+/*!
 **  Calculate the thresholds in the stationary case
 **
 ** \returns Error return code
@@ -570,8 +623,8 @@ static void st_set_rho(double rho,
 static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
 
 {
-  int nfacies,ifac,ngrf;
-  double t1min,t1max,t2min,t2max;
+  int nfacies,ifac,ngrf,iconf0;
+  double t1min,t1max,t2min,t2max,cround;
 
   nfacies = local_pgs->nfacies;
   ngrf    = local_pgs->ngrf;
@@ -584,11 +637,8 @@ static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
     {
       STAT_THRESH(ifac,0,0) = t1min;
       STAT_THRESH(ifac,0,1) = t1max;
-      if (ngrf > 1) 
-      {
-        STAT_THRESH(ifac,1,0) = t2min;
-        STAT_THRESH(ifac,1,1) = t2max;
-      }
+      STAT_THRESH(ifac,1,0) = t2min;
+      STAT_THRESH(ifac,1,1) = t2max;
     }
     else
     {
@@ -605,6 +655,28 @@ static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
       }
     }
   }
+
+  // Verification
+
+  double total = 0.;
+  double correl = local_pgs->corpgs.rho;
+  double low[2], up[2];
+  if (TEST_DISCRET)
+    iconf0 = ct_tableone_covrank(CTABLES,correl,&cround);
+
+  for (int ifac = 0; ifac < nfacies; ifac++)
+    {
+      low[0] = STAT_THRESH(ifac,0,0);
+      up[0]  = STAT_THRESH(ifac,0,1);
+      low[1] = STAT_THRESH(ifac,1,0);
+      up[1]  = STAT_THRESH(ifac,1,1);
+      double proba = st_get_proba_ind(correl, low, up, iconf0);
+      total += proba;
+    }
+  if (ABS(total - 1.) > EPSILON3)
+    messerr("In st_calculate_thresh_stat, the sum of Probabilities (%lf) is not close to 1.",
+        total);
+
   return(0);
 }
 
@@ -784,24 +856,19 @@ static Rule *st_rule_encode(int *string)
 static double st_extract_trace(Local_Pgs *local_pgs)
 
 {
-  Local_TracePgs *tracepgs;
-  double total[2],totsum;
-  int    nrow,ncol;
-
-  tracepgs = &local_pgs->tracepgs;
-  nrow = tracepgs->nrow;
-  ncol = tracepgs->ncol;
+  Local_TracePgs *tracepgs = &local_pgs->tracepgs;
+  int nrow = tracepgs->nrow;
+  int ncol = tracepgs->ncol;
   if (nrow <= 0 || ncol <= 0) return TEST;
 
   /* Evaluate the sum of the score */
 
-  total[0] = total[1] = 0.;
+  double totsum = 0.;
   for (int irow=0; irow<nrow; irow++)
   {
-    total[0] += tracepgs->trace[ncol * irow + 2];
-    if (ncol >= 5) total[1] += tracepgs->trace[ncol * irow + 4];
+    totsum += tracepgs->trace[ncol * irow + 2];
+    if (ncol >= 5) totsum += tracepgs->trace[ncol * irow + 4];
   }
-  totsum = total[0] + total[1];
   set_keypair("vario.pgs_score",1,1,1,&totsum);
 
   if (tracepgs->flag_trace)
@@ -829,7 +896,7 @@ static void st_variogram_patch_C00(Local_Pgs *local_pgs,
 {
   Db* db  = local_pgs->db;
   int nech = (db == nullptr) ? 0 : db->getActiveSampleNumber();
-  vario->patchCenter(idir,nech, rho);
+  vario->patchCenter(idir, nech, rho);
 }
 
 /****************************************************************************/
@@ -854,61 +921,8 @@ static void trace_add_row(Local_Pgs *local_pgs)
 
   nrow++;
   tracepgs->trace.resize(nrow * ncol);
-  for (int icol=0; icol<ncol; icol++) tracepgs->trace[iad+icol] = -1.11;
+  for (int icol=0; icol<ncol; icol++) tracepgs->trace[iad+icol] = TEST;
   tracepgs->nrow = nrow;
-}
-
-/****************************************************************************/
-/*!
-**  Calculate the probability for two independent GRFs
-**
-** \return  Evaluation value
-**
-** \param[in] correl    Correlation between covariance
-** \param[in] low       Array of lower thresholds or lower indices
-**                      (Dimension: 2)
-** \param[in] up        Array of upper thresholds or upper indices
-**                      (Dimension: 2)
-** \param[in] iconf     Rank for the discrete calculation
-**
-*****************************************************************************/
-static double st_get_proba_ind(double correl,
-                               double *low,
-                               double *up,
-                               int iconf)
-{
-  int ier, infin[2];
-  double p1min, p1max, p2min, p2max, proba, err;
-
-  double releps = 0.;
-  double abseps = EPS;
-  int    maxpts = 8000;
-
-  proba = TEST;
-
-  if (! TEST_DISCRET)
-  {
-    if (correl == 0.)
-    {
-      p1min = law_cdf_gaussian(low[0]);
-      p1max = law_cdf_gaussian(up[0]);
-      p2min = law_cdf_gaussian(low[1]);
-      p2max = law_cdf_gaussian(up[1]);
-      proba = (p1max - p1min) * (p2max - p2min);
-    }
-    else
-    {
-      infin[0] = mvndst_infin(low[0], up[0]);
-      infin[1] = mvndst_infin(low[1], up[1]);
-      mvndst(2, low, up, infin, &correl, maxpts, abseps, releps, &err, &proba,
-             &ier);
-    }
-  }
-  else
-  {
-    proba = ct_tableone_calculate_by_rank(CTABLES,iconf,low,up);
-  }
-  return proba;
 }
 
 /****************************************************************************/
@@ -957,8 +971,9 @@ static double st_func_search_stat(double  correl,
       double gg   = dir.getGg(iad);
       iad         = dir.getAddress(ifac1,ifac2,ipas,false,-1);
       gg         += dir.getGg(iad);
-      sum -= logp * gg * sw / 2.;
+      sum        -= logp * gg * sw / 2.;
     }
+
   return(0.5 * sum);
 }
 
@@ -989,7 +1004,7 @@ static double st_func_search_nostat(double  correl,
 
   /* Reset the pre-calculation array (only if flag_stat) */
   if (local_pgs->flag_stat)
-    for (i=0; i<local_pgs->nfac2; i++) local_pgs->stat_proba[i] = TEST;
+    for (i=0; i<(int) local_pgs->stat_proba.size(); i++) local_pgs->stat_proba[i] = TEST;
 
   sum = 0.;
   for (ipair=local_pgs->ifirst; ipair<local_pgs->ilast; ipair++)
@@ -1199,11 +1214,7 @@ static void st_retrace_define(Local_Pgs *local_pgs)
   tracepgs = &local_pgs->tracepgs;
   if (! tracepgs->flag_trace) return;
 
-  // Clean the previous trace 
-
-  tracepgs->trace.clear();
-
-  // Initialize the new trace
+  // Initialize the new trace (which clears any previously defined trace)
 
   st_define_trace(0,0,local_pgs);
 }
@@ -1282,6 +1293,7 @@ static double st_rule_calcul(Local_Pgs *local_pgs,
   score = 0.;
   local_pgs->rule = st_rule_encode(string);
   local_pgs->ngrf = local_pgs->rule->getGRFNumber();
+  local_pgs->vario->internalResize(local_pgs->vario->getDimensionNumber(), local_pgs->ngrf, "cov");
   st_retrace_define(local_pgs);
 
   if (local_pgs->flag_stat)
@@ -1511,6 +1523,14 @@ static VectorDouble st_relem_evaluate(Relem *relem,
 
   scores.resize(nrule);
   
+  // Optional title printout
+
+  if (verbose)
+  {
+    if (! flag_skip)
+      mestitle(1,"List of Rules and corresponding scores:");
+  }
+
   *r_opt = number = 0;
   for (int ir=0; ir<nrule; ir++)
   {
@@ -1553,10 +1573,10 @@ static VectorDouble st_relem_evaluate(Relem *relem,
     if (verbose) 
     {
       if (! flag_skip || indice < 0)
-        st_rule_print(ir,NRULE,rules,fipos,1,indice,igrf_opt,scores[ir]);
+        st_rule_print(ir,NRULE,rules,fipos,true,indice,igrf_opt,scores[ir]);
     }
 
-    // Ranking the scores
+    // Ranking the Minimum score
 
     if (scores[ir] < scores[*r_opt]) *r_opt = ir;
   }
@@ -1640,8 +1660,8 @@ static void st_rule_product(Split *split,
       if (flag_debug)
       {
         message("Rule Product (with operator %d)\n",oper);
-        st_rule_print(i1,nbyrule1,rules1,fipos1,0,-1,-1,TEST);
-        st_rule_print(i2,nbyrule2,rules2,fipos2,0,-1,-1,TEST);
+        st_rule_print(i1,nbyrule1,rules1,fipos1,false,-1,-1,TEST);
+        st_rule_print(i2,nbyrule2,rules2,fipos2,false,-1,-1,TEST);
       }
 
       for (int i=0; i<nbyrule1; i++) RULES(ir,ic++) = RULES1(i1,i);
@@ -1657,7 +1677,7 @@ static void st_rule_product(Split *split,
       if (flag_debug)
       {
         message("Product result=");
-        st_rule_print(ir,nbyrule1+nbyrule2+1,rules,fipos,0,-1,-1,TEST);
+        st_rule_print(ir,nbyrule1+nbyrule2+1,rules,fipos,false,-1,-1,TEST);
       }
     }
   split->nrule   = nprod;
@@ -3759,7 +3779,6 @@ static void st_manage_pgs(int        mode,
       local_pgs->ngrf        = 0;
       local_pgs->npair       = 0;
       local_pgs->nfacies     = 0;
-      local_pgs->nfac2       = 0;
       local_pgs->ifirst      = 0;
       local_pgs->ilast       = 0;
       local_pgs->d0          = VectorDouble();
@@ -3785,7 +3804,6 @@ static void st_manage_pgs(int        mode,
       local_pgs->ngrf        = ngrf;
       local_pgs->npair       = 0;
       local_pgs->nfacies     = nfacies;
-      local_pgs->nfac2       = nfacies * nfacies;
       local_pgs->vario       = vario;
       local_pgs->varioind    = varioind;
       local_pgs->model       = model;
@@ -3799,8 +3817,8 @@ static void st_manage_pgs(int        mode,
       local_pgs->vorder      = vario_order_manage(1,flag_dist,0,NULL);
       if (flag_stat)
       {
-        local_pgs->stat_proba.resize(local_pgs->nfac2,0.);
-        local_pgs->stat_thresh.resize(nfacies * ngrf * 2,0.);
+        local_pgs->stat_proba.resize(nfacies * nfacies,0.);
+        local_pgs->stat_thresh.resize(nfacies * 2 * 2,0.); // Do not use ngrf, use 2 instead
       }
       st_manage_corpgs(&local_pgs->corpgs);
       st_manage_trace (&local_pgs->tracepgs);
@@ -5396,12 +5414,15 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
     if (st_vario_pgs_variable(1,ngrf,NCOLOR,1,0,db,propdef,NULL)) goto label_end;
   }
 
-  /* Elaborate the whole tree */
+  /* Elaborate the whole tree of possible Lithotype Rules */
 
+  if (verbose)
+    mestitle(1,"Construction of the Tree of candidate Lithotype Rules:");
   Pile_Relem = st_relem_alloc(NULL);
   st_relem_define(Pile_Relem,NCOLOR,facies,ITEST,NULL);
   st_relem_subdivide(Pile_Relem,1,1);
   st_relem_explore(Pile_Relem,verbose);
+//  st_relem_explore(Pile_Relem,verbose && debug_query("converge")); TODO: But back after bug corrected
 
   // Evaluate all possibilities
 
@@ -5413,7 +5434,10 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   /* Get the resulting optimal Rule */
 
   if (verbose)
-    st_rule_print(r_opt,NRULE,Pile_Relem->Rrules,Pile_Relem->Rfipos,0,-1,-1,TEST);
+  {
+    mestitle(1,"Optimal Lithotype Rule:");
+    st_rule_print(r_opt,NRULE,Pile_Relem->Rrules,Pile_Relem->Rfipos,false,-1,-1,TEST);
+  }
   rules = Pile_Relem->Rrules;
   rule = st_rule_encode(&RULES(r_opt,0));
 
