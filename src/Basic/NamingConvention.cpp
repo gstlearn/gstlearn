@@ -132,7 +132,7 @@ void NamingConvention::setNamesAndLocators(const String& namin,
  * @param nitems Number of items
  * @param flagLocate True if the variable must be assigned the locator
  */
-void NamingConvention::setNamesAndLocators(Db *dbin,
+void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            ENUM_LOCS locatorInType,
                                            int nvar,
                                            Db* dbout,
@@ -167,7 +167,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
  * @param nitems Number of items
  * @param flagLocate True if the variable must be assigned the locator
  */
-void NamingConvention::setNamesAndLocators(Db *dbin,
+void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            const VectorInt& iatts,
                                            Db* dbout,
                                            int iattout_start,
@@ -197,7 +197,7 @@ void NamingConvention::setNamesAndLocators(Db *dbin,
  * @param nitems Number of items
  * @param flagLocate True if the variable must be assigned the locator
  */
-void NamingConvention::setNamesAndLocators(Db *dbin,
+void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            int iatt,
                                            Db* dbout,
                                            int iattout_start,

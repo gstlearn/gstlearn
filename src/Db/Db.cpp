@@ -1213,6 +1213,7 @@ int Db::addFields(int nadd,
  * @param radix  Generic name for the newly created variables
  * @param locatorType Generic locator assigned to new variables
  * @param useSel true if values for active samples are provided
+ * @param valinit initial value (for unselected samples)
  * @param nvar   Number of variables loaded
  * @return Rank of the starting attribute
  */
@@ -1220,6 +1221,7 @@ int Db::addFields(const VectorDouble& tab,
                   const String& radix,
                   ENUM_LOCS locatorType,
                   bool useSel,
+                  double valinit,
                   int nvar)
 {
   // Particular case where the Db is empty.
@@ -1237,7 +1239,7 @@ int Db::addFields(const VectorDouble& tab,
   }
 
   // Adding the new Fields
-  int iatt = addFields(nvar, 0., radix, locatorType);
+  int iatt = addFields(nvar, valinit, radix, locatorType);
   if (iatt < 0) return 1;
 
   setFieldByAttribute(tab, iatt, useSel);

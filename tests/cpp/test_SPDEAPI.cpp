@@ -3,7 +3,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_e.h"
-
+#include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int seed = 10355;
-
+  law_set_random_seed(seed);
   ///////////////////////
   // Création de la db //
 
@@ -49,11 +49,13 @@ int main(int argc, char *argv[])
   // Creating Data
   auto ndata = 1000;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
+  VectorDouble z = ut_vector_simulate_gaussian(ndata);
+  dat.addFields(z,"variable",LOC_Z);
 
-
-  SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
-  spde.computeKriging();
+  SPDE spde(model,workingDbc,&dat,CALCUL_SIMUNONCOND);
+  spde.compute();
   spde.query(&workingDbc);
   workingDbc.serialize(pygst + "spde.ascii");
   return 0;
 }
+

@@ -44,7 +44,7 @@ public:
                            const String& suffix = String(),
                            int nitems = 1,
                            bool flagLocate = true) const;
-  void setNamesAndLocators(Db *dbin,
+  void setNamesAndLocators(const Db *dbin,
                            ENUM_LOCS locatorInType,
                            int nvar,
                            Db* dbout,
@@ -52,14 +52,14 @@ public:
                            const String& suffix = String(),
                            int nitems = 1,
                            bool flagLocate = true) const;
-  void setNamesAndLocators(Db *dbin,
+  void setNamesAndLocators(const Db *dbin,
                            const VectorInt& iatts,
                            Db* dbout,
                            int iattout_start,
                            const String& suffix = String(),
                            int nitems = 1,
                            bool flagLocate = true) const;
-  void setNamesAndLocators(Db *dbin,
+  void setNamesAndLocators(const Db *dbin,
                            int iatt,
                            Db* dbout,
                            int iattout_start,

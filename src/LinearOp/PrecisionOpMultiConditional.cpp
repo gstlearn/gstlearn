@@ -56,7 +56,7 @@ void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
 {
   _multiPrecisionOp.push_back(pmatElem);
   _work2.push_back(VectorDouble(pmatElem->getSize()));
-  if (_multiProjData.size() == 0)
+  if (_multiProjData.size() == 0 && projDataElem != nullptr)
   {
     _ndat = projDataElem->getPointNumber(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
     _work1.resize(_ndat);
@@ -97,6 +97,22 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
 
     }
   }
+}
+
+void PrecisionOpMultiConditional::simulate(const VectorDouble& gauss,VectorVectorDouble& result) const
+{
+  for(int icov=0;icov<(int)_multiPrecisionOp.size();icov++)
+  {
+    _multiPrecisionOp[icov]->eval(gauss,result[icov]);
+  }
+}
+
+
+void PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const
+{
+
+
+
 }
 
 PrecisionOpMultiConditional::~PrecisionOpMultiConditional(){}

@@ -24,7 +24,7 @@ public:
   virtual ~PrecisionOpMultiConditional();
 
   void push_back(PrecisionOp*  pmatElem,
-                 IProjMatrix* projDataElem);
+                 IProjMatrix* projDataElem = nullptr);
   VectorDouble getVarianceData() const {return _varianceData;}
   double getVarianceData(int iech)const {return  _varianceData[iech];}
   void setVarianceData(double nugg){ _varianceData = VectorDouble(_ndat,nugg);}
@@ -34,6 +34,8 @@ public:
   int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
   VectorVectorDouble computeRhs(const VectorDouble& datVal) const;
   void computeRhs(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
+  void simulate(const VectorDouble& gauss,VectorVectorDouble& result) const;
+  void computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
 
 protected:
   void _evalDirect(const VectorVectorDouble& in,

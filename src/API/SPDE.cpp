@@ -3,6 +3,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Law.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
@@ -58,6 +59,8 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
         precision = new PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
+        _precisionsKriging.push_back(precision,nullptr);
+        _workingSimu.push_back(VectorDouble(shiftOp->getSize()));
       }
       if(_calculKriging())
       {
@@ -79,6 +82,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
     }
   }
 
+  // Evaluation of the variance at data point (nugget + measurement error or minimum proportion of total sill)
   if (_calculKriging())
   {
     if(dat->getVarianceErrorNumber()>0)
@@ -109,6 +113,33 @@ void SPDE::computeKriging() const
   _precisionsKriging.evalInverse(rhs,_workKriging);
 }
 
+void SPDE::computeSimuNonCond(int nbsimus, int seed) const
+{
+  law_set_random_seed(seed);
+  VectorDouble gauss;
+  VectorDouble resultSimu;
+  for(int isim = 0; isim < nbsimus; isim++)
+  {
+    for(int icov = 0; icov < (int)_simuMeshing.size();icov++)
+    {
+      gauss = ut_vector_simulate_gaussian(_simuMeshing[icov]->getNApices());
+      _precisionsSimu.simulate(gauss,_workingSimu);
+    }
+ }
+}
+
+void SPDE::compute(int nbsimus, int seed) const
+{
+  if(_calcul == CALCUL_KRIGING)
+  {
+    computeKriging();
+  }
+
+  if(_calculSimu())
+  {
+    computeSimuNonCond(nbsimus,seed);
+  }
+}
 
 MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
                                 const Db& field,
@@ -140,20 +171,31 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
   return mesh;
 }
 
-void SPDE::query(Db* db)
+void SPDE::query(Db* db, NamingConvention namconv)
 {
   VectorDouble temp(db->getActiveSampleNumber());
-  VectorDouble result(db->getActiveSampleNumber(),0);
-  db->addFields(1,TEST,"SPDE",LOC_UNKNOWN);
+  VectorDouble result(db->getActiveSampleNumber(),0.);
+  String suffix;
   if(_calcul == CALCUL_KRIGING)
   {
     for(int i = 0 ; i< (int)_krigingMeshing.size(); i++)
     {
-      _krigingMeshing[i]->display();
       ProjMatrix proj(db,_krigingMeshing[i]);
       proj.mesh2point(_workKriging[i],temp);
       ut_vector_add_inplace(result,temp);
     }
+    suffix = "kriging";
   }
-  db->setField(result,"SPDE");
+  if(_calcul == CALCUL_SIMUNONCOND)
+  {
+    for(int i = 0 ; i< (int)_simuMeshing.size(); i++)
+    {
+      ProjMatrix proj(db,_simuMeshing[i]);
+      proj.mesh2point(_workingSimu[i],temp);
+      ut_vector_add_inplace(result,temp);
+    }
+    suffix = "simu";
+  }
+  int iptr = db->addFields(result,"SPDE",LOC_Z,true,TEST);
+  namconv.setNamesAndLocators(_data,LOC_Z,1,db,iptr,suffix,1,true);
 }
