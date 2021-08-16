@@ -37,6 +37,15 @@ int main(int argc, char *argv[])
   Db db(nech,{0.,0.},{1.,1.});
   db.display(FLAG_STATS);
 
+  Db dbprop= Db({100,100},{0.01,0.01},{0.,0.});
+
+  VectorDouble props({0.2, 0.5, 0.3});
+  int nfac = props.size();
+  VectorString names = generateMultipleNames("Props",nfac);
+  for (int ifac = 0; ifac < nfac; ifac++)
+    dbprop.addFields(1,props[ifac],names[ifac]);
+  dbprop.setLocator(names,LOC_P);
+
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
   double range1 = 0.2;
@@ -60,14 +69,6 @@ int main(int argc, char *argv[])
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
   rule.serialize(pygst+ "truerule.ascii");
-
-  // Prepare proportions
-  VectorDouble props({0.2, 0.5, 0.3});
-  int nfac = props.size();
-  VectorString names = generateMultipleNames("Props",nfac);
-  for (int ifac = 0; ifac < nfac; ifac++)
-    db.addFields(1,props[ifac],names[ifac]);
-  db.setLocator(names,LOC_P);
 
   // Perform a non-conditional simulation on the Db
   error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props);
@@ -113,12 +114,11 @@ int main(int argc, char *argv[])
   varioParam.addDirs(dir3);
   varioParam.setCalculName("vg");
 
-<<<<<<< HEAD
+
+  //RuleProp ruleprop2 = RuleProp((Rule*) NULL, &dbprop);
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
   Rule* ruleFit = rule_auto(&db,&varioParam,&ruleprop2,2,true);
-=======
-  Rule* ruleFit = rule_auto(&db,&varioParam,props,nullptr,flag_stat,1,true);
->>>>>>> d837b8026b503adafa898aad283814151e697bfa
+  //Rule* ruleFit = rule_auto(&db,&varioParam,props,nullptr,flag_stat,1,true);
   ruleFit->display(1);
   ruleprop2.setRule(ruleFit);
   ruleFit->serialize(pygst + "ruleFit.ascii");
