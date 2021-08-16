@@ -113,8 +113,12 @@ int main(int argc, char *argv[])
   varioParam.addDirs(dir3);
   varioParam.setCalculName("vg");
 
+<<<<<<< HEAD
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
   Rule* ruleFit = rule_auto(&db,&varioParam,&ruleprop2,2,true);
+=======
+  Rule* ruleFit = rule_auto(&db,&varioParam,props,nullptr,flag_stat,1,true);
+>>>>>>> d837b8026b503adafa898aad283814151e697bfa
   ruleFit->display(1);
   ruleprop2.setRule(ruleFit);
   ruleFit->serialize(pygst + "ruleFit.ascii");
