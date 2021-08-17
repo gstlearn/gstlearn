@@ -2629,6 +2629,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                        const Db *dbprop,
                                        const VectorDouble& propcst,
                                        Props *proploc);
+  GEOSLIB_API void propdef_reset(Props* propdef);
   GEOSLIB_API void proportion_print(Props *propdef);
 
   /******************************************/

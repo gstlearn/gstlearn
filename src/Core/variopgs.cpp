@@ -653,6 +653,13 @@ static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
         STAT_THRESH(ifac,1,1) = (double)
           ct_tableone_getrank_from_proba(CTABLES,t2max);
       }
+      else
+      {
+        STAT_THRESH(ifac,1,0) = (double)
+          ct_tableone_getrank_from_proba(CTABLES,-10.);
+        STAT_THRESH(ifac,1,1) = (double)
+          ct_tableone_getrank_from_proba(CTABLES,+10.);
+      }
     }
   }
 
@@ -676,7 +683,6 @@ static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
   if (ABS(total - 1.) > EPSILON3)
     messerr("In st_calculate_thresh_stat, the sum of Probabilities (%lf) is not close to 1.",
         total);
-
   return(0);
 }
 
@@ -762,7 +768,7 @@ static int st_vario_pgs_variable(int    mode,
         
         for (int i=0; i<nloop; i++)
         {
-          ifac = (flag_one) ? (int) db->getVariable(iech,0)-1 : i;
+          ifac = (flag_one) ? (int) db->getVariable(iech,0) : i+1;
           jfac = (flag_one) ? ifac : ifac+1;
           if (rule_thresh_define(propdef,db,rule,jfac,iech,0,0,0,
                                  &t1min,&t1max,&t2min,&t2max)) return(1);
@@ -815,7 +821,7 @@ static Rule *st_rule_encode(int *string)
 {
   Rule *rule;
 
-  rule   = (Rule *) NULL;
+  rule = (Rule *) NULL;
   VectorInt n_type = VectorInt(NRULE);
   VectorInt n_facs = VectorInt(NRULE);
 
@@ -1505,14 +1511,13 @@ static VectorDouble st_relem_evaluate(Relem *relem,
                                       int *r_opt)
 {
   int    *rules,*fipos;
-  int     nrule,indice,nmax,flag_check,flag_skip,igrf_cas,number,igrf_opt;
+  int     nrule,indice,nmax,flag_check,igrf_cas,number,igrf_opt;
   double  score_ref;
   VectorDouble scores;
 
   /* Initializations */
 
   flag_check = (int) get_keypone("Multi_Score_Check",0.);
-  flag_skip  = (int) get_keypone("Multi_Score_Skip_Print",0.);
   nmax       = (int) pow(2.,(double) NGRF);
   nrule      = relem->nrule;
   rules      = relem->Rrules;
@@ -1523,14 +1528,6 @@ static VectorDouble st_relem_evaluate(Relem *relem,
 
   scores.resize(nrule);
   
-  // Optional title printout
-
-  if (verbose)
-  {
-    if (! flag_skip)
-      mestitle(1,"List of Rules and corresponding scores:");
-  }
-
   *r_opt = number = 0;
   for (int ir=0; ir<nrule; ir++)
   {
@@ -1552,6 +1549,7 @@ static VectorDouble st_relem_evaluate(Relem *relem,
     {
       number++;
       scores[ir] = st_rule_calcul(local_pgs,&RULES(ir,0));
+      propdef_reset(local_pgs->propdef);
     }
 
     // When Multi_Score_Check, calculate the score even if already defined
@@ -1572,7 +1570,7 @@ static VectorDouble st_relem_evaluate(Relem *relem,
 
     if (verbose) 
     {
-      if (! flag_skip || indice < 0)
+      if (indice < 0)
         st_rule_print(ir,NRULE,rules,fipos,true,indice,igrf_opt,scores[ir]);
     }
 
@@ -4381,7 +4379,7 @@ static double st_get_proba(Local_Pgs *local_pgs,
     if (flag_ind)
     {
       proba = st_get_proba_ind(cov[0], low, up, iconf[0])
-          * st_get_proba_ind(cov[5], &low[2], &up[2], iconf[1]);
+            * st_get_proba_ind(cov[5], &low[2], &up[2], iconf[1]);
     }
     else
     {
@@ -5361,7 +5359,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   {
     // Calculate the variogram of Indicators
     varioind = (Vario*) vario->clone();
-    if (varioind->computeIndic(db,vario->getCalculName()))
+    if (varioind->computeIndic(db,"covnc"))
     {
       messerr("Error when calculating the Variogram of Indicators");
       goto label_end;
@@ -5371,7 +5369,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   if (st_check_test_discret(RULE_STD,0)) goto label_end;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
   if (st_vario_pgs_check(0,0,flag_stat,db,NULL,vario,varioind,NULL)) goto label_end;
-  vario->internalResize(db->getNDim(), ngrf, "cov");
+  vario->internalResize(db->getNDim(), ngrf, "covnc");
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,NCOLOR,0,
                               db,dbprop,propcst,propdef);
@@ -5381,7 +5379,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   /* Pre-calculation of integrals: Define the structure */
 
   if (TEST_DISCRET)
-    CTABLES = ct_tables_manage(1,verbose,1,200,100,-1.,1.,NULL);
+    CTABLES = ct_tables_manage(1,0,1,200,100,-1.,1.,NULL);
 
   /* Allocation */
 
@@ -5410,7 +5408,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
     if (st_variogram_geometry_pgs_final(&local_pgs)) goto label_end;
 
     // The thresholds are added lately in order to allow calculation of 
-    // geometry (without checking the threshold interval (not defined yst_relem_evaluateet)
+    // geometry (without checking the threshold interval (not defined yet)
     if (st_vario_pgs_variable(1,ngrf,NCOLOR,1,0,db,propdef,NULL)) goto label_end;
   }
 
@@ -5428,6 +5426,18 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
 
   fcmp.resize(NCOLOR);
   fgrf.resize(1+NGRF);
+  if (verbose)
+  {
+    mestitle(1, "List of Rules and corresponding scores:");
+    if (flag_stat)
+      message("Stationary case");
+    else
+      message("Non-stationary case");
+    if (TEST_DISCRET)
+      message(" (Discrete Integration)\n");
+    else
+      message("\n");
+  }
   scores = st_relem_evaluate(Pile_Relem,verbose,fgrf,fcmp,
                              &local_pgs,&nscore,&r_opt);
 
@@ -5453,7 +5463,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
 label_end:
   Pile_Relem = st_relem_free(Pile_Relem);
   if (TEST_DISCRET)
-    CTABLES = ct_tables_manage(-1,verbose,1,200,100,-1.,1.,CTABLES);
+    CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
   st_manage_pgs(-1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
                 flag_stat,1,0,ngrf,NCOLOR,vario->getCalculType());
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,NCOLOR,0,
