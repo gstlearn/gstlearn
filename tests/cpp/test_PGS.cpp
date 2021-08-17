@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option
-  set_test_discrete(0);
+  set_test_discrete(false);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
@@ -114,15 +114,13 @@ int main(int argc, char *argv[])
   varioParam.addDirs(dir3);
   varioParam.setCalculName("vg");
 
-
   //RuleProp ruleprop2 = RuleProp((Rule*) NULL, &dbprop);
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
   Rule* ruleFit = rule_auto(&db,&varioParam,&ruleprop2,2,true);
 
-
   ruleFit->display(1);
-  ruleprop2.setRule(ruleFit);
   ruleFit->serialize(pygst + "ruleFit.ascii");
+  ruleprop2.setRule(ruleFit);
 
 //  Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
 //  Vario varioIndic = Vario();
