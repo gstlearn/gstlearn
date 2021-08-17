@@ -34,7 +34,8 @@ public:
   int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
   VectorVectorDouble computeRhs(const VectorDouble& datVal) const;
   void computeRhs(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
-  void simulate(const VectorDouble& gauss,VectorVectorDouble& result) const;
+  void simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result) const;
+  void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,VectorDouble& result) const;
   void computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
 
 protected:
@@ -42,10 +43,11 @@ protected:
                    VectorVectorDouble& out) const override;
 
 private:
-  std::vector<PrecisionOp*> _multiPrecisionOp;
-  std::vector<IProjMatrix*> _multiProjData;
-  VectorDouble _varianceData; //dimension: _ndat
-  int    _ndat;
+  std::vector<PrecisionOp*>  _multiPrecisionOp;
+  std::vector<IProjMatrix*>  _multiProjData;
+  VectorDouble               _varianceData; //dimension: _ndat
+  int                        _ndat;
+  int                        _ncova;
   mutable VectorDouble       _work1;
   mutable VectorVectorDouble _work2;
 };

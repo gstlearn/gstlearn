@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
   dat.addFields(z,"variable",LOC_Z);
 
-  SPDE spde(model,workingDbc,&dat,CALCUL_SIMUNONCOND);
+  SPDE spde(model,workingDbc,&dat,CALCUL_SIMUCOND);
   spde.compute();
   spde.query(&workingDbc);
   workingDbc.serialize(pygst + "spde.ascii");

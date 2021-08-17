@@ -59,7 +59,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
         precision = new PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
-        _precisionsKriging.push_back(precision,nullptr);
+        _precisionsSimu.push_back(precision,nullptr);
         _workingSimu.push_back(VectorDouble(shiftOp->getSize()));
       }
       if(_calculKriging())
@@ -106,9 +106,8 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
   _precisionsKriging.setVarianceData(varianceData);
 }
 
-void SPDE::computeKriging() const
+void SPDE::computeKriging(const VectorDouble& datVect) const
 {
-  VectorDouble datVect = _data->getFieldByLocator(LOC_Z,0,true);
   VectorVectorDouble rhs = _precisionsKriging.computeRhs(datVect);
   _precisionsKriging.evalInverse(rhs,_workKriging);
 }
@@ -123,21 +122,37 @@ void SPDE::computeSimuNonCond(int nbsimus, int seed) const
     for(int icov = 0; icov < (int)_simuMeshing.size();icov++)
     {
       gauss = ut_vector_simulate_gaussian(_simuMeshing[icov]->getNApices());
-      _precisionsSimu.simulate(gauss,_workingSimu);
+      _precisionsSimu.simulateOnMeshing(gauss,_workingSimu);
     }
  }
+}
+
+void SPDE::computeSimuCond(int nbsimus, int seed) const
+{
+  computeSimuNonCond(nbsimus,seed);
+  VectorDouble temp(_data->getActiveSampleNumber());
+  _precisionsSimu.simulateOnDataPointFromMeshings(_workingSimu,temp);
+  ut_vector_multiply_inplace(temp,-1.);
+  ut_vector_add_inplace(temp,_data->getFieldByLocator(LOC_Z,0,true));
+  computeKriging(temp);
 }
 
 void SPDE::compute(int nbsimus, int seed) const
 {
   if(_calcul == CALCUL_KRIGING)
   {
-    computeKriging();
+    computeKriging(_data->getFieldByLocator(LOC_Z,0,true));
   }
 
-  if(_calculSimu())
+  if(_calcul == CALCUL_SIMUNONCOND)
   {
     computeSimuNonCond(nbsimus,seed);
+
+  }
+  if(_calcul == CALCUL_SIMUCOND)
+  {
+    computeSimuCond(nbsimus,seed);
+
   }
 }
 
@@ -186,16 +201,32 @@ void SPDE::query(Db* db, NamingConvention namconv)
     }
     suffix = "kriging";
   }
-  if(_calcul == CALCUL_SIMUNONCOND)
+  else if(_calcul == CALCUL_SIMUNONCOND)
   {
     for(int i = 0 ; i< (int)_simuMeshing.size(); i++)
     {
       ProjMatrix proj(db,_simuMeshing[i]);
       proj.mesh2point(_workingSimu[i],temp);
+      // TODO add nugget
       ut_vector_add_inplace(result,temp);
     }
     suffix = "simu";
   }
+  else if(_calcul == CALCUL_SIMUCOND)
+  {
+    for(int i = 0 ; i< (int)_simuMeshing.size(); i++)
+    {
+      ProjMatrix projSimu(db,_simuMeshing[i]);
+      projSimu.mesh2point(_workingSimu[i],temp);
+      ut_vector_add_inplace(result,temp);
+      ProjMatrix projKriging(db,_krigingMeshing[i]);
+      projKriging.mesh2point(_workKriging[i],temp);
+      ut_vector_add_inplace(result,temp);
+      // TODO add nugget
+     }
+      suffix = "condSimu";
+  }
+
   int iptr = db->addFields(result,"SPDE",LOC_Z,true,TEST);
   namconv.setNamesAndLocators(_data,LOC_Z,1,db,iptr,suffix,1,true);
 }

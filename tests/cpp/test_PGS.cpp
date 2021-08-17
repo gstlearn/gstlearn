@@ -29,12 +29,15 @@ int main(int argc, char *argv[])
   int ndim = 2;
   CovContext ctxt(1,2,1.);
 
+  // Prepare the Discrete process with Discretized Option
+  set_test_discrete(0);
+
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
   Db db(nech,{0.,0.},{1.,1.});
   db.display(FLAG_STATS);
 
-  Db dbprop = Db({100,100},{0.01,0.01},{0.,0.});
+  Db dbprop= Db({100,100},{0.01,0.01},{0.,0.});
 
   VectorDouble props({0.2, 0.5, 0.3});
   int nfac = props.size();
@@ -111,10 +114,12 @@ int main(int argc, char *argv[])
   varioParam.addDirs(dir3);
   varioParam.setCalculName("vg");
 
-  set_test_discrete(true);
-//  RuleProp ruleprop2 = RuleProp((Rule*) NULL, &dbprop);
+
+  //RuleProp ruleprop2 = RuleProp((Rule*) NULL, &dbprop);
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
   Rule* ruleFit = rule_auto(&db,&varioParam,&ruleprop2,2,true);
+
+
   ruleFit->display(1);
   ruleprop2.setRule(ruleFit);
   ruleFit->serialize(pygst + "ruleFit.ascii");
