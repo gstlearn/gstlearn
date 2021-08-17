@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
   //RuleProp ruleprop2 = RuleProp((Rule*) NULL, &dbprop);
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
   Rule* ruleFit = rule_auto(&db,&varioParam,&ruleprop2,2,true);
-  //Rule* ruleFit = rule_auto(&db,&varioParam,props,nullptr,flag_stat,1,true);
+
   ruleFit->display(1);
   ruleprop2.setRule(ruleFit);
   ruleFit->serialize(pygst + "ruleFit.ascii");

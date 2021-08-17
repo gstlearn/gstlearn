@@ -11,6 +11,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "Basic/Law.hpp"
 #include "geoslib_e.h"
 
 PrecisionOpMultiConditional::PrecisionOpMultiConditional()
@@ -18,6 +19,7 @@ PrecisionOpMultiConditional::PrecisionOpMultiConditional()
   ,_multiProjData(std::vector<IProjMatrix*>())
   ,_varianceData()
   ,_ndat(0)
+  ,_ncova(0)
   ,_work1(VectorDouble())
   ,_work2(VectorVectorDouble())
 {
@@ -54,15 +56,17 @@ void PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal, VectorV
 void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
                                             IProjMatrix* projDataElem)
 {
+
   _multiPrecisionOp.push_back(pmatElem);
   _work2.push_back(VectorDouble(pmatElem->getSize()));
-  if (_multiProjData.size() == 0 && projDataElem != nullptr)
+  if (size() == 0 && projDataElem != nullptr)
   {
     _ndat = projDataElem->getPointNumber(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
     _work1.resize(_ndat);
   }
   _multiProjData.push_back(projDataElem);
   _updated();
+  _ncova++;
 }
 
 /*****************************************************************************/
@@ -99,14 +103,34 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
   }
 }
 
-void PrecisionOpMultiConditional::simulate(const VectorDouble& gauss,VectorVectorDouble& result) const
+void PrecisionOpMultiConditional::simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result) const
 {
-  for(int icov=0;icov<(int)_multiPrecisionOp.size();icov++)
+  for(int icov=0;icov< size();icov++)
   {
     _multiPrecisionOp[icov]->eval(gauss,result[icov]);
   }
 }
 
+void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,
+                                                                  VectorDouble& result) const
+{
+  ut_vector_fill(result,0.,_ndat);
+  if(_work1.empty())
+  {
+    _work1.resize(_ndat);
+  }
+  for(int icov = 0; icov <  size(); icov++)
+  {
+    _multiProjData[icov]->mesh2point(simus[icov],_work1);
+    ut_vector_add_inplace(result,_work1);
+  }
+
+  for(int idat = 0; idat < _ndat; idat++)
+  {
+    result[idat]+= sqrt(_varianceData[idat]) * law_gaussian();
+  }
+
+}
 
 void PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const
 {

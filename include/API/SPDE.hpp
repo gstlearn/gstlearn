@@ -25,8 +25,9 @@ public:
             const Db* dat=nullptr,
             ENUM_CALCUL_MODE = CALCUL_SIMUCOND);
   void compute(int nbsimus = 1, int seed = 131323) const;
-  void computeKriging() const;
+  void computeKriging(const VectorDouble& vect) const;
   void computeSimuNonCond(int nbsimus = 1, int seed=131323) const;
+  void computeSimuCond(int nbsimus = 1, int seed=131323) const;
   void query(Db* db,NamingConvention namconv = NamingConvention("spde"));
   virtual ~SPDE();
 
