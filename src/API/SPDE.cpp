@@ -239,7 +239,10 @@ void SPDE::query(Db* db, NamingConvention namconv)
   namconv.setNamesAndLocators(_data,LOC_Z,1,db,iptr,suffix,1,true);
 }
 
-VectorDouble SPDE::computeCoeffs(const VectorVectorDouble& x)const
+VectorDouble SPDE::computeCoeffs() const
 {
-  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(LOC_Z,0,true),x);
+  // Loading the Vector of Drift values
+  VectorVectorDouble drifttab = _model->getDrifts(_data, true);
+
+  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(LOC_Z,0,true),drifttab);
 }

@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Drifts/ADriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
+#include "Db/Db.hpp"
 
 ADriftList::ADriftList(bool flagLinked, const ASpace* space)
     : ADrift(space),
@@ -229,4 +229,32 @@ void ADriftList::_updateCoefDrift()
             setCoefDrift(ivar, il, ib, (ivar == jvar && il == jl));
           }
   }
+}
+
+VectorDouble ADriftList::getDrift(const Db* db, int ib, bool useSel)
+{
+  if (! _isDriftIndexValid(ib)) return VectorDouble();
+
+  int nech = db->getActiveSampleNumber();
+  VectorDouble vec(nech);
+
+  int ecr = 0;
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
+  {
+    if (! db->isActive(iech)) continue;
+    vec[ecr++] = _drifts[ib]->eval(db, iech);
+  }
+  return vec;
+}
+
+VectorVectorDouble ADriftList::getDrifts(const Db* db, bool useSel)
+{
+  int ndrift = _drifts.size();
+
+  VectorVectorDouble vec;
+  for (int ib=0; ib<ndrift; ib++)
+  {
+    vec.push_back(getDrift(db, ib, useSel));
+  }
+  return vec;
 }

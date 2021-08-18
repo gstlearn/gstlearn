@@ -96,9 +96,11 @@ public:
   int getDriftEquationNumber()                     const { return _driftList->getDriftEquationNumber(); }
   bool isDriftFiltered(unsigned int il)            const { return _driftList->isFiltered(il); }
 
-  void setCoefDrift(int ivar, int il, int ib, double coeff) { _driftList->setCoefDrift(ivar, il, ib, coeff); }
-  void setCoefDrift(int rank, double coeff)                 { _driftList->setCoefDrift(rank, coeff); }
-  void setDriftFiltered(int il, bool filtered)              { _driftList->setFiltered(il, filtered); }
+  void setCoefDrift(int ivar, int il, int ib, double coeff)     { _driftList->setCoefDrift(ivar, il, ib, coeff); }
+  void setCoefDrift(int rank, double coeff)                     { _driftList->setCoefDrift(rank, coeff); }
+  void setDriftFiltered(int il, bool filtered)                  { _driftList->setFiltered(il, filtered); }
+  VectorDouble getDrift(const Db* db, int ib, bool useSel=true) { return _driftList->getDrift(db,ib,useSel); }
+  VectorVectorDouble getDrifts(const Db* db, bool useSel=true)  { return _driftList->getDrifts(db, useSel); }
 
   double evaluateDrift(const Db* db, int iech, int il, int member = MEMBER_LHS) const;
   /////////////////////////////////////////////////

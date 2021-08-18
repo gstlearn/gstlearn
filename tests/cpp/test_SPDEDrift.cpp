@@ -33,9 +33,11 @@ int main(int argc, char *argv[])
   ///////////////////////
   // Creating the Model
   Model model = Model(&workingDbc);
+
   CovAniso cova = CovAniso(COV_BESSEL_K,model.getContext());
   cova.setRanges({20,20});
   model.addCova(&cova);
+
   model.addDrift({"1","f1"});
 
   NoStatArray NoStat({"A"},&workingDbc);
@@ -56,10 +58,7 @@ int main(int argc, char *argv[])
   dat.display(1);
 
   SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
-  VectorVectorDouble u;
-  u.push_back(VectorDouble(ndata,1.));
-  u.push_back(dat.getField("x.1"));
-  VectorDouble result = spde.computeCoeffs(u);
+  VectorDouble result = spde.computeCoeffs();
   ut_vector_display("Coeffs",result);
   return 0;
 }
