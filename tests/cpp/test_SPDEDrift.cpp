@@ -9,7 +9,6 @@
 #include "Model/NoStatArray.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 
-
 /****************************************************************************/
 /*!
  ** Main Program
@@ -21,13 +20,11 @@ int main(int argc, char *argv[])
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int seed = 10355;
   law_set_random_seed(seed);
+
   ///////////////////////
   // Création de la db //
-
   auto nx={ 101,101 };
   Db workingDbc(nx);
-
-
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(&workingDbc);
@@ -39,10 +36,12 @@ int main(int argc, char *argv[])
   CovAniso cova = CovAniso(COV_BESSEL_K,model.getContext());
   cova.setRanges({20,20});
   model.addCova(&cova);
-
+  model.addDrift({"1","f1"});
 
   NoStatArray NoStat({"A"},&workingDbc);
   model.addNoStat(&NoStat);
+
+  model.display(1);
 
   // Creating Data
   auto ndata = 500;
@@ -53,6 +52,8 @@ int main(int argc, char *argv[])
   ut_vector_add_inplace(z,drift);
   ut_vector_addval(z,10);
   dat.addFields(z,"variable",LOC_Z);
+  dat.addFields(drift,"Drift",LOC_F);
+  dat.display(1);
 
   SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
   VectorVectorDouble u;

@@ -11,13 +11,12 @@ class PGSSPDE
 {
 public:
   PGSSPDE(std::vector<Model> models,
-         const Db& field,
-         RuleProp ruleprop,
-         const Db* dat=nullptr);
+          const Db& field,
+          RuleProp ruleprop,
+          const Db* dat = nullptr);
   void gibbs(int niter) const;
   virtual ~PGSSPDE();
 private:
   std::vector<SPDE> _spdeTab;
   RuleProp _ruleProp;
 };
-
