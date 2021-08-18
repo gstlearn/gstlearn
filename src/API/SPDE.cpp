@@ -11,6 +11,11 @@
 #include "Db/Db.hpp"
 #include <iostream>
 
+SPDE::SPDE()
+{
+
+}
+
 SPDE::SPDE(Model& model,const Db& field,const Db* dat,ENUM_CALCUL_MODE calc)
 {
     init(model,field,dat,calc);

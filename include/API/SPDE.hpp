@@ -15,6 +15,7 @@ class ShiftOpCs;
 class SPDE
 {
 public:
+  SPDE();
   SPDE(Model& model,
        const Db& field,
        const Db* dat=nullptr,
