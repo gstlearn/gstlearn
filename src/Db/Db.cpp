@@ -1233,7 +1233,7 @@ int Db::addFields(const VectorDouble& tab,
                         getSampleNumber();
   if ((int) tab.size() != nvar * nech)
   {
-    messerr("Incompatibility between dimension of 'tab' (%d)", tab.size());
+    messerr("Db::addFields : Incompatibility between dimension of 'tab' (%d)", tab.size());
     messerr("and 'nvar'(%d) * 'nech'(%d)", nvar, nech);
     return 1;
   }
