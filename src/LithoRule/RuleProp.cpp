@@ -242,7 +242,7 @@ int RuleProp::categoryToThresh(Db *db, NamingConvention namconv)
  * @param namconv Naming convention
  * @return Error return code
  */
-int RuleProp::computeAllThreshs(Db *db, NamingConvention namconv)
+int RuleProp::computeAllThreshes(Db *db, NamingConvention namconv)
 {
   if (_rule->getModeRule() != RULE_STD)
   {

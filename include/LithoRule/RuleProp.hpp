@@ -42,7 +42,7 @@ public:
   int fit(Db* db, Vario* vario, int ngrfmax = 1, bool verbose = false);
   int gaussToCategory(Db* db, NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
   int categoryToThresh(Db *db, NamingConvention namconv = NamingConvention("Bounds"));
-  int computeAllThreshs(Db *db, NamingConvention namconv = NamingConvention("Thresh"));
+  int computeAllThreshes(Db *db, NamingConvention namconv = NamingConvention("Thresh"));
 
 private:
   bool _checkConsistency();
