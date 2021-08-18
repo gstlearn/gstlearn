@@ -58,7 +58,7 @@ public:
                           double t2min,
                           double t2max);
   int  gaussianToFacies(double y1, double y2, double *facies);
-  void getInfo(int *nodes);
+  void getInfo(int *nodes) const;
 
   String nodePrint(bool flagProp, bool flagThresh) const;
   String nodePrintShadow(bool flagProp, bool flagThresh) const;
@@ -106,7 +106,7 @@ private:
                 int *rank,
                 int *n_fac,
                 int *n_y1,
-                int *n_y2);
+                int *n_y2) const;
   double _transform(int mode, double value);
   double _threshFromPropcum(double rho);
   double _threshDichotomy(double rho);

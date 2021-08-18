@@ -48,7 +48,7 @@ public:
 public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) const override;
 
   /// TODO : to be converted as internal member
   const CovContext& getContext() const { return _ctxt; }

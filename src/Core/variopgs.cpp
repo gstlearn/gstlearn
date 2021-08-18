@@ -4082,7 +4082,7 @@ static int st_vario_pgs_check(int    flag_db,
                               int    flag_varioind,
                               Db    *db,
                               const Db    *dbprop,
-                              Vario *vario,
+                              const Vario *vario,
                               Vario *varioind,
                               Rule  *rule)
 {
@@ -5302,17 +5302,15 @@ GEOSLIB_API int variogram_pgs(Db*       db,
 **
 ** \param[in]  db           Db structure
 ** \param[in]  vario        Vario structure for the GRFs to be filled
-** \param[in]  propcst      Array of proportions for the facies
-** \param[in]  dbprop       Db Grid used for proportions (non-stationary)
-** \param[in]  flag_stat    1 for stationary and 0 otherwise
-** \param[in]  ngrf         Number of underlying GRFs (1 or 2)
+** \param[in]  ruleprop     RuleProp structure
+** \param[in]  ngrfmax      Maximum number of underlying GRFs (1 or 2)
 ** \param[in]  verbose      Verbose flag
 **
 *****************************************************************************/
 GEOSLIB_API Rule *rule_auto(Db*       db,
                             Vario*    vario,
                             RuleProp* ruleprop,
-                            int       ngrf,
+                            int       ngrfmax,
                             int       verbose)
 {
   if (ruleprop == nullptr)
@@ -5341,7 +5339,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   Props* propdef      = (Props *) NULL;
 
   NCOLOR       = db->getFaciesNumber();
-  NGRF         = ngrf;
+  NGRF         = ngrfmax;
   NRULE        = 2 * NCOLOR - 1;
   BASE         = 2 * NGRF;
   flag_rho     = 0;
@@ -5369,10 +5367,9 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   if (st_check_test_discret(RULE_STD,0)) goto label_end;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
   if (st_vario_pgs_check(0,0,flag_stat,db,NULL,vario,varioind,NULL)) goto label_end;
-  vario->internalResize(db->getNDim(), ngrf, "covnc");
+  vario->internalResize(db->getNDim(), NGRF, "covnc");
 
-  propdef = proportion_manage(1,1,flag_stat,ngrf,0,NCOLOR,0,
-                              db,dbprop,propcst,propdef);
+  propdef = proportion_manage(1,1,flag_stat,NGRF,0,NCOLOR,0,db,dbprop,propcst,propdef);
   if (propdef == (Props *) NULL) goto label_end;
   proportion_rule_process(propdef,0);
   
@@ -5384,7 +5381,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   /* Allocation */
 
   st_manage_pgs(1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
-                flag_stat,1,0,ngrf,NCOLOR,vario->getCalculType());
+                flag_stat,1,0,NGRF,NCOLOR,vario->getCalculType());
 
   if (flag_stat)
   {
@@ -5409,7 +5406,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
 
     // The thresholds are added lately in order to allow calculation of 
     // geometry (without checking the threshold interval (not defined yet)
-    if (st_vario_pgs_variable(1,ngrf,NCOLOR,1,0,db,propdef,NULL)) goto label_end;
+    if (st_vario_pgs_variable(1,NGRF,NCOLOR,1,0,db,propdef,NULL)) goto label_end;
   }
 
   /* Elaborate the whole tree of possible Lithotype Rules */
@@ -5465,8 +5462,8 @@ label_end:
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
   st_manage_pgs(-1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
-                flag_stat,1,0,ngrf,NCOLOR,vario->getCalculType());
-  propdef = proportion_manage(-1,1,flag_stat,ngrf,0,NCOLOR,0,
+                flag_stat,1,0,NGRF,NCOLOR,vario->getCalculType());
+  propdef = proportion_manage(-1,1,flag_stat,NGRF,0,NCOLOR,0,
                               db,dbprop,propcst,propdef);
   if (error) rule = rule_free(rule);
   return(rule);

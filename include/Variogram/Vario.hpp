@@ -40,7 +40,7 @@ public:
 public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override;
 
   void addDirs(const Dir& dir);

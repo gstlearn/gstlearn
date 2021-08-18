@@ -69,9 +69,10 @@ int main(int argc, char *argv[])
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
   rule.serialize(pygst+ "truerule.ascii");
+  RuleProp ruleprop = RuleProp(&rule, props);
 
   // Perform a non-conditional simulation on the Db
-  error = simpgs(nullptr,&db,nullptr,&rule,&model1,&model2,&neigh,props);
+  error = simpgs(nullptr,&db,&ruleprop,&model1,&model2,&neigh);
   db.setLocator(db.getLastName(),LOC_Z);
 
   // Determination of the variogram of the Underlying GRF
@@ -80,7 +81,6 @@ int main(int argc, char *argv[])
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
   cov.addDirs(dir);
 
-  RuleProp ruleprop = RuleProp(&rule, props);
 //  error = variogram_pgs(&db,&cov,&ruleprop);
 //  Vario vario1(cov,VectorInt(1,0),VectorInt(),true);
 //  Vario vario2(cov,VectorInt(1,1),VectorInt(),true);
@@ -116,11 +116,9 @@ int main(int argc, char *argv[])
 
   //RuleProp ruleprop2 = RuleProp((Rule*) NULL, &dbprop);
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
-  Rule* ruleFit = rule_auto(&db,&varioParam,&ruleprop2,2,true);
-
-  ruleFit->display(1);
-  ruleFit->serialize(pygst + "ruleFit.ascii");
-  ruleprop2.setRule(ruleFit);
+  error = ruleprop2.fit(&db, &varioParam, 2, true);
+  ruleprop2.getRule()->display(1);
+//  ruleprop2.getRule()->serialize(pygst + "ruleFit.ascii");
 
 //  Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
 //  Vario varioIndic = Vario();

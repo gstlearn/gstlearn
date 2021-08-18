@@ -5621,15 +5621,12 @@ label_end:
 **
 ** \param[in]  dbin        Input Db structure (optional)
 ** \param[in]  dbout       Output Db structure
-** \param[in]  dbprop      Db structure used for proportions (non-stat. case)
-** \param[in]  rule        Lithotype Rule definition
+** \param[in]  ruleprop    RuleProp structure
 ** \param[in]  model1      First Model structure
 ** \param[in]  model2      Second Model structure (optional)
 ** \param[in]  neigh       Neighborhood structure
-** \param[in]  propcst     Array of constant proportions for the facies
 ** \param[in]  nbsimu      Number of simulations
 ** \param[in]  seed        Seed for random number generator
-** \param[in]  flag_stat   1 for stationary; 0 otherwise
 ** \param[in]  flag_gaus   1 if results must be gaussian; otherwise facies
 ** \param[in]  flag_modif  1 for facies proportion
 ** \param[in]  flag_check  1 if the facies at data must be checked against
@@ -5654,15 +5651,12 @@ label_end:
 *****************************************************************************/
 GEOSLIB_API int simpgs(Db *dbin,
                        Db *dbout,
-                       Db *dbprop,
-                       Rule *rule,
+                       RuleProp* ruleprop,
                        Model *model1,
                        Model *model2,
                        Neigh *neigh,
-                       const VectorDouble& propcst,
                        int nbsimu,
                        int seed,
-                       int flag_stat,
                        int flag_gaus,
                        int flag_modif,
                        int flag_check,
@@ -5698,14 +5692,25 @@ GEOSLIB_API int simpgs(Db *dbin,
   iptr_RP   = iptr_RF = iptr_DF = nfacies = 0;
   iptr      = -1;
   law_set_random_seed(seed);
-  if (rule->getModeRule() == RULE_SHADOW)
+
+  if (ruleprop == nullptr)
   {
-    if (rule->particularities_shadow(dbout,dbprop,model1,1,flag_stat))
+    messerr("RuleProp must be defined");
+    return 1;
+  }
+  int flag_stat = ruleprop->isFlagStat();
+  Rule rule(*ruleprop->getRule());
+  const VectorDouble& propcst = ruleprop->getPropCst();
+  const Db* dbprop = ruleprop->getDbprop();
+
+  if (rule.getModeRule() == RULE_SHADOW)
+  {
+    if (rule.particularities_shadow(dbout,dbprop,model1,1,flag_stat))
       goto label_end;
   }
   else
   {
-    if (rule->particularities(dbout,dbprop,model1,1,flag_stat))
+    if (rule.particularities(dbout,dbprop,model1,1,flag_stat))
       goto label_end;
   }
   if (st_check_simtub_environment(dbin,dbout,model1,neigh)) goto label_end;
@@ -5731,7 +5736,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Model */
   for (igrf=0; igrf<2; igrf++)
   {
-    flag_used[igrf] = rule->isYUsed(igrf);
+    flag_used[igrf] = rule.isYUsed(igrf);
     if (! flag_used[igrf]) continue;
     ngrf++;
     if (models[igrf] == (Model *) NULL)
@@ -5780,7 +5785,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Add the attributes */
   /**********************/
 
-  nfacies = rule->getFaciesNumber();
+  nfacies = rule.getFaciesNumber();
   /* Storage of the facies proportions */
   if (flag_modif)
   {
@@ -5837,7 +5842,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   simu_define_func_update(simu_func_categorical_update);
   simu_define_func_scale (simu_func_categorical_scale);
   ModCat.props = propdef;
-  ModCat.rule  = rule;
+  ModCat.rule  = &rule;
   ModCat.ipgs  = 0;
   ModCat.flag_used[0] = flag_used[0];
   ModCat.flag_used[1] = flag_used[1];
@@ -5853,7 +5858,7 @@ GEOSLIB_API int simpgs(Db *dbin,
 
     /* Initialize the Gibbs calculations */
 
-    st_init_gibbs_params(rule->getRho());
+    st_init_gibbs_params(rule.getRho());
     
     for (igrf=0; igrf<2; igrf++)
     {
@@ -5868,14 +5873,14 @@ GEOSLIB_API int simpgs(Db *dbin,
       
       for (isimu=0; isimu<nbsimu; isimu++)
       {
-        if (rule->getModeRule() == RULE_SHADOW)
+        if (rule.getModeRule() == RULE_SHADOW)
         {
-          if (rule_evaluate_bounds_shadow(propdef,dbin,dbout,rule,isimu,
+          if (rule_evaluate_bounds_shadow(propdef,dbin,dbout,&rule,isimu,
                                           igrf,0,nbsimu,delta)) goto label_end;
         }
         else
         {
-          if (rule_evaluate_bounds(propdef,dbin,dbout,rule,isimu,
+          if (rule_evaluate_bounds(propdef,dbin,dbout,&rule,isimu,
                                    igrf,0,nbsimu)) goto label_end;
         }
         
@@ -5936,7 +5941,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Check/show facies at data against facies at the closest grid node */
   
   if (flag_cond && ! flag_gaus && (flag_check || flag_show))
-    st_check_facies_data2grid(propdef,dbin,dbout,rule,flag_used,
+    st_check_facies_data2grid(propdef,dbin,dbout,&rule,flag_used,
                               flag_stat,flag_check,flag_show,0,
                               nechin,nvar,nfacies,nbsimu);
 
@@ -7384,14 +7389,11 @@ label_end:
 **
 ** \param[in]  dbin        Input Db structure (optional)
 ** \param[in]  dbout       Output Db structure
-** \param[in]  dbprop      Db structure used for proportions (non-stat. case)
-** \param[in]  rule        Lithotype Rule definition
+** \param[in]  ruleprop    RuleProp definition
 ** \param[in]  model1      First Model structure
 ** \param[in]  model2      Second Model structure (optional)
-** \param[in]  propcst     Array of proportions for the facies
 ** \param[in]  triswitch   Meshing option
 ** \param[in]  gext        Array of domain dilation
-** \param[in]  flag_stat   1 for stationary; 0 otherwise
 ** \param[in]  flag_gaus   1 if results must be gaussian; otherwise facies
 ** \param[in]  flag_modif  1 for facies proportion
 ** \param[in]  flag_check  1 if the facies at data must be checked against
@@ -7412,16 +7414,13 @@ label_end:
 ** \remark  should correspond to the facies index (starting from 1)
 **
 *****************************************************************************/
-GEOSLIB_API int simpgs_spde(Db     *dbin,
-                            Db     *dbout,
-                            Db     *dbprop,
-                            Rule   *rule,
-                            Model  *model1,
-                            Model  *model2,
-                            const VectorDouble& propcst,
+GEOSLIB_API int simpgs_spde(Db       *dbin,
+                            Db       *dbout,
+                            RuleProp *ruleprop,
+                            Model    *model1,
+                            Model    *model2,
                             const String& triswitch,
                             const VectorDouble& gext,
-                            int     flag_stat,
                             int     flag_gaus,
                             int     flag_modif,
                             int     flag_check,
@@ -7454,12 +7453,23 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
   iptr      = -1;
   flag_cond = (dbin != (Db *) NULL);
   law_set_random_seed(seed);
-  if (rule->getModeRule() == RULE_SHADOW)
+
+  if (ruleprop == nullptr)
+  {
+    messerr("RuleProp must be defined");
+    return 1;
+  }
+  int flag_stat = ruleprop->isFlagStat();
+  Rule rule(*ruleprop->getRule());
+  const VectorDouble& propcst = ruleprop->getPropCst();
+  const Db* dbprop = ruleprop->getDbprop();
+
+  if (rule.getModeRule() == RULE_SHADOW)
   {
     messerr("The 'Shadow' rule is not authorized");
     goto label_end;
   }
-  if (rule->particularities(dbout,dbprop,model1,1,flag_stat)) goto label_end;
+  if (rule.particularities(dbout,dbprop,model1,1,flag_stat)) goto label_end;
 
   /**********************/
   /* Preliminary checks */
@@ -7487,7 +7497,7 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
   /* Model */
   for (igrf=0; igrf<2; igrf++)
   {
-    flag_used[igrf] = rule->isYUsed(igrf);
+    flag_used[igrf] = rule.isYUsed(igrf);
     if (! flag_used[igrf]) continue;
     ngrf++;
     if (models[igrf] == (Model *) NULL)
@@ -7553,7 +7563,7 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
   simu_define_func_update(simu_func_categorical_update);
   simu_define_func_scale (simu_func_categorical_scale);
   ModCat.props = propdef;
-  ModCat.rule  = rule;
+  ModCat.rule  = &rule;
   ModCat.ipgs  = 0;
   ModCat.flag_used[0] = flag_used[0];
   ModCat.flag_used[1] = flag_used[1];
@@ -7566,7 +7576,7 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
 
   /* Initialize the Gibbs calculations */
 
-  st_init_gibbs_params(rule->getRho());
+  st_init_gibbs_params(rule.getRho());
     
   if (flag_cond)
     for (igrf=0; igrf<2; igrf++)
@@ -7574,7 +7584,7 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
       if (! flag_used[igrf]) continue;
       for (int isimu=0; isimu<nbsimu; isimu++)
       {
-        if (rule_evaluate_bounds(propdef,dbin,dbout,rule,isimu,
+        if (rule_evaluate_bounds(propdef,dbin,dbout,&rule,isimu,
                                  igrf,0,nbsimu)) goto label_end;
       }
     }
@@ -7590,7 +7600,7 @@ GEOSLIB_API int simpgs_spde(Db     *dbin,
   /* Check/show facies at data against facies at the closest grid node */
   
   if (flag_cond && ! flag_gaus && (flag_check || flag_show))
-    st_check_facies_data2grid(propdef,dbin,dbout,rule,flag_used,
+    st_check_facies_data2grid(propdef,dbin,dbout,&rule,flag_used,
                               flag_stat,flag_check,flag_show,0,
                               nechin,nvar,nfacies,nbsimu);
   

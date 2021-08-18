@@ -11,8 +11,11 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
-
 #include "LithoRule/Rule.hpp"
+#include "Basic/NamingConvention.hpp"
+
+class Db;
+class Vario;
 
 class RuleProp : public AStringable
 {
@@ -36,6 +39,11 @@ public:
   const Rule* getRule() const { return _rule; }
   void setRule(const Rule* rule) { _rule = rule; }
 
+  int fit(Db* db, Vario* vario, int ngrfmax = 1, bool verbose = false);
+  int gaussToCategory(Db* db, NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
+  int categoryToThresh(Db *db, NamingConvention namconv = NamingConvention("Bounds"));
+  int computeAllThreshs(Db *db, NamingConvention namconv = NamingConvention("Thresh"));
+
 private:
   bool _checkConsistency();
   int _getNFacies();
@@ -45,5 +53,5 @@ private:
   VectorDouble _propcst;
   const Db* _dbprop;
   const Rule* _rule;
-  bool _ruleInternal;
+  bool _ruleInternal; // TRUE if a fictitious rule has been established internally
 };

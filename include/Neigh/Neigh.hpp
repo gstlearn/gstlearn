@@ -37,7 +37,7 @@ public:
 
   virtual std::string toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) const override;
 
   const VectorDouble& getAnisoCoeff() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }

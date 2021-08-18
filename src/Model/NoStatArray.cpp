@@ -86,7 +86,7 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
   // Preliminary checks
   if (_dbnostat == nullptr)
   {
-    messerr("Dbnostat must be defined beforehand");
+    messerr("dbNoStat must be defined beforehand");
     return 1;
   }
 

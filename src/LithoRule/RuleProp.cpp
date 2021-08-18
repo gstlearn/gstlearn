@@ -12,6 +12,7 @@
 #include "LithoRule/Rule.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
+#include "geoslib_f_private.h"
 
 RuleProp::RuleProp()
     : _flagStat(true),
@@ -192,4 +193,61 @@ int RuleProp::_getNFacies()
   }
 
   return 0;
+}
+
+int RuleProp::fit(Db* db, Vario* vario, int ngrfmax, bool verbose)
+{
+  Rule* ruleFit = rule_auto(db,vario,this,ngrfmax,verbose);
+  if (ruleFit == nullptr) return 1;
+  setRule(ruleFit);
+  return 0;
+}
+
+/**
+ * Convert a set of Gaussian vectors into the corresponding Facies in a Db
+ * @param db      Pointer to the Db structure (in/out)
+ * @param namconv Naming convention
+ * @return Error return code
+ * @remarks The input variables must be locatorized Z or SIMU
+ */
+int RuleProp::gaussToCategory(Db* db, NamingConvention namconv)
+{
+  if (_rule->getModeRule() != RULE_STD)
+  {
+    messerr("This method is only available for RULE_STD type of Rule");
+    return 1;
+  }
+  return db_rule(db, this, nullptr, namconv);
+}
+
+/**
+ * Derive the bounds variables for a Db (depending on the Category information of each sample)
+ * @param db      Pointer to the Db structure (in/out)
+ * @param namconv Naming convention
+ * @return Error return code
+ */
+int RuleProp::categoryToThresh(Db *db, NamingConvention namconv)
+{
+  if (_rule->getModeRule() != RULE_STD)
+  {
+    messerr("This method is only available for RULE_STD type of Rule");
+    return 1;
+  }
+  return db_bounds(db, this, nullptr, namconv);
+}
+
+/**
+ * Calculate all the thresholds at each sample of a Db
+ * @param db      Pointer to the Db structure (in/out)
+ * @param namconv Naming convention
+ * @return Error return code
+ */
+int RuleProp::computeAllThreshs(Db *db, NamingConvention namconv)
+{
+  if (_rule->getModeRule() != RULE_STD)
+  {
+    messerr("This method is only available for RULE_STD type of Rule");
+    return 1;
+  }
+  return db_threshold(db, this, nullptr, namconv);
 }

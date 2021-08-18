@@ -18,10 +18,7 @@
 #include "Variogram/Vario.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Model/ANoStat.hpp"
-
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#include "LithoRule/RuleProp.hpp"
 
 /***********************************************/
 /* Prototyping the functions in dirent_win32.c */
@@ -74,8 +71,16 @@ GEOSLIB_API int _variogram_compute(Db* db,
 /****************************************/
 
 GEOSLIB_API int krigsim(const char *string,
-      Db *dbin,Db *dbout,Model *model,Neigh *neigh,
-      double *dmean,double *dcov,int icase,int nbsimu,int flag_dgm,double rval);
+                        Db *dbin,
+                        Db *dbout,
+                        Model *model,
+                        Neigh *neigh,
+                        double *dmean,
+                        double *dcov,
+                        int icase,
+                        int nbsimu,
+                        int flag_dgm,
+                        double rval);
 
 /*****************************************/
 /* Prototyping the functions in simtub.c */
@@ -109,6 +114,24 @@ GEOSLIB_API int spde_chebychev_operate(cs *S,Cheb_Elem *cheb_elem,
                                        const VectorDouble& lambda,
                                        const double *x,
                                        double *y);
+GEOSLIB_API Rule *rule_auto(Db *db,
+                            Vario *vario,
+                            RuleProp* ruleprop,
+                            int ngrfmax = 1,
+                            int verbose = false);
+GEOSLIB_API int db_rule(Db* db,
+                        RuleProp* ruleprop,
+                        Model *model = nullptr,
+                        NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
+GEOSLIB_API int db_bounds(Db *db,
+                          RuleProp* ruleprop,
+                          Model *model = nullptr,
+                          NamingConvention namconv = NamingConvention("Bounds"));
+GEOSLIB_API int db_threshold(Db *db,
+                             RuleProp* ruleprop,
+                             Model *model = nullptr,
+                             NamingConvention namconv = NamingConvention("Thresh"));
+
 
 /*************************************/
 /* Prototyping the functions in db.c */
@@ -129,9 +152,5 @@ GEOSLIB_API int db_category(Db *db,
                             const VectorBool& incmini = VectorBool(),
                             const VectorBool& incmaxi = VectorBool(),
                             NamingConvention namconv = NamingConvention("Category"));
-
-//#ifdef __cplusplus
-//}
-//#endif
 
 #endif

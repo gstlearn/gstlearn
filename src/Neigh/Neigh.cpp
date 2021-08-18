@@ -441,7 +441,7 @@ void Neigh::_init(int ndim,
   }
 }
 
-int Neigh::serialize(const String& filename, bool verbose)
+int Neigh::serialize(const String& filename, bool verbose) const
 {
   int ecr;
   if (_fileOpen(filename, "Neigh", "w", verbose)) return 1;

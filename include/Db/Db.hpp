@@ -89,7 +89,7 @@ public:
 public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) const override;
 
   const VectorDouble& getArrays() const { return _array; }
   String getNameByColumn(int icol) const { return _colNames[icol]; }
@@ -192,7 +192,7 @@ public:
   VectorInt getAttributes(ENUM_LOCS locatorType) const;
   VectorInt getAttributes() const;
   VectorInt getAttributesBasic(const VectorString& names) const;
-  int getFaciesNumber(void);
+  int getFaciesNumber(void) const;
 
   // Accessing elements of the contents
 
@@ -556,7 +556,7 @@ private:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
-  int  _variableWrite(bool flag_grid);
+  int  _variableWrite(bool flag_grid) const;
   void _variableRead(int *natt_r,
                      int *ndim_r,
                      int *nech_r,

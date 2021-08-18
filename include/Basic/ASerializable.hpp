@@ -20,7 +20,7 @@ public:
   virtual ~ASerializable() {};
 
   virtual int deSerialize(const String& filename, bool verbose = false) = 0;
-  virtual int serialize(const String& filename, bool verbose = false) = 0;
+  virtual int serialize(const String& filename, bool verbose = false) const = 0;
 
   const String& getCurrentRecord() const { return _currentRecord; }
   const FILE*   getFile() const { return _file; }
@@ -31,17 +31,17 @@ protected:
   int _fileOpen(const String& filename,
                 const String& filetype,
                 const String& mode,
-                bool verbose = false);
-  int  _fileClose(bool verbose = false);
-  int  _recordRead(const String& title, String format, ...); // No ref here
-  void _recordWrite(String format, ...); // No ref here
-  int  _fileRead(const String& format, va_list ap);
-  void _fileWrite(const String& format, va_list ap);
-  bool _onlyBlanks(char *string);
+                bool verbose = false) const;
+  int  _fileClose(bool verbose = false) const;
+  int  _recordRead(const String& title, String format, ...) const;
+  void _recordWrite(String format, ...) const;
+  int  _fileRead(const String& format, va_list ap) const;
+  void _fileWrite(const String& format, va_list ap) const;
+  bool _onlyBlanks(char *string) const;
 
 private:
-  String _fileName;
-  String _fileType;
-  FILE*  _file;
-  String _currentRecord;
+  mutable String _fileName;
+  mutable String _fileType;
+  mutable FILE*  _file;
+  mutable String _currentRecord;
 };
