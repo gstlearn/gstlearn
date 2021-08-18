@@ -36,7 +36,7 @@ public:
   virtual ~Polygons();
 
   int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) const override;
   virtual std::string toString(int level = 0) const override;
 
   int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }

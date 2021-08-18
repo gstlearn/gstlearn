@@ -527,10 +527,8 @@ int Model::deSerialize(const String& filename, bool verbose)
   return 0;
 }
 
-int Model::serialize(const String& filename, bool verbose)
+int Model::serialize(const String& filename, bool verbose) const
 {
-  ADriftElem *drift;
-
   if (_fileOpen(filename, "Model", "w", verbose)) return 1;
 
   /* Write the Model structure */
@@ -549,7 +547,7 @@ int Model::serialize(const String& filename, bool verbose)
 
   for (int icova = 0; icova < getCovaNumber(); icova++)
   {
-    CovAniso* cova = getCova(icova);
+    const CovAniso* cova = getCova(icova);
     _recordWrite("%d",  cova->getType());
     _recordWrite("%lf", cova->getRange());
     _recordWrite("%lf", cova->getParam());
@@ -578,7 +576,7 @@ int Model::serialize(const String& filename, bool verbose)
 
   for (int ibfl = 0; ibfl < getDriftNumber(); ibfl++)
   {
-    drift = getDrift(ibfl);
+    const ADriftElem* drift = getDrift(ibfl);
     _recordWrite("%d", drift->getType());
     _recordWrite("#", "Drift characteristics");
   }

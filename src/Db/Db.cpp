@@ -3403,7 +3403,7 @@ int Db::deSerialize(const String& filename, bool verbose)
   return 0;
 }
 
-int Db::serialize(const String& filename, bool verbose)
+int Db::serialize(const String& filename, bool verbose) const
 {
   bool flag_grid = isGrid();
 
@@ -3446,7 +3446,7 @@ int Db::serialize(const String& filename, bool verbose)
   return 0;
 }
 
-int Db::_variableWrite(bool flag_grid)
+int Db::_variableWrite(bool flag_grid) const
 {
   int ecr, item;
   ENUM_LOCS locatorType;
@@ -3638,7 +3638,7 @@ bool Db::_isCountValid(const VectorInt iatts, bool flagOne) const
  * Returns the Number of different facies (labelling starts at 1)
  * The facies variable must be locatorized as LOC_Z and be unique
  */
-int Db::getFaciesNumber(void)
+int Db::getFaciesNumber(void) const
 {
   if (getLocatorNumber(LOC_Z) != 1)
   {

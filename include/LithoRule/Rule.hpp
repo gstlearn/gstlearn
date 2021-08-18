@@ -48,7 +48,7 @@ public:
 
   virtual std::string toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) const override;
 
   double getDMax() const { return _dMax; }
   int    getFlagProp() const { return _flagProp; }
@@ -61,7 +61,7 @@ public:
   double getShift(int idim) const { return _shift.empty() ? 0 : _shift[idim]; }
   double getSlope() const { return _slope; }
   double getTgte() const { return _tgte; }
-  Node*  getMainNode() { return _mainNode; }
+  const Node*  getMainNode() const { return _mainNode; }
 
   void   setFlagProp(int flagProp) { _flagProp = flagProp; }
   void   setRho(double rho) { _rho = rho; }
@@ -96,7 +96,7 @@ public:
                       int flag_grid_check,
                       int flag_stat);
   int particularities_shadow(Db *db,
-                             Db *dbprop,
+                             const Db *dbprop,
                              Model *model,
                              int flag_grid_check,
                              int flag_stat);
@@ -109,17 +109,17 @@ public:
 
 private:
   String _display(bool flagProp, bool flagThresh) const;
-  void _st_shadow_max(Db *dbprop,
+  void _st_shadow_max(const Db *dbprop,
                       int flag_stat,
                       double *sh_dsup_max,
                       double *sh_down_max);
   int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check);
   void _nodNamesToIds(const VectorString& nodes, VectorInt &n_type, VectorInt& n_facs);
-  void _ruleDefine(Node *node,
+  void _ruleDefine(const Node *node,
                    int from_type,
                    int from_rank,
                    int from_vers,
-                   int *rank);
+                   int *rank) const;
   VectorString _buildNodNames(int nfacies);
 
 private:

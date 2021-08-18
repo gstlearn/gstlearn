@@ -208,7 +208,7 @@ GEOSLIB_API double ct_INTRES2(CTables *ctables,
     if (inform) messageAbort("Error in function 'mvndst'");
   }
     
-  // Store it int the table
+  // Store it in the table
 
   INTRESX(iconf0,iad) = value;
   return(value);
@@ -435,7 +435,7 @@ GEOSLIB_API CTables *ct_tables_manage(int      mode,
   else
   {
 
-    // Desallocation
+    // De-allocation
 
     ctables = ctables_old;
     if (ctables == (CTables *) NULL) return(ctables);
@@ -640,10 +640,10 @@ GEOSLIB_API double ct_tableone_calculate_by_rank(CTables *ctables,
     
     // Cumulative case
 
-    result = (ct_INTRES2(ctables,iconf0,(int) rkups[0] ,(int) rkups[1]) -
-        ct_INTRES2(ctables,iconf0,(int) rklows[0],(int) rkups[1]) -
-        ct_INTRES2(ctables,iconf0,(int) rkups[0] ,(int) rklows[1]) +
-        ct_INTRES2(ctables,iconf0,(int) rklows[0],(int) rklows[1]));
+    result = (ct_INTRES2(ctables, iconf0, (int) rkups[0],  (int) rkups[1])
+            - ct_INTRES2(ctables, iconf0, (int) rklows[0], (int) rkups[1])
+            - ct_INTRES2(ctables, iconf0, (int) rkups[0],  (int) rklows[1])
+            + ct_INTRES2(ctables, iconf0, (int) rklows[0], (int) rklows[1]));
   }
    return(result);
 }

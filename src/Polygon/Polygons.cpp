@@ -224,7 +224,7 @@ int Polygons::deSerialize(const String& filename, bool verbose)
   return 0;
 }
 
-int Polygons::serialize(const String& filename, bool verbose)
+int Polygons::serialize(const String& filename, bool verbose) const
 {
   if (_fileOpen(filename, "Polygon", "w", verbose)) return (1);
 

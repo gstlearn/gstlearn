@@ -928,7 +928,7 @@ int Vario::deSerialize(const String& filename, bool verbose)
   return 0;
 }
 
-int Vario::serialize(const String& filename, bool verbose)
+int Vario::serialize(const String& filename, bool verbose) const
 {
   double value;
   static int flag_calcul = 1;

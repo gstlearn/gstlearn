@@ -605,20 +605,16 @@ GEOSLIB_API void proportion_print(Props  *propdef)
 static int st_proportion_changed(Props *propdef)
 
 {
-  int ifac,modify;
-  
   /* Compare with the memory proportion array */
 
-  modify = 0;
-  for (ifac=0; ifac<propdef->nfaccur; ifac++)
-    if (propdef->proploc[ifac] != propdef->propmem[ifac]) modify = 1;
+  int modify = ! ut_vector_same(propdef->proploc, propdef->propmem);
   if (! modify) return(1);
 
   /* Print the proportions (optional) */
 
   if (debug_query("props")) proportion_print(propdef);
 
-  for (ifac=0; ifac<propdef->nfaccur; ifac++)
+  for (int ifac=0; ifac<propdef->nfaccur; ifac++)
     propdef->propmem[ifac] = propdef->proploc[ifac];
 
   return(0);
@@ -810,7 +806,7 @@ GEOSLIB_API int rule_thresh_define_shadow(Props  *propdef,
 ** \param[in]  propdef    Props structure
 ** \param[in]  db         Db input structure
 ** \param[in]  rule       Rule structure
-** \param[in]  facies     Facies of interest (or ITEST)
+** \param[in]  facies     Facies of interest (or ITEST) starting from 1
 ** \param[in]  iech       Rank of the data in the input Db
 ** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
 ** \param[in]  nbsimu     Number of simulations
@@ -1329,6 +1325,22 @@ GEOSLIB_API int db_bounds(Db*       db,
 
 /****************************************************************************/
 /*!
+**  Set memory proportion so as to provoke the update at first usage
+**
+** \param[in]  propdef     Pointer to Propdef structure
+**
+****************************************************************************/
+GEOSLIB_API void propdef_reset(Props* propdef)
+{
+  if (propdef == nullptr) return;
+  if (propdef->propmem.empty()) return;
+
+  for (int ifac = 0; ifac < (int) propdef->propmem.size(); ifac++)
+    propdef->propmem[ifac] = -1;
+}
+
+/****************************************************************************/
+/*!
 **  Allocate or deallocate a proportion array
 **
 ** \return  Pointer on the returned Props structure
@@ -1359,14 +1371,13 @@ GEOSLIB_API Props *proportion_manage(int     mode,
                                      const   VectorDouble& propcst,
                                      Props  *proploc)
 {
-  int ifac,error,nfacmax,nfacprod;
+  int ifac,error,nfacprod;
   const Db *db_loc;
   Props *propdef;
 
   /* Initializations */
 
   error    = 1;
-  nfacmax  = MAX(nfac1,nfac2);
   nfacprod = nfac1;
   if (nfac2 > 0) nfacprod *= nfac2;
 
@@ -1443,7 +1454,7 @@ GEOSLIB_API Props *proportion_manage(int     mode,
       
       /* Set memory proportion so as to provoke the update at first usage */
       
-      for (ifac=0; ifac<nfacmax; ifac++) propdef->propmem[ifac] = -1;
+      propdef_reset(propdef);
     }
   }
   else

@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   int     i,j,lec,nbsimu,seed,nbtuba,npgs,ntot,nfac[2];
   int     flag_vario,flag_grid,iatt_z,iatt_ind,ifac,nclass;
   VectorDouble props;
+  RuleProp ruleprop;
   static int    niter   = 100;
   static int    nboot   = 10;
   static double toleps  = 1.;
@@ -176,8 +177,9 @@ int main(int argc, char *argv[])
     delta = dbout->getDX(0);
     if (npgs == 1)
     {
-      if (simpgs(dbin,dbout,dbout,rule[0],model[0][0],model[0][1],
-                 neigh,props,nbsimu,seed,1,0,0,0,0,nbtuba,nboot,niter,1,toleps,
+      ruleprop = RuleProp(rule[0],props);
+      if (simpgs(dbin,dbout,&ruleprop,model[0][0],model[0][1],
+                 neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1,toleps,
                  delta)) goto label_end;
     }
     else

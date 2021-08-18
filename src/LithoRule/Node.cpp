@@ -775,7 +775,7 @@ void Node::_getInfo(int *nodes,
                     int *rank,
                     int *n_fac,
                     int *n_y1,
-                    int *n_y2)
+                    int *n_y2) const
 {
   int type,number;
 
@@ -823,7 +823,7 @@ void Node::_getInfo(int *nodes,
   return;
 }
 
-void Node::getInfo(int *nodes)
+void Node::getInfo(int *nodes) const
 {
   int rank = 0;
   int n_fac = 0;

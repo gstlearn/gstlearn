@@ -40,7 +40,7 @@ ASerializable::ASerializable()
 int ASerializable::_fileOpen(const String& filename,
                              const String& filetype,
                              const String& mode,
-                             bool verbose)
+                             bool verbose) const
 {
   // Preliminary check
   if (filename.empty())
@@ -109,7 +109,7 @@ int ASerializable::_fileOpen(const String& filename,
   return 0;
 }
 
-int ASerializable::_fileClose(bool verbose)
+int ASerializable::_fileClose(bool verbose) const
 {
   if (_file == nullptr)
   {
@@ -140,7 +140,7 @@ int ASerializable::_fileClose(bool verbose)
  * @remarks: Format is not a reference here:
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
  */
-int ASerializable::_recordRead(const String& title, String format, ...)
+int ASerializable::_recordRead(const String& title, String format, ...) const
 {
   va_list ap;
   int error;
@@ -167,7 +167,7 @@ int ASerializable::_recordRead(const String& title, String format, ...)
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
  */
 
-void ASerializable::_recordWrite(String format, ...)
+void ASerializable::_recordWrite(String format, ...) const
 {
   va_list ap;
   va_start(ap, format);
@@ -187,7 +187,7 @@ void ASerializable::_recordWrite(String format, ...)
  ** \param[in]  ap         Value to be read
  **
  *****************************************************************************/
-int ASerializable::_fileRead(const String& format, va_list ap)
+int ASerializable::_fileRead(const String& format, va_list ap) const
 {
   char DEL_COM = '#';
   char DEL_SEP = ' ';
@@ -309,7 +309,7 @@ int ASerializable::_fileRead(const String& format, va_list ap)
  ** \param[in]  ap         Value to be written
  **
  *****************************************************************************/
-void ASerializable::_fileWrite(const String& format, va_list ap)
+void ASerializable::_fileWrite(const String& format, va_list ap) const
 {
   double ret_d;
   char *ret_s;
@@ -374,7 +374,7 @@ void ASerializable::_fileWrite(const String& format, va_list ap)
   return;
 }
 
-bool ASerializable::_onlyBlanks(char *string)
+bool ASerializable::_onlyBlanks(char *string) const
 {
   int number = strlen(string);
   for (int i = 0; i < number; i++)

@@ -693,7 +693,7 @@ int Rule::particularities(Db *db,
 **
 *****************************************************************************/
 int Rule::particularities_shadow(Db *db,
-                                 Db *dbprop,
+                                 const Db *dbprop,
                                  Model *model,
                                  int flag_grid_check,
                                  int flag_stat)
@@ -721,7 +721,7 @@ int Rule::particularities_shadow(Db *db,
   return(0);
 }
 
-void Rule::_st_shadow_max(Db *dbprop,
+void Rule::_st_shadow_max(const Db *dbprop,
                           int flag_stat,
                           double *sh_dsup_max,
                           double *sh_down_max)
@@ -929,15 +929,13 @@ double Rule::getProportion(int facies)
  */
 VectorDouble Rule::getThresh(int facies) const
 {
-  VectorDouble bounds;
-
   int fac_ret;
   int rank = 0;
   double t1min, t1max, t2min, t2max;
 
   if (!_mainNode->getThresh(1, facies, &rank, &fac_ret, &t1min, &t1max, &t2min,
-                            &t2max)) return bounds;
-  bounds.resize(4);
+                            &t2max)) return VectorDouble();
+  VectorDouble bounds(4);
   bounds[0] = t1min;
   bounds[1] = t1max;
   bounds[2] = t2min;
@@ -1067,7 +1065,7 @@ int Rule::deSerialize(const String& filename, bool verbose)
   return 0;
 }
 
-int Rule::serialize(const String& filename, bool verbose)
+int Rule::serialize(const String& filename, bool verbose) const
 {
   int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
   double prop_tot;
@@ -1108,11 +1106,11 @@ int Rule::serialize(const String& filename, bool verbose)
   return 0;
 }
 
-void Rule::_ruleDefine(Node *node,
+void Rule::_ruleDefine(const Node *node,
                        int from_type,
                        int from_rank,
                        int from_vers,
-                       int *rank)
+                       int *rank) const
 {
   int cur_rank;
 
