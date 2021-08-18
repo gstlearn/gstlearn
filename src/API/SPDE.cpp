@@ -233,3 +233,8 @@ void SPDE::query(Db* db, NamingConvention namconv)
   int iptr = db->addFields(result,"SPDE",LOC_Z,true,TEST);
   namconv.setNamesAndLocators(_data,LOC_Z,1,db,iptr,suffix,1,true);
 }
+
+VectorDouble SPDE::computeCoeffs(const VectorVectorDouble& x)const
+{
+  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(LOC_Z,0,true),x);
+}

@@ -28,6 +28,7 @@ public:
   void computeKriging(const VectorDouble& vect) const;
   void computeSimuNonCond(int nbsimus = 1, int seed=131323) const;
   void computeSimuCond(int nbsimus = 1, int seed=131323) const;
+  VectorDouble computeCoeffs(const VectorVectorDouble& x)const;
   void query(Db* db,NamingConvention namconv = NamingConvention("spde"));
   virtual ~SPDE();
 

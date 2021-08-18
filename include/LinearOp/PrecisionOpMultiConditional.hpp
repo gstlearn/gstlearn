@@ -36,7 +36,8 @@ public:
   void computeRhs(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
   void simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result) const;
   void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,VectorDouble& result) const;
-  void computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
+  void evalInvCov(const VectorDouble& in, VectorDouble& result) const;
+  VectorDouble computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
 
 protected:
   void _evalDirect(const VectorVectorDouble& in,
@@ -49,5 +50,7 @@ private:
   int                        _ndat;
   int                        _ncova;
   mutable VectorDouble       _work1;
+  mutable VectorDouble       _work1bis;
   mutable VectorVectorDouble _work2;
+  mutable VectorVectorDouble _work3;
 };

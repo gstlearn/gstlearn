@@ -150,13 +150,13 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
 
   int niter = 0;
 
-  std::cout<<"niter "<<_nIterMax<< " crit "<< crit << " eps "<< _eps<<std::endl;
+ // std::cout<<"niter "<<_nIterMax<< " crit "<< crit << " eps "<< _eps<<std::endl;
   while(niter < _nIterMax && crit > _eps)
   {
     niter++;
     evalDirect(_p,_temp); //temp = Ap
     alpha = rsold / _prod(_temp,_p); // r'r/p'Ap
-    std::cout<<"alpha "<<alpha<<" "<< _prod(_p,_p)<<std::endl;
+    //std::cout<<"alpha "<<alpha<<" "<< _prod(_p,_p)<<std::endl;
     _linearComb(1.,out,alpha,_p,out);//x=x+alpha p
     _linearComb(1.,_r,-alpha,_temp,_r); //r=r-alpha*Ap
 
@@ -175,7 +175,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
     }
 
     //critnew = _prod(_r, _z);
-    std::cout<<"niter " << niter <<" critnew "<<rsnew/nb<<std::endl;
+   // std::cout<<"niter " << niter <<" critnew "<<rsnew/nb<<std::endl;
 
     rsold = rsnew;
 
