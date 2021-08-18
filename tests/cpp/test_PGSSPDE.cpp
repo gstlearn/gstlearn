@@ -13,7 +13,7 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "Model/Model.hpp"
-
+#include "API/S
 
 /****************************************************************************/
 /*!
@@ -67,7 +67,11 @@ int main(int argc, char *argv[])
   Rule rule({"S","T","F1","F2","F3"});
   RuleProp ruleprop = RuleProp(&rule, props);
 
-  PGSSPDE(models,)
+  auto ndata = 100;
+  Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
+  VectorDouble z = ut_vector_simulate_gaussian(ndata);
+  dat.addFields(z,"variable",LOC_Z);
+  PGSSPDE(models,workingDbc,ruleProp,&dat);
 
   return(error);
 }
