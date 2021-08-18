@@ -1,4 +1,4 @@
-#include "PGSSPDE.hpp"
+#include <API/PGSSPDE.hpp>
 #include "geoslib_enum.h"
 
 PGSSPDE::PGSSPDE(std::vector<Model> models,
