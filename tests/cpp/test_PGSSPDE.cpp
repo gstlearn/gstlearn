@@ -1,0 +1,73 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/*                                                                            */
+/* This file is meant to demonstrate the process of using PGS                 */
+/*                                                                            */
+/******************************************************************************/
+#include "geoslib_f.h"
+#include "Model/Model.hpp"
+
+
+/****************************************************************************/
+/*!
+** Main Program for testing the sparse matrix algebra
+**
+*****************************************************************************/
+int main(int argc, char *argv[])
+
+{
+  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
+  int error = 0;
+  CovContext ctxt(1,2,1.);
+
+  // Prepare the Discrete process with Discretized Option
+  set_test_discrete(false);
+
+  // Creating a Point Data base in the 1x1 square with 'nech' samples
+  int nech = 10;
+  Db db(nech,{0.,0.},{1.,1.});
+  db.display(FLAG_STATS);
+
+  Db dbprop= Db({100,100},{0.01,0.01},{0.,0.});
+
+  VectorDouble props({0.2, 0.5, 0.3});
+  int nfac = props.size();
+  VectorString names = generateMultipleNames("Props",nfac);
+  for (int ifac = 0; ifac < nfac; ifac++)
+    dbprop.addFields(1,props[ifac],names[ifac]);
+  dbprop.setLocator(names,LOC_P);
+
+  // Creating the Model(s) of the Underlying GRF(s)
+  Model model1(ctxt);
+  double range1 = 0.2;
+  CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
+  model1.addCova(&cova1);
+  model1.display();
+  model1.serialize(pygst+ "truemodel1.ascii");
+
+  Model model2(ctxt);
+  double range2 = 0.3;
+  CovAniso cova2(COV_BESSEL_K,range2,2.,1.,ctxt);
+  model2.addCova(&cova2);
+  model2.display();
+  model2.serialize(pygst+ "truemodel2.ascii");
+
+  std::vector<Model> models;
+  models.push_back(model1);
+  models.push_back(model2);
+
+  // Creating the Rule
+  Rule rule({"S","T","F1","F2","F3"});
+  RuleProp ruleprop = RuleProp(&rule, props);
+
+  PGSSPDE(models,)
+
+  return(error);
+}
