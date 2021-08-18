@@ -27,9 +27,7 @@ int main(int argc, char *argv[])
   auto nx={ 101,101 };
   Db workingDbc(nx);
 
-  //////////////////////
-  //Creating the Mesh
-  MeshETurbo mesh(workingDbc);
+
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(&workingDbc);
@@ -47,7 +45,7 @@ int main(int argc, char *argv[])
   model.addNoStat(&NoStat);
 
   // Creating Data
-  auto ndata = 1000;
+  auto ndata = 100;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
   dat.addFields(z,"variable",LOC_Z);

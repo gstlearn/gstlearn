@@ -79,10 +79,19 @@ ProjMatrix::~ProjMatrix()
 
 int ProjMatrix::init(const Db* db, AMesh *a_mesh, int verbose)
 {
-  _Aproj = a_mesh->getMeshToDb(db,verbose);
-  if (_Aproj == (cs *) NULL) return 1;
-  _nPoint = db->getActiveSampleNumber();
-  _nApices = a_mesh->getNApices();
+  if (db!= nullptr)
+  {
+    _Aproj = a_mesh->getMeshToDb(db,verbose);
+    if (_Aproj == (cs *) NULL) return 1;
+    _nPoint = db->getActiveSampleNumber();
+    _nApices = a_mesh->getNApices();
+  }
+  else
+  {
+    _Aproj = nullptr;
+    _nPoint = 0;
+    _nApices = a_mesh->getNApices();
+  }
   return 0;
 }
 

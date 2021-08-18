@@ -56,14 +56,13 @@ void PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal, VectorV
 void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
                                             IProjMatrix* projDataElem)
 {
-
-  _multiPrecisionOp.push_back(pmatElem);
-  _work2.push_back(VectorDouble(pmatElem->getSize()));
   if (size() == 0 && projDataElem != nullptr)
   {
     _ndat = projDataElem->getPointNumber(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
     _work1.resize(_ndat);
   }
+  _multiPrecisionOp.push_back(pmatElem);
+  _work2.push_back(VectorDouble(pmatElem->getSize()));
   _multiProjData.push_back(projDataElem);
   _updated();
   _ncova++;
@@ -115,10 +114,7 @@ void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVe
                                                                   VectorDouble& result) const
 {
   ut_vector_fill(result,0.,_ndat);
-  if(_work1.empty())
-  {
-    _work1.resize(_ndat);
-  }
+
   for(int icov = 0; icov <  size(); icov++)
   {
     _multiProjData[icov]->mesh2point(simus[icov],_work1);
@@ -135,7 +131,7 @@ void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVe
 void PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const
 {
 
-
+  MatrixCSSym XXT(X.size(),false);
 
 }
 

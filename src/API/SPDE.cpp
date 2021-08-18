@@ -59,7 +59,9 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
         precision = new PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
-        _precisionsSimu.push_back(precision,nullptr);
+        proj = new ProjMatrix(_data,mesh);
+        _pileProjMatrix.push_back(proj);
+        _precisionsSimu.push_back(precision,proj);
         _workingSimu.push_back(VectorDouble(shiftOp->getSize()));
       }
       if(_calculKriging())
@@ -104,6 +106,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
     }
   }
   _precisionsKriging.setVarianceData(varianceData);
+  _precisionsSimu.setVarianceData(varianceData);
 }
 
 void SPDE::computeKriging(const VectorDouble& datVect) const
