@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   PGSSPDE sCond(models,workingDbc,ruleProp,&dat);
   PGSSPDE sNonCond(models,workingDbc,ruleProp);
 
-  PGSSPDE spgs = sCond;
+  PGSSPDE spgs = sNonCond;
   spgs.simulate();
   spgs.query(&workingDbc);
   workingDbc.display();
