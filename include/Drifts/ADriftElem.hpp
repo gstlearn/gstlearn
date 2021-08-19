@@ -60,8 +60,6 @@ public:
   virtual int    getOrderIRF() const = 0;
   virtual double eval(const Db* db,int iech) const override = 0;
 
-  double evaluateDrift(const Db* db, int iech) const { return eval(db,iech); }
-
   void setContext(const CovContext& ctxt);
 
   int getOrderIrf() const { return _orderIRF; }

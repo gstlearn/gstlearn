@@ -4,6 +4,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Model/Model.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
@@ -239,7 +240,10 @@ int SPDE::query(Db* db, NamingConvention namconv) const
   return iptr;
 }
 
-VectorDouble SPDE::computeCoeffs(const VectorVectorDouble& x)const
+VectorDouble SPDE::computeCoeffs() const
 {
-  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(LOC_Z,0,true),x);
+  // Loading the Vector of Drift values
+  VectorVectorDouble drifttab = _model->getDrifts(_data, true);
+
+  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(LOC_Z,0,true),drifttab);
 }

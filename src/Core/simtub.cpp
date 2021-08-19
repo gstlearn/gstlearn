@@ -6036,9 +6036,9 @@ label_end:
 ** \param[in]  nbtuba      Number of turning bands
 ** \param[in]  gibbs_nburn Number of bootstrap iterations
 ** \param[in]  gibbs_niter Maximum number of iterations
-** \param[in]  percent     Amount of nugget effect added to too continous 
+** \param[in]  percent     Amount of nugget effect added to too continuous
 **                         model (expressed in percentage of the total variance)
-** \param[in]  gibbs_eps   Relative immobile criterion
+** \param[in]  gibbs_eps   Relative stability criterion
 **
 ** \remark  When conditional, the two first variables in the input Db
 ** \remark  should correspond to the two facies indices (starting from 1)

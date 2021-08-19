@@ -43,6 +43,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
   }
 
   db->setLocator(names,LOC_Z);
+  db->display();
   _ruleProp.gaussToCategory(db,NamingConvention("categories"));
 
   if(!keepGauss)
