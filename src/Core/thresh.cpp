@@ -973,7 +973,7 @@ GEOSLIB_API int db_rule_shadow(Db     *db,
         messerr("The variable containing the simulation of the GRF %d is missing in the Db",igrf+1);
         goto label_end;
       }
-      db->setLocatorByAttribute(iptr,LOC_SIMU,igrf+1);
+      db->setLocatorByAttribute(iptr,LOC_SIMU,igrf);
     }
   }
 
@@ -1062,21 +1062,10 @@ GEOSLIB_API int db_rule(Db       *db,
 
   /* Identify the Non conditional simulations at target points */
 
-  for (int igrf=0; igrf<2; igrf++)
-  {
-    if (! flagUsed[igrf]) continue;
-    if (db->getLocatorNumber(LOC_SIMU) == ngrf)
-    {
-      iptr = db_attribute_identify(db,LOC_SIMU,igrf);
-      flagReturn = false;
-    }
-    else
-    {
-      iptr = db_attribute_identify(db,LOC_Z,igrf);
-      flagReturn = true;
-    }
-    db->setLocatorByAttribute(iptr,LOC_SIMU,igrf+1);
-  }
+  db->display(1);
+  if (db->getLocatorNumber(LOC_SIMU) != ngrf)
+    db->switchLocator(LOC_Z, LOC_SIMU);
+  db->display(1);
 
   /* Translate Gaussian into Facies */
 
@@ -1091,7 +1080,7 @@ GEOSLIB_API int db_rule(Db       *db,
     {
       if (! flagUsed[igrf]) continue;
       iptr = db_attribute_identify(db,LOC_SIMU,igrf);
-      db->setLocatorByAttribute(iptr,LOC_SIMU,igrf+1);
+      db->setLocatorByAttribute(iptr,LOC_SIMU,igrf);
     }
   }
 

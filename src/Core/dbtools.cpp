@@ -2789,7 +2789,7 @@ GEOSLIB_API int manage_external_info(int mode,
 
       iatt = db_attribute_identify(dbout, locatorType, info);
       if (iatt < 0) return (1);
-      dbin->setLocatorByAttribute(jatt, locatorType, info+1);
+      dbin->setLocatorByAttribute(jatt, locatorType, info);
 
       /* Perform the migration */
 
@@ -5891,9 +5891,9 @@ GEOSLIB_API Db *db_point_init(int mode,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    string = getLocatorName(LOC_X, idim+1);
+    string = getLocatorName(LOC_X, idim);
     db_name_set(db, idim + flag_add_rank, string);
-    db->setLocatorByAttribute(idim + flag_add_rank, LOC_X, idim+1);
+    db->setLocatorByAttribute(idim + flag_add_rank, LOC_X, idim);
   }
 
   return (db);

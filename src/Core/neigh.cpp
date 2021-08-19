@@ -55,13 +55,13 @@ static void st_neigh_print(Db     *dbin,
   if (dbin->hasCode()) tab_prints(NULL,1,GD_J_RIGHT,"Code");
   for (idim=0; idim<ndim; idim++)
   {
-    string = getLocatorName(LOC_X,idim+1);
+    string = getLocatorName(LOC_X,idim);
     tab_prints(NULL,1,GD_J_RIGHT,string.c_str());
   }
   if (flag_ext)
     for (idim=0; idim<ndim; idim++)
     {
-      string = getLocatorName(LOC_BLEX,idim+1);
+      string = getLocatorName(LOC_BLEX,idim);
       tab_prints(NULL,1,GD_J_RIGHT,string.c_str());
     }
   if (neigh->getType() == NEIGH_MOVING)

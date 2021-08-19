@@ -740,7 +740,7 @@ GEOSLIB_API int db_trisurf(Db         *db,
 
   db->clearLocators(LOC_X);
   for (int idim=0; idim<2; idim++)
-    db->setLocatorByAttribute(iptr_proj[idim],LOC_X,idim+1);
+    db->setLocatorByAttribute(iptr_proj[idim],LOC_X,idim);
   db->setLocatorByAttribute(iptr_proj[ndim-1],LOC_Z);
   
   /* Loop on the set of points per Fault */

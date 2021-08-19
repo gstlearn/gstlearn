@@ -41,7 +41,7 @@ void   messerrFlush(const String& string);
 void   messerr(const char *format,...);
 void   message(const char *format,...);
 String stringCompose(const char *format,...);
-void   mesArg(const char *title, int current, int nmax);
+void   mesArg(const char *title, int current, int nmax, bool flagStartOne = false);
 void   messageAbort(const char *format,...);
 void   mestitle(int level,const char *format,...);
 String toTitle(int level, const char* format, ...);

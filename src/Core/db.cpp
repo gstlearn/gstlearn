@@ -232,7 +232,7 @@ GEOSLIB_API int db_selection_get(Db *db, int item, double *tab)
  **
  ** \param[in]  db     Db descriptor
  ** \param[in]  locatorType Rank of the pointer (::ENUM_LOCS)
- ** \param[in]  locatorIndex Rank of the item in the pointer
+ ** \param[in]  locatorIndex Rank of the item in the pointer (starting from 0)
  ** \param[in]  tab    Array of values
  **
  *****************************************************************************/
@@ -2141,8 +2141,6 @@ GEOSLIB_API int db_grid_match(Db *db1, Db *db2)
  **
  ** \param[out] iptr    Rank of the first new attribute
  **
- ** \remarks: Old-style function where the locatorIndex numbering started from 0
- **
  *****************************************************************************/
 GEOSLIB_API int db_locator_attribute_add(Db *db,
                                          ENUM_LOCS locatorType,
@@ -2153,13 +2151,13 @@ GEOSLIB_API int db_locator_attribute_add(Db *db,
 {
   (*iptr) = db->addFields(number, valinit);
   if ((*iptr) < 0) return (1);
-  db->setLocatorsByAttribute(number, (*iptr), locatorType, r_tem + 1);
+  db->setLocatorsByAttribute(number, (*iptr), locatorType, r_tem);
 
   /* Set the default names to the newly created variables */
 
   for (int i = 0; i < number; i++)
   {
-    String string = getLocatorName(locatorType, r_tem + i + 1);
+    String string = getLocatorName(locatorType, r_tem + i);
     db_name_set(db, (*iptr) + i, string);
   }
   return (0);

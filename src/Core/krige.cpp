@@ -2778,7 +2778,7 @@ static void krige_wgt_print(int     status,
   tab_prints(NULL,1,GD_J_RIGHT,"Rank");
   for (idim=0; idim<ndim; idim++)
   {
-    String strloc = getLocatorName(LOC_X,idim+1);
+    String strloc = getLocatorName(LOC_X,idim);
     tab_prints(NULL,1,GD_J_RIGHT,strloc.c_str());
   }
   if (DBIN->hasCode())
@@ -8760,7 +8760,7 @@ GEOSLIB_API int *neigh_calc(Db     *dbin,
   if (dbin != (Db *) NULL && model != (Model *) NULL &&
       dbin->getVariableNumber() != model->getVariableNumber() && model->getVariableNumber() == 1)
   {
-    zloc = dbin->getColumnByLocator(LOC_Z,0);
+    zloc = dbin->getColumnByLocator(LOC_Z);
     dbin->clearLocators(LOC_Z);
     dbin->setLocatorByAttribute(zloc,LOC_Z);
   }

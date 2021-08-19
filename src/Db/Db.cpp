@@ -501,7 +501,7 @@ Db::Db(int nech,
 }
 
 /**
- * Create a Db starting from a single sample whose coordinates are provided in 'tab'
+ * Create a Db from a single sample whose coordinates are provided in 'tab'
  * @param tab Array containing the coordinates of the single sample
  * @param flag_add_rank 1 if the Sample ranks must be generated
  */
@@ -675,8 +675,7 @@ int Db::_findAttributeInLocator(ENUM_LOCS locatorType, int iatt) const
   if (!isLocatorTypeValid(locatorType)) return -1;
   const PtrGeos& p = _p[locatorType];
   if (!isAttributeIndexValid(iatt)) return -1;
-  for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber();
-      locatorIndex++)
+  for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
     if (p.getLocatorByIndex(locatorIndex) == iatt) return (locatorIndex);
   return -1;
 }
@@ -692,7 +691,7 @@ int Db::_findColumnInLocator(ENUM_LOCS locatorType, int icol) const
  * Find the locator characteristics of a given Column
  * @param icol       Index of the target column
  * @param ret_locatorType Locator type
- * @param ret_locatorIndex Locator index (starting from 1)
+ * @param ret_locatorIndex Locator index (starting from 0)
  * @return
  */
 int Db::getLocatorByColumn(int icol,
@@ -708,7 +707,7 @@ int Db::getLocatorByColumn(int icol,
       if (icol == jcol)
       {
         *ret_locatorType = (ENUM_LOCS) locatorType;
-        *ret_locatorIndex = i+1; // locatorIndex is numbered starting from 1
+        *ret_locatorIndex = i;
         return true;
       }
     }
@@ -727,6 +726,13 @@ int Db::getLocator(int iatt,
   return getLocatorByColumn(icol, ret_locatorType, ret_locatorIndex);
 }
 
+/**
+ * Return the locator information corresponding to the input variable
+ * @param name Input variable name (unique)
+ * @param ret_locatorType Locator Type
+ * @param ret_locatorIndex Locator Index (starting from 0)
+ * @return
+ */
 int Db::getLocator(const String& name,
                     ENUM_LOCS *ret_locatorType,
                     int *ret_locatorIndex) const
@@ -981,7 +987,7 @@ void Db::setFromLocator(ENUM_LOCS locatorType,
                         double value)
 {
   if (!isSampleIndexValid(iech)) return;
-  int icol = getColumnByLocator(locatorType, locatorIndex);
+  int icol = getColumnByLocator(locatorType,locatorIndex);
   if (!isColumnIndexValid(icol)) return;
   _array[_getAddress(iech, icol)] = value;
 }
@@ -1025,8 +1031,7 @@ void Db::printLocators(void)
     if (p.getLocatorNumber() <= 0) continue;
     p.print(rank, (ENUM_LOCS) locatorType);
     message("- Columns    = ");
-    for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber();
-        locatorIndex++)
+    for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
       message("%2d ", getColumnByAttribute(p.getLocatorByIndex(locatorIndex)));
     message("\n");
     rank++;
@@ -1060,7 +1065,7 @@ void Db::clearLocators(ENUM_LOCS locatorType)
  * Setting the locator for a set of variables designated by their names
  * @param names        Vector if variable names
  * @param locatorType  Locator type (include LOC_UNKNOWN)
- * @param locatorIndex Starting locator rank
+ * @param locatorIndex Starting locator rank (starting from 0)
  * @return
  */
 void Db::setLocator(const VectorString& names,
@@ -1074,6 +1079,12 @@ void Db::setLocator(const VectorString& names,
     setLocatorByAttribute(iatts[i], locatorType, locatorIndex + i);
 }
 
+/**
+ * Define the Locator(s) for the given variable(s)
+ * @param names Set of variable names
+ * @param locatorType Locator Type
+ * @param locatorIndex Locator Index (for the first variable) (starting from 0)
+ */
 void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
@@ -1087,7 +1098,7 @@ void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex
  * Setting the locator for a variable designated by its attribute
  * @param iatt          Index of the Attribute
  * @param locatorType   Type of locator (include LOC_UNKNOWN)
- * @param locatorIndex  Rank in the Locator (starting from 1)
+ * @param locatorIndex  Rank in the Locator (starting from 0)
  * @return Error return code
  * @remark: At this stage, no check is performed to see if items
  * @remark: are consecutive and all defined
@@ -1097,8 +1108,7 @@ void Db::setLocatorByAttribute(int iatt, ENUM_LOCS locatorType, int locatorIndex
 {
   if (!isAttributeIndexValid(iatt)) return;
   if (!isLocatorTypeValid(locatorType, true)) return;
-  if (locatorIndex < 1) return;
-  int local = locatorIndex - 1;
+  if (locatorIndex < 0) return;
 
   /* Cancel any locator referring to this column */
 
@@ -1106,7 +1116,8 @@ void Db::setLocatorByAttribute(int iatt, ENUM_LOCS locatorType, int locatorIndex
   {
     PtrGeos& p = _p[vtype];
     int found = _findAttributeInLocator((ENUM_LOCS) vtype, iatt);
-    if (found >= 0) p.erase(found);
+    if (found >= 0)
+      p.erase(found);
   }
 
   // Check if this locator already exists for the current pointer type
@@ -1115,8 +1126,8 @@ void Db::setLocatorByAttribute(int iatt, ENUM_LOCS locatorType, int locatorIndex
   {
     PtrGeos& p = _p[locatorType];
     int nitem = p.getLocatorNumber();
-    if (local >= nitem) p.resize(local + 1);
-    p.setLocatorByIndex(local, iatt);
+    if (locatorIndex >= nitem) p.resize(locatorIndex + 1);
+    p.setLocatorByIndex(locatorIndex, iatt);
   }
 }
 
@@ -1133,7 +1144,7 @@ String Db::_getLocatorNameByColumn(int icol) const
  * @param number        Number of variables to be set
  * @param iatt          Rank of the first attribute
  * @param locatorType   Type of the Locator (include LOC_UNKNOWN)
- * @param locatorIndex  Rank of the first Locator index (starting from 1)
+ * @param locatorIndex  Rank of the first Locator index (starting from 0)
  */
 void Db::setLocatorsByAttribute(int number,
                                 int iatt,
@@ -1142,7 +1153,7 @@ void Db::setLocatorsByAttribute(int number,
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
   for (int i = 0; i < number; i++)
-    setLocatorByAttribute(iatt+i, locatorType, locatorIndex+i);
+    setLocatorByAttribute(iatt+i, locatorType, locatorIndex + i);
 }
 
 /**
@@ -1153,7 +1164,7 @@ void Db::setLocatorsByAttribute(int number,
  * @param radix    Generic radix given to the newly created variables
  * @param locatorType Generic locator assigned to new variables
  * @param nechInit Number of samples (used only if the Db is initially empty)
- * @return Rank of the starting attribute
+ * @return Rank of the first attribute
  */
 int Db::addFields(int nadd,
                   double valinit,
@@ -1215,7 +1226,7 @@ int Db::addFields(int nadd,
  * @param useSel true if values for active samples are provided
  * @param valinit initial value (for unselected samples)
  * @param nvar   Number of variables loaded
- * @return Rank of the starting attribute
+ * @return Rank of the first attribute
  */
 int Db::addFields(const VectorDouble& tab,
                   const String& radix,
@@ -1695,7 +1706,7 @@ void Db::_columnInit(int ncol, int icol0, double valinit)
 
 void Db::switchLocator(ENUM_LOCS locatorType_in, ENUM_LOCS locatorType_out)
 {
-  PtrGeos& p_in = _p[locatorType_in];
+  PtrGeos& p_in  = _p[locatorType_in];
   PtrGeos& p_out = _p[locatorType_out];
   int n_in  = getFromLocatorNumber(locatorType_in);
   int n_out = getFromLocatorNumber(locatorType_out);
@@ -1704,8 +1715,6 @@ void Db::switchLocator(ENUM_LOCS locatorType_in, ENUM_LOCS locatorType_out)
   p_out.resize(n_in + n_out);
   for (int i_in = 0; i_in < n_in; i_in++)
     p_out.setLocatorByIndex(n_out + i_in, p_in.getLocatorByIndex(i_in));
-
-  /* Unclassify the gradient components */
   p_in.clear();
 }
 
@@ -1778,7 +1787,7 @@ double Db::getVariable(int iech, int item) const
 
 void Db::setVariable(int iech, int item, double value)
 {
-  setFromLocator(LOC_Z, iech, item, value);
+  setFromLocator(LOC_Z, iech, item+1, value);
 }
 
 /****************************************************************************/
@@ -2828,7 +2837,7 @@ VectorDouble Db::getSelection(void) const
   VectorDouble tab;
 
   if (!hasSelection()) return tab;
-  int icol = getColumnByLocator(LOC_SEL, 0);
+  int icol = getColumnByLocator(LOC_SEL,0);
   if (!isColumnIndexValid(icol)) return tab;
 
   tab.resize(nech);
@@ -3129,7 +3138,7 @@ void Db::_createGridCoordinates(int shift)
   // Set the Names
 
   for (int idim = 0; idim < getNDim(); idim++)
-    _setNameByColumn(shift + idim, getLocatorName(LOC_X, idim+1));
+    _setNameByColumn(shift + idim, getLocatorName(LOC_X, idim));
 
   // Set the locators
 
@@ -3505,7 +3514,8 @@ int Db::_variableWrite(bool flag_grid) const
     {
       if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
       if (flag_grid && locatorType == LOC_X) continue;
-      _recordWrite("%lf", getArray(iech, icol));
+      int rank = getAttribute(locatorType, item);
+      _recordWrite("%lf", getArray(iech, rank));
     }
     _recordWrite("\n");
   }

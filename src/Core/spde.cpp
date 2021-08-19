@@ -9556,9 +9556,9 @@ static void st_define_locators(M2D_Environ *m2denv,
   ivar += ndim;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    db->setLocatorByAttribute(ivar++, LOC_L, ilayer+1);
-    db->setLocatorByAttribute(ivar++, LOC_U, ilayer+1);
-    if (ilayer < nvar) db->setLocatorByAttribute(ivar, LOC_Z, ilayer+1);
+    db->setLocatorByAttribute(ivar++, LOC_L, ilayer);
+    db->setLocatorByAttribute(ivar++, LOC_U, ilayer);
+    if (ilayer < nvar) db->setLocatorByAttribute(ivar, LOC_Z, ilayer);
     ivar++;
   }
   if (m2denv->flag_ed)

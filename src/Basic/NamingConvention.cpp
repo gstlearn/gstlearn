@@ -229,7 +229,7 @@ void NamingConvention::setLocators(Db *dbout,
 
   // Set the locator for all variables
   for (int ecr = 0; ecr < nvar * nitems; ecr++)
-    dbout->setLocatorByAttribute(iattout_start + ecr, _locatorOutType, ecr + 1);
+    dbout->setLocatorByAttribute(iattout_start + ecr, _locatorOutType, ecr);
 }
 
 /**

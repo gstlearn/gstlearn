@@ -98,15 +98,14 @@ public:
 
   void internalResize(int ndim, int nvar, const String& calculName);
 
-  double getHmax(int ivar, int jvar=0) const;
-  double getHmax() const;
-  VectorDouble getHRange(int ivar, int jvar=0) const;
-  double getGmax(int ivar,
-                 int jvar = 0,
+  double getHmax(int ivar=-1, int jvar=-1, int idir=-1) const;
+  VectorDouble getHRange(int ivar=-1, int jvar=-1, int idir=-1) const;
+  double getGmax(int ivar = -1,
+                 int jvar = -1,
+                 int idir = -1,
                  bool flagAbs = false,
                  bool flagSill = false) const;
-  double getGmax(bool flagAbs=false, bool flagSill = false) const;
-  VectorDouble getGRange(int ivar, int jvar = 0, bool flagSill = false) const;
+  VectorDouble getGRange(int ivar=-1, int jvar=-1, int idir=-1, bool flagSill = false) const;
 
   int compute(Db *db,
               const String& calculName = "vg",
@@ -163,6 +162,8 @@ private:
   bool _isDateValid(int idate) const;
   void _initMeans();
   void _initVars();
+  VectorDouble _getVariableInterval(int ivar) const;
+  VectorDouble _getDirectionInterval(int idir) const;
 
 private:
   String _calculName;

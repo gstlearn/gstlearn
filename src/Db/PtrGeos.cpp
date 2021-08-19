@@ -71,12 +71,12 @@ void PtrGeos::print(int rank, ENUM_LOCS locatorType) const
 
 bool PtrGeos::isLocatorIndexValid(int locatorIndex) const
 {
-   if (locatorIndex < 0 || locatorIndex >= getLocatorNumber())
-   {
-     mesArg("Locator Index",locatorIndex,getLocatorNumber());
-     return false;
-   }
-   return true;
+  if (locatorIndex < 0 || locatorIndex >= getLocatorNumber())
+  {
+    mesArg("Locator Index", locatorIndex, getLocatorNumber());
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -103,7 +103,7 @@ String getLocatorName(ENUM_LOCS locatorType, int locatorIndex)
     else if (locatorIndex < 0)
       sstr << DEF_LOCATOR[locatorType].SREF;
     else
-      sstr << DEF_LOCATOR[locatorType].SREF << locatorIndex;
+      sstr << DEF_LOCATOR[locatorType].SREF << locatorIndex+1;
   }
   return sstr.str();
 }
@@ -141,7 +141,7 @@ int getLocatorTypeFromName(const String& name_type)
  * Given a locator string, extract its characteristics
  * @param string     Locator string
  * @param ret_locatorType Resulting Locator type
- * @param ret_item   Resulting Locator rank (starting from 1)
+ * @param ret_item   Resulting Locator rank (starting from 0)
  * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
  * @return Error code
  */
@@ -171,7 +171,7 @@ int locatorIdentify(String string, ENUM_LOCS *ret_locatorType, int *ret_item, in
   /* Returning arguments */
 
   *ret_locatorType = (ENUM_LOCS) found;
-  *ret_item   = MAX(inum, 1);
+  *ret_item   = MAX(inum-1, 0);
   *ret_mult   = mult;
   return 0;
 }

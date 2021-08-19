@@ -94,7 +94,7 @@ public:
   const VectorDouble& getArrays() const { return _array; }
   String getNameByColumn(int icol) const { return _colNames[icol]; }
   String getName(int iatt) const;
-  String getName(ENUM_LOCS locatorType, int locatorIndex) const;
+  String getName(ENUM_LOCS locatorType, int locatorIndex=0) const;
   VectorString getNames(const VectorString& names) const;
   VectorString getNames(const String& name) const;
   VectorString getNames(ENUM_LOCS locatorType) const;
@@ -125,17 +125,17 @@ public:
   void clearLocators(ENUM_LOCS locatorType);
   void setLocatorByAttribute(int iatt,
                              ENUM_LOCS locatorType,
-                             int locatorIndex = 1);
+                             int locatorIndex = 0);
   void setLocator(const VectorString& names,
                   ENUM_LOCS locatorType = LOC_UNKNOWN,
-                  int locatorIndex = 1);
+                  int locatorIndex = 0);
   void setLocator(const String& names,
                   ENUM_LOCS locatorType = LOC_UNKNOWN,
-                  int locatorIndex = 1);
+                  int locatorIndex = 0);
   void setLocatorsByAttribute(int number,
                               int iatt,
                               ENUM_LOCS locatorType,
-                              int locatorIndex = 1);
+                              int locatorIndex = 0);
   int addFields(const VectorDouble& tab,
                 const String& radix = "New",
                 ENUM_LOCS locatorType = LOC_UNKNOWN,
@@ -159,7 +159,7 @@ public:
   int getColumn(const String& name) const;
   int getColumnByAttribute(int iatt) const;
   VectorInt getColumnByAttribute(const VectorInt iatts) const;
-  int getColumnByLocator(ENUM_LOCS locatorType, int locatorIndex) const;
+  int getColumnByLocator(ENUM_LOCS locatorType, int locatorIndex=0) const;
   VectorDouble getColumnByRank(int icol, bool useSel = false) const;
   void setColumnByRank(const VectorDouble& tab, int icol, bool useSel = false);
   void setColumnByRank(const double* tab, int icol, bool useSel = false);
@@ -186,7 +186,7 @@ public:
   int getLocatorNumber(ENUM_LOCS locatorType) const;
   bool isAttributeDefined(int iatt) const;
 
-  int getAttribute(ENUM_LOCS locatorType, int locatorIndex) const;
+  int getAttribute(ENUM_LOCS locatorType, int locatorIndex=0) const;
   int getAttribute(const String &name) const;
   VectorInt getAttributes(const VectorString& names) const;
   VectorInt getAttributes(ENUM_LOCS locatorType) const;
@@ -216,7 +216,7 @@ public:
   VectorDouble getArray(int iatt, bool useSel = false) const;
 
   int    getFromLocatorNumber(ENUM_LOCS locatorType) const;
-  double getFromLocator(ENUM_LOCS locatorType, int iech, int locatorIndex) const;
+  double getFromLocator(ENUM_LOCS locatorType, int iech, int locatorIndex=0) const;
   void   setFromLocator(ENUM_LOCS locatorType,
                         int iech,
                         int locatorIndex,
@@ -371,7 +371,7 @@ public:
   VectorDouble getField(const String& name, bool useSel = false) const;
   VectorDouble getFieldByAttribute(int iatt, bool useSel = false) const;
   VectorDouble getFieldByLocator(ENUM_LOCS locatorType,
-                                 int locatorIndex,
+                                 int locatorIndex=0,
                                  bool useSel = false) const;
   void setFieldByAttribute(const double* tab, int iatt, bool useSel = false);
   void setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel = false);
