@@ -21,6 +21,7 @@ public:
   void query(Db* db,bool keepGauss=false) const;
   virtual ~PGSSPDE();
 private:
+  Db* _data;
   std::vector<SPDE> _spdeTab;
   RuleProp _ruleProp;
   mutable Db* _workingDb;

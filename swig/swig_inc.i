@@ -138,6 +138,7 @@
 #include "Polygon/PolySet.hpp"
 #include "Stats/Classical.hpp"
 #include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleProp.hpp"
 #include "segy.h"
 
 %}

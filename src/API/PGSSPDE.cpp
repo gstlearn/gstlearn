@@ -19,6 +19,10 @@ void PGSSPDE::simulate(int seed,int nitergibbs) const
   {
     simulateNonCond(seed);
   }
+  if(_calcul==CALCUL_SIMUCOND)
+  {
+    gibbs(1);
+  }
 }
 
 void PGSSPDE::simulateNonCond(int seed) const
@@ -56,7 +60,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
 
 void PGSSPDE::gibbs(int niter) const
 {
-
+   _ruleProp.categoryToThresh(_data);
 }
 
 PGSSPDE::~PGSSPDE()

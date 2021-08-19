@@ -76,11 +76,12 @@ int main(int argc, char *argv[])
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
   dat.addFields(z,"variable",LOC_Z);
 
-  //PGSSPDE sCond(models,workingDbc,ruleProp,&dat);
+  PGSSPDE sCond(models,workingDbc,ruleProp,&dat);
   PGSSPDE sNonCond(models,workingDbc,ruleProp);
 
-  sNonCond.simulate();
-  sNonCond.query(&workingDbc);
+  PGSSPDE spgs = sCond;
+  spgs.simulate();
+  spgs.query(&workingDbc);
   workingDbc.display();
   workingDbc.serialize(pygst + "pgs.ascii");
 
