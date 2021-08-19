@@ -194,7 +194,7 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
   return mesh;
 }
 
-void SPDE::query(Db* db, NamingConvention namconv)
+int SPDE::query(Db* db, NamingConvention namconv) const
 {
   VectorDouble temp(db->getActiveSampleNumber());
   VectorDouble result(db->getActiveSampleNumber(),0.);
@@ -234,9 +234,9 @@ void SPDE::query(Db* db, NamingConvention namconv)
      }
       suffix = "condSimu";
   }
-
   int iptr = db->addFields(result,"SPDE",LOC_Z,true,TEST);
   namconv.setNamesAndLocators(_data,LOC_Z,1,db,iptr,suffix,1,true);
+  return iptr;
 }
 
 VectorDouble SPDE::computeCoeffs(const VectorVectorDouble& x)const

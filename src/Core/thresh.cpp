@@ -1009,7 +1009,7 @@ label_end:
 **
 *****************************************************************************/
 GEOSLIB_API int db_rule(Db       *db,
-                        RuleProp *ruleprop,
+                        const RuleProp *ruleprop,
                         Model    *model,
                         NamingConvention namconv)
 {
@@ -1226,7 +1226,7 @@ label_end:
 **
 *****************************************************************************/
 GEOSLIB_API int db_bounds(Db*       db,
-                          RuleProp* ruleprop,
+                          const RuleProp* ruleprop,
                           Model*    model,
                           NamingConvention namconv)
 {
@@ -1498,7 +1498,7 @@ label_end:
 **
 *****************************************************************************/
 GEOSLIB_API int db_threshold(Db*       db,
-                             RuleProp* ruleprop,
+                             const RuleProp* ruleprop,
                              Model*    model,
                              NamingConvention namconv)
 {

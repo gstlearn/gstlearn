@@ -13,7 +13,8 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "Model/Model.hpp"
-
+#include "API/SPDE.hpp"
+#include "API/PGSSPDE.hpp"
 
 /****************************************************************************/
 /*!
@@ -35,6 +36,9 @@ int main(int argc, char *argv[])
   Db db(nech,{0.,0.},{1.,1.});
   db.display(FLAG_STATS);
 
+  auto nx={ 101,101 };
+  Db workingDbc(nx);
+
   Db dbprop= Db({100,100},{0.01,0.01},{0.,0.});
 
   VectorDouble props({0.2, 0.5, 0.3});
@@ -46,32 +50,39 @@ int main(int argc, char *argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
-  double range1 = 0.2;
+  double range1 = 20;
   CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
   model1.addCova(&cova1);
   model1.display();
   model1.serialize(pygst+ "truemodel1.ascii");
 
   Model model2(ctxt);
-  double range2 = 0.3;
+  double range2 = 40;
   CovAniso cova2(COV_BESSEL_K,range2,2.,1.,ctxt);
   model2.addCova(&cova2);
   model2.display();
   model2.serialize(pygst+ "truemodel2.ascii");
 
-  std::vector<Model> models;
-  models.push_back(model1);
-  models.push_back(model2);
+  std::vector<Model*> models;
+  models.push_back(&model1);
+  models.push_back(&model2);
 
   // Creating the Rule
   Rule rule({"S","T","F1","F2","F3"});
-  RuleProp ruleprop = RuleProp(&rule, props);
+  RuleProp ruleProp = RuleProp(&rule, props);
 
   auto ndata = 100;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
   dat.addFields(z,"variable",LOC_Z);
- // PGSSPDE(models,workingDbc,ruleProp,&dat);
+
+  //PGSSPDE sCond(models,workingDbc,ruleProp,&dat);
+  PGSSPDE sNonCond(models,workingDbc,ruleProp);
+
+  sNonCond.simulate();
+  sNonCond.query(&workingDbc);
+  workingDbc.display();
+  workingDbc.serialize(pygst + "pgs.ascii");
 
   return(error);
 }

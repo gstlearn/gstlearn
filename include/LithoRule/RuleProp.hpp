@@ -40,9 +40,9 @@ public:
   void setRule(const Rule* rule) { _rule = rule; }
 
   int fit(Db* db, Vario* vario, int ngrfmax = 1, bool verbose = false);
-  int gaussToCategory(Db* db, NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
-  int categoryToThresh(Db *db, NamingConvention namconv = NamingConvention("Bounds"));
-  int computeAllThreshes(Db *db, NamingConvention namconv = NamingConvention("Thresh"));
+  int gaussToCategory(Db* db, NamingConvention namconv = NamingConvention("Facies",LOC_FACIES)) const;
+  int categoryToThresh(Db *db, NamingConvention namconv = NamingConvention("Bounds")) const;
+  int computeAllThreshes(Db *db, NamingConvention namconv = NamingConvention("Thresh")) const;
 
 private:
   bool _checkConsistency();

@@ -120,15 +120,15 @@ GEOSLIB_API Rule *rule_auto(Db *db,
                             int ngrfmax = 1,
                             int verbose = false);
 GEOSLIB_API int db_rule(Db* db,
-                        RuleProp* ruleprop,
+                        const RuleProp* ruleprop,
                         Model *model = nullptr,
                         NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
 GEOSLIB_API int db_bounds(Db *db,
-                          RuleProp* ruleprop,
+                          const RuleProp* ruleprop,
                           Model *model = nullptr,
                           NamingConvention namconv = NamingConvention("Bounds"));
 GEOSLIB_API int db_threshold(Db *db,
-                             RuleProp* ruleprop,
+                             const RuleProp* ruleprop,
                              Model *model = nullptr,
                              NamingConvention namconv = NamingConvention("Thresh"));
 
