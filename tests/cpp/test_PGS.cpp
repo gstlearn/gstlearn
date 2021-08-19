@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     dbprop.addFields(1,props[ifac],names[ifac]);
   dbprop.setLocator(names,LOC_P);
 
+  dbprop.display();
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
   double range1 = 0.2;
@@ -69,42 +70,43 @@ int main(int argc, char *argv[])
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
   rule.serialize(pygst+ "truerule.ascii");
-  RuleProp ruleprop = RuleProp(&rule, props);
-
+  RuleProp ruleprop = RuleProp(&rule, &dbprop);
+  //RuleProp ruleprop = RuleProp(&rule, props);
   // Perform a non-conditional simulation on the Db
   error = simpgs(nullptr,&db,&ruleprop,&model1,&model2,&neigh);
   db.setLocator(db.getLastName(),LOC_Z);
 
+  db.serialize(pygst+ "simupgs.ascii");
   // Determination of the variogram of the Underlying GRF
   Vario cov = Vario();
   int nlag = 19;
   Dir dir = Dir(ndim, nlag, 0.5 / nlag);
   cov.addDirs(dir);
 
-//  error = variogram_pgs(&db,&cov,&ruleprop);
-//  Vario vario1(cov,VectorInt(1,0),VectorInt(),true);
-//  Vario vario2(cov,VectorInt(1,1),VectorInt(),true);
-//  vario1.display(1);
-//  vario2.display(1);
+  error = variogram_pgs(&db,&cov,&ruleprop);
+  Vario vario1(cov,VectorInt(1,0),VectorInt(),true);
+  Vario vario2(cov,VectorInt(1,1),VectorInt(),true);
+  vario1.display(1);
+  vario2.display(1);
 
   // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
-//  Model modelPGS1(ctxt);
-//  Model modelPGS2(ctxt);
-//  Option_AutoFit option = Option_AutoFit();
-//  option.setConstantSillValue(1.);
+  Model modelPGS1(ctxt);
+  Model modelPGS2(ctxt);
+  Option_AutoFit option = Option_AutoFit();
+  option.setConstantSillValue(1.);
 //
-//  std::vector<ENUM_COVS> covs {COV_BESSEL_K, COV_EXPONENTIAL};
-//  modelPGS1.fit(&vario1,covs,true,option);
-//  modelPGS1.display();
+  std::vector<ENUM_COVS> covs {COV_BESSEL_K, COV_EXPONENTIAL};
+  modelPGS1.fit(&vario1,covs,true,option);
+  modelPGS1.display();
 //
-//  vario1.serialize(pygst+ "variopgs1.ascii");
-//  modelPGS1.serialize(pygst+ "modelfitpgs1.ascii");
-//
-//  modelPGS2.fit(&vario2,covs,true,option);
-//  modelPGS2.display();
-//
-//  vario2.serialize(pygst+ "variopgs2.ascii");
-//  modelPGS2.serialize(pygst+ "modelfitpgs2.ascii");
+  vario1.serialize(pygst+ "variopgs1.ascii");
+  modelPGS1.serialize(pygst+ "modelfitpgs1.ascii");
+
+  modelPGS2.fit(&vario2,covs,true,option);
+  modelPGS2.display();
+
+  vario2.serialize(pygst+ "variopgs2.ascii");
+  modelPGS2.serialize(pygst+ "modelfitpgs2.ascii");
 
   // Prepare the experimental variograms of the indicators
 
@@ -118,17 +120,17 @@ int main(int argc, char *argv[])
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
   error = ruleprop2.fit(&db, &varioParam, 2, true);
   ruleprop2.getRule()->display(1);
-//  ruleprop2.getRule()->serialize(pygst + "ruleFit.ascii");
+  ruleprop2.getRule()->serialize(pygst + "ruleFit.ascii");
 
-//  Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
-//  Vario varioIndic = Vario();
-//  varioIndic.addDirs(dir2);
-//  error = varioIndic.computeIndic(&db);
-//  varioIndic.serialize(pygst+ "varioindic.ascii");
-//
-//  error = model_pgs(&db, &varioIndic, &ruleprop2, &modelPGS1, &modelPGS2);
-//  varioIndic.serialize(pygst+ "modelpgs.ascii");
-//  varioIndic.display(1);
+  Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
+  Vario varioIndic = Vario();
+  varioIndic.addDirs(dir2);
+  error = varioIndic.computeIndic(&db);
+  varioIndic.serialize(pygst+ "varioindic.ascii");
+
+  error = model_pgs(&db, &varioIndic, &ruleprop2, &modelPGS1, &modelPGS2);
+  varioIndic.serialize(pygst+ "modelpgs.ascii");
+  varioIndic.display(1);
 
   return(error);
 }
