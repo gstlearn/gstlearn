@@ -30,7 +30,7 @@ public:
   void computeSimuNonCond(int nbsimus = 1, int seed=131323) const;
   void computeSimuCond(int nbsimus = 1, int seed=131323) const;
   VectorDouble computeCoeffs()const;
-  void query(Db* db,NamingConvention namconv = NamingConvention("spde"));
+  int query(Db* db,NamingConvention namconv = NamingConvention("spde")) const;
   virtual ~SPDE();
 
 private:
