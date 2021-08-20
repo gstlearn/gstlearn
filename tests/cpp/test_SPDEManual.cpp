@@ -42,18 +42,17 @@ int main(int argc, char *argv[])
   law_set_random_seed(seed);
 
   ///////////////////////
-  // Création de la db //
-
+  // Creating the Db Grid
   auto nx={ 101,101 };
   Db workingDbc(nx);
-
-  //////////////////////
-  //Creating the Mesh
-  MeshETurbo mesh(workingDbc);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(&workingDbc);
   workingDbc.addFields(angle,"angle",LOC_NOSTAT);
+
+  //////////////////////
+  //Creating the Mesh
+  MeshETurbo mesh(workingDbc);
 
   ///////////////////////
   // Creating the Model
@@ -64,18 +63,15 @@ int main(int argc, char *argv[])
 
   /////////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
-
   NoStatArray NoStat({"A"},&workingDbc);
   model.addNoStat(&NoStat);
   SPDE spde(model,workingDbc);
-  std::cout<<"end creation "<<std::endl;
 
   ShiftOpCs S(&mesh, &model, &workingDbc);
   PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
 
-  //  ///////////////////////////////////////////////////
-  //  // Simulation (Chebyshev)
-  //
+  ///////////////////////////
+  // Simulation (Chebyshev)
   VectorDouble resultSimu;
   VectorDouble tab = ut_vector_simulate_gaussian(mesh.getNApices());
 
@@ -83,16 +79,19 @@ int main(int argc, char *argv[])
   Qsimu.eval(tab,resultSimu);
   workingDbc.addFields(resultSimu,"Simu",LOC_Z);
 
+  ///////////////////////////
   // Creating Data
   auto ndata = 1000;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
 
+  ///////////////////////////
   // Simulating Data points
   ProjMatrix B(&dat, &mesh);
   VectorDouble datval(ndata);
   B.mesh2point(resultSimu, datval);
   dat.addFields(datval, "Simu", LOC_Z);
 
+  ///////////////////////////
   // Kriging
   double nug = 0.1;
   VectorDouble rhs(S.getSize());

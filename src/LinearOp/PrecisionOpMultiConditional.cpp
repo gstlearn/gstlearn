@@ -196,10 +196,10 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
       XtInvSigmaX.setValue(i,j,ut_vector_inner_product(X[j],_work1));
     }
   }
-  XtInvSigmaX.display();
+  // XtInvSigmaX.display();
   VectorDouble result(X.size());
-  std::cout<< XtInvSigmaX.getValue(0,0)<< "  "<< XtInvSigmaX.getValue(0,1) <<std::endl;
-  std::cout<< XtInvSigmaX.getValue(1,0)<< "  "<< XtInvSigmaX.getValue(1,1) <<std::endl;
+  //std::cout<< XtInvSigmaX.getValue(0,0)<< "  "<< XtInvSigmaX.getValue(0,1) <<std::endl;
+  //std::cout<< XtInvSigmaX.getValue(1,0)<< "  "<< XtInvSigmaX.getValue(1,1) <<std::endl;
 
   XtInvSigmaX.solve(XtInvSigmaZ,result);
 

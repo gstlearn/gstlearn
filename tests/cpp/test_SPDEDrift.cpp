@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   law_set_random_seed(seed);
 
   ///////////////////////
-  // Création de la db //
+  // Creating the Db Grid
   auto nx={ 101,101 };
   Db workingDbc(nx);
 
@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
 
   model.display(1);
 
+  ///////////////////////
   // Creating Data
   auto ndata = 500;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
@@ -57,9 +58,11 @@ int main(int argc, char *argv[])
   dat.addFields(drift,"Drift",LOC_F);
   dat.display(1);
 
+  ///////////////////////
+  // Running SPDE
   SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
   VectorDouble result = spde.computeCoeffs();
-  ut_vector_display("Coeffs",result);
+  ut_vector_display("Drift Coefficients:",result);
   return 0;
 }
 

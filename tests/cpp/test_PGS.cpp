@@ -94,11 +94,11 @@ int main(int argc, char *argv[])
   Model modelPGS2(ctxt);
   Option_AutoFit option = Option_AutoFit();
   option.setConstantSillValue(1.);
-//
+
   std::vector<ENUM_COVS> covs {COV_BESSEL_K, COV_EXPONENTIAL};
   modelPGS1.fit(&vario1,covs,true,option);
   modelPGS1.display();
-//
+
   vario1.serialize(pygst+ "variopgs1.ascii");
   modelPGS1.serialize(pygst+ "modelfitpgs1.ascii");
 

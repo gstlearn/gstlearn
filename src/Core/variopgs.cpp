@@ -1827,21 +1827,20 @@ GEOSLIB_API Vario_Order *vario_order_manage(int mode,
     case -1:
       vorder_loc = vorder;
       if (vorder == (Vario_Order *) NULL) return(vorder_loc);
-      vorder_loc->tab_iech     = (int    *) 
-        mem_free((char *) vorder_loc->tab_iech);
-      vorder_loc->tab_jech     = (int    *) 
-        mem_free((char *) vorder_loc->tab_jech);
-      vorder_loc->tab_ipas     = (int    *) 
-        mem_free((char *) vorder_loc->tab_ipas);
-      vorder_loc->tab_sort     = (int    *) 
-        mem_free((char *) vorder_loc->tab_sort);
-      vorder_loc->tab_aux_iech = (char   *) 
-        mem_free((char *) vorder_loc->tab_aux_iech);
-      vorder_loc->tab_aux_jech = (char   *) 
-        mem_free((char *) vorder_loc->tab_aux_jech);
-      vorder_loc->tab_dist     = (double *) 
-        mem_free((char *) vorder_loc->tab_dist);
-      vorder_loc = (Vario_Order *) mem_free((char *) vorder_loc);
+      if (vorder_loc != nullptr)
+      {
+        vorder_loc->tab_iech = (int *) mem_free((char * ) vorder_loc->tab_iech);
+        vorder_loc->tab_jech = (int *) mem_free((char * ) vorder_loc->tab_jech);
+        vorder_loc->tab_ipas = (int *) mem_free((char * ) vorder_loc->tab_ipas);
+        vorder_loc->tab_sort = (int *) mem_free((char * ) vorder_loc->tab_sort);
+        vorder_loc->tab_aux_iech = (char *) mem_free(
+            (char * ) vorder_loc->tab_aux_iech);
+        vorder_loc->tab_aux_jech = (char *) mem_free(
+            (char * ) vorder_loc->tab_aux_jech);
+        vorder_loc->tab_dist = (double *) mem_free(
+            (char * ) vorder_loc->tab_dist);
+        vorder_loc = (Vario_Order *) mem_free((char * ) vorder_loc);
+      }
       break;
   }
   return(vorder_loc);

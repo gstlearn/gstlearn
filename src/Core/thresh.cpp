@@ -1405,7 +1405,7 @@ GEOSLIB_API Props *proportion_manage(int     mode,
         // Non-stationary case
 
         db_loc = (propdef->case_prop_interp) ? dbprop : db;
-        if (db == nullptr)
+        if (db_loc == nullptr)
         {
           messerr("You have requested Non-stationary proportions");
           messerr("No file is provided containing Proportion variables");
