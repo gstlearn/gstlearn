@@ -12,13 +12,14 @@
 #include "LithoRule/Rule.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/AStringable.hpp"
 #include "geoslib_f_private.h"
 
 RuleProp::RuleProp()
     : _flagStat(true),
       _propcst(),
       _dbprop(nullptr),
-      _rule(nullptr),
+      _rules(),
       _ruleInternal(false)
 {
 }
@@ -33,7 +34,7 @@ RuleProp::RuleProp(const Db* dbprop, const VectorDouble& propcst)
     : _flagStat(true),
       _propcst(propcst),
       _dbprop(dbprop),
-      _rule(nullptr),
+      _rules(),
       _ruleInternal(true)
 {
   if (! _checkConsistency())
@@ -43,16 +44,17 @@ RuleProp::RuleProp(const Db* dbprop, const VectorDouble& propcst)
   int nfacies = _getNFacies();
   Rule rule = Rule();
   rule.init(nfacies);
-  _rule = new Rule(rule);
+  _rules.push_back(new Rule(rule));
 }
 
 RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)
     : _flagStat(true),
       _propcst(propcst),
       _dbprop(nullptr),
-      _rule(rule),
+      _rules(),
       _ruleInternal(false)
 {
+  _rules.push_back(rule);
   if (! _checkConsistency())
     my_throw("Inconsistent arguments");
 }
@@ -61,18 +63,47 @@ RuleProp::RuleProp(const Rule* rule, const Db* dbprop)
     : _flagStat(true),
       _propcst(),
       _dbprop(dbprop),
-      _rule(rule),
+      _rules(),
       _ruleInternal(false)
 {
+  _rules.push_back(rule);
   if (! _checkConsistency())
     my_throw("Inconsistent arguments");
+}
+
+RuleProp::RuleProp(const Rule* rule1,
+                   const Rule* rule2,
+                   const VectorDouble& propcst)
+    : _flagStat(true),
+      _propcst(propcst),
+      _dbprop(nullptr),
+      _rules(),
+      _ruleInternal(false)
+{
+  _rules.push_back(rule1);
+  _rules.push_back(rule2);
+  if (! _checkConsistency())
+    my_throw("Inconsistent arguments");
+}
+
+RuleProp::RuleProp(const Rule* rule1, const Rule* rule2, const Db* dbprop)
+    : _flagStat(true),
+      _propcst(),
+      _dbprop(dbprop),
+      _rules(),
+      _ruleInternal(false)
+{
+  _rules.push_back(rule1);
+  _rules.push_back(rule2);
+  if (!_checkConsistency())
+  my_throw("Inconsistent arguments");
 }
 
 RuleProp::RuleProp(const RuleProp& m)
   : _flagStat(m._flagStat),
     _propcst(m._propcst),
     _dbprop(m._dbprop),
-    _rule(m._rule),
+    _rules(m._rules),
     _ruleInternal(m._ruleInternal)
 {
 }
@@ -84,7 +115,7 @@ RuleProp& RuleProp::operator=(const RuleProp& m)
     _flagStat = m._flagStat;
     _propcst = m._propcst;
     _dbprop = m._dbprop;
-    _rule = m._rule;
+    _rules = m._rules;
     _ruleInternal = m._ruleInternal;
   }
   return *this;
@@ -92,7 +123,11 @@ RuleProp& RuleProp::operator=(const RuleProp& m)
 
 RuleProp::~RuleProp()
 {
-  if (_ruleInternal) delete _rule;
+  if (_ruleInternal)
+  {
+    for (int ir = 0; ir < getRuleNumber(); ir++)
+      delete _rules[ir];
+  }
 }
 
 std::string RuleProp::toString(int level) const
@@ -100,28 +135,26 @@ std::string RuleProp::toString(int level) const
   std::stringstream sstr;
   sstr << "Class PGS" << std::endl;
 
-  if (_rule != nullptr)
-    sstr << _rule->toString(level);
+  for (int ir = 0; ir < getRuleNumber(); ir++)
+  {
+    const Rule* rule = _rules[ir];
+    sstr << rule->toString(level);
+  }
 
   return sstr.str();
 }
 
 bool RuleProp::_checkConsistency()
 {
-  int nfacies = 0;
+  int nfacies = 1;
 
-  // Check the number of facies against the Rule
-  if (_rule != nullptr)
+  // Check the number of facies against the Rule(s)
+  // In case of several rules, the number of facies is the product
+  // of the number of facies per rule.
+  for (int ir = 0; ir < getRuleNumber(); ir++)
   {
-    int nfacrule = _rule->getFaciesNumber();
-    if (nfacies > 0 && nfacrule != nfacies)
-    {
-      messerr("Mismatch between:");
-      message("- Number of facies passed as argument (%d)", nfacies);
-      messerr("- Number of Facies in Rule (%d)",nfacrule);
-      return false;
-    }
-    nfacies = nfacrule;
+    int nfacrule = _rules[ir]->getFaciesNumber();
+    nfacies *= nfacrule;
   }
 
   // Non-stationary case: proportions are provided using Dbprop
@@ -135,7 +168,7 @@ bool RuleProp::_checkConsistency()
     if (nfacies > 0 && nfacies != nfacdb)
     {
       messerr("Mismatch between:");
-      messerr("- Number of Facies in Rule (%d)",nfacies);
+      messerr("- Number of Facies in Rule(s) (%d)",nfacies);
       messerr("- Number of Proportion fields in Db (%d)",nfacdb);
       return false;
     }
@@ -153,7 +186,7 @@ bool RuleProp::_checkConsistency()
     if (nfacies > 0 && nfacies != nfacprop)
     {
       messerr("Mismatch between:");
-      messerr("- Number of Facies in Rule (%d)",nfacies);
+      messerr("- Number of Facies in Rule(s) (%d)",nfacies);
       messerr("- Number of Proportion in Propcst (%d)",nfacprop);
       return false;
     }
@@ -172,12 +205,26 @@ bool RuleProp::_checkConsistency()
   return true;
 }
 
+bool RuleProp::_checkRuleRank(int rank) const
+{
+  int nrule = getRuleNumber();
+  if (rank < 0 || rank >= nrule)
+  {
+    mesArg("Rule Rank",rank,nrule);
+    return false;
+  }
+  return true;
+}
+
 int RuleProp::_getNFacies()
 {
   // Check the number of facies against the Rule
-  if (_rule != nullptr)
+  if (! _rules.empty())
   {
-    return _rule->getFaciesNumber();
+    int nfacies = 1;
+    for (int ir = 0; ir < getRuleNumber(); ir++)
+      nfacies *= _rules[ir]->getFaciesNumber();
+    return nfacies;
   }
 
   // Non-stationary case: proportions are provided using Dbprop
@@ -193,6 +240,17 @@ int RuleProp::_getNFacies()
   }
 
   return 0;
+}
+const Rule* RuleProp::getRule(int rank) const
+{
+  if (! _checkRuleRank(rank)) return nullptr;
+  return _rules[rank];
+}
+
+void RuleProp::setRule(const Rule* rule, int rank)
+{
+  if (! _checkRuleRank(rank)) return;
+  _rules[rank] = rule;
 }
 
 int RuleProp::fit(Db* db, Vario* vario, int ngrfmax, bool verbose)
@@ -212,7 +270,7 @@ int RuleProp::fit(Db* db, Vario* vario, int ngrfmax, bool verbose)
  */
 int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
 {
-  if (_rule->getModeRule() != RULE_STD)
+  if (_rules[0]->getModeRule() != RULE_STD)
   {
     messerr("This method is only available for RULE_STD type of Rule");
     return 1;
@@ -228,7 +286,7 @@ int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
  */
 int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
 {
-  if (_rule->getModeRule() != RULE_STD)
+  if (_rules[0]->getModeRule() != RULE_STD)
   {
     messerr("This method is only available for RULE_STD type of Rule");
     return 1;
@@ -244,7 +302,7 @@ int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
  */
 int RuleProp::computeAllThreshes(Db *db, NamingConvention namconv) const
 {
-  if (_rule->getModeRule() != RULE_STD)
+  if (_rules[0]->getModeRule() != RULE_STD)
   {
     messerr("This method is only available for RULE_STD type of Rule");
     return 1;

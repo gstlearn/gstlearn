@@ -2591,6 +2591,21 @@ void Db::setName(const VectorString list, const String& name)
   correctNamesForDuplicates(_colNames);
 }
 
+void Db::setName(ENUM_LOCS locatorType, const String& name)
+{
+  VectorString namelist;
+  if (!isLocatorTypeValid(locatorType)) return;
+  int count = getFromLocatorNumber(locatorType);
+  for (int i = 0; i < count; i++)
+  {
+    int icol = getColumnByLocator(locatorType, i);
+    if (icol < 0) continue;
+    _colNames[icol] = incrementStringVersion(name, i+ 1);
+  }
+  correctNamesForDuplicates(_colNames);
+  return;
+}
+
 String Db::_summaryString(void) const
 {
   std::stringstream sstr;

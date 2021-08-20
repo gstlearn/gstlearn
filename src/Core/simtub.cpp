@@ -5669,7 +5669,7 @@ GEOSLIB_API int simpgs(Db *dbin,
                        double delta,
                        NamingConvention namconv)
 {
-  int     iptr,ngrf,igrf,icase,ecr,nfacies;
+  int     iptr,ngrf,igrf,icase,nfacies;
   int     nvar,flag_cond,error,isimu,flag_used[2],nechin;
   int     iptr_RP,iptr_RF,iptr_DF,iptr_DN,iptr_RN;
   double *mean,*covmat;
@@ -5702,6 +5702,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   Rule rule(*ruleprop->getRule());
   const VectorDouble& propcst = ruleprop->getPropCst();
   const Db* dbprop = ruleprop->getDbprop();
+  ngrf = rule.getGRFNumber();
 
   if (rule.getModeRule() == RULE_SHADOW)
   {
@@ -5738,7 +5739,6 @@ GEOSLIB_API int simpgs(Db *dbin,
   {
     flag_used[igrf] = rule.isYUsed(igrf);
     if (! flag_used[igrf]) continue;
-    ngrf++;
     if (models[igrf] == (Model *) NULL)
     {
       messerr("The Underlying GRF #%d is needed",igrf+1);
@@ -5804,36 +5804,28 @@ GEOSLIB_API int simpgs(Db *dbin,
       goto label_end;
   }
 
-  for (igrf=ecr=0; igrf<2; igrf++)
+  if (flag_cond)
   {
-    if (! flag_used[igrf]) continue;
+    /* Gaussian transform of the facies input data */
+    if (db_locator_attribute_add(dbin,LOC_GAUSFAC,ngrf*nbsimu,
+                                 0,0.,&iptr)) goto label_end;
 
-    if (flag_cond)
-    {
-      /* Gaussian transform of the facies input data */
-      if (db_locator_attribute_add(dbin,LOC_GAUSFAC,nbsimu,
-                                   ecr * nbsimu,0.,&iptr)) goto label_end;
-
-      /* Non-conditional simulations at data points */
-      if (db_locator_attribute_add(dbin,LOC_SIMU,nbsimu,
-                                   ecr * nbsimu,0.,&iptr_DN)) goto label_end;
-    }
-
-    /* (Non-) Conditional simulations at target points */
-    if (db_locator_attribute_add(dbout,LOC_SIMU,nbsimu,
-                                 ecr * nbsimu,0.,&iptr_RN)) goto label_end;
-    ecr++;
+    /* Non-conditional simulations at data points */
+    if (db_locator_attribute_add(dbin,LOC_SIMU,ngrf*nbsimu,
+                                 0,0.,&iptr_DN)) goto label_end;
   }
+
+  /* (Non-) Conditional simulations at target points */
+  if (db_locator_attribute_add(dbout,LOC_SIMU,ngrf*nbsimu,
+                               0,0.,&iptr_RN)) goto label_end;
 
   if (flag_cond)
   {
     /* Lower bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_L,ngrf,0,0.,&iptr)) 
-      goto label_end;
+    if (db_locator_attribute_add(dbin,LOC_L,ngrf,0,0.,&iptr)) goto label_end;
 
     /* Upper bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_U,ngrf,0,0.,&iptr)) 
-      goto label_end;
+    if (db_locator_attribute_add(dbin,LOC_U,ngrf,0,0.,&iptr)) goto label_end;
   }
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
@@ -5956,6 +5948,7 @@ GEOSLIB_API int simpgs(Db *dbin,
     else
       namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RP, "Props",
                                   nbsimu, false);
+
     if (!st_keep(flag_gaus, flag_modif, RESULT, GAUS))
       dbout->deleteFieldByLocator(LOC_SIMU);
     else
@@ -5976,6 +5969,7 @@ GEOSLIB_API int simpgs(Db *dbin,
     else
       namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrf * nbsimu, false);
+
     if (!st_keep(flag_gaus, flag_modif, DATA, FACIES) && iptr_DF)
       dbin->deleteFieldByLocator(LOC_FACIES);
     else
@@ -6011,17 +6005,14 @@ label_end:
 **
 ** \param[in]  dbin        Input Db structure (optional)
 ** \param[in]  dbout       Output Db structure
-** \param[in]  dbprop      Db structure used for proportions (non-stationary case)
-** \param[in]  rule1       First Lithotype Rule definition
-** \param[in]  rule2       Second Lithotype Rule definition
+** \param[in]  ruleprop    Ruleprop definition
 ** \param[in]  model11     First Model structure for First Lithotype Rule
 ** \param[in]  model12     Second Model structure for First Lithotype Rule
 ** \param[in]  model21     First Model structure for Second Lithotype Rule
 ** \param[in]  model22     Second Model structure for Second Lithotype Rule
 ** \param[in]  neigh       Neighborhood structure
-** \param[in]  propcst     Array of proportions for the two facies
-**                         (Dimension: nfac1 * nfac2)
-** \param[in]  flag_stat   1 for stationary; 0 otherwise
+** \param[in]  nbsimu      Number of simulations
+** \param[in]  seed        Seed for random number generator
 ** \param[in]  flag_gaus   1 gaussian results; otherwise facies
 ** \param[in]  flag_modif  1 for facies proportion
 ** \param[in]  flag_check  1 if the facies at data must be checked against
@@ -6029,16 +6020,13 @@ label_end:
 ** \param[in]  flag_show   1 if the grid node which coincides with the data
 **                         should be represented with the data facies
 **                         (only if flag_cond && !flag_gaus)
-** \param[in]  nfac1       Number of facies for the First Rule
-** \param[in]  nfac2       Number of facies for the Second Rule
-** \param[in]  seed        Seed for random number generator
-** \param[in]  nbsimu      Number of simulations
 ** \param[in]  nbtuba      Number of turning bands
 ** \param[in]  gibbs_nburn Number of bootstrap iterations
 ** \param[in]  gibbs_niter Maximum number of iterations
 ** \param[in]  percent     Amount of nugget effect added to too continuous
 **                         model (expressed in percentage of the total variance)
 ** \param[in]  gibbs_eps   Relative stability criterion
+** \param[in]  namconv     Naming convention
 **
 ** \remark  When conditional, the two first variables in the input Db
 ** \remark  should correspond to the two facies indices (starting from 1)
@@ -6048,36 +6036,31 @@ label_end:
 ** \remark  f1af2a, f1bf2a, f1cf2a, ..., f1bf2a, f1bf2b, ..., f1nf2m
 **
 *****************************************************************************/
-GEOSLIB_API int simbipgs(Db     *dbin,
-                         Db     *dbout,
-                         Db     *dbprop,
-                         Rule   *rule1,
-                         Rule   *rule2,
-                         Model  *model11,
-                         Model  *model12,
-                         Model  *model21,
-                         Model  *model22,
-                         Neigh  *neigh,
-                         const VectorDouble& propcst,
-                         int     flag_stat,
-                         int     flag_gaus,
-                         int     flag_modif,
-                         int     flag_check,
-                         int     flag_show,
-                         int     nfac1,
-                         int     nfac2,
-                         int     seed,
-                         int     nbsimu,
-                         int     nbtuba,
-                         int     gibbs_nburn,
-                         int     gibbs_niter,
-                         double  percent,
-                         double  gibbs_eps)
+GEOSLIB_API int simbipgs(Db       *dbin,
+                         Db       *dbout,
+                         RuleProp *ruleprop,
+                         Model    *model11,
+                         Model    *model12,
+                         Model    *model21,
+                         Model    *model22,
+                         Neigh    *neigh,
+                         int       nbsimu,
+                         int       seed,
+                         int       flag_gaus,
+                         int       flag_modif,
+                         int       flag_check,
+                         int       flag_show,
+                         int       nbtuba,
+                         int       gibbs_nburn,
+                         int       gibbs_niter,
+                         double    percent,
+                         double    gibbs_eps,
+                         NamingConvention namconv)
 {
   int     iptr,igrf,iatt_z[2];
   int     nvar,ipgs,npgs,flag_cond,error,isimu,icase;
-  int     nfac[2],nfactot,flag_used[2][2],nechin,ngrf[2],ngrftot,ecr;
-  int     iptr_RP,iptr_RF,iptr_DF;
+  int     nfac[2],nfactot,flag_used[2][2],nechin,ngrf[2],ngrftot;
+  int     iptr_RP,iptr_RF,iptr_DF,iptr_RN,iptr_DN;
   double *mean,*covmat;
   Rule   *rules[2];
   Model  *models[2][2];
@@ -6093,17 +6076,29 @@ GEOSLIB_API int simbipgs(Db     *dbin,
   mean      = covmat = (double *) NULL;
   situba    = (Situba *) NULL;
   propdef   = (Props  *) NULL;
-  nfac[0]   = nfac1;
-  nfac[1]   = nfac2;
-  rules[0]  = rule1;
-  rules[1]  = rule2;
+
+  if (ruleprop == nullptr)
+  {
+    messerr("RuleProp must be defined");
+    return 1;
+  }
+  int flag_stat = ruleprop->isFlagStat();
+  Rule rule1(*ruleprop->getRule(0));
+  Rule rule2(*ruleprop->getRule(1));
+  const VectorDouble& propcst = ruleprop->getPropCst();
+  const Db* dbprop = ruleprop->getDbprop();
+
+  nfac[0]   = rule1.getFaciesNumber();
+  nfac[1]   = rule2.getFaciesNumber();
+  rules[0]  = &rule1;
+  rules[1]  = &rule2;
   models[0][0] = model11;
   models[0][1] = model12;
   models[1][0] = model21;
   models[1][1] = model22;
-  nfactot   = nfac1 + nfac2;
+  nfactot   = nfac[0] + nfac[1];
   flag_cond = (dbin != (Db *) NULL);
-  iptr_RP   = iptr_RF = iptr_DF = 0;
+  iptr_RP   = iptr_RF = iptr_DF = iptr_RN = iptr_DN = 0;
   iptr      = -1;
   for (ipgs=0; ipgs<2; ipgs++)
   {
@@ -6111,24 +6106,24 @@ GEOSLIB_API int simbipgs(Db     *dbin,
     iatt_z[ipgs] = -1;
   }
   law_set_random_seed(seed);
-  if (rule1->getModeRule() == RULE_SHADOW)
+  if (rules[0]->getModeRule() == RULE_SHADOW)
   {
-    if (rule1->particularities_shadow(dbout, dbprop, model11, 1, flag_stat))
+    if (rules[0]->particularities_shadow(dbout, dbprop, model11, 1, flag_stat))
       goto label_end;
   }
   else
   {
-    if (rule1->particularities(dbout, dbprop, model11, 1, flag_stat))
+    if (rules[0]->particularities(dbout, dbprop, model11, 1, flag_stat))
       goto label_end;
   }
-  if (rule2->getModeRule() == RULE_SHADOW)
+  if (rules[1]->getModeRule() == RULE_SHADOW)
   {
-    if (rule2->particularities_shadow(dbout, dbprop, model21, 1, flag_stat))
+    if (rules[1]->particularities_shadow(dbout, dbprop, model21, 1, flag_stat))
       goto label_end;
   }
   else
   {
-    if (rule2->particularities(dbout, dbprop, model21, 1, flag_stat))
+    if (rules[1]->particularities(dbout, dbprop, model21, 1, flag_stat))
       goto label_end;
   }
 
@@ -6157,6 +6152,8 @@ GEOSLIB_API int simbipgs(Db     *dbin,
   ngrftot = 0;
   for (ipgs=0; ipgs<npgs; ipgs++)
   {
+    ngrf[ipgs] = rules[ipgs]->getGRFNumber();
+    ngrftot += ngrf[ipgs];
 
     /* Check the validity of the model */
 
@@ -6164,7 +6161,6 @@ GEOSLIB_API int simbipgs(Db     *dbin,
     {
       flag_used[ipgs][igrf] = rules[ipgs]->isYUsed(igrf);
       if (! flag_used[ipgs][igrf]) continue;
-      ngrf[ipgs]++;
       if (models[ipgs][igrf] == (Model *) NULL)
       {
         messerr("Variable #%d needs the underlying GRF #%d",ipgs+1,igrf+1);
@@ -6180,7 +6176,6 @@ GEOSLIB_API int simbipgs(Db     *dbin,
       if (model_stabilize(models[ipgs][igrf],1,percent)) goto label_end;
       if (model_normalize(models[ipgs][igrf],1)) goto label_end;
     }
-    ngrftot += ngrf[ipgs];
   }
 
   /* Neighborhood */
@@ -6195,7 +6190,7 @@ GEOSLIB_API int simbipgs(Db     *dbin,
   for (ipgs=0; ipgs<npgs; ipgs++)
   {
 
-    /* Check the Rules (only Std case is authorized) */
+    /* Check the Rules (only RULE_STD case is authorized) */
 
     if (rules[ipgs]->getModeRule() != RULE_STD)
     {
@@ -6243,61 +6238,41 @@ GEOSLIB_API int simbipgs(Db     *dbin,
   }
 
   /* Storage of the facies simulations in the output file */
-  for (ipgs=0; ipgs<2; ipgs++)
-  {
-    if (db_locator_attribute_add(dbout,LOC_FACIES,nbsimu,
-                                 ipgs * nbsimu,0.,&iptr_RF)) goto label_end;
-  }
+  if (db_locator_attribute_add(dbout,LOC_FACIES,npgs*nbsimu,
+                               0,0.,&iptr_RF)) goto label_end;
 
   /* Storage of the facies simulations in the input file */
   if (flag_cond)
-    for (ipgs=0; ipgs<2; ipgs++)
-    {
-      if (db_locator_attribute_add(dbin,LOC_FACIES,nbsimu,
-                                   ipgs * nbsimu,0.,&iptr_DF)) goto label_end;
-    }
+  {
+    if (db_locator_attribute_add(dbin,LOC_FACIES,npgs*nbsimu,
+                                 0,0.,&iptr_DF)) goto label_end;
+  }
   
   /* Gaussian transform of the facies input data */
   if (flag_cond)
-    for (ipgs=ecr=0; ipgs<2; ipgs++)
-      for (igrf=0; igrf<2; igrf++)
-      {
-        if (! flag_used[ipgs][igrf]) continue;
-        if (db_locator_attribute_add(dbin,LOC_GAUSFAC,nbsimu,
-                                     ecr * nbsimu,0.,&iptr)) goto label_end;
-        ecr++;
-      }
+  {
+    if (db_locator_attribute_add(dbin,LOC_GAUSFAC,ngrftot*nbsimu,
+                                 0,0.,&iptr)) goto label_end;
+  }
   
   /* Non-conditional gaussian simulations at data points */
   if (flag_cond)
-    for (ipgs=ecr=0; ipgs<2; ipgs++)
-      for (igrf=0; igrf<2; igrf++)
-      {
-        if (! flag_used[ipgs][igrf]) continue;
-        if (db_locator_attribute_add(dbin,LOC_SIMU,nbsimu,
-                                     ecr * nbsimu,0.,&iptr)) goto label_end;
-        ecr++;
-      }
+  {
+    if (db_locator_attribute_add(dbin,LOC_SIMU,ngrftot * nbsimu,
+                                     0,0.,&iptr_DN)) goto label_end;
+  }
   
   /* Non-conditional gaussian simulations at target points */
-  for (ipgs=ecr=0; ipgs<2; ipgs++)
-    for (igrf=0; igrf<2; igrf++)
-    {
-      if (! flag_used[ipgs][igrf]) continue;
-      if (db_locator_attribute_add(dbout,LOC_SIMU,nbsimu,
-                                   ecr * nbsimu,0.,&iptr)) goto label_end;
-      ecr++;
-    }
+  if (db_locator_attribute_add(dbout,LOC_SIMU,ngrftot * nbsimu,
+                               0,0.,&iptr_RN)) goto label_end;
 
   if (flag_cond)
   {
     /* Lower bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_L,ngrftot,0,0.,&iptr)) 
-      goto label_end;
+    if (db_locator_attribute_add(dbin,LOC_L,ngrftot,0,0.,&iptr)) goto label_end;
 
     /* Upper bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_U,ngrftot,0,0.,&iptr)) 
-      goto label_end;
+    if (db_locator_attribute_add(dbin,LOC_U,ngrftot,0,0.,&iptr)) goto label_end;
   }
 
   /* Define the environment variables for printout */
@@ -6455,24 +6430,45 @@ GEOSLIB_API int simbipgs(Db     *dbin,
   /* Free the temporary variables */
   /********************************/
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,PROP) && iptr_RP)
-    dbout->deleteFieldByLocator(LOC_P);
+  if (dbout != nullptr)
+  {
+    if (!st_keep(flag_gaus, flag_modif, RESULT, PROP) && iptr_RP)
+      dbout->deleteFieldByLocator(LOC_P);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RP, "Props",
+                                  nfactot, false);
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,FACIES) && iptr_RF)
-    dbout->deleteFieldByLocator(LOC_FACIES);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, GAUS) && iptr_RN)
+      dbout->deleteFieldByLocator(LOC_SIMU);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RN, "Gaus",
+                                  ngrftot * nbsimu, false);
 
-  if (! st_keep(flag_gaus,flag_modif,DATA,FACIES) && iptr_DF)
-    dbin->deleteFieldByLocator(LOC_FACIES);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, FACIES) && iptr_RF)
+      dbout->deleteFieldByLocator(LOC_FACIES);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RF, String(),
+                                  npgs * nbsimu);
+  }
 
-  if (! st_keep(flag_gaus,flag_modif,DATA,GAUS))
-    dbin->deleteFieldByLocator(LOC_SIMU);
+  if (dbin != nullptr)
+  {
+    if (!st_keep(flag_gaus, flag_modif, DATA, GAUS) && iptr_DN)
+      dbin->deleteFieldByLocator(LOC_SIMU);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DN, "Gaus",
+                                  ngrftot * nbsimu, false);
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,GAUS))
-    dbout->deleteFieldByLocator(LOC_SIMU);
+    if (!st_keep(flag_gaus, flag_modif, DATA, FACIES) && iptr_DF)
+      dbin->deleteFieldByLocator(LOC_FACIES);
+    else
+      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DF, String(),
+                                  npgs * nbsimu, false);
 
-  dbin->deleteFieldByLocator(LOC_GAUSFAC);
-  dbin->deleteFieldByLocator(LOC_L);
-  dbin->deleteFieldByLocator(LOC_U);
+    dbin->deleteFieldByLocator(LOC_GAUSFAC);
+    dbin->deleteFieldByLocator(LOC_L);
+    dbin->deleteFieldByLocator(LOC_U);
+  }
 
   /* Set the error return flag */
 

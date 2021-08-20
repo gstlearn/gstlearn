@@ -184,10 +184,11 @@ int main(int argc, char *argv[])
     }
     else
     {
-      if (simbipgs(dbin,dbout,dbout,rule[0],rule[1],
+      ruleprop = RuleProp(rule[0],rule[1],props);
+      if (simbipgs(dbin,dbout,&ruleprop,
                    model[0][0],model[0][1],model[1][0],model[1][1],
-                   neigh,props,1,0,0,0,0,nfac[0],nfac[1],
-                   seed,nbsimu,nbtuba,nboot,niter,1,toleps)) goto label_end;
+                   neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1,toleps))
+        goto label_end;
     }
     if (verbose) db_print(dbout,1,0,1,1,1);
   }

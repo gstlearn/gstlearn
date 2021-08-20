@@ -24,6 +24,8 @@ public:
   RuleProp(const Db* dbprop, const VectorDouble& propcst);
   RuleProp(const Rule* rule, const VectorDouble& propcst = VectorDouble());
   RuleProp(const Rule* rule, const Db* dbprop);
+  RuleProp(const Rule* rule1, const Rule* rule2, const VectorDouble& propcst = VectorDouble());
+  RuleProp(const Rule* rule1, const Rule* rule2, const Db* dbprop);
   RuleProp(const RuleProp& m);
   RuleProp& operator=(const RuleProp &m);
   virtual ~RuleProp();
@@ -36,8 +38,9 @@ public:
   void setFlagStat(bool flagStat) { _flagStat = flagStat; }
   const VectorDouble& getPropCst() const { return _propcst; }
   void setPropCst(const VectorDouble& propcst) { _propcst = propcst; }
-  const Rule* getRule() const { return _rule; }
-  void setRule(const Rule* rule) { _rule = rule; }
+  const Rule* getRule(int rank = 0) const;
+  void setRule(const Rule* rule, int rank = 0);
+  int getRuleNumber() const { return _rules.size(); }
 
   int fit(Db* db, Vario* vario, int ngrfmax = 1, bool verbose = false);
   int gaussToCategory(Db* db, NamingConvention namconv = NamingConvention("Facies",LOC_FACIES)) const;
@@ -46,12 +49,13 @@ public:
 
 private:
   bool _checkConsistency();
+  bool _checkRuleRank(int rank) const;
   int _getNFacies();
 
 private:
   bool _flagStat;
   VectorDouble _propcst;
   const Db* _dbprop;
-  const Rule* _rule;
+  std::vector<const Rule*> _rules;
   bool _ruleInternal; // TRUE if a fictitious rule has been established internally
 };

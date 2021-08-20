@@ -103,6 +103,7 @@ public:
   void setName(const String& old_name, const String& name);
   void setName(const VectorString list, const String& name);
   void setName(int iatt, const String& name);
+  void setName(ENUM_LOCS locatorType, const String& name);
   const GridC& getGrid() const { return _grid; }
   int getAttributeMaxNumber() const { return static_cast<int>(_attcol.size()); }
   int getFieldNumber() const { return _ncol; }
