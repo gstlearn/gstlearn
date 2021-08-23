@@ -224,7 +224,7 @@ typedef struct
   int ipgs;
   int flag_used[2];
   Rule  *rule;
-  Props *props;
+  PropDef *propdef;
 } Modif_Categorical;
 
 typedef struct

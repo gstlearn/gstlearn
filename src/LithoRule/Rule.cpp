@@ -11,6 +11,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
+#include "Model/Model.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
 #include "geoslib_f.h"
@@ -154,73 +155,7 @@ Rule::Rule(const VectorString& nodnames, double rho)
       _ind2(),
       _mainNode(nullptr)
 {
-  VectorInt n_type;
-  VectorInt n_facs;
-  _nodNamesToIds(nodnames, n_type, n_facs);
-  int ipos = 0;
-  int n_fac = 0;
-  int n_y1 = 0;
-  int n_y2 = 0;
-  _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
-}
-
-/**
- * Defining the Lithotype Rule in the case of Shadow
- * @param slope   Slope definition
- * @param sh_dsup Maximum threshold
- * @param sh_down Minimum threshold
- * @param shift   Shift orientation
- */
-Rule::Rule(double slope,
-           double sh_dsup,
-           double sh_down,
-           const VectorDouble& shift)
-    : AStringable(),
-      ASerializable(),
-      _modeRule(RULE_SHADOW),
-      _flagProp(0),
-      _rho(0.),
-      _shDsup(sh_dsup),
-      _shDown(sh_down),
-      _slope(slope),
-      _dMax(TEST),
-      _tgte(TEST),
-      _incr(TEST),
-      _shift(shift),
-      _xyz(),
-      _ind1(),
-      _ind2(),
-      _mainNode(nullptr)
-{
-//  rule->main         = st_node_alloc("S1",THRESH_Y1,0);
-//  rule->main->r1     = st_node_alloc("T1",THRESH_Y2,0);
-//  rule->main->r1->r1 = st_node_alloc("F3",THRESH_IDLE,SHADOW_SHADOW);
-//  rule->main->r1->r2 = st_node_alloc("F2",THRESH_IDLE,SHADOW_WATER);
-//  rule->main->r2     = st_node_alloc("F1",THRESH_IDLE,SHADOW_ISLAND);
-}
-
-/**
- * Definition of the Lithotype Rule in the case of Shift
- * @param shift Vector defining the shift
- */
-Rule::Rule(const VectorDouble& shift)
-    : AStringable(),
-      ASerializable(),
-      _modeRule(RULE_SHIFT),
-      _flagProp(0),
-      _rho(0.),
-      _shDsup(0.),
-      _shDown(0.),
-      _slope(0.),
-      _dMax(TEST),
-      _tgte(TEST),
-      _incr(TEST),
-      _shift(shift),
-      _xyz(),
-      _ind1(),
-      _ind2(),
-      _mainNode(nullptr)
-{
+  setMainNodeFromNodNames(nodnames);
 }
 
 Rule::Rule(const String& neutralFileName, bool verbose)
@@ -639,250 +574,13 @@ int Rule::particularities(Db *db,
                           int flag_stat)
 {
   int ndim = (model != (Model *) NULL) ? model->getDimensionNumber() : 0;
-  VectorDouble wxyz(ndim);
-  double rhoval;
-
-  /* Dispatch */
-
   _xyz.resize(ndim);
-  switch(getModeRule())
-  {
-    case RULE_STD:
-      return(0);
-
-    case RULE_SHIFT:
-      double hval = 0.;
-      for (int idim=0; idim<ndim; idim++)
-      {
-        _xyz[idim] = _shift[idim];
-        hval += _xyz[idim] * _xyz[idim];
-      }
-      hval = sqrt(hval);
-
-      /* Calculate the covariance between the two GRF */
-
-      for (int idim = 0; idim < ndim; idim++) wxyz[idim] = _xyz[idim];
-      if (model->getVariableNumber() == 1)
-        model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0, MEMBER_LHS, 1, wxyz,
-                       &hval, &rhoval);
-      else
-        model_evaluate(model, 0, 1, -1, 0, 1, 0, 0, 0, MEMBER_LHS, 1, wxyz,
-                       &hval, &rhoval);
-      setRho(rhoval);
-
-      /* Translate the shift into grid increments */
-
-      if (_st_shift_on_grid(db,ndim,flag_grid_check)) return(1);
-      break;
-  }
   return(0);
 }
 
-/****************************************************************************/
-/*!
-**  Define the particularities of the PGS model (for Shadow)
-**
-** \return  Error return code
-**
-** \param[in]  db              Db structure
-** \param[in]  dbprop          Db structure used for proportions
-** \param[in]  model           Model structure (only used for shift option)
-** \param[in]  flag_grid_check 1 if grid is compulsory; 0 otherwise
-**                             (only for SHIFT)
-** \param[in]  flag_stat       1 for stationary; 0 otherwise
-**
-*****************************************************************************/
-int Rule::particularities_shadow(Db *db,
-                                 const Db *dbprop,
-                                 Model *model,
-                                 int flag_grid_check,
-                                 int flag_stat)
+bool Rule::checkModel(const Model* model, int nvar) const
 {
-  double sh_dsup_max,sh_down_max;
-  int ndim = (model != (Model *) NULL) ? model->getDimensionNumber() : 0;
-
-  double norme = 0.;
-  for (int idim=0; idim<ndim; idim++)
-    norme += _shift[idim] * _shift[idim];
-  norme = sqrt(norme);
-  if (norme <= 0) return(1);
-  for (int idim=0; idim<ndim; idim++) _shift[idim] /= norme;
-
-  _incr = 1.e30;
-  for (int idim=0; idim<ndim; idim++)
-    if (_shift[idim] != 0) _incr = MIN(_incr, db->getDX(idim));
-
-  /* Calculate the maximum distance */
-
-  _tgte = tan(ut_deg2rad(_slope));
-  _st_shadow_max(dbprop,flag_stat,&sh_dsup_max,&sh_down_max);
-  _dMax = (_tgte > 0) ? (sh_dsup_max + sh_down_max) / _tgte : 0.;
-
-  return(0);
-}
-
-void Rule::_st_shadow_max(const Db *dbprop,
-                          int flag_stat,
-                          double *sh_dsup_max,
-                          double *sh_down_max)
-{
-  int iech;
-  double val2,val3;
-
-  if (flag_stat || dbprop == (Db *) NULL)
-  {
-    /* Stationary case */
-
-    *sh_dsup_max = getShDsup();
-    *sh_down_max = getShDown();
-  }
-  else
-  {
-    *sh_dsup_max = *sh_down_max = 0.;
-    for (iech=0; iech<dbprop->getSampleNumber(); iech++)
-    {
-      val2 = dbprop->getProportion(iech,1);
-      if (val2 > (*sh_dsup_max)) (*sh_dsup_max) = val2;
-      val3 = dbprop->getProportion(iech,2);
-      if (val3 > (*sh_down_max)) (*sh_down_max) = val3;
-    }
-  }
-  return;
-}
-
-int Rule::_st_shift_on_grid(Db     *db,
-                            int     ndim,
-                            int     flag_grid_check)
-{
-  VectorDouble xyz(ndim);
-  _ind1.resize(ndim);
-
-  if (db == (Db *) NULL || ! is_grid(db))
-  {
-    if (! flag_grid_check) return(0);
-    messerr("The shift Rule requires a Grid Db");
-    return(1);
-  }
-
-  for (int idim=0; idim<ndim; idim++)
-    _xyz[idim] = _shift[idim] + db->getX0(idim);
-
-  (void) point_to_grid(db,_xyz.data(),-1,_ind1.data());
-
-  /* Check that the translation is significant */
-
-  int ntot = 0;
-  for (int idim=0; idim<ndim; idim++)
-    ntot += ABS(_ind1[idim]);
-  if (ntot <= 0)
-  {
-    messerr("The shift of the Lithotype Rule cannot be rendered");
-    messerr("using the Output Grid characteristics");
-    return(1);
-  }
-  return(0);
-}
-
-/****************************************************************************/
-/*!
-**  Evaluation of the value from a grid by inverse square distance
-**  interpolation from the 4 surrounding grid nodes
-**
-** \return  Interpolated value or FFFF if out of grid
-**
-** \param[in]  dbgrid Db structure
-** \param[in]  isimu  Rank of the simulation
-** \param[in]  icase  Rank of the Simulation storage
-** \param[in]  nbsimu Number of simulations
-**
-** \param[out]  xyz0  Working array
-**
-*****************************************************************************/
-double Rule::st_grid_eval(Db *dbgrid,
-                          int isimu,
-                          int icase,
-                          int nbsimu,
-                          VectorDouble& xyz0)
-{
-  double top = 0.;
-  double bot = 0.;
-  int ndim = dbgrid->getNDim();
-
-  /* First point */
-  int iech = db_index_grid_to_sample(dbgrid,_ind2.data());
-  double z = dbgrid->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
-  if (! FFFF(z))
-  {
-    double d2 = 0.;
-    grid_to_point(dbgrid,_ind2.data(),NULL,xyz0.data());
-    for (int idim=0; idim<ndim; idim++)
-    {
-      double delta = _xyz[idim] - xyz0[idim];
-      d2 += delta * delta;
-    }
-    if (d2 <= 0.) return(z);
-    top += z / d2;
-    bot += 1./ d2;
-  }
-
-  /* Second point */
-  _ind2[0] += 1;
-  iech = db_index_grid_to_sample(dbgrid,_ind2.data());
-  z = dbgrid->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
-  if (! FFFF(z))
-  {
-    double d2 = 0.;
-    grid_to_point(dbgrid,_ind2.data(),NULL,xyz0.data());
-    for (int idim=0; idim<ndim; idim++)
-    {
-      double delta = _xyz[idim] - xyz0[idim];
-      d2 += delta * delta;
-    }
-    if (d2 <= 0.) return(z);
-    top += z / d2;
-    bot += 1./ d2;
-  }
-
-  /* Third point */
-  _ind2[1] += 1;
-  iech = db_index_grid_to_sample(dbgrid,_ind2.data());
-  z = dbgrid->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
-  if (! FFFF(z))
-  {
-    double d2 = 0.;
-    grid_to_point(dbgrid,_ind2.data(),NULL,xyz0.data());
-    for (int idim=0; idim<ndim; idim++)
-    {
-      double delta = _xyz[idim] - xyz0[idim];
-      d2 += delta * delta;
-    }
-    if (d2 <= 0.) return(z);
-    top += z / d2;
-    bot += 1./ d2;
-  }
-
-  /* Fourth point */
-  _ind2[0] -= 1;
-  iech = db_index_grid_to_sample(dbgrid,_ind2.data());
-  z = dbgrid->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
-  if (! FFFF(z))
-  {
-    double d2 = 0.;
-    grid_to_point(dbgrid,_ind2.data(),NULL,xyz0.data());
-    for (int idim=0; idim<ndim; idim++)
-    {
-      double delta = _xyz[idim] - xyz0[idim];
-      d2 += delta * delta;
-    }
-    if (d2 <= 0.) return(z);
-    top += z / d2;
-    bot += 1./ d2;
-  }
-
-  /* Final interpolation */
-  _ind2[1] -= 1;
-  z = (bot != 0) ? top / bot : TEST;
-  return(z);
+  return true;
 }
 
 void Rule::updateShift()
@@ -1157,4 +855,235 @@ VectorString Rule::_buildNodNames(int nfacies)
     nodnames.push_back(incrementStringVersion("F",i+1,""));
 
   return nodnames;
+}
+
+void Rule::setMainNodeFromNodNames(const VectorString& nodnames)
+{
+  VectorInt n_type;
+  VectorInt n_facs;
+  _nodNamesToIds(nodnames, n_type, n_facs);
+  int ipos = 0;
+  int n_fac = 0;
+  int n_y1 = 0;
+  int n_y2 = 0;
+  _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+}
+
+/****************************************************************************/
+/*!
+**  Combine the underlying GRF into a facies value at data points
+**
+** \return  Error return code
+**
+** \param[in]  propdef    Props structure
+** \param[in]  dbin       Db input structure
+** \param[in]  dbout      Db output structure
+** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
+** \param[in]  ipgs       Rank of the PGS
+** \param[in]  isimu      Rank of the simulation
+** \param[in]  nbsimu     Number of simulations
+**
+** \remark Attributes LOC_GAUSFAC are mandatory
+** \remark Attributes LOC_FACIES are mandatory
+**
+*****************************************************************************/
+int Rule::gaus2facData(PropDef *propdef,
+                       Db *dbin,
+                       Db *dbout,
+                       int *flag_used,
+                       int ipgs,
+                       int isimu,
+                       int nbsimu)
+{
+  double y[2],facies,t1min,t1max,t2min,t2max;
+
+  /* Initializations */
+
+  check_mandatory_attribute("rule_gaus2fac_data",dbin,LOC_GAUSFAC);
+
+  /* Processing the translation */
+
+  for (int iech=0; iech<dbin->getSampleNumber(); iech++)
+  {
+    if (! dbin->isActive(iech)) continue;
+
+    /* Initializations */
+
+    facies = TEST;
+    for (int igrf=0; igrf<2; igrf++) y[igrf] = TEST;
+    if (rule_thresh_define(propdef,dbin,this,ITEST,
+                           iech,isimu,nbsimu,1,
+                           &t1min,&t1max,&t2min,&t2max)) return 1;
+
+    for (int igrf=0; igrf<2; igrf++)
+    {
+      int icase = get_rank_from_propdef(propdef,ipgs,igrf);
+      y[igrf] = (flag_used[igrf]) ?
+        dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1) : 0.;
+    }
+    facies = getFaciesFromGaussian(y[0],y[1]);
+
+    /* Combine the underlying GRFs to derive Facies */
+
+    dbin->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+**  Combine the underlying GRF into a facies value
+**
+** \return  Error return code
+**
+** \param[in]  propdef    Props structure
+** \param[in]  dbout      Db output structure
+** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
+** \param[in]  ipgs       Rank of the PGS
+** \param[in]  isimu      Rank of the simulation
+** \param[in]  nbsimu     Number of simulations
+**
+** \remark Attributes LOC_FACIES and LOC_SIMU are mandatory
+**
+*****************************************************************************/
+int Rule::gaus2facResult(PropDef  *propdef,
+                         Db *dbout,
+                         int *flag_used,
+                         int ipgs,
+                         int isimu,
+                         int nbsimu)
+{
+  int    ndim,iech,igrf,icase;
+  double t1min,t1max,t2min,t2max,facies,y[2];
+
+  /* Initializations */
+
+  check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_FACIES);
+  check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_SIMU);
+  ndim   = dbout->getNDim();
+  VectorDouble xyz(ndim);
+  VectorInt ind1(ndim);
+  VectorInt ind2(ndim);
+
+  /* Processing the translation */
+
+  for (iech=0; iech<dbout->getSampleNumber(); iech++)
+  {
+    if (! dbout->isActive(iech)) continue;
+
+    /* Initializations */
+
+    facies = TEST;
+    for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
+
+    if (rule_thresh_define(propdef,dbout,this,ITEST,
+                           iech,isimu,nbsimu,1,
+                           &t1min,&t1max,&t2min,&t2max)) return 1;
+    for (igrf=0; igrf<2; igrf++)
+    {
+      icase = get_rank_from_propdef(propdef,ipgs,igrf);
+      y[igrf] = (flag_used[igrf]) ?
+          dbout->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1) : 0.;
+    }
+    facies = getFaciesFromGaussian(y[0],y[1]);
+
+    /* Combine the underlying GRFs to derive Facies */
+
+    dbout->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+**  Check if the current replicate can be added
+**
+** \return  1 if the point is a duplicate; 0 otherwise
+**
+** \param[in]  dbin       Db structure
+** \param[in]  dbout      Db output structure
+** \param[in]  jech       Rank of the replicate
+**
+*****************************************************************************/
+int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech)
+{
+  int    iech,idim;
+  double delta;
+
+  for (iech=0; iech<jech; iech++)
+  {
+    for (idim=0; idim<dbin->getNDim(); idim++)
+    {
+      delta = ABS(dbin->getCoordinate(iech,idim) - dbin->getCoordinate(jech,idim));
+      if (delta >= dbout->getDX(idim)) return(0);
+    }
+    message("Replicate invalid\n");
+    return(1);
+  }
+  message("Replicate invalid\n");
+  return(1);
+}
+
+/****************************************************************************/
+/*!
+**  Set the bounds and possibly add replicates
+**
+** \return  Error return code
+**
+** \param[in]  propdef    PropDef structure
+** \param[in]  dbin       Db structure
+** \param[in]  dbout      Db grid structure
+** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
+** \param[in]  igrf       Rank of the GRF
+** \param[in]  ipgs       Rank of the GS
+** \param[in]  nbsimu     Number of simulations (PROCESS_CONDITIONAL)
+**
+*****************************************************************************/
+int Rule::evaluateBounds(PropDef *propdef,
+                         Db *dbin,
+                         Db *dbout,
+                         int isimu,
+                         int igrf,
+                         int ipgs,
+                         int nbsimu)
+{
+  int    iech,nadd,nech,facies,nstep;
+  double t1min,t1max,t2min,t2max;
+
+  /* Initializations */
+
+  if (dbin == (Db *) NULL) return(0);
+  nadd = nstep = 0;
+  nech = dbin->getSampleNumber();
+
+  /* Dispatch */
+
+  for (iech = 0; iech < nech; iech++)
+  {
+    if (!dbin->isActive(iech)) continue;
+    facies = (int) dbin->getVariable(iech, 0);
+    if (rule_thresh_define(propdef, dbin, this, facies, iech, isimu, nbsimu, 1,
+                           &t1min, &t1max, &t2min, &t2max)) return (1);
+    if (igrf == 0)
+    {
+      dbin->setLowerBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
+                          t1min);
+      dbin->setUpperBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
+                          t1max);
+    }
+    else
+    {
+      dbin->setLowerBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
+                          t2min);
+      dbin->setUpperBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
+                          t2max);
+    }
+  }
+
+  if (igrf == 0 && nadd > 0)
+  {
+    message("Initial count of data = %d\n",nech);
+    message("Number of replicates  = %d\n",nadd);
+  }
+  return(0);
 }

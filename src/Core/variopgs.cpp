@@ -38,7 +38,7 @@ typedef struct {
 typedef struct {
   Db     *db;
   Rule   *rule;
-  Props  *propdef;
+  PropDef *propdef;
   int     flag_stat;
   int     flag_facies;
   int     covtype;
@@ -517,7 +517,7 @@ static void st_set_rho(double rho,
   double rho2;
   int iech,ifac,ngrf;
   Db *db = local_pgs->db;
-  Props *propdef = local_pgs->propdef;
+  PropDef *propdef = local_pgs->propdef;
   Rule * rule    = local_pgs->rule;
   int flag_stat  = local_pgs->flag_stat;
   double t1min, t1max, t2min, t2max;
@@ -702,7 +702,7 @@ static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
 **                           0 for considering all facies
 ** \param[in]  flag_prop     1 for allocating variable for proportions
 ** \param[in]  db            Db structure
-** \param[in]  propdef       Props structure
+** \param[in]  propdef       PropDef structure
 ** \param[in]  rule          Lithotype Rule definition
 **
 *****************************************************************************/
@@ -712,7 +712,7 @@ static int st_vario_pgs_variable(int    mode,
                                  int    flag_one,
                                  int    flag_prop,
                                  Db    *db,
-                                 Props *propdef,
+                                 PropDef *propdef,
                                  Rule  *rule)
 {
   int    number,ifac,jfac,nloop,iptr;
@@ -1108,14 +1108,14 @@ static void trace_define(Local_Pgs *local_pgs,
 **
 ** \param[in]  vario         Vario structure for the GRFs to be filled
 ** \param[in]  rule          Lithotype Rule definition
-** \param[in]  propdef       Props structure
+** \param[in]  propdef       PropDef structure
 ** \param[in]  local_pgs     Local_Pgs structure
 ** \param[in]  ngrf          Number of GRFs
 **
 *****************************************************************************/
 static int st_varcalc_from_vario_stat(Vario *vario,
                                       Rule  *rule,
-                                      Props *propdef,
+                                      PropDef *propdef,
                                       Local_Pgs *local_pgs,
                                       int ngrf)
 {
@@ -3727,7 +3727,7 @@ static void st_manage_trace(Local_TracePgs *local_tracepgs)
 ** \param[in]  vario        Vario structure
 ** \param[in]  varioind     Indicator Vario structure
 ** \param[in]  model        Model structure
-** \param[in]  propdef      Props structure
+** \param[in]  propdef      PropDef structure
 ** \param[in]  flag_stat    1 for stationary; 0 otherwise
 ** \param[in]  flag_facies  1 when processed on facies; 0 otherwise
 ** \param[in]  flag_dist    1 if distances are stored; 0 otherwise
@@ -3745,7 +3745,7 @@ static void st_manage_pgs(int        mode,
                           Vario     *vario,
                           Vario     *varioind,
                           Model     *model,
-                          Props     *propdef,
+                          PropDef     *propdef,
                           int        flag_stat,
                           int        flag_facies,
                           int        flag_dist,
@@ -3766,7 +3766,7 @@ static void st_manage_pgs(int        mode,
     case 0:
       local_pgs->db          = (Db    *) NULL;
       local_pgs->rule        = (Rule  *) NULL;
-      local_pgs->propdef     = (Props *) NULL;
+      local_pgs->propdef     = (PropDef *) NULL;
       local_pgs->flag_stat   = 0;
       local_pgs->flag_facies = 0;
       local_pgs->covtype     = 0;
@@ -3839,7 +3839,7 @@ static void st_manage_pgs(int        mode,
 ** \param[in]  db            Db structure
 ** \param[in]  vario         Vario structure for the GRFs to be filled
 ** \param[in]  rule          Lithotype Rule definition
-** \param[in]  propdef       Props structure
+** \param[in]  propdef       PropDef structure
 ** \param[in]  local_pgs     Local_Pgs structure
 ** \param[in]  ngrf          Number of GRFs
 ** \param[in]  opt_correl    0 full model; 1 symetrical; 2 residuals
@@ -3851,7 +3851,7 @@ static void st_manage_pgs(int        mode,
 static int st_variopgs_calcul_norho(Db    *db,
                                     Vario *vario,
                                     Rule  *rule,
-                                    Props *propdef,
+                                    PropDef *propdef,
                                     Local_Pgs *local_pgs,
                                     int ngrf,
                                     int opt_correl,
@@ -3978,7 +3978,7 @@ static double st_rho_search(double  rho,
 ** \param[in]  db            Db structure
 ** \param[in]  vario         Vario structure for the GRFs to be filled
 ** \param[in]  rule          Lithotype Rule definition
-** \param[in]  propdef       Props structure
+** \param[in]  propdef       PropDef structure
 ** \param[in]  local_pgs     Local_Pgs structure
 ** \param[in]  ngrf          Number of GRFs
 ** \param[in]  opt_correl    0 full model; 1 symetrical; 2 residuals
@@ -3987,7 +3987,7 @@ static double st_rho_search(double  rho,
 static int st_variopgs_calcul_rho(Db    *db,
                                   Vario *vario,
                                   Rule  *rule,
-                                  Props *propdef,
+                                  PropDef *propdef,
                                   Local_Pgs *local_pgs,
                                   int ngrf,
                                   int opt_correl)
@@ -4184,14 +4184,14 @@ static int st_variogram_pgs_nostat(Db*       db,
   Local_Pgs local_pgs;
   int    flag_correl,flag_stat;
   int    error,nfacies,ngrf;
-  Props *propdef;
+  PropDef *propdef;
   
   /* Initializations */
 
   error  = 1;
   ngrf   = 0;
   flag_stat = nfacies = 0;
-  propdef = (Props *) NULL;
+  propdef = (PropDef *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
 
   /* Preliminary checks */
@@ -4207,7 +4207,7 @@ static int st_variogram_pgs_nostat(Db*       db,
   nfacies = rule->getFaciesNumber();
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
   flag_correl = ngrf > 1 && (opt_correl != 2 || rule->getRho() != 0);
   if (rule->particularities(db,dbprop,NULL,1,flag_stat)) goto label_end;
   proportion_rule_process(propdef,0);
@@ -4966,7 +4966,7 @@ GEOSLIB_API int model_pgs(Db*       db,
 
   Local_Pgs local_pgs;
   int     ngrf;
-  Props  *propdef;
+  PropDef  *propdef;
   Model  *new_model;
   
   /*******************/
@@ -4976,7 +4976,7 @@ GEOSLIB_API int model_pgs(Db*       db,
   int error  = 1;
   int nfacies = 0;
   new_model = (Model *) NULL;
-  propdef   = (Props *) NULL;
+  propdef   = (PropDef *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
   if (st_check_test_discret(rule.getModeRule(), 0)) goto label_end;
 
@@ -5039,7 +5039,7 @@ GEOSLIB_API int model_pgs(Db*       db,
   
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
 
   if (rule.particularities(db,dbprop,new_model,0,flag_stat)) goto label_end;
 
@@ -5107,14 +5107,14 @@ static int st_variogram_pgs_stat(Db     *db,
   Local_Pgs local_pgs;
   int    node_tot,nmax_tot,ny1,ny2,error,nfacies,ngrf,flag_stat;
   double prop_tot;
-  Props *propdef;
+  PropDef *propdef;
   
   /* Initializations */
 
   error  = 1;
   ngrf   = nfacies = 0;
   flag_stat = 1;
-  propdef = (Props *) NULL;
+  propdef = (PropDef *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
 
   /* Preliminary checks */
@@ -5130,7 +5130,7 @@ static int st_variogram_pgs_stat(Db     *db,
   rule->statistics(0,&node_tot,&nfacies,&nmax_tot,&ny1,&ny2,&prop_tot);
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               NULL,NULL,propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
   if (rule->particularities(NULL,NULL,NULL,1,flag_stat)) goto label_end;
   proportion_rule_process(propdef,0);
 
@@ -5335,7 +5335,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   int error    = 1;
   Rule* rule   = (Rule  *) NULL;
   Relem* Pile_Relem   = (Relem *) NULL;
-  Props* propdef      = (Props *) NULL;
+  PropDef* propdef      = (PropDef *) NULL;
 
   NCOLOR       = db->getFaciesNumber();
   NGRF         = ngrfmax;
@@ -5369,7 +5369,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   vario->internalResize(db->getNDim(), NGRF, "covnc");
 
   propdef = proportion_manage(1,1,flag_stat,NGRF,0,NCOLOR,0,db,dbprop,propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
   proportion_rule_process(propdef,0);
   
   /* Pre-calculation of integrals: Define the structure */

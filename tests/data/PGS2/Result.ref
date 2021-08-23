@@ -142,7 +142,7 @@ Data Base Statistics
  Mean value          =   5000.500
  Standard Deviation  =   2886.751
  Variance            = 8333333.250
-2 - Name facies1 - Locator facies1
+2 - Name Facies.1 - Locator facies1
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -150,7 +150,7 @@ Data Base Statistics
  Mean value          =      1.182
  Standard Deviation  =      0.425
  Variance            =      0.181
-3 - Name facies2 - Locator facies2
+3 - Name Facies.2 - Locator facies2
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -158,7 +158,7 @@ Data Base Statistics
  Mean value          =      1.404
  Standard Deviation  =      0.646
  Variance            =      0.417
-4 - Name facies3 - Locator facies3
+4 - Name Facies.3 - Locator facies3
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -166,7 +166,7 @@ Data Base Statistics
  Mean value          =      1.664
  Standard Deviation  =      0.767
  Variance            =      0.589
-5 - Name facies4 - Locator facies4
+5 - Name Facies.4 - Locator facies4
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -177,7 +177,7 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank   facies1   facies2   facies3   facies4
+                 rank  Facies.1  Facies.2  Facies.3  Facies.4
      [  1,]     1.000     2.000     2.000     1.000     1.000
      [  2,]     2.000     2.000     2.000     3.000     1.000
      [  3,]     3.000     2.000     2.000     3.000     1.000

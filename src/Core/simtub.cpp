@@ -14,6 +14,7 @@
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/MathFunc.hpp"
+#include "LithoRule/PropDef.hpp"
 #include "geoslib_e.h"
 
 /*! \cond */
@@ -67,12 +68,12 @@ static void st_simulation_environment(void)
 **
 ** \return  Returned rank
 **
-** \param[in]  propdef    Props structure
+** \param[in]  propdef    PropDef structure
 ** \param[in]  ifac       Rank of the facies
 ** \param[in]  ipgs       Rank of the GS
 **
 *****************************************************************************/
-static int st_facies(Props *propdef,
+static int st_facies(PropDef *propdef,
                      int    ipgs,
                      int    ifac)
 {
@@ -100,13 +101,9 @@ GEOSLIB_API void simu_func_categorical_transf(Db  *db,
   Rule *rule;
 
   rule = ModCat.rule;
-  
-  if (rule->getModeRule() == RULE_SHADOW)
-    rule_gaus2fac_result_shadow(ModCat.props,db,rule,ModCat.flag_used,
-                                ModCat.ipgs,isimu,nbsimu);
-  else
-    rule_gaus2fac_result(ModCat.props,db,rule,ModCat.flag_used,
-                         ModCat.ipgs,isimu,nbsimu);
+
+  rule->gaus2facResult(ModCat.propdef, db, ModCat.flag_used, ModCat.ipgs,
+                       isimu, nbsimu);
 
   /* Optional printout */
 
@@ -185,7 +182,7 @@ GEOSLIB_API void simu_func_categorical_update(Db  *db,
   {
     if (! db->isActive(iech)) continue;
     facies = (int) get_LOCATOR_ITEM(db,LOC_FACIES,iptr_simu,iech) - 1;
-    rank   = st_facies(ModCat.props,ipgs,facies);
+    rank   = st_facies(ModCat.propdef,ipgs,facies);
     prop   = db->getProportion(iech,rank) + 1.;
     db->setProportion(iech,rank,prop);
   }
@@ -248,11 +245,11 @@ GEOSLIB_API void simu_func_categorical_scale(Db  *db,
 {
   int    rank,nfacies,ipgs;
   double prop;
-  Props *propdef;
+  PropDef *propdef;
 
   /* Preliminary checks */
 
-  propdef = ModCat.props;
+  propdef = ModCat.propdef;
   ipgs    = ModCat.ipgs;
   nfacies = propdef->nfac[ipgs];
   check_mandatory_attribute("simu_func_categorical_scale",db,LOC_P);
@@ -3702,451 +3699,19 @@ label_end:
 **
 ** \return  Returned rank
 **
-** \param[in]  propdef    Props structure
+** \param[in]  propdef    PropDef structure
 ** \param[in]  ipgs       Rank of the GS
 ** \param[in]  igrf       Rank of the Gaussian
 **
 *****************************************************************************/
-GEOSLIB_API int get_rank_from_propdef(Props *propdef,
+GEOSLIB_API int get_rank_from_propdef(PropDef *propdef,
                                       int    ipgs,
                                       int    igrf)
 {
-  if (ipgs <= 0 || propdef == (Props *) NULL) 
+  if (ipgs <= 0 || propdef == (PropDef *) NULL)
     return(igrf);
   else
     return(propdef->ngrf[0] + igrf);
-}
-
-/****************************************************************************/
-/*!
-**  Print the data information
-**
-** \return  Error return code
-**
-** \param[in]  propdef Props structure
-** \param[in]  mode    Type of data
-**                     0 : Natural data - 1 : Replicate data
-** \param[in]  db      Db structure
-** \param[in]  iech    Rank of the sample
-** \param[in]  igrf    Rank of the Gaussian
-** \param[in]  ipgs    Rank of the GS
-**
-*****************************************************************************/
-static void st_print_condata(Props *propdef,
-                             int mode,
-                             Db *db,
-                             int iech,
-                             int igrf,
-                             int ipgs)
-{
-  int    idim;
-  double tlow,tup;
-
-  /* Printout of the title */
-
-  if (iech == 0 && debug_query("condexp"))
-    mestitle(1,"Bounds assigned to data points (GRF:%d)",igrf+1);
-
-  /* Initializations */
-
-  tlow = db->getLowerBound(iech,get_rank_from_propdef(propdef,ipgs,igrf));
-  tup  = db->getUpperBound(iech,get_rank_from_propdef(propdef,ipgs,igrf));
-
-  /* Print the sample and coordinates */
-
-  message("Sample (%3d) - Coordinates: ",iech+1);
-  for (idim=0; idim<db->getNDim(); idim++)
-    message(" %lf",db->getCoordinate(iech,idim));
-  message("\n");
-
-  /* Print the Facies information */
-
-  message("               Facies=%d",(int) db->getVariable(iech,0));
-
-  /* Threshold mode */
-
-  if (mode != 0) message(" [Replicate]");
-
-  /* Print the thresholds */
-
-  message(" -> Thresholds(%d)= ",igrf+1);
-  message(" [");
-  if (FFFF(tlow))
-    message("NA");
-  else
-    message("%8.4lf",tlow);
-  message(";");
-  if (FFFF(tup))
-    message("NA");
-  else
-    message("%8.4lf",tup);
-  message("]\n");
-
-  return;
-}
-
-/****************************************************************************/
-/*!
-**  Check if the current replicate can be added
-**
-** \return  1 if the point is a duplicate; 0 otherwise
-**
-** \param[in]  dbin       Db structure
-** \param[in]  dbout      Db output structure
-** \param[in]  jech       Rank of the replicate
-**
-*****************************************************************************/
-static int st_replicate_invalid(Db     *dbin,
-                                Db     *dbout,
-                                int     jech)
-{
-  int    iech,idim;
-  double delta;
-
-  for (iech=0; iech<jech; iech++)
-  {
-    for (idim=0; idim<dbin->getNDim(); idim++)
-    {
-      delta = ABS(dbin->getCoordinate(iech,idim) - dbin->getCoordinate(jech,idim));
-      if (delta >= dbout->getDX(idim)) return(0);
-    }
-    message("Replicate invalid\n");
-    return(1);
-  }
-  message("Replicate invalid\n");
-  return(1);
-}
-
-/****************************************************************************/
-/*!
-**  Set the bounds and possibly add replicates (Shadow)
-**
-** \return  Error return code
-**
-** \param[in]  propdef    Props structure
-** \param[in]  dbin       Db structure
-** \param[in]  dbout      Db grid structure
-** \param[in]  rule       Rule structure
-** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
-** \param[in]  igrf       Rank of the GRF
-** \param[in]  ipgs       Rank of the GS
-** \param[in]  nbsimu     Number of simulations (PROCESS_CONDITIONAL)
-** \param[in]  delta      Spatial increment (only used for shadow option)
-**
-*****************************************************************************/
-GEOSLIB_API int rule_evaluate_bounds_shadow(Props  *propdef,
-                                            Db     *dbin,
-                                            Db     *dbout,
-                                            Rule   *rule,
-                                            int     isimu,
-                                            int     igrf,
-                                            int     ipgs,
-                                            int     nbsimu,
-                                            double  delta)
-{
-  int    iech,jech,nadd,nech,idim,facies,nstep,istep,valid;
-  double dist,t1min,t1max,t2min,t2max,s1min,s1max,s2min,s2max;
-  double dinc,seuil,alea,sh_dsup,sh_down,yc_down,dval;
-
-  /* Initializations */
-
-  if (dbin == (Db *) NULL) return(0);
-  nadd = 0;
-  nech = dbin->getSampleNumber();
-  dist = 0.;
-  dinc  = (FFFF(delta)) ? rule->getIncr() : delta;
-  nstep = (int)floor(rule->getDMax() / dinc);
-
-  /* Case of the shadow */
-
-  if (igrf == 1) return(0);
-  
-  /* Loop on the data */
-  for (iech=0; iech<nech; iech++)
-  {
-    /* Convert the proportions into thresholds for data point */
-    if (! dbin->isActive(iech)) continue;
-    if (! point_inside_grid(dbin,iech,dbout)) continue;
-    facies = (int) dbin->getVariable(iech,0);
-    if (rule_thresh_define_shadow(propdef,dbin,rule,facies,iech,isimu,nbsimu,1,
-                                  &t1min,&t1max,&t2min,&t2max,
-                                  &sh_dsup,&sh_down)) return(1);
-    yc_down = sh_down;
-    dbin->setLowerBound(iech,get_rank_from_propdef(propdef,ipgs,igrf),t1min);
-    dbin->setUpperBound(iech,get_rank_from_propdef(propdef,ipgs,igrf),t1max);
-    if (debug_query("condexp")) 
-      st_print_condata(propdef,0,dbin,iech,igrf,ipgs);
-    
-    /* The data belongs to the island, no replicate */
-    
-    if (facies == SHADOW_ISLAND) continue;
-    
-    /* In the case of data belonging to the SHADOW */
-    /* Generate one replicate in ISLAND at uniform distance upstream */
-    
-    if (facies == SHADOW_SHADOW)
-    {
-      /* Add one replicate */
-      jech = dbin->addSamples(1,0.);
-      if (jech < 0) return(1);
-      
-      /* Set the coordinates of the replicate */
-      /* - at a point where proportions are known */
-      /* - after truncation, the point can create shadow at target */
-      
-      alea  = 1;
-      valid = 0;
-      while (! valid)
-      {
-        dist = 0.;
-        alea = law_uniform(0.,1.);
-        for (idim=0; idim<dbin->getNDim(); idim++)
-        {
-          dval = alea * rule->getDMax() * rule->getShift(idim);
-          dbin->setCoordinate(jech,idim,dbin->getCoordinate(iech,idim) - dval);
-          dist += dval * dval;
-        }
-        dist = sqrt(dist);
-	
-        /* Can the replicate be added */
-	
-        if (st_replicate_invalid(dbin,dbout,jech))
-        {
-          dbin->deleteSample(jech);
-          continue;
-        }
-	
-        /* Get proportion at the tentative replicate */
-        if (rule_thresh_define_shadow(propdef,dbin,rule,facies,
-                                      jech,isimu,nbsimu,1,
-                                      &s1min,&s1max,&s2min,&s2max,
-                                      &sh_dsup,&sh_down)) 
-        {
-          dbin->deleteSample(jech);
-          return(1);
-        }
-        seuil = t1max - yc_down + dist * rule->getTgte();
-        if (seuil > s1max + sh_dsup) continue;
-        valid = 1;
-      }
-      
-      /* Set the attributes of the replicate */
-      dbin->setVariable(jech,0,SHADOW_ISLAND);
-      dbin->setLowerBound(jech,get_rank_from_propdef(propdef,ipgs,igrf),
-               MAX(seuil,s1max));
-      dbin->setUpperBound(jech,get_rank_from_propdef(propdef,ipgs,igrf),
-               THRESH_SUP);
-
-      if (debug_query("condexp")) 
-        st_print_condata(propdef,1,dbin,jech,igrf,ipgs);
-      nadd++;
-    }
-    
-    /* In the case of data belonging to the WATER            */
-    /* Generate series of replicates (maximum number: nstep) */
-    /* whose "elevation" which will not create any shadow    */
-    
-    if (facies == SHADOW_WATER)
-    {
-      /* Loop on the replicates */
-      for (istep=1; istep<=nstep; istep++)
-      {
-        jech = dbin->addSamples(1,0.);
-        if (jech < 0) return(1);
-	
-        /* Set the coordinates of the replicate */
-        dist = 0.;
-        for (idim=0; idim<dbin->getNDim(); idim++)
-        {
-          dval = dinc * rule->getShift(idim) * istep;
-          dbin->setCoordinate(jech,idim,dbin->getCoordinate(iech,idim) - dval);
-          dist += dval * dval;
-        }
-        dist = sqrt(dist);
-	
-        /* Can the replicate be added */
-        if (st_replicate_invalid(dbin,dbout,jech))
-        {
-          dbin->deleteSample(jech);
-          continue;
-        }
-	
-        /* Get proportion at the tentative replicate */
-        if (rule_thresh_define_shadow(propdef,dbin,rule,facies,
-                                      jech,isimu,nbsimu,1,
-                                      &s1min,&s1max,&s2min,&s2max,
-                                      &sh_dsup,&sh_down))
-        {
-          dbin->deleteSample(jech);
-          return(1);
-        }
-	
-        /* Set the attributes of the replicate */
-        seuil = t1max - yc_down + dist * rule->getTgte();
-        if (seuil > s1max + sh_dsup)
-        {
-          /* The replicate is not necessary */
-          dbin->deleteSample(jech);
-          continue;
-        }
-	
-        dbin->setVariable(jech,0,SHADOW_IDLE);
-        dbin->setLowerBound(jech,get_rank_from_propdef(propdef,ipgs,igrf),
-                 THRESH_INF);
-        dbin->setUpperBound(jech,get_rank_from_propdef(propdef,ipgs,igrf),
-                 MAX(seuil,s1max));
-
-        if (debug_query("condexp")) 
-          st_print_condata(propdef,1,dbin,jech,igrf,ipgs);
-        nadd++;
-      }
-    }
-    jech++;
-  }
-
-  if (igrf == 0 && nadd > 0)
-  {
-    message("Initial count of data = %d\n",nech);
-    message("Number of replicates  = %d\n",nadd);
-  }
-  return(0);
-}
-
-/****************************************************************************/
-/*!
-**  Set the bounds and possibly add replicates
-**
-** \return  Error return code
-**
-** \param[in]  propdef    Props structure
-** \param[in]  dbin       Db structure
-** \param[in]  dbout      Db grid structure
-** \param[in]  rule       Rule structure
-** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
-** \param[in]  igrf       Rank of the GRF
-** \param[in]  ipgs       Rank of the GS
-** \param[in]  nbsimu     Number of simulations (PROCESS_CONDITIONAL)
-**
-*****************************************************************************/
-GEOSLIB_API int rule_evaluate_bounds(Props  *propdef,
-                                     Db     *dbin,
-                                     Db     *dbout,
-                                     Rule   *rule,
-                                     int     isimu,
-                                     int     igrf,
-                                     int     ipgs,
-                                     int     nbsimu)
-{
-  int    iech,jech,nadd,nech,idim,facies,nstep;
-  double t1min,t1max,t2min,t2max,s1min,s1max,s2min,s2max;
-
-  /* Initializations */
-
-  if (dbin == (Db *) NULL) return(0);
-  nadd = nstep = 0;
-  nech = dbin->getSampleNumber();
-
-  /* Dispatch */
-
-  switch (rule->getModeRule())
-  {
-    case RULE_STD:
-      for (iech=0; iech<nech; iech++)
-      {
-        if (! dbin->isActive(iech)) continue;
-        facies = (int) dbin->getVariable(iech,0);
-        if (rule_thresh_define(propdef,dbin,rule,facies,
-                               iech,isimu,nbsimu,1,
-                               &t1min,&t1max,&t2min,&t2max)) return(1);
-        if (igrf == 0)
-        {
-          dbin->setLowerBound(iech,get_rank_from_propdef(propdef,ipgs,igrf),
-                   t1min);
-          dbin->setUpperBound(iech,get_rank_from_propdef(propdef,ipgs,igrf),
-                   t1max);
-        }
-        else
-        {
-          dbin->setLowerBound(iech,get_rank_from_propdef(propdef,ipgs,igrf),
-                   t2min);
-          dbin->setUpperBound(iech,get_rank_from_propdef(propdef,ipgs,igrf),
-                   t2max);
-
-        }
-        if (debug_query("condexp")) 
-          st_print_condata(propdef,0,dbin,iech,igrf,ipgs);
-      }
-      return(0);
-
-    case RULE_SHIFT:
-      if (igrf == 1) return(0);
-
-      /* Loop on the data */
-      for (iech=0; iech<nech; iech++)
-      {
-        /* Convert the proportions into thresholds for data point */
-        if (! dbin->isActive(iech)) continue;
-        facies = (int) dbin->getVariable(iech,0);
-        if (rule_thresh_define(propdef,dbin,rule,facies,
-                               iech,isimu,nbsimu,1,
-                               &t1min,&t1max,&t2min,&t2max)) return(1);
-        dbin->setLowerBound(iech,get_rank_from_propdef(propdef,ipgs,igrf),
-                 t1min);
-        dbin->setUpperBound(iech,get_rank_from_propdef(propdef,ipgs,igrf),
-                 t1max);
-
-        if (debug_query("condexp")) 
-          st_print_condata(propdef,0,dbin,iech,igrf,ipgs);
-        if (facies == SHADOW_ISLAND) continue;
-
-        /* Add one replicate */
-        jech = dbin->addSamples(1,0.);
-        if (jech < 0) return(1);
-
-        /* Set the coordinates of the replicate */
-        for (idim=0; idim<dbin->getNDim(); idim++)
-          dbin->setCoordinate(jech,idim,dbin->getCoordinate(iech,idim) - rule->getShift(idim));
-
-        /* Can the replicate be added */
-        if (st_replicate_invalid(dbin,dbout,jech))
-        {
-          dbin->deleteSample(jech);
-          return(1);
-        }
-
-        /* Convert the proportions into thresholds for replicate */
-        if (rule_thresh_define(propdef,dbin,rule,facies,
-                               jech,isimu,nbsimu,1,
-                               &s1min,&s1max,&s2min,&s2max))
-        {
-          dbin->deleteSample(jech);
-          return(1);
-        }
-
-        /* Set the attributes of the replicate */
-        if (facies == SHADOW_WATER)  dbin->setVariable(jech,0,SHADOW_WATER);
-        if (facies == SHADOW_SHADOW) dbin->setVariable(jech,0,SHADOW_ISLAND);
-        dbin->setLowerBound(jech,get_rank_from_propdef(propdef,ipgs,igrf),
-                 s2min);
-        dbin->setUpperBound(jech,get_rank_from_propdef(propdef,ipgs,igrf),
-                 s2max);
-        if (debug_query("condexp")) 
-          st_print_condata(propdef,1,dbin,jech,igrf,ipgs);
-        nadd++;
-      }
-      break;
-
-    default:
-      messageAbort("Other rule type is forbidden");
-      break;
-  }
-
-  if (igrf == 0 && nadd > 0)
-  {
-    message("Initial count of data = %d\n",nech);
-    message("Number of replicates  = %d\n",nadd);
-  }
-  return(0);
 }
 
 /****************************************************************************/
@@ -4172,7 +3737,7 @@ static void st_suppress_added_samples(Db *db,
 /*!
 **  Check/Show the data against facies at the closest grid node
 **
-** \param[in]  propdef    Props structure
+** \param[in]  propdef    PropDef structure
 ** \param[in]  dbin       Input Db structure
 ** \param[in]  dbout      Output Db grid structure
 ** \param[in]  rule       Lithotype Rule definition
@@ -4190,7 +3755,7 @@ static void st_suppress_added_samples(Db *db,
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-static void st_check_facies_data2grid(Props  *propdef,
+static void st_check_facies_data2grid(PropDef  *propdef,
                                       Db     *dbin,
                                       Db     *dbout,
                                       Rule   *rule,
@@ -4267,7 +3832,7 @@ label_end:
 /*!
 **  Check/Show the facies against gaussian at wells
 **
-** \param[in]  propdef    Props structure
+** \param[in]  propdef    PropDef structure
 ** \param[in]  dbin       Db structure
 ** \param[in]  model      Model structure
 ** \param[in]  isimu      Rank of the simulation
@@ -4278,7 +3843,7 @@ label_end:
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-static void st_check_gibbs(Props  *propdef,
+static void st_check_gibbs(PropDef  *propdef,
                            Db     *dbin,
                            Model  *model,
                            int     isimu,
@@ -4462,7 +4027,7 @@ static int st_bounds_check(Db     *db,
 ** \li                        1 if the ascending order must be honored
 ** \li                       -1 if the descending order must be honored
 ** \li                        0 if no order relationship must be honored
-** \param[in]  propdef       Props structure
+** \param[in]  propdef       PropDef structure
 ** \param[in]  dbin          Db structure
 ** \param[in]  iech0         Rank of the sample
 ** \param[in]  ivar          Rank of the variable
@@ -4479,7 +4044,7 @@ static int st_bounds_check(Db     *db,
 *****************************************************************************/
 static int st_correct_bounds_order(int     flag_category,
                                    int     flag_order,
-                                   Props  *propdef,
+                                   PropDef  *propdef,
                                    Db     *dbin,
                                    int     iech0,
                                    int     ivar,
@@ -4749,7 +4314,7 @@ static void st_gibbs_iter_print(const char *title,
 ** \li                        1 if the ascending order must be honored
 ** \li                       -1 if the descending order must be honored
 ** \li                        0 if no order relationship must be honored
-** \param[in]  propdef       Props structure
+** \param[in]  propdef       PropDef structure
 ** \param[in]  dbin          Db structure
 ** \param[in]  model         Model structure
 ** \param[in]  isimu         Rank of the simulation
@@ -4760,7 +4325,7 @@ static void st_gibbs_iter_print(const char *title,
 *****************************************************************************/
 GEOSLIB_API int _gibbs_init_multivar(int     flag_category,
                                      int     flag_order,
-                                     Props  *propdef,
+                                     PropDef  *propdef,
                                      Db     *dbin,
                                      Model  *model,
                                      int     isimu,
@@ -4831,7 +4396,7 @@ GEOSLIB_API int _gibbs_init_multivar(int     flag_category,
 ** \li                        1 if the ascending order must be honored
 ** \li                       -1 if the descending order must be honored
 ** \li                        0 if no order relationship must be honored
-** \param[in]  propdef       Props structure
+** \param[in]  propdef       PropDef structure
 ** \param[in]  dbin          Db structure
 ** \param[in]  model         Model structure
 ** \param[in]  isimu         Rank of the simulation
@@ -4847,7 +4412,7 @@ GEOSLIB_API int _gibbs_init_multivar(int     flag_category,
 *****************************************************************************/
 GEOSLIB_API int _gibbs_init_monovariate(int     flag_category,
                                         int     flag_order,
-                                        Props  *propdef,
+                                        PropDef  *propdef,
                                         Db     *dbin,
                                         Model  *model,
                                         int     isimu,
@@ -4969,7 +4534,7 @@ static double *st_gibbs_covmat_alloc(Db *dbin,
 **
 ** \return  Error return code
 **
-** \param[in]  propdef     Props structure
+** \param[in]  propdef     PropDef structure
 ** \param[in]  dbin        Db structure
 ** \param[in]  model       Model structure
 ** \param[in]  covmat      Covariance matrix inverted
@@ -4989,7 +4554,7 @@ static double *st_gibbs_covmat_alloc(Db *dbin,
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-GEOSLIB_API int gibbs_iter_monovariate(Props  *propdef,
+GEOSLIB_API int gibbs_iter_monovariate(PropDef  *propdef,
                                        Db     *dbin,
                                        Model  *model,
                                        double *covmat,
@@ -5218,7 +4783,7 @@ label_end:
 **
 ** \return  Error return code
 **
-** \param[in]  propdef     Props structure
+** \param[in]  propdef     PropDef structure
 ** \param[in]  dbin        Db structure
 ** \param[in]  model       Model structure
 ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
@@ -5234,7 +4799,7 @@ label_end:
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-GEOSLIB_API int gibbs_iter_multivar(Props  *propdef,
+GEOSLIB_API int gibbs_iter_multivar(PropDef  *propdef,
                                     Db     *dbin,
                                     Model  *model,
                                     int     gibbs_nburn,
@@ -5415,7 +4980,7 @@ label_end:
 **
 ** \return  Error return code
 **
-** \param[in]  propdef     Props structure
+** \param[in]  propdef     PropDef structure
 ** \param[in]  dbin        Db structure
 ** \param[in]  model       Model structure
 ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
@@ -5440,7 +5005,7 @@ label_end:
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-GEOSLIB_API int gibbs_iter_propagation(Props  *propdef,
+GEOSLIB_API int gibbs_iter_propagation(PropDef  *propdef,
                                        Db     *dbin,
                                        Model  *model,
                                        int     gibbs_nburn,
@@ -5675,7 +5240,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   double *mean,*covmat;
   Situba *situba;
   Model  *models[2];
-  Props  *propdef;
+  PropDef  *propdef;
 
   /* Initializations */
 
@@ -5685,7 +5250,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   ngrf      = 0;
   mean      = covmat = (double *) NULL;
   situba    = (Situba *) NULL;
-  propdef   = (Props *) NULL;
+  propdef   = (PropDef *) NULL;
   models[0] = model1;
   models[1] = model2;
   flag_cond = (dbin != (Db *) NULL);
@@ -5704,16 +5269,8 @@ GEOSLIB_API int simpgs(Db *dbin,
   const Db* dbprop = ruleprop->getDbprop();
   ngrf = rule.getGRFNumber();
 
-  if (rule.getModeRule() == RULE_SHADOW)
-  {
-    if (rule.particularities_shadow(dbout,dbprop,model1,1,flag_stat))
-      goto label_end;
-  }
-  else
-  {
-    if (rule.particularities(dbout,dbprop,model1,1,flag_stat))
-      goto label_end;
-  }
+  if (rule.particularities(dbout,dbprop,model1,1,flag_stat))
+    goto label_end;
   if (st_check_simtub_environment(dbin,dbout,model1,neigh)) goto label_end;
 
   /**********************/
@@ -5830,10 +5387,10 @@ GEOSLIB_API int simpgs(Db *dbin,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
                               propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
   simu_define_func_update(simu_func_categorical_update);
   simu_define_func_scale (simu_func_categorical_scale);
-  ModCat.props = propdef;
+  ModCat.propdef = propdef;
   ModCat.rule  = &rule;
   ModCat.ipgs  = 0;
   ModCat.flag_used[0] = flag_used[0];
@@ -5865,16 +5422,8 @@ GEOSLIB_API int simpgs(Db *dbin,
       
       for (isimu=0; isimu<nbsimu; isimu++)
       {
-        if (rule.getModeRule() == RULE_SHADOW)
-        {
-          if (rule_evaluate_bounds_shadow(propdef,dbin,dbout,&rule,isimu,
-                                          igrf,0,nbsimu,delta)) goto label_end;
-        }
-        else
-        {
-          if (rule_evaluate_bounds(propdef,dbin,dbout,&rule,isimu,
-                                   igrf,0,nbsimu)) goto label_end;
-        }
+        if (rule.evaluateBounds(propdef, dbin, dbout, isimu, igrf, 0, nbsimu))
+          goto label_end;
         
         /* Initialization for the Gibbs sampler */
         
@@ -6065,7 +5614,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   Rule   *rules[2];
   Model  *models[2][2];
   Situba *situba;
-  Props  *propdef;
+  PropDef  *propdef;
 
   /* Initializations */
 
@@ -6075,7 +5624,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   nechin    = 0;
   mean      = covmat = (double *) NULL;
   situba    = (Situba *) NULL;
-  propdef   = (Props  *) NULL;
+  propdef   = (PropDef  *) NULL;
 
   if (ruleprop == nullptr)
   {
@@ -6106,26 +5655,10 @@ GEOSLIB_API int simbipgs(Db       *dbin,
     iatt_z[ipgs] = -1;
   }
   law_set_random_seed(seed);
-  if (rules[0]->getModeRule() == RULE_SHADOW)
-  {
-    if (rules[0]->particularities_shadow(dbout, dbprop, model11, 1, flag_stat))
-      goto label_end;
-  }
-  else
-  {
-    if (rules[0]->particularities(dbout, dbprop, model11, 1, flag_stat))
-      goto label_end;
-  }
-  if (rules[1]->getModeRule() == RULE_SHADOW)
-  {
-    if (rules[1]->particularities_shadow(dbout, dbprop, model21, 1, flag_stat))
-      goto label_end;
-  }
-  else
-  {
-    if (rules[1]->particularities(dbout, dbprop, model21, 1, flag_stat))
-      goto label_end;
-  }
+  if (rules[0]->particularities(dbout, dbprop, model11, 1, flag_stat))
+    goto label_end;
+  if (rules[1]->particularities(dbout, dbprop, model21, 1, flag_stat))
+    goto label_end;
 
   /**********************/
   /* Preliminary checks */
@@ -6221,10 +5754,10 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf[0],ngrf[1],nfac[0],nfac[1],
                               dbin,dbprop,propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
   simu_define_func_update(simu_func_categorical_update);
   simu_define_func_scale (simu_func_categorical_scale);
-  ModCat.props = propdef;
+  ModCat.propdef = propdef;
 
   /**********************/
   /* Add the attributes */
@@ -6328,17 +5861,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 	  
           /* Update the proportions */
     
-          if (rules[ipgs]->getModeRule() == RULE_SHADOW)
-          {
-            if (rule_evaluate_bounds_shadow(propdef,dbin,dbout,rules[ipgs],
-                                            isimu,igrf,ipgs,nbsimu,
-                                            0.)) goto label_end;
-          }
-          else
-          {
-            if (rule_evaluate_bounds(propdef,dbin,dbout,rules[ipgs],
-                                     isimu,igrf,ipgs,nbsimu)) goto label_end;
-          }
+          if (rules[ipgs]->evaluateBounds(propdef, dbin, dbout, isimu, igrf,
+                                          ipgs, nbsimu)) goto label_end;
 
           /* Initialization for the Gibbs sampler */
 
@@ -6366,18 +5890,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
       
       for (int isimu=0; isimu<nbsimu; isimu++)
       {
-        if (rules[ipgs]->getModeRule() == RULE_SHADOW)
-        {
-          if (rule_gaus2fac_data_shadow(propdef,dbin,dbout,rules[ipgs],
-                                        flag_used[ipgs],
-                                        ipgs,isimu,nbsimu)) goto label_end;
-        }
-        else
-        {
-          if (rule_gaus2fac_data(propdef,dbin,dbout,rules[ipgs],
-                                 flag_used[ipgs],
-                                 ipgs,isimu,nbsimu)) goto label_end;
-        }
+        if (rules[ipgs]->gaus2facData(propdef,dbin,dbout,flag_used[ipgs],
+                                      ipgs,isimu,nbsimu)) goto label_end;
       }
     }
     
@@ -6639,14 +6153,14 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 {
   int     error,nech,iptr,isimu,nint,nvar,iptr_ce,iptr_cstd;
   double *y,*mean,*covmat;
-  Props  *propdef;
+  PropDef  *propdef;
 
   /* Initializations */
 
   error   = 1;
   mean    = y = covmat = (double *) NULL;
   iptr_ce = iptr_cstd = -1;
-  propdef = (Props *) NULL;
+  propdef = (PropDef *) NULL;
 
   /**********************/
   /* Preliminary checks */
@@ -6691,7 +6205,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   if (mean  == (double *) NULL) goto label_end;
 
   propdef = proportion_manage(1,0,1,1,0,nvar,0,dbin,NULL,VectorDouble(),propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
 
   /**********************/
   /* Add the attributes */
@@ -7433,7 +6947,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   int     iptr,ngrf,igrf,nechin,error,nvar,flag_used[2],flag_cond;
   int     iptr_RF,iptr_RP;
   Model  *models[2];
-  Props  *propdef;
+  PropDef  *propdef;
   SPDE_Option s_option;
 
   /* Initializations */
@@ -7442,7 +6956,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   nvar      = 1;
   nechin    = 0;
   ngrf      = 0;
-  propdef   = (Props *) NULL;
+  propdef   = (PropDef *) NULL;
   models[0] = model1;
   models[1] = model2;
   iptr_RF   = iptr_RP = 0;
@@ -7554,11 +7068,11 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
                               propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
   if (! flag_gaus) simu_define_func_transf(simu_func_categorical_transf);
   simu_define_func_update(simu_func_categorical_update);
   simu_define_func_scale (simu_func_categorical_scale);
-  ModCat.props = propdef;
+  ModCat.propdef = propdef;
   ModCat.rule  = &rule;
   ModCat.ipgs  = 0;
   ModCat.flag_used[0] = flag_used[0];
@@ -7580,7 +7094,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
       if (! flag_used[igrf]) continue;
       for (int isimu=0; isimu<nbsimu; isimu++)
       {
-        if (rule_evaluate_bounds(propdef,dbin,dbout,&rule,isimu,
+        if (rule.evaluateBounds(propdef,dbin,dbout,isimu,
                                  igrf,0,nbsimu)) goto label_end;
       }
     }
@@ -7721,7 +7235,7 @@ GEOSLIB_API int simcond(Db    *dbin,
   Neigh  *neigh;
   Situba *situba;
   double *y,*mean,*covmat;
-  Props  *propdef;
+  PropDef  *propdef;
   int     nvar,error,iext,inostat,iptr,iptr_ce,iptr_cstd,ndim,nech,nint;
 
   /* Initializations */
@@ -7734,7 +7248,7 @@ GEOSLIB_API int simcond(Db    *dbin,
   ndim    = model->getDimensionNumber();
   iptr    = -1;
   situba  = (Situba *) NULL;
-  propdef = (Props *) NULL;
+  propdef = (PropDef *) NULL;
   mean    = y = covmat = (double *) NULL;
 
   /* Preliminary checks */
@@ -7765,7 +7279,7 @@ GEOSLIB_API int simcond(Db    *dbin,
   if (mean == (double *) NULL) goto label_end;
 
   propdef = proportion_manage(1,0,1,1,0,nvar,0,dbin,NULL,VectorDouble(),propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
 
   /* Define the environment variables for printout */
 

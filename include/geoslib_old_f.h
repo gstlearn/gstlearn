@@ -36,6 +36,8 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleShadow.hpp"
+#include "LithoRule/PropDef.hpp"
 #include "Model/ANoStat.hpp"
 
 //#ifdef __cplusplus
@@ -2270,7 +2272,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
   GEOSLIB_API void simu_func_continuous_scale(Db *db, int verbose, int nbsimu);
   GEOSLIB_API void simu_func_categorical_scale(Db *db, int verbose, int nbsimu);
 
-  GEOSLIB_API int get_rank_from_propdef(Props *propdef, int ipgs, int igrf);
+  GEOSLIB_API int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf);
   GEOSLIB_API void check_mandatory_attribute(const char *method,
                                              Db *db,
                                              ENUM_LOCS locatorType);
@@ -2344,7 +2346,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                 int flag_ce,
                                 int flag_cstd,
                                 int verbose);
-  GEOSLIB_API int gibbs_iter_monovariate(Props *propdef,
+  GEOSLIB_API int gibbs_iter_monovariate(PropDef *propdef,
                                          Db *db,
                                          Model *model,
                                          double *covmat,
@@ -2357,7 +2359,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                          double gibbs_eps,
                                          int verbose,
                                          double *mean);
-  GEOSLIB_API int gibbs_iter_multivar(Props *propdef,
+  GEOSLIB_API int gibbs_iter_multivar(PropDef *propdef,
                                       Db *db,
                                       Model *model,
                                       int nboot,
@@ -2367,7 +2369,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                       double gibbs_eps,
                                       int verbose,
                                       double *mean);
-  GEOSLIB_API int gibbs_iter_propagation(Props *propdef,
+  GEOSLIB_API int gibbs_iter_propagation(PropDef *propdef,
                                          Db *db,
                                          Model *model,
                                          int nboot,
@@ -2505,39 +2507,9 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
   GEOSLIB_API Model *model_rule_combine(Model * model1,
                                         Model * model2,
                                         Rule * rule);
-  GEOSLIB_API int rule_gaus2fac_result(Props *propdef,
-                                       Db *dbout,
-                                       Rule *rule,
-                                       int *flag_used,
-                                       int ipgs,
-                                       int isimu,
-                                       int nbsimu);
-  GEOSLIB_API int rule_gaus2fac_result_shadow(Props *propdef,
-                                              Db *dbout,
-                                              Rule *rule,
-                                              int *flag_used,
-                                              int ipgs,
-                                              int isimu,
-                                              int nbsimu);
-  GEOSLIB_API int rule_gaus2fac_data_shadow(Props *propdef,
+  GEOSLIB_API int rule_thresh_define_shadow(PropDef *propdef,
                                             Db *dbin,
-                                            Db *dbout,
-                                            Rule *rule,
-                                            int *flag_used,
-                                            int ipgs,
-                                            int isimu,
-                                            int nbsimu);
-  GEOSLIB_API int rule_gaus2fac_data(Props *propdef,
-                                     Db *dbin,
-                                     Db *dbout,
-                                     Rule *rule,
-                                     int *flag_used,
-                                     int ipgs,
-                                     int isimu,
-                                     int nbsimu);
-  GEOSLIB_API int rule_thresh_define_shadow(Props *propdef,
-                                            Db *dbin,
-                                            Rule *rule,
+                                            RuleShadow *rule,
                                             int facies,
                                             int iech,
                                             int isimu,
@@ -2549,7 +2521,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                             double *t2max,
                                             double *dsup,
                                             double *down);
-  GEOSLIB_API int rule_thresh_define(Props *propdef,
+  GEOSLIB_API int rule_thresh_define(PropDef *propdef,
                                      Db *dbin,
                                      Rule *rule,
                                      int facies,
@@ -2561,16 +2533,15 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                      double *t1max,
                                      double *t2min,
                                      double *t2max);
-  GEOSLIB_API int rule_evaluate_bounds_shadow(Props *propdef,
+  GEOSLIB_API int rule_evaluate_bounds_shadow(PropDef *propdef,
                                               Db *dbin,
                                               Db *dbout,
-                                              Rule *rule,
+                                              RuleShadow *rule,
                                               int isimu,
                                               int igrf,
                                               int ipgs,
-                                              int nbsimu,
-                                              double delta);
-  GEOSLIB_API int rule_evaluate_bounds(Props *propdef,
+                                              int nbsimu);
+  GEOSLIB_API int rule_evaluate_bounds(PropDef *propdef,
                                        Db *dbin,
                                        Db *dbout,
                                        Rule *rule,
@@ -2580,20 +2551,20 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                        int nbsimu);
   GEOSLIB_API int db_rule_shadow(Db *db,
                                  Db *dbprop,
-                                 Rule *rule,
+                                 RuleShadow *rule,
                                  Model *model1,
                                  const VectorDouble& propcst,
                                  int flag_stat,
                                  int nfacies);
   GEOSLIB_API int db_bounds_shadow(Db *db,
                                    Db *dbprop,
-                                   Rule *rule,
+                                   RuleShadow *rule,
                                    Model *model,
                                    const VectorDouble& propcst,
                                    int flag_stat,
                                    int nfacies);
-  GEOSLIB_API void proportion_rule_process(Props *propdef, int mode);
-  GEOSLIB_API Props *proportion_manage(int mode,
+  GEOSLIB_API void proportion_rule_process(PropDef *propdef, int mode);
+  GEOSLIB_API PropDef *proportion_manage(int mode,
                                        int flag_facies,
                                        int flag_stat,
                                        int ngrf1,
@@ -2603,9 +2574,9 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                        Db *db,
                                        const Db *dbprop,
                                        const VectorDouble& propcst,
-                                       Props *proploc);
-  GEOSLIB_API void propdef_reset(Props* propdef);
-  GEOSLIB_API void proportion_print(Props *propdef);
+                                       PropDef *proploc);
+  GEOSLIB_API void propdef_reset(PropDef* propdef);
+  GEOSLIB_API void proportion_print(PropDef *propdef);
 
   /******************************************/
   /* Prototyping the functions in seismic.c */

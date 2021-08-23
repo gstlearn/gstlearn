@@ -17,9 +17,9 @@
 #include "Basic/IClonable.hpp"
 #include "geoslib_enum.h"
 
-
 class Db;
 class Model;
+class PropDef;
 
 class Rule: public AStringable, public ASerializable
 {
@@ -36,10 +36,6 @@ public:
   Rule(const VectorInt& n_type,
        const VectorInt& n_facs,
        double rho = 0.);
-  // Constructor for Shift option
-  Rule(const VectorDouble& shift);
-  // Constructor for Shadow option
-  Rule(double slope, double sh_dsup, double sh_down, const VectorDouble& shift);
   Rule(const String& neutralFileName, bool verbose = false);
 
   Rule(const Rule& r);
@@ -49,6 +45,33 @@ public:
   virtual std::string toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
+
+  virtual int particularities(Db *db,
+                              const Db *dbprop,
+                              Model *model,
+                              int flag_grid_check,
+                              int flag_stat);
+  virtual bool checkModel(const Model* model, int nvar = 0) const;
+  virtual int gaus2facData(PropDef *propdef,
+                           Db *dbin,
+                           Db *dbout,
+                           int *flag_used,
+                           int ipgs,
+                           int isimu,
+                           int nbsimu);
+  virtual int gaus2facResult(PropDef *propdef,
+                             Db *dbout,
+                             int *flag_used,
+                             int ipgs,
+                             int isimu,
+                             int nbsimu);
+  virtual int evaluateBounds(PropDef *propdef,
+                             Db *dbin,
+                             Db *dbout,
+                             int isimu,
+                             int igrf,
+                             int ipgs,
+                             int nbsimu);
 
   double getDMax() const { return _dMax; }
   int    getFlagProp() const { return _flagProp; }
@@ -90,30 +113,20 @@ public:
   VectorDouble getThresh(int facies) const;
   VectorDouble getThreshFromRectangle(int rect, int *facies);
   int getFaciesFromGaussian(double y1, double y2) const;
-  int particularities(Db *db,
-                      const Db *dbprop,
-                      Model *model,
-                      int flag_grid_check,
-                      int flag_stat);
-  int particularities_shadow(Db *db,
-                             const Db *dbprop,
-                             Model *model,
-                             int flag_grid_check,
-                             int flag_stat);
-  double st_grid_eval(Db *dbgrid,
-                      int isimu,
-                      int icase,
-                      int nbsimu,
-                      VectorDouble& xyz0);
+
   void updateShift();
+
+  void setModeRule(int modeRule)
+  {
+    _modeRule = modeRule;
+  }
+
+protected:
+  void setMainNodeFromNodNames(const VectorString& nodnames);
+  int replicateInvalid(Db *dbin, Db *dbout, int jech);
 
 private:
   String _display(bool flagProp, bool flagThresh) const;
-  void _st_shadow_max(const Db *dbprop,
-                      int flag_stat,
-                      double *sh_dsup_max,
-                      double *sh_down_max);
-  int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check);
   void _nodNamesToIds(const VectorString& nodes, VectorInt &n_type, VectorInt& n_facs);
   void _ruleDefine(const Node *node,
                    int from_type,

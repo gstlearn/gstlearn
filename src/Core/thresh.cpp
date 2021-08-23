@@ -12,6 +12,7 @@
 #include "LithoRule/Rule.hpp"
 #include "Basic/Utilities.hpp"
 #include "LithoRule/RuleProp.hpp"
+#include "LithoRule/PropDef.hpp"
 
 /*! \cond */
 #define INDLOC(ifac1,ifac2)  ((ifac2)*propdef->nfac[0]+(ifac1))
@@ -39,417 +40,14 @@ GEOSLIB_API Rule *rule_free(Rule *rule)
 
 /****************************************************************************/
 /*!
-**  Print the Gaussian to Facies translation
-**
-** \param[in]  string     Type of set on which translation is carried on
-** \param[in]  isimu      Simulation rank
-** \param[in]  iech       Sample rank
-** \param[in]  y          Gaussian values
-** \param[in]  facies     Translated facies
-**
-*****************************************************************************/
-static void st_print_gaus2fac(const char *string,
-                              int         isimu,
-                              int         iech,
-                              double     *y,
-                              double      facies)
-{
-  if (iech == 0)
-    mestitle(1,"%s: Gaussian -> Facies (Simulation=%d)",string,isimu+1);
-  
-  message("Sample (%6d) - ",iech+1);
-  if (! FFFF(y[0])) message(" Y1 = %8.5lf",y[0]);
-  if (! FFFF(y[1])) message(" Y2 = %8.5lf",y[1]);
-  message(" -> Facies = %d\n",(int) facies);
-}
-
-/****************************************************************************/
-/*!
-**  Combine the underlying GRF into a facies value at data points (Shadow)
-**
-** \return  Error return code
-**
-** \param[in]  propdef    Props structure
-** \param[in]  dbin       Db input structure
-** \param[in]  dbout      Db output structure
-** \param[in]  rule       Rule structure
-** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
-** \param[in]  ipgs       Rank of the PGS
-** \param[in]  isimu      Rank of the simulation
-** \param[in]  nbsimu     Number of simulations
-**
-** \remark Attributes LOC_GAUSFAC are mandatory
-** \remark Attributes LOC_FACIES are mandatory
-**
-*****************************************************************************/
-GEOSLIB_API int rule_gaus2fac_data_shadow(Props  *propdef,
-                                          Db     *dbin,
-                                          Db     *dbout,
-                                          Rule   *rule,
-                                          int    *flag_used,
-                                          int     ipgs,
-                                          int     isimu,
-                                          int     nbsimu)
-{
-  int    iech,error,igrf,icase;
-  double y[2],facies,t1min,t1max,t2min,t2max,sh_dsup,sh_down;
-
-  /* Initializations */
-
-  error = 1;
-  check_mandatory_attribute("rule_gaus2fac_data_shadow",dbin,LOC_GAUSFAC);
-
-  /* Processing the translation */
-
-  for (iech=0; iech<dbin->getSampleNumber(); iech++)
-  {
-    if (! dbin->isActive(iech)) continue;
-    
-    /* Initializations */
-    
-    facies = TEST;
-    for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
-    
-    if (rule_thresh_define_shadow(propdef,dbin,rule,ITEST,
-                                  iech,isimu,nbsimu,1,
-                                  &t1min,&t1max,&t2min,&t2max,
-                                  &sh_dsup,&sh_down)) goto label_end;
-    
-    for (igrf=0; igrf<2; igrf++)
-    {
-      icase = get_rank_from_propdef(propdef,ipgs,igrf);
-      y[igrf] = (flag_used[igrf]) ?
-        dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1) : 0.;
-    }
-    facies = rule->getFaciesFromGaussian(y[0],y[1]);
-    
-    /* Combine the underlying GRFs to derive Facies*/
-    
-    dbin->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
-    
-    /* Conditional printout of the facies at data */
-    
-    if (debug_query("condexp"))
-      st_print_gaus2fac("Data",isimu,iech,y,facies);
-  }
-  
-  /* Set the error return code */
-  
-  error = 0;
-  
-label_end:
-  return(error);
-}
-
-/****************************************************************************/
-/*!
-**  Combine the underlying GRF into a facies value at data points
-**
-** \return  Error return code
-**
-** \param[in]  propdef    Props structure
-** \param[in]  dbin       Db input structure
-** \param[in]  dbout      Db output structure
-** \param[in]  rule       Rule structure
-** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
-** \param[in]  ipgs       Rank of the PGS
-** \param[in]  isimu      Rank of the simulation
-** \param[in]  nbsimu     Number of simulations
-**
-** \remark Attributes LOC_GAUSFAC are mandatory
-** \remark Attributes LOC_FACIES are mandatory
-**
-*****************************************************************************/
-GEOSLIB_API int rule_gaus2fac_data(Props  *propdef,
-                                   Db     *dbin,
-                                   Db     *dbout,
-                                   Rule   *rule,
-                                   int    *flag_used,
-                                   int     ipgs,
-                                   int     isimu,
-                                   int     nbsimu)
-{
-  int    iech,error,igrf,icase;
-  double y[2],facies,t1min,t1max,t2min,t2max;
-
-  /* Initializations */
-
-  error = 1;
-  check_mandatory_attribute("rule_gaus2fac_data",dbin,LOC_GAUSFAC);
-
-  /* Processing the translation */
-
-  for (iech=0; iech<dbin->getSampleNumber(); iech++)
-  {
-    if (! dbin->isActive(iech)) continue;
-    
-    /* Initializations */
-    
-    facies = TEST;
-    for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
-    if (rule_thresh_define(propdef,dbin,rule,ITEST,
-                           iech,isimu,nbsimu,1,
-                           &t1min,&t1max,&t2min,&t2max)) goto label_end;
-    
-    for (igrf=0; igrf<2; igrf++)
-    {
-      icase = get_rank_from_propdef(propdef,ipgs,igrf);
-      y[igrf] = (flag_used[igrf]) ?
-        dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1) : 0.;
-    }
-    facies = rule->getFaciesFromGaussian(y[0],y[1]);
-    
-    /* Combine the underlying GRFs to derive Facies */
-    
-    dbin->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
-    
-    /* Conditional printout of the facies at data */
-    
-    if (debug_query("condexp"))
-      st_print_gaus2fac("Data",isimu,iech,y,facies);
-  }
-  
-  /* Set the error return code */
-  
-  error = 0;
-  
-label_end:
-  return(error);
-}
-
-/****************************************************************************/
-/*!
-**  Combine the underlying GRF into a facies value (Shadow case)
-**
-** \return  Error return code
-**
-** \param[in]  propdef    Props structure
-** \param[in]  dbout      Db output structure
-** \param[in]  rule       Rule structure
-** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
-** \param[in]  ipgs       Rank of the PGS
-** \param[in]  isimu      Rank of the simulation
-** \param[in]  nbsimu     Number of simulations
-**
-** \remark Attributes LOC_FACIES and LOC_SIMU are mandatory
-**
-*****************************************************************************/
-GEOSLIB_API int rule_gaus2fac_result_shadow(Props  *propdef,
-                                            Db     *dbout,
-                                            Rule   *rule,
-                                            int    *flag_used,
-                                            int     ipgs,
-                                            int     isimu,
-                                            int     nbsimu)
-{
-  int ndim,iech,jech,error,idim,nstep,istep,flag,flag_shadow,igrf,icase;
-  double *del,y[2],facies,dinc,dy,ys,yc_dsup,yc_down;
-  double  t1min,t1max,t2min,t2max,s1min,s1max,s2min,s2max,sh_dsup,sh_down,seuil;
-
-  /* Initializations */
-
-  check_mandatory_attribute("rule_gaus2fac_result_shadow",dbout,LOC_FACIES);
-  check_mandatory_attribute("rule_gaus2fac_result_shadow",dbout,LOC_SIMU);
-  error = 1;
-  del   = (double *) NULL;
-  dy    = 0.;
-  nstep = 0;
-  ndim  = dbout->getNDim();
-  icase = get_rank_from_propdef(propdef,ipgs,0);
-  VectorDouble xyz(ndim);
-  VectorInt ind1(ndim);
-  VectorInt ind2(ndim);
-
-  /* Initializations */
-
-  del = db_vector_alloc(dbout);
-  if (del == (double *) NULL) goto label_end;
-  dinc  = rule->getIncr();
-  nstep = (int) floor(rule->getDMax() / dinc);
-  dy    = dinc * rule->getTgte();
-  for (idim=0; idim<ndim; idim++) del[idim] = dinc * rule->getShift(idim);
-
-  /* Processing the translation */
-
-  for (iech=0; iech<dbout->getSampleNumber(); iech++)
-  {
-    if (! dbout->isActive(iech)) continue;
-    
-    /* Initializations */
-    
-    facies = TEST;
-    for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
-    
-    y[0] = dbout->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
-    if (FFFF(y[0])) break;
-    if (rule_thresh_define_shadow(propdef,dbout,rule,SHADOW_WATER,
-                                  iech,isimu,nbsimu,1,
-                                  &t1min,&t1max,&t2min,&t2max,
-                                  &yc_dsup,&yc_down)) goto label_end;
-    db_index_sample_to_grid(dbout,iech,ind2.data());
-    grid_to_point(dbout,ind2.data(),NULL,xyz.data());
-    
-    if (y[0] >= t1max)
-      facies = SHADOW_ISLAND;
-    else
-    {
-      flag_shadow = 0;
-      db_index_sample_to_grid(dbout,iech,ind2.data());
-      grid_to_point(dbout,ind2.data(),NULL,xyz.data());
-      for (istep=1; istep<=nstep && flag_shadow==0; istep++)
-      {
-        for (idim=0; idim<ndim; idim++) xyz[idim] -= del[idim];
-        flag = point_to_grid(dbout,xyz.data(),0,ind2.data());
-        if (flag > 0) break;
-        if (flag < 0) continue;
-        ys = rule->st_grid_eval(dbout,isimu,icase,nbsimu,xyz);
-        if (FFFF(ys)) continue;
-        jech  = db_index_grid_to_sample(dbout,ind2.data());
-        if (rule_thresh_define_shadow(propdef,dbout,rule,SHADOW_WATER,
-                                      jech,isimu,nbsimu,1,
-                                      &s1min,&s1max,&s2min,&s2max,
-                                      &sh_dsup,&sh_down)) return(1);
-        if (ys < s1max) continue;  /* Upstream point not in island */
-        seuil = t1max - yc_down + dy * istep;
-        flag_shadow = (MIN(ys,s1max + sh_dsup) > seuil);
-      }
-      facies = (flag_shadow) ? SHADOW_SHADOW : SHADOW_WATER;
-    }
-    
-    /* Combine the underlying GRFs to derive Facies */
-    
-    dbout->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
-    
-    /* Optional printout */
-    
-    if (debug_query("condexp")) 
-      st_print_gaus2fac("Results",isimu,iech,y,facies);
-  }
-  
-  /* Set the error return code */
-  
-  error = 0;
-
-label_end:
-  del  = db_vector_free(del);
-  return(error);
-}
-
-/****************************************************************************/
-/*!
-**  Combine the underlying GRF into a facies value
-**
-** \return  Error return code
-**
-** \param[in]  propdef    Props structure
-** \param[in]  dbout      Db output structure
-** \param[in]  rule       Rule structure
-** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
-** \param[in]  ipgs       Rank of the PGS
-** \param[in]  isimu      Rank of the simulation
-** \param[in]  nbsimu     Number of simulations
-**
-** \remark Attributes LOC_FACIES and LOC_SIMU are mandatory
-**
-*****************************************************************************/
-GEOSLIB_API int rule_gaus2fac_result(Props  *propdef,
-                                     Db     *dbout,
-                                     Rule   *rule,
-                                     int    *flag_used,
-                                     int     ipgs,
-                                     int     isimu,
-                                     int     nbsimu)
-{
-  int    ndim,iech,jech,error,idim,igrf,icase;
-  double t1min,t1max,t2min,t2max,facies,y[2];
-
-  /* Initializations */
-
-  check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_FACIES);
-  check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_SIMU);
-  error  = 1;
-  ndim   = dbout->getNDim();
-  VectorDouble xyz(ndim);
-  VectorInt ind1(ndim);
-  VectorInt ind2(ndim);
-
-  /* Processing the translation */
-
-  for (iech=0; iech<dbout->getSampleNumber(); iech++)
-  {
-    if (! dbout->isActive(iech)) continue;
-    
-    /* Initializations */
-    
-    facies = TEST;
-    for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
-    
-    switch (rule->getModeRule())
-    {
-      case RULE_STD:
-        if (rule_thresh_define(propdef,dbout,rule,ITEST,
-                               iech,isimu,nbsimu,1,
-                               &t1min,&t1max,&t2min,&t2max)) goto label_end;
-        for (igrf=0; igrf<2; igrf++)
-        {
-          icase = get_rank_from_propdef(propdef,ipgs,igrf);
-          y[igrf] = (flag_used[igrf]) ?
-            dbout->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1) : 0.;
-        }
-        facies = rule->getFaciesFromGaussian(y[0],y[1]);
-        break;
-      
-      case RULE_SHIFT:
-        icase = get_rank_from_propdef(propdef,ipgs,0);
-        y[0] = dbout->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
-        if (FFFF(y[0])) break;
-      
-        if (rule_thresh_define(propdef,dbout,rule,ITEST,
-                               iech,isimu,nbsimu,1,
-                               &t1min,&t1max,&t2min,&t2max)) goto label_end;
-        db_index_sample_to_grid(dbout,iech,ind2.data());
-        for (idim=0; idim<ndim; idim++) ind2[idim] -= ind1[idim];
-        jech = db_index_grid_to_sample(dbout,ind2.data());
-        if (jech >= 0)
-          y[1] = dbout->getSimvar(LOC_SIMU,jech,isimu,0,icase,nbsimu,1);
-        else
-          y[1] = TEST;
-        facies = rule->getFaciesFromGaussian(y[0],y[1]);
-        break;
-      
-      default:
-        messageAbort("Other type of rule mode is forbidden");
-        break;
-    }
-    
-    /* Combine the underlying GRFs to derive Facies */
-    
-    dbout->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
-    
-    /* Optional printout */
-    
-    if (debug_query("condexp")) 
-      st_print_gaus2fac("Results",isimu,iech,y,facies);
-  }
-  
-  /* Set the error return code */
-  
-  error = 0;
-
-label_end:
-  return(error);
-}
-
-/****************************************************************************/
-/*!
 **  Locate the current proportions
 **
-** \param[in]  propdef    Props structure
+** \param[in]  propdef    PropDef structure
 ** \param[in]  ifac_ref   Conditional (first variable) facies
 **                        (Only used for PROCESS_CONDITIONAL)
 **
 ****************************************************************************/
-static int st_proportion_locate(Props  *propdef,
+static int st_proportion_locate(PropDef  *propdef,
                                 int     ifac_ref)
 {
   int ifac;
@@ -476,10 +74,10 @@ static int st_proportion_locate(Props  *propdef,
 **
 ** \return  -1 if the proportion is not defined; 0 otherwise
 **
-** \param[in]  propdef   Props structure
+** \param[in]  propdef   PropDef structure
 **
 ****************************************************************************/
-static int st_proportion_transform(Props  *propdef)
+static int st_proportion_transform(PropDef  *propdef)
 
 {
   double total,pp;
@@ -543,14 +141,14 @@ static int st_proportion_transform(Props  *propdef)
 /*!
 **  Set the method to compute Proportions
 **
-** \param[in]  propdef  Props structure
+** \param[in]  propdef  PropDef structure
 ** \param[in]  mode     Type of operation 
 ** \li                  PROCESS_COPY
 ** \li                  PROCESS_MARGINAL
 ** \li                  PROCESS_CONDITIONAL
 **
 ****************************************************************************/
-GEOSLIB_API void proportion_rule_process(Props *propdef, int mode)
+GEOSLIB_API void proportion_rule_process(PropDef *propdef, int mode)
 {
   /* Assignments */
 
@@ -573,13 +171,13 @@ GEOSLIB_API void proportion_rule_process(Props *propdef, int mode)
 /*!
 **  Print the (non-stationary) proportions
 **
-** \param[in]  propdef   Props structure
+** \param[in]  propdef   PropDef structure
 **
 *****************************************************************************/
-GEOSLIB_API void proportion_print(Props  *propdef)
+GEOSLIB_API void proportion_print(PropDef  *propdef)
 
 {
-  if (propdef == (Props *) NULL) return;
+  if (propdef == (PropDef *) NULL) return;
   mestitle(0,"Proportions");
 
   print_matrix("Initial :",0,1,propdef->nfac[1],propdef->nfac[0],NULL,
@@ -599,10 +197,10 @@ GEOSLIB_API void proportion_print(Props  *propdef)
 **
 ** \return  1 if the proportions are unchanged; 0 otherwise
 **
-** \param[in]  propdef Props structure
+** \param[in]  propdef PropDef structure
 **
 ****************************************************************************/
-static int st_proportion_changed(Props *propdef)
+static int st_proportion_changed(PropDef *propdef)
 
 {
   /* Compare with the memory proportion array */
@@ -628,7 +226,7 @@ static int st_proportion_changed(Props *propdef)
 ** \return  - the target point does not lie within the proportion grid
 ** \return  - in conditional processing, the reference facies does not exist
 **
-** \param[in]  propdef    Props structure
+** \param[in]  propdef    PropDef structure
 ** \param[in]  db         Db input structure
 ** \param[in]  iech       Rank of the data in the input Db
 ** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
@@ -637,12 +235,12 @@ static int st_proportion_changed(Props *propdef)
 ** \param[out] jech       Rank of the auxiliary data in the input Db
 **
 ** \remark  At the end of this function, the local proportions are stored
-** \remark  in the array proploc of the structure Props
+** \remark  in the array proploc of the structure PropDef
 ** \remark  The argument 'isimu' is only used for
 ** \remark            propdef->mode == PROCESS_CONDITIONAL (simbipgs)
 **
 *****************************************************************************/
-static int st_proportion_define(Props  *propdef,
+static int st_proportion_define(PropDef  *propdef,
                                 const Db     *db,
                                 int     iech,
                                 int     isimu,
@@ -707,7 +305,7 @@ static int st_proportion_define(Props  *propdef,
 **
 ** \return  Error return code
 **
-** \param[in]  propdef    Props structure
+** \param[in]  propdef    PropDef structure
 ** \param[in]  db         Db input structure
 ** \param[in]  rule       Rule structure
 ** \param[in]  facies     Facies of interest (or GV_ITEST)
@@ -725,9 +323,9 @@ static int st_proportion_define(Props  *propdef,
 ** \param[out] sh_down    Local or global downwards shift (shadow)
 **
 *****************************************************************************/
-GEOSLIB_API int rule_thresh_define_shadow(Props  *propdef,
+GEOSLIB_API int rule_thresh_define_shadow(PropDef  *propdef,
                                           Db     *db,
-                                          Rule   *rule,
+                                          RuleShadow *rule,
                                           int     facies,
                                           int     iech,
                                           int     isimu,
@@ -803,7 +401,7 @@ GEOSLIB_API int rule_thresh_define_shadow(Props  *propdef,
 **
 ** \return  Error return code
 **
-** \param[in]  propdef    Props structure
+** \param[in]  propdef    PropDef structure
 ** \param[in]  db         Db input structure
 ** \param[in]  rule       Rule structure
 ** \param[in]  facies     Facies of interest (or ITEST) starting from 1
@@ -819,7 +417,7 @@ GEOSLIB_API int rule_thresh_define_shadow(Props  *propdef,
 ** \param[out] t2max      Maximum threshold for Y2
 **
 *****************************************************************************/
-GEOSLIB_API int rule_thresh_define(Props  *propdef,
+GEOSLIB_API int rule_thresh_define(PropDef *propdef,
                                    Db     *db,
                                    Rule   *rule,
                                    int     facies,
@@ -883,8 +481,7 @@ GEOSLIB_API int rule_thresh_define(Props  *propdef,
 
     /* In the case of SHIFT, update the thresholds */
 
-    if (rule->getModeRule() == RULE_SHIFT && 0)
-      rule->updateShift();
+    if (rule->getModeRule() == RULE_SHIFT && 0) rule->updateShift();
   }
 
   /* Convert the proportions into thresholds */
@@ -918,23 +515,23 @@ GEOSLIB_API int rule_thresh_define(Props  *propdef,
 ** \remark It will be changed in this function to locator LOC_SIMU
 **
 *****************************************************************************/
-GEOSLIB_API int db_rule_shadow(Db     *db,
+GEOSLIB_API int  (Db     *db,
                                Db     *dbprop,
-                               Rule   *rule,
+                               RuleShadow *rule,
                                Model  *model,
                                const VectorDouble& props,
                                int     flag_stat,
                                int     nfacies)
 {
   int    iptr,error,flag_used[2],nbsimu,igrf,ngrf;
-  Props *propdef;
+  PropDef *propdef;
 
   /* Initializations */
 
   error   = 1;
   nbsimu  = 1;
   iptr    = -1;
-  propdef = (Props *) NULL;
+  propdef = (PropDef *) NULL;
 
   /* Preliminary checks */
 
@@ -944,11 +541,11 @@ GEOSLIB_API int db_rule_shadow(Db     *db,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,props,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
 
   /* General setting for lithotype */
 
-  rule->particularities_shadow(db, dbprop, model,1,flag_stat);
+  rule->particularities(db, dbprop, model,1,flag_stat);
   proportion_rule_process(propdef,PROCESS_COPY);
 
   /**********************/
@@ -979,9 +576,9 @@ GEOSLIB_API int db_rule_shadow(Db     *db,
 
   /* Combine the conditional simulation for each GRF */
 
-  for (int isimu=0; isimu<nbsimu; isimu++)
-    if (rule_gaus2fac_result_shadow(propdef,db,rule,flag_used,
-                                    0,isimu,nbsimu)) goto label_end;
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+    if (rule->gaus2facResult(propdef, db, flag_used, 0, isimu, nbsimu))
+      goto label_end;
 
   /* Set the error return flag */
 
@@ -1030,7 +627,7 @@ GEOSLIB_API int db_rule(Db       *db,
 
   int error = 1;
   int iptr    = -1;
-  Props* propdef = (Props *) NULL;
+  PropDef* propdef = (PropDef *) NULL;
   int ngrf    = rule.getGRFNumber();
   VectorInt flagUsed = rule.whichGRFUsed();
   int nfacies = rule.getFaciesNumber();
@@ -1048,7 +645,7 @@ GEOSLIB_API int db_rule(Db       *db,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
   if (rule.particularities(db,dbprop,model,1,flag_stat)) goto label_end;
   proportion_rule_process(propdef,PROCESS_COPY);
 
@@ -1064,25 +661,21 @@ GEOSLIB_API int db_rule(Db       *db,
 
   db->display(1);
   if (db->getLocatorNumber(LOC_SIMU) != ngrf)
+  {
     db->switchLocator(LOC_Z, LOC_SIMU);
+    flagReturn = true;
+  }
   db->display(1);
 
   /* Translate Gaussian into Facies */
 
-  if (rule_gaus2fac_result(propdef,db,&rule,flagUsed.data(),0,0,1)) goto label_end;
+  if (rule.gaus2facResult(propdef,db,flagUsed.data(),0,0,1)) goto label_end;
 
   // Returning to the initial locators (if the initial variable
   // had a LOC_Z locator which has been temporarily modified into LOC_SIMU)
 
   if (flagReturn)
-  {
-    for (int igrf=0; igrf<2; igrf++)
-    {
-      if (! flagUsed[igrf]) continue;
-      iptr = db_attribute_identify(db,LOC_SIMU,igrf);
-      db->setLocatorByAttribute(iptr,LOC_SIMU,igrf);
-    }
-  }
+    db->switchLocator(LOC_SIMU,LOC_Z);
 
   // Naming convention
 
@@ -1113,7 +706,7 @@ label_end:
 *****************************************************************************/
 GEOSLIB_API int db_bounds_shadow(Db     *db,
                                  Db     *dbprop,
-                                 Rule   *rule,
+                                 RuleShadow   *rule,
                                  Model  *model,
                                  const   VectorDouble& props,
                                  int     flag_stat,
@@ -1121,14 +714,14 @@ GEOSLIB_API int db_bounds_shadow(Db     *db,
 {
   int     flag_used[2],ngrf,error,iptr,igrf;
   double *coor;
-  Props  *propdef;
+  PropDef  *propdef;
 
   /* Initializations */
 
   error   = 1;
   ngrf    = 0;
   coor    = (double *) NULL;
-  propdef = (Props  *)NULL;
+  propdef = (PropDef  *)NULL;
 
   /**********************/
   /* Preliminary checks */
@@ -1163,11 +756,11 @@ GEOSLIB_API int db_bounds_shadow(Db     *db,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,props,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
 
   /* General setting for lithotype */
 
-  rule->particularities_shadow(db, dbprop, model,1,flag_stat);
+  rule->particularities(db, dbprop, model,1,flag_stat);
   proportion_rule_process(propdef,PROCESS_COPY);
 
   /**********************/
@@ -1187,8 +780,7 @@ GEOSLIB_API int db_bounds_shadow(Db     *db,
   for (igrf=0; igrf<ngrf; igrf++)
   {
     if (! flag_used[igrf]) continue;
-    if (rule_evaluate_bounds_shadow(propdef,db,db,rule,0,igrf,0,0,0.)) 
-      goto label_end;
+    if (rule->evaluateBounds(propdef,db,db,0,igrf,0,0)) goto label_end;
   }
 
   /* Set the error return flag */
@@ -1236,7 +828,7 @@ GEOSLIB_API int db_bounds(Db*       db,
 
   int error = 1;
   int iptrl, iptru;
-  Props* propdef = nullptr;
+  PropDef* propdef = nullptr;
 
   VectorInt flagUsed = rule.whichGRFUsed();
   int nfacies = rule.getFaciesNumber();
@@ -1247,23 +839,9 @@ GEOSLIB_API int db_bounds(Db*       db,
   int nvar = db->getVariableNumber();
   if (! db->isVariableNumberComparedTo(1)) goto label_end;
 
-  /* Model */
+  /* Model (for SHIFT case) */
 
-  if (rule.getModeRule() == RULE_SHIFT)
-  {
-    if (model == (Model *) NULL)
-    {
-      messerr("No Model is provided");
-      goto label_end;
-    }
-    if (model->getVariableNumber() != nvar)
-    {
-      messerr("The number of variables in the Model (%d) does not match",
-              model->getVariableNumber());
-      messerr(" the number of variables in the Db (%d)",nvar);
-      goto label_end;
-    }
-  }
+  if (rule.checkModel(model, nvar)) goto label_end;
 
   /*******************/
   /* Core allocation */
@@ -1271,7 +849,7 @@ GEOSLIB_API int db_bounds(Db*       db,
 
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
 
   /* General setting for lithotype */
 
@@ -1295,7 +873,7 @@ GEOSLIB_API int db_bounds(Db*       db,
   for (int igrf=0; igrf<ngrf; igrf++)
   {
     if (! flagUsed[igrf]) continue;
-    if (rule_evaluate_bounds(propdef,db,db,&rule,0,igrf,0,0)) goto label_end;
+    if (rule.evaluateBounds(propdef,db,db,0,igrf,0,0)) goto label_end;
   }
 
   // Naming convention
@@ -1319,7 +897,7 @@ GEOSLIB_API int db_bounds(Db*       db,
 ** \param[in]  propdef     Pointer to Propdef structure
 **
 ****************************************************************************/
-GEOSLIB_API void propdef_reset(Props* propdef)
+GEOSLIB_API void propdef_reset(PropDef* propdef)
 {
   if (propdef == nullptr) return;
   if (propdef->propmem.empty()) return;
@@ -1332,7 +910,7 @@ GEOSLIB_API void propdef_reset(Props* propdef)
 /*!
 **  Allocate or deallocate a proportion array
 **
-** \return  Pointer on the returned Props structure
+** \return  Pointer on the returned PropDef structure
 **
 ** \param[in]  mode        1 for allocation; -1 for deallocation
 ** \param[in]  flag_facies 1 if Gibbs is used for facies
@@ -1345,10 +923,10 @@ GEOSLIB_API void propdef_reset(Props* propdef)
 ** \param[in]  dbprop      Db structure containing the proportions
 **                         (only used in the non-stationary case)
 ** \param[in]  propcst     Constant set of proportions (used if flag_stat)
-** \param[in]  proploc     Props structure (used for mode<0)
+** \param[in]  proploc     PropDef structure (used for mode<0)
 **
 ****************************************************************************/
-GEOSLIB_API Props *proportion_manage(int     mode,
+GEOSLIB_API PropDef *proportion_manage(int     mode,
                                      int     flag_facies,
                                      int     flag_stat,
                                      int     ngrf1,
@@ -1358,11 +936,11 @@ GEOSLIB_API Props *proportion_manage(int     mode,
                                      Db     *db,
                                      const Db     *dbprop,
                                      const   VectorDouble& propcst,
-                                     Props  *proploc)
+                                     PropDef  *proploc)
 {
   int ifac,error,nfacprod;
   const Db *db_loc;
-  Props *propdef;
+  PropDef *propdef;
 
   /* Initializations */
 
@@ -1374,7 +952,7 @@ GEOSLIB_API Props *proportion_manage(int     mode,
 
   if (mode > 0)
   {
-    propdef = new Props;
+    propdef = new PropDef;
     propdef->case_facies = flag_facies;
     propdef->case_stat   = flag_stat;
     propdef->case_prop_interp = (dbprop != (Db *) NULL && is_grid(dbprop));
@@ -1449,7 +1027,7 @@ GEOSLIB_API Props *proportion_manage(int     mode,
   else
   {
     propdef = proploc;
-    if (propdef == (Props *) NULL) return(propdef);
+    if (propdef == (PropDef *) NULL) return(propdef);
 
     /* Deallocation */
 
@@ -1519,13 +1097,14 @@ GEOSLIB_API int db_threshold(Db*       db,
   int error   = 1;
   int ngrf = 0;
   int nfacies = 0;
-  Props* propdef = (Props *) NULL;
+  PropDef* propdef = (PropDef *) NULL;
 
   /**********************/
   /* Preliminary checks */
   /**********************/
 
   /* Rule */
+
 
   if (rule.getModeRule() != RULE_STD)
   {
@@ -1536,14 +1115,7 @@ GEOSLIB_API int db_threshold(Db*       db,
 
   /* Model */
 
-  if (rule.getModeRule() == RULE_SHIFT)
-  {
-    if (model == (Model *) NULL)
-    {
-      messerr("No Model is provided");
-      goto label_end;
-    }
-  }
+  if (rule.checkModel(model)) return 1;
 
   /*******************/
   /* Core allocation */
@@ -1552,7 +1124,7 @@ GEOSLIB_API int db_threshold(Db*       db,
   nfacies = rule.getFaciesNumber();
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
-  if (propdef == (Props *) NULL) goto label_end;
+  if (propdef == (PropDef *) NULL) goto label_end;
 
   if (rule.particularities(db,dbprop,model,1,flag_stat)) goto label_end;
   proportion_rule_process(propdef,PROCESS_COPY);
