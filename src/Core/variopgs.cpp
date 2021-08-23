@@ -628,6 +628,7 @@ static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
 
   nfacies = local_pgs->nfacies;
   ngrf    = local_pgs->ngrf;
+  iconf0  = 0;
 
   for (ifac=0; ifac<nfacies; ifac++)
   {
@@ -4965,7 +4966,6 @@ GEOSLIB_API int model_pgs(Db*       db,
   const Db* dbprop = ruleprop->getDbprop();
 
   Local_Pgs local_pgs;
-  int     ngrf;
   PropDef  *propdef;
   Model  *new_model;
   
@@ -4975,6 +4975,7 @@ GEOSLIB_API int model_pgs(Db*       db,
 
   int error  = 1;
   int nfacies = 0;
+  int     ngrf = 0;
   new_model = (Model *) NULL;
   propdef   = (PropDef *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);

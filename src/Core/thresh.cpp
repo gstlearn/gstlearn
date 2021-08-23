@@ -515,7 +515,7 @@ GEOSLIB_API int rule_thresh_define(PropDef *propdef,
 ** \remark It will be changed in this function to locator LOC_SIMU
 **
 *****************************************************************************/
-GEOSLIB_API int  (Db     *db,
+GEOSLIB_API int db_rule_shadow(Db     *db,
                                Db     *dbprop,
                                RuleShadow *rule,
                                Model  *model,
