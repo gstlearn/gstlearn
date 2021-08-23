@@ -53,3 +53,7 @@ VectorString separateKeywords(const String& code);
 int toInt(const String& code);
 String intToString(int value);
 String realToString(double value);
+String suppressTrailingBlanks(String value);
+String suppressLeadingBlanks(String value);
+String suppressAnyBlanks(String value);
+

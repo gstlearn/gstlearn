@@ -419,3 +419,21 @@ String realToString(double value)
   sstr << value;
   return sstr.str();
 }
+
+String suppressTrailingBlanks(String value)
+{
+  value = std::regex_replace(value, std::regex(" +$"), "");
+  return value;
+}
+
+String suppressLeadingBlanks(String value)
+{
+  value = std::regex_replace(value, std::regex("^ +"), "");
+  return value;
+}
+
+String suppressAnyBlanks(String value)
+{
+  value = std::regex_replace(value, std::regex("^ +| +$|( ) +"), "$1");
+  return value;
+}

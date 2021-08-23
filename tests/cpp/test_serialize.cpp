@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 
 {
   bool verbose = true;
+  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
 
   // ===== Create the Db db1
   int nech = 20;
@@ -31,21 +32,34 @@ int main(int argc, char *argv[])
   db1.display();
   
   // Serialize db1
-  db1.serialize("Db.Neutral",verbose);
+  db1.serialize(pygst + "Neutral.Db.ascii",verbose);
 
   // Deserialize db2
-  Db db2("Db.Neutral",verbose);
+  Db db2(pygst + "Neutral.Db.ascii",verbose);
   db2.display();
+
+  // ===== Create the Grid Db
+  Db dbg1({12,10},{0.1,0.3},{0.2,0.4});
+  vec = ut_vector_simulate_gaussian(dbg1.getSampleNumber());
+  dbg1.addFields(vec,"myvar",LOC_Z);
+  dbg1.display();
+
+  // Serialize dbg1
+  dbg1.serialize(pygst + "Neutral.Dbg.ascii",verbose);
+
+  // Deserialize dbg2
+  Db dbg2(pygst + "Neutral.Dbg.ascii",verbose);
+  dbg2.display();
 
   // ===== Create the Polygon poly1
   Polygons poly1(&db1);
   poly1.display();
 
   // Serialize poly1
-  poly1.serialize("Polygon.Neutral",verbose);
+  poly1.serialize(pygst + "Neutral.Polygon.ascii",verbose);
 
   // Deserialize poly2
-  Polygons poly2("Polygon.Neutral",verbose);
+  Polygons poly2(pygst + "Neutral.Polygon.ascii",verbose);
   poly2.display();
 
   // ===== Compute an experimental variogram
@@ -56,10 +70,10 @@ int main(int argc, char *argv[])
   vario1.display();
 
   // Serialize vario1
-  vario1.serialize("Vario.Neutral",verbose);
+  vario1.serialize(pygst + "Neutral.Vario.ascii",verbose);
 
   // Deserialize vario2
-  Vario vario2("Vario.Neutral",verbose);
+  Vario vario2(pygst + "Neutral.Vario.ascii",verbose);
   vario2.display();
 
   // ===== Compute a Model
@@ -69,10 +83,10 @@ int main(int argc, char *argv[])
   model1.display();
 
   // Serialize model1
-  model1.serialize("Model.Neutral",verbose);
+  model1.serialize(pygst + "Neutral.Model.ascii",verbose);
 
-  // Unserialize model2
-  Model model2("Model.Neutral",verbose);
+  // Deserialize model2
+  Model model2(pygst + "Neutral.Model.ascii",verbose);
   model2.display();
 
   return(0);

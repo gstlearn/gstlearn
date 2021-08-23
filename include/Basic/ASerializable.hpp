@@ -27,6 +27,7 @@ public:
   const String& getFileName() const { return _fileName; }
   const String& getFileType() const { return _fileType; }
 
+
 protected:
   int _fileOpen(const String& filename,
                 const String& filetype,
@@ -45,3 +46,5 @@ private:
   mutable FILE*  _file;
   mutable String _currentRecord;
 };
+
+String serializedFileIdentify(const String& filename);

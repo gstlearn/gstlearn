@@ -10,9 +10,13 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <regex>
 
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR;
 static char *cur = NULL;
@@ -384,3 +388,32 @@ bool ASerializable::_onlyBlanks(char *string) const
   return true;
 }
 
+String serializedFileIdentify(const String& filename)
+{
+  // Preliminary check
+  if (filename.empty())
+  {
+    messerr("The Neutral File Name cannot be left empty");
+    return String();
+  }
+
+  // Open the File
+  std::ifstream file(filename);
+  if (!file.is_open())
+  {
+    messerr("Could not open the Neutral File %s",filename.c_str());
+    return String();
+  }
+
+  // Read the File Header
+  String filetype;
+  std::getline(file, filetype);
+
+  // Suppress trailing blanks
+  filetype = suppressTrailingBlanks(filetype);
+
+  // Close the file
+  file.clear();
+
+  return filetype;
+}
