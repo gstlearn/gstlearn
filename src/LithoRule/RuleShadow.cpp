@@ -84,6 +84,50 @@ RuleShadow::~RuleShadow()
 {
 }
 
+int RuleShadow::deSerializeSpecific()
+{
+  _shift.resize(3);
+  if (_recordRead("Slope for Shadow Rule", "%lf", &_slope)) return 1;
+  if (_recordRead("Lower Threshold for Shadow Rule", "%lf", &_shDown)) return 1;
+  if (_recordRead("Upper Threshold for Shadow Rule", "%lf", &_shDsup)) return 1;
+  if (_recordRead("Shift along first direction", "%lf", &_shift[0]))  return 1;
+  if (_recordRead("Shift along second direction", "%lf", &_shift[1])) return 1;
+  if (_recordRead("Shift along third direction", "%lf", &_shift[2]))  return 1;
+  return 0;
+}
+
+void RuleShadow::serializeSpecific() const
+{
+  double slope = (FFFF(_slope)) ? 0. : _slope;
+  _recordWrite("%lf", slope);
+  double shdown = (FFFF(_shDown)) ? 0. : _shDown;
+  _recordWrite("%lf", shdown);
+  double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
+  _recordWrite("%lf", shdsup);
+  _recordWrite("#", "Parameters for Shadow option");
+  _recordWrite("%lf", _shift[0]);
+  _recordWrite("%lf", _shift[1]);
+  _recordWrite("%lf", _shift[2]);
+  _recordWrite("#", "Parameters for Shift option");
+}
+
+String RuleShadow::displaySpecific(int flagProp, int flagThresh) const
+{
+  std::stringstream sstr;
+  sstr << toVector("Normalized Translation Vector = ",_shift) << std::endl;
+  sstr << "Slope for shadow                  = " << _slope << "(degrees)" << std::endl;
+  sstr << "Upwards shift for the threshold   = " << _shDsup << std::endl;
+  sstr << "Downwards shift for the threshold = " << _shDown << std::endl;
+  sstr << std::endl;
+  sstr << "Note for non-stationary case:" << std::endl;
+  sstr << "- P1 gives the proportion of Island" << std::endl;
+  sstr << "- P2 gives the value of Upwards shift" << std::endl;
+  sstr << "- P3 gives the value of Downwards shift" << std::endl;
+  sstr << "(With the current option, only the first GRF is used)" << std::endl;
+  sstr << getMainNode()->nodePrintShadow(flagProp, flagThresh);
+  return sstr.str();
+}
+
 /****************************************************************************/
 /*!
 **  Define the particularities of the PGS model (for Shadow)
@@ -139,8 +183,8 @@ void RuleShadow::_st_shadow_max(const Db *dbprop,
   {
     /* Stationary case */
 
-    *sh_dsup_max = getShDsup();
-    *sh_down_max = getShDown();
+    *sh_dsup_max = _shDsup;
+    *sh_down_max = _shDown;
   }
   else
   {
@@ -371,7 +415,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
   dinc  = getIncr();
   nstep = (int) floor(getDMax() / dinc);
   dy    = dinc * getTgte();
-  for (idim=0; idim<ndim; idim++) del[idim] = dinc * getShift(idim);
+  for (idim=0; idim<ndim; idim++) del[idim] = dinc * _shift[idim];
 
   /* Processing the translation */
 
@@ -513,7 +557,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
         alea = law_uniform(0.,1.);
         for (idim=0; idim<dbin->getNDim(); idim++)
         {
-          dval = alea * getDMax() * getShift(idim);
+          dval = alea * getDMax() * _shift[idim];
           dbin->setCoordinate(jech,idim,dbin->getCoordinate(iech,idim) - dval);
           dist += dval * dval;
         }
@@ -566,7 +610,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
         dist = 0.;
         for (idim=0; idim<dbin->getNDim(); idim++)
         {
-          dval = dinc * getShift(idim) * istep;
+          dval = dinc * _shift[idim] * istep;
           dbin->setCoordinate(jech,idim,dbin->getCoordinate(iech,idim) - dval);
           dist += dval * dval;
         }

@@ -88,23 +88,15 @@ double get_rule_extreme(int mode)
 }
 
 Rule::Rule(int mode_rule,
-           double rho,
-           double slope,
-           double sh_down,
-           double sh_dsup,
-           const VectorDouble& shift)
+           double rho)
     : AStringable(),
       ASerializable(),
       _modeRule(mode_rule),
       _flagProp(0),
       _rho(rho),
-      _shDsup(sh_dsup),
-      _shDown(sh_down),
-      _slope(slope),
       _dMax(TEST),
       _tgte(TEST),
       _incr(TEST),
-      _shift(shift),
       _xyz(),
       _ind1(),
       _ind2(),
@@ -118,13 +110,9 @@ Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(rho),
-      _shDsup(TEST),
-      _shDown(TEST),
-      _slope(TEST),
       _dMax(TEST),
       _tgte(TEST),
       _incr(TEST),
-      _shift(),
       _xyz(),
       _ind1(),
       _ind2(),
@@ -139,9 +127,6 @@ Rule::Rule(const VectorString& nodnames, double rho)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(rho),
-      _shDsup(TEST),
-      _shDown(TEST),
-      _slope(TEST),
       _dMax(TEST),
       _tgte(TEST),
       _incr(TEST),
@@ -160,13 +145,10 @@ Rule::Rule(const String& neutralFileName, bool verbose)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(0.),
-      _shDsup(0.),
-      _shDown(0.),
       _slope(0.),
       _dMax(TEST),
       _tgte(TEST),
       _incr(TEST),
-      _shift(),
       _xyz(),
       _ind1(),
       _ind2(),
@@ -180,13 +162,9 @@ Rule::Rule(const Rule& m)
     : _modeRule(m._modeRule),
       _flagProp(m._flagProp),
       _rho(m._rho),
-      _shDsup(m._shDsup),
-      _shDown(m._shDown),
-      _slope(m._slope),
       _dMax(m._dMax),
       _tgte(m._tgte),
       _incr(m._incr),
-      _shift(m._shift),
       _mainNode(new Node(*m._mainNode))
 {
 }
@@ -198,13 +176,9 @@ Rule& Rule::operator=(const Rule& m)
     _modeRule = m._modeRule;
     _flagProp = m._flagProp;
     _rho = m._rho;
-    _shDsup = m._shDsup;
-    _shDown = m._shDown;
-    _slope = m._slope;
     _dMax = m._dMax;
     _tgte = m._tgte;
     _incr = m._incr;
-    _shift = m._shift;
     _mainNode = new Node(*m._mainNode);
   }
   return *this;
@@ -352,6 +326,17 @@ void Rule::display(bool flagProp, bool flagThresh) const
   messageFlush(_display(flagProp, flagThresh));
 }
 
+String Rule::displaySpecific(int flagProp, int flagThresh) const
+{
+  std::stringstream sstr;
+  if (ABS(_rho) > 0.)
+    sstr << "Correlation between the two GRFs = " << _rho << std::endl;
+  if (_rho == 1.)
+    sstr << "(As the correlation is set to 1, only the first GRF is used)" << std::endl;
+  sstr << _mainNode->nodePrint(flagProp, flagThresh);
+  return sstr.str();
+}
+
 String Rule::_display(bool flagProp, bool flagThresh) const
 {
   std::stringstream sstr;
@@ -370,37 +355,9 @@ String Rule::_display(bool flagProp, bool flagThresh) const
   sstr << "- Number of thresholds along G2 = " << ny2_tot  << std::endl;
   sstr << std::endl;
 
-  switch (_modeRule)
-  {
-    case RULE_STD:
-      if (ABS(_rho) > 0.)
-        sstr << "Correlation between the two GRFs = " << _rho << std::endl;
-      if (_rho == 1.)
-        sstr << "(As the correlation is set to 1, only the first GRF is used)" << std::endl;
-      sstr << _mainNode->nodePrint(flagProp, flagThresh);
-      break;
+  sstr << displaySpecific(flagProp, flagThresh);
 
-    case RULE_SHIFT:
-      sstr << toVector("Translation Vector",_shift) << std::endl;
-      sstr << "(With the current option, only the first GRF is used)" << std::endl;
-      sstr << _mainNode->nodePrint(flagProp, flagThresh);
-      break;
-
-    case RULE_SHADOW:
-      sstr << toVector("Normalized Translation Vector = ",_shift) << std::endl;
-      sstr << "Slope for shadow                  = " << _slope << "(degrees)" << std::endl;
-      sstr << "Upwards shift for the threshold   = " << _shDsup << std::endl;
-      sstr << "Downwards shift for the threshold = " << _shDown << std::endl;
-      sstr << std::endl;
-      sstr << "Note for non-stationary case:" << std::endl;
-      sstr << "- P1 gives the proportion of Island" << std::endl;
-      sstr << "- P2 gives the value of Upwards shift" << std::endl;
-      sstr << "- P3 gives the value of Downwards shift" << std::endl;
-      sstr << "(With the current option, only the first GRF is used)" << std::endl;
-      sstr << _mainNode->nodePrintShadow(flagProp, flagThresh);
-      break;
-  }
-  return sstr.str();
+   return sstr.str();
 }
 
 int Rule::getFaciesNumber() const
@@ -719,15 +676,12 @@ int Rule::deSerialize(const String& filename, bool verbose)
 
   /* Create the Rule structure */
 
-  _shift.resize(3);
   if (_recordRead("Rule definition", "%d", &_modeRule)) return 1;
   if (_recordRead("Correlation Coefficient of GRFs", "%lf", &_rho)) return 1;
-  if (_recordRead("Slope for Shadow Rule", "%lf", &_slope)) return 1;
-  if (_recordRead("Lower Threshold for Shadow Rule", "%lf", &_shDown)) return 1;
-  if (_recordRead("Upper Threshold for Shadow Rule", "%lf", &_shDsup)) return 1;
-  if (_recordRead("Shift along first direction", "%lf", &_shift[0]))  return 1;
-  if (_recordRead("Shift along second direction", "%lf", &_shift[1])) return 1;
-  if (_recordRead("Shift along third direction", "%lf", &_shift[2]))  return 1;
+
+  // Specific case
+
+  if (deSerializeSpecific()) return 1;
 
   /* Read the number of nodes */
 
@@ -765,17 +719,10 @@ int Rule::serialize(const String& filename, bool verbose) const
   _recordWrite("#", "Type of Rule");
   _recordWrite("%lf", getRho());
   _recordWrite("#", "Correlation coefficient between GRFs");
-  double slope = (FFFF(getSlope())) ? 0. : getSlope();
-  _recordWrite("%lf", slope);
-  double shdown = (FFFF(getShDown())) ? 0. : getShDown();
-  _recordWrite("%lf", shdown);
-  double shdsup = (FFFF(getShDsup())) ? 0. : getShDsup();
-  _recordWrite("%lf", shdsup);
-  _recordWrite("#", "Parameters for Shadow option");
-  _recordWrite("%lf", getShift(0));
-  _recordWrite("%lf", getShift(1));
-  _recordWrite("%lf", getShift(2));
-  _recordWrite("#", "Parameters for Shift option");
+
+  // Specific parameters
+
+  serializeSpecific();
 
   /* Count the number of nodes */
 

@@ -67,6 +67,42 @@ RuleShift::~RuleShift()
 {
 }
 
+int RuleShift::deSerializeSpecific()
+{
+  _shift.resize(3);
+  if (_recordRead("Slope for Shadow Rule", "%lf", &_slope)) return 1;
+  if (_recordRead("Lower Threshold for Shadow Rule", "%lf", &_shDown)) return 1;
+  if (_recordRead("Upper Threshold for Shadow Rule", "%lf", &_shDsup)) return 1;
+  if (_recordRead("Shift along first direction", "%lf", &_shift[0]))  return 1;
+  if (_recordRead("Shift along second direction", "%lf", &_shift[1])) return 1;
+  if (_recordRead("Shift along third direction", "%lf", &_shift[2]))  return 1;
+  return 0;
+}
+
+void RuleShift::serializeSpecific() const
+{
+  double slope = (FFFF(_slope)) ? 0. : _slope;
+  _recordWrite("%lf", slope);
+  double shdown = (FFFF(_shDown)) ? 0. : _shDown;
+  _recordWrite("%lf", shdown);
+  double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
+  _recordWrite("%lf", shdsup);
+  _recordWrite("#", "Parameters for Shadow option");
+  _recordWrite("%lf", _shift[0]);
+  _recordWrite("%lf", _shift[1]);
+  _recordWrite("%lf", _shift[2]);
+  _recordWrite("#", "Parameters for Shift option");
+}
+
+String RuleShift::displaySpecific(int flagProp, int flagThresh) const
+{
+  std::stringstream sstr;
+  sstr << toVector("Translation Vector",_shift) << std::endl;
+  sstr << "(With the current option, only the first GRF is used)" << std::endl;
+  sstr << getMainNode()->nodePrint(flagProp, flagThresh);
+  return sstr.str();
+}
+
 /****************************************************************************/
 /*!
 **  Define the particularities of the PGS model
@@ -291,7 +327,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
     /* Set the coordinates of the replicate */
     for (idim = 0; idim < dbin->getNDim(); idim++)
       dbin->setCoordinate(jech, idim,
-                          dbin->getCoordinate(iech, idim) - getShift(idim));
+                          dbin->getCoordinate(iech, idim) - _shift[idim]);
 
     /* Can the replicate be added */
     if (replicateInvalid(dbin, dbout, jech))

@@ -25,11 +25,7 @@ class Rule: public AStringable, public ASerializable
 {
 public:
   Rule(int mode_rule = RULE_STD,
-       double rho = 0.,
-       double slope = 0.,
-       double sh_down = 0.,
-       double sh_dsup = 0.,
-       const VectorDouble& shift = VectorDouble());
+       double rho = 0.);
   // Constructor for Standard option using the String definition
   Rule(const VectorString& nodnames,double rho = 0.);
   // Constructor for Standard option
@@ -43,8 +39,11 @@ public:
   virtual ~Rule();
 
   virtual std::string toString(int level = 0) const override;
-  int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) const override;
+  virtual int deSerialize(const String& filename, bool verbose = false) override;
+  virtual int serialize(const String& filename, bool verbose = false) const override;
+  virtual int deSerializeSpecific() { return 0; }
+  virtual void serializeSpecific() const { return; }
+  virtual String displaySpecific(int flagProp, int flagThresh) const;
 
   virtual int particularities(Db *db,
                               const Db *dbprop,
@@ -72,17 +71,13 @@ public:
                              int igrf,
                              int ipgs,
                              int nbsimu);
+  virtual double getShift(int idim) const { return TEST; }
 
   double getDMax() const { return _dMax; }
   int    getFlagProp() const { return _flagProp; }
   double getIncr() const { return _incr; }
   int    getModeRule() const { return _modeRule; }
   double getRho() const { return _rho; }
-  double getShDown() const { return _shDown; }
-  double getShDsup() const { return _shDsup; }
-  const VectorDouble& getShift() const { return _shift; }
-  double getShift(int idim) const { return _shift.empty() ? 0 : _shift[idim]; }
-  double getSlope() const { return _slope; }
   double getTgte() const { return _tgte; }
   const Node*  getMainNode() const { return _mainNode; }
 
@@ -143,8 +138,6 @@ private:
   int    _modeRule;    /* Type of usage */
   int    _flagProp;    /* 1 if proportions are defined; 0 otherwise */
   double _rho;         /* Correlation between GRFs */
-  double _shDsup;      /* Upper limit */
-  double _shDown;      /* Downwards limit */
   double _slope;       /* Slope used for shadow option */
   double _dMax;        /* Longest distance for shadow */
   double _tgte;        /* Tangent of the slope */

@@ -32,6 +32,10 @@ public:
   RuleShadow& operator=(const RuleShadow& r);
   virtual ~RuleShadow();
 
+  int deSerializeSpecific() override;
+  void serializeSpecific() const override;
+  String displaySpecific(int flagProp, int flagThresh) const override;
+
   int particularities(Db *db,
                       const Db *dbprop,
                       Model *model,
@@ -63,6 +67,12 @@ public:
                       int icase,
                       int nbsimu,
                       VectorDouble& xyz0);
+
+  double getShDown() const { return _shDown; }
+  double getShDsup() const { return _shDsup; }
+  double getSlope() const  { return _slope;  }
+  const VectorDouble& getShift() const { return _shift; }
+  double getShift(int idim) const { return _shift[idim]; }
 
 private:
   void _st_shadow_max(const Db *dbprop,

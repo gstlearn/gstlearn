@@ -26,6 +26,10 @@ public:
   RuleShift& operator=(const RuleShift& r);
   virtual ~RuleShift();
 
+  int deSerializeSpecific() override;
+  void serializeSpecific() const override;
+  String displaySpecific(int flagProp, int flagThresh) const override;
+
   int particularities(Db *db,
                       const Db *dbprop,
                       Model *model,
@@ -44,7 +48,15 @@ public:
                      int igrf,
                      int ipgs,
                      int nbsimu) override;
+
+
   bool checkModel(const Model* model, int nvar = 0) const;
+
+  double getShDown() const { return _shDown; }
+  double getShDsup() const { return _shDsup; }
+  double getSlope() const  { return _slope;  }
+  const VectorDouble& getShift() const { return _shift; }
+  double getShift(int idim) const { return _shift[idim]; }
 
 private:
   int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check);
