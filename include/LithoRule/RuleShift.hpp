@@ -21,8 +21,7 @@
 class RuleShift: public Rule
 {
 public:
-  RuleShift(const VectorDouble& shift);
-
+  RuleShift(int nfacies, const VectorDouble& shift);
   RuleShift(const RuleShift& r);
   RuleShift& operator=(const RuleShift& r);
   virtual ~RuleShift();

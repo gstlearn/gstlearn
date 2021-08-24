@@ -261,6 +261,7 @@ static void st_global_init(Db *dbin,
   /* Change of support coefficient for DGM */
 
   R_COEFF = 1.;
+  COVINT = CovInternal();
 
   return;
 }

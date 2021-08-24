@@ -130,11 +130,7 @@ Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
       _ind2(),
       _mainNode(nullptr)
 {
-  int ipos = 0;
-  int n_fac = 0;
-  int n_y1 = 0;
-  int n_y2 = 0;
-  _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+  setMainNodeFromNodNames(n_type, n_facs);
 }
 
 Rule::Rule(const VectorString& nodnames, double rho)
@@ -224,15 +220,8 @@ void Rule::init(int nfacies)
 {
   if (nfacies <= 1)
     my_throw("This class requires at least TWO facies");
-  VectorString nodnames = _buildNodNames(nfacies);
-  VectorInt n_type;
-  VectorInt n_facs;
-  _nodNamesToIds(nodnames, n_type, n_facs);
-  int ipos = 0;
-  int n_fac = 0;
-  int n_y1 = 0;
-  int n_y2 = 0;
-  _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+  VectorString nodnames = buildNodNames(nfacies);
+  setMainNodeFromNodNames(nodnames);
 }
 
 /**
@@ -387,14 +376,14 @@ String Rule::_display(bool flagProp, bool flagThresh) const
       if (ABS(_rho) > 0.)
         sstr << "Correlation between the two GRFs = " << _rho << std::endl;
       if (_rho == 1.)
-        sstr << "(With the current option, only the first GRF is used)" << std::endl;
+        sstr << "(As the correlation is set to 1, only the first GRF is used)" << std::endl;
       sstr << _mainNode->nodePrint(flagProp, flagThresh);
       break;
 
     case RULE_SHIFT:
       sstr << toVector("Translation Vector",_shift) << std::endl;
       sstr << "(With the current option, only the first GRF is used)" << std::endl;
-      sstr << _mainNode->nodePrintShadow(flagProp, flagThresh);
+      sstr << _mainNode->nodePrint(flagProp, flagThresh);
       break;
 
     case RULE_SHADOW:
@@ -594,7 +583,7 @@ void Rule::updateShift()
   node->setT2min(seuil);
 }
 
-void Rule::_nodNamesToIds(const VectorString& nodes,
+void Rule::nodNamesToIds(const VectorString& nodes,
                           VectorInt& n_type,
                           VectorInt& n_facs)
 {
@@ -844,7 +833,7 @@ void Rule::_ruleDefine(const Node *node,
     _ruleDefine(node->getR2(), node->getOrient(), cur_rank, 2, rank);
 }
 
-VectorString Rule::_buildNodNames(int nfacies)
+VectorString Rule::buildNodNames(int nfacies)
 {
   VectorString nodnames;
 
@@ -857,11 +846,20 @@ VectorString Rule::_buildNodNames(int nfacies)
   return nodnames;
 }
 
+void Rule::setMainNodeFromNodNames(const VectorInt& n_type,
+                                   const VectorInt& n_facs)
+{
+  int ipos = 0;
+  int n_fac = 0;
+  int n_y1 = 0;
+  int n_y2 = 0;
+  _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+}
 void Rule::setMainNodeFromNodNames(const VectorString& nodnames)
 {
   VectorInt n_type;
   VectorInt n_facs;
-  _nodNamesToIds(nodnames, n_type, n_facs);
+  nodNamesToIds(nodnames, n_type, n_facs);
   int ipos = 0;
   int n_fac = 0;
   int n_y1 = 0;

@@ -16,6 +16,9 @@
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
+#include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleShift.hpp"
+#include "LithoRule/RuleShadow.hpp"
 
 /****************************************************************************/
 /*!
@@ -28,6 +31,7 @@ int main(int argc, char *argv[])
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int error = 0;
   int ndim = 2;
+  int nbsimu = 2;
   CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option
@@ -91,7 +95,6 @@ int main(int argc, char *argv[])
   RuleProp ruleprop2 = RuleProp(&rule1, &rule2, props2);
 
   // Perform a non-conditional PGS simulation on a grid
-  int nbsimu = 2;
   error = simpgs(nullptr,&dbgrid,&ruleprop1,&model1,&model2,&neigh,nbsimu);
   dbgrid.setName(LOC_FACIES,"PGS-Facies");
   dbgrid.display();
@@ -103,6 +106,13 @@ int main(int argc, char *argv[])
   dbgrid.display();
   dbgrid.serialize(pygst+ "simubipgs.ascii");
 
+  // Performing a PGS simulation using Shift
+  VectorDouble shift = {0.1, 0.2};
+  RuleShift ruleshift(3,shift);
+  ruleshift.display(1);
+  ruleshift.serialize(pygst+ "ruleshift.ascii");
+
+  RuleProp ruleprops = RuleProp(&ruleshift, props1);
 
   return(error);
 }

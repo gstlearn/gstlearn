@@ -42,6 +42,8 @@ VectorDouble PrecisionOpCs::getCoeffs()
 
 void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result)
 {
+  if (_work2.empty()) _work2.resize(getSize());
+  if (_work3.empty()) _work3.resize(getSize());
   eval(X,_work3);
   double temp,val;
   int iadress;
@@ -75,6 +77,7 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
 void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
 {
   const VectorDouble* inPtr = &in;
+  if (_work.empty()) _work.resize(getSize());
 
   if(getPower() == POPT_MINUSONE)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");

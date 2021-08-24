@@ -723,6 +723,7 @@ static int st_vario_pgs_variable(int    mode,
   // Dispatch
 
   number = (flag_one) ? ngrf : ngrf * nfacies;
+  if (db == (Db *) NULL) return 0;
   switch (mode)
   {
     case 1:
@@ -4990,7 +4991,7 @@ GEOSLIB_API int model_pgs(Db*       db,
   /* Preliminary checks */
 
   if (st_vario_pgs_check(-1,1,0,db,dbprop,vario,NULL,&rule)) goto label_end;
-  vario->internalResize(db->getNDim(), nfacies, "vg");
+  vario->internalResize(vario->getDimensionNumber(), nfacies, "vg");
   
   /* Merge the models */
 

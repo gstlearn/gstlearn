@@ -184,7 +184,7 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
     if (_informField(ipar, nech, coorloc, tab, verbose)) return 1;
 
     // Store the local vector within the Db as a new field
-    db->addFields(tab,names[ipar],LOC_UNKNOWN,true);
+    db->addFields(tab,names[ipar],LOC_UNKNOWN,0,true);
   }
 
   // Set locators to the newly created variables

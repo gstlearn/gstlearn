@@ -276,11 +276,11 @@ String Node::nodePrintShadow(bool flagProp, bool flagThresh) const
   {
     case THRESH_IDLE:
       if (_facies == SHADOW_ISLAND)
-        sstr << "Node " << _nodnam << " - Island" << std::endl;
+        sstr << "Node " << _nodnam << " - Island";
       if (_facies == SHADOW_WATER)
-        sstr << "Node " << _nodnam << " - Water" << std::endl;
+        sstr << "Node " << _nodnam << " - Water";
       if (_facies == SHADOW_SHADOW)
-        sstr << "Node " << _nodnam << " - Shadow" << std::endl;
+        sstr << "Node " << _nodnam << " - Shadow";
 
       if (flagProp)
       {

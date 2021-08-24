@@ -46,7 +46,7 @@ public:
 
 protected:
   APolynomial* getPoly(ENUM_POPTS power);
-  ENUM_POPTS getPower()const{return _power;}
+  ENUM_POPTS   getPower()const{return _power;}
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
 
 private:
@@ -59,7 +59,7 @@ private:
 
 
 private:
-  mutable ShiftOpCs*     _shiftOp;
+  mutable ShiftOpCs*   _shiftOp;
   const CovAniso*      _cova;
   ENUM_POPTS           _power;
   std::map<ENUM_POPTS, APolynomial*> _polynomials;

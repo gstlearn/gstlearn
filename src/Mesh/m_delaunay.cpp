@@ -255,7 +255,6 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
   /* Initializations */
 
   error      = 1;
-  ndim       = dbin->getNDim();
   indg       = (int    *) NULL;
   coor_in    = (double *) NULL;
   coor_out   = (double *) NULL;
@@ -283,6 +282,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
       indg      = db_indg_alloc(dbout);
       if (indg  == (int *) NULL) goto label_end;
     }
+    ndim       = dbout->getNDim();
     coor_in    = db_sample_alloc(dbin,LOC_X);
     if (coor_in    == (double *) NULL) goto label_end;
     coor_out   = db_sample_alloc(dbout,LOC_X);

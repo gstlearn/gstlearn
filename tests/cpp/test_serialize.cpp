@@ -20,15 +20,16 @@
 int main(int argc, char *argv[])
 
 {
-  bool verbose = true;
+  VectorDouble vec1, vec2;
+  bool verbose = false;
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
 
   // ===== Create the Db db1
   int nech = 20;
   int ndim = 2;
   Db db1(nech,VectorDouble(),VectorDouble(),ndim);
-  VectorDouble vec = ut_vector_simulate_gaussian(nech);
-  db1.addFields(vec,"myvar",LOC_Z);
+  vec1 = ut_vector_simulate_gaussian(nech);
+  db1.addFields(vec1,"myvar1",LOC_Z, 0);
   db1.display();
   
   // Serialize db1
@@ -40,8 +41,10 @@ int main(int argc, char *argv[])
 
   // ===== Create the Grid Db
   Db dbg1({12,10},{0.1,0.3},{0.2,0.4});
-  vec = ut_vector_simulate_gaussian(dbg1.getSampleNumber());
-  dbg1.addFields(vec,"myvar",LOC_Z);
+  vec1 = ut_vector_simulate_gaussian(dbg1.getSampleNumber());
+  dbg1.addFields(vec1,"myvar1",LOC_Z, 0);
+  vec2 = ut_vector_simulate_gaussian(dbg1.getSampleNumber());
+  dbg1.addFields(vec2,"myvar2",LOC_Z, 1);
   dbg1.display();
 
   // Serialize dbg1
@@ -77,6 +80,7 @@ int main(int argc, char *argv[])
   vario2.display();
 
   // ===== Compute a Model
+  db1.display(1);
   Model model1(&db1);
   CovAniso cova(COV_EXPONENTIAL, 0.3, 1., 0.2, model1.getContext());
   model1.addCova(&cova);

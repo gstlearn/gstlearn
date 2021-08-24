@@ -208,6 +208,7 @@ int PrecisionOp::init(const ShiftOpCs* shiftop,
 void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
 {
   const VectorDouble* inPtr = &in;
+  if (_work.empty()) _work.resize(getSize());
 
   // Pre-processing
 
@@ -262,7 +263,7 @@ int PrecisionOp::_preparePrecisionPoly()
   double param = _cova->getParam();
   double ndims2 = ((double) ndim) / 2.;
   double alpha = param + ndims2;
-  if (! isInteger(alpha,EPSILON6)) return 1;
+  if (! isInteger(alpha,EPSILON3)) return 1;
 
   double correc = spde_compute_correc(ndim, param);
   int p = getClosestInteger(alpha);

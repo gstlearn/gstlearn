@@ -122,18 +122,22 @@ public:
   }
 
 protected:
+  void setMainNodeFromNodNames(const VectorInt& n_type,
+                               const VectorInt& n_facs);
   void setMainNodeFromNodNames(const VectorString& nodnames);
   int replicateInvalid(Db *dbin, Db *dbout, int jech);
+  VectorString buildNodNames(int nfacies);
+  void nodNamesToIds(const VectorString& nodes,
+                      VectorInt &n_type,
+                      VectorInt& n_facs);
 
 private:
   String _display(bool flagProp, bool flagThresh) const;
-  void _nodNamesToIds(const VectorString& nodes, VectorInt &n_type, VectorInt& n_facs);
   void _ruleDefine(const Node *node,
                    int from_type,
                    int from_rank,
                    int from_vers,
                    int *rank) const;
-  VectorString _buildNodNames(int nfacies);
 
 private:
   int    _modeRule;    /* Type of usage */

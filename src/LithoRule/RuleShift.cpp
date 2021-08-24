@@ -22,7 +22,7 @@
  * Definition of the Lithotype RuleShift in the case of Shift
  * @param shift Vector defining the shift
  */
-RuleShift::RuleShift(const VectorDouble& shift)
+RuleShift::RuleShift(int nfacies, const VectorDouble& shift)
     : Rule(),
       _shDsup(0.),
       _shDown(0.),
@@ -35,6 +35,8 @@ RuleShift::RuleShift(const VectorDouble& shift)
       _ind2()
 {
   setModeRule(RULE_SHIFT);
+  VectorString nodnames = buildNodNames(nfacies);
+  setMainNodeFromNodNames(nodnames);
 }
 
 RuleShift::RuleShift(const RuleShift& m)

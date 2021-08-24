@@ -2015,6 +2015,7 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
 static int st_identify_nostat_param(int icov0, ENUM_CONS type0, int ivar0, int jvar0)
 {
   const ANoStat* nostat = st_get_model()->getNoStat();
+  if (nostat == nullptr) return -1;
   int igrf0 = st_get_current_igrf();
   int ipar = nostat->getRank(igrf0, icov0, type0, ivar0, jvar0);
   return ipar;

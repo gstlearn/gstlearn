@@ -140,6 +140,7 @@ public:
   int addFields(const VectorDouble& tab,
                 const String& radix = "New",
                 ENUM_LOCS locatorType = LOC_UNKNOWN,
+                int locatorIndex = 0,
                 bool useSel = false,
                 double valinit = 0.,
                 int nvar = 1);
@@ -147,6 +148,7 @@ public:
                 double valinit = 0.,
                 const String& radix = "New",
                 ENUM_LOCS locatorType = LOC_UNKNOWN,
+                int locatorIndex = 0,
                 int nechInit = 1);
   int addSelection(const VectorDouble& tab, const String& name = "NewSel");
   int addSamples(int nadd, double valinit);

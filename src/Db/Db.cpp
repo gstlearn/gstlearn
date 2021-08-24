@@ -1104,7 +1104,9 @@ void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex
  * @remark: are consecutive and all defined
  * @remark: This allow using this function in any order.
  */
-void Db::setLocatorByAttribute(int iatt, ENUM_LOCS locatorType, int locatorIndex)
+void Db::setLocatorByAttribute(int iatt,
+                               ENUM_LOCS locatorType,
+                               int locatorIndex)
 {
   if (!isAttributeIndexValid(iatt)) return;
   if (!isLocatorTypeValid(locatorType, true)) return;
@@ -1163,6 +1165,7 @@ void Db::setLocatorsByAttribute(int number,
  * @param valinit  Value to be used for variable initialization
  * @param radix    Generic radix given to the newly created variables
  * @param locatorType Generic locator assigned to new variables
+ * @param locatorIndex   Locator index (starting from 0)
  * @param nechInit Number of samples (used only if the Db is initially empty)
  * @return Rank of the first attribute
  */
@@ -1170,6 +1173,7 @@ int Db::addFields(int nadd,
                   double valinit,
                   const String& radix,
                   ENUM_LOCS locatorType,
+                  int locatorIndex,
                   int nechInit)
 {
   int ncol = _ncol;
@@ -1208,7 +1212,7 @@ int Db::addFields(int nadd,
 
   // Set the locator (if defined)
   if (locatorType != LOC_UNKNOWN)
-    setLocatorsByAttribute(nadd, nmax, locatorType);
+    setLocatorsByAttribute(nadd, nmax, locatorType, locatorIndex);
 
   _ncol += nadd;
 
@@ -1223,6 +1227,7 @@ int Db::addFields(int nadd,
  * @param tab    Array to be loaded
  * @param radix  Generic name for the newly created variables
  * @param locatorType Generic locator assigned to new variables
+ * @param locatorIndex   Locator index (starting from 0)
  * @param useSel true if values for active samples are provided
  * @param valinit initial value (for unselected samples)
  * @param nvar   Number of variables loaded
@@ -1231,6 +1236,7 @@ int Db::addFields(int nadd,
 int Db::addFields(const VectorDouble& tab,
                   const String& radix,
                   ENUM_LOCS locatorType,
+                  int locatorIndex,
                   bool useSel,
                   double valinit,
                   int nvar)
@@ -1250,7 +1256,7 @@ int Db::addFields(const VectorDouble& tab,
   }
 
   // Adding the new Fields
-  int iatt = addFields(nvar, valinit, radix, locatorType);
+  int iatt = addFields(nvar, valinit, radix, locatorType, locatorIndex);
   if (iatt < 0) return 1;
 
   setFieldByAttribute(tab, iatt, useSel);
@@ -1787,7 +1793,7 @@ double Db::getVariable(int iech, int item) const
 
 void Db::setVariable(int iech, int item, double value)
 {
-  setFromLocator(LOC_Z, iech, item+1, value);
+  setFromLocator(LOC_Z, iech, item, value);
 }
 
 /****************************************************************************/
