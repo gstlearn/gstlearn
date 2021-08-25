@@ -2,7 +2,7 @@
 /* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
 /* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                  prop   */
 /* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /*                                                                            */
@@ -87,11 +87,10 @@ double get_rule_extreme(int mode)
   }
 }
 
-Rule::Rule(int mode_rule,
-           double rho)
+Rule::Rule(double rho)
     : AStringable(),
       ASerializable(),
-      _modeRule(mode_rule),
+      _modeRule(RULE_STD),
       _flagProp(0),
       _rho(rho),
       _dMax(TEST),
@@ -121,6 +120,24 @@ Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
   setMainNodeFromNodNames(n_type, n_facs);
 }
 
+Rule::Rule(int nfacies, double rho)
+    : AStringable(),
+      ASerializable(),
+      _modeRule(RULE_STD),
+      _flagProp(0),
+      _rho(rho),
+      _dMax(TEST),
+      _tgte(TEST),
+      _incr(TEST),
+      _xyz(),
+      _ind1(),
+      _ind2(),
+      _mainNode(nullptr)
+{
+  VectorString nodnames = buildNodNames(nfacies);
+  setMainNodeFromNodNames(nodnames);
+}
+
 Rule::Rule(const VectorString& nodnames, double rho)
     : AStringable(),
       ASerializable(),
@@ -137,6 +154,24 @@ Rule::Rule(const VectorString& nodnames, double rho)
       _mainNode(nullptr)
 {
   setMainNodeFromNodNames(nodnames);
+}
+
+Rule::Rule(const VectorInt& nodes, double rho)
+    : AStringable(),
+      ASerializable(),
+      _modeRule(RULE_STD),
+      _flagProp(0),
+      _rho(rho),
+      _dMax(TEST),
+      _tgte(TEST),
+      _incr(TEST),
+      _shift(),
+      _xyz(),
+      _ind1(),
+      _ind2(),
+      _mainNode(nullptr)
+{
+  setMainNodeFromNodNames(nodes);
 }
 
 Rule::Rule(const String& neutralFileName, bool verbose)
@@ -190,14 +225,6 @@ Rule::~Rule()
     delete _mainNode;
 }
 
-void Rule::init(int nfacies)
-{
-  if (nfacies <= 1)
-    my_throw("This class requires at least TWO facies");
-  VectorString nodnames = buildNodNames(nfacies);
-  setMainNodeFromNodNames(nodnames);
-}
-
 /**
  * Initialization of the nodes of the Rule (from the ASCII file).
  * @param nodes Node description (6 * number of nodes)
@@ -209,7 +236,7 @@ void Rule::init(int nfacies)
  * 5 : Rank of the facies
  * @return Newly created Rule structure
  */
-int Rule::init(const VectorInt& nodes)
+int Rule::setMainNodeFromNodNames(const VectorInt& nodes)
 {
   int nb_node = static_cast<int> (nodes.size()) / 6;
   std::vector<Node *> n1tab(nb_node, nullptr);
@@ -353,11 +380,10 @@ String Rule::_display(bool flagProp, bool flagThresh) const
   sstr << "- Number of facies              = " << nfac_tot << std::endl;
   sstr << "- Number of thresholds along G1 = " << ny1_tot  << std::endl;
   sstr << "- Number of thresholds along G2 = " << ny2_tot  << std::endl;
-  sstr << std::endl;
 
   sstr << displaySpecific(flagProp, flagThresh);
 
-   return sstr.str();
+  return sstr.str();
 }
 
 int Rule::getFaciesNumber() const
@@ -540,7 +566,7 @@ void Rule::updateShift()
   node->setT2min(seuil);
 }
 
-void Rule::nodNamesToIds(const VectorString& nodes,
+void Rule::_nodNamesToIds(const VectorString& nodes,
                           VectorInt& n_type,
                           VectorInt& n_facs)
 {
@@ -549,7 +575,20 @@ void Rule::nodNamesToIds(const VectorString& nodes,
   n_facs.resize(nb_node,0);
 
   for (int i = 0; i < nb_node; i++)
+  {
     decodeInList(symbol,nodes[i],&n_type[i],&n_facs[i]);
+
+    // Check that the Facies rank is defined
+
+    if (n_type[i] == 0)
+    {
+      if (n_facs[i] <= 0)
+      {
+        messerr("The Rule definition using 'nodnames' is incorrect");
+        messerr("The element (%d) refers to a Facies with no Number",i+1);
+      }
+    }
+  }
 }
 
 /**
@@ -699,7 +738,7 @@ int Rule::deSerialize(const String& filename, bool verbose)
   for (int inode =  0; inode < nb_node; inode++)
     for (int i = 0; i < 6; i++)
       if (_recordRead("Rule Node Definition", "%d", &nodes[lec++])) return 1;
-  init(nodes);
+  setMainNodeFromNodNames(nodes);
 
   _fileClose(verbose);
 
@@ -806,7 +845,7 @@ void Rule::setMainNodeFromNodNames(const VectorString& nodnames)
 {
   VectorInt n_type;
   VectorInt n_facs;
-  nodNamesToIds(nodnames, n_type, n_facs);
+  _nodNamesToIds(nodnames, n_type, n_facs);
   int ipos = 0;
   int n_fac = 0;
   int n_y1 = 0;

@@ -43,37 +43,34 @@ int main(int argc, char *argv[])
   // Creating the proportions for simPGS
   VectorDouble props1({0.2, 0.5, 0.3});
 
-  // Creating the proportions for simBiPGS
-  VectorDouble props2({0.1, 0.2, 0.1, 0.3, 0.1, 0.2});
-
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
   double range1 = 0.2;
   CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
   model1.addCova(&cova1);
   model1.display();
-  model1.serialize(pygst+ "truemodel1.ascii");
+  model1.serialize(pygst+ "PGSmodel1.ascii");
 
   Model model2(ctxt);
   double range2 = 0.3;
   CovAniso cova2(COV_EXPONENTIAL,range2,1.,1.,ctxt);
   model2.addCova(&cova2);
   model2.display();
-  model2.serialize(pygst+ "truemodel2.ascii");
+  model2.serialize(pygst+ "PGSmodel2.ascii");
 
   Model model3(ctxt);
   double range3 = 0.2;
   CovAniso cova3(COV_BESSEL_K,range3,1.,1.,ctxt);
   model3.addCova(&cova3);
   model3.display();
-  model3.serialize(pygst+ "truemodel3.ascii");
+  model3.serialize(pygst+ "PGSmodel3.ascii");
 
   Model model4(ctxt);
   double range4 = 0.1;
   CovAniso cova4(COV_SPHERICAL,range4,1.,1.,ctxt);
   model4.addCova(&cova4);
   model4.display();
-  model4.serialize(pygst+ "truemodel4.ascii");
+  model4.serialize(pygst+ "PGSmodel4.ascii");
 
   // Creating the Neighborhood
   Neigh neigh = Neigh(ndim);
@@ -82,17 +79,11 @@ int main(int argc, char *argv[])
   // Creating the Rules
   Rule rule1({"S","S","F1","F2","F3"});
   rule1.display();
-  rule1.serialize(pygst+ "truerule1.ascii");
+  rule1.serialize(pygst+ "PGSrule1.ascii");
 
-  Rule rule2({"S","F1","F2"});
-  rule2.display();
-  rule2.serialize(pygst+ "truerule2.ascii");
 
   // Creating the RuleProp structure for simPGS
   RuleProp ruleprop1 = RuleProp(&rule1, props1);
-
-  // Creating the RuleProp structure for simBiPGS
-  RuleProp ruleprop2 = RuleProp(&rule1, &rule2, props2);
 
   // Perform a non-conditional PGS simulation on a grid
   error = simpgs(nullptr,&dbgrid,&ruleprop1,&model1,&model2,&neigh,nbsimu);
@@ -100,19 +91,51 @@ int main(int argc, char *argv[])
   dbgrid.display();
   dbgrid.serialize(pygst+ "simupgs.ascii");
 
+  // Creating the RuleProp for simBiPGS
+  VectorDouble props2({0.1, 0.2, 0.1, 0.3, 0.1, 0.2});
+  Rule rule2({"S","F1","F2"});
+  rule2.display();
+  rule2.serialize(pygst+ "PGSrule2.ascii");
+  RuleProp rulepropbi = RuleProp(&rule1, &rule2, props2);
+
   // Perform a non-conditional BiPGS simulation on a grid
-  error = simbipgs(nullptr,&dbgrid,&ruleprop2,&model1,&model2,&model3,&model4,&neigh,nbsimu);
+  error = simbipgs(nullptr,&dbgrid,&rulepropbi,
+                   &model1,&model2,&model3,&model4,&neigh,nbsimu);
   dbgrid.setName(LOC_FACIES,"BiPGS-Facies");
   dbgrid.display();
   dbgrid.serialize(pygst+ "simubipgs.ascii");
 
   // Performing a PGS simulation using Shift
-  VectorDouble shift = {0.1, 0.2};
-  RuleShift ruleshift(3,shift);
+  VectorDouble shift = {0.2, 0.3};
+  VectorDouble propshift = { 0.1, 0.2, 0.3, 0.4 };
+  RuleShift ruleshift({"S","S","S","F1","F2","F3","F4"},shift);
   ruleshift.display(1);
-  ruleshift.serialize(pygst+ "ruleshift.ascii");
+  ruleshift.serialize(pygst+ "PGSruleshift.ascii");
 
-  RuleProp ruleprops = RuleProp(&ruleshift, props1);
+  RuleProp rulepropshift = RuleProp(&ruleshift, propshift);
+
+  // Perform a non-conditional PGS Shift simulation on a grid
+  error = simpgs(nullptr,&dbgrid,&rulepropshift,&model1,nullptr,&neigh,nbsimu);
+  dbgrid.setName(LOC_FACIES,"PGS-Shift-Facies");
+  dbgrid.display();
+  dbgrid.serialize(pygst+ "simushiftpgs.ascii");
+
+  // Performing a PGS simulation using Shadow
+  double slope = 0.5;
+  double shdown = -0.2;
+  double shdsup = +0.5;
+  RuleShadow ruleshadow = RuleShadow(slope,shdsup,shdown,shift);
+  ruleshadow.display(1);
+  ruleshadow.serialize(pygst+ "PGSruleshadow.ascii");
+
+  VectorDouble propshadow = { 0.4, 0.2, 0.3 };
+  RuleProp rulepropshadow = RuleProp(&ruleshadow, propshadow);
+
+  // Perform a non-conditional PGS Shadow simulation on a grid
+  error = simpgs(nullptr,&dbgrid,&rulepropshadow,&model1,nullptr,&neigh,nbsimu);
+  dbgrid.setName(LOC_FACIES,"PGS-Shadow-Facies");
+  dbgrid.display();
+  dbgrid.serialize(pygst+ "simushadowpgs.ascii");
 
   return(error);
 }

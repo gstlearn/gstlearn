@@ -27,7 +27,6 @@ public:
              double sh_dsup,
              double sh_down,
              const VectorDouble& shift);
-
   RuleShadow(const RuleShadow& r);
   RuleShadow& operator=(const RuleShadow& r);
   virtual ~RuleShadow();

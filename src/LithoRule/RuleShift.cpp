@@ -19,7 +19,45 @@
 #include "geoslib_enum.h"
 
 /**
- * Definition of the Lithotype RuleShift in the case of Shift
+ * Definition of the Lithotype RuleShift
+ * @param nodes List of "integer" nodes (should only include "S", no "T")
+ * @param shift Vector defining the Shift
+ */
+RuleShift::RuleShift(const VectorInt& nodes, const VectorDouble& shift)
+    : Rule(),
+      _shDsup(0.),
+      _shDown(0.),
+      _slope(0.),
+      _tgte(TEST),
+      _incr(TEST),
+      _shift(shift),
+      _xyz(),
+      _ind1(),
+      _ind2()
+{
+  setModeRule(RULE_SHIFT);
+  setMainNodeFromNodNames(nodes);
+}
+
+RuleShift::RuleShift(const VectorString& nodnames, const VectorDouble& shift)
+    : Rule(),
+      _shDsup(0.),
+      _shDown(0.),
+      _slope(0.),
+      _tgte(TEST),
+      _incr(TEST),
+      _shift(shift),
+      _xyz(),
+      _ind1(),
+      _ind2()
+{
+  setModeRule(RULE_SHIFT);
+  setMainNodeFromNodNames(nodnames);
+}
+
+/**
+ * Definition of the Lithotype RuleShift
+ * @param nfacies Number of facies
  * @param shift Vector defining the shift
  */
 RuleShift::RuleShift(int nfacies, const VectorDouble& shift)
@@ -37,6 +75,24 @@ RuleShift::RuleShift(int nfacies, const VectorDouble& shift)
   setModeRule(RULE_SHIFT);
   VectorString nodnames = buildNodNames(nfacies);
   setMainNodeFromNodNames(nodnames);
+}
+
+RuleShift::RuleShift(const VectorInt& n_type,
+                     const VectorInt& n_facs,
+                     const VectorDouble& shift)
+    : Rule(),
+      _shDsup(0.),
+      _shDown(0.),
+      _slope(0.),
+      _tgte(TEST),
+      _incr(TEST),
+      _shift(shift),
+      _xyz(),
+      _ind1(),
+      _ind2()
+{
+  setModeRule(RULE_SHIFT);
+  setMainNodeFromNodNames(n_type, n_facs);
 }
 
 RuleShift::RuleShift(const RuleShift& m)
@@ -97,8 +153,10 @@ void RuleShift::serializeSpecific() const
 String RuleShift::displaySpecific(int flagProp, int flagThresh) const
 {
   std::stringstream sstr;
-  sstr << toVector("Translation Vector",_shift) << std::endl;
-  sstr << "(With the current option, only the first GRF is used)" << std::endl;
+  sstr << toTitle(2,"Shift Option");
+  sstr << toVector("Translation Vector",_shift);
+  sstr << "(With the 'Shift' option, only the first GRF is used)" << std::endl;
+  sstr << std::endl;
   sstr << getMainNode()->nodePrint(flagProp, flagThresh);
   return sstr.str();
 }

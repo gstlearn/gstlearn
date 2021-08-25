@@ -24,14 +24,11 @@ class PropDef;
 class Rule: public AStringable, public ASerializable
 {
 public:
-  Rule(int mode_rule = RULE_STD,
-       double rho = 0.);
-  // Constructor for Standard option using the String definition
+  Rule(double rho = 0.);
   Rule(const VectorString& nodnames,double rho = 0.);
-  // Constructor for Standard option
-  Rule(const VectorInt& n_type,
-       const VectorInt& n_facs,
-       double rho = 0.);
+  Rule(const VectorInt& nodes,double rho = 0.);
+  Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho = 0.);
+  Rule(int nfacies, double rho = 0.);
   Rule(const String& neutralFileName, bool verbose = false);
 
   Rule(const Rule& r);
@@ -85,8 +82,6 @@ public:
   void   setRho(double rho) { _rho = rho; }
   int    setProportions(const VectorDouble& proportions = VectorDouble());
 
-  int init(const VectorInt& nodes);
-  void init(int nfacies);
   int statistics(int  verbose,
                  int *node_tot,
                  int *nfac_tot,
@@ -111,20 +106,15 @@ public:
 
   void updateShift();
 
-  void setModeRule(int modeRule)
-  {
-    _modeRule = modeRule;
-  }
+  void setModeRule(int modeRule) { _modeRule = modeRule; }
 
 protected:
   void setMainNodeFromNodNames(const VectorInt& n_type,
                                const VectorInt& n_facs);
   void setMainNodeFromNodNames(const VectorString& nodnames);
+  int  setMainNodeFromNodNames(const VectorInt& nodes);
   int replicateInvalid(Db *dbin, Db *dbout, int jech);
   VectorString buildNodNames(int nfacies);
-  void nodNamesToIds(const VectorString& nodes,
-                      VectorInt &n_type,
-                      VectorInt& n_facs);
 
 private:
   String _display(bool flagProp, bool flagThresh) const;
@@ -133,6 +123,9 @@ private:
                    int from_rank,
                    int from_vers,
                    int *rank) const;
+  void _nodNamesToIds(const VectorString& nodes,
+                      VectorInt &n_type,
+                      VectorInt& n_facs);
 
 private:
   int    _modeRule;    /* Type of usage */

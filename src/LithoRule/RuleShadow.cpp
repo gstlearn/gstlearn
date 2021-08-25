@@ -44,14 +44,8 @@ RuleShadow::RuleShadow(double slope,
       _ind2()
 {
   setModeRule(RULE_SHADOW);
-  VectorString nodnames = {"S", "T", "F", "F", "F"};
+  VectorString nodnames = {"S", "T", "F1", "F2", "F3"};
   setMainNodeFromNodNames(nodnames);
-
-//  rule->main         = st_node_alloc("S1",THRESH_Y1,0);
-//  rule->main->r1     = st_node_alloc("T1",THRESH_Y2,0);
-//  rule->main->r1->r1 = st_node_alloc("F3",THRESH_IDLE,SHADOW_SHADOW);
-//  rule->main->r1->r2 = st_node_alloc("F2",THRESH_IDLE,SHADOW_WATER);
-//  rule->main->r2     = st_node_alloc("F1",THRESH_IDLE,SHADOW_ISLAND);
 }
 
 RuleShadow::RuleShadow(const RuleShadow& m)
@@ -114,7 +108,8 @@ void RuleShadow::serializeSpecific() const
 String RuleShadow::displaySpecific(int flagProp, int flagThresh) const
 {
   std::stringstream sstr;
-  sstr << toVector("Normalized Translation Vector = ",_shift) << std::endl;
+  sstr << toTitle(2,"Shadow Option");
+  sstr << toVector("Normalized Translation Vector = ",_shift);
   sstr << "Slope for shadow                  = " << _slope << "(degrees)" << std::endl;
   sstr << "Upwards shift for the threshold   = " << _shDsup << std::endl;
   sstr << "Downwards shift for the threshold = " << _shDown << std::endl;
@@ -123,7 +118,8 @@ String RuleShadow::displaySpecific(int flagProp, int flagThresh) const
   sstr << "- P1 gives the proportion of Island" << std::endl;
   sstr << "- P2 gives the value of Upwards shift" << std::endl;
   sstr << "- P3 gives the value of Downwards shift" << std::endl;
-  sstr << "(With the current option, only the first GRF is used)" << std::endl;
+  sstr << "(With the 'Shadow' option, only the first GRF is used)" << std::endl;
+  sstr << std::endl;
   sstr << getMainNode()->nodePrintShadow(flagProp, flagThresh);
   return sstr.str();
 }
