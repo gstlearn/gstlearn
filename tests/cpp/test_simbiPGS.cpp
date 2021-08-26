@@ -81,7 +81,6 @@ int main(int argc, char *argv[])
   rule1.display();
   rule1.serialize(pygst+ "PGSrule1.ascii");
 
-
   // Creating the RuleProp structure for simPGS
   RuleProp ruleprop1 = RuleProp(&rule1, props1);
 

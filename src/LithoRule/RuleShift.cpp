@@ -28,9 +28,8 @@ RuleShift::RuleShift(const VectorInt& nodes, const VectorDouble& shift)
       _shDsup(0.),
       _shDown(0.),
       _slope(0.),
-      _tgte(TEST),
-      _incr(TEST),
       _shift(shift),
+      _incr(TEST),
       _xyz(),
       _ind1(),
       _ind2()
@@ -44,9 +43,8 @@ RuleShift::RuleShift(const VectorString& nodnames, const VectorDouble& shift)
       _shDsup(0.),
       _shDown(0.),
       _slope(0.),
-      _tgte(TEST),
-      _incr(TEST),
       _shift(shift),
+      _incr(TEST),
       _xyz(),
       _ind1(),
       _ind2()
@@ -65,9 +63,8 @@ RuleShift::RuleShift(int nfacies, const VectorDouble& shift)
       _shDsup(0.),
       _shDown(0.),
       _slope(0.),
-      _tgte(TEST),
-      _incr(TEST),
       _shift(shift),
+      _incr(TEST),
       _xyz(),
       _ind1(),
       _ind2()
@@ -84,9 +81,8 @@ RuleShift::RuleShift(const VectorInt& n_type,
       _shDsup(0.),
       _shDown(0.),
       _slope(0.),
-      _tgte(TEST),
-      _incr(TEST),
       _shift(shift),
+      _incr(TEST),
       _xyz(),
       _ind1(),
       _ind2()
@@ -96,12 +92,12 @@ RuleShift::RuleShift(const VectorInt& n_type,
 }
 
 RuleShift::RuleShift(const RuleShift& m)
-    : _shDsup(m._shDsup),
+    :  Rule(m),
+      _shDsup(m._shDsup),
       _shDown(m._shDown),
       _slope(m._slope),
-      _tgte(m._tgte),
-      _incr(m._incr),
-      _shift(m._shift)
+      _shift(m._shift),
+      _incr(m._incr)
 {
 }
 
@@ -109,12 +105,12 @@ RuleShift& RuleShift::operator=(const RuleShift& m)
 {
   if (this != &m)
   {
+    Rule::operator =(m);
     _shDsup = m._shDsup;
     _shDown = m._shDown;
     _slope = m._slope;
-    _tgte = m._tgte;
-    _incr = m._incr;
     _shift = m._shift;
+    _incr = m._incr;
   }
   return *this;
 }
@@ -179,7 +175,7 @@ int RuleShift::particularities(Db *db,
                                const Db *dbprop,
                                Model *model,
                                int flag_grid_check,
-                               int flag_stat)
+                               int flag_stat) const
 {
   int ndim = (model != (Model *) NULL) ? model->getDimensionNumber() : 0;
   VectorDouble wxyz(ndim);
@@ -214,9 +210,9 @@ int RuleShift::particularities(Db *db,
   return (0);
 }
 
-int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check)
+int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const
 {
-  VectorDouble xyz(ndim);
+  _xyz.resize(ndim);
   _ind1.resize(ndim);
 
   if (db == (Db *) NULL || ! is_grid(db))
@@ -283,7 +279,7 @@ int RuleShift::gaus2facResult(PropDef *propdef,
                               int *flag_used,
                               int ipgs,
                               int isimu,
-                              int nbsimu)
+                              int nbsimu) const
 {
   int    ndim,iech,jech,idim,igrf,icase;
   double t1min,t1max,t2min,t2max,facies,y[2];
@@ -293,9 +289,9 @@ int RuleShift::gaus2facResult(PropDef *propdef,
   check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_FACIES);
   check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_SIMU);
   ndim   = dbout->getNDim();
-  VectorDouble xyz(ndim);
-  VectorInt ind1(ndim);
-  VectorInt ind2(ndim);
+  _xyz.resize(ndim);
+  _ind1.resize(ndim);
+  _ind2.resize(ndim);
 
   /* Processing the translation */
 
@@ -311,10 +307,10 @@ int RuleShift::gaus2facResult(PropDef *propdef,
 
     if (rule_thresh_define(propdef, dbout, this, ITEST, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return 1;
-    db_index_sample_to_grid(dbout, iech, ind2.data());
+    db_index_sample_to_grid(dbout, iech, _ind2.data());
     for (idim = 0; idim < ndim; idim++)
-      ind2[idim] -= ind1[idim];
-    jech = db_index_grid_to_sample(dbout, ind2.data());
+      _ind2[idim] -= _ind1[idim];
+    jech = db_index_grid_to_sample(dbout, _ind2.data());
     if (jech >= 0)
       y[1] = dbout->getSimvar(LOC_SIMU, jech, isimu, 0, icase, nbsimu, 1);
     else
@@ -349,7 +345,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
                               int isimu,
                               int igrf,
                               int ipgs,
-                              int nbsimu)
+                              int nbsimu) const
 {
   int    iech,jech,nadd,nech,idim,facies,nstep;
   double t1min,t1max,t2min,t2max,s1min,s1max,s2min,s2max;

@@ -15,6 +15,9 @@
 #include "Basic/MathFunc.hpp"
 #include "Stats/Classical.hpp"
 #include "Basic/AException.hpp"
+#include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleShift.hpp"
+#include "LithoRule/RuleShadow.hpp"
 
 /*! \cond */
 typedef struct {
@@ -37,7 +40,7 @@ typedef struct {
 
 typedef struct {
   Db     *db;
-  Rule   *rule;
+  mutable const Rule *rule;
   PropDef *propdef;
   int     flag_stat;
   int     flag_facies;
@@ -444,7 +447,7 @@ static Relem *st_relem_free(Relem *relem)
 **
 *****************************************************************************/
 static void st_variogram_define_vars(Vario *vario,
-                                     Rule  *rule,
+                                     const Rule *rule,
                                      int    ngrf)
 {
   int igrf,jgrf;
@@ -517,8 +520,8 @@ static void st_set_rho(double rho,
   double rho2;
   int iech,ifac,ngrf;
   Db *db = local_pgs->db;
-  PropDef *propdef = local_pgs->propdef;
-  Rule * rule    = local_pgs->rule;
+  PropDef* propdef = local_pgs->propdef;
+  const Rule* rule = local_pgs->rule;
   int flag_stat  = local_pgs->flag_stat;
   double t1min, t1max, t2min, t2max;
 
@@ -714,7 +717,7 @@ static int st_vario_pgs_variable(int    mode,
                                  int    flag_prop,
                                  Db    *db,
                                  PropDef *propdef,
-                                 Rule  *rule)
+                                 const Rule  *rule)
 {
   int    number,ifac,jfac,nloop,iptr;
   double t1min,t1max,t2min,t2max;
@@ -1116,7 +1119,7 @@ static void trace_define(Local_Pgs *local_pgs,
 **
 *****************************************************************************/
 static int st_varcalc_from_vario_stat(Vario *vario,
-                                      Rule  *rule,
+                                      const Rule  *rule,
                                       PropDef *propdef,
                                       Local_Pgs *local_pgs,
                                       int ngrf)
@@ -3743,7 +3746,7 @@ static void st_manage_trace(Local_TracePgs *local_tracepgs)
 static void st_manage_pgs(int        mode,
                           Local_Pgs *local_pgs,
                           Db        *db,
-                          Rule      *rule,
+                          const Rule *rule,
                           Vario     *vario,
                           Vario     *varioind,
                           Model     *model,
@@ -3852,7 +3855,7 @@ static void st_manage_pgs(int        mode,
 *****************************************************************************/
 static int st_variopgs_calcul_norho(Db    *db,
                                     Vario *vario,
-                                    Rule  *rule,
+                                    const Rule  *rule,
                                     PropDef *propdef,
                                     Local_Pgs *local_pgs,
                                     int ngrf,
@@ -3988,7 +3991,7 @@ static double st_rho_search(double  rho,
 *****************************************************************************/
 static int st_variopgs_calcul_rho(Db    *db,
                                   Vario *vario,
-                                  Rule  *rule,
+                                  const Rule  *rule,
                                   PropDef *propdef,
                                   Local_Pgs *local_pgs,
                                   int ngrf,
@@ -4030,7 +4033,7 @@ static int st_variopgs_calcul_rho(Db    *db,
 **
 ** \return  Error code
 **
-** \param[in]  mode        Lithotype mode (RULE_STD, RULE_SHIFT or RULE_SHADOW)
+** \param[in]  mode        Lithotype mode (ENUM_RULES)
 ** \param[in]  flag_rho    1 if rho has to be calculated, 0 otherwise
 **
 *****************************************************************************/
@@ -4085,7 +4088,7 @@ static int st_vario_pgs_check(int    flag_db,
                               const Db    *dbprop,
                               const Vario *vario,
                               Vario *varioind,
-                              Rule  *rule)
+                              const Rule  *rule)
 {
 
   /* Experimental variogram (compulsory) */
@@ -4178,7 +4181,7 @@ static int st_vario_pgs_check(int    flag_db,
 static int st_variogram_pgs_nostat(Db*       db,
                                    const Db* dbprop,
                                    Vario*    vario,
-                                   Rule*     rule,
+                                   const Rule*     rule,
                                    const     VectorDouble& propcst,
                                    int       flag_rho,
                                    int       opt_correl)
@@ -4276,17 +4279,15 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
                                 int       *iconf,
                                 double    *cov)
 {
-  Rule *rule;
   double cov0[4],covh[4],cround;
-  int    i, nvar, ngrf;
   CovCalcMode mode;
   
-  nvar = local_pgs->model->getVariableNumber();
-  rule = local_pgs->rule;
-  ngrf = local_pgs->rule->getGRFNumber();
+  const Rule* rule = local_pgs->rule;
+  int nvar = local_pgs->model->getVariableNumber();
+  int ngrf = local_pgs->rule->getGRFNumber();
 
   /* Calculate the covariance for the zero distance */
-  for (i=0; i<local_pgs->model->getDimensionNumber(); i++) local_pgs->d0[i] = 0.;
+  for (int i=0; i<local_pgs->model->getDimensionNumber(); i++) local_pgs->d0[i] = 0.;
   model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,cov0);
 
   /* Calculate the covariance for the given shift */
@@ -4306,23 +4307,24 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   }
   else if (rule->getModeRule() == RULE_SHIFT)
   {
+    RuleShift* ruleshift = (RuleShift *) rule;
     cov[0] = covh[0];                           /* C11(h)  */
     cov[5] = (nvar==1) ? covh[0] : covh[3];     /* C22(h)  */
     
-    for (i=0; i<local_pgs->model->getDimensionNumber(); i++)
-      local_pgs->d0[i] = rule->getShift(i);
+    for (int i=0; i<local_pgs->model->getDimensionNumber(); i++)
+      local_pgs->d0[i] = ruleshift->getShift(i);
     
     model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covh);
     cov[1] = (nvar==1) ? covh[0] : covh[1];		/* C21(s)  */
     cov[4] = (nvar==1) ? covh[0] : covh[1];		/* C21(s)  */
     
-    for (i=0; i<local_pgs->model->getDimensionNumber(); i++)
-      local_pgs->d0[i] = local_pgs->d1[i] - rule->getShift(i);
+    for (int i=0; i<local_pgs->model->getDimensionNumber(); i++)
+      local_pgs->d0[i] = local_pgs->d1[i] - ruleshift->getShift(i);
     model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covh);
     cov[2] = (nvar==1) ? covh[0] : covh[1];		/* C21(h-s) */
     
-    for (i=0; i<local_pgs->model->getDimensionNumber(); i++)
-      local_pgs->d0[i] = local_pgs->d1[i] + rule->getShift(i);
+    for (int i=0; i<local_pgs->model->getDimensionNumber(); i++)
+      local_pgs->d0[i] = local_pgs->d1[i] + ruleshift->getShift(i);
     model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d0,covh);
     cov[3] = (nvar==1) ? covh[0] : covh[1];		/* C21(h+s)  */
   }
@@ -4332,7 +4334,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   /* Check if the two GRFs are spatially independent */
 
   (*flag_ind) = 1;
-  for (i=1; i<=4; i++)
+  for (int i=1; i<=4; i++)
     if (ABS(cov[i]) > 1.e-8) (*flag_ind) = 0;
   
   /* In TEST_DISCRET case, identify the ranks of the discretized covariance */
@@ -4343,7 +4345,6 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
     if (local_pgs->ngrf > 1)
       iconf[1] = ct_tableone_covrank(CTABLES,cov[5],&cround); 
   }
-
   return;
 }
 
@@ -4962,7 +4963,7 @@ GEOSLIB_API int model_pgs(Db*       db,
     return 1;
   }
   int flag_stat = ruleprop->isFlagStat();
-  Rule rule(*ruleprop->getRule());
+  const Rule* rule = ruleprop->getRule();
   const VectorDouble& propcst = ruleprop->getPropCst();
   const Db* dbprop = ruleprop->getDbprop();
 
@@ -4980,22 +4981,22 @@ GEOSLIB_API int model_pgs(Db*       db,
   new_model = (Model *) NULL;
   propdef   = (PropDef *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
-  if (st_check_test_discret(rule.getModeRule(), 0)) goto label_end;
+  if (st_check_test_discret(rule->getModeRule(), 0)) goto label_end;
 
   /* Extract information from Rule */
 
-  ngrf = rule.getGRFNumber();
-  nfacies = rule.getFaciesNumber();
-  if(rule.getModeRule() == RULE_SHIFT) ngrf++;
+  ngrf = rule->getGRFNumber();
+  nfacies = rule->getFaciesNumber();
+  if(rule->getModeRule() == RULE_SHIFT) ngrf++;
 
   /* Preliminary checks */
 
-  if (st_vario_pgs_check(-1,1,0,db,dbprop,vario,NULL,&rule)) goto label_end;
+  if (st_vario_pgs_check(-1,1,0,db,dbprop,vario,NULL,rule)) goto label_end;
   vario->internalResize(vario->getDimensionNumber(), nfacies, "vg");
   
   /* Merge the models */
 
-  new_model = model_rule_combine(model1,model2,&rule);
+  new_model = model_rule_combine(model1,model2,rule);
   if (new_model == (Model *) NULL)
   {
     messerr("The Model(s) must be defined");
@@ -5043,7 +5044,7 @@ GEOSLIB_API int model_pgs(Db*       db,
                               db,dbprop,propcst,propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
 
-  if (rule.particularities(db,dbprop,new_model,0,flag_stat)) goto label_end;
+  if (rule->particularities(db,dbprop,new_model,0,flag_stat)) goto label_end;
 
   proportion_rule_process(propdef,0);
 
@@ -5052,7 +5053,7 @@ GEOSLIB_API int model_pgs(Db*       db,
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(1,0,1,200,100,-1.,1.,NULL);
 
-  st_manage_pgs(1,&local_pgs,db,&rule,vario,NULL,new_model,propdef,
+  st_manage_pgs(1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
 
   /* Calculate the variogram and the variance matrix */
@@ -5065,8 +5066,8 @@ GEOSLIB_API int model_pgs(Db*       db,
   }
   else
   {
-    if (st_vario_pgs_variable(1,ngrf,nfacies,0,1,db,propdef,&rule)) goto label_end;
-    if (st_vario_pgs_variable(0,ngrf,nfacies,0,1,db,propdef,&rule)) goto label_end;
+    if (st_vario_pgs_variable(1,ngrf,nfacies,0,1,db,propdef,rule)) goto label_end;
+    if (st_vario_pgs_variable(0,ngrf,nfacies,0,1,db,propdef,rule)) goto label_end;
     if (st_vario_indic_model_nostat(&local_pgs)) goto label_end;
     if (st_update_variance_nostat(&local_pgs)) goto label_end;
   }
@@ -5078,10 +5079,10 @@ GEOSLIB_API int model_pgs(Db*       db,
 label_end:
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
-  st_manage_pgs(-1,&local_pgs,db,&rule,vario,NULL,new_model,propdef,
+  st_manage_pgs(-1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
   new_model = model_free(new_model);
-  (void) st_vario_pgs_variable(-1,ngrf,nfacies,0,1,db,propdef,&rule);
+  (void) st_vario_pgs_variable(-1,ngrf,nfacies,0,1,db,propdef,rule);
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
   return(error);
@@ -5103,7 +5104,7 @@ label_end:
 static int st_variogram_pgs_stat(Db     *db,
                                  Vario  *vario,
                                  Vario  *varioind,
-                                 Rule   *rule,
+                                 const Rule   *rule,
                                  const   VectorDouble& propcst)
 {
   Local_Pgs local_pgs;
@@ -5211,7 +5212,7 @@ GEOSLIB_API int variogram_pgs(Db*       db,
     return 1;
   }
   int flag_stat = ruleprop->isFlagStat();
-  Rule rule(*ruleprop->getRule());
+  const Rule* rule = ruleprop->getRule();
   const VectorDouble& propcst = ruleprop->getPropCst();
   const Db* dbprop = ruleprop->getDbprop();
 
@@ -5220,7 +5221,7 @@ GEOSLIB_API int variogram_pgs(Db*       db,
 
   // Preliminary checks
 
-  if (st_check_test_discret(rule.getModeRule(), flag_rho)) return 1;
+  if (st_check_test_discret(rule->getModeRule(), flag_rho)) return 1;
   if (vario->getDirectionNumber() <= 0)
   {
     messerr("The variogram must contain at least one calculation Direction");
@@ -5233,7 +5234,7 @@ GEOSLIB_API int variogram_pgs(Db*       db,
   }
   vario->setCalculName("covnc");
   vario->setDimensionNumber(db->getNDim());
-  int nclass = rule.getFaciesNumber();
+  int nclass = rule->getFaciesNumber();
   if (nclass <= 0)
   {
     messerr("No Facies class have been found");
@@ -5250,7 +5251,7 @@ GEOSLIB_API int variogram_pgs(Db*       db,
       if ((int) propcst.size() != nclass)
       {
         messerr("Number of proportions in 'propcst' (%d) should match Number of Facies in 'rule' (%d)",
-                (int) propcst.size(),rule.getFaciesNumber());
+                (int) propcst.size(),rule->getFaciesNumber());
         return 1;
       }
       props = propcst;
@@ -5262,7 +5263,7 @@ GEOSLIB_API int variogram_pgs(Db*       db,
       if ((int) props.size() != nclass)
       {
         messerr("Number of Facies in 'db' (%d) should match Number of facies in 'rule' (%d)",
-                (int) props.size(), rule.getFaciesNumber());
+                (int) props.size(), rule->getFaciesNumber());
         return 1;
       }
     }
@@ -5284,9 +5285,10 @@ GEOSLIB_API int variogram_pgs(Db*       db,
   /* Perform the calculations */
 
   if (flag_stat)
-    error = st_variogram_pgs_stat(db,vario,varioind,&rule,props);
+    error = st_variogram_pgs_stat(db, vario, varioind, rule, props);
   else
-    error = st_variogram_pgs_nostat(db,dbprop,vario,&rule,props,flag_rho,opt_correl);
+    error = st_variogram_pgs_nostat(db, dbprop, vario, rule, props, flag_rho,
+                                    opt_correl);
 
   /* Final operations */
 
@@ -5417,8 +5419,7 @@ GEOSLIB_API Rule *rule_auto(Db*       db,
   Pile_Relem = st_relem_alloc(NULL);
   st_relem_define(Pile_Relem,NCOLOR,facies,ITEST,NULL);
   st_relem_subdivide(Pile_Relem,1,1);
-  st_relem_explore(Pile_Relem,verbose);
-//  st_relem_explore(Pile_Relem,verbose && debug_query("converge")); TODO: But back after bug corrected
+  st_relem_explore(Pile_Relem,verbose && debug_query("converge"));
 
   // Evaluate all possibilities
 

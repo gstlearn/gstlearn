@@ -35,10 +35,10 @@ RuleShadow::RuleShadow(double slope,
       _shDsup(sh_dsup),
       _shDown(sh_down),
       _slope(slope),
+      _shift(shift),
       _dMax(TEST),
       _tgte(TEST),
       _incr(TEST),
-      _shift(shift),
       _xyz(),
       _ind1(),
       _ind2()
@@ -46,16 +46,18 @@ RuleShadow::RuleShadow(double slope,
   setModeRule(RULE_SHADOW);
   VectorString nodnames = {"S", "T", "F1", "F2", "F3"};
   setMainNodeFromNodNames(nodnames);
+  _normalizeShift();
 }
 
 RuleShadow::RuleShadow(const RuleShadow& m)
-    : _shDsup(m._shDsup),
+    : Rule(m),
+      _shDsup(m._shDsup),
       _shDown(m._shDown),
       _slope(m._slope),
+      _shift(m._shift),
       _dMax(m._dMax),
       _tgte(m._tgte),
-      _incr(m._incr),
-      _shift(m._shift)
+      _incr(m._incr)
 {
 }
 
@@ -63,13 +65,14 @@ RuleShadow& RuleShadow::operator=(const RuleShadow& m)
 {
   if (this != &m)
   {
+    Rule::operator =(m);
     _shDsup = m._shDsup;
     _shDown = m._shDown;
     _slope = m._slope;
+    _shift = m._shift;
     _dMax = m._dMax;
     _tgte = m._tgte;
     _incr = m._incr;
-    _shift = m._shift;
   }
   return *this;
 }
@@ -142,17 +145,10 @@ int RuleShadow::particularities(Db *db,
                                 const Db *dbprop,
                                 Model *model,
                                 int flag_grid_check,
-                                int flag_stat)
+                                int flag_stat) const
 {
   double sh_dsup_max,sh_down_max;
   int ndim = (model != (Model *) NULL) ? model->getDimensionNumber() : 0;
-
-  double norme = 0.;
-  for (int idim=0; idim<ndim; idim++)
-    norme += _shift[idim] * _shift[idim];
-  norme = sqrt(norme);
-  if (norme <= 0) return(1);
-  for (int idim=0; idim<ndim; idim++) _shift[idim] /= norme;
 
   _incr = 1.e30;
   for (int idim=0; idim<ndim; idim++)
@@ -170,7 +166,7 @@ int RuleShadow::particularities(Db *db,
 void RuleShadow::_st_shadow_max(const Db *dbprop,
                                 int flag_stat,
                                 double *sh_dsup_max,
-                                double *sh_down_max)
+                                double *sh_down_max) const
 {
   int iech;
   double val2,val3;
@@ -211,11 +207,11 @@ void RuleShadow::_st_shadow_max(const Db *dbprop,
 ** \param[out]  xyz0  Working array
 **
 *****************************************************************************/
-double RuleShadow::st_grid_eval(Db *dbgrid,
-                                int isimu,
-                                int icase,
-                                int nbsimu,
-                                VectorDouble& xyz0)
+double RuleShadow::_st_grid_eval(Db *dbgrid,
+                                 int isimu,
+                                 int icase,
+                                 int nbsimu,
+                                 VectorDouble& xyz0) const
 {
   double top = 0.;
   double bot = 0.;
@@ -307,7 +303,6 @@ double RuleShadow::st_grid_eval(Db *dbgrid,
 ** \param[in]  propdef    Props structure
 ** \param[in]  dbin       Db input structure
 ** \param[in]  dbout      Db output structure
-** \param[in]  rule       Rule structure
 ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
 ** \param[in]  ipgs       Rank of the PGS
 ** \param[in]  isimu      Rank of the simulation
@@ -370,7 +365,6 @@ int RuleShadow::gaus2facData(PropDef *propdef,
 **
 ** \param[in]  propdef    Props structure
 ** \param[in]  dbout      Db output structure
-** \param[in]  rule       Rule structure
 ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
 ** \param[in]  ipgs       Rank of the PGS
 ** \param[in]  isimu      Rank of the simulation
@@ -384,7 +378,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
                                int *flag_used,
                                int ipgs,
                                int isimu,
-                               int nbsimu)
+                               int nbsimu) const
 {
   int ndim,iech,jech,error,idim,nstep,istep,flag,flag_shadow,igrf,icase;
   double *del,y[2],facies,dinc,dy,ys,yc_dsup,yc_down;
@@ -400,9 +394,9 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
   nstep = 0;
   ndim  = dbout->getNDim();
   icase = get_rank_from_propdef(propdef,ipgs,0);
-  VectorDouble xyz(ndim);
-  VectorInt ind1(ndim);
-  VectorInt ind2(ndim);
+  _xyz.resize(ndim);
+  _ind1.resize(ndim);
+  _ind2.resize(ndim);
 
   /* Initializations */
 
@@ -430,25 +424,25 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
                                   iech,isimu,nbsimu,1,
                                   &t1min,&t1max,&t2min,&t2max,
                                   &yc_dsup,&yc_down)) goto label_end;
-    db_index_sample_to_grid(dbout,iech,ind2.data());
-    grid_to_point(dbout,ind2.data(),NULL,xyz.data());
+    db_index_sample_to_grid(dbout,iech,_ind2.data());
+    grid_to_point(dbout,_ind2.data(),NULL,_xyz.data());
 
     if (y[0] >= t1max)
       facies = SHADOW_ISLAND;
     else
     {
       flag_shadow = 0;
-      db_index_sample_to_grid(dbout,iech,ind2.data());
-      grid_to_point(dbout,ind2.data(),NULL,xyz.data());
+      db_index_sample_to_grid(dbout,iech,_ind2.data());
+      grid_to_point(dbout,_ind2.data(),NULL,_xyz.data());
       for (istep=1; istep<=nstep && flag_shadow==0; istep++)
       {
-        for (idim=0; idim<ndim; idim++) xyz[idim] -= del[idim];
-        flag = point_to_grid(dbout,xyz.data(),0,ind2.data());
+        for (idim=0; idim<ndim; idim++) _xyz[idim] -= del[idim];
+        flag = point_to_grid(dbout,_xyz.data(),0,_ind2.data());
         if (flag > 0) break;
         if (flag < 0) continue;
-        ys = st_grid_eval(dbout,isimu,icase,nbsimu,xyz);
+        ys = _st_grid_eval(dbout,isimu,icase,nbsimu,_xyz);
         if (FFFF(ys)) continue;
-        jech  = db_index_grid_to_sample(dbout,ind2.data());
+        jech  = db_index_grid_to_sample(dbout,_ind2.data());
         if (rule_thresh_define_shadow(propdef,dbout,this,SHADOW_WATER,
                                       jech,isimu,nbsimu,1,
                                       &s1min,&s1max,&s2min,&s2max,
@@ -495,7 +489,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
                                int isimu,
                                int igrf,
                                int ipgs,
-                               int nbsimu)
+                               int nbsimu) const
 {
   int    iech,jech,nadd,nech,idim,facies,nstep,istep,valid;
   double dist,t1min,t1max,t2min,t2max,s1min,s1max,s2min,s2max;
@@ -655,4 +649,10 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
     message("Number of replicates  = %d\n",nadd);
   }
   return(0);
+}
+
+void RuleShadow::_normalizeShift()
+{
+  if (! _shift.empty())
+    ut_vector_norm(_shift);
 }

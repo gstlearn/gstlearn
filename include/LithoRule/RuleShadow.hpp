@@ -39,7 +39,7 @@ public:
                       const Db *dbprop,
                       Model *model,
                       int flag_grid_check,
-                      int flag_stat) override;
+                      int flag_stat)  const override;
   int gaus2facData(PropDef *propdef,
                    Db *dbin,
                    Db *dbout,
@@ -52,24 +52,22 @@ public:
                      int *flag_used,
                      int ipgs,
                      int isimu,
-                     int nbsimu) override;
+                     int nbsimu) const override;
   int evaluateBounds(PropDef *propdef,
                      Db *dbin,
                      Db *dbout,
                      int isimu,
                      int igrf,
                      int ipgs,
-                     int nbsimu) override;
+                     int nbsimu) const override;
 
-  double st_grid_eval(Db *dbgrid,
-                      int isimu,
-                      int icase,
-                      int nbsimu,
-                      VectorDouble& xyz0);
 
   double getShDown() const { return _shDown; }
   double getShDsup() const { return _shDsup; }
-  double getSlope() const  { return _slope;  }
+  double getSlope()  const { return _slope;  }
+  double getDMax()   const { return _dMax;   }
+  double getTgte()   const { return _tgte;   }
+  double getIncr()   const { return _incr;   }
   const VectorDouble& getShift() const { return _shift; }
   double getShift(int idim) const { return _shift[idim]; }
 
@@ -77,17 +75,24 @@ private:
   void _st_shadow_max(const Db *dbprop,
                       int flag_stat,
                       double *sh_dsup_max,
-                      double *sh_down_max);
+                      double *sh_down_max) const;
+  double _st_grid_eval(Db *dbgrid,
+                       int isimu,
+                       int icase,
+                       int nbsimu,
+                       VectorDouble& xyz0) const;
+  void _normalizeShift();
 
 private:
   double _shDsup;      /* Upper limit */
   double _shDown;      /* Downwards limit */
   double _slope;       /* Slope used for shadow option */
-  double _dMax;        /* Longest distance for shadow */
-  double _tgte;        /* Tangent of the slope */
-  double _incr;        /* Increments used for creating replicates */
   VectorDouble _shift; /* Shadow or translation orientation */
+
+  mutable double _dMax;
+  mutable double _tgte;
+  mutable double _incr;
   mutable VectorDouble _xyz;
-  VectorInt    _ind1;
-  VectorInt    _ind2;
+  mutable VectorInt    _ind1;
+  mutable VectorInt    _ind2;
 };

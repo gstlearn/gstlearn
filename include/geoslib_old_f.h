@@ -2503,13 +2503,13 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
   /* Prototyping the functions in thresh.c */
   /*****************************************/
 
-  GEOSLIB_API Rule *rule_free(Rule *rule);
+  GEOSLIB_API Rule *rule_free(const Rule *rule);
   GEOSLIB_API Model *model_rule_combine(Model * model1,
                                         Model * model2,
-                                        Rule * rule);
+                                        const Rule * rule);
   GEOSLIB_API int rule_thresh_define_shadow(PropDef *propdef,
                                             Db *dbin,
-                                            RuleShadow *rule,
+                                            const RuleShadow *rule,
                                             int facies,
                                             int iech,
                                             int isimu,
@@ -2523,7 +2523,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                             double *down);
   GEOSLIB_API int rule_thresh_define(PropDef *propdef,
                                      Db *dbin,
-                                     Rule *rule,
+                                     const Rule *rule,
                                      int facies,
                                      int iech,
                                      int isimu,

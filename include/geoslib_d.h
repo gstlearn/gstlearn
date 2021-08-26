@@ -223,7 +223,7 @@ typedef struct
 {
   int ipgs;
   int flag_used[2];
-  Rule  *rule;
+  const Rule  *rule;
   PropDef *propdef;
 } Modif_Categorical;
 

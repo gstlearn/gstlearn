@@ -93,12 +93,6 @@ Rule::Rule(double rho)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(rho),
-      _dMax(TEST),
-      _tgte(TEST),
-      _incr(TEST),
-      _xyz(),
-      _ind1(),
-      _ind2(),
       _mainNode(nullptr)
 {
 }
@@ -109,12 +103,6 @@ Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(rho),
-      _dMax(TEST),
-      _tgte(TEST),
-      _incr(TEST),
-      _xyz(),
-      _ind1(),
-      _ind2(),
       _mainNode(nullptr)
 {
   setMainNodeFromNodNames(n_type, n_facs);
@@ -126,12 +114,6 @@ Rule::Rule(int nfacies, double rho)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(rho),
-      _dMax(TEST),
-      _tgte(TEST),
-      _incr(TEST),
-      _xyz(),
-      _ind1(),
-      _ind2(),
       _mainNode(nullptr)
 {
   VectorString nodnames = buildNodNames(nfacies);
@@ -144,13 +126,6 @@ Rule::Rule(const VectorString& nodnames, double rho)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(rho),
-      _dMax(TEST),
-      _tgte(TEST),
-      _incr(TEST),
-      _shift(),
-      _xyz(),
-      _ind1(),
-      _ind2(),
       _mainNode(nullptr)
 {
   setMainNodeFromNodNames(nodnames);
@@ -162,13 +137,6 @@ Rule::Rule(const VectorInt& nodes, double rho)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(rho),
-      _dMax(TEST),
-      _tgte(TEST),
-      _incr(TEST),
-      _shift(),
-      _xyz(),
-      _ind1(),
-      _ind2(),
       _mainNode(nullptr)
 {
   setMainNodeFromNodNames(nodes);
@@ -180,13 +148,6 @@ Rule::Rule(const String& neutralFileName, bool verbose)
       _modeRule(RULE_STD),
       _flagProp(0),
       _rho(0.),
-      _slope(0.),
-      _dMax(TEST),
-      _tgte(TEST),
-      _incr(TEST),
-      _xyz(),
-      _ind1(),
-      _ind2(),
       _mainNode(nullptr)
 {
   if (deSerialize(neutralFileName, verbose))
@@ -197,9 +158,6 @@ Rule::Rule(const Rule& m)
     : _modeRule(m._modeRule),
       _flagProp(m._flagProp),
       _rho(m._rho),
-      _dMax(m._dMax),
-      _tgte(m._tgte),
-      _incr(m._incr),
       _mainNode(new Node(*m._mainNode))
 {
 }
@@ -211,9 +169,6 @@ Rule& Rule::operator=(const Rule& m)
     _modeRule = m._modeRule;
     _flagProp = m._flagProp;
     _rho = m._rho;
-    _dMax = m._dMax;
-    _tgte = m._tgte;
-    _incr = m._incr;
     _mainNode = new Node(*m._mainNode);
   }
   return *this;
@@ -543,10 +498,8 @@ int Rule::particularities(Db *db,
                           const Db *dbprop,
                           Model *model,
                           int flag_grid_check,
-                          int flag_stat)
+                          int flag_stat) const
 {
-  int ndim = (model != (Model *) NULL) ? model->getDimensionNumber() : 0;
-  _xyz.resize(ndim);
   return(0);
 }
 
@@ -555,7 +508,7 @@ bool Rule::checkModel(const Model* model, int nvar) const
   return true;
 }
 
-void Rule::updateShift()
+void Rule::updateShift() const
 {
   Node* node;
   node  = _mainNode->getR2();
@@ -579,7 +532,6 @@ void Rule::_nodNamesToIds(const VectorString& nodes,
     decodeInList(symbol,nodes[i],&n_type[i],&n_facs[i]);
 
     // Check that the Facies rank is defined
-
     if (n_type[i] == 0)
     {
       if (n_facs[i] <= 0)
@@ -671,7 +623,7 @@ int Rule::getFaciesFromGaussian(double y1, double y2) const
  * If absent, all proportions are considered equal.
  * @return
  */
-int Rule::setProportions(const VectorDouble& proportions)
+int Rule::setProportions(const VectorDouble& proportions) const
 {
   int    node_tot,nfac_tot,nmax_tot,ny1_tot,ny2_tot;
   double prop_tot;
@@ -935,7 +887,7 @@ int Rule::gaus2facResult(PropDef  *propdef,
                          int *flag_used,
                          int ipgs,
                          int isimu,
-                         int nbsimu)
+                         int nbsimu) const
 {
   int    ndim,iech,igrf,icase;
   double t1min,t1max,t2min,t2max,facies,y[2];
@@ -946,8 +898,6 @@ int Rule::gaus2facResult(PropDef  *propdef,
   check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_SIMU);
   ndim   = dbout->getNDim();
   VectorDouble xyz(ndim);
-  VectorInt ind1(ndim);
-  VectorInt ind2(ndim);
 
   /* Processing the translation */
 
@@ -989,7 +939,7 @@ int Rule::gaus2facResult(PropDef  *propdef,
 ** \param[in]  jech       Rank of the replicate
 **
 *****************************************************************************/
-int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech)
+int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech) const
 {
   int    iech,idim;
   double delta;
@@ -1029,7 +979,7 @@ int Rule::evaluateBounds(PropDef *propdef,
                          int isimu,
                          int igrf,
                          int ipgs,
-                         int nbsimu)
+                         int nbsimu) const
 {
   int    iech,nadd,nech,facies,nstep;
   double t1min,t1max,t2min,t2max;

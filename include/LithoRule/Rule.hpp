@@ -46,7 +46,7 @@ public:
                               const Db *dbprop,
                               Model *model,
                               int flag_grid_check,
-                              int flag_stat);
+                              int flag_stat) const;
   virtual bool checkModel(const Model* model, int nvar = 0) const;
   virtual int gaus2facData(PropDef *propdef,
                            Db *dbin,
@@ -60,27 +60,25 @@ public:
                              int *flag_used,
                              int ipgs,
                              int isimu,
-                             int nbsimu);
+                             int nbsimu) const;
   virtual int evaluateBounds(PropDef *propdef,
                              Db *dbin,
                              Db *dbout,
                              int isimu,
                              int igrf,
                              int ipgs,
-                             int nbsimu);
-  virtual double getShift(int idim) const { return TEST; }
+                             int nbsimu) const;
 
-  double getDMax() const { return _dMax; }
   int    getFlagProp() const { return _flagProp; }
-  double getIncr() const { return _incr; }
   int    getModeRule() const { return _modeRule; }
   double getRho() const { return _rho; }
-  double getTgte() const { return _tgte; }
   const Node*  getMainNode() const { return _mainNode; }
 
-  void   setFlagProp(int flagProp) { _flagProp = flagProp; }
-  void   setRho(double rho) { _rho = rho; }
-  int    setProportions(const VectorDouble& proportions = VectorDouble());
+  void setFlagProp(int flagProp) { _flagProp = flagProp; }
+  void setRho(double rho) const  { _rho = rho; }
+  void setModeRule(int modeRule) { _modeRule = modeRule; }
+
+  int setProportions(const VectorDouble& proportions = VectorDouble()) const;
 
   int statistics(int  verbose,
                  int *node_tot,
@@ -104,16 +102,14 @@ public:
   VectorDouble getThreshFromRectangle(int rect, int *facies);
   int getFaciesFromGaussian(double y1, double y2) const;
 
-  void updateShift();
-
-  void setModeRule(int modeRule) { _modeRule = modeRule; }
+  void updateShift() const;
 
 protected:
   void setMainNodeFromNodNames(const VectorInt& n_type,
                                const VectorInt& n_facs);
   void setMainNodeFromNodNames(const VectorString& nodnames);
   int  setMainNodeFromNodNames(const VectorInt& nodes);
-  int replicateInvalid(Db *dbin, Db *dbout, int jech);
+  int replicateInvalid(Db *dbin, Db *dbout, int jech) const;
   VectorString buildNodNames(int nfacies);
 
 private:
@@ -128,18 +124,10 @@ private:
                       VectorInt& n_facs);
 
 private:
-  int    _modeRule;    /* Type of usage */
-  int    _flagProp;    /* 1 if proportions are defined; 0 otherwise */
-  double _rho;         /* Correlation between GRFs */
-  double _slope;       /* Slope used for shadow option */
-  double _dMax;        /* Longest distance for shadow */
-  double _tgte;        /* Tangent of the slope */
-  double _incr;        /* Increments used for creating replicates */
-  VectorDouble _shift; /* Shadow or translation orientation */
-  mutable VectorDouble _xyz;
-  VectorInt    _ind1;
-  VectorInt    _ind2;
-  Node*        _mainNode;
+  int    _modeRule;         /* Type of usage */
+  mutable int    _flagProp; /* 1 if proportions are defined; 0 otherwise */
+  mutable double _rho;      /* Correlation between GRFs */
+  Node*  _mainNode;
 };
 
 void   set_rule_mode(int rule_mode);

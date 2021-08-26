@@ -167,7 +167,7 @@ int ASerializable::_recordRead(const String& title, String format, ...) const
  * @param format String to be completed
  * @return
  *
- * @Note: Format is not a reference here:
+ * @remark: Format is not a reference here:
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
  */
 

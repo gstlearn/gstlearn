@@ -39,41 +39,41 @@ public:
                       const Db *dbprop,
                       Model *model,
                       int flag_grid_check,
-                      int flag_stat) override;
+                      int flag_stat) const override;
   int gaus2facResult(PropDef *propdef,
                      Db *dbout,
                      int *flag_used,
                      int ipgs,
                      int isimu,
-                     int nbsimu) override;
+                     int nbsimu) const override;
   int evaluateBounds(PropDef *propdef,
                      Db *dbin,
                      Db *dbout,
                      int isimu,
                      int igrf,
                      int ipgs,
-                     int nbsimu) override;
+                     int nbsimu) const override;
 
 
   bool checkModel(const Model* model, int nvar = 0) const;
 
   double getShDown() const { return _shDown; }
   double getShDsup() const { return _shDsup; }
-  double getSlope() const  { return _slope;  }
+  double getSlope()  const { return _slope;  }
   const VectorDouble& getShift() const { return _shift; }
   double getShift(int idim) const { return _shift[idim]; }
 
 private:
-  int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check);
+  int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const;
 
 private:
-  double _shDsup;      /* Upper limit */
-  double _shDown;      /* Downwards limit */
-  double _slope;       /* Slope used for shadow option */
-  double _tgte;        /* Tangent of the slope */
-  double _incr;        /* Increments used for creating replicates */
-  VectorDouble _shift; /* Shadow or translation orientation */
+  double _shDsup;       /* Upper limit */
+  double _shDown;       /* Downwards limit */
+  double _slope;        /* Slope used for shadow option */
+  VectorDouble _shift;  /* Shadow or translation orientation */
+
+  mutable double       _incr;
   mutable VectorDouble _xyz;
-  VectorInt    _ind1;
-  VectorInt    _ind2;
+  mutable VectorInt    _ind1;
+  mutable VectorInt    _ind2;
 };
