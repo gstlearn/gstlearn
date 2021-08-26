@@ -23,6 +23,7 @@
 #include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/CSVformat.hpp"
+#include "Basic/FunctionalSpirale.hpp"
 #include "Space/Space.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -68,9 +69,9 @@
 #include "LinearOp/IOptimCost.hpp"
 #include "LinearOp/OptimCostBinary.hpp"
 #include "LinearOp/OptimCostColored.hpp"
-
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Model/NoStatFunctional.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/Dir.hpp"

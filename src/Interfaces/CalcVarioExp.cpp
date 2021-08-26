@@ -81,7 +81,6 @@ void CalcVarioExp::run()
 ** and variogram_calcul
 **
 ********************************************************************/
- 
 Vario* CalcVarioExp::getVario() const
 {
   Vario* vario;
@@ -89,7 +88,6 @@ Vario* CalcVarioExp::getVario() const
   //:INFO: 0 : ndate,  0 : scaling factor for transitive variogram, NULL : Mean of variables(only for CALCUL_POISSON), NULL: array of date interval
   vario = variogram_init("vg");
   
-
   //Add all direction
   for (const auto& dir : _param.dirs)
   {
