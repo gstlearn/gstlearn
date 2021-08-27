@@ -15,28 +15,18 @@
 
 class Db;
 
-class Dir : public AStringable
+class DirParam : public AStringable
 {
 public:
-  Dir(int ndim      = 2,
-      int npas      = 0,
-      double dpas   = 0.,
-      double toldis = 0.5,
-      double tolang = 90.);
-  Dir(int ndim,
-      int npas,
-      const VectorInt& grincr);
-  Dir(int ndim,
-      int nvar,
-      int npas,
-      int flagAsym,
-      double dpas,
-      const VectorDouble& gg,
-      const VectorDouble& hh = VectorDouble(),
-      const VectorDouble& sw = VectorDouble());
-  Dir(const Dir& r);
-  Dir& operator=(const Dir& r);
-  virtual ~Dir();
+  DirParam(int ndim = 2,
+           int npas = 0,
+           double dpas = 0.,
+           double toldis = 0.5,
+           double tolang = 90.);
+  DirParam(int ndim, int npas, const VectorInt& grincr);
+  DirParam(const DirParam& r);
+  DirParam& operator=(const DirParam& r);
+  virtual ~DirParam();
 
 public:
   virtual String toString(int level = 0) const override;
@@ -56,9 +46,6 @@ public:
             VectorDouble codir  = VectorDouble(),
             VectorInt grincr    = VectorInt());
   bool isCalculated() const;
-  void copy(const Dir &dir);
-  void clean(void);
-  int  getAddress(int ivar, int jvar, int ipas, bool flag_abs, int sens) const;
 
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
@@ -76,27 +63,7 @@ public:
   double getTolAngle() const { return _tolAngle; }
   double getTolCode() const { return _tolCode; }
   double getTolDist() const { return _tolDist; }
-  const  VectorDouble& getUtilize() const { return _utilize; }
-  double getUtilize(int i) const { return _utilize[i]; }
-  int    getVariableNumber() const { return _nvar; }
   int    getDimensionNumber() const { return _ndim; }
-
-  const  VectorDouble& getGg() const { return _gg; }
-  double getGg(int iad) const;
-  double getGg(int ivar, int jvar, int ipas) const;
-  VectorDouble getGg(int ivar, int jvar) const;
-
-  const  VectorDouble& getHh() const { return _hh; }
-  double getHh(int iad) const;
-  double getHh(int ivar, int jvar, int ipas) const;
-  VectorDouble getHh(int ivar, int jvar) const;
-
-  const  VectorDouble& getSw() const { return _sw; }
-  double getSw(int iad) const;
-  double getSw(int ivar, int jvar, int ipas) const;
-  VectorDouble getSw(int ivar, int jvar) const;
-
-  int getCenter(int ivar, int jvar) const;
 
   const  VectorInt& getGrincr() const { return _grincr; }
   int getGrincr(int i) const;
@@ -105,7 +72,6 @@ public:
   bool getLagRegular() const { return (getBreakNumber() <= 0); }
 
   int  getLagTotalNumber() const;
-  int  getSize() const;
 
   void setLagNumber(int npas) {_nPas = npas; }
   void setOptionCode(int option_code) {_optionCode = option_code; }
@@ -123,41 +89,14 @@ public:
   void setCodir(VectorDouble codir) {_codir = codir; }
   void setGrincr(VectorInt grincr) {_grincr = grincr; }
 
-  void setSw(int iad, double sw);
-  void setHh(int iad, double hh);
-  void setGg(int iad, double gg);
-  void updSw(int iad, double sw);
-  void updHh(int iad, double hh);
-  void updGg(int iad, double gg);
-
-  void setSw(int ivar, int jvar, int ipas, double sw);
-  void setHh(int ivar, int jvar, int ipas, double hh);
-  void setGg(int ivar, int jvar, int ipas, double gg);
-  void setUtilize(int iad, double val);
-
-  void internalResize(int nvar, int flagAsym);
-
-  double getHmax(int ivar=0, int jvar=0) const;
-  double getGmax(int ivar=0, int jvar=0, bool flagAbs = false) const;
-
-  void patchCenter(int nech, double rho);
-
-  int fill(int nvar,
-           int flagAsym,
-           const VectorDouble& sw,
-           const VectorDouble& gg,
-           const VectorDouble& hh);
+  bool isLagValid(int ilag) const;
+  bool isDimensionValid(int idim) const;
 
 private:
   void _completeDefinition();
-  bool _isLagValid(int ilag) const;
-  bool _isVariableValid(int ivar) const;
-  bool _isDimensionValid(int idim) const;
-  bool _isAddressValid(int iad) const;
 
 private:
   int _ndim;
-  int _nvar;
   int _flagAsym;
   int _nPas;
   int _optionCode;
@@ -171,15 +110,11 @@ private:
   VectorDouble _breaks;
   VectorDouble _codir;
   VectorInt    _grincr;
-  VectorDouble _sw;      /* Array for number of lags */
-  VectorDouble _gg;      /* Array for average variogram values */
-  VectorDouble _hh;      /* Array for average distance values */
-  VectorDouble _utilize; /* Array to mention if a lag is used or not */
 };
 
-std::vector<Dir> generateMultipleDirs(int ndim,
-                                      int ndir,
-                                      int npas = 0,
-                                      double dpas = 0.,
-                                      double toldis = 0.5);
-std::vector<Dir> generateMultipleGridDirs(int ndim, int npas);
+std::vector<DirParam> generateMultipleDirsN(int ndim,
+                                            int ndir,
+                                            int npas = 0,
+                                            double dpas = 0.,
+                                            double toldis = 0.5);
+std::vector<DirParam> generateMultipleGridDirsN(int ndim, int npas);

@@ -216,9 +216,9 @@ Vario& Vario::operator=(const Vario& r)
     _flagSample = r._flagSample;
     _scale = r._scale;
     _means = r._means;
-    _vars = r._vars;
+    _vars  = r._vars;
     _dates = r._dates;
-    _dirs = r._dirs;
+    _dirs  = r._dirs;
   }
   return *this;
 }
@@ -567,6 +567,7 @@ String Vario::toString(int level) const
 
   return sstr.str();
 }
+
 /**
  * Convert the Calculation Name into a Calculation Type (enum)
  * @param calcul_name Input calculation name to be identified
