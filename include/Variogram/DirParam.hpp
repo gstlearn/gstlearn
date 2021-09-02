@@ -22,7 +22,15 @@ public:
            int npas = 0,
            double dpas = 0.,
            double toldis = 0.5,
-           double tolang = 90.);
+           double tolang = 90.,
+           int opt_code = 0,
+           int idate = 0,
+           double bench = TEST,
+           double cylrad = TEST,
+           double tolcode = 0,
+           VectorDouble breaks = VectorDouble(),
+           VectorDouble codir  = VectorDouble(),
+           VectorInt grincr    = VectorInt());
   DirParam(int ndim, int npas, const VectorInt& grincr);
   DirParam(const DirParam& r);
   DirParam& operator=(const DirParam& r);
@@ -36,7 +44,6 @@ public:
             double dpas,
             double toldis,
             double tolang,
-            int flag_asym = 0,
             int opt_code = 0,
             int idate = 0,
             double bench = TEST,
@@ -55,9 +62,7 @@ public:
   double getCylRad() const { return _cylRad; }
   double getDPas() const { return _dPas; }
   double getLag() const { return _dPas; }
-  int    getFlagAsym() const { return _flagAsym; }
   int    getIdate() const { return _idate; }
-  int    getNPas() const { return _nPas; }
   int    getLagNumber() const { return _nPas; }
   int    getOptionCode() const { return _optionCode; }
   double getTolAngle() const { return _tolAngle; }
@@ -67,11 +72,10 @@ public:
 
   const  VectorInt& getGrincr() const { return _grincr; }
   int getGrincr(int i) const;
+  double getMaximumDistance() const;
 
   int  getBreakNumber() const { return ((int) _breaks.size() / 2); }
-  bool getLagRegular() const { return (getBreakNumber() <= 0); }
-
-  int  getLagTotalNumber() const;
+  bool getFlagRegular() const { return (getBreakNumber() <= 0); }
 
   void setLagNumber(int npas) {_nPas = npas; }
   void setOptionCode(int option_code) {_optionCode = option_code; }
@@ -92,12 +96,13 @@ public:
   bool isLagValid(int ilag) const;
   bool isDimensionValid(int idim) const;
 
+  void setDimensionNumber(int ndim) { _ndim = ndim; }
+
 private:
   void _completeDefinition();
 
 private:
   int _ndim;
-  int _flagAsym;
   int _nPas;
   int _optionCode;
   int _idate;
@@ -112,9 +117,9 @@ private:
   VectorInt    _grincr;
 };
 
-std::vector<DirParam> generateMultipleDirsN(int ndim,
+std::vector<DirParam> generateMultipleDirs(int ndim,
                                             int ndir,
                                             int npas = 0,
                                             double dpas = 0.,
                                             double toldis = 0.5);
-std::vector<DirParam> generateMultipleGridDirsN(int ndim, int npas);
+std::vector<DirParam> generateMultipleGridDirs(int ndim, int npas);

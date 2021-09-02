@@ -14,7 +14,7 @@ Vario
 0.500000 # Tolerance on distance
 90.000000 # Tolerance on angle
 1.000000 0.000000 # Direction coefficients
-0.000000 0.000000 # Direction increments on grid
+1.000000 0.000000 # Direction increments on grid
 # Variogram results (Weight, Distance, Variogram)
 3.000000 0.388518 0.099750 
 130.000000 1.084267 20.350039 

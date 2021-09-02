@@ -15,7 +15,7 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-class Vario;
+class VarioParam;
 
 class RuleProp : public AStringable
 {
@@ -39,10 +39,14 @@ public:
   const VectorDouble& getPropCst() const { return _propcst; }
   void setPropCst(const VectorDouble& propcst) { _propcst = propcst; }
   const Rule* getRule(int rank = 0) const;
-  void setRule(const Rule* rule, int rank = 0);
+  void addRule(const Rule* rule);
+  void clearRule();
   int getRuleNumber() const { return _rules.size(); }
 
-  int fit(Db* db, Vario* vario, int ngrfmax = 1, bool verbose = false);
+  int fit(Db* db,
+          const VarioParam* varioparam,
+          int ngrfmax = 1,
+          bool verbose = false);
   int gaussToCategory(Db* db, NamingConvention namconv = NamingConvention("Facies",LOC_FACIES)) const;
   int categoryToThresh(Db *db, NamingConvention namconv = NamingConvention("Bounds")) const;
   int computeAllThreshes(Db *db, NamingConvention namconv = NamingConvention("Thresh")) const;

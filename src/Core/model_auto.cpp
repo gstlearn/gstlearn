@@ -54,9 +54,9 @@
 #define AIC(icov,ijvar)          aic[(icov)*nvs2 + (ijvar)]
 #define ALPHAK(icov,ijvar)       alphak[(icov)*nvs2 + (ijvar)]
 
-#define CORRECT(k)               (dir.getHh(k) != 0. && ! FFFF(dir.getHh(k)) && \
-                                  dir.getSw(k) != 0. && ! FFFF(dir.getSw(k)) && \
-                                 ! FFFF(dir.getGg(k)))
+#define CORRECT(idir,k)         (vario->getHh(idir,k) != 0. && ! FFFF(vario->getHh(idir,k)) && \
+                                 vario->getSw(idir,k) != 0. && ! FFFF(vario->getSw(idir,k)) && \
+                                 ! FFFF(vario->getGg(idir,k)))
 #define VALPRO(ivar)             valpro[(ivar)]
 #define MATCOR(icov,ivar,jvar)   matcor[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define MATCORU(icov,ivar,jvar)  matcoru[(icov)*nvar*nvar  + AD(ivar,jvar)]
@@ -555,14 +555,13 @@ static int st_get_vario_dimension(Vario *vario,
   
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    const Dir& dir = vario->getDirs(idir);
-    npadir += dir.getLagTotalNumber();
-    for (ipas=0; ipas<dir.getNPas(); ipas++)
+    npadir += vario->getLagTotalNumber(idir);
+    for (ipas=0; ipas<vario->getLagNumber(idir); ipas++)
       for (ivar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++)
         {
-          i = dir.getAddress(ivar,jvar,ipas,false,1);
-          if (CORRECT(i)) nbexp++;
+          i = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
+          if (CORRECT(idir,i)) nbexp++;
         }
   }
 
@@ -723,24 +722,21 @@ static void st_compress_array(Vario  *vario,
                               VectorDouble& tabin,
                               VectorDouble& tabout)
 {
-  int    idir,nvar,ivar,jvar,ijvar,ipas,ecr,ipadir;
+  int nvar = vario->getVariableNumber();
 
-  /* Initializations */
-
-  nvar = vario->getVariableNumber();
-
-  ecr = 0;
-  for (idir=ipadir=0; idir<vario->getDirectionNumber(); idir++)
-  {
-    const Dir& dir = vario->getDirs(idir);
-    for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
-      for (ivar=ijvar=0; ivar<nvar; ivar++)
-        for (jvar=0; jvar<=ivar; jvar++,ijvar++)
+  int ecr = 0;
+  int ipadir = 0;
+  for (int idir=0; idir<vario->getDirectionNumber(); idir++)
+    for (int ipas=0; ipas<vario->getLagNumber(idir); ipas++, ipadir++)
+    {
+      int ijvar = 0;
+      for (int ivar=0; ivar<nvar; ivar++)
+        for (int jvar=0; jvar<=ivar; jvar++, ijvar++)
         {
           if (FFFF(TAB(ijvar,ipadir))) continue;
           tabout[ecr++] = TAB(ijvar,ipadir);
         }
-  }
+    }
 }
 
 /****************************************************************************/
@@ -749,7 +745,8 @@ static void st_compress_array(Vario  *vario,
 **
 ** \return The value of C00
 **
-** \param[in]  dir      Dir structure
+** \param[in]  vario    Vario structure
+** \param[in]  idir     Direction structure
 ** \param[in]  ivar     First variable
 ** \param[in]  jvar     Second variable
 **
@@ -759,26 +756,27 @@ static void st_compress_array(Vario  *vario,
 ** \remark value
 **
 *****************************************************************************/
-static double st_get_c00(const Dir& dir,
+static double st_get_c00(Vario* vario,
+                         int idir,
                          int ivar,
                          int jvar)
 {
   int ipas,iad,iad0;
 
-  iad = iad0 = dir.getAddress(ivar,jvar,0,false,0);
-  if (dir.getGg(iad) != 0. || dir.getSw(iad) > 0) goto label_end;
+  iad = iad0 = vario->getDirAddress(idir,ivar,jvar,0,false,0);
+  if (vario->getGg(idir,iad) != 0. || vario->getSw(idir,iad) > 0) goto label_end;
 
-  for (ipas=0; ipas<dir.getNPas(); ipas++)
+  for (ipas=0; ipas<vario->getLagNumber(idir); ipas++)
   {
-    iad = dir.getAddress(ivar,jvar,ipas,false,1);
-    if (dir.getGg(iad) != 0) goto label_end;
-    iad = dir.getAddress(ivar,jvar,ipas,false,-1);
-    if (dir.getGg(iad) != 0) goto label_end;
+    iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
+    if (vario->getGg(idir,iad) != 0) goto label_end;
+    iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,-1);
+    if (vario->getGg(idir,iad) != 0) goto label_end;
   }
   iad = iad0;
 
 label_end:
-  return(dir.getGg(iad));
+  return(vario->getGg(idir,iad));
 }
 
 /****************************************************************************/
@@ -809,8 +807,7 @@ static void st_load_gg(Vario   *vario,
   ecr = 0;
   for (idir=ipadir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    const Dir& dir  = vario->getDirs(idir);
-    for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
+    for (ipas=0; ipas<vario->getLagNumber(idir); ipas++,ipadir++)
       for (ivar=ijvar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++, ijvar++)
         {
@@ -820,24 +817,24 @@ static void st_load_gg(Vario   *vario,
           GG(ijvar,ipadir) = TEST;
           if (vario->getFlagAsym())
           {
-            iad = dir.getAddress(ivar,jvar,ipas,false,1);
-            jad = dir.getAddress(ivar,jvar,ipas,false,-1);
-            c00 = st_get_c00(dir,ivar,jvar);
-            n1  = dir.getSw(iad);
-            n2  = dir.getSw(jad);
+            iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
+            jad = vario->getDirAddress(idir,ivar,jvar,ipas,false,-1);
+            c00 = st_get_c00(vario,idir,ivar,jvar);
+            n1  = vario->getSw(idir,iad);
+            n2  = vario->getSw(idir,jad);
             if (n1 + n2 <= 0) continue;
-            g1  = dir.getGg(iad);
-            g2  = dir.getGg(jad);
-            if (! CORRECT(iad) || ! CORRECT(jad)) continue;
+            g1  = vario->getGg(idir,iad);
+            g2  = vario->getGg(idir,jad);
+            if (! CORRECT(idir,iad) || ! CORRECT(idir,jad)) continue;
             GG(ijvar,ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
-            dist = (ABS(dir.getHh(iad)) + ABS(dir.getHh(jad))) / 2.;
+            dist = (ABS(vario->getHh(idir,iad)) + ABS(vario->getHh(idir,jad))) / 2.;
           }
           else
           {
-            iad = dir.getAddress(ivar,jvar,ipas,false,1);
-            if (! CORRECT(iad)) continue;
-            GG(ijvar,ipadir) = dir.getGg(iad);
-            dist = ABS(dir.getHh(iad));
+            iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
+            if (! CORRECT(idir,iad)) continue;
+            GG(ijvar,ipadir) = vario->getGg(idir,iad);
+            dist = ABS(vario->getHh(idir,iad));
           }
 
           /* Define the item of the StrExp array (if defined) */
@@ -848,7 +845,7 @@ static void st_load_gg(Vario   *vario,
             strexps[ecr].jvar  = jvar;
 	    
             for (idim=0; idim<vario->getDimensionNumber(); idim++)
-              strexps[ecr].dd[idim] = dist * dir.getCodir(idim);
+              strexps[ecr].dd[idim] = dist * vario->getCodir(idir,idim);
             ecr++;
           }
         }
@@ -961,38 +958,37 @@ static void st_load_ge(Vario  *vario,
     int ipadir = 0;
     for (int idir = 0; idir < ndir; idir++)
     {
-      const Dir& dir = vario->getDirs(idir);
-      for (int ipas = 0; ipas < dir.getNPas(); ipas++, ipadir++)
+      for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++, ipadir++)
       {
         int ijvar = 0;
         for (int ivar = 0; ivar < nvar; ivar++)
           for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
           {
-            int shift = ijvar * dir.getLagTotalNumber();
+            int shift = ijvar * vario->getLagTotalNumber(idir);
             if (! ge.empty()) GE(icov,ijvar,ipadir)= 0.;
 
             double dist = 0.;
             if (vario->getFlagAsym())
             {
-              int iad = shift + dir.getNPas() + ipas + 1;
-              int jad = shift + dir.getNPas() - ipas - 1;
-              if (!CORRECT(iad) || !CORRECT(jad)) continue;
-              dist = (ABS(dir.getHh(iad)) + ABS(dir.getHh(jad))) / 2.;
+              int iad = shift + vario->getLagNumber(idir) + ipas + 1;
+              int jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              if (!CORRECT(idir,iad) || !CORRECT(idir,jad)) continue;
+              dist = (ABS(vario->getHh(idir,iad)) + ABS(vario->getHh(idir,jad))) / 2.;
             }
             else
             {
               int iad = shift + ipas;
-              if (!CORRECT(iad)) continue;
-              dist = ABS(dir.getHh(iad));
+              if (!CORRECT(idir,iad)) continue;
+              dist = ABS(vario->getHh(idir,iad));
             }
             for (int idim = 0; idim < ndim; idim++)
-              d1[idim] = dist * dir.getCodir(idim);
+              d1[idim] = dist * vario->getCodir(idir,idim);
             if (! ge.empty())
                GE(icov,ijvar,ipadir) = cova->eval(ivar,jvar,1.,d1,SpacePoint(),mode);
 
             if (! dd.empty())
               for (int idim = 0; idim < ndim; idim++)
-                DD(idim,ijvar,ipadir)= dist * dir.getCodir(idim);
+                DD(idim,ijvar,ipadir)= dist * vario->getCodir(idir,idim);
           }
         }
       }
@@ -1031,26 +1027,25 @@ static void st_load_wt(Vario  *vario,
 
   for (idir=0; idir<ndir; idir++)
   {
-    const Dir& dir = vario->getDirs(idir);
     flag[idir] = 0.;
-    for (ipas=0; ipas<dir.getNPas(); ipas++)
+    for (ipas=0; ipas<vario->getLagNumber(idir); ipas++)
       for (ijvar=0; ijvar<nvs2; ijvar++)
       {
-        shift = ijvar * dir.getLagTotalNumber();
+        shift = ijvar * vario->getLagTotalNumber(idir);
         if (vario->getFlagAsym())
         {
-          iad = shift + dir.getNPas() + ipas + 1;
-          jad = shift + dir.getNPas() - ipas - 1;
-          n1  = dir.getSw(iad);
-          n2  = dir.getSw(jad);
-          if (CORRECT(iad)) flag[idir] += n1;
-          if (CORRECT(jad)) flag[idir] += n2;
+          iad = shift + vario->getLagNumber(idir) + ipas + 1;
+          jad = shift + vario->getLagNumber(idir) - ipas - 1;
+          n1  = vario->getSw(idir,iad);
+          n2  = vario->getSw(idir,jad);
+          if (CORRECT(idir,iad)) flag[idir] += n1;
+          if (CORRECT(idir,jad)) flag[idir] += n2;
         }
         else
         {
           iad = shift + ipas;
-          nn  = dir.getSw(iad);
-          if (CORRECT(iad)) flag[idir] += nn;
+          nn  = vario->getSw(idir,iad);
+          if (CORRECT(idir,iad)) flag[idir] += nn;
         }
       }
   }
@@ -1060,24 +1055,23 @@ static void st_load_wt(Vario  *vario,
     case 1:
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        const Dir& dir = vario->getDirs(idir);
-        for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
+        for (ipas=0; ipas<vario->getLagNumber(idir); ipas++,ipadir++)
         {
           if (flag[idir] == 0.) continue;
           for (ijvar=0; ijvar<nvs2; ijvar++)
           {
-            shift = ijvar * dir.getLagTotalNumber();
+            shift = ijvar * vario->getLagTotalNumber(idir);
             if (vario->getFlagAsym())
             {
-              iad = shift + dir.getNPas() + ipas + 1;
-              jad = shift + dir.getNPas() - ipas - 1;
-              if (CORRECT(iad) && CORRECT(jad)) 
+              iad = shift + vario->getLagNumber(idir) + ipas + 1;
+              jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              if (CORRECT(idir,iad) && CORRECT(idir,jad))
                 WT(ijvar,ipadir) = flag[idir];
             }
             else
             {
               iad = shift + ipas;
-              if (CORRECT(iad)) 
+              if (CORRECT(idir,iad))
                 WT(ijvar,ipadir) = flag[idir];
             }
           }
@@ -1088,31 +1082,30 @@ static void st_load_wt(Vario  *vario,
     case 2:
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        const Dir& dir = vario->getDirs(idir);
-        for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
+        for (ipas=0; ipas<vario->getLagNumber(idir); ipas++,ipadir++)
         {
           if (flag[idir] == 0.) continue;
           for (ijvar=0; ijvar<nvs2; ijvar++)
           {
-            shift = ijvar * dir.getLagTotalNumber();
+            shift = ijvar * vario->getLagTotalNumber(idir);
             if (vario->getFlagAsym())
             {
-              iad = shift + dir.getNPas() + ipas + 1;
-              jad = shift + dir.getNPas() - ipas - 1;
-              if (! (CORRECT(iad) && CORRECT(jad))) continue;
-              n1  = dir.getSw(iad);
-              n2  = dir.getSw(jad);
-              d1  = ABS(dir.getHh(iad));
-              d2  = ABS(dir.getHh(jad));
+              iad = shift + vario->getLagNumber(idir) + ipas + 1;
+              jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              if (! (CORRECT(idir,iad) && CORRECT(idir,jad))) continue;
+              n1  = vario->getSw(idir,iad);
+              n2  = vario->getSw(idir,jad);
+              d1  = ABS(vario->getHh(idir,iad));
+              d2  = ABS(vario->getHh(idir,jad));
               if (d1 > 0 && d2 > 0)
                 WT(ijvar,ipadir) = sqrt((n1+n2) * (n1+n2) / (n1*d1+n2*d2) / 2.);
             }
             else
             {
               iad = shift + ipas;
-              if (! CORRECT(iad)) continue;
-              nn  = dir.getSw(iad);
-              dd  = ABS(dir.getHh(iad));
+              if (! CORRECT(idir,iad)) continue;
+              nn  = vario->getSw(idir,iad);
+              dd  = ABS(vario->getHh(idir,iad));
               if (dd > 0) 
                 WT(ijvar,ipadir) = nn / dd;
             }
@@ -1124,25 +1117,24 @@ static void st_load_wt(Vario  *vario,
     case 3:
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        const Dir& dir = vario->getDirs(idir);
-        for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
+        for (ipas=0; ipas<vario->getLagNumber(idir); ipas++,ipadir++)
         {
           if (flag[idir] == 0.) continue;
           for (ijvar=0; ijvar<nvs2; ijvar++)
           {
-            shift = ijvar * dir.getLagTotalNumber();
+            shift = ijvar * vario->getLagTotalNumber(idir);
             if (vario->getFlagAsym())
             {
-              iad = shift + dir.getNPas() + ipas + 1;
-              jad = shift + dir.getNPas() - ipas - 1;
-              if (CORRECT(iad) && CORRECT(jad)) 
-                WT(ijvar,ipadir) = 1. / dir.getNPas();
+              iad = shift + vario->getLagNumber(idir) + ipas + 1;
+              jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              if (CORRECT(idir,iad) && CORRECT(idir,jad))
+                WT(ijvar,ipadir) = 1. / vario->getLagNumber(idir);
             }
             else
             {
               iad = shift + ipas;
-              if (CORRECT(iad)) 
-                WT(ijvar,ipadir) = 1. / dir.getNPas();
+              if (CORRECT(idir,iad))
+                WT(ijvar,ipadir) = 1. / vario->getLagNumber(idir);
             }
           }
         }
@@ -1152,24 +1144,23 @@ static void st_load_wt(Vario  *vario,
     default:
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        const Dir& dir = vario->getDirs(idir);
-        for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
+        for (ipas=0; ipas<vario->getLagNumber(idir); ipas++,ipadir++)
         {
           if (flag[idir] == 0.) continue;
           for (ijvar=0; ijvar<nvs2; ijvar++)
           {
-            shift = ijvar * dir.getLagTotalNumber();
+            shift = ijvar * vario->getLagTotalNumber(idir);
             if (vario->getFlagAsym())
             {
-              iad = shift + dir.getNPas() + ipas + 1;
-              jad = shift + dir.getNPas() - ipas - 1;
-              if (CORRECT(iad) && CORRECT(jad)) 
+              iad = shift + vario->getLagNumber(idir) + ipas + 1;
+              jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              if (CORRECT(idir,iad) && CORRECT(idir,jad))
                 WT(ijvar,ipadir) = 1.;
             }
             else
             {
               iad = shift + ipas;
-              if (CORRECT(iad)) 
+              if (CORRECT(idir,iad))
                 WT(ijvar,ipadir) = 1.;
             }
           }
@@ -1185,16 +1176,15 @@ static void st_load_wt(Vario  *vario,
     for (idir=ipadir=0; idir<ndir; idir++)
     {
       total = 0.;
-      const Dir& dir = vario->getDirs(idir);
-      for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
+      for (ipas=0; ipas<vario->getLagNumber(idir); ipas++,ipadir++)
       {
         if (flag[idir] == 0.) continue;
         if (WT(ijvar,ipadir) > 0 && ! FFFF(WT(ijvar,ipadir)))
           total += WT(ijvar,ipadir);
       }
       if (total == 0.) continue;
-      ipadir -= dir.getNPas();
-      for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
+      ipadir -= vario->getLagNumber(idir);
+      for (ipas=0; ipas<vario->getLagNumber(idir); ipas++,ipadir++)
       {
         if (flag[idir] == 0.) continue;
         if (WT(ijvar,ipadir) > 0 && ! FFFF(WT(ijvar,ipadir)))
@@ -1212,8 +1202,7 @@ static void st_load_wt(Vario  *vario,
         sqrt(vario->getVars(ivar,jvar) * vario->getVars(jvar,ivar)) : 1.;
       for (idir=ipadir=0; idir<ndir; idir++)
       {
-        const Dir& dir = vario->getDirs(idir);
-        for (ipas=0; ipas<dir.getNPas(); ipas++,ipadir++)
+        for (ipas=0; ipas<vario->getLagNumber(idir); ipas++,ipadir++)
           if (! FFFF(WT(ijvar,ipadir))) WT(ijvar,ipadir) /= ratio;
       }
     }
@@ -3871,8 +3860,7 @@ static int st_alter_model_optvar(Vario      *vario,
   {
     for (idir=0; idir<ndir; idir++)
     {
-      const Dir& dir = vario->getDirs(idir);
-      if (dir.getCodir(2) == 0)
+      if (vario->getCodir(idir,2) == 0)
         n_2d++;
       else
         n_3d++;
@@ -4587,10 +4575,10 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
                       &flag_hneg,&flag_gneg,&c0,&hmin,&hmax,&gmin,&gmax);
   angles.resize(ndim);
   (void) ut_angles_from_codir(vario->getDimensionNumber(),1,
-                              vario->getDirs(0).getCodir(),angles);
+                              vario->getCodir(0),angles);
   st_vario_varchol_manage(vario,model,varchol);
 
-  /* Scale the parameters in the Mauto structure */
+  /* Scale the parameters in the mauto structure */
 
   st_mauto_rescale(nvar,varchol,mauto);
   

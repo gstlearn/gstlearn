@@ -8,7 +8,6 @@
 #include "Interfaces/Dictionary.hpp" 
 #include "Interfaces/Param.hpp"
 #include "Interfaces/ParamCSV.hpp"
-#include "Interfaces/CalcVarioExp.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
 
@@ -224,11 +223,11 @@ void vario(const std::string& file)
   pVarioDir2.normDir=ndir2;
   pVario.dirs.push_back(pVarioDir2);
 
-  CalcVarioExp calc;
-  calc.setInputData(database);
-  calc.setParamVario(pVario);
-  calc.run();
-  calc.getVarioExp().display();
+//  CalcVarioExp calc;
+//  calc.setInputData(database);
+//  calc.setParamVario(pVario);
+//  calc.run();
+//  calc.getVarioExp().display();
 }
 
 

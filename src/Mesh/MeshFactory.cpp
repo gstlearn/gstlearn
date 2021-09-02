@@ -87,7 +87,7 @@ AMesh* MeshFactory::createMesh(int variety,
       // Turbo case
       MeshETurbo* mesh = new MeshETurbo();
       if (!mesh->initFromExtend(extendmin, extendmax, cellsize, rotmat,
-                                  flag_polarize, verbose))
+                                flag_polarize, verbose))
         return ((AMesh *) mesh);
     }
     else if (! apices.isEmpty() && ! meshes.empty())

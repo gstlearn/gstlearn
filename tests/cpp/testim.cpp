@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "Model/Model.hpp"
 
 /****************************************************************************
 **
@@ -118,8 +119,9 @@ int main(int argc, char *argv[])
   vario = ascii_vario_read(filename,verbose);
   if (vario != (Vario *) NULL)
   {
-    vario->compute(dbin,"vg");
-    variogram_print(vario,1); 
+    vario->attachDb(dbin);
+    vario->compute("vg");
+    vario->display(1);
     ascii_filename("Vario",0,1,filename);
     if (vario->serialize(filename,verbose))
       messageAbort("ascii_vario_write");

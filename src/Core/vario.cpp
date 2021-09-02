@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_e.h"
+#include "Variogram/Vario.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Polynomials/Hermite.hpp"
@@ -193,26 +194,6 @@ static void st_manage_drift_removal(int    type,
       DRFDIAG = (double *) mem_free((char *) DRFDIAG);
       break;
   }
-}
-
-/****************************************************************************/
-/*!
-**  Return the maximum distance involved in variogram/direction calculation
-**
-** \return  Maximum distance
-**
-** \param[in]  dir          Dir structure
-**
-*****************************************************************************/
-GEOSLIB_API double variogram_maximum_distance(const Dir& dir)
-{
-  double maxdist;
-
-  if (dir.getLagRegular())
-    maxdist = dir.getDPas() * (dir.getNPas() + dir.getTolDist());
-  else
-    maxdist = dir.getBreaks(dir.getNPas());
-  return(maxdist);
 }
 
 /****************************************************************************/
@@ -490,36 +471,37 @@ GEOSLIB_API double _variogram_convert_angular_tolerance(double tolang)
 ** \return  Rank of the lag or ITEST
 **
 ** \param[in]  vario        Vario structure
-** \param[in]  dir          Dir structure
+** \param[in]  idir         Dir rank
 ** \param[in]  ps           Cosinus of the angle
 ** \param[in]  psmin        Angular tolerance
 ** \param[in]  dist         Distance
 **
 *****************************************************************************/
 GEOSLIB_API int variogram_get_lag(Vario  *vario,
-                                  const Dir& dir,
+                                  int idir,
                                   double  ps,
                                   double  psmin,
                                   double *dist)
 {
   int k,ilag;
+  const DirParam& dirparam = vario->getDirParam(idir);
 
   /* Determine the rank of the lag */
 
   ilag = -1;
-  if (dir.getLagRegular())
+  if (dirparam.getFlagRegular())
   {
-    ilag = (int) floor((*dist) / dir.getDPas() + 0.5);
-    if (ABS((*dist) - ilag * dir.getDPas()) > dir.getTolDist() * dir.getDPas())
+    ilag = (int) floor((*dist) / dirparam.getDPas() + 0.5);
+    if (ABS((*dist) - ilag * dirparam.getDPas()) > dirparam.getTolDist() * dirparam.getDPas())
       return(ITEST);
   }
   else
   {
-    for (k=0, ilag= -1; k<dir.getNPas() && ilag<0; k++)
-      if ((*dist) >  dir.getBreaks()[k] &&
-          (*dist) <= dir.getBreaks()[k+1]) ilag = k;
+    for (k=0, ilag= -1; k<dirparam.getLagNumber() && ilag<0; k++)
+      if ((*dist) >  dirparam.getBreaks()[k] &&
+          (*dist) <= dirparam.getBreaks()[k+1]) ilag = k;
   }
-  if (ilag < 0 || ilag >= dir.getNPas()) return(ITEST);
+  if (ilag < 0 || ilag >= dirparam.getLagNumber()) return(ITEST);
 
   /* For asymmetric function, set the distance to negative value */
   /* for pairs of samples opposite to the calculation direction */
@@ -582,16 +564,15 @@ static void st_variogram_set(int    calcul_type,
                              double dist,
                              double value)
 {
-  const Dir& dir = VARIO->getDirs(IDIRLOC);
-  int iadlag = dir.getAddress(ivar,jvar,ipas,false,orient);
+  int i = VARIO->getDirAddress(IDIRLOC,ivar,jvar,ipas,false,orient);
 
-  VARIO->updGg(IDIRLOC,iadlag,ww * value);
+  VARIO->updGg(IDIRLOC,i,ww * value);
   if (calcul_type == CALCUL_POISSON)
-    VARIO->updGg(IDIRLOC, iadlag, -VARIO->getMeans(ivar) / 2.);
-  VARIO->updHh(IDIRLOC, iadlag, ww * dist);
-  VARIO->updSw(IDIRLOC, iadlag, ww);
+    VARIO->updGg(IDIRLOC, i, -VARIO->getMeans(ivar) / 2.);
+  VARIO->updHh(IDIRLOC, i, ww * dist);
+  VARIO->updSw(IDIRLOC, i, ww);
   if (debug_query("variogram"))
-    st_print_debug(IECH1,IECH2,ivar,jvar,iadlag,ww,value);
+    st_print_debug(IECH1,IECH2,ivar,jvar,i,ww,value);
   return;
 }
 
@@ -841,26 +822,25 @@ GEOSLIB_API void variogram_scale(Vario *vario,
 {
   /* Scale the experimental variogram quantities */
   
-  const Dir& dir  = vario->getDirs(idir);
   int ecr = 0;
   for (int ivar=0; ivar<NVAR; ivar++)
     for (int jvar=0; jvar<=ivar; jvar++)
     {
-      for (int i=0; i<dir.getLagTotalNumber(); i++,ecr++)
+      for (int i=0; i<vario->getLagTotalNumber(idir); i++,ecr++)
       {
-        int j = dir.getAddress(ivar,jvar,i,true,0);
-        if (dir.getSw(j) <= 0)
+        int j = vario->getDirAddress(idir,ivar,jvar,i,true,0);
+        if (vario->getSw(idir,j) <= 0)
         {
           vario->setHh(idir,j,TEST);
           vario->setGg(idir,j,TEST);
         }
         else
         {
-          vario->setHh(idir,j,dir.getHh(j) / dir.getSw(j));
-          if (vario->getFlagAsym() && i < dir.getNPas())
-            vario->setHh(idir, j, -ABS(dir.getHh(j)));
+          vario->setHh(idir,j,vario->getHh(idir,j) / vario->getSw(idir,j));
+          if (vario->getFlagAsym() && i < vario->getLagNumber(idir))
+            vario->setHh(idir, j, -ABS(vario->getHh(idir,j)));
           if (vario->getCalculType() != CALCUL_COVARIOGRAM)
-            vario->setGg(idir, j, dir.getGg(j) / dir.getSw(j));
+            vario->setGg(idir, j, vario->getGg(idir,j) / vario->getSw(idir,j));
         }
       }
     }
@@ -872,11 +852,11 @@ GEOSLIB_API void variogram_scale(Vario *vario,
     for (int ivar=0; ivar<NVAR; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
       {
-        for (int i=0; i<dir.getLagTotalNumber(); i++,ecr++)
+        for (int i=0; i<vario->getLagTotalNumber(idir); i++,ecr++)
         {
-          int j  = dir.getAddress(ivar,jvar,i,true,0);
-          int j0 = dir.getAddress(jvar,jvar,i,true,0);
-          vario->setGg(idir, j, -dir.getGg(j) / dir.getGg(j0));
+          int j  = vario->getDirAddress(idir,ivar,jvar,i,true,0);
+          int j0 = vario->getDirAddress(idir,jvar,jvar,i,true,0);
+          vario->setGg(idir, j, -vario->getGg(idir,j) / vario->getGg(idir,j0));
         }
       }
   }
@@ -885,11 +865,11 @@ GEOSLIB_API void variogram_scale(Vario *vario,
     for (int ivar=0; ivar<NVAR; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
       {
-        for (int i=0; i<dir.getLagTotalNumber(); i++,ecr++)
+        for (int i=0; i<vario->getLagTotalNumber(idir); i++,ecr++)
         {
-          int j  = dir.getAddress(ivar,jvar,i,true,0);
-          int j0 = dir.getAddress(ivar,ivar,i,true,0);
-          vario->setGg(idir, j, -dir.getGg(j) / dir.getGg(j0));
+          int j  = vario->getDirAddress(idir,ivar,jvar,i,true,0);
+          int j0 = vario->getDirAddress(idir,ivar,ivar,i,true,0);
+          vario->setGg(idir, j, -vario->getGg(idir,j) / vario->getGg(idir,j0));
         }
       }
   }
@@ -898,12 +878,14 @@ GEOSLIB_API void variogram_scale(Vario *vario,
     for (int ivar=0; ivar<NVAR; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
       {
-        for (int i=0; i<dir.getLagTotalNumber(); i++,ecr++)
+        for (int i=0; i<vario->getLagTotalNumber(idir); i++,ecr++)
         {
-          int j  = dir.getAddress(ivar,jvar,i,true,0);
-          int j1 = dir.getAddress(ivar,ivar,i,true,0);
-          int j2 = dir.getAddress(jvar,jvar,i,true,0);
-          vario->setGg(idir, j, dir.getGg(j) / sqrt(dir.getGg(j1) * dir.getGg(j2)));
+          int j  = vario->getDirAddress(idir,ivar,jvar,i,true,0);
+          int j1 = vario->getDirAddress(idir,ivar,ivar,i,true,0);
+          int j2 = vario->getDirAddress(idir,jvar,jvar,i,true,0);
+          vario->setGg(idir,j,
+              vario->getGg(idir, j) / sqrt(
+                  vario->getGg(idir, j1) * vario->getGg(idir, j2)));
         }
       }
   }
@@ -925,7 +907,6 @@ static void st_covariance_center(Db    *db,
 {
   int i,j,ivar,jvar,iech;
   double m1,m2,sumw,z1,z2,ww;
-  const Dir& dir  = vario->getDirs(idir);
 
   if (! vario->getFlagAsym()) return;
 
@@ -962,11 +943,11 @@ static void st_covariance_center(Db    *db,
 
       if (! (vario->getCalculType() == CALCUL_COVARIOGRAM ||
              vario->getCalculType() == CALCUL_COVARIANCE_NC))
-        for (i=0; i<dir.getLagTotalNumber(); i++)
+        for (i=0; i<vario->getLagTotalNumber(idir); i++)
         {
-          j = dir.getAddress(ivar,jvar,i,true,0);
-          if (dir.getSw(j) > 0)
-            vario->setGg(idir, j, dir.getGg(j) - m1 * m2);
+          j = vario->getDirAddress(idir,ivar,jvar,i,true,0);
+          if (vario->getSw(idir,j) > 0)
+            vario->setGg(idir, j, vario->getGg(idir,j) - m1 * m2);
         }
     }
   return;
@@ -987,7 +968,6 @@ static void st_variogram_patch_c00(Db    *db,
 {
   int i,ivar,jvar,iech;
   double z1,z2,s12w,s12wzz,ww,scale,value,m1,m2,sumw;
-  const Dir& dir  = vario->getDirs(idir);
 
   /* Initializations */
 
@@ -998,7 +978,7 @@ static void st_variogram_patch_c00(Db    *db,
   for (ivar=0; ivar<db->getVariableNumber(); ivar++)
     for (jvar=0; jvar<=ivar; jvar++)
     {
-      i = dir.getAddress(ivar,jvar,0,false,0);
+      i = vario->getDirAddress(idir,ivar,jvar,0,false,0);
       vario->setHh(idir, i,0.);
 
       scale = 1.;
@@ -1231,12 +1211,10 @@ static int st_update_variogram_verr(Db    *db,
   double dist,value,g_old,diff,sumt,sumb,wgt,sval,gval;
   static double tol = 1.e-05;
   static int maxiter = 100;
-  const Dir& dir = vario->getDirs(idir);
 
   /* Initializations */
 
-//  Dir& dir  = vario->getDirs(idir);
-  npas = dir.getNPas();
+  npas = vario->getLagNumber(idir);
 
   /* Loop on the lags */
 
@@ -1260,7 +1238,7 @@ static int st_update_variogram_verr(Db    *db,
           number++;
         }
         value = (number > 0) ? value / number : 0.;
-        vario->setGg(idir,0,0,ipas,MAX(0,dir.getGg(0,0,ipas) - value));
+        vario->setGg(idir,0,0,ipas,MAX(0,vario->getGg(idir,0,0,ipas) - value));
         break;
 
       case 2:
@@ -1269,22 +1247,22 @@ static int st_update_variogram_verr(Db    *db,
         while (diff > tol && nfois < maxiter)
         {
           nfois++;
-          g_old = dir.getGg(0,0,ipas);
+          g_old = vario->getGg(idir,0,0,ipas);
           sumt = sumb = 0.;
           for (ipair=ifirst; ipair<ilast; ipair++)
           {
             vario_order_get_indices(vorder,ipair,&iech,&jech,&dist);
             sval  = st_s(db,iech,jech);
             gval  = st_g(db,iech,jech);
-            value = sval + dir.getGg(0,0,ipas);
+            value = sval + vario->getGg(idir,0,0,ipas);
             wgt   = 1. / (value * value);
             sumt += wgt * (gval - sval);
             sumb += wgt;
           }
           vario->setGg(idir, 0,0,ipas,sumt / sumb);
-          diff = ABS(dir.getGg(0,0,ipas) - g_old);
+          diff = ABS(vario->getGg(idir,0,0,ipas) - g_old);
         }
-        vario->setGg(idir, 0,0,ipas,MAX(0,dir.getGg(0,0,ipas)));
+        vario->setGg(idir, 0,0,ipas,MAX(0,vario->getGg(idir,0,0,ipas)));
         if (nfois == maxiter && debug_query("converge"))
           message("Convergence not reached for lag %d\n",ipas+1);
         break;
@@ -1294,20 +1272,20 @@ static int st_update_variogram_verr(Db    *db,
         diff = 1.e30;
         while (diff > tol && nfois < maxiter)
         {
-          g_old = dir.getGg(0,0,ipas);
+          g_old = vario->getGg(idir,0,0,ipas);
           sumt = sumb = 0.;
           for (ipair=ifirst; ipair<ilast; ipair++)
           {
             vario_order_get_indices(vorder,ipair,&iech,&jech,&dist);
             sval  = st_s(db,iech,jech);
             gval  = st_g(db,iech,jech);
-            value = sval + dir.getGg(ipas);
-            wgt   = dir.getGg(0,0,ipas) / value;
+            value = sval + vario->getGg(idir,ipas);
+            wgt   = vario->getGg(idir,0,0,ipas) / value;
             sumt += wgt * gval;
             sumb += 1.;
           }
           vario->setGg(idir, 0,0,ipas,sumt / sumb);
-          diff = ABS(dir.getGg(0,0,ipas) - g_old);
+          diff = ABS(vario->getGg(idir,0,0,ipas) - g_old);
         }
         if (nfois == maxiter && debug_query("converge"))
           message("Convergence not reached for lag %d\n",ipas+1);
@@ -1509,7 +1487,6 @@ static void st_calculate_bias_global(Db     *db,
 ** \param[in]  db         Db description
 ** \param[in]  vario      Vario structure
 ** \param[in]  vorder     Vario_Order structure
-** \param[in]  flag_model 1 if the underlying Model is provided; 0 otherwise
 ** \param[in]  verbose    Verbose flag
 **
 ** \remark The number of iterations used for the debiasing procedure
@@ -1520,7 +1497,6 @@ static void st_calculate_bias_global(Db     *db,
 static int st_update_variogram_ku(Db    *db,
                                   Vario *vario,
                                   Vario_Order *vorder,
-                                  int    flag_model,
                                   int    verbose)
 {
   Option_VarioFit optvar;
@@ -1548,7 +1524,7 @@ static int st_update_variogram_ku(Db    *db,
     
     /* Perform the Automatic structure recognition */
     
-    if (! flag_model)
+    if (MODEL != (Model *) NULL)
     {
       if (model_auto_fit(vario,MODEL,verbose,mauto,constraints,optvar)) goto label_end;
     }
@@ -1569,11 +1545,10 @@ static int st_update_variogram_ku(Db    *db,
 
     for (idir=0; idir<vario->getDirectionNumber(); idir++)
     {
-      const Dir& dir = vario->getDirs(idir);
       
       /* Loop on the lags */
 
-      for (ipas=0; ipas<dir.getNPas(); ipas++)
+      for (ipas=0; ipas<vario->getLagNumber(idir); ipas++)
       {
         vario_order_get_bounds(vorder,idir,ipas,&ifirst,&ilast);
         if (ifirst > ilast) continue;
@@ -1614,8 +1589,7 @@ static void st_variogram_calcul_internal(Db    *db,
 
   /* Initializations */
 
-  const Dir& dir  = vario->getDirs(idir);
-  npas = dir.getNPas();
+  npas = vario->getLagNumber(idir);
 
   /* Loop on the lags */
 
@@ -1735,11 +1709,10 @@ static int st_variogram_calcul1(Db    *db,
   double psmin,ps,dist,maxdist;
 
   ps      = 0.;
-  const Dir& dir = vario->getDirs(idir);
-  psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
+  psmin   = _variogram_convert_angular_tolerance(vario->getDirParam(idir).getTolAngle());
   nech    = db->getSampleNumber();
-  npas    = dir.getNPas();
-  maxdist = variogram_maximum_distance(dir);
+  npas    = vario->getLagNumber(idir);
+  maxdist = vario->getMaximumDistance(idir);
 
   /* Loop on the first point */
 
@@ -1760,22 +1733,24 @@ static int st_variogram_calcul1(Db    *db,
       /* Check if the pair must be kept (Code criterion) */
 
       if (code_comparable(db,db,iech,jech,
-                          dir.getOptionCode(),(int) dir.getTolCode())) continue;
+                          vario->getDirParam(idir).getOptionCode(),
+                          (int) vario->getDirParam(idir).getTolCode())) continue;
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,dir.getIdate())) continue;
+      if (date_comparable(vario,db,db,iech,jech,vario->getIdate(idir))) continue;
 
       /* Check if the pair must be kept */
 
       dist = distance_intra(db,iech,jech,NULL);
       if (variogram_reject_pair(db,iech,jech,dist,psmin,
-                                dir.getBench(),dir.getCylRad(),
-                                dir.getCodir(),&ps)) continue;
+                                vario->getDirParam(idir).getBench(),
+                                vario->getDirParam(idir).getCylRad(),
+                                vario->getDirParam(idir).getCodir(),&ps)) continue;
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(vario,dir,ps,psmin,&dist);
+      ipas = variogram_get_lag(vario,idir,ps,psmin,&dist);
       if (IFFFF(ipas)) continue;
 
       /* Case of internal storage */
@@ -1846,13 +1821,13 @@ static int st_variogram_calcul2(Db    *db,
 
   error   = 1;
   ps      = 0.;
-  const Dir& dir = vario->getDirs(idir);
   gg_sum  = hh_sum = sw_sum = (double *) NULL;
-  psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
+  const DirParam& dirparam = vario->getDirParam(idir);
+  psmin   = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech    = db->getSampleNumber();
-  size    = dir.getSize();
-  npas    = dir.getNPas();
-  maxdist = variogram_maximum_distance(dir);
+  size    = vario->getDirSize(idir);
+  npas    = vario->getLagNumber(idir);
+  maxdist = vario->getMaximumDistance(idir);
 
   /* Core allocation */
 
@@ -1878,10 +1853,6 @@ static int st_variogram_calcul2(Db    *db,
     w1 = db->getWeight(iech);
     if (FFFF(w1)) continue;
 
-    /* Initialize the local variogram */
-
-    vario->clean(idir);
-
     /* Looking for the second sample */
 
     ideb = (st_date_is_used(vario,db,db)) ? 0 : iiech + 1;
@@ -1895,22 +1866,24 @@ static int st_variogram_calcul2(Db    *db,
       /* Check if the pair must be kept (Code criterion) */
 
       if (code_comparable(db,db,iech,jech,
-                          dir.getOptionCode(),(int) dir.getTolCode())) continue;
+                          dirparam.getOptionCode(),
+                          (int) dirparam.getTolCode())) continue;
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,dir.getIdate())) continue;
+      if (date_comparable(vario,db,db,iech,jech,
+                          dirparam.getIdate())) continue;
 
       /* Check if the pair must be kept */
 
       dist = distance_intra(db,iech,jech,NULL);
       if (variogram_reject_pair(db,iech,jech,dist,psmin,
-                                dir.getBench(),dir.getCylRad(),
-                                dir.getCodir(),&ps)) continue;
+                                dirparam.getBench(),dirparam.getCylRad(),
+                                dirparam.getCodir(),&ps)) continue;
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(vario,dir,ps,psmin,&dist);
+      ipas = variogram_get_lag(vario,idir,ps,psmin,&dist);
       if (IFFFF(ipas)) continue;
 
       /* Evaluate the variogram */
@@ -1927,10 +1900,10 @@ static int st_variogram_calcul2(Db    *db,
 
     for (i=0; i<size; i++)
     {
-      if (dir.getSw(i) <= 0) continue;
+      if (vario->getSw(idir,i) <= 0) continue;
       sw_sum[i] += w1;
-      gg_sum[i] += w1 * dir.getGg(i) / dir.getSw(i);
-      hh_sum[i] += w1 * dir.getHh(i) / dir.getSw(i);
+      gg_sum[i] += w1 * vario->getGg(idir,i) / vario->getSw(idir,i);
+      hh_sum[i] += w1 * vario->getHh(idir,i) / vario->getSw(idir,i);
     }
   }
 
@@ -1990,12 +1963,12 @@ static int st_variovect_calcul(Db    *db,
   double psmin,ps,dist,w1,w2,zi1,zi2,zj1,zj2,v12,v21;
   double di1,di2,dj1,dj2,maxdist;
 
-  const Dir& dir = vario->getDirs(idir);
+  const DirParam& dirparam = vario->getDirParam(idir);
   ps      = 0.;
-  psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
+  psmin   = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech    = db->getSampleNumber();
   nvar    = vario->getVariableNumber();
-  maxdist = variogram_maximum_distance(dir);
+  maxdist = vario->getMaximumDistance(idir);
 
   /* Loop on the first point */
 
@@ -2016,12 +1989,12 @@ static int st_variovect_calcul(Db    *db,
 
       dist = distance_intra(db,iech,jech,NULL);
       if (variogram_reject_pair(db,iech,jech,dist,psmin,
-                                dir.getBench(),dir.getCylRad(),
-                                dir.getCodir(),&ps)) continue;
+                                dirparam.getBench(),dirparam.getCylRad(),
+                                dirparam.getCodir(),&ps)) continue;
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(vario,dir,ps,psmin,&dist);
+      ipas = variogram_get_lag(vario,idir,ps,psmin,&dist);
       if (IFFFF(ipas)) continue;
 
       w1 = db->getWeight(iech);
@@ -2065,15 +2038,15 @@ static int st_variovect_calcul(Db    *db,
           v12 = ABS(v12) / (di1 * dj2);
           v21 = ABS(v21) / (di2 * dj1);
 
-          i = dir.getAddress(ivar,jvar,ipas,false,1);
-          vario->setGg(idir, i, dir.getGg(i) + w1 * w2 * v12);
-          vario->setHh(idir, i, dir.getHh(i) + w1 * w2 * dist);
-          vario->setSw(idir, i, dir.getSw(i) + w1 * w2);
+          i = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
+          vario->setGg(idir, i, vario->getGg(idir,i) + w1 * w2 * v12);
+          vario->setHh(idir, i, vario->getHh(idir,i) + w1 * w2 * dist);
+          vario->setSw(idir, i, vario->getSw(idir,i) + w1 * w2);
 
-          i = dir.getAddress(ivar,jvar,ipas,false,-1);
-          vario->setGg(idir, i, dir.getGg(i) + w1 * w2 * v21);
-          vario->setHh(idir, i, dir.getHh(i) + w1 * w2 * dist);
-          vario->setSw(idir, i, dir.getSw(i) + w1 * w2);
+          i = vario->getDirAddress(idir,ivar,jvar,ipas,false,-1);
+          vario->setGg(idir, i, vario->getGg(idir,i) + w1 * w2 * v21);
+          vario->setHh(idir, i, vario->getHh(idir,i) + w1 * w2 * dist);
+          vario->setSw(idir, i, vario->getSw(idir,i) + w1 * w2);
         }
     }
   }
@@ -2114,11 +2087,10 @@ static int st_variogram_grid(Db    *db,
   /* Initializations */
 
   error = 1;
-  vario->setDPas(idir,db);
-  const Dir& dir = vario->getDirs(idir);
   nech  = db->getSampleNumber();
   indg1 = indg2 = (int *) NULL;
-  npas  = dir.getNPas();
+  npas  = vario->getLagNumber(idir);
+  const DirParam& dirparam = vario->getDirParam(idir);
 
   /* Core allocation */
 
@@ -2138,7 +2110,7 @@ static int st_variogram_grid(Db    *db,
     for (ipas=1; ipas<npas; ipas++)
     {
       for (idim=0; idim<db->getNDim(); idim++)
-        indg2[idim] = indg1[idim] + (int) (ipas * dir.getGrincr(idim));
+        indg2[idim] = indg1[idim] + (int) (ipas * vario->getGrincr(idir,idim));
       jech = db_index_grid_to_sample(db,indg2);
       if (jech < 0) continue;
 
@@ -2148,15 +2120,16 @@ static int st_variogram_grid(Db    *db,
       /* Check if the pair must be kept (Code criterion) */
 
       if (code_comparable(db,db,iech,jech,
-                          dir.getOptionCode(),(int) dir.getTolCode())) continue;
+                          dirparam.getOptionCode(),
+                          (int) dirparam.getTolCode())) continue;
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,dir.getIdate())) continue;
+      if (date_comparable(vario,db,db,iech,jech,dirparam.getIdate())) continue;
 
       /* Evaluate the variogram */
 
-      dist    = ipas * dir.getDPas();
+      dist    = ipas * dirparam.getDPas();
       VARIO   = vario;
       IDIRLOC = idir;
       NVAR    = vario->getVariableNumber();
@@ -2210,10 +2183,10 @@ static void st_variogen_line(Db    *db,
   int    iech,jech,nech,ipas,npas,iwgt,keep;
   double dist,dist0,value,zz,psmin,ps;
 
-  const Dir& dir = vario->getDirs(idir);
-  psmin = _variogram_convert_angular_tolerance(dir.getTolAngle());
+  const DirParam& dirparam = vario->getDirParam(idir);
+  psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech  = db->getSampleNumber();
-  npas  = dir.getNPas();
+  npas  = vario->getLagNumber(idir);
 
   /* Loop on the first point */
 
@@ -2238,8 +2211,9 @@ static void st_variogen_line(Db    *db,
 
         dist = distance_intra(db,iech,jech,NULL);
         if (variogram_reject_pair(db,iech,jech,dist,psmin,
-                                  dir.getBench(),dir.getCylRad(),
-                                  dir.getCodir(),&ps)) continue;
+                                  dirparam.getBench(),
+                                  dirparam.getCylRad(),
+                                  dirparam.getCodir(),&ps)) continue;
         if (iwgt == 1) dist0 = dist;
 	
         /* Check if the next sample belongs to the same line (same code) */
@@ -2302,10 +2276,10 @@ static int st_variogen_grid(Db    *db,
   /* Initializations */
 
   error = 1;
-  const Dir& dir = vario->getDirs(idir);
   nech  = db->getSampleNumber();
   indg1 = indg2 = (int *) NULL;
-  npas  = dir.getNPas();
+  npas  = vario->getLagNumber(idir);
+  const DirParam& dirparam = vario->getDirParam(idir);
 
   /* Core allocation */
 
@@ -2325,13 +2299,13 @@ static int st_variogen_grid(Db    *db,
     {
       value = st_get_IVAR(db,iech,0);
       if (FFFF(value)) break;
-      dist = ipas * dir.getDPas();
+      dist = ipas * vario->getDPas(idir);
 
       for (iwgt=keep=1; iwgt<NWGT[norder] && keep; iwgt++)
       {
         keep = 0;
         for (idim=0; idim<db->getNDim(); idim++)
-          indg2[idim] = indg1[idim] + (int) (ipas * iwgt * dir.getGrincr(idim));
+          indg2[idim] = indg1[idim] + (int) (ipas * iwgt * dirparam.getGrincr(idim));
 
         jech = db_index_grid_to_sample(db,indg2);
         if (jech < 0) continue;
@@ -2340,11 +2314,13 @@ static int st_variogen_grid(Db    *db,
         /* Check if the pair must be kept (Code criterion) */
 
         if (code_comparable(db,db,iech,jech,
-                            dir.getOptionCode(),(int) dir.getTolCode())) continue;
+                            dirparam.getOptionCode(),
+                            (int) dirparam.getTolCode())) continue;
 
         /* Check if the pair must be kept (Date criterion) */
 	
-        if (date_comparable(vario,db,db,iech,jech,dir.getIdate())) continue;
+        if (date_comparable(vario,db,db,iech,jech,
+                            dirparam.getIdate())) continue;
 	
         /* Evaluate the variogram */
 
@@ -2566,8 +2542,7 @@ GEOSLIB_API void vardir_print(Vario *vario,
 {
   if (vario == (Vario *) NULL) return;
   if (idir < 0 || idir >= vario->getDirectionNumber()) return;
-  const Dir& dir = vario->getDirs(idir);
-  message(dir.toString(verbose).c_str());
+  message(vario->getDirParam(idir).toString(verbose).c_str());
   return;
 }
 
@@ -2678,8 +2653,6 @@ label_end:
 ** \param[in]  model        Model structure (triggers the KU option)
 ** \param[in]  flag_sample  calculate the variogram per sample
 ** \param[in]  verr_mode    Mode of variogram correction (1, 2 or 3)
-** \param[in]  flag_model   1 if the underlying Model is provided; 0 otherwise
-**                          This parameter is only valid for KU option
 ** \param[in]  verbose      Verbose flag
 **
 ** \note The number of iterations in KU is given can be updated using the
@@ -2691,7 +2664,6 @@ static int st_variogram_general(Db    *db,
                                 Model *model,
                                 int flag_sample,
                                 int verr_mode,
-                                int flag_model,
                                 int verbose)
 {
   int idir, error, flag_verr, flag_ku, nbfl;
@@ -2811,8 +2783,7 @@ static int st_variogram_general(Db    *db,
 
   if (flag_ku)
   {
-    if (st_update_variogram_ku(db,vario,vorder,flag_model,
-                               verbose)) goto label_end;
+    if (st_update_variogram_ku(db,vario,vorder,verbose)) goto label_end;
   }
 
   /* Set the error return code */
@@ -3292,8 +3263,7 @@ GEOSLIB_API void variogram_extension(Vario  *vario,
   (*gmax) = -1.e30;
   if (vario->getFlagAsym())
   {
-    const Dir& dir = vario->getDirs(0);
-    *c0 = dir.getGg(dir.getAddress(ivar,jvar,0,false,0));
+    *c0 = vario->getGg(0,vario->getDirAddress(0,ivar,jvar,0,false,0));
   }
   else
   {
@@ -3316,13 +3286,12 @@ GEOSLIB_API void variogram_extension(Vario  *vario,
   for (jdir=0; jdir<ndir; jdir++)
   {
     idir = (idir0 >= 0) ? idir0 : jdir;
-    const Dir& dir = vario->getDirs(idir);
-    for (i=0; i<dir.getLagTotalNumber(); i++)
+    for (i=0; i<vario->getLagTotalNumber(idir); i++)
     {
-      j = dir.getAddress(ivar,jvar,i,true,0);
-      if (dir.getSw(j) <= 0) continue;
-      hh = dir.getHh(j);
-      gg = dir.getGg(j);
+      j = vario->getDirAddress(idir,ivar,jvar,i,true,0);
+      if (vario->getSw(idir,j) <= 0) continue;
+      hh = vario->getHh(idir,j);
+      gg = vario->getGg(idir,j);
       if (FFFF(hh) || FFFF(gg)) continue;
       if (flag_norm) gg /= (*c0);
       if (! FFFF(distmin) && hh < distmin) continue;
@@ -3463,7 +3432,7 @@ label_end:
 **
 ** \return  Error return code
 **
-** \param[in]  vario        Vario structure
+** \param[in]  varioparam   VarioParam structure
 ** \param[in]  npas         number of lags
 ** \param[in]  opt_code     code selection option
 ** \li                      0 : no use of the code selection
@@ -3482,7 +3451,7 @@ label_end:
 **                          (Dimension = ndim)
 **
 *****************************************************************************/
-GEOSLIB_API int variogram_direction_add(Vario  *vario,
+GEOSLIB_API int variogram_direction_add(VarioParam *varioparam,
                                         int     npas,
                                         int     opt_code,
                                         int     idate,
@@ -3496,11 +3465,11 @@ GEOSLIB_API int variogram_direction_add(Vario  *vario,
                                         const   VectorDouble& codir,
                                         const   VectorInt&    grincr)
 {
-  if (vario == (Vario *) NULL) return (1);
-  Dir dir = Dir(vario->getDimensionNumber());
-  dir.init(vario->getDimensionNumber(), npas, dpas, toldis, tolang, vario->getFlagAsym(),
-           opt_code, idate, bench, cylrad, tolcode, breaks, codir, grincr);
-  vario->addDirs(dir);
+  if (varioparam == (VarioParam *) NULL) return (1);
+  DirParam dirparam = DirParam(varioparam->getDimensionNumber(), npas, dpas,
+                               toldis, tolang, opt_code, idate, bench, cylrad,
+                               tolcode, breaks, codir, grincr);
+  varioparam->addDirs(dirparam);
   return(0);
 }
 
@@ -3517,41 +3486,8 @@ GEOSLIB_API Vario *variogram_delete(Vario *vario)
 
 {
   if (vario == (Vario *) NULL) return(vario);
-
-  /* Free the directions */
-
-  for (int idir=vario->getDirectionNumber()-1; idir>=0; idir--)
-    vario->delDir(idir);
-
+  vario = (Vario *) NULL;
   return(vario);
-}
-
-/****************************************************************************/
-/*!
-**  Initializes the Vario structure
-**
-** \return  Pointer to the newly allocated Vario structure
-**
-** \param[in]  calcul_name   Type of calculation
-** \param[in]  scale      scaling factor for the transitive covariogram
-** \param[in]  dates      Array defining the Date intervals
-**                        (Dimension: 2 * ndate)
-**
-** \remark The following code shows how to create a variogram structure for 
-** \remark a 2-D data set containing one variable.
-** \remark See documentation of vario_extract to retrieve calculation results
-**
-*****************************************************************************/
-GEOSLIB_API Vario *variogram_init(const std::string& calcul_name,
-                                  double  scale,
-                                  const VectorDouble& dates)
-{
-  Vario* vario = new (Vario);
-  vario->setCalculName(calcul_name);
-  vario->setScale(scale);
-  vario->setDates(dates);
-
-  return vario;
 }
 
 /****************************************************************************/
@@ -3938,8 +3874,8 @@ static void st_variogram_cloud(Db     *db,
 
   /* Preliminary calculations */
 
-  const Dir& dir = vario->getDirs(idir);
-  psmin = _variogram_convert_angular_tolerance(dir.getTolAngle());
+  const DirParam& dirparam = vario->getDirParam(idir);
+  psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech  = db->getSampleNumber();
 
   /* Loop on the first point */
@@ -3964,18 +3900,21 @@ static void st_variogram_cloud(Db     *db,
       /* Check if the pair must be kept (Code criterion) */
 
       if (code_comparable(db,db,iech,jech,
-                          dir.getOptionCode(),(int) dir.getTolCode())) continue;
+                          dirparam.getOptionCode(),
+                          (int) dirparam.getTolCode())) continue;
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,dir.getIdate())) continue;
+      if (date_comparable(vario,db,db,iech,jech,
+                          dirparam.getIdate())) continue;
 
       /* Check if the pair must be kept */
 
       dist = distance_intra(db,iech,jech,NULL);
       if (variogram_reject_pair(db,iech,jech,dist,psmin,
-                                dir.getBench(),dir.getCylRad(),
-                                dir.getCodir(),&ps)) continue;
+                                dirparam.getBench(),
+                                dirparam.getCylRad(),
+                                dirparam.getCodir(),&ps)) continue;
       value = w1 * w2 * (z2 -z1) * (z2 - z1) / 2.;
       igrid = st_update_discretization_grid(dbgrid,dist,value);
       if (igrid < 0) continue;
@@ -4045,24 +3984,27 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
 
       for (idir=0; idir<vario->getDirectionNumber(); idir++)
       {
-        const Dir& dir = vario->getDirs(idir);
+        const DirParam& dirparam = vario->getDirParam(idir);
 
         /* Check if the pair must be kept (Code criterion) */
 
         if (code_comparable(db,db,iech,jech,
-                            dir.getOptionCode(),(int) dir.getTolCode())) continue;
+                            dirparam.getOptionCode(),
+                            (int) dirparam.getTolCode())) continue;
 
         /* Check if the pair must be kept (Date criterion) */
 	
-        if (date_comparable(vario,db,db,iech,jech,dir.getIdate())) continue;
+        if (date_comparable(vario,db,db,iech,jech,
+                            dirparam.getIdate())) continue;
 	
         /* Check if the pair must be kept */
 
-        psmin = _variogram_convert_angular_tolerance(dir.getTolAngle());
+        psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
         dist = distance_intra(db,iech,jech,NULL);
         if (variogram_reject_pair(db,iech,jech,dist,psmin,
-                                  dir.getBench(),dir.getCylRad(),
-                                  dir.getCodir(),&ps)) continue;
+                                  dirparam.getBench(),
+                                  dirparam.getCylRad(),
+                                  dirparam.getCodir(),&ps)) continue;
         value = w1 * w2 * (z2 -z1) * (z2 - z1) / 2.;
         igrid = st_update_discretization_grid(dbgrid,dist,value);
         if (igrid < 0) continue;
@@ -4124,8 +4066,8 @@ static void st_variogram_cloud_dim(Db     *db,
 
   /* Preliminary calculations */
 
-  const Dir& dir = vario->getDirs(idir);
-  psmin = _variogram_convert_angular_tolerance(dir.getTolAngle());
+  const DirParam& dirparam = vario->getDirParam(idir);
+  psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech  = db->getSampleNumber();
 
   /* Loop on the first point */
@@ -4144,19 +4086,22 @@ static void st_variogram_cloud_dim(Db     *db,
       /* Check if the pair must be kept (Code criterion) */
 
       if (code_comparable(db,db,iech,jech,
-                          dir.getOptionCode(),(int) dir.getTolCode())) continue;
+                          dirparam.getOptionCode(),
+                          (int) dirparam.getTolCode())) continue;
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,dir.getIdate())) continue;
+      if (date_comparable(vario,db,db,iech,jech,
+                          dirparam.getIdate())) continue;
 
       /* Check if the pair must be kept */
 
       dist = distance_intra(db,iech,jech,NULL);
       if (variogram_reject_pair(db,iech,jech,dist,psmin,
-                                dir.getBench(),dir.getCylRad(),
-                                dir.getCodir(),&ps)) continue;
-      if (floor(dist / dir.getDPas() + 0.5) >= dir.getNPas()) continue;
+                                dirparam.getBench(),
+                                dirparam.getCylRad(),
+                                dirparam.getCodir(),&ps)) continue;
+      if (floor(dist / dirparam.getDPas() + 0.5) >= dirparam.getLagNumber()) continue;
 
       w1 = db->getWeight(iech);
       w2 = db->getWeight(jech);
@@ -4703,89 +4648,6 @@ GEOSLIB_API int vario_get_rank(Vario *vario,
     rank = rank * idir + idate;
   }
   return(rank);
-}
-
-/****************************************************************************/
-/*!
-**  Ask the characteristics of the Dir structure
-**
-** \return  Error returned code
-**
-** \param[in]  dir    Dir structure
-** \param[in]  ndim   Space dimension
-**
-** \param[out]  flag_regular lag definition mode
-** \li                        1 when using regular lags
-** \li                        0 when irregular lags are given in 'breaks'
-** \param[out]  npas         Number of lags
-** \param[out]  npatot       Number of values per variable pair
-** \param[out]  opt_code     Code selection option
-** \li                       0 : no use of the code selection
-** \li                       1 : codes must be close enough
-** \li                       2 : codes must be different
-** \param[out]  size         Dimension of variogram arrays
-** \param[out]  dlag         Lag value
-** \param[out]  toldis       tolerance on distance (percentage of the lag)
-** \param[out]  tolang       angular tolerance (in degrees)
-** \param[out]  bench        Slice bench
-** \param[out]  cylrad       Slice radius
-** \param[out]  tolcode      Tolerance on the code
-** \param[out]  codir        calculation direction
-** \param[out]  grincr       direction increment (for grid)
-**
-** \remark  For an example, see remarks of function vario_extract()
-**
-*****************************************************************************/
-GEOSLIB_API int vardir_extract(const Dir&    dir,
-                               int     ndim,
-                               int    *flag_regular,
-                               int    *npas,
-                               int    *npatot,
-                               int    *opt_code,
-                               int    *size,
-                               double *dlag,
-                               double *toldis,
-                               double *tolang,
-                               double *bench,
-                               double *cylrad,
-                               double *tolcode,
-                               double *codir,
-                               double *grincr)
-{
-  int idim;
-
-  /* Returning arguments */
-
-  *flag_regular = dir.getLagRegular();
-  *npas         = dir.getNPas();
-  *npatot       = dir.getLagTotalNumber();
-  *opt_code     = dir.getOptionCode();
-  *size         = dir.getSize();
-  *dlag         = dir.getDPas();
-  *toldis       = dir.getTolDist();
-  *tolang       = dir.getTolAngle();
-  *bench        = dir.getBench();
-  *cylrad       = dir.getCylRad();
-  *tolcode      = dir.getTolCode();
-  for (idim=0; idim<ndim; idim++) codir[idim]  = dir.getCodir(idim);
-  for (idim=0; idim<ndim; idim++) grincr[idim] = dir.getGrincr(idim);
-
-  return(0);
-}
-
-/****************************************************************************/
-/*!
-**  Ask the dimension of the arrays of the Dir structure
-**
-** \return  The array dimension
-**
-** \param[in]  dir    Dir structure
-**
-*****************************************************************************/
-GEOSLIB_API int vardir_dimension(Dir& dir)
-
-{
-  return(dir.getLagTotalNumber());
 }
 
 /****************************************************************************/
@@ -5492,19 +5354,19 @@ label_end:
 ** \param[in]  idir_out     Rank of the Output Direction
 **
 *****************************************************************************/
-GEOSLIB_API void vardir_copy(Vario *vario_in,
+GEOSLIB_API void vardir_copy(VarioParam *vario_in,
                              int    idir_in,
-                             Vario *vario_out,
+                             VarioParam *vario_out,
                              int    idir_out)
 {
-  if (vario_in == (Vario *) NULL) return;
+  if (vario_in == (VarioParam *) NULL) return;
   if (idir_in < 0 || idir_in >= vario_in->getDirectionNumber()) return;
-  if (vario_out == (Vario *) NULL) return;
+  if (vario_out == (VarioParam *) NULL) return;
   if (idir_out < 0 || idir_out >= vario_in->getDirectionNumber()) return;
 
-  Dir dir_in  = vario_in->getDirs(idir_in);
-  Dir dir_out = vario_out->getDirs(idir_out);
-  dir_out.copy(dir_in);
+  DirParam dir_in  = vario_in->getDirParam(idir_in);
+  DirParam dir_out = vario_out->getDirParam(idir_out);
+  dir_out = dir_in;
 }
 
 /****************************************************************************/
@@ -6387,11 +6249,11 @@ GEOSLIB_API int geometry_compute(Db    *db,
 
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
+    const DirParam& dirparam = vario->getDirParam(idir);
     ps      = 0.;
-    const Dir& dir = vario->getDirs(idir);
-    psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
+    psmin   = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
     nech    = db->getSampleNumber();
-    maxdist = variogram_maximum_distance(dir);
+    maxdist = vario->getMaximumDistance(idir);
     
     /* Loop on the first point */
     
@@ -6412,22 +6274,25 @@ GEOSLIB_API int geometry_compute(Db    *db,
         /* Check if the pair must be kept (Code criterion) */
         
         if (code_comparable(db,db,iech,jech,
-                            dir.getOptionCode(),(int) dir.getTolCode())) continue;
+                            dirparam.getOptionCode(),
+                            (int) dirparam.getTolCode())) continue;
         
         /* Check if the pair must be kept (Date criterion) */
         
-        if (date_comparable(vario,db,db,iech,jech,dir.getIdate())) continue;
+        if (date_comparable(vario,db,db,iech,jech,
+                            dirparam.getIdate())) continue;
         
         /* Check if the pair must be kept */
         
         dist = distance_intra(db,iech,jech,NULL);
         if (variogram_reject_pair(db,iech,jech,dist,psmin,
-                                  dir.getBench(),dir.getCylRad(),
-                                  dir.getCodir(),&ps)) continue;
+                                  dirparam.getBench(),
+                                  dirparam.getCylRad(),
+                                  dirparam.getCodir(),&ps)) continue;
         
         /* Get the rank of the lag */
         
-        ipas = variogram_get_lag(vario,dir,ps,psmin,&dist);
+        ipas = variogram_get_lag(vario,idir,ps,psmin,&dist);
         if (IFFFF(ipas)) continue;
         
         /* Case of internal storage */
@@ -6528,13 +6393,12 @@ GEOSLIB_API void variogram_trans_cut(Vario *vario, int nh, double ycut)
 
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    const Dir& dir = vario->getDirs(idir);
 
     /* Loop on the lags */
 
-    for (ipas=0; ipas<dir.getNPas(); ipas++)
+    for (ipas=0; ipas<vario->getLagNumber(idir); ipas++)
     {
-      cyp = variance - dir.getGg(0,0,ipas);
+      cyp = variance - vario->getGg(idir,0,0,ipas);
       cyy = st_linear_interpolate(ndisc,covyp.data(),ro.data(),cyp);
       vario->setGg(idir, 0,0,ipas,MAX(0,1. - cyy));
     }
@@ -6576,9 +6440,9 @@ GEOSLIB_API int variogram_mlayers(Db    *db,
 
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
+    const DirParam& dirparam = vario->getDirParam(idir);
     ps      = 0.;
-    const Dir& dir = vario->getDirs(idir);
-    psmin   = _variogram_convert_angular_tolerance(dir.getTolAngle());
+    psmin   = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
     nech    = db->getSampleNumber();
 
     /* Loop on the first point */
@@ -6600,19 +6464,20 @@ GEOSLIB_API int variogram_mlayers(Db    *db,
             /* Check if the pair must be kept (Code criterion) */
             
             if (code_comparable(db,db,iech,jech,
-                                dir.getOptionCode(),
-                                (int) dir.getTolCode())) continue;
+                                dirparam.getOptionCode(),
+                                (int) dirparam.getTolCode())) continue;
             
             /* Check if the pair must be kept */
             
             dist = distance_intra(db,iech,jech,NULL);
             if (variogram_reject_pair(db,iech,jech,ABS(dist),psmin,
-                                      dir.getBench(),dir.getCylRad(),
-                                      dir.getCodir(),&ps)) continue;
+                                      dirparam.getBench(),
+                                      dirparam.getCylRad(),
+                                      dirparam.getCodir(),&ps)) continue;
 
             /* Get the rank of the lag */
             
-            ipas = variogram_get_lag(vario,dir,ps,psmin,&dist);
+            ipas = variogram_get_lag(vario,idir,ps,psmin,&dist);
             if (IFFFF(ipas)) continue;
             
             /* Internal storage */
@@ -6703,14 +6568,12 @@ GEOSLIB_API int variogram_y2z(Vario *vario,
 
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    const Dir& dir = vario->getDirs(idir);
-    
     /* Loop on the lags */
 
-    for (int ipas=0; ipas<dir.getNPas(); ipas++)
+    for (int ipas=0; ipas<vario->getLagNumber(idir); ipas++)
     {
       for (int idim=0; idim<ndim; idim++)
-        d1[idim] = (ipas+1) * dir.getDPas() * dir.getCodir(idim);
+        d1[idim] = (ipas+1) * vario->getDPas(idir) * vario->getCodir(idir,idim);
 
       model_calcul_cov(model,mode,1,1.,d1,&chh);
       if (chh < 0.)
@@ -6723,7 +6586,7 @@ GEOSLIB_API int variogram_y2z(Vario *vario,
       
       cov_value = anam_hermite->calculateVarianceFromPsi(chh);
       vario->setGg(idir,0,0,ipas,varz - cov_value);
-      vario->setHh(idir,0,0,ipas,(ipas+1) * dir.getDPas());
+      vario->setHh(idir,0,0,ipas,(ipas+1) * vario->getDPas(idir));
       vario->setSw(idir,0,0,ipas,1.);
     }
   }
@@ -6837,8 +6700,6 @@ GEOSLIB_API void condexp(Db     *db1,
 ** \param[in]  flag_gen     1 for calculation of generalized variogram
 ** \param[in]  flag_sample  calculate the variogram per sample
 ** \param[in]  verr_mode    Mode of variogram correction (1, 2 or 3)
-** \param[in]  flag_model   1 if the underlying Model is provided; 0 otherwise
-**                          This parameter is only valid for KU option
 ** \param[in]  model        Model structure (triggers the KU option)
 ** \param[in]  verbose      Verbose flag
 **
@@ -6846,21 +6707,19 @@ GEOSLIB_API void condexp(Db     *db1,
 ** \note keypair technique with name "KU_Niter".
 **
 *****************************************************************************/
-GEOSLIB_API int _variogram_compute(Db   *db,
-                                 Vario *vario,
-                                 const VectorDouble& means,
-                                 const VectorDouble& vars,
-                                 int    flag_grid,
-                                 int    flag_gen,
-                                 int    flag_sample,
-                                 int    verr_mode,
-                                 int    flag_model,
-                                 Model *model,
-                                 int    verbose)
+GEOSLIB_API int _variogram_compute(Db *db,
+                                   Vario *vario,
+                                   const VectorDouble& means,
+                                   const VectorDouble& vars,
+                                   int flag_grid,
+                                   int flag_gen,
+                                   int flag_sample,
+                                   int verr_mode,
+                                   Model *model,
+                                   int verbose)
 {
   int error;
 
-  vario->setFlagSample(flag_sample);
   if (flag_grid)
   {
     if (flag_gen)
@@ -6870,16 +6729,11 @@ GEOSLIB_API int _variogram_compute(Db   *db,
   }
   else
   {
-    // Invalid grincr when calculations are not performed on the grid
-    // This patch enables correct printout
-    for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
-      vario->setGrincr(idir, VectorInt());
-
     if (flag_gen)
       error = st_variogen_line_calcul(db, vario);
     else
       error = st_variogram_general(db, vario, model, flag_sample, verr_mode,
-                                   flag_model, verbose);
+                                   verbose);
   }
   return (error);
 }
@@ -6977,9 +6831,8 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
                                    int varnb,
                                    NamingConvention namconv)
 {
-  int ndim = db->getNDim();
   int nvar = db->getVariableNumber();
-  vario->internalResize(ndim, nvar, "vg");
+  vario->setNVar(nvar);
 
   // Determining the missing information
 

@@ -18,28 +18,34 @@ DirParam::DirParam(int ndim,
                    int npas,
                    double dpas,
                    double toldis,
-                   double tolang)
+                   double tolang,
+                   int opt_code,
+                   int idate,
+                   double bench,
+                   double cylrad,
+                   double tolcode,
+                   VectorDouble breaks,
+                   VectorDouble codir,
+                   VectorInt grincr)
     : _ndim(ndim),
-      _flagAsym(0),
       _nPas(npas),
-      _optionCode(0),
-      _idate(0),
+      _optionCode(opt_code),
+      _idate(idate),
       _dPas(dpas),
-      _bench(TEST),
-      _cylRad(TEST),
+      _bench(bench),
+      _cylRad(cylrad),
       _tolDist(toldis),
-      _tolAngle(90.),
-      _tolCode(0.),
-      _breaks(),
-      _codir(),
-      _grincr()
+      _tolAngle(tolang),
+      _tolCode(tolcode),
+      _breaks(breaks),
+      _codir(codir),
+      _grincr(grincr)
 {
   _completeDefinition();
 }
 
 DirParam::DirParam(int ndim, int npas, const VectorInt& grincr)
     : _ndim(ndim),
-      _flagAsym(0),
       _nPas(npas),
       _optionCode(0),
       _idate(0),
@@ -58,7 +64,6 @@ DirParam::DirParam(int ndim, int npas, const VectorInt& grincr)
 
 DirParam::DirParam(const DirParam& r)
     : _ndim(r._ndim),
-      _flagAsym(r._flagAsym),
       _nPas(r._nPas),
       _optionCode(r._optionCode),
       _idate(r._idate),
@@ -80,7 +85,6 @@ DirParam& DirParam::operator=(const DirParam& r)
   if (this != &r)
   {
     _ndim = r._ndim;
-    _flagAsym = r._flagAsym;
     _nPas = r._nPas;
     _optionCode = r._optionCode;
     _idate = r._idate;
@@ -108,7 +112,6 @@ void DirParam::init(int ndim,
                     double dpas,
                     double toldis,
                     double tolang,
-                    int flag_asym,
                     int opt_code,
                     int idate,
                     double bench,
@@ -119,7 +122,6 @@ void DirParam::init(int ndim,
                     VectorInt grincr)
 {
   _ndim = ndim;
-  _flagAsym = flag_asym;
   _nPas = npas;
   _optionCode = opt_code;
   _idate = idate;
@@ -174,11 +176,6 @@ bool DirParam::isLagValid(int ilag) const
   return true;
 }
 
-int DirParam::getLagTotalNumber() const
-{
-  return ((_flagAsym) ? 2 * _nPas + 1 : _nPas);
-}
-
 /**
  * Set the value of the lag as computed from the Db (Grid organized)
  * @param db Db structure
@@ -203,11 +200,22 @@ int DirParam::getGrincr(int idim) const
   return _grincr[idim];
 }
 
+double DirParam::getMaximumDistance() const
+{
+  double maxdist;
+
+  if (getFlagRegular())
+    maxdist = getDPas() * (getLagNumber() + getTolDist());
+  else
+    maxdist = getBreaks(getLagNumber());
+  return (maxdist);
+}
+
 String DirParam::toString(int level) const
 {
   std::stringstream sstr;
 
-  sstr << "Number of lags              = " << getNPas() << std::endl;
+  sstr << "Number of lags              = " << getLagNumber() << std::endl;
   int ndim = getDimensionNumber();
 
   if (_grincr.empty())
@@ -231,7 +239,7 @@ String DirParam::toString(int level) const
     if (! FFFF(_cylRad) && _cylRad > 0.)
       sstr << "Slice radius                = " << toDouble(_cylRad) << std::endl;
 
-    if (getLagRegular())
+    if (getFlagRegular())
     {
       sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
       sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
@@ -266,11 +274,11 @@ String DirParam::toString(int level) const
   return sstr.str();
 }
 
-std::vector<DirParam> generateMultipleDirsN(int ndim,
-                                            int ndir,
-                                            int npas,
-                                            double dpas,
-                                            double toldis)
+std::vector<DirParam> generateMultipleDirs(int ndim,
+                                           int ndir,
+                                           int npas,
+                                           double dpas,
+                                           double toldis)
 {
   VectorDouble angles = VectorDouble(1);
   VectorDouble codir  = VectorDouble(ndim);
@@ -287,7 +295,7 @@ std::vector<DirParam> generateMultipleDirsN(int ndim,
   return dirs;
 }
 
-std::vector<DirParam> generateMultipleGridDirsN(int ndim, int npas)
+std::vector<DirParam> generateMultipleGridDirs(int ndim, int npas)
 {
   VectorInt grincr = VectorInt(ndim);
   std::vector<DirParam> dirs;
@@ -301,3 +309,4 @@ std::vector<DirParam> generateMultipleGridDirsN(int ndim, int npas)
   }
   return dirs;
 }
+

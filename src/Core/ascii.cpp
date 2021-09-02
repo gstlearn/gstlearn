@@ -7,6 +7,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Variogram/Vario.hpp>
 #include "geoslib_e.h"
 #include "geoslib_enum.h"
 #include "Anamorphosis/Anam.hpp"
@@ -16,7 +17,6 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Variogram/Vario.hpp"
 
 /*! \cond */
 #define OLD 0

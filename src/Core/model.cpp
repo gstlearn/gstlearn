@@ -17,7 +17,9 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
+#include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
 
@@ -1166,7 +1168,7 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
   /* Add the nugget effect variogram model */
 
   sill = 1.;
-  if (model_add_cova(model, (int) COV_NUGGET, 0, 0, 0., 0.,
+  if (model_add_cova(model, COV_NUGGET, 0, 0, 0., 0.,
                      VectorDouble(),
                      VectorDouble(), VectorDouble(sill))) goto label_end;
 
@@ -1203,7 +1205,7 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
  **
  *****************************************************************************/
 GEOSLIB_API int model_add_cova(Model *model,
-                               int type,
+                               ENUM_COVS type,
                                int flag_aniso,
                                int flag_rotation,
                                double range,
@@ -1212,7 +1214,6 @@ GEOSLIB_API int model_add_cova(Model *model,
                                const VectorDouble& aniso_rotmat,
                                const VectorDouble& sill)
 {
-  /// TODO : use ENUM_COVS
   if (st_check_model(model)) return 1;
 
   // Add a new element in the structure
@@ -3287,7 +3288,7 @@ GEOSLIB_API int model_stabilize(Model *model, int flag_verbose, double percent)
 
   /* Add a NUGGET EFFECT component */
 
-  if (model_add_cova(model, (int) COV_NUGGET, 0, 0, 0., 0., VectorDouble(),
+  if (model_add_cova(model, COV_NUGGET, 0, 0, 0., 0., VectorDouble(),
                      VectorDouble(), VectorDouble(total))) goto label_end;
 
   /* Printout */
@@ -3760,7 +3761,7 @@ GEOSLIB_API int model_sample(Vario *vario,
   d1.resize(ndim);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == (double *) NULL) goto label_end;
-  vario->internalResize(ndim, nvar, "vg");
+  vario->setNVar(nvar);
 
   /* Calculate the C(0) constant term */
 
@@ -3772,8 +3773,7 @@ GEOSLIB_API int model_sample(Vario *vario,
 
   for (idir = 0; idir < ndir; idir++)
   {
-    const Dir& dir = vario->getDirs(idir);
-    npas = dir.getNPas();
+    npas = vario->getLagNumber(idir);
 
     /* Loop on the variogram lags */
 
@@ -3785,11 +3785,11 @@ GEOSLIB_API int model_sample(Vario *vario,
       for (ivar = ijvar = 0; ivar < vario->getVariableNumber(); ivar++)
         for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
-          i = dir.getAddress(ivar, jvar, ipas, false, 0);
+          i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
           vario->setSw(idir, i, 1.);
-          vario->setHh(idir, i, ipas * dir.getDPas());
+          vario->setHh(idir, i, ipas * vario->getDPas(idir));
           for (idim = 0; idim < ndim; idim++)
-            d1[idim] = dir.getHh(i) * dir.getCodir(idim);
+            d1[idim] = vario->getHh(idir,i) * vario->getCodir(idir,idim);
           model_calcul_cov(model, mode, 1, 1., d1, covtab);
           vario->setGg(idir, i, COVTAB(ivar, jvar));
         }
@@ -4283,7 +4283,7 @@ GEOSLIB_API int model_regularize(Model *model,
   }
   nech = db->getSampleNumber();
   norme = nech * nech;
-  vario->internalResize(ndim, nvar, "vg");
+  vario->setNVar(nvar);
 
   /* Core allocation */
 
@@ -4317,14 +4317,13 @@ GEOSLIB_API int model_regularize(Model *model,
 
   for (idir = 0; idir < vario->getDirectionNumber(); idir++)
   {
-    const Dir& dir = vario->getDirs(idir);
 
     /* Loop on the number of lags */
 
-    for (ipas = 0; ipas < dir.getNPas(); ipas++)
+    for (ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
     {
       model_covtab_init(1, model, covtab);
-      dist = ipas * dir.getDPas();
+      dist = ipas * vario->getDPas(idir);
 
       for (iech = 0; iech < nech; iech++)
         for (jech = 0; jech < nech; jech++)
@@ -4332,7 +4331,7 @@ GEOSLIB_API int model_regularize(Model *model,
           for (idim = 0; idim < ndim; idim++)
           {
             v1 = db->getCoordinate(iech, idim);
-            v2 = db->getCoordinate(jech, idim) + dist * dir.getCodir(idim);
+            v2 = db->getCoordinate(jech, idim) + dist * vario->getCodir(idir,idim);
             dd[idim] = v1 - v2;
           }
           model_calcul_cov(model, mode, 0, 1, dd, covtab);
@@ -4342,7 +4341,7 @@ GEOSLIB_API int model_regularize(Model *model,
       for (ivar = 0; ivar < nvar; ivar++)
         for (jvar = 0; jvar <= ivar; jvar++)
         {
-          iad = dir.getAddress(ivar, jvar, ipas, false, 0);
+          iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
           vario->setGg(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
           vario->setHh(idir, iad, dist);
           vario->setSw(idir, iad, 1);

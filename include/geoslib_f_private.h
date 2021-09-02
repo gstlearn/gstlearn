@@ -11,11 +11,11 @@
 #ifndef GEOSLIB_F_PRIVATE_H
 #define GEOSLIB_F_PRIVATE_H
 
+#include <Variogram/Vario.hpp>
 #include "geoslib_d_private.h"
 #include "geoslib_d.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
-#include "Variogram/Vario.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Model/ANoStat.hpp"
 #include "LithoRule/RuleProp.hpp"
@@ -62,7 +62,6 @@ GEOSLIB_API int _variogram_compute(Db* db,
                                    int flag_gen = 0,
                                    int flag_sample = 0,
                                    int verr_mode = 0,
-                                   int flag_model = 0,
                                    Model* model = nullptr,
                                    int verbose = 0);
 
@@ -115,7 +114,7 @@ GEOSLIB_API int spde_chebychev_operate(cs *S,Cheb_Elem *cheb_elem,
                                        const double *x,
                                        double *y);
 GEOSLIB_API Rule *rule_auto(Db *db,
-                            Vario *vario,
+                            const VarioParam *varioparam,
                             RuleProp* ruleprop,
                             int ngrfmax = 1,
                             int verbose = false);

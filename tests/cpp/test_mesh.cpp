@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   Db    *dbin,*dbgrid;
   Model *model;
   double  angle[3];
-  double  range,param,sill;
+  double  range,param;
   MatrixCRectangular apices;
   VectorInt meshes;
   char    triswitch[10];
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   int flag_mesh = 0;
   int ndim      = 3;
   int verbose   = 1;
-  int variety   = 1;
+  int variety   = 0;  // 0 fo Euclidean; 1 for Spherical
 
   /* Cleverness of the options */
 
@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
   
   /* Rotation definition */
 
+  rotmat.resize(ndim * ndim);
   if (ndim == 2)
     ut_rotation_matrix_2D(angle[0],rotmat.data());
   else if (ndim == 3)
@@ -98,10 +99,10 @@ int main(int argc, char *argv[])
 
   range        = 5.;
   param        = 1.;
-  sill         = 2.;
+  VectorDouble sill = { 2. };
   model        = model_init(ndim,1);
   if (model_add_cova(model,COV_BESSEL_K,0,0,range,param,
-                     VectorDouble(),VectorDouble(),VectorDouble(sill)))
+                     VectorDouble(),VectorDouble(),sill))
     messageAbort("Definition of the Model");
 
   /* Define the Grid Db */
@@ -125,7 +126,7 @@ int main(int argc, char *argv[])
   /* Instantiate the Meshing */
 
   mesh = MeshFactory::createMesh(variety,
-                                 extendmin,extendmax,rotmat,cellsize,
+                                 extendmin,extendmax,cellsize,rotmat,
                                  dilate,dbin,dbgrid,triswitch,
                                  apices,meshes,verbose);
   if (mesh == NULL) return(1);
@@ -149,5 +150,7 @@ int main(int argc, char *argv[])
   else
     shiftop.initFromMesh(meshb,model,NULL,0,0,verbose);
   
+  message("Test performed successfully\n");
+
   return(0);
 }

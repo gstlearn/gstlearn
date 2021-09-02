@@ -12,14 +12,13 @@
 #define GEOSLIB_OLDF_H
 
 #include <Model/CovInternal.hpp>
+#include <Variogram/Vario.hpp>
 #include "geoslib_d.h"
 #include "csparse_d.h"
 #include "csparse_f.h"
 #include "Mesh/tetgen.h"
 #include "segy.h"
 #include "Neigh/Neigh.hpp"
-#include "Variogram/Vario.hpp"
-#include "Variogram/Dir.hpp"
 #include "Model/Model.hpp"
 #include "Model/Cova.hpp"
 #include "Db/Db.hpp"
@@ -853,7 +852,6 @@
                                                    int iech,
                                                    int jech,
                                                    double maxdist);
-  GEOSLIB_API double variogram_maximum_distance(const Dir& dir);
   GEOSLIB_API int geometry_compute(Db *db,
                                   Vario *vario,
                                   Vario_Order *vorder,
@@ -893,15 +891,15 @@
                                         double *ps);
   GEOSLIB_API void variogram_scale(Vario *vario, int idir);
   GEOSLIB_API int variogram_get_lag(Vario *vario,
-                                    const Dir& dir,
+                                    int idir,
                                     double ps,
                                     double psmin,
                                     double *dist);
   GEOSLIB_API int vario_identify_calcul_type(const String& cov_name);
   GEOSLIB_API void vardir_print(Vario *vario, int idir, int verbose);
-  GEOSLIB_API void vardir_copy(Vario *vario_in,
+  GEOSLIB_API void vardir_copy(VarioParam *vario_in,
                                int idir_in,
-                               Vario *vario_out,
+                               VarioParam *vario_out,
                                int idir_out);
   GEOSLIB_API void variogram_trans_cut(Vario *vario, int nh, double ycut);
   GEOSLIB_API int correlation_f(Db *db1,
@@ -965,23 +963,7 @@
                                 int *ndate,
                                 double *scale,
                                 double **dates);
-  GEOSLIB_API int vardir_extract(const Dir& dir,
-                                 int ndim,
-                                 int *flag_regular,
-                                 int *npas,
-                                 int *npatot,
-                                 int *opt_code,
-                                 int *size,
-                                 double *dlag,
-                                 double *toldis,
-                                 double *tolang,
-                                 double *slice_bench,
-                                 double *cylrad,
-                                 double *tolcode,
-                                 double *codir,
-                                 double *grincr);
   GEOSLIB_API int vario_get_rank(Vario *vario, int idir, int idate);
-  GEOSLIB_API int vardir_dimension(Dir& dir);
   GEOSLIB_API int maf_compute(Db *db,
                               int opt_code,
                               double tolcode,
@@ -1050,7 +1032,7 @@
   GEOSLIB_API Model *model_free(Model *model);
   GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model);
   GEOSLIB_API int model_add_cova(Model *model,
-                                 int type,
+                                 ENUM_COVS type,
                                  int flag_anisotropy,
                                  int flag_rotation,
                                  double range,

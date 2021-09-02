@@ -13,6 +13,7 @@
 #include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamUser.hpp"
+#include "Variogram/Vario.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
 #include "Basic/Utilities.hpp"
@@ -2581,13 +2582,12 @@ GEOSLIB_API int anam_vario_z2y(Anam   *anam,
 
   for (idir=0; idir<vario->getDirectionNumber(); idir++)
   {
-    Dir dir = vario->getDirs(idir);
-    
     /* Loop on the lags */
 
-    for (i=0; i<dir.getNPas(); i++)
-      dir.setGg(i, 1. - st_anam_get_r(anam,cvv - dir.getGg(i),1.,
-                                      st_anam_hermitian_block_variance));
+    for (i = 0; i < vario->getLagNumber(idir); i++)
+      vario->setGg(idir,i,
+          1. - st_anam_get_r(anam, cvv - vario->getGg(idir, i), 1.,
+                             st_anam_hermitian_block_variance));
   }
   
   /* Set the error return code */

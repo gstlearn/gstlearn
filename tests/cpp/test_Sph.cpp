@@ -12,6 +12,7 @@
 #include "geoslib_f.h"
 
 #define VERBOSE 0
+#define INTER 0
 
 static double deg(double a)
 {
@@ -20,26 +21,31 @@ static double deg(double a)
 
 static void st_test_1(void)
 {
-  double long1,lat1,long2,lat2,angle;
-  int test;
-
   mestitle(1,"Testing the distance between two points");
   
-  test = 1;
+  int test = 1;
+  double long1 = 10.;
+  double lat1  = 4.;
+  double long2 = 20.;
+  double lat2  = 25.;
   while(test)
   {
-    message("long1 = ");
-    if (scanf("%lf",&long1) == EOF) return;
-    message("lat1  = ");
-    if (scanf("%lf",&lat1)  == EOF) return;
-    message("long2 = ");
-    if (scanf("%lf",&long2) == EOF) return;
-    message("lat2  = "); 
-    if (scanf("%lf",&lat2)  == EOF) return;
-    angle = ut_geodetic_angular_distance(long1,lat1,
-                                         long2,lat2);
+    if (INTER)
+    {
+      message("long1 = ");
+      if (scanf("%lf",&long1) == EOF) return;
+      message("lat1  = ");
+      if (scanf("%lf",&lat1)  == EOF) return;
+      message("long2 = ");
+      if (scanf("%lf",&long2) == EOF) return;
+      message("lat2  = ");
+      if (scanf("%lf",&lat2)  == EOF) return;
+    }
+
+    double angle = ut_geodetic_angular_distance(long1,lat1,long2,lat2);
     message("Angle = %lf\n",deg(angle));
 
+    if (! INTER) break;
     message("Continue (1) or Stop(0) : ");
     if (scanf("%d",&test) == EOF) return;
   }
@@ -47,27 +53,36 @@ static void st_test_1(void)
 
 static void st_test_2(void)
 {
-  double long1,lat1,long2,lat2,long3,lat3,a,b,c,A,B,C,perimeter,surface;
+  double a,b,c,A,B,C,perimeter,surface;
   double ra,rb,rc;
-  int    test;
 
   mestitle(1,"Testing angles of a spherical triangle");
 
-  test = 1;
+  int test = 1;
+  double long1 = 10.;
+  double lat1  = 23.;
+  double long2 = 5.;
+  double lat2  = 11.;
+  double long3 = 31.;
+  double lat3  = 45.;
   while(test)
   {
-    message("long1 = ");
-    if (scanf("%lf",&long1) == EOF) return;
-    message("lat1  = ");
-    if (scanf("%lf",&lat1)  == EOF) return;
-    message("long2 = ");
-    if (scanf("%lf",&long2) == EOF) return;
-    message("lat2  = "); 
-    if (scanf("%lf",&lat2)  == EOF) return;
-    message("long3 = ");
-    if (scanf("%lf",&long3) == EOF) return;
-    message("lat3  = "); 
-    if (scanf("%lf",&lat3)  == EOF) return;
+    if (INTER)
+    {
+      message("long1 = ");
+      if (scanf("%lf", &long1) == EOF) return;
+      message("lat1  = ");
+      if (scanf("%lf", &lat1) == EOF) return;
+      message("long2 = ");
+      if (scanf("%lf", &long2) == EOF) return;
+      message("lat2  = ");
+      if (scanf("%lf", &lat2) == EOF) return;
+      message("long3 = ");
+      if (scanf("%lf", &long3) == EOF) return;
+      message("lat3  = ");
+      if (scanf("%lf", &lat3) == EOF) return;
+    }
+
     ut_geodetic_angles(long1,lat1,long2,lat2,long3,lat3,
                        &a,&b,&c,&A,&B,&C);
     message("a=%lf b=%lf c=%lf A=%lf B=%lf C=%lf\n",
@@ -85,6 +100,7 @@ static void st_test_2(void)
                                            long3,lat3);
     message("Surface = %lf\n",surface);
     
+    if (! INTER) break;
     message("Continue (1) or Stop(0) : ");
     if (scanf("%d",&test) == EOF) return;
   }
@@ -93,15 +109,19 @@ static void st_test_2(void)
 static void st_test_3(void)
 {
   double dx,dy,s1,s2,x1,x2,y1,y2,total;
-  int    nx,ny;
 
   mestitle(1,"Covering half-sphere with spherical triangles");
+  int nx = 40;
+  int ny = 40;
 
-  message("nx = ");
-  if (scanf("%d",&nx) == EOF) return;
-  message("ny = ");
-  if (scanf("%d",&ny) == EOF) return;
-  dy =  90. / (double) ny;
+  if (INTER)
+  {
+    message("nx = ");
+    if (scanf("%d", &nx) == EOF) return;
+    message("ny = ");
+    if (scanf("%d", &ny) == EOF) return;
+  }
+  dy = 90.  / (double) ny;
   dx = 360. / (double) nx;
   
   total = 0.;
@@ -143,7 +163,6 @@ int main(int argc, char *argv[])
 
   debug_reset();
   constant_reset();
-  acknowledge_Geoslib();
   constant_define("NTCAR",8);
   constant_define("NTDEC",5);
   
@@ -156,4 +175,3 @@ int main(int argc, char *argv[])
 label_end:
   return(0);
 }
-
