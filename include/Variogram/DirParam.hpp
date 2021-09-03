@@ -52,7 +52,6 @@ public:
             VectorDouble breaks = VectorDouble(),
             VectorDouble codir  = VectorDouble(),
             VectorInt grincr    = VectorInt());
-  bool isCalculated() const;
 
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
