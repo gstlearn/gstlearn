@@ -11,7 +11,6 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
-
 #define VERBOSE 0
 
 /****************************************************************************/
@@ -55,7 +54,6 @@ int main(int argc, char *argv[])
 
   debug_reset();
   constant_reset();
-  acknowledge_Geoslib();
   
   // Create the 2-D grid output file
 

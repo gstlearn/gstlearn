@@ -11,10 +11,10 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
+#include <Variogram/Vario.hpp>
 #include "geoslib_f.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
-#include "Variogram/Vario.hpp"
 
 /****************************************************************************/
 /*!
@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
 
   // Prepare the Discrete process with Discretized Option
   set_test_discrete(false);
+  bool flagStationary = true;
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
@@ -45,8 +46,8 @@ int main(int argc, char *argv[])
   for (int ifac = 0; ifac < nfac; ifac++)
     dbprop.addFields(1,props[ifac],names[ifac]);
   dbprop.setLocator(names,LOC_P);
-
   dbprop.display();
+
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
   double range1 = 0.2;
@@ -70,22 +71,33 @@ int main(int argc, char *argv[])
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
   rule.serialize(pygst+ "truerule.ascii");
-  RuleProp ruleprop = RuleProp(&rule, &dbprop);
-  //RuleProp ruleprop = RuleProp(&rule, props);
+  RuleProp ruleprop;
+  if (flagStationary)
+    ruleprop = RuleProp(&rule, props);
+  else
+    ruleprop = RuleProp(&rule, &dbprop);
+
   // Perform a non-conditional simulation on the Db
   error = simpgs(nullptr,&db,&ruleprop,&model1,&model2,&neigh);
   db.setLocator(db.getLastName(),LOC_Z);
-
   db.serialize(pygst+ "simupgs.ascii");
-  // Determination of the variogram of the Underlying GRF
-  Vario cov = Vario();
-  int nlag = 19;
-  Dir dir = Dir(ndim, nlag, 0.5 / nlag);
-  cov.addDirs(dir);
 
-  error = variogram_pgs(&db,&cov,&ruleprop);
-  Vario vario1(cov,VectorInt(1,0),VectorInt(),true);
-  Vario vario2(cov,VectorInt(1,1),VectorInt(),true);
+  // Design of several VarioParams
+  int nlag1 = 19;
+  DirParam dirparam1 = DirParam(ndim, nlag1, 0.5 / nlag1);
+  VarioParam varioparam1;
+  varioparam1.addDirs(dirparam1);
+
+  int nlag2 = 3;
+  DirParam dirparam2 = DirParam(ndim, nlag2, 0.1 );
+  VarioParam varioparam2;
+  varioparam2.addDirs(dirparam2);
+
+  // Determination of the variogram of the Underlying GRF
+  Vario* vario = variogram_pgs(&db,&varioparam1,&ruleprop);
+  vario->display(1);
+  Vario vario1 = Vario(*vario,{0},VectorInt(),true);
+  Vario vario2 = Vario(*vario,{1},VectorInt(),true);
   vario1.display(1);
   vario2.display(1);
 
@@ -108,24 +120,13 @@ int main(int argc, char *argv[])
   vario2.serialize(pygst+ "variopgs2.ascii");
   modelPGS2.serialize(pygst+ "modelfitpgs2.ascii");
 
-  // Prepare the experimental variograms of the indicators
-
-  Vario varioParam = Vario();
-  int nlag2 = 3;
-  Dir dir3 = Dir(ndim, nlag2, 0.1 );
-  varioParam.addDirs(dir3);
-  varioParam.setCalculName("vg");
-
-  //RuleProp ruleprop2 = RuleProp((Rule*) NULL, &dbprop);
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
-  error = ruleprop2.fit(&db, &varioParam, 2, true);
+  error = ruleprop2.fit(&db, &varioparam2, 2, true);
   ruleprop2.getRule()->display(1);
   ruleprop2.getRule()->serialize(pygst + "ruleFit.ascii");
 
-  Dir dir2 = Dir(ndim, nlag, 0.5 / nlag);
-  Vario varioIndic = Vario();
-  varioIndic.addDirs(dir2);
-  error = varioIndic.computeIndic(&db);
+  Vario varioIndic = Vario(&varioparam1, &db);
+  varioIndic.computeIndic("vg");
   varioIndic.serialize(pygst+ "varioindic.ascii");
 
   error = model_pgs(&db, &varioIndic, &ruleprop2, &modelPGS1, &modelPGS2);

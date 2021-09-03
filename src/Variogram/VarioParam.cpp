@@ -20,12 +20,10 @@
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 
-VarioParam::VarioParam(double scale, bool flagSample, VectorDouble dates)
+VarioParam::VarioParam(double scale,
+                       VectorDouble dates)
   : AStringable()
   , IClonable()
-  , _calculName("undefined")
-  , _nDim(0)
-  , _flagSample(flagSample)
   , _scale(scale)
   , _dates(dates)
   , _dirparams()
@@ -35,16 +33,10 @@ VarioParam::VarioParam(double scale, bool flagSample, VectorDouble dates)
 VarioParam::VarioParam(const VarioParam& VarioParam, const VectorInt& dircols)
     : AStringable(),
       IClonable(),
-      _calculName("undefined"),
-      _nDim(0),
-      _flagSample(),
       _scale(),
       _dates(),
       _dirparams()
 {
-    _calculName = VarioParam.getCalculName();
-    _nDim = VarioParam.getDimensionNumber();
-    _flagSample = VarioParam.getFlagSample();
     _scale = VarioParam.getScale();
     _dates = VarioParam.getDates();
 
@@ -56,10 +48,7 @@ VarioParam::VarioParam(const VarioParam& VarioParam, const VectorInt& dircols)
 }
 
 VarioParam::VarioParam(const VarioParam& r)
-    : _calculName(r._calculName),
-      _nDim(r._nDim),
-      _flagSample(r._flagSample),
-      _scale(r._scale),
+    : _scale(r._scale),
       _dates(r._dates),
       _dirparams(r._dirparams)
 {
@@ -69,9 +58,6 @@ VarioParam& VarioParam::operator=(const VarioParam& r)
 {
   if (this != &r)
   {
-    _calculName   = r._calculName;
-    _nDim = r._nDim;
-    _flagSample = r._flagSample;
     _scale = r._scale;
     _dates = r._dates;
     _dirparams  = r._dirparams;
@@ -113,89 +99,14 @@ void VarioParam::delAllDirs()
 String VarioParam::toString(int level) const
 {
   std::stringstream sstr;
-  int ndir = getDirectionNumber();
-  int ndim = getDimensionNumber();
 
-  /* General parameters */
+  // Print the Main part
 
-  switch (getCalculType())
-  {
-    case CALCUL_UNDEFINED:
-      sstr << toTitle(0,"Undefined");
-      break;
-
-    case CALCUL_VARIOGRAM:
-      sstr << toTitle(0,"Variogram characteristics");
-      break;
-
-    case CALCUL_MADOGRAM:
-      sstr << toTitle(0,"Madogram characteristics");
-      break;
-
-    case CALCUL_RODOGRAM:
-      sstr << toTitle(0,"Rodogram characteristics");
-      break;
-
-    case CALCUL_POISSON:
-      sstr << toTitle(0,"Poisson variogram characteristics");
-      break;
-
-    case CALCUL_COVARIANCE:
-      sstr << toTitle(0,"Covariance characteristics");
-      break;
-
-    case CALCUL_COVARIANCE_NC:
-      sstr << toTitle(0,"Non-centered Covariance characteristics");
-      break;
-
-    case CALCUL_COVARIOGRAM:
-      sstr << toTitle(0,"Transitive Covariogram characteristics");
-      break;
-
-    case CALCUL_GENERAL1:
-      sstr << toTitle(0,"Generalized Variogram of order 1 characteristics");
-      break;
-
-    case CALCUL_GENERAL2:
-      sstr << toTitle(0,"Generalized Variogram of order 2 characteristics");
-      break;
-
-    case CALCUL_GENERAL3:
-      sstr << toTitle(0,"Generalized Variogram of order 3 characteristics");
-      break;
-
-    case CALCUL_ORDER4:
-      sstr << toTitle(0,"Order-4 Variogram");
-      break;
-
-    case CALCUL_TRANS1:
-      sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/G1");
-      break;
-
-    case CALCUL_TRANS2:
-      sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/G2");
-      break;
-
-    case CALCUL_BINORMAL:
-      sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/sqrt(G1*G2)");
-      break;
-  }
-  sstr << "Number of direction(s)      = " << ndir << std::endl;
-  sstr << "Space dimension             = " << ndim << std::endl;
-
-  if (hasDate())
-  {
-    sstr << "Number of Date Intervals    = " << getDateNumber() << std::endl;
-    sstr << toMatrix("Matrix of Bounds for Data Intervals",VectorString(),VectorString(),
-                 false,2,getDateNumber(),getDates());
-  }
-
-  if (getCalculType() == CALCUL_UNDEFINED) return sstr.str();
+  sstr << toStringMain(level);
 
   /* Loop on the directions */
 
-  sstr << std::endl;
-  for (int idir=0; idir<ndir; idir++)
+  for (int idir=0; idir<getDirectionNumber(); idir++)
   {
     sstr << toTitle(1,"Direction #%d",idir+1);
     sstr << _dirparams[idir].toString(level);
@@ -203,96 +114,24 @@ String VarioParam::toString(int level) const
 
   return sstr.str();
 }
-/**
- * Convert the Calculation Name into a Calculation Type (enum)
- * @param calcul_name Input calculation name to be identified
- * @return
- */
-int identifyCalculTypeN(const String& calcul_name)
+
+String VarioParam::toStringMain(int level) const
 {
-  int calcul_type;
+  std::stringstream sstr;
+  int ndir = getDirectionNumber();
 
-  if (!strcmp(calcul_name.c_str(), "undefined"))
-    calcul_type = CALCUL_UNDEFINED;
-  else if (!strcmp(calcul_name.c_str(), "vg"))
-    calcul_type = CALCUL_VARIOGRAM;
-  else if (!strcmp(calcul_name.c_str(), "cov"))
-    calcul_type = CALCUL_COVARIANCE;
-  else if (!strcmp(calcul_name.c_str(), "covnc"))
-    calcul_type = CALCUL_COVARIANCE_NC;
-  else if (!strcmp(calcul_name.c_str(), "covg"))
-    calcul_type = CALCUL_COVARIOGRAM;
-  else if (!strcmp(calcul_name.c_str(), "mado"))
-    calcul_type = CALCUL_MADOGRAM;
-  else if (!strcmp(calcul_name.c_str(), "rodo"))
-    calcul_type = CALCUL_RODOGRAM;
-  else if (!strcmp(calcul_name.c_str(), "poisson"))
-    calcul_type = CALCUL_POISSON;
-  else if (!strcmp(calcul_name.c_str(), "general1"))
-    calcul_type = CALCUL_GENERAL1;
-  else if (!strcmp(calcul_name.c_str(), "general2"))
-    calcul_type = CALCUL_GENERAL2;
-  else if (!strcmp(calcul_name.c_str(), "general3"))
-    calcul_type = CALCUL_GENERAL3;
-  else if (!strcmp(calcul_name.c_str(), "order4"))
-    calcul_type = CALCUL_ORDER4;
-  else if (!strcmp(calcul_name.c_str(), "trans1"))
-    calcul_type = CALCUL_TRANS1;
-  else if (!strcmp(calcul_name.c_str(), "trans2"))
-    calcul_type = CALCUL_TRANS2;
-  else if (!strcmp(calcul_name.c_str(), "binormal"))
-    calcul_type = CALCUL_BINORMAL;
-  else
+  /* General parameters */
+
+  sstr << "Number of direction(s)      = " << ndir << std::endl;
+  sstr << "Space dimension             = " << getDimensionNumber() << std::endl;
+
+  if (hasDate())
   {
-    messerr("Invalid variogram calculation name : %s", calcul_name.c_str());
-    messerr("The only valid names are:");
-    messerr("vg       : Variogram");
-    messerr("cov      : Covariance");
-    messerr("covnc    : Non-centered ergodic covariance");
-    messerr("covg     : Covariogram");
-    messerr("mado     : Madogram");
-    messerr("rodo     : Rodogram");
-    messerr("poisson  : Poisson");
-    messerr("general1 : Generalized variogram of order 1");
-    messerr("general2 : Generalized variogram of order 2");
-    messerr("general3 : Generalized variogram of order 3");
-    messerr("order4   : Variogram of order 4");
-    messerr("trans1   : Cross-to-Simple Variogram G12/G1");
-    messerr("trans2   : Cross-to-Simple Variogram G12/G1");
-    messerr("binormal : Cross-to-Simple Variogram G12/sqrt(G1*G2)");
-
-    calcul_type = CALCUL_UNDEFINED;
+    sstr << "Number of Date Intervals    = " << getDateNumber() << std::endl;
+    sstr << toMatrix("Matrix of Bounds for Data Intervals",VectorString(),VectorString(),
+                 false,2,getDateNumber(),getDates());
   }
-  return calcul_type;
-}
-
-int identifyFlagAsymN(const String& calcul_name)
-{
-  int flagAsym = 0;
-
-  switch (identifyCalculType(calcul_name))
-  {
-    case CALCUL_VARIOGRAM:
-    case CALCUL_MADOGRAM:
-    case CALCUL_RODOGRAM:
-    case CALCUL_POISSON:
-    case CALCUL_GENERAL1:
-    case CALCUL_GENERAL2:
-    case CALCUL_GENERAL3:
-    case CALCUL_ORDER4:
-    case CALCUL_TRANS1:
-    case CALCUL_TRANS2:
-    case CALCUL_BINORMAL:
-      flagAsym = 0;
-      break;
-
-    case CALCUL_COVARIANCE:
-    case CALCUL_COVARIANCE_NC:
-    case CALCUL_COVARIOGRAM:
-      flagAsym = 1;
-      break;
-  }
-  return flagAsym;
+  return sstr.str();
 }
 
 double VarioParam::getDates(int idate, int icas) const
@@ -305,12 +144,6 @@ int VarioParam::getLagNumber(int idir) const
 {
   if (! _isDirectionValid(idir)) return 0;
   return _dirparams[idir].getLagNumber();
-}
-
-int VarioParam::getLagTotalNumber(int idir) const
-{
-  if (! _isDirectionValid(idir)) return 0;
-  return _dirparams[idir].getLagTotalNumber();
 }
 
 VectorDouble VarioParam::getCodir(int idir) const
@@ -354,4 +187,17 @@ VectorDouble VarioParam::_getDirectionInterval(int idir) const
     bounds[1] = idir + 1;
   }
   return bounds;
+}
+
+void VarioParam::setDPas(int idir,const Db* db)
+{
+  if (! _isDirectionValid(idir)) return;
+  _dirparams[idir].setDPas(db);
+}
+
+void VarioParam::setGrincr(int idir, const VectorInt& grincr)
+{
+  if (! _isDirectionValid(idir)) return;
+  _dirparams[idir].setGrincr(grincr);
+
 }

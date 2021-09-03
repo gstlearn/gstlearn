@@ -289,7 +289,6 @@ int main(int argc, char *argv[])
 
   debug_reset();
   constant_reset();
-  acknowledge_Geoslib();
   law_set_random_seed(seed);
   constant_define("NTCAR",10);
   constant_define("NTDEC",6);

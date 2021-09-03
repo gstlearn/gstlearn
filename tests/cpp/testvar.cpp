@@ -95,7 +95,8 @@ int main(int argc, char *argv[])
   if (vario == (Vario *) NULL) goto label_end;
   if (dbout != (Db *) NULL)
   {
-    vario->compute(dbout,"vg");
+    vario->attachDb(dbout);
+    vario->compute("vg");
     ascii_filename("Vario",0,1,filename);
     if (vario->serialize(filename,verbose))
       messageAbort("ascii_vario_write");

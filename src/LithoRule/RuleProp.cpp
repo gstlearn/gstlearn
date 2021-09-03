@@ -53,7 +53,7 @@ RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)
       _rules(),
       _ruleInternal(false)
 {
-  _rules.push_back(rule);
+  if (rule != (Rule *) NULL) _rules.push_back(rule);
   if (! _checkConsistency())
     my_throw("Inconsistent arguments");
 }
@@ -145,15 +145,17 @@ std::string RuleProp::toString(int level) const
 
 bool RuleProp::_checkConsistency()
 {
-  int nfacies = 1;
+  int nfacies = 0;
 
   // Check the number of facies against the Rule(s)
-  // In case of several rules, the number of facies is the product
-  // of the number of facies per rule.
-  for (int ir = 0; ir < getRuleNumber(); ir++)
+  if (getRuleNumber() > 0)
   {
-    int nfacrule = _rules[ir]->getFaciesNumber();
-    nfacies *= nfacrule;
+    // In case of several rules, the number of facies is the product
+    // of the number of facies per rule.
+    int nfacrule = 1;
+    for (int ir = 0; ir < getRuleNumber(); ir++)
+      nfacrule *= _rules[ir]->getFaciesNumber();
+    nfacies = nfacrule;
   }
 
   // Non-stationary case: proportions are provided using Dbprop
@@ -246,17 +248,22 @@ const Rule* RuleProp::getRule(int rank) const
   return _rules[rank];
 }
 
-void RuleProp::setRule(const Rule* rule, int rank)
+void RuleProp::addRule(const Rule* rule)
 {
-  if (! _checkRuleRank(rank)) return;
-  _rules[rank] = rule;
+  _rules.push_back(rule);
 }
 
-int RuleProp::fit(Db* db, Vario* vario, int ngrfmax, bool verbose)
+void RuleProp::clearRule()
 {
-  Rule* ruleFit = rule_auto(db,vario,this,ngrfmax,verbose);
+  _rules.clear();
+}
+
+int RuleProp::fit(Db* db, const VarioParam* varioparam, int ngrfmax, bool verbose)
+{
+  Rule* ruleFit = rule_auto(db,varioparam,this,ngrfmax,verbose);
   if (ruleFit == nullptr) return 1;
-  setRule(ruleFit);
+  clearRule();
+  addRule(ruleFit);
   return 0;
 }
 

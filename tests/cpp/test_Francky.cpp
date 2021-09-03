@@ -64,5 +64,7 @@ int main(int argc, char *argv[])
   kriging(&dat,&workingDbc,&model,&neigh);
   workingDbc.serialize(pygst+ "franckyFunctional.ascii");
 
+  message("Test performed successfully\n");
+
   return 0;
 }

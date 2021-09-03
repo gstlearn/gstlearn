@@ -12,10 +12,10 @@
 /* non-conditional simulations using in turn simpgs and simbipgs              */
 /*                                                                            */
 /******************************************************************************/
+#include <Variogram/Vario.hpp>
 #include "geoslib_f.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
-#include "Variogram/Vario.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"

@@ -11,10 +11,10 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
+#include <Variogram/Vario.hpp>
 #include "geoslib_f.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
-#include "Variogram/Vario.hpp"
 #include "Basic/AStringable.hpp"
 
 /****************************************************************************/
@@ -60,18 +60,19 @@ int main(int argc, char *argv[])
   // ===============
 
   // Determination of the experimental variogram
-  Vario variod;
+  VarioParam varioparamP;
   int nlag = 20;
-  std::vector<Dir> dirs = generateMultipleDirs(ndim, 2, nlag, 0.5 / nlag);
-  variod.addDirs(dirs);
-  error = variod.compute(&db,"vg");
-  variod.display(1);
-  message("Maximum Variogram Value = %lf\n",variod.getGmax());
+  std::vector<DirParam> dirparamP = generateMultipleDirs(ndim, 2, nlag, 0.5 / nlag);
+  varioparamP.addDirs(dirparamP);
+  Vario variop = Vario(&varioparamP,&db);
+  variop.compute("vg");
+  variop.display(1);
+  message("Maximum Variogram Value = %lf\n",variop.getGmax());
 
   // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
   std::vector<ENUM_COVS> covs {COV_BESSEL_K, COV_EXPONENTIAL};
-  model.fit(&variod,covs,true);
+  model.fit(&variop,covs,true);
   model.display();
 
   // ===============
@@ -79,10 +80,11 @@ int main(int argc, char *argv[])
   // ===============
 
   // Determination of the experimental variogram
-  Vario variog;
-  std::vector<Dir> dirgs = generateMultipleGridDirs(ndim, nlag);
-  variog.addDirs(dirgs);
-  error = variog.compute(&grid,"vg",VectorDouble(),VectorDouble(),true);
+  VarioParam varioparamG;
+  std::vector<DirParam> dirparamG = generateMultipleGridDirs(ndim, nlag);
+  varioparamG.addDirs(dirparamG);
+  Vario variog = Vario(&varioparamG, &grid);
+  variog.compute("vg");
   variog.display(1);
 
   return(error);

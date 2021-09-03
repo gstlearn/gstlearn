@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_e.h"
+#include "Variogram/Vario.hpp"
 #include "Basic/Utilities.hpp"
 
 /*! \cond */
@@ -2390,7 +2391,6 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
   nlayers = lmlayers->nlayers;
   nhalf   = nlayers * (nlayers + 1) / 2;
   nhalf2  = nhalf * nhalf;
-  const Dir& dir = vario->getDirs(idir);
 
   /* Core allocation */
   
@@ -2409,7 +2409,7 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
 
   /* Loop on the lags */
   
-  for (ipas=0; ipas<dir.getNPas(); ipas++)
+  for (ipas=0; ipas<vario->getLagNumber(idir); ipas++)
   {
     vario_order_get_bounds(vorder,idir,ipas,&ifirst,&ilast);
     number = ilast - ifirst;
@@ -2459,11 +2459,11 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
     for (ilayer=0; ilayer<nlayers; ilayer++)
       for (jlayer=0; jlayer<=ilayer; jlayer++,ijl++)
       {
-        iadlag = dir.getAddress(ilayer,jlayer,ipas,false,1);
+        iadlag = vario->getDirAddress(idir,ilayer,jlayer,ipas,false,1);
         vario->setGg(idir,iadlag,sill[ijl]);
         vario->setHh(idir,iadlag,distsum);
         vario->setSw(idir,iadlag,nval);
-        iadlag = dir.getAddress(ilayer,jlayer,ipas,false,-1);
+        iadlag = vario->getDirAddress(idir,ilayer,jlayer,ipas,false,-1);
         vario->setGg(idir,iadlag,sill[ijl]);
         vario->setHh(idir,iadlag,-distsum);
         vario->setSw(idir,iadlag,nval);

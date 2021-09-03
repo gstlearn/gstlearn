@@ -5,7 +5,6 @@
 
 #include "geoslib_d.h"
 #include "geoslib_enum.h"
-#include "Interfaces/VarioExp.hpp"
 #include "Interfaces/VariableDouble.hpp"
 
 VectorDouble range(int n)
@@ -74,59 +73,59 @@ void mes_error(ES error)
  ** 
  **********************************************************************/
 //:WARNING: Working for one Direction  and one variable
-Model* model_auto2(const VarioExp& vario,const VectorInt& lst_model, int uc, int idir, int ivar)
-{
-
-  Model* res;
-  Vario* v = vario.toGeoslib();
-  VectorDouble vars;
-
-  vars = vario.getVariance();
-
-  //info : 0 flag_linked - field,
-  //      NULL means
-  res = model_init(vario.getNDim(), vario.getNVar(), 0, 0, 0., 0, VectorDouble(), vars);
-
-  if (uc != -1)
-    model_add_drift(res,DRIFT_1,0) ;
-
-  for (int i = 0; i < (int)lst_model.size(); i++)
-  {
-    model_add_cova(res, lst_model[i], 0, 0, TEST, TEST, VectorDouble(), VectorDouble(), vars);
-  }
-
-  Option_AutoFit opt_mauto;
-  Option_VarioFit option;
-  Constraints constraints;
-  model_auto_fit(v, res, false, opt_mauto, constraints, option);
-  return (res);
-}
+//Model* model_auto2(const VarioExp& vario,const VectorInt& lst_model, int uc, int idir, int ivar)
+//{
+//
+//  Model* res;
+//  Vario* v = vario.toGeoslib();
+//  VectorDouble vars;
+//
+//  vars = vario.getVariance();
+//
+//  //info : 0 flag_linked - field,
+//  //      NULL means
+//  res = model_init(vario.getNDim(), vario.getNVar(), 0, 0, 0., 0, VectorDouble(), vars);
+//
+//  if (uc != -1)
+//    model_add_drift(res,DRIFT_1,0) ;
+//
+//  for (int i = 0; i < (int)lst_model.size(); i++)
+//  {
+//    model_add_cova(res, lst_model[i], 0, 0, TEST, TEST, VectorDouble(), VectorDouble(), vars);
+//  }
+//
+//  Option_AutoFit opt_mauto;
+//  Option_VarioFit option;
+//  Constraints constraints;
+//  model_auto_fit(v, res, false, opt_mauto, constraints, option);
+//  return (res);
+//}
 /*
  **Calculate the value of the model for a set of distances
  */
-VectorDouble model_evaluate2(Model* model,const VarioExp& vario,int idir, int ivar)
-{
-
-  VarioDir vdir = vario.getVarioDir(idir); // work on direction wanted
-  // get information to know how many calculation point will be needed
-  int nlag = vdir.getNLag();     
-  int lag = vdir.getLag();
-  double nb_calculation_point = nlag * lag;
-
-  // get direction coefficients
-  VectorDouble codir = vdir.getNormDir().getCoord();
-
-  // create vector of increment , in which model will be evaluate (0:nb_calculation_point)
-  VectorDouble incr(nb_calculation_point);
-  std::iota (std::begin(incr), std::end(incr), 0);
-
-  // create vector in which evaluation will be stored
-  VectorDouble res(nb_calculation_point) ; 
-
-  model_evaluate(model, 0, 0, 0, 0, 0, 0, 0, 0, 0, lag * nlag, codir,
-                 incr.data(),res.data());
-  return res;
-}
+//VectorDouble model_evaluate2(Model* model,const VarioExp& vario,int idir, int ivar)
+//{
+//
+//  VarioDir vdir = vario.getVarioDir(idir); // work on direction wanted
+//  // get information to know how many calculation point will be needed
+//  int nlag = vdir.getNLag();
+//  int lag = vdir.getLag();
+//  double nb_calculation_point = nlag * lag;
+//
+//  // get direction coefficients
+//  VectorDouble codir = vdir.getNormDir().getCoord();
+//
+//  // create vector of increment , in which model will be evaluate (0:nb_calculation_point)
+//  VectorDouble incr(nb_calculation_point);
+//  std::iota (std::begin(incr), std::end(incr), 0);
+//
+//  // create vector in which evaluation will be stored
+//  VectorDouble res(nb_calculation_point) ;
+//
+//  model_evaluate(model, 0, 0, 0, 0, 0, 0, 0, 0, 0, lag * nlag, codir,
+//                 incr.data(),res.data());
+//  return res;
+//}
 
 void kriging2(const Database & dbin, Database &dbout, Model* model, Neigh* neigh)
 {

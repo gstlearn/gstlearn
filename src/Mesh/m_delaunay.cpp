@@ -1421,7 +1421,7 @@ static int st_manage_regular_grid(int   mode,
   int *order,*ranks,*indg,number,ndim;
 
   /* Dispatch */
-
+  order = ranks = indg = NULL;
   if (mode > 0)
   {
     ndim   = grid.getNDim();
@@ -3206,7 +3206,7 @@ GEOSLIB_API int meshes_turbo_3D_grid_build(int        verbose,
   error   = 1;
   ndim    = 3;
   ncorner = 4;
-  order   = meshes = indg = (int * ) NULL;
+  order   = meshes = indg = ranks = (int * ) NULL;
   nx      = dbgrid->getNX(0);
   ny      = dbgrid->getNX(1);
   nz      = dbgrid->getNX(2);

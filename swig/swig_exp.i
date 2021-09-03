@@ -20,7 +20,7 @@ namespace std {
 
 %template(VectorCova) std::vector<Cova*>;
 %template(VectorCTable) std::vector<CTable*>;
-%template(VectorDir) std::vector<Dir>;  // Not a pointers list
+%template(VectorDir) std::vector<DirParam>;  // Not a pointers list
 %template(VectorDirection) std::vector<Direction*>;
 %template(VectorDrft) std::vector<Drift*>;
 %template(VectorFrac_Desc) std::vector<Frac_Desc*>;
@@ -53,6 +53,7 @@ namespace std {
 %include Basic/Limits.hpp
 %include Basic/Utilities.hpp
 %include Basic/CSVformat.hpp
+%include Basic/AFunctional.hpp
 %include Basic/FunctionalSpirale.hpp
 %include Space/Space.hpp
 %include Space/ASpace.hpp
@@ -65,7 +66,6 @@ namespace std {
 %include Interfaces/AParam.hpp
 %include Interfaces/AVariable.hpp
 %include Interfaces/AVariableTemplate.hpp
-%include Interfaces/CalcVarioExp.hpp
 %include Interfaces/Category.hpp
 %include Interfaces/Database.hpp
 %include Interfaces/Dictionary.hpp
@@ -73,9 +73,6 @@ namespace std {
 %include Interfaces/ParamCSV.hpp
 %include Interfaces/ParamGrid.hpp
 %include Interfaces/Param.hpp
-%include Interfaces/VarioDir.hpp
-%include Interfaces/VarioExp.hpp
-%include Interfaces/VarioValue.hpp
 %include Mesh/AMesh.hpp
 %include Mesh/MeshFactory.hpp
 %include Mesh/MeshEStandard.hpp
@@ -100,7 +97,8 @@ namespace std {
 %include Neigh/Neigh.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
-%include Variogram/Dir.hpp
+%include Variogram/VarioParam.hpp
+%include Variogram/DirParam.hpp
 %include Model/Model.hpp
 %include Model/Cova.hpp
 %include Model/Option_AutoFit.hpp

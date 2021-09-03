@@ -54,8 +54,8 @@ public:
      const VectorString& locatorNames = VectorString(),
      int flag_add_rank = 1);
   Db(const String& filename,
-     const CSVformat& csv = CSVformat(),
-     int verbose = false,
+     bool verbose,
+     const CSVformat& csv,
      int ncol_max = -1,
      int nrow_max = -1,
      int flag_add_rank = 1);
@@ -65,7 +65,7 @@ public:
      const VectorDouble& origin = VectorDouble(),
      const VectorDouble& margin = VectorDouble(),
      int flag_add_rank = 1);
-  Db(const String& neutralFileName, bool verbose);
+  Db(const String& neutralFileName, bool verbose = false);
   Db(Polygons* polygon,
      const VectorInt& nodes,
      const VectorDouble& dcell,

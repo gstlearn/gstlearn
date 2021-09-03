@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include <Variogram/Vario.hpp>
 #include "Db/Db.hpp"
-#include "Variogram/Vario.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AStringable.hpp"

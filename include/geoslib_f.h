@@ -11,14 +11,13 @@
 #ifndef GEOSLIB_F_H
 #define GEOSLIB_F_H
 
+#include <Variogram/Vario.hpp>
 #include "geoslib_d.h"
 #include "csparse_d.h"
 #include "csparse_f.h"
 #include "Mesh/tetgen.h"
 #include "segy.h"
 #include "Neigh/Neigh.hpp"
-#include "Variogram/Vario.hpp"
-#include "Variogram/Dir.hpp"
 #include "Model/Model.hpp"
 #include "Model/Cova.hpp"
 #include "Db/Db.hpp"
@@ -177,10 +176,7 @@ GEOSLIB_API ES db_grad2angle(Db *db,
 /* Functions for Variogram */
 /***************************/
 
-GEOSLIB_API Vario *variogram_init(const String& cov_name,
-                                  double scale = 1,
-                                  const VectorDouble& dates = VectorDouble());
-GEOSLIB_API int variogram_direction_add(Vario *vario,
+GEOSLIB_API int variogram_direction_add(VarioParam *varioparam,
                                         int npas,
                                         int opt_code,
                                         int idate,
@@ -205,11 +201,11 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
                                    int varnb = 100,
                                    NamingConvention namconv = NamingConvention("Cloud"));
 GEOSLIB_API void variogram_print(Vario *vario, int verbose = false);
-GEOSLIB_API int variogram_pgs(Db *db,
-                              Vario* vario,
-                              RuleProp* ruleprop,
-                              int flag_rho = false,
-                              int opt_correl = 2);
+GEOSLIB_API Vario* variogram_pgs(Db *db,
+                                 const VarioParam* varioparam,
+                                 RuleProp* ruleprop,
+                                 int flag_rho = false,
+                                 int opt_correl = 2);
 GEOSLIB_API int vmap_compute(Db *db,
                              Db* dbmap,
                              int calcul_type = 0,
