@@ -134,8 +134,8 @@ Db::Db(const VectorInt& nx,
  * @param flag_add_rank 1 if the sample rank must be generated
  */
 Db::Db(const String& filename,
+       bool verbose,
        const CSVformat& csv,
-       int verbose,
        int ncol_max,
        int nrow_max,
        int flag_add_rank)
@@ -157,7 +157,7 @@ Db::Db(const String& filename,
 
   /* Reading the CSV file */
 
-  if (csv_table_read(filename.c_str(), verbose,
+  if (csv_table_read(filename.c_str(), (int) verbose,
                      csv.getFlagHeader(), csv.getNSkip(),
                      csv.getCharSep().c_str(), csv.getCharDec().c_str(),csv.getNaString().c_str(),
                      ncol_max, nrow_max, &ncol, &nrow, names, tab))

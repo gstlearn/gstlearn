@@ -65,7 +65,6 @@ namespace std {
 %include Interfaces/AParam.hpp
 %include Interfaces/AVariable.hpp
 %include Interfaces/AVariableTemplate.hpp
-%include Interfaces/CalcVarioExp.hpp
 %include Interfaces/Category.hpp
 %include Interfaces/Database.hpp
 %include Interfaces/Dictionary.hpp
@@ -73,9 +72,6 @@ namespace std {
 %include Interfaces/ParamCSV.hpp
 %include Interfaces/ParamGrid.hpp
 %include Interfaces/Param.hpp
-%include Interfaces/VarioDir.hpp
-%include Interfaces/VarioExp.hpp
-%include Interfaces/VarioValue.hpp
 %include Mesh/AMesh.hpp
 %include Mesh/MeshFactory.hpp
 %include Mesh/MeshEStandard.hpp
@@ -99,7 +95,6 @@ namespace std {
 %include Model/NoStatFunctional.hpp
 %include Neigh/Neigh.hpp
 %include Variogram/Vario.hpp
-%include Variogram/Dir.hpp
 %include Model/Model.hpp
 %include Model/Cova.hpp
 %include Model/Option_AutoFit.hpp

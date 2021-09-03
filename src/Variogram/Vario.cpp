@@ -171,7 +171,7 @@ Vario::Vario(const Vario& vario_in,
 
   for (int idir0 = 0; idir0 < ndir; idir0++)
   {
-    int idir = seldirs[idir];
+    int idir = seldirs[idir0];
     for (int ipas = 0; ipas < getLagNumber(idir); ipas++)
     {
       for (int ivar0 = 0; ivar0 < _nVar; ivar0++)
@@ -378,16 +378,18 @@ int Vario::computeIndic(const String& calcul_name,
 
 int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
 {
-  _db    = db;
-  int nvar = _db->getVariableNumber();
-  if (nvar <= 0)
+  _db = db;
+  if (db != (Db *) NULL)
   {
-    messerr("Some variables must be defined in the 'Db'");
-    return 1;
+    int nvar = _db->getVariableNumber();
+    if (nvar <= 0)
+    {
+      messerr("Some variables must be defined in the 'Db'");
+      return 1;
+    }
   }
   _means = means;
   _vars  = vars;
-  internalVariableResize();
   return 0;
 }
 
