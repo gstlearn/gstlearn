@@ -26,7 +26,18 @@ public:
   const FILE*   getFile() const { return _file; }
   const String& getFileName() const { return _fileName; }
   const String& getFileType() const { return _fileType; }
+  const String& getContainerName() const { return _containerName; }
+  const String& getPrefixName() const { return _prefixName; }
 
+  void setContainerName(const String& containerName)
+  {
+    _containerName = containerName;
+  }
+
+  void setPrefixName(const String& prefixName)
+  {
+    _prefixName = prefixName;
+  }
 
 protected:
   int _fileOpen(const String& filename,
@@ -39,8 +50,11 @@ protected:
   int  _fileRead(const String& format, va_list ap) const;
   void _fileWrite(const String& format, va_list ap) const;
   bool _onlyBlanks(char *string) const;
+  String _buildFileName(const String& filename) const;
 
 private:
+  mutable String _containerName;
+  mutable String _prefixName;
   mutable String _fileName;
   mutable String _fileType;
   mutable FILE*  _file;

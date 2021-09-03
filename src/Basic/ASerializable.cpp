@@ -22,7 +22,9 @@ static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR;
 static char *cur = NULL;
 
 ASerializable::ASerializable()
-  : _fileName()
+  : _containerName()
+  , _prefixName()
+  , _fileName()
   , _fileType()
   , _file(nullptr)
   , _currentRecord()
@@ -39,6 +41,9 @@ ASerializable::ASerializable()
  ** \param[in]  filetype Type of the file (optional [NULL] when 'w')
  ** \param[in]  mode     "r" or "w"
  ** \param[in]  verbose  Verbose flag
+ **
+ ** \remarks This input filename will be combined with the containerName
+ ** \remarks and the prefixName (if available)
  **
  *****************************************************************************/
 int ASerializable::_fileOpen(const String& filename,
@@ -65,16 +70,20 @@ int ASerializable::_fileOpen(const String& filename,
   {
     if (_file != nullptr)
     {
-      messerr("The storage ('w') in Neutral File is not impossible");
-      messerr("The previous file has not been closed beforehand");
-      return 1;
+      // If file is already opened... Do nothing
+      // This enables Serialization of different nested objects
+      return 0;
     }
   }
 
   // Open the File
   _fileName = filename;
   _fileType = filetype;
-  _file = fopen(filename.c_str(), mode.c_str());
+
+  // Build the multi-platform filename and open it
+
+  String fileLocal = _buildFileName(filename);
+  _file = fopen(fileLocal.c_str(), mode.c_str());
   if (_file == (FILE *) NULL)
   {
     messerr("Error when opening the Neutral File %s", filename.c_str());
@@ -388,6 +397,12 @@ bool ASerializable::_onlyBlanks(char *string) const
   return true;
 }
 
+String ASerializable::_buildFileName(const String& filename) const
+{
+  String fileLocal = filename;
+  return fileLocal;
+}
+
 String serializedFileIdentify(const String& filename)
 {
   // Preliminary check
@@ -417,3 +432,4 @@ String serializedFileIdentify(const String& filename)
 
   return filetype;
 }
+
