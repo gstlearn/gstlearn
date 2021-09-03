@@ -20,7 +20,7 @@ namespace std {
 
 %template(VectorCova) std::vector<Cova*>;
 %template(VectorCTable) std::vector<CTable*>;
-%template(VectorDir) std::vector<Dir>;  // Not a pointers list
+%template(VectorDir) std::vector<DirParam>;  // Not a pointers list
 %template(VectorDirection) std::vector<Direction*>;
 %template(VectorDrft) std::vector<Drift*>;
 %template(VectorFrac_Desc) std::vector<Frac_Desc*>;
@@ -53,6 +53,7 @@ namespace std {
 %include Basic/Limits.hpp
 %include Basic/Utilities.hpp
 %include Basic/CSVformat.hpp
+%include Basic/AFunctional.hpp
 %include Basic/FunctionalSpirale.hpp
 %include Space/Space.hpp
 %include Space/ASpace.hpp
@@ -95,6 +96,8 @@ namespace std {
 %include Model/NoStatFunctional.hpp
 %include Neigh/Neigh.hpp
 %include Variogram/Vario.hpp
+%include Variogram/VarioParam.hpp
+%include Variogram/DirParam.hpp
 %include Model/Model.hpp
 %include Model/Cova.hpp
 %include Model/Option_AutoFit.hpp
