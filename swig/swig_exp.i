@@ -95,6 +95,7 @@ namespace std {
 %include Model/NoStatArray.hpp
 %include Model/NoStatFunctional.hpp
 %include Neigh/Neigh.hpp
+%include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/DirParam.hpp
