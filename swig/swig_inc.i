@@ -73,7 +73,6 @@
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/DirParam.hpp"
-#include "Variogram/Dir.hpp"
 #include "Model/Model.hpp"
 #include "Model/Cova.hpp"
 #include "Model/Option_AutoFit.hpp"
