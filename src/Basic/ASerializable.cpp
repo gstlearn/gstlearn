@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include <boost/filesystem.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -20,6 +21,29 @@
 
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR;
 static char *cur = NULL;
+
+static String myContainerName = String();
+static String myPrefixName = String();
+
+void setSerializedContainerName(const String& containerName)
+{
+  myContainerName = containerName;
+}
+
+void setSerializedPrefixName(const String& prefixName)
+{
+  myPrefixName = prefixName;
+}
+
+const String& getSerializedContainerName()
+{
+  return myContainerName;
+}
+
+const String& getSerializedPrefixName()
+{
+  return myPrefixName;
+}
 
 ASerializable::ASerializable()
   : _containerName()
@@ -82,7 +106,7 @@ int ASerializable::_fileOpen(const String& filename,
 
   // Build the multi-platform filename and open it
 
-  String fileLocal = _buildFileName(filename);
+  String fileLocal = buildFileName(filename);
   _file = fopen(fileLocal.c_str(), mode.c_str());
   if (_file == (FILE *) NULL)
   {
@@ -397,9 +421,22 @@ bool ASerializable::_onlyBlanks(char *string) const
   return true;
 }
 
-String ASerializable::_buildFileName(const String& filename) const
+String ASerializable::buildFileName(const String& filename) const
 {
-  String fileLocal = filename;
+  boost::filesystem::path final;
+  if (! myContainerName.empty())
+  {
+    boost::filesystem::path local(myContainerName);
+    final += local;
+  }
+  if (! myPrefixName.empty())
+  {
+    boost::filesystem::path local(myPrefixName);
+    final += local;
+  }
+  boost::filesystem::path file(filename);
+  final += file;
+  String fileLocal = final.string();
   return fileLocal;
 }
 

@@ -22,7 +22,9 @@ int main(int argc, char *argv[])
 {
   VectorDouble vec1, vec2;
   bool verbose = false;
-  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
+  auto pygst = String(std::getenv("PYGSTLEARN_DIR"));
+  setSerializedContainerName(String(std::getenv("PYGSTLEARN_DIR")));
+  setSerializedPrefixName("TS-");
 
   // ===== Create the Db db1
   int nech = 20;
@@ -33,10 +35,10 @@ int main(int argc, char *argv[])
   db1.display();
   
   // Serialize db1
-  db1.serialize(pygst + "Neutral.Db.ascii",verbose);
+  db1.serialize("Neutral.Db.ascii",verbose);
 
   // Deserialize db2
-  Db db2(pygst + "Neutral.Db.ascii",verbose);
+  Db db2("Neutral.Db.ascii",verbose);
   db2.display();
 
   // ===== Create the Grid Db
@@ -48,10 +50,10 @@ int main(int argc, char *argv[])
   dbg1.display();
 
   // Serialize dbg1
-  dbg1.serialize(pygst + "Neutral.Dbg.ascii",verbose);
+  dbg1.serialize("Neutral.Dbg.ascii",verbose);
 
   // Deserialize dbg2
-  Db dbg2(pygst + "Neutral.Dbg.ascii",verbose);
+  Db dbg2("Neutral.Dbg.ascii",verbose);
   dbg2.display();
 
   // ===== Create the Polygon poly1
@@ -59,10 +61,10 @@ int main(int argc, char *argv[])
   poly1.display();
 
   // Serialize poly1
-  poly1.serialize(pygst + "Neutral.Polygon.ascii",verbose);
+  poly1.serialize("Neutral.Polygon.ascii",verbose);
 
   // Deserialize poly2
-  Polygons poly2(pygst + "Neutral.Polygon.ascii",verbose);
+  Polygons poly2("Neutral.Polygon.ascii",verbose);
   poly2.display();
 
   // ===== Compute an experimental variogram
@@ -74,10 +76,10 @@ int main(int argc, char *argv[])
   vario1.display();
 
   // Serialize vario1
-  vario1.serialize(pygst + "Neutral.Vario.ascii",verbose);
+  vario1.serialize("Neutral.Vario.ascii",verbose);
 
   // Deserialize vario2
-  Vario vario2(pygst + "Neutral.Vario.ascii",verbose);
+  Vario vario2("Neutral.Vario.ascii",verbose);
   vario2.display();
 
   // ===== Compute a Model
@@ -88,10 +90,10 @@ int main(int argc, char *argv[])
   model1.display();
 
   // Serialize model1
-  model1.serialize(pygst + "Neutral.Model.ascii",verbose);
+  model1.serialize("Neutral.Model.ascii",verbose);
 
   // Deserialize model2
-  Model model2(pygst + "Neutral.Model.ascii",verbose);
+  Model model2("Neutral.Model.ascii",verbose);
   model2.display();
 
   return(0);

@@ -29,7 +29,7 @@ ifeq ($(ARCH),linux)
      LDFLAGS  += -z defs -Wl,--hash-style=both 
      LSO       = $(LIBDIR)/lib$(TARGET).so
      LA        = $(LIBDIR)/$(TARGET).a
-     LIBS      = -lm
+     LIBS      = -lm -lboost_system
      CHMODCMD  = chmod 777
 endif
 
@@ -38,7 +38,7 @@ ifeq ($(ARCH),linux64)
      LDFLAGS  += -z defs -Wl,--hash-style=both
      LSO       = $(LIBDIR)/lib$(TARGET).so
      LA        = $(LIBDIR)/$(TARGET).a
-     LIBS      = -lm
+     LIBS      = -lm -lboost_system
      CHMODCMD  = chmod 777
 endif
 

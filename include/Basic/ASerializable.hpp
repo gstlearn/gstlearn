@@ -28,16 +28,7 @@ public:
   const String& getFileType() const { return _fileType; }
   const String& getContainerName() const { return _containerName; }
   const String& getPrefixName() const { return _prefixName; }
-
-  void setContainerName(const String& containerName)
-  {
-    _containerName = containerName;
-  }
-
-  void setPrefixName(const String& prefixName)
-  {
-    _prefixName = prefixName;
-  }
+  String buildFileName(const String& filename) const;
 
 protected:
   int _fileOpen(const String& filename,
@@ -50,7 +41,6 @@ protected:
   int  _fileRead(const String& format, va_list ap) const;
   void _fileWrite(const String& format, va_list ap) const;
   bool _onlyBlanks(char *string) const;
-  String _buildFileName(const String& filename) const;
 
 private:
   mutable String _containerName;
@@ -62,3 +52,7 @@ private:
 };
 
 String serializedFileIdentify(const String& filename);
+void setSerializedContainerName(const String& containerName);
+void setSerializedPrefixName(const String& prefixName);
+const String& getSerializedContainerName();
+const String& getSerializedPrefixName();
