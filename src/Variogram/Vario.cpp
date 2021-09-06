@@ -194,7 +194,6 @@ Vario::Vario(const Vario& vario_in,
           {
             int iadf1 = vario_in.getDirAddress(idir,ivar,jvar,ipas,false,-1);
             int iadf2 = vario_in.getDirAddress(idir,ivar,jvar,ipas,false,1);
-
             _sw[idir][iadto] = (vario_in.getSw(idir0, iadf1)
                 + vario_in.getSw(idir0, iadf2)) / 2.;
             _gg[idir][iadto] = (vario_in.getGg(idir0, iadf1)
@@ -203,6 +202,11 @@ Vario::Vario(const Vario& vario_in,
                 + ABS(vario_in.getHh(idir0, iadf2))) / 2.;
             _utilize[idir][iadto] = (vario_in.getUtilize(idir0, iadf1)
                 + vario_in.getUtilize(idir0, iadf2)) / 2.;
+            if (flagMakeSym)
+            {
+              double c0 = vario_in.getVars(ivar,jvar);
+              _gg[idir][iadto] = c0 - _gg[idir][iadto];
+            }
           }
         }
     }
@@ -447,7 +451,7 @@ void Vario::_directionResize(int idir)
   _sw[idir].resize(size);
   _gg[idir].resize(size);
   _hh[idir].resize(size);
-  _utilize[idir].resize(size);
+  _utilize[idir].resize(size,1.); // By default, all lags are usable
 }
 
 IClonable* Vario::clone() const
@@ -982,7 +986,7 @@ double Vario::getUtilize(int idir, int ivar, int jvar, int ipas) const
 VectorDouble Vario::getGgVec(int idir,
                              int ivar,
                              int jvar,
-                             bool flagCov,
+                             bool asCov,
                              bool flagNorm) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
@@ -992,7 +996,7 @@ VectorDouble Vario::getGgVec(int idir,
 
   VectorDouble gg;
   double c0 = 0.;
-  if (flagCov || flagNorm) c0 = getVars(ivar, jvar);
+  if (asCov || flagNorm) c0 = getVars(ivar, jvar);
   int npas = dirparam.getLagNumber();
 
   for (int ipas = 0 ; ipas < npas; ipas++)
@@ -1001,7 +1005,7 @@ VectorDouble Vario::getGgVec(int idir,
     if (IFFFF(iad)) continue;
     if (_sw[idir][iad] <= 0.) continue;
     double val = _gg[idir][iad];
-    if (flagCov && ! getFlagAsym())  val = c0 - val;
+    if (asCov && ! getFlagAsym())  val = c0 - val;
     if (flagNorm) val /= c0;
     gg.push_back(val);
   }

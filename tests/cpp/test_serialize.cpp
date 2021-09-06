@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
 {
   VectorDouble vec1, vec2;
   bool verbose = false;
-  auto pygst = String(std::getenv("PYGSTLEARN_DIR"));
   setSerializedContainerName(String(std::getenv("PYGSTLEARN_DIR")));
   setSerializedPrefixName("TS-");
 

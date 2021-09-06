@@ -21,7 +21,7 @@ class RuleProp : public AStringable
 {
 public:
   RuleProp();
-  RuleProp(const Db* dbprop, const VectorDouble& propcst);
+  RuleProp(const Db* dbprop, const VectorDouble& propcst = VectorDouble());
   RuleProp(const Rule* rule, const VectorDouble& propcst = VectorDouble());
   RuleProp(const Rule* rule, const Db* dbprop);
   RuleProp(const Rule* rule1, const Rule* rule2, const VectorDouble& propcst = VectorDouble());

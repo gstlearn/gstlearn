@@ -24,14 +24,15 @@
 int main(int argc, char *argv[])
 
 {
-  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
+  setSerializedContainerName(String(std::getenv("PYGSTLEARN_DIR")));
+  setSerializedPrefixName("PGS-");
   int error = 0;
   int ndim = 2;
   CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option
   set_test_discrete(false);
-  bool flagStationary = true;
+  bool flagStationary = false;
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
@@ -54,14 +55,14 @@ int main(int argc, char *argv[])
   CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
   model1.addCova(&cova1);
   model1.display();
-  model1.serialize(pygst+ "truemodel1.ascii");
+  model1.serialize("truemodel1.ascii");
 
   Model model2(ctxt);
   double range2 = 0.3;
   CovAniso cova2(COV_EXPONENTIAL,range2,1.,1.,ctxt);
   model2.addCova(&cova2);
   model2.display();
-  model2.serialize(pygst+ "truemodel2.ascii");
+  model2.serialize("truemodel2.ascii");
 
   // Creating the Neighborhood
   Neigh neigh = Neigh(ndim);
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
   // Creating the Rule
   Rule rule({"S","T","F1","F2","F3"});
   rule.display();
-  rule.serialize(pygst+ "truerule.ascii");
+  rule.serialize("truerule.ascii");
   RuleProp ruleprop;
   if (flagStationary)
     ruleprop = RuleProp(&rule, props);
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
   // Perform a non-conditional simulation on the Db
   error = simpgs(nullptr,&db,&ruleprop,&model1,&model2,&neigh);
   db.setLocator(db.getLastName(),LOC_Z);
-  db.serialize(pygst+ "simupgs.ascii");
+  db.serialize("simupgs.ascii");
 
   // Design of several VarioParams
   int nlag1 = 19;
@@ -111,26 +112,26 @@ int main(int argc, char *argv[])
   modelPGS1.fit(&vario1,covs,true,option);
   modelPGS1.display();
 
-  vario1.serialize(pygst+ "variopgs1.ascii");
-  modelPGS1.serialize(pygst+ "modelfitpgs1.ascii");
+  vario1.serialize("variopgs1.ascii");
+  modelPGS1.serialize("modelfitpgs1.ascii");
 
   modelPGS2.fit(&vario2,covs,true,option);
   modelPGS2.display();
 
-  vario2.serialize(pygst+ "variopgs2.ascii");
-  modelPGS2.serialize(pygst+ "modelfitpgs2.ascii");
+  vario2.serialize("variopgs2.ascii");
+  modelPGS2.serialize("modelfitpgs2.ascii");
 
   RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
   error = ruleprop2.fit(&db, &varioparam2, 2, true);
   ruleprop2.getRule()->display(1);
-  ruleprop2.getRule()->serialize(pygst + "ruleFit.ascii");
+  ruleprop2.getRule()->serialize("ruleFit.ascii");
 
   Vario varioIndic = Vario(&varioparam1, &db);
   varioIndic.computeIndic("vg");
-  varioIndic.serialize(pygst+ "varioindic.ascii");
+  varioIndic.serialize("varioindic.ascii");
 
   error = model_pgs(&db, &varioIndic, &ruleprop2, &modelPGS1, &modelPGS2);
-  varioIndic.serialize(pygst+ "modelpgs.ascii");
+  varioIndic.serialize("modelpgs.ascii");
   varioIndic.display(1);
 
   return(error);

@@ -16,7 +16,13 @@
 class OptimCostColored : public OptimCostBinary
 {
 public:
-	OptimCostColored();
+  OptimCostColored();
+  OptimCostColored(int nprop,
+                   PrecisionOp* pmat,
+                   const ProjMatrix* projdata,
+                   const ProjMatrix* projseis = nullptr,
+                   const VectorDouble& propseis = VectorDouble(),
+                   const VectorDouble& varseis = VectorDouble());
   OptimCostColored(const OptimCostColored &m);
   OptimCostColored& operator = (const OptimCostColored &m);
 	virtual ~OptimCostColored();

@@ -105,11 +105,11 @@ int ASerializable::_fileOpen(const String& filename,
 
   // Build the multi-platform filename and open it
 
-  String fileLocal = buildFileName(filename);
-  _file = fopen(fileLocal.c_str(), mode.c_str());
+  String fileComplete = buildFileName(filename);
+  _file = fopen(fileComplete.c_str(), mode.c_str());
   if (_file == (FILE *) NULL)
   {
-    messerr("Error when opening the Neutral File %s", filename.c_str());
+    messerr("Error when opening the Neutral File %s", fileComplete.c_str());
     return 1;
   }
 

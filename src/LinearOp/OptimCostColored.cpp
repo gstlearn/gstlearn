@@ -26,6 +26,20 @@ OptimCostColored::OptimCostColored()
 {
 }
 
+OptimCostColored::OptimCostColored(int nprop,
+                                   PrecisionOp* pmat,
+                                   const ProjMatrix* projdata,
+                                   const ProjMatrix* projseis,
+                                   const VectorDouble& propseis,
+                                   const VectorDouble& varseis)
+    : OptimCostBinary(),
+      _nprop(0),
+      _splits(),
+      _meanProps()
+{
+  init(nprop,pmat,projdata,projseis,propseis,varseis);
+}
+
 OptimCostColored::OptimCostColored(const OptimCostColored &m)
     : OptimCostBinary(),
       _nprop(m._nprop),
