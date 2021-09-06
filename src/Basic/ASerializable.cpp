@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
-#include <boost/filesystem.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -423,20 +422,33 @@ bool ASerializable::_onlyBlanks(char *string) const
 
 String ASerializable::buildFileName(const String& filename) const
 {
-  boost::filesystem::path final;
-  if (! myContainerName.empty())
+// TODO: t be restored when boost is usable for pygstlearn
+//  boost::filesystem::path final;
+//  if (! myContainerName.empty())
+//  {
+//    boost::filesystem::path local(myContainerName);
+//    final += local;
+//  }
+//  if (! myPrefixName.empty())
+//  {
+//    boost::filesystem::path local(myPrefixName);
+//    final += local;
+//  }
+//  boost::filesystem::path file(filename);
+//  final += file;
+//  String fileLocal = final.string();
+
+  String fileLocal;
+  if (!myContainerName.empty())
   {
-    boost::filesystem::path local(myContainerName);
-    final += local;
+    fileLocal += myContainerName;
   }
-  if (! myPrefixName.empty())
+  if (!myPrefixName.empty())
   {
-    boost::filesystem::path local(myPrefixName);
-    final += local;
+    fileLocal += myPrefixName;
   }
-  boost::filesystem::path file(filename);
-  final += file;
-  String fileLocal = final.string();
+  fileLocal += filename;
+
   return fileLocal;
 }
 

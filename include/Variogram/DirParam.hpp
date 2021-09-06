@@ -12,6 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "geoslib_define.h"
 
 class Db;
 
@@ -27,7 +28,7 @@ public:
            int idate = 0,
            double bench = TEST,
            double cylrad = TEST,
-           double tolcode = 0,
+           double tolcode = 0.,
            VectorDouble breaks = VectorDouble(),
            VectorDouble codir  = VectorDouble(),
            VectorInt grincr    = VectorInt());
