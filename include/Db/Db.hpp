@@ -185,7 +185,8 @@ public:
   int getLocator(const String& name,
                  ENUM_LOCS *ret_locatorType,
                  int *ret_locatorIndex) const;
-  VectorString getLocators(void) const;
+  VectorString getLocators(bool anyLocator = true,
+                           ENUM_LOCS locatorType = LOC_UNKNOWN) const;
   int getLocatorNumber(ENUM_LOCS locatorType) const;
   bool isAttributeDefined(int iatt) const;
 
@@ -559,7 +560,7 @@ private:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
-  int  _variableWrite(bool flag_grid) const;
+  int  _variableWrite(bool flag_grid, bool onlyLocator=false) const;
   void _variableRead(int *natt_r,
                      int *ndim_r,
                      int *nech_r,

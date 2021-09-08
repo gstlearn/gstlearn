@@ -732,10 +732,10 @@ static int st_vario_pgs_variable(int    mode,
   {
     case 1:
       
-      /* The proportions */
+      /* The proportions (if not already present in correct number) */
       
       is_prop_defined = false;
-      if (flag_prop && db->getProportionNumber() == 0)
+      if (flag_prop && db->getProportionNumber() != nfacies)
       {
         iptr = db->addFields(nfacies,0.,String(),LOC_P);
         if (iptr < 0) return(1);
@@ -774,7 +774,7 @@ static int st_vario_pgs_variable(int    mode,
         
         for (int i=0; i<nloop; i++)
         {
-          ifac = (flag_one) ? (int) db->getVariable(iech,0) : i+1;
+          ifac = (flag_one) ? (int) db->getVariable(iech,0) : i;
           jfac = (flag_one) ? ifac : ifac+1;
           if (rule_thresh_define(propdef,db,rule,jfac,iech,0,0,0,
                                  &t1min,&t1max,&t2min,&t2max)) return(1);
@@ -3552,18 +3552,18 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
           if (vario->getFlagAsym())
           {
             iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
-            vario->setGg(idir, iad, TEST);
+            vario->setGg(idir, iad, 0.);
             vario->setHh(idir, iad, vario->getHh(idir,iad) - dist);
             vario->setSw(idir, iad, vario->getSw(idir,iad) + 1);
             iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,-1);
-            vario->setGg(idir, iad, TEST);
+            vario->setGg(idir, iad, 0.);
             vario->setHh(idir, iad, vario->getHh(idir,iad) + dist);
             vario->setSw(idir, iad, vario->getSw(idir,iad) + 1);
           }      
           else
           {
             iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,0);
-            vario->setGg(idir, iad, TEST);
+            vario->setGg(idir, iad, 0.);
             vario->setHh(idir, iad, vario->getHh(idir,iad) + dist);
             vario->setSw(idir, iad, vario->getSw(idir,iad) + 1);
           }
@@ -4558,10 +4558,6 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
     if (st_variogram_geometry_pgs_calcul(local_pgs,vario,idir)) return(1);
     if (st_variogram_geometry_pgs_final(local_pgs)) return(1);
 
-    /* Clean the distance and variogram */
-
-//    vario->clean(idir);
-
     /* Loop on the lags */
 
     for (ipas=0; ipas<vario->getLagNumber(idir); ipas++)
@@ -4589,21 +4585,15 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
             if (local_pgs->vario->getFlagAsym())
             {
               i = vario->getDirAddress(idir,ifac,jfac,ipas,false,1);
-              vario->setSw(idir, i, vario->getSw(idir,i) + 1.);
-              vario->setHh(idir, i, vario->getHh(idir,i) + dist);
               vario->setGg(idir, i, vario->getGg(idir,i) +
                 st_get_value(local_pgs,flag_ind,iech,jech,ifac,jfac,iconf,cov));
               i = vario->getDirAddress(idir,ifac,jfac,ipas,false,-1);
-              vario->setSw(idir, i, vario->getSw(idir,i) + 1.);
-              vario->setHh(idir, i, vario->getHh(idir,i) - dist);
               vario->setGg(idir, i, vario->getGg(idir,i) +
                 st_get_value(local_pgs,flag_ind,jech,iech,ifac,jfac,iconf,cov));
             }        
             else
             {
               i = vario->getDirAddress(idir,ifac,jfac,ipas,false,0);
-              vario->setSw(idir, i, vario->getSw(idir,i) + 1.);
-              vario->setHh(idir, i, vario->getHh(idir,i) + dist);
               vario->setGg(idir, i, vario->getGg(idir,i) +
                 st_get_value(local_pgs,flag_ind,iech,jech,ifac,jfac,iconf,cov));
             }
@@ -4696,7 +4686,8 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
   
   // Duplicate Number and Distance for all lags (from the first simple variogram)
 
-  if (st_copy_swhh(local_pgs->vario, local_pgs->vario, true, true, false)) return 1;
+  local_pgs->varioind->display(1);
+  if (st_copy_swhh(local_pgs->varioind, local_pgs->vario, true, true, false)) return 1;
 
   /* Loop on the directions */
   
@@ -4917,22 +4908,30 @@ label_end:
 ** \return  Error return code
 **
 ** \param[in]  db         Db descriptor
-** \param[in]  vario      Vario structure
+** \param[in]  varioparam VarioParam structure
 ** \param[in]  ruleprop   RuleProp structure
 ** \param[in]  model1     First Model structure
 ** \param[in]  model2     Second Model structure (optional)
 **
 *****************************************************************************/
-GEOSLIB_API int model_pgs(Db*       db,
-                          Vario*    vario,
-                          RuleProp* ruleprop,
-                          Model*    model1,
-                          Model*    model2)
+GEOSLIB_API Vario* model_pgs(Db* db,
+                             VarioParam* varioparam,
+                             RuleProp* ruleprop,
+                             Model* model1,
+                             Model* model2)
 {
+  Vario* vario;
+  Vario* varioind;
+
+  if (varioparam == NULL)
+  {
+    messerr("The VarioParam must be provided");
+    return nullptr;
+  }
   if (ruleprop == nullptr)
   {
     messerr("RuleProp must be defined");
-    return 1;
+    return nullptr;
   }
   int flag_stat = ruleprop->isFlagStat();
   const Rule* rule = ruleprop->getRule();
@@ -4941,72 +4940,85 @@ GEOSLIB_API int model_pgs(Db*       db,
 
   Local_Pgs local_pgs;
   PropDef  *propdef;
-  Model  *new_model;
+  Model    *new_model;
   
   /*******************/
   /* Initializations */
   /*******************/
 
   int error  = 1;
-  int nfacies = 0;
-  int     ngrf = 0;
+  int nfacies = rule->getFaciesNumber();
+  int ngrf = rule->getGRFNumber();
+  if(rule->getModeRule() == RULE_SHIFT) ngrf++;
+
   new_model = (Model *) NULL;
   propdef   = (PropDef *) NULL;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
   if (st_check_test_discret(rule->getModeRule(), 0)) goto label_end;
 
-  /* Extract information from Rule */
-
-  ngrf = rule->getGRFNumber();
-  nfacies = rule->getFaciesNumber();
-  if(rule->getModeRule() == RULE_SHIFT) ngrf++;
-
-  /* Preliminary checks */
-
-  if (st_vario_pgs_check(-1,1,0,db,dbprop,vario,NULL,rule)) goto label_end;
-  vario->setNVar(nfacies);
-  
   /* Merge the models */
 
   new_model = model_rule_combine(model1,model2,rule);
   if (new_model == (Model *) NULL)
   {
     messerr("The Model(s) must be defined");
-    return(1);
+    return nullptr;
   }
   if (new_model->getVariableNumber() != ngrf)
   {
     messerr("The number of GRF is not equal to the number of variables");
     messerr("defined in the combined Model");
-    return(1);
+    return nullptr;
   }
+
   if (! flag_stat)
   {
     if (db == (Db *) NULL)
     {
       messerr("You must define the Input Db");
-      return(1);
+      return nullptr;
     }
-    if (db->getNDim() != vario->getDimensionNumber())
+    if (db->getNDim() != varioparam->getDimensionNumber())
     {
       messerr("Inconsistent parameters:");
       messerr("Input DB : NDIM=%d",db->getNDim());
-      messerr("Variogram: NDIM=%d",vario->getDimensionNumber());
-      return(1);
+      messerr("Variogram: NDIM=%d",varioparam->getDimensionNumber());
+      return nullptr;
     }
-    if (dbprop != (Db *) NULL && dbprop->getNDim() != vario->getDimensionNumber())
+    if (dbprop != (Db *) NULL &&
+        dbprop->getNDim() != varioparam->getDimensionNumber())
     {
       messerr("Space Dimension inconsistency between Dbprop and Vario");
-      return(1);
+      return nullptr;
     }
     if (new_model->getDimensionNumber() != db->getNDim())
     {
       messerr("The Space Dimension of the Db structure (%d)",db->getNDim());
       messerr("Does not correspond to the Space Dimension of the model (%d)",
               new_model->getDimensionNumber());
-      goto label_end;
+      return nullptr;
     }
   }
+
+  // Initiate the output class
+
+  vario = new Vario(varioparam, db);
+  vario->setCalculName("vg");
+  vario->setNVar(nfacies);
+  vario->internalVariableResize();
+  vario->internalDirectionResize();
+
+  // Calculate the variogram of Indicators
+  if (flag_stat)
+  {
+    varioind = new Vario(varioparam, db);
+    if (varioind->computeIndic("vg")) return nullptr;
+  }
+
+  /* Preliminary checks */
+
+  if (st_vario_pgs_check(-1, 1, flag_stat, db, dbprop, vario, varioind, rule))
+    goto label_end;
 
   /*******************/
   /* Core allocation */
@@ -5025,7 +5037,7 @@ GEOSLIB_API int model_pgs(Db*       db,
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(1,0,1,200,100,-1.,1.,NULL);
 
-  st_manage_pgs(1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
+  st_manage_pgs(1,&local_pgs,db,rule,vario,varioind,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
 
   /* Calculate the variogram and the variance matrix */
@@ -5051,13 +5063,18 @@ GEOSLIB_API int model_pgs(Db*       db,
 label_end:
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
-  st_manage_pgs(-1,&local_pgs,db,rule,vario,NULL,new_model,propdef,
+  st_manage_pgs(-1,&local_pgs,db,rule,vario,varioind,new_model,propdef,
                 flag_stat,0,1,ngrf,nfacies,vario->getCalculType());
   new_model = model_free(new_model);
   (void) st_vario_pgs_variable(-1,ngrf,nfacies,0,1,db,propdef,rule);
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
-  return(error);
+  if (error)
+  {
+    delete vario;
+    vario = nullptr;
+  }
+  return vario;
 }
 
 /****************************************************************************/
@@ -5204,7 +5221,6 @@ GEOSLIB_API Vario* variogram_pgs(Db* db,
             db->getVariableNumber());
     return nullptr;
   }
-
   int nclass = rule->getFaciesNumber();
   if (nclass <= 0)
   {
@@ -5447,6 +5463,8 @@ label_end:
     CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
   st_manage_pgs(-1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
                 flag_stat,1,0,NGRF,NCOLOR,vario->getCalculType());
+  (void) st_vario_pgs_variable(-1,NGRF,NCOLOR,1,0,db,propdef,NULL);
+
   propdef = proportion_manage(-1,1,flag_stat,NGRF,0,NCOLOR,0,
                               db,dbprop,propcst,propdef);
   if (error) rule = rule_free(rule);

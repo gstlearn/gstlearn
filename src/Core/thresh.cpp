@@ -3,7 +3,6 @@
 /*                                                                            */
 /* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
 /* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
@@ -981,8 +980,7 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
       {
         // Non-stationary case
 
-        db_loc = (propdef->case_prop_interp) ? dbprop :
-                                               db;
+        db_loc = (propdef->case_prop_interp) ? dbprop : db;
         if (db_loc == nullptr)
         {
           messerr("You have requested Non-stationary proportions");
@@ -1012,14 +1010,10 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
         double pref = 1. / (double) nfacprod;
         for (ifac = 0; ifac < nfacprod; ifac++)
         {
-          propdef->propfix[ifac] = (propcst.empty()) ? pref :
-                                                       propcst[ifac];
-          propdef->propwrk[ifac] = (propcst.empty()) ? pref :
-                                                       propcst[ifac];
-          propdef->proploc[ifac] = (propcst.empty()) ? pref :
-                                                       propcst[ifac];
-          propdef->propmem[ifac] = (propcst.empty()) ? pref :
-                                                       propcst[ifac];
+          propdef->propfix[ifac] = (propcst.empty()) ? pref : propcst[ifac];
+          propdef->propwrk[ifac] = (propcst.empty()) ? pref : propcst[ifac];
+          propdef->proploc[ifac] = (propcst.empty()) ? pref : propcst[ifac];
+          propdef->propmem[ifac] = (propcst.empty()) ? pref : propcst[ifac];
         }
       }
 

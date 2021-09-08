@@ -31,7 +31,7 @@ public:
         const VectorInt& varcols,
         const VectorInt& dircols,
         bool asSymmetric = false);
-  Vario(const String& neutralFileName, bool verbose);
+  Vario(const String& neutralFileName, bool verbose = false);
   Vario(const Vario& r);
   Vario& operator=(const Vario& r);
   virtual ~Vario();

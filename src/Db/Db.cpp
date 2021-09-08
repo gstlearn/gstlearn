@@ -742,11 +742,19 @@ int Db::getLocator(const String& name,
   return getLocator(iatts[0], ret_locatorType, ret_locatorIndex);
 }
 
-VectorString Db::getLocators(void) const
+VectorString Db::getLocators(bool anyLocator, ENUM_LOCS locatorType) const
 {
   VectorString retval;
+  ENUM_LOCS type;
+  int item;
+
   for (int icol = 0; icol < _ncol; icol++)
   {
+    if (! anyLocator)
+    {
+      (void) getLocatorByColumn(icol, &type, &item);
+      if (type != locatorType) continue;
+    }
     String string = _getLocatorNameByColumn(icol);
     retval.push_back(string);
   }
@@ -3435,6 +3443,7 @@ int Db::deSerialize(const String& filename, bool verbose)
 
 int Db::serialize(const String& filename, bool verbose) const
 {
+  bool onlyLocator = false;
   bool flag_grid = isGrid();
 
   /* Opening the Data file */
@@ -3468,7 +3477,7 @@ int Db::serialize(const String& filename, bool verbose) const
 
   /* Writing the tail of the file */
 
-  if (_variableWrite(flag_grid)) return 1;
+  if (_variableWrite(flag_grid, onlyLocator)) return 1;
 
   // Close the Neutral file
   _fileClose(verbose);
@@ -3476,7 +3485,7 @@ int Db::serialize(const String& filename, bool verbose) const
   return 0;
 }
 
-int Db::_variableWrite(bool flag_grid) const
+int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
 {
   int ecr, item;
   ENUM_LOCS locatorType;
@@ -3490,7 +3499,7 @@ int Db::_variableWrite(bool flag_grid) const
   int ncol = 0;
   for (int icol = 0; icol < getFieldNumber(); icol++)
   {
-    if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
+    if (onlyLocator && ! getLocatorByColumn(icol, &locatorType, &item)) continue;
     if (flag_grid && locatorType == LOC_X) continue;
     ncol++;
   }
@@ -3501,9 +3510,15 @@ int Db::_variableWrite(bool flag_grid) const
 
   _recordWrite("#", "Locators");
   ecr = 0;
+  int rankZ = getLocatorNumber(LOC_Z);
   for (int icol =  0; icol < getFieldNumber(); icol++)
   {
-    if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
+    if (! getLocatorByColumn(icol, &locatorType, &item))
+    {
+      if (onlyLocator) continue;
+      locatorType = LOC_Z;
+      item = rankZ++;
+    }
     if (flag_grid && locatorType == LOC_X) continue;
     if (ecr >= ncol) break;
     String string = getLocatorName(locatorType, item);
@@ -3515,13 +3530,15 @@ int Db::_variableWrite(bool flag_grid) const
   /* Print the variable names */
 
   _recordWrite("#", "Names");
+  VectorInt iatts;
   ecr = 0;
   for (int icol = 0; icol < getFieldNumber(); icol++)
   {
-    if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
+    if (onlyLocator && ! getLocatorByColumn(icol, &locatorType, &item)) continue;
     if (flag_grid && locatorType == LOC_X) continue;
     if (ecr >= ncol) break;
     _recordWrite("%s", getNameByColumn(icol).c_str());
+    iatts.push_back(getAttribute(getNameByColumn(icol)));
   }
   _recordWrite("\n");
 
@@ -3533,9 +3550,18 @@ int Db::_variableWrite(bool flag_grid) const
     if (!flag_grid && !getSelection(iech)) continue;
     for (int icol = 0; icol < getFieldNumber(); icol++)
     {
-      if (! getLocatorByColumn(icol, &locatorType, &item)) continue;
+      int rank;
+      if (! getLocatorByColumn(icol, &locatorType, &item))
+      {
+        if (onlyLocator) continue;
+        locatorType = LOC_Z;
+        rank = iatts[icol];
+      }
+      else
+      {
+        rank = getAttribute(locatorType, item);
+      }
       if (flag_grid && locatorType == LOC_X) continue;
-      int rank = getAttribute(locatorType, item);
       _recordWrite("%lf", getArray(iech, rank));
     }
     _recordWrite("\n");
