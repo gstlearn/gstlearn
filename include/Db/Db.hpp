@@ -151,6 +151,7 @@ public:
                 int locatorIndex = 0,
                 int nechInit = 1);
   int addSelection(const VectorDouble& tab, const String& name = "NewSel");
+  int addSelection(const String& testvar, const String& name = "NewSel");
   int addSamples(int nadd, double valinit);
   void deleteSample(int e_del);
   void switchLocator(ENUM_LOCS locatorTypein, ENUM_LOCS locatorTypeout);

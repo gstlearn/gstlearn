@@ -188,7 +188,7 @@ Db::Db(const String& filename,
  * Creating a grid Db which covers the extension of the input 'Db'
  *
  * @param db       Input Db from which the newly created Db is constructed
- * @param nodes    Vector of the expected number of grid nodes
+ * @param nodes    Vector of the expected number of grid nodes (default = 10)
  * @param dcell    Vector of the expected sizes for the grid meshes
  * @param origin   Vector of the expected origin of the grid
  * @param margin   Vector of the expected margins of the grid
@@ -1254,8 +1254,7 @@ int Db::addFields(const VectorDouble& tab,
   if (_nech <= 0) _nech = static_cast<int> (tab.size()) / nvar;
 
   // Check dimensions
-  int nech = (useSel) ? getActiveSampleNumber() :
-                        getSampleNumber();
+  int nech = (useSel) ? getActiveSampleNumber() : getSampleNumber();
   if ((int) tab.size() != nvar * nech)
   {
     messerr("Db::addFields : Incompatibility between dimension of 'tab' (%d)", tab.size());
@@ -1376,6 +1375,25 @@ int Db::addSelection(const VectorDouble& tab, const String& name)
 {
   int iatt = addFields(tab, name, LOC_SEL);
   return iatt;
+}
+
+/**
+ * Create a selection around the only defined values of the target variable
+ * @param testvar Name of the target variable
+ * @param name    Name of the newly created selection
+ * @return
+ */
+int Db::addSelection(const String& testvar, const String& name)
+{
+  int iatt = addFields(1,0.,name,LOC_SEL);
+  if (iatt < 0) return 1;
+
+  for (int iech = 0; iech < getSampleNumber(); iech++)
+  {
+    double answer = (FFFF(getValue(testvar,iech))) ? 0. : 1.;
+    setArray(iech, iatt, answer);
+  }
+  return 0;
 }
 
 int Db::addSamples(int nadd, double valinit)
