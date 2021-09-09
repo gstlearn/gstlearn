@@ -235,7 +235,7 @@ int SPDE::query(Db* db, NamingConvention namconv) const
      }
       suffix = "condSimu";
   }
-  int iptr = db->addFields(result,"SPDE",LOC_Z,true,TEST);
+  int iptr = db->addFields(result,"SPDE",LOC_Z,0,true,TEST);
   namconv.setNamesAndLocators(_data,LOC_Z,1,db,iptr,suffix,1,true);
   return iptr;
 }

@@ -403,7 +403,7 @@ void ASerializable::_fileWrite(const String& format, va_list ap) const
   }
   else
   {
-    messerr("Wrong format %s", format);
+    messerr("Wrong format %s", format.c_str());
     return;
   }
   if (!no_blank) fprintf(_file, " ");

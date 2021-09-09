@@ -55,7 +55,7 @@ public:
                      int nbsimu) const override;
 
 
-  bool checkModel(const Model* model, int nvar = 0) const;
+  bool checkModel(const Model* model, int nvar = 0) const override;
 
   double getShDown() const { return _shDown; }
   double getShDsup() const { return _shDsup; }
