@@ -25,7 +25,6 @@ public:
   APolynomial(VectorDouble coeffs);
   APolynomial(const APolynomial& p): _coeffs(p._coeffs){}
   APolynomial & operator=(const APolynomial& p);
-  virtual IClonable* clone() const = 0;
   void init(VectorDouble coeffs);
   virtual ~APolynomial() {};
   String toString(int level = 0) const override;

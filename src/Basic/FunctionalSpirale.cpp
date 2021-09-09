@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/AFunctional.hpp"
+#define _USE_MATH_DEFINES // To make M_PI available under windows
 #include <math.h>
 
 FunctionalSpirale::FunctionalSpirale()

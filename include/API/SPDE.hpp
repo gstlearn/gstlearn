@@ -59,6 +59,5 @@ private:
   mutable VectorVectorDouble _workKriging;
   mutable VectorVectorDouble _workingSimu;
   std::vector<ProjMatrix*>   _projOnDbOut;
-  int _seed;
   // query sur aproj ou
 };

@@ -24,6 +24,5 @@ private:
   Db* _data;
   std::vector<SPDE> _spdeTab;
   RuleProp _ruleProp;
-  mutable Db* _workingDb;
   ENUM_CALCUL_MODE _calcul;
 };
