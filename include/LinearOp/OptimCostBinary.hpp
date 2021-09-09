@@ -73,6 +73,7 @@ protected:
 private:
   bool _isInitialized;
   bool _flagSeismic;
+  double _meanPropRaw;
   double _meanPropGaus;
   PrecisionOp* _pMat;
   const ProjMatrix*  _projData;

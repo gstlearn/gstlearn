@@ -2811,18 +2811,18 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
   return sstr.str();
 }
 
-void Db::display(unsigned char params,
-                 const VectorInt& cols,
-                 bool flagSel,
-                 int mode) const
+void Db::displayMore(unsigned char params,
+                     const VectorInt& cols,
+                     bool flagSel,
+                     int mode) const
 {
   messageFlush(_display(params, cols, flagSel, mode));
 }
 
-void Db::display(unsigned char params,
-                 const VectorString& names,
-                 bool flagSel,
-                 int mode) const
+void Db::displayMore(unsigned char params,
+                     const VectorString& names,
+                     bool flagSel,
+                     int mode) const
 {
   VectorInt iatts = ids(names, false);
   if (iatts.empty()) return;

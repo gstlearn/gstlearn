@@ -37,7 +37,7 @@ static Model  *MODEL;
 static Db     *DBMAP;
 static int     IDIRLOC;
 static double *BETA,*DRFLOC,*DRFTAB,*MATDRF,*DRFXA,*DRFGX,*DRFXGX,*DRFDIAG;
-static int     NVAR,IECH1,IECH2,IPTV,IPTW;
+static int     IECH1,IECH2,IPTV,IPTW;
 
 static int NWGT[4]      = {2, 3, 4, 5};
 static int NORWGT[4]    = {2, 6, 20, 70};
@@ -546,6 +546,7 @@ static void st_print_debug(int iech1,
 **  Internal function for setting a variogram value
 **
 ** \param[in]  calcul_type Type of calculation
+** \param[in]  nvar   Number of variables
 ** \param[in]  ipas   Rank of the variogram lag
 ** \param[in]  ivar   Index of the first variable
 ** \param[in]  jvar   Index of the second variable
@@ -556,6 +557,7 @@ static void st_print_debug(int iech1,
 **
 *****************************************************************************/
 static void st_variogram_set(int    calcul_type,
+                             int    nvar,
                              int    ipas,
                              int    ivar,
                              int    jvar,
@@ -581,6 +583,7 @@ static void st_variogram_set(int    calcul_type,
 **  Internal function for setting a VMAP value
 **
 ** \param[in]  calcul_type Unused
+** \param[in]  nvar   Number of variables
 ** \param[in]  ipas   Rank of the variogram lag
 ** \param[in]  ivar   Index of the first variable
 ** \param[in]  jvar   Index of the second variable
@@ -591,6 +594,7 @@ static void st_variogram_set(int    calcul_type,
 **
 *****************************************************************************/
 static void st_vmap_set(int    calcul_type,
+                        int    nvar,
                         int    ipas,
                         int    ivar,
                         int    jvar,
@@ -601,7 +605,7 @@ static void st_vmap_set(int    calcul_type,
 {
   int ijvar;
 
-  ijvar = st_get_variable_order(NVAR,ivar,jvar);
+  ijvar = st_get_variable_order(nvar,ivar,jvar);
       
   DBMAP->updArray(ipas,IPTV + ijvar,0,ww * value);
   DBMAP->updArray(ipas,IPTW + ijvar,0,ww);
@@ -642,6 +646,7 @@ static void st_variogram_evaluate(Db    *db,
                                   double dist,
                                   int    do_asym,
                                   void (*st_generic_set)(int    calcul_type,
+                                                         int    nvar,
                                                          int    iadlag,
                                                          int    ivar,
                                                          int    jvar,
@@ -677,7 +682,7 @@ static void st_variogram_evaluate(Db    *db,
               ! FFFF(z12) && ! FFFF(z22))
           {
             value = (z12 - z11) * (z22 - z21) / 2.;
-            st_generic_set(calcul_type,ipas,ivar,jvar,0,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,0,scale,dist,value);
           }
         }
       break;
@@ -695,7 +700,7 @@ static void st_variogram_evaluate(Db    *db,
               ! FFFF(z12) && ! FFFF(z22))
           {
             value = sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
-            st_generic_set(calcul_type,ipas,ivar,jvar,0,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,0,scale,dist,value);
           }
         }
       break;
@@ -713,7 +718,7 @@ static void st_variogram_evaluate(Db    *db,
               ! FFFF(z12) && ! FFFF(z22))
           {
             value = pow(ABS((z12 - z11) * (z22 - z21)),0.25) / 2.;
-            st_generic_set(calcul_type,ipas,ivar,jvar,0,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,0,scale,dist,value);
           }
         }
       break;
@@ -732,7 +737,7 @@ static void st_variogram_evaluate(Db    *db,
               (w1 > 0. && w2 > 0.))
           {
             value = (z12 - z11) * (z22 - z21) / 2.;
-            st_generic_set(calcul_type,ipas,ivar,jvar,0,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,0,scale,dist,value);
           }
         }
       break;
@@ -750,12 +755,12 @@ static void st_variogram_evaluate(Db    *db,
           if (! FFFF(z11) && ! FFFF(z22))
           {
             value  = z11 * z22;
-            st_generic_set(calcul_type,ipas,ivar,jvar,orient,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,orient,scale,dist,value);
           }
           if (! FFFF(z12) && ! FFFF(z21) && do_asym)
           {
             value  = z12 * z21;
-            st_generic_set(calcul_type,ipas,ivar,jvar,-orient,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,-orient,scale,dist,value);
           }
         }
       break;
@@ -772,12 +777,12 @@ static void st_variogram_evaluate(Db    *db,
           if (! FFFF(z11) && ! FFFF(z22))
           {
             value  = z11 * z22;
-            st_generic_set(calcul_type,ipas,ivar,jvar,orient,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,orient,scale,dist,value);
           }
           if (! FFFF(z12) && ! FFFF(z21) && do_asym)
           {
             value  = z12 * z21;
-            st_generic_set(calcul_type,ipas,ivar,jvar,-orient,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,-orient,scale,dist,value);
           }
         }
       break;
@@ -796,7 +801,7 @@ static void st_variogram_evaluate(Db    *db,
           {
             value  = (z12 - z11) * (z22 - z21);
             value  = value * value / 2.;
-            st_generic_set(calcul_type,ipas,ivar,jvar,0,scale,dist,value);
+            st_generic_set(calcul_type,nvar,ipas,ivar,jvar,0,scale,dist,value);
           }
         }
       break;
@@ -820,10 +825,12 @@ static void st_variogram_evaluate(Db    *db,
 GEOSLIB_API void variogram_scale(Vario *vario,
                                  int idir)
 {
+  int nvar = vario->getVariableNumber();
+
   /* Scale the experimental variogram quantities */
   
   int ecr = 0;
-  for (int ivar=0; ivar<NVAR; ivar++)
+  for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<=ivar; jvar++)
     {
       for (int i=0; i<vario->getLagTotalNumber(idir); i++,ecr++)
@@ -849,7 +856,7 @@ GEOSLIB_API void variogram_scale(Vario *vario,
 
   if (vario->getCalculType() == CALCUL_TRANS1)
   {
-    for (int ivar=0; ivar<NVAR; ivar++)
+    for (int ivar=0; ivar<nvar; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
       {
         for (int i=0; i<vario->getLagTotalNumber(idir); i++,ecr++)
@@ -862,7 +869,7 @@ GEOSLIB_API void variogram_scale(Vario *vario,
   }
   else if (vario->getCalculType() == CALCUL_TRANS2)
   {
-    for (int ivar=0; ivar<NVAR; ivar++)
+    for (int ivar=0; ivar<nvar; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
       {
         for (int i=0; i<vario->getLagTotalNumber(idir); i++,ecr++)
@@ -875,7 +882,7 @@ GEOSLIB_API void variogram_scale(Vario *vario,
   }
   else if (vario->getCalculType() == CALCUL_BINORMAL)
   {
-    for (int ivar=0; ivar<NVAR; ivar++)
+    for (int ivar=0; ivar<nvar; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
       {
         for (int i=0; i<vario->getLagTotalNumber(idir); i++,ecr++)
@@ -1607,7 +1614,6 @@ static void st_variogram_calcul_internal(Db    *db,
       
       VARIO   = vario;
       IDIRLOC = idir;
-      NVAR    = vario->getVariableNumber();
       IECH1   = iech;
       IECH2   = jech;
       st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
@@ -1764,7 +1770,6 @@ static int st_variogram_calcul1(Db    *db,
         
         VARIO   = vario;
         IDIRLOC = idir;
-        NVAR    = vario->getVariableNumber();
         IECH1   = iech;
         IECH2   = jech;
         st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
@@ -1889,7 +1894,6 @@ static int st_variogram_calcul2(Db    *db,
       /* Evaluate the variogram */
 
       VARIO  = vario;
-      NVAR   = vario->getVariableNumber();
       IECH1  = iech;
       IECH2  = jech;
       st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
@@ -2132,7 +2136,6 @@ static int st_variogram_grid(Db    *db,
       dist    = ipas * dirparam.getDPas();
       VARIO   = vario;
       IDIRLOC = idir;
-      NVAR    = vario->getVariableNumber();
       IECH1   = iech;
       IECH2   = jech;
       st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
@@ -2180,7 +2183,7 @@ static void st_variogen_line(Db    *db,
                              int    idir,
                              int    norder)
 {
-  int    iech,jech,nech,ipas,npas,iwgt,keep;
+  int    iech,jech,nech,ipas,npas,iwgt,keep,nvar;
   double dist,dist0,value,zz,psmin,ps;
 
   const DirParam& dirparam = vario->getDirParam(idir);
@@ -2231,8 +2234,8 @@ static void st_variogen_line(Db    *db,
       {
         value  = value * value / NORWGT[norder];
         VARIO  = vario;
-        NVAR   = vario->getVariableNumber();
-        st_variogram_set(vario->getCalculType(),ipas,0,0,0,1.,dist0,value);
+        nvar   = vario->getVariableNumber();
+        st_variogram_set(vario->getCalculType(),nvar,ipas,0,0,0,1.,dist0,value);
       }
     }
   }
@@ -2270,7 +2273,7 @@ static int st_variogen_grid(Db    *db,
                             int    norder)
 {
   int    *indg1,*indg2;
-  int     iwgt,iech,jech,nech,ipas,idim,error,npas,keep;
+  int     iwgt,iech,jech,nech,ipas,idim,error,npas,keep,nvar;
   double  dist,zz,value;
 
   /* Initializations */
@@ -2333,8 +2336,8 @@ static int st_variogen_grid(Db    *db,
       {
         value  = value * value / NORWGT[norder];
         VARIO  = vario;
-        NVAR   = vario->getVariableNumber();
-        st_variogram_set(vario->getCalculType(),ipas,0,0,0,1.,dist,value);
+        nvar   = vario->getVariableNumber();
+        st_variogram_set(vario->getCalculType(),nvar,ipas,0,0,0,1.,dist,value);
       }
     }
   }
@@ -3027,7 +3030,6 @@ static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
       /* Evaluate the variogram map */
 
       DBMAP = dbmap;
-      NVAR  = nvar;
 
       // Apply to the target cell
       if (point_to_grid(dbmap,delta,0,indg0)) continue;
@@ -3186,7 +3188,6 @@ static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
       /* Evaluate the variogram map */
       
       DBMAP = dbmap;
-      NVAR  = nvar;
       st_variogram_evaluate(dbgrid,calcul_type,nvar,iech1,iech2,
                             iech0,npas,TEST,0,st_vmap_set);
     }

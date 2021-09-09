@@ -28,10 +28,8 @@ public:
   virtual int size() const = 0;
   virtual int size(int) const = 0;
 
-  bool getVerbose() const { return _verbose; }
   void setNIterMax(int nitermax) { _nIterMax = nitermax; }
   void setEps(double eps) { _eps = eps; }
-  void setVerbose(bool verbose) const { _verbose = verbose; }
   void setPrecond(const ALinearOpMulti* precond, int status);
 
   /*! Reset the Conjugate Gradient statistics */
@@ -81,7 +79,6 @@ private:
 
   // Environment parameters
 
-  mutable bool       _verbose;
   mutable double     _timeCG;
   mutable int        _niterCG;
   mutable int        _numberCG;

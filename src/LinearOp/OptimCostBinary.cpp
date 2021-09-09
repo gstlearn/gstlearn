@@ -26,6 +26,7 @@ OptimCostBinary::OptimCostBinary()
   : IOptimCost()
   , _isInitialized(false)
   , _flagSeismic(false)
+  , _meanPropRaw(0.)
   , _meanPropGaus(0.)
   , _pMat(nullptr)
   , _projData(nullptr)
@@ -50,6 +51,7 @@ OptimCostBinary::OptimCostBinary(const OptimCostBinary &m)
     : IOptimCost(),
       _isInitialized(m._isInitialized),
       _flagSeismic(m._flagSeismic),
+      _meanPropRaw(m._meanPropRaw),
       _meanPropGaus(m._meanPropGaus),
       _pMat(m._pMat),
       _projData(m._projData),
@@ -76,6 +78,7 @@ OptimCostBinary& OptimCostBinary::operator = (const OptimCostBinary &m)
   {
     _isInitialized = m._isInitialized;
     _flagSeismic = m._flagSeismic;
+    _meanPropRaw = m._meanPropRaw;
     _meanPropGaus = m._meanPropGaus;
     _pMat = m._pMat;
     _projData = m._projData;
@@ -171,8 +174,16 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
   VectorDouble lambdat, step;
 
   // Initialization
-  hess    = (HessianOp *) NULL;
+  hess = (HessianOp *) NULL;
   VectorDouble propfac;
+
+  // Statistics on the input data (only for verbose option)
+
+  if (verbose)
+  {
+    message("Mean proportion (provided as input) = %lf\n",_meanPropRaw);
+    ut_vector_display_stats("Proportions calculated on Data",indic);
+  }
 
   try 
   {
@@ -188,7 +199,6 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
       my_throw("Problem in Hessian init() method");
     hess->setEps(_cgEps);
     hess->setNIterMax(_cgMaxIter);
-    hess->setVerbose(verbose);
     if (_flagCgPreCond)
       hess->setPrecond(_pMat->getShiftOp(),-1);
 
@@ -211,7 +221,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
       iter++;
       _evaluateGrad(indic,propfac,&normgrad);
 
-      if (verbose)
+      if (debug_query("converge"))
         message("Iteration #%d (max=%d) - Cost=%lf - NormGrad=%lf (eps=%lg)\n",
                 iter,maxiter,costv,normgrad,eps);
 
@@ -243,6 +253,13 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
 
     for (int i=0; i<nvertex; i++)
       propfac[i] = law_cdf_gaussian(propfac[i]);
+
+    // Calculate the Proportion statistics (verbose option)
+
+    if (verbose)
+    {
+      ut_vector_display_stats("Calculated Proportions",propfac);
+    }
   }
 
   catch(const char * str)
@@ -333,6 +350,7 @@ int OptimCostBinary::setMeanProportion(double meanprop)
     messerr("The argument 'meanprop' should lie between 0 and 1 (%lf)");
     return 1;
   }
+  _meanPropRaw  = meanprop;
   _meanPropGaus = law_invcdf_gaussian(meanprop);
   return 0;
 }

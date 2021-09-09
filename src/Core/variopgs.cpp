@@ -4313,8 +4313,11 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   /* Check if the two GRFs are spatially independent */
 
   (*flag_ind) = 1;
-  for (int i=1; i<=4; i++)
-    if (ABS(cov[i]) > 1.e-8) (*flag_ind) = 0;
+  if (ngrf > 1)
+  {
+    for (int i=1; i<=4; i++)
+      if (ABS(cov[i]) > 1.e-8) (*flag_ind) = 0;
+  }
   
   /* In TEST_DISCRET case, identify the ranks of the discretized covariance */
 
@@ -4353,7 +4356,7 @@ static double st_get_proba(Local_Pgs *local_pgs,
 
   if (ngrf == 1)
   {
-    proba = st_get_proba_ind(cov[1], low, up, iconf[0]);
+    proba = st_get_proba_ind(cov[0], low, up, iconf[0]); // TODO: to be checked
   }
   else
   {
@@ -4683,10 +4686,10 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
 
   nfacies = local_pgs->nfacies;
   vario   = local_pgs->vario;
+  for (int i = 0; i < 6; i++) cov[i] = 0.;
   
   // Duplicate Number and Distance for all lags (from the first simple variogram)
 
-  local_pgs->varioind->display(1);
   if (st_copy_swhh(local_pgs->varioind, local_pgs->vario, true, true, false)) return 1;
 
   /* Loop on the directions */

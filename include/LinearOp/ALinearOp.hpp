@@ -22,11 +22,9 @@ public:
   void evalDirect(const VectorDouble& in, VectorDouble& out) const;
   virtual void evalInverse(const VectorDouble& in, VectorDouble& out) const;
   virtual int getSize() const = 0;
-  bool getVerbose() const { return _verbose; }
   void setNIterMax(int nitermax) { _nIterMax = nitermax; }
   void setEps(double eps) { _eps = eps; }
   void setX0(VectorDouble& x0) { _x0 = x0; }
-  void setVerbose(bool verbose) const { _verbose = verbose; }
   void setPrecond(const ALinearOp* precond, int status);
 
 protected:
@@ -41,5 +39,4 @@ private:
   VectorDouble     _x0;
   int              _precondStatus;
   const ALinearOp* _precond;
-  mutable bool     _verbose;
 };

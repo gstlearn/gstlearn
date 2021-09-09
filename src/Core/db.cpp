@@ -1101,7 +1101,7 @@ GEOSLIB_API void db_print(Db *db,
   if (flag_extend) params |= FLAG_EXTEND;
   if (flag_stats) params |= FLAG_STATS;
   if (flag_array) params |= FLAG_ARRAY;
-  db->display(params, cols, false, mode);
+  db->displayMore(params, cols, false, mode);
 
   return;
 }

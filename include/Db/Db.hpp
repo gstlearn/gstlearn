@@ -498,14 +498,14 @@ public:
    * @remark For flags, FLAG_STATS and FLAG_ARRAY, you can use the 'cols' argument
    * @remark to restrain the variables of interest
    */
-  void display(unsigned char params,
-               const VectorInt& cols = VectorInt(),
-               bool flagSel = true,
-               int mode = 1) const;
-  void display(unsigned char params,
-               const VectorString& names,
-               bool flagSel = true,
-               int mode = 1) const;
+  void displayMore(unsigned char params,
+                   const VectorInt& cols = VectorInt(),
+                   bool flagSel = true,
+                   int mode = 1) const;
+  void displayMore(unsigned char params,
+                   const VectorString& names,
+                   bool flagSel = true,
+                   int mode = 1) const;
 
 private:
   void  _initP();

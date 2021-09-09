@@ -28,7 +28,6 @@ ALinearOpMulti::ALinearOpMulti()
 , _r(VectorVectorDouble())
 , _temp(VectorVectorDouble())
 , _p(VectorVectorDouble())
-, _verbose(false)
 , _timeCG(0)
 , _niterCG(0)
 , _numberCG(0)
@@ -145,7 +144,6 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
     crit=rsold=_prod(_r,_r);
   }
 
-
   crit/=nb;
 
   int niter = 0;
@@ -181,18 +179,16 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
 
   }
 
-  if (_verbose) 
+  if (debug_query("converge"))
   {
     message("-- Conjugate Gradient (precond=%d) : %d iterations (max=%d) (eps=%lg)\n",
-        _precondStatus,niter,_nIterMax,_eps);
+            _precondStatus,niter,_nIterMax,_eps);
   }
 
   _timeCG   += (clock() - clock_start) / CLOCKS_PER_SEC;
   _niterCG  += niter;
   _numberCG ++;
-
 }
-
 
 
 /*****************************************************************************/

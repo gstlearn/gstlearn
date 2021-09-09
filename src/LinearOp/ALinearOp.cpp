@@ -22,7 +22,6 @@ ALinearOp::ALinearOp()
   , _x0()
   , _precondStatus(0)
   , _precond(nullptr)
-  , _verbose(false)
 {
 }
 
@@ -117,7 +116,7 @@ void ALinearOp::evalInverse(const VectorDouble& in,
 		critold = critnew;
 	}
 
-  if (_verbose)
+  if (debug_query("converge"))
   {
     message("-- Conjugate Gradient (precond=%d) : %d iterations (max=%d) (eps=%lg)\n",
             _precondStatus,niter,_nIterMax,_eps);

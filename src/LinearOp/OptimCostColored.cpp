@@ -204,11 +204,20 @@ void OptimCostColored::_getFaciesToIndic(const VectorDouble& facies,
     if (facloc < 1 || facloc > _nprop) continue;
 
     if (split[facloc-1] == 1)
+    {
+      // When facies corresponds to split==1, set indic to 0
       indic[i] = 0;
+    }
     else if (split[facloc-1] == 2)
+    {
+      // When facies corresponds to split==2, set indic to 1
       indic[i] = 1;
+    }
     else
+    {
+      // When facies corresponds to split==0 set indic to TEST
       indic[i] = TEST;
+    }
   }
 }
 
@@ -435,7 +444,7 @@ void OptimCostColored::_copyMultProportions(int level,
 
   if (level == 0)
   {
-    if (mode == 1)
+    if (mode == 2)
       for (int ivert=0; ivert<nvertex; ivert++)
         propfacs[ip][ivert] = propfac[ivert];
     else
@@ -444,7 +453,7 @@ void OptimCostColored::_copyMultProportions(int level,
   }
   else
   {
-    if (mode == 1)
+    if (mode == 2)
       for (int ivert=0; ivert<nvertex; ivert++)
         propfacs[ip][ivert] *= propfac[ivert];
     else
