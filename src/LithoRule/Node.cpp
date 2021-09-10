@@ -430,8 +430,6 @@ std::string Node::toString(int level) const
 
 int Node::proportionDefine(const VectorDouble& props)
 {
-  int    facies;
-  double propval;
   static double eps = 1.e-3;
 
   if (_r1 != (Node *) NULL)
@@ -445,10 +443,10 @@ int Node::proportionDefine(const VectorDouble& props)
 
   /* Assign the proportion of the current facies */
 
-  facies = _facies;
+  int facies = _facies;
   if (IFFFF(facies)) return(0);
 
-  propval = props[facies - 1];
+  double propval = props[facies - 1];
   if (! FFFF(propval))
   {
     if (propval < (0. - eps) || propval > (1. + eps))

@@ -14,6 +14,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 
 class Db;
 class Model;

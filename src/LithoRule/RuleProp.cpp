@@ -132,8 +132,22 @@ RuleProp::~RuleProp()
 std::string RuleProp::toString(int level) const
 {
   std::stringstream sstr;
-  sstr << "Class PGS" << std::endl;
 
+  // Stationary Flag
+  if (_flagStat)
+    mestitle(0,"RuleProp in Stationary Case");
+  else
+    mestitle(0,"RuleProp in Non-Stationary Case");
+
+  // Constant proportions (Stationary case)
+  if (_flagStat)
+    sstr << "Constant Proportions" << ut_vector_string(_propcst) << std::endl;
+
+  // Db file (Non-Stationary case)
+  if (! _flagStat)
+    sstr << _dbprop->toString(level);
+
+  // Rules
   for (int ir = 0; ir < getRuleNumber(); ir++)
   {
     const Rule* rule = _rules[ir];

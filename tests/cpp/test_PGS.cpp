@@ -133,6 +133,7 @@ int main(int argc, char *argv[])
   Vario* varioDerived = model_pgs(&db, &varioparam1, &ruleprop2, &modelPGS1, &modelPGS2);
   varioDerived->serialize("modelpgs.ascii");
   varioDerived->display(1);
+  modelPGS1.display(1);
 
   return(error);
 }
