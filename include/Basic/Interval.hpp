@@ -40,8 +40,8 @@ public:
   bool isMinDefined() const { return (! FFFF(_vmin)); }
   bool isMaxDefined() const { return (! FFFF(_vmax)); }
   bool isInside(double value) const;
-  bool isBelow(double value) const;
-  bool isAbove(double value) const;
+  bool isOutsideBelow(double value) const;
+  bool isOutsideAbove(double value) const;
 
   double getVmax() const { return _vmax; }
   void   setVmax(double vmax) { _vmax = vmax; }

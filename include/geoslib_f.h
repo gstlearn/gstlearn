@@ -429,5 +429,11 @@ GEOSLIB_API int db_write_csv(Db *db,
                              bool flag_integer = false,
                              const char *char_sep = ",",
                              const char *na_string = "NA");
+GEOSLIB_API int db_proportion_estimate(Db *dbin,
+                                       Db *dbout,
+                                       Model *model,
+                                       int niter = 100,
+                                       bool verbose = false,
+                                       NamingConvention namconv = NamingConvention("Prop",LOC_P));
 
 #endif

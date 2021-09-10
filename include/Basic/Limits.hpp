@@ -22,7 +22,7 @@ public:
          const VectorDouble& maxi,
          const VectorBool& incmini = VectorBool(),
          const VectorBool& incmaxi = VectorBool());
-  Limits(VectorDouble bounds);
+  Limits(const VectorDouble& bounds);
   Limits(int nclass);
   Limits(const Limits &m);
   Limits& operator=(const Limits &m);

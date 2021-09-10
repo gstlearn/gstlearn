@@ -51,7 +51,7 @@ Limits::Limits(const VectorDouble& mini,
   }
 }
 
-Limits::Limits(VectorDouble bounds)
+Limits::Limits(const VectorDouble& bounds)
 {
   int nclass = static_cast<int> (bounds.size()) - 1;
   if (nclass <= 0)
@@ -60,7 +60,11 @@ Limits::Limits(VectorDouble bounds)
   _bounds.clear();
   for (int i = 0; i < nclass; i++)
   {
-    Interval bd = Interval(bounds[i], bounds[i+1]);
+    Interval bd;
+    if (bounds[i] == bounds[i + 1])
+      bd = Interval(bounds[i], bounds[i + 1], true, true);
+    else
+      bd = Interval(bounds[i], bounds[i + 1]);
     _bounds.push_back(bd);
   }
 }

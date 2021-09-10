@@ -86,35 +86,37 @@ void Interval::init(double vmin, double vmax, bool mininc, bool maxinc)
 bool Interval::isInside(double value) const
 {
   if (FFFF(value)) return false;
-  if (isBelow(value)) return false;
-  if (isAbove(value)) return false;
+  if (isOutsideBelow(value)) return false;
+  if (isOutsideAbove(value)) return false;
   return true;
 }
 
-bool Interval::isBelow(double value) const
+bool Interval::isOutsideBelow(double value) const
 {
-  if (FFFF(value)) return false;
+  if (FFFF(value)) return true;
+  if (FFFF(_vmin)) return false;
   if (_minIncluded)
   {
-    if (! FFFF(_vmin) && value > _vmin) return false;
+    if (value >= _vmin) return false;
   }
   else
   {
-    if (! FFFF(_vmin) && value >= _vmin) return false;
+    if (value > _vmin) return false;
   }
   return true;
 }
 
-bool Interval::isAbove(double value) const
+bool Interval::isOutsideAbove(double value) const
 {
-  if (FFFF(value)) return false;
+  if (FFFF(value)) return true;
+  if (FFFF(_vmax)) return false;
   if (_maxIncluded)
   {
-    if (! FFFF(_vmax) && value < _vmax) return false;
+    if (value <= _vmax) return false;
   }
   else
   {
-    if (! FFFF(_vmax) && value <= _vmax) return false;
+    if (value < _vmax) return false;
   }
   return true;
 }

@@ -84,16 +84,16 @@ double AnamHermite::RawToGaussianValue(double z) const
   y = y1 = y2 = z1 = z2 = 0.;
   if (_flagBound)
   {
-    if (_az.isBelow(z)) return(_ay.getVmin());
-    if (_az.isAbove(z)) return(_ay.getVmax());
-    if (_pz.isBelow(z))
+    if (_az.isOutsideBelow(z)) return(_ay.getVmin());
+    if (_az.isOutsideAbove(z)) return(_ay.getVmax());
+    if (_pz.isOutsideBelow(z))
     {
       if(_pz.getVmin() == _az.getVmin()) return(_py.getVmin());
       return(_ay.getVmin() + (_py.getVmin() - _ay.getVmin()) *
           (z - _az.getVmin()) / (_pz.getVmin() - _az.getVmin()));
     }
 
-    if (_pz.isAbove(z))
+    if (_pz.isOutsideAbove(z))
     {
       if(_pz.getVmax() == _az.getVmax()) return(_py.getVmax());
       return(_ay.getVmax() + (_py.getVmax() - _ay.getVmax()) *
@@ -190,17 +190,17 @@ double AnamHermite::GaussianToRawValue(double y) const
 
   if (_flagBound)
   {
-    if (_ay.isBelow(y)) return(_az.getVmin());
-    if (_ay.isAbove(y)) return(_az.getVmax());
+    if (_ay.isOutsideBelow(y)) return(_az.getVmin());
+    if (_ay.isOutsideAbove(y)) return(_az.getVmax());
 
-    if (_py.isBelow(y))
+    if (_py.isOutsideBelow(y))
     {
       if (_py.getVmin() == _ay.getVmin()) return(_pz.getVmin());
       return(_az.getVmin() + (_pz.getVmin() - _az.getVmin()) *
           (y - _ay.getVmin()) / (_py.getVmin() - _ay.getVmin()));
     }
 
-    if (_py.isAbove(y))
+    if (_py.isOutsideAbove(y))
     {
       if (_py.getVmax() == _ay.getVmax()) return(_pz.getVmax());
       return(_az.getVmax() + (_pz.getVmax() - _az.getVmax()) *

@@ -8,6 +8,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_e.h"
+#include "Mesh/MeshETurbo.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/OptimCostColored.hpp"
+#include "Stats/Classical.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
@@ -6391,30 +6397,75 @@ GEOSLIB_API int migrateByLocator(Db* db1,
 ** \param[in]  dbin        Input Db structure
 ** \param[in]  dbout       Output Db structure
 ** \param[in]  model       Model structure
-** \param[in]  neigh       Neigh structure
-** \param[in]  calcul      Kriging calculation option (::ENUM_KOPTIONS)
-** \param[in]  ndisc       Array giving the discretization counts
-** \param[in]  flag_est    Option for storing the estimation
-** \param[in]  flag_std    Option for storing the standard deviation
-** \param[in]  flag_varz   Option for storing the variance of the estimator
-** \param[in]  rank_colcok Option for running Collocated Cokriging
-** \param[in]  matCL       Matrix of linear combination (or NULL)
-**                         (Dimension: nvarCL * model->getNVar())
+** \param[in]  niter       Number of iterations
+** \param[in]  verbose     Verbose flag
 ** \param[in]  namconv     Naming convention
+**
+** \remarks The procedure uses the FIRST covariance of the Model
+** \remarks to describe the spatial structure
 **
 *****************************************************************************/
 GEOSLIB_API int db_proportion_estimate(Db *dbin,
                                        Db *dbout,
                                        Model *model,
-                                       Neigh *neigh,
-                                       int calcul,
-                                       int flag_est,
-                                       int flag_std,
-                                       int flag_varz,
-                                       VectorInt ndisc,
-                                       VectorInt rank_colcok,
-                                       VectorDouble matCL,
+                                       int niter,
+                                       bool verbose,
                                        NamingConvention namconv)
 {
+  VectorVectorInt splits;
+
+  // Preliminary checks
+
+  if (dbin == nullptr)
+  {
+    messerr("This method requires a 'dbin' argument");
+    return 1;
+  }
+  if (dbout == nullptr)
+  {
+    messerr("This method requires a 'dbout' argument");
+    return 1;
+  }
+  if (model == nullptr)
+  {
+    messerr("This method requires a 'model' argument");
+    return 1;
+  }
+  if (dbin->getVariableNumber() != 1)
+  {
+    messerr("The argument 'dbin' should have a single variable");
+    return 1;
+  }
+
+  // Define the environment
+
+  MeshETurbo mesh = MeshETurbo(*dbout);
+  ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
+  PrecisionOp Qprop =  PrecisionOp(&S, model->getCova(0),  POPT_ONE);
+  ProjMatrix Aproj =  ProjMatrix(dbin, &mesh);
+
+  // Invoke the calculation
+
+  VectorDouble propGlob = dbStatisticsFacies(dbin);
+  int ncat = propGlob.size();
+  OptimCostColored Oc =  OptimCostColored(ncat,&Qprop,&Aproj);
+  Oc.setCGParams(200,1.e-10);
+
+  VectorDouble facies = dbin->getFieldByLocator(LOC_Z);
+  VectorVectorDouble props = Oc.minimize(facies,splits,propGlob,verbose,niter);
+
+  // Loading the resulting results in the output 'dbout'
+
+  int iptr0 = -1;
+  for (int i = 0; i < ncat; i++)
+  {
+    int iptr = dbout->addFields(props[i]);
+    if (i == 0) iptr0 = iptr;
+    namconv.setNamesAndLocators(
+        nullptr, LOC_UNKNOWN, -1, dbout, iptr,
+        concatenateStrings("-", intToString(i + 1)));
+  }
+  namconv.setLocators(dbout, iptr0, 1, ncat);
+
   return 0;
 }
