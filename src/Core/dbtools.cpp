@@ -1899,10 +1899,8 @@ GEOSLIB_API int db_category(Db *db,
     int ival = 0;
     for (int iclass = 0; iclass < nclass; iclass++)
     {
-      double minival = (mini.empty()) ? iclass + 0.5 :
-                                        mini[iclass];
-      double maxival = (maxi.empty()) ? iclass + 1.5 :
-                                        maxi[iclass];
+      double minival = (mini.empty()) ? iclass + 0.5 : mini[iclass];
+      double maxival = (maxi.empty()) ? iclass + 1.5 : maxi[iclass];
       if (!FFFF(minival))
       {
         int flag = (incmini.empty()) ? 1 :
@@ -6381,5 +6379,42 @@ GEOSLIB_API int migrateByLocator(Db* db1,
 
   // Set the output variable names and locators
   namconv.setNamesAndLocators(db1, locatorType, -1, db2, iatt0);
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+**  Standard Kriging
+**
+** \return  Error return code
+**
+** \param[in]  dbin        Input Db structure
+** \param[in]  dbout       Output Db structure
+** \param[in]  model       Model structure
+** \param[in]  neigh       Neigh structure
+** \param[in]  calcul      Kriging calculation option (::ENUM_KOPTIONS)
+** \param[in]  ndisc       Array giving the discretization counts
+** \param[in]  flag_est    Option for storing the estimation
+** \param[in]  flag_std    Option for storing the standard deviation
+** \param[in]  flag_varz   Option for storing the variance of the estimator
+** \param[in]  rank_colcok Option for running Collocated Cokriging
+** \param[in]  matCL       Matrix of linear combination (or NULL)
+**                         (Dimension: nvarCL * model->getNVar())
+** \param[in]  namconv     Naming convention
+**
+*****************************************************************************/
+GEOSLIB_API int db_proportion_estimate(Db *dbin,
+                                       Db *dbout,
+                                       Model *model,
+                                       Neigh *neigh,
+                                       int calcul,
+                                       int flag_est,
+                                       int flag_std,
+                                       int flag_varz,
+                                       VectorInt ndisc,
+                                       VectorInt rank_colcok,
+                                       VectorDouble matCL,
+                                       NamingConvention namconv)
+{
   return 0;
 }

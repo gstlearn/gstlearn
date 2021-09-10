@@ -361,7 +361,7 @@ VectorDouble dbStatisticsMono(Db *db,
 
 /****************************************************************************/
 /*!
-**  Considering that the Unique variable is a Facies (integer)
+**  Considering that the Unique variable is a Facies (positive integer)
 **  returns the vector of proportions
 
 ** \return  The vector of proportions per Facies
@@ -403,6 +403,43 @@ VectorDouble dbStatisticsFacies(Db *db)
       props[ifac] /= (double) neff;
   }
   return props;
+}
+
+/****************************************************************************/
+/*!
+**  Considering that the Unique variable is an Indicator (0 or 1)
+**  returns the proportion of 1
+
+** \return  The vector of proportions per Facies
+**
+** \param[in]  db         Db structure
+**
+*****************************************************************************/
+double dbStatisticsIndicator(Db *db)
+{
+  if (db->getLocatorNumber(LOC_Z) != 1)
+  {
+    messerr("This function requires the number of variables (%d) to be equal to 1",
+            db->getLocatorNumber(LOC_Z));
+    return TEST;
+  }
+
+  // Calculate the proportions
+
+  double prop = 0.;
+  int neff = 0;
+  for (int iech=0; iech<db->getSampleNumber(); iech++)
+  {
+    if (! db->isActiveAndDefined(iech,0)) continue;
+    int ifac = (int) db->getVariable(iech,0);
+    if (ifac == 1) prop += 1.;
+    neff++;
+  }
+
+  // Normalization
+
+  if (neff > 0) prop = prop / neff;
+  return prop;
 }
 
 /****************************************************************************/

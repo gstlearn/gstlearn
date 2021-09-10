@@ -4923,8 +4923,8 @@ GEOSLIB_API Vario* model_pgs(Db* db,
                              Model* model1,
                              Model* model2)
 {
-  Vario* vario;
-  Vario* varioind;
+  Vario* vario = nullptr;
+  Vario* varioind = nullptr;
 
   if (varioparam == NULL)
   {

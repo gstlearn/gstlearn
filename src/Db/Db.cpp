@@ -13,6 +13,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
@@ -1380,17 +1381,29 @@ int Db::addSelection(const VectorDouble& tab, const String& name)
 /**
  * Create a selection around the only defined values of the target variable
  * @param testvar Name of the target variable
+ * @param limits  Limits defining the Definition Domain to be tested (optional)
  * @param name    Name of the newly created selection
  * @return
  */
-int Db::addSelection(const String& testvar, const String& name)
+int Db::addSelection(const String& testvar,
+                     const Limits& limits,
+                     const String& name)
 {
   int iatt = addFields(1,0.,name,LOC_SEL);
   if (iatt < 0) return 1;
 
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
-    double answer = (FFFF(getValue(testvar,iech))) ? 0. : 1.;
+    double value = getValue(testvar,iech);
+    double answer = 1;
+    if (FFFF(value))
+    {
+      answer = 0;
+    }
+    else if (! limits.empty())
+    {
+      if (! limits.isInside(value)) answer = 0;
+    }
     setArray(iech, iatt, answer);
   }
   return 0;
@@ -2431,6 +2444,12 @@ bool Db::isActiveAndDefined(int iech, int item) const
   return true;
 }
 
+/**
+ * Returns the number of active samples for which the target variable (LOC_Z)
+ * is defined
+ * @param item Rank of the LOC_Z variable
+ * @return Number of samples
+ */
 int Db::getActiveAndDefinedNumber(int item) const
 {
   int nech = 0;
@@ -2442,6 +2461,27 @@ int Db::getActiveAndDefinedNumber(int item) const
   }
   return (nech);
 }
+
+/**
+ * Returns the number of active samples for which the variable 'name'
+ * is defined
+ * @param name Name of the Target variable
+ * @return Number of samples
+ */
+int Db::getActiveAndDefinedNumber(const String& name) const
+{
+  VectorInt iatts = ids(name, true);
+  if (iatts.empty()) return 0;
+  VectorDouble tab = getFieldByAttribute(iatts[0], false);
+
+  int nech = 0;
+  for (int iech = 0; iech < (int) tab.size(); iech++)
+  {
+    if (! FFFF(tab[iech])) nech++;
+  }
+  return (nech);
+}
+
 
 /**
  * Update an Old by a New value according to 'oper'
@@ -3506,7 +3546,7 @@ int Db::serialize(const String& filename, bool verbose) const
 int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
 {
   int ecr, item;
-  ENUM_LOCS locatorType;
+  ENUM_LOCS locatorType = LOC_UNKNOWN;
 
   /* Preliminary check */
 

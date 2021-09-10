@@ -14,6 +14,7 @@
 #include "Basic/Vector.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Polygon/Polygons.hpp"
+#include "Basic/Limits.hpp"
 #include "Basic/GridC.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -29,6 +30,8 @@ typedef enum
   FLAG_STATS = 8,     //!< Print the variable statistics
   FLAG_ARRAY = 16,    //!< Print the variable contents
 } DISPLAY_PARAMS;
+
+class Limits;
 
 /**
  * Class containing the Data Set.
@@ -150,8 +153,11 @@ public:
                 ENUM_LOCS locatorType = LOC_UNKNOWN,
                 int locatorIndex = 0,
                 int nechInit = 1);
-  int addSelection(const VectorDouble& tab, const String& name = "NewSel");
-  int addSelection(const String& testvar, const String& name = "NewSel");
+  int addSelection(const VectorDouble& tab,
+                   const String& name = "NewSel");
+  int addSelection(const String& testvar,
+                   const Limits& limits = Limits(),
+                   const String& name = "NewSel");
   int addSamples(int nadd, double valinit);
   void deleteSample(int e_del);
   void switchLocator(ENUM_LOCS locatorTypein, ENUM_LOCS locatorTypeout);
@@ -370,6 +376,7 @@ public:
   bool isActive(int iech) const;
   bool isActiveAndDefined(int iech, int item) const;
   int getActiveAndDefinedNumber(int item) const;
+  int getActiveAndDefinedNumber(const String& name) const;
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
 
