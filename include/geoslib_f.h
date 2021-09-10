@@ -203,7 +203,7 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
 GEOSLIB_API void variogram_print(Vario *vario, int verbose = false);
 GEOSLIB_API Vario* variogram_pgs(Db *db,
                                  const VarioParam* varioparam,
-                                 RuleProp* ruleprop,
+                                 const RuleProp* ruleprop,
                                  int flag_rho = false,
                                  int opt_correl = 2);
 GEOSLIB_API int vmap_compute(Db *db,
@@ -252,8 +252,8 @@ GEOSLIB_API int db_model_nostat(Db *db,
                                 NamingConvention namconv = NamingConvention("Nostat"));
 GEOSLIB_API void set_test_discrete(bool flag_discret);
 GEOSLIB_API Vario* model_pgs(Db *db,
-                             VarioParam *varioparam,
-                             RuleProp* ruleprop,
+                             const VarioParam *varioparam,
+                             const RuleProp* ruleprop,
                              Model* model1,
                              Model* model2 = nullptr);
 

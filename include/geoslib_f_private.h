@@ -115,7 +115,7 @@ GEOSLIB_API int spde_chebychev_operate(cs *S,Cheb_Elem *cheb_elem,
                                        double *y);
 GEOSLIB_API Rule *rule_auto(Db *db,
                             const VarioParam *varioparam,
-                            RuleProp* ruleprop,
+                            const RuleProp* ruleprop,
                             int ngrfmax = 1,
                             int verbose = false);
 GEOSLIB_API int db_rule(Db* db,

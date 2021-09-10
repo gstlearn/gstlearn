@@ -4918,15 +4918,15 @@ label_end:
 **
 *****************************************************************************/
 GEOSLIB_API Vario* model_pgs(Db* db,
-                             VarioParam* varioparam,
-                             RuleProp* ruleprop,
+                             const VarioParam* varioparam,
+                             const RuleProp* ruleprop,
                              Model* model1,
                              Model* model2)
 {
-  Vario* vario;
-  Vario* varioind;
+  Vario* vario = nullptr;
+  Vario* varioind = nullptr;
 
-  if (varioparam == NULL)
+  if (varioparam == nullptr)
   {
     messerr("The VarioParam must be provided");
     return nullptr;
@@ -5181,7 +5181,7 @@ label_end:
 *****************************************************************************/
 GEOSLIB_API Vario* variogram_pgs(Db* db,
                                  const VarioParam* varioparam,
-                                 RuleProp* ruleprop,
+                                 const RuleProp* ruleprop,
                                  int flag_rho,
                                  int opt_correl)
 {
@@ -5193,7 +5193,7 @@ GEOSLIB_API Vario* variogram_pgs(Db* db,
     messerr("The Db must be provided");
     return nullptr;
   }
-  if (varioparam == NULL)
+  if (varioparam == nullptr)
   {
     messerr("The VarioParam must be provided");
     return nullptr;
@@ -5308,7 +5308,7 @@ GEOSLIB_API Vario* variogram_pgs(Db* db,
 *****************************************************************************/
 GEOSLIB_API Rule *rule_auto(Db*         db,
                             const VarioParam* varioparam,
-                            RuleProp*   ruleprop,
+                            const RuleProp*   ruleprop,
                             int         ngrfmax,
                             int         verbose)
 {
