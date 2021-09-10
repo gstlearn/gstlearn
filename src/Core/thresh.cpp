@@ -1192,8 +1192,8 @@ GEOSLIB_API int db_threshold(Db* db,
  ** \remarks: The drift is not copied into the new model
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_rule_combine(Model *model1,
-                                      Model *model2,
+GEOSLIB_API Model *model_rule_combine(const Model *model1,
+                                      const Model *model2,
                                       const Rule *rule)
 {
   Model *new_model;

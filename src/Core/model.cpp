@@ -2772,7 +2772,7 @@ static void st_drift_modify(Model *model,
  *****************************************************************************/
 static void st_drift_derivative(int iv,
                                 int mode,
-                                Model *model,
+                                const Model *model,
                                 Model *new_model)
 
 {
@@ -2872,12 +2872,12 @@ static void st_drift_derivative(int iv,
  ** \li                      1 for Data - Gradient
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_duplicate(Model *model, double ball_radius, int mode)
+GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int mode)
 
 {
   Model *new_model;
-  CovAniso *cova;
-  ADriftElem *drft;
+  const CovAniso *cova;
+  const ADriftElem *drft;
   int flag_linked, new_nvar, nfact;
   double sill;
   bool flag_gradient;
@@ -4126,10 +4126,10 @@ GEOSLIB_API double model_get_field(Model *model)
  ** \remarks: The drift is not copied into the new model
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_combine(Model *model1, Model *model2, double r)
+GEOSLIB_API Model *model_combine(const Model *model1, const Model *model2, double r)
 {
   Model *model;
-  CovAniso *cova;
+  const CovAniso *cova;
   double field;
   int error, i, ncov;
   VectorDouble sill, mean, cova0;

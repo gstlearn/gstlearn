@@ -1202,7 +1202,7 @@
                                          int flag_cov,
                                          double *vector);
   GEOSLIB_API void model_drift_filter(Model *model, int rank, int filter);
-  GEOSLIB_API Model *model_duplicate(Model *model, double ball_radius,
+  GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius,
                                      int mode);
   GEOSLIB_API int model_stabilize(Model *model,
                                   int flag_verbose,
@@ -1255,7 +1255,7 @@
   GEOSLIB_API double model_scale2range(int type, double scale, double param);
   GEOSLIB_API double model_range2scale(int type, double range, double param);
   GEOSLIB_API double cova_get_scale_factor(int type, double param);
-  GEOSLIB_API Model *model_combine(Model *model1, Model *model2, double r);
+  GEOSLIB_API Model *model_combine(const Model *model1, const Model *model2, double r);
   GEOSLIB_API int model_get_nonugget_cova(Model *model);
   GEOSLIB_API int model_regularize(Model *model,
                                    Vario *vario,
@@ -2486,8 +2486,8 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
   /*****************************************/
 
   GEOSLIB_API Rule *rule_free(const Rule *rule);
-  GEOSLIB_API Model *model_rule_combine(Model * model1,
-                                        Model * model2,
+  GEOSLIB_API Model *model_rule_combine(const Model * model1,
+                                        const Model * model2,
                                         const Rule * rule);
   GEOSLIB_API int rule_thresh_define_shadow(PropDef *propdef,
                                             Db *dbin,

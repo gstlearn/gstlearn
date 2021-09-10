@@ -254,8 +254,8 @@ GEOSLIB_API void set_test_discrete(bool flag_discret);
 GEOSLIB_API Vario* model_pgs(Db *db,
                              const VarioParam *varioparam,
                              const RuleProp* ruleprop,
-                             Model* model1,
-                             Model* model2 = nullptr);
+                             const Model* model1,
+                             const Model* model2 = nullptr);
 
 /******************************/
 /* Functions for Anamorphosis */
