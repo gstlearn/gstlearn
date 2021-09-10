@@ -12,6 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Utilities.hpp"
 
 class Interval : public AStringable
 {
@@ -36,11 +37,11 @@ public:
             double vmax = TEST,
             bool mininc = true,
             bool maxinc = false);
-  bool isMinDefined() const;
-  bool isMaxDefined() const;
+  bool isMinDefined() const { return (! FFFF(_vmin)); }
+  bool isMaxDefined() const { return (! FFFF(_vmax)); }
   bool isInside(double value) const;
-  bool isBelow(double value, bool equal=false) const;
-  bool isAbove(double value, bool equal=false) const;
+  bool isBelow(double value) const;
+  bool isAbove(double value) const;
 
   double getVmax() const { return _vmax; }
   void   setVmax(double vmax) { _vmax = vmax; }

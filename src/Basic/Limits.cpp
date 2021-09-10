@@ -138,6 +138,15 @@ VectorBool Limits::getUpperIncluded() const
   return maxinc;
 }
 
+bool Limits::isInside(double value) const
+{
+  for (int i = 0; i < getLimitNumber(); i++)
+  {
+    if (! _bounds[i].isInside(value)) return false;
+  }
+  return true;
+}
+
 int Limits::toCategory(Db* db, int iatt, NamingConvention namconv)
 {
   return db_category(db, iatt, getLowerBounds(), getUpperBounds(),

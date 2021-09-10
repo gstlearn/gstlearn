@@ -83,31 +83,15 @@ void Interval::init(double vmin, double vmax, bool mininc, bool maxinc)
   if (! _isValid()) throw("Interval is not valid");
 }
 
-bool Interval::isMinDefined() const
-{
-  if (FFFF(_vmin))
-    return false;
-  else
-    return true;
-}
-
-bool Interval::isMaxDefined() const
-{
-  if (FFFF(_vmax))
-    return false;
-  else
-    return true;
-}
-
 bool Interval::isInside(double value) const
 {
   if (FFFF(value)) return false;
-  if (! FFFF(_vmin) && value < _vmin) return false;
-  if (! FFFF(_vmax) && value > _vmax) return false;
+  if (isBelow(value)) return false;
+  if (isAbove(value)) return false;
   return true;
 }
 
-bool Interval::isBelow(double value, bool equal) const
+bool Interval::isBelow(double value) const
 {
   if (FFFF(value)) return false;
   if (_minIncluded)
@@ -121,7 +105,7 @@ bool Interval::isBelow(double value, bool equal) const
   return true;
 }
 
-bool Interval::isAbove(double value, bool equal) const
+bool Interval::isAbove(double value) const
 {
   if (FFFF(value)) return false;
   if (_maxIncluded)

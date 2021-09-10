@@ -36,6 +36,8 @@ public:
   VectorDouble getUpperBounds() const;
   VectorBool   getLowerIncluded() const;
   VectorBool   getUpperIncluded() const;
+  bool isInside(double value) const;
+  bool empty() const { return _bounds.empty(); }
 
   int toCategory(Db* db,
                  const String& name = String(),

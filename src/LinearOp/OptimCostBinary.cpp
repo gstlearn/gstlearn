@@ -252,7 +252,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
     // Final conversion from Gaussian to Proportion scale
 
     for (int i=0; i<nvertex; i++)
-      propfac[i] = law_cdf_gaussian(propfac[i]);
+      propfac[i] = 1. - law_cdf_gaussian(propfac[i]);
 
     // Calculate the Proportion statistics (verbose option)
 
@@ -338,7 +338,7 @@ void OptimCostBinary::toggleSeismic(bool status)
 
 /*****************************************************************************/
 /*!
-**  Set the Mean proportion for the single facies
+**  Set the Mean proportion for the indicator
 **
 ** \param[in]  meanprop     Value of the mean proportion (raw scale)
 **
@@ -351,7 +351,7 @@ int OptimCostBinary::setMeanProportion(double meanprop)
     return 1;
   }
   _meanPropRaw  = meanprop;
-  _meanPropGaus = law_invcdf_gaussian(meanprop);
+  _meanPropGaus = law_invcdf_gaussian(1. - meanprop);
   return 0;
 }
 
