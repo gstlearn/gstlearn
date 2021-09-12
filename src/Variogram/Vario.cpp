@@ -360,7 +360,7 @@ int Vario::computeIndic(const String& calcul_name,
   setCalculName(calcul_name);
   _nVar  = nclass;
   _means = props;
-  _vars  = VectorDouble();
+  _vars  = _varsFromProportions(props);
   _setDPasFromGrid(flag_grid);
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -1548,4 +1548,20 @@ void Vario::_setDPasFromGrid(bool flag_grid)
       _varioparam.setGrincr(idir, VectorInt());
     }
   }
+}
+
+VectorDouble Vario::_varsFromProportions(VectorDouble props)
+{
+  if (props.empty()) return VectorDouble();
+
+  int nvar = props.size();
+  VectorDouble vars = VectorDouble(nvar * nvar);
+  int ecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      vars[ecr++] = (ivar == jvar) ?
+          props[ivar] * (1. - props[ivar]) : - props[ivar] * props[jvar];
+    }
+  return vars;
 }

@@ -198,6 +198,7 @@ private:
   void _directionResize(int idir);
   void _setDPasFromGrid(bool flag_grid);
   void _setFlagAsym();
+  VectorDouble _varsFromProportions(VectorDouble props);
 
 private:
   int          _nVar;

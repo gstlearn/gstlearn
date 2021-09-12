@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   setSerializedContainerName(String(std::getenv("PYGSTLEARN_DIR")));
   setSerializedPrefixName("PGS-");
   int error = 0;
-  int ndim = 2;
+  int ndim  = 2;
   CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option
@@ -45,8 +45,7 @@ int main(int argc, char *argv[])
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
-    dbprop.addFields(1,props[ifac],names[ifac]);
-  dbprop.setLocator(names,LOC_P);
+    dbprop.addFields(1,props[ifac],names[ifac],LOC_P,ifac);
   dbprop.display();
 
   // Creating the Model(s) of the Underlying GRF(s)
@@ -102,7 +101,7 @@ int main(int argc, char *argv[])
   vario1.display(1);
   vario2.display(1);
 
-  // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
+  // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model modelPGS1(ctxt);
   Model modelPGS2(ctxt);
   Option_AutoFit option = Option_AutoFit();
@@ -121,19 +120,22 @@ int main(int argc, char *argv[])
   vario2.serialize("variopgs2.ascii");
   modelPGS2.serialize("modelfitpgs2.ascii");
 
-  RuleProp ruleprop2 = RuleProp((Rule*) NULL, props);
+  RuleProp ruleprop2;
+  if (flagStationary)
+    ruleprop2 = RuleProp((Rule*) NULL, props);
+  else
+    ruleprop2 = RuleProp(&dbprop, VectorDouble());
   error = ruleprop2.fit(&db, &varioparam2, 2, true);
   ruleprop2.getRule()->display(1);
   ruleprop2.getRule()->serialize("ruleFit.ascii");
 
-  Vario varioIndic = Vario(&varioparam1, &db);
-  varioIndic.computeIndic("vg");
-  varioIndic.serialize("varioindic.ascii");
-
   Vario* varioDerived = model_pgs(&db, &varioparam1, &ruleprop2, &modelPGS1, &modelPGS2);
   varioDerived->serialize("modelpgs.ascii");
   varioDerived->display(1);
-  modelPGS1.display(1);
+
+  Vario varioIndic = Vario(&varioparam1, &db);
+  varioIndic.computeIndic("vg");
+  varioIndic.serialize("varioindic.ascii");
 
   return(error);
 }
