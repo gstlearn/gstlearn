@@ -130,7 +130,9 @@ int main(int argc, char *argv[])
   varioIndic.computeIndic("vg");
   varioIndic.serialize("varioindic.ascii");
 
+  
   Vario* varioDerived = model_pgs(&db, &varioparam1, &ruleprop2, &modelPGS1, &modelPGS2);
+  modelPGS1.display();
   varioDerived->serialize("modelpgs.ascii");
   varioDerived->display(1);
 
