@@ -4362,7 +4362,7 @@ static double st_get_proba(Local_Pgs *local_pgs,
   {
     if (flag_ind)
     {
-      proba = st_get_proba_ind(cov[0], low, up, iconf[0])
+      proba = st_get_proba_ind(cov[0], &low[0], &up[0], iconf[0])
             * st_get_proba_ind(cov[5], &low[2], &up[2], iconf[1]);
     }
     else
@@ -4807,44 +4807,42 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
 static int st_update_variance_nostat(Local_Pgs *local_pgs)
 
 {
-  int     i,nfacies,ivar,jvar,number,error,iech,idir,iad;
-  double *mean,*covs,p1,p2;
-  Vario *vario;
-  Db  *dbin;
+  double *mean,*covs;
   
   /* Initializations */
 
-  error   = 1;
-  dbin    = local_pgs->db;
-  vario   = local_pgs->vario;
-  nfacies = local_pgs->nfacies;
-  mean    = covs = (double *) NULL;
+  int error   = 1;
+  int number = 0;
+  Db* dbin    = local_pgs->db;
+  Vario* vario   = local_pgs->vario;
+  int nfacies = local_pgs->nfacies;
+  mean = covs = (double *) NULL;
 
   /* Core allocation */
 
   mean = (double *) mem_alloc(nfacies * sizeof(double), 0);
   if (mean == (double *) NULL) goto label_end;
-  for (i=0; i<nfacies; i++) mean[i] = 0.;
+  for (int i=0; i<nfacies; i++) mean[i] = 0.;
   covs = (double *) mem_alloc(nfacies * nfacies * sizeof(double), 0);
   if (covs == (double *) NULL) goto label_end;
-  for (i=0; i<nfacies * nfacies; i++) covs[i] = 0.;
+  for (int i=0; i<nfacies * nfacies; i++) covs[i] = 0.;
 
   /* Loop on the samples */
   
-  for (iech=number=0; iech<dbin->getSampleNumber(); iech++)
+  for (int iech=0; iech<dbin->getSampleNumber(); iech++)
   {
     if (! dbin->isActive(iech)) continue;
     
     /* Loop on the variables */
 
-    for (ivar=0; ivar<nfacies; ivar++)
+    for (int ivar=0; ivar<nfacies; ivar++)
     {
-      p1 = dbin->getProportion(iech,ivar);
+      double p1 = dbin->getProportion(iech,ivar);
       mean[ivar] += p1;
 
-      for (jvar=0; jvar<nfacies; jvar++)
+      for (int jvar=0; jvar<nfacies; jvar++)
       {        
-        p2 = dbin->getProportion(iech,jvar);
+        double p2 = dbin->getProportion(iech,jvar);
         COVS(ivar,jvar) += p1 * p2;
       }        
     }
@@ -4853,27 +4851,25 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
 
   /* Normalization */
 
-  for (ivar=0; ivar<nfacies; ivar++)
-  {
-    mean[ivar] /= number;
-    for (jvar=0; jvar<nfacies; jvar++)
-      COVS(ivar,jvar) /= number;
-  }
+  for (int ivar = 0; ivar < nfacies; ivar++)
+    mean[ivar] /= (double) number;
+  for (int ivar = 0; ivar < nfacies; ivar++)
+    for (int jvar = 0; jvar < nfacies; jvar++)
+      COVS(ivar,jvar) = COVS(ivar,jvar) / (double) number - mean[ivar] * mean[jvar];
 
-  /* Evaluate the variances */
+  /* Store the results */
 
-  for (ivar=0; ivar<nfacies; ivar++)
-    for (jvar=0; jvar<nfacies; jvar++)
+  for (int ivar=0; ivar<nfacies; ivar++)
+    for (int jvar=0; jvar<nfacies; jvar++)
     {
-      if (ivar == jvar)
-        vario->setVars(ivar,jvar,mean[ivar] - COVS(ivar,ivar));
-      else
-        vario->setVars(ivar,jvar,-COVS(ivar,jvar));
+      vario->setVars(ivar,jvar,COVS(ivar,jvar));
 
       if(! vario->getFlagAsym()) continue;
-      for (idir=0; idir<vario->getDirectionNumber(); idir++)
+
+      // Set the C00 term
+      for (int idir=0; idir<vario->getDirectionNumber(); idir++)
       {
-        iad = vario->getDirAddress(idir,ivar,jvar,0,false,0);
+        int iad = vario->getDirAddress(idir,ivar,jvar,0,false,0);
         vario->setSw(idir,iad,dbin->getSampleNumber());
         vario->setHh(idir,iad,0);
         
@@ -4888,8 +4884,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
             
           case CALCUL_COVARIANCE_NC:
             vario->setGg(idir,iad,(ivar == jvar) ? mean[ivar] : 0.);
-              break;
-              
+            break;
         } 
       }
     }

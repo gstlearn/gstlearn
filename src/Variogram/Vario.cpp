@@ -360,7 +360,7 @@ int Vario::computeIndic(const String& calcul_name,
   setCalculName(calcul_name);
   _nVar  = nclass;
   _means = props;
-  _vars  = VectorDouble();
+  _vars  = _varsFromProportions(props);
   _setDPasFromGrid(flag_grid);
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -708,35 +708,35 @@ int Vario::getCalculType() const
 {
   int calcul_type;
 
-  if (!strcmp(_calculName.c_str(), "undefined"))
+  if (_calculName == "undefined")
     calcul_type = CALCUL_UNDEFINED;
-  else if (!strcmp(_calculName.c_str(), "vg"))
+  else if (_calculName == "vg")
     calcul_type = CALCUL_VARIOGRAM;
-  else if (!strcmp(_calculName.c_str(), "cov"))
+  else if (_calculName == "cov")
     calcul_type = CALCUL_COVARIANCE;
-  else if (!strcmp(_calculName.c_str(), "covnc"))
+  else if (_calculName == "covnc")
     calcul_type = CALCUL_COVARIANCE_NC;
-  else if (!strcmp(_calculName.c_str(), "covg"))
+  else if (_calculName == "covg")
     calcul_type = CALCUL_COVARIOGRAM;
-  else if (!strcmp(_calculName.c_str(), "mado"))
+  else if (_calculName =="mado")
     calcul_type = CALCUL_MADOGRAM;
-  else if (!strcmp(_calculName.c_str(), "rodo"))
+  else if (_calculName =="rodo")
     calcul_type = CALCUL_RODOGRAM;
-  else if (!strcmp(_calculName.c_str(), "poisson"))
+  else if (_calculName =="poisson")
     calcul_type = CALCUL_POISSON;
-  else if (!strcmp(_calculName.c_str(), "general1"))
+  else if (_calculName =="general1")
     calcul_type = CALCUL_GENERAL1;
-  else if (!strcmp(_calculName.c_str(), "general2"))
+  else if (_calculName =="general2")
     calcul_type = CALCUL_GENERAL2;
-  else if (!strcmp(_calculName.c_str(), "general3"))
+  else if (_calculName =="general3")
     calcul_type = CALCUL_GENERAL3;
-  else if (!strcmp(_calculName.c_str(), "order4"))
+  else if (_calculName =="order4")
     calcul_type = CALCUL_ORDER4;
-  else if (!strcmp(_calculName.c_str(), "trans1"))
+  else if (_calculName =="trans1")
     calcul_type = CALCUL_TRANS1;
-  else if (!strcmp(_calculName.c_str(), "trans2"))
+  else if (_calculName =="trans2")
     calcul_type = CALCUL_TRANS2;
-  else if (!strcmp(_calculName.c_str(), "binormal"))
+  else if (_calculName =="binormal")
     calcul_type = CALCUL_BINORMAL;
   else
   {
@@ -1231,7 +1231,8 @@ int Vario::deSerialize(const String& filename, bool verbose)
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++, ecr++)
-        if (_recordRead("Experimental Variance term", "%lf", &vars[ecr])) goto label_end;
+        if (_recordRead("Experimental Variance term", "%lf", &vars[ecr]))
+          goto label_end;
   }
 
   /* Initialize the variogram structure */
@@ -1547,4 +1548,20 @@ void Vario::_setDPasFromGrid(bool flag_grid)
       _varioparam.setGrincr(idir, VectorInt());
     }
   }
+}
+
+VectorDouble Vario::_varsFromProportions(VectorDouble props)
+{
+  if (props.empty()) return VectorDouble();
+
+  int nvar = props.size();
+  VectorDouble vars = VectorDouble(nvar * nvar);
+  int ecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      vars[ecr++] = (ivar == jvar) ?
+          props[ivar] * (1. - props[ivar]) : - props[ivar] * props[jvar];
+    }
+  return vars;
 }
