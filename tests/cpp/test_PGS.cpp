@@ -128,11 +128,6 @@ int main(int argc, char *argv[])
   error = ruleprop2.fit(&db, &varioparam2, 2, true);
   ruleprop2.getRule()->display(1);
   ruleprop2.getRule()->serialize("ruleFit.ascii");
-
-  Vario varioIndic = Vario(&varioparam1, &db);
-  varioIndic.computeIndic("vg");
-  varioIndic.serialize("varioindic.ascii");
-
  
   Vario* varioDerived = model_pgs(&db, &varioparam1, &ruleprop2, &modelPGS1, &modelPGS2);
   modelPGS1.display();
@@ -143,6 +138,6 @@ int main(int argc, char *argv[])
   varioIndic.computeIndic("vg");
   varioIndic.serialize("varioindic.ascii");
 
-  modelPGS1.display()
+  modelPGS1.display();
   return(error);
 }
