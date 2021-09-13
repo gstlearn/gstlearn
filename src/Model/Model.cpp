@@ -410,8 +410,8 @@ int Model::deSerialize(const String& filename, bool verbose)
 
   if (ndim <= 0 || (unsigned int)(ndim) != ASpaceObject::getGlobalSpace()->getNDim())
   {
-    // TODO : Impose that global space is the same than the one deserialized
-    messerr("Wrong space dimension in %s", filename);
+    // TODO : Impose that current global space is the same than the one deserialized
+    messerr("Wrong space dimension in %s", filename.c_str());
     _destroy();
     return 1;
   }
