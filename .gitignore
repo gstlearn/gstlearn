@@ -5,6 +5,7 @@ doxygen/html
 doxygen/xml
 doxygen/*.tmp
 tests/data/*/*.out
+tests/res*
 .project
 .cproject
 .settings

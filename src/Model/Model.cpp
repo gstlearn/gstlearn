@@ -408,8 +408,13 @@ int Model::deSerialize(const String& filename, bool verbose)
   if (_recordRead("Number of Basic Structures", "%d", &ncova)) return 1;
   if (_recordRead("Number of Basic Drift Functions", "%d", &nbfl)) return 1;
 
-  //TODO Move this horrible setting which is used only because the Space is not known beforehand
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim); // TODO Avoid this artificial setting
+  if (ndim <= 0 || (unsigned int)(ndim) != ASpaceObject::getGlobalSpace()->getNDim())
+  {
+    // TODO : Impose that current global space is the same than the one deserialized
+    messerr("Wrong space dimension in %s", filename.c_str());
+    _destroy();
+    return 1;
+  }
   _ctxt = CovContext(nvar, 2, field);
   _ctxt.setBallRadius(radius);
   _create(false, false);
