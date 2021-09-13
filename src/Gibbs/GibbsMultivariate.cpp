@@ -182,9 +182,6 @@ int GibbsMultivariate::calculInitialize(int flag_category,
 ** \param[in]  igrf        Rank of the bounds (starting from 0)
 ** \param[in]  verbose     Verbose flag
 **
-** \param[out] mean        Working array for convergence criterion
-**                         (Dimension: nech [even if masked samples])
-**
 ** \remark Only available for monovariate case
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
@@ -194,13 +191,13 @@ int GibbsMultivariate::calculIteration(Db *db,
                                        int isimu,
                                        int ipgs,
                                        int igrf,
-                                       int verbose,
-                                       double *mean)
+                                       int verbose)
 {
   int error,iech,jech,nech,nbdiv,nfois,nactive,iter,ncumul,neq,icase;
   int ivar,jvar,iecr,jecr,nvar;
   double  vmin,vmax,delloc,old_mean,new_mean,refe,yk,sk;
   double *y,*covmat;
+  VectorDouble mean;
 
   /* Initializations */
 
@@ -218,6 +215,7 @@ int GibbsMultivariate::calculIteration(Db *db,
 
   y     = (double *) mem_alloc(sizeof(double) * neq,0);
   if (y     == (double *) NULL) goto label_end;
+  mean.resize(nvar * nech,0);
 
   /* Print the title */
 
@@ -231,7 +229,6 @@ int GibbsMultivariate::calculIteration(Db *db,
   for (ivar=0; ivar<nvar; ivar++)
     for (iech=0; iech<nech; iech++)
     {
-      MEAN(ivar,iech) = 0.;
       if (! db->isActive(iech)) continue;
       y[iecr] = db->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
       iecr++;

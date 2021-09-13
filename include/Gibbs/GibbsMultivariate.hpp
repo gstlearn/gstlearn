@@ -37,8 +37,7 @@ public:
                       int isimu,
                       int ipgs,
                       int igrf,
-                      int verbose,
-                      double *mean);
+                      int verbose);
   int covmatAlloc(Db *dbin, Model *model, bool verbose);
 
 private:

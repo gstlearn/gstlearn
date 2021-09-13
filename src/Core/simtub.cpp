@@ -4094,12 +4094,12 @@ GEOSLIB_API int simpgs(Db *dbin,
         
         /* Initialization for the Gibbs sampler */
         
-        if (gibbs.calculInitialize(1, 0, dbin, models[igrf], isimu, igrf, 0, 0))
+        if (gibbs.calculInitialize(1, 0, dbin, models[igrf], isimu, igrf, 0, verbose))
           goto label_end;
         
         /* Iterations of the Gibbs sampler */
         
-        if (gibbs.calculIteration(dbin, models[igrf], isimu, 0, igrf, 0, mean))
+        if (gibbs.calculIteration(dbin, models[igrf], isimu, 0, igrf, verbose))
           goto label_end;
         
         /* Check the validity of the Gibbs results (optional) */
@@ -4274,6 +4274,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   int     nfac[2],nfactot,flag_used[2][2],nechin,ngrf[2],ngrftot;
   int     iptr_RP,iptr_RF,iptr_DF,iptr_RN,iptr_DN;
   double *mean,*covmat;
+  bool    verbose;
   Rule   *rules[2];
   Model  *models[2][2];
   Situba *situba;
@@ -4286,6 +4287,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   nvar      = 1;
   npgs      = 2;
   nechin    = 0;
+  verbose   = false;
   mean      = covmat = (double *) NULL;
   situba    = (Situba *) NULL;
   propdef   = (PropDef  *) NULL;
@@ -4534,12 +4536,12 @@ GEOSLIB_API int simbipgs(Db       *dbin,
           /* Initialization for the Gibbs sampler */
 
           if (gibbs.calculInitialize(1, 0, dbin, models[ipgs][igrf], isimu,
-                                     igrf, ipgs, 0)) goto label_end;
+                                     igrf, ipgs, verbose)) goto label_end;
 
           /* Iterations of the Gibbs sampler */
 
           if (gibbs.calculIteration(dbin, models[ipgs][igrf], isimu, ipgs, igrf,
-                                    0, mean)) goto label_end;
+                                    verbose)) goto label_end;
 
           /* Check the validity of the Gibbs results (optional) */
 
@@ -4897,19 +4899,19 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
     
     // Initialize the iterations
 
-    if (gibbs.calculInitialize(0, 0, dbin, model, isimu, 0, 0, 0))
+    if (gibbs.calculInitialize(0, 0, dbin, model, isimu, 0, 0, verbose))
       goto label_end;
 
     /* Iterations of the Gibbs sampler */
 
     if (flag_propagation)
     {
-      if (gibbs.calculatePropagation(dbin, model, isimu, verbose, mean))
+      if (gibbs.calculatePropagation(dbin, model, isimu, verbose))
         goto label_end;
     }
     else
     {
-      if (gibbs.calculIteration(dbin, model, isimu, 0, 0, verbose, mean))
+      if (gibbs.calculIteration(dbin, model, isimu, 0, 0, verbose))
         goto label_end;
     }
   }
@@ -5976,7 +5978,7 @@ GEOSLIB_API int simcond(Db    *dbin,
 
     /* Iterations of the gibbs sampler */
 
-    if (gibbs.calculIteration(dbin, model, isimu, 0, 0, verbose, mean))
+    if (gibbs.calculIteration(dbin, model, isimu, 0, 0, verbose))
       goto label_end;
   }
 

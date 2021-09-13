@@ -190,9 +190,6 @@ label_end:
 ** \param[in]  igrf        Rank of the bounds (starting from 0)
 ** \param[in]  verbose     Verbose flag
 **
-** \param[out] mean        Working array for convergence criterion
-**                         (Dimension: nech [even if masked samples])
-**
 ** \remark Only available for monovariate case
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
@@ -202,13 +199,13 @@ int GibbsStandard::calculIteration(Db *db,
                                    int isimu,
                                    int ipgs,
                                    int igrf,
-                                   int verbose,
-                                   double *mean)
+                                   int verbose)
 {
   int     error,iech,iiech,jech,jjech,nech,nbdiv,nfois,nactive,iter,ncumul;
   int    *flag_h,icase,icase0,itest;
   double  vmin,vmax,delloc,old_mean,new_mean,refe,yk,sk,yval,ratio;
   double *y,*yhard;
+  VectorDouble mean;
 
   /* Initializations */
 
@@ -225,6 +222,7 @@ int GibbsStandard::calculIteration(Db *db,
 
   /* Core allocation */
 
+  mean.resize(nech,0.);
   y      = (double *) mem_alloc(sizeof(double) * nactive,0);
   if (y      == (double *) NULL) goto label_end;
   yhard  = (double *) mem_alloc(sizeof(double) * nactive,0);
@@ -243,7 +241,6 @@ int GibbsStandard::calculIteration(Db *db,
   if (verbose) message("Starting Gibbs...\n");
   for (iech=iiech=0; iech<nech; iech++)
   {
-    mean[iech] = 0.;
     if (! db->isActive(iech)) continue;
     y[iiech] = db->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,getNbsimu(),1);
     iiech++;
@@ -424,11 +421,6 @@ label_end:
 ** \param[in]  isimu       Rank of the simulation
 ** \param[in]  verbose     Verbose flag
 **
-** \param[out] mean        Working array for convergence criterion
-**                         (Dimension: nech [even if masked samples])
-**
-** \remark  Only available for monovariate case
-**
 ** \remark The coefficient 'r' of the Gibbs Propagative algorithm
 ** \remark can be defined using:
 ** \remark set_keypair("gibbsPropaR",newval). Default 0.
@@ -442,15 +434,14 @@ label_end:
 int GibbsStandard::calculatePropagation(Db *db,
                                         Model *model,
                                         int isimu,
-                                        bool verbose,
-                                        double *mean)
+                                        bool verbose)
 {
   int     iech,iiech,jech,jjech,iter,nech,nbdiv,nfois,ncumul,itest;
   int     ndim,idim,error,nactive,flag_affect,npart,icase;
   double  delloc,old_mean,new_mean,refe,eps;
   double *y,delta,sigval,sigloc,sqr,r;
   VectorUChar img;
-  VectorDouble d1;
+  VectorDouble d1, mean;
   VectorInt nx;
   CovCalcMode mode;
 
@@ -474,6 +465,7 @@ int GibbsStandard::calculatePropagation(Db *db,
   nx.resize(2);
   nx[0] = nactive;
   nx[1] = nactive;
+  mean.resize(nech,0.);
   y     = (double *) mem_alloc(sizeof(double) * nech,0);
   if (y     == (double *) NULL) goto label_end;
   d1.resize(ndim);
@@ -490,7 +482,6 @@ int GibbsStandard::calculatePropagation(Db *db,
   {
     y[iech] = (! db->isActive(iech)) ?
       TEST : db->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,getNbsimu(),1);
-    mean[iech] = 0.;
   }
 
   /* Loop on the iterations */

@@ -37,13 +37,11 @@ public:
                       int isimu,
                       int ipgs,
                       int igrf,
-                      int verbose,
-                      double *mean);
+                      int verbose);
   int calculatePropagation(Db *db,
                            Model *model,
                            int isimu,
-                           bool verbose,
-                           double *mean);
+                           bool verbose);
   int covmatAlloc(Db *dbin, Model *model, bool verbose);
 
 private:
