@@ -42,7 +42,8 @@ const ASpace* ASpaceObject::createGlobalSpace(SpaceType type,
 {
   if (nullptr != _globalSpace)
   {
-    delete _globalSpace;
+    std::cout << "Cannot recreate global space context! Should never occur!" << std::endl;
+    //delete _globalSpace;
   }
   switch (type)
   {

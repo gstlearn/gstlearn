@@ -5332,6 +5332,7 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
   Rule* rule   = (Rule  *) NULL;
   Relem* Pile_Relem   = (Relem *) NULL;
   PropDef* propdef      = (PropDef *) NULL;
+  String calcName("covnc");
 
   NCOLOR       = db->getFaciesNumber();
   NGRF         = ngrfmax;
@@ -5352,14 +5353,14 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
   {
     // Calculate the variogram of Indicators
     varioind = new Vario(varioparam, db);
-    if (varioind->computeIndic("covnc")) goto label_end;
+    if (varioind->computeIndic(calcName)) goto label_end;
   }
 
   if (st_check_test_discret(RULE_STD,0)) goto label_end;
   st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
 
   vario = new Vario(varioparam, db);
-  vario->setCalculName("covnc");
+  vario->setCalculName(calcName);
   vario->setNVar(NGRF);
   vario->internalVariableResize();
   vario->internalDirectionResize();
@@ -5454,17 +5455,19 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
   error = 0;
 
 label_end:
-  if (varioind != nullptr) delete varioind;
-  if (vario != nullptr) delete vario;
+  //if (varioind != nullptr) delete varioind;
+  //if (vario != nullptr) delete vario;  // [FO] 21/09/13 => vario was null too early!
   Pile_Relem = st_relem_free(Pile_Relem);
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
   st_manage_pgs(-1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
-                flag_stat,1,0,NGRF,NCOLOR,vario->getCalculType());
+                flag_stat,1,0,NGRF,NCOLOR,vario->getCalculType()); //<- because here
   (void) st_vario_pgs_variable(-1,NGRF,NCOLOR,1,0,db,propdef,NULL);
 
   propdef = proportion_manage(-1,1,flag_stat,NGRF,0,NCOLOR,0,
                               db,dbprop,propcst,propdef);
+  if (varioind != nullptr) delete varioind;
+  if (vario != nullptr) delete vario;
   if (error) rule = rule_free(rule);
   return(rule);
 }

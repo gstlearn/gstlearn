@@ -1126,7 +1126,6 @@ GEOSLIB_API Model *model_init(int ndim,
 {
   Model* model = (Model *) NULL;
 
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim); // TODO Avoid this artificial setting
   CovContext ctxt = CovContext(nvar, 2, field);
   ctxt.setBallRadius(ball_radius);
   if (mean.size() > 0)   ctxt.setMean(mean);

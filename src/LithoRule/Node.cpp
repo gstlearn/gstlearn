@@ -443,22 +443,25 @@ int Node::proportionDefine(const VectorDouble& props)
 
   /* Assign the proportion of the current facies */
 
-  int facies = _facies;
-  if (IFFFF(facies)) return(0);
-
-  double propval = props[facies - 1];
-  if (! FFFF(propval))
+  if (_orient == THRESH_IDLE) // [FO] 21/09/13 => nothing to do in splitting nodes (facies=0)
   {
-    if (propval < (0. - eps) || propval > (1. + eps))
+    int facies = _facies;
+    if (IFFFF(facies)) return(0);
+
+    double propval = props[facies - 1];
+    if (! FFFF(propval))
     {
-      messerr("Wrong proportion for facies %d (%lf): it should lie in [0,1]",
-              facies,propval);
-      return(1);
+      if (propval < (0. - eps) || propval > (1. + eps))
+      {
+        messerr("Wrong proportion for facies %d (%lf): it should lie in [0,1]",
+                facies,propval);
+        return(1);
+      }
+      if (propval < 0.) propval = 0.;
+      if (propval > 1.) propval = 1.;
     }
-    if (propval < 0.) propval = 0.;
-    if (propval > 1.) propval = 1.;
+    _prop = propval;
   }
-  _prop = propval;
   return(0);
 }
 

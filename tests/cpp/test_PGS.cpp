@@ -24,7 +24,13 @@
 int main(int argc, char *argv[])
 
 {
-  setSerializedContainerName(String(std::getenv("PYGSTLEARN_DIR")));
+  char* pydir(std::getenv("PYGSTLEARN_DIR"));
+  if (pydir == nullptr)
+  {
+    std::cout << "PYGSTLEARN_DIR environment variable must be defined. Test aborted!" << std::endl;
+    return 1;
+  }
+  setSerializedContainerName(pydir);
   setSerializedPrefixName("PGS-");
   int error = 0;
   int ndim  = 2;
@@ -128,7 +134,8 @@ int main(int argc, char *argv[])
   error = ruleprop2.fit(&db, &varioparam2, 2, true);
   ruleprop2.getRule()->display(1);
   ruleprop2.getRule()->serialize("ruleFit.ascii");
- 
+
+  modelPGS1.display();
   Vario* varioDerived = model_pgs(&db, &varioparam1, &ruleprop2, &modelPGS1, &modelPGS2);
   modelPGS1.display();
   varioDerived->serialize("modelpgs.ascii");
