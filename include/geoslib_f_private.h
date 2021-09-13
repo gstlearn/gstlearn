@@ -85,10 +85,6 @@ GEOSLIB_API int krigsim(const char *string,
 /* Prototyping the functions in simtub.c */
 /*****************************************/
 
-GEOSLIB_API int _gibbs_init_monovariate(int flag_order,Props *propdef,
-                                        Db *db,Model *model,int isimu,
-                                        int ipgs,int igrf,int nbsimu,
-                                        int verbose);
 GEOSLIB_API int _gibbs_init_multivar(int flag_order,Props *propdef,Db *db,
                                      Model *model,int isimu,int ipgs,
                                      int nbsimu,int verbose);

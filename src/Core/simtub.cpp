@@ -18,6 +18,7 @@
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
+#include "Gibbs/GibbsStandard.hpp"
 #include "geoslib_e.h"
 
 /*! \cond */
@@ -3831,90 +3832,6 @@ label_end:
 
 /****************************************************************************/
 /*!
-**  Check/Show the facies against gaussian at wells
-**
-** \param[in]  propdef    PropDef structure
-** \param[in]  dbin       Db structure
-** \param[in]  model      Model structure
-** \param[in]  isimu      Rank of the simulation
-** \param[in]  ipgs       Rank of the GS
-** \param[in]  igrf       Rank of the bounds (starting from 0)
-** \param[in]  nbsimu     Number of simulations
-**
-** \remark Attributes LOC_GAUSFAC are mandatory
-**
-*****************************************************************************/
-static void st_check_gibbs(PropDef  *propdef,
-                           Db     *dbin,
-                           Model  *model,
-                           int     isimu,
-                           int     ipgs,
-                           int     igrf,
-                           int     nbsimu)
-{
-  int nech,iech,number,icase,icase0;
-  double gaus,vmin,vmax;
-
-  /* Initializations */
-
-  check_mandatory_attribute("st_check_gibbs",dbin,LOC_GAUSFAC);
-  number = 0;
-  nech   = dbin->getSampleNumber();
-  icase  = get_rank_from_propdef(propdef,ipgs,igrf);
-  icase0 = get_rank_from_propdef(propdef,ipgs,0);
-  mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d GRF=%d Simu=%d)",
-           ipgs+1,igrf+1,isimu+1);
-  
-  /* Loop on the data */
-  
-  for (iech=0; iech<nech; iech++)
-  {
-    if (! dbin->isActive(iech)) continue;
-
-    /* Read the bounds */
-
-    vmin = dbin->getLowerBound(iech,get_rank_from_propdef(propdef,ipgs,igrf));
-    vmax = dbin->getUpperBound(iech,get_rank_from_propdef(propdef,ipgs,igrf));
-    if (FFFF(vmin)) vmin = -1.e30;
-    if (FFFF(vmax)) vmax =  1.e30;
-
-    /* Read the gaussian value */
-
-    gaus = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1);
-    if (igrf == 1)
-      gaus = GIBBS_SQR * gaus + GIBBS_RHO * 
-        dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase0,nbsimu,1);
-
-    /* Check inconsistency */
-    
-    if ((! FFFF(vmin) && gaus < vmin) ||
-        (! FFFF(vmax) && gaus > vmax))
-    {
-      message("- Sample (#%d):",iech+1);
-      message(" Simu#%d of Y%d=%lf",isimu+1,igrf+1,gaus);
-      message(" does not lie within [");
-      if (FFFF(vmin))
-        message("NA,");
-      else
-        message("%lf",vmin);
-      message(";");
-      if (FFFF(vmax))
-        message("NA");
-      else
-        message("%lf",vmax);
-      message("]\n");
-      
-      number++;
-    }
-  }
-  
-  if (number <= 0) message("No problem found\n");
-
-  return;
-}
-
-/****************************************************************************/
-/*!
 **  Initialize the Gibbs internal parameters
 **
 ** \param[in]  rho        Correlation between the two underlying GRF
@@ -3924,1258 +3841,6 @@ static void st_init_gibbs_params(double rho)
 {
   GIBBS_RHO = rho;
   GIBBS_SQR = sqrt(1. - rho * rho);
-}
-
-/****************************************************************************/
-/*!
-**  Check if bounds are corrects
-**
-** \return  Error code: 1 if bounds are incorrect
-**
-** \param[in]     db          Db structure
-** \param[in]     iech0       Rank of the sample
-** \param[in]     data        Data value (of TEST)
-** \param[in]     vmin        Minimum bound (or TEST)
-** \param[in]     vmax        Maximum bound (or TEST)
-** \param[in]     iech        Rank of the previous sample
-** \param[in]     value       Previous value (or TEST)
-** \param[in]     vemin       Minimum bound for previous sample (or TEST)
-** \param[in]     vemax       Maximum bound for previous sample (or TEST)
-**
-** \remarks If an error occurs, the error message is printed.
-** \remarks If the previous sample ('iech') is undefined, no comparison
-** \remarks is printed.
-** \remarks Bounds 'vmin' and 'vmax' are modified in presence of hard data
-**
-*****************************************************************************/
-static int st_bounds_check(Db     *db,
-                           int     iech0,
-                           double  data,
-                           double *vmin,
-                           double *vmax,
-                           int     iech,
-                           double  value,
-                           double  vemin,
-                           double  vemax)
-{
-  int flag_err_bnd,flag_err_min,flag_err_max;
-  double vlmin,vlmax;
-
-  /* Initializations */
-
-  flag_err_min = 0;
-  flag_err_max = 0;
-  flag_err_bnd = 0;
-
-  // Check the bound validity
-
-  flag_err_bnd = (! FFFF(*vmin) && ! FFFF(*vmax) && (*vmin) > (*vmax));
-
-  // Check against the data
-
-  vlmin = *vmin;
-  vlmax = *vmax;
-  if (! FFFF(data))
-  {
-    
-    /* Case where the data value is defined */
-
-    flag_err_min = (! FFFF(*vmin) && data < (*vmin));
-    flag_err_max = (! FFFF(*vmax) && data > (*vmax));
-    db->setLowerBound(iech0,0,data);
-    db->setUpperBound(iech0,0,data);
-    *vmin = *vmax = data;
-  }
-
-  if (! (flag_err_min || flag_err_max || flag_err_bnd)) return(0);
-
-  // Print the error message
-
-  messerr("Sample %d",iech0+1);
-  if (flag_err_bnd)
-    messerr("Bounds are wrongly ordered: Vmin(%lf) > Vmax(%lf)",
-            vlmin,vlmax);
-  if (flag_err_min || flag_err_max)
-    messerr("Data (%lf) does not lie in [%lf ; %lf]",data,vlmin,vlmax);
-
-  if (! IFFFF(iech))
-  {
-    messerr("Compared to sample %d",iech+1);
-    if (!FFFF(value))
-      messerr("- Value = %lf",value);
-    if (!FFFF(vemin))
-      messerr("- Lower Bound = %lf",vemin);
-    if (!FFFF(vemax))
-      messerr("- Upper Bound = %lf",vemax);
-  }
-  if (! FFFF(data)) 
-  {
-    messerr("... Data information superseeds the bounds");
-    return(0);
-  }
-
-  return(1);
-}
-
-/****************************************************************************/
-/*!
-**  Correct the bounds according to the order relationship
-**
-** \return  Error code: 1 if there is no solution; 0 otherwise
-**
-** \param[in]  flag_category 1 for categorical; 0 for continuous
-** \param[in]  flag_order    Order relationship
-** \li                        1 if the ascending order must be honored
-** \li                       -1 if the descending order must be honored
-** \li                        0 if no order relationship must be honored
-** \param[in]  propdef       PropDef structure
-** \param[in]  dbin          Db structure
-** \param[in]  iech0         Rank of the sample
-** \param[in]  ivar          Rank of the variable
-** \param[in]  icase         Rank of the GRF / PGS
-** \param[in]  nvar          Number of variables
-** \param[in]  vlmin_arg     Input minimum bound
-** \param[in]  vlmax_arg     Input maximum bound
-**
-** \param[out]  vlmin_arg   Output minimum bound
-** \param[out]  vlmax_arg   Output maximum bound
-**
-** \remark Attributes LOC_GAUSFAC are mandatory
-**
-*****************************************************************************/
-static int st_correct_bounds_order(int     flag_category,
-                                   int     flag_order,
-                                   PropDef  *propdef,
-                                   Db     *dbin,
-                                   int     iech0,
-                                   int     ivar,
-                                   int     icase,
-                                   int     nvar,
-                                   double *vlmin_arg,
-                                   double *vlmax_arg)
-{
-  int    iech;
-  double vlmin,vlmax,vemin,vemax,vimin,vimax,value,data;
-
-  /* Preliminary check */
-
-  check_mandatory_attribute("st_correct_bounds_order",dbin,LOC_GAUSFAC);
-  iech  = -1;
-  value = 0.;
-  data  = TEST;
-  if (! flag_category) data = dbin->getVariable(iech0,0);
-  vimin = dbin->getLowerBound(iech0,icase);
-  vimax = dbin->getUpperBound(iech0,icase);
-  if (st_bounds_check(dbin,iech0,data,&vimin,&vimax,
-                      ITEST,TEST,TEST,TEST)) return(1);
-  vlmin = vimin;
-  vlmax = vimax;
-
-  /* Dispatch */
-
-  switch(flag_order)
-  {
-    case -1:			/* Descending order */
-      for (iech=0; iech<iech0; iech++)
-      {
-        value = dbin->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-        if (!FFFF(value) && (FFFF(vlmax) || value < vlmax)) vlmax = value;
-      
-        vemin = dbin->getLowerBound(iech,icase);
-        vemax = dbin->getUpperBound(iech,icase);
-        if (!FFFF(vemax) && (FFFF(vlmax) || vemax < vlmax)) vlmax = vemax;
-
-        if (st_bounds_check(dbin,iech0,data,&vlmin,&vlmax,
-                            iech,value,vemin,vemax)) return(1);
-      }
-      for (iech=iech0+1; iech<dbin->getSampleNumber(); iech++)
-      {
-        value = dbin->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-        if (!FFFF(value) && (FFFF(vlmin) || value > vlmin)) vlmin = value;
-      
-        vemin = dbin->getLowerBound(iech,icase);
-        vemax = dbin->getUpperBound(iech,icase);
-        if (!FFFF(vemin) && (FFFF(vlmin) || vemin > vlmin)) vlmin = vemin;
-
-        if (st_bounds_check(dbin,iech0,data,&vlmin,&vlmax,
-                            iech,value,vemin,vemax)) return(1);
-      }
-      break;
-
-    case 1:			/* Ascending order */
-      for (iech=0; iech<iech0; iech++)
-      {
-        value = dbin->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-        if (!FFFF(value) && (FFFF(vlmin) || value > vlmin)) vlmin = value;
-      
-        vemin = dbin->getLowerBound(iech,icase);
-        vemax = dbin->getUpperBound(iech,icase);
-        if (!FFFF(vemin) && (FFFF(vlmin) || vemin > vlmin)) vlmin = vemin;
-
-        if (st_bounds_check(dbin,iech0,data,&vlmin,&vlmax,
-                            iech,value,vemin,vemax)) return(1);
-      }
-      for (iech=iech0+1; iech<dbin->getSampleNumber(); iech++)
-      {
-        value = dbin->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-        if (!FFFF(value) && (FFFF(vlmax) || value < vlmax)) vlmax = value;
-      
-        vemin = dbin->getLowerBound(iech,icase);
-        vemax = dbin->getUpperBound(iech,icase);
-        if (!FFFF(vemax) && (FFFF(vlmax) || vemax < vlmax)) vlmax = vemax;
-
-        if (st_bounds_check(dbin,iech0,data,&vlmin,&vlmax,
-                            iech,value,vemin,vemax)) return(1);
-      }
-      break;
-
-    default:			/* No order relationship */
-      break;
-  }
-
-  *vlmin_arg = vlmin;
-  *vlmax_arg = vlmax;
-  return(0);
-}
-
-/****************************************************************************/
-/*!
-**  Print the inequality
-**
-** \param[in]  db        Db structure
-** \param[in]  ifirst    If 0, print the header
-** \param[in]  iech      Rank of the sample
-** \param[in]  ivar      Rank of the variable
-** \param[in]  nfois     Rank of the iteration (<=0 for bootstrap)
-** \param[in]  flag_cv   1 to print the convergence criterion
-** \param[in]  simval    Simulated value
-** \param[in]  vmin      Lower threshold
-** \param[in]  vmax      Upper threshold
-** \param[in]  mean      Current mean value
-** \param[in]  delta     Convergence increment
-**
-*****************************************************************************/
-static void st_print_ineq(Db    *db,
-                          int    ifirst,
-                          int    iech,
-                          int    ivar,
-                          int    nfois,
-                          int    flag_cv,
-                          double simval,
-                          double vmin,
-                          double vmax,
-                          double mean,
-                          double delta)
-{
-  int flag_min,flag_max,idim;
-
-  /* Initializations */
-
-  flag_min = flag_max = 1;
-  if (FFFF(vmin)) flag_min = 0;
-  if (FFFF(vmax)) flag_max = 0;
-
-  /* Print the title (first sample) */
-
-  if (ifirst == 0 && nfois >= 0)
-    message("Iteration = %d\n",nfois);
-
-  /* Print the simulated value */
-
-  message("Sample (%3d) - Variable (%3d) = %8.4lf in ",iech+1,ivar+1,simval);
-
-  /* Print the bounds */
-
-  if (! flag_min)
-    message("[      NA,");
-  else
-    message("[%8.4lf,",vmin);
-  if (! flag_max)
-    message("      NA]");
-  else
-    message("%8.4lf]",vmax);
-
-  /* Print the coordinates */
-
-  message(" at point (");
-  for (idim=0; idim<db->getNDim(); idim++)
-  {
-    if (idim != 0) message(",");
-    message("%8.4lf",db->getCoordinate(iech,idim));
-  }
-  message(")");
-
-  /* Print the mean and the evolution increment */
-
-  if (flag_cv)
-    message(" - Mean = %8.4lf (Delta = %5.2lf (percent))",mean,delta);
-
-  message("\n");
-
-  return;
-}
-
-/****************************************************************************/
-/*!
-**  Print the initial status for Gibbs iterations
-**
-** \param[in]  title       Title of the printout
-** \param[in]  dbin        Db structure
-** \param[in]  nvar        Number of variables
-** \param[in]  nbsimu      Number of simulations
-** \param[in]  isimu       Rank of the simulation
-** \param[in]  icase       Case for PGS or GRF
-**
-*****************************************************************************/
-static void st_gibbs_init_print(const char *title,
-                                Db    *dbin,
-                                int    nvar,
-                                int    nbsimu,
-                                int    isimu,
-                                int    icase)
-{
-  int    nech,iech,ivar;
-  double simval,vmin,vmax;
-
-  nech = dbin->getSampleNumber();
-  mestitle(1,"%s (Simu:%d)",title,isimu+1);
-  for (ivar=0; ivar<nvar; ivar++)
-    for (iech=0; iech<nech; iech++)
-    {
-      if (! dbin->isActive(iech)) continue;
-      vmin = dbin->getLowerBound(iech,icase);
-      vmax = dbin->getUpperBound(iech,icase);
-      simval = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,ivar,icase,
-                          nbsimu,nvar);
-      st_print_ineq(dbin,0,iech,ivar,-1,0,simval,vmin,vmax,TEST,TEST);
-    }
-}
-                           
-/****************************************************************************/
-/*!
-**  Print the final scores for Gibbs iterations
-**
-** \param[in]  title       Title of the printout
-** \param[in]  dbin        Db structure
-** \param[in]  nvar        Number of variables
-** \param[in]  nbsimu      Number of simulations
-** \param[in]  isimu       Rank of the simulation
-** \param[in]  niter       Total number of iterations
-** \param[in]  icase       Case for PGS or GRF
-** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
-** \param[in]  gibbs_niter Maximum number of iterations
-** \param[in]  gibbs_eps   Relative convergence criterion
-**
-*****************************************************************************/
-static void st_gibbs_iter_print(const char *title,
-                                Db    *dbin,
-                                int    nvar,
-                                int    nbsimu,
-                                int    isimu,
-                                int    niter,
-                                int    icase,
-                                int    gibbs_nburn,
-                                int    gibbs_niter,
-                                double gibbs_eps)
-{
-  int    nech,iech,ivar,iecr;
-  double simval,vmin,vmax;
-
-  nech = dbin->getSampleNumber();
-  mestitle(1,"%s (Simu:%d)",title,isimu+1);
-  message("Number of samples              = %d\n",nech);
-  message("Number of bootstrap iterations = %d\n",gibbs_nburn);
-  message("Maximum number of iterations   = %d\n",gibbs_niter);
-  message("Total number of iterations     = %d\n",niter);
-  message("Relative immobile criterion    = %5.2lf per cent\n",gibbs_eps);
-
-  mestitle(1,"Assignment of Values at data points ");
-  iecr = 0;
-  for (ivar=0; ivar<nvar; ivar++)
-    for (iech=0; iech<nech; iech++)
-    {
-      if (! dbin->isActive(iech)) continue;
-      vmin = dbin->getLowerBound(iech,icase);
-      vmax = dbin->getUpperBound(iech,icase);
-      simval = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,ivar,icase,
-                          nbsimu,nvar);
-      st_print_ineq(dbin,iecr,iech,ivar,-1,0,simval,vmin,vmax,TEST,TEST);
-      iecr++;
-    }
-}
-                           
-/****************************************************************************/
-/*!
-**  Initializes the multivariate Gibbs sampler 
-**
-** \return  Error return code
-**
-** \param[in]  flag_category 1 for categorical; 0 for continuous
-** \param[in]  flag_order    Order relationhip 
-** \li                        1 if the ascending order must be honored
-** \li                       -1 if the descending order must be honored
-** \li                        0 if no order relationship must be honored
-** \param[in]  propdef       PropDef structure
-** \param[in]  dbin          Db structure
-** \param[in]  model         Model structure
-** \param[in]  isimu         Rank of the simulation
-** \param[in]  ipgs          Rank of the GS
-** \param[in]  nbsimu        Number of simulations
-** \param[in]  verbose       Verbose flag
-**
-*****************************************************************************/
-GEOSLIB_API int _gibbs_init_multivar(int     flag_category,
-                                     int     flag_order,
-                                     PropDef  *propdef,
-                                     Db     *dbin,
-                                     Model  *model,
-                                     int     isimu,
-                                     int     ipgs,
-                                     int     nbsimu,
-                                     int     verbose)
-{
-  int    iech,nech,icov,nvar,ivar,icase;
-  double simval,vmin,vmax,sk,pmin,pmax;
-
-  /* Core allocation */
-
-  check_mandatory_attribute("gibbs_init",dbin,LOC_GAUSFAC);
-  nech  = dbin->getSampleNumber();
-  nvar  = model->getVariableNumber();
-  icase = get_rank_from_propdef(propdef,ipgs,0);
-
-  /* Print the title */
-
-  if (debug_query("converge"))
-    mestitle(1,"Initial Values for Gibbs Sampler (GS:%d - Simu:%d)",
-             ipgs+1,isimu+1);
-
-  /* Loop on the samples */
-
-  for (ivar=0; ivar<nvar; ivar++)
-  {
-
-    /* Get the theoretical standard deviation */
-
-    sk = 0.;
-    for (icov=0; icov<model->getCovaNumber(); icov++)
-      sk += model->getSill(icov,ivar,ivar);
-    sk = sqrt(sk);
-
-    for (iech=0; iech<nech; iech++)
-    {
-      if (! dbin->isActive(iech)) continue;
-      if (st_correct_bounds_order(flag_category,flag_order,propdef,
-                                  dbin,iech,ivar,icase,nvar,
-                                  &vmin,&vmax)) return(1);
-      
-      /* Compute the median value of the interval */
-    
-      pmin   = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
-      pmax   = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
-      simval = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
-      dbin->setSimvar(LOC_GAUSFAC,iech,isimu,ivar,icase,nbsimu,nvar,simval);
-    }
-  }
-
-  /* Optional printout */
-
-  if (verbose)
-    st_gibbs_init_print("Gibbs Sampler Initial",dbin,1,nbsimu,isimu,icase);
-
-  return(0);
-}
-
-/****************************************************************************/
-/*! 
-**  Initializes the Gibbs sampler for a set of inequalities
-**
-** \return  Error return code
-**
-** \param[in]  flag_category 1 for categorical; 0 for continuous
-** \param[in]  flag_order    Order relationhip 
-** \li                        1 if the ascending order must be honored
-** \li                       -1 if the descending order must be honored
-** \li                        0 if no order relationship must be honored
-** \param[in]  propdef       PropDef structure
-** \param[in]  dbin          Db structure
-** \param[in]  model         Model structure
-** \param[in]  isimu         Rank of the simulation
-** \param[in]  igrf          Rank of the GRF
-** \param[in]  ipgs          Rank of the GS
-** \param[in]  nbsimu        Number of simulations
-** \param[in]  verbose       Verbose flag
-**
-** \remark Only available for monovariate case 
-** \remark This method is not documented on purpose. It should remain private
-** \remark Attributes LOC_GAUSFAC are mandatory
-**
-*****************************************************************************/
-GEOSLIB_API int _gibbs_init_monovariate(int     flag_category,
-                                        int     flag_order,
-                                        PropDef  *propdef,
-                                        Db     *dbin,
-                                        Model  *model,
-                                        int     isimu,
-                                        int     igrf,
-                                        int     ipgs,
-                                        int     nbsimu,
-                                        int     verbose)
-{
-  int    iech,nech,error,icov,icase,icase0;
-  double simval,vmin,vmax,val1,ratio,sk,pmin,pmax;
-
-  /* Core allocation */
-
-  check_mandatory_attribute("gibbs_init",dbin,LOC_GAUSFAC);
-  error  = 1;
-  nech   = dbin->getSampleNumber();
-  icase  = get_rank_from_propdef(propdef,ipgs,igrf);
-  icase0 = get_rank_from_propdef(propdef,ipgs,0);
-
-  /* Print the title */
-
-  if (debug_query("converge"))
-    mestitle(1,"Initial Values for Gibbs Sampler (GRF:%d - Simu:%d)",
-             igrf+1,isimu+1);
-
-  /* Get the theoretical standard deviation */
-
-  sk = 0.;
-  for (icov=0; icov<model->getCovaNumber(); icov++)
-    sk += model->getSill(icov,0,0);
-  sk = sqrt(sk);
-
-  /* Loop on the samples */
-
-  val1  = 0.;
-  ratio = (igrf == 0) ? 1. : GIBBS_SQR;
-  for (iech=0; iech<nech; iech++)
-  {
-    if (! dbin->isActive(iech)) continue;
-    if (st_correct_bounds_order(flag_category,flag_order,propdef,
-                                dbin,iech,0,icase,1,
-                                &vmin,&vmax)) goto label_end;
-      
-    /* Draw a value as the median value of the interval */
-    
-    if (igrf == 1) 
-      val1 = GIBBS_RHO * 
-        dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase0,nbsimu,1);
-    if (! FFFF(vmin)) vmin = (vmin - val1) / ratio;
-    if (! FFFF(vmax)) vmax = (vmax - val1) / ratio;
-
-    /* Compute the median value of the interval */
-
-    pmin   = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
-    pmax   = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
-    simval = sk * law_invcdf_gaussian(law_uniform(pmin,pmax));
-    dbin->setSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1,simval);
-  }
-
-  /* Optional printout */
-
-  if (verbose)
-    st_gibbs_init_print("Gibbs Sampler Initial",dbin,1,nbsimu,isimu,icase);
-
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  return(error);
-}
-
-/****************************************************************************/
-/*!
-**  Establish the covariance matrix for Gibbs
-**
-** \return  Pointer to the covariance matrix newly allocated
-**
-** \param[in]  dbin        Db structure
-** \param[in]  model       Model structure
-** \param[in]  verbose     Verbose flag
-**
-** \remark The calling function must free the allocated matrix
-**
-*****************************************************************************/
-static double *st_gibbs_covmat_alloc(Db *dbin,
-                                     Model *model,
-                                     int verbose)
-{
-  double *covmat;
-  int nactive;
-
-  // Initialization
-
-  covmat = (double *) NULL;
-  nactive = dbin->getActiveSampleNumber();
-
-  // Core allocation
-
-  covmat = (double *) mem_alloc(sizeof(double) * nactive * nactive,0);
-  if (covmat == (double *) NULL) return(covmat);
-
-  if (verbose) message("Invert the covariance matrix\n");
-  if (model->isNoStat())
-    model_covmat_nostat(model,dbin,dbin,-1,-1,0,1,covmat);
-  else
-    model_covmat(model,dbin,dbin,-1,-1,0,1,covmat);
-  if (matrix_invert(covmat,nactive,-1))
-  {
-    messerr("Error during the covariance matrix inversion");
-    covmat = (double *) mem_free((char *) covmat);
-  }
-  return(covmat);
-}
-
-/****************************************************************************/
-/*!
-**  Perform iteration of the Gibbs sampler
-**
-** \return  Error return code
-**
-** \param[in]  propdef     PropDef structure
-** \param[in]  dbin        Db structure
-** \param[in]  model       Model structure
-** \param[in]  covmat      Covariance matrix inverted
-** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
-** \param[in]  gibbs_niter Maximum number of iterations
-** \param[in]  isimu       Rank of the simulation
-** \param[in]  ipgs        Rank of the GS
-** \param[in]  igrf        Rank of the bounds (starting from 0)
-** \param[in]  nbsimu      Number of simulations
-** \param[in]  gibbs_eps   Relative convergence criterion
-** \param[in]  verbose     Verbose flag
-**
-** \param[out] mean        Working array for convergence criterion
-**                         (Dimension: nech [even if masked samples])
-**
-** \remark Only available for monovariate case 
-** \remark Attributes LOC_GAUSFAC are mandatory
-**
-*****************************************************************************/
-GEOSLIB_API int gibbs_iter_monovariate(PropDef  *propdef,
-                                       Db     *dbin,
-                                       Model  *model,
-                                       double *covmat,
-                                       int     gibbs_nburn,
-                                       int     gibbs_niter,
-                                       int     isimu,
-                                       int     ipgs,
-                                       int     igrf,
-                                       int     nbsimu,
-                                       double  gibbs_eps,
-                                       int     verbose,
-                                       double *mean)
-{
-  int     error,iech,iiech,jech,jjech,nech,nbdiv,nfois,nactive,iter,ncumul;
-  int    *flag_h,icase,icase0,itest;
-  double  vmin,vmax,delloc,old_mean,new_mean,refe,yk,sk,yval,ratio;
-  double *y,*yhard;
-
-  /* Initializations */
-
-  check_mandatory_attribute("gibbs_iter",dbin,LOC_GAUSFAC);
-  error   = 1;
-  nech    = dbin->getSampleNumber();
-  nactive = dbin->getActiveSampleNumber();
-  y       = yhard = (double *) NULL;
-  flag_h  = (int *) NULL;
-  ratio   = (igrf == 0) ? 1. : GIBBS_SQR;
-  delloc  = new_mean = 0.;
-  icase   = get_rank_from_propdef(propdef,ipgs,igrf);
-  icase0  = get_rank_from_propdef(propdef,ipgs,0);
-
-  /* Core allocation */
-
-  y      = (double *) mem_alloc(sizeof(double) * nactive,0);
-  if (y      == (double *) NULL) goto label_end;
-  yhard  = (double *) mem_alloc(sizeof(double) * nactive,0);
-  if (yhard  == (double *) NULL) goto label_end;
-  flag_h = (int    *) mem_alloc(sizeof(double) * nech,0);
-  if (flag_h == (int    *) NULL) goto label_end;
-  
-  /* Print the title */
-
-  if (debug_query("converge"))
-    mestitle(1,"Iterative Conditional Expectation (GRF:%d - Simu:%d)",
-             igrf+1,isimu+1);
-
-  /* Load the vector in memory */
-
-  if (verbose) message("Starting Gibbs...\n");
-  for (iech=iiech=0; iech<nech; iech++)
-  {
-    mean[iech] = 0.;
-    if (! dbin->isActive(iech)) continue;
-    y[iiech] = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1);
-    iiech++;
-  }
-
-  /* Pre-calculations of kriging from hard to soft data */
-
-  if (verbose) message("Counting the number of Hard and Soft data\n");
-  for (iech=0; iech<nech; iech++)
-  {
-    flag_h[iech] = 0;
-    if (! dbin->isActive(iech)) continue;
-    vmin = dbin->getLowerBound(iech,icase);
-    vmax = dbin->getUpperBound(iech,icase);
-    flag_h[iech] = (vmin >= vmax) ?  1 : -1;
-  }
-
-  /* Perform the estimation at soft point from the hard information only */
-      
-  if (verbose)
-    message("Contribution of Hard Data to the estimation of Soft Data\n");
-  for (iech=iiech=0; iech<nech; iech++)
-  {
-    if (flag_h[iech] == 0) continue;
-    if (flag_h[iech]  < 0) 
-    {
-      yk = 0.;
-      for (jech=jjech=0; jech<nech; jech++)
-      {
-        if (flag_h[jech] == 0) continue;
-        if (flag_h[jech]  > 0) yk -= y[jjech] * COVMAT(iiech,jjech);
-        jjech++;
-      }
-      yhard[iiech] = yk;
-    }
-    else
-    {
-      yhard[iiech] = TEST;
-    }
-    iiech++;
-  }
-
-  /* Loop on the iterations */
-
-  if (verbose) message("Loop on the iterations and the samples\n");
-  nfois = ncumul = itest = 0;
-  for (iter=0; iter<gibbs_nburn+gibbs_niter; iter++)
-  {
-    nfois++;
-
-    /* Loop on the samples */
-    
-    for (iech=iiech=0; iech<nech; iech++,itest++)
-    {
-      mes_process("Gibbs processing",(gibbs_nburn+gibbs_niter)*nech,itest);
-      if (flag_h[iech] == 0) continue;
-      if (flag_h[iech]  < 0)
-      {
-        vmin = dbin->getLowerBound(iech,icase);
-        vmax = dbin->getUpperBound(iech,icase);
-      
-        /* Perform the estimation from the other informations */
-        
-        sk = 1. / COVMAT(iiech,iiech);
-        yk = yhard[iiech];
-        for (jech=jjech=0; jech<nech; jech++)
-        {
-          if (flag_h[jech] == 0) continue;
-          if (flag_h[jech]  < 0 && iiech != jjech) 
-            yk -= y[jjech] * COVMAT(iiech,jjech);
-          jjech++;
-        }
-        yk *= sk;
-
-        /* Correct from the already simulated Gaussian (multigaussian case) */
-
-        yval = yk;
-        if (igrf > 0 && GIBBS_RHO > 0.)
-          yval = yk * GIBBS_SQR + GIBBS_RHO * 
-            dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase0,nbsimu,1);
-        
-        /* Update the definition interval */
-        
-        sk = sqrt(sk);
-        if (! FFFF(vmin)) vmin  = (vmin - yval) / (sk * ratio); 
-        if (! FFFF(vmax)) vmax  = (vmax - yval) / (sk * ratio);
-        
-        /* Draw an authorized normal value */
-        
-        if (st_bounds_check(dbin,iech,TEST,&vmin,&vmax,ITEST,TEST,TEST,TEST))
-          messageAbort("Bounds for sample #%d are inverted during iteration #%d",
-                    iech+1,iter+1);
-        if (vmax > vmin)
-          y[iiech] = yk + sk * law_gaussian_between_bounds(vmin,vmax);
-        else
-          y[iiech] = yk + sk * vmin;
-      }
-      iiech++;
-    }
-    
-    /* Update the convergence criterion */
-    
-    if (iter+1 >= gibbs_nburn)
-    {
-      nbdiv = 0;
-      ncumul++;
-      for (iech=iiech=0; iech<nech; iech++)
-      {
-        if (! dbin->isActive(iech)) continue;
-        old_mean     = (ncumul > 1) ? mean[iech] / (ncumul - 1) : 0.;
-        mean[iech]  += y[iiech];
-        new_mean     = mean[iech] / (ncumul);
-        refe         = ABS(new_mean + old_mean) / 2.;
-        delloc       = ABS(new_mean - old_mean);
-        delloc       = (refe != 0.) ? 100. * delloc / refe : 0.;
-        if (delloc > gibbs_eps) nbdiv++;
-
-        /* Optional printout */
-	
-        if (debug_query("converge"))
-        {
-          vmin = dbin->getLowerBound(iech,icase);
-          vmax = dbin->getUpperBound(iech,icase);
-          st_print_ineq(dbin,iiech,iech,0,nfois,ncumul>1,y[iiech],
-                        vmin,vmax,new_mean,delloc);
-        }
-        iiech++;
-      }
-      if (nbdiv <= 0) 
-      {
-        message("Convergence reached after %d iterations\n",iter);
-        goto label_store;
-      }
-    }
-  }
-  
-  /* Storage */
-
-label_store:
-  for (iech=iiech=0; iech<nech; iech++)
-  {
-    if (! dbin->isActive(iech)) continue;
-    dbin->setSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1,y[iiech]);
-    iiech++;
-  }
-
-  /* Scale the mean array */
-
-  if (ncumul > 0)
-    for (iech=0; iech<nech; iech++) mean[iech] /= (ncumul);
-
-  /* Optional printout */
-
-  if (verbose)
-    st_gibbs_iter_print("Gibbs Sampler Results",dbin,1,nbsimu,isimu,iter,icase,
-                        gibbs_nburn,gibbs_niter,gibbs_eps);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  /* Core deallocation */
-
-label_end:
-  y      = (double *) mem_free((char *) y);
-  yhard  = (double *) mem_free((char *) yhard);
-  flag_h = (int    *) mem_free((char *) flag_h);
-  return(error);
-}
-
-/****************************************************************************/
-/*!
-**  Perform iterations of the Multivariate Gibbs sampler
-**
-** \return  Error return code
-**
-** \param[in]  propdef     PropDef structure
-** \param[in]  dbin        Db structure
-** \param[in]  model       Model structure
-** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
-** \param[in]  gibbs_niter Maximum number of iterations
-** \param[in]  isimu       Rank of the simulation
-** \param[in]  ipgs        Rank of the GS
-** \param[in]  gibbs_eps   Relative convergence criterion
-** \param[in]  verbose     Verbose flag
-**
-** \param[out] mean        Working array for convergence criterion
-**                         (Dimension: nvar * nech [even if masked samples])
-**
-** \remark Attributes LOC_GAUSFAC are mandatory
-**
-*****************************************************************************/
-GEOSLIB_API int gibbs_iter_multivar(PropDef  *propdef,
-                                    Db     *dbin,
-                                    Model  *model,
-                                    int     gibbs_nburn,
-                                    int     gibbs_niter,
-                                    int     isimu,
-                                    int     ipgs,
-                                    double  gibbs_eps,
-                                    int     verbose,
-                                    double *mean)
-{
-  int error,iech,jech,nech,nbdiv,nfois,nactive,iter,ncumul,neq,icase;
-  int ivar,jvar,iecr,jecr,nvar;
-  double  vmin,vmax,delloc,old_mean,new_mean,refe,yk,sk;
-  double *y,*covmat;
-
-  /* Initializations */
-
-  check_mandatory_attribute("gibbs_iter_multivar",dbin,LOC_GAUSFAC);
-  error   = 1;
-  nech    = dbin->getSampleNumber();
-  nvar    = model->getVariableNumber();
-  nactive = dbin->getActiveSampleNumber();
-  neq     = nvar * nactive;
-  y       = covmat = (double *) NULL;
-  delloc  = new_mean = 0.;
-  icase   = get_rank_from_propdef(propdef,ipgs,0);
-
-  /* Core allocation */
-
-  covmat = (double *) mem_alloc(sizeof(double) * neq * neq,0);
-  if (covmat == (double *) NULL) goto label_end;
-  y     = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (y     == (double *) NULL) goto label_end;
-  
-  /* Print the title */
-
-  if (debug_query("converge"))
-    mestitle(1,"Iterative Conditional Expectation (GS:%d - Simu:%d)",
-             ipgs+1,isimu+1);
-
-  /* Load the vector in memory */
-
-  iecr = 0;
-  for (ivar=0; ivar<nvar; ivar++)
-    for (iech=0; iech<nech; iech++)
-    {
-      MEAN(ivar,iech) = 0.;
-      if (! dbin->isActive(iech)) continue;
-      y[iecr] = dbin->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-      iecr++;
-    }
-
-  /* Establish the covariance matrix and invert it */
-
-  model_covmat_multivar(model,dbin,0,1,covmat);
-  if (matrix_invert(covmat,neq,-1))
-  {
-    messerr("Error during the covariance matrix inversion");
-    goto label_end;
-  }
-  
-  /* Loop on the iterations */
-
-  nfois = ncumul = 0;
-  for (iter=0; iter<gibbs_nburn+gibbs_niter; iter++)
-  {
-    nfois++;
-
-    /* Loop on the samples */
-    
-    iecr = 0;
-    for (ivar=0; ivar<nvar; ivar++)
-      for (iech=0; iech<nech; iech++)
-      {
-        if (! dbin->isActive(iech)) continue;
-        vmin = dbin->getLowerBound(iech,icase);
-        vmax = dbin->getUpperBound(iech,icase);
-        sk = 1. / COVMAT(iecr,iecr);
-      
-        /* Perform the estimation from the other informations */
-      
-        yk = 0.;
-        jecr = 0;
-        for (jvar=0; jvar<nvar; jvar++)
-          for (jech=0; jech<nech; jech++)
-          {
-            if (! dbin->isActive(jech)) continue;
-            if (iecr != jecr) yk -= y[jecr] * COVMAT(iecr,jecr);
-            jecr++;
-          }
-        yk *= sk;
-
-        /* Draw an authorized normal value */
-      
-        if (st_bounds_check(dbin,iech,TEST,&vmin,&vmax,ITEST,TEST,TEST,TEST))
-        {
-          messerr("Bounds for sample #%d and variable %d",iech+1,ivar+1);
-          messerr("are inverted during iteration #%d",iter+1);
-          goto label_end;
-        }
-        y[iecr] = yk + sk * law_gaussian_between_bounds(vmin,vmax);
-        iecr++;
-      }
-    
-    /* Update the convergence criterion */
-    
-    if (iter+1 >= gibbs_nburn)
-    {
-      ncumul++;
-      nbdiv = iecr = 0;
-      for (ivar=0; ivar<nvar; ivar++)
-        for (iech=0; iech<nech; iech++)
-        {
-          if (! dbin->isActive(iech)) continue;
-          old_mean         = (ncumul > 1) ? MEAN(ivar,iech) / (ncumul - 1) : 0.;
-          MEAN(ivar,iech) += y[iecr];
-          new_mean         = MEAN(ivar,iech) / (ncumul);
-          refe             = ABS(new_mean + old_mean) / 2.;
-          delloc           = ABS(new_mean - old_mean);
-          delloc           = (refe != 0.) ? 100. * delloc / refe : 0.;
-          if (delloc > gibbs_eps) nbdiv++;
-
-          /* Optional printout */
-	
-          if (debug_query("converge"))
-          {
-            vmin = dbin->getLowerBound(iech,icase);
-            vmax = dbin->getUpperBound(iech,icase);
-            st_print_ineq(dbin,iecr,iech,ivar,nfois,ncumul>1,y[iecr],
-                          vmin,vmax,new_mean,delloc);
-          }
-          iecr++;
-        }
-      if (nbdiv <= 0) goto label_store;
-    }
-  }
-  
-  /* Storage */
-
-label_store:
-  iecr = 0;
-  for (ivar=0; ivar<nvar; ivar++)
-    for (iech=0; iech<nech; iech++)
-    {
-      if (! dbin->isActive(iech)) continue;
-      dbin->setSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar,y[iecr]);
-      iecr++;
-    }
-
-  /* Scale the mean array */
-
-  if (ncumul > 0)
-    for (ivar=0; ivar<nvar; ivar++)
-      for (iech=0; iech<nech; iech++) 
-        MEAN(ivar,iech) /= (ncumul);
-
-  /* Optional printout */
-
-  if (verbose)
-    st_gibbs_iter_print("Gibbs Sampler Results",dbin,nvar,1,isimu,iter,icase,
-                        gibbs_nburn,gibbs_niter,gibbs_eps);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  /* Core deallocation */
-
-label_end:
-  y      = (double *) mem_free((char *) y);
-  covmat = (double *) mem_free((char *) covmat);
-  return(error);
-}
-
-/****************************************************************************/
-/*!
-**  Perform iteration of the Gibbs sampler (Propagative algorithm)
-**
-** \return  Error return code
-**
-** \param[in]  propdef     PropDef structure
-** \param[in]  dbin        Db structure
-** \param[in]  model       Model structure
-** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
-** \param[in]  gibbs_niter Maximum number of iterations
-** \param[in]  isimu       Rank of the simulation
-** \param[in]  nbsimu      Number of simulations
-** \param[in]  gibbs_eps   Relative convergence criterion
-** \param[in]  verbose     Verbose flag
-**
-** \param[out] mean        Working array for convergence criterion
-**                         (Dimension: nech [even if masked samples])
-**
-** \remark  Only available for monovariate case 
-**
-** \remark The coefficient 'r' of the Gibbs Propagative algorithm 
-** \remark can be defined using:
-** \remark set_keypair("gibbsPropaR",newval). Default 0.
-**
-** \remark The relative tolerance 'eps' of the Gibbs Propagative algorithm 
-** \remark can be defined using:
-** \remark set_keypair("gibbsEps",newval). Default 0.
-** \remark Attributes LOC_GAUSFAC are mandatory
-**
-*****************************************************************************/
-GEOSLIB_API int gibbs_iter_propagation(PropDef  *propdef,
-                                       Db     *dbin,
-                                       Model  *model,
-                                       int     gibbs_nburn,
-                                       int     gibbs_niter,
-                                       int     isimu,
-                                       int     nbsimu,
-                                       double  gibbs_eps,
-                                       int     verbose,
-                                       double *mean)
-{
-  int     iech,iiech,jech,jjech,iter,nech,nbdiv,nfois,ncumul,itest;
-  int     ndim,idim,error,nactive,flag_affect,npart,icase;
-  double  delloc,old_mean,new_mean,refe,eps;
-  double *y,delta,sigval,sigloc,sqr,r;
-  VectorUChar img;
-  VectorDouble d1;
-  VectorInt nx;
-  CovCalcMode mode;
-
-  /* Initializations */
-
-  check_mandatory_attribute("gibbs_iter_propagation",dbin,LOC_GAUSFAC);
-  error   = 1;
-  nfois   = 0;
-  nech    = dbin->getSampleNumber();
-  nactive = dbin->getActiveSampleNumber();
-  y       = (double *) NULL;
-  delloc  = new_mean = 0.;
-  r       = get_keypone("gibbsPropaR",0.);
-  eps     = get_keypone("gibbsEps",0.);
-  sqr     = sqrt(1. - r * r);
-  ndim    = model->getDimensionNumber();
-  icase   = get_rank_from_propdef(propdef,0,0);
-
-  /* Core allocation */
-
-  nx.resize(2);
-  nx[0] = nactive;
-  nx[1] = nactive;
-  y     = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (y     == (double *) NULL) goto label_end;
-  d1.resize(ndim);
-  img = morpho_image_manage(nx);
-  
-  /* Print the title */
-
-  if (debug_query("converge"))
-    mestitle(1,"Iterative Conditional Expectation (Simu:%d)",isimu+1);
-
-  /* Load the vector in memory */
-
-  for (iech=0; iech<nech; iech++)
-  {
-    y[iech] = (! dbin->isActive(iech)) ?
-      TEST : dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1);
-    mean[iech] = 0.;
-  }
-
-  /* Loop on the iterations */
-
-  nfois = ncumul = itest = npart = 0;
-  for (iter=0; iter<gibbs_nburn+gibbs_niter; iter++)
-  {
-    nfois++;
-
-    /* Loop on the samples */
-    
-    for (iech=iiech=0; iech<nech; iech++,itest++)
-    {
-      mes_process("Propagation",(gibbs_nburn+gibbs_niter)*nech,itest);
-      if (! dbin->isActive(iech)) continue;
-
-      /* Covariance vector between the current datum and the other samples */
-
-      for (idim=0; idim<ndim; idim++) d1[idim] = 0.;
-      if (model->isNoStat())
-      {
-        CovInternal covint(1,iech,1,iech,ndim,dbin,dbin);
-        model_calcul_cov_nostat(model,mode,&covint,1,1.,d1,&sigval);
-      }
-      else
-        model_calcul_cov(model,mode,1,1.,d1,&sigval);
-      if (sigval <= 0) continue;
-      delta = (r - 1.) * y[iech] + sqrt(sigval) * sqr * law_gaussian();
-	
-      /* Update the gaussian vector */
-	
-      for (jech=jjech=0; jech<nech; jech++)
-      {
-        if (! dbin->isActive(jech)) continue;
-
-        if (iter > 0 && ! bitmap_get_value(nx,img,iiech,jjech,0)) continue;
-
-        for (idim=0; idim<ndim; idim++)
-          d1[idim] = dbin->getCoordinate(iech,idim) - dbin->getCoordinate(jech,idim);
-        if (model->isNoStat())
-        {
-          CovInternal covint(1,iech,1,jech,ndim,dbin,dbin);
-          model_calcul_cov_nostat(model,mode,&covint,1,1.,d1,&sigloc);
-        }
-        else
-          model_calcul_cov(model,mode,1,1.,d1,&sigloc);
-
-        flag_affect = (ABS(sigloc) > sigval * eps);
-        if (iter <= 0)
-        {
-          bitmap_set_value(nx,img,iiech,jjech,0,flag_affect);
-          npart += flag_affect;
-        }
-        if (flag_affect) y[jech] += delta * sigloc / sigval;
-        jjech++;
-      }
-      iiech++;
-    }
-
-    /* Update the convergence criterion */
-
-    if (iter+1 >= gibbs_nburn)
-    {
-      nbdiv = 0;
-      ncumul++;
-      for (iech=iiech=0; iech<nech; iech++)
-      {
-        if (! dbin->isActive(iech)) continue;
-        old_mean    = (ncumul > 1) ? mean[iech] / (ncumul - 1) : 0.;
-        mean[iech] += y[iech];
-        new_mean    = mean[iech] / (ncumul);
-        refe        = ABS(old_mean + new_mean) / 2.;
-        delloc      = ABS(new_mean - old_mean);
-        delloc      = (refe != 0.) ? 100. * delloc / refe : 0.;
-        if (delloc > gibbs_eps) nbdiv++;
-
-        /* Optional printout */
-
-        if (debug_query("converge"))
-          st_print_ineq(dbin,iiech,iech,0,nfois,ncumul>1,y[iech],
-                        TEST,TEST,new_mean,delloc);
-        iiech++;
-      }
-      if (nbdiv <= 0) goto label_store;
-    }
-  }
-  
-  /* Storage */
-
-label_store:
-  for (iech=0; iech<nech; iech++)
-    dbin->setSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1,y[iech]);
-
-  /* Scale the mean array */
-
-  if (nfois > 0)
-    for (iech=0; iech<nech; iech++) mean[iech] /= (ncumul);
-
-  /* Optional printout */
-
-  if (verbose)
-    st_gibbs_iter_print("Gibbs Sampler Results",dbin,1,isimu,nbsimu,iter,icase,
-                        gibbs_nburn,gibbs_niter,gibbs_eps);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  /* Core deallocation */
-
-label_end:
-  y       = (double *) mem_free((char *) y);
-  return(error);
 }
 
 /****************************************************************************/
@@ -5238,10 +3903,12 @@ GEOSLIB_API int simpgs(Db *dbin,
   int     iptr,ngrf,igrf,icase,nfacies;
   int     nvar,flag_cond,error,isimu,flag_used[2],nechin;
   int     iptr_RP,iptr_RF,iptr_DF,iptr_DN,iptr_RN;
-  double *mean,*covmat;
+  bool    verbose = false;
+  double *mean;
   Situba *situba;
   Model  *models[2];
   PropDef  *propdef;
+  GibbsStandard gibbs;
 
   /* Initializations */
 
@@ -5249,7 +3916,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   nvar      = 1;
   nechin    = 0;
   ngrf      = 0;
-  mean      = covmat = (double *) NULL;
+  mean      = (double *) NULL;
   situba    = (Situba *) NULL;
   propdef   = (PropDef *) NULL;
   models[0] = model1;
@@ -5407,17 +4074,16 @@ GEOSLIB_API int simpgs(Db *dbin,
   {
 
     /* Initialize the Gibbs calculations */
-
-    st_init_gibbs_params(rule->getRho());
     
+    gibbs.init(1, ngrf, nbsimu, gibbs_nburn, gibbs_niter, rule->getRho(), gibbs_eps);
+
     for (igrf=0; igrf<2; igrf++)
     {
       if (! flag_used[igrf]) continue;
       
       /* Allocate the covariance matrix inverted */
   
-      covmat = st_gibbs_covmat_alloc(dbin,models[igrf],0);
-      if (covmat == (double *) NULL) goto label_end;
+      if (gibbs.covmatAlloc(dbin, models[igrf], verbose)) goto label_end;
 
       /* Loop on the simulations */
       
@@ -5428,22 +4094,19 @@ GEOSLIB_API int simpgs(Db *dbin,
         
         /* Initialization for the Gibbs sampler */
         
-        if (_gibbs_init_monovariate(1,0,propdef,dbin,models[igrf],
-                                    isimu,igrf,0,nbsimu,0)) goto label_end;
+        if (gibbs.calculInitialize(1, 0, dbin, models[igrf], isimu, igrf, 0, 0))
+          goto label_end;
         
         /* Iterations of the Gibbs sampler */
         
-        if (gibbs_iter_monovariate(propdef,dbin,models[igrf],covmat,
-                                   gibbs_nburn,gibbs_niter,isimu,
-                                   0,igrf,nbsimu,gibbs_eps,0,
-                                   mean)) goto label_end;
+        if (gibbs.calculIteration(dbin, models[igrf], isimu, 0, igrf, 0, mean))
+          goto label_end;
         
         /* Check the validity of the Gibbs results (optional) */
         
         if (flag_check)
-          st_check_gibbs(propdef,dbin,models[igrf],isimu,0,igrf,nbsimu);
+          gibbs.checkGibbs(dbin,models[igrf],isimu,0,igrf);
       }
-      covmat = (double *) mem_free((char *) covmat);
     }
   }
 
@@ -5536,7 +4199,6 @@ GEOSLIB_API int simpgs(Db *dbin,
   error = 0;
 
 label_end:
-  covmat = (double *) mem_free((char *) covmat);
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
                               propcst,propdef);
   st_suppress_added_samples(dbin,nechin);
@@ -5616,6 +4278,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   Model  *models[2][2];
   Situba *situba;
   PropDef  *propdef;
+  GibbsStandard gibbs;
 
   /* Initializations */
 
@@ -5847,7 +4510,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
       /* Initialize the Gibbs calculations */
 
-      st_init_gibbs_params(rules[ipgs]->getRho());
+      gibbs.init(npgs, ngrf[ipgs], nbsimu, gibbs_nburn, gibbs_niter,
+                 rules[ipgs]->getRho(), gibbs_eps);
 
       for (igrf=0; igrf<2; igrf++)
       {
@@ -5855,8 +4519,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
         /* Allocate the covariance matrix inverted */
   
-        covmat = st_gibbs_covmat_alloc(dbin,models[ipgs][igrf],0);
-        if (covmat == (double *) NULL) goto label_end;
+        if (gibbs.covmatAlloc(dbin,models[ipgs][igrf],0)) goto label_end;
 
         /* Loop on the simulations */
 
@@ -5870,24 +4533,19 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
           /* Initialization for the Gibbs sampler */
 
-          if (_gibbs_init_monovariate(1,0,propdef,
-                                      dbin,models[ipgs][igrf],isimu,
-                                      igrf,ipgs,nbsimu,0)) goto label_end;
+          if (gibbs.calculInitialize(1, 0, dbin, models[ipgs][igrf], isimu,
+                                     igrf, ipgs, 0)) goto label_end;
 
           /* Iterations of the Gibbs sampler */
 
-          if (gibbs_iter_monovariate(propdef,dbin,models[ipgs][igrf],covmat,
-                                     gibbs_nburn,gibbs_niter,
-                                     isimu,ipgs,igrf,nbsimu,gibbs_eps,0,
-                                     mean)) goto label_end;
+          if (gibbs.calculIteration(dbin, models[ipgs][igrf], isimu, ipgs, igrf,
+                                    0, mean)) goto label_end;
 
           /* Check the validity of the Gibbs results (optional) */
 
           if (flag_check)
-            st_check_gibbs(propdef,dbin,models[ipgs][igrf],isimu,ipgs,igrf,
-                           nbsimu);
+            gibbs.checkGibbs(dbin,models[ipgs][igrf],isimu,ipgs,igrf);
         }
-        covmat = (double *) mem_free((char *) covmat);
       }
       
       /* Convert gaussian to facies on data point */
@@ -5993,7 +4651,6 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   error = 0;
 
 label_end:
-  covmat = (double *) mem_free((char *) covmat);
   st_suppress_added_samples(dbin,nechin);
   if (flag_cond) mean = (double *) mem_free((char *) mean);
   for (ipgs=0; ipgs<npgs; ipgs++)
@@ -6158,6 +4815,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   int     error,nech,iptr,isimu,nint,nvar,iptr_ce,iptr_cstd;
   double *y,*mean,*covmat;
   PropDef  *propdef;
+  GibbsStandard gibbs;
 
   /* Initializations */
 
@@ -6224,13 +4882,12 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   
   /* Initialize the Gibbs calculations */
     
-  st_init_gibbs_params(0.);
-    
+  gibbs.init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0., gibbs_eps);
+
   /* Allocate the covariance matrix inverted */
   
   message("Pre-calculations ...\n");
-  covmat = st_gibbs_covmat_alloc(dbin,model,verbose);
-  if (covmat == (double *) NULL) goto label_end;
+  if (gibbs.covmatAlloc(dbin,model,verbose)) goto label_end;
 
   /* Loop on the simulations */
 
@@ -6238,28 +4895,24 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   {
     message("Processing iteration %d/%d\n",isimu+1,nbsimu);
     
-    /* Initialization for the Gibbs sampler */
+    // Initialize the iterations
 
-    if (_gibbs_init_monovariate(0,0,propdef,dbin,model,isimu,
-                                0,0,nbsimu,0)) goto label_end;
+    if (gibbs.calculInitialize(0, 0, dbin, model, isimu, 0, 0, 0))
+      goto label_end;
 
     /* Iterations of the Gibbs sampler */
 
     if (flag_propagation)
     {
-      if (gibbs_iter_propagation(propdef,dbin,model,gibbs_nburn,gibbs_niter,
-                                 isimu,nbsimu,gibbs_eps,verbose,
-                                 mean)) goto label_end;
+      if (gibbs.calculatePropagation(dbin, model, isimu, verbose, mean))
+        goto label_end;
     }
     else
     {
-      if (gibbs_iter_monovariate(propdef,dbin,model,covmat,
-                                 gibbs_nburn,gibbs_niter,
-                                 isimu,0,0,nbsimu,gibbs_eps,verbose,
-                                 mean)) goto label_end;
+      if (gibbs.calculIteration(dbin, model, isimu, 0, 0, verbose, mean))
+        goto label_end;
     }
   }
-  covmat = (double *) mem_free((char *) covmat);
 
   /* Convert the simulations into the mean and variance */
 
@@ -6289,7 +4942,6 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
 label_end:
   mean   = (double *) mem_free((char *) mean);
-  covmat = (double *) mem_free((char *) covmat);
   propdef = proportion_manage(-1,0,1,1,0,model->getVariableNumber(),0,dbin,NULL,
                               VectorDouble(),propdef);
   return(error);
@@ -7238,8 +5890,9 @@ GEOSLIB_API int simcond(Db    *dbin,
 {
   Neigh  *neigh;
   Situba *situba;
-  double *y,*mean,*covmat;
+  double *y,*mean;
   PropDef  *propdef;
+  GibbsStandard gibbs;
   int     nvar,error,iext,inostat,iptr,iptr_ce,iptr_cstd,ndim,nech,nint;
 
   /* Initializations */
@@ -7253,7 +5906,7 @@ GEOSLIB_API int simcond(Db    *dbin,
   iptr    = -1;
   situba  = (Situba *) NULL;
   propdef = (PropDef *) NULL;
-  mean    = y = covmat = (double *) NULL;
+  mean    = y = (double *) NULL;
 
   /* Preliminary checks */
 
@@ -7305,12 +5958,11 @@ GEOSLIB_API int simcond(Db    *dbin,
 
   /* Initialize the Gibbs calculations */
 
-  st_init_gibbs_params(0.);
+  gibbs.init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0., gibbs_eps);
 
   /* Allocate the covariance matrix inverted */
   
-  covmat = st_gibbs_covmat_alloc(dbin,model,verbose);
-  if (covmat == (double *) NULL) goto label_end;
+  if (gibbs.covmatAlloc(dbin,model,verbose)) goto label_end;
 
   /* Loop on the simulations */
 
@@ -7319,17 +5971,14 @@ GEOSLIB_API int simcond(Db    *dbin,
 
     /* Initialization for the Gibbs sampler */
 
-    if (_gibbs_init_monovariate(0,0,propdef,dbin,model,isimu,
-                                0,0,nbsimu,verbose)) goto label_end;
+    if (gibbs.calculInitialize(0, 0, dbin, model, isimu, 0, 0, verbose))
+      goto label_end;
 
     /* Iterations of the gibbs sampler */
 
-    if (gibbs_iter_monovariate(propdef,dbin,model,covmat,
-                               gibbs_nburn,gibbs_niter,
-                               isimu,0,0,nbsimu,gibbs_eps,verbose,
-                               mean)) goto label_end;
+    if (gibbs.calculIteration(dbin, model, isimu, 0, 0, verbose, mean))
+      goto label_end;
   }
-  covmat = (double *) mem_free((char *) covmat);
 
   /* Processing the Turning Bands algorithm */
 
@@ -7372,7 +6021,6 @@ GEOSLIB_API int simcond(Db    *dbin,
 
 label_end:
   neigh = neigh_free(neigh);
-  covmat = (double *) mem_free((char *) covmat);
   (void) manage_external_info(-1,LOC_F,dbin,dbout,&iext);
   (void) manage_external_info(-1,LOC_NOSTAT,dbin,dbout,&inostat);
   situba = st_dealloc(model,situba);

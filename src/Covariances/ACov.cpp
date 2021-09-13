@@ -15,12 +15,12 @@
 #include "Basic/Vector.hpp"
 
 ACov::ACov(const ASpace* space)
-: ASpaceObject(space)
+    : ASpaceObject(space)
 {
 }
 
 ACov::ACov(const ACov &r)
-: ASpaceObject(r)
+    : ASpaceObject(r)
 {
 }
 
