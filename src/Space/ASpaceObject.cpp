@@ -43,7 +43,9 @@ const ASpace* ASpaceObject::createGlobalSpace(SpaceType type,
   if (nullptr != _globalSpace)
   {
     std::cout << "Cannot recreate global space context! Should never occur!" << std::endl;
-    //delete _globalSpace;
+    // TODO: DR a ajoute le return pour permettre d'appeler plusieurs fois cette fonction
+    // sans prejudice
+    return _globalSpace;
   }
   switch (type)
   {
@@ -104,3 +106,28 @@ VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& 
   return (getSpace()->getIncrement(p1, p2));
 }
 
+bool ASpaceObject::isSpaceDimensionValid(int ndim)
+{
+  // If the (local) Space dimension is not defined, it is an obvious error
+  if (ndim <= 0) return false;
+
+  // If (local) Space dimension is defined
+  if (hasGlobalSpace())
+  {
+    // Compare the Local and the Global Space
+    if ((unsigned int)(ndim) != ASpaceObject::getGlobalSpace()->getNDim())
+    {
+      std::cout << "Inconsistency in the Space Dimension" << std::endl;
+      std::cout << "Local Space Dimension  =" << ndim << std::endl;
+      std::cout << "Global Space Dimension =" << ASpaceObject::getGlobalSpace()->getNDim() << std::endl;
+      return false;
+    }
+  }
+  else
+  {
+    // Global Space is not defined yet, it is time to declare it
+    createGlobalSpace(SPACE_RN, ndim);
+    return true;
+  }
+  return true;
+}

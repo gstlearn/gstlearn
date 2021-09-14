@@ -28,7 +28,7 @@ CovContext::CovContext(int nvar,
   _space(space)
 {
   _update();
-  if (_space == nullptr)
+  if (_space == nullptr && ASpaceObject::hasGlobalSpace())
     _space = ASpaceObject::getGlobalSpace();
 }
 

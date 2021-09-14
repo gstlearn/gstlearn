@@ -34,6 +34,9 @@ public:
   /// Check that the global Space has already been defined
   static bool hasGlobalSpace() { return _globalSpace != nullptr; }
 
+  /// Check the validity of the Space Dimension
+  static bool isSpaceDimensionValid(int ndim);
+
   /// Return the unique global space
   static const ASpace* getGlobalSpace();
 
