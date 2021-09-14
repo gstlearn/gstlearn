@@ -1145,6 +1145,12 @@
                                             int jvar,
                                             int flag_norm,
                                             int flag_cov);
+  GEOSLIB_API double *model_covmat_by_variable_and_ranks(Model *model,
+                                                         Db *db1,
+                                                         const VectorInt& vars,
+                                                         const VectorInt& ranks,
+                                                         int flag_norm,
+                                                         int flag_cov);
   GEOSLIB_API int model_covmat_inchol(int verbose,
                                       Db *db,
                                       Model *model,

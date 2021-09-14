@@ -9486,16 +9486,16 @@ label_end:
 ** \param[in]  verbose    Verbose flag
 **
 *****************************************************************************/
-GEOSLIB_API int krigsampling_f(Db     *dbin,
-                             Db     *dbout,
-                             Model  *model,
-                             double  beta,
-                             int     nsize1,
-                             int    *ranks1,
-                             int     nsize2,
-                             int    *ranks2,
-                             int     flag_std,
-                             int     verbose)
+GEOSLIB_API int krigsampling_f(Db *dbin,
+                               Db *dbout,
+                               Model *model,
+                               double beta,
+                               int nsize1,
+                               int *ranks1,
+                               int nsize2,
+                               int *ranks2,
+                               int flag_std,
+                               int verbose)
 {
   int    *rutil,*rother,error,nvar,ntot,nutil,i,nech;
   double *tutil,*data,*invsig,*datm,*aux1,*aux2,*aux3,*aux4,*s,*c00;
@@ -11018,3 +11018,48 @@ label_end:
   return(error);
 }
 
+/****************************************************************************/
+/*!
+**  Inhomogeneous Kriging with Sources
+**
+** \return  Error return code
+**
+** \param[in]  db          Db structure containing Data
+** \param[in]  neigh       Neigh structure
+** \param[in]  iech        Rank of the Data sample
+**
+** \param[out] ivars       Vector of variable indices
+** \param[out] iechs       Vector of sample indices
+**
+*****************************************************************************/
+GEOSLIB_API int getGeneralNeigh(Db* db,
+                                Neigh* neigh,
+                                int iech,
+                                VectorInt& ivars,
+                                VectorInt& iechs)
+{
+  int status, nech;
+
+  DBIN = db;
+  DBOUT = db;
+  IECH_OUT = iech;
+
+  int nvar = db->getVariableNumber();
+
+  (void) st_neigh(neigh,&status,&nech);
+  if (status) return 1;
+
+  ivars.clear();
+  iechs.clear();
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int iech = 0; iech < nech; iech++)
+    {
+      double value = db->getArray(iech,ivar);
+      if (! FFFF(value)) continue;
+
+      ivars.push_back(ivar);
+      iechs.push_back(rank[iech]);
+    }
+  return 0;
+}

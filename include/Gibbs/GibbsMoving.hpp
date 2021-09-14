@@ -15,14 +15,24 @@
 
 class Db;
 class Model;
+class Neigh;
 
-class GibbsStandard : public AGibbs
+class GibbsMoving : public AGibbs
 {
+private:
+  struct GibbsWeights {
+    VectorInt _ivars;
+    VectorInt _iechs;
+    VectorInt _pivot;
+    VectorDouble _sigma;
+    VectorVectorDouble _ll;
+  };
+
 public:
-  GibbsStandard();
-  GibbsStandard(const GibbsStandard &r);
-  GibbsStandard& operator=(const GibbsStandard &r);
-  virtual ~GibbsStandard();
+  GibbsMoving();
+  GibbsMoving(const GibbsMoving &r);
+  GibbsMoving& operator=(const GibbsMoving &r);
+  virtual ~GibbsMoving();
 
   int calculInitialize(int flag_category,
                        int flag_order,
@@ -38,12 +48,8 @@ public:
                       int ipgs,
                       int igrf,
                       int verbose);
-  int calculatePropagation(Db *db,
-                           Model *model,
-                           int isimu,
-                           bool verbose);
-  int covmatAlloc(Db *dbin, Model *model, bool verbose);
+  int covmatAlloc(Db *dbin, Model *model, Neigh *neigh, bool verbose);
 
 private:
-  VectorDouble _covmat;
+  std::vector<GibbsWeights> _wgt;
 };

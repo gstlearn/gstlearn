@@ -435,5 +435,10 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
                                        int niter = 100,
                                        bool verbose = false,
                                        NamingConvention namconv = NamingConvention("Prop",LOC_P));
+GEOSLIB_API int getGeneralNeigh(Db* db,
+                                Neigh* neigh,
+                                int iech,
+                                VectorInt& ivars,
+                                VectorInt& iechs);
 
 #endif

@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
   if (ndim > 0)
   {
-    if (! ASpaceObject::isSpaceDimensionCorrect(ndim)) goto label_end;
+    if (! ASpaceObject::isSpaceDimensionValid(ndim)) goto label_end;
   }
 
   /* Perform the non-conditional Simulation */
