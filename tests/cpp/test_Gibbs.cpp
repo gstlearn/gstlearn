@@ -352,8 +352,8 @@ int main(int argc, char *argv[])
 
   // Creating the constraints
 
-  if (spde_f(NULL,dbgrid,model2,VectorDouble(),s_option,1,1,seed,2,
-           0,0,0,0,0,0,0,0)) goto label_end;
+  if (spde_f(NULL, dbgrid, model2, VectorDouble(), s_option, 1, 1, seed, 2, 0,
+             0, 0, 0, 0, 0, 0, 0)) goto label_end;
   rank  = dbgrid->getFieldNumber();
   for (int i=0; i<nvertex; i++)
   {
