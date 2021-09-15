@@ -136,11 +136,6 @@ int GibbsMoving::covmatAlloc(Db* db, Model* model, Neigh* neigh, bool verbose)
 **
 ** \return  Error return code
 **
-** \param[in]  flag_category 1 for categorical; 0 for continuous
-** \param[in]  flag_order    Order relationship
-** \li                        1 if the ascending order must be honored
-** \li                       -1 if the descending order must be honored
-** \li                        0 if no order relationship must be honored
 ** \param[in]  db            Db structure
 ** \param[in]  model         Model structure
 ** \param[in]  isimu         Rank of the simulation
@@ -153,14 +148,12 @@ int GibbsMoving::covmatAlloc(Db* db, Model* model, Neigh* neigh, bool verbose)
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-int GibbsMoving::calculInitialize(int flag_category,
-                                    int flag_order,
-                                    Db *db,
-                                    Model *model,
-                                    int isimu,
-                                    int igrf,
-                                    int ipgs,
-                                    bool verbose)
+int GibbsMoving::calculInitialize(Db *db,
+                                  Model *model,
+                                  int isimu,
+                                  int igrf,
+                                  int ipgs,
+                                  bool verbose)
 {
   int    iech,nech,error,icov,icase,icase0;
   double simval,vmin,vmax,val1,ratio,sk,pmin,pmax;
@@ -193,7 +186,8 @@ int GibbsMoving::calculInitialize(int flag_category,
   for (iech=0; iech<nech; iech++)
   {
     if (! db->isActive(iech)) continue;
-    if (_correctBoundsOrder(flag_category, flag_order, db, iech, 0, icase, 1,
+    if (_correctBoundsOrder(getFlagCategory(), getFlagOrder(),
+                            db, iech, 0, icase, 1,
                             &vmin, &vmax)) goto label_end;
 
     /* Draw a value as the median value of the interval */

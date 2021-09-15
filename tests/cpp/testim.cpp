@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
   {
     dbin->clearLocators(LOC_Z);
     if (gibbs_sampler(dbin,new_model,1,seed,nboot,niter,0,0,5.,toleps,1,1,1))
-      messageAbort("krineq");
+      messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
     dbin->setLocatorByAttribute(dbin->getFieldNumber()-1,LOC_Z);
   }

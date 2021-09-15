@@ -92,11 +92,6 @@ int GibbsMultivariate::covmatAlloc(Db *db, Model *model, bool verbose)
 **
 ** \return  Error return code
 **
-** \param[in]  flag_category 1 for categorical; 0 for continuous
-** \param[in]  flag_order    Order relationship
-** \li                        1 if the ascending order must be honored
-** \li                       -1 if the descending order must be honored
-** \li                        0 if no order relationship must be honored
 ** \param[in]  db            Db structure
 ** \param[in]  model         Model structure
 ** \param[in]  isimu         Rank of the simulation
@@ -109,9 +104,7 @@ int GibbsMultivariate::covmatAlloc(Db *db, Model *model, bool verbose)
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-int GibbsMultivariate::calculInitialize(int flag_category,
-                                        int flag_order,
-                                        Db *db,
+int GibbsMultivariate::calculInitialize(Db *db,
                                         Model *model,
                                         int isimu,
                                         int igrf,
@@ -149,7 +142,8 @@ int GibbsMultivariate::calculInitialize(int flag_category,
     for (iech=0; iech<nech; iech++)
     {
       if (! db->isActive(iech)) continue;
-      if (_correctBoundsOrder(flag_category, flag_order, db, iech, ivar, icase,
+      if (_correctBoundsOrder(getFlagCategory(), getFlagOrder(),
+                              db, iech, ivar, icase,
                               nvar, &vmin, &vmax)) return (1);
 
       /* Compute the median value of the interval */

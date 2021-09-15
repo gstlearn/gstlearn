@@ -21,23 +21,28 @@ AGibbs::AGibbs()
       _nbsimu(1),
       _nburn(1),
       _niter(1),
+      _flagOrder(true),
+      _flagCategory(true),
       _rho(1.),
       _sqr(0.),
       _eps(EPSILON3)
 {
 }
 
-AGibbs::AGibbs(int npgs, int ngrf, int nbsimu, int nburn, int niter, double rho, double eps)
+AGibbs::AGibbs(int npgs, int ngrf, int nbsimu, int nburn, int niter,
+               int flag_order, bool flag_category, double rho, double eps)
     : _npgs(1),
       _ngrf(1),
       _nbsimu(1),
       _nburn(1),
       _niter(1),
+      _flagOrder(false),
+      _flagCategory(false),
       _rho(1.),
       _sqr(0.),
       _eps(eps)
 {
-  init(npgs, ngrf, nbsimu, nburn, niter, rho, eps);
+  init(npgs, ngrf, nbsimu, nburn, niter, flag_order, flag_category, rho, eps);
   _sqr = sqrt(1. - _rho * rho);
 }
 
@@ -47,6 +52,8 @@ AGibbs::AGibbs(const AGibbs &r)
       _nbsimu(r._nbsimu),
       _nburn(r._nburn),
       _niter(r._niter),
+      _flagOrder(r._flagOrder),
+      _flagCategory(r._flagCategory),
       _rho(r._rho),
       _sqr(r._sqr),
       _eps(r._eps)
@@ -62,6 +69,8 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
     _nbsimu = r._nbsimu;
     _nburn = r._nburn;
     _niter = r._niter;
+    _flagOrder = r._flagOrder;
+    _flagCategory = r._flagCategory;
     _rho = r._rho;
     _sqr = r._sqr;
     _eps = r._eps;
@@ -78,6 +87,8 @@ void AGibbs::init(int npgs,
                   int nbsimu,
                   int nburn,
                   int niter,
+                  int flag_order,
+                  bool flag_category,
                   double rho,
                   double eps)
 {
@@ -86,6 +97,8 @@ void AGibbs::init(int npgs,
   _nbsimu = nbsimu;
   _nburn = nburn;
   _niter = niter;
+  _flagOrder = flag_order;
+  _flagCategory = flag_category;
   _rho = rho;
   _eps = eps;
 

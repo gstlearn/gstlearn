@@ -25,13 +25,16 @@ public:
          int nbsimu,
          int nburn,
          int niter,
+         int flag_order,
+         bool flag_category,
          double rho,
          double eps = EPSILON3);
   AGibbs(const AGibbs &r);
   AGibbs& operator=(const AGibbs &r);
   virtual ~AGibbs();
 
-  void init(int npgs, int ngrf, int nbsimu, int nburn, int niter, double rho, double eps);
+  void init(int npgs, int ngrf, int nbsimu, int nburn, int niter,
+            int flag_order, bool flag_category, double rho, double eps);
 
   int getNgrf() const { return _ngrf; }
   void setNgrf(int ngrf) { _ngrf = ngrf; }
@@ -49,6 +52,10 @@ public:
   void setSqr(double sqr) { _sqr = sqr; }
   double getEps() const { return _eps; }
   void setEps(double eps) { _eps = eps; }
+  bool getFlagCategory() const { return _flagCategory; }
+  void setFlagCategory(bool flagCategory) { _flagCategory = flagCategory; }
+  int getFlagOrder() const { return _flagOrder; }
+  void setFlagOrder(int flagOrder) { _flagOrder = flagOrder; }
 
   int getRank(int ipgs, int igrf) const;
   int checkGibbs(Db *db, Model *model, int isimu, int ipgs, int igrf);
@@ -105,6 +112,11 @@ private:
   int _nbsimu;
   int _nburn;
   int _niter;
+  int _flagOrder; // order relationship
+  //   1 if the ascending order must be honored
+  //  -1 if the descending order must be honored
+  //   0 if no order relationship must be honored
+  bool _flagCategory; // true for categorical; false for continuous
   double _rho;
   double _sqr;
   double _eps;

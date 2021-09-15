@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
   /* 1.b - Connect the Geoslib Library */
 
   if (setup_license("Demonstration")) goto label_end;
+  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
 
   /* 1.c - Setup constants */
 

@@ -24,9 +24,7 @@ public:
   GibbsStandard& operator=(const GibbsStandard &r);
   virtual ~GibbsStandard();
 
-  int calculInitialize(int flag_category,
-                       int flag_order,
-                       Db *dbin,
+  int calculInitialize(Db *dbin,
                        Model *model,
                        int isimu,
                        int igrf,

@@ -34,9 +34,7 @@ public:
   GibbsMoving& operator=(const GibbsMoving &r);
   virtual ~GibbsMoving();
 
-  int calculInitialize(int flag_category,
-                       int flag_order,
-                       Db *dbin,
+  int calculInitialize(Db *dbin,
                        Model *model,
                        int isimu,
                        int igrf,

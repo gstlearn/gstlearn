@@ -24,9 +24,7 @@ public:
   GibbsMultivariate& operator=(const GibbsMultivariate &r);
   virtual ~GibbsMultivariate();
 
-  int calculInitialize(int flag_category,
-                       int flag_order,
-                       Db *dbin,
+  int calculInitialize(Db *dbin,
                        Model *model,
                        int isimu,
                        int igrf,

@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Law.hpp"
+#include "Space/Space.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
@@ -284,6 +285,7 @@ int main(int argc, char *argv[])
   ndim     = 2;
 
   if (setup_license("Demonstration")) goto label_end;
+  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
 
   // Setup constants
 

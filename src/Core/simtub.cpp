@@ -4075,7 +4075,8 @@ GEOSLIB_API int simpgs(Db *dbin,
 
     /* Initialize the Gibbs calculations */
     
-    gibbs.init(1, ngrf, nbsimu, gibbs_nburn, gibbs_niter, rule->getRho(), gibbs_eps);
+    gibbs.init(1, ngrf, nbsimu, gibbs_nburn, gibbs_niter, 0, true,
+               rule->getRho(), gibbs_eps);
 
     for (igrf=0; igrf<2; igrf++)
     {
@@ -4094,7 +4095,7 @@ GEOSLIB_API int simpgs(Db *dbin,
         
         /* Initialization for the Gibbs sampler */
         
-        if (gibbs.calculInitialize(1, 0, dbin, models[igrf], isimu, igrf, 0, verbose))
+        if (gibbs.calculInitialize(dbin, models[igrf], isimu, igrf, 0, verbose))
           goto label_end;
         
         /* Iterations of the Gibbs sampler */
@@ -4513,7 +4514,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
       /* Initialize the Gibbs calculations */
 
       gibbs.init(npgs, ngrf[ipgs], nbsimu, gibbs_nburn, gibbs_niter,
-                 rules[ipgs]->getRho(), gibbs_eps);
+                 0, true, rules[ipgs]->getRho(), gibbs_eps);
 
       for (igrf=0; igrf<2; igrf++)
       {
@@ -4535,7 +4536,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
           /* Initialization for the Gibbs sampler */
 
-          if (gibbs.calculInitialize(1, 0, dbin, models[ipgs][igrf], isimu,
+          if (gibbs.calculInitialize(dbin, models[ipgs][igrf], isimu,
                                      igrf, ipgs, verbose)) goto label_end;
 
           /* Iterations of the Gibbs sampler */
@@ -4814,9 +4815,9 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               int     flag_cstd,
                               int     verbose)
 {
-  int     error,nech,iptr,isimu,nint,nvar,iptr_ce,iptr_cstd;
-  double *y,*mean,*covmat;
-  PropDef  *propdef;
+  int      error,nech,iptr,isimu,nint,nvar,iptr_ce,iptr_cstd;
+  double  *y,*mean,*covmat;
+  PropDef *propdef;
   GibbsStandard gibbs;
 
   /* Initializations */
@@ -4884,11 +4885,10 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   
   /* Initialize the Gibbs calculations */
     
-  gibbs.init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0., gibbs_eps);
+  gibbs.init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0, false, 0., gibbs_eps);
 
   /* Allocate the covariance matrix inverted */
   
-  message("Pre-calculations ...\n");
   if (gibbs.covmatAlloc(dbin,model,verbose)) goto label_end;
 
   /* Loop on the simulations */
@@ -4899,7 +4899,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
     
     // Initialize the iterations
 
-    if (gibbs.calculInitialize(0, 0, dbin, model, isimu, 0, 0, verbose))
+    if (gibbs.calculInitialize(dbin, model, isimu, 0, 0, verbose))
       goto label_end;
 
     /* Iterations of the Gibbs sampler */
@@ -5960,7 +5960,7 @@ GEOSLIB_API int simcond(Db    *dbin,
 
   /* Initialize the Gibbs calculations */
 
-  gibbs.init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0., gibbs_eps);
+  gibbs.init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0, false, 0., gibbs_eps);
 
   /* Allocate the covariance matrix inverted */
   
@@ -5973,7 +5973,7 @@ GEOSLIB_API int simcond(Db    *dbin,
 
     /* Initialization for the Gibbs sampler */
 
-    if (gibbs.calculInitialize(0, 0, dbin, model, isimu, 0, 0, verbose))
+    if (gibbs.calculInitialize(dbin, model, isimu, 0, 0, verbose))
       goto label_end;
 
     /* Iterations of the gibbs sampler */

@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
   int error = 0;
   int ndim = 2;
+  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
   CovContext ctxt(1,2,1.);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
   std::vector<DirParam> dirparamG = generateMultipleGridDirs(ndim, nlag);
   varioparamG.addDirs(dirparamG);
   Vario variog = Vario(&varioparamG, &grid);
-  variog.compute("vg");
+  variog.compute("vg",true);
   variog.display(1);
 
   return(error);
