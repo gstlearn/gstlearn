@@ -16,31 +16,21 @@
 class Db;
 class Model;
 
-class GibbsStandard : public AGibbs
+class GibbsUMulti : public AGibbs
 {
 public:
-  GibbsStandard();
-  GibbsStandard(const GibbsStandard &r);
-  GibbsStandard& operator=(const GibbsStandard &r);
-  virtual ~GibbsStandard();
+  GibbsUMulti();
+  GibbsUMulti(Db* db, Model* model);
+  GibbsUMulti(const GibbsUMulti &r);
+  GibbsUMulti& operator=(const GibbsUMulti &r);
+  virtual ~GibbsUMulti();
 
-  int calculInitialize(Db *dbin,
-                       Model *model,
-                       int isimu,
-                       int igrf,
-                       int ipgs,
-                       bool verbose);
-  int calculIteration(Db *dbin,
-                      Model *model,
-                      int isimu,
-                      int ipgs,
-                      int igrf,
-                      int verbose);
-  int calculatePropagation(Db *db,
-                           Model *model,
-                           int isimu,
-                           bool verbose);
-  int covmatAlloc(Db *dbin, Model *model, bool verbose);
+  void update(VectorVectorDouble& y,
+              int isimu,
+              int ipgs,
+              int ivar,
+              int iter) override;
+  int covmatAlloc(bool verbose) override;
 
 private:
   VectorDouble _covmat;

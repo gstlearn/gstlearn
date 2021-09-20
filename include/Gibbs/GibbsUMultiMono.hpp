@@ -10,30 +10,36 @@
 /******************************************************************************/
 #pragma once
 
+#include "GibbsUMultiMono.hpp"
+
+#include "Gibbs/AGibbs.hpp"
 #include "Basic/Vector.hpp"
 
-class AMesh;
-class MatrixCRectangular;
+class Db;
+class Model;
 
-class MeshFactory
+/**
+ * This class is designated for Gibbs with the following properties
+ * - Unique (absent) Neighborhood
+ * - Multivariate case: Multiple Monovariate systems
+ * (even if the model is provided as multivariate)
+ */
+class GibbsUMultiMono : public AGibbs
 {
-
 public:
-  MeshFactory();
-  virtual ~MeshFactory();
-  /*! Returns a pointer to the optimally create Meshing */
+  GibbsUMultiMono();
+  GibbsUMultiMono(Db* db, Model* model);
+  GibbsUMultiMono(const GibbsUMultiMono &r);
+  GibbsUMultiMono& operator=(const GibbsUMultiMono &r);
+  virtual ~GibbsUMultiMono();
 
-  static AMesh *createMesh(int variety,
-                           const VectorDouble& extendmin,
-                           const VectorDouble& extendmax,
-                           const VectorDouble& cellsize,
-                           const VectorDouble& rotmat,
-                           const VectorDouble& extperc,
-                           Db *dbin,
-                           Db *dbout,
-                           const String& triswitch,
-                           MatrixCRectangular& apices,
-                           VectorInt& meshes,
-                           bool flag_polarize,
-                           int verbose = 0);
+  void update(VectorVectorDouble& y,
+              int isimu,
+              int ipgs,
+              int ivar,
+              int iter) override;
+  int covmatAlloc(bool verbose) override;
+
+private:
+  VectorVectorDouble _covmat; // One matrix per variable
 };

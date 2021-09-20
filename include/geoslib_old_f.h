@@ -1145,12 +1145,12 @@
                                             int jvar,
                                             int flag_norm,
                                             int flag_cov);
-  GEOSLIB_API double *model_covmat_by_variable_and_ranks(Model *model,
-                                                         Db *db1,
-                                                         const VectorInt& vars,
-                                                         const VectorInt& ranks,
-                                                         int flag_norm,
-                                                         int flag_cov);
+GEOSLIB_API double *model_covmat_by_varranks(Model *model,
+                                             Db *db1,
+                                             const VectorInt& iechs,
+                                             int nsize,
+                                             int flag_norm,
+                                             int flag_cov);
   GEOSLIB_API int model_covmat_inchol(int verbose,
                                       Db *db,
                                       Model *model,
@@ -1290,6 +1290,7 @@
                                int iech_out,
                                Neigh *neigh,
                                int flag_simu,
+                               int flag_no_var_check,
                                int *nech,
                                int *rank);
   GEOSLIB_API Neigh *neigh_free(Neigh *neigh);
@@ -2261,8 +2262,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
   GEOSLIB_API void simu_func_categorical_scale(Db *db, int verbose, int nbsimu);
 
   GEOSLIB_API int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf);
-  GEOSLIB_API void check_mandatory_attribute(const char *method,
-                                             Db *db,
+  GEOSLIB_API void check_mandatory_attribute(const char *method,Db* db,
                                              ENUM_LOCS locatorType);
   GEOSLIB_API int simtub_workable(Model *model);
   GEOSLIB_API int simdgm(Db *dbin,
@@ -2321,19 +2321,6 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                         int seed,
                         int nbtuba,
                         int verbose);
-  GEOSLIB_API int gibbs_sampler(Db *db,
-                                Model *model,
-                                int nbsimu,
-                                int seed,
-                                int nboot,
-                                int niter,
-                                int flag_norm,
-                                int flag_propagation,
-                                double percent,
-                                double gibbs_eps,
-                                int flag_ce,
-                                int flag_cstd,
-                                int verbose);
   GEOSLIB_API int simtub_constraints(Db *dbin,
                                      Db *dbout,
                                      Model *model,

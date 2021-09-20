@@ -10,30 +10,22 @@
 /******************************************************************************/
 #pragma once
 
+#include "Gibbs/AGibbs.hpp"
 #include "Basic/Vector.hpp"
 
-class AMesh;
-class MatrixCRectangular;
+class Db;
+class Model;
+class Neigh;
 
-class MeshFactory
+class GibbsFactory
 {
-
 public:
-  MeshFactory();
-  virtual ~MeshFactory();
-  /*! Returns a pointer to the optimally create Meshing */
+  GibbsFactory();
+  virtual ~GibbsFactory();
 
-  static AMesh *createMesh(int variety,
-                           const VectorDouble& extendmin,
-                           const VectorDouble& extendmax,
-                           const VectorDouble& cellsize,
-                           const VectorDouble& rotmat,
-                           const VectorDouble& extperc,
-                           Db *dbin,
-                           Db *dbout,
-                           const String& triswitch,
-                           MatrixCRectangular& apices,
-                           VectorInt& meshes,
-                           bool flag_polarize,
-                           int verbose = 0);
+  static AGibbs *createGibbs(Db* db,
+                             Model* model,
+                             Neigh* neigh,
+                             bool flag_multi_mono,
+                             bool flag_propagation);
 };

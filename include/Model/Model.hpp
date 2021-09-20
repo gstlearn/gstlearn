@@ -77,6 +77,7 @@ public:
   bool isCovaFiltered(int icov)                    const { return _covaList->isFiltered(icov); }
   String getCovName(int icov)                      const { return _covaList->getCovName(icov); }
   int getGradParamNumber(int icov)                 const { return _covaList->getGradParamNumber(icov); }
+  double getTotalSill(int ivar, int jvar) const;
 
   void setSill(int icov, int ivar, int jvar, double value) { _covaList->setSill(icov, ivar, jvar, value); }
   void setCovaFiltered(int icov, bool filtered)            { _covaList->setFiltered(icov, filtered); }

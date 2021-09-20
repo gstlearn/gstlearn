@@ -435,10 +435,24 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
                                        int niter = 100,
                                        bool verbose = false,
                                        NamingConvention namconv = NamingConvention("Prop",LOC_P));
-GEOSLIB_API int getGeneralNeigh(Db* db,
-                                Neigh* neigh,
-                                int iech,
-                                VectorInt& ivars,
-                                VectorInt& iechs);
+GEOSLIB_API int defineGeneralNeigh(int mode, Db* db, Model* model,
+                                   Neigh* neigh);
+GEOSLIB_API VectorInt getGeneralNeigh(Db* db, Neigh* neigh, int iech);
+GEOSLIB_API int gibbs_sampler(Db* db,
+                              Model* model,
+                              Neigh* neigh,
+                              int nbsimu,
+                              int seed,
+                              int nboot,
+                              int niter,
+                              bool flag_norm,
+                              bool flag_multi_mono,
+                              bool flag_propagation,
+                              double percent,
+                              double gibbs_eps,
+                              bool flag_ce,
+                              bool flag_cstd,
+                              bool verbose,
+                              NamingConvention namconv = NamingConvention("Gibbs"));
 
 #endif

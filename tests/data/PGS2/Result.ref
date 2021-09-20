@@ -102,11 +102,6 @@ Attempt to Open the File (PGS2/Model2.dat) in mode (r)
 File PGS2/Model2.dat is successfully closed
 Attempt to Open the File (PGS2/Model3.dat) in mode (r)
 File PGS2/Model3.dat is successfully closed
-Convergence reached after 82 iterations
-Convergence reached after 93 iterations
-Convergence reached after 72 iterations
-Convergence reached after 92 iterations
-Convergence reached after 109 iterations
 
 Data Base Characteristics
 =========================
@@ -145,42 +140,42 @@ Data Base Statistics
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.182
- Standard Deviation  =      0.425
- Variance            =      0.181
+ Mean value          =      1.343
+ Standard Deviation  =      0.510
+ Variance            =      0.260
 3 - Name Facies.2 - Locator facies2
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.404
- Standard Deviation  =      0.646
- Variance            =      0.417
+ Mean value          =      1.730
+ Standard Deviation  =      0.816
+ Variance            =      0.666
 4 - Name Facies.3 - Locator facies3
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.664
- Standard Deviation  =      0.767
- Variance            =      0.589
+ Mean value          =      1.880
+ Standard Deviation  =      0.747
+ Variance            =      0.558
 5 - Name Facies.4 - Locator facies4
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.728
- Standard Deviation  =      0.532
- Variance            =      0.283
+ Mean value          =      1.625
+ Standard Deviation  =      0.632
+ Variance            =      0.399
 
 Data Base Contents
 ------------------
                  rank  Facies.1  Facies.2  Facies.3  Facies.4
-     [  1,]     1.000     2.000     2.000     1.000     1.000
-     [  2,]     2.000     2.000     2.000     3.000     1.000
-     [  3,]     3.000     2.000     2.000     3.000     1.000
-     [  4,]     4.000     2.000     2.000     3.000     1.000
-     [  5,]     5.000     2.000     3.000     3.000     1.000
-     [  6,]     6.000     2.000     3.000     3.000     1.000
-     [  7,]     7.000     2.000     3.000     3.000     1.000
+     [  1,]     1.000     1.000     3.000     1.000     1.000
+     [  2,]     2.000     1.000     3.000     1.000     1.000
+     [  3,]     3.000     1.000     1.000     1.000     1.000
+     [  4,]     4.000     1.000     3.000     1.000     1.000
+     [  5,]     5.000     1.000     3.000     1.000     1.000
+     [  6,]     6.000     1.000     3.000     1.000     1.000
+     [  7,]     7.000     1.000     3.000     1.000     1.000
 (Ncols=5,Nrows=7[from 10000])

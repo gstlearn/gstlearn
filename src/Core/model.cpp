@@ -73,7 +73,7 @@ GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model)
  ** \param[in]  db    Db structure
  **
  *****************************************************************************/
-static int st_check_environ(Model *model, Db *db)
+static int st_check_environ(const Model *model, Db *db)
 {
   if (model->getDimensionNumber() == db->getNDim()) return (0);
   messerr("Dimension of the Db (%d) does not match dimension of the Model (%d)",
@@ -2101,13 +2101,13 @@ GEOSLIB_API void model_covmat(Model *model,
                               int flag_cov,
                               double *covmat)
 {
-  double *covtab, *covtab0, v1, v2, value;
+  double *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, nech1, nech2, ecr;
   VectorDouble d1;
 
   /* Initializations */
 
-  covtab = covtab0 = (double *) NULL;
+  covtab = (double *) NULL;
   CovCalcMode mode;
   mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -2132,14 +2132,8 @@ GEOSLIB_API void model_covmat(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab0 = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab0 == (double *) NULL) goto label_end;
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == (double *) NULL) goto label_end;
-
-  /* Calculate the C(0) term */
-
-  model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab0);
 
   /* Loop on the first sample */
 
@@ -2191,7 +2185,6 @@ GEOSLIB_API void model_covmat(Model *model,
   /* Free memory */
 
   label_end: covtab = (double *) mem_free((char * ) covtab);
-  covtab0 = (double *) mem_free((char * ) covtab0);
   return;
 }
 
@@ -2235,14 +2228,14 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
                                           int flag_norm,
                                           int flag_cov)
 {
-  double *covmat, *covtab, *covtab0, v1, v2, value;
+  double *covmat, *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, ecr, error, i1, i2;
   VectorDouble d1;
 
   /* Initializations */
 
   error = 1;
-  covtab = covtab0 = covmat = (double *) NULL;
+  covtab = covmat = (double *) NULL;
   CovCalcMode mode;
   mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -2266,18 +2259,12 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == (double *) NULL) goto label_end;
-  covtab0 = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab0 == (double *) NULL) goto label_end;
   covmat = (double *) mem_alloc(sizeof(double) * nsize1 * nsize2, 0);
   if (covmat == (double *) NULL) goto label_end;
 
-  /* Calculate the C(0) term */
-
-  model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab0);
-  ecr = 0;
-
   /* Loop on the number of variables */
 
+  ecr = 0;
   for (int ivar = 0; ivar < nvar1; ivar++)
   {
     if (ivar0 >= 0) ivar = ivar0;
@@ -2330,7 +2317,6 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
   /* Free memory */
 
   label_end: covtab = (double *) mem_free((char * ) covtab);
-  covtab0 = (double *) mem_free((char * ) covtab0);
   if (error) covmat = (double *) mem_free((char * ) covmat);
   return (covmat);
 }
@@ -2499,13 +2485,13 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
                                      int flag_cov,
                                      double *covmat)
 {
-  double *covtab, *covtab0, v1, v2, value;
+  double *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, nech1, nech2, ecr;
   VectorDouble d1;
 
   /* Initializations */
 
-  covtab = covtab0 = (double *) NULL;
+  covtab = (double *) NULL;
   CovCalcMode mode;
   mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -2532,16 +2518,10 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
   d1.resize(ndim, 0);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == (double *) NULL) goto label_end;
-  covtab0 = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab0 == (double *) NULL) goto label_end;
-
-  /* Calculate the C(0) term */
-
-  model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab0);
-  ecr = 0;
 
   /* Loop on the first variable */
 
+  ecr = 0;
   for (int ivar = 0; ivar < nvar1; ivar++)
   {
     if (ivar0 >= 0) ivar = ivar0;
@@ -2589,7 +2569,6 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
   /* Free memory */
 
   label_end: covtab = (double *) mem_free((char * ) covtab);
-  covtab0 = (double *) mem_free((char * ) covtab0);
   return;
 }
 
@@ -4733,74 +4712,72 @@ GEOSLIB_API double model_calcul_stdev(Model *model,
  **
  ** \param[in]  model  Model structure
  ** \param[in]  db         First Db
- ** \param[in]  ivars      Array giving the variable ranks
- ** \param[in]  iechs      Array giving ranks of selected samples
+ ** \param[in]  iechs      Vector of sample ranks
+ ** \param[in]  nsize      Number of samples defined for all variables
  ** \param[in]  flag_norm  1 if the model is normalized
  ** \param[in]  flag_cov   1 if the result must be given in covariance
  **
  *****************************************************************************/
-GEOSLIB_API double *model_covmat_by_variable_and_ranks(Model *model,
-                                                       Db *db,
-                                                       const VectorInt& ivars,
-                                                       const VectorInt& iechs,
-                                                       int flag_norm,
-                                                       int flag_cov)
+GEOSLIB_API double *model_covmat_by_varranks(Model *model,
+                                             Db *db,
+                                             const VectorInt& iechs,
+                                             int nsize,
+                                             int flag_norm,
+                                             int flag_cov)
 {
-  double *covmat, *covtab, *covtab0, v1, v2;
-  int ndim, nvar, iech1, iech2, ivar1, ivar2, ecr, error, nsize;
+  double *covmat, *covtab;
+  int ecr;
   VectorDouble d1;
 
   /* Initializations */
 
-  error = 1;
-  covtab = covtab0 = covmat = (double *) NULL;
+  int error = 1;
+  covtab = covmat = (double *) NULL;
   CovCalcMode mode;
   mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
-  if (st_check_model(model)) goto label_end;
-  if (st_check_environ(model, db)) goto label_end;
-  ndim  = model->getDimensionNumber();
-  nvar  = model->getVariableNumber();
-  nsize = iechs.size();
+  if (st_check_model(model)) return nullptr;
+  if (st_check_environ(model, db)) return nullptr;
+  int ndim  = model->getDimensionNumber();
+  int nvar  = model->getVariableNumber();
+  int nech  = iechs.size();
 
   /* Core allocation */
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == (double *) NULL) goto label_end;
-  covtab0 = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab0 == (double *) NULL) goto label_end;
   covmat = (double *) mem_alloc(sizeof(double) * nsize * nsize, 0);
   if (covmat == (double *) NULL) goto label_end;
 
-  /* Calculate the C(0) term */
-
-  model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab0);
-  ecr = 0;
-
   /* Loop on the first sample */
 
-  for (int i1 = 0; i1 < nsize; i1++)
+  ecr = 0;
+  for (int ivar1 = 0; ivar1 < nvar; ivar1++)
   {
-    iech1 = iechs[i1];
-    ivar1 = ivars[i1];
-
-    /* Loop on the second variable */
-
-    for (int i2 = 0; i2 < nsize; i2++)
+    for (int i1 = 0; i1 < nech; i1++)
     {
-      iech2 = iechs[i2];
-      ivar2 = ivars[i2];
+      int iech1 = iechs[i1];
 
-      /* Loop on the dimension of the space */
+      /* Loop on the second variable */
 
-      for (int i = 0; i < ndim; i++)
+      for (int ivar2 = 0; ivar2 < nvar; ivar2++)
       {
-        v1 = db->getCoordinate(iech1, i);
-        v2 = db->getCoordinate(iech2, i);
-        d1[i] = v1 - v2;
+        for (int i2 = 0; i2 < nech; i2++)
+        {
+          int iech2 = iechs[i2];
+
+          /* Loop on the dimension of the space */
+
+          for (int i = 0; i < ndim; i++)
+          {
+            double v1 = db->getCoordinate(iech1, i);
+            double v2 = db->getCoordinate(iech2, i);
+            d1[i] = v1 - v2;
+          }
+          model_calcul_cov(model, mode, 1, 1., d1, covtab);
+          covmat[ecr++] = COVTAB(ivar1, ivar2);
+        }
       }
-      model_calcul_cov(model, mode, 1, 1., d1, covtab);
-      covmat[ecr++] = COVTAB(ivar1, ivar2);
     }
   }
 
@@ -4810,8 +4787,8 @@ GEOSLIB_API double *model_covmat_by_variable_and_ranks(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
-  covtab0 = (double *) mem_free((char * ) covtab0);
+  label_end:
+  covtab = (double *) mem_free((char * ) covtab);
   if (error) covmat = (double *) mem_free((char * ) covmat);
   return (covmat);
 }

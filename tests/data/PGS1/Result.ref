@@ -78,7 +78,6 @@ Attempt to Open the File (PGS1/Model.dat) in mode (r)
 File PGS1/Model.dat is successfully closed
 Attempt to Open the File (PGS1/Model1.dat) in mode (r)
 File PGS1/Model1.dat is successfully closed
-Convergence reached after 63 iterations
 
 Data Base Characteristics
 =========================
@@ -117,50 +116,50 @@ Data Base Statistics
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      2.264
- Standard Deviation  =      0.606
- Variance            =      0.368
+ Mean value          =      1.981
+ Standard Deviation  =      0.670
+ Variance            =      0.449
 3 - Name Facies.2 - Locator facies2
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      2.143
- Standard Deviation  =      0.825
- Variance            =      0.681
+ Mean value          =      2.387
+ Standard Deviation  =      0.747
+ Variance            =      0.558
 4 - Name Facies.3 - Locator facies3
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.844
- Standard Deviation  =      0.753
- Variance            =      0.567
+ Mean value          =      1.770
+ Standard Deviation  =      0.810
+ Variance            =      0.656
 5 - Name Facies.4 - Locator facies4
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      2.635
- Standard Deviation  =      0.727
- Variance            =      0.529
+ Mean value          =      2.554
+ Standard Deviation  =      0.710
+ Variance            =      0.504
 6 - Name Facies.5 - Locator facies5
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      2.543
- Standard Deviation  =      0.785
- Variance            =      0.616
+ Mean value          =      1.904
+ Standard Deviation  =      0.822
+ Variance            =      0.675
 
 Data Base Contents
 ------------------
                  rank  Facies.1  Facies.2  Facies.3  Facies.4  Facies.5
-     [  1,]     1.000     2.000     3.000     1.000     3.000     3.000
+     [  1,]     1.000     3.000     3.000     1.000     2.000     1.000
      [  2,]     2.000     3.000     3.000     1.000     3.000     3.000
-     [  3,]     3.000     3.000     2.000     1.000     3.000     3.000
+     [  3,]     3.000     3.000     3.000     1.000     3.000     3.000
      [  4,]     4.000     3.000     3.000     1.000     3.000     3.000
-     [  5,]     5.000     3.000     2.000     1.000     3.000     3.000
-     [  6,]     6.000     3.000     2.000     1.000     3.000     3.000
-     [  7,]     7.000     2.000     2.000     1.000     3.000     3.000
+     [  5,]     5.000     3.000     3.000     1.000     3.000     3.000
+     [  6,]     6.000     3.000     3.000     1.000     3.000     3.000
+     [  7,]     7.000     3.000     3.000     1.000     3.000     3.000
 (Ncols=6,Nrows=7[from 10000])

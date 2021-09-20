@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Gibbs/GibbsUMultiMono.hpp"
+#include "../../include/Gibbs/GibbsUPropMono.hpp"
+#include "Gibbs/GibbsFactory.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
@@ -18,7 +21,6 @@
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
-#include "Gibbs/GibbsStandard.hpp"
 #include "geoslib_e.h"
 
 /*! \cond */
@@ -28,10 +30,7 @@
 #define AD(ivar,jvar)           (ivar) + nvar * (jvar)
 #define SEEDS(ivar,is,ib,isimu)  situba->seeds[(ivar)+nvar*((is)+ncova*((ib)+nbtuba*(isimu)))]
 #define AIC(icov,ivar,jvar)      aic[(icov)*nvar*nvar + AD(ivar,jvar)]
-#define SIGMA(iech,jech)         (sigma[(iech) * nech + (jech)])
 #define IND(iech,ivar)           ((iech) + (ivar) * nech)
-#define COVMAT(i,j)              (covmat[(i) * nactive + (j)])
-#define MEAN(iech,ivar)          (mean[(ivar) * nech + (iech)])
 
 #define GAUS   0
 #define FACIES 1
@@ -285,7 +284,7 @@ GEOSLIB_API void simu_func_categorical_scale(Db  *db,
 **
 *****************************************************************************/
 GEOSLIB_API void check_mandatory_attribute(const char *method,
-                                           Db *db,
+                                           Db* db,
                                            ENUM_LOCS locatorType)
 {
   if (get_LOCATOR_NITEM(db,locatorType) <= 0)
@@ -3904,11 +3903,9 @@ GEOSLIB_API int simpgs(Db *dbin,
   int     nvar,flag_cond,error,isimu,flag_used[2],nechin;
   int     iptr_RP,iptr_RF,iptr_DF,iptr_DN,iptr_RN;
   bool    verbose = false;
-  double *mean;
   Situba *situba;
   Model  *models[2];
   PropDef  *propdef;
-  GibbsStandard gibbs;
 
   /* Initializations */
 
@@ -3916,7 +3913,6 @@ GEOSLIB_API int simpgs(Db *dbin,
   nvar      = 1;
   nechin    = 0;
   ngrf      = 0;
-  mean      = (double *) NULL;
   situba    = (Situba *) NULL;
   propdef   = (PropDef *) NULL;
   models[0] = model1;
@@ -3996,16 +3992,6 @@ GEOSLIB_API int simpgs(Db *dbin,
   MES_IPGS = 0;
   MES_NGRF = ngrf;
 
-  /*******************/
-  /* Core allocation */
-  /*******************/
-
-  if (flag_cond)
-  {
-    mean  = (double *) mem_alloc(sizeof(double) * nechin,0);
-    if (mean  == (double *) NULL) goto label_end;
-  }
-
   /**********************/
   /* Add the attributes */
   /**********************/
@@ -4072,41 +4058,54 @@ GEOSLIB_API int simpgs(Db *dbin,
 
   if (flag_cond)
   {
-
-    /* Initialize the Gibbs calculations */
-    
-    gibbs.init(1, ngrf, nbsimu, gibbs_nburn, gibbs_niter, 0, true,
-               rule->getRho(), gibbs_eps);
+    int npgs = 1;
+    int ipgs = 0;
+    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, models[igrf], nullptr,
+                                              true, false);
 
     for (igrf=0; igrf<2; igrf++)
     {
       if (! flag_used[igrf]) continue;
+
+      /* Initialize the Gibbs calculations */
+
+      gibbs->init(npgs, ngrf, nbsimu, gibbs_nburn, gibbs_niter, 0, true,
+                  rule->getRho(), gibbs_eps);
       
       /* Allocate the covariance matrix inverted */
   
-      if (gibbs.covmatAlloc(dbin, models[igrf], verbose)) goto label_end;
+      if (gibbs->covmatAlloc(verbose)) goto label_end;
+
+      /* Allocate the Gaussian vector */
+
+      VectorVectorDouble y = gibbs->allocY();
 
       /* Loop on the simulations */
       
       for (isimu=0; isimu<nbsimu; isimu++)
       {
-        if (rule->evaluateBounds(propdef, dbin, dbout, isimu, igrf, 0, nbsimu))
-          goto label_end;
+        if (rule->evaluateBounds(propdef, dbin, dbout, isimu, igrf, ipgs,
+                                 nbsimu)) goto label_end;
         
         /* Initialization for the Gibbs sampler */
-        
-        if (gibbs.calculInitialize(dbin, models[igrf], isimu, igrf, 0, verbose))
-          goto label_end;
-        
+
+        if (gibbs->calculInitialize(y, isimu, ipgs, igrf, verbose)) goto label_end;
+        if (verbose) gibbs->print(true,y,isimu,ipgs,igrf);
+
         /* Iterations of the Gibbs sampler */
-        
-        if (gibbs.calculIteration(dbin, models[igrf], isimu, 0, igrf, verbose))
-          goto label_end;
+
+        for (int iter = 0; iter < gibbs->getNiter(); iter++)
+          gibbs->update(y, isimu, ipgs, igrf, iter);
         
         /* Check the validity of the Gibbs results (optional) */
         
         if (flag_check)
-          gibbs.checkGibbs(dbin,models[igrf],isimu,0,igrf);
+          gibbs->checkGibbs(y,isimu,ipgs,igrf);
+        if (verbose) gibbs->print(false, y, isimu, ipgs, igrf);
+
+        // Store the results
+
+        gibbs->storeResult(y, isimu, ipgs, igrf);
       }
     }
   }
@@ -4203,7 +4202,6 @@ label_end:
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
                               propcst,propdef);
   st_suppress_added_samples(dbin,nechin);
-  if (flag_cond) mean = (double *) mem_free((char *) mean);
   for (igrf=0; igrf<2; igrf++)
     situba = st_dealloc(models[igrf],situba);
   return(error);
@@ -4274,13 +4272,11 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   int     nvar,ipgs,npgs,flag_cond,error,isimu,icase;
   int     nfac[2],nfactot,flag_used[2][2],nechin,ngrf[2],ngrftot;
   int     iptr_RP,iptr_RF,iptr_DF,iptr_RN,iptr_DN;
-  double *mean,*covmat;
   bool    verbose;
   Rule   *rules[2];
   Model  *models[2][2];
   Situba *situba;
   PropDef  *propdef;
-  GibbsStandard gibbs;
 
   /* Initializations */
 
@@ -4289,7 +4285,6 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   npgs      = 2;
   nechin    = 0;
   verbose   = false;
-  mean      = covmat = (double *) NULL;
   situba    = (Situba *) NULL;
   propdef   = (PropDef  *) NULL;
 
@@ -4416,12 +4411,6 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
   /* Core allocation */
 
-  if (flag_cond)
-  {
-    mean  = (double *) mem_alloc(sizeof(double) * nechin,0);
-    if (mean  == (double *) NULL) goto label_end;
-  }
-
   propdef = proportion_manage(1,1,flag_stat,ngrf[0],ngrf[1],nfac[0],nfac[1],
                               dbin,dbprop,propcst,propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
@@ -4510,19 +4499,25 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
     if (flag_cond)
     {
+      AGibbs* gibbs = GibbsFactory::createGibbs(dbin, models[ipgs][igrf],
+                                                nullptr, true, false);
 
-      /* Initialize the Gibbs calculations */
-
-      gibbs.init(npgs, ngrf[ipgs], nbsimu, gibbs_nburn, gibbs_niter,
-                 0, true, rules[ipgs]->getRho(), gibbs_eps);
-
-      for (igrf=0; igrf<2; igrf++)
+      for (igrf = 0; igrf < 2; igrf++)
       {
-        if (! flag_used[ipgs][igrf]) continue;
+        if (!flag_used[ipgs][igrf]) continue;
+
+        /* Initialize the Gibbs calculations */
+
+        gibbs->init(npgs, ngrf[ipgs], nbsimu, gibbs_nburn, gibbs_niter, 0, true,
+                    rules[ipgs]->getRho(), gibbs_eps);
 
         /* Allocate the covariance matrix inverted */
-  
-        if (gibbs.covmatAlloc(dbin,models[ipgs][igrf],0)) goto label_end;
+
+        if (gibbs->covmatAlloc(0)) goto label_end;
+
+        // Core allocation
+
+        VectorVectorDouble y = gibbs->allocY();
 
         /* Loop on the simulations */
 
@@ -4536,18 +4531,23 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
           /* Initialization for the Gibbs sampler */
 
-          if (gibbs.calculInitialize(dbin, models[ipgs][igrf], isimu,
-                                     igrf, ipgs, verbose)) goto label_end;
+          if (gibbs->calculInitialize(y, isimu, ipgs, igrf, verbose)) goto label_end;
+          if (verbose) gibbs->print(true,y,isimu,ipgs,igrf);
 
           /* Iterations of the Gibbs sampler */
 
-          if (gibbs.calculIteration(dbin, models[ipgs][igrf], isimu, ipgs, igrf,
-                                    verbose)) goto label_end;
+          for (int iter = 0; iter < gibbs->getNiter(); iter++)
+            gibbs->update(y, isimu, ipgs, igrf, iter);
 
           /* Check the validity of the Gibbs results (optional) */
 
           if (flag_check)
-            gibbs.checkGibbs(dbin,models[ipgs][igrf],isimu,ipgs,igrf);
+            gibbs->checkGibbs(y,isimu,ipgs,igrf);
+          if (verbose) gibbs->print(false,y,isimu,ipgs,igrf);
+
+          // Store the results
+
+          gibbs->storeResult(y, isimu, ipgs, igrf);
         }
       }
       
@@ -4655,7 +4655,6 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
 label_end:
   st_suppress_added_samples(dbin,nechin);
-  if (flag_cond) mean = (double *) mem_free((char *) mean);
   for (ipgs=0; ipgs<npgs; ipgs++)
     for (igrf=0; igrf<2; igrf++)
       situba = st_dealloc(models[ipgs][igrf],situba);
@@ -4785,12 +4784,14 @@ label_end:
 **
 ** \param[in]  dbin        Db structure
 ** \param[in]  model       Model structure
+** \param[in]  neigh       Neigh structure (optional)
 ** \param[in]  nbsimu      Number of simulations
 ** \param[in]  seed        Seed for random number generator
 ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
 ** \param[in]  gibbs_niter Maximum number of iterations
 ** \param[in]  flag_norm   1 if the Model must be normalized
-** \param[in]  flag_propagation 1 for the propogation algorithm
+** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
+** \param[in]  flag_propagation 1 for the propagation algorithm
 ** \param[in]  percent     Amount of nugget effect added to too continous 
 **                         model (expressed in percentage of total variance)
 ** \param[in]  gibbs_eps   Relative convergence criterion
@@ -4799,31 +4800,33 @@ label_end:
 ** \param[in]  flag_cstd   1 if the conditional standard deviation
 **                         should be returned instead of simulations
 ** \param[in]  verbose     Verbose flag
+** \param[in]  namconv     Naming convention
 **
 *****************************************************************************/
 GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               Model  *model,
+                              Neigh  *neigh,
                               int     nbsimu,
                               int     seed,
                               int     gibbs_nburn,
                               int     gibbs_niter,
-                              int     flag_norm,
-                              int     flag_propagation,
+                              bool    flag_norm,
+                              bool    flag_multi_mono,
+                              bool    flag_propagation,
                               double  percent,
                               double  gibbs_eps,
-                              int     flag_ce,
-                              int     flag_cstd,
-                              int     verbose)
+                              bool    flag_ce,
+                              bool    flag_cstd,
+                              bool    verbose,
+                              NamingConvention namconv)
 {
-  int      error,nech,iptr,isimu,nint,nvar,iptr_ce,iptr_cstd;
-  double  *y,*mean,*covmat;
+  int      error,iptr,isimu,npgs,nvar,iptr_ce,iptr_cstd;
   PropDef *propdef;
-  GibbsStandard gibbs;
 
   /* Initializations */
 
   error   = 1;
-  mean    = y = covmat = (double *) NULL;
+  npgs    = 1;
   iptr_ce = iptr_cstd = -1;
   propdef = (PropDef *) NULL;
 
@@ -4833,12 +4836,9 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
   /* Db */
 
-  nech = dbin->getSampleNumber();
-  nint = dbin->getIntervalNumber();
-  nvar = model->getVariableNumber();
   if (flag_propagation)
   {
-    if (nint > 0)
+    if (dbin->getIntervalNumber() > 0)
     {
       messerr("The propagation algorithm is incompatible with bounds");
       goto label_end;
@@ -4852,6 +4852,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
     messerr("No Model is provided");
     goto label_end;
   }
+  nvar = model->getVariableNumber();
   if (! flag_propagation)
   {
     if (model_stabilize(model,1,percent)) goto label_end;
@@ -4866,8 +4867,6 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   /*******************/
 
   law_set_random_seed(seed);
-  mean  = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (mean  == (double *) NULL) goto label_end;
 
   propdef = proportion_manage(1,0,1,1,0,nvar,0,dbin,NULL,VectorDouble(),propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
@@ -4876,47 +4875,62 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   /* Add the attributes */
   /**********************/
 
-  if (db_locator_attribute_add(dbin,LOC_GAUSFAC,nbsimu,0,0.,&iptr)) 
+  if (db_locator_attribute_add(dbin,LOC_GAUSFAC,nbsimu*nvar,0,0.,&iptr))
     goto label_end;
 
   /*****************/
   /* Gibbs sampler */
   /*****************/
   
-  /* Initialize the Gibbs calculations */
-    
-  gibbs.init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0, false, 0., gibbs_eps);
-
-  /* Allocate the covariance matrix inverted */
-  
-  if (gibbs.covmatAlloc(dbin,model,verbose)) goto label_end;
-
-  /* Loop on the simulations */
-
-  for (isimu=0; isimu<nbsimu; isimu++)
   {
-    message("Processing iteration %d/%d\n",isimu+1,nbsimu);
-    
-    // Initialize the iterations
+    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, neigh,
+                                              flag_multi_mono,flag_propagation);
 
-    if (gibbs.calculInitialize(dbin, model, isimu, 0, 0, verbose))
-      goto label_end;
+    /* Initialize the Gibbs calculations */
 
-    /* Iterations of the Gibbs sampler */
+    gibbs->init(npgs, nvar, nbsimu, gibbs_nburn, gibbs_niter,
+                0, false, 0., gibbs_eps);
 
-    if (flag_propagation)
+    /* Allocate the covariance matrix inverted */
+
+    if (gibbs->covmatAlloc(verbose)) goto label_end;
+
+    // Allocate the Gaussian vector
+
+    VectorVectorDouble y    = gibbs->allocY();
+
+    /* Loop on the simulations */
+
+    for (isimu = 0; isimu < nbsimu; isimu++)
     {
-      if (gibbs.calculatePropagation(dbin, model, isimu, verbose))
-        goto label_end;
-    }
-    else
-    {
-      if (gibbs.calculIteration(dbin, model, isimu, 0, 0, verbose))
-        goto label_end;
+      message("Processing Simulation %d/%d\n", isimu + 1, nbsimu);
+      int ipgs = 0;
+
+      /* Loop on the variables */
+
+      for (int ivar = 0; ivar < nvar; ivar++)
+      {
+
+        // Initialize the iterations
+
+        if (gibbs->calculInitialize(y, isimu, ipgs, ivar, verbose)) goto label_end;
+        if (verbose) gibbs->print(true,y,isimu,ipgs,ivar);
+
+        /* Iterations of the Gibbs sampler */
+
+        for (int iter = 0; iter < gibbs->getNiter(); iter++)
+          gibbs->update(y, isimu, ipgs, ivar, iter);
+
+        if (verbose) gibbs->print(false,y,isimu,ipgs,ivar);
+
+        // Store the results
+
+        gibbs->storeResult(y, isimu, ipgs, ivar);
+      }
     }
   }
 
-  /* Convert the simulations into the mean and variance */
+  /* Convert the simulations */
 
   if (flag_ce || flag_cstd)
   {
@@ -4941,9 +4955,10 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   /* Set the error return flag */
 
   error = 0;
+  namconv.setNamesAndLocators(dbin,LOC_UNKNOWN,nvar,
+                              dbin,iptr,String(),nbsimu);
 
 label_end:
-  mean   = (double *) mem_free((char *) mean);
   propdef = proportion_manage(-1,0,1,1,0,model->getVariableNumber(),0,dbin,NULL,
                               VectorDouble(),propdef);
   return(error);
@@ -5892,23 +5907,18 @@ GEOSLIB_API int simcond(Db    *dbin,
 {
   Neigh  *neigh;
   Situba *situba;
-  double *y,*mean;
   PropDef  *propdef;
-  GibbsStandard gibbs;
-  int     nvar,error,iext,inostat,iptr,iptr_ce,iptr_cstd,ndim,nech,nint;
+  int     nvar,error,iext,inostat,iptr,iptr_ce,iptr_cstd,ndim;
 
   /* Initializations */
 
   error   = 1;
   neigh   = (Neigh *) NULL;
-  nech    = dbin->getSampleNumber();
-  nint    = dbin->getIntervalNumber();
   nvar    = model->getVariableNumber();
   ndim    = model->getDimensionNumber();
   iptr    = -1;
   situba  = (Situba *) NULL;
   propdef = (PropDef *) NULL;
-  mean    = y = (double *) NULL;
 
   /* Preliminary checks */
 
@@ -5926,16 +5936,13 @@ GEOSLIB_API int simcond(Db    *dbin,
     messerr("This method is restricted to the monovariate case");
     goto label_end;
   }
-  if (nint <= 0)
+  if (dbin->getIntervalNumber() <= 0)
   {
     messerr("No bound is defined: use 'simtub' instead");
     goto label_end;
   }
 
   /* Core allocation */
-
-  mean = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (mean == (double *) NULL) goto label_end;
 
   propdef = proportion_manage(1,0,1,1,0,nvar,0,dbin,NULL,VectorDouble(),propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
@@ -5958,28 +5965,45 @@ GEOSLIB_API int simcond(Db    *dbin,
   /* Gibbs sampler */
   /*****************/
 
-  /* Initialize the Gibbs calculations */
-
-  gibbs.init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0, false, 0., gibbs_eps);
-
-  /* Allocate the covariance matrix inverted */
-  
-  if (gibbs.covmatAlloc(dbin,model,verbose)) goto label_end;
-
-  /* Loop on the simulations */
-
-  for (int isimu=0; isimu<nbsimu; isimu++)
   {
+    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, nullptr, false, false);
 
-    /* Initialization for the Gibbs sampler */
+    /* Initialize the Gibbs calculations */
 
-    if (gibbs.calculInitialize(dbin, model, isimu, 0, 0, verbose))
-      goto label_end;
+    gibbs->init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0, false,
+                0., gibbs_eps);
 
-    /* Iterations of the gibbs sampler */
+    /* Allocate the covariance matrix inverted */
 
-    if (gibbs.calculIteration(dbin, model, isimu, 0, 0, verbose))
-      goto label_end;
+    if (gibbs->covmatAlloc(verbose)) goto label_end;
+
+    // Allocate the Gaussian Vector
+
+    VectorVectorDouble y = gibbs->allocY();
+
+    /* Loop on the simulations */
+
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+    {
+      int ipgs = 0;
+      int ivar = 0;
+
+      /* Initialization for the Gibbs sampler */
+
+      if (gibbs->calculInitialize(y,isimu, ipgs, ivar, verbose)) goto label_end;
+      if (verbose) gibbs->print(true,y,isimu,ipgs,ivar);
+
+      /* Iterations of the gibbs sampler */
+
+      for (int iter = 0; iter < gibbs->getNiter(); iter++)
+        gibbs->update(y,isimu, ipgs, ivar, iter);
+
+      if (verbose) gibbs->print(false,y,isimu,ipgs,ivar);
+
+      // Store the results
+
+      gibbs->storeResult(y, isimu, ipgs, ivar);
+    }
   }
 
   /* Processing the Turning Bands algorithm */
@@ -5995,7 +6019,7 @@ GEOSLIB_API int simcond(Db    *dbin,
   dbin->deleteFieldByLocator(LOC_GAUSFAC);
   dbin->deleteFieldByLocator(LOC_SIMU);
 
-  /* Convert the simulations into the mean and variance */
+  /* Convert the simulations */
 
   if (flag_ce || flag_cstd)
   {

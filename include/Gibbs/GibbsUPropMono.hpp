@@ -16,28 +16,26 @@
 class Db;
 class Model;
 
-class GibbsMultivariate : public AGibbs
+/**
+ * This class is designated for Gibbs with the following properties
+ * - Unique (absent) Neighborhood
+ * - Monovariate case only
+ * - Propagation algorithm (no need to establish and invert Covariance matrix)
+ * - No bound provided
+ */
+class GibbsUPropMono : public AGibbs
 {
 public:
-  GibbsMultivariate();
-  GibbsMultivariate(const GibbsMultivariate &r);
-  GibbsMultivariate& operator=(const GibbsMultivariate &r);
-  virtual ~GibbsMultivariate();
+  GibbsUPropMono();
+  GibbsUPropMono(Db* db, Model* model);
+  GibbsUPropMono(const GibbsUPropMono &r);
+  GibbsUPropMono& operator=(const GibbsUPropMono &r);
+  virtual ~GibbsUPropMono();
 
-  int calculInitialize(Db *dbin,
-                       Model *model,
-                       int isimu,
-                       int igrf,
-                       int ipgs,
-                       bool verbose);
-  int calculIteration(Db *dbin,
-                      Model *model,
-                      int isimu,
-                      int ipgs,
-                      int igrf,
-                      int verbose);
-  int covmatAlloc(Db *dbin, Model *model, bool verbose);
-
-private:
-  VectorDouble _covmat;
+  void update(VectorVectorDouble& y,
+              int isimu,
+              int ipgs,
+              int ivar,
+              int iter) override;
+  int covmatAlloc(bool verbose) override;
 };

@@ -12,7 +12,6 @@
 #include "Model/NoStatFunctional.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Mesh/MeshFactory.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 
@@ -25,6 +24,8 @@
 #include <random>
 #include <string>
 #include <vector>
+
+#include "../../include/Mesh/MeshFactory.hpp"
 
 #define __USE_MATH_DEFINES
 #include <cmath>

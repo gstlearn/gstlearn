@@ -146,13 +146,13 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   if (dbin != nullptr && locatorInType != LOC_UNKNOWN)
   {
     names = dbin->getNames(locatorInType);
-    if (nvar <= 0) nvar = static_cast<int> (names.size());
-    if (nvar < (int) names.size()) names.resize(nvar);
+    if (nvar <= 0) nvar = names.size();
   }
   else
   {
     if (nvar < 0) nvar = 1;
   }
+  if (nvar != (int) names.size()) names.resize(nvar);
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
 }
@@ -253,7 +253,9 @@ void NamingConvention::_setNames(Db *dbout,
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    String local = (names.empty() || (int) names.size() != nvar) ? String() : names[ivar];
+    String local;
+    if ((int) names.size() == nvar) local = names[ivar];
+    if (local.empty()) local = std::to_string(ivar+1);
 
     for (int item = 0; item < nitems; item++)
     {

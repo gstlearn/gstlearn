@@ -12,6 +12,7 @@
 #include "Basic/Utilities.hpp"
 
 static int     FLAG_SIMU = 0;
+static int     FLAG_NO_VAR_CHECK = 0;
 static int     NBGH_INITIALIZED = 0;
 static int    *NBGH_ind   = (int    *) NULL;
 static int    *NBGH_isect = (int    *) NULL;
@@ -115,19 +116,31 @@ static int st_discard_undefined(Db  *dbin,
 
   /* Dispatch */
 
+  if (FLAG_NO_VAR_CHECK)
+  {
+    if (dbin->getVariableNumber() <= 0)
+      return 0;
+    else
+    {
+      for (ivar=0; ivar<dbin->getVariableNumber(); ivar++)
+        if (! FFFF(dbin->getVariable(iech,ivar))) return 0;
+      return 1;
+    }
+  }
+
   if (! FLAG_SIMU)
   {
     for (ivar=0; ivar<dbin->getVariableNumber(); ivar++)
-      if (! FFFF(dbin->getVariable(iech,ivar))) return(0);
+      if (! FFFF(dbin->getVariable(iech,ivar))) return 0;
   }
   else
   {
     // In the case of simulations, the test is performed on the 
     // simulation error for the first variable and first simulation
-    if (! FFFF(dbin->getSimvar(LOC_SIMU,iech,0,0,0,1,0))) return(0);
+    if (! FFFF(dbin->getSimvar(LOC_SIMU,iech,0,0,0,1,0))) return 0;
   }
 
-  return(1);
+  return 1;
 }
 
 /****************************************************************************/
@@ -1083,6 +1096,7 @@ GEOSLIB_API void neigh_echo(Db     *dbin,
 ** \param[in]  iech_out      rank of the output sample
 ** \param[in]  neigh         Neigh structure
 ** \param[in]  flag_simu     1 if used for Simulation
+** \param[in]  flag_no_var_check 1 if no check on variable definition
 **
 ** \param[out]  nsel  Number of active points in the neighborhood
 ** \param[out]  rank  Array of active data point ranks
@@ -1097,6 +1111,7 @@ GEOSLIB_API int neigh_select(Db     *dbin,
                              int     iech_out,
                              Neigh  *neigh,
                              int     flag_simu,
+                             int     flag_no_var_check,
                              int    *nsel,
                              int    *rank)
 {
@@ -1107,6 +1122,7 @@ GEOSLIB_API int neigh_select(Db     *dbin,
   if (! NBGH_INITIALIZED) return(1);
   for (iech=0; iech<dbin->getSampleNumber(); iech++) rank[iech] = -1;
   FLAG_SIMU = flag_simu;
+  FLAG_NO_VAR_CHECK = flag_no_var_check;
 
   /* Select the active data points */
 

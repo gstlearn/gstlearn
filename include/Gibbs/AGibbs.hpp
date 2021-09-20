@@ -20,24 +20,46 @@ class AGibbs
 {
 public:
   AGibbs();
-  AGibbs(int npgs,
-         int ngrf,
+  AGibbs(Db* db,Model* model);
+  AGibbs(Db* db,
+         Model* model,
+         int npgs,
+         int nvar,
          int nbsimu,
          int nburn,
          int niter,
          int flag_order,
-         bool flag_category,
+         bool flag_multi_mono,
          double rho,
          double eps = EPSILON3);
   AGibbs(const AGibbs &r);
   AGibbs& operator=(const AGibbs &r);
   virtual ~AGibbs();
 
-  void init(int npgs, int ngrf, int nbsimu, int nburn, int niter,
-            int flag_order, bool flag_category, double rho, double eps);
+  virtual int calculInitialize(VectorVectorDouble& y,
+                               int isimu,
+                               int ipgs,
+                               int ivar,
+                               bool verbose);
+  virtual void update(VectorVectorDouble& y,
+                      int isimu,
+                      int ipgs,
+                      int ivar,
+                      int iter) = 0;
+  virtual int covmatAlloc(bool verbose) = 0;
 
-  int getNgrf() const { return _ngrf; }
-  void setNgrf(int ngrf) { _ngrf = ngrf; }
+  void init(int npgs, int nvar, int nbsimu, int nburn, int niter,
+            int flag_order, bool flag_multi_mono,
+            double rho, double eps);
+
+  void print(bool flag_init,
+             const VectorVectorDouble& y,
+             int isimu,
+             int ipgs,
+             int ivar) const;
+
+  int getNvar() const { return _nvar; }
+  void setNvar(int nvar) { _nvar = nvar; }
   int getNpgs() const { return _npgs; }
   void setNpgs(int npgs) { _npgs = npgs; }
   int getNbsimu() const { return _nbsimu; }
@@ -57,67 +79,52 @@ public:
   int getFlagOrder() const { return _flagOrder; }
   void setFlagOrder(int flagOrder) { _flagOrder = flagOrder; }
 
-  int getRank(int ipgs, int igrf) const;
-  int checkGibbs(Db *db, Model *model, int isimu, int ipgs, int igrf);
+  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs, int ivar);
+
+  Db* getDb() const { return _db; }
+  Model* getModel() const { return _model; }
+  int getDimension() const;
+  int getRank(int ipgs, int ivar) const;
+  VectorVectorDouble allocY() const;
+  void storeResult(const VectorVectorDouble& y, int isimu, int ipgs, int ivar);
+
+  double getSimulate(VectorVectorDouble& y,
+                     double yk,
+                     double sk,
+                     int iact,
+                     int ipgs,
+                     int ivar,
+                     int iter);
+  int getSampleRankNumber() const;
+  int getSampleRank(int i) const;
+  VectorInt calculateSampleRanks() const;
 
 protected:
-  int _checkMandatoryAttribute(const String& method,
-                               Db *db,
-                               ENUM_LOCS locatorType);
-  int _boundsCheck(Db *db,
-                   int iech0,
-                   double data,
-                   double *vmin,
-                   double *vmax,
-                   int iech,
-                   double value,
-                   double vemin,
-                   double vemax);
-  int _correctBoundsOrder(int flag_category,
-                          int flag_order,
-                          Db *db,
-                          int iech0,
-                          int ivar,
-                          int icase,
-                          int nvar,
-                          double *vlmin_arg,
-                          double *vlmax_arg);
-  void _printInequalities(Db *db,
-                          int ifirst,
-                          int iech,
+  int  _boundsCheck(int iech0, int ipgs, int ivar, double *vmin, double *vmax);
+  void _printInequalities(int iact,
                           int ivar,
                           int nfois,
                           int flag_cv,
                           double simval,
                           double vmin,
-                          double vmax,
-                          double mean,
-                          double delta);
-  void _gibbsInitPrint(const char *title,
-                       Db *dbin,
-                       int nvar,
-                       int nbsimu,
-                       int isimu,
-                       int icase);
-  void _gibbsIterPrint(const char *title,
-                       Db *dbin,
-                       int nvar,
-                       int isimu,
-                       int niter,
-                       int icase);
+                          double vmax) const;
 
 private:
   int _npgs;
-  int _ngrf;
+  int _nvar;
   int _nbsimu;
   int _nburn;
   int _niter;
-  int _flagOrder; // order relationship
+  int _flagOrder; // order relationship of the constraints
   //   1 if the ascending order must be honored
   //  -1 if the descending order must be honored
   //   0 if no order relationship must be honored
   bool _flagCategory; // true for categorical; false for continuous
+  bool _flagMultiMono;
   double _rho;
   double _sqr;
   double _eps;
+  VectorInt _ranks;
+  Db* _db;
+  Model* _model;
 };

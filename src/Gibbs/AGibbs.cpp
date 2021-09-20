@@ -9,54 +9,84 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Gibbs/AGibbs.hpp"
+#include "Model/Model.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Law.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "geoslib_enum.h"
 
 AGibbs::AGibbs()
     : _npgs(1),
-      _ngrf(1),
+      _nvar(1),
       _nbsimu(1),
       _nburn(1),
       _niter(1),
       _flagOrder(true),
-      _flagCategory(true),
+      _flagMultiMono(true),
       _rho(1.),
       _sqr(0.),
-      _eps(EPSILON3)
+      _eps(EPSILON3),
+      _ranks(),
+      _db(nullptr),
+      _model(nullptr)
 {
 }
 
-AGibbs::AGibbs(int npgs, int ngrf, int nbsimu, int nburn, int niter,
-               int flag_order, bool flag_category, double rho, double eps)
+AGibbs::AGibbs(Db* db, Model* model)
     : _npgs(1),
-      _ngrf(1),
+      _nvar(1),
+      _nbsimu(1),
+      _nburn(1),
+      _niter(1),
+      _flagOrder(true),
+      _flagMultiMono(true),
+      _rho(1.),
+      _sqr(0.),
+      _eps(EPSILON3),
+      _ranks(),
+      _db(db),
+      _model(model)
+{
+}
+
+AGibbs::AGibbs(Db* db, Model* model,
+               int npgs, int nvar, int nbsimu, int nburn, int niter,
+               int flag_order, bool flag_multi_mono,
+               double rho, double eps)
+    : _npgs(1),
+      _nvar(1),
       _nbsimu(1),
       _nburn(1),
       _niter(1),
       _flagOrder(false),
-      _flagCategory(false),
+      _flagMultiMono(true),
       _rho(1.),
       _sqr(0.),
-      _eps(eps)
+      _eps(eps),
+      _ranks(),
+      _db(db),
+      _model(model)
 {
-  init(npgs, ngrf, nbsimu, nburn, niter, flag_order, flag_category, rho, eps);
-  _sqr = sqrt(1. - _rho * rho);
+  init(npgs, nvar, nbsimu, nburn, niter,
+       flag_order, flag_multi_mono, rho, eps);
 }
 
 AGibbs::AGibbs(const AGibbs &r)
     : _npgs(r._npgs),
-      _ngrf(r._ngrf),
+      _nvar(r._nvar),
       _nbsimu(r._nbsimu),
       _nburn(r._nburn),
       _niter(r._niter),
       _flagOrder(r._flagOrder),
-      _flagCategory(r._flagCategory),
+      _flagMultiMono(r._flagMultiMono),
       _rho(r._rho),
       _sqr(r._sqr),
-      _eps(r._eps)
+      _eps(r._eps),
+      _ranks(r._ranks),
+      _db(r._db),
+      _model(r._model)
 {
 }
 
@@ -65,15 +95,18 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
   if (this != &r)
   {
     _npgs = r._npgs;
-    _ngrf = r._ngrf;
+    _nvar = r._nvar;
     _nbsimu = r._nbsimu;
     _nburn = r._nburn;
     _niter = r._niter;
     _flagOrder = r._flagOrder;
-    _flagCategory = r._flagCategory;
+    _flagMultiMono = r._flagMultiMono;
     _rho = r._rho;
     _sqr = r._sqr;
     _eps = r._eps;
+    _ranks = r._ranks;
+    _db = r._db;
+    _model = r._model;
   }
   return *this;
 }
@@ -83,55 +116,31 @@ AGibbs::~AGibbs()
 }
 
 void AGibbs::init(int npgs,
-                  int ngrf,
+                  int nvar,
                   int nbsimu,
                   int nburn,
                   int niter,
                   int flag_order,
-                  bool flag_category,
+                  bool flag_multi_mono,
                   double rho,
                   double eps)
 {
   _npgs = npgs;
-  _ngrf = ngrf;
+  _nvar = nvar;
   _nbsimu = nbsimu;
   _nburn = nburn;
   _niter = niter;
   _flagOrder = flag_order;
-  _flagCategory = flag_category;
+  _flagMultiMono = flag_multi_mono;
   _rho = rho;
   _eps = eps;
 
+  // In the real multivariate scheme, the value of '_rho' is not significant
+  if (_flagMultiMono) _rho = 1.;
   _sqr = sqrt(1. - _rho * rho);
-}
 
-int AGibbs::getRank(int ipgs, int igrf) const
-{
-  if (ipgs <= 0)
-    return(igrf);
-  else
-    return(getNgrf() + igrf);
-}
-
-/****************************************************************************/
-/*!
-**  Check for the presence of mandatory attributes
-**
-** \param[in]  method  Name of the method
-** \param[in]  db      Db structure
-** \param[in]  locatorType  Mandatory attribute type
-**
-*****************************************************************************/
-int AGibbs::_checkMandatoryAttribute(const String& method,
-                                       Db *db,
-                                       ENUM_LOCS locatorType)
-{
-  if (get_LOCATOR_NITEM(db,locatorType) <= 0)
-  {
-    messerr("%s : Attributes %d are mandatory",method.c_str(),locatorType);
-    return 1;
-  }
-  return 0;
+  // Evaluate the array of active sample ranks
+  _ranks = calculateSampleRanks();
 }
 
 /****************************************************************************/
@@ -140,49 +149,39 @@ int AGibbs::_checkMandatoryAttribute(const String& method,
 **
 ** \return Error return code
 **
-** \param[in]  db         Db structure
-** \param[in]  model      Model structure
+** \param[in]  y          Gaussian vector
 ** \param[in]  isimu      Rank of the simulation
 ** \param[in]  ipgs       Rank of the GS
-** \param[in]  igrf       Rank of the bounds (starting from 0)
-**
-** \remark Attributes LOC_GAUSFAC are mandatory
+** \param[in]  ivar       Rank of the bounds (starting from 0)
 **
 *****************************************************************************/
-int AGibbs::checkGibbs(Db *db, Model *model, int isimu, int ipgs, int igrf)
+int AGibbs::checkGibbs(const VectorVectorDouble& y,
+                       int isimu,
+                       int ipgs,
+                       int ivar)
 {
-  int nech,iech,number,icase,icase0;
-  double gaus,vmin,vmax;
-
-  /* Initializations */
-
-  _checkMandatoryAttribute("st_check_gibbs",db,LOC_GAUSFAC);
-  number = 0;
-  nech   = db->getSampleNumber();
-  icase  = getRank(ipgs,igrf);
-  icase0 = getRank(ipgs,0);
-  mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d GRF=%d Simu=%d)",
-           ipgs+1,igrf+1,isimu+1);
+  int nactive = _db->getActiveSampleNumber();
+  int icase   = getRank(ipgs,ivar);
+  int icase0  = getRank(ipgs,0);
+  mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d VAR=%d Simu=%d)",
+           ipgs+1,ivar+1,isimu+1);
 
   /* Loop on the data */
 
-  for (iech=0; iech<nech; iech++)
+  int nerror = 0;
+  for (int iact=0; iact<nactive; iact++)
   {
-    if (! db->isActive(iech)) continue;
-
-    /* Read the bounds */
-
-    vmin = db->getLowerBound(iech,icase);
-    vmax = db->getUpperBound(iech,icase);
+    int iech = getSampleRank(iact);
+    double vmin = _db->getLowerBound(iech,icase);
+    double vmax = _db->getUpperBound(iech,icase);
     if (FFFF(vmin)) vmin = -1.e30;
     if (FFFF(vmax)) vmax =  1.e30;
 
     /* Read the gaussian value */
 
-    gaus = db->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,_nbsimu,1);
-    if (igrf == 1)
-      gaus = _sqr * gaus + _rho *
-        db->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase0,_nbsimu,1);
+    double gaus = y[icase][iact];
+    if (ivar == 1)
+      gaus = _sqr * gaus + _rho * y[icase0][iact];
 
     /* Check inconsistency */
 
@@ -190,7 +189,7 @@ int AGibbs::checkGibbs(Db *db, Model *model, int isimu, int ipgs, int igrf)
         (! FFFF(vmax) && gaus > vmax))
     {
       message("- Sample (#%d):",iech+1);
-      message(" Simu#%d of Y%d=%lf",isimu+1,igrf+1,gaus);
+      message(" Simu#%d of Y%d=%lf",isimu+1,ivar+1,gaus);
       message(" does not lie within [");
       if (FFFF(vmin))
         message("NA,");
@@ -202,105 +201,13 @@ int AGibbs::checkGibbs(Db *db, Model *model, int isimu, int ipgs, int igrf)
       else
         message("%lf",vmax);
       message("]\n");
-
-      number++;
+      nerror++;
     }
   }
 
-  if (number <= 0) message("No problem found\n");
+  if (nerror <= 0) message("No problem found\n");
 
-  return number;
-}
-
-/****************************************************************************/
-/*!
-**  Check if bounds are corrects
-**
-** \return  Error code: 1 if bounds are incorrect
-**
-** \param[in]     db          Db structure
-** \param[in]     iech0       Rank of the sample
-** \param[in]     data        Data value (of TEST)
-** \param[in]     vmin        Minimum bound (or TEST)
-** \param[in]     vmax        Maximum bound (or TEST)
-** \param[in]     iech        Rank of the previous sample
-** \param[in]     value       Previous value (or TEST)
-** \param[in]     vemin       Minimum bound for previous sample (or TEST)
-** \param[in]     vemax       Maximum bound for previous sample (or TEST)
-**
-** \remarks If an error occurs, the error message is printed.
-** \remarks If the previous sample ('iech') is undefined, no comparison
-** \remarks is printed.
-** \remarks Bounds 'vmin' and 'vmax' are modified in presence of hard data
-**
-*****************************************************************************/
-int AGibbs::_boundsCheck(Db *db,
-                         int iech0,
-                         double data,
-                         double *vmin,
-                         double *vmax,
-                         int iech,
-                         double value,
-                         double vemin,
-                         double vemax)
-{
-  int flag_err_bnd,flag_err_min,flag_err_max;
-  double vlmin,vlmax;
-
-  /* Initializations */
-
-  flag_err_min = 0;
-  flag_err_max = 0;
-  flag_err_bnd = 0;
-
-  // Check the bound validity
-
-  flag_err_bnd = (! FFFF(*vmin) && ! FFFF(*vmax) && (*vmin) > (*vmax));
-
-  // Check against the data
-
-  vlmin = *vmin;
-  vlmax = *vmax;
-  if (! FFFF(data))
-  {
-
-    /* Case where the data value is defined */
-
-    flag_err_min = (! FFFF(*vmin) && data < (*vmin));
-    flag_err_max = (! FFFF(*vmax) && data > (*vmax));
-    db->setLowerBound(iech0,0,data);
-    db->setUpperBound(iech0,0,data);
-    *vmin = *vmax = data;
-  }
-
-  if (! (flag_err_min || flag_err_max || flag_err_bnd)) return(0);
-
-  // Print the error message
-
-  messerr("Sample %d",iech0+1);
-  if (flag_err_bnd)
-    messerr("Bounds are wrongly ordered: Vmin(%lf) > Vmax(%lf)",
-            vlmin,vlmax);
-  if (flag_err_min || flag_err_max)
-    messerr("Data (%lf) does not lie in [%lf ; %lf]",data,vlmin,vlmax);
-
-  if (! IFFFF(iech))
-  {
-    messerr("Compared to sample %d",iech+1);
-    if (!FFFF(value))
-      messerr("- Value = %lf",value);
-    if (!FFFF(vemin))
-      messerr("- Lower Bound = %lf",vemin);
-    if (!FFFF(vemax))
-      messerr("- Upper Bound = %lf",vemax);
-  }
-  if (! FFFF(data))
-  {
-    messerr("... Data information superseeds the bounds");
-    return(0);
-  }
-
-  return(1);
+  return nerror;
 }
 
 /****************************************************************************/
@@ -309,164 +216,75 @@ int AGibbs::_boundsCheck(Db *db,
 **
 ** \return  Error code: 1 if there is no solution; 0 otherwise
 **
-** \param[in]  flag_category 1 for categorical; 0 for continuous
-** \param[in]  flag_order    Order relationship
-** \li                        1 if the ascending order must be honored
-** \li                       -1 if the descending order must be honored
-** \li                        0 if no order relationship must be honored
-** \param[in]  db            Db structure
-** \param[in]  iech0         Rank of the sample
+** \param[in]  iech          Absolute rank of the sample
+** \param[in]  ipgs          Rank of the GS
 ** \param[in]  ivar          Rank of the variable
-** \param[in]  icase         Rank of the GRF / PGS
-** \param[in]  nvar          Number of variables
-** \param[in]  vlmin_arg     Input minimum bound
-** \param[in]  vlmax_arg     Input maximum bound
 **
-** \param[out]  vlmin_arg   Output minimum bound
-** \param[out]  vlmax_arg   Output maximum bound
+** \param[out]  vmin_arg   Output minimum bound
+** \param[out]  vmax_arg   Output maximum bound
 **
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-int AGibbs::_correctBoundsOrder(int flag_category,
-                                int flag_order,
-                                Db *db,
-                                int iech0,
-                                int ivar,
-                                int icase,
-                                int nvar,
-                                double *vlmin_arg,
-                                double *vlmax_arg)
+int AGibbs::_boundsCheck(int iech,
+                         int ipgs,
+                         int ivar,
+                         double *vmin_arg,
+                         double *vmax_arg)
 {
-  int    iech;
-  double vlmin,vlmax,vemin,vemax,vimin,vimax,value,data;
+  const Db* db = getDb();
+  int icase = getRank(ipgs, ivar);
+  double vmin = db->getLowerBound(iech,icase);
+  double vmax = db->getUpperBound(iech,icase);
 
-  /* Preliminary check */
-
-  check_mandatory_attribute("st_correct_bounds_order",db,LOC_GAUSFAC);
-  iech  = -1;
-  value = 0.;
-  data  = TEST;
-  if (! flag_category) data = db->getVariable(iech0,0);
-  vimin = db->getLowerBound(iech0,icase);
-  vimax = db->getUpperBound(iech0,icase);
-  if (_boundsCheck(db, iech0, data, &vimin, &vimax,
-                   ITEST, TEST, TEST, TEST)) return (1);
-  vlmin = vimin;
-  vlmax = vimax;
-
-  /* Dispatch */
-
-  switch(flag_order)
+  if (! FFFF(vmin) && ! FFFF(vmax) && (vmin) > (vmax))
   {
-    case -1:      /* Descending order */
-      for (iech=0; iech<iech0; iech++)
-      {
-        value = db->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-        if (!FFFF(value) && (FFFF(vlmax) || value < vlmax)) vlmax = value;
-
-        vemin = db->getLowerBound(iech,icase);
-        vemax = db->getUpperBound(iech,icase);
-        if (!FFFF(vemax) && (FFFF(vlmax) || vemax < vlmax)) vlmax = vemax;
-
-        if (_boundsCheck(db,iech0,data,&vlmin,&vlmax,
-                         iech,value,vemin,vemax)) return(1);
-      }
-      for (iech=iech0+1; iech<db->getSampleNumber(); iech++)
-      {
-        value = db->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-        if (!FFFF(value) && (FFFF(vlmin) || value > vlmin)) vlmin = value;
-
-        vemin = db->getLowerBound(iech,icase);
-        vemax = db->getUpperBound(iech,icase);
-        if (!FFFF(vemin) && (FFFF(vlmin) || vemin > vlmin)) vlmin = vemin;
-
-        if (_boundsCheck(db,iech0,data,&vlmin,&vlmax,
-                         iech,value,vemin,vemax)) return(1);
-      }
-      break;
-
-    case 1:     /* Ascending order */
-      for (iech=0; iech<iech0; iech++)
-      {
-        value = db->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-        if (!FFFF(value) && (FFFF(vlmin) || value > vlmin)) vlmin = value;
-
-        vemin = db->getLowerBound(iech,icase);
-        vemax = db->getUpperBound(iech,icase);
-        if (!FFFF(vemin) && (FFFF(vlmin) || vemin > vlmin)) vlmin = vemin;
-
-        if (_boundsCheck(db,iech0,data,&vlmin,&vlmax,
-                         iech,value,vemin,vemax)) return(1);
-      }
-      for (iech=iech0+1; iech<db->getSampleNumber(); iech++)
-      {
-        value = db->getSimvar(LOC_GAUSFAC,iech,0,ivar,icase,1,nvar);
-        if (!FFFF(value) && (FFFF(vlmax) || value < vlmax)) vlmax = value;
-
-        vemin = db->getLowerBound(iech,icase);
-        vemax = db->getUpperBound(iech,icase);
-        if (!FFFF(vemax) && (FFFF(vlmax) || vemax < vlmax)) vlmax = vemax;
-
-        if (_boundsCheck(db,iech0,data,&vlmin,&vlmax,
-                         iech,value,vemin,vemax)) return(1);
-      }
-      break;
-
-    default:      /* No order relationship */
-      break;
+    messerr("Sample %d: Bounds are wrongly ordered: Vmin(%lf) > Vmax(%lf)",
+            iech+1,vmin,vmax);
+    return 1;
   }
 
-  *vlmin_arg = vlmin;
-  *vlmax_arg = vlmax;
-  return(0);
+  *vmin_arg = vmin;
+  *vmax_arg = vmax;
+  return 0;
 }
 
 /****************************************************************************/
 /*!
 **  Print the inequality
 **
-** \param[in]  db        Db structure
-** \param[in]  ifirst    If 0, print the header
-** \param[in]  iech      Rank of the sample
+** \param[in]  iact      Relative rank of the sample
 ** \param[in]  ivar      Rank of the variable
 ** \param[in]  nfois     Rank of the iteration (<=0 for bootstrap)
 ** \param[in]  flag_cv   1 to print the convergence criterion
 ** \param[in]  simval    Simulated value
 ** \param[in]  vmin      Lower threshold
 ** \param[in]  vmax      Upper threshold
-** \param[in]  mean      Current mean value
-** \param[in]  delta     Convergence increment
 **
 *****************************************************************************/
-void AGibbs::_printInequalities(Db *db,
-                                int ifirst,
-                                int iech,
+void AGibbs::_printInequalities(int iact,
                                 int ivar,
                                 int nfois,
                                 int flag_cv,
                                 double simval,
                                 double vmin,
-                                double vmax,
-                                double mean,
-                                double delta)
+                                double vmax) const
 {
   int flag_min,flag_max,idim;
 
   /* Initializations */
 
+  int nech = _db->getSampleNumber();
+  int iech = getSampleRank(iact);
+  int nvar = getNvar();
   flag_min = flag_max = 1;
   if (FFFF(vmin)) flag_min = 0;
   if (FFFF(vmax)) flag_max = 0;
 
-  /* Print the title (first sample) */
-
-  if (ifirst == 0 && nfois >= 0)
-    message("Iteration = %d\n",nfois);
-
   /* Print the simulated value */
 
-  message("Sample (%3d) - Variable (%3d) = %8.4lf in ",iech+1,ivar+1,simval);
+  message("Sample (%3d/%3d) - Variable (%3d/%3d) = %8.4lf in ",
+          iech+1,nech,ivar+1,nvar,simval);
 
   /* Print the bounds */
 
@@ -482,17 +300,12 @@ void AGibbs::_printInequalities(Db *db,
   /* Print the coordinates */
 
   message(" at point (");
-  for (idim=0; idim<db->getNDim(); idim++)
+  for (idim=0; idim<_db->getNDim(); idim++)
   {
     if (idim != 0) message(",");
-    message("%8.4lf",db->getCoordinate(iech,idim));
+    message("%8.4lf",_db->getCoordinate(iech,idim));
   }
   message(")");
-
-  /* Print the mean and the evolution increment */
-
-  if (flag_cv)
-    message(" - Mean = %8.4lf (Delta = %5.2lf (percent))",mean,delta);
 
   message("\n");
 }
@@ -501,78 +314,211 @@ void AGibbs::_printInequalities(Db *db,
 /*!
  **  Print the initial status for Gibbs iterations
  **
- ** \param[in]  title       Title of the printout
- ** \param[in]  dbin        Db structure
- ** \param[in]  nvar        Number of variables
- ** \param[in]  nbsimu      Number of simulations
+ ** \param[in]  flag_init   TRUE for the Initial printout
+ ** \param[in]  y           Gaussian vector
  ** \param[in]  isimu       Rank of the simulation
- ** \param[in]  icase       Case for PGS or GRF
+ ** \param[in]  ipgs        Rank of the GS
+ ** \param[in]  ivar        Rank of the variable
  **
  *****************************************************************************/
-void AGibbs::_gibbsInitPrint(const char *title,
-                             Db *dbin,
-                             int nvar,
-                             int nbsimu,
-                             int isimu,
-                             int icase)
+void AGibbs::print(bool flag_init,
+                   const VectorVectorDouble& y,
+                   int isimu,
+                   int ipgs,
+                   int ivar) const
 {
-  int nech, iech, ivar;
-  double simval, vmin, vmax;
+  int nactive = _db->getActiveSampleNumber();
+  int icase = getRank(ipgs, ivar);
 
-  nech = dbin->getSampleNumber();
-  mestitle(1, "%s (Simu:%d)", title, isimu + 1);
-  for (ivar = 0; ivar < nvar; ivar++)
-    for (iech = 0; iech < nech; iech++)
-    {
-      if (!dbin->isActive(iech)) continue;
-      vmin = dbin->getLowerBound(iech, icase);
-      vmax = dbin->getUpperBound(iech, icase);
-      simval = dbin->getSimvar(LOC_GAUSFAC, iech, isimu, ivar, icase, nbsimu, nvar);
-      _printInequalities(dbin, 0, iech, ivar, -1, 0, simval, vmin, vmax, TEST, TEST);
-    }
+  if (flag_init)
+  {
+    mestitle(1, "Gibbs Initial Status (Simu:%d - GS=%d - Var=%d)", isimu + 1,
+             ipgs + 1, ivar + 1);
+  }
+  else
+  {
+    mestitle(1, "Gibbs Results (Simu:%d - GS=%d - Var=%d)", isimu + 1, ipgs + 1,
+             ivar + 1);
+    message("Number of bootstrap iterations = %d\n", _nburn);
+    message("Total number of iterations     = %d\n", _niter);
+  }
+
+  for (int iact = 0; iact < nactive; iact++)
+  {
+    int iech = getSampleRank(iact);
+    double vmin = _db->getLowerBound(iech, icase);
+    double vmax = _db->getUpperBound(iech, icase);
+    _printInequalities(iact,ivar,-1,0,y[icase][iact], vmin, vmax);
+  }
+}
+
+int AGibbs::getDimension() const
+{
+  int nsize = _npgs * _nvar;
+  return nsize;
+}
+
+int AGibbs::getRank(int ipgs, int ivar) const
+{
+  int rank = ivar + _nvar * (ipgs);
+  return rank;
+}
+
+VectorVectorDouble AGibbs::allocY() const
+{
+  VectorVectorDouble y;
+
+  int nsize = getDimension();
+  int nactive = _db->getActiveSampleNumber();
+  y.resize(nsize);
+  for (int i = 0; i < nsize; i++)
+    y[i].resize(nactive);
+  return y;
+}
+
+/**
+ * Store the Gaussian array in LOC_GAUS variable.
+ * This should be performed once for all GS and all variables
+ *
+ * @param y The Gaussian vector to be stored
+ * @param isimu Rank of the simulation
+ * @param ipgs  Rank of the GS
+ * @param ivar  Rank of the Variable
+ */
+void AGibbs::storeResult(const VectorVectorDouble& y,
+                         int isimu,
+                         int ipgs,
+                         int ivar)
+{
+  int nsize = getDimension();
+  int nactive = _db->getActiveSampleNumber();
+
+  int icase = getRank(ipgs, ivar);
+  int rank  = icase + nsize * isimu;
+
+  for (int iact = 0; iact < nactive; iact++)
+  {
+    int iech = getSampleRank(iact);
+    _db->setFromLocator(LOC_GAUSFAC, iech,  rank,  y[icase][iact]);
+  }
 }
 
 /****************************************************************************/
 /*!
-**  Print the final scores for Gibbs iterations
+**  Initializes the Gibbs sampler for a set of inequalities
 **
-** \param[in]  title       Title of the printout
-** \param[in]  dbin        Db structure
-** \param[in]  nvar        Number of variables
-** \param[in]  isimu       Rank of the simulation
-** \param[in]  niter       Total number of iterations
-** \param[in]  icase       Case for PGS or GRF
+** \return  Error return code
+**
+** \param[in]  y             Gaussian vector
+** \param[in]  isimu         Rank of the simulation
+** \param[in]  ipgs          Rank of the GS
+** \param[in]  ivar          Rank of the GRF
+** \param[in]  verbose       Verbose flag
 **
 *****************************************************************************/
-void AGibbs::_gibbsIterPrint(const char *title,
-                             Db *dbin,
-                             int nvar,
+int AGibbs::calculInitialize(VectorVectorDouble& y,
                              int isimu,
-                             int niter,
-                             int icase)
+                             int ipgs,
+                             int ivar,
+                             bool verbose)
 {
-  int    nech,iech,ivar,iecr;
-  double simval,vmin,vmax;
+  Db* db = getDb();
+  Model* model = getModel();
+  int nactive = db->getActiveSampleNumber();
+  int icase   = getRank(ipgs,ivar);
 
-  nech = dbin->getSampleNumber();
-  mestitle(1,"%s (Simu:%d)",title,isimu+1);
-  message("Number of samples              = %d\n",nech);
-  message("Number of bootstrap iterations = %d\n",_nburn);
-  message("Maximum number of iterations   = %d\n",_niter);
-  message("Total number of iterations     = %d\n",niter);
-  message("Relative stability criterion   = %5.2lf per cent\n",_eps);
+  /* Print the title */
 
-  mestitle(1,"Assignment of Values at data points ");
-  iecr = 0;
-  for (ivar=0; ivar<nvar; ivar++)
-    for (iech=0; iech<nech; iech++)
-    {
-      if (! dbin->isActive(iech)) continue;
-      vmin = dbin->getLowerBound(iech,icase);
-      vmax = dbin->getUpperBound(iech,icase);
-      simval = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,ivar,icase,
-                               getNbsimu(),nvar);
-      _printInequalities(dbin,iecr,iech,ivar,-1,0,simval,vmin,vmax,TEST,TEST);
-      iecr++;
-    }
+  if (debug_query("converge"))
+    mestitle(1,"Initial Values for Gibbs Sampler (Simu:%d - GS:%d - Var:%d)",
+             isimu+1,ipgs+1,ivar+1);
+
+  /* Loop on the samples */
+
+  double sk = sqrt(model->getTotalSill(ivar,ivar));
+  for (int iact = 0; iact < nactive; iact++)
+  {
+    int iech = getSampleRank(iact);
+    double vmin, vmax;
+    if (_boundsCheck(iech, ipgs, ivar, &vmin, &vmax)) return 1;
+
+    /* Compute the median value of the interval */
+
+    double pmin = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
+    double pmax = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
+    y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
+  }
+
+  return(0);
+}
+
+/**
+ * Generate a simulated value
+ * @param y     : Gaussian vector
+ * @param yk    : Kriged value
+ * @param sk    : Standard deviation
+ * @param iact  : Rank of the target sample (relative)
+ * @param ipgs  : Rank of the current GS
+ * @param ivar  : Rank of the current Variable
+ * @param iter  : Rank of the iteration
+ * @return Simulated value
+ */
+double AGibbs::getSimulate(VectorVectorDouble& y,
+                           double yk,
+                           double sk,
+                           int iact,
+                           int ipgs,
+                           int ivar,
+                           int iter)
+{
+   double yval = yk;
+   double ratio = 1.;
+   if (_flagMultiMono && ivar > 0)
+   {
+     int icase0 = getRank(ipgs,0);
+     double sqr = getSqr();
+     yval = yk * sqr + getRho() * y[icase0][iact];
+     ratio = sqr;
+   }
+
+   int icase = getRank(ipgs,ivar);
+   int iech  = getSampleRank(iact);
+   double vmin = _db->getLowerBound(iech,icase);
+   double vmax = _db->getUpperBound(iech,icase);
+
+   /* Update the definition interval */
+
+   if (! FFFF(vmin)) vmin  = (vmin - yval) / (sk * ratio);
+   if (! FFFF(vmax)) vmax  = (vmax - yval) / (sk * ratio);
+
+   /* Draw an authorized normal value */
+
+   return (yk + sk * law_gaussian_between_bounds(vmin,vmax));
+}
+
+VectorInt AGibbs::calculateSampleRanks() const
+{
+  VectorInt ranks;
+  if (! _db->hasSelection()) return ranks;
+  for (int iech = 0; iech < _db->getSampleNumber(); iech++)
+  {
+    if (_db->isActive(iech)) ranks.push_back(iech);
+  }
+  return ranks;
+}
+
+int AGibbs::getSampleRankNumber() const
+{
+  if (_ranks.empty())
+    return _db->getSampleNumber();
+  else
+    return _ranks.size();
+}
+
+int AGibbs::getSampleRank(int i) const
+{
+  if (_ranks.empty())
+    return i;
+  else
+    return _ranks[i];
 }

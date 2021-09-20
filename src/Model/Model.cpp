@@ -638,3 +638,11 @@ void Model::_destroy()
   delete _covaList;
   delete _driftList;
 }
+
+double Model::getTotalSill(int ivar, int jvar) const
+{
+  double var = 0.;
+  for (int icov=0; icov<getCovaNumber(); icov++)
+    var += getSill(icov,ivar,ivar);
+  return var;
+}

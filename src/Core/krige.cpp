@@ -85,7 +85,7 @@ static int      MODEL_INIT =  0;
 static int      IECH_OUT   = -1;
 static int      RAND_INDEX = -1;
 static int      FLAG_EST,FLAG_STD,FLAG_WGT,FLAG_COLK,FLAG_SIMU,FLAG_LTERM;
-static int      FLAG_BAYES,FLAG_PROF,FLAG_VARZ,FLAG_DGM;
+static int      FLAG_BAYES,FLAG_PROF,FLAG_VARZ,FLAG_DGM,FLAG_NO_VAR_CHECK;
 static int      IPTR_EST,IPTR_STD,IPTR_VARZ,IPTR_NBGH;
 static int     *RANK_COLCOK;
 static Db      *DBIN,*DBOUT;
@@ -249,6 +249,7 @@ static void st_global_init(Db *dbin,
 {
   FLAG_STD  = FLAG_EST   = FLAG_WGT   = FLAG_LTERM = FLAG_VARZ = 0;
   FLAG_COLK = FLAG_BAYES = FLAG_PROF  = FLAG_SIMU  = FLAG_DGM = 0;
+  FLAG_NO_VAR_CHECK = 0;
   IPTR_EST  = IPTR_STD   = IPTR_VARZ  = IPTR_NBGH  = 0;
   IECH_OUT  = 0;
   IECH_NBGH = -1;
@@ -2016,7 +2017,8 @@ static int st_neigh(Neigh   *neigh,
   /* Perform the neighborhood search */
 
   IECH_NBGH = IECH_OUT;
-  *status   = neigh_select(DBIN,DBOUT,IECH_OUT,neigh,FLAG_SIMU,&nech_mem,rank);
+  *status   = neigh_select(DBIN,DBOUT,IECH_OUT,neigh,FLAG_SIMU,
+                           FLAG_NO_VAR_CHECK,&nech_mem,rank);
   *nech     = nech_mem;
   flag_new  = 1;
 
@@ -11020,46 +11022,68 @@ label_end:
 
 /****************************************************************************/
 /*!
-**  Inhomogeneous Kriging with Sources
+**  Define neighborhood for external application
 **
 ** \return  Error return code
+**
+** \param[in]  mode        1 for opening; -1 for closing
+** \param[in]  db          Db structure containing Data
+** \param[in]  model       Model structure
+** \param[in]  neigh       Neigh structure
+**
+*****************************************************************************/
+GEOSLIB_API int defineGeneralNeigh(int mode,
+                                   Db* db,
+                                   Model* model,
+                                   Neigh* neigh)
+{
+  int nvar = model->getVariableNumber();
+  DBIN = db;
+  DBOUT = db;
+
+  if (mode > 0)
+  {
+    if (st_krige_manage(1, nvar, model, neigh)) return 1;
+    if (neigh_start(db, neigh)) return 1;
+  }
+  else
+  {
+    (void) st_krige_manage(-1, nvar, model, neigh);
+    neigh_stop();
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+**  Get neighborhood for external application
+**
+** \return  Vector of vectors of sample indices
 **
 ** \param[in]  db          Db structure containing Data
 ** \param[in]  neigh       Neigh structure
 ** \param[in]  iech        Rank of the Data sample
 **
-** \param[out] ivars       Vector of variable indices
-** \param[out] iechs       Vector of sample indices
+** \remarks The argument iechs contains as many vectors as variables
+** \remarks Each internal vector is dimensioned to the number of active
+** \remarks samples
 **
 *****************************************************************************/
-GEOSLIB_API int getGeneralNeigh(Db* db,
-                                Neigh* neigh,
-                                int iech,
-                                VectorInt& ivars,
-                                VectorInt& iechs)
+GEOSLIB_API VectorInt getGeneralNeigh(Db* db, Neigh* neigh, int iech)
 {
   int status, nech;
 
   DBIN = db;
   DBOUT = db;
   IECH_OUT = iech;
-
-  int nvar = db->getVariableNumber();
+  FLAG_NO_VAR_CHECK = 1;
 
   (void) st_neigh(neigh,&status,&nech);
-  if (status) return 1;
 
-  ivars.clear();
-  iechs.clear();
+  // Loop on the variables
 
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int iech = 0; iech < nech; iech++)
-    {
-      double value = db->getArray(iech,ivar);
-      if (! FFFF(value)) continue;
-
-      ivars.push_back(ivar);
-      iechs.push_back(rank[iech]);
-    }
-  return 0;
+  VectorInt retechs(nech);
+  for (int iech = 0; iech < nech; iech++)
+    retechs[iech] = rank[iech];
+  return retechs;
 }

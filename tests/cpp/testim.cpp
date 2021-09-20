@@ -157,7 +157,9 @@ int main(int argc, char *argv[])
   if (dbin->getIntervalNumber() > 0)
   {
     dbin->clearLocators(LOC_Z);
-    if (gibbs_sampler(dbin,new_model,1,seed,nboot,niter,0,0,5.,toleps,1,1,1))
+    if (gibbs_sampler(dbin,new_model,(Neigh *) NULL,
+                      1,seed,nboot,niter,false,true,false,
+                      5.,toleps,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
     dbin->setLocatorByAttribute(dbin->getFieldNumber()-1,LOC_Z);
