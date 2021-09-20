@@ -25,6 +25,7 @@ AGibbs::AGibbs()
       _niter(1),
       _flagOrder(true),
       _flagMultiMono(true),
+      _flagDecay(true),
       _rho(1.),
       _sqr(0.),
       _eps(EPSILON3),
@@ -42,6 +43,7 @@ AGibbs::AGibbs(Db* db, Model* model)
       _niter(1),
       _flagOrder(true),
       _flagMultiMono(true),
+      _flagDecay(true),
       _rho(1.),
       _sqr(0.),
       _eps(EPSILON3),
@@ -53,7 +55,7 @@ AGibbs::AGibbs(Db* db, Model* model)
 
 AGibbs::AGibbs(Db* db, Model* model,
                int npgs, int nvar, int nbsimu, int nburn, int niter,
-               int flag_order, bool flag_multi_mono,
+               int flag_order, bool flag_multi_mono, bool flag_decay,
                double rho, double eps)
     : _npgs(1),
       _nvar(1),
@@ -62,6 +64,7 @@ AGibbs::AGibbs(Db* db, Model* model,
       _niter(1),
       _flagOrder(false),
       _flagMultiMono(true),
+      _flagDecay(true),
       _rho(1.),
       _sqr(0.),
       _eps(eps),
@@ -70,7 +73,7 @@ AGibbs::AGibbs(Db* db, Model* model,
       _model(model)
 {
   init(npgs, nvar, nbsimu, nburn, niter,
-       flag_order, flag_multi_mono, rho, eps);
+       flag_order, flag_multi_mono, flag_decay, rho, eps);
 }
 
 AGibbs::AGibbs(const AGibbs &r)
@@ -81,6 +84,7 @@ AGibbs::AGibbs(const AGibbs &r)
       _niter(r._niter),
       _flagOrder(r._flagOrder),
       _flagMultiMono(r._flagMultiMono),
+      _flagDecay(r._flagDecay),
       _rho(r._rho),
       _sqr(r._sqr),
       _eps(r._eps),
@@ -101,6 +105,7 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
     _niter = r._niter;
     _flagOrder = r._flagOrder;
     _flagMultiMono = r._flagMultiMono;
+    _flagDecay = r._flagDecay;
     _rho = r._rho;
     _sqr = r._sqr;
     _eps = r._eps;
@@ -122,6 +127,7 @@ void AGibbs::init(int npgs,
                   int niter,
                   int flag_order,
                   bool flag_multi_mono,
+                  bool flag_decay,
                   double rho,
                   double eps)
 {
@@ -132,6 +138,7 @@ void AGibbs::init(int npgs,
   _niter = niter;
   _flagOrder = flag_order;
   _flagMultiMono = flag_multi_mono;
+  _flagDecay = flag_decay;
   _rho = rho;
   _eps = eps;
 
@@ -471,29 +478,52 @@ double AGibbs::getSimulate(VectorVectorDouble& y,
                            int ivar,
                            int iter)
 {
-   double yval = yk;
-   double ratio = 1.;
-   if (_flagMultiMono && ivar > 0)
-   {
-     int icase0 = getRank(ipgs,0);
-     double sqr = getSqr();
-     yval = yk * sqr + getRho() * y[icase0][iact];
-     ratio = sqr;
-   }
+  // Define the environment
 
-   int icase = getRank(ipgs,ivar);
-   int iech  = getSampleRank(iact);
-   double vmin = _db->getLowerBound(iech,icase);
-   double vmax = _db->getUpperBound(iech,icase);
+  int icase = getRank(ipgs, ivar);
+  int iech = getSampleRank(iact);
 
-   /* Update the definition interval */
+  // Read the Bounds
 
-   if (! FFFF(vmin)) vmin  = (vmin - yval) / (sk * ratio);
-   if (! FFFF(vmax)) vmax  = (vmax - yval) / (sk * ratio);
+  double vmin = _db->getLowerBound(iech, icase);
+  double vmax = _db->getUpperBound(iech, icase);
 
-   /* Draw an authorized normal value */
+  // Apply decay
 
-   return (yk + sk * law_gaussian_between_bounds(vmin,vmax));
+  if (_nburn > 0 && _flagDecay && iter <= _nburn)
+  {
+    double ratio = (double) iter / (double) _nburn;
+    if (!FFFF(vmin))
+      vmin = THRESH_INF + (vmin - THRESH_INF) * ratio;
+    if (!FFFF(vmax))
+      vmax = THRESH_SUP + (vmax - THRESH_SUP) * ratio;
+  }
+
+  // In multi-mono case, correct from the previously (linked) variable
+
+  double yval;
+  double sval;
+  if (_flagMultiMono && ivar > 0)
+  {
+    int icase0 = getRank(ipgs, 0);
+    double sqr = getSqr();
+    yval = yk * sqr + getRho() * y[icase0][iact];
+    sval = sk * sqr;
+  }
+  else
+  {
+    yval = yk;
+    sval = sk;
+  }
+
+  /* Update the definition interval */
+
+  if (!FFFF(vmin)) vmin = (vmin - yval) / sval;
+  if (!FFFF(vmax)) vmax = (vmax - yval) / sval;
+
+  /* Draw an authorized normal value */
+
+  return (yk + sk * law_gaussian_between_bounds(vmin, vmax));
 }
 
 VectorInt AGibbs::calculateSampleRanks() const

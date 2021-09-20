@@ -30,6 +30,7 @@ public:
          int niter,
          int flag_order,
          bool flag_multi_mono,
+         bool flag_decay,
          double rho,
          double eps = EPSILON3);
   AGibbs(const AGibbs &r);
@@ -49,7 +50,7 @@ public:
   virtual int covmatAlloc(bool verbose) = 0;
 
   void init(int npgs, int nvar, int nbsimu, int nburn, int niter,
-            int flag_order, bool flag_multi_mono,
+            int flag_order, bool flag_multi_mono, bool flag_decay,
             double rho, double eps);
 
   void print(bool flag_init,
@@ -121,6 +122,7 @@ private:
   //   0 if no order relationship must be honored
   bool _flagCategory; // true for categorical; false for continuous
   bool _flagMultiMono;
+  bool _flagDecay;
   double _rho;
   double _sqr;
   double _eps;
