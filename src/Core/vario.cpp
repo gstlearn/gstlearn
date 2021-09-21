@@ -4284,7 +4284,7 @@ GEOSLIB_API int regression_f(Db *db1,
   int     nfex,nech,size,siztri,iech,i,j,error,iptr,ecr,pivot,number,nvar;
   int     flag_test;
   double *a,*b,*x,value,prod,num,mean,drift,nb,m1,m2,v1,v2,v12,rho;
-  char    string[10];
+  char    string[100];
 
   /* Initializations */
 

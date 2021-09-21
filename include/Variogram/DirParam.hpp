@@ -16,7 +16,7 @@
 
 class Db;
 
-class DirParam : public AStringable
+class DirParam : public AStringable // TODO : Should inherit from ASpaceObject
 {
 public:
   DirParam(int ndim = 2,
@@ -96,13 +96,11 @@ public:
   bool isLagValid(int ilag) const;
   bool isDimensionValid(int idim) const;
 
-  void setDimensionNumber(int ndim) { _ndim = ndim; }
-
 private:
   void _completeDefinition();
 
 private:
-  int _ndim;
+  int _ndim;  // TODO : Should be stored by ASpaceObject upper class
   int _nPas;
   int _optionCode;
   int _idate;

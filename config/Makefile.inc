@@ -4,7 +4,7 @@
 
 AR       = ar r
 CXX      = g++
-CXXFLAGS = -Wall -std=c++11
+CXXFLAGS = -Wall -std=c++11 -Wno-array-bounds
 LDFLAGS  =
 INCLUDE  = -I$(TOP)/include -I.
 LIBDIR   = $(TOP)/lib/$(ARCH)$(WIN_TYPE)

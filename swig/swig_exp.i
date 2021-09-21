@@ -55,6 +55,7 @@ namespace std {
 %include Basic/CSVformat.hpp
 %include Basic/AFunctional.hpp
 %include Basic/FunctionalSpirale.hpp
+%include Basic/ForeachMacro.hpp
 %include Space/Space.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp
@@ -77,6 +78,8 @@ namespace std {
 %include Mesh/MeshFactory.hpp
 %include Mesh/MeshEStandard.hpp
 %include Mesh/MeshETurbo.hpp
+%include Enum/AEnum.hpp
+%include Enum/ENeigh.hpp
 %include Polynomials/Hermite.hpp
 %include Polynomials/MonteCarlo.hpp
 %include LinearOp/ALinearOp.hpp
@@ -103,7 +106,6 @@ namespace std {
 %include Model/Cova.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
-//%include Model/ConsItem.hpp
 %include Model/Constraints.hpp
 %include Model/ConsItem.hpp
 %include Covariances/ACov.hpp
