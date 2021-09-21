@@ -12,9 +12,9 @@
 
 #include "AEnum.hpp"
 
-ENUM_DEFINE(ENeigh, UNIQUE,
-            UNIQUE, 0, "Unique Neighborhood",
-            BENCH,  1, "Bench Neighborhood",
-            MOVING, 2, "Moving Neighborhood",
-            IMAGE,  3, "Image Neighborhood")
+ENUM_DECLARE(ENeigh, UNIQUE,
+             UNIQUE, 0, "Unique Neighborhood",
+             BENCH,  1, "Bench Neighborhood",
+             MOVING, 2, "Moving Neighborhood",
+             IMAGE,  3, "Image Neighborhood")
 

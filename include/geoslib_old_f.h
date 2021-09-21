@@ -17,6 +17,7 @@
 #include "csparse_d.h"
 #include "csparse_f.h"
 #include "Mesh/tetgen.h"
+#include "Enum/ENeigh.hpp"
 #include "segy.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
@@ -1301,7 +1302,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                       int skip,
                                       const VectorInt& nbgh_image = VectorInt());
   GEOSLIB_API Neigh *neigh_init(int ndim,
-                                int type,
+                                ENeigh type,
                                 int flag_xvalid,
                                 int flag_sector,
                                 int flag_aniso,

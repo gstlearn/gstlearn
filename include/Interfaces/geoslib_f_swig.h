@@ -16,7 +16,7 @@ void migrate_grid_to_grid2(const Database& db_grid_in, Database& db_grid_out, co
 Neigh* neigh_unique(int ndim);
 Neigh* neigh_moving(int ndim, int flag_sector, int flag_rotation, int nmini, int nmaxi, int nsect, int nsmax, int radius, VectorDouble Rotation);
 
-Neigh* my_neigh_init(int ndim, int type, int flag_xvalid, int flag_sector,
+Neigh* my_neigh_init(int ndim, ENeigh type, int flag_xvalid, int flag_sector,
                     int flag_aniso, int flag_rotation, int flag_continuous,
                     int nmini, int nmaxi, int nsect, int nsmax, int skip,
                     double width, double radius, double dist_count,

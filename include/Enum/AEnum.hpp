@@ -71,8 +71,7 @@ private:
 #define ENUM_IMPL(NAME, X,Y,Z) const NAME NAME::X = NAME(#X, Y, Z);
 #define ENUM_IMPLS(NAME, ...) EXPAND(REPEAT3(ENUM_IMPL, NAME, __VA_ARGS__))
 
-
-#define ENUM_DEFINE(NAME, DEFAULT, ...)\
+#define ENUM_DECLARE(NAME, DEFAULT, ...)\
 class NAME ## Iterator;\
 class NAME;\
 \
@@ -137,6 +136,8 @@ private:\
   NAME ## Map&          _refmap;\
 };\
 \
+
+#define ENUM_DEFINE(NAME, DEFAULT, ...)\
 NAME ## Map NAME::_map = NAME ## Map();\
 NAME ## Iterator NAME::_iterator = NAME ## Iterator(NAME::_map);\
 \

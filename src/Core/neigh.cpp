@@ -689,7 +689,7 @@ GEOSLIB_API Neigh *neigh_init_bench(int    ndim,
 {
   Neigh *neigh;
 
-  neigh = neigh_init(ndim,NEIGH_BENCH,flag_xvalid,0,0,0,0,0,0,0,0,0,
+  neigh = neigh_init(ndim,ENeigh::BENCH,flag_xvalid,0,0,0,0,0,0,0,0,0,
                      width,0.,0.,VectorDouble(),VectorDouble(),VectorInt());
 
   return(neigh);
@@ -714,7 +714,7 @@ GEOSLIB_API Neigh *neigh_init_image(int     ndim,
 {
   Neigh *neigh;
 
-  neigh = neigh_init(ndim,NEIGH_IMAGE,flag_xvalid,0,0,0,0,0,0,0,0,skip,
+  neigh = neigh_init(ndim,ENeigh::IMAGE,flag_xvalid,0,0,0,0,0,0,0,0,skip,
                      0.,0.,0.,VectorDouble(),VectorDouble(),nbgh_image);
 
   return(neigh);
@@ -737,7 +737,7 @@ GEOSLIB_API Neigh *neigh_init_unique(int ndim)
 {
   Neigh *neigh;
 
-  neigh = neigh_init(ndim,NEIGH_UNIQUE,0,0,0,0,0,0,0,0,0,0,
+  neigh = neigh_init(ndim,ENeigh::UNIQUE,0,0,0,0,0,0,0,0,0,0,
                      0.,0.,0.,VectorDouble(),VectorDouble(),VectorInt());
 
   return(neigh);
@@ -811,7 +811,7 @@ static void st_get_neigh_anisotropy(Neigh *neigh,
 ** \return  Pointer on the Neigh structure allocated
 **
 ** \param[in]  ndim        Space dimension
-** \param[in]  type        Neighborhood type (::ENUM_NEIGHS)
+** \param[in]  type        Neighborhood type (\sa ENeigh)
 ** \param[in]  flag_xvalid Option
 ** \li                     0 no option
 ** \li                     >0 discard the target from the neighborhood
@@ -846,7 +846,7 @@ static void st_get_neigh_anisotropy(Neigh *neigh,
 **
 *****************************************************************************/
 GEOSLIB_API Neigh *neigh_init(int ndim,
-                              int type,
+                              ENeigh type,
                               int flag_xvalid,
                               int flag_sector,
                               int flag_aniso,
@@ -905,7 +905,7 @@ GEOSLIB_API Neigh *neigh_init(int ndim,
   }
   if (neigh->getFlagRotation() && ! nbgh_rotmat.empty())
     neigh->setAnisoRotMat(nbgh_rotmat);
-  if (type == NEIGH_IMAGE && ! nbgh_image.empty())
+  if (type == ENeigh::IMAGE && ! nbgh_image.empty())
     neigh->setImageRadius(nbgh_image);
 
   return(neigh);
