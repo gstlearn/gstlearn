@@ -192,7 +192,7 @@ typedef enum
   MODEL_PROPERTY_TAPE = 3,      //!< Tapering mode
   MODEL_PROPERTY_GRAD = 4,      //!< Gradient mode
 } ENUM_MODEL_PROPERTIES;
-
+/*
 typedef enum
 {
   NEIGH_UNIQUE = 0,        //!< Unique Neighborhood
@@ -200,7 +200,7 @@ typedef enum
   NEIGH_MOVING = 2,        //!< Moving Neighborhood
   NEIGH_IMAGE = 3,         //!< Image Neighborhood
 } ENUM_NEIGHS;
-
+*/
 typedef enum
 {
   CALCUL_UNDEFINED = -1,    //!< Undefined

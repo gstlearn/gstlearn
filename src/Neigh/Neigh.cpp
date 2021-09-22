@@ -26,7 +26,7 @@ Neigh::Neigh()
     : AStringable(),
       ASerializable(),
       _nDim(0),
-      _type(0),
+      _type(),
       _flagXvalid(0),
       _flagSector(0),
       _flagAniso(0),
@@ -53,13 +53,13 @@ Neigh::Neigh(int ndim)
     : AStringable(),
       ASerializable(),
       _nDim(ndim),
-      _type(NEIGH_UNIQUE),
+      _type(ENeigh::UNIQUE),
       _flagXvalid(0),
       _flagSector(0),
       _flagAniso(0),
       _flagRotation(0),
       _flagContinuous(0),
-      _nMini(0),
+      _nMini(1), // Put 1 for consistency with default construtor
       _nMaxi(0),
       _nSect(1),
       _nSMax(0),
@@ -79,7 +79,7 @@ Neigh::Neigh(int ndim, int nmaxi, double radius, int nmini, int nsect,
     : AStringable(),
       ASerializable(),
       _nDim(ndim),
-      _type(NEIGH_MOVING),
+      _type(ENeigh::MOVING),
       _flagXvalid(0),
       _flagSector(0),
       _flagAniso(0),
@@ -120,7 +120,7 @@ Neigh::Neigh(int ndim, int skip, const VectorInt& image)
     : AStringable(),
       ASerializable(),
       _nDim(ndim),
-      _type(NEIGH_IMAGE),
+      _type(ENeigh::IMAGE),
       _flagXvalid(0),
       _flagSector(0),
       _flagAniso(0),
@@ -145,7 +145,7 @@ Neigh::Neigh(const String& neutralFileName, bool verbose)
     : AStringable(),
       ASerializable(),
       _nDim(0),
-      _type(NEIGH_MOVING),
+      _type(ENeigh::MOVING),
       _flagXvalid(0),
       _flagSector(0),
       _flagAniso(0),
@@ -229,20 +229,20 @@ std::string Neigh::toString(int level) const
 
   sstr << toTitle(0,"Neighborhood characteristics");
 
-  switch (_type)
+  switch (_type.toEnum())
   {
-    case NEIGH_UNIQUE:
+    case ENeigh::E_UNIQUE:
       sstr << "Unique neighborhood option" << std::endl;
       sstr << "Space dimension = " << _nDim << std::endl;
       break;
 
-    case NEIGH_BENCH:
+    case ENeigh::E_BENCH:
       sstr << "Bench neighborhood option" << std::endl;
       sstr << "Space dimension = " << _nDim << std::endl;
       sstr << "Bench width     = " << _width << std::endl;
       break;
 
-    case NEIGH_MOVING:
+    case ENeigh::E_MOVING:
       sstr << "Moving neighborhood option" << std::endl;
       sstr << "Space dimension                     = " << _nDim << std::endl;
       if (_nMini > 0)
@@ -281,7 +281,7 @@ std::string Neigh::toString(int level) const
       }
       break;
 
-    case NEIGH_IMAGE:
+    case ENeigh::E_IMAGE:
       sstr << "Image neighborhood option" << std::endl;
       sstr << "Skipping factor = " << _skip << std::endl;
       sstr << toMatrix("Image radius :",VectorString(),VectorString(),
@@ -331,21 +331,21 @@ int Neigh::deSerialize(const String& filename, bool verbose)
   nbgh_coeffs.resize(ndim);
   nbgh_rotmat.resize(ndim * ndim);
 
-  switch (type)
+  switch (type) // Real integer read from the file
   {
-    case NEIGH_UNIQUE:
-      _init(ndim, NEIGH_UNIQUE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0., 0., 0.,
+    case ENeigh::E_UNIQUE:
+      _init(ndim, ENeigh::UNIQUE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0., 0., 0.,
             VectorDouble(), VectorDouble(), VectorInt());
       break;
 
-    case NEIGH_BENCH:
+    case ENeigh::E_BENCH:
       if (_recordRead("Flag for Cross-validation", "%d", &flag_xvalid)) return 1;
       if (_recordRead("Bench Width", "%lf", &width)) return 1;
-      _init(ndim, NEIGH_BENCH, flag_xvalid, 0, 0, 0, 0, 0, 0, 0, 0, 0, width,
+      _init(ndim, ENeigh::BENCH, flag_xvalid, 0, 0, 0, 0, 0, 0, 0, 0, 0, width,
             0., 0., VectorDouble(), VectorDouble(), VectorInt());
       break;
 
-    case NEIGH_MOVING:
+    case ENeigh::E_MOVING:
       flag_aniso = flag_rotation = 0;
       if (_recordRead("Flag for Cross-validaiton", "%d", &flag_xvalid)) return 1;
       if (_recordRead("Neighborhood sector search", "%d", &flag_sector)) return 1;
@@ -370,12 +370,12 @@ int Neigh::deSerialize(const String& filename, bool verbose)
       }
       if (!nbgh_coeffs.empty()) for (idim = 0; idim < ndim; idim++) nbgh_coeffs[idim] *= dmax;
 
-      _init(ndim, NEIGH_MOVING, flag_xvalid, flag_sector, flag_aniso,
+      _init(ndim, ENeigh::MOVING, flag_xvalid, flag_sector, flag_aniso,
             flag_rotation, 0, nmini, nmaxi, nsect, nsmax, 0, 0., dmax, 0.,
             nbgh_coeffs, nbgh_rotmat, VectorInt());
       break;
 
-    case NEIGH_IMAGE:
+    case ENeigh::E_IMAGE:
       if (_recordRead("Flag for Cross-Validation", "%d", &flag_xvalid)) return 1;
       if (_recordRead("Skipping factor", "%d", &skip)) return 1;
       for (idim = 0; idim < ndim; idim++)
@@ -384,7 +384,7 @@ int Neigh::deSerialize(const String& filename, bool verbose)
         if (_recordRead("Image Neighborhood Radius", "%lf", &loc_radius)) return 1;
         radius[idim] = static_cast<int> (loc_radius);
       }
-      _init(ndim, NEIGH_IMAGE, flag_xvalid, 0, 0, 0, 0, 0, 0, 0, 0, skip, 0.,
+      _init(ndim, ENeigh::IMAGE, flag_xvalid, 0, 0, 0, 0, 0, 0, 0, 0, skip, 0.,
             0., 0., VectorDouble(), VectorDouble(), radius);
   }
 
@@ -394,7 +394,7 @@ int Neigh::deSerialize(const String& filename, bool verbose)
 }
 
 void Neigh::_init(int ndim,
-                  int type,
+                  ENeigh type,
                   int flag_xvalid,
                   int flag_sector,
                   int flag_aniso,
@@ -444,7 +444,7 @@ void Neigh::_init(int ndim,
   {
     setAnisoRotMat(nbgh_rotmat);
   }
-  if (type == NEIGH_IMAGE && !nbgh_image.empty())
+  if (type == ENeigh::IMAGE && !nbgh_image.empty())
   {
     setImageRadius(nbgh_image);
   }
@@ -462,19 +462,19 @@ int Neigh::serialize(const String& filename, bool verbose) const
   _recordWrite("%d", getType());
   _recordWrite("#", "Neighborhood type");
 
-  switch (getType())
+  switch (getType().toEnum())
   {
-    case NEIGH_UNIQUE:
+    case ENeigh::E_UNIQUE:
       break;
 
-    case NEIGH_BENCH:
+    case ENeigh::E_BENCH:
       _recordWrite("%d", getFlagXvalid());
       _recordWrite("#", "Cross-Validation flag");
       _recordWrite("%lf", getWidth());
       _recordWrite("#", "Bench Width");
       break;
 
-    case NEIGH_MOVING:
+    case ENeigh::E_MOVING:
       _recordWrite("%d", getFlagXvalid());
       _recordWrite("#", "Cross-Validation flag");
       _recordWrite("%d", getFlagSector());
@@ -506,7 +506,7 @@ int Neigh::serialize(const String& filename, bool verbose) const
       _recordWrite("#", "Anisotropy Rotation Matrix");
       break;
 
-    case NEIGH_IMAGE:
+    case ENeigh::E_IMAGE:
       _recordWrite("%d", getFlagXvalid());
       _recordWrite("#", "Cross-Validation flag");
       _recordWrite("%d", getSkip());

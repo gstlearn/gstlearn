@@ -1326,7 +1326,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                               int nsel,
                               double *tab);
   GEOSLIB_API int neigh_extract(Neigh *neigh,
-                                int *type,
+                                ENeigh *type,
                                 int *nmini,
                                 int *nmaxi,
                                 int *nsect,

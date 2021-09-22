@@ -960,7 +960,7 @@ static int st_check_environment(int    flag_in,
               ndim);
       goto label_end;
     }
-    if (neigh->getType() == NEIGH_IMAGE && (! flag_out || ! is_grid(DBOUT)))
+    if (neigh->getType() == ENeigh::IMAGE && (! flag_out || ! is_grid(DBOUT)))
     {
       messerr("The Image neighborhood can only be used when the output Db is a grid");
       goto label_end;
@@ -1213,14 +1213,14 @@ static int st_get_nmax(Neigh *neigh)
   int nmax; 
 
   nmax    = DBIN->getSampleNumber();
-  if (neigh->getType() == NEIGH_MOVING)
+  if (neigh->getType() == ENeigh::MOVING)
     nmax = (neigh->getFlagSector()) ?
         neigh->getNSect() * neigh->getNSMax() : neigh->getNMaxi();
-  else if (neigh->getType() == NEIGH_BENCH)
+  else if (neigh->getType() == ENeigh::BENCH)
     nmax = st_bench_nmax(neigh);
-  else if (neigh->getType() == NEIGH_UNIQUE)
+  else if (neigh->getType() == ENeigh::UNIQUE)
     nmax = DBIN->getActiveSampleNumber();
-  else if (neigh->getType() == NEIGH_IMAGE)
+  else if (neigh->getType() == ENeigh::IMAGE)
   {
     nmax = 1;
     for (int idim=0; idim<neigh->getNDim(); idim++)
@@ -1982,17 +1982,17 @@ static int st_neigh(Neigh   *neigh,
 
   /* Should the neighborhood search be performed again */
 
-  switch (neigh->getType())
+  switch (neigh->getType().toEnum())
   {
-    case NEIGH_UNIQUE:
+    case ENeigh::E_UNIQUE:
       if (IECH_NBGH >= 0) goto label_suite;
       break;
 
-    case NEIGH_IMAGE:
+    case ENeigh::E_IMAGE:
       if (IECH_NBGH >= 0) goto label_suite;
       break;
 
-    case NEIGH_BENCH:
+    case ENeigh::E_BENCH:
       ndim = DBOUT->getNDim();
       if (IECH_NBGH < 0 || IECH_NBGH > DBOUT->getSampleNumber()) break;
       if (IECH_OUT  < 0 || IECH_OUT  > DBOUT->getSampleNumber()) break;
@@ -2009,7 +2009,7 @@ static int st_neigh(Neigh   *neigh,
       }
       break;
 
-    case NEIGH_MOVING:
+    case ENeigh::E_MOVING:
       if (IECH_NBGH == IECH_OUT) goto label_suite;
       break;
   }
@@ -3209,9 +3209,9 @@ static int st_image_kriging(Model *model,
 
   /* Prepare the neighborhood */
 
-  neigh->setType(NEIGH_UNIQUE);
+  neigh->setType(ENeigh::UNIQUE);
   (void) st_neigh(neigh,&status,&nech);
-  neigh->setType(NEIGH_IMAGE);
+  neigh->setType(ENeigh::IMAGE);
   IECH_OUT = nech / 2;
 
   /* Establish the L.H.S. */
@@ -3430,7 +3430,7 @@ GEOSLIB_API int kriging(Db *dbin,
     nvar = static_cast<int> (matCL.size()) / model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
   nred = neq = 0;
-  if (neigh->getType() == NEIGH_IMAGE)
+  if (neigh->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     goto label_end;
@@ -3592,7 +3592,7 @@ static int st_xvalid_unique(Db *dbin,
 
   /* Additional checks */
 
-  if (neigh->getType() != NEIGH_UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This algorithm for Cross-Validation is dedicated to Unique Neighborhood");
     goto label_end;
@@ -3753,7 +3753,7 @@ GEOSLIB_API int xvalid(Db    *db,
   {
     if (!db->hasCode())
       messerr("The K-FOLD option is ignored (no Code defined)");
-    else if (neigh->getType() == NEIGH_UNIQUE)
+    else if (neigh->getType() == ENeigh::UNIQUE)
       messerr("K-FOLD is not available in Unique Neighborhood");
     else
       neigh->setFlagXvalid(-flag_xvalid);
@@ -3761,7 +3761,7 @@ GEOSLIB_API int xvalid(Db    *db,
   else
     neigh->setFlagXvalid(flag_xvalid);
 
-  if (neigh->getType() == NEIGH_UNIQUE)
+  if (neigh->getType() == ENeigh::UNIQUE)
     ret_code = st_xvalid_unique(db, model, neigh, flag_est, flag_std,
                                 rank_colcok, namconv);
   else
@@ -3820,7 +3820,7 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
   nred = neq = 0;
-  if (neigh->getType() == NEIGH_IMAGE)
+  if (neigh->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     goto label_end;
@@ -4176,7 +4176,7 @@ static int bayes_precalc(Model  *model,
 
   /* Preliminary Checks */
 
-  if (neigh->getType() != NEIGH_UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("The Bayesian Estimation of the Drift Coefficients");
     messerr("is only available in Unique Neighborhood");
@@ -7044,7 +7044,7 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
     messerr("The Image Smoother is only programmed for a single variable");
     return(1);
   }
-  if (neigh->getType() != NEIGH_IMAGE)
+  if (neigh->getType() != ENeigh::IMAGE)
   {
     messerr("This tool requires an IMAGE neighborhood");
     return(1);
@@ -7184,7 +7184,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
             dbout->getExternalDriftNumber());
     goto label_end;
   }
-  if (neigh->getType() != NEIGH_UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is currently limited to the Unique Neighborhood");
     goto label_end;
@@ -7493,7 +7493,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
     messerr("This procedure requires a model with no External Drift");
     goto label_end;
   }
-  if (neigh->getType() != NEIGH_UNIQUE && neigh->getType() != NEIGH_BENCH)
+  if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
   {
     messerr("This procedure is currently limited to the Unique or Bench Neighborhood");
     goto label_end;

@@ -13,8 +13,9 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
+#include "Enum/ENeigh.hpp"
 
-class Neigh: public AStringable , public ASerializable
+class Neigh: public AStringable , public ASerializable // TODO : inherits from ASpaceObject
 {
 public:
   Neigh();
@@ -58,7 +59,7 @@ public:
   int getNSMax() const { return _nSMax; }
   double getRadius() const { return _radius; }
   int getSkip() const { return _skip; }
-  int getType() const { return _type; }
+  ENeigh getType() const { return _type; }
   double getWidth() const { return _width; }
 
   void setAnisoCoeff(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
@@ -79,13 +80,13 @@ public:
   void setNSMax(int nsmax) { _nSMax = nsmax; }
   void setRadius(double radius) { _radius = radius; }
   void setSkip(int skip) { _skip = skip; }
-  void setType(int type) { _type = type; }
+  void setType(ENeigh type) { _type = type; }
   void setWidth(double width) { _width = width; }
 
 private:
   bool _isDimensionValid(int idim) const;
   void _init(int ndim,
-             int type,
+             ENeigh type,
              int flag_xvalid,
              int flag_sector,
              int flag_aniso,
@@ -105,7 +106,7 @@ private:
 
 public:
   int _nDim;                     /* Space dimension */
-  int _type;                     /* Neighborhood type: NEIGH_* */
+  ENeigh _type;                  /* Neighborhood type: ENeigh */
   int _flagXvalid;               /* 1 to suppress the target */
   int _flagSector;               /* 1 if MOVING neigh. used sector search */
   int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */

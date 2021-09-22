@@ -20,6 +20,7 @@
 #include <memory>
 #include <limits>
 #include <algorithm>
+#include <math.h>
 
 /***************************************************************************
  **

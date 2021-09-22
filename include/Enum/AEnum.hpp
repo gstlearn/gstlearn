@@ -10,11 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include <Basic/RepeatMacro.hpp>
 #include <iostream>
 #include <string>
 #include <map>
 
-#include "Basic/ForeachMacro.hpp"
 
 class AEnum
 {

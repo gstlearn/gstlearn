@@ -13,7 +13,8 @@
 #define CONCATENATE(x,y) x ## y
 #define EXPAND(x) x
 
-// https://stackoverflow.com/q/14732803
+// Inspired by https://stackoverflow.com/q/14732803
+// TODO : take care of https://stackoverflow.com/questions/5134523/msvc-doesnt-expand-va-args-correctly
 #define NARG(...) NARG_(__VA_ARGS__, RSEQ_N())
 #define NARG_(...) EXPAND(ARG_N(__VA_ARGS__))
 #define ARG_N( _1,  _2,  _3,  _4,  _5,  _6,  _7,  _8,\
