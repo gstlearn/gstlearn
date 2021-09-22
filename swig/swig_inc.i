@@ -53,7 +53,7 @@
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Enum/AEnum.hpp"
-#include "Enum/ENeigh.hpp"
+#include "Enum/Enums.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
 #include "LinearOp/ALinearOp.hpp"

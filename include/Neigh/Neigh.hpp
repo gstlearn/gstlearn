@@ -10,10 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "Enum/ENeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
-#include "Enum/ENeigh.hpp"
 
 class Neigh: public AStringable , public ASerializable // TODO : inherits from ASpaceObject
 {

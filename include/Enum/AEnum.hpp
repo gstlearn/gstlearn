@@ -71,7 +71,7 @@ private:
 #define ENUM_IMPL(NAME, X,Y,Z) const NAME NAME::X = NAME(#X, Y, Z);
 #define ENUM_IMPLS(NAME, ...) EXPAND(REPEAT3(ENUM_IMPL, NAME, __VA_ARGS__))
 
-#define ENUM_DECLARE(NAME, DEFAULT, ...)\
+#define ENUM_DECLARE_(NAME, DEFAULT, ...)\
 class NAME ## Iterator;\
 class NAME;\
 \
@@ -137,7 +137,7 @@ private:\
 };\
 \
 
-#define ENUM_DEFINE(NAME, DEFAULT, ...)\
+#define ENUM_DEFINE_(NAME, DEFAULT, ...)\
 NAME ## Map NAME::_map = NAME ## Map();\
 NAME ## Iterator NAME::_iterator = NAME ## Iterator(NAME::_map);\
 \
@@ -207,5 +207,7 @@ EXPAND(ENUM_IMPLS(NAME, __VA_ARGS__))\
 const NAME* NAME::_default = &NAME::DEFAULT;\
 \
 
-
+// Top level macros
+#define ENUM_DECLARE(...) ENUM_DECLARE_(__VA_ARGS__)
+#define ENUM_DEFINE(...) ENUM_DEFINE_(__VA_ARGS__)
 

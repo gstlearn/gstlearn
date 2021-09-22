@@ -11,8 +11,8 @@
 #ifndef GEOSLIB_OLDF_H
 #define GEOSLIB_OLDF_H
 
-#include <Model/CovInternal.hpp>
-#include <Variogram/Vario.hpp>
+#include "Model/CovInternal.hpp"
+#include "Variogram/Vario.hpp"
 #include "geoslib_d.h"
 #include "csparse_d.h"
 #include "csparse_f.h"
