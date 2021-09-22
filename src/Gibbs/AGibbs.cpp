@@ -20,7 +20,6 @@
 AGibbs::AGibbs()
     : _npgs(1),
       _nvar(1),
-      _nbsimu(1),
       _nburn(1),
       _niter(1),
       _flagOrder(true),
@@ -38,7 +37,6 @@ AGibbs::AGibbs()
 AGibbs::AGibbs(Db* db, Model* model)
     : _npgs(1),
       _nvar(1),
-      _nbsimu(1),
       _nburn(1),
       _niter(1),
       _flagOrder(true),
@@ -54,12 +52,11 @@ AGibbs::AGibbs(Db* db, Model* model)
 }
 
 AGibbs::AGibbs(Db* db, Model* model,
-               int npgs, int nvar, int nbsimu, int nburn, int niter,
+               int npgs, int nvar, int nburn, int niter,
                int flag_order, bool flag_multi_mono, bool flag_decay,
                double rho, double eps)
     : _npgs(1),
       _nvar(1),
-      _nbsimu(1),
       _nburn(1),
       _niter(1),
       _flagOrder(false),
@@ -72,14 +69,13 @@ AGibbs::AGibbs(Db* db, Model* model,
       _db(db),
       _model(model)
 {
-  init(npgs, nvar, nbsimu, nburn, niter,
+  init(npgs, nvar, nburn, niter,
        flag_order, flag_multi_mono, flag_decay, rho, eps);
 }
 
 AGibbs::AGibbs(const AGibbs &r)
     : _npgs(r._npgs),
       _nvar(r._nvar),
-      _nbsimu(r._nbsimu),
       _nburn(r._nburn),
       _niter(r._niter),
       _flagOrder(r._flagOrder),
@@ -100,7 +96,6 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
   {
     _npgs = r._npgs;
     _nvar = r._nvar;
-    _nbsimu = r._nbsimu;
     _nburn = r._nburn;
     _niter = r._niter;
     _flagOrder = r._flagOrder;
@@ -122,7 +117,6 @@ AGibbs::~AGibbs()
 
 void AGibbs::init(int npgs,
                   int nvar,
-                  int nbsimu,
                   int nburn,
                   int niter,
                   int flag_order,
@@ -133,7 +127,6 @@ void AGibbs::init(int npgs,
 {
   _npgs = npgs;
   _nvar = nvar;
-  _nbsimu = nbsimu;
   _nburn = nburn;
   _niter = niter;
   _flagOrder = flag_order;
@@ -159,56 +152,62 @@ void AGibbs::init(int npgs,
 ** \param[in]  y          Gaussian vector
 ** \param[in]  isimu      Rank of the simulation
 ** \param[in]  ipgs       Rank of the GS
-** \param[in]  ivar       Rank of the bounds (starting from 0)
 **
 *****************************************************************************/
 int AGibbs::checkGibbs(const VectorVectorDouble& y,
                        int isimu,
-                       int ipgs,
-                       int ivar)
+                       int ipgs)
 {
   int nactive = _db->getActiveSampleNumber();
-  int icase   = getRank(ipgs,ivar);
-  int icase0  = getRank(ipgs,0);
-  mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d VAR=%d Simu=%d)",
-           ipgs+1,ivar+1,isimu+1);
-
-  /* Loop on the data */
+  int nvar    = getNvar();
+  mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d Simu=%d)",
+           ipgs+1,isimu+1);
 
   int nerror = 0;
-  for (int iact=0; iact<nactive; iact++)
+
+  /* Loop on the variables */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iech = getSampleRank(iact);
-    double vmin = _db->getLowerBound(iech,icase);
-    double vmax = _db->getUpperBound(iech,icase);
-    if (FFFF(vmin)) vmin = -1.e30;
-    if (FFFF(vmax)) vmax =  1.e30;
+    int icase   = getRank(ipgs,ivar);
+    int icase0  = getRank(ipgs,0);
 
-    /* Read the gaussian value */
+    /* Loop on the data */
 
-    double gaus = y[icase][iact];
-    if (ivar == 1)
-      gaus = _sqr * gaus + _rho * y[icase0][iact];
-
-    /* Check inconsistency */
-
-    if ((! FFFF(vmin) && gaus < vmin) ||
-        (! FFFF(vmax) && gaus > vmax))
+    for (int iact=0; iact<nactive; iact++)
     {
-      message("- Sample (#%d):",iech+1);
-      message(" Simu#%d of Y%d=%lf",isimu+1,ivar+1,gaus);
-      message(" does not lie within [");
-      if (FFFF(vmin))
-        message("NA,");
-      else
-        message("%lf",vmin);
-      message(";");
-      if (FFFF(vmax))
-        message("NA");
-      else
-        message("%lf",vmax);
-      message("]\n");
-      nerror++;
+      int iech = getSampleRank(iact);
+      double vmin = _db->getLowerBound(iech,icase);
+      double vmax = _db->getUpperBound(iech,icase);
+      if (FFFF(vmin)) vmin = -1.e30;
+      if (FFFF(vmax)) vmax =  1.e30;
+
+      /* Read the gaussian value */
+
+      double gaus = y[icase][iact];
+      if (ivar > 0)
+        gaus = _sqr * gaus + _rho * y[icase0][iact];
+
+      /* Check inconsistency */
+
+      if ((! FFFF(vmin) && gaus < vmin) ||
+          (! FFFF(vmax) && gaus > vmax))
+      {
+        message("- Sample (#%d):",iech+1);
+        message(" Simu#%d of Y%d=%lf",isimu+1,ivar+1,gaus);
+        message(" does not lie within [");
+        if (FFFF(vmin))
+          message("NA,");
+        else
+          message("%lf",vmin);
+        message(";");
+        if (FFFF(vmax))
+         message("NA");
+        else
+          message("%lf",vmax);
+        message("]\n");
+        nerror++;
+      }
     }
   }
 
@@ -325,37 +324,44 @@ void AGibbs::_printInequalities(int iact,
  ** \param[in]  y           Gaussian vector
  ** \param[in]  isimu       Rank of the simulation
  ** \param[in]  ipgs        Rank of the GS
- ** \param[in]  ivar        Rank of the variable
  **
  *****************************************************************************/
 void AGibbs::print(bool flag_init,
                    const VectorVectorDouble& y,
                    int isimu,
-                   int ipgs,
-                   int ivar) const
+                   int ipgs) const
 {
   int nactive = _db->getActiveSampleNumber();
-  int icase = getRank(ipgs, ivar);
+  int nvar    = getNvar();
+
 
   if (flag_init)
   {
-    mestitle(1, "Gibbs Initial Status (Simu:%d - GS=%d - Var=%d)", isimu + 1,
-             ipgs + 1, ivar + 1);
+    mestitle(1, "Gibbs Initial Status (Simu:%d - GS=%d)", isimu + 1, ipgs + 1);
   }
   else
   {
-    mestitle(1, "Gibbs Results (Simu:%d - GS=%d - Var=%d)", isimu + 1, ipgs + 1,
-             ivar + 1);
+    mestitle(1, "Gibbs Results (Simu:%d - GS=%d)", isimu + 1, ipgs + 1);
     message("Number of bootstrap iterations = %d\n", _nburn);
     message("Total number of iterations     = %d\n", _niter);
   }
 
-  for (int iact = 0; iact < nactive; iact++)
+  /* Loop on the variables */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iech = getSampleRank(iact);
-    double vmin = _db->getLowerBound(iech, icase);
-    double vmax = _db->getUpperBound(iech, icase);
-    _printInequalities(iact,ivar,-1,0,y[icase][iact], vmin, vmax);
+    mestitle(2,"Variable %d",ivar+1);
+    int icase = getRank(ipgs, ivar);
+
+    /* Loop on the samples */
+
+    for (int iact = 0; iact < nactive; iact++)
+    {
+      int iech = getSampleRank(iact);
+      double vmin = _db->getLowerBound(iech, icase);
+      double vmax = _db->getUpperBound(iech, icase);
+      _printInequalities(iact,ivar,-1,0,y[icase][iact], vmin, vmax);
+    }
   }
 }
 
@@ -390,23 +396,29 @@ VectorVectorDouble AGibbs::allocY() const
  * @param y The Gaussian vector to be stored
  * @param isimu Rank of the simulation
  * @param ipgs  Rank of the GS
- * @param ivar  Rank of the Variable
  */
 void AGibbs::storeResult(const VectorVectorDouble& y,
                          int isimu,
-                         int ipgs,
-                         int ivar)
+                         int ipgs)
 {
   int nsize = getDimension();
   int nactive = _db->getActiveSampleNumber();
+  int nvar    = getNvar();
 
-  int icase = getRank(ipgs, ivar);
-  int rank  = icase + nsize * isimu;
+  /* Loop on the variables */
 
-  for (int iact = 0; iact < nactive; iact++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iech = getSampleRank(iact);
-    _db->setFromLocator(LOC_GAUSFAC, iech,  rank,  y[icase][iact]);
+    int icase = getRank(ipgs, ivar);
+    int rank  = icase + nsize * isimu;
+
+      /* Loop on the samples */
+
+    for (int iact = 0; iact < nactive; iact++)
+    {
+      int iech = getSampleRank(iact);
+      _db->setFromLocator(LOC_GAUSFAC, iech,  rank,  y[icase][iact]);
+    }
   }
 }
 
@@ -419,41 +431,46 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
 ** \param[in]  y             Gaussian vector
 ** \param[in]  isimu         Rank of the simulation
 ** \param[in]  ipgs          Rank of the GS
-** \param[in]  ivar          Rank of the GRF
 ** \param[in]  verbose       Verbose flag
 **
 *****************************************************************************/
 int AGibbs::calculInitialize(VectorVectorDouble& y,
                              int isimu,
                              int ipgs,
-                             int ivar,
                              bool verbose)
 {
   Db* db = getDb();
   Model* model = getModel();
   int nactive = db->getActiveSampleNumber();
-  int icase   = getRank(ipgs,ivar);
+  int nvar    = getNvar();
 
   /* Print the title */
 
   if (debug_query("converge"))
-    mestitle(1,"Initial Values for Gibbs Sampler (Simu:%d - GS:%d - Var:%d)",
-             isimu+1,ipgs+1,ivar+1);
+    mestitle(1,"Initial Values for Gibbs Sampler (Simu:%d - GS:%d)",
+             isimu+1,ipgs+1);
 
-  /* Loop on the samples */
+  /* Loop on the variables */
 
-  double sk = sqrt(model->getTotalSill(ivar,ivar));
-  for (int iact = 0; iact < nactive; iact++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iech = getSampleRank(iact);
-    double vmin, vmax;
-    if (_boundsCheck(iech, ipgs, ivar, &vmin, &vmax)) return 1;
+    int icase   = getRank(ipgs,ivar);
 
-    /* Compute the median value of the interval */
+    /* Loop on the samples */
 
-    double pmin = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
-    double pmax = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
-    y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
+    double sk = sqrt(model->getTotalSill(ivar,ivar));
+    for (int iact = 0; iact < nactive; iact++)
+    {
+      int iech = getSampleRank(iact);
+      double vmin, vmax;
+      if (_boundsCheck(iech, ipgs, ivar, &vmin, &vmax)) return 1;
+
+      /* Compute the median value of the interval */
+
+      double pmin = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
+      double pmax = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
+      y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
+    }
   }
 
   return(0);

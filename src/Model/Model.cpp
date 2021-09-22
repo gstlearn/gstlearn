@@ -646,3 +646,17 @@ double Model::getTotalSill(int ivar, int jvar) const
     var += getSill(icov,ivar,ivar);
   return var;
 }
+
+Model* Model::duplicate() const
+{
+  Model* model = (Model *) NULL;
+
+  model = new Model(getContext(), isFlagGradient(), isFlagLinked());
+
+  /* Add the covariance of the first Model */
+
+  for (int i = 0; i < getCovaNumber(); i++)
+    model->addCova(getCova(i));
+
+  return model;
+}

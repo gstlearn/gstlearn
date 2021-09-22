@@ -65,14 +65,12 @@ int GibbsUPropMono::covmatAlloc(bool verbose)
 ** \param[in]  y           Gaussian vector
 ** \param[in]  isimu       Rank of the simulation
 ** \param[in]  ipgs        Rank of the GS (should be 0)
-** \param[in]  ivar        Rank of the bounds (should be 0)
 ** \param[in]  iter        Rank of the iteration
 **
 *****************************************************************************/
 void GibbsUPropMono::update(VectorVectorDouble& y,
                             int isimu,
                             int ipgs,
-                            int ivar,
                             int iter)
 {
   VectorUChar img;
@@ -86,7 +84,8 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
   Model* model = getModel();
   int nactive = db->getActiveSampleNumber();
   int ndim    = model->getDimensionNumber();
-  int icase   = getRank(ipgs,ivar);
+  int nvar    = getNvar();
+  int icase   = getRank(ipgs,0);
 
   double sqr  = getSqr();
   double eps  = getEps();

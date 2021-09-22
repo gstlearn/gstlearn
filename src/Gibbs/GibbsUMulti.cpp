@@ -100,22 +100,19 @@ int GibbsUMulti::covmatAlloc(bool verbose)
 ** \param[in]  y           Gaussian vector
 ** \param[in]  isimu       Rank of the simulation
 ** \param[in]  ipgs        Rank of the GS
-** \param[in]  ivar        Rank of the Variable
 ** \param[in]  iter        Rank of the iteration
 **
 *****************************************************************************/
 void GibbsUMulti::update(VectorVectorDouble& y,
                          int isimu,
                          int ipgs,
-                         int ivar,
                          int iter)
 {
   Db* db = getDb();
   Model* model = getModel();
-  int nvar    = model->getVariableNumber();
+  int nvar    = getNvar();
   int nactive = db->getActiveSampleNumber();
   int neq     = nvar * nactive;
-  int icase   = getRank(ipgs,ivar);
 
   /* Print the title */
 
@@ -126,6 +123,8 @@ void GibbsUMulti::update(VectorVectorDouble& y,
   /* Loop on the samples */
 
   for (int ivar = 0, iecr = 0; ivar < nvar; ivar++)
+  {
+    int icase   = getRank(ipgs,ivar);
     for (int iact = 0; iact < nactive; iact++, iecr++)
     {
 
@@ -144,4 +143,5 @@ void GibbsUMulti::update(VectorVectorDouble& y,
 
       y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
     }
+  }
 }

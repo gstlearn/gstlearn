@@ -100,43 +100,48 @@ int GibbsUMultiMono::covmatAlloc(bool verbose)
 ** \param[in]  y           Gaussian vector
 ** \param[in]  isimu       Rank of the simulation
 ** \param[in]  ipgs        Rank of the GS
-** \param[in]  ivar        Rank of the variable
 ** \param[in]  iter        Rank of the iteration
 **
 *****************************************************************************/
 void GibbsUMultiMono::update(VectorVectorDouble& y,
                              int isimu,
                              int ipgs,
-                             int ivar,
                              int iter)
 {
   Db* db = getDb();
   int nactive = db->getActiveSampleNumber();
-  int icase   = getRank(ipgs,ivar);
+  int nvar    = getNvar();
 
   /* Print the title */
 
   if (debug_query("converge"))
-    mestitle(1,"Iterative Conditional Expectation (VAR:%d - PGS=%d - Simu:%d - Iter=%d)",
-             ivar+1,ipgs+1,isimu+1,iter+1);
+    mestitle(1,"Iterative Conditional Expectation (PGS=%d - Simu:%d - Iter=%d)",
+             ipgs+1,isimu+1,iter+1);
 
-  /* Loop on the samples */
+  /* Loop on the variables */
 
-  for (int iact = 0; iact < nactive; iact++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
+    int icase   = getRank(ipgs,ivar);
 
-    /* Perform the estimation from the other informations */
+    /* Loop on the samples */
 
-    double sk = 1. / COVMAT(ivar, iact, iact);
-    double yk = 0.;
-    for (int jact = 0; jact < nactive; jact++)
+    for (int iact = 0; iact < nactive; iact++)
     {
-      if (iact != jact) yk -= y[icase][jact] * COVMAT(ivar, iact, jact);
+
+      /* Perform the estimation from the other informations */
+
+      double sk = 1. / COVMAT(ivar, iact, iact);
+      double yk = 0.;
+      for (int jact = 0; jact < nactive; jact++)
+      {
+        if (iact != jact) yk -= y[icase][jact] * COVMAT(ivar, iact, jact);
+      }
+      yk *= sk;
+
+      /* Draw the simulated Gaussian */
+
+      y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
     }
-    yk *= sk;
-
-    /* Draw the simulated Gaussian */
-
-    y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
   }
 }

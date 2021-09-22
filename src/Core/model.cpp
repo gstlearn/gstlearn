@@ -4091,7 +4091,7 @@ GEOSLIB_API double model_get_field(Model *model)
 
 /****************************************************************************/
 /*!
- **  Combine two basic models into a bivariate model (residuals model)
+ **  Combine two monovariate models into a bivariate model (residuals model)
  **
  ** \return  Pointer to the newly created Model structure
  **
@@ -4100,9 +4100,12 @@ GEOSLIB_API double model_get_field(Model *model)
  ** \param[in]  r           Correlation coefficient
  **
  ** \remarks: The drift is not copied into the new model
+ ** \remarks: It has been exptended to the case where only one model is defined
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_combine(const Model *model1, const Model *model2, double r)
+GEOSLIB_API Model *model_combine(const Model *model1,
+                                 const Model *model2,
+                                 double r)
 {
   Model *model;
   const CovAniso *cova;
@@ -4117,15 +4120,30 @@ GEOSLIB_API Model *model_combine(const Model *model1, const Model *model2, doubl
   sill.resize(4);
   mean.resize(2);
   cova0.resize(4);
-  if (model1 == (Model *) NULL || model2 == (Model *) NULL)
+  if (model1 == (Model *) NULL && model2 == (Model *) NULL)
   {
-    messerr("This function requires two defined models");
+    messerr("This function requires at least one model defined");
     return (model);
   }
-  if (model1->getVariableNumber() != 1 || model2->getVariableNumber() != 1)
+  if (model1 != (Model* ) NULL && model1->getVariableNumber() != 1)
   {
     messerr("This function can only combine monovariate models");
     return (model);
+  }
+  if (model2 != (Model *) NULL && model2->getVariableNumber() != 1)
+  {
+    messerr("This function can only combine monovariate models");
+    return (model);
+  }
+  if (model1 == (Model *) NULL)
+  {
+    model = model2->duplicate();
+    return model;
+  }
+  if (model2 == (Model *) NULL)
+  {
+    model = model1->duplicate();
+    return model;
   }
   if (model1->getDimensionNumber() != model2->getDimensionNumber())
   {

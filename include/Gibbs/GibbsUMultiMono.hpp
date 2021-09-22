@@ -36,7 +36,6 @@ public:
   void update(VectorVectorDouble& y,
               int isimu,
               int ipgs,
-              int ivar,
               int iter) override;
   int covmatAlloc(bool verbose) override;
 

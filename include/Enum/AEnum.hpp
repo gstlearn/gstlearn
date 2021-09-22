@@ -30,7 +30,7 @@ public:
 
 #ifndef SWIG
   //! Cast to constexpr integer (for switch usage) (-std=c++11)
-  constexpr operator int() const { return _value; }
+  // const operator int() const { return _value; }
 #endif
 
   bool operator< (const AEnum& e) const { return getValue() <  e.getValue(); }

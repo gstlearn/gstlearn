@@ -3899,27 +3899,26 @@ GEOSLIB_API int simpgs(Db *dbin,
                        double delta,
                        NamingConvention namconv)
 {
-  int     iptr,ngrf,igrf,icase,nfacies;
-  int     nvar,flag_cond,error,isimu,flag_used[2],nechin;
+  int     iptr,igrf,icase,nfacies,flag_used[2];
   int     iptr_RP,iptr_RF,iptr_DF,iptr_DN,iptr_RN;
-  bool    verbose = false;
   Situba *situba;
   Model  *models[2];
   PropDef  *propdef;
 
   /* Initializations */
 
-  error     = 1;
-  nvar      = 1;
-  nechin    = 0;
-  ngrf      = 0;
+  int error     = 1;
+  int nvar      = 1;
+  int nechin    = 0;
+  int ngrf      = 0;
   situba    = (Situba *) NULL;
   propdef   = (PropDef *) NULL;
   models[0] = model1;
   models[1] = model2;
-  flag_cond = (dbin != (Db *) NULL);
+  bool flag_cond = (dbin != (Db *) NULL);
   iptr_RP   = iptr_RF = iptr_DF = nfacies = 0;
   iptr      = -1;
+  bool    verbose = false;
   law_set_random_seed(seed);
 
   if (ruleprop == nullptr)
@@ -3956,7 +3955,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   }
 
   /* Model */
-  for (igrf=0; igrf<2; igrf++)
+  for (int igrf=0; igrf<2; igrf++)
   {
     flag_used[igrf] = rule->isYUsed(igrf);
     if (! flag_used[igrf]) continue;
@@ -3997,6 +3996,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   /**********************/
 
   nfacies = rule->getFaciesNumber();
+
   /* Storage of the facies proportions */
   if (flag_modif)
   {
@@ -4060,54 +4060,57 @@ GEOSLIB_API int simpgs(Db *dbin,
   {
     int npgs = 1;
     int ipgs = 0;
-    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, models[igrf], nullptr,
+
+    // Constitute a multivariate model
+    Model* multi_model = model_combine(models[0],models[1],rule->getRho());
+
+    // Create the Gibbs sampler
+    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, multi_model, nullptr,
                                               true, false);
 
-    for (igrf=0; igrf<2; igrf++)
-    {
-      if (! flag_used[igrf]) continue;
+    /* Initialize the Gibbs calculations */
 
-      /* Initialize the Gibbs calculations */
-
-      gibbs->init(npgs, ngrf, nbsimu, gibbs_nburn, gibbs_niter, 0, true, true,
-                  rule->getRho(), gibbs_eps);
+    gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true, true,
+                rule->getRho(), gibbs_eps);
       
-      /* Allocate the covariance matrix inverted */
+    /* Allocate the covariance matrix inverted */
   
-      if (gibbs->covmatAlloc(verbose)) goto label_end;
+    if (gibbs->covmatAlloc(verbose)) goto label_end;
 
-      /* Allocate the Gaussian vector */
+    /* Allocate the Gaussian vector */
 
-      VectorVectorDouble y = gibbs->allocY();
+    VectorVectorDouble y = gibbs->allocY();
 
-      /* Loop on the simulations */
-      
-      for (isimu=0; isimu<nbsimu; isimu++)
-      {
+    /* Loop on the simulations */
+
+    for (int isimu=0; isimu<nbsimu; isimu++)
+    {
+      for (int igrf = 0; igrf < ngrf; igrf++)
         if (rule->evaluateBounds(propdef, dbin, dbout, isimu, igrf, ipgs,
                                  nbsimu)) goto label_end;
+      
+      /* Initialization for the Gibbs sampler */
+
+      if (gibbs->calculInitialize(y, isimu, ipgs, verbose)) goto label_end;
+      if (verbose) gibbs->print(true,y,isimu,ipgs);
+
+      /* Iterations of the Gibbs sampler */
+
+      for (int iter = 0; iter < gibbs->getNiter(); iter++)
+        gibbs->update(y, isimu, ipgs,  iter);
         
-        /* Initialization for the Gibbs sampler */
-
-        if (gibbs->calculInitialize(y, isimu, ipgs, igrf, verbose)) goto label_end;
-        if (verbose) gibbs->print(true,y,isimu,ipgs,igrf);
-
-        /* Iterations of the Gibbs sampler */
-
-        for (int iter = 0; iter < gibbs->getNiter(); iter++)
-          gibbs->update(y, isimu, ipgs, igrf, iter);
+      /* Check the validity of the Gibbs results (optional) */
         
-        /* Check the validity of the Gibbs results (optional) */
-        
-        if (flag_check)
-          gibbs->checkGibbs(y,isimu,ipgs,igrf);
-        if (verbose) gibbs->print(false, y, isimu, ipgs, igrf);
+      if (flag_check)
+        gibbs->checkGibbs(y,isimu,ipgs);
+      if (verbose) gibbs->print(false, y, isimu, ipgs);
 
-        // Store the results
+      // Store the results
 
-        gibbs->storeResult(y, isimu, ipgs, igrf);
-      }
+      gibbs->storeResult(y, isimu, ipgs);
     }
+
+    multi_model = model_free(multi_model);
   }
 
   /***************************************************/
@@ -4499,57 +4502,62 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
     if (flag_cond)
     {
-      AGibbs* gibbs = GibbsFactory::createGibbs(dbin, models[ipgs][igrf],
+
+      // Build a bivariate temporary model
+
+      Model* multi_model = model_combine(models[ipgs][0],models[ipgs][1],
+                                         rules[ipgs]->getRho());
+
+      // Create the Gibbs sampler
+
+      AGibbs* gibbs = GibbsFactory::createGibbs(dbin, multi_model,
                                                 nullptr, true, false);
 
-      for (igrf = 0; igrf < 2; igrf++)
+      /* Initialize the Gibbs calculations */
+
+      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter, 0, true, true,
+                  rules[ipgs]->getRho(), gibbs_eps);
+
+      /* Allocate the covariance matrix inverted */
+
+      if (gibbs->covmatAlloc(0)) goto label_end;
+
+      // Core allocation
+
+      VectorVectorDouble y = gibbs->allocY();
+
+      /* Loop on the simulations */
+
+      for (isimu=0; isimu<nbsimu; isimu++)
       {
-        if (!flag_used[ipgs][igrf]) continue;
-
-        /* Initialize the Gibbs calculations */
-
-        gibbs->init(npgs, ngrf[ipgs], nbsimu, gibbs_nburn, gibbs_niter, 0, true, true,
-                    rules[ipgs]->getRho(), gibbs_eps);
-
-        /* Allocate the covariance matrix inverted */
-
-        if (gibbs->covmatAlloc(0)) goto label_end;
-
-        // Core allocation
-
-        VectorVectorDouble y = gibbs->allocY();
-
-        /* Loop on the simulations */
-
-        for (isimu=0; isimu<nbsimu; isimu++)
-        {
 	  
-          /* Update the proportions */
-    
+        /* Update the proportions */
+
+        for (int igrf = 0; igrf < ngrf[ipgs]; igrf++)
           if (rules[ipgs]->evaluateBounds(propdef, dbin, dbout, isimu, igrf,
                                           ipgs, nbsimu)) goto label_end;
 
-          /* Initialization for the Gibbs sampler */
+        /* Initialization for the Gibbs sampler */
 
-          if (gibbs->calculInitialize(y, isimu, ipgs, igrf, verbose)) goto label_end;
-          if (verbose) gibbs->print(true,y,isimu,ipgs,igrf);
+        if (gibbs->calculInitialize(y, isimu, ipgs, verbose)) goto label_end;
+        if (verbose) gibbs->print(true,y,isimu,ipgs);
 
-          /* Iterations of the Gibbs sampler */
+        /* Iterations of the Gibbs sampler */
 
-          for (int iter = 0; iter < gibbs->getNiter(); iter++)
-            gibbs->update(y, isimu, ipgs, igrf, iter);
+        for (int iter = 0; iter < gibbs->getNiter(); iter++)
+          gibbs->update(y, isimu, ipgs, iter);
 
-          /* Check the validity of the Gibbs results (optional) */
+        /* Check the validity of the Gibbs results (optional) */
 
-          if (flag_check)
-            gibbs->checkGibbs(y,isimu,ipgs,igrf);
-          if (verbose) gibbs->print(false,y,isimu,ipgs,igrf);
+        if (flag_check)
+          gibbs->checkGibbs(y,isimu,ipgs);
+        if (verbose) gibbs->print(false,y,isimu,ipgs);
 
-          // Store the results
+        // Store the results
 
-          gibbs->storeResult(y, isimu, ipgs, igrf);
-        }
+        gibbs->storeResult(y, isimu, ipgs);
       }
+      multi_model = model_free(multi_model);
       
       /* Convert gaussian to facies on data point */
       
@@ -4888,7 +4896,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
     /* Initialize the Gibbs calculations */
 
-    gibbs->init(npgs, nvar, nbsimu, gibbs_nburn, gibbs_niter,
+    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter,
                 0, false, true, 0., gibbs_eps);
 
     /* Allocate the covariance matrix inverted */
@@ -4906,27 +4914,21 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
       message("Processing Simulation %d/%d\n", isimu + 1, nbsimu);
       int ipgs = 0;
 
-      /* Loop on the variables */
+      // Initialize the iterations
 
-      for (int ivar = 0; ivar < nvar; ivar++)
-      {
+      if (gibbs->calculInitialize(y, isimu, ipgs, verbose)) goto label_end;
+      if (verbose) gibbs->print(true,y,isimu,ipgs);
 
-        // Initialize the iterations
+      /* Iterations of the Gibbs sampler */
 
-        if (gibbs->calculInitialize(y, isimu, ipgs, ivar, verbose)) goto label_end;
-        if (verbose) gibbs->print(true,y,isimu,ipgs,ivar);
+      for (int iter = 0; iter < gibbs->getNiter(); iter++)
+        gibbs->update(y, isimu, ipgs, iter);
 
-        /* Iterations of the Gibbs sampler */
+      if (verbose) gibbs->print(false,y,isimu,ipgs);
 
-        for (int iter = 0; iter < gibbs->getNiter(); iter++)
-          gibbs->update(y, isimu, ipgs, ivar, iter);
+      // Store the results
 
-        if (verbose) gibbs->print(false,y,isimu,ipgs,ivar);
-
-        // Store the results
-
-        gibbs->storeResult(y, isimu, ipgs, ivar);
-      }
+      gibbs->storeResult(y, isimu, ipgs);
     }
   }
 
@@ -5970,7 +5972,7 @@ GEOSLIB_API int simcond(Db    *dbin,
 
     /* Initialize the Gibbs calculations */
 
-    gibbs->init(1, 1, nbsimu, gibbs_nburn, gibbs_niter, 0, false, true,
+    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, false, true,
                 0., gibbs_eps);
 
     /* Allocate the covariance matrix inverted */
@@ -5986,23 +5988,22 @@ GEOSLIB_API int simcond(Db    *dbin,
     for (int isimu = 0; isimu < nbsimu; isimu++)
     {
       int ipgs = 0;
-      int ivar = 0;
 
       /* Initialization for the Gibbs sampler */
 
-      if (gibbs->calculInitialize(y,isimu, ipgs, ivar, verbose)) goto label_end;
-      if (verbose) gibbs->print(true,y,isimu,ipgs,ivar);
+      if (gibbs->calculInitialize(y,isimu, ipgs, verbose)) goto label_end;
+      if (verbose) gibbs->print(true,y,isimu,ipgs);
 
       /* Iterations of the gibbs sampler */
 
       for (int iter = 0; iter < gibbs->getNiter(); iter++)
-        gibbs->update(y,isimu, ipgs, ivar, iter);
+        gibbs->update(y,isimu, ipgs, iter);
 
-      if (verbose) gibbs->print(false,y,isimu,ipgs,ivar);
+      if (verbose) gibbs->print(false,y,isimu,ipgs);
 
       // Store the results
 
-      gibbs->storeResult(y, isimu, ipgs, ivar);
+      gibbs->storeResult(y, isimu, ipgs);
     }
   }
 

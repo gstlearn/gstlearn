@@ -155,51 +155,54 @@ int GibbsMoving::covmatAlloc(bool verbose)
 ** \param[in]  y           Gaussian Vector
 ** \param[in]  isimu       Rank of the simulation
 ** \param[in]  ipgs        Rank of the GS
-** \param[in]  ivar        Rank of the bounds (starting from 0)
 ** \param[in]  iter        Rank of the iteration
 **
 *****************************************************************************/
 void GibbsMoving::update(VectorVectorDouble& y,
                          int isimu,
                          int ipgs,
-                         int ivar,
                          int iter)
 {
   Db* db = getDb();
   Model* model = getModel();
   int nactive = db->getActiveSampleNumber();
   int nvar    = model->getVariableNumber();
-  int icase   = getRank(ipgs,ivar);
 
   /* Print the title */
 
   if (debug_query("converge"))
-    mestitle(1, "Gibbs Sampler (Simu:%d - GS:%d - Var:%d)",
-             isimu + 1, ipgs + 1, ivar +1);
+    mestitle(1, "Gibbs Sampler (Simu:%d - GS:%d)", isimu + 1, ipgs + 1);
 
-  /* Loop on the samples */
+  /* Loop on the variables */
 
-  for (int iact = 0; iact < nactive; iact++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    const GibbsWeights& ww = _wgt[iact];
-    int nsize = ww._ranks.size();
-    int neq = ww._neq;
-    int pivot = ww._pivot;
+    int icase   = getRank(ipgs,ivar);
 
-    for (int ivar = 0; ivar < nvar; ivar++)
+    /* Loop on the samples */
+
+    for (int iact = 0; iact < nactive; iact++)
     {
-      double sk = 1. / ww._ll[ivar][pivot];
-      int rank = pivot + nsize * ivar;
-      double yk = 0.;
-      for (int i2 = 0; i2 < neq; i2++)
+      const GibbsWeights& ww = _wgt[iact];
+      int nsize = ww._ranks.size();
+      int neq = ww._neq;
+      int pivot = ww._pivot;
+
+      for (int ivar = 0; ivar < nvar; ivar++)
       {
-        if (i2 != rank) yk -= y[icase][i2] * ww._ll[ivar][i2];
+        double sk = 1. / ww._ll[ivar][pivot];
+        int rank = pivot + nsize * ivar;
+        double yk = 0.;
+        for (int i2 = 0; i2 < neq; i2++)
+        {
+          if (i2 != rank) yk -= y[icase][i2] * ww._ll[ivar][i2];
+        }
+        yk *= sk;
+
+        /* Draw an authorized normal value */
+
+        y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
       }
-      yk *= sk;
-
-      /* Draw an authorized normal value */
-
-      y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
     }
   }
 }

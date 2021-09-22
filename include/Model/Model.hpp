@@ -135,6 +135,7 @@ public:
   int getDimensionNumber() const     { return _ctxt.getNDim(); }
   void setField(double field)        { _ctxt.setField(field); }
   int getModTransMode() const        { return _modTrans.getModTransMode(); }
+  Model* duplicate() const;
 
   int getVariableNumber() const
   {

@@ -25,7 +25,6 @@ public:
          Model* model,
          int npgs,
          int nvar,
-         int nbsimu,
          int nburn,
          int niter,
          int flag_order,
@@ -40,31 +39,26 @@ public:
   virtual int calculInitialize(VectorVectorDouble& y,
                                int isimu,
                                int ipgs,
-                               int ivar,
                                bool verbose);
   virtual void update(VectorVectorDouble& y,
                       int isimu,
                       int ipgs,
-                      int ivar,
                       int iter) = 0;
   virtual int covmatAlloc(bool verbose) = 0;
 
-  void init(int npgs, int nvar, int nbsimu, int nburn, int niter,
+  void init(int npgs, int nvar, int nburn, int niter,
             int flag_order, bool flag_multi_mono, bool flag_decay,
             double rho, double eps);
 
   void print(bool flag_init,
              const VectorVectorDouble& y,
              int isimu,
-             int ipgs,
-             int ivar) const;
+             int ipgs) const;
 
   int getNvar() const { return _nvar; }
   void setNvar(int nvar) { _nvar = nvar; }
   int getNpgs() const { return _npgs; }
   void setNpgs(int npgs) { _npgs = npgs; }
-  int getNbsimu() const { return _nbsimu; }
-  void setNbsimu(int nbsimu) { _nbsimu = nbsimu; }
   int getNburn() const { return _nburn; }
   void setNburn(int nburn) { _nburn = nburn; }
   int getNiter() const { return _niter; }
@@ -80,14 +74,14 @@ public:
   int getFlagOrder() const { return _flagOrder; }
   void setFlagOrder(int flagOrder) { _flagOrder = flagOrder; }
 
-  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs, int ivar);
+  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
 
   Db* getDb() const { return _db; }
   Model* getModel() const { return _model; }
   int getDimension() const;
   int getRank(int ipgs, int ivar) const;
   VectorVectorDouble allocY() const;
-  void storeResult(const VectorVectorDouble& y, int isimu, int ipgs, int ivar);
+  void storeResult(const VectorVectorDouble& y, int isimu, int ipgs);
 
   double getSimulate(VectorVectorDouble& y,
                      double yk,
@@ -113,7 +107,6 @@ protected:
 private:
   int _npgs;
   int _nvar;
-  int _nbsimu;
   int _nburn;
   int _niter;
   int _flagOrder; // order relationship of the constraints
