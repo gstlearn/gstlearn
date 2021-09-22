@@ -6,7 +6,7 @@ LIST = $(wildcard Jeu* PGS* PRD* Var*)
 all:
 	@echo "Running Non-regression tests...";
 	@for VAR in $(LIST); do \
-		make -s $$VAR ; \
+		+make -s $$VAR ; \
 	done
 
 Jeu%: target_force
