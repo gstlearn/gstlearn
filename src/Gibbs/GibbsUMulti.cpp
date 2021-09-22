@@ -109,7 +109,6 @@ void GibbsUMulti::update(VectorVectorDouble& y,
                          int iter)
 {
   Db* db = getDb();
-  Model* model = getModel();
   int nvar    = getNvar();
   int nactive = db->getActiveSampleNumber();
   int neq     = nvar * nactive;

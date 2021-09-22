@@ -405,18 +405,20 @@ static int st_read_trace(FILE   *file,
 **
 ** \return Error returned code
 **
+** \param[in] verbOption Verbose Option
 ** \param[in]  surfaces  Db containing the top, Bottom and Reference surfaces
 **                       This file is optional
-** \param[in]  name_bot  Name of variable containing the Bottom Surface (or 0)
+** \param[in]  name_bot  Name of variable containing the Bottom Surface (or empty)
 ** \param[in]  flag_bot  Flag for defining a Bottom surface
-** \param[in]  name_top  Name of variable containing the Top Surface (or 0)
+** \param[in]  name_top  Name of variable containing the Top Surface (or empty)
 ** \param[in]  flag_top  Flag for defining a Top surface
 **
 ** \param[out] iatt_top  Attribute index for the top surface
 ** \param[out] iatt_bot  Attribute index for the Bottom surface
 **
 *****************************************************************************/
-static int st_surface_identify(Db *surfaces,
+static int st_surface_identify(int verbOption,
+                               Db *surfaces,
                                const String& name_bot,
                                int flag_bot,
                                int *iatt_bot,
@@ -425,6 +427,7 @@ static int st_surface_identify(Db *surfaces,
                                int *iatt_top)
 {
   *iatt_bot = -1;
+
   if (flag_bot)
   {
     if (name_bot.empty())
@@ -448,6 +451,13 @@ static int st_surface_identify(Db *surfaces,
     }
     *iatt_top = surfaces->getAttribute(name_top);
     if (*iatt_top < 0) return 1;
+  }
+
+  if (verbOption && (flag_bot || flag_top))
+  {
+    mestitle(2,"Horizontalization:");
+    if (flag_top) message("- Top surface: %s\n",name_top.c_str());
+    if (flag_bot) message("- Bottom surface: %s\n",name_bot.c_str());
   }
   return 0;
 }
@@ -1126,7 +1136,7 @@ static void st_refstats_init(RefStats& refstats,
   refstats.nbtrace     = 0;
   refstats.nbtrace_in  = 0;
   refstats.nbtrace_def = 0;
-  refstats.nbvalue_in        = 0;
+  refstats.nbvalue_in  = 0;
 
   refstats.ilming = ITEST;
   refstats.ilmaxg = ITEST;
@@ -1237,7 +1247,7 @@ GEOSLIB_API SegYArg segy_array(const char *filesegy,
   flag_surf = (surf2D != (Db *) NULL);
   flag_top  = flag_surf && (option ==  1 || option == -2);
   flag_bot  = flag_surf && (option == -1 || option == -2);
-  if (st_surface_identify(surf2D,
+  if (st_surface_identify(verbOption,surf2D,
                           name_bot,flag_bot,&iatt_bot,
                           name_top,flag_top,&iatt_top)) return segyarg;
 
@@ -1285,7 +1295,7 @@ GEOSLIB_API SegYArg segy_array(const char *filesegy,
     nbrefpt = st_store_refpt(nbrefpt,refpt,iline,xline,xtrace,ytrace);
 
     // Compare to the 2-D Surface information
-    // If 'surfaces' is not provided, bounds are set to TEST.
+    // If 'surfaces' are not provided, bounds are set to TEST.
 
     if (st_get_cuts(surf2D,iatt_top,iatt_bot,xtrace,ytrace,thickmin,
                     &cztop,&czbot)) continue;
@@ -1415,7 +1425,7 @@ GEOSLIB_API GridC segy_summary(const char *filesegy,
   flag_surf = (surf2D != (Db *) NULL);
   flag_top  = flag_surf && (option ==  1 || option == -2);
   flag_bot  = flag_surf && (option == -1 || option == -2);
-  if (st_surface_identify(surf2D,
+  if (st_surface_identify(verbOption,surf2D,
                           name_bot,flag_bot,&iatt_bot,
                           name_top,flag_top,&iatt_top)) return def_grid;
 
@@ -1589,7 +1599,7 @@ GEOSLIB_API int db_segy(const char *filesegy,
   flag_surf = (surf2D != (Db *) NULL);
   flag_top  = flag_surf && (option ==  1 || option == -2);
   flag_bot  = flag_surf && (option == -1 || option == -2);
-  if (st_surface_identify(surf2D,
+  if (st_surface_identify(verbOption,surf2D,
                           name_bot,flag_bot,&iatt_bot,
                           name_top,flag_top,&iatt_top)) return 1;
   z0 = grid3D->getX0(2);
