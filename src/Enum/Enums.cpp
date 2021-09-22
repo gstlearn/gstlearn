@@ -8,24 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/Enums.hpp"
 
-#include "Enum/ENeigh.hpp"
-
-/* Previously
-typedef enum
-{
-  NEIGH_UNIQUE = 0,        //!< Unique Neighborhood
-  NEIGH_BENCH = 1,         //!< Bench Neighborhood
-  NEIGH_MOVING = 2,        //!< Moving Neighborhood
-  NEIGH_IMAGE = 3,         //!< Image Neighborhood
-} ENUM_NEIGHS;
-*/
-
-ENUM_INIT(ENeigh)
-
-ENUM_DEFINE(ENeigh, UNIQUE, 0, "Unique neighborhood")
-ENUM_DEFINE(ENeigh, BENCH , 1, "Bench neighborhood")
-ENUM_DEFINE(ENeigh, MOVING, 2, "Moving neighborhood")
-ENUM_DEFINE(ENeigh, IMAGE , 3, "Image neighborhood")
-
-ENUM_DEFAULT(ENeigh, UNIQUE)
+ENUM_DEFINE(ENUM_NEIGH)

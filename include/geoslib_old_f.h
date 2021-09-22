@@ -11,12 +11,13 @@
 #ifndef GEOSLIB_OLDF_H
 #define GEOSLIB_OLDF_H
 
-#include <Model/CovInternal.hpp>
-#include <Variogram/Vario.hpp>
+#include "Model/CovInternal.hpp"
+#include "Variogram/Vario.hpp"
 #include "geoslib_d.h"
 #include "csparse_d.h"
 #include "csparse_f.h"
 #include "Mesh/tetgen.h"
+#include "Enum/ENeigh.hpp"
 #include "segy.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
@@ -1301,7 +1302,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                       int skip,
                                       const VectorInt& nbgh_image = VectorInt());
   GEOSLIB_API Neigh *neigh_init(int ndim,
-                                int type,
+                                ENeigh type,
                                 int flag_xvalid,
                                 int flag_sector,
                                 int flag_aniso,
@@ -1325,7 +1326,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                               int nsel,
                               double *tab);
   GEOSLIB_API int neigh_extract(Neigh *neigh,
-                                int *type,
+                                ENeigh *type,
                                 int *nmini,
                                 int *nmaxi,
                                 int *nsect,

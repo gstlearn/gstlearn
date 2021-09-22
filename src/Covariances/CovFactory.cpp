@@ -174,6 +174,7 @@ int CovFactory::identifyCovariance(const String& cov_name,
     if (matchRegexp(cova->getCovName(), cov_name, false))
     {
         *rank = (ENUM_COVS) i;
+        delete cova;
         return 0;
     }
     delete cova;

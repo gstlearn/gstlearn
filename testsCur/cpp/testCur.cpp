@@ -2,6 +2,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovFactory.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_e.h"
 
@@ -59,6 +60,41 @@ int main(int argc, char *argv[])
 {
   if (setup_license("Demonstration"))
     my_throw("Problem with license check");
+
+
+  // R_model_characteristics
+  int    flag_range,flag_param,min_order,max_ndim,ndim,flag_aniso,error;
+  int    flag_int_1d,flag_int_2d,flag_rotation,order;
+  double scale,parmax;
+  char   cova_name[STRING_LENGTH];
+  ENUM_COVS type;
+  std::string cov_name;
+
+  /* Initializations */
+
+  cov_name = "Exponential";
+  ndim     = 2;
+  order    = 1;
+
+  /* Identify the covariance */
+
+  SpaceRN space = SpaceRN(ndim);
+  CovContext ctxt = CovContext(1, order, 0., &space);
+  if (!CovFactory::identifyCovariance(cov_name, &type, ctxt))
+    return 1;
+
+  /* Asking for complementary information */
+
+  model_cova_characteristics(type,cova_name,
+                             &flag_range,&flag_param,&min_order,&max_ndim,
+                             &flag_int_1d,&flag_int_2d,
+                             &flag_aniso,&flag_rotation,&scale,&parmax);
+
+
+  return 0;
+
+
+
   int seed = 10355;
   law_set_random_seed(seed);
 
@@ -106,6 +142,6 @@ int main(int argc, char *argv[])
   dat.addFields(tab, "Simu", LOC_Z);
 
   SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
-  spde.computeKriging();
+  spde.compute();
   return 0;
 }

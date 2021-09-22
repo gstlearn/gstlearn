@@ -494,7 +494,7 @@ static int st_check_simtub_environment(Db    *dbin,
               ndim);
       goto label_end;
     }
-    if (neigh->getFlagXvalid() && neigh->getType() != NEIGH_MOVING)
+    if (neigh->getFlagXvalid() && neigh->getType() != ENeigh::MOVING)
     {
       messerr("The Cross-Validation can only be processed with Moving neighborhood");
       goto label_end;
@@ -3979,7 +3979,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Neighborhood */
   if (flag_cond)
   {
-    if (neigh->getType() != NEIGH_UNIQUE && neigh->getType() != NEIGH_BENCH)
+    if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
     {
       messerr("The only authorized Neighborhoods are UNIQUE or BENCH");
       goto label_end;
@@ -4379,7 +4379,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   }
 
   /* Neighborhood */
-  if (neigh->getType() != NEIGH_UNIQUE && neigh->getType() != NEIGH_BENCH)
+  if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
   {
     messerr("The only authorized Neighborhoods are UNIQUE or BENCH");
     goto label_end;

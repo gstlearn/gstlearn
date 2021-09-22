@@ -8,12 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#pragma once
 
-#include "Enum/AEnum.hpp"
-
-AEnum::AEnum(const std::string& key, int value, const std::string& descr)
-: _key(key)
-, _value(value)
-, _descr(descr)
-{
-}
+#include "ENeigh.hpp"

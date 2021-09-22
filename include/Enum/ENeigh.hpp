@@ -8,29 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-
 #pragma once
 
 #include "AEnum.hpp"
 
-/* Previously
-typedef enum
-{
-  NEIGH_UNIQUE = 0,        //!< Unique Neighborhood
-  NEIGH_BENCH = 1,         //!< Bench Neighborhood
-  NEIGH_MOVING = 2,        //!< Moving Neighborhood
-  NEIGH_IMAGE = 3,         //!< Image Neighborhood
-} ENUM_NEIGHS;
-*/
+#define ENUM_NEIGH ENeigh, UNIQUE, \
+                   UNIQUE, 0, "Unique Neighborhood", \
+                   BENCH,  1, "Bench Neighborhood", \
+                   MOVING, 2, "Moving Neighborhood", \
+                   IMAGE,  3, "Image Neighborhood"
 
-class ENeigh : public AEnum
-{
-  ENUM_DECLARE(ENeigh)
-
-public:
-  static ENeigh UNIQUE;        //!< Unique Neighborhood
-  static ENeigh BENCH;         //!< Bench Neighborhood
-  static ENeigh MOVING;        //!< Moving Neighborhood
-  static ENeigh IMAGE;         //!< Image Neighborhood
-};
-
+ENUM_DECLARE(ENUM_NEIGH)

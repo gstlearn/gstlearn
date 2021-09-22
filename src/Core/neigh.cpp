@@ -31,7 +31,7 @@ static double *NBGH_dst   = (double *) NULL;
 ** \param[in]  neigh     Neigh structure
 ** \param[in]  rank      Array of the data ranks
 ** \li                   -1 if not selected
-** \li                   >=0 gives the angular sector in NEIGH_MOVING
+** \li                   >=0 gives the angular sector in ENeigh::MOVING
 ** 
 *****************************************************************************/
 static void st_neigh_print(Db     *dbin,
@@ -65,7 +65,7 @@ static void st_neigh_print(Db     *dbin,
       string = getLocatorName(LOC_BLEX,idim);
       tab_prints(NULL,1,GD_J_RIGHT,string.c_str());
     }
-  if (neigh->getType() == NEIGH_MOVING)
+  if (neigh->getType() == ENeigh::MOVING)
     tab_prints(NULL,1,GD_J_RIGHT,"Sector");
   message("\n");
 
@@ -86,7 +86,7 @@ static void st_neigh_print(Db     *dbin,
       for (idim=0; idim<ndim; idim++)
         tab_printg(NULL,1,GD_J_RIGHT,dbin->getBlockExtension(iech,idim));
     }
-    if (neigh->getType() == NEIGH_MOVING)
+    if (neigh->getType() == ENeigh::MOVING)
       tab_printi(NULL,1,GD_J_RIGHT,rank[iech]+1);
     message("\n"); 
     sel++;
@@ -308,7 +308,7 @@ GEOSLIB_API double neigh_continuous_variance(Neigh *neigh,
 
   dd = (double *) NULL;
   if (neigh == (Neigh *) NULL) return(0.);
-  if (neigh->getType() != NEIGH_MOVING) return(0.);
+  if (neigh->getType() != ENeigh::MOVING) return(0.);
   ndim = neigh->getNDim();
 
   /* Core allocation */
@@ -689,7 +689,7 @@ GEOSLIB_API Neigh *neigh_init_bench(int    ndim,
 {
   Neigh *neigh;
 
-  neigh = neigh_init(ndim,NEIGH_BENCH,flag_xvalid,0,0,0,0,0,0,0,0,0,
+  neigh = neigh_init(ndim,ENeigh::BENCH,flag_xvalid,0,0,0,0,0,0,0,0,0,
                      width,0.,0.,VectorDouble(),VectorDouble(),VectorInt());
 
   return(neigh);
@@ -714,7 +714,7 @@ GEOSLIB_API Neigh *neigh_init_image(int     ndim,
 {
   Neigh *neigh;
 
-  neigh = neigh_init(ndim,NEIGH_IMAGE,flag_xvalid,0,0,0,0,0,0,0,0,skip,
+  neigh = neigh_init(ndim,ENeigh::IMAGE,flag_xvalid,0,0,0,0,0,0,0,0,skip,
                      0.,0.,0.,VectorDouble(),VectorDouble(),nbgh_image);
 
   return(neigh);
@@ -737,7 +737,7 @@ GEOSLIB_API Neigh *neigh_init_unique(int ndim)
 {
   Neigh *neigh;
 
-  neigh = neigh_init(ndim,NEIGH_UNIQUE,0,0,0,0,0,0,0,0,0,0,
+  neigh = neigh_init(ndim,ENeigh::UNIQUE,0,0,0,0,0,0,0,0,0,0,
                      0.,0.,0.,VectorDouble(),VectorDouble(),VectorInt());
 
   return(neigh);
@@ -757,11 +757,11 @@ static Neigh *st_neigh_alloc(void)
 
   /* Core allocation */
 
-  neigh = new(Neigh);
-
+  neigh = new Neigh();
+/*
   neigh->setNDim(0);
   neigh->setType(0);
-  neigh->setNMini(0);
+  neigh->setNMini(0); // 1 in default constructor
   neigh->setNMaxi(0);
   neigh->setNSect(1);
   neigh->setNSMax(0);
@@ -777,7 +777,7 @@ static Neigh *st_neigh_alloc(void)
   neigh->setAnisoCoeff(VectorDouble());
   neigh->setAnisoRotMat(VectorDouble());
   neigh->setImageRadius(VectorInt());
-
+*/
   return(neigh);
 }
 
@@ -811,7 +811,7 @@ static void st_get_neigh_anisotropy(Neigh *neigh,
 ** \return  Pointer on the Neigh structure allocated
 **
 ** \param[in]  ndim        Space dimension
-** \param[in]  type        Neighborhood type (::ENUM_NEIGHS)
+** \param[in]  type        Neighborhood type (\sa ENeigh)
 ** \param[in]  flag_xvalid Option
 ** \li                     0 no option
 ** \li                     >0 discard the target from the neighborhood
@@ -822,31 +822,31 @@ static void st_get_neigh_anisotropy(Neigh *neigh,
 **                            is rotated
 ** \param[in]  flag_continuous 1 for continuous mving neighborhood
 ** \param[in]  nmini       Minimum number of points in the neighborhood (or 0)
-**                         (only used for NEIGH_MOVING)
+**                         (only used for ENeigh::MOVING)
 ** \param[in]  nmaxi       Maximum number of points in the neighborhood (or 0)
-**                         (only used for NEIGH_MOVING)
+**                         (only used for ENeigh::MOVING)
 ** \param[in]  nsect       Number of angular sectors (minimum=1)
-**                         (only used for NEIGH_MOVING with flag_sector)
+**                         (only used for ENeigh::MOVING with flag_sector)
 ** \param[in]  nsmax       Maximum number of samples per angular sector (or 0)
-**                         (only used for NEIGH_MOVING with flag_sector)
+**                         (only used for ENeigh::MOVING with flag_sector)
 ** \param[in]  skip        Skipping factor 
-**                         (only used for NEIGH_IMAGE)
+**                         (only used for ENeigh::IMAGE)
 ** \param[in]  width       Width of the bench (centered on target)
-**                         (used for NEIGH_BENCH)
+**                         (used for ENeigh::BENCH)
 ** \param[in]  radius      Search radius or TEST
-**                         (only used for NEIGH_MOVING)
+**                         (only used for ENeigh::MOVING)
 ** \param[in]  dist_cont   Normalized Distance where to apply continuous
 **                         moving neighborhood
 ** \param[in]  nbgh_radius Array of anisotropic search radii
-**                         (only used for NEIGH_MOVING)
+**                         (only used for ENeigh::MOVING)
 ** \param[in]  nbgh_rotmat Rotation matrix for the anisotropy
-**                         (only used for NEIGH_MOVING)
+**                         (only used for ENeigh::MOVING)
 ** \param[in]  nbgh_image  Vector of image neighborhood radius
-**                         (only used for NEIGH_IMAGE)
+**                         (only used for ENeigh::IMAGE)
 **
 *****************************************************************************/
 GEOSLIB_API Neigh *neigh_init(int ndim,
-                              int type,
+                              ENeigh type,
                               int flag_xvalid,
                               int flag_sector,
                               int flag_aniso,
@@ -905,7 +905,7 @@ GEOSLIB_API Neigh *neigh_init(int ndim,
   }
   if (neigh->getFlagRotation() && ! nbgh_rotmat.empty())
     neigh->setAnisoRotMat(nbgh_rotmat);
-  if (type == NEIGH_IMAGE && ! nbgh_image.empty())
+  if (type == ENeigh::IMAGE && ! nbgh_image.empty())
     neigh->setImageRadius(nbgh_image);
 
   return(neigh);
@@ -934,20 +934,20 @@ GEOSLIB_API void neigh_print(const Neigh *neigh)
 
   mestitle(0,"Neighborhood characteristics");
 
-  switch (neigh->getType())
+  switch (neigh->getType().toEnum())
   {
-    case NEIGH_UNIQUE:
+    case ENeigh::E_UNIQUE:
       message("Unique neighborhood option\n");
       message("Space dimension = %d\n",neigh->getNDim());
       break;
 
-    case NEIGH_BENCH:
+    case ENeigh::E_BENCH:
       message("Bench neighborhood option\n");
       message("Space dimension = %d\n",neigh->getNDim());
       message("Bench width     = %lf\n",neigh->getWidth());
       break;
 
-    case NEIGH_MOVING:
+    case ENeigh::E_MOVING:
       message("Moving neighborhood option\n");
       message("Space dimension                     = %d\n",neigh->getNDim());
       if (neigh->getNMini() > 0)
@@ -986,7 +986,7 @@ GEOSLIB_API void neigh_print(const Neigh *neigh)
       }
       break;
 
-    case NEIGH_IMAGE:
+    case ENeigh::E_IMAGE:
       message("Image neighborhood option\n");
       message("Skipping factor = %d\n",neigh->getSkip());
       print_imatrix("Image radius :",0,1,ndim,1,(double *) NULL,
@@ -1126,18 +1126,18 @@ GEOSLIB_API int neigh_select(Db     *dbin,
 
   /* Select the active data points */
 
-  switch (neigh->getType())
+  switch (neigh->getType().toEnum())
   {
-    case NEIGH_IMAGE:
-    case NEIGH_UNIQUE:
+    case ENeigh::E_IMAGE:
+    case ENeigh::E_UNIQUE:
       st_unique(dbin,dbout,iech_out,neigh,rank);
       break;
 
-    case NEIGH_BENCH:
+    case ENeigh::E_BENCH:
       st_bench(dbin,dbout,iech_out,neigh,rank);
       break;
 
-    case NEIGH_MOVING:
+    case ENeigh::E_MOVING:
       if (st_moving(dbin,dbout,iech_out,neigh,rank)) return(1);
       break;
   }
@@ -1231,36 +1231,36 @@ GEOSLIB_API void neigh_stop(void)
 **
 ** \param[out]  type        Neighborhood type (::ENUM_NEIGHS)
 ** \param[out]  nmini       Minimum number of points in the neighborhood (or 0)
-**                          (only used for NEIGH_MOVING)
+**                          (only used for ENeigh::MOVING)
 ** \param[out]  nmaxi       Maximum number of points in the neighborhood (or 0)
-**                          (only used for NEIGH_MOVING)
+**                          (only used for ENeigh::MOVING)
 ** \param[out]  nsect       Number of angular sectors (minimum=1)
-**                          (only used for NEIGH_MOVING with flag_sector)
+**                          (only used for ENeigh::MOVING with flag_sector)
 ** \param[out]  nsmax       Maximum number of samples per angular sector (or 0)
-**                          (only used for NEIGH_MOVING with flag_sector)
+**                          (only used for ENeigh::MOVING with flag_sector)
 ** \param[out]  skip        Skipping factor 
-**                          (only used for NEIGH_IMAGE)
+**                          (only used for ENeigh::IMAGE)
 ** \param[out]  flag_sector    1 if the MOVING neighborhood uses sectors
 ** \param[out]  flag_aniso     1 if the MOVING neighborhood is anisotropic
 ** \param[out]  flag_rotation  1 if the anisotropic MOVING neighborhood
 **                             is rotated
 ** \param[out]  flag_continuous 1 for continuous mving neighborhood
 ** \param[out]  width       Width of the bench (centered on target)
-**                          (used for NEIGH_BENCH)
+**                          (used for ENeigh::BENCH)
 ** \param[out]  radius      Maximum search radius or TEST
-**                          (only used for NEIGH_MOVING)
+**                          (only used for ENeigh::MOVING)
 ** \param[out]  dist_cont   Normalized Distance where to apply continuous
 **                          moving neighborhood
 ** \param[out]  nbgh_rotmat Rotation matrix for the anisotropy
-**                          (only used for NEIGH_MOVING)
+**                          (only used for ENeigh::MOVING)
 ** \param[out]  nbgh_radius Anisotropy coefficients
-**                          (only used for NEIGH_MOVING)
+**                          (only used for ENeigh::MOVING)
 ** \param[out]  nbgh_image  Vector of image neighborhood radius
-**                          (only used for NEIGH_IMAGE)
+**                          (only used for ENeigh::IMAGE)
 **
 *****************************************************************************/
 GEOSLIB_API int neigh_extract(Neigh  *neigh,
-                              int    *type,
+                              ENeigh *type,
                               int    *nmini,
                               int    *nmaxi,
                               int    *nsect,

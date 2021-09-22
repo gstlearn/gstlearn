@@ -31,7 +31,7 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
                                   bool flag_multi_mono,
                                   bool flag_propagation)
 {
-  if (neigh != (Neigh *) NULL && neigh->getType() == NEIGH_MOVING)
+  if (neigh != (Neigh *) NULL && neigh->getType() == ENeigh::MOVING)
   {
     if (flag_propagation)
     {

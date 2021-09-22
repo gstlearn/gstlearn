@@ -153,7 +153,7 @@ private:
   bool   _isVariableValid(int ivar) const;
 
 private:
-  CovContext      _ctxt;   /// Context (space, irfDegree, field, ...)
+  CovContext      _ctxt;   /// Context (space, irfDegree, field, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function
   MatrixCSGeneral _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters

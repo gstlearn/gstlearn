@@ -3086,7 +3086,7 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
     messerr("The Model must be monovariate");
     goto label_end;
   }
-  if (neigh->getType() != NEIGH_UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     goto label_end;
@@ -3335,7 +3335,7 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
     messerr("The Model must be monovariate");
     goto label_end;
   }
-  if (neigh->getType() != NEIGH_UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     goto label_end;
@@ -3578,7 +3578,7 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
     messerr("The Model must be monovariate");
     goto label_end;
   }
-  if (neigh->getType() != NEIGH_UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     goto label_end;

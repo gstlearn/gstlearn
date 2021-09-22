@@ -10930,7 +10930,7 @@ void tetgenmesh::transfernodes()
 
 void tetgenmesh::hilbert_init(int n)
 {
-  int gc[8], N, mask, travel_bit;
+  int gc[8] = { 0,0,0,0,0,0,0,0 }, N, mask, travel_bit;
   int e, d, f, k, g;
   int v, c;
   int i;
