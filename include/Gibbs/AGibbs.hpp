@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "Stats/StatTable.hpp"
 #include "geoslib_enum.h"
 
 class Db;
@@ -120,6 +121,7 @@ private:
   double _sqr;
   double _eps;
   VectorInt _ranks;
-  Db* _db;
-  Model* _model;
+  Db*       _db;
+  Model*    _model;
+  StatTable _stats;
 };

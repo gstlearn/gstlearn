@@ -30,7 +30,8 @@ AGibbs::AGibbs()
       _eps(EPSILON3),
       _ranks(),
       _db(nullptr),
-      _model(nullptr)
+      _model(nullptr),
+      _stats()
 {
 }
 
@@ -47,7 +48,8 @@ AGibbs::AGibbs(Db* db, Model* model)
       _eps(EPSILON3),
       _ranks(),
       _db(db),
-      _model(model)
+      _model(model),
+      _stats()
 {
 }
 
@@ -67,7 +69,8 @@ AGibbs::AGibbs(Db* db, Model* model,
       _eps(eps),
       _ranks(),
       _db(db),
-      _model(model)
+      _model(model),
+      _stats()
 {
   init(npgs, nvar, nburn, niter,
        flag_order, flag_multi_mono, flag_decay, rho, eps);
@@ -86,7 +89,8 @@ AGibbs::AGibbs(const AGibbs &r)
       _eps(r._eps),
       _ranks(r._ranks),
       _db(r._db),
-      _model(r._model)
+      _model(r._model),
+      _stats(r._stats)
 {
 }
 
@@ -107,6 +111,7 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
     _ranks = r._ranks;
     _db = r._db;
     _model = r._model;
+    _stats = r._stats;
   }
   return *this;
 }

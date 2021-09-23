@@ -92,7 +92,6 @@ public:
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
 
-
 private:
   int _getIcov() const { return _icov; }
   void _setIcov(int icov) { _icov = icov; }
@@ -104,10 +103,10 @@ private:
   bool _isVelocity();
   const CovAniso* _getCova();
 
-  int _buildS(AMesh *amesh, double tol = EPSILON10);
-  int _buildSVel(AMesh *amesh, double tol = EPSILON10);
-  int _buildSSphere(AMesh *amesh, double tol = EPSILON10);
-  int _buildSGrad(AMesh *amesh, double tol = EPSILON10);
+  int  _buildS(AMesh *amesh, double tol = EPSILON10);
+  int  _buildSVel(AMesh *amesh, double tol = EPSILON10);
+  int  _buildSSphere(AMesh *amesh, double tol = EPSILON10);
+  int  _buildSGrad(AMesh *amesh, double tol = EPSILON10);
   int  _buildTildeC(AMesh *amesh, const VectorDouble& units);
   void _buildLambda(AMesh *amesh);
   bool _buildLambdaGrad(AMesh *amesh);

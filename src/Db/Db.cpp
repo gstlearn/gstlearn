@@ -3616,22 +3616,8 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     if (!flag_grid && !getSelection(iech)) continue;
-    for (int icol = 0; icol < getFieldNumber(); icol++)
-    {
-      int rank;
-      if (! getLocatorByColumn(icol, &locatorType, &item))
-      {
-        if (onlyLocator) continue;
-        locatorType = LOC_Z;
-        rank = iatts[icol];
-      }
-      else
-      {
-        rank = getAttribute(locatorType, item);
-      }
-      if (flag_grid && locatorType == LOC_X) continue;
-      _recordWrite("%lf", getArray(iech, rank));
-    }
+    for (int icol = 0; icol < ncol; icol++)
+      _recordWrite("%lf", getArray(iech, iatts[icol]));
     _recordWrite("\n");
   }
   return (0);
