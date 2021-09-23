@@ -4101,15 +4101,13 @@ GEOSLIB_API int simpgs(Db *dbin,
         
       /* Check the validity of the Gibbs results (optional) */
         
-      if (flag_check)
-        gibbs->checkGibbs(y,isimu,ipgs);
+      if (flag_check) gibbs->checkGibbs(y,isimu,ipgs);
       if (verbose) gibbs->print(false, y, isimu, ipgs);
 
       // Store the results
 
       gibbs->storeResult(y, isimu, ipgs);
     }
-
     multi_model = model_free(multi_model);
   }
 
@@ -4549,8 +4547,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
         /* Check the validity of the Gibbs results (optional) */
 
-        if (flag_check)
-          gibbs->checkGibbs(y,isimu,ipgs);
+        if (flag_check) gibbs->checkGibbs(y,isimu,ipgs);
         if (verbose) gibbs->print(false,y,isimu,ipgs);
 
         // Store the results
