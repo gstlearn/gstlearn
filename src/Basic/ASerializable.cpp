@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Utilities.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -361,7 +362,7 @@ void ASerializable::_fileWrite(const String& format, va_list ap) const
   else if (format == "%d")
   {
     int ret_i = va_arg(ap, int);
-    if (ret_i == TEST)
+    if (FFFF(ret_i))
       fprintf(_file, "%5.1lf", ASCII_TEST);
     else
       fprintf(_file, "%d", ret_i);
@@ -369,7 +370,7 @@ void ASerializable::_fileWrite(const String& format, va_list ap) const
   else if (format == "%f")
   {
     ret_d = va_arg(ap, double);
-    if (ret_d == TEST)
+    if (FFFF(ret_d))
       fprintf(_file, "%5.1lf", ASCII_TEST);
     else
       fprintf(_file, "%f", ret_d);
@@ -377,7 +378,7 @@ void ASerializable::_fileWrite(const String& format, va_list ap) const
   else if (format == "%lf")
   {
     ret_d = va_arg(ap, double);
-    if (ret_d == TEST)
+    if (FFFF(ret_d))
       fprintf(_file, "%5.1lf", ASCII_TEST);
     else
       fprintf(_file, "%lf", ret_d);
@@ -385,7 +386,7 @@ void ASerializable::_fileWrite(const String& format, va_list ap) const
   else if (format == "%lg")
   {
     ret_d = va_arg(ap, double);
-    if (ret_d == TEST)
+    if (FFFF(ret_d))
       fprintf(_file, "%5.1lf", ASCII_TEST);
     else
       fprintf(_file, "%lg", ret_d);
