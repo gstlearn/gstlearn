@@ -3415,6 +3415,7 @@ int Db::deSerialize(const String& filename, bool verbose)
   VectorString tabnam;
   VectorDouble x0;
   VectorDouble dx;
+  VectorDouble angles;
   VectorDouble tab;
   static int flag_add_rank = 1;
 
@@ -3444,6 +3445,7 @@ int Db::deSerialize(const String& filename, bool verbose)
     nx.resize(ndim);
     dx.resize(ndim);
     x0.resize(ndim);
+    angles.resize(ndim);
 
     /* Read the grid characteristics */
 
@@ -3452,6 +3454,7 @@ int Db::deSerialize(const String& filename, bool verbose)
       if (_recordRead("Grid Number of Nodes", "%d", &nx[idim])) goto label_end;
       if (_recordRead("Grid Origin", "%lf", &x0[idim])) goto label_end;
       if (_recordRead("Grid Mesh", "%lf", &dx[idim])) goto label_end;
+      if (_recordRead("Grid Angles", "%lf", &angles[idim])) goto label_end;
     }
     ntot = ut_ivector_prod(nx);
   }
@@ -3472,7 +3475,7 @@ int Db::deSerialize(const String& filename, bool verbose)
       natt = 0;
     }
     reset(natt + flag_add_rank, ut_ivector_prod(nx));
-    (void) gridDefine(nx, dx, x0, VectorDouble());
+    (void) gridDefine(nx, dx, x0, angles);
     _loadData(1, flag_add_rank, tab);
   }
   else
@@ -3523,12 +3526,13 @@ int Db::serialize(const String& filename, bool verbose) const
 
     /* Writing the grid characteristics */
 
-    _recordWrite("#", "Grid characteristics (NX,X0,DX)");
+    _recordWrite("#", "Grid characteristics (NX,X0,DX,ANGLE)");
     for (int idim = 0; idim < getNDim(); idim++)
     {
       _recordWrite("%d",  getNX(idim));
       _recordWrite("%lf", getX0(idim));
       _recordWrite("%lf", getDX(idim));
+      _recordWrite("%lf", getAngles(idim));
       _recordWrite("\n");
     }
   }

@@ -25,6 +25,7 @@ AGibbs::AGibbs()
       _flagOrder(true),
       _flagMultiMono(true),
       _flagDecay(true),
+      _flagStats(false),
       _rho(1.),
       _sqr(0.),
       _eps(EPSILON3),
@@ -43,6 +44,7 @@ AGibbs::AGibbs(Db* db, Model* model)
       _flagOrder(true),
       _flagMultiMono(true),
       _flagDecay(true),
+      _flagStats(false),
       _rho(1.),
       _sqr(0.),
       _eps(EPSILON3),
@@ -64,6 +66,7 @@ AGibbs::AGibbs(Db* db, Model* model,
       _flagOrder(false),
       _flagMultiMono(true),
       _flagDecay(true),
+      _flagStats(false),
       _rho(1.),
       _sqr(0.),
       _eps(eps),
@@ -84,6 +87,7 @@ AGibbs::AGibbs(const AGibbs &r)
       _flagOrder(r._flagOrder),
       _flagMultiMono(r._flagMultiMono),
       _flagDecay(r._flagDecay),
+      _flagStats(r._flagStats),
       _rho(r._rho),
       _sqr(r._sqr),
       _eps(r._eps),
@@ -105,6 +109,7 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
     _flagOrder = r._flagOrder;
     _flagMultiMono = r._flagMultiMono;
     _flagDecay = r._flagDecay;
+    _flagStats = r._flagStats;
     _rho = r._rho;
     _sqr = r._sqr;
     _eps = r._eps;

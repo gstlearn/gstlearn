@@ -117,6 +117,7 @@ private:
   bool _flagCategory; // true for categorical; false for continuous
   bool _flagMultiMono;
   bool _flagDecay;
+  bool _flagStats;
   double _rho;
   double _sqr;
   double _eps;
