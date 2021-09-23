@@ -10,11 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include <Basic/RepeatMacro.hpp>
 #include <iostream>
 #include <string>
 #include <map>
 
+#include "Basic/RepeatMacro.hpp"
 
 class AEnum
 {
@@ -208,6 +208,6 @@ const NAME* NAME::_default = &NAME::DEFAULT;\
 \
 
 // Top level macros
-#define ENUM_DECLARE(...) ENUM_DECLARE_(__VA_ARGS__)
-#define ENUM_DEFINE(...) ENUM_DEFINE_(__VA_ARGS__)
+#define ENUM_DECLARE(...) EXPAND(ENUM_DECLARE_(__VA_ARGS__))
+#define ENUM_DEFINE(...) EXPAND(ENUM_DEFINE_(__VA_ARGS__))
 

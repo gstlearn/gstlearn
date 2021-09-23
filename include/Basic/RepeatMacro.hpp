@@ -13,8 +13,9 @@
 #define CONCATENATE(x,y) x ## y
 #define EXPAND(x) x
 
-// Inspired by https://stackoverflow.com/q/14732803
-// TODO : take care of https://stackoverflow.com/questions/5134523/msvc-doesnt-expand-va-args-correctly
+// Inspired by :
+// - https://stackoverflow.com/q/14732803
+// - https://stackoverflow.com/questions/1872220/is-it-possible-to-iterate-over-arguments-in-variadic-macros/1872506#1872506
 #define NARG(...) NARG_(__VA_ARGS__, RSEQ_N())
 #define NARG_(...) EXPAND(ARG_N(__VA_ARGS__))
 #define ARG_N( _1,  _2,  _3,  _4,  _5,  _6,  _7,  _8,\
@@ -28,103 +29,103 @@
                   8,  7,  6,  5,  4,  3,  2,  1,  0
 
 // REPEAT macro (repeat 'what' instruction for each remaining SINGLE argument)
-#define REPEAT_1(what, x, ...) what(x)
+#define REPEAT_1(what, x) what(x)
 #define REPEAT_2(what, x, ...)\
   what(x)\
-  REPEAT_1(what, __VA_ARGS__)
+  EXPAND(REPEAT_1(what, __VA_ARGS__))
 #define REPEAT_3(what, x, ...)\
   what(x)\
-  REPEAT_2(what, __VA_ARGS__)
+  EXPAND(REPEAT_2(what, __VA_ARGS__))
 #define REPEAT_4(what, x, ...)\
   what(x)\
-  REPEAT_3(what, __VA_ARGS__)
+  EXPAND(REPEAT_3(what, __VA_ARGS__))
 #define REPEAT_5(what, x, ...)\
   what(x)\
-  REPEAT_4(what, __VA_ARGS__)
+  EXPAND(REPEAT_4(what, __VA_ARGS__))
 #define REPEAT_6(what, x, ...)\
   what(x)\
-  REPEAT_5(what, __VA_ARGS__)
+  EXPAND(REPEAT_5(what, __VA_ARGS__))
 #define REPEAT_7(what, x, ...)\
   what(x)\
-  REPEAT_6(what, __VA_ARGS__)
+  EXPAND(REPEAT_6(what, __VA_ARGS__))
 #define REPEAT_8(what, x, ...)\
   what(x)\
-  REPEAT_7(what, __VA_ARGS__)
+  EXPAND(REPEAT_7(what, __VA_ARGS__))
 #define REPEAT_9(what, x, ...)\
   what(x)\
-  REPEAT_8(what, __VA_ARGS__)
+  EXPAND(REPEAT_8(what, __VA_ARGS__))
 #define REPEAT_10(what, x, ...)\
   what(x)\
-  REPEAT_9(what, __VA_ARGS__)
+  EXPAND(REPEAT_9(what, __VA_ARGS__))
 #define REPEAT_11(what, x, ...)\
   what(x)\
-  REPEAT_10(what, __VA_ARGS__)
+  EXPAND(REPEAT_10(what, __VA_ARGS__))
 #define REPEAT_12(what, x, ...)\
   what(x)\
-  REPEAT_11(what, __VA_ARGS__)
+  EXPAND(REPEAT_11(what, __VA_ARGS__))
 #define REPEAT_13(what, x, ...)\
   what(x)\
-  REPEAT_12(what, __VA_ARGS__)
+  EXPAND(REPEAT_12(what, __VA_ARGS__))
 #define REPEAT_14(what, x, ...)\
   what(x)\
-  REPEAT_13(what, __VA_ARGS__)
+  EXPAND(REPEAT_13(what, __VA_ARGS__))
 #define REPEAT_15(what, x, ...)\
   what(x)\
-  REPEAT_14(what, __VA_ARGS__)
+  EXPAND(REPEAT_14(what, __VA_ARGS__))
 #define REPEAT_16(what, x, ...)\
   what(x)\
-  REPEAT_15(what, __VA_ARGS__)
+  EXPAND(REPEAT_15(what, __VA_ARGS__))
 #define REPEAT_17(what, x, ...)\
   what(x)\
-  REPEAT_16(what, __VA_ARGS__)
+  EXPAND(REPEAT_16(what, __VA_ARGS__))
 #define REPEAT_18(what, x, ...)\
   what(x)\
-  REPEAT_17(what, __VA_ARGS__)
+  EXPAND(REPEAT_17(what, __VA_ARGS__))
 #define REPEAT_19(what, x, ...)\
   what(x)\
-  REPEAT_18(what, __VA_ARGS__)
+  EXPAND(REPEAT_18(what, __VA_ARGS__))
 #define REPEAT_20(what, x, ...)\
   what(x)\
-  REPEAT_19(what, __VA_ARGS__)
+  EXPAND(REPEAT_19(what, __VA_ARGS__))
 #define REPEAT_21(what, x, ...)\
   what(x)\
-  REPEAT_20(what, __VA_ARGS__)
+  EXPAND(REPEAT_20(what, __VA_ARGS__))
 #define REPEAT_22(what, x, ...)\
   what(x)\
-  REPEAT_21(what, __VA_ARGS__)
+  EXPAND(REPEAT_21(what, __VA_ARGS__))
 #define REPEAT_23(what, x, ...)\
   what(x)\
-  REPEAT_22(what, __VA_ARGS__)
+  EXPAND(REPEAT_22(what, __VA_ARGS__))
 #define REPEAT_24(what, x, ...)\
   what(x)\
-  REPEAT_23(what, __VA_ARGS__)
+  EXPAND(REPEAT_23(what, __VA_ARGS__))
 #define REPEAT_25(what, x, ...)\
   what(x)\
-  REPEAT_24(what, __VA_ARGS__)
+  EXPAND(REPEAT_24(what, __VA_ARGS__))
 #define REPEAT_26(what, x, ...)\
   what(x)\
-  REPEAT_25(what, __VA_ARGS__)
+  EXPAND(REPEAT_25(what, __VA_ARGS__))
 #define REPEAT_27(what, x, ...)\
   what(x)\
-  REPEAT_26(what, __VA_ARGS__)
+  EXPAND(REPEAT_26(what, __VA_ARGS__))
 #define REPEAT_28(what, x, ...)\
   what(x)\
-  REPEAT_27(what, __VA_ARGS__)
+  EXPAND(REPEAT_27(what, __VA_ARGS__))
 #define REPEAT_29(what, x, ...)\
   what(x)\
-  REPEAT_28(what, __VA_ARGS__)
+  EXPAND(REPEAT_28(what, __VA_ARGS__))
 #define REPEAT_30(what, x, ...)\
   what(x)\
-  REPEAT_29(what, __VA_ARGS__)
+  EXPAND(REPEAT_29(what, __VA_ARGS__))
 #define REPEAT_31(what, x, ...)\
   what(x)\
-  REPEAT_30(what, __VA_ARGS__)
+  EXPAND(REPEAT_30(what, __VA_ARGS__))
 #define REPEAT_32(what, x, ...)\
   what(x)\
-  REPEAT_31(what, __VA_ARGS__)
+  EXPAND(REPEAT_31(what, __VA_ARGS__))
   
-#define REPEAT_(N, what, x, ...) EXPAND(CONCATENATE(REPEAT_, N)(what, x, __VA_ARGS__))
-#define REPEAT(what, x, ...) REPEAT_(NARG(x, __VA_ARGS__), what, x, __VA_ARGS__)
+#define REPEAT_(N, what, ...) EXPAND(CONCATENATE(REPEAT_, N)(what, __VA_ARGS__))
+#define REPEAT(what, ...) REPEAT_(NARG(__VA_ARGS__), what, __VA_ARGS__)
 
 
 // REPEAT macro (repeat 'what' instruction for each remaining PAIRS of arguments)
@@ -148,103 +149,103 @@
                    8,  8,  7,  7,  6,  6,  5,  5,\
                    4,  4,  3,  3,  2,  2,  1,  1,  0,  0
 
-#define REPEAT2_1(what, x, y, ...) what(x, y)
+#define REPEAT2_1(what, x, y) what(x, y)
 #define REPEAT2_2(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_1(what, __VA_ARGS__)
+  EXPAND(REPEAT2_1(what, __VA_ARGS__))
 #define REPEAT2_3(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_2(what, __VA_ARGS__)
+  EXPAND(REPEAT2_2(what, __VA_ARGS__))
 #define REPEAT2_4(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_3(what, __VA_ARGS__)
+  EXPAND(REPEAT2_3(what, __VA_ARGS__))
 #define REPEAT2_5(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_4(what, __VA_ARGS__)
+  EXPAND(REPEAT2_4(what, __VA_ARGS__))
 #define REPEAT2_6(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_5(what, __VA_ARGS__)
+  EXPAND(REPEAT2_5(what, __VA_ARGS__))
 #define REPEAT2_7(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_6(what, __VA_ARGS__)
+  EXPAND(REPEAT2_6(what, __VA_ARGS__))
 #define REPEAT2_8(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_7(what, __VA_ARGS__)
+  EXPAND(REPEAT2_7(what, __VA_ARGS__))
 #define REPEAT2_9(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_8(what, __VA_ARGS__)
+  EXPAND(REPEAT2_8(what, __VA_ARGS__))
 #define REPEAT2_10(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_9(what, __VA_ARGS__)
+  EXPAND(REPEAT2_9(what, __VA_ARGS__))
 #define REPEAT2_11(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_10(what, __VA_ARGS__)
+  EXPAND(REPEAT2_10(what, __VA_ARGS__))
 #define REPEAT2_12(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_11(what, __VA_ARGS__)
+  EXPAND(REPEAT2_11(what, __VA_ARGS__))
 #define REPEAT2_13(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_12(what, __VA_ARGS__)
+  EXPAND(REPEAT2_12(what, __VA_ARGS__))
 #define REPEAT2_14(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_13(what, __VA_ARGS__)
+  EXPAND(REPEAT2_13(what, __VA_ARGS__))
 #define REPEAT2_15(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_14(what, __VA_ARGS__)
+  EXPAND(REPEAT2_14(what, __VA_ARGS__))
 #define REPEAT2_16(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_15(what, __VA_ARGS__)
+  EXPAND(REPEAT2_15(what, __VA_ARGS__))
 #define REPEAT2_17(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_16(what, __VA_ARGS__)
+  EXPAND(REPEAT2_16(what, __VA_ARGS__))
 #define REPEAT2_18(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_17(what, __VA_ARGS__)
+  EXPAND(REPEAT2_17(what, __VA_ARGS__))
 #define REPEAT2_19(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_18(what, __VA_ARGS__)
+  EXPAND(REPEAT2_18(what, __VA_ARGS__))
 #define REPEAT2_20(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_19(what, __VA_ARGS__)
+  EXPAND(REPEAT2_19(what, __VA_ARGS__))
 #define REPEAT2_21(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_20(what, __VA_ARGS__)
+  EXPAND(REPEAT2_20(what, __VA_ARGS__))
 #define REPEAT2_22(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_21(what, __VA_ARGS__)
+  EXPAND(REPEAT2_21(what, __VA_ARGS__))
 #define REPEAT2_23(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_22(what, __VA_ARGS__)
+  EXPAND(REPEAT2_22(what, __VA_ARGS__))
 #define REPEAT2_24(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_23(what, __VA_ARGS__)
+  EXPAND(REPEAT2_23(what, __VA_ARGS__))
 #define REPEAT2_25(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_24(what, __VA_ARGS__)
+  EXPAND(REPEAT2_24(what, __VA_ARGS__))
 #define REPEAT2_26(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_25(what, __VA_ARGS__)
+  EXPAND(REPEAT2_25(what, __VA_ARGS__))
 #define REPEAT2_27(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_26(what, __VA_ARGS__)
+  EXPAND(REPEAT2_26(what, __VA_ARGS__))
 #define REPEAT2_28(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_27(what, __VA_ARGS__)
+  EXPAND(REPEAT2_27(what, __VA_ARGS__))
 #define REPEAT2_29(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_28(what, __VA_ARGS__)
+  EXPAND(REPEAT2_28(what, __VA_ARGS__))
 #define REPEAT2_30(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_29(what, __VA_ARGS__)
+  EXPAND(REPEAT2_29(what, __VA_ARGS__))
 #define REPEAT2_31(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_30(what, __VA_ARGS__)
+  EXPAND(REPEAT2_30(what, __VA_ARGS__))
 #define REPEAT2_32(what, x, y, ...)\
   what(x, y)\
-  REPEAT2_31(what, __VA_ARGS__)
+  EXPAND(REPEAT2_31(what, __VA_ARGS__))
 
-#define REPEAT2_(N, what, x, y, ...) EXPAND(CONCATENATE(REPEAT2_, N)(what, x, y, __VA_ARGS__))
-#define REPEAT2(what, x, y, ...) REPEAT2_(NARG2(x, y, __VA_ARGS__), what, x, y, __VA_ARGS__)
+#define REPEAT2_(N, what, ...) EXPAND(CONCATENATE(REPEAT2_, N)(what, __VA_ARGS__))
+#define REPEAT2(what, ...) REPEAT2_(NARG2(__VA_ARGS__), what, __VA_ARGS__)
 
 // REPEAT macro (repeat 'what' instruction for each remaining TRIPLET of arguments + 1 fixed argument named a)
 #define NARG3(...) NARG3_(__VA_ARGS__, RSEQ3_N())
@@ -272,97 +273,97 @@
 #define REPEAT3_1(what, a, x, y, z) what(a, x, y, z)
 #define REPEAT3_2(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_1(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_1(what, a, __VA_ARGS__))
 #define REPEAT3_3(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_2(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_2(what, a, __VA_ARGS__))
 #define REPEAT3_4(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_3(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_3(what, a, __VA_ARGS__))
 #define REPEAT3_5(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_4(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_4(what, a, __VA_ARGS__))
 #define REPEAT3_6(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_5(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_5(what, a, __VA_ARGS__))
 #define REPEAT3_7(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_6(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_6(what, a, __VA_ARGS__))
 #define REPEAT3_8(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_7(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_7(what, a, __VA_ARGS__))
 #define REPEAT3_9(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_8(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_8(what, a, __VA_ARGS__))
 #define REPEAT3_10(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_9(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_9(what, a, __VA_ARGS__))
 #define REPEAT3_11(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_10(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_10(what, a, __VA_ARGS__))
 #define REPEAT3_12(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_11(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_11(what, a, __VA_ARGS__))
 #define REPEAT3_13(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_12(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_12(what, a, __VA_ARGS__))
 #define REPEAT3_14(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_13(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_13(what, a, __VA_ARGS__))
 #define REPEAT3_15(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_14(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_14(what, a, __VA_ARGS__))
 #define REPEAT3_16(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_15(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_15(what, a, __VA_ARGS__))
 #define REPEAT3_17(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_16(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_16(what, a, __VA_ARGS__))
 #define REPEAT3_18(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_17(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_17(what, a, __VA_ARGS__))
 #define REPEAT3_19(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_18(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_18(what, a, __VA_ARGS__))
 #define REPEAT3_20(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_19(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_19(what, a, __VA_ARGS__))
 #define REPEAT3_21(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_20(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_20(what, a, __VA_ARGS__))
 #define REPEAT3_22(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_21(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_21(what, a, __VA_ARGS__))
 #define REPEAT3_23(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_22(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_22(what, a, __VA_ARGS__))
 #define REPEAT3_24(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_23(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_23(what, a, __VA_ARGS__))
 #define REPEAT3_25(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_24(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_24(what, a, __VA_ARGS__))
 #define REPEAT3_26(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_25(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_25(what, a, __VA_ARGS__))
 #define REPEAT3_27(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_26(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_26(what, a, __VA_ARGS__))
 #define REPEAT3_28(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_27(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_27(what, a, __VA_ARGS__))
 #define REPEAT3_29(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_28(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_28(what, a, __VA_ARGS__))
 #define REPEAT3_30(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_29(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_29(what, a, __VA_ARGS__))
 #define REPEAT3_31(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_30(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_30(what, a, __VA_ARGS__))
 #define REPEAT3_32(what, a, x, y, z, ...)\
   what(a, x, y, z)\
-  REPEAT3_31(what, a, __VA_ARGS__)
+  EXPAND(REPEAT3_31(what, a, __VA_ARGS__))
 
 #define REPEAT3_(N, what, a, x, y, z, ...) EXPAND(CONCATENATE(REPEAT3_, N)(what, a, x, y, z, __VA_ARGS__))
 #define REPEAT3(what, a, x, y, z, ...) REPEAT3_(NARG3(x, y, z, __VA_ARGS__), what, a, x, y, z, __VA_ARGS__)
