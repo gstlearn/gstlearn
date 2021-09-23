@@ -35,6 +35,8 @@ namespace std {
 %template(VectorToken_Par) std::vector<Token_Par*>;
 %template(VectorIntervals) std::vector<Interval*>;
 
+// Remind that swig %include doesn't follow #include inclusion.
+// You must cite below each single header files you want to export!
 %include Basic/Vector.hpp
 %include csparse_d.h
 %include csparse_f.h
@@ -56,6 +58,7 @@ namespace std {
 %include Basic/AFunctional.hpp
 %include Basic/FunctionalSpirale.hpp
 %include Basic/RepeatMacro.hpp
+%include Basic/RepeatMacroSwig.hpp
 %include Space/Space.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp
@@ -79,7 +82,7 @@ namespace std {
 %include Mesh/MeshEStandard.hpp
 %include Mesh/MeshETurbo.hpp
 %include Enum/AEnum.hpp
-%include Enum/Enums.hpp
+%include Enum/ENeigh.hpp
 %include Polynomials/Hermite.hpp
 %include Polynomials/MonteCarlo.hpp
 %include LinearOp/ALinearOp.hpp

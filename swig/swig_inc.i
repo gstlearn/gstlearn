@@ -53,7 +53,7 @@
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Enum/AEnum.hpp"
-#include "Enum/Enums.hpp"
+#include "Enum/Enums.hpp" // No need to add all enum headers (if Enums.hpp include them)
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
 #include "LinearOp/ALinearOp.hpp"
