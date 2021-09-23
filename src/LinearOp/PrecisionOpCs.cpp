@@ -52,9 +52,8 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
   {
     for(int iapex=0;iapex<getSize();iapex++)
     {
-      evalDeriv(X,_work2,iapex,igparam);
       iadress = getShiftOp()->getSGradAddress(iapex,igparam);
-      if(igparam < getShiftOp()->getDim())
+      if(igparam < getShiftOp()->getDim()) // range parameters
       {
         val = getShiftOp()->getLambda(iapex);
         temp = getShiftOp()->getLambdaGrad(igparam,iapex);
@@ -65,6 +64,7 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
       {
         result[iadress] = 0.;
       }
+      evalDeriv(X,_work2,iapex,igparam);
       for(int i = 0;i<getSize();i++)
       {
         result[iadress] += _work2[i]*Y[i];
@@ -72,7 +72,6 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
     }
   }
 }
-
 
 void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
 {
@@ -128,12 +127,11 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
 
 }
 
-
 void PrecisionOpCs::evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
 {
 
   if(getPower() == POPT_ONE)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
+     my_throw("'evalDeriv' is not yet implemented for 'POPT_ONE'");
   if(getPower() == POPT_MINUSONE)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
   if(getPower() == POPT_MINUSHALF)

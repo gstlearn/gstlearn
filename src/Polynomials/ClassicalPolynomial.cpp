@@ -106,8 +106,6 @@ void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& o
   }
 }
 
-
-
 void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
                                       const VectorDouble& in,
                                       VectorDouble& out,
@@ -153,6 +151,38 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
       swap2 = swap3;
     }
    }
-
    delete polycur;
+}
+
+
+
+void ClassicalPolynomial::evalDerivOpOptim(cs* Op,
+                                      const VectorDouble& in1,
+                                      const VectorDouble& in2,
+                                      VectorDouble& out
+                                      )const
+{
+
+  int n = static_cast<int> (in1.size());
+  VectorDouble work1(n);
+  VectorDouble work2(n);
+  VectorDouble work3(n);
+  VectorDouble deriv(n);
+  cs_vecmult(Op,in2.data(),work2.data());
+
+    for(int i = 0; i < n ;i++)
+    {
+       work1[i] = _coeffs.back() * in1[i];
+       deriv[i] = 0.;
+    }
+
+    for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
+    {
+      cs_vecmult(Op,work1.data(),work1.data());
+      for (int i = 0; i<n ; i++)
+      {
+          work1[i] = _coeffs[j] * in1[i] + work1[i];
+      }
+    }
+
 }
