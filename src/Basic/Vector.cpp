@@ -443,3 +443,4 @@ VectorDouble ut_vector_sequence(double valFrom, double valTo, double valStep)
   }
   return vec;
 }
+

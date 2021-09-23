@@ -68,4 +68,3 @@ VectorDouble ut_vector_simulate_gaussian(int n, double mean = 0., double sigma =
 int ut_ivector_prod(const VectorInt nx);
 VectorInt ut_ivector_sequence(int number, int ideb = 0);
 VectorDouble ut_vector_sequence(double valFrom, double valTo, double valStep);
-

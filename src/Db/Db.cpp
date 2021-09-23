@@ -3538,6 +3538,7 @@ int Db::serialize(const String& filename, bool verbose) const
   if (_variableWrite(flag_grid, onlyLocator)) return 1;
 
   // Close the Neutral file
+
   _fileClose(verbose);
 
   return 0;
@@ -3545,7 +3546,7 @@ int Db::serialize(const String& filename, bool verbose) const
 
 int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
 {
-  int ecr, item;
+  int ecr, item, rankZ;
   ENUM_LOCS locatorType = LOC_UNKNOWN;
 
   /* Preliminary check */
@@ -3557,7 +3558,11 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
   int ncol = 0;
   for (int icol = 0; icol < getFieldNumber(); icol++)
   {
-    if (onlyLocator && ! getLocatorByColumn(icol, &locatorType, &item)) continue;
+    if (!getLocatorByColumn(icol, &locatorType, &item))
+    {
+      if (onlyLocator) continue;
+      locatorType = LOC_Z;
+    }
     if (flag_grid && locatorType == LOC_X) continue;
     ncol++;
   }
@@ -3567,8 +3572,8 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
   /* Print the locators */
 
   _recordWrite("#", "Locators");
+  rankZ = getLocatorNumber(LOC_Z);
   ecr = 0;
-  int rankZ = getLocatorNumber(LOC_Z);
   for (int icol =  0; icol < getFieldNumber(); icol++)
   {
     if (! getLocatorByColumn(icol, &locatorType, &item))
@@ -3592,11 +3597,16 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
   ecr = 0;
   for (int icol = 0; icol < getFieldNumber(); icol++)
   {
-    if (onlyLocator && ! getLocatorByColumn(icol, &locatorType, &item)) continue;
+    if (! getLocatorByColumn(icol, &locatorType, &item))
+    {
+      if (onlyLocator) continue;
+      locatorType = LOC_Z;
+    }
     if (flag_grid && locatorType == LOC_X) continue;
     if (ecr >= ncol) break;
     _recordWrite("%s", getNameByColumn(icol).c_str());
     iatts.push_back(getAttribute(getNameByColumn(icol)));
+    ecr++;
   }
   _recordWrite("\n");
 

@@ -38,22 +38,23 @@ int main(int argc, char *argv[])
 
   // Deserialize db2
   Db db2("Neutral.Db.ascii",verbose);
-  db2.display();
 
   // ===== Create the Grid Db
   Db dbg1({12,10},{0.1,0.3},{0.2,0.4});
   vec1 = ut_vector_simulate_gaussian(dbg1.getSampleNumber());
   dbg1.addFields(vec1,"myvar1",LOC_Z, 0);
   vec2 = ut_vector_simulate_gaussian(dbg1.getSampleNumber());
+  vec2[2] = TEST;
+  vec2[5] = TEST;
   dbg1.addFields(vec2,"myvar2",LOC_Z, 1);
-  dbg1.display();
+  dbg1.display(1);
 
   // Serialize dbg1
   dbg1.serialize("Neutral.Dbg.ascii",verbose);
 
   // Deserialize dbg2
   Db dbg2("Neutral.Dbg.ascii",verbose);
-  dbg2.display();
+  dbg2.display(1);
 
   // ===== Create the Polygon poly1
   Polygons poly1(&db1);
