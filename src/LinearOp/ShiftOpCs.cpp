@@ -615,9 +615,9 @@ void ShiftOpCs::_loadHHByApex(MatrixCSGeneral& hh, int ip)
 /**
  * Calculate HH Gradient matrix from one of the Model parameters
  * for the given Apex.
- * @param hh Output Array
+ * @param hh      Output Array
  * @param igparam Rank of the parameter for derivation
- * @param ip   Rank of the point
+ * @param ip      Rank of the point
  * @param flagFormal True for Formal calculations; False for Numerical Derivation
  *
  * @details: The parameters 'igparam' are sorted as follows:
@@ -873,7 +873,6 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
   int ncorner = amesh->getNApexPerMesh();
   int ngparam = _nModelGradParam;
   bool flag_nostat = _isNoStat();
-
 
   // Initialize the arrays
 

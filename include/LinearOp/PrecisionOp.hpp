@@ -57,7 +57,6 @@ private:
   int  _evalPoly(ENUM_POPTS power,const VectorDouble& in, VectorDouble& out);
   void _purge();
 
-
 private:
   mutable ShiftOpCs*   _shiftOp;
   const CovAniso*      _cova;
