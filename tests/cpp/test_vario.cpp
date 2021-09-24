@@ -16,6 +16,7 @@
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
+#include <stdlib.h>
 
 /****************************************************************************/
 /*!

@@ -11,6 +11,7 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "Model/Model.hpp"
+#include <stdlib.h>
 
 /****************************************************************************
 **
