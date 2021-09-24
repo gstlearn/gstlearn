@@ -38,7 +38,19 @@
 int main(int argc, char *argv[])
 
 {
-  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
+  char* pydir(std::getenv("PYGSTLEARN_DIR"));
+  String pygst;
+  if (pydir == nullptr)
+  {
+    pygst = ASerializable::getHomeDirectory("gstlearn_output/");
+    std::cout << "PYGSTLEARN_DIR environment variable not defined. Using " << pygst << std::endl;
+  }
+  else
+  {
+    pygst = String(pydir);
+  }
+  setSerializedContainerName(pygst);
+  setSerializedPrefixName("SPDEManual-");
   int seed = 10355;
   law_set_random_seed(seed);
 
@@ -115,6 +127,6 @@ int main(int argc, char *argv[])
 
   A.evalInverse(Rhs, resultvc);
   workingDbc.addFields(resultvc[0], "Kriging");
-  workingDbc.serialize(pygst + "spde.ascii");
+  workingDbc.serialize("spde.ascii");
   return 0;
 }
