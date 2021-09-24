@@ -12,6 +12,7 @@
 
 #include "Basic/String.hpp"
 #include <stdarg.h>
+#include <stdio.h>
 
 class ASerializable
 {

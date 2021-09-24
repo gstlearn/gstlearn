@@ -53,6 +53,21 @@ ASerializable::ASerializable()
   , _file(nullptr)
   , _currentRecord()
 {
+  if (myContainerName.empty())
+  {
+    char* pydir(std::getenv("PYGSTLEARN_DIR"));
+    String pygst;
+    if (pydir == nullptr)
+    {
+      pygst = ASerializable::getHomeDirectory("gstlearn_output/");
+      std::cout << "PYGSTLEARN_DIR environment variable not defined. Using " << pygst << std::endl;
+    }
+    else
+    {
+      pygst = String(pydir);
+    }
+    myContainerName = pygst;
+  }
 }
 
 /****************************************************************************/
