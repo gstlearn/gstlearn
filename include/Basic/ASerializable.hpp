@@ -30,6 +30,8 @@ public:
   const String& getPrefixName() const { return _prefixName; }
   String buildFileName(const String& filename) const;
 
+  static String getHomeDirectory(const std::string& sub = "");
+
 protected:
   int _fileOpen(const String& filename,
                 const String& filetype,

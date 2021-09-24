@@ -423,7 +423,7 @@ bool ASerializable::_onlyBlanks(char *string) const
 
 String ASerializable::buildFileName(const String& filename) const
 {
-// TODO: t be restored when boost is usable for pygstlearn
+// TODO: to be restored when boost is usable for pygstlearn
 //  boost::filesystem::path final;
 //  if (! myContainerName.empty())
 //  {
@@ -451,6 +451,25 @@ String ASerializable::buildFileName(const String& filename) const
   fileLocal += filename;
 
   return fileLocal;
+}
+
+String ASerializable::getHomeDirectory(const std::string& sub)
+{
+  // https://stackoverflow.com/a/2552458
+#if defined(_WIN32) || defined(_WIN64)
+  const char* HomeDirectory = getenv("HOMEDIR");
+  const char* Homepath = getenv("HOMEPATH");
+  HomeDirectory = malloc(strlen(HomeDirectory)+strlen(Homepath)+1);
+  strcat(HomeDirectory, Homepath);
+#else
+  const char* HomeDirectory = getenv("HOME");
+#endif
+  std::stringstream sstr;
+  // TODO : Cross-platform way to build file path
+  sstr << String(HomeDirectory);
+  if (!sub.empty())
+    sstr << "/" << sub;
+  return sstr.str();
 }
 
 String serializedFileIdentify(const String& filename)

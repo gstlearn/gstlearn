@@ -25,7 +25,17 @@
 int main(int argc, char *argv[])
 
 {
-  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
+  char* pydir(std::getenv("PYGSTLEARN_DIR"));
+  String pygst;
+  if (pydir == nullptr)
+  {
+    pygst = ASerializable::getHomeDirectory("gstlearn_output/");
+    std::cout << "PYGSTLEARN_DIR environment variable not defined. Using " << pygst << std::endl;
+  }
+  else
+  {
+    pygst = String(pydir);
+  }
   int error = 0;
   int ndim = 2;
   ASpaceObject::createGlobalSpace(SPACE_RN, ndim);

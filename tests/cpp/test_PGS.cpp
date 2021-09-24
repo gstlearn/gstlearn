@@ -25,12 +25,18 @@ int main(int argc, char *argv[])
 
 {
   char* pydir(std::getenv("PYGSTLEARN_DIR"));
+  String pygst;
   if (pydir == nullptr)
   {
-    std::cout << "PYGSTLEARN_DIR environment variable must be defined. Test aborted!" << std::endl;
-    return 1;
+    pygst = ASerializable::getHomeDirectory("gstlearn_output/");
+    std::cout << "PYGSTLEARN_DIR environment variable not defined. Using " << pygst << std::endl;
   }
-  setSerializedContainerName(pydir);
+  else
+  {
+    pygst = String(pydir);
+  }
+
+  setSerializedContainerName(pygst);
   setSerializedPrefixName("PGS-");
   int error = 0;
   int ndim  = 2;

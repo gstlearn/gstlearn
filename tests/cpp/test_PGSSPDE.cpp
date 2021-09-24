@@ -24,7 +24,19 @@
 int main(int argc, char *argv[])
 
 {
-  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
+  char* pydir(std::getenv("PYGSTLEARN_DIR"));
+  String pygst;
+  if (pydir == nullptr)
+  {
+    pygst = ASerializable::getHomeDirectory("gstlearn_output/");
+    std::cout << "PYGSTLEARN_DIR environment variable not defined. Using " << pygst << std::endl;
+  }
+  else
+  {
+    pygst = String(pydir);
+  }
+  setSerializedContainerName(pygst);
+  setSerializedPrefixName("PGSSPDE-");
   int error = 0;
   int ndim = 2;
   ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
@@ -56,14 +68,14 @@ int main(int argc, char *argv[])
   CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
   model1.addCova(&cova1);
   model1.display();
-  model1.serialize(pygst+ "truemodel1.ascii");
+  model1.serialize("truemodel1.ascii");
 
   Model model2(ctxt);
   double range2 = 40;
   CovAniso cova2(COV_BESSEL_K,range2,2.,1.,ctxt);
   model2.addCova(&cova2);
   model2.display();
-  model2.serialize(pygst+ "truemodel2.ascii");
+  model2.serialize("truemodel2.ascii");
 
   std::vector<Model*> models;
   models.push_back(&model1);
@@ -85,7 +97,7 @@ int main(int argc, char *argv[])
   spgs.simulate();
   spgs.query(&workingDbc);
   workingDbc.display();
-  workingDbc.serialize(pygst + "pgs.ascii");
+  workingDbc.serialize("pgs.ascii");
 
   return(error);
 }

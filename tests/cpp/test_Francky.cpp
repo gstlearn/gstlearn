@@ -35,8 +35,20 @@ int main(int argc, char *argv[])
 {
   int seed = 10355;
   law_set_random_seed(seed);
-  auto pygst = std::string(std::getenv("PYGSTLEARN_DIR"));
 
+  char* pydir(std::getenv("PYGSTLEARN_DIR"));
+  String pygst;
+  if (pydir == nullptr)
+  {
+    pygst = ASerializable::getHomeDirectory("gstlearn_output/");
+    std::cout << "PYGSTLEARN_DIR environment variable not defined. Using " << pygst << std::endl;
+  }
+  else
+  {
+    pygst = String(pydir);
+  }
+  setSerializedContainerName(pygst);
+  setSerializedPrefixName("Francky-");
   // Creating the 2-D Db
   auto nx = { 101, 101 };
   Db workingDbc(nx);
@@ -62,7 +74,7 @@ int main(int argc, char *argv[])
 
   // Testing Kriging
   kriging(&dat,&workingDbc,&model,&neigh);
-  workingDbc.serialize(pygst+ "franckyFunctional.ascii");
+  workingDbc.serialize("franckyFunctional.ascii");
 
   message("Test performed successfully\n");
 
