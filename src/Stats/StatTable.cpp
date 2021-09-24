@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Stats/StatTable.hpp"
+#include "Basic/String.hpp"
 
 StatTable::StatTable()
   : ASerializable(),
@@ -47,6 +48,28 @@ int StatTable::getColNumber() const
 {
   if (isEmpty()) return 0;
   return _stats.size();
+}
+
+void StatTable::resize(int irow, int ncols)
+{
+  int nrows = 0;
+  if (isEmpty())
+    _stats.resize(ncols);
+  else
+    nrows = getRowNumber();
+
+  if (irow >= nrows)
+  {
+    int ncols = getColNumber();
+    for (int icol = 0; icol < ncols; icol++)
+      _stats[icol].resize(irow);
+  }
+}
+
+double StatTable::getValue(int irow, int icol) const
+{
+  if (irow <= getRowNumber()) return 0.;
+  return _stats[icol][irow];
 }
 
 int StatTable::serialize(const String& filename, bool verbose) const
@@ -114,4 +137,36 @@ int StatTable::deSerialize(const String& filename, bool verbose)
   label_end:
   if (error) _stats.clear();
   return error;
+}
+
+/**
+ * Print the contents of the statistics
+ */
+void StatTable::display(int isimu) const
+{
+  if (_stats.empty()) return;
+
+  mestitle(1,"Statistics printout for Simulation %d",isimu);
+
+  int ncols = getColNumber();
+  int nrows = getRowNumber();
+
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    for (int icol = 0; icol < ncols; icol++)
+    {
+      message(" %10.3lf",_stats[icol][irow]);
+    }
+    message("\n");
+  }
+}
+
+/**
+ * Plot the contents of the statistics
+ */
+void StatTable::plot(int isimu) const
+{
+  if (_stats.empty()) return;
+  String filename = incrementStringVersion("GibbsStats",isimu+1);
+  serialize(filename,false);
 }

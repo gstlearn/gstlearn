@@ -4890,6 +4890,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   {
     AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, neigh,
                                               flag_multi_mono,flag_propagation);
+    gibbs->setFlagStats(true);
 
     /* Initialize the Gibbs calculations */
 
@@ -4902,7 +4903,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
     // Allocate the Gaussian vector
 
-    VectorVectorDouble y    = gibbs->allocY();
+    VectorVectorDouble y = gibbs->allocY();
 
     /* Loop on the simulations */
 

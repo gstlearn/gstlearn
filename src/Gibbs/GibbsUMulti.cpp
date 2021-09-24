@@ -143,4 +143,8 @@ void GibbsUMulti::update(VectorVectorDouble& y,
       y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
     }
   }
+
+  // Update statistics (optional)
+
+  updateStats(y, ipgs, iter);
 }

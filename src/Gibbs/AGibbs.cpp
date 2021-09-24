@@ -430,6 +430,9 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
       _db->setFromLocator(LOC_GAUSFAC, iech,  rank,  y[icase][iact]);
     }
   }
+
+  // In case of Statistics, process this information
+  if (_flagStats) _stats.plot(isimu);
 }
 
 /****************************************************************************/
@@ -482,6 +485,10 @@ int AGibbs::calculInitialize(VectorVectorDouble& y,
       y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
     }
   }
+
+  // Re-initialize the statistics (optional)
+
+  if (_flagStats) _stats.clear();
 
   return(0);
 }
@@ -579,3 +586,29 @@ int AGibbs::getSampleRank(int i) const
   else
     return _ranks[i];
 }
+
+void AGibbs::updateStats(const VectorVectorDouble& y, int ipgs, int niter)
+{
+  if (! _flagStats) return;
+
+  // Calculate the number of columns
+  int ncols = getDimension();
+
+  // Resize the statistics array
+  _stats.resize(niter+1, ncols);
+
+  // Loop on the columns
+
+  for (int ivar = 0; ivar < getNvar(); ivar++)
+  {
+    int icol = getRank(ipgs, ivar);
+
+    // Update statistics
+    double value = _stats.getValue(niter-1, icol);
+    value = (value * niter + ut_vector_mean(y[icol])) / (niter+1.);
+
+    // Update the statistics array
+    _stats.update(niter, icol, value);
+  }
+}
+

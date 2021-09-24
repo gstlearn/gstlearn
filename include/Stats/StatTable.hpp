@@ -35,6 +35,12 @@ public:
   bool isEmpty() const { return _stats.empty(); }
   int getRowNumber() const;
   int getColNumber() const;
+  void clear() { _stats.clear(); }
+  void resize(int irow, int ncols);
+  void update(int irow, int icol, double value) { _stats[icol][irow] = value; }
+  double getValue(int irow, int icol) const;
+  void display(int isimu) const;
+  void plot(int isimu) const;
 
 private:
   VectorVectorDouble _stats;

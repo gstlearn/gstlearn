@@ -16,44 +16,49 @@
 #include <sstream>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <regex>
 
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR;
 static char *cur = NULL;
 
-static String myContainerName = String();
-static String myPrefixName = String();
+String ASerializable::myContainerName = String();
+String ASerializable::myPrefixName = String();
+bool   ASerializable::myContainerIsSet = false;
 
-void setSerializedContainerName(const String& containerName)
+/**
+ * Set the Container Directory Name (do not forget trailing separator "/")
+ * @param containerName Name or "" for current location
+ */
+void ASerializable::setSerializedContainerName(const String& containerName)
 {
   myContainerName = containerName;
+  myContainerIsSet = true;
 }
 
-void setSerializedPrefixName(const String& prefixName)
+void ASerializable::setSerializedPrefixName(const String& prefixName)
 {
   myPrefixName = prefixName;
 }
 
-const String& getSerializedContainerName()
+const String& ASerializable::getSerializedContainerName()
 {
   return myContainerName;
 }
 
-const String& getSerializedPrefixName()
+const String& ASerializable::getSerializedPrefixName()
 {
   return myPrefixName;
 }
 
 ASerializable::ASerializable()
-  : _containerName()
-  , _prefixName()
-  , _fileName()
+  : _fileName()
   , _fileType()
   , _file(nullptr)
   , _currentRecord()
 {
-  if (myContainerName.empty())
+  if (! myContainerIsSet && myContainerName.empty())
   {
     char* pydir(std::getenv("PYGSTLEARN_DIR"));
     String pygst;
@@ -103,6 +108,8 @@ int ASerializable::_fileOpen(const String& filename,
     message("Attempt to Open the File (%s) in mode (%s)\n",
             filename.c_str(), mode.c_str());
   }
+
+  // Check that the directory exists
 
   // Check that the file is not already opened (in 'w' mode)
   if (mode == "w")

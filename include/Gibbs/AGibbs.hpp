@@ -74,6 +74,8 @@ public:
   void setFlagCategory(bool flagCategory) { _flagCategory = flagCategory; }
   int getFlagOrder() const { return _flagOrder; }
   void setFlagOrder(int flagOrder) { _flagOrder = flagOrder; }
+  bool isFlagStats() const { return _flagStats; }
+  void setFlagStats(bool flagStats) { _flagStats = flagStats; }
 
   int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
 
@@ -94,6 +96,7 @@ public:
   int getSampleRankNumber() const;
   int getSampleRank(int i) const;
   VectorInt calculateSampleRanks() const;
+  void updateStats(const VectorVectorDouble& y, int ipgs, int niter);
 
 protected:
   int  _boundsCheck(int iech0, int ipgs, int ivar, double *vmin, double *vmax);
