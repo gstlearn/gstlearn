@@ -37,6 +37,7 @@ namespace std {
 
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header files you want to export!
+// Put low level headers in first positions (otherwise Syntax error in input(1).)
 %include Basic/Vector.hpp
 %include csparse_d.h
 %include csparse_f.h
@@ -44,6 +45,10 @@ namespace std {
 %include geoslib_enum.h
 %include geoslib_d.h
 %include geoslib_f.h
+%include Basic/RepeatMacro.hpp
+%include Basic/RepeatMacroSwig.hpp
+%include Enum/AEnum.hpp
+%include Enum/ENeigh.hpp
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
 %include Basic/ASerializable.hpp
@@ -57,8 +62,6 @@ namespace std {
 %include Basic/CSVformat.hpp
 %include Basic/AFunctional.hpp
 %include Basic/FunctionalSpirale.hpp
-%include Basic/RepeatMacro.hpp
-%include Basic/RepeatMacroSwig.hpp
 %include Space/Space.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp
@@ -81,8 +84,6 @@ namespace std {
 %include Mesh/MeshFactory.hpp
 %include Mesh/MeshEStandard.hpp
 %include Mesh/MeshETurbo.hpp
-%include Enum/AEnum.hpp
-%include Enum/ENeigh.hpp
 %include Polynomials/Hermite.hpp
 %include Polynomials/MonteCarlo.hpp
 %include LinearOp/ALinearOp.hpp

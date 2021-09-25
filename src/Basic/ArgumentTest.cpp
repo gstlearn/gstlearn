@@ -13,6 +13,8 @@
 #include "Basic/Vector.hpp"
 #include "Basic/ArgumentTest.hpp"
 
+ENUM_DEFINE(ENUM_TESTS)
+
 void _introduction(const String& title)
 {
   std::cout << "Testing for " << title << " : ";
@@ -100,8 +102,8 @@ void argumentTestSurcharge(const VectorString& values)
   _endOfLine();
 }
 
-void argumentTestEnum(ENUM_TESTS value)
+void argumentTestEnum(ETests value)
 {
-  std::cout << value << std::endl;
+  std::cout << value << std::endl; // Automatic conversion to int?
 }
 

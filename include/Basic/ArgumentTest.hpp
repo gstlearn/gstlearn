@@ -11,13 +11,14 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
+#include "Enum/AEnum.hpp"
 
-typedef enum
-{
-  TEST_CASE0 = 0,
-  TEST_CASE1 = 1,
-  TEST_CASE2 = 2,
-} ENUM_TESTS;
+#define ENUM_TESTS ETests, CASE0,\
+                   CASE0 , 0, "Enum test case 0",\
+                   CASE1 , 1, "Enum test case 1",\
+                   CASE2 , 2, "Enum test case 2"
+
+ENUM_DECLARE(ENUM_TESTS)
 
 /**
  * This file is meant to provide a set of functions for testing arguments
@@ -34,4 +35,4 @@ void argumentTestVectorString(const VectorString& values);
 void argumentTestSurcharge(const String& value);
 void argumentTestSurcharge(const VectorString& values);
 
-void argumentTestEnum(ENUM_TESTS value);
+void argumentTestEnum(ETests value);

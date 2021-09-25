@@ -22,6 +22,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
+// Do not convert to AEnum (mask combination is not used as enum)
 typedef enum
 {
   FLAG_RESUME = 1,    //!< Print the Db summary
