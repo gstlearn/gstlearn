@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Db/Db.hpp"
+#include "Basic/Table.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
@@ -57,6 +58,8 @@ int main(int argc, char *argv[])
 
   // ===== Create the Polygon poly1
   Polygons poly1(&db1);
+  Polygons polyb(&dbg1);
+  poly1.addPolySet(polyb.getPolySet(0));
   poly1.display();
 
   // Serialize poly1
@@ -94,6 +97,23 @@ int main(int argc, char *argv[])
   // Deserialize model2
   Model model2("Neutral.Model.ascii",verbose);
   model2.display();
+
+  // Create a Table1
+  VectorVectorDouble table;
+  int ncols = 3;
+  int nrows = 10;
+  table.resize(ncols);
+  for (int icol = 0; icol < ncols; icol++)
+    table[icol] = ut_vector_simulate_uniform(nrows);
+  Table table1(table);
+  table1.display(1);
+
+  // Serialize table
+  table1.serialize("Neutral.Table.ascii",verbose);
+
+  // Deserialize table1
+  Table table2("Neutral.Table.ascii",verbose);
+  table2.display(1);
 
   return(0);
 }

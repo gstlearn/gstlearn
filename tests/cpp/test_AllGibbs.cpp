@@ -25,11 +25,11 @@ int main(int argc, char *argv[])
 {
   int seed     = 31415;
   int ndim     = 2;
-  int nvar     = 2;
+  int nvar     = 1;
+  int nbsimu   = 1;
   bool flag_moving      = true;
   bool flag_propagation = false;
   bool flag_multi_mono  = false;
-  bool verbose          = true;
 
   // Setup constants
 
@@ -75,12 +75,11 @@ int main(int argc, char *argv[])
 
   // Gibbs
 
-  int niter    = 100;
-  int nbsimu   = 3;
+  int niter    = 1000;
   int nburn    = 10;
-
+  bool verbose = false;
   gibbs_sampler(db, model, neigh, nbsimu, seed, nburn, niter, false,
-                flag_multi_mono, flag_propagation,
+                flag_multi_mono, flag_propagation, 2,
                 5., EPSILON3, false, false, verbose);
   db->displayMore(FLAG_STATS);
 

@@ -25,7 +25,7 @@ AGibbs::AGibbs()
       _flagOrder(true),
       _flagMultiMono(true),
       _flagDecay(true),
-      _flagStats(false),
+      _optionStats(0),
       _rho(1.),
       _sqr(0.),
       _eps(EPSILON3),
@@ -44,7 +44,7 @@ AGibbs::AGibbs(Db* db, Model* model)
       _flagOrder(true),
       _flagMultiMono(true),
       _flagDecay(true),
-      _flagStats(false),
+      _optionStats(0),
       _rho(1.),
       _sqr(0.),
       _eps(EPSILON3),
@@ -66,7 +66,7 @@ AGibbs::AGibbs(Db* db, Model* model,
       _flagOrder(false),
       _flagMultiMono(true),
       _flagDecay(true),
-      _flagStats(false),
+      _optionStats(0),
       _rho(1.),
       _sqr(0.),
       _eps(eps),
@@ -87,7 +87,7 @@ AGibbs::AGibbs(const AGibbs &r)
       _flagOrder(r._flagOrder),
       _flagMultiMono(r._flagMultiMono),
       _flagDecay(r._flagDecay),
-      _flagStats(r._flagStats),
+      _optionStats(r._optionStats),
       _rho(r._rho),
       _sqr(r._sqr),
       _eps(r._eps),
@@ -109,7 +109,7 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
     _flagOrder = r._flagOrder;
     _flagMultiMono = r._flagMultiMono;
     _flagDecay = r._flagDecay;
-    _flagStats = r._flagStats;
+    _optionStats = r._optionStats;
     _rho = r._rho;
     _sqr = r._sqr;
     _eps = r._eps;
@@ -432,7 +432,12 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
   }
 
   // In case of Statistics, process this information
-  if (_flagStats) _stats.plot(isimu);
+  if (_optionStats == 0)
+    return;
+  else if (_optionStats == 1)
+    _stats.display(isimu);
+  else if (_optionStats == 2)
+    _stats.plot(isimu);
 }
 
 /****************************************************************************/
@@ -488,7 +493,7 @@ int AGibbs::calculInitialize(VectorVectorDouble& y,
 
   // Re-initialize the statistics (optional)
 
-  if (_flagStats) _stats.clear();
+  if (_optionStats != 0) _stats.clear();
 
   return(0);
 }
@@ -587,12 +592,15 @@ int AGibbs::getSampleRank(int i) const
     return _ranks[i];
 }
 
-void AGibbs::updateStats(const VectorVectorDouble& y, int ipgs, int niter)
+void AGibbs::updateStats(const VectorVectorDouble& y,
+                         int ipgs,
+                         int niter,
+                         double amort)
 {
-  if (! _flagStats) return;
+  if (_optionStats == 0) return;
 
   // Calculate the number of columns
-  int ncols = getDimension();
+  int ncols = 2 * getDimension();
 
   // Resize the statistics array
   _stats.resize(niter+1, ncols);
@@ -601,14 +609,27 @@ void AGibbs::updateStats(const VectorVectorDouble& y, int ipgs, int niter)
 
   for (int ivar = 0; ivar < getNvar(); ivar++)
   {
-    int icol = getRank(ipgs, ivar);
 
     // Update statistics
-    double value = _stats.getValue(niter-1, icol);
-    value = (value * niter + ut_vector_mean(y[icol])) / (niter+1.);
 
-    // Update the statistics array
-    _stats.update(niter, icol, value);
+    double result;
+    int icol = getRank(ipgs, ivar);
+    double residu = 1. - amort;
+    double oldw = (1. - pow(amort, (double) niter))   / residu;
+    double neww = (1. - pow(amort, (double) niter+1)) / residu;
+
+    // The mean
+    int jcol = 2 * icol;
+    double oldmean = _stats.getValue(niter-1, jcol);
+    double newmean = ut_vector_mean(y[icol]);
+    result = (oldmean * oldw * amort + newmean) / neww;
+    _stats.update(niter, jcol, result);
+
+    // The standard deviation
+    jcol ++;
+    double oldstdv = _stats.getValue(niter-1,jcol);
+    double newstdv = ut_vector_stdv(y[icol]);
+    result = (oldstdv * niter + newstdv) / (niter+1.);
+    _stats.update(niter, jcol, result);
   }
 }
-

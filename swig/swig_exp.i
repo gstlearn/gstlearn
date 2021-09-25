@@ -59,6 +59,7 @@ namespace std {
 %include Basic/FunctionalSpirale.hpp
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
+%include Basic/Table.hpp
 %include Space/Space.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp

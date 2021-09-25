@@ -494,7 +494,7 @@ String ASerializable::getHomeDirectory(const std::string& sub)
   return sstr.str();
 }
 
-String serializedFileIdentify(const String& filename)
+String ASerializable::serializedFileIdentify(const String& filename)
 {
   // Preliminary check
   if (filename.empty())

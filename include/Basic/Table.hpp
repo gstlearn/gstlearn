@@ -20,13 +20,15 @@
  * The organization stands as a vector (variables) or samples.
  * This allows adding the statistics for all variables for a new sample
  */
-class StatTable: public ASerializable
+class Table: public ASerializable
 {
 public:
-  StatTable();
-  StatTable(const StatTable &m);
-  StatTable& operator= (const StatTable &m);
-  virtual ~StatTable();
+  Table();
+  Table(const VectorVectorDouble& table);
+  Table(const String& neutralFileName, bool verbose = false);
+  Table(const Table &m);
+  Table& operator= (const Table &m);
+  virtual ~Table();
 
 public:
   int deSerialize(const String& filename, bool verbose = false) override;
@@ -35,12 +37,20 @@ public:
   bool isEmpty() const { return _stats.empty(); }
   int getRowNumber() const;
   int getColNumber() const;
+  VectorDouble getCol(int icol) const;
+  VectorDouble getRow(int irow) const;
   void clear() { _stats.clear(); }
   void resize(int irow, int ncols);
   void update(int irow, int icol, double value) { _stats[icol][irow] = value; }
   double getValue(int irow, int icol) const;
+  VectorDouble getRange(int icol) const;
+  VectorDouble getRange() const;
   void display(int isimu) const;
   void plot(int isimu) const;
+
+private:
+  bool _isColValid(int icol) const;
+  bool _isRowValid(int irow) const;
 
 private:
   VectorVectorDouble _stats;

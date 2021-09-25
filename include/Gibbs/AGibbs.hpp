@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
-#include "Stats/StatTable.hpp"
+#include "Basic/Table.hpp"
 #include "geoslib_enum.h"
 
 class Db;
@@ -74,8 +74,8 @@ public:
   void setFlagCategory(bool flagCategory) { _flagCategory = flagCategory; }
   int getFlagOrder() const { return _flagOrder; }
   void setFlagOrder(int flagOrder) { _flagOrder = flagOrder; }
-  bool isFlagStats() const { return _flagStats; }
-  void setFlagStats(bool flagStats) { _flagStats = flagStats; }
+  bool getOptionStats() const { return _optionStats; }
+  void setOptionStats(int option_stats) { _optionStats = option_stats; }
 
   int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
 
@@ -96,7 +96,10 @@ public:
   int getSampleRankNumber() const;
   int getSampleRank(int i) const;
   VectorInt calculateSampleRanks() const;
-  void updateStats(const VectorVectorDouble& y, int ipgs, int niter);
+  void updateStats(const VectorVectorDouble& y,
+                   int ipgs,
+                   int niter,
+                   double amort = 0.9);
 
 protected:
   int  _boundsCheck(int iech0, int ipgs, int ivar, double *vmin, double *vmax);
@@ -120,12 +123,12 @@ private:
   bool _flagCategory; // true for categorical; false for continuous
   bool _flagMultiMono;
   bool _flagDecay;
-  bool _flagStats;
+  int  _optionStats;
   double _rho;
   double _sqr;
   double _eps;
   VectorInt _ranks;
   Db*       _db;
   Model*    _model;
-  StatTable _stats;
+  Table     _stats;
 };
