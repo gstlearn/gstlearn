@@ -479,9 +479,9 @@ String ASerializable::getHomeDirectory(const std::string& sub)
 {
   // https://stackoverflow.com/a/2552458
 #if defined(_WIN32) || defined(_WIN64)
-  const char* HomeDirectory = getenv("HOMEDIR");
+  char* HomeDirectory = getenv("HOMEDIR");
   const char* Homepath = getenv("HOMEPATH");
-  HomeDirectory = malloc(strlen(HomeDirectory)+strlen(Homepath)+1);
+  HomeDirectory = static_cast<char *>(malloc(strlen(HomeDirectory)+strlen(Homepath)+1));
   strcat(HomeDirectory, Homepath);
 #else
   const char* HomeDirectory = getenv("HOME");
