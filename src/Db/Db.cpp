@@ -292,7 +292,10 @@ Db::Db(const String& neutralFileName, bool verbose)
       _grid(0)
 {
   if (deSerialize(neutralFileName, verbose))
-    my_throw("Problem reading the Neutral File");
+  {
+    messerr("Problem reading the Neutral File. May be it's a data file. In that case, use the CSVformat constructor.");
+    reset(0,0);
+  }
 }
 
 /**
