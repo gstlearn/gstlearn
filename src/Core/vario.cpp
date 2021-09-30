@@ -1097,16 +1097,16 @@ GEOSLIB_API int code_comparable(Db    *db1,
 **
 ** \return  1 if dates are used; 0 otherwise
 **
-** \param[in]  vario      Vario structure
+** \param[in]  varioparam VarioParam structure
 ** \param[in]  db1        First Db structure
 ** \param[in]  db2        Second Db structure
 **
 *****************************************************************************/
-static int st_date_is_used(Vario  *vario,
+static int st_date_is_used(const VarioParam *varioparam,
                            Db     *db1,
                            Db     *db2)
 {
-  if (vario->getDates().empty()) return(0);
+  if (varioparam->getDates().empty()) return(0);
   if (! db1->hasDate()) return(0);
   if (! db2->hasDate()) return(0);
   return(1);
@@ -1118,7 +1118,7 @@ static int st_date_is_used(Vario  *vario,
 **
 ** \return  1 if the dates are not comparable
 **
-** \param[in]  vario      Vario structure
+** \param[in]  varioparam VarioParam structure
 ** \param[in]  db1        First Db structure
 ** \param[in]  db2        Second Db structure
 ** \param[in]  iech       Rank of the first sample
@@ -1128,7 +1128,7 @@ static int st_date_is_used(Vario  *vario,
 ** \remarks When pairs are discarded then the resulting value is 1.
 **
 *****************************************************************************/
-GEOSLIB_API int date_comparable(Vario  *vario,
+static int st_date_comparable(const VarioParam *varioparam,
                                 Db     *db1,
                                 Db     *db2,
                                 int     iech,
@@ -1139,14 +1139,14 @@ GEOSLIB_API int date_comparable(Vario  *vario,
 
   /* Dispatch */
 
-  if (! vario->hasDate()) return(0);
+  if (! varioparam->hasDate()) return(0);
   date1 = db1->getDate(iech);
   date2 = db2->getDate(jech);
   if (FFFF(date1) || FFFF(date2)) return(0);
 
   delta = date2 - date1;
-  if (delta <  vario->getDates(idate,0)) return(1);
-  if (delta >= vario->getDates(idate,1)) return(1);
+  if (delta <  varioparam->getDates(idate,0)) return(1);
+  if (delta >= varioparam->getDates(idate,1)) return(1);
   return(0);
 }
 
@@ -1719,6 +1719,7 @@ static int st_variogram_calcul1(Db    *db,
   nech    = db->getSampleNumber();
   npas    = vario->getLagNumber(idir);
   maxdist = vario->getMaximumDistance(idir);
+  const VarioParam& varioparam = vario->getVarioParam();
 
   /* Loop on the first point */
 
@@ -1728,7 +1729,7 @@ static int st_variogram_calcul1(Db    *db,
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getWeight(iech))) continue;
 
-    ideb = (st_date_is_used(vario,db,db)) ? 0 : iiech + 1;
+    ideb = (st_date_is_used(&varioparam,db,db)) ? 0 : iiech + 1;
     for (jjech=ideb; jjech<nech; jjech++)
     {
       jech = rindex[jjech];
@@ -1744,7 +1745,7 @@ static int st_variogram_calcul1(Db    *db,
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,vario->getIdate(idir))) continue;
+      if (st_date_comparable(&varioparam,db,db,iech,jech,vario->getIdate(idir))) continue;
 
       /* Check if the pair must be kept */
 
@@ -1827,6 +1828,7 @@ static int st_variogram_calcul2(Db    *db,
   error   = 1;
   ps      = 0.;
   gg_sum  = hh_sum = sw_sum = (double *) NULL;
+  const VarioParam& varioparam = vario->getVarioParam();
   const DirParam& dirparam = vario->getDirParam(idir);
   psmin   = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech    = db->getSampleNumber();
@@ -1860,7 +1862,7 @@ static int st_variogram_calcul2(Db    *db,
 
     /* Looking for the second sample */
 
-    ideb = (st_date_is_used(vario,db,db)) ? 0 : iiech + 1;
+    ideb = (st_date_is_used(&varioparam,db,db)) ? 0 : iiech + 1;
     for (jjech=ideb; jjech<nech; jjech++)
     {
       jech = rindex[jjech];
@@ -1876,8 +1878,8 @@ static int st_variogram_calcul2(Db    *db,
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,
-                          dirparam.getIdate())) continue;
+      if (st_date_comparable(&varioparam,db,db,iech,jech,
+                             dirparam.getIdate())) continue;
 
       /* Check if the pair must be kept */
 
@@ -2095,6 +2097,7 @@ static int st_variogram_grid(Db    *db,
   indg1 = indg2 = (int *) NULL;
   npas  = vario->getLagNumber(idir);
   const DirParam& dirparam = vario->getDirParam(idir);
+  const VarioParam& varioparam = vario->getVarioParam();
 
   /* Core allocation */
 
@@ -2129,7 +2132,7 @@ static int st_variogram_grid(Db    *db,
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,dirparam.getIdate())) continue;
+      if (st_date_comparable(&varioparam,db,db,iech,jech,dirparam.getIdate())) continue;
 
       /* Evaluate the variogram */
 
@@ -2283,6 +2286,7 @@ static int st_variogen_grid(Db    *db,
   indg1 = indg2 = (int *) NULL;
   npas  = vario->getLagNumber(idir);
   const DirParam& dirparam = vario->getDirParam(idir);
+  const VarioParam& varioparam = vario->getVarioParam();
 
   /* Core allocation */
 
@@ -2322,7 +2326,7 @@ static int st_variogen_grid(Db    *db,
 
         /* Check if the pair must be kept (Date criterion) */
 	
-        if (date_comparable(vario,db,db,iech,jech,
+        if (st_date_comparable(&varioparam,db,db,iech,jech,
                             dirparam.getIdate())) continue;
 	
         /* Evaluate the variogram */
@@ -3860,14 +3864,14 @@ GEOSLIB_API int correlation_ident(Db     *db1,
 ** \param[in]  db      Db descriptor
 ** \param[in]  dbgrid  Discretization Grid descriptor
 ** \param[in]  iptr    Pointer for the variogram cloud (direction)
-** \param[in]  vario   Vario structure
+** \param[in]  varioparam VarioParam structure
 ** \param[in]  idir    Rank of the Direction
 **
 *****************************************************************************/
 static void st_variogram_cloud(Db     *db,
                                Db     *dbgrid,
                                int     iptr,
-                               Vario  *vario,
+                               const VarioParam *varioparam,
                                int     idir)
 {
   double ps,psmin,dist,value,w1,w2,z1,z2;
@@ -3875,7 +3879,7 @@ static void st_variogram_cloud(Db     *db,
 
   /* Preliminary calculations */
 
-  const DirParam& dirparam = vario->getDirParam(idir);
+  const DirParam& dirparam = varioparam->getDirParam(idir);
   psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech  = db->getSampleNumber();
 
@@ -3889,7 +3893,7 @@ static void st_variogram_cloud(Db     *db,
     z1 = st_get_IVAR(db,iech,0);
     if (FFFF(z1)) continue;
 
-    ideb = (st_date_is_used(vario,db,db)) ? 0 : iech + 1;
+    ideb = (st_date_is_used(varioparam,db,db)) ? 0 : iech + 1;
     for (jech=ideb; jech<nech; jech++)
     {
       if (! db->isActive(jech)) continue;
@@ -3906,7 +3910,7 @@ static void st_variogram_cloud(Db     *db,
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,
+      if (st_date_comparable(varioparam,db,db,iech,jech,
                           dirparam.getIdate())) continue;
 
       /* Check if the pair must be kept */
@@ -3948,6 +3952,7 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
 
   indg = rank = (int *) NULL;
   ids  = coor = (double *) NULL;
+  const VarioParam& varioparam = vario->getVarioParam();
 
   /* Core allocation */
 
@@ -3972,7 +3977,7 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
     z1 = st_get_IVAR(db,iech,0);
     if (FFFF(z1)) continue;
 
-    ideb = (st_date_is_used(vario,db,db)) ? 0 : iech + 1;
+    ideb = (st_date_is_used(&varioparam,db,db)) ? 0 : iech + 1;
     for (jech=ideb; jech<nech; jech++)
     {
       if (! db->isActive(jech)) continue;
@@ -3995,8 +4000,8 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
 
         /* Check if the pair must be kept (Date criterion) */
 	
-        if (date_comparable(vario,db,db,iech,jech,
-                            dirparam.getIdate())) continue;
+        if (st_date_comparable(&varioparam,db,db,iech,jech,
+                               dirparam.getIdate())) continue;
 	
         /* Check if the pair must be kept */
 
@@ -4051,14 +4056,14 @@ label_end:
 **  Evaluate the variogram cloud
 **
 ** \param[in]  db     Db descriptor
-** \param[in]  vario  Vario structure
+** \param[in]  varioparam VarioParam structure
 ** \param[in]  idir   Rank of the Direction
 **
 ** \param[out] vmax   Maximum variogram value
 **
 *****************************************************************************/
 static void st_variogram_cloud_dim(Db     *db,
-                                   Vario  *vario,
+                                   const VarioParam *varioparam,
                                    int     idir,
                                    double *vmax)
 {
@@ -4067,7 +4072,7 @@ static void st_variogram_cloud_dim(Db     *db,
 
   /* Preliminary calculations */
 
-  const DirParam& dirparam = vario->getDirParam(idir);
+  const DirParam& dirparam = varioparam->getDirParam(idir);
   psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech  = db->getSampleNumber();
 
@@ -4078,7 +4083,7 @@ static void st_variogram_cloud_dim(Db     *db,
     if (! db->isActive(iech)) continue;
     if (FFFF(db->getWeight(iech))) continue;
 
-    ideb = (st_date_is_used(vario,db,db)) ? 0 : iech + 1;
+    ideb = (st_date_is_used(varioparam,db,db)) ? 0 : iech + 1;
     for (jech=ideb; jech<nech; jech++)
     {
       if (! db->isActive(jech)) continue;
@@ -4092,7 +4097,7 @@ static void st_variogram_cloud_dim(Db     *db,
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (date_comparable(vario,db,db,iech,jech,
+      if (st_date_comparable(varioparam,db,db,iech,jech,
                           dirparam.getIdate())) continue;
 
       /* Check if the pair must be kept */
@@ -4124,13 +4129,13 @@ static void st_variogram_cloud_dim(Db     *db,
 ** \return  Error return code
 **
 ** \param[in]  db           Db descriptor
-** \param[in]  vario        Vario structure
+** \param[in]  varioparam   VarioParam structure
 ** \param[in]  dbgrid       Output grid for storing the variogram cloud
 ** \param[in]  namconv      Naming convention
 **
 *****************************************************************************/
 GEOSLIB_API int variogram_cloud(Db *db,
-                                Vario *vario,
+                                const VarioParam *varioparam,
                                 Db *dbgrid,
                                 NamingConvention namconv)
 {
@@ -4140,16 +4145,16 @@ GEOSLIB_API int variogram_cloud(Db *db,
 
   if (db     == (Db    *) NULL) return(1);
   if (dbgrid == (Db    *) NULL) return(1);
-  if (vario  == (Vario *) NULL) return(1);
+  if (varioparam  == (VarioParam *) NULL) return(1);
   st_manage_drift_removal(0,NULL,NULL);
 
   /* Preliminary checks */
 
-  if (db->getNDim() != vario->getDimensionNumber())
+  if (db->getNDim() != varioparam->getDimensionNumber())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d",db->getNDim());
-    messerr("Variogram: NDIM=%d",vario->getDimensionNumber());
+    messerr("Variogram: NDIM=%d",varioparam->getDimensionNumber());
     return(1);
   }
   if (! db->isVariableNumberComparedTo(1)) return 1;
@@ -4161,7 +4166,7 @@ GEOSLIB_API int variogram_cloud(Db *db,
 
   /* Allocate new variables */
 
-  int ndir = vario->getDirectionNumber();
+  int ndir = varioparam->getDirectionNumber();
   iptr = dbgrid->addFields(ndir,0.);
   if (iptr < 0) return(1);
 
@@ -4169,7 +4174,7 @@ GEOSLIB_API int variogram_cloud(Db *db,
 
   for (idir=0; idir<ndir; idir++)
   {
-    st_variogram_cloud(db,dbgrid,iptr+idir,vario,idir);
+    st_variogram_cloud(db,dbgrid,iptr+idir,varioparam,idir);
 
     /* Convert zero values into TEST */
 
@@ -4190,13 +4195,13 @@ GEOSLIB_API int variogram_cloud(Db *db,
 ** \return  Error return code
 **
 ** \param[in]  db           Db descriptor
-** \param[in]  vario        Vario structure
+** \param[in]  varioparam   VarioParam structure
 **
 ** \param[out] vmax         Maximum variogram value
 **
 *****************************************************************************/
 GEOSLIB_API int variogram_cloud_dim(Db     *db,
-                                    Vario  *vario,
+                                    const VarioParam  *varioparam,
                                     double *vmax)
 {
   int idir;
@@ -4204,15 +4209,15 @@ GEOSLIB_API int variogram_cloud_dim(Db     *db,
   /* Initializations */
 
   if (db     == (Db    *) NULL) return(1);
-  if (vario  == (Vario *) NULL) return(1);
+  if (varioparam == (VarioParam *) NULL) return(1);
 
   /* Preliminary checks */
 
-  if (db->getNDim() != vario->getDimensionNumber())
+  if (db->getNDim() != varioparam->getDimensionNumber())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d",db->getNDim());
-    messerr("Variogram: NDIM=%d",vario->getDimensionNumber());
+    messerr("Variogram: NDIM=%d",varioparam->getDimensionNumber());
     return(1);
   }
   if (! db->isVariableNumberComparedTo(1)) return 1;
@@ -4220,8 +4225,8 @@ GEOSLIB_API int variogram_cloud_dim(Db     *db,
   /* Loop on the directions to evaluate */
 
   *vmax = 0.;
-  for (idir=0; idir<vario->getDirectionNumber(); idir++)
-    st_variogram_cloud_dim(db,vario,idir,vmax);
+  for (idir=0; idir<varioparam->getDirectionNumber(); idir++)
+    st_variogram_cloud_dim(db,varioparam,idir,vmax);
 
   return(0);
 }
@@ -6225,6 +6230,7 @@ GEOSLIB_API int geometry_compute(Db    *db,
 
   if (db    == (Db    *) NULL) return(1);
   if (vario == (Vario *) NULL) return(1);
+  const VarioParam& varioparam = vario->getVarioParam();
   error  = 1;
 
   /* Preliminary checks */
@@ -6264,7 +6270,7 @@ GEOSLIB_API int geometry_compute(Db    *db,
       if (! db->isActive(iech)) continue;
       if (FFFF(db->getWeight(iech))) continue;
       
-      ideb = (st_date_is_used(vario,db,db)) ? 0 : iiech + 1;
+      ideb = (st_date_is_used(&varioparam,db,db)) ? 0 : iiech + 1;
       for (jjech=ideb; jjech<nech; jjech++)
       {
         jech = rindex[jjech];
@@ -6280,8 +6286,7 @@ GEOSLIB_API int geometry_compute(Db    *db,
         
         /* Check if the pair must be kept (Date criterion) */
         
-        if (date_comparable(vario,db,db,iech,jech,
-                            dirparam.getIdate())) continue;
+        if (st_date_comparable(&varioparam,db,db,iech,jech,dirparam.getIdate())) continue;
         
         /* Check if the pair must be kept */
         
@@ -6816,7 +6821,7 @@ GEOSLIB_API int vario_identify_calcul_type(const String& calcul_name)
 ** \return  Error return code
 **
 ** \param[in]  db           Db descriptor
-** \param[in]  vario        Vario structure
+** \param[in]  varioparam   VarioParam structure
 ** \param[in]  lagmax       Maximum distance
 ** \param[in]  varmax       Maximum Variance value
 ** \param[in]  lagnb        Number of discretization steps along distance axis
@@ -6825,20 +6830,15 @@ GEOSLIB_API int vario_identify_calcul_type(const String& calcul_name)
 **
 *****************************************************************************/
 GEOSLIB_API Db* db_variogram_cloud(Db *db,
-                                   Vario* vario,
+                                   const VarioParam* varioparam,
                                    double lagmax,
                                    double varmax,
                                    int lagnb,
                                    int varnb,
                                    NamingConvention namconv)
 {
-  int nvar = db->getVariableNumber();
-  vario->setNVar(nvar);
-
-  // Determining the missing information
-
   if (FFFF(lagmax)) lagmax = db->getFieldSize();
-  if (FFFF(varmax)) (void) variogram_cloud_dim(db, vario, &varmax);
+  if (FFFF(varmax)) (void) variogram_cloud_dim(db, varioparam, &varmax);
 
   // Create a grid as a support for the variogram cloud calculations
 
@@ -6855,7 +6855,7 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
 
   // Calling the variogram cloud calculation function
 
-  int error = variogram_cloud(db, vario, dbgrid, namconv);
+  int error = variogram_cloud(db, varioparam, dbgrid, namconv);
 
   // In case of error, free the newly created structure
 
