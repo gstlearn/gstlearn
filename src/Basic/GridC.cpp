@@ -226,7 +226,7 @@ String GridC::toString(int level) const
   return sstr.str();
 }
 
-double GridC::getCoordinate(int rank, int idim0) const
+double GridC::getCoordinate(int rank, int idim0, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorInt   iwork(ndim);
@@ -244,12 +244,15 @@ double GridC::getCoordinate(int rank, int idim0) const
 
   /* Process the grid rotation (if any) */
 
-  _rotation.rotateInverse(work1,work2);
+  if (flag_rotate)
+    _rotation.rotateInverse(work1,work2);
+  else
+    work2 = work1;
 
   return (work2[idim0] + _x0[idim0]);
 }
 
-VectorDouble GridC::getCoordinate(const VectorInt& indice) const
+VectorDouble GridC::getCoordinate(const VectorInt& indice, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorDouble work1(ndim);
@@ -262,7 +265,10 @@ VectorDouble GridC::getCoordinate(const VectorInt& indice) const
 
   /* Process the grid rotation (if any) */
 
-  _rotation.rotateInverse(work1,work2);
+  if (flag_rotate)
+    _rotation.rotateInverse(work1,work2);
+  else
+    work2 = work1;
 
   for (int idim = 0; idim < ndim; idim++)
     work2[idim] += _x0[idim];
@@ -279,16 +285,17 @@ VectorDouble GridC::getCoordinateFromCorner(const VectorInt& icorner) const
 {
   VectorInt indice(_nDim,0);
   for (int idim = 0; idim < _nDim; idim++)
-    if (icorner[idim] > 0) indice[idim] = _nx[idim];
+    if (icorner[idim] > 0) indice[idim] = _nx[idim]-1;
   return getCoordinate(indice);
 }
 
 /**
  * Return the Vector of coordinates for a given grid node
  * @param rank Rank of the target grid node
+ * @param flag_rotate TRUE: perform the roataion; FALSE: skip rotation
  * @return Vector of coordinates
  */
-VectorDouble GridC::getCoordinate(int rank) const
+VectorDouble GridC::getCoordinate(int rank, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorInt    iwork(ndim);
@@ -306,7 +313,10 @@ VectorDouble GridC::getCoordinate(int rank) const
 
   /* Process the grid rotation (if any) */
 
-  _rotation.rotateInverse(work1,work2);
+  if (flag_rotate)
+    _rotation.rotateInverse(work1,work2);
+  else
+    work2 = work1;
 
   for (int idim = 0; idim < ndim; idim++)
     work2[idim] += _x0[idim];

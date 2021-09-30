@@ -23,8 +23,8 @@
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR;
 static char *cur = NULL;
 
-String ASerializable::myContainerName = String();
-String ASerializable::myPrefixName = String();
+String ASerializable::myContainerName  = String();
+String ASerializable::myPrefixName     = String();
 bool   ASerializable::myContainerIsSet = false;
 
 /**

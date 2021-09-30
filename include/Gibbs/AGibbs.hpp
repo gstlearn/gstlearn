@@ -21,7 +21,7 @@ class AGibbs
 {
 public:
   AGibbs();
-  AGibbs(Db* db,Model* model);
+  AGibbs(Db* db, Model* model);
   AGibbs(Db* db,
          Model* model,
          int npgs,
@@ -31,8 +31,7 @@ public:
          int flag_order,
          bool flag_multi_mono,
          bool flag_decay,
-         double rho,
-         double eps = EPSILON3);
+         double rho);
   AGibbs(const AGibbs &r);
   AGibbs& operator=(const AGibbs &r);
   virtual ~AGibbs();
@@ -41,15 +40,17 @@ public:
                                int isimu,
                                int ipgs,
                                bool verbose);
-  virtual void update(VectorVectorDouble& y,
-                      int isimu,
-                      int ipgs,
-                      int iter) = 0;
+  virtual void update(VectorVectorDouble& y, int isimu, int ipgs, int iter) = 0;
   virtual int covmatAlloc(bool verbose) = 0;
 
-  void init(int npgs, int nvar, int nburn, int niter,
-            int flag_order, bool flag_multi_mono, bool flag_decay,
-            double rho, double eps);
+  void init(int npgs,
+            int nvar,
+            int nburn,
+            int niter,
+            int flag_order,
+            bool flag_multi_mono,
+            bool flag_decay,
+            double rho);
 
   void print(bool flag_init,
              const VectorVectorDouble& y,
@@ -68,23 +69,17 @@ public:
   void setRho(double rho) { _rho = rho; }
   double getSqr() const { return _sqr; }
   void setSqr(double sqr) { _sqr = sqr; }
-  double getEps() const { return _eps; }
-  void setEps(double eps) { _eps = eps; }
-  bool getFlagCategory() const { return _flagCategory; }
-  void setFlagCategory(bool flagCategory) { _flagCategory = flagCategory; }
   int getFlagOrder() const { return _flagOrder; }
   void setFlagOrder(int flagOrder) { _flagOrder = flagOrder; }
   bool getOptionStats() const { return _optionStats; }
   void setOptionStats(int option_stats) { _optionStats = option_stats; }
-
-  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
-
   Db* getDb() const { return _db; }
   Model* getModel() const { return _model; }
   int getDimension() const;
   int getRank(int ipgs, int ivar) const;
   VectorVectorDouble allocY() const;
   void storeResult(const VectorVectorDouble& y, int isimu, int ipgs);
+  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
 
   double getSimulate(VectorVectorDouble& y,
                      double yk,
@@ -98,11 +93,13 @@ public:
   VectorInt calculateSampleRanks() const;
   void updateStats(const VectorVectorDouble& y,
                    int ipgs,
-                   int niter,
+                   int iter,
                    double amort = 0.9);
+  bool isConstraintTight(int ipgs, int ivar, int iech, double* value) const;
+  void statsInit();
 
 protected:
-  int  _boundsCheck(int iech0, int ipgs, int ivar, double *vmin, double *vmax);
+  int _boundsCheck(int iech0, int ipgs, int ivar, double *vmin, double *vmax);
   void _printInequalities(int iact,
                           int ivar,
                           int nfois,
@@ -110,25 +107,31 @@ protected:
                           double simval,
                           double vmin,
                           double vmax) const;
+  int _getRowNumberStats() const;
+  int _getColNumberStats() const;
+  int _getColRankStats(int ipgs, int ivar, int mode) const;
 
 private:
   int _npgs;
-  int _nvar;
+  int _nvar; // or NGRF
   int _nburn;
   int _niter;
   int _flagOrder; // order relationship of the constraints
   //   1 if the ascending order must be honored
   //  -1 if the descending order must be honored
   //   0 if no order relationship must be honored
-  bool _flagCategory; // true for categorical; false for continuous
   bool _flagMultiMono;
   bool _flagDecay;
-  int  _optionStats;
+  int  _optionStats; // 0: no storage; 1: printout; 2: Neutral File
   double _rho;
   double _sqr;
-  double _eps;
-  VectorInt _ranks;
+
+  VectorInt _ranks; // Internal array use to store indices of active samples
+
+  // List of pointers stored for better efficiency
   Db*       _db;
   Model*    _model;
+
+  // Optional Table used to store performance statistics (see _optionStats)
   Table     _stats;
 };

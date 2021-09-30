@@ -90,6 +90,11 @@ int GibbsUMulti::covmatAlloc(bool verbose)
     messerr("Error during the covariance matrix inversion");
     return 1;
   }
+
+  // Initialize the statistics (optional)
+
+  statsInit();
+
   return 0;
 }
 
@@ -108,6 +113,7 @@ void GibbsUMulti::update(VectorVectorDouble& y,
                          int ipgs,
                          int iter)
 {
+  double valsim;
   Db* db = getDb();
   int nvar    = getNvar();
   int nactive = db->getActiveSampleNumber();
@@ -126,25 +132,24 @@ void GibbsUMulti::update(VectorVectorDouble& y,
     int icase   = getRank(ipgs,ivar);
     for (int iact = 0; iact < nactive; iact++, iecr++)
     {
-
-      /* Perform the estimation from the other informations */
-
-      double sk = 1. / COVMAT(iecr, iecr);
-      double yk = 0.;
-      for (int jvar = 0, jecr = 0; jvar < nvar; jvar++)
-        for (int jact = 0; jact < nactive; jact++, jecr++)
-        {
-          if (iecr != jecr) yk -= y[icase][jact] * COVMAT(iecr, jecr);
-        }
-      yk *= sk;
-
-      /* Draw an authorized normal value */
-
-      y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
+      if (!isConstraintTight(ipgs, ivar, iact, &valsim))
+      {
+        double sk = 1. / COVMAT(iecr, iecr);
+        double yk = 0.;
+        for (int jvar = 0, jecr = 0; jvar < nvar; jvar++)
+          for (int jact = 0; jact < nactive; jact++, jecr++)
+          {
+            if (iecr != jecr) yk -= y[icase][jact] * COVMAT(iecr, jecr);
+          }
+        yk *= yk;
+        sk  = sqrt(sk);
+        valsim = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
+      }
+      y[icase][iact] = valsim;
     }
   }
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  updateStats(y, isimu, ipgs, iter);
 }

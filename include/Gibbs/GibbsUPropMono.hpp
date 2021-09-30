@@ -37,4 +37,10 @@ public:
               int ipgs,
               int iter) override;
   int covmatAlloc(bool verbose) override;
+
+  double getEps() const { return _eps; }
+  void setEps(double eps) { _eps = eps; }
+
+private:
+  double _eps;
 };

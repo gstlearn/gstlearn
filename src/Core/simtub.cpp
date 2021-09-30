@@ -4071,7 +4071,7 @@ GEOSLIB_API int simpgs(Db *dbin,
     /* Initialize the Gibbs calculations */
 
     gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true, true,
-                rule->getRho(), gibbs_eps);
+                rule->getRho());
       
     /* Allocate the covariance matrix inverted */
   
@@ -4513,8 +4513,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
       /* Initialize the Gibbs calculations */
 
-      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter, 0, true, true,
-                  rules[ipgs]->getRho(), gibbs_eps);
+      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter,
+                  0, true, true, rules[ipgs]->getRho());
 
       /* Allocate the covariance matrix inverted */
 
@@ -4892,12 +4892,13 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   {
     AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, neigh,
                                               flag_multi_mono,flag_propagation);
+    if (gibbs == nullptr) goto label_end;
     gibbs->setOptionStats(gibbs_optstats);
 
     /* Initialize the Gibbs calculations */
 
     gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter,
-                0, false, true, 0., gibbs_eps);
+                0, false, true, 0.);
 
     /* Allocate the covariance matrix inverted */
 
@@ -4923,7 +4924,6 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
       for (int iter = 0; iter < gibbs->getNiter(); iter++)
         gibbs->update(y, isimu, ipgs, iter);
-
       if (verbose) gibbs->print(false,y,isimu,ipgs);
 
       // Store the results
@@ -5972,8 +5972,7 @@ GEOSLIB_API int simcond(Db    *dbin,
 
     /* Initialize the Gibbs calculations */
 
-    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, false, true,
-                0., gibbs_eps);
+    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, false, true, 0.);
 
     /* Allocate the covariance matrix inverted */
 

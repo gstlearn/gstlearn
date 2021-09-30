@@ -208,9 +208,9 @@ private:
   String       _calculName;
   bool         _flagSample;
   Db*          _db;
-  std::vector<VectorDouble> _sw;      /* Array for number of lags */
-  std::vector<VectorDouble> _gg;      /* Array for average variogram values */
-  std::vector<VectorDouble> _hh;      /* Array for average distance values */
-  std::vector<VectorDouble> _utilize; /* Array to mention if a lag is used or not */
+  VectorVectorDouble _sw;      /* Array for number of lags */
+  VectorVectorDouble _gg;      /* Array for average variogram values */
+  VectorVectorDouble _hh;      /* Array for average distance values */
+  VectorVectorDouble _utilize; /* Array to mention if a lag is used or not */
   mutable bool _flagAsym;
 };

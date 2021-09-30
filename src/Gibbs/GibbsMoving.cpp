@@ -99,7 +99,7 @@ int GibbsMoving::covmatAlloc(bool verbose)
 
   // Loop on the active samples
 
-  int iiech = 0;
+  int iiech  = 0;
   for (int iech = 0; iech < nech; iech++)
   {
     if (! db->isActive(iech)) continue;
@@ -140,6 +140,11 @@ int GibbsMoving::covmatAlloc(bool verbose)
     }
     covmat = (double *) mem_free((char *) covmat);
   }
+
+  // Initialize the statistics (optional)
+
+  statsInit();
+
   error = 0;
 
   label_end:
@@ -163,6 +168,8 @@ void GibbsMoving::update(VectorVectorDouble& y,
                          int ipgs,
                          int iter)
 {
+  double valsim;
+
   Db* db = getDb();
   Model* model = getModel();
   int nactive = db->getActiveSampleNumber();
@@ -183,30 +190,32 @@ void GibbsMoving::update(VectorVectorDouble& y,
 
     for (int iact = 0; iact < nactive; iact++)
     {
-      const GibbsWeights& ww = _wgt[iact];
-      int nsize = ww._ranks.size();
-      int neq = ww._neq;
-      int pivot = ww._pivot;
-
-      for (int ivar = 0; ivar < nvar; ivar++)
+      if (! isConstraintTight(ipgs, ivar, iact, &valsim))
       {
-        double sk = 1. / ww._ll[ivar][pivot];
-        int rank = pivot + nsize * ivar;
-        double yk = 0.;
-        for (int i2 = 0; i2 < neq; i2++)
+        const GibbsWeights& ww = _wgt[iact];
+        int nsize = ww._ranks.size();
+        int neq   = ww._neq;
+        int pivot = ww._pivot;
+
+        for (int ivar = 0; ivar < nvar; ivar++)
         {
-          if (i2 != rank) yk -= y[icase][i2] * ww._ll[ivar][i2];
+          double sk = 1. / ww._ll[ivar][pivot];
+          int rank = pivot + nsize * ivar;
+          double yk = 0.;
+          for (int i2 = 0; i2 < neq; i2++)
+          {
+            if (i2 != rank) yk -= y[icase][i2] * ww._ll[ivar][i2];
+          }
+          yk *= sk;
+          sk  = sqrt(sk);
+          valsim = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
         }
-        yk *= sk;
-
-        /* Draw an authorized normal value */
-
-        y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
       }
+      y[icase][iact] = valsim;
     }
   }
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  updateStats(y, isimu, ipgs, iter);
 }

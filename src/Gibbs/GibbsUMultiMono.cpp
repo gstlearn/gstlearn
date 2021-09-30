@@ -90,6 +90,11 @@ int GibbsUMultiMono::covmatAlloc(bool verbose)
       return 1;
     }
   }
+
+  // Initialize the statistics (optional)
+
+  statsInit();
+
   return 0;
 }
 
@@ -108,6 +113,7 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
                              int ipgs,
                              int iter)
 {
+  double valsim;
   Db* db = getDb();
   int nactive = db->getActiveSampleNumber();
   int nvar    = getNvar();
@@ -128,24 +134,23 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
 
     for (int iact = 0; iact < nactive; iact++)
     {
-
-      /* Perform the estimation from the other informations */
-
-      double sk = 1. / COVMAT(ivar, iact, iact);
-      double yk = 0.;
-      for (int jact = 0; jact < nactive; jact++)
+      if (!isConstraintTight(ipgs, ivar, iact, &valsim))
       {
-        if (iact != jact) yk -= y[icase][jact] * COVMAT(ivar, iact, jact);
+        double sk = 1. / COVMAT(ivar, iact, iact);
+        double yk = 0.;
+        for (int jact = 0; jact < nactive; jact++)
+        {
+          if (iact != jact) yk -= y[icase][jact] * COVMAT(ivar, iact, jact);
+        }
+        yk *= sk;
+        sk  = sqrt(sk);
+        valsim = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
       }
-      yk *= sk;
-
-      /* Draw the simulated Gaussian */
-
-      y[icase][iact] = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
+      y[icase][iact] = valsim;
     }
   }
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  updateStats(y, isimu, ipgs, iter);
 }
