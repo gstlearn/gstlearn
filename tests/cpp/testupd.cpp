@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include <stdlib.h>
 
 /*********************/
 /* Program principal */
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
   /* Connect the Geoslib Library */
 
   if (setup_license("Demonstration")) return(0);
+  ASerializable::setSerializedContainerName("");
 
   /* Setup constants */
 

@@ -38,19 +38,7 @@
 int main(int argc, char *argv[])
 
 {
-  char* pydir(std::getenv("PYGSTLEARN_DIR"));
-  String pygst;
-  if (pydir == nullptr)
-  {
-    pygst = ASerializable::getHomeDirectory("gstlearn_output/");
-    std::cout << "PYGSTLEARN_DIR environment variable not defined. Using " << pygst << std::endl;
-  }
-  else
-  {
-    pygst = String(pydir);
-  }
-  setSerializedContainerName(pygst);
-  setSerializedPrefixName("SPDEManual-");
+  ASerializable::setSerializedPrefixName("SPDEManual-");
   int seed = 10355;
   law_set_random_seed(seed);
 

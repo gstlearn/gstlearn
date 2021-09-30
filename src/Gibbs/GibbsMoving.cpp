@@ -205,4 +205,8 @@ void GibbsMoving::update(VectorVectorDouble& y,
       }
     }
   }
+
+  // Update statistics (optional)
+
+  updateStats(y, ipgs, iter);
 }

@@ -4797,7 +4797,8 @@ label_end:
 ** \param[in]  flag_norm   1 if the Model must be normalized
 ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
 ** \param[in]  flag_propagation 1 for the propagation algorithm
-** \param[in]  percent     Amount of nugget effect added to too continous 
+** \param[in]  gibbs_optstats   0: No stats - 1: Print - 2: Save Neutral file
+** \param[in]  percent     Amount of nugget effect added to too continuous
 **                         model (expressed in percentage of total variance)
 ** \param[in]  gibbs_eps   Relative convergence criterion
 ** \param[in]  flag_ce     1 if the conditional expectation
@@ -4818,6 +4819,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               bool    flag_norm,
                               bool    flag_multi_mono,
                               bool    flag_propagation,
+                              int     gibbs_optstats,
                               double  percent,
                               double  gibbs_eps,
                               bool    flag_ce,
@@ -4890,6 +4892,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   {
     AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, neigh,
                                               flag_multi_mono,flag_propagation);
+    gibbs->setOptionStats(gibbs_optstats);
 
     /* Initialize the Gibbs calculations */
 
@@ -4902,7 +4905,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
     // Allocate the Gaussian vector
 
-    VectorVectorDouble y    = gibbs->allocY();
+    VectorVectorDouble y = gibbs->allocY();
 
     /* Loop on the simulations */
 

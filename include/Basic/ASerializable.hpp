@@ -12,6 +12,7 @@
 
 #include "Basic/String.hpp"
 #include <stdarg.h>
+#include <stdio.h>
 
 class ASerializable
 {
@@ -26,8 +27,6 @@ public:
   const FILE*   getFile() const { return _file; }
   const String& getFileName() const { return _fileName; }
   const String& getFileType() const { return _fileType; }
-  const String& getContainerName() const { return _containerName; }
-  const String& getPrefixName() const { return _prefixName; }
   String buildFileName(const String& filename) const;
 
   static String getHomeDirectory(const std::string& sub = "");
@@ -44,17 +43,21 @@ protected:
   void _fileWrite(const String& format, va_list ap) const;
   bool _onlyBlanks(char *string) const;
 
+public:
+  static String serializedFileIdentify(const String& filename);
+  static void setSerializedContainerName(const String& containerName);
+  static void setSerializedPrefixName(const String& prefixName);
+  static const String& getSerializedContainerName();
+  static const String& getSerializedPrefixName();
+
 private:
-  mutable String _containerName;
-  mutable String _prefixName;
   mutable String _fileName;
   mutable String _fileType;
   mutable FILE*  _file;
   mutable String _currentRecord;
+
+  static bool   myContainerIsSet;
+  static String myContainerName;
+  static String myPrefixName;
 };
 
-String serializedFileIdentify(const String& filename);
-void setSerializedContainerName(const String& containerName);
-void setSerializedPrefixName(const String& prefixName);
-const String& getSerializedContainerName();
-const String& getSerializedPrefixName();

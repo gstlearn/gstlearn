@@ -149,4 +149,8 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
       if (flag_affect) y[icase][jact] += delta * sigloc / sigval;
     }
   }
+
+  // Update statistics (optional)
+
+  updateStats(y, ipgs, iter);
 }

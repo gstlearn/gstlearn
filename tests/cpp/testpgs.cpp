@@ -12,6 +12,7 @@
 #include "Basic/Limits.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include <stdlib.h>
 
 /*********************/
 /* Program principal */
@@ -54,6 +55,7 @@ int main(int argc, char *argv[])
   /* Connect the Geoslib Library */
 
   if (setup_license("Demonstration")) goto label_end;
+  ASerializable::setSerializedContainerName("");
 
   /* Setup constants */
 

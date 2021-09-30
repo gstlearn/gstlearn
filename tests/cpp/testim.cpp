@@ -11,6 +11,7 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "Model/Model.hpp"
+#include <stdlib.h>
 
 /****************************************************************************
 **
@@ -81,6 +82,7 @@ int main(int argc, char *argv[])
   /* Connect the Geoslib Library */
 
   if (setup_license("Demonstration")) goto label_end;
+  ASerializable::setSerializedContainerName("");
 
   /* Setup constants */
 
@@ -158,7 +160,7 @@ int main(int argc, char *argv[])
   {
     dbin->clearLocators(LOC_Z);
     if (gibbs_sampler(dbin,new_model,(Neigh *) NULL,
-                      1,seed,nboot,niter,false,true,false,
+                      1,seed,nboot,niter,false,true,false,0,
                       5.,toleps,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
