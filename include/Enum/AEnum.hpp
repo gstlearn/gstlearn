@@ -122,14 +122,13 @@ public:\
   NAME ## Iterator(const NAME ## Iterator&) = default;\
   NAME ## Iterator& operator=(const NAME ## Iterator&) = default;\
 \
+  const NAME& operator*() const { return (*(_iterator->second)); }\
   bool hasNext() const { return (_iterator != _refmap.end()); }\
   const NAME& toNext() { return (*(_iterator++)->second); }\
-  void toFront() { _iterator = _refmap.begin(); }\
-  int getValue() { return (_iterator->second->getValue()); }\
-  const std::string& getKey() { return (_iterator->second->getKey()); }\
-  const std::string& getDescr() { return (_iterator->second->getDescr()); }\
-  int first() { return (_iterator->first); }\
-  NAME* second() { return (_iterator->second); }\
+  const NAME& toFront() { _iterator = _refmap.begin(); return (*(_iterator->second));}\
+  int getValue() const { return (_iterator->second->getValue()); }\
+  const std::string& getKey() const { return (_iterator->second->getKey()); }\
+  const std::string& getDescr() const { return (_iterator->second->getDescr()); }\
 \
 private:\
   NAME ## Map::iterator _iterator;\
