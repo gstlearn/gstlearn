@@ -53,10 +53,11 @@ int main()
   std::cout << "d3=" << "Enum#" << d3.getValue() << ": " << d3.getKey() << "|" << d3.getDescr() << std::endl;
   
   auto it = EDay::getIterator();
-  while (it->hasNext())
+  while (it.hasNext())
   {
-    std::cout << "Enum#" << it->getValue() << ": " << it->getKey() << "|" << it->getDescr() << std::endl;
-    it->toNext();
+    EDay d = *it;
+    std::cout << "Enum#" << it.getValue() << ": " << d.getKey() << "|" << (*it).getDescr() << std::endl;
+    it.toNext();
   }
 
   std::string day("TOTODAY");
