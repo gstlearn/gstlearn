@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "AEnum.hpp"
+#include "Enum/AEnum.hpp"
 
 #define ENUM_NEIGH ENeigh, UNIQUE, \
                    UNIQUE, 0, "Unique Neighborhood", \

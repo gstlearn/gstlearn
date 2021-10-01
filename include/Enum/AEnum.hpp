@@ -29,7 +29,6 @@ public:
   const std::string& getDescr() const { return _descr; }
 
 #ifndef SWIG
-  //! Cast to constexpr integer (for switch usage) (-std=c++11)
   operator int() const { return _value; }
 #endif
 
@@ -71,23 +70,50 @@ private:
 #define ENUM_IMPL(NAME, X,Y,Z) const NAME NAME::X = NAME(#X, Y, Z);
 #define ENUM_IMPLS(NAME, ...) EXPAND(REPEAT3(ENUM_IMPL, NAME, __VA_ARGS__))
 
+// ######################
+//      ENUM DECLARE
+// ######################
 #define ENUM_DECLARE_(NAME, DEFAULT, ...)\
-class NAME ## Iterator;\
 class NAME;\
 \
 typedef std::map<int, NAME*> NAME ## Map;\
+\
+class NAME ## Iterator\
+{\
+  friend class NAME;\
+\
+  NAME ## Iterator() = delete;\
+  NAME ## Iterator(NAME ## Map& map);\
+public:\
+  ~NAME ## Iterator() = default;\
+  NAME ## Iterator(const NAME ## Iterator&) = default;\
+  NAME ## Iterator& operator=(const NAME ## Iterator&) = default;\
+\
+  const NAME& operator*() const;\
+  bool hasNext() const;\
+  const NAME& toNext();\
+  const NAME& toFront();\
+  const NAME& getEnum() const;\
+  int getValue() const;\
+  const std::string& getKey() const;\
+  const std::string& getDescr() const;\
+\
+private:\
+  NAME ## Map::iterator _stditer;\
+  NAME ## Map&          _refmap;\
+};\
 \
 class NAME : public AEnum\
 {\
 \
 public:\
-  NAME() : AEnum(*_default) {}\
+  NAME();\
   ~NAME();\
   NAME(const NAME&) = default;\
   NAME& operator=(const NAME&) = default;\
 \
   static size_t getSize();\
-  static NAME ## Iterator* getIterator();\
+  static NAME ## Iterator getIterator();\
   \
   static bool existsKey(const std::string& key);\
   static bool existsValue(int value);\
@@ -97,49 +123,35 @@ public:\
 private:\
   NAME(const std::string& key, int value, const std::string& descr);\
 \
-  static const NAME*   _default;\
-  static NAME ## Map       _map;\
+  static NAME ## Map      _map;\
   static NAME ## Iterator _iterator;\
+  static const NAME*      _default;\
 \
 public:\
   enum E ## NAME\
   {\
     EXPAND(ENUM_ITEMS(NAME, __VA_ARGS__))\
   };\
-  E ## NAME toEnum() const { return static_cast<E ## NAME>(getValue()); }\
+  E ## NAME toEnum() const;\
 \
   EXPAND(ENUM_DECLS(NAME, __VA_ARGS__))\
 };\
 \
-class NAME ## Iterator\
-{\
-  friend class NAME;\
-\
-  NAME ## Iterator() = delete;\
-  NAME ## Iterator(NAME ## Map& map) : _iterator(map.begin()), _refmap(map) {}\
-public:\
-  ~NAME ## Iterator() = default;\
-  NAME ## Iterator(const NAME ## Iterator&) = default;\
-  NAME ## Iterator& operator=(const NAME ## Iterator&) = default;\
-\
-  bool hasNext() const { return (_iterator != _refmap.end()); }\
-  const NAME& toNext() { return (*(_iterator++)->second); }\
-  void toFront() { _iterator = _refmap.begin(); }\
-  int getValue() { return (_iterator->second->getValue()); }\
-  const std::string& getKey() { return (_iterator->second->getKey()); }\
-  const std::string& getDescr() { return (_iterator->second->getDescr()); }\
-  int first() { return (_iterator->first); }\
-  NAME* second() { return (_iterator->second); }\
-\
-private:\
-  NAME ## Map::iterator _iterator;\
-  NAME ## Map&          _refmap;\
-};\
-\
 
+
+// ######################
+//       ENUM DEFINE
+// ######################
 #define ENUM_DEFINE_(NAME, DEFAULT, ...)\
 NAME ## Map NAME::_map = NAME ## Map();\
 NAME ## Iterator NAME::_iterator = NAME ## Iterator(NAME::_map);\
+\
+const NAME* NAME::_default = &NAME::DEFAULT;\
+\
+NAME::NAME()\
+: AEnum(*_default)\
+{\
+}\
 \
 NAME::NAME(const std::string& key, int value, const std::string& descr)\
 : AEnum(key, value, descr)\
@@ -158,10 +170,11 @@ size_t NAME::getSize()\
   return _map.size();\
 }\
 \
-NAME ## Iterator* NAME::getIterator()\
+NAME ## Iterator NAME::getIterator()\
 {\
-  _iterator.toFront();\
-  return &_iterator;\
+  auto it(_iterator);\
+  it.toFront();\
+  return it;\
 }\
 \
 bool NAME::existsKey(const std::string& key)\
@@ -202,12 +215,63 @@ const NAME& NAME::fromValue(int value)\
   return *_default;\
 }\
 \
+NAME::E ## NAME NAME::toEnum() const\
+{\
+  return static_cast<E ## NAME>(getValue());\
+}\
+\
 EXPAND(ENUM_IMPLS(NAME, __VA_ARGS__))\
 \
-const NAME* NAME::_default = &NAME::DEFAULT;\
+NAME ## Iterator::NAME ## Iterator(NAME ## Map& map) \
+: _stditer(map.begin())\
+, _refmap(map)\
+{\
+}\
+\
+const NAME& NAME ## Iterator::operator*() const\
+{\
+  return (*(_stditer->second));\
+}\
+\
+bool NAME ## Iterator::hasNext() const\
+{\
+  return (_stditer != _refmap.end());\
+}\
+\
+const NAME& NAME ## Iterator::toNext()\
+{\
+  return (*((_stditer++)->second));\
+}\
+\
+const NAME& NAME ## Iterator::toFront()\
+{\
+  _stditer = _refmap.begin();\
+  return (*(_stditer->second));\
+}\
+\
+const NAME& NAME ## Iterator::getEnum() const\
+{\
+  return (*(_stditer->second));\
+}\
+\
+int NAME ## Iterator::getValue() const\
+{\
+  return (_stditer->second->getValue());\
+}\
+\
+const std::string& NAME ## Iterator::getKey() const\
+{\
+  return (_stditer->second->getKey());\
+}\
+\
+const std::string& NAME ## Iterator::getDescr() const\
+{\
+  return (_stditer->second->getDescr());\
+}\
 \
 
 // Top level macros
 #define ENUM_DECLARE(...) EXPAND(ENUM_DECLARE_(__VA_ARGS__))
-#define ENUM_DEFINE(...) EXPAND(ENUM_DEFINE_(__VA_ARGS__))
+#define ENUM_DEFINE(...)  EXPAND(ENUM_DEFINE_(__VA_ARGS__))
+
 

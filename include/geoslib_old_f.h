@@ -11,13 +11,13 @@
 #ifndef GEOSLIB_OLDF_H
 #define GEOSLIB_OLDF_H
 
+#include "Neigh/ENeigh.hpp"
 #include "Model/CovInternal.hpp"
 #include "Variogram/Vario.hpp"
 #include "geoslib_d.h"
 #include "csparse_d.h"
 #include "csparse_f.h"
 #include "Mesh/tetgen.h"
-#include "Enum/ENeigh.hpp"
 #include "segy.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"

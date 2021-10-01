@@ -48,7 +48,6 @@ namespace std {
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 %include Enum/AEnum.hpp
-%include Enum/ENeigh.hpp
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
 %include Basic/ASerializable.hpp
@@ -105,6 +104,7 @@ namespace std {
 %include Model/NoStatArray.hpp
 %include Model/NoStatFunctional.hpp
 %include Neigh/Neigh.hpp
+%include Neigh/ENeigh.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
 %include Variogram/VarioParam.hpp
