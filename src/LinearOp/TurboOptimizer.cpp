@@ -8,6 +8,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/TurboOptimizer.hpp"
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <math.h>
