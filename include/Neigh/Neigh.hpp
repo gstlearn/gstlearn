@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Enum/ENeigh.hpp"
+#include "Neigh/ENeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"

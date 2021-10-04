@@ -10,4 +10,5 @@
 /******************************************************************************/
 #pragma once
 
-#include "ENeigh.hpp"
+#include "Neigh/ENeigh.hpp"
+#include "Db/ELoc.hpp"

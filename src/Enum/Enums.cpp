@@ -11,3 +11,4 @@
 #include "Enum/Enums.hpp"
 
 ENUM_DEFINE(ENUM_NEIGH)
+ENUM_DEFINE(ENUM_LOC)
