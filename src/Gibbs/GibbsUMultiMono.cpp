@@ -18,19 +18,19 @@
 #define COVMAT(ivar,i,j)              (_covmat[ivar][(i) * nactive + (j)])
 
 GibbsUMultiMono::GibbsUMultiMono()
-  : AGibbs()
+  : GibbsMultiMono()
   , _covmat()
 {
 }
 
-GibbsUMultiMono::GibbsUMultiMono(Db* db, Model* model)
-  : AGibbs(db, model)
+GibbsUMultiMono::GibbsUMultiMono(Db* db, std::vector<Model *> models, double rho)
+  : GibbsMultiMono(db, models, rho)
   , _covmat()
 {
 }
 
 GibbsUMultiMono::GibbsUMultiMono(const GibbsUMultiMono &r)
-  : AGibbs(r)
+  : GibbsMultiMono(r)
   , _covmat(r._covmat)
 {
 }
@@ -39,7 +39,7 @@ GibbsUMultiMono& GibbsUMultiMono::operator=(const GibbsUMultiMono &r)
 {
   if (this != &r)
   {
-    AGibbs::operator=(r);
+    GibbsMultiMono::operator=(r);
     _covmat = r._covmat;
   }
   return *this;
@@ -61,25 +61,25 @@ GibbsUMultiMono::~GibbsUMultiMono()
 int GibbsUMultiMono::covmatAlloc(bool verbose)
 {
   Db* db = getDb();
-  Model* model = getModel();
 
   // Initialization
 
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood in MultiMono case");
   int nactive = db->getActiveSampleNumber();
-  int nvar    = model->getVariableNumber();
+  int nvar    = getVariableNumber();
   _covmat.resize(nvar);
 
   // Loop on the variables
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
+    Model* model = getModels(ivar);
     _covmat[ivar].resize(nactive * nactive, 0.);
 
-    // Establish Covariance Matrix
+    // Establish Covariance Matrix (always based on the first variable in MultiMono case)
 
     if (verbose) message("Establish Covariance matrix (Var=%d)\n",ivar+1);
-    model_covmat(model, db, db, ivar, ivar, 0, 1, _covmat[ivar].data());
+    model_covmat(model, db, db, 0, 0, 0, 1, _covmat[ivar].data());
 
     // Invert Covariance Matrix
 

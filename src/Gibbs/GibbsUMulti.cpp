@@ -19,19 +19,19 @@
 #define COVMAT(i,j)              (_covmat[(i) * neq + (j)])
 
 GibbsUMulti::GibbsUMulti()
-  : AGibbs()
+  : GibbsMulti()
   , _covmat()
 {
 }
 
 GibbsUMulti::GibbsUMulti(Db* db, Model* model)
-  : AGibbs(db, model)
+  : GibbsMulti(db, model)
   , _covmat()
 {
 }
 
 GibbsUMulti::GibbsUMulti(const GibbsUMulti &r)
-  : AGibbs(r)
+  : GibbsMulti(r)
   , _covmat(r._covmat)
 {
 }
@@ -40,7 +40,7 @@ GibbsUMulti& GibbsUMulti::operator=(const GibbsUMulti &r)
 {
   if (this != &r)
   {
-    AGibbs::operator=(r);
+    GibbsMulti::operator=(r);
     _covmat = r._covmat;
   }
   return *this;

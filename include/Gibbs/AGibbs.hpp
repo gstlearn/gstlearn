@@ -15,15 +15,13 @@
 #include "geoslib_enum.h"
 
 class Db;
-class Model;
 
 class AGibbs
 {
 public:
   AGibbs();
-  AGibbs(Db* db, Model* model);
+  AGibbs(Db* db);
   AGibbs(Db* db,
-         Model* model,
          int npgs,
          int nvar,
          int nburn,
@@ -39,7 +37,7 @@ public:
   virtual int calculInitialize(VectorVectorDouble& y,
                                int isimu,
                                int ipgs,
-                               bool verbose);
+                               bool verbose) = 0;
   virtual void update(VectorVectorDouble& y, int isimu, int ipgs, int iter) = 0;
   virtual int covmatAlloc(bool verbose) = 0;
 
@@ -74,7 +72,6 @@ public:
   bool getOptionStats() const { return _optionStats; }
   void setOptionStats(int option_stats) { _optionStats = option_stats; }
   Db* getDb() const { return _db; }
-  Model* getModel() const { return _model; }
   int getDimension() const;
   int getRank(int ipgs, int ivar) const;
   VectorVectorDouble allocY() const;
@@ -130,7 +127,6 @@ private:
 
   // List of pointers stored for better efficiency
   Db*       _db;
-  Model*    _model;
 
   // Optional Table used to store performance statistics (see _optionStats)
   Table     _stats;

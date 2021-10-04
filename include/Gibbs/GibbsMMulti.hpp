@@ -10,27 +10,29 @@
 /******************************************************************************/
 #pragma once
 
-#include "Gibbs/GibbsMultiMono.hpp"
+#include "Gibbs/GibbsMulti.hpp"
 #include "Basic/Vector.hpp"
 
 class Db;
 class Model;
+class Neigh;
 
-/**
- * This class is designated for Gibbs with the following properties
- * - Unique (absent) Neighborhood
- * - Monovariate case only
- * - Propagation algorithm (no need to establish and invert Covariance matrix)
- * - No bound provided
- */
-class GibbsUPropMono : public GibbsMultiMono
+class GibbsMMulti : public GibbsMulti
 {
+private:
+  struct GibbsWeights {
+    int _neq;
+    int _pivot;
+    VectorInt _ranks;
+    VectorVectorDouble _ll;
+  }; // Per sample
+
 public:
-  GibbsUPropMono();
-  GibbsUPropMono(Db* db, std::vector<Model *> models, double rho);
-  GibbsUPropMono(const GibbsUPropMono &r);
-  GibbsUPropMono& operator=(const GibbsUPropMono &r);
-  virtual ~GibbsUPropMono();
+  GibbsMMulti();
+  GibbsMMulti(Db* db, Model* model, Neigh* neigh);
+  GibbsMMulti(const GibbsMMulti &r);
+  GibbsMMulti& operator=(const GibbsMMulti &r);
+  virtual ~GibbsMMulti();
 
   void update(VectorVectorDouble& y,
               int isimu,
@@ -38,9 +40,9 @@ public:
               int iter) override;
   int covmatAlloc(bool verbose) override;
 
-  double getEps() const { return _eps; }
-  void setEps(double eps) { _eps = eps; }
+  Neigh* getNeigh() const { return _neigh; }
 
 private:
-  double _eps;
+  Neigh* _neigh;
+  std::vector<GibbsWeights> _wgt; // For each sample
 };

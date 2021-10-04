@@ -8475,7 +8475,7 @@ GEOSLIB_API int dk_f(Db *dbin,
   FLAG_EST = flag_est;
   FLAG_STD = flag_std;
   FLAG_WGT = flag_std;
-  ModTrans& modtrs = model->getModTrans();
+  const ModTrans& modtrs = model->getModTrans();
 
   // The model is not checked against the Data, as the number of variables
   // is not consistent: Model (1) whereas Data (nfactor-1)

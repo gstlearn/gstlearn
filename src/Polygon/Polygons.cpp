@@ -95,7 +95,10 @@ Polygons::Polygons(const String& neutralFileName, bool verbose)
       _polysets()
 {
   if (deSerialize(neutralFileName, verbose))
-    my_throw("Problem reading the Neutral File");
+  {
+    messerr("Problem reading the Neutral File.");
+    _polysets.clear();
+  }
 }
 
 Polygons::Polygons(const Polygons& r)

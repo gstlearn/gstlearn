@@ -9,7 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Gibbs/AGibbs.hpp"
-#include "Model/Model.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
@@ -30,12 +29,11 @@ AGibbs::AGibbs()
       _sqr(0.),
       _ranks(),
       _db(nullptr),
-      _model(nullptr),
       _stats()
 {
 }
 
-AGibbs::AGibbs(Db* db, Model* model)
+AGibbs::AGibbs(Db* db)
     : _npgs(1),
       _nvar(1),
       _nburn(1),
@@ -48,12 +46,11 @@ AGibbs::AGibbs(Db* db, Model* model)
       _sqr(0.),
       _ranks(),
       _db(db),
-      _model(model),
       _stats()
 {
 }
 
-AGibbs::AGibbs(Db* db, Model* model,
+AGibbs::AGibbs(Db* db,
                int npgs, int nvar, int nburn, int niter,
                int flag_order, bool flag_multi_mono, bool flag_decay,
                double rho)
@@ -69,7 +66,6 @@ AGibbs::AGibbs(Db* db, Model* model,
       _sqr(0.),
       _ranks(),
       _db(db),
-      _model(model),
       _stats()
 {
   init(npgs, nvar, nburn, niter,
@@ -89,7 +85,6 @@ AGibbs::AGibbs(const AGibbs &r)
       _sqr(r._sqr),
       _ranks(r._ranks),
       _db(r._db),
-      _model(r._model),
       _stats(r._stats)
 {
 }
@@ -110,7 +105,6 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
     _sqr = r._sqr;
     _ranks = r._ranks;
     _db = r._db;
-    _model = r._model;
     _stats = r._stats;
   }
   return *this;
@@ -431,60 +425,6 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
     _stats.display(isimu);
   else if (_optionStats == 2)
     _stats.plot(isimu);
-}
-
-/****************************************************************************/
-/*!
-**  Initializes the Gibbs sampler for a set of inequalities
-**
-** \return  Error return code
-**
-** \param[in]  y             Gaussian vector
-** \param[in]  isimu         Rank of the simulation
-** \param[in]  ipgs          Rank of the GS
-** \param[in]  verbose       Verbose flag
-**
-*****************************************************************************/
-int AGibbs::calculInitialize(VectorVectorDouble& y,
-                             int isimu,
-                             int ipgs,
-                             bool verbose)
-{
-  Db* db = getDb();
-  Model* model = getModel();
-  int nactive = db->getActiveSampleNumber();
-  int nvar    = getNvar();
-
-  /* Print the title */
-
-  if (debug_query("converge"))
-    mestitle(1,"Initial Values for Gibbs Sampler (Simu:%d - GS:%d)",
-             isimu+1,ipgs+1);
-
-  /* Loop on the variables */
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    int icase   = getRank(ipgs,ivar);
-
-    /* Loop on the samples */
-
-    double sk = sqrt(model->getTotalSill(ivar,ivar));
-    for (int iact = 0; iact < nactive; iact++)
-    {
-      int iech = getSampleRank(iact);
-      double vmin, vmax;
-      if (_boundsCheck(iech, ipgs, ivar, &vmin, &vmax)) return 1;
-
-      /* Compute the median value of the interval */
-
-      double pmin = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
-      double pmax = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
-      y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
-    }
-  }
-
-  return(0);
 }
 
 /**

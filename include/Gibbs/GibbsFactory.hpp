@@ -25,7 +25,10 @@ public:
 
   static AGibbs *createGibbs(Db* db,
                              Model* model,
-                             Neigh* neigh,
-                             bool flag_multi_mono,
+                             Neigh* neigh);
+  static AGibbs *createGibbs(Db* db,
+                             std::vector<Model *> models,
+                             double rho,
                              bool flag_propagation);
+
 };

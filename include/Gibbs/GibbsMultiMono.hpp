@@ -11,38 +11,30 @@
 #pragma once
 
 #include "Gibbs/AGibbs.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/AStringable.hpp"
 
 class Db;
 class Model;
-class Neigh;
 
-class GibbsMoving : public AGibbs
+class GibbsMultiMono : public AGibbs
 {
-private:
-  struct GibbsWeights {
-    int _neq;
-    int _pivot;
-    VectorInt _ranks;
-    VectorVectorDouble _ll;
-  }; // Per sample
-
 public:
-  GibbsMoving();
-  GibbsMoving(Db* db, Model* model, Neigh* neigh);
-  GibbsMoving(const GibbsMoving &r);
-  GibbsMoving& operator=(const GibbsMoving &r);
-  virtual ~GibbsMoving();
+  GibbsMultiMono();
+  GibbsMultiMono(Db* db, std::vector<Model*> models, double rho);
+  GibbsMultiMono(const GibbsMultiMono &r);
+  GibbsMultiMono& operator=(const GibbsMultiMono &r);
+  virtual ~GibbsMultiMono();
 
-  void update(VectorVectorDouble& y,
-              int isimu,
-              int ipgs,
-              int iter) override;
-  int covmatAlloc(bool verbose) override;
+  Model* getModels(int ivar) const { return _models[ivar]; } // TODO: protect by const asap
+  double getRho() const { return _rho; }
+  int getVariableNumber() const { return _models.size(); }
 
-  Neigh* getNeigh() const { return _neigh; }
+  int calculInitialize(VectorVectorDouble& y,
+                       int isimu,
+                       int ipgs,
+                       bool verbose);
 
 private:
-  Neigh* _neigh;
-  std::vector<GibbsWeights> _wgt; // For each sample
+  std::vector<Model *> _models;
+  double _rho;
 };

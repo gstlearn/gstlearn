@@ -8,49 +8,48 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Gibbs/GibbsMoving.hpp"
+#include "Gibbs/GibbsMMulti.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Morpho/Morpho.hpp"
 #include "geoslib_f.h"
 
-#define MEAN(ivar,iech)          (mean[(ivar) * nech + (iech)])
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
 
-GibbsMoving::GibbsMoving()
-  : AGibbs()
+GibbsMMulti::GibbsMMulti()
+  : GibbsMulti()
   , _neigh(nullptr)
   , _wgt()
 {
 }
 
-GibbsMoving::GibbsMoving(Db* db, Model* model, Neigh* neigh)
-  : AGibbs(db, model)
+GibbsMMulti::GibbsMMulti(Db* db, Model* model, Neigh* neigh)
+  : GibbsMulti(db, model)
   , _neigh(neigh)
   , _wgt()
 {
 }
 
-GibbsMoving::GibbsMoving(const GibbsMoving &r)
-  : AGibbs(r)
+GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
+  : GibbsMulti(r)
   , _neigh(r._neigh)
   , _wgt(r._wgt)
 {
 }
 
-GibbsMoving& GibbsMoving::operator=(const GibbsMoving &r)
+GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
 {
   if (this != &r)
   {
-    AGibbs::operator=(r);
+    GibbsMulti::operator=(r);
     _neigh = r._neigh;
     _wgt = r._wgt;
   }
   return *this;
 }
 
-GibbsMoving::~GibbsMoving()
+GibbsMMulti::~GibbsMMulti()
 {
 }
 
@@ -63,7 +62,7 @@ GibbsMoving::~GibbsMoving()
 ** \param[in]  verbose     Verbose flag
 **
 *****************************************************************************/
-int GibbsMoving::covmatAlloc(bool verbose)
+int GibbsMMulti::covmatAlloc(bool verbose)
 {
   VectorInt ivars, iechs;
   double *covmat;
@@ -163,7 +162,7 @@ int GibbsMoving::covmatAlloc(bool verbose)
 ** \param[in]  iter        Rank of the iteration
 **
 *****************************************************************************/
-void GibbsMoving::update(VectorVectorDouble& y,
+void GibbsMMulti::update(VectorVectorDouble& y,
                          int isimu,
                          int ipgs,
                          int iter)
@@ -171,7 +170,7 @@ void GibbsMoving::update(VectorVectorDouble& y,
   double valsim;
 
   Db* db = getDb();
-  Model* model = getModel();
+  const Model* model = getModel();
   int nactive = db->getActiveSampleNumber();
   int nvar    = model->getVariableNumber();
 

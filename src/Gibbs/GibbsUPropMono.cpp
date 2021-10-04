@@ -16,19 +16,19 @@
 #include "geoslib_f.h"
 
 GibbsUPropMono::GibbsUPropMono()
-  : AGibbs()
+  : GibbsMultiMono()
   , _eps(EPSILON3)
 {
 }
 
-GibbsUPropMono::GibbsUPropMono(Db* db, Model* model)
-  : AGibbs(db, model)
+GibbsUPropMono::GibbsUPropMono(Db* db, std::vector<Model *> models, double rho)
+  : GibbsMultiMono(db, models, rho)
   , _eps(EPSILON3)
 {
 }
 
 GibbsUPropMono::GibbsUPropMono(const GibbsUPropMono &r)
-  : AGibbs(r)
+  : GibbsMultiMono(r)
   , _eps(r._eps)
 {
 }
@@ -87,7 +87,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
   /* Initializations */
 
   Db* db = getDb();
-  Model* model = getModel();
+  Model* model = getModels(0);
   int nactive = db->getActiveSampleNumber();
   int ndim    = model->getDimensionNumber();
   int icase   = getRank(ipgs,0);
