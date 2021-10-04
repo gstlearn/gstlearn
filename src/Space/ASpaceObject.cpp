@@ -9,6 +9,7 @@
 #include <iostream>
 
 ASpace* ASpaceObject::_globalSpace = nullptr;
+bool ASpaceObject::_fakeSpace = true;
 
 ASpaceObject::ASpaceObject(const ASpace* space)
 : _space(space) /// TODO : ASpace shared pointer
@@ -43,8 +44,7 @@ const ASpace* ASpaceObject::createGlobalSpace(SpaceType type,
   if (nullptr != _globalSpace)
   {
     std::cout << "Cannot recreate global space context! Should never occur!" << std::endl;
-    // TODO: DR a ajoute le return pour permettre d'appeler plusieurs fois cette fonction
-    // sans prejudice
+    std::cout << "Creation aborted: previous Global Space is returned" << std::endl;
     return _globalSpace;
   }
   switch (type)
@@ -64,6 +64,7 @@ const ASpace* ASpaceObject::createGlobalSpace(SpaceType type,
       my_throw("Unknown space type!");
     }
   }
+  _fakeSpace = false;
   return _globalSpace;
 }
 
@@ -74,6 +75,7 @@ const ASpace* ASpaceObject::getGlobalSpace()
 //    std::cout << "Creating default global space: SpaceRN 2D..." << std::endl;
 //    std::cout << "Call ASpaceObject::createGlobalSpace to avoid this message!" << std::endl;
     createGlobalSpace(SPACE_RN, 2);
+    _fakeSpace = true;
   }
   return _globalSpace;
 }
@@ -108,7 +110,7 @@ VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& 
 
 bool ASpaceObject::isSpaceDimensionValid(int ndim)
 {
-  // If the (local) Space dimension is not defined, it is an obvious error
+  // If the (local) Space dimension is not defined, skip the test
   if (ndim <= 0) return false;
 
   // If (local) Space dimension is defined

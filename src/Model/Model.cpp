@@ -67,7 +67,11 @@ Model::Model(const String& neutralFileName, bool verbose)
       _ctxt(),
       generic_cov_function(nullptr)
 {
-  (void) deSerialize(neutralFileName, verbose);
+  if (deSerialize(neutralFileName, verbose))
+  {
+    messerr("Problem when reading the Neutral File");
+    messerr("The Model is not entirely completed");
+  }
 }
 
 Model::Model(const Model &m)

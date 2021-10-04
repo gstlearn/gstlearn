@@ -40,7 +40,10 @@ public:
 
   double getEps() const { return _eps; }
   void setEps(double eps) { _eps = eps; }
+  double getRval() const { return _rval; }
+  void setRval(double rval) { _rval = rval; }
 
 private:
+  double _rval;
   double _eps;
 };

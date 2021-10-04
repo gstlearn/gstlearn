@@ -155,7 +155,10 @@ Neigh::Neigh(const String& neutralFileName, bool verbose)
       _imageRadius()
 {
   if (deSerialize(neutralFileName, verbose))
-    my_throw("Problem reading the Neutral File");
+  {
+    messerr("Error when reading a Neutral File");
+    messerr("The Neigh is not entirely defined");
+  }
 }
 
 Neigh::Neigh(const Neigh& r)
@@ -315,6 +318,12 @@ int Neigh::deSerialize(const String& filename, bool verbose)
 
   if (_recordRead("Space Dimension", "%d", &ndim)) return 1;
   if (_recordRead("Neighborhood type", "%d", &type)) return 1;
+
+  if (! ASpaceObject::isSpaceDimensionValid(ndim))
+  {
+    messerr("Wrong space dimension in %s", filename.c_str());
+    return 1;
+  }
 
   /* Core allocation */
 

@@ -33,6 +33,14 @@ public:
                        int isimu,
                        int ipgs,
                        bool verbose);
+  double getSimulate(VectorVectorDouble& y,
+                     double yk,
+                     double sk,
+                     int iact,
+                     int ipgs,
+                     int ivar,
+                     int iter);
+  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
 
 private:
   std::vector<Model *> _models;

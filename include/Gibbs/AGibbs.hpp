@@ -40,6 +40,14 @@ public:
                                bool verbose) = 0;
   virtual void update(VectorVectorDouble& y, int isimu, int ipgs, int iter) = 0;
   virtual int covmatAlloc(bool verbose) = 0;
+  virtual double getSimulate(VectorVectorDouble& y,
+                             double yk,
+                             double sk,
+                             int iact,
+                             int ipgs,
+                             int ivar,
+                             int iter) = 0;
+  virtual int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) = 0;
 
   void init(int npgs,
             int nvar,
@@ -63,10 +71,6 @@ public:
   void setNburn(int nburn) { _nburn = nburn; }
   int getNiter() const { return _niter; }
   void setNiter(int niter) { _niter = niter; }
-  double getRho() const { return _rho; }
-  void setRho(double rho) { _rho = rho; }
-  double getSqr() const { return _sqr; }
-  void setSqr(double sqr) { _sqr = sqr; }
   int getFlagOrder() const { return _flagOrder; }
   void setFlagOrder(int flagOrder) { _flagOrder = flagOrder; }
   bool getOptionStats() const { return _optionStats; }
@@ -76,15 +80,8 @@ public:
   int getRank(int ipgs, int ivar) const;
   VectorVectorDouble allocY() const;
   void storeResult(const VectorVectorDouble& y, int isimu, int ipgs);
-  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
 
-  double getSimulate(VectorVectorDouble& y,
-                     double yk,
-                     double sk,
-                     int iact,
-                     int ipgs,
-                     int ivar,
-                     int iter);
+
   int getSampleRankNumber() const;
   int getSampleRank(int i) const;
   VectorInt calculateSampleRanks() const;
@@ -94,6 +91,8 @@ public:
                    double amort = 0.9);
   bool isConstraintTight(int ipgs, int ivar, int iech, double* value) const;
   void statsInit();
+
+  bool getFlagDecay() const { return _flagDecay; }
 
 protected:
   int _boundsCheck(int iech0, int ipgs, int ivar, double *vmin, double *vmax);
@@ -117,15 +116,12 @@ private:
   //   1 if the ascending order must be honored
   //  -1 if the descending order must be honored
   //   0 if no order relationship must be honored
-  bool _flagMultiMono;
   bool _flagDecay;
   int  _optionStats; // 0: no storage; 1: printout; 2: Neutral File
-  double _rho;
-  double _sqr;
 
   VectorInt _ranks; // Internal array use to store indices of active samples
 
-  // List of pointers stored for better efficiency
+  // Pointer to the reference Db (stored for efficiency)
   Db*       _db;
 
   // Optional Table used to store performance statistics (see _optionStats)

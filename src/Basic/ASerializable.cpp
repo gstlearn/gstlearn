@@ -23,31 +23,50 @@
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR;
 static char *cur = NULL;
 
-String ASerializable::myContainerName  = String();
-String ASerializable::myPrefixName     = String();
-bool   ASerializable::myContainerIsSet = false;
+String ASerializable::myContainerName = String();
+String ASerializable::myPrefixName    = String();
 
 /**
  * Set the Container Directory Name (do not forget trailing separator "/")
  * @param containerName Name or "" for current location
  */
-void ASerializable::setSerializedContainerName(const String& containerName)
+void ASerializable::setContainerName(bool useDefault, const String& containerName)
 {
-  myContainerName = containerName;
-  myContainerIsSet = true;
+  if (useDefault)
+  {
+
+    // Default is first set to PYGSTLEARN_DIR (if defined)
+
+    char* pydir(std::getenv("PYGSTLEARN_DIR"));
+    String pygst;
+    if (pydir == nullptr)
+    {
+
+      // Otherwise, it is set to HOME/gstlearn_dir
+
+      pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
+      std::cout << "PYGSTLEARN_DIR environment variable not defined. Using "
+                << pygst << std::endl;
+    }
+    myContainerName = pygst;
+  }
+  else
+  {
+    myContainerName = containerName;
+  }
 }
 
-void ASerializable::setSerializedPrefixName(const String& prefixName)
+void ASerializable::setPrefixName(const String& prefixName)
 {
   myPrefixName = prefixName;
 }
 
-const String& ASerializable::getSerializedContainerName()
+const String& ASerializable::getContainerName()
 {
   return myContainerName;
 }
 
-const String& ASerializable::getSerializedPrefixName()
+const String& ASerializable::getPrefixName()
 {
   return myPrefixName;
 }
@@ -58,21 +77,6 @@ ASerializable::ASerializable()
   , _file(nullptr)
   , _currentRecord()
 {
-  if (! myContainerIsSet && myContainerName.empty())
-  {
-    char* pydir(std::getenv("PYGSTLEARN_DIR"));
-    String pygst;
-    if (pydir == nullptr)
-    {
-      pygst = ASerializable::getHomeDirectory("gstlearn_output/");
-      std::cout << "PYGSTLEARN_DIR environment variable not defined. Using " << pygst << std::endl;
-    }
-    else
-    {
-      pygst = String(pydir);
-    }
-    myContainerName = pygst;
-  }
 }
 
 /****************************************************************************/
@@ -494,7 +498,7 @@ String ASerializable::getHomeDirectory(const std::string& sub)
   return sstr.str();
 }
 
-String ASerializable::serializedFileIdentify(const String& filename)
+String ASerializable::getFileIdentify(const String& filename)
 {
   // Preliminary check
   if (filename.empty())

@@ -151,7 +151,10 @@ Rule::Rule(const String& neutralFileName, bool verbose)
       _mainNode(nullptr)
 {
   if (deSerialize(neutralFileName, verbose))
-    my_throw("Problem reading the Neutral File");
+  {
+    messerr("Problem reading the Neutral File.");
+    messerr("The Rule is not entirely created");
+  }
 }
 
 Rule::Rule(const Rule& m)

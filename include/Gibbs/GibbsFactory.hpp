@@ -30,5 +30,4 @@ public:
                              std::vector<Model *> models,
                              double rho,
                              bool flag_propagation);
-
 };

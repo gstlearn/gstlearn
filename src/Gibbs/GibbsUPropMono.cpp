@@ -17,18 +17,21 @@
 
 GibbsUPropMono::GibbsUPropMono()
   : GibbsMultiMono()
+  , _rval(0.5)
   , _eps(EPSILON3)
 {
 }
 
 GibbsUPropMono::GibbsUPropMono(Db* db, std::vector<Model *> models, double rho)
   : GibbsMultiMono(db, models, rho)
+  , _rval(0.5)
   , _eps(EPSILON3)
 {
 }
 
 GibbsUPropMono::GibbsUPropMono(const GibbsUPropMono &r)
   : GibbsMultiMono(r)
+  , _rval(0.5)
   , _eps(r._eps)
 {
 }
@@ -38,6 +41,7 @@ GibbsUPropMono& GibbsUPropMono::operator=(const GibbsUPropMono &r)
   if (this != &r)
   {
     AGibbs::operator=(r);
+    _rval = r._rval;
     _eps = r._eps;
   }
   return *this;
@@ -92,9 +96,9 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
   int ndim    = model->getDimensionNumber();
   int icase   = getRank(ipgs,0);
 
-  double sqr  = getSqr();
   double eps  = getEps();
-  double r    = 0.1;
+  double r    = getRval();
+  double sqr  = sqrt(1. - r * r);
 
   /* Core allocation */
 

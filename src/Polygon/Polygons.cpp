@@ -97,6 +97,7 @@ Polygons::Polygons(const String& neutralFileName, bool verbose)
   if (deSerialize(neutralFileName, verbose))
   {
     messerr("Problem reading the Neutral File.");
+    messerr("The Polygon is not entirely created");
     _polysets.clear();
   }
 }

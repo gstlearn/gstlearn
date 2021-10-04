@@ -24,7 +24,7 @@
 int main(int argc, char *argv[])
 
 {
-  ASerializable::setSerializedPrefixName("PGS-");
+  ASerializable::setPrefixName("PGS-");
   int error = 0;
   int ndim  = 2;
   ASpaceObject::createGlobalSpace(SPACE_RN, ndim);

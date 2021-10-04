@@ -293,7 +293,8 @@ Db::Db(const String& neutralFileName, bool verbose)
 {
   if (deSerialize(neutralFileName, verbose))
   {
-    messerr("Problem reading the Neutral File. May be it's a data file. In that case, use the CSVformat constructor.");
+    messerr("Problem reading the Neutral File.");
+    messerr("The Db is not entirely created");
     reset(0,0);
   }
 }

@@ -28,7 +28,7 @@
 int main(int argc, char *argv[])
 
 {
-  ASerializable::setSerializedPrefixName("simbiPGS-");
+  ASerializable::setPrefixName("simbiPGS-");
   int error = 0;
   int ndim = 2;
   int nbsimu = 2;
