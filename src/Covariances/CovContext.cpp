@@ -28,6 +28,7 @@ CovContext::CovContext(int nvar,
   _space(space)
 {
   _update();
+  // TODO : Conflict when using model_cova_characteristics if we keep hasGlobalSpace
   if (_space == nullptr && ASpaceObject::hasGlobalSpace())
     _space = ASpaceObject::getGlobalSpace();
 }

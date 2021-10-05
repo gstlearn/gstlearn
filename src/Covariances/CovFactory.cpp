@@ -144,10 +144,13 @@ void CovFactory::displayList(const CovContext& ctxt)
   auto it = ECov::getIterator();
   while (it.hasNext())
   {
-    ACovFunc* cova = createCovFunc(*it, ctxt);
-    if (_isValid(cova, ctxt))
-      message("%2d - %s\n", it.getValue(), cova->getCovName().c_str());
-    delete cova;
+    if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
+    {
+      ACovFunc* cova = createCovFunc(*it, ctxt);
+      if (_isValid(cova, ctxt))
+        message("%2d - %s\n", it.getValue(), cova->getCovName().c_str());
+      delete cova;
+    }
     it.toNext();
   }
 }
@@ -163,10 +166,13 @@ VectorString CovFactory::getCovList(const CovContext& ctxt)
   auto it = ECov::getIterator();
   while (it.hasNext())
   {
-    ACovFunc* cova = createCovFunc(*it, ctxt);
-    if (_isValid(cova, ctxt))
-      names.push_back(cova->getCovName());
-    delete cova;
+    if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
+    {
+      ACovFunc* cova = createCovFunc(*it, ctxt);
+      if (_isValid(cova, ctxt))
+        names.push_back(cova->getCovName());
+      delete cova;
+    }
     it.toNext();
   }
   return names;
@@ -176,7 +182,7 @@ VectorString CovFactory::getCovList(const CovContext& ctxt)
  * Return the ECov object from the given covariance name.
  * The name must correspond to one of the ECov keys.
  * If the name doesn't exists, this method returns ECov::UNKNOWN
- * and display availaible covariances for the given context.
+ * and display available covariances for the given context.
  *
  * @param cov_name  Name of the required covariance
  * @param ctxt      Context from which we want authorized covariances
@@ -184,12 +190,21 @@ VectorString CovFactory::getCovList(const CovContext& ctxt)
 ECov CovFactory::identifyCovariance(const String& cov_name,
                                     const CovContext& ctxt)
 {
-  String str = toUpper(cov_name);
-  if (!ECov::existsKey(str))
+  auto it = ECov::getIterator();
+  while (it.hasNext())
   {
-    messerr("Unknown Covariance name : %s",cov_name.c_str());
-    CovFactory::displayList(ctxt);
-    return ECov::UNKNOWN;
+    // Test covariance name using ACovFunc::getCovName (not the ECov keys!)
+    // (ensure RGeostats scripts retro compatibility)
+    if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
+    {
+      ACovFunc* cova = createCovFunc(*it, ctxt);
+      String cn = toUpper(cov_name);
+      String ccn = toUpper(cova->getCovName());
+      if (cn == ccn)
+        return *it;
+      delete cova;
+    }
+    it.toNext();
   }
-  return ECov::fromKey(str);
+  return ECov::UNKNOWN;
 }
