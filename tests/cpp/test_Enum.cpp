@@ -69,7 +69,7 @@ int main()
   if (d2 == EDay::MONDAY)
     std::cout << "I hate d2!" << std::endl;
 
-  switch(d1)
+  switch(d1.toEnum())
   {
     case EDay::E_SUNDAY:
     case EDay::E_SATURDAY:

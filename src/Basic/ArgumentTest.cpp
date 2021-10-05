@@ -104,6 +104,6 @@ void argumentTestSurcharge(const VectorString& values)
 
 void argumentTestEnum(ETests value)
 {
-  std::cout << value << std::endl; // Automatic conversion to int?
+  std::cout << value.getValue() << std::endl;
 }
 

@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovP8::CovP8(const CovContext& ctxt)
-: ACovFunc(COV_P8, ctxt)
+: ACovFunc(ECov::P8, ctxt)
 {
 }
 

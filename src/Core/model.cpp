@@ -1167,7 +1167,7 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
   /* Add the nugget effect variogram model */
 
   sill = 1.;
-  if (model_add_cova(model, COV_NUGGET, 0, 0, 0., 0.,
+  if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0.,
                      VectorDouble(),
                      VectorDouble(), VectorDouble(sill))) goto label_end;
 
@@ -1187,7 +1187,7 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
  ** \return  Error return code
  **
  ** \param[in]  model           Pointer to the Model structure
- ** \param[in]  type            Type of the basic structure (::ENUM_COVS)
+ ** \param[in]  type            Type of the basic structure
  ** \param[in]  flag_aniso      1 if the basic structure is anisotropic
  ** \param[in]  flag_rotation   1 if the basic structure is rotated
  **                             (only when anisotropic)
@@ -1204,7 +1204,7 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
  **
  *****************************************************************************/
 GEOSLIB_API int model_add_cova(Model *model,
-                               ENUM_COVS type,
+                               const ECov& type,
                                int flag_aniso,
                                int flag_rotation,
                                double range,
@@ -1219,7 +1219,7 @@ GEOSLIB_API int model_add_cova(Model *model,
 
   if (model->isFlagGradient())
   {
-    CovGradientNumerical covgrad((ENUM_COVS) type, model->getContext());
+    CovGradientNumerical covgrad(type, model->getContext());
 //    if (! covgrad.isGradientCompatible()) return 1; TODO incorporte this type of selection
     covgrad.setParam(param);
     if (flag_aniso)
@@ -1235,7 +1235,7 @@ GEOSLIB_API int model_add_cova(Model *model,
   }
   else
   {
-    CovAniso cova((ENUM_COVS) type, model->getContext());
+    CovAniso cova(type, model->getContext());
     cova.setParam(param);
     if (flag_aniso)
     {
@@ -1547,9 +1547,9 @@ GEOSLIB_API int model_add_tapering(Model *model,
  ** \param[in]  param     Value of the third parameter
  **
  *****************************************************************************/
-GEOSLIB_API double cova_get_scale_factor(int type, double param)
+GEOSLIB_API double cova_get_scale_factor(const ECov& type, double param)
 {
-  ACovFunc* cova = CovFactory::createCovFunc((ENUM_COVS) type, CovContext());
+  ACovFunc* cova = CovFactory::createCovFunc(type, CovContext());
   cova->setParam(param);
   return cova->getScadef();
 }
@@ -3249,7 +3249,7 @@ GEOSLIB_API int model_stabilize(Model *model, int flag_verbose, double percent)
   for (icov = 0; icov < ncov; icov++)
   {
     cova = model->getCova(icov);
-    if (cova->getType() != COV_GAUSSIAN) return (0);
+    if (cova->getType() != ECov::GAUSSIAN) return (0);
     total += model->getSill(icov, 0, 0);
   }
   total = total * percent / 100.;
@@ -3264,7 +3264,7 @@ GEOSLIB_API int model_stabilize(Model *model, int flag_verbose, double percent)
 
   /* Add a NUGGET EFFECT component */
 
-  if (model_add_cova(model, COV_NUGGET, 0, 0, 0., 0., VectorDouble(),
+  if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
                      VectorDouble(), VectorDouble(total))) goto label_end;
 
   /* Printout */
@@ -3327,7 +3327,7 @@ GEOSLIB_API void model_covupdt(Model *model,
   for (icov = 0; icov < ncova; icov++)
   {
     cova = model->getCova(icov);
-    if (cova->getType() == COV_NUGGET) rank_nugget = icov;
+    if (cova->getType() == ECov::NUGGET) rank_nugget = icov;
     rank[icov] = icov;
     range[icov] = cova->getRange();
   }
@@ -3342,7 +3342,7 @@ GEOSLIB_API void model_covupdt(Model *model,
   {
     icov = rank[ncova - 1 - jcov];
     cova = model->getCova(icov);
-    if (cova->getType() == COV_NUGGET) continue;
+    if (cova->getType() == ECov::NUGGET) continue;
     for (ivar = 0; ivar < nvar; ivar++)
     {
       silltot[AD(ivar, ivar)] += model->getSill(icov, ivar, ivar);
@@ -3383,7 +3383,7 @@ GEOSLIB_API void model_covupdt(Model *model,
     {
       icov = rank[ncova - 1 - jcov];
       cova = model->getCova(icov);
-      if (cova->getType() == COV_NUGGET) continue;
+      if (cova->getType() == ECov::NUGGET) continue;
       for (ivar = 0; ivar < nvar; ivar++)
         for (jvar = 0; jvar < nvar; jvar++)
           model->getCova(icov)->setSill(ivar, jvar, 0.);
@@ -3397,7 +3397,7 @@ GEOSLIB_API void model_covupdt(Model *model,
     {
       icov = rank[ncova - 1 - jcov];
       cova = model->getCova(icov);
-      if (cova->getType() == COV_NUGGET) continue;
+      if (cova->getType() == ECov::NUGGET) continue;
       for (ivar = 0; ivar < nvar; ivar++)
         silltot[AD(ivar, ivar)] += model->getSill(icov, ivar, ivar);
     }
@@ -3587,8 +3587,7 @@ GEOSLIB_API int model_dimension(Model *model)
  ** \param[in]  model     Model structure
  ** \param[in]  icov      Rank of the Covariance structure (from 0)
  **
- ** \param[out]  cov_type      Type of the covariance
- **                            (Starting from 1)
+ ** \param[out]  cov_type      Type of the covariance (integer enum of ECov)
  ** \param[out]  flag_aniso    1 for anisotropy and 0 otherwise
  ** \param[out]  param         Parameter
  ** \param[out]  sill          Array of sills (Dimension = nvar * nvar)
@@ -3616,7 +3615,7 @@ GEOSLIB_API int model_extract_cova(Model *model,
 
   /* Returning arguments */
 
-  *cov_type = cova->getType() + 1;
+  *cov_type = cova->getType().getValue();
   *flag_aniso = !cova->isIsotrop();
   *param = cova->getParam();
   sill = cova->getSill().getValues();
@@ -3657,7 +3656,7 @@ GEOSLIB_API void model_extract_properties(Model *model, double *tape_range)
 /*!
  **  Returns the characteristics of the covariance
  **
- ** \param[in]  rank   Rank of the covariance
+ ** \param[in]  type           Type of the covariance
  **
  ** \param[out] cov_name       Name of the covariance
  ** \param[out] flag_range     range definition
@@ -3674,7 +3673,7 @@ GEOSLIB_API void model_extract_properties(Model *model, double *tape_range)
  ** \param[out] parmax         Maximum value for the third parameter
  **
  *****************************************************************************/
-GEOSLIB_API void model_cova_characteristics(int rank,
+GEOSLIB_API void model_cova_characteristics(const ECov& type,
                                             char cov_name[STRING_LENGTH],
                                             int *flag_range,
                                             int *flag_param,
@@ -3688,7 +3687,7 @@ GEOSLIB_API void model_cova_characteristics(int rank,
                                             double *parmax)
 {
   CovContext ctxt = CovContext(1, 2, 0.);
-  ACovFunc* cov = CovFactory::createCovFunc((ENUM_COVS) rank, ctxt);
+  ACovFunc* cov = CovFactory::createCovFunc(type, ctxt);
   (void) strcpy((char *) cov_name, cov->getCovName().c_str());
   *flag_range = cov->hasRange();
   *flag_param = cov->hasParam();
@@ -4045,7 +4044,7 @@ GEOSLIB_API double model_maximum_distance(Model *model)
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-GEOSLIB_API double model_scale2range(int type, double scale, double param)
+GEOSLIB_API double model_scale2range(const ECov& type, double scale, double param)
 {
   double factor, range;
 
@@ -4066,7 +4065,7 @@ GEOSLIB_API double model_scale2range(int type, double scale, double param)
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-GEOSLIB_API double model_range2scale(int type, double range, double param)
+GEOSLIB_API double model_range2scale(const ECov& type, double range, double param)
 {
   double factor, scale;
 
@@ -4230,7 +4229,7 @@ GEOSLIB_API int model_get_nonugget_cova(Model *model)
   for (icov = 0; icov < model->getCovaNumber(); icov++)
   {
     cova = model->getCova(icov);
-    if (cova->getType() != COV_NUGGET) nstruc++;
+    if (cova->getType() != ECov::NUGGET) nstruc++;
   }
   return (nstruc);
 }

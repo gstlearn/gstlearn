@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   ///////////////////////
   // Creating the Model
   Model model = Model(&workingDbc);
-  CovAniso cova = CovAniso(COV_BESSEL_K,model.getContext());
+  CovAniso cova = CovAniso(ECov::BESSEL_K,model.getContext());
   cova.setRanges({10,45});
   model.addCova(&cova);
 

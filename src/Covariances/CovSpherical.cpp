@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovSpherical::CovSpherical(const CovContext& ctxt)
-: ACovFunc(COV_SPHERICAL, ctxt)
+: ACovFunc(ECov::SPHERICAL, ctxt)
 {
 }
 

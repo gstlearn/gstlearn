@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
 
   model1 = model_init(ndim,1,diag);
   if (model1 == (Model *) NULL) goto label_end;
-  if (model_add_cova(model1,COV_BESSEL_K,0,0,range_spde,param_spde,
+  if (model_add_cova(model1,ECov::BESSEL_K,0,0,range_spde,param_spde,
                      VectorDouble(),VectorDouble(),VectorDouble(sill_spde))) goto label_end;
 
   // Creating the meshing for extracting Q
@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
 
   model2 = model_init(ndim,1,diag);
   if (model2 == (Model *) NULL) goto label_end;
-  if (model_add_cova(model2,COV_BESSEL_K,0,0,range_cons,param_cons,
+  if (model_add_cova(model2,ECov::BESSEL_K,0,0,range_cons,param_cons,
                      VectorDouble(),VectorDouble(),VectorDouble(sill_cons))) goto label_end;
 
   // Creating the constraints

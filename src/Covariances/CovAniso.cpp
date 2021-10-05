@@ -26,7 +26,7 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
                             { 20, -30, 12, -2, 0 },
                             { 70, -112, 56, -16, 2 } };
 
-CovAniso::CovAniso(const ENUM_COVS& type, const CovContext& ctxt)
+CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
     : ACov(ctxt.getSpace()),
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
@@ -36,7 +36,7 @@ CovAniso::CovAniso(const ENUM_COVS& type, const CovContext& ctxt)
   _updateFromContext();
 }
 
-CovAniso::CovAniso(const ENUM_COVS& type,
+CovAniso::CovAniso(const ECov& type,
                    double range,
                    double param,
                    double sill,
@@ -397,7 +397,7 @@ VectorDouble CovAniso::getRanges() const
   return range;
 }
 
-void CovAniso::setType(ENUM_COVS type)
+void CovAniso::setType(const ECov& type)
 {
   delete _cova;
   _cova = CovFactory::createCovFunc(type, _ctxt);

@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
   // ===== Compute a Model
   db1.display(1);
   Model model1(&db1);
-  CovAniso cova(COV_EXPONENTIAL, 0.3, 1., 0.2, model1.getContext());
+  CovAniso cova(ECov::EXPONENTIAL, 0.3, 1., 0.2, model1.getContext());
   model1.addCova(&cova);
   model1.display();
 

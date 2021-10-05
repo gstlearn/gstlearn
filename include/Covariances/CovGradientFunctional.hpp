@@ -17,6 +17,7 @@
 #include "Basic/IClonable.hpp"
 #include "Covariances/ACovGradient.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Covariances/ECov.hpp"
 
 class Rotation;
 
@@ -27,7 +28,7 @@ class Rotation;
 class CovGradientFunctional: public ACovGradient
 {
 public:
-  CovGradientFunctional(const ENUM_COVS& type, const CovContext& ctxt);
+  CovGradientFunctional(const ECov& type, const CovContext& ctxt);
   CovGradientFunctional(const CovGradientFunctional& r);
   CovGradientFunctional& operator=(const CovGradientFunctional& r);
   virtual ~CovGradientFunctional();

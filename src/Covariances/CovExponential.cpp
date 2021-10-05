@@ -14,7 +14,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovExponential::CovExponential(const CovContext& ctxt)
-: ACovFunc(COV_EXPONENTIAL, ctxt)
+: ACovFunc(ECov::EXPONENTIAL, ctxt)
 {
 }
 

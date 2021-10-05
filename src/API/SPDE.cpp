@@ -1,6 +1,7 @@
 #include "API/SPDE.hpp"
 #include "Model/ANoStat.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/ECov.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
@@ -50,11 +51,11 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
   {
     const auto cova = model.getCova(icov);
 
-    if (cova->getType() == COV_NUGGET)
+    if (cova->getType() == ECov::NUGGET)
     {
       nugget = cova->getSill(0,0);
     }
-    else if (cova->getType() == COV_BESSEL_K)
+    else if (cova->getType() == ECov::BESSEL_K)
     {
       totalSill += cova->getSill(0, 0);
       if(_calculSimu())

@@ -53,14 +53,14 @@ int main(int argc, char *argv[])
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
   double range1 = 20;
-  CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
+  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
   model1.addCova(&cova1);
   model1.display();
   model1.serialize("truemodel1.ascii");
 
   Model model2(ctxt);
   double range2 = 40;
-  CovAniso cova2(COV_BESSEL_K,range2,2.,1.,ctxt);
+  CovAniso cova2(ECov::BESSEL_K,range2,2.,1.,ctxt);
   model2.addCova(&cova2);
   model2.display();
   model2.serialize("truemodel2.ascii");

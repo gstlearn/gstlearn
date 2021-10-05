@@ -16,6 +16,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/IClonable.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
@@ -29,7 +30,7 @@ class Rotation;
 class ACovGradient: public CovAniso
 {
 public:
-  ACovGradient(const ENUM_COVS& type, const CovContext& ctxt);
+  ACovGradient(const ECov& type, const CovContext& ctxt);
   ACovGradient(const ACovGradient& r);
   ACovGradient& operator=(const ACovGradient& r);
   virtual ~ACovGradient();

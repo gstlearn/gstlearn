@@ -576,7 +576,7 @@ static int st_is_model_nugget(void)
 
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
-    if (model->getCovaType(is) == COV_NUGGET) return (1);
+    if (model->getCovaType(is) == ECov::NUGGET) return (1);
   }
   return (0);
 }
@@ -596,7 +596,7 @@ static CovAniso *st_get_nugget(void)
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
     cova = model->getCova(is);
-    if (cova->getType() == COV_NUGGET) return (cova);
+    if (cova->getType() == ECov::NUGGET) return (cova);
   }
   return ((CovAniso *) NULL);
 }
@@ -619,7 +619,7 @@ static CovAniso *st_get_cova(void)
   for (int icov = jcov = 0; icov < model->getCovaNumber(); icov++)
   {
     cova = model->getCova(icov);
-    if (cova->getType() == COV_NUGGET) continue;
+    if (cova->getType() == ECov::NUGGET) continue;
     if (is0 == jcov) return (cova);
     jcov++;
   }
@@ -1355,7 +1355,7 @@ static int st_get_ncova(void)
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
     cova = model->getCova(is);
-    if (cova->getType() != COV_NUGGET) ncova++;
+    if (cova->getType() != ECov::NUGGET) ncova++;
   }
   return (ncova);
 }
@@ -1750,15 +1750,15 @@ static void st_convert_exponential2bessel(CovAniso *cova)
 {
   double scale_exp, range_exp, scale_bes, range_bes;
 
-  if (cova->getType() != COV_EXPONENTIAL) return;
+  if (cova->getType() != ECov::EXPONENTIAL) return;
 
   range_exp = cova->getRange();
-  scale_exp = model_range2scale(COV_EXPONENTIAL, range_exp, 0.);
+  scale_exp = model_range2scale(ECov::EXPONENTIAL, range_exp, 0.);
 
   scale_bes = scale_exp;
-  range_bes = model_scale2range(COV_BESSEL_K, scale_bes, 0.5);
+  range_bes = model_scale2range(ECov::BESSEL_K, scale_bes, 0.5);
 
-  cova->setType(COV_BESSEL_K);
+  cova->setType(ECov::BESSEL_K);
   cova->setParam(0.5);
   cova->setRange(range_bes);
 
@@ -1812,16 +1812,16 @@ GEOSLIB_API int spde_attach_model(Model *model)
   {
     cova = model->getCova(icov);
     silltot += cova->getSill(0, 0);
-    if (cova->getType() == COV_BESSEL_K)
+    if (cova->getType() == ECov::BESSEL_K)
     {
       continue;
     }
-    else if (cova->getType() == COV_EXPONENTIAL)
+    else if (cova->getType() == ECov::EXPONENTIAL)
     {
       st_convert_exponential2bessel(cova);
       continue;
     }
-    else if (cova->getType() == COV_NUGGET)
+    else if (cova->getType() == ECov::NUGGET)
     {
       if (model->getCova(icov)->getSill(0, 0) > 0)
         st_set_filnug(model->isCovaFiltered(icov));
@@ -1933,16 +1933,16 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
   {
     cova = model->getCova(icov);
     silltot += cova->getSill(0, 0);
-    if (cova->getType() == COV_BESSEL_K)
+    if (cova->getType() == ECov::BESSEL_K)
     {
       continue;
     }
-    else if (cova->getType() == COV_EXPONENTIAL)
+    else if (cova->getType() == ECov::EXPONENTIAL)
     {
       st_convert_exponential2bessel(cova);
       continue;
     }
-    else if (cova->getType() == COV_NUGGET)
+    else if (cova->getType() == ECov::NUGGET)
     {
       flag_nugget = 1;
       if (model->getSill(icov, 0, 0) > 0)
@@ -1975,7 +1975,7 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
       for (int jvar = 0; jvar < nvar; jvar++)
         sill[ecr++] = (ivar == jvar) ? nugval :
                                        0.;
-    if (model_add_cova(model, COV_NUGGET, 0, 0, 0., 0., VectorDouble(),
+    if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
                        VectorDouble(), sill)) return (1);
   }
 

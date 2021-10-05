@@ -16,7 +16,7 @@
 #include "geoslib_f.h"
 
 CovCauchy::CovCauchy(const CovContext& ctxt)
-: ACovFunc(COV_CAUCHY, ctxt)
+: ACovFunc(ECov::CAUCHY, ctxt)
 {
   setParam(1);
 }

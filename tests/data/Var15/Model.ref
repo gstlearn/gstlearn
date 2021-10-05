@@ -4,12 +4,12 @@ Model
 0 # Number of drift terms
 0 0.000000 0.000000 # Covariance characteristics
 0 # Anisotropy Flag
-1 0.001047 0.000000 # Covariance characteristics
+4 0.000182 0.000000 # Covariance characteristics
 1 # Anisotropy Flag
-1.000000 0.935142 1.000000 # Anisotropy Coefficients
+1.000000 0.877753 1.000000 # Anisotropy Coefficients
 1 # Anisotropy Rotation Flag
 0.000000 1.000000  0.000000 -1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 # Anisotropy Rotation Matrix
 0.000000 # Mean of Variables
-39.811627 # Matrix of sills
-43.021291 # Matrix of sills
+40.203000 # Matrix of sills
+14.871732 # Matrix of sills
 1.000000 # Var-Covar at origin

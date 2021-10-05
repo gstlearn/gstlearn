@@ -14,7 +14,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovCosExp::CovCosExp(const CovContext& ctxt)
-: ACovFunc(COV_COSEXP, ctxt)
+: ACovFunc(ECov::COSEXP, ctxt)
 {
   setParam(1);
 }

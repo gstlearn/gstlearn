@@ -2735,11 +2735,11 @@ static int st_model_invalid(Model *model)
 {
   for (int icov=0; icov<model->getCovaNumber(); icov++)
   {
-    int type = model->getCovaType(icov);
-    if (type != COV_GAUSSIAN   &&
-        type != COV_CUBIC      &&
-        type != COV_SPLINE2_GC &&
-        type != COV_NUGGET)
+    ECov type = model->getCovaType(icov);
+    if (type != ECov::GAUSSIAN   &&
+        type != ECov::CUBIC      &&
+        type != ECov::SPLINE2_GC &&
+        type != ECov::NUGGET)
     {
       messerr("The Model is invalid for Potential calculations");
       messerr("It may only contain:");
@@ -2749,7 +2749,7 @@ static int st_model_invalid(Model *model)
       messerr("An additional nugget effect can also be considered");
       return(1);
     }
-    if (type == COV_SPLINE2_GC && model_maximum_order(model) < 2)
+    if (type == ECov::SPLINE2_GC && model_maximum_order(model) < 2)
     {
       messerr("The Model includes Second Order Spline Generalized Covariance");
       messerr("This requires a second order drift");
@@ -2784,7 +2784,7 @@ static int st_extdrift_create_model(Db      *dbout,
 
   pot_ext->model = model_init(pot_ext->ndim,1,1.,1,0.,true);
   if (pot_ext->model == (Model *) NULL) goto label_end;
-  if (model_add_cova(pot_ext->model,COV_CUBIC,0,0,pot_ext->range,0.,
+  if (model_add_cova(pot_ext->model,ECov::CUBIC,0,0,pot_ext->range,0.,
                      VectorDouble(),VectorDouble(),sill)) goto label_end;
 
   /* Set the error return code */

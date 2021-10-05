@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   // Creating the Model(s) of the Underlying GRF(s)
   Model models(ctxt);
   double range1 = 0.2;
-  CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
+  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
   models.addCova(&cova1);
   models.display();
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
   // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
-  std::vector<ENUM_COVS> covs {COV_BESSEL_K, COV_EXPONENTIAL};
+  std::vector<ECov> covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
   model.fit(&variop,covs,true);
   model.display();
 

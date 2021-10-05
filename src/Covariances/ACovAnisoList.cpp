@@ -125,7 +125,7 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
   {
     if (mode.getMember() != MEMBER_LHS && isFiltered(i))
       continue;
-    if (mode.isFilterNugget() && getType(i) == COV_NUGGET)
+    if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
       continue;
     if (mode.getKeepOnlyCovIdx() == i)
       return _covs[i]->eval0(ivar, jvar, mode);
@@ -152,7 +152,7 @@ double ACovAnisoList::eval(int ivar,
   {
     if (mode.getMember() != MEMBER_LHS && isFiltered(i))
       continue;
-    if (mode.isFilterNugget() && getType(i) == COV_NUGGET)
+    if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
       continue;
     if (mode.getKeepOnlyCovIdx() == i)
       return _covs[i]->eval(ivar, jvar, p1, p2, mode);
@@ -235,9 +235,9 @@ CovAniso* ACovAnisoList::getCova(unsigned int icov)
   if (! _isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];
 }
-ENUM_COVS ACovAnisoList::getType(unsigned int icov) const
+const ECov& ACovAnisoList::getType(unsigned int icov) const
 {
-  if (! _isCovarianceIndexValid(icov)) return COV_UNKNOWN;
+  if (! _isCovarianceIndexValid(icov)) return ECov::UNKNOWN;
   return _covs[icov]->getType();
 }
 String ACovAnisoList::getCovName(unsigned int icov) const
@@ -265,7 +265,7 @@ void ACovAnisoList::setSill(unsigned int icov, int ivar, int jvar, double value)
   _covs[icov]->setSill(ivar, jvar, value);
 }
 
-void ACovAnisoList::setType(unsigned int icov, ENUM_COVS type)
+void ACovAnisoList::setType(unsigned int icov, const ECov& type)
 {
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov]->setType(type);

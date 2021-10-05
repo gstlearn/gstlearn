@@ -450,7 +450,7 @@ int Neigh::serialize(const String& filename, bool verbose) const
 
   _recordWrite("%d", getNDim());
   _recordWrite("#", "Space Dimension");
-  _recordWrite("%d", getType());
+  _recordWrite("%d", getType().getValue());
   _recordWrite("#", "Neighborhood type");
 
   switch (getType().toEnum())

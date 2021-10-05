@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovTriangle::CovTriangle(const CovContext& ctxt)
-: ACovFunc(COV_TRIANGLE, ctxt)
+: ACovFunc(ECov::TRIANGLE, ctxt)
 {
 }
 

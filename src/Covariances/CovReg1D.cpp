@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovReg1D::CovReg1D(const CovContext& ctxt)
-: ACovFunc(COV_REG1D, ctxt)
+: ACovFunc(ECov::REG1D, ctxt)
 {
 }
 

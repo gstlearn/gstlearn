@@ -47,28 +47,28 @@ int main(int argc, char *argv[])
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
   double range1 = 0.2;
-  CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
+  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
   model1.addCova(&cova1);
   model1.display();
   model1.serialize("PGSmodel1.ascii");
 
   Model model2(ctxt);
   double range2 = 0.3;
-  CovAniso cova2(COV_EXPONENTIAL,range2,1.,1.,ctxt);
+  CovAniso cova2(ECov::EXPONENTIAL,range2,1.,1.,ctxt);
   model2.addCova(&cova2);
   model2.display();
   model2.serialize("PGSmodel2.ascii");
 
   Model model3(ctxt);
   double range3 = 0.2;
-  CovAniso cova3(COV_BESSEL_K,range3,1.,1.,ctxt);
+  CovAniso cova3(ECov::BESSEL_K,range3,1.,1.,ctxt);
   model3.addCova(&cova3);
   model3.display();
   model3.serialize("PGSmodel3.ascii");
 
   Model model4(ctxt);
   double range4 = 0.1;
-  CovAniso cova4(COV_SPHERICAL,range4,1.,1.,ctxt);
+  CovAniso cova4(ECov::SPHERICAL,range4,1.,1.,ctxt);
   model4.addCova(&cova4);
   model4.display();
   model4.serialize("PGSmodel4.ascii");

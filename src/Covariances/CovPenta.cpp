@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovPenta::CovPenta(const CovContext& ctxt)
-: ACovFunc(COV_PENTA, ctxt)
+: ACovFunc(ECov::PENTA, ctxt)
 {
 }
 

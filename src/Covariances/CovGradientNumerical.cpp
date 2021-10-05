@@ -22,7 +22,7 @@
 
 #define TR(i,j)                (Tr[(i) * 3 + (j)])
 
-CovGradientNumerical::CovGradientNumerical(const ENUM_COVS& type,
+CovGradientNumerical::CovGradientNumerical(const ECov& type,
                                            const CovContext& ctxt)
     : ACovGradient(type, ctxt)
 {
@@ -177,7 +177,7 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
 
   double covar = _evalZZ(0,0,p1,p2,mode);
   covVal += covar;
-  if (getCova()->getType() == COV_NUGGET) return;
+  if (getCova()->getType() == ECov::NUGGET) return;
 
   //  Calculate covariance between point and gradient
 

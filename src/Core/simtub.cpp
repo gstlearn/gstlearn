@@ -8,14 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Gibbs/GibbsUMultiMono.hpp"
-#include "../../include/Gibbs/GibbsUPropMono.hpp"
+#include "Gibbs/GibbsUMultiMono.hpp"
+#include "Gibbs/GibbsUPropMono.hpp"
 #include "Gibbs/GibbsFactory.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/ECov.hpp"
 #include "Basic/MathFunc.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
@@ -561,7 +562,7 @@ static void st_density(Situba *situba)
 **
 *****************************************************************************/
 static void st_irf_process_alloc(int nt,
-                                 int type,
+                                 const ECov& type,
                                  double **v0,
                                  double **v1,
                                  double **v2)
@@ -580,15 +581,15 @@ static void st_irf_process_alloc(int nt,
 
   (*v0) = (double *) mem_alloc(sizeof(double) * nt,0);
   if ((*v0) == (double *) NULL) return;
-  if (type == COV_LINEAR || type == COV_ORDER1_GC) return;
+  if (type == ECov::LINEAR || type == ECov::ORDER1_GC) return;
 
   (*v1) = (double *) mem_alloc(sizeof(double) * nt,0);
   if ((*v1) == (double *) NULL) return;
-  if (type == COV_ORDER3_GC) return;
+  if (type == ECov::ORDER3_GC) return;
 
   (*v2) = (double *) mem_alloc(sizeof(double) * nt,0);
   if ((*v2) == (double *) NULL) return;
-  if (type == COV_ORDER5_GC) return;
+  if (type == ECov::ORDER5_GC) return;
 
   return;
 }
@@ -601,8 +602,8 @@ static void st_irf_process_alloc(int nt,
 **
 ** \return  The array of gaussian values
 **
-** \param[in]  nt     number for exponential intervals
-** \param[in]  type   degree of the IRF -> number of integrations
+** \param[in]  nt     The number for exponential intervals
+** \param[in]  type   The covariance type
 ** \param[in]  t      Array giving the coordinates of the Poisson points
 **
 ** \param[out] v0     Wiener-Levy process
@@ -610,12 +611,12 @@ static void st_irf_process_alloc(int nt,
 ** \param[out] v2     Second integration of the Wiener-Levy process
 **
 *****************************************************************************/
-static void st_irf_process(int     nt,
-                           int     type,
-                           double *t,
-                           double *v0,
-                           double *v1,
-                           double *v2)
+static void st_irf_process(int         nt,
+                           const ECov& type,
+                           double      *t,
+                           double      *v0,
+                           double      *v1,
+                           double      *v2)
 {
   double delta;
   int    i;
@@ -625,7 +626,7 @@ static void st_irf_process(int     nt,
   v0[0] = 0.;
   for (i=1; i<nt; i++)
     v0[i] = v0[i-1] + law_gaussian();
-  if (type == COV_LINEAR || type == COV_ORDER1_GC) return;
+  if (type == ECov::LINEAR || type == ECov::ORDER1_GC) return;
 
   /* First integration of the Wiener-Levy process */
 
@@ -635,7 +636,7 @@ static void st_irf_process(int     nt,
     delta = t[i] - t[i-1];
     v1[i] = v1[i-1] + v0[i-1] * delta;
   }
-  if (type == COV_ORDER3_GC) return;
+  if (type == ECov::ORDER3_GC) return;
 
   /* Second integration of the Wiener-Levy process */
 
@@ -645,7 +646,7 @@ static void st_irf_process(int     nt,
     delta = t[i] - t[i-1];
     v2[i] = v2[i-1] + v1[i-1] * delta + v0[i-1] * delta * delta / 2.;
   }
-  if (type == COV_ORDER5_GC) return;
+  if (type == ECov::ORDER5_GC) return;
 
   return;
 }
@@ -663,13 +664,13 @@ static void st_irf_process(int     nt,
 ** \param[in]  v2     Second integration of the Wiener-Levy process
 **
 *****************************************************************************/
-static double st_irf_process_sample(int     type,
-                                    int     nt0,
-                                    double  t0,
-                                    double *t,
-                                    double *v0,
-                                    double *v1,
-                                    double *v2)
+static double st_irf_process_sample(const ECov& type,
+                                    int         nt0,
+                                    double      t0,
+                                    double     *t,
+                                    double     *v0,
+                                    double     *v1,
+                                    double     *v2)
 {
   double value,delta;
 
@@ -680,17 +681,17 @@ static double st_irf_process_sample(int     type,
   /* Wiener-Levy process */
 
   value = v0[nt0];
-  if (type == COV_LINEAR || type == COV_ORDER1_GC) return(value);
+  if (type == ECov::LINEAR || type == ECov::ORDER1_GC) return(value);
 
   /* First integration of the Wiener-Levy process */
 
   value = v1[nt0] + v0[nt0] * delta;
-  if (type == COV_ORDER3_GC) return(value);
+  if (type == ECov::ORDER3_GC) return(value);
 
   /* Second integration of the Wiener-Levy process */
 
   value = v2[nt0] + v1[nt0] * delta + v0[nt0] * delta * delta / 2.;
-  if (type == COV_ORDER5_GC) return(value);
+  if (type == ECov::ORDER5_GC) return(value);
 
   return(TEST);
 }
@@ -706,9 +707,9 @@ static double st_irf_process_sample(int     type,
 ** \param[in]  scale   Range of the model
 **
 *****************************************************************************/
-static double st_irf_correc(int    type,
-                            double theta1,
-                            double scale)
+static double st_irf_correc(const ECov& type,
+                            double      theta1,
+                            double      scale)
 {
   double correc;
 
@@ -718,19 +719,21 @@ static double st_irf_correc(int    type,
   
   /* Dispatch */
 
-  switch (type)
+  switch (type.toEnum())
   {
-    case COV_LINEAR:
-    case COV_ORDER1_GC:
+    case ECov::E_LINEAR:
+    case ECov::E_ORDER1_GC:
       correc = sqrt((4. * theta1) / scale);
       break;
 
-    case COV_ORDER3_GC:
+    case ECov::E_ORDER3_GC:
       correc = sqrt((48. * theta1) / scale) / scale;
       break;
 
-    case COV_ORDER5_GC:
+    case ECov::E_ORDER5_GC:
       correc = sqrt((1440. * theta1) / scale) / scale / scale;
+      break;
+    default:
       break;
   }
 
@@ -791,19 +794,19 @@ static double st_compute_scale(double alpha,
 ** \param[out] phi    uniform phase lying within [0,2 PI]
 **
 *****************************************************************************/
-static void st_spectral(int     type,
-                        double  scale,
-                        double  param,
-                        double *omega,
-                        double *phi)
+static void st_spectral(const ECov& type,
+                        double      scale,
+                        double      param,
+                        double     *omega,
+                        double     *phi)
 {
   double val,period;
   int    i;
 
   period = 0.;
-  switch (type)
+  switch (type.toEnum())
   {
-    case COV_GAUSSIAN:
+    case ECov::E_GAUSSIAN:
       for (i=0; i<3; i++)
       {
         val = law_gaussian();
@@ -812,7 +815,7 @@ static void st_spectral(int     type,
       period = sqrt(param * period) / scale;
       break;
 	  
-    case COV_STABLE:
+    case ECov::E_STABLE:
       for (i=0; i<3; i++)
       {
         val = law_gaussian();
@@ -822,17 +825,17 @@ static void st_spectral(int     type,
       period = sqrt(2. * period) / scale;
       break;
 	  
-    case COV_SINCARD:
+    case ECov::E_SINCARD:
       val = (law_uniform(0.,1.) >= 0.5) ? 1 : -1;
       period = val / scale;
       break;
       
-    case COV_BESSEL_J:
+    case ECov::E_BESSEL_J:
       val = law_beta1(1.5,param - 0.5);
       period = sqrt(val) / scale;
       break;
 
-    case COV_BESSEL_K:
+    case ECov::E_BESSEL_K:
       param =  sqrt(2. * law_gamma(param));
       for (i=0; i<3; i++)
       {
@@ -1254,21 +1257,24 @@ static int st_rank_regular(double  t0,
 ** \return  The modified type
 **
 *****************************************************************************/
-static int st_particular_case(int type,
-                              double param)
+static ECov st_particular_case(const ECov& type,
+                               double      param)
 {
   static double eps = 1.e-7;
   
-  switch (type)
+  switch (type.toEnum())
   {
-    case COV_STABLE:
-      if (ABS(param - 1.) < eps) return(COV_EXPONENTIAL);
-      if (ABS(param - 2.) < eps) return(COV_GAUSSIAN);
-      return(COV_STABLE);
+    case ECov::E_STABLE:
+      if (ABS(param - 1.) < eps) return(ECov::EXPONENTIAL);
+      if (ABS(param - 2.) < eps) return(ECov::GAUSSIAN);
+      return(ECov::STABLE);
       break;
       
-    case COV_BESSEL_K:
-      if (ABS(param - 0.5) < eps) return(COV_EXPONENTIAL);
+    case ECov::E_BESSEL_K:
+      if (ABS(param - 0.5) < eps) return(ECov::EXPONENTIAL);
+      break;
+
+    default:
       break;
   }
   
@@ -1296,9 +1302,10 @@ static int st_initialize(Db     *dbin,
 {
   double *t,*v0,*v1,*v2;
   double  scale,tdeb,tmin,tmax,omega,phi,correc,correc0,theta1,param;
-  int     is,ib,ivar,ibs,ncova,nt,isimu,nvar,type;
+  int     is,ib,ivar,ibs,ncova,nt,isimu,nvar;
   int     error,nbtuba,nbsimu,mem_seed;
-    
+  ECov    type;
+
   /* Initializations */
     
   st_density(situba);
@@ -1329,37 +1336,37 @@ static int st_initialize(Db     *dbin,
           type    = st_particular_case(type,param);
           SEEDS(ivar,is,ib,isimu) = law_get_random_seed();
 	    
-          switch (type)
+          switch (type.toEnum())
           {
-            case COV_NUGGET:
+            case ECov::E_NUGGET:
               // Next line is simply to let the random number cycle
               (void) law_gaussian();
               break;
 	      
-            case COV_EXPONENTIAL:
+            case ECov::E_EXPONENTIAL:
               scale *= 2.;
               t = st_migration_alloc(tmin,tmax,scale,&nt);
               (void) law_uniform(0.,1.);
               break;
 		
-            case COV_SPHERICAL:
+            case ECov::E_SPHERICAL:
               t = st_dilution_alloc(tmin,tmax,scale,&tdeb,&nt);
               break;
 		
-            case COV_CUBIC:
+            case ECov::E_CUBIC:
               t = st_dilution_alloc(tmin,tmax,scale,&tdeb,&nt);
               break;
 		
-            case COV_GAUSSIAN:
-            case COV_SINCARD:
+            case ECov::E_GAUSSIAN:
+            case ECov::E_SINCARD:
               st_spectral(type,scale,2.,&omega,&phi);
               break;
 		
-            case COV_BESSEL_J:
+            case ECov::E_BESSEL_J:
               st_spectral(type,scale,param,&omega,&phi);
               break;
 		
-            case COV_BESSEL_K:
+            case ECov::E_BESSEL_K:
               if (param >0.5)
                 st_spectral(type,scale,param,&omega,&phi);
               else
@@ -1370,7 +1377,7 @@ static int st_initialize(Db     *dbin,
               }	
               break;
 		
-            case COV_STABLE:
+            case ECov::E_STABLE:
               if (param > 1) 
                 st_spectral(type,scale,param,&omega,&phi);
               else
@@ -1382,24 +1389,24 @@ static int st_initialize(Db     *dbin,
               }
               break;
 		
-            case COV_POWER:
+            case ECov::E_POWER:
               st_set_power_1D(ib,scale,param,&omega,&phi,&correc,&correc0);
               break;
 		
-            case COV_SPLINE_GC:
+            case ECov::E_SPLINE_GC:
               st_set_spline_1D(ib,scale,1,&omega,&phi,&correc,&correc0); 
               break;
 	      
-            case COV_LINEAR:
-            case COV_ORDER1_GC:
-            case COV_ORDER3_GC:
-            case COV_ORDER5_GC:
+            case ECov::E_LINEAR:
+            case ECov::E_ORDER1_GC:
+            case ECov::E_ORDER3_GC:
+            case ECov::E_ORDER5_GC:
               t = st_migration_alloc(tmin,tmax,theta1,&nt);
               st_irf_process_alloc(nt,type,&v0,&v1,&v2);
               break;
 	      
             default:
-              messerr("The structure (%s) cannot be simulated",model->getCovName(type).c_str());
+              messerr("The structure (%s) cannot be simulated",type.getDescr().c_str());
               messerr("using the Turning Bands algorithm");
               goto label_end;
           }
@@ -1746,8 +1753,8 @@ static void st_gendir(Db     *dbout,
             st_project_grid(dbout,situba,ibs,0,1,0) - t00;
           situba->codir[ibs]->dzp = 
             st_project_grid(dbout,situba,ibs,0,0,1) - t00;
-          if (cova->getType() == COV_SPHERICAL ||
-              cova->getType() == COV_CUBIC )
+          if (cova->getType() == ECov::SPHERICAL ||
+              cova->getType() == ECov::CUBIC )
           {
             situba->codir[ibs]->t00 /= situba->codir[ibs]->scale;
             situba->codir[ibs]->dxp /= situba->codir[ibs]->scale;
@@ -2025,10 +2032,11 @@ static int st_simulate_grid(Db     *db,
   double    t00,t0y,t0z,dxp,dyp,dzp,dt,theta1;
   double    c1,s1,c0x,s0x,c0y,s0y,c0z,s0z,cxp,sxp,cyp,syp,czp,szp;
   int       iech,ivar,jvar,is,ind,ib,ibs,ix,iy,iz,nvar,nt,nt0,nech;
-  int       type,error,nbtuba,nbsimu,nx,ny,nz,isimu,ncova,istat;
+  int       error,nbtuba,nbsimu,nx,ny,nz,isimu,ncova,istat;
   char      string[100];
   static double vexp1 = 0.1;
   static double vexp2 = 0.1967708298;
+  ECov type;
 
   /* Initializations */
 
@@ -2088,12 +2096,12 @@ static int st_simulate_grid(Db     *db,
           type       = st_particular_case(type,param);
           law_set_random_seed(SEEDS(ivar,is,ib,isimu));
           
-          switch (type)
+          switch (type.toEnum())
           {
-            case COV_NUGGET:
+            case ECov::E_NUGGET:
               break;
 
-            case COV_STABLE:
+            case ECov::E_STABLE:
               if (param > 1)
               {
                 correc = sqrt(2.);
@@ -2166,7 +2174,7 @@ static int st_simulate_grid(Db     *db,
               }
               break;
 	      
-            case COV_BESSEL_K:
+            case ECov::E_BESSEL_K:
               if (param > 0.5)
               {
                 correc = sqrt(2.);
@@ -2238,7 +2246,7 @@ static int st_simulate_grid(Db     *db,
               }
               break;
 
-            case COV_EXPONENTIAL:
+            case ECov::E_EXPONENTIAL:
               scale *= 2.;
               st_migration(tmin,tmax,scale,t,&nt);
               vexp = 1. - vexp1 + vexp2 * law_uniform(0.,1.);
@@ -2266,7 +2274,7 @@ static int st_simulate_grid(Db     *db,
               }
               break;
 	      
-            case COV_SPHERICAL:
+            case ECov::E_SPHERICAL:
               correc = sqrt(3.);
               st_dilution(tmin,tmax,scale,t,&tdeb,&nt);
               tdeb /= scale;
@@ -2294,7 +2302,7 @@ static int st_simulate_grid(Db     *db,
               }
               break;
 
-            case COV_CUBIC:
+            case ECov::E_CUBIC:
               correc = sqrt(840.);
               st_dilution(tmin,tmax,scale,t,&tdeb,&nt);
               tdeb /= scale;
@@ -2322,29 +2330,32 @@ static int st_simulate_grid(Db     *db,
               }
               break;
 	      
-            case COV_GAUSSIAN:
-            case COV_SINCARD:
-            case COV_POWER:
-            case COV_SPLINE_GC:
-            case COV_BESSEL_J:
+            case ECov::E_GAUSSIAN:
+            case ECov::E_SINCARD:
+            case ECov::E_POWER:
+            case ECov::E_SPLINE_GC:
+            case ECov::E_BESSEL_J:
               correc = sqrt(2.);
-              switch (type)
+              switch (type.toEnum())
               {
-                case COV_POWER:
+                case ECov::E_POWER:
                   st_set_power_1D(ib,scale,param,&omega,&phi,&correc,&correc0);
                   break;
 		
-                case  COV_SPLINE_GC:
+                case ECov::E_SPLINE_GC:
                   st_set_spline_1D(ib,scale,1,&omega,&phi,&correc,&correc0); 
                   break;
 		
-                case COV_GAUSSIAN:
-                case COV_SINCARD:
+                case ECov::E_GAUSSIAN:
+                case ECov::E_SINCARD:
                   st_spectral(type,scale,2.,&omega,&phi);
                   break;
 		
-                case COV_BESSEL_J:
+                case ECov::E_BESSEL_J:
                   st_spectral(type,scale,param,&omega,&phi);
+                  break;
+
+                default:
                   break;
               }
 
@@ -2385,13 +2396,13 @@ static int st_simulate_grid(Db     *db,
               }
               break;
 	      
-            case COV_LINEAR:
-            case COV_ORDER1_GC:
-            case COV_ORDER3_GC:
-            case COV_ORDER5_GC:
+            case ECov::E_LINEAR:
+            case ECov::E_ORDER1_GC:
+            case ECov::E_ORDER3_GC:
+            case ECov::E_ORDER5_GC:
               st_migration(tmin,tmax,theta1,t,&nt);
               st_irf_process(nt,type,t,v0,v1,v2);
-              correc = st_irf_correc(type,theta1,scale);
+              correc = st_irf_correc(type, theta1, scale);
 
               t0z = t00;
               nt0 = 0;
@@ -2420,7 +2431,7 @@ static int st_simulate_grid(Db     *db,
               break;
           }
 
-          if (type != COV_NUGGET)
+          if (type != ECov::NUGGET)
             for (iech=0; iech<nech; iech++)
               if (db->isActive(iech))
                 for (jvar=0; jvar<nvar; jvar++)
@@ -2471,7 +2482,8 @@ static void st_simulate_nugget(Db     *db,
                                int     icase)
 {
   double  nugget;
-  int     iech,is,ivar,jvar,ncova,nech,isimu,nvar,type,nbtuba,nbsimu,flag_used;
+  int     iech,is,ivar,jvar,ncova,nech,isimu,nvar,nbtuba,nbsimu,flag_used;
+  ECov    type;
 
   /* Initializations */
 
@@ -2486,7 +2498,7 @@ static void st_simulate_nugget(Db     *db,
   flag_used = 0;
   for (is=0; is<ncova && flag_used == 0; is++)
   {
-    if (model->getCovaType(is) == COV_NUGGET) flag_used = 1;
+    if (model->getCovaType(is) == ECov::NUGGET) flag_used = 1;
   }
   if (! flag_used) return;
 
@@ -2498,7 +2510,7 @@ static void st_simulate_nugget(Db     *db,
       {
         type = model->getCovaType(is);
         
-        if (type != COV_NUGGET) continue;
+        if (type != ECov::NUGGET) continue;
         law_set_random_seed(SEEDS(ivar,is,0,isimu));
         
         for (iech=0; iech<nech; iech++)
@@ -2543,11 +2555,12 @@ static int st_simulate_point(Db     *db,
 {
   double *t,*v0,*v1,*v2,*tab,correc,correc0,vexp;
   double  tmin,tmax,tdeb,omega,phi,param,scale,t0,dt0,norme,r,theta1;
-  int     iech,is,ib,ivar,jvar,ibs,ncova,nt,nt0,nech,isimu,nvar,type;
+  int     iech,is,ib,ivar,jvar,ibs,ncova,nt,nt0,nech,isimu,nvar;
   int     error,nbtuba,nbsimu,istat;
   char    string[100];
   static  double vexp1 = 0.1;
   static  double vexp2 = 0.1967708298;
+  ECov type;
 
   /* Initializations */
 
@@ -2600,12 +2613,12 @@ static int st_simulate_point(Db     *db,
           type    = st_particular_case(type,param);
           law_set_random_seed(SEEDS(ivar,is,ib,isimu));
 
-          switch (type)
+          switch (type.toEnum())
           {
-            case COV_NUGGET:
+            case ECov::E_NUGGET:
               break;
 	      
-            case COV_STABLE:
+            case ECov::E_STABLE:
               if (param > 1)
               {
                 correc = sqrt(2.);
@@ -2634,7 +2647,7 @@ static int st_simulate_point(Db     *db,
               }
               break;
 	      
-            case COV_EXPONENTIAL:
+            case ECov::E_EXPONENTIAL:
               scale *= 2.;
               st_migration(tmin,tmax,scale,t,&nt);
               vexp = 1. - vexp1 + vexp2 * law_uniform(0.,1.);
@@ -2648,7 +2661,7 @@ static int st_simulate_point(Db     *db,
               }
               break;
 
-            case COV_SPHERICAL:
+            case ECov::E_SPHERICAL:
               correc = sqrt(3.);
               st_dilution(tmin,tmax,scale,t,&tdeb,&nt);
               for (iech=0; iech<nech; iech++)
@@ -2662,7 +2675,7 @@ static int st_simulate_point(Db     *db,
               }
               break;
 
-            case COV_CUBIC:
+            case ECov::E_CUBIC:
               correc = sqrt(840.);
               st_dilution(tmin,tmax,scale,t,&tdeb,&nt);
               for (iech=0; iech<nech; iech++)
@@ -2676,7 +2689,7 @@ static int st_simulate_point(Db     *db,
               }
               break;
 	      
-            case COV_POWER:
+            case ECov::E_POWER:
               st_set_power_1D(ib,scale,param,&omega,&phi,&correc,&correc0);
               for (iech=0; iech<nech; iech++)
               {
@@ -2686,7 +2699,7 @@ static int st_simulate_point(Db     *db,
               }
               break;
 	    
-            case COV_SPLINE_GC:
+            case ECov::E_SPLINE_GC:
               st_set_spline_1D(ib,scale,1,&omega,&phi,&correc,&correc0); 
               for (iech=0; iech<nech; iech++)
               {
@@ -2696,21 +2709,23 @@ static int st_simulate_point(Db     *db,
               }
               break; 
 	    
-            case COV_GAUSSIAN:
-            case COV_SINCARD:
-            case COV_BESSEL_J:
-            case COV_BESSEL_K:
+            case ECov::E_GAUSSIAN:
+            case ECov::E_SINCARD:
+            case ECov::E_BESSEL_J:
+            case ECov::E_BESSEL_K:
               correc = sqrt(2.);
-              switch (type)
+              switch (type.toEnum())
               {
-                case COV_GAUSSIAN:
-                case COV_SINCARD:
+                case ECov::E_GAUSSIAN:
+                case ECov::E_SINCARD:
                   st_spectral(type,scale,2.,&omega,&phi);
                   break;
 	      
-                case COV_BESSEL_J:
-                case COV_BESSEL_K:
+                case ECov::E_BESSEL_J:
+                case ECov::E_BESSEL_K:
                   st_spectral(type,scale,param,&omega,&phi);
+                  break;
+                default:
                   break;
               }
 	    
@@ -2722,10 +2737,10 @@ static int st_simulate_point(Db     *db,
               }
               break;
 	    
-            case COV_LINEAR:
-            case COV_ORDER1_GC:
-            case COV_ORDER3_GC:
-            case COV_ORDER5_GC:
+            case ECov::E_LINEAR:
+            case ECov::E_ORDER1_GC:
+            case ECov::E_ORDER3_GC:
+            case ECov::E_ORDER5_GC:
               st_migration(tmin,tmax,theta1,t,&nt);
               st_irf_process(nt,type,t,v0,v1,v2);
               correc = st_irf_correc(type,theta1,scale);
@@ -2743,7 +2758,7 @@ static int st_simulate_point(Db     *db,
               break;
           }
 	  
-          if (type != COV_NUGGET)
+          if (type != ECov::NUGGET)
             for (iech=0; iech<nech; iech++)
               if (db->isActive(iech))
                 for (jvar=0; jvar<nvar; jvar++)
@@ -5828,7 +5843,8 @@ label_end:
 GEOSLIB_API int simtub_workable(Model  *model)
 
 {
-  int workable,type;
+  int workable;
+  ECov type;
 
   /* Initializations */
 
@@ -5840,23 +5856,23 @@ GEOSLIB_API int simtub_workable(Model  *model)
   {
     type = model->getCovaType(is);
 	    
-    switch (type)
+    switch (type.toEnum())
     {
-      case COV_NUGGET:
-      case COV_EXPONENTIAL:
-      case COV_SPHERICAL:
-      case COV_CUBIC:
-      case COV_GAUSSIAN:
-      case COV_SINCARD:
-      case COV_BESSEL_J:
-      case COV_BESSEL_K:
-      case COV_STABLE:
-      case COV_POWER:
-      case COV_SPLINE_GC:
-      case COV_LINEAR:
-      case COV_ORDER1_GC:
-      case COV_ORDER3_GC:
-      case COV_ORDER5_GC:
+      case ECov::E_NUGGET:
+      case ECov::E_EXPONENTIAL:
+      case ECov::E_SPHERICAL:
+      case ECov::E_CUBIC:
+      case ECov::E_GAUSSIAN:
+      case ECov::E_SINCARD:
+      case ECov::E_BESSEL_J:
+      case ECov::E_BESSEL_K:
+      case ECov::E_STABLE:
+      case ECov::E_POWER:
+      case ECov::E_SPLINE_GC:
+      case ECov::E_LINEAR:
+      case ECov::E_ORDER1_GC:
+      case ECov::E_ORDER3_GC:
+      case ECov::E_ORDER5_GC:
         break;
 	      
       default:

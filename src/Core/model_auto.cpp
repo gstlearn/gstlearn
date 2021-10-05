@@ -178,7 +178,7 @@ static void st_name_rotation(int rank)
 **
 ** \param[out]  imod      Rank of the model
 ** \param[out]  icov      Rank of the covariance
-** \param[out]  type      Type of the parameter
+** \param[out]  icons     Type of the constraint
 ** \param[out]  ivar      Rank of the first index
 ** \param[out]  jvar      Rank of the second index
 **
@@ -186,7 +186,7 @@ static void st_name_rotation(int rank)
 static void st_parid_decode(int  parid,
                             int *imod,
                             int *icov,
-                            int *type,
+                            int *icons,
                             int *ivar,
                             int *jvar)
 {
@@ -200,7 +200,7 @@ static void st_parid_decode(int  parid,
   *ivar  = value - divide * CONGRUENCY;
   value  = divide;
   divide = value / CONGRUENCY;
-  *type  = value - divide * CONGRUENCY;
+  *icons = value - divide * CONGRUENCY;
   value  = divide;
   divide = value / CONGRUENCY;
   *icov  = value - divide * CONGRUENCY;
@@ -234,14 +234,14 @@ static void st_blank(VectorDouble& tab,
 **
 ** \param[in]  imod      Rank of the model
 ** \param[in]  icov      Rank of the covariance
-** \param[in]  type      Type of the parameter
+** \param[in]  icons     Type of the constraint
 ** \param[in]  ivar      Rank of the first index
 ** \param[in]  jvar      Rank of the second index
 **
 *****************************************************************************/
 static int st_parid_encode(int imod,
                            int icov,
-                           int type,
+                           int icons,
                            int ivar,
                            int jvar)
 {
@@ -249,7 +249,7 @@ static int st_parid_encode(int imod,
 
   value = imod;
   value = value * CONGRUENCY + icov;
-  value = value * CONGRUENCY + type;
+  value = value * CONGRUENCY + icons;
   value = value * CONGRUENCY + ivar;
   value = value * CONGRUENCY + jvar;
 
@@ -297,8 +297,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
 
     for (jcov=0; jcov<model->getCovaNumber(); jcov++)
     {
-      int type = model->getCovaType(jcov);
-      model_cova_characteristics(type,cov_name,
+      model_cova_characteristics(model->getCovaType(jcov),cov_name,
                                  &flag_range,&flag_param,&min_order,&max_ndim,
                                  &flag_int_1d,&flag_int_2d,
                                  &flag_aniso,&flag_rotation,&scalfac,&parmax);
@@ -1750,7 +1749,7 @@ static void st_model_auto_strmod_print(int flag_title,
                                        int     npar,
                                        int     nbexp)
 {
-  int    ntot,icov,ivar,jvar,ndim,nvar,imod,type,imod_mem,icov_mem;
+  int    ntot,icov,ivar,jvar,ndim,nvar,imod,icons,imod_mem,icov_mem;
   Option_VarioFit optvar;
   static const char *NOK[] = {"OFF" , "ON"};
 
@@ -1780,7 +1779,7 @@ static void st_model_auto_strmod_print(int flag_title,
 
   for (ntot=0; ntot<npar; ntot++)
   {
-    st_parid_decode(strmod->parid[ntot],&imod,&icov,&type,&ivar,&jvar);
+    st_parid_decode(strmod->parid[ntot],&imod,&icov,&icons,&ivar,&jvar);
     if (imod != imod_mem || icov != icov_mem)
     {
       if (imod != imod_mem) 
@@ -1795,7 +1794,7 @@ static void st_model_auto_strmod_print(int flag_title,
     imod_mem = imod;
     icov_mem = icov;
 
-    switch (type)
+    switch (icons)
     {
       case CONS_SILL:
         st_print("AIC",1,ntot,param,lower,upper);
@@ -1846,7 +1845,7 @@ static void st_model_auto_scldef(StrMod *strmod,
                                  VectorDouble& varchol,
                                  VectorDouble& scale)
 {
-  int    icov,ivar,jvar,imod,type,lec;
+  int    icov,ivar,jvar,imod,icons,lec;
   int    flag_range,flag_param,flag_aniso,flag_rotation;
   int    min_order,max_ndim,flag_int_1d,flag_int_2d,ntot;
   double scalfac,parmax,dunit,dvar;
@@ -1857,13 +1856,13 @@ static void st_model_auto_scldef(StrMod *strmod,
   if (npar <= 0) return;
   for (ntot=0; ntot<npar; ntot++)
   {
-    st_parid_decode(strmod->parid[ntot],&imod,&icov,&type,&ivar,&jvar);
+    st_parid_decode(strmod->parid[ntot],&imod,&icov,&icons,&ivar,&jvar);
     model = strmod->models[imod];
     model_cova_characteristics(model->getCovaType(icov),cov_name,
                                &flag_range,&flag_param,&min_order,&max_ndim,
                                &flag_int_1d,&flag_int_2d,
                                &flag_aniso,&flag_rotation,&scalfac,&parmax);
-    switch(type)
+    switch(icons)
     {
       case CONS_SILL:
         lec  = ivar * (ivar+1) / 2 + jvar;
@@ -1914,7 +1913,7 @@ static void st_model_auto_constraints_apply(StrMod *strmod,
                                             VectorDouble& lower,
                                             VectorDouble& upper)
 {
-  int    ipar,icov,ivar,jvar,imod,type;
+  int    ipar,icov,ivar,jvar,imod,icons;
   double param_loc,lower_loc,upper_loc;
 
   /* Loop on the models */
@@ -1922,10 +1921,10 @@ static void st_model_auto_constraints_apply(StrMod *strmod,
   if (npar <= 0) return;
   for (ipar=0; ipar<npar; ipar++)
   {
-    st_parid_decode(strmod->parid[ipar],&imod,&icov,&type,&ivar,&jvar);
-    param_loc = constraints_get(constraints, 0,imod,icov,type,ivar,jvar);
-    lower_loc = constraints_get(constraints,-1,imod,icov,type,ivar,jvar);
-    upper_loc = constraints_get(constraints, 1,imod,icov,type,ivar,jvar);
+    st_parid_decode(strmod->parid[ipar],&imod,&icov,&icons,&ivar,&jvar);
+    param_loc = constraints_get(constraints, 0,imod,icov,icons,ivar,jvar);
+    lower_loc = constraints_get(constraints,-1,imod,icov,icons,ivar,jvar);
+    upper_loc = constraints_get(constraints, 1,imod,icov,icons,ivar,jvar);
     st_affect(ipar,param_loc,lower_loc,upper_loc,param,lower,upper);
   }
   return;
@@ -1957,11 +1956,12 @@ static void st_model_auto_pardef(StrMod *strmod,
                                  VectorDouble& lower,
                                  VectorDouble& upper)
 {
-  int    icov,icovm,ivar,jvar,imod,type,lec;
+  int    icov,icovm,ivar,jvar,imod,lec,icons;
   int    flag_range,flag_param,flag_aniso,flag_rotation;
   int    min_order,max_ndim,flag_int_1d,flag_int_2d,ntot;
   double scalfac,parmax,dist,dunit,dmin,dvar,valdef;
   Model *model;
+  ECov   type;
 
   /* Loop on the models */
 
@@ -1969,14 +1969,15 @@ static void st_model_auto_pardef(StrMod *strmod,
   if (npar <= 0) return;
   for (ntot=0; ntot<npar; ntot++)
   {
-    st_parid_decode(strmod->parid[ntot],&imod,&icov,&type,&ivar,&jvar);
+    st_parid_decode(strmod->parid[ntot],&imod,&icov,&icons,&ivar,&jvar);
     model = strmod->models[imod];
-    model_cova_characteristics(model->getCovaType(icov),cov_name,
+    type = model->getCovaType(icov);
+    model_cova_characteristics(type, cov_name,
                                &flag_range,&flag_param,&min_order,&max_ndim,
                                &flag_int_1d,&flag_int_2d,
                                &flag_aniso,&flag_rotation,&scalfac,&parmax);
-    if (type == COV_NUGGET && ivar == 0 && jvar == 0) icovm++;
-    switch(type)
+    if (type == ECov::NUGGET && ivar == 0 && jvar == 0) icovm++;
+    switch(icons)
     {
       case CONS_SILL:
         lec  = ivar * (ivar+1) / 2 + jvar;
@@ -1987,7 +1988,7 @@ static void st_model_auto_pardef(StrMod *strmod,
       case CONS_PARAM:
         if (parmax < 0) parmax = TEST;
         valdef = 1.;
-        if (type == COV_COSEXP) valdef = hmax / 3.;
+        if (type == ECov::COSEXP) valdef = hmax / 3.;
         st_affect(ntot,valdef,0.001,parmax,param,lower,upper);
         break;
       
@@ -2025,7 +2026,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
                                         int     npar,
                                         VectorDouble& param)
 {
-  int     icov,nvar,ntot,imod,imod_mem,icov_mem,type,ivar,jvar,size;
+  int     icov,nvar,ntot,imod,imod_mem,icov_mem,icons,ivar,jvar,size;
   int     flag_rot,flag_aic,found,ipos,ndim;
   Model*  model;
   CovAniso*  cova;
@@ -2048,7 +2049,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
   imod_mem = icov_mem = -1;
   for (ntot=0; ntot<npar; ntot++)
   {
-    st_parid_decode(strmod->parid[ntot],&imod,&icov,&type,&ivar,&jvar);
+    st_parid_decode(strmod->parid[ntot],&imod,&icov,&icons,&ivar,&jvar);
     
     // Store the global parameters for the previous structure
     
@@ -2084,7 +2085,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     imod_mem = imod;
     icov_mem = icov;
 
-    switch (type)
+    switch (icons)
     {
       case CONS_SILL:
         ipos = ivar * (ivar+1) / 2 + jvar;
@@ -2306,7 +2307,7 @@ static void st_evaluate_vmap(int      imod,
 ** \param[in]  npar        Number of parid
 ** \param[in]  imod0       Rank of the target model (or -1)
 ** \param[in]  icov0       Rank of the target covariance (or -1)
-** \param[in]  type0       Target type (or -1)
+** \param[in]  icons0      Target type of the constraint (or -1)
 ** \param[in]  ivar0       Target first variable (or -1)
 ** \param[in]  jvar0       Target second variable (or -1)
 **
@@ -2315,23 +2316,23 @@ static int st_parid_match(StrMod *strmod,
                           int     npar,
                           int     imod0,
                           int     icov0,
-                          int     type0,
+                          int     icons0,
                           int     ivar0,
                           int     jvar0)
 {
-  int ntot,imod,icov,type,ivar,jvar;
+  int ntot,imod,icov,icons,ivar,jvar;
 
   for (ntot=0; ntot<npar; ntot++)
   {
-    st_parid_decode(strmod->parid[ntot],&imod,&icov,&type,&ivar,&jvar);
+    st_parid_decode(strmod->parid[ntot],&imod,&icov,&icons,&ivar,&jvar);
     
     /* Check the answer */
 
-    if (imod0 >= 0 && imod != imod0) continue;
-    if (icov0 >= 0 && icov != icov0) continue;
-    if (type0 >= 0 && type != type0) continue;
-    if (ivar0 >= 0 && ivar != ivar0) continue;
-    if (jvar0 >= 0 && jvar != jvar0) continue;
+    if (imod0 >= 0  && imod  != imod0)  continue;
+    if (icov0 >= 0  && icov  != icov0)  continue;
+    if (icons0 >= 0 && icons != icons0) continue;
+    if (ivar0 >= 0  && ivar  != ivar0)  continue;
+    if (jvar0 >= 0  && jvar  != jvar0)  continue;
     return(ntot);
   }
   return(-1);
@@ -3574,7 +3575,7 @@ static int st_model_auto_strmod_reduce(StrMod    *strmod,
                                        VectorDouble& upper,
                                        Option_AutoFit& mauto)
 {
-  int  ntot,nparloc,icov,jcov,ncova,ivar,jvar,type,jmod,kcov,ncovleft;
+  int  ntot,nparloc,icov,jcov,ncova,ivar,jvar,icons,jmod,kcov,ncovleft;
   int  flag_modified,imod,nmodel;
   int  flag_range,flag_param,min_order,max_ndim,flag_int_1d;
   int  flag_int_2d,flag_aniso,flag_rotation,rank;
@@ -3656,7 +3657,7 @@ static int st_model_auto_strmod_reduce(StrMod    *strmod,
           {
             lost_rank = rank;
             st_parid_decode(strmod->parid[lost_rank],&lost_imod,&lost_icov,
-                            &type,&ivar,&jvar);
+                            &icons,&ivar,&jvar);
             if (mauto.getVerbose() > 0 || debug_query("converge"))
             {
               message("Note: This structure contains rotation parameters.\n");
@@ -3684,8 +3685,8 @@ static int st_model_auto_strmod_reduce(StrMod    *strmod,
 
   for (ntot=0; ntot<nparloc; ntot++)
   {
-    st_parid_decode(strmod->parid[ntot],&imod,&icov,&type,&ivar,&jvar);
-    if (imod == lost_imod && icov == lost_icov && type == CONS_ANGLE) continue;
+    st_parid_decode(strmod->parid[ntot],&imod,&icov,&icons,&ivar,&jvar);
+    if (imod == lost_imod && icov == lost_icov && icons == CONS_ANGLE) continue;
     if (FLAG_COMPRESS(imod,icov)) param[ntot] = TEST;
   }
 
@@ -3743,9 +3744,9 @@ label_compress:
 
       for (ntot=0; ntot<nparloc; ntot++)
       {
-        st_parid_decode(strmod->parid[ntot],&jmod,&kcov,&type,&ivar,&jvar);
+        st_parid_decode(strmod->parid[ntot],&jmod,&kcov,&icons,&ivar,&jvar);
         if (jmod == imod && kcov == icov)
-          strmod->parid[ntot] = st_parid_encode(jmod,jcov,type,ivar,jvar);
+          strmod->parid[ntot] = st_parid_encode(jmod,jcov,icons,ivar,jvar);
       }
       jcov++;
     }
@@ -5163,7 +5164,7 @@ GEOSLIB_API int modify_constraints_on_sill(Constraints& constraints)
 ** \li                           1: Upper bound
 ** \param[in]      igrf         Rank of the Gaussian Random Function
 ** \param[in]      icov         Rank of the structure (starting from 0)
-** \param[in]      type         Type of Element (::ENUM_CONS)
+** \param[in]      icons        Type of the constraint (::ENUM_CONS)
 ** \param[in]      iv1          Rank of the first variable
 ** \param[in]      iv2          Rank of the second variable
 **
@@ -5172,7 +5173,7 @@ GEOSLIB_API double constraints_get(const Constraints& constraints,
                                    int icase,
                                    int igrf,
                                    int icov,
-                                   int type,
+                                   int icons,
                                    int iv1,
                                    int iv2)
 {
@@ -5181,11 +5182,11 @@ GEOSLIB_API double constraints_get(const Constraints& constraints,
   for (int i=0; i<(int) constraints.getConsItemNumber(); i++)
   {
     const ConsItem* item = constraints.getConsItems(i);
-    if (item->getIGrf()  != igrf ||
-        item->getICov()  != icov ||
-        item->getType()  != type ||
+    if (item->getIGrf()  != igrf  ||
+        item->getICov()  != icov  ||
+        item->getType()  != icons ||
         item->getIV1()   != iv1) continue;
-    if (type == CONS_SILL && item->getIV2 ()!= iv2) continue;
+    if (icons == CONS_SILL && item->getIV2 ()!= iv2) continue;
 
     if (item->getIcase() == CONS_TYPE_EQUAL)
     {

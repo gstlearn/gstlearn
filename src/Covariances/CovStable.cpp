@@ -14,7 +14,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovStable::CovStable(const CovContext& ctxt)
-: ACovFunc(COV_STABLE, ctxt)
+: ACovFunc(ECov::STABLE, ctxt)
 {
   setParam(1);
 }

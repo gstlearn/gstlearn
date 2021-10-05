@@ -17,7 +17,7 @@
 #include "Basic/Vector.hpp"
 #include <math.h>
 
-ACovGradient::ACovGradient(const ENUM_COVS& type, const CovContext& ctxt)
+ACovGradient::ACovGradient(const ECov& type, const CovContext& ctxt)
     : CovAniso(type, ctxt)
 {
 }

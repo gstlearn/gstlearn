@@ -14,6 +14,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Covariances/ECov.hpp"
 #include "geoslib_enum.h"
 
 /* Covariance basic function for normalized sill and distance:
@@ -22,13 +23,8 @@
 
 class ACovFunc : public AStringable
 {
-private:
-  ENUM_COVS   _type;    /*! Covariance function type */
-  CovContext  _ctxt;    /*! Context (space, irfDegree, field, ...) */
-  double      _param;   /*! Third parameter (TEST if not used) */
-
 public:
-  ACovFunc(const ENUM_COVS& type, const CovContext& ctxt);
+  ACovFunc(const ECov& type, const CovContext& ctxt);
   ACovFunc(const ACovFunc &r);
   ACovFunc& operator= (const ACovFunc &r);
   virtual ~ACovFunc();
@@ -48,7 +44,7 @@ public:
   virtual String getFormula()   const { return String("Equation not yet implemented"); }
   virtual bool   isConsistent() const;
 
-  ENUM_COVS            getType()    const { return _type; }
+  const ECov&          getType()    const { return _type; }
   const CovContext&    getContext() const { return _ctxt; }
   double               getParam()   const { return _param; }
 
@@ -67,5 +63,10 @@ protected:
   /// Change argument : double h becomes VectorDouble (number of sub-space)
   virtual double _evaluateCov (double h) const = 0;
   virtual double _evaluateCovDerivate(int degree, double h) const;
+
+private:
+  ECov        _type;    /*! Covariance function type */
+  CovContext  _ctxt;    /*! Context (space, irfDegree, field, ...) */
+  double      _param;   /*! Third parameter (TEST if not used) */
 };
 

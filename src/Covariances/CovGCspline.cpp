@@ -14,7 +14,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovGCspline::CovGCspline(const CovContext& ctxt)
-: ACovFunc(COV_SPLINE_GC, ctxt)
+: ACovFunc(ECov::SPLINE_GC, ctxt)
 {
 }
 

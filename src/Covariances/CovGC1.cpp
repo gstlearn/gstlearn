@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovGC1::CovGC1(const CovContext& ctxt)
-: ACovFunc(COV_ORDER1_GC, ctxt)
+: ACovFunc(ECov::ORDER1_GC, ctxt)
 {
 }
 

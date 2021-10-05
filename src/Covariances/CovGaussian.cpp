@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovGaussian::CovGaussian(const CovContext& ctxt)
-: ACovFunc(COV_GAUSSIAN, ctxt)
+: ACovFunc(ECov::GAUSSIAN, ctxt)
 {
 }
 

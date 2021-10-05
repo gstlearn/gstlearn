@@ -12,3 +12,4 @@
 
 #include "Neigh/ENeigh.hpp"
 #include "Db/ELoc.hpp"
+#include "Covariances/ECov.hpp"
