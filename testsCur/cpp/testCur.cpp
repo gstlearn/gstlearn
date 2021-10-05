@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
 
   // R_model_characteristics
-  int    flag_range,flag_param,min_order,max_ndim,ndim,flag_aniso,error;
+  int    flag_range,flag_param,min_order,max_ndim,ndim,flag_aniso;
   int    flag_int_1d,flag_int_2d,flag_rotation,order;
   double scale,parmax;
   char   cova_name[STRING_LENGTH];
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
   /* Initializations */
 
-  cov_name = "Exponential";
+  cov_name = "Nugget Effect";
   ndim     = 2;
   order    = 1;
 
