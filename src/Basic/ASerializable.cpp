@@ -45,8 +45,12 @@ void ASerializable::setContainerName(bool useDefault, const String& containerNam
       // Otherwise, it is set to HOME/gstlearn_dir
 
       pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
-      std::cout << "PYGSTLEARN_DIR environment variable not defined. Using "
-                << pygst << std::endl;
+      std::cout << "Results are stored in" << pygst << std::endl;
+    }
+    else
+    {
+      std::cout << "Results are stored in PYGSTLEARN_DIR" << std::endl;
+      pygst = pydir;
     }
     myContainerName = pygst;
   }
@@ -112,8 +116,6 @@ int ASerializable::_fileOpen(const String& filename,
     message("Attempt to Open the File (%s) in mode (%s)\n",
             filename.c_str(), mode.c_str());
   }
-
-  // Check that the directory exists
 
   // Check that the file is not already opened (in 'w' mode)
   if (mode == "w")

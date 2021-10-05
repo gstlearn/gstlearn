@@ -113,8 +113,7 @@ private:
   void _loadHHByApex(MatrixCSGeneral& hh, int ip);
   void _loadHHGradByApex(MatrixCSGeneral& hh,
                          int igparam,
-                         int ip,
-                         bool flagFormal = true);
+                         int ip);
   void _loadAux(VectorDouble& tab,
                 ENUM_CONS type,
                 int ip);
@@ -125,8 +124,7 @@ private:
                           AMesh* amesh,
                           int igp0,
                           int igparam,
-                          int imesh = 0,
-                          bool flagFormal = true);
+                          int imesh = 0);
   void _loadAuxPerMesh(VectorDouble& tab,
                        AMesh* amesh,
                        ENUM_CONS type,

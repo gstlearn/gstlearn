@@ -46,8 +46,7 @@ AGibbs::AGibbs(Db* db)
 
 AGibbs::AGibbs(Db* db,
                int npgs, int nvar, int nburn, int niter,
-               int flag_order, bool flag_multi_mono, bool flag_decay,
-               double rho)
+               int flag_order, bool flag_multi_mono, bool flag_decay)
     : _npgs(1),
       _nvar(1),
       _nburn(1),
@@ -60,7 +59,7 @@ AGibbs::AGibbs(Db* db,
       _stats()
 {
   init(npgs, nvar, nburn, niter,
-       flag_order, flag_multi_mono, flag_decay, rho);
+       flag_order, flag_multi_mono, flag_decay);
 }
 
 AGibbs::AGibbs(const AGibbs &r)
@@ -105,8 +104,7 @@ void AGibbs::init(int npgs,
                   int niter,
                   int flag_order,
                   bool flag_multi_mono,
-                  bool flag_decay,
-                  double rho)
+                  bool flag_decay)
 {
   _npgs = npgs;
   _nvar = nvar;

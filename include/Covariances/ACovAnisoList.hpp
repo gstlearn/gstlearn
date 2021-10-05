@@ -12,6 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
+#include "MatrixC/MatrixCSSym.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -74,7 +75,7 @@ public:
   ENUM_COVS          getType(unsigned int icov) const;
   String             getCovName(unsigned int icov) const;
   double             getParam(unsigned int icov) const;
-  const MatrixCSGeneral& getSill(unsigned int icov) const;
+  const MatrixCSSym& getSill(unsigned int icov) const;
   double             getSill(unsigned int icov, int ivar, int jvar) const;
   int                getGradParamNumber(unsigned int icov) const;
   void               setSill(unsigned int icov, int ivar, int jvar, double value);

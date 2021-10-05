@@ -543,7 +543,7 @@ cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
 
 /**
  * Locally update the covariance
- * @param cova Local CovAniso structure
+ * @param cova Local CovAniso structure (updated here)
  * @param ip   Rank of the point
  * @param ndim Space dimension
  */
@@ -615,10 +615,9 @@ void ShiftOpCs::_loadHHByApex(MatrixCSGeneral& hh, int ip)
 /**
  * Calculate HH Gradient matrix from one of the Model parameters
  * for the given Apex.
- * @param hh      Output Array
+ * @param hh      Output Array (updated here)
  * @param igparam Rank of the parameter for derivation
  * @param ip      Rank of the point
- * @param flagFormal True for Formal calculations; False for Numerical Derivation
  *
  * @details: The parameters 'igparam' are sorted as follows:
  * @details: - 0:(ndim-1)   : ranges in each Space direction
@@ -626,8 +625,7 @@ void ShiftOpCs::_loadHHByApex(MatrixCSGeneral& hh, int ip)
  */
 void ShiftOpCs::_loadHHGradByApex(MatrixCSGeneral& hh,
                                   int igparam,
-                                  int ip,
-                                  bool flagFormal)
+                                  int ip)
 {
   const CovAniso* covini = _getCova();
   CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
@@ -637,84 +635,30 @@ void ShiftOpCs::_loadHHGradByApex(MatrixCSGeneral& hh,
   // Locally update the covariance for non-stationarity
 
   if (flagNostat) _updateCova(cova, ip, ndim);
+
   const MatrixCSGeneral& rotmat = cova->getAnisoRotMat();
   VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
 
-  // Main dispatch
+  // Formal derivation
 
   MatrixCSSym temp(ndim);
-
-  if (!flagFormal)
+  if (igparam < ndim)
   {
-
-    // Numerical integration
-
-    double eps = 1.e-05;
-    MatrixCSGeneral hhp = MatrixCSGeneral(ndim);
-    MatrixCSGeneral hhm = MatrixCSGeneral(ndim);
-
-    if (igparam >= ndim)
-    {
-     // Angle
-      int ir = igparam - ndim;
-
-      CovAniso* covap = cova;
-      covap->setAnisoAngle(ir,covap->getAnisoAngles(ir) + eps);
-      const MatrixCSGeneral& rotmatp = covap->getAnisoRotMat();
-      temp.setDiagonal(diag);
-      hhp.normMatrix(temp, rotmatp);
-
-      CovAniso* covam = cova;
-      covam->setAnisoAngle(ir,covam->getAnisoAngles(ir) - eps);
-      const MatrixCSGeneral& rotmatm = covam->getAnisoRotMat();
-      temp.setDiagonal(diag);
-      hhm.normMatrix(temp, rotmatm);
-    }
-    else
-    {
-      // Scale
-      CovAniso* covap = cova;
-      covap->setScale(igparam, covap->getScale(igparam) + eps);
-      VectorDouble diagp = ut_vector_power(covap->getScales(), 2.);
-      temp.setDiagonal(diagp);
-      hhp.normMatrix(temp, rotmat);
-
-      CovAniso* covam = cova;
-      covam->setScale(igparam, covam->getScale(igparam) - eps);
-      VectorDouble diagm = ut_vector_power(covam->getScales(), 2.);
-      temp.setDiagonal(diagm);
-      hhm.normMatrix(temp, rotmat);
-    }
-
-    // Calculate the finite difference
-
-    for (int i = 0; i < ndim; i++)
-      for (int j = 0; j < ndim; j++)
-        hh.setValue(i, j, (hhp.getValue(i, j) - hhm.getValue(i, j)) / (2. * eps));
+    // Derivation with respect to the Range 'igparam'
+    temp.fill(0);
+    temp.setValue(igparam, igparam, 2. * cova->getScale(igparam));
+    hh.normMatrix(temp, rotmat);
   }
   else
   {
-
-    // Formal derivation
-
-    if (igparam < ndim)
-    {
-      // Derivation with respect to the Range 'igparam'
-      temp.fill(0);
-      temp.setValue(igparam,igparam, 2. * cova->getScale(igparam));
-      hh.normMatrix(temp, rotmat);
-    }
-    else
-    {
-      // Derivation with respect to the Angle 'igparam'-ndim
-      int ir = igparam - ndim;
-      CovAniso* dcova = cova;
-      dcova->setAnisoAngle(ir, dcova->getAnisoAngles(ir) + 90.);
-      const MatrixCSGeneral& drotmat = dcova->getAnisoRotMat();
-      ut_vector_divide_inplace(diag, 180. / GV_PI); // Necessary as angles are provided in degrees
-      temp.setDiagonal(diag);
-      hh.innerMatrix(temp, rotmat, drotmat);
-    }
+    // Derivation with respect to the Angle 'igparam'-ndim
+    int ir = igparam - ndim;
+    CovAniso* dcova = cova;
+    dcova->setAnisoAngle(ir, dcova->getAnisoAngles(ir) + 90.);
+    const MatrixCSGeneral& drotmat = dcova->getAnisoRotMat();
+    ut_vector_divide_inplace(diag, 180. / GV_PI); // Necessary as angles are provided in degrees
+    temp.setDiagonal(diag);
+    hh.innerMatrix(temp, rotmat, drotmat);
   }
 }
 
@@ -763,18 +707,16 @@ void ShiftOpCs::_loadHHPerMesh(MatrixCSGeneral& hh,
  * @param igp0    Rank of the Apex for derivation (between 0 to nApices-1)
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
  * @param imesh   Rank of the current mesh
- * @param flagFormal True for Formal calculations; False for Numerical Derivation
  */
 void ShiftOpCs::_loadHHGradPerMesh(MatrixCSGeneral& hh,
                                    AMesh* amesh,
                                    int igp0,
                                    int igparam,
-                                   int imesh,
-                                   bool flagFormal)
+                                   int imesh)
 {
   int number = amesh->getNApexPerMesh();
   hh.fill(0.);
-  _loadHHGradByApex(hh, igparam, igp0, flagFormal);
+  _loadHHGradByApex(hh, igparam, igp0);
   hh.prodScalar(1. / number);
 }
 
@@ -1364,7 +1306,6 @@ bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
   }
   return false;
 }
-
 
 /**
  * Project the coordinates of the mesh vertices on the sphere

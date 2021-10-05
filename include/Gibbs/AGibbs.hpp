@@ -28,8 +28,7 @@ public:
          int niter,
          int flag_order,
          bool flag_multi_mono,
-         bool flag_decay,
-         double rho);
+         bool flag_decay);
   AGibbs(const AGibbs &r);
   AGibbs& operator=(const AGibbs &r);
   virtual ~AGibbs();
@@ -55,8 +54,7 @@ public:
             int niter,
             int flag_order,
             bool flag_multi_mono,
-            bool flag_decay,
-            double rho);
+            bool flag_decay);
 
   void print(bool flag_init,
              const VectorVectorDouble& y,

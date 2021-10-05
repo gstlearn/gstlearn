@@ -250,7 +250,7 @@ double ACovAnisoList::getParam(unsigned int icov) const
   if (! _isCovarianceIndexValid(icov)) return 0.;
   return _covs[icov]->getParam();
 }
-const MatrixCSGeneral& ACovAnisoList::getSill(unsigned int icov) const
+const MatrixCSSym& ACovAnisoList::getSill(unsigned int icov) const
 {
   return _covs[icov]->getSill();
 }

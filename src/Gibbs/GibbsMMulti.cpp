@@ -216,5 +216,5 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 
   // Update statistics (optional)
 
-  updateStats(y, isimu, ipgs, iter);
+  updateStats(y, ipgs, iter);
 }

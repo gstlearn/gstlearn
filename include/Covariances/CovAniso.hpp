@@ -13,7 +13,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
 
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "MatrixC/MatrixCSSym.hpp"
 #include "Basic/Tensor.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ACovFunc.hpp"
@@ -99,7 +99,7 @@ public:
   virtual double getIntegralRange(int ndisc, double hmax) const;
 
   virtual String getFormula() const { return _cova->getFormula(); }
-  const MatrixCSGeneral& getSill() const { return _sill; }
+  const MatrixCSSym& getSill() const { return _sill; }
   double getSill(int ivar, int jvar) const;
   VectorDouble getRanges() const;
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
@@ -155,7 +155,7 @@ private:
 private:
   CovContext      _ctxt;   /// Context (space, irfDegree, field, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function
-  MatrixCSGeneral _sill;   /// Sill matrix (nvar x nvar)
+  MatrixCSSym     _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
 };
 

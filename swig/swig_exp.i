@@ -36,7 +36,7 @@ namespace std {
 %template(VectorIntervals) std::vector<Interval*>;
 
 // Remind that swig %include doesn't follow #include inclusion.
-// You must cite below each single header files you want to export!
+// You must cite below each single header file that you want to export!
 // Put low level headers in first positions (otherwise Syntax error in input(1).)
 %include Basic/Vector.hpp
 %include csparse_d.h

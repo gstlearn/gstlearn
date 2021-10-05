@@ -4068,8 +4068,7 @@ GEOSLIB_API int simpgs(Db *dbin,
 
     /* Initialize the Gibbs calculations */
 
-    gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true, true,
-                rule->getRho());
+    gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true, true);
       
     /* Allocate the covariance matrix inverted */
   
@@ -4507,8 +4506,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
       /* Initialize the Gibbs calculations */
 
-      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter,
-                  0, true, true, rules[ipgs]->getRho());
+      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter,0, true, true);
 
       /* Allocate the covariance matrix inverted */
 
@@ -4884,7 +4882,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   
   {
     AGibbs *gibbs;
-    if (flag_multi_mono)
+    if (! flag_multi_mono)
       gibbs = GibbsFactory::createGibbs(dbin, model, neigh);
     else
     {
@@ -4897,8 +4895,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
     /* Initialize the Gibbs calculations */
 
-    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter,
-                0, false, true, 0.);
+    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter,0, false, true);
 
     /* Allocate the covariance matrix inverted */
 
@@ -4918,13 +4915,11 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
       // Initialize the iterations
 
       if (gibbs->calculInitialize(y, isimu, ipgs, verbose)) goto label_end;
-      if (verbose) gibbs->print(true,y,isimu,ipgs);
 
       /* Iterations of the Gibbs sampler */
 
       for (int iter = 0; iter < gibbs->getNiter(); iter++)
         gibbs->update(y, isimu, ipgs, iter);
-      if (verbose) gibbs->print(false,y,isimu,ipgs);
 
       // Store the results
 
@@ -5972,13 +5967,13 @@ GEOSLIB_API int simcond(Db    *dbin,
 
     /* Initialize the Gibbs calculations */
 
-    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, false, true, 0.);
+    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, false, true);
 
     /* Allocate the covariance matrix inverted */
 
     if (gibbs->covmatAlloc(verbose)) goto label_end;
 
-    // Allocate the Gaussian Vector
+    /* Allocate the Gaussian Vector */
 
     VectorVectorDouble y = gibbs->allocY();
 
@@ -6000,7 +5995,7 @@ GEOSLIB_API int simcond(Db    *dbin,
 
       if (verbose) gibbs->print(false,y,isimu,ipgs);
 
-      // Store the results
+      /* Store the results */
 
       gibbs->storeResult(y, isimu, ipgs);
     }

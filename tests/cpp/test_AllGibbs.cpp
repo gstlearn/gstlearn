@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
   int nvar     = 1;
   int nbsimu   = 3;
   int nlag     = 20;
-  int niter    = 100;
-  int nburn    = 10;
-  bool verbose = false;
+  int niter    = 10000;
+  int nburn    = 100;
+  bool verbose = true;
   bool flag_moving      = true;
   bool flag_propagation = false;
   bool flag_multi_mono  = false;
@@ -38,22 +38,22 @@ int main(int argc, char *argv[])
   // Setup constants
 
   ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AllGibbs-");
   law_set_random_seed(seed);
   
   // Data file
 
-  VectorDouble dx = {1., 0.1};
+  VectorDouble dx = {1., 1.};
   Db* db = new Db({50,50},dx);
   
   // Model
 
   CovContext ctxt(nvar,2,1.);
   Model* model = new Model(ctxt);
-  CovAniso cova(COV_BESSEL_K,ctxt);
-  cova.setRanges({10.,1.});
-  cova.setParam(2.);
-  cova.setSill({1.5});
+  CovAniso cova(COV_EXPONENTIAL,ctxt);
+  cova.setRanges({20.,10.});
+  cova.setSill({7.5});
   model->addCova(&cova);
   model->display();
 
@@ -62,11 +62,9 @@ int main(int argc, char *argv[])
   Neigh* neigh = nullptr;
   if (flag_moving)
   {
-    int nmaxi = 20;
+    int nmaxi = 10;
     double radius = 5.;
     neigh = new Neigh(ndim, nmaxi, radius);
-    neigh->setFlagAniso(true);
-    neigh->setAnisoCoeff({1.,0.1});
     neigh->display();
   }
 
@@ -76,24 +74,19 @@ int main(int argc, char *argv[])
                 flag_multi_mono, flag_propagation, 2,
                 5., EPSILON3, false, false, verbose);
   db->displayMore(FLAG_STATS);
+  db->serialize("Result");
 
   // Calculate a variogram on the samples
 
   VarioParam varioparam;
-  DirParam dirparam1(2, nlag, dx[0]);
-  dirparam1.setGrincr({1,0});
-  varioparam.addDirs(dirparam1);
-  DirParam dirparam2(2, nlag, dx[1]);
-  dirparam2.setGrincr({0,1});
-  varioparam.addDirs(dirparam2);
-  varioparam.display(1);
+  std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
+  varioparam.addDirs(dirparams);
   Vario vario(&varioparam,db);
   VectorString names = db->getNames("Gibbs*");
   for (int isimu=0; isimu<nbsimu; isimu++)
   {
     db->clearLocators(LOC_Z);
     db->setLocator(names[isimu],LOC_Z);
-    db->display(1);
     vario.compute("vg",true);
     vario.serialize(incrementStringVersion("Vario",isimu+1));
   }

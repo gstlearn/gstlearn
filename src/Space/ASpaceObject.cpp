@@ -110,9 +110,6 @@ VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& 
 
 bool ASpaceObject::isSpaceDimensionValid(int ndim)
 {
-  // If the (local) Space dimension is not defined, skip the test
-  if (ndim <= 0) return false;
-
   // If (local) Space dimension is defined
   if (hasGlobalSpace())
   {
