@@ -51,14 +51,14 @@ int main(int argc, char *argv[])
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
   double range1 = 0.2;
-  CovAniso cova1(COV_BESSEL_K,range1,1.,1.,ctxt);
+  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
   model1.addCova(&cova1);
   model1.display();
   model1.serialize("truemodel1.ascii");
 
   Model model2(ctxt);
   double range2 = 0.3;
-  CovAniso cova2(COV_EXPONENTIAL,range2,1.,1.,ctxt);
+  CovAniso cova2(ECov::EXPONENTIAL,range2,1.,1.,ctxt);
   model2.addCova(&cova2);
   model2.display();
   model2.serialize("truemodel2.ascii");
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
   Option_AutoFit option = Option_AutoFit();
   option.setConstantSillValue(1.);
 
-  std::vector<ENUM_COVS> covs {COV_BESSEL_K, COV_EXPONENTIAL};
+  std::vector<ECov> covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
   modelPGS1.fit(&vario1,covs,true,option);
   modelPGS1.display();
 

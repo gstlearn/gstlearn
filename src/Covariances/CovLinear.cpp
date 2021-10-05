@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovLinear::CovLinear(const CovContext& ctxt)
-: ACovFunc(COV_LINEAR, ctxt)
+: ACovFunc(ECov::LINEAR, ctxt)
 {
 }
 

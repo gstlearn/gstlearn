@@ -14,6 +14,7 @@
 #include "Basic/IClonable.hpp"
 #include "MatrixC/MatrixCSSym.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
 
@@ -71,15 +72,15 @@ public:
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const CovAniso*    getCova(unsigned int icov) const;
-  CovAniso*          getCova(unsigned int icov); /// beurk :(
-  ENUM_COVS          getType(unsigned int icov) const;
+  CovAniso*          getCova(unsigned int icov); // TODO : beurk :(
+  const ECov&        getType(unsigned int icov) const;
   String             getCovName(unsigned int icov) const;
   double             getParam(unsigned int icov) const;
   const MatrixCSSym& getSill(unsigned int icov) const;
   double             getSill(unsigned int icov, int ivar, int jvar) const;
   int                getGradParamNumber(unsigned int icov) const;
   void               setSill(unsigned int icov, int ivar, int jvar, double value);
-  void               setType(unsigned int icov, ENUM_COVS type);
+  void               setType(unsigned int icov, const ECov& type);
   ////////////////////////////////////////////////
 
 protected:

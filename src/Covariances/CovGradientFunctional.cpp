@@ -19,8 +19,8 @@
 
 #define TR(i,j) (Tr[ndim * (i) + (j)])
 
-CovGradientFunctional::CovGradientFunctional(const ENUM_COVS& type,
-                                           const CovContext& ctxt)
+CovGradientFunctional::CovGradientFunctional(const ECov& type,
+                                             const CovContext& ctxt)
     : ACovGradient(type, ctxt)
 {
 }
@@ -142,7 +142,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
 
   double covar = getSill(0,0) * getCova()->evalCov(h);
   covVal += covar;
-  if (getCova()->getType() == COV_NUGGET) return;
+  if (getCova()->getType() == ECov::NUGGET) return;
 
   _calculateTrTtr(d1, u, trttr);
   double dcovsr = getSill(0,0) * getCova()->evalCovDerivative(1,h);

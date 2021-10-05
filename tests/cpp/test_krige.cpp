@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   // Create the Model
   CovContext ctx(nvar);
   Model* model = new Model(ctx);
-  CovAniso* cov = new CovAniso(COV_SPHERICAL, 5., 0., 45, ctx);
+  CovAniso* cov = new CovAniso(ECov::SPHERICAL, 5., 0., 45, ctx);
   model->addCova(cov);
   model->display();
 

@@ -17,7 +17,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 
-ACovFunc::ACovFunc(const ENUM_COVS& type, const CovContext& ctxt)
+ACovFunc::ACovFunc(const ECov& type, const CovContext& ctxt)
 : _type(type),
   _ctxt(ctxt),
   _param(TEST)

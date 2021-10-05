@@ -1033,7 +1033,7 @@
   GEOSLIB_API Model *model_free(Model *model);
   GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model);
   GEOSLIB_API int model_add_cova(Model *model,
-                                 ENUM_COVS type,
+                                 const ECov& type,
                                  int flag_anisotropy,
                                  int flag_rotation,
                                  double range,
@@ -1245,7 +1245,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                      VectorDouble& aniso_rotmat,
                                      VectorDouble& aniso_ranges);
   GEOSLIB_API void model_extract_properties(Model *model, double *tape_range);
-  GEOSLIB_API void model_cova_characteristics(int rank,
+  GEOSLIB_API void model_cova_characteristics(const ECov& type,
                                               char cov_name[STRING_LENGTH],
                                               int *flag_range,
                                               int *flag_param,
@@ -1259,9 +1259,9 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                               double *parmax);
   GEOSLIB_API double model_maximum_distance(Model *model);
   GEOSLIB_API int model_maximum_order(Model *model);
-  GEOSLIB_API double model_scale2range(int type, double scale, double param);
-  GEOSLIB_API double model_range2scale(int type, double range, double param);
-  GEOSLIB_API double cova_get_scale_factor(int type, double param);
+  GEOSLIB_API double model_scale2range(const ECov& type, double scale, double param);
+  GEOSLIB_API double model_range2scale(const ECov& type, double range, double param);
+  GEOSLIB_API double cova_get_scale_factor(const ECov& type, double param);
   GEOSLIB_API Model *model_combine(const Model *model1, const Model *model2, double r);
   GEOSLIB_API int model_get_nonugget_cova(Model *model);
   GEOSLIB_API int model_regularize(Model *model,
@@ -1270,7 +1270,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                    int opt_norm,
                                    double nug_ratio);
   GEOSLIB_API double constraints_get(const Constraints& constraints,
-                                     int type,
+                                     int icons,
                                      int igrf,
                                      int istr,
                                      int elem,

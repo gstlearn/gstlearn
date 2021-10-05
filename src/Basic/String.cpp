@@ -39,14 +39,28 @@ std::regex _protectRegexp(const String& match)
   return regexpr;
 }
 
-void _toUpper(String& string)
+String toUpper(const String& string)
+{
+  String str = string;
+  toUpper(str);
+  return (str);
+}
+
+String toLower(const String& string)
+{
+  String str = string;
+  toLower(str);
+  return (str);
+}
+
+void toUpper(String& string)
 {
   std::for_each(string.begin(), string.end(), [](char & c){
       c = ::toupper(c);
   });
 }
 
-void _toLower(String& string)
+void toLower(String& string)
 {
   std::for_each(string.begin(), string.end(), [](char & c){
       c = ::tolower(c);
@@ -203,8 +217,8 @@ int decodeInString(const String& symbol,
   String locsymb = symbol;
   if (!caseSensitive)
   {
-    _toUpper(locnode);
-    _toUpper(locsymb);
+    toUpper(locnode);
+    toUpper(locsymb);
   }
 
   if (locnode.compare(0, 1, locsymb) != 0) return 1;
@@ -264,8 +278,8 @@ bool matchRegexp(const String& string1, const String& string2, bool caseSensitiv
   String local2 = string2;
   if (! caseSensitive)
   {
-    _toUpper(local1);
-    _toUpper(local2);
+    toUpper(local1);
+    toUpper(local2);
   }
   std::regex regexpr = _protectRegexp(local2);
   if (std::regex_match(local1, regexpr)) return true;
@@ -286,8 +300,8 @@ bool matchKeyword(const String& string1, const String& string2, bool caseSensiti
   String local2 = string2;
   if (! caseSensitive)
   {
-    _toUpper(local1);
-    _toUpper(local2);
+    toUpper(local1);
+    toUpper(local2);
   }
   return local1 == local2;
 }

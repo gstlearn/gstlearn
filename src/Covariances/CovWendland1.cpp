@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovWendland1::CovWendland1(const CovContext& ctxt)
-: ACovFunc(COV_WENDLAND1, ctxt)
+: ACovFunc(ECov::WENDLAND1, ctxt)
 {
 }
 

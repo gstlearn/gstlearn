@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "geoslib_enum.h"
+#include "Covariances/ECov.hpp"
 
 class CovAniso;
 class ACovFunc;
@@ -20,13 +20,11 @@ class CovContext;
 class CovFactory
 {
 public:
-  static int          getCovarianceNumber();
-  static ACovFunc*    createCovFunc(const ENUM_COVS& type, const CovContext& ctxt);
+  static ACovFunc*    createCovFunc(const ECov& type, const CovContext& ctxt);
   static ACovFunc*    duplicateCovFunc(const ACovFunc& cov);
   static void         displayList(const CovContext& ctxt);
   static VectorString getCovList(const CovContext& ctxt);
-  static int identifyCovariance(const String& cov_name,
-                                ENUM_COVS *rank,
-                                const CovContext& ctxt);
+  static ECov         identifyCovariance(const String& cov_name,
+                                         const CovContext& ctxt);
 };
 

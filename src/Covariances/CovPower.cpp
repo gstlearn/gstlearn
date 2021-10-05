@@ -14,7 +14,7 @@
 #include "geoslib_f.h"
 
 CovPower::CovPower(const CovContext& ctxt)
-: ACovFunc(COV_POWER, ctxt)
+: ACovFunc(ECov::POWER, ctxt)
 {
   setParam(1);
 }

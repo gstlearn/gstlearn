@@ -14,7 +14,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovGamma::CovGamma(const CovContext& ctxt)
-: ACovFunc(COV_GAMMA, ctxt)
+: ACovFunc(ECov::GAMMA, ctxt)
 {
   setParam(1);
 }

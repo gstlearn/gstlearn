@@ -110,7 +110,7 @@ typedef enum
   DRIFT_F = 15,     //!< External Drift
   DRIFT_NUMBER = 16 // Number of Drift elementary functions
 } ENUM_DRIFTS;
-
+/*
 typedef enum
 {
   COV_UNKNOWN = -2,
@@ -144,7 +144,7 @@ typedef enum
   COV_P8,                //!< Polynomial of degree 8
   COV_NUMBER  //!< Maximum number of internal covariances (keep this at the end)
 } ENUM_COVS;
-
+*/
 // These functions have been removed from new_cova
 //  COV_EXP2DFACT = 20,    //!< Factorized Factorized in 2-D
 //  COV_EXPFACT = 21,      //!< Factorized Exponential

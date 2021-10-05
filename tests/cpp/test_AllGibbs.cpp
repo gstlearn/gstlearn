@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
   CovContext ctxt(nvar,2,1.);
   Model* model = new Model(ctxt);
-  CovAniso cova(COV_EXPONENTIAL,ctxt);
+  CovAniso cova(ECov::EXPONENTIAL,ctxt);
   cova.setRanges({20.,10.});
   cova.setSill({7.5});
   model->addCova(&cova);

@@ -16,6 +16,7 @@
 #include "MatrixC/MatrixCSSym.hpp"
 #include "Basic/Tensor.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
 
@@ -24,8 +25,8 @@ class Rotation;
 class CovAniso: public ACov, public IClonable
 {
 public:
-  CovAniso(const ENUM_COVS& type, const CovContext& ctxt);
-  CovAniso(const ENUM_COVS& type,
+  CovAniso(const ECov& type, const CovContext& ctxt);
+  CovAniso(const ECov& type,
            double range,
            double param,
            double sill,
@@ -106,7 +107,7 @@ public:
   const VectorDouble& getScales() const { return _aniso.getRadius(); }
 
   /// TODO : For backward compatibility with Cova.hpp (to be removed?)
-  void   setType(ENUM_COVS type);
+  void   setType(const ECov& type);
   double getRange() const;
   double getTheoretical() const;
   bool   getFlagAniso() const { return !isIsotrop(); }
@@ -126,7 +127,7 @@ public:
   }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
   const CovContext& getContext() const { return _ctxt; }
-  ENUM_COVS getType() const { return _cova->getType(); }
+  const ECov& getType() const { return _cova->getType(); }
   double getParam() const;
   double getScadef() const { return _cova->getScadef(); }
   double getParMax() const { return _cova->getParMax(); }

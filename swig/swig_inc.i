@@ -32,6 +32,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceShape.hpp"
+/*
 #include "Interfaces/geoslib_f_swig.h"
 #include "Interfaces/ACalculator.hpp"
 #include "Interfaces/AParam.hpp"
@@ -49,6 +50,7 @@
 #include "Interfaces/VariableDouble.hpp"
 #include "Interfaces/VariableInt.hpp"
 #include "Interfaces/VariableString.hpp"
+*/
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "Mesh/MeshEStandard.hpp"
@@ -118,6 +120,7 @@
 #include "Covariances/CovTriangle.hpp"
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
+#include "Covariances/ECov.hpp"
 #include "MatrixC/AMatrixC.hpp"
 #include "MatrixC/AMatrixCSquare.hpp"
 #include "MatrixC/MatrixCRectangular.hpp"

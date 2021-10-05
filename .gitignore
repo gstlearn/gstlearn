@@ -9,5 +9,6 @@ tests/res*
 .project
 .cproject
 .settings
+./*.ascii
 core
 

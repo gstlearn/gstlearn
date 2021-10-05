@@ -7,33 +7,32 @@ class IClonable{};
 %include std_string.i
 
 // Keep order in the file
-namespace std {
-%template(VectorDouble)       vector< double >;
-%template(VectorInt)          vector< int >;
-%template(VectorString)       vector< string >;
-%template(VectorBool)         vector< bool >;
-%template(VectorUChar)        vector< unsigned char >;
-%template(VectorVectorInt)    vector< vector< int > >;
-%template(VectorVectorDouble) vector< vector< double > >;
-%template(VectorEnumCovs)     vector< ENUM_COVS >;
-};
+%template(VectorDouble)         std::vector< double >;
+%template(VectorInt)            std::vector< int >;
+%template(VectorString)         std::vector< std::string >;
+%template(VectorBool)           std::vector< bool >;
+%template(VectorUChar)          std::vector< unsigned char >;
+%template(VectorVectorInt)      std::vector< std::vector< int > >;
+%template(VectorVectorDouble)   std::vector< std::vector< double > >;
 
-%template(VectorCova) std::vector<Cova*>;
-%template(VectorCTable) std::vector<CTable*>;
-%template(VectorDir) std::vector<DirParam>;  // Not a pointers list
-%template(VectorDirection) std::vector<Direction*>;
-%template(VectorDrft) std::vector<Drift*>;
-%template(VectorFrac_Desc) std::vector<Frac_Desc*>;
-%template(VectorFrac_Fam) std::vector<Frac_Fam*>;
-%template(VectorFrac_Fault) std::vector<Frac_Fault*>;
-%template(VectorLocal_Split) std::vector<Local_Split*>;
-%template(VectorPolySet) std::vector<PolySet*>;
-%template(VectorQChol) std::vector<QChol*>;
+%template(VectorEnumCovs)       std::vector< ECov >;
+
+%template(VectorCova)           std::vector<Cova*>;
+%template(VectorCTable)         std::vector<CTable*>;
+%template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
+%template(VectorDirection)      std::vector<Direction*>;
+%template(VectorDrft)           std::vector<Drift*>;
+%template(VectorFrac_Desc)      std::vector<Frac_Desc*>;
+%template(VectorFrac_Fam)       std::vector<Frac_Fam*>;
+%template(VectorFrac_Fault)     std::vector<Frac_Fault*>;
+%template(VectorLocal_Split)    std::vector<Local_Split*>;
+%template(VectorPolySet)        std::vector<PolySet*>;
+%template(VectorQChol)          std::vector<QChol*>;
 %template(VectorSPDE_SS_Option) std::vector<SPDE_SS_Option*>;
-%template(VectorSubPlan) std::vector<SubPlan*>;
-%template(VectorToken_Def) std::vector<Token_Def*>;
-%template(VectorToken_Par) std::vector<Token_Par*>;
-%template(VectorIntervals) std::vector<Interval*>;
+%template(VectorSubPlan)        std::vector<SubPlan*>;
+%template(VectorToken_Def)      std::vector<Token_Def*>;
+%template(VectorToken_Par)      std::vector<Token_Par*>;
+%template(VectorIntervals)      std::vector<Interval*>;
 
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header file that you want to export!
@@ -70,6 +69,7 @@ namespace std {
 %include Space/SpacePoint.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
+/*
 %include Interfaces/geoslib_f_swig.h
 %include Interfaces/ACalculator.hpp
 %include Interfaces/AParam.hpp
@@ -82,6 +82,7 @@ namespace std {
 %include Interfaces/ParamCSV.hpp
 %include Interfaces/ParamGrid.hpp
 %include Interfaces/Param.hpp
+*/
 %include Mesh/AMesh.hpp
 %include Mesh/MeshFactory.hpp
 %include Mesh/MeshEStandard.hpp
@@ -151,6 +152,7 @@ namespace std {
 %include Covariances/CovTriangle.hpp
 %include Covariances/CovWendland1.hpp
 %include Covariances/CovWendland2.hpp
+%include Covariances/ECov.hpp
 %include MatrixC/AMatrixC.hpp
 %include MatrixC/AMatrixCSquare.hpp
 %include MatrixC/MatrixCRectangular.hpp
@@ -175,17 +177,19 @@ namespace std {
 %include LithoRule/RuleProp.hpp
 %include segy.h
 
-/*Definition of AVariableTemplate for useful type*/
+/*
+// Definition of AVariableTemplate for useful type
 %template(AVariableInt) AVariableTemplate<int>;
 %template(AVariableDouble) AVariableTemplate<double>;
 %template(AVariableBool) AVariableTemplate<bool>;
 %template(AVariableString) AVariableTemplate<String>;
 
-/*THEN include our class that inherited AVariableTemplate<T>*/
+// THEN include our class that inherited AVariableTemplate<T>
 %include Interfaces/VariableInt.hpp
 %include Interfaces/VariableDouble.hpp
 %include Interfaces/VariableBool.hpp
 %include Interfaces/VariableString.hpp
+*/
 
 /// https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
 %feature("director");

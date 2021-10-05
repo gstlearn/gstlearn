@@ -77,13 +77,13 @@ Def_Tapering& D_TAPE(int rank)
 {
   static Def_Tapering DEF_TAPES[] =
   {
-   {"Spherical"    , COV_SPHERICAL, 3, _tape_spherical },
-   {"Cubic"        , COV_CUBIC,     3, _tape_cubic     },
-   {"Triangle"     , COV_TRIANGLE,  1, _tape_triangle  },
-   {"Pentamodel"   , COV_PENTA,     3, _tape_penta     },
-   {"Storkey"      , COV_STORKEY,   1, _tape_storkey   },
-   {"Wendland1"    , COV_WENDLAND1, 3, _tape_wendland1 },
-   {"Wendland2"    , COV_WENDLAND2, 3, _tape_wendland2 }
+   {"Spherical"    , ECov::E_SPHERICAL, 3, _tape_spherical },
+   {"Cubic"        , ECov::E_CUBIC,     3, _tape_cubic     },
+   {"Triangle"     , ECov::E_TRIANGLE,  1, _tape_triangle  },
+   {"Pentamodel"   , ECov::E_PENTA,     3, _tape_penta     },
+   {"Storkey"      , ECov::E_STORKEY,   1, _tape_storkey   },
+   {"Wendland1"    , ECov::E_WENDLAND1, 3, _tape_wendland1 },
+   {"Wendland2"    , ECov::E_WENDLAND2, 3, _tape_wendland2 }
   };
   return DEF_TAPES[rank];
 }

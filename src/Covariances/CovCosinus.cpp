@@ -14,7 +14,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovCosinus::CovCosinus(const CovContext& ctxt)
-: ACovFunc(COV_COSINUS, ctxt)
+: ACovFunc(ECov::COSINUS, ctxt)
 {
 }
 

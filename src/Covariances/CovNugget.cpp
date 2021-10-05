@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovNugget::CovNugget(const CovContext& ctxt)
-: ACovFunc(COV_NUGGET, ctxt)
+: ACovFunc(ECov::NUGGET, ctxt)
 {
 }
 

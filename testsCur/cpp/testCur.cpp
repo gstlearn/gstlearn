@@ -3,6 +3,7 @@
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
+#include "Covariances/ECov.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_e.h"
 
@@ -67,7 +68,6 @@ int main(int argc, char *argv[])
   int    flag_int_1d,flag_int_2d,flag_rotation,order;
   double scale,parmax;
   char   cova_name[STRING_LENGTH];
-  ENUM_COVS type;
   std::string cov_name;
 
   /* Initializations */
@@ -80,12 +80,13 @@ int main(int argc, char *argv[])
 
   SpaceRN space = SpaceRN(ndim);
   CovContext ctxt = CovContext(1, order, 0., &space);
-  if (!CovFactory::identifyCovariance(cov_name, &type, ctxt))
+  ECov type = CovFactory::identifyCovariance(cov_name, ctxt);
+  if (type == ECov::UNKNOWN)
     return 1;
 
   /* Asking for complementary information */
 
-  model_cova_characteristics(type,cova_name,
+  model_cova_characteristics(type, cova_name,
                              &flag_range,&flag_param,&min_order,&max_ndim,
                              &flag_int_1d,&flag_int_2d,
                              &flag_aniso,&flag_rotation,&scale,&parmax);
@@ -112,7 +113,7 @@ int main(int argc, char *argv[])
   ///////////////////////
   // Creating the Model
   Model model = Model(&workingDbc);
-  CovAniso cova = CovAniso(COV_BESSEL_K,model.getContext());
+  CovAniso cova = CovAniso(ECov::BESSEL_K,model.getContext());
   cova.setRanges({4,45});
   model.addCova(&cova);
 

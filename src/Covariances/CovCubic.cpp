@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovCubic::CovCubic(const CovContext& ctxt)
-: ACovFunc(COV_CUBIC, ctxt)
+: ACovFunc(ECov::CUBIC, ctxt)
 {
 }
 

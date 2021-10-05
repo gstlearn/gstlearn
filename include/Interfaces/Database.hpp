@@ -37,22 +37,22 @@ public:
   unsigned int         getNSamples() const;
   unsigned int         getNVars() const;
   VectorString         getNames() const;
-  unsigned int         getNVarRole(Roles role) const;
-  Roles                getRole(int ivar) const;
+  unsigned int         getNVarRole(ERoles role) const;
+  ERoles                getRole(int ivar) const;
   int                  getIVar(const String& name) const;
-  std::pair<Roles,int> getRoleAndIRole(const String& name) const;
-  String               getName(Roles role, int i_role) const;
+  std::pair<ERoles,int> getRoleAndIRole(const String& name) const;
+  String               getName(ERoles role, int i_role) const;
   VectorDouble         getValuesByName(const String& name);
   AVariable*           getVariable(int ivar);
 
   const ParamGrid& getParamGrid() const { return _pgrid; }
 
   ES setName(int iatt, const String& name);
-  ES setRole(const VectorString& names, Roles role);
+  ES setRole(const VectorString& names, ERoles role);
   
   ES addVar(const String& name,const VectorDouble& val);
   ES delVar(const String& name);
-  ES eraseRole(Roles role);
+  ES eraseRole(ERoles role);
   ES select(const String& name, const VectorBool& sel);
   
   void printRoles();
@@ -62,7 +62,7 @@ public:
   int nameIdentify(const String& name) const;
   int getGridSize() const;
   void reset();
-  bool roleExist(Roles role);
+  bool roleExist(ERoles role);
 
 #ifdef _USE_NETCDF
   bool serialize(const String& str) const;
@@ -72,19 +72,19 @@ public:
   ES addVar( AVariable* var); //:WARNING:: can't use this function in python
 
 private:
-  ES    addVar(AVariable* var, Roles role);
+  ES    addVar(AVariable* var, ERoles role);
   int   getNbCoord();
   bool  nameExist(const String& name) const;
   ES    indexOOR(int i) const;
 
-  void  changeKey(std::multimap<Roles,String>::iterator it, Roles new_role);
-  std::multimap<Roles,String>::const_iterator getItRole(const String& name) const;
+  void  changeKey(std::multimap<ERoles,String>::iterator it, ERoles new_role);
+  std::multimap<ERoles,String>::const_iterator getItRole(const String& name) const;
 
 private:
   ParamGrid   _pgrid;
   bool        _isGrid;
   std::vector<AVariable*> _vars;
-  std::multimap<Roles,String> _roles; //order have an importance
+  std::multimap<ERoles,String> _roles; //order have an importance
 
 };
 

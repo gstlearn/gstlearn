@@ -12,6 +12,14 @@
 
 #include "Basic/AStringable.hpp"
 
+// TODO : add Namespace
+
+String toUpper(const String& string);
+String toLower(const String& string);
+
+void toUpper(String& string);
+void toLower(String& string);
+
 bool matchKeyword(const String& string1,
                   const String& string2,
                   bool caseSensitive = true);
@@ -53,7 +61,9 @@ VectorString separateKeywords(const String& code);
 int toInt(const String& code);
 String intToString(int value);
 String realToString(double value);
+// TODO : add const ref
 String suppressTrailingBlanks(String value);
 String suppressLeadingBlanks(String value);
 String suppressAnyBlanks(String value);
+
 

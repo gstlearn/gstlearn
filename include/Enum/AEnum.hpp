@@ -29,7 +29,8 @@ public:
   const std::string& getDescr() const { return _descr; }
 
 #ifndef SWIG
-  operator int() const { return _value; }
+  // Remove this: too much dangerous (implicit casts)
+  //operator int() const { return _value; }
 #endif
 
   bool operator< (const AEnum& e) const { return getValue() <  e.getValue(); }

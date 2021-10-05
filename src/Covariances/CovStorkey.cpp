@@ -14,7 +14,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovStorkey::CovStorkey(const CovContext& ctxt)
-: ACovFunc(COV_STORKEY, ctxt)
+: ACovFunc(ECov::STORKEY, ctxt)
 {
 }
 

@@ -14,7 +14,7 @@
 #include "Covariances/CovContext.hpp"
 
 CovSincard::CovSincard(const CovContext& ctxt)
-: ACovFunc(COV_SINCARD, ctxt)
+: ACovFunc(ECov::SINCARD, ctxt)
 {
 }
 

@@ -23,6 +23,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Covariances/ECov.hpp"
 #include "Space/SpaceRN.hpp"
 
 class Model;
@@ -70,7 +71,7 @@ public:
   const CovAniso* getCova(unsigned int icov)       const { return _covaList->getCova(icov); }
   CovAniso* getCova(unsigned int icov)                   { return _covaList->getCova(icov); }
   int getCovaNumber()                              const { return _covaList->getCovNumber(); }
-  ENUM_COVS getCovaType(int icov)                  const { return _covaList->getType(icov); }
+  const ECov& getCovaType(int icov)                const { return _covaList->getType(icov); }
   const MatrixCSSym& getSill(int icov)             const { return _covaList->getSill(icov); }
   double getSill(int icov, int ivar, int jvar)     const { return _covaList->getSill(icov, ivar, jvar); }
   double getParam(int icov)                        const { return _covaList->getParam(icov); }
@@ -154,6 +155,7 @@ public:
                     VectorDouble codir = VectorDouble(),
                     int norder = 0);
 
+  // TODO : Remove Model::fit duplicate declaration
   int fit(Vario *vario,
           const std::vector<int>& types,
           bool verbose = false,
@@ -161,7 +163,7 @@ public:
           const Constraints& constraints = Constraints(),
           Option_VarioFit optvar = Option_VarioFit());
   int fit(Vario *vario,
-          const std::vector<ENUM_COVS>& types,
+          const std::vector<ECov>& types,
           bool verbose = false,
           Option_AutoFit mauto = Option_AutoFit(),
           const Constraints& constraints = Constraints(),

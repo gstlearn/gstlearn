@@ -197,7 +197,7 @@ int Model::hasExternalCov() const
 {
   for (int icov=0; icov<(int) _covaList->getCovNumber(); icov++)
   {
-    if (_covaList->getType(icov) == COV_FUNCTION) return 1;
+    if (_covaList->getType(icov) == ECov::FUNCTION) return 1;
   }
   return 0;
 }
@@ -332,13 +332,15 @@ VectorDouble Model::sample(double hmax,
 
 /**
  * Automatic Fitting procedure
- * @param vario   Experimental variogram to be fitted
- * @param types   Vector of ENUM_COVS (treated as 'int' due to compiler problem)
- * @param verbose Verbose option
- * @param mauto   Special parameters for Automatic fitting procedure
+ *
+ * @param vario       Experimental variogram to be fitted
+ * @param types       Vector of ECov integer values (treated as 'int' due to compiler problem)
+ * @param verbose     Verbose option
+ * @param mauto       Special parameters for Automatic fitting procedure
  * @param constraints Set of Constraints
  * @param optvar      Set of options
- * @return
+ *
+ * @return 0 if no error, 1 otherwise
  */
 int Model::fit(Vario *vario,
                const std::vector<int>& types,
@@ -358,7 +360,7 @@ int Model::fit(Vario *vario,
   _ctxt = CovContext(vario);
   for (int is = 0; is < (int) types.size(); is++)
   {
-    ENUM_COVS covtype = ENUM_COVS(types[is]);
+    ECov covtype = ECov::fromValue(types[is]);
     CovAniso cov = CovAniso(covtype,_ctxt);
     addCova(&cov);
   }
@@ -366,8 +368,20 @@ int Model::fit(Vario *vario,
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
 }
 
+/**
+ * Automatic Fitting procedure
+ *
+ * @param vario       Experimental variogram to be fitted
+ * @param types       Vector of ECov
+ * @param verbose     Verbose option
+ * @param mauto       Special parameters for Automatic fitting procedure
+ * @param constraints Set of Constraints
+ * @param optvar      Set of options
+ *
+ * @return 0 if no error, 1 otherwise
+ */
 int Model::fit(Vario *vario,
-               const std::vector<ENUM_COVS>& types,
+               const std::vector<ECov>& types,
                bool verbose,
                Option_AutoFit mauto,
                const Constraints& constraints,
@@ -458,7 +472,7 @@ int Model::deSerialize(const String& filename, bool verbose)
 
     if (isFlagGradient())
     {
-      CovGradientNumerical covgrad((ENUM_COVS) type, getContext());
+      CovGradientNumerical covgrad(ECov::fromValue(type), getContext());
       covgrad.setParam(param);
       if (flag_aniso)
       {
@@ -471,7 +485,7 @@ int Model::deSerialize(const String& filename, bool verbose)
     }
     else
     {
-      CovAniso cova((ENUM_COVS) type, getContext());
+      CovAniso cova(ECov::fromValue(type), getContext());
       cova.setParam(param);
       if (flag_aniso)
       {
@@ -529,7 +543,7 @@ int Model::deSerialize(const String& filename, bool verbose)
   // Set the default function for calculations
   generic_cov_function = model_calcul_cov_direct;
 
-      // Close the file
+  // Close the file
   _fileClose(verbose);
 
   return 0;
@@ -556,7 +570,7 @@ int Model::serialize(const String& filename, bool verbose) const
   for (int icova = 0; icova < getCovaNumber(); icova++)
   {
     const CovAniso* cova = getCova(icova);
-    _recordWrite("%d",  cova->getType());
+    _recordWrite("%d",  cova->getType().getValue());
     _recordWrite("%lf", cova->getRange());
     _recordWrite("%lf", cova->getParam());
     _recordWrite("#", "Covariance characteristics");

@@ -16,7 +16,7 @@
 #define MAXTAB 100
 
 CovBesselJ::CovBesselJ(const CovContext& ctxt)
-: ACovFunc(COV_BESSEL_J, ctxt)
+: ACovFunc(ECov::BESSEL_J, ctxt)
 {
   setParam(1);
 }

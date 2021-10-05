@@ -27,7 +27,7 @@ class Rotation;
 class CovGradientNumerical: public ACovGradient
 {
 public:
-  CovGradientNumerical(const ENUM_COVS& type, const CovContext& ctxt);
+  CovGradientNumerical(const ECov& type, const CovContext& ctxt);
   CovGradientNumerical(const CovGradientNumerical& r);
   CovGradientNumerical& operator=(const CovGradientNumerical& r);
   virtual ~CovGradientNumerical();
