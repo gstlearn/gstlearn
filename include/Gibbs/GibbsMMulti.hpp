@@ -10,14 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include "Gibbs/AGibbs.hpp"
+#include "Gibbs/GibbsMulti.hpp"
 #include "Basic/Vector.hpp"
 
 class Db;
 class Model;
 class Neigh;
 
-class GibbsMoving : public AGibbs
+class GibbsMMulti : public GibbsMulti
 {
 private:
   struct GibbsWeights {
@@ -28,11 +28,11 @@ private:
   }; // Per sample
 
 public:
-  GibbsMoving();
-  GibbsMoving(Db* db, Model* model, Neigh* neigh);
-  GibbsMoving(const GibbsMoving &r);
-  GibbsMoving& operator=(const GibbsMoving &r);
-  virtual ~GibbsMoving();
+  GibbsMMulti();
+  GibbsMMulti(Db* db, Model* model, Neigh* neigh);
+  GibbsMMulti(const GibbsMMulti &r);
+  GibbsMMulti& operator=(const GibbsMMulti &r);
+  virtual ~GibbsMMulti();
 
   void update(VectorVectorDouble& y,
               int isimu,

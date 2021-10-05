@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   Option_AutoFit mauto;
   Option_VarioFit options;
   Constraints constraints;
-  int       nbsimu,nbtuba,seed,flag_norm_sill,flag_goulard_used,ndim;
+  int       nbsimu,nbtuba,seed,flag_norm_sill,flag_goulard_used;
   static int verbose = 0;
 
   /* Initializations */
@@ -35,13 +35,11 @@ int main(int argc, char *argv[])
   vario = (Vario *) NULL;
   model = (Model *) NULL;
   flag_norm_sill = 0;
-  ndim = 0;
   flag_goulard_used = 1;
 
   /* Connect the Geoslib Library */
 
   if (setup_license("Demonstration")) goto label_end;
-  ASerializable::setSerializedContainerName("");
 
   /* Setup constants */
 
@@ -68,7 +66,6 @@ int main(int argc, char *argv[])
 
   ascii_filename("Grid",0,0,filename);
   dbout = ascii_db_read(filename,1,verbose);
-  if (dbout != nullptr) ndim = dbout->getNDim();
 
   /* Look for simulations */
 
@@ -80,15 +77,7 @@ int main(int argc, char *argv[])
   ascii_filename("Model",0,0,filename);
   model = ascii_model_read(filename,verbose);
   if (model == (Model *) NULL) goto label_end;
-  if (model != nullptr) ndim = model->getDimensionNumber();
   
-  /* Define the Default Space according to the Dimension of the Input Db */
-
-  if (ndim > 0)
-  {
-    if (! ASpaceObject::isSpaceDimensionValid(ndim)) goto label_end;
-  }
-
   /* Perform the non-conditional Simulation */
   
   if (dbout != (Db *) NULL) 

@@ -231,7 +231,10 @@ Vario::Vario(const String& neutralFileName, bool verbose)
       _flagAsym(false)
 {
   if (deSerialize(neutralFileName, verbose))
-    my_throw("Problem reading the Neutral File");
+  {
+    messerr("Problem reading the Neutral File");
+    messerr("The Variogram is not entirely defined");
+  }
 }
 
 Vario::Vario(const Vario& r)
@@ -1221,6 +1224,12 @@ int Vario::deSerialize(const String& filename, bool verbose)
   if (_recordRead("Number of Variables", "%d", &nvar)) goto label_end;
   if (_recordRead("Number of Variogram Directions", "%d", &ndir)) goto label_end;
   if (_recordRead("Scale", "%lf", &scale)) goto label_end;
+
+  if (! ASpaceObject::isSpaceDimensionValid(ndim))
+  {
+    messerr("Wrong space dimension in %s", filename.c_str());
+    return 1;
+  }
 
   /* Read the variances (optional) */
 

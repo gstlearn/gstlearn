@@ -12,10 +12,11 @@
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
 
-Table::Table()
+Table::Table(int nrows, int ncols)
   : ASerializable(),
     _stats()
 {
+  init (nrows, ncols);
 }
 
 Table::Table(const VectorVectorDouble& table)
@@ -83,25 +84,26 @@ VectorDouble Table::getRow(int irow) const
   return vec;
 }
 
-void Table::resize(int irow, int ncols)
+void Table::resize(int nrows, int ncols)
 {
-  int nrows = 0;
+  int nrows_cur = 0;
   if (isEmpty())
     _stats.resize(ncols);
   else
-    nrows = getRowNumber();
+    nrows_cur = getRowNumber();
 
-  if (irow >= nrows)
+  if (nrows >= nrows_cur)
   {
     int ncols = getColNumber();
     for (int icol = 0; icol < ncols; icol++)
-      _stats[icol].resize(irow);
+      _stats[icol].resize(nrows);
   }
 }
 
 double Table::getValue(int irow, int icol) const
 {
-  if (irow >= getRowNumber()) return 0.;
+  if (icol < 0 || icol >= getColNumber()) return 0.;
+  if (irow < 0 || irow >= getRowNumber()) return 0.;
   return _stats[icol][irow];
 }
 
@@ -213,9 +215,7 @@ void Table::display(int isimu) const
   for (int irow = 0; irow < nrows; irow++)
   {
     for (int icol = 0; icol < ncols; icol++)
-    {
       message(" %10.3lf",_stats[icol][irow]);
-    }
     message("\n");
   }
 }

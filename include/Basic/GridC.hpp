@@ -54,9 +54,9 @@ public:
   virtual String toString(int level = 0) const override;
 
   void    copyParams(int mode, const GridC& gridaux);
-  double  getCoordinate(int rank, int idim) const;
-  VectorDouble getCoordinate(int rank) const;
-  VectorDouble getCoordinate(const VectorInt& indice) const;
+  double  getCoordinate(int rank, int idim, bool flag_rotate=true) const;
+  VectorDouble getCoordinate(int rank, bool flag_rotate=true) const;
+  VectorDouble getCoordinate(const VectorInt& indice, bool flag_rotate=true) const;
   VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const;
   double indiceToCoordinate(int idim0,
                             const VectorInt& indice,

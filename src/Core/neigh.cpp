@@ -1229,7 +1229,7 @@ GEOSLIB_API void neigh_stop(void)
 **
 ** \param[in]  neigh  Neigh structure
 **
-** \param[out]  type        Neighborhood type (::ENUM_NEIGHS)
+** \param[out]  type        Neighborhood type
 ** \param[out]  nmini       Minimum number of points in the neighborhood (or 0)
 **                          (only used for ENeigh::MOVING)
 ** \param[out]  nmaxi       Maximum number of points in the neighborhood (or 0)

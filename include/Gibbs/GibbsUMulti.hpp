@@ -10,13 +10,13 @@
 /******************************************************************************/
 #pragma once
 
-#include "Gibbs/AGibbs.hpp"
+#include "Gibbs/GibbsMulti.hpp"
 #include "Basic/Vector.hpp"
 
 class Db;
 class Model;
 
-class GibbsUMulti : public AGibbs
+class GibbsUMulti : public GibbsMulti
 {
 public:
   GibbsUMulti();

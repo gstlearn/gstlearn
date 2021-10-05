@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
   /* Connect the Geoslib Library */
 
   if (setup_license("Demonstration")) return(0);
-  ASerializable::setSerializedContainerName("");
 
   /* Setup constants */
 

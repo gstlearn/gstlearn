@@ -10,40 +10,36 @@
 /******************************************************************************/
 #pragma once
 
-#include "Gibbs/GibbsMultiMono.hpp"
+#include "Gibbs/AGibbs.hpp"
 #include "Basic/Vector.hpp"
 
 class Db;
 class Model;
 
-/**
- * This class is designated for Gibbs with the following properties
- * - Unique (absent) Neighborhood
- * - Monovariate case only
- * - Propagation algorithm (no need to establish and invert Covariance matrix)
- * - No bound provided
- */
-class GibbsUPropMono : public GibbsMultiMono
+class GibbsMulti : public AGibbs
 {
 public:
-  GibbsUPropMono();
-  GibbsUPropMono(Db* db, std::vector<Model *> models, double rho);
-  GibbsUPropMono(const GibbsUPropMono &r);
-  GibbsUPropMono& operator=(const GibbsUPropMono &r);
-  virtual ~GibbsUPropMono();
+  GibbsMulti();
+  GibbsMulti(Db* db, Model* model);
+  GibbsMulti(const GibbsMulti &r);
+  GibbsMulti& operator=(const GibbsMulti &r);
+  virtual ~GibbsMulti();
 
-  void update(VectorVectorDouble& y,
-              int isimu,
-              int ipgs,
-              int iter) override;
-  int covmatAlloc(bool verbose) override;
+  int calculInitialize(VectorVectorDouble& y,
+                       int isimu,
+                       int ipgs,
+                       bool verbose);
+  double getSimulate(VectorVectorDouble& y,
+                     double yk,
+                     double sk,
+                     int iact,
+                     int ipgs,
+                     int ivar,
+                     int iter);
+  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
 
-  double getEps() const { return _eps; }
-  void setEps(double eps) { _eps = eps; }
-  double getRval() const { return _rval; }
-  void setRval(double rval) { _rval = rval; }
+  Model* getModel() const { return _model; } // protect using const asap
 
 private:
-  double _rval;
-  double _eps;
+  Model* _model;
 };

@@ -65,6 +65,8 @@ public:
 private:
   /// Unique and global space
   static ASpace* _globalSpace;
+  /// True if Global Space has been created by default
+  static bool _fakeSpace;
   /// Current space context
   const ASpace* _space;
 };

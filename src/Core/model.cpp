@@ -296,7 +296,7 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
 
   /* Initializations */
 
-  ModTrans& modtrs = model->getModTrans();
+  const ModTrans& modtrs = model->getModTrans();
   AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(modtrs.getAnam());
 
   /* Check if the distance is zero */
@@ -455,7 +455,7 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
 
   /* Initializations */
 
-  ModTrans& modtrs = model->getModTrans();
+  const ModTrans& modtrs = model->getModTrans();
   AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(modtrs.getAnam());
   ndim = model->getDimensionNumber();
 

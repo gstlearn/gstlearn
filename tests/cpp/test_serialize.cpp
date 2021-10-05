@@ -21,7 +21,7 @@
 int main(int argc, char *argv[])
 
 {
-  ASerializable::setSerializedPrefixName("TS-");
+  ASerializable::setPrefixName("TS-");
 
   // ===== Create the Db db1
   int nech = 20;

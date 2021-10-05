@@ -16,17 +16,23 @@
 #include "geoslib_f.h"
 
 GibbsUPropMono::GibbsUPropMono()
-  : AGibbs()
+  : GibbsMultiMono()
+  , _rval(0.5)
+  , _eps(EPSILON3)
 {
 }
 
-GibbsUPropMono::GibbsUPropMono(Db* db, Model* model)
-  : AGibbs(db, model)
+GibbsUPropMono::GibbsUPropMono(Db* db, std::vector<Model *> models, double rho)
+  : GibbsMultiMono(db, models, rho)
+  , _rval(0.5)
+  , _eps(EPSILON3)
 {
 }
 
 GibbsUPropMono::GibbsUPropMono(const GibbsUPropMono &r)
-  : AGibbs(r)
+  : GibbsMultiMono(r)
+  , _rval(0.5)
+  , _eps(r._eps)
 {
 }
 
@@ -35,6 +41,8 @@ GibbsUPropMono& GibbsUPropMono::operator=(const GibbsUPropMono &r)
   if (this != &r)
   {
     AGibbs::operator=(r);
+    _rval = r._rval;
+    _eps = r._eps;
   }
   return *this;
 }
@@ -55,6 +63,11 @@ GibbsUPropMono::~GibbsUPropMono()
 int GibbsUPropMono::covmatAlloc(bool verbose)
 {
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood in Propagative case");
+
+  // Initialize the statistics (optional)
+
+  statsInit();
+
   return 0;
 }
 
@@ -73,30 +86,24 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
                             int ipgs,
                             int iter)
 {
-  VectorUChar img;
-  VectorDouble d1, mean;
-  VectorInt nx;
   CovCalcMode mode;
 
   /* Initializations */
 
   Db* db = getDb();
-  Model* model = getModel();
+  Model* model = getModels(0);
   int nactive = db->getActiveSampleNumber();
   int ndim    = model->getDimensionNumber();
   int icase   = getRank(ipgs,0);
 
-  double sqr  = getSqr();
   double eps  = getEps();
-  double r    = 0.;
+  double r    = getRval();
+  double sqr  = sqrt(1. - r * r);
 
   /* Core allocation */
 
-  nx.resize(2);
-  nx[0] = nactive;
-  nx[1] = nactive;
-  d1.resize(ndim);
-  img = morpho_image_manage(nx);
+  VectorDouble d1(ndim);
+  VectorBool img(nactive * nactive);
 
   /* Print the title */
 
@@ -122,20 +129,19 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
     else
       model_calcul_cov(model, mode, 1, 1., d1, &sigval);
     if (sigval <= 0) continue;
-    double delta = (r - 1.) * y[icase][iact]
-        + sqrt(sigval) * sqr * law_gaussian();
+    sigval = sqrt(sigval);
+    double delta = (r - 1.) * y[icase][iact] + sigval * sqr * law_gaussian();
 
     /* Update the gaussian vector */
 
     for (int jact = 0; jact < nactive; jact++)
     {
-      if (iter > 0 && !bitmap_get_value(nx, img, iact, jact, 0)) continue;
+      if (iter > 0 && ! img[nactive * iact + jact]) continue;
       int jech = getSampleRank(jact);
 
       double sigloc;
       for (int idim = 0; idim < ndim; idim++)
-        d1[idim] = db->getCoordinate(iech, idim)
-            - db->getCoordinate(jech, idim);
+        d1[idim] = db->getCoordinate(iech, idim) - db->getCoordinate(jech, idim);
       if (model->isNoStat())
       {
         CovInternal covint(1, iech, 1, jech, ndim, db, db);
@@ -144,13 +150,13 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
       else
         model_calcul_cov(model, mode, 1, 1., d1, &sigloc);
 
-      int flag_affect = (ABS(sigloc) > sigval * eps);
-      if (iter <= 0) bitmap_set_value(nx, img, iact, jact, 0, flag_affect);
+      bool flag_affect = (ABS(sigloc) > sigval * eps);
+      if (iter <= 0) img[nactive * iact + jact] = flag_affect;
       if (flag_affect) y[icase][jact] += delta * sigloc / sigval;
     }
   }
 
   // Update statistics (optional)
 
-  updateStats(y, ipgs, iter);
+  updateStats(y, isimu, ipgs, iter);
 }

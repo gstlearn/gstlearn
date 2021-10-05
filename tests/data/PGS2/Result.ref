@@ -140,33 +140,33 @@ Data Base Statistics
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      2.055
- Standard Deviation  =      0.867
- Variance            =      0.752
+ Mean value          =      2.248
+ Standard Deviation  =      0.866
+ Variance            =      0.750
 3 - Name Facies.1.2 - Locator facies2
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.700
- Standard Deviation  =      0.668
- Variance            =      0.446
+ Mean value          =      1.851
+ Standard Deviation  =      0.744
+ Variance            =      0.553
 4 - Name Facies.1.3 - Locator facies3
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.639
- Standard Deviation  =      0.557
- Variance            =      0.310
+ Mean value          =      1.298
+ Standard Deviation  =      0.604
+ Variance            =      0.365
 5 - Name Facies.1.4 - Locator facies4
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.795
- Standard Deviation  =      0.823
- Variance            =      0.678
+ Mean value          =      2.506
+ Standard Deviation  =      0.599
+ Variance            =      0.358
 
 Data Base Contents
 ------------------

@@ -190,11 +190,11 @@ GEOSLIB_API int variogram_direction_add(VarioParam *varioparam,
                                         const VectorDouble& codir,
                                         const VectorInt&    grincr);
 GEOSLIB_API int variogram_cloud(Db *db,
-                                Vario *vario,
+                                const VarioParam *varioparam,
                                 Db *dbgrid,
                                 NamingConvention namconv = NamingConvention("Cloud"));
 GEOSLIB_API Db* db_variogram_cloud(Db *db,
-                                   Vario* vario,
+                                   const VarioParam* varioparam,
                                    double lagmax = TEST,
                                    double varmax = TEST,
                                    int lagnb = 100,

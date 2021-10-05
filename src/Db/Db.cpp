@@ -293,7 +293,8 @@ Db::Db(const String& neutralFileName, bool verbose)
 {
   if (deSerialize(neutralFileName, verbose))
   {
-    messerr("Problem reading the Neutral File. May be it's a data file. In that case, use the CSVformat constructor.");
+    messerr("Problem reading the Neutral File.");
+    messerr("The Db is not entirely created");
     reset(0,0);
   }
 }
@@ -937,12 +938,19 @@ void Db::getSampleCoordinates(int iech, VectorDouble& coor) const
     coor[idim] = getCoordinate(iech, idim);
 }
 
-double Db::getCoordinate(int iech, int idim) const
+/**
+ * Return the coordinate of a sample along one Space Dimension
+ * @param iech Rank of the sample
+ * @param idim Rank of the Space Dimension
+ * @param flag_rotate Use the rotation (only for Grid)
+ * @return
+ */
+double Db::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
   if (idim >= getNDim()) return TEST;
   if (isGrid())
   {
-    return _grid.getCoordinate(iech, idim);
+    return _grid.getCoordinate(iech, idim, flag_rotate);
   }
   else
   {
@@ -950,10 +958,10 @@ double Db::getCoordinate(int iech, int idim) const
   }
 }
 
-void Db::getCoordinate(int iech, VectorDouble& coor) const
+void Db::getCoordinate(int iech, VectorDouble& coor, bool flag_rotate) const
 {
   for (int idim = 0; idim < getNDim(); idim++)
-    coor[idim] = getCoordinate(iech, idim);
+    coor[idim] = getCoordinate(iech, idim, flag_rotate);
 }
 
 double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
@@ -3053,7 +3061,14 @@ VectorDouble Db::getFields(const VectorString& names, bool useSel) const
   return getFieldsByAttribute(iatts, useSel);
 }
 
-VectorDouble Db::getCoordinate(int idim, bool useSel) const
+/**
+ * Returns the vector of coordinates along a given Space Dimension
+ * @param idim    Rank of the Space dimension
+ * @param useSel  Use the Data Selection
+ * @param flag_rotate Flag for rotation (only for Grid)
+ * @return
+ */
+VectorDouble Db::getCoordinate(int idim, bool useSel, bool flag_rotate) const
 {
   int nech = getSampleNumber();
   VectorDouble tab, sel;
@@ -3067,7 +3082,7 @@ VectorDouble Db::getCoordinate(int idim, bool useSel) const
     bool defined = true;
     if (useSel && !sel.empty()) defined = (sel[iech] == 1);
     if (!defined) continue;
-    tab[ecr] = getCoordinate(iech, idim);
+    tab[ecr] = getCoordinate(iech, idim, flag_rotate);
     ecr++;
   }
 

@@ -211,10 +211,10 @@ public:
   VectorDouble getSampleCoordinates(int iech) const;
   void   getSampleCoordinates(int iech, VectorDouble& coor) const;
 
-  double getCoordinate(int iech, int idim) const;
-  void   getCoordinate(int iech, VectorDouble& coor) const;
+  double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
+  void   getCoordinate(int iech, VectorDouble& coor, bool flag_rotate=true) const;
   void   setCoordinate(int iech, int idim, double value);
-  VectorDouble getCoordinate(int idim, bool useSel = false) const;
+  VectorDouble getCoordinate(int idim, bool useSel = false, bool flag_rotate = true) const;
   double getDistance1D(int iech, int jech, int idim, bool flagAbs = false) const;
 
   VectorVectorDouble getCoordinates(bool useSel = false) const;
@@ -470,6 +470,10 @@ public:
   void setX0(int idim, double value) { _grid.setX0(idim, value); }
   void setDX(int idim, double value) { _grid.setDX(idim, value); }
   VectorDouble getGridAxis(int idim) const { return _grid.getAxis(idim); }
+  VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const
+  {
+    return _grid.getCoordinateFromCorner(icorner);
+  }
   int coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const
   {
     return _grid.coordinateToRank(coor,eps);

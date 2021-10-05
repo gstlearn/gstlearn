@@ -3919,6 +3919,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   Situba *situba;
   Model  *models[2];
   PropDef  *propdef;
+  std::vector<Model *> modvec;
 
   /* Initializations */
 
@@ -3988,6 +3989,7 @@ GEOSLIB_API int simpgs(Db *dbin,
     }
     if (model_stabilize(models[igrf],1,percent)) goto label_end;
     if (model_normalize(models[igrf],1)) goto label_end;
+    modvec.push_back(models[igrf]);
   }
 
   /* Neighborhood */
@@ -4076,17 +4078,13 @@ GEOSLIB_API int simpgs(Db *dbin,
     int npgs = 1;
     int ipgs = 0;
 
-    // Constitute a multivariate model
-    Model* multi_model = model_combine(models[0],models[1],rule->getRho());
-
-    // Create the Gibbs sampler
-    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, multi_model, nullptr,
-                                              true, false);
+    // Create the Gibbs sampler (multi-mono case)
+    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, modvec, rule->getRho(), false);
 
     /* Initialize the Gibbs calculations */
 
     gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true, true,
-                rule->getRho(), gibbs_eps);
+                rule->getRho());
       
     /* Allocate the covariance matrix inverted */
   
@@ -4123,7 +4121,6 @@ GEOSLIB_API int simpgs(Db *dbin,
 
       gibbs->storeResult(y, isimu, ipgs);
     }
-    multi_model = model_free(multi_model);
   }
 
   /***************************************************/
@@ -4291,6 +4288,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   bool    verbose;
   Rule   *rules[2];
   Model  *models[2][2];
+  std::vector<Model *> modvec[2];
   Situba *situba;
   PropDef  *propdef;
 
@@ -4391,6 +4389,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
       }
       if (model_stabilize(models[ipgs][igrf],1,percent)) goto label_end;
       if (model_normalize(models[ipgs][igrf],1)) goto label_end;
+
+      modvec[ipgs].push_back(models[ipgs][igrf]);
     }
   }
 
@@ -4516,20 +4516,14 @@ GEOSLIB_API int simbipgs(Db       *dbin,
     if (flag_cond)
     {
 
-      // Build a bivariate temporary model
-
-      Model* multi_model = model_combine(models[ipgs][0],models[ipgs][1],
-                                         rules[ipgs]->getRho());
-
       // Create the Gibbs sampler
 
-      AGibbs* gibbs = GibbsFactory::createGibbs(dbin, multi_model,
-                                                nullptr, true, false);
+      AGibbs* gibbs = GibbsFactory::createGibbs(dbin, modvec[ipgs], rules[ipgs]->getRho(), false);
 
       /* Initialize the Gibbs calculations */
 
-      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter, 0, true, true,
-                  rules[ipgs]->getRho(), gibbs_eps);
+      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter,
+                  0, true, true, rules[ipgs]->getRho());
 
       /* Allocate the covariance matrix inverted */
 
@@ -4569,7 +4563,6 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
         gibbs->storeResult(y, isimu, ipgs);
       }
-      multi_model = model_free(multi_model);
       
       /* Convert gaussian to facies on data point */
       
@@ -4905,14 +4898,22 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   /*****************/
   
   {
-    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, neigh,
-                                              flag_multi_mono,flag_propagation);
+    AGibbs *gibbs;
+    if (flag_multi_mono)
+      gibbs = GibbsFactory::createGibbs(dbin, model, neigh);
+    else
+    {
+      std::vector<Model *> modvec;
+      modvec.push_back(model);
+      gibbs = GibbsFactory::createGibbs(dbin, modvec, 0., flag_propagation);
+    }
+    if (gibbs == nullptr) goto label_end;
     gibbs->setOptionStats(gibbs_optstats);
 
     /* Initialize the Gibbs calculations */
 
     gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter,
-                0, false, true, 0., gibbs_eps);
+                0, false, true, 0.);
 
     /* Allocate the covariance matrix inverted */
 
@@ -4938,7 +4939,6 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
       for (int iter = 0; iter < gibbs->getNiter(); iter++)
         gibbs->update(y, isimu, ipgs, iter);
-
       if (verbose) gibbs->print(false,y,isimu,ipgs);
 
       // Store the results
@@ -5984,12 +5984,11 @@ GEOSLIB_API int simcond(Db    *dbin,
   /*****************/
 
   {
-    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, nullptr, false, false);
+    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, nullptr);
 
     /* Initialize the Gibbs calculations */
 
-    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, false, true,
-                0., gibbs_eps);
+    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, false, true, 0.);
 
     /* Allocate the covariance matrix inverted */
 

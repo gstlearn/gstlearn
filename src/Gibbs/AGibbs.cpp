@@ -9,7 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Gibbs/AGibbs.hpp"
-#include "Model/Model.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
@@ -23,60 +22,45 @@ AGibbs::AGibbs()
       _nburn(1),
       _niter(1),
       _flagOrder(true),
-      _flagMultiMono(true),
       _flagDecay(true),
       _optionStats(0),
-      _rho(1.),
-      _sqr(0.),
-      _eps(EPSILON3),
       _ranks(),
       _db(nullptr),
-      _model(nullptr),
       _stats()
 {
 }
 
-AGibbs::AGibbs(Db* db, Model* model)
+AGibbs::AGibbs(Db* db)
     : _npgs(1),
       _nvar(1),
       _nburn(1),
       _niter(1),
       _flagOrder(true),
-      _flagMultiMono(true),
       _flagDecay(true),
       _optionStats(0),
-      _rho(1.),
-      _sqr(0.),
-      _eps(EPSILON3),
       _ranks(),
       _db(db),
-      _model(model),
       _stats()
 {
 }
 
-AGibbs::AGibbs(Db* db, Model* model,
+AGibbs::AGibbs(Db* db,
                int npgs, int nvar, int nburn, int niter,
                int flag_order, bool flag_multi_mono, bool flag_decay,
-               double rho, double eps)
+               double rho)
     : _npgs(1),
       _nvar(1),
       _nburn(1),
       _niter(1),
       _flagOrder(false),
-      _flagMultiMono(true),
       _flagDecay(true),
       _optionStats(0),
-      _rho(1.),
-      _sqr(0.),
-      _eps(eps),
       _ranks(),
       _db(db),
-      _model(model),
       _stats()
 {
   init(npgs, nvar, nburn, niter,
-       flag_order, flag_multi_mono, flag_decay, rho, eps);
+       flag_order, flag_multi_mono, flag_decay, rho);
 }
 
 AGibbs::AGibbs(const AGibbs &r)
@@ -85,15 +69,10 @@ AGibbs::AGibbs(const AGibbs &r)
       _nburn(r._nburn),
       _niter(r._niter),
       _flagOrder(r._flagOrder),
-      _flagMultiMono(r._flagMultiMono),
       _flagDecay(r._flagDecay),
       _optionStats(r._optionStats),
-      _rho(r._rho),
-      _sqr(r._sqr),
-      _eps(r._eps),
       _ranks(r._ranks),
       _db(r._db),
-      _model(r._model),
       _stats(r._stats)
 {
 }
@@ -107,15 +86,10 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
     _nburn = r._nburn;
     _niter = r._niter;
     _flagOrder = r._flagOrder;
-    _flagMultiMono = r._flagMultiMono;
     _flagDecay = r._flagDecay;
     _optionStats = r._optionStats;
-    _rho = r._rho;
-    _sqr = r._sqr;
-    _eps = r._eps;
     _ranks = r._ranks;
     _db = r._db;
-    _model = r._model;
     _stats = r._stats;
   }
   return *this;
@@ -132,98 +106,17 @@ void AGibbs::init(int npgs,
                   int flag_order,
                   bool flag_multi_mono,
                   bool flag_decay,
-                  double rho,
-                  double eps)
+                  double rho)
 {
   _npgs = npgs;
   _nvar = nvar;
   _nburn = nburn;
   _niter = niter;
   _flagOrder = flag_order;
-  _flagMultiMono = flag_multi_mono;
   _flagDecay = flag_decay;
-  _rho = rho;
-  _eps = eps;
-
-  // In the real multivariate scheme, the value of '_rho' is not significant
-  if (_flagMultiMono) _rho = 1.;
-  _sqr = sqrt(1. - _rho * rho);
 
   // Evaluate the array of active sample ranks
   _ranks = calculateSampleRanks();
-}
-
-/****************************************************************************/
-/*!
-**  Check/Show the facies against gaussian at wells
-**
-** \return Error return code
-**
-** \param[in]  y          Gaussian vector
-** \param[in]  isimu      Rank of the simulation
-** \param[in]  ipgs       Rank of the GS
-**
-*****************************************************************************/
-int AGibbs::checkGibbs(const VectorVectorDouble& y,
-                       int isimu,
-                       int ipgs)
-{
-  int nactive = _db->getActiveSampleNumber();
-  int nvar    = getNvar();
-  mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d Simu=%d)",
-           ipgs+1,isimu+1);
-
-  int nerror = 0;
-
-  /* Loop on the variables */
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    int icase   = getRank(ipgs,ivar);
-    int icase0  = getRank(ipgs,0);
-
-    /* Loop on the data */
-
-    for (int iact=0; iact<nactive; iact++)
-    {
-      int iech = getSampleRank(iact);
-      double vmin = _db->getLowerBound(iech,icase);
-      double vmax = _db->getUpperBound(iech,icase);
-      if (FFFF(vmin)) vmin = -1.e30;
-      if (FFFF(vmax)) vmax =  1.e30;
-
-      /* Read the gaussian value */
-
-      double gaus = y[icase][iact];
-      if (ivar > 0)
-        gaus = _sqr * gaus + _rho * y[icase0][iact];
-
-      /* Check inconsistency */
-
-      if ((! FFFF(vmin) && gaus < vmin) ||
-          (! FFFF(vmax) && gaus > vmax))
-      {
-        message("- Sample (#%d):",iech+1);
-        message(" Simu#%d of Y%d=%lf",isimu+1,ivar+1,gaus);
-        message(" does not lie within [");
-        if (FFFF(vmin))
-          message("NA,");
-        else
-          message("%lf",vmin);
-        message(";");
-        if (FFFF(vmax))
-         message("NA");
-        else
-          message("%lf",vmax);
-        message("]\n");
-        nerror++;
-      }
-    }
-  }
-
-  if (nerror <= 0) message("No problem found\n");
-
-  return nerror;
 }
 
 /****************************************************************************/
@@ -344,7 +237,6 @@ void AGibbs::print(bool flag_init,
   int nactive = _db->getActiveSampleNumber();
   int nvar    = getNvar();
 
-
   if (flag_init)
   {
     mestitle(1, "Gibbs Initial Status (Simu:%d - GS=%d)", isimu + 1, ipgs + 1);
@@ -440,131 +332,6 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
     _stats.plot(isimu);
 }
 
-/****************************************************************************/
-/*!
-**  Initializes the Gibbs sampler for a set of inequalities
-**
-** \return  Error return code
-**
-** \param[in]  y             Gaussian vector
-** \param[in]  isimu         Rank of the simulation
-** \param[in]  ipgs          Rank of the GS
-** \param[in]  verbose       Verbose flag
-**
-*****************************************************************************/
-int AGibbs::calculInitialize(VectorVectorDouble& y,
-                             int isimu,
-                             int ipgs,
-                             bool verbose)
-{
-  Db* db = getDb();
-  Model* model = getModel();
-  int nactive = db->getActiveSampleNumber();
-  int nvar    = getNvar();
-
-  /* Print the title */
-
-  if (debug_query("converge"))
-    mestitle(1,"Initial Values for Gibbs Sampler (Simu:%d - GS:%d)",
-             isimu+1,ipgs+1);
-
-  /* Loop on the variables */
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    int icase   = getRank(ipgs,ivar);
-
-    /* Loop on the samples */
-
-    double sk = sqrt(model->getTotalSill(ivar,ivar));
-    for (int iact = 0; iact < nactive; iact++)
-    {
-      int iech = getSampleRank(iact);
-      double vmin, vmax;
-      if (_boundsCheck(iech, ipgs, ivar, &vmin, &vmax)) return 1;
-
-      /* Compute the median value of the interval */
-
-      double pmin = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
-      double pmax = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
-      y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
-    }
-  }
-
-  // Re-initialize the statistics (optional)
-
-  if (_optionStats != 0) _stats.clear();
-
-  return(0);
-}
-
-/**
- * Generate a simulated value
- * @param y     : Gaussian vector
- * @param yk    : Kriged value
- * @param sk    : Standard deviation
- * @param iact  : Rank of the target sample (relative)
- * @param ipgs  : Rank of the current GS
- * @param ivar  : Rank of the current Variable
- * @param iter  : Rank of the iteration
- * @return Simulated value
- */
-double AGibbs::getSimulate(VectorVectorDouble& y,
-                           double yk,
-                           double sk,
-                           int iact,
-                           int ipgs,
-                           int ivar,
-                           int iter)
-{
-  // Define the environment
-
-  int icase = getRank(ipgs, ivar);
-  int iech = getSampleRank(iact);
-
-  // Read the Bounds
-
-  double vmin = _db->getLowerBound(iech, icase);
-  double vmax = _db->getUpperBound(iech, icase);
-
-  // Apply decay
-
-  if (_nburn > 0 && _flagDecay && iter <= _nburn)
-  {
-    double ratio = (double) iter / (double) _nburn;
-    if (!FFFF(vmin))
-      vmin = THRESH_INF + (vmin - THRESH_INF) * ratio;
-    if (!FFFF(vmax))
-      vmax = THRESH_SUP + (vmax - THRESH_SUP) * ratio;
-  }
-
-  // In multi-mono case, correct from the previously (linked) variable
-
-  double yval;
-  double sval;
-  if (_flagMultiMono && ivar > 0)
-  {
-    int icase0 = getRank(ipgs, 0);
-    double sqr = getSqr();
-    yval = yk * sqr + getRho() * y[icase0][iact];
-    sval = sk * sqr;
-  }
-  else
-  {
-    yval = yk;
-    sval = sk;
-  }
-
-  /* Update the definition interval */
-
-  if (!FFFF(vmin)) vmin = (vmin - yval) / sval;
-  if (!FFFF(vmax)) vmax = (vmax - yval) / sval;
-
-  /* Draw an authorized normal value */
-
-  return (yk + sk * law_gaussian_between_bounds(vmin, vmax));
-}
-
 VectorInt AGibbs::calculateSampleRanks() const
 {
   VectorInt ranks;
@@ -594,16 +361,12 @@ int AGibbs::getSampleRank(int i) const
 
 void AGibbs::updateStats(const VectorVectorDouble& y,
                          int ipgs,
-                         int niter,
+                         int jter,
                          double amort)
 {
   if (_optionStats == 0) return;
-
-  // Calculate the number of columns
-  int ncols = 2 * getDimension();
-
-  // Resize the statistics array
-  _stats.resize(niter+1, ncols);
+  if (jter < _nburn) return;
+  int iter = jter - _nburn;
 
   // Loop on the columns
 
@@ -612,24 +375,98 @@ void AGibbs::updateStats(const VectorVectorDouble& y,
 
     // Update statistics
 
+    int jcol;
     double result;
     int icol = getRank(ipgs, ivar);
     double residu = 1. - amort;
-    double oldw = (1. - pow(amort, (double) niter))   / residu;
-    double neww = (1. - pow(amort, (double) niter+1)) / residu;
+    double oldw   = (1. - pow(amort, (double) iter))   / residu;
+    double neww   = (1. - pow(amort, (double) iter+1)) / residu;
 
     // The mean
-    int jcol = 2 * icol;
-    double oldmean = _stats.getValue(niter-1, jcol);
+    jcol = _getColRankStats(ipgs, ivar, 0);
+    double oldmean = _stats.getValue(iter-1, jcol);
     double newmean = ut_vector_mean(y[icol]);
     result = (oldmean * oldw * amort + newmean) / neww;
-    _stats.update(niter, jcol, result);
+    _stats.update(iter, jcol, result);
 
     // The standard deviation
-    jcol ++;
-    double oldstdv = _stats.getValue(niter-1,jcol);
+    jcol = _getColRankStats(ipgs, ivar, 1);
+    double oldstdv = _stats.getValue(iter-1,jcol);
     double newstdv = ut_vector_stdv(y[icol]);
-    result = (oldstdv * niter + newstdv) / (niter+1.);
-    _stats.update(niter, jcol, result);
+    result = (oldstdv * iter + newstdv) / (iter+1.);
+    _stats.update(iter, jcol, result);
   }
 }
+
+/**
+ * Returns the number of Rows for storing the statistics
+ * This number is based on the number of iterations, exclusing the burnout
+ * @return
+ */
+int AGibbs::_getRowNumberStats() const
+{
+  int nrows = _niter - _nburn;
+  return nrows;
+}
+
+/**
+ * Returns the number of Columns for storing the statistics
+ * This number is based on:
+ * - the number of GS
+ * - the number of variables (or GRF)
+ * - the storage of mean and standard deviation
+ * @return
+ */
+int AGibbs::_getColNumberStats() const
+{
+  int ncols = 2 * getDimension();
+  return ncols;
+}
+
+/**
+ * Return the column for the storage of a value in Statistics
+ * @param ipgs  Rank of the GS
+ * @param ivar  Rank of the Variable or GRF
+ * @param mode  0 for Mean and 1 for Standard Deviation
+ * @return
+ */
+int AGibbs::_getColRankStats(int ipgs, int ivar, int mode) const
+{
+  int rank = getRank(ipgs, ivar);
+  if (mode == 0)
+    return (2 * rank);
+  else
+    return (2 * rank + 1);
+}
+
+/**
+ * Test wheter a constraint is tight at a sample (data is a hard data)
+ * @param ipgs  Rank of the GS
+ * @param ivar  Rank of the variable
+ * @param iech  Rank of the sample
+ * @param value Constraining value (if sample is an active constraint)
+ * @return
+ */
+bool AGibbs::isConstraintTight(int ipgs,
+                               int ivar,
+                               int iech,
+                               double* value) const
+{
+   int icase = getRank(ipgs, ivar);
+   double vmin = _db->getLowerBound(iech, icase);
+   double vmax = _db->getUpperBound(iech, icase);
+
+   bool isActive = ! FFFF(vmin) && ! FFFF(vmax) && vmin == vmax;
+   if (isActive)
+     *value = vmin;
+   else
+     *value = TEST;
+   return isActive;
+}
+
+void AGibbs::statsInit()
+{
+  if (_optionStats == 0) return;
+  _stats.init(_getRowNumberStats(), _getColNumberStats());
+}
+

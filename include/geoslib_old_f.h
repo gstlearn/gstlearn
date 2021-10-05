@@ -926,7 +926,7 @@
                                     int icol1,
                                     int icol2,
                                     Polygons *polygon);
-  GEOSLIB_API int variogram_cloud_dim(Db *db, Vario *vario, double *vmax);
+  GEOSLIB_API int variogram_cloud_dim(Db *db, const VarioParam *varioparam, double *vmax);
   GEOSLIB_API void variogram_cloud_ident(Db *db,
                                          Db *dbgrid,
                                          Vario *vario,

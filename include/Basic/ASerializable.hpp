@@ -44,11 +44,11 @@ protected:
   bool _onlyBlanks(char *string) const;
 
 public:
-  static String serializedFileIdentify(const String& filename);
-  static void setSerializedContainerName(const String& containerName);
-  static void setSerializedPrefixName(const String& prefixName);
-  static const String& getSerializedContainerName();
-  static const String& getSerializedPrefixName();
+  static String getFileIdentify(const String& filename);
+  static void setContainerName(bool useDefault, const String& containerName = String());
+  static void setPrefixName(const String& prefixName);
+  static const String& getContainerName();
+  static const String& getPrefixName();
 
 private:
   mutable String _fileName;
@@ -56,7 +56,6 @@ private:
   mutable FILE*  _file;
   mutable String _currentRecord;
 
-  static bool   myContainerIsSet;
   static String myContainerName;
   static String myPrefixName;
 };
