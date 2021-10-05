@@ -4,7 +4,7 @@
 #include "Interfaces/AParam.hpp" // ISA
 #include "Space/SpacePoint.hpp"  // HASA
 #include "Space/SpaceShape.hpp"  // HASA
-#include "Interfaces/interface_d.hpp" // USE enum (CalculRules)
+#include "Interfaces/interface_d.hpp" // USE enum (ECalcRules)
 #include <vector>          // USE
 
 /**********************************************************************
@@ -26,7 +26,7 @@ public:
   ParamVarioCond()
       : operCond(0),
         tol(0),
-        role(ROLE_NOROLE),
+        role(ERoles::NOROLE),
         iRole(0)
   {
   }
@@ -68,7 +68,7 @@ public:
   {
     tol = to;
   }
-  void setRole(Roles to)
+  void setRole(ERoles to)
   {
     role = to;
   }
@@ -91,7 +91,7 @@ public:
 
   int operCond;
   double tol;
-  Roles role;
+  ERoles role;
   int iRole;
 };
 
@@ -176,7 +176,7 @@ public:
   /********************************************************************
    ** Return operCond From first occurence of a Role in ParaVarioConds
    *********************************************************************/
-  int getFirstOperCond(Roles role) const
+  int getFirstOperCond(ERoles role) const
   {
     for (const auto& pvc : paramVarioConds)
     {
@@ -191,7 +191,7 @@ public:
   /********************************************************************
    ** Return tol for the first occurence of a Role in ParaVarioConds
    *********************************************************************/
-  int getFirstTol(Roles role) const
+  int getFirstTol(ERoles role) const
   {
     for (const auto& pvc : paramVarioConds)
     {
@@ -206,7 +206,7 @@ public:
   /********************************************************************
    ** Return nb  ParaVarioCond with a specific Role
    *********************************************************************/
-  int getNbCond(Roles role) const
+  int getNbCond(ERoles role) const
   {
     int res = 0;
     for (const auto& pvc : paramVarioConds)
@@ -259,7 +259,7 @@ public:
  ** Contain the following attribute:
  **
  **  std::vector<ParamVarioDir>  dirs  : Each Direction calculation Parameter
- **  CalculRules                 rules : Rule of calcul(Lag or Sample)
+ **  ECalcRules                  rules : Rule of calculation (Lag or Sample)
  **
  ** Default: No direction, User had to create at least one
  **          Variogram , by Lag.
@@ -270,7 +270,7 @@ public:
   ParamVario(const ASpace* space = nullptr)
       : ASpaceObject(space),
         dirs(),
-        rules(CALCUL_BY_LAG),
+        rules(ECalcRules::CALCUL_BY_LAG),
         useWeight(false)
   {
   }
@@ -336,7 +336,7 @@ public:
   }
 
   std::vector<ParamVarioDir> dirs;
-  CalculRules rules;
+  ECalcRules rules;
   bool useWeight; //:WARNING: unused
 };
 

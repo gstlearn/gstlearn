@@ -80,8 +80,8 @@ void ptg()
   v_z->setValues(v_doublez);
   dbp.addVar(v_z);
 
-  dbp.setRole({"Coord1","Coord2"}, ROLE_COORD);
-  dbp.setRole({"Z1"}, ROLE_Z);
+  dbp.setRole({"Coord1","Coord2"}, ERoles::COORD);
+  dbp.setRole({"Z1"}, ERoles::Z);
   migrate_point_to_grid2(dbp, dbg, "Z1", 0, VectorDouble());
   dbg.display();
 }
@@ -111,7 +111,7 @@ void gtp()
   v_coord2->setValues(v_double2);
   dbp.addVar(v_coord2);
 
-  dbp.setRole({"Coord1","Coord2"},ROLE_COORD);
+  dbp.setRole({"Coord1","Coord2"},ERoles::COORD);
   dbp.display(); 
   VectorDouble z = create_z(25);
   dbg.addVar("Z1",z);
@@ -183,8 +183,8 @@ void  serialize()
   var_string->setValues(val_string);
   dbp.addVar(var_string);
  
-  dbp.setRole({"Z1","int"},ROLE_COORD);
- // dbp.setRole({"string","bool"},ROLE_Z);
+  dbp.setRole({"Z1","int"},ERoles::COORD);
+ // dbp.setRole({"string","bool"},ERoles::Z);
   dbp.serialize("dbp.nc");
   dbp.deserialize("dbp.nc");
   dbp.display();
@@ -199,8 +199,8 @@ void vario(const std::string& file)
   ParamCSV pcsv(file,",",".",true,0);
   Database database(pcsv);
   
-  database.setRole({"x1","x2"},ROLE_COORD);
-  database.setRole({"Uniform","Simu"},ROLE_Z);
+  database.setRole({"x1","x2"},ERoles::COORD);
+  database.setRole({"Uniform","Simu"},ERoles::Z);
   
   //database.display();
 

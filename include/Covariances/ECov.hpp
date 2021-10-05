@@ -41,7 +41,6 @@
                  STORKEY,    23, "Storkey covariance in 1-D",\
                  WENDLAND1,  24, "Wendland covariance (first type)",\
                  WENDLAND2,  25, "Wendland covariance (second type)",\
-                 P8,         26, "Polynomial of degree 8",\
-                 MAX_COV,    27, "Maximum number of internal covariances (keep this at the end"
+                 P8,         26, "Polynomial of degree 8"
 
 ENUM_DECLARE(ENUM_COV)

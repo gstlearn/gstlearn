@@ -1,3 +1,4 @@
+#include "Interfaces/interface_d.hpp"
 #include "Interfaces/Database.hpp"
 #include "Interfaces/AVariable.hpp"
 #include "Interfaces/VariableDouble.hpp"
@@ -11,6 +12,10 @@
 
 #include "geoslib_enum.h"
 #include <cstddef>
+
+ENUM_DEFINE(ENUM_ROLES)
+
+ENUM_DEFINE(ENUM_CALC_RULES)
 
 Database::Database(const ASpace* space)
     : ASpaceObject(space),
@@ -29,7 +34,7 @@ Database::Database(const ASpace* space)
  *  @param[in] space  Contextual space pointer
  *
  *  @remark   Each Variable is add as VariableDouble
- *            roles are set to ROLE_NOROLE for each variable
+ *            roles are set to ERoles::NOROLE for each variable
  */
 
 Database::Database(const ParamCSV &pcsv, const ASpace* space)
@@ -71,7 +76,7 @@ Database::Database(const ParamCSV &pcsv, const ASpace* space)
     VariableDouble* new_var = new VariableDouble("");
     new_var->setValues(v_val);
     _vars.push_back(new_var);
-    _roles.insert(std::pair<Roles, String>(ROLE_NOROLE, names[i]));
+    _roles.insert(std::pair<ERoles, String>(ERoles::NOROLE, names[i]));
     (*_vars[i]).setName(names[i]);
     i++;
   }
@@ -152,7 +157,7 @@ Database& Database::operator=(const Database& ref)
  */
 bool Database::isConsistent(const ASpace* space) const
 {
-  return (getNVarRole(ROLE_COORD) == space->getNDim());
+  return (getNVarRole(ERoles::COORD) == space->getNDim());
 }
 
 String Database::toString(int level) const
@@ -204,7 +209,7 @@ VectorString Database::getNames() const
  *
  *  @param[in] role_ref : ENUM_ROLE
  */
-unsigned int Database::getNVarRole(Roles role_ref) const
+unsigned int Database::getNVarRole(ERoles role_ref) const
 {
   return (_roles.count(role_ref));
 }
@@ -224,13 +229,13 @@ AVariable* Database::getVariable(int ivar)
  *
  *  @param[in] ivar : indew of variable
  */
-Roles Database::getRole(int ivar) const
+ERoles Database::getRole(int ivar) const
 {
   for (auto r : _roles)
   {
     if (r.second.compare(_vars[ivar]->getName()) == 0) return (r.first);
   }
-  return (ROLE_NOROLE);
+  return (ERoles::NOROLE);
 }
 
 /**
@@ -256,18 +261,18 @@ int Database::getIVar(const String& name) const
  *
  *  @param[in] name: name of variable
  */
-std::pair<Roles, int> Database::getRoleAndIRole(const String& name) const
+std::pair<ERoles, int> Database::getRoleAndIRole(const String& name) const
 {
-  std::pair<Roles, int> res;
+  std::pair<ERoles, int> res;
 
   int ivar = getIVar(name);
-  Roles role = getRole(ivar);
+  ERoles role = getRole(ivar);
 
-  std::pair<std::multimap<Roles, String>::const_iterator,
-      std::multimap<Roles, String>::const_iterator> ret;
+  std::pair<std::multimap<ERoles, String>::const_iterator,
+      std::multimap<ERoles, String>::const_iterator> ret;
   ret = _roles.equal_range(role);
   int i = 0;
-  for (std::multimap<Roles, String>::const_iterator it = ret.first;
+  for (std::multimap<ERoles, String>::const_iterator it = ret.first;
       it != ret.second; ++it)
   {
     if (it->second.compare(name) == 0) res = std::make_pair(role, i);
@@ -282,9 +287,9 @@ std::pair<Roles, int> Database::getRoleAndIRole(const String& name) const
  *  @param[in] role: role of variable
  *  @param[in] i_role: Rank of the role
  */
-String Database::getName(Roles role, int i_role) const
+String Database::getName(ERoles role, int i_role) const
 {
-  std::multimap<Roles, String>::const_iterator res;
+  std::multimap<ERoles, String>::const_iterator res;
   res = _roles.find(role);
   int i = 0;
   while (i < i_role)
@@ -319,7 +324,7 @@ ES Database::addVar(const String& name, const VectorDouble& values)
  *
  *  @param[in]   var : variable to add.
  *
- *  \remark      role of the variable as set to ROLE_NOROLE
+ *  \remark      role of the variable as set to ERoles::NOROLE
  */
 /*:WARNING:: WHEN call to This function in python, cause a segfault in Db destructor:
  due to "delete(var)"*/
@@ -336,7 +341,7 @@ ES Database::addVar(AVariable* var)
   }
   //std::cout << "Adding variable of type:" << typeid(*var).name() << std::endl;
   _vars.push_back(var);
-  _roles.insert(std::pair<Roles, String>(ROLE_NOROLE, var->getName()));
+  _roles.insert(std::pair<ERoles, String>(ERoles::NOROLE, var->getName()));
   return (ES_NOERROR);
 }
 
@@ -345,12 +350,12 @@ ES Database::addVar(AVariable* var)
  *  private function , only use in Deserialization
 
  **/
-ES Database::addVar(AVariable* var, Roles role)
+ES Database::addVar(AVariable* var, ERoles role)
 {
   ES es = addVar(var);
 
   if (es == ES_NOERROR)
-    _roles.insert(std::pair<Roles, String>(role, var->getName()));
+    _roles.insert(std::pair<ERoles, String>(role, var->getName()));
 
   return (es);
 }
@@ -402,13 +407,13 @@ ES Database::delVar(const String& name)
  *  Order is important.
  *
  *  @param[in]  names : names of the variable that will be affected the Role
- *  @param[in]  role  : ENUM Roles , role given to the columns
+ *  @param[in]  role  : ENUM ERoles , role given to the columns
  */
-ES Database::setRole(const VectorString& names, Roles role)
+ES Database::setRole(const VectorString& names, ERoles role)
 {
   int iatt;
   eraseRole(role);
-  if (_isGrid && role == ROLE_COORD)
+  if (_isGrid && role == ERoles::COORD)
   {
     return (ES_PERMISSION_GRID_COORD);
   }
@@ -418,7 +423,7 @@ ES Database::setRole(const VectorString& names, Roles role)
     iatt = nameIdentify(name);
     if (iatt != -1)
     {
-      std::multimap<Roles, String>::iterator it = _roles.begin();
+      std::multimap<ERoles, String>::iterator it = _roles.begin();
       while (it != _roles.end())
       {
         if (name.compare(it->second) == 0)
@@ -440,36 +445,36 @@ ES Database::setRole(const VectorString& names, Roles role)
 
 /**
  * Find all the Variable that have the given role  ans set their role to
- * ROLE_NOROLE
+ * ERoles::NOROLE
  *
- *  @param[in]  role  : ENUM Roles , role to be erase
+ *  @param[in]  role  : ENUM ERoles , role to be erase
  *
- *  \remark     If Database is a grid and the role is ROLE_COORD, an error
- *              occur: Forbidden to  change or erase the ROLE_COORD for a grid
+ *  \remark     If Database is a grid and the role is ERoles::COORD, an error
+ *              occur: Forbidden to  change or erase the ERoles::COORD for a grid
  */
 
-ES Database::eraseRole(Roles role)
+ES Database::eraseRole(ERoles role)
 {
 
-  if (_isGrid && role == ROLE_COORD)
+  if (_isGrid && role == ERoles::COORD)
   {
     return (ES_PERMISSION_GRID_COORD);
   }
-  std::pair<std::multimap<Roles, String>::iterator,
-      std::multimap<Roles, String>::iterator> ret;
+  std::pair<std::multimap<ERoles, String>::iterator,
+      std::multimap<ERoles, String>::iterator> ret;
   ret = _roles.equal_range(role);
-  for (std::multimap<Roles, String>::iterator it = ret.first; it != ret.second;
+  for (std::multimap<ERoles, String>::iterator it = ret.first; it != ret.second;
       ++it)
   {
     String name = it->second;
     _roles.erase(it);
-    _roles.insert(std::pair<Roles, String>(ROLE_NOROLE, name));
+    _roles.insert(std::pair<ERoles, String>(ERoles::NOROLE, name));
   }
   return (ES_NOERROR);
 }
 
 /**
- *  Create a new VariableBool , which will have role ROLE_SEL (selection)
+ *  Create a new VariableBool , which will have role ERoles::SEL (selection)
  *
  *  @param[in]  name  : name given to the column created
  *  @param[in]  sel   : vector of boolean indicating the selection(True)
@@ -480,7 +485,7 @@ ES Database::select(const String& name, const VectorBool& sel)
   VariableBool* var_bool = new VariableBool(name);
   VectorString names = { name };
   addVar(var_bool);
-  setRole(names, ROLE_SEL);
+  setRole(names, ERoles::SEL);
   return (ES_NOERROR);
 }
 
@@ -490,9 +495,9 @@ ES Database::select(const String& name, const VectorBool& sel)
  *  @param[in]  name  : name of the Variable
  */
 
-std::multimap<Roles, String>::const_iterator Database::getItRole(const String& name) const
+std::multimap<ERoles, String>::const_iterator Database::getItRole(const String& name) const
 {
-  for (std::multimap<Roles, String>::const_iterator it = _roles.begin();
+  for (std::multimap<ERoles, String>::const_iterator it = _roles.begin();
       it != _roles.end(); ++it)
   {
     if (it->second.compare(name) == 0) return (it);
@@ -533,7 +538,7 @@ void Database::reset()
  * Check if at least One Variable as the Given Role
  *
  */
-bool Database::roleExist(Roles ref)
+bool Database::roleExist(ERoles ref)
 {
   if (_roles.find(ref) != _roles.end()) return (true);
   return (false);
@@ -626,7 +631,7 @@ Db* Database::toGeoslib() const
   VectorDouble vec;
   VectorDouble v;
   int irole, jrole, iatt = 0;
-  std::vector<VectorDouble> vec_role(ROLE_MAX);
+  std::vector<VectorDouble> vec_role(ERoles::getSize());
 
   // Concatenate all column in one vector
   for (const auto& var : _vars)
@@ -670,12 +675,12 @@ Db* Database::toGeoslib() const
   iatt = 0;
   for (auto r : _roles)
   {
-    if (r.first != ROLE_NOROLE) vec_role[r.first].push_back(getIVar(r.second));
+    if (r.first != ERoles::NOROLE) vec_role[r.first.getValue()].push_back(getIVar(r.second));
   }
 
   // assign those role in the create db
   irole = 0;
-  while (irole < ROLE_MAX)
+  while (irole < (int)(ERoles::getSize()))
   {
     if (!vec_role[irole].empty())
     {
@@ -714,7 +719,7 @@ void Database::fromGeoslib(Db* db)
   }
   VectorString lst_names = getNames();
   int j = 0;
-  //fill v_name with name of variable for each possible Roles.
+  //fill v_name with name of variable for each possible ERoles.
   while (j < MAXIMUM_LOC)
   {
     VectorString names_role;
@@ -725,7 +730,7 @@ void Database::fromGeoslib(Db* db)
       names_role.push_back(name);
       k++;
     }
-    setRole(names_role, (Roles) j);
+    setRole(names_role, ERoles::fromValue(j));
     j++;
   }
 }
@@ -738,7 +743,7 @@ void Database::printRoles()
   reset();
   for (const auto& role : _roles)
   {
-    std::cout << role.first << "    " << role.second << std::endl;
+    std::cout << role.first.getKey() << "    " << role.second << std::endl;
   }
 }
 
@@ -746,12 +751,12 @@ void Database::printRoles()
  * private
  * Function to change the role of one Variable.(change the key in the multimap)
  */
-void Database::changeKey(std::multimap<Roles, String>::iterator it,
-                         Roles new_role)
+void Database::changeKey(std::multimap<ERoles, String>::iterator it,
+                         ERoles new_role)
 {
-  std::multimap<Roles, String>::iterator itCopy = it;
+  std::multimap<ERoles, String>::iterator itCopy = it;
   _roles.erase(itCopy);
-  _roles.insert(std::pair<Roles, String>(new_role, it->second));
+  _roles.insert(std::pair<ERoles, String>(new_role, it->second));
 }
 
 /**
@@ -835,8 +840,8 @@ bool Database::serialize(const String& file_name) const
     for (int i = 0; i < (int)getNVars(); i++)
     {
       NcVar var = _vars[i]->serialize(sfc, dims);
-      std::pair<Roles,int> pair = getRoleAndIRole(_vars[i]->getName());
-      var.putAtt("role",ncInt ,(int)pair.first);
+      std::pair<ERoles,int> pair = getRoleAndIRole(_vars[i]->getName());
+      var.putAtt("role",ncInt ,(int)pair.first.getValue());
       var.putAtt("irole",ncInt, pair.second);
     }
     return(true);
@@ -870,7 +875,7 @@ bool Database::deserialize(const String& filename)
     VectorDouble vec_dx;
     VectorDouble vec_x0;
     VectorDouble vec_rot;
-    std::vector<std::vector<std::pair<int,int>>> info_roles(ROLE_MAX); // used after the treatment of all variable
+    std::vector<std::vector<std::pair<int,int>>> info_roles(ERoles::getSize()); // used after the treatment of all variable
     // vector of size ROLEMAX. each element concern a role
     // for each role, there is a vector containing the index of the variable and the index of role rank.
     auto vars = datafile.getVars();
@@ -924,12 +929,12 @@ bool Database::deserialize(const String& filename)
         att_irole = var.getAtt("irole");
         att_irole.getValues(&irole);
         std::cout <<role<< std::endl;
-        if (role != ROLE_NOROLE)
+        if (role != ERoles::NOROLE.getValue())
         info_roles[role].push_back(std::make_pair(ivar,irole));
 
         AVariable* v = AVariable::createVariable(type, vname);
         v->deserialize(datafile,var);
-        addVar(v,(Roles) role);
+        addVar(v, ERoles::fromValue(role));
         ivar++;
       }
     }
@@ -947,7 +952,7 @@ bool Database::deserialize(const String& filename)
         for (const auto& p: info_role)
         list_name.push_back(_vars[p.first]->getName());
         //setRole
-        setRole(list_name,(Roles) role);
+        setRole(list_name, ERoles::fromValue(role));
       }
     }
     // Create ParamGrid
