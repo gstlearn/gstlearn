@@ -12,6 +12,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovLMGradient.hpp"
+#include "Drifts/EDrift.hpp"
 
 /*! \cond */
 
@@ -427,7 +428,7 @@ static int st_update_model(Model   *model,
   int nbfl;
   
   nbfl = model->getDriftNumber();
-  if (model_is_drift_defined(model,DRIFT_1)) nbfl--;
+  if (model_is_drift_defined(model,EDrift::UC)) nbfl--;
   pot_env->order = model_maximum_order(model);
   pot_env->size_drf = nbfl;
   pot_env->next = pot_env->size_ext = model_nfex(model);
@@ -481,15 +482,15 @@ static int st_update_final(Model   *model,
   pos = pot_env->start_drf;
   for (int i=0; i<9; i++) TAB_DRF[i] = -1;
 
-  if (model_is_drift_defined(model,DRIFT_X))  TAB_DRF[0] = pos++;
-  if (model_is_drift_defined(model,DRIFT_Y))  TAB_DRF[1] = pos++;
-  if (model_is_drift_defined(model,DRIFT_Z))  TAB_DRF[2] = pos++;
-  if (model_is_drift_defined(model,DRIFT_X2)) TAB_DRF[3] = pos++;
-  if (model_is_drift_defined(model,DRIFT_Y2)) TAB_DRF[4] = pos++;
-  if (model_is_drift_defined(model,DRIFT_Z2)) TAB_DRF[5] = pos++;
-  if (model_is_drift_defined(model,DRIFT_XY)) TAB_DRF[6] = pos++;
-  if (model_is_drift_defined(model,DRIFT_XZ)) TAB_DRF[7] = pos++;
-  if (model_is_drift_defined(model,DRIFT_YZ)) TAB_DRF[8] = pos++;
+  if (model_is_drift_defined(model,EDrift::X))  TAB_DRF[0] = pos++;
+  if (model_is_drift_defined(model,EDrift::Y))  TAB_DRF[1] = pos++;
+  if (model_is_drift_defined(model,EDrift::Z))  TAB_DRF[2] = pos++;
+  if (model_is_drift_defined(model,EDrift::X2)) TAB_DRF[3] = pos++;
+  if (model_is_drift_defined(model,EDrift::Y2)) TAB_DRF[4] = pos++;
+  if (model_is_drift_defined(model,EDrift::Z2)) TAB_DRF[5] = pos++;
+  if (model_is_drift_defined(model,EDrift::XY)) TAB_DRF[6] = pos++;
+  if (model_is_drift_defined(model,EDrift::XZ)) TAB_DRF[7] = pos++;
+  if (model_is_drift_defined(model,EDrift::YZ)) TAB_DRF[8] = pos++;
  
   /* Optional output */
 

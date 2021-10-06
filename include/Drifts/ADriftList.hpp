@@ -12,6 +12,7 @@
 
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
+#include "Drifts/EDrift.hpp"
 
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
@@ -67,10 +68,10 @@ public:
   ////////////////////////////////////////////////
   const ADriftElem*  getDrift(int il) const;
   ADriftElem*        getDrift(int il); /// beurk :(
-  ENUM_DRIFTS        getType(int il) const;
+  const EDrift&      getType(int il) const;
   int                getRankFex(int il) const;
   String             getDriftName(int il) const;
-  void               setType(int il, ENUM_DRIFTS type);
+  void               setType(int il, const EDrift& type);
   ////////////////////////////////////////////////
 
   const VectorDouble& getCoefDrift() const { return _coefDrift; }

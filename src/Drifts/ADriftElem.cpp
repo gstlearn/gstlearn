@@ -13,8 +13,9 @@
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Drifts/EDrift.hpp"
 
-ADriftElem::ADriftElem(const ENUM_DRIFTS& type,
+ADriftElem::ADriftElem(const EDrift& type,
                        const CovContext& ctxt,
                        int rankFex)
     : ADrift(ctxt.getSpace()),
@@ -60,7 +61,7 @@ std::string ADriftElem::toString(int level) const
 {
   std::stringstream sstr;
   sstr << getDriftName();
-  if (getType() == DRIFT_F)
+  if (getType() == EDrift::F)
     sstr << " - Rank=" << getRankFex();
   return sstr.str();
 }

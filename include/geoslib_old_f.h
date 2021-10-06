@@ -1041,7 +1041,7 @@
                                  const VectorDouble& aniso_ranges,
                                  const VectorDouble& aniso_rotmat,
                                  const VectorDouble& coreg);
-  GEOSLIB_API int model_add_drift(Model *model, int type, int rank_fex);
+  GEOSLIB_API int model_add_drift(Model *model, const EDrift& type, int rank_fex);
   GEOSLIB_API int model_add_no_property(Model *model);
   GEOSLIB_API int model_add_convolution(Model *model,
                                         int type,
@@ -1227,7 +1227,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                           int ivar,
                                           double *coef,
                                           double *drftab);
-  GEOSLIB_API int model_is_drift_defined(Model *model, int type0);
+  GEOSLIB_API int model_is_drift_defined(Model *model, const EDrift& type0);
   GEOSLIB_API Model *input_model(int ndim,
                                  int nvar,
                                  int order,

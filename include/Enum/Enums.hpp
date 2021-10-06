@@ -13,3 +13,4 @@
 #include "Neigh/ENeigh.hpp"
 #include "Db/ELoc.hpp"
 #include "Covariances/ECov.hpp"
+#include "Drifts/EDrift.hpp"

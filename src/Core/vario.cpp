@@ -16,6 +16,7 @@
 #include "Morpho/Morpho.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Drifts/EDrift.hpp"
 
 /*! \cond */
 #define VARS(ivar,jvar)     (vario->vars[(ivar) * vario->getNVar() + (jvar)])
@@ -2717,7 +2718,7 @@ static int st_variogram_general(Db    *db,
   /* Auxiliary check for Drift removal */
 
   if (model != (Model *) NULL && 
-      (model->getDriftNumber() > 1 || model->getDriftType(0) != DRIFT_1))
+      (model->getDriftNumber() > 1 || model->getDriftType(0) != EDrift::UC))
   {
     if (vorder == (Vario_Order *) NULL)
       vorder = vario_order_manage(1,1,0,vorder);

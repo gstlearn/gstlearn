@@ -89,6 +89,7 @@ typedef enum
   MAXIMUM_LOC = 28  //!< Maximum number of enums
 } ENUM_LOCS;
 
+/*
 typedef enum
 {
   DRIFT_UNKNOWN = -1,
@@ -109,8 +110,8 @@ typedef enum
   DRIFT_Z3 = 14,    //!< Drift along Z³
   DRIFT_F = 15,     //!< External Drift
   DRIFT_NUMBER = 16 // Number of Drift elementary functions
-} ENUM_DRIFTS;
-/*
+} ENUM_DRIFTS; // Now see EDrift.hpp
+
 typedef enum
 {
   COV_UNKNOWN = -2,
@@ -143,7 +144,7 @@ typedef enum
   COV_WENDLAND2,         //!< Wendland covariance (second type)
   COV_P8,                //!< Polynomial of degree 8
   COV_NUMBER  //!< Maximum number of internal covariances (keep this at the end)
-} ENUM_COVS;
+} ENUM_COVS; // Now see ECov.hpp
 */
 // These functions have been removed from new_cova
 //  COV_EXP2DFACT = 20,    //!< Factorized Factorized in 2-D
@@ -199,7 +200,7 @@ typedef enum
   NEIGH_BENCH = 1,         //!< Bench Neighborhood
   NEIGH_MOVING = 2,        //!< Moving Neighborhood
   NEIGH_IMAGE = 3,         //!< Image Neighborhood
-} ENUM_NEIGHS;
+} ENUM_NEIGHS; // Now see ENeigh.hpp
 */
 typedef enum
 {

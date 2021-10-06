@@ -12,7 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Covariances/CovContext.hpp"
-#include "geoslib_enum.h"
+#include "Drifts/EDrift.hpp"
 
 class ADriftElem;
 
@@ -20,9 +20,8 @@ class DriftFactory
 {
 public:
   static int          getDriftNumber();
-  static ADriftElem*  createDriftFunc(const ENUM_DRIFTS& type, const CovContext& ctxt);
+  static ADriftElem*  createDriftFunc(const EDrift& type, const CovContext& ctxt);
   static ADriftElem*  duplicateDriftFunc(const ADriftElem& cov);
   static void         displayList(const CovContext& ctxt);
-  static int          identifyDrift(const String& symbol, ENUM_DRIFTS *type, int *rank,
-                                    const CovContext& ctxt);
+  static EDrift       identifyDrift(const String& symbol, int* rank, const CovContext& ctxt);
  };

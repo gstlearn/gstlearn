@@ -88,9 +88,9 @@ ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
     case ECov::E_WENDLAND1:   return new CovWendland1(ctxt);
     case ECov::E_WENDLAND2:   return new CovWendland2(ctxt);
     case ECov::E_P8:          return new CovP8(ctxt);
-    default:            std::cout << "Error unknown covariance !" << std::endl; break;
+    default: break;
   }
-  my_throw ("Covariance function not yet implemented !");
+  my_throw ("Covariance function not yet implemented!");
   return nullptr;
 }
 
@@ -126,10 +126,9 @@ ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
     case ECov::E_WENDLAND1:   return new CovWendland1(  dynamic_cast<const CovWendland1&>  (cov));
     case ECov::E_WENDLAND2:   return new CovWendland2(  dynamic_cast<const CovWendland2&>  (cov));
     case ECov::E_P8:          return new CovP8(         dynamic_cast<const CovP8&>         (cov));
-    default:              break;
+    default: break;
   }
-  message("Covariance type = %d\n",cov.getType());
-  my_throw ("Covariance function not yet implemented !");
+  my_throw ("Covariance function not yet implemented!");
   return nullptr;
 }
 
@@ -180,7 +179,7 @@ VectorString CovFactory::getCovList(const CovContext& ctxt)
 
 /**
  * Return the ECov object from the given covariance name.
- * The name must correspond to one of the ECov keys.
+ * The name must correspond to one of the Cov*::getCovName().
  * If the name doesn't exists, this method returns ECov::UNKNOWN
  * and display available covariances for the given context.
  *
@@ -194,7 +193,7 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
   while (it.hasNext())
   {
     // Test covariance name using ACovFunc::getCovName (not the ECov keys!)
-    // (ensure RGeostats scripts retro compatibility)
+    // (This permits to ensure RGeostats scripts retro compatibility)
     if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
     {
       ACovFunc* cova = createCovFunc(*it, ctxt);

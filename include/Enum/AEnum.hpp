@@ -30,6 +30,7 @@ public:
 
 #ifndef SWIG
   // Remove this: too much dangerous (implicit casts)
+  // => Force compilation error where enum were used as integer
   //operator int() const { return _value; }
 #endif
 
