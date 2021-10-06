@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
   // Model 
 
   model = model_init(2,1,diag);
-  if (model == (Model *) NULL) goto label_end;
+  if (model == nullptr) goto label_end;
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
                      VectorDouble(),VectorDouble(),sill)) goto label_end;
 

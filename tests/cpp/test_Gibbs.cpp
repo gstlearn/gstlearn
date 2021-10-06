@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
   // Model for SPDE
 
   model1 = model_init(ndim,1,diag);
-  if (model1 == (Model *) NULL) goto label_end;
+  if (model1 == nullptr) goto label_end;
   if (model_add_cova(model1,ECov::BESSEL_K,0,0,range_spde,param_spde,
                      VectorDouble(),VectorDouble(),VectorDouble(sill_spde))) goto label_end;
 
@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
   // Model for constraints
 
   model2 = model_init(ndim,1,diag);
-  if (model2 == (Model *) NULL) goto label_end;
+  if (model2 == nullptr) goto label_end;
   if (model_add_cova(model2,ECov::BESSEL_K,0,0,range_cons,param_cons,
                      VectorDouble(),VectorDouble(),VectorDouble(sill_cons))) goto label_end;
 

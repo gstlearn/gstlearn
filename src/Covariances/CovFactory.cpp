@@ -206,5 +206,7 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
     }
     it.toNext();
   }
+  messerr("Unknown covariance name:%s!", cov_name.c_str());
+  displayList(ctxt);
   return ECov::UNKNOWN;
 }

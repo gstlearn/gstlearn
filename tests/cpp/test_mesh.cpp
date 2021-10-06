@@ -100,6 +100,8 @@ int main(int argc, char *argv[])
   param        = 1.;
   VectorDouble sill = { 2. };
   model        = model_init(ndim,1);
+  if (model == nullptr)
+    return (1);
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
                      VectorDouble(),VectorDouble(),sill))
     messageAbort("Definition of the Model");

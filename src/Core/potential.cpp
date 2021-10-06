@@ -2783,7 +2783,7 @@ static int st_extdrift_create_model(Db      *dbout,
   /* Creating the model */
 
   pot_ext->model = model_init(pot_ext->ndim,1,1.,1,0.,true);
-  if (pot_ext->model == (Model *) NULL) goto label_end;
+  if (pot_ext->model == nullptr) goto label_end;
   if (model_add_cova(pot_ext->model,ECov::CUBIC,0,0,pot_ext->range,0.,
                      VectorDouble(),VectorDouble(),sill)) goto label_end;
 

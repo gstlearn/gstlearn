@@ -1126,6 +1126,11 @@ GEOSLIB_API Model *model_init(int ndim,
 {
   Model* model = (Model *) NULL;
 
+  if (!ASpaceObject::isSpaceDimensionValid(ndim))
+  {
+    messerr("Wrong space dimension while initializing model (model_init)");
+    return nullptr;
+  }
   CovContext ctxt = CovContext(nvar, 2, field);
   ctxt.setBallRadius(ball_radius);
   if (mean.size() > 0)   ctxt.setMean(mean);
@@ -1163,6 +1168,8 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
   /* Create the empty Model */
 
   model = model_init(ndim, nvar, 1.);
+  if (model == nullptr)
+    return model;
 
   /* Add the nugget effect variogram model */
 
@@ -2895,6 +2902,8 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
   new_model = model_init(ndim, new_nvar, model->getField(), flag_linked,
                          ball_radius, flag_gradient, model->getContext().getMean(),
                          model->getContext().getCovar0());
+  if (new_model == nullptr)
+    return new_model;
 
   // ****************************************
   // Create the basic covariance structures
@@ -3686,7 +3695,8 @@ GEOSLIB_API void model_cova_characteristics(const ECov& type,
                                             double *scale,
                                             double *parmax)
 {
-  CovContext ctxt = CovContext(1, 2, 0.);
+  SpaceRN space(1); // Retrieve all covariances
+  CovContext ctxt = CovContext(1, 2, 0., &space);
   ACovFunc* cov = CovFactory::createCovFunc(type, ctxt);
   (void) strcpy((char *) cov_name, cov->getCovName().c_str());
   *flag_range = cov->hasRange();
@@ -4168,6 +4178,9 @@ GEOSLIB_API Model *model_combine(const Model *model1,
                       model2->getContext().getBallRadius());
   model = model_init(model1->getDimensionNumber(), 2, field, 0, radius, false,
                      mean, cova0);
+  if (model == nullptr)
+    return model;
+
   ncov = 0;
 
   /* Add the covariance of the first Model */
