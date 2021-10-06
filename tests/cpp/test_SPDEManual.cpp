@@ -38,6 +38,7 @@
 int main(int argc, char *argv[])
 
 {
+  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SPDEManual-");
   int seed = 10355;
   law_set_random_seed(seed);

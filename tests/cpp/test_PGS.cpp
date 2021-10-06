@@ -24,6 +24,7 @@
 int main(int argc, char *argv[])
 
 {
+  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("PGS-");
   int error = 0;
   int ndim  = 2;

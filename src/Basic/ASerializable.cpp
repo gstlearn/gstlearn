@@ -30,7 +30,9 @@ String ASerializable::myPrefixName    = String();
  * Set the Container Directory Name (do not forget trailing separator "/")
  * @param containerName Name or "" for current location
  */
-void ASerializable::setContainerName(bool useDefault, const String& containerName)
+void ASerializable::setContainerName(bool useDefault,
+                                     const String& containerName,
+                                     bool verbose)
 {
   if (useDefault)
   {
@@ -45,12 +47,14 @@ void ASerializable::setContainerName(bool useDefault, const String& containerNam
       // Otherwise, it is set to HOME/gstlearn_dir
 
       pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
-      std::cout << "Results are stored in" << pygst << std::endl;
+      if (verbose)
+        std::cout << "Results are stored in" << pygst << std::endl;
     }
     else
     {
-      std::cout << "Results are stored in PYGSTLEARN_DIR" << std::endl;
       pygst = pydir;
+      if (verbose)
+        std::cout << "Results are stored in PYGSTLEARN_DIR" << std::endl;
     }
     myContainerName = pygst;
   }
