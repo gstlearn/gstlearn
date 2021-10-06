@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
   int seed = 10355;
   law_set_random_seed(seed);
 
+  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Francky-");
   // Creating the 2-D Db
   auto nx = { 101, 101 };

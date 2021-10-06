@@ -21,6 +21,7 @@
 int main(int argc, char *argv[])
 
 {
+  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("TS-");
 
   // ===== Create the Db db1
