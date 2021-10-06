@@ -45,7 +45,9 @@ protected:
 
 public:
   static String getFileIdentify(const String& filename);
-  static void setContainerName(bool useDefault, const String& containerName = String());
+  static void setContainerName(bool useDefault,
+                               const String& containerName = String(),
+                               bool verbose = false);
   static void setPrefixName(const String& prefixName);
   static const String& getContainerName();
   static const String& getPrefixName();
