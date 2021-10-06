@@ -123,9 +123,9 @@ void AGibbs::init(int npgs,
 **
 ** \return  Error code: 1 if there is no solution; 0 otherwise
 **
-** \param[in]  iech          Absolute rank of the sample
-** \param[in]  ipgs          Rank of the GS
-** \param[in]  ivar          Rank of the variable
+** \param[in]  ipgs        Rank of the GS
+** \param[in]  ivar        Rank of the variable
+** \param[in]  iact        Internal Rank of the sample
 **
 ** \param[out]  vmin_arg   Output minimum bound
 ** \param[out]  vmax_arg   Output maximum bound
@@ -133,14 +133,15 @@ void AGibbs::init(int npgs,
 ** \remark Attributes LOC_GAUSFAC are mandatory
 **
 *****************************************************************************/
-int AGibbs::_boundsCheck(int iech,
-                         int ipgs,
+int AGibbs::_boundsCheck(int ipgs,
                          int ivar,
+                         int iact,
                          double *vmin_arg,
                          double *vmax_arg)
 {
   const Db* db = getDb();
   int icase = getRank(ipgs, ivar);
+  int iech = getSampleRank(iact);
   double vmin = db->getLowerBound(iech,icase);
   double vmax = db->getUpperBound(iech,icase);
 
@@ -181,7 +182,6 @@ void AGibbs::_printInequalities(int iact,
 
   /* Initializations */
 
-  int nech = _db->getSampleNumber();
   int iech = getSampleRank(iact);
   int nvar = getNvar();
   flag_min = flag_max = 1;
@@ -191,7 +191,7 @@ void AGibbs::_printInequalities(int iact,
   /* Print the simulated value */
 
   message("Sample (%3d/%3d) - Variable (%3d/%3d) = %8.4lf in ",
-          iech+1,nech,ivar+1,nvar,simval);
+          iech+1,_db->getSampleNumber(),ivar+1,nvar,simval);
 
   /* Print the bounds */
 
@@ -232,8 +232,8 @@ void AGibbs::print(bool flag_init,
                    int isimu,
                    int ipgs) const
 {
-  int nactive = _db->getActiveSampleNumber();
-  int nvar    = getNvar();
+  int nact = getSampleRankNumber();
+  int nvar = getNvar();
 
   if (flag_init)
   {
@@ -255,7 +255,7 @@ void AGibbs::print(bool flag_init,
 
     /* Loop on the samples */
 
-    for (int iact = 0; iact < nactive; iact++)
+    for (int iact = 0; iact < nact; iact++)
     {
       int iech = getSampleRank(iact);
       double vmin = _db->getLowerBound(iech, icase);
@@ -282,10 +282,10 @@ VectorVectorDouble AGibbs::allocY() const
   VectorVectorDouble y;
 
   int nsize = getDimension();
-  int nactive = _db->getActiveSampleNumber();
+  int nact  = getSampleRankNumber();
   y.resize(nsize);
   for (int i = 0; i < nsize; i++)
-    y[i].resize(nactive);
+    y[i].resize(nact);
   return y;
 }
 
@@ -302,8 +302,8 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
                          int ipgs)
 {
   int nsize = getDimension();
-  int nactive = _db->getActiveSampleNumber();
-  int nvar    = getNvar();
+  int nact  = getSampleRankNumber();
+  int nvar  = getNvar();
 
   /* Loop on the variables */
 
@@ -314,7 +314,7 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
 
       /* Loop on the samples */
 
-    for (int iact = 0; iact < nactive; iact++)
+    for (int iact = 0; iact < nact; iact++)
     {
       int iech = getSampleRank(iact);
       _db->setFromLocator(LOC_GAUSFAC, iech,  rank,  y[icase][iact]);
@@ -389,9 +389,9 @@ void AGibbs::updateStats(const VectorVectorDouble& y,
 
     // The standard deviation
     jcol = _getColRankStats(ipgs, ivar, 1);
-    double oldstdv = _stats.getValue(iter-1,jcol);
-    double newstdv = ut_vector_stdv(y[icol]);
-    result = (oldstdv * iter + newstdv) / (iter+1.);
+    double oldvar = _stats.getValue(iter-1,jcol);
+    double newvar = ut_vector_var(y[icol]);
+    result = (oldvar * oldw * amort + newvar) / neww;
     _stats.update(iter, jcol, result);
   }
 }
@@ -441,25 +441,27 @@ int AGibbs::_getColRankStats(int ipgs, int ivar, int mode) const
  * Test wheter a constraint is tight at a sample (data is a hard data)
  * @param ipgs  Rank of the GS
  * @param ivar  Rank of the variable
- * @param iech  Rank of the sample
+ * @param iact  Rank of the sample (within internal _ranks)
  * @param value Constraining value (if sample is an active constraint)
  * @return
  */
 bool AGibbs::isConstraintTight(int ipgs,
                                int ivar,
-                               int iech,
+                               int iact,
                                double* value) const
 {
-   int icase = getRank(ipgs, ivar);
-   double vmin = _db->getLowerBound(iech, icase);
-   double vmax = _db->getUpperBound(iech, icase);
+  int icase = getRank(ipgs, ivar);
+  int iech = getSampleRank(iact);
 
-   bool isActive = ! FFFF(vmin) && ! FFFF(vmax) && vmin == vmax;
-   if (isActive)
-     *value = vmin;
-   else
-     *value = TEST;
-   return isActive;
+  double vmin = _db->getLowerBound(iech, icase);
+  double vmax = _db->getUpperBound(iech, icase);
+
+  bool isActive = !FFFF(vmin) && !FFFF(vmax) && vmin == vmax;
+  if (isActive)
+    *value = vmin;
+  else
+    *value = TEST;
+  return isActive;
 }
 
 void AGibbs::statsInit()
@@ -468,3 +470,38 @@ void AGibbs::statsInit()
   _stats.init(_getRowNumberStats(), _getColNumberStats());
 }
 
+/**
+ * Given the initial bounds, calculate the modified bounds
+ * during the Burning stage
+ * @param iter: Rank of the iteration
+ * @param vmin: Lower bound (in/out)
+ * @param vmax: Upper bound (in/out)
+ */
+void AGibbs::getBoundsDecay(int iter, double *vmin, double *vmax) const
+{
+  // Do not modify the bounds if no Decay is defined
+  if (! _flagDecay) return;
+  // Do not modify the bounds after the burning stage
+  if (iter > _nburn) return;
+
+  double ratio = (double) iter / (double) _nburn;
+  if (!FFFF(*vmin))
+    *vmin = THRESH_INF + ((*vmin) - THRESH_INF) * ratio;
+  if (!FFFF(*vmax))
+    *vmax = THRESH_SUP + ((*vmax) - THRESH_SUP) * ratio;
+}
+
+/**
+ * Find the relative rank of an absolute sample rank
+ * @param iech Absolute sample rank
+ * @return The rank within the vector if relative ranks (or -1)
+ */
+int AGibbs::getRelativeRank(int iech)
+{
+  int nact = getSampleRankNumber();
+  for (int iact = 0; iact < nact; iact++)
+  {
+    if (getSampleRank(iact) == iech) return iact;
+  }
+  return -1;
+}

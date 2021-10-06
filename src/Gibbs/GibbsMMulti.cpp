@@ -75,8 +75,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   Model* model = getModel();
   Neigh* neigh = getNeigh();
   int nvar = model->getVariableNumber();
-  int nech = db->getSampleNumber();
-  int nactive = db->getActiveSampleNumber();
+  int nact = getSampleRankNumber();
   int nvardb = db->getVariableNumber();
   bool flag_var_defined = nvardb > 0;
   covmat = (double *) NULL;
@@ -93,22 +92,25 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Clear the set of weight vectors
 
-  if (verbose) message("Establish Weights\n");
-  _wgt.resize(nactive);
+  if (verbose) message("Establishing Kriging Weights\n");
+  _wgt.resize(nact);
 
   // Loop on the active samples
 
-  int iiech  = 0;
-  for (int iech = 0; iech < nech; iech++)
+  double wgtmin =  1.e30;
+  double wgtmax = -1.e30;
+  double varmin =  1.e30;
+  double varmax = -1.e30;
+  for (int iact = 0; iact < nact; iact++)
   {
-    if (! db->isActive(iech)) continue;
-    GibbsWeights& ww = _wgt[iiech++];
+    int iech = getSampleRank(iact);
+    GibbsWeights& ww = _wgt[iact];
 
     // Select the Neighborhood
     ww._ll.clear();
     ww._ranks = getGeneralNeigh(db, neigh, iech);
-    int nsize = ww._ranks.size();
-    int neq   = nvar * nsize;
+    int nbgh  = ww._ranks.size();
+    int neq   = nvar * nbgh;
     ww._neq   = neq;
 
     // Establishing the (moving) Covariance matrix
@@ -118,28 +120,61 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     // Inverting the (moving) Covariance matrix
     if (matrix_invert(covmat, neq, 0)) goto label_end;
 
+    // Find the rank of the pivot (in absolute sample number)
+
+    int found = -1;
+    for (int jech = 0; jech < nbgh && found < 0; jech++)
+      if (iech == ww._ranks[jech]) found = jech;
+    ww._pivot = found;
+
+    // Modify ranks into internal numbering
+
+    for (int jech = 0; jech < nbgh; jech++)
+    {
+      ww._ranks[jech] = getRelativeRank(ww._ranks[jech]);
+      if (ww._ranks[jech] < 0) goto label_end;
+    }
+
     // Store the weights per variable for the target sample
 
     for (int ivar = 0; ivar < nvar; ivar++)
     {
-
-      // Find the rank of the pivot
-
-      int found = -1;
-      for (int jech = 0; jech < nsize; jech++)
-        if (iech == ww._ranks[jech]) found = jech;
-      ww._pivot = found;
-
-      // Dimension the vector of weights
-
       VectorDouble ll(neq);
       for (int i = 0; i < ww._neq; i++)
-        ll[i] = COVMAT(i, found);
+      {
+        int icol = ww._pivot + ivar * nbgh;
+        ll[i] = COVMAT(i, icol);
+        if (i == icol)
+        {
+          double value = 1. / COVMAT(icol,icol);
+          if (value < varmin) varmin = value;
+          if (value > varmax) varmax = value;
+        }
+        else
+        {
+          double value = - ll[i] / COVMAT(icol,icol);
+          if (value < wgtmin) wgtmin = value;
+          if (value > wgtmax) wgtmax = value;
+        }
+      }
       ww._ll.push_back(ll);
     }
     covmat = (double *) mem_free((char *) covmat);
   }
 
+  // Optional printout of extrema of weights
+
+  if (verbose)
+  {
+    message("Statistics on:\n");
+    message("- Kriging weights:\n");
+    message("  Minimum = %lf\n",wgtmin);
+    message("  Maximum = %lf\n",wgtmax);
+    message("- Kriging variance:\n");
+    message("  Minimum = %lf\n",varmin);
+    message("  Maximum = %lf\n",varmax);
+
+  }
   // Initialize the statistics (optional)
 
   statsInit();
@@ -169,46 +204,44 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 {
   double valsim;
 
-  Db* db = getDb();
   const Model* model = getModel();
-  int nactive = db->getActiveSampleNumber();
-  int nvar    = model->getVariableNumber();
+  int nact = getSampleRankNumber();
+  int nvar = model->getVariableNumber();
 
   /* Print the title */
 
   if (debug_query("converge"))
     mestitle(1, "Gibbs Sampler (Simu:%d - GS:%d)", isimu + 1, ipgs + 1);
 
-  /* Loop on the variables */
+  /* Loop on the target */
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int icase   = getRank(ipgs,ivar);
-
-    /* Loop on the samples */
-
-    for (int iact = 0; iact < nactive; iact++)
+    int icase = getRank(ipgs,ivar);
+    for (int iact = 0; iact < nact; iact++)
     {
       if (! isConstraintTight(ipgs, ivar, iact, &valsim))
       {
         const GibbsWeights& ww = _wgt[iact];
-        int nsize = ww._ranks.size();
-        int neq   = ww._neq;
+        int nbgh  = ww._ranks.size();
         int pivot = ww._pivot;
 
-        for (int ivar = 0; ivar < nvar; ivar++)
+        /* Loop on the Data */
+
+        double yk = 0.;
+        double vark = 1. / ww._ll[ivar][pivot + nbgh * ivar];
+        for (int jvar = 0; jvar < nvar; jvar++)
         {
-          double sk = 1. / ww._ll[ivar][pivot];
-          int rank = pivot + nsize * ivar;
-          double yk = 0.;
-          for (int i2 = 0; i2 < neq; i2++)
+          int jcase = getRank(ipgs, jvar);
+          for (int jbgh = 0; jbgh < nbgh; jbgh++)
           {
-            if (i2 != rank) yk -= y[icase][i2] * ww._ll[ivar][i2];
+            int jact = ww._ranks[jbgh];
+            if (ivar != jvar || iact != jact)
+              yk -= y[jcase][jact] * ww._ll[jvar][jbgh + nbgh * jvar];
           }
-          yk *= sk;
-          sk  = sqrt(sk);
-          valsim = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
         }
+        yk *= vark;
+        valsim = getSimulate(y, yk, sqrt(vark), ipgs, ivar, iact, iter);
       }
       y[icase][iact] = valsim;
     }
