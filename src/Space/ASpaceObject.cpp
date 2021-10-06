@@ -130,3 +130,18 @@ bool ASpaceObject::isSpaceDimensionValid(int ndim)
   }
   return true;
 }
+
+/**
+ * This function resets the Global Space as Undefined
+ * It is mandatory before a new setting
+ * Important: The usage of any remaining pointer to the previous Global Space
+ * will produce a severe error.
+ * So the user must be cautious when using this function
+ */
+void ASpaceObject::destroyGlobalSpace()
+{
+  delete _globalSpace;
+  _globalSpace = nullptr;
+  _fakeSpace = true;
+}
+
