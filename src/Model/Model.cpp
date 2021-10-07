@@ -171,12 +171,10 @@ void Model::addDrift(const ADriftElem* drift)
 
 void Model::addDrift(const VectorString& driftSymbols)
 {
-  ENUM_DRIFTS type;
-  int rank;
-
   for (int i = 0; i < (int) driftSymbols.size(); i++)
   {
-    DriftFactory::identifyDrift(driftSymbols[i], &type, &rank,_ctxt);
+    int rank = 0;
+    EDrift type = DriftFactory::identifyDrift(driftSymbols[i], &rank, _ctxt);
     ADriftElem* drift = DriftFactory::createDriftFunc(type, _ctxt);
     drift->setRankFex(rank);
     addDrift(drift);
@@ -503,9 +501,9 @@ int Model::deSerialize(const String& filename, bool verbose)
   for (int ibfl = 0; ibfl < nbfl; ibfl++)
   {
     if (_recordRead("Drift Function", "%d", &type)) return 1;
-    ADriftElem *drift;
-    drift = DriftFactory::createDriftFunc((ENUM_DRIFTS) type, getContext());
-    drift->setRankFex(0);
+    EDrift dtype = EDrift::fromValue(type);
+    ADriftElem* drift = DriftFactory::createDriftFunc(dtype, getContext());
+    drift->setRankFex(0); // TODO : zero? really?
     addDrift(drift);
   }
 
@@ -599,7 +597,7 @@ int Model::serialize(const String& filename, bool verbose) const
   for (int ibfl = 0; ibfl < getDriftNumber(); ibfl++)
   {
     const ADriftElem* drift = getDrift(ibfl);
-    _recordWrite("%d", drift->getType());
+    _recordWrite("%d", drift->getType().getValue());
     _recordWrite("#", "Drift characteristics");
   }
 

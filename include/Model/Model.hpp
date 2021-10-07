@@ -91,7 +91,7 @@ public:
   const ADriftElem* getDrift(int il)               const { return _driftList->getDrift(il); }
   ADriftElem* getDrift(int il)                           { return _driftList->getDrift(il); }
   int getDriftNumber()                             const { return _driftList->getDriftNumber(); }
-  ENUM_DRIFTS getDriftType(int il)                 const { return _driftList->getType(il); }
+  const EDrift& getDriftType(int il)               const { return _driftList->getType(il); }
   int getRankFext(int il)                          const { return _driftList->getRankFex(il); }
   const VectorDouble& getCoefDrift()               const { return _driftList->getCoefDrift(); }
   double getCoefDrift(int ivar, int il, int ib)    const { return _driftList->getCoefDrift(ivar, il, ib); }

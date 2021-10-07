@@ -142,9 +142,9 @@ ADriftElem* ADriftList::getDrift(int il)
   return _drifts[il];
 }
 
-ENUM_DRIFTS ADriftList::getType(int il) const
+const EDrift& ADriftList::getType(int il) const
 {
-  if (! _isDriftIndexValid(il)) return DRIFT_UNKNOWN;
+  if (! _isDriftIndexValid(il)) return EDrift::UNKNOWN;
   return _drifts[il]->getType();
 }
 
@@ -160,7 +160,7 @@ String ADriftList::getDriftName(int il) const
   return _drifts[il]->getDriftName();
 }
 
-void ADriftList::setType(int il, ENUM_DRIFTS type)
+void ADriftList::setType(int il, const EDrift& type)
 {
   if (! _isDriftIndexValid(il)) return;
   _drifts[il]->setType(type);

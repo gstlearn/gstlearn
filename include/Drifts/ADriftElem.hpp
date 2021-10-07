@@ -11,11 +11,12 @@
 #pragma once
 
 #include "Drifts/ADrift.hpp"
+#include "Drifts/EDrift.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/IClonable.hpp"
 #include "Covariances/CovContext.hpp"
-#include "geoslib_enum.h"
+
 
 /* Elementary Drift function
  * */
@@ -24,14 +25,8 @@ class Db;
 
 class ADriftElem : public ADrift, public IClonable
 {
-private:
-  CovContext  _ctxt;  /* Context (space, irfDegree, field, ...) */
-  ENUM_DRIFTS _type;  /* Drift function type */
-  int _rankFex;       /* Rank of the external drift */
-  int _orderIRF;      /* Rank of the IRF induced by presence of Drift Elementary */
-
 public:
-  ADriftElem(const ENUM_DRIFTS& type, const CovContext& ctxt, int rankFex = 0);
+  ADriftElem(const EDrift& type, const CovContext& ctxt, int rankFex = 0);
   ADriftElem(const ADriftElem &r);
   ADriftElem& operator= (const ADriftElem &r);
   virtual ~ADriftElem();
@@ -66,6 +61,12 @@ public:
   void setOrderIrf(int orderIrf) { _orderIRF = orderIrf; }
   int getRankFex() const { return _rankFex; }
   void setRankFex(int rankFex) { _rankFex = rankFex; }
-  ENUM_DRIFTS getType() const { return _type; }
-  void setType(ENUM_DRIFTS type) { _type = type; }
+  const EDrift& getType() const { return _type; }
+  void setType(const EDrift& type) { _type = type; }
+
+private:
+  CovContext  _ctxt;  /* Context (space, irfDegree, field, ...) */
+  EDrift _type;       /* Drift function type */
+  int _rankFex;       /* Rank of the external drift */
+  int _orderIRF;      /* Rank of the IRF induced by presence of Drift Elementary */
 };

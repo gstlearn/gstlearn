@@ -10,6 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include <vector>
+#include <string>
+
 #define EPSILON1   1.e-1
 #define EPSILON2   1.e-2
 #define EPSILON3   1.e-3
@@ -47,3 +50,12 @@
 
 #define THRESH_INF      -10
 #define THRESH_SUP       10
+
+typedef std::vector<double> VectorDouble; /// TODO : Create a class (fill, sum, mean...)
+typedef std::vector<int> VectorInt;
+typedef std::vector<bool> VectorBool;
+typedef std::vector<std::string> VectorString;
+typedef std::vector<unsigned char> VectorUChar;
+typedef std::string String;
+typedef std::vector<VectorDouble> VectorVectorDouble;
+typedef std::vector<VectorInt>    VectorVectorInt;

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_e.h"
 #include "Drifts/DriftFactory.hpp"
+#include "Drifts/EDrift.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/ACovAnisoList.hpp"
@@ -1270,7 +1271,7 @@ GEOSLIB_API int model_add_cova(Model *model,
  ** \return  Error return code
  **
  ** \param[in]  model      Pointer to the Model structure
- ** \param[in]  type       Type of the basic drift function (::ENUM_DRIFTS)
+ ** \param[in]  type       Type of the basic drift function (EDrift)
  ** \param[in]  rank_fex   Rank of the external drift (starting from 0)
  **
  ** \remark  If the variables are NOT linked, the number of drift equations
@@ -1279,7 +1280,7 @@ GEOSLIB_API int model_add_cova(Model *model,
  ** \remark  is equal to the number of drift functions.
  **
  *****************************************************************************/
-GEOSLIB_API int model_add_drift(Model *model, int type, int rank_fex)
+GEOSLIB_API int model_add_drift(Model *model, const EDrift& type, int rank_fex)
 {
   ADriftElem *drift;
   int error;
@@ -1291,7 +1292,7 @@ GEOSLIB_API int model_add_drift(Model *model, int type, int rank_fex)
 
   // Allocate the new element
 
-  drift = DriftFactory::createDriftFunc((ENUM_DRIFTS) type, model->getContext());
+  drift = DriftFactory::createDriftFunc(type, model->getContext());
   drift->setRankFex(rank_fex);
   model->addDrift(drift);
 
@@ -1966,7 +1967,7 @@ GEOSLIB_API int model_nfex(Model *model)
 
   for (il = 0; il < model->getDriftNumber(); il++)
   {
-    if (model->getDrift(il)->getType() == DRIFT_F) nfex++;
+    if (model->getDrift(il)->getType() == EDrift::F) nfex++;
   }
   return (nfex);
 }
@@ -2710,7 +2711,7 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
  ** \param[in]  model Model structure
  ** \param[in]  iv    rank of the variable
  ** \param[in]  ib    rank of the equation
- ** \param[in]  type  type of the drift function
+ ** \param[in]  type  type of the drift function (EDrift)
  ** \param[in]  rank  rank of the external drift
  ** \param[in]  value value to be added to the drift coefficient
  **
@@ -2718,7 +2719,7 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
 static void st_drift_modify(Model *model,
                             int iv,
                             int ib,
-                            int type,
+                            const EDrift& type,
                             int rank,
                             double value)
 {
@@ -2727,8 +2728,8 @@ static void st_drift_modify(Model *model,
   /* Look for the drift function */
 
   for (i = 0, il = -1; i < model->getDriftNumber() && il < 0; i++)
-    if (model->getDriftType(i) == type && model->getDrift(i)->getRankFex()
-        == rank) il = i;
+    if (model->getDriftType(i) == type &&
+        model->getDrift(i)->getRankFex() == rank) il = i;
   if (il < 0) messageAbort("st_drift_modify");
 
   /* Patch the drift coefficient */
@@ -2759,7 +2760,7 @@ static void st_drift_derivative(int iv,
                                 Model *new_model)
 
 {
-  int il, ib, type, rank;
+  int il, ib, rank;
   double value;
 
   for (ib = 0; ib < model->getDriftEquationNumber(); ib++)
@@ -2768,7 +2769,7 @@ static void st_drift_derivative(int iv,
       value = model->getCoefDrift(0, il, ib);
       if (value == 0) continue;
 
-      type = model->getDriftType(il);
+      EDrift type = model->getDriftType(il);
       rank = model->getRankFext(il);
       switch (mode)
       {
@@ -2777,28 +2778,28 @@ static void st_drift_derivative(int iv,
           break;
 
         case MODEL_DERIVATIVE_X: /* Derivative along X */
-          switch (type)
+          switch (type.toEnum())
           {
-            case DRIFT_X:
-              st_drift_modify(new_model, iv, ib, DRIFT_1, 0, value);
+            case EDrift::E_X:
+              st_drift_modify(new_model, iv, ib, EDrift::UC, 0, value);
               break;
-            case DRIFT_X2:
-              st_drift_modify(new_model, iv, ib, DRIFT_X, 0, 2. * value);
+            case EDrift::E_X2:
+              st_drift_modify(new_model, iv, ib, EDrift::X, 0, 2. * value);
               break;
-            case DRIFT_XY:
-              st_drift_modify(new_model, iv, ib, DRIFT_Y, 0, value);
+            case EDrift::E_XY:
+              st_drift_modify(new_model, iv, ib, EDrift::Y, 0, value);
               break;
-            case DRIFT_XZ:
-              st_drift_modify(new_model, iv, ib, DRIFT_Z, 0, value);
+            case EDrift::E_XZ:
+              st_drift_modify(new_model, iv, ib, EDrift::Z, 0, value);
               break;
-            case DRIFT_X3:
-              st_drift_modify(new_model, iv, ib, DRIFT_X2, 0, 3. * value);
+            case EDrift::E_X3:
+              st_drift_modify(new_model, iv, ib, EDrift::X2, 0, 3. * value);
               break;
-            case DRIFT_X2Y:
-              st_drift_modify(new_model, iv, ib, DRIFT_XY, 0, 2. * value);
+            case EDrift::E_X2Y:
+              st_drift_modify(new_model, iv, ib, EDrift::XY, 0, 2. * value);
               break;
-            case DRIFT_XY2:
-              st_drift_modify(new_model, iv, ib, DRIFT_Y2, 0, value);
+            case EDrift::E_XY2:
+              st_drift_modify(new_model, iv, ib, EDrift::Y2, 0, value);
               break;
             default:
               break;
@@ -2806,28 +2807,28 @@ static void st_drift_derivative(int iv,
           break;
 
         case MODEL_DERIVATIVE_Y: /* Derivative along Y */
-          switch (type)
+          switch (type.toEnum())
           {
-            case DRIFT_Y:
-              st_drift_modify(new_model, iv, ib, DRIFT_1, 0, value);
+            case EDrift::E_Y:
+              st_drift_modify(new_model, iv, ib, EDrift::UC, 0, value);
               break;
-            case DRIFT_Y2:
-              st_drift_modify(new_model, iv, ib, DRIFT_Y, 0, 2. * value);
+            case EDrift::E_Y2:
+              st_drift_modify(new_model, iv, ib, EDrift::Y, 0, 2. * value);
               break;
-            case DRIFT_XY:
-              st_drift_modify(new_model, iv, ib, DRIFT_X, 0, value);
+            case EDrift::E_XY:
+              st_drift_modify(new_model, iv, ib, EDrift::X, 0, value);
               break;
-            case DRIFT_YZ:
-              st_drift_modify(new_model, iv, ib, DRIFT_Z, 0, value);
+            case EDrift::E_YZ:
+              st_drift_modify(new_model, iv, ib, EDrift::Z, 0, value);
               break;
-            case DRIFT_Y3:
-              st_drift_modify(new_model, iv, ib, DRIFT_Y2, 0, 3. * value);
+            case EDrift::E_Y3:
+              st_drift_modify(new_model, iv, ib, EDrift::Y2, 0, 3. * value);
               break;
-            case DRIFT_XY2:
-              st_drift_modify(new_model, iv, ib, DRIFT_XY, 0, 2. * value);
+            case EDrift::E_XY2:
+              st_drift_modify(new_model, iv, ib, EDrift::XY, 0, 2. * value);
               break;
-            case DRIFT_X2Y:
-              st_drift_modify(new_model, iv, ib, DRIFT_X2, 0, value);
+            case EDrift::E_X2Y:
+              st_drift_modify(new_model, iv, ib, EDrift::X2, 0, value);
               break;
             default:
               break;
@@ -3596,7 +3597,7 @@ GEOSLIB_API int model_dimension(Model *model)
  ** \param[in]  model     Model structure
  ** \param[in]  icov      Rank of the Covariance structure (from 0)
  **
- ** \param[out]  cov_type      Type of the covariance (integer enum of ECov)
+ ** \param[out]  cov_type      Type of the covariance (enum of ECov)
  ** \param[out]  flag_aniso    1 for anisotropy and 0 otherwise
  ** \param[out]  param         Parameter
  ** \param[out]  sill          Array of sills (Dimension = nvar * nvar)
@@ -3604,11 +3605,11 @@ GEOSLIB_API int model_dimension(Model *model)
  ** \param[out]  aniso_ranges  Rotation ranges (Dimension = ndim)
  **
  *****************************************************************************/
-GEOSLIB_API int model_extract_cova(Model *model,
-                                   int icov,
-                                   int *cov_type,
-                                   int *flag_aniso,
-                                   double *param,
+GEOSLIB_API int model_extract_cova(Model*        model,
+                                   int           icov,
+                                   ECov*         cov_type,
+                                   int *         flag_aniso,
+                                   double*       param,
                                    VectorDouble& sill,
                                    VectorDouble& aniso_rotmat,
                                    VectorDouble& aniso_ranges)
@@ -3624,7 +3625,7 @@ GEOSLIB_API int model_extract_cova(Model *model,
 
   /* Returning arguments */
 
-  *cov_type = cova->getType().getValue();
+  *cov_type = cova->getType();
   *flag_aniso = !cova->isIsotrop();
   *param = cova->getParam();
   sill = cova->getSill().getValues();
@@ -4672,10 +4673,10 @@ GEOSLIB_API int model_maximum_order(Model *model)
  ** \return  1 if the drift function is used; 0 otherwise
  **
  ** \param[in]  model      Model structure
- ** \param[in]  type0      Drift function to be found
+ ** \param[in]  type0      Drift function to be found (EDrift)
  **
  *****************************************************************************/
-GEOSLIB_API int model_is_drift_defined(Model *model, int type0)
+GEOSLIB_API int model_is_drift_defined(Model *model, const EDrift& type0)
 {
   if (model == (Model *) NULL) return (0);
   for (int il = 0; il < model->getDriftNumber(); il++)

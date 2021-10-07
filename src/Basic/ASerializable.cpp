@@ -239,7 +239,7 @@ int ASerializable::_recordRead(const String& title, String format, ...) const
  * @remark: Format is not a reference here:
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
  */
-
+// TODO : Impose that va_list arguments are stringable ? (For example, we can serialize ECov objects !)
 void ASerializable::_recordWrite(String format, ...) const
 {
   va_list ap;

@@ -12,6 +12,7 @@
 
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/DirParam.hpp"
+#include "Variogram/ECalcVario.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
 #include "Basic/AStringable.hpp"
@@ -43,8 +44,8 @@ public:
   virtual IClonable* clone() const override;
 
   const String& getCalculName() const { return _calculName; }
-  int    getCalculType() const;
-  bool   getFlagAsym() const { return _flagAsym; }
+  ECalcVario    getCalculType() const;
+  bool          getFlagAsym() const { return _flagAsym; }
 
   int    getVariableNumber() const { return _nVar; }
   const  VectorDouble& getMeans() const { return _means; }

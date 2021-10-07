@@ -87,7 +87,7 @@ void mes_error(ES error)
 //  res = model_init(vario.getNDim(), vario.getNVar(), 0, 0, 0., 0, VectorDouble(), vars);
 //
 //  if (uc != -1)
-//    model_add_drift(res,DRIFT_1,0) ;
+//    model_add_drift(res,EDrift::UC,0) ;
 //
 //  for (int i = 0; i < (int)lst_model.size(); i++)
 //  {

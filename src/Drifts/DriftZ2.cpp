@@ -11,10 +11,10 @@
 #include "Drifts/DriftZ2.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_enum.h"
+#include "Drifts/EDrift.hpp"
 
 DriftZ2::DriftZ2(const CovContext& ctxt)
-    : ADriftElem(DRIFT_Z2, ctxt)
+    : ADriftElem(EDrift::Z2, ctxt)
 {
 }
 
