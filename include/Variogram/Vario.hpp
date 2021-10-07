@@ -141,14 +141,14 @@ public:
   int attachDb(Db* db,
                const VectorDouble& vars = VectorDouble(),
                const VectorDouble& means = VectorDouble());
-  int compute(const String& calcul_name = "vg",
+  int compute(const String& calcul_name = "vg", // TODO convert to ENUM
               bool flag_grid = false,
               bool flag_gen = false,
               bool flag_sample = false,
               bool verr_mode = false,
               Model *model = nullptr,
               bool verbose = false);
-  int computeIndic(const String& calcul_name = "vg",
+  int computeIndic(const String& calcul_name = "vg", // TODO convert to ENUM
                    bool flag_grid = false,
                    bool flag_gen = false,
                    bool flag_sample = false,
@@ -206,7 +206,7 @@ private:
   VarioParam   _varioparam;
   VectorDouble _means;
   VectorDouble _vars;
-  String       _calculName;
+  String       _calculName; // TODO : should become ENUM
   bool         _flagSample;
   Db*          _db;
   VectorVectorDouble _sw;      /* Array for number of lags */

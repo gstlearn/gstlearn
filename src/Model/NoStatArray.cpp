@@ -34,7 +34,10 @@ NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
       _tab()
 {
   if (! _checkValid())
-    my_throw("Error in the Definition of Non-Stationarity Parameters");
+  {
+    messerr("Error in the Definition of Non-Stationarity Parameters");
+    messerr("The 'NoStat' element is not valid");
+  }
 }
 
 NoStatArray::NoStatArray(const NoStatArray &m)
