@@ -10,18 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include <vector>
-#include <string>
 #include "geoslib_define.h"
-
-typedef std::vector<double> VectorDouble; /// TODO : Create a class (fill, sum, mean...)
-typedef std::vector<int> VectorInt;
-typedef std::vector<bool> VectorBool;
-typedef std::vector<std::string> VectorString;
-typedef std::vector<unsigned char> VectorUChar;
-typedef std::string String;
-typedef std::vector<VectorDouble> VectorVectorDouble;
-typedef std::vector<VectorInt>    VectorVectorInt;
 
 /// TODO to be removed when VectorDouble will be OK
 void ut_vector_display(const String& title, const VectorDouble& vect);

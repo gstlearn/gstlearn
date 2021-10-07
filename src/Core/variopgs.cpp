@@ -40,31 +40,31 @@ typedef struct {
 } Local_TracePgs;
 
 typedef struct {
-  Db     *db;
-  mutable const Rule *rule;
-  PropDef *propdef;
-  int     flag_stat;
-  int     flag_facies;
-  int     covtype;
-  int     igrfcur;
-  int     idircur;
-  int     ipascur;
-  int     ngrf;
-  int     npair;
-  int     nfacies;
-  int     ifirst;
-  int     ilast;
-  VectorDouble   d0;
-  VectorDouble   d1;
-  VectorDouble   memint;
-  VectorDouble   stat_proba;
-  VectorDouble   stat_thresh;
-  Local_CorPgs   corpgs;
-  Local_TracePgs tracepgs;
-  Model         *model;
-  Vario         *vario;
-  Vario         *varioind;
-  Vario_Order   *vorder; 
+  Db*                 db;
+  mutable const Rule* rule;
+  PropDef*            propdef;
+  int                 flag_stat;
+  int                 flag_facies;
+  ECalcVario          calcul_type;
+  int                 igrfcur;
+  int                 idircur;
+  int                 ipascur;
+  int                 ngrf;
+  int                 npair;
+  int                 nfacies;
+  int                 ifirst;
+  int                 ilast;
+  VectorDouble        d0;
+  VectorDouble        d1;
+  VectorDouble        memint;
+  VectorDouble        stat_proba;
+  VectorDouble        stat_thresh;
+  Local_CorPgs        corpgs;
+  Local_TracePgs      tracepgs;
+  Model*              model;
+  Vario*              vario;
+  Vario*              varioind;
+  Vario_Order*        vorder;
 } Local_Pgs;
 
 #define VARS(ivar,jvar) (vario->vars[(ivar) * vario->getNVar() + (jvar)])
@@ -3737,25 +3737,25 @@ static void st_manage_trace(Local_TracePgs *local_tracepgs)
 ** \param[in]  flag_dist    1 if distances are stored; 0 otherwise
 ** \param[in]  ngrf         Number of GRFs
 ** \param[in]  nfacies      Number of facies
-** \param[in]  covtype      Type of the calculation (covariance, variogram, ...)
+** \param[in]  calcul_type  Type of the calculation (covariance, variogram, ...)
 **
 ** \param[out] local_pgs    Local_Pgs structure
 **
 *****************************************************************************/
-static void st_manage_pgs(int        mode,
-                          Local_Pgs *local_pgs,
-                          Db        *db,
-                          const Rule *rule,
-                          Vario     *vario,
-                          Vario     *varioind,
-                          Model     *model,
-                          PropDef     *propdef,
-                          int        flag_stat,
-                          int        flag_facies,
-                          int        flag_dist,
-                          int        ngrf,
-                          int        nfacies,
-                          int        covtype)
+static void st_manage_pgs(int               mode,
+                          Local_Pgs*        local_pgs,
+                          Db*               db = nullptr,
+                          const Rule *      rule = nullptr,
+                          Vario*            vario = nullptr,
+                          Vario*            varioind = nullptr,
+                          Model*            model = nullptr,
+                          PropDef*          propdef = nullptr,
+                          int               flag_stat = 0,
+                          int               flag_facies = 0,
+                          int               flag_dist = 0,
+                          int               ngrf = 0,
+                          int               nfacies = 0,
+                          const ECalcVario& calcul_type = ECalcVario::UNDEFINED)
 {
   /* Dispatch */
 
@@ -3767,7 +3767,7 @@ static void st_manage_pgs(int        mode,
       local_pgs->propdef     = (PropDef *) NULL;
       local_pgs->flag_stat   = 0;
       local_pgs->flag_facies = 0;
-      local_pgs->covtype     = 0;
+      local_pgs->calcul_type = ECalcVario::UNDEFINED;
       local_pgs->igrfcur     = 0;
       local_pgs->idircur     = 0;
       local_pgs->ipascur     = 0;
@@ -3793,7 +3793,7 @@ static void st_manage_pgs(int        mode,
       local_pgs->propdef     = propdef;
       local_pgs->flag_stat   = flag_stat;
       local_pgs->flag_facies = flag_facies;
-      local_pgs->covtype     = covtype;
+      local_pgs->calcul_type = calcul_type;
       local_pgs->igrfcur     = 0;
       local_pgs->ipascur     = 0;
       local_pgs->ngrf        = ngrf;
@@ -4078,9 +4078,9 @@ static int st_vario_pgs_check(int    flag_db,
     messerr("You must define the Input Variogram for the GRFs");
     return(1);
   }
-  if (vario->getCalculType() != CALCUL_COVARIANCE    &&
-      vario->getCalculType() != CALCUL_COVARIANCE_NC &&
-      vario->getCalculType() != CALCUL_VARIOGRAM)
+  if (vario->getCalculType() != ECalcVario::COVARIANCE    &&
+      vario->getCalculType() != ECalcVario::COVARIANCE_NC &&
+      vario->getCalculType() != ECalcVario::VARIOGRAM)
   {
     messerr("Only the Variogram is calculated here");
     return(1);
@@ -4177,7 +4177,7 @@ static int st_variogram_pgs_nostat(Db*       db,
   ngrf   = 0;
   flag_stat = nfacies = 0;
   propdef = (PropDef *) NULL;
-  st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
+  st_manage_pgs(0,&local_pgs);
 
   /* Preliminary checks */
 
@@ -4208,7 +4208,7 @@ static int st_variogram_pgs_nostat(Db*       db,
   
   /* Initialize the Local_Pgs structure */
 
-  st_manage_pgs(1,&local_pgs,db,rule,vario,NULL,NULL,propdef,
+  st_manage_pgs(1,&local_pgs,db,rule,vario,nullptr,nullptr,propdef,
                 flag_stat,1,0,ngrf,nfacies,vario->getCalculType());
   st_define_corpgs(opt_correl,flag_rho,rule->getRho(),&local_pgs);
   st_define_trace(flag_rho,flag_correl,&local_pgs);
@@ -4234,7 +4234,7 @@ static int st_variogram_pgs_nostat(Db*       db,
 
 label_end:
   (void) st_extract_trace(&local_pgs);
-  st_manage_pgs(-1,&local_pgs,db,rule,vario,NULL,NULL,propdef,
+  st_manage_pgs(-1,&local_pgs,db,rule,vario,nullptr,nullptr,propdef,
                 flag_stat,1,0,ngrf,nfacies,vario->getCalculType());
   (void) st_vario_pgs_variable(-1,ngrf,nfacies,1,0,db,propdef,rule);
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,
@@ -4506,7 +4506,7 @@ static double st_get_value(Local_Pgs *local_pgs,
 {
   double value,g1,g2,ploc[2],low[4],up[4];
 
-  if (local_pgs->covtype == CALCUL_VARIOGRAM)
+  if (local_pgs->calcul_type == ECalcVario::VARIOGRAM)
   {
     if (ifac1 == ifac2)
     {
@@ -4776,18 +4776,20 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
         vario->setSw(idir,iad,1);
         vario->setHh(idir,iad,0);
         
-        switch (local_pgs->covtype)
+        switch (local_pgs->calcul_type.toEnum())
         {   
-          case CALCUL_VARIOGRAM:
+          case ECalcVario::E_VARIOGRAM:
             break;
             
-          case CALCUL_COVARIANCE:
+          case ECalcVario::E_COVARIANCE:
             vario->setGg(idir,iad,vario->getVars(ivar,jvar));
             break;
             
-          case CALCUL_COVARIANCE_NC:
+          case ECalcVario::E_COVARIANCE_NC:
             vario->setGg(idir,iad,(ivar == jvar) ? pivar : 0.);
-            break;  
+            break;
+          default:
+            break;
         }
       }
     }
@@ -4873,17 +4875,19 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
         vario->setSw(idir,iad,dbin->getSampleNumber());
         vario->setHh(idir,iad,0);
         
-        switch (local_pgs->covtype)
+        switch (local_pgs->calcul_type.toEnum())
         {
-          case CALCUL_VARIOGRAM:
+          case ECalcVario::E_VARIOGRAM:
             break;
             
-          case CALCUL_COVARIANCE:
+          case ECalcVario::E_COVARIANCE:
             vario->setGg(idir,iad,vario->getVars(ivar,jvar));
             break;
             
-          case CALCUL_COVARIANCE_NC:
+          case ECalcVario::E_COVARIANCE_NC:
             vario->setGg(idir,iad,(ivar == jvar) ? mean[ivar] : 0.);
+            break;
+          default:
             break;
         } 
       }
@@ -4951,7 +4955,7 @@ GEOSLIB_API Vario* model_pgs(Db* db,
 
   new_model = (Model *) NULL;
   propdef   = (PropDef *) NULL;
-  st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
+  st_manage_pgs(0,&local_pgs);
   if (st_check_test_discret(rule->getModeRule(), 0)) goto label_end;
 
   /* Merge the models */
@@ -5105,7 +5109,7 @@ static int st_variogram_pgs_stat(Db     *db,
   ngrf   = nfacies = 0;
   flag_stat = 1;
   propdef = (PropDef *) NULL;
-  st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
+  st_manage_pgs(0,&local_pgs);
 
   /* Preliminary checks */
 
@@ -5130,7 +5134,7 @@ static int st_variogram_pgs_stat(Db     *db,
   
   /* Initialize the Local_Pgs structure */
 
-  st_manage_pgs(1,&local_pgs,db,rule,vario,varioind,NULL,propdef,
+  st_manage_pgs(1,&local_pgs,db,rule,vario,varioind,nullptr,propdef,
                 flag_stat,1,0,ngrf,nfacies,vario->getCalculType());
   st_define_corpgs(0,0,rule->getRho(),&local_pgs);
   st_define_trace(0,0,&local_pgs);
@@ -5357,7 +5361,7 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
   }
 
   if (st_check_test_discret(RULE_STD,0)) goto label_end;
-  st_manage_pgs(0,&local_pgs,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,0,0);
+  st_manage_pgs(0,&local_pgs);
 
   vario = new Vario(varioparam, db);
   vario->setCalculName(calcName);
@@ -5378,7 +5382,7 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
 
   /* Allocation */
 
-  st_manage_pgs(1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
+  st_manage_pgs(1,&local_pgs,db,nullptr,vario,varioind,nullptr,propdef,
                 flag_stat,1,0,NGRF,NCOLOR,vario->getCalculType());
 
   if (flag_stat)
@@ -5455,13 +5459,11 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
   error = 0;
 
 label_end:
-  //if (varioind != nullptr) delete varioind;
-  //if (vario != nullptr) delete vario;  // [FO] 21/09/13 => vario was null too early!
   Pile_Relem = st_relem_free(Pile_Relem);
   if (TEST_DISCRET)
     CTABLES = ct_tables_manage(-1,0,1,200,100,-1.,1.,CTABLES);
-  st_manage_pgs(-1,&local_pgs,db,NULL,vario,varioind,NULL,propdef,
-                flag_stat,1,0,NGRF,NCOLOR,vario->getCalculType()); //<- because here
+  st_manage_pgs(-1,&local_pgs,db,nullptr,vario,varioind,nullptr,propdef,
+                flag_stat,1,0,NGRF,NCOLOR,vario->getCalculType());
   (void) st_vario_pgs_variable(-1,NGRF,NCOLOR,1,0,db,propdef,NULL);
 
   propdef = proportion_manage(-1,1,flag_stat,NGRF,0,NCOLOR,0,

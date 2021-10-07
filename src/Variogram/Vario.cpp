@@ -575,69 +575,72 @@ String Vario::toString(int level) const
 
   // Print the calculation type
 
-  switch (getCalculType())
+  switch (getCalculType().toEnum())
   {
-    case CALCUL_UNDEFINED:
+    case ECalcVario::E_UNDEFINED:
       sstr << toTitle(0,"Undefined");
       break;
 
-    case CALCUL_VARIOGRAM:
+    case ECalcVario::E_VARIOGRAM:
       sstr << toTitle(0,"Variogram characteristics");
       break;
 
-    case CALCUL_MADOGRAM:
+    case ECalcVario::E_MADOGRAM:
       sstr << toTitle(0,"Madogram characteristics");
       break;
 
-    case CALCUL_RODOGRAM:
+    case ECalcVario::E_RODOGRAM:
       sstr << toTitle(0,"Rodogram characteristics");
       break;
 
-    case CALCUL_POISSON:
+    case ECalcVario::E_POISSON:
       sstr << toTitle(0,"Poisson variogram characteristics");
       break;
 
-    case CALCUL_COVARIANCE:
+    case ECalcVario::E_COVARIANCE:
       sstr << toTitle(0,"Covariance characteristics");
       break;
 
-    case CALCUL_COVARIANCE_NC:
+    case ECalcVario::E_COVARIANCE_NC:
       sstr << toTitle(0,"Non-centered Covariance characteristics");
       break;
 
-    case CALCUL_COVARIOGRAM:
+    case ECalcVario::E_COVARIOGRAM:
       sstr << toTitle(0,"Transitive Covariogram characteristics");
       break;
 
-    case CALCUL_GENERAL1:
+    case ECalcVario::E_GENERAL1:
       sstr << toTitle(0,"Generalized Variogram of order 1 characteristics");
       break;
 
-    case CALCUL_GENERAL2:
+    case ECalcVario::E_GENERAL2:
       sstr << toTitle(0,"Generalized Variogram of order 2 characteristics");
       break;
 
-    case CALCUL_GENERAL3:
+    case ECalcVario::E_GENERAL3:
       sstr << toTitle(0,"Generalized Variogram of order 3 characteristics");
       break;
 
-    case CALCUL_ORDER4:
+    case ECalcVario::E_ORDER4:
       sstr << toTitle(0,"Order-4 Variogram");
       break;
 
-    case CALCUL_TRANS1:
+    case ECalcVario::E_TRANS1:
       sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/G1");
       break;
 
-    case CALCUL_TRANS2:
+    case ECalcVario::E_TRANS2:
       sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/G2");
       break;
 
-    case CALCUL_BINORMAL:
+    case ECalcVario::E_BINORMAL:
       sstr << toTitle(0,"Cross-to_simple Variogram ratio G12/sqrt(G1*G2)");
       break;
+
+    default:
+      break;
   }
-  if (getCalculType() == CALCUL_UNDEFINED) return sstr.str();
+  if (getCalculType() == ECalcVario::UNDEFINED) return sstr.str();
   sstr << "Number of variable(s)       = " << _nVar << std::endl;
 
   // Print the environment
@@ -649,7 +652,7 @@ String Vario::toString(int level) const
   sstr << toMatrix("Variance-Covariance Matrix",VectorString(),VectorString(),
                     0,_nVar,_nVar,getVars());
 
-  if (getCalculType() == CALCUL_UNDEFINED) return sstr.str();
+  if (getCalculType() == ECalcVario::UNDEFINED) return sstr.str();
 
   /* Loop on the directions (only if the resulting arrays have been defined) */
 
@@ -704,43 +707,44 @@ String Vario::_toStringByDirection(int level, int idir) const
 }
 
 /**
- * Convert the Calculation Name into a Calculation Type (enum)
- * @return
+ * Convert the Calculation Name into a Calculation Type (ECalcVario)
+ *
+ * @return The corresponding ECalcVario enum
  */
-int Vario::getCalculType() const
+ECalcVario Vario::getCalculType() const
 {
-  int calcul_type;
+  ECalcVario calcul_type;
 
   if (_calculName == "undefined")
-    calcul_type = CALCUL_UNDEFINED;
+    calcul_type = ECalcVario::UNDEFINED;
   else if (_calculName == "vg")
-    calcul_type = CALCUL_VARIOGRAM;
+    calcul_type = ECalcVario::VARIOGRAM;
   else if (_calculName == "cov")
-    calcul_type = CALCUL_COVARIANCE;
+    calcul_type = ECalcVario::COVARIANCE;
   else if (_calculName == "covnc")
-    calcul_type = CALCUL_COVARIANCE_NC;
+    calcul_type = ECalcVario::COVARIANCE_NC;
   else if (_calculName == "covg")
-    calcul_type = CALCUL_COVARIOGRAM;
+    calcul_type = ECalcVario::COVARIOGRAM;
   else if (_calculName =="mado")
-    calcul_type = CALCUL_MADOGRAM;
+    calcul_type = ECalcVario::MADOGRAM;
   else if (_calculName =="rodo")
-    calcul_type = CALCUL_RODOGRAM;
+    calcul_type = ECalcVario::RODOGRAM;
   else if (_calculName =="poisson")
-    calcul_type = CALCUL_POISSON;
+    calcul_type = ECalcVario::POISSON;
   else if (_calculName =="general1")
-    calcul_type = CALCUL_GENERAL1;
+    calcul_type = ECalcVario::GENERAL1;
   else if (_calculName =="general2")
-    calcul_type = CALCUL_GENERAL2;
+    calcul_type = ECalcVario::GENERAL2;
   else if (_calculName =="general3")
-    calcul_type = CALCUL_GENERAL3;
+    calcul_type = ECalcVario::GENERAL3;
   else if (_calculName =="order4")
-    calcul_type = CALCUL_ORDER4;
+    calcul_type = ECalcVario::ORDER4;
   else if (_calculName =="trans1")
-    calcul_type = CALCUL_TRANS1;
+    calcul_type = ECalcVario::TRANS1;
   else if (_calculName =="trans2")
-    calcul_type = CALCUL_TRANS2;
+    calcul_type = ECalcVario::TRANS2;
   else if (_calculName =="binormal")
-    calcul_type = CALCUL_BINORMAL;
+    calcul_type = ECalcVario::BINORMAL;
   else
   {
     messerr("Invalid variogram calculation name : %s", _calculName.c_str());
@@ -760,7 +764,7 @@ int Vario::getCalculType() const
     messerr("trans2   : Cross-to-Simple Variogram G12/G1");
     messerr("binormal : Cross-to-Simple Variogram G12/sqrt(G1*G2)");
 
-    calcul_type = CALCUL_UNDEFINED;
+    calcul_type = ECalcVario::UNDEFINED;
   }
   return calcul_type;
 }
@@ -1478,27 +1482,29 @@ int Vario::getDirSize(int idir) const
 
 void Vario::_setFlagAsym()
 {
-  switch (getCalculType())
+  switch (getCalculType().toEnum())
   {
-    case CALCUL_VARIOGRAM:
-    case CALCUL_MADOGRAM:
-    case CALCUL_RODOGRAM:
-    case CALCUL_POISSON:
-    case CALCUL_GENERAL1:
-    case CALCUL_GENERAL2:
-    case CALCUL_GENERAL3:
-    case CALCUL_ORDER4:
-    case CALCUL_TRANS1:
-    case CALCUL_TRANS2:
-    case CALCUL_BINORMAL:
+    case ECalcVario::E_VARIOGRAM:
+    case ECalcVario::E_MADOGRAM:
+    case ECalcVario::E_RODOGRAM:
+    case ECalcVario::E_POISSON:
+    case ECalcVario::E_GENERAL1:
+    case ECalcVario::E_GENERAL2:
+    case ECalcVario::E_GENERAL3:
+    case ECalcVario::E_ORDER4:
+    case ECalcVario::E_TRANS1:
+    case ECalcVario::E_TRANS2:
+    case ECalcVario::E_BINORMAL:
       _flagAsym = false;
       break;
 
-    case CALCUL_COVARIANCE:
-    case CALCUL_COVARIANCE_NC:
-    case CALCUL_COVARIOGRAM:
+    case ECalcVario::E_COVARIANCE:
+    case ECalcVario::E_COVARIANCE_NC:
+    case ECalcVario::E_COVARIOGRAM:
       _flagAsym = true;
       break;
+    default:
+      messerr("Wrong Variogram Calculation enum!");
   }
 }
 

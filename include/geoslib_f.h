@@ -201,26 +201,26 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
                                    int varnb = 100,
                                    NamingConvention namconv = NamingConvention("Cloud"));
 GEOSLIB_API void variogram_print(Vario *vario, int verbose = false);
-GEOSLIB_API Vario* variogram_pgs(Db *db,
+GEOSLIB_API Vario* variogram_pgs(Db*               db,
                                  const VarioParam* varioparam,
-                                 const RuleProp* ruleprop,
-                                 int flag_rho = false,
-                                 int opt_correl = 2);
-GEOSLIB_API int vmap_compute(Db *db,
-                             Db* dbmap,
-                             int calcul_type = 0,
-                             int radius = 0,
-                             bool flag_FFT = true,
-                             NamingConvention namconv = NamingConvention("VMAP"));
-GEOSLIB_API Db* db_vmap_compute(Db *db,
-                                int calcul_type = 0,
-                                int nxx = 20,
-                                int nyy = 20,
-                                double dx = TEST,
-                                double dy = TEST,
-                                int radius = 0.,
-                                bool flag_FFT = true,
-                                NamingConvention namconv = NamingConvention("VMAP"));
+                                 const RuleProp*   ruleprop,
+                                 int               flag_rho = false,
+                                 int               opt_correl = 2);
+GEOSLIB_API int vmap_compute(Db*               db,
+                             Db*               dbmap,
+                             const ECalcVario& calcul_type,// = ECalcVario::UNDEFINED,
+                             int               radius = 0,
+                             bool              flag_FFT = true,
+                             NamingConvention  namconv = NamingConvention("VMAP"));
+GEOSLIB_API Db* db_vmap_compute(Db*                db,
+                                const ECalcVario&  calcul_type,// = ECalcVario::UNDEFINED,
+                                int                nxx = 20,
+                                int                nyy = 20,
+                                double             dx = TEST,
+                                double             dy = TEST,
+                                int                radius = 0.,
+                                bool               flag_FFT = true,
+                                NamingConvention   namconv = NamingConvention("VMAP"));
 
 /***********************/
 /* Functions for Model */

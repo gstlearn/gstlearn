@@ -117,9 +117,9 @@ static int st_get_generalized_variogram_order(Vario *vario)
   int norder;
 
   norder = 0;
-  if (vario->getCalculType() == CALCUL_GENERAL1) norder = 1;
-  if (vario->getCalculType() == CALCUL_GENERAL2) norder = 2;
-  if (vario->getCalculType() == CALCUL_GENERAL3) norder = 3;
+  if (vario->getCalculType() == ECalcVario::GENERAL1) norder = 1;
+  if (vario->getCalculType() == ECalcVario::GENERAL2) norder = 2;
+  if (vario->getCalculType() == ECalcVario::GENERAL3) norder = 3;
   return(norder);
 }
 
@@ -318,7 +318,7 @@ static void st_variogram_stats(Db     *db,
       }
       if (s12w <= 0.) continue;
 
-      if (vario->getCalculType() == CALCUL_COVARIOGRAM)
+      if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
       {
         vario->setVars(ivar,jvar,s12wzz);
         vario->setVars(jvar,ivar,s12wzz);
@@ -332,7 +332,7 @@ static void st_variogram_stats(Db     *db,
 
   // Modification when the ultimate variogram is a transformed one
 
-  if (vario->getCalculType() == CALCUL_TRANS1)
+  if (vario->getCalculType() == ECalcVario::TRANS1)
   {
     for (int ivar=0; ivar<db->getVariableNumber(); ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
@@ -342,7 +342,7 @@ static void st_variogram_stats(Db     *db,
         vario->setVars(jvar, ivar, value);
       }
   }
-  else if (vario->getCalculType() == CALCUL_TRANS2)
+  else if (vario->getCalculType() == ECalcVario::TRANS2)
   {
     for (int ivar=0; ivar<db->getVariableNumber(); ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
@@ -352,7 +352,7 @@ static void st_variogram_stats(Db     *db,
         vario->setVars(jvar, ivar, value);
       }
   }
-  else if (vario->getCalculType() == CALCUL_BINORMAL)
+  else if (vario->getCalculType() == ECalcVario::BINORMAL)
   {
     for (int ivar=0; ivar<db->getVariableNumber(); ivar++)
       for (int jvar=0; jvar<db->getVariableNumber(); jvar++)
@@ -546,31 +546,31 @@ static void st_print_debug(int iech1,
 /*!
 **  Internal function for setting a variogram value
 **
-** \param[in]  calcul_type Type of calculation
-** \param[in]  nvar   Number of variables
-** \param[in]  ipas   Rank of the variogram lag
-** \param[in]  ivar   Index of the first variable
-** \param[in]  jvar   Index of the second variable
-** \param[in]  orient Orientation
-** \param[in]  ww     Weight
-** \param[in]  dist   Distance 
-** \param[in]  value  Variogram value
+** \param[in]  calcul_type Type of calculation (ECalcVario)
+** \param[in]  nvar        Number of variables
+** \param[in]  ipas        Rank of the variogram lag
+** \param[in]  ivar        Index of the first variable
+** \param[in]  jvar        Index of the second variable
+** \param[in]  orient      Orientation
+** \param[in]  ww          Weight
+** \param[in]  dist        Distance
+** \param[in]  value       Variogram value
 **
 *****************************************************************************/
-static void st_variogram_set(int    calcul_type,
-                             int    nvar,
-                             int    ipas,
-                             int    ivar,
-                             int    jvar,
-                             int    orient,
-                             double ww,
-                             double dist,
-                             double value)
+static void st_variogram_set(const ECalcVario& calcul_type,
+                             int               nvar,
+                             int               ipas,
+                             int               ivar,
+                             int               jvar,
+                             int               orient,
+                             double            ww,
+                             double            dist,
+                             double            value)
 {
   int i = VARIO->getDirAddress(IDIRLOC,ivar,jvar,ipas,false,orient);
 
   VARIO->updGg(IDIRLOC,i,ww * value);
-  if (calcul_type == CALCUL_POISSON)
+  if (calcul_type == ECalcVario::POISSON)
     VARIO->updGg(IDIRLOC, i, -VARIO->getMeans(ivar) / 2.);
   VARIO->updHh(IDIRLOC, i, ww * dist);
   VARIO->updSw(IDIRLOC, i, ww);
@@ -584,25 +584,25 @@ static void st_variogram_set(int    calcul_type,
 **  Internal function for setting a VMAP value
 **
 ** \param[in]  calcul_type Unused
-** \param[in]  nvar   Number of variables
-** \param[in]  ipas   Rank of the variogram lag
-** \param[in]  ivar   Index of the first variable
-** \param[in]  jvar   Index of the second variable
-** \param[in]  orient Orientation
-** \param[in]  ww     Weight
-** \param[in]  dist   Distance 
-** \param[in]  value  Variogram value
+** \param[in]  nvar        Number of variables
+** \param[in]  ipas        Rank of the variogram lag
+** \param[in]  ivar        Index of the first variable
+** \param[in]  jvar        Index of the second variable
+** \param[in]  orient      Orientation
+** \param[in]  ww          Weight
+** \param[in]  dist        Distance
+** \param[in]  value       Variogram value
 **
 *****************************************************************************/
-static void st_vmap_set(int    calcul_type,
-                        int    nvar,
-                        int    ipas,
-                        int    ivar,
-                        int    jvar,
-                        int    orient,
-                        double ww,
-                        double dist,
-                        double value)
+static void st_vmap_set(const ECalcVario& calcul_type,
+                        int               nvar,
+                        int               ipas,
+                        int               ivar,
+                        int               jvar,
+                        int               orient,
+                        double            ww,
+                        double            dist,
+                        double            value)
 {
   int ijvar;
 
@@ -620,15 +620,15 @@ static void st_vmap_set(int    calcul_type,
 /*!
 **  Update the variogram values
 **
-** \param[in]  db         Db descriptor
-** \param[in]  calcul_type   Type of calculation (::ENUM_CALCUL_VARIO)
-** \param[in]  nvar       Number of variables
-** \param[in]  iech1      Rank of the first sample
-** \param[in]  iech2      Rank of the second sample
-** \param[in]  ipas       Rank of the lag
-** \param[in]  npas       Number of lags (for the current direction)
-** \param[in]  dist       Distance value
-** \param[in]  do_asym    When FALSE, do not perform the symmetry
+** \param[in]  db             Db descriptor
+** \param[in]  calcul_type    Type of calculation (ECalcVario)
+** \param[in]  nvar           Number of variables
+** \param[in]  iech1          Rank of the first sample
+** \param[in]  iech2          Rank of the second sample
+** \param[in]  ipas           Rank of the lag
+** \param[in]  npas           Number of lags (for the current direction)
+** \param[in]  dist           Distance value
+** \param[in]  do_asym        When FALSE, do not perform the symmetry
 ** \param[in]  st_generic_set Generic function for setting the variogram
 **
 ** \remarks: The argument 'do_asym' allows performing the double assignment
@@ -637,24 +637,24 @@ static void st_vmap_set(int    calcul_type,
 ** \remarks: in the calling function
 **
 *****************************************************************************/
-static void st_variogram_evaluate(Db    *db,
-                                  int    calcul_type,
-                                  int    nvar,
-                                  int    iech1,
-                                  int    iech2,
-                                  int    ipas,
-                                  int    npas,
-                                  double dist,
-                                  int    do_asym,
-                                  void (*st_generic_set)(int    calcul_type,
-                                                         int    nvar,
-                                                         int    iadlag,
-                                                         int    ivar,
-                                                         int    jvar,
-                                                         int    orient,
-                                                         double ww,
-                                                         double dist,
-                                                         double value))
+static void st_variogram_evaluate(Db*               db,
+                                  const ECalcVario& calcul_type,
+                                  int               nvar,
+                                  int               iech1,
+                                  int               iech2,
+                                  int               ipas,
+                                  int               npas,
+                                  double            dist,
+                                  int               do_asym,
+                                  void (*st_generic_set)(const ECalcVario& calcul_type,
+                                                         int               nvar,
+                                                         int               iadlag,
+                                                         int               ivar,
+                                                         int               jvar,
+                                                         int               orient,
+                                                         double            ww,
+                                                         double            dist,
+                                                         double            value))
 {
   double w1,w2,z11,z12,z21,z22,scale,value;
   int    ivar,jvar,orient;
@@ -665,12 +665,12 @@ static void st_variogram_evaluate(Db    *db,
   orient = (dist > 0) ? 1 : -1;
   dist = ABS(dist);
 
-  switch (calcul_type)
+  switch (calcul_type.toEnum())
   {
-    case CALCUL_VARIOGRAM:
-    case CALCUL_TRANS1:
-    case CALCUL_TRANS2:
-    case CALCUL_BINORMAL:
+    case ECalcVario::E_VARIOGRAM:
+    case ECalcVario::E_TRANS1:
+    case ECalcVario::E_TRANS2:
+    case ECalcVario::E_BINORMAL:
       scale  = w1 * w2;
       for (ivar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++)
@@ -688,7 +688,7 @@ static void st_variogram_evaluate(Db    *db,
         }
       break;
 
-    case CALCUL_MADOGRAM:
+    case ECalcVario::E_MADOGRAM:
       scale  = w1 * w2;
       for (ivar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++)
@@ -706,7 +706,7 @@ static void st_variogram_evaluate(Db    *db,
         }
       break;
 
-    case CALCUL_RODOGRAM:
+    case ECalcVario::E_RODOGRAM:
       scale  = w1 * w2;
       for (ivar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++)
@@ -724,7 +724,7 @@ static void st_variogram_evaluate(Db    *db,
         }
       break;
 
-    case CALCUL_POISSON:
+    case ECalcVario::E_POISSON:
       scale  = (w1 * w2) / (w1 + w2);
       for (ivar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++)
@@ -743,8 +743,8 @@ static void st_variogram_evaluate(Db    *db,
         }
       break;
 
-    case CALCUL_COVARIANCE:
-    case CALCUL_COVARIANCE_NC:
+    case ECalcVario::E_COVARIANCE:
+    case ECalcVario::E_COVARIANCE_NC:
       scale = w1 * w2;
       for (ivar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++)
@@ -766,7 +766,7 @@ static void st_variogram_evaluate(Db    *db,
         }
       break;
       
-    case CALCUL_COVARIOGRAM:
+    case ECalcVario::E_COVARIOGRAM:
       scale = w2;
       for (ivar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++)
@@ -788,7 +788,7 @@ static void st_variogram_evaluate(Db    *db,
         }
       break;
 
-    case CALCUL_ORDER4:
+    case ECalcVario::E_ORDER4:
       scale  = w1 * w2;
       for (ivar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++)
@@ -847,7 +847,7 @@ GEOSLIB_API void variogram_scale(Vario *vario,
           vario->setHh(idir,j,vario->getHh(idir,j) / vario->getSw(idir,j));
           if (vario->getFlagAsym() && i < vario->getLagNumber(idir))
             vario->setHh(idir, j, -ABS(vario->getHh(idir,j)));
-          if (vario->getCalculType() != CALCUL_COVARIOGRAM)
+          if (vario->getCalculType() != ECalcVario::COVARIOGRAM)
             vario->setGg(idir, j, vario->getGg(idir,j) / vario->getSw(idir,j));
         }
       }
@@ -855,7 +855,7 @@ GEOSLIB_API void variogram_scale(Vario *vario,
   
   // Process the variogram transformations
 
-  if (vario->getCalculType() == CALCUL_TRANS1)
+  if (vario->getCalculType() == ECalcVario::TRANS1)
   {
     for (int ivar=0; ivar<nvar; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
@@ -868,7 +868,7 @@ GEOSLIB_API void variogram_scale(Vario *vario,
         }
       }
   }
-  else if (vario->getCalculType() == CALCUL_TRANS2)
+  else if (vario->getCalculType() == ECalcVario::TRANS2)
   {
     for (int ivar=0; ivar<nvar; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
@@ -881,7 +881,7 @@ GEOSLIB_API void variogram_scale(Vario *vario,
         }
       }
   }
-  else if (vario->getCalculType() == CALCUL_BINORMAL)
+  else if (vario->getCalculType() == ECalcVario::BINORMAL)
   {
     for (int ivar=0; ivar<nvar; ivar++)
       for (int jvar=0; jvar<ivar; jvar++)
@@ -940,8 +940,8 @@ static void st_covariance_center(Db    *db,
       }
 
       if (sumw > 0 && 
-          (vario->getCalculType() == CALCUL_COVARIANCE ||
-           vario->getCalculType() == CALCUL_COVARIANCE_NC))
+          (vario->getCalculType() == ECalcVario::COVARIANCE ||
+           vario->getCalculType() == ECalcVario::COVARIANCE_NC))
       {
         m1 /= sumw;
         m2 /= sumw;
@@ -949,8 +949,8 @@ static void st_covariance_center(Db    *db,
 
       /* Perform the Centering */
 
-      if (! (vario->getCalculType() == CALCUL_COVARIOGRAM ||
-             vario->getCalculType() == CALCUL_COVARIANCE_NC))
+      if (! (vario->getCalculType() == ECalcVario::COVARIOGRAM ||
+             vario->getCalculType() == ECalcVario::COVARIANCE_NC))
         for (i=0; i<vario->getLagTotalNumber(idir); i++)
         {
           j = vario->getDirAddress(idir,ivar,jvar,i,true,0);
@@ -1006,7 +1006,7 @@ static void st_variogram_patch_c00(Db    *db,
         m2     += ww * z2;
         sumw   += ww;
         value   = z1 * z2;
-        if (vario->getCalculType() == CALCUL_COVARIOGRAM)
+        if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
         {
           scale   = ww;
         }
@@ -1021,8 +1021,8 @@ static void st_variogram_patch_c00(Db    *db,
       }
 
       if (sumw > 0 &&
-          (vario->getCalculType() == CALCUL_COVARIANCE ||
-           vario->getCalculType() == CALCUL_COVARIANCE_NC))
+          (vario->getCalculType() == ECalcVario::COVARIANCE ||
+           vario->getCalculType() == ECalcVario::COVARIANCE_NC))
       {
         m1 /= sumw;
         m2 /= sumw;
@@ -1031,9 +1031,9 @@ static void st_variogram_patch_c00(Db    *db,
       /* Final centering and normation */
 
       vario->setSw(idir, i,sumw);
-      if (vario->getCalculType() == CALCUL_COVARIOGRAM)
+      if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
         vario->setGg(idir, i,s12wzz);
-      else if (vario->getCalculType() == CALCUL_COVARIANCE_NC)
+      else if (vario->getCalculType() == ECalcVario::COVARIANCE_NC)
         vario->setGg(idir, i,s12wzz / s12w);
       else
         vario->setGg(idir, i,s12wzz / s12w - m1 * m2);
@@ -2705,7 +2705,7 @@ static int st_variogram_general(Db    *db,
   /* Particular case of Transitive Covariogram */
   /* It is only coded in the by_sample case and uses the regression technique */
 
-  if (vario->getCalculType() == CALCUL_COVARIOGRAM) flag_sample = 1;
+  if (vario->getCalculType() == ECalcVario::COVARIOGRAM) flag_sample = 1;
     
   /* Auxiliary check for Variance Measurement Error */
 
@@ -2920,15 +2920,18 @@ static int st_find_neigh_cell(Db  *dbmap,
 **
 ** \return  Error return code
 **
-** \param[in]  db        Db containing the data
-** \param[in]  dbmap     Db of Grid type containing the Variogram Maps
-** \param[in]  calcul_type  Type of calculation (::ENUM_CALCUL_VARIO)
-** \param[in]  radius    Dilation radius (used to smooth the resulting maps)
-** \param[in]  namconv   Naming convention
+** \param[in]  db           Db containing the data
+** \param[in]  dbmap        Db of Grid type containing the Variogram Maps
+** \param[in]  calcul_type  Type of calculation (ECalcVario)
+** \param[in]  radius       Dilation radius (used to smooth the resulting maps)
+** \param[in]  namconv      Naming convention
 **
 *****************************************************************************/
-static int st_vmap_general(Db *db, Db *dbmap, int calcul_type, int radius,
-                           NamingConvention namconv)
+static int st_vmap_general(Db*               db,
+                           Db*               dbmap,
+                           const ECalcVario& calcul_type,
+                           int               radius,
+                           NamingConvention  namconv)
 {
   int     error,nvar,nv2,i,idim,flag_out,npas,nbmax;
   int    *indg0,*indg1,*ind1,iech0,iech1,iech2,jech1,jech2,nech,ndim;
@@ -3088,14 +3091,16 @@ label_end:
 **
 ** \return  Error return code
 **
-** \param[in]  dbgrid    Db of Grid type containing the data
-** \param[in]  dbmap     Db of Grid type containing the Variogram Maps
-** \param[in]  calcul_type  Type of calculation (::ENUM_CALCUL_VARIO)
-** \param[in]  namconv   Naming Convention
+** \param[in]  dbgrid       Db of Grid type containing the data
+** \param[in]  dbmap        Db of Grid type containing the Variogram Maps
+** \param[in]  calcul_type  Type of calculation (ECalcVario)
+** \param[in]  namconv      Naming Convention
 **
 *****************************************************************************/
-static int st_vmap_grid(Db *dbgrid, Db *dbmap, int calcul_type,
-                        NamingConvention namconv)
+static int st_vmap_grid(Db*               dbgrid,
+                        Db*               dbmap,
+                        const ECalcVario& calcul_type,
+                        NamingConvention  namconv)
 {
   int    error,nvar,nv2,idim,delta;
   int   *ind1,*ind2,*ind0,iech0,iech1,iech2,flag_out,ndim,npas;
@@ -3394,7 +3399,7 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
 
   /* In the case of Covariogram, add the weight set to the scale */
 
-  if (vario->getCalculType() == CALCUL_COVARIOGRAM)
+  if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
   {
     iatt_old = db_attribute_identify(db,LOC_W,0);
     iadd_new = db->addFields(1,0.);
@@ -3418,7 +3423,7 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
 
   /* Delete the additional weight variable (optional) */
 
-  if (vario->getCalculType() == CALCUL_COVARIOGRAM)
+  if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
   {
     if (iadd_new > 0) db->deleteFieldByAttribute(iadd_new);
     if (iatt_old > 0) db->setLocatorByAttribute(iatt_old,LOC_W);
@@ -4581,44 +4586,44 @@ label_end:
 **
 ** \param[in]  vario  Vario structure
 **
-** \param[out]  calcul_type   Type of calculation (::ENUM_CALCUL_VARIO)
-** \param[out]  ndim       Space dimension
-** \param[out]  nvar       Number of variables
-** \param[out]  ndir       Number of calculation directions
-** \param[out]  ndate      Number of Date Intervals
-** \param[out]  scale      Scaling factor for the transitive covariogram
-** \param[out]  dates      Array of bounds for Date Intervals
+** \param[out]  calcul_type Type of calculation (ECalcVario)
+** \param[out]  ndim        Space dimension
+** \param[out]  nvar        Number of variables
+** \param[out]  ndir        Number of calculation directions
+** \param[out]  ndate       Number of Date Intervals
+** \param[out]  scale       Scaling factor for the transitive covariogram
+** \param[out]  dates       Array of bounds for Date Intervals
 **
 ** \remark The array 'dates' must be freed by calling function.
 ** \remark The following code shows how to extract the calculation results
 ** \remark from a variogram
 **
 *****************************************************************************/
-GEOSLIB_API int vario_extract(Vario   *vario,
-                              int     *calcul_type,
-                              int     *ndim,
-                              int     *nvar,
-                              int     *ndir,
-                              int     *ndate,
-                              double  *scale,
-                              double **dates)
+GEOSLIB_API int vario_extract(Vario*      vario,
+                              ECalcVario* calcul_type,
+                              int*        ndim,
+                              int*        nvar,
+                              int*        ndir,
+                              int*        ndate,
+                              double*     scale,
+                              double**    dates)
 {
   double *date_loc;
 
   /* Returning arguments */
 
-  *calcul_type  = vario->getCalculType();
-  *ndim      = vario->getDimensionNumber();
-  *nvar      = vario->getVariableNumber();
-  *ndir      = vario->getDirectionNumber();
-  *ndate     = vario->getDateNumber();
-  *scale     = vario->getScale();
-  date_loc   = (double *) mem_alloc(sizeof(double) * vario->getDateNumber() * 2,1);
+  *calcul_type = vario->getCalculType();
+  *ndim        = vario->getDimensionNumber();
+  *nvar        = vario->getVariableNumber();
+  *ndir        = vario->getDirectionNumber();
+  *ndate       = vario->getDateNumber();
+  *scale       = vario->getScale();
+  date_loc     = (double *) mem_alloc(sizeof(double) * vario->getDateNumber() * 2,1);
   int ecr = 0;
   for (int i=0; i<vario->getDateNumber(); i++)
     for (int icas=0; icas<2; icas++)
       date_loc[ecr++] = vario->getDates(i,icas);
-  *dates     = date_loc;
+  *dates = date_loc;
 
   return(0);
 }
@@ -5085,16 +5090,16 @@ static void st_vmap_extract(int    *nxmap,
 **
 ** \return  Error return code
 **
-** \param[in]  dbgrid    Db of Grid type containing the data
-** \param[in]  dbmap     Db of Grid type containing the Variogram Maps
-** \param[in]  calcul_type  Type of calculation (::ENUM_CALCUL_VARIO)
-** \param[in]  namconv   Naming convention
+** \param[in]  dbgrid       Db of Grid type containing the data
+** \param[in]  dbmap        Db of Grid type containing the Variogram Maps
+** \param[in]  calcul_type  Type of calculation (ECalcVario)
+** \param[in]  namconv      Naming convention
 **
 *****************************************************************************/
-static int st_vmap_grid_fft(Db *dbgrid,
-                            Db *dbmap,
-                            int calcul_type,
-                            NamingConvention namconv)
+static int st_vmap_grid_fft(Db*               dbgrid,
+                            Db*               dbmap,
+                            const ECalcVario& calcul_type,
+                            NamingConvention  namconv)
 {
   int     dims[3],dinv[3],nxmap[3],nxgrid[3],sizetot,sizemap,sizegrid;
   int     i,ndim,ic,error,idim,ivar,jvar,ijvar,nvar,nvs2;
@@ -5120,10 +5125,10 @@ static int st_vmap_grid_fft(Db *dbgrid,
   if (dbgrid == (Db    *) NULL) return(1);
   if (dbmap  == (Db    *) NULL) return(1);
 
-  if (calcul_type != CALCUL_VARIOGRAM   &&
-      calcul_type != CALCUL_COVARIOGRAM &&
-      calcul_type != CALCUL_COVARIANCE  &&
-      calcul_type != CALCUL_COVARIANCE_NC)
+  if (calcul_type != ECalcVario::VARIOGRAM   &&
+      calcul_type != ECalcVario::COVARIOGRAM &&
+      calcul_type != ECalcVario::COVARIANCE  &&
+      calcul_type != ECalcVario::COVARIANCE_NC)
   {
     messerr("This function is limited to the calculation of");
     messerr("Variogram, Covariance (centered or not) or Covariogram");
@@ -5218,7 +5223,7 @@ static int st_vmap_grid_fft(Db *dbgrid,
   /* Core allocation */
 
   if (st_complex_array_alloc(sizetot,ztab)) goto label_end;
-  if (calcul_type == CALCUL_VARIOGRAM)
+  if (calcul_type == ECalcVario::VARIOGRAM)
   {
     if (st_complex_array_alloc(sizetot,i1i2)) goto label_end;
     if (st_complex_array_alloc(sizetot,z1i2)) goto label_end;
@@ -5238,8 +5243,8 @@ static int st_vmap_grid_fft(Db *dbgrid,
   res_gg = (double *) mem_alloc(sizeof(double) * sizemap,0);
   if (res_gg == (double *) NULL) goto label_end;
   for (i=0; i<sizemap; i++) res_nn[i] = res_gg[i] = 0.;
-  if (calcul_type == CALCUL_COVARIANCE ||
-      calcul_type == CALCUL_COVARIOGRAM)
+  if (calcul_type == ECalcVario::COVARIANCE ||
+      calcul_type == ECalcVario::COVARIOGRAM)
   {
     res_m1 = (double *) mem_alloc(sizeof(double) * sizemap,0);
     if (res_m1 == (double *) NULL) goto label_end;
@@ -5256,7 +5261,7 @@ static int st_vmap_grid_fft(Db *dbgrid,
       
       /* Calculate the structural function */
       
-      if (calcul_type == CALCUL_VARIOGRAM)
+      if (calcul_type == ECalcVario::VARIOGRAM)
       {
         if (st_vmap_load(dbgrid,ndim,sizegrid,sizetot,dims,dinv,ivar,jvar,
                          NULL,NULL,NULL,NULL,i1i2,z1i2,z2i1,z1z2)) continue;
@@ -5288,8 +5293,8 @@ static int st_vmap_grid_fft(Db *dbgrid,
         if (fftn(ndim,dinv,ztab[0],ztab[1],-1,-1.)) continue;
         st_vmap_extract(nxmap,nxgrid,dims,ztab[0],res_nn);
         
-        if (calcul_type == CALCUL_COVARIANCE ||
-            calcul_type == CALCUL_COVARIOGRAM)
+        if (calcul_type == ECalcVario::COVARIANCE ||
+            calcul_type == ECalcVario::COVARIOGRAM)
         {
           /* Calculate the means */
           st_vmap_blank(sizetot, ztab);
@@ -5312,8 +5317,8 @@ static int st_vmap_grid_fft(Db *dbgrid,
         st_vmap_extract(nxmap,nxgrid,dims,ztab[0],res_gg);
         st_vmap_rescale(sizemap,1.,res_gg,res_nn);
         
-        if (calcul_type == CALCUL_COVARIANCE ||
-            calcul_type == CALCUL_COVARIOGRAM)
+        if (calcul_type == ECalcVario::COVARIANCE ||
+            calcul_type == ECalcVario::COVARIOGRAM)
           st_vmap_shift(sizemap,res_gg,res_m1,res_m2);
       }
       
@@ -5330,7 +5335,7 @@ static int st_vmap_grid_fft(Db *dbgrid,
   
 label_end:
   st_complex_array_free(sizetot,ztab);
-  if (calcul_type == CALCUL_VARIOGRAM)
+  if (calcul_type == ECalcVario::VARIOGRAM)
   {
     st_complex_array_free(sizetot,i1i2);
     st_complex_array_free(sizetot,z1i2);
@@ -6701,7 +6706,7 @@ GEOSLIB_API void condexp(Db     *db1,
 ** \param[in]  db           Db descriptor
 ** \param[in]  vario        Vario structure
 ** \param[in]  means        Array giving the mean of the variables
-**                          (Only used for CALCUL_POISSON)
+**                          (Only used for ECalcVario::POISSON)
 ** \param[in]  vars         Array of variance-covariances (Dim: nvar * nvar)
 ** \param[in]  flag_grid    1 for calculation on a grid
 ** \param[in]  flag_gen     1 for calculation of generalized variogram
@@ -6754,43 +6759,43 @@ GEOSLIB_API int _variogram_compute(Db *db,
  ** IN_ARGS:  calcul_name  : Type of the variogram
  **
  ** REMARKS:  In case the calculation type is not identified,
- ** REMARKS:  the routine returns CALCUL_UNDEFINED
+ ** REMARKS:  the routine returns ECalcVario::UNDEFINED
  ** REMARKS:  The error message is produced internally
  **
  *****************************************************************************/
-GEOSLIB_API int vario_identify_calcul_type(const String& calcul_name)
+GEOSLIB_API ECalcVario vario_identify_calcul_type(const String& calcul_name)
 
 {
-  int calcul_type;
+  ECalcVario calcul_type;
 
   if (! strcmp(calcul_name.c_str(),"vg"))
-    calcul_type = CALCUL_VARIOGRAM;
+    calcul_type = ECalcVario::VARIOGRAM;
   else if (! strcmp(calcul_name.c_str(),"cov"))
-    calcul_type = CALCUL_COVARIANCE;
+    calcul_type = ECalcVario::COVARIANCE;
   else if (! strcmp(calcul_name.c_str(),"covnc"))
-    calcul_type = CALCUL_COVARIANCE_NC;
+    calcul_type = ECalcVario::COVARIANCE_NC;
   else if (! strcmp(calcul_name.c_str(),"covg"))
-    calcul_type = CALCUL_COVARIOGRAM;
+    calcul_type = ECalcVario::COVARIOGRAM;
   else if (! strcmp(calcul_name.c_str(),"mado"))
-    calcul_type = CALCUL_MADOGRAM;
+    calcul_type = ECalcVario::MADOGRAM;
   else if (! strcmp(calcul_name.c_str(),"rodo"))
-    calcul_type = CALCUL_RODOGRAM;
+    calcul_type = ECalcVario::RODOGRAM;
   else if (! strcmp(calcul_name.c_str(),"poisson"))
-    calcul_type = CALCUL_POISSON;
+    calcul_type = ECalcVario::POISSON;
   else if (! strcmp(calcul_name.c_str(),"general1"))
-    calcul_type = CALCUL_GENERAL1;
+    calcul_type = ECalcVario::GENERAL1;
   else if (! strcmp(calcul_name.c_str(),"general2"))
-    calcul_type = CALCUL_GENERAL2;
+    calcul_type = ECalcVario::GENERAL2;
   else if (! strcmp(calcul_name.c_str(),"general3"))
-    calcul_type = CALCUL_GENERAL3;
+    calcul_type = ECalcVario::GENERAL3;
   else if (! strcmp(calcul_name.c_str(),"order4"))
-    calcul_type = CALCUL_ORDER4;
+    calcul_type = ECalcVario::ORDER4;
   else if (! strcmp(calcul_name.c_str(),"trans1"))
-    calcul_type = CALCUL_TRANS1;
+    calcul_type = ECalcVario::TRANS1;
   else if (! strcmp(calcul_name.c_str(),"trans2"))
-    calcul_type = CALCUL_TRANS2;
+    calcul_type = ECalcVario::TRANS2;
   else if (! strcmp(calcul_name.c_str(),"binormal"))
-    calcul_type = CALCUL_BINORMAL;
+    calcul_type = ECalcVario::BINORMAL;
   else
   {
     messerr("Invalid variogram calculation name : %s",calcul_name.c_str());
@@ -6810,7 +6815,7 @@ GEOSLIB_API int vario_identify_calcul_type(const String& calcul_name)
     messerr("trans2   : Cross-to-Simple Variogram G12/G1");
     messerr("binormal : Cross-to-Simple Variogram G12/sqrt(G1*G2)");
 
-    calcul_type = CALCUL_UNDEFINED;
+    calcul_type = ECalcVario::UNDEFINED;
   }
   return(calcul_type);
 }
@@ -6873,18 +6878,18 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
 **
 ** \param[in]  db          Db containing the data
 ** \param[in]  dbmap       VMAP grid structure
-** \param[in]  calcul_type Type of calculation (::ENUM_CALCUL_VARIO)
+** \param[in]  calcul_type Type of calculation (ECalcVario)
 ** \param[in]  radius      Dilation radius (mooth resulting maps) only on points
 ** \param[in]  flag_FFT    Use FFT method (only valid on grid)
 ** \param[in]  namconv     Naming convention
 **
 *****************************************************************************/
-GEOSLIB_API int vmap_compute(Db *db,
-                             Db* dbmap,
-                             int calcul_type,
-                             int radius,
-                             bool flag_FFT,
-                             NamingConvention namconv)
+GEOSLIB_API int vmap_compute(Db*               db,
+                             Db*               dbmap,
+                             const ECalcVario& calcul_type,
+                             int               radius,
+                             bool              flag_FFT,
+                             NamingConvention  namconv)
 {
   int error = 0;
 
@@ -6916,7 +6921,7 @@ GEOSLIB_API int vmap_compute(Db *db,
 ** \return  Error return code
 **
 ** \param[in]  db          Db containing the data
-** \param[in]  calcul_type Type of calculation (::ENUM_CALCUL_VARIO)
+** \param[in]  calcul_type Type of calculation (ECalcVario)
 ** \param[in]  nxx         (Half-) Number of nodes for the VMAP grid along X
 ** \param[in]  nyy         (Half-) Number of nodes for the VMAP grid along Y
 ** \param[in]  dxx         Mesh of the VMAP grid along X
@@ -6926,15 +6931,15 @@ GEOSLIB_API int vmap_compute(Db *db,
 ** \param[in]  namconv     Naming convention
 **
 *****************************************************************************/
-GEOSLIB_API Db* db_vmap_compute(Db *db,
-                                int calcul_type,
-                                int nxx,
-                                int nyy,
-                                double dxx,
-                                double dyy,
-                                int radius,
-                                bool flag_FFT,
-                                NamingConvention namconv)
+GEOSLIB_API Db* db_vmap_compute(Db*               db,
+                                const ECalcVario& calcul_type,
+                                int               nxx,
+                                int               nyy,
+                                double            dxx,
+                                double            dyy,
+                                int               radius,
+                                bool              flag_FFT,
+                                NamingConvention  namconv)
 {
   int error = 0;
 

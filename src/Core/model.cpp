@@ -3597,7 +3597,7 @@ GEOSLIB_API int model_dimension(Model *model)
  ** \param[in]  model     Model structure
  ** \param[in]  icov      Rank of the Covariance structure (from 0)
  **
- ** \param[out]  cov_type      Type of the covariance (integer enum of ECov)
+ ** \param[out]  cov_type      Type of the covariance (enum of ECov)
  ** \param[out]  flag_aniso    1 for anisotropy and 0 otherwise
  ** \param[out]  param         Parameter
  ** \param[out]  sill          Array of sills (Dimension = nvar * nvar)
@@ -3605,11 +3605,11 @@ GEOSLIB_API int model_dimension(Model *model)
  ** \param[out]  aniso_ranges  Rotation ranges (Dimension = ndim)
  **
  *****************************************************************************/
-GEOSLIB_API int model_extract_cova(Model *model,
-                                   int icov,
-                                   int *cov_type,
-                                   int *flag_aniso,
-                                   double *param,
+GEOSLIB_API int model_extract_cova(Model*        model,
+                                   int           icov,
+                                   ECov*         cov_type,
+                                   int *         flag_aniso,
+                                   double*       param,
                                    VectorDouble& sill,
                                    VectorDouble& aniso_rotmat,
                                    VectorDouble& aniso_ranges)
@@ -3625,7 +3625,7 @@ GEOSLIB_API int model_extract_cova(Model *model,
 
   /* Returning arguments */
 
-  *cov_type = cova->getType().getValue();
+  *cov_type = cova->getType();
   *flag_aniso = !cova->isIsotrop();
   *param = cova->getParam();
   sill = cova->getSill().getValues();

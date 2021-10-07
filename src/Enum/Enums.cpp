@@ -8,9 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Enum/Enums.hpp"
+#include "Neigh/ENeigh.hpp"
+#include "Db/ELoc.hpp"
+#include "Covariances/ECov.hpp"
+#include "Drifts/EDrift.hpp"
+#include "Variogram/ECalcVario.hpp"
 
 ENUM_DEFINE(ENUM_NEIGH)
 ENUM_DEFINE(ENUM_LOC)
 ENUM_DEFINE(ENUM_COV)
 ENUM_DEFINE(ENUM_DRIFT)
+ENUM_DEFINE(ENUM_CALC_VARIO)

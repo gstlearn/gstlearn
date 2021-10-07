@@ -14,6 +14,7 @@
 #include "Neigh/ENeigh.hpp"
 #include "Model/CovInternal.hpp"
 #include "Variogram/Vario.hpp"
+#include "Variogram/ECalcVario.hpp"
 #include "geoslib_d.h"
 #include "csparse_d.h"
 #include "csparse_f.h"
@@ -896,7 +897,7 @@
                                     double ps,
                                     double psmin,
                                     double *dist);
-  GEOSLIB_API int vario_identify_calcul_type(const String& cov_name);
+  GEOSLIB_API ECalcVario vario_identify_calcul_type(const String& cov_name);
   GEOSLIB_API void vardir_print(Vario *vario, int idir, int verbose);
   GEOSLIB_API void vardir_copy(VarioParam *vario_in,
                                int idir_in,
@@ -956,14 +957,14 @@
                            int *ncond,
                            double *xcond,
                            double *ycond);
-  GEOSLIB_API int vario_extract(Vario *vario,
-                                int *cov_type,
-                                int *ndim,
-                                int *nvar,
-                                int *ndir,
-                                int *ndate,
-                                double *scale,
-                                double **dates);
+  GEOSLIB_API int vario_extract(Vario*      vario,
+                                ECalcVario* calcul_type,
+                                int*        ndim,
+                                int*        nvar,
+                                int*        ndir,
+                                int*        ndate,
+                                double*     scale,
+                                double**    dates);
   GEOSLIB_API int vario_get_rank(Vario *vario, int idir, int idate);
   GEOSLIB_API int maf_compute(Db *db,
                               int opt_code,
@@ -1236,11 +1237,11 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                  Model *model_in);
   GEOSLIB_API int model_dimension(Model *model);
   GEOSLIB_API double model_get_field(Model *model);
-  GEOSLIB_API int model_extract_cova(Model *model,
-                                     int icov,
-                                     int *cov_type,
-                                     int *flag_aniso,
-                                     double *param,
+  GEOSLIB_API int model_extract_cova(Model*        model,
+                                     int           icov,
+                                     ECov*         cov_type,
+                                     int*          flag_aniso,
+                                     double*       param,
                                      VectorDouble& sill,
                                      VectorDouble& aniso_rotmat,
                                      VectorDouble& aniso_ranges);

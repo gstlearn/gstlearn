@@ -936,9 +936,9 @@ static void st_load_ge(Vario  *vario,
   int nvar   = vario->getVariableNumber();
   int nvs2   = nvar  * (nvar + 1) /2;
   int norder = 0;
-  if (vario->getCalculType() == CALCUL_GENERAL1) norder = 1;
-  if (vario->getCalculType() == CALCUL_GENERAL2) norder = 2;
-  if (vario->getCalculType() == CALCUL_GENERAL3) norder = 3;
+  if (vario->getCalculType() == ECalcVario::GENERAL1) norder = 1;
+  if (vario->getCalculType() == ECalcVario::GENERAL2) norder = 2;
+  if (vario->getCalculType() == ECalcVario::GENERAL3) norder = 3;
   VectorDouble d1(ndim);
   CovCalcMode mode;
   mode.setUnitary(true);
@@ -4521,20 +4521,20 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
 
   error  = 1;
   norder = 0;
-  if (vario->getCalculType() == CALCUL_GENERAL1) norder = 1;
-  if (vario->getCalculType() == CALCUL_GENERAL2) norder = 2;
-  if (vario->getCalculType() == CALCUL_GENERAL3) norder = 3;
+  if (vario->getCalculType() == ECalcVario::GENERAL1) norder = 1;
+  if (vario->getCalculType() == ECalcVario::GENERAL2) norder = 2;
+  if (vario->getCalculType() == ECalcVario::GENERAL3) norder = 3;
   if (model->getDimensionNumber() > 3)
   {
     messerr("Procedure cannot be used for space dimension (%d) larger than 3",
             model->getDimensionNumber());
     goto label_end;
   }
-  if (vario->getCalculType() == CALCUL_MADOGRAM ||
-      vario->getCalculType() == CALCUL_RODOGRAM ||
-      vario->getCalculType() == CALCUL_GENERAL1 ||
-      vario->getCalculType() == CALCUL_GENERAL2 ||
-      vario->getCalculType() == CALCUL_GENERAL3)
+  if (vario->getCalculType() == ECalcVario::MADOGRAM ||
+      vario->getCalculType() == ECalcVario::RODOGRAM ||
+      vario->getCalculType() == ECalcVario::GENERAL1 ||
+      vario->getCalculType() == ECalcVario::GENERAL2 ||
+      vario->getCalculType() == ECalcVario::GENERAL3)
   {
     messerr("Procedure is designed only for symmetric covariance");
     return(1);

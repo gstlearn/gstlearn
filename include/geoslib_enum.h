@@ -201,7 +201,7 @@ typedef enum
   NEIGH_MOVING = 2,        //!< Moving Neighborhood
   NEIGH_IMAGE = 3,         //!< Image Neighborhood
 } ENUM_NEIGHS; // Now see ENeigh.hpp
-*/
+
 typedef enum
 {
   CALCUL_UNDEFINED = -1,    //!< Undefined
@@ -219,8 +219,8 @@ typedef enum
   CALCUL_TRANS1 = 11,       //!< Transition probability G12/G1
   CALCUL_TRANS2 = 12,       //!< Transition probability G12/G2
   CALCUL_BINORMAL = 13,     //!< Binormal hypothesis G12/sqrt(G1 * G2)
-} ENUM_CALCUL_VARIO;
-
+} ENUM_CALCUL_VARIO; // Now see ECalcVario.hpp
+*/
 typedef enum
 {
   CALCUL_NONE = 0,     //!< No Calculation

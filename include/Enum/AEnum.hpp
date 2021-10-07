@@ -14,19 +14,20 @@
 #include <string>
 #include <map>
 
+#include "geoslib_define.h"
 #include "Basic/RepeatMacro.hpp"
 
 class AEnum
 {
 public:
   //! Return the enum key as a string
-  const std::string& getKey() const { return _key; }
+  const String& getKey() const { return _key; }
 
   //! Return enum value as an integer value
   int getValue() const { return _value; }
 
   //! Return the enum description as a string
-  const std::string& getDescr() const { return _descr; }
+  const String& getDescr() const { return _descr; }
 
 #ifndef SWIG
   // Remove this: too much dangerous (implicit casts)
@@ -49,7 +50,7 @@ public:
   bool isDifferent     (const AEnum& e) const { return e != *this; }
 
 protected:
-  AEnum(const std::string& key, int value, const std::string& descr)
+  AEnum(const String& key, int value, const String& descr)
   : _key(key), _value(value), _descr(descr)
   {
   }
@@ -58,9 +59,9 @@ protected:
   AEnum& operator=(const AEnum&) = default;
  
 private:
-  std::string _key;
-  int         _value;
-  std::string _descr;
+  String _key;
+  int    _value;
+  String _descr;
 };
 
 #define ENUM_ITEM(NAME, X,Y,Z) E_ ## X = Y,
@@ -97,8 +98,8 @@ public:\
   const NAME& toFront();\
   const NAME& getEnum() const;\
   int getValue() const;\
-  const std::string& getKey() const;\
-  const std::string& getDescr() const;\
+  const String& getKey() const;\
+  const String& getDescr() const;\
 \
 private:\
   NAME ## Map::iterator _stditer;\
@@ -117,13 +118,13 @@ public:\
   static size_t getSize();\
   static NAME ## Iterator getIterator();\
   \
-  static bool existsKey(const std::string& key);\
+  static bool existsKey(const String& key);\
   static bool existsValue(int value);\
-  static const NAME& fromKey(const std::string& key);\
+  static const NAME& fromKey(const String& key);\
   static const NAME& fromValue(int value);\
 \
 private:\
-  NAME(const std::string& key, int value, const std::string& descr);\
+  NAME(const String& key, int value, const String& descr);\
 \
   static NAME ## Map      _map;\
   static NAME ## Iterator _iterator;\
@@ -155,7 +156,7 @@ NAME::NAME()\
 {\
 }\
 \
-NAME::NAME(const std::string& key, int value, const std::string& descr)\
+NAME::NAME(const String& key, int value, const String& descr)\
 : AEnum(key, value, descr)\
 {\
   if (_map.find(value) != _map.end())\
@@ -179,7 +180,7 @@ NAME ## Iterator NAME::getIterator()\
   return it;\
 }\
 \
-bool NAME::existsKey(const std::string& key)\
+bool NAME::existsKey(const String& key)\
 {\
   auto it = _map.begin();\
   while (it != _map.end())\
@@ -196,7 +197,7 @@ bool NAME::existsValue(int value)\
   return (_map.find(value) != _map.end());\
 }\
 \
-const NAME& NAME::fromKey(const std::string& key)\
+const NAME& NAME::fromKey(const String& key)\
 {\
   auto it = _map.begin();\
   while (it != _map.end())\
@@ -261,12 +262,12 @@ int NAME ## Iterator::getValue() const\
   return (_stditer->second->getValue());\
 }\
 \
-const std::string& NAME ## Iterator::getKey() const\
+const String& NAME ## Iterator::getKey() const\
 {\
   return (_stditer->second->getKey());\
 }\
 \
-const std::string& NAME ## Iterator::getDescr() const\
+const String& NAME ## Iterator::getDescr() const\
 {\
   return (_stditer->second->getDescr());\
 }\
