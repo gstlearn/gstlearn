@@ -1557,7 +1557,9 @@ GEOSLIB_API int model_add_tapering(Model *model,
  *****************************************************************************/
 GEOSLIB_API double cova_get_scale_factor(const ECov& type, double param)
 {
-  ACovFunc* cova = CovFactory::createCovFunc(type, CovContext());
+  SpaceRN space(1);
+  CovContext ctxt = CovContext(1, 1000, 0., &space);
+  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   return cova->getScadef();
 }
