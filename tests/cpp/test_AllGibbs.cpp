@@ -26,11 +26,20 @@ int main(int argc, char *argv[])
   int seed     = 31415;
   int ndim     = 2;
   int nvar     = 1;
-  int nbsimu   = 3;
+  int nbsimu   = 1;
   int nlag     = 20;
+
   int niter    = 10000;
   int nburn    = 100;
-  bool verbose = true;
+
+  int nbgh_maxi = 20;
+  int nbgh_nsect = 4;
+  double nbgh_radius = 5.;
+
+  VectorDouble ranges = { 10., 5.};
+  double sill = 7.5;
+
+  bool verbose          = true;
   bool flag_moving      = true;
   bool flag_propagation = false;
   bool flag_multi_mono  = false;
@@ -52,8 +61,8 @@ int main(int argc, char *argv[])
   CovContext ctxt(nvar,2,1.);
   Model* model = new Model(ctxt);
   CovAniso cova(ECov::EXPONENTIAL,ctxt);
-  cova.setRanges({20.,10.});
-  cova.setSill({7.5});
+  cova.setRanges(ranges);
+  cova.setSill({sill});
   model->addCova(&cova);
   model->display();
 
@@ -62,9 +71,7 @@ int main(int argc, char *argv[])
   Neigh* neigh = nullptr;
   if (flag_moving)
   {
-    int nmaxi = 10;
-    double radius = 5.;
-    neigh = new Neigh(ndim, nmaxi, radius);
+    neigh = new Neigh(ndim, nbgh_maxi, nbgh_radius, 1, nbgh_nsect);
     neigh->display();
   }
 

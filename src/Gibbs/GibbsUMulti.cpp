@@ -15,7 +15,6 @@
 #include "Morpho/Morpho.hpp"
 #include "geoslib_f.h"
 
-#define MEAN(ivar,iech)          (mean[(ivar) * nech + (iech)])
 #define COVMAT(i,j)              (_covmat[(i) * neq + (j)])
 
 GibbsUMulti::GibbsUMulti()
@@ -66,9 +65,9 @@ int GibbsUMulti::covmatAlloc(bool verbose)
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood");
   Db* db = getDb();
   Model* model = getModel();
-  int nvar    = model->getVariableNumber();
-  int nactive = db->getActiveSampleNumber();
-  int neq     = nvar * nactive;
+  int nvar = model->getVariableNumber();
+  int nact = getSampleRankNumber();
+  int neq  = nvar * nact;
 
   // Core allocation
 
@@ -114,10 +113,9 @@ void GibbsUMulti::update(VectorVectorDouble& y,
                          int iter)
 {
   double valsim;
-  Db* db = getDb();
-  int nvar    = getNvar();
-  int nactive = db->getActiveSampleNumber();
-  int neq     = nvar * nactive;
+  int nvar = getNvar();
+  int nact = getSampleRankNumber();
+  int neq  = nvar * nact;
 
   /* Print the title */
 
@@ -125,25 +123,31 @@ void GibbsUMulti::update(VectorVectorDouble& y,
     mestitle(1,"Iterative Conditional Expectation (GS:%d - Simu:%d)",
              ipgs+1,isimu+1);
 
-  /* Loop on the samples */
+  /* Loop on the target */
 
   for (int ivar = 0, iecr = 0; ivar < nvar; ivar++)
   {
-    int icase   = getRank(ipgs,ivar);
-    for (int iact = 0; iact < nactive; iact++, iecr++)
+    int icase = getRank(ipgs,ivar);
+    for (int iact = 0; iact < nact; iact++, iecr++)
     {
       if (!isConstraintTight(ipgs, ivar, iact, &valsim))
       {
-        double sk = 1. / COVMAT(iecr, iecr);
+
+        /* Loop on the Data */
+
         double yk = 0.;
+        double vark = 1. / COVMAT(iecr, iecr);
         for (int jvar = 0, jecr = 0; jvar < nvar; jvar++)
-          for (int jact = 0; jact < nactive; jact++, jecr++)
+        {
+          int jcase = getRank(ipgs, jvar);
+          for (int jact = 0; jact < nact; jact++, jecr++)
           {
-            if (iecr != jecr) yk -= y[icase][jact] * COVMAT(iecr, jecr);
+            if (ivar != jvar || iact != jact)
+              yk -= y[jcase][jact] * COVMAT(iecr, jecr);
           }
-        yk *= yk;
-        sk  = sqrt(sk);
-        valsim = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
+        }
+        yk *= vark;
+        valsim = getSimulate(y, yk, sqrt(vark), ipgs, ivar, iact, iter);
       }
       y[icase][iact] = valsim;
     }

@@ -16,7 +16,6 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
-#define MEAN(ivar,iech)          (mean[(ivar) * nech + (iech)])
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
 
 GibbsMulti::GibbsMulti()
@@ -68,10 +67,9 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
                              int ipgs,
                              bool verbose)
 {
-  Db* db = getDb();
   const Model* model = getModel();
-  int nactive = db->getActiveSampleNumber();
-  int nvar    = getNvar();
+  int nact = getSampleRankNumber();
+  int nvar = getNvar();
 
   /* Print the title */
 
@@ -83,16 +81,15 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int icase   = getRank(ipgs,ivar);
+    int icase = getRank(ipgs,ivar);
 
     /* Loop on the samples */
 
     double sk = sqrt(model->getTotalSill(ivar,ivar));
-    for (int iact = 0; iact < nactive; iact++)
+    for (int iact = 0; iact < nact; iact++)
     {
-      int iech = getSampleRank(iact);
       double vmin, vmax;
-      if (_boundsCheck(iech, ipgs, ivar, &vmin, &vmax)) return 1;
+      if (_boundsCheck(ipgs, ivar, iact, &vmin, &vmax)) return 1;
 
       /* Compute the median value of the interval */
 
@@ -101,7 +98,6 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
       y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
     }
   }
-
   return(0);
 }
 
@@ -110,19 +106,19 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
  * @param y     : Gaussian vector
  * @param yk    : Kriged value
  * @param sk    : Standard deviation
- * @param iact  : Rank of the target sample (relative)
  * @param ipgs  : Rank of the current GS
  * @param ivar  : Rank of the current Variable
+ * @param iact  : Rank of the target sample (relative)
  * @param iter  : Rank of the iteration
  * @return Simulated value
  */
 double GibbsMulti::getSimulate(VectorVectorDouble& y,
-                           double yk,
-                           double sk,
-                           int iact,
-                           int ipgs,
-                           int ivar,
-                           int iter)
+                               double yk,
+                               double sk,
+                               int ipgs,
+                               int ivar,
+                               int iact,
+                               int iter)
 {
   // Define the environment
 
@@ -135,17 +131,9 @@ double GibbsMulti::getSimulate(VectorVectorDouble& y,
   double vmin = db->getLowerBound(iech, icase);
   double vmax = db->getUpperBound(iech, icase);
 
-  // Apply decay
+  // Apply optional decay
 
-  int nburn = getNburn();
-  if (nburn > 0 && getFlagDecay() && iter <= nburn)
-  {
-    double ratio = (double) iter / (double) nburn;
-    if (!FFFF(vmin))
-      vmin = THRESH_INF + (vmin - THRESH_INF) * ratio;
-    if (!FFFF(vmax))
-      vmax = THRESH_SUP + (vmax - THRESH_SUP) * ratio;
-  }
+  getBoundsDecay(iter, &vmin, &vmax);
 
   /* Update the definition interval */
 
@@ -154,7 +142,12 @@ double GibbsMulti::getSimulate(VectorVectorDouble& y,
 
   /* Draw an authorized normal value */
 
-  return (yk + sk * law_gaussian_between_bounds(vmin, vmax));
+  double value;
+  if (FFFF(vmin) && FFFF(vmax))
+    value = yk + sk * law_gaussian();
+  else
+    value = yk + sk * law_gaussian_between_bounds(vmin, vmax);
+  return value;
 }
 
 /****************************************************************************/
@@ -171,8 +164,8 @@ double GibbsMulti::getSimulate(VectorVectorDouble& y,
 int GibbsMulti::checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs)
 {
   Db* db = getDb();
-  int nactive = db->getActiveSampleNumber();
-  int nvar    = getNvar();
+  int nact = getSampleRankNumber();
+  int nvar = getNvar();
   mestitle(1,"Checking gaussian values from Gibbs vs. bounds (PGS=%d Simu=%d)",
            ipgs+1,isimu+1);
 
@@ -186,7 +179,7 @@ int GibbsMulti::checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs)
 
     /* Loop on the data */
 
-    for (int iact=0; iact<nactive; iact++)
+    for (int iact=0; iact<nact; iact++)
     {
       int iech = getSampleRank(iact);
       double vmin = db->getLowerBound(iech,icase);
@@ -220,7 +213,6 @@ int GibbsMulti::checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs)
       }
     }
   }
-
   if (nerror <= 0) message("No problem found\n");
 
   return nerror;

@@ -32,9 +32,9 @@ public:
   double getSimulate(VectorVectorDouble& y,
                      double yk,
                      double sk,
-                     int iact,
                      int ipgs,
                      int ivar,
+                     int iact,
                      int iter);
   int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs);
 

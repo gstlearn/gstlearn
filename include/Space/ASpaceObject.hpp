@@ -31,6 +31,9 @@ public:
                                          unsigned int ndim,
                                          double param = 0.);
 
+  /// Delete the current Global Space (Dangerous function)
+  static void destroyGlobalSpace();
+
   /// Check that the global Space has already been defined
   static bool hasGlobalSpace() { return _globalSpace != nullptr; }
 

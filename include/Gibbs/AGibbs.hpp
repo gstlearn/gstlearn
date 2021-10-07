@@ -42,9 +42,9 @@ public:
   virtual double getSimulate(VectorVectorDouble& y,
                              double yk,
                              double sk,
-                             int iact,
                              int ipgs,
                              int ivar,
+                             int iact,
                              int iter) = 0;
   virtual int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) = 0;
 
@@ -55,7 +55,7 @@ public:
             int flag_order,
             bool flag_multi_mono,
             bool flag_decay);
-
+  void getBoundsDecay(int iter, double *vmin, double *vmax) const;
   void print(bool flag_init,
              const VectorVectorDouble& y,
              int isimu,
@@ -87,13 +87,14 @@ public:
                    int ipgs,
                    int iter,
                    double amort = 0.9);
-  bool isConstraintTight(int ipgs, int ivar, int iech, double* value) const;
+  bool isConstraintTight(int ipgs, int ivar, int iact, double* value) const;
   void statsInit();
 
   bool getFlagDecay() const { return _flagDecay; }
+  int  getRelativeRank(int iech);
 
 protected:
-  int _boundsCheck(int iech0, int ipgs, int ivar, double *vmin, double *vmax);
+  int _boundsCheck(int ipgs, int ivar, int iact, double *vmin, double *vmax);
   void _printInequalities(int iact,
                           int ivar,
                           int nfois,

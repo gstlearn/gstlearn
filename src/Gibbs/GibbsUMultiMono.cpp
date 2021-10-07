@@ -15,7 +15,7 @@
 #include "Morpho/Morpho.hpp"
 #include "geoslib_f.h"
 
-#define COVMAT(ivar,i,j)              (_covmat[ivar][(i) * nactive + (j)])
+#define COVMAT(ivar,i,j)              (_covmat[ivar][(i) * nact + (j)])
 
 GibbsUMultiMono::GibbsUMultiMono()
   : GibbsMultiMono()
@@ -65,8 +65,8 @@ int GibbsUMultiMono::covmatAlloc(bool verbose)
   // Initialization
 
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood in MultiMono case");
-  int nactive = db->getActiveSampleNumber();
-  int nvar    = getVariableNumber();
+  int nact = getSampleRankNumber();
+  int nvar = getVariableNumber();
   _covmat.resize(nvar);
 
   // Loop on the variables
@@ -74,7 +74,7 @@ int GibbsUMultiMono::covmatAlloc(bool verbose)
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     Model* model = getModels(ivar);
-    _covmat[ivar].resize(nactive * nactive, 0.);
+    _covmat[ivar].resize(nact * nact, 0.);
 
     // Establish Covariance Matrix (always based on the first variable in MultiMono case)
 
@@ -84,7 +84,7 @@ int GibbsUMultiMono::covmatAlloc(bool verbose)
     // Invert Covariance Matrix
 
     if (verbose) message("Invert Covariance matrix (Var=%d)\n",ivar+1);
-    if (matrix_invert(_covmat[ivar].data(), nactive, -1))
+    if (matrix_invert(_covmat[ivar].data(), nact, -1))
     {
       messerr("Error during the covariance matrix inversion");
       return 1;
@@ -114,9 +114,8 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
                              int iter)
 {
   double valsim;
-  Db* db = getDb();
-  int nactive = db->getActiveSampleNumber();
-  int nvar    = getNvar();
+  int nact = getSampleRankNumber();
+  int nvar = getNvar();
 
   /* Print the title */
 
@@ -124,27 +123,27 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
     mestitle(1,"Iterative Conditional Expectation (PGS=%d - Simu:%d - Iter=%d)",
              ipgs+1,isimu+1,iter+1);
 
-  /* Loop on the variables */
+  /* Loop on the target */
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int icase   = getRank(ipgs,ivar);
-
-    /* Loop on the samples */
-
-    for (int iact = 0; iact < nactive; iact++)
+    for (int iact = 0; iact < nact; iact++)
     {
       if (!isConstraintTight(ipgs, ivar, iact, &valsim))
       {
-        double sk = 1. / COVMAT(ivar, iact, iact);
+
+         /* Loop on the Data */
+
         double yk = 0.;
-        for (int jact = 0; jact < nactive; jact++)
+        double sk = 1. / COVMAT(ivar, iact, iact);
+        for (int jact = 0; jact < nact; jact++)
         {
           if (iact != jact) yk -= y[icase][jact] * COVMAT(ivar, iact, jact);
         }
         yk *= sk;
         sk  = sqrt(sk);
-        valsim = getSimulate(y, yk, sk, iact, ipgs, ivar, iter);
+        valsim = getSimulate(y, yk, sk, ipgs, ivar, iact, iter);
       }
       y[icase][iact] = valsim;
     }

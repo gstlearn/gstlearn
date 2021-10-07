@@ -8,7 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Gibbs/GibbsUPropMono.hpp"
+#include "Gibbs/GibbsUPropMono.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
@@ -92,9 +92,9 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   Db* db = getDb();
   Model* model = getModels(0);
-  int nactive = db->getActiveSampleNumber();
-  int ndim    = model->getDimensionNumber();
-  int icase   = getRank(ipgs,0);
+  int nact  = getSampleRankNumber();
+  int ndim  = model->getDimensionNumber();
+  int icase = getRank(ipgs,0);
 
   double eps  = getEps();
   double r    = getRval();
@@ -103,7 +103,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
   /* Core allocation */
 
   VectorDouble d1(ndim);
-  VectorBool img(nactive * nactive);
+  VectorBool img(nact * nact);
 
   /* Print the title */
 
@@ -112,7 +112,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   /* Loop on the samples */
 
-  for (int iact = 0; iact < nactive; iact++)
+  for (int iact = 0; iact < nact; iact++)
   {
     int iech = getSampleRank(iact);
 
@@ -134,9 +134,9 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
     /* Update the gaussian vector */
 
-    for (int jact = 0; jact < nactive; jact++)
+    for (int jact = 0; jact < nact; jact++)
     {
-      if (iter > 0 && ! img[nactive * iact + jact]) continue;
+      if (iter > 0 && ! img[nact * iact + jact]) continue;
       int jech = getSampleRank(jact);
 
       double sigloc;
@@ -151,7 +151,7 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
         model_calcul_cov(model, mode, 1, 1., d1, &sigloc);
 
       bool flag_affect = (ABS(sigloc) > sigval * eps);
-      if (iter <= 0) img[nactive * iact + jact] = flag_affect;
+      if (iter <= 0) img[nact * iact + jact] = flag_affect;
       if (flag_affect) y[icase][jact] += delta * sigloc / sigval;
     }
   }

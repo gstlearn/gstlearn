@@ -3749,6 +3749,11 @@ GEOSLIB_API int model_sample(Vario *vario,
   if (covtab == (double *) NULL) goto label_end;
   vario->setNVar(nvar);
 
+  // Internal redimensioning
+
+  vario->internalVariableResize();
+  vario->internalDirectionResize();
+
   /* Calculate the C(0) constant term */
 
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
