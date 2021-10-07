@@ -10,12 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include <Variogram/Vario.hpp>
-#include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
-#include "Space/ASpace.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Space/ASpaceObject.hpp"
+
+class ASpace;
+class Vario;
+class Db;
 
 class CovContext : public ASpaceObject
 {

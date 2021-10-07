@@ -51,7 +51,7 @@ Model::Model(const Db *db, bool flagGradient, bool flagLinked)
       _ctxt(),
       generic_cov_function(nullptr)
 {
-  _ctxt = CovContext(db); /// TODO : Really ?
+  _ctxt = CovContext(db); /// TODO : What to do with that ?
   _create(flagGradient, flagLinked);
 }
 
@@ -355,7 +355,7 @@ int Model::fit(Vario *vario,
 
   // Add the relevant covariances
 
-  _ctxt = CovContext(vario);
+  _ctxt = CovContext(vario); /// TODO : What to do with that ?
   for (int is = 0; is < (int) types.size(); is++)
   {
     ECov covtype = ECov::fromValue(types[is]);
@@ -393,7 +393,7 @@ int Model::fit(Vario *vario,
 
   // Add the relevant covariances
 
-  _ctxt = CovContext(vario);
+  _ctxt = CovContext(vario); /// TODO : What to do with that ?
   for (int is = 0; is < (int) types.size(); is++)
   {
     CovAniso cov = CovAniso(types[is],_ctxt);

@@ -11,7 +11,6 @@
 #pragma once
 
 #include "Space/Space.hpp"
-#include "Space/SpacePoint.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
@@ -31,14 +30,14 @@ public:
 
   virtual IClonable* clone() const override = 0;
 
-  /// Update the origin
-  void setOrigin(const SpacePoint& origin);
+  /// Update the origin coordinates
+  void setOrigin(const VectorDouble& origin);
 
   /// Get the number of dimensions
   unsigned int getNDim() const { return _nDim; }
 
-  /// Return the space origin
-  const SpacePoint& getOrigin() const { return _origin; }
+  /// Return the space origin coordinates
+  const VectorDouble& getOrigin() const { return _origin; }
 
   /// Return true if the given space is equal to me
   virtual bool isEqual(const ASpace* space) const;
@@ -66,7 +65,7 @@ public:
 protected:
   /// Number of space dimensions
   unsigned int _nDim;
-  /// Origin of the space
-  SpacePoint _origin;
+  /// Coordinates of the origin (not a space point... ex: sphere center in a long/lat space)
+  VectorDouble _origin;
 };
 

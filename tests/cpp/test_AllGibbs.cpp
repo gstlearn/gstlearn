@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   
   // Model
 
-  CovContext ctxt(nvar,2,1.);
+  CovContext ctxt(nvar,2,1.); // use default space
   Model* model = new Model(ctxt);
   CovAniso cova(ECov::EXPONENTIAL,ctxt);
   cova.setRanges(ranges);

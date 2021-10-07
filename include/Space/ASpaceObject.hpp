@@ -36,12 +36,12 @@ public:
   virtual ~ASpaceObject();
 
 
-  /// Return a clone of the unique default global space
-  static const ASpace* cloneDefaultSpace();
-  /// Factory for defining the unique default global space (optional parameter can be used for sphere radius for example)
+  /// (Re)Defining the unique default global space
   static void defineDefaultSpace(SpaceType type,
                                  unsigned int ndim,
                                  double param = 0.);
+  /// Return a clone of the unique default global space
+  static const ASpace* cloneDefaultSpace();
 private:
   /// Unique default global space
   static ASpace* _defaultSpace;
@@ -66,8 +66,8 @@ public:
   /// Return the number of dimension of the current space context
   unsigned int getNDim() const;
 
-  /// Return the current space context origin
-  const SpacePoint& getOrigin() const;
+  /// Return the current space context origin coordinates
+  const VectorDouble& getOrigin() const;
 
   /// Return the distance between two space points for the current space context
   double getDistance(const SpacePoint& p1, const SpacePoint& p2) const;

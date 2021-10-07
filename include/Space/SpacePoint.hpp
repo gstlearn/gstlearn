@@ -20,8 +20,10 @@ class SpacePoint : public ASpaceObject
 {
 public:
   SpacePoint(const ASpace* space = nullptr);
+  SpacePoint(const SpacePoint& r);
   SpacePoint(const VectorDouble& coord,
              const ASpace* space = nullptr);
+  SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
 
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }

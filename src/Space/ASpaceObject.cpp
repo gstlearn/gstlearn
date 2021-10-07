@@ -14,19 +14,29 @@ ASpaceObject::ASpaceObject(const ASpace* space)
 : _space(space)
 {
   if (nullptr == _space)
+    // If the object is created without space, clone the global default space
     _space = cloneDefaultSpace();
+  else
+    // else duplicate the provided pointer
+    _space = dynamic_cast<const ASpace*>(space->clone());
 }
 
 ASpaceObject::ASpaceObject(const ASpaceObject& r)
-: _space(dynamic_cast<const ASpace*>(r._space->clone()))
+: _space(nullptr)
 {
+  // Always duplicate!
+  _space = dynamic_cast<const ASpace*>(r._space->clone());
 }
 
 ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
 {
   if (this != &r)
   {
-    _space = dynamic_cast<const sASpace*>(r._space->clone());
+    // Delete the previous space
+    if (nullptr != _space)
+      delete _space;
+    // Clone the space of the object to be copied
+    _space = dynamic_cast<const ASpace*>(r._space->clone());
   }
   return *this;
 }
@@ -35,15 +45,21 @@ ASpaceObject::~ASpaceObject()
 {
   delete _space;
 }
-
+/**
+ * Factory for defining the unique default global space
+ * (optional parameter can be used for sphere radius for example)
+ *
+ * @param type Space type (RN, SN, ...)
+ * @param ndim Number of dimension
+ * @param param Optional space parameter
+ */
 void ASpaceObject::defineDefaultSpace(SpaceType type,
                                       unsigned int ndim,
                                       double param)
 {
   if (nullptr != _defaultSpace)
-  {
     delete _defaultSpace;
-  }
+
   switch (type)
   {
     case SPACE_SN:
@@ -66,10 +82,9 @@ void ASpaceObject::defineDefaultSpace(SpaceType type,
 const ASpace* ASpaceObject::cloneDefaultSpace()
 {
   if (nullptr == _defaultSpace)
-  {
     defineDefaultSpace(SPACE_RN, 2);
-  }
-  return dynamic_cast<const ASpace*>(_defaultSpace->clone());
+
+  return (dynamic_cast<const ASpace*>(_defaultSpace->clone()));
 }
 
 VectorDouble ASpaceObject::getUnitaryVector() const
@@ -85,7 +100,7 @@ unsigned int ASpaceObject::getNDim() const
   return (_space->getNDim());
 }
 
-const SpacePoint& ASpaceObject::getOrigin() const
+const VectorDouble& ASpaceObject::getOrigin() const
 {
   return (_space->getOrigin());
 }

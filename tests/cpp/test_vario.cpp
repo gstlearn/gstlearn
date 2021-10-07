@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   int error = 0;
   int ndim = 2;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
-  CovContext ctxt(1,2,1.);
+  CovContext ctxt(1,2,1.); // use default space
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;

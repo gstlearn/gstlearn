@@ -7,17 +7,16 @@
 
 ASpace::ASpace(unsigned int ndim)
 : _nDim(ndim),
-  _origin(this)
+  _origin(VectorDouble(ndim, 0.))
 {
-  _origin.setCoord(VectorDouble(ndim, 0.));
 }
 
 ASpace::ASpace(const ASpace& r)
 : _nDim(r._nDim),
   _origin(r._origin)
 {
-
 }
+
 ASpace& ASpace::operator=(const ASpace& r)
 {
   if (this != &r)
@@ -40,9 +39,10 @@ String ASpace::toString(int level) const
   return sstr.str();
 }
 
-void ASpace::setOrigin(const SpacePoint& origin)
+void ASpace::setOrigin(const VectorDouble& origin)
 {
-  if (!origin.isConsistent(this))
+  /// TODO : not true whatever the space
+  if (_origin.size() != getNDim())
     std::cout << "Error: Inconsistent space origin. Nothing changed." << std::endl;
   else
     _origin = origin;
@@ -50,7 +50,7 @@ void ASpace::setOrigin(const SpacePoint& origin)
 
 bool ASpace::isEqual(const ASpace* space) const
 {
-  if (space == this) return true;
-  if (getOrigin() == space->getOrigin()) return true;
+  if (getType() == space->getType() && getOrigin() == space->getOrigin())
+    return true;
   return false;
 }

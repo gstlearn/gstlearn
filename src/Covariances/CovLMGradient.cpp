@@ -72,8 +72,9 @@ void CovLMGradient::evalZAndGradients(const VectorDouble& vec,
 {
   _initGradients(covVal, covGp, covGg, flagGrad);
 
-  SpacePoint p1 = getOrigin();
-  SpacePoint p2 = getOrigin();
+  /// TODO : Not true whatever the space
+  SpacePoint p1(getOrigin());
+  SpacePoint p2(getOrigin());
   p2.move(vec);
 
   for (unsigned int i = 0, n = getCovNumber(); i < n; i++)

@@ -13,6 +13,8 @@
 #include "MatrixC/MatrixCSSym.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/Vector.hpp"
+#include "Variogram/Vario.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_f.h"
 
 /// TODO : Transform CovContext to ASpaceObject ?
@@ -57,6 +59,7 @@ CovContext::CovContext(const Vario* vario, int irfMaxDegree, const ASpace* space
 , _mean()
 , _covar0()
 {
+  /// TODO : check vario dimension vs provided space
   _nVar = vario->getVariableNumber();
   _field = vario->getHmax();
   _update();
@@ -107,7 +110,9 @@ String CovContext::toString(int level) const
 
 bool CovContext::isConsistent(const ASpace* space) const
 {
-  /// TODO: Consistency of CovContext toward a space
+  /// TODO: Consistency of CovContext toward a space: Possible duplicate:
+  /// - CovFatory::_isValid
+  /// - ACovFunc::isConsistent
   return true;
 }
 

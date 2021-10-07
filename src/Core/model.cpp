@@ -217,7 +217,7 @@ GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
   if (d1.empty())
     mat = model->getCovAnisoList()->ACov::eval0(mode);
   else
-    mat = model->getCovAnisoList()->ACov::eval(1., d1, SpacePoint(), mode);
+    mat = model->getCovAnisoList()->ACov::eval(1., d1, VectorDouble(), mode);
 
   int nvar = model->getVariableNumber();
   if (mat.getNTotal() != nvar * nvar)
@@ -843,7 +843,7 @@ GEOSLIB_API double model_calcul_cov_ij(Model *model,
     value = model->getCovAnisoList()->eval0(ivar, jvar, mode);
   else
     value = model->getCovAnisoList()->ACov::eval(ivar, jvar, 1., d1,
-                                                 SpacePoint(), mode);
+                                                 VectorDouble(), mode);
 
   return value;
 }
@@ -1554,7 +1554,7 @@ GEOSLIB_API int model_add_tapering(Model *model,
  *****************************************************************************/
 GEOSLIB_API double cova_get_scale_factor(const ECov& type, double param)
 {
-  SpaceRN space(1);
+  SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 1000, 0., &space);
   ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
