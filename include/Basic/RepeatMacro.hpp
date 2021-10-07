@@ -13,8 +13,8 @@
 #ifdef SWIG
 // Prevent SWIG wrapper generation from crying about REPEAT macro
 // Look at diff for more explanation
-#include "RepeatMacroSwig.hpp"
+#include "Basic/RepeatMacroSwig.hpp"
 #else
 // This one is compatible with MSVC, Mingw and g++
-#include "RepeatMacroOrig.hpp"
+#include "Basic/RepeatMacroOrig.hpp"
 #endif
