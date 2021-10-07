@@ -35,7 +35,7 @@ public:
   Rule& operator=(const Rule& r);
   virtual ~Rule();
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
   virtual int deSerialize(const String& filename, bool verbose = false) override;
   virtual int serialize(const String& filename, bool verbose = false) const override;
   virtual int deSerializeSpecific() { return 0; }

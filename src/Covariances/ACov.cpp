@@ -9,18 +9,17 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
-#include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
 #include "MatrixC/MatrixCSGeneral.hpp"
 #include "Basic/Vector.hpp"
 
 ACov::ACov(const ASpace* space)
-    : ASpaceObject(space)
+: ASpaceObject(space)
 {
 }
 
 ACov::ACov(const ACov &r)
-    : ASpaceObject(r)
+: ASpaceObject(r)
 {
 }
 
@@ -86,6 +85,7 @@ double ACov::eval(int ivar,
                   const SpacePoint& center,
                   const CovCalcMode& mode) const
 {
+  /// TODO : whatever the ACov::_space ?
   SpacePoint p1(center);
   SpacePoint p2(center);
   VectorDouble vec(dir);
@@ -125,6 +125,7 @@ double ACov::eval(int ivar,
                   double step,
                   const CovCalcMode& mode) const
 {
+  // Use the current ACov::_space
   SpacePoint center = getOrigin();
   VectorDouble dir = getUnitaryVector();
   return eval(ivar, jvar, step, dir, center, mode);
@@ -135,6 +136,7 @@ VectorDouble ACov::eval(int ivar,
                         const VectorDouble& vec_step,
                         const CovCalcMode& mode) const
 {
+  // Use the current ACov::_space
   VectorDouble vec;
   SpacePoint center = getOrigin();
   VectorDouble dir = getUnitaryVector();
@@ -147,6 +149,7 @@ MatrixCSGeneral ACov::eval(double step,
                        const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
+  // Use the current ACov::_space
   SpacePoint center = getOrigin();
   VectorDouble dir = getUnitaryVector();
   MatrixCSGeneral mat(nvar);

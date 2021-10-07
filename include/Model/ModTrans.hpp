@@ -39,7 +39,7 @@ public:
                       VectorDouble& anam_stats);
   int addTapering(int tape_type,double tape_range);
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
   int getModTransMode() const         { return _modTransMode; }
   int getAnamIClass() const           { return _anamIClass; }

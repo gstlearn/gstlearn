@@ -1127,12 +1127,9 @@ GEOSLIB_API Model *model_init(int ndim,
 {
   Model* model = (Model *) NULL;
 
-  if (!ASpaceObject::isSpaceDimensionValid(ndim))
-  {
-    messerr("Wrong space dimension while initializing model (model_init)");
-    return nullptr;
-  }
-  CovContext ctxt = CovContext(nvar, 2, field);
+  /// TODO : Force SpaceRN creation (modèle poubelle)
+  SpaceRN space(ndim);
+  CovContext ctxt = CovContext(nvar, 2, field, &space);
   ctxt.setBallRadius(ball_radius);
   if (mean.size() > 0)   ctxt.setMean(mean);
   if (covar0.size() > 0) ctxt.setCovar0(covar0);

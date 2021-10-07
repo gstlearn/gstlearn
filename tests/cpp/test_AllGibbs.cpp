@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
   // Setup constants
 
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AllGibbs-");
   law_set_random_seed(seed);

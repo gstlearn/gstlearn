@@ -45,7 +45,7 @@ public:
   void setCoordFromAngle(const VectorDouble& angles);
 
   /// Convert space point to string
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
 protected:
   /// Points coordinates (whatever the space context)

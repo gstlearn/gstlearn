@@ -1229,12 +1229,6 @@ int Vario::deSerialize(const String& filename, bool verbose)
   if (_recordRead("Number of Variogram Directions", "%d", &ndir)) goto label_end;
   if (_recordRead("Scale", "%lf", &scale)) goto label_end;
 
-  if (! ASpaceObject::isSpaceDimensionValid(ndim))
-  {
-    messerr("Wrong space dimension in %s", filename.c_str());
-    return 1;
-  }
-
   /* Read the variances (optional) */
 
   if (_recordRead("Variogram calculation Option", "%d", &flag_calcul))  goto label_end;

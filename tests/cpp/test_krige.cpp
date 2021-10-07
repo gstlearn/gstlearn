@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   int nvar = 1;
 
   setup_license("Demonstration");
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
 
   // Generate the output grid
   VectorInt nx = {100,100};

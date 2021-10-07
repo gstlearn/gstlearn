@@ -36,7 +36,7 @@ public:
   Convolution& operator= (const Convolution &m);
   virtual ~Convolution();
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
   int getConvNumber();
 

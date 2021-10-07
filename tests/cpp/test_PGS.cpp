@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName("PGS-");
   int error = 0;
   int ndim  = 2;
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option

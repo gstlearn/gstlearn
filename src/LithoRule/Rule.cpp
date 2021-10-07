@@ -299,7 +299,7 @@ int Rule::setMainNodeFromNodNames(const VectorInt& nodes)
   return 0;
 }
 
-std::string Rule::toString(int level) const
+String Rule::toString(int level) const
 {
   std::stringstream sstr;
   sstr << _display(false, false);

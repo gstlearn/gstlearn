@@ -92,7 +92,7 @@ void PolySet::init(const VectorDouble& x,
   _zmax  = zmax;
 }
 
-std::string PolySet::toString(int level) const
+String PolySet::toString(int level) const
 {
   std::stringstream sstr;
 

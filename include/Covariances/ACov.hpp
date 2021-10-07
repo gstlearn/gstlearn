@@ -11,10 +11,10 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "Covariances/CovCalcMode.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Space/SpacePoint.hpp"
 #include "MatrixC/MatrixCSGeneral.hpp"
+#include "Covariances/CovCalcMode.hpp"
+#include "Space/SpacePoint.hpp"
 
 class ACov : public ASpaceObject
 {

@@ -15,7 +15,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class Neigh: public AStringable , public ASerializable // TODO : inherits from ASpaceObject
+class Neigh: public AStringable , public ASerializable // TODO : inherits from ASpaceObject (see _init)
 {
 public:
   Neigh();
@@ -36,7 +36,7 @@ public:
   Neigh& operator=(const Neigh& r);
   virtual ~Neigh();
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
 

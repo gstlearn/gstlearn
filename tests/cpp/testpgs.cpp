@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
   /* Define the Default Space according to the Dimension of the Input Db */
 
-  ASpaceObject::createGlobalSpace(SPACE_RN,dbin->getNDim());
+  ASpaceObject::defineDefaultSpace(SPACE_RN,dbin->getNDim());
 
   /* Define the variogram (optional) */
   

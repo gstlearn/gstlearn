@@ -170,7 +170,7 @@ double _tape_wendland2(double h)
   return (cov);
 }
 
-std::string Tapering::toString(int level) const
+String Tapering::toString(int level) const
 {
   std::stringstream sstr;
 

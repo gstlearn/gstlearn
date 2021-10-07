@@ -30,7 +30,7 @@ public:
   RuleProp& operator=(const RuleProp &m);
   virtual ~RuleProp();
 
-  virtual std::string toString(int level = ITEST) const override;
+  virtual String toString(int level = ITEST) const override;
 
   const Db* getDbprop() const { return _dbprop; }
   void setDbprop(const Db* dbprop) { _dbprop = dbprop; }

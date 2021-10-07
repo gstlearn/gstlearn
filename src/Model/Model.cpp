@@ -51,7 +51,7 @@ Model::Model(const Db *db, bool flagGradient, bool flagLinked)
       _ctxt(),
       generic_cov_function(nullptr)
 {
-  _ctxt = CovContext(db);
+  _ctxt = CovContext(db); /// TODO : Really ?
   _create(flagGradient, flagLinked);
 }
 
@@ -424,13 +424,9 @@ int Model::deSerialize(const String& filename, bool verbose)
   if (_recordRead("Number of Basic Structures", "%d", &ncova)) return 1;
   if (_recordRead("Number of Basic Drift Functions", "%d", &nbfl)) return 1;
 
-  if (! ASpaceObject::isSpaceDimensionValid(ndim))
-  {
-    messerr("Wrong space dimension in %s", filename.c_str());
-    _destroy();
-    return 1;
-  }
-  _ctxt = CovContext(nvar, 2, field);
+  /// TODO : Force SpaceRN creation (deSerialization doesn't know yet how to manage other space types)
+  SpaceRN space(ndim);
+  _ctxt = CovContext(nvar, 2, field, &space);
   _ctxt.setBallRadius(radius);
   _create(false, false);
 

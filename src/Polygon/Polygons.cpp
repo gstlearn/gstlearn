@@ -125,7 +125,7 @@ void Polygons::addPolySet(const PolySet& polyset)
   _polysets.push_back(polyset);
 }
 
-std::string Polygons::toString(int level) const
+String Polygons::toString(int level) const
 {
   std::stringstream sstr;
 
