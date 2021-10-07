@@ -28,7 +28,11 @@ String ASerializable::myPrefixName    = String();
 
 /**
  * Set the Container Directory Name (do not forget trailing separator "/")
+ * @param useDefault True if the user wants to use automated ContainerName
+ *        - defined with the global variable PYGTSLEARN_DIR
+ *        - or using HOME/gstlearn_dir
  * @param containerName Name or "" for current location
+ * @param verbose Verbose flag
  */
 void ASerializable::setContainerName(bool useDefault,
                                      const String& containerName,

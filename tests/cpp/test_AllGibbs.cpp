@@ -23,7 +23,7 @@
 int main(int argc, char *argv[])
 
 {
-  int seed     = 31415;
+  int seed     = 5452;
   int ndim     = 2;
   int nvar     = 1;
   int nbsimu   = 1;
@@ -33,11 +33,10 @@ int main(int argc, char *argv[])
   int nburn    = 100;
 
   int nbgh_maxi = 20;
-  int nbgh_nsect = 4;
-  double nbgh_radius = 5.;
+  double nbgh_radius = 1000.;
 
-  VectorDouble ranges = { 10., 5.};
-  double sill = 7.5;
+  VectorDouble ranges = { 10., 10.};
+  double sill = 1.;
 
   bool verbose          = true;
   bool flag_moving      = true;
@@ -55,6 +54,8 @@ int main(int argc, char *argv[])
 
   VectorDouble dx = {1., 1.};
   Db* db = new Db({50,50},dx);
+  db->addFields(1, -4, "Bounds", LOC_L);
+  db->addFields(1,  4, "Bounds", LOC_U);
   
   // Model
 
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
   Neigh* neigh = nullptr;
   if (flag_moving)
   {
-    neigh = new Neigh(ndim, nbgh_maxi, nbgh_radius, 1, nbgh_nsect);
+    neigh = new Neigh(ndim, nbgh_maxi, nbgh_radius);
     neigh->display();
   }
 

@@ -427,8 +427,7 @@ void Neigh::_init(int ndim,
   setFlagSector(flag_sector && ndim >= 2);
   setFlagAniso(flag_aniso && !nbgh_radius.empty());
   setFlagRotation(flag_rotation && flag_aniso && !nbgh_rotmat.empty());
-  setFlagContinuous((!IFFFF(flag_continuous)) ? flag_continuous :
-                                                0);
+  setFlagContinuous((!IFFFF(flag_continuous)) ? flag_continuous : 0);
 
   /* Core allocation */
 

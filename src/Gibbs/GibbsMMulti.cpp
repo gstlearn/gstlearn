@@ -97,10 +97,6 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Loop on the active samples
 
-  double wgtmin =  1.e30;
-  double wgtmax = -1.e30;
-  double varmin =  1.e30;
-  double varmax = -1.e30;
   for (int iact = 0; iact < nact; iact++)
   {
     int iech = getSampleRank(iact);
@@ -142,39 +138,13 @@ int GibbsMMulti::covmatAlloc(bool verbose)
       VectorDouble ll(neq);
       for (int i = 0; i < ww._neq; i++)
       {
-        int icol = ww._pivot + ivar * nbgh;
-        ll[i] = COVMAT(i, icol);
-        if (i == icol)
-        {
-          double value = 1. / COVMAT(icol,icol);
-          if (value < varmin) varmin = value;
-          if (value > varmax) varmax = value;
-        }
-        else
-        {
-          double value = - ll[i] / COVMAT(icol,icol);
-          if (value < wgtmin) wgtmin = value;
-          if (value > wgtmax) wgtmax = value;
-        }
+        ll[i] = COVMAT(i, ww._pivot + ivar * nbgh);
       }
       ww._ll.push_back(ll);
     }
     covmat = (double *) mem_free((char *) covmat);
   }
 
-  // Optional printout of extrema of weights
-
-  if (verbose)
-  {
-    message("Statistics on:\n");
-    message("- Kriging weights:\n");
-    message("  Minimum = %lf\n",wgtmin);
-    message("  Maximum = %lf\n",wgtmax);
-    message("- Kriging variance:\n");
-    message("  Minimum = %lf\n",varmin);
-    message("  Maximum = %lf\n",varmax);
-
-  }
   // Initialize the statistics (optional)
 
   statsInit();
