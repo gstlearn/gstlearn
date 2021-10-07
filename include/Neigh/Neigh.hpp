@@ -104,7 +104,7 @@ private:
              const VectorDouble& nbgh_rotmat,
              const VectorInt& nbgh_image);
 
-public:
+public:  /// TODO : make members private
   int _nDim;                     /* Space dimension */
   ENeigh _type;                  /* Neighborhood type: ENeigh */
   int _flagXvalid;               /* 1 to suppress the target */
