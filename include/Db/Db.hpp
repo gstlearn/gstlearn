@@ -452,7 +452,7 @@ public:
   bool isSameGridMesh(const Db& dbaux) const;
   bool isSameGridRotation(const Db& dbaux) const;
   bool isGridRotated() const;
-  int  getNDim() const;
+  int  getNDim() const; /// TODO : rename to getDimensionNumber etc...
   int  getNX(int idim) const;
   int  getNTotal() const { return _grid.getNTotal(); }
   double getCellSize() const { return _grid.getCellSize(); }

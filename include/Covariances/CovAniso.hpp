@@ -107,6 +107,7 @@ public:
   const VectorDouble& getScales() const { return _aniso.getRadius(); }
 
   /// TODO : For backward compatibility with Cova.hpp (to be removed?)
+  // Look at C2R before touching that
   void   setType(const ECov& type);
   double getRange() const;
   double getTheoretical() const;
