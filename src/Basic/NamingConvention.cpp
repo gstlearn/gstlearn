@@ -255,7 +255,7 @@ void NamingConvention::_setNames(Db *dbout,
   {
     String local;
     if ((int) names.size() == nvar) local = names[ivar];
-    if (local.empty()) local = std::to_string(ivar+1);
+    if (local.empty() && nvar > 1) local = std::to_string(ivar+1);
 
     for (int item = 0; item < nitems; item++)
     {

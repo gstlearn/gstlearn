@@ -53,9 +53,8 @@ Polygons::Polygons(const String& filename,
   }
 
   // Loop on the contents of the first column to look for Polysets
-  int ideb;
-  int ifin;
-  ideb = ifin = 0;
+  int ideb = 0;
+  int ifin = nrow;
   for (int i = 0; i < nrow; i++)
   {
     if (FFFF(tab[ncol * i]))

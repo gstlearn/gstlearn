@@ -1984,6 +1984,35 @@ void Db::setBounds(int iech, int item, double lower, double upper)
   setUpperBound(iech,item,upper);
 }
 
+VectorDouble Db::getWithinBounds(int item, bool useSel) const
+{
+  int nech = (useSel) ? getActiveSampleNumber() : getSampleNumber();
+  VectorDouble vec(nech);
+  VectorDouble vecl = getFieldByLocator(LOC_L, item, useSel);
+  VectorDouble vecu = getFieldByLocator(LOC_U, item, useSel);
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    double vall = (vecl.empty()) ? TEST : vecl[iech];
+    double valu = (vecu.empty()) ? TEST : vecu[iech];
+    if (FFFF(vall))
+    {
+      if (FFFF(valu))
+        vec[iech] = TEST;
+      else
+        vec[iech] = valu;
+    }
+    else
+    {
+      if (FFFF(valu))
+        vec[iech] = vall;
+      else
+        vec[iech] = (vall + valu) / 2.;
+    }
+  }
+  return vec;
+}
+
 int Db::getGradientNumber() const
 {
   return getFromLocatorNumber(LOC_G);

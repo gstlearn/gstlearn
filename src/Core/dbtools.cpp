@@ -6335,6 +6335,7 @@ GEOSLIB_API int migrate(Db* db1,
     return 1;
 
   // Set the output variable names and locators
+
   namconv.setNamesAndLocators(name, db2, iatt0);
   return 0;
 }

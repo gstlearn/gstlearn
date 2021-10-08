@@ -267,6 +267,7 @@ public:
   double getUpperBound(int iech, int item) const;
   void   setUpperBound(int iech, int item, double upper);
   void   setBounds(int iech, int item, double lower, double upper);
+  VectorDouble getWithinBounds(int item, bool useSel = false) const;
 
   int    getGradientNumber() const;
   bool   hasGradient() const;

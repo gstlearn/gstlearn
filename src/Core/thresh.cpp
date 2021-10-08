@@ -664,13 +664,11 @@ GEOSLIB_API int db_rule(Db *db,
 
   /* Identify the Non conditional simulations at target points */
 
-  db->display(1);
   if (db->getLocatorNumber(LOC_SIMU) != ngrf)
   {
     db->switchLocator(LOC_Z, LOC_SIMU);
     flagReturn = true;
   }
-  db->display(1);
 
   /* Translate Gaussian into Facies */
 
