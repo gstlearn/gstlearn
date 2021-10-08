@@ -19,69 +19,16 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <regex>
+//#include <boost/filesystem.hpp>
+
+#include <sys/stat.h>
+#include <sys/types.h>
 
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR;
 static char *cur = NULL;
 
 String ASerializable::myContainerName = String();
 String ASerializable::myPrefixName    = String();
-
-/**
- * Set the Container Directory Name (do not forget trailing separator "/")
- * @param useDefault True if the user wants to use automated ContainerName
- *        - defined with the global variable PYGTSLEARN_DIR
- *        - or using HOME/gstlearn_dir
- * @param containerName Name or "" for current location
- * @param verbose Verbose flag
- */
-void ASerializable::setContainerName(bool useDefault,
-                                     const String& containerName,
-                                     bool verbose)
-{
-  if (useDefault)
-  {
-
-    // Default is first set to PYGSTLEARN_DIR (if defined)
-
-    char* pydir(std::getenv("PYGSTLEARN_DIR"));
-    String pygst;
-    if (pydir == nullptr)
-    {
-
-      // Otherwise, it is set to HOME/gstlearn_dir
-
-      pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
-      if (verbose)
-        std::cout << "Results are stored in" << pygst << std::endl;
-    }
-    else
-    {
-      pygst = pydir;
-      if (verbose)
-        std::cout << "Results are stored in PYGSTLEARN_DIR" << std::endl;
-    }
-    myContainerName = pygst;
-  }
-  else
-  {
-    myContainerName = containerName;
-  }
-}
-
-void ASerializable::setPrefixName(const String& prefixName)
-{
-  myPrefixName = prefixName;
-}
-
-const String& ASerializable::getContainerName()
-{
-  return myContainerName;
-}
-
-const String& ASerializable::getPrefixName()
-{
-  return myPrefixName;
-}
 
 ASerializable::ASerializable()
   : _fileName()
@@ -141,7 +88,6 @@ int ASerializable::_fileOpen(const String& filename,
   _fileType = filetype;
 
   // Build the multi-platform filename and open it
-
   String fileComplete = buildFileName(filename);
   _file = fopen(fileComplete.c_str(), mode.c_str());
   if (_file == (FILE *) NULL)
@@ -151,7 +97,6 @@ int ASerializable::_fileOpen(const String& filename,
   }
 
   // Preliminary action
-
   if (mode == "r")
   {
     char idtype[LONG_SIZE];
@@ -457,7 +402,7 @@ bool ASerializable::_onlyBlanks(char *string) const
   return true;
 }
 
-String ASerializable::buildFileName(const String& filename) const
+String ASerializable::buildFileName(const String& filename, bool ensureDirExist) const
 {
 // TODO: to be restored when boost is usable for pygstlearn
 //  boost::filesystem::path final;
@@ -479,6 +424,10 @@ String ASerializable::buildFileName(const String& filename) const
   if (!myContainerName.empty())
   {
     fileLocal += myContainerName;
+    if (ensureDirExist)
+    {
+      (void)createDirectory(fileLocal);
+    }
   }
   if (!myPrefixName.empty())
   {
@@ -501,7 +450,7 @@ String ASerializable::getHomeDirectory(const std::string& sub)
   const char* HomeDirectory = getenv("HOME");
 #endif
   std::stringstream sstr;
-  // TODO : Cross-platform way to build file path
+  // TODO : Cross-platform way to build file path (use boost ?)
   sstr << String(HomeDirectory);
   if (!sub.empty())
     sstr << "/" << sub;
@@ -538,3 +487,77 @@ String ASerializable::getFileIdentify(const String& filename)
   return filetype;
 }
 
+/**
+ * Set the Container Directory Name (do not forget trailing separator "/")
+ * @param useDefault True if the user wants to use automated ContainerName
+ *        - defined with the global variable PYGTSLEARN_DIR
+ *        - or using HOME/gstlearn_dir
+ * @param containerName Name or "" for current location
+ * @param verbose Verbose flag
+ */
+void ASerializable::setContainerName(bool useDefault,
+                                     const String& containerName,
+                                     bool verbose)
+{
+  if (useDefault)
+  {
+    // Default is first set to PYGSTLEARN_DIR (if defined)
+    char* pydir(std::getenv("PYGSTLEARN_DIR"));
+    String pygst;
+    if (pydir == nullptr)
+    {
+      // Otherwise, it is set to HOME/gstlearn_dir
+      pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
+      if (verbose)
+        std::cout << "Results are stored in" << pygst << std::endl;
+    }
+    else
+    {
+      pygst = pydir;
+      if (verbose)
+        std::cout << "Results are stored in PYGSTLEARN_DIR" << std::endl;
+    }
+    myContainerName = pygst;
+  }
+  else
+  {
+    myContainerName = containerName;
+  }
+}
+
+void ASerializable::setPrefixName(const String& prefixName)
+{
+  myPrefixName = prefixName;
+}
+
+const String& ASerializable::getContainerName()
+{
+  return myContainerName;
+}
+
+const String& ASerializable::getPrefixName()
+{
+  return myPrefixName;
+}
+
+/*!
+ * Cross platform way to create a directory
+ * (or ensure its existence)
+ */
+bool ASerializable::createDirectory(const String& dir)
+{
+  // To be restored when using boost
+  //return boost::filesystem::create_directory(dir);
+#if defined(_WIN32) || defined(_WIN64)
+  if (CreateDirectory(dir.c_str(), NULL) ||       // Directory creation
+      ERROR_ALREADY_EXISTS == GetLastError()) {   // or Directory was existing
+    return true;
+  }
+#else
+  struct stat sb;
+  if ((stat(dir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) || // Directory exists
+      (mkdir(dir.c_str(), 0755) == 0))                        // or Creation
+    return true;
+#endif
+  return false;
+}
