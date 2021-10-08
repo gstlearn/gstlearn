@@ -129,7 +129,7 @@ RuleProp::~RuleProp()
   }
 }
 
-std::string RuleProp::toString(int level) const
+String RuleProp::toString(int level) const
 {
   std::stringstream sstr;
 

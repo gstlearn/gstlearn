@@ -11,10 +11,10 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "Covariances/CovCalcMode.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Space/SpacePoint.hpp"
 #include "MatrixC/MatrixCSGeneral.hpp"
+#include "Covariances/CovCalcMode.hpp"
+#include "Space/SpacePoint.hpp"
 
 class ACov : public ASpaceObject
 {
@@ -60,17 +60,17 @@ public:
                       int jvar,
                       double step,
                       const VectorDouble& dir,
-                      const SpacePoint& center = SpacePoint(),
+                      const VectorDouble& center = VectorDouble(),
                       const CovCalcMode& mode = CovCalcMode()) const;
   virtual VectorDouble eval(int ivar,
                             int jvar,
                             const VectorDouble& vec_step,
                             const VectorDouble& dir,
-                            const SpacePoint& center = SpacePoint(),
+                            const VectorDouble& center = VectorDouble(),
                             const CovCalcMode& mode = CovCalcMode()) const;
   virtual MatrixCSGeneral eval(double step,
                                const VectorDouble& dir,
-                               const SpacePoint& center = SpacePoint(),
+                               const VectorDouble& center = VectorDouble(),
                                const CovCalcMode& mode = CovCalcMode()) const;
 
   /// Covariance for a given unit global distance (without anisotropy)

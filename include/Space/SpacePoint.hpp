@@ -20,8 +20,10 @@ class SpacePoint : public ASpaceObject
 {
 public:
   SpacePoint(const ASpace* space = nullptr);
+  SpacePoint(const SpacePoint& r);
   SpacePoint(const VectorDouble& coord,
              const ASpace* space = nullptr);
+  SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
 
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
@@ -45,7 +47,7 @@ public:
   void setCoordFromAngle(const VectorDouble& angles);
 
   /// Convert space point to string
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
 protected:
   /// Points coordinates (whatever the space context)

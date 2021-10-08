@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
   int error = 0;
   int ndim = 2;
   int nbsimu = 2;
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
-  CovContext ctxt(1,2,1.);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  CovContext ctxt(1,2,1.); // use default space
 
   // Prepare the Discrete process with Discretized Option
   set_test_discrete(false);

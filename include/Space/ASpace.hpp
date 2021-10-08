@@ -11,14 +11,14 @@
 #pragma once
 
 #include "Space/Space.hpp"
-#include "Space/SpacePoint.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/IClonable.hpp"
 
 class SpacePoint;
 class Tensor;
 
-class ASpace : public AStringable
+class ASpace : public AStringable, public IClonable
 {
 public:
   ASpace(unsigned int ndim);
@@ -26,15 +26,18 @@ public:
   ASpace& operator=(const ASpace& r);
   virtual ~ASpace();
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
-  /// Update the origin
-  void setOrigin(const SpacePoint& origin);
+  virtual IClonable* clone() const override = 0;
+
+  /// Update the origin coordinates
+  void setOrigin(const VectorDouble& origin);
 
   /// Get the number of dimensions
   unsigned int getNDim() const { return _nDim; }
-  /// Return the space origin
-  const SpacePoint& getOrigin() const { return _origin; }
+
+  /// Return the space origin coordinates
+  const VectorDouble& getOrigin() const { return _origin; }
 
   /// Return true if the given space is equal to me
   virtual bool isEqual(const ASpace* space) const;
@@ -45,6 +48,7 @@ public:
   /// Move the given space point by the given vector
   virtual void move(SpacePoint& p1,
                     const VectorDouble& vec) const = 0;
+
   /// Return the distance between two space points
   virtual double getDistance(const SpacePoint& p1,
                              const SpacePoint& p2) const = 0;
@@ -61,7 +65,7 @@ public:
 protected:
   /// Number of space dimensions
   unsigned int _nDim;
-  /// Origin of the space
-  SpacePoint _origin;
+  /// Coordinates of the origin (not a space point... ex: sphere center in a long/lat space)
+  VectorDouble _origin;
 };
 

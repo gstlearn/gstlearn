@@ -161,7 +161,7 @@ int ModTrans::addTapering(int tape_type,double tape_range)
   return 0;
 }
 
-std::string ModTrans::toString(int level) const
+String ModTrans::toString(int level) const
 {
   std::stringstream sstr;
 

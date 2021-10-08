@@ -16,8 +16,17 @@
 
 class ASpace;
 class SpacePoint;
-class Tensor;
 
+/**
+ * This class is the base class for all objects that need to know what is its space definition.
+ * All ASpaceObject can access to the number of space dimensions and can ask to calculate
+ * a distance between two ASpaceObjects.
+ *
+ * This class also stores a unique (static) default global space that will be used as default space
+ * when creating a ASpaceObject (without a predefined space). It is possible to modify the default
+ * space definition at any time. Space definition of pre-existing ASpaceObjects remains the same.
+ * (no more shared pointer)
+ */
 class ASpaceObject : public AStringable
 {
 public:
@@ -26,27 +35,25 @@ public:
   ASpaceObject& operator= (const ASpaceObject& r);
   virtual ~ASpaceObject();
 
-  /// Factory for creating the unique global space (optional param can be used for sphere radius)
-  static const ASpace* createGlobalSpace(SpaceType type,
-                                         unsigned int ndim,
-                                         double param = 0.);
 
-  /// Delete the current Global Space (Dangerous function)
-  static void destroyGlobalSpace();
+  /// (Re)Defining the unique default global space
+  static void defineDefaultSpace(SpaceType type,
+                                 unsigned int ndim,
+                                 double param = 0.);
+  /// Return a clone of the unique default global space
+  static const ASpace* cloneDefaultSpace();
+private:
+  /// Unique default global space
+  static ASpace* _defaultSpace;
 
-  /// Check that the global Space has already been defined
-  static bool hasGlobalSpace() { return _globalSpace != nullptr; }
 
-  /// Check the validity of the Space Dimension
-  static bool isSpaceDimensionValid(int ndim);
-
-  /// Return the unique global space
-  static const ASpace* getGlobalSpace();
-
+public:
   /// Accessor to the current object space context
   const ASpace* getSpace() const { return _space; }
+
   /// Indicate if I am consistent with my current space context
   bool isConsistent() const { return isConsistent(_space); }
+
   /// Return unitary vector for the current space context
   VectorDouble getUnitaryVector() const;
 
@@ -58,18 +65,17 @@ public:
 
   /// Return the number of dimension of the current space context
   unsigned int getNDim() const;
-  /// Return the current space context origin
-  const SpacePoint& getOrigin() const;
+
+  /// Return the current space context origin coordinates
+  const VectorDouble& getOrigin() const;
+
   /// Return the distance between two space points for the current space context
   double getDistance(const SpacePoint& p1, const SpacePoint& p2) const;
+
   /// Return the increment vector between two space points for the current space context
   VectorDouble getIncrement(const SpacePoint& p1, const SpacePoint& p2) const;
 
-private:
-  /// Unique and global space
-  static ASpace* _globalSpace;
-  /// True if Global Space has been created by default
-  static bool _fakeSpace;
-  /// Current space context
+protected:
+  /// Current space context of the object
   const ASpace* _space;
 };

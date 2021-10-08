@@ -215,7 +215,7 @@ Neigh::~Neigh()
 {
 }
 
-std::string Neigh::toString(int level) const
+String Neigh::toString(int level) const
 {
   std::stringstream sstr;
 
@@ -319,12 +319,6 @@ int Neigh::deSerialize(const String& filename, bool verbose)
   if (_recordRead("Space Dimension", "%d", &ndim)) return 1;
   if (_recordRead("Neighborhood type", "%d", &type)) return 1;
 
-  if (! ASpaceObject::isSpaceDimensionValid(ndim))
-  {
-    messerr("Wrong space dimension in %s", filename.c_str());
-    return 1;
-  }
-
   /* Core allocation */
 
   radius.resize(ndim);
@@ -412,6 +406,10 @@ void Neigh::_init(int ndim,
                   const VectorDouble& nbgh_rotmat,
                   const VectorInt& nbgh_image)
 {
+  /// TODO : Force SpaceRN creation (deSerialization do not know yet how to manage other space types)
+  //SpaceRN space(ndim);
+  // To be used when Neigh object will manage space context (and not only ndim)
+
   setNDim(ndim);
   setType(type);
   setNMini(nmini);

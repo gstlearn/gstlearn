@@ -24,7 +24,7 @@ public:
   virtual ~Tensor();
 
   void init(int ndim);
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
   void setTensorDirect (const MatrixCSGeneral& tensor) { _tensorDirect  = tensor; }
   void setTensorInverse(const MatrixCSGeneral& tensor) { _tensorInverse = tensor; }

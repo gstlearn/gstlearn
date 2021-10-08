@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
   ndim     = 2;
 
   if (setup_license("Demonstration")) goto label_end;
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
 
   // Setup constants
 

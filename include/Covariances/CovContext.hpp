@@ -10,26 +10,15 @@
 /******************************************************************************/
 #pragma once
 
-#include <Variogram/Vario.hpp>
-#include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
-#include "Space/ASpace.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Space/ASpaceObject.hpp"
 
-class CovContext : public AStringable
+class ASpace;
+class Vario;
+class Db;
+
+class CovContext : public ASpaceObject
 {
-private:
-  int           _nVar;         /*! Number of variables */
-  int           _irfMaxDegree; /*! Current maximum admissible IRF degree */
-  double        _field;        /*! Field maximum size */
-  double        _ballRadius;   /*! Radius of the Ball for Numerical Gradient calculation */
-  VectorDouble  _mean;         /*! Array of Variable Mean */
-  VectorDouble  _covar0;       /*! Variance-Covariance matrix (used for covariances) */
-
-  /// TODO : use shared pointer for ASpace* ?
-  const ASpace* _space;        /*! Space context (Number of dimension, getDistance, etc...) */
-
 public:
   /// TODO : default context (1 variable, big max IRF degree, and field size of 1) ok ?
   CovContext(int nvar = 1,
@@ -46,100 +35,45 @@ public:
   CovContext& operator= (const CovContext &r);
   virtual ~CovContext();
 
-  virtual std::string toString(int level = 0) const override;
+  /// AStringable interface
+  virtual String toString(int level = 0) const override;
 
-  bool isEqual(const CovContext& r) const;
+  /// Indicate if I am consistent with the provided space
+  virtual bool isConsistent(const ASpace* space) const override;
 
-  int           getNVar()         const { return _nVar; }
-  int           getIrfMaxDegree() const { return _irfMaxDegree; }
-  double        getField()        const { return _field; }
-  const ASpace* getSpace()        const { return _space; }
-  unsigned int  getNDim()         const { return _space->getNDim(); }
+  /// CovCotext equality
+  bool isEqual(const CovContext &r) const;
 
-  void setField(double field)
-  {
-    _field = field;
-  }
+  int                 getNVar()         const { return _nVar; }
+  int                 getIrfMaxDegree() const { return _irfMaxDegree; }
+  double              getField()        const { return _field; }
+  double              getBallRadius()   const { return _ballRadius; }
+  const VectorDouble& getMean()         const { return _mean; }
+  const VectorDouble& getCovar0()       const { return _covar0; }
 
-  void setIrfMaxDegree(int irfMaxDegree)
-  {
-    _irfMaxDegree = irfMaxDegree;
-  }
+  double getMean(int ivar) const;
+  double getCovar0(int ivar, int jvar) const;
 
-  void setNVar(int nvar)
-  {
-    _nVar = nvar;
-    _update();
-  }
+  void setNVar(int nvar)                 { _nVar = nvar; _update(); }
+  void setIrfMaxDegree(int irfMaxDegree) { _irfMaxDegree = irfMaxDegree; }
+  void setField(double field)            { _field = field; }
+  void setBallRadius(double ballRadius)  { _ballRadius = ballRadius; }
 
-  void setSpace(const ASpace* space)
-  {
-    _space = space;
-  }
+  void setMean(const VectorDouble& mean);
+  void setMean(int ivar, const double mean);
 
-  const VectorDouble& getMean() const
-  {
-    return _mean;
-  }
-  const double getMean(int ivar) const
-  {
-    if (ivar < 0 || ivar >= (int) _mean.size())
-      throw("Invalid argument in _getMean");
-    return _mean[ivar];
-  }
-
-  void setMean(const VectorDouble& mean)
-  {
-    if (_mean.size() == mean.size())
-      _mean = mean;
-  }
-
-  void setMean(int ivar, const double mean)
-  {
-    if (ivar < 0 || ivar >= (int) _mean.size())
-      throw("Invalid argument in _setMean");
-    _mean[ivar] = mean;
-  }
-
-  void setCovar0(int ivar, int jvar, double covar0)
-  {
-    int rank = _getIndex(ivar, jvar);
-    if (rank < 0 || rank >= (int) _covar0.size())
-      throw("Invalid argument in _setCovar0");
-    _covar0[rank] = covar0;
-  }
-  void setCovar0(const VectorDouble& covar0)
-  {
-    if (_covar0.size() == covar0.size())
-      _covar0 = covar0;
-  }
-
-  const VectorDouble& getCovar0() const
-  {
-    return _covar0;
-  }
-  const double getCovar0(int ivar, int jvar) const
-  {
-    int rank = _getIndex(ivar, jvar);
-    if (rank < 0 || rank >= (int) _covar0.size())
-      throw("Invalid argument in _setCovar0");
-    return _covar0[rank];
-  }
-
-  double getBallRadius() const
-  {
-    return _ballRadius;
-  }
-
-  void setBallRadius(double ballRadius)
-  {
-    _ballRadius = ballRadius;
-  }
+  void setCovar0(const VectorDouble& covar0);
+  void setCovar0(int ivar, int jvar, double covar0);
 
 private:
-  int _getIndex(int ivar, int jvar) const
-  {
-    return ivar * getNVar() + jvar;
-  }
+  int           _nVar;         /*! Number of variables */
+  int           _irfMaxDegree; /*! Current maximum admissible IRF degree */
+  double        _field;        /*! Field maximum size */
+  double        _ballRadius;   /*! Radius of the Ball for Numerical Gradient calculation */
+  VectorDouble  _mean;         /*! Array of Variable Mean */
+  VectorDouble  _covar0;       /*! Variance-Covariance matrix (used for covariances) */
+
+private:
+  int _getIndex(int ivar, int jvar) const;
   void _update();
 };

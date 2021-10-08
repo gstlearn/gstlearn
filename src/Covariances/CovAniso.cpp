@@ -27,7 +27,7 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
                             { 70, -112, 56, -16, 2 } };
 
 CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
-    : ACov(ctxt.getSpace()),
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
@@ -41,7 +41,7 @@ CovAniso::CovAniso(const ECov& type,
                    double param,
                    double sill,
                    const CovContext& ctxt)
-    : ACov(ctxt.getSpace()),
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
@@ -330,7 +330,7 @@ double CovAniso::eval(int ivar,
   return (cov);
 }
 
-std::string CovAniso::toString(int level) const
+String CovAniso::toString(int level) const
 {
   std::stringstream sstr;
   // Covariance Name

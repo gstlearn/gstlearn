@@ -143,7 +143,7 @@ public:
   inline const VectorT<T>& divide(const T& v);
 
   /*! Conversion to a string */
-  inline std::string toString() const override;
+  inline String toString() const override;
 
 private:
   inline void _detach();
@@ -326,7 +326,7 @@ const VectorT<T>& VectorT<T>::divide(const T& v)
 }
 
 template <typename T>
-std::string VectorT<T>::toString() const
+String VectorT<T>::toString() const
 {
   std::stringstream sstr;
   sstr << "[";

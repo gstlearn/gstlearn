@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
   // Setup constants
 
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AllGibbs-");
   law_set_random_seed(seed);
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   
   // Model
 
-  CovContext ctxt(nvar,2,1.);
+  CovContext ctxt(nvar,2,1.); // use default space
   Model* model = new Model(ctxt);
   CovAniso cova(ECov::EXPONENTIAL,ctxt);
   cova.setRanges(ranges);

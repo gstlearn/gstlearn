@@ -53,7 +53,7 @@ VectorDouble create_z(int n)
 
 void ptg()
 {
-  ASpaceObject::createGlobalSpace(SPACE_RN,2);
+  ASpaceObject::defineDefaultSpace(SPACE_RN,2);
 
   VectorInt    nx{5,5};
   VectorDouble dx{1,1};
@@ -88,7 +88,7 @@ void ptg()
 
 void gtp()
 {
-  ASpaceObject::createGlobalSpace(SPACE_RN,2);
+  ASpaceObject::defineDefaultSpace(SPACE_RN,2);
 
   VectorInt nx{5,5};
   VectorDouble dx{1,1};
@@ -123,7 +123,7 @@ void gtp()
 
 void gtg()
 {
-  ASpaceObject::createGlobalSpace(SPACE_RN,2);
+  ASpaceObject::defineDefaultSpace(SPACE_RN,2);
 
   VectorInt nx{5,5};
   VectorDouble dx{1,1};
@@ -147,7 +147,7 @@ void gtg()
 #ifdef _USE_NETCDF
 void  serialize()
 {
-  ASpaceObject::createGlobalSpace(SPACE_RN,2);
+  ASpaceObject::defineDefaultSpace(SPACE_RN,2);
 
   VectorInt nx{5,5};
   VectorDouble dx{2,1};
@@ -193,7 +193,7 @@ void  serialize()
 
 void vario(const std::string& file)
 {
-  ASpaceObject::createGlobalSpace(SPACE_RN, 2);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, 2);
 
   //read CSV and create Database
   ParamCSV pcsv(file,",",".",true,0);

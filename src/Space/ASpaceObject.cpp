@@ -8,55 +8,68 @@
 
 #include <iostream>
 
-ASpace* ASpaceObject::_globalSpace = nullptr;
-bool ASpaceObject::_fakeSpace = true;
+ASpace* ASpaceObject::_defaultSpace = nullptr;
 
 ASpaceObject::ASpaceObject(const ASpace* space)
-: _space(space) /// TODO : ASpace shared pointer
+: _space(space)
 {
   if (nullptr == _space)
-    _space = getGlobalSpace();
+    // If the object is created without space, clone the global default space
+    _space = cloneDefaultSpace();
+  else
+    // else duplicate the provided pointer
+    _space = dynamic_cast<const ASpace*>(space->clone());
 }
 
 ASpaceObject::ASpaceObject(const ASpaceObject& r)
-: _space(r._space) /// TODO : ASpace shared pointer
+: _space(nullptr)
 {
-
+  // Always duplicate!
+  _space = dynamic_cast<const ASpace*>(r._space->clone());
 }
+
 ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
 {
   if (this != &r)
   {
-    /// TODO : ASpace shared pointer
-    _space = r._space;
+    // Delete the previous space
+    if (nullptr != _space)
+      delete _space;
+    // Clone the space of the object to be copied
+    _space = dynamic_cast<const ASpace*>(r._space->clone());
   }
   return *this;
 }
 
 ASpaceObject::~ASpaceObject()
 {
+  delete _space;
 }
-
-const ASpace* ASpaceObject::createGlobalSpace(SpaceType type,
-                                              unsigned int ndim,
-                                              double param)
+/**
+ * Factory for defining the unique default global space
+ * (optional parameter can be used for sphere radius for example)
+ *
+ * @param type Space type (RN, SN, ...)
+ * @param ndim Number of dimension
+ * @param param Optional space parameter
+ */
+void ASpaceObject::defineDefaultSpace(SpaceType type,
+                                      unsigned int ndim,
+                                      double param)
 {
-  if (nullptr != _globalSpace)
-  {
-    std::cout << "Cannot recreate global space context! Should never occur!" << std::endl;
-    std::cout << "Creation aborted: previous Global Space is returned" << std::endl;
-    return _globalSpace;
-  }
+  if (nullptr != _defaultSpace)
+    delete _defaultSpace;
+
   switch (type)
   {
     case SPACE_SN:
     {
-      _globalSpace = new SpaceSN(ndim, param);
+      _defaultSpace = new SpaceSN(ndim, param);
       break;
     }
     case SPACE_RN:
     {
-      _globalSpace = new SpaceRN(ndim);
+      _defaultSpace = new SpaceRN(ndim);
       break;
     }
     default:
@@ -64,20 +77,14 @@ const ASpace* ASpaceObject::createGlobalSpace(SpaceType type,
       my_throw("Unknown space type!");
     }
   }
-  _fakeSpace = false;
-  return _globalSpace;
 }
 
-const ASpace* ASpaceObject::getGlobalSpace()
+const ASpace* ASpaceObject::cloneDefaultSpace()
 {
-  if (nullptr == _globalSpace)
-  {
-//    std::cout << "Creating default global space: SpaceRN 2D..." << std::endl;
-//    std::cout << "Call ASpaceObject::createGlobalSpace to avoid this message!" << std::endl;
-    createGlobalSpace(SPACE_RN, 2);
-    _fakeSpace = true;
-  }
-  return _globalSpace;
+  if (nullptr == _defaultSpace)
+    defineDefaultSpace(SPACE_RN, 2);
+
+  return (dynamic_cast<const ASpace*>(_defaultSpace->clone()));
 }
 
 VectorDouble ASpaceObject::getUnitaryVector() const
@@ -90,58 +97,21 @@ VectorDouble ASpaceObject::getUnitaryVector() const
 
 unsigned int ASpaceObject::getNDim() const
 {
-  return (getSpace()->getNDim());
+  return (_space->getNDim());
 }
 
-const SpacePoint& ASpaceObject::getOrigin() const
+const VectorDouble& ASpaceObject::getOrigin() const
 {
-  return (getSpace()->getOrigin());
+  return (_space->getOrigin());
 }
 
 double ASpaceObject::getDistance(const SpacePoint& p1, const SpacePoint& p2) const
 {
-  return (getSpace()->getDistance(p1, p2));
+  return (_space->getDistance(p1, p2));
 }
 
 VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& p2) const
 {
-  return (getSpace()->getIncrement(p1, p2));
-}
-
-bool ASpaceObject::isSpaceDimensionValid(int ndim)
-{
-  // If (local) Space dimension is defined
-  if (hasGlobalSpace())
-  {
-    // Compare the Local and the Global Space
-    if ((unsigned int)(ndim) != ASpaceObject::getGlobalSpace()->getNDim())
-    {
-      std::cout << "Inconsistency in the Space Dimension" << std::endl;
-      std::cout << "Local Space Dimension  =" << ndim << std::endl;
-      std::cout << "Global Space Dimension =" << ASpaceObject::getGlobalSpace()->getNDim() << std::endl;
-      return false;
-    }
-  }
-  else
-  {
-    // Global Space is not defined yet, it is time to declare it
-    createGlobalSpace(SPACE_RN, ndim);
-    return true;
-  }
-  return true;
-}
-
-/**
- * This function resets the Global Space as Undefined
- * It is mandatory before a new setting
- * Important: The usage of any remaining pointer to the previous Global Space
- * will produce a severe error.
- * So the user must be cautious when using this function
- */
-void ASpaceObject::destroyGlobalSpace()
-{
-  delete _globalSpace;
-  _globalSpace = nullptr;
-  _fakeSpace = true;
+  return (_space->getIncrement(p1, p2));
 }
 

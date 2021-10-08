@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   int nvar = 1;
 
   setup_license("Demonstration");
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
 
   // Generate the output grid
   VectorInt nx = {100,100};
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   data->display(0);
 
   // Create the Model
-  CovContext ctx(nvar);
+  CovContext ctx(nvar); // use default space
   Model* model = new Model(ctx);
   CovAniso* cov = new CovAniso(ECov::SPHERICAL, 5., 0., 45, ctx);
   model->addCova(cov);

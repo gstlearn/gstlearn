@@ -13,7 +13,14 @@ SpacePoint::SpacePoint(const ASpace* space)
   _coord()
 {
   // Initialize the point to the space origin
-  _coord = getOrigin().getCoord();
+  // TODO : Not true whatever the space
+  _coord = getOrigin();
+}
+
+SpacePoint::SpacePoint(const SpacePoint& r)
+: ASpaceObject(r)
+, _coord(r._coord)
+{
 }
 
 SpacePoint::SpacePoint(const VectorDouble& coord,
@@ -21,15 +28,32 @@ SpacePoint::SpacePoint(const VectorDouble& coord,
 : ASpaceObject(space),
   _coord()
 {
-  if (coord.size() != getNDim())
+  if (coord.size() == 0)
   {
-    std::cout << "Error: Wrong number of coordinates. Space origin used." << std::endl;
-    _coord = getOrigin().getCoord();
+    // Use a valid default SpacePoint (origin ?)
+    // TODO : Not true whatever the space
+    _coord = getOrigin();
+  }
+  else if (coord.size() != getNDim())
+  {
+    messerr("Error: Wrong number of coordinates. Space origin used.");
+    // TODO : Not true whatever the space
+    _coord = getOrigin();
   }
   else
   {
     _coord = coord;
   }
+}
+
+SpacePoint& SpacePoint::operator=(const SpacePoint& r)
+{
+  if (this != &r)
+  {
+    ASpaceObject::operator=(r);
+    _coord = r._coord;
+  }
+  return *this;
 }
 
 SpacePoint::~SpacePoint()
@@ -69,7 +93,7 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt) const
   return ASpaceObject::getIncrement(*this, pt);
 }
 
-std::string SpacePoint::toString(int level) const
+String SpacePoint::toString(int level) const
 {
   return ut_vector_string(_coord);
 }

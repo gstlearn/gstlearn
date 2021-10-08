@@ -25,7 +25,7 @@ public:
   AStringable() {};
   virtual ~AStringable() {};
 
-  virtual std::string toString(int level = ITEST) const
+  virtual String toString(int level = ITEST) const
   {
     std::stringstream sstr;
     sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;

@@ -13,82 +13,80 @@
 #include "MatrixC/MatrixCSSym.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/Vector.hpp"
+#include "Variogram/Vario.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_f.h"
 
+/// TODO : Transform CovContext to ASpaceObject ?
 CovContext::CovContext(int nvar,
                        int irfMaxDegree,
                        double field,
                        const ASpace* space)
-: _nVar(nvar),
-  _irfMaxDegree(irfMaxDegree),
-  _field(field),
-  _ballRadius(0.),
-  _mean(),
-  _covar0(),
-  _space(space)
+: ASpaceObject(space)
+,  _nVar(nvar)
+,  _irfMaxDegree(irfMaxDegree)
+,  _field(field)
+,  _ballRadius(0.)
+,  _mean()
+,  _covar0()
 {
   _update();
-  // TODO : Conflict when using model_cova_characteristics if we keep hasGlobalSpace
-  if (_space == nullptr && ASpaceObject::hasGlobalSpace())
-    _space = ASpaceObject::getGlobalSpace();
 }
 
 CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
-    : _nVar(0),
-      _irfMaxDegree(irfMaxDegree),
-      _field(0.),
-      _ballRadius(0.),
-      _mean(),
-      _covar0(),
-      _space(space)
+: ASpaceObject(space)
+, _nVar(0)
+, _irfMaxDegree(irfMaxDegree)
+, _field(0.)
+, _ballRadius(0.)
+, _mean()
+, _covar0()
 {
+  /// TODO : check Db dimension vs provided space
   _nVar = db->getVariableNumber();
   // As it does not make sense not to have any variable, this number is set to 1 at least
   if (_nVar <= 1) _nVar = 1;
   _field = db->getFieldSize();
   _update();
-  if (_space == nullptr)
-    _space = ASpaceObject::getGlobalSpace();
 }
 
 CovContext::CovContext(const Vario* vario, int irfMaxDegree, const ASpace* space)
-    : _nVar(0),
-      _irfMaxDegree(irfMaxDegree),
-      _field(0.),
-      _ballRadius(0.),
-      _mean(),
-      _covar0(),
-      _space(space)
+: ASpaceObject(space)
+, _nVar(0)
+, _irfMaxDegree(irfMaxDegree)
+, _field(0.)
+, _ballRadius(0.)
+, _mean()
+, _covar0()
 {
+  /// TODO : check vario dimension vs provided space
   _nVar = vario->getVariableNumber();
   _field = vario->getHmax();
   _update();
-  if (_space == nullptr)
-    _space = ASpaceObject::getGlobalSpace();
 }
 
 CovContext::CovContext(const CovContext &r)
-: _nVar(r._nVar),
-  _irfMaxDegree(r._irfMaxDegree),
-  _field(r._field),
-  _ballRadius(r._ballRadius),
-  _mean(r._mean),
-  _covar0(r._covar0),
-  _space(r._space)
-  {
+: ASpaceObject(r)
+, _nVar(r._nVar)
+, _irfMaxDegree(r._irfMaxDegree)
+, _field(r._field)
+, _ballRadius(r._ballRadius)
+, _mean(r._mean)
+, _covar0(r._covar0)
+{
 }
 
 CovContext& CovContext::operator=(const CovContext &r)
 {
   if (this != &r)
   {
+    ASpaceObject::operator =(r);
     _nVar = r._nVar;
     _irfMaxDegree = r._irfMaxDegree;
     _field = r._field;
     _ballRadius = r._ballRadius;
     _mean = r._mean;
     _covar0 = r._covar0;
-    _space = r._space;
   }
   return *this;
 }
@@ -97,10 +95,10 @@ CovContext::~CovContext()
 {
 }
 
-std::string CovContext::toString(int level) const
+String CovContext::toString(int level) const
 {
   std::stringstream sstr;
-  sstr << _space->toString() << std::endl;
+  sstr << ASpaceObject::toString(level);
   sstr << "Nb Variables       = "       << _nVar << std::endl;
   sstr << "Maximum IRF Degree = "       << _irfMaxDegree << std::endl;
   sstr << "Field Size         = "       << _field << std::endl;
@@ -108,6 +106,14 @@ std::string CovContext::toString(int level) const
   sstr << "Mean(s)            = "       << ut_vector_string(_mean);
   sstr << "Covariance (0)     = "       << ut_vector_string(_covar0);
   return sstr.str();
+}
+
+bool CovContext::isConsistent(const ASpace* space) const
+{
+  /// TODO: Consistency of CovContext toward a space: Possible duplicate:
+  /// - CovFatory::_isValid
+  /// - ACovFunc::isConsistent
+  return true;
 }
 
 bool CovContext::isEqual(const CovContext &r) const
@@ -120,6 +126,53 @@ bool CovContext::isEqual(const CovContext &r) const
           ut_vector_same(_mean, r._mean)       &&
           ut_vector_same(_covar0, r._covar0)
           );
+}
+
+double CovContext::getMean(int ivar) const
+{
+  if (ivar < 0 || ivar >= (int) _mean.size())
+    throw("Invalid argument in _getMean");
+  return _mean[ivar];
+}
+
+double CovContext::getCovar0(int ivar, int jvar) const
+{
+  int rank = _getIndex(ivar, jvar);
+  if (rank < 0 || rank >= (int) _covar0.size())
+    throw("Invalid argument in _setCovar0");
+  return _covar0[rank];
+}
+
+void CovContext::setMean(const VectorDouble& mean)
+{
+  if (_mean.size() == mean.size())
+    _mean = mean;
+}
+
+void CovContext::setMean(int ivar, const double mean)
+{
+  if (ivar < 0 || ivar >= (int) _mean.size())
+    throw("Invalid argument in _setMean");
+  _mean[ivar] = mean;
+}
+
+void CovContext::setCovar0(const VectorDouble& covar0)
+{
+  if (_covar0.size() == covar0.size())
+    _covar0 = covar0;
+}
+
+void CovContext::setCovar0(int ivar, int jvar, double covar0)
+{
+  int rank = _getIndex(ivar, jvar);
+  if (rank < 0 || rank >= (int) _covar0.size())
+    throw("Invalid argument in _setCovar0");
+  _covar0[rank] = covar0;
+}
+
+int CovContext::_getIndex(int ivar, int jvar) const
+{
+  return ivar * getNVar() + jvar;
 }
 
 void CovContext::_update()

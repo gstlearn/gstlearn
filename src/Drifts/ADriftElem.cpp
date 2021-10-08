@@ -18,7 +18,7 @@
 ADriftElem::ADriftElem(const EDrift& type,
                        const CovContext& ctxt,
                        int rankFex)
-    : ADrift(ctxt.getSpace()),
+    : ADrift(ctxt.getSpace()), /// TODO : shared pointer
       _ctxt(ctxt),
       _type(type),
       _rankFex(rankFex),
@@ -28,7 +28,7 @@ ADriftElem::ADriftElem(const EDrift& type,
 
 ADriftElem::ADriftElem(const ADriftElem &r)
     : ADrift(r),
-      _ctxt(r._ctxt),
+      _ctxt(r._ctxt), /// TODO : shared pointer
       _type(r._type),
       _rankFex(r._rankFex),
       _orderIRF(r._orderIRF)
@@ -57,7 +57,7 @@ bool ADriftElem::isConsistent(const ASpace* space) const
   return true;
 }
 
-std::string ADriftElem::toString(int level) const
+String ADriftElem::toString(int level) const
 {
   std::stringstream sstr;
   sstr << getDriftName();

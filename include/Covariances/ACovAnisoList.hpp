@@ -59,7 +59,7 @@ public:
                       const CovCalcMode& mode = CovCalcMode()) const override;
   //////////////////////////////////////////////////
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
   int             getCovNumber() const;
   bool            isFiltered(unsigned int i) const;

@@ -89,7 +89,7 @@ VectorDouble ACovFunc::evalCovDerivativeVec(int degree,
     vec.push_back(evalCovDerivative(degree, i));
   return vec;
 }
-std::string ACovFunc::toString(int level) const
+String ACovFunc::toString(int level) const
 {
   std::stringstream sstr;
   sstr << getCovName();
@@ -105,7 +105,7 @@ bool ACovFunc::isConsistent() const
   unsigned int maxndim = getMaxNDim();
   if ((maxndim > 0 && (maxndim < _ctxt.getNDim())))
     /// TODO : Test irfDegree vs getMinOrder in CovElem because zonal anisotropies
-       return false;
+    return false;
   return true;
 }
 

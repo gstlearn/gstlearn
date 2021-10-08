@@ -95,7 +95,7 @@ public:
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
 

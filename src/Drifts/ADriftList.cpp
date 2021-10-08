@@ -73,7 +73,7 @@ bool ADriftList::isConsistent(const ASpace* space) const
   return true;
 }
 
-std::string ADriftList::toString(int level) const
+String ADriftList::toString(int level) const
 {
   std::stringstream sstr;
   for (int i = 0; i < (int) getDriftNumber(); i++)

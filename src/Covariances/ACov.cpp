@@ -9,18 +9,17 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
-#include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
 #include "MatrixC/MatrixCSGeneral.hpp"
 #include "Basic/Vector.hpp"
 
 ACov::ACov(const ASpace* space)
-    : ASpaceObject(space)
+: ASpaceObject(space)
 {
 }
 
 ACov::ACov(const ACov &r)
-    : ASpaceObject(r)
+: ASpaceObject(r)
 {
 }
 
@@ -83,11 +82,12 @@ double ACov::eval(int ivar,
                   int jvar,
                   double step,
                   const VectorDouble& dir,
-                  const SpacePoint& center,
+                  const VectorDouble& center,
                   const CovCalcMode& mode) const
 {
-  SpacePoint p1(center);
-  SpacePoint p2(center);
+  // Define the point in the ACov space (center will be checked)
+  SpacePoint p1(center,getSpace());
+  SpacePoint p2(center,getSpace());
   VectorDouble vec(dir);
   ut_vector_multiply_inplace(vec, step);
   p2.move(vec);
@@ -98,7 +98,7 @@ VectorDouble ACov::eval(int ivar,
                         int jvar,
                         const VectorDouble& vec_step,
                         const VectorDouble& dir,
-                        const SpacePoint&   center,
+                        const VectorDouble& center,
                         const CovCalcMode& mode) const
 {
   VectorDouble vec;
@@ -109,7 +109,7 @@ VectorDouble ACov::eval(int ivar,
 
 MatrixCSGeneral ACov::eval(double step,
                            const VectorDouble& dir,
-                           const SpacePoint& center,
+                           const VectorDouble& center,
                            const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
@@ -125,7 +125,8 @@ double ACov::eval(int ivar,
                   double step,
                   const CovCalcMode& mode) const
 {
-  SpacePoint center = getOrigin();
+  /// TODO : Not true whatever the space
+  VectorDouble center = getOrigin();
   VectorDouble dir = getUnitaryVector();
   return eval(ivar, jvar, step, dir, center, mode);
 }
@@ -136,7 +137,8 @@ VectorDouble ACov::eval(int ivar,
                         const CovCalcMode& mode) const
 {
   VectorDouble vec;
-  SpacePoint center = getOrigin();
+  /// TODO : Not true whatever the space
+  VectorDouble center = getOrigin();
   VectorDouble dir = getUnitaryVector();
   for (const auto& h : vec_step)
     vec.push_back(eval(ivar, jvar, h, dir, center, mode));
@@ -147,7 +149,8 @@ MatrixCSGeneral ACov::eval(double step,
                        const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
-  SpacePoint center = getOrigin();
+  /// TODO : Not true whatever the space
+  VectorDouble center = getOrigin();
   VectorDouble dir = getUnitaryVector();
   MatrixCSGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)

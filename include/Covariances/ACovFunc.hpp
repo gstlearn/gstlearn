@@ -39,7 +39,7 @@ public:
   VectorDouble evalCovVec(const VectorDouble& vech) const;
   VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
   virtual String getFormula()   const { return String("Equation not yet implemented"); }
   virtual bool   isConsistent() const;

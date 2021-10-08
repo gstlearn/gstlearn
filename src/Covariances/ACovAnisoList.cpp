@@ -168,7 +168,7 @@ double ACovAnisoList::eval(int ivar,
   return cov;
 }
 
-std::string ACovAnisoList::toString(int level) const
+String ACovAnisoList::toString(int level) const
 {
   std::stringstream sstr;
   for (const auto& cov : _covs)

@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
   int flag_mesh = 0;
   int ndim      = 3;
   int verbose   = 1;
-  int variety   = 0;  // 0 fo Euclidean; 1 for Spherical
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  int variety   = 0;  // 0 for Euclidean; 1 for Spherical
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   /* Cleverness of the options */
 
   if (variety == 1) flag_mesh = 0;

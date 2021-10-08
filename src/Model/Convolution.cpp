@@ -236,7 +236,7 @@ double _conv_sincard(int number, double v)
   return(dp);
 }
 
-std::string Convolution::toString(int level) const
+String Convolution::toString(int level) const
 {
   std::stringstream sstr;
 

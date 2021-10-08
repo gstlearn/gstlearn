@@ -40,7 +40,7 @@ public:
   Tapering& operator= (const Tapering &m);
   virtual ~Tapering();
 
-  virtual std::string toString(int level = 0) const override;
+  virtual String toString(int level = 0) const override;
 
   int getTapeNumber();
 

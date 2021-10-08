@@ -27,7 +27,7 @@ public:
   const FILE*   getFile() const { return _file; }
   const String& getFileName() const { return _fileName; }
   const String& getFileType() const { return _fileType; }
-  String buildFileName(const String& filename) const;
+  String buildFileName(const String& filename, bool ensureDirExist = false) const;
 
   static String getHomeDirectory(const std::string& sub = "");
 
@@ -51,6 +51,7 @@ public:
   static void setPrefixName(const String& prefixName);
   static const String& getContainerName();
   static const String& getPrefixName();
+  static bool createDirectory(const String& dir);
 
 private:
   mutable String _fileName;

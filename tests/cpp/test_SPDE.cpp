@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   /* 1.b - Connect the Geoslib Library */
 
   if (setup_license("Demonstration")) goto label_end;
-  ASpaceObject::createGlobalSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
 
   /* 1.c - Setup constants */
 
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     
   // Model 
 
-  model = model_init(2,1,diag);
+  model = model_init(ndim,1,diag);
   if (model == nullptr) goto label_end;
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
                      VectorDouble(),VectorDouble(),sill)) goto label_end;
