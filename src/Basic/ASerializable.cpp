@@ -88,7 +88,7 @@ int ASerializable::_fileOpen(const String& filename,
   _fileType = filetype;
 
   // Build the multi-platform filename and open it
-  String fileComplete = buildFileName(filename);
+  String fileComplete = buildFileName(filename, true);
   _file = fopen(fileComplete.c_str(), mode.c_str());
   if (_file == (FILE *) NULL)
   {
