@@ -12,7 +12,6 @@
 #include "geoslib_f_private.h"
 
 #include "Model/Model.hpp"
-#include "Model/Cova.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Basic/Vector.hpp"
@@ -453,8 +452,8 @@ int Model::deSerialize(const String& filename, bool verbose)
       if (_recordRead("Flag for Anisotropy Rotation", "%d", &flag_rotation))  return 1;
       if (flag_rotation)
       {
-        // Warning: the storage in the File is performed by Column
-        // whereas the internal storage (Cova) is by column
+        // Warning: the storage in the File is performed by column
+        // whereas the internal storage is by column (TODO : ???)
         aniso_rotmat.resize(ndim * ndim);
         int lec = 0;
         for (int idim = 0; idim < ndim; idim++)

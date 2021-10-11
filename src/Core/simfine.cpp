@@ -521,7 +521,7 @@ GEOSLIB_API int simfine_f(Db *dbin,
     /* Create the output grid */
 
     st_dim_1_to_2(db1);
-    db2   = db_create_grid(0,NDIM,1,1,1,
+    db2   = db_create_grid(0,NDIM,1,ELoadBy::SAMPLE,1,
                            NX2,X02,DX2,dbin->getGrid().getRotAngles());
     iatt2 = db2->addFields(1,TEST);
     if (iatt2 <= 0) goto label_end;
@@ -542,7 +542,7 @@ GEOSLIB_API int simfine_f(Db *dbin,
 
     if (db1 != dbin) db1 = db_delete(db1);
     st_dim_2_to_1(db2);
-    db1   = db_create_grid(0,NDIM,1,1,1,
+    db1   = db_create_grid(0,NDIM,1,ELoadBy::SAMPLE,1,
                            NX1,X01,DX1,dbin->getGrid().getRotAngles());
     iatt1 = db1->addFields(1,TEST);
     if (iatt1 <= 0) goto label_end;

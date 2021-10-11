@@ -27,7 +27,6 @@
 #include "Space/SpaceRN.hpp"
 
 class Model;
-class Cova;
 class Drift;
 class ModTrans;
 class CovInternal;

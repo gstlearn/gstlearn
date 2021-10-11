@@ -10,6 +10,7 @@
 #include "Interfaces/ParamCSV.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Db/ELoadBy.hpp"
 
 #include "geoslib_f.h"
 #include "Interfaces/geoslib_f_swig.h"
@@ -60,7 +61,7 @@ void ptg()
   VectorDouble x0{0,0};
   VectorDouble rotation{0}; 
   
-  ParamGrid pgrid(nx, x0, dx, rotation, LOAD_BY_COLUMN);
+  ParamGrid pgrid(nx, x0, dx, rotation, ELoadBy::COLUMN);
   Database dbg(pgrid);
   
   Database dbp;
@@ -96,7 +97,7 @@ void gtp()
   VectorDouble rotation{0}; 
   
 
-  ParamGrid pgrid(nx,x0,dx,rotation,LOAD_BY_COLUMN);
+  ParamGrid pgrid(nx,x0,dx,rotation,ELoadBy::COLUMN);
 
   Database dbg(pgrid);
   Database dbp;
@@ -130,8 +131,8 @@ void gtg()
   VectorDouble x0{0,0};
   VectorDouble rotation{0}; 
   
-  ParamGrid pgrid(nx,x0,dx,rotation,LOAD_BY_COLUMN);
-  ParamGrid pgrid2({2,2},x0,{2.5,2.5},rotation,LOAD_BY_COLUMN);
+  ParamGrid pgrid(nx,x0,dx,rotation,ELoadBy::COLUMN);
+  ParamGrid pgrid2({2,2},x0,{2.5,2.5},rotation,ELoadBy::COLUMN);
   Database dbg(pgrid);
   Database dbg2(pgrid2);
 
@@ -154,7 +155,7 @@ void  serialize()
   VectorDouble x0{3,0};
   VectorDouble rotation{0}; 
   
-  ParamGrid pgrid(nx,x0,dx,rotation,LOAD_BY_COLUMN);
+  ParamGrid pgrid(nx,x0,dx,rotation,ELoadBy::COLUMN);
   Database dbg(pgrid);
   
   VectorDouble Z = create_z(25);

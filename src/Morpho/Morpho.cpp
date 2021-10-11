@@ -1182,7 +1182,7 @@ VectorInt gridcell_neigh(int ndim,
     x0[idim] = 0.;
   }
 
-  grid = db_create_grid(0,ndim,0,LOAD_BY_SAMPLE,1,nx,x0,dx);
+  grid = db_create_grid(0,ndim,0,ELoadBy::SAMPLE,1,nx,x0,dx);
 
   /* (Maximum) core allocation */
 

@@ -252,13 +252,13 @@ GEOSLIB_API int db_vector_put(Db *db,
  **  Load the data from the input array
  **
  ** \param[in]  db     Db structure
- ** \param[in]  order  manner in which values in tab are ordered
- **                    (::ENUM_LOAD_DATA)
+ ** \param[in]  order  Manner in which values in tab are ordered
+ **                    (ELoadBy)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  ** \param[in]  tab    Array containing the data
  *****************************************************************************/
 static void st_load_data(Db *db,
-                         int order,
+                         const ELoadBy& order,
                          int flag_add_rank,
                          const VectorDouble& tab)
 {
@@ -288,7 +288,7 @@ static void st_load_data(Db *db,
   {
     for (int iech = 0; iech < db->getSampleNumber(); iech++, ecr++)
     {
-      if (order == LOAD_BY_SAMPLE)
+      if (order == ELoadBy::SAMPLE)
         db->setByColumn(iech, jcol, tab[icol + ntab * iech]);
       else
         db->setByColumn(iech, jcol, tab[ecr]);
@@ -1470,7 +1470,7 @@ GEOSLIB_API int db_grid_define_coordinates(Db *db)
  ** \param[in]  ndim      Space dimension
  ** \param[in]  natt      Number of attributes
  ** \param[in]  order     Manner in which values in tab are ordered.
- **                       (::ENUM_LOAD_DATA)
+ **                       (ELoadBy)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  ** \param[in]  nx        Array of number of grid nodes
  ** \param[in]  x0        Array of grid origin coordinates
@@ -1482,7 +1482,7 @@ GEOSLIB_API int db_grid_define_coordinates(Db *db)
 GEOSLIB_API Db *db_create_grid(int flag_rot,
                                int ndim,
                                int natt,
-                               int order,
+                               const ELoadBy& order,
                                int flag_add_rank,
                                const VectorInt& nx,
                                const VectorDouble& x0,
@@ -1524,8 +1524,8 @@ GEOSLIB_API Db *db_create_grid(int flag_rot,
  ** \param[in]  flag_rot  1 if the grid is rotated
  ** \param[in]  ndim      Space dimension
  ** \param[in]  natt      Number of attributes
- ** \param[in]  order     manner in which values in tab are ordered
- **                       (::ENUM_LOAD_DATA)
+ ** \param[in]  order     Manner in which values in tab are ordered
+ **                       (ELoadBy)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  ** \param[in]  nx        Array of number of grid nodes
  ** \param[in]  tab       Array containing the data
@@ -1534,7 +1534,7 @@ GEOSLIB_API Db *db_create_grid(int flag_rot,
 GEOSLIB_API Db *db_create_grid_generic(int flag_rot,
                                        int ndim,
                                        int natt,
-                                       int order,
+                                       const ELoadBy& order,
                                        int flag_add_rank,
                                        const VectorInt& nx,
                                        const VectorDouble& tab)
@@ -1577,8 +1577,8 @@ GEOSLIB_API Db *db_create_grid_generic(int flag_rot,
  **
  ** \param[in]  flag_rot  1 if the grid is rotated
  ** \param[in]  natt      Number of attributes
- ** \param[in]  order     manner in which values in tab are ordered
- **                       (::ENUM_LOAD_DATA)
+ ** \param[in]  order     Manner in which values in tab are ordered
+ **                       (ELoadBy)
  ** \param[in]  flag_add_rank 1 to add 'rank' as a supplementary field
  **
  ** \param[in]  nx        Number of grid nodes along X
@@ -1593,7 +1593,7 @@ GEOSLIB_API Db *db_create_grid_generic(int flag_rot,
  *****************************************************************************/
 GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
                                   int natt,
-                                  int order,
+                                  const ELoadBy& order,
                                   int flag_add_rank,
                                   int nx,
                                   int ny,
@@ -1640,8 +1640,8 @@ GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
  **
  ** \param[in]  flag_rot  1 if the grid is rotated
  ** \param[in]  natt      Number of attributes
- ** \param[in]  order     manner in which values in tab are ordered
- **                       (::ENUM_LOAD_DATA)
+ ** \param[in]  order     Manner in which values in tab are ordered
+ **                       (ELoadBy)
  ** \param[in]  flag_add_rank 1 to add 'rank' as a supplementary field
  ** \param[in]  nx        Number of grid nodes along X
  ** \param[in]  ny        Number of grid nodes along Y
@@ -1660,7 +1660,7 @@ GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
  *****************************************************************************/
 GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
                                   int natt,
-                                  int order,
+                                  const ELoadBy& order,
                                   int flag_add_rank,
                                   int nx,
                                   int ny,
@@ -1723,7 +1723,7 @@ GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
  *****************************************************************************/
 GEOSLIB_API Db *db_create_point(int nech,
                                 int natt,
-                                int order,
+                                const ELoadBy& order,
                                 int flag_add_rank,
                                 const VectorDouble& tab)
 {
@@ -1766,7 +1766,7 @@ GEOSLIB_API Db *db_create_from_target(double *target,
 
   /* Create a Db with point organization */
 
-  db = db_create_point(1, 0, 1, flag_add_rank);
+  db = db_create_point(1, 0, ELoadBy::SAMPLE, flag_add_rank);
 
   /* Add the coordinates */
 
@@ -3512,7 +3512,7 @@ GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, 0, flag_add_rank, nx,
+  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN, flag_add_rank, nx,
                          x0, dx, dbin->getAngles());
 
   return (dbout);
@@ -3548,7 +3548,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, 0, flag_add_rank, nx,
+  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN, flag_add_rank, nx,
                          x0, dx, dbin->getAngles());
 
   return (dbout);
@@ -3585,7 +3585,7 @@ GEOSLIB_API Db *db_create_grid_dilate(Db *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, 0, flag_add_rank, nx,
+  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN, flag_add_rank, nx,
                          x0, dx, dbin->getAngles());
 
   return (dbout);
@@ -4011,7 +4011,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
   grid_to_point(db_grid, indmin, NULL, coor);
   nx.assign(indmax, indmax + ndim);
   x0.assign(coor, coor + ndim);
-  ss_grid = db_create_grid(db_grid->isGridRotated(), db_grid->getNDim(), 0, 0,
+  ss_grid = db_create_grid(db_grid->isGridRotated(), db_grid->getNDim(), 0, ELoadBy::COLUMN,
                            flag_add_rank, nx, x0, db_grid->getDX(),
                            db_grid->getAngles());
 

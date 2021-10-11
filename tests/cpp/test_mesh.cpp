@@ -14,6 +14,8 @@
 #include "MatrixC/MatrixCRectangular.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
+#include "Db/ELoadBy.hpp"
+
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
@@ -112,7 +114,7 @@ int main(int argc, char *argv[])
   {
     nx[0] = 1+ceil((extendmax[0] - extendmin[0] - cellsize[0]/2.)/cellsize[0]);
     nx[1] = 1+ceil((extendmax[1] - extendmin[1] - cellsize[1]/2.)/cellsize[1]);
-    dbgrid = db_create_grid(0,ndim,0,LOAD_BY_COLUMN,1,nx,extendmin,cellsize);
+    dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,extendmin,cellsize);
   }
 
   /* Connect the Geoslib Library */

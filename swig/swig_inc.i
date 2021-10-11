@@ -81,7 +81,6 @@
 #include "Variogram/ECalcVario.hpp"
 
 #include "Model/Model.hpp"
-#include "Model/Cova.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"

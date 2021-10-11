@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Space/Space.hpp"
+#include "Db/ELoadBy.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
@@ -297,7 +298,7 @@ int main(int argc, char *argv[])
   
   // 2-D grid output file
 
-  dbgrid = db_create_grid(0,ndim,0,LOAD_BY_COLUMN,1,nx,x0,dx);
+  dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,x0,dx);
   if (dbgrid == (Db *) NULL) goto label_end;
   if (db_locator_attribute_add(dbgrid,LOC_X,ndim,0,0.,
                                &iptr)) goto label_end;

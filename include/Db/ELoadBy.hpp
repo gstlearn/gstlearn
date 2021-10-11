@@ -8,16 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Neigh/ENeigh.hpp"
-#include "Db/ELoadBy.hpp"
-#include "Db/ELoc.hpp"
-#include "Covariances/ECov.hpp"
-#include "Drifts/EDrift.hpp"
-#include "Variogram/ECalcVario.hpp"
+#pragma once
 
-ENUM_DEFINE(ENUM_LOAD_BY)
-ENUM_DEFINE(ENUM_NEIGH)
-ENUM_DEFINE(ENUM_LOC)
-ENUM_DEFINE(ENUM_COV)
-ENUM_DEFINE(ENUM_DRIFT)
-ENUM_DEFINE(ENUM_CALC_VARIO)
+#include "Enum/AEnum.hpp"
+
+#define ENUM_LOAD_BY ELoadBy, COLUMN,\
+                     COLUMN,   0, "Values are provided sorted by columns", \
+                     SAMPLE,   1, "Values are provided sorted by sample"
+
+ENUM_DECLARE(ENUM_LOAD_BY)

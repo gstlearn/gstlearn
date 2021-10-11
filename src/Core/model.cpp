@@ -3030,7 +3030,7 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 //                                double *vars,
 //                                double *corr)
 //{
-//  TODO : Dead code ?
+  /// TODO [Cova] : to be restored ?
 //  Model  *new_model;
 //  int     ivar,jvar,nvar,icov,ncova,il,nbfl,error,ndim;
 //  double  sill;
@@ -3515,7 +3515,7 @@ GEOSLIB_API Model *input_model(int ndim,
                                int flag_norm,
                                Model *model_in)
 {
-  /// TODO [Cova] : to be restored
+  /// TODO [Cova] : to be restored ?
 //  int    i,flag_def,error,ncova;
 //  Model *model;
 //  Cova  *cova,*cova_in;
@@ -3589,7 +3589,7 @@ GEOSLIB_API int model_dimension(Model *model)
 
 /****************************************************************************/
 /*!
- **  Ask the characteristics of one Cova structure
+ **  Ask the characteristics of one Covariance structure
  **
  ** \return  Error returned code
  **

@@ -22,7 +22,6 @@
 #include "segy.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
-#include "Model/Cova.hpp"
 #include "Db/Db.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"

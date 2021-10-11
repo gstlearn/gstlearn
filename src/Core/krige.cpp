@@ -13,6 +13,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Db/ELoadBy.hpp"
 
 /*! \cond */
 #define NBYPAS 5
@@ -3141,7 +3142,7 @@ static Db *st_image_build(Neigh *neigh,
   /* Create the grid */
 
   dbaux = db_create_grid_generic(DBOUT->isGridRotated(),ndim,natt,
-                                 LOAD_BY_COLUMN,1,nx,tab);
+                                 ELoadBy::COLUMN,1,nx,tab);
 
   /* Copy the grid characteristics */
 

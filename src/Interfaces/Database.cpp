@@ -9,6 +9,7 @@
 #include "Interfaces/ParamCSV.hpp"
 
 #include "Space/ASpace.hpp"
+#include "Db/ELoadBy.hpp"
 
 #include "geoslib_enum.h"
 #include <cstddef>
@@ -64,7 +65,7 @@ Database::Database(const ParamCSV &pcsv, const ASpace* space)
     return;
   }
 
-  db = db_create_point(nrow_arg, ncol_arg, LOAD_BY_SAMPLE, 0, tab);
+  db = db_create_point(nrow_arg, ncol_arg, ELoadBy::SAMPLE, 0, tab);
 
   // fill attribute _vars
   int i = 0;
@@ -643,11 +644,11 @@ Db* Database::toGeoslib() const
   if (!_isGrid)
   {
     int nrow = _vars[0]->getValues().size();
-    res = db_create_point(nrow, _vars.size(), LOAD_BY_COLUMN, 1, v);
+    res = db_create_point(nrow, _vars.size(), ELoadBy::COLUMN, 1, v);
   }
   else
   {
-    res = db_create_grid(0, 2, 0, LOAD_BY_COLUMN, 1, _pgrid.getNx(),
+    res = db_create_grid(0, 2, 0, ELoadBy::COLUMN, 1, _pgrid.getNx(),
                          _pgrid.getX0(), _pgrid.getDx());
     //:TODO:Add VariableAuto with generator on the fly
   }
@@ -960,7 +961,7 @@ bool Database::deserialize(const String& filename)
     {
       VectorDouble rotation
       { 0};
-      ParamGrid pgrid(vec_nx, vec_x0, vec_dx, vec_rot ,LOAD_BY_COLUMN);
+      ParamGrid pgrid(vec_nx, vec_x0, vec_dx, vec_rot ,ELoadBy::COLUMN);
       _pgrid=pgrid;
     }
   }

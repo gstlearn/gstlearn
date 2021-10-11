@@ -2837,7 +2837,7 @@ static int st_extdrift_create_db(Db      *dbout,
 
   /* Creating the data grid */
 
-  pot_ext->db = db_create_grid(dbout->isGridRotated(),pot_ext->ndim,0,0,1,
+  pot_ext->db = db_create_grid(dbout->isGridRotated(),pot_ext->ndim,0,ELoadBy::COLUMN,1,
                                nx,x0,dbout->getDX(),dbout->getAngles());
   if (pot_ext->db == (Db *) NULL) goto label_end;
   pot_ext->nfull = nech;

@@ -9676,7 +9676,7 @@ static Db *st_m2d_create_constraints(M2D_Environ *m2denv,
 
   /* Create the output Db */
 
-  db = db_create_point(number, natt, LOAD_BY_SAMPLE, 0, tab);
+  db = db_create_point(number, natt, ELoadBy::SAMPLE, 0, tab);
   if (db == (Db *) NULL) goto label_end;
 
   // Assigning names to the variables (not pointers yet)

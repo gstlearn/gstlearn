@@ -12,7 +12,6 @@
 
 #include "Model/ModelNostat.hpp"
 #include "Model/ElemNostat.hpp"
-#include "Model/Cova.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "geoslib_f.h"

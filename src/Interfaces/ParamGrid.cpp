@@ -1,12 +1,24 @@
 #include "Interfaces/ParamGrid.hpp"
 #include <iostream>
 ParamGrid::ParamGrid()
-:_Nx(), _X0(), _Dx(), _Rotation(), _CellOrder()
+:_Nx()
+, _X0()
+, _Dx()
+, _Rotation()
+, _CellOrder()
 {
 }
 
-ParamGrid::ParamGrid(VectorInt nx, VectorDouble x0, VectorDouble dx, VectorDouble Rotation,int cell_order)
-:_Nx(nx), _X0(x0),_Dx(dx), _Rotation(Rotation),_CellOrder(cell_order)
+ParamGrid::ParamGrid(VectorInt nx,
+                     VectorDouble x0,
+                     VectorDouble dx,
+                     VectorDouble Rotation,
+                     const ELoadBy& cell_order)
+:_Nx(nx)
+, _X0(x0)
+,_Dx(dx)
+, _Rotation(Rotation)
+,_CellOrder(cell_order)
 {
 }
 
@@ -35,7 +47,7 @@ VectorDouble  ParamGrid::getRotation() const
   return(_Rotation);
 }
 
-int  ParamGrid::getCellOrder() const
+const ELoadBy& ParamGrid::getCellOrder() const
 {
   return(_CellOrder);
 }
@@ -74,7 +86,7 @@ void ParamGrid::reset()
   _X0.clear();
   _Dx.clear();
   _Rotation.clear();
-  _CellOrder = 0;
+  _CellOrder = ELoadBy::COLUMN;
 }
 
 /****************************************************************************/
@@ -86,7 +98,7 @@ void ParamGrid::fromGeoslib(GridC grid)
 {
   int i = 0;
   reset();
-  _CellOrder = LOAD_BY_COLUMN;
+  _CellOrder = ELoadBy::COLUMN;
   while ( i < grid.getNDim())
   {
     _Nx.push_back(grid.getNX(i));

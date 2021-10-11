@@ -17,7 +17,6 @@ class IClonable{};
 
 %template(VectorEnumCovs)       std::vector< ECov >;
 
-%template(VectorCova)           std::vector<Cova*>;
 %template(VectorCTable)         std::vector<CTable*>;
 %template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
 %template(VectorDirection)      std::vector<Direction*>;
@@ -112,7 +111,6 @@ class IClonable{};
 %include Variogram/DirParam.hpp
 %include Variogram/ECalcVario.hpp
 %include Model/Model.hpp
-%include Model/Cova.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
 %include Model/Constraints.hpp
