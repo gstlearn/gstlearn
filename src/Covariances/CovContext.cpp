@@ -17,7 +17,6 @@
 #include "Db/Db.hpp"
 #include "geoslib_f.h"
 
-/// TODO : Transform CovContext to ASpaceObject ?
 CovContext::CovContext(int nvar,
                        int irfMaxDegree,
                        double field,
