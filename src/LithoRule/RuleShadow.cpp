@@ -43,7 +43,7 @@ RuleShadow::RuleShadow(double slope,
       _ind1(),
       _ind2()
 {
-  setModeRule(RULE_SHADOW);
+  setModeRule(ERule::SHADOW);
   VectorString nodnames = {"S", "T", "F1", "F2", "F3"};
   setMainNodeFromNodNames(nodnames);
   _normalizeShift();

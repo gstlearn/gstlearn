@@ -90,7 +90,7 @@ double get_rule_extreme(int mode)
 Rule::Rule(double rho)
     : AStringable(),
       ASerializable(),
-      _modeRule(RULE_STD),
+      _modeRule(ERule::STD),
       _flagProp(0),
       _rho(rho),
       _mainNode(nullptr)
@@ -100,7 +100,7 @@ Rule::Rule(double rho)
 Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
     : AStringable(),
       ASerializable(),
-      _modeRule(RULE_STD),
+      _modeRule(ERule::STD),
       _flagProp(0),
       _rho(rho),
       _mainNode(nullptr)
@@ -111,7 +111,7 @@ Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
 Rule::Rule(int nfacies, double rho)
     : AStringable(),
       ASerializable(),
-      _modeRule(RULE_STD),
+      _modeRule(ERule::STD),
       _flagProp(0),
       _rho(rho),
       _mainNode(nullptr)
@@ -123,7 +123,7 @@ Rule::Rule(int nfacies, double rho)
 Rule::Rule(const VectorString& nodnames, double rho)
     : AStringable(),
       ASerializable(),
-      _modeRule(RULE_STD),
+      _modeRule(ERule::STD),
       _flagProp(0),
       _rho(rho),
       _mainNode(nullptr)
@@ -134,7 +134,7 @@ Rule::Rule(const VectorString& nodnames, double rho)
 Rule::Rule(const VectorInt& nodes, double rho)
     : AStringable(),
       ASerializable(),
-      _modeRule(RULE_STD),
+      _modeRule(ERule::STD),
       _flagProp(0),
       _rho(rho),
       _mainNode(nullptr)
@@ -145,7 +145,7 @@ Rule::Rule(const VectorInt& nodes, double rho)
 Rule::Rule(const String& neutralFileName, bool verbose)
     : AStringable(),
       ASerializable(),
-      _modeRule(RULE_STD),
+      _modeRule(ERule::STD),
       _flagProp(0),
       _rho(0.),
       _mainNode(nullptr)
@@ -372,7 +372,7 @@ int Rule::getY2Number() const
   int node_tot, nfac, nmax, ny1, ny2;
   double prop;
   if (statistics(0, &node_tot, &nfac, &nmax, &ny1, &ny2, &prop)) return 0;
-  if (getModeRule() == RULE_SHADOW || getModeRule() == RULE_SHIFT) ny2 = 0;
+  if (getModeRule() == ERule::SHADOW || getModeRule() == ERule::SHIFT) ny2 = 0;
   if (_rho == 1.) ny2 = 0;
   return ny2;
 }
@@ -709,7 +709,7 @@ int Rule::serialize(const String& filename, bool verbose) const
 
   /* Create the Rule structure */
 
-  _recordWrite("%d", getModeRule());
+  _recordWrite("%d", getModeRule().getValue());
   _recordWrite("#", "Type of Rule");
   _recordWrite("%lf", getRho());
   _recordWrite("#", "Correlation coefficient between GRFs");

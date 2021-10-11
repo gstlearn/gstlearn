@@ -24,7 +24,7 @@
 #define DEFINE_ANICOEF (flag_range != 0 && optvar.getAuthAniso())
 #define DEFINE_ANIROT  (flag_range != 0 && optvar.getAuthAniso() &&  \
                         optvar.getAuthRotation())
-#define DEFINE_T_RANGE (model->getModTransMode() == MODEL_PROPERTY_TAPE)
+#define DEFINE_T_RANGE (model->getModTransMode() == EModelProperty::TAPE)
 #define FLAG_COMPRESS(imod,icov) (flag_compress[(imod) * ncova + (icov)])
 
 #define COMP_INDEX(i,j)          ((i) * ((i)+1) / 2 + (j))
@@ -874,7 +874,7 @@ static void st_prepar_goulard_vario(int imod)
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
   CovCalcMode mode;
-  mode.update(0,ITEST,MEMBER_LHS,-1,0,0);
+  mode.update(0,ITEST,ECalcMember::LHS,-1,0,0);
   mode.setOrderVario(STRMOD->norder);
 
   /* Loop on the basic structures */
@@ -2196,7 +2196,7 @@ static int st_structure_reduce(StrMod *strmod,
   VectorDouble tab(nvar * nvar);
   CovCalcMode mode;
 
-  mode.update(0,0,MEMBER_LHS,icov,0,0);
+  mode.update(0,0,ECalcMember::LHS,icov,0,0);
   mode.setOrderVario(STRMOD->norder);
   model_calcul_cov(model, mode, 1, 1., d1, tab.data());
 
@@ -2234,7 +2234,7 @@ static void st_evaluate_vario(int      imod,
   VectorDouble tab(nvar * nvar);
   CovCalcMode mode;
 
-  mode.update(0,0,MEMBER_LHS,-1,0,0);
+  mode.update(0,0,ECalcMember::LHS,-1,0,0);
   mode.setOrderVario(strmod->norder);
 
   /* Loop on the experimental conditions */
@@ -2274,7 +2274,7 @@ static void st_evaluate_vmap(int      imod,
   db_index_sample_to_grid(DBMAP,nech/2,INDG1);
 
   CovCalcMode mode;
-  mode.update(0,0,MEMBER_LHS,-1,0,0);
+  mode.update(0,0,ECalcMember::LHS,-1,0,0);
   mode.setOrderVario(strmod->norder);
 
   /* Loop on the experimental conditions */
@@ -3894,7 +3894,7 @@ static int st_alter_model_optvar(Vario      *vario,
 
   /* Case when properties are defined: Goulard is switch off */
 
-  if (model->getModTransMode() == MODEL_PROPERTY_ANAM &&
+  if (model->getModTransMode() == EModelProperty::ANAM &&
       model->getModTrans().getAnam()->getType() != ANAM_HERMITIAN &&
       optvar.getFlagGoulardUsed())
   {
@@ -3947,7 +3947,7 @@ static int st_alter_vmap_optvar(Db         *dbmap,
 
   /* Case when properties are defined: Goulard is switch off */
 
-  if (model->getModTransMode() == MODEL_PROPERTY_ANAM &&
+  if (model->getModTransMode() == EModelProperty::ANAM &&
       model->getModTrans().getAnam()->getType() != ANAM_HERMITIAN &&
       optvar.getFlagGoulardUsed())
   {
@@ -4191,7 +4191,7 @@ static void st_prepar_goulard_vmap(int imod)
 
   for (int icov=0; icov<ncova; icov++)
   {
-    mode.update(0,ITEST,MEMBER_LHS,icov,0,0);
+    mode.update(0,ITEST,ECalcMember::LHS,icov,0,0);
     mode.setOrderVario(STRMOD->norder);
 
     /* Loop on the experiments */
@@ -4294,7 +4294,7 @@ static void st_vario_varchol_manage(Vario *vario,
 
   /* Particular case of Properties attached to the Model */
 
-  if (model->getModTransMode() != MODEL_PROPERTY_NONE)
+  if (model->getModTransMode() != EModelProperty::NONE)
   {
     model_nugget = model_default(model->getDimensionNumber(), model->getVariableNumber());
     model_calcul_cov(model, mode, 1, 1., VectorDouble(), aux.data());

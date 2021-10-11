@@ -12,13 +12,13 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_DRIFT EDrift, UNKNOWN,\
-                   UNKNOWN, -1, "Unknown drift", \
+#define ENUM_DRIFT EDrift, UNKNOWN, \
+                   UNKNOWN, -1, "Unknown Drift", \
                    UC,       0, "Universality Condition", \
                    X,        1, "Drift along X", \
                    Y,        2, "Drift along Y", \
                    Z,        3, "Drift along Z", \
-                   X2,       4, "Drift along X²", \
+                   X2,       4, "Drift along X", \
                    Y2,       5, "Drift along Y²", \
                    XY,       6, "Drift along XY", \
                    Z2,       7, "Drift along Z²", \

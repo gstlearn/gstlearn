@@ -334,7 +334,7 @@ static int st_kriging_solve(int type,
 
   /* Establish the kriging R.H.S. */
 
-  mode.setMember(MEMBER_RHS);
+  mode.setMember(ECalcMember::RHS);
   for (i=0; i<nb; i++)
   {
     d1[0] = XN[type][i];
@@ -364,7 +364,7 @@ static int st_kriging_solve(int type,
 
   /* Calculate the variance */
 
-  mode.setMember(MEMBER_VAR);
+  mode.setMember(ECalcMember::VAR);
   for (i=0; i<3; i++) d1[i] = 0.;
   model_calcul_cov(model,mode,1,1.,d1,&var[0]);
   matrix_product(1,neq,1,rhs,WGT[type][rank],&var[1]);

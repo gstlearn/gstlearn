@@ -12,6 +12,7 @@
 
 #include "Model/Convolution.hpp"
 #include "Model/Tapering.hpp"
+#include "Model/EModelProperty.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
@@ -41,22 +42,22 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  int getModTransMode() const         { return _modTransMode; }
-  int getAnamIClass() const           { return _anamIClass; }
-  int getAnamNClass() const           { return _anamNClass; }
-  int getAnamPointBlock() const       { return _anamPointBlock;  }
-  void setAnamIClass(int iclass)      { _anamIClass = iclass; }
-  void setAnamVar(int var)            { _anamPointBlock = var; }
-  const VectorDouble& getAnamStrCount() const { return _anamStrCount; }
-  const VectorDouble& getAnamMeans() const { return _anamMeans; }
-  double getAnamMeans(int iclass) const { return _anamMeans[iclass]; }
+  const EModelProperty& getModTransMode() const { return _modTransMode; }
+  int getAnamIClass() const                     { return _anamIClass; }
+  int getAnamNClass() const                     { return _anamNClass; }
+  int getAnamPointBlock() const                 { return _anamPointBlock;  }
+  void setAnamIClass(int iclass)                { _anamIClass = iclass; }
+  void setAnamVar(int var)                      { _anamPointBlock = var; }
+  const VectorDouble& getAnamStrCount() const   { return _anamStrCount; }
+  const VectorDouble& getAnamMeans() const      { return _anamMeans; }
+  double getAnamMeans(int iclass) const         { return _anamMeans[iclass]; }
 
   Anam* getAnam()        const { return _anam; }
   Convolution* getConv() const { return _conv; }
   Tapering* getTape()    const { return _tape; }
 
 private:
-  int _modTransMode;
+  EModelProperty _modTransMode;
   Convolution* _conv;
   Tapering*    _tape;
   Anam*        _anam;

@@ -10,17 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Drifts/EDrift.hpp"
+#include "Enum/AEnum.hpp"
 
-class ADriftElem;
+#define ENUM_CALC_MEMBER ECalcMember, LHS, \
+                             LHS, 0, "Left-hand Side of the Kriging System", \
+                             RHS, 1, "Right-hand Side of the Kriging System", \
+                             VAR, 2, "Variance of the Kriging System"
 
-class DriftFactory
-{
-public:
-  static ADriftElem*  createDriftFunc(const EDrift& type, const CovContext& ctxt);
-  static ADriftElem*  duplicateDriftFunc(const ADriftElem& cov);
-  static void         displayList(const CovContext& ctxt);
-  static EDrift       identifyDrift(const String& symbol, int* rank, const CovContext& ctxt);
- };
+ENUM_DECLARE(ENUM_CALC_MEMBER)

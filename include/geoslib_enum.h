@@ -155,6 +155,7 @@ typedef enum
 //  COV_EXPFACT = 21,      //!< Factorized Exponential
 
 #ifndef SWIG
+// Internal enums (not exported via SWIG)
 typedef enum
 {
   CONV_UNIFORM = 1,         //!< Uniform
@@ -184,13 +185,17 @@ typedef enum
   MODEL_CALCUL_GX_GY = 32,   //!< Calculation between X-Grad and Y-Grad
 } ENUM_MODEL_CALCULS; // No more needed
 */
+
+#ifndef SWIG
+// Internal enums (not exported via SWIG)
 typedef enum
 {
   MODEL_DERIVATIVE_NONE = 0,  //!< No Derivation
   MODEL_DERIVATIVE_X = 1,     //!< Derivation along X
   MODEL_DERIVATIVE_Y = 2,     //!< Derivation along Y
 } ENUM_MODEL_DERIVATIVES;
-
+#endif
+/*
 typedef enum
 {
   MODEL_PROPERTY_NONE = 0,      //!< No specific property
@@ -198,8 +203,8 @@ typedef enum
   MODEL_PROPERTY_ANAM = 2,      //!< Anamorphosis mode
   MODEL_PROPERTY_TAPE = 3,      //!< Tapering mode
   MODEL_PROPERTY_GRAD = 4,      //!< Gradient mode
-} ENUM_MODEL_PROPERTIES;
-/*
+} ENUM_MODEL_PROPERTIES; // Now see EModelProperty.hpp
+
 typedef enum
 {
   NEIGH_UNIQUE = 0,        //!< Unique Neighborhood
@@ -227,21 +232,25 @@ typedef enum
   CALCUL_BINORMAL = 13,     //!< Binormal hypothesis G12/sqrt(G1 * G2)
 } ENUM_CALCUL_VARIO; // Now see ECalcVario.hpp
 */
+/*
 typedef enum
 {
   CALCUL_NONE = 0,     //!< No Calculation
   CALCUL_POINT = 1,    //!< Point Estimation
   CALCUL_BLOCK = 2,    //!< Block Average Estimation
   CALCUL_MEAN = 3,     //!< Large Mean Estimation
-} ENUM_CALCULS;
-
+} ENUM_CALCULS; // Not used (duplicate with ENUM_KOPTIONS)
+*/
+/*
 typedef enum
 {
   RULE_STD = 0,     //!< Standard Lithotype Rule
   RULE_SHIFT = 1,   //!< Shift Rule
   RULE_SHADOW = 2,  //!< Shadow Rule
-} ENUM_RULES;
-
+} ENUM_RULES;   // Now see ERule.hpp
+*/
+#ifndef SWIG
+// Internal enums (not exported via SWIG)
 typedef enum
 {
   SHADOW_IDLE = 0,      //!< No Shadow
@@ -289,14 +298,15 @@ typedef enum
   WAVELET_SPIKE = 4,      //!< Spike
   WAVELET_UNIT = 5,       //!< Constant unit shift
 } ENUM_WAVELETS;
-
+#endif
+/*
 typedef enum
 {
   MEMBER_LHS = 0,        //!< Left-hand Side of the Kriging System
   MEMBER_RHS = 1,        //!< Right-hand Side of the Kriging System
   MEMBER_VAR = 2,        //!< Variance of the Kriging System
-} ENUM_MEMBERS;
-
+} ENUM_MEMBERS;  // Now see ECalcMember.hpp
+*/
 typedef enum
 {
   KOPTION_PONCTUAL = 0,     //!< Punctual estimation

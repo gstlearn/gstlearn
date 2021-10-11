@@ -123,7 +123,7 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
   double cov = 0.;
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
   {
-    if (mode.getMember() != MEMBER_LHS && isFiltered(i))
+    if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
       continue;
     if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
       continue;
@@ -150,7 +150,7 @@ double ACovAnisoList::eval(int ivar,
   double cov = 0.;
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
   {
-    if (mode.getMember() != MEMBER_LHS && isFiltered(i))
+    if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
       continue;
     if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
       continue;

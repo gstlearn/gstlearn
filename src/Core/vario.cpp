@@ -2603,7 +2603,7 @@ static int st_estimate_drift_coefficients(Db *db,
   for (iech=iiech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActiveAndDefined(iech,0)) continue;
-    model_calcul_drift(MODEL,MEMBER_LHS,db,iech,DRFLOC);
+    model_calcul_drift(MODEL,ECalcMember::LHS,db,iech,DRFLOC);
 
     for (il=0; il<nbfl; il++)
     {
@@ -4402,7 +4402,7 @@ GEOSLIB_API int regression_f(Db *db1,
         break;
       case 2:
         value = st_get_IVAR(db1,iech,0);
-        model_calcul_drift(model,MEMBER_LHS,db2,iech,x);
+        model_calcul_drift(model,ECalcMember::LHS,db2,iech,x);
         break;
     }
 
@@ -4514,7 +4514,7 @@ GEOSLIB_API int regression_f(Db *db1,
           break;
         case 2:
           value = st_get_IVAR(db1,iech,0);
-          model_calcul_drift(model,MEMBER_LHS,db2,iech,x);
+          model_calcul_drift(model,ECalcMember::LHS,db2,iech,x);
           break;
       }
       for (i=flag_test=0; i<size && !flag_test; i++) flag_test = FFFF(x[i]);

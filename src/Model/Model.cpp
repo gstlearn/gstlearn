@@ -277,9 +277,9 @@ ENUM_CONS Model::getNoStatElemType(int ipar)
   return _noStat->getType(ipar);
 }
 
-double Model::evaluateDrift(const Db* db, int iech, int il, int member) const
+double Model::evaluateDrift(const Db* db, int iech, int il, const ECalcMember& member) const
 {
-  if (member != MEMBER_LHS && isDriftFiltered(il))
+  if (member != ECalcMember::LHS && isDriftFiltered(il))
     return 0.;
   else
   {
@@ -322,7 +322,7 @@ VectorDouble Model::sample(double hmax,
 
   for (int i = 0; i < nh; i++) hh[i] = hmax * i / nh;
 
-  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, 0,
+  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS,
                  nh, codir, hh.data(), gg.data());
   return gg;
 }

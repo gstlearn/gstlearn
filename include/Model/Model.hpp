@@ -12,18 +12,18 @@
 
 #include "Db/Db.hpp"
 #include "Model/ModTrans.hpp"
-#include "Drifts/ADriftList.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/ANoStat.hpp"
-
+#include "Model/EModelProperty.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ECov.hpp"
+#include "Drifts/ADriftList.hpp"
 #include "Space/SpaceRN.hpp"
 
 class Model;
@@ -103,7 +103,8 @@ public:
   VectorDouble getDrift(const Db* db, int ib, bool useSel=true) { return _driftList->getDrift(db,ib,useSel); }
   VectorVectorDouble getDrifts(const Db* db, bool useSel=true)  { return _driftList->getDrifts(db, useSel); }
 
-  double evaluateDrift(const Db* db, int iech, int il, int member = MEMBER_LHS) const;
+  double evaluateDrift(const Db* db, int iech, int il,
+                       const ECalcMember& member = ECalcMember::LHS) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -130,11 +131,11 @@ public:
   ConsItem getConsItem(int ipar) const;
   ////////////////////////////////////////////////
 
-  double getField() const            { return _ctxt.getField(); }
-  ModTrans& getModTrans()            { return _modTrans; }
-  int getDimensionNumber() const     { return _ctxt.getNDim(); }
-  void setField(double field)        { _ctxt.setField(field); }
-  int getModTransMode() const        { return _modTrans.getModTransMode(); }
+  double getField() const                       { return _ctxt.getField(); }
+  ModTrans& getModTrans()                       { return _modTrans; }
+  int getDimensionNumber() const                { return _ctxt.getNDim(); }
+  void setField(double field)                   { _ctxt.setField(field); }
+  const EModelProperty& getModTransMode() const { return _modTrans.getModTransMode(); }
   Model* duplicate() const;
 
   int getVariableNumber() const

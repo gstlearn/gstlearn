@@ -64,13 +64,13 @@ private:
   String _descr;
 };
 
-#define ENUM_ITEM(NAME, X,Y,Z) E_ ## X = Y,
+#define ENUM_ITEM(NAME, x,y,z) E_ ## x = y,
 #define ENUM_ITEMS(NAME, ...) EXPAND(REPEAT3(ENUM_ITEM, NAME, __VA_ARGS__))
 
-#define ENUM_DECL(NAME, X,Y,Z) static const NAME X;
+#define ENUM_DECL(NAME, x,y,z) static const NAME x;
 #define ENUM_DECLS(NAME, ...) EXPAND(REPEAT3(ENUM_DECL, NAME, __VA_ARGS__))
 
-#define ENUM_IMPL(NAME, X,Y,Z) const NAME NAME::X = NAME(#X, Y, Z);
+#define ENUM_IMPL(NAME, x,y,z) const NAME NAME::x = NAME(#x, y, z);
 #define ENUM_IMPLS(NAME, ...) EXPAND(REPEAT3(ENUM_IMPL, NAME, __VA_ARGS__))
 
 // ######################

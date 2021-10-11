@@ -10,17 +10,13 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Drifts/EDrift.hpp"
+#include "Enum/AEnum.hpp"
 
-class ADriftElem;
+#define ENUM_MODEL_PROPERTY EModelProperty, NONE,\
+                            NONE, 0,  "No specific property", \
+                            CONV, 1,  "Convolution mode", \
+                            ANAM, 2,  "Anamorphosis mode", \
+                            TAPE, 3,  "Tapering mode", \
+                            GRAD, 4,  "Gradient mode"
 
-class DriftFactory
-{
-public:
-  static ADriftElem*  createDriftFunc(const EDrift& type, const CovContext& ctxt);
-  static ADriftElem*  duplicateDriftFunc(const ADriftElem& cov);
-  static void         displayList(const CovContext& ctxt);
-  static EDrift       identifyDrift(const String& symbol, int* rank, const CovContext& ctxt);
- };
+ENUM_DECLARE(ENUM_MODEL_PROPERTY)

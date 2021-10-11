@@ -290,9 +290,9 @@ int RuleProp::fit(Db* db, const VarioParam* varioparam, int ngrfmax, bool verbos
  */
 int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
 {
-  if (_rules[0]->getModeRule() != RULE_STD)
+  if (_rules[0]->getModeRule() != ERule::STD)
   {
-    messerr("This method is only available for RULE_STD type of Rule");
+    messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
   return db_rule(db, this, nullptr, namconv);
@@ -306,9 +306,9 @@ int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
  */
 int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
 {
-  if (_rules[0]->getModeRule() != RULE_STD)
+  if (_rules[0]->getModeRule() != ERule::STD)
   {
-    messerr("This method is only available for RULE_STD type of Rule");
+    messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
   return db_bounds(db, this, nullptr, namconv);
@@ -322,9 +322,9 @@ int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
  */
 int RuleProp::computeAllThreshes(Db *db, NamingConvention namconv) const
 {
-  if (_rules[0]->getModeRule() != RULE_STD)
+  if (_rules[0]->getModeRule() != ERule::STD)
   {
-    messerr("This method is only available for RULE_STD type of Rule");
+    messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
   return db_threshold(db, this, nullptr, namconv);

@@ -254,13 +254,13 @@ static void st_simfft_prepar(Db     *db,
           del[1] = k2 * delta[1];
           del[2] = k3 * delta[2];
           hnorm  = st_norm(del);
-          (void) model_evaluate(model,0,0,-1,0,1,0,0,0,MEMBER_LHS,
+          (void) model_evaluate(model,0,0,-1,0,1,0,0,0,ECalcMember::LHS,
                                 1,del,&hnorm,&value);
           scale += value;
         }
     for (i=0; i<3; i++) del[i] = 0.;
     hnorm = st_norm(del);
-    (void) model_evaluate(model,0,0,-1,0,1,0,0,0,MEMBER_LHS,
+    (void) model_evaluate(model,0,0,-1,0,1,0,0,0,ECalcMember::LHS,
                           1,del,&hnorm,&value);
     coeff = value / scale;
 
@@ -286,7 +286,7 @@ static void st_simfft_prepar(Db     *db,
                 del[1] = xyz[1] + k2 * delta[1];
                 del[2] = xyz[2] + k3 * delta[2];
                 hnorm  = st_norm(del);
-                (void) model_evaluate(model,0,0,-1,0,1,0,0,0,MEMBER_LHS,
+                (void) model_evaluate(model,0,0,-1,0,1,0,0,0,ECalcMember::LHS,
                                       1,del,&hnorm,&value);
                 cplx[ecr] += coeff * value;
               }
@@ -500,7 +500,7 @@ static void st_check_correct(Model *model,
   d.resize(3);
   for (i=0; i<3; i++) d[i] = 0.;
   hh = st_norm(d);
-  (void) model_evaluate(model,0,0,-1,0,1,0,0,0,MEMBER_LHS,1,d,&hh,&refval);
+  (void) model_evaluate(model,0,0,-1,0,1,0,0,0,ECalcMember::LHS,1,d,&hh,&refval);
 
   /* Calculate the distance */
 
@@ -510,7 +510,7 @@ static void st_check_correct(Model *model,
 
   /* Evaluate the covariance value */
   
-  (void) model_evaluate(model,0,0,-1,0,1,0,0,0,MEMBER_LHS,1,d,&hh,&value);
+  (void) model_evaluate(model,0,0,-1,0,1,0,0,0,ECalcMember::LHS,1,d,&hh,&value);
 
   if (value / refval > percent / 100) (*correct) = 0;
 
