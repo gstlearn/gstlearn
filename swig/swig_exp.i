@@ -17,7 +17,6 @@ class IClonable{};
 
 %template(VectorEnumCovs)       std::vector< ECov >;
 
-%template(VectorCova)           std::vector<Cova*>;
 %template(VectorCTable)         std::vector<CTable*>;
 %template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
 %template(VectorDirection)      std::vector<Direction*>;
@@ -112,11 +111,11 @@ class IClonable{};
 %include Variogram/DirParam.hpp
 %include Variogram/ECalcVario.hpp
 %include Model/Model.hpp
-%include Model/Cova.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
 %include Model/Constraints.hpp
 %include Model/ConsItem.hpp
+%include Model/EModelProperty.hpp
 %include Covariances/ACov.hpp
 %include Covariances/ACovFunc.hpp
 %include Covariances/ACovAnisoList.hpp
@@ -154,6 +153,27 @@ class IClonable{};
 %include Covariances/CovWendland1.hpp
 %include Covariances/CovWendland2.hpp
 %include Covariances/ECov.hpp
+%include Drifts/ADrift.hpp
+%include Drifts/ADriftElem.hpp
+%include Drifts/ADriftList.hpp
+%include Drifts/Drift1.hpp
+%include Drifts/DriftF.hpp
+%include Drifts/DriftFactory.hpp
+%include Drifts/DriftX.hpp
+%include Drifts/DriftX2.hpp
+%include Drifts/DriftX2Y.hpp
+%include Drifts/DriftX3.hpp
+%include Drifts/DriftXY.hpp
+%include Drifts/DriftXY2.hpp
+%include Drifts/DriftXZ.hpp
+%include Drifts/DriftY.hpp
+%include Drifts/DriftY2.hpp
+%include Drifts/DriftY3.hpp
+%include Drifts/DriftYZ.hpp
+%include Drifts/DriftZ.hpp
+%include Drifts/DriftZ2.hpp
+%include Drifts/DriftZ3.hpp
+%include Drifts/EDrift.hpp
 %include MatrixC/AMatrixC.hpp
 %include MatrixC/AMatrixCSquare.hpp
 %include MatrixC/MatrixCRectangular.hpp
@@ -162,6 +182,7 @@ class IClonable{};
 %include MatrixC/MatrixCSGeneral.hpp
 %include MatrixC/MatrixCSSym.hpp
 %include Db/Db.hpp
+%include Db/ELoadBy.hpp
 %include Anamorphosis/Anam.hpp
 %include Anamorphosis/AnamContinuous.hpp
 %include Anamorphosis/AnamDiscrete.hpp
@@ -176,6 +197,7 @@ class IClonable{};
 %include Stats/Classical.hpp
 %include LithoRule/Rule.hpp
 %include LithoRule/RuleProp.hpp
+%include LithoRule/ERule.hpp
 %include segy.h
 
 /*

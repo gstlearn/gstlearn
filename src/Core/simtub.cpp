@@ -4306,7 +4306,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
     messerr("RuleProp must be defined");
     return 1;
   }
-  if (ruleprop->getRule(0)->getModeRule() != RULE_STD)
+  if (ruleprop->getRule(0)->getModeRule() != ERule::STD)
   {
     messerr("SimuBiPgs is restricted to Standard Lithotype Rule");
     return 1;
@@ -4404,8 +4404,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
   for (ipgs=0; ipgs<npgs; ipgs++)
   {
-    // Check the Rules (only RULE_STD case is authorized)
-    if (rules[ipgs]->getModeRule() != RULE_STD)
+    // Check the Rules (only ERule::STD case is authorized)
+    if (rules[ipgs]->getModeRule() != ERule::STD)
     {
       messerr("In the Bi-PGS application, only Standard Rule is authorized");
     }
@@ -5659,7 +5659,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   const VectorDouble& propcst = ruleprop->getPropCst();
   const Db* dbprop = ruleprop->getDbprop();
 
-  if (rule->getModeRule() == RULE_SHADOW)
+  if (rule->getModeRule() == ERule::SHADOW)
   {
     messerr("The 'Shadow' rule is not authorized");
     goto label_end;

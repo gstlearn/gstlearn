@@ -458,7 +458,7 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
 
   /* Create the Point Data Base */
 
-  dbpoint = db_create_point(nbpoints, ndim, LOAD_BY_SAMPLE, 1, coor);
+  dbpoint = db_create_point(nbpoints, ndim, ELoadBy::SAMPLE, 1, coor);
   dbpoint->setLocatorsByAttribute(ndim, 0, LOC_X);
   simpoint.resize(dbpoint->getSampleNumber());
 

@@ -18,7 +18,6 @@
 #include "Basic/AException.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
-#include "LithoRule/RuleShadow.hpp"
 
 /*! \cond */
 typedef struct {
@@ -4017,14 +4016,14 @@ static int st_variopgs_calcul_rho(Db    *db,
 ** \param[in]  flag_rho    1 if rho has to be calculated, 0 otherwise
 **
 *****************************************************************************/
-static int st_check_test_discret(int mode,
+static int st_check_test_discret(const ERule& mode,
                                  int flag_rho)
 {
   // Avoiding Discretizing calculation is always valid
   if (! TEST_DISCRET) return 0;
 
   // Case where the Discrete calculation option has been switch ON
-  if (mode == RULE_STD)
+  if (mode == ERule::STD)
   {
     // Only authorized when GRFs are not correlated
     if (flag_rho)
@@ -4037,7 +4036,7 @@ static int st_check_test_discret(int mode,
   else
   {
     messerr("Calculations may not be performed using Discretized version");
-    messerr("when the Rule is not Standard (RULE_STD)");
+    messerr("when the Rule is not Standard (ERule::STD)");
     return 1;
   }
   return 0;
@@ -4115,7 +4114,7 @@ static int st_vario_pgs_check(int    flag_db,
       messerr("You must define the Rule");
       return(1);
     }
-    if (rule->getModeRule() != RULE_STD)
+    if (rule->getModeRule() != ERule::STD)
     {
       messerr("This function is only programmed for standard rule");
       return(1);
@@ -4272,7 +4271,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   /* Calculate the covariance for the given shift */
   model_calcul_cov(local_pgs->model,mode,1,1.,local_pgs->d1,covh);
 
-  if (rule->getModeRule() == RULE_STD)
+  if (rule->getModeRule() == ERule::STD)
   {
     cov[0] = covh[0]; /* C11(h)  */
     if (ngrf > 1)
@@ -4284,7 +4283,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
       cov[5] = covh[3]; /* C22(h)  */
     }
   }
-  else if (rule->getModeRule() == RULE_SHIFT)
+  else if (rule->getModeRule() == ERule::SHIFT)
   {
     RuleShift* ruleshift = (RuleShift *) rule;
     cov[0] = covh[0];                           /* C11(h)  */
@@ -4951,7 +4950,7 @@ GEOSLIB_API Vario* model_pgs(Db* db,
   int error  = 1;
   int nfacies = rule->getFaciesNumber();
   int ngrf = rule->getGRFNumber();
-  if(rule->getModeRule() == RULE_SHIFT) ngrf++;
+  if(rule->getModeRule() == ERule::SHIFT) ngrf++;
 
   new_model = (Model *) NULL;
   propdef   = (PropDef *) NULL;
@@ -5360,7 +5359,7 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
     if (varioind->computeIndic(calcName)) goto label_end;
   }
 
-  if (st_check_test_discret(RULE_STD,0)) goto label_end;
+  if (st_check_test_discret(ERule::STD,0)) goto label_end;
   st_manage_pgs(0,&local_pgs);
 
   vario = new Vario(varioparam, db);

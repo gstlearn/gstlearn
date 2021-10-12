@@ -42,7 +42,7 @@ Db::Db()
 }
 
 Db::Db(int nech,
-       int order,
+       const ELoadBy& order,
        const VectorDouble& tab,
        const VectorString& names,
        const VectorString& locatorNames,
@@ -75,7 +75,7 @@ Db::Db(const VectorInt& nx,
        const VectorDouble& dx,
        const VectorDouble& x0,
        const VectorDouble& angles,
-       int order,
+       const ELoadBy& order,
        const VectorDouble& tab,
        const VectorString& names,
        const VectorString& locatorNames,
@@ -175,7 +175,7 @@ Db::Db(const String& filename,
   // Load data (if defined)
 
   if (flag_add_rank) _createRank(0);
-  _loadData(tab, names, VectorString(), LOAD_BY_SAMPLE, flag_add_rank);
+  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
 
   // Set the names
 
@@ -498,7 +498,7 @@ Db::Db(int nech,
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
-  _loadData(tab, names, VectorString(), LOAD_BY_SAMPLE, flag_add_rank);
+  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
@@ -534,7 +534,7 @@ Db::Db(const VectorDouble& tab, int flag_add_rank)
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
-  _loadData(tab, names, VectorString(), LOAD_BY_SAMPLE, flag_add_rank);
+  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
@@ -3218,7 +3218,7 @@ VectorInt Db::getAttributes() const
 void Db::_loadData(const VectorDouble& tab,
                    const VectorString& names,
                    const VectorString& locatorNames,
-                   int order,
+                   const ELoadBy& order,
                    int shift)
 {
   // Preliminary check
@@ -3238,7 +3238,7 @@ void Db::_loadData(const VectorDouble& tab,
     int jcol = icol + shift;
     for (int iech = 0; iech < _nech; iech++, ecr++)
     {
-      if (order == LOAD_BY_SAMPLE)
+      if (order == ELoadBy::SAMPLE)
         setByColumn(iech, jcol, tab[icol + ntab * iech]);
       else
         setByColumn(iech, jcol, tab[ecr]);
@@ -3523,12 +3523,12 @@ int Db::deSerialize(const String& filename, bool verbose)
     }
     reset(natt + flag_add_rank, ut_ivector_prod(nx));
     (void) gridDefine(nx, dx, x0, angles);
-    _loadData(1, flag_add_rank, tab);
+    _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
   }
   else
   {
     reset(natt + flag_add_rank, nech);
-    _loadData(1, flag_add_rank, tab);
+    _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
   }
 
   /* Loading the names */
@@ -3739,7 +3739,7 @@ void Db::_variableRead(int *natt_r,
   return;
 }
 
-void Db::_loadData(int order, int flag_add_rank, const VectorDouble& tab)
+void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab)
 {
   // Preliminary check
 
@@ -3765,7 +3765,7 @@ void Db::_loadData(int order, int flag_add_rank, const VectorDouble& tab)
   {
     for (int iech = 0; iech < getSampleNumber(); iech++, ecr++)
     {
-      if (order == LOAD_BY_SAMPLE)
+      if (order == ELoadBy::SAMPLE)
         setByColumn(iech, jcol, tab[icol + ntab * iech]);
       else
         setByColumn(iech, jcol, tab[ecr]);

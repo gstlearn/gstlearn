@@ -12,7 +12,6 @@
 #include "geoslib_f_private.h"
 
 #include "Model/Model.hpp"
-#include "Model/Cova.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Basic/Vector.hpp"
@@ -278,9 +277,9 @@ ENUM_CONS Model::getNoStatElemType(int ipar)
   return _noStat->getType(ipar);
 }
 
-double Model::evaluateDrift(const Db* db, int iech, int il, int member) const
+double Model::evaluateDrift(const Db* db, int iech, int il, const ECalcMember& member) const
 {
-  if (member != MEMBER_LHS && isDriftFiltered(il))
+  if (member != ECalcMember::LHS && isDriftFiltered(il))
     return 0.;
   else
   {
@@ -323,7 +322,7 @@ VectorDouble Model::sample(double hmax,
 
   for (int i = 0; i < nh; i++) hh[i] = hmax * i / nh;
 
-  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, 0,
+  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS,
                  nh, codir, hh.data(), gg.data());
   return gg;
 }
@@ -453,8 +452,8 @@ int Model::deSerialize(const String& filename, bool verbose)
       if (_recordRead("Flag for Anisotropy Rotation", "%d", &flag_rotation))  return 1;
       if (flag_rotation)
       {
-        // Warning: the storage in the File is performed by Column
-        // whereas the internal storage (Cova) is by column
+        // Warning: the storage in the File is performed by column
+        // whereas the internal storage is by column (TODO : ???)
         aniso_rotmat.resize(ndim * ndim);
         int lec = 0;
         for (int idim = 0; idim < ndim; idim++)

@@ -163,20 +163,20 @@ static void st_covtab_rescale(int nvar, double norme, double *covtab)
  **
  ** \param[in]  model       Structure containing the model
  ** \param[in]  icov        Rank of the Basic structure
- ** \param[in]  member      Member of the Kriging System (::ENUM_MEMBERS)
+ ** \param[in]  member      Member of the Kriging System (ECalcMember)
  ** \param[in]  d1          vector of increment (or NULL)
  **
  *****************************************************************************/
 GEOSLIB_API double model_calcul_basic(Model *model,
                                       int icov,
-                                      int member,
+                                      const ECalcMember& member,
                                       const VectorDouble& d1)
 {
   //  const CovAniso* cova = model->getCova(icov);
-  // TODO: Why having to use ACov rather than CvoAniso
+  // TODO: Why having to use ACov rather than CovAniso?
   const ACov* cova = dynamic_cast<const ACov*>(model->getCova(icov));
 
-  if (member != MEMBER_LHS && model->isCovaFiltered(icov))
+  if (member != ECalcMember::LHS && model->isCovaFiltered(icov))
     return (0.);
   else
     return cova->eval(0, 0, 1., d1);
@@ -329,15 +329,15 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
         // TODO verifier qu'il faut bien mettre la moyenne par classe ici
         psin2 = modtrs.getAnamMeans(iclass) * modtrs.getAnamMeans(iclass);
         rn *= anam_hermite->getRCoef();
-        switch (mode.getMember())
+        switch (mode.getMember().toEnum())
         {
-          case MEMBER_LHS:
+          case ECalcMember::E_LHS:
             coeff = 1. / (rn * rn);
             break;
-          case MEMBER_RHS:
+          case ECalcMember::E_RHS:
             coeff = 1. / rn;
             break;
-          case MEMBER_VAR:
+          case ECalcMember::E_VAR:
             coeff = 1.;
             break;
         }
@@ -354,17 +354,17 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
         psin2 = modtrs.getAnamMeans(iclass) * modtrs.getAnamMeans(iclass);
         rn *= anam_hermite->getRCoef();
         rhon *= rho;
-        switch (mode.getMember())
+        switch (mode.getMember().toEnum())
         {
-          case MEMBER_LHS:
+          case ECalcMember::E_LHS:
             coeff = 1.;
             break;
 
-          case MEMBER_RHS:
+          case ECalcMember::E_RHS:
             coeff = 1. / rn;
             break;
 
-          case MEMBER_VAR:
+          case ECalcMember::E_VAR:
             coeff = 1.;
             break;
         }
@@ -382,17 +382,17 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
     if (dist2 <= 0.)
     {
       rn = pow(anam_hermite->getRCoef(), (double) modtrs.getAnamIClass());
-      switch (mode.getMember())
+      switch (mode.getMember().toEnum())
       {
-        case MEMBER_LHS:
+        case ECalcMember::E_LHS:
           coeff = 1.;
           break;
 
-        case MEMBER_RHS:
+        case ECalcMember::E_RHS:
           coeff = rn;
           break;
 
-        case MEMBER_VAR:
+        case ECalcMember::E_VAR:
           coeff = 1.;
           break;
       }
@@ -402,15 +402,15 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
     {
       rn = pow(anam_hermite->getRCoef(), (double) modtrs.getAnamIClass());
       rhon = pow(rho, (double) modtrs.getAnamIClass());
-      switch (mode.getMember())
+      switch (mode.getMember().toEnum())
       {
-        case MEMBER_LHS:
+        case ECalcMember::E_LHS:
           coeff = rn * rn;
           break;
-        case MEMBER_RHS:
+        case ECalcMember::E_RHS:
           coeff = rn;
           break;
-        case MEMBER_VAR:
+        case ECalcMember::E_VAR:
           coeff = 1.;
           break;
       }
@@ -490,15 +490,15 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
       {
         csi = anam_discrete_DD->getDDStatCnorm(iclass);
         mui = anam_discrete_DD->getDDStatMul(iclass);
-        switch (mode.getMember())
+        switch (mode.getMember().toEnum())
         {
-          case MEMBER_LHS:
+          case ECalcMember::E_LHS:
             coeff = csi * csi;
             break;
-          case MEMBER_RHS:
+          case ECalcMember::E_RHS:
             coeff = csi * csi / mui;
             break;
-          case MEMBER_VAR:
+          case ECalcMember::E_VAR:
             coeff = csi * csi;
             break;
         }
@@ -510,17 +510,17 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
         li = anam_discrete_DD->getDDStatLambda(iclass);
         csi = anam_discrete_DD->getDDStatCnorm(iclass);
         mui = anam_discrete_DD->getDDStatMul(iclass);
-        switch (mode.getMember())
+        switch (mode.getMember().toEnum())
         {
-          case MEMBER_LHS:
+          case ECalcMember::E_LHS:
             coeff = csi * csi;
             break;
 
-          case MEMBER_RHS:
+          case ECalcMember::E_RHS:
             coeff = csi * csi / mui;
             break;
 
-          case MEMBER_VAR:
+          case ECalcMember::E_VAR:
             coeff = csi * csi;
             break;
         }
@@ -537,17 +537,17 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
     if (dist2 <= 0.)
     {
       mui = anam_discrete_DD->getDDStatMul(modtrs.getAnamIClass());
-      switch (mode.getMember())
+      switch (mode.getMember().toEnum())
       {
-        case MEMBER_LHS:
+        case ECalcMember::E_LHS:
           coeff = 1.;
           break;
 
-        case MEMBER_RHS:
+        case ECalcMember::E_RHS:
           coeff = mui;
           break;
 
-        case MEMBER_VAR:
+        case ECalcMember::E_VAR:
           coeff = 1.;
           break;
       }
@@ -557,15 +557,15 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
     {
       mui = anam_discrete_DD->getDDStatMul(modtrs.getAnamIClass());
       li = anam_discrete_DD->getDDStatLambda(modtrs.getAnamIClass());
-      switch (mode.getMember())
+      switch (mode.getMember().toEnum())
       {
-        case MEMBER_LHS:
+        case ECalcMember::E_LHS:
           coeff = mui * mui;
           break;
-        case MEMBER_RHS:
+        case ECalcMember::E_RHS:
           coeff = mui;
           break;
-        case MEMBER_VAR:
+        case ECalcMember::E_VAR:
           coeff = 1.;
           break;
       }
@@ -796,12 +796,13 @@ GEOSLIB_API void model_calcul_cov(Model *model,
 {
   /* Modify the member in case of properties */
 
-  if (model->getModTransMode() != MODEL_PROPERTY_NONE)
+  if (model->getModTransMode() != EModelProperty::NONE)
   {
     int anam_var = model->getModTrans().getAnamPointBlock();
     /* 'anam_var' is negative if model evaluation is called from dk() */
     /* This modification is performed in model_anamorphosis_set_factor() */
-    if (anam_var >= 0) mode.setMember((ENUM_MEMBERS) anam_var);
+    // TODO : this must be checked! anam_vario always equal to LHS, RHS or VAR ???
+    if (anam_var >= 0) mode.setMember(ECalcMember::fromValue(anam_var));
   }
 
   /* Call the generic model calculation module */
@@ -831,7 +832,7 @@ GEOSLIB_API double model_calcul_cov_ij(Model *model,
 
   /* Modify the member in case of properties */
 
-  if (model->getModTransMode() != MODEL_PROPERTY_NONE)
+  if (model->getModTransMode() != EModelProperty::NONE)
   my_throw("Model transformation is not programmed for this entry");
 
   /* Call the generic model calculation module */
@@ -887,14 +888,15 @@ GEOSLIB_API void model_calcul_cov_nostat(Model *model,
 {
   /* Modify the member in case of properties */
 
-  if (model->getModTransMode() != MODEL_PROPERTY_NONE)
+  if (model->getModTransMode() != EModelProperty::NONE)
   {
     my_throw("ModTrans not yet implemented");
     int anam_var = model->getModTrans().getAnamPointBlock();
 
     /* 'anam_var' is negative if model evaluation is called from df() */
     /* This modification is performed in model_anamorphosis_set_factor() */
-    if (anam_var >= 0) mode.setMember((ENUM_MEMBERS) anam_var);
+    // TODO : this must be checked! anam_vario always equal to LHS, RHS or VAR ???
+    if (anam_var >= 0) mode.setMember(ECalcMember::fromValue(anam_var));
   }
 
   /* Call the generic model calculation module */
@@ -910,7 +912,7 @@ GEOSLIB_API void model_calcul_cov_nostat(Model *model,
  **  Returns the drift vector for a point
  **
  ** \param[in]  model  Model structure
- ** \param[in]  member Member of the Kriging System (::ENUM_MEMBERS)
+ ** \param[in]  member Member of the Kriging System (ECalcMember)
  ** \param[in]  db     Db structure
  ** \param[in]  iech   Rank of the sample
  **
@@ -918,7 +920,7 @@ GEOSLIB_API void model_calcul_cov_nostat(Model *model,
  **
  *****************************************************************************/
 GEOSLIB_API void model_calcul_drift(Model *model,
-                                    int member,
+                                    const ECalcMember& member,
                                     Db *db,
                                     int iech,
                                     double *drftab)
@@ -953,7 +955,7 @@ GEOSLIB_API void model_variance0(Model *model,
   int nvar = model->getVariableNumber();
   int ndim = model->getDimensionNumber();
   VectorDouble d1(ndim, 0.);
-  mode.setMember(MEMBER_VAR);
+  mode.setMember(ECalcMember::VAR);
 
   switch (koption->calcul)
   {
@@ -1025,7 +1027,7 @@ GEOSLIB_API void model_variance0_nostat(Model *model,
   int ndim = model->getDimensionNumber();
   VectorDouble d1(ndim, 0.);
 
-  mode.setMember(MEMBER_VAR);
+  mode.setMember(ECalcMember::VAR);
   switch (koption->calcul)
   {
     case KOPTION_PONCTUAL:
@@ -1579,17 +1581,17 @@ GEOSLIB_API void model_setup(Model* model)
 
   /* Define the generic covariance function */
 
-  switch (model->getModTransMode())
+  switch (model->getModTransMode().toEnum())
   {
-    case MODEL_PROPERTY_NONE:
+    case EModelProperty::E_NONE:
       model->generic_cov_function = model_calcul_cov_direct;
       break;
 
-    case MODEL_PROPERTY_CONV:
+    case EModelProperty::E_CONV:
       model->generic_cov_function = st_model_calcul_cov_convolution;
       break;
 
-    case MODEL_PROPERTY_ANAM:
+    case EModelProperty::E_ANAM:
       switch (model->getModTrans().getAnam()->getType())
       {
         case ANAM_HERMITIAN:
@@ -1612,8 +1614,11 @@ GEOSLIB_API void model_setup(Model* model)
       }
       break;
 
-    case MODEL_PROPERTY_TAPE:
+    case EModelProperty::E_TAPE:
       model->generic_cov_function = st_model_calcul_cov_tapering;
+      break;
+
+    default:
       break;
   }
 }
@@ -1698,7 +1703,7 @@ GEOSLIB_API int model_update_coreg(Model *model,
  ** \li                    -1 : only consider the nugget effect
  ** \param[in]  nostd      0 standard; +-1 special; ITEST normalized
  ** \param[in]  norder     Order of the Generalized Variogram
- ** \param[in]  member     Member of the Kriging System (::ENUM_MEMBERS)
+ ** \param[in]  member     Member of the Kriging System (ECalcMember)
  ** \param[in]  nh         Number of increments
  ** \param[in]  codir      Array giving the direction coefficients
  ** \param[in]  h          Vector of increments
@@ -1718,7 +1723,7 @@ GEOSLIB_API int model_evaluate(Model *model,
                                int nugget_opt,
                                int nostd,
                                int norder,
-                               int member,
+                               const ECalcMember& member,
                                int nh,
                                VectorDouble& codir,
                                double *h,
@@ -1784,7 +1789,7 @@ GEOSLIB_API int model_evaluate(Model *model,
  ** \li                    -1 : only consider the nugget effect
  ** \param[in]  nostd      0 standard; +-1 special; ITEST normalized
  ** \param[in]  norder     Order of the Generalized Variogram
- ** \param[in]  member     Member of the Kriging System (::ENUM_MEMBERS)
+ ** \param[in]  member     Member of the Kriging System (ECalcMember)
  ** \param[in]  db1        First Db structure
  ** \param[in]  iech1      First sample
  ** \param[in]  db2        Second Db structure
@@ -1808,7 +1813,7 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
                                       int nugget_opt,
                                       int nostd,
                                       int norder,
-                                      int member,
+                                      const ECalcMember& member,
                                       Db *db1,
                                       int iech1,
                                       Db *db2,
@@ -1905,7 +1910,7 @@ GEOSLIB_API int model_grid(Model *model,
   error = 1;
   covtab = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
 
   /* Preliminary checks */
 
@@ -2116,7 +2121,7 @@ GEOSLIB_API void model_covmat(Model *model,
 
   covtab = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db1)) goto label_end;
   if (st_check_environ(model, db2)) goto label_end;
@@ -2244,7 +2249,7 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
   error = 1;
   covtab = covmat = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db1)) goto label_end;
   if (st_check_environ(model, db2)) goto label_end;
@@ -2333,7 +2338,7 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
  **  Establish the drift rectangular matrix for a given Db
  **
  ** \param[in]  model  Model structure
- ** \param[in]  member Member of the Kriging System (::ENUM_MEMBERS)
+ ** \param[in]  member Member of the Kriging System (ECalcMember)
  ** \param[in]  db     Db structure
  **
  ** \param[out] drfmat The drift matrix
@@ -2341,7 +2346,7 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
  **
  *****************************************************************************/
 GEOSLIB_API void model_drift_mat(Model *model,
-                                 int member,
+                                 const ECalcMember& member,
                                  Db *db,
                                  double *drfmat)
 {
@@ -2413,7 +2418,7 @@ GEOSLIB_API void model_drift_mat(Model *model,
  **  Establish the drift vector for a given sample of the Db
  **
  ** \param[in]  model  Model structure
- ** \param[in]  member Member of the Kriging System (::ENUM_MEMBERS)
+ ** \param[in]  member Member of the Kriging System (ECalcMember)
  ** \param[in]  db     Db structure
  ** \param[in]  iech   Rank of the particular sample
  **
@@ -2422,7 +2427,7 @@ GEOSLIB_API void model_drift_mat(Model *model,
  **
  *****************************************************************************/
 GEOSLIB_API void model_drift_vector(Model *model,
-                                    int member,
+                                    const ECalcMember& member,
                                     Db *db,
                                     int iech,
                                     double *vector)
@@ -2500,7 +2505,7 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
 
   covtab = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db1)) goto label_end;
   if (st_check_environ(model, db2)) goto label_end;
@@ -2639,7 +2644,7 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
 
   covtab = c00tab = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db)) goto label_end;
   ndim = model->getDimensionNumber();
@@ -3030,7 +3035,7 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 //                                double *vars,
 //                                double *corr)
 //{
-//  TODO : Dead code ?
+  /// TODO [Cova] : to be restored ?
 //  Model  *new_model;
 //  int     ivar,jvar,nvar,icov,ncova,il,nbfl,error,ndim;
 //  double  sill;
@@ -3472,7 +3477,7 @@ GEOSLIB_API double model_drift_evaluate(int verbose,
   drift = TEST;
   if (st_check_environ(model, db)) goto label_end;
 
-  model_calcul_drift(model, MEMBER_LHS, db, iech, drftab);
+  model_calcul_drift(model, ECalcMember::LHS, db, iech, drftab);
 
   /* Check if all the drift terms are defined */
 
@@ -3515,7 +3520,7 @@ GEOSLIB_API Model *input_model(int ndim,
                                int flag_norm,
                                Model *model_in)
 {
-  /// TODO [Cova] : to be restored
+  /// TODO [Cova] : to be restored ?
 //  int    i,flag_def,error,ncova;
 //  Model *model;
 //  Cova  *cova,*cova_in;
@@ -3589,7 +3594,7 @@ GEOSLIB_API int model_dimension(Model *model)
 
 /****************************************************************************/
 /*!
- **  Ask the characteristics of one Cova structure
+ **  Ask the characteristics of one Covariance structure
  **
  ** \return  Error returned code
  **
@@ -3739,7 +3744,7 @@ GEOSLIB_API int model_sample(Vario *vario,
   nvar = model->getVariableNumber();
   covtab = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
 
   /* Core allocation */
 
@@ -3826,7 +3831,7 @@ GEOSLIB_API void model_vector_multivar(Model *model,
 
   covtab = c00tab = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db)) goto label_end;
   ndim = model->getDimensionNumber();
@@ -3909,7 +3914,7 @@ GEOSLIB_API void model_vector(Model *model,
 
   covtab = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db1)) goto label_end;
   if (st_check_environ(model, db2)) goto label_end;
@@ -4769,7 +4774,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
   int error = 1;
   covtab = covmat = (double *) NULL;
   CovCalcMode mode;
-  mode.update(0, 0, MEMBER_LHS, -1, flag_norm, flag_cov);
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db)) return nullptr;
   int ndim  = model->getDimensionNumber();

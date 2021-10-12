@@ -1284,7 +1284,6 @@ GEOSLIB_API int ascii_tablei_write(const char *file_name,
  ** \param[in]  flag_header   1 if the first line of the file contains the
  **                           variable names
  ** \param[in]  nskip         Number of lines to skip ** \param[in]  order  manner in which values in tab are ordered
- ** \param[in]  order         manner in which values in tab are ordered
  ** \param[in]  char_sep      Character used as a column separator
  ** \param[in]  char_dec      Character used as a decimal
  ** \param[in]  na_string     String used for absent information
@@ -1297,7 +1296,6 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
                             int verbose,
                             int flag_header,
                             int nskip,
-                            ENUM_LOAD_DATA order,
                             const char *char_sep,
                             const char *char_dec,
                             const char *na_string,
@@ -1322,7 +1320,7 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
 
   /* Creating the Db */
 
-  db = db_create_point(nrow, ncol, order, flag_add_rank, tab);
+  db = db_create_point(nrow, ncol, ELoadBy::SAMPLE, flag_add_rank, tab);
   if (db == (Db *) NULL) goto label_end;
 
   /* Loading the names */

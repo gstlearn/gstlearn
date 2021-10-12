@@ -9,13 +9,21 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Neigh/ENeigh.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
 #include "Covariances/ECov.hpp"
+#include "Covariances/ECalcMember.hpp"
 #include "Drifts/EDrift.hpp"
+#include "Model/EModelProperty.hpp"
 #include "Variogram/ECalcVario.hpp"
+#include "LithoRule/ERule.hpp"
 
+ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
 ENUM_DEFINE(ENUM_LOC)
 ENUM_DEFINE(ENUM_COV)
 ENUM_DEFINE(ENUM_DRIFT)
 ENUM_DEFINE(ENUM_CALC_VARIO)
+ENUM_DEFINE(ENUM_MODEL_PROPERTY)
+ENUM_DEFINE(ENUM_RULE)
+ENUM_DEFINE(ENUM_CALC_MEMBER)

@@ -19,8 +19,8 @@
 #include "segy.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
-#include "Model/Cova.hpp"
 #include "Db/Db.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
@@ -92,20 +92,20 @@ GEOSLIB_API void csv_print_eol(void);
 
 GEOSLIB_API Db *db_create_point(int nech,
                                 int ncol = 0,
-                                int order = 0,
+                                const ELoadBy& order = ELoadBy::COLUMN,
                                 int flag_add_rank = 0,
                                 const VectorDouble& tab = VectorDouble());
 GEOSLIB_API Db *db_create_grid_generic(int flag_rot,
                                        int ndim,
                                        int ncol,
-                                       int order,
+                                       const ELoadBy& order,
                                        int flag_add_rank,
                                        const VectorInt& nx,
                                        const VectorDouble& tab = VectorDouble());
 GEOSLIB_API Db *db_create_grid(int flag_g_rot,
                                int ndim,
                                int nvar,
-                               int order,
+                               const ELoadBy& order,
                                int flag_add_rank,
                                const VectorInt& nx,
                                const VectorDouble& x0,
@@ -114,7 +114,7 @@ GEOSLIB_API Db *db_create_grid(int flag_g_rot,
                                const VectorDouble& tab = VectorDouble());
 GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
                                   int ncol,
-                                  int order,
+                                  const ELoadBy& order,
                                   int flag_add_rank,
                                   int nx,
                                   int ny,
@@ -126,7 +126,7 @@ GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
                                   const VectorDouble& tab = VectorDouble());
 GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
                                   int ncol,
-                                  int order,
+                                  const ELoadBy& order,
                                   int flag_add_rank,
                                   int nx,
                                   int ny,
@@ -418,7 +418,6 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
                             int verbose = 0,
                             int flag_header = 1,
                             int nskip = 0,
-                            ENUM_LOAD_DATA order = LOAD_BY_SAMPLE,
                             const char *char_sep = ",",
                             const char *char_dec = ".",
                             const char *na_string = "NA",

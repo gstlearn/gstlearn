@@ -55,8 +55,6 @@ public:
   virtual int    getOrderIRF() const = 0;
   virtual double eval(const Db* db,int iech) const override = 0;
 
-  void setContext(const CovContext& ctxt);
-
   int getOrderIrf() const { return _orderIRF; }
   void setOrderIrf(int orderIrf) { _orderIRF = orderIrf; }
   int getRankFex() const { return _rankFex; }

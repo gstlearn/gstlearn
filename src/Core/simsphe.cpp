@@ -344,7 +344,7 @@ static double *st_spectrum_any(Model  *model,
     dd[0] = 2. * sin(alpha / 2.);
     ca    = 0.;
     for (int icova=0; icova<model->getCovaNumber(); icova++)
-      ca += model_calcul_basic(model,icova,MEMBER_LHS,dd);
+      ca += model_calcul_basic(model,icova,ECalcMember::LHS,dd);
     covs[idisc] = ca;
   }
   

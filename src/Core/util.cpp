@@ -4304,7 +4304,7 @@ GEOSLIB_API void num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
 
 /*****************************************************************************/
 /*!
- **  Check if Legendre external functions have beedn defined properly
+ **  Check if Legendre external functions have been defined properly
  **
  ** \return  1 if Legendre have been defined; 0 otherwise
  **
@@ -4373,7 +4373,7 @@ GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
 
 /*****************************************************************************/
 /*!
- **  Returns the Legendre Function legendre_Sphplm(n,k0,v) normalise
+ **  Returns the Legendre Function legendre_Sphplm(n,k0,v) normalized
  **
  ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree

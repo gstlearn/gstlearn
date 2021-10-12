@@ -462,7 +462,7 @@ GEOSLIB_API int rule_thresh_define(PropDef *propdef,
 
   /* Check that the facies is compatible with the proportions */
 
-  if (flag_check && !IFFFF(facies) && rule->getModeRule() == RULE_STD)
+  if (flag_check && !IFFFF(facies) && rule->getModeRule() == ERule::STD)
   {
     if (propdef->proploc[facies - 1] <= 0.)
     {
@@ -484,7 +484,7 @@ GEOSLIB_API int rule_thresh_define(PropDef *propdef,
 
     /* In the case of SHIFT, update the thresholds */
 
-    if (rule->getModeRule() == RULE_SHIFT && 0) rule->updateShift();
+    if (rule->getModeRule() == ERule::SHIFT && 0) rule->updateShift();
   }
 
   /* Convert the proportions into thresholds */
@@ -1081,7 +1081,7 @@ GEOSLIB_API int db_threshold(Db* db,
   }
   int flag_stat = ruleprop->isFlagStat();
   const Rule* rule = ruleprop->getRule();
-  if (rule->getModeRule() != RULE_STD)
+  if (rule->getModeRule() != ERule::STD)
   {
     messerr("This function is only programmed for standard rule");
     return 1;
@@ -1229,7 +1229,7 @@ GEOSLIB_API Model *model_rule_combine(const Model *model1,
 
   if (model2 == (Model *) NULL)
   {
-    if (rule->getModeRule() == RULE_SHIFT)
+    if (rule->getModeRule() == ERule::SHIFT)
     {
       new_model = model_duplicate(model1, 0., 0);
       return (new_model);
@@ -1259,7 +1259,7 @@ GEOSLIB_API Model *model_rule_combine(const Model *model1,
   /* Calculate the correlation coefficient */
 
   rho = 0.;
-  if (rule->getModeRule() == RULE_STD) rho = rule->getRho();
+  if (rule->getModeRule() == ERule::STD) rho = rule->getRho();
 
   new_model = model_combine(model1, model2, rho);
   return (new_model);

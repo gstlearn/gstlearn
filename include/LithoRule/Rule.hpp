@@ -11,6 +11,7 @@
 #pragma once
 
 #include "LithoRule/Node.hpp"
+#include "LithoRule/ERule.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -69,14 +70,14 @@ public:
                              int ipgs,
                              int nbsimu) const;
 
-  int    getFlagProp() const { return _flagProp; }
-  int    getModeRule() const { return _modeRule; }
-  double getRho() const { return _rho; }
+  int          getFlagProp() const { return _flagProp; }
+  const ERule& getModeRule() const { return _modeRule; }
+  double       getRho()      const { return _rho; }
   const Node*  getMainNode() const { return _mainNode; }
 
-  void setFlagProp(int flagProp) { _flagProp = flagProp; }
-  void setRho(double rho) const  { _rho = rho; }
-  void setModeRule(int modeRule) { _modeRule = modeRule; }
+  void setFlagProp(int flagProp)          { _flagProp = flagProp; }
+  void setRho(double rho) const           { _rho = rho; } /// TODO : Check if mutable is really necessary
+  void setModeRule(const ERule& modeRule) { _modeRule = modeRule; }
 
   int setProportions(const VectorDouble& proportions = VectorDouble()) const;
 
@@ -124,10 +125,10 @@ private:
                       VectorInt& n_facs);
 
 private:
-  int    _modeRule;         /* Type of usage */
-  mutable int    _flagProp; /* 1 if proportions are defined; 0 otherwise */
-  mutable double _rho;      /* Correlation between GRFs */
-  Node*  _mainNode;
+  ERule          _modeRule;  /* Type of usage (ERule) */
+  mutable int    _flagProp;  /* 1 if proportions are defined; 0 otherwise */
+  mutable double _rho;       /* Correlation between GRFs */
+  Node*          _mainNode;
 };
 
 void   set_rule_mode(int rule_mode);

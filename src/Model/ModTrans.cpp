@@ -16,7 +16,7 @@
 #include "Anamorphosis/AnamHermite.hpp"
 
 ModTrans::ModTrans()
-  : _modTransMode(MODEL_PROPERTY_NONE)
+  : _modTransMode(EModelProperty::NONE)
   , _conv(nullptr)
   , _tape(nullptr)
   , _anam(nullptr)
@@ -67,7 +67,7 @@ ModTrans::~ModTrans()
 
 void ModTrans::cancelProperty()
 {
-  _modTransMode = MODEL_PROPERTY_NONE;
+  _modTransMode = EModelProperty::NONE;
 }
 
 int ModTrans::addConvolution(int conv_type,
@@ -77,7 +77,7 @@ int ModTrans::addConvolution(int conv_type,
 {
   _conv = new Convolution;
   if (_conv->init(conv_type, conv_idir, conv_ndisc,conv_range)) return 1;
-  _modTransMode = MODEL_PROPERTY_CONV;
+  _modTransMode = EModelProperty::CONV;
 
   return 0;
  }
@@ -147,7 +147,7 @@ int ModTrans::addAnamorphosis(int anam_type,
 
   // Define the Property
 
-  _modTransMode = MODEL_PROPERTY_ANAM;
+  _modTransMode = EModelProperty::ANAM;
 
   return 0;
 }
@@ -156,7 +156,7 @@ int ModTrans::addTapering(int tape_type,double tape_range)
 {
   _tape = new Tapering();
   if (_tape->init(tape_type, tape_range)) return 1;
-  _modTransMode = MODEL_PROPERTY_TAPE;
+  _modTransMode = EModelProperty::TAPE;
 
   return 0;
 }
@@ -165,21 +165,24 @@ String ModTrans::toString(int level) const
 {
   std::stringstream sstr;
 
-  if (_modTransMode == MODEL_PROPERTY_NONE) return sstr.str();
+  if (_modTransMode == EModelProperty::NONE) return sstr.str();
   mestitle(1,"Additional Properties");
 
-  switch (_modTransMode)
+  switch (_modTransMode.toEnum())
   {
-    case MODEL_PROPERTY_CONV:
+    case EModelProperty::E_CONV:
       sstr << _conv->toString(level);
       break;
 
-    case MODEL_PROPERTY_TAPE:
+    case EModelProperty::E_TAPE:
       sstr << _tape->toString(level);
       break;
 
-    case MODEL_PROPERTY_ANAM:
+    case EModelProperty::E_ANAM:
       sstr << _anam->toString(level);
+      break;
+
+    default:
       break;
   }
   return sstr.str();

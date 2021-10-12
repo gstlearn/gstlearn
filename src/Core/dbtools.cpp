@@ -5163,7 +5163,7 @@ GEOSLIB_API Db *db_extract(Db *db, int *ranks)
 
   // Create the new db
 
-  dbnew = db_create_point(nech, natt, LOAD_BY_SAMPLE, 1, tab);
+  dbnew = db_create_point(nech, natt, ELoadBy::SAMPLE, 1, tab);
   if (dbnew == (Db *) NULL) goto label_end;
 
   // Delete the unnecessary variables 
@@ -5359,7 +5359,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
 
   // Create the new db
 
-  dbnew = db_create_point(nech, size, LOAD_BY_SAMPLE, 0, wecr);
+  dbnew = db_create_point(nech, size, ELoadBy::SAMPLE, 0, wecr);
   if (dbnew == (Db *) NULL) goto label_end;
 
   ecr = 0;
@@ -5889,7 +5889,7 @@ GEOSLIB_API Db *db_point_init(int mode,
 
   /* Allocate the main structure */
 
-  db = db_create_point(count, ndim, 0, flag_add_rank, tab);
+  db = db_create_point(count, ndim, ELoadBy::COLUMN, flag_add_rank, tab);
 
   /* Set the locators */
 

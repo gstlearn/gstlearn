@@ -2494,7 +2494,7 @@ static void st_estimate_var0(Model  *model,
   CovCalcMode mode;
 
   VectorDouble d1(model->getDimensionNumber());
-  mode.setMember(MEMBER_VAR);
+  mode.setMember(ECalcMember::VAR);
   model_calcul_cov(model,mode,1,1.,d1,covtab);
 
   for (int ivar=0; ivar<NVAR; ivar++)
@@ -2517,7 +2517,7 @@ static void st_estimate_c00(Model  *model,
 {
   CovCalcMode mode;
   VectorDouble d1(model->getDimensionNumber());
-  mode.setMember(MEMBER_VAR);
+  mode.setMember(ECalcMember::VAR);
   model_calcul_cov(model,mode,1,1.,d1,covtab);
 
   for (int ivar=0; ivar<NVAR; ivar++)
@@ -2630,7 +2630,7 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
   d1.resize(3,0.);
   nech   = ngh->nactive;
   neqmax = NVAR * (nech + nfeq);
-  mode.setMember(MEMBER_RHS);
+  mode.setMember(ECalcMember::RHS);
 
   /* Initialize the L.H.S. array */
 

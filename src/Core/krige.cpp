@@ -13,6 +13,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Db/ELoadBy.hpp"
 
 /*! \cond */
 #define NBYPAS 5
@@ -99,15 +100,15 @@ static char     string[100];
 static CovInternal COVINT;
 
 typedef struct {
-  int     ndtot;
-  int     rank1;
-  int     rank2;
-  Model  *model;
-  int     nugget_opt;
-  int     nostd;
-  int     member;
-  int     icov_r;
-  double  weight;
+  int         ndtot;
+  int         rank1;
+  int         rank2;
+  Model*      model;
+  int         nugget_opt;
+  int         nostd;
+  ECalcMember member;
+  int         icov_r;
+  double      weight;
 } Disc_Structure;
 
 /****************************************************************************/
@@ -303,7 +304,7 @@ static double st_get_idim(int rank,
 ** \li                       1 : discard the nugget effect
 ** \li                      -1 : only consider the nugget effect
 ** \param[in]  nostd        0 standard; +-1 special; ITEST normalized
-** \param[in]  member       Member of the Kriging System (::ENUM_MEMBERS)
+** \param[in]  member       Member of the Kriging System (ECalcMember)
 ** \param[in]  icov_r       rank of the target covariance or -1 for all
 ** \param[in]  weight       Weight attached to this calculation
 ** \param[in]  rank1        Rank of the first sample
@@ -313,17 +314,17 @@ static double st_get_idim(int rank,
 ** \param[out] covtab       Output covariance array
 **
 *****************************************************************************/
-static void st_cov(Model  *model,
-                   int     flag_init,
-                   int     nugget_opt,
-                   int     nostd,
-                   int     member,
-                   int     icov_r,
-                   double  weight,
-                   int     rank1,
-                   int     rank2,
-                   VectorDouble d1,
-                   double *covtab)
+static void st_cov(Model*             model,
+                   int                flag_init,
+                   int                nugget_opt,
+                   int                nostd,
+                   const ECalcMember& member,
+                   int                icov_r,
+                   double             weight,
+                   int                rank1,
+                   int                rank2,
+                   VectorDouble       d1,
+                   double*            covtab)
 {
 
   /* Initializations */
@@ -354,7 +355,7 @@ static void st_cov(Model  *model,
     COVINT.setIech2(IECH_OUT);
   }
 
-  CovCalcMode mode(MEMBER_LHS);
+  CovCalcMode mode(ECalcMember::LHS);
   mode.update(nugget_opt,nostd,member,icov_r,0,1);
   model_calcul_cov_nostat(model,mode,&COVINT,flag_init,weight,d1,covtab);
 }
@@ -467,7 +468,7 @@ GEOSLIB_API int is_flag_data_disc_defined(void)
 ** \li                       1 : discard the nugget effect
 ** \li                      -1 : only consider the nugget effect
 ** \param[in]  nostd        0 standard; +-1 special; ITEST normalized
-** \param[in]  member       Member of the Kriging System (::ENUM_MEMBERS)
+** \param[in]  member       Member of the Kriging System (ECalcMember)
 ** \param[in]  icov_r       rank of the target covariance or -1 for all
 ** \param[in]  weight       Weight attached to this calculation
 ** \param[in]  rank1        Rank of the first sample
@@ -477,17 +478,17 @@ GEOSLIB_API int is_flag_data_disc_defined(void)
 ** \param[out] covtab       Output covariance array
 **
 *****************************************************************************/
-static void st_cov_dd(Model  *model,
-                      int     flag_init,
-                      int     nugget_opt,
-                      int     nostd,
-                      int     member,
-                      int     icov_r,
-                      double  weight,
-                      int     rank1,
-                      int     rank2,
-                      VectorDouble d1,
-                      double *covtab)
+static void st_cov_dd(Model*             model,
+                      int                flag_init,
+                      int                nugget_opt,
+                      int                nostd,
+                      const ECalcMember& member,
+                      int                icov_r,
+                      double             weight,
+                      int                rank1,
+                      int                rank2,
+                      VectorDouble       d1,
+                      double*            covtab)
 {
   int    nvar_m;
   double scale;
@@ -498,7 +499,7 @@ static void st_cov_dd(Model  *model,
 
     // Data is considered as ponctual
 
-    st_cov(model,0,nugget_opt,nostd,MEMBER_LHS,
+    st_cov(model,0,nugget_opt,nostd,ECalcMember::LHS,
            icov_r,weight,rank1,rank2,d1,covtab);
   }
   else
@@ -515,7 +516,7 @@ static void st_cov_dd(Model  *model,
     int_disc.model      = model;
     int_disc.nugget_opt = nugget_opt;
     int_disc.nostd      = nostd;
-    int_disc.member     = MEMBER_LHS;
+    int_disc.member     = ECalcMember::LHS;
     int_disc.icov_r     = icov_r;
     int_disc.weight     = weight;
     int_disc.ndtot      = 0;
@@ -603,7 +604,7 @@ static void st_data_discretize_dg(int idim,
 ** \li                       1 : discard the nugget effect
 ** \li                      -1 : only consider the nugget effect
 ** \param[in]  nostd        0 standard; +-1 special; ITEST normalized
-** \param[in]  member       Member of the Kriging System (::ENUM_MEMBERS)
+** \param[in]  member       Member of the Kriging System (ECalcMember)
 ** \param[in]  icov_r       rank of the target covariance or -1 for all
 ** \param[in]  weight       Weight attached to this calculation
 ** \param[in]  rank1        Rank of the first sample
@@ -616,17 +617,17 @@ static void st_data_discretize_dg(int idim,
 ** \remarks; in the calling function (if necessary)
 **
 *****************************************************************************/
-static void st_cov_dg(Model  *model,
-                      int     flag_init,
-                      int     nugget_opt,
-                      int     nostd,
-                      int     member,
-                      int     icov_r,
-                      double  weight,
-                      int     rank1,
-                      int     rank2,
-                      VectorDouble d1,
-                      double *covtab)
+static void st_cov_dg(Model*             model,
+                      int                flag_init,
+                      int                nugget_opt,
+                      int                nostd,
+                      const ECalcMember& member,
+                      int                icov_r,
+                      double             weight,
+                      int                rank1,
+                      int                rank2,
+                      VectorDouble       d1,
+                      double*            covtab)
 {
   int    nvar_m;
   double scale;
@@ -1786,7 +1787,7 @@ static void st_lhs(Model  *model,
       for (idim=0; idim<DBIN->getNDim(); idim++)
         d1[idim] = (st_get_idim(rank[jech],idim) -
                     st_get_idim(rank[iech],idim));
-      st_cov_dd(model,0,0,0,MEMBER_LHS,-1,1.,rank[iech],rank[jech],d1,covtab);
+      st_cov_dd(model,0,0,0,ECalcMember::LHS,-1,1.,rank[iech],rank[jech],d1,covtab);
 
       for (ivar=0; ivar<nvar_m; ivar++)
         for (jvar=0; jvar<nvar_m; jvar++)
@@ -1839,9 +1840,9 @@ static void st_lhs(Model  *model,
   for (iech=0; iech<nech; iech++)
   {
     if (rank[iech] >= 0)
-      model_calcul_drift(model,MEMBER_LHS,DBIN,rank[iech],drftab);
+      model_calcul_drift(model,ECalcMember::LHS,DBIN,rank[iech],drftab);
     else
-      model_calcul_drift(model,MEMBER_LHS,DBOUT,IECH_OUT,drftab);
+      model_calcul_drift(model,ECalcMember::LHS,DBOUT,IECH_OUT,drftab);
 
     for (ivar=0; ivar<nvar_m; ivar++)
       for (ib=0; ib<nfeq; ib++)
@@ -2241,7 +2242,7 @@ static void st_rhs(Model   *model,
           if (RAND_INDEX >= 0 && KOPTION->disc1 != (double *) NULL)
             d1[idim] += DISC1(RAND_INDEX,idim);
         }
-        st_cov_dg(model,0,0,0,MEMBER_RHS,-1,1.,rank[iech],-1,d1,covtab);
+        st_cov_dg(model,0,0,0,ECalcMember::RHS,-1,1.,rank[iech],-1,d1,covtab);
         break;
         
       case KOPTION_BLOCK:
@@ -2252,7 +2253,7 @@ static void st_rhs(Model   *model,
           for (idim=0; idim<DBIN->getNDim(); idim++)
             d1[idim] = (DBOUT->getCoordinate(IECH_OUT,idim) -
                         st_get_idim(rank[iech],idim) + DISC1(i,idim));
-          st_cov_dg(model,0,0,0,MEMBER_RHS,-1,1.,rank[iech],-1,d1,covtab);
+          st_cov_dg(model,0,0,0,ECalcMember::RHS,-1,1.,rank[iech],-1,d1,covtab);
         }
         break;
           
@@ -2295,7 +2296,7 @@ static void st_rhs(Model   *model,
   
   if (nfeq <= 0) return;
   
-  model_calcul_drift(model,MEMBER_RHS,DBOUT,IECH_OUT,drftab);
+  model_calcul_drift(model,ECalcMember::RHS,DBOUT,IECH_OUT,drftab);
   for (il=0; il<nbfl; il++)
     if (FFFF(drftab[il]))
     {
@@ -2359,7 +2360,7 @@ static void st_ff0(Model   *model,
 
   if (nbfl <= 0 || nfeq <= 0) return;
 
-  model_calcul_drift(model,MEMBER_RHS,DBOUT,IECH_OUT,drftab);
+  model_calcul_drift(model,ECalcMember::RHS,DBOUT,IECH_OUT,drftab);
   for (il=0; il<nbfl; il++)
     if (FFFF(drftab[il]))
     {
@@ -3141,7 +3142,7 @@ static Db *st_image_build(Neigh *neigh,
   /* Create the grid */
 
   dbaux = db_create_grid_generic(DBOUT->isGridRotated(),ndim,natt,
-                                 LOAD_BY_COLUMN,1,nx,tab);
+                                 ELoadBy::COLUMN,1,nx,tab);
 
   /* Copy the grid characteristics */
 
@@ -8439,11 +8440,12 @@ label_end:
 ** \remark directly produce Q,T on the panels (a panel is partitioned into
 ** \remark a set of SMU: this partition is defined through the argument 'nmult')
 **
-** \remark The value 'flag_calcul' must be set to:
-** \remark - CALCUL_POINT for point-block estimation (flag_block = TRUE)
-** \remark - CALCUL_BLOCK for point estimation
+** TODO : Check if the following remark is up to date!
+** \remark The value 'KOPTION->calcul' must be set to:
+** \remark - KOPTION_PONCTUAL for point-block estimation (flag_block = TRUE)
+** \remark - KOPTION_BLOCK for point estimation
 ** \remark Nevertheless, for Point-Block model, if dbgrid is a grid of Panels
-** \remark 'flag_calcul' is set to CALCUL_BLOCK to provoke the discretization
+** \remark 'KOPTION->calcul' is set to KOPTION_BLOCK to provoke the discretization
 ** \remark of Panel into SMUs.
 **  
 *****************************************************************************/
@@ -8486,7 +8488,7 @@ GEOSLIB_API int dk_f(Db *dbin,
     messerr("This application is limited to the monovariate Model case");
     goto label_end;
   }
-  if (model->getModTransMode() != MODEL_PROPERTY_ANAM)
+  if (model->getModTransMode() != EModelProperty::ANAM)
   {
     messerr("When using Disjunctive Kriging, the Model be incremented");
     messerr("with Properties beforehad");
@@ -10277,7 +10279,7 @@ static double *st_calcul_drfmat(const char *title,
       if (! db1->isActive(ii1)) continue;
     }
     
-    model_calcul_drift(model,MEMBER_LHS,db1,ii1,&drftab[i1 * nbfl]);
+    model_calcul_drift(model,ECalcMember::LHS,db1,ii1,&drftab[i1 * nbfl]);
     i1++;
   }
 
@@ -10936,7 +10938,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
     /* Fill the drift at Target point (optional) */
     
     if (driftp != (double *) NULL)
-      model_calcul_drift(model_dat,MEMBER_LHS,dbout,IECH_OUT,driftg);
+      model_calcul_drift(model_dat,ECalcMember::LHS,dbout,IECH_OUT,driftg);
     
     /* Calculate the Kriging weights */
 
@@ -10951,7 +10953,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
 
       /* Evaluate the drift at Target */
       
-      model_calcul_drift(model_dat,MEMBER_LHS,dbout,IECH_OUT,driftg);
+      model_calcul_drift(model_dat,ECalcMember::LHS,dbout,IECH_OUT,driftg);
       
       /* Update the kriging weights */
       

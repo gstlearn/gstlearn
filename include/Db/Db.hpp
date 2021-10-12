@@ -13,6 +13,7 @@
 #include "geoslib_enum.h"
 #include "Basic/Vector.hpp"
 #include "Db/PtrGeos.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/GridC.hpp"
@@ -43,7 +44,7 @@ class Db: public AStringable, public ASerializable
 public:
   Db();
   Db(int nech,
-     int order = LOAD_BY_SAMPLE,
+     const ELoadBy& order = ELoadBy::SAMPLE,
      const VectorDouble& tab = VectorDouble(),
      const VectorString& names = VectorString(),
      const VectorString& locatorNames = VectorString(),
@@ -52,7 +53,7 @@ public:
      const VectorDouble& dx = VectorDouble(),
      const VectorDouble& x0 = VectorDouble(),
      const VectorDouble& angles = VectorDouble(),
-     int order = LOAD_BY_SAMPLE,
+     const ELoadBy& order = ELoadBy::SAMPLE,
      const VectorDouble& tab = VectorDouble(),
      const VectorString& names = VectorString(),
      const VectorString& locatorNames = VectorString(),
@@ -542,7 +543,7 @@ private:
   void _loadData(const VectorDouble& tab,
                  const VectorString& names,
                  const VectorString& locatorNames,
-                 int order,
+                 const ELoadBy& order,
                  int shift);
   void _createRank(int shift = 0);
   void _createGridCoordinates(int shift);
@@ -582,7 +583,7 @@ private:
                      VectorInt& tabnum,
                      VectorString& tabnam,
                      VectorDouble& tab);
-  void _loadData(int order, int flag_add_rank, const VectorDouble& tab);
+  void _loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab);
   bool _isCountValid(const VectorInt iatts, bool flagOne) const;
 
 private:

@@ -14,7 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
 
-CovCalcMode::CovCalcMode(ENUM_MEMBERS member,
+CovCalcMode::CovCalcMode(const ECalcMember& member,
                          bool asVario,
                          bool normalized,
                          bool filterNugget,
@@ -86,8 +86,8 @@ bool CovCalcMode::isEqual(const CovCalcMode &r) const
  ** \li                      -1 : only consider the nugget effect
  * @param nostd       0 standard; +-1 special; ITEST normalized
  **                          (Default: 0)
- * @param member      Member of the Kriging System (::ENUM_MEMBERS)
- **                          (Default: MEMBER_LHS)
+ * @param member      Member of the Kriging System (ECalcMember)
+ **                          (Default: ECalcMember::LHS)
  * @param icov_r      rank of the target covariance or -1 for all
  **                          (Default: -1)
  * @param flag_norm   1 if the model is normalized
@@ -97,7 +97,7 @@ bool CovCalcMode::isEqual(const CovCalcMode &r) const
  */
 void CovCalcMode::update(int nugget_opt,
                          int nostd,
-                         int member,
+                         const ECalcMember& member,
                          int icov_r,
                          int flag_norm,
                          int flag_cov)
@@ -112,7 +112,7 @@ void CovCalcMode::update(int nugget_opt,
   {
     if (nostd != 0) _envelop = nostd;
   }
-  _member = (ENUM_MEMBERS) member;
+  _member = member;
   _keepOnlyCovIdx = icov_r;
   _asVario = flag_cov == 0;
   _normalized = flag_norm == 1;

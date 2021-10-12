@@ -22,7 +22,6 @@
 #include "segy.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
-#include "Model/Cova.hpp"
 #include "Db/Db.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
@@ -990,7 +989,7 @@
   GEOSLIB_API Model *model_default(int ndim, int nvar);
   GEOSLIB_API double model_calcul_basic(Model *model,
                                         int icov,
-                                        int member,
+                                        const ECalcMember& member,
                                         const VectorDouble& d1);
   GEOSLIB_API void model_calcul_cov(Model *model,
                                     CovCalcMode& mode,
@@ -1018,7 +1017,7 @@
                                            VectorDouble& d1,
                                            double *covtab);
   GEOSLIB_API void model_calcul_drift(Model *model,
-                                      int member,
+                                      const ECalcMember& member,
                                       Db *db,
                                       int iech,
                                       double *drftab);
@@ -1091,7 +1090,7 @@
                                  int nugget_opt,
                                  int nostd,
                                  int norder,
-                                 int member,
+                                 const ECalcMember& member,
                                  int nh,
                                  VectorDouble& codir,
                                  double *h,
@@ -1105,7 +1104,7 @@
                                         int nugget_opt,
                                         int nostd,
                                         int norder,
-                                        int member,
+                                        const ECalcMember& member,
                                         Db *db1,
                                         int iech1,
                                         Db *db2,
@@ -1179,11 +1178,11 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                          int flag_cov,
                                          double *covmat);
   GEOSLIB_API void model_drift_mat(Model *model,
-                                   int member,
+                                   const ECalcMember& member,
                                    Db *db,
                                    double *drfmat);
   GEOSLIB_API void model_drift_vector(Model *model,
-                                      int member,
+                                      const ECalcMember& member,
                                       Db *db,
                                       int iech,
                                       double *vector);

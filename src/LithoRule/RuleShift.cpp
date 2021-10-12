@@ -34,7 +34,7 @@ RuleShift::RuleShift(const VectorInt& nodes, const VectorDouble& shift)
       _ind1(),
       _ind2()
 {
-  setModeRule(RULE_SHIFT);
+  setModeRule(ERule::SHIFT);
   setMainNodeFromNodNames(nodes);
 }
 
@@ -49,7 +49,7 @@ RuleShift::RuleShift(const VectorString& nodnames, const VectorDouble& shift)
       _ind1(),
       _ind2()
 {
-  setModeRule(RULE_SHIFT);
+  setModeRule(ERule::SHIFT);
   setMainNodeFromNodNames(nodnames);
 }
 
@@ -69,7 +69,7 @@ RuleShift::RuleShift(int nfacies, const VectorDouble& shift)
       _ind1(),
       _ind2()
 {
-  setModeRule(RULE_SHIFT);
+  setModeRule(ERule::SHIFT);
   VectorString nodnames = buildNodNames(nfacies);
   setMainNodeFromNodNames(nodnames);
 }
@@ -87,7 +87,7 @@ RuleShift::RuleShift(const VectorInt& n_type,
       _ind1(),
       _ind2()
 {
-  setModeRule(RULE_SHIFT);
+  setModeRule(ERule::SHIFT);
   setMainNodeFromNodNames(n_type, n_facs);
 }
 
@@ -197,10 +197,10 @@ int RuleShift::particularities(Db *db,
   for (int idim = 0; idim < ndim; idim++)
     wxyz[idim] = _xyz[idim];
   if (model->getVariableNumber() == 1)
-    model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0, MEMBER_LHS, 1, wxyz, &hval,
+    model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, wxyz, &hval,
                    &rhoval);
   else
-    model_evaluate(model, 0, 1, -1, 0, 1, 0, 0, 0, MEMBER_LHS, 1, wxyz, &hval,
+    model_evaluate(model, 0, 1, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, wxyz, &hval,
                    &rhoval);
   setRho(rhoval);
 

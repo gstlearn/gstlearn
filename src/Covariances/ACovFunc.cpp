@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "Covariances/ACovFunc.hpp"
 
-#include "Model/Cova.hpp"
-
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"

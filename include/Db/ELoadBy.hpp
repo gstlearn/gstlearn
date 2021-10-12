@@ -10,17 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Drifts/EDrift.hpp"
+#include "Enum/AEnum.hpp"
 
-class ADriftElem;
+#define ENUM_LOAD_BY ELoadBy, COLUMN,\
+                     COLUMN,   0, "Values are provided sorted by columns", \
+                     SAMPLE,   1, "Values are provided sorted by sample"
 
-class DriftFactory
-{
-public:
-  static ADriftElem*  createDriftFunc(const EDrift& type, const CovContext& ctxt);
-  static ADriftElem*  duplicateDriftFunc(const ADriftElem& cov);
-  static void         displayList(const CovContext& ctxt);
-  static EDrift       identifyDrift(const String& symbol, int* rank, const CovContext& ctxt);
- };
+ENUM_DECLARE(ENUM_LOAD_BY)

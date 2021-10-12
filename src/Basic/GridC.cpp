@@ -419,8 +419,8 @@ int GridC::indiceToRank(const VectorInt& indice) const
 
 /**
  *
- * @param rank Rank of the Node (in the messhing)
- * @param indice Indices of the node in the grid syatem
+ * @param rank Rank of the Node (in the meshing)
+ * @param indice Indices of the node in the grid system
  * @param minusOne Consider that the number of cells in each direction
  * should be reduced by one.
  *

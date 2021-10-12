@@ -437,8 +437,9 @@ const VectorDouble CovAniso::getAnisoCoeffs() const
 }
 
 /**
- * For compatibility, this function returns 0 if the Cova has no Third Parameter
- * @return
+ * For compatibility, this function returns 0 if the Covariance has no Third Parameter
+ *
+ * @return Third parameter
  */
 double CovAniso::getParam() const
 {

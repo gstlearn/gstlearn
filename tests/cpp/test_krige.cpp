@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
       tab.push_back(10 * law_gaussian());
     }
 
-  Db* data = new Db(nech,LOAD_BY_SAMPLE,tab);
+  Db* data = new Db(nech,ELoadBy::SAMPLE,tab);
   data->setName(0,"xcoor1");
   data->setName(1,"xcoor2");
   data->setName(2,"var");

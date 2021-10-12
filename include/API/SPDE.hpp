@@ -5,7 +5,6 @@
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Model/Model.hpp"
-#include "Model/Cova.hpp"
 #include "Mesh/MeshETurbo.hpp"
 
 #include "geoslib_enum.h"

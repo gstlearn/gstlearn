@@ -10,17 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Drifts/EDrift.hpp"
+#include "Enum/AEnum.hpp"
 
-class ADriftElem;
+#define ENUM_RULE ERule, STD, \
+                  STD,    0,  "Standard Lithotype Rule", \
+                  SHIFT,  1,  "Shift Lithotype Rule", \
+                  SHADOW, 2,  "Shadow Lithotype Rule"
 
-class DriftFactory
-{
-public:
-  static ADriftElem*  createDriftFunc(const EDrift& type, const CovContext& ctxt);
-  static ADriftElem*  duplicateDriftFunc(const ADriftElem& cov);
-  static void         displayList(const CovContext& ctxt);
-  static EDrift       identifyDrift(const String& symbol, int* rank, const CovContext& ctxt);
- };
+ENUM_DECLARE(ENUM_RULE)
