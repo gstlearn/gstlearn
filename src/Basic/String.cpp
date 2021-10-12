@@ -11,6 +11,7 @@
 #include "math.h"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Utilities.hpp"
 #include <algorithm>
 #include <stdio.h>
 #include <stddef.h>
@@ -450,4 +451,101 @@ String suppressAnyBlanks(String value)
 {
   value = std::regex_replace(value, std::regex("^ +| +$|( ) +"), "$1");
   return value;
+}
+
+/**
+ * Ask interactively for the value of one integer
+ * @param text Text of the question
+ * @param defval Default value (or IFFFF)
+ */
+int askInt(const String& text, int defval)
+{
+  bool hasDefault = ! IFFFF(defval);
+  int answer = defval;
+  std::cin.exceptions(std::istream::failbit|
+                      std::istream::badbit);
+
+  try
+  {
+
+
+
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+        std::cout << text << " (Default = " << defval << ") : ";
+      else
+        std::cout << text << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Try casting in integer
+      std::stringstream ss(str);
+      if (ss >> answer) break;
+
+      std::cout << "The answer is not a valid Integer" << std::endl;
+    }
+  }
+  catch(std::istream::failure e)
+  {
+    std::cerr << "Problem when reading integer" << std::endl;
+  }
+  return answer;
+}
+
+/**
+ * Ask interactively for the value of one Real (Double)
+ * @param text Text of the question
+ * @param defval Default value (or IFFFF)
+ */
+double askDouble(const String& text, double defval)
+{
+  bool hasDefault = ! FFFF(defval);
+  double answer = defval;
+  std::cin.exceptions(std::istream::failbit|
+                      std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+        std::cout << text << " (Default = " << defval << ") : ";
+      else
+        std::cout << text << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Try casting in integer
+      std::stringstream ss(str);
+      if (ss >> answer) break;
+
+      std::cout << "The answer is not a valid Double" << std::endl;
+    }
+  }
+  catch(std::istream::failure e)
+  {
+    std::cerr << "Problem when reading integer" << std::endl;
+  }
+  return answer;
 }

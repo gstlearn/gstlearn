@@ -21,7 +21,6 @@ class GibbsMMulti : public GibbsMulti
 {
 private:
   struct GibbsWeights {
-    int _neq;
     int _pivot;
     VectorInt _ranks;
     VectorVectorDouble _ll;
@@ -41,6 +40,18 @@ public:
   int covmatAlloc(bool verbose) override;
 
   Neigh* getNeigh() const { return _neigh; }
+
+private:
+  int _isValidConditioning() const;
+  void _print(int iact) const;
+  int _getVariableNumber() const;
+  void _setQFlag(VectorBool& QFlag,
+                 int nech,
+                 int iech,
+                 const VectorInt& ranks,
+                 bool flagSym) const;
+  VectorInt _getQFlag(VectorBool& QFlag, int nech, int iech);
+  void _makeQSymmetric(cs* Q) const;
 
 private:
   Neigh* _neigh;

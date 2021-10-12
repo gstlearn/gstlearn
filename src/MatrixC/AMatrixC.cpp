@@ -1099,15 +1099,14 @@ cs_Output AMatrixC::getValuesAsTriplets(bool flag_from_1) const
   return out;
 }
 
-/// TODO : Pass the resulting vector by reference to prevent copy
 VectorDouble AMatrixC::getValues() const
 {
   VectorDouble vect;
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
     {
-      if (! isValid(irow, icol)) continue;
-      double value = getValue(irow,icol);
+      double value = 0.;
+      if (isValid(irow, icol)) value = getValue(irow,icol);
       vect.push_back(value);
     }
   return vect;

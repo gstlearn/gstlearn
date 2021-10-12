@@ -4864,10 +4864,10 @@ static void st_relaxation(cs_MGS   *mgs,
 **
 *****************************************************************************/
 static int st_multigrid_kriging_prec(cs_MGS *mgs,
-				     int     verbose,
-				     double *x,
-				     double *b,
-				     double *work)
+                                     int verbose,
+                                     double *x,
+                                     double *b,
+                                     double *work)
 {
   double *xcr,*rhs,*scores,norm,delta,score;
   int	  error,nlevels,level,ncur,niter,mode,flag_sym,nfois;
@@ -5596,4 +5596,31 @@ Triplet csToTriplet(const cs *A, bool flagFrom1)
     triplet.values.resize(ecr);
   }
   return triplet;
+}
+
+bool cs_isSymmetric(const cs* A)
+{
+  int nrows, ncols,count;
+  double percent;
+  cs_rowcol(A,&nrows,&ncols,&count,&percent);
+  if (nrows != ncols)
+  {
+    messerr("The sparse matrix is not square (%d x %d)", nrows, ncols);
+    return false;
+  }
+
+  int numError = 0;
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = irow; icol < ncols; icol++)
+    {
+      double aij = cs_get_value(A, irow, icol);
+      double aji = cs_get_value(A, icol, irow);
+      if (ABS(ABS(aij) - ABS(aji)) > EPSILON5)
+      {
+        messerr("Element (%d,%d)=%lf is different from (%d,%d)=%lf",
+                irow,icol,aij,icol,irow,aji);
+        numError++;
+      }
+    }
+  return numError <= 0;
 }

@@ -330,13 +330,13 @@ Db::Db(Polygons* polygon,
 
   // Derive the Grid parameters
 
-  VectorInt nx_tab;
+  VectorInt    nx_tab;
   VectorDouble x0_tab;
   VectorDouble dx_tab;
   int nech = 1;
   for (int idim = 0; idim < ndim; idim++)
   {
-    double x0 = (idim == 0) ? xmin : ymin;
+    double x0  = (idim == 0) ? xmin : ymin;
     double ext = (idim == 0) ? xmax - xmin : ymax - ymin;
 
     int nx = 10;

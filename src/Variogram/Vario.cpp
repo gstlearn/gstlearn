@@ -400,7 +400,7 @@ int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
   return 0;
 }
 
-int Vario::internalVariableResize()
+int Vario::internalVariableResize() //TODO: to be called when nvar is modified...
 {
   if (! _means.empty())
   {

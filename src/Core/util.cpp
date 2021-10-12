@@ -9,6 +9,11 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_e.h"
+#include <boost/math/special_functions/legendre.hpp>
+#include <boost/math/special_functions/spherical_harmonic.hpp>
+#include <complex>
+#include <cmath>
+//#include <tr1/cmath>
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -4327,7 +4332,7 @@ GEOSLIB_API int ut_is_legendre_defined(void)
 
 /*****************************************************************************/
 /*!
- **  Returns the Associated Legendre Polynomial: legendre_Pl
+ **  Returns the Associated Legendre Function: legendre_Pl
  **
  ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree
@@ -4336,12 +4341,37 @@ GEOSLIB_API int ut_is_legendre_defined(void)
  *****************************************************************************/
 GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
 {
-  double norme, result;
+  int renard = 0;
+  double res1 = 0.;
+  double res2 = 0.;
+  double res3 = 0.;
 
-  result = LEGENDRE_PL(n, v);
+  if (renard <= 0)
+  {
+    res1 = LEGENDRE_PL(n, v);
+  }
+//  if (renard == -1)
+//  {
+//    res3 = std::tr1::legendre(n, v);
+//  }
+  if (renard >= 0)
+  {
+    //  res2 = std::legendre(n,v);
+    res2 = boost::math::legendre_p<double>(n, v);
+  }
+
+  if (renard == 0)
+  {
+    double diff = ABS(res1 + res2);
+    if (diff > EPSILON5) diff = 100. * ABS(res1 - res2) / diff;
+    if (diff > 5)
+      messerr("---> Legendre n=%d v=%lf res1=%lf res2=%lf", n, v, res1, res2);
+  }
+
+  double result = res1;
   if (flag_norm)
   {
-    norme = sqrt((2. * ((double) n) + 1.) / 2.);
+    double norme = sqrt((2. * ((double) n) + 1.) / 2.);
     result *= norme;
   }
   return (result);
@@ -4354,13 +4384,13 @@ GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
  ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree
  ** \param[in]  k0          Order (ABS(k0) <= n)
- ** \param[in]  v           Value
+ ** \param[in]  theta       Theta angle in radian
  **
  *****************************************************************************/
-GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double v)
+GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
 {
-  double result, norme;
   int k, flag_negative;
+  int renard = 0;
 
   if (k0 < 0)
   {
@@ -4373,12 +4403,40 @@ GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double v)
     flag_negative = 0;
   }
 
-  result = LEGENDRE_SPHPLM(n, k, v);
-  if (flag_negative && k % 2 == 1) result = -result;
+  double res1 = 0.;
+  double res2 = 0.;
+  double res3 = 0.;
+  if (renard <= 0)
+  {
+    double v = cos(theta);
+    res1 = LEGENDRE_SPHPLM(n, k, v);
+    if (flag_negative && k % 2 == 1) res1 = -res1;
+  }
+//  if (renard == -1)
+//  {
+//    res3 = std::tr1::sph_legendre(n, k, theta);
+//  }
+//
+  if (renard >= 0)
+  {
+    std::complex<double>
+    resbis = boost::math::spherical_harmonic<double, double>(n, k, theta, 0.);
+    res2 = resbis.real();
+  }
+  if (renard == 0)
+  {
+    double diff = ABS(res1 + res2);
+    if (diff > EPSILON5) diff = 100. * ABS(res1 - res2) / diff;
+    if (diff > 5)
+      messerr(
+          "---> Sph-Legendre n=%d k0=%d theta=%lf res1=%lf res2=%lf",
+          n, k0, theta, res1, res2);
+  }
+  double result = res1;
 
   if (flag_norm)
   {
-    norme = 1. / sqrt(2 * GV_PI);
+    double norme = 1. / sqrt(2 * GV_PI);
     result /= norme;
   }
   return (result);

@@ -16,6 +16,7 @@
 #include "geoslib_f.h"
 
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
+#define QFLAG(iech,jech)         (QFlag[(iech) * nech + jech])
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
@@ -65,6 +66,8 @@ GibbsMMulti::~GibbsMMulti()
 int GibbsMMulti::covmatAlloc(bool verbose)
 {
   VectorInt ivars, iechs;
+  VectorBool QFlag;
+  bool flagSym = true;
   double *covmat;
 
   // Initialization
@@ -74,8 +77,9 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   Db* db = getDb();
   Model* model = getModel();
   Neigh* neigh = getNeigh();
-  int nvar = model->getVariableNumber();
+  int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
+  int nech = db->getSampleNumber();
   int nvardb = db->getVariableNumber();
   bool flag_var_defined = nvardb > 0;
   covmat = (double *) NULL;
@@ -94,20 +98,33 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   if (verbose) message("Establishing Kriging Weights\n");
   _wgt.resize(nact);
+  QFlag.resize(nech * nech, false);
 
-  // Loop on the active samples
+  // Loop on the active samples to define the neighborhood flags
+
+  for (int iact = 0; iact < nact; iact++)
+  {
+    int iech = getSampleRank(iact);
+
+    // Select the Neighborhood
+    VectorInt ranks = getGeneralNeigh(db, neigh, iech);
+
+    // Update the neighborhood contingency matrix
+    _setQFlag(QFlag, nech, iech, ranks, flagSym);
+  }
+
+  // Loop on the active samples to define the kriging weights
 
   for (int iact = 0; iact < nact; iact++)
   {
     int iech = getSampleRank(iact);
     GibbsWeights& ww = _wgt[iact];
 
-    // Select the Neighborhood
-    ww._ll.clear();
-    ww._ranks = getGeneralNeigh(db, neigh, iech);
+    // Read the neighborhood from the contingency table
+
+    ww._ranks = _getQFlag(QFlag, nech, iech);
     int nbgh  = ww._ranks.size();
     int neq   = nvar * nbgh;
-    ww._neq   = neq;
 
     // Establishing the (moving) Covariance matrix
     covmat = model_covmat_by_varranks(model, db, ww._ranks, neq, 0, 1);
@@ -136,14 +153,19 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     for (int ivar = 0; ivar < nvar; ivar++)
     {
       VectorDouble ll(neq);
-      for (int i = 0; i < ww._neq; i++)
+      for (int i = 0; i < neq; i++)
       {
         ll[i] = COVMAT(i, ww._pivot + ivar * nbgh);
       }
       ww._ll.push_back(ll);
     }
+
     covmat = (double *) mem_free((char *) covmat);
   }
+
+  // Check the conditioning of the Precision resulting matrix
+
+  if (_isValidConditioning()) goto label_end;
 
   // Initialize the statistics (optional)
 
@@ -174,9 +196,8 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 {
   double valsim;
 
-  const Model* model = getModel();
   int nact = getSampleRankNumber();
-  int nvar = model->getVariableNumber();
+  int nvar = _getVariableNumber();
 
   /* Print the title */
 
@@ -220,4 +241,151 @@ void GibbsMMulti::update(VectorVectorDouble& y,
   // Update statistics (optional)
 
   updateStats(y, ipgs, iter);
+}
+
+/** This function calculates the conditioning of the precision matrix
+ *  that is constituted starting from the kriging weights calculated beforehand
+ */
+int GibbsMMulti::_isValidConditioning() const
+{
+  int error = 1;
+  cs *Q, *T;
+  css* S;
+  csn* N;
+
+  Q = T = (cs *) NULL;
+  S = (css *) NULL;
+  N = (csn *) NULL;
+  int nvar = _getVariableNumber();
+  int nact = getSampleRankNumber();
+
+  // Constitute the triplet
+  T = cs_spalloc(0, 0, 1, 1, 1);
+  if (T == (cs *) NULL) goto label_end;
+
+  // Loop on the first sample
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int iact = 0; iact < nact; iact++)
+    {
+      const GibbsWeights& ww = _wgt[iact];
+      int nbgh  = ww._ranks.size();
+      int icol = iact + nbgh * ivar;
+
+      for (int jbgh = 0; jbgh < nbgh; jbgh++)
+      {
+        int jact = ww._ranks[jbgh];
+        for (int jvar = 0; jvar < nvar; jvar++)
+        {
+          int jcol = jact + nbgh * jvar;
+          double wgt = ww._ll[jvar][jbgh + nbgh * jvar];
+          if (! cs_entry(T, icol, jcol, wgt)) goto label_end;
+        }
+      }
+    }
+
+  // Convert from triplet to sparse matrix
+
+  Q = cs_triplet(T);
+
+  // Make the Matrix symmetric
+
+  _makeQSymmetric(Q);
+
+  // Check that the matrix is symmetric
+
+  if (! cs_isSymmetric(Q)) goto label_end;
+
+  // Perform the Cholesky decomposition
+
+  S = cs_schol(Q, 0);
+  if (S == (css *) NULL)
+  {
+    messerr("Error in cs_schol function");
+    goto label_end;
+  }
+
+  N = cs_chol (Q, S);
+  if (N == (csn *) NULL)
+  {
+    messerr("Error in cs_chol function");
+    goto label_end;
+  }
+
+  error = 0;
+
+  label_end:
+  S = cs_sfree(S);
+  N = cs_nfree(N);
+  T = cs_spfree(T);
+  Q = cs_spfree(Q);
+  return error;
+}
+
+void GibbsMMulti::_print(int iact) const
+{
+  int nvar = _getVariableNumber();
+
+  message("Active sample #%d\n",iact);
+  const GibbsWeights& ww = _wgt[iact];
+  message("Position within the neighboring sample list: %d\n",ww._pivot);
+
+  int nbgh = ww._ranks.size();
+  print_ivector("Ranks",0,nbgh,ww._ranks);
+  for (int ivar=0; ivar < nvar; ivar++)
+    print_vector("Weights",0,nbgh,ww._ll[ivar]);
+}
+
+int GibbsMMulti::_getVariableNumber() const
+{
+  Model* model = getModel();
+  return model->getVariableNumber();
+}
+
+void GibbsMMulti::_setQFlag(VectorBool& QFlag,
+                            int nech,
+                            int iech,
+                            const VectorInt& ranks,
+                            bool flagSym) const
+{
+  int nbgh = ranks.size();
+  for (int ibgh = 0; ibgh < nbgh; ibgh++)
+  {
+    QFLAG(iech, ranks[ibgh]) = 1;
+    if (flagSym) QFLAG(ranks[ibgh], iech) = 1;
+  }
+}
+
+VectorInt GibbsMMulti::_getQFlag(VectorBool& QFlag, int nech, int iech)
+{
+  VectorInt ranks;
+
+  for (int jech = 0; jech < nech; jech++)
+  {
+    if (QFLAG(iech,jech)) ranks.push_back(jech);
+  }
+  return ranks;
+}
+
+void GibbsMMulti::_makeQSymmetric(cs* Q) const
+{
+  int n = Q->n;
+
+  // Set the lower part of the matrix to symmetrical values
+  for (int irow = 0; irow < n; irow++)
+    for (int icol = 0; icol < irow; icol++)
+    {
+      double val1 = cs_get_value(Q, irow, icol);
+      double val2 = cs_get_value(Q, icol, irow);
+      cs_set_value(Q, irow, icol, (val1 + val2) / 2.);
+    }
+
+  // Copy the upper part by symmetry
+
+  for (int irow = 0; irow < n; irow++)
+    for (int icol = irow; icol < n; icol++)
+    {
+      double val = cs_get_value(Q, icol, irow);
+      cs_set_value(Q, irow, icol, val);
+    }
 }

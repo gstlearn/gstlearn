@@ -4300,6 +4300,8 @@ GEOSLIB_API int model_regularize(Model *model,
   nech = db->getSampleNumber();
   norme = nech * nech;
   vario->setNVar(nvar);
+  vario->internalVariableResize();
+  vario->internalDirectionResize();
 
   /* Core allocation */
 

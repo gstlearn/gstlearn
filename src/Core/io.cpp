@@ -1633,6 +1633,14 @@ GEOSLIB_API void print_vector(const char *title,
   return;
 }
 
+GEOSLIB_API void print_vector(const char *title,
+                              int flag_limit,
+                              int ntab,
+                              const VectorDouble& tab)
+{
+  print_vector(title, flag_limit, ntab, tab.data());
+}
+
 /****************************************************************************/
 /*!
 **  Print a vector of integer values in a matrix form
