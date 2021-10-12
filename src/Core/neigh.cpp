@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/EJustify.hpp"
 
 static int     FLAG_SIMU = 0;
 static int     FLAG_NO_VAR_CHECK = 0;
@@ -51,22 +52,22 @@ static void st_neigh_print(Db     *dbin,
   /* Neighborhood data */
 
   mestitle(1,"Data selected in neighborhood");
-  tab_prints(NULL,1,GD_J_RIGHT,"Rank");
-  tab_prints(NULL,1,GD_J_RIGHT,"Sample");
-  if (dbin->hasCode()) tab_prints(NULL,1,GD_J_RIGHT,"Code");
+  tab_prints(NULL,1,EJustify::RIGHT,"Rank");
+  tab_prints(NULL,1,EJustify::RIGHT,"Sample");
+  if (dbin->hasCode()) tab_prints(NULL,1,EJustify::RIGHT,"Code");
   for (idim=0; idim<ndim; idim++)
   {
     string = getLocatorName(LOC_X,idim);
-    tab_prints(NULL,1,GD_J_RIGHT,string.c_str());
+    tab_prints(NULL,1,EJustify::RIGHT,string.c_str());
   }
   if (flag_ext)
     for (idim=0; idim<ndim; idim++)
     {
       string = getLocatorName(LOC_BLEX,idim);
-      tab_prints(NULL,1,GD_J_RIGHT,string.c_str());
+      tab_prints(NULL,1,EJustify::RIGHT,string.c_str());
     }
   if (neigh->getType() == ENeigh::MOVING)
-    tab_prints(NULL,1,GD_J_RIGHT,"Sector");
+    tab_prints(NULL,1,EJustify::RIGHT,"Sector");
   message("\n");
 
   /* Loop on the sample points */
@@ -75,19 +76,19 @@ static void st_neigh_print(Db     *dbin,
   {
     if (rank[iech] < 0) continue;
     
-    tab_printi(NULL,1,GD_J_RIGHT,sel+1);
-    tab_printi(NULL,1,GD_J_RIGHT,iech+1);
+    tab_printi(NULL,1,EJustify::RIGHT,sel+1);
+    tab_printi(NULL,1,EJustify::RIGHT,iech+1);
     if (dbin->hasCode())
-      tab_printi(NULL,1,GD_J_RIGHT,static_cast<int> (dbin->getCode(iech)));
+      tab_printi(NULL,1,EJustify::RIGHT,static_cast<int> (dbin->getCode(iech)));
     for (idim=0; idim<ndim; idim++)
-      tab_printg(NULL,1,GD_J_RIGHT,dbin->getCoordinate(iech,idim));
+      tab_printg(NULL,1,EJustify::RIGHT,dbin->getCoordinate(iech,idim));
     if (flag_ext)
     {
       for (idim=0; idim<ndim; idim++)
-        tab_printg(NULL,1,GD_J_RIGHT,dbin->getBlockExtension(iech,idim));
+        tab_printg(NULL,1,EJustify::RIGHT,dbin->getBlockExtension(iech,idim));
     }
     if (neigh->getType() == ENeigh::MOVING)
-      tab_printi(NULL,1,GD_J_RIGHT,rank[iech]+1);
+      tab_printi(NULL,1,EJustify::RIGHT,rank[iech]+1);
     message("\n"); 
     sel++;
   }

@@ -13,6 +13,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/EJustify.hpp"
 
 /*! \cond */
 #define G_ADDRESS(ix,iy,iz,nxyz)    ((ix) + nxyz[0] * ((iy) + nxyz[1] * (iz)))
@@ -3011,17 +3012,17 @@ GEOSLIB_API void db_stats_print(const Db *db,
 
   tab_print_rowname(" ",taille);
   if (st_oper_exists(opers,"num"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Number");
+    tab_prints(NULL,1,EJustify::RIGHT,"Number");
   if (st_oper_exists(opers,"mini"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Minimum");
+    tab_prints(NULL,1,EJustify::RIGHT,"Minimum");
   if (st_oper_exists(opers,"maxi"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Maximum");
+    tab_prints(NULL,1,EJustify::RIGHT,"Maximum");
   if (st_oper_exists(opers,"mean"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Mean");
+    tab_prints(NULL,1,EJustify::RIGHT,"Mean");
   if (st_oper_exists(opers,"stdv"))
-    tab_prints(NULL,1,GD_J_RIGHT,"St. Dev.");
+    tab_prints(NULL,1,EJustify::RIGHT,"St. Dev.");
   if (st_oper_exists(opers,"var"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Variance");
+    tab_prints(NULL,1,EJustify::RIGHT,"Variance");
   message("\n");
   
   /* Print the monovariate statistics */
@@ -3032,32 +3033,32 @@ GEOSLIB_API void db_stats_print(const Db *db,
     tab_print_rowname(string,taille);
 
     if (st_oper_exists(opers,"num"))
-      tab_printi(NULL,1,GD_J_RIGHT,(int) num[icol]);
+      tab_printi(NULL,1,EJustify::RIGHT,(int) num[icol]);
     if (num[icol] > 0)
     {
       if (st_oper_exists(opers,"mini"))
-        tab_printg(NULL,1,GD_J_RIGHT,mini[icol]);
+        tab_printg(NULL,1,EJustify::RIGHT,mini[icol]);
       if (st_oper_exists(opers,"maxi"))
-        tab_printg(NULL,1,GD_J_RIGHT,maxi[icol]);
+        tab_printg(NULL,1,EJustify::RIGHT,maxi[icol]);
       if (st_oper_exists(opers,"mean"))
-        tab_printg(NULL,1,GD_J_RIGHT,mean[icol]);
+        tab_printg(NULL,1,EJustify::RIGHT,mean[icol]);
       if (st_oper_exists(opers,"stdv"))
-        tab_printg(NULL,1,GD_J_RIGHT,sqrt(var[icol]));
+        tab_printg(NULL,1,EJustify::RIGHT,sqrt(var[icol]));
       if (st_oper_exists(opers,"var"))
-        tab_printg(NULL,1,GD_J_RIGHT,var[icol]);
+        tab_printg(NULL,1,EJustify::RIGHT,var[icol]);
     }
     else
     {
       if (st_oper_exists(opers,"mini"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
       if (st_oper_exists(opers,"maxi"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
       if (st_oper_exists(opers,"mean"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
       if (st_oper_exists(opers,"stdv"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
       if (st_oper_exists(opers,"var"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
     }
     message("\n");
   }

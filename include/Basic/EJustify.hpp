@@ -10,26 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "LithoRule/EProcessOper.hpp"
-class Db;
+#include "Enum/AEnum.hpp"
 
-class PropDef
-{
-  // TODO To be transformed in private URGENT
-public:
-  int case_facies; /* TRUE when Gibbs used for Facies */
-  int case_stat; /* TRUE if proportions are constant */
-  int case_prop_interp; /* TRUE when props are given in proportion file */
-  int ngrf[2]; /* Number of GRF for the PGSs */
-  int nfac[2]; /* Number of facies for the PGSs */
-  int nfaccur; /* Number of facies for current PGS */
-  int nfacprod; /* Product of the number of facies */
-  int nfacmax; /* Maximum number of facies over all PGS */
-  EProcessOper mode; /* Type of process */
-  VectorDouble propfix;
-  VectorDouble propmem;
-  VectorDouble propwrk;
-  VectorDouble proploc;
-  VectorDouble coor;
-  const Db *dbprop; /* Pointer to the Proportion file */
-};
+#define ENUM_JUSTIFY EJustify, LEFT, \
+                     LEFT,  -1,  "Left Justification", \
+                     CENTER, 0,  "Center Justification", \
+                     RIGHT,  1,  "Right Justification"
+
+ENUM_DECLARE(ENUM_JUSTIFY)

@@ -23,6 +23,7 @@
 #include "Model/NoStatArray.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/EJustify.hpp"
 
 /*! \cond */
 #define TRACE(i,iseg)       (trace[(i) * nseg + (iseg)])
@@ -948,7 +949,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
 
   /* Print the Header (Variable name) */
 
-  tab_prints(NULL, 1, GD_J_RIGHT, " ");
+  tab_prints(NULL, 1, EJustify::RIGHT, " ");
   for (jvar = ivar_deb; jvar <= ivar_fin; jvar++)
   {
     if (db->getLocatorByColumn(jvar, &locatorType, &item))
@@ -959,28 +960,28 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
     else
       (void) strcpy(string, "NA");
     if (jvar == ivar) (void) strcat(string, "*");
-    tab_prints(NULL, 1, GD_J_RIGHT, string);
+    tab_prints(NULL, 1, EJustify::RIGHT, string);
   }
   message("\n");
 
   /* Print the Header (Variable rank) */
 
-  tab_prints(NULL, 1, GD_J_RIGHT, " ");
+  tab_prints(NULL, 1, EJustify::RIGHT, " ");
   for (jvar = ivar_deb; jvar <= ivar_fin; jvar++)
-    tab_print_rc(NULL, 1, GD_J_RIGHT, 2, jvar + 1);
+    tab_print_rc(NULL, 1, EJustify::RIGHT, 2, jvar + 1);
   message("\n");
 
   /* Loop on the samples */
 
   for (jech = iech_deb; jech <= iech_fin; jech++)
   {
-    tab_print_rc(NULL, 1, GD_J_RIGHT, 3, jech + 1);
+    tab_print_rc(NULL, 1, EJustify::RIGHT, 3, jech + 1);
     if (iech == jech)
       message("*");
     else
       message(" ");
     for (jvar = ivar_deb; jvar <= ivar_fin; jvar++)
-      tab_printg(NULL, 1, GD_J_RIGHT, db->getArray(jech, jvar));
+      tab_printg(NULL, 1, EJustify::RIGHT, db->getArray(jech, jvar));
     message("\n");
   }
   return;

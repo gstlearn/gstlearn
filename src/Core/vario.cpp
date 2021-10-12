@@ -17,6 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Drifts/EDrift.hpp"
+#include "Basic/EJustify.hpp"
 
 /*! \cond */
 #define VARS(ivar,jvar)     (vario->vars[(ivar) * vario->getNVar() + (jvar)])
@@ -2517,14 +2518,14 @@ static void st_vario_params_print(int ndim,
 
   message("Direction coefficients      = (");
   for (int idim=0; idim<ndim; idim++)
-    tab_printg(NULL,1,GD_J_LEFT,codir[idim]);
+    tab_printg(NULL,1,EJustify::LEFT,codir[idim]);
   message(")\n");
   if (ndim > 1)
   {
     (void) ut_angles_from_codir(ndim,1,codir,angles);
     message("Direction angles (degrees)  = (");
     for (int idim=0; idim<ndim; idim++)
-      tab_printg(NULL,1,GD_J_LEFT,angles[idim]);
+      tab_printg(NULL,1,EJustify::LEFT,angles[idim]);
     message(")\n");
   }
   if (! FFFF(tolang))
@@ -4477,14 +4478,14 @@ GEOSLIB_API int regression_f(Db *db1,
   if (flag_verbose == 2)
   {
     message("\n");
-    tab_prints(NULL,1,GD_J_RIGHT,"Rank");
-    tab_prints(NULL,1,GD_J_RIGHT,"Target");
+    tab_prints(NULL,1,EJustify::RIGHT,"Rank");
+    tab_prints(NULL,1,EJustify::RIGHT,"Target");
     for (i=0; i<size; i++)
     {
       (void) sprintf(string,"Aux.#%d",i+1);
-      tab_prints(NULL,1,GD_J_RIGHT,string);
+      tab_prints(NULL,1,EJustify::RIGHT,string);
     }
-    tab_prints(NULL,1,GD_J_RIGHT,"Residuals");
+    tab_prints(NULL,1,EJustify::RIGHT,"Residuals");
     message("\n");
   }
 
@@ -4521,10 +4522,10 @@ GEOSLIB_API int regression_f(Db *db1,
       
       if (flag_verbose == 2)
       {
-        tab_printi(NULL,1,GD_J_RIGHT,iech+1);
-        tab_printg(NULL,1,GD_J_RIGHT,value);
+        tab_printi(NULL,1,EJustify::RIGHT,iech+1);
+        tab_printg(NULL,1,EJustify::RIGHT,value);
         for (i=0; i<size; i++)
-          tab_printg(NULL,1,GD_J_RIGHT,x[i]);
+          tab_printg(NULL,1,EJustify::RIGHT,x[i]);
       }
       
       if (FFFF(value) || flag_test)
@@ -4546,7 +4547,7 @@ GEOSLIB_API int regression_f(Db *db1,
       
       if (flag_verbose == 2)
       {
-        tab_printg(NULL,1,GD_J_RIGHT,value);
+        tab_printg(NULL,1,EJustify::RIGHT,value);
         message("\n");
       }
     }

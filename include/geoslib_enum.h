@@ -26,6 +26,7 @@ typedef enum
 */
 
 #ifndef SWIG
+// Internal enums (not exported via SWIG)
 typedef enum
 {
   TYPE_DB = 0,        //!< Data Base
@@ -345,6 +346,8 @@ typedef enum
   CONS_TYPE_EQUAL = 2,   //!< Equality
 } ENUM_CONS_TYPE; // Now see EConsType.hpp
 */
+#ifndef SWIG
+// Internal enums (not exported via SWIG)
 typedef enum
 {
   ANAM_QT_Z = 0,
@@ -356,14 +359,15 @@ typedef enum
   ANAM_QT_QUANT = 6,
   ANAM_N_QT = 7,
 } ENUM_ANAM_QT;
-
+#endif
+/*
 typedef enum
 {
   GD_J_LEFT = -1,
   GD_J_CENTER = 0,
   GD_J_RIGHT = 1,
-} ENUM_GD_J;
-
+} ENUM_GD_J;  // Now see EJustify.hpp
+*/
 typedef enum
 {
   PROCESS_UNDEFINED = -1,

@@ -39,11 +39,8 @@
 #include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "Model/ANoStat.hpp"
-
-//#ifdef __cplusplus
-//extern "C"
-//{
-//#endif
+#include "Basic/EJustify.hpp"
+#include "LithoRule/EProcessOper.hpp"
 
   /**********************************************/
   /* Prototyping the functions in acknowledge.c */
@@ -454,24 +451,24 @@
 #endif
   GEOSLIB_API void tab_prints(const char *title,
                               int ncol,
-                              int justify,
+                              const EJustify& justify,
                               const char *string);
   GEOSLIB_API void tab_printg(const char *title,
                               int ncol,
-                              int justify,
+                              const EJustify& justify,
                               double value);
   GEOSLIB_API void tab_printd(const char *title,
                               int ncol,
-                              int justify,
+                              const EJustify& justify,
                               double value);
   GEOSLIB_API void tab_printi(const char *title,
                               int ncol,
-                              int justify,
+                              const EJustify& justify,
                               int value);
   GEOSLIB_API void tab_print_rowname(const char *string, int taille);
   GEOSLIB_API void tab_print_rc(const char *title,
                                 int ncol,
-                                int justify,
+                                const EJustify& justify,
                                 int mode,
                                 int value);
   GEOSLIB_API void encode_printg(char *string,
@@ -2506,18 +2503,19 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                    const VectorDouble& propcst,
                                    int flag_stat,
                                    int nfacies);
-  GEOSLIB_API void proportion_rule_process(PropDef *propdef, int mode);
+  GEOSLIB_API void proportion_rule_process(PropDef *propdef,
+                                           const EProcessOper& mode);
   GEOSLIB_API PropDef *proportion_manage(int mode,
-                                       int flag_facies,
-                                       int flag_stat,
-                                       int ngrf1,
-                                       int ngrf2,
-                                       int nfac1,
-                                       int nfac2,
-                                       Db *db,
-                                       const Db *dbprop,
-                                       const VectorDouble& propcst,
-                                       PropDef *proploc);
+                                         int flag_facies,
+                                         int flag_stat,
+                                         int ngrf1,
+                                         int ngrf2,
+                                         int nfac1,
+                                         int nfac2,
+                                         Db *db,
+                                         const Db *dbprop,
+                                         const VectorDouble& propcst,
+                                         PropDef *proploc);
   GEOSLIB_API void propdef_reset(PropDef* propdef);
   GEOSLIB_API void proportion_print(PropDef *propdef);
 
@@ -3274,9 +3272,5 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                             int nclusters,
                             int npass,
                             int verbose);
-
-//#ifdef __cplusplus
-//}
-//#endif
 
 #endif

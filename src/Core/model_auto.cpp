@@ -14,6 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/Option_AutoFit.hpp"
+#include "Basic/EJustify.hpp"
 
 /*! \cond */
 #define TAKE_ROT       (( optvar.getLockSamerot() && first_covrot < 0) ||  \
@@ -1258,14 +1259,14 @@ static void st_goulard_debug_title(int nvar,
   if (! debug_query("converge")) return;
   mestitle(1,"Trajectory of parameters in Goulard Algorithm");
   message("(Sti(V1-V2) : Sill for structure 'i' for variables 'V1' and 'V2'\n");
-  tab_prints(NULL,1,GD_J_RIGHT,"Iteration");
-  tab_prints(NULL,1,GD_J_RIGHT,"Score");
+  tab_prints(NULL,1,EJustify::RIGHT,"Iteration");
+  tab_prints(NULL,1,EJustify::RIGHT,"Score");
   for (icov=0; icov<ncova; icov++)
     for (ivar=0; ivar<nvar; ivar++)
       for (jvar=0; jvar<=ivar; jvar++)
       {
         (void) sprintf(string,"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
-        tab_prints(NULL,1,GD_J_RIGHT,string);
+        tab_prints(NULL,1,EJustify::RIGHT,string);
       }
   message("\n");
 }
@@ -1291,16 +1292,16 @@ static void st_goulard_debug_current(int     nvar,
 
   if (! debug_query("converge")) return;
   nvs2 = nvar * (nvar + 1) /2;
-  tab_printi(NULL,1,GD_J_RIGHT,iter+1);
+  tab_printi(NULL,1,EJustify::RIGHT,iter+1);
   if (FFFF(crit))
-    tab_prints(NULL,1,GD_J_RIGHT,"     ");
+    tab_prints(NULL,1,EJustify::RIGHT,"     ");
   else
-    tab_printd(NULL,1,GD_J_RIGHT,crit);
+    tab_printd(NULL,1,EJustify::RIGHT,crit);
   
   for (icov=0; icov<ncova; icov++)
     for (ivar=ijvar=0; ivar<nvar; ivar++)
       for (jvar=0; jvar<=ivar; jvar++, ijvar++)
-        tab_printg(NULL,1,GD_J_RIGHT,SILL(icov,ijvar));
+        tab_printg(NULL,1,EJustify::RIGHT,SILL(icov,ijvar));
   message("\n");
 }
 

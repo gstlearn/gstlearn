@@ -21,6 +21,8 @@
 #include "LithoRule/ERule.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Anamorphosis/EAnam.hpp"
+#include "Basic/EJustify.hpp"
+#include "LithoRule/EProcessOper.hpp"
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -35,3 +37,5 @@ ENUM_DEFINE(ENUM_KRIG_OPT)
 ENUM_DEFINE(ENUM_ANAM)
 ENUM_DEFINE(ENUM_CONS_ELEM)
 ENUM_DEFINE(ENUM_CONS_TYPE)
+ENUM_DEFINE(ENUM_JUSTIFY)
+ENUM_DEFINE(ENUM_PROCESS_OPER)

@@ -22,6 +22,8 @@
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
+#include "Basic/EJustify.hpp"
+#include "LithoRule/EProcessOper.hpp"
 #include "geoslib_e.h"
 
 /*! \cond */
@@ -1863,7 +1865,7 @@ static void st_difference(Db     *dbin,
   if (debug_query("simulate"))
   {
     mestitle(1,"Difference between Data and NC Simulation");
-    tab_prints(NULL,1,GD_J_RIGHT,"Sample");
+    tab_prints(NULL,1,EJustify::RIGHT,"Sample");
   }
 
   /* Transform the non conditional simulation into simulation error */
@@ -1881,12 +1883,12 @@ static void st_difference(Db     *dbin,
       for (ivar=0; ivar<nvar; ivar++)
       {
         (void) sprintf(string,"Data%d",ivar+1);
-        tab_prints(NULL,1,GD_J_RIGHT,string);
+        tab_prints(NULL,1,EJustify::RIGHT,string);
         
         for (isimu=0; isimu<nbsimu; isimu++)
         {
           (void) sprintf(string,"Simu%d",isimu+1);
-          tab_prints(NULL,1,GD_J_RIGHT,string);
+          tab_prints(NULL,1,EJustify::RIGHT,string);
         }
       }
       message("\n");
@@ -1897,21 +1899,21 @@ static void st_difference(Db     *dbin,
     for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       if (! dbin->isActive(iech)) continue;
-      if (debug_query("simulate")) tab_printi(NULL,1,GD_J_RIGHT,iech+1);
+      if (debug_query("simulate")) tab_printi(NULL,1,EJustify::RIGHT,iech+1);
       for (ivar=0; ivar<nvar; ivar++)
       {
         zvar = TEST;
         if (! flag_gibbs)
         {
           zvar = dbin->getVariable(iech,ivar);
-          if (debug_query("simulate")) tab_printg(NULL,1,GD_J_RIGHT,zvar);
+          if (debug_query("simulate")) tab_printg(NULL,1,EJustify::RIGHT,zvar);
         }
         for (isimu=0; isimu<nbsimu; isimu++)
         {
           if (flag_gibbs)
           {
             zvar = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,ivar,0,nbsimu,nvar);
-            if (debug_query("simulate")) tab_printg(NULL,1,GD_J_RIGHT,zvar);
+            if (debug_query("simulate")) tab_printg(NULL,1,EJustify::RIGHT,zvar);
           }
           simval = dbin->getSimvar(LOC_SIMU, iech, isimu, ivar, icase,
               nbsimu, nvar);
@@ -1921,7 +1923,7 @@ static void st_difference(Db     *dbin,
           }
           if (debug_query("simulate") && !FFFF(zvar))
           {
-            tab_printg(NULL, 1, GD_J_RIGHT, simval);
+            tab_printg(NULL, 1, EJustify::RIGHT, simval);
           }
           simunc = (!FFFF(zvar) && !FFFF(simval)) ?  simval - zvar : TEST;
           dbin->setSimvar(LOC_SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
@@ -1945,10 +1947,10 @@ static void st_difference(Db     *dbin,
       for (isimu=0; isimu<nbsimu; isimu++)
       {
         (void) sprintf(string,"Data%d",isimu+1);
-        tab_prints(NULL,1,GD_J_RIGHT,string);
+        tab_prints(NULL,1,EJustify::RIGHT,string);
         
         (void) sprintf(string,"Simulation%d",isimu+1);
-        tab_prints(NULL,1,GD_J_RIGHT,string);
+        tab_prints(NULL,1,EJustify::RIGHT,string);
       }
       message("\n");
     }
@@ -1958,18 +1960,18 @@ static void st_difference(Db     *dbin,
     for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       if (! dbin->isActive(iech)) continue;
-      if (debug_query("simulate")) tab_printi(NULL,1,GD_J_RIGHT,iech+1);
+      if (debug_query("simulate")) tab_printi(NULL,1,EJustify::RIGHT,iech+1);
       for (isimu=0; isimu<nbsimu; isimu++)
       {
         zvar = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1);
         if (debug_query("simulate"))
         {
-          tab_printg(NULL,1,GD_J_RIGHT,zvar);
+          tab_printg(NULL,1,EJustify::RIGHT,zvar);
           if (! FFFF(zvar)) 
           {
             simval = dbin->getSimvar(LOC_SIMU,iech,isimu,0,icase,
                                 nbsimu,1);
-            tab_printg(NULL,1,GD_J_RIGHT,simval);
+            tab_printg(NULL,1,EJustify::RIGHT,simval);
           }
         }
         if (! FFFF(zvar)) 
@@ -4071,7 +4073,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Convert facies into gaussian at data */
   /****************************************/
 
-  proportion_rule_process(propdef,PROCESS_COPY);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   if (flag_cond)
   {
@@ -4499,9 +4501,9 @@ GEOSLIB_API int simbipgs(Db       *dbin,
     }
 
     if (ipgs == 0)
-      proportion_rule_process(propdef,PROCESS_MARGINAL);
+      proportion_rule_process(propdef,EProcessOper::MARGINAL);
     else
-      proportion_rule_process(propdef,PROCESS_CONDITIONAL);
+      proportion_rule_process(propdef,EProcessOper::CONDITIONAL);
 
     ModCat.rule  = rules[ipgs];
     ModCat.ipgs  = ipgs;
@@ -5767,7 +5769,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   /* Convert facies into gaussian at data */
   /****************************************/
 
-  proportion_rule_process(propdef,PROCESS_COPY);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   /* Initialize the Gibbs calculations */
 

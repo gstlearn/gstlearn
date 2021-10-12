@@ -333,10 +333,10 @@ int RuleShift::gaus2facResult(PropDef *propdef,
 ** \param[in]  propdef    PropDef structure
 ** \param[in]  dbin       Db structure
 ** \param[in]  dbout      Db grid structure
-** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
+** \param[in]  isimu      Rank of the simulation (if EProcessOper::CONDITIONAL)
 ** \param[in]  igrf       Rank of the GRF
 ** \param[in]  ipgs       Rank of the GS
-** \param[in]  nbsimu     Number of simulations (PROCESS_CONDITIONAL)
+** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
 **
 *****************************************************************************/
 int RuleShift::evaluateBounds(PropDef *propdef,

@@ -4193,7 +4193,7 @@ static int st_variogram_pgs_nostat(Db*       db,
   if (propdef == (PropDef *) NULL) goto label_end;
   flag_correl = ngrf > 1 && (opt_correl != 2 || rule->getRho() != 0);
   if (rule->particularities(db,dbprop,NULL,1,flag_stat)) goto label_end;
-  proportion_rule_process(propdef,0);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   /**************************/
   /* Allocate the variables */
@@ -5031,7 +5031,7 @@ GEOSLIB_API Vario* model_pgs(Db* db,
 
   if (rule->particularities(db,dbprop,new_model,0,flag_stat)) goto label_end;
 
-  proportion_rule_process(propdef,0);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   /* Pre-calculation of integrals: Define the structure */
 
@@ -5125,7 +5125,7 @@ static int st_variogram_pgs_stat(Db     *db,
                               NULL,NULL,propcst,propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
   if (rule->particularities(NULL,NULL,NULL,1,flag_stat)) goto label_end;
-  proportion_rule_process(propdef,0);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   /****************************/
   /* Perform the calculations */
@@ -5372,7 +5372,7 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
 
   propdef = proportion_manage(1,1,flag_stat,NGRF,0,NCOLOR,0,db,dbprop,propcst,propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
-  proportion_rule_process(propdef,0);
+  proportion_rule_process(propdef,EProcessOper::COPY);
   
   /* Pre-calculation of integrals: Define the structure */
 
