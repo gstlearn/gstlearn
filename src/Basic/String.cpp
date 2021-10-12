@@ -460,7 +460,7 @@ String suppressAnyBlanks(String value)
  */
 int askInt(const String& text, int defval)
 {
-  bool nodef = ! IFFFF(defval);
+  bool hasDefault = ! IFFFF(defval);
   int answer = defval;
   std::cin.exceptions(std::istream::failbit|
                       std::istream::badbit);
@@ -468,16 +468,35 @@ int askInt(const String& text, int defval)
   try
   {
     String str;
-    do {
-      if (nodef)
+    std::stringstream ss;
+
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
         std::cout << text << " (Default = " << defval << ") : ";
       else
         std::cout << text << " : ";
+
+      // Read the answer
       std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Try casting in integer
+      ss.str(str);
+      if (ss >> answer) break;
+
+      std::cout << "The answer is not a valid Integer" << std::endl;
+      ss.clear();
+      ss.str("");
+      str.clear();
     }
-    while (! nodef && str.empty());
-    std::stringstream sstr(str);
-    sstr >> answer; // TODO verifier que le resultat et bien un entier
   }
   catch(std::istream::failure e)
   {
@@ -493,7 +512,7 @@ int askInt(const String& text, int defval)
  */
 double askDouble(const String& text, double defval)
 {
-  bool nodef = ! FFFF(defval);
+  bool hasDefault = ! FFFF(defval);
   double answer = defval;
   std::cin.exceptions(std::istream::failbit|
                       std::istream::badbit);
@@ -501,16 +520,35 @@ double askDouble(const String& text, double defval)
   try
   {
     String str;
-    do {
-      if (nodef)
+    std::stringstream ss;
+
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
         std::cout << text << " (Default = " << defval << ") : ";
       else
         std::cout << text << " : ";
+
+      // Read the answer
       std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Try casting in integer
+      ss.str(str);
+      if (ss >> answer) break;
+
+      std::cout << "The answer is not a valid Double" << std::endl;
+      ss.clear();
+      ss.str("");
+      str.clear();
     }
-    while (! nodef && str.empty());
-    std::stringstream sstr(str);
-    sstr >> answer; // TODO: verifier que le resultat est bien un reel, sinon???
   }
   catch(std::istream::failure e)
   {
