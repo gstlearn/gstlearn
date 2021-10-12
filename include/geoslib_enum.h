@@ -306,13 +306,13 @@ typedef enum
   MEMBER_RHS = 1,        //!< Right-hand Side of the Kriging System
   MEMBER_VAR = 2,        //!< Variance of the Kriging System
 } ENUM_MEMBERS;  // Now see ECalcMember.hpp
-*/
+
 typedef enum
 {
   KOPTION_PONCTUAL = 0,     //!< Punctual estimation
   KOPTION_BLOCK = 1,        //!< Block average estimation
   KOPTION_DRIFT = 2,        //!< Large scale Drift estimation
-} ENUM_KOPTIONS;
+} ENUM_KOPTIONS;  // Now see EKrigOpt.hpp
 
 typedef enum
 {
@@ -322,8 +322,8 @@ typedef enum
   ANAM_EMPIRICAL = 2,      //!< Empirical anamorphosis
   ANAM_DISCRETE_DD = 3,    //!< Discrete anamorphosis
   ANAM_DISCRETE_IR = 4,    //!< Discrete Indicator Residuals anamorphosis
-} ENUM_ANAMS;
-
+} ENUM_ANAMS;   /: Now see EAnam.hpp
+*/
 typedef enum
 {
   CONS_UNKNOWN = 0,
@@ -335,7 +335,7 @@ typedef enum
   CONS_T_RANGE = 6,  //!< Non-stationary tapering range
   CONS_VELOCITY = 7, //!< Non-stationary velocity (advection)
   CONS_SPHEROT = 8,  //!< Non-stationary rotation angle for Sphere
-} ENUM_CONS;
+} ENUM_CONS; // Now see EConsElem.hpp
 
 typedef enum
 {
@@ -343,7 +343,7 @@ typedef enum
   CONS_TYPE_DEFAULT = 0, //!< Default parameter
   CONS_TYPE_UPPER = 1,   //!< Upper Bound
   CONS_TYPE_EQUAL = 2,   //!< Equality
-} ENUM_CONS_TYPE;
+} ENUM_CONS_TYPE; // Now see EConsType.hpp
 
 typedef enum
 {

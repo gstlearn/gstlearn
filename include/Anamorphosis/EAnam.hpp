@@ -8,26 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Neigh/ENeigh.hpp"
-#include "Db/ELoadBy.hpp"
-#include "Db/ELoc.hpp"
-#include "Covariances/ECov.hpp"
-#include "Covariances/ECalcMember.hpp"
-#include "Drifts/EDrift.hpp"
-#include "Model/EModelProperty.hpp"
-#include "Variogram/ECalcVario.hpp"
-#include "LithoRule/ERule.hpp"
-#include "Enum/EKrigOpt.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#pragma once
 
-ENUM_DEFINE(ENUM_LOAD_BY)
-ENUM_DEFINE(ENUM_NEIGH)
-ENUM_DEFINE(ENUM_LOC)
-ENUM_DEFINE(ENUM_COV)
-ENUM_DEFINE(ENUM_DRIFT)
-ENUM_DEFINE(ENUM_CALC_VARIO)
-ENUM_DEFINE(ENUM_MODEL_PROPERTY)
-ENUM_DEFINE(ENUM_RULE)
-ENUM_DEFINE(ENUM_CALC_MEMBER)
-ENUM_DEFINE(ENUM_KRIG_OPT)
-ENUM_DEFINE(ENUM_ANAM)
+#include "Enum/AEnum.hpp"
+
+#define ENUM_ANAM EAnam, UNDEFINED, \
+                  UNDEFINED,  -1,  "Undefined anamorphosis", \
+                  EXTERNAL,    0,  "External anamorphosis", \
+                  HERMITIAN,   1,  "Hermitian anamorphosis", \
+                  EMPIRICAL,   2,  "Empirical anamorphosis", \
+                  DISCRETE_DD, 3,  "Discrete anamorphosis", \
+                  DISCRETE_IR, 4,  "Discrete Indicator Residuals anamorphosis"
+
+ENUM_DECLARE(ENUM_ANAM)

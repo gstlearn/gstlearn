@@ -22,7 +22,7 @@
 #define MATI(i,j)        mati[(i)*nclass+(j)]
 
 AnamDiscreteDD::AnamDiscreteDD()
-    : AnamDiscrete(ANAM_DISCRETE_DD),
+    : AnamDiscrete(EAnam::DISCRETE_DD),
       _mu(1.),
       _sCoef(0.),
       _maf(),

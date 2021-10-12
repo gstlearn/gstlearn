@@ -3049,7 +3049,7 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   pot_env.ndim = dbiso->getNDim();
   if (pot_env.ndim > 3)
   {
@@ -3194,7 +3194,7 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
 label_end:
   st_pot_env_manage(-1,verbose,&pot_env);
   st_pot_ext_manage(-1,&pot_ext,0,0.,NULL);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   lhs           = (double *) mem_free((char *) lhs);
   zval          = (double *) mem_free((char *) zval);
   zdualk        = (double *) mem_free((char *) zdualk);
@@ -3296,7 +3296,7 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   pot_env.ndim = dbiso->getNDim();
   if (db_extension_diag(dbiso,&delta)) goto label_end;
   delta /= 1000.;
@@ -3494,7 +3494,7 @@ label_end:
   if (flag_tempere) dbout->deleteFieldByLocator(LOC_Z);
   st_pot_env_manage(-1,verbose,&pot_env);
   st_pot_ext_manage(-1,&pot_ext,0,0.,NULL);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   lhs           = (double *) mem_free((char *) lhs);
   zval          = (double *) mem_free((char *) zval);
   zdualk        = (double *) mem_free((char *) zdualk);
@@ -3546,7 +3546,7 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   pot_env.ndim = dbiso->getNDim();
   if (pot_env.ndim > 3)
   {
@@ -3666,7 +3666,7 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
 label_end:
   st_pot_env_manage(-1,verbose,&pot_env);
   st_pot_ext_manage(-1,&pot_ext,0,0.,NULL);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   lhs           = (double *) mem_free((char *) lhs);
   zval          = (double *) mem_free((char *) zval);
   zdualk        = (double *) mem_free((char *) zdualk);

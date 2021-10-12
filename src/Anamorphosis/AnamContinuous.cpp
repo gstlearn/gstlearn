@@ -14,7 +14,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "geoslib_f.h"
 
-AnamContinuous::AnamContinuous(int type)
+AnamContinuous::AnamContinuous(const EAnam& type)
     : Anam(type),
       _az(),
       _ay(),

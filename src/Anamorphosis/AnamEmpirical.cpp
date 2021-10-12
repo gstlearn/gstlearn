@@ -23,7 +23,7 @@
 #define ZDC(i)          (_tDisc[(i) + ndisc_util])
 
 AnamEmpirical::AnamEmpirical(int ndisc, double sigma2e)
-    : AnamContinuous(ANAM_EMPIRICAL),
+    : AnamContinuous(EAnam::EMPIRICAL),
       _nDisc(ndisc),
       _sigma2e(sigma2e),
       _tDisc()

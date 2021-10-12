@@ -2045,7 +2045,7 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
   nlayers  = model->getVariableNumber();
   nechmax  = dbin->getSampleNumber();
   ptime    = (match_time) ? LOC_F : LOC_TIME;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (dbin->getNDim() != 2)
   {
     messerr("The input Db must be defined in 2-D");
@@ -2229,7 +2229,7 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
   error = 0;
 
 label_end:
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,dbin,dbout,&iptr);
   seltab    = (int    *) mem_free((char *) seltab);
   prop1     = (double *) mem_free((char *) prop1);
@@ -2803,7 +2803,7 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
   nlayers  = model->getVariableNumber();
   nechmax  = dbin->getSampleNumber();
   ptime    = (match_time) ? LOC_F : LOC_TIME;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (dbin->getNDim() != 2)
   {
     messerr("The input Db must be defined in 2-D");
@@ -2900,7 +2900,7 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
   error = 0;
 
 label_end:
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,dbin,dbout,&iptr);
   seltab    = (int    *) mem_free((char *) seltab);
   props     = (double *) mem_free((char *) props);

@@ -16,7 +16,7 @@
 #define RESIDUALS(icut,iech) (residuals[iech * ncut + icut])
 
 AnamDiscreteIR::AnamDiscreteIR()
-    : AnamDiscrete(ANAM_DISCRETE_IR),
+    : AnamDiscrete(EAnam::DISCRETE_IR),
       _rCoef(0.)
 {
 }

@@ -14,7 +14,7 @@
 
 #define ANAM_KD_NELEM 6
 
-AnamDiscrete::AnamDiscrete(int type)
+AnamDiscrete::AnamDiscrete(const EAnam& type)
     : Anam(type),
       _nCut(0),
       _nElem(ANAM_KD_NELEM),

@@ -15,7 +15,7 @@ class IClonable{};
 %template(VectorVectorInt)      std::vector< std::vector< int > >;
 %template(VectorVectorDouble)   std::vector< std::vector< double > >;
 
-%template(VectorEnumCovs)       std::vector< ECov >;
+%template(VectorEnumCovs)       std::vector< ECov >;    // Not a pointers list
 
 %template(VectorCTable)         std::vector<CTable*>;
 %template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
@@ -46,6 +46,7 @@ class IClonable{};
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 %include Enum/AEnum.hpp
+%include Enum/EKrigOpt.hpp
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
 %include Basic/ASerializable.hpp
@@ -191,6 +192,7 @@ class IClonable{};
 %include Anamorphosis/AnamEmpirical.hpp
 %include Anamorphosis/AnamDiscreteDD.hpp
 %include Anamorphosis/AnamDiscreteIR.hpp
+%include Anamorphosis/EAnam.hpp
 %include Morpho/Morpho.hpp
 %include Polygon/Polygons.hpp
 %include Polygon/PolySet.hpp

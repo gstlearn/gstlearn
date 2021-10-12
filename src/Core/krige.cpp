@@ -1402,7 +1402,7 @@ static void st_block_discretize(int mode,
 **
 ** \param[in]  mode        1 for allocation; -1 for deallocation
 ** \param[in]  flag_check  1 if the file should be checked
-** \param[in]  calcul      Type of calculation (::ENUM_KOPTIONS)
+** \param[in]  calcul      Type of calculation (EKrigOpt)
 ** \param[in]  flag_rand   0 if the second discretization is regular
 **                         1 if the second point must be randomized
 ** \param[in]  ndisc       Discretization parameters (or NULL)
@@ -1410,11 +1410,11 @@ static void st_block_discretize(int mode,
 ** \remark  This function manages the global structure KOPTION
 **
 *****************************************************************************/
-GEOSLIB_API int krige_koption_manage(int       mode,
-                                     int       flag_check,
-                                     int       calcul,
-                                     int       flag_rand,
-                                     VectorInt ndisc)
+GEOSLIB_API int krige_koption_manage(int             mode,
+                                     int             flag_check,
+                                     const EKrigOpt& calcul,
+                                     int             flag_rand,
+                                     VectorInt       ndisc)
 {
   int ndim,error;
 
@@ -1451,13 +1451,13 @@ GEOSLIB_API int krige_koption_manage(int       mode,
 
     /* Block discretization case */
 
-    switch (KOPTION->calcul)
+    switch (KOPTION->calcul.toEnum())
     {
-      case KOPTION_PONCTUAL:
-      case KOPTION_DRIFT:
+      case EKrigOpt::E_PONCTUAL:
+      case EKrigOpt::E_DRIFT:
         break;
 
-      case KOPTION_BLOCK:
+      case EKrigOpt::E_BLOCK:
 
         /* Preliminary checks */
 
@@ -2228,9 +2228,9 @@ static void st_rhs(Model   *model,
 
   for (iech=0; iech<nech; iech++)
   {
-    switch (KOPTION->calcul)
+    switch (KOPTION->calcul.toEnum())
     {
-      case KOPTION_PONCTUAL:
+      case EKrigOpt::E_PONCTUAL:
         nscale = 1;
         model_covtab_init(1,model,covtab);
         for (idim=0; idim<DBIN->getNDim(); idim++)
@@ -2245,7 +2245,7 @@ static void st_rhs(Model   *model,
         st_cov_dg(model,0,0,0,ECalcMember::RHS,-1,1.,rank[iech],-1,d1,covtab);
         break;
         
-      case KOPTION_BLOCK:
+      case EKrigOpt::E_BLOCK:
         nscale = KOPTION->ntot;
         model_covtab_init(1,model,covtab);
         for (i=0; i<nscale; i++)
@@ -2257,7 +2257,7 @@ static void st_rhs(Model   *model,
         }
         break;
           
-      case KOPTION_DRIFT:
+      case EKrigOpt::E_DRIFT:
         nscale = 1;
         for (int ivar_m=0; ivar_m<nvar_m; ivar_m++)
           for (int jvar_m=0; jvar_m<nvar_m; jvar_m++)
@@ -2444,13 +2444,13 @@ GEOSLIB_API void krige_rhs_print(int      nvar,
 
   if (KOPTION != (Koption *) NULL)
   {
-    switch (KOPTION->calcul)
+    switch (KOPTION->calcul.toEnum())
     {
-      case KOPTION_PONCTUAL:
+      case EKrigOpt::E_PONCTUAL:
         message ("Ponctual Estimation\n");
         break;
 
-      case KOPTION_BLOCK:
+      case EKrigOpt::E_BLOCK:
         message ("Block Estimation : Discretization = ");
         for (idim=0; idim<KOPTION->ndim; idim++) {
           if (idim != 0) message(" x ");
@@ -2459,7 +2459,7 @@ GEOSLIB_API void krige_rhs_print(int      nvar,
         message("\n");
         break;
 
-      case KOPTION_DRIFT:
+      case EKrigOpt::E_DRIFT:
         message ("Drift Estimation\n");
         break;
     }
@@ -3206,7 +3206,7 @@ static int st_image_kriging(Model *model,
 
   /* Prepare the Koption structure */
 
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) return(1);
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) return(1);
 
   /* Prepare the neighborhood */
 
@@ -3244,7 +3244,7 @@ static int st_image_kriging(Model *model,
     stdv = sqrt(stdv);
   }
 
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   *nred_out = nred;
   *neq_out  = neq;
   return(0);
@@ -3382,7 +3382,7 @@ static void st_save_keypair_weights(int     status,
 ** \param[in]  dbout       Output Db structure
 ** \param[in]  model       Model structure
 ** \param[in]  neigh       Neigh structure
-** \param[in]  calcul      Kriging calculation option (::ENUM_KOPTIONS)
+** \param[in]  calcul      Kriging calculation option (EKrigOpt)
 ** \param[in]  ndisc       Array giving the discretization counts
 ** \param[in]  flag_est    Option for storing the estimation
 ** \param[in]  flag_std    Option for storing the standard deviation
@@ -3393,17 +3393,17 @@ static void st_save_keypair_weights(int     status,
 ** \param[in]  namconv     Naming convention
 **
 *****************************************************************************/
-GEOSLIB_API int kriging(Db *dbin,
-                        Db *dbout,
-                        Model *model,
-                        Neigh *neigh,
-                        int calcul,
-                        int flag_est,
-                        int flag_std,
-                        int flag_varz,
-                        VectorInt ndisc,
-                        VectorInt rank_colcok,
-                        VectorDouble matCL,
+GEOSLIB_API int kriging(Db*              dbin,
+                        Db*              dbout,
+                        Model*           model,
+                        Neigh*           neigh,
+                        const EKrigOpt&  calcul,
+                        int              flag_est,
+                        int              flag_std,
+                        int              flag_varz,
+                        VectorInt        ndisc,
+                        VectorInt        rank_colcok,
+                        VectorDouble     matCL,
                         NamingConvention namconv)
 {
   int iext,error,status,nech,neq,nred,nvar,flag_new_nbgh,nfeq;
@@ -3629,7 +3629,7 @@ static int st_xvalid_unique(Db *dbin,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
 
   /* Loop on the targets to be processed */
 
@@ -3710,7 +3710,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
@@ -3766,7 +3766,7 @@ GEOSLIB_API int xvalid(Db    *db,
     ret_code = st_xvalid_unique(db, model, neigh, flag_est, flag_std,
                                 rank_colcok, namconv);
   else
-    ret_code = kriging(db, db, model, neigh, KOPTION_PONCTUAL, flag_est,
+    ret_code = kriging(db, db, model, neigh, EKrigOpt::PONCTUAL, flag_est,
                        flag_std, 0, VectorInt(), rank_colcok, VectorDouble(),
                        namconv);
   neigh->setFlagXvalid(0);
@@ -3850,7 +3850,7 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (FLAG_STD) st_variance0(model,nvar,VectorDouble());
 
   /* Loop on the targets to be processed */
@@ -3922,7 +3922,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
@@ -4007,7 +4007,7 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (FLAG_STD) st_variance0(model,nvar,VectorDouble());
 
   /* Loop on the targets to be processed */
@@ -4073,7 +4073,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   if (iptr_dat >= 0)
@@ -4429,7 +4429,7 @@ GEOSLIB_API int kribayes_f(Db *dbin,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (FLAG_STD) st_variance0(model,nvar,VectorDouble());
 
   /* Solve the Bayesian estimation of the Drift coefficients */
@@ -4513,7 +4513,7 @@ label_end:
   (void) bayes_manage(-1,0,model,&rmean,&rcov,&smean);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
@@ -4690,7 +4690,7 @@ GEOSLIB_API int krigsim(const char *strloc,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (FLAG_STD) st_variance0(model,nvar,VectorDouble());
 
   /* Solve the Bayesian estimation of the Drift coefficients */
@@ -4794,7 +4794,7 @@ label_end:
   }
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
@@ -5063,7 +5063,7 @@ label_end:
 ** \param[in]  model         Model structure
 ** \param[in]  ivar          Rank of the target variable
 ** \param[in]  flag_verbose  1 for a verbose output
-** \param[in]  calcul        KOPTION_PONCTUAL or KOPTION_DRIFT
+** \param[in]  calcul        EKrigOpt::PONCTUAL or EKrigOpt::DRIFT
 ** \param[in]  seed          Seed for the random number generator
 ** \param[in]  surface       surface of the integration polygon
 **                           (all the grid if not defined)
@@ -5075,18 +5075,18 @@ label_end:
 **                       (Dimension: nvar * nech)
 **
 *****************************************************************************/
-GEOSLIB_API int global_kriging(Db     *dbin,
-                               Db     *dbout,
-                               Model  *model,
-                               int     ivar,
-                               int     flag_verbose,
-                               int     calcul,
-                               int     seed,
-                               double  surface,
-                               double *zest,
-                               double *sse,
-                               double *cvgeo,
-                               double *weights)
+GEOSLIB_API int global_kriging(Db*             dbin,
+                               Db*             dbout,
+                               Model*          model,
+                               int             ivar,
+                               int             flag_verbose,
+                               const EKrigOpt& calcul,
+                               int             seed,
+                               double          surface,
+                               double*         zest,
+                               double*         sse,
+                               double*         cvgeo,
+                               double*         weights)
 {
   double  *rhs_tot,estim,stdv,cvv,ldum;
   int      error,i,np,ng,size,nbfl,status,nech,nred,neq,nfeq,nvar;
@@ -6036,7 +6036,7 @@ GEOSLIB_API int anakexp_f(Db     *db,
 
   /* Prepare the Koption structure */
 
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) return(1);
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) return(1);
 
   /* Preliminary checks */
 
@@ -6156,7 +6156,7 @@ GEOSLIB_API int anakexp_f(Db     *db,
 
 label_end:
   debug_index(0);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   st_krige_manage_basic(-1,size,size,1,nfeq);
   return(error);
 }
@@ -6720,7 +6720,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
 
   /* Prepare the Koption structure */
 
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) return(1);
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) return(1);
 
   /* Preliminary checks */
 
@@ -6898,7 +6898,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
 
 label_end:
   debug_index(0);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   st_krige_manage_basic(-1,size_nei,size_nei,1,nfeq);
   num_tot = (int    *) mem_free((char *) num_tot);
   nei_cur = (int    *) mem_free((char *) nei_cur);
@@ -7218,7 +7218,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvarin,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
 
   /* Loop on the variables */
 
@@ -7330,7 +7330,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvarin,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   neigh_stop();
   icols  = (int    *) mem_free((char *) icols);
   active = (int    *) mem_free((char *) active);
@@ -7562,7 +7562,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvarmod,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
 
   /* Loop on the target grid nodes to be processed */
 
@@ -7773,7 +7773,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvarmod,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   neigh_stop();
   icols   = (int    *) mem_free((char *) icols);
   lback   = (double *) mem_free((char *) lback);
@@ -7796,7 +7796,7 @@ label_end:
 ** \param[in]  model     Model structure
 ** \param[in]  neigh     Neigh structrue
 ** \param[in]  iech0     Rank of the target sample
-** \param[in]  calcul    Kriging calculation option (::ENUM_KOPTIONS)
+** \param[in]  calcul    Kriging calculation option (EKrigOpt)
 ** \param[in]  ndisc     Array giving the discretization counts
 **
 ** \param[out] ndim_ret  Output space dimension
@@ -7805,17 +7805,17 @@ label_end:
 ** \param[out] nrhs_ret  Output number of RHS
 **
 *****************************************************************************/
-GEOSLIB_API int krigtest_dimension(Db    *dbin,
-                                   Db    *dbout,
-                                   Model *model,
-                                   Neigh *neigh,
-                                   int    iech0,
-                                   int    calcul,
-                                   VectorInt ndisc,
-                                   int   *ndim_ret,
-                                   int   *nech_ret,
-                                   int   *nred_ret,
-                                   int   *nrhs_ret)
+GEOSLIB_API int krigtest_dimension(Db*             dbin,
+                                   Db*             dbout,
+                                   Model*          model,
+                                   Neigh*          neigh,
+                                   int             iech0,
+                                   const EKrigOpt& calcul,
+                                   VectorInt       ndisc,
+                                   int*            ndim_ret,
+                                   int*            nech_ret,
+                                   int*            nred_ret,
+                                   int*            nrhs_ret)
 {
   int iext,error,status,nech,neq,nred,nvar;
 
@@ -7888,7 +7888,7 @@ label_end:
 ** \param[in]  model     Model structure
 ** \param[in]  neigh     Neigh structrue
 ** \param[in]  iech0     Rank of the target sample
-** \param[in]  calcul    Kriging calculation option (::ENUM_KOPTIONS)
+** \param[in]  calcul    Kriging calculation option (EKrigOpt)
 ** \param[in]  ndisc     Array giving the discretization counts
 **
 ** \param[out] nred_out  Output number of equations
@@ -7902,22 +7902,22 @@ label_end:
 ** \param[out] var_out   Output variance matrix (Dimension: nrhs_out * nrhs_out)
 **
 *****************************************************************************/
-GEOSLIB_API int krigtest_f(Db     *dbin,
-                         Db     *dbout,
-                         Model  *model,
-                         Neigh  *neigh,
-                         int     iech0,
-                         int     calcul,
-                         VectorInt ndisc,
-                         int     nred_out,
-                         int     nrhs_out,
-                         double *xyz_out,
-                         double *data_out,
-                         double *lhs_out,
-                         double *rhs_out,
-                         double *wgt_out,
-                         double *zam_out,
-                         double *var_out)
+GEOSLIB_API int krigtest_f(Db*             dbin,
+                           Db*             dbout,
+                           Model*          model,
+                           Neigh*          neigh,
+                           int             iech0,
+                           const EKrigOpt& calcul,
+                           VectorInt       ndisc,
+                           int             nred_out,
+                           int             nrhs_out,
+                           double*         xyz_out,
+                           double*         data_out,
+                           double*         lhs_out,
+                           double*         rhs_out,
+                           double*         wgt_out,
+                           double*         zam_out,
+                           double*         var_out)
 {
   int iext,ivar,jvar,ecr,status,nech,neq,nred,nvar,nfeq,iech,idim,ndim,error;
   double ldum;
@@ -8131,7 +8131,7 @@ GEOSLIB_API int kriggam_f(Db    *dbin,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (FLAG_STD) st_variance0(model,nvar,VectorDouble());
 
   /* Loop on the targets to be processed */
@@ -8202,7 +8202,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   neigh_stop();
   return(error);
 }
@@ -8280,7 +8280,7 @@ GEOSLIB_API int krigcell_f(Db    *dbin,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,0,KOPTION_BLOCK,1,ndisc)) goto label_end;
+  if (krige_koption_manage(1,0,EKrigOpt::BLOCK,1,ndisc)) goto label_end;
 
   /* Loop on the targets to be processed */
 
@@ -8349,7 +8349,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,0,KOPTION_BLOCK,1,ndisc);
+  (void) krige_koption_manage(-1,0,EKrigOpt::BLOCK,1,ndisc);
   (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
@@ -8442,10 +8442,10 @@ label_end:
 **
 ** TODO : Check if the following remark is up to date!
 ** \remark The value 'KOPTION->calcul' must be set to:
-** \remark - KOPTION_PONCTUAL for point-block estimation (flag_block = TRUE)
-** \remark - KOPTION_BLOCK for point estimation
+** \remark - EKrigOpt::PONCTUAL for point-block estimation (flag_block = TRUE)
+** \remark - EKrigOpt::BLOCK for point estimation
 ** \remark Nevertheless, for Point-Block model, if dbgrid is a grid of Panels
-** \remark 'KOPTION->calcul' is set to KOPTION_BLOCK to provoke the discretization
+** \remark 'KOPTION->calcul' is set to EKrigOpt::BLOCK to provoke the discretization
 ** \remark of Panel into SMUs.
 **  
 *****************************************************************************/
@@ -8497,7 +8497,7 @@ GEOSLIB_API int dk_f(Db *dbin,
   }
 
   if (IFFFF(nfactor)) nfactor = modtrs.getAnamNClass();
-  if (modtrs.getAnam()->getType() == ANAM_HERMITIAN)
+  if (modtrs.getAnam()->getType() == EAnam::HERMITIAN)
   {
     /* In the gaussian case, calculate the 'nfactor-1' factors */
 
@@ -8517,12 +8517,12 @@ GEOSLIB_API int dk_f(Db *dbin,
     goto label_end;
   }
   flag_block = 0;
-  if (modtrs.getAnam()->getType() == ANAM_HERMITIAN)
+  if (modtrs.getAnam()->getType() == EAnam::HERMITIAN)
   {
     AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(modtrs.getAnam());
     if (anam_hermite->getRCoef() < 1.) flag_block = 1;
   }
-  else if (modtrs.getAnam()->getType() == ANAM_DISCRETE_DD)
+  else if (modtrs.getAnam()->getType() == EAnam::DISCRETE_DD)
   {
     AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(modtrs.getAnam());
     if (anam_discrete_DD->getSCoef() > 0.) flag_block = 1;
@@ -8557,18 +8557,18 @@ GEOSLIB_API int dk_f(Db *dbin,
   {
     if (flag_panel)
     {
-      if (krige_koption_manage(1,1,KOPTION_BLOCK,1,nmult)) goto label_end;
-      KOPTION->calcul = KOPTION_PONCTUAL;
+      if (krige_koption_manage(1,1,EKrigOpt::BLOCK,1,nmult)) goto label_end;
+      KOPTION->calcul = EKrigOpt::PONCTUAL;
       nb_mult = KOPTION->ntot;
     }
     else
     {
-      if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+      if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
     }
   }    
   else
   {
-    if (krige_koption_manage(1,1,KOPTION_BLOCK,0,ndisc)) goto label_end;
+    if (krige_koption_manage(1,1,EKrigOpt::BLOCK,0,ndisc)) goto label_end;
   }
 
   /* Centering the data */
@@ -8710,7 +8710,7 @@ label_end:
   varloc  = (int    *) mem_free((char *) varloc);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,model->getVariableNumber(),model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,ndisc);
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,ndisc);
   neigh_stop();
   return(error);
 }
@@ -9899,7 +9899,7 @@ static int st_declustering_2(Db     *db,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_DRIFT,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::DRIFT,1,VectorInt())) goto label_end;
 
   /* Prepare the Neighborhood */
 
@@ -9949,7 +9949,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_DRIFT,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::DRIFT,1,VectorInt());
   neigh_stop();
   neigh = neigh_free(neigh);
   return(error);
@@ -9999,7 +9999,7 @@ static int st_declustering_3(Db     *db,
   if (neigh_start(DBIN,neigh)) goto label_end;
   if (st_model_manage(1,model)) goto label_end;
   if (st_krige_manage(1,nvar,model,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_BLOCK,1,ndisc)) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::BLOCK,1,ndisc)) goto label_end;
 
   /* Loop on the grid cells */
 
@@ -10056,7 +10056,7 @@ label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_BLOCK,1,ndisc);
+  (void) krige_koption_manage(-1,1,EKrigOpt::BLOCK,1,ndisc);
   neigh_stop();
   return(error);
 }
@@ -10824,7 +10824,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
 
   if (st_model_manage(1,model_dat)) goto label_end;
   if (st_krige_manage(1,nvar,model_dat,neigh)) goto label_end;
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
 
   /* Constitute the Data vector */
 
@@ -11016,7 +11016,7 @@ label_end:
   lambda = (double *) mem_free((char *) lambda);
   (void) st_model_manage(-1,model_dat);
   (void) st_krige_manage(-1,1,model_dat,neigh);
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   neigh_stop();
   neigh = neigh_free(neigh);
   return(error);

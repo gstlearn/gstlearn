@@ -534,9 +534,9 @@ static void st_anam_point_to_block_discrete_IR(Anam *anam)
 ** \param[in]  flag_bound  1 if the bounds must be applied; 0 otherwise
 **
 ** \remark  The procedure checks the argument mode of Anam structure
-** \remark  - does nothing and simply returns y (ANAM_UNDEFINED)
-** \remark  - calls the external function y2z_function (ANAM_EXTERNAL)
-** \remark  - performs the internal transform (ANAM_HERMITIAN)
+** \remark  - does nothing and simply returns y (EAnam::UNDEFINED)
+** \remark  - calls the external function y2z_function (EAnam::EXTERNAL)
+** \remark  - performs the internal transform (EAnam::HERMITIAN)
 ** 
 *****************************************************************************/
 GEOSLIB_API double anam_y2z(Anam   *anam,
@@ -544,18 +544,18 @@ GEOSLIB_API double anam_y2z(Anam   *anam,
                             int     flag_bound)
 {
   if (anam == (Anam *) NULL) return(y);
-  if (anam->getType() == ANAM_HERMITIAN)
+  if (anam->getType() == EAnam::HERMITIAN)
   {
     AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(anam);
     anam_hermite->setFlagBound(flag_bound);
     return(anam_hermite->GaussianToRawValue(y));
   }
-  else if (anam->getType() == ANAM_EMPIRICAL)
+  else if (anam->getType() == EAnam::EMPIRICAL)
   {
     AnamEmpirical* anam_empirical = dynamic_cast<AnamEmpirical*>(anam);
     return(anam_empirical->GaussianToRawValue(y));
   }
-  else if (anam->getType() == ANAM_EXTERNAL)
+  else if (anam->getType() == EAnam::EXTERNAL)
   {
     AnamUser* anam_user = dynamic_cast<AnamUser*>(anam);
     return(anam_user->GaussianToRawValue(y));
@@ -1140,11 +1140,11 @@ GEOSLIB_API VectorDouble anam_selectivity(Anam *anam,
 
   /* Dispatch according to the anamorphosis */
 
-  if (anam->getType() == ANAM_HERMITIAN)
+  if (anam->getType() == EAnam::HERMITIAN)
   {
     st_anam_selectivity_hermitian(anam,verbose,nclass,zcut,calest);
   }
-  else if (anam->getType() == ANAM_DISCRETE_DD)
+  else if (anam->getType() == EAnam::DISCRETE_DD)
   {
     AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
     if (nclass != anam_discrete_DD->getNClass())
@@ -1155,7 +1155,7 @@ GEOSLIB_API VectorDouble anam_selectivity(Anam *anam,
     }
     st_anam_selectivity_discrete_DD(anam,flag_correct,verbose,calest);
   }
-  else if (anam->getType() == ANAM_DISCRETE_IR)
+  else if (anam->getType() == EAnam::DISCRETE_IR)
   {
     AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
     if (nclass != anam_discrete_IR->getNClass())
@@ -1305,13 +1305,13 @@ GEOSLIB_API int anam_discrete_z2factor(Anam   *anam,
 
   /* Get the maximum rank for the factor */
 
-  switch (anam->getType())
+  switch (anam->getType().toEnum())
   {
-    case ANAM_DISCRETE_DD:
+    case EAnam::E_DISCRETE_DD:
       nmax = anam_discrete_DD->getNCut();
       break;
 
-    case ANAM_DISCRETE_IR:
+    case EAnam::E_DISCRETE_IR:
       nmax = anam_discrete_IR->getNCut();
       break;
 
@@ -1337,13 +1337,13 @@ GEOSLIB_API int anam_discrete_z2factor(Anam   *anam,
   
   /* Dispatch */
 
-  switch (anam->getType())
+  switch (anam->getType().toEnum())
   {
-    case ANAM_DISCRETE_DD:
+    case EAnam::E_DISCRETE_DD:
       if (anam_discrete_DD_z2factor(anam,db,iptr,nfact,ifacs)) goto label_end;
       break;
 
-    case ANAM_DISCRETE_IR:
+    case EAnam::E_DISCRETE_IR:
       if (anam_discrete_IR_z2factor(anam,db,iptr,nfact,ifacs)) goto label_end;
       break;
 
@@ -1405,9 +1405,9 @@ GEOSLIB_API int anam_point_to_block(Anam   *anam,
 
   /* Dispatch according to the anamorphosis type */
 
-  switch (anam->getType())
+  switch (anam->getType().toEnum())
   {
-    case ANAM_HERMITIAN:
+    case EAnam::E_HERMITIAN:
 
       if (FFFF(coeff))
       {
@@ -1425,7 +1425,7 @@ GEOSLIB_API int anam_point_to_block(Anam   *anam,
         anam_hermite->setRCoef(coeff);
       break;
 
-    case ANAM_DISCRETE_DD:
+    case EAnam::E_DISCRETE_DD:
       anam_discrete_DD->setMu(mu);
       if (FFFF(coeff))
       {
@@ -1447,7 +1447,7 @@ GEOSLIB_API int anam_point_to_block(Anam   *anam,
         anam_discrete_DD->setSCoef(coeff);
       break;
 
-    case ANAM_DISCRETE_IR:
+    case EAnam::E_DISCRETE_IR:
       if (FFFF(coeff))
       {
         anam_discrete_IR->setRCoef(
@@ -1471,17 +1471,17 @@ GEOSLIB_API int anam_point_to_block(Anam   *anam,
   
   /* Update the Point Anamorphosis into Block Anamorphosis */
 
-  switch (anam->getType())
+  switch (anam->getType().toEnum())
   {
-    case ANAM_HERMITIAN:
+    case EAnam::E_HERMITIAN:
       st_anam_point_to_block_hermitian(anam);
       break;
 
-    case ANAM_DISCRETE_DD:
+    case EAnam::E_DISCRETE_DD:
       if (st_anam_point_to_block_discrete_DD(anam)) goto label_end;
       break;
 
-    case ANAM_DISCRETE_IR:
+    case EAnam::E_DISCRETE_IR:
       st_anam_point_to_block_discrete_IR(anam);
       break;
 
@@ -1526,9 +1526,9 @@ GEOSLIB_API int anam_get_r(Anam   *anam,
 
   /* Dispatch according to the anamorphosis type */
 
-  switch (anam->getType())
+  switch (anam->getType().toEnum())
   {
-    case ANAM_HERMITIAN:
+    case EAnam::E_HERMITIAN:
       if (anam_hermite->getRCoef() != 1.)
       {
         messerr("This function requires a Punctual Anamorphosis");
@@ -1537,7 +1537,7 @@ GEOSLIB_API int anam_get_r(Anam   *anam,
       *r_coef = st_anam_get_r(anam,cvv,2.,st_anam_hermitian_block_variance);
       return(0);
 
-    case ANAM_DISCRETE_DD:
+    case EAnam::E_DISCRETE_DD:
       if (anam_discrete_DD->getSCoef() != 1.)
       {
         messerr("This function requires a Punctual Anamorphosis");
@@ -1547,7 +1547,7 @@ GEOSLIB_API int anam_get_r(Anam   *anam,
       *r_coef = st_anam_get_r(anam,cvv,2.,st_anam_discrete_DD_block_variance);
       return(0);
 
-    case ANAM_DISCRETE_IR:
+    case EAnam::E_DISCRETE_IR:
       if (anam_discrete_IR->getRCoef() != 1.)
       {
         messerr("This function requires a Punctual Anamorphosis");
@@ -2406,9 +2406,9 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
 
   /* Get the number of initial cutoffs */
 
-  switch (anam->getType())
+  switch (anam->getType().toEnum())
   {
-    case ANAM_HERMITIAN:
+    case EAnam::E_HERMITIAN:
       nmax = anam_hermite->getNbPoly();
       if (nvar >= nmax)
       {
@@ -2418,7 +2418,7 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
       }
       break;
 
-    case ANAM_DISCRETE_DD:
+    case EAnam::E_DISCRETE_DD:
       nmax = anam_discrete_DD->getNClass();
       if (nvar >= nmax)
       {
@@ -2432,7 +2432,7 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
         flag_inter = 1;
       break;
       
-    case ANAM_DISCRETE_IR:
+    case EAnam::E_DISCRETE_IR:
       nmax = anam_discrete_IR->getNCut();
       if (nvar > nmax)
       {
@@ -2475,9 +2475,9 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
 
   /* Dispatch according to the type of Anamorphosis */
 
-  switch (anam->getType())
+  switch (anam->getType().toEnum())
   {
-    case ANAM_HERMITIAN:
+    case EAnam::E_HERMITIAN:
       if (st_anam_factor2qt_hermitian(db,anam,ncutmine,cutmine,z_max,
                                       flag_correct,
                                       nb_est,cols_est,nb_std,cols_std,
@@ -2485,7 +2485,7 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
                                       calest)) goto label_end;
       break;
 
-    case ANAM_DISCRETE_DD:
+    case EAnam::E_DISCRETE_DD:
       if (st_anam_factor2qt_discrete_DD(db,anam,ncutmine,cutmine,z_max,
                                         flag_correct,
                                         nb_est,cols_est,nb_std,cols_std,
@@ -2493,7 +2493,7 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
                                         calest,calcut)) goto label_end;
       break;
       
-    case ANAM_DISCRETE_IR:
+    case EAnam::E_DISCRETE_IR:
       if (st_anam_factor2qt_discrete_IR(db,anam,ncutmine,cutmine,z_max,
                                         flag_correct,
                                         nb_est,cols_est,nb_std,cols_std,
@@ -2566,7 +2566,7 @@ GEOSLIB_API int anam_vario_z2y(Anam   *anam,
 
   error = 1;
   if (anam == (Anam *) NULL) goto label_end;
-  if (anam->getType() != ANAM_HERMITIAN)
+  if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("This function is restricted to Gaussian Anamorphosis");
     goto label_end;
@@ -2652,7 +2652,7 @@ GEOSLIB_API int uc_f(Db *db,
 
   if (db   == (Db   *) NULL) goto label_end;
   if (anam == (Anam *) NULL) goto label_end;
-  if (anam->getType() != ANAM_HERMITIAN)
+  if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("Uniform Conditioning is restricted to Hermitian Anamorphosis");
     goto label_end;
@@ -3402,7 +3402,7 @@ GEOSLIB_API int ce_f(Db *db,
   yc     = (double *) NULL;
   AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(anam);
 
-  if (anam->getType() != ANAM_HERMITIAN)
+  if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("The argument 'anam' must be Gaussian");
     goto label_end;

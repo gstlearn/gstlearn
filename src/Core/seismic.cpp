@@ -3081,7 +3081,7 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
     presence[i] = (int *) NULL;
     npres[i] = 0;
   }
-  if (krige_koption_manage(1,1,KOPTION_PONCTUAL,1,VectorInt())) goto label_end;
+  if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
 
   /* Check that the grid is XZ */
 
@@ -3245,7 +3245,7 @@ label_end:
     if (error && iatt_est[i] >= 0) db->deleteFieldByAttribute(iatt_est[i]);
     if (error && iatt_std[i] >= 0) db->deleteFieldByAttribute(iatt_std[i]);
   }
-  (void) krige_koption_manage(-1,1,KOPTION_PONCTUAL,1,VectorInt());
+  (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
   flag    = (int    *) mem_free((char *) flag);
   lhs     = (double *) mem_free((char *) lhs);
   rhs     = (double *) mem_free((char *) rhs);

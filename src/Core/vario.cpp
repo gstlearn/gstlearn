@@ -6536,7 +6536,7 @@ GEOSLIB_API int variogram_y2z(Vario *vario,
   if (vario == (Vario *) NULL) return(error);
   if (anam  == (Anam *)  NULL) return(error);
   if (model == (Model *) NULL) return(error);
-  if (anam->getType() != ANAM_HERMITIAN)
+  if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("This function is restricted to Gaussian Anamorphosis");
     return(error);

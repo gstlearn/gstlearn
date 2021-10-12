@@ -3895,11 +3895,11 @@ static int st_alter_model_optvar(Vario      *vario,
   /* Case when properties are defined: Goulard is switch off */
 
   if (model->getModTransMode() == EModelProperty::ANAM &&
-      model->getModTrans().getAnam()->getType() != ANAM_HERMITIAN &&
+      model->getModTrans().getAnam()->getType() != EAnam::HERMITIAN &&
       optvar.getFlagGoulardUsed())
   {
     message("Goulard option is switched OFF");
-    message("due to presence of ANAM Properties (type != ANAM_HERMITIAN)\n");
+    message("due to presence of ANAM Properties (type != EAnam::HERMITIAN)\n");
     optvar.setFlagGoulardUsed(0);
   }
 
@@ -3948,11 +3948,11 @@ static int st_alter_vmap_optvar(Db         *dbmap,
   /* Case when properties are defined: Goulard is switch off */
 
   if (model->getModTransMode() == EModelProperty::ANAM &&
-      model->getModTrans().getAnam()->getType() != ANAM_HERMITIAN &&
+      model->getModTrans().getAnam()->getType() != EAnam::HERMITIAN &&
       optvar.getFlagGoulardUsed())
   {
     message("Goulard option is switched OFF");
-    message("due to presence of ANAM Properties (type != ANAM_HERMITIAN)\n");
+    message("due to presence of ANAM Properties (type != EAnam::HERMITIAN)\n");
     optvar.setFlagGoulardUsed(0);
   }
 

@@ -30,7 +30,7 @@ public:
                      int conv_idir,
                      int conv_ndisc,
                      double conv_range);
-  int addAnamorphosis(int anam_type,
+  int addAnamorphosis(const EAnam& anam_type,
                       int anam_nclass,
                       int anam_iclass,
                       int anam_var,

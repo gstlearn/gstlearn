@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
         
         /* Cross-validation */
 
-        if (kriging(dbin,dbin,new_model,neigh,KOPTION_PONCTUAL,
+        if (kriging(dbin,dbin,new_model,neigh,EKrigOpt::PONCTUAL,
                     1,1,0)) messageAbort("kriging");
         db_print(dbin,1,0,1,1,1);
       }
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
         /* Estimation case */
 
         if (dbout == (Db *) NULL) goto label_end;
-        if (kriging(dbin,dbout,new_model,neigh,KOPTION_PONCTUAL,
+        if (kriging(dbin,dbout,new_model,neigh,EKrigOpt::PONCTUAL,
                     1,1,0)) messageAbort("kriging");
         db_print(dbout,1,0,1,1,1);
         dbout = db_delete(dbout);

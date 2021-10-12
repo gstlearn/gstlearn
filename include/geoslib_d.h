@@ -104,10 +104,10 @@ typedef struct DIR
 
 
 /* Structures */
-
+#include "Enum/EKrigOpt.hpp"
 typedef struct
 {
-  int calcul; /* Type of calculation (KOPTION_*) */
+  EKrigOpt calcul; /* Type of calculation (EKrigOpt) */
   int ndim; /* Space dimension */
   int ntot; /* Number of discretization points */
   int *ndisc; /* Array of discretization counts */
