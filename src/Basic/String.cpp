@@ -467,8 +467,8 @@ int askInt(const String& text, int defval)
 
   try
   {
-    String str;
-    std::stringstream ss;
+
+
 
     while (true)
     {
@@ -479,6 +479,7 @@ int askInt(const String& text, int defval)
         std::cout << text << " : ";
 
       // Read the answer
+      String str;
       std::getline(std::cin, str);
 
       // Check for empty line: set to default value
@@ -489,13 +490,10 @@ int askInt(const String& text, int defval)
       }
 
       // Try casting in integer
-      ss.str(str);
+      std::stringstream ss(str);
       if (ss >> answer) break;
 
       std::cout << "The answer is not a valid Integer" << std::endl;
-      ss.clear();
-      ss.str("");
-      str.clear();
     }
   }
   catch(std::istream::failure e)
@@ -519,9 +517,6 @@ double askDouble(const String& text, double defval)
 
   try
   {
-    String str;
-    std::stringstream ss;
-
     while (true)
     {
       // Display the question
@@ -531,6 +526,7 @@ double askDouble(const String& text, double defval)
         std::cout << text << " : ";
 
       // Read the answer
+      String str;
       std::getline(std::cin, str);
 
       // Check for empty line: set to default value
@@ -541,13 +537,10 @@ double askDouble(const String& text, double defval)
       }
 
       // Try casting in integer
-      ss.str(str);
+      std::stringstream ss(str);
       if (ss >> answer) break;
 
       std::cout << "The answer is not a valid Double" << std::endl;
-      ss.clear();
-      ss.str("");
-      str.clear();
     }
   }
   catch(std::istream::failure e)

@@ -16,9 +16,7 @@
 #include "geoslib_f.h"
 
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
-#define QCONT(iech,jech)         (Qcont[(iech) * nech + jech])
-
-static int DEBUG = 0;
+#define QFLAG(iech,jech)         (QFlag[(iech) * nech + jech])
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
@@ -68,7 +66,7 @@ GibbsMMulti::~GibbsMMulti()
 int GibbsMMulti::covmatAlloc(bool verbose)
 {
   VectorInt ivars, iechs;
-  VectorBool Qcont;
+  VectorBool QFlag;
   bool flagSym = true;
   double *covmat;
 
@@ -100,9 +98,9 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   if (verbose) message("Establishing Kriging Weights\n");
   _wgt.resize(nact);
-  Qcont.resize(nech * nech, false);
+  QFlag.resize(nech * nech, false);
 
-  // Loop on the active samples to define the neighborhood
+  // Loop on the active samples to define the neighborhood flags
 
   for (int iact = 0; iact < nact; iact++)
   {
@@ -112,7 +110,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     VectorInt ranks = getGeneralNeigh(db, neigh, iech);
 
     // Update the neighborhood contingency matrix
-    _setQCont(Qcont, nech, iech, ranks, flagSym);
+    _setQFlag(QFlag, nech, iech, ranks, flagSym);
   }
 
   // Loop on the active samples to define the kriging weights
@@ -124,7 +122,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
     // Read the neighborhood from the contingency table
 
-    ww._ranks = _getQCont(Qcont, nech, iech);
+    ww._ranks = _getQFlag(QFlag, nech, iech);
     int nbgh  = ww._ranks.size();
     int neq   = nvar * nbgh;
 
@@ -162,11 +160,6 @@ int GibbsMMulti::covmatAlloc(bool verbose)
       ww._ll.push_back(ll);
     }
 
-    if (DEBUG)
-    {
-      _print(iact);
-      print_matrix("Precision Matrix", 0, 0, neq, neq, NULL, covmat);
-    }
     covmat = (double *) mem_free((char *) covmat);
   }
 
@@ -294,7 +287,10 @@ int GibbsMMulti::_isValidConditioning() const
   // Convert from triplet to sparse matrix
 
   Q = cs_triplet(T);
-  if (DEBUG) cs_print_nice("Reconstructed Precision Matrix", Q, -1, -1);
+
+  // Make the Matrix symmetric
+
+  _makeQSymmetric(Q);
 
   // Check that the matrix is symmetric
 
@@ -346,7 +342,7 @@ int GibbsMMulti::_getVariableNumber() const
   return model->getVariableNumber();
 }
 
-void GibbsMMulti::_setQCont(VectorBool& Qcont,
+void GibbsMMulti::_setQFlag(VectorBool& QFlag,
                             int nech,
                             int iech,
                             const VectorInt& ranks,
@@ -355,19 +351,41 @@ void GibbsMMulti::_setQCont(VectorBool& Qcont,
   int nbgh = ranks.size();
   for (int ibgh = 0; ibgh < nbgh; ibgh++)
   {
-    QCONT(iech, ranks[ibgh]) = 1;
-    if (flagSym) QCONT(ranks[ibgh], iech) = 1;
+    QFLAG(iech, ranks[ibgh]) = 1;
+    if (flagSym) QFLAG(ranks[ibgh], iech) = 1;
   }
 }
 
-VectorInt GibbsMMulti::_getQCont(VectorBool& Qcont, int nech, int iech)
+VectorInt GibbsMMulti::_getQFlag(VectorBool& QFlag, int nech, int iech)
 {
   VectorInt ranks;
 
   for (int jech = 0; jech < nech; jech++)
   {
-    if (QCONT(iech,jech)) ranks.push_back(jech);
+    if (QFLAG(iech,jech)) ranks.push_back(jech);
   }
-  message("Sample iech=%d -> nbgh = %d\n",iech,ranks.size());
   return ranks;
+}
+
+void GibbsMMulti::_makeQSymmetric(cs* Q) const
+{
+  int n = Q->n;
+
+  // Set the lower part of the matrix to symmetrical values
+  for (int irow = 0; irow < n; irow++)
+    for (int icol = 0; icol < irow; icol++)
+    {
+      double val1 = cs_get_value(Q, irow, icol);
+      double val2 = cs_get_value(Q, icol, irow);
+      cs_set_value(Q, irow, icol, (val1 + val2) / 2.);
+    }
+
+  // Copy the upper part by symmetry
+
+  for (int irow = 0; irow < n; irow++)
+    for (int icol = irow; icol < n; icol++)
+    {
+      double val = cs_get_value(Q, icol, irow);
+      cs_set_value(Q, irow, icol, val);
+    }
 }

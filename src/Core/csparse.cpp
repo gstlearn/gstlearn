@@ -5615,7 +5615,7 @@ bool cs_isSymmetric(const cs* A)
     {
       double aij = cs_get_value(A, irow, icol);
       double aji = cs_get_value(A, icol, irow);
-      if (aij != aji)
+      if (ABS(ABS(aij) - ABS(aji)) > EPSILON5)
       {
         messerr("Element (%d,%d)=%lf is different from (%d,%d)=%lf",
                 irow,icol,aij,icol,irow,aji);

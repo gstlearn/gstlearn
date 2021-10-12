@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     nburn = askInt("Number of burning steps",nburn);
     nmaxi = askInt("Number of samples in Neighborhood",nmaxi);
     range = askDouble("Isotropic Range",range);
-    bound = askDouble("Bounds [None: -10]",bound);
+    bound = askDouble("Bounds [None: -10]",-10.);
     if (bound <= -10.) bound = TEST;
   }
 

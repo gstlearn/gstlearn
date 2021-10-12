@@ -13,6 +13,7 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <complex>
 #include <cmath>
+//#include <tr1/cmath>
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -4343,11 +4344,16 @@ GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
   int renard = 0;
   double res1 = 0.;
   double res2 = 0.;
+  double res3 = 0.;
 
   if (renard <= 0)
   {
     res1 = LEGENDRE_PL(n, v);
   }
+//  if (renard == -1)
+//  {
+//    res3 = std::tr1::legendre(n, v);
+//  }
   if (renard >= 0)
   {
     //  res2 = std::legendre(n,v);
@@ -4399,12 +4405,18 @@ GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
 
   double res1 = 0.;
   double res2 = 0.;
+  double res3 = 0.;
   if (renard <= 0)
   {
     double v = cos(theta);
     res1 = LEGENDRE_SPHPLM(n, k, v);
     if (flag_negative && k % 2 == 1) res1 = -res1;
   }
+//  if (renard == -1)
+//  {
+//    res3 = std::tr1::sph_legendre(n, k, theta);
+//  }
+//
   if (renard >= 0)
   {
     std::complex<double>

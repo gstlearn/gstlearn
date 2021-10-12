@@ -1303,6 +1303,8 @@ static double st_rule_calcul(Local_Pgs *local_pgs,
   local_pgs->rule = st_rule_encode(string);
   local_pgs->ngrf = local_pgs->rule->getGRFNumber();
   local_pgs->vario->setNVar(local_pgs->ngrf);
+  local_pgs->vario->internalVariableResize();
+  local_pgs->vario->internalDirectionResize();
   st_retrace_define(local_pgs);
 
   if (local_pgs->flag_stat)

@@ -45,12 +45,13 @@ private:
   int _isValidConditioning() const;
   void _print(int iact) const;
   int _getVariableNumber() const;
-  void _setQCont(VectorBool& QCont,
+  void _setQFlag(VectorBool& QFlag,
                  int nech,
                  int iech,
                  const VectorInt& ranks,
                  bool flagSym) const;
-  VectorInt _getQCont(VectorBool& Qcont, int nech, int iech);
+  VectorInt _getQFlag(VectorBool& QFlag, int nech, int iech);
+  void _makeQSymmetric(cs* Q) const;
 
 private:
   Neigh* _neigh;
