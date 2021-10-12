@@ -101,6 +101,7 @@ class IClonable{};
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
+%include LinearOp/EPowerPT.hpp
 %include Model/ANoStat.hpp
 %include Model/NoStatArray.hpp
 %include Model/NoStatFunctional.hpp
@@ -184,6 +185,9 @@ class IClonable{};
 %include MatrixC/MatrixCSDiagCst.hpp
 %include MatrixC/MatrixCSGeneral.hpp
 %include MatrixC/MatrixCSSym.hpp
+%include API/SPDE.hpp
+%include API/PGSSPDE.hpp
+%include API/ESPDECalcMode.hpp
 %include Db/Db.hpp
 %include Db/ELoadBy.hpp
 %include Anamorphosis/Anam.hpp

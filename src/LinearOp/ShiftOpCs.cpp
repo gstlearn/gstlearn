@@ -416,29 +416,29 @@ int ShiftOpCs::initFromCS(const cs* S,
  *****************************************************************************/
 void ShiftOpCs::prodTildeC(const VectorDouble& x,
                            VectorDouble& y,
-                           ENUM_POPTS power) const
+                           const EPowerPT& power) const
 {
-  if (power == POPT_ONE)
+  if (power == EPowerPT::ONE)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i] * _TildeC[i];
   }
-  else if (power == POPT_MINUSONE)
+  else if (power == EPowerPT::MINUSONE)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i] / _TildeC[i];
   }
-  else if (power == POPT_HALF)
+  else if (power == EPowerPT::HALF)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i] * sqrt(_TildeC[i]);
   }
-  else if (power == POPT_MINUSHALF)
+  else if (power == EPowerPT::MINUSHALF)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i] / sqrt(_TildeC[i]);
   }
-  else if (power == POPT_LOG)
+  else if (power == EPowerPT::LOG)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i];
@@ -450,25 +450,25 @@ void ShiftOpCs::prodTildeC(const VectorDouble& x,
 }
 
 void ShiftOpCs::prodLambda(const VectorDouble& x,
-                         VectorDouble& y,
-                         ENUM_POPTS power) const
+                           VectorDouble& y,
+                           const EPowerPT& power) const
 {
-  if (power == POPT_ONE)
+  if (power == EPowerPT::ONE)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i] * _Lambda[i];
   }
-  else if (power == POPT_MINUSONE)
+  else if (power == EPowerPT::MINUSONE)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i] / _Lambda[i];
   }
-  else if (power == POPT_HALF)
+  else if (power == EPowerPT::HALF)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i] * sqrt(_Lambda[i]);
   }
-  else if (power == POPT_MINUSHALF)
+  else if (power == EPowerPT::MINUSHALF)
   {
     for (int i = 0, n = getSize(); i < n; i++)
       y[i] = x[i] / sqrt(_Lambda[i]);

@@ -18,9 +18,12 @@ SPDE::SPDE()
 
 }
 
-SPDE::SPDE(Model& model,const Db& field,const Db* dat,ENUM_CALCUL_MODE calc)
+SPDE::SPDE(Model& model,
+           const Db& field,
+           const Db* dat,
+           const ESPDECalcMode& calc)
 {
-    init(model,field,dat,calc);
+  init(model,field,dat,calc);
 }
 
 SPDE::~SPDE()
@@ -33,7 +36,10 @@ void SPDE::_purge()
 
 }
 
-void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE calc)
+void SPDE::init(Model& model,
+                const Db& field,
+                const Db* dat,
+                const ESPDECalcMode& calc)
 {
   _purge();
   _model = &model;
@@ -63,7 +69,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
         mesh = _createMeshing(*cova, field, 14., 0.2);
         _simuMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, &model, &field);
-        precision = new PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF);
+        precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::MINUSHALF);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
         proj = new ProjMatrix(_data,mesh);
@@ -76,7 +82,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
         mesh = _createMeshing(*cova, field, 11., 0.2);
         _krigingMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, &model, &field);
-        precision = new PrecisionOpCs(shiftOp, cova, POPT_ONE);
+        precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::ONE);
         proj = new ProjMatrix(_data,mesh);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
@@ -149,17 +155,17 @@ void SPDE::computeSimuCond(int nbsimus, int seed) const
 
 void SPDE::compute(int nbsimus, int seed) const
 {
-  if(_calcul == CALCUL_KRIGING)
+  if(_calcul == ESPDECalcMode::KRIGING)
   {
     computeKriging(_data->getFieldByLocator(LOC_Z,0,true));
   }
 
-  if(_calcul == CALCUL_SIMUNONCOND)
+  if(_calcul == ESPDECalcMode::SIMUNONCOND)
   {
     computeSimuNonCond(nbsimus,seed);
 
   }
-  if(_calcul == CALCUL_SIMUCOND)
+  if(_calcul == ESPDECalcMode::SIMUCOND)
   {
     computeSimuCond(nbsimus,seed);
 
@@ -201,7 +207,7 @@ int SPDE::query(Db* db, NamingConvention namconv) const
   VectorDouble temp(db->getActiveSampleNumber());
   VectorDouble result(db->getActiveSampleNumber(),0.);
   String suffix;
-  if(_calcul == CALCUL_KRIGING)
+  if(_calcul == ESPDECalcMode::KRIGING)
   {
     for(int i = 0 ; i< (int)_krigingMeshing.size(); i++)
     {
@@ -211,7 +217,7 @@ int SPDE::query(Db* db, NamingConvention namconv) const
     }
     suffix = "kriging";
   }
-  else if(_calcul == CALCUL_SIMUNONCOND)
+  else if(_calcul == ESPDECalcMode::SIMUNONCOND)
   {
     for(int i = 0 ; i< (int)_simuMeshing.size(); i++)
     {
@@ -222,7 +228,7 @@ int SPDE::query(Db* db, NamingConvention namconv) const
     }
     suffix = "simu";
   }
-  else if(_calcul == CALCUL_SIMUCOND)
+  else if(_calcul == ESPDECalcMode::SIMUCOND)
   {
     for(int i = 0 ; i< (int)_simuMeshing.size(); i++)
     {

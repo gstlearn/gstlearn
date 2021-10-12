@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
   dat.addFields(tab, "Simu", LOC_Z);
 
-  SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
+  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::KRIGING);
   spde.compute();
   return 0;
 }

@@ -18,6 +18,7 @@
 #include "MatrixC/MatrixCRectangular.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/ANoStat.hpp"
+#include "LinearOp/EPowerPT.hpp"
 #include <map>
 
 class Model;
@@ -76,8 +77,12 @@ public:
   int getSize() const override { return _S->n; }
   int getDim() const { return _dim; }
   int getNModelGradParam() const { return _nModelGradParam; }
-  void prodTildeC(const VectorDouble& in, VectorDouble& out, ENUM_POPTS power) const;
-  void prodLambda(const VectorDouble& in, VectorDouble& out, ENUM_POPTS power) const;
+  void prodTildeC(const VectorDouble& in,
+                  VectorDouble& out,
+                  const EPowerPT& power) const;
+  void prodLambda(const VectorDouble& in,
+                  VectorDouble& out,
+                  const EPowerPT& power) const;
   void prodLambdaOnSqrtTildeC(const VectorDouble& out,
                               VectorDouble& in,
                               double puis = 2) const;

@@ -6443,7 +6443,7 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
 
   MeshETurbo mesh = MeshETurbo(*dbout);
   ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
-  PrecisionOp Qprop =  PrecisionOp(&S, model->getCova(0),  POPT_ONE);
+  PrecisionOp Qprop =  PrecisionOp(&S, model->getCova(0),  EPowerPT::ONE);
   ProjMatrix Aproj =  ProjMatrix(dbin, &mesh);
 
   // Invoke the calculation

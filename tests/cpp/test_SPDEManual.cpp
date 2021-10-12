@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
   SPDE spde(model,workingDbc);
 
   ShiftOpCs S(&mesh, &model, &workingDbc);
-  PrecisionOp Qsimu(&S, &cova, POPT_MINUSHALF);
+  PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF);
 
   ///////////////////////////
   // Simulation (Chebyshev)
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     e /= nug;
   }
 
-  PrecisionOp Qkriging(&S, &cova, POPT_ONE);
+  PrecisionOp Qkriging(&S, &cova, EPowerPT::ONE);
   PrecisionOpMultiConditional A;
   A.push_back(&Qkriging, &B);
   A.setVarianceData(0.01);

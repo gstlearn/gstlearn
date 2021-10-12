@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
   ///////////////////////
   // Running SPDE
-  SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
+  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::KRIGING);
   VectorDouble result = spde.computeCoeffs();
   ut_vector_display("Drift Coefficients:",result);
   return 0;

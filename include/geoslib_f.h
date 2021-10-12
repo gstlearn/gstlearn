@@ -168,13 +168,6 @@ GEOSLIB_API void db_stats_print(const Db *db,
                                 int flag_correl = 0,
                                 const String& title = String(),
                                 const String& radix = String());
-GEOSLIB_API ES db_angle2grad(Db *db,
-                             const VectorString& angles,
-                             double radius = 1.,
-                             NamingConvention namconv = NamingConvention("Angle2Grad"));
-GEOSLIB_API ES db_grad2angle(Db *db,
-                             const VectorString& grads,
-                             NamingConvention namconv = NamingConvention("Grad2Angle"));
 
 /***************************/
 /* Functions for Variogram */

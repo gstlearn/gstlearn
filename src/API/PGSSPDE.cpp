@@ -1,11 +1,11 @@
 #include <API/PGSSPDE.hpp>
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
-         const Db& field,
-         RuleProp ruleprop,
-         const Db* dat)
+                 const Db& field,
+                 RuleProp ruleprop,
+                 const Db* dat)
 {
-  _calcul = (dat == nullptr) ? CALCUL_SIMUNONCOND:CALCUL_SIMUCOND;
+  _calcul = (dat == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
   for(auto &e : models)
   {
     _spdeTab.push_back(SPDE(*e,field,dat,_calcul));
@@ -15,11 +15,11 @@ PGSSPDE::PGSSPDE(std::vector<Model*> models,
 
 void PGSSPDE::simulate(int seed,int nitergibbs) const
 {
-  if(_calcul==CALCUL_SIMUNONCOND)
+  if(_calcul==ESPDECalcMode::SIMUNONCOND)
   {
     simulateNonCond(seed);
   }
-  if(_calcul==CALCUL_SIMUCOND)
+  if(_calcul==ESPDECalcMode::SIMUCOND)
   {
     gibbs(1);
   }

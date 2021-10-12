@@ -26,7 +26,7 @@ typedef enum
 */
 
 #ifndef SWIG
-// Internal enums (not exported via SWIG)
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   TYPE_DB = 0,        //!< Data Base
@@ -60,7 +60,7 @@ typedef enum
 } ENUM_CSTS;
 #endif
 
-typedef enum
+typedef enum // TODO !!
 {
   LOC_UNKNOWN = -1,
   LOC_X = 0,        //!< Coordinate
@@ -156,7 +156,7 @@ typedef enum
 //  COV_EXPFACT = 21,      //!< Factorized Exponential
 
 #ifndef SWIG
-// Internal enums (not exported via SWIG)
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   CONV_UNIFORM = 1,         //!< Uniform
@@ -188,7 +188,7 @@ typedef enum
 */
 
 #ifndef SWIG
-// Internal enums (not exported via SWIG)
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   MODEL_DERIVATIVE_NONE = 0,  //!< No Derivation
@@ -251,7 +251,7 @@ typedef enum
 } ENUM_RULES;   // Now see ERule.hpp
 */
 #ifndef SWIG
-// Internal enums (not exported via SWIG)
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   SHADOW_IDLE = 0,      //!< No Shadow
@@ -347,7 +347,7 @@ typedef enum
 } ENUM_CONS_TYPE; // Now see EConsType.hpp
 */
 #ifndef SWIG
-// Internal enums (not exported via SWIG)
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   ANAM_QT_Z = 0,
@@ -367,14 +367,14 @@ typedef enum
   GD_J_CENTER = 0,
   GD_J_RIGHT = 1,
 } ENUM_GD_J;  // Now see EJustify.hpp
-*/
+
 typedef enum
 {
   PROCESS_UNDEFINED = -1,
   PROCESS_COPY = 0,
   PROCESS_MARGINAL = 1,
   PROCESS_CONDITIONAL = 2,
-} ENUM_PROCESS;
+} ENUM_PROCESS; // Now see EProcessOper.hpp
 
 typedef enum
 {
@@ -384,8 +384,10 @@ typedef enum
   POPT_MINUSHALF = 2,      //!< Power is -0.5
   POPT_HALF = 3,           //!< Power is 0.5
   POPT_LOG = 4,            //!< Logarithm
-} ENUM_POPTS;
-
+} ENUM_POPTS; // Now see EPowerPT.hpp
+*/
+#ifndef SWIG
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   SEGY_NUM    = 0,
@@ -401,7 +403,6 @@ typedef enum
   SEGY_NB     = 10,
   SEGY_COUNT  = 11,
 } ENUM_SEGY;
-
 typedef enum
 {
   ES_NOERROR               = 0,
@@ -414,13 +415,14 @@ typedef enum
   ES_PERMISSION_GRID_COORD = 7,
   ES_TYPE_ERROR            = 8
 } ENUM_ERRORS;
-
+typedef ENUM_ERRORS ES;
+#endif
+/*
 typedef enum
 {
   CALCUL_KRIGING     = 0,    //!< Kriging
   CALCUL_SIMUCOND    = 1,   //!< Conditional simulations
   CALCUL_SIMUNONCOND = 2 //!< Non conditional simulations
-} ENUM_CALCUL_MODE;
+} ENUM_CALCUL_MODE;  // Now see ESPDECalcMode.hpp
+*/
 
-
-typedef ENUM_ERRORS ES;
