@@ -1861,7 +1861,7 @@ GEOSLIB_API int meshes_2D_write(const char *file_name,
     return(1);
   }
 
-  /* Printout of statistics */
+  /* Print the statistics */
 
   if (verbose)
   {
@@ -3747,8 +3747,8 @@ GEOSLIB_API void meshes_1D_create(int        verbose,
 ** \param[in]  t          segmentio structure
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_1D_extended_domain(Db            *dbout,
-                                           const double        *gext,
+GEOSLIB_API void meshes_1D_extended_domain(Db *dbout,
+                                           const double *gext,
                                            segmentio *t)
 {
   int     number,flag_extend;

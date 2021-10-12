@@ -433,7 +433,7 @@ GEOSLIB_API int simsph_f(Db    *db,
   int    *degree,*order,flag_sphere;
   int     iptr,error,ndisc,nfreq,degmax,shunt,iech,nech,nx,ny,ecr,ntot;
   double *freqs,*phase;
-  double  theta,phi,t1,t2,val,ctheta,tol,degree_loc,order_loc,phase_loc;
+  double  theta,phi,t1,t2,val,tol,degree_loc,order_loc,phase_loc;
 
   /* Initializations */
 
@@ -556,13 +556,12 @@ GEOSLIB_API int simsph_f(Db    *db,
   for (int iy=0; iy<ny; iy++)
   {
     theta  = ut_deg2rad(db->getCoordinate(IPTR(0,iy),1) + 90.); // Latitude[-90,90]
-    ctheta = cos(theta);
     for (int ibf=0; ibf<nbf; ibf++)
     {
       degree_loc = degree[ibf];
       order_loc  = order[ibf];
       phase_loc  = phase[ibf];
-      t1 = ut_flegendre(1,(int) degree_loc,(int) order_loc,ctheta);
+      t1 = ut_flegendre(1,(int) degree_loc,(int) order_loc,theta);
       for (int ix=0; ix<nx; ix++,ecr++)
       {
         iech = IPTR(ix,iy);

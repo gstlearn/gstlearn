@@ -73,7 +73,7 @@ public:
   Db(Polygons* polygon,
      const VectorInt& nodes,
      const VectorDouble& dcell,
-     int flag_add_rank);
+     int flag_add_rank = 1);
   Db(const Db* dbin,
      double proportion,
      const VectorString& names = VectorString(),

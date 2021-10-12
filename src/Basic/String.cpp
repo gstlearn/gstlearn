@@ -11,6 +11,7 @@
 #include "math.h"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Utilities.hpp"
 #include <algorithm>
 #include <stdio.h>
 #include <stddef.h>
@@ -450,4 +451,70 @@ String suppressAnyBlanks(String value)
 {
   value = std::regex_replace(value, std::regex("^ +| +$|( ) +"), "$1");
   return value;
+}
+
+/**
+ * Ask interactively for the value of one integer
+ * @param text Text of the question
+ * @param defval Default value (or IFFFF)
+ */
+int askInt(const String& text, int defval)
+{
+  bool nodef = ! IFFFF(defval);
+  int answer = defval;
+  std::cin.exceptions(std::istream::failbit|
+                      std::istream::badbit);
+
+  try
+  {
+    String str;
+    do {
+      if (nodef)
+        std::cout << text << " (Default = " << defval << ") : ";
+      else
+        std::cout << text << " : ";
+      std::getline(std::cin, str);
+    }
+    while (! nodef && str.empty());
+    std::stringstream sstr(str);
+    sstr >> answer; // TODO verifier que le resultat et bien un entier
+  }
+  catch(std::istream::failure e)
+  {
+    std::cerr << "Problem when reading integer" << std::endl;
+  }
+  return answer;
+}
+
+/**
+ * Ask interactively for the value of one Real (Double)
+ * @param text Text of the question
+ * @param defval Default value (or IFFFF)
+ */
+double askDouble(const String& text, double defval)
+{
+  bool nodef = ! FFFF(defval);
+  double answer = defval;
+  std::cin.exceptions(std::istream::failbit|
+                      std::istream::badbit);
+
+  try
+  {
+    String str;
+    do {
+      if (nodef)
+        std::cout << text << " (Default = " << defval << ") : ";
+      else
+        std::cout << text << " : ";
+      std::getline(std::cin, str);
+    }
+    while (! nodef && str.empty());
+    std::stringstream sstr(str);
+    sstr >> answer; // TODO: verifier que le resultat est bien un reel, sinon???
+  }
+  catch(std::istream::failure e)
+  {
+    std::cerr << "Problem when reading integer" << std::endl;
+  }
+  return answer;
 }

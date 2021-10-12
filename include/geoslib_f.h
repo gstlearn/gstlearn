@@ -58,6 +58,10 @@ GEOSLIB_API void print_ivector(const char *title,
                                int flag_limit,
                                int ntab,
                                const VectorInt& itab);
+GEOSLIB_API void print_vector(const char *title,
+                              int flag_limit,
+                              int ntab,
+                              const VectorDouble& tab);
 GEOSLIB_API VectorInt util_string_search(const VectorString& list_strings,
                                          const String& string,
                                          int verbose);

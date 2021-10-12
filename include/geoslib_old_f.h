@@ -418,7 +418,7 @@
   GEOSLIB_API void define_legendre(double (*legendre_sphPlm)(int, int, double),
                                    double (*legendre_Pl)(int, double));
   GEOSLIB_API double ut_legendre(int flag_norm, int n, double v);
-  GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double v);
+  GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta);
   GEOSLIB_API int *ut_name_decode(const char *name,
                                   int ndim,
                                   int *nx,

@@ -106,6 +106,7 @@ protected:
   int _getColNumberStats() const;
   int _getColRankStats(int ipgs, int ivar, int mode) const;
 
+
 private:
   int _npgs;
   int _nvar; // or NGRF

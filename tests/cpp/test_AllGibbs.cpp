@@ -12,6 +12,7 @@
 #include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Basic/AException.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
@@ -23,21 +24,35 @@
 int main(int argc, char *argv[])
 
 {
+  int error = 1;
+  bool flag_inter = true;
+
+  int nx        = 10;
+  int niter     = 10000;
+  int nburn     = 100;
+  int nmaxi     = 4;
+  double range  = 10.;
+  double bound  = TEST;
+
+  if (flag_inter)
+  {
+    nx = askInt("Number of grid mesh [in each direction]", nx);
+    niter = askInt("Number of Gibbs iterations",niter);
+    nburn = askInt("Number of burning steps",nburn);
+    nmaxi = askInt("Number of samples in Neighborhood",nmaxi);
+    range = askDouble("Isotropic Range",range);
+    bound = askDouble("Bounds [None: -10]",bound);
+    if (bound <= -10.) bound = TEST;
+  }
+
   int seed     = 5452;
   int ndim     = 2;
   int nvar     = 1;
   int nbsimu   = 1;
+  double sill  = 1.;
   int nlag     = 20;
-
-  int niter    = 10000;
-  int nburn    = 100;
-
-  int nbgh_maxi = 20;
-  double nbgh_radius = 1000.;
-
-  VectorDouble ranges = { 10., 10.};
-  double sill = 1.;
-
+  double nbgh_radius = 10. * range;
+  VectorDouble ranges = { range, range};
   bool verbose          = true;
   bool flag_moving      = true;
   bool flag_propagation = false;
@@ -53,10 +68,18 @@ int main(int argc, char *argv[])
   // Data file
 
   VectorDouble dx = {1., 1.};
-  Db* db = new Db({50,50},dx);
-  db->addFields(1, -4, "Bounds", LOC_L);
-  db->addFields(1,  4, "Bounds", LOC_U);
-  
+  Db* db = new Db({nx,nx},dx);
+  if (! FFFF(bound))
+  {
+    db->addFields(1, -bound, "Bounds", LOC_L);
+    db->addFields(1, +bound, "Bounds", LOC_U);
+  }
+  else
+  {
+    db->addFields(1, TEST, "Bounds", LOC_L);
+    db->addFields(1, TEST, "Bounds", LOC_U);
+  }
+
   // Model
 
   CovContext ctxt(nvar,2,1.); // use default space
@@ -72,15 +95,16 @@ int main(int argc, char *argv[])
   Neigh* neigh = nullptr;
   if (flag_moving)
   {
-    neigh = new Neigh(ndim, nbgh_maxi, nbgh_radius);
+    neigh = new Neigh(ndim, nmaxi, nbgh_radius);
     neigh->display();
   }
 
   // Gibbs
 
-  gibbs_sampler(db, model, neigh, nbsimu, seed, nburn, niter, false,
-                flag_multi_mono, flag_propagation, 2,
-                5., EPSILON3, false, false, verbose);
+  error = gibbs_sampler(db, model, neigh, nbsimu, seed, nburn, niter, false,
+                        flag_multi_mono, flag_propagation, 2,
+                        5., EPSILON3, false, false, verbose);
+  if (error) my_throw("Problem in gibbs_sampler");
   db->displayMore(FLAG_STATS);
   db->serialize("Result");
 
