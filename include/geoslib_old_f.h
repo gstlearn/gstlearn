@@ -1270,10 +1270,10 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                    int opt_norm,
                                    double nug_ratio);
   GEOSLIB_API double constraints_get(const Constraints& constraints,
-                                     int icons,
+                                     const EConsType& icase,
                                      int igrf,
                                      int istr,
-                                     int elem,
+                                     const EConsElem& icons,
                                      int v1,
                                      int v2);
   GEOSLIB_API void constraints_print(const Constraints& constraints);

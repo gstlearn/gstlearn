@@ -13,17 +13,17 @@
 #include "geoslib_f.h"
 
 ConsItem::ConsItem(bool authAssign,
-                   ENUM_CONS_TYPE icase,
+                   const EConsType& icase,
                    int igrf,
                    int icov,
-                   ENUM_CONS type,
+                   const EConsElem& type,
                    int iv1,
                    int iv2,
                    double value)
     : _icase(icase),
       _igrf(igrf),
       _icov(icov),
-      _type(type),
+      _elemType(type),
       _iv1(iv1),
       _iv2(iv2),
       _value(value),
@@ -35,7 +35,7 @@ ConsItem::ConsItem(const ConsItem &m)
     : _icase(m._icase),
       _igrf(m._igrf),
       _icov(m._icov),
-      _type(m._type),
+      _elemType(m._elemType),
       _iv1(m._iv1),
       _iv2(m._iv2),
       _value(m._value),
@@ -51,7 +51,7 @@ ConsItem& ConsItem::operator=(const ConsItem &m)
     _icase = m._icase;
     _igrf = m._igrf;
     _icov = m._icov;
-    _type = m._type;
+    _elemType = m._elemType;
     _iv1   = m._iv1;
     _iv2   = m._iv2;
     _value = m._value;
@@ -65,10 +65,10 @@ ConsItem::~ConsItem()
 
 }
 
-int ConsItem::init(ENUM_CONS_TYPE icase,
+int ConsItem::init(const EConsType& icase,
                    int igrf,
                    int icov,
-                   ENUM_CONS type,
+                   const EConsElem& type,
                    int v1,
                    int v2,
                    double value)
@@ -76,7 +76,7 @@ int ConsItem::init(ENUM_CONS_TYPE icase,
   _icase = icase;
   _igrf  = igrf;
   _icov  = icov;
-  _type  = type;
+  _elemType  = type;
   _iv1   = v1;
   _iv2   = v2;
   _value = value;
@@ -84,7 +84,7 @@ int ConsItem::init(ENUM_CONS_TYPE icase,
   // Check to avoid rotation of a Model defined on the sphere
   int flag_sphere;
   variety_query(&flag_sphere);
-  if (flag_sphere && type == CONS_ANGLE)
+  if (flag_sphere && type == EConsElem::ANGLE)
   {
     messerr("When working on the Sphere Geometry");
     messerr("Rotation must be specified using 'I' constraints (not 'A')");
@@ -99,60 +99,61 @@ String ConsItem::toString(int level) const
 
   if (_authAssign)
   {
-    switch (_icase)
+    switch (_icase.toEnum())
     {
-      case CONS_TYPE_LOWER:
+      case EConsType::E_LOWER:
         sstr << "Constraint Type = Lower Bound" << std::endl;
         break;
 
-      case CONS_TYPE_DEFAULT:
+      case EConsType::E_DEFAULT:
         sstr << "Constraint Type = Default Parameter" << std::endl;
         break;
 
-      case CONS_TYPE_UPPER:
+      case EConsType::E_UPPER:
         sstr << "Constraint Type = Upper Bound" << std::endl;
         break;
 
-      case CONS_TYPE_EQUAL:
+      case EConsType::E_EQUAL:
         sstr << "Constraint Type = Equality" << std::endl;
         break;
 
       default:
+        sstr << "Constraint Type = UNKNOWN!!" << std::endl;
         break;
     }
   }
 
-  switch (_type)
+  switch (_elemType.toEnum())
   {
-    case CONS_RANGE:
+    case EConsElem::E_RANGE:
       sstr << "Range     ";
       break;
 
-    case CONS_ANGLE:
+    case EConsElem::E_ANGLE:
       sstr << "Angle     ";
       break;
 
-    case CONS_PARAM:
+    case EConsElem::E_PARAM:
       sstr << "Param     ";
       break;
 
-    case CONS_SILL:
+    case EConsElem::E_SILL:
       sstr << "Sill      ";
       break;
 
-    case CONS_SCALE:
+    case EConsElem::E_SCALE:
       sstr << "Scale     ";
       break;
 
-    case CONS_T_RANGE:
+    case EConsElem::E_T_RANGE:
       sstr << "Tapering  ";
       break;
 
-    case CONS_VELOCITY:
+    case EConsElem::E_VELOCITY:
       sstr << "Velocity  ";
       break;
 
-    case CONS_SPHEROT:
+    case EConsElem::E_SPHEROT:
       sstr << "S-Rotation";
       break;
 

@@ -84,7 +84,7 @@ int NoStatFunctional::attachToDb(Db* db, int icas, bool verbose) const
  * Returns the value of a non-stationary parameter at a target sample
  * @param igrf  Rank of the GRF
  * @param icov  Rank of the Covariance
- * @param type  Type of non-stationary element
+ * @param type  Type of non-stationary element (EConsElem)
  * @param iv1   Rank of the first variable (optional)
  * @param iv2   Rank of the second variable (optional)
  * @param icas  Additional identifier (0 for Meshing; 1 for Dbin; 2 for Dbout)
@@ -93,7 +93,7 @@ int NoStatFunctional::attachToDb(Db* db, int icas, bool verbose) const
  */
 double NoStatFunctional::getValue(int igrf,
                                   int icov,
-                                  ENUM_CONS type,
+                                  const EConsElem& type,
                                   int iv1,
                                   int iv2,
                                   int icas,

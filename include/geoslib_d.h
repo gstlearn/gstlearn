@@ -105,8 +105,9 @@ typedef struct DIR
 
 /* Structures */
 #include "Enum/EKrigOpt.hpp"
-typedef struct
+class Koption // Transform to a class and prevent calling malloc and memfree
 {
+public:
   EKrigOpt calcul; /* Type of calculation (EKrigOpt) */
   int ndim; /* Space dimension */
   int ntot; /* Number of discretization points */
@@ -115,7 +116,7 @@ typedef struct
   double *disc2; /* Discretization randomized coordinates */
   int flag_data_disc; /* Discretization flag */
   double *dsize;
-} Koption;
+};
 
 typedef struct
 {

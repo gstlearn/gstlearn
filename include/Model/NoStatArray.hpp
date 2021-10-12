@@ -27,7 +27,7 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  double getValue(int igrf, int icov, ENUM_CONS type, int iv1, int iv2,
+  double getValue(int igrf, int icov, const EConsElem& type, int iv1, int iv2,
                   int icas, int rank) const override;
   double getValue(int ipar, int icas, int rank) const override;
 

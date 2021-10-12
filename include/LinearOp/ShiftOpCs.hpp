@@ -115,7 +115,7 @@ private:
                          int igparam,
                          int ip);
   void _loadAux(VectorDouble& tab,
-                ENUM_CONS type,
+                const EConsElem& type,
                 int ip);
   void _loadHHPerMesh(MatrixCSGeneral& hh,
                       AMesh* amesh,
@@ -127,7 +127,7 @@ private:
                           int imesh = 0);
   void _loadAuxPerMesh(VectorDouble& tab,
                        AMesh* amesh,
-                       ENUM_CONS type,
+                       const EConsElem& type,
                        int imesh = 0);
   void _reset();
   void _resetGrad();

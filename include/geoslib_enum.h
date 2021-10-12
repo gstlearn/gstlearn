@@ -323,7 +323,7 @@ typedef enum
   ANAM_DISCRETE_DD = 3,    //!< Discrete anamorphosis
   ANAM_DISCRETE_IR = 4,    //!< Discrete Indicator Residuals anamorphosis
 } ENUM_ANAMS;   /: Now see EAnam.hpp
-*/
+
 typedef enum
 {
   CONS_UNKNOWN = 0,
@@ -344,7 +344,7 @@ typedef enum
   CONS_TYPE_UPPER = 1,   //!< Upper Bound
   CONS_TYPE_EQUAL = 2,   //!< Equality
 } ENUM_CONS_TYPE; // Now see EConsType.hpp
-
+*/
 typedef enum
 {
   ANAM_QT_Z = 0,

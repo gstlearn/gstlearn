@@ -1087,10 +1087,10 @@ GEOSLIB_API Model *model_free(Model *model)
  ** \return  1 if the given non-stationary parameter is defined; 0 otherwise
  **
  ** \param[in]   model    Model structure
- ** \param[in]   type0    Requested type (ENUM_CONS)
+ ** \param[in]   type0    Requested type (EConsElem)
  **
  *****************************************************************************/
-GEOSLIB_API int is_model_nostat_param(Model *model, ENUM_CONS type0)
+GEOSLIB_API int is_model_nostat_param(Model *model, const EConsElem& type0)
 {
   if (! model->isNoStat()) return 1;
   const ANoStat* nostat = model->getNoStat();

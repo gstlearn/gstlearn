@@ -557,23 +557,23 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
   const ANoStat* nostat = _getModel()->getNoStat();
 
   // Third parameter
- if (nostat->isDefined(igrf, icov, CONS_PARAM, -1, -1))
+ if (nostat->isDefined(igrf, icov, EConsElem::PARAM, -1, -1))
  {
-   double param = nostat->getValue(igrf, icov, CONS_PARAM, -1, -1, 0, ip);
+   double param = nostat->getValue(igrf, icov, EConsElem::PARAM, -1, -1, 0, ip);
    cova->setParam(param);
  }
 
  // Anisotropy coefficients
    for (int idim = 0; idim < ndim; idim++)
    {
-     if (nostat->isDefined(igrf, icov, CONS_RANGE, idim, -1))
+     if (nostat->isDefined(igrf, icov, EConsElem::RANGE, idim, -1))
      {
-       double range = nostat->getValue(igrf, icov, CONS_RANGE, idim, -1, 0, ip);
+       double range = nostat->getValue(igrf, icov, EConsElem::RANGE, idim, -1, 0, ip);
        cova->setRange(idim, range);
      }
-     if (nostat->isDefined(igrf, icov, CONS_SCALE, idim, -1))
+     if (nostat->isDefined(igrf, icov, EConsElem::SCALE, idim, -1))
      {
-       double scale = nostat->getValue(igrf, icov, CONS_SCALE, idim, -1, 0, ip);
+       double scale = nostat->getValue(igrf, icov, EConsElem::SCALE, idim, -1, 0, ip);
        cova->setScale(idim, scale);
      }
    }
@@ -581,9 +581,9 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
  // Anisotropy Rotation
    for (int idim = 0; idim < ndim; idim++)
    {
-     if (nostat->isDefined(igrf, icov, CONS_ANGLE, idim, -1))
+     if (nostat->isDefined(igrf, icov, EConsElem::ANGLE, idim, -1))
      {
-       double anisoAngle = nostat->getValue(igrf, icov, CONS_ANGLE, idim, -1, 0, ip);
+       double anisoAngle = nostat->getValue(igrf, icov, EConsElem::ANGLE, idim, -1, 0, ip);
        cova->setAnisoAngle(idim, anisoAngle);
      }
  }
@@ -663,7 +663,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixCSGeneral& hh,
 }
 
 void ShiftOpCs::_loadAux(VectorDouble& tab,
-                         ENUM_CONS type,
+                         const EConsElem& type,
                          int ip)
 {
   if (tab.empty()) return;
@@ -722,7 +722,7 @@ void ShiftOpCs::_loadHHGradPerMesh(MatrixCSGeneral& hh,
 
 void ShiftOpCs::_loadAuxPerMesh(VectorDouble& tab,
                               AMesh* amesh,
-                              ENUM_CONS type,
+                              const EConsElem& type,
                               int imesh)
 {
   if (tab.empty()) return;
@@ -1013,7 +1013,7 @@ int ShiftOpCs::_buildSVel(AMesh *amesh,
 
   // Define the global HH matrix
 
-  _loadAux(vel, CONS_VELOCITY, 0);
+  _loadAux(vel, EConsElem::VELOCITY, 0);
 
   /* Loop on the meshes */
 
@@ -1025,8 +1025,8 @@ int ShiftOpCs::_buildSVel(AMesh *amesh,
     // Non stationary case
 
     const ANoStat* nostat = _getModel()->getNoStat();
-    if (nostat->isDefined(igrf, icov, CONS_VELOCITY, -1, -1))
-      _loadAuxPerMesh(vel, amesh, CONS_VELOCITY, imesh);
+    if (nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1))
+      _loadAuxPerMesh(vel, amesh, EConsElem::VELOCITY, imesh);
 
     // Case of Euclidean geometry
 
@@ -1096,8 +1096,8 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
   if (!flag_nostat)
   {
     _loadHHByApex(hh, 0);
-    _loadAux(srot, CONS_SPHEROT, 0);
-    _loadAux(vel, CONS_VELOCITY, 0);
+    _loadAux(srot, EConsElem::SPHEROT, 0);
+    _loadAux(vel, EConsElem::VELOCITY, 0);
   }
 
   /* Loop on the meshes */
@@ -1115,10 +1115,10 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
       int icov = _getIcov();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
         _loadHHPerMesh(hh, amesh, imesh);
-      if (nostat->isDefined(igrf, icov, CONS_SPHEROT, -1, -1))
-        _loadAuxPerMesh(srot, amesh, CONS_SPHEROT, imesh);
-      if (nostat->isDefined(igrf, icov, CONS_VELOCITY, -1, -1))
-        _loadAuxPerMesh(vel, amesh, CONS_VELOCITY, imesh);
+      if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
+        _loadAuxPerMesh(srot, amesh, EConsElem::SPHEROT, imesh);
+      if (nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1))
+        _loadAuxPerMesh(vel, amesh, EConsElem::VELOCITY, imesh);
     }
 
     // Case of Spherical geometry
@@ -1268,8 +1268,8 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
         _loadHHByApex(hh, ip);
         sqdeth = sqrt(matrix_determinant(ndim, hh.getValues().data()));
       }
-      if (nostat->isDefined(igrf, icov, CONS_SILL, -1, -1))
-        sill = nostat->getValue(igrf, icov, CONS_SILL, -1, -1, 0, ip);
+      if (nostat->isDefined(igrf, icov, EConsElem::SILL, -1, -1))
+        sill = nostat->getValue(igrf, icov, EConsElem::SILL, -1, -1, 0, ip);
     }
     _Lambda.push_back(sqrt((_TildeC[ip]) / (sqdeth * sill)));
   }
@@ -1414,5 +1414,5 @@ bool ShiftOpCs::_isVelocity()
   const ANoStat* nostat = _getModel()->getNoStat();
   int igrf = _getIgrf();
   int icov = _getIcov();
-  return nostat->isDefined(igrf, icov, CONS_VELOCITY, -1, -1);
+  return nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1);
 }

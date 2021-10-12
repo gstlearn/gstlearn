@@ -76,6 +76,8 @@
 #define YMAT(ip,il)       (ymat   [(il) + nbfl * (ip)])
 /*! \endcond */
 
+
+// TODO : remove all these static stuffs !
 static double  *covtab,*covaux,*drftab,*fs,*fsf,*d1_1,*d1_2,*var0;
 static VectorDouble d1,d1_t;
 static double  *lhs,*lhs_b,*rhs,*wgt,*zext,*zam1,*ff0,*varb;
@@ -1430,8 +1432,7 @@ GEOSLIB_API int krige_koption_manage(int             mode,
 
     /* Allocation of the structure */
 
-    KOPTION = (Koption *) mem_alloc(sizeof(Koption),0);
-    if (KOPTION == (Koption *) NULL) return(1);
+    KOPTION = new Koption();
     KOPTION->calcul = calcul;
 
     // Target discretization
@@ -1493,7 +1494,7 @@ GEOSLIB_API int krige_koption_manage(int             mode,
       KOPTION->disc1 = (double  *) mem_free((char *) KOPTION->disc1);
       KOPTION->disc2 = (double  *) mem_free((char *) KOPTION->disc2);
       KOPTION->dsize = (double  *) mem_free((char *) KOPTION->dsize);
-      KOPTION        = (Koption *) mem_free((char *) KOPTION);
+      delete KOPTION;
     }
   }
 

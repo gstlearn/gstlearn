@@ -8,30 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Neigh/ENeigh.hpp"
-#include "Db/ELoadBy.hpp"
-#include "Db/ELoc.hpp"
-#include "Covariances/ECov.hpp"
-#include "Covariances/ECalcMember.hpp"
-#include "Drifts/EDrift.hpp"
-#include "Model/EModelProperty.hpp"
-#include "Model/EConsElem.hpp"
-#include "Model/EConsType.hpp"
-#include "Variogram/ECalcVario.hpp"
-#include "LithoRule/ERule.hpp"
-#include "Enum/EKrigOpt.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#pragma once
 
-ENUM_DEFINE(ENUM_LOAD_BY)
-ENUM_DEFINE(ENUM_NEIGH)
-ENUM_DEFINE(ENUM_LOC)
-ENUM_DEFINE(ENUM_COV)
-ENUM_DEFINE(ENUM_DRIFT)
-ENUM_DEFINE(ENUM_CALC_VARIO)
-ENUM_DEFINE(ENUM_MODEL_PROPERTY)
-ENUM_DEFINE(ENUM_RULE)
-ENUM_DEFINE(ENUM_CALC_MEMBER)
-ENUM_DEFINE(ENUM_KRIG_OPT)
-ENUM_DEFINE(ENUM_ANAM)
-ENUM_DEFINE(ENUM_CONS_ELEM)
-ENUM_DEFINE(ENUM_CONS_TYPE)
+#include "Enum/AEnum.hpp"
+
+#define ENUM_CONS_TYPE EConsType, LOWER, \
+                       LOWER,   -1, "Lower Bound", \
+                       DEFAULT,  0, "Default parameter", \
+                       UPPER,    1, "Upper Bound", \
+                       EQUAL,    2, "Equality"
+
+ENUM_DECLARE(ENUM_CONS_TYPE)

@@ -1845,7 +1845,7 @@ GEOSLIB_API int spde_attach_model(Model *model)
   if (st_get_nvar() > 1)
   {
     const ANoStat* nostat = st_get_model()->getNoStat();
-    if (nostat != nullptr && nostat->isDefinedByType(-1, CONS_SILL))
+    if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
       return (1);
@@ -1984,7 +1984,7 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
   if (st_get_nvar() > 1)
   {
     const ANoStat* nostat = model->getNoStat();
-    if (nostat != nullptr && nostat->isDefinedByType(-1, CONS_SILL))
+    if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
       return (1);
@@ -2004,15 +2004,15 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
  ** \return The rank of the parameter of -1 (not found)
  **
  ** \param[in]  icov0     Rank of the target covariance
- ** \param[in]  type0     Type of parameter
- ** \param[in]  ivar0     Rank of the target variable (only when type=CONS_SILL)
- ** \param[in]  jvar0     Rank of the target variable (only when type=CONS_SILL)
+ ** \param[in]  type0     Type of parameter (EConsElem)
+ ** \param[in]  ivar0     Rank of the target variable (only when type=EConsElem::SILL)
+ ** \param[in]  jvar0     Rank of the target variable (only when type=EConsElem::SILL)
  **
  ** \remark The covariance are ranked from 0 for non-nugget ones
  ** \remark The nugget effect corresponds to rank (-1)
  **
  *****************************************************************************/
-static int st_identify_nostat_param(int icov0, ENUM_CONS type0, int ivar0, int jvar0)
+static int st_identify_nostat_param(int icov0, const EConsElem& type0, int ivar0, int jvar0)
 {
   const ANoStat* nostat = st_get_model()->getNoStat();
   if (nostat == nullptr) return -1;
@@ -2910,12 +2910,12 @@ static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
 
   /* Update the Spherical Rotation array */
 
-  if (nostat->isDefined(igrf0, icov0, CONS_SPHEROT, -1, -1))
+  if (nostat->isDefined(igrf0, icov0, EConsElem::SPHEROT, -1, -1))
   {
     VectorDouble srot(2, 0.);
     for (int i = 0; i < 2; i++)
     {
-      int ipar = nostat->getRank(igrf0, icov0, CONS_SPHEROT, i, -1);
+      int ipar = nostat->getRank(igrf0, icov0, EConsElem::SPHEROT, i, -1);
       if (ipar < 0) continue;
       double total = 0.;
       for (int ic = 0; ic < ncorner; ic++)
@@ -2926,12 +2926,12 @@ static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
 
   /* Update the Velocity array */
 
-  if (nostat->isDefined(igrf0, icov0, CONS_VELOCITY, -1, -1))
+  if (nostat->isDefined(igrf0, icov0, EConsElem::VELOCITY, -1, -1))
   {
     VectorDouble vv(ndim, 0.);
     for (int idim = 0; idim < ndim; idim++)
     {
-      int ipar = nostat->getRank(igrf0, icov0, CONS_VELOCITY, idim, -1);
+      int ipar = nostat->getRank(igrf0, icov0, EConsElem::VELOCITY, idim, -1);
       if (ipar < 0) continue;
       double total = 0.;
       for (int ic = 0; ic < ncorner; ic++)
@@ -3079,7 +3079,7 @@ static int st_fill_Bnugget(Db *dbin)
   /* In the non-stationary case, identify the rank of the parameter */
   /* which corresponds to the sill of the nugget effect */
 
-  flag_nostat_sillnug = st_identify_nostat_param(-1, CONS_SILL, -1, -1) >= 0;
+  flag_nostat_sillnug = st_identify_nostat_param(-1, EConsElem::SILL, -1, -1) >= 0;
   if (flag_nostat_sillnug)
   {
     messerr("Non-stationarity on nugget sill values not programmed yet");

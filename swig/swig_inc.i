@@ -86,6 +86,8 @@
 #include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
 #include "Model/EModelProperty.hpp"
+#include "Model/EConsElem.hpp"
+#include "Model/EConsType.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/ACovAnisoList.hpp"

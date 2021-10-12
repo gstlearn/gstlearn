@@ -32,14 +32,14 @@ public:
 
   bool isDefined() const { return ! _items.empty(); }
   bool isDefinedByCov(int igrf, int icov) const;
-  bool isDefinedByType(int igrf, ENUM_CONS type) const;
-  bool isDefinedByCovType(int igrf, int icov, ENUM_CONS type) const;
-  bool isDefined(int igrf, int icov, ENUM_CONS type, int iv1=0, int iv2=0) const;
+  bool isDefinedByType(int igrf, const EConsElem& type) const;
+  bool isDefinedByCovType(int igrf, int icov, const EConsElem& type) const;
+  bool isDefined(int igrf, int icov, const EConsElem& type, int iv1=0, int iv2=0) const;
   bool isDefinedforAnisotropy(int igrf, int icov) const;
 
   virtual double getValue(int igrf,
                           int icov,
-                          ENUM_CONS type,
+                          const EConsElem& type,
                           int iv1,
                           int iv2,
                           int icas,
@@ -51,14 +51,14 @@ public:
   virtual int  attachToDb(Db* db, int icas, bool verbose = false) const;
   virtual void detachFromDb(Db* db, int icas) const;
 
-  void addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2);
+  void addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   void addNoStatElems(const VectorString& codes);
   void addNoStatElem(const ConsItem& item);
 
-  int getRank   (int igrf, int icov, ENUM_CONS type, int iv1, int iv2) const;
+  int getRank   (int igrf, int icov, const EConsElem& type, int iv1, int iv2) const;
   int getIGrf(int ipar) const { return _items[ipar].getIGrf(); }
   int getICov(int ipar) const { return _items[ipar].getICov(); }
-  ENUM_CONS getType(int ipar) const { return _items[ipar].getType(); }
+  const EConsElem& getType(int ipar) const { return _items[ipar].getType(); }
   int getIV1 (int ipar) const { return _items[ipar].getIV1(); }
   int getIV2 (int ipar) const { return _items[ipar].getIV2(); }
   int getNoStatElemNumber() const { return static_cast<int>(_items.size()); }
@@ -69,7 +69,7 @@ public:
 
   bool matchIGrf(int ipar, int igrf0) const { return _items[ipar].matchIGrf(igrf0); }
   bool matchICov(int ipar, int icov0) const { return _items[ipar].matchICov(icov0); }
-  bool matchType(int ipar, ENUM_CONS type0) const { return _items[ipar].matchType(type0); }
+  bool matchType(int ipar, const EConsElem& type0) const { return _items[ipar].matchType(type0); }
   bool matchIV1(int ipar, int iv10) const { return _items[ipar].matchIV1(iv10); }
   bool matchIV2(int ipar, int iv20) const { return _items[ipar].matchIV2(iv20); }
 
@@ -92,7 +92,7 @@ private:
   int _understandCode(const String& code,
                       int *igrf,
                       int *icov,
-                      ENUM_CONS *type,
+                      EConsElem *type,
                       int *iv1,
                       int *iv2);
   void _updateFromModel(const Model* model);
