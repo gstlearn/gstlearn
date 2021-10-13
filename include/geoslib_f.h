@@ -326,6 +326,12 @@ GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
                                int mode = 0,
                                int seed = 34243,
                                NamingConvention namconv = NamingConvention("Fill"));
+GEOSLIB_API int db_duplicate(Db *db,
+                             bool verbose = false,
+                             double *dist = nullptr,
+                             int opt_code = 0,
+                             double tolcode = 0.,
+                             NamingConvention namconv = NamingConvention("Duplicate",LOC_SEL));
 GEOSLIB_API int kriging(Db *dbin,
                         Db *dbout,
                         Model *model,
@@ -458,5 +464,17 @@ GEOSLIB_API int gibbs_sampler(Db* db,
                               bool flag_cstd,
                               bool verbose,
                               NamingConvention namconv = NamingConvention("Gibbs"));
+
+/*****************/
+/* Various Tools */
+/*****************/
+GEOSLIB_API int db_tool_duplicate(Db *db1,
+                                  Db *db2,
+                                  bool flag_same,
+                                  bool verbose,
+                                  int opt_code,
+                                  double tolcode,
+                                  double *dist,
+                                  double *sel);
 
 #endif

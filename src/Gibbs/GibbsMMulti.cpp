@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Gibbs/GibbsMMulti.hpp"
+#include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
@@ -251,10 +252,12 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 
 int GibbsMMulti::_improveConditioning(bool verbose)
 {
-  int error = 1;
+  int error;
+  bool err_def, err_sym, err_diag;
   cs *T;
 
   T = (cs *) NULL;
+  error = 1;
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
 
@@ -299,7 +302,19 @@ int GibbsMMulti::_improveConditioning(bool verbose)
 
   // Check that the matrix is symmetric
 
-  if (! cs_isSymmetric(_Q)) goto label_end;
+  err_sym = ! cs_isSymmetric(_Q, verbose);
+
+  // Check that Q is diagonal dominant
+
+  err_diag = ! cs_isDiagonalDominant(_Q, verbose);
+
+  // Check that Q is definite-positive
+
+  err_def = ! cs_isDefinitePositive(_Q,  verbose);
+
+  // Summarize errors
+
+  if (err_sym || err_diag || err_def) goto label_end;
 
   // Update the newly modified weights extracted from Q
 

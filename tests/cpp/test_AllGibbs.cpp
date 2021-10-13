@@ -13,6 +13,11 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/ASerializable.hpp"
+#include "Model/Model.hpp"
+#include "Variogram/VarioParam.hpp"
+#include "Variogram/Vario.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
@@ -104,7 +109,7 @@ int main(int argc, char *argv[])
   error = gibbs_sampler(db, model, neigh, nbsimu, seed, nburn, niter, false,
                         flag_multi_mono, flag_propagation, 2,
                         5., EPSILON3, false, false, verbose);
-  if (error) my_throw("Problem in gibbs_sampler");
+  if (error) return 1;
   db->displayMore(FLAG_STATS);
   db->serialize("Result");
 

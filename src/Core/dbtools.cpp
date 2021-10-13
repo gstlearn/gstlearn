@@ -715,26 +715,26 @@ static int st_expand_grid_to_grid(Db *db_gridin,
  **
  ** \param[in]  db1        First Db
  ** \param[in]  db2        Second Db
- ** \param[in]  flag_same  1 if the two Db files are the same
- ** \param[in]  flag_print 1 for verbose output
+ ** \param[in]  flag_same  True if the two Db files are the same
+ ** \param[in]  verbose    True for verbose output
  ** \param[in]  opt_code   code selection option (if code is defined)
  ** \li                     0 : no use of the code selection
  ** \li                     1 : codes must be close enough
  ** \li                     2 : codes must be different
  ** \param[in]  tolcode    Code tolerance
- ** \param[in]  dist       Array of the minimum distance
+ ** \param[in]  dist       Array of the minimum distance (or NULL)
  **
  ** \param[out]  sel       Array containing the selection
  **
  *****************************************************************************/
-GEOSLIB_API int db_duplicate(Db *db1,
-                             Db *db2,
-                             int flag_same,
-                             int flag_print,
-                             int opt_code,
-                             double tolcode,
-                             double *dist,
-                             double *sel)
+GEOSLIB_API int db_tool_duplicate(Db *db1,
+                                  Db *db2,
+                                  bool flag_same,
+                                  bool verbose,
+                                  int opt_code,
+                                  double tolcode,
+                                  double *dist,
+                                  double *sel)
 {
   int idim, iech1, iech2, flag_diff, flag_code;
   double v1, v2;
@@ -773,7 +773,8 @@ GEOSLIB_API int db_duplicate(Db *db1,
           if (code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
             continue;
         }
-        if (ABS(v1 - v2) > dist[idim]) flag_diff = 1;
+        double dval = (dist != nullptr) ? dist[idim] : 0.;
+        if (ABS(v1 - v2) > dval) flag_diff = 1;
       }
       if (flag_diff) continue;
 
@@ -781,7 +782,7 @@ GEOSLIB_API int db_duplicate(Db *db1,
 
       /* Optional printout */
 
-      if (flag_print)
+      if (verbose)
       {
         message("Sample %d too close to sample %d\n", iech1 + 1, iech2 + 1);
         db_sample_print(db1, iech1, 1, 0, 0);
@@ -790,6 +791,54 @@ GEOSLIB_API int db_duplicate(Db *db1,
       }
     }
   }
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Look for duplicates within a Db
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db         Db Structure
+ ** \param[in]  verbose    True for verbose output
+ ** \param[in]  dist       Array of the minimum distance
+ ** \param[in]  opt_code   code selection option (if code is defined)
+ ** \li                     0 : no use of the code selection
+ ** \li                     1 : codes must be close enough
+ ** \li                     2 : codes must be different
+ ** \param[in]  tolcode    Code tolerance
+ ** \param[in]  namconv    Naming convention
+ **
+ *****************************************************************************/
+GEOSLIB_API int db_duplicate(Db *db,
+                             bool verbose,
+                             double *dist,
+                             int opt_code,
+                             double tolcode,
+                             NamingConvention namconv)
+{
+  if (db == nullptr)
+  {
+    messerr("You must define a Db");
+    return 1;
+  }
+
+  // Adding a new variable
+
+  VectorDouble sel(db->getActiveSampleNumber());
+
+  // Check for duplicates
+
+  if (db_tool_duplicate(db, db, 1, verbose, opt_code, tolcode, dist, sel.data()))
+    return 1;
+
+  // Add the variable to the Db
+  int iatt = db->addFields(sel);
+
+  // Setting the output variable
+  namconv.setNamesAndLocators(db, iatt);
 
   return 0;
 }

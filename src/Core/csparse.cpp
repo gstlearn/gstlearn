@@ -5598,9 +5598,9 @@ Triplet csToTriplet(const cs *A, bool flagFrom1)
   return triplet;
 }
 
-bool cs_isSymmetric(const cs* A)
+bool cs_isSymmetric(const cs* A, bool verbose, bool detail)
 {
-  int nrows, ncols,count;
+  int nrows, ncols, count;
   double percent;
   cs_rowcol(A,&nrows,&ncols,&count,&percent);
   if (nrows != ncols)
@@ -5609,6 +5609,8 @@ bool cs_isSymmetric(const cs* A)
     return false;
   }
 
+  if (verbose)
+    message("Testing if Matrix is Symmetric\n");
   int numError = 0;
   for (int irow = 0; irow < nrows; irow++)
     for (int icol = irow; icol < ncols; icol++)
@@ -5617,10 +5619,97 @@ bool cs_isSymmetric(const cs* A)
       double aji = cs_get_value(A, icol, irow);
       if (ABS(ABS(aij) - ABS(aji)) > EPSILON5)
       {
-        messerr("Element (%d,%d)=%lf is different from (%d,%d)=%lf",
-                irow,icol,aij,icol,irow,aji);
+        if (verbose && detail)
+          messerr("Element (%d,%d)=%lf is different from (%d,%d)=%lf",
+                  irow,icol,aij,icol,irow,aji);
         numError++;
       }
     }
+  if (verbose)
+  {
+    if (numError > 0)
+      messerr("-> Matrix is not Symmetric");
+    else
+      message("-> Test successful\n");
+  }
   return numError <= 0;
+}
+
+bool cs_isDiagonalDominant(cs *A, bool verbose, bool detail)
+{
+  int nrows, ncols, count;
+  double percent;
+  cs_rowcol(A,&nrows,&ncols,&count,&percent);
+  if (nrows != ncols)
+  {
+    messerr("The sparse matrix is not square (%d x %d)", nrows, ncols);
+    return false;
+  }
+
+  if (verbose)
+    message("Testing if Matrix is Diagonal Dominant\n");
+  int numError = 0;
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    double row_total = 0.;
+    double row_pivot = 0.;
+    for (int icol = 0; icol < ncols; icol++)
+    {
+      double value = cs_get_value(A, irow, icol);
+      if (icol == irow)
+        row_pivot = ABS(value);
+      else
+        row_total += ABS(value);
+    }
+    if (row_total > row_pivot)
+    {
+      if (verbose && detail)
+        messerr("Error in Row (%d): Sum of abs-values=%lf Pivot=%lf",
+                irow, row_total, row_pivot);
+      numError++;
+    }
+  }
+  if (verbose)
+  {
+    if (numError > 0)
+      messerr("-> Matrix is not Diagonal Dominant");
+    else
+      message("-> Test successful");
+  }
+  return numError <= 0;
+}
+
+bool cs_isDefinitePositive(cs* A, bool verbose)
+{
+  int error = 1;
+  css* S = nullptr;
+  csn* N = nullptr;
+
+  if (verbose)
+    message("Testing if Matrix is Definite Positive\n");
+
+  S = cs_schol(A, 0);
+  if (S == (css *) NULL) goto label_end;
+
+  N = cs_chol (A, S);
+  if (N == (csn *) NULL) goto label_end;
+
+  error = 0;
+
+  // Free memory
+
+  label_end:
+  N = cs_nfree(N);
+  S = cs_sfree(S);
+
+  // Optional message
+
+  if (verbose)
+  {
+    if (error)
+      messerr("-> Matrix is not Definite Positive");
+    else
+      message("-> Test successful\n");
+  }
+  return error <= 0;
 }

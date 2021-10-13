@@ -1724,14 +1724,6 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                int *cols,
                                double center,
                                double stdv);
-  GEOSLIB_API int db_duplicate(Db *db1,
-                               Db *db2,
-                               int flag_same,
-                               int flag_print,
-                               int opt_code,
-                               double tolcode,
-                               double *dist,
-                               double *sel);
   GEOSLIB_API int db_gradient_update(Db *db);
   GEOSLIB_API int surface(Db *db_point,
                           Db *db_grid,
