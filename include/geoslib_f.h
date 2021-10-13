@@ -324,7 +324,7 @@ GEOSLIB_API int db_duplicate(Db *db,
                              double *dist = nullptr,
                              int opt_code = 0,
                              double tolcode = 0.,
-                             NamingConvention namconv = NamingConvention("Duplicate",LOC_SEL));
+                             NamingConvention namconv = NamingConvention("Duplicate",ELoc::SEL));
 GEOSLIB_API int kriging(Db *dbin,
                         Db *dbout,
                         Model *model,
