@@ -3090,7 +3090,13 @@ GEOSLIB_API void db_locators_correct(VectorString& strings,
         if (cur_type != *it) continue;
         rank[nmatch++] = cur_item;
       }
-      if (nmatch <= 0) continue;
+      // Do not forget to increment the iterator!
+      // 'continue' keyword should be forbidden!!
+      if (nmatch <= 0)
+      {
+        it.toNext();
+        continue;
+      }
 
       /* Sort the indices */
 
@@ -3115,7 +3121,6 @@ GEOSLIB_API void db_locators_correct(VectorString& strings,
     }
     it.toNext();
   }
-  return;
 }
 
 /****************************************************************************/

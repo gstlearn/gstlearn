@@ -18,7 +18,7 @@
 int main()
 {
   // This (interactive) test cannot be performed in batch
-  bool flagPerform = true;
+  bool flagPerform = false;
   if (! flagPerform)
   {
     message("This test is not performed on purpose\n");

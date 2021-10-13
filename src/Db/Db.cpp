@@ -1065,13 +1065,15 @@ void Db::printLocators(void) const
     if (*it != ELoc::UNKNOWN)
     {
       const PtrGeos& p = _p.at(*it);
-      if (p.getLocatorNumber() <= 0) continue;
-      p.print(rank, *it);
-      message("- Columns    = ");
-      for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
-        message("%2d ", getColumnByAttribute(p.getLocatorByIndex(locatorIndex)));
-      message("\n");
-      rank++;
+      if (p.getLocatorNumber() > 0)
+      {
+        p.print(rank, *it);
+        message("- Columns    = ");
+        for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
+          message("%2d ", getColumnByAttribute(p.getLocatorByIndex(locatorIndex)));
+        message("\n");
+        rank++;
+      }
     }
     it.toNext();
   }

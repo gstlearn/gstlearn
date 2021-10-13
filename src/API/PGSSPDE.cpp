@@ -1,9 +1,13 @@
-#include <API/PGSSPDE.hpp>
+#include "API/PGSSPDE.hpp"
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
                  const Db& field,
                  RuleProp ruleprop,
                  const Db* dat)
+: _data()
+, _spdeTab()
+, _ruleProp()
+, _calcul()
 {
   _calcul = (dat == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
   for(auto &e : models)

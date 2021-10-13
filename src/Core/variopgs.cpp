@@ -1303,8 +1303,12 @@ static double st_rule_calcul(Local_Pgs *local_pgs,
   local_pgs->rule = st_rule_encode(string);
   local_pgs->ngrf = local_pgs->rule->getGRFNumber();
   local_pgs->vario->setNVar(local_pgs->ngrf);
-  local_pgs->vario->internalVariableResize();
-  local_pgs->vario->internalDirectionResize();
+  // TODO : ngrf now is 1 (but vario had nvar = 2)
+  // The following instruction provoques a message from Vario.cpp :
+  //     Invalid dimension for 'means' (2)
+  //     It should match the number of variables in 'Db' (1)
+  //local_pgs->vario->internalVariableResize();
+  //local_pgs->vario->internalDirectionResize();
   st_retrace_define(local_pgs);
 
   if (local_pgs->flag_stat)

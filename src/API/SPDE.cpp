@@ -14,6 +14,19 @@
 #include <iostream>
 
 SPDE::SPDE()
+: _data(nullptr)
+, _calcul()
+, _precisionsKriging()
+, _precisionsSimu()
+, _pileShiftOp()
+, _pilePrecisions()
+, _pileProjMatrix()
+, _simuMeshing()
+, _krigingMeshing()
+, _model(nullptr)
+, _workKriging()
+, _workingSimu()
+, _projOnDbOut()
 {
 
 }
@@ -22,6 +35,19 @@ SPDE::SPDE(Model& model,
            const Db& field,
            const Db* dat,
            const ESPDECalcMode& calc)
+: _data(nullptr)
+, _calcul()
+, _precisionsKriging()
+, _precisionsSimu()
+, _pileShiftOp()
+, _pilePrecisions()
+, _pileProjMatrix()
+, _simuMeshing()
+, _krigingMeshing()
+, _model(nullptr)
+, _workKriging()
+, _workingSimu()
+, _projOnDbOut()
 {
   init(model,field,dat,calc);
 }

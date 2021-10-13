@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
 {
   int error = 1;
-  bool flag_inter = true;
+  bool flag_inter = false;
 
   int nx        = 10;
   int niter     = 10000;
