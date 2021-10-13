@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(&workingDbc);
-  workingDbc.addFields(angle,"angle",LOC_NOSTAT);
+  workingDbc.addFields(angle,"angle",ELoc::NOSTAT);
 
   //////////////////////
   //Creating the Mesh
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
   resultSimu.resize(tab.size());
   Qsimu.eval(tab,resultSimu);
-  workingDbc.addFields(resultSimu,"Simu",LOC_Z);
+  workingDbc.addFields(resultSimu,"Simu",ELoc::Z);
 
   ///////////////////////////
   // Creating Data
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
   ProjMatrix B(&dat, &mesh);
   VectorDouble datval(ndata);
   B.mesh2point(resultSimu, datval);
-  dat.addFields(datval, "Simu", LOC_Z);
+  dat.addFields(datval, "Simu", ELoc::Z);
 
   ///////////////////////////
   // Kriging

@@ -46,7 +46,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
    db->setName(iptr,names[i]);
   }
 
-  db->setLocator(names,LOC_Z);
+  db->setLocator(names,ELoc::Z);
   db->display();
   _ruleProp.gaussToCategory(db,NamingConvention("categories"));
 

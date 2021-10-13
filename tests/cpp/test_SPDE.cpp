@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
   dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,x0,dx);
   if (dbgrid == (Db *) NULL) goto label_end;
-  if (db_locator_attribute_add(dbgrid,LOC_X,ndim,0,0.,
+  if (db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,
                                &iptr)) goto label_end;
   if (db_grid_define_coordinates(dbgrid)) goto label_end;
   if (db_extension_diag(dbgrid,&diag)) goto label_end;

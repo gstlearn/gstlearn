@@ -2210,7 +2210,7 @@ static void st_gibbs(int igrf,
 static void st_save_result(Vertype *vertype,
                            double *z,
                            Db *dbout,
-                           ENUM_LOCS locatorType,
+                           const ELoc& locatorType,
                            int iatt_simu)
 {
   int iech, lec, ecr;
@@ -5827,9 +5827,9 @@ GEOSLIB_API int spde_process(Db *dbin,
     nv_krige = 0;
     s_mesh = spde_get_current_matelem(-1).s_mesh;
     if (S_DECIDE.flag_est)
-      st_save_result(s_mesh->vertype, zkrig, dbout, LOC_Z, nv_krige++);
+      st_save_result(s_mesh->vertype, zkrig, dbout, ELoc::Z, nv_krige++);
     if (S_DECIDE.flag_std)
-      st_save_result(s_mesh->vertype, vcur, dbout, LOC_Z, nv_krige++);
+      st_save_result(s_mesh->vertype, vcur, dbout, ELoc::Z, nv_krige++);
   }
   else if (S_DECIDE.flag_case == CASE_SIMULATE)
   {
@@ -5947,7 +5947,7 @@ GEOSLIB_API int spde_process(Db *dbin,
         /* Saving operation */
 
         iatt_simu = dbout->getSimvarRank(isimuw, 0, igrf, nbsimuw, 1);
-        st_save_result(s_mesh->vertype, zcur, dbout, LOC_SIMU, iatt_simu);
+        st_save_result(s_mesh->vertype, zcur, dbout, ELoc::SIMU, iatt_simu);
       }
 
       /* Perform the transformation */
@@ -7515,7 +7515,7 @@ GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
 
   /* Core allocation */
 
-  coor = db_sample_alloc(db, LOC_X);
+  coor = db_sample_alloc(db, ELoc::X);
   if (coor == (double *) NULL) goto label_end;
   weight = (double *) mem_alloc(sizeof(double) * ncorner, 0);
   if (weight == (double *) NULL) goto label_end;
@@ -8050,20 +8050,20 @@ GEOSLIB_API int spde_f(Db *dbin,
   {
     if (!S_DECIDE.flag_modif)
     {
-      if (db_locator_attribute_add(dbout, LOC_SIMU, MAX(1,nbsimu) * nvar, 0,
+      if (db_locator_attribute_add(dbout, ELoc::SIMU, MAX(1,nbsimu) * nvar, 0,
                                    0., &iad)) goto label_end;
     }
     else
     {
-      if (db_locator_attribute_add(dbout, LOC_SIMU, nvar, 0, 0., &iad))
+      if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar, 0, 0., &iad))
         goto label_end;
-      if (db_locator_attribute_add(dbout, LOC_Z, 2 * nvar, 0, 0., &iad))
+      if (db_locator_attribute_add(dbout, ELoc::Z, 2 * nvar, 0, 0., &iad))
         goto label_end;
     }
   }
   else
   {
-    if (db_locator_attribute_add(dbout, LOC_Z, nv_krige, 0, 0., &iad))
+    if (db_locator_attribute_add(dbout, ELoc::Z, nv_krige, 0, 0., &iad))
       goto label_end;
   }
 
@@ -8085,7 +8085,7 @@ GEOSLIB_API int spde_f(Db *dbin,
   error = 0;
 
   label_end:
-  if (S_DECIDE.flag_modif) dbout->deleteFieldByLocator(LOC_SIMU);
+  if (S_DECIDE.flag_modif) dbout->deleteFieldByLocator(ELoc::SIMU);
   return (error);
 }
 
@@ -8933,7 +8933,7 @@ static void st_m2d_stats_updt(M2D_Environ *m2denv,
  ** \param[out] work        Array of tentative values (Dimension: nlayer)
  **
  ** \remarks This function also add the attributes to 'dbin' per layer:
- ** \remarks - the initial value (LOC_Z)
+ ** \remarks - the initial value (ELoc::Z)
  **
  *****************************************************************************/
 static int st_m2d_initial_elevations(M2D_Environ *m2denv,
@@ -9074,10 +9074,10 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
  ** \param[in]  nlayer      Number of layers
  ** \param[in]  verbose     Verbose flag
  **
- ** \param[out] iatt_f      Pointer in dbin to the added variables LOC_F
+ ** \param[out] iatt_f      Pointer in dbin to the added variables ELoc::F
  **
  ** \remarks This function also add the attributes to 'dbin' per layer:
- ** \remarks - the external drift values (LOC_F)
+ ** \remarks - the external drift values (ELoc::F)
  **
  *****************************************************************************/
 static int st_m2d_drift_manage(M2D_Environ *m2denv,
@@ -9113,7 +9113,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
   if (m2denv->flag_ed)
   {
-    if (db_locator_attribute_add(dbin, LOC_F, nlayer, 0, TEST, iatt_f))
+    if (db_locator_attribute_add(dbin, ELoc::F, nlayer, 0, TEST, iatt_f))
       goto label_end;
   }
 
@@ -9127,7 +9127,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
     if (m2denv->flag_ed)
     {
-      cols[0] = dbout->getColumnByLocator(LOC_F, ilayer);
+      cols[0] = dbout->getColumnByLocator(ELoc::F, ilayer);
 
       // Migrate the information from Grid to Wells
 
@@ -9553,17 +9553,17 @@ static void st_define_locators(M2D_Environ *m2denv,
   int ivar;
 
   ivar = 1;
-  db->setLocatorsByAttribute(ndim, ivar, LOC_X);
+  db->setLocatorsByAttribute(ndim, ivar, ELoc::X);
   ivar += ndim;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    db->setLocatorByAttribute(ivar++, LOC_L, ilayer);
-    db->setLocatorByAttribute(ivar++, LOC_U, ilayer);
-    if (ilayer < nvar) db->setLocatorByAttribute(ivar, LOC_Z, ilayer);
+    db->setLocatorByAttribute(ivar++, ELoc::L, ilayer);
+    db->setLocatorByAttribute(ivar++, ELoc::U, ilayer);
+    if (ilayer < nvar) db->setLocatorByAttribute(ivar, ELoc::Z, ilayer);
     ivar++;
   }
   if (m2denv->flag_ed)
-    db->setLocatorsByAttribute(nlayer, ivar, LOC_F);
+    db->setLocatorsByAttribute(nlayer, ivar, ELoc::F);
 }
 
 /****************************************************************************/
@@ -9845,9 +9845,9 @@ GEOSLIB_API cs *db_mesh_neigh(const Db *db,
   ndimd = db->getNDim();
   ndimv = s_mesh->ndim;
   ndim = MIN(ndimd, ndimv);
-  coor = db_sample_alloc(db, LOC_X);
+  coor = db_sample_alloc(db, ELoc::X);
   if (coor == (double *) NULL) goto label_end;
-  caux = db_sample_alloc(db, LOC_X);
+  caux = db_sample_alloc(db, ELoc::X);
   if (caux == (double *) NULL) goto label_end;
   pts = (int *) mem_alloc(sizeof(int) * s_mesh->nvertex, 0);
   if (pts == (int *) NULL) goto label_end;
@@ -10632,10 +10632,10 @@ static void st_m2d_stats_gaus(const char *title,
  **
  ** \remarks In 'dbin':
  ** \remarks - the lower and upper bounds must be defined for each datum
- ** \remarks   (set to the locator LOC_L and LOC_U
+ ** \remarks   (set to the locator ELoc::L and ELoc::U
  ** \remarks In 'dbout':
  ** \remarks - the trend (if flag_ed is 1) must be defined and set to
- ** \remarks   the locator LOC_F
+ ** \remarks   the locator ELoc::F
  ** \remarks When defined, the pinchout should be defined as a grid variable
  ** \remarks with values ranging between 0 and 1 (FFFF are admitted).
  ** \remarks It will serve as a multiplier to the Mean thickness maps.
@@ -10997,11 +10997,11 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
     if (flag_ce || flag_cstd)
     {
-      // Modify the locator to LOC_GAUSFAC before grouping to CE estimation
+      // Modify the locator to ELoc::GAUSFAC before grouping to CE estimation
 
-      dbout->setLocatorsByAttribute(nbsimu * nlayer, iatt_out, LOC_GAUSFAC);
+      dbout->setLocatorsByAttribute(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC);
 
-      if (db_simulations_to_ce(dbout, LOC_GAUSFAC, nbsimu, nlayer, &iptr_ce,
+      if (db_simulations_to_ce(dbout, ELoc::GAUSFAC, nbsimu, nlayer, &iptr_ce,
                                &iptr_cstd)) goto label_end;
 
       // We release the attributes dedicated to simulations on Dbout
@@ -11016,7 +11016,7 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
         (void) db_attribute_del_mult(dbout, iptr_cstd, nlayer);
         iptr_cstd = -1;
       }
-      dbout->deleteFieldByLocator(LOC_GAUSFAC);
+      dbout->deleteFieldByLocator(ELoc::GAUSFAC);
 
       // Renaming the resulting variables
 

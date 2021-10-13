@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional PGS simulation on a grid
   error = simpgs(nullptr,&dbgrid,&ruleprop1,&model1,&model2,&neigh,nbsimu);
-  dbgrid.setName(LOC_FACIES,"PGS-Facies");
+  dbgrid.setName(ELoc::FACIES,"PGS-Facies");
   dbgrid.display();
   dbgrid.serialize("simupgs.ascii");
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   // Perform a non-conditional BiPGS simulation on a grid
   error = simbipgs(nullptr,&dbgrid,&rulepropbi,
                    &model1,&model2,&model3,&model4,&neigh,nbsimu);
-  dbgrid.setName(LOC_FACIES,"BiPGS-Facies");
+  dbgrid.setName(ELoc::FACIES,"BiPGS-Facies");
   dbgrid.display();
   dbgrid.serialize("simubipgs.ascii");
 
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional PGS Shift simulation on a grid
   error = simpgs(nullptr,&dbgrid,&rulepropshift,&model1,nullptr,&neigh,nbsimu);
-  dbgrid.setName(LOC_FACIES,"PGS-Shift-Facies");
+  dbgrid.setName(ELoc::FACIES,"PGS-Shift-Facies");
   dbgrid.display();
   dbgrid.serialize("simushiftpgs.ascii");
 
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional PGS Shadow simulation on a grid
   error = simpgs(nullptr,&dbgrid,&rulepropshadow,&model1,nullptr,&neigh,nbsimu);
-  dbgrid.setName(LOC_FACIES,"PGS-Shadow-Facies");
+  dbgrid.setName(ELoc::FACIES,"PGS-Shadow-Facies");
   dbgrid.display();
   dbgrid.serialize("simushadowpgs.ascii");
 

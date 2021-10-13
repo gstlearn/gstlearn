@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_enum.h"
 #include "Basic/Vector.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/ELoadBy.hpp"
@@ -99,16 +98,16 @@ public:
   const VectorDouble& getArrays() const { return _array; }
   String getNameByColumn(int icol) const { return _colNames[icol]; }
   String getName(int iatt) const;
-  String getName(ENUM_LOCS locatorType, int locatorIndex=0) const;
+  String getName(const ELoc& locatorType, int locatorIndex=0) const;
   VectorString getNames(const VectorString& names) const;
   VectorString getNames(const String& name) const;
-  VectorString getNames(ENUM_LOCS locatorType) const;
+  VectorString getNames(const ELoc& locatorType) const;
   VectorString getNames(const VectorInt& iatts) const;
   VectorString getNames() const;
   void setName(const String& old_name, const String& name);
   void setName(const VectorString list, const String& name);
   void setName(int iatt, const String& name);
-  void setName(ENUM_LOCS locatorType, const String& name);
+  void setName(const ELoc& locatorType, const String& name);
   const GridC& getGrid() const { return _grid; }
   int getAttributeMaxNumber() const { return static_cast<int>(_attcol.size()); }
   int getFieldNumber() const { return _ncol; }
@@ -121,30 +120,30 @@ public:
   VectorString expandNameList(const String& names) const;
   VectorInt ids(const String& name, bool flagOne) const;
   VectorInt ids(const VectorString& names, bool flagOne) const;
-  VectorInt ids(ENUM_LOCS locatorType, bool flagOne) const;
+  VectorInt ids(const ELoc& locatorType, bool flagOne) const;
   VectorInt ids(const VectorInt& iatts, bool flagOne) const;
 
   void reset(int ncol, int nech);
 
   // Locator and Attribute methods
 
-  void clearLocators(ENUM_LOCS locatorType);
+  void clearLocators(const ELoc& locatorType);
   void setLocatorByAttribute(int iatt,
-                             ENUM_LOCS locatorType,
+                             const ELoc& locatorType,
                              int locatorIndex = 0);
   void setLocator(const VectorString& names,
-                  ENUM_LOCS locatorType = LOC_UNKNOWN,
+                  const ELoc& locatorType = ELoc::UNKNOWN,
                   int locatorIndex = 0);
   void setLocator(const String& names,
-                  ENUM_LOCS locatorType = LOC_UNKNOWN,
+                  const ELoc& locatorType = ELoc::UNKNOWN,
                   int locatorIndex = 0);
   void setLocatorsByAttribute(int number,
                               int iatt,
-                              ENUM_LOCS locatorType,
+                              const ELoc& locatorType,
                               int locatorIndex = 0);
   int addFields(const VectorDouble& tab,
                 const String& radix = "New",
-                ENUM_LOCS locatorType = LOC_UNKNOWN,
+                const ELoc& locatorType = ELoc::UNKNOWN,
                 int locatorIndex = 0,
                 bool useSel = false,
                 double valinit = 0.,
@@ -152,7 +151,7 @@ public:
   int addFields(int nadd,
                 double valinit = 0.,
                 const String& radix = "New",
-                ENUM_LOCS locatorType = LOC_UNKNOWN,
+                const ELoc& locatorType = ELoc::UNKNOWN,
                 int locatorIndex = 0,
                 int nechInit = 1);
   int addSelection(const VectorDouble& tab,
@@ -162,23 +161,23 @@ public:
                    const String& name = "NewSel");
   int addSamples(int nadd, double valinit);
   void deleteSample(int e_del);
-  void switchLocator(ENUM_LOCS locatorTypein, ENUM_LOCS locatorTypeout);
-  void printLocators(void);
-  void printAttributes(void);
+  void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);
+  void printLocators(void) const;
+  void printAttributes(void) const;
   int  getLastAttribute(int number = 0) const;
   String getLastName(int number = 0) const;
 
   int getColumn(const String& name) const;
   int getColumnByAttribute(int iatt) const;
   VectorInt getColumnByAttribute(const VectorInt iatts) const;
-  int getColumnByLocator(ENUM_LOCS locatorType, int locatorIndex=0) const;
+  int getColumnByLocator(const ELoc& locatorType, int locatorIndex=0) const;
   VectorDouble getColumnByRank(int icol, bool useSel = false) const;
   void setColumnByRank(const VectorDouble& tab, int icol, bool useSel = false);
   void setColumnByRank(const double* tab, int icol, bool useSel = false);
   void duplicateColumnByAttribute(int iatt_in, int iatt_out);
 
   VectorInt getColumns(const VectorString& names) const;
-  VectorInt getColumnsByAttribute(ENUM_LOCS locatorType) const;
+  VectorInt getColumnsByAttribute(const ELoc& locatorType) const;
   VectorDouble getColumnsByRank(const VectorInt& icols = VectorInt(),
                                 bool useSel = false) const;
   VectorDouble getColumnsByRank(int icol_beg,
@@ -186,23 +185,23 @@ public:
                                 bool useSel = false) const;
 
   int getLocatorByColumn(int icol,
-                         ENUM_LOCS *ret_locatorType,
-                         int *ret_locatorIndex) const;
+                         ELoc* ret_locatorType,
+                         int* ret_locatorIndex) const;
   int getLocator(int iatt,
-                  ENUM_LOCS *ret_locatorType,
-                  int *ret_locatorIndex) const;
+                 ELoc* ret_locatorType,
+                 int* ret_locatorIndex) const;
   int getLocator(const String& name,
-                 ENUM_LOCS *ret_locatorType,
-                 int *ret_locatorIndex) const;
+                 ELoc* ret_locatorType,
+                 int* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator = true,
-                           ENUM_LOCS locatorType = LOC_UNKNOWN) const;
-  int getLocatorNumber(ENUM_LOCS locatorType) const;
+                           const ELoc& locatorType = ELoc::UNKNOWN) const;
+  int getLocatorNumber(const ELoc& locatorType) const;
   bool isAttributeDefined(int iatt) const;
 
-  int getAttribute(ENUM_LOCS locatorType, int locatorIndex=0) const;
+  int getAttribute(const ELoc& locatorType, int locatorIndex=0) const;
   int getAttribute(const String &name) const;
   VectorInt getAttributes(const VectorString& names) const;
-  VectorInt getAttributes(ENUM_LOCS locatorType) const;
+  VectorInt getAttributes(const ELoc& locatorType) const;
   VectorInt getAttributes() const;
   VectorInt getAttributesBasic(const VectorString& names) const;
   int getFaciesNumber(void) const;
@@ -228,9 +227,9 @@ public:
   void   updArray(int iech, int iatt, int oper, double value);
   VectorDouble getArray(int iatt, bool useSel = false) const;
 
-  int    getFromLocatorNumber(ENUM_LOCS locatorType) const;
-  double getFromLocator(ENUM_LOCS locatorType, int iech, int locatorIndex=0) const;
-  void   setFromLocator(ENUM_LOCS locatorType,
+  int    getFromLocatorNumber(const ELoc& locatorType) const;
+  double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
+  void   setFromLocator(const ELoc& locatorType,
                         int iech,
                         int locatorIndex,
                         double value);
@@ -351,14 +350,14 @@ public:
   void setDate(int iech, double value);
 
   int getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
-  double getSimvar(ENUM_LOCS locatorType,
+  double getSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,
                    int ivar,
                    int icase,
                    int nbsimu,
                    int nvar) const;
-  void setSimvar(ENUM_LOCS locatorType,
+  void setSimvar(const ELoc& locatorType,
                  int iech,
                  int isimu,
                  int ivar,
@@ -366,7 +365,7 @@ public:
                  int nbsimu,
                  int nvar,
                  double value);
-  void updSimvar(ENUM_LOCS locatorType,
+  void updSimvar(const ELoc& locatorType,
                  int iech,
                  int isimu,
                  int ivar,
@@ -385,7 +384,7 @@ public:
 
   VectorDouble getField(const String& name, bool useSel = false) const;
   VectorDouble getFieldByAttribute(int iatt, bool useSel = false) const;
-  VectorDouble getFieldByLocator(ENUM_LOCS locatorType,
+  VectorDouble getFieldByLocator(const ELoc& locatorType,
                                  int locatorIndex=0,
                                  bool useSel = false) const;
   void setFieldByAttribute(const double* tab, int iatt, bool useSel = false);
@@ -396,7 +395,7 @@ public:
 
   VectorDouble getFields(const VectorString& names = VectorString(),
                          bool useSel = false) const;
-  VectorDouble getFieldsByLocator(ENUM_LOCS locatorType,
+  VectorDouble getFieldsByLocator(const ELoc& locatorType,
                                   bool useSel = false) const;
   VectorDouble getFieldsByAttribute(const VectorInt& iatts,
                                     bool useSel = false) const;
@@ -407,7 +406,7 @@ public:
   void deleteField(const String& names);
   void deleteField(const VectorString& names);
   void deleteFieldByAttribute(int iatt_del);
-  void deleteFieldByLocator(ENUM_LOCS locatorType);
+  void deleteFieldByLocator(const ELoc& locatorType);
   void deleteFieldByRank(int rank_del);
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
@@ -492,7 +491,7 @@ public:
   bool isColumnIndexValid(int icol) const;
   bool isAttributeIndexValid(int iatt) const;
   bool isSampleIndexValid(int iech) const;
-  bool isLocatorIndexValid(ENUM_LOCS locatorType, int locatorIndex) const;
+  bool isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const;
   bool isDimensionIndexValid(int idim) const;
 
   using AStringable::display; // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
@@ -556,8 +555,8 @@ private:
   void _setNameByColumn(int icol, const String& name);
   int _getLastColumn(int number = 0) const;
   int _getAttributeByColumn(int icol) const;
-  int _findColumnInLocator(ENUM_LOCS locatorType, int icol) const;
-  int _findAttributeInLocator(ENUM_LOCS locatorType, int iatt) const;
+  int _findColumnInLocator(const ELoc& locatorType, int icol) const;
+  int _findAttributeInLocator(const ELoc& locatorType, int iatt) const;
   String _getLocatorNameByColumn(int icol) const;
 
   // Higher level methods
@@ -579,7 +578,7 @@ private:
   void _variableRead(int *natt_r,
                      int *ndim_r,
                      int *nech_r,
-                     std::vector<ENUM_LOCS>& tabatt,
+                     std::vector<ELoc>& tabatt,
                      VectorInt& tabnum,
                      VectorString& tabnam,
                      VectorDouble& tab);
@@ -593,6 +592,6 @@ private:
   VectorDouble _array;       //!< Array of values
   VectorInt _attcol;         //!< Attribute to Column
   VectorString _colNames;    //!< Names of the variables
-  PtrGeos _p[MAXIMUM_LOC];   //!< Locator characteristics
+  std::map<ELoc,PtrGeos> _p; //!< Locator characteristics
   GridC _grid;               //!< Grid characteristics
 };

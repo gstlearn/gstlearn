@@ -120,7 +120,7 @@ Db::Db(const VectorInt& nx,
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, LOC_X);
+  setLocatorsByAttribute(ndim, jcol, ELoc::X);
   _defineDefaultLocators(flag_add_rank + ndim, locatorNames);
 }
 
@@ -270,7 +270,7 @@ Db::Db(Db* db,
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, LOC_X);
+  setLocatorsByAttribute(ndim, jcol, ELoc::X);
 }
 
 /**
@@ -375,7 +375,7 @@ Db::Db(Polygons* polygon,
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, LOC_X);
+  setLocatorsByAttribute(ndim, jcol, ELoc::X);
 }
 
 /**
@@ -426,7 +426,7 @@ Db::Db(const Db* dbin,
 
   // Create Variables and Locators
 
-  ENUM_LOCS locatorType;
+  ELoc locatorType;
   int locatorIndex;
   for (int icol = 0; icol < _ncol; icol++)
   {
@@ -502,7 +502,7 @@ Db::Db(int nech,
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, LOC_X);
+  setLocatorsByAttribute(ndim, jcol, ELoc::X);
 }
 
 /**
@@ -538,7 +538,7 @@ Db::Db(const VectorDouble& tab, int flag_add_rank)
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, LOC_X);
+  setLocatorsByAttribute(ndim, jcol, ELoc::X);
 }
 
 Db::Db(const Db& r)
@@ -547,10 +547,10 @@ Db::Db(const Db& r)
       _isGrid(r._isGrid),
       _array(r._array),
       _colNames(r._colNames),
+      _p(r._p),
       _grid(r._grid)
+
 {
-  for (int i = 0; i < MAXIMUM_LOC; i++)
-    _p[i] = r._p[i];
 }
 
 Db& Db::operator=(const Db& r)
@@ -562,10 +562,8 @@ Db& Db::operator=(const Db& r)
     _isGrid = r._isGrid;
     _array = r._array;
     _colNames = r._colNames;
+    _p = r._p;
     _grid = r._grid;
-
-    for (int i = 0; i < MAXIMUM_LOC; i++)
-      _p[i] = r._p[i];
   }
   return *this;
 }
@@ -614,10 +612,10 @@ bool Db::isSampleIndexValid(int iech) const
   return true;
 }
 
-bool Db::isLocatorIndexValid(ENUM_LOCS locatorType, int locatorIndex) const
+bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorTypeValid(locatorType)) return false;
-  bool ok = _p[locatorType].isLocatorIndexValid(locatorIndex);
+  bool ok = _p.at(locatorType).isLocatorIndexValid(locatorIndex);
   if (! ok)
     messerr("Problem in the identification of Locator %d",locatorType);
   return ok;
@@ -646,10 +644,10 @@ int Db::_getAttributeByColumn(int icol) const
   return -1;
 }
 
-int Db::getAttribute(ENUM_LOCS locatorType, int locatorIndex) const
+int Db::getAttribute(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorIndexValid(locatorType, locatorIndex)) return -1;
-  const PtrGeos& p = _p[locatorType];
+  const PtrGeos& p = _p.at(locatorType);
   return p.getLocatorByIndex(locatorIndex);
 }
 
@@ -659,33 +657,33 @@ int Db::getAttribute(ENUM_LOCS locatorType, int locatorIndex) const
  * @param locatorIndex   Locator index (starting from 0)
  * @return
  */
-int Db::getColumnByLocator(ENUM_LOCS locatorType, int locatorIndex) const
+int Db::getColumnByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
   if (!isLocatorIndexValid(locatorType,locatorIndex)) return -1;
-  const PtrGeos& p = _p[locatorType];
+  const PtrGeos& p = _p.at(locatorType);
   int icol = getColumnByAttribute(p.getLocatorByIndex(locatorIndex));
   return (icol);
 }
 
-int Db::getLocatorNumber(ENUM_LOCS locatorType) const
+int Db::getLocatorNumber(const ELoc& locatorType) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
-  const PtrGeos& p = _p[locatorType];
+  const PtrGeos& p = _p.at(locatorType);
   return p.getLocatorNumber();
 }
 
-int Db::_findAttributeInLocator(ENUM_LOCS locatorType, int iatt) const
+int Db::_findAttributeInLocator(const ELoc& locatorType, int iatt) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
-  const PtrGeos& p = _p[locatorType];
+  const PtrGeos& p = _p.at(locatorType);
   if (!isAttributeIndexValid(iatt)) return -1;
   for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
     if (p.getLocatorByIndex(locatorIndex) == iatt) return (locatorIndex);
   return -1;
 }
 
-int Db::_findColumnInLocator(ENUM_LOCS locatorType, int icol) const
+int Db::_findColumnInLocator(const ELoc& locatorType, int icol) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
   int iatt = _getAttributeByColumn(icol);
@@ -700,31 +698,36 @@ int Db::_findColumnInLocator(ENUM_LOCS locatorType, int icol) const
  * @return
  */
 int Db::getLocatorByColumn(int icol,
-                            ENUM_LOCS *ret_locatorType,
-                            int *ret_locatorIndex) const
+                           ELoc* ret_locatorType,
+                           int* ret_locatorIndex) const
 {
-  for (int locatorType = 0; locatorType < MAXIMUM_LOC; locatorType++)
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
   {
-    const PtrGeos& p = _p[locatorType];
-    for (int i = 0; i < p.getLocatorNumber(); i++)
+    if (*it != ELoc::UNKNOWN)
     {
-      int jcol = getColumnByAttribute(p.getLocatorByIndex(i));
-      if (icol == jcol)
+      const PtrGeos& p = _p.at(*it);
+      for (int i = 0; i < p.getLocatorNumber(); i++)
       {
-        *ret_locatorType = (ENUM_LOCS) locatorType;
-        *ret_locatorIndex = i;
-        return true;
+        int jcol = getColumnByAttribute(p.getLocatorByIndex(i));
+        if (icol == jcol)
+        {
+          *ret_locatorType = *it;
+          *ret_locatorIndex = i;
+          return true;
+        }
       }
     }
+    it.toNext();
   }
-  *ret_locatorType = LOC_UNKNOWN;
+  *ret_locatorType = ELoc::UNKNOWN;
   *ret_locatorIndex = -1;
   return false;
 }
 
 int Db::getLocator(int iatt,
-                    ENUM_LOCS *ret_locatorType,
-                    int *ret_locatorIndex) const
+                   ELoc* ret_locatorType,
+                   int* ret_locatorIndex) const
 {
   if (!isAttributeIndexValid(iatt)) return -1;
   int icol = getColumnByAttribute(iatt);
@@ -739,18 +742,18 @@ int Db::getLocator(int iatt,
  * @return
  */
 int Db::getLocator(const String& name,
-                    ENUM_LOCS *ret_locatorType,
-                    int *ret_locatorIndex) const
+                   ELoc *ret_locatorType,
+                   int *ret_locatorIndex) const
 {
   VectorInt iatts = ids(name, true);
   if (iatts.empty()) return -1;
   return getLocator(iatts[0], ret_locatorType, ret_locatorIndex);
 }
 
-VectorString Db::getLocators(bool anyLocator, ENUM_LOCS locatorType) const
+VectorString Db::getLocators(bool anyLocator, const ELoc& locatorType) const
 {
   VectorString retval;
-  ENUM_LOCS type;
+  ELoc type;
   int item;
 
   for (int icol = 0; icol < _ncol; icol++)
@@ -800,7 +803,7 @@ VectorInt Db::ids(const VectorString& names, bool flagOne) const
   return iatts;
 }
 
-VectorInt Db::ids(ENUM_LOCS locatorType, bool flagOne) const
+VectorInt Db::ids(const ELoc& locatorType, bool flagOne) const
 {
   VectorString exp_names = getNames(locatorType);
   VectorInt iatts = getAttributesBasic(exp_names);
@@ -833,8 +836,13 @@ void Db::reset(int ncol, int nech)
 
   /* The variable pointers */
 
-  for (int locatorType = 0; locatorType < MAXIMUM_LOC; locatorType++)
-    clearLocators((ENUM_LOCS) locatorType);
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
+  {
+    if (*it != ELoc::UNKNOWN)
+      clearLocators(*it);
+    it.toNext();
+  }
 
   /* Main array */
 
@@ -954,7 +962,7 @@ double Db::getCoordinate(int iech, int idim, bool flag_rotate) const
   }
   else
   {
-    return getFromLocator(LOC_X, iech, idim);
+    return getFromLocator(ELoc::X, iech, idim);
   }
 }
 
@@ -1001,7 +1009,7 @@ void Db::setCoordinate(int iech, int idim, double value)
   _array[_getAddress(iech, icol)] = value;
 }
 
-void Db::setFromLocator(ENUM_LOCS locatorType,
+void Db::setFromLocator(const ELoc& locatorType,
                         int iech,
                         int locatorIndex,
                         double value)
@@ -1012,7 +1020,7 @@ void Db::setFromLocator(ENUM_LOCS locatorType,
   _array[_getAddress(iech, icol)] = value;
 }
 
-double Db::getFromLocator(ENUM_LOCS locatorType,
+double Db::getFromLocator(const ELoc& locatorType,
                           int iech,
                           int locatorIndex) const
 {
@@ -1022,16 +1030,22 @@ double Db::getFromLocator(ENUM_LOCS locatorType,
   return (_array[_getAddress(iech, icol)]);
 }
 
-int Db::getFromLocatorNumber(ENUM_LOCS locatorType) const
+int Db::getFromLocatorNumber(const ELoc& locatorType) const
 {
-  const PtrGeos& p = _p[locatorType];
+  const PtrGeos& p = _p.at(locatorType);
   return p.getLocatorNumber();
 }
 
 void Db::_initP(void)
 {
-  for (int i = 0; i < MAXIMUM_LOC; i++)
-    _p[i].resize(0);
+  _p.clear();
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
+  {
+    if (*it != ELoc::UNKNOWN)
+      _p[*it].resize(0);
+    it.toNext();
+  }
 }
 
 int Db::_getAddress(int iech, int icol) const
@@ -1039,27 +1053,31 @@ int Db::_getAddress(int iech, int icol) const
   return ((iech) + _nech * icol);
 }
 
-void Db::printLocators(void)
+void Db::printLocators(void) const
 {
   /* Loop on the pointers */
 
   mestitle(1, "List of locators");
   int rank = 0;
-  for (int locatorType = 0; locatorType < MAXIMUM_LOC; locatorType++)
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
   {
-    PtrGeos& p = _p[locatorType];
-    if (p.getLocatorNumber() <= 0) continue;
-    p.print(rank, (ENUM_LOCS) locatorType);
-    message("- Columns    = ");
-    for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
-      message("%2d ", getColumnByAttribute(p.getLocatorByIndex(locatorIndex)));
-    message("\n");
-    rank++;
+    if (*it != ELoc::UNKNOWN)
+    {
+      const PtrGeos& p = _p.at(*it);
+      if (p.getLocatorNumber() <= 0) continue;
+      p.print(rank, *it);
+      message("- Columns    = ");
+      for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
+        message("%2d ", getColumnByAttribute(p.getLocatorByIndex(locatorIndex)));
+      message("\n");
+      rank++;
+    }
+    it.toNext();
   }
-  return;
 }
 
-void Db::printAttributes(void)
+void Db::printAttributes(void) const
 {
   mestitle(1, "List of attributes");
   message("Maximum number of positions = %d\n", getAttributeMaxNumber());
@@ -1075,7 +1093,7 @@ void Db::printAttributes(void)
   return;
 }
 
-void Db::clearLocators(ENUM_LOCS locatorType)
+void Db::clearLocators(const ELoc& locatorType)
 {
   PtrGeos& p = _p[locatorType];
   p.clear();
@@ -1084,12 +1102,12 @@ void Db::clearLocators(ENUM_LOCS locatorType)
 /**
  * Setting the locator for a set of variables designated by their names
  * @param names        Vector if variable names
- * @param locatorType  Locator type (include LOC_UNKNOWN)
+ * @param locatorType  Locator type (include ELoc::UNKNOWN)
  * @param locatorIndex Starting locator rank (starting from 0)
  * @return
  */
 void Db::setLocator(const VectorString& names,
-                    ENUM_LOCS locatorType,
+                    const ELoc& locatorType,
                     int locatorIndex)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
@@ -1105,7 +1123,7 @@ void Db::setLocator(const VectorString& names,
  * @param locatorType Locator Type
  * @param locatorIndex Locator Index (for the first variable) (starting from 0)
  */
-void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex)
+void Db::setLocator(const String& names, const ELoc& locatorType, int locatorIndex)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iatts = ids(names, false);
@@ -1117,7 +1135,7 @@ void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex
 /**
  * Setting the locator for a variable designated by its attribute
  * @param iatt          Index of the Attribute
- * @param locatorType   Type of locator (include LOC_UNKNOWN)
+ * @param locatorType   Type of locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank in the Locator (starting from 0)
  * @return Error return code
  * @remark: At this stage, no check is performed to see if items
@@ -1125,7 +1143,7 @@ void Db::setLocator(const String& names, ENUM_LOCS locatorType, int locatorIndex
  * @remark: This allow using this function in any order.
  */
 void Db::setLocatorByAttribute(int iatt,
-                               ENUM_LOCS locatorType,
+                               const ELoc& locatorType,
                                int locatorIndex)
 {
   if (!isAttributeIndexValid(iatt)) return;
@@ -1134,17 +1152,22 @@ void Db::setLocatorByAttribute(int iatt,
 
   /* Cancel any locator referring to this column */
 
-  for (int vtype = 0; vtype < MAXIMUM_LOC; vtype++)
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
   {
-    PtrGeos& p = _p[vtype];
-    int found = _findAttributeInLocator((ENUM_LOCS) vtype, iatt);
-    if (found >= 0)
-      p.erase(found);
+    if (*it != ELoc::UNKNOWN)
+    {
+      PtrGeos& p = _p[*it];
+      int found = _findAttributeInLocator(*it, iatt);
+      if (found >= 0)
+        p.erase(found);
+    }
+    it.toNext();
   }
 
   // Check if this locator already exists for the current pointer type
 
-  if (locatorType != LOC_UNKNOWN)
+  if (locatorType != ELoc::UNKNOWN)
   {
     PtrGeos& p = _p[locatorType];
     int nitem = p.getLocatorNumber();
@@ -1155,7 +1178,7 @@ void Db::setLocatorByAttribute(int iatt,
 
 String Db::_getLocatorNameByColumn(int icol) const
 {
-  ENUM_LOCS locatorType;
+  ELoc locatorType;
   int locatorIndex;
   (void) getLocatorByColumn(icol, &locatorType, &locatorIndex);
   return getLocatorName(locatorType, locatorIndex);
@@ -1165,12 +1188,12 @@ String Db::_getLocatorNameByColumn(int icol) const
  * Set the Locators for a set of variables identified by their attribute rank
  * @param number        Number of variables to be set
  * @param iatt          Rank of the first attribute
- * @param locatorType   Type of the Locator (include LOC_UNKNOWN)
+ * @param locatorType   Type of the Locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank of the first Locator index (starting from 0)
  */
 void Db::setLocatorsByAttribute(int number,
                                 int iatt,
-                                ENUM_LOCS locatorType,
+                                const ELoc& locatorType,
                                 int locatorIndex)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
@@ -1192,7 +1215,7 @@ void Db::setLocatorsByAttribute(int number,
 int Db::addFields(int nadd,
                   double valinit,
                   const String& radix,
-                  ENUM_LOCS locatorType,
+                  const ELoc& locatorType,
                   int locatorIndex,
                   int nechInit)
 {
@@ -1231,7 +1254,7 @@ int Db::addFields(int nadd,
   _columnInit(nadd, ncol, valinit);
 
   // Set the locator (if defined)
-  if (locatorType != LOC_UNKNOWN)
+  if (locatorType != ELoc::UNKNOWN)
     setLocatorsByAttribute(nadd, nmax, locatorType, locatorIndex);
 
   _ncol += nadd;
@@ -1255,7 +1278,7 @@ int Db::addFields(int nadd,
  */
 int Db::addFields(const VectorDouble& tab,
                   const String& radix,
-                  ENUM_LOCS locatorType,
+                  const ELoc& locatorType,
                   int locatorIndex,
                   bool useSel,
                   double valinit,
@@ -1385,7 +1408,7 @@ void Db::deleteField(const VectorString& names)
 
 int Db::addSelection(const VectorDouble& tab, const String& name)
 {
-  int iatt = addFields(tab, name, LOC_SEL);
+  int iatt = addFields(tab, name, ELoc::SEL);
   return iatt;
 }
 
@@ -1400,7 +1423,7 @@ int Db::addSelection(const String& testvar,
                      const Limits& limits,
                      const String& name)
 {
-  int iatt = addFields(1,0.,name,LOC_SEL);
+  int iatt = addFields(1,0.,name,ELoc::SEL);
   if (iatt < 0) return 1;
 
   for (int iech = 0; iech < getSampleNumber(); iech++)
@@ -1513,11 +1536,16 @@ void Db::deleteFieldByAttribute(int iatt_del)
 
   /* Resize the variable pointers */
 
-  for (int locatorType = 0; locatorType < MAXIMUM_LOC; locatorType++)
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
   {
-    PtrGeos& p = _p[locatorType];
-    int found = _findAttributeInLocator((ENUM_LOCS) locatorType, iatt_del);
-    if (found >= 0) p.erase(found);
+    if (*it != ELoc::UNKNOWN)
+    {
+      PtrGeos& p = _p[*it];
+      int found = _findAttributeInLocator(*it, iatt_del);
+      if (found >= 0) p.erase(found);
+    }
+    it.toNext();
   }
 
   /* Resize the variables names */
@@ -1529,7 +1557,7 @@ void Db::deleteFieldByAttribute(int iatt_del)
   _ncol = nnew;
 }
 
-void Db::deleteFieldByLocator(ENUM_LOCS locatorType)
+void Db::deleteFieldByLocator(const ELoc& locatorType)
 {
   if (!isLocatorTypeValid(locatorType)) return;
   PtrGeos& p = _p[locatorType];
@@ -1676,7 +1704,7 @@ int Db::getNDim() const
   }
   else
   {
-    return (_p[LOC_X].getLocatorNumber());
+    return (_p.at(ELoc::X).getLocatorNumber());
   }
 }
 
@@ -1743,13 +1771,13 @@ void Db::_columnInit(int ncol, int icol0, double valinit)
     int icol = jcol + icol0;
 
     if (! GlobalEnvironment::getEnv()->isDomainReference() ||
-        getFromLocatorNumber(LOC_DOM) == 0)
+        getFromLocatorNumber(ELoc::DOM) == 0)
       for (int iech = 0; iech < _nech; iech++)
         _array[_getAddress(iech, icol)] = valinit;
     else
       for (int iech = 0; iech < _nech; iech++)
       {
-        double value = getFromLocator(LOC_DOM, iech, 0);
+        double value = getFromLocator(ELoc::DOM, iech, 0);
         int iad = _getAddress(iech, icol);
         if (GlobalEnvironment::getEnv()->matchDomainReference(value))
           _array[iad] = valinit;
@@ -1760,7 +1788,7 @@ void Db::_columnInit(int ncol, int icol0, double valinit)
   return;
 }
 
-void Db::switchLocator(ENUM_LOCS locatorType_in, ENUM_LOCS locatorType_out)
+void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
 {
   PtrGeos& p_in  = _p[locatorType_in];
   PtrGeos& p_out = _p[locatorType_out];
@@ -1789,7 +1817,7 @@ void Db::setByColumn(int iech, int icol, double value)
 
 int Db::getVariableNumber() const
 {
-  return getFromLocatorNumber(LOC_Z);
+  return getFromLocatorNumber(ELoc::Z);
 }
 
 /**
@@ -1838,12 +1866,12 @@ bool Db::hasVariable() const
 double Db::getVariable(int iech, int item) const
 {
   if (!hasVariable()) return (TEST);
-  return getFromLocator(LOC_Z, iech, item);
+  return getFromLocator(ELoc::Z, iech, item);
 }
 
 void Db::setVariable(int iech, int item, double value)
 {
-  setFromLocator(LOC_Z, iech, item, value);
+  setFromLocator(ELoc::Z, iech, item, value);
 }
 
 /****************************************************************************/
@@ -1867,9 +1895,9 @@ void Db::setVariable(int iech, int item, double value)
  *****************************************************************************/
 void Db::updVariable(int iech, int item, int oper, double value)
 {
-  double oldval = getFromLocator(LOC_Z, iech, item);
+  double oldval = getFromLocator(ELoc::Z, iech, item);
   double newval = _updateValue(oper, oldval, value);
-  setFromLocator(LOC_Z, iech, item, newval);
+  setFromLocator(ELoc::Z, iech, item, newval);
 }
 
 int Db::getIntervalNumber() const
@@ -1879,7 +1907,7 @@ int Db::getIntervalNumber() const
 
 int Db::getLowerIntervalNumber() const
 {
-  return getFromLocatorNumber(LOC_RKLOW);
+  return getFromLocatorNumber(ELoc::RKLOW);
 }
 
 bool Db::hasLowerInterval() const
@@ -1889,7 +1917,7 @@ bool Db::hasLowerInterval() const
 
 int Db::getUpperIntervalNumber() const
 {
-  return getFromLocatorNumber(LOC_RKUP);
+  return getFromLocatorNumber(ELoc::RKUP);
 }
 
 bool Db::hasUpperInterval() const
@@ -1900,23 +1928,23 @@ bool Db::hasUpperInterval() const
 double Db::getLowerInterval(int iech, int item) const
 {
   if (!hasLowerInterval()) return TEST;
-  return getFromLocator(LOC_RKLOW, iech, item);
+  return getFromLocator(ELoc::RKLOW, iech, item);
 }
 
 double Db::getUpperInterval(int iech, int item) const
 {
   if (!hasUpperInterval()) return TEST;
-  return getFromLocator(LOC_RKUP, iech, item);
+  return getFromLocator(ELoc::RKUP, iech, item);
 }
 
 void Db::setLowerInterval(int iech, int item, double rklow)
 {
-  setFromLocator(LOC_RKLOW, iech, item, rklow);
+  setFromLocator(ELoc::RKLOW, iech, item, rklow);
 }
 
 void Db::setUpperInterval(int iech, int item, double rkup)
 {
-  setFromLocator(LOC_RKUP, iech, item, rkup);
+  setFromLocator(ELoc::RKUP, iech, item, rkup);
 }
 
 void Db::setIntervals(int iech, int item, double rklow, double rkup)
@@ -1927,18 +1955,18 @@ void Db::setIntervals(int iech, int item, double rklow, double rkup)
             rklow,rkup);
     return;
   }
-  setFromLocator(LOC_RKLOW, iech, item, rklow);
-  setFromLocator(LOC_RKUP,  iech, item, rkup);
+  setFromLocator(ELoc::RKLOW, iech, item, rklow);
+  setFromLocator(ELoc::RKUP,  iech, item, rkup);
 }
 
 int Db::getLowerBoundNumber() const
 {
-  return getFromLocatorNumber(LOC_L);
+  return getFromLocatorNumber(ELoc::L);
 }
 
 int Db::getUpperBoundNumber() const
 {
-  return getFromLocatorNumber(LOC_U);
+  return getFromLocatorNumber(ELoc::U);
 }
 
 bool Db::hasLowerBound() const
@@ -1954,23 +1982,23 @@ bool Db::hasUpperBound() const
 double Db::getLowerBound(int iech, int item) const
 {
   if (!hasLowerBound()) return TEST;
-  return getFromLocator(LOC_L, iech, item);
+  return getFromLocator(ELoc::L, iech, item);
 }
 
 double Db::getUpperBound(int iech, int item) const
 {
   if (!hasUpperBound()) return TEST;
-  return getFromLocator(LOC_U, iech, item);
+  return getFromLocator(ELoc::U, iech, item);
 }
 
 void Db::setLowerBound(int iech, int item, double lower)
 {
-  setFromLocator(LOC_L, iech, item, lower);
+  setFromLocator(ELoc::L, iech, item, lower);
 }
 
 void Db::setUpperBound(int iech, int item, double upper)
 {
-  setFromLocator(LOC_U, iech, item, upper);
+  setFromLocator(ELoc::U, iech, item, upper);
 }
 void Db::setBounds(int iech, int item, double lower, double upper)
 {
@@ -1988,8 +2016,8 @@ VectorDouble Db::getWithinBounds(int item, bool useSel) const
 {
   int nech = (useSel) ? getActiveSampleNumber() : getSampleNumber();
   VectorDouble vec(nech);
-  VectorDouble vecl = getFieldByLocator(LOC_L, item, useSel);
-  VectorDouble vecu = getFieldByLocator(LOC_U, item, useSel);
+  VectorDouble vecl = getFieldByLocator(ELoc::L, item, useSel);
+  VectorDouble vecu = getFieldByLocator(ELoc::U, item, useSel);
 
   for (int iech = 0; iech < nech; iech++)
   {
@@ -2015,7 +2043,7 @@ VectorDouble Db::getWithinBounds(int item, bool useSel) const
 
 int Db::getGradientNumber() const
 {
-  return getFromLocatorNumber(LOC_G);
+  return getFromLocatorNumber(ELoc::G);
 }
 
 bool Db::hasGradient() const
@@ -2026,17 +2054,17 @@ bool Db::hasGradient() const
 double Db::getGradient(int iech, int item) const
 {
   if (!hasGradient()) return TEST;
-  return getFromLocator(LOC_G, iech, item);
+  return getFromLocator(ELoc::G, iech, item);
 }
 
 void Db::setGradient(int iech, int item, double value)
 {
-  setFromLocator(LOC_G, iech, item, value);
+  setFromLocator(ELoc::G, iech, item, value);
 }
 
 int Db::getTangentNumber() const
 {
-  return getFromLocatorNumber(LOC_TGTE);
+  return getFromLocatorNumber(ELoc::TGTE);
 }
 
 bool Db::hasTangent() const
@@ -2047,17 +2075,17 @@ bool Db::hasTangent() const
 double Db::getTangent(int iech, int item) const
 {
   if (!hasTangent()) return TEST;
-  return getFromLocator(LOC_TGTE, iech, item);
+  return getFromLocator(ELoc::TGTE, iech, item);
 }
 
 void Db::setTangent(int iech, int item, double value)
 {
-  setFromLocator(LOC_TGTE, iech, item, value);
+  setFromLocator(ELoc::TGTE, iech, item, value);
 }
 
 int Db::getProportionNumber() const
 {
-  return getFromLocatorNumber(LOC_P);
+  return getFromLocatorNumber(ELoc::P);
 }
 
 bool Db::hasProportion() const
@@ -2068,18 +2096,18 @@ bool Db::hasProportion() const
 double Db::getProportion(int iech, int item) const
 {
   if (!hasProportion()) return TEST;
-  return getFromLocator(LOC_P, iech, item);
+  return getFromLocator(ELoc::P, iech, item);
 }
 
 void Db::setProportion(int iech, int item, double value)
 {
-  setFromLocator(LOC_P, iech, item, value);
+  setFromLocator(ELoc::P, iech, item, value);
 }
 
 int Db::getSelection(int iech) const
 {
   if (!hasSelection()) return 1;
-  double value = getFromLocator(LOC_SEL, iech, 0);
+  double value = getFromLocator(ELoc::SEL, iech, 0);
   if (FFFF(value)) return 1;
   int sel = (value != 0) ? 1 :
                            0;
@@ -2088,13 +2116,13 @@ int Db::getSelection(int iech) const
 
 void Db::setSelection(int iech, int value)
 {
-  setFromLocator(LOC_SEL, iech, 0, (value == 0) ? 0. :
+  setFromLocator(ELoc::SEL, iech, 0, (value == 0) ? 0. :
                                                   1.);
 }
 
 bool Db::hasSelection() const
 {
-  return (getFromLocatorNumber(LOC_SEL) > 0);
+  return (getFromLocatorNumber(ELoc::SEL) > 0);
 }
 
 int Db::getActiveSampleNumber() const
@@ -2106,7 +2134,7 @@ int Db::getActiveSampleNumber() const
   int count = 0;
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
-    double value = getFromLocator(LOC_SEL, iech, 0);
+    double value = getFromLocator(ELoc::SEL, iech, 0);
     if (value != 0) count++;
   }
   return count;
@@ -2115,7 +2143,7 @@ int Db::getActiveSampleNumber() const
 double Db::getWeight(int iech) const
 {
   if (!hasWeight()) return 1.;
-  double w = getFromLocator(LOC_W, iech, 0);
+  double w = getFromLocator(ELoc::W, iech, 0);
   if (FFFF(w)) w = 1.;
   if (w < 0) w = 0.;
   return (w);
@@ -2129,7 +2157,7 @@ VectorDouble Db::getWeight(bool useSel) const
   VectorDouble tab(nech);
 
   if (useSel) sel = getSelection();
-  if (hasWeight()) icol = getColumnByLocator(LOC_W, 0);
+  if (hasWeight()) icol = getColumnByLocator(ELoc::W, 0);
 
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
@@ -2148,17 +2176,17 @@ VectorDouble Db::getWeight(bool useSel) const
 void Db::setWeight(int iech, double value)
 {
   if (value < 0) value = 0.;
-  setFromLocator(LOC_W, iech, 0, value);
+  setFromLocator(ELoc::W, iech, 0, value);
 }
 
 bool Db::hasWeight() const
 {
-  return (getFromLocatorNumber(LOC_W) > 0);
+  return (getFromLocatorNumber(ELoc::W) > 0);
 }
 
 int Db::getExternalDriftNumber() const
 {
-  return getFromLocatorNumber(LOC_F);
+  return getFromLocatorNumber(ELoc::F);
 }
 
 bool Db::hasExternalDrift() const
@@ -2169,17 +2197,17 @@ bool Db::hasExternalDrift() const
 double Db::getExternalDrift(int iech, int item) const
 {
   if (!hasExternalDrift()) return TEST;
-  return getFromLocator(LOC_F, iech, item);
+  return getFromLocator(ELoc::F, iech, item);
 }
 
 void Db::setExternalDrift(int iech, int item, double value)
 {
-  setFromLocator(LOC_F, iech, item, value);
+  setFromLocator(ELoc::F, iech, item, value);
 }
 
 int Db::getBlockExtensionNumber() const
 {
-  return getFromLocatorNumber(LOC_BLEX);
+  return getFromLocatorNumber(ELoc::BLEX);
 }
 
 bool Db::hasBlockExtension() const
@@ -2190,17 +2218,17 @@ bool Db::hasBlockExtension() const
 double Db::getBlockExtension(int iech, int item) const
 {
   if (!hasBlockExtension()) return TEST;
-  return getFromLocator(LOC_BLEX, iech, item);
+  return getFromLocator(ELoc::BLEX, iech, item);
 }
 
 void Db::setBlockExtension(int iech, int item, double value)
 {
-  setFromLocator(LOC_BLEX, iech, item, value);
+  setFromLocator(ELoc::BLEX, iech, item, value);
 }
 
 int Db::getCodeNumber() const
 {
-  return getFromLocatorNumber(LOC_C);
+  return getFromLocatorNumber(ELoc::C);
 }
 
 bool Db::hasCode() const
@@ -2211,14 +2239,14 @@ bool Db::hasCode() const
 double Db::getCode(int iech) const
 {
   if (!hasCode()) return 0;
-  double code = getFromLocator(LOC_C, iech, 0);
+  double code = getFromLocator(ELoc::C, iech, 0);
   if (FFFF(code)) code = 0.;
   return code;
 }
 
 void Db::setCode(int iech, double value)
 {
-  setFromLocator(LOC_C, iech, 0, value);
+  setFromLocator(ELoc::C, iech, 0, value);
 }
 
 /****************************************************************************/
@@ -2250,7 +2278,7 @@ VectorDouble Db::getCodeList(void)
 
 int Db::getVarianceErrorNumber() const
 {
-  return getFromLocatorNumber(LOC_V);
+  return getFromLocatorNumber(ELoc::V);
 }
 
 bool Db::hasVarianceError() const
@@ -2261,17 +2289,17 @@ bool Db::hasVarianceError() const
 double Db::getVarianceError(int iech, int item) const
 {
   if (!hasVarianceError()) return 0.;
-  return getFromLocator(LOC_V, iech, item);
+  return getFromLocator(ELoc::V, iech, item);
 }
 
 void Db::setVarianceError(int iech, int item, double value)
 {
-  setFromLocator(LOC_V, iech, item, value);
+  setFromLocator(ELoc::V, iech, item, value);
 }
 
 bool Db::hasDomain() const
 {
-  return (getFromLocatorNumber(LOC_DOM) > 0);
+  return (getFromLocatorNumber(ELoc::DOM) > 0);
 }
 
 /****************************************************************************/
@@ -2289,7 +2317,7 @@ int Db::getDomain(int iech) const
 {
   if (! GlobalEnvironment::getEnv()->isDomainReference()) return 1;
   if (! hasDomain()) return 1;
-  double value = getFromLocator(LOC_DOM, iech, 0);
+  double value = getFromLocator(ELoc::DOM, iech, 0);
   if (FFFF(value)) return (0);
   if (! GlobalEnvironment::getEnv()->matchDomainReference(value)) return 1;
   return 0;
@@ -2297,12 +2325,12 @@ int Db::getDomain(int iech) const
 
 void Db::setDomain(int iech, int value)
 {
-  setFromLocator(LOC_DOM, iech, 0, (value == 0) ? 0. : 1.);
+  setFromLocator(ELoc::DOM, iech, 0, (value == 0) ? 0. : 1.);
 }
 
 int Db::getDipDirectionNumber() const
 {
-  return getFromLocatorNumber(LOC_ADIR);
+  return getFromLocatorNumber(ELoc::ADIR);
 }
 
 bool Db::hasDipDirection() const
@@ -2313,17 +2341,17 @@ bool Db::hasDipDirection() const
 double Db::getDipDirection(int iech) const
 {
   if (!hasDipDirection()) return TEST;
-  return getFromLocator(LOC_ADIR, iech, 0);
+  return getFromLocator(ELoc::ADIR, iech, 0);
 }
 
 void Db::setDipDirection(int iech, double value)
 {
-  setFromLocator(LOC_ADIR, iech, 0, value);
+  setFromLocator(ELoc::ADIR, iech, 0, value);
 }
 
 int Db::getDipAngleNumber() const
 {
-  return getFromLocatorNumber(LOC_ADIP);
+  return getFromLocatorNumber(ELoc::ADIP);
 }
 
 bool Db::hasDipAngle() const
@@ -2333,17 +2361,17 @@ bool Db::hasDipAngle() const
 
 double Db::getDipAngle(int iech) const
 {
-  return getFromLocator(LOC_ADIP, iech, 0);
+  return getFromLocator(ELoc::ADIP, iech, 0);
 }
 
 void Db::setDipAngle(int iech, double value)
 {
-  setFromLocator(LOC_ADIP, iech, 0, value);
+  setFromLocator(ELoc::ADIP, iech, 0, value);
 }
 
 int Db::getObjectSizeNumber() const
 {
-  return getFromLocatorNumber(LOC_SIZE);
+  return getFromLocatorNumber(ELoc::SIZE);
 }
 
 bool Db::hasObjectSize() const
@@ -2354,17 +2382,17 @@ bool Db::hasObjectSize() const
 double Db::getObjectSize(int iech) const
 {
   if (!hasObjectSize()) return TEST;
-  return getFromLocator(LOC_SIZE, iech, 0);
+  return getFromLocator(ELoc::SIZE, iech, 0);
 }
 
 void Db::setObjectSize(int iech, double value)
 {
-  setFromLocator(LOC_SIZE, iech, 0, value);
+  setFromLocator(ELoc::SIZE, iech, 0, value);
 }
 
 int Db::getBorderUpNumber() const
 {
-  return getFromLocatorNumber(LOC_BU);
+  return getFromLocatorNumber(ELoc::BU);
 }
 
 bool Db::hasBorderUp() const
@@ -2375,17 +2403,17 @@ bool Db::hasBorderUp() const
 double Db::getBorderUp(int iech) const
 {
   if (!hasBorderUp()) return TEST;
-  return getFromLocator(LOC_BU, iech, 0);
+  return getFromLocator(ELoc::BU, iech, 0);
 }
 
 void Db::setBorderUp(int iech, double value)
 {
-  setFromLocator(LOC_BU, iech, 0, value);
+  setFromLocator(ELoc::BU, iech, 0, value);
 }
 
 int Db::getBorderDownNumber() const
 {
-  return getFromLocatorNumber(LOC_BD);
+  return getFromLocatorNumber(ELoc::BD);
 }
 
 bool Db::hasBorderDown() const
@@ -2396,17 +2424,17 @@ bool Db::hasBorderDown() const
 double Db::getBorderDown(int iech) const
 {
   if (!hasBorderDown()) return TEST;
-  return getFromLocator(LOC_BD, iech, 0);
+  return getFromLocator(ELoc::BD, iech, 0);
 }
 
 void Db::setBorderDown(int iech, double value)
 {
-  setFromLocator(LOC_BD, iech, 0, value);
+  setFromLocator(ELoc::BD, iech, 0, value);
 }
 
 int Db::getDateNumber() const
 {
-  return getFromLocatorNumber(LOC_DATE);
+  return getFromLocatorNumber(ELoc::DATE);
 }
 
 bool Db::hasDate() const
@@ -2417,12 +2445,12 @@ bool Db::hasDate() const
 double Db::getDate(int iech) const
 {
   if (!hasDate()) return 0.;
-  return getFromLocator(LOC_DATE, iech, 0);
+  return getFromLocator(ELoc::DATE, iech, 0);
 }
 
 void Db::setDate(int iech, double value)
 {
-  setFromLocator(LOC_DATE, iech, 0, value);
+  setFromLocator(ELoc::DATE, iech, 0, value);
 }
 
 int Db::getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar)
@@ -2430,7 +2458,7 @@ int Db::getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar)
   return (_getSimrank(isimu, ivar, icase, nbsimu, nvar));
 }
 
-double Db::getSimvar(ENUM_LOCS locatorType,
+double Db::getSimvar(const ELoc& locatorType,
                      int iech,
                      int isimu,
                      int ivar,
@@ -2443,7 +2471,7 @@ double Db::getSimvar(ENUM_LOCS locatorType,
   return getFromLocator(locatorType, iech, item);
 }
 
-void Db::setSimvar(ENUM_LOCS locatorType,
+void Db::setSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,
                    int ivar,
@@ -2456,7 +2484,7 @@ void Db::setSimvar(ENUM_LOCS locatorType,
   setFromLocator(locatorType, iech, item, value);
 }
 
-void Db::updSimvar(ENUM_LOCS locatorType,
+void Db::updSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,
                    int ivar,
@@ -2485,9 +2513,9 @@ bool Db::isActiveAndDefined(int iech, int item) const
 }
 
 /**
- * Returns the number of active samples for which the target variable (LOC_Z)
+ * Returns the number of active samples for which the target variable (ELoc::Z)
  * is defined
- * @param item Rank of the LOC_Z variable
+ * @param item Rank of the ELoc::Z variable
  * @return Number of samples
  */
 int Db::getActiveAndDefinedNumber(int item) const
@@ -2614,7 +2642,7 @@ int Db::_getLastColumn(int number) const
     return (_ncol - number);
 }
 
-String Db::getName(ENUM_LOCS locatorType, int locatorIndex) const
+String Db::getName(const ELoc& locatorType, int locatorIndex) const
 {
   int icol = getColumnByLocator(locatorType, locatorIndex);
   if (icol < 0) return String();
@@ -2628,7 +2656,7 @@ String Db::getName(int iatt) const
   return getNameByColumn(icol);
 }
 
-VectorString Db::getNames(ENUM_LOCS locatorType) const
+VectorString Db::getNames(const ELoc& locatorType) const
 {
   VectorString namelist;
   if (!isLocatorTypeValid(locatorType)) return namelist;
@@ -2703,7 +2731,7 @@ void Db::setName(const VectorString list, const String& name)
   correctNamesForDuplicates(_colNames);
 }
 
-void Db::setName(ENUM_LOCS locatorType, const String& name)
+void Db::setName(const ELoc& locatorType, const String& name)
 {
   VectorString namelist;
   if (!isLocatorTypeValid(locatorType)) return;
@@ -2964,7 +2992,7 @@ VectorDouble Db::getSelection(void) const
   VectorDouble tab;
 
   if (!hasSelection()) return tab;
-  int icol = getColumnByLocator(LOC_SEL,0);
+  int icol = getColumnByLocator(ELoc::SEL,0);
   if (!isColumnIndexValid(icol)) return tab;
 
   tab.resize(nech);
@@ -3001,7 +3029,7 @@ VectorDouble Db::getFieldByAttribute(int iatt, bool useSel) const
   return getColumnByRank(icol, useSel);
 }
 
-VectorDouble Db::getFieldByLocator(ENUM_LOCS locatorType,
+VectorDouble Db::getFieldByLocator(const ELoc& locatorType,
                                    int locatorIndex,
                                    bool useSel) const
 {
@@ -3019,7 +3047,7 @@ VectorDouble Db::getField(const String& name, bool useSel) const
   return getColumnByRank(icol, useSel);
 }
 
-VectorDouble Db::getFieldsByLocator(ENUM_LOCS locatorType, bool useSel) const
+VectorDouble Db::getFieldsByLocator(const ELoc& locatorType, bool useSel) const
 {
   VectorString names = getNames(locatorType);
   return getFields(names, useSel);
@@ -3142,7 +3170,7 @@ VectorInt Db::getColumns(const VectorString& names) const
   return icols;
 }
 
-VectorInt Db::getColumnsByAttribute(ENUM_LOCS locatorType) const
+VectorInt Db::getColumnsByAttribute(const ELoc& locatorType) const
 {
   VectorInt icols;
   if (!isLocatorTypeValid(locatorType)) return icols;
@@ -3195,7 +3223,7 @@ VectorInt Db::getAttributes(const VectorString& names) const
   return iatts;
 }
 
-VectorInt Db::getAttributes(ENUM_LOCS locatorType) const
+VectorInt Db::getAttributes(const ELoc& locatorType) const
 {
   VectorInt iatts;
   if (!isLocatorTypeValid(locatorType)) return iatts;
@@ -3272,11 +3300,11 @@ void Db::_createGridCoordinates(int shift)
   // Set the Names
 
   for (int idim = 0; idim < getNDim(); idim++)
-    _setNameByColumn(shift + idim, getLocatorName(LOC_X, idim));
+    _setNameByColumn(shift + idim, getLocatorName(ELoc::X, idim));
 
   // Set the locators
 
-  setLocatorsByAttribute(getNDim(), shift, LOC_X);
+  setLocatorsByAttribute(getNDim(), shift, ELoc::X);
 
   // Generate the vector of coordinates
 
@@ -3315,7 +3343,7 @@ void Db::_defineDefaultLocators(int shift, const VectorString& locatorNames)
   if ((int) locatorNames.size() != ncol)
     throw("Error in the dimension of 'locatorNames'");
 
-  ENUM_LOCS locatorType;
+  ELoc locatorType;
   int locatorIndex, mult;
   for (int icol = 0; icol < ncol; icol++)
   {
@@ -3331,7 +3359,7 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   int ncol = getFieldNumber() - shift;
   if ((int) names.size() != ncol) throw("Error in the dimension of 'names'");
 
-  ENUM_LOCS locatorType;
+  ELoc locatorType;
   int locatorIndex, mult;
   for (int icol = 0; icol < ncol; icol++)
   {
@@ -3457,7 +3485,7 @@ int Db::deSerialize(const String& filename, bool verbose)
 {
   int ndim, ndim2, ntot, natt, nech, i, flag_grid;
   VectorInt tabnum;
-  std::vector<ENUM_LOCS> tabatt;
+  std::vector<ELoc> tabatt;
   VectorInt nx;
   VectorString tabnam;
   VectorDouble x0;
@@ -3598,7 +3626,7 @@ int Db::serialize(const String& filename, bool verbose) const
 int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
 {
   int ecr, item, rankZ;
-  ENUM_LOCS locatorType = LOC_UNKNOWN;
+  ELoc locatorType = ELoc::UNKNOWN;
 
   /* Preliminary check */
 
@@ -3612,9 +3640,9 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
     if (!getLocatorByColumn(icol, &locatorType, &item))
     {
       if (onlyLocator) continue;
-      locatorType = LOC_Z;
+      locatorType = ELoc::Z;
     }
-    if (flag_grid && locatorType == LOC_X) continue;
+    if (flag_grid && locatorType == ELoc::X) continue;
     ncol++;
   }
   _recordWrite("%d", ncol);
@@ -3623,17 +3651,17 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
   /* Print the locators */
 
   _recordWrite("#", "Locators");
-  rankZ = getLocatorNumber(LOC_Z);
+  rankZ = getLocatorNumber(ELoc::Z);
   ecr = 0;
   for (int icol =  0; icol < getFieldNumber(); icol++)
   {
     if (! getLocatorByColumn(icol, &locatorType, &item))
     {
       if (onlyLocator) continue;
-      locatorType = LOC_Z;
+      locatorType = ELoc::Z;
       item = rankZ++;
     }
-    if (flag_grid && locatorType == LOC_X) continue;
+    if (flag_grid && locatorType == ELoc::X) continue;
     if (ecr >= ncol) break;
     String string = getLocatorName(locatorType, item);
     _recordWrite("%s", string.c_str());
@@ -3651,9 +3679,9 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
     if (! getLocatorByColumn(icol, &locatorType, &item))
     {
       if (onlyLocator) continue;
-      locatorType = LOC_Z;
+      locatorType = ELoc::Z;
     }
-    if (flag_grid && locatorType == LOC_X) continue;
+    if (flag_grid && locatorType == ELoc::X) continue;
     if (ecr >= ncol) break;
     _recordWrite("%s", getNameByColumn(icol).c_str());
     iatts.push_back(getAttribute(getNameByColumn(icol)));
@@ -3677,14 +3705,14 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
 void Db::_variableRead(int *natt_r,
                        int *ndim_r,
                        int *nech_r,
-                       std::vector<ENUM_LOCS>& tabatt,
+                       std::vector<ELoc>& tabatt,
                        VectorInt& tabnum,
                        VectorString& tabnam,
                        VectorDouble& tab)
 {
   char line[LONG_SIZE];
   int  inum, natt, ndim, nval, ecr, mult;
-  ENUM_LOCS iatt;
+  ELoc iatt;
   double value;
 
   /* Initializations */
@@ -3705,7 +3733,7 @@ void Db::_variableRead(int *natt_r,
     if (locatorIdentify(line, &iatt, &inum, &mult)) break;
     tabatt.push_back(iatt);
     tabnum.push_back(inum);
-    if (iatt == LOC_X) ndim++;
+    if (iatt == ELoc::X) ndim++;
     ecr++;
   }
 
@@ -3798,14 +3826,14 @@ bool Db::_isCountValid(const VectorInt iatts, bool flagOne) const
 
 /**
  * Returns the Number of different facies (labelling starts at 1)
- * The facies variable must be locatorized as LOC_Z and be unique
+ * The facies variable must be locatorized as ELoc::Z and be unique
  */
 int Db::getFaciesNumber(void) const
 {
-  if (getLocatorNumber(LOC_Z) != 1)
+  if (getLocatorNumber(ELoc::Z) != 1)
   {
     messerr("This function requires the number of variables (%d) to be equal to 1",
-            getLocatorNumber(LOC_Z));
+            getLocatorNumber(ELoc::Z));
     return ITEST;
   }
   int nech = getSampleNumber();

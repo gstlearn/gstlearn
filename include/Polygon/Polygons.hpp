@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_enum.h"
 #include "Polygon/PolySet.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"

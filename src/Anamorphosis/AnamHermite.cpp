@@ -295,7 +295,7 @@ int AnamHermite::fit(const VectorDouble& tab, const VectorDouble& wt)
   return 0;
 }
 
-int AnamHermite::fit(Db *db, ENUM_LOCS locatorType)
+int AnamHermite::fit(Db *db, const ELoc& locatorType)
 {
   int number = db->getLocatorNumber(locatorType);
   if (number != 1)
@@ -307,7 +307,7 @@ int AnamHermite::fit(Db *db, ENUM_LOCS locatorType)
   VectorDouble tab = db->getFieldByLocator(locatorType,0,true);
   VectorDouble wt;
   if (db->hasWeight())
-    wt = db->getFieldByLocator(LOC_W,0,true);
+    wt = db->getFieldByLocator(ELoc::W,0,true);
 
   return fit(tab, wt);
 }
@@ -317,7 +317,7 @@ int AnamHermite::fit(Db *db, const String& name)
   VectorDouble tab = db->getField(name,true);
   VectorDouble wt;
   if (db->hasWeight())
-    wt = db->getFieldByLocator(LOC_W,0,true);
+    wt = db->getFieldByLocator(ELoc::W,0,true);
 
   return fit(tab, wt);
 }

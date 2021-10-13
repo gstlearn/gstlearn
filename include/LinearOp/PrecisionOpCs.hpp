@@ -10,10 +10,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-
 #pragma once
+
 #include "LinearOp/PrecisionOp.hpp"
-#include "geoslib_enum.h"
 
 class ShiftOpCs;
 class CovAniso;

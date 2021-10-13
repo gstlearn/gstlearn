@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
     dbprop.addFields(1,props[ifac],names[ifac]);
-  dbprop.setLocator(names,LOC_P);
+  dbprop.setLocator(names,ELoc::P);
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
   auto ndata = 100;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
-  dat.addFields(z,"variable",LOC_Z);
+  dat.addFields(z,"variable",ELoc::Z);
 
   PGSSPDE sCond(models,workingDbc,ruleProp,&dat);
   PGSSPDE sNonCond(models,workingDbc,ruleProp);

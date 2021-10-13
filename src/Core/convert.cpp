@@ -2968,13 +2968,13 @@ GEOSLIB_API int db_write_csv(Db *db,
        if (flag_coor)
          for (int idim = 0; idim < ndim; idim++)
          {
-           int iatt = db_attribute_identify(db,LOC_X,idim);
+           int iatt = db_attribute_identify(db,ELoc::X,idim);
            csv_print_string(db_name_get_by_att(db,iatt).c_str());
            rank++;
          }
        for (int ivar = 0; ivar < nvar; ivar++)
        {
-         int iatt = db_attribute_identify(db,LOC_Z,ivar);
+         int iatt = db_attribute_identify(db,ELoc::Z,ivar);
          csv_print_string(db_name_get_by_att(db,iatt).c_str());
          rank++;
        }
@@ -2998,13 +2998,13 @@ GEOSLIB_API int db_write_csv(Db *db,
       if (flag_coor)
         for (int idim = 0; idim < ndim; idim++)
         {
-          int iatt = db_attribute_identify(db, LOC_X, idim);
+          int iatt = db_attribute_identify(db, ELoc::X, idim);
           csv_print_double(db->getCoordinate(iech, iatt));
           rank++;
         }
       for (int ivar = 0; ivar < nvar; ivar++)
       {
-        int iatt = db_attribute_identify(db, LOC_Z, ivar);
+        int iatt = db_attribute_identify(db, ELoc::Z, ivar);
         csv_print_double(db->getVariable(iech, iatt));
         rank++;
       }

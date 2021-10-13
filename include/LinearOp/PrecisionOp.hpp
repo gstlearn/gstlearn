@@ -13,10 +13,9 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "geoslib_enum.h"
-#include <map>
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/EPowerPT.hpp"
+#include <map>
 
 class APolynomial;
 class PrecisionOp {

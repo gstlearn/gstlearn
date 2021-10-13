@@ -102,7 +102,7 @@ void SPDE::init(Model& model,
   {
     if(dat->getVarianceErrorNumber()>0)
     {
-      varianceData = dat->getFieldByLocator(LOC_V,0,true);
+      varianceData = dat->getFieldByLocator(ELoc::V,0,true);
       for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
       {
         double *temp = &varianceData[iech];
@@ -149,7 +149,7 @@ void SPDE::computeSimuCond(int nbsimus, int seed) const
   VectorDouble temp(_data->getActiveSampleNumber());
   _precisionsSimu.simulateOnDataPointFromMeshings(_workingSimu,temp);
   ut_vector_multiply_inplace(temp,-1.);
-  ut_vector_add_inplace(temp,_data->getFieldByLocator(LOC_Z,0,true));
+  ut_vector_add_inplace(temp,_data->getFieldByLocator(ELoc::Z,0,true));
   computeKriging(temp);
 }
 
@@ -157,7 +157,7 @@ void SPDE::compute(int nbsimus, int seed) const
 {
   if(_calcul == ESPDECalcMode::KRIGING)
   {
-    computeKriging(_data->getFieldByLocator(LOC_Z,0,true));
+    computeKriging(_data->getFieldByLocator(ELoc::Z,0,true));
   }
 
   if(_calcul == ESPDECalcMode::SIMUNONCOND)
@@ -242,8 +242,8 @@ int SPDE::query(Db* db, NamingConvention namconv) const
      }
       suffix = "condSimu";
   }
-  int iptr = db->addFields(result,"SPDE",LOC_Z,0,true,TEST);
-  namconv.setNamesAndLocators(_data,LOC_Z,1,db,iptr,suffix,1,true);
+  int iptr = db->addFields(result,"SPDE",ELoc::Z,0,true,TEST);
+  namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
 }
 
@@ -252,5 +252,5 @@ VectorDouble SPDE::computeCoeffs() const
   // Loading the Vector of Drift values
   VectorVectorDouble drifttab = _model->getDrifts(_data, true);
 
-  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(LOC_Z,0,true),drifttab);
+  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),drifttab);
 }

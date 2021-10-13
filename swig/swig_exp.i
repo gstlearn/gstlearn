@@ -190,6 +190,7 @@ class IClonable{};
 %include API/ESPDECalcMode.hpp
 %include Db/Db.hpp
 %include Db/ELoadBy.hpp
+%include Db/ELoc.hpp
 %include Anamorphosis/Anam.hpp
 %include Anamorphosis/AnamContinuous.hpp
 %include Anamorphosis/AnamDiscrete.hpp

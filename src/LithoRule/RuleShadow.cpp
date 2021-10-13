@@ -219,7 +219,7 @@ double RuleShadow::_st_grid_eval(Db *dbgrid,
 
   /* First point */
   int iech = db_index_grid_to_sample(dbgrid,_ind2.data());
-  double z = dbgrid->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
+  double z = dbgrid->getSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,1);
   if (! FFFF(z))
   {
     double d2 = 0.;
@@ -237,7 +237,7 @@ double RuleShadow::_st_grid_eval(Db *dbgrid,
   /* Second point */
   _ind2[0] += 1;
   iech = db_index_grid_to_sample(dbgrid,_ind2.data());
-  z = dbgrid->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
+  z = dbgrid->getSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,1);
   if (! FFFF(z))
   {
     double d2 = 0.;
@@ -255,7 +255,7 @@ double RuleShadow::_st_grid_eval(Db *dbgrid,
   /* Third point */
   _ind2[1] += 1;
   iech = db_index_grid_to_sample(dbgrid,_ind2.data());
-  z = dbgrid->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
+  z = dbgrid->getSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,1);
   if (! FFFF(z))
   {
     double d2 = 0.;
@@ -273,7 +273,7 @@ double RuleShadow::_st_grid_eval(Db *dbgrid,
   /* Fourth point */
   _ind2[0] -= 1;
   iech = db_index_grid_to_sample(dbgrid,_ind2.data());
-  z = dbgrid->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
+  z = dbgrid->getSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,1);
   if (! FFFF(z))
   {
     double d2 = 0.;
@@ -308,8 +308,8 @@ double RuleShadow::_st_grid_eval(Db *dbgrid,
 ** \param[in]  isimu      Rank of the simulation
 ** \param[in]  nbsimu     Number of simulations
 **
-** \remark Attributes LOC_GAUSFAC are mandatory
-** \remark Attributes LOC_FACIES are mandatory
+** \remark Attributes ELoc::GAUSFAC are mandatory
+** \remark Attributes ELoc::FACIES are mandatory
 **
 *****************************************************************************/
 int RuleShadow::gaus2facData(PropDef *propdef,
@@ -324,7 +324,7 @@ int RuleShadow::gaus2facData(PropDef *propdef,
 
   /* Initializations */
 
-  check_mandatory_attribute("rule_gaus2fac_data_shadow",dbin,LOC_GAUSFAC);
+  check_mandatory_attribute("rule_gaus2fac_data_shadow",dbin,ELoc::GAUSFAC);
 
   /* Processing the translation */
 
@@ -346,13 +346,13 @@ int RuleShadow::gaus2facData(PropDef *propdef,
     {
       int icase = get_rank_from_propdef(propdef,ipgs,igrf);
       y[igrf] = (flag_used[igrf]) ?
-        dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1) : 0.;
+        dbin->getSimvar(ELoc::GAUSFAC,iech,isimu,0,icase,nbsimu,1) : 0.;
     }
     facies = getFaciesFromGaussian(y[0],y[1]);
 
     /* Combine the underlying GRFs to derive Facies*/
 
-    dbin->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+    dbin->setSimvar(ELoc::FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
   }
   return 0;
 }
@@ -370,7 +370,7 @@ int RuleShadow::gaus2facData(PropDef *propdef,
 ** \param[in]  isimu      Rank of the simulation
 ** \param[in]  nbsimu     Number of simulations
 **
-** \remark Attributes LOC_FACIES and LOC_SIMU are mandatory
+** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
 **
 *****************************************************************************/
 int RuleShadow::gaus2facResult(PropDef *propdef,
@@ -386,8 +386,8 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
 
   /* Initializations */
 
-  check_mandatory_attribute("rule_gaus2fac_result_shadow",dbout,LOC_FACIES);
-  check_mandatory_attribute("rule_gaus2fac_result_shadow",dbout,LOC_SIMU);
+  check_mandatory_attribute("rule_gaus2fac_result_shadow",dbout,ELoc::FACIES);
+  check_mandatory_attribute("rule_gaus2fac_result_shadow",dbout,ELoc::SIMU);
   error = 1;
   del   = (double *) NULL;
   dy    = 0.;
@@ -418,7 +418,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
     facies = TEST;
     for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
 
-    y[0] = dbout->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1);
+    y[0] = dbout->getSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,1);
     if (FFFF(y[0])) break;
     if (rule_thresh_define_shadow(propdef,dbout,this,SHADOW_WATER,
                                   iech,isimu,nbsimu,1,
@@ -456,7 +456,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
 
     /* Combine the underlying GRFs to derive Facies */
 
-    dbout->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+    dbout->setSimvar(ELoc::FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
   }
 
   /* Set the error return code */

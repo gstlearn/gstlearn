@@ -728,20 +728,20 @@ GEOSLIB_API int db_trisurf(Db         *db,
 
   for (int idim=0; idim<ndim; idim++)
   {
-    iptr_init[idim] = db->getColumnByLocator(LOC_X,idim);
+    iptr_init[idim] = db->getColumnByLocator(ELoc::X,idim);
     iptr_proj[idim] = db->addFields(1,TEST);
     if (iptr_proj[idim] < 0) goto label_end;
   }
   iptr_sel = db->addFields(1,1.);
   if (iptr_sel < 0) goto label_end;
-  db->setLocatorByAttribute(iptr_sel,LOC_SEL);
+  db->setLocatorByAttribute(iptr_sel,ELoc::SEL);
   
   /* Set the new 2-D coordinates and turn the third coordinate into variable */
 
-  db->clearLocators(LOC_X);
+  db->clearLocators(ELoc::X);
   for (int idim=0; idim<2; idim++)
-    db->setLocatorByAttribute(iptr_proj[idim],LOC_X,idim);
-  db->setLocatorByAttribute(iptr_proj[ndim-1],LOC_Z);
+    db->setLocatorByAttribute(iptr_proj[idim],ELoc::X,idim);
+  db->setLocatorByAttribute(iptr_proj[ndim-1],ELoc::Z);
   
   /* Loop on the set of points per Fault */
 

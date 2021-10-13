@@ -173,7 +173,7 @@ static int st_update_isopot(Db      *dbiso,
   for (int iech=0; iech<nech; iech++)
   {
     if (! dbiso->isActive(iech)) continue;
-    value = get_LOCATOR_ITEM(dbiso,LOC_LAYER,0,iech);
+    value = get_LOCATOR_ITEM(dbiso,ELoc::LAYER,0,iech);
     if (FFFF(value)) continue;
     ival = (int) value;
     
@@ -237,7 +237,7 @@ static int st_update_isopot(Db      *dbiso,
     for (int iech=0; iech<nech; iech++)
     {
       if (! dbiso->isActive(iech)) continue;
-      value = get_LOCATOR_ITEM(dbiso,LOC_LAYER,0,iech);
+      value = get_LOCATOR_ITEM(dbiso,ELoc::LAYER,0,iech);
       if (FFFF(value)) continue;
       ival = (int) value;
       if (ival != layval[i]) continue;
@@ -1380,15 +1380,15 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
     {
       if (ndim >= 1)
         zval[shift + GRX(ig)] = 
-          dbgrd->getSimvar(LOC_SIMU,IAD_GRD(ig),isimu+0*nbsimu,
+          dbgrd->getSimvar(ELoc::SIMU,IAD_GRD(ig),isimu+0*nbsimu,
                      0,0,ndim*nbsimu,1) - GRD_VAL(ig,0);
       if (ndim >= 2)
         zval[shift + GRY(ig)] = 
-          dbgrd->getSimvar(LOC_SIMU,IAD_GRD(ig),isimu+1*nbsimu,
+          dbgrd->getSimvar(ELoc::SIMU,IAD_GRD(ig),isimu+1*nbsimu,
                      0,0,ndim*nbsimu,1) - GRD_VAL(ig,1);
       if (ndim >= 3)
         zval[shift + GRZ(ig)] = 
-          dbgrd->getSimvar(LOC_SIMU,IAD_GRD(ig),isimu+2*nbsimu,
+          dbgrd->getSimvar(ELoc::SIMU,IAD_GRD(ig),isimu+2*nbsimu,
                      0,0,ndim*nbsimu,1) - GRD_VAL(ig,2);
     }
     
@@ -1397,7 +1397,7 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
     for (int it=0; it<pot_env->ntgt; it++)
     {
       zval[shift + TGT(it)] = 
-        dbtgt->getSimvar(LOC_SIMU,IAD_TGT(it),isimu,0,0,nbsimu,1);
+        dbtgt->getSimvar(ELoc::SIMU,IAD_TGT(it),isimu,0,0,nbsimu,1);
     }
 
     // Load the iso-potential simulation errors
@@ -1406,8 +1406,8 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
       for (int j=1; j<pot_env->nb_per_layer[ic]; j++)
       {
         zval[shift + ISC(ic,j)] = 
-          dbiso->getSimvar(LOC_SIMU,IAD_ISO(ic,j),isimu,0,0,nbsimu,1) -
-          dbiso->getSimvar(LOC_SIMU,IAD_ISO(ic,0),isimu,0,0,nbsimu,1);
+          dbiso->getSimvar(ELoc::SIMU,IAD_ISO(ic,j),isimu,0,0,nbsimu,1) -
+          dbiso->getSimvar(ELoc::SIMU,IAD_ISO(ic,0),isimu,0,0,nbsimu,1);
       }
 
     shift += nequa;
@@ -2309,10 +2309,10 @@ static void st_simcond(Pot_Env *pot_env,
       
       // Convert into simulation error
 
-      result[0] = (dbout->getSimvar(LOC_SIMU, iech, isimu, 0, 0, nbsimu, 1)
+      result[0] = (dbout->getSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1)
           - result[0]);
       for (int idim=0; idim<ndim; idim++)
-        result[1 + idim] = (dbgrd->getSimvar(LOC_SIMU, iech,
+        result[1 + idim] = (dbgrd->getSimvar(ELoc::SIMU, iech,
                                              isimu + idim * nbsimu, 0, 0,
                                              ndim * nbsimu, 1)
                             - result[1 + idim]);
@@ -2333,7 +2333,7 @@ static void st_simcond(Pot_Env *pot_env,
       
       // Store the results
       
-      dbout->setSimvar(LOC_SIMU,iech,isimu,0,0,nbsimu,1,result[0]);
+      dbout->setSimvar(ELoc::SIMU,iech,isimu,0,0,nbsimu,1,result[0]);
     } 
   }
   debug_index(-1);
@@ -2497,12 +2497,12 @@ static void st_check_data(Pot_Env *pot_env,
         // Convert into simulation error
 
         if (nbsimu > 0)
-          result[0] = (dbiso->getSimvar(LOC_SIMU, iech, isimu, 0, 0, nbsimu, 1)
+          result[0] = (dbiso->getSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1)
               - result[0]);
         
         // Print the results
         
-        layer = (int) get_LOCATOR_ITEM(dbiso,LOC_LAYER,0,iech);
+        layer = (int) get_LOCATOR_ITEM(dbiso,ELoc::LAYER,0,iech);
         st_print_result(pot_env,isimu,iech,layer,result,TEST);
       }
     }
@@ -2540,7 +2540,7 @@ static void st_check_data(Pot_Env *pot_env,
         if (nbsimu > 0)
         {
           for (int idim=0; idim<pot_env->ndim; idim++)
-            result[1 + idim] = (dbgrd->getSimvar(LOC_SIMU, iech,
+            result[1 + idim] = (dbgrd->getSimvar(ELoc::SIMU, iech,
                                                  isimu + idim * nbsimu, 0, 0,
                                                  pot_env->ndim * nbsimu, 1)
                                 - result[1 + idim]);
@@ -2695,7 +2695,7 @@ static void st_evaluate_potval(Pot_Env *pot_env,
     // Convert into simulation error
     
     if (nbsimu > 0)
-      result[0] = (dbiso->getSimvar(LOC_SIMU, ip1, isimu, 0, 0, nbsimu, 1)
+      result[0] = (dbiso->getSimvar(ELoc::SIMU, ip1, isimu, 0, 0, nbsimu, 1)
           - result[0]);
     
     // Center to the reference potential
@@ -2844,7 +2844,7 @@ static int st_extdrift_create_db(Db      *dbout,
 
   /* Add the selection */
 
-  pot_ext->db->addFields(1,0.,String(),LOC_SEL);
+  pot_ext->db->addFields(1,0.,String(),ELoc::SEL);
 
   /* Complementary core allocation */
 
@@ -3013,8 +3013,8 @@ static int st_pot_ext_manage(int      mode,
 ** \param[in]  verbose    Verbose option
 **
 ** \remark The results will be stored in the dbout file
-** \remark - the estimation in the variable LOC_Z
-** \remark - the gradient components in the variables LOC_GRD
+** \remark - the estimation in the variable ELoc::Z
+** \remark - the gradient components in the variables ELoc::GRD
 **
 *****************************************************************************/
 GEOSLIB_API int potential_kriging(Db    *dbiso,
@@ -3077,7 +3077,7 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
     goto label_end;
   }
   if (st_model_invalid(model)) goto label_end;
-  if (! exist_LOCATOR(dbiso,LOC_LAYER))
+  if (! exist_LOCATOR(dbiso,ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -3128,9 +3128,9 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
   // Allocating the output variables
 
   nvar = 1;
-  (void) dbout->addFields(nvar,TEST,String(),LOC_Z);
+  (void) dbout->addFields(nvar,TEST,String(),ELoc::Z);
   if (flag_grad)
-    (void) dbout->addFields(pot_env.ndim,TEST,String(),LOC_G);
+    (void) dbout->addFields(pot_env.ndim,TEST,String(),ELoc::G);
 
   // Core allocation
 
@@ -3260,7 +3260,7 @@ static int st_distance_to_isoline(Db *dbout)
 ** \param[in]  nbtuba       Number of turning bands
 ** \param[in]  verbose      Verbose option
 **
-** \remark The simulations will be stored in the dbout file (LOC_SIMU)
+** \remark The simulations will be stored in the dbout file (ELoc::SIMU)
 **
 *****************************************************************************/
 GEOSLIB_API int potential_simulate(Db    *dbiso,
@@ -3326,7 +3326,7 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
     goto label_end;
   }
   if (st_model_invalid(model)) goto label_end;
-  if (! exist_LOCATOR(dbiso,LOC_LAYER))
+  if (! exist_LOCATOR(dbiso,ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -3375,14 +3375,14 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
   
   /* Add the attributes for storing the results */
 
-  dbiso->addFields(nbsimu,0.,String(),LOC_SIMU);
+  dbiso->addFields(nbsimu,0.,String(),ELoc::SIMU);
   if (dbgrd != (Db *) NULL)
-    (void) dbgrd->addFields(2*nbsimu*pot_env.ndim,0.,String(),LOC_SIMU);
+    (void) dbgrd->addFields(2*nbsimu*pot_env.ndim,0.,String(),ELoc::SIMU);
   if (dbtgt != (Db *) NULL)
-    (void) dbtgt->addFields(2*nbsimu*pot_env.ndim,0.,String(),LOC_SIMU);
-  (void) dbout->addFields(nbsimu,0.,String(),LOC_SIMU);
+    (void) dbtgt->addFields(2*nbsimu*pot_env.ndim,0.,String(),ELoc::SIMU);
+  (void) dbout->addFields(nbsimu,0.,String(),ELoc::SIMU);
   if (flag_tempere)
-    (void) dbout->addFields(1,TEST,String(),LOC_Z);
+    (void) dbout->addFields(1,TEST,String(),ELoc::Z);
 
   /* Processing the non-conditional simulation over the iso-values */
 
@@ -3491,7 +3491,7 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
   error = 0;
 
 label_end:
-  if (flag_tempere) dbout->deleteFieldByLocator(LOC_Z);
+  if (flag_tempere) dbout->deleteFieldByLocator(ELoc::Z);
   st_pot_env_manage(-1,verbose,&pot_env);
   st_pot_ext_manage(-1,&pot_ext,0,0.,NULL);
   (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
@@ -3569,7 +3569,7 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
     goto label_end;
   }
   if (st_model_invalid(model)) goto label_end;
-  if (! exist_LOCATOR(dbiso,LOC_LAYER))
+  if (! exist_LOCATOR(dbiso,ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -3607,7 +3607,7 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
 
   nvar = 2;
   if (flag_dist_conv) nvar = 4;
-  (void) dbiso->addFields(nvar,TEST,String(),LOC_Z);
+  (void) dbiso->addFields(nvar,TEST,String(),ELoc::Z);
 
   // Core allocation
 

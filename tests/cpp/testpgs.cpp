@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
   ascii_filename("Data",0,0,filename);
   dbin = ascii_db_read(filename,0,verbose);
   if (dbin == (Db *) NULL) goto label_end;
-  iatt_z = db_attribute_identify(dbin,LOC_Z,0);
+  iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
   if (verbose) db_print(dbin,1,0,1,1,1);
 
   /* Define the Default Space according to the Dimension of the Input Db */
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
       iatt_ind = dbin->getFieldNumber();
       Limits limits = Limits(nclass);
       limits.toIndicator(dbin);
-      dbin->setLocatorsByAttribute(nclass,iatt_ind,LOC_Z);
+      dbin->setLocatorsByAttribute(nclass,iatt_ind,ELoc::Z);
       
       /* Calculate the experimental variograms */
       
@@ -144,10 +144,10 @@ int main(int argc, char *argv[])
       
       /* Delete the indicator variables */
       
-      dbin->clearLocators(LOC_Z);
+      dbin->clearLocators(ELoc::Z);
       for (ifac=0; ifac<nclass; ifac++)
         dbin->deleteFieldByAttribute(iatt_ind+ifac);
-      dbin->setLocatorByAttribute(iatt_z,LOC_Z);
+      dbin->setLocatorByAttribute(iatt_z,ELoc::Z);
     }
   }
 

@@ -1935,7 +1935,7 @@ GEOSLIB_API int model_grid(Model *model,
   for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    db_sample_load(db, LOC_X, iech, d1.data());
+    db_sample_load(db, ELoc::X, iech, d1.data());
     model_calcul_cov(model, mode, 1, 1., d1, covtab);
     g[iech] = COVTAB(ivar, jvar);
   }

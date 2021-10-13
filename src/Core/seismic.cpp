@@ -1564,7 +1564,7 @@ GEOSLIB_API int seismic_z2t_convert(Db *db_z,
 
   iatt_t = db_t->addFields(natt,0.);
   if (iatt_t < 0) goto label_end;
-  iatt_z = db_attribute_identify(db_z,LOC_Z,0);
+  iatt_z = db_attribute_identify(db_z,ELoc::Z,0);
 
   /* Core allocation */
 
@@ -1640,7 +1640,7 @@ GEOSLIB_API int seismic_t2z_convert(Db *db_t,
 
   iatt_z = db_z->addFields(natt,0.);
   if (iatt_z < 0) goto label_end;
-  iatt_t = db_attribute_identify(db_t,LOC_Z,0);
+  iatt_t = db_attribute_identify(db_t,ELoc::Z,0);
 
   /* Core allocation */
 
@@ -1701,7 +1701,7 @@ GEOSLIB_API int seismic_operate(Db  *db,
 
   /* Create the output variables */
 
-  iatt_in = db_attribute_identify(db,LOC_Z,0);
+  iatt_in = db_attribute_identify(db,ELoc::Z,0);
   if (iatt_in < 0) return(1);
   iatt_out = db->addFields(natt,0.);
   if (iatt_out < 0) return(1);
@@ -1872,7 +1872,7 @@ GEOSLIB_API int seismic_convolve(Db     *db,
   /* Create the output variables */
 
   error = 1;
-  iatt_in = db_attribute_identify(db,LOC_Z,0);
+  iatt_in = db_attribute_identify(db,ELoc::Z,0);
   if (iatt_in < 0) return(1);
   iatt_out = db->addFields(natt,0.);
   if (iatt_out < 0) return(1);
@@ -3097,8 +3097,8 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
   DX    = db->getDX(0);
   DZ    = db->getDX(2);
   NVAR  = db->getVariableNumber();
-  iatt_z1 = db_attribute_identify(db,LOC_Z,0);
-  iatt_z2 = db_attribute_identify(db,LOC_Z,1);
+  iatt_z1 = db_attribute_identify(db,ELoc::Z,0);
+  iatt_z2 = db_attribute_identify(db,ELoc::Z,1);
 
   if (! (NX > 1 && NY == 1 && NZ > 1))
   {

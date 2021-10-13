@@ -60,7 +60,8 @@ typedef enum
 } ENUM_CSTS;
 #endif
 
-typedef enum // TODO !!
+/*
+typedef enum
 {
   LOC_UNKNOWN = -1,
   LOC_X = 0,        //!< Coordinate
@@ -92,9 +93,8 @@ typedef enum // TODO !!
   LOC_RKLOW = 26,   //!< Rank for lower bound (when discretized)
   LOC_RKUP = 27,    //!< Rank for upper bound (when discretized)
   MAXIMUM_LOC = 28  //!< Maximum number of enums
-} ENUM_LOCS;
+} ENUM_LOCS;  // Now see ELoc.hpp
 
-/*
 typedef enum
 {
   DRIFT_UNKNOWN = -1,

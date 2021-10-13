@@ -7,7 +7,6 @@
 #include "Model/Model.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "API/ESPDECalcMode.hpp"
-#include "geoslib_enum.h"
 #include <vector>
 
 class ShiftOpCs;
@@ -19,6 +18,7 @@ public:
        const Db& field,
        const Db* dat = nullptr,
        const ESPDECalcMode& calc = ESPDECalcMode::SIMUCOND);
+  virtual ~SPDE();
 
   void init(Model& model,
             const Db& field,
@@ -30,7 +30,6 @@ public:
   void computeSimuCond(int nbsimus = 1, int seed = 131323) const;
   VectorDouble computeCoeffs()const;
   int query(Db* db,NamingConvention namconv = NamingConvention("spde")) const;
-  virtual ~SPDE();
 
 private:
   void _purge();

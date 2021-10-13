@@ -630,11 +630,11 @@ GEOSLIB_API int db_stats_grid(Db           *db,
   if (indg  == (int *) NULL) goto label_end;
   indg0  = db_indg_alloc(dbgrid);
   if (indg0 == (int *) NULL) goto label_end;
-  coor   = db_sample_alloc(db,LOC_X);
+  coor   = db_sample_alloc(db,ELoc::X);
   if (coor  == (double *) NULL) goto label_end;
   if (! strcmp(oper,"med"))
   {
-    medtab = db_sample_alloc(db,LOC_X);
+    medtab = db_sample_alloc(db,ELoc::X);
     if (medtab == (double *) NULL) goto label_end;
   }
 
@@ -659,7 +659,7 @@ GEOSLIB_API int db_stats_grid(Db           *db,
       /* Read a sample */
 
       if (! db->isActive(iech)) continue;
-      db_sample_load(db,LOC_X,iech,coor);
+      db_sample_load(db,ELoc::X,iech,coor);
       if (point_to_grid(dbgrid,coor,0,indg0) < 0) continue;
       value = db->getArray(iech,jcol);
       if (FFFF(value)) continue;
@@ -898,7 +898,7 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
 
   /* Core allocation */
   
-  coor = db_sample_alloc(db,LOC_X);
+  coor = db_sample_alloc(db,ELoc::X);
   if (coor == (double *) NULL) goto label_end;
   indg = db_indg_alloc(dbgrid);
   if (indg == (int *) NULL) goto label_end;
@@ -983,7 +983,7 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
 
     /* Check the location of the data in the grid */
 
-    db_sample_load(db,LOC_X,iech,coor);
+    db_sample_load(db,ELoc::X,iech,coor);
     if (point_to_grid(dbgrid,coor,0,indg) < 0) continue;
 
     iad = db_index_grid_to_sample(dbgrid,indg);
@@ -2110,7 +2110,7 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
   ncol = 3;
   iptr = dbgrid2->addFields(ncol,TEST);
   if (iptr < 0) goto label_end;
-  dbgrid2->setLocatorsByAttribute(ncol,iptr,LOC_Z);
+  dbgrid2->setLocatorsByAttribute(ncol,iptr,ELoc::Z);
 
   /* Core allocation */
 

@@ -4372,7 +4372,7 @@ static void st_vmap_varchol_manage(Db *dbmap,
     aux[i] = 0.;
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    iloc = db_attribute_identify(dbmap, LOC_Z, ivar);
+    iloc = db_attribute_identify(dbmap, ELoc::Z, ivar);
     (void) db_attribute_range(dbmap, iloc, &mini, &maxi, &gmax);
     AUX(ivar,ivar)= gmax;
   }

@@ -141,7 +141,7 @@ int AnamContinuous::RawToGaussian(Db *db, const String& name, NamingConvention n
   return 0;
 }
 
-int AnamContinuous::RawToGaussian(Db *db, ENUM_LOCS locatorType, NamingConvention namconv)
+int AnamContinuous::RawToGaussian(Db *db, const ELoc& locatorType, NamingConvention namconv)
 {
   if (db == (Db *) NULL) return 1;
   int number = db->getLocatorNumber(locatorType);
@@ -183,7 +183,7 @@ int AnamContinuous::GaussianToRaw(Db *db,const String& name, NamingConvention na
   return 0;
 }
 
-int AnamContinuous::GaussianToRaw(Db *db, ENUM_LOCS locatorType, NamingConvention namconv)
+int AnamContinuous::GaussianToRaw(Db *db, const ELoc& locatorType, NamingConvention namconv)
 {
   if (db == (Db *) NULL) return 1;
   int number = db->getLocatorNumber(locatorType);

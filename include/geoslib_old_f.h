@@ -278,7 +278,7 @@
                                        double **del_arg,
                                        double *dist_arg);
   GEOSLIB_API void ut_trace_sample(Db *db,
-                                   ENUM_LOCS ptype,
+                                   const ELoc& ptype,
                                    int np,
                                    double *xp,
                                    double *yp,
@@ -1467,13 +1467,13 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
   GEOSLIB_API int *db_indg_alloc(Db *db);
   GEOSLIB_API int *db_indg_free(int *indice);
   GEOSLIB_API double *db_sample_free(double *tab);
-  GEOSLIB_API double *db_sample_alloc(const Db *db, ENUM_LOCS locatorType);
-  GEOSLIB_API int db_sample_load(Db *db, ENUM_LOCS locatorType, int iech, double *tab);
+  GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType);
+  GEOSLIB_API int db_sample_load(Db *db, const ELoc& locatorType, int iech, double *tab);
   GEOSLIB_API double *db_vector_free(double *tab);
   GEOSLIB_API double *db_vector_alloc(Db *db);
   GEOSLIB_API int db_selection_get(Db *db, int item, double *tab);
-  GEOSLIB_API int db_vector_get(Db *db, ENUM_LOCS locatorType, int locatorIndex, double *tab);
-  GEOSLIB_API int db_vector_put(Db *db, ENUM_LOCS locatorType, int locatorIndex, double *tab);
+  GEOSLIB_API int db_vector_get(Db *db, const ELoc& locatorType, int locatorIndex, double *tab);
+  GEOSLIB_API int db_vector_put(Db *db, const ELoc& locatorType, int locatorIndex, double *tab);
   GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
                                                  int icol,
                                                  int *number,
@@ -1490,7 +1490,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                      int iatt,
                                      double valinit);
   GEOSLIB_API void db_attribute_copy(Db *db, int iatt_in, int iatt_out);
-  GEOSLIB_API int db_attribute_identify(const Db *db, ENUM_LOCS locatorType, int locatorIndex);
+  GEOSLIB_API int db_attribute_identify(const Db *db, const ELoc& locatorType, int locatorIndex);
   GEOSLIB_API int db_sample_get_att(Db *db,
                                     int iech,
                                     int number,
@@ -1502,7 +1502,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                      int iatt,
                                      double *tab);
   GEOSLIB_API int db_locator_attribute_add(Db *db,
-                                           ENUM_LOCS locatorType,
+                                           const ELoc& locatorType,
                                            int number,
                                            int r_tem,
                                            double valinit,
@@ -1574,11 +1574,11 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                   int iy,
                                   int iz,
                                   double value);
-  GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, ENUM_LOCS locatorType);
-  GEOSLIB_API int exist_LOCATOR(Db *db, ENUM_LOCS locatorType);
-  GEOSLIB_API double get_LOCATOR_ITEM(Db *db, ENUM_LOCS locatorType, int locatorIndex, int iech);
+  GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType);
+  GEOSLIB_API int exist_LOCATOR(Db *db, const ELoc& locatorType);
+  GEOSLIB_API double get_LOCATOR_ITEM(Db *db, const ELoc& locatorType, int locatorIndex, int iech);
   GEOSLIB_API void set_LOCATOR_ITEM(Db *db,
-                                    ENUM_LOCS locatorType,
+                                    const ELoc& locatorType,
                                     int locatorIndex,
                                     int iech,
                                     double value);
@@ -1702,7 +1702,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                 int *npline_loc,
                                 double **line_loc);
   GEOSLIB_API int manage_external_info(int mode,
-                                       ENUM_LOCS locatorType,
+                                       const ELoc& locatorType,
                                        Db *dbin,
                                        Db *dbout,
                                        int *istart);
@@ -2261,7 +2261,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
 
   GEOSLIB_API int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf);
   GEOSLIB_API void check_mandatory_attribute(const char *method,Db* db,
-                                             ENUM_LOCS locatorType);
+                                             const ELoc& locatorType);
   GEOSLIB_API int simtub_workable(Model *model);
   GEOSLIB_API int simdgm(Db *dbin,
                          Db *dbout,
@@ -2339,7 +2339,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                                        double percent,
                                                        VectorDouble& tab));
   GEOSLIB_API int db_simulations_to_ce(Db *db,
-                                       ENUM_LOCS locatorType,
+                                       const ELoc& locatorType,
                                        int nbsimu,
                                        int nvar,
                                        int *iptr_ce_arg,

@@ -2983,9 +2983,9 @@ static int st_vmap_general(Db*               db,
   if (indg1 == (int *) NULL) goto label_end;
   ind1 = (int *) mem_alloc(sizeof(int) * nech,0);
   if (ind1 == (int *) NULL) goto label_end;
-  delta = db_sample_alloc(db,LOC_X);
+  delta = db_sample_alloc(db,ELoc::X);
   if (delta == (double *) NULL) goto label_end;
-  mid   = db_sample_alloc(db,LOC_X);
+  mid   = db_sample_alloc(db,ELoc::X);
   if (mid   == (double *) NULL) goto label_end;
   coor  = db_vector_alloc(db);
   if (coor  == (double *) NULL) goto label_end;
@@ -3072,8 +3072,8 @@ static int st_vmap_general(Db*               db,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(db,LOC_Z,-1,dbmap,IPTW,"Nb",1,false);
-  namconv.setNamesAndLocators(db,LOC_Z,-1,dbmap,IPTV,"Var");
+  namconv.setNamesAndLocators(db,ELoc::Z,-1,dbmap,IPTW,"Nb",1,false);
+  namconv.setNamesAndLocators(db,ELoc::Z,-1,dbmap,IPTV,"Var");
   error = 0;
 
 label_end:
@@ -3210,8 +3210,8 @@ static int st_vmap_grid(Db*               dbgrid,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTW,"Nb",1,false);
-  namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTV,"Var");
+  namconv.setNamesAndLocators(dbgrid,ELoc::Z,-1,dbmap,IPTW,"Nb",1,false);
+  namconv.setNamesAndLocators(dbgrid,ELoc::Z,-1,dbmap,IPTV,"Var");
   error = 0;
 
 label_end:
@@ -3402,10 +3402,10 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
 
   if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
   {
-    iatt_old = db_attribute_identify(db,LOC_W,0);
+    iatt_old = db_attribute_identify(db,ELoc::W,0);
     iadd_new = db->addFields(1,0.);
     if (iadd_new < 0) goto label_end;
-    db->setLocatorByAttribute(iadd_new,LOC_W);
+    db->setLocatorByAttribute(iadd_new,ELoc::W);
     maille = db_grid_maille(db);
     for (iech=0; iech<db->getSampleNumber(); iech++) db->setWeight(iech,maille);
   }
@@ -3427,7 +3427,7 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
   if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
   {
     if (iadd_new > 0) db->deleteFieldByAttribute(iadd_new);
-    if (iatt_old > 0) db->setLocatorByAttribute(iatt_old,LOC_W);
+    if (iatt_old > 0) db->setLocatorByAttribute(iatt_old,ELoc::W);
   }
 
   /* Set the error return code */
@@ -3966,7 +3966,7 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
   nech  = db->getSampleNumber();
   indg = db_indg_alloc(dbgrid);
   if (indg == (int *) NULL) goto label_end;
-  coor = db_sample_alloc(dbgrid,LOC_X);
+  coor = db_sample_alloc(dbgrid,ELoc::X);
   if (coor == (double *) NULL) goto label_end;
   rank = (int *) mem_alloc(sizeof(int) * nech,0);
   if (rank == (int *) NULL) goto label_end;
@@ -4190,7 +4190,7 @@ GEOSLIB_API int variogram_cloud(Db *db,
 
   // Naming of the newly created variables
 
-  namconv.setNamesAndLocators(db,LOC_Z,-1,dbgrid,iptr,String(),ndir,false);
+  namconv.setNamesAndLocators(db,ELoc::Z,-1,dbgrid,iptr,String(),ndir,false);
 
   return(0);
 }
@@ -5330,8 +5330,8 @@ static int st_vmap_grid_fft(Db*               dbgrid,
   
   /* Set the error return code */
   
-  namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTW,"Nb",1,false);
-  namconv.setNamesAndLocators(dbgrid,LOC_Z,-1,dbmap,IPTV,"Var",1);
+  namconv.setNamesAndLocators(dbgrid,ELoc::Z,-1,dbmap,IPTW,"Nb",1,false);
+  namconv.setNamesAndLocators(dbgrid,ELoc::Z,-1,dbmap,IPTV,"Var",1);
   error = 0;
   
 label_end:
@@ -5833,7 +5833,7 @@ static void st_pca_z2f(int     flag_norm_out,
 **
 ** \param[out] pca        Output PCA structure
 **
-** \remarks Note that the LOC_Z is redefined in this function
+** \remarks Note that the ELoc::Z is redefined in this function
 **
 *****************************************************************************/
 static int st_pca_calculate(int flag_norm,
@@ -5896,7 +5896,7 @@ static int st_pca_calculate(int flag_norm,
 ** 
 ** \param[out] pca        Output PCA structure
 **
-** \remarks Note that the LOC_Z is redefined in this function
+** \remarks Note that the ELoc::Z is redefined in this function
 **
 *****************************************************************************/
 GEOSLIB_API int maf_compute(Db     *db,
@@ -5957,7 +5957,7 @@ GEOSLIB_API int maf_compute(Db     *db,
   /* Rotate the initial data in the PCA system */
 
   st_pca_z2f(1,iptr,db,pca,data1,pca->getMean(),pca->getSigma());
-  db->setLocatorsByAttribute(nvar,iptr,LOC_Z);
+  db->setLocatorsByAttribute(nvar,iptr,ELoc::Z);
   
   /* Calculate the variance-covariance matrix at distance [h0-dh,h0+dh] */
 

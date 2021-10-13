@@ -27,7 +27,7 @@ RuleProp::RuleProp()
 /**
  * This constructor is used in the exceptional case where the Rule is not yet defined
  * (typically when inferring the Rule)
- * @param dbprop  Db containing the Proportion information (LOC_P fields)
+ * @param dbprop  Db containing the Proportion information (ELoc::P fields)
  * @param propcst Vector of constant proportions
  */
 RuleProp::RuleProp(const Db* dbprop, const VectorDouble& propcst)
@@ -179,7 +179,7 @@ bool RuleProp::_checkConsistency()
     _propcst.clear();
 
     // Check consistency of the number of facies
-    int nfacdb = _dbprop->getFromLocatorNumber(LOC_P);
+    int nfacdb = _dbprop->getFromLocatorNumber(ELoc::P);
     if (nfacies > 0 && nfacies != nfacdb)
     {
       messerr("Mismatch between:");
@@ -245,7 +245,7 @@ int RuleProp::_getNFacies()
   // Non-stationary case: proportions are provided using Dbprop
   if (_dbprop != nullptr)
   {
-    return _dbprop->getFromLocatorNumber(LOC_P);
+    return _dbprop->getFromLocatorNumber(ELoc::P);
   }
 
   // Stationary proportions provided by 'propcst'

@@ -736,7 +736,7 @@ static int st_vario_pgs_variable(int    mode,
       is_prop_defined = false;
       if (flag_prop && db->getProportionNumber() != nfacies)
       {
-        iptr = db->addFields(nfacies,0.,String(),LOC_P);
+        iptr = db->addFields(nfacies,0.,String(),ELoc::P);
         if (iptr < 0) return(1);
         is_prop_defined = true;
       }
@@ -745,18 +745,18 @@ static int st_vario_pgs_variable(int    mode,
       
       if (! TEST_DISCRET)
       {
-        iptr = db->addFields(number,0.,"Lower",LOC_L);
+        iptr = db->addFields(number,0.,"Lower",ELoc::L);
         if (iptr < 0) return(1);
         
-        iptr = db->addFields(number,0.,"Upper",LOC_U);
+        iptr = db->addFields(number,0.,"Upper",ELoc::U);
         if (iptr < 0) return(1);
       }
       else
       {
-        iptr = db->addFields(number,0.,"Lower Rank",LOC_RKLOW);
+        iptr = db->addFields(number,0.,"Lower Rank",ELoc::RKLOW);
         if (iptr < 0) return(1);
         
-        iptr = db->addFields(number,0.,"Upper Rank",LOC_RKUP);
+        iptr = db->addFields(number,0.,"Upper Rank",ELoc::RKUP);
         if (iptr < 0) return(1);
       }
       break;
@@ -797,17 +797,17 @@ static int st_vario_pgs_variable(int    mode,
       
       if (flag_prop && is_prop_defined)
       {
-        db->deleteFieldByLocator(LOC_P);
+        db->deleteFieldByLocator(ELoc::P);
       }
       if (! TEST_DISCRET)
       {
-        db->deleteFieldByLocator(LOC_L);
-        db->deleteFieldByLocator(LOC_U);
+        db->deleteFieldByLocator(ELoc::L);
+        db->deleteFieldByLocator(ELoc::U);
       }
       else
       {
-        db->deleteFieldByLocator(LOC_RKLOW);
-        db->deleteFieldByLocator(LOC_RKUP);
+        db->deleteFieldByLocator(ELoc::RKLOW);
+        db->deleteFieldByLocator(ELoc::RKUP);
       }
       break;
   }
@@ -3398,8 +3398,8 @@ static int st_discard_point(Local_Pgs *local_pgs,
   }
   else
   {
-    if (get_LOCATOR_NITEM(local_pgs->db,LOC_RKLOW) <= 0 &&
-        get_LOCATOR_NITEM(local_pgs->db,LOC_RKUP)  <= 0) return(0);
+    if (get_LOCATOR_NITEM(local_pgs->db,ELoc::RKLOW) <= 0 &&
+        get_LOCATOR_NITEM(local_pgs->db,ELoc::RKUP)  <= 0) return(0);
     low = local_pgs->db->getLowerInterval(iech,local_pgs->igrfcur);
     up  = local_pgs->db->getUpperInterval(iech,local_pgs->igrfcur);
   }

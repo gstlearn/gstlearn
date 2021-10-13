@@ -49,7 +49,7 @@ public:
   void   calculateMeanAndVariance() override;
   int    fit(const VectorDouble& tab,
              const VectorDouble& wt = VectorDouble());
-  int    fit(Db *db, ENUM_LOCS locatorType = LOC_Z);
+  int    fit(Db *db, const ELoc& locatorType = ELoc::Z);
   int    fit(Db *db, const String& name);
 
 private:

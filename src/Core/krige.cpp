@@ -707,7 +707,7 @@ static double st_get_ivar(int rank,
 
       // Case of the traditional kriging based on Z-variables
 
-      value = DBIN->getSimvar(LOC_SIMU,rank,0,ivar,0,1,0);
+      value = DBIN->getSimvar(ELoc::SIMU,rank,0,ivar,0,1,0);
   }
   else
   {
@@ -797,9 +797,9 @@ static double st_get_array(int rank,
   double value;
 
   if (rank >= 0)
-    value = DBIN->getSimvar(LOC_SIMU, rank, isimu, ivar, icase, nbsimu, nvar);
+    value = DBIN->getSimvar(ELoc::SIMU, rank, isimu, ivar, icase, nbsimu, nvar);
   else
-    value = DBOUT->getSimvar(LOC_SIMU, IECH_OUT, isimu, ivar, icase, nbsimu,
+    value = DBOUT->getSimvar(ELoc::SIMU, IECH_OUT, isimu, ivar, icase, nbsimu,
                              nvar);
   return(value);
 }
@@ -919,9 +919,9 @@ static int st_check_environment(int    flag_in,
 
     if (flag_in)
     {
-      dbin_mini = db_sample_alloc(DBIN,LOC_X);
+      dbin_mini = db_sample_alloc(DBIN,ELoc::X);
       if (dbin_mini == (double *) NULL) goto label_end;
-      dbin_maxi = db_sample_alloc(DBIN,LOC_X);
+      dbin_maxi = db_sample_alloc(DBIN,ELoc::X);
       if (dbin_maxi == (double *) NULL) goto label_end;
       if (db_extension(DBIN,
                        dbin_mini,dbin_maxi,(double *) NULL)) goto label_end;
@@ -931,9 +931,9 @@ static int st_check_environment(int    flag_in,
 
     if (flag_out)
     {
-      dbout_mini = db_sample_alloc(DBOUT,LOC_X);
+      dbout_mini = db_sample_alloc(DBOUT,ELoc::X);
       if (dbout_mini == (double *) NULL) goto label_end;
-      dbout_maxi = db_sample_alloc(DBOUT,LOC_X);
+      dbout_maxi = db_sample_alloc(DBOUT,ELoc::X);
       if (dbout_maxi == (double *) NULL) goto label_end;
       if (db_extension(DBOUT,
                        dbout_mini,dbout_maxi,(double *) NULL)) goto label_end;
@@ -1011,9 +1011,9 @@ static int st_model_manage(int    mode,
 
     if (MODEL_INIT) return(1);
     d1.resize(DBIN->getNDim());
-    d1_1 = db_sample_alloc(DBIN,LOC_X);
+    d1_1 = db_sample_alloc(DBIN,ELoc::X);
     if (d1_1 == (double *) NULL) return(1);
-    d1_2 = db_sample_alloc(DBIN,LOC_X);
+    d1_2 = db_sample_alloc(DBIN,ELoc::X);
     if (d1_2 == (double *) NULL) return(1);
     d1_t.resize(DBIN->getNDim());
     covtab = st_core(nvar,nvar);
@@ -2730,7 +2730,7 @@ static void st_simulate(Model  *model,
       }
       
       /* Add the conditioning kriging to the NC simulation at target */
-      DBOUT->updSimvar(LOC_SIMU, IECH_OUT, isimu, ivar, icase, nbsimu, nvar, 0,
+      DBOUT->updSimvar(ELoc::SIMU, IECH_OUT, isimu, ivar, icase, nbsimu, nvar, 0,
                        simu);
     }
   
@@ -2783,7 +2783,7 @@ static void krige_wgt_print(int     status,
   tab_prints(NULL,1,EJustify::RIGHT,"Rank");
   for (idim=0; idim<ndim; idim++)
   {
-    String strloc = getLocatorName(LOC_X,idim);
+    String strloc = getLocatorName(ELoc::X,idim);
     tab_prints(NULL,1,EJustify::RIGHT,strloc.c_str());
   }
   if (DBIN->hasCode())
@@ -3152,8 +3152,8 @@ static Db *st_image_build(Neigh *neigh,
 
   /* Set the locators */
 
-  dbaux->setLocatorsByAttribute(nvar,0,LOC_Z);
-  dbaux->setLocatorsByAttribute(ndim,nvar,LOC_X);
+  dbaux->setLocatorsByAttribute(nvar,0,ELoc::Z);
+  dbaux->setLocatorsByAttribute(ndim,nvar,ELoc::X);
   if (db_grid_define_coordinates(dbaux)) goto label_end;
 
   /* Shift the origin */
@@ -3161,7 +3161,7 @@ static Db *st_image_build(Neigh *neigh,
   for (i=0; i<ndim; i++) dbaux->setX0(i,0.);
   indg = db_indg_alloc(dbaux);
   if (indg == (int *) NULL) goto label_end;
-  coor = db_sample_alloc(dbaux,LOC_X);
+  coor = db_sample_alloc(dbaux,ELoc::X);
   if (coor == (double *) NULL) goto label_end;
   db_index_sample_to_grid(dbaux,nech/2,indg);
   grid_to_point(dbaux,indg,(double *) NULL,coor);
@@ -3424,7 +3424,7 @@ GEOSLIB_API int kriging(Db*              dbin,
   FLAG_WGT  = flag_std || flag_varz || save_keypair;
   if (st_check_colcok(dbin,dbout,rank_colcok.data())) goto label_end;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   if (matCL.empty())
     nvar = model->getVariableNumber();
@@ -3528,22 +3528,22 @@ GEOSLIB_API int kriging(Db*              dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin,LOC_Z,nvar,dbout,IPTR_VARZ,"varz",1,false);
+  namconv.setNamesAndLocators(dbin,ELoc::Z,nvar,dbout,IPTR_VARZ,"varz",1,false);
   if (ABS(neigh->getFlagXvalid()) == 1)
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_STD,"stderr",1,false);
+    namconv.setNamesAndLocators(dbin,ELoc::Z,-1,dbout,IPTR_STD,"stderr",1,false);
   else
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_STD,"stdev",1,false);
+    namconv.setNamesAndLocators(dbin,ELoc::Z,-1,dbout,IPTR_STD,"stdev",1,false);
   if (ABS(neigh->getFlagXvalid()) == 1)
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_EST,"esterr");
+    namconv.setNamesAndLocators(dbin,ELoc::Z,-1,dbout,IPTR_EST,"esterr");
   else
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbout,IPTR_EST,"estim");
+    namconv.setNamesAndLocators(dbin,ELoc::Z,-1,dbout,IPTR_EST,"estim");
 
 label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,calcul,1,ndisc);
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -3588,7 +3588,7 @@ static int st_xvalid_unique(Db *dbin,
   FLAG_WGT  = flag_std;
   if (st_check_colcok(dbin,dbin,rank_colcok.data())) goto label_end;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar = model->getVariableNumber();
 
@@ -3699,20 +3699,20 @@ static int st_xvalid_unique(Db *dbin,
 
   error = 0;
   if (ABS(neigh->getFlagXvalid()) == 1)
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_STD,"stderr",1,false);
+    namconv.setNamesAndLocators(dbin,ELoc::Z,-1,dbin,IPTR_STD,"stderr",1,false);
   else
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_STD,"stdev",1,false);
+    namconv.setNamesAndLocators(dbin,ELoc::Z,-1,dbin,IPTR_STD,"stdev",1,false);
   if (ABS(neigh->getFlagXvalid()) == 1)
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_EST,"esterr");
+    namconv.setNamesAndLocators(dbin,ELoc::Z,-1,dbin,IPTR_EST,"esterr");
   else
-    namconv.setNamesAndLocators(dbin,LOC_Z,-1,dbin,IPTR_EST,"estim");
+    namconv.setNamesAndLocators(dbin,ELoc::Z,-1,dbin,IPTR_EST,"estim");
 
 label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -3817,7 +3817,7 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
   FLAG_DGM  = 1;
   R_COEFF   = rval;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
@@ -3924,7 +3924,7 @@ label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -3981,7 +3981,7 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
   FLAG_PROF = 1;
   nvar  = dbin->getVariableNumber();
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
 
   /* Add the attributes for storing the results */
@@ -4075,7 +4075,7 @@ label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   if (iptr_dat >= 0)
     for (icode=0; icode<ncode; icode++)
@@ -4404,7 +4404,7 @@ GEOSLIB_API int kribayes_f(Db *dbin,
   FLAG_STD   = flag_std;
   FLAG_WGT   = flag_std;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar = model->getVariableNumber();
 
@@ -4515,7 +4515,7 @@ label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -4557,7 +4557,7 @@ GEOSLIB_API int test_neigh(Db    *dbin,
   ntab  = 5;
   st_global_init(dbin,dbout);
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
 
   /* Add the attributes for storing the results */
@@ -4604,18 +4604,18 @@ GEOSLIB_API int test_neigh(Db    *dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(NULL,LOC_UNKNOWN,1,dbout,IPTR_NBGH  ,"Number");
-  namconv.setNamesAndLocators(NULL,LOC_UNKNOWN,1,dbout,IPTR_NBGH+1,"MaxDist");
-  namconv.setNamesAndLocators(NULL,LOC_UNKNOWN,1,dbout,IPTR_NBGH+2,"MinDist");
-  namconv.setNamesAndLocators(NULL,LOC_UNKNOWN,1,dbout,IPTR_NBGH+3,"NbNESect");
-  namconv.setNamesAndLocators(NULL,LOC_UNKNOWN,1,dbout,IPTR_NBGH+4,"NbCESect");
+  namconv.setNamesAndLocators(NULL,ELoc::UNKNOWN,1,dbout,IPTR_NBGH  ,"Number");
+  namconv.setNamesAndLocators(NULL,ELoc::UNKNOWN,1,dbout,IPTR_NBGH+1,"MaxDist");
+  namconv.setNamesAndLocators(NULL,ELoc::UNKNOWN,1,dbout,IPTR_NBGH+2,"MinDist");
+  namconv.setNamesAndLocators(NULL,ELoc::UNKNOWN,1,dbout,IPTR_NBGH+3,"NbNESect");
+  namconv.setNamesAndLocators(NULL,ELoc::UNKNOWN,1,dbout,IPTR_NBGH+4,"NbCESect");
   namconv.setLocators(dbout,IPTR_NBGH,ntab);
 
 label_end:
   debug_index(0);
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,model->getVariableNumber(),model,neigh);
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -4672,9 +4672,9 @@ GEOSLIB_API int krigsim(const char *strloc,
   FLAG_SIMU  = 1;
   FLAG_DGM   = flag_dgm;
   R_COEFF    = rval;
-  IPTR_EST   = dbout->getColumnByLocator(LOC_SIMU,0);
+  IPTR_EST   = dbout->getColumnByLocator(ELoc::SIMU,0);
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
@@ -4796,7 +4796,7 @@ label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -5005,7 +5005,7 @@ GEOSLIB_API int global_arithmetic(Db     *dbin,
 
   /* Auxiliary calculations */
 
-  iatt = db_attribute_identify(dbin,LOC_Z,ivar);
+  iatt = db_attribute_identify(dbin,ELoc::Z,ivar);
   db_monostat(dbin,iatt,&wtot,&ave,&var,&mini,&maxi);
 
   /* Auxiliary calculations */
@@ -5725,9 +5725,9 @@ GEOSLIB_API int invdist_f(Db    *dbin,
 
   IPTR_EST = dbout->addFields(1,0.);
   if (IPTR_EST < 0) goto label_end;
-  coor   = db_sample_alloc(dbout,LOC_X);
+  coor   = db_sample_alloc(dbout,ELoc::X);
   if (coor   == (double *) NULL) goto label_end;
-  cooref = db_sample_alloc(dbout,LOC_X);
+  cooref = db_sample_alloc(dbout,ELoc::X);
   if (cooref == (double *) NULL) goto label_end;
 
   if (! is_grid(DBIN))
@@ -7204,9 +7204,9 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
   /* Save the columns for variable definitions */
 
   for (ivar=0; ivar<nvarin; ivar++)
-    icols[ivar] = db_attribute_identify(dbin,LOC_Z,ivar);
-  dbin->clearLocators(LOC_Z);
-  dbin->setLocatorByAttribute(icols[0],LOC_Z);
+    icols[ivar] = db_attribute_identify(dbin,ELoc::Z,ivar);
+  dbin->clearLocators(ELoc::Z);
+  dbin->setLocatorByAttribute(icols[0],ELoc::Z);
   if (st_check_environment(1,1,model,neigh)) goto label_end;
 
   /* Add the attributes for storing the results */
@@ -7226,8 +7226,8 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
   status = 0;
   for (ivar=0; ivar<nvarin; ivar++)
   {
-    dbin->clearLocators(LOC_Z);
-    dbin->setLocatorByAttribute(icols[ivar],LOC_Z);
+    dbin->clearLocators(ELoc::Z);
+    dbin->setLocatorByAttribute(icols[ivar],ELoc::Z);
     IPTR_EST  = iptr_mem + ivar;
     IECH_NBGH = -1;
     (void) sprintf(string,"Kriging of variable #%d at sample",ivar+1);
@@ -7548,9 +7548,9 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
   /* Save the columns for variable definitions */
 
   for (ivar=0; ivar<nvarin; ivar++)
-    icols[ivar] = db_attribute_identify(dbin,LOC_Z,ivar);
-  dbin->clearLocators(LOC_Z);
-  dbin->setLocatorByAttribute(icols[0],LOC_Z);
+    icols[ivar] = db_attribute_identify(dbin,ELoc::Z,ivar);
+  dbin->clearLocators(ELoc::Z);
+  dbin->setLocatorByAttribute(icols[0],ELoc::Z);
   if (st_check_environment(1,1,model,neigh)) goto label_end;
 
   /* Add the attributes for storing the results */
@@ -7570,8 +7570,8 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
   status = 0;
   for (ivar=0; ivar<nvarin; ivar++)
   {
-    dbin->clearLocators(LOC_Z);
-    dbin->setLocatorByAttribute(icols[ivar],LOC_Z);
+    dbin->clearLocators(ELoc::Z);
+    dbin->setLocatorByAttribute(icols[ivar],ELoc::Z);
     IPTR_EST  = iptr_prop + ivar;
     IECH_NBGH = -1;
     (void) sprintf(string,"Kriging of proportion #%d at sample",ivar+1);
@@ -7830,7 +7830,7 @@ GEOSLIB_API int krigtest_dimension(Db*             dbin,
   FLAG_STD  = 1;
   FLAG_WGT  = 1;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar  = model->getVariableNumber();
 
@@ -7872,7 +7872,7 @@ GEOSLIB_API int krigtest_dimension(Db*             dbin,
 label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -7933,7 +7933,7 @@ GEOSLIB_API int krigtest_f(Db*             dbin,
   FLAG_STD  = 1;
   FLAG_WGT  = 1;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar  = model->getVariableNumber();
   nfeq  = model->getDriftEquationNumber();
@@ -8031,7 +8031,7 @@ label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,1,calcul,1,ndisc);
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -8247,7 +8247,7 @@ GEOSLIB_API int krigcell_f(Db    *dbin,
   FLAG_WGT  = flag_std;
   if (st_check_colcok(dbin,dbout,rank_colcok.data())) goto label_end;
   if (st_check_environment(1,1,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,DBIN,DBOUT,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::F,DBIN,DBOUT,&iext)) goto label_end;
   if (manage_nostat_info(1,model,DBIN,DBOUT)) goto label_end;
   nvar  = model->getVariableNumber();
   nfeq  = model->getDriftEquationNumber();
@@ -8351,7 +8351,7 @@ label_end:
   (void) st_model_manage(-1,model);
   (void) st_krige_manage(-1,nvar,model,neigh);
   (void) krige_koption_manage(-1,0,EKrigOpt::BLOCK,1,ndisc);
-  (void) manage_external_info(-1,LOC_F,DBIN,DBOUT,&iext);
+  (void) manage_external_info(-1,ELoc::F,DBIN,DBOUT,&iext);
   (void) manage_nostat_info(-1,model,DBIN,DBOUT);
   neigh_stop();
   return(error);
@@ -8403,7 +8403,7 @@ static int st_calculate_hermite_factors(Db  *db,
 
   /* Set the newly created variables to Z locator */
 
-  db->setLocatorsByAttribute(nfactor,iptr,LOC_Z);
+  db->setLocatorsByAttribute(nfactor,iptr,ELoc::Z);
 
   /* Set the error return code */
 
@@ -8600,7 +8600,7 @@ GEOSLIB_API int dk_f(Db *dbin,
   }
   varloc = (int *) mem_alloc(sizeof(int) * nvarz,1);
   for (ivar=0; ivar<nvarz; ivar++) 
-    varloc[ivar] = DBIN->getColumnByLocator(LOC_Z,ivar);
+    varloc[ivar] = DBIN->getColumnByLocator(ELoc::Z,ivar);
 
   /* Loop on the targets to be processed */
   
@@ -8620,8 +8620,8 @@ GEOSLIB_API int dk_f(Db *dbin,
     
     /* Select the Neighborhood */
     
-    DBIN->clearLocators(LOC_Z);
-    DBIN->setLocatorByAttribute(varloc[0],LOC_Z);
+    DBIN->clearLocators(ELoc::Z);
+    DBIN->setLocatorByAttribute(varloc[0],ELoc::Z);
     (void) st_neigh(neigh,&status,&nech);
     if (status) continue;
 
@@ -8632,8 +8632,8 @@ GEOSLIB_API int dk_f(Db *dbin,
     {
       if (FLAG_EST) IPTR_EST = iptr_est_bck + iclass - 1;
       if (FLAG_STD) IPTR_STD = iptr_std_bck + iclass - 1;
-      DBIN->clearLocators(LOC_Z);
-      DBIN->setLocatorByAttribute(varloc[iclass-1],LOC_Z);
+      DBIN->clearLocators(ELoc::Z);
+      DBIN->setLocatorByAttribute(varloc[iclass-1],ELoc::Z);
       
       /* Set the rank of the current factor in the model */
       
@@ -8766,9 +8766,9 @@ GEOSLIB_API int *neigh_calc(Db     *dbin,
   if (dbin != (Db *) NULL && model != (Model *) NULL &&
       dbin->getVariableNumber() != model->getVariableNumber() && model->getVariableNumber() == 1)
   {
-    zloc = dbin->getColumnByLocator(LOC_Z);
-    dbin->clearLocators(LOC_Z);
-    dbin->setLocatorByAttribute(zloc,LOC_Z);
+    zloc = dbin->getColumnByLocator(ELoc::Z);
+    dbin->clearLocators(ELoc::Z);
+    dbin->setLocatorByAttribute(zloc,ELoc::Z);
   }
   if (st_check_environment(1,1,model,neigh)) goto label_end;
 
@@ -9139,7 +9139,7 @@ GEOSLIB_API int st_krige_data(Db     *db,
   
   /* Get the vector of active data and substract the mean */
   
-  if (db_vector_get(db,LOC_Z,0,data)) goto label_end;
+  if (db_vector_get(db,ELoc::Z,0,data)) goto label_end;
   for (i=0; i<nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
   matrix_product(1,nutil,ntot,datm,tutil,aux1);
   matrix_product(1,ntot,ntot,aux1,invsig,aux2);
@@ -9258,7 +9258,7 @@ GEOSLIB_API int st_crit_global(Db     *db,
 
   /* Set the data vector (corrected by the mean */
 
-  if (db_vector_get(db,LOC_Z,0,data)) goto label_end;
+  if (db_vector_get(db,ELoc::Z,0,data)) goto label_end;
   for (i=0; i<nsize1; i++) datm[i] = data[ranks1[i]] - model->getMean(0);
 
   /* Loop on the non-pivots */
@@ -9587,7 +9587,7 @@ GEOSLIB_API int krigsampling_f(Db *dbin,
 
   /* Get the vector of active data and substract the mean */
   
-  if (db_vector_get(dbin,LOC_Z,0,data)) goto label_end;
+  if (db_vector_get(dbin,ELoc::Z,0,data)) goto label_end;
   for (i=0; i<nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
   matrix_product(1,nutil,ntot,datm,tutil,aux1);
   matrix_product(1,ntot,ntot,aux1,invsig,aux2);
@@ -9803,7 +9803,7 @@ static int st_declustering_1(Db     *db,
 
   /* Core allocation */
 
-  vect = db_sample_alloc(db,LOC_X);
+  vect = db_sample_alloc(db,ELoc::X);
   if (vect == (double *) NULL) goto label_end;
 
   /* Loop on the target sample */
@@ -10166,9 +10166,9 @@ label_end:
 **
 ** \param[in]  title       Title of the optional printout
 ** \param[in]  db1         First Db structure
-** \param[in]  test_def1   1 if the first variable (LOC_Z) must be checked
+** \param[in]  test_def1   1 if the first variable (ELoc::Z) must be checked
 ** \param[in]  db2         Second Db structure
-** \param[in]  test_def2   1 if the second variable (LOC_Z) must be checked
+** \param[in]  test_def2   1 if the second variable (ELoc::Z) must be checked
 ** \param[in]  model       Model structure
 **
 ** \remarks The returned argument must be freed by the calling function
@@ -10242,7 +10242,7 @@ static double *st_calcul_covmat(const char *title,
 **
 ** \param[in]  title       Title of the optionla printout
 ** \param[in]  db1         First Db structure
-** \param[in]  test_def1   1 if the first variable (LOC_Z) must be checked
+** \param[in]  test_def1   1 if the first variable (ELoc::Z) must be checked
 ** \param[in]  model       Model structure
 **
 ** \remarks The returned argument must be freed by the calling function
@@ -10301,9 +10301,9 @@ static double *st_calcul_drfmat(const char *title,
 **
 ** \param[in]  title       Title of the optional printout
 ** \param[in]  db1         First Db structure
-** \param[in]  test_def1   1 if the first variable (LOC_Z) must be checked
+** \param[in]  test_def1   1 if the first variable (ELoc::Z) must be checked
 ** \param[in]  db2         Second Db structure (sources)
-** \param[in]  test_def2   1 if the second variable (LOC_Z) must be checked
+** \param[in]  test_def2   1 if the second variable (ELoc::Z) must be checked
 ** \param[in]  power       Power of the Distance decay
 **
 ** \remarks The returned argument must be freed by the calling function

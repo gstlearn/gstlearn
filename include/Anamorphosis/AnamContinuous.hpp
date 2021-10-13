@@ -14,6 +14,7 @@
 #include "Basic/Interval.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Db/ELoc.hpp"
 
 /**
  * Output structure
@@ -53,8 +54,8 @@ public:
   VectorDouble GaussianToRawVector(const VectorDouble& y) const;
   int RawToGaussian(Db *db, const String& name,NamingConvention namconv = NamingConvention("Y"));
   int GaussianToRaw(Db *db, const String& name,NamingConvention namconv = NamingConvention("Z"));
-  int RawToGaussian(Db *db, ENUM_LOCS locatorType = LOC_Z, NamingConvention namconv = NamingConvention("Y"));
-  int GaussianToRaw(Db *db, ENUM_LOCS locatorType = LOC_Z, NamingConvention namconv = NamingConvention("Z"));
+  int RawToGaussian(Db *db, const ELoc& locatorType = ELoc::Z, NamingConvention namconv = NamingConvention("Y"));
+  int GaussianToRaw(Db *db, const ELoc& locatorType = ELoc::Z, NamingConvention namconv = NamingConvention("Z"));
 
   AnamContinuousFit sample(int ndisc = 100,
                            double aymin = -10,

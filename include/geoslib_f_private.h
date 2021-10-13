@@ -117,7 +117,7 @@ GEOSLIB_API Rule *rule_auto(Db *db,
 GEOSLIB_API int db_rule(Db* db,
                         const RuleProp* ruleprop,
                         Model *model = nullptr,
-                        NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
+                        NamingConvention namconv = NamingConvention("Facies",ELoc::FACIES));
 GEOSLIB_API int db_bounds(Db *db,
                           const RuleProp* ruleprop,
                           Model *model = nullptr,

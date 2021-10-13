@@ -31,21 +31,21 @@
 /*! \endcond */
 
 typedef struct {
-  int     flag_same;		/* 1 if input and output files coincide */
-  int     flag_vel;		/* 1 for velocity; 0 for thickness */
-  int     flag_cumul;           /* 1 for cumulating in depth */
-  int     flag_ext;		/* Use external drift */
-  int     flag_z;		/* 1 if output must be converted into depth */
-  int     colrefd;		/* Reference depth map (if >= 0) */
-  int     colreft;		/* Reference time map (if >= 0) */
-  int     colrefb;		/* Bottom map (if >= 0) */
-  int     match_time;		/* 1 if Time provided through External Drift */
-  ENUM_LOCS ptime;		/* Pointer to the Time variables */
-  int     nlayers;		/* Number of layers */
-  int     nbfl;			/* Number of drift functions */
-  int     nech;			/* Number of active samples */
-  int     neq;			/* Number of equations */
-  int     npar;			/* Nb. of layers * Nb. of drift functions */
+  int     flag_same;   /* 1 if input and output files coincide */
+  int     flag_vel;    /* 1 for velocity; 0 for thickness */
+  int     flag_cumul;  /* 1 for cumulating in depth */
+  int     flag_ext;    /* Use external drift */
+  int     flag_z;      /* 1 if output must be converted into depth */
+  int     colrefd;     /* Reference depth map (if >= 0) */
+  int     colreft;     /* Reference time map (if >= 0) */
+  int     colrefb;     /* Bottom map (if >= 0) */
+  int     match_time;  /* 1 if Time provided through External Drift */
+  ELoc    ptime;       /* Pointer to the Time variables */
+  int     nlayers;     /* Number of layers */
+  int     nbfl;        /* Number of drift functions */
+  int     nech;        /* Number of active samples */
+  int     neq;         /* Number of equations */
+  int     npar;        /* Nb. of layers * Nb. of drift functions */
 } LMlayers;
 
 /****************************************************************************/
@@ -120,7 +120,7 @@ static int st_get_number_drift(int irf_rank,
 ** \param[in]  colrefb    Rank of the reference Bottom Depth variable
 ** \param[in]  irf_rank   Rank of the Intrinsic Random Function (0 or 1)
 ** \param[in]  match_time Pointer to the Time pointer
-**                        (1 if defined as LOC_F or 0 for LOC_TIME)
+**                        (1 if defined as ELoc::F or 0 for ELoc::TIME)
 ** \param[in]  nlayers    Number of layers
 **
 *****************************************************************************/
@@ -148,7 +148,7 @@ static LMlayers *lmlayers_alloc(int    flag_same,
   lmlayers->colreft    = colreft;
   lmlayers->colrefb    = colrefb;
   lmlayers->match_time = match_time;
-  lmlayers->ptime      = (match_time) ? LOC_F : LOC_TIME;
+  lmlayers->ptime      = (match_time) ? ELoc::F : ELoc::TIME;
   lmlayers->nlayers    = nlayers;
   lmlayers->nbfl       = st_get_number_drift(irf_rank,flag_ext);
   lmlayers->nech       = 0;
@@ -711,7 +711,7 @@ static int st_lhs_one(LMlayers *lmlayers,
     for (jfois=0; jfois<seltab[jech]; jfois++,jjech++)
     {
       jlayer = (jfois == 0) ?
-        (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,jech) : nlayers;
+        (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,jech) : nlayers;
 	  
       /* Evaluate the proportion vector */
 	  
@@ -794,7 +794,7 @@ static int st_rhs(LMlayers *lmlayers,
     for (ifois=0; ifois<seltab[jech]; ifois++,jjech++)
     {
       jlayer = (ifois == 0) ?
-        (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,jech) : nlayers;
+        (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,jech) : nlayers;
     
       /* Evaluate the proportion vector */
 
@@ -875,7 +875,7 @@ static int st_lhs(LMlayers *lmlayers,
     for (ifois=0; ifois<seltab[iech]; ifois++, iiech++)
     {
       ilayer = (ifois == 0) ? 
-        (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech) : nlayers;
+        (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech) : nlayers;
       
       /* Evaluate the proportion vector */
       
@@ -949,7 +949,7 @@ static void st_data_vector(LMlayers *lmlayers,
     for (ifois=0; ifois<seltab[iech]; ifois++,iiech++)
     {
       ilayer = (ifois == 0) ?
-        (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech) : nlayers;
+        (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech) : nlayers;
       
       if (ifois == 0)
       {
@@ -1048,7 +1048,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
     for (ifois=0; ifois<seltab[iech]; ifois++,iiech++)
     {
       ilayer = (ifois == 0) ?
-        (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech) : nlayers;
+        (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech) : nlayers;
 	  
       /* Evaluate the proportion vector */
 	  
@@ -1099,7 +1099,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
     for (ifois=0; ifois<seltab[iech]; ifois++,iiech++)
     {
       ilayer = (ifois == 0) ?
-        (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech) : nlayers;
+        (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech) : nlayers;
 	  
       /* Evaluate the proportion vector */
 	  
@@ -1195,7 +1195,7 @@ static int st_get_close_sample(LMlayers *lmlayers,
     if (ABS(dx) > EPS) continue;
     dy = dbin->getCoordinate(iech,1) - coor[1];
     if (ABS(dy) > EPS) continue;
-    ilayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech);
+    ilayer = (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech);
     if (ilayer == lmlayers->nlayers) return(0);
   }
   return(1);
@@ -1604,7 +1604,7 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech,0);
     coor[1] = dbin->getCoordinate(iech,1);
-    ilayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech);
+    ilayer = (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech);
     if (st_locate_sample_in_output(lmlayers,dbin,dbout,iech,
                                    &igrid)) goto label_suppress;
 
@@ -1796,7 +1796,7 @@ static int st_drift_data(LMlayers *lmlayers,
     for (int ifois=0; ifois<seltab[iech]; ifois++, iiech++)
     {
       ilayer = (ifois == 0) ? 
-        (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech) : lmlayers->nlayers;
+        (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech) : lmlayers->nlayers;
       
       /* Evaluate the proportion vector */
       
@@ -2027,7 +2027,7 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
   double   *a,*b,*b2,*baux,*zval,*dual,*covtab,*prop1,*prop2,*c00,*wgt;
   double   *acov,*atot;
   double   *fftab,*a0,*cc,*ss,*gs,*post_mean,*post_S;
-  ENUM_LOCS  ptime;
+  ELoc      ptime;
   LMlayers *lmlayers;
 
   /* Preliminary checks */
@@ -2044,7 +2044,7 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
   lmlayers = (LMlayers *) NULL;
   nlayers  = model->getVariableNumber();
   nechmax  = dbin->getSampleNumber();
-  ptime    = (match_time) ? LOC_F : LOC_TIME;
+  ptime    = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (dbin->getNDim() != 2)
   {
@@ -2062,7 +2062,7 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
     messerr("If Input and Output are different, Output should be a Grid Db");
     goto label_end;
   }
-  if (! exist_LOCATOR(dbin,LOC_LAYER))
+  if (! exist_LOCATOR(dbin,ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -2115,13 +2115,13 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
     messerr("must be equal to %d (nlayers) x %d (nbfl)",
             nlayers,st_get_number_drift(irf_rank,flag_ext));
   }
-  if (manage_external_info(1,LOC_F,dbin,dbout,&iptr)) goto label_end;
+  if (manage_external_info(1,ELoc::F,dbin,dbout,&iptr)) goto label_end;
 
   /* Allocating the output variables */
 
   nvar = nlayers;
   if (flag_std) nvar += nlayers;
-  iptr = dbout->addFields(nvar,TEST,String(),LOC_Z);
+  iptr = dbout->addFields(nvar,TEST,String(),ELoc::Z);
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2140,7 +2140,7 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
   for (iech=0; iech<nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech);
+    ilayer = (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech);
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers,dbin,dbout,iech,ilayer,prop1)) continue;
     seltab[iech] = 1;
@@ -2230,7 +2230,7 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
 
 label_end:
   (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
-  (void) manage_external_info(-1,LOC_F,dbin,dbout,&iptr);
+  (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iptr);
   seltab    = (int    *) mem_free((char *) seltab);
   prop1     = (double *) mem_free((char *) prop1);
   prop2     = (double *) mem_free((char *) prop2);
@@ -2319,11 +2319,11 @@ static int st_evaluate_lag(LMlayers *lmlayers,
     z2 = zval[jjech];
     (*distsum) += dist;
     
-    ilayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech);
+    ilayer = (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech);
     if (st_get_props_data(lmlayers,dbin,dbout,iech,ilayer,
                           phia)) return(1);
     
-    jlayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,jech);
+    jlayer = (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,jech);
     if (st_get_props_data(lmlayers,dbin,dbout,jech,jlayer,
                           phib)) return(1);
     
@@ -2517,7 +2517,7 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
 {
   int         *seltab,error,ilayer,nechmax,nech,iech,idir,iptr;
   double      *prop1,*zval;
-  ENUM_LOCS     ptime;
+  ELoc         ptime;
   LMlayers    *lmlayers;
   Vario_Order *vorder;
 
@@ -2529,7 +2529,7 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
   lmlayers = (LMlayers *) NULL;
   vorder   = (Vario_Order *) NULL;
   nechmax  = dbin->getSampleNumber();
-  ptime    = (match_time) ? LOC_F : LOC_TIME;
+  ptime    = (match_time) ? ELoc::F : ELoc::TIME;
   if (dbin->getNDim() != 2)
   {
     messerr("The input Db must be defined in 2-D");
@@ -2541,7 +2541,7 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
     goto label_end;
   }
   if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
-  if (! exist_LOCATOR(dbin,LOC_LAYER))
+  if (! exist_LOCATOR(dbin,ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -2562,7 +2562,7 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
             get_LOCATOR_NITEM(dbout,ptime));
     goto label_end;
   }
-  if (manage_external_info(1,LOC_F,dbin,dbout,&iptr)) goto label_end;
+  if (manage_external_info(1,ELoc::F,dbin,dbout,&iptr)) goto label_end;
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2581,7 +2581,7 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
   for (iech=0; iech<nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech);
+    ilayer = (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech);
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers,dbin,dbout,iech,ilayer,prop1)) continue;
     seltab[iech] = 1;
@@ -2621,7 +2621,7 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
   error = 0;
 
 label_end:
-  (void) manage_external_info(-1,LOC_F,dbin,dbout,&iptr);
+  (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iptr);
   seltab   = (int    *) mem_free((char *) seltab);
   prop1    = (double *) mem_free((char *) prop1);
   zval     = (double *) mem_free((char *) zval);
@@ -2790,7 +2790,7 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
   int       nlayers,ilayer,nechmax,nech,iech,npar,error,iptr,neq;
   int      *seltab;
   double   *zval,*props,*fftab;
-  ENUM_LOCS  ptime;
+  ELoc      ptime;
   LMlayers *lmlayers;
 
   /* Preliminary checks */
@@ -2802,7 +2802,7 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
   lmlayers = (LMlayers *) NULL;
   nlayers  = model->getVariableNumber();
   nechmax  = dbin->getSampleNumber();
-  ptime    = (match_time) ? LOC_F : LOC_TIME;
+  ptime    = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
   if (dbin->getNDim() != 2)
   {
@@ -2820,7 +2820,7 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
     messerr("If Input and Output are different, Output should be a Grid Db");
     goto label_end;
   }
-  if (! exist_LOCATOR(dbin,LOC_LAYER))
+  if (! exist_LOCATOR(dbin,ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
@@ -2841,7 +2841,7 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
             get_LOCATOR_NITEM(dbout,ptime));
     goto label_end;
   }
-  if (manage_external_info(1,LOC_F,dbin,dbout,&iptr)) goto label_end;
+  if (manage_external_info(1,ELoc::F,dbin,dbout,&iptr)) goto label_end;
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2859,7 +2859,7 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
   for (iech=0; iech<nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer = (int) get_LOCATOR_ITEM(dbin,LOC_LAYER,0,iech);
+    ilayer = (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech);
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers,dbin,dbout,iech,ilayer,props)) continue;
     seltab[iech] = 1;
@@ -2901,7 +2901,7 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
 
 label_end:
   (void) krige_koption_manage(-1,1,EKrigOpt::PONCTUAL,1,VectorInt());
-  (void) manage_external_info(-1,LOC_F,dbin,dbout,&iptr);
+  (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iptr);
   seltab    = (int    *) mem_free((char *) seltab);
   props     = (double *) mem_free((char *) props);
   fftab     = (double *) mem_free((char *) fftab);

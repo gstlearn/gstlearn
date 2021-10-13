@@ -291,7 +291,7 @@ static int st_proportion_define(PropDef *propdef,
   ifac_ref = -1;
   if (propdef->mode == EProcessOper::CONDITIONAL)
   {
-    ifac_ref = (int) db->getSimvar(LOC_FACIES, iech, isimu, 0, 0, nbsimu, 1);
+    ifac_ref = (int) db->getSimvar(ELoc::FACIES, iech, isimu, 0, 0, nbsimu, 1);
     if (ifac_ref < 1 || ifac_ref > propdef->nfac[0]) return (1);
   }
   st_proportion_locate(propdef, ifac_ref);
@@ -515,8 +515,8 @@ GEOSLIB_API int rule_thresh_define(PropDef *propdef,
  ** \param[in]  flag_stat 1 for stationary; 0 otherwise
  ** \param[in]  nfacies   Number of facies
  **
- ** \remark The input variable must be locatorized as Z or LOC_SIMU
- ** \remark It will be changed in this function to locator LOC_SIMU
+ ** \remark The input variable must be locatorized as Z or ELoc::SIMU
+ ** \remark It will be changed in this function to locator ELoc::SIMU
  **
  *****************************************************************************/
 GEOSLIB_API int db_rule_shadow(Db *db,
@@ -559,16 +559,16 @@ GEOSLIB_API int db_rule_shadow(Db *db,
   /* Storage of the simulations in the output file */
   iptr = db->addFields(nbsimu, 0.);
   if (iptr < 0) goto label_end;
-  db->setLocatorsByAttribute(nbsimu, iptr, LOC_FACIES);
+  db->setLocatorsByAttribute(nbsimu, iptr, ELoc::FACIES);
 
   /* Identify the Non conditional simulations at target points */
   for (igrf = 0; igrf < 2; igrf++)
   {
     if (!flag_used[igrf]) continue;
-    iptr = db_attribute_identify(db, LOC_SIMU, igrf);
+    iptr = db_attribute_identify(db, ELoc::SIMU, igrf);
     if (iptr < 0)
     {
-      iptr = db_attribute_identify(db, LOC_Z, igrf);
+      iptr = db_attribute_identify(db, ELoc::Z, igrf);
       if (iptr < 0)
       {
         messerr(
@@ -576,7 +576,7 @@ GEOSLIB_API int db_rule_shadow(Db *db,
             igrf + 1);
         goto label_end;
       }
-      db->setLocatorByAttribute(iptr, LOC_SIMU, igrf);
+      db->setLocatorByAttribute(iptr, ELoc::SIMU, igrf);
     }
   }
 
@@ -607,7 +607,7 @@ GEOSLIB_API int db_rule_shadow(Db *db,
  ** \param[in]  model     First Model structure (only for SHIFT)
  ** \param[in]  namconv   Naming convention
  **
- ** \remark The input variable must be locatorized as Z or LOC_SIMU
+ ** \remark The input variable must be locatorized as Z or ELoc::SIMU
  **
  *****************************************************************************/
 GEOSLIB_API int db_rule(Db *db,
@@ -640,7 +640,7 @@ GEOSLIB_API int db_rule(Db *db,
 
   /* Preliminary checks */
 
-  if (db->getLocatorNumber(LOC_SIMU) != ngrf && db->getLocatorNumber(LOC_Z)
+  if (db->getLocatorNumber(ELoc::SIMU) != ngrf && db->getLocatorNumber(ELoc::Z)
       != ngrf)
   {
     messerr("The Rule specifies the use of %d underlying GRF(s)", ngrf);
@@ -660,14 +660,14 @@ GEOSLIB_API int db_rule(Db *db,
   /**********************/
 
   /* Storage of the simulations in the output file */
-  iptr = db->addFields(1, 0., "Facies", LOC_FACIES);
+  iptr = db->addFields(1, 0., "Facies", ELoc::FACIES);
   if (iptr < 0) goto label_end;
 
   /* Identify the Non conditional simulations at target points */
 
-  if (db->getLocatorNumber(LOC_SIMU) != ngrf)
+  if (db->getLocatorNumber(ELoc::SIMU) != ngrf)
   {
-    db->switchLocator(LOC_Z, LOC_SIMU);
+    db->switchLocator(ELoc::Z, ELoc::SIMU);
     flagReturn = true;
   }
 
@@ -677,9 +677,9 @@ GEOSLIB_API int db_rule(Db *db,
     goto label_end;
 
   // Returning to the initial locators (if the initial variable
-  // had a LOC_Z locator which has been temporarily modified into LOC_SIMU)
+  // had a ELoc::Z locator which has been temporarily modified into ELoc::SIMU)
 
-  if (flagReturn) db->switchLocator(LOC_SIMU, LOC_Z);
+  if (flagReturn) db->switchLocator(ELoc::SIMU, ELoc::Z);
 
   // Naming convention
 
@@ -754,7 +754,7 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
   /* Core allocation */
   /*******************/
 
-  coor = db_sample_alloc(db, LOC_X);
+  coor = db_sample_alloc(db, ELoc::X);
   if (coor == (double *) NULL) goto label_end;
 
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
@@ -771,10 +771,10 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
   /**********************/
 
   /* Lower bound at input data points */
-  if (db_locator_attribute_add(db, LOC_L, ngrf, 0, 0., &iptr)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptr)) goto label_end;
 
   /* Upper bound at input data points */
-  if (db_locator_attribute_add(db, LOC_U, ngrf, 0, 0., &iptr)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptr)) goto label_end;
 
   /* Calculate the thresholds and store them in the Db file */
 
@@ -861,10 +861,10 @@ GEOSLIB_API int db_bounds(Db* db,
   /**********************/
 
   /* Lower bound at input data points */
-  if (db_locator_attribute_add(db, LOC_L, ngrf, 0, 0., &iptrl)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptrl)) goto label_end;
 
   /* Upper bound at input data points */
-  if (db_locator_attribute_add(db, LOC_U, ngrf, 0, 0., &iptru)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptru)) goto label_end;
 
   /* Calculate the thresholds and store them in the Db file */
 
@@ -876,9 +876,9 @@ GEOSLIB_API int db_bounds(Db* db,
 
   // Naming convention
 
-  namconv.setLocatorOutType(LOC_L);
+  namconv.setLocatorOutType(ELoc::L);
   namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
-  namconv.setLocatorOutType(LOC_U);
+  namconv.setLocatorOutType(ELoc::U);
   namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
   error = 0;
 
