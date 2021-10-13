@@ -22,6 +22,7 @@ GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
   , _neigh(nullptr)
   , _wgt()
+  , _Q(nullptr)
 {
 }
 
@@ -29,6 +30,7 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model, Neigh* neigh)
   : GibbsMulti(db, model)
   , _neigh(neigh)
   , _wgt()
+  , _Q(nullptr)
 {
 }
 
@@ -36,6 +38,7 @@ GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   : GibbsMulti(r)
   , _neigh(r._neigh)
   , _wgt(r._wgt)
+  , _Q(r._Q)
 {
 }
 
@@ -46,12 +49,15 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
     GibbsMulti::operator=(r);
     _neigh = r._neigh;
     _wgt = r._wgt;
+    _Q = r._Q;
   }
   return *this;
 }
 
 GibbsMMulti::~GibbsMMulti()
 {
+  if (_Q != nullptr)
+    _Q = cs_spfree(_Q);
 }
 
 /****************************************************************************/
@@ -163,9 +169,9 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     covmat = (double *) mem_free((char *) covmat);
   }
 
-  // Check the conditioning of the Precision resulting matrix
+  // Improve the conditioning of the Precision resulting matrix
 
-  if (_isValidConditioning()) goto label_end;
+  if (_improveConditioning(verbose)) goto label_end;
 
   // Initialize the statistics (optional)
 
@@ -243,27 +249,21 @@ void GibbsMMulti::update(VectorVectorDouble& y,
   updateStats(y, ipgs, iter);
 }
 
-/** This function calculates the conditioning of the precision matrix
- *  that is constituted starting from the kriging weights calculated beforehand
- */
-int GibbsMMulti::_isValidConditioning() const
+int GibbsMMulti::_improveConditioning(bool verbose)
 {
   int error = 1;
-  cs *Q, *T;
-  css* S;
-  csn* N;
+  cs *T;
 
-  Q = T = (cs *) NULL;
-  S = (css *) NULL;
-  N = (csn *) NULL;
+  T = (cs *) NULL;
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
 
   // Constitute the triplet
+
   T = cs_spalloc(0, 0, 1, 1, 1);
   if (T == (cs *) NULL) goto label_end;
 
-  // Loop on the first sample
+  // Create partial precision matrix Q from the weights
 
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int iact = 0; iact < nact; iact++)
@@ -286,39 +286,46 @@ int GibbsMMulti::_isValidConditioning() const
 
   // Convert from triplet to sparse matrix
 
-  Q = cs_triplet(T);
+  _Q = cs_triplet(T);
 
   // Make the Matrix symmetric
 
-  _makeQSymmetric(Q);
+  _makeQSymmetric(_Q);
+
+  // Optional printout
+
+  if (verbose)
+    cs_print_nice("Reconstructed Precision Matrix", _Q, -1, -1);
 
   // Check that the matrix is symmetric
 
-  if (! cs_isSymmetric(Q)) goto label_end;
+  if (! cs_isSymmetric(_Q)) goto label_end;
 
-  // Perform the Cholesky decomposition
+  // Update the newly modified weights extracted from Q
 
-  S = cs_schol(Q, 0);
-  if (S == (css *) NULL)
-  {
-    messerr("Error in cs_schol function");
-    goto label_end;
-  }
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int iact = 0; iact < nact; iact++)
+    {
+      GibbsWeights& ww = _wgt[iact];
+      int nbgh  = ww._ranks.size();
+      int icol = iact + nbgh * ivar;
 
-  N = cs_chol (Q, S);
-  if (N == (csn *) NULL)
-  {
-    messerr("Error in cs_chol function");
-    goto label_end;
-  }
+      for (int jbgh = 0; jbgh < nbgh; jbgh++)
+      {
+        int jact = ww._ranks[jbgh];
+        for (int jvar = 0; jvar < nvar; jvar++)
+        {
+          int jcol = jact + nbgh * jvar;
+          double value = cs_get_value(_Q, icol, jcol);
+          ww._ll[jvar][jbgh + nbgh * jvar] = value;
+        }
+      }
+    }
 
   error = 0;
 
   label_end:
-  S = cs_sfree(S);
-  N = cs_nfree(N);
   T = cs_spfree(T);
-  Q = cs_spfree(Q);
   return error;
 }
 
@@ -389,3 +396,4 @@ void GibbsMMulti::_makeQSymmetric(cs* Q) const
       cs_set_value(Q, irow, icol, val);
     }
 }
+

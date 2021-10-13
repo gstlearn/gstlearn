@@ -40,9 +40,10 @@ public:
   int covmatAlloc(bool verbose) override;
 
   Neigh* getNeigh() const { return _neigh; }
+  const cs* getQ() const { return _Q; }
 
 private:
-  int _isValidConditioning() const;
+  int _improveConditioning(bool verbose);
   void _print(int iact) const;
   int _getVariableNumber() const;
   void _setQFlag(VectorBool& QFlag,
@@ -56,4 +57,5 @@ private:
 private:
   Neigh* _neigh;
   std::vector<GibbsWeights> _wgt; // For each sample
+  cs* _Q;
 };
