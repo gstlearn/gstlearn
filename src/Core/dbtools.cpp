@@ -2639,7 +2639,7 @@ GEOSLIB_API void ut_trace_discretize(int nseg,
  **  Sample the point Db close to discretized points of the trace
  **
  ** \param[in]  db     Db to be sampled
- ** \param[in]  ptype  Type of locator (::ELoc)
+ ** \param[in]  ptype  Type of locator
  ** \param[in]  np     Number of discretized points
  ** \param[in]  xp     Array of first coordinates
  ** \param[in]  yp     Array of second coordinates

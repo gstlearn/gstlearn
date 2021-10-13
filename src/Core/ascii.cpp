@@ -1286,7 +1286,7 @@ GEOSLIB_API int ascii_tablei_write(const char *file_name,
  ** \param[in]  verbose       Verbose option if the file cannot be opened
  ** \param[in]  flag_header   1 if the first line of the file contains the
  **                           variable names
- ** \param[in]  nskip         Number of lines to skip ** \param[in]  order  manner in which values in tab are ordered
+ ** \param[in]  nskip         Number of lines to skip
  ** \param[in]  char_sep      Character used as a column separator
  ** \param[in]  char_dec      Character used as a decimal
  ** \param[in]  na_string     String used for absent information

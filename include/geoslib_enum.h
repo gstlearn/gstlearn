@@ -13,8 +13,6 @@
 /* Different ENUM lists */
 
 /**
- \enum ENUM_LOAD_DATA
-
  Different ways to load samples from input argument into Db
  **/
 /*

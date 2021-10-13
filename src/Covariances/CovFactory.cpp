@@ -179,7 +179,7 @@ VectorString CovFactory::getCovList(const CovContext& ctxt)
 
 /**
  * Return the ECov object from the given covariance name.
- * The name must correspond to one of the Cov*::getCovName().
+ * The name must correspond to one of the getCovName().
  * If the name doesn't exists, this method returns ECov::UNKNOWN
  * and display available covariances for the given context.
  *
