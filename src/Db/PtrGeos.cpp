@@ -20,13 +20,14 @@ typedef struct
   char COMMENT[STRING_LENGTH]; /* Meaning */
 } Def_Locator;
 
+// TODO : DEF_LOCATOR static table refactoring
 static Def_Locator DEF_LOCATOR[] = { { "x",       0, "Coordinate" },
                                      { "z",       0, "Variable" },
                                      { "v",       0, "Variance of measurement error" },
                                      { "f",       0, "External Drift" },
                                      { "g",       0, "Gradient component" },
-                                     { "lower",   0,"Lower bound of an inequality" },
-                                     { "upper",   0,"Upper bound of an inequality" },
+                                     { "lower",   0, "Lower bound of an inequality" },
+                                     { "upper",   0, "Upper bound of an inequality" },
                                      { "p",       0, "Proportion" },
                                      { "w",       1, "Weight" },
                                      { "code",    1, "Code" },
@@ -60,9 +61,10 @@ void PtrGeos::erase(int locatorIndex)
   _r.erase(_r.begin() + locatorIndex);
 }
 
-void PtrGeos::print(int rank, ENUM_LOCS locatorType) const
+void PtrGeos::print(int rank, const ELoc& locatorType) const
 {
-  message("%d - Locator: %s\n", rank + 1, DEF_LOCATOR[locatorType].SREF);
+  int i = locatorType.getValue();
+  message("%d - Locator: %s\n", rank + 1, DEF_LOCATOR[i].SREF);
   message("- Attributes = ");
   for (int locatorIndex = 0; locatorIndex < getLocatorNumber(); locatorIndex++)
     message("%2d ", _r[locatorIndex]);
@@ -85,10 +87,10 @@ bool PtrGeos::isLocatorIndexValid(int locatorIndex) const
  * @param locatorIndex   Rank within the locator starting from 1 (can be <0 for the keyword only)
  * @return
  */
-String getLocatorName(ENUM_LOCS locatorType, int locatorIndex)
+String getLocatorName(const ELoc& locatorType, int locatorIndex)
 {
   std::stringstream sstr;
-  if (locatorType < 0)
+  if (locatorType == ELoc::UNKNOWN)
   {
     sstr << "NA";
   }
@@ -98,12 +100,13 @@ String getLocatorName(ENUM_LOCS locatorType, int locatorIndex)
   }
   else
   {
-    if (DEF_LOCATOR[locatorType].IREF == 1)
-      sstr << DEF_LOCATOR[locatorType].SREF;
+    int i = locatorType.getValue();
+    if (DEF_LOCATOR[i].IREF == 1)
+      sstr << DEF_LOCATOR[i].SREF;
     else if (locatorIndex < 0)
-      sstr << DEF_LOCATOR[locatorType].SREF;
+      sstr << DEF_LOCATOR[i].SREF;
     else
-      sstr << DEF_LOCATOR[locatorType].SREF << locatorIndex+1;
+      sstr << DEF_LOCATOR[i].SREF << locatorIndex+1;
   }
   return sstr.str();
 }
@@ -112,16 +115,15 @@ String getLocatorName(ENUM_LOCS locatorType, int locatorIndex)
  * Check if the Locator type is valid or not
  * Note that the locator type is returned as -1 for non identified locator (such as rank)
  * @param locatorType The locator type to be identified
- * @param unknownValid True if LOC_UNKNOWN is considered as valid
+ * @param unknownValid True if ELoc::UNKNOWN is considered as valid
  * @return
  */
-bool isLocatorTypeValid(ENUM_LOCS locatorType, bool unknownValid)
+bool isLocatorTypeValid(const ELoc& locatorType, bool unknownValid)
 {
-  int lower_bound = (unknownValid) ? -1 : 0;
-  if (locatorType < lower_bound || locatorType >= MAXIMUM_LOC)
+  if (unknownValid) return true;
+  if (locatorType == ELoc::UNKNOWN)
   {
-    messerr("Error in the Locator Type (%d)",locatorType);
-    messerr("It should be defined using the ENUM_LOCS");
+    messerr("Locator Type must not be UNKNOWN");
     return false;
   }
   return true;
@@ -129,10 +131,16 @@ bool isLocatorTypeValid(ENUM_LOCS locatorType, bool unknownValid)
 
 int getLocatorTypeFromName(const String& name_type)
 {
-  for (int i = 0; i < MAXIMUM_LOC; i++)
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
   {
-    unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[i].SREF));
-    if (name_type.compare(0,lng,DEF_LOCATOR[i].SREF) == 0) return i;
+    if (*it != ELoc::UNKNOWN)
+    {
+      int i = it.getValue();
+      unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[i].SREF));
+      if (name_type.compare(0,lng,DEF_LOCATOR[i].SREF) == 0) return i;
+    }
+    it.toNext();
   }
   return -1;
 }
@@ -145,23 +153,29 @@ int getLocatorTypeFromName(const String& name_type)
  * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
  * @return Error code
  */
-int locatorIdentify(String string, ENUM_LOCS *ret_locatorType, int *ret_item, int *ret_mult)
+int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* ret_mult)
 {
-  *ret_locatorType   = LOC_UNKNOWN;
+  *ret_locatorType   = ELoc::UNKNOWN;
   *ret_item     = -1;
   *ret_mult     =  1;
   int  inum  = -1;
   int  found = -1;
   bool mult  =  0;
-  for (int i = 0; i < MAXIMUM_LOC && found < 0; i++)
+  auto it = ELoc::getIterator();
+  while (it.hasNext() && found < 0)
   {
-    unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[i].SREF));
-    if (string.compare(0,lng,DEF_LOCATOR[i].SREF) == 0) found = i;
+    if (*it != ELoc::UNKNOWN)
+    {
+      int i = it.getValue();
+      unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[i].SREF));
+      if (string.compare(0,lng,DEF_LOCATOR[i].SREF) == 0) found = i;
+    }
+    it.toNext();
   }
   if (found < 0) return 1;
   unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[found].SREF));
   if (string.size() > lng) inum = atoi(&string[lng]);
-  mult = DEF_LOCATOR[found].IREF == 0;
+  mult = (DEF_LOCATOR[found].IREF == 0);
   if (! mult && inum > 1)
   {
     string = "NA";
@@ -170,7 +184,7 @@ int locatorIdentify(String string, ENUM_LOCS *ret_locatorType, int *ret_item, in
 
   /* Returning arguments */
 
-  *ret_locatorType = (ENUM_LOCS) found;
+  *ret_locatorType = ELoc::fromValue(found);
   *ret_item   = MAX(inum-1, 0);
   *ret_mult   = mult;
   return 0;
@@ -179,12 +193,18 @@ int locatorIdentify(String string, ENUM_LOCS *ret_locatorType, int *ret_item, in
 void printLocatorList()
 {
   mestitle(0, "List of the available locators");
-  for (int i = 0; i < MAXIMUM_LOC; i++)
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
   {
-    if (DEF_LOCATOR[i].IREF)
-      message(" %10s %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);
-    else
-      message(" %7s(*) %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);
+    if (*it != ELoc::UNKNOWN)
+    {
+      int i = it.getValue();
+      if (DEF_LOCATOR[i].IREF)
+        message(" %10s %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);
+      else
+        message(" %7s(*) %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);
+    }
+    it.toNext();
   }
   message("(*) These keywords must be followed by a number\n");
   return;
@@ -193,15 +213,31 @@ void printLocatorList()
 VectorString getLocatorNames()
 {
   VectorString strings;
-  for (int i = 0; i < MAXIMUM_LOC; i++)
-    strings.push_back(DEF_LOCATOR[i].SREF);
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
+  {
+    if (*it != ELoc::UNKNOWN)
+    {
+      int i = it.getValue();
+      strings.push_back(DEF_LOCATOR[i].SREF);
+    }
+    it.toNext();
+  }
   return strings;
 }
 
 VectorInt getLocatorMultiples()
 {
   VectorInt mult;
-  for (int i = 0; i < MAXIMUM_LOC; i++)
-    mult.push_back(DEF_LOCATOR[i].IREF);
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
+  {
+    if (*it != ELoc::UNKNOWN)
+    {
+      int i = it.getValue();
+      mult.push_back(DEF_LOCATOR[i].IREF);
+    }
+    it.toNext();
+  }
   return mult;
 }

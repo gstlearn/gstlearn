@@ -16,7 +16,6 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/IClonable.hpp"
-#include "geoslib_enum.h"
 
 class Db;
 class Model;

@@ -22,6 +22,8 @@
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
+#include "Basic/EJustify.hpp"
+#include "LithoRule/EProcessOper.hpp"
 #include "geoslib_e.h"
 
 /*! \cond */
@@ -33,9 +35,10 @@
 #define AIC(icov,ivar,jvar)      aic[(icov)*nvar*nvar + AD(ivar,jvar)]
 #define IND(iech,ivar)           ((iech) + (ivar) * nech)
 
-#define GAUS   0
-#define FACIES 1
-#define PROP   2
+// TODO : transform this to enum
+#define TYPE_GAUS   0
+#define TYPE_FACIES 1
+#define TYPE_PROP   2
 
 #define EPS 1e-5
 
@@ -133,8 +136,8 @@ GEOSLIB_API void simu_func_continuous_update(Db  *db,
 
   /* Preliminary checks */
 
-  check_mandatory_attribute("simu_func_continuous_update",db,LOC_SIMU);
-  check_mandatory_attribute("simu_func_continuous_update",db,LOC_Z);
+  check_mandatory_attribute("simu_func_continuous_update",db,ELoc::SIMU);
+  check_mandatory_attribute("simu_func_continuous_update",db,ELoc::Z);
   iptr_simu = db->getSimvarRank(isimu,0,0,nbsimu,1);
 
   /* Loop on the grid cells */
@@ -142,7 +145,7 @@ GEOSLIB_API void simu_func_continuous_update(Db  *db,
   for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
-    simval = get_LOCATOR_ITEM(db,LOC_SIMU,iptr_simu,iech);
+    simval = get_LOCATOR_ITEM(db,ELoc::SIMU,iptr_simu,iech);
     db->updVariable(iech,0,0,simval);
     db->updVariable(iech,1,0,simval * simval);
   }
@@ -174,8 +177,8 @@ GEOSLIB_API void simu_func_categorical_update(Db  *db,
   /* Preliminary checks */
 
   ipgs = ModCat.ipgs;
-  check_mandatory_attribute("simu_func_categorical_update",db,LOC_FACIES);
-  check_mandatory_attribute("simu_func_categorical_update",db,LOC_P);
+  check_mandatory_attribute("simu_func_categorical_update",db,ELoc::FACIES);
+  check_mandatory_attribute("simu_func_categorical_update",db,ELoc::P);
   iptr_simu = db->getSimvarRank(isimu,0,ipgs,nbsimu,1);
 
   /* Loop on the grid cells */
@@ -183,7 +186,7 @@ GEOSLIB_API void simu_func_categorical_update(Db  *db,
   for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
-    facies = (int) get_LOCATOR_ITEM(db,LOC_FACIES,iptr_simu,iech) - 1;
+    facies = (int) get_LOCATOR_ITEM(db,ELoc::FACIES,iptr_simu,iech) - 1;
     rank   = st_facies(ModCat.propdef,ipgs,facies);
     prop   = db->getProportion(iech,rank) + 1.;
     db->setProportion(iech,rank,prop);
@@ -212,7 +215,7 @@ GEOSLIB_API void simu_func_continuous_scale(Db  *db,
 
   /* Preliminary checks */
 
-  check_mandatory_attribute("simu_func_continuous_scale",db,LOC_Z);
+  check_mandatory_attribute("simu_func_continuous_scale",db,ELoc::Z);
 
   /* Loop on the grid cells */
 
@@ -254,7 +257,7 @@ GEOSLIB_API void simu_func_categorical_scale(Db  *db,
   propdef = ModCat.propdef;
   ipgs    = ModCat.ipgs;
   nfacies = propdef->nfac[ipgs];
-  check_mandatory_attribute("simu_func_categorical_scale",db,LOC_P);
+  check_mandatory_attribute("simu_func_categorical_scale",db,ELoc::P);
 
   /* Loop on the grid cells */
 
@@ -286,7 +289,7 @@ GEOSLIB_API void simu_func_categorical_scale(Db  *db,
 *****************************************************************************/
 GEOSLIB_API void check_mandatory_attribute(const char *method,
                                            Db* db,
-                                           ENUM_LOCS locatorType)
+                                           const ELoc& locatorType)
 {
   if (get_LOCATOR_NITEM(db,locatorType) <= 0)
     messageAbort("%s : Attributes %d are mandatory",method,locatorType);
@@ -456,9 +459,9 @@ static int st_check_simtub_environment(Db    *dbin,
 
   if (flag_cond)
   {
-    dbin_mini = db_sample_alloc(dbin,LOC_X);
+    dbin_mini = db_sample_alloc(dbin,ELoc::X);
     if (dbin_mini == (double *) NULL) goto label_end;
-    dbin_maxi = db_sample_alloc(dbin,LOC_X);
+    dbin_maxi = db_sample_alloc(dbin,ELoc::X);
     if (dbin_maxi == (double *) NULL) goto label_end;
     if (db_extension(dbin,
                      dbin_mini,dbin_maxi,(double *) NULL)) goto label_end;
@@ -466,9 +469,9 @@ static int st_check_simtub_environment(Db    *dbin,
 
   /* Output Db structure */
 
-  dbout_mini = db_sample_alloc(dbout,LOC_X);
+  dbout_mini = db_sample_alloc(dbout,ELoc::X);
   if (dbout_mini == (double *) NULL) goto label_end;
-  dbout_maxi = db_sample_alloc(dbout,LOC_X);
+  dbout_maxi = db_sample_alloc(dbout,ELoc::X);
   if (dbout_maxi == (double *) NULL) goto label_end;
   if (db_extension(dbout,
                    dbout_mini,dbout_maxi,(double *) NULL)) goto label_end;
@@ -1863,7 +1866,7 @@ static void st_difference(Db     *dbin,
   if (debug_query("simulate"))
   {
     mestitle(1,"Difference between Data and NC Simulation");
-    tab_prints(NULL,1,GD_J_RIGHT,"Sample");
+    tab_prints(NULL,1,EJustify::RIGHT,"Sample");
   }
 
   /* Transform the non conditional simulation into simulation error */
@@ -1881,12 +1884,12 @@ static void st_difference(Db     *dbin,
       for (ivar=0; ivar<nvar; ivar++)
       {
         (void) sprintf(string,"Data%d",ivar+1);
-        tab_prints(NULL,1,GD_J_RIGHT,string);
+        tab_prints(NULL,1,EJustify::RIGHT,string);
         
         for (isimu=0; isimu<nbsimu; isimu++)
         {
           (void) sprintf(string,"Simu%d",isimu+1);
-          tab_prints(NULL,1,GD_J_RIGHT,string);
+          tab_prints(NULL,1,EJustify::RIGHT,string);
         }
       }
       message("\n");
@@ -1897,23 +1900,23 @@ static void st_difference(Db     *dbin,
     for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       if (! dbin->isActive(iech)) continue;
-      if (debug_query("simulate")) tab_printi(NULL,1,GD_J_RIGHT,iech+1);
+      if (debug_query("simulate")) tab_printi(NULL,1,EJustify::RIGHT,iech+1);
       for (ivar=0; ivar<nvar; ivar++)
       {
         zvar = TEST;
         if (! flag_gibbs)
         {
           zvar = dbin->getVariable(iech,ivar);
-          if (debug_query("simulate")) tab_printg(NULL,1,GD_J_RIGHT,zvar);
+          if (debug_query("simulate")) tab_printg(NULL,1,EJustify::RIGHT,zvar);
         }
         for (isimu=0; isimu<nbsimu; isimu++)
         {
           if (flag_gibbs)
           {
-            zvar = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,ivar,0,nbsimu,nvar);
-            if (debug_query("simulate")) tab_printg(NULL,1,GD_J_RIGHT,zvar);
+            zvar = dbin->getSimvar(ELoc::GAUSFAC,iech,isimu,ivar,0,nbsimu,nvar);
+            if (debug_query("simulate")) tab_printg(NULL,1,EJustify::RIGHT,zvar);
           }
-          simval = dbin->getSimvar(LOC_SIMU, iech, isimu, ivar, icase,
+          simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase,
               nbsimu, nvar);
           if (FLAG_DGM)
           {
@@ -1921,10 +1924,10 @@ static void st_difference(Db     *dbin,
           }
           if (debug_query("simulate") && !FFFF(zvar))
           {
-            tab_printg(NULL, 1, GD_J_RIGHT, simval);
+            tab_printg(NULL, 1, EJustify::RIGHT, simval);
           }
           simunc = (!FFFF(zvar) && !FFFF(simval)) ?  simval - zvar : TEST;
-          dbin->setSimvar(LOC_SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
+          dbin->setSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
                           simunc);
         }
       }
@@ -1945,10 +1948,10 @@ static void st_difference(Db     *dbin,
       for (isimu=0; isimu<nbsimu; isimu++)
       {
         (void) sprintf(string,"Data%d",isimu+1);
-        tab_prints(NULL,1,GD_J_RIGHT,string);
+        tab_prints(NULL,1,EJustify::RIGHT,string);
         
         (void) sprintf(string,"Simulation%d",isimu+1);
-        tab_prints(NULL,1,GD_J_RIGHT,string);
+        tab_prints(NULL,1,EJustify::RIGHT,string);
       }
       message("\n");
     }
@@ -1958,22 +1961,22 @@ static void st_difference(Db     *dbin,
     for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
       if (! dbin->isActive(iech)) continue;
-      if (debug_query("simulate")) tab_printi(NULL,1,GD_J_RIGHT,iech+1);
+      if (debug_query("simulate")) tab_printi(NULL,1,EJustify::RIGHT,iech+1);
       for (isimu=0; isimu<nbsimu; isimu++)
       {
-        zvar = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1);
+        zvar = dbin->getSimvar(ELoc::GAUSFAC,iech,isimu,0,icase,nbsimu,1);
         if (debug_query("simulate"))
         {
-          tab_printg(NULL,1,GD_J_RIGHT,zvar);
+          tab_printg(NULL,1,EJustify::RIGHT,zvar);
           if (! FFFF(zvar)) 
           {
-            simval = dbin->getSimvar(LOC_SIMU,iech,isimu,0,icase,
+            simval = dbin->getSimvar(ELoc::SIMU,iech,isimu,0,icase,
                                 nbsimu,1);
-            tab_printg(NULL,1,GD_J_RIGHT,simval);
+            tab_printg(NULL,1,EJustify::RIGHT,simval);
           }
         }
         if (! FFFF(zvar)) 
-          dbin->updSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1,0,-zvar);
+          dbin->updSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,1,0,-zvar);
       }
       if (debug_query("simulate")) message("\n");
     }
@@ -2435,7 +2438,7 @@ static int st_simulate_grid(Db     *db,
             for (iech=0; iech<nech; iech++)
               if (db->isActive(iech))
                 for (jvar=0; jvar<nvar; jvar++)
-                  db->updSimvar(LOC_SIMU, iech, shift + isimu, jvar, icase,
+                  db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, 0,
                                 tab[iech] * correc * AIC(is, jvar, ivar));
         }
@@ -2446,7 +2449,7 @@ static int st_simulate_grid(Db     *db,
     for (iech=0; iech<nech; iech++)
       for (jvar=0; jvar<nvar; jvar++)
         if (db->isActive(iech))
-          db->updSimvar(LOC_SIMU, iech, shift + isimu, jvar, icase, nbsimu,
+          db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
                         nvar, 1, norme);
 
   error = 0;
@@ -2518,7 +2521,7 @@ static void st_simulate_nugget(Db     *db,
           if (! db->isActive(iech)) continue;
           nugget = law_gaussian();
           for (jvar=0; jvar<nvar; jvar++)
-            db->updSimvar(LOC_SIMU, iech, isimu, jvar, icase, nbsimu, nvar, 0,
+            db->updSimvar(ELoc::SIMU, iech, isimu, jvar, icase, nbsimu, nvar, 0,
                           nugget * AIC(is, jvar, ivar));
         }
       }
@@ -2762,7 +2765,7 @@ static int st_simulate_point(Db     *db,
             for (iech=0; iech<nech; iech++)
               if (db->isActive(iech))
                 for (jvar=0; jvar<nvar; jvar++)
-                  db->updSimvar(LOC_SIMU, iech, shift + isimu, jvar, icase,
+                  db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, 0,
                                 tab[iech] * correc * AIC(is, jvar, ivar));
         }
@@ -2773,7 +2776,7 @@ static int st_simulate_point(Db     *db,
     for (iech=0; iech<nech; iech++)
       for (jvar=0; jvar<nvar; jvar++)
         if (db->isActive(iech))
-          db->updSimvar(LOC_SIMU, iech, shift + isimu, jvar, icase, nbsimu,
+          db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
                         nvar, 1, norme);
   
   /* Set the error return code */
@@ -2849,7 +2852,7 @@ static void st_update_data2target(Db     *dbin,
     for (ip=0; ip<dbin->getSampleNumber(); ip++)
     {
       if (! dbin->isActive(ip)) continue;
-      db_sample_load(dbin,LOC_X,ip,coor2);
+      db_sample_load(dbin,ELoc::X,ip,coor2);
       if (point_to_grid(dbout,coor2,1,indg)) continue;
       ik = db_index_grid_to_sample(dbout,indg);
       if (! dbout->isActive(ik)) continue;
@@ -2873,9 +2876,9 @@ static void st_update_data2target(Db     *dbin,
           if (! flag_pgs)
             valdat = dbin->getVariable(ip,ivar);
           else
-            valdat = dbin->getSimvar(LOC_GAUSFAC,ip,isimu,0,icase,nbsimu,1);
+            valdat = dbin->getSimvar(ELoc::GAUSFAC,ip,isimu,0,icase,nbsimu,1);
           if (FFFF(valdat)) continue;
-          dbout->setSimvar(LOC_SIMU,ik,isimu,ivar,icase,nbsimu,nvar,valdat);
+          dbout->setSimvar(ELoc::SIMU,ik,isimu,ivar,icase,nbsimu,nvar,valdat);
         }
     }
   }
@@ -2889,7 +2892,7 @@ static void st_update_data2target(Db     *dbin,
     for (ik=0; ik<dbout->getSampleNumber(); ik++)
     {
       if (! dbout->isActive(ik)) continue;
-      db_sample_load(dbout,LOC_X,ik,coor1);
+      db_sample_load(dbout,ELoc::X,ik,coor1);
 
       /* Look for the closest data point */
 
@@ -2897,7 +2900,7 @@ static void st_update_data2target(Db     *dbin,
       for (ip=0; ip<dbin->getSampleNumber() && ip_close<0; ip++)
       {
         if (! dbin->isActive(ip)) continue;
-        db_sample_load(dbin,LOC_X,ip,coor2);
+        db_sample_load(dbin,ELoc::X,ip,coor2);
 
         /* Get the distance to the target point */
 
@@ -2920,10 +2923,10 @@ static void st_update_data2target(Db     *dbin,
           if (! flag_pgs)
             valdat = dbin->getVariable(ip_close,ivar);
           else
-            valdat = dbin->getSimvar(LOC_GAUSFAC,ip_close,isimu,0,icase,
+            valdat = dbin->getSimvar(ELoc::GAUSFAC,ip_close,isimu,0,icase,
                                 nbsimu,1);
           if (FFFF(valdat)) continue;
-          dbout->setSimvar(LOC_SIMU,ik,isimu,ivar,icase,nbsimu,nvar,valdat);
+          dbout->setSimvar(ELoc::SIMU,ik,isimu,ivar,icase,nbsimu,nvar,valdat);
         }
     }
   }
@@ -2966,7 +2969,7 @@ static void st_mean_correct(Db    *dbout,
       for (iech=0; iech<dbout->getSampleNumber(); iech++)
       {
         if (! dbout->isActive(iech)) continue;
-        dbout->updSimvar(LOC_SIMU, iech, isimu, ivar, icase, nbsimu,
+        dbout->updSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
                          model->getVariableNumber(), 0,
                          model->getContext().getMean(ivar));
       }  
@@ -3052,12 +3055,12 @@ static int st_simulate_gradient(Db     *dbgrd,
       {
         if (! dbgrd->isActive(iech)) continue;
         jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-        value2 = dbgrd->getSimvar(LOC_SIMU,iech,jsimu,0,icase,
+        value2 = dbgrd->getSimvar(ELoc::SIMU,iech,jsimu,0,icase,
                             2*ndim*nbsimu,1);
         jsimu = isimu + idim * nbsimu;
-        value1 = dbgrd->getSimvar(LOC_SIMU,iech,jsimu,0,icase,
+        value1 = dbgrd->getSimvar(ELoc::SIMU,iech,jsimu,0,icase,
                             2*ndim*nbsimu,1);
-        dbgrd->setSimvar(LOC_SIMU,iech,jsimu,0,icase,
+        dbgrd->setSimvar(ELoc::SIMU,iech,jsimu,0,icase,
                    2*ndim*nbsimu,1,(value2 - value1) / delta);
       }
   }
@@ -3121,8 +3124,8 @@ static int st_simulate_tangent(Db     *dbtgt,
       value = 0.;
       for (int idim=0; idim<dbtgt->getNDim(); idim++)
         value += dbtgt->getTangent(iech,idim) *
-          dbtgt->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,nvar);
-      dbtgt->setSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,nvar,value);
+          dbtgt->getSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,nvar);
+      dbtgt->setSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,nvar,value);
     }
 
   /* Set the error return code */
@@ -3144,7 +3147,7 @@ label_end:
 ** \param[in]  flag_pgs   1 if called from PGS
 ** \param[in]  flag_gibbs 1 if called from Gibbs
 **
-** \remark Attributes LOC_SIMU and LOC_GAUSFAC (for PGS) are mandatory
+** \remark Attributes ELoc::SIMU and ELoc::GAUSFAC (for PGS) are mandatory
 ** \remark Tests have only been produced for icase=0
 **
 *****************************************************************************/
@@ -3163,7 +3166,7 @@ static void st_check_gaussian_data2grid(Db     *dbin,
 
   if (dbin == (Db *) NULL || dbout == (Db *) NULL) return;
   number = 0;
-  check_mandatory_attribute("st_check_gaussian_data2grid",dbout,LOC_SIMU);
+  check_mandatory_attribute("st_check_gaussian_data2grid",dbout,ELoc::SIMU);
   mestitle(1,"Checking Gaussian of data against closest grid node");
 
   /* Core allocation */
@@ -3188,16 +3191,16 @@ static void st_check_gaussian_data2grid(Db     *dbin,
       if (! flag_pgs)
       {
         if (flag_gibbs)
-          valdat = dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,0,nbsimu,1);
+          valdat = dbin->getSimvar(ELoc::GAUSFAC,iech,isimu,0,0,nbsimu,1);
         else
           valdat = dbin->getVariable(iech,0);
       }
       else
       {
-        valdat = dbin->getSimvar(LOC_GAUSFAC,iech,0,0,0,nbsimu,1);
+        valdat = dbin->getSimvar(ELoc::GAUSFAC,iech,0,0,0,nbsimu,1);
       }
 
-      valres = dbout->getSimvar(LOC_SIMU,jech,isimu,0,0,nbsimu,1);
+      valres = dbout->getSimvar(ELoc::SIMU,jech,isimu,0,0,nbsimu,1);
       if (ABS(valdat - valres) < eps) continue;
       number++;
       
@@ -3497,8 +3500,8 @@ GEOSLIB_API int simtub(Db *dbin,
   situba = (Situba *) NULL;
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin,dbout,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,dbin,dbout,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,dbin,dbout,&inostat)) goto label_end;
+  if (manage_external_info(1,ELoc::F,dbin,dbout,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::NOSTAT,dbin,dbout,&inostat)) goto label_end;
 
   /* Define the environment variables for printout */
 
@@ -3509,10 +3512,10 @@ GEOSLIB_API int simtub(Db *dbin,
 
   if (flag_cond)
   {
-    if (db_locator_attribute_add(dbin, LOC_SIMU, nvar * nbsimu, 0, 0.,
+    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0.,
                                  &iptr_in)) goto label_end;
   }
-  if (db_locator_attribute_add(dbout, LOC_SIMU, nvar * nbsimu, 0, 0.,
+  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0.,
                                &iptr_out)) goto label_end;
 
   /* Processing the Turning Bands algorithm */
@@ -3525,17 +3528,17 @@ GEOSLIB_API int simtub(Db *dbin,
 
   /* Free the temporary variables */
 
-  if (flag_cond) dbin->deleteFieldByLocator(LOC_SIMU);
+  if (flag_cond) dbin->deleteFieldByLocator(ELoc::SIMU);
 
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin,LOC_Z,model->getVariableNumber(),
+  namconv.setNamesAndLocators(dbin,ELoc::Z,model->getVariableNumber(),
                               dbout,iptr_out,String(),nbsimu);
 
 label_end:
-  (void) manage_external_info(-1,LOC_F,dbin,dbout,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,dbin,dbout,&inostat);
+  (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iext);
+  (void) manage_external_info(-1,ELoc::NOSTAT,dbin,dbout,&inostat);
   situba = st_dealloc(model,situba);
   return(error);
 }
@@ -3583,8 +3586,8 @@ GEOSLIB_API int simdgm(Db    *dbin,
   situba = (Situba *) NULL;
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin,dbout,model,neigh)) goto label_end;
-  if (manage_external_info(1,LOC_F,dbin,dbout,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,dbin,dbout,
+  if (manage_external_info(1,ELoc::F,dbin,dbout,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::NOSTAT,dbin,dbout,
                            &inostat)) goto label_end;
 
   /* Define the environment variables for printout */
@@ -3598,10 +3601,10 @@ GEOSLIB_API int simdgm(Db    *dbin,
 
   if (flag_cond)
   {
-    if (db_locator_attribute_add(dbin,LOC_SIMU,nvar*nbsimu,0,0.,
+    if (db_locator_attribute_add(dbin,ELoc::SIMU,nvar*nbsimu,0,0.,
                                  &iptr)) goto label_end;
   }
-  if (db_locator_attribute_add(dbout,LOC_SIMU,nvar*nbsimu,0,0.,
+  if (db_locator_attribute_add(dbout,ELoc::SIMU,nvar*nbsimu,0,0.,
                                &iptr)) goto label_end;
 
   /* Processing the Turning Bands algorithm */
@@ -3614,15 +3617,15 @@ GEOSLIB_API int simdgm(Db    *dbin,
 
   /* Free the temporary variables */
 
-  if (flag_cond) dbin->deleteFieldByLocator(LOC_SIMU);
+  if (flag_cond) dbin->deleteFieldByLocator(ELoc::SIMU);
 
   /* Set the error return flag */
 
   error = 0;
 
 label_end:
-  (void) manage_external_info(-1,LOC_F,dbin,dbout,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,dbin,dbout,&inostat);
+  (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iext);
+  (void) manage_external_info(-1,ELoc::NOSTAT,dbin,dbout,&inostat);
   situba = st_dealloc(model,situba);
   return(error);
 }
@@ -3683,10 +3686,10 @@ GEOSLIB_API int simbayes(Db     *dbin,
 
   if (flag_cond)
   {
-    if (db_locator_attribute_add(dbin,LOC_SIMU,nvar*nbsimu,0,0,
+    if (db_locator_attribute_add(dbin,ELoc::SIMU,nvar*nbsimu,0,0,
                                  &iptr)) goto label_end;
   }
-  if (db_locator_attribute_add(dbout,LOC_SIMU,nvar*nbsimu,0,0,
+  if (db_locator_attribute_add(dbout,ELoc::SIMU,nvar*nbsimu,0,0,
                                &iptr)) goto label_end;
 
   /* Processing the Turning Bands algorithm */
@@ -3698,7 +3701,7 @@ GEOSLIB_API int simbayes(Db     *dbin,
 
   /* Free the temporary variables */
 
-  if (flag_cond) dbin->deleteFieldByLocator(LOC_SIMU);
+  if (flag_cond) dbin->deleteFieldByLocator(ELoc::SIMU);
 
   /* Set the error return flag */
 
@@ -3767,8 +3770,8 @@ static void st_suppress_added_samples(Db *db,
 ** \param[in]  nfacies    Number of facies
 ** \param[in]  nbsimu     Number of simulations
 **
-** \remark Attributes LOC_FACIES are mandatory
-** \remark Attributes LOC_GAUSFAC are mandatory
+** \remark Attributes ELoc::FACIES are mandatory
+** \remark Attributes ELoc::GAUSFAC are mandatory
 **
 *****************************************************************************/
 static void st_check_facies_data2grid(PropDef  *propdef,
@@ -3790,7 +3793,7 @@ static void st_check_facies_data2grid(PropDef  *propdef,
 
   /* Initializations */
 
-  check_mandatory_attribute("st_check_facies_data2grid",dbout,LOC_FACIES);
+  check_mandatory_attribute("st_check_facies_data2grid",dbout,ELoc::FACIES);
   number = 0;
   coor   = (double *) NULL;
   if (flag_check) 
@@ -3799,7 +3802,7 @@ static void st_check_facies_data2grid(PropDef  *propdef,
 
   /* Core allocation */
 
-  coor = db_sample_alloc(dbin,LOC_X);
+  coor = db_sample_alloc(dbin,ELoc::X);
   if (coor == (double *) NULL) goto label_end;
 
   /* Loop on the data */
@@ -3814,14 +3817,14 @@ static void st_check_facies_data2grid(PropDef  *propdef,
     
     for (isimu=0; isimu<nbsimu; isimu++)
     {
-      facres = (int) dbout->getSimvar(LOC_FACIES, jech, isimu, 0, ipgs, nbsimu,
+      facres = (int) dbout->getSimvar(ELoc::FACIES, jech, isimu, 0, ipgs, nbsimu,
                                       1);
       if (flag_show)
       {
         if (facdat == facres)
-          dbout->setSimvar(LOC_FACIES,jech,isimu,0,ipgs,nbsimu,1,-facdat);
+          dbout->setSimvar(ELoc::FACIES,jech,isimu,0,ipgs,nbsimu,1,-facdat);
         else
-          dbout->setSimvar(LOC_FACIES,jech,isimu,0,ipgs,nbsimu,1,0.);
+          dbout->setSimvar(ELoc::FACIES,jech,isimu,0,ipgs,nbsimu,1,0.);
       }
       
       if (facdat == facres) continue;
@@ -4017,43 +4020,43 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Storage of the facies proportions */
   if (flag_modif)
   {
-    if (db_locator_attribute_add(dbout,LOC_P,nfacies,0,0.,&iptr_RP)) 
+    if (db_locator_attribute_add(dbout,ELoc::P,nfacies,0,0.,&iptr_RP))
       goto label_end;
   }
 
   /* Storage of the facies simulations in the Output Db */
-  if (db_locator_attribute_add(dbout,LOC_FACIES,nbsimu,0,0.,&iptr_RF)) 
+  if (db_locator_attribute_add(dbout,ELoc::FACIES,nbsimu,0,0.,&iptr_RF))
     goto label_end;
 
   /* Storage of the facies simulations in the input file */
   if (flag_cond)
   {
-    if (db_locator_attribute_add(dbin,LOC_FACIES,nbsimu,0,0.,&iptr_DF)) 
+    if (db_locator_attribute_add(dbin,ELoc::FACIES,nbsimu,0,0.,&iptr_DF))
       goto label_end;
   }
 
   if (flag_cond)
   {
     /* Gaussian transform of the facies input data */
-    if (db_locator_attribute_add(dbin,LOC_GAUSFAC,ngrf*nbsimu,
+    if (db_locator_attribute_add(dbin,ELoc::GAUSFAC,ngrf*nbsimu,
                                  0,0.,&iptr)) goto label_end;
 
     /* Non-conditional simulations at data points */
-    if (db_locator_attribute_add(dbin,LOC_SIMU,ngrf*nbsimu,
+    if (db_locator_attribute_add(dbin,ELoc::SIMU,ngrf*nbsimu,
                                  0,0.,&iptr_DN)) goto label_end;
   }
 
   /* (Non-) Conditional simulations at target points */
-  if (db_locator_attribute_add(dbout,LOC_SIMU,ngrf*nbsimu,
+  if (db_locator_attribute_add(dbout,ELoc::SIMU,ngrf*nbsimu,
                                0,0.,&iptr_RN)) goto label_end;
 
   if (flag_cond)
   {
     /* Lower bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_L,ngrf,0,0.,&iptr)) goto label_end;
+    if (db_locator_attribute_add(dbin,ELoc::L,ngrf,0,0.,&iptr)) goto label_end;
 
     /* Upper bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_U,ngrf,0,0.,&iptr)) goto label_end;
+    if (db_locator_attribute_add(dbin,ELoc::U,ngrf,0,0.,&iptr)) goto label_end;
   }
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
@@ -4071,7 +4074,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Convert facies into gaussian at data */
   /****************************************/
 
-  proportion_rule_process(propdef,PROCESS_COPY);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   if (flag_cond)
   {
@@ -4168,42 +4171,42 @@ GEOSLIB_API int simpgs(Db *dbin,
 
   if (dbout != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_modif, RESULT, PROP) && iptr_RP)
-      dbout->deleteFieldByLocator(LOC_P);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_PROP) && iptr_RP)
+      dbout->deleteFieldByLocator(ELoc::P);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RP, "Props",
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, RESULT, GAUS))
-      dbout->deleteFieldByLocator(LOC_SIMU);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_GAUS))
+      dbout->deleteFieldByLocator(ELoc::SIMU);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RN, "Gaus",
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrf * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, RESULT, FACIES) && iptr_RF)
-      dbout->deleteFieldByLocator(LOC_FACIES);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_FACIES) && iptr_RF)
+      dbout->deleteFieldByLocator(ELoc::FACIES);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RF, String(),
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
                                   nbsimu);
   }
 
   if (dbin != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_modif, DATA, GAUS))
-      dbin->deleteFieldByLocator(LOC_SIMU);
+    if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_GAUS))
+      dbin->deleteFieldByLocator(ELoc::SIMU);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DN, "Gaus",
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrf * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, DATA, FACIES) && iptr_DF)
-      dbin->deleteFieldByLocator(LOC_FACIES);
+    if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_FACIES) && iptr_DF)
+      dbin->deleteFieldByLocator(ELoc::FACIES);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DF, String(),
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
                                   nbsimu, false);
 
-    dbin->deleteFieldByLocator(LOC_GAUSFAC);
-    dbin->deleteFieldByLocator(LOC_L);
-    dbin->deleteFieldByLocator(LOC_U);
+    dbin->deleteFieldByLocator(ELoc::GAUSFAC);
+    dbin->deleteFieldByLocator(ELoc::L);
+    dbin->deleteFieldByLocator(ELoc::U);
   }
 
   /* Set the error return flag */
@@ -4349,8 +4352,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   {
     nechin = dbin->getSampleNumber();
     if (! dbin->isVariableNumberComparedTo(2)) goto label_end;
-    iatt_z[0] = db_attribute_identify(dbin,LOC_Z,0);
-    iatt_z[1] = db_attribute_identify(dbin,LOC_Z,1);
+    iatt_z[0] = db_attribute_identify(dbin,ELoc::Z,0);
+    iatt_z[1] = db_attribute_identify(dbin,ELoc::Z,1);
   }
 
   /* Output Db */
@@ -4417,8 +4420,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   {
     if (flag_cond)
     {
-      dbin->clearLocators(LOC_Z);
-      dbin->setLocatorByAttribute(iatt_z[ipgs],LOC_Z);
+      dbin->clearLocators(ELoc::Z);
+      dbin->setLocatorByAttribute(iatt_z[ipgs],ELoc::Z);
     }
     if (st_check_simtub_environment(dbin,dbout,models[ipgs][0],neigh))
       goto label_end;
@@ -4440,46 +4443,46 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   /* Storage of the proportions */
   if (flag_modif)
   {
-    if (db_locator_attribute_add(dbout,LOC_P,nfactot,0,0.,&iptr_RP)) 
+    if (db_locator_attribute_add(dbout,ELoc::P,nfactot,0,0.,&iptr_RP))
       goto label_end;
   }
 
   /* Storage of the facies simulations in the output file */
-  if (db_locator_attribute_add(dbout,LOC_FACIES,npgs*nbsimu,
+  if (db_locator_attribute_add(dbout,ELoc::FACIES,npgs*nbsimu,
                                0,0.,&iptr_RF)) goto label_end;
 
   /* Storage of the facies simulations in the input file */
   if (flag_cond)
   {
-    if (db_locator_attribute_add(dbin,LOC_FACIES,npgs*nbsimu,
+    if (db_locator_attribute_add(dbin,ELoc::FACIES,npgs*nbsimu,
                                  0,0.,&iptr_DF)) goto label_end;
   }
   
   /* Gaussian transform of the facies input data */
   if (flag_cond)
   {
-    if (db_locator_attribute_add(dbin,LOC_GAUSFAC,ngrftot*nbsimu,
+    if (db_locator_attribute_add(dbin,ELoc::GAUSFAC,ngrftot*nbsimu,
                                  0,0.,&iptr)) goto label_end;
   }
   
   /* Non-conditional gaussian simulations at data points */
   if (flag_cond)
   {
-    if (db_locator_attribute_add(dbin,LOC_SIMU,ngrftot * nbsimu,
+    if (db_locator_attribute_add(dbin,ELoc::SIMU,ngrftot * nbsimu,
                                      0,0.,&iptr_DN)) goto label_end;
   }
   
   /* Non-conditional gaussian simulations at target points */
-  if (db_locator_attribute_add(dbout,LOC_SIMU,ngrftot * nbsimu,
+  if (db_locator_attribute_add(dbout,ELoc::SIMU,ngrftot * nbsimu,
                                0,0.,&iptr_RN)) goto label_end;
 
   if (flag_cond)
   {
     /* Lower bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_L,ngrftot,0,0.,&iptr)) goto label_end;
+    if (db_locator_attribute_add(dbin,ELoc::L,ngrftot,0,0.,&iptr)) goto label_end;
 
     /* Upper bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_U,ngrftot,0,0.,&iptr)) goto label_end;
+    if (db_locator_attribute_add(dbin,ELoc::U,ngrftot,0,0.,&iptr)) goto label_end;
   }
 
   /* Define the environment variables for printout */
@@ -4494,14 +4497,14 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   {
     if (flag_cond)
     {
-      dbin->clearLocators(LOC_Z);
-      dbin->setLocatorByAttribute(iatt_z[ipgs],LOC_Z);
+      dbin->clearLocators(ELoc::Z);
+      dbin->setLocatorByAttribute(iatt_z[ipgs],ELoc::Z);
     }
 
     if (ipgs == 0)
-      proportion_rule_process(propdef,PROCESS_MARGINAL);
+      proportion_rule_process(propdef,EProcessOper::MARGINAL);
     else
-      proportion_rule_process(propdef,PROCESS_CONDITIONAL);
+      proportion_rule_process(propdef,EProcessOper::CONDITIONAL);
 
     ModCat.rule  = rules[ipgs];
     ModCat.ipgs  = ipgs;
@@ -4622,42 +4625,42 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
   if (dbout != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_modif, RESULT, PROP) && iptr_RP)
-      dbout->deleteFieldByLocator(LOC_P);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_PROP) && iptr_RP)
+      dbout->deleteFieldByLocator(ELoc::P);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RP, "Props",
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nfactot, false);
 
-    if (!st_keep(flag_gaus, flag_modif, RESULT, GAUS) && iptr_RN)
-      dbout->deleteFieldByLocator(LOC_SIMU);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_GAUS) && iptr_RN)
+      dbout->deleteFieldByLocator(ELoc::SIMU);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RN, "Gaus",
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrftot * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, RESULT, FACIES) && iptr_RF)
-      dbout->deleteFieldByLocator(LOC_FACIES);
+    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_FACIES) && iptr_RF)
+      dbout->deleteFieldByLocator(ELoc::FACIES);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbout, iptr_RF, String(),
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
                                   npgs * nbsimu);
   }
 
   if (dbin != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_modif, DATA, GAUS) && iptr_DN)
-      dbin->deleteFieldByLocator(LOC_SIMU);
+    if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_GAUS) && iptr_DN)
+      dbin->deleteFieldByLocator(ELoc::SIMU);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DN, "Gaus",
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrftot * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, DATA, FACIES) && iptr_DF)
-      dbin->deleteFieldByLocator(LOC_FACIES);
+    if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_FACIES) && iptr_DF)
+      dbin->deleteFieldByLocator(ELoc::FACIES);
     else
-      namconv.setNamesAndLocators(NULL, LOC_Z, -1, dbin, iptr_DF, String(),
+      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
                                   npgs * nbsimu, false);
 
-    dbin->deleteFieldByLocator(LOC_GAUSFAC);
-    dbin->deleteFieldByLocator(LOC_L);
-    dbin->deleteFieldByLocator(LOC_U);
+    dbin->deleteFieldByLocator(ELoc::GAUSFAC);
+    dbin->deleteFieldByLocator(ELoc::L);
+    dbin->deleteFieldByLocator(ELoc::U);
   }
 
   /* Set the error return flag */
@@ -4690,7 +4693,7 @@ label_end:
 **
 *****************************************************************************/
 GEOSLIB_API int db_simulations_to_ce(Db    *db,
-                                     ENUM_LOCS locatorType,
+                                     const ELoc& locatorType,
                                      int    nbsimu,
                                      int    nvar,
                                      int   *iptr_ce_arg,
@@ -4888,7 +4891,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   /* Add the attributes */
   /**********************/
 
-  if (db_locator_attribute_add(dbin,LOC_GAUSFAC,nbsimu*nvar,0,0.,&iptr))
+  if (db_locator_attribute_add(dbin,ELoc::GAUSFAC,nbsimu*nvar,0,0.,&iptr))
     goto label_end;
 
   /*****************/
@@ -4946,7 +4949,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
   if (flag_ce || flag_cstd)
   {
-    if (db_simulations_to_ce(dbin,LOC_GAUSFAC,nbsimu,nvar,
+    if (db_simulations_to_ce(dbin,ELoc::GAUSFAC,nbsimu,nvar,
                              &iptr_ce,&iptr_cstd)) goto label_end;
 
     // We release the attributes dedicated to simulations on Dbout
@@ -4961,13 +4964,13 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
       (void) db_attribute_del_mult(dbin,iptr_cstd,nvar);
       iptr_cstd = -1;
     } 
-    dbin->deleteFieldByLocator(LOC_GAUSFAC);
+    dbin->deleteFieldByLocator(ELoc::GAUSFAC);
  }
 
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin,LOC_UNKNOWN,nvar,
+  namconv.setNamesAndLocators(dbin,ELoc::UNKNOWN,nvar,
                               dbin,iptr,String(),nbsimu);
 
 label_end:
@@ -5313,9 +5316,9 @@ GEOSLIB_API int simmaxstable(Db    *dbout,
   if (iptrv < 0) goto label_end;
   iptrr = dbout->addFields(1,0.);
   if (iptrr < 0) goto label_end;
-  if (db_locator_attribute_add(dbout,LOC_SEL,1,0,0.,&iptrs)) 
+  if (db_locator_attribute_add(dbout,ELoc::SEL,1,0,0.,&iptrs))
     goto label_end;
-  if (db_locator_attribute_add(dbout,LOC_SIMU,1,0,0.,&iptrg)) 
+  if (db_locator_attribute_add(dbout,ELoc::SIMU,1,0,0.,&iptrg))
     goto label_end;
 
   /* Implicit loop on the simulations */
@@ -5406,7 +5409,7 @@ static double st_quantile(Db     *dbout,
   for (iech=nval=0; iech<nech; iech++)
   {
     if (! dbout->isActive(iech)) continue;
-    sort[nval++] = dbout->getSimvar(LOC_SIMU,iech,0,0,0,1,1);
+    sort[nval++] = dbout->getSimvar(ELoc::SIMU,iech,0,0,0,1,1);
   }
 
   /* Sorting the array */
@@ -5479,9 +5482,9 @@ GEOSLIB_API int simRI(Db     *dbout,
   if (pton == (double *) NULL) goto label_end;
   pres = (double *) mem_alloc(sizeof(double) * (ncut-1),0);
   if (pres == (double *) NULL) goto label_end;
-  if (db_locator_attribute_add(dbout,LOC_SEL,1,0,0.,&iptrs)) 
+  if (db_locator_attribute_add(dbout,ELoc::SEL,1,0,0.,&iptrs))
     goto label_end;
-  if (db_locator_attribute_add(dbout,LOC_SIMU,1,0,0.,&iptrg)) 
+  if (db_locator_attribute_add(dbout,ELoc::SIMU,1,0,0.,&iptrg))
     goto label_end;
 
   /* Preliminary calculations */
@@ -5540,9 +5543,9 @@ GEOSLIB_API int simRI(Db     *dbout,
     for (iech=count=0; iech<nech; iech++)
     {
       if (! dbout->getSelection(iech)) continue;
-      simval = dbout->getSimvar(LOC_SIMU,iech,0,0,0,1,1);
+      simval = dbout->getSimvar(ELoc::SIMU,iech,0,0,0,1,1);
       if (! FFFF(seuil) && simval >= seuil) continue;
-      dbout->setSimvar(LOC_SIMU,iech,0,0,0,1,1,(double) (icut+1));
+      dbout->setSimvar(ELoc::SIMU,iech,0,0,0,1,1,(double) (icut+1));
       dbout->setSelection(iech,0);
       count++;
     }
@@ -5556,11 +5559,11 @@ GEOSLIB_API int simRI(Db     *dbout,
   
   for (iech=0; iech<nech; iech++)
   {
-    icut = (int) dbout->getSimvar(LOC_SIMU,iech,0,0,0,1,1);
+    icut = (int) dbout->getSimvar(ELoc::SIMU,iech,0,0,0,1,1);
     if (icut < 1 || icut > ncut) 
-      dbout->setSimvar(LOC_SIMU,iech,0,0,0,1,1,TEST);
+      dbout->setSimvar(ELoc::SIMU,iech,0,0,0,1,1,TEST);
     else
-      dbout->setSimvar(LOC_SIMU,iech,0,0,0,1,1,zcut[icut-1]);
+      dbout->setSimvar(ELoc::SIMU,iech,0,0,0,1,1,zcut[icut-1]);
   }
   
   /* Set the error return flag */
@@ -5728,27 +5731,27 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   /* Storage of the facies proportions */
   if (flag_modif)
   {
-    if (db_locator_attribute_add(dbout,LOC_P,nfacies,0,0.,&iptr_RP)) 
+    if (db_locator_attribute_add(dbout,ELoc::P,nfacies,0,0.,&iptr_RP))
       goto label_end;
   }
 
   /* Storage of the simulations in the Output Db */
-  if (db_locator_attribute_add(dbout,LOC_SIMU,nbsimu*ngrf,0,0.,&iptr_RF)) 
+  if (db_locator_attribute_add(dbout,ELoc::SIMU,nbsimu*ngrf,0,0.,&iptr_RF))
     goto label_end;
 
   if (flag_cond)
   {
     /* Lower bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_L,ngrf,0,0.,&iptr)) 
+    if (db_locator_attribute_add(dbin,ELoc::L,ngrf,0,0.,&iptr))
       goto label_end;
     
     /* Upper bound at input data points */
-    if (db_locator_attribute_add(dbin,LOC_U,ngrf,0,0.,&iptr)) 
+    if (db_locator_attribute_add(dbin,ELoc::U,ngrf,0,0.,&iptr))
       goto label_end;
   }
 
   /* Storage of the facies simulations in the Output Db */
-  if (db_locator_attribute_add(dbout,LOC_FACIES,nbsimu,0,0.,&iptr_RF)) 
+  if (db_locator_attribute_add(dbout,ELoc::FACIES,nbsimu,0,0.,&iptr_RF))
     goto label_end;
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
@@ -5767,7 +5770,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   /* Convert facies into gaussian at data */
   /****************************************/
 
-  proportion_rule_process(propdef,PROCESS_COPY);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   /* Initialize the Gibbs calculations */
 
@@ -5803,17 +5806,17 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   /* Free the temporary variables */
   /********************************/
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,PROP) && iptr_RP)
-    dbout->deleteFieldByLocator(LOC_P);
+  if (! st_keep(flag_gaus,flag_modif,RESULT,TYPE_PROP) && iptr_RP)
+    dbout->deleteFieldByLocator(ELoc::P);
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,FACIES) && iptr_RF)
-    dbout->deleteFieldByLocator(LOC_FACIES);
+  if (! st_keep(flag_gaus,flag_modif,RESULT,TYPE_FACIES) && iptr_RF)
+    dbout->deleteFieldByLocator(ELoc::FACIES);
 
-  if (! st_keep(flag_gaus,flag_modif,RESULT,GAUS))
-    dbout->deleteFieldByLocator(LOC_SIMU);
+  if (! st_keep(flag_gaus,flag_modif,RESULT,TYPE_GAUS))
+    dbout->deleteFieldByLocator(ELoc::SIMU);
 
-  dbin->deleteFieldByLocator(LOC_L);
-  dbin->deleteFieldByLocator(LOC_U);
+  dbin->deleteFieldByLocator(ELoc::L);
+  dbin->deleteFieldByLocator(ELoc::U);
 
   /* Set the error return flag */
 
@@ -5938,8 +5941,8 @@ GEOSLIB_API int simcond(Db    *dbin,
   neigh = neigh_init_unique(ndim);
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin,dbout,model,NULL)) goto label_end;
-  if (manage_external_info(1,LOC_F,dbin,dbout,&iext)) goto label_end;
-  if (manage_external_info(1,LOC_NOSTAT,dbin,dbout,
+  if (manage_external_info(1,ELoc::F,dbin,dbout,&iext)) goto label_end;
+  if (manage_external_info(1,ELoc::NOSTAT,dbin,dbout,
                            &inostat)) goto label_end;
 
   /* Limitations */
@@ -5967,11 +5970,11 @@ GEOSLIB_API int simcond(Db    *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (db_locator_attribute_add(dbin,LOC_GAUSFAC,nbsimu,0,0.,
+  if (db_locator_attribute_add(dbin,ELoc::GAUSFAC,nbsimu,0,0.,
                                &iptr)) goto label_end;
-  if (db_locator_attribute_add(dbin,LOC_SIMU,nvar*nbsimu,0,0.,
+  if (db_locator_attribute_add(dbin,ELoc::SIMU,nvar*nbsimu,0,0.,
                                &iptr)) goto label_end;
-  if (db_locator_attribute_add(dbout,LOC_SIMU,nvar*nbsimu,0,0.,
+  if (db_locator_attribute_add(dbout,ELoc::SIMU,nvar*nbsimu,0,0.,
                                &iptr)) goto label_end;
 
   /*****************/
@@ -6027,19 +6030,19 @@ GEOSLIB_API int simcond(Db    *dbin,
 
   /* Free the temporary variables not used anymore */
 
-  dbin->deleteFieldByLocator(LOC_GAUSFAC);
-  dbin->deleteFieldByLocator(LOC_SIMU);
+  dbin->deleteFieldByLocator(ELoc::GAUSFAC);
+  dbin->deleteFieldByLocator(ELoc::SIMU);
 
   /* Convert the simulations */
 
   if (flag_ce || flag_cstd)
   {
-    if (db_simulations_to_ce(dbout,LOC_SIMU,nbsimu,nvar,
+    if (db_simulations_to_ce(dbout,ELoc::SIMU,nbsimu,nvar,
                              &iptr_ce,&iptr_cstd)) goto label_end;
 
     // We release the attributes dedicated to simulations on Dbout
 
-    dbout->deleteFieldByLocator(LOC_SIMU);
+    dbout->deleteFieldByLocator(ELoc::SIMU);
     if (! flag_ce) 
     {
       (void) db_attribute_del_mult(dbout,iptr_ce  ,nvar);
@@ -6058,8 +6061,8 @@ GEOSLIB_API int simcond(Db    *dbin,
 
 label_end:
   neigh = neigh_free(neigh);
-  (void) manage_external_info(-1,LOC_F,dbin,dbout,&iext);
-  (void) manage_external_info(-1,LOC_NOSTAT,dbin,dbout,&inostat);
+  (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iext);
+  (void) manage_external_info(-1,ELoc::NOSTAT,dbin,dbout,&inostat);
   situba = st_dealloc(model,situba);
   return(error);
 }

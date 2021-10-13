@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
 {
   int error = 1;
-  bool flag_inter = true;
+  bool flag_inter = false;
 
   int nx        = 10;
   int niter     = 10000;
@@ -76,13 +76,13 @@ int main(int argc, char *argv[])
   Db* db = new Db({nx,nx},dx);
   if (! FFFF(bound))
   {
-    db->addFields(1, -bound, "Bounds", LOC_L);
-    db->addFields(1, +bound, "Bounds", LOC_U);
+    db->addFields(1, -bound, "Bounds", ELoc::L);
+    db->addFields(1, +bound, "Bounds", ELoc::U);
   }
   else
   {
-    db->addFields(1, TEST, "Bounds", LOC_L);
-    db->addFields(1, TEST, "Bounds", LOC_U);
+    db->addFields(1, TEST, "Bounds", ELoc::L);
+    db->addFields(1, TEST, "Bounds", ELoc::U);
   }
 
   // Model
@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
   VectorString names = db->getNames("Gibbs*");
   for (int isimu=0; isimu<nbsimu; isimu++)
   {
-    db->clearLocators(LOC_Z);
-    db->setLocator(names[isimu],LOC_Z);
+    db->clearLocators(ELoc::Z);
+    db->setLocator(names[isimu],ELoc::Z);
     vario.compute("vg",true);
     vario.serialize(incrementStringVersion("Vario",isimu+1));
   }

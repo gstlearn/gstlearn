@@ -15,8 +15,16 @@
 #include "Covariances/ECalcMember.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Model/EModelProperty.hpp"
+#include "Model/EConsElem.hpp"
+#include "Model/EConsType.hpp"
 #include "Variogram/ECalcVario.hpp"
 #include "LithoRule/ERule.hpp"
+#include "Enum/EKrigOpt.hpp"
+#include "Anamorphosis/EAnam.hpp"
+#include "Basic/EJustify.hpp"
+#include "LithoRule/EProcessOper.hpp"
+#include "LinearOp/EPowerPT.hpp"
+#include "API/ESPDECalcMode.hpp"
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -27,3 +35,11 @@ ENUM_DEFINE(ENUM_CALC_VARIO)
 ENUM_DEFINE(ENUM_MODEL_PROPERTY)
 ENUM_DEFINE(ENUM_RULE)
 ENUM_DEFINE(ENUM_CALC_MEMBER)
+ENUM_DEFINE(ENUM_KRIG_OPT)
+ENUM_DEFINE(ENUM_ANAM)
+ENUM_DEFINE(ENUM_CONS_ELEM)
+ENUM_DEFINE(ENUM_CONS_TYPE)
+ENUM_DEFINE(ENUM_JUSTIFY)
+ENUM_DEFINE(ENUM_PROCESS_OPER)
+ENUM_DEFINE(ENUM_POWER_PT)
+ENUM_DEFINE(ENUM_SPDE_CALC_MODE)

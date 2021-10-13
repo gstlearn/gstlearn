@@ -83,7 +83,7 @@ int ModTrans::addConvolution(int conv_type,
  }
 
 
-int ModTrans::addAnamorphosis(int anam_type,
+int ModTrans::addAnamorphosis(const EAnam& anam_type,
                               int anam_nclass,
                               int anam_iclass,
                               int anam_var,
@@ -105,14 +105,13 @@ int ModTrans::addAnamorphosis(int anam_type,
 
   /* Load the parameters */
 
-  _anam->setType(anam_type);
-  if (anam_type == ANAM_HERMITIAN)
+  if (anam_type == EAnam::HERMITIAN)
   {
     _anam = new AnamHermite();
     AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
     anam_hermite->setRCoef(anam_coefr);
   }
-  else if (anam_type == ANAM_DISCRETE_IR)
+  else if (anam_type == EAnam::DISCRETE_IR)
   {
     _anam = new AnamDiscreteIR();
     AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
@@ -120,7 +119,7 @@ int ModTrans::addAnamorphosis(int anam_type,
     anam_discrete_IR->setRCoef(anam_coefr);
     anam_discrete_IR->setStats(anam_stats);
   }
-  else if (anam_type == ANAM_DISCRETE_DD)
+  else if (anam_type == EAnam::DISCRETE_DD)
   {
     _anam = new AnamDiscreteDD();
     AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);

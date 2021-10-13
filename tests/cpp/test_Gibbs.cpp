@@ -38,16 +38,16 @@ static int st_save(Db    *dbgrid,
 
   /* Add the terms to 'dbgrid' */
   
-  if (db_locator_attribute_add(dbgrid,LOC_Z,1,0,0.,&iptr)) return(1);
+  if (db_locator_attribute_add(dbgrid,ELoc::Z,1,0,0.,&iptr)) return(1);
   for (int i=0; i<nech; i++) dbgrid->setArray(i,iptr,z[i]);
   if (consmin != (double *) NULL)
   {
-    if (db_locator_attribute_add(dbgrid,LOC_L,1,0,0.,&iptr)) return(1);
+    if (db_locator_attribute_add(dbgrid,ELoc::L,1,0,0.,&iptr)) return(1);
     for (int i=0; i<nech; i++) dbgrid->setArray(i,iptr,consmin[i]);
   }
   if (consmax != (double *) NULL)
   {
-    if (db_locator_attribute_add(dbgrid,LOC_U,1,0,0.,&iptr)) return(1);
+    if (db_locator_attribute_add(dbgrid,ELoc::U,1,0,0.,&iptr)) return(1);
     for (int i=0; i<nech; i++) dbgrid->setArray(i,iptr,consmax[i]);
   }
 
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 
   dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,x0,dx);
   if (dbgrid == (Db *) NULL) goto label_end;
-  if (db_locator_attribute_add(dbgrid,LOC_X,ndim,0,0.,
+  if (db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,
                                &iptr)) goto label_end;
   if (db_grid_define_coordinates(dbgrid)) goto label_end;
   if (db_extension_diag(dbgrid,&diag)) goto label_end;

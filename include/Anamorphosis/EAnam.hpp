@@ -10,23 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#include "Enum/AEnum.hpp"
 
-class Anam : public AStringable
-{
-public:
-  Anam(const EAnam& type = EAnam::UNDEFINED);
-  Anam(const Anam &m);
-  Anam& operator= (const Anam &m);
-  virtual ~Anam();
+#define ENUM_ANAM EAnam, UNDEFINED, \
+                  UNDEFINED,  -1,  "Undefined anamorphosis", \
+                  EXTERNAL,    0,  "External anamorphosis", \
+                  HERMITIAN,   1,  "Hermitian anamorphosis", \
+                  EMPIRICAL,   2,  "Empirical anamorphosis", \
+                  DISCRETE_DD, 3,  "Discrete anamorphosis", \
+                  DISCRETE_IR, 4,  "Discrete Indicator Residuals anamorphosis"
 
-  virtual String toString(int level = 0) const override;
-
-  const EAnam&  getType() const { return _type; }
-
-private:
-  EAnam _type;
-};
+ENUM_DECLARE(ENUM_ANAM)

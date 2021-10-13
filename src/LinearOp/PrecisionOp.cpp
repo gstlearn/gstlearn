@@ -23,7 +23,7 @@
 
 PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
                          const CovAniso* cova,
-                         ENUM_POPTS power,
+                         const EPowerPT& power,
                          bool verbose)
   : _shiftOp(shiftop)
   , _cova(cova)
@@ -81,23 +81,23 @@ PrecisionOp::~PrecisionOp()
   _purge();
 }
 
-int PrecisionOp::_preparePoly(ENUM_POPTS power)
+int PrecisionOp::_preparePoly(const EPowerPT& power)
 {
   // Polynomial already exists. Nothing to be done
   if (_polynomials.count(power)) return 0;
 
-  // Prepare Polynomial for POPT_ONE
+  // Prepare Polynomial for EPowerPT::ONE
   if (_preparePrecisionPoly()) return 1;
 
   // Prepare polynomials for other powers than 1
-  if (power != POPT_ONE)
+  if (power != EPowerPT::ONE)
   {
     if (_prepareChebychev(power)) return 1;
   }
   return 0;
 }
 
-int PrecisionOp::_prepareChebychev(ENUM_POPTS power)
+int PrecisionOp::_prepareChebychev(const EPowerPT& power)
 {
   if (_cova == nullptr) return 1;
   if (_shiftOp == nullptr) return 1;
@@ -109,17 +109,17 @@ int PrecisionOp::_prepareChebychev(ENUM_POPTS power)
 
   std::function<double(double)> f;
 
-  if(power == POPT_LOG)
+  if(power == EPowerPT::LOG)
   {
-    f = [this](double val){return log(_polynomials[POPT_ONE]->eval(val));};
+    f = [this](double val){return log(_polynomials[EPowerPT::ONE]->eval(val));};
   }
-  else if (power == POPT_MINUSONE)
+  else if (power == EPowerPT::MINUSONE)
   {
-    f = [this](double val){return pow(_polynomials[POPT_ONE]->eval(val),-1.);};
+    f = [this](double val){return pow(_polynomials[EPowerPT::ONE]->eval(val),-1.);};
   }
-  else if (power == POPT_MINUSHALF)
+  else if (power == EPowerPT::MINUSHALF)
   {
-    f = [this](double val){return pow(_polynomials[POPT_ONE]->eval(val),-0.5);};
+    f = [this](double val){return pow(_polynomials[EPowerPT::ONE]->eval(val),-0.5);};
   }
 
   chebMatern->fit(f,0,b);
@@ -150,7 +150,7 @@ double PrecisionOp::computeLogDet(int nsimus,int seed)
     {
       e = law_gaussian();
     }
-    if (_evalPoly(POPT_LOG, gauss, result)) return TEST;
+    if (_evalPoly(EPowerPT::LOG, gauss, result)) return TEST;
 
     for (int i = 0; i < getSize(); i++)
     {
@@ -174,7 +174,7 @@ double PrecisionOp::computeLogDet(int nsimus,int seed)
 
 int PrecisionOp::init(const ShiftOpCs* shiftop,
                       const CovAniso*  cova,
-                      ENUM_POPTS       power,
+                      const EPowerPT&  power,
                       bool             verbose)
 {
   // Initializations
@@ -212,14 +212,14 @@ void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
 
   // Pre-processing
 
-  if (_power == POPT_ONE)
+  if (_power == EPowerPT::ONE)
   {
-    _shiftOp->prodTildeC(in, _work, POPT_HALF);
+    _shiftOp->prodTildeC(in, _work, EPowerPT::HALF);
     inPtr = &_work;
   }
-  else if (_power == POPT_MINUSONE)
+  else if (_power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodTildeC(in, _work, POPT_MINUSHALF);
+    _shiftOp->prodTildeC(in, _work, EPowerPT::MINUSHALF);
     inPtr = &_work;
   }
 
@@ -230,23 +230,25 @@ void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
 
   // Post-processing
 
-  if (_power == POPT_ONE)
+  if (_power == EPowerPT::ONE)
   {
-    _shiftOp->prodTildeC(out, out, POPT_HALF);
+    _shiftOp->prodTildeC(out, out, EPowerPT::HALF);
     _shiftOp->prodLambdaOnSqrtTildeC(out, out, 2.);
   }
-  else if (_power == POPT_MINUSONE)
+  else if (_power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodTildeC(out, out, POPT_MINUSHALF);
+    _shiftOp->prodTildeC(out, out, EPowerPT::MINUSHALF);
     _shiftOp->prodLambdaOnSqrtTildeC(out, out, -2.);
   }
-  else if (_power == POPT_MINUSHALF)
+  else if (_power == EPowerPT::MINUSHALF)
   {
-    _shiftOp->prodLambda(out, out, POPT_MINUSONE);
+    _shiftOp->prodLambda(out, out, EPowerPT::MINUSONE);
   }
 }
 
-int PrecisionOp::_evalPoly(ENUM_POPTS power,const VectorDouble& in, VectorDouble& out)
+int PrecisionOp::_evalPoly(const EPowerPT& power,
+                           const VectorDouble& in,
+                           VectorDouble& out)
 {
   if (_preparePoly(power)) return 1;
   _polynomials[power]->evalOp(_shiftOp->getS(),in,out);
@@ -255,7 +257,7 @@ int PrecisionOp::_evalPoly(ENUM_POPTS power,const VectorDouble& in, VectorDouble
 
 int PrecisionOp::_preparePrecisionPoly()
 {
-  if (_polynomials.count(POPT_ONE)) return 0;
+  if (_polynomials.count(EPowerPT::ONE)) return 0;
   VectorDouble blin;
 
   if (_cova == nullptr) return 1;
@@ -274,11 +276,11 @@ int PrecisionOp::_preparePrecisionPoly()
     blin[i] = ut_cnp(p, i) * correc;
     if (_verbose) message("Coefficient blin[%d] = %lf\n",i+1,blin[i]);
   }
-  _polynomials[POPT_ONE] = new ClassicalPolynomial(blin);
+  _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(blin);
   return 0;
 }
 
-APolynomial* PrecisionOp::getPoly(ENUM_POPTS power)
+APolynomial* PrecisionOp::getPoly(const EPowerPT& power)
 {
   if (_preparePoly(power))
     my_throw("Problem in function getPoly");

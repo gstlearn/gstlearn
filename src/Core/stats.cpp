@@ -13,6 +13,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/EJustify.hpp"
 
 /*! \cond */
 #define G_ADDRESS(ix,iy,iz,nxyz)    ((ix) + nxyz[0] * ((iy) + nxyz[1] * (iz)))
@@ -629,11 +630,11 @@ GEOSLIB_API int db_stats_grid(Db           *db,
   if (indg  == (int *) NULL) goto label_end;
   indg0  = db_indg_alloc(dbgrid);
   if (indg0 == (int *) NULL) goto label_end;
-  coor   = db_sample_alloc(db,LOC_X);
+  coor   = db_sample_alloc(db,ELoc::X);
   if (coor  == (double *) NULL) goto label_end;
   if (! strcmp(oper,"med"))
   {
-    medtab = db_sample_alloc(db,LOC_X);
+    medtab = db_sample_alloc(db,ELoc::X);
     if (medtab == (double *) NULL) goto label_end;
   }
 
@@ -658,7 +659,7 @@ GEOSLIB_API int db_stats_grid(Db           *db,
       /* Read a sample */
 
       if (! db->isActive(iech)) continue;
-      db_sample_load(db,LOC_X,iech,coor);
+      db_sample_load(db,ELoc::X,iech,coor);
       if (point_to_grid(dbgrid,coor,0,indg0) < 0) continue;
       value = db->getArray(iech,jcol);
       if (FFFF(value)) continue;
@@ -897,7 +898,7 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
 
   /* Core allocation */
   
-  coor = db_sample_alloc(db,LOC_X);
+  coor = db_sample_alloc(db,ELoc::X);
   if (coor == (double *) NULL) goto label_end;
   indg = db_indg_alloc(dbgrid);
   if (indg == (int *) NULL) goto label_end;
@@ -982,7 +983,7 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
 
     /* Check the location of the data in the grid */
 
-    db_sample_load(db,LOC_X,iech,coor);
+    db_sample_load(db,ELoc::X,iech,coor);
     if (point_to_grid(dbgrid,coor,0,indg) < 0) continue;
 
     iad = db_index_grid_to_sample(dbgrid,indg);
@@ -2109,7 +2110,7 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
   ncol = 3;
   iptr = dbgrid2->addFields(ncol,TEST);
   if (iptr < 0) goto label_end;
-  dbgrid2->setLocatorsByAttribute(ncol,iptr,LOC_Z);
+  dbgrid2->setLocatorsByAttribute(ncol,iptr,ELoc::Z);
 
   /* Core allocation */
 
@@ -3011,17 +3012,17 @@ GEOSLIB_API void db_stats_print(const Db *db,
 
   tab_print_rowname(" ",taille);
   if (st_oper_exists(opers,"num"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Number");
+    tab_prints(NULL,1,EJustify::RIGHT,"Number");
   if (st_oper_exists(opers,"mini"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Minimum");
+    tab_prints(NULL,1,EJustify::RIGHT,"Minimum");
   if (st_oper_exists(opers,"maxi"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Maximum");
+    tab_prints(NULL,1,EJustify::RIGHT,"Maximum");
   if (st_oper_exists(opers,"mean"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Mean");
+    tab_prints(NULL,1,EJustify::RIGHT,"Mean");
   if (st_oper_exists(opers,"stdv"))
-    tab_prints(NULL,1,GD_J_RIGHT,"St. Dev.");
+    tab_prints(NULL,1,EJustify::RIGHT,"St. Dev.");
   if (st_oper_exists(opers,"var"))
-    tab_prints(NULL,1,GD_J_RIGHT,"Variance");
+    tab_prints(NULL,1,EJustify::RIGHT,"Variance");
   message("\n");
   
   /* Print the monovariate statistics */
@@ -3032,32 +3033,32 @@ GEOSLIB_API void db_stats_print(const Db *db,
     tab_print_rowname(string,taille);
 
     if (st_oper_exists(opers,"num"))
-      tab_printi(NULL,1,GD_J_RIGHT,(int) num[icol]);
+      tab_printi(NULL,1,EJustify::RIGHT,(int) num[icol]);
     if (num[icol] > 0)
     {
       if (st_oper_exists(opers,"mini"))
-        tab_printg(NULL,1,GD_J_RIGHT,mini[icol]);
+        tab_printg(NULL,1,EJustify::RIGHT,mini[icol]);
       if (st_oper_exists(opers,"maxi"))
-        tab_printg(NULL,1,GD_J_RIGHT,maxi[icol]);
+        tab_printg(NULL,1,EJustify::RIGHT,maxi[icol]);
       if (st_oper_exists(opers,"mean"))
-        tab_printg(NULL,1,GD_J_RIGHT,mean[icol]);
+        tab_printg(NULL,1,EJustify::RIGHT,mean[icol]);
       if (st_oper_exists(opers,"stdv"))
-        tab_printg(NULL,1,GD_J_RIGHT,sqrt(var[icol]));
+        tab_printg(NULL,1,EJustify::RIGHT,sqrt(var[icol]));
       if (st_oper_exists(opers,"var"))
-        tab_printg(NULL,1,GD_J_RIGHT,var[icol]);
+        tab_printg(NULL,1,EJustify::RIGHT,var[icol]);
     }
     else
     {
       if (st_oper_exists(opers,"mini"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
       if (st_oper_exists(opers,"maxi"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
       if (st_oper_exists(opers,"mean"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
       if (st_oper_exists(opers,"stdv"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
       if (st_oper_exists(opers,"var"))
-        tab_prints(NULL,1,GD_J_RIGHT,"NA");
+        tab_prints(NULL,1,EJustify::RIGHT,"NA");
     }
     message("\n");
   }

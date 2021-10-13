@@ -12,7 +12,7 @@
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
 
-Anam::Anam(int type)
+Anam::Anam(const EAnam& type)
     : AStringable(),
       _type(type)
 {
@@ -41,7 +41,7 @@ Anam::~Anam()
 String Anam::toString(int level) const
 {
   std::stringstream sstr;
-  sstr << toTitle(1,"Anamorphosis characteristics");
+  sstr << toTitle(1, "Anamorphosis characteristics");
   return sstr.str();
 }
 

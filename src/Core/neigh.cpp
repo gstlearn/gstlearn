@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/EJustify.hpp"
 
 static int     FLAG_SIMU = 0;
 static int     FLAG_NO_VAR_CHECK = 0;
@@ -51,22 +52,22 @@ static void st_neigh_print(Db     *dbin,
   /* Neighborhood data */
 
   mestitle(1,"Data selected in neighborhood");
-  tab_prints(NULL,1,GD_J_RIGHT,"Rank");
-  tab_prints(NULL,1,GD_J_RIGHT,"Sample");
-  if (dbin->hasCode()) tab_prints(NULL,1,GD_J_RIGHT,"Code");
+  tab_prints(NULL,1,EJustify::RIGHT,"Rank");
+  tab_prints(NULL,1,EJustify::RIGHT,"Sample");
+  if (dbin->hasCode()) tab_prints(NULL,1,EJustify::RIGHT,"Code");
   for (idim=0; idim<ndim; idim++)
   {
-    string = getLocatorName(LOC_X,idim);
-    tab_prints(NULL,1,GD_J_RIGHT,string.c_str());
+    string = getLocatorName(ELoc::X,idim);
+    tab_prints(NULL,1,EJustify::RIGHT,string.c_str());
   }
   if (flag_ext)
     for (idim=0; idim<ndim; idim++)
     {
-      string = getLocatorName(LOC_BLEX,idim);
-      tab_prints(NULL,1,GD_J_RIGHT,string.c_str());
+      string = getLocatorName(ELoc::BLEX,idim);
+      tab_prints(NULL,1,EJustify::RIGHT,string.c_str());
     }
   if (neigh->getType() == ENeigh::MOVING)
-    tab_prints(NULL,1,GD_J_RIGHT,"Sector");
+    tab_prints(NULL,1,EJustify::RIGHT,"Sector");
   message("\n");
 
   /* Loop on the sample points */
@@ -75,19 +76,19 @@ static void st_neigh_print(Db     *dbin,
   {
     if (rank[iech] < 0) continue;
     
-    tab_printi(NULL,1,GD_J_RIGHT,sel+1);
-    tab_printi(NULL,1,GD_J_RIGHT,iech+1);
+    tab_printi(NULL,1,EJustify::RIGHT,sel+1);
+    tab_printi(NULL,1,EJustify::RIGHT,iech+1);
     if (dbin->hasCode())
-      tab_printi(NULL,1,GD_J_RIGHT,static_cast<int> (dbin->getCode(iech)));
+      tab_printi(NULL,1,EJustify::RIGHT,static_cast<int> (dbin->getCode(iech)));
     for (idim=0; idim<ndim; idim++)
-      tab_printg(NULL,1,GD_J_RIGHT,dbin->getCoordinate(iech,idim));
+      tab_printg(NULL,1,EJustify::RIGHT,dbin->getCoordinate(iech,idim));
     if (flag_ext)
     {
       for (idim=0; idim<ndim; idim++)
-        tab_printg(NULL,1,GD_J_RIGHT,dbin->getBlockExtension(iech,idim));
+        tab_printg(NULL,1,EJustify::RIGHT,dbin->getBlockExtension(iech,idim));
     }
     if (neigh->getType() == ENeigh::MOVING)
-      tab_printi(NULL,1,GD_J_RIGHT,rank[iech]+1);
+      tab_printi(NULL,1,EJustify::RIGHT,rank[iech]+1);
     message("\n"); 
     sel++;
   }
@@ -106,7 +107,7 @@ static void st_neigh_print(Db     *dbin,
 **
 ** \remarks When the Neighborhood is performed in the case of Simulations
 ** \remarks checking for all variables being undefined is performed
-** \remarks on LOC_SIMU rather than on LOC_Z
+** \remarks on ELoc::SIMU rather than on ELoc::Z
 **
 *****************************************************************************/
 static int st_discard_undefined(Db  *dbin,
@@ -137,7 +138,7 @@ static int st_discard_undefined(Db  *dbin,
   {
     // In the case of simulations, the test is performed on the 
     // simulation error for the first variable and first simulation
-    if (! FFFF(dbin->getSimvar(LOC_SIMU,iech,0,0,0,1,0))) return 0;
+    if (! FFFF(dbin->getSimvar(ELoc::SIMU,iech,0,0,0,1,0))) return 0;
   }
 
   return 1;
@@ -1103,7 +1104,7 @@ GEOSLIB_API void neigh_echo(Db     *dbin,
 **
 ** \remarks When the Neighborhood is performed in the case of Simulations
 ** \remarks checking for all variables being undefined is performed
-** \remarks on LOC_SIMU rather than on LOC_Z
+** \remarks on ELoc::SIMU rather than on ELoc::Z
 **
 *****************************************************************************/
 GEOSLIB_API int neigh_select(Db     *dbin,
@@ -1187,9 +1188,9 @@ GEOSLIB_API int neigh_start(Db    *dbin,
   if (NBGH_isect == (int    *) NULL) return(1);
   NBGH_nsect = (int    *) mem_alloc(sizeof(int)    * neigh->getNSect(),0);
   if (NBGH_nsect == (int    *) NULL) return(1);
-  NBGH_x1    = db_sample_alloc(dbin,LOC_X);
+  NBGH_x1    = db_sample_alloc(dbin,ELoc::X);
   if (NBGH_x1    == (double *) NULL) return(1);
-  NBGH_x2    = db_sample_alloc(dbin,LOC_X);
+  NBGH_x2    = db_sample_alloc(dbin,ELoc::X);
   if (NBGH_x2    == (double *) NULL) return(1);
 
   NBGH_INITIALIZED = 1;

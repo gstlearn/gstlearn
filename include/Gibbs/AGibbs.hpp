@@ -12,7 +12,6 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Table.hpp"
-#include "geoslib_enum.h"
 
 class Db;
 

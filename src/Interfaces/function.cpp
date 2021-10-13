@@ -131,7 +131,7 @@ void kriging2(const Database & dbin, Database &dbout, Model* model, Neigh* neigh
 {
   Db* dbin2 = dbin.toGeoslib();
   Db* dbout2 = dbout.toGeoslib();
-  kriging(dbin2,dbout2,model,neigh,0,1,1,0);
+  kriging(dbin2,dbout2,model,neigh,EKrigOpt::PONCTUAL,1,1,0);
   dbout.fromGeoslib(dbout2);
   dbout.display();
 }

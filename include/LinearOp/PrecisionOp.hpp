@@ -13,9 +13,9 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "geoslib_enum.h"
-#include <map>
 #include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/EPowerPT.hpp"
+#include <map>
 
 class APolynomial;
 class PrecisionOp {
@@ -23,7 +23,7 @@ class PrecisionOp {
 public:
   PrecisionOp(ShiftOpCs* shiftop = nullptr,
               const CovAniso* cova = nullptr,
-              ENUM_POPTS power = POPT_UNDEFINED,
+              const EPowerPT& power = EPowerPT::UNDEFINED,
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
@@ -31,7 +31,7 @@ public:
 
   int init(const ShiftOpCs* shiftop,
            const CovAniso* cova = nullptr,
-           ENUM_POPTS power = POPT_UNDEFINED,
+           const EPowerPT& power = EPowerPT::UNDEFINED,
            bool verbose = false);
 
   void   eval(const VectorDouble& in, VectorDouble& out);
@@ -45,24 +45,24 @@ public:
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
 
 protected:
-  APolynomial* getPoly(ENUM_POPTS power);
-  ENUM_POPTS   getPower()const{return _power;}
+  APolynomial* getPoly(const EPowerPT& power);
+  const EPowerPT&   getPower()const{return _power;}
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
 
 private:
-  int  _preparePoly(ENUM_POPTS power);
-  int  _prepareChebychev(ENUM_POPTS power);
+  int  _preparePoly(const EPowerPT& power);
+  int  _prepareChebychev(const EPowerPT& power);
   int  _preparePrecisionPoly();
 
-  int  _evalPoly(ENUM_POPTS power,const VectorDouble& in, VectorDouble& out);
+  int  _evalPoly(const EPowerPT& power,const VectorDouble& in, VectorDouble& out);
   void _purge();
 
 private:
-  mutable ShiftOpCs*   _shiftOp;
-  const CovAniso*      _cova;
-  ENUM_POPTS           _power;
-  std::map<ENUM_POPTS, APolynomial*> _polynomials;
-  bool                 _verbose;
+  mutable ShiftOpCs*               _shiftOp;
+  const CovAniso*                  _cova;
+  EPowerPT                         _power;
+  std::map<EPowerPT, APolynomial*> _polynomials;
+  bool                             _verbose;
 
 protected :
   mutable VectorDouble _work;

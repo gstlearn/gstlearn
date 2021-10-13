@@ -10,23 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#include "Enum/AEnum.hpp"
 
-class Anam : public AStringable
-{
-public:
-  Anam(const EAnam& type = EAnam::UNDEFINED);
-  Anam(const Anam &m);
-  Anam& operator= (const Anam &m);
-  virtual ~Anam();
+#define ENUM_JUSTIFY EJustify, LEFT, \
+                     LEFT,  -1,  "Left Justification", \
+                     CENTER, 0,  "Center Justification", \
+                     RIGHT,  1,  "Right Justification"
 
-  virtual String toString(int level = 0) const override;
-
-  const EAnam&  getType() const { return _type; }
-
-private:
-  EAnam _type;
-};
+ENUM_DECLARE(ENUM_JUSTIFY)

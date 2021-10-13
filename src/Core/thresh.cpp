@@ -43,24 +43,28 @@ GEOSLIB_API Rule* rule_free(const Rule *rule)
  **
  ** \param[in]  propdef    PropDef structure
  ** \param[in]  ifac_ref   Conditional (first variable) facies
- **                        (Only used for PROCESS_CONDITIONAL)
+ **                        (Only used for EProcessOper::CONDITIONAL)
  **
  ****************************************************************************/
 static int st_proportion_locate(PropDef *propdef, int ifac_ref)
 {
   int ifac;
 
-  switch (propdef->mode)
+  switch (propdef->mode.toEnum())
   {
-    case PROCESS_COPY:
-    case PROCESS_MARGINAL:
+    case EProcessOper::E_COPY:
+    case EProcessOper::E_MARGINAL:
       for (ifac = 0; ifac < propdef->nfaccur; ifac++)
         propdef->proploc[ifac] = propdef->propwrk[ifac];
       break;
 
-    case PROCESS_CONDITIONAL:
+    case EProcessOper::E_CONDITIONAL:
       for (ifac = 0; ifac < propdef->nfaccur; ifac++)
         propdef->proploc[ifac] = PROPWRK(ifac_ref - 1, ifac);
+      break;
+
+    default:
+      messerr("Unknown process operation");
       break;
   }
   return (0);
@@ -83,9 +87,9 @@ static int st_proportion_transform(PropDef *propdef)
 
   /* Dispatch */
 
-  switch (propdef->mode)
+  switch (propdef->mode.toEnum())
   {
-    case PROCESS_COPY:
+    case EProcessOper::E_COPY:
       for (ifac1 = 0; ifac1 < propdef->nfac[0]; ifac1++)
       {
         pp = PROPFIX(ifac1, 0);
@@ -94,7 +98,7 @@ static int st_proportion_transform(PropDef *propdef)
       }
       break;
 
-    case PROCESS_MARGINAL:
+    case EProcessOper::E_MARGINAL:
       for (ifac1 = 0; ifac1 < propdef->nfac[0]; ifac1++)
       {
         PROPWRK(ifac1,0) = 0.;
@@ -107,7 +111,7 @@ static int st_proportion_transform(PropDef *propdef)
       }
       break;
 
-    case PROCESS_CONDITIONAL:
+    case EProcessOper::E_CONDITIONAL:
       for (ifac1 = 0; ifac1 < propdef->nfac[0]; ifac1++)
         for (ifac2 = 0; ifac2 < propdef->nfac[1]; ifac2++)
         {
@@ -140,13 +144,10 @@ static int st_proportion_transform(PropDef *propdef)
  **  Set the method to compute Proportions
  **
  ** \param[in]  propdef  PropDef structure
- ** \param[in]  mode     Type of operation
- ** \li                  PROCESS_COPY
- ** \li                  PROCESS_MARGINAL
- ** \li                  PROCESS_CONDITIONAL
+ ** \param[in]  mode     Type of operation (EProcessOper)
  **
  ****************************************************************************/
-GEOSLIB_API void proportion_rule_process(PropDef *propdef, int mode)
+GEOSLIB_API void proportion_rule_process(PropDef *propdef, const EProcessOper& mode)
 {
   /* Assignments */
 
@@ -154,9 +155,9 @@ GEOSLIB_API void proportion_rule_process(PropDef *propdef, int mode)
 
   /* Assign the current value for the number of facies */
 
-  if (mode == PROCESS_COPY || mode == PROCESS_MARGINAL)
+  if (mode == EProcessOper::COPY || mode == EProcessOper::MARGINAL)
     propdef->nfaccur = propdef->nfac[0];
-  if (mode == PROCESS_CONDITIONAL) propdef->nfaccur = propdef->nfac[1];
+  if (mode == EProcessOper::CONDITIONAL) propdef->nfaccur = propdef->nfac[1];
 
   /* In the stationary case, transform the proportions (from CST to WRK) */
 
@@ -227,7 +228,7 @@ static int st_proportion_changed(PropDef *propdef)
  ** \param[in]  propdef    PropDef structure
  ** \param[in]  db         Db input structure
  ** \param[in]  iech       Rank of the data in the input Db
- ** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
+ ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
  ** \param[in]  nbsimu     Number of simulations
  **
  ** \param[out] jech       Rank of the auxiliary data in the input Db
@@ -235,7 +236,7 @@ static int st_proportion_changed(PropDef *propdef)
  ** \remark  At the end of this function, the local proportions are stored
  ** \remark  in the array proploc of the structure PropDef
  ** \remark  The argument 'isimu' is only used for
- ** \remark            propdef->mode == PROCESS_CONDITIONAL (simbipgs)
+ ** \remark            propdef->mode == EProcessOper::CONDITIONAL (simbipgs)
  **
  *****************************************************************************/
 static int st_proportion_define(PropDef *propdef,
@@ -288,9 +289,9 @@ static int st_proportion_define(PropDef *propdef,
   /* Locate the current proportions (from WRK to LOC) */
 
   ifac_ref = -1;
-  if (propdef->mode == PROCESS_CONDITIONAL)
+  if (propdef->mode == EProcessOper::CONDITIONAL)
   {
-    ifac_ref = (int) db->getSimvar(LOC_FACIES, iech, isimu, 0, 0, nbsimu, 1);
+    ifac_ref = (int) db->getSimvar(ELoc::FACIES, iech, isimu, 0, 0, nbsimu, 1);
     if (ifac_ref < 1 || ifac_ref > propdef->nfac[0]) return (1);
   }
   st_proportion_locate(propdef, ifac_ref);
@@ -309,8 +310,8 @@ static int st_proportion_define(PropDef *propdef,
  ** \param[in]  rule       Rule structure
  ** \param[in]  facies     Facies of interest (or GV_ITEST)
  ** \param[in]  iech       Rank of the data in the input Db
- ** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
- ** \param[in]  nbsimu     Number of simulations (PROCESS_CONDITIONAL)
+ ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
+ ** \param[in]  nbsimu     Number of simulations (EProcessOper::CONDITIONAL)
  ** \param[in]  flag_check 1 if the consistency check with the actual
  **                        proportion of the current facies must be done
  **
@@ -408,7 +409,7 @@ GEOSLIB_API int rule_thresh_define_shadow(PropDef *propdef,
  ** \param[in]  rule       Rule structure
  ** \param[in]  facies     Facies of interest (or ITEST) starting from 1
  ** \param[in]  iech       Rank of the data in the input Db
- ** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
+ ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  flag_check 1 if the consistency check with the actual
  **                        proportion of the current facies must be done
@@ -514,8 +515,8 @@ GEOSLIB_API int rule_thresh_define(PropDef *propdef,
  ** \param[in]  flag_stat 1 for stationary; 0 otherwise
  ** \param[in]  nfacies   Number of facies
  **
- ** \remark The input variable must be locatorized as Z or LOC_SIMU
- ** \remark It will be changed in this function to locator LOC_SIMU
+ ** \remark The input variable must be locatorized as Z or ELoc::SIMU
+ ** \remark It will be changed in this function to locator ELoc::SIMU
  **
  *****************************************************************************/
 GEOSLIB_API int db_rule_shadow(Db *db,
@@ -549,7 +550,7 @@ GEOSLIB_API int db_rule_shadow(Db *db,
   /* General setting for lithotype */
 
   rule->particularities(db, dbprop, model, 1, flag_stat);
-  proportion_rule_process(propdef, PROCESS_COPY);
+  proportion_rule_process(propdef, EProcessOper::COPY);
 
   /**********************/
   /* Add the attributes */
@@ -558,16 +559,16 @@ GEOSLIB_API int db_rule_shadow(Db *db,
   /* Storage of the simulations in the output file */
   iptr = db->addFields(nbsimu, 0.);
   if (iptr < 0) goto label_end;
-  db->setLocatorsByAttribute(nbsimu, iptr, LOC_FACIES);
+  db->setLocatorsByAttribute(nbsimu, iptr, ELoc::FACIES);
 
   /* Identify the Non conditional simulations at target points */
   for (igrf = 0; igrf < 2; igrf++)
   {
     if (!flag_used[igrf]) continue;
-    iptr = db_attribute_identify(db, LOC_SIMU, igrf);
+    iptr = db_attribute_identify(db, ELoc::SIMU, igrf);
     if (iptr < 0)
     {
-      iptr = db_attribute_identify(db, LOC_Z, igrf);
+      iptr = db_attribute_identify(db, ELoc::Z, igrf);
       if (iptr < 0)
       {
         messerr(
@@ -575,7 +576,7 @@ GEOSLIB_API int db_rule_shadow(Db *db,
             igrf + 1);
         goto label_end;
       }
-      db->setLocatorByAttribute(iptr, LOC_SIMU, igrf);
+      db->setLocatorByAttribute(iptr, ELoc::SIMU, igrf);
     }
   }
 
@@ -606,7 +607,7 @@ GEOSLIB_API int db_rule_shadow(Db *db,
  ** \param[in]  model     First Model structure (only for SHIFT)
  ** \param[in]  namconv   Naming convention
  **
- ** \remark The input variable must be locatorized as Z or LOC_SIMU
+ ** \remark The input variable must be locatorized as Z or ELoc::SIMU
  **
  *****************************************************************************/
 GEOSLIB_API int db_rule(Db *db,
@@ -639,7 +640,7 @@ GEOSLIB_API int db_rule(Db *db,
 
   /* Preliminary checks */
 
-  if (db->getLocatorNumber(LOC_SIMU) != ngrf && db->getLocatorNumber(LOC_Z)
+  if (db->getLocatorNumber(ELoc::SIMU) != ngrf && db->getLocatorNumber(ELoc::Z)
       != ngrf)
   {
     messerr("The Rule specifies the use of %d underlying GRF(s)", ngrf);
@@ -652,21 +653,21 @@ GEOSLIB_API int db_rule(Db *db,
                               propcst, propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
   if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
-  proportion_rule_process(propdef, PROCESS_COPY);
+  proportion_rule_process(propdef, EProcessOper::COPY);
 
   /**********************/
   /* Add the attributes */
   /**********************/
 
   /* Storage of the simulations in the output file */
-  iptr = db->addFields(1, 0., "Facies", LOC_FACIES);
+  iptr = db->addFields(1, 0., "Facies", ELoc::FACIES);
   if (iptr < 0) goto label_end;
 
   /* Identify the Non conditional simulations at target points */
 
-  if (db->getLocatorNumber(LOC_SIMU) != ngrf)
+  if (db->getLocatorNumber(ELoc::SIMU) != ngrf)
   {
-    db->switchLocator(LOC_Z, LOC_SIMU);
+    db->switchLocator(ELoc::Z, ELoc::SIMU);
     flagReturn = true;
   }
 
@@ -676,9 +677,9 @@ GEOSLIB_API int db_rule(Db *db,
     goto label_end;
 
   // Returning to the initial locators (if the initial variable
-  // had a LOC_Z locator which has been temporarily modified into LOC_SIMU)
+  // had a ELoc::Z locator which has been temporarily modified into ELoc::SIMU)
 
-  if (flagReturn) db->switchLocator(LOC_SIMU, LOC_Z);
+  if (flagReturn) db->switchLocator(ELoc::SIMU, ELoc::Z);
 
   // Naming convention
 
@@ -753,7 +754,7 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
   /* Core allocation */
   /*******************/
 
-  coor = db_sample_alloc(db, LOC_X);
+  coor = db_sample_alloc(db, ELoc::X);
   if (coor == (double *) NULL) goto label_end;
 
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
@@ -763,17 +764,17 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
   /* General setting for lithotype */
 
   rule->particularities(db, dbprop, model, 1, flag_stat);
-  proportion_rule_process(propdef, PROCESS_COPY);
+  proportion_rule_process(propdef, EProcessOper::COPY);
 
   /**********************/
   /* Add the attributes */
   /**********************/
 
   /* Lower bound at input data points */
-  if (db_locator_attribute_add(db, LOC_L, ngrf, 0, 0., &iptr)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptr)) goto label_end;
 
   /* Upper bound at input data points */
-  if (db_locator_attribute_add(db, LOC_U, ngrf, 0, 0., &iptr)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptr)) goto label_end;
 
   /* Calculate the thresholds and store them in the Db file */
 
@@ -853,17 +854,17 @@ GEOSLIB_API int db_bounds(Db* db,
   /* General setting for lithotype */
 
   if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
-  proportion_rule_process(propdef, PROCESS_COPY);
+  proportion_rule_process(propdef, EProcessOper::COPY);
 
   /**********************/
   /* Add the attributes */
   /**********************/
 
   /* Lower bound at input data points */
-  if (db_locator_attribute_add(db, LOC_L, ngrf, 0, 0., &iptrl)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptrl)) goto label_end;
 
   /* Upper bound at input data points */
-  if (db_locator_attribute_add(db, LOC_U, ngrf, 0, 0., &iptru)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptru)) goto label_end;
 
   /* Calculate the thresholds and store them in the Db file */
 
@@ -875,9 +876,9 @@ GEOSLIB_API int db_bounds(Db* db,
 
   // Naming convention
 
-  namconv.setLocatorOutType(LOC_L);
+  namconv.setLocatorOutType(ELoc::L);
   namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
-  namconv.setLocatorOutType(LOC_U);
+  namconv.setLocatorOutType(ELoc::U);
   namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
   error = 0;
 
@@ -958,7 +959,7 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
     propdef->nfac[1] = nfac2;
     propdef->nfaccur = nfac1;
     propdef->nfacprod = nfacprod;
-    propdef->mode = PROCESS_UNDEFINED;
+    propdef->mode = EProcessOper::UNDEFINED;
     if (propdef->nfaccur <= 0)
     {
       messerr(" The number of facies may not be zero");
@@ -1116,7 +1117,7 @@ GEOSLIB_API int db_threshold(Db* db,
   if (propdef == (PropDef *) NULL) goto label_end;
 
   if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
-  proportion_rule_process(propdef, PROCESS_COPY);
+  proportion_rule_process(propdef, EProcessOper::COPY);
 
   /**********************/
   /* Add the attributes */

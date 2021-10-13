@@ -10,23 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#include "Enum/AEnum.hpp"
 
-class Anam : public AStringable
-{
-public:
-  Anam(const EAnam& type = EAnam::UNDEFINED);
-  Anam(const Anam &m);
-  Anam& operator= (const Anam &m);
-  virtual ~Anam();
+#define ENUM_POWER_PT EPowerPT, UNDEFINED, \
+                      UNDEFINED, -1,  "Power is undefined", \
+                      ONE,        0,  "Power is 1", \
+                      MINUSONE,   1,  "Power is -1", \
+                      MINUSHALF,  2,  "Power is -0.5", \
+                      HALF,       3,  "Power is 0.5", \
+                      LOG,        4,  "Logarithm"
 
-  virtual String toString(int level = 0) const override;
-
-  const EAnam&  getType() const { return _type; }
-
-private:
-  EAnam _type;
-};
+ENUM_DECLARE(ENUM_POWER_PT)

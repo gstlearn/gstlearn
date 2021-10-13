@@ -15,7 +15,7 @@ class IClonable{};
 %template(VectorVectorInt)      std::vector< std::vector< int > >;
 %template(VectorVectorDouble)   std::vector< std::vector< double > >;
 
-%template(VectorEnumCovs)       std::vector< ECov >;
+%template(VectorEnumCovs)       std::vector< ECov >;    // Not a pointers list
 
 %template(VectorCTable)         std::vector<CTable*>;
 %template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
@@ -46,6 +46,7 @@ class IClonable{};
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 %include Enum/AEnum.hpp
+%include Enum/EKrigOpt.hpp
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
 %include Basic/ASerializable.hpp
@@ -100,6 +101,7 @@ class IClonable{};
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
+%include LinearOp/EPowerPT.hpp
 %include Model/ANoStat.hpp
 %include Model/NoStatArray.hpp
 %include Model/NoStatFunctional.hpp
@@ -116,6 +118,8 @@ class IClonable{};
 %include Model/Constraints.hpp
 %include Model/ConsItem.hpp
 %include Model/EModelProperty.hpp
+%include Model/EConsElem.hpp
+%include Model/EConsType.hpp
 %include Covariances/ACov.hpp
 %include Covariances/ACovFunc.hpp
 %include Covariances/ACovAnisoList.hpp
@@ -181,8 +185,12 @@ class IClonable{};
 %include MatrixC/MatrixCSDiagCst.hpp
 %include MatrixC/MatrixCSGeneral.hpp
 %include MatrixC/MatrixCSSym.hpp
+%include API/SPDE.hpp
+%include API/PGSSPDE.hpp
+%include API/ESPDECalcMode.hpp
 %include Db/Db.hpp
 %include Db/ELoadBy.hpp
+%include Db/ELoc.hpp
 %include Anamorphosis/Anam.hpp
 %include Anamorphosis/AnamContinuous.hpp
 %include Anamorphosis/AnamDiscrete.hpp
@@ -191,6 +199,7 @@ class IClonable{};
 %include Anamorphosis/AnamEmpirical.hpp
 %include Anamorphosis/AnamDiscreteDD.hpp
 %include Anamorphosis/AnamDiscreteIR.hpp
+%include Anamorphosis/EAnam.hpp
 %include Morpho/Morpho.hpp
 %include Polygon/Polygons.hpp
 %include Polygon/PolySet.hpp

@@ -475,7 +475,7 @@ GEOSLIB_API int simsph_f(Db    *db,
 
   /* Create the new variable in the Data base */
 
-  iptr = db->addFields(1,0.,String(),LOC_SIMU);
+  iptr = db->addFields(1,0.,String(),ELoc::SIMU);
 
   /* Core allocation */
 
@@ -588,7 +588,7 @@ label_short:
   error = 0;
 
 label_end:
-  if (error) db->deleteFieldByLocator(LOC_SIMU);
+  if (error) db->deleteFieldByLocator(ELoc::SIMU);
   degree = (int    *) mem_free((char *) degree);
   order  = (int    *) mem_free((char *) order);
   freqs  = (double *) mem_free((char *) freqs);

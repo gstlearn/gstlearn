@@ -36,7 +36,7 @@ public:
   int  attachToMesh(const AMesh* mesh, bool verbose = false) const override;
   int  attachToDb(Db* db, int icas, bool verbose = false) const override;
 
-  double getValue(int igrf, int icov, ENUM_CONS type, int iv1, int iv2,
+  double getValue(int igrf, int icov, const EConsElem& type, int iv1, int iv2,
                   int icas, int rank) const override;
   double getValue(int ipar, int icas, int rank) const override;
 

@@ -10,23 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#include "Enum/AEnum.hpp"
 
-class Anam : public AStringable
-{
-public:
-  Anam(const EAnam& type = EAnam::UNDEFINED);
-  Anam(const Anam &m);
-  Anam& operator= (const Anam &m);
-  virtual ~Anam();
+#define ENUM_PROCESS_OPER EProcessOper, UNDEFINED, \
+                          UNDEFINED,  -1, "Undefined Process Operation", \
+                          COPY,        0, "Copy Process", \
+                          MARGINAL,    1, "Marginal Process", \
+                          CONDITIONAL, 2, "Conditional Process"
 
-  virtual String toString(int level = 0) const override;
-
-  const EAnam&  getType() const { return _type; }
-
-private:
-  EAnam _type;
-};
+ENUM_DECLARE(ENUM_PROCESS_OPER)

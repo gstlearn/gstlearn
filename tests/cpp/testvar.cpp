@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     if (simtub((Db *) NULL,dbout,model,(Neigh *) NULL,nbsimu,seed,nbtuba,0))
       messageAbort("Simulations");
     /* Set the current variable to the conditional expectation */
-    dbout->setLocatorByAttribute(dbout->getFieldNumber()-1,LOC_Z);
+    dbout->setLocatorByAttribute(dbout->getFieldNumber()-1,ELoc::Z);
   }
   seed = law_get_random_seed();
   

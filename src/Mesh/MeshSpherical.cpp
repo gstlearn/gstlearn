@@ -290,7 +290,7 @@ cs* MeshSpherical::getMeshToDb(const Db  *db,
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
   if (Atriplet == (cs *) NULL) goto label_end;
 
-  coor   = db_sample_alloc(db,LOC_X);
+  coor   = db_sample_alloc(db,ELoc::X);
   if (coor   == (double *) NULL) goto label_end;
   weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
   if (weight == (double *) NULL) goto label_end;
@@ -402,7 +402,7 @@ double* MeshSpherical::interpolateMeshToDb(Db *db,
 
   dtab   = (double *) mem_alloc(sizeof(double) * nech,0);
   if (dtab == (double *) NULL) goto label_end;
-  coor   = db_sample_alloc(db,LOC_X);
+  coor   = db_sample_alloc(db,ELoc::X);
   if (coor   == (double *) NULL) goto label_end;
   weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
   if (weight == (double *) NULL) goto label_end;

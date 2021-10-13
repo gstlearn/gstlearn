@@ -10,23 +10,23 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-
-// This class is just a specialisation of PrecisionOp when the shift Operator is built with cs matrices.
-// It allows to return the precision matrix as a cs.
-
 #pragma once
+
 #include "LinearOp/PrecisionOp.hpp"
-#include "geoslib_enum.h"
 
 class ShiftOpCs;
 class CovAniso;
+
+/** This class is just a specialization of PrecisionOp when the shift
+* Operator is built with sparse (cs) matrices.
+* It allows to return the precision matrix as a cs. */
 
 class PrecisionOpCs : public PrecisionOp
 {
 public:
   PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
-                ENUM_POPTS power = POPT_UNDEFINED,
+                const EPowerPT& power = EPowerPT::UNDEFINED,
                 bool verbose = false);
   void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
   void evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;

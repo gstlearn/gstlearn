@@ -647,12 +647,12 @@ GEOSLIB_API int ascii_anam_write(const char *file_name,
 
   /* Write the Anam structure */
 
-  st_record_write("%d", anam->getType());
+  st_record_write("%d", anam->getType().getValue());
   st_record_write("#", "Type of Anamorphosis");
 
   /* Hermitian case */
 
-  if (anam->getType() == ANAM_HERMITIAN)
+  if (anam->getType() == EAnam::HERMITIAN)
   {
     const AnamHermite* anam_hermite = dynamic_cast<const AnamHermite*>(anam);
     st_record_write("%d", anam_hermite->getNbPoly());
@@ -682,7 +682,7 @@ GEOSLIB_API int ascii_anam_write(const char *file_name,
                      anam_hermite->getPsiHn().data());
     }
   }
-  else if (anam->getType() == ANAM_EMPIRICAL)
+  else if (anam->getType() == EAnam::EMPIRICAL)
   {
     const AnamEmpirical* anam_empirical = dynamic_cast<const AnamEmpirical*>(anam);
     st_record_write("%d", anam_empirical->getNDisc());
@@ -708,7 +708,7 @@ GEOSLIB_API int ascii_anam_write(const char *file_name,
       st_table_write("Coefficients", 2 * anam_empirical->getNDisc(),
                      anam_empirical->getTDisc().data());
   }
-  else if (anam->getType() == ANAM_DISCRETE_DD)
+  else if (anam->getType() == EAnam::DISCRETE_DD)
   {
     const AnamDiscreteDD* anam_discrete_DD = dynamic_cast<const AnamDiscreteDD*>(anam);
     st_record_write("%d", anam_discrete_DD->getNCut());
@@ -734,7 +734,7 @@ GEOSLIB_API int ascii_anam_write(const char *file_name,
                      anam_discrete_DD->getNClass() * anam_discrete_DD->getNElem(),
                      anam_discrete_DD->getStats().getValues().data());
   }
-  else if (anam->getType() == ANAM_DISCRETE_IR)
+  else if (anam->getType() == EAnam::DISCRETE_IR)
   {
     const AnamDiscreteIR* anam_discrete_IR = dynamic_cast<const AnamDiscreteIR*>(anam);
     st_record_write("%d", anam_discrete_IR->getNCut());
@@ -779,8 +779,9 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
   FILE *file;
   double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax;
   double variance, sigma2e, r, s, mu;
-  int nbpoly, flag_calcul, type, ndisc, nCut, nClass, nElem;
+  int nbpoly, flag_calcul, atype, ndisc, nCut, nClass, nElem;
   VectorDouble hermite, tdisc, zCut, pcaf2z, pcaz2f, stats;
+  EAnam type;
 
   /* Initializations */
 
@@ -793,11 +794,13 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
 
   /* Read the general anamorphosis parameters */
 
-  if (st_record_read("Anamorphosis Type", "%d", &type)) goto label_end;
+  if (st_record_read("Anamorphosis Type", "%d", &atype)) goto label_end;
+  type = EAnam::fromValue(atype);
+  if (type == EAnam::UNDEFINED) goto label_end;
 
   /* Read the remaining parameters */
 
-  if (type == ANAM_HERMITIAN)
+  if (type == EAnam::HERMITIAN)
   {
     AnamHermite* anam_hermite = new AnamHermite;
 
@@ -837,7 +840,7 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
     st_file_close(file);
     return (anam_hermite);
   }
-  else if (type == ANAM_EMPIRICAL)
+  else if (type == EAnam::EMPIRICAL)
   {
     AnamEmpirical* anam_empirical = new(AnamEmpirical);
 
@@ -874,7 +877,7 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
     st_file_close(file);
     return (anam_empirical);
   }
-  else if (type == ANAM_DISCRETE_DD)
+  else if (type == EAnam::DISCRETE_DD)
   {
     AnamDiscreteDD* anam_discrete_DD = new(AnamDiscreteDD);
 
@@ -904,7 +907,7 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
     st_file_close(file);
     return (anam_discrete_DD);
   }
-  else if (type == ANAM_DISCRETE_IR)
+  else if (type == EAnam::DISCRETE_IR)
   {
     AnamDiscreteIR* anam_discrete_IR = new(AnamDiscreteIR);
 

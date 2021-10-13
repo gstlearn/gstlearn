@@ -70,7 +70,7 @@ int Constraints::isDefinedForSill() const
   if (_consItems.size() <= 0) return(0);
   for (int i=0; i<(int) _consItems.size(); i++)
   {
-    if (_consItems[i]->getType() == CONS_SILL) return(1);
+    if (_consItems[i]->getType() == EConsElem::SILL) return(1);
   }
   return(0);
 }
@@ -80,7 +80,7 @@ void Constraints::modifyConstraintsForSill()
   for (int i=0; i<(int) getConsItemNumber(); i++)
   {
     const ConsItem* consitem = getConsItems(i);
-    if (consitem->getType() != CONS_SILL) continue;
+    if (consitem->getType() != EConsElem::SILL) continue;
     if (consitem->getValue() > 0) setValue(i,sqrt(consitem->getValue()));
   }
 }

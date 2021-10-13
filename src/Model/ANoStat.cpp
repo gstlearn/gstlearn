@@ -86,10 +86,10 @@ bool ANoStat::isDefinedByCov(int igrf, int icov) const
 /**
  * Look if a Non-stationary parameter is defined
  * @param igrf Rank of Target GRF (or -1 for any)
- * @param type Rank of Target Type (or CONS_UNKNOWN for any)
+ * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
  * @return
  */
-bool ANoStat::isDefinedByType(int igrf, ENUM_CONS type) const
+bool ANoStat::isDefinedByType(int igrf, const EConsElem& type) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -104,10 +104,10 @@ bool ANoStat::isDefinedByType(int igrf, ENUM_CONS type) const
  * Look if a Non-stationary parameter is defined
  * @param igrf Rank of Target GRF (or -1 for any)
  * @param icov Rank of the Target Covariance (or -1 for any)
- * @param type Rank of Target Type (or CONS_UNKNOWN for any)
+ * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
  * @return
  */
-bool ANoStat::isDefinedByCovType(int igrf, int icov, ENUM_CONS type) const
+bool ANoStat::isDefinedByCovType(int igrf, int icov, const EConsElem& type) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -121,7 +121,7 @@ bool ANoStat::isDefinedByCovType(int igrf, int icov, ENUM_CONS type) const
 
 bool ANoStat::isDefined(int igrf,
                         int icov,
-                        ENUM_CONS type,
+                        const EConsElem& type,
                         int iv1,
                         int iv2) const
 {
@@ -150,9 +150,9 @@ bool ANoStat::isDefinedforAnisotropy(int igrf, int icov) const
   {
     if (! matchIGrf(ipar,igrf)) continue;
     if (! matchICov(ipar,icov)) continue;
-    if (getType(ipar) == CONS_ANGLE ||
-        getType(ipar) == CONS_RANGE ||
-        getType(ipar) == CONS_SCALE) return true;
+    if (getType(ipar) == EConsElem::ANGLE ||
+        getType(ipar) == EConsElem::RANGE ||
+        getType(ipar) == EConsElem::SCALE) return true;
   }
   return false;
 }
@@ -161,12 +161,12 @@ bool ANoStat::isDefinedforAnisotropy(int igrf, int icov) const
  * Return the rank for a Non-stationary parameter
  * @param igrf Rank of Target GRF (or -1 for any)
  * @param icov Rank of the Target Covariance (or -1 for any)
- * @param type Rank of Target Type (or CONS_UNKNOWN for any)
+ * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
  * @param iv1  Rank of the first additional element designation (or -1 for any)
  * @param iv2  Rank of the second additional element designation (or -1 for any)
  * @return -1 if no match is found
  */
-int ANoStat::getRank(int igrf, int icov, ENUM_CONS type, int iv1, int iv2) const
+int ANoStat::getRank(int igrf, int icov, const EConsElem& type, int iv1, int iv2) const
 {
   if (_items.empty()) return -1;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -188,11 +188,11 @@ int ANoStat::getRank(int igrf, int icov, ENUM_CONS type, int iv1, int iv2) const
  * @param iv1  Rank of the first designation
  * @param iv2  Rank of the second designation
  */
-void ANoStat::addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2)
+void ANoStat::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2)
 {
   int nelem = static_cast<int> (_items.size());
   _items.resize(nelem+1);
-  _items[nelem].init(CONS_TYPE_DEFAULT, igrf, icov, type, iv1, iv2, TEST);
+  _items[nelem].init(EConsType::DEFAULT, igrf, icov, type, iv1, iv2, TEST);
 }
 
 void ANoStat::addNoStatElem(const ConsItem& item)
@@ -203,7 +203,7 @@ void ANoStat::addNoStatElem(const ConsItem& item)
 void ANoStat::addNoStatElems(const VectorString &codes)
 {
   int igrf, icov, iv1, iv2;
-  ENUM_CONS type;
+  EConsElem type;
 
   for (int i = 0; i < (int) codes.size(); i++)
   {
@@ -240,7 +240,7 @@ const int ANoStat::attachModel(const Model* model)
   for (int ipar=0; ipar<(int) getNoStatElemNumber(); ipar++)
   {
     int icov = getICov(ipar);
-    ENUM_CONS type = getType(ipar);
+    EConsElem type = getType(ipar);
 
     // Check that the Non-stationary parameter is valid with respect
     // to the Model definition
@@ -251,7 +251,7 @@ const int ANoStat::attachModel(const Model* model)
               icov,ipar);
       return 1;
     }
-    if (type == CONS_PARAM)
+    if (type == EConsElem::PARAM)
     {
       messerr("The current methodology does not handle constraint on third parameter");
       return 1;
@@ -273,12 +273,12 @@ const int ANoStat::attachModel(const Model* model)
 int ANoStat::_understandCode(const String& code,
                              int *igrf,
                              int *icov,
-                             ENUM_CONS *type,
+                             EConsElem *type,
                              int *iv1,
                              int *iv2)
 {
   *igrf = *icov = *iv1 = *iv2 = 0;
-  *type = CONS_UNKNOWN;
+  *type = EConsElem::UNKNOWN;
   VectorString keywords = separateKeywords(code);
 
   bool flagGRF = false;
@@ -331,8 +331,9 @@ int ANoStat::_understandCode(const String& code,
   {
     // TODO better decoding which would not be dependent on the order in ENUM_CONS
     VectorString list = {"R","A","P","V","S","T","C","I"};
-    (*type) = (ENUM_CONS) (getRankInList(list, keywords[lec], false) + 1);
-    if ((*type) < 0) return 1;
+    int itype = getRankInList(list, keywords[lec], false) + 1;
+    (*type) = EConsElem::fromValue(itype);
+    if ((*type) == EConsElem::UNKNOWN) return 1;
     flagV1 = true;
     lec++;
   }
@@ -413,16 +414,16 @@ void ANoStat::updateModel(Model* model,
   for (int ipar = 0; ipar < getNoStatElemNumber(); ipar++)
   {
     int icov = getICov(ipar);
-    int type = getType(ipar);
+    EConsElem type = getType(ipar);
 
-    if (type == CONS_SILL)
+    if (type == EConsElem::SILL)
     {
       _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
       int iv1  = getIV1(ipar);
       int iv2  = getIV2(ipar);
       model->setSill(icov, iv1, iv2, sqrt(val1 * val2));
     }
-    else if (type == CONS_PARAM)
+    else if (type == EConsElem::PARAM)
     {
       _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
       model->getCova(icov)->setParam(0.5 * (val1 + val2));
@@ -450,14 +451,14 @@ void ANoStat::updateModel(Model* model,
 
     // Define the angles (for all space dimensions)
     bool flagRot = false;
-    if (isDefined(-1, icov, CONS_ANGLE, -1, -1))
+    if (isDefined(-1, icov, EConsElem::ANGLE, -1, -1))
     {
       flagRot = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, CONS_ANGLE, idim, 0))
+        if (isDefined(-1, icov, EConsElem::ANGLE, idim, 0))
         {
-          int ipar = getRank(-1, icov, CONS_ANGLE, idim, -1);
+          int ipar = getRank(-1, icov, EConsElem::ANGLE, idim, -1);
           if (ipar < 0) continue;
           _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
                          &angle1[idim], &angle2[idim]);
@@ -468,14 +469,14 @@ void ANoStat::updateModel(Model* model,
     // Define the Theoretical ranges (for all space dimensions)
 
     bool flagScale = false;
-    if (isDefined(-1, icov, CONS_SCALE, -1, -1))
+    if (isDefined(-1, icov, EConsElem::SCALE, -1, -1))
     {
       flagScale = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, CONS_SCALE, idim, -1))
+        if (isDefined(-1, icov, EConsElem::SCALE, idim, -1))
         {
-          int ipar = getRank(-1, icov, CONS_SCALE, idim, -1);
+          int ipar = getRank(-1, icov, EConsElem::SCALE, idim, -1);
           if (ipar < 0) continue;
           _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
                          &scale1[idim], &scale2[idim]);
@@ -486,14 +487,14 @@ void ANoStat::updateModel(Model* model,
     // Define the Practical ranges (for all space dimensions)
 
     bool flagRange = false;
-    if (isDefined(-1, icov, CONS_RANGE, -1, -1))
+    if (isDefined(-1, icov, EConsElem::RANGE, -1, -1))
     {
       flagRange = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, CONS_RANGE, idim, -1))
+        if (isDefined(-1, icov, EConsElem::RANGE, idim, -1))
         {
-          int ipar = getRank(-1, icov, CONS_RANGE, idim, -1);
+          int ipar = getRank(-1, icov, EConsElem::RANGE, idim, -1);
           if (ipar < 0) continue;
           _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
                          &range1[idim], &range2[idim]);
@@ -539,9 +540,9 @@ void ANoStat::updateModel(Model* model, int vertex) const
   for (int ipar = 0; ipar < model->getNoStatElemNumber(); ipar++)
   {
     int icov = getICov(ipar);
-    ENUM_CONS type = getType(ipar);
+    EConsElem type = getType(ipar);
 
-    if (type == CONS_SILL)
+    if (type == EConsElem::SILL)
     {
       double sill = getValue(ipar, 0, vertex);
       int iv1  = getIV1(ipar);
@@ -563,14 +564,14 @@ void ANoStat::updateModel(Model* model, int vertex) const
 
     // Define the angles (for all space dimensions)
     bool flagRot = false;
-    if (isDefined(-1, icov, CONS_ANGLE, -1, -1))
+    if (isDefined(-1, icov, EConsElem::ANGLE, -1, -1))
     {
       flagRot = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, CONS_ANGLE, idim, 0))
+        if (isDefined(-1, icov, EConsElem::ANGLE, idim, 0))
         {
-          int ipar = getRank(-1, icov, CONS_ANGLE, idim, -1);
+          int ipar = getRank(-1, icov, EConsElem::ANGLE, idim, -1);
           if (ipar < 0) continue;
           angle[idim] = getValue(ipar, 0, vertex);
         }
@@ -580,14 +581,14 @@ void ANoStat::updateModel(Model* model, int vertex) const
     // Define the Theoretical ranges (for all space dimensions)
 
     bool flagScale = false;
-    if (isDefined(-1, icov, CONS_SCALE, -1, -1))
+    if (isDefined(-1, icov, EConsElem::SCALE, -1, -1))
     {
       flagScale = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, CONS_SCALE, idim, -1))
+        if (isDefined(-1, icov, EConsElem::SCALE, idim, -1))
         {
-          int ipar = getRank(-1, icov, CONS_SCALE, idim, -1);
+          int ipar = getRank(-1, icov, EConsElem::SCALE, idim, -1);
           if (ipar < 0) continue;
           scale[idim] = getValue(ipar, 0, vertex);
         }
@@ -597,14 +598,14 @@ void ANoStat::updateModel(Model* model, int vertex) const
     // Define the Practical ranges (for all space dimensions)
 
     bool flagRange = false;
-    if (isDefined(-1, icov, CONS_RANGE, -1, -1))
+    if (isDefined(-1, icov, EConsElem::RANGE, -1, -1))
     {
       flagRange = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, CONS_RANGE, idim, -1))
+        if (isDefined(-1, icov, EConsElem::RANGE, idim, -1))
         {
-          int ipar = getRank(-1, icov, CONS_RANGE, idim, -1);
+          int ipar = getRank(-1, icov, EConsElem::RANGE, idim, -1);
           if (ipar < 0) continue;
           range[idim] = getValue(ipar, 0, vertex);
         }

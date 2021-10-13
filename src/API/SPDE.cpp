@@ -14,13 +14,42 @@
 #include <iostream>
 
 SPDE::SPDE()
+: _data(nullptr)
+, _calcul()
+, _precisionsKriging()
+, _precisionsSimu()
+, _pileShiftOp()
+, _pilePrecisions()
+, _pileProjMatrix()
+, _simuMeshing()
+, _krigingMeshing()
+, _model(nullptr)
+, _workKriging()
+, _workingSimu()
+, _projOnDbOut()
 {
 
 }
 
-SPDE::SPDE(Model& model,const Db& field,const Db* dat,ENUM_CALCUL_MODE calc)
+SPDE::SPDE(Model& model,
+           const Db& field,
+           const Db* dat,
+           const ESPDECalcMode& calc)
+: _data(nullptr)
+, _calcul()
+, _precisionsKriging()
+, _precisionsSimu()
+, _pileShiftOp()
+, _pilePrecisions()
+, _pileProjMatrix()
+, _simuMeshing()
+, _krigingMeshing()
+, _model(nullptr)
+, _workKriging()
+, _workingSimu()
+, _projOnDbOut()
 {
-    init(model,field,dat,calc);
+  init(model,field,dat,calc);
 }
 
 SPDE::~SPDE()
@@ -33,7 +62,10 @@ void SPDE::_purge()
 
 }
 
-void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE calc)
+void SPDE::init(Model& model,
+                const Db& field,
+                const Db* dat,
+                const ESPDECalcMode& calc)
 {
   _purge();
   _model = &model;
@@ -63,7 +95,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
         mesh = _createMeshing(*cova, field, 14., 0.2);
         _simuMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, &model, &field);
-        precision = new PrecisionOpCs(shiftOp, cova, POPT_MINUSHALF);
+        precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::MINUSHALF);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
         proj = new ProjMatrix(_data,mesh);
@@ -76,7 +108,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
         mesh = _createMeshing(*cova, field, 11., 0.2);
         _krigingMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, &model, &field);
-        precision = new PrecisionOpCs(shiftOp, cova, POPT_ONE);
+        precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::ONE);
         proj = new ProjMatrix(_data,mesh);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
@@ -96,7 +128,7 @@ void SPDE::init(Model& model, const Db& field, const Db* dat,ENUM_CALCUL_MODE ca
   {
     if(dat->getVarianceErrorNumber()>0)
     {
-      varianceData = dat->getFieldByLocator(LOC_V,0,true);
+      varianceData = dat->getFieldByLocator(ELoc::V,0,true);
       for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
       {
         double *temp = &varianceData[iech];
@@ -143,23 +175,23 @@ void SPDE::computeSimuCond(int nbsimus, int seed) const
   VectorDouble temp(_data->getActiveSampleNumber());
   _precisionsSimu.simulateOnDataPointFromMeshings(_workingSimu,temp);
   ut_vector_multiply_inplace(temp,-1.);
-  ut_vector_add_inplace(temp,_data->getFieldByLocator(LOC_Z,0,true));
+  ut_vector_add_inplace(temp,_data->getFieldByLocator(ELoc::Z,0,true));
   computeKriging(temp);
 }
 
 void SPDE::compute(int nbsimus, int seed) const
 {
-  if(_calcul == CALCUL_KRIGING)
+  if(_calcul == ESPDECalcMode::KRIGING)
   {
-    computeKriging(_data->getFieldByLocator(LOC_Z,0,true));
+    computeKriging(_data->getFieldByLocator(ELoc::Z,0,true));
   }
 
-  if(_calcul == CALCUL_SIMUNONCOND)
+  if(_calcul == ESPDECalcMode::SIMUNONCOND)
   {
     computeSimuNonCond(nbsimus,seed);
 
   }
-  if(_calcul == CALCUL_SIMUCOND)
+  if(_calcul == ESPDECalcMode::SIMUCOND)
   {
     computeSimuCond(nbsimus,seed);
 
@@ -201,7 +233,7 @@ int SPDE::query(Db* db, NamingConvention namconv) const
   VectorDouble temp(db->getActiveSampleNumber());
   VectorDouble result(db->getActiveSampleNumber(),0.);
   String suffix;
-  if(_calcul == CALCUL_KRIGING)
+  if(_calcul == ESPDECalcMode::KRIGING)
   {
     for(int i = 0 ; i< (int)_krigingMeshing.size(); i++)
     {
@@ -211,7 +243,7 @@ int SPDE::query(Db* db, NamingConvention namconv) const
     }
     suffix = "kriging";
   }
-  else if(_calcul == CALCUL_SIMUNONCOND)
+  else if(_calcul == ESPDECalcMode::SIMUNONCOND)
   {
     for(int i = 0 ; i< (int)_simuMeshing.size(); i++)
     {
@@ -222,7 +254,7 @@ int SPDE::query(Db* db, NamingConvention namconv) const
     }
     suffix = "simu";
   }
-  else if(_calcul == CALCUL_SIMUCOND)
+  else if(_calcul == ESPDECalcMode::SIMUCOND)
   {
     for(int i = 0 ; i< (int)_simuMeshing.size(); i++)
     {
@@ -236,8 +268,8 @@ int SPDE::query(Db* db, NamingConvention namconv) const
      }
       suffix = "condSimu";
   }
-  int iptr = db->addFields(result,"SPDE",LOC_Z,0,true,TEST);
-  namconv.setNamesAndLocators(_data,LOC_Z,1,db,iptr,suffix,1,true);
+  int iptr = db->addFields(result,"SPDE",ELoc::Z,0,true,TEST);
+  namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
 }
 
@@ -246,5 +278,5 @@ VectorDouble SPDE::computeCoeffs() const
   // Loading the Vector of Drift values
   VectorVectorDouble drifttab = _model->getDrifts(_data, true);
 
-  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(LOC_Z,0,true),drifttab);
+  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),drifttab);
 }

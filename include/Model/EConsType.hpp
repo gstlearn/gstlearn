@@ -10,23 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#include "Enum/AEnum.hpp"
 
-class Anam : public AStringable
-{
-public:
-  Anam(const EAnam& type = EAnam::UNDEFINED);
-  Anam(const Anam &m);
-  Anam& operator= (const Anam &m);
-  virtual ~Anam();
+#define ENUM_CONS_TYPE EConsType, LOWER, \
+                       LOWER,   -1, "Lower Bound", \
+                       DEFAULT,  0, "Default parameter", \
+                       UPPER,    1, "Upper Bound", \
+                       EQUAL,    2, "Equality"
 
-  virtual String toString(int level = 0) const override;
-
-  const EAnam&  getType() const { return _type; }
-
-private:
-  EAnam _type;
-};
+ENUM_DECLARE(ENUM_CONS_TYPE)

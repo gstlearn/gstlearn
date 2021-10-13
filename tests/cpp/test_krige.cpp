@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
   data->setName(0,"xcoor1");
   data->setName(1,"xcoor2");
   data->setName(2,"var");
-  data->setLocatorByAttribute(0,LOC_X,0);
-  data->setLocatorByAttribute(1,LOC_X,1);
-  data->setLocatorByAttribute(2,LOC_Z);
+  data->setLocatorByAttribute(0,ELoc::X,0);
+  data->setLocatorByAttribute(1,ELoc::X,1);
+  data->setLocatorByAttribute(2,ELoc::Z);
   data->display(0);
 
   // Create the Model

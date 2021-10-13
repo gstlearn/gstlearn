@@ -1,11 +1,15 @@
-#include <API/PGSSPDE.hpp>
+#include "API/PGSSPDE.hpp"
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
-         const Db& field,
-         RuleProp ruleprop,
-         const Db* dat)
+                 const Db& field,
+                 RuleProp ruleprop,
+                 const Db* dat)
+: _data()
+, _spdeTab()
+, _ruleProp()
+, _calcul()
 {
-  _calcul = (dat == nullptr) ? CALCUL_SIMUNONCOND:CALCUL_SIMUCOND;
+  _calcul = (dat == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
   for(auto &e : models)
   {
     _spdeTab.push_back(SPDE(*e,field,dat,_calcul));
@@ -15,11 +19,11 @@ PGSSPDE::PGSSPDE(std::vector<Model*> models,
 
 void PGSSPDE::simulate(int seed,int nitergibbs) const
 {
-  if(_calcul==CALCUL_SIMUNONCOND)
+  if(_calcul==ESPDECalcMode::SIMUNONCOND)
   {
     simulateNonCond(seed);
   }
-  if(_calcul==CALCUL_SIMUCOND)
+  if(_calcul==ESPDECalcMode::SIMUCOND)
   {
     gibbs(1);
   }
@@ -46,7 +50,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
    db->setName(iptr,names[i]);
   }
 
-  db->setLocator(names,LOC_Z);
+  db->setLocator(names,ELoc::Z);
   db->display();
   _ruleProp.gaussToCategory(db,NamingConvention("categories"));
 

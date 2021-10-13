@@ -131,7 +131,7 @@ void AGibbs::init(int npgs,
 ** \param[out]  vmin_arg   Output minimum bound
 ** \param[out]  vmax_arg   Output maximum bound
 **
-** \remark Attributes LOC_GAUSFAC are mandatory
+** \remark Attributes ELoc::GAUSFAC are mandatory
 **
 *****************************************************************************/
 int AGibbs::_boundsCheck(int ipgs,
@@ -291,7 +291,7 @@ VectorVectorDouble AGibbs::allocY() const
 }
 
 /**
- * Store the Gaussian array in LOC_GAUS variable.
+ * Store the Gaussian array in ELoc::GAUS variable.
  * This should be performed once for all GS and all variables
  *
  * @param y The Gaussian vector to be stored
@@ -318,7 +318,7 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
     for (int iact = 0; iact < nact; iact++)
     {
       int iech = getSampleRank(iact);
-      _db->setFromLocator(LOC_GAUSFAC, iech,  rank,  y[icase][iact]);
+      _db->setFromLocator(ELoc::GAUSFAC, iech,  rank,  y[icase][iact]);
     }
   }
 

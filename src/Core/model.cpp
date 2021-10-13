@@ -957,14 +957,14 @@ GEOSLIB_API void model_variance0(Model *model,
   VectorDouble d1(ndim, 0.);
   mode.setMember(ECalcMember::VAR);
 
-  switch (koption->calcul)
+  switch (koption->calcul.toEnum())
   {
-    case KOPTION_PONCTUAL:
+    case EKrigOpt::E_PONCTUAL:
       nscale = 1;
       model_calcul_cov(model, mode, 1, 1., d1, covtab);
       break;
 
-    case KOPTION_BLOCK:
+    case EKrigOpt::E_BLOCK:
       nscale = koption->ntot;
       model_covtab_init(1, model, covtab);
       for (i = 0; i < nscale; i++)
@@ -977,7 +977,7 @@ GEOSLIB_API void model_variance0(Model *model,
       nscale = nscale * nscale;
       break;
 
-    case KOPTION_DRIFT:
+    case EKrigOpt::E_DRIFT:
       nscale = 1;
       model_covtab_init(1, model, covtab);
       break;
@@ -1028,14 +1028,14 @@ GEOSLIB_API void model_variance0_nostat(Model *model,
   VectorDouble d1(ndim, 0.);
 
   mode.setMember(ECalcMember::VAR);
-  switch (koption->calcul)
+  switch (koption->calcul.toEnum())
   {
-    case KOPTION_PONCTUAL:
+    case EKrigOpt::E_PONCTUAL:
       nscale = 1;
       model_calcul_cov_nostat(model, mode, covint, 1, 1., d1, covtab);
       break;
 
-    case KOPTION_BLOCK:
+    case EKrigOpt::E_BLOCK:
       nscale = koption->ntot;
       model_covtab_init(1, model, covtab);
       for (i = 0; i < nscale; i++)
@@ -1048,7 +1048,7 @@ GEOSLIB_API void model_variance0_nostat(Model *model,
       nscale = nscale * nscale;
       break;
 
-    case KOPTION_DRIFT:
+    case EKrigOpt::E_DRIFT:
       nscale = 1;
       model_covtab_init(1, model, covtab);
       break;
@@ -1087,10 +1087,10 @@ GEOSLIB_API Model *model_free(Model *model)
  ** \return  1 if the given non-stationary parameter is defined; 0 otherwise
  **
  ** \param[in]   model    Model structure
- ** \param[in]   type0    Requested type (ENUM_CONS)
+ ** \param[in]   type0    Requested type (EConsElem)
  **
  *****************************************************************************/
-GEOSLIB_API int is_model_nostat_param(Model *model, ENUM_CONS type0)
+GEOSLIB_API int is_model_nostat_param(Model *model, const EConsElem& type0)
 {
   if (! model->isNoStat()) return 1;
   const ANoStat* nostat = model->getNoStat();
@@ -1436,7 +1436,7 @@ GEOSLIB_API int model_anamorphosis_set_factor(Model *model, int anam_iclass)
  ** \return  Error return code
  **
  ** \param[in]  model       Pointer to the Model structure
- ** \param[in]  anam_type   Type of the anamorphosis
+ ** \param[in]  anam_type   Type of the anamorphosis (EAnam)
  ** \param[in]  anam_nclass Number of classes
  ** \param[in]  anam_iclass Rank of the target factor (starting from 1)
  **                         0 for the whole discretized grade variable
@@ -1453,7 +1453,7 @@ GEOSLIB_API int model_anamorphosis_set_factor(Model *model, int anam_iclass)
  **
  *****************************************************************************/
 GEOSLIB_API int model_add_anamorphosis(Model *model,
-                                       int anam_type,
+                                       const EAnam& anam_type,
                                        int anam_nclass,
                                        int anam_iclass,
                                        int anam_var,
@@ -1592,24 +1592,24 @@ GEOSLIB_API void model_setup(Model* model)
       break;
 
     case EModelProperty::E_ANAM:
-      switch (model->getModTrans().getAnam()->getType())
+      switch (model->getModTrans().getAnam()->getType().toEnum())
       {
-        case ANAM_HERMITIAN:
+        case EAnam::E_HERMITIAN:
           model->generic_cov_function = st_model_calcul_cov_anam_hermitian;
           break;
 
-        case ANAM_DISCRETE_DD:
+        case EAnam::E_DISCRETE_DD:
           model->generic_cov_function = st_model_calcul_cov_anam_DD;
           break;
 
-        case ANAM_DISCRETE_IR:
+        case EAnam::E_DISCRETE_IR:
           model->generic_cov_function = st_model_calcul_cov_anam_IR;
           break;
 
         default:
           messerr("The Model modified by Properties is not available");
           messerr("For the following Anamorphosis type (%d)",
-                  model->getModTrans().getAnam()->getType());
+                  model->getModTrans().getAnam()->getType().getValue());
           break;
       }
       break;
@@ -1935,7 +1935,7 @@ GEOSLIB_API int model_grid(Model *model,
   for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    db_sample_load(db, LOC_X, iech, d1.data());
+    db_sample_load(db, ELoc::X, iech, d1.data());
     model_calcul_cov(model, mode, 1, 1., d1, covtab);
     g[iech] = COVTAB(ivar, jvar);
   }

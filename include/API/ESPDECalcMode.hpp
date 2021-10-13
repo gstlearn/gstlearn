@@ -10,23 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#include "Enum/AEnum.hpp"
 
-class Anam : public AStringable
-{
-public:
-  Anam(const EAnam& type = EAnam::UNDEFINED);
-  Anam(const Anam &m);
-  Anam& operator= (const Anam &m);
-  virtual ~Anam();
+#define ENUM_SPDE_CALC_MODE ESPDECalcMode, KRIGING, \
+                            KRIGING,      0,  "Kriging", \
+                            SIMUCOND,     1,  "Conditional simulations", \
+                            SIMUNONCOND,  2,  "Non conditional simulations"
 
-  virtual String toString(int level = 0) const override;
-
-  const EAnam&  getType() const { return _type; }
-
-private:
-  EAnam _type;
-};
+ENUM_DECLARE(ENUM_SPDE_CALC_MODE)

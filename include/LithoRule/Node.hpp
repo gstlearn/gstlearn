@@ -12,7 +12,6 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
-#include "geoslib_enum.h"
 
 class Db;
 class Model;

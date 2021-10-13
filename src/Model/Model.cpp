@@ -210,7 +210,7 @@ int Model::addNoStat(ANoStat* anostat)
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
   {
     int icov = getNoStatElemIcov(ipar);
-    ENUM_CONS type = getNoStatElemType(ipar);
+    EConsElem type = getNoStatElemType(ipar);
 
     // Check that the Non-stationary parameter is valid with respect
     // to the Model definition
@@ -222,7 +222,7 @@ int Model::addNoStat(ANoStat* anostat)
           icov, ipar);
       return 1;
     }
-    if (type == CONS_PARAM)
+    if (type == EConsElem::PARAM)
     {
       messerr(
           "The current methodology does not handle constraint on third parameter");
@@ -244,7 +244,7 @@ int Model::getNoStatElemNumber() const
   return _noStat->getNoStatElemNumber();
 }
 
-void Model::addNoStatElem(int igrf, int icov, ENUM_CONS type, int iv1, int iv2)
+void Model::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2)
 {
   if (! isNoStat()) return;
   _noStat->addNoStatElem(igrf, icov, type, iv1, iv2);
@@ -270,7 +270,7 @@ int Model::getNoStatElemIcov(int ipar)
   return _noStat->getICov(ipar);
 }
 
-ENUM_CONS Model::getNoStatElemType(int ipar)
+const EConsElem& Model::getNoStatElemType(int ipar)
 {
   if (! isNoStat())
     my_throw("Nostat is not defined");

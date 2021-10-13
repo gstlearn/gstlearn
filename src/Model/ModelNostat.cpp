@@ -134,17 +134,17 @@ void ModelNostat::define(int icov, const CovAniso* cova)
 
     if (elem->getRankStr() != icov) continue;
 
-    if (elem->getLocType() == CONS_ANGLE)
+    if (elem->getLocType() == EConsElem::ANGLE)
     {
       _angles1[elem->getRankV1()] = elem->getVal1();
       _angles2[elem->getRankV1()] = elem->getVal2();
     }
-    else if (elem->getLocType() == CONS_SILL)
+    else if (elem->getLocType() == EConsElem::SILL)
     {
       _sill1 = elem->getVal1();
       _sill2 = elem->getVal2();
     }
-    else if (elem->getLocType() == CONS_PARAM)
+    else if (elem->getLocType() == EConsElem::PARAM)
     {
       // Convert from scale to range
       if (flag_range)
@@ -166,7 +166,7 @@ void ModelNostat::define(int icov, const CovAniso* cova)
           _scale2[idim] /= _scadef2;
         }
     }
-    else if (elem->getLocType() == CONS_RANGE)
+    else if (elem->getLocType() == EConsElem::RANGE)
     {
       flag_range = 1;
       _scale1[elem->getRankV1()] =
@@ -174,7 +174,7 @@ void ModelNostat::define(int icov, const CovAniso* cova)
       _scale2[elem->getRankV1()] =
           FFFF(elem->getVal2()) ? TEST : elem->getVal2() / _scadef2;
     }
-    else if (elem->getLocType() == CONS_SCALE)
+    else if (elem->getLocType() == EConsElem::SCALE)
     {
       _scale1[elem->getRankV1()] = elem->getVal1();
       _scale2[elem->getRankV1()] = elem->getVal2();

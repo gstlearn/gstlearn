@@ -157,13 +157,13 @@ int main(int argc, char *argv[])
 
   if (dbin->getIntervalNumber() > 0)
   {
-    dbin->clearLocators(LOC_Z);
+    dbin->clearLocators(ELoc::Z);
     if (gibbs_sampler(dbin,new_model,(Neigh *) NULL,
                       1,seed,nboot,niter,false,true,false,0,
                       5.,toleps,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
-    dbin->setLocatorByAttribute(dbin->getFieldNumber()-1,LOC_Z);
+    dbin->setLocatorByAttribute(dbin->getFieldNumber()-1,ELoc::Z);
   }
 
   /* Perform the estimation */
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
         
         /* Cross-validation */
 
-        if (kriging(dbin,dbin,new_model,neigh,KOPTION_PONCTUAL,
+        if (kriging(dbin,dbin,new_model,neigh,EKrigOpt::PONCTUAL,
                     1,1,0)) messageAbort("kriging");
         db_print(dbin,1,0,1,1,1);
       }
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
         /* Estimation case */
 
         if (dbout == (Db *) NULL) goto label_end;
-        if (kriging(dbin,dbout,new_model,neigh,KOPTION_PONCTUAL,
+        if (kriging(dbin,dbout,new_model,neigh,EKrigOpt::PONCTUAL,
                     1,1,0)) messageAbort("kriging");
         db_print(dbout,1,0,1,1,1);
         dbout = db_delete(dbout);

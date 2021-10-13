@@ -10,23 +10,17 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
-#include "Anamorphosis/EAnam.hpp"
+#include "Enum/AEnum.hpp"
 
-class Anam : public AStringable
-{
-public:
-  Anam(const EAnam& type = EAnam::UNDEFINED);
-  Anam(const Anam &m);
-  Anam& operator= (const Anam &m);
-  virtual ~Anam();
+#define ENUM_CONS_ELEM EConsElem, UNKNOWN, \
+                       UNKNOWN,  0, "Unknown constraint", \
+                       RANGE,    1, "Non-stationary range", \
+                       ANGLE,    2, "Non-stationary anisotropy rotation angle (degree)", \
+                       PARAM,    3, "Non-stationary auxiliary parameter", \
+                       SILL,     4, "Non-stationary sill", \
+                       SCALE,    5, "Non-stationary scale", \
+                       T_RANGE,  6, "Non-stationary tapering range", \
+                       VELOCITY, 7, "Non-stationary velocity (advection)", \
+                       SPHEROT,  8, "Non-stationary rotation angle for Sphere"
 
-  virtual String toString(int level = 0) const override;
-
-  const EAnam&  getType() const { return _type; }
-
-private:
-  EAnam _type;
-};
+ENUM_DECLARE(ENUM_CONS_ELEM)

@@ -41,7 +41,6 @@
                  GAUSFAC, 24, "Gaussian value for Facies", \
                  DATE,    25, "Date", \
                  RKLOW,   26, "Rank for lower bound (when discretized)", \
-                 RKUP,    27, "Rank for upper bound (when discretized)", \
-                 MAX_LOC, 28, "Maximum number of locators"
+                 RKUP,    27, "Rank for upper bound (when discretized)"
 
 ENUM_DECLARE(ENUM_LOC)

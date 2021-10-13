@@ -25,7 +25,7 @@ private:
   MatrixCRectangular _stats;
 
 public:
-  AnamDiscrete(int type = ANAM_UNDEFINED);
+  AnamDiscrete(const EAnam& type = EAnam::UNDEFINED);
   AnamDiscrete(const AnamDiscrete &m);
   AnamDiscrete& operator= (const AnamDiscrete &m);
   virtual ~AnamDiscrete();

@@ -72,11 +72,11 @@ bool NoStatArray::_checkValid() const
 
   // Get the number of non-stationary parameters from Dbnostat
   if (_dbnostat == nullptr) return false;
-  int npardb = _dbnostat->getLocatorNumber(LOC_NOSTAT);
+  int npardb = _dbnostat->getLocatorNumber(ELoc::NOSTAT);
   if (npardb < nparcd)
   {
     messerr("The Non-Stationary codes require %d parameters", nparcd);
-    messerr("The Dbnostat only contains %d LOC_NOSTAT attributes", npardb);
+    messerr("The Dbnostat only contains %d ELoc::NOSTAT attributes", npardb);
     return false;
   }
   return true;
@@ -135,9 +135,9 @@ void NoStatArray::detachFromMesh() const
 
 /**
  * Attaching the current Non-Stationary parameters to the Db
- * This function creates new fields set to the locator LOC_NOSTAT.
+ * This function creates new fields set to the locator ELoc::NOSTAT.
  * They will be deleted using the detachFromDb() method.
- * @param db      Db where the new LOC_NOSTAT fields must be added
+ * @param db      Db where the new ELoc::NOSTAT fields must be added
  * @param icas    1 for Dbin and 2 for Dbout
  * @param verbose Verbose flag
  * @return
@@ -187,11 +187,11 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
     if (_informField(ipar, nech, coorloc, tab, verbose)) return 1;
 
     // Store the local vector within the Db as a new field
-    db->addFields(tab,names[ipar],LOC_UNKNOWN,0,true);
+    db->addFields(tab,names[ipar],ELoc::UNKNOWN,0,true);
   }
 
   // Set locators to the newly created variables
-  db->setLocator(names,LOC_NOSTAT);
+  db->setLocator(names,ELoc::NOSTAT);
 
   coor = (double *) mem_free((char *) coor);
   return 0;
@@ -202,14 +202,14 @@ void NoStatArray::detachFromDb(Db* db, int icas) const
   if (db == nullptr) return;
   if (db == _dbnostat) return;
   ANoStat::detachFromDb(db,icas);
-  db->deleteFieldByLocator(LOC_NOSTAT);
+  db->deleteFieldByLocator(ELoc::NOSTAT);
 }
 
 /**
  * Returns the value of a non-stationary parameter at a target sample
  * @param igrf  Rank of the GRF
  * @param icov  Rank of the Covariance
- * @param type  Type of non-stationary element
+ * @param type  Type of non-stationary element (EConsElem)
  * @param iv1   Rank of the first variable (optional)
  * @param iv2   Rank of the second variable (optional)
  * @param icas  Additional identifier (0 for Meshing; 1 for Dbin; 2 for Dbout)
@@ -218,7 +218,7 @@ void NoStatArray::detachFromDb(Db* db, int icas) const
  */
 double NoStatArray::getValue(int igrf,
                              int icov,
-                             ENUM_CONS type,
+                             const EConsElem& type,
                              int iv1,
                              int iv2,
                              int icas,
@@ -284,7 +284,7 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 
     if (_dbin == nullptr) return TEST;
     if (rank < 0 || rank > _dbin->getSampleNumber()) return TEST;
-    return _dbin->getFromLocator(LOC_NOSTAT, rank, ipar);
+    return _dbin->getFromLocator(ELoc::NOSTAT, rank, ipar);
   }
   else if (icas == 2)
   {
@@ -293,7 +293,7 @@ double NoStatArray::getValue(int ipar, int icas, int rank) const
 
     if (_dbout == nullptr) return TEST;
     if (rank < 0 || rank > _dbout->getSampleNumber()) return TEST;
-    return _dbout->getFromLocator(LOC_NOSTAT, rank, ipar);
+    return _dbout->getFromLocator(ELoc::NOSTAT, rank, ipar);
   }
   else
   {
@@ -334,12 +334,12 @@ String NoStatArray::_displayStats(int ipar, int icas) const
   else if (icas == 1)
   {
     if (_dbin == (Db *) NULL) return sstr.str();
-    vec = _dbin->getFieldByLocator(LOC_NOSTAT,ipar,true);
+    vec = _dbin->getFieldByLocator(ELoc::NOSTAT,ipar,true);
   }
   else
   {
     if (_dbout == (Db *) NULL) return sstr.str();
-    vec = _dbout->getFieldByLocator(LOC_NOSTAT,ipar,true);
+    vec = _dbout->getFieldByLocator(ELoc::NOSTAT,ipar,true);
   }
 
   // Produce the statistics
@@ -376,7 +376,7 @@ int NoStatArray::_informField(int ipar,
 {
   // Identify the attribute in the Db
 
-  int iatt = db_attribute_identify(_dbnostat, LOC_NOSTAT, ipar);
+  int iatt = db_attribute_identify(_dbnostat, ELoc::NOSTAT, ipar);
   if (iatt < 0)
   {
     messerr("The Non-stationary attribute (%d) is not defined in Dbnostat",

@@ -14,7 +14,7 @@
 #include "geoslib_f.h"
 
 ElemNostat::ElemNostat()
-    : _locType(0),
+    : _locType(EConsElem::UNKNOWN),
       _rankGRF(0),
       _rankStr(0),
       _rankV1(0),
@@ -57,7 +57,7 @@ ElemNostat::~ElemNostat()
 
 }
 
-void ElemNostat::init(int loctype,
+void ElemNostat::init(const EConsElem& loctype,
                       int rank_grf,
                       int rank_str,
                       int rank_v1,
@@ -75,26 +75,42 @@ void ElemNostat::init(int loctype,
 String ElemNostat::toString(int level) const
 {
   std::stringstream sstr;
-  switch (getLocType())
+  switch (getLocType().toEnum())
   {
-    case CONS_RANGE:
+    case EConsElem::E_RANGE:
       sstr << "Type = Range";
       break;
 
-    case CONS_SCALE:
+    case EConsElem::E_SCALE:
       sstr << "Type = Scale";
       break;
 
-    case CONS_ANGLE:
+    case EConsElem::E_ANGLE:
       sstr << "Type = Angle";
       break;
 
-    case CONS_PARAM:
+    case EConsElem::E_PARAM:
       sstr << "Type = Third";
       break;
 
-    case CONS_SILL:
+    case EConsElem::E_SILL:
       sstr << "Type = Sill";
+      break;
+
+    case EConsElem::E_SPHEROT:
+      sstr << "Type = Spherical Rotation";
+      break;
+
+    case EConsElem::E_T_RANGE:
+      sstr << "Type = T Range";
+      break;
+
+    case EConsElem::E_VELOCITY:
+      sstr << "Type = Velocity";
+      break;
+
+    default:
+      sstr << "Type = UNKNOWN";
       break;
   }
   sstr << " - Structure = " << getRankStr() + 1 << " - Variable = "

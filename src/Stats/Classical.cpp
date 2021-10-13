@@ -373,10 +373,10 @@ VectorDouble dbStatisticsFacies(Db *db)
 {
   VectorDouble props;
 
-  if (db->getLocatorNumber(LOC_Z) != 1)
+  if (db->getLocatorNumber(ELoc::Z) != 1)
   {
     messerr("This function requires the number of variables (%d) to be equal to 1",
-            db->getLocatorNumber(LOC_Z));
+            db->getLocatorNumber(ELoc::Z));
     return props;
   }
   int nech = db->getSampleNumber();
@@ -417,10 +417,10 @@ VectorDouble dbStatisticsFacies(Db *db)
 *****************************************************************************/
 double dbStatisticsIndicator(Db *db)
 {
-  if (db->getLocatorNumber(LOC_Z) != 1)
+  if (db->getLocatorNumber(ELoc::Z) != 1)
   {
     messerr("This function requires the number of variables (%d) to be equal to 1",
-            db->getLocatorNumber(LOC_Z));
+            db->getLocatorNumber(ELoc::Z));
     return TEST;
   }
 
