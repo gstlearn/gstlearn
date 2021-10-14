@@ -213,6 +213,8 @@ class IClonable{};
 %include Anamorphosis/AnamDiscreteIR.hpp
 %include Anamorphosis/EAnam.hpp
 
+%include Gibbs/AGibbs.hpp
+%include Gibbs/GibbsMulti.hpp
 %include Gibbs/GibbsMMulti.hpp
 %include Gibbs/GibbsUMulti.hpp
 
