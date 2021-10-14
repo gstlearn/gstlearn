@@ -11,6 +11,7 @@
 #include "Basic/Utilities.hpp"
 #include "segy.h"
 #include "geoslib_e.h"
+#include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 
 struct RefPt {

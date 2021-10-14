@@ -23,6 +23,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_e.h"
+#include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 
 /*! \cond */

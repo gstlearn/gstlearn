@@ -1,7 +1,11 @@
 #ifndef MY_INI_H
 #define MY_INI_H
     
-#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include <iostream>
+#include <map>
+#include <string>
+#include <fstream>
 
 class MyIni {
 

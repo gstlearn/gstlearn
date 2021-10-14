@@ -1,17 +1,26 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
 #ifndef DATABASE_HPP
 #define DATABASE_HPP
 
-#include <string>
-#include <vector>
-#include <string.h>
-
-#include "geoslib_f.h"
-
 #include "Space/ASpaceObject.hpp" // ISA
 #include "Interfaces/interface_d.hpp"
-
 #include "Interfaces/ParamGrid.hpp"
+#include "geoslib_enum.h"
 
+#include <string>
+#include <vector>
+#include <string>
+
+class Db;
 class AVariable;
 class ASpace;
 class ParamCSV;

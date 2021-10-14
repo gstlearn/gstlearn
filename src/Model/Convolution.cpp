@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
 #include "Model/Convolution.hpp"
+#include "geoslib_enum.h"
 #include "geoslib_f.h"
 #include <math.h>
 

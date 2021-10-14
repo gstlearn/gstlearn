@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
 #include "geoslib_old_f.h"
+#include "geoslib_enum.h"
 #include "geoslib_e.h"
 
 /*! \cond */

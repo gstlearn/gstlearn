@@ -8,16 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Basic/Law.hpp"
+#include "Basic/AException.hpp"
+#include "Basic/Utilities.hpp"
 #include "geoslib_e.h"
+#include "geoslib_old_f.h"
+//#include <tr1/cmath>
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <complex>
 #include <cmath>
-//#include <tr1/cmath>
-#include "Basic/Law.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/Utilities.hpp"
-#include "geoslib_old_f.h"
+#include <regex>
 
 /*! \cond */
 #define ROT(i,j)     (rot[(i) * ndim + (j)])
@@ -4345,7 +4346,7 @@ GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
   int renard = 0;
   double res1 = 0.;
   double res2 = 0.;
-  double res3 = 0.;
+  //double res3 = 0.;
 
   if (renard <= 0)
   {
@@ -4406,7 +4407,7 @@ GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
 
   double res1 = 0.;
   double res2 = 0.;
-  double res3 = 0.;
+  //double res3 = 0.;
   if (renard <= 0)
   {
     double v = cos(theta);

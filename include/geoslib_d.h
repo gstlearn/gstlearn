@@ -13,14 +13,7 @@
 
 /* Include other package definitions */
 // WARNING: Make this include list as small as possible!
-#include "geoslib_enum.h"
 #include "geoslib_define.h"
-
-#include "csparse_d.h"
-
-#include <vector>
-#include <regex>
-#include <string>
 
 /* External function definition */
 
