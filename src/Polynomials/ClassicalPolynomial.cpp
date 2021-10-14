@@ -106,6 +106,31 @@ void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& o
   }
 }
 
+// Classical Hörner scheme starting from the highest degree
+void ClassicalPolynomial::evalOpTraining(cs* Op, const VectorDouble& in,VectorVectorDouble& store) const
+{
+  int n = static_cast<int> (in.size());
+
+  VectorDouble work(n);
+
+
+  for(int i = 0; i < n ;i++)
+  {
+     store[0][i] = _coeffs.back() * in[i];
+  }
+
+  for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
+  {
+    cs_vecmult(Op,store[j].data(),work.data());
+    for (int i = 0; i<n ; i++)
+    {
+        store[j][i] = _coeffs[j] * in[i] + work[i];
+    }
+  }
+}
+
+
+
 void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
                                       const VectorDouble& in,
                                       VectorDouble& out,
