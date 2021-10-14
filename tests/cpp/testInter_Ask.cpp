@@ -17,15 +17,6 @@
  */
 int main()
 {
-  // This (interactive) test cannot be performed in batch
-  bool flagPerform = false;
-  if (! flagPerform)
-  {
-    message("This test is not performed on purpose\n");
-    message("as it does not make sense in Batch\n");
-    return 0;
-  }
-
   int ianswer;
   double ranswer;
 

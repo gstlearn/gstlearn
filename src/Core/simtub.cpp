@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Gibbs/GibbsUMultiMono.hpp"
 #include "Gibbs/GibbsUPropMono.hpp"
+#include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/GibbsFactory.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -4806,6 +4807,8 @@ label_end:
 ** \param[in]  flag_norm   1 if the Model must be normalized
 ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
 ** \param[in]  flag_propagation 1 for the propagation algorithm
+** \param[in]  flag_sym_neigh   1 for symmetry of neighborhood (moving)
+** \param[in]  flag_sym_Q       1 for symmetrization of weights (moving)
 ** \param[in]  gibbs_optstats   0: No stats - 1: Print - 2: Save Neutral file
 ** \param[in]  percent     Amount of nugget effect added to too continuous
 **                         model (expressed in percentage of total variance)
@@ -4828,6 +4831,8 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               bool    flag_norm,
                               bool    flag_multi_mono,
                               bool    flag_propagation,
+                              bool    flag_sym_neigh,
+                              bool    flag_sym_Q,
                               int     gibbs_optstats,
                               double  percent,
                               double  gibbs_eps,
@@ -4836,7 +4841,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               bool    verbose,
                               NamingConvention namconv)
 {
-  int      error,iptr,isimu,npgs,nvar,iptr_ce,iptr_cstd;
+  int      error,iptr,npgs,nvar,iptr_ce,iptr_cstd;
   PropDef *propdef;
 
   /* Initializations */
@@ -4910,6 +4915,12 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
     }
     if (gibbs == nullptr) goto label_end;
     gibbs->setOptionStats(gibbs_optstats);
+    GibbsMMulti* gibbsmmulti = dynamic_cast<GibbsMMulti*>(gibbs);
+    if (gibbsmmulti != nullptr)
+    {
+      gibbsmmulti->setFlagSymNeigh(flag_sym_neigh);
+      gibbsmmulti->setFlagSymQ(flag_sym_neigh);
+    }
 
     /* Initialize the Gibbs calculations */
 
@@ -4919,30 +4930,9 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
     if (gibbs->covmatAlloc(verbose)) goto label_end;
 
-    // Allocate the Gaussian vector
+    // Invoke the Gibbs calculator
 
-    VectorVectorDouble y = gibbs->allocY();
-
-    /* Loop on the simulations */
-
-    for (isimu = 0; isimu < nbsimu; isimu++)
-    {
-      message("Processing Simulation %d/%d\n", isimu + 1, nbsimu);
-      int ipgs = 0;
-
-      // Initialize the iterations
-
-      if (gibbs->calculInitialize(y, isimu, ipgs, verbose)) goto label_end;
-
-      /* Iterations of the Gibbs sampler */
-
-      for (int iter = 0; iter < gibbs->getNiter(); iter++)
-        gibbs->update(y, isimu, ipgs, iter);
-
-      // Store the results
-
-      gibbs->storeResult(y, isimu, ipgs);
-    }
+    if (gibbs->run(nbsimu, verbose)) goto label_end;
   }
 
   /* Convert the simulations */

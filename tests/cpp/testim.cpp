@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
   {
     dbin->clearLocators(ELoc::Z);
     if (gibbs_sampler(dbin,new_model,(Neigh *) NULL,
-                      1,seed,nboot,niter,false,true,false,0,
+                      1,seed,nboot,niter,false,true,false,false,false,0,
                       5.,toleps,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */

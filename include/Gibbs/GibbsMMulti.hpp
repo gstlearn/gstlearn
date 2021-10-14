@@ -41,6 +41,10 @@ public:
 
   Neigh* getNeigh() const { return _neigh; }
   const cs* getQ() const { return _Q; }
+  bool getFlagSymNeigh() const { return _flagSymNeigh; }
+  void setFlagSymNeigh(bool flagSymNeigh) { _flagSymNeigh = flagSymNeigh; }
+  bool getFlagSymQ() const { return _flagSymQ; }
+  void setFlagSymQ(bool flagSymQ) { _flagSymQ = flagSymQ; }
 
 private:
   int _improveConditioning(bool verbose);
@@ -49,13 +53,16 @@ private:
   void _setQFlag(VectorBool& QFlag,
                  int nech,
                  int iech,
-                 const VectorInt& ranks,
-                 bool flagSym) const;
+                 const VectorInt& ranks) const;
   VectorInt _getQFlag(VectorBool& QFlag, int nech, int iech);
   void _makeQSymmetric(cs* Q) const;
+  int  _buildQ();
+  void _extractWeightFromQ();
 
 private:
   Neigh* _neigh;
   std::vector<GibbsWeights> _wgt; // For each sample
-  cs* _Q;
+  bool _flagSymNeigh;
+  bool _flagSymQ;
+  cs*  _Q;
 };

@@ -68,4 +68,5 @@ String suppressAnyBlanks(String value);
 
 int askInt(const String& text, int defval = ITEST);
 double askDouble(const String& text, double defval = TEST);
+int askBool(const String& text, bool defval);
 // TODO faire getString

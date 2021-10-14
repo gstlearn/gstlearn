@@ -47,6 +47,8 @@ public:
                              int iter) = 0;
   virtual int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) = 0;
 
+  virtual int run(int nbsimu, bool verbose);
+
   void init(int npgs,
             int nvar,
             int nburn,

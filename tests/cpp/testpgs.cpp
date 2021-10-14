@@ -195,6 +195,12 @@ int main(int argc, char *argv[])
     if (verbose) db_print(dbout,1,0,1,1,1);
   }
 
+  /* Serialization of results (for visual check) */
+
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("testPGS-");
+  dbout->serialize("Result");
+
   /* Core deallocation */
 
 label_end:

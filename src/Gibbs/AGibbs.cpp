@@ -507,3 +507,35 @@ int AGibbs::getRelativeRank(int iech)
   return -1;
 }
 
+int AGibbs::run(int nbsimu, bool verbose)
+{
+  // Allocate the Gaussian vector
+
+  VectorVectorDouble y = allocY();
+
+  /* Loop on the simulations */
+
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+  {
+    message("Processing Simulation %d/%d\n", isimu + 1, nbsimu);
+
+    // Loop on the PGS
+    for (int ipgs = 0; ipgs < _npgs; ipgs++)
+    {
+
+      // Initialize the iterations
+
+      if (calculInitialize(y, isimu, ipgs, verbose)) return 1;
+
+      /* Iterations of the Gibbs sampler */
+
+      for (int iter = 0; iter < getNiter(); iter++)
+        update(y, isimu, ipgs, iter);
+
+      // Store the results
+
+      storeResult(y, isimu, ipgs);
+    }
+  }
+  return 0;
+}

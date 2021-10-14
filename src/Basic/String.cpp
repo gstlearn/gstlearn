@@ -467,9 +467,6 @@ int askInt(const String& text, int defval)
 
   try
   {
-
-
-
     while (true)
     {
       // Display the question
@@ -549,3 +546,66 @@ double askDouble(const String& text, double defval)
   }
   return answer;
 }
+
+/**
+ * Ask interactively for the value of one boolean
+ * @param text Text of the question
+ * @param defval Default value
+ */
+int askBool(const String& text, bool defval)
+{
+  bool hasDefault = ! IFFFF(defval);
+  bool answer = defval;
+  std::cin.exceptions(std::istream::failbit|
+                      std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+      {
+        String defstr;
+        if (defval)
+          defstr = "Y";
+        else
+          defstr = "N";
+        std::cout << text << " (Default = " << defstr << ") : ";
+      }
+      else
+        std::cout << text << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Try checking authorized answer
+      if (str == "Y")
+      {
+        answer = true;
+        break;
+      }
+      if (str == "N")
+      {
+        answer = false;
+        break;
+      }
+
+      std::cout << "The answer is not a valid Integer" << std::endl;
+    }
+  }
+  catch(std::istream::failure e)
+  {
+    std::cerr << "Problem when reading integer" << std::endl;
+  }
+  return answer;
+}
+

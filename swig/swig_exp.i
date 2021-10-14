@@ -87,8 +87,10 @@ class IClonable{};
 %include Mesh/MeshFactory.hpp
 %include Mesh/MeshEStandard.hpp
 %include Mesh/MeshETurbo.hpp
+
 %include Polynomials/Hermite.hpp
 %include Polynomials/MonteCarlo.hpp
+
 %include LinearOp/ALinearOp.hpp
 %include LinearOp/ALinearOpMulti.hpp
 %include LinearOp/ShiftOpCs.hpp
@@ -102,16 +104,20 @@ class IClonable{};
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
 %include LinearOp/EPowerPT.hpp
+
 %include Model/ANoStat.hpp
 %include Model/NoStatArray.hpp
 %include Model/NoStatFunctional.hpp
+
 %include Neigh/Neigh.hpp
 %include Neigh/ENeigh.hpp
+
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/DirParam.hpp
 %include Variogram/ECalcVario.hpp
+
 %include Model/Model.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
@@ -120,6 +126,7 @@ class IClonable{};
 %include Model/EModelProperty.hpp
 %include Model/EConsElem.hpp
 %include Model/EConsType.hpp
+
 %include Covariances/ACov.hpp
 %include Covariances/ACovFunc.hpp
 %include Covariances/ACovAnisoList.hpp
@@ -157,6 +164,7 @@ class IClonable{};
 %include Covariances/CovWendland1.hpp
 %include Covariances/CovWendland2.hpp
 %include Covariances/ECov.hpp
+
 %include Drifts/ADrift.hpp
 %include Drifts/ADriftElem.hpp
 %include Drifts/ADriftList.hpp
@@ -178,6 +186,7 @@ class IClonable{};
 %include Drifts/DriftZ2.hpp
 %include Drifts/DriftZ3.hpp
 %include Drifts/EDrift.hpp
+
 %include MatrixC/AMatrixC.hpp
 %include MatrixC/AMatrixCSquare.hpp
 %include MatrixC/MatrixCRectangular.hpp
@@ -185,12 +194,15 @@ class IClonable{};
 %include MatrixC/MatrixCSDiagCst.hpp
 %include MatrixC/MatrixCSGeneral.hpp
 %include MatrixC/MatrixCSSym.hpp
+
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp
 %include API/ESPDECalcMode.hpp
+
 %include Db/Db.hpp
 %include Db/ELoadBy.hpp
 %include Db/ELoc.hpp
+
 %include Anamorphosis/Anam.hpp
 %include Anamorphosis/AnamContinuous.hpp
 %include Anamorphosis/AnamDiscrete.hpp
@@ -200,6 +212,10 @@ class IClonable{};
 %include Anamorphosis/AnamDiscreteDD.hpp
 %include Anamorphosis/AnamDiscreteIR.hpp
 %include Anamorphosis/EAnam.hpp
+
+%include Gibbs/GibbsMMulti.hpp
+%include Gibbs/GibbsUMulti.hpp
+
 %include Morpho/Morpho.hpp
 %include Polygon/Polygons.hpp
 %include Polygon/PolySet.hpp
