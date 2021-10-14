@@ -21,6 +21,10 @@
 #include <regex>
 //#include <boost/filesystem.hpp>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h> // for CreateDirectory
+#endif
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
