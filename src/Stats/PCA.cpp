@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Stats/PCA.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 PCA::PCA()
   : _nVar(0),

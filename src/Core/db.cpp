@@ -8,11 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/GlobalEnvironment.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /****************************************************************************/
 /*!

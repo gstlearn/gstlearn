@@ -16,6 +16,7 @@
 #include "Basic/CSVformat.hpp"
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 Polygons::Polygons()
   : _polysets()

@@ -17,6 +17,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define ROT(i,j)     (rot[(i) * ndim + (j)])

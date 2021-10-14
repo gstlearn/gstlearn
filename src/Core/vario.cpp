@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -18,6 +17,8 @@
 #include "Basic/Utilities.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Basic/EJustify.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define VARS(ivar,jvar)     (vario->vars[(ivar) * vario->getNVar() + (jvar)])

@@ -15,6 +15,7 @@
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 
 #define THRESH_IDLE 0

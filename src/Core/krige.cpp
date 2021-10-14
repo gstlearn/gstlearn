@@ -8,12 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Polynomials/Hermite.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/ELoadBy.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define NBYPAS 5

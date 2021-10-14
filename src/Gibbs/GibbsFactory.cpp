@@ -9,12 +9,13 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Gibbs/GibbsFactory.hpp"
-
 #include "Gibbs/GibbsUMultiMono.hpp"
 #include "Gibbs/GibbsUMulti.hpp"
 #include "Gibbs/GibbsUPropMono.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/Neigh.hpp"
+#include "Neigh/ENeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "geoslib_f.h"
 

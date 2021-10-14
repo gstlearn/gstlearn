@@ -14,6 +14,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 GridC::GridC(int ndim,
              const VectorInt& nx,

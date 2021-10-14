@@ -1,12 +1,11 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/ASpace.hpp"
-
-#include "geoslib_f.h"
-
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
+#include "geoslib_f.h"
 
 #include <iostream>
+#include <math.h>
 
 SpacePoint::SpacePoint(const ASpace* space)
 : ASpaceObject(space),

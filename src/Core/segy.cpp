@@ -8,9 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
 #include "segy.h"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 struct RefPt {
   int    iline;

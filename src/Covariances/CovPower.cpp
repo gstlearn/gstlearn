@@ -12,6 +12,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Basic/MathFunc.hpp"
 #include "geoslib_f.h"
+#include <math.h>
 
 CovPower::CovPower(const CovContext& ctxt)
 : ACovFunc(ECov::POWER, ctxt)

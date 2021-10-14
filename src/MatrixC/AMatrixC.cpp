@@ -10,10 +10,12 @@
 /******************************************************************************/
 #include "MatrixC/AMatrixC.hpp"
 #include "MatrixC/MatrixCFactory.hpp"
-#include "geoslib_e.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "csparse_f.h"
+#include "geoslib_e.h"
+
 #include <iomanip>
 
 AMatrixC::AMatrixC(int nrow, int ncol, bool sparse)

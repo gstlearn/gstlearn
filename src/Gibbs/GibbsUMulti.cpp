@@ -8,12 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Gibbs/GibbsUMulti.hpp"
+#include "Gibbs/GibbsUMulti.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Morpho/Morpho.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 #define COVMAT(i,j)              (_covmat[(i) * neq + (j)])
 

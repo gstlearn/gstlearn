@@ -11,6 +11,7 @@
 #include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
 #include "geoslib_f.h"
+#include <math.h>
 
 Constraints::Constraints()
     : _consItems()

@@ -8,10 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
-#include "vtk.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "vtk.h"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define COLOR_MASK   -1

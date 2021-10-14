@@ -8,8 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
-#include "geoslib_define.h"
 #include "Variogram/Vario.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
@@ -18,6 +16,9 @@
 #include "Basic/AException.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
+#include "geoslib_e.h"
+#include "geoslib_define.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 typedef struct {

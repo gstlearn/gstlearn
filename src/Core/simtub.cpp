@@ -26,6 +26,7 @@
 #include "Basic/EJustify.hpp"
 #include "LithoRule/EProcessOper.hpp"
 #include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define DATA   0

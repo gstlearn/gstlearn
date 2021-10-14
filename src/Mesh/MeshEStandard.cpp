@@ -12,7 +12,10 @@
 #include "MatrixC/MatrixCRectangular.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Basic/AException.hpp"
+#include "Db/Db.hpp"
+#include "csparse_f.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 MeshEStandard::MeshEStandard()
   : AMesh()

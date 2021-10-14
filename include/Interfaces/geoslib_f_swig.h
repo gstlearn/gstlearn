@@ -2,6 +2,7 @@
 #define GEOSLIB_F_SWIG_H
 
 #include "Interfaces/Database.hpp"
+#include "Neigh/ENeigh.hpp"
 #include "Interfaces/interface_d.hpp"
 
 void migrate_grid_to_point2(const Database& Db_grid, Database& db_point, const std::string& name, int ldmax = 2, VectorDouble dmax = VectorDouble());

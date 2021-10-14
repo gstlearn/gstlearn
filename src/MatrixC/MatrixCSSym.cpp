@@ -10,9 +10,9 @@
 /******************************************************************************/
 #include "MatrixC/MatrixCSSym.hpp"
 #include "MatrixC/AMatrixCSquare.hpp"
-#include "geoslib_f.h"
-
 #include "Basic/AException.hpp"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 MatrixCSSym::MatrixCSSym(int nrow, bool sparse)
 : AMatrixCSquare(nrow, sparse)

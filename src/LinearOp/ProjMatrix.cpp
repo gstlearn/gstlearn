@@ -10,10 +10,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/LinearOp/ProjMatrix.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/Vector.hpp"
 #include "geoslib_e.h"
+#include "csparse_f.h"
+#include "geoslib_old_f.h"
 
 ProjMatrix::ProjMatrix() 
   : IProjMatrix()

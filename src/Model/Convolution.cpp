@@ -8,9 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "Basic/Utilities.hpp"
 #include "Model/Convolution.hpp"
+#include "geoslib_f.h"
+#include <math.h>
 
 Convolution::Convolution()
   : _type(0)

@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Basic/AException.hpp"
@@ -23,6 +22,8 @@
 #include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)

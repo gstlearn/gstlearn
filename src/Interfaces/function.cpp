@@ -1,11 +1,11 @@
 #include "Interfaces/geoslib_f_swig.h"
-
-#include <iostream>
-#include <numeric>
-
+#include "Interfaces/VariableDouble.hpp"
 #include "geoslib_d.h"
 #include "geoslib_enum.h"
-#include "Interfaces/VariableDouble.hpp"
+#include "geoslib_old_f.h"
+
+#include <numeric>
+#include <iostream>
 
 VectorDouble range(int n)
 {

@@ -1,5 +1,15 @@
-#include <geoslib_e.h>
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
 #include "Basic/Utilities.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 typedef struct {
   double  *bitmap;		/* pointer to pixels */

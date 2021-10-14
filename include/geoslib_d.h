@@ -12,14 +12,12 @@
 #define GEOSLIB_D_H
 
 /* Include other package definitions */
-
+// WARNING: Make this include list as small as possible!
 #include "geoslib_enum.h"
 #include "geoslib_define.h"
-#include "Basic/Vector.hpp"
-#include "Model/Option_VarioFit.hpp"
-#include "LithoRule/Rule.hpp"
-#include "Neigh/Neigh.hpp"
+
 #include "csparse_d.h"
+
 #include <vector>
 #include <regex>
 #include <string>
@@ -186,6 +184,7 @@ typedef struct
   int nb_cover; /* Number of covering tokens */
 } Bool_Cond;
 
+#include "Model/Option_VarioFit.hpp"
 class Model;
 typedef struct
 {
@@ -219,6 +218,8 @@ typedef struct
   const Db *dbprop; /* Pointer to the Proportion file */
 } Props;
 
+class Rule;
+class PropDef;
 typedef struct
 {
   int ipgs;
