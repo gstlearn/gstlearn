@@ -20,7 +20,6 @@
 #include "LithoRule/Rule.hpp"
 #include "Neigh/Neigh.hpp"
 #include "csparse_d.h"
-#include "ctpl.h"
 #include <vector>
 #include <regex>
 #include <string>
