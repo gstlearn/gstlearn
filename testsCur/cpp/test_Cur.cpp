@@ -1,3 +1,6 @@
+#include "API/SPDE.hpp"
+#include "Model/Model.hpp"
+#include "Model/NoStatArray.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
@@ -6,10 +9,8 @@
 #include "Covariances/ECov.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
-#include "API/SPDE.hpp"
-#include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
 
 
 #include <algorithm>
