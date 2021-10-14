@@ -27,6 +27,7 @@ GibbsMMulti::GibbsMMulti()
   , _wgt()
   , _flagSymNeigh(false)
   , _flagSymQ(false)
+  , _flagPrintQ(false)
   , _Q(nullptr)
 {
 }
@@ -37,6 +38,7 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model, Neigh* neigh)
   , _wgt()
   , _flagSymNeigh(false)
   , _flagSymQ(false)
+  , _flagPrintQ(false)
   , _Q(nullptr)
 {
 }
@@ -47,6 +49,7 @@ GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   , _wgt(r._wgt)
   , _flagSymNeigh(r._flagSymNeigh)
   , _flagSymQ(r._flagSymQ)
+  , _flagPrintQ(r._flagPrintQ)
   , _Q(r._Q)
 {
 }
@@ -60,6 +63,7 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
     _wgt = r._wgt;
     _flagSymNeigh = r._flagSymNeigh;
     _flagSymQ = r._flagSymQ;
+    _flagPrintQ = r._flagPrintQ;
     _Q = r._Q;
   }
   return *this;
@@ -276,7 +280,7 @@ int GibbsMMulti::_improveConditioning(bool verbose)
 
   // Optional printout
 
-  if (verbose)
+  if (_flagPrintQ)
     cs_print_nice("Reconstructed Precision Matrix", _Q, -1, -1);
 
   // Check that the matrix is symmetric
