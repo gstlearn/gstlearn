@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
+#include <math.h>
 
 #define VERBOSE 0
 #define INTER 0

@@ -10,8 +10,14 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Basic/Limits.hpp"
+#include "LithoRule/RuleProp.hpp"
+#include "LithoRule/Rule.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
+
 #include <stdlib.h>
 
 /*********************/

@@ -11,9 +11,11 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Db/ELoadBy.hpp"
+#include "Interfaces/geoslib_f_swig.h"
 
 #include "geoslib_f.h"
-#include "Interfaces/geoslib_f_swig.h"
+#include "geoslib_old_f.h"
+
 
 #include <stdio.h>
 #include <iostream>

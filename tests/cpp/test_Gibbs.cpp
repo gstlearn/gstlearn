@@ -10,9 +10,11 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Space/Space.hpp"
+#include "Db/Db.hpp"
 #include "Db/ELoadBy.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 /*****************************************************************************/
 /*!

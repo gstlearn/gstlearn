@@ -9,9 +9,10 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Db/ELoadBy.hpp"
-
+#include "Space/ASpaceObject.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 #define VERBOSE 0
 
