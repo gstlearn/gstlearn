@@ -66,7 +66,7 @@ String suppressTrailingBlanks(String value);
 String suppressLeadingBlanks(String value);
 String suppressAnyBlanks(String value);
 
-int askInt(const String& text, int defval = ITEST);
-double askDouble(const String& text, double defval = TEST);
+int askInt(const String& text, int defval = ITEST, bool authTest = false);
+double askDouble(const String& text, double defval = TEST, bool authTest = false);
 int askBool(const String& text, bool defval);
 // TODO faire getString

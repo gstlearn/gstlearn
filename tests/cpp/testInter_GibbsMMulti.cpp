@@ -30,6 +30,7 @@
 int main(int argc, char *argv[])
 
 {
+  int iptr;
   bool flag_inter = true;
 
   int nx        = 10;
@@ -40,6 +41,7 @@ int main(int argc, char *argv[])
   double bound  = TEST;
   bool flag_sym_neigh = true;
   bool flag_sym_Q = true;
+  bool flag_print_Q = false;
 
   if (flag_inter)
   {
@@ -48,10 +50,10 @@ int main(int argc, char *argv[])
     nburn = askInt("Number of burning steps",nburn);
     nmaxi = askInt("Number of samples in Neighborhood",nmaxi);
     range = askDouble("Isotropic Range",range);
-    bound = askDouble("Bounds [None: -10]",-10.);
-    if (bound <= -10.) bound = TEST;
+    bound = askDouble("Bounds [None: TEST]",bound, true);
     flag_sym_neigh = askBool("Symmetrization of Neighborhood",flag_sym_neigh);
     flag_sym_Q = askBool("Symmetrization of Q",flag_sym_Q);
+    flag_print_Q = askBool("Printing Q",flag_print_Q);
   }
 
   int seed     = 5452;
@@ -77,14 +79,15 @@ int main(int argc, char *argv[])
   Db* db = new Db({nx,nx},dx);
   if (! FFFF(bound))
   {
-    db->addFields(1, -bound, "Bounds", ELoc::L);
-    db->addFields(1, +bound, "Bounds", ELoc::U);
+    db->addFields(1, -bound, "Lower", ELoc::L);
+    db->addFields(1, +bound, "Upper", ELoc::U);
   }
   else
   {
-    db->addFields(1, TEST, "Bounds", ELoc::L);
-    db->addFields(1, TEST, "Bounds", ELoc::U);
+    db->addFields(1, TEST, "Lower", ELoc::L);
+    db->addFields(1, TEST, "Upper", ELoc::U);
   }
+  if (db_locator_attribute_add(db,ELoc::GAUSFAC,nbsimu*nvar,0,0.,&iptr)) return 1;
 
   // Model
 
@@ -104,9 +107,10 @@ int main(int argc, char *argv[])
   // Initialize Gibbs
 
   GibbsMMulti gibbs(db, model, neigh);
-  gibbs.setOptionStats(true);
+  gibbs.setOptionStats(2);
   gibbs.setFlagSymNeigh(flag_sym_neigh);
   gibbs.setFlagSymQ(flag_sym_neigh);
+  gibbs.setFlagPrintQ(flag_print_Q);
   gibbs.init(1, nvar, nburn, niter,0, false, true);
 
   // Allocate the Gaussian vector
@@ -121,7 +125,6 @@ int main(int argc, char *argv[])
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
     if (gibbs.run(y, 0, isimu, verbose)) return 1;
-
   db->serialize("Result");
 
   // Calculate a variogram on the samples
@@ -129,12 +132,12 @@ int main(int argc, char *argv[])
   VarioParam varioparam;
   std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
   varioparam.addDirs(dirparams);
-  Vario vario(&varioparam,db);
-  VectorString names = db->getNames("Gibbs*");
-  for (int isimu=0; isimu<nbsimu; isimu++)
+  VectorString names = db->getNames("gausfac*");
+  for (int isimu=0; isimu<(int) names.size(); isimu++)
   {
     db->clearLocators(ELoc::Z);
     db->setLocator(names[isimu],ELoc::Z);
+    Vario vario(&varioparam,db);
     vario.compute("vg",true);
     vario.serialize(incrementStringVersion("Vario",isimu+1));
   }

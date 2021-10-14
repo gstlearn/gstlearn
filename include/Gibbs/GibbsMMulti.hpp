@@ -45,6 +45,8 @@ public:
   void setFlagSymNeigh(bool flagSymNeigh) { _flagSymNeigh = flagSymNeigh; }
   bool getFlagSymQ() const { return _flagSymQ; }
   void setFlagSymQ(bool flagSymQ) { _flagSymQ = flagSymQ; }
+  bool getFlagPrintQ() const { return _flagPrintQ; }
+  void setFlagPrintQ(bool flagPrintQ) { _flagPrintQ = flagPrintQ; }
 
 private:
   int _improveConditioning(bool verbose);
@@ -64,5 +66,6 @@ private:
   std::vector<GibbsWeights> _wgt; // For each sample
   bool _flagSymNeigh;
   bool _flagSymQ;
+  bool _flagPrintQ;
   cs*  _Q;
 };

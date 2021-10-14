@@ -510,7 +510,7 @@ int AGibbs::getRelativeRank(int iech)
 int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool flagCheck)
 {
   if (calculInitialize(y, isimu, ipgs, verbose)) return 1;
-  if (verbose) print(true, y, isimu, ipgs);
+  if (flagCheck) print(true, y, isimu, ipgs);
 
   /* Iterations of the Gibbs sampler */
 
@@ -520,7 +520,7 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool f
   /* Check the validity of the Gibbs results (optional) */
 
   if (flagCheck) checkGibbs(y, isimu, ipgs);
-  if (verbose) print(false, y, isimu, ipgs);
+  if (flagCheck) print(false, y, isimu, ipgs);
 
   // Store the results
 
