@@ -109,13 +109,19 @@ int main(int argc, char *argv[])
   gibbs.setFlagSymQ(flag_sym_neigh);
   gibbs.init(1, nvar, nburn, niter,0, false, true);
 
+  // Allocate the Gaussian vector
+
+  VectorVectorDouble y = gibbs.allocY();
+
   /* Allocate the covariance matrix inverted */
 
   if (gibbs.covmatAlloc(verbose)) return 1;
 
   // Invoke the Gibbs calculator
 
-  if (gibbs.run(nbsimu, verbose)) return 1;
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+    if (gibbs.run(y, 0, isimu, verbose)) return 1;
+
   db->serialize("Result");
 
   // Calculate a variogram on the samples
