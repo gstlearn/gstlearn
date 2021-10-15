@@ -36,20 +36,22 @@ int main(int argc, char *argv[])
   int nx        = 10;
   int niter     = 10000;
   int nburn     = 100;
-  int nmaxi     = 4;
+  int nmaxi     = 10000;
   double range  = 10.;
   double bound  = TEST;
+  double radius = 10.;
   bool flag_sym_neigh = true;
-  bool flag_sym_Q = true;
-  bool flag_print_Q = false;
+  bool flag_sym_Q     = true;
+  bool flag_print_Q   = false;
 
   if (flag_inter)
   {
-    nx = askInt("Number of grid mesh [in each direction]", nx);
+    nx    = askInt("Number of grid mesh [in each direction]", nx);
     niter = askInt("Number of Gibbs iterations",niter);
     nburn = askInt("Number of burning steps",nburn);
     nmaxi = askInt("Number of samples in Neighborhood",nmaxi);
     range = askDouble("Isotropic Range",range);
+    radius = askDouble("Neighborhood radius",radius);
     bound = askDouble("Bounds [None: TEST]",bound, true);
     flag_sym_neigh = askBool("Symmetrization of Neighborhood",flag_sym_neigh);
     flag_sym_Q = askBool("Symmetrization of Q",flag_sym_Q);
@@ -62,7 +64,7 @@ int main(int argc, char *argv[])
   int nbsimu   = 1;
   double sill  = 1.;
   int nlag     = 20;
-  double nbgh_radius = 10. * range;
+
   VectorDouble ranges = { range, range};
   bool verbose          = true;
 
@@ -93,7 +95,7 @@ int main(int argc, char *argv[])
 
   CovContext ctxt(nvar,2,1.); // use default space
   Model* model = new Model(ctxt);
-  CovAniso cova(ECov::EXPONENTIAL,ctxt);
+  CovAniso cova(ECov::SPHERICAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill({sill});
   model->addCova(&cova);
@@ -101,7 +103,7 @@ int main(int argc, char *argv[])
 
   // Neighborhood
 
-  Neigh* neigh = new Neigh(ndim, nmaxi, nbgh_radius);
+  Neigh* neigh = new Neigh(ndim, nmaxi, radius);
   neigh->display();
 
   // Initialize Gibbs

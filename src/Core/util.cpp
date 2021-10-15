@@ -4341,11 +4341,12 @@ GEOSLIB_API int ut_is_legendre_defined(void)
  *****************************************************************************/
 GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
 {
-  int renard = 0;
+  int renard = -1;
   double res1 = 0.;
   double res2 = 0.;
   double res3 = 0.;
 
+  // TODO: Waiting for validation by Lantuejoul
   if (renard <= 0)
   {
     res1 = LEGENDRE_PL(n, v);
@@ -4390,7 +4391,7 @@ GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
 GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
 {
   int k, flag_negative;
-  int renard = 0;
+  int renard = -1;
 
   if (k0 < 0)
   {
@@ -4402,6 +4403,8 @@ GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
     k = k0;
     flag_negative = 0;
   }
+
+  // TODO: Waiting for the validation by Lantuejoul
 
   double res1 = 0.;
   double res2 = 0.;
