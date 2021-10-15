@@ -87,7 +87,7 @@ static int st_vector_get_col(Db *db, int icol, double *tab)
  ** \param[out]  tab Array of values
  **
  *****************************************************************************/
-static int st_vector_get_att(Db *db, int iatt, double *tab)
+static int st_vector_get_att(const Db *db, int iatt, double *tab)
 {
   if (!db->isAttributeIndexValid(iatt)) return (1);
   VectorDouble local = db->getFieldByAttribute(iatt);
@@ -135,7 +135,7 @@ GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
  ** \param[out]  tab Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get_att(Db *db, int iatt, double *tab)
+GEOSLIB_API int db_vector_get_att(const Db *db, int iatt, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, false);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -220,7 +220,7 @@ GEOSLIB_API int db_vector_get(Db *db,
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_selection_get(Db *db, int item, double *tab)
+GEOSLIB_API int db_selection_get(const Db *db, int item, double *tab)
 {
   int iatt = db->getAttribute(ELoc::SEL, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -443,7 +443,7 @@ GEOSLIB_API int *db_indg_free(int *indice)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API int *db_indg_alloc(Db *db)
+GEOSLIB_API int *db_indg_alloc(const Db *db)
 
 {
   int *indice, size;
@@ -493,7 +493,7 @@ GEOSLIB_API double *db_vector_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API double *db_vector_alloc(Db *db)
+GEOSLIB_API double *db_vector_alloc(const Db *db)
 
 {
   double *tab;
@@ -522,7 +522,7 @@ GEOSLIB_API double *db_vector_alloc(Db *db)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GEOSLIB_API int db_coorvec_get(Db *db, int idim, double *tab)
+GEOSLIB_API int db_coorvec_get(const Db *db, int idim, double *tab)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -1226,7 +1226,7 @@ GEOSLIB_API int db_center(Db *db, double *center)
  ** \remarks  Different versions are provided for Euclidean and Spherical cases
  **
  *****************************************************************************/
-GEOSLIB_API int db_extension_diag(Db *db, double *diag)
+GEOSLIB_API int db_extension_diag(const Db *db, double *diag)
 {
   double *tab, *sel, vmin, vmax, diff, mean, stdv, coor[2][2];
   int idim, nval, flag_sphere;
@@ -1327,7 +1327,7 @@ GEOSLIB_API double db_epsilon_distance(Db *db)
  ** \param[out]  delta  Extension
  **
  *****************************************************************************/
-GEOSLIB_API int db_attribute_range(Db *db,
+GEOSLIB_API int db_attribute_range(const Db *db,
                                    int iatt,
                                    double *mini,
                                    double *maxi,

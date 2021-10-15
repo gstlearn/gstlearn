@@ -111,7 +111,7 @@ static std::vector<StrExp> STREXPS;
 static StrMod      *STRMOD  = NULL;
 static Option_AutoFit MAUTO;
 static int         *INDG1,*INDG2;
-static Db          *DBMAP;
+static const Db          *DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
 static Recint       RECINT;
 
@@ -594,7 +594,7 @@ static int st_get_vario_dimension(const Vario *vario,
 ** \param[out] npadir_ret Maximum number of lags for all directions
 **
 *****************************************************************************/
-static int st_get_vmap_dimension(Db    *dbmap,
+static int st_get_vmap_dimension(const Db    *dbmap,
                                  int    nvar,
                                  int   *nbexp_ret,
                                  int   *npadir_ret)
@@ -3958,7 +3958,7 @@ static int st_alter_model_optvar(const Vario      *vario,
 ** \param[out]  optvar  Opt_Vario structure
 **
 *****************************************************************************/
-static int st_alter_vmap_optvar(Db         *dbmap,
+static int st_alter_vmap_optvar(const Db         *dbmap,
                                 Model      *model,
                                 Constraints& constraints,
                                 Option_VarioFit& optvar)
@@ -4353,7 +4353,7 @@ static void st_vario_varchol_manage(const Vario *vario,
 ** \param[out] varchol  Cholesky array
 **
 *****************************************************************************/
-static void st_vmap_varchol_manage(Db *dbmap,
+static void st_vmap_varchol_manage(const Db *dbmap,
                                    VectorDouble& varchol)
 {
   int     nvar,size,nvar2,i,iloc,ivar;
@@ -4801,7 +4801,7 @@ GEOSLIB_API int model_fitting_sills(Vario *vario,
 ** \param[out] upper Array giving the maximum parameter value
 **
 *****************************************************************************/
-static int st_vmap_auto_count(Db         *dbmap,
+static int st_vmap_auto_count(const Db         *dbmap,
                               Model      *model,
                               Constraints& constraints,
                               Option_VarioFit& optvar,
@@ -4989,7 +4989,7 @@ static void st_load_vmap(int     npadir,
 ** \param[in]  optvar_arg  Opt_Vario structure
 **
 *****************************************************************************/
-GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
+GEOSLIB_API int vmap_auto_fit(const Db         *dbmap,
                               Model      *model,
                               bool        verbose,
                               const Option_AutoFit& mauto_arg,

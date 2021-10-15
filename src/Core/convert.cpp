@@ -2149,7 +2149,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
   /* Decoding the array of data */
 
   if (verbose) message("Reading the Data\n");
-  if (st_read_find(s_length,file,"~Ascii",&numline,string)) goto label_end;
+  if (st_read_find(s_length,file,"~A",&numline,string)) goto label_end;
   nech = ecr = nquant = 0;
   while (1)
   {

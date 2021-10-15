@@ -186,7 +186,7 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
     XtInvSigmaZ[i] = ut_vector_inner_product(X[i],_work1);
   }
 
-  MatrixCSSym XtInvSigmaX(X.size(),false);
+  MatrixCSSym XtInvSigmaX(static_cast<int>(X.size()),false);
 
   for(int i = 0; i< (int)X.size();i++)
   {
