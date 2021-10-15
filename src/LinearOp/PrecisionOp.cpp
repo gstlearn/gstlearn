@@ -30,6 +30,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
   , _cova(cova)
   , _power(power)
   , _polynomials()
+  , _training(false)
   , _verbose(verbose)
   , _work()
   , _work2()
@@ -48,6 +49,7 @@ PrecisionOp::PrecisionOp(const PrecisionOp &pmat)
   , _cova(pmat._cova)
   , _power(pmat._power)
   , _polynomials(pmat._polynomials)
+  , _training(false)
   , _verbose(pmat._verbose)
   , _work(pmat._work)
   , _work2(pmat._work2)
@@ -252,7 +254,29 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
                            VectorDouble& out)
 {
   if (_preparePoly(power)) return 1;
-  _polynomials[power]->evalOp(_shiftOp->getS(),in,out);
+  if(getTraining())
+  {
+    int degree = _polynomials[power]->getDegree();
+
+    if(_workPoly.empty())
+    {
+      _workPoly = VectorVectorDouble(degree);
+      for(auto &e: _workPoly)
+      {
+        e = VectorDouble(in.size());
+      }
+    }
+    _polynomials[power]->evalOpTraining(_shiftOp->getS(),in,_workPoly);
+
+    for(int i=0;i<(int)in.size();i++)
+    {
+      out[i] = _workPoly[degree][i];
+    }
+  }
+  else
+  {
+    _polynomials[power]->evalOp(_shiftOp->getS(),in,out);
+  }
   return 0;
 }
 

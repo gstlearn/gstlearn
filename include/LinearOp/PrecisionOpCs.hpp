@@ -29,6 +29,7 @@ public:
                 const EPowerPT& power = EPowerPT::UNDEFINED,
                 bool verbose = false);
   void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
+  void evalDerivOptim(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
   void evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
   void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result) override;
   virtual ~PrecisionOpCs();
