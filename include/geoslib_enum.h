@@ -13,8 +13,6 @@
 /* Different ENUM lists */
 
 /**
- \enum ENUM_LOAD_DATA
-
  Different ways to load samples from input argument into Db
  **/
 /*
@@ -26,6 +24,7 @@ typedef enum
 */
 
 #ifndef SWIG
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   TYPE_DB = 0,        //!< Data Base
@@ -59,6 +58,7 @@ typedef enum
 } ENUM_CSTS;
 #endif
 
+/*
 typedef enum
 {
   LOC_UNKNOWN = -1,
@@ -91,9 +91,8 @@ typedef enum
   LOC_RKLOW = 26,   //!< Rank for lower bound (when discretized)
   LOC_RKUP = 27,    //!< Rank for upper bound (when discretized)
   MAXIMUM_LOC = 28  //!< Maximum number of enums
-} ENUM_LOCS;
+} ENUM_LOCS;  // Now see ELoc.hpp
 
-/*
 typedef enum
 {
   DRIFT_UNKNOWN = -1,
@@ -155,7 +154,7 @@ typedef enum
 //  COV_EXPFACT = 21,      //!< Factorized Exponential
 
 #ifndef SWIG
-// Internal enums (not exported via SWIG)
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   CONV_UNIFORM = 1,         //!< Uniform
@@ -187,7 +186,7 @@ typedef enum
 */
 
 #ifndef SWIG
-// Internal enums (not exported via SWIG)
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   MODEL_DERIVATIVE_NONE = 0,  //!< No Derivation
@@ -250,7 +249,7 @@ typedef enum
 } ENUM_RULES;   // Now see ERule.hpp
 */
 #ifndef SWIG
-// Internal enums (not exported via SWIG)
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   SHADOW_IDLE = 0,      //!< No Shadow
@@ -306,13 +305,13 @@ typedef enum
   MEMBER_RHS = 1,        //!< Right-hand Side of the Kriging System
   MEMBER_VAR = 2,        //!< Variance of the Kriging System
 } ENUM_MEMBERS;  // Now see ECalcMember.hpp
-*/
+
 typedef enum
 {
   KOPTION_PONCTUAL = 0,     //!< Punctual estimation
   KOPTION_BLOCK = 1,        //!< Block average estimation
   KOPTION_DRIFT = 2,        //!< Large scale Drift estimation
-} ENUM_KOPTIONS;
+} ENUM_KOPTIONS;  // Now see EKrigOpt.hpp
 
 typedef enum
 {
@@ -322,7 +321,7 @@ typedef enum
   ANAM_EMPIRICAL = 2,      //!< Empirical anamorphosis
   ANAM_DISCRETE_DD = 3,    //!< Discrete anamorphosis
   ANAM_DISCRETE_IR = 4,    //!< Discrete Indicator Residuals anamorphosis
-} ENUM_ANAMS;
+} ENUM_ANAMS;   /: Now see EAnam.hpp
 
 typedef enum
 {
@@ -335,7 +334,7 @@ typedef enum
   CONS_T_RANGE = 6,  //!< Non-stationary tapering range
   CONS_VELOCITY = 7, //!< Non-stationary velocity (advection)
   CONS_SPHEROT = 8,  //!< Non-stationary rotation angle for Sphere
-} ENUM_CONS;
+} ENUM_CONS; // Now see EConsElem.hpp
 
 typedef enum
 {
@@ -343,8 +342,10 @@ typedef enum
   CONS_TYPE_DEFAULT = 0, //!< Default parameter
   CONS_TYPE_UPPER = 1,   //!< Upper Bound
   CONS_TYPE_EQUAL = 2,   //!< Equality
-} ENUM_CONS_TYPE;
-
+} ENUM_CONS_TYPE; // Now see EConsType.hpp
+*/
+#ifndef SWIG
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   ANAM_QT_Z = 0,
@@ -356,13 +357,14 @@ typedef enum
   ANAM_QT_QUANT = 6,
   ANAM_N_QT = 7,
 } ENUM_ANAM_QT;
-
+#endif
+/*
 typedef enum
 {
   GD_J_LEFT = -1,
   GD_J_CENTER = 0,
   GD_J_RIGHT = 1,
-} ENUM_GD_J;
+} ENUM_GD_J;  // Now see EJustify.hpp
 
 typedef enum
 {
@@ -370,7 +372,7 @@ typedef enum
   PROCESS_COPY = 0,
   PROCESS_MARGINAL = 1,
   PROCESS_CONDITIONAL = 2,
-} ENUM_PROCESS;
+} ENUM_PROCESS; // Now see EProcessOper.hpp
 
 typedef enum
 {
@@ -380,8 +382,10 @@ typedef enum
   POPT_MINUSHALF = 2,      //!< Power is -0.5
   POPT_HALF = 3,           //!< Power is 0.5
   POPT_LOG = 4,            //!< Logarithm
-} ENUM_POPTS;
-
+} ENUM_POPTS; // Now see EPowerPT.hpp
+*/
+#ifndef SWIG
+// Internal enums (currently not exported via SWIG)
 typedef enum
 {
   SEGY_NUM    = 0,
@@ -397,7 +401,6 @@ typedef enum
   SEGY_NB     = 10,
   SEGY_COUNT  = 11,
 } ENUM_SEGY;
-
 typedef enum
 {
   ES_NOERROR               = 0,
@@ -410,13 +413,14 @@ typedef enum
   ES_PERMISSION_GRID_COORD = 7,
   ES_TYPE_ERROR            = 8
 } ENUM_ERRORS;
-
+typedef ENUM_ERRORS ES;
+#endif
+/*
 typedef enum
 {
   CALCUL_KRIGING     = 0,    //!< Kriging
   CALCUL_SIMUCOND    = 1,   //!< Conditional simulations
   CALCUL_SIMUNONCOND = 2 //!< Non conditional simulations
-} ENUM_CALCUL_MODE;
+} ENUM_CALCUL_MODE;  // Now see ESPDECalcMode.hpp
+*/
 
-
-typedef ENUM_ERRORS ES;

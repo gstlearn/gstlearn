@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/EJustify.hpp"
 
 /*! \cond */
 #define TOLVAL     1.e-09
@@ -1018,13 +1019,13 @@ static void st_foxleg_debug_title(void)
 
   if (! debug_query("converge")) return;
   mestitle(1,"Trajectory of parameters in Foxleg Algorithm");
-  tab_prints(NULL,1,GD_J_RIGHT,"Iteration");
-  tab_prints(NULL,1,GD_J_RIGHT,"Score");
-  tab_prints(NULL,1,GD_J_RIGHT,"Delta");
+  tab_prints(NULL,1,EJustify::RIGHT,"Iteration");
+  tab_prints(NULL,1,EJustify::RIGHT,"Score");
+  tab_prints(NULL,1,EJustify::RIGHT,"Delta");
   for (ipar=0; ipar<NPAR; ipar++)
   {
     (void) sprintf(string,"Par-%d",ipar+1);
-    tab_prints(NULL,1,GD_J_RIGHT,string);
+    tab_prints(NULL,1,EJustify::RIGHT,string);
   }
   message("\n");
 }
@@ -1041,11 +1042,11 @@ static void st_foxleg_debug_current(double  mscur,
   int ipar;
 
   if (! debug_query("converge")) return;
-  tab_printi(NULL,1,GD_J_RIGHT,ITERATION);
-  tab_printd(NULL,1,GD_J_RIGHT,mscur);
-  tab_printd(NULL,1,GD_J_RIGHT,delta);
+  tab_printi(NULL,1,EJustify::RIGHT,ITERATION);
+  tab_printd(NULL,1,EJustify::RIGHT,mscur);
+  tab_printd(NULL,1,EJustify::RIGHT,delta);
   for (ipar=0; ipar<NPAR; ipar++)
-    tab_printg(NULL,1,GD_J_RIGHT,param[ipar]);
+    tab_printg(NULL,1,EJustify::RIGHT,param[ipar]);
   message("\n");
 }
 

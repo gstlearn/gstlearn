@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "LithoRule/EProcessOper.hpp"
 class Db;
 
 class PropDef
@@ -24,7 +25,7 @@ public:
   int nfaccur; /* Number of facies for current PGS */
   int nfacprod; /* Product of the number of facies */
   int nfacmax; /* Maximum number of facies over all PGS */
-  int mode; /* Type of process */
+  EProcessOper mode; /* Type of process */
   VectorDouble propfix;
   VectorDouble propmem;
   VectorDouble propwrk;

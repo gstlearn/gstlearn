@@ -20,7 +20,6 @@
 #include "LithoRule/Rule.hpp"
 #include "Neigh/Neigh.hpp"
 #include "csparse_d.h"
-#include "ctpl.h"
 #include <vector>
 #include <regex>
 #include <string>
@@ -104,10 +103,11 @@ typedef struct DIR
 
 
 /* Structures */
-
-typedef struct
+#include "Enum/EKrigOpt.hpp"
+class Koption // Transform to a class and prevent calling malloc and memfree
 {
-  int calcul; /* Type of calculation (KOPTION_*) */
+public:
+  EKrigOpt calcul; /* Type of calculation (EKrigOpt) */
   int ndim; /* Space dimension */
   int ntot; /* Number of discretization points */
   int *ndisc; /* Array of discretization counts */
@@ -115,7 +115,7 @@ typedef struct
   double *disc2; /* Discretization randomized coordinates */
   int flag_data_disc; /* Discretization flag */
   double *dsize;
-} Koption;
+};
 
 typedef struct
 {

@@ -736,7 +736,7 @@ static int st_vario_pgs_variable(int    mode,
       is_prop_defined = false;
       if (flag_prop && db->getProportionNumber() != nfacies)
       {
-        iptr = db->addFields(nfacies,0.,String(),LOC_P);
+        iptr = db->addFields(nfacies,0.,String(),ELoc::P);
         if (iptr < 0) return(1);
         is_prop_defined = true;
       }
@@ -745,18 +745,18 @@ static int st_vario_pgs_variable(int    mode,
       
       if (! TEST_DISCRET)
       {
-        iptr = db->addFields(number,0.,"Lower",LOC_L);
+        iptr = db->addFields(number,0.,"Lower",ELoc::L);
         if (iptr < 0) return(1);
         
-        iptr = db->addFields(number,0.,"Upper",LOC_U);
+        iptr = db->addFields(number,0.,"Upper",ELoc::U);
         if (iptr < 0) return(1);
       }
       else
       {
-        iptr = db->addFields(number,0.,"Lower Rank",LOC_RKLOW);
+        iptr = db->addFields(number,0.,"Lower Rank",ELoc::RKLOW);
         if (iptr < 0) return(1);
         
-        iptr = db->addFields(number,0.,"Upper Rank",LOC_RKUP);
+        iptr = db->addFields(number,0.,"Upper Rank",ELoc::RKUP);
         if (iptr < 0) return(1);
       }
       break;
@@ -797,17 +797,17 @@ static int st_vario_pgs_variable(int    mode,
       
       if (flag_prop && is_prop_defined)
       {
-        db->deleteFieldByLocator(LOC_P);
+        db->deleteFieldByLocator(ELoc::P);
       }
       if (! TEST_DISCRET)
       {
-        db->deleteFieldByLocator(LOC_L);
-        db->deleteFieldByLocator(LOC_U);
+        db->deleteFieldByLocator(ELoc::L);
+        db->deleteFieldByLocator(ELoc::U);
       }
       else
       {
-        db->deleteFieldByLocator(LOC_RKLOW);
-        db->deleteFieldByLocator(LOC_RKUP);
+        db->deleteFieldByLocator(ELoc::RKLOW);
+        db->deleteFieldByLocator(ELoc::RKUP);
       }
       break;
   }
@@ -1303,8 +1303,12 @@ static double st_rule_calcul(Local_Pgs *local_pgs,
   local_pgs->rule = st_rule_encode(string);
   local_pgs->ngrf = local_pgs->rule->getGRFNumber();
   local_pgs->vario->setNVar(local_pgs->ngrf);
-  local_pgs->vario->internalVariableResize();
-  local_pgs->vario->internalDirectionResize();
+  // TODO : ngrf now is 1 (but vario had nvar = 2)
+  // The following instruction provoques a message from Vario.cpp :
+  //     Invalid dimension for 'means' (2)
+  //     It should match the number of variables in 'Db' (1)
+  //local_pgs->vario->internalVariableResize();
+  //local_pgs->vario->internalDirectionResize();
   st_retrace_define(local_pgs);
 
   if (local_pgs->flag_stat)
@@ -3398,8 +3402,8 @@ static int st_discard_point(Local_Pgs *local_pgs,
   }
   else
   {
-    if (get_LOCATOR_NITEM(local_pgs->db,LOC_RKLOW) <= 0 &&
-        get_LOCATOR_NITEM(local_pgs->db,LOC_RKUP)  <= 0) return(0);
+    if (get_LOCATOR_NITEM(local_pgs->db,ELoc::RKLOW) <= 0 &&
+        get_LOCATOR_NITEM(local_pgs->db,ELoc::RKUP)  <= 0) return(0);
     low = local_pgs->db->getLowerInterval(iech,local_pgs->igrfcur);
     up  = local_pgs->db->getUpperInterval(iech,local_pgs->igrfcur);
   }
@@ -4195,7 +4199,7 @@ static int st_variogram_pgs_nostat(Db*       db,
   if (propdef == (PropDef *) NULL) goto label_end;
   flag_correl = ngrf > 1 && (opt_correl != 2 || rule->getRho() != 0);
   if (rule->particularities(db,dbprop,NULL,1,flag_stat)) goto label_end;
-  proportion_rule_process(propdef,0);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   /**************************/
   /* Allocate the variables */
@@ -5033,7 +5037,7 @@ GEOSLIB_API Vario* model_pgs(Db* db,
 
   if (rule->particularities(db,dbprop,new_model,0,flag_stat)) goto label_end;
 
-  proportion_rule_process(propdef,0);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   /* Pre-calculation of integrals: Define the structure */
 
@@ -5127,7 +5131,7 @@ static int st_variogram_pgs_stat(Db     *db,
                               NULL,NULL,propcst,propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
   if (rule->particularities(NULL,NULL,NULL,1,flag_stat)) goto label_end;
-  proportion_rule_process(propdef,0);
+  proportion_rule_process(propdef,EProcessOper::COPY);
 
   /****************************/
   /* Perform the calculations */
@@ -5374,7 +5378,7 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
 
   propdef = proportion_manage(1,1,flag_stat,NGRF,0,NCOLOR,0,db,dbprop,propcst,propdef);
   if (propdef == (PropDef *) NULL) goto label_end;
-  proportion_rule_process(propdef,0);
+  proportion_rule_process(propdef,EProcessOper::COPY);
   
   /* Pre-calculation of integrals: Define the structure */
 

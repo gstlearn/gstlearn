@@ -12,7 +12,6 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Table.hpp"
-#include "geoslib_enum.h"
 
 class Db;
 
@@ -47,6 +46,8 @@ public:
                              int iact,
                              int iter) = 0;
   virtual int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) = 0;
+
+  virtual int run(VectorVectorDouble& y, int ipgs=0, int isimu=0, bool verbose = false, bool flagCheck = false);
 
   void init(int npgs,
             int nvar,

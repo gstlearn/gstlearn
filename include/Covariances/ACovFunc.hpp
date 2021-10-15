@@ -15,7 +15,6 @@
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ECov.hpp"
-#include "geoslib_enum.h"
 
 /* Covariance basic function for normalized sill and distance:
  * Positive definite function

@@ -77,7 +77,7 @@ static int st_cgi_data(Db     *db,
 
   /* Check if the sample has defined coordinates */
 
-  db_sample_load(db,LOC_X,iech,coor);
+  db_sample_load(db,ELoc::X,iech,coor);
   for (idim=0; idim<db->getNDim(); idim++)
     if (FFFF(coor[idim])) return(1);
 
@@ -129,7 +129,7 @@ GEOSLIB_API int cgi(Db     *db,
 
   /* Core allocation */
 
-  coor = db_sample_alloc(db,LOC_X);
+  coor = db_sample_alloc(db,ELoc::X);
   if (coor == (double *) NULL) goto label_end;
   mm   = (double *) mem_alloc(sizeof(double) * ndim * ndim,0);
   if (mm   == (double *) NULL) goto label_end;

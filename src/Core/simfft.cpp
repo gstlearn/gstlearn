@@ -851,9 +851,9 @@ static int st_check_simfft_environment(Db     *db,
   /* Calculate the Db */
   /********************/ 
 
-  db_mini = db_sample_alloc(db,LOC_X);
+  db_mini = db_sample_alloc(db,ELoc::X);
   if (db_mini == (double *) NULL) goto label_end;
-  db_maxi = db_sample_alloc(db,LOC_X);
+  db_maxi = db_sample_alloc(db,ELoc::X);
   if (db_maxi == (double *) NULL) goto label_end;
   if (db_extension(db,db_mini,db_maxi,(double *) NULL)) goto label_end;
 

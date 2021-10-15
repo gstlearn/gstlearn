@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(&workingDbc);
-  workingDbc.addFields(angle,"angle",LOC_NOSTAT);
+  workingDbc.addFields(angle,"angle",ELoc::NOSTAT);
 
   ///////////////////////
   // Creating the Model
@@ -47,11 +47,11 @@ int main(int argc, char *argv[])
   int ndata = 100;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
-  dat.addFields(z,"variable",LOC_Z);
+  dat.addFields(z,"variable",ELoc::Z);
 
   ///////////////////////
   // Running SPDE
-  SPDE spde(model,workingDbc,&dat,CALCUL_SIMUCOND);
+  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
   spde.compute();
   spde.query(&workingDbc);
   workingDbc.serialize("spde.ascii");

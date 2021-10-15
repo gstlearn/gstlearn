@@ -15,7 +15,7 @@
 #include <string>
 
 NamingConvention::NamingConvention(String radix,
-                                   ENUM_LOCS locatorOutType,
+                                   const ELoc& locatorOutType,
                                    String delim,
                                    bool flagvariter,
                                    bool flagclean)
@@ -133,7 +133,7 @@ void NamingConvention::setNamesAndLocators(const String& namin,
  * @param flagLocate True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(const Db *dbin,
-                                           ENUM_LOCS locatorInType,
+                                           const ELoc& locatorInType,
                                            int nvar,
                                            Db* dbout,
                                            int iattout_start,
@@ -143,7 +143,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
 {
   if (iattout_start <= 0) return;
   VectorString names;
-  if (dbin != nullptr && locatorInType != LOC_UNKNOWN)
+  if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
   {
     names = dbin->getNames(locatorInType);
     if (nvar <= 0) nvar = names.size();
@@ -221,7 +221,7 @@ void NamingConvention::setLocators(Db *dbout,
                                    bool flagLocate) const
 {
   if (! flagLocate) return;
-  if (_locatorOutType == LOC_UNKNOWN) return;
+  if (_locatorOutType == ELoc::UNKNOWN) return;
 
   // Erase already existing locators of the same Type
   if (_flagClean)

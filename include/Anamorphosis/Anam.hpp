@@ -13,21 +13,20 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "geoslib_enum.h"
+#include "Anamorphosis/EAnam.hpp"
 
 class Anam : public AStringable
 {
 public:
-  Anam(int type = ANAM_UNDEFINED);
+  Anam(const EAnam& type = EAnam::UNDEFINED);
   Anam(const Anam &m);
   Anam& operator= (const Anam &m);
   virtual ~Anam();
 
   virtual String toString(int level = 0) const override;
 
-  int  getType() const { return _type; }
-  void setType(int type) { _type = type; }
+  const EAnam&  getType() const { return _type; }
 
 private:
-  int _type;
+  EAnam _type;
 };

@@ -22,7 +22,7 @@
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
-                             ENUM_POPTS power,
+                             const EPowerPT& power,
                              bool verbose)
     : PrecisionOp(shiftop, cova, power, verbose)
 {
@@ -35,7 +35,7 @@ PrecisionOpCs::~PrecisionOpCs()
 
 VectorDouble PrecisionOpCs::getCoeffs()
 {
-  VectorDouble coeffs = getPoly(POPT_ONE)->getCoeffs();
+  VectorDouble coeffs = getPoly(EPowerPT::ONE)->getCoeffs();
   return coeffs;
 }
 
@@ -78,23 +78,23 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
   const VectorDouble* inPtr = &in;
   if (_work.empty()) _work.resize(getSize());
 
-  if(getPower() == POPT_MINUSONE)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
-  if(getPower() == POPT_MINUSHALF)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
-  if(getPower() == POPT_LOG)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
+  if(getPower() == EPowerPT::MINUSONE)
+     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSONE'");
+  if(getPower() == EPowerPT::MINUSHALF)
+     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSHALF'");
+  if(getPower() == EPowerPT::LOG)
+     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::LOG'");
 
   // Pre-processing
 
-  if (getPower() == POPT_ONE)
+  if (getPower() == EPowerPT::ONE)
   {
-    getShiftOp()->prodTildeC(in, _work, POPT_HALF);
+    getShiftOp()->prodTildeC(in, _work, EPowerPT::HALF);
     inPtr = &_work;
   }
-  else if (getPower() == POPT_MINUSONE)
+  else if (getPower() == EPowerPT::MINUSONE)
   {
-    getShiftOp()->prodTildeC(in, _work, POPT_MINUSHALF);
+    getShiftOp()->prodTildeC(in, _work, EPowerPT::MINUSHALF);
     inPtr = &_work;
 
   }
@@ -110,19 +110,19 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
 
     // Post-processing
 
-    if (getPower() == POPT_ONE)
+    if (getPower() == EPowerPT::ONE)
     {
-       getShiftOp()->prodTildeC(out, out, POPT_HALF);
+       getShiftOp()->prodTildeC(out, out, EPowerPT::HALF);
        getShiftOp()->prodLambdaOnSqrtTildeC(out, out, 2.);
     }
-    else if (getPower() == POPT_MINUSONE)
+    else if (getPower() == EPowerPT::MINUSONE)
     {
-      getShiftOp()->prodTildeC(out, out, POPT_MINUSHALF);
+      getShiftOp()->prodTildeC(out, out, EPowerPT::MINUSHALF);
       getShiftOp()->prodLambdaOnSqrtTildeC(out, out, -2.);
     }
-    else if (getPower() == POPT_MINUSHALF)
+    else if (getPower() == EPowerPT::MINUSHALF)
     {
-      getShiftOp()->prodLambda(out, out, POPT_MINUSONE);
+      getShiftOp()->prodLambda(out, out, EPowerPT::MINUSONE);
     }
 
 }
@@ -132,23 +132,23 @@ void PrecisionOpCs::evalDerivOptim(const VectorDouble& in, VectorDouble& out,int
   const VectorDouble* inPtr = &in;
   if (_work.empty()) _work.resize(getSize());
 
-  if(getPower() == POPT_MINUSONE)
+  if(getPower() == EPowerPT::MINUSONE)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
-  if(getPower() == POPT_MINUSHALF)
+  if(getPower() == EPowerPT::MINUSHALF)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
-  if(getPower() == POPT_LOG)
+  if(getPower() == EPowerPT::LOG)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
 
   // Pre-processing
 
-  if (getPower() == POPT_ONE)
+  if (getPower() == EPowerPT::ONE)
   {
-    getShiftOp()->prodTildeC(in, _work, POPT_HALF);
+    getShiftOp()->prodTildeC(in, _work, EPowerPT::HALF);
     inPtr = &_work;
   }
-  else if (getPower() == POPT_MINUSONE)
+  else if (getPower() == EPowerPT::MINUSONE)
   {
-    getShiftOp()->prodTildeC(in, _work, POPT_MINUSHALF);
+    getShiftOp()->prodTildeC(in, _work, EPowerPT::MINUSHALF);
     inPtr = &_work;
 
   }
@@ -164,19 +164,19 @@ void PrecisionOpCs::evalDerivOptim(const VectorDouble& in, VectorDouble& out,int
 
     // Post-processing
 
-    if (getPower() == POPT_ONE)
+    if (getPower() == EPowerPT::ONE)
     {
-       getShiftOp()->prodTildeC(out, out, POPT_HALF);
+       getShiftOp()->prodTildeC(out, out, EPowerPT::HALF);
        getShiftOp()->prodLambdaOnSqrtTildeC(out, out, 2.);
     }
-    else if (getPower() == POPT_MINUSONE)
+    else if (getPower() == EPowerPT::MINUSONE)
     {
-      getShiftOp()->prodTildeC(out, out, POPT_MINUSHALF);
+      getShiftOp()->prodTildeC(out, out, EPowerPT::MINUSHALF);
       getShiftOp()->prodLambdaOnSqrtTildeC(out, out, -2.);
     }
-    else if (getPower() == POPT_MINUSHALF)
+    else if (getPower() == EPowerPT::MINUSHALF)
     {
-      getShiftOp()->prodLambda(out, out, POPT_MINUSONE);
+      getShiftOp()->prodLambda(out, out, EPowerPT::MINUSONE);
     }
 
 }
@@ -185,20 +185,20 @@ void PrecisionOpCs::evalDerivOptim(const VectorDouble& in, VectorDouble& out,int
 void PrecisionOpCs::evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
 {
 
-  if(getPower() == POPT_ONE)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_ONE'");
-  if(getPower() == POPT_MINUSONE)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
-  if(getPower() == POPT_MINUSHALF)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
-  if(getPower() == POPT_LOG)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
+  if(getPower() == EPowerPT::ONE)
+     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::ONE'");
+  if(getPower() == EPowerPT::MINUSONE)
+     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSONE'");
+  if(getPower() == EPowerPT::MINUSHALF)
+     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSHALF'");
+  if(getPower() == EPowerPT::LOG)
+     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::LOG'");
 
 }
 
 cs *PrecisionOpCs::getQ()
 {
-  VectorDouble blin = getPoly(POPT_ONE)->getCoeffs();
+  VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
   cs* Q = spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambda(),
                        static_cast<int> (blin.size()), blin.data());
   return Q;

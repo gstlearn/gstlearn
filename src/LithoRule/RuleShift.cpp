@@ -271,7 +271,7 @@ bool RuleShift::checkModel(const Model* model, int nvar) const
 ** \param[in]  isimu      Rank of the simulation
 ** \param[in]  nbsimu     Number of simulations
 **
-** \remark Attributes LOC_FACIES and LOC_SIMU are mandatory
+** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
 **
 *****************************************************************************/
 int RuleShift::gaus2facResult(PropDef *propdef,
@@ -286,8 +286,8 @@ int RuleShift::gaus2facResult(PropDef *propdef,
 
   /* Initializations */
 
-  check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_FACIES);
-  check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_SIMU);
+  check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::FACIES);
+  check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::SIMU);
   ndim   = dbout->getNDim();
   _xyz.resize(ndim);
   _ind1.resize(ndim);
@@ -302,7 +302,7 @@ int RuleShift::gaus2facResult(PropDef *propdef,
     facies = TEST;
     for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
     icase = get_rank_from_propdef(propdef, ipgs, 0);
-    y[0] = dbout->getSimvar(LOC_SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    y[0] = dbout->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
     if (FFFF(y[0])) break;
 
     if (rule_thresh_define(propdef, dbout, this, ITEST, iech, isimu, nbsimu, 1,
@@ -312,14 +312,14 @@ int RuleShift::gaus2facResult(PropDef *propdef,
       _ind2[idim] -= _ind1[idim];
     jech = db_index_grid_to_sample(dbout, _ind2.data());
     if (jech >= 0)
-      y[1] = dbout->getSimvar(LOC_SIMU, jech, isimu, 0, icase, nbsimu, 1);
+      y[1] = dbout->getSimvar(ELoc::SIMU, jech, isimu, 0, icase, nbsimu, 1);
     else
       y[1] = TEST;
     facies = getFaciesFromGaussian(y[0], y[1]);
 
     /* Combine the underlying GRFs to derive Facies */
 
-    dbout->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+    dbout->setSimvar(ELoc::FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
   }
   return 0;
 }
@@ -333,10 +333,10 @@ int RuleShift::gaus2facResult(PropDef *propdef,
 ** \param[in]  propdef    PropDef structure
 ** \param[in]  dbin       Db structure
 ** \param[in]  dbout      Db grid structure
-** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
+** \param[in]  isimu      Rank of the simulation (if EProcessOper::CONDITIONAL)
 ** \param[in]  igrf       Rank of the GRF
 ** \param[in]  ipgs       Rank of the GS
-** \param[in]  nbsimu     Number of simulations (PROCESS_CONDITIONAL)
+** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
 **
 *****************************************************************************/
 int RuleShift::evaluateBounds(PropDef *propdef,

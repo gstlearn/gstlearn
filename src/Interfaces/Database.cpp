@@ -10,8 +10,7 @@
 
 #include "Space/ASpace.hpp"
 #include "Db/ELoadBy.hpp"
-
-#include "geoslib_enum.h"
+#include "Db/ELoc.hpp"
 #include <cstddef>
 
 ENUM_DEFINE(ENUM_ROLES)
@@ -688,7 +687,7 @@ Db* Database::toGeoslib() const
       jrole = 0;
       while (jrole < (int) vec_role[irole].size())
       {
-        res->setLocatorByAttribute(vec_role[irole][jrole], (ENUM_LOCS) irole, jrole+1);
+        res->setLocatorByAttribute(vec_role[irole][jrole], ELoc::fromValue(irole), jrole+1);
         jrole++;
       }
     }
@@ -721,18 +720,22 @@ void Database::fromGeoslib(Db* db)
   VectorString lst_names = getNames();
   int j = 0;
   //fill v_name with name of variable for each possible ERoles.
-  while (j < MAXIMUM_LOC)
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
   {
-    VectorString names_role;
-    int k = 0;
-    while (k < db->getFromLocatorNumber((ENUM_LOCS) j))
+    if (*it != ELoc::UNKNOWN)
     {
-      String name = lst_names[db->getAttribute((ENUM_LOCS) j,k)];
-      names_role.push_back(name);
-      k++;
+      VectorString names_role;
+      int k = 0;
+      while (k < db->getFromLocatorNumber(*it))
+      {
+        String name = lst_names[db->getAttribute(*it,k)];
+        names_role.push_back(name);
+        k++;
+      }
+      setRole(names_role, ERoles::fromValue(j));
     }
-    setRole(names_role, ERoles::fromValue(j));
-    j++;
+    it.toNext();
   }
 }
 

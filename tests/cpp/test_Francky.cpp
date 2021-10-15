@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   auto ndata = 100;
   Db dat = Db(ndata, {0.,0.}, {100.,100.});
   VectorDouble Z = ut_vector_simulate_gaussian(ndata);
-  dat.addFields(Z, "Z",LOC_Z);
+  dat.addFields(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
   Neigh neigh(2);

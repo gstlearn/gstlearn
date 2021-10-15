@@ -81,7 +81,6 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "version.h"
-#include "ctpl.h"
 
 #include "License/MD5Utility.hpp"
 #include "License/LicenseKey.hpp"

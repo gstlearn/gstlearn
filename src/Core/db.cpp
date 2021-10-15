@@ -191,14 +191,14 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  ** \return  Error return code
  **
  ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer (::ENUM_LOCS)
+ ** \param[in]  locatorType Rank of the pointer (ELoc)
  ** \param[in]  item   Rank of the item in the pointer
  **
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
 GEOSLIB_API int db_vector_get(Db *db,
-                              ENUM_LOCS locatorType,
+                              const ELoc& locatorType,
                               int item,
                               double *tab)
 {
@@ -221,7 +221,7 @@ GEOSLIB_API int db_vector_get(Db *db,
  *****************************************************************************/
 GEOSLIB_API int db_selection_get(Db *db, int item, double *tab)
 {
-  int iatt = db->getAttribute(LOC_SEL, item);
+  int iatt = db->getAttribute(ELoc::SEL, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
   return (0);
 }
@@ -231,13 +231,13 @@ GEOSLIB_API int db_selection_get(Db *db, int item, double *tab)
  **  Write the array tab() into a vector of the Db structure
  **
  ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer (::ENUM_LOCS)
+ ** \param[in]  locatorType Rank of the pointer (ELoc)
  ** \param[in]  locatorIndex Rank of the item in the pointer (starting from 0)
  ** \param[in]  tab    Array of values
  **
  *****************************************************************************/
 GEOSLIB_API int db_vector_put(Db *db,
-                              ENUM_LOCS locatorType,
+                              const ELoc& locatorType,
                               int locatorIndex,
                               double *tab)
 {
@@ -341,13 +341,13 @@ GEOSLIB_API void set_IGRD(Db *db, int iech, int item, double value)
  ** \return  Number of items
  **
  ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer (::ENUM_LOCS)
+ ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, ENUM_LOCS locatorType)
+GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
 {
   if (db == (Db *) NULL) return (0);
-  if (db->isGrid() && locatorType == LOC_X)
+  if (db->isGrid() && locatorType == ELoc::X)
     return (db->getNDim());
   else
     return (db->getFromLocatorNumber(locatorType));
@@ -360,10 +360,10 @@ GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, ENUM_LOCS locatorType)
  ** \return  1 if at least one item has been found and 0 otherwise
  **
  ** \param[in]  db     Db descriptor
- ** \param[in]  locatorType Rank of the pointer (::ENUM_LOCS)
+ ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-GEOSLIB_API int exist_LOCATOR(Db *db, ENUM_LOCS locatorType)
+GEOSLIB_API int exist_LOCATOR(Db *db, const ELoc& locatorType)
 {
   if (db == (Db *) NULL) return (0);
   return (db->getFromLocatorNumber(locatorType) > 0);
@@ -376,7 +376,7 @@ GEOSLIB_API int exist_LOCATOR(Db *db, ENUM_LOCS locatorType)
  ** \return  Returned value
  **
  ** \param[in]  db     Db structure
- ** \param[in]  locatorType Rank of the pointer (::ENUM_LOCS)
+ ** \param[in]  locatorType Rank of the pointer (ELoc)
  ** \param[in]  item   Rank of the item in the pointer
  ** \param[in]  iech   Rank of the sample
  **
@@ -384,7 +384,7 @@ GEOSLIB_API int exist_LOCATOR(Db *db, ENUM_LOCS locatorType)
  **
  *****************************************************************************/
 GEOSLIB_API double get_LOCATOR_ITEM(Db *db,
-                                    ENUM_LOCS locatorType,
+                                    const ELoc& locatorType,
                                     int item,
                                     int iech)
 {
@@ -396,7 +396,7 @@ GEOSLIB_API double get_LOCATOR_ITEM(Db *db,
  **  Writes one item of a given locator in Db
  **
  ** \param[in]  db     Db structure
- ** \param[in]  locatorType Rank of the pointer (::ENUM_LOCS)
+ ** \param[in]  locatorType Rank of the pointer (ELoc)
  ** \param[in]  item   Rank of the item in the pointer
  ** \param[in]  iech   Rank of the sample
  ** \param[in]  value  Value of be written
@@ -405,7 +405,7 @@ GEOSLIB_API double get_LOCATOR_ITEM(Db *db,
  **
  *****************************************************************************/
 GEOSLIB_API void set_LOCATOR_ITEM(Db *db,
-                                  ENUM_LOCS locatorType,
+                                  const ELoc& locatorType,
                                   int item,
                                   int iech,
                                   double value)
@@ -529,7 +529,7 @@ GEOSLIB_API int db_coorvec_get(Db *db, int idim, double *tab)
       tab[iech] = db->getCoordinate(iech, idim);
     else
     {
-      int icol = db->getColumnByLocator(LOC_X, idim);
+      int icol = db->getColumnByLocator(ELoc::X, idim);
       if (!db->isColumnIndexValid(icol)) return (1);
       tab[iech] = db->getArray(iech, icol);
     }
@@ -562,7 +562,7 @@ GEOSLIB_API int db_coorvec_put(Db *db, int idim, double *tab)
     }
     else
     {
-      int icol = db->getColumnByLocator(LOC_X, idim);
+      int icol = db->getColumnByLocator(ELoc::X, idim);
       if (!db->isColumnIndexValid(icol)) return (1);
       db->setByColumn(iech, icol, tab[iech]);
     }
@@ -581,7 +581,7 @@ GEOSLIB_API int db_coorvec_put(Db *db, int idim, double *tab)
  ** \param[in]  item   Rank of the attribute in the pointer
  **
  *****************************************************************************/
-GEOSLIB_API int db_attribute_identify(const Db *db, ENUM_LOCS locatorType, int item)
+GEOSLIB_API int db_attribute_identify(const Db *db, const ELoc& locatorType, int item)
 {
   int iatt = db->getAttribute(locatorType, item);
   return (iatt);
@@ -610,13 +610,13 @@ GEOSLIB_API double *db_sample_free(double *tab)
  ** \return  A pointer to the allocated array
  **
  ** \param[in]  db      Db descriptor
- ** \param[in]  locatorType  vector type (::ENUM_LOCS)
+ ** \param[in]  locatorType  vector type (ELoc)
  **
  ** \remark  The allocated array must be freed using db_sample_free()
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API double *db_sample_alloc(const Db *db, ENUM_LOCS locatorType)
+GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType)
 {
   double *tab;
   int size;
@@ -627,7 +627,7 @@ GEOSLIB_API double *db_sample_alloc(const Db *db, ENUM_LOCS locatorType)
   size = get_LOCATOR_NITEM(db, locatorType);
 
   /* In the case of a grid, there may be no actual data vector */
-  if (locatorType == LOC_X && db->isGrid()) size = db->getNDim();
+  if (locatorType == ELoc::X && db->isGrid()) size = db->getNDim();
   if (size > 0) tab = (double *) mem_alloc(sizeof(double) * size, 1);
   return (tab);
 }
@@ -639,7 +639,7 @@ GEOSLIB_API double *db_sample_alloc(const Db *db, ENUM_LOCS locatorType)
  ** \return  Error return code
  **
  ** \param[in]  db      Db descriptor
- ** \param[in]  locatorType  vector type (::ENUM_LOCS)
+ ** \param[in]  locatorType  vector type (ELoc)
  ** \param[in]  iech    number of the sample
  **
  ** \param[out] tab     array of values
@@ -648,7 +648,7 @@ GEOSLIB_API double *db_sample_alloc(const Db *db, ENUM_LOCS locatorType)
  **
  *****************************************************************************/
 GEOSLIB_API int db_sample_load(Db *db,
-                               ENUM_LOCS locatorType,
+                               const ELoc& locatorType,
                                int iech,
                                double *tab)
 {
@@ -658,7 +658,7 @@ GEOSLIB_API int db_sample_load(Db *db,
   {
     /* Particular case of the grid */
 
-    if (locatorType == LOC_X && db->isGrid())
+    if (locatorType == ELoc::X && db->isGrid())
       tab[item] = db->getCoordinate(iech, item);
     else
     {
@@ -1192,7 +1192,7 @@ GEOSLIB_API int db_center(Db *db, double *center)
   {
     wgt = db_vector_alloc(db);
     if (wgt == (double *) NULL) return (1);
-    db_vector_get(db, LOC_W, 0, wgt);
+    db_vector_get(db, ELoc::W, 0, wgt);
   }
 
   /* Loop on the space dimension */
@@ -1441,7 +1441,7 @@ GEOSLIB_API int db_grid_define_coordinates(Db *db)
     for (int idim = 0; idim < ndim; idim++)
     {
       coor[idim] += db->getX0(idim);
-      db->setFromLocator(LOC_X, iech, idim, coor[idim]);
+      db->setFromLocator(ELoc::X, iech, idim, coor[idim]);
     }
 
     /* Calculate the new coordinates */
@@ -1774,7 +1774,7 @@ GEOSLIB_API Db *db_create_from_target(double *target,
 
   /* Create the locators */
 
-  db->setLocatorsByAttribute(ndim, flag_add_rank, LOC_X);
+  db->setLocatorsByAttribute(ndim, flag_add_rank, ELoc::X);
 
   /* Copy the target locations */
 
@@ -1972,7 +1972,7 @@ GEOSLIB_API int db_gradient_update(Db *db)
   }
 
   // Turn the locators from Gradients into Variables
-  db->switchLocator(LOC_G, LOC_Z);
+  db->switchLocator(ELoc::G, ELoc::Z);
 
   return (0);
 }
@@ -2134,7 +2134,7 @@ GEOSLIB_API int db_grid_match(Db *db1, Db *db2)
  ** \return  Error return code
  **
  ** \param[in]  db      Db structure
- ** \param[in]  locatorType  Rank of the Pointer (::ENUM_LOCS)
+ ** \param[in]  locatorType  Rank of the Pointer (ELoc)
  ** \param[in]  number  Number of locators to be defined
  ** \param[in]  r_tem   Rank of the first item in the pointer
  ** \param[in]  valinit Value to be used for initialization
@@ -2143,7 +2143,7 @@ GEOSLIB_API int db_grid_match(Db *db1, Db *db2)
  **
  *****************************************************************************/
 GEOSLIB_API int db_locator_attribute_add(Db *db,
-                                         ENUM_LOCS locatorType,
+                                         const ELoc& locatorType,
                                          int number,
                                          int r_tem,
                                          double valinit,
@@ -2716,7 +2716,7 @@ GEOSLIB_API void db_monostat(Db *db,
  ** \remarks If flag_nested=0, a sample is masked off as soon as it
  ** \remarks belongs to one polyset
  **
- ** \remark The Naming Convention locator Type is overwritten to LOC_SEL
+ ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **
  *****************************************************************************/
 GEOSLIB_API void db_polygon(Db *db,
@@ -2817,7 +2817,7 @@ GEOSLIB_API int db_proportion(Db *db,
     {
       tab = db_vector_alloc(db);
       if (tab == (double *) NULL) goto label_end;
-      if (db_vector_get(db, LOC_Z, ivar, tab)) continue;
+      if (db_vector_get(db, ELoc::Z, ivar, tab)) continue;
       if (db->hasSelection())
       {
         sel = db_vector_alloc(db);
@@ -2832,7 +2832,7 @@ GEOSLIB_API int db_proportion(Db *db,
 
   /* Core allocation */
 
-  coor = db_sample_alloc(db, LOC_X);
+  coor = db_sample_alloc(db, ELoc::X);
   if (coor == (double *) NULL) goto label_end;
 
   /* Allocate the variables */
@@ -2842,7 +2842,7 @@ GEOSLIB_API int db_proportion(Db *db,
     nclass *= nmax[ivar];
   iptr = dbgrid->addFields(nclass, 0.);
   if (iptr < 0) goto label_end;
-  dbgrid->setLocatorsByAttribute(nclass, iptr, LOC_P);
+  dbgrid->setLocatorsByAttribute(nclass, iptr, ELoc::P);
 
   /* Loop on the samples of the input data Db */
 
@@ -2999,7 +2999,7 @@ GEOSLIB_API void db_locators_correct(VectorString& strings,
                                      int flag_locnew)
 {
   int cur_item, ref_item, found, nmatch, ncount, nmult;
-  ENUM_LOCS cur_type, ref_type;
+  ELoc cur_type, ref_type;
 
   /* Dispatch */
 
@@ -3077,42 +3077,50 @@ GEOSLIB_API void db_locators_correct(VectorString& strings,
 
   /* Loop on the reference locator */
 
-  for (int itype = 0; itype < MAXIMUM_LOC; itype++)
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
   {
-
-    /* Store the ranks of the locators matching the reference locator */
-
-    nmatch = 0;
-    for (int i = 0; i < number; i++)
+    if (*it != ELoc::UNKNOWN)
     {
-      if (locatorIdentify(strings[i], &cur_type, &cur_item, &nmult)) continue;
-      if (cur_type != itype) continue;
-      rank[nmatch++] = cur_item;
+      /* Store the ranks of the locators matching the reference locator */
+      nmatch = 0;
+      for (int i = 0; i < number; i++)
+      {
+        if (locatorIdentify(strings[i], &cur_type, &cur_item, &nmult)) continue;
+        if (cur_type != *it) continue;
+        rank[nmatch++] = cur_item;
+      }
+      // Do not forget to increment the iterator!
+      // 'continue' keyword should be forbidden!!
+      if (nmatch <= 0)
+      {
+        it.toNext();
+        continue;
+      }
+
+      /* Sort the indices */
+
+      ncount = nmatch;
+      for (int i = 0; i < ncount; i++)
+        ind[i] = i;
+      ut_sort_int(0, ncount, ind.data(), rank.data());
+
+      /* Store the ranks of the locators matching the reference locator */
+
+      nmatch = 0;
+      for (int i = 0; i < number; i++)
+      {
+        if (locatorIdentify(strings[i], &cur_type, &cur_item, &nmult)) continue;
+        if (cur_type != *it) continue;
+        found = -1;
+        for (int k = 0; k < ncount && found < 0; k++)
+          if (ind[k] == nmatch) found = k;
+        strings[i] = getLocatorName(cur_type, found + 1);
+        nmatch++;
+      }
     }
-    if (nmatch <= 0) continue;
-
-    /* Sort the indices */
-
-    ncount = nmatch;
-    for (int i = 0; i < ncount; i++)
-      ind[i] = i;
-    ut_sort_int(0, ncount, ind.data(), rank.data());
-
-    /* Store the ranks of the locators matching the reference locator */
-
-    nmatch = 0;
-    for (int i = 0; i < number; i++)
-    {
-      if (locatorIdentify(strings[i], &cur_type, &cur_item, &nmult)) continue;
-      if (cur_type != itype) continue;
-      found = -1;
-      for (int k = 0; k < ncount && found < 0; k++)
-        if (ind[k] == nmatch) found = k;
-      strings[i] = getLocatorName(cur_type, found + 1);
-      nmatch++;
-    }
+    it.toNext();
   }
-  return;
 }
 
 /****************************************************************************/
@@ -3940,7 +3948,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
   if (indmax == (int *) NULL) goto label_end;
   for (int idim = 0; idim < ndim; idim++)
     indmax[idim] = -1;
-  coor = db_sample_alloc(db_grid, LOC_X);
+  coor = db_sample_alloc(db_grid, ELoc::X);
   if (coor == (double *) NULL) goto label_end;
 
   // Loop on the input grid
@@ -4019,7 +4027,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
 
   if (flag_sel)
   {
-    isel = ss_grid->addFields(1, 0., String(), LOC_SEL);
+    isel = ss_grid->addFields(1, 0., String(), ELoc::SEL);
     for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
       db_index_sample_to_grid(ss_grid, i, indcur);
@@ -4036,7 +4044,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
 
   if (flag_copy)
   {
-    icopy = ss_grid->addFields(1, 0., String(), LOC_SEL);
+    icopy = ss_grid->addFields(1, 0., String(), ELoc::SEL);
     for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
       db_index_sample_to_grid(ss_grid, i, indcur);
@@ -4531,146 +4539,4 @@ GEOSLIB_API VectorInt grid_iterator_next(GridC *grid)
   return (indices);
 }
 
-/****************************************************************************/
-/*!
- **  Converts angle and radius fields into new gradient components fields
- **
- ** \return Error return code
- **
- ** \param[in]   db       Db structure
- ** \param[in]   angles   Vector of angles (provided in trigonometrical degrees)
- ** \param[in]   radius   Constant radius value
- ** \param[in]   namconv  Naming convention
- **
- ****************************************************************************/
-GEOSLIB_API ES db_angle2grad(Db *db,
-                             const VectorString& angles,
-                             double radius,
-                             NamingConvention namconv)
-{
-  int ndim = db->getNDim();
-
-  // Preliminary checks
-
-  int nbang = static_cast<int> (angles.size());
-  if (nbang > ndim)
-  {
-    messerr(
-        "Dimension of 'angles' (%d) may not be larger than Space Dimension (%d)",
-        nbang, ndim);
-    return ES_ERROR;
-  }
-
-  // Identify the input variables
-
-  VectorInt attang = db->getAttributes(angles);
-
-  // Adding new variables
-
-  int iatt = db->addFields(ndim);
-
-  // Working array
-
-  VectorDouble locang(ndim);
-  VectorDouble locgrd(ndim);
-  for (int idim = 0; idim < ndim; idim++)
-    locang[idim] = 0.;
-
-  // Loop on the samples
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    bool ok = true;
-    for (int i = 0; i < nbang; i++)
-    {
-      locang[i] = db->getArray(iech, attang[i]);
-      if (FFFF(locang[i])) ok = false;
-    }
-    if (!ok) continue;
-
-    ut_angles_to_codir(ndim, 1, locang, locgrd);
-
-    for (int idim = 0; idim < ndim; idim++)
-      db->setArray(iech, iatt + idim, locgrd[idim]);
-  }
-
-  // Naming convention
-
-  for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(
-        db, iatt + idim, concatenateStrings("Grad", intToString(idim + 1)));
-  namconv.setLocators(db, iatt, ndim);
-
-  return ES_NOERROR;
-}
-
-/****************************************************************************/
-/*!
- **  Converts angle and radius fields into new gradient components fields
- **
- ** \param[in]   db       Db structure
- ** \param[in]   grads    Vector of gradient components
- ** \param[in]   namconv  Naming convention
- **
- ****************************************************************************/
-GEOSLIB_API ES db_grad2angle(Db *db,
-                             const VectorString& grads,
-                             NamingConvention namconv)
-{
-  int ndim = db->getNDim();
-
-  // Preliminary checks
-
-  if (ndim != (int) grads.size())
-  {
-    messerr(
-        "Dimension of 'angles' (%d) should be equal to Space Dimension (%d)",
-        grads.size(), ndim);
-    return ES_ERROR;
-  }
-
-  // Identify the input variables
-
-  VectorInt attgrd = db->getAttributes(grads);
-
-  // Adding new variables
-
-  int iatt = db->addFields(ndim);
-
-  // Working array
-
-  VectorDouble locgrd(ndim);
-  VectorDouble locang(ndim);
-  for (int idim = 0; idim < ndim; idim++)
-    locgrd[idim] = 0.;
-
-  // Loop on the samples
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    bool ok = true;
-    for (int i = 0; i < (int) grads.size(); i++)
-    {
-      locgrd[i] = db->getArray(iech, attgrd[i]);
-      if (FFFF(locgrd[i])) ok = false;
-    }
-    if (!ok) continue;
-
-    ut_angles_from_codir(ndim, 1, locgrd, locang);
-
-    for (int idim = 0; idim < ndim; idim++)
-      db->setArray(iech, iatt + idim, locang[idim]);
-  }
-
-  // Naming convention
-
-  for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(
-        db, iatt + idim, concatenateStrings("Angle", intToString(idim + 1)));
-  namconv.setLocators(db, iatt, ndim);
-
-  return ES_NOERROR;
-}
 

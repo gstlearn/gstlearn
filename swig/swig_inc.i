@@ -5,13 +5,15 @@
 #define SWIG_FILE_WITH_INIT
 
 // TODO: find a way to maintain only one headers list (with swig_exp.i)
-#include "Basic/Vector.hpp"
-#include "csparse_d.h"
-#include "csparse_f.h"
 #include "geoslib_define.h"
 #include "geoslib_enum.h"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+
+#include "csparse_d.h"
+#include "csparse_f.h"
+
+#include "Basic/Vector.hpp"
 #include "Basic/ArgumentTest.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -26,6 +28,9 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/Table.hpp"
+
+#include "Enum/EKrigOpt.hpp"
+
 #include "Space/Space.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -55,9 +60,12 @@
 #include "Mesh/MeshFactory.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
+
 #include "Enum/AEnum.hpp"
+
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
+
 #include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
@@ -70,21 +78,28 @@
 #include "LinearOp/IOptimCost.hpp"
 #include "LinearOp/OptimCostBinary.hpp"
 #include "LinearOp/OptimCostColored.hpp"
-#include "Model/ANoStat.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Model/NoStatFunctional.hpp"
+#include "LinearOp/EPowerPT.hpp"
+
 #include "Neigh/Neigh.hpp"
 #include "Neigh/ENeigh.hpp"
+
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Variogram/ECalcVario.hpp"
+
 #include "Model/Model.hpp"
+#include "Model/ANoStat.hpp"
+#include "Model/NoStatArray.hpp"
+#include "Model/NoStatFunctional.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
 #include "Model/EModelProperty.hpp"
+#include "Model/EConsElem.hpp"
+#include "Model/EConsType.hpp"
+
 #include "Covariances/ACov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/ACovAnisoList.hpp"
@@ -122,6 +137,7 @@
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
 #include "Covariances/ECov.hpp"
+
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Drifts/ADriftList.hpp"
@@ -143,6 +159,7 @@
 #include "Drifts/DriftZ2.hpp"
 #include "Drifts/DriftZ3.hpp"
 #include "Drifts/EDrift.hpp"
+
 #include "MatrixC/AMatrixC.hpp"
 #include "MatrixC/AMatrixCSquare.hpp"
 #include "MatrixC/MatrixCRectangular.hpp"
@@ -150,8 +167,15 @@
 #include "MatrixC/MatrixCSDiagCst.hpp"
 #include "MatrixC/MatrixCSGeneral.hpp"
 #include "MatrixC/MatrixCSSym.hpp"
+
+#include "API/SPDE.hpp"
+#include "API/PGSSPDE.hpp"
+#include "API/ESPDECalcMode.hpp"
+
 #include "Db/Db.hpp"
 #include "Db/ELoadBy.hpp"
+#include "Db/ELoc.hpp"
+
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamDiscrete.hpp"
@@ -160,6 +184,11 @@
 #include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
+#include "Anamorphosis/EAnam.hpp"
+
+#include "Gibbs/GibbsMMulti.hpp"
+#include "Gibbs/GibbsUMulti.hpp"
+
 #include "Morpho/Morpho.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Polygon/PolySet.hpp"

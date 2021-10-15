@@ -5,7 +5,7 @@
 #include "Model/Model.hpp"
 #include "API/SPDE.hpp"
 #include "LithoRule/RuleProp.hpp"
-#include "geoslib_enum.h"
+#include "API/ESPDECalcMode.hpp"
 #include <vector>
 
 class PGSSPDE
@@ -21,8 +21,8 @@ public:
   void query(Db* db,bool keepGauss=false) const;
   virtual ~PGSSPDE();
 private:
-  Db* _data;
+  Db*               _data;
   std::vector<SPDE> _spdeTab;
-  RuleProp _ruleProp;
-  ENUM_CALCUL_MODE _calcul;
+  RuleProp          _ruleProp;
+  ESPDECalcMode     _calcul;
 };

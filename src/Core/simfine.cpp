@@ -510,7 +510,7 @@ GEOSLIB_API int simfine_f(Db *dbin,
   
   /* Store information from the input grid */
 
-  iatt1 = db_attribute_identify(dbin,LOC_Z,0);
+  iatt1 = db_attribute_identify(dbin,ELoc::Z,0);
   if (iatt1 <= 0) goto label_end;
 
   /* Loop on the refinement factors */

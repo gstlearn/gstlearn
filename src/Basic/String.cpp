@@ -457,24 +457,27 @@ String suppressAnyBlanks(String value)
  * Ask interactively for the value of one integer
  * @param text Text of the question
  * @param defval Default value (or IFFFF)
+ * @param authTest True if TEST value is authorized (TEST)
  */
-int askInt(const String& text, int defval)
+int askInt(const String& text, int defval, bool authTest)
 {
-  bool hasDefault = ! IFFFF(defval);
+  bool hasDefault = ! IFFFF(defval) || authTest;
   int answer = defval;
   std::cin.exceptions(std::istream::failbit|
                       std::istream::badbit);
 
   try
   {
-
-
-
     while (true)
     {
       // Display the question
       if (hasDefault)
-        std::cout << text << " (Default = " << defval << ") : ";
+      {
+        if (IFFFF(defval))
+          std::cout << text << " (Default = TEST) : ";
+        else
+          std::cout << text << " (Default = " << defval << ") : ";
+      }
       else
         std::cout << text << " : ";
 
@@ -488,6 +491,14 @@ int askInt(const String& text, int defval)
         answer = defval;
         break;
       }
+
+      // Check the TEST answer
+
+      if (authTest && str == "TEST")
+       {
+         answer = ITEST;
+         break;
+       }
 
       // Try casting in integer
       std::stringstream ss(str);
@@ -507,10 +518,11 @@ int askInt(const String& text, int defval)
  * Ask interactively for the value of one Real (Double)
  * @param text Text of the question
  * @param defval Default value (or IFFFF)
+ * @param authTest True if a TEST answer is authorized (TEST)
  */
-double askDouble(const String& text, double defval)
+double askDouble(const String& text, double defval, bool authTest)
 {
-  bool hasDefault = ! FFFF(defval);
+  bool hasDefault = ! FFFF(defval) || authTest;
   double answer = defval;
   std::cin.exceptions(std::istream::failbit|
                       std::istream::badbit);
@@ -521,7 +533,12 @@ double askDouble(const String& text, double defval)
     {
       // Display the question
       if (hasDefault)
-        std::cout << text << " (Default = " << defval << ") : ";
+      {
+        if (FFFF(defval))
+          std::cout << text << " (Default = TEST) : ";
+        else
+          std::cout << text << " (Default = " << defval << ") : ";
+      }
       else
         std::cout << text << " : ";
 
@@ -533,6 +550,13 @@ double askDouble(const String& text, double defval)
       if (str.empty() && hasDefault)
       {
         answer = defval;
+        break;
+      }
+
+      // Catch the TEST answer
+      if (authTest && str == "TEST")
+      {
+        answer = TEST;
         break;
       }
 
@@ -549,3 +573,66 @@ double askDouble(const String& text, double defval)
   }
   return answer;
 }
+
+/**
+ * Ask interactively for the value of one boolean
+ * @param text Text of the question
+ * @param defval Default value
+ */
+int askBool(const String& text, bool defval)
+{
+  bool hasDefault = ! IFFFF(defval);
+  bool answer = defval;
+  std::cin.exceptions(std::istream::failbit|
+                      std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+      {
+        String defstr;
+        if (defval)
+          defstr = "Y";
+        else
+          defstr = "N";
+        std::cout << text << " (Default = " << defstr << ") : ";
+      }
+      else
+        std::cout << text << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Try checking authorized answer
+      if (str == "Y")
+      {
+        answer = true;
+        break;
+      }
+      if (str == "N")
+      {
+        answer = false;
+        break;
+      }
+
+      std::cout << "The answer is not a valid Integer" << std::endl;
+    }
+  }
+  catch(std::istream::failure e)
+  {
+    std::cerr << "Problem when reading integer" << std::endl;
+  }
+  return answer;
+}
+

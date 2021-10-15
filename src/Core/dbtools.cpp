@@ -23,6 +23,7 @@
 #include "Model/NoStatArray.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/EJustify.hpp"
 
 /*! \cond */
 #define TRACE(i,iseg)       (trace[(i) * nseg + (iseg)])
@@ -715,26 +716,26 @@ static int st_expand_grid_to_grid(Db *db_gridin,
  **
  ** \param[in]  db1        First Db
  ** \param[in]  db2        Second Db
- ** \param[in]  flag_same  1 if the two Db files are the same
- ** \param[in]  flag_print 1 for verbose output
+ ** \param[in]  flag_same  True if the two Db files are the same
+ ** \param[in]  verbose    True for verbose output
  ** \param[in]  opt_code   code selection option (if code is defined)
  ** \li                     0 : no use of the code selection
  ** \li                     1 : codes must be close enough
  ** \li                     2 : codes must be different
  ** \param[in]  tolcode    Code tolerance
- ** \param[in]  dist       Array of the minimum distance
+ ** \param[in]  dist       Array of the minimum distance (or NULL)
  **
  ** \param[out]  sel       Array containing the selection
  **
  *****************************************************************************/
-GEOSLIB_API int db_duplicate(Db *db1,
-                             Db *db2,
-                             int flag_same,
-                             int flag_print,
-                             int opt_code,
-                             double tolcode,
-                             double *dist,
-                             double *sel)
+GEOSLIB_API int db_tool_duplicate(Db *db1,
+                                  Db *db2,
+                                  bool flag_same,
+                                  bool verbose,
+                                  int opt_code,
+                                  double tolcode,
+                                  double *dist,
+                                  double *sel)
 {
   int idim, iech1, iech2, flag_diff, flag_code;
   double v1, v2;
@@ -773,7 +774,8 @@ GEOSLIB_API int db_duplicate(Db *db1,
           if (code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
             continue;
         }
-        if (ABS(v1 - v2) > dist[idim]) flag_diff = 1;
+        double dval = (dist != nullptr) ? dist[idim] : 0.;
+        if (ABS(v1 - v2) > dval) flag_diff = 1;
       }
       if (flag_diff) continue;
 
@@ -781,7 +783,7 @@ GEOSLIB_API int db_duplicate(Db *db1,
 
       /* Optional printout */
 
-      if (flag_print)
+      if (verbose)
       {
         message("Sample %d too close to sample %d\n", iech1 + 1, iech2 + 1);
         db_sample_print(db1, iech1, 1, 0, 0);
@@ -790,6 +792,54 @@ GEOSLIB_API int db_duplicate(Db *db1,
       }
     }
   }
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Look for duplicates within a Db
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db         Db Structure
+ ** \param[in]  verbose    True for verbose output
+ ** \param[in]  dist       Array of the minimum distance
+ ** \param[in]  opt_code   code selection option (if code is defined)
+ ** \li                     0 : no use of the code selection
+ ** \li                     1 : codes must be close enough
+ ** \li                     2 : codes must be different
+ ** \param[in]  tolcode    Code tolerance
+ ** \param[in]  namconv    Naming convention
+ **
+ *****************************************************************************/
+GEOSLIB_API int db_duplicate(Db *db,
+                             bool verbose,
+                             double *dist,
+                             int opt_code,
+                             double tolcode,
+                             NamingConvention namconv)
+{
+  if (db == nullptr)
+  {
+    messerr("You must define a Db");
+    return 1;
+  }
+
+  // Adding a new variable
+
+  VectorDouble sel(db->getActiveSampleNumber());
+
+  // Check for duplicates
+
+  if (db_tool_duplicate(db, db, 1, verbose, opt_code, tolcode, dist, sel.data()))
+    return 1;
+
+  // Add the variable to the Db
+  int iatt = db->addFields(sel);
+
+  // Setting the output variable
+  namconv.setNamesAndLocators(db, iatt);
 
   return 0;
 }
@@ -911,7 +961,7 @@ GEOSLIB_API int surface(Db *db_point,
 static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
 {
   int item, nvar, nech, ivar_deb, ivar_fin, iech_deb, iech_fin, jvar, jech;
-  ENUM_LOCS locatorType;
+  ELoc locatorType;
   char string[5];
 
   /* Initializations */
@@ -948,7 +998,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
 
   /* Print the Header (Variable name) */
 
-  tab_prints(NULL, 1, GD_J_RIGHT, " ");
+  tab_prints(NULL, 1, EJustify::RIGHT, " ");
   for (jvar = ivar_deb; jvar <= ivar_fin; jvar++)
   {
     if (db->getLocatorByColumn(jvar, &locatorType, &item))
@@ -959,28 +1009,28 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
     else
       (void) strcpy(string, "NA");
     if (jvar == ivar) (void) strcat(string, "*");
-    tab_prints(NULL, 1, GD_J_RIGHT, string);
+    tab_prints(NULL, 1, EJustify::RIGHT, string);
   }
   message("\n");
 
   /* Print the Header (Variable rank) */
 
-  tab_prints(NULL, 1, GD_J_RIGHT, " ");
+  tab_prints(NULL, 1, EJustify::RIGHT, " ");
   for (jvar = ivar_deb; jvar <= ivar_fin; jvar++)
-    tab_print_rc(NULL, 1, GD_J_RIGHT, 2, jvar + 1);
+    tab_print_rc(NULL, 1, EJustify::RIGHT, 2, jvar + 1);
   message("\n");
 
   /* Loop on the samples */
 
   for (jech = iech_deb; jech <= iech_fin; jech++)
   {
-    tab_print_rc(NULL, 1, GD_J_RIGHT, 3, jech + 1);
+    tab_print_rc(NULL, 1, EJustify::RIGHT, 3, jech + 1);
     if (iech == jech)
       message("*");
     else
       message(" ");
     for (jvar = ivar_deb; jvar <= ivar_fin; jvar++)
-      tab_printg(NULL, 1, GD_J_RIGHT, db->getArray(jech, jvar));
+      tab_printg(NULL, 1, EJustify::RIGHT, db->getArray(jech, jvar));
     message("\n");
   }
   return;
@@ -1715,10 +1765,10 @@ GEOSLIB_API int db_grid_fill(Db *dbgrid,
 
   // Create the new variable and duplicate the Z-locator variable
 
-  int iatt_in  = dbgrid->getAttribute(LOC_Z, 0);
+  int iatt_in  = dbgrid->getAttribute(ELoc::Z, 0);
   int iatt_out = dbgrid->addFields(1);
   dbgrid->duplicateColumnByAttribute(iatt_in, iatt_out);
-  dbgrid->setLocatorByAttribute(iatt_out,LOC_Z);
+  dbgrid->setLocatorByAttribute(iatt_out,ELoc::Z);
 
   /* Global variables */
 
@@ -1773,7 +1823,7 @@ GEOSLIB_API int db_grid_fill(Db *dbgrid,
   /* Set the error return code */
 
   error = 0;
-  namconv.setNamesAndLocators(dbgrid, LOC_Z, -1, dbgrid, iatt_out);
+  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbgrid, iatt_out);
 
 label_end:
   skin = skin_undefine(skin);
@@ -2146,7 +2196,7 @@ GEOSLIB_API int db_indicator(Db *db,
  ** \param[in]  verbose Verbose flag
  ** \param[in]  namconv Naming convention
  **
- ** \remark The Naming Convention locator Type is overwritten to LOC_SEL
+ ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **
  *****************************************************************************/
 GEOSLIB_API int db_selhull(Db *db1, Db *db2, bool verbose, NamingConvention namconv)
@@ -2392,7 +2442,7 @@ static int st_interpolate_grid_to_point(Db *db_grid,
 
   /* Core allocation */
 
-  coor = db_sample_alloc(db_point, LOC_X);
+  coor = db_sample_alloc(db_point, ELoc::X);
   if (coor == (double *) NULL) goto label_end;
 
   /* Loop on the point samples */
@@ -2400,7 +2450,7 @@ static int st_interpolate_grid_to_point(Db *db_grid,
   for (iech = 0; iech < db_point->getSampleNumber(); iech++)
   {
     if (!db_point->isActive(iech)) continue;
-    db_sample_load(db_point, LOC_X, iech, coor);
+    db_sample_load(db_point, ELoc::X, iech, coor);
     tab[iech] = st_multilinear_interpolation(db_grid, iatt, ldmax, dmax, coor);
   }
 
@@ -2589,7 +2639,7 @@ GEOSLIB_API void ut_trace_discretize(int nseg,
  **  Sample the point Db close to discretized points of the trace
  **
  ** \param[in]  db     Db to be sampled
- ** \param[in]  ptype  Type of locator (::ENUM_LOCS)
+ ** \param[in]  ptype  Type of locator
  ** \param[in]  np     Number of discretized points
  ** \param[in]  xp     Array of first coordinates
  ** \param[in]  yp     Array of second coordinates
@@ -2608,7 +2658,7 @@ GEOSLIB_API void ut_trace_discretize(int nseg,
  **
  *****************************************************************************/
 GEOSLIB_API void ut_trace_sample(Db *db,
-                                 ENUM_LOCS ptype,
+                                 const ELoc& ptype,
                                  int np,
                                  double *xp,
                                  double *yp,
@@ -2664,7 +2714,7 @@ GEOSLIB_API void ut_trace_sample(Db *db,
     cote = get_LOCATOR_ITEM(db, ptype, 0, iech);
     if (!FFFF(cote))
     {
-      layer = get_LOCATOR_ITEM(db, LOC_LAYER, 0, iech);
+      layer = get_LOCATOR_ITEM(db, ELoc::LAYER, 0, iech);
       xs = (double *) mem_realloc((char * ) xs, sizeof(double) * (ns + 1), 1);
       ys = (double *) mem_realloc((char * ) ys, sizeof(double) * (ns + 1), 1);
       lys = (int *) mem_realloc((char * ) lys, sizeof(int) * (ns + 1), 1);
@@ -2722,7 +2772,7 @@ GEOSLIB_API void ut_trace_sample(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  mode        1 for allocation; -1 for deallocation
- ** \param[in]  locatorType      Type of the pointer (::ENUM_LOCS)
+ ** \param[in]  locatorType      Type of the pointer (ELoc)
  ** \param[in]  dbin        Descriptor of the input Db
  ** \param[in]  dbout       Descriptor of the output Db
  ** \param[in]  istart      Address of the first allocated external information
@@ -2737,7 +2787,7 @@ GEOSLIB_API void ut_trace_sample(Db *db,
  **
  *****************************************************************************/
 GEOSLIB_API int manage_external_info(int mode,
-                                     ENUM_LOCS locatorType,
+                                     const ELoc& locatorType,
                                      Db *dbin,
                                      Db *dbout,
                                      int *istart)
@@ -2901,7 +2951,7 @@ GEOSLIB_API int db_center_point_to_grid(Db *db_point,
 
   /* Core allocation */
 
-  coor = db_sample_alloc(db_point, LOC_X);
+  coor = db_sample_alloc(db_point, ELoc::X);
   if (coor == (double *) NULL) goto label_end;
   indg = db_indg_alloc(db_grid);
   if (indg == (int *) NULL) goto label_end;
@@ -2959,7 +3009,7 @@ GEOSLIB_API Db *db_grid_sample(Db *dbin, const VectorInt& nmult)
   Db *dbout;
   VectorDouble coor;
   int ncol, icol, iech, iad, item, rank, ndim;
-  ENUM_LOCS locatorType;
+  ELoc locatorType;
 
   /* Initializations */
 
@@ -2988,7 +3038,7 @@ GEOSLIB_API Db *db_grid_sample(Db *dbin, const VectorInt& nmult)
   for (iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
-    db_sample_load(dbout, LOC_X, iech, coor.data());
+    db_sample_load(dbout, ELoc::X, iech, coor.data());
     iad = dbin->coordinateToRank(coor);
     if (iad < 0) continue;
 
@@ -4569,9 +4619,9 @@ GEOSLIB_API int db_gradient_components(Db *dbgrid)
 
   /* Create the new variable */
 
-  iptrz = dbgrid->getColumnByLocator(LOC_Z, 0);
+  iptrz = dbgrid->getColumnByLocator(ELoc::Z, 0);
   if (iptrz < 0) goto label_end;
-  iptr = dbgrid->addFields(ndim,TEST,String(),LOC_G);
+  iptr = dbgrid->addFields(ndim,TEST,String(),ELoc::G);
 
   /* Calculate the Gradient components */
 
@@ -4793,7 +4843,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
   indg = db_indg_alloc(dbgrid);
   if (indg == (int *) NULL) goto label_end;
   coor.resize(ndim);
-  coor0 = db_sample_alloc(dbgrid, LOC_X);
+  coor0 = db_sample_alloc(dbgrid, ELoc::X);
   if (coor0 == (double *) NULL) goto label_end;
   iptr_time = dbgrid->addFields(1, TEST);
   if (iptr_time < 0) goto label_end;
@@ -4811,7 +4861,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
               dbgrid->getGradientNumber());
       goto label_end;
     }
-    iptr_grad = dbgrid->getColumnByLocator(LOC_G, 0);
+    iptr_grad = dbgrid->getColumnByLocator(ELoc::G, 0);
   }
   else
   {
@@ -4829,7 +4879,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
   {
     if (!dbpoint->isActive(iech)) continue;
     if (iech % nbyech != 0) continue;
-    db_sample_load(dbpoint, LOC_X, iech, coor.data());
+    db_sample_load(dbpoint, ELoc::X, iech, coor.data());
     if (st_get_next(dbgrid, iptr_grad, coor, indg, &knd, &surf)) break;
 
     /* Store the new point in the Streamline */
@@ -4981,12 +5031,12 @@ GEOSLIB_API int db_model_nostat(Db *db,
 
   int jptr = iptr;
   for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(nullptr, LOC_UNKNOWN, -1, db, jptr++,
+    namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, db, jptr++,
                                 concatenateStrings("-","Range",intToString(idim+1)));
   for (int idim = 0; idim < ndim; idim++)
-    namconv.setNamesAndLocators(nullptr, LOC_UNKNOWN, -1, db, jptr++,
+    namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, db, jptr++,
                                 concatenateStrings("-","Angle",intToString(idim+1)));
-  namconv.setNamesAndLocators(nullptr, LOC_UNKNOWN, -1, db, jptr++, "Sill");
+  namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, db, jptr++, "Sill");
   namconv.setLocators(db, iptr, 1, 2*ndim+1);
 
   (void) manage_nostat_info(-1, model, db, nullptr);
@@ -5363,11 +5413,11 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
   if (dbnew == (Db *) NULL) goto label_end;
 
   ecr = 0;
-  dbnew->setLocatorsByAttribute(ndim, ecr, LOC_X);
+  dbnew->setLocatorsByAttribute(ndim, ecr, ELoc::X);
   ecr += ndim;
-  dbnew->setLocatorByAttribute(ecr, LOC_C);
+  dbnew->setLocatorByAttribute(ecr, ELoc::C);
   ecr += 1;
-  dbnew->setLocatorsByAttribute(nvar, ecr, LOC_Z);
+  dbnew->setLocatorsByAttribute(nvar, ecr, ELoc::Z);
   ecr += nvar;
 
   label_end:
@@ -5418,7 +5468,7 @@ GEOSLIB_API double *db_grid_sampling(Db *dbgrid,
   *nval_ret = 0;
   res = xi1 = xi2 = (double *) NULL;
   ndim = dbgrid->getNDim();
-  iatt = dbgrid->getColumnByLocator(LOC_Z, 0);
+  iatt = dbgrid->getColumnByLocator(ELoc::Z, 0);
 
   /* Preliminary checks */
 
@@ -5895,9 +5945,9 @@ GEOSLIB_API Db *db_point_init(int mode,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    string = getLocatorName(LOC_X, idim);
+    string = getLocatorName(ELoc::X, idim);
     db_name_set(db, idim + flag_add_rank, string);
-    db->setLocatorByAttribute(idim + flag_add_rank, LOC_X, idim);
+    db->setLocatorByAttribute(idim + flag_add_rank, ELoc::X, idim);
   }
 
   return (db);
@@ -6093,12 +6143,12 @@ GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
     return 1;
   }
 
-  // Add the variables (they must be defined as LOC_Z) for following functions
+  // Add the variables (they must be defined as ELoc::Z) for following functions
 
   int iatt_out = dbgrid->addFields(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iatt_in = dbgrid->getAttribute(LOC_Z, ivar);
+    int iatt_in = dbgrid->getAttribute(ELoc::Z, ivar);
     dbgrid->duplicateColumnByAttribute(iatt_in, iatt_out + ivar);
   }
 
@@ -6142,7 +6192,7 @@ GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(dbgrid, LOC_Z, -1, dbgrid, iatt_out);
+  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbgrid, iatt_out);
 
   return 0;
 }
@@ -6359,7 +6409,7 @@ GEOSLIB_API int migrate(Db* db1,
  *****************************************************************************/
 GEOSLIB_API int migrateByLocator(Db* db1,
                                  Db* db2,
-                                 ENUM_LOCS locatorType,
+                                 const ELoc& locatorType,
                                  int ldmax,
                                  const VectorDouble& dmax,
                                  int flag_fill,
@@ -6442,7 +6492,7 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
 
   MeshETurbo mesh = MeshETurbo(*dbout);
   ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
-  PrecisionOp Qprop =  PrecisionOp(&S, model->getCova(0),  POPT_ONE);
+  PrecisionOp Qprop =  PrecisionOp(&S, model->getCova(0),  EPowerPT::ONE);
   ProjMatrix Aproj =  ProjMatrix(dbin, &mesh);
 
   // Invoke the calculation
@@ -6452,7 +6502,7 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
   OptimCostColored Oc =  OptimCostColored(ncat,&Qprop,&Aproj);
   Oc.setCGParams(200,1.e-10);
 
-  VectorDouble facies = dbin->getFieldByLocator(LOC_Z);
+  VectorDouble facies = dbin->getFieldByLocator(ELoc::Z);
   VectorVectorDouble props = Oc.minimize(facies,splits,propGlob,verbose,niter);
 
   // Loading the resulting results in the output 'dbout'
@@ -6463,7 +6513,7 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
     int iptr = dbout->addFields(props[i]);
     if (i == 0) iptr0 = iptr;
     namconv.setNamesAndLocators(
-        nullptr, LOC_UNKNOWN, -1, dbout, iptr,
+        nullptr, ELoc::UNKNOWN, -1, dbout, iptr,
         concatenateStrings("-", intToString(i + 1)));
   }
   namconv.setLocators(dbout, iptr0, 1, ncat);

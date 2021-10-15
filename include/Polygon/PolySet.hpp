@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_enum.h"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 

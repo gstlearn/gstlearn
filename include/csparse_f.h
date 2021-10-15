@@ -168,7 +168,9 @@ void cs_multigrid_coarse2fine(cs_MGS *mgs,double *z,double *work);
 Triplet csToTriplet(const cs *A, bool flag_from_1 = false);
 String toStringDim(const String& title, const cs *A);
 String toStringRange(const String& title, const cs *C);
-bool cs_isSymmetric(const cs* A);
+bool cs_isSymmetric(const cs* A, bool verbose = false, bool detail = false);
+bool cs_isDiagonalDominant(cs *A, bool verbose = false, bool detail = false);
+bool cs_isDefinitePositive(cs* A, bool verbose = false);
 
 #define CS_MAX(a,b) (((a) > (b)) ? (a) : (b))
 #define CS_MIN(a,b) (((a) < (b)) ? (a) : (b))

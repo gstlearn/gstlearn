@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
-    dbprop.addFields(1,props[ifac],names[ifac],LOC_P,ifac);
+    dbprop.addFields(1,props[ifac],names[ifac],ELoc::P,ifac);
   dbprop.display();
 
   // Creating the Model(s) of the Underlying GRF(s)
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
   // Perform a non-conditional simulation on the Db
   error = simpgs(nullptr,&db,&ruleprop,&model1,&model2,&neigh);
-  db.setLocator(db.getLastName(),LOC_Z);
+  db.setLocator(db.getLastName(),ELoc::Z);
   db.serialize("simupgs.ascii");
 
   // Design of several VarioParams

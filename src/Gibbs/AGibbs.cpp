@@ -131,7 +131,7 @@ void AGibbs::init(int npgs,
 ** \param[out]  vmin_arg   Output minimum bound
 ** \param[out]  vmax_arg   Output maximum bound
 **
-** \remark Attributes LOC_GAUSFAC are mandatory
+** \remark Attributes ELoc::GAUSFAC are mandatory
 **
 *****************************************************************************/
 int AGibbs::_boundsCheck(int ipgs,
@@ -291,7 +291,7 @@ VectorVectorDouble AGibbs::allocY() const
 }
 
 /**
- * Store the Gaussian array in LOC_GAUS variable.
+ * Store the Gaussian array in ELoc::GAUS variable.
  * This should be performed once for all GS and all variables
  *
  * @param y The Gaussian vector to be stored
@@ -318,7 +318,7 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
     for (int iact = 0; iact < nact; iact++)
     {
       int iech = getSampleRank(iact);
-      _db->setFromLocator(LOC_GAUSFAC, iech,  rank,  y[icase][iact]);
+      _db->setFromLocator(ELoc::GAUSFAC, iech,  rank,  y[icase][iact]);
     }
   }
 
@@ -507,3 +507,24 @@ int AGibbs::getRelativeRank(int iech)
   return -1;
 }
 
+int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool flagCheck)
+{
+  if (calculInitialize(y, isimu, ipgs, verbose)) return 1;
+  if (flagCheck) print(true, y, isimu, ipgs);
+
+  /* Iterations of the Gibbs sampler */
+
+  for (int iter = 0; iter < getNiter(); iter++)
+    update(y, isimu, ipgs, iter);
+
+  /* Check the validity of the Gibbs results (optional) */
+
+  if (flagCheck) checkGibbs(y, isimu, ipgs);
+  if (flagCheck) print(false, y, isimu, ipgs);
+
+  // Store the results
+
+  storeResult(y, isimu, ipgs);
+
+  return 0;
+}

@@ -168,13 +168,6 @@ GEOSLIB_API void db_stats_print(const Db *db,
                                 int flag_correl = 0,
                                 const String& title = String(),
                                 const String& radix = String());
-GEOSLIB_API ES db_angle2grad(Db *db,
-                             const VectorString& angles,
-                             double radius = 1.,
-                             NamingConvention namconv = NamingConvention("Angle2Grad"));
-GEOSLIB_API ES db_grad2angle(Db *db,
-                             const VectorString& grads,
-                             NamingConvention namconv = NamingConvention("Grad2Angle"));
 
 /***************************/
 /* Functions for Variogram */
@@ -300,7 +293,7 @@ GEOSLIB_API int migrate(Db* db1,
                         NamingConvention namconv = NamingConvention("Migrate"));
 GEOSLIB_API int migrateByLocator(Db* db1,
                                  Db* db2,
-                                 ENUM_LOCS locatorType,
+                                 const ELoc& locatorType,
                                  int ldmax = 0,
                                  const VectorDouble& dmax = VectorDouble(),
                                  int flag_fill = false,
@@ -309,13 +302,13 @@ GEOSLIB_API int migrateByLocator(Db* db1,
 GEOSLIB_API int db_selhull(Db *db1,
                            Db *db2,
                            bool verbose = false,
-                           NamingConvention namconv = NamingConvention("Hull",LOC_SEL));
+                           NamingConvention namconv = NamingConvention("Hull",ELoc::SEL));
 GEOSLIB_API void db_polygon(Db *db,
                             Polygons *polygon,
                             int flag_sel = 0,
                             int flag_period = 0,
                             int flag_nested = 0,
-                            NamingConvention namconv = NamingConvention("Polygon",LOC_SEL));
+                            NamingConvention namconv = NamingConvention("Polygon",ELoc::SEL));
 GEOSLIB_API int db_grid_fill(Db *dbgrid,
                              int mode = 0,
                              int seed = 34243,
@@ -326,11 +319,17 @@ GEOSLIB_API int db_grid1D_fill(Db *dbgrid,
                                int mode = 0,
                                int seed = 34243,
                                NamingConvention namconv = NamingConvention("Fill"));
+GEOSLIB_API int db_duplicate(Db *db,
+                             bool verbose = false,
+                             double *dist = nullptr,
+                             int opt_code = 0,
+                             double tolcode = 0.,
+                             NamingConvention namconv = NamingConvention("Duplicate",ELoc::SEL));
 GEOSLIB_API int kriging(Db *dbin,
                         Db *dbout,
                         Model *model,
                         Neigh *neigh,
-                        int calcul = KOPTION_PONCTUAL,
+                        const EKrigOpt& calcul = EKrigOpt::PONCTUAL,
                         int flag_est = 1,
                         int flag_std = 1,
                         int flag_var = 0,
@@ -374,7 +373,7 @@ GEOSLIB_API int simpgs(Db *dbin,
                        double percent = 5.,
                        double gibbs_eps = 1.e-3,
                        double delta = 1.,
-                       NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
+                       NamingConvention namconv = NamingConvention("Facies",ELoc::FACIES));
 GEOSLIB_API int simbipgs(Db *dbin,
                          Db *dbout,
                          RuleProp *ruleprop,
@@ -394,7 +393,7 @@ GEOSLIB_API int simbipgs(Db *dbin,
                          int niter = 100,
                          double percent = 5.,
                          double gibbs_eps = 1.e-3,
-                         NamingConvention namconv = NamingConvention("Facies",LOC_FACIES));
+                         NamingConvention namconv = NamingConvention("Facies",ELoc::FACIES));
 GEOSLIB_API int simpgs_spde(Db *dbin,
                             Db *dbout,
                             RuleProp *ruleprop,
@@ -437,7 +436,7 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
                                        Model *model,
                                        int niter = 100,
                                        bool verbose = false,
-                                       NamingConvention namconv = NamingConvention("Prop",LOC_P));
+                                       NamingConvention namconv = NamingConvention("Prop",ELoc::P));
 GEOSLIB_API int defineGeneralNeigh(int mode, Db* db, Model* model,
                                    Neigh* neigh);
 GEOSLIB_API VectorInt getGeneralNeigh(Db* db, Neigh* neigh, int iech);
@@ -451,6 +450,8 @@ GEOSLIB_API int gibbs_sampler(Db* db,
                               bool flag_norm,
                               bool flag_multi_mono,
                               bool flag_propagation,
+                              bool flag_sym_neigh,
+                              bool flag_sym_Q,
                               int  gibbs_optstats,
                               double percent,
                               double gibbs_eps,
@@ -458,5 +459,17 @@ GEOSLIB_API int gibbs_sampler(Db* db,
                               bool flag_cstd,
                               bool verbose,
                               NamingConvention namconv = NamingConvention("Gibbs"));
+
+/*****************/
+/* Various Tools */
+/*****************/
+GEOSLIB_API int db_tool_duplicate(Db *db1,
+                                  Db *db2,
+                                  bool flag_same,
+                                  bool verbose,
+                                  int opt_code,
+                                  double tolcode,
+                                  double *dist,
+                                  double *sel);
 
 #endif

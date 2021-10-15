@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_enum.h"
+#include "Db/ELoc.hpp"
 #include "Basic/Vector.hpp"
 
 /**
@@ -22,7 +22,7 @@
  */
 class PtrGeos {
 public:
-  VectorInt _r;                  /* Rank of the attribute */
+  VectorInt _r;    /* Rank of the attribute */
 
   bool isLocatorIndexValid(int locatorIndex) const;
   int  getLocatorByIndex(int locatorIndex) const { return _r[locatorIndex]; }
@@ -30,14 +30,14 @@ public:
   int  getLocatorNumber() const { return static_cast<int>(_r.size()); }
   void erase(int locatorIndex);
   void clear();
-  void print(int rank, ENUM_LOCS locatorType) const;
+  void print(int rank, const ELoc& locatorType) const;
   void resize(int count) { _r.resize(count,0); }
 };
 
 int    getLocatorTypeFromName(const String& name_type);
-int    locatorIdentify(String string, ENUM_LOCS *locatorType, int *locatorIndex, int *mult);
-bool   isLocatorTypeValid(ENUM_LOCS locatorType, bool unknownValid = false);
-String getLocatorName(ENUM_LOCS locatorType, int locatorIndex=1);
+int    locatorIdentify(String string, ELoc* locatorType, int* locatorIndex, int *mult);
+bool   isLocatorTypeValid(const ELoc& locatorType, bool unknownValid = false);
+String getLocatorName(const ELoc& locatorType, int locatorIndex=1);
 void   printLocatorList();
 VectorString getLocatorNames();
 VectorInt    getLocatorMultiples();

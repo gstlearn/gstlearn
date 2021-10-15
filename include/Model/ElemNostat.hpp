@@ -12,6 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Model/EConsElem.hpp"
 
 class ElemNostat: public AStringable
 {
@@ -23,8 +24,8 @@ public:
 
   virtual String toString(int level) const override;
 
-  void init(int loctype, int rank_grf, int rank_str, int rank_v1, int rank_v2);
-  int getLocType() const
+  void init(const EConsElem& loctype, int rank_grf, int rank_str, int rank_v1, int rank_v2);
+  const EConsElem& getLocType() const
   {
     return _locType;
   }
@@ -62,7 +63,7 @@ public:
   void setVal2(double val2) { _val2 = val2; }
 
 private:
-  int _locType; /* Type of parameter (by its locator type) */
+  EConsElem _locType; /* Type of parameter (by its locator type) */
   int _rankGRF; /* Rank of the GRF */
   int _rankStr; /* Rank of the basic structure (from 0) */
   int _rankV1; /* Rank of the first variable (from 0) */

@@ -15,12 +15,10 @@
 #include "Basic/AException.hpp"
 
 AnamUser::AnamUser()
-    : AnamContinuous(ANAM_EXTERNAL),
+    : AnamContinuous(EAnam::EXTERNAL),
       _y2z_function(nullptr),
       _z2y_function(nullptr)
-
 {
-  setType(ANAM_EXTERNAL);
 }
 
 AnamUser::AnamUser(const AnamUser &m)

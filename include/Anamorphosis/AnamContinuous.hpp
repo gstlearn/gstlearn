@@ -14,6 +14,7 @@
 #include "Basic/Interval.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Db/ELoc.hpp"
 
 /**
  * Output structure
@@ -29,16 +30,8 @@ typedef struct {
 
 class AnamContinuous: public Anam
 {
-protected:
-  Interval _az;
-  Interval _ay;
-  Interval _pz;
-  Interval _py;
-  double   _mean;
-  double   _variance;
-
 public:
-  AnamContinuous(int type = ANAM_UNDEFINED);
+  AnamContinuous(const EAnam& type = EAnam::UNDEFINED);
   AnamContinuous(const AnamContinuous &m);
   AnamContinuous& operator= (const AnamContinuous &m);
   virtual ~AnamContinuous();
@@ -61,12 +54,12 @@ public:
   VectorDouble GaussianToRawVector(const VectorDouble& y) const;
   int RawToGaussian(Db *db, const String& name,NamingConvention namconv = NamingConvention("Y"));
   int GaussianToRaw(Db *db, const String& name,NamingConvention namconv = NamingConvention("Z"));
-  int RawToGaussian(Db *db, ENUM_LOCS locatorType = LOC_Z, NamingConvention namconv = NamingConvention("Y"));
-  int GaussianToRaw(Db *db, ENUM_LOCS locatorType = LOC_Z, NamingConvention namconv = NamingConvention("Z"));
+  int RawToGaussian(Db *db, const ELoc& locatorType = ELoc::Z, NamingConvention namconv = NamingConvention("Y"));
+  int GaussianToRaw(Db *db, const ELoc& locatorType = ELoc::Z, NamingConvention namconv = NamingConvention("Z"));
 
   AnamContinuousFit sample(int ndisc = 100,
-                             double aymin = -10,
-                             double aymax = +10);
+                           double aymin = -10,
+                           double aymax = +10);
 
   double getMean()     const { return _mean; }
   double getVariance() const { return _variance; }
@@ -78,14 +71,23 @@ public:
   double getPymin()    const { return _py.getVmin(); }
   double getPzmax()    const { return _pz.getVmax(); }
   double getPzmin()    const { return _pz.getVmin(); }
-  void setAzmin(double azmin) { _az.setVmin(azmin); }
-  void setAzmax(double azmax) { _az.setVmax(azmax); }
-  void setAymin(double aymin) { _ay.setVmin(aymin); }
-  void setAymax(double aymax) { _ay.setVmax(aymax); }
-  void setPzmin(double pzmin) { _pz.setVmin(pzmin); }
-  void setPzmax(double pzmax) { _pz.setVmax(pzmax); }
-  void setPymin(double pymin) { _py.setVmin(pymin); }
-  void setPymax(double pymax) { _py.setVmax(pymax); }
-  void setMean(double mean)   { _mean = mean; }
+
+  void setAzmin(double azmin)       { _az.setVmin(azmin); }
+  void setAzmax(double azmax)       { _az.setVmax(azmax); }
+  void setAymin(double aymin)       { _ay.setVmin(aymin); }
+  void setAymax(double aymax)       { _ay.setVmax(aymax); }
+  void setPzmin(double pzmin)       { _pz.setVmin(pzmin); }
+  void setPzmax(double pzmax)       { _pz.setVmax(pzmax); }
+  void setPymin(double pymin)       { _py.setVmin(pymin); }
+  void setPymax(double pymax)       { _py.setVmax(pymax); }
+  void setMean(double mean)         { _mean = mean; }
   void setVariance(double variance) { _variance = variance; }
+
+protected:
+  Interval _az;
+  Interval _ay;
+  Interval _pz;
+  Interval _py;
+  double   _mean;
+  double   _variance;
 };

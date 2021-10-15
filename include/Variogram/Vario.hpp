@@ -202,16 +202,16 @@ private:
   VectorDouble _varsFromProportions(VectorDouble props);
 
 private:
-  int          _nVar;
-  VarioParam   _varioparam;
-  VectorDouble _means;
-  VectorDouble _vars;
-  String       _calculName; // TODO : should become ENUM
-  bool         _flagSample;
-  Db*          _db;
+  int                _nVar;
+  VarioParam         _varioparam;
+  VectorDouble       _means;
+  VectorDouble       _vars;
+  String             _calculName; // TODO : should become ENUM
+  bool               _flagSample;
+  Db*                _db;
   VectorVectorDouble _sw;      /* Array for number of lags */
   VectorVectorDouble _gg;      /* Array for average variogram values */
   VectorVectorDouble _hh;      /* Array for average distance values */
   VectorVectorDouble _utilize; /* Array to mention if a lag is used or not */
-  mutable bool _flagAsym;
+  mutable bool       _flagAsym;
 };

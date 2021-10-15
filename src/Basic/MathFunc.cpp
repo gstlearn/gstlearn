@@ -11,7 +11,15 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_define.h"
+#include "Basic/WarningMacro.hpp"
 #include <math.h>
+
+DISABLE_WARNING_PUSH
+
+// TODO : Disable warning for other compilators
+#if defined(__GNUC__) || defined(__clang__)
+DISABLE_WARNING_ARRAY_BOUNDS
+#endif
 
 static double c_b11 = 1.;
 
@@ -2234,3 +2242,5 @@ double loggamma(double parameter)
     return(dalgam);
   }
 }
+
+DISABLE_WARNING_POP

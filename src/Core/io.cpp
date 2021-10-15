@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_e.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/EJustify.hpp"
 
 /*! \cond */
 #define OLD 0
@@ -1146,14 +1147,14 @@ GEOSLIB_API void constant_print(void)
 ** \param[in]  title    optional title (NULL if not defined)
 ** \param[in]  ncol     number of columns for the printout
 ** \param[in]  justify  justification flag
-**                      (GD_J_LEFT, GD_J_CENTER or GD_J_RIGHT)
+**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
 ** \param[in]  string   String to be written
 **
 *****************************************************************************/
-GEOSLIB_API void tab_prints(const char *title,
-                            int   ncol,
-                            int   justify,
-                            const char *string)
+GEOSLIB_API void tab_prints(const char*     title,
+                            int             ncol,
+                            const EJustify& justify,
+                            const char*     string)
 {
   int i,size,neff,nrst,n1,n2,taille;
 
@@ -1174,22 +1175,22 @@ GEOSLIB_API void tab_prints(const char *title,
 
   /* Switch according to the justification */
 
-  switch (justify)
+  switch (justify.toEnum())
   {
-    case GD_J_LEFT:
+    case EJustify::E_LEFT:
       (void) strncpy(TABSTR,string,neff);
       TABSTR[neff] = '\0';
       for (i=0; i<nrst; i++) (void) strcat(TABSTR," ");
       break;
 
-    case GD_J_CENTER:
+    case EJustify::E_CENTER:
       for (i=0; i<n1; i++) (void) strcat(TABSTR," ");
       (void) strncpy(&TABSTR[n1],string,neff);
       TABSTR[n1+neff] = '\0';
       for (i=0; i<n2; i++) (void) strcat(TABSTR," ");
       break;
 
-    case GD_J_RIGHT:
+    case EJustify::E_RIGHT:
       for (i=0; i<nrst; i++) (void) strcat(TABSTR," ");
       (void) strncpy(&TABSTR[nrst],string,neff);
       TABSTR[nrst+neff] = '\0';
@@ -1235,14 +1236,14 @@ GEOSLIB_API void tab_print_rowname(const char *string,
 ** \param[in]  title    optional title (NULL if not defined)
 ** \param[in]  ncol     number of columns for the printout
 ** \param[in]  justify  justification flag
-**                      (GD_J_LEFT, GD_J_CENTER or GD_J_RIGHT)
+**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
 ** \param[in]  value    Value to be written
 **
 *****************************************************************************/
-GEOSLIB_API void tab_printg(const char  *title,
-                            int          ncol,
-                            int          justify,
-                            double       value)
+GEOSLIB_API void tab_printg(const char*     title,
+                            int             ncol,
+                            const EJustify& justify,
+                            double          value)
 {
   st_format(CASE_REAL);
 
@@ -1263,14 +1264,14 @@ GEOSLIB_API void tab_printg(const char  *title,
 ** \param[in]  title    optional title (NULL if not defined)
 ** \param[in]  ncol     number of columns for the printout
 ** \param[in]  justify  justification flag
-**                      (GD_J_LEFT, GD_J_CENTER or GD_J_RIGHT)
+**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
 ** \param[in]  value    Value to be written
 **
 *****************************************************************************/
-GEOSLIB_API void tab_printd(const char  *title,
-                            int          ncol,
-                            int    justify,
-                            double value)
+GEOSLIB_API void tab_printd(const char*     title,
+                            int             ncol,
+                            const EJustify& justify,
+                            double          value)
 {
   st_format(CASE_DOUBLE);
 
@@ -1291,14 +1292,14 @@ GEOSLIB_API void tab_printd(const char  *title,
 ** \param[in]  title    optional title (NULL if not defined)
 ** \param[in]  ncol     number of columns for the printout
 ** \param[in]  justify  justification flag
-**                      (GD_J_LEFT, GD_J_CENTER or GD_J_RIGHT)
+**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
 ** \param[in]  value    Value to be written
 **
 *****************************************************************************/
-GEOSLIB_API void tab_printi(const char *title,
-                            int   ncol,
-                            int   justify,
-                            int   value)
+GEOSLIB_API void tab_printi(const char*     title,
+                            int             ncol,
+                            const EJustify& justify,
+                            int             value)
 {
   st_format(CASE_INT);
 
@@ -1319,16 +1320,16 @@ GEOSLIB_API void tab_printi(const char *title,
 ** \param[in]  title    optional title (NULL if not defined)
 ** \param[in]  ncol     number of columns for the printout
 ** \param[in]  justify  justification flag
-**                      (GD_J_LEFT, GD_J_CENTER or GD_J_RIGHT)
+**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
 ** \param[in]  mode     CASE_ROW or CASE_COL
 ** \param[in]  value    Value to be written
 **
 *****************************************************************************/
-GEOSLIB_API void tab_print_rc(const char *title,
-                              int   ncol,
-                              int   justify,
-                              int   mode,
-                              int   value)
+GEOSLIB_API void tab_print_rc(const char*     title,
+                              int             ncol,
+                              const EJustify& justify,
+                              int             mode,
+                              int             value)
 {
   st_format(mode);
 
@@ -1391,9 +1392,9 @@ GEOSLIB_API void print_matrix(const char   *title,
 
   if (multi_row)
   {
-    tab_prints(NULL,1,GD_J_RIGHT," ");
+    tab_prints(NULL,1,EJustify::RIGHT," ");
     for (ix=0; ix<nx_util; ix++)
-      tab_print_rc(NULL,1,GD_J_RIGHT,CASE_COL,ix+1);
+      tab_print_rc(NULL,1,EJustify::RIGHT,CASE_COL,ix+1);
     message("\n");
   }
 
@@ -1405,11 +1406,11 @@ GEOSLIB_API void print_matrix(const char   *title,
     if (sel != (double *) NULL && ! sel[iy]) continue;
     ny_done++;
     if (ny_done > ny_util) break;
-    if (multi_row) tab_print_rc(NULL,1,GD_J_RIGHT,CASE_ROW,iy+1);
+    if (multi_row) tab_print_rc(NULL,1,EJustify::RIGHT,CASE_ROW,iy+1);
     for (ix=0; ix<nx_util; ix++)
     {
       iad = (bycol) ? iy + ny * ix : ix + nx * iy;
-      tab_printg(NULL,1,GD_J_RIGHT,tab[iad]);
+      tab_printg(NULL,1,EJustify::RIGHT,tab[iad]);
     }
     message("\n");
   }
@@ -1466,27 +1467,27 @@ GEOSLIB_API void print_trimat(const char   *title,
 
   /* Print the header */
 
-  tab_prints(NULL,1,GD_J_RIGHT," ");
+  tab_prints(NULL,1,EJustify::RIGHT," ");
   for (ix=0; ix<neq; ix++)
-    tab_print_rc(NULL,1,GD_J_RIGHT,CASE_COL,ix+1);
+    tab_print_rc(NULL,1,EJustify::RIGHT,CASE_COL,ix+1);
   message("\n");
 
   /* Print the contents of the array */
 
   for (iy=0; iy<neq; iy++)
   {
-    tab_print_rc(NULL,1,GD_J_RIGHT,CASE_ROW,iy+1);
+    tab_print_rc(NULL,1,EJustify::RIGHT,CASE_ROW,iy+1);
     for (ix=0; ix<neq; ix++)
     {
       if (ix >= iy)
       {
         if (mode == 1)
-          tab_printg(NULL,1,GD_J_RIGHT,TL1(ix,iy));
+          tab_printg(NULL,1,EJustify::RIGHT,TL1(ix,iy));
         else
-          tab_printg(NULL,1,GD_J_RIGHT,TL2(ix,iy));
+          tab_printg(NULL,1,EJustify::RIGHT,TL2(ix,iy));
       }
       else
-        tab_prints(NULL,1,GD_J_RIGHT," ");
+        tab_prints(NULL,1,EJustify::RIGHT," ");
     }
     message("\n");
   }
@@ -1545,9 +1546,9 @@ GEOSLIB_API void print_imatrix(const char   *title,
 
   if (multi_row)
   {
-    tab_prints(NULL,1,GD_J_RIGHT," ");
+    tab_prints(NULL,1,EJustify::RIGHT," ");
     for (ix=0; ix<nx_util; ix++)
-      tab_print_rc(NULL,1,GD_J_RIGHT,CASE_COL,ix+1);
+      tab_print_rc(NULL,1,EJustify::RIGHT,CASE_COL,ix+1);
     message("\n");
   }
 
@@ -1559,11 +1560,11 @@ GEOSLIB_API void print_imatrix(const char   *title,
     if (sel != (double *) NULL && ! sel[iy]) continue;
     ny_done++;
     if (ny_done > ny_util) break;
-    if (multi_row) tab_print_rc(NULL,1,GD_J_RIGHT,CASE_ROW,iy+1);
+    if (multi_row) tab_print_rc(NULL,1,EJustify::RIGHT,CASE_ROW,iy+1);
     for (ix=0; ix<nx_util; ix++)
     {
       iad = (bycol) ? iy + ny * ix : ix + nx * iy;
-      tab_printi(NULL,1,GD_J_RIGHT,tab[iad]);
+      tab_printi(NULL,1,EJustify::RIGHT,tab[iad]);
     }
     message("\n");
   }
@@ -1714,11 +1715,11 @@ GEOSLIB_API void print_names(int    nx,
 
   /* Loop on the columns */
 
-  tab_prints(NULL,1,GD_J_RIGHT," ");
+  tab_prints(NULL,1,EJustify::RIGHT," ");
   for (iix=0; iix<nx_util; iix++)
   {
     ix = (ranks == (int *) NULL) ? iix : ranks[iix];
-    tab_prints(NULL,1,GD_J_RIGHT,names[ix].c_str());
+    tab_prints(NULL,1,EJustify::RIGHT,names[ix].c_str());
   }
   message("\n");
   return;

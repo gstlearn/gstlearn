@@ -13,6 +13,11 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/ASerializable.hpp"
+#include "Model/Model.hpp"
+#include "Variogram/VarioParam.hpp"
+#include "Variogram/Vario.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
@@ -25,7 +30,6 @@ int main(int argc, char *argv[])
 
 {
   int error = 1;
-  bool flag_inter = true;
 
   int nx        = 10;
   int niter     = 10000;
@@ -33,17 +37,8 @@ int main(int argc, char *argv[])
   int nmaxi     = 4;
   double range  = 10.;
   double bound  = TEST;
-
-  if (flag_inter)
-  {
-    nx = askInt("Number of grid mesh [in each direction]", nx);
-    niter = askInt("Number of Gibbs iterations",niter);
-    nburn = askInt("Number of burning steps",nburn);
-    nmaxi = askInt("Number of samples in Neighborhood",nmaxi);
-    range = askDouble("Isotropic Range",range);
-    bound = askDouble("Bounds [None: -10]",-10.);
-    if (bound <= -10.) bound = TEST;
-  }
+  bool flag_sym_neigh = true;
+  bool flag_sym_Q = true;
 
   int seed     = 5452;
   int ndim     = 2;
@@ -71,13 +66,13 @@ int main(int argc, char *argv[])
   Db* db = new Db({nx,nx},dx);
   if (! FFFF(bound))
   {
-    db->addFields(1, -bound, "Bounds", LOC_L);
-    db->addFields(1, +bound, "Bounds", LOC_U);
+    db->addFields(1, -bound, "Bounds", ELoc::L);
+    db->addFields(1, +bound, "Bounds", ELoc::U);
   }
   else
   {
-    db->addFields(1, TEST, "Bounds", LOC_L);
-    db->addFields(1, TEST, "Bounds", LOC_U);
+    db->addFields(1, TEST, "Bounds", ELoc::L);
+    db->addFields(1, TEST, "Bounds", ELoc::U);
   }
 
   // Model
@@ -102,10 +97,10 @@ int main(int argc, char *argv[])
   // Gibbs
 
   error = gibbs_sampler(db, model, neigh, nbsimu, seed, nburn, niter, false,
-                        flag_multi_mono, flag_propagation, 2,
+                        flag_multi_mono, flag_propagation,
+                        flag_sym_neigh, flag_sym_Q, 2,
                         5., EPSILON3, false, false, verbose);
-  if (error) my_throw("Problem in gibbs_sampler");
-  db->displayMore(FLAG_STATS);
+  if (error) return 1;
   db->serialize("Result");
 
   // Calculate a variogram on the samples
@@ -117,8 +112,8 @@ int main(int argc, char *argv[])
   VectorString names = db->getNames("Gibbs*");
   for (int isimu=0; isimu<nbsimu; isimu++)
   {
-    db->clearLocators(LOC_Z);
-    db->setLocator(names[isimu],LOC_Z);
+    db->clearLocators(ELoc::Z);
+    db->setLocator(names[isimu],ELoc::Z);
     vario.compute("vg",true);
     vario.serialize(incrementStringVersion("Vario",isimu+1));
   }

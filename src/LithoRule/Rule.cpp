@@ -670,8 +670,10 @@ int Rule::deSerialize(const String& filename, bool verbose)
 
   /* Create the Rule structure */
 
-  if (_recordRead("Rule definition", "%d", &_modeRule)) return 1;
+  int mrule = 0;
+  if (_recordRead("Rule definition", "%d", &mrule)) return 1;
   if (_recordRead("Correlation Coefficient of GRFs", "%lf", &_rho)) return 1;
+  _modeRule = ERule::fromValue(mrule);
 
   // Specific case
 
@@ -822,8 +824,8 @@ void Rule::setMainNodeFromNodNames(const VectorString& nodnames)
 ** \param[in]  isimu      Rank of the simulation
 ** \param[in]  nbsimu     Number of simulations
 **
-** \remark Attributes LOC_GAUSFAC are mandatory
-** \remark Attributes LOC_FACIES are mandatory
+** \remark Attributes ELoc::GAUSFAC are mandatory
+** \remark Attributes ELoc::FACIES are mandatory
 **
 *****************************************************************************/
 int Rule::gaus2facData(PropDef *propdef,
@@ -838,7 +840,7 @@ int Rule::gaus2facData(PropDef *propdef,
 
   /* Initializations */
 
-  check_mandatory_attribute("rule_gaus2fac_data",dbin,LOC_GAUSFAC);
+  check_mandatory_attribute("rule_gaus2fac_data",dbin,ELoc::GAUSFAC);
 
   /* Processing the translation */
 
@@ -858,13 +860,13 @@ int Rule::gaus2facData(PropDef *propdef,
     {
       int icase = get_rank_from_propdef(propdef,ipgs,igrf);
       y[igrf] = (flag_used[igrf]) ?
-        dbin->getSimvar(LOC_GAUSFAC,iech,isimu,0,icase,nbsimu,1) : 0.;
+        dbin->getSimvar(ELoc::GAUSFAC,iech,isimu,0,icase,nbsimu,1) : 0.;
     }
     facies = getFaciesFromGaussian(y[0],y[1]);
 
     /* Combine the underlying GRFs to derive Facies */
 
-    dbin->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+    dbin->setSimvar(ELoc::FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
   }
   return 0;
 }
@@ -882,7 +884,7 @@ int Rule::gaus2facData(PropDef *propdef,
 ** \param[in]  isimu      Rank of the simulation
 ** \param[in]  nbsimu     Number of simulations
 **
-** \remark Attributes LOC_FACIES and LOC_SIMU are mandatory
+** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
 **
 *****************************************************************************/
 int Rule::gaus2facResult(PropDef  *propdef,
@@ -897,8 +899,8 @@ int Rule::gaus2facResult(PropDef  *propdef,
 
   /* Initializations */
 
-  check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_FACIES);
-  check_mandatory_attribute("rule_gaus2fac_result",dbout,LOC_SIMU);
+  check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::FACIES);
+  check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::SIMU);
   ndim   = dbout->getNDim();
   VectorDouble xyz(ndim);
 
@@ -920,13 +922,13 @@ int Rule::gaus2facResult(PropDef  *propdef,
     {
       icase = get_rank_from_propdef(propdef,ipgs,igrf);
       y[igrf] = (flag_used[igrf]) ?
-          dbout->getSimvar(LOC_SIMU,iech,isimu,0,icase,nbsimu,1) : 0.;
+          dbout->getSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,1) : 0.;
     }
     facies = getFaciesFromGaussian(y[0],y[1]);
 
     /* Combine the underlying GRFs to derive Facies */
 
-    dbout->setSimvar(LOC_FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+    dbout->setSimvar(ELoc::FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
   }
   return 0;
 }
@@ -970,10 +972,10 @@ int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech) const
 ** \param[in]  propdef    PropDef structure
 ** \param[in]  dbin       Db structure
 ** \param[in]  dbout      Db grid structure
-** \param[in]  isimu      Rank of the simulation (PROCESS_CONDITIONAL)
+** \param[in]  isimu      Rank of the simulation (if EProcessOper::CONDITIONAL)
 ** \param[in]  igrf       Rank of the GRF
 ** \param[in]  ipgs       Rank of the GS
-** \param[in]  nbsimu     Number of simulations (PROCESS_CONDITIONAL)
+** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
 **
 *****************************************************************************/
 int Rule::evaluateBounds(PropDef *propdef,

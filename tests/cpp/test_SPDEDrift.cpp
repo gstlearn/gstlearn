@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(&workingDbc);
-  workingDbc.addFields(angle,"angle",LOC_NOSTAT);
+  workingDbc.addFields(angle,"angle",ELoc::NOSTAT);
 
   ///////////////////////
   // Creating the Model
@@ -54,13 +54,13 @@ int main(int argc, char *argv[])
   ut_vector_multiply_inplace(drift,0.1);
   ut_vector_add_inplace(z,drift);
   ut_vector_addval(z,10);
-  dat.addFields(z,"variable",LOC_Z);
-  dat.addFields(drift,"Drift",LOC_F);
+  dat.addFields(z,"variable",ELoc::Z);
+  dat.addFields(drift,"Drift",ELoc::F);
   dat.display(1);
 
   ///////////////////////
   // Running SPDE
-  SPDE spde(model,workingDbc,&dat,CALCUL_KRIGING);
+  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::KRIGING);
   VectorDouble result = spde.computeCoeffs();
   ut_vector_display("Drift Coefficients:",result);
   return 0;
