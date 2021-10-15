@@ -12,6 +12,7 @@
 #include "Polynomials/MonteCarlo.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_f.h"
+#include <math.h>
 
 /**
  * Calculate: int phi(r*y + u * sqrt(1-r^2)) g(u) du

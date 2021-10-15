@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -18,6 +17,8 @@
 #include "Basic/Utilities.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Basic/EJustify.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define VARS(ivar,jvar)     (vario->vars[(ivar) * vario->getNVar() + (jvar)])
@@ -113,7 +114,7 @@ static int st_get_variable_order(int    nvar,
 ** \param[in]  vario   Vario structure
 **
 *****************************************************************************/
-static int st_get_generalized_variogram_order(Vario *vario)
+static int st_get_generalized_variogram_order(const Vario *vario)
 {
   int norder;
 
@@ -234,7 +235,7 @@ GEOSLIB_API int variogram_maximum_dist1D_reached(Db    *db,
 ** \remark  TEST is returned
 **
 *****************************************************************************/
-static double st_get_IVAR(Db    *db,
+static double st_get_IVAR(const Db    *db,
                           int    iech,
                           int    ivar)
 {
@@ -1062,8 +1063,8 @@ static void st_variogram_patch_c00(Db    *db,
 ** \remarks resulting value is 1.
 **
 *****************************************************************************/
-GEOSLIB_API int code_comparable(Db    *db1,
-                                Db    *db2,
+GEOSLIB_API int code_comparable(const Db    *db1,
+                                const Db    *db2,
                                 int    iech,
                                 int    jech,
                                 int    opt_code,
@@ -1105,8 +1106,8 @@ GEOSLIB_API int code_comparable(Db    *db1,
 **
 *****************************************************************************/
 static int st_date_is_used(const VarioParam *varioparam,
-                           Db     *db1,
-                           Db     *db2)
+                           const Db     *db1,
+                           const Db     *db2)
 {
   if (varioparam->getDates().empty()) return(0);
   if (! db1->hasDate()) return(0);
@@ -1131,11 +1132,11 @@ static int st_date_is_used(const VarioParam *varioparam,
 **
 *****************************************************************************/
 static int st_date_comparable(const VarioParam *varioparam,
-                                Db     *db1,
-                                Db     *db2,
-                                int     iech,
-                                int     jech,
-                                int     idate)
+                              const Db *db1,
+                              const Db *db2,
+                              int iech,
+                              int jech,
+                              int idate)
 {
   double date1,date2,delta;
 
@@ -1656,7 +1657,7 @@ static void st_variogram_calcul_internal(Db    *db,
 ** \param[out] ps     The cosine between the vector of data and the direction
 **
 *****************************************************************************/
-GEOSLIB_API int variogram_reject_pair(Db     *db,
+GEOSLIB_API int variogram_reject_pair(const Db     *db,
                                       int     iech,
                                       int     jech,
                                       double  dist,
@@ -2563,7 +2564,7 @@ GEOSLIB_API void vardir_print(Vario *vario,
 ** \param[in]  verbose 0 for brief output; 1 for a long output
 **
 *****************************************************************************/
-GEOSLIB_API void variogram_print(Vario *vario,
+GEOSLIB_API void variogram_print(const Vario *vario,
                                  int    verbose)
 {
   if (vario != (Vario *) NULL) messageFlush(vario->toString());
@@ -3245,7 +3246,7 @@ label_end:
 ** \param[out]  gmax      Maximum variogram value
 **
 *****************************************************************************/
-GEOSLIB_API void variogram_extension(Vario  *vario,
+GEOSLIB_API void variogram_extension(const Vario  *vario,
                                      int     ivar,
                                      int     jvar,
                                      int     idir0,
@@ -3875,7 +3876,7 @@ GEOSLIB_API int correlation_ident(Db     *db1,
 ** \param[in]  idir    Rank of the Direction
 **
 *****************************************************************************/
-static void st_variogram_cloud(Db     *db,
+static void st_variogram_cloud(const Db     *db,
                                Db     *dbgrid,
                                int     iptr,
                                const VarioParam *varioparam,
@@ -3917,8 +3918,8 @@ static void st_variogram_cloud(Db     *db,
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (st_date_comparable(varioparam,db,db,iech,jech,
-                          dirparam.getIdate())) continue;
+      if (st_date_comparable(varioparam, db, db, iech, jech,
+                             dirparam.getIdate())) continue;
 
       /* Check if the pair must be kept */
 
@@ -4141,7 +4142,7 @@ static void st_variogram_cloud_dim(Db     *db,
 ** \param[in]  namconv      Naming convention
 **
 *****************************************************************************/
-GEOSLIB_API int variogram_cloud(Db *db,
+GEOSLIB_API int variogram_cloud(const Db *db,
                                 const VarioParam *varioparam,
                                 Db *dbgrid,
                                 NamingConvention namconv)

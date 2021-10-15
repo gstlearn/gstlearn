@@ -9,9 +9,9 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscreteIR.hpp"
-
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 #define RESIDUALS(icut,iech) (residuals[iech * ncut + icut])
 

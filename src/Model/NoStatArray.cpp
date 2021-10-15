@@ -9,9 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Model/NoStatArray.hpp"
-
-#include "geoslib_e.h"
-
 #include "Basic/AException.hpp"
 #include "MatrixC/MatrixCRectangular.hpp"
 #include "Basic/Vector.hpp"
@@ -20,6 +17,8 @@
 #include "Basic/String.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 NoStatArray::NoStatArray()
     : ANoStat(),

@@ -1,10 +1,19 @@
-
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
 #include "License/LicenseUtility.hpp"
 #include "License/MD5Utility.hpp"
 #include "License/MACAddressUtility.hpp"
 #include "License/RegistryUtility.hpp"
 #include "License/TimeUtility.hpp"
-
+#include "geoslib_old_f.h"
 //
 // Conversion from numeric to alphanumeric
 //

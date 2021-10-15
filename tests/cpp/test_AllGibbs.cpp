@@ -18,8 +18,10 @@
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
+#include "Neigh/Neigh.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 /****************************************************************************/
 /*!

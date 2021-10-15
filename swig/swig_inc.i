@@ -9,6 +9,7 @@
 #include "geoslib_enum.h"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 #include "csparse_d.h"
 #include "csparse_f.h"

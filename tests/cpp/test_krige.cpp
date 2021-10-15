@@ -8,12 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_d.h"
-#include "geoslib_f.h"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/Law.hpp"
+#include "Neigh/Neigh.hpp"
+#include "geoslib_d.h"
+#include "geoslib_f.h"
 
 /****************************************************************************/
 /*!

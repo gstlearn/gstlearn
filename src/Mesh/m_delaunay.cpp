@@ -11,6 +11,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define TRIANGLES(itri,j) (triangles[(itri) * 3 + (j)] - 1)

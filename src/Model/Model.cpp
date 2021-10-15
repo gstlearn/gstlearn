@@ -8,9 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
-#include "geoslib_f_private.h"
-
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
@@ -22,6 +19,9 @@
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Model/NoStatArray.hpp"
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
+#include "geoslib_old_f.h"
 
 Model::Model(const CovContext& ctxt, bool flagGradient, bool flagLinked)
     : AStringable(),

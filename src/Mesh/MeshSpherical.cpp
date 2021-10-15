@@ -8,9 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <Mesh/MeshSpherical.hpp>
+#include "Mesh/MeshSpherical.hpp"
 #include "MatrixC/MatrixCRectangular.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 MeshSpherical::MeshSpherical()
   : AMesh()

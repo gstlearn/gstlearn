@@ -18,6 +18,7 @@
 #include "Model/Model.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 
 /**

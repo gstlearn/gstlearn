@@ -7,11 +7,14 @@
 #include "Interfaces/VariableString.hpp"
 #include "Interfaces/Param.hpp"
 #include "Interfaces/ParamCSV.hpp"
-
 #include "Space/ASpace.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
+
 #include <cstddef>
+#include <algorithm>
 
 ENUM_DEFINE(ENUM_ROLES)
 

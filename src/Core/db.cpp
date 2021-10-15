@@ -8,11 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/GlobalEnvironment.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /****************************************************************************/
 /*!
@@ -782,7 +783,7 @@ GEOSLIB_API double distance_inter(Db *db1,
  **                        Returns the distance as a vector
  **
  *****************************************************************************/
-GEOSLIB_API double distance_intra(Db *db,
+GEOSLIB_API double distance_intra(const Db *db,
                                   int iech1,
                                   int iech2,
                                   double *dist_vect)
@@ -875,7 +876,7 @@ GEOSLIB_API double distance_grid(Db *db,
  ** \remark  according to the 3rd coordinate with the bench width.
  **
  *****************************************************************************/
-GEOSLIB_API double bench_distance(Db *db, int iech1, int iech2)
+GEOSLIB_API double bench_distance(const Db *db, int iech1, int iech2)
 {
   int idim0 = 2;
   if (db->getNDim() <= idim0) return (0.);
@@ -894,7 +895,7 @@ GEOSLIB_API double bench_distance(Db *db, int iech1, int iech2)
  ** \param[in]  codir        Direction coefficient
  **
  *****************************************************************************/
-GEOSLIB_API double cylinder_radius(Db *db,
+GEOSLIB_API double cylinder_radius(const Db *db,
                                    int iech1,
                                    int iech2,
                                    const VectorDouble& codir)

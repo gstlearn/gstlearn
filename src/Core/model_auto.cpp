@@ -8,13 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Model/Constraints.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Basic/EJustify.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define TAKE_ROT       (( optvar.getLockSamerot() && first_covrot < 0) ||  \
@@ -540,7 +541,7 @@ label_end:
 ** \param[out] npadir_ret Total number of lags for all directions
 **
 *****************************************************************************/
-static int st_get_vario_dimension(Vario *vario,
+static int st_get_vario_dimension(const Vario *vario,
                                   int   *nbexp_ret,
                                   int   *npadir_ret)
   
@@ -718,7 +719,7 @@ static std::vector<StrExp> st_strexp_manage(int nbexp, int ndim)
 ** \param[out] tabout    Compressed array
 **
 *****************************************************************************/
-static void st_compress_array(Vario  *vario,
+static void st_compress_array(const Vario  *vario,
                               int     npadir,
                               VectorDouble& tabin,
                               VectorDouble& tabout)
@@ -757,7 +758,7 @@ static void st_compress_array(Vario  *vario,
 ** \remark value
 **
 *****************************************************************************/
-static double st_get_c00(Vario* vario,
+static double st_get_c00(const Vario* vario,
                          int idir,
                          int ivar,
                          int jvar)
@@ -791,7 +792,7 @@ label_end:
 ** \param[out] gg       Allocated array of experimental values
 **
 *****************************************************************************/
-static void st_load_gg(Vario   *vario,
+static void st_load_gg(const Vario   *vario,
                        int      npadir,
                        std::vector<StrExp>& strexps,
                        VectorDouble& gg)
@@ -927,7 +928,7 @@ static void st_prepar_goulard_vario(int imod)
 ** \param[out] ge      Array of generic covariance values (optional)
 **
 *****************************************************************************/
-static void st_load_ge(Vario  *vario,
+static void st_load_ge(const Vario  *vario,
                        Model  *model,
                        int     npadir,
                        VectorDouble& dd,
@@ -1009,7 +1010,7 @@ static void st_load_ge(Vario  *vario,
 ** \param[out] wt        Array of weights attached to variogram lags
 **
 *****************************************************************************/
-static void st_load_wt(Vario  *vario,
+static void st_load_wt(const Vario  *vario,
                        int     wmode,
                        int     npadir,
                        VectorDouble& wt)
@@ -3857,7 +3858,7 @@ static int st_model_define(Model     *model,
 ** \param[out]  optvar  Opt_Vario structure
 **
 *****************************************************************************/
-static int st_alter_model_optvar(Vario      *vario,
+static int st_alter_model_optvar(const Vario      *vario,
                                  Model      *model,
                                  Constraints& constraints,
                                  Option_VarioFit& optvar)
@@ -4023,7 +4024,7 @@ static int st_alter_vmap_optvar(Db         *dbmap,
 ** \remarks They should be freed by the user
 **
 *****************************************************************************/
-static int st_model_auto_count(Vario      *vario,
+static int st_model_auto_count(const Vario      *vario,
                                Model      *model1,
                                Model      *model2,
                                Constraints& constraints,
@@ -4294,7 +4295,7 @@ static void st_strmod_vmap_evaluate(int     nbexp,
 ** \remark  serve as initial value for the sill of the Model
 **
 *****************************************************************************/
-static void st_vario_varchol_manage(Vario *vario,
+static void st_vario_varchol_manage(const Vario *vario,
                                     Model *model,
                                     VectorDouble& varchol)
 {
@@ -4508,17 +4509,17 @@ static void st_regularize_init()
 ** \param[in]  vario       Vario structure containing the exp. variogram
 ** \param[in]  model       Model structure containing the basic structures
 ** \param[in]  verbose     Verbose flag
-** \param[in]  mauto       Option_AutoFit structure
-** \param[in]  consarg     Constraints structure
-** \param[in]  optvar      Opt_Vario structure
+** \param[in]  mauto_arg   Option_AutoFit structure
+** \param[in]  cons_arg    Constraints structure
+** \param[in]  optvar_arg  Opt_Vario structure
 **
 *****************************************************************************/
-GEOSLIB_API int model_auto_fit(Vario      *vario,
+GEOSLIB_API int model_auto_fit(const Vario      *vario,
                                Model      *model,
                                bool        verbose,
-                               Option_AutoFit     mauto,
-                               const Constraints& consarg,
-                               Option_VarioFit    optvar)
+                               const Option_AutoFit& mauto_arg,
+                               const Constraints& cons_arg,
+                               const Option_VarioFit& optvar_arg)
 {
   int      i,error,status,nbexp,norder,npar,npadir,npar0;
   int      flag_hneg,flag_gneg,flag_reduce,nvar,ncova,ndim,flag_regular;
@@ -4527,6 +4528,12 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
   StrMod  *strmod;
   VectorDouble varchol, scale, param, lower, upper;
   static int flag_check_result = 0;
+
+  // Getting local copy of const references
+
+  Option_AutoFit mauto = mauto_arg;
+  Option_VarioFit optvar = optvar_arg;
+  Constraints constraints = cons_arg;
 
   /* Initializations */
 
@@ -4538,7 +4545,6 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
   VectorDouble angles;
   st_regularize_init();
   mauto.setVerbose(verbose);
-  Constraints constraints = consarg;
 
   /* Preliminary checks */
 
@@ -4978,24 +4984,29 @@ static void st_load_vmap(int     npadir,
 ** \param[in]  dbmap       Db Grid structure containing the Vmap
 ** \param[in]  model       Model structure containing the basic structures
 ** \param[in]  verbose     Verbose flag
-** \param[in]  mauto       Option_AutoFit structure
-** \param[in]  consarg     Constraints structure
-** \param[in]  optvar      Opt_Vario structure
+** \param[in]  mauto_arg   Option_AutoFit structure
+** \param[in]  cons_arg    Constraints structure
+** \param[in]  optvar_arg  Opt_Vario structure
 **
 *****************************************************************************/
 GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
                               Model      *model,
                               bool        verbose,
-                              Option_AutoFit mauto,
-                              const Constraints& consarg,
-                              Option_VarioFit optvar)
+                              const Option_AutoFit& mauto_arg,
+                              const Constraints& cons_arg,
+                              const Option_VarioFit& optvar_arg)
 {
   int      i,error,status,nbexp,norder,npar0,npar,npadir,ndim;
   int      flag_reduce,ncova,nvar,idim;
   double   hmax,gmax;
   StrMod  *strmod;
   VectorDouble varchol, scale, param, lower, upper;
-  Constraints constraints = consarg;
+
+  // Copy of const reference classes
+
+  Option_AutoFit mauto = mauto_arg;
+  Constraints constraints = cons_arg;
+  Option_VarioFit optvar = optvar_arg;
 
   /* Initializations */
 

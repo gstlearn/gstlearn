@@ -89,9 +89,10 @@
 //                             visit_writer.c                                //
 // ************************************************************************* */
  
-#include "geoslib_e.h"
 #include "vtk.h"
- 
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+
 /*
  * Globals.
  */

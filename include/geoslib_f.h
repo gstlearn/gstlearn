@@ -11,34 +11,24 @@
 #ifndef GEOSLIB_F_H
 #define GEOSLIB_F_H
 
-#include <Variogram/Vario.hpp>
+// WARNING: Make this include list as small as possible!
 #include "geoslib_d.h"
-#include "csparse_d.h"
-#include "csparse_f.h"
-#include "Mesh/tetgen.h"
-#include "segy.h"
-#include "Neigh/Neigh.hpp"
-#include "Model/Model.hpp"
-#include "Db/Db.hpp"
+
 #include "Db/ELoadBy.hpp"
-#include "Anamorphosis/Anam.hpp"
-#include "Anamorphosis/AnamDiscreteDD.hpp"
-#include "Anamorphosis/AnamDiscreteIR.hpp"
-#include "Anamorphosis/AnamEmpirical.hpp"
-#include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamUser.hpp"
 #include "Model/Constraints.hpp"
-#include "Stats/PCA.hpp"
-#include "Mesh/MeshEStandard.hpp"
-#include "Polygon/Polygons.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
-#include "LithoRule/Rule.hpp"
-#include "LithoRule/RuleProp.hpp"
-#include "Model/ANoStat.hpp"
 
-#include "geoslib_old_f.h"
+class Db;
+class Vario;
+class VarioParam;
+class Model;
+class Anam;
+class Neigh;
+class Polygons;
+class RuleProp;
+class ECalcVario;
 
 /*************************/
 /* Functions for License */
@@ -186,7 +176,7 @@ GEOSLIB_API int variogram_direction_add(VarioParam *varioparam,
                                         const VectorDouble& breaks,
                                         const VectorDouble& codir,
                                         const VectorInt&    grincr);
-GEOSLIB_API int variogram_cloud(Db *db,
+GEOSLIB_API int variogram_cloud(const Db *db,
                                 const VarioParam *varioparam,
                                 Db *dbgrid,
                                 NamingConvention namconv = NamingConvention("Cloud"));
@@ -197,7 +187,7 @@ GEOSLIB_API Db* db_variogram_cloud(Db *db,
                                    int lagnb = 100,
                                    int varnb = 100,
                                    NamingConvention namconv = NamingConvention("Cloud"));
-GEOSLIB_API void variogram_print(Vario *vario, int verbose = false);
+GEOSLIB_API void variogram_print(const Vario *vario, int verbose = false);
 GEOSLIB_API Vario* variogram_pgs(Db*               db,
                                  const VarioParam* varioparam,
                                  const RuleProp*   ruleprop,
@@ -231,18 +221,18 @@ GEOSLIB_API Model *model_init(int ndim = 2,
                               bool flag_gradient = false,
                               const VectorDouble& mean = VectorDouble(),
                               const VectorDouble& covar0 = VectorDouble());
-GEOSLIB_API int model_auto_fit(Vario *vario,
+GEOSLIB_API int model_auto_fit(const Vario *vario,
                                Model *model,
                                bool verbose = false,
-                               Option_AutoFit mauto = Option_AutoFit(),
-                               const Constraints& consarg = Constraints(),
-                               Option_VarioFit optvar = Option_VarioFit());
-GEOSLIB_API int vmap_auto_fit(Db *dbvmap,
+                               const Option_AutoFit& mauto_arg = Option_AutoFit(),
+                               const Constraints& cons_arg = Constraints(),
+                               const Option_VarioFit& optvar_arg = Option_VarioFit());
+GEOSLIB_API int vmap_auto_fit(const Db *dbvmap,
                               Model *model,
                               bool verbose = false,
-                              Option_AutoFit mauto = Option_AutoFit(),
-                              const Constraints& constraints = Constraints(),
-                              Option_VarioFit optvar = Option_VarioFit());
+                              const Option_AutoFit& mauto_arg = Option_AutoFit(),
+                              const Constraints& cons_arg = Constraints(),
+                              const Option_VarioFit& optvar_arg = Option_VarioFit());
 GEOSLIB_API int db_model_nostat(Db *db,
                                 Model *model,
                                 int icov = 0,

@@ -11,6 +11,7 @@
 #include "Mesh/AMesh.hpp"
 #include "MatrixC/MatrixCRectangular.hpp"
 #include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 AMesh::AMesh()
   : _variety(0)

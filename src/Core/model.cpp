@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Basic/AException.hpp"
@@ -23,6 +22,9 @@
 #include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
+#include "geoslib_e.h"
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)
@@ -74,7 +76,7 @@ GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model)
  ** \param[in]  db    Db structure
  **
  *****************************************************************************/
-static int st_check_environ(const Model *model, Db *db)
+static int st_check_environ(const Model *model, const Db *db)
 {
   if (model->getDimensionNumber() == db->getNDim()) return (0);
   messerr("Dimension of the Db (%d) does not match dimension of the Model (%d)",
@@ -921,7 +923,7 @@ GEOSLIB_API void model_calcul_cov_nostat(Model *model,
  *****************************************************************************/
 GEOSLIB_API void model_calcul_drift(Model *model,
                                     const ECalcMember& member,
-                                    Db *db,
+                                    const Db *db,
                                     int iech,
                                     double *drftab)
 {
@@ -3463,7 +3465,7 @@ GEOSLIB_API void model_covupdt(Model *model,
  *****************************************************************************/
 GEOSLIB_API double model_drift_evaluate(int verbose,
                                         Model *model,
-                                        Db *db,
+                                        const Db *db,
                                         int iech,
                                         int ivar,
                                         double *coef,

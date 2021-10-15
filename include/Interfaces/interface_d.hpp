@@ -1,7 +1,6 @@
 #ifndef  INTERFACE_D_HPP
 #define  INTERFACE_D_HPP
 
-#include "geoslib_d.h"
 #include "Enum/AEnum.hpp"
 #include <vector>
 

@@ -9,12 +9,13 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Gibbs/GibbsMMulti.hpp"
-#include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Morpho/Morpho.hpp"
+#include "csparse_f.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
 #define QFLAG(iech,jech)         (QFlag[(iech) * nech + jech])
@@ -114,12 +115,9 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Clear the set of weight vectors
 
-  if (verbose) message("Establishing Kriging Weights\n");
+  if (verbose) message("Establishing Neighborhoods\n");
   _wgt.resize(nact);
   QFlag.resize(nech * nech, false);
-
-  // Loop on the active samples to define the neighborhood flags
-
   for (int iact = 0; iact < nact; iact++)
   {
     int iech = getSampleRank(iact);
@@ -131,8 +129,9 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     _setQFlag(QFlag, nech, iech, ranks);
   }
 
-  // Loop on the active samples to define the kriging weights
+  // Kriging weights
 
+  if (verbose) message("Establishing Sets of Kriging Weights\n");
   for (int iact = 0; iact < nact; iact++)
   {
     int iech = getSampleRank(iact);
@@ -185,6 +184,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   // Note: the return code is not tested on purpose, to let the rest
   // of the test to be performed.
 
+  if (verbose) message("Beautifying Kriging Weights (Symmetrization, Checks, ...)\n");
   (void) _improveConditioning(verbose);
 
   // Initialize the statistics (optional)

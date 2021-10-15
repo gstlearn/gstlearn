@@ -15,9 +15,12 @@
 #include "Mesh/MeshFactory.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Db/ELoadBy.hpp"
-
+#include "Space/ASpaceObject.hpp"
+#include "Covariances/ECov.hpp"
+#include "csparse_f.h"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 /*********************/
 /* Program principal */

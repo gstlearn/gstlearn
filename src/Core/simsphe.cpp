@@ -11,6 +11,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define QUANTUM 1000
