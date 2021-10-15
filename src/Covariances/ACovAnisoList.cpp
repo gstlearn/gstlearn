@@ -18,6 +18,7 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "geoslib_f.h"
+#include <math.h>
 
 ACovAnisoList::ACovAnisoList(const ASpace* space)
 : ACov(space),

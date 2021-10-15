@@ -10,8 +10,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #define CASE_MATRICES 0 
-#include "geoslib_e.h"
-#include "geoslib_enum.h"
 #include "MatrixC/MatrixCFactory.hpp"
 #include "MatrixC/MatrixCSGeneral.hpp"
 #include "Model/NoStatArray.hpp"
@@ -21,6 +19,10 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
+#include "csparse_f.h"
+#include "geoslib_e.h"
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define VT_NONE      -1

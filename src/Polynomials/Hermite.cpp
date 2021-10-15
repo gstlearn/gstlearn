@@ -13,7 +13,9 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_f.h"
-#include "math.h"
+#include "geoslib_old_f.h"
+
+#include <math.h>
 
 double _convert2u(double yc, double krigest, double krigstd)
 {

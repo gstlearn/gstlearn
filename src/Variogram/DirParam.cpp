@@ -13,6 +13,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 DirParam::DirParam(int ndim,
                    int npas,

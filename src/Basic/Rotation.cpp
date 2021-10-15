@@ -15,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 Rotation::Rotation(unsigned int ndim)
   : _nDim(ndim)

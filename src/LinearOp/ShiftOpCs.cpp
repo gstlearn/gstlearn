@@ -16,13 +16,13 @@
 #include "Mesh/MeshEStandard.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
-#include "geoslib_e.h"
-
 #include "Basic/AException.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
+#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 ShiftOpCs::ShiftOpCs()
     : ALinearOp(),

@@ -13,7 +13,9 @@
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Morpho/Morpho.hpp"
+#include "csparse_f.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
 #define QFLAG(iech,jech)         (QFlag[(iech) * nech + jech])

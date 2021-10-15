@@ -12,6 +12,7 @@
 #include "MatrixC/AMatrixC.hpp"
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 MatrixCRectangular::MatrixCRectangular(int nrows, int ncols, bool sparse)
     : AMatrixC(nrows, ncols, sparse),

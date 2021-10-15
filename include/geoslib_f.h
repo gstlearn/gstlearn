@@ -11,34 +11,24 @@
 #ifndef GEOSLIB_F_H
 #define GEOSLIB_F_H
 
-#include <Variogram/Vario.hpp>
+// WARNING: Make this include list as small as possible!
 #include "geoslib_d.h"
-#include "csparse_d.h"
-#include "csparse_f.h"
-#include "Mesh/tetgen.h"
-#include "segy.h"
-#include "Neigh/Neigh.hpp"
-#include "Model/Model.hpp"
-#include "Db/Db.hpp"
+
 #include "Db/ELoadBy.hpp"
-#include "Anamorphosis/Anam.hpp"
-#include "Anamorphosis/AnamDiscreteDD.hpp"
-#include "Anamorphosis/AnamDiscreteIR.hpp"
-#include "Anamorphosis/AnamEmpirical.hpp"
-#include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamUser.hpp"
 #include "Model/Constraints.hpp"
-#include "Stats/PCA.hpp"
-#include "Mesh/MeshEStandard.hpp"
-#include "Polygon/Polygons.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
-#include "LithoRule/Rule.hpp"
-#include "LithoRule/RuleProp.hpp"
-#include "Model/ANoStat.hpp"
 
-#include "geoslib_old_f.h"
+class Db;
+class Vario;
+class VarioParam;
+class Model;
+class Anam;
+class Neigh;
+class Polygons;
+class RuleProp;
+class ECalcVario;
 
 /*************************/
 /* Functions for License */

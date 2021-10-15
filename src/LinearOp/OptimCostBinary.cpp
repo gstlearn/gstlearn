@@ -1,4 +1,3 @@
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /******************************************************************************/
 /* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
@@ -11,7 +10,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-
 #include "LinearOp/OptimCostBinary.hpp"
 #include "LinearOp/HessianOp.hpp"
 #include "LinearOp/IOptimCost.hpp"
@@ -21,6 +19,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 OptimCostBinary::OptimCostBinary() 
   : IOptimCost()

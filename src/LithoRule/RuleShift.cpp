@@ -16,7 +16,9 @@
 #include "LithoRule/Node.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+#include <math.h>
 
 /**
  * Definition of the Lithotype RuleShift

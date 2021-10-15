@@ -1,7 +1,10 @@
 #ifndef LICENSE_KEY_H
 #define LICENSE_KEY_H
 
-#include "geoslib_e.h"
+#include "License/MD5Utility.hpp"
+#include <map>
+#include <string>
+#include <vector>
 
 typedef std::map<std::string, std::vector<std::string> > FeatureList;
  

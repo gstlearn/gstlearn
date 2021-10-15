@@ -1,7 +1,8 @@
 #ifndef LICENSE_UTILITY_H
 #define LICENSE_UTILITY_H
 
-#include "geoslib_e.h"
+#include <vector>
+#include <string>
 
 class LicenseUtility {
 

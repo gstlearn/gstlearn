@@ -7,7 +7,6 @@
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamEmpirical.hpp"
@@ -18,6 +17,9 @@
 #include "Polynomials/MonteCarlo.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "geoslib_e.h"
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
 
 /*! \cond */
 #define EPS_TON    0.001

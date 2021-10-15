@@ -1,7 +1,7 @@
 #ifndef REGISTRY_UTILITY_H
 #define REGISTRY_UTILITY_H
 
-#include "geoslib_e.h"
+#include <string>
 
 class RegistryUtility {
 public :

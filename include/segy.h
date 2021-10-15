@@ -12,6 +12,7 @@
 #define SEGY_D_H
 
 #include "Basic/NamingConvention.hpp"
+#include "geoslib_d.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

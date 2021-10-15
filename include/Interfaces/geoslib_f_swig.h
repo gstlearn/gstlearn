@@ -3,6 +3,13 @@
 
 #include "Interfaces/Database.hpp"
 #include "Interfaces/interface_d.hpp"
+#include "Neigh/ENeigh.hpp"
+#include "Basic/Vector.hpp"
+#include "geoslib_enum.h"
+
+class Neigh;
+class Db;
+class Model;
 
 void migrate_grid_to_point2(const Database& Db_grid, Database& db_point, const std::string& name, int ldmax = 2, VectorDouble dmax = VectorDouble());
 
@@ -14,7 +21,8 @@ void migrate_grid_to_grid2(const Database& db_grid_in, Database& db_grid_out, co
 //VectorDouble model_evaluate2(Model* model, const VarioExp& vario, int idir, int ivar);
 //
 Neigh* neigh_unique(int ndim);
-Neigh* neigh_moving(int ndim, int flag_sector, int flag_rotation, int nmini, int nmaxi, int nsect, int nsmax, int radius, VectorDouble Rotation);
+Neigh* neigh_moving(int ndim, int flag_sector, int flag_rotation, int nmini, int nmaxi, int nsect,
+                    int nsmax, int radius, VectorDouble Rotation);
 
 Neigh* my_neigh_init(int ndim, ENeigh type, int flag_xvalid, int flag_sector,
                     int flag_aniso, int flag_rotation, int flag_continuous,

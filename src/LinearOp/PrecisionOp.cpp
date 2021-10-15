@@ -20,6 +20,7 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_e.h"
+#include "geoslib_old_f.h"
 
 PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
                          const CovAniso* cova,

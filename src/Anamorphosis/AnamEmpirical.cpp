@@ -14,6 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
+#include <math.h>
 
 #define ANAM_YMIN -10.
 #define ANAM_YMAX  10.
