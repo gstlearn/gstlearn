@@ -65,7 +65,7 @@ private:
   EPowerPT                         _power;
   std::map<EPowerPT, APolynomial*> _polynomials;
   bool                             _verbose;
-  bool _training;
+  bool                             _training;
 
 protected :
   mutable VectorDouble _work;

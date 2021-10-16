@@ -2159,7 +2159,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     {
       nquant++;
       tabloc = (double *)
-        mem_realloc((char *) tabloc,sizeof(double)*nvar*nquant*quantum,1);
+        mem_realloc((char *) tabloc,sizeof(double) * nvar * nquant * quantum,1);
     }
 
     // Add the special variables
@@ -2170,24 +2170,20 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     
     // Add other variables
 
+    lcur = string;
     while (nvarlu < nvar)
     {
-      lcur = string;
-
-    label_decode:
       token = strtok(lcur, sep_blank);
       lcur  = NULL;
-      if (token == NULL || sscanf(token,"%lf",&value) == EOF) goto label_line;
+      if (token == NULL || sscanf(token,"%lf",&value) == EOF) break;
       if (value == test) value = TEST;
       tabloc[ecr++] = value;
       nvarlu++;
-      goto label_decode;
+    }
 
-    label_line:
-      if (nvarlu < nvar)
-      {
+    if (nvarlu < nvar)
+    {
         if (fgets(string,s_length,file) == NULL) break;
-      }
     }
     nech++;
   }
