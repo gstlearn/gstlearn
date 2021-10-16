@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "segy.h"
 #include "geoslib_e.h"
 #include "geoslib_enum.h"
@@ -1255,7 +1256,7 @@ GEOSLIB_API SegYArg segy_array(const char *filesegy,
 
   // Open Input SEGY file
 
-  if ((file = fopen(filesegy,"r")) == NULL)
+  if ((file = gslFopen(filesegy,"r")) == NULL)
   {
     messerr("ERROR:  cannot find input file %s",filesegy);
     return segyarg;
@@ -1433,7 +1434,7 @@ GEOSLIB_API GridC segy_summary(const char *filesegy,
 
   // Open Input SEGY file
 
-  if ((file = fopen(filesegy,"r")) == NULL)
+  if ((file = gslFopen(filesegy,"r")) == NULL)
   {
     messerr("ERROR:  cannot find input file %s",filesegy);
     return def_grid;
@@ -1609,7 +1610,7 @@ GEOSLIB_API int db_segy(const char *filesegy,
 
   // Open Input SEGY file
 
-  file = fopen(filesegy,"r");
+  file = gslFopen(filesegy,"r");
   if (file == NULL)
   {
     messerr("ERROR:  cannot find input file %s",filesegy);

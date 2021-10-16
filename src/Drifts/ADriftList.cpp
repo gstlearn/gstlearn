@@ -249,7 +249,7 @@ VectorDouble ADriftList::getDrift(const Db* db, int ib, bool useSel)
 
 VectorVectorDouble ADriftList::getDrifts(const Db* db, bool useSel)
 {
-  int ndrift = _drifts.size();
+  int ndrift = static_cast<int>(_drifts.size());
 
   VectorVectorDouble vec;
   for (int ib=0; ib<ndrift; ib++)

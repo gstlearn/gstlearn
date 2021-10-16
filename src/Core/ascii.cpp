@@ -14,6 +14,7 @@
 #include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "geoslib_e.h"
 #include "geoslib_enum.h"
@@ -56,15 +57,7 @@ static char Fichier_frac[] = "Frac";
 
 static bool st_file_exists(const char* file_name)
 {
-  if (FILE *file = fopen(file_name, "r"))
-  {
-    fclose(file);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return gslFileExist(file_name, "r");
 }
 
 /****************************************************************************/
@@ -272,7 +265,7 @@ GEOSLIB_API void ascii_filename(const char *type,
 GEOSLIB_API void ascii_study_define(const char *study)
 
 {
-  (void) strcpy(STUDY, study);
+  (void) gslStrcpy(STUDY, gslArraySize(STUDY), study);
   return;
 }
 
@@ -312,7 +305,7 @@ static FILE *st_file_open(const char *filename,
   /* Open the file */
 
   file = FILE_MEM = _file_open(filename, mode);
-  (void) strcpy(FILE_NAME_MEM, filename);
+  (void) gslStrcpy(FILE_NAME_MEM, gslArraySize(FILE_NAME_MEM), filename);
 
   if (file == (FILE *) NULL)
   {
@@ -395,7 +388,7 @@ static void st_table_write(const char *string, int ntab, const double *tab)
     st_record_write("%lf", tab[i]);
     if (string != NULL)
     {
-      (void) sprintf(local, "%s (%d)", string, i + 1);
+      (void) gslSPrintf(local, LONG_SIZE, "%s (%d)", string, i + 1);
       st_record_write("#", local);
     }
     else
@@ -424,7 +417,7 @@ static void st_tablei_write(const char *string, int ntab, int *itab)
     st_record_write("%d", itab[i]);
     if (string != NULL)
     {
-      (void) sprintf(local, "%s (%d)", string, i + 1);
+      (void) gslSPrintf(local, LONG_SIZE, "%s (%d)", string, i + 1);
       st_record_write("#", local);
     }
     else

@@ -13,6 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -1809,10 +1810,10 @@ static void st_print_grid(const char *subtitle,
 
   for (iz=0; iz<nxyz[2]; iz++)
   {
-    (void) sprintf(string,"%s Values (iz=%d)\n",subtitle,iz+1);
+    (void) gslSPrintf(string,gslArraySize(string),"%s Values (iz=%d)\n",subtitle,iz+1);
     message(string);
     print_matrix(NULL,0,0,nxyz[0],nxyz[1],NULL,&valtab[iz * shift]);
-    (void) sprintf(string,"%s Counts (iz=%d)\n",subtitle,iz+1);
+    (void) gslSPrintf(string,gslArraySize(string),"%s Counts (iz=%d)\n",subtitle,iz+1);
     message(string);
     print_matrix(NULL,0,0,nxyz[0],nxyz[1],NULL,&numtab[iz * shift]);
   }
@@ -2796,7 +2797,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
         {
           for (int iseed=0; iseed<nseed; iseed++)
           {
-            (void) sprintf(name,"Diffusion.Trajectory.%d",iseed+1);
+            (void) gslSPrintf(name,gslArraySize(name),"Diffusion.Trajectory.%d",iseed+1);
             for (int iter=0; iter<niter; iter++)
               for (int idim=0; idim<ndim; idim++)
                 TRAJEC(iseed,iter,idim) =

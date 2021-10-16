@@ -8,6 +8,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -474,8 +475,8 @@ static void st_dump(const char *title,
 
   /* Process the title */
 
-  (void) strcpy(STRING,title);
-  (void) strcat(STRING," : ");
+  (void) gslStrcpy(STRING,gslArraySize(STRING),title);
+  (void) gslStrcat(STRING,gslArraySize(STRING)," : ");
 
   /* Process the address */
 
@@ -490,7 +491,7 @@ static void st_dump(const char *title,
 
   /* Print the header (if any) */
 
-  (void) strcat(STRING,"\n");
+  (void) gslStrcat(STRING,gslArraySize(STRING),"\n");
   message(STRING);
 
   /* Dump the grid */

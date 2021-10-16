@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Polynomials/Hermite.hpp"
@@ -17,6 +18,7 @@
 #include "Basic/Utilities.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -4483,7 +4485,7 @@ GEOSLIB_API int regression_f(Db *db1,
     tab_prints(NULL,1,EJustify::RIGHT,"Target");
     for (i=0; i<size; i++)
     {
-      (void) sprintf(string,"Aux.#%d",i+1);
+      (void) gslSPrintf(string,gslArraySize(string),"Aux.#%d",i+1);
       tab_prints(NULL,1,EJustify::RIGHT,string);
     }
     tab_prints(NULL,1,EJustify::RIGHT,"Residuals");

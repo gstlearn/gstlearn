@@ -19,6 +19,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Basic/File.hpp"
 #include "csparse_f.h"
 #include "geoslib_e.h"
 #include "geoslib_enum.h"
@@ -345,31 +346,31 @@ static void st_title(int flag_igrf, int flag_icov, int rank, const char *title)
 {
   int flag_decor;
 
-  (void) strcpy(string_encode, " ");
+  (void) gslStrcpy(string_encode, gslArraySize(string_encode)," ");
 
   flag_decor = (flag_igrf || flag_icov);
 
   if (flag_decor)
   {
-    (void) sprintf(string_encode, "(");
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode),"(");
     if (flag_igrf)
-      (void) sprintf(string_encode, "%s GRF:%d", string_encode,
+      (void) gslSPrintf(string_encode, gslArraySize(string_encode),"%s GRF:%d", string_encode,
                      st_get_current_igrf() + 1);
     if (flag_icov)
-      (void) sprintf(string_encode, "%s - COV:%d", string_encode,
+      (void) gslSPrintf(string_encode, gslArraySize(string_encode),"%s - COV:%d", string_encode,
                      st_get_current_icov() + 1);
-    (void) sprintf(string_encode, "%s ) %s", string_encode, title);
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode),"%s ) %s", string_encode, title);
   }
   else
   {
-    (void) sprintf(string_encode, "%s", title);
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode),"%s", title);
   }
 
   if (rank >= 0)
     mestitle(rank, string_encode);
   else
   {
-    sprintf(string_encode, "%s\n", string_encode);
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode),"%s\n", string_encode);
     message(string_encode);
   }
 }
@@ -1492,9 +1493,9 @@ static void st_keypair_array(const char *name, int iter, double *tab)
     for (int ivar = 0; ivar < nvar; ivar++)
     {
       if (iter < 0)
-        (void) sprintf(NAME, "%s.%d.%d", name, icov + 1, ivar + 1);
+        (void) gslSPrintf(NAME, gslArraySize(NAME), "%s.%d.%d", name, icov + 1, ivar + 1);
       else
-        (void) sprintf(NAME, "%s.%d.%d.%d", name, iter + 1, icov + 1, ivar + 1);
+        (void) gslSPrintf(NAME, gslArraySize(NAME), "%s.%d.%d.%d", name, iter + 1, icov + 1, ivar + 1);
       set_keypair(NAME, 1, ncur, 1, &TAB(icov, ivar, 0));
     }
 }
@@ -1521,12 +1522,12 @@ static void st_keypair_cs(const char *name,
                           int i5)
 {
   if (!FLAG_KEYPAIR) return;
-  (void) strcpy(NAME, name);
-  if (i1 > 0) (void) sprintf(NAME, "%s.%d", NAME, i1);
-  if (i2 > 0) (void) sprintf(NAME, "%s.%d", NAME, i2);
-  if (i3 > 0) (void) sprintf(NAME, "%s.%d", NAME, i3);
-  if (i4 > 0) (void) sprintf(NAME, "%s.%d", NAME, i4);
-  if (i5 > 0) (void) sprintf(NAME, "%s.%d", NAME, i5);
+  (void) gslStrcpy(NAME, gslArraySize(NAME), name);
+  if (i1 > 0) (void) gslSPrintf(NAME, gslArraySize(NAME),"%s.%d", NAME, i1);
+  if (i2 > 0) (void) gslSPrintf(NAME, gslArraySize(NAME),"%s.%d", NAME, i2);
+  if (i3 > 0) (void) gslSPrintf(NAME, gslArraySize(NAME),"%s.%d", NAME, i3);
+  if (i4 > 0) (void) gslSPrintf(NAME, gslArraySize(NAME),"%s.%d", NAME, i4);
+  if (i5 > 0) (void) gslSPrintf(NAME, gslArraySize(NAME),"%s.%d", NAME, i5);
   cs_keypair(NAME, cs, 1);
 }
 
@@ -4848,7 +4849,7 @@ static int st_kriging_several_rhs(double *data,
     {
       for (int ivar = 0; ivar < nvar; ivar++)
       {
-        (void) sprintf(NAME, "DATA.%d", ivar);
+        (void) gslSPrintf(NAME, gslArraySize(NAME),"DATA.%d", ivar);
         set_keypair(NAME, 1, ndata, 1, &DATA(ivar, 0));
       }
     }
@@ -6316,9 +6317,9 @@ static void st_save_meshing_keypair(SPDE_Mesh *s_mesh, int icov0)
   flag_save = (int) get_keypone("Meshing_External_Save", 0);
   if (!flag_save) return;
 
-  (void) sprintf(NAME, "Meshing_External_Points.%d", icov0 + 1);
+  (void) gslSPrintf(NAME, gslArraySize(NAME),"Meshing_External_Points.%d", icov0 + 1);
   set_keypair(NAME, 1, s_mesh->nvertex, s_mesh->ndim, s_mesh->points);
-  (void) sprintf(NAME, "Meshing_External_Meshes.%d", icov0 + 1);
+  (void) gslSPrintf(NAME, gslArraySize(NAME),"Meshing_External_Meshes.%d", icov0 + 1);
   set_keypair_int(NAME, 1, s_mesh->nmesh, s_mesh->ncorner, s_mesh->meshes);
 }
 
@@ -9687,23 +9688,23 @@ static Db *st_m2d_create_constraints(M2D_Environ *m2denv,
   db_name_set(db, ecr++, "rank");
   for (int idim = 0; idim < ndim; idim++)
   {
-    sprintf(string_encode, "X%d", idim + 1);
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode),"X%d", idim + 1);
     db_name_set(db, ecr++, string_encode);
   }
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    sprintf(string_encode, "Lower%d", ilayer + 1);
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode), "Lower%d", ilayer + 1);
     db_name_set(db, ecr++, string_encode);
-    sprintf(string_encode, "Upper%d", ilayer + 1);
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode), "Upper%d", ilayer + 1);
     db_name_set(db, ecr++, string_encode);
-    sprintf(string_encode, "Value%d", ilayer + 1);
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode), "Value%d", ilayer + 1);
     db_name_set(db, ecr++, string_encode);
   }
   if (m2denv->flag_ed)
   {
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      sprintf(string_encode, "Drift%d", ilayer + 1);
+      (void) gslSPrintf(string_encode, gslArraySize(string_encode), "Drift%d", ilayer + 1);
       db_name_set(db, ecr++, string_encode);
     }
   }
@@ -10604,7 +10605,7 @@ static void st_m2d_stats_gaus(const char *title,
   if (!DEBUG) return;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    (void) sprintf(string_encode, "%s (Layer #%d)", title, ilayer + 1);
+    (void) gslSPrintf(string_encode, gslArraySize(string_encode), "%s (Layer #%d)", title, ilayer + 1);
     ut_stats_mima_print(string_encode, nech, &YDAT(ilayer, 0), NULL);
   }
 }
@@ -10820,7 +10821,7 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
       dbout->setFieldByAttribute(&GWORK(ilayer,0),iatt_out+ilayer);
-      sprintf(string_encode, "Drift%d", ilayer + 1);
+      (void) gslSPrintf(string_encode, gslArraySize(string_encode), "Drift%d", ilayer + 1);
       db_name_set(dbout, iatt_out + ilayer, string_encode);
     }
     error = 0;
@@ -10989,7 +10990,8 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
     {
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        sprintf(string_encode, "Layer-%d_Simu-%d", ilayer + 1, isimu + 1);
+        (void) gslSPrintf(string_encode, gslArraySize(string_encode),
+                          "Layer-%d_Simu-%d", ilayer + 1, isimu + 1);
         db_name_set(dbout, iatt_out + ecr, string_encode);
         ecr++;
       }
@@ -11024,12 +11026,12 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
       if (iptr_ce >= 0) for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        sprintf(string_encode, "Layer-%d_CE", ilayer + 1);
+        (void) gslSPrintf(string_encode, gslArraySize(string_encode), "Layer-%d_CE", ilayer + 1);
         db_name_set(dbout, iptr_ce + ilayer, string_encode);
       }
       if (iptr_cstd >= 0) for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        sprintf(string_encode, "Layer-%d_CStd", ilayer + 1);
+        (void) gslSPrintf(string_encode, gslArraySize(string_encode), "Layer-%d_CStd", ilayer + 1);
         db_name_set(dbout, iptr_cstd + ilayer, string_encode);
       }
     }

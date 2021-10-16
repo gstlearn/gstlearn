@@ -10,8 +10,11 @@
 /******************************************************************************/
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/EDrift.hpp"
+#include "Drifts/ADrift.hpp"
+#include "Drifts/ADriftElem.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -19,6 +22,7 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Model/ModTrans.hpp"
 #include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
@@ -1135,8 +1139,8 @@ GEOSLIB_API Model *model_init(int ndim,
   SpaceRN space(ndim);
   CovContext ctxt = CovContext(nvar, 2, field, &space);
   ctxt.setBallRadius(ball_radius);
-  if (mean.size() > 0)   ctxt.setMean(mean);
-  if (covar0.size() > 0) ctxt.setCovar0(covar0);
+  if (static_cast<int>(mean.size()) > 0)   ctxt.setMean(mean);
+  if (static_cast<int>(covar0.size()) > 0) ctxt.setCovar0(covar0);
 
   model = new Model(ctxt, flag_gradient, flag_linked);
 
@@ -1239,7 +1243,7 @@ GEOSLIB_API int model_add_cova(Model *model,
     else
       covgrad.setRange(range);
 
-    if (sill.size() > 0) covgrad.setSill(sill);
+    if (static_cast<int>(sill.size()) > 0) covgrad.setSill(sill);
     model->addCova(&covgrad);
   }
   else
@@ -1254,7 +1258,7 @@ GEOSLIB_API int model_add_cova(Model *model,
     else
       cova.setRange(range);
 
-    if (sill.size() > 0) cova.setSill(sill);
+    if (static_cast<int>(sill.size()) > 0) cova.setSill(sill);
     model->addCova(&cova);
   }
 
@@ -4783,7 +4787,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
   if (st_check_environ(model, db)) return nullptr;
   int ndim  = model->getDimensionNumber();
   int nvar  = model->getVariableNumber();
-  int nech  = iechs.size();
+  int nech  = static_cast<int>(iechs.size());
 
   /* Core allocation */
 

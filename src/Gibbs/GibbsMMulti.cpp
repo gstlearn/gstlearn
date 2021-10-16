@@ -140,7 +140,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     // Read the neighborhood from the contingency table
 
     ww._ranks = _getQFlag(QFlag, nech, iech);
-    int nbgh  = ww._ranks.size();
+    int nbgh  = static_cast<int>(ww._ranks.size());
     int neq   = nvar * nbgh;
 
     // Establishing the (moving) Covariance matrix
@@ -234,7 +234,7 @@ void GibbsMMulti::update(VectorVectorDouble& y,
       if (! isConstraintTight(ipgs, ivar, iact, &valsim))
       {
         const GibbsWeights& ww = _wgt[iact];
-        int nbgh  = ww._ranks.size();
+        int nbgh  = static_cast<int>(ww._ranks.size());
         int pivot = ww._pivot;
 
         /* Loop on the Data */
@@ -312,7 +312,7 @@ void GibbsMMulti::_print(int iact) const
   const GibbsWeights& ww = _wgt[iact];
   message("Position within the neighboring sample list: %d\n",ww._pivot);
 
-  int nbgh = ww._ranks.size();
+  int nbgh = static_cast<int>(ww._ranks.size());
   print_ivector("Ranks",0,nbgh,ww._ranks);
   for (int ivar=0; ivar < nvar; ivar++)
     print_vector("Weights",0,nbgh,ww._ll[ivar]);
@@ -329,7 +329,7 @@ void GibbsMMulti::_setQFlag(VectorBool& QFlag,
                             int iech,
                             const VectorInt& ranks) const
 {
-  int nbgh = ranks.size();
+  int nbgh = static_cast<int>(ranks.size());
   for (int ibgh = 0; ibgh < nbgh; ibgh++)
   {
     QFLAG(iech, ranks[ibgh]) = 1;
@@ -388,7 +388,7 @@ int GibbsMMulti::_buildQ()
   for (int iact = 0; iact < nact; iact++)
   {
     const GibbsWeights& ww = _wgt[iact];
-    int nbgh  = ww._ranks.size();
+    int nbgh  = static_cast<int>(ww._ranks.size());
     int icol = iact + nbgh * ivar;
 
     for (int jbgh = 0; jbgh < nbgh; jbgh++)
@@ -421,7 +421,7 @@ void GibbsMMulti::_extractWeightFromQ()
     for (int iact = 0; iact < nact; iact++)
     {
       GibbsWeights& ww = _wgt[iact];
-      int nbgh = ww._ranks.size();
+      int nbgh = static_cast<int>(ww._ranks.size());
       int icol = iact + nbgh * ivar;
 
       for (int jbgh = 0; jbgh < nbgh; jbgh++)

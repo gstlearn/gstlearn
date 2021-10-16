@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Model/Constraints.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/Option_AutoFit.hpp"
@@ -125,13 +126,13 @@ static Recint       RECINT;
 static void st_name_range(int ivar)
 {
   if (ivar == 0)
-    (void) sprintf(string,"Range U");
+    (void) gslSPrintf(string,gslArraySize(string),"Range U");
   else if (ivar == 1)
-    (void) sprintf(string,"Range V");
+    (void) gslSPrintf(string,gslArraySize(string),"Range V");
   else if (ivar == 2)
-    (void) sprintf(string,"Range W");
+    (void) gslSPrintf(string,gslArraySize(string),"Range W");
   else
-    (void) sprintf(string,"Range in direction %d",ivar);
+    (void) gslSPrintf(string,gslArraySize(string),"Range in direction %d",ivar);
 }
 
 /****************************************************************************/
@@ -144,13 +145,13 @@ static void st_name_range(int ivar)
 static void st_name_scale(int ivar)
 {
   if (ivar == 0)
-    (void) sprintf(string,"Scale U");
+    (void) gslSPrintf(string,gslArraySize(string),"Scale U");
   else if (ivar == 1)
-    (void) sprintf(string,"Scale V");
+    (void) gslSPrintf(string,gslArraySize(string),"Scale V");
   else if (ivar == 2)
-    (void) sprintf(string,"Scale W");
+    (void) gslSPrintf(string,gslArraySize(string),"Scale W");
   else
-    (void) sprintf(string,"Scale in direction %d",ivar);
+    (void) gslSPrintf(string,gslArraySize(string),"Scale in direction %d",ivar);
 }
 
 /****************************************************************************/
@@ -163,13 +164,13 @@ static void st_name_scale(int ivar)
 static void st_name_rotation(int rank)
 {
   if (rank == 0)
-    (void) sprintf(string,"Anisotropy Rotation Angle around Oz");
+    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Oz");
   else if (rank == 1)
-    (void) sprintf(string,"Anisotropy Rotation Angle around Oy");
+    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Oy");
   else if (rank == 2)
-    (void) sprintf(string,"Anisotropy Rotation Angle around Ox");
+    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Ox");
   else
-    (void) sprintf(string,"Anisotropy Rotation Angle %d",rank);
+    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle %d",rank);
 }
 
 /****************************************************************************/
@@ -1266,7 +1267,7 @@ static void st_goulard_debug_title(int nvar,
     for (ivar=0; ivar<nvar; ivar++)
       for (jvar=0; jvar<=ivar; jvar++)
       {
-        (void) sprintf(string,"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
+        (void) gslSPrintf(string,gslArraySize(string),"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
       }
   message("\n");
@@ -1332,7 +1333,7 @@ static void st_keypair_sill(int   mode,
   {
     for (int icova=0; icova<ncova; icova++)
     {
-      (void) sprintf(string,"Fitted_Sill_%d",icova+1);
+      (void) gslSPrintf(string,gslArraySize(string),"Fitted_Sill_%d",icova+1);
       set_keypair(string,1,nvar,nvar,
                   model->getSill(icova).getValues().data());
     }
@@ -1365,9 +1366,9 @@ static void st_keypair_results(int     mode,
   }
   else
   {
-    (void) sprintf(string,"Model_Auto_Eigen_Values_%d",icov+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Model_Auto_Eigen_Values_%d",icov+1);
     set_keypair(string,1,1,nvar,valpro);
-    (void) sprintf(string,"Model_Auto_Eigen_Vector_%d",icov+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Model_Auto_Eigen_Vector_%d",icov+1);
     set_keypair(string,1,nvar,nvar,vecpro);
   }
 }

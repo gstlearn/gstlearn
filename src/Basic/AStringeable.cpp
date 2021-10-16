@@ -13,6 +13,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -240,8 +241,13 @@ void message(const char *format, ...)
   va_list ap;
 
   va_start(ap, format);
+#if __STDC_WANT_LIB_EXT1__ == 1
+  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
+#else
   (void) vsprintf(STRING, format, ap);
+#endif
   va_end(ap);
+
   message_extern(STRING);
 
   return;
@@ -254,7 +260,13 @@ String stringCompose(const char *format,...)
   va_list ap;
 
   va_start(ap, format);
+#if __STDC_WANT_LIB_EXT1__ == 1
+  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
+#else
   (void) vsprintf(STRING, format, ap);
+#endif
+  va_end(ap);
+
   sstr << STRING;
   return sstr.str();
 }
@@ -291,8 +303,13 @@ void messerr(const char *format, ...)
   va_list ap;
 
   va_start(ap, format);
+#if __STDC_WANT_LIB_EXT1__ == 1
+  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
+#else
   (void) vsprintf(STRING, format, ap);
+#endif
   va_end(ap);
+
   message_extern(STRING);
   message_extern("\n");
 
@@ -338,30 +355,30 @@ void mestitle(int level, const char *format, ...)
   va_end(ap);
   int size = strlen(STRING);
 
-  (void) strcat(STRING, "\n");
+  (void) gslStrcat(STRING, gslArraySize(STRING), "\n");
   message_extern(STRING);
 
   /* Underline the string */
 
-  (void) strcpy(STRING, "");
+  (void) gslStrcpy(STRING, gslArraySize(STRING), "");
   for (int i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void) strcat(STRING, "=");
+        (void) gslStrcat(STRING, gslArraySize(STRING), "=");
         break;
 
       case 1:
-        (void) strcat(STRING, "-");
+        (void) gslStrcat(STRING, gslArraySize(STRING), "-");
         break;
 
       case 2:
-        (void) strcat(STRING, ".");
+        (void) gslStrcat(STRING, gslArraySize(STRING), ".");
         break;
     }
   }
-  (void) strcat(STRING, "\n");
+  (void) gslStrcat(STRING, gslArraySize(STRING), "\n");
   message_extern(STRING);
 
   return;
@@ -388,21 +405,21 @@ String toTitle(int level, const char* format, ...)
   /* Underline the string */
 
   int size = strlen(STRING);
-  (void) strcpy(STRING, "");
+  (void) gslStrcpy(STRING, gslArraySize(STRING), "");
   for (int i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void) strcat(STRING, "=");
+        (void) gslStrcat(STRING, gslArraySize(STRING), "=");
         break;
 
       case 1:
-        (void) strcat(STRING, "-");
+        (void) gslStrcat(STRING, gslArraySize(STRING), "-");
         break;
 
       case 2:
-        (void) strcat(STRING, ".");
+        (void) gslStrcat(STRING, gslArraySize(STRING), ".");
         break;
     }
   }

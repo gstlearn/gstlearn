@@ -11,6 +11,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 //#include <tr1/cmath>
@@ -1532,11 +1533,11 @@ GEOSLIB_API void get_matrix(const char *title,
     for (iy = 0; iy < ny; iy++)
     {
       if (flag_sym && iy > ix) continue;
-      (void) sprintf(QUESTION, "%s(", title);
+      (void) gslSPrintf(QUESTION, gslArraySize(QUESTION), "%s(", title);
       if (nx > 1) (void) sprintf(&QUESTION[strlen(QUESTION)], "%d", ix + 1);
-      if (nx > 1 && ny > 1) (void) strcat(QUESTION, ",");
+      if (nx > 1 && ny > 1) (void) gslStrcat(QUESTION, gslArraySize(QUESTION),",");
       if (ny > 1) (void) sprintf(&QUESTION[strlen(QUESTION)], "%d", iy + 1);
-      (void) strcat(QUESTION, ")");
+      (void) gslStrcat(QUESTION, gslArraySize(QUESTION),")");
       TAB(ix,iy) = _lire_double(QUESTION, flag_def, (flag_def) ? TAB(ix, iy) :
                                                                  TEST,
                                 valmin, valmax);
@@ -1904,7 +1905,7 @@ static int st_match_keypair(const char *keyword, int flag_exact)
   Keypair *keypair;
   char keyloc[STRING_LENGTH];
 
-  (void) strcpy(keyloc, keyword);
+  (void) gslStrcpy(keyloc, STRING_LENGTH, keyword);
   string_strip_blanks(keyloc, 0);
 
   for (int i = 0; i < KEYPAIR_NTAB; i++)
@@ -1959,16 +1960,16 @@ static Keypair *st_get_keypair_address(const char *keyword)
   {
     found = KEYPAIR_NTAB;
     KEYPAIR_NTAB++;
-    KEYPAIR_TABS = (Keypair *) realloc((char *) KEYPAIR_TABS,
-                                       sizeof(Keypair) * KEYPAIR_NTAB);
+    KEYPAIR_TABS = (Keypair *)
+        realloc((char *) KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
   }
 
   /* Store the attribute (compressing the name and suppressing blanks) */
 
   keypair = &KEYPAIR_TABS[found];
-  (void) strcpy(keyloc, keyword);
+  (void) gslStrcpy(keyloc, STRING_LENGTH, keyword);
   string_strip_blanks(keyloc, 0);
-  (void) strcpy(keypair->keyword, keyloc);
+  (void) gslStrcpy(keypair->keyword, STRING_LENGTH, keyloc);
 
   /* Initialize the attributes (for a new keypair) */
 
@@ -3234,8 +3235,8 @@ GEOSLIB_API int string_compare(int flag_case,
   }
   else
   {
-    (void) strcpy(INSTR1, string1);
-    (void) strcpy(INSTR2, string2);
+    (void) gslStrcpy(INSTR1, STRING_LENGTH, string1);
+    (void) gslStrcpy(INSTR2, STRING_LENGTH, string2);
     string_to_lowercase(INSTR1);
     string_to_lowercase(INSTR2);
     flag_diff = strcmp(INSTR1, INSTR2);
@@ -4674,7 +4675,7 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
         LAST_MESSAGE = (char **) realloc(
             (char *) LAST_MESSAGE, sizeof(char *) * (NB_LAST_MESSAGE + 1));
       LAST_MESSAGE[NB_LAST_MESSAGE] = address = (char *) malloc(size + 1);
-      (void) strcpy(address, string);
+      (void) gslStrcpy(address, size, string);
       address[size] = '\0';
       NB_LAST_MESSAGE++;
       break;

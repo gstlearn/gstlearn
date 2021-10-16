@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -4200,11 +4201,11 @@ void cs_keypair(const char *key, cs *A, int flag_from_1)
 
   cs_sparse_to_triplet(A,flag_from_1,&number, &cols, &rows, &vals);
 
-  (void) sprintf(name, "%s.cols", key);
+  (void) gslSPrintf(name, gslArraySize(name), "%s.cols", key);
   set_keypair_int(name, 1, number, 1, cols);
-  (void) sprintf(name, "%s.rows", key);
+  (void) gslSPrintf(name, gslArraySize(name), "%s.rows", key);
   set_keypair_int(name, 1, number, 1, rows);
-  (void) sprintf(name, "%s.vals", key);
+  (void) gslSPrintf(name, gslArraySize(name), "%s.vals", key);
   set_keypair    (name, 1, number, 1, vals);
 
   rows = (int	 *) mem_free((char *) rows);
@@ -4225,11 +4226,11 @@ void cs_print_file(const char *radix, int rank, cs *A)
   if (A == (cs *) NULL) return;
   
   if (! IFFFF(rank))
-    (void) sprintf(filename,"%s-%d",radix,rank);
+    (void) gslSPrintf(filename, gslArraySize(filename), "%s-%d",radix,rank);
   else
-    (void) strcpy(filename,radix);
+    (void) gslStrcpy(filename,gslArraySize(filename),radix);
   
-  file = fopen(filename,"w");
+  file = gslFopen(filename,"w");
   if (file == (FILE *) NULL) return;
   
   cs_sparse_to_triplet(A,0,&number, &cols, &rows, &vals);

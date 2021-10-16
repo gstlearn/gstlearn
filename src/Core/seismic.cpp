@@ -11,6 +11,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
@@ -2709,7 +2710,7 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
   tab_prints(NULL,1,EJustify::RIGHT,"Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    (void) sprintf(string,"Z%d*",ivar+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Z%d*",ivar+1);
     tab_prints(NULL,1,EJustify::RIGHT,string);
   }
   message("\n");

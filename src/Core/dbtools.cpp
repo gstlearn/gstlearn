@@ -23,6 +23,7 @@
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -967,7 +968,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
 
   /* Initializations */
 
-  (void) strcpy(string, "NA");
+  (void) gslStrcpy(string, gslArraySize(string), "NA");
   nech = db->getSampleNumber();
   nvar = db->getFieldNumber();
 
@@ -1005,11 +1006,11 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
     if (db->getLocatorByColumn(jvar, &locatorType, &item))
     {
       String strloc = getLocatorName(locatorType, item);
-      (void) strcpy(string, strloc.c_str());
+      (void) gslStrcpy(string, gslArraySize(string), strloc.c_str());
     }
     else
-      (void) strcpy(string, "NA");
-    if (jvar == ivar) (void) strcat(string, "*");
+      (void) gslStrcpy(string, gslArraySize(string), "NA");
+    if (jvar == ivar) (void) gslStrcat(string, gslArraySize(string), "*");
     tab_prints(NULL, 1, EJustify::RIGHT, string);
   }
   message("\n");
@@ -1857,27 +1858,27 @@ static int st_check_bound_consistency(const VectorDouble& mini,
   int nclass = 0;
   if (!mini.empty())
   {
-    if (nclass > 0 && nclass != (int) mini.size())
+    if (nclass > 0 && nclass != static_cast<int>(mini.size()))
     {
-      messerr("Wrong dimension of 'mini'(%d). It should be %d", mini.size(),
+      messerr("Wrong dimension of 'mini'(%d). It should be %d", static_cast<int>(mini.size()),
               nclass);
       return 1;
     }
-    nclass = static_cast<int> (mini.size());
+    nclass = static_cast<int>(mini.size());
   }
   if (!maxi.empty())
   {
-    if (nclass > 0 && nclass != (int) maxi.size())
+    if (nclass > 0 && nclass != static_cast<int>(maxi.size()))
     {
-      messerr("Wrong dimension of 'maxi'(%d). It should be %d", maxi.size(),
+      messerr("Wrong dimension of 'maxi'(%d). It should be %d", static_cast<int>(maxi.size()),
               nclass);
       return 1;
     }
-    nclass = static_cast<int> (maxi.size());
+    nclass = static_cast<int>(maxi.size());
   }
   if (!incmini.empty())
   {
-    if (nclass > 0 && nclass != (int) incmini.size())
+    if (nclass > 0 && nclass != static_cast<int>(incmini.size()))
     {
       messerr("Wrong dimension of 'incmini'(%d). It should be %d",
               incmini.size(), nclass);
@@ -1887,13 +1888,13 @@ static int st_check_bound_consistency(const VectorDouble& mini,
   }
   if (!incmaxi.empty())
   {
-    if (nclass > 0 && nclass != (int) incmaxi.size())
+    if (nclass > 0 && nclass != static_cast<int>(incmaxi.size()))
     {
       messerr("Wrong dimension of 'incmaxi'(%d). It should be %d",
               incmaxi.size(), nclass);
       return 1;
     }
-    nclass = static_cast<int> (incmaxi.size());
+    nclass = static_cast<int>(incmaxi.size());
   }
   if (nclass <= 0)
   {
@@ -3986,7 +3987,7 @@ GEOSLIB_API int points_to_block(Db *dbpoint,
   iatt_edge = iatt_rank = iatt_surf = iatt_vol = iatt_code = -1;
   if (! dbgrid->hasSameDimension(dbpoint)) goto label_end;
   ndim = dbgrid->getNDim();
-  flag_index = get_keypone("PTB_Flag_Index", 0.);
+  flag_index = (int) get_keypone("PTB_Flag_Index", 0.);
 
   /* Core allocation */
 
@@ -5306,7 +5307,7 @@ GEOSLIB_API Db *db_regularize(Db *db, Db *dbgrid, int flag_center)
   size = ndim + nvar + 1;
 
   codes = db->getCodeList();
-  ncode = static_cast<int> (codes.size());
+  ncode = static_cast<int>(codes.size());
   coor = (double *) mem_alloc(sizeof(double) * ndim, 0);
   if (coor == (double *) NULL) goto label_end;
 
@@ -6499,7 +6500,7 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
   // Invoke the calculation
 
   VectorDouble propGlob = dbStatisticsFacies(dbin);
-  int ncat = propGlob.size();
+  int ncat = static_cast<int>(propGlob.size());
   OptimCostColored Oc =  OptimCostColored(ncat,&Qprop,&Aproj);
   Oc.setCGParams(200,1.e-10);
 

@@ -12,6 +12,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Db/ELoadBy.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
@@ -2794,13 +2795,13 @@ static void krige_wgt_print(int     status,
   if (KOPTION->flag_data_disc)
     for (idim=0; idim<ndim; idim++)
     {
-      (void) sprintf(string,"Size%d",idim+1);
+      (void) gslSPrintf(string,gslArraySize(string),"Size%d",idim+1);
       tab_prints(NULL,1,EJustify::RIGHT,string);
     }
   tab_prints(NULL,1,EJustify::RIGHT,"Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    (void) sprintf(string,"Z%d*",ivar+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Z%d*",ivar+1);
     tab_prints(NULL,1,EJustify::RIGHT,string);
   }
   message("\n");
@@ -6755,7 +6756,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
   if (dbg_ix >= -1 && dbg_ix < db->getNX(0) &&
       dbg_iy >= -1 && dbg_iy < db->getNX(1))
   {
-    fildmp = fopen("Vario.dat","w");
+    fildmp = gslFopen("Vario.dat","w");
     if (fildmp == (FILE *) NULL) goto label_end;
   }
 
@@ -7231,7 +7232,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
     dbin->setLocatorByAttribute(icols[ivar],ELoc::Z);
     IPTR_EST  = iptr_mem + ivar;
     IECH_NBGH = -1;
-    (void) sprintf(string,"Kriging of variable #%d at sample",ivar+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Kriging of variable #%d at sample",ivar+1);
 
     /* Loop on the targets to be processed */
 
@@ -7575,7 +7576,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
     dbin->setLocatorByAttribute(icols[ivar],ELoc::Z);
     IPTR_EST  = iptr_prop + ivar;
     IECH_NBGH = -1;
-    (void) sprintf(string,"Kriging of proportion #%d at sample",ivar+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Kriging of proportion #%d at sample",ivar+1);
 
     /* Loop on the target grid nodes */
 

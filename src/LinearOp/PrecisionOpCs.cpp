@@ -129,7 +129,6 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
 
 void PrecisionOpCs::evalDerivOptim(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
 {
-  const VectorDouble* inPtr = &in;
   if (_work.empty()) _work.resize(getSize());
 
   if(getPower() == EPowerPT::MINUSONE)
@@ -144,13 +143,10 @@ void PrecisionOpCs::evalDerivOptim(const VectorDouble& in, VectorDouble& out,int
   if (getPower() == EPowerPT::ONE)
   {
     getShiftOp()->prodTildeC(in, _work, EPowerPT::HALF);
-    inPtr = &_work;
   }
   else if (getPower() == EPowerPT::MINUSONE)
   {
     getShiftOp()->prodTildeC(in, _work, EPowerPT::MINUSHALF);
-    inPtr = &_work;
-
   }
 
   // Polynomial evaluation

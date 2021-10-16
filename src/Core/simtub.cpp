@@ -16,6 +16,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/ECov.hpp"
 #include "Basic/MathFunc.hpp"
@@ -1885,12 +1886,12 @@ static void st_difference(Db     *dbin,
     {
       for (ivar=0; ivar<nvar; ivar++)
       {
-        (void) sprintf(string,"Data%d",ivar+1);
+        (void) gslSPrintf(string,gslArraySize(string),"Data%d",ivar+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
         
         for (isimu=0; isimu<nbsimu; isimu++)
         {
-          (void) sprintf(string,"Simu%d",isimu+1);
+          (void) gslSPrintf(string,gslArraySize(string),"Simu%d",isimu+1);
           tab_prints(NULL,1,EJustify::RIGHT,string);
         }
       }
@@ -1949,10 +1950,10 @@ static void st_difference(Db     *dbin,
     {
       for (isimu=0; isimu<nbsimu; isimu++)
       {
-        (void) sprintf(string,"Data%d",isimu+1);
+        (void) gslSPrintf(string,gslArraySize(string),"Data%d",isimu+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
         
-        (void) sprintf(string,"Simulation%d",isimu+1);
+        (void) gslSPrintf(string,gslArraySize(string),"Simulation%d",isimu+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
       }
       message("\n");

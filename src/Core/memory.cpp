@@ -13,7 +13,7 @@
 
 /*! \cond */
 #define STORE_NAME_LENGTH 10
-#define SHIFT()  ((MEMORY_DEBUG) ? (unsigned int) sizeof(int) : 0)
+#define SHIFT()  ((MEMORY_DEBUG) ? (int) sizeof(int) : 0)
 
 typedef struct {
   char call_name[STORE_NAME_LENGTH];

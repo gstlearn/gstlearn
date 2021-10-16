@@ -45,7 +45,7 @@ VectorVectorDouble PrecisionOpMultiConditional::computeRhs(const VectorDouble& d
 void PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal, VectorVectorDouble& rhs) const
 {
   VectorDouble temp = datVal;
-  for(int i = 0; i < (int)datVal.size() ; i++)
+  for(int i = 0; i < static_cast<int>(datVal.size()) ; i++)
   {
     temp[i] /= getVarianceData(i);
   }
@@ -133,7 +133,7 @@ void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVe
 
 void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDouble& result) const
 {
-  if(_work3.size()<=0)
+  if(static_cast<int>(_work3.size()) <= 0)
   {
     _work3.resize(size());
   }
@@ -177,27 +177,28 @@ void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDoubl
 VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const
 {
 
-  VectorDouble XtInvSigmaZ(X.size());
+  VectorDouble XtInvSigmaZ(static_cast<int>(X.size()));
 
   evalInvCov(Y,_work1);
+  int xsize = static_cast<int>(X.size());
 
-  for(int i = 0; i< (int)X.size();i++)
+  for(int i = 0; i< xsize;i++)
   {
     XtInvSigmaZ[i] = ut_vector_inner_product(X[i],_work1);
   }
 
-  MatrixCSSym XtInvSigmaX(static_cast<int>(X.size()),false);
+  MatrixCSSym XtInvSigmaX(xsize,false);
 
-  for(int i = 0; i< (int)X.size();i++)
+  for(int i = 0; i< xsize; i++)
   {
     evalInvCov(X[i],_work1);
-    for(int j = i; j < (int)X.size();j++)
+    for(int j = i; j < xsize;j++)
     {
       XtInvSigmaX.setValue(i,j,ut_vector_inner_product(X[j],_work1));
     }
   }
   // XtInvSigmaX.display();
-  VectorDouble result(X.size());
+  VectorDouble result(xsize);
   //std::cout<< XtInvSigmaX.getValue(0,0)<< "  "<< XtInvSigmaX.getValue(0,1) <<std::endl;
   //std::cout<< XtInvSigmaX.getValue(1,0)<< "  "<< XtInvSigmaX.getValue(1,1) <<std::endl;
 

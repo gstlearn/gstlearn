@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Drifts/EDrift.hpp"
 #include "geoslib_e.h"
@@ -2414,9 +2415,9 @@ static void st_save_manage(int     mode,
   }
   else
   {
-    (void) sprintf(STRING,"%s.pot",radix);
+    (void) gslSPrintf(STRING,gslArraySize(STRING),"%s.pot",radix);
     set_keypair(STRING,1,nech,1,potval);
-    (void) sprintf(STRING,"%s.grd",radix);
+    (void) gslSPrintf(STRING,gslArraySize(STRING),"%s.grd",radix);
     set_keypair(STRING,1,nech,ndim,potgrd);
     potval = (double *) mem_free((char *) potval);
     potgrd = (double *) mem_free((char *) potgrd);
@@ -2711,9 +2712,9 @@ static void st_evaluate_potval(Pot_Env *pot_env,
   // Save the result using the keypair mechanism
 
   if (nbsimu > 0)
-    (void) sprintf(STRING,"Potential.Simulation.%d",isimu+1);
+    (void) gslSPrintf(STRING,gslArraySize(STRING),"Potential.Simulation.%d",isimu+1);
   else
-    (void) sprintf(STRING,"Potential.Estimation");
+    (void) gslSPrintf(STRING,gslArraySize(STRING),"Potential.Estimation");
   set_keypair(STRING,1,pot_env->nlayers,1,potval);
 
   // Sort them by ascending order 
