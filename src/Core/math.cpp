@@ -61,7 +61,7 @@ static void st_tableone_manage(CTables *ctables,
     
     // Allocation
 
-    if (ctables->CT[rank] == (CTable *) NULL)
+    if (ctables->CT[rank] == nullptr)
     {
       if (ctables->CT[rank] == NULL)
       {
@@ -75,7 +75,7 @@ static void st_tableone_manage(CTables *ctables,
   }
   else
   {
-    if (ctables->CT[rank] != (CTable *) NULL)
+    if (ctables->CT[rank] != nullptr)
     {
       number = 0;
       for (int i=0; i<size; i++)
@@ -151,7 +151,7 @@ GEOSLIB_API double ct_INTRES2(CTables *ctables,
 
   // Check if integral has already been defined 
 
-  if (ctables->CT[iconf0] == (CTable *) NULL) 
+  if (ctables->CT[iconf0] == nullptr) 
     st_tableone_manage(ctables,1,iconf0,&nb_used,&nb_max);
   
   // Dispatch
@@ -244,7 +244,7 @@ GEOSLIB_API double ct_INTRES3(CTables *ctables,
 
   // Check if integral has already been defined 
 
-  if (ctables->CT[iconf0] == (CTable *) NULL) 
+  if (ctables->CT[iconf0] == nullptr) 
     st_tableone_manage(ctables,1,iconf0,&nb_used,&nb_max);
   
   // Dispatch
@@ -347,7 +347,7 @@ GEOSLIB_API void ct_tables_print(CTables *ctables,
   
   message("\n");
   message("Number of Probability Discretizations       = %d\n",ndisc);
-  if (ctables->v != (double *) NULL)
+  if (ctables->v != nullptr)
     print_matrix("List of Gaussian Thresholds",
                  0,1,1,ctables->ndisc+1,NULL,ctables->v);
 
@@ -423,7 +423,7 @@ GEOSLIB_API CTables *ct_tables_manage(int      mode,
 
     ctables->CT = (CTable **) mem_alloc(sizeof(CTable *) * ctables->nconf,1);
     for (int iconf=0; iconf<ctables->nconf; iconf++)
-      ctables->CT[iconf] = (CTable *) NULL;
+      ctables->CT[iconf] = nullptr;
 
     // Define the array of thresholds
 

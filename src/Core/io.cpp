@@ -1374,7 +1374,7 @@ GEOSLIB_API void print_matrix(const char   *title,
 
   /* Initializations */
 
-  if (tab == (double *) NULL || nx <= 0 || ny <= 0) return;
+  if (tab == nullptr || nx <= 0 || ny <= 0) return;
   nx_util = (flag_limit && CST[CST_NTCOL].ival > 0) ?
     MIN(CST[CST_NTCOL].ival,nx) : nx;
   ny_util = (flag_limit && CST[CST_NTROW].ival > 0) ?
@@ -1406,7 +1406,7 @@ GEOSLIB_API void print_matrix(const char   *title,
   ny_done = 0;
   for (iy=0; iy<ny; iy++)
   {
-    if (sel != (double *) NULL && ! sel[iy]) continue;
+    if (sel != nullptr && ! sel[iy]) continue;
     ny_done++;
     if (ny_done > ny_util) break;
     if (multi_row) tab_print_rc(NULL,1,EJustify::RIGHT,CASE_ROW,iy+1);
@@ -1462,7 +1462,7 @@ GEOSLIB_API void print_trimat(const char   *title,
 
   /* Initializations */
 
-  if (tl == (double *) NULL || neq <= 0) return;
+  if (tl == nullptr || neq <= 0) return;
 
   /* Print the title (optional) */
 
@@ -1528,7 +1528,7 @@ GEOSLIB_API void print_imatrix(const char   *title,
 
   /* Initializations */
 
-  if (tab == (int *) NULL || nx <= 0 || ny <= 0) return;
+  if (tab == nullptr || nx <= 0 || ny <= 0) return;
   nx_util = (flag_limit && CST[CST_NTCOL].ival > 0) ?
     MIN(CST[CST_NTCOL].ival,nx) : nx;
   ny_util = (flag_limit && CST[CST_NTROW].ival > 0) ?
@@ -1560,7 +1560,7 @@ GEOSLIB_API void print_imatrix(const char   *title,
   ny_done = 0;
   for (iy=0; iy<ny; iy++)
   {
-    if (sel != (double *) NULL && ! sel[iy]) continue;
+    if (sel != nullptr && ! sel[iy]) continue;
     ny_done++;
     if (ny_done > ny_util) break;
     if (multi_row) tab_print_rc(NULL,1,EJustify::RIGHT,CASE_ROW,iy+1);
@@ -1721,7 +1721,7 @@ GEOSLIB_API void print_names(int    nx,
   tab_prints(NULL,1,EJustify::RIGHT," ");
   for (iix=0; iix<nx_util; iix++)
   {
-    ix = (ranks == (int *) NULL) ? iix : ranks[iix];
+    ix = (ranks == nullptr) ? iix : ranks[iix];
     tab_prints(NULL,1,EJustify::RIGHT,names[ix].c_str());
   }
   message("\n");
@@ -2212,7 +2212,7 @@ GEOSLIB_API void print_range(const char *title,
   double mini,maxi;
   int nvalid;
 
-  if (tab == (double *) NULL || ntab <= 0) return;
+  if (tab == nullptr || ntab <= 0) return;
   mini = maxi = TEST;
   nvalid = 0;
   ut_stats_mima(ntab,tab,sel,&nvalid,&mini,&maxi);

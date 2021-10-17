@@ -106,7 +106,7 @@ GEOSLIB_API Frac_List *fracture_manage_list(int mode,
       break;
 
     case 1:
-      if (frac_list == (Frac_List *) NULL) 
+      if (frac_list == nullptr) 
         frac_list = fracture_manage_list(0,NULL);
       nfracs = frac_list->nfracs;
       frac_list->frac_descs.resize(nfracs+1);
@@ -115,7 +115,7 @@ GEOSLIB_API Frac_List *fracture_manage_list(int mode,
       break;
 
     case -1:
-      if (frac_list == (Frac_List *) NULL) return(frac_list);
+      if (frac_list == nullptr) return(frac_list);
       delete frac_list;
       frac_list = (Frac_List *) nullptr;
       break;
@@ -229,7 +229,7 @@ GEOSLIB_API Frac_Environ *fracture_alloc_environ(int nfamilies,
 GEOSLIB_API Frac_Environ *fracture_dealloc_environ(Frac_Environ *frac_environ)
 
 {
-  if (frac_environ == (Frac_Environ *) NULL) return(frac_environ);
+  if (frac_environ == nullptr) return(frac_environ);
   delete frac_environ;
   frac_environ = (Frac_Environ *) nullptr;
   return(frac_environ);
@@ -254,7 +254,7 @@ GEOSLIB_API int fracture_add_fault(Frac_Environ *frac_environ,
 
   /* Initializations */
 
-  if (frac_environ == (Frac_Environ *) NULL)
+  if (frac_environ == nullptr)
     messageAbort("Frac_Environ must already exist");
   nfaults = frac_environ->nfaults;
 
@@ -364,7 +364,7 @@ GEOSLIB_API void fracture_update_fault(Frac_Environ *frac_environ,
 GEOSLIB_API void fracture_print(Frac_Environ *frac_environ)
 
 {
-  if (frac_environ == (Frac_Environ *) NULL) return;
+  if (frac_environ == nullptr) return;
 
   /* General characteristics */
 
@@ -1404,7 +1404,7 @@ GEOSLIB_API int fracture_simulate(Frac_Environ *frac_environ,
   XORIGIN = -frac_environ->deltax;
   VERBOSE = verbose;
   y0      = xx = 0.;
-  thicks  = denstab = (double *) NULL;
+  thicks  = denstab = nullptr;
   ninfos  = *ninfo_arg = 1 + frac_environ->nfamilies * NPART;
   law_set_random_seed(seed);
 
@@ -1559,8 +1559,8 @@ GEOSLIB_API Frac_Environ *fracture_input(Frac_Environ *frac_def)
 
   /* Initializations */
 
-  frac_environ = (Frac_Environ *) NULL;
-  flag_def     = (frac_def != (Frac_Environ *) NULL);
+  frac_environ = nullptr;
+  flag_def     = (frac_def != nullptr);
 
   /* Ask for the main questions */
 
@@ -1730,7 +1730,7 @@ GEOSLIB_API void fracture_export(Frac_Environ *frac_environ,
 
   /* Initializations */
 
-  frac_segs = (double *) NULL;
+  frac_segs = nullptr;
   nfracs    = 0;
   nbyfrac   = st_get_nbyfrac();
   ntotal    = st_end_point_count(frac_list);
@@ -1791,7 +1791,7 @@ GEOSLIB_API Frac_List *fracture_import(int     nval,
 
   /* Preliminary checks */
 
-  frac_list = (Frac_List *) NULL;
+  frac_list = nullptr;
   nbyfrac = st_get_nbyfrac();
   if (! isMultiple(nval,nbyfrac))
   {
@@ -1863,7 +1863,7 @@ GEOSLIB_API double *fracture_extract_length(Frac_List    *frac_list,
 
   (*ntab) = 0;
   tab = (double *) mem_alloc(sizeof(double) * frac_list->nfracs,0);
-  if (tab == (double *) NULL) return(tab);
+  if (tab == nullptr) return(tab);
 
   /* Loading the fractures */
 
@@ -1891,7 +1891,7 @@ GEOSLIB_API double *fracture_extract_length(Frac_List    *frac_list,
 
   tab = (double *) mem_realloc((char *) tab,
                                sizeof(double) * ecr,0);
-  if (tab == (double *) NULL) return(tab);
+  if (tab == nullptr) return(tab);
 
   (*ntab) = ecr;
   return(tab);
@@ -1927,7 +1927,7 @@ GEOSLIB_API double *fracture_extract_dist(Frac_List    *frac_list,
   (*ntab) = 0;
   number = st_end_point_count(frac_list);
   tab = (double *) mem_alloc(sizeof(double) * number,0);
-  if (tab == (double *) NULL) return(tab);
+  if (tab == nullptr) return(tab);
 
   /* Loading the abcissae of the fracture (with the target layer) */
 
@@ -1979,7 +1979,7 @@ GEOSLIB_API double *fracture_extract_dist(Frac_List    *frac_list,
 
 label_end:
   tab = (double *) mem_realloc((char *) tab,sizeof(double) * ndist,0);
-  if (tab == (double *) NULL) return(tab);
+  if (tab == nullptr) return(tab);
   (*ntab) = ndist;
   return(tab);
 }
@@ -2138,7 +2138,7 @@ GEOSLIB_API int fracture_to_block(Db           *dbgrid,
   /* Initializations */
 
   error   = 1;
-  indg    = (int *) NULL;
+  indg    = nullptr;
   ninfos  = 1 + nfamilies * NPART;
 
   /* Preliminary checks */
@@ -2163,7 +2163,7 @@ GEOSLIB_API int fracture_to_block(Db           *dbgrid,
   // Allocate the new variable 
 
   indg = db_indg_alloc(dbgrid);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
   iptr = dbgrid->addFields(1,perm_mat);
   
   // Plunge the environment
@@ -2236,7 +2236,7 @@ static double *st_wellout_add(double *wellout,
   nloc = *nout;
   wellout = (double *) 
     mem_realloc((char *) wellout,sizeof(double) * nbyout * (nloc+1),0);
-  if (wellout == (double *) NULL) return(wellout);
+  if (wellout == nullptr) return(wellout);
 
   WELLOUT(nloc,0) = x;                     /* First coordinate */
   WELLOUT(nloc,1) = y;                     /* Second coordinate */
@@ -2284,7 +2284,7 @@ GEOSLIB_API double *fracture_to_well(int           nval,
   
   nout    = 0;
   nbyout  = st_get_nbyout();
-  wellout = (double *) NULL;
+  wellout = nullptr;
   
   /* Preliminary checks */
   
@@ -2312,7 +2312,7 @@ GEOSLIB_API double *fracture_to_well(int           nval,
     /* Store the starting point */
     
     wellout = st_wellout_add(wellout,nbyout,x1,y1,-1,-1,0,0.,&nout);
-    if (wellout == (double *) NULL) goto label_end;
+    if (wellout == nullptr) goto label_end;
     
     /* Loop on the fractures */
     
@@ -2332,17 +2332,17 @@ GEOSLIB_API double *fracture_to_well(int           nval,
         
         /* Store the new intersection */
         
-        perm = (permtab == (double *) NULL) ? 0. : permtab[family];
+        perm = (permtab == nullptr) ? 0. : permtab[family];
         wellout = st_wellout_add(wellout,nbyout,x,y,ifrac,ip,family,
                                  perm,&nout);
-        if (wellout == (double *) NULL) goto label_end;
+        if (wellout == nullptr) goto label_end;
       }
     }
 
     /* Store the ending point */
     
     wellout = st_wellout_add(wellout,nbyout,x2,y2,-1,-1,0,0.,&nout);
-    if (wellout == (double *) NULL) goto label_end;
+    if (wellout == nullptr) goto label_end;
   }
   
 label_end:
@@ -2412,8 +2412,8 @@ GEOSLIB_API int fracture_well_to_block(Db           *dbgrid,
 
   error      = 1;
   nbyout     = st_get_nbyout();
-  indg       = (int    *) NULL;
-  traj       = (double *) NULL;
+  indg       = nullptr;
+  traj       = nullptr;
   iptr_perm  = 0;
   iptr_fluid = 0;
 
@@ -2446,7 +2446,7 @@ GEOSLIB_API int fracture_well_to_block(Db           *dbgrid,
   /* Allocate the new variable */
 
   indg = db_indg_alloc(dbgrid);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
 
   iptr_perm = dbgrid->addFields(1,0);
   if (! IFFFF(col_perm))
@@ -2518,7 +2518,7 @@ GEOSLIB_API int fracture_well_to_block(Db           *dbgrid,
     /* Allocate the trajectory */
 
     traj = (double *) mem_alloc(sizeof(double) * (npoint+1) * 2,0);
-    if (traj == (double *) NULL) goto label_end;
+    if (traj == nullptr) goto label_end;
     
     /* Trajectory upwards */
 

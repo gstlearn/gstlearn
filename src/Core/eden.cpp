@@ -110,9 +110,9 @@ static Eden_Stats *st_stats_define(void)
   stats = (Eden_Stats *) mem_alloc(sizeof(Eden_Stats),0);
   if (stats == (Eden_Stats *) NULL) goto label_end;
   stats->number = (int    *) mem_alloc(sizeof(int)    * NFACIES * NFLUIDS,0);
-  if (stats->number == (int *) NULL) goto label_end;
+  if (stats->number == nullptr) goto label_end;
   stats->volume = (double *) mem_alloc(sizeof(double) * NFACIES * NFLUIDS,0);
-  if (stats->volume == (double *) NULL) goto label_end;
+  if (stats->volume == nullptr) goto label_end;
   st_stats_reset(stats);
 
   /* Set the error return code */
@@ -617,7 +617,7 @@ static int WT(int    ifacies,
 {
   int ind,value;
 
-  if (SPEEDS == (int *) NULL)
+  if (SPEEDS == nullptr)
     value = 1;
   else
   {
@@ -643,7 +643,7 @@ static double GET_WEIGHT(int ipos,
   int    ind,ifacies,ifluid,perm;
   double value;
 
-  if (SPEEDS == (int *) NULL)
+  if (SPEEDS == nullptr)
     value = 1.;
   else
   {
@@ -973,7 +973,7 @@ GEOSLIB_API int fluid_propagation(Db     *dbgrid,
   IND_PERM   = ind_perm;
   IND_PORO   = ind_poro;
   VERBOSE    = verbose;
-  skin       = (Skin  *) NULL;
+  skin       = nullptr;
 
   /* Preliminary checks */
 
@@ -988,7 +988,7 @@ GEOSLIB_API int fluid_propagation(Db     *dbgrid,
   law_set_random_seed(seed);
   stats = st_stats_define();
   skin  = skin_define(dbgrid,ALREADY_FILLED,TO_BE_FILLED,GET_WEIGHT);
-  if (skin == (Skin *) NULL) goto label_end;
+  if (skin == nullptr) goto label_end;
 
   /* Add the attributes for storing the Fluid and Cork statistics */
 

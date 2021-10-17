@@ -387,7 +387,7 @@ int Vario::computeIndic(const String& calcul_name,
 int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
 {
   _db = db;
-  if (db != (Db *) NULL)
+  if (db != nullptr)
   {
     int nvar = _db->getVariableNumber();
     if (nvar <= 0)

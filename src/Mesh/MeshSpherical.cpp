@@ -122,9 +122,9 @@ int MeshSpherical::create(int verbose,
 
   error = 1;
   int ndim_ref = 2;
-  vercoloc = (Vercoloc *) NULL;
-  meshes = (int *) NULL;
-  apices = (double *) NULL;
+  vercoloc = nullptr;
+  meshes = nullptr;
+  apices = nullptr;
 
   /* Define the environment */
 
@@ -141,11 +141,11 @@ int MeshSpherical::create(int verbose,
 
   /* Set the control points for the triangulation */
 
-  if (dbout != (Db *) NULL)
+  if (dbout != nullptr)
   {
     if (meshes_2D_sph_from_db(dbout,0,NULL,&in)) goto label_end;
   }
-  if (dbin != (Db *) NULL)
+  if (dbin != nullptr)
   {
     vercoloc = vercoloc_manage(verbose,1,dbin,dbout,1,NULL);
     if (meshes_2D_sph_from_db(dbin,vercoloc->ndupl,vercoloc->dupl_data,
@@ -238,9 +238,9 @@ void MeshSpherical::getDuplicates(Db   *dbin,
   // Initializations
 
   *nbdupl = 0;
-  *dupl1 = (int *) NULL;
-  *dupl2 = (int *) NULL;
-  if (dbin == (Db *) NULL || dbout == (Db *) NULL) return;
+  *dupl1 = nullptr;
+  *dupl2 = nullptr;
+  if (dbin == nullptr) return;
   
   // Look for duplicates
 
@@ -274,9 +274,9 @@ cs* MeshSpherical::getMeshToDb(const Db  *db,
   /* Initializations */
   
   error     = 1;
-  coor      = (double *) NULL;
-  weight    = (double *) NULL;
-  Atriplet  = A = (cs *) NULL;
+  coor      = nullptr;
+  weight    = nullptr;
+  Atriplet  = A = nullptr;
   nmeshes   = getNMeshes();
   nvertex   = getNApices();
   ncorner   = getNApexPerMesh();
@@ -289,12 +289,12 @@ cs* MeshSpherical::getMeshToDb(const Db  *db,
   /* Core allocation */
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == (cs *) NULL) goto label_end;
+  if (Atriplet == nullptr) goto label_end;
 
   coor   = db_sample_alloc(db,ELoc::X);
-  if (coor   == (double *) NULL) goto label_end;
+  if (coor   == nullptr) goto label_end;
   weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (weight == (double *) NULL) goto label_end;
+  if (weight == nullptr) goto label_end;
   
   /* Loop on the samples */
 
@@ -387,9 +387,9 @@ double* MeshSpherical::interpolateMeshToDb(Db *db,
   /* Initializations */
   
   error     = 1;
-  dtab      = (double *) NULL;
-  coor      = (double *) NULL;
-  weight    = (double *) NULL;
+  dtab      = nullptr;
+  coor      = nullptr;
+  weight    = nullptr;
   nmeshes   = getNMeshes();
   ncorner   = getNApexPerMesh();
   ndim      = getNDim();
@@ -402,11 +402,11 @@ double* MeshSpherical::interpolateMeshToDb(Db *db,
   /* Core allocation */
 
   dtab   = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (dtab == (double *) NULL) goto label_end;
+  if (dtab == nullptr) goto label_end;
   coor   = db_sample_alloc(db,ELoc::X);
-  if (coor   == (double *) NULL) goto label_end;
+  if (coor   == nullptr) goto label_end;
   weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (weight == (double *) NULL) goto label_end;
+  if (weight == nullptr) goto label_end;
   
   /* Loop on the samples */
 

@@ -16,12 +16,12 @@
 static int     FLAG_SIMU = 0;
 static int     FLAG_NO_VAR_CHECK = 0;
 static int     NBGH_INITIALIZED = 0;
-static int    *NBGH_ind   = (int    *) NULL;
-static int    *NBGH_isect = (int    *) NULL;
-static int    *NBGH_nsect = (int    *) NULL;
-static double *NBGH_x1    = (double *) NULL;
-static double *NBGH_x2    = (double *) NULL;
-static double *NBGH_dst   = (double *) NULL;
+static int    *NBGH_ind   = nullptr;
+static int    *NBGH_isect = nullptr;
+static int    *NBGH_nsect = nullptr;
+static double *NBGH_x1    = nullptr;
+static double *NBGH_x2    = nullptr;
+static double *NBGH_dst   = nullptr;
 
 /****************************************************************************/
 /*!
@@ -308,8 +308,8 @@ GEOSLIB_API double neigh_continuous_variance(Neigh *neigh,
     
   /* Initializations */
 
-  dd = (double *) NULL;
-  if (neigh == (Neigh *) NULL) return(0.);
+  dd = nullptr;
+  if (neigh == nullptr) return(0.);
   if (neigh->getType() != ENeigh::MOVING) return(0.);
   ndim = neigh->getNDim();
 
@@ -870,12 +870,12 @@ GEOSLIB_API Neigh *neigh_init(int ndim,
 
   /* Initializations */
 
-  neigh = (Neigh *) NULL;
+  neigh = nullptr;
   
   /* Allocation */
 
   neigh = st_neigh_alloc();
-  if (neigh == (Neigh *) NULL) return(neigh);
+  if (neigh == nullptr) return(neigh);
 
   /* Load the parameters */
 
@@ -928,9 +928,9 @@ GEOSLIB_API void neigh_print(const Neigh *neigh)
 
   /* Initializations */
 
-  if (neigh == (Neigh *) NULL) return;
+  if (neigh == nullptr) return;
   ndim   = neigh->getNDim();
-  ranges = (double *) NULL;
+  ranges = nullptr;
 
   /* Neighborhood options */
 
@@ -977,13 +977,13 @@ GEOSLIB_API void neigh_print(const Neigh *neigh)
         ranges = (double *) mem_alloc(sizeof(double) * ndim,1);
         for (idim=0; idim<ndim; idim++)
           ranges[idim] = neigh->getRadius() * neigh->getAnisoCoeff(idim);
-        print_matrix("Anisotropic Ranges :",0,1,ndim,1,(double *) NULL,ranges);
+        print_matrix("Anisotropic Ranges :",0,1,ndim,1,nullptr,ranges);
         ranges = (double *) mem_free((char *) ranges);
 
         if (neigh->getFlagRotation())
         {
           print_matrix("Anisotropy Rotation :",0,1,ndim,ndim,
-                       (double *) NULL,neigh->getAnisoRotMat().data());
+                       nullptr,neigh->getAnisoRotMat().data());
         }
       }
       break;
@@ -991,7 +991,7 @@ GEOSLIB_API void neigh_print(const Neigh *neigh)
     case ENeigh::E_IMAGE:
       message("Image neighborhood option\n");
       message("Skipping factor = %d\n",neigh->getSkip());
-      print_imatrix("Image radius :",0,1,ndim,1,(double *) NULL,
+      print_imatrix("Image radius :",0,1,ndim,1,nullptr,
                    neigh->getImageRadius().data());
       break;
   }
@@ -1176,23 +1176,23 @@ GEOSLIB_API int neigh_start(Db    *dbin,
 {
   /* Initializations */
 
-  if (dbin == (Db *) NULL || neigh == (Neigh *) NULL) return(1);
+  if (dbin == nullptr) return(1);
   if (NBGH_INITIALIZED) return(1);
 
   /* Core allocation */
 
   NBGH_ind   = (int    *) mem_alloc(sizeof(int)    * dbin->getSampleNumber(),0);
-  if (NBGH_ind   == (int    *) NULL) return(1);
+  if (NBGH_ind   == nullptr) return(1);
   NBGH_dst   = (double *) mem_alloc(sizeof(double) * dbin->getSampleNumber(),0);
-  if (NBGH_dst   == (double *) NULL) return(1);
+  if (NBGH_dst   == nullptr) return(1);
   NBGH_isect = (int    *) mem_alloc(sizeof(int)    * neigh->getNSect(),0);
-  if (NBGH_isect == (int    *) NULL) return(1);
+  if (NBGH_isect == nullptr) return(1);
   NBGH_nsect = (int    *) mem_alloc(sizeof(int)    * neigh->getNSect(),0);
-  if (NBGH_nsect == (int    *) NULL) return(1);
+  if (NBGH_nsect == nullptr) return(1);
   NBGH_x1    = db_sample_alloc(dbin,ELoc::X);
-  if (NBGH_x1    == (double *) NULL) return(1);
+  if (NBGH_x1    == nullptr) return(1);
   NBGH_x2    = db_sample_alloc(dbin,ELoc::X);
-  if (NBGH_x2    == (double *) NULL) return(1);
+  if (NBGH_x2    == nullptr) return(1);
 
   NBGH_INITIALIZED = 1;
   return(0);

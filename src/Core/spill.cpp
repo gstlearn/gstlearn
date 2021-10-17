@@ -256,7 +256,7 @@ static SPIMG *st_image_free(SPIMG *image)
 {
   if (image == (SPIMG *) NULL) return(image);
 
-  if (image->bitmap != (double *) NULL) 
+  if (image->bitmap != nullptr) 
     image->bitmap = (double *) mem_free((char *) image->bitmap);
   image = (SPIMG *) mem_free((char *) image);
 
@@ -292,7 +292,7 @@ static SPIMG *st_image_alloc(double value)
   /* Create the pixel array */
   
   image->bitmap = (double *) mem_alloc(sizeof(double) * TX * TY,0);
-  if (image->bitmap == (double *) NULL) goto label_end;
+  if (image->bitmap == nullptr) goto label_end;
   
   /* Set the array to zero */
 
@@ -480,7 +480,7 @@ static void st_dump(const char *title,
 
   /* Process the address */
 
-  if (pt_out != (double *) NULL) 
+  if (pt_out != nullptr) 
   {
     shift = static_cast<int> (pt_out - out->bitmap);
     ix    = shift / TY;
@@ -592,7 +592,7 @@ static int st_spill(SPIMG  *in,
 
   Hsize = 0;
   Heap  = (double **) mem_alloc(sizeof(double *) * TX * TY,0);
-  if (Heap == (double **) NULL) return(1);
+  if (Heap == nullptr) return(1);
   
   /* Initialie stage */
 

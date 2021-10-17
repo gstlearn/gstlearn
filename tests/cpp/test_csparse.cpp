@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
   static int flag_leak = 1;
 
   // Initializations
-  Atriplet = Wtriplet = (cs *) NULL;
-  A = At = Bl = Bu = B = W = Diag = Mwork = (cs *) NULL;
-  urow = ucol = work = work2 = (double *) NULL;
+  Atriplet = Wtriplet = nullptr;
+  A = At = Bl = Bu = B = W = Diag = Mwork = nullptr;
+  urow = ucol = work = work2 = nullptr;
   memory_leak_set(flag_leak);
   
   // Dimension of the matrix

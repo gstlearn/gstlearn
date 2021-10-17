@@ -327,9 +327,9 @@ void MeshEStandard::getDuplicates(int   verbose,
   // Initializations
 
   *nbdupl = 0;
-  *dupl1 = (int *) NULL;
-  *dupl2 = (int *) NULL;
-  if (dbin == (Db *) NULL || dbout == (Db *) NULL) return;
+  *dupl1 = nullptr;
+  *dupl2 = nullptr;
+  if (dbin == nullptr) return;
   
   // Look for duplicates
 
@@ -362,10 +362,10 @@ cs* MeshEStandard::getMeshToDb(const Db *db,
   /* Initializations */
 
   error     = 1;
-  coor      = (double *) NULL;
-  container = (double *) NULL;
-  weight    = (double *) NULL;
-  Atriplet  = A = (cs *) NULL;
+  coor      = nullptr;
+  container = nullptr;
+  weight    = nullptr;
+  Atriplet  = A = nullptr;
   nmeshes   = getNMeshes();
   ncorner   = getNApexPerMesh();
   ndim      = getNDim();
@@ -377,14 +377,14 @@ cs* MeshEStandard::getMeshToDb(const Db *db,
   /* Core allocation */
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == (cs *) NULL) goto label_end;
+  if (Atriplet == nullptr) goto label_end;
 
   coor   = db_sample_alloc(db,ELoc::X);
-  if (coor   == (double *) NULL) goto label_end;
+  if (coor   == nullptr) goto label_end;
   weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (weight == (double *) NULL) goto label_end;
+  if (weight == nullptr) goto label_end;
   container = _defineContainers();
-  if (container == (double *) NULL) goto label_end;
+  if (container == nullptr) goto label_end;
   
   /* Optional title */
 
@@ -486,10 +486,10 @@ double* MeshEStandard::interpolateMeshToDb(Db *db,
   /* Initializations */
   
   error     = 1;
-  coor      = (double *) NULL;
-  container = (double *) NULL;
-  weight    = (double *) NULL;
-  dtab      = (double *) NULL;
+  coor      = nullptr;
+  container = nullptr;
+  weight    = nullptr;
+  dtab      = nullptr;
   nmeshes   = getNMeshes();
   ncorner   = getNApexPerMesh();
   ndim      = getNDim();
@@ -502,13 +502,13 @@ double* MeshEStandard::interpolateMeshToDb(Db *db,
   /* Core allocation */
 
   dtab   = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (dtab == (double *) NULL) goto label_end;
+  if (dtab == nullptr) goto label_end;
   coor   = db_sample_alloc(db,ELoc::X);
-  if (coor   == (double *) NULL) goto label_end;
+  if (coor   == nullptr) goto label_end;
   weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (weight == (double *) NULL) goto label_end;
+  if (weight == nullptr) goto label_end;
   container = _defineContainers();
-  if (container == (double *) NULL) goto label_end;
+  if (container == nullptr) goto label_end;
   
   /* Loop on the samples */
 
@@ -624,9 +624,9 @@ int MeshEStandard::_create1D(int                 ndim_ref,
   /* Initializations */
 
   error    = 1;
-  vercoloc = (Vercoloc *) NULL;
-  apices = (double *) NULL;
-  meshes = (int    *) NULL;
+  vercoloc = nullptr;
+  apices = nullptr;
+  meshes = nullptr;
 
   /* Initialize the Meshing structure */
   
@@ -636,12 +636,12 @@ int MeshEStandard::_create1D(int                 ndim_ref,
   /* Set the control points for the triangulation */
   
   flag_defined = 0;
-  if (dbout != (Db *) NULL)
+  if (dbout != nullptr)
   {
     if (meshes_1D_from_db(dbout,0,NULL,&in)) goto label_end;
     flag_defined = 1;
   }
-  if (dbin != (Db *) NULL)
+  if (dbin != nullptr)
   {
     vercoloc = vercoloc_manage(verbose,1,dbin,dbout,1,NULL);
     if (meshes_1D_from_db(dbin,vercoloc->ndupl,vercoloc->dupl_dabs,
@@ -657,7 +657,7 @@ int MeshEStandard::_create1D(int                 ndim_ref,
   
   /* Extend the domain if 'dilate' is specified */
   
-  if (dbout != (Db *) NULL && ! dilate.empty())
+  if (dbout != nullptr && ! dilate.empty())
     meshes_1D_extended_domain(dbout,dilate.data(),&in);
   
   /* Perform the triangulation */
@@ -728,9 +728,9 @@ int MeshEStandard::_create2D(int                 ndim_ref,
   /* Initializations */
 
   error    = 1;
-  vercoloc = (Vercoloc *) NULL;
-  apices   = (double   *) NULL;
-  meshes   = (int      *) NULL;
+  vercoloc = nullptr;
+  apices   = nullptr;
+  meshes   = nullptr;
 
   /* Initialize the Meshing structure */
   
@@ -741,12 +741,12 @@ int MeshEStandard::_create2D(int                 ndim_ref,
   /* Set the control points for the triangulation */
   
   flag_defined = 0;
-  if (dbout != (Db *) NULL)
+  if (dbout != nullptr)
   {
     if (meshes_2D_from_db(dbout,1,0,NULL,&in)) goto label_end;
     flag_defined = 1;
   }
-  if (dbin != (Db *) NULL)
+  if (dbin != nullptr)
   {
     vercoloc = vercoloc_manage(verbose,1,dbin,dbout,1,NULL);
     if (meshes_2D_from_db(dbin,1,vercoloc->ndupl,vercoloc->dupl_dabs,
@@ -762,7 +762,7 @@ int MeshEStandard::_create2D(int                 ndim_ref,
   
   /* Extend the domain if 'dilate' is specified */
   
-  if (dbout != (Db *) NULL && ! dilate.empty())
+  if (dbout != nullptr && ! dilate.empty())
     meshes_2D_extended_domain(dbout,dilate.data(),&in);
   
   /* Perform the triangulation */
@@ -833,19 +833,19 @@ int MeshEStandard::_create3D(int                 ndim_ref,
   /* Initializations */
 
   error    = 1;
-  vercoloc = (Vercoloc *) NULL;
-  apices   = (double *) NULL;
-  meshes   = (int    *) NULL;
+  vercoloc = nullptr;
+  apices   = nullptr;
+  meshes   = nullptr;
 
   /* Set the control points for the tetrahedralization */
 
   flag_defined = 0;
-  if (dbout != (Db *) NULL)
+  if (dbout != nullptr)
   {
     if (meshes_3D_from_db(dbout,0,NULL,&in)) goto label_end;
     flag_defined = 1;
   }
-  if (dbin != (Db *) NULL)
+  if (dbin != nullptr)
   {
     vercoloc = vercoloc_manage(verbose,1,dbin,dbout,1,NULL);
     if (meshes_3D_from_db(dbin,vercoloc->ndupl,vercoloc->dupl_dabs,
@@ -858,7 +858,7 @@ int MeshEStandard::_create3D(int                 ndim_ref,
 
   /* Extend the domain if 'dilate' is specified */
 
-  if (dbout != (Db *) NULL && ! dilate.empty())
+  if (dbout != nullptr && ! dilate.empty())
     meshes_3D_extended_domain(dbout,dilate.data(),&in);
 
   /* Perform the tetrahedralization */
@@ -973,7 +973,7 @@ double* MeshEStandard::_defineContainers() const
   /* Allocation */
 
   container = (double *) mem_alloc(sizeof(double) * 2 * ndim * nmesh,0);
-  if (container == (double *) NULL) return(container);
+  if (container == nullptr) return(container);
   
   /* Loop on the meshes */
 
@@ -1021,7 +1021,7 @@ bool MeshEStandard::_coorInMeshContainer(double *coor,
   
   /* Initializations */
   
-  if (container == (double *) NULL) return true;
+  if (container == nullptr) return true;
   
   /* Loop on the space dimension */
 

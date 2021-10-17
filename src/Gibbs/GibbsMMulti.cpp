@@ -101,7 +101,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   int nech = db->getSampleNumber();
   int nvardb = db->getVariableNumber();
   bool flag_var_defined = nvardb > 0;
-  covmat = (double *) NULL;
+  covmat = nullptr;
   if (defineGeneralNeigh(1, db, model, neigh)) return 1;
 
   // Consistency check
@@ -145,7 +145,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
     // Establishing the (moving) Covariance matrix
     covmat = model_covmat_by_varranks(model, db, ww._ranks, neq, 0, 1);
-    if (covmat == (double *) NULL) goto label_end;
+    if (covmat == nullptr) goto label_end;
 
     // Inverting the (moving) Covariance matrix
     if (matrix_invert(covmat, neq, 0)) goto label_end;
@@ -380,7 +380,7 @@ int GibbsMMulti::_buildQ()
   // Constitute the triplet
 
   T = cs_spalloc(0, 0, 1, 1, 1);
-  if (T == (cs *) NULL) return 1;
+  if (T == nullptr) return 1;
 
   // Create partial precision matrix Q from the weights
 

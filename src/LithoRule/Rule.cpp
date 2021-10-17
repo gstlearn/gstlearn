@@ -992,7 +992,7 @@ int Rule::evaluateBounds(PropDef *propdef,
 
   /* Initializations */
 
-  if (dbin == (Db *) NULL) return(0);
+  if (dbin == nullptr) return(0);
   nadd = nstep = 0;
   nech = dbin->getSampleNumber();
 

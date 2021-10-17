@@ -406,7 +406,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
 static StrMod *st_model_auto_strmod_free(StrMod *strmod)
 
 {
-  if (strmod == (StrMod *) NULL) return(strmod);
+  if (strmod == nullptr) return(strmod);
 
   /* Check that the user_data area has been freed */
   if (strmod->user_data != NULL)
@@ -416,7 +416,7 @@ static StrMod *st_model_auto_strmod_free(StrMod *strmod)
   }
   
   delete strmod;
-  strmod = (StrMod *) NULL;
+  strmod = nullptr;
   return(strmod);
 }
 
@@ -453,7 +453,7 @@ static StrMod *st_model_auto_strmod_alloc(Model  *model1,
   /* Initialization */
 
   error  = 1;
-  strmod = (StrMod *) NULL;
+  strmod = nullptr;
   
   /* Core allocation */
 
@@ -476,7 +476,7 @@ static StrMod *st_model_auto_strmod_alloc(Model  *model1,
   for (i=nmodel=0; i<2; i++)
   {
     model = strmod->models[i];
-    if (model == (Model *) NULL) break;
+    if (model == nullptr) break;
     nmodel++;
     nvar  = model->getVariableNumber();
     if (ncovmax < model->getCovaNumber()) ncovmax = model->getCovaNumber();
@@ -1321,7 +1321,7 @@ static void st_keypair_sill(int   mode,
   int ncova,nvar;
   char string[100];
 
-  if (model == (Model *) NULL) return;
+  if (model == nullptr) return;
   ncova = model->getCovaNumber();
   nvar  = model->getVariableNumber();
 
@@ -3564,7 +3564,7 @@ static int st_model_has_intrinsic(Model *model,
   n_int = 0;
   for (icov=0; icov<model->getCovaNumber(); icov++)
   {
-    if (filter != (int *) NULL && filter[icov]) continue;
+    if (filter != nullptr && filter[icov]) continue;
     model_cova_characteristics(model->getCovaType(icov),cov_name,
                                &flag_range,&flag_param,&min_order,&max_ndim,
                                &flag_int_1d,&flag_int_2d,
@@ -3836,7 +3836,7 @@ static int st_model_define(Model     *model,
 
   if (optvar.getKeepIntstr())
   {
-    if (! st_model_has_intrinsic(model,(int *) NULL)) 
+    if (! st_model_has_intrinsic(model,nullptr)) 
     {
       messerr("Automatic Fitting must keep one Intrinsic Basic Structure");
       messerr("No such structure is provided");
@@ -4046,7 +4046,7 @@ static int st_model_auto_count(const Vario      *vario,
   for (imod=0; imod<2; imod++)
   {
     model = (imod == 0) ? model1 : model2;
-    if (model == (Model *) NULL) continue;
+    if (model == nullptr) continue;
 
     /* Initializations */
 
@@ -4310,7 +4310,7 @@ static void st_vario_varchol_manage(const Vario *vario,
   nvar  = vario->getVariableNumber();
   size  = nvar * (nvar+1) /  2;
   nvar2 = nvar * nvar;
-  model_nugget = (Model *) NULL;
+  model_nugget = nullptr;
   
     /* Allocation */
 
@@ -4539,7 +4539,7 @@ GEOSLIB_API int model_auto_fit(const Vario      *vario,
   /* Initializations */
 
   nbexp   = status = npadir = 0;
-  strmod  = (StrMod  *) NULL;
+  strmod  = nullptr;
   ncova   = model->getCovaNumber();
   ndim    = model->getDimensionNumber();
   nvar    = vario->getVariableNumber();
@@ -4624,14 +4624,14 @@ GEOSLIB_API int model_auto_fit(const Vario      *vario,
   
   /* Generate the default values */
 
-  npar0 = st_model_auto_count(vario,model,(Model *) NULL,constraints,optvar,
+  npar0 = st_model_auto_count(vario,model,nullptr,constraints,optvar,
                               param,lower,upper);
 
   /* Create the Model structures */
 
   strmod = st_model_auto_strmod_alloc(model,NULL,npar0,norder,hmax,angles,
                                       optvar,&npar);
-  if (strmod == (StrMod *) NULL)  goto label_end;
+  if (strmod == nullptr)  goto label_end;
 
   /* Load the arrays */
 
@@ -4738,8 +4738,8 @@ GEOSLIB_API int model_fitting_sills(Vario *vario,
   /* Initializations */
   /*******************/
 
-  if (model == (Model *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (model == nullptr) return(1);
+  if (vario == nullptr) return(1);
   ndir   = vario->getDirectionNumber();
   ndim   = model->getDimensionNumber();
   nvar   = model->getVariableNumber();
@@ -5013,7 +5013,7 @@ GEOSLIB_API int vmap_auto_fit(const Db         *dbmap,
 
   nbexp   = status = norder = npadir = 0;
   hmax    = gmax = 0.;
-  strmod  = (StrMod  *) NULL;
+  strmod  = nullptr;
   ncova   = model->getCovaNumber();
   nvar    = model->getVariableNumber();
   ndim    = model->getDimensionNumber();
@@ -5065,9 +5065,9 @@ GEOSLIB_API int vmap_auto_fit(const Db         *dbmap,
   hmax /= 2.;
   DBMAP = dbmap;
   INDG1 = db_indg_alloc(dbmap);
-  if (INDG1 == (int *) NULL) goto label_end;
+  if (INDG1 == nullptr) goto label_end;
   INDG2 = db_indg_alloc(dbmap);
-  if (INDG2 == (int *) NULL) goto label_end;
+  if (INDG2 == nullptr) goto label_end;
 
   /* Core allocation */
 
@@ -5082,7 +5082,7 @@ GEOSLIB_API int vmap_auto_fit(const Db         *dbmap,
 
   strmod = st_model_auto_strmod_alloc(model,NULL,npar0,norder,hmax,angles,
                                       optvar,&npar);
-  if (strmod == (StrMod *) NULL)  goto label_end;
+  if (strmod == nullptr)  goto label_end;
   if (npar == 0)
   {
     messerr("The VMAP Automatic Fitting procedure");

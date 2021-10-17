@@ -276,8 +276,8 @@ GEOSLIB_API int db_stats(Db     *db,
   nech  = db->getSampleNumber();
   ncol  = static_cast<int> (cols.size());
   ncol2 = ncol * ncol;
-  num   = m1 = m2 = v1 = v2 = v12 = mini = maxi = (double *) NULL;
-  plus  = moins = zero = (double *) NULL;
+  num   = m1 = m2 = v1 = v2 = v12 = mini = maxi = nullptr;
+  plus  = moins = zero = nullptr;
 
   /* Check that all variables are defined */
 
@@ -298,27 +298,27 @@ GEOSLIB_API int db_stats(Db     *db,
   /* Core allocation */
 
   num   = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (num   == (double *) NULL) goto label_end;
+  if (num   == nullptr) goto label_end;
   m1    = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (m1    == (double *) NULL) goto label_end;
+  if (m1    == nullptr) goto label_end;
   m2    = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (m2    == (double *) NULL) goto label_end;
+  if (m2    == nullptr) goto label_end;
   v1    = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (v1    == (double *) NULL) goto label_end;
+  if (v1    == nullptr) goto label_end;
   v2    = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (v2    == (double *) NULL) goto label_end;
+  if (v2    == nullptr) goto label_end;
   v12   = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (v12   == (double *) NULL) goto label_end;
+  if (v12   == nullptr) goto label_end;
   mini  = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (mini  == (double *) NULL) goto label_end;
+  if (mini  == nullptr) goto label_end;
   maxi  = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (maxi  == (double *) NULL) goto label_end;
+  if (maxi  == nullptr) goto label_end;
   plus  = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (plus  == (double *) NULL) goto label_end;
+  if (plus  == nullptr) goto label_end;
   moins = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (moins == (double *) NULL) goto label_end;
+  if (moins == nullptr) goto label_end;
   zero  = (double *) mem_alloc(sizeof(double) * ncol2,0);
-  if (zero  == (double *) NULL) goto label_end;
+  if (zero  == nullptr) goto label_end;
 
   /* Initializations */
 
@@ -580,8 +580,8 @@ GEOSLIB_API int db_stats_grid(Db           *db,
 
   error = 1;
   iptm  = iptn = 0;
-  indg  = indg0 = (int    *) NULL;
-  coor  = medtab = (double *) NULL;
+  indg  = indg0 = nullptr;
+  coor  = medtab = nullptr;
   nxyz  = dbgrid->getSampleNumber();
   ndim  = dbgrid->getNDim();
   count = (int) pow(2. * radius + 1.,(double) ndim);
@@ -629,15 +629,15 @@ GEOSLIB_API int db_stats_grid(Db           *db,
   /* Core allocation */
 
   indg   = db_indg_alloc(dbgrid);
-  if (indg  == (int *) NULL) goto label_end;
+  if (indg  == nullptr) goto label_end;
   indg0  = db_indg_alloc(dbgrid);
-  if (indg0 == (int *) NULL) goto label_end;
+  if (indg0 == nullptr) goto label_end;
   coor   = db_sample_alloc(db,ELoc::X);
-  if (coor  == (double *) NULL) goto label_end;
+  if (coor  == nullptr) goto label_end;
   if (! strcmp(oper,"med"))
   {
     medtab = db_sample_alloc(db,ELoc::X);
-    if (medtab == (double *) NULL) goto label_end;
+    if (medtab == nullptr) goto label_end;
   }
 
   /* Loop on the variables */
@@ -852,9 +852,9 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
 
   error = 1;
   z1 = z2 = 0.;
-  nn = s1 = s2 = v1 = v2 = v12 = mini = maxi = cutval = (double *) NULL;
-  indg = (int    *) NULL;
-  coor = (double *) NULL;
+  nn = s1 = s2 = v1 = v2 = v12 = mini = maxi = cutval = nullptr;
+  indg = nullptr;
+  coor = nullptr;
   nxyz = dbgrid->getSampleNumber();
   flag1 = flag2 = flag_denorm = flag_q = flag_t = 0;
   flag_s1 = flag_s2 = flag_v1 = flag_v2 = flag_v12 = flag_mini = flag_maxi = 0;
@@ -901,50 +901,50 @@ GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
   /* Core allocation */
   
   coor = db_sample_alloc(db,ELoc::X);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
   indg = db_indg_alloc(dbgrid);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
   nn = (double *) mem_alloc(sizeof(double) * nxyz,0);
-  if (nn == (double *) NULL) goto label_end;
+  if (nn == nullptr) goto label_end;
   if (flag_s1)
   {
     s1 = (double *) mem_alloc(sizeof(double) * nxyz,0);
-    if (s1 == (double *) NULL) goto label_end;
+    if (s1 == nullptr) goto label_end;
   }
   if (flag_s2)
   {
     s2 = (double *) mem_alloc(sizeof(double) * nxyz,0);
-    if (s2 == (double *) NULL) goto label_end;
+    if (s2 == nullptr) goto label_end;
   }
   if (flag_v1)
   {
     v1 = (double *) mem_alloc(sizeof(double) * nxyz,0);
-    if (v1 == (double *) NULL) goto label_end;
+    if (v1 == nullptr) goto label_end;
   }
   if (flag_v2)
   {
     v2 = (double *) mem_alloc(sizeof(double) * nxyz,0);
-    if (v2 == (double *) NULL) goto label_end;
+    if (v2 == nullptr) goto label_end;
   }
   if (flag_v12)
   {
     v12 = (double *) mem_alloc(sizeof(double) * nxyz,0);
-    if (v12 == (double *) NULL) goto label_end;
+    if (v12 == nullptr) goto label_end;
   }
   if (flag_mini)
   {
     mini = (double *) mem_alloc(sizeof(double) * nxyz,0);
-    if (mini == (double *) NULL) goto label_end;
+    if (mini == nullptr) goto label_end;
   }
   if (flag_maxi)
   {
     maxi = (double *) mem_alloc(sizeof(double) * nxyz,0);
-    if (maxi == (double *) NULL) goto label_end;
+    if (maxi == nullptr) goto label_end;
   }
   if (flag_t || flag_q)
   {
     cutval = (double *) mem_alloc(sizeof(double) * nxyz * ncut,0);
-    if (cutval == (double *) NULL) goto label_end;
+    if (cutval == nullptr) goto label_end;
   }
 
   /* Array initializations */
@@ -1241,8 +1241,8 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
   /* Initializations */
 
   error = 1;
-  indg  = (int *) NULL;
-  prop  = (double *) NULL;
+  indg  = nullptr;
+  prop  = nullptr;
 
   /* Preliminary checks */
 
@@ -1271,7 +1271,7 @@ GEOSLIB_API int stats_proportion(Db     *dbin,
   ngrid = dbin->getNX(pos);
   indg  = db_indg_alloc(dbin);
   prop  = (double *) mem_alloc(sizeof(double) * nfacies,0);
-  if (prop == (double *) NULL) goto label_end;
+  if (prop == nullptr) goto label_end;
 
   /* Create the new variables in the output file */
 
@@ -1359,8 +1359,8 @@ GEOSLIB_API int stats_transition(Db     *dbin,
   /* Initializations */
 
   error = 1;
-  indg  = (int *) NULL;
-  trans = (double *) NULL;
+  indg  = nullptr;
+  trans = nullptr;
 
   /* Preliminary checks */
 
@@ -1390,7 +1390,7 @@ GEOSLIB_API int stats_transition(Db     *dbin,
   indg  = db_indg_alloc(dbin);
   nitem = nfacies * nfacies;
   trans = (double *) mem_alloc(sizeof(double) * nitem,0);
-  if (trans == (double *) NULL) goto label_end;
+  if (trans == nullptr) goto label_end;
 
   /* Create the new variables in the output file */
 
@@ -2080,7 +2080,7 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
 
   /* Initializations */
 
-  valtab0   = valtab1 = valtab2 = numtab0 = numtab1 = numtab2 = (double *) NULL;
+  valtab0   = valtab1 = valtab2 = numtab0 = numtab1 = numtab2 = nullptr;
   error     = 1;
   flag_save = 0;
   iech_save  = (int) get_keypone("Upscale.Converge.Block",0);
@@ -2117,17 +2117,17 @@ GEOSLIB_API int db_upscale(Db     *dbgrid1,
   /* Core allocation */
 
   numtab0 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (numtab0 == (double *) NULL) goto label_end;
+  if (numtab0 == nullptr) goto label_end;
   numtab1 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (numtab1 == (double *) NULL) goto label_end;
+  if (numtab1 == nullptr) goto label_end;
   numtab2 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (numtab2 == (double *) NULL) goto label_end;
+  if (numtab2 == nullptr) goto label_end;
   valtab0 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (valtab0 == (double *) NULL) goto label_end;
+  if (valtab0 == nullptr) goto label_end;
   valtab1 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (valtab1 == (double *) NULL) goto label_end;
+  if (valtab1 == nullptr) goto label_end;
   valtab2 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (valtab2 == (double *) NULL) goto label_end;
+  if (valtab2 == nullptr) goto label_end;
   
   /* Loop on the cells of the Output Grid */
 
@@ -2503,7 +2503,7 @@ static void st_updiff(int     orient,
       
       /* Save the trajectory (optional) */
 
-      if (flag_save && trsave != (double *) NULL)
+      if (flag_save && trsave != nullptr)
       {
         for (int idim=0; idim<ndim; idim++) 
           TRAJEC(iseed,iter,idim) = TABCUR(iseed,idim);
@@ -2688,8 +2688,8 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
   
   /* Initializations */
 
-  valtab0 = valwrk = numtab0 = cvdist2 = cvsave = trsave = (double *) NULL;
-  tabini = tabcur = tabwrk = numrank = (int *) NULL;
+  valtab0 = valwrk = numtab0 = cvdist2 = cvsave = trsave = nullptr;
+  tabini = tabcur = tabwrk = numrank = nullptr;
   n_nbgh  = flag_save = 0;
   error   = 1;
   iech_save  = (int) get_keypone("Diffusion.Converge.Block",0);
@@ -2729,32 +2729,32 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
   /* Core allocation */
 
   tabini  = (int *) mem_alloc(sizeof(int) * ndim * nseed,0);
-  if (tabini  == (int *) NULL) goto label_end;
+  if (tabini  == nullptr) goto label_end;
   tabcur  = (int *) mem_alloc(sizeof(int) * ndim * nseed,0);
-  if (tabcur  == (int *) NULL) goto label_end;
+  if (tabcur  == nullptr) goto label_end;
   tabwrk  = (int *) mem_alloc(sizeof(int) * ndim,0);
-  if (tabwrk  == (int *) NULL) goto label_end;
+  if (tabwrk  == nullptr) goto label_end;
   numrank = (int *) mem_alloc(sizeof(int) * ndim * nseed,0);
-  if (numrank == (int *) NULL) goto label_end;
+  if (numrank == nullptr) goto label_end;
   numtab0 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (numtab0 == (double *) NULL) goto label_end;
+  if (numtab0 == nullptr) goto label_end;
   valtab0 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (valtab0 == (double *) NULL) goto label_end;
+  if (valtab0 == nullptr) goto label_end;
   cvdist2 = (double *) mem_alloc(sizeof(double) * niter,0);
-  if (cvdist2 == (double *) NULL) goto label_end;
+  if (cvdist2 == nullptr) goto label_end;
   cvsave  = (double *) mem_alloc(sizeof(double) * niter * 3,0);
-  if (cvsave  == (double *) NULL) goto label_end;
+  if (cvsave  == nullptr) goto label_end;
   if (flag_traj)
   {
     trsave  = (double *) mem_alloc(sizeof(double) * niter * nseed * ndim,0);
-    if (trsave  == (double *) NULL) goto label_end;
+    if (trsave  == nullptr) goto label_end;
   }
 
   /* Allocate the neighboring displacement array */
 
   nbgh    = gridcell_neigh(ndim,opt_morpho,1,opt_center,verbose,&n_nbgh);
   valwrk  = (double *) mem_alloc(sizeof(double) * n_nbgh,0);
-  if (valwrk  == (double *) NULL) goto label_end;
+  if (valwrk  == nullptr) goto label_end;
 
   /* Create the new variable in the output file */
 
@@ -2793,7 +2793,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
         
         /* Save the trajectory (optional) */
 
-        if (flag_save && trsave != (double *) NULL)
+        if (flag_save && trsave != nullptr)
         {
           for (int iseed=0; iseed<nseed; iseed++)
           {
@@ -2889,7 +2889,7 @@ GEOSLIB_API void db_stats_print(const Db *db,
 
   /* Initializations */
 
-  data = mean = mini = maxi = var = cov = num = (double *) NULL;
+  data = mean = mini = maxi = var = cov = num = nullptr;
   noper = static_cast<int> (opers.size());
   VectorInt iatts = iatts_arg;
   if (iatts.empty()) iatts = db->getAttributes();
@@ -2910,21 +2910,21 @@ GEOSLIB_API void db_stats_print(const Db *db,
   /* Core allocation */
 
   data = (double *) mem_alloc(sizeof(double) * ncol,0);
-  if (data == (double *) NULL) goto label_end;
+  if (data == nullptr) goto label_end;
   mean = (double *) mem_alloc(sizeof(double) * ncol,0);
-  if (mean == (double *) NULL) goto label_end;
+  if (mean == nullptr) goto label_end;
   mini = (double *) mem_alloc(sizeof(double) * ncol,0);
-  if (mini == (double *) NULL) goto label_end;
+  if (mini == nullptr) goto label_end;
   maxi = (double *) mem_alloc(sizeof(double) * ncol,0);
-  if (maxi == (double *) NULL) goto label_end;
+  if (maxi == nullptr) goto label_end;
   var  = (double *) mem_alloc(sizeof(double) * ncol,0);
-  if (var  == (double *) NULL) goto label_end;
+  if (var  == nullptr) goto label_end;
   num  = (double *) mem_alloc(sizeof(double) * ncol,0);
-  if (num  == (double *) NULL) goto label_end;
+  if (num  == nullptr) goto label_end;
   if (flag_correl)
   {
     cov  = (double *) mem_alloc(sizeof(double) * ncol * ncol,0);
-    if (cov  == (double *) NULL) goto label_end;
+    if (cov  == nullptr) goto label_end;
   }
 
   /* Initializations */

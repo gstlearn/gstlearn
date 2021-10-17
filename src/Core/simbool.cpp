@@ -125,7 +125,7 @@ static Def_Token DEF_TOKEN[] = {
 GEOSLIB_API Tokens *tokens_free(Tokens *tokens)
 
 {
-  if (tokens == (Tokens *) NULL) return(tokens);
+  if (tokens == nullptr) return(tokens);
   delete tokens;
   tokens = (Tokens *) nullptr;
   return(tokens);
@@ -179,7 +179,7 @@ GEOSLIB_API Tokens *tokens_create(int nb_tokens)
 
   /* Initializations */
 
-  tokens = (Tokens *) NULL;
+  tokens = nullptr;
   if (nb_tokens <= 0) return(tokens);
   
   /* Allocate the main structure */
@@ -221,7 +221,7 @@ GEOSLIB_API int tokone_create(Tokens *tokens,
                               int    *law,
                               double *valarg)
 {
-  if (tokens == (Tokens *) NULL) return 1;
+  if (tokens == nullptr) return 1;
   if (rank < 0 || rank >= tokens->nb_tokens) return 1;
   if (npar != DEF_TOKEN[type].npar) return 1;
 
@@ -485,7 +485,7 @@ GEOSLIB_API Tokens *tokens_input(void)
 
   /* Initializations */
 
-  tokens = (Tokens *) NULL;
+  tokens = nullptr;
   nb_tokens = _lire_int("Number of tokens",1,1,1,ITEST);
   
   /* Allocate the main structure */
@@ -610,7 +610,7 @@ GEOSLIB_API void tokone_get_params(Tokens *tokens,
 GEOSLIB_API void tokone_print(Tokens *tokens,
                               int rank)
 {
-  if (tokens == (Tokens *) NULL) return;
+  if (tokens == nullptr) return;
   if (rank < 0 || rank >= tokens->nb_tokens) return;
 
   Token_Def& def = tokens->defs[rank];
@@ -1866,7 +1866,7 @@ static void st_project_objects(double background,
     
   /* Initializations */
   
-  save_tab  = (double *) NULL;
+  save_tab  = nullptr;
   flag_save = (int) get_keypone("Boolean_Save",0);
   if (flag_save)
     save_tab = (double *) mem_alloc(sizeof(double) * NB_FIELDS * Nb_object,1);
@@ -2063,13 +2063,13 @@ GEOSLIB_API int simbool_f(Db     *dbin,
   for (i=0; i<NDIM; i++)
   {
     Origin[i] = dbout->getX0(i) - dbout->getDX(i) / 2.;
-    if (dilate != (double *) NULL) Origin[i] -= dilate[i];
+    if (dilate != nullptr) Origin[i] -= dilate[i];
     Field[i]  = dbout->getDX(i) * dbout->getNX(i);
-    if (dilate != (double *) NULL) Field[i] += 2. * dilate[i];
+    if (dilate != nullptr) Field[i] += 2. * dilate[i];
   }
   if (verbose)
   {
-    if (dbin == (Db *) NULL)
+    if (dbin == nullptr)
       message("Boolean non conditional simulation. Average of %d objects\n",
               nb_average);
     else
@@ -2079,7 +2079,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
 
   /* Count the number of conditioning pores and grains */
 
-  if (dbin != (Db *) NULL)
+  if (dbin != nullptr)
   {
     for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
@@ -2299,7 +2299,7 @@ label_end:
             "Boolean simulation\n"
             "==================\n");
 
-    if (dbin != (Db *) NULL && dbin->getSampleNumber() > 0)
+    if (dbin != nullptr && dbin->getSampleNumber() > 0)
     {
       message("Conditioning option               = YES\n");
       message("Number of conditioning grains     = %d\n", nbgrain);
@@ -2311,7 +2311,7 @@ label_end:
     message("Ending simulation time            = %g\n", tmax);
     message("Average number of objects         = %d\n", nb_average);
 
-    if (dbin != (Db *) NULL && dbin->getSampleNumber() > 0)
+    if (dbin != nullptr && dbin->getSampleNumber() > 0)
     {
       message("Initial number of primary objects = %d\n", memo_init);
       message("Ending number of primary objects  = %d\n", Nb_object_init);

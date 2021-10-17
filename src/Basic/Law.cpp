@@ -760,7 +760,7 @@ double law_df_multigaussian(int nvar, double *vect, double *corr)
 
   error   = 1;
   density = - 0.5 * nvar * log(2 * GV_PI);
-  eigval  = eigvec = invcor = (double *) NULL;
+  eigval  = eigvec = invcor = nullptr;
 
   /* Core allocation */
 
@@ -1051,7 +1051,7 @@ double *law_exp_sample(double *tabin,
   /* Initializations */
 
   error  = 1;
-  tabout = mean = stdv = temp = mini = maxi = (double *) NULL;
+  tabout = mean = stdv = temp = mini = maxi = nullptr;
   law_set_random_seed(seed);
   nvarin = nvarout = nvar;
   nvar1  = nvar + 1;
@@ -1104,7 +1104,7 @@ double *law_exp_sample(double *tabin,
   /* Core allocation */
 
   tabout = (double *) mem_alloc(sizeof(double) * nechout * nvarout,0);
-  if (tabout == (double *) NULL) goto label_end;
+  if (tabout == nullptr) goto label_end;
 
   /* Generate the samples */
 
@@ -1139,7 +1139,7 @@ double *law_exp_sample(double *tabin,
       /* Check if the generated vector is authorized or not */
 
       flag_ok = 1;
-      if (nconst > 0 && consts != (double *) NULL)
+      if (nconst > 0 && consts != nullptr)
       {
         for (int iconst=0; iconst<nconst && flag_ok; iconst++)
         {

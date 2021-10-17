@@ -427,7 +427,7 @@ GEOSLIB_API char *mem_free_(const char  *call_file,
   int   size_eff;
   char *tab_aux;
 
-  if (tab == (char *) NULL) return(tab);
+  if (tab == nullptr) return(tab);
   tab_aux = &tab[-SHIFT()];
 
   if (MEMORY_DEBUG) 
@@ -466,7 +466,7 @@ GEOSLIB_API char *mem_alloc_(const char  *call_file,
   int   size_eff;
   char *tab,*tab_aux;
 
-  tab = tab_aux = (char *) NULL;
+  tab = tab_aux = nullptr;
   if (size <= 0) return(NULL);
   size_eff = size;
   size  = size_eff + SHIFT();
@@ -516,7 +516,7 @@ GEOSLIB_API char *mem_copy_(const char  *call_file,
   int   size_eff;
   char *tab,*tab_aux;
 
-  tab = tab_aux = (char *) NULL;
+  tab = tab_aux = nullptr;
   if (size <= 0) return(NULL);
   size_eff = size;
   size  = size_eff + SHIFT();
@@ -571,7 +571,7 @@ GEOSLIB_API char *mem_calloc_(const char  *call_file,
   int   size_eff;
   char *tab,*tab_aux;
 
-  tab = tab_aux = (char *) NULL;
+  tab = tab_aux = nullptr;
   if (size <= 0) return(NULL);
   size_eff = size * size_elem;
   size  = size_eff + SHIFT();
@@ -686,7 +686,7 @@ GEOSLIB_API char *mem_realloc_(const char  *call_file,
     
     // The new dimension is zero 
 
-    if (tab != (char *) NULL)
+    if (tab != nullptr)
     {
       tab_aux = &tab[-SHIFT()];
       if (MEMORY_DEBUG) 
@@ -729,7 +729,7 @@ GEOSLIB_API char *mem_duplicate_(const char  *call_file,
   int   size_eff;
   char *tab,*tab_aux;
 
-  tab = tab_aux = (char *) NULL;
+  tab = tab_aux = nullptr;
   if (size <= 0) return(NULL);
   size_eff = size;
   size  = size_eff + SHIFT();
@@ -777,7 +777,7 @@ GEOSLIB_API double **mem_tab_free(double **tab,
 {
   int ivar;
 
-  if (tab == (double **) NULL) return(tab);
+  if (tab == nullptr) return(tab);
   for (ivar=0; ivar<nvar; ivar++)
     tab[ivar] = (double *) mem_free((char *) tab[ivar]);
   tab = (double **) mem_free((char *) tab);
@@ -805,13 +805,13 @@ GEOSLIB_API double **mem_tab_alloc(int nvar,
   /* Allocate the array */
 
   tab = (double **) mem_alloc(sizeof(double *) * nvar,flag_fatal);
-  if (tab == (double **) NULL) return(tab);
-  for (ivar=0; ivar<nvar; ivar++) tab[ivar] = (double *) NULL;
+  if (tab == nullptr) return(tab);
+  for (ivar=0; ivar<nvar; ivar++) tab[ivar] = nullptr;
 
   for (ivar=0; ivar<nvar; ivar++)
   {
     tab[ivar] = (double *) mem_alloc(sizeof(double) * size,flag_fatal);
-    if (tab[ivar] == (double *) NULL) 
+    if (tab[ivar] == nullptr) 
     {
       tab = mem_tab_free(tab,nvar);
       return(tab);

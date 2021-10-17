@@ -179,7 +179,7 @@ int RuleShift::particularities(Db *db,
                                int flag_grid_check,
                                int flag_stat) const
 {
-  int ndim = (model != (Model *) NULL) ? model->getDimensionNumber() : 0;
+  int ndim = (model != nullptr) ? model->getDimensionNumber() : 0;
   VectorDouble wxyz(ndim);
   double rhoval;
 
@@ -217,7 +217,7 @@ int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const
   _xyz.resize(ndim);
   _ind1.resize(ndim);
 
-  if (db == (Db *) NULL || ! is_grid(db))
+  if (db == nullptr || ! is_grid(db))
   {
     if (! flag_grid_check) return(0);
     messerr("The shift Rule requires a Grid Db");
@@ -245,7 +245,7 @@ int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const
 
 bool RuleShift::checkModel(const Model* model, int nvar) const
 {
-  if (model == (Model *) NULL)
+  if (model == nullptr)
   {
     messerr("No Model is provided");
     return false;
@@ -354,7 +354,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
 
   /* Initializations */
 
-  if (dbin == (Db *) NULL) return(0);
+  if (dbin == nullptr) return(0);
   nadd = nstep = 0;
   nech = dbin->getSampleNumber();
 

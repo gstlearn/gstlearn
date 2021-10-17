@@ -79,10 +79,10 @@ int main(int argc, char *argv[])
   angle[2]     = 0.;
   apices       = MatrixCRectangular();
   meshes       = VectorInt();
-  dbin         = (Db *) NULL;
-  dbgrid       = (Db *) NULL;
-  loc_apices   = (double *) NULL;
-  loc_meshes   = (int    *) NULL;
+  dbin         = nullptr;
+  dbgrid       = nullptr;
+  loc_apices   = nullptr;
+  loc_meshes   = nullptr;
 
   /* Triswitch option */
 

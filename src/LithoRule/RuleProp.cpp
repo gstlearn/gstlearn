@@ -53,7 +53,7 @@ RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)
       _rules(),
       _ruleInternal(false)
 {
-  if (rule != (Rule *) NULL) _rules.push_back(rule);
+  if (rule != nullptr) _rules.push_back(rule);
   if (! _checkConsistency())
     my_throw("Inconsistent arguments");
 }

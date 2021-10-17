@@ -79,7 +79,7 @@ static int st_record_read(const char *title, const char *format, ...)
   error = 0;
   va_start(ap, format);
 
-  if (FILE_MEM != (FILE *) NULL)
+  if (FILE_MEM != nullptr)
   {
     error = _file_read(FILE_MEM, format, ap);
   }
@@ -113,7 +113,7 @@ static void st_record_write(const char *format, ...)
   int long1, long2;
 
   va_start(ap, format);
-  if (FILE_MEM != (FILE *) NULL)
+  if (FILE_MEM != nullptr)
   {
     _file_write(FILE_MEM, format, ap);
   }
@@ -307,7 +307,7 @@ static FILE *st_file_open(const char *filename,
   file = FILE_MEM = _file_open(filename, mode);
   (void) gslStrcpy(FILE_NAME_MEM, gslArraySize(FILE_NAME_MEM), filename);
 
-  if (file == (FILE *) NULL)
+  if (file == nullptr)
   {
     if (verbose) messerr("Error when opening the file %s", filename);
     FILE_MEM = NULL;
@@ -465,7 +465,7 @@ GEOSLIB_API void ascii_environ_read(char *file_name, int verbose)
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Environ", OLD, verbose);
-  if (file == (FILE *) NULL) return;
+  if (file == nullptr) return;
 
   /* Reading the environment */
 
@@ -602,7 +602,7 @@ GEOSLIB_API void ascii_simu_read(char *file_name,
   /* Opening the Simulation Definition file */
 
   file = st_file_open(file_name, "Simu", OLD, verbose);
-  if (file == (FILE *) NULL) return;
+  if (file == nullptr) return;
 
   /* Read the parameters */
 
@@ -637,7 +637,7 @@ GEOSLIB_API int ascii_anam_write(const char *file_name,
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Anam", NEW, verbose);
-  if (file == (FILE *) NULL) return (1);
+  if (file == nullptr) return (1);
 
   /* Write the Anam structure */
 
@@ -784,7 +784,7 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Anam", OLD, verbose);
-  if (file == (FILE *) NULL) return (nullptr);
+  if (file == nullptr) return (nullptr);
 
   /* Read the general anamorphosis parameters */
 
@@ -965,7 +965,7 @@ GEOSLIB_API int ascii_option_defined(const char *file_name,
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Option", OLD, verbose);
-  if (file == (FILE *) NULL) return (lrep);
+  if (file == nullptr) return (lrep);
 
   /* Implicit loop on the lines of the file */
 
@@ -1025,7 +1025,7 @@ GEOSLIB_API int ascii_frac_write(const char *file_name,
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Frac", NEW, verbose);
-  if (file == (FILE *) NULL) return (1);
+  if (file == nullptr) return (1);
 
   /* Create the Frac_Environ structure */
 
@@ -1128,12 +1128,12 @@ GEOSLIB_API Frac_Environ *ascii_frac_read(const char *file_name, int verbose)
 
   /* Initializations */
 
-  frac = (Frac_Environ *) NULL;
+  frac = nullptr;
 
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Frac", OLD, verbose);
-  if (file == (FILE *) NULL) return (frac);
+  if (file == nullptr) return (frac);
 
   /* Create the structure */
 
@@ -1221,7 +1221,7 @@ GEOSLIB_API int ascii_table_write(const char *file_name,
   /* Opening the Data file */
 
   file = st_file_open(file_name, NULL, NEW, verbose);
-  if (file == (FILE *) NULL) return (1);
+  if (file == nullptr) return (1);
   st_record_write("%d", ntab);
   st_record_write("\n");
   st_table_write(NULL, ntab, tab);
@@ -1256,7 +1256,7 @@ GEOSLIB_API int ascii_tablei_write(const char *file_name,
   /* Opening the Data file */
 
   file = st_file_open(file_name, NULL, NEW, verbose);
-  if (file == (FILE *) NULL) return (1);
+  if (file == nullptr) return (1);
 
   st_record_write("%d", ntab);
   st_record_write("\n");
@@ -1307,7 +1307,7 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
 
   /* Initializations */
 
-  db = (Db *) NULL;
+  db = nullptr;
 
   /* Reading the CSV file */
 
@@ -1318,7 +1318,7 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
   /* Creating the Db */
 
   db = db_create_point(nrow, ncol, ELoadBy::SAMPLE, flag_add_rank, tab);
-  if (db == (Db *) NULL) goto label_end;
+  if (db == nullptr) goto label_end;
 
   /* Loading the names */
 

@@ -95,7 +95,7 @@ int ASerializable::_fileOpen(const String& filename,
   // Build the multi-platform filename and open it
   String fileComplete = buildFileName(filename, true);
   _file = gslFopen(fileComplete, mode);
-  if (_file == (FILE *) NULL)
+  if (_file == nullptr)
   {
     messerr("Error when opening the Neutral File %s", fileComplete.c_str());
     return 1;

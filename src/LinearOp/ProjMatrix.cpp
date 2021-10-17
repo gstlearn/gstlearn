@@ -84,7 +84,7 @@ int ProjMatrix::init(const Db* db, AMesh *a_mesh, int verbose)
   if (db!= nullptr)
   {
     _Aproj = a_mesh->getMeshToDb(db,verbose);
-    if (_Aproj == (cs *) NULL) return 1;
+    if (_Aproj == nullptr) return 1;
     _nPoint = db->getActiveSampleNumber();
     _nApices = a_mesh->getNApices();
   }
@@ -100,7 +100,7 @@ int ProjMatrix::init(const Db* db, AMesh *a_mesh, int verbose)
 int ProjMatrix::init(int npoint, int napices, const cs *aproj)
 {
   _Aproj   = cs_duplicate(aproj);
-  if (_Aproj == (cs *) NULL) return 1;
+  if (_Aproj == nullptr) return 1;
   _nPoint  = npoint;
   _nApices = napices;
   return 0;
@@ -111,7 +111,7 @@ int ProjMatrix::init(Db* db, SPDE_Mesh* s_mesh, int verbose)
   MeshEStandard amesh;
   amesh.convertFromOldMesh(s_mesh, 0);
   _Aproj = db_mesh_sparse(db, &amesh, verbose);
-  if (_Aproj == (cs *) NULL) return 1;
+  if (_Aproj == nullptr) return 1;
   _nPoint = db->getActiveSampleNumber();
   _nApices = s_mesh->nmesh;
   return 0;
@@ -127,8 +127,8 @@ int ProjMatrix::init(const Db* db,
   int *ranks;
   _Aproj   = db_mesh_neigh(db,s_mesh,radius,flag_exact,verbose,
                            &nactive,&ranks);
-  if (_Aproj == (cs *) NULL) return 1;
-  if (ranks != (int *) NULL) ranks = (int *) mem_free((char *) ranks);
+  if (_Aproj == nullptr) return 1;
+  if (ranks != nullptr) ranks = (int *) mem_free((char *) ranks);
   _nPoint  = nactive;
   _nApices = s_mesh->nmesh;
   return 0;

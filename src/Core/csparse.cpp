@@ -2364,8 +2364,8 @@ int cs_ltsolve ( const cs *L, double *x )
    double *Ax ;
 
    *number = 0;
-   *cols = *rows = (int *) NULL;
-   *vals = (double *) NULL;
+   *cols = *rows = nullptr;
+   *vals = nullptr;
    if (!A) return;
    n = A->n ; Ap = A->p ; Ai = A->i ; Ax = A->x ;
    nz = A->nz ;
@@ -2404,7 +2404,7 @@ cs *cs_arrays_to_sparse(int n, int nrow, int ncol,
    int	  ip1,ip2,error,row_max,col_max;
 
    error = 1;
-   Q  = Qtriplet = (cs *) NULL;
+   Q  = Qtriplet = nullptr;
 
    row_max = col_max = -1;
    Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
@@ -2436,7 +2436,7 @@ cs *cs_arrays_to_sparse(int n, int nrow, int ncol,
      if (! cs_entry(Qtriplet,nrow-1,ncol-1,0.)) goto label_end;
    }
    Q = cs_triplet(Qtriplet);
-   if (Q == (cs *) NULL) goto label_end;
+   if (Q == nullptr) goto label_end;
 
    error = 0;
 
@@ -2459,9 +2459,9 @@ cs *cs_arrays_to_sparse(int n, int nrow, int ncol,
 
    /* Initializations */
 
-   cols = rows = (int *) NULL;
-   vals = (double *) NULL;
-   A	= Atriplet = (cs *) NULL;
+   cols = rows = nullptr;
+   vals = nullptr;
+   A	= Atriplet = nullptr;
 
    /* Convert the contents of the sparse matrix into columns */
 
@@ -2470,7 +2470,7 @@ cs *cs_arrays_to_sparse(int n, int nrow, int ncol,
    /* Fill the new sparse triplet */
 
    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (Atriplet == (cs *) NULL) goto label_end;
+   if (Atriplet == nullptr) goto label_end;
    for (int i=0; i<number; i++)
    {
      ic = cols[i] - col_from;
@@ -2502,9 +2502,9 @@ cs *cs_arrays_to_sparse(int n, int nrow, int ncol,
 
    /* Initializations */
 
-   cols = rows = (int *) NULL;
-   vals = (double *) NULL;
-   A	= Atriplet = (cs *) NULL;
+   cols = rows = nullptr;
+   vals = nullptr;
+   A	= Atriplet = nullptr;
 
    /* Convert the contents of the sparse matrix into columns */
 
@@ -2513,7 +2513,7 @@ cs *cs_arrays_to_sparse(int n, int nrow, int ncol,
    /* Initialize the output matrix */
 
    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (Atriplet == (cs *) NULL) goto label_end;
+   if (Atriplet == nullptr) goto label_end;
 
    /* Fill the new sparse triplet */
 
@@ -2521,8 +2521,8 @@ cs *cs_arrays_to_sparse(int n, int nrow, int ncol,
    {
      old_row = rows[i];
      old_col = cols[i];
-     new_row = (rank_rows != (int *) NULL) ? rank_rows[old_row] : old_row;
-     new_col = (rank_cols != (int *) NULL) ? rank_cols[old_col] : old_col;
+     new_row = (rank_rows != nullptr) ? rank_rows[old_row] : old_row;
+     new_col = (rank_cols != nullptr) ? rank_cols[old_col] : old_col;
      if (new_row < 0 || new_col < 0) continue;
      if (! cs_entry(Atriplet,new_row,new_col,vals[i])) goto label_end;
    }
@@ -2554,9 +2554,9 @@ cs *cs_extract_submatrix_by_color(cs *C,int *colors,
 
    /* Initializations */
 
-   cols = rows = u_row = u_col = (int *) NULL;
-   vals = (double *) NULL;
-   A	= Atriplet = (cs *) NULL;
+   cols = rows = u_row = u_col = nullptr;
+   vals = nullptr;
+   A	= Atriplet = nullptr;
 
    /* Convert the contents of the sparse matrix into columns */
 
@@ -2565,7 +2565,7 @@ cs *cs_extract_submatrix_by_color(cs *C,int *colors,
    /* Initialize the output matrix */
 
    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (Atriplet == (cs *) NULL) goto label_end;
+   if (Atriplet == nullptr) goto label_end;
 
    /* Core allocation */
 
@@ -2619,10 +2619,10 @@ int cs_get_nrow(const cs *A)
   cs *AT;
 
   nrow = 0;
-  if (A != (cs *) NULL)
+  if (A != nullptr)
   {
     AT = cs_transpose(A,1);
-    if (AT != (cs *) NULL)
+    if (AT != nullptr)
     {
       nrow = AT->n;
       AT = cs_spfree(AT);
@@ -2634,7 +2634,7 @@ int cs_get_ncol(const cs *A)
 {
   int ncol;
   ncol = 0;
-  if (A != (cs *) NULL)
+  if (A != nullptr)
     ncol = A->n;
   return(ncol);
 }
@@ -2646,12 +2646,12 @@ void cs_print_dim(const char *title,
    int n1,n2;
 
    n1 = n2 = 0;
-   if (A == (cs *) NULL) return;
+   if (A == nullptr) return;
    n1 = A->n;
    AT = cs_transpose(A,1);
-   if (AT != (cs *) NULL) n2 = AT->n;
+   if (AT != nullptr) n2 = AT->n;
    message("%s: Nrow=%d Ncol=%d\n",title,n2,n1);
-   if (AT != (cs *) NULL) AT = cs_spfree(AT);
+   if (AT != nullptr) AT = cs_spfree(AT);
  }
 
 String toStringDim(const String& title, const cs *A)
@@ -2661,13 +2661,13 @@ String toStringDim(const String& title, const cs *A)
   int n1, n2;
 
   n1 = n2 = 0;
-  if (A == (cs *) NULL) return sstr.str();
+  if (A == nullptr) return sstr.str();
   n1 = A->n;
   AT = cs_transpose(A, 1);
-  if (AT != (cs *) NULL) n2 = AT->n;
+  if (AT != nullptr) n2 = AT->n;
   if (! title.empty()) sstr << title << " : ";
   sstr << "Nrows=" << n2 << " - Ncols=" << n1 << std::endl;
-  if (AT != (cs *) NULL) AT = cs_spfree(AT);
+  if (AT != nullptr) AT = cs_spfree(AT);
   return sstr.str();
 }
 
@@ -2678,9 +2678,9 @@ void cs_print_range(const char *title,const cs *C)
 
    /* Initializations */
 
-   if (C == (cs *) NULL) return;
-   cols = rows = (int *) NULL;
-   vals = (double *) NULL;
+   if (C == nullptr) return;
+   cols = rows = nullptr;
+   vals = nullptr;
 
    /* Convert the contents of the sparse matrix into columns */
 
@@ -2716,9 +2716,9 @@ String toStringRange(const String& title, const cs *C)
 
   /* Initializations */
 
-  if (C == (cs *) NULL) return sstr.str();
-  cols = rows = (int *) NULL;
-  vals = (double *) NULL;
+  if (C == nullptr) return sstr.str();
+  cols = rows = nullptr;
+  vals = nullptr;
 
   /* Convert the contents of the sparse matrix into columns */
 
@@ -2756,12 +2756,12 @@ String toStringRange(const String& title, const cs *C)
 
    /* Initializations */
 
-   A = (cs *) NULL;
+   A = nullptr;
 
    /* Fill the new sparse triplet */
 
    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (Atriplet == (cs *) NULL) goto label_end;
+   if (Atriplet == nullptr) goto label_end;
    for (int i=0; i<number; i++)
    {
      if (! cs_entry(Atriplet,i,i,value)) goto label_end;
@@ -2789,9 +2789,9 @@ String toStringRange(const String& title, const cs *C)
 
    /* Initializations */
 
-   A = (cs *) NULL;
+   A = nullptr;
    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (Atriplet == (cs *) NULL) goto label_end;
+   if (Atriplet == nullptr) goto label_end;
    Cp = C->p;
    Ci = C->i;
    Cx = C->x;
@@ -2846,7 +2846,7 @@ double *csd_extract_diag(cs *C,int mode)
   
   /* Initializations */
   
-  diag = (double *) NULL;
+  diag = nullptr;
   size = C->n;
   Cp   = C->p;
   Ci   = C->i;
@@ -2855,7 +2855,7 @@ double *csd_extract_diag(cs *C,int mode)
   /* Core allocation */
   
   diag = (double *) mem_alloc(sizeof(double) * size,0);
-  if (diag == (double *) NULL) goto label_end;
+  if (diag == nullptr) goto label_end;
   for (int i=0; i<size; i++) diag[i] = 0.;
   
   /* Loop on the rows */
@@ -2922,7 +2922,7 @@ int cs_sort_i(cs *C)
    n = C->n;
    size = MAX(C->m,n);
    rank = (int *) mem_alloc(sizeof(int) * size,0);
-   if (rank == (int *) NULL) return(1);
+   if (rank == nullptr) return(1);
 
    for (j = 0; j < n; j++)
    {
@@ -3100,12 +3100,12 @@ void cs_print_short(const char *title, const cs *L, int nmax)
 
    /* Initializations */
 
-   A = (cs *) NULL;
+   A = nullptr;
 
    /* Fill the new sparse triplet */
 
    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (Atriplet == (cs *) NULL) goto label_end;
+   if (Atriplet == nullptr) goto label_end;
    for (int i=0; i<number; i++)
    {
      if (! cs_entry(Atriplet,i,i,values[i])) goto label_end;
@@ -3123,7 +3123,7 @@ void cs_print_short(const char *title, const cs *L, int nmax)
    cs *bres;
 
    bres = cs_multiply(b1,b2);
-   if (bres == (cs *) NULL) goto label_end;
+   if (bres == nullptr) goto label_end;
    if (flag_release) b1 = cs_spfree(b1);
 
  label_end:
@@ -3136,7 +3136,7 @@ void cs_print_short(const char *title, const cs *L, int nmax)
    cs *bres;
 
    bres = cs_add(b1,b2,alpha,beta);
-   if (bres == (cs *) NULL) goto label_end;
+   if (bres == nullptr) goto label_end;
    if (flag_release) b1 = cs_spfree(b1);
 
  label_end:
@@ -3154,12 +3154,12 @@ cs *cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_release)
  {
    cs *bres1,*bres2;
 
-   bres1 = bres2 = (cs *) NULL;
+   bres1 = bres2 = nullptr;
 
    bres1 = cs_multiply(lambda, b1);
-   if (bres1 == (cs *) NULL) goto label_end;
+   if (bres1 == nullptr) goto label_end;
    bres2 = cs_multiply(bres1, lambda);
-   if (bres2 == (cs *) NULL) goto label_end;
+   if (bres2 == nullptr) goto label_end;
    if (flag_release) b1 = cs_spfree(b1);
 
  label_end:
@@ -3180,8 +3180,8 @@ double *cs_col_sumrow(const cs *A,
 
    error = 1;
    *ncol = *nrow = 0;
-   AT = (cs *) NULL;
-   vect = (double *) NULL;
+   AT = nullptr;
+   vect = nullptr;
    if (!A) goto label_end;
    if (A->nz >= 0) goto label_end;
    Ap = A->p;
@@ -3190,12 +3190,12 @@ double *cs_col_sumrow(const cs *A,
    /* Transpose A into AT to follow ordering per column */
 
    AT = cs_transpose(A,1);
-   if (AT == (cs *) NULL) goto label_end;
+   if (AT == nullptr) goto label_end;
 
    /* Core allocation */
 
    vect = (double *) mem_alloc(sizeof(double) * A->n, 0);
-   if (vect == (double *) NULL) goto label_end;
+   if (vect == nullptr) goto label_end;
 
    /* Loop on the rows */
 
@@ -3276,12 +3276,12 @@ void cs_mulvec(const cs *A, int nout, const double *x, double *y)
  {
    cs *diag, *Qp;
 
-   Qp = diag = (cs *) NULL;
+   Qp = diag = nullptr;
 
    diag = cs_extract_diag(Q,-2);
-   if (diag == (cs *) NULL) goto label_end;
+   if (diag == nullptr) goto label_end;
    Qp	= cs_prod_norm_and_release(Q, diag, flag_release);
-   if (Qp == (cs *) NULL) goto label_end;
+   if (Qp == nullptr) goto label_end;
 
  label_end:
    diag = cs_spfree(diag);
@@ -3381,7 +3381,7 @@ void cs_mulvec(const cs *A, int nout, const double *x, double *y)
      messageAbort("Function not found");
 
    B = cs_duplicate(A);
-   if (B == (cs *) NULL) return(B);
+   if (B == nullptr) return(B);
    n = A->n; Ap = A->p ; Ai = A->i ; Ax = A->x ; Bx = B->x ;
 
    for (int j = 0 ; j < n ; j++)
@@ -3580,17 +3580,17 @@ static int st_coarse_type0(cs  *Q,
    /* Initializations */
 
    error = 1;
-   Qp = Qi = lambda = (int *) NULL;
-   L  = Lt = Ltriplet = (cs *) NULL;
-   Qx = (double *) NULL;
+   Qp = Qi = lambda = nullptr;
+   L  = Lt = Ltriplet = nullptr;
+   Qx = nullptr;
    n  = Q->n; Qp = Q->p ; Qx = Q->x; Qi = Q->i;
 
    /* Core allocation */
 
    Ltriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (Ltriplet == (cs *) NULL) goto label_end;
+   if (Ltriplet == nullptr) goto label_end;
    lambda = (int *) mem_alloc(sizeof(int) * n, 0);
-   if (lambda == (int *) NULL) goto label_end;
+   if (lambda == nullptr) goto label_end;
    
    for (int i=0; i<n; i++) lambda[i] = 0;
 
@@ -3624,7 +3624,7 @@ static int st_coarse_type0(cs  *Q,
    // Transpose L
 
    Lt = cs_transpose(L,1);
-   if (Lt == (cs *) NULL) goto label_end;
+   if (Lt == nullptr) goto label_end;
 
    // Transform triplet into sparse matrix
 
@@ -3662,17 +3662,17 @@ static int st_coarse_type0(cs  *Q,
    /* Initializations */
 
    error = 1;
-   Lp	 = Li = lambda = (int *) NULL;
-   Lout	 = Loutt = Ltriplet = (cs *) NULL;
-   Lx	 = (double *) NULL;
+   Lp	 = Li = lambda = nullptr;
+   Lout	 = Loutt = Ltriplet = nullptr;
+   Lx	 = nullptr;
    n	 = Lt->n; Lp = Lt->p ; Lx = Lt->x; Li = Lt->i;
 
    /* Core allocation */
 
    Ltriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (Ltriplet == (cs *) NULL) goto label_end;
+   if (Ltriplet == nullptr) goto label_end;
    lambda = (int *) mem_alloc(sizeof(int) * n, 0);
-   if (lambda == (int *) NULL) goto label_end;
+   if (lambda == nullptr) goto label_end;
 
    for (int i=0; i<n; i++) lambda[i] = 0;
 
@@ -3764,18 +3764,18 @@ static int st_coarse_type0(cs  *Q,
    // Initializations 
 
    error = 1;
-   L  = Lt = (cs *) NULL;
-   indUd = indCo = indFi = (int *) NULL;
+   L  = Lt = nullptr;
+   indUd = indCo = indFi = nullptr;
    n  = Q->n;
 
    // Core allocation 
 
    indUd = (int *) mem_alloc(sizeof(int) * n,0);
-   if (indUd == (int *) NULL) goto label_end;
+   if (indUd == nullptr) goto label_end;
    indCo = (int *) mem_alloc(sizeof(int) * n,0);
-   if (indCo == (int *) NULL) goto label_end;
+   if (indCo == nullptr) goto label_end;
    indFi = (int *) mem_alloc(sizeof(int) * n,0);
-   if (indFi == (int *) NULL) goto label_end;
+   if (indFi == nullptr) goto label_end;
 
    // Construct L (for type = 0)
    
@@ -3827,27 +3827,27 @@ cs *cs_interpolate(cs  *AA,
 
    // Initialization
    error = 1;
-   IH	 = IHtriplet = (cs *) NULL;
-   u	 = (double *) NULL;
-   Nip	 = Pip = (int *) NULL;
+   IH	 = IHtriplet = nullptr;
+   u	 = nullptr;
+   Nip	 = Pip = nullptr;
    AAp	 = AA->p; AAx = AA->x; AAi = AA->i;
    n	 = AA->n;
-   indCo = (int*) NULL;
+   indCo = nullptr;
 
    // Core allocation */
    u   = (double *) mem_alloc(sizeof(double) * n,0);
-   if (u    == (double *) NULL) goto label_end;
+   if (u    == nullptr) goto label_end;
    indCo   = (int *) mem_alloc(sizeof(int) * n,0);
-   if (indCo  == (int *) NULL) goto label_end;
+   if (indCo  == nullptr) goto label_end;
 
    Nip = (int	 *) mem_alloc(sizeof(int)    * n,0);
-   if (Nip  == (int    *) NULL) goto label_end;
+   if (Nip  == nullptr) goto label_end;
    Pip = (int	 *) mem_alloc(sizeof(int)    * n,0);
-   if (Pip  == (int    *) NULL) goto label_end;
+   if (Pip  == nullptr) goto label_end;
  
    // Transpose
    IHtriplet = cs_spalloc(0, 0, 1, 1, 1);
-   if (IHtriplet == (cs *) NULL) goto label_end;
+   if (IHtriplet == nullptr) goto label_end;
    Ltp = Lt->p; Ltx = Lt->x; Lti = Lt->i;
 
    s=0;
@@ -3988,28 +3988,28 @@ cs *cs_prod_norm(int mode,cs *A, cs *B)
   cs *Bt,*BtA,*BA,*Res;
   
   // Initializations
-  Bt = BtA = BA = Res = (cs *) NULL;
+  Bt = BtA = BA = Res = nullptr;
   
   // Transpose matrix B
 
   Bt  = cs_transpose(B,1);
-  if (Bt  == (cs *) NULL) goto label_end;
+  if (Bt  == nullptr) goto label_end;
 
   // Dispatch 
 
   if (mode == 1)
   {
     BtA = cs_multiply(Bt, A);
-    if (BtA == (cs *) NULL) goto label_end;
+    if (BtA == nullptr) goto label_end;
     Res = cs_multiply(BtA,B);
-    if (Res == (cs *) NULL) goto label_end;
+    if (Res == nullptr) goto label_end;
   }
   else
   {
     BA = cs_multiply(B, A);
-    if (BA == (cs *) NULL) goto label_end;
+    if (BA == nullptr) goto label_end;
     Res = cs_multiply(BA,Bt);
-    if (Res == (cs *) NULL) goto label_end;
+    if (Res == nullptr) goto label_end;
   }
 label_end:
   Bt  = cs_spfree(Bt);
@@ -4175,7 +4175,7 @@ cs *cs_compress(cs *A)
 
   cs_sparse_to_triplet(A, 0, &number, &cols, &rows, &vals);
 
-  Q = Qtriplet = (cs *) NULL;
+  Q = Qtriplet = nullptr;
   Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
   for (int i=0; i<number; i++)
   {
@@ -4195,9 +4195,9 @@ void cs_keypair(const char *key, cs *A, int flag_from_1)
   char name[100];
 
   number = 0;
-  cols	 = rows = (int *) NULL;
-  vals	 = (double *) NULL;
-  if (A == (cs *) NULL) return;
+  cols	 = rows = nullptr;
+  vals	 = nullptr;
+  if (A == nullptr) return;
 
   cs_sparse_to_triplet(A,flag_from_1,&number, &cols, &rows, &vals);
 
@@ -4221,9 +4221,9 @@ void cs_print_file(const char *radix, int rank, cs *A)
   char	  filename[100];
 
   number = 0;
-  cols	 = rows = (int *) NULL;
-  vals	 = (double *) NULL;
-  if (A == (cs *) NULL) return;
+  cols	 = rows = nullptr;
+  vals	 = nullptr;
+  if (A == nullptr) return;
   
   if (! IFFFF(rank))
     (void) gslSPrintf(filename, gslArraySize(filename), "%s-%d",radix,rank);
@@ -4231,7 +4231,7 @@ void cs_print_file(const char *radix, int rank, cs *A)
     (void) gslStrcpy(filename,gslArraySize(filename),radix);
   
   file = gslFopen(filename,"w");
-  if (file == (FILE *) NULL) return;
+  if (file == nullptr) return;
   
   cs_sparse_to_triplet(A,0,&number, &cols, &rows, &vals);
 
@@ -4269,7 +4269,7 @@ int qchol_cholesky(int verbose,
   
   /* Check that the Q matrix has already been defined */
 
-  if (QC->Q == (cs *) NULL) return(1);
+  if (QC->Q == nullptr) return(1);
 
   /* Cholesky decomposition is only valid for square matric */
 
@@ -4285,22 +4285,22 @@ int qchol_cholesky(int verbose,
 
   if (verbose) message("  Cholesky Decomposition... ");
 
-  if (QC->S == (css *) NULL)
+  if (QC->S == nullptr)
   {
     if (verbose) message("Ordering... ");
     QC->S = cs_schol(QC->Q, 0);
-    if (QC->S == (css *) NULL) 
+    if (QC->S == nullptr) 
     {
       messerr("Error in cs_schol function");
       goto label_err;
     }
   }
 
-  if (QC->N == (csn *) NULL)
+  if (QC->N == nullptr)
   {
     if (verbose) message("Factorization... ");
     QC->N = cs_chol (QC->Q, QC->S);
-    if (QC->N == (csn *) NULL) 
+    if (QC->N == nullptr) 
     {
       messerr("Error in cs_chol function");
       goto label_err;
@@ -4484,7 +4484,7 @@ static cs_MG *st_monogrid_manage(int	mode,
     mg = (cs_MG *) mem_alloc(sizeof(cs_MG),1);
     mg->nh	 = 0;
     mg->nH	 = 0;
-    mg->sumrow	 = (double  *) NULL;
+    mg->sumrow	 = nullptr;
     mg->IhH	 = (cs	    *) NULL;
     mg->A	 = qchol_manage(1,NULL);
   }
@@ -4522,7 +4522,7 @@ cs_MGS *cs_multigrid_manage(cs_MGS *mgs,
   {
     mgs		  = (cs_MGS *) mem_alloc(sizeof(cs_MGS),1);
     mgs->nlevels  = nlevels;
-    mgs->diag	  = (double *) NULL;
+    mgs->diag	  = nullptr;
     st_path_define(mgs,nlevels,path_type);
     st_multigrid_set_default_params(mgs);
 
@@ -4633,7 +4633,7 @@ static void st_multigrid_scale(cs_MGS *mgs,
 
   /* Dispatch */
 
-  if (mgs->diag == (double *) NULL) return;
+  if (mgs->diag == nullptr) return;
   if (mode > 0)
   {
     for (int icur=0; icur<mgs->ncur; icur++) 
@@ -4877,7 +4877,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
   /* Initializations */
 
   error	   = 1;
-  xcr	   = rhs = scores = (double *) NULL;
+  xcr	   = rhs = scores = nullptr;
   ncur	   = mgs->ncur;
   nlevels  = mgs->nlevels;
   norm	   = matrix_norm(b,ncur);
@@ -4888,11 +4888,11 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
   /* Core allocation */
 
   xcr	 = (double *) mem_alloc(sizeof(double) * ncur * (1+nlevels),0);
-  if (xcr    == (double *) NULL) goto label_end;
+  if (xcr    == nullptr) goto label_end;
   rhs	 = (double *) mem_alloc(sizeof(double) * ncur * (1+nlevels),0);
-  if (rhs    == (double *) NULL) goto label_end;
+  if (rhs    == nullptr) goto label_end;
   scores = (double *) mem_alloc(sizeof(double) * mgs->nmg,0);
-  if (scores == (double *) NULL) goto label_end;
+  if (scores == nullptr) goto label_end;
 
   /* Initialize the internal arrays */
   
@@ -5014,7 +5014,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   error = 1;
   ncur	= mgs->ncur;
   norm	= matrix_norm(b,ncur);
-  resid = p = z = scores = temp = (double *) NULL;
+  resid = p = z = scores = temp = nullptr;
   if (verbose) 
     message("Conjugate-Gradient Phase (Nmax=%d Tol=%15.10lf)\n",
 	    mgs->ngc,mgs->tolcg);
@@ -5022,15 +5022,15 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   // Core allocation
 
   p = (double *) mem_alloc(sizeof(double) * ncur,0);
-  if (p == (double *) NULL) goto label_end;
+  if (p == nullptr) goto label_end;
   z = (double *) mem_alloc(sizeof(double) * ncur,0);
-  if (z == (double *) NULL) goto label_end;
+  if (z == nullptr) goto label_end;
   resid = (double *) mem_alloc(sizeof(double) * ncur,0);
-  if (resid == (double *) NULL) goto label_end;
+  if (resid == nullptr) goto label_end;
   temp = (double *) mem_alloc(sizeof(double) * ncur,0);
-  if (temp == (double *) NULL) goto label_end;
+  if (temp == nullptr) goto label_end;
   scores = (double *) mem_alloc(sizeof(double) * mgs->ngc,0);
-  if (scores == (double *) NULL) goto label_end;
+  if (scores == nullptr) goto label_end;
 
   // Calculate initial residual
 
@@ -5115,7 +5115,7 @@ int cs_multigrid_process(cs_MGS *mgs,
 {
   // Perform the setup (if not already done)
 
-  if (mgs->diag == (double *) NULL)
+  if (mgs->diag == nullptr)
   {
     if (cs_multigrid_setup(mgs,qctt,0,verbose,NULL)) return(1);
   }
@@ -5210,7 +5210,7 @@ int cs_multigrid_setup(cs_MGS  *mgs,
   flag_print = get_keypone("MG_Flag_Print",0.);
   indCo = (int	  *) NULL;
   L	= (cs	  *) NULL;
-  sel	= (double *) NULL;
+  sel	= nullptr;
   if (verbose) mestitle(1,"Coarsening %d levels",mgs->nlevels);
   if (flag_print) cs_print_file("QTT_avant",ITEST,qctt->Q);
 
@@ -5223,7 +5223,7 @@ int cs_multigrid_setup(cs_MGS  *mgs,
   if (flag_sel)
   {
     sel = (double *) mem_alloc(sizeof(double) * mgs->ncur,0);
-    if (sel == (double *) NULL) goto label_end;
+    if (sel == nullptr) goto label_end;
     for (int i=0; i<mgs->ncur; i++) sel[i] = 1;
   }
   
@@ -5232,7 +5232,7 @@ int cs_multigrid_setup(cs_MGS  *mgs,
   if (mgs->nlevels > 0)
   {
     mgs->diag = csd_extract_diag(qctt->Q,-2);
-    if (mgs->diag == (double *) NULL) return(1);
+    if (mgs->diag == nullptr) return(1);
     qctt->Q = cs_normalize_by_diag_and_release(qctt->Q,1);
   }
   if (flag_print) cs_print_file("QTT_apres",ITEST,qctt->Q);
@@ -5254,7 +5254,7 @@ int cs_multigrid_setup(cs_MGS  *mgs,
     {
       mgold = mgs->mg[ilevel-1];
       mg->A->Q = cs_prod_norm(2,mgold->A->Q,mgold->IhH);
-      if (mg->A->Q == (cs *) NULL) goto label_end;
+      if (mg->A->Q == nullptr) goto label_end;
     }
     if (flag_print) cs_print_file("A",ilevel,mg->A->Q);
 
@@ -5271,14 +5271,14 @@ int cs_multigrid_setup(cs_MGS  *mgs,
       // Interpolation 
       
       mg->IhH = cs_interpolate(mg->A->Q,L,indCo);
-      if (mg->IhH == (cs *) NULL) goto label_end;
+      if (mg->IhH == nullptr) goto label_end;
       if (flag_print) cs_print_file("IhH",ilevel,mg->IhH);
       L = cs_spfree(L);
       
       // Calculate the sum of rows per column 
       
       mg->sumrow = cs_col_sumrow(mg->IhH,&mg->nh,&mg->nH);
-      if (mg->sumrow == (double *) NULL) goto label_end;
+      if (mg->sumrow == nullptr) goto label_end;
 
       // Update the selection
     
@@ -5368,7 +5368,7 @@ int *cs_color_coding(cs  *Q,
   
   error	 = 1;
   ncolor = *ncols = 0;
-  colors = temp = (int *) NULL;
+  colors = temp = nullptr;
   Qp	 = Q->p;
   Qi	 = Q->i;
   Qx	 = Q->x;
@@ -5377,9 +5377,9 @@ int *cs_color_coding(cs  *Q,
   /* Core allocation */
   
   colors = (int *) mem_alloc(sizeof(int) * nmesh,0);
-  if (colors == (int *) NULL) goto label_end;
+  if (colors == nullptr) goto label_end;
   temp	 = (int *) mem_alloc(sizeof(int) * nmesh,0);
-  if (temp   == (int *) NULL) goto label_end;
+  if (temp   == nullptr) goto label_end;
   for (int i=0; i<nmesh; i++) colors[i] = ITEST;
 
   /* Loop on the nodes of the mesh */
@@ -5423,7 +5423,7 @@ int cs_scale(cs *A)
   
   error = 1;
   diag	= csd_extract_diag(A,1);
-  if (diag == (double *) NULL) goto label_end;
+  if (diag == nullptr) goto label_end;
 
   for (j = 0 ; j < n ; j++)
     for (p = Ap [j] ; p < Ap [j+1] ; p++)
@@ -5560,7 +5560,7 @@ Triplet csToTriplet(const cs *A, bool flagFrom1)
 
   cs* AT = cs_transpose(A, 1);
   int nrows = 0;
-  if (AT != (cs *) NULL)
+  if (AT != nullptr)
   {
     nrows = AT->n;
     AT = cs_spfree(AT);
@@ -5691,10 +5691,10 @@ bool cs_isDefinitePositive(cs* A, bool verbose)
     message("Testing if Matrix is Definite Positive\n");
 
   S = cs_schol(A, 0);
-  if (S == (css *) NULL) goto label_end;
+  if (S == nullptr) goto label_end;
 
   N = cs_chol (A, S);
-  if (N == (csn *) NULL) goto label_end;
+  if (N == nullptr) goto label_end;
 
   error = 0;
 

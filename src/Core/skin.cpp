@@ -145,7 +145,7 @@ GEOSLIB_API Skin *skin_define(Db      *db,
   /* Allocation */
   
   skin = (Skin *) mem_alloc(sizeof(Skin),0);
-  if (skin == (Skin *) NULL) goto label_end;
+  if (skin == nullptr) goto label_end;
   skin->db         = db;
   skin->nxyz       = db->getSampleNumber();
   skin->ndim       = db->getNDim();
@@ -157,8 +157,8 @@ GEOSLIB_API Skin *skin_define(Db      *db,
   skin->total      = 0.;
   skin->total_max  = 0.;
   skin->quant      = MIN(SKIN_QUANT,(int) (sqrt(skin->nxyz) / 10));
-  skin->address    = (int    *) NULL;
-  skin->energy     = (double *) NULL;
+  skin->address    = nullptr;
+  skin->energy     = nullptr;
 
   /* Set the error return code */
 
@@ -186,7 +186,7 @@ GEOSLIB_API Skin *skin_undefine(Skin *skin)
 
   /* Deallocation */
 
-  if (skin != (Skin *) NULL)
+  if (skin != nullptr)
   {
     skin->address = (int    *) mem_free((char *) skin->address);
     skin->energy  = (double *) mem_free((char *) skin->energy);
@@ -227,10 +227,10 @@ static int st_skin_cell_del(Skin *skin,
     {
       skin->address = (int *)
         mem_realloc((char *) skin->address,sizeof(int) * skin->size,0);
-      if (skin->address == (int *) NULL) return(1);
+      if (skin->address == nullptr) return(1);
       skin->energy = (double *) 
         mem_realloc((char *) skin->energy,sizeof(double) * skin->size,0);
-      if (skin->energy == (double *) NULL) return(1);
+      if (skin->energy == nullptr) return(1);
     }
     else
     {
@@ -310,18 +310,18 @@ static int st_skin_cell_add(Skin  *skin,
       skin->size += skin->quant;
       skin->address = (int *)
         mem_realloc((char *) skin->address,sizeof(int) * skin->size,0);
-      if (skin->address == (int *) NULL) return(1);
+      if (skin->address == nullptr) return(1);
       skin->energy = (double *) 
         mem_realloc((char *) skin->energy,sizeof(double) * skin->size,0);
-      if (skin->energy == (double *) NULL) return(1);
+      if (skin->energy == nullptr) return(1);
     }
     else
     {
       skin->size = skin->quant;
       skin->address = (int *) mem_alloc(sizeof(int) * skin->size,0);
-      if (skin->address == (int *) NULL) return(1);
+      if (skin->address == nullptr) return(1);
       skin->energy = (double *) mem_alloc(sizeof(double) * skin->size,0);
-      if (skin->energy == (double *) NULL) return(1);
+      if (skin->energy == nullptr) return(1);
     }
   }
   rank = skin->nval;

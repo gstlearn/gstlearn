@@ -134,8 +134,8 @@ static Relem *st_relem_alloc(Split *old_split)
   relem->nrule     = 0;
   relem->nbyrule   = 0;
   relem->facies    = VectorInt();
-  relem->Rrules     = (int *) NULL;
-  relem->Rfipos     = (int *) NULL;
+  relem->Rrules     = nullptr;
+  relem->Rfipos     = nullptr;
   relem->old_split = old_split;
   return(relem);
 }
@@ -161,8 +161,8 @@ static Split *st_split_alloc(Relem *old_relem)
   split->nrule     = 0;
   split->nbyrule   = 0;
   split->old_relem = old_relem;
-  split->Srules     = (int *) NULL;
-  split->Sfipos     = (int *) NULL;
+  split->Srules     = nullptr;
+  split->Sfipos     = nullptr;
   split->relems.resize(2);
   for (int i=0; i<2; i++) split->relems[i] = nullptr;
   return(split);
@@ -208,7 +208,7 @@ static void st_relem_define(Relem *relem,
 
   if (relem == (Relem *) NULL) return;
 
-  if (poss == (int *) NULL) 
+  if (poss == nullptr) 
     number = nfacies;
   else
   {
@@ -224,7 +224,7 @@ static void st_relem_define(Relem *relem,
   ecr = 0;
   for (int i=0; i<nfacies; i++) 
   {
-    if (poss == (int *) NULL || poss[i] == side)
+    if (poss == nullptr || poss[i] == side)
       relem->facies[ecr++] = facies[i];
   }
 
@@ -727,7 +727,7 @@ static int st_vario_pgs_variable(int    mode,
   // Dispatch
 
   number = (flag_one) ? ngrf : ngrf * nfacies;
-  if (db == (Db *) NULL) return 0;
+  if (db == nullptr) return 0;
   switch (mode)
   {
     case 1:
@@ -827,7 +827,7 @@ static Rule *st_rule_encode(int *string)
 {
   Rule *rule;
 
-  rule = (Rule *) NULL;
+  rule = nullptr;
   VectorInt n_type = VectorInt(NRULE);
   VectorInt n_facs = VectorInt(NRULE);
 
@@ -1806,13 +1806,13 @@ GEOSLIB_API Vario_Order *vario_order_manage(int mode,
       vorder_loc->nalloc       = 0;
       vorder_loc->size_aux     = size_aux;
       vorder_loc->flag_dist    = flag_dist;
-      vorder_loc->tab_iech     = (int    *) NULL;
-      vorder_loc->tab_jech     = (int    *) NULL;
-      vorder_loc->tab_ipas     = (int    *) NULL;
-      vorder_loc->tab_sort     = (int    *) NULL;
-      vorder_loc->tab_aux_iech = (char   *) NULL;
-      vorder_loc->tab_aux_jech = (char   *) NULL;
-      vorder_loc->tab_dist     = (double *) NULL;
+      vorder_loc->tab_iech     = nullptr;
+      vorder_loc->tab_jech     = nullptr;
+      vorder_loc->tab_ipas     = nullptr;
+      vorder_loc->tab_sort     = nullptr;
+      vorder_loc->tab_aux_iech = nullptr;
+      vorder_loc->tab_aux_jech = nullptr;
+      vorder_loc->tab_dist     = nullptr;
       break;
     
     case 0:
@@ -1894,36 +1894,36 @@ GEOSLIB_API int vario_order_add(Vario_Order *vorder,
     vorder->tab_iech = (int *)
       mem_realloc((char *) vorder->tab_iech, 
                   vorder->nalloc * sizeof(int),0);
-    if (vorder->tab_iech == (int *) NULL) return(1);
+    if (vorder->tab_iech == nullptr) return(1);
     vorder->tab_jech = (int *)
       mem_realloc((char *) vorder->tab_jech, 
                   vorder->nalloc * sizeof(int),0);
-    if (vorder->tab_jech == (int *) NULL) return(1);
+    if (vorder->tab_jech == nullptr) return(1);
     vorder->tab_ipas = (int *)
       mem_realloc((char *) vorder->tab_ipas, 
                   vorder->nalloc * sizeof(int),0);
-    if (vorder->tab_ipas == (int *) NULL) return(1);
+    if (vorder->tab_ipas == nullptr) return(1);
     vorder->tab_sort = (int *)
       mem_realloc((char *) vorder->tab_sort, 
                   vorder->nalloc * sizeof(int),0);
-    if (vorder->tab_sort == (int *) NULL) return(1);
+    if (vorder->tab_sort == nullptr) return(1);
     if (vorder->size_aux > 0)
     {
       vorder->tab_aux_iech = (char *)
         mem_realloc((char *) vorder->tab_aux_iech, 
                     vorder->nalloc * vorder->size_aux,0);
-      if (vorder->tab_aux_iech == (char *) NULL) return(1);
+      if (vorder->tab_aux_iech == nullptr) return(1);
       vorder->tab_aux_jech = (char *)
         mem_realloc((char *) vorder->tab_aux_jech, 
                     vorder->nalloc * vorder->size_aux,0);
-      if (vorder->tab_aux_jech == (char *) NULL) return(1);
+      if (vorder->tab_aux_jech == nullptr) return(1);
     }
     if (vorder->flag_dist)
     {
       vorder->tab_dist = (double *)
         mem_realloc((char *) vorder->tab_dist, 
                     vorder->nalloc * sizeof(double),0);
-      if (vorder->tab_dist == (double *) NULL) return(1);
+      if (vorder->tab_dist == nullptr) return(1);
     }
   }
 
@@ -1972,7 +1972,7 @@ GEOSLIB_API void vario_order_print(Vario_Order *vorder,
 
   for (i=0; i<vorder->npair; i++)
   {    
-    j = (vorder->tab_sort == (int *) NULL) ? i : vorder->tab_sort[i];
+    j = (vorder->tab_sort == nullptr) ? i : vorder->tab_sort[i];
     ipas = vorder->tab_ipas[j];
     idir = ipas / QUANT_DIR;
     ipas = ipas - QUANT_DIR * idir;
@@ -2021,32 +2021,32 @@ GEOSLIB_API Vario_Order *vario_order_final(Vario_Order *vorder,
   {
     vorder->tab_iech = (int *) 
       mem_realloc((char *) vorder->tab_iech,vorder->npair * sizeof(int),0);
-    if (vorder->tab_iech == (int *) NULL) error = 1;
+    if (vorder->tab_iech == nullptr) error = 1;
     vorder->tab_jech = (int *) 
       mem_realloc((char *) vorder->tab_jech,vorder->npair * sizeof(int),0);
-    if (vorder->tab_jech == (int *) NULL) error = 1;
+    if (vorder->tab_jech == nullptr) error = 1;
     vorder->tab_ipas = (int *) 
       mem_realloc((char *) vorder->tab_ipas,vorder->npair * sizeof(int),0);
-    if (vorder->tab_ipas == (int *) NULL) error = 1;
+    if (vorder->tab_ipas == nullptr) error = 1;
     vorder->tab_sort = (int *) 
       mem_realloc((char *) vorder->tab_sort,vorder->npair * sizeof(int),0);
-    if (vorder->tab_sort == (int *) NULL) error = 1;
+    if (vorder->tab_sort == nullptr) error = 1;
     if (vorder->flag_dist)
     {
       vorder->tab_dist = (double *) 
         mem_realloc((char *) vorder->tab_dist,vorder->npair *sizeof(double),0);
-      if (vorder->tab_dist == (double *) NULL) error = 1;
+      if (vorder->tab_dist == nullptr) error = 1;
     }
     if (vorder->size_aux > 0)
     {
       vorder->tab_aux_iech = (char *) 
         mem_realloc((char *) vorder->tab_aux_iech,
                     vorder->npair * vorder->size_aux,0);
-      if (vorder->tab_aux_iech == (char *) NULL) error = 1;
+      if (vorder->tab_aux_iech == nullptr) error = 1;
       vorder->tab_aux_jech = (char *) 
         mem_realloc((char *) vorder->tab_aux_jech,
                     vorder->npair * vorder->size_aux,0);
-      if (vorder->tab_aux_iech == (char *) NULL) error = 1;
+      if (vorder->tab_aux_iech == nullptr) error = 1;
     }
   }
   vorder->nalloc = vorder->npair;
@@ -2085,7 +2085,7 @@ GEOSLIB_API void vario_order_get_indices(Vario_Order *vorder,
 {
   int jpair;
   
-  if (vorder->tab_sort == (int *) NULL) messageAbort("vario_order_get_indices");
+  if (vorder->tab_sort == nullptr) messageAbort("vario_order_get_indices");
   jpair = vorder->tab_sort[ipair];
   *iech = vorder->tab_iech[jpair];
   *jech = vorder->tab_jech[jpair];
@@ -2110,7 +2110,7 @@ GEOSLIB_API void vario_order_get_auxiliary(Vario_Order *vorder,
 {
   int jpair,iad;
   
-  if (vorder->tab_sort == (int *) NULL) messageAbort("vario_order_get_auxiliary");
+  if (vorder->tab_sort == nullptr) messageAbort("vario_order_get_auxiliary");
   jpair = vorder->tab_sort[ipair];
   iad   = vorder->size_aux * jpair;
   (void) memcpy(aux_iech,&vorder->tab_aux_iech[iad],vorder->size_aux);
@@ -2139,7 +2139,7 @@ GEOSLIB_API void vario_order_get_bounds(Vario_Order *vorder,
 
   ival = ipas + idir * QUANT_DIR;
   if (vorder->npair > 0 && 
-      vorder->tab_sort == (int *) NULL) messageAbort("vario_order_get_bounds");
+      vorder->tab_sort == nullptr) messageAbort("vario_order_get_bounds");
   *ifirst = vorder->npair;
   *ilast  = -1;
   for (ipair=0; ipair<vorder->npair; ipair++)
@@ -2191,14 +2191,14 @@ static int invgen(double *a,
   /* Initializations */
   
   error  = 1;
-  eigvec = eigval = (double *) NULL;
+  eigvec = eigval = nullptr;
   
   /* Core allocation */
   
   eigval = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (eigval == (double *) NULL) goto label_end;
+  if (eigval == nullptr) goto label_end;
   eigvec = (double *) mem_alloc(sizeof(double) * neq * neq,0);
-  if (eigvec == (double *) NULL) goto label_end;
+  if (eigvec == nullptr) goto label_end;
   
   /* Calculate the eigen vectors */
   
@@ -3768,9 +3768,9 @@ static void st_manage_pgs(int               mode,
   switch (mode)
   {
     case 0:
-      local_pgs->db          = (Db    *) NULL;
-      local_pgs->rule        = (Rule  *) NULL;
-      local_pgs->propdef     = (PropDef *) NULL;
+      local_pgs->db          = nullptr;
+      local_pgs->rule        = nullptr;
+      local_pgs->propdef     = nullptr;
       local_pgs->flag_stat   = 0;
       local_pgs->flag_facies = 0;
       local_pgs->calcul_type = ECalcVario::UNDEFINED;
@@ -3787,9 +3787,9 @@ static void st_manage_pgs(int               mode,
       local_pgs->memint      = VectorDouble();
       local_pgs->stat_proba  = VectorDouble();
       local_pgs->stat_thresh = VectorDouble();
-      local_pgs->model       = (Model          *) NULL;
-      local_pgs->vario       = (Vario          *) NULL;
-      local_pgs->varioind    = (Vario          *) NULL;
+      local_pgs->model       = nullptr;
+      local_pgs->vario       = nullptr;
+      local_pgs->varioind    = nullptr;
       local_pgs->vorder      = (Vario_Order    *) NULL;
       break;
 
@@ -3808,7 +3808,7 @@ static void st_manage_pgs(int               mode,
       local_pgs->vario       = vario;
       local_pgs->varioind    = varioind;
       local_pgs->model       = model;
-      if (model != (Model *) NULL)
+      if (model != nullptr)
       {
         int ndim  = model->getDimensionNumber();
         local_pgs->d0.resize(ndim);
@@ -4079,7 +4079,7 @@ static int st_vario_pgs_check(int    flag_db,
 
   /* Experimental variogram (compulsory) */
 
-  if (vario == (Vario *) NULL)
+  if (vario == nullptr)
   {
     messerr("You must define the Input Variogram for the GRFs");
     return(1);
@@ -4096,12 +4096,12 @@ static int st_vario_pgs_check(int    flag_db,
 
   if (flag_db != 0)
   {
-    if (flag_db > 0 && db == (Db *) NULL) 
+    if (flag_db > 0 && db == nullptr) 
     {
       messerr("You must define the Input Db");
       return(1);
     }
-    if (db != (Db *) NULL)
+    if (db != nullptr)
     {
       if (! db->isVariableNumberComparedTo(1)) return 1;
       if (db->getNDim() != vario->getDimensionNumber())
@@ -4116,7 +4116,7 @@ static int st_vario_pgs_check(int    flag_db,
 
   if (flag_rule)
   {
-    if (rule == (Rule  *) NULL)
+    if (rule == nullptr)
     {
       messerr("You must define the Rule");
       return(1);
@@ -4130,7 +4130,7 @@ static int st_vario_pgs_check(int    flag_db,
 
   /* Optional Proportion File */
 
-  if (dbprop != (Db *) NULL && dbprop->getNDim() != vario->getDimensionNumber())
+  if (dbprop != nullptr && dbprop->getNDim() != vario->getDimensionNumber())
   {
     messerr("Space Dimension inconsistency between Dbprop and Vario");
     return(1);
@@ -4140,7 +4140,7 @@ static int st_vario_pgs_check(int    flag_db,
 
   if (flag_varioind)
   {
-    if (varioind == (Vario *) NULL)
+    if (varioind == nullptr)
     {
       messerr("You must define the Indicator Variogram (stationary case)");
       return(1);
@@ -4182,7 +4182,7 @@ static int st_variogram_pgs_nostat(Db*       db,
   error  = 1;
   ngrf   = 0;
   flag_stat = nfacies = 0;
-  propdef = (PropDef *) NULL;
+  propdef = nullptr;
   st_manage_pgs(0,&local_pgs);
 
   /* Preliminary checks */
@@ -4197,7 +4197,7 @@ static int st_variogram_pgs_nostat(Db*       db,
   nfacies = rule->getFaciesNumber();
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
   flag_correl = ngrf > 1 && (opt_correl != 2 || rule->getRho() != 0);
   if (rule->particularities(db,dbprop,NULL,1,flag_stat)) goto label_end;
   proportion_rule_process(propdef,EProcessOper::COPY);
@@ -4824,15 +4824,15 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
   Db* dbin    = local_pgs->db;
   Vario* vario   = local_pgs->vario;
   int nfacies = local_pgs->nfacies;
-  mean = covs = (double *) NULL;
+  mean = covs = nullptr;
 
   /* Core allocation */
 
   mean = (double *) mem_alloc(nfacies * sizeof(double), 0);
-  if (mean == (double *) NULL) goto label_end;
+  if (mean == nullptr) goto label_end;
   for (int i=0; i<nfacies; i++) mean[i] = 0.;
   covs = (double *) mem_alloc(nfacies * nfacies * sizeof(double), 0);
-  if (covs == (double *) NULL) goto label_end;
+  if (covs == nullptr) goto label_end;
   for (int i=0; i<nfacies * nfacies; i++) covs[i] = 0.;
 
   /* Loop on the samples */
@@ -4959,15 +4959,15 @@ GEOSLIB_API Vario* model_pgs(Db* db,
   int ngrf = rule->getGRFNumber();
   if(rule->getModeRule() == ERule::SHIFT) ngrf++;
 
-  new_model = (Model *) NULL;
-  propdef   = (PropDef *) NULL;
+  new_model = nullptr;
+  propdef   = nullptr;
   st_manage_pgs(0,&local_pgs);
   if (st_check_test_discret(rule->getModeRule(), 0)) goto label_end;
 
   /* Merge the models */
 
   new_model = model_rule_combine(model1,model2,rule);
-  if (new_model == (Model *) NULL)
+  if (new_model == nullptr)
   {
     messerr("The Model(s) must be defined");
     return nullptr;
@@ -4981,7 +4981,7 @@ GEOSLIB_API Vario* model_pgs(Db* db,
 
   if (! flag_stat)
   {
-    if (db == (Db *) NULL)
+    if (db == nullptr)
     {
       messerr("You must define the Input Db");
       return nullptr;
@@ -4993,7 +4993,7 @@ GEOSLIB_API Vario* model_pgs(Db* db,
       messerr("Variogram: NDIM=%d",varioparam->getDimensionNumber());
       return nullptr;
     }
-    if (dbprop != (Db *) NULL &&
+    if (dbprop != nullptr &&
         dbprop->getNDim() != varioparam->getDimensionNumber())
     {
       messerr("Space Dimension inconsistency between Dbprop and Vario");
@@ -5034,7 +5034,7 @@ GEOSLIB_API Vario* model_pgs(Db* db,
   
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               db,dbprop,propcst,propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
 
   if (rule->particularities(db,dbprop,new_model,0,flag_stat)) goto label_end;
 
@@ -5114,7 +5114,7 @@ static int st_variogram_pgs_stat(Db     *db,
   error  = 1;
   ngrf   = nfacies = 0;
   flag_stat = 1;
-  propdef = (PropDef *) NULL;
+  propdef = nullptr;
   st_manage_pgs(0,&local_pgs);
 
   /* Preliminary checks */
@@ -5130,7 +5130,7 @@ static int st_variogram_pgs_stat(Db     *db,
   rule->statistics(0,&node_tot,&nfacies,&nmax_tot,&ny1,&ny2,&prop_tot);
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,
                               NULL,NULL,propcst,propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
   if (rule->particularities(NULL,NULL,NULL,1,flag_stat)) goto label_end;
   proportion_rule_process(propdef,EProcessOper::COPY);
 
@@ -5339,9 +5339,9 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
   /* Initializations */
 
   int error    = 1;
-  Rule* rule   = (Rule  *) NULL;
+  Rule* rule   = nullptr;
   Relem* Pile_Relem   = (Relem *) NULL;
-  PropDef* propdef      = (PropDef *) NULL;
+  PropDef* propdef      = nullptr;
   String calcName("covnc");
 
   NCOLOR       = db->getFaciesNumber();
@@ -5378,7 +5378,7 @@ GEOSLIB_API Rule *rule_auto(Db*         db,
   if (st_vario_pgs_check(0,0,flag_stat,db,NULL,vario,varioind,NULL)) goto label_end;
 
   propdef = proportion_manage(1,1,flag_stat,NGRF,0,NCOLOR,0,db,dbprop,propcst,propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
   proportion_rule_process(propdef,EProcessOper::COPY);
   
   /* Pre-calculation of integrals: Define the structure */

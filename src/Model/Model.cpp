@@ -346,7 +346,7 @@ int Model::fit(Vario *vario,
                const Constraints& constraints,
                Option_VarioFit optvar)
 {
-  if (vario == (Vario *) NULL) return 1;
+  if (vario == nullptr) return 1;
 
   // Clean out possible covariances in the existing model
 
@@ -384,7 +384,7 @@ int Model::fit(Vario *vario,
                const Constraints& constraints,
                Option_VarioFit optvar)
 {
-  if (vario == (Vario *) NULL) return 1;
+  if (vario == nullptr) return 1;
 
   // Clean out possible covariances in the existing model
 
@@ -660,7 +660,7 @@ double Model::getTotalSill(int ivar, int jvar) const
 
 Model* Model::duplicate() const
 {
-  Model* model = (Model *) NULL;
+  Model* model = nullptr;
 
   model = new Model(getContext(), isFlagGradient(), isFlagLinked());
 
