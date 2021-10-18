@@ -15,6 +15,7 @@
 #include "Basic/Tensor.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
 #include "geoslib_e.h"
@@ -425,8 +426,11 @@ int NoStatArray::_informField(int ipar,
   // Printout some statistics (optional)
 
   if (verbose)
-    ut_vector_display_stats(stringCompose("Statistics for Non-Stationary Parameter #%d on Mesh",
-                                          ipar + 1),tab);
+  {
+    String str;
+    (void) gslSPrintf(str,"Statistics for Non-Stationary Parameter #%d on Mesh",ipar + 1);
+    ut_vector_display_stats(str,tab);
+  }
 
   return 0;
 }

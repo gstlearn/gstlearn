@@ -237,38 +237,17 @@ void setFormatBatchNumber(int nbatch)
  */
 void message(const char *format, ...)
 {
-  char STRING[1000];
+  String str;
+  String sFormat(format);
   va_list ap;
 
   va_start(ap, format);
-#if __STDC_WANT_LIB_EXT1__ == 1
-  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
-#else
-  (void) vsprintf(STRING, format, ap);
-#endif
+  gslSPrintf(str, sFormat, ap);
   va_end(ap);
 
-  message_extern(STRING);
+  message_extern(str.c_str());
 
   return;
-}
-
-String stringCompose(const char *format,...)
-{
-  std::stringstream sstr;
-  char STRING[1000];
-  va_list ap;
-
-  va_start(ap, format);
-#if __STDC_WANT_LIB_EXT1__ == 1
-  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
-#else
-  (void) vsprintf(STRING, format, ap);
-#endif
-  va_end(ap);
-
-  sstr << STRING;
-  return sstr.str();
 }
 
 /**
@@ -299,18 +278,12 @@ void messerrFlush(const String& string)
  */
 void messerr(const char *format, ...)
 {
-  char STRING[1000];
   va_list ap;
 
   va_start(ap, format);
-#if __STDC_WANT_LIB_EXT1__ == 1
-  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
-#else
-  (void) vsprintf(STRING, format, ap);
-#endif
+  message(format,ap);
   va_end(ap);
 
-  message_extern(STRING);
   message_extern("\n");
 
   return;

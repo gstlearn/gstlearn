@@ -40,7 +40,6 @@ void   messageFlush(const String& string);
 void   messerrFlush(const String& string);
 void   messerr(const char *format,...);
 void   message(const char *format,...);
-String stringCompose(const char *format,...);
 void   mesArg(const char *title, int current, int nmax, bool flagStartOne = false);
 void   messageAbort(const char *format,...);
 void   mestitle(int level,const char *format,...);
