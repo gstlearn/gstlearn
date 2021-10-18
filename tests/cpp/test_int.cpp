@@ -199,7 +199,7 @@ void vario(const std::string& file)
   ASpaceObject::defineDefaultSpace(SPACE_RN, 2);
 
   //read CSV and create Database
-  ParamCSV pcsv(file,",",".",true,0);
+  ParamCSV pcsv(file,',','.',true,0);
   Database database(pcsv);
   
   database.setRole({"x1","x2"},ERoles::COORD);

@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/String.hpp"
@@ -16,9 +15,11 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include <string>
 #include <iostream>
-#include <iomanip>
 #include <sstream>
+#include <typeinfo>
+#include <iomanip>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -36,6 +37,13 @@ static int _nRC = 3;
 static int _maxNCols = 7;
 static int _maxNRows = 7;
 static int _nBatch = 7;
+
+String AStringable::toString(int level) const
+{
+  std::stringstream sstr;
+  sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;
+  return sstr.str();
+}
 
 std::stringstream _formatColumn(int justify, int localSize = 0)
 {

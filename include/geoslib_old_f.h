@@ -11,6 +11,7 @@
 #ifndef GEOSLIB_OLDF_H
 #define GEOSLIB_OLDF_H
 
+// TODO: this include list is too long
 #include "Neigh/ENeigh.hpp"
 #include "Model/CovInternal.hpp"
 #include "Variogram/Vario.hpp"
@@ -1997,8 +1998,8 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                  int verbose,
                                  int flag_header,
                                  int nskip,
-                                 const char *char_sep,
-                                 const char *char_dec,
+                                 char char_sep,
+                                 char char_dec,
                                  const char *na_string,
                                  int ncol_max,
                                  int nrow_max,
@@ -2006,6 +2007,19 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                  int *nrow_arg,
                                  VectorString& names,
                                  VectorDouble& tab);
+  GEOSLIB_API int csv_table_read2(const String& filename,
+                                  int verbose,
+                                  int flag_header,
+                                  int nskip,
+                                  char char_sep,
+                                  char char_dec,
+                                  const String& na_string,
+                                  int ncol_max,
+                                  int nrow_max,
+                                  int* ncol_arg,
+                                  int* nrow_arg,
+                                  VectorString& names,
+                                  VectorDouble& tab);
 
   /****************************************/
   /* Prototyping the functions in krige.c */

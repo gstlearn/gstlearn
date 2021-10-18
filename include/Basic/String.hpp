@@ -13,6 +13,7 @@
 #include "Basic/AStringable.hpp"
 
 // TODO : add Namespace
+#define SPACES " \t\r\n"
 
 String toUpper(const String& string);
 String toLower(const String& string);
@@ -58,15 +59,17 @@ VectorString expandList(const VectorString& list,
                         const VectorString& matches);
 int getMaxStringSize(const VectorString& list);
 VectorString separateKeywords(const String& code);
-int toInt(const String& code);
-String intToString(int value);
-String realToString(double value);
-// TODO : add const ref
-String suppressTrailingBlanks(String value);
-String suppressLeadingBlanks(String value);
-String suppressAnyBlanks(String value);
 
-int askInt(const String& text, int defval = ITEST, bool authTest = false);
-double askDouble(const String& text, double defval = TEST, bool authTest = false);
-int askBool(const String& text, bool defval);
-// TODO faire getString
+// TODO : Use template functions
+int toInt(const String& v);
+double toDouble(const String& v, char dec = '.');
+String toString(int value);
+String toString(double value);
+int    askInt(   const String& text, int    defval = ITEST, bool authTest = false);
+double askDouble(const String& text, double defval = TEST,  bool authTest = false);
+int    askBool(  const String& text, bool   defval = false);
+
+String trimRight (const String& s, const String& t = SPACES);
+String trimLeft(  const String& s, const String& t = SPACES);
+String trim(      const String& s, const String& t = SPACES);
+String erase(     const String& s, const String& t = SPACES);

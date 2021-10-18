@@ -14,6 +14,8 @@
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
+#include <sstream>
+
 /*! \cond */
 #define COLOR_MASK   -1
 #define COLOR_FFFF   -2
@@ -2532,8 +2534,8 @@ GEOSLIB_API int csv_table_read(const char *filename,
                                int         verbose,
                                int         flag_header,
                                int         nskip,
-                               const char *char_sep,
-                               const char *char_dec,
+                               char        char_sep,
+                               char        char_dec,
                                const char *na_string,
                                int         ncol_max,
                                int         nrow_max,
@@ -2566,6 +2568,8 @@ GEOSLIB_API int csv_table_read(const char *filename,
   
   // Define the variable names
 
+  char csep[1];
+  csep[0] = char_sep;
   if (flag_header)
   {
     if (st_read_next(s_length,file,0,&numline,string)) goto label_end;
@@ -2574,7 +2578,7 @@ GEOSLIB_API int csv_table_read(const char *filename,
     // Implicit loop to read the variable names 
 
     ncol = 0;
-    while ((token = strsep(&strbis,char_sep)) != NULL)
+    while ((token = strsep(&strbis,csep)) != NULL)
     {
       size = static_cast<int> (strlen(token));
       string_strip_quotes(token);
@@ -2607,7 +2611,7 @@ GEOSLIB_API int csv_table_read(const char *filename,
     // Implicit loop to read the numeric values
 
     ncol2 = 0;
-    while ((token = strsep(&strbis,char_sep)) != NULL)
+    while ((token = strsep(&strbis,csep)) != NULL)
     {
       size = static_cast<int> (strlen(token));
       if (necr >= nquant * quantum)
@@ -2623,7 +2627,7 @@ GEOSLIB_API int csv_table_read(const char *filename,
       else
       {
         for (int i=0; i<size; i++)
-          if (token[i] == char_dec[0]) token[i] = '.';
+          if (token[i] == char_dec) token[i] = '.';
         tab[necr] = atof(token);
       }
       necr++;
@@ -2660,6 +2664,132 @@ GEOSLIB_API int csv_table_read(const char *filename,
 label_end:
   if (file != (FILE *) NULL) fclose(file);
   return(error);
+}
+
+/****************************************************************************/
+/*!
+**   Read the Data frame from a CSV file. Reserved for numerical data frame.
+**
+** \return  Error return code
+**
+** \param[in]  filename    Name of the CSV file
+** \param[in]  verbose     1 for a verbose output; 0 otherwise
+** \param[in]  flag_header 1 if the first line of the file contains the
+**                         variable names
+** \param[in]  nskip       Number of lines to skip
+** \param[in]  char_sep    Character used as a column separator
+** \param[in]  char_dec    Character used as a decimal
+** \param[in]  na_string   String used for absent information
+** \param[in]  ncol_max    Maximum number of columns (or -1)
+** \param[in]  nrow_max    Maximum number of rows (or -1)
+**
+** \param[out]  ncol_arg   Number of columns
+** \param[out]  nrow_arg   Number of rows
+** \param[out]  names      Array containing the variable names
+** \param[out]  tab        Array of values
+**
+** \remarks The returned array 'tab' is organized by sample
+**
+*****************************************************************************/
+GEOSLIB_API int csv_table_read2(const String& filename,
+                                int           verbose,
+                                int           flag_header,
+                                int           nskip,
+                                char          char_sep,
+                                char          char_dec,
+                                const String& na_string,
+                                int           ncol_max,
+                                int           nrow_max,
+                                int*          ncol_arg,
+                                int*          nrow_arg,
+                                VectorString& names,
+                                VectorDouble& tab)
+{
+  std::string line;
+  std::ifstream file(filename.c_str());
+  if (!file.is_open())
+  {
+    messerr("Error when opening the CSV file %s for reading",filename);
+    return 1;
+  }
+
+  // Initialization
+  names.clear();
+  tab.clear();
+  int ncol = 0;
+
+  // Define the variable names
+  if (flag_header)
+  {
+    std::getline(file, line);
+    if (!line.empty())
+    {
+      std::istringstream iss(line);
+      std::string word;
+      while (std::getline(iss, word, char_sep))
+      {
+        word = trim(word, "\"\'");
+        names.push_back(word);
+        if (verbose) message("Column Name (%d): %s\n",ncol+1,names[ncol].c_str());
+        ncol++;
+        if (ncol_max > 0 && ncol >= ncol_max) break;
+      }
+    }
+
+    if (verbose) message("Number of columns = %d\n",ncol);
+  }
+
+  // Skip some lines (optional)
+  if (nskip > 0)
+  {
+    int iskip = 0;
+    while (iskip<nskip && !file.eof())
+    {
+      std::getline(file, line);
+      iskip++;
+    }
+  }
+
+  // Read the values:
+  int ncol2 = 0;
+  int nrow = 0;
+  while (!file.eof())
+  {
+    std::getline(file, line);
+    if (!line.empty())
+    {
+      ncol2 = 0;
+      std::istringstream iss(line);
+      std::string word;
+      while (std::getline(iss, word, char_sep))
+      {
+        if (word == na_string)
+          tab.push_back(TEST);
+        else
+          tab.push_back(toDouble(word, char_dec));
+
+        ncol2++;
+        if (ncol_max > 0 && ncol2 >= ncol_max) break;
+        if (ncol     > 0 && ncol2 >= ncol) break;
+      }
+      if (ncol <= 0) ncol = ncol2;
+      nrow++;
+    }
+    if (nrow_max > 0 && nrow >= nrow_max) break;
+  }
+
+  // Optional printout
+  if (verbose)
+  {
+    message("Data table read (%s) successfully\n",filename);
+    message("- Number of columns = %d\n",ncol);
+    message("- Number of rows    = %d\n",nrow);
+  }
+
+  *ncol_arg = ncol;
+  *nrow_arg = nrow;
+
+  return 0;
 }
 
 /****************************************************************************/

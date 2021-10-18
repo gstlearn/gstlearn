@@ -10,6 +10,8 @@
 #define CS_DATE "Mar 6, 2006"	    /* CSparse release date */
 #define CS_COPYRIGHT "Copyright (c) Timothy A. Davis, 2006"
 
+#include "csparse_d.h"
+
 cs     *cs_add (const cs *A, const cs *B, double alpha, double beta) ;
 void    cs_add_cste(cs *A, double value);
 int     cs_cholsol (const cs *A, double *b, int order) ;

@@ -5033,10 +5033,10 @@ GEOSLIB_API int db_model_nostat(Db *db,
   int jptr = iptr;
   for (int idim = 0; idim < ndim; idim++)
     namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, db, jptr++,
-                                concatenateStrings("-","Range",intToString(idim+1)));
+                                concatenateStrings("-","Range",toString(idim+1)));
   for (int idim = 0; idim < ndim; idim++)
     namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, db, jptr++,
-                                concatenateStrings("-","Angle",intToString(idim+1)));
+                                concatenateStrings("-","Angle",toString(idim+1)));
   namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, db, jptr++, "Sill");
   namconv.setLocators(db, iptr, 1, 2*ndim+1);
 
@@ -6515,7 +6515,7 @@ GEOSLIB_API int db_proportion_estimate(Db *dbin,
     if (i == 0) iptr0 = iptr;
     namconv.setNamesAndLocators(
         nullptr, ELoc::UNKNOWN, -1, dbout, iptr,
-        concatenateStrings("-", intToString(i + 1)));
+        concatenateStrings("-", toString(i + 1)));
   }
   namconv.setLocators(dbout, iptr0, 1, ncat);
 

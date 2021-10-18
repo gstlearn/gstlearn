@@ -54,13 +54,13 @@ Database::Database(const ParamCSV &pcsv, const ASpace* space)
   VectorDouble tab;
   int skipnline = pcsv.getSkipNLines();
   String filename = pcsv.getFilePath();
-  String sepchar = pcsv.getSeparatorChar();
-  String decchar = pcsv.getDecimalChar();
+  char sepchar = pcsv.getSeparatorChar();
+  char decchar = pcsv.getDecimalChar();
 
   //read content from csv
-  if (csv_table_read(filename.c_str(), 1, pcsv.getUseHeader(), skipnline,
-                     sepchar.c_str(), decchar.c_str(), "MISS", -1, -1,
-                     &ncol_arg, &nrow_arg, names, tab) != 0)
+  if (csv_table_read2(filename.c_str(), 1, pcsv.getUseHeader(), skipnline,
+                      sepchar, decchar, "MISS", -1, -1,
+                      &ncol_arg, &nrow_arg, names, tab) != 0)
   {
     // Error, create empty database
     std::cout << "Cannot open csv file!" << std::endl;

@@ -11,7 +11,9 @@
 #include "Db/PtrGeos.hpp"
 #include "Basic/AStringable.hpp"
 #include "geoslib_enum.h"
+
 #include <string.h>
+#include <sstream>
 
 typedef struct
 {

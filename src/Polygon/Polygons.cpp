@@ -40,7 +40,7 @@ Polygons::Polygons(const String& filename,
   /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
 
   if (csv_table_read(filename.c_str(), verbose, csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep().c_str(), csv.getCharDec().c_str(), csv.getNaString().c_str(),
+                     csv.getCharSep(), csv.getCharDec(), csv.getNaString().c_str(),
                      ncol_max, nrow_max, &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
