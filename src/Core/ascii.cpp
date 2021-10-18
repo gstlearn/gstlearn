@@ -400,35 +400,6 @@ static void st_table_write(const char *string, int ntab, const double *tab)
 
 /****************************************************************************/
 /*!
- **  Write the table (integer values)
- **
- ** \param[in]  string     String of the table records (or NULL)
- ** \param[in]  ntab       Number of values in the table
- ** \param[in]  itab       Array of integer values to be written
- **
- *****************************************************************************/
-static void st_tablei_write(const char *string, int ntab, int *itab)
-{
-  int i;
-  char local[LONG_SIZE];
-
-  for (i = 0; i < ntab; i++)
-  {
-    st_record_write("%d", itab[i]);
-    if (string != NULL)
-    {
-      (void) gslSPrintf(local, "%s (%d)", string, i + 1);
-      st_record_write("#", local);
-    }
-    else
-    {
-      st_record_write("\n");
-    }
-  }
-}
-
-/****************************************************************************/
-/*!
  **  Read the table
  **
  ** \param[in]  ntab       Number of values in the table
@@ -1197,77 +1168,6 @@ GEOSLIB_API Frac_Environ *ascii_frac_read(const char *file_name, int verbose)
   label_end: if (debug_query("interface")) fracture_print(frac);
   st_file_close(file);
   return (frac);
-}
-
-/****************************************************************************/
-/*!
- **   Write a Table (of real values)
- **
- ** \return  Error returned code
- **
- ** \param[in]  file_name    Name of the ASCII file
- ** \param[in]  verbose      Verbose option if the file cannot be opened
- ** \param[in]  ntab         Number of samples
- ** \param[in]  tab          Array of real values to be written
- **
- *****************************************************************************/
-GEOSLIB_API int ascii_table_write(const char *file_name,
-                                  int verbose,
-                                  int ntab,
-                                  double *tab)
-{
-  FILE *file;
-
-  /* Opening the Data file */
-
-  file = st_file_open(file_name, NULL, NEW, verbose);
-  if (file == nullptr) return (1);
-  st_record_write("%d", ntab);
-  st_record_write("\n");
-  st_table_write(NULL, ntab, tab);
-
-  /* Set the error return code */
-
-  st_create_message(file_name, "Table", verbose);
-
-  st_file_close(file);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **   Write a Table (of integer values)
- **
- ** \return  Error returned code
- **
- ** \param[in]  file_name    Name of the ASCII file
- ** \param[in]  verbose      Verbose option if the file cannot be opened
- ** \param[in]  ntab         Number of samples
- ** \param[in]  itab         Array of integer values to be written
- **
- *****************************************************************************/
-GEOSLIB_API int ascii_tablei_write(const char *file_name,
-                                   int verbose,
-                                   int ntab,
-                                   int *itab)
-{
-  FILE *file;
-
-  /* Opening the Data file */
-
-  file = st_file_open(file_name, NULL, NEW, verbose);
-  if (file == nullptr) return (1);
-
-  st_record_write("%d", ntab);
-  st_record_write("\n");
-  st_tablei_write(NULL, ntab, itab);
-
-  /* Set the error return code */
-
-  st_create_message(file_name, "Table", verbose);
-
-  st_file_close(file);
-  return (0);
 }
 
 /****************************************************************************/

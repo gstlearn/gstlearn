@@ -777,19 +777,6 @@
                                        const char *option_name,
                                        int type,
                                        void *answer);
-  GEOSLIB_API int ascii_table_write(const char *file_name,
-                                    int verbose,
-                                    int ntab,
-                                    double *tab);
-  GEOSLIB_API int ascii_tablei_write(const char *file_name,
-                                     int verbose,
-                                     int ntab,
-                                     int *itab);
-  GEOSLIB_API int ascii_table_read(const char *filename,
-                                   int nskip,
-                                   int ncol,
-                                   int *nrow,
-                                   double **tab_arg);
 
   /*****************************************/
   /* Prototyping the functions in morpho.c */
