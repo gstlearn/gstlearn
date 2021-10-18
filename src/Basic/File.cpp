@@ -14,6 +14,21 @@
 #include <malloc.h>
 #include <stdarg.h>
 
+// Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
+//https://stackoverflow.com/a/17219495
+void skipBOM(std::ifstream &in)
+{
+  char test[3] = {0};
+  in.read(test, 3);
+  if ((unsigned char)test[0] == 0xEF &&
+      (unsigned char)test[1] == 0xBB &&
+      (unsigned char)test[2] == 0xBF)
+  {
+      return;
+  }
+  in.seekg(0);
+}
+
 FILE* gslFopen(const char* path, const char* mode)
 {
   FILE *file;

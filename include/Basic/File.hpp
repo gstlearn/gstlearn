@@ -11,6 +11,7 @@
 #pragma once
 
 #include "geoslib_define.h"
+#include <fstream>
 
 /**
  * This file contains all the OLD-STYLE declarations causing warnings on Windows
@@ -18,7 +19,12 @@
  * However, they are kept there to keep track on these statements
  */
 
+
 // TODO : File manipulation class
+
+// Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
+//https://stackoverflow.com/a/17219495
+void skipBOM(std::ifstream &in);
 FILE* gslFopen(const char *path, const char* mode);
 FILE* gslFopen(const String& path, const String& mode);
 bool gslFileExist(const char *path, const char* mode);
