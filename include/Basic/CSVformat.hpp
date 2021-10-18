@@ -17,29 +17,29 @@ class CSVformat
 public:
   CSVformat(int flagHeader = true,
             int nSkip = 0,
-            const String& charSep = ",",
-            const String& charDec = ".",
+            char charSep = ',',
+            char charDec = '.',
             const String& naString = "NA");
   CSVformat(const CSVformat &r);
   CSVformat& operator=(const CSVformat &r);
   virtual ~CSVformat();
 
-  const String getCharDec()  const { return _charDec; }
-  const String getCharSep()  const { return _charSep; }
+  char  getCharDec()         const { return _charDec; }
+  char  getCharSep()  const { return _charSep; }
   int   getFlagHeader()      const { return _flagHeader; }
   const String getNaString() const { return _naString; }
   int   getNSkip()           const { return _nSkip; }
 
   void  setFlagHeader(int flagHeader)       { _flagHeader = flagHeader; }
-  void  setCharDec(const String& charDec)   { _charDec    = charDec;    }
-  void  setCharSep(const String& charSep)   { _charSep    = charSep;    }
+  void  setCharDec(char charDec)            { _charDec    = charDec;    }
+  void  setCharSep(char charSep)            { _charSep    = charSep;    }
   void  setNaString(const String& naString) { _naString   = naString;   }
   void  setNSkip(int nskip)                 { _nSkip      = nskip;       }
 
 private:
   int _flagHeader;
   int _nSkip;
-  String _charSep;
-  String _charDec;
+  char _charSep;
+  char _charDec;
   String _naString;
 };

@@ -15,6 +15,8 @@
 #include "Drifts/ADriftElem.hpp"
 #include "Db/Db.hpp"
 
+#include <sstream>
+
 ADriftList::ADriftList(bool flagLinked, const ASpace* space)
     : ADrift(space),
       _flagLinked(flagLinked),

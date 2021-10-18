@@ -12,8 +12,8 @@
 
 CSVformat::CSVformat(int flagHeader,
                      int nSkip,
-                     const String& charSep,
-                     const String& charDec,
+                     char charSep,
+                     char charDec,
                      const String& naString)
   : _flagHeader(flagHeader)
   , _nSkip(nSkip)

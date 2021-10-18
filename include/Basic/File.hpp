@@ -32,4 +32,4 @@ char* gslStrcat(char* dst, int dst_size, const char* src);
 void gslStrcat(String& dst, const String& src);
 
 int gslSPrintf(char* dst, int dst_size, const char* format, ...);
-int gslSPrintf(String& dst, const String& format, ...);
+int gslSPrintf(String& dst, String format, ...);

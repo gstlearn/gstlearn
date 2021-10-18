@@ -485,7 +485,7 @@ String ASerializable::getFileIdentify(const String& filename)
   std::getline(file, filetype);
 
   // Suppress trailing blanks
-  filetype = suppressTrailingBlanks(filetype);
+  filetype = trimRight(filetype);
 
   // Close the file
   file.clear();

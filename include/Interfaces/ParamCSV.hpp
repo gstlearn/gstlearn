@@ -8,22 +8,22 @@ class ParamCSV
 
 public:
   ParamCSV(std::string filePath,
-           std::string sep,
-           std::string decimalChar,
+           char sep,
+           char decimalChar,
            bool useHeader,
            int skipNLines);
   ~ParamCSV();
 
   std::string getFilePath() const;
-  std::string getSeparatorChar() const;
-  std::string getDecimalChar() const;
+  char getSeparatorChar() const;
+  char getDecimalChar() const;
   bool getUseHeader() const;
   int getSkipNLines() const;
 
 private:
   std::string _filePath;
-  std::string _separatorChar;
-  std::string _decimalChar;
+  char _separatorChar;
+  char _decimalChar;
   bool _useHeader;
   int _skipNLines;
 };

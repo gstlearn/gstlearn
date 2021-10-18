@@ -12,6 +12,7 @@
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/CSVformat.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -158,10 +159,10 @@ Db::Db(const String& filename,
 
   /* Reading the CSV file */
 
-  if (csv_table_read(filename.c_str(), (int) verbose,
-                     csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep().c_str(), csv.getCharDec().c_str(),csv.getNaString().c_str(),
-                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  if (csv_table_read2(filename, (int) verbose,
+                      csv.getFlagHeader(), csv.getNSkip(),
+                      csv.getCharSep(), csv.getCharDec(),csv.getNaString(),
+                      ncol_max, nrow_max, &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
     return;
