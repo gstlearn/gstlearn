@@ -231,23 +231,23 @@ static void st_ifpen_write(FILE       *file,
   /* Comment */
 
   if (comment != NULL)
-    (void) sprintf(&line[strlen(line)],"%s",comment);
+    (void) gslSPrintf(&line[strlen(line)],"%s",comment);
 
   /* Encoding the value */
 
   if (mode == 1)
   {
-    (void) sprintf(&line[strlen(line)]," %d",valint);
+    (void) gslSPrintf(&line[strlen(line)]," %d",valint);
   }
   else if (mode == 2)
   {
-    (void) sprintf(&line[strlen(line)]," %lf",valrel);
+    (void) gslSPrintf(&line[strlen(line)]," %lf",valrel);
   }
 
   /* Secondary comment */
 
   if (combis != NULL)
-    (void) sprintf(&line[strlen(line)]," %s",combis);
+    (void) gslSPrintf(&line[strlen(line)]," %s",combis);
 
   /* Print the line */
 
@@ -2726,7 +2726,7 @@ GEOSLIB_API int csv_table_read2(const String& filename,
       {
         word = trim(word, "\"\'");
         names.push_back(word);
-        if (verbose) message("Column Name (%d): %s\n",ncol+1,names[ncol].c_str());
+        if (verbose) message("Column Name (%d): %s\n",ncol+1,word.c_str());
         ncol++;
         if (ncol_max > 0 && ncol >= ncol_max) break;
       }

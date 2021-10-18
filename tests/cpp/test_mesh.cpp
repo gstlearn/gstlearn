@@ -87,9 +87,9 @@ int main(int argc, char *argv[])
   /* Triswitch option */
 
   if (variety == 0)
-    (void) strcpy((char *) triswitch,"Q");
+    (void) gslStrcpy((char *) triswitch,"Q");
   else
-    (void) strcpy((char *) triswitch,"-r1");
+    (void) gslStrcpy((char *) triswitch,"-r1");
   
   /* Rotation definition */
 

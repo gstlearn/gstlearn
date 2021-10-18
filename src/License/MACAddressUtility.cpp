@@ -180,7 +180,7 @@ long MACAddressUtility::GetMACAddressLinuxByName(int sd,
                                                  std::string& mac_address) 
 {
   struct ifreq ifreq;
-  strcpy(ifreq.ifr_name, name.c_str());
+  gslStrcpy(ifreq.ifr_name, name.c_str());
   if (ioctl (sd, SIOCGIFHWADDR, &ifreq) < 0 ||
       ioctl (sd, SIOCGIFFLAGS , &ifreq) < 0)
   {
@@ -202,7 +202,7 @@ const char * MACAddressUtility::flags(int sd, const char * name)
   static char buf[1024];
 
   static struct ifreq ifreq;
-  strcpy(ifreq.ifr_name, name);
+  gslStrcpy(ifreq.ifr_name, name);
 
   int r = ioctl(sd, SIOCGIFFLAGS, (char *)&ifreq);
   if (r != 0) messageAbort("Error in MACAdressUtility");

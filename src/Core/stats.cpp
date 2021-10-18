@@ -2851,13 +2851,13 @@ static void st_get_rowname(const String& radix,
                            char       *string)
 {
   if (! radix.empty())
-    (void) sprintf(string,"%s-%d",radix.c_str(),icol+1);
+    (void) gslSPrintf(string,"%s-%d",radix.c_str(),icol+1);
   else if (! name.empty())
-    (void) sprintf(string,"%s",name.c_str());
+    (void) gslSPrintf(string,"%s",name.c_str());
   else if (ncol > 1)
-    (void) sprintf(string,"Variable-%d",icol+1);
+    (void) gslSPrintf(string,"Variable-%d",icol+1);
   else
-    (void) sprintf(string,"Variable");
+    (void) gslSPrintf(string,"Variable");
 }
   
 /****************************************************************************/

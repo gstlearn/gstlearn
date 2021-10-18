@@ -1534,9 +1534,9 @@ GEOSLIB_API void get_matrix(const char *title,
     {
       if (flag_sym && iy > ix) continue;
       (void) gslSPrintf(QUESTION, "%s(", title);
-      if (nx > 1) (void) sprintf(&QUESTION[strlen(QUESTION)], "%d", ix + 1);
+      if (nx > 1) (void) gslSPrintf(&QUESTION[strlen(QUESTION)], "%d", ix + 1);
       if (nx > 1 && ny > 1) (void) gslStrcat(QUESTION, ",");
-      if (ny > 1) (void) sprintf(&QUESTION[strlen(QUESTION)], "%d", iy + 1);
+      if (ny > 1) (void) gslSPrintf(&QUESTION[strlen(QUESTION)], "%d", iy + 1);
       (void) gslStrcat(QUESTION, ")");
       TAB(ix,iy) = _lire_double(QUESTION, flag_def, (flag_def) ? TAB(ix, iy) :
                                                                  TEST,
@@ -4694,7 +4694,7 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
       LAST_MESSAGE[NB_LAST_MESSAGE - 1] = address = (char *) realloc(
           (char *) LAST_MESSAGE[NB_LAST_MESSAGE - 1], size + sizaux + 2);
       address[sizaux] = ' ';
-      (void) strcpy(&address[sizaux + 1], string);
+      (void) gslStrcpy(&address[sizaux + 1], string);
       address[size + sizaux + 1] = '\0';
       break;
   }

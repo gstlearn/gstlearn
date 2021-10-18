@@ -127,7 +127,7 @@ static void st_record_write(const char *format, ...)
       ASCII_BUFFER_LENGTH += ASCII_BUFFER_QUANT;
       ASCII_BUFFER = mem_realloc(ASCII_BUFFER, ASCII_BUFFER_LENGTH, 1);
     }
-    (void) strcat(ASCII_BUFFER, buf);
+    (void) gslStrcat(ASCII_BUFFER, buf);
   }
 
   va_end(ap);
@@ -160,15 +160,15 @@ static void st_filename_patch(const char *ref_name,
     switch (mode)
     {
       case 0:
-        (void) sprintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_DAT);
+        (void) gslSPrintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_DAT);
         break;
 
       case 1:
-        (void) sprintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_OUT);
+        (void) gslSPrintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_OUT);
         break;
 
       case -1:
-        (void) sprintf(file_name, "%s/%s", STUDY, ref_name);
+        (void) gslSPrintf(file_name, "%s/%s", STUDY, ref_name);
         break;
     }
   }
@@ -177,17 +177,17 @@ static void st_filename_patch(const char *ref_name,
     switch (mode)
     {
       case 0:
-        (void) sprintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
+        (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
                        EXT_DAT);
         break;
 
       case 1:
-        (void) sprintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
+        (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
                        EXT_OUT);
         break;
 
       case -1:
-        (void) sprintf(file_name, "%s/%s%1d", STUDY, ref_name, rank);
+        (void) gslSPrintf(file_name, "%s/%s%1d", STUDY, ref_name, rank);
         break;
     }
   }

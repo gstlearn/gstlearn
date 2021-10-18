@@ -1999,11 +1999,11 @@ static void st_difference(Db     *dbin,
 static void st_title_process(char *string,
                              const char *title)
 {
-  (void) strcpy(string,title);
+  (void) gslStrcpy(string,title);
   if (MES_NPGS > 1)
-    (void) sprintf(&string[strlen(string)],
+    (void) gslSPrintf(&string[strlen(string)],
                    " (PGS %d/%d)",MES_IPGS+1,MES_NPGS);
-  (void) sprintf(&string[strlen(string)],
+  (void) gslSPrintf(&string[strlen(string)],
                  " (GRF %d/%d)",MES_IGRF+1,MES_NGRF);
   return;
 }

@@ -115,7 +115,7 @@ static void st_read(const char *prompt,
 
   while (fgets(LINE,LONG_SIZE,stdin) == NULL);
 
-  (void) strcpy(buffer,LINE);
+  (void) gslStrcpy(buffer,LINE);
   buffer[strlen(buffer)-1] = '\0';
 }
 
@@ -900,7 +900,7 @@ GEOSLIB_API void _buffer_write(char       *buffer,
   if (! strcmp(format,"%s"))
   {
     ret_s = va_arg(ap,char *);
-    (void) sprintf(buffer,"%s",ret_s);
+    (void) gslSPrintf(buffer,"%s",ret_s);
     if (debug_query("interface"))
       message("Encoded String = %s\n",ret_s);
   }
@@ -908,9 +908,9 @@ GEOSLIB_API void _buffer_write(char       *buffer,
   {
     ret_i = va_arg(ap,int);
     if (ret_i == TEST) 
-      (void) sprintf(buffer,"%5.1lf",ASCII_TEST);
+      (void) gslSPrintf(buffer,"%5.1lf",ASCII_TEST);
     else
-      (void) sprintf(buffer,"%d",ret_i);
+      (void) gslSPrintf(buffer,"%d",ret_i);
     if (debug_query("interface"))
       message("Encoded Integer = %i\n",ret_i);
   }
@@ -918,9 +918,9 @@ GEOSLIB_API void _buffer_write(char       *buffer,
   {
     ret_d = va_arg(ap,double);
     if (ret_d == TEST) 
-      (void) sprintf(buffer,"%5.1lf",ASCII_TEST);
+      (void) gslSPrintf(buffer,"%5.1lf",ASCII_TEST);
     else
-      (void) sprintf(buffer,"%f",ret_d);
+      (void) gslSPrintf(buffer,"%f",ret_d);
     if (debug_query("interface"))
       message("Encoded Float = %s\n",ret_d);
   }
@@ -928,9 +928,9 @@ GEOSLIB_API void _buffer_write(char       *buffer,
   {
     ret_d = va_arg(ap,double);
     if (ret_d == TEST) 
-      (void) sprintf(buffer,"%5.1lf",ASCII_TEST);
+      (void) gslSPrintf(buffer,"%5.1lf",ASCII_TEST);
     else
-      (void) sprintf(buffer,"%lf",ret_d);
+      (void) gslSPrintf(buffer,"%lf",ret_d);
     if (debug_query("interface"))
       message("Encoded Double = %lf\n",ret_d);
   }
@@ -938,21 +938,21 @@ GEOSLIB_API void _buffer_write(char       *buffer,
   {
     ret_d = va_arg(ap,double);
     if (ret_d == TEST) 
-      (void) sprintf(buffer,"%5.1lf",ASCII_TEST);
+      (void) gslSPrintf(buffer,"%5.1lf",ASCII_TEST);
     else
-      (void) sprintf(buffer,"%lg",ret_d);
+      (void) gslSPrintf(buffer,"%lg",ret_d);
     if (debug_query("interface"))
       message("Encoded Double = %lg\n",ret_d);
   }
   else if (! strcmp(format,"\n"))
   {
-    (void) sprintf(buffer,"\n");
+    (void) gslSPrintf(buffer,"\n");
     no_blank = 1;
   }
   else if (! strcmp(format,"#"))
   {
     ret_s = va_arg(ap,char *);
-    (void) sprintf(buffer,"# %s\n",ret_s);
+    (void) gslSPrintf(buffer,"# %s\n",ret_s);
     no_blank = 1;
     if (debug_query("interface"))
       message("Encoded Comment = %s\n",ret_s);
@@ -962,7 +962,7 @@ GEOSLIB_API void _buffer_write(char       *buffer,
     messerr("Wrong format %s",format);
     return;
   }
-  if (! no_blank) (void) strcat(buffer," ");
+  if (! no_blank) (void) gslStrcat(buffer," ");
   return;
 }
 
@@ -1189,7 +1189,7 @@ GEOSLIB_API void tab_prints(const char*     title,
       for (i=0; i<n1; i++) (void) gslStrcat(TABSTR," ");
       (void) strncpy(&TABSTR[n1],string,neff);
       TABSTR[n1+neff] = '\0';
-      for (i=0; i<n2; i++) (void) strcat(TABSTR," ");
+      for (i=0; i<n2; i++) (void) gslStrcat(TABSTR," ");
       break;
 
     case EJustify::E_RIGHT:
@@ -1751,11 +1751,11 @@ label_ques:
   /* Compose the question */
 
   (void) gslSPrintf(LINE,"%s ",question);
-  (void) strcat(LINE,"[");
+  (void) gslStrcat(LINE,"[");
   for (i=0; i<nkeys; i++)
   {
     if (i > 0) gslStrcat(LINE,",");
-    (void) sprintf(&LINE[strlen(LINE)],"%s",keys[i]);
+    (void) gslSPrintf(&LINE[strlen(LINE)],"%s",keys[i]);
   }
   (void) gslStrcat(LINE,"] : ");
 
@@ -1807,7 +1807,7 @@ loop:
 
   (void) gslSPrintf(LINE,"%s ",question);
   if (flag_def)
-    (void) sprintf(&LINE[strlen(LINE)],"(Def=%s) ",valdef);
+    (void) gslSPrintf(&LINE[strlen(LINE)],"(Def=%s) ",valdef);
   (void) gslStrcat(LINE,": ");
 
   /* Read the answer */
@@ -1820,7 +1820,7 @@ loop:
   {
     if (flag_def)
     {
-      (void) strcpy(answer,valdef);
+      (void) gslStrcpy(answer,valdef);
     }
     else
     {
@@ -1830,7 +1830,7 @@ loop:
   }
   else
   {
-    (void) strcpy(answer,BUFFER);
+    (void) gslStrcpy(answer,BUFFER);
   }
 
   return;
@@ -1871,15 +1871,15 @@ loop:
   if (! IFFFF(valmax) && ! IFFFF(valdef) && valdef > valmax)
     valdef = valmax;
   if (flag_def && ! IFFFF(valdef))
-    (void) sprintf(&LINE[strlen(LINE)],"(Def=%d) ",valdef);
+    (void) gslSPrintf(&LINE[strlen(LINE)],"(Def=%d) ",valdef);
   if (IFFFF(valmin))
     (void) gslStrcat(LINE,"[NA,");
   else
-    (void) sprintf(&LINE[strlen(LINE)],"[%d,",valmin);
+    (void) gslSPrintf(&LINE[strlen(LINE)],"[%d,",valmin);
   if (IFFFF(valmax))
     (void) gslStrcat(LINE,"NA] ");
   else
-    (void) sprintf(&LINE[strlen(LINE)],"%d] ",valmax);
+    (void) gslSPrintf(&LINE[strlen(LINE)],"%d] ",valmax);
   (void) gslStrcat(LINE,": ");
 
   /* Read the answer */
@@ -1956,15 +1956,15 @@ loop:
   if (! FFFF(valmax) && ! FFFF(valdef) && valdef > valmax)
     valdef = valmax;
   if (flag_def && ! FFFF(valdef))
-    (void) sprintf(&LINE[strlen(LINE)],"(Def=%lf) ",valdef); 
+    (void) gslSPrintf(&LINE[strlen(LINE)],"(Def=%lf) ",valdef); 
   if (FFFF(valmin))
     (void) gslStrcat(LINE,"[NA,");
   else
-    (void) sprintf(&LINE[strlen(LINE)],"[%lf,",valmin);
+    (void) gslSPrintf(&LINE[strlen(LINE)],"[%lf,",valmin);
   if (FFFF(valmax))
     (void) gslStrcat(LINE,"NA] ");
   else
-    (void) sprintf(&LINE[strlen(LINE)],"%lf] ",valmax);
+    (void) gslSPrintf(&LINE[strlen(LINE)],"%lf] ",valmax);
   (void) gslStrcat(LINE,": ");
 
   /* Read the answer */
@@ -2255,9 +2255,9 @@ GEOSLIB_API void encode_printg(char  *string,
   (void) gslSPrintf(FORMAT,"%%%d.%dlg",ntcar,ntdec);
 
   if (FFFF(value))
-    (void) strcpy(string,"N/A");
+    (void) gslStrcpy(string,"N/A");
   else
-    (void) sprintf(string,FORMAT,value);
+    (void) gslSPrintf(string,FORMAT,value);
   string_strip_blanks(string,0);
 
   return;

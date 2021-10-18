@@ -3562,11 +3562,11 @@ struct behavior *b;
   }
 
 #ifndef TRILIBRARY
-  strcpy(b->inpolyfilename, b->innodefilename);
-  strcpy(b->inelefilename, b->innodefilename);
-  strcpy(b->areafilename, b->innodefilename);
+  gslStrcpy(b->inpolyfilename, b->innodefilename);
+  gslStrcpy(b->inelefilename, b->innodefilename);
+  gslStrcpy(b->areafilename, b->innodefilename);
   increment = 0;
-  strcpy(workstring, b->innodefilename);
+  gslStrcpy(workstring, b->innodefilename);
   j = 1;
   while (workstring[j] != '\0') {
     if ((workstring[j] == '.') && (workstring[j + 1] != '\0')) {
@@ -3587,62 +3587,62 @@ struct behavior *b;
     } while (workstring[j] != '\0');
   }
   if (b->noiterationnum) {
-    strcpy(b->outnodefilename, b->innodefilename);
-    strcpy(b->outelefilename, b->innodefilename);
-    strcpy(b->edgefilename, b->innodefilename);
-    strcpy(b->vnodefilename, b->innodefilename);
-    strcpy(b->vedgefilename, b->innodefilename);
-    strcpy(b->neighborfilename, b->innodefilename);
-    strcpy(b->offfilename, b->innodefilename);
-    strcat(b->outnodefilename, ".node");
-    strcat(b->outelefilename, ".ele");
-    strcat(b->edgefilename, ".edge");
-    strcat(b->vnodefilename, ".v.node");
-    strcat(b->vedgefilename, ".v.edge");
-    strcat(b->neighborfilename, ".neigh");
-    strcat(b->offfilename, ".off");
+    gslStrcpy(b->outnodefilename, b->innodefilename);
+    gslStrcpy(b->outelefilename, b->innodefilename);
+    gslStrcpy(b->edgefilename, b->innodefilename);
+    gslStrcpy(b->vnodefilename, b->innodefilename);
+    gslStrcpy(b->vedgefilename, b->innodefilename);
+    gslStrcpy(b->neighborfilename, b->innodefilename);
+    gslStrcpy(b->offfilename, b->innodefilename);
+    gslStrcat(b->outnodefilename, ".node");
+    gslStrcat(b->outelefilename, ".ele");
+    gslStrcat(b->edgefilename, ".edge");
+    gslStrcat(b->vnodefilename, ".v.node");
+    gslStrcat(b->vedgefilename, ".v.edge");
+    gslStrcat(b->neighborfilename, ".neigh");
+    gslStrcat(b->offfilename, ".off");
   } else if (increment == 0) {
-    strcpy(b->outnodefilename, b->innodefilename);
-    strcpy(b->outpolyfilename, b->innodefilename);
-    strcpy(b->outelefilename, b->innodefilename);
-    strcpy(b->edgefilename, b->innodefilename);
-    strcpy(b->vnodefilename, b->innodefilename);
-    strcpy(b->vedgefilename, b->innodefilename);
-    strcpy(b->neighborfilename, b->innodefilename);
-    strcpy(b->offfilename, b->innodefilename);
-    strcat(b->outnodefilename, ".1.node");
-    strcat(b->outpolyfilename, ".1.poly");
-    strcat(b->outelefilename, ".1.ele");
-    strcat(b->edgefilename, ".1.edge");
-    strcat(b->vnodefilename, ".1.v.node");
-    strcat(b->vedgefilename, ".1.v.edge");
-    strcat(b->neighborfilename, ".1.neigh");
-    strcat(b->offfilename, ".1.off");
+    gslStrcpy(b->outnodefilename, b->innodefilename);
+    gslStrcpy(b->outpolyfilename, b->innodefilename);
+    gslStrcpy(b->outelefilename, b->innodefilename);
+    gslStrcpy(b->edgefilename, b->innodefilename);
+    gslStrcpy(b->vnodefilename, b->innodefilename);
+    gslStrcpy(b->vedgefilename, b->innodefilename);
+    gslStrcpy(b->neighborfilename, b->innodefilename);
+    gslStrcpy(b->offfilename, b->innodefilename);
+    gslStrcat(b->outnodefilename, ".1.node");
+    gslStrcat(b->outpolyfilename, ".1.poly");
+    gslStrcat(b->outelefilename, ".1.ele");
+    gslStrcat(b->edgefilename, ".1.edge");
+    gslStrcat(b->vnodefilename, ".1.v.node");
+    gslStrcat(b->vedgefilename, ".1.v.edge");
+    gslStrcat(b->neighborfilename, ".1.neigh");
+    gslStrcat(b->offfilename, ".1.off");
   } else {
     workstring[increment] = '%';
     workstring[increment + 1] = 'd';
     workstring[increment + 2] = '\0';
     smessage(b->outnodefilename, workstring, meshnumber + 1);
-    strcpy(b->outpolyfilename, b->outnodefilename);
-    strcpy(b->outelefilename, b->outnodefilename);
-    strcpy(b->edgefilename, b->outnodefilename);
-    strcpy(b->vnodefilename, b->outnodefilename);
-    strcpy(b->vedgefilename, b->outnodefilename);
-    strcpy(b->neighborfilename, b->outnodefilename);
-    strcpy(b->offfilename, b->outnodefilename);
-    strcat(b->outnodefilename, ".node");
-    strcat(b->outpolyfilename, ".poly");
-    strcat(b->outelefilename, ".ele");
-    strcat(b->edgefilename, ".edge");
-    strcat(b->vnodefilename, ".v.node");
-    strcat(b->vedgefilename, ".v.edge");
-    strcat(b->neighborfilename, ".neigh");
-    strcat(b->offfilename, ".off");
+    gslStrcpy(b->outpolyfilename, b->outnodefilename);
+    gslStrcpy(b->outelefilename, b->outnodefilename);
+    gslStrcpy(b->edgefilename, b->outnodefilename);
+    gslStrcpy(b->vnodefilename, b->outnodefilename);
+    gslStrcpy(b->vedgefilename, b->outnodefilename);
+    gslStrcpy(b->neighborfilename, b->outnodefilename);
+    gslStrcpy(b->offfilename, b->outnodefilename);
+    gslStrcat(b->outnodefilename, ".node");
+    gslStrcat(b->outpolyfilename, ".poly");
+    gslStrcat(b->outelefilename, ".ele");
+    gslStrcat(b->edgefilename, ".edge");
+    gslStrcat(b->vnodefilename, ".v.node");
+    gslStrcat(b->vedgefilename, ".v.edge");
+    gslStrcat(b->neighborfilename, ".neigh");
+    gslStrcat(b->offfilename, ".off");
   }
-  strcat(b->innodefilename, ".node");
-  strcat(b->inpolyfilename, ".poly");
-  strcat(b->inelefilename, ".ele");
-  strcat(b->areafilename, ".area");
+  gslStrcat(b->innodefilename, ".node");
+  gslStrcat(b->inpolyfilename, ".poly");
+  gslStrcat(b->inelefilename, ".ele");
+  gslStrcat(b->areafilename, ".area");
 #endif /* not TRILIBRARY */
 }
 
@@ -12462,7 +12462,7 @@ char *polyfilename;
       message("Recovering segments in Delaunay triangulation.\n");
     }
 #ifdef TRILIBRARY
-    strcpy(polyfilename, "input");
+    gslStrcpy(polyfilename, "input");
     m->insegments = numberofsegments;
     segmentmarkers = segmentmarkerlist != nullptr;
     index = 0;

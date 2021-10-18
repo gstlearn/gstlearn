@@ -210,8 +210,8 @@ bool tetgenio::load_node(char* filebasename)
   int uvflag; // for psc input.
 
   // Assembling the actual file names we want to open.
-  strcpy(innodefilename, filebasename);
-  strcat(innodefilename, ".node");
+  gslStrcpy(innodefilename, filebasename);
+  gslStrcat(innodefilename, ".node");
 
   // Try to open a .node file.
   infile = fopen(innodefilename, "r");
@@ -287,8 +287,8 @@ bool tetgenio::load_edge(char* filebasename)
   int index;
   int i, j;
 
-  strcpy(inedgefilename, filebasename);
-  strcat(inedgefilename, ".edge");
+  gslStrcpy(inedgefilename, filebasename);
+  gslStrcat(inedgefilename, ".edge");
 
   infile = fopen(inedgefilename, "r");
   if (infile != nullptr) {
@@ -369,8 +369,8 @@ bool tetgenio::load_face(char* filebasename)
   int index;
   int i, j;
 
-  strcpy(infilename, filebasename);
-  strcat(infilename, ".face");
+  gslStrcpy(infilename, filebasename);
+  gslStrcat(infilename, ".face");
 
   infile = fopen(infilename, "r");
   if (infile != nullptr) {
@@ -465,8 +465,8 @@ bool tetgenio::load_tet(char* filebasename)
   int index, attribindex;
   int i, j;
 
-  strcpy(infilename, filebasename);
-  strcat(infilename, ".ele");
+  gslStrcpy(infilename, filebasename);
+  gslStrcat(infilename, ".ele");
 
   infile = fopen(infilename, "r");
   if (infile != nullptr) {
@@ -572,8 +572,8 @@ bool tetgenio::load_vol(char* filebasename)
   int volelements;
   int i;
 
-  strcpy(infilename, filebasename);
-  strcat(infilename, ".vol");
+  gslStrcpy(infilename, filebasename);
+  gslStrcat(infilename, ".vol");
 
   infile = fopen(infilename, "r");
   if (infile != nullptr) {
@@ -586,8 +586,8 @@ bool tetgenio::load_vol(char* filebasename)
   stringptr = readnumberline(inputline, infile, infilename);
   volelements = (int) strtol (stringptr, &stringptr, 0);
   if (volelements != numberoftetrahedra) {
-    strcpy(inelefilename, filebasename);
-    strcat(infilename, ".ele");
+    gslStrcpy(inelefilename, filebasename);
+    gslStrcat(infilename, ".ele");
     message("Warning:  %s and %s disagree on number of tetrahedra.\n",
             inelefilename, infilename);
     fclose(infile);
@@ -633,8 +633,8 @@ bool tetgenio::load_var(char* filebasename)
   int i;
 
   // Variant constraints are saved in file "filename.var".
-  strcpy(varfilename, filebasename);
-  strcat(varfilename, ".var");
+  gslStrcpy(varfilename, filebasename);
+  gslStrcat(varfilename, ".var");
   infile = fopen(varfilename, "r");
   if (infile != nullptr) {
     message("Opening %s.\n", varfilename);
@@ -755,8 +755,8 @@ bool tetgenio::load_mtr(char* filebasename)
   int mtrindex;
   int i, j;
 
-  strcpy(mtrfilename, filebasename);
-  strcat(mtrfilename, ".mtr");
+  gslStrcpy(mtrfilename, filebasename);
+  gslStrcat(mtrfilename, ".mtr");
   infile = fopen(mtrfilename, "r");
   if (infile != nullptr) {
     message("Opening %s.\n", mtrfilename);
@@ -829,10 +829,10 @@ bool tetgenio::load_poly(char* filebasename)
   int i, j, k;
 
   // Assembling the actual file names we want to open.
-  strcpy(inpolyfilename, filebasename);
-  strcpy(insmeshfilename, filebasename);
-  strcat(inpolyfilename, ".poly");
-  strcat(insmeshfilename, ".smesh");
+  gslStrcpy(inpolyfilename, filebasename);
+  gslStrcpy(insmeshfilename, filebasename);
+  gslStrcat(inpolyfilename, ".poly");
+  gslStrcat(insmeshfilename, ".smesh");
 
   // First assume it is a .poly file.
   smesh = 0;
@@ -1246,7 +1246,7 @@ bool tetgenio::load_off(char* filebasename)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 4], ".off") != 0) {
-    strcat(infilename, ".off");
+    gslStrcat(infilename, ".off");
   }
 
   if (!(fp = fopen(infilename, "r"))) {
@@ -1408,7 +1408,7 @@ bool tetgenio::load_ply(char* filebasename)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 4], ".ply") != 0) {
-    strcat(infilename, ".ply");
+    gslStrcat(infilename, ".ply");
   }
 
   if (!(fp = fopen(infilename, "r"))) {
@@ -1624,7 +1624,7 @@ bool tetgenio::load_stl(char* filebasename)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 4], ".stl") != 0) {
-    strcat(infilename, ".stl");
+    gslStrcat(infilename, ".stl");
   }
 
   if (!(fp = fopen(infilename, "r"))) {
@@ -1757,7 +1757,7 @@ bool tetgenio::load_medit(char* filebasename, int istetmesh)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 5], ".mesh") != 0) {
-    strcat(infilename, ".mesh");
+    gslStrcat(infilename, ".mesh");
   }
   
   if (!(fp = fopen(infilename, "r"))) {
@@ -2118,7 +2118,7 @@ bool tetgenio::load_vtk(char* filebasename)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 4], ".vtk") != 0) {
-    strcat(infilename, ".vtk");
+    gslStrcat(infilename, ".vtk");
   }
   if (!(fp = fopen(infilename, "r"))) {
     message("Error:  Unable to open file %s\n", infilename);
@@ -2128,7 +2128,7 @@ bool tetgenio::load_vtk(char* filebasename)
 
   // Default uses the index starts from '0'.
   firstnumber = 0;
-  strcpy(mode, "BINARY");
+  gslStrcpy(mode, "BINARY");
 
   while((bufferp = readline(line, fp, &line_count)) != NULL) {
     if(strlen(line) == 0) continue;
@@ -2138,7 +2138,7 @@ bool tetgenio::load_vtk(char* filebasename)
 
     sscanf(line, "%s", id);
     if(!strcmp(id, "ASCII")) {
-      strcpy(mode, "ASCII");
+      gslStrcpy(mode, "ASCII");
     }
 
     if(!strcmp(id, "POINTS")) {
@@ -2416,7 +2416,7 @@ void tetgenio::save_nodes(char* filebasename)
   char outmtrfilename[FILENAMESIZE];
   int i, j;
 
-  sprintf(outnodefilename, "%s.node", filebasename);
+  gslSPrintf(outnodefilename, "%s.node", filebasename);
   message("Saving nodes to %s\n", outnodefilename);
   fout = fopen(outnodefilename, "w");
   fprintf(fout, "%d  %d  %d  %d\n", numberofpoints, mesh_dim,
@@ -2442,7 +2442,7 @@ void tetgenio::save_nodes(char* filebasename)
 
   // If the point metrics exist, output them to a .mtr file.
   if ((numberofpointmtrs > 0) && (pointmtrlist != nullptr)) {
-    sprintf(outmtrfilename, "%s.mtr", filebasename);
+    gslSPrintf(outmtrfilename, "%s.mtr", filebasename);
     message("Saving metrics to %s\n", outmtrfilename);
     fout = fopen(outmtrfilename, "w");
     fprintf(fout, "%d  %d\n", numberofpoints, numberofpointmtrs);
@@ -2468,7 +2468,7 @@ void tetgenio::save_elements(char* filebasename)
   char outelefilename[FILENAMESIZE];
   int i, j;
 
-  sprintf(outelefilename, "%s.ele", filebasename);
+  gslSPrintf(outelefilename, "%s.ele", filebasename);
   message("Saving elements to %s\n", outelefilename);
   fout = fopen(outelefilename, "w");
   if (mesh_dim == 3) {
@@ -2515,7 +2515,7 @@ void tetgenio::save_faces(char* filebasename)
   char outfacefilename[FILENAMESIZE];
   int i;
 
-  sprintf(outfacefilename, "%s.face", filebasename);
+  gslSPrintf(outfacefilename, "%s.face", filebasename);
   message("Saving faces to %s\n", outfacefilename);
   fout = fopen(outfacefilename, "w");
   fprintf(fout, "%d  %d\n", numberoftrifaces, 
@@ -2544,7 +2544,7 @@ void tetgenio::save_edges(char* filebasename)
   char outedgefilename[FILENAMESIZE];
   int i;
 
-  sprintf(outedgefilename, "%s.edge", filebasename);
+  gslSPrintf(outedgefilename, "%s.edge", filebasename);
   message("Saving edges to %s\n", outedgefilename);
   fout = fopen(outedgefilename, "w");
   fprintf(fout, "%d  %d\n", numberofedges, edgemarkerlist != NULL ? 1 : 0);
@@ -2572,7 +2572,7 @@ void tetgenio::save_neighbors(char* filebasename)
   char outneighborfilename[FILENAMESIZE];
   int i;
 
-  sprintf(outneighborfilename, "%s.neigh", filebasename);
+  gslSPrintf(outneighborfilename, "%s.neigh", filebasename);
   message("Saving neighbors to %s\n", outneighborfilename);
   fout = fopen(outneighborfilename, "w");
   fprintf(fout, "%d  %d\n", numberoftetrahedra, mesh_dim + 1);
@@ -2607,7 +2607,7 @@ void tetgenio::save_poly(char* filebasename)
   char outpolyfilename[FILENAMESIZE];
   int i, j, k;
 
-  sprintf(outpolyfilename, "%s.poly", filebasename);
+  gslSPrintf(outpolyfilename, "%s.poly", filebasename);
   message("Saving poly to %s\n", outpolyfilename);
   fout = fopen(outpolyfilename, "w");
 
@@ -2705,7 +2705,7 @@ void tetgenio::save_faces2smesh(char* filebasename)
   char outsmeshfilename[FILENAMESIZE];
   int i, j;
 
-  sprintf(outsmeshfilename, "%s.smesh", filebasename);
+  gslSPrintf(outsmeshfilename, "%s.smesh", filebasename);
   message("Saving faces to %s\n", outsmeshfilename);
   fout = fopen(outsmeshfilename, "w");
 
@@ -3000,14 +3000,14 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
     commandline[0] = '\0';
   } else {
     startindex = 1;
-    strcpy(commandline, argv[0]);
-    strcat(commandline, " ");
+    gslStrcpy(commandline, argv[0]);
+    gslStrcat(commandline, " ");
   }
 
   for (i = startindex; i < argc; i++) {
     // Remember the command line for output.
-    strcat(commandline, argv[i]);
-    strcat(commandline, " ");
+    gslStrcat(commandline, argv[i]);
+    gslStrcat(commandline, " ");
     if (startindex == 1) {
       // Is this string a filename?
       if (argv[i][0] != '-') {
@@ -3397,7 +3397,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
 
   if (startindex == 0) {
     // Set a temporary filename for debugging output.
-    strcpy(infilename, "tetgen-tmpfile");
+    gslStrcpy(infilename, "tetgen-tmpfile");
   } else {
     if (infilename[0] == '\0') {
       // No input file name. Print the syntax and exit.
@@ -3514,7 +3514,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
   }
 
   increment = 0;
-  strcpy(workstring, infilename);
+  gslStrcpy(workstring, infilename);
   j = 1;
   while (workstring[j] != '\0') {
     if ((workstring[j] == '.') && (workstring[j + 1] != '\0')) {
@@ -3535,22 +3535,22 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
     } while (workstring[j] != '\0');
   }
   if (noiterationnum) {
-    strcpy(outfilename, infilename);
+    gslStrcpy(outfilename, infilename);
   } else if (increment == 0) {
-    strcpy(outfilename, infilename);
-    strcat(outfilename, ".1");
+    gslStrcpy(outfilename, infilename);
+    gslStrcat(outfilename, ".1");
   } else {
     workstring[increment] = '%';
     workstring[increment + 1] = 'd';
     workstring[increment + 2] = '\0';
-    sprintf(outfilename, workstring, meshnumber + 1);
+    gslSPrintf(outfilename, workstring, meshnumber + 1);
   }
   // Additional input file name has the end ".a".
-  strcpy(addinfilename, infilename);
-  strcat(addinfilename, ".a");
+  gslStrcpy(addinfilename, infilename);
+  gslStrcat(addinfilename, ".a");
   // Background filename has the form "*.b.ele", "*.b.node", ...
-  strcpy(bgmeshfilename, infilename);
-  strcat(bgmeshfilename, ".b");
+  gslStrcpy(bgmeshfilename, infilename);
+  gslStrcat(bgmeshfilename, ".b");
 
   return true;
 }
@@ -28370,13 +28370,13 @@ void tetgenmesh::qualitystatistics()
           shortest, longest);
   message("  Smallest asp.ratio: %13.5g   |  Largest asp.ratio: %13.5g\n",
           smallestratio, biggestratio);
-  sprintf(sbuf, "%.17g", biggestfaangle);
+  gslSPrintf(sbuf, "%.17g", biggestfaangle);
   if (strlen(sbuf) > 8) {
     sbuf[8] = '\0';
   }
   message("  Smallest facangle: %14.5g   |  Largest facangle:       %s\n",
           smallestfaangle, sbuf);
-  sprintf(sbuf, "%.17g", biggestdiangle);
+  gslSPrintf(sbuf, "%.17g", biggestdiangle);
   if (strlen(sbuf) > 8) {
     sbuf[8] = '\0';
   }
@@ -28882,8 +28882,8 @@ void tetgenmesh::outnodes(tetgenio* out)
   int index, i;
 
   if (out == nullptr) {
-    strcpy(outnodefilename, b->outfilename);
-    strcat(outnodefilename, ".node");
+    gslStrcpy(outnodefilename, b->outfilename);
+    gslStrcat(outnodefilename, ".node");
   }
 
   if (!b->quiet) {
@@ -29076,8 +29076,8 @@ void tetgenmesh::outmetrics(tetgenio* out)
   }
 
   if (out == nullptr) {
-    strcpy(outmtrfilename, b->outfilename);
-    strcat(outmtrfilename, ".mtr");
+    gslStrcpy(outmtrfilename, b->outfilename);
+    gslStrcat(outmtrfilename, ".mtr");
   }
 
   if (!b->quiet) {
@@ -29123,8 +29123,8 @@ void tetgenmesh::outmetrics(tetgenio* out)
 
   // Output the point-to-tet map.
   if (out == nullptr) {
-    strcpy(outmtrfilename, b->outfilename);
-    strcat(outmtrfilename, ".p2t");
+    gslStrcpy(outmtrfilename, b->outfilename);
+    gslStrcat(outmtrfilename, ".p2t");
   }
 
   if (!b->quiet) {
@@ -29213,8 +29213,8 @@ void tetgenmesh::outelements(tetgenio* out)
   int i;
 
   if (out == nullptr) {
-    strcpy(outelefilename, b->outfilename);
-    strcat(outelefilename, ".ele");
+    gslStrcpy(outelefilename, b->outfilename);
+    gslStrcat(outelefilename, ".ele");
   }
 
   if (!b->quiet) {
@@ -29368,8 +29368,8 @@ void tetgenmesh::outfaces(tetgenio* out)
   int tidx; 
 
   if (out == nullptr) {
-    strcpy(facefilename, b->outfilename);
-    strcat(facefilename, ".face");
+    gslStrcpy(facefilename, b->outfilename);
+    gslStrcat(facefilename, ".face");
   }
 
   if (!b->quiet) {
@@ -29542,8 +29542,8 @@ void tetgenmesh::outfaces(tetgenio* out)
   if (b->neighout > 1) { // -nn option
     // Output the tetrahedron-to-face map.
     if (out == nullptr) {
-      strcpy(facefilename, b->outfilename);
-      strcat(facefilename, ".t2f");
+      gslStrcpy(facefilename, b->outfilename);
+      gslStrcat(facefilename, ".t2f");
     }
     if (!b->quiet) {
       if (out == nullptr) {
@@ -29589,8 +29589,8 @@ void tetgenmesh::outhullfaces(tetgenio* out)
   int index;
 
   if (out == nullptr) {
-    strcpy(facefilename, b->outfilename);
-    strcat(facefilename, ".face");
+    gslStrcpy(facefilename, b->outfilename);
+    gslStrcat(facefilename, ".face");
   }
 
   if (!b->quiet) {
@@ -29693,8 +29693,8 @@ void tetgenmesh::outsubfaces(tetgenio* out)
   int t1ver; // used by fsymself()
 
   if (out == nullptr) {
-    strcpy(facefilename, b->outfilename);
-    strcat(facefilename, ".face");
+    gslStrcpy(facefilename, b->outfilename);
+    gslStrcat(facefilename, ".face");
   }
 
   if (!b->quiet) {
@@ -29880,8 +29880,8 @@ void tetgenmesh::outedges(tetgenio* out)
   int tidx;
 
   if (out == nullptr) {
-    strcpy(edgefilename, b->outfilename);
-    strcat(edgefilename, ".edge");
+    gslStrcpy(edgefilename, b->outfilename);
+    gslStrcat(edgefilename, ".edge");
   }
 
   if (!b->quiet) {
@@ -30073,8 +30073,8 @@ void tetgenmesh::outedges(tetgenio* out)
 
       // Output the face-to-edge map.
       if (out == nullptr) {
-        strcpy(edgefilename, b->outfilename);
-        strcat(edgefilename, ".f2e");
+        gslStrcpy(edgefilename, b->outfilename);
+        gslStrcat(edgefilename, ".f2e");
       }
       if (!b->quiet) {
         if (out == nullptr) {
@@ -30100,8 +30100,8 @@ void tetgenmesh::outedges(tetgenio* out)
 
     // Output the tetrahedron-to-edge map.
     if (out == nullptr) {
-      strcpy(edgefilename, b->outfilename);
-      strcat(edgefilename, ".t2e");
+      gslStrcpy(edgefilename, b->outfilename);
+      gslStrcat(edgefilename, ".t2e");
     }
     if (!b->quiet) {
       if (out == nullptr) {
@@ -30158,8 +30158,8 @@ void tetgenmesh::outsubsegments(tetgenio* out)
   int t1ver; // used by fsymself()
 
   if (out == nullptr) {
-    strcpy(edgefilename, b->outfilename);
-    strcat(edgefilename, ".edge");
+    gslStrcpy(edgefilename, b->outfilename);
+    gslStrcat(edgefilename, ".edge");
   }
 
   if (!b->quiet) {
@@ -30300,8 +30300,8 @@ void tetgenmesh::outneighbors(tetgenio* out)
   long ntets;
 
   if (out == nullptr) {
-    strcpy(neighborfilename, b->outfilename);
-    strcat(neighborfilename, ".neigh");
+    gslStrcpy(neighborfilename, b->outfilename);
+    gslStrcat(neighborfilename, ".neigh");
   }
 
   if (!b->quiet) {
@@ -30410,8 +30410,8 @@ void tetgenmesh::outvoronoi(tetgenio* out)
 
   // Output Voronoi vertices to .v.node file.
   if (out == nullptr) {
-    strcpy(outfilename, b->outfilename);
-    strcat(outfilename, ".v.node");
+    gslStrcpy(outfilename, b->outfilename);
+    gslStrcat(outfilename, ".v.node");
   }
 
   if (!b->quiet) {
@@ -30512,8 +30512,8 @@ void tetgenmesh::outvoronoi(tetgenio* out)
 
   // Output Voronoi edges to .v.edge file.
   if (out == nullptr) {
-    strcpy(outfilename, b->outfilename);
-    strcat(outfilename, ".v.edge");
+    gslStrcpy(outfilename, b->outfilename);
+    gslStrcat(outfilename, ".v.edge");
   }
   
   if (!b->quiet) {
@@ -30614,8 +30614,8 @@ void tetgenmesh::outvoronoi(tetgenio* out)
 
   // Output Voronoi faces to .v.face file.
   if (out == nullptr) {
-    strcpy(outfilename, b->outfilename);
-    strcat(outfilename, ".v.face");
+    gslStrcpy(outfilename, b->outfilename);
+    gslStrcat(outfilename, ".v.face");
   }
   
   if (!b->quiet) {
@@ -30728,8 +30728,8 @@ void tetgenmesh::outvoronoi(tetgenio* out)
 
   // Output Voronoi cells to .v.cell file.
   if (out == nullptr) {
-    strcpy(outfilename, b->outfilename);
-    strcat(outfilename, ".v.cell");
+    gslStrcpy(outfilename, b->outfilename);
+    gslStrcat(outfilename, ".v.cell");
   }
   
   if (!b->quiet) {
@@ -30865,15 +30865,15 @@ void tetgenmesh::outsmesh(char* smfilename)
   int i;
 
   if (smfilename != nullptr && smfilename[0] != '\0') {
-    strcpy(smefilename, smfilename);
+    gslStrcpy(smefilename, smfilename);
   } else if (b->outfilename[0] != '\0') {
-    strcpy(smefilename, b->outfilename);
+    gslStrcpy(smefilename, b->outfilename);
   } else {
-    strcpy(smefilename, "unnamed");
+    gslStrcpy(smefilename, "unnamed");
   }
-  strcpy(nodfilename, smefilename);
-  strcat(smefilename, ".smesh");
-  strcat(nodfilename, ".node");
+  gslStrcpy(nodfilename, smefilename);
+  gslStrcat(smefilename, ".smesh");
+  gslStrcat(nodfilename, ".node");
 
   if (!b->quiet) {
     message("Writing %s.\n", smefilename);
@@ -30968,13 +30968,13 @@ void tetgenmesh::outmesh2medit(char* mfilename)
   int i;
 
   if (mfilename != nullptr && mfilename[0] != '\0') {
-    strcpy(mefilename, mfilename);
+    gslStrcpy(mefilename, mfilename);
   } else if (b->outfilename[0] != '\0') {
-    strcpy(mefilename, b->outfilename);
+    gslStrcpy(mefilename, b->outfilename);
   } else {
-    strcpy(mefilename, "unnamed");
+    gslStrcpy(mefilename, "unnamed");
   }
-  strcat(mefilename, ".mesh");
+  gslStrcat(mefilename, ".mesh");
 
   if (!b->quiet) {
     message("Writing %s.\n", mefilename);
@@ -31131,13 +31131,13 @@ void tetgenmesh::outmesh2vtk(char* ofilename)
   int NN = points->items;
 
   if (ofilename != nullptr && ofilename[0] != '\0') {
-    strcpy(vtkfilename, ofilename);
+    gslStrcpy(vtkfilename, ofilename);
   } else if (b->outfilename[0] != '\0') {
-    strcpy(vtkfilename, b->outfilename);
+    gslStrcpy(vtkfilename, b->outfilename);
   } else {
-    strcpy(vtkfilename, "unnamed");
+    gslStrcpy(vtkfilename, "unnamed");
   }
-  strcat(vtkfilename, ".vtk");
+  gslStrcat(vtkfilename, ".vtk");
 
   if (!b->quiet) {
     message("Writing %s.\n", vtkfilename);

@@ -3709,7 +3709,7 @@ GEOSLIB_API void model_cova_characteristics(const ECov& type,
   SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 2, 0., &space);
   ACovFunc* cov = CovFactory::createCovFunc(type, ctxt);
-  (void) strcpy((char *) cov_name, cov->getCovName().c_str());
+  (void) gslStrcpy((char *) cov_name, cov->getCovName().c_str());
   *flag_range = cov->hasRange();
   *flag_param = cov->hasParam();
   *min_order = cov->getMinOrder();

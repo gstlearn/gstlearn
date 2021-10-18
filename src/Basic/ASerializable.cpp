@@ -451,7 +451,7 @@ String ASerializable::getHomeDirectory(const std::string& sub)
   const char* Homepath = getenv("HOMEPATH");
   int size = strlen(HomeDirectory) + strlen(Homepath) + 1;
   HomeDirectory = static_cast<char *>(malloc(size));
-  strcat(HomeDirectory, Homepath);
+  gslStrcat(HomeDirectory, Homepath);
 #else
   const char* HomeDirectory = std::getenv("HOME");
 #endif

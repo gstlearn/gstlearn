@@ -485,7 +485,7 @@ static void st_dump(const char *title,
     shift = static_cast<int> (pt_out - out->bitmap);
     ix    = shift / TY;
     iy    = shift - TY * ix;
-    (void)sprintf(&STRING[strlen(STRING)],
+    (void)gslSPrintf(&STRING[strlen(STRING)],
                   "Node processed=(%d, %d)", ix, iy);
   }
 
