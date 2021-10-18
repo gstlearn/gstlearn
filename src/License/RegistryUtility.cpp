@@ -4,7 +4,7 @@
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN64)
-#include <winbase.h>
+#include <windows.h>
 #endif
 //
 // Read the value from an Environment variable
