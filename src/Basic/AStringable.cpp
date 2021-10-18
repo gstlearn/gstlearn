@@ -286,12 +286,16 @@ void messerrFlush(const String& string)
  */
 void messerr(const char *format, ...)
 {
+  char str[1000];
   va_list ap;
 
   va_start(ap, format);
-  message(format,ap);
+  // TODO : use non old_style functions
+  //(void) gslSPrintf(str, format, ap);
+  (void) vsprintf(str, format, ap);
   va_end(ap);
 
+  message_extern(str);
   message_extern("\n");
 
   return;
