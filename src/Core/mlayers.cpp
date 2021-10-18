@@ -60,7 +60,7 @@ typedef struct {
 *****************************************************************************/
 static LMlayers *lmlayers_free(LMlayers *lmlayers)
 {
-  if (lmlayers == (LMlayers *) NULL) return(lmlayers);
+  if (lmlayers == nullptr) return(lmlayers);
   lmlayers = (LMlayers *) mem_free((char *) lmlayers);
   return(lmlayers);
 }
@@ -170,7 +170,7 @@ static void lmlayers_print(LMlayers *lmlayers)
 {
   static const char *NOK[] = {"NO" , "YES"};
 
-  if (lmlayers == (LMlayers *) NULL) return;
+  if (lmlayers == nullptr) return;
 
   mestitle(0,"Multi-Layers Environments");
   if (lmlayers->flag_vel)
@@ -531,8 +531,8 @@ static double st_cij(LMlayers *lmlayers,
 
   /* Calculate the covariance matrix */
 	  
-  d1[0] = (dd != (double *) NULL) ? dd[0] : 0.;
-  d1[1] = (dd != (double *) NULL) ? dd[1] : 0.;
+  d1[0] = (dd != nullptr) ? dd[0] : 0.;
+  d1[1] = (dd != nullptr) ? dd[1] : 0.;
   model_calcul_cov(model,mode,1,1.,d1,covtab);
 	  
   /* Evaluate the covariance term */
@@ -588,8 +588,8 @@ static double st_ci0(LMlayers *lmlayers,
 
   /* Calculate the covariance matrix */
 	  
-  d1[0] = (dd != (double *) NULL) ? dd[0] : 0.;
-  d1[1] = (dd != (double *) NULL) ? dd[1] : 0.;
+  d1[0] = (dd != nullptr) ? dd[0] : 0.;
+  d1[1] = (dd != nullptr) ? dd[1] : 0.;
   model_calcul_cov(model,mode,1,1.,d1,covtab);
 	  
   /* Evaluate the covariance term */
@@ -1021,22 +1021,22 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
   error   = 1;
   nlayers = lmlayers->nlayers;
-  drift   = props = atab = btab = coeff = (double *) NULL;
+  drift   = props = atab = btab = coeff = nullptr;
   nbfl    = lmlayers->nbfl;
   neq     = nbfl * nlayers;
 
   /* Core allocation */
 
   coeff = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (coeff == (double *) NULL) goto label_end;
+  if (coeff == nullptr) goto label_end;
   drift = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (drift == (double *) NULL) goto label_end;
+  if (drift == nullptr) goto label_end;
   props = (double *) mem_alloc(sizeof(double) * nlayers,0);
-  if (props == (double *) NULL) goto label_end;
+  if (props == nullptr) goto label_end;
   atab  = (double *) mem_alloc(sizeof(double) * neq * neq,0);
-  if (atab  == (double *) NULL) goto label_end;
+  if (atab  == nullptr) goto label_end;
   btab  = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (btab  == (double *) NULL) goto label_end;
+  if (btab  == nullptr) goto label_end;
   for (int i=0; i<neq; i++) btab[i] = 0.;
   for (int i=0; i<neq * neq; i++) atab[i] = 0.;
 
@@ -1854,22 +1854,22 @@ static int st_drift_bayes(LMlayers *lmlayers,
   npar  = lmlayers->npar;
   npar2 = npar * npar;
   nech2 = nech * nech;
-  fft = ffc = fm1z = gg = invH = invS = (double *) NULL;
+  fft = ffc = fm1z = gg = invH = invS = nullptr;
 
   /* Core allocation */
 
   fft   = (double *) mem_alloc(sizeof(double) * npar * nech,0);
-  if (fft   == (double *) NULL) goto label_end;
+  if (fft   == nullptr) goto label_end;
   ffc   = (double *) mem_alloc(sizeof(double) * npar * nech,0);
-  if (ffc   == (double *) NULL) goto label_end;
+  if (ffc   == nullptr) goto label_end;
   fm1z  = (double *) mem_alloc(sizeof(double) * npar,0);
-  if (fm1z  == (double *) NULL) goto label_end;
+  if (fm1z  == nullptr) goto label_end;
   gg    = (double *) mem_alloc(sizeof(double) * npar * npar,0);
-  if (gg    == (double *) NULL) goto label_end;
+  if (gg    == nullptr) goto label_end;
   invH  = (double *) mem_alloc(sizeof(double) * npar * npar,0);
-  if (invH  == (double *) NULL) goto label_end;
+  if (invH  == nullptr) goto label_end;
   invS  = (double *) mem_alloc(sizeof(double) * npar * npar,0);
-  if (invS  == (double *) NULL) goto label_end;
+  if (invS  == nullptr) goto label_end;
 
   /* Constitute the prior Variance-Covariance matrix */
 
@@ -2036,13 +2036,13 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
   error = 1;
   
   iptr     = -1;
-  seltab   = (int *) NULL;
-  covtab   = (double *) NULL;
-  a        = b = b2 = baux = zval = prop1 = prop2 = dual = (double *) NULL;
-  c00      = wgt = (double *) NULL;
-  acov     = atot = (double *) NULL;
-  fftab    = a0 = cc = ss = gs = post_mean = post_S = (double *) NULL;
-  lmlayers = (LMlayers *) NULL;
+  seltab   = nullptr;
+  covtab   = nullptr;
+  a        = b = b2 = baux = zval = prop1 = prop2 = dual = nullptr;
+  c00      = wgt = nullptr;
+  acov     = atot = nullptr;
+  fftab    = a0 = cc = ss = gs = post_mean = post_S = nullptr;
+  lmlayers = nullptr;
   nlayers  = model->getVariableNumber();
   nechmax  = dbin->getSampleNumber();
   ptime    = (match_time) ? ELoc::F : ELoc::TIME;
@@ -2107,8 +2107,8 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
     messerr("directly expressed in Depth (rather than Thickness)");
     goto label_end;
   }
-  if (prior_mean == (double *) NULL ||
-      prior_vars == (double *) NULL) flag_bayes = 0;
+  if (prior_mean == nullptr ||
+      prior_vars == nullptr) flag_bayes = 0;
   if (flag_bayes && 
       dim_prior != st_get_number_drift(irf_rank,flag_ext) * nlayers)
   {
@@ -2387,8 +2387,8 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
   /* Initializations */
 
   error = 1;
-  sill  = atab = btab = phia = phib = (double *) NULL;
-  stat  = (int *) NULL;
+  sill  = atab = btab = phia = phib = nullptr;
+  stat  = nullptr;
   nlayers = lmlayers->nlayers;
   nhalf   = nlayers * (nlayers + 1) / 2;
   nhalf2  = nhalf * nhalf;
@@ -2396,17 +2396,17 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
   /* Core allocation */
   
   phia = (double *) mem_alloc(sizeof(double) * nlayers,0);
-  if (phia == (double *) NULL) goto label_end;
+  if (phia == nullptr) goto label_end;
   phib = (double *) mem_alloc(sizeof(double) * nlayers,0);
-  if (phib == (double *) NULL) goto label_end;
+  if (phib == nullptr) goto label_end;
   btab = (double *) mem_alloc(sizeof(double) * nhalf,0);
-  if (btab == (double *) NULL) goto label_end;
+  if (btab == nullptr) goto label_end;
   atab = (double *) mem_alloc(sizeof(double) * nhalf2 ,0);
-  if (atab == (double *) NULL) goto label_end;
+  if (atab == nullptr) goto label_end;
   sill = (double *) mem_alloc(sizeof(double) * nhalf,0);
-  if (sill == (double *) NULL) goto label_end;
+  if (sill == nullptr) goto label_end;
   stat = (int    *) mem_alloc(sizeof(int)    * nlayers * nlayers,0);
-  if (stat == (int    *) NULL) goto label_end;
+  if (stat == nullptr) goto label_end;
 
   /* Loop on the lags */
   
@@ -2525,10 +2525,10 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
   /* Preliminary checks */
 
   error = 1;
-  seltab   = (int *) NULL;
-  prop1    = zval = (double *) NULL;
-  lmlayers = (LMlayers *) NULL;
-  vorder   = (Vario_Order *) NULL;
+  seltab   = nullptr;
+  prop1    = zval = nullptr;
+  lmlayers = nullptr;
+  vorder   = nullptr;
   nechmax  = dbin->getSampleNumber();
   ptime    = (match_time) ? ELoc::F : ELoc::TIME;
   if (dbin->getNDim() != 2)
@@ -2659,21 +2659,21 @@ static int st_get_prior(int     nech,
   /* Initializations */
 
   error = 1;
-  atab  = btab = atab0 = btab0 = result = (double *) NULL;
+  atab  = btab = atab0 = btab0 = result = nullptr;
   size  = npar * (npar + 1) / 2;
 
   /* Core allocation */
 
   atab   = (double *) mem_alloc(sizeof(double) * size, 0);
-  if (atab   == (double *) NULL) goto label_end;
+  if (atab   == nullptr) goto label_end;
   atab0  = (double *) mem_alloc(sizeof(double) * size, 0);
-  if (atab0  == (double *) NULL) goto label_end;
+  if (atab0  == nullptr) goto label_end;
   btab   = (double *) mem_alloc(sizeof(double) * npar, 0);
-  if (btab   == (double *) NULL) goto label_end;
+  if (btab   == nullptr) goto label_end;
   btab0  = (double *) mem_alloc(sizeof(double) * npar, 0);
-  if (btab0  == (double *) NULL) goto label_end;
+  if (btab0  == nullptr) goto label_end;
   result = (double *) mem_alloc(sizeof(double) * npar, 0);
-  if (result == (double *) NULL) goto label_end;
+  if (result == nullptr) goto label_end;
   for (int i=0; i<npar; i++) btab0[i] = 0.;
   for (int i=0; i<size; i++) atab0[i] = 0.;
   for (int i=0; i<npar; i++) mean[i] = 0.;
@@ -2798,9 +2798,9 @@ GEOSLIB_API int multilayers_get_prior(Db      *dbin,
 
   error = 1;
   iptr     = -1;
-  seltab   = (int *) NULL;
-  fftab    = zval = props = (double *) NULL;
-  lmlayers = (LMlayers *) NULL;
+  seltab   = nullptr;
+  fftab    = zval = props = nullptr;
+  lmlayers = nullptr;
   nlayers  = model->getVariableNumber();
   nechmax  = dbin->getSampleNumber();
   ptime    = (match_time) ? ELoc::F : ELoc::TIME;

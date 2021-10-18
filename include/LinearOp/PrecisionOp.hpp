@@ -37,11 +37,13 @@ public:
   void   eval(const VectorDouble& in, VectorDouble& out);
   virtual void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result){};
   virtual void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
+  virtual void evalDerivOptim(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
   virtual void evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
 
   int    getSize() const { return _shiftOp->getSize(); }
   double computeLogDet(int nsimus = 1, int seed = 0);
-
+  bool getTraining()const {return _training;}
+  void setTraining(bool tr){ _training = tr;}
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
 
 protected:
@@ -63,9 +65,11 @@ private:
   EPowerPT                         _power;
   std::map<EPowerPT, APolynomial*> _polynomials;
   bool                             _verbose;
+  bool                             _training;
 
 protected :
   mutable VectorDouble _work;
   mutable VectorDouble _work2;
   mutable VectorDouble _work3;
+  mutable VectorVectorDouble _workPoly;
 };

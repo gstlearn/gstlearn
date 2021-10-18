@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "vtk.h"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
@@ -225,7 +226,7 @@ static void st_ifpen_write(FILE       *file,
 
   /* Initialize the string */
 
-  strcpy(line,"");
+  (void) gslStrcpy(line,gslArraySize(line),"");
 
   /* Comment */
 
@@ -453,12 +454,12 @@ GEOSLIB_API int db_grid_read_zycor1(const char   *filename,
   /* Initializations */
 
   error = 1;
-  file  = (FILE *) NULL;
+  file  = nullptr;
 
   /* Open the file */
 
-  file = fopen(filename,"r");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"r");
+  if (file == nullptr)
   {
     messerr("Error when opening the ZYCOR file %s for reading",filename);
     goto label_end;
@@ -473,7 +474,7 @@ GEOSLIB_API int db_grid_read_zycor1(const char   *filename,
   error = 0;
 
 label_end:
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -504,12 +505,12 @@ GEOSLIB_API int db_grid_read_zycor2(const char   *filename,
   /* Initializations */
 
   error = 1;
-  file  = (FILE *) NULL;
+  file  = nullptr;
 
   /* Open the file */
 
-  file = fopen(filename,"r");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"r");
+  if (file == nullptr)
   {
     messerr("Error when opening the ZYCOR file %s for reading",filename);
     goto label_end;
@@ -563,7 +564,7 @@ GEOSLIB_API int db_grid_read_zycor2(const char   *filename,
 
 label_end:
   record_close();
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -771,8 +772,8 @@ GEOSLIB_API int db_grid_read_bmp1(const char   *filename,
 
  /* Open the file */
 
-  file = fopen(filename,"rb");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"rb");
+  if (file == nullptr)
   {
     messerr("Error when opening the BMP file %s for reading",filename);
     return(1);
@@ -788,7 +789,7 @@ GEOSLIB_API int db_grid_read_bmp1(const char   *filename,
   error = 0;
 
 label_end:
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -825,8 +826,8 @@ GEOSLIB_API int db_grid_read_bmp2(const char   *filename,
 
   /* Open the file */
 
-  file = fopen(filename,"rb");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"rb");
+  if (file == nullptr)
   {
     messerr("Error when opening the BMP file %s for reading",filename);
     return(1);
@@ -885,7 +886,7 @@ GEOSLIB_API int db_grid_read_bmp2(const char   *filename,
   error = 0;
 
 label_end:
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -922,8 +923,8 @@ GEOSLIB_API int db_grid_write_zycor(const char *filename,
 
   /* Open the file */
 
-  file = fopen(filename,"w");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"w");
+  if (file == nullptr)
   {
     messerr("Error when opening the ZYCOR file %s for writing",filename);
     return(1);
@@ -1005,7 +1006,7 @@ GEOSLIB_API int db_grid_write_zycor(const char *filename,
      }
   }
 
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(0);
 }
 
@@ -1122,12 +1123,12 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
   
   /* Preliminary checks */
 
-  indg = (int  *) NULL;
-  file = (FILE *) NULL;
+  indg = nullptr;
+  file = nullptr;
   flag_color_scale = (ncolor > 0 && 
-                      red   != (int *) NULL &&
-                      green != (int *) NULL &&
-                      blue  != (int *) NULL);
+                      red   != nullptr &&
+                      green != nullptr &&
+                      blue  != nullptr);
   if (! flag_color_scale) ncolor = 256;
   if (! is_grid(db))
   {
@@ -1149,7 +1150,7 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
   /* Core allocation */
 
   indg = db_indg_alloc(db);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
 
   /* Initializations */
 
@@ -1173,8 +1174,8 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
 
  /* Open the file */
 
-  file = fopen(filename,"wb");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"wb");
+  if (file == nullptr)
   {
     messerr("Error when opening the BMP file %s for writing",filename);
     return(1);
@@ -1252,7 +1253,7 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
   
  label_end:
   indg = db_indg_free(indg);
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(0);
 }
 
@@ -1283,8 +1284,8 @@ GEOSLIB_API int db_grid_write_irap(const char *filename,
 
   /* Initializations */
   error = 1;
-  file  = (FILE *) NULL;
-  indg  = (int  *) NULL;
+  file  = nullptr;
+  indg  = nullptr;
 
   /* Check that the file is a grid */
   if (db == NULL) return(1);
@@ -1302,12 +1303,12 @@ GEOSLIB_API int db_grid_write_irap(const char *filename,
   /* Core allocation */
 
   indg = db_indg_alloc(db);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
 
   /* Open the output file */
 
-  file = fopen(filename,"w");
-  if (file == (FILE *) NULL) goto label_end;
+  file = gslFopen(filename,"w");
+  if (file == nullptr) goto label_end;
 
   /* Preliminary calculations */
   nx   = N_SAMPLE(db->getNX(0),nsamplex);
@@ -1352,7 +1353,7 @@ GEOSLIB_API int db_grid_write_irap(const char *filename,
 
  label_end:
   indg = db_indg_free(indg);
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -1409,8 +1410,8 @@ GEOSLIB_API int db_grid_write_prop(const char *filename,
 
   /* Open the file */
 
-  file = fopen(filename,"w");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"w");
+  if (file == nullptr)
   {
     messerr("Error when opening the IFPEN .PROP file %s for writing",filename);
     return(1);
@@ -1451,7 +1452,7 @@ GEOSLIB_API int db_grid_write_prop(const char *filename,
       st_ifpen_write(file,2,NULL,0,value,NULL);
     }
 
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(0);
 }
 
@@ -1488,8 +1489,8 @@ GEOSLIB_API int db_grid_write_eclipse(const char   *filename,
 
   /* Open the file */
 
-  file = fopen(filename,"w");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"w");
+  if (file == nullptr)
   {
     messerr("Error when opening the ECLIPSE file %s for writing",filename);
     return(1);
@@ -1520,7 +1521,7 @@ GEOSLIB_API int db_grid_write_eclipse(const char   *filename,
   }
   if (ninline > 0) fprintf(file,"\n");
 
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(0);
 }
 
@@ -1660,8 +1661,8 @@ GEOSLIB_API int db_grid_read_prop1(const char *filename,
 
  /* Open the file */
 
-  file = fopen(filename,"r");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"r");
+  if (file == nullptr)
   {
     messerr("Error when opening the IFPEN .PROP file %s for reading",filename);
     return(1);
@@ -1710,12 +1711,12 @@ GEOSLIB_API int db_grid_read_prop2(const char   *filename,
   /* Initializations */
 
   error = 1;
-  file  = (FILE *) NULL;
+  file  = nullptr;
 
   /* Open the file */
 
-  file = fopen(filename,"r");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"r");
+  if (file == nullptr)
   {
     messerr("Error when opening the IFPEN .PROP file %s for reading",filename);
     goto label_end;
@@ -1766,7 +1767,7 @@ GEOSLIB_API int db_grid_read_prop2(const char   *filename,
 
 label_end:
   record_close();
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -1811,9 +1812,9 @@ GEOSLIB_API int db_write_vtk(const char *filename,
   /* Initializations */
 
   error     = 1;
-  vardim    = center = (int *) NULL;
-  tab       = (float **) NULL;
-  points    = xcoor = ycoor = zcoor = (float  *) NULL;
+  vardim    = center = nullptr;
+  tab       = nullptr;
+  points    = xcoor = ycoor = zcoor = nullptr;
   nech      = db->getSampleNumber();
   nactive   = db->getActiveSampleNumber();
   flag_grid = is_grid(db);
@@ -1831,44 +1832,43 @@ GEOSLIB_API int db_write_vtk(const char *filename,
   /* Core allocation */
 
   vardim = (int *)    mem_alloc(sizeof(int)   * ncol,0);
-  if (vardim == (int *) NULL) goto label_end;
+  if (vardim == nullptr) goto label_end;
   center = (int *)    mem_alloc(sizeof(int)   * ncol,0);
-  if (center == (int *) NULL) goto label_end;
+  if (center == nullptr) goto label_end;
   for (int icol=0; icol<ncol; icol++)
   {
     vardim[icol] = 1;
     center[icol] = 1;
   }
   tab    = (float **) mem_alloc(sizeof(float *) * ncol,0);
-  if (tab == (float **) NULL) goto label_end;
-  for (int icol=0; icol<ncol; icol++) tab[icol] = (float *) NULL;
+  if (tab == nullptr) goto label_end;
   for (int icol=0; icol<ncol; icol++)
   {
     if (flag_grid)
       tab[icol] = (float *) mem_alloc(sizeof(float) * nech,0);
     else
       tab[icol] = (float *) mem_alloc(sizeof(float) * nactive,0);
-    if (tab[icol] == (float *) NULL) goto label_end;
+    if (tab[icol] == nullptr) goto label_end;
   }
   if (flag_grid)
   {
     xcoor = (float *) mem_alloc(sizeof(float) * dims[0],0);
-    if (xcoor == (float *) NULL) goto label_end;
+    if (xcoor == nullptr) goto label_end;
     for (int i=0; i<dims[0]; i++) 
       xcoor[i] = (float) (factx * (db->getX0(0) + i * db->getDX(0)));
     ycoor = (float *) mem_alloc(sizeof(float) * dims[1],0);
-    if (ycoor == (float *) NULL) goto label_end;
+    if (ycoor == nullptr) goto label_end;
     for (int i=0; i<dims[1]; i++) 
       ycoor[i] = (float) (facty * (db->getX0(1) + i * db->getDX(1)));
     zcoor = (float *) mem_alloc(sizeof(float) * dims[2],0);
-    if (zcoor == (float *) NULL) goto label_end;
+    if (zcoor == nullptr) goto label_end;
     for (int i=0; i<dims[2]; i++) 
       zcoor[i] = (float) (factz * (db->getX0(2) + i * db->getDX(2)));
   }
   else
   {
     points = (float *) mem_alloc(sizeof(float) * 3 * nactive,0);
-    if (points == (float *) NULL) goto label_end;
+    if (points == nullptr) goto label_end;
   }
 
   /* Read the coordinates (for points only) */
@@ -1949,7 +1949,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
 label_end:
   vardim = (int    *) mem_free((char *) vardim);
   center = (int    *) mem_free((char *) center);
-  if (tab != (float **) NULL)
+  if (tab != nullptr)
   {
     for (int icol=0; icol<ncol; icol++)
       tab[icol] = (float *) mem_free((char *) tab[icol]);
@@ -2017,7 +2017,7 @@ static int st_read_find(int   s_length,
 {
   char big_target[1000];
   
-  (void) strcpy(big_target,target);
+  (void) gslStrcpy(big_target,gslArraySize(big_target),target);
   string_to_uppercase(big_target);
 
   /* Check the current line */
@@ -2078,14 +2078,14 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
   sep_blank[0] = ' ';
   sep_point[0] = '.';
   *nvarout = *nechout = 0;
-  file   = (FILE   *) NULL;
-  varloc = (char  **) NULL;
-  tabloc = (double *) NULL;
+  file   = nullptr;
+  varloc = nullptr;
+  tabloc = nullptr;
   
   // Open the file
 
-  file = fopen(filename,"r");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"r");
+  if (file == nullptr)
   {
     messerr("Error when opening the LAS file %s for reading",filename);
     goto label_end;
@@ -2099,12 +2099,12 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
   for (int ivar=0; ivar<nvar_special; ivar++)
   {
     varloc[ivar] = (char *) mem_alloc(sizeof(char) * sizemax,1);
-    strcpy(varloc[ivar], name_special[ivar]);
+    (void) gslStrcpy(varloc[ivar], sizemax, name_special[ivar]);
     nvar++;
   }
 
   numline = 0;
-  (void) strcpy(string,"");
+  (void) gslStrcpy(string,gslArraySize(string),"");
 
   // Decode the header
   if (verbose) message("Looking for ~Well\n");
@@ -2151,7 +2151,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
   /* Decoding the array of data */
 
   if (verbose) message("Reading the Data\n");
-  if (st_read_find(s_length,file,"~Ascii",&numline,string)) goto label_end;
+  if (st_read_find(s_length,file,"~A",&numline,string)) goto label_end;
   nech = ecr = nquant = 0;
   while (1)
   {
@@ -2161,7 +2161,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     {
       nquant++;
       tabloc = (double *)
-        mem_realloc((char *) tabloc,sizeof(double)*nvar*nquant*quantum,1);
+        mem_realloc((char *) tabloc,sizeof(double) * nvar * nquant * quantum,1);
     }
 
     // Add the special variables
@@ -2172,24 +2172,20 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     
     // Add other variables
 
+    lcur = string;
     while (nvarlu < nvar)
     {
-      lcur = string;
-
-    label_decode:
       token = strtok(lcur, sep_blank);
       lcur  = NULL;
-      if (token == NULL || sscanf(token,"%lf",&value) == EOF) goto label_line;
+      if (token == NULL || sscanf(token,"%lf",&value) == EOF) break;
       if (value == test) value = TEST;
       tabloc[ecr++] = value;
       nvarlu++;
-      goto label_decode;
+    }
 
-    label_line:
-      if (nvarlu < nvar)
-      {
+    if (nvarlu < nvar)
+    {
         if (fgets(string,s_length,file) == NULL) break;
-      }
     }
     nech++;
   }
@@ -2224,7 +2220,7 @@ label_end:
     varloc = (char  **) mem_free((char *) varloc);
     tabloc = (double *) mem_free((char *) tabloc);
   }
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -2264,16 +2260,16 @@ GEOSLIB_API int db_grid_read_f2g(const char *filename,
   /* Initializations */
 
   error = 1;
-  file  = (FILE   *) NULL;
-  tab   = (double *) NULL;
+  file  = nullptr;
+  tab   = nullptr;
   nx[0] = nx[1] = nx[2] = 1;
   x0[0] = x0[1] = x0[2] = 0.;
   dx[0] = dx[1] = dx[2] = 1.;
 
   /* Open the file */
 
-  file = fopen(filename,"r");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"r");
+  if (file == nullptr)
   {
     messerr("Error when opening the F2G file %s for reading",filename);
     goto label_end;
@@ -2282,46 +2278,46 @@ GEOSLIB_API int db_grid_read_f2g(const char *filename,
   /* Read the header */
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_DIM");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_DIM");
   if (strcmp(string,refchar)) goto label_key;
   if (_record_read(file,"%d",&ndim)) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_VERSION");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_VERSION");
   if (strcmp(string,refchar)) goto label_key;
   if (_record_read(file,"%d",&version)) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_LOCATION");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_LOCATION");
   if (strcmp(string,refchar)) goto label_key;
   for (int idim=0; idim<3; idim++) // Always three parameters
     if (_record_read(file,"%lf",&x0[idim])) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_ROTATION");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_ROTATION");
   if (strcmp(string,refchar)) goto label_key;
   if (_record_read(file,"%lf",angle)) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_ORIGIN");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_ORIGIN");
   if (strcmp(string,refchar)) goto label_key;
   for (int idim=0; idim<ndim; idim++)
     if (_record_read(file,"%lf",&dum)) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_NB_NODES");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_NB_NODES");
   if (strcmp(string,refchar)) goto label_key;
   for (int idim=0; idim<ndim; idim++)
     if (_record_read(file,"%d",&nx[idim])) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_LAGS");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_LAGS");
   if (strcmp(string,refchar)) goto label_key;
   for (int idim=0; idim<ndim; idim++)
     if (_record_read(file,"%lf",&dx[idim])) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_ORDER");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_ORDER");
   if (strcmp(string,refchar)) goto label_key; 
   // We need to read the three next strings (orders) 
   // Only the order +Y +X +Z is interfaced
@@ -2333,31 +2329,31 @@ GEOSLIB_API int db_grid_read_f2g(const char *filename,
   if (strcmp(string,"+Z")) goto label_end;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_NB_VARIABLES");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_NB_VARIABLES");
   if (strcmp(string,refchar)) goto label_key;
   if (_record_read(file,"%d",ncol)) goto label_contents;
 
   for (int i=0; i<(*ncol); i++)
   {
     if (_record_read(file,"%s",string)) goto label_end; // Variable Name
-    (void) sprintf(refchar,"F2G_VARIABLE_%d",i+1);
+    (void) gslSPrintf(refchar,gslArraySize(refchar),"F2G_VARIABLE_%d",i+1);
     if (strcmp(string,refchar)) goto label_key;
     // We need to read the Name even if ignored
     if (_record_read(file,"%s",string)) goto label_end; 
 
     if (_record_read(file,"%s",string)) goto label_end; // NA value
-    (void) sprintf(refchar,"F2G_UNDEFINED_%d",i+1);
+    (void) gslSPrintf(refchar,gslArraySize(refchar),"F2G_UNDEFINED_%d",i+1);
     if (strcmp(string,refchar)) goto label_key;
     if (_record_read(file,"%s",valtest)) goto label_contents;
   }
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) strcpy(refchar,"F2G_VALUES");
+  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_VALUES");
   if (strcmp(string,refchar)) goto label_key;
 
   size = nx[0] * nx[1] * nx[2];
   tab  = (double *) mem_alloc(sizeof(double) * size,0);
-  if (tab == (double *) NULL) 
+  if (tab == nullptr) 
   {
     messerr("Core problem when reading the values of the F2G file");
     goto label_end;
@@ -2409,7 +2405,7 @@ label_contents:
   goto label_end;
 
 label_end:
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   *tab_arg = tab;
   return(error);
 }
@@ -2445,14 +2441,14 @@ GEOSLIB_API int ascii_table_read(const char *filename,
   /* Initializations */
 
   error = 1;
-  file  = (FILE   *) NULL;
-  tab   = (double *) NULL;
+  file  = nullptr;
+  tab   = nullptr;
   nrow  = nquant = ecr = nread = 0;
 
   /* Open the file */
 
-  file = fopen(filename,"r");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"r");
+  if (file == nullptr)
   {
     messerr("Error when opening the TABLE file %s for reading",filename);
     goto label_end;
@@ -2480,7 +2476,7 @@ GEOSLIB_API int ascii_table_read(const char *filename,
       nquant++;
       tab = (double *) mem_realloc((char *) tab,
                                    sizeof(double) * nquant * quant,0);
-      if (tab == (double *) NULL) goto label_end;
+      if (tab == nullptr) goto label_end;
     }
     tab[ecr++] = value;
   }
@@ -2489,7 +2485,7 @@ GEOSLIB_API int ascii_table_read(const char *filename,
 
   nrow = ecr / ncol;
   tab = (double *) mem_realloc((char *) tab,ncol * nrow * sizeof(double),0);
-  if (tab == (double *) NULL) goto label_end;
+  if (tab == nullptr) goto label_end;
 
   /* Set the error return code */
 
@@ -2499,7 +2495,7 @@ GEOSLIB_API int ascii_table_read(const char *filename,
 
 label_end:
   if (error) tab = (double *) mem_free((char *) tab);
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -2558,8 +2554,8 @@ GEOSLIB_API int csv_table_read(const char *filename,
 
   // Open the file
 
-  file = fopen(filename,"r");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"r");
+  if (file == nullptr)
   {
     messerr("Error when opening the CSV file %s for reading",filename);
     goto label_end;
@@ -2662,7 +2658,7 @@ GEOSLIB_API int csv_table_read(const char *filename,
   *nrow_arg = nrow;
 
 label_end:
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(error);
 }
 
@@ -2823,8 +2819,8 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
 
   /* Open the file */
 
-  file = fopen(filename,"w");
-  if (file == (FILE *) NULL)
+  file = gslFopen(filename,"w");
+  if (file == nullptr)
   {
     messerr("Error when opening the XYZ file %s for writing",filename);
     return(1);
@@ -2851,7 +2847,7 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
       lec++;
     }
 
-  if (file != (FILE *) NULL) fclose(file);
+  if (file != nullptr) fclose(file);
   return(0);
 }
 
@@ -2979,8 +2975,8 @@ GEOSLIB_API int csv_manage(const char *filename,
     if (CSV_ENCODE != NULL)
       CSV_ENCODE = (CSV_Encoding *) mem_free((char * ) CSV_ENCODE);
     CSV_ENCODE = (CSV_Encoding *) mem_alloc(sizeof(CSV_Encoding), 1);
-    CSV_ENCODE->file = fopen(filename,"w");
-    if (CSV_ENCODE->file == (FILE *) NULL)
+    CSV_ENCODE->file = gslFopen(filename,"w");
+    if (CSV_ENCODE->file == nullptr)
     {
       messerr("Error when opening the CSV file %s for writing",filename);
       (void) csv_manage(filename, -1, nitem, flag_integer, char_sep, na_string);
@@ -3057,7 +3053,7 @@ GEOSLIB_API int db_write_csv(Db *db,
                              const char *char_sep,
                              const char *na_string)
 {
-  if (db == (Db *) NULL) return 1;
+  if (db == nullptr) return 1;
   int ncol = db->getFieldNumber();
   int ndim = db->getNDim();
   int nech = db->getSampleNumber();

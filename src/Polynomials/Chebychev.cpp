@@ -210,9 +210,9 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 /* Create the T1 sparse matrix */
 
   T1 = cs_eye(nvertex, 1.);
-  if (T1 == (cs *) NULL) my_throw("Problem in cs_eye");
+  if (T1 == nullptr) my_throw("Problem in cs_eye");
   T1 = cs_add_and_release(T1, S, v2, v1, 1);
-  if (T1 == (cs *) NULL) my_throw("Problem in cs_add");
+  if (T1 == nullptr) my_throw("Problem in cs_add");
 
 /* Initialize the simulation */
 

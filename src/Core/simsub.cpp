@@ -41,7 +41,7 @@ static int st_check_irreductibility(int     nfacies,
   /* Initializations */
 
   error = 1;
-  flag  = (int *) NULL;
+  flag  = nullptr;
 
   /* Check that the transition matrix is correct */
   
@@ -120,8 +120,8 @@ static double *trans_to_props(int     nfacies,
 
   /* Initializations */
 
-  props = propold = (double *) NULL;
-  if (nfacies <= 0 || trans == (double *) NULL) return(props);
+  props = propold = nullptr;
+  if (nfacies <= 0 || trans == nullptr) return(props);
   props   = (double *) mem_alloc(sizeof(double) * nfacies,1);
   propold = (double *) mem_alloc(sizeof(double) * nfacies,1);
 
@@ -324,10 +324,10 @@ GEOSLIB_API int substitution(Db      *dbgrid,
 
   law_set_random_seed(seed);
   error    = 1;
-  status   = indg = (int    *) NULL;
-  props    = (double *) NULL;
+  status   = indg = nullptr;
+  props    = nullptr;
   flag_local = flag_angloc = np = 0;
-  splanes  = (SubPlanes *) NULL;
+  splanes  = nullptr;
 
   /* Preliminary checks */
 
@@ -385,7 +385,7 @@ GEOSLIB_API int substitution(Db      *dbgrid,
     /* Generate the Poisson planes */
 
     splanes = poisson_manage_planes(1,np,splanes);
-    if (splanes == (SubPlanes *) NULL) goto label_end;
+    if (splanes == nullptr) goto label_end;
     if (poisson_generate_planes(dbgrid,splanes)) goto label_end;
     
     /* Assigning a value to the half-space that contains the center */

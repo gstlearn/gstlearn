@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 #include "version.h"
@@ -29,13 +30,13 @@ GEOSLIB_API void inquire_Geoslib(char **release,
 
   int size  = static_cast<int> (strlen(GEOSLIB_RELEASE));
   buffer = (char *) mem_alloc(sizeof(char) * (size+1),1);
-  (void) strcpy(buffer,GEOSLIB_RELEASE);
+  (void) gslStrcpy(buffer,size,GEOSLIB_RELEASE);
   buffer[size] = '\0';
   *release = buffer;
 
   size  = static_cast<int> (strlen(GEOSLIB_DATE));
   buffer = (char *) mem_alloc(sizeof(char) * (size+1),1);
-  (void) strcpy(buffer,GEOSLIB_DATE);
+  (void) gslStrcpy(buffer,size,GEOSLIB_DATE);
   buffer[size] = '\0';
   *date = buffer;
 }

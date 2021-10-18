@@ -486,7 +486,7 @@ GEOSLIB_API int simfine_f(Db *dbin,
   /* Initializations */
 
   error   = 1;
-  db1     = db2 = (Db *) NULL;
+  db1     = db2 = nullptr;
   NDIM    = dbin->getNDim();
   NMULT   = nmult;
   db1     = dbin;

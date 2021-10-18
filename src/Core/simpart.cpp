@@ -128,7 +128,7 @@ GEOSLIB_API SubPlanes *poisson_manage_planes(int mode,
 
     /* Deallocation */
 
-    if (splanes == (SubPlanes *) NULL) return (splanes);
+    if (splanes == nullptr) return (splanes);
     delete splanes;
     return nullptr;
   }
@@ -236,8 +236,8 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
   error = 1;
   np = 0;
   iatts = iattg = -1;
-  status = indg = (int *) NULL;
-  splanes = (SubPlanes *) NULL;
+  status = indg = nullptr;
+  splanes = nullptr;
   st_manage_stack(&stack, 1, 0., 0.);
 
   /* Preliminary checks */
@@ -281,7 +281,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
   /* Generate the Poisson planes */
 
   splanes = poisson_manage_planes(1, np, splanes);
-  if (splanes == (SubPlanes *) NULL) goto label_end;
+  if (splanes == nullptr) goto label_end;
   if (poisson_generate_planes(dbgrid, splanes)) goto label_end;
 
   /* Assigning a value to the half-space that contains the center */
@@ -399,7 +399,7 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
   law_set_random_seed(seed);
   error = 1;
   iatts = iattp = -1;
-  dbpoint = (Db *) NULL;
+  dbpoint = nullptr;
 
   /* Preliminary checks */
 
@@ -429,7 +429,7 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
   volume = 1.;
   for (i = 0; i < ndim; i++)
   {
-    dil = (dilate != (double *) NULL) ? dilate[i] : 0.;
+    dil = (dilate != nullptr) ? dilate[i] : 0.;
     field[i]  = dbgrid->getDX(i) * dbgrid->getNX(i);
     origin[i] = dbgrid->getX0(i) - dbgrid->getDX(i) / 2. - dil * field[i] / 2.;
     field[i]  = field[i] * (1. + dil);

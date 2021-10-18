@@ -38,7 +38,7 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
                                   Model* model,
                                   Neigh* neigh)
 {
-  if (neigh != (Neigh *) NULL && neigh->getType() == ENeigh::MOVING)
+  if (neigh != nullptr && neigh->getType() == ENeigh::MOVING)
   {
 
     // Moving Neighborhood

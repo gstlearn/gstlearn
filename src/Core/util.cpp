@@ -11,6 +11,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 //#include <tr1/cmath>
@@ -684,9 +685,9 @@ GEOSLIB_API void ut_statistics(int nech,
 
   for (i = 0; i < nech; i++)
   {
-    if (sel != (double *) NULL && sel[i] == 0.) continue;
+    if (sel != nullptr && sel[i] == 0.) continue;
     if (FFFF(tab[i])) continue;
-    weight = (wgt != (double *) NULL && wgt[i] >= 0) ? wgt[i] :
+    weight = (wgt != nullptr && wgt[i] >= 0) ? wgt[i] :
                                                        1.;
     if (tab[i] < tmin) tmin = tab[i];
     if (tab[i] > tmax) tmax = tab[i];
@@ -754,7 +755,7 @@ GEOSLIB_API void ut_stats_mima(int nech,
 
   for (i = 0; i < nech; i++)
   {
-    if (sel != (double *) NULL && sel[i] == 0.) continue;
+    if (sel != nullptr && sel[i] == 0.) continue;
     if (FFFF(tab[i])) continue;
     if (std::isnan(tab[i])) continue;
     if (std::isinf(tab[i])) continue;
@@ -840,7 +841,7 @@ GEOSLIB_API void ut_facies_statistics(int nech,
 
   for (i = 0; i < nech; i++)
   {
-    if (sel != (double *) NULL && sel[i] == 0.) continue;
+    if (sel != nullptr && sel[i] == 0.) continue;
     if (FFFF(tab[i])) continue;
     facies = (int) tab[i];
     if (facies < 0) continue;
@@ -906,7 +907,7 @@ GEOSLIB_API void ut_classify(int nech,
 
   for (i = 0; i < nech; i++)
   {
-    if (sel != (double *) NULL && sel[i] == 0.)
+    if (sel != nullptr && sel[i] == 0.)
     {
       (*nmask)++;
       continue;
@@ -1133,12 +1134,12 @@ GEOSLIB_API double ut_merge_extension(int ndim,
   for (idim = 0; idim < ndim; idim++)
   {
     mini = 1.e30;
-    if (mini1 != (double *) NULL) mini = MIN(mini, mini1[idim]);
-    if (mini2 != (double *) NULL) mini = MIN(mini, mini2[idim]);
+    if (mini1 != nullptr) mini = MIN(mini, mini1[idim]);
+    if (mini2 != nullptr) mini = MIN(mini, mini2[idim]);
 
     maxi = -1.e30;
-    if (maxi1 != (double *) NULL) maxi = MAX(maxi, maxi1[idim]);
-    if (maxi2 != (double *) NULL) maxi = MAX(maxi, maxi2[idim]);
+    if (maxi1 != nullptr) maxi = MAX(maxi, maxi1[idim]);
+    if (maxi2 != nullptr) maxi = MAX(maxi, maxi2[idim]);
 
     if (mini > maxi) return (TEST);
     delta = maxi - mini;
@@ -1532,11 +1533,11 @@ GEOSLIB_API void get_matrix(const char *title,
     for (iy = 0; iy < ny; iy++)
     {
       if (flag_sym && iy > ix) continue;
-      (void) sprintf(QUESTION, "%s(", title);
+      (void) gslSPrintf(QUESTION, gslArraySize(QUESTION), "%s(", title);
       if (nx > 1) (void) sprintf(&QUESTION[strlen(QUESTION)], "%d", ix + 1);
-      if (nx > 1 && ny > 1) (void) strcat(QUESTION, ",");
+      if (nx > 1 && ny > 1) (void) gslStrcat(QUESTION, gslArraySize(QUESTION),",");
       if (ny > 1) (void) sprintf(&QUESTION[strlen(QUESTION)], "%d", iy + 1);
-      (void) strcat(QUESTION, ")");
+      (void) gslStrcat(QUESTION, gslArraySize(QUESTION),")");
       TAB(ix,iy) = _lire_double(QUESTION, flag_def, (flag_def) ? TAB(ix, iy) :
                                                                  TEST,
                                 valmin, valmax);
@@ -1661,7 +1662,7 @@ GEOSLIB_API int ut_angles_from_rotation_matrix(const double *rot,
 
   for (i = 0; i < ndim; i++)
     angles[i] = 0.;
-  if (rot == (double *) NULL) return (0);
+  if (rot == nullptr) return (0);
 
   /* Dispatch */
 
@@ -1904,7 +1905,7 @@ static int st_match_keypair(const char *keyword, int flag_exact)
   Keypair *keypair;
   char keyloc[STRING_LENGTH];
 
-  (void) strcpy(keyloc, keyword);
+  (void) gslStrcpy(keyloc, STRING_LENGTH, keyword);
   string_strip_blanks(keyloc, 0);
 
   for (int i = 0; i < KEYPAIR_NTAB; i++)
@@ -1959,16 +1960,16 @@ static Keypair *st_get_keypair_address(const char *keyword)
   {
     found = KEYPAIR_NTAB;
     KEYPAIR_NTAB++;
-    KEYPAIR_TABS = (Keypair *) realloc((char *) KEYPAIR_TABS,
-                                       sizeof(Keypair) * KEYPAIR_NTAB);
+    KEYPAIR_TABS = (Keypair *)
+        realloc((char *) KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
   }
 
   /* Store the attribute (compressing the name and suppressing blanks) */
 
   keypair = &KEYPAIR_TABS[found];
-  (void) strcpy(keyloc, keyword);
+  (void) gslStrcpy(keyloc, STRING_LENGTH, keyword);
   string_strip_blanks(keyloc, 0);
-  (void) strcpy(keypair->keyword, keyloc);
+  (void) gslStrcpy(keypair->keyword, STRING_LENGTH, keyloc);
 
   /* Initialize the attributes (for a new keypair) */
 
@@ -2014,7 +2015,7 @@ static void st_keypair_attributes(Keypair *keypair,
       if (keypair->ncol != ncol)
       {
         free((char *) keypair->values);
-        keypair->values = (double *) NULL;
+        keypair->values = nullptr;
       }
     }
 
@@ -2327,7 +2328,7 @@ static void del_keypone(int indice)
 
   keypair = &KEYPAIR_TABS[indice];
   free((char *) keypair->values);
-  keypair->values = (double *) NULL;
+  keypair->values = nullptr;
 
   /* Shift all subsequent keypairs */
 
@@ -3234,8 +3235,8 @@ GEOSLIB_API int string_compare(int flag_case,
   }
   else
   {
-    (void) strcpy(INSTR1, string1);
-    (void) strcpy(INSTR2, string2);
+    (void) gslStrcpy(INSTR1, STRING_LENGTH, string1);
+    (void) gslStrcpy(INSTR2, STRING_LENGTH, string2);
     string_to_lowercase(INSTR1);
     string_to_lowercase(INSTR2);
     flag_diff = strcmp(INSTR1, INSTR2);
@@ -3290,7 +3291,7 @@ GEOSLIB_API double *ut_pascal(int ndim)
   /* Core allocation */
 
   m = (double *) mem_alloc(sizeof(double) * ndim * ndim, 0);
-  if (m == (double *) NULL) return (m);
+  if (m == nullptr) return (m);
   for (int i = 0; i < ndim * ndim; i++)
     m[i] = 0.;
 
@@ -3747,7 +3748,7 @@ GEOSLIB_API int ut_chebychev_coeffs(double (*func)(double,
   a = cheb_elem->a;
   b = cheb_elem->b;
   coeffs = cheb_elem->coeffs;
-  x1 = y1 = x2 = y2 = (double *) NULL;
+  x1 = y1 = x2 = y2 = nullptr;
 
   minsubdiv = pow(2., 20.);
   if (minsubdiv >= (ncmax + 1) / 2)
@@ -3758,13 +3759,13 @@ GEOSLIB_API int ut_chebychev_coeffs(double (*func)(double,
   /* Core allocation */
 
   x1 = (double *) mem_alloc(sizeof(double) * n, 0);
-  if (x1 == (double *) NULL) goto label_end;
+  if (x1 == nullptr) goto label_end;
   y1 = (double *) mem_alloc(sizeof(double) * n, 0);
-  if (y1 == (double *) NULL) goto label_end;
+  if (y1 == nullptr) goto label_end;
   x2 = (double *) mem_alloc(sizeof(double) * n, 0);
-  if (x2 == (double *) NULL) goto label_end;
+  if (x2 == nullptr) goto label_end;
   y2 = (double *) mem_alloc(sizeof(double) * n, 0);
-  if (y2 == (double *) NULL) goto label_end;
+  if (y2 == nullptr) goto label_end;
 
   /* Filling the arrays */
 
@@ -4207,7 +4208,7 @@ GEOSLIB_API int ut_icosphere(int n,
     return (1);
   }
   R_coor.ntri = 0;
-  R_coor.coor = (double *) NULL;
+  R_coor.coor = nullptr;
 
   /* Subdivide the initial icosahedron */
 
@@ -4343,11 +4344,12 @@ GEOSLIB_API int ut_is_legendre_defined(void)
  *****************************************************************************/
 GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
 {
-  int renard = 0;
+  int renard = -1;
   double res1 = 0.;
   double res2 = 0.;
   //double res3 = 0.;
 
+  // TODO: Waiting for validation by Lantuejoul
   if (renard <= 0)
   {
     res1 = LEGENDRE_PL(n, v);
@@ -4392,7 +4394,7 @@ GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
 GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
 {
   int k, flag_negative;
-  int renard = 0;
+  int renard = -1;
 
   if (k0 < 0)
   {
@@ -4404,6 +4406,8 @@ GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
     k = k0;
     flag_negative = 0;
   }
+
+  // TODO: Waiting for the validation by Lantuejoul
 
   double res1 = 0.;
   double res2 = 0.;
@@ -4577,7 +4581,7 @@ GEOSLIB_API std::vector<double> util_set_array_double(int ntab,
                                                       const double *rtab)
 {
   if (debug_query("interface")) message("util_set_array_double\n");
-  if (ntab <= 0 || rtab == (double *) NULL) return std::vector<double>();
+  if (ntab <= 0 || rtab == nullptr) return std::vector<double>();
   std::vector<double> rettab(ntab);
   if (rettab.empty()) return rettab;
 
@@ -4601,7 +4605,7 @@ GEOSLIB_API std::vector<int> util_set_array_integer(int ntab, const int *itab)
 {
   if (debug_query("interface")) message("util_set_array_integer\n");
   std::vector<int> rettab(ntab);
-  if (ntab <= 0 || itab == (int *) NULL) return rettab;
+  if (ntab <= 0 || itab == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
     rettab[i] = itab[i];
   return rettab;
@@ -4621,7 +4625,7 @@ GEOSLIB_API std::vector<std::string> util_set_array_char(int ntab, char **names)
 {
   if (debug_query("interface")) message("util_set_array_char\n");
   std::vector<std::string> rettab(ntab);
-  if (names == (char **) NULL) return rettab;
+  if (names == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
     rettab[i] = names[i];
   return rettab;
@@ -4655,7 +4659,7 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
       for (int i = 0; i < NB_LAST_MESSAGE; i++)
       {
         free((char *) LAST_MESSAGE[i]);
-        LAST_MESSAGE[i] = (char *) NULL;
+        LAST_MESSAGE[i] = nullptr;
       }
       free((char *) LAST_MESSAGE);
       NB_LAST_MESSAGE = 0;
@@ -4671,7 +4675,7 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
         LAST_MESSAGE = (char **) realloc(
             (char *) LAST_MESSAGE, sizeof(char *) * (NB_LAST_MESSAGE + 1));
       LAST_MESSAGE[NB_LAST_MESSAGE] = address = (char *) malloc(size + 1);
-      (void) strcpy(address, string);
+      (void) gslStrcpy(address, size, string);
       address[size] = '\0';
       NB_LAST_MESSAGE++;
       break;
@@ -4794,7 +4798,7 @@ GEOSLIB_API int *ut_combinations(int n, int maxk, int *ncomb)
     v[i] = i;
 
   (*ncomb) = 0;
-  comb = (int *) NULL;
+  comb = nullptr;
   st_combinations(v, 1, n, 1, maxk, ncomb, &comb);
   v = (int *) mem_free((char * ) v);
   return (comb);
@@ -4829,7 +4833,7 @@ GEOSLIB_API int *ut_split_into_two(int ncolor,
 
   p = (flag_half) ? static_cast<int> (floor((double) ncolor / 2.)) : ncolor - 1;
   nmax = static_cast<int> (pow(2, ncolor));
-  mattab = comb = (int *) NULL;
+  mattab = comb = nullptr;
   np = 0;
 
   /* Core allocation */
@@ -4982,14 +4986,14 @@ GEOSLIB_API int *ut_name_decode(const char *name,
   // Initializations 
 
   error = 1;
-  order = ranks = (int *) NULL;
+  order = ranks = nullptr;
 
   // Core allocation
 
   order = (int *) mem_alloc(sizeof(int) * ndim, 0);
-  if (order == (int *) NULL) goto label_end;
+  if (order == nullptr) goto label_end;
   ranks = (int *) mem_alloc(sizeof(int) * ndim, 0);
-  if (ranks == (int *) NULL) goto label_end;
+  if (ranks == nullptr) goto label_end;
   for (int i = 0; i < ndim; i++)
     ranks[i] = 0;
 
@@ -5146,8 +5150,8 @@ GEOSLIB_API double *ut_rank_cells(int ndim, int *nx, int *order, int verbose)
   // Initializations
 
   error = 1;
-  tab = tab2 = (double *) NULL;
-  indg = ind = (int *) NULL;
+  tab = tab2 = nullptr;
+  indg = ind = nullptr;
   ncell = 1;
   for (int idim = 0; idim < ndim; idim++)
     ncell *= nx[idim];
@@ -5155,13 +5159,13 @@ GEOSLIB_API double *ut_rank_cells(int ndim, int *nx, int *order, int verbose)
   // Core allocation
 
   tab = (double *) mem_alloc(sizeof(double) * ncell, 0);
-  if (tab == (double *) NULL) goto label_end;
+  if (tab == nullptr) goto label_end;
   indg = (int *) mem_alloc(sizeof(int) * ndim, 0);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
   ind = (int *) mem_alloc(sizeof(int) * ncell, 0);
-  if (ind == (int *) NULL) goto label_end;
+  if (ind == nullptr) goto label_end;
   tab2 = (double *) mem_alloc(sizeof(double) * ncell, 0);
-  if (tab2 == (double *) NULL) goto label_end;
+  if (tab2 == nullptr) goto label_end;
   for (int i = 0; i < ndim; i++)
     indg[i] = 0;
 

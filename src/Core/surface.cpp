@@ -486,11 +486,11 @@ static int st_concatenate_arrays(int      ndim,
   if (ntri > 0)
   {
     newnum  = ntloc + ntri;
-    if (tloc == (int *) NULL) 
+    if (tloc == nullptr) 
       tloc = (int *) mem_alloc(sizeof(int) * 3 * newnum,0);
     else
       tloc = (int *) mem_realloc((char *) tloc,sizeof(int) * 3 * newnum,0);
-    if (tloc == (int *) NULL) return(1);
+    if (tloc == nullptr) return(1);
 
     ecr = ntloc * 3;
     for (int i=0; i<ntri * 3; i++) tloc[ecr++] = triangles[i] + nploc;
@@ -503,11 +503,11 @@ static int st_concatenate_arrays(int      ndim,
   if (npoints > 0)
   {
     newnum  = nploc + npoints;
-    if (ploc == (double *) NULL)
+    if (ploc == nullptr)
       ploc = (double *) mem_alloc(sizeof(double) * ndim * newnum,0);
     else
       ploc = (double *) mem_realloc((char *) ploc,sizeof(double)*ndim*newnum,0);
-    if (ploc == (double *) NULL) return(1);
+    if (ploc == nullptr) return(1);
 
     ecr = nploc * ndim;
     for (int i=0; i<npoints * ndim; i++) ploc[ecr++] = points[i];
@@ -553,18 +553,18 @@ static int st_rectangle_surface(Surf_Def *surf_reference,
   ndim      = 3;
   ncoord    = 5;
   ntri      = 4;
-  points    = (double *) NULL;
-  triangles = (int    *) NULL;
+  points    = nullptr;
+  triangles = nullptr;
   *ntri_arg = *npoint_arg = 0;
-  *triangle_arg = (int    *) NULL;
-  *points_arg   = (double *) NULL;
+  *triangle_arg = nullptr;
+  *points_arg   = nullptr;
   
   /* Core allocation */
 
   triangles = (int *) mem_alloc(sizeof(int) * 3 * ntri,0);
-  if (triangles == (int *) NULL) goto label_end;
+  if (triangles == nullptr) goto label_end;
   points    = (double *) mem_alloc(sizeof(double) * ndim * ncoord,0);
-  if (points    == (double *) NULL) goto label_end;
+  if (points    == nullptr) goto label_end;
 
   /* Load the points */
 
@@ -671,9 +671,9 @@ GEOSLIB_API int db_trisurf(Db         *db,
   /* Initializations */
 
   error          = 1;
-  triangles      = triloc = (int    *) NULL;
-  points         = poiloc = (double *) NULL;
-  *ntcode_arg    = (int    *) NULL;
+  triangles      = triloc = nullptr;
+  points         = poiloc = nullptr;
+  *ntcode_arg    = nullptr;
   ntricum        = npoicum = *ncode_arg    = *ntri_arg = *npoint_arg = 0;
   VERBOSE        = verbose;
   ndim           = db->getNDim();
@@ -723,7 +723,7 @@ GEOSLIB_API int db_trisurf(Db         *db,
   /* Core allocation */
 
   (*ntcode_arg) = (int *) mem_alloc(sizeof(int) * ncode_eff,0);
-  if ((*ntcode_arg) == (int *) NULL) goto label_end;
+  if ((*ntcode_arg) == nullptr) goto label_end;
 
   /* Create the new variables */
 

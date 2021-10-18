@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Model/Constraints.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/Option_AutoFit.hpp"
@@ -111,7 +112,7 @@ static std::vector<StrExp> STREXPS;
 static StrMod      *STRMOD  = NULL;
 static Option_AutoFit MAUTO;
 static int         *INDG1,*INDG2;
-static Db          *DBMAP;
+static const Db          *DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
 static Recint       RECINT;
 
@@ -125,13 +126,13 @@ static Recint       RECINT;
 static void st_name_range(int ivar)
 {
   if (ivar == 0)
-    (void) sprintf(string,"Range U");
+    (void) gslSPrintf(string,gslArraySize(string),"Range U");
   else if (ivar == 1)
-    (void) sprintf(string,"Range V");
+    (void) gslSPrintf(string,gslArraySize(string),"Range V");
   else if (ivar == 2)
-    (void) sprintf(string,"Range W");
+    (void) gslSPrintf(string,gslArraySize(string),"Range W");
   else
-    (void) sprintf(string,"Range in direction %d",ivar);
+    (void) gslSPrintf(string,gslArraySize(string),"Range in direction %d",ivar);
 }
 
 /****************************************************************************/
@@ -144,13 +145,13 @@ static void st_name_range(int ivar)
 static void st_name_scale(int ivar)
 {
   if (ivar == 0)
-    (void) sprintf(string,"Scale U");
+    (void) gslSPrintf(string,gslArraySize(string),"Scale U");
   else if (ivar == 1)
-    (void) sprintf(string,"Scale V");
+    (void) gslSPrintf(string,gslArraySize(string),"Scale V");
   else if (ivar == 2)
-    (void) sprintf(string,"Scale W");
+    (void) gslSPrintf(string,gslArraySize(string),"Scale W");
   else
-    (void) sprintf(string,"Scale in direction %d",ivar);
+    (void) gslSPrintf(string,gslArraySize(string),"Scale in direction %d",ivar);
 }
 
 /****************************************************************************/
@@ -163,13 +164,13 @@ static void st_name_scale(int ivar)
 static void st_name_rotation(int rank)
 {
   if (rank == 0)
-    (void) sprintf(string,"Anisotropy Rotation Angle around Oz");
+    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Oz");
   else if (rank == 1)
-    (void) sprintf(string,"Anisotropy Rotation Angle around Oy");
+    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Oy");
   else if (rank == 2)
-    (void) sprintf(string,"Anisotropy Rotation Angle around Ox");
+    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Ox");
   else
-    (void) sprintf(string,"Anisotropy Rotation Angle %d",rank);
+    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle %d",rank);
 }
 
 /****************************************************************************/
@@ -405,7 +406,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
 static StrMod *st_model_auto_strmod_free(StrMod *strmod)
 
 {
-  if (strmod == (StrMod *) NULL) return(strmod);
+  if (strmod == nullptr) return(strmod);
 
   /* Check that the user_data area has been freed */
   if (strmod->user_data != NULL)
@@ -415,7 +416,7 @@ static StrMod *st_model_auto_strmod_free(StrMod *strmod)
   }
   
   delete strmod;
-  strmod = (StrMod *) NULL;
+  strmod = nullptr;
   return(strmod);
 }
 
@@ -452,7 +453,7 @@ static StrMod *st_model_auto_strmod_alloc(Model  *model1,
   /* Initialization */
 
   error  = 1;
-  strmod = (StrMod *) NULL;
+  strmod = nullptr;
   
   /* Core allocation */
 
@@ -475,7 +476,7 @@ static StrMod *st_model_auto_strmod_alloc(Model  *model1,
   for (i=nmodel=0; i<2; i++)
   {
     model = strmod->models[i];
-    if (model == (Model *) NULL) break;
+    if (model == nullptr) break;
     nmodel++;
     nvar  = model->getVariableNumber();
     if (ncovmax < model->getCovaNumber()) ncovmax = model->getCovaNumber();
@@ -541,7 +542,7 @@ label_end:
 ** \param[out] npadir_ret Total number of lags for all directions
 **
 *****************************************************************************/
-static int st_get_vario_dimension(Vario *vario,
+static int st_get_vario_dimension(const Vario *vario,
                                   int   *nbexp_ret,
                                   int   *npadir_ret)
   
@@ -594,7 +595,7 @@ static int st_get_vario_dimension(Vario *vario,
 ** \param[out] npadir_ret Maximum number of lags for all directions
 **
 *****************************************************************************/
-static int st_get_vmap_dimension(Db    *dbmap,
+static int st_get_vmap_dimension(const Db    *dbmap,
                                  int    nvar,
                                  int   *nbexp_ret,
                                  int   *npadir_ret)
@@ -719,7 +720,7 @@ static std::vector<StrExp> st_strexp_manage(int nbexp, int ndim)
 ** \param[out] tabout    Compressed array
 **
 *****************************************************************************/
-static void st_compress_array(Vario  *vario,
+static void st_compress_array(const Vario  *vario,
                               int     npadir,
                               VectorDouble& tabin,
                               VectorDouble& tabout)
@@ -758,7 +759,7 @@ static void st_compress_array(Vario  *vario,
 ** \remark value
 **
 *****************************************************************************/
-static double st_get_c00(Vario* vario,
+static double st_get_c00(const Vario* vario,
                          int idir,
                          int ivar,
                          int jvar)
@@ -792,7 +793,7 @@ label_end:
 ** \param[out] gg       Allocated array of experimental values
 **
 *****************************************************************************/
-static void st_load_gg(Vario   *vario,
+static void st_load_gg(const Vario   *vario,
                        int      npadir,
                        std::vector<StrExp>& strexps,
                        VectorDouble& gg)
@@ -928,7 +929,7 @@ static void st_prepar_goulard_vario(int imod)
 ** \param[out] ge      Array of generic covariance values (optional)
 **
 *****************************************************************************/
-static void st_load_ge(Vario  *vario,
+static void st_load_ge(const Vario  *vario,
                        Model  *model,
                        int     npadir,
                        VectorDouble& dd,
@@ -1010,7 +1011,7 @@ static void st_load_ge(Vario  *vario,
 ** \param[out] wt        Array of weights attached to variogram lags
 **
 *****************************************************************************/
-static void st_load_wt(Vario  *vario,
+static void st_load_wt(const Vario  *vario,
                        int     wmode,
                        int     npadir,
                        VectorDouble& wt)
@@ -1266,7 +1267,7 @@ static void st_goulard_debug_title(int nvar,
     for (ivar=0; ivar<nvar; ivar++)
       for (jvar=0; jvar<=ivar; jvar++)
       {
-        (void) sprintf(string,"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
+        (void) gslSPrintf(string,gslArraySize(string),"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
       }
   message("\n");
@@ -1320,7 +1321,7 @@ static void st_keypair_sill(int   mode,
   int ncova,nvar;
   char string[100];
 
-  if (model == (Model *) NULL) return;
+  if (model == nullptr) return;
   ncova = model->getCovaNumber();
   nvar  = model->getVariableNumber();
 
@@ -1332,7 +1333,7 @@ static void st_keypair_sill(int   mode,
   {
     for (int icova=0; icova<ncova; icova++)
     {
-      (void) sprintf(string,"Fitted_Sill_%d",icova+1);
+      (void) gslSPrintf(string,gslArraySize(string),"Fitted_Sill_%d",icova+1);
       set_keypair(string,1,nvar,nvar,
                   model->getSill(icova).getValues().data());
     }
@@ -1365,9 +1366,9 @@ static void st_keypair_results(int     mode,
   }
   else
   {
-    (void) sprintf(string,"Model_Auto_Eigen_Values_%d",icov+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Model_Auto_Eigen_Values_%d",icov+1);
     set_keypair(string,1,1,nvar,valpro);
-    (void) sprintf(string,"Model_Auto_Eigen_Vector_%d",icov+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Model_Auto_Eigen_Vector_%d",icov+1);
     set_keypair(string,1,nvar,nvar,vecpro);
   }
 }
@@ -3563,7 +3564,7 @@ static int st_model_has_intrinsic(Model *model,
   n_int = 0;
   for (icov=0; icov<model->getCovaNumber(); icov++)
   {
-    if (filter != (int *) NULL && filter[icov]) continue;
+    if (filter != nullptr && filter[icov]) continue;
     model_cova_characteristics(model->getCovaType(icov),cov_name,
                                &flag_range,&flag_param,&min_order,&max_ndim,
                                &flag_int_1d,&flag_int_2d,
@@ -3835,7 +3836,7 @@ static int st_model_define(Model     *model,
 
   if (optvar.getKeepIntstr())
   {
-    if (! st_model_has_intrinsic(model,(int *) NULL)) 
+    if (! st_model_has_intrinsic(model,nullptr)) 
     {
       messerr("Automatic Fitting must keep one Intrinsic Basic Structure");
       messerr("No such structure is provided");
@@ -3858,7 +3859,7 @@ static int st_model_define(Model     *model,
 ** \param[out]  optvar  Opt_Vario structure
 **
 *****************************************************************************/
-static int st_alter_model_optvar(Vario      *vario,
+static int st_alter_model_optvar(const Vario      *vario,
                                  Model      *model,
                                  Constraints& constraints,
                                  Option_VarioFit& optvar)
@@ -3958,7 +3959,7 @@ static int st_alter_model_optvar(Vario      *vario,
 ** \param[out]  optvar  Opt_Vario structure
 **
 *****************************************************************************/
-static int st_alter_vmap_optvar(Db         *dbmap,
+static int st_alter_vmap_optvar(const Db         *dbmap,
                                 Model      *model,
                                 Constraints& constraints,
                                 Option_VarioFit& optvar)
@@ -4024,7 +4025,7 @@ static int st_alter_vmap_optvar(Db         *dbmap,
 ** \remarks They should be freed by the user
 **
 *****************************************************************************/
-static int st_model_auto_count(Vario      *vario,
+static int st_model_auto_count(const Vario      *vario,
                                Model      *model1,
                                Model      *model2,
                                Constraints& constraints,
@@ -4045,7 +4046,7 @@ static int st_model_auto_count(Vario      *vario,
   for (imod=0; imod<2; imod++)
   {
     model = (imod == 0) ? model1 : model2;
-    if (model == (Model *) NULL) continue;
+    if (model == nullptr) continue;
 
     /* Initializations */
 
@@ -4295,7 +4296,7 @@ static void st_strmod_vmap_evaluate(int     nbexp,
 ** \remark  serve as initial value for the sill of the Model
 **
 *****************************************************************************/
-static void st_vario_varchol_manage(Vario *vario,
+static void st_vario_varchol_manage(const Vario *vario,
                                     Model *model,
                                     VectorDouble& varchol)
 {
@@ -4309,7 +4310,7 @@ static void st_vario_varchol_manage(Vario *vario,
   nvar  = vario->getVariableNumber();
   size  = nvar * (nvar+1) /  2;
   nvar2 = nvar * nvar;
-  model_nugget = (Model *) NULL;
+  model_nugget = nullptr;
   
     /* Allocation */
 
@@ -4353,7 +4354,7 @@ static void st_vario_varchol_manage(Vario *vario,
 ** \param[out] varchol  Cholesky array
 **
 *****************************************************************************/
-static void st_vmap_varchol_manage(Db *dbmap,
+static void st_vmap_varchol_manage(const Db *dbmap,
                                    VectorDouble& varchol)
 {
   int     nvar,size,nvar2,i,iloc,ivar;
@@ -4509,17 +4510,17 @@ static void st_regularize_init()
 ** \param[in]  vario       Vario structure containing the exp. variogram
 ** \param[in]  model       Model structure containing the basic structures
 ** \param[in]  verbose     Verbose flag
-** \param[in]  mauto       Option_AutoFit structure
-** \param[in]  consarg     Constraints structure
-** \param[in]  optvar      Opt_Vario structure
+** \param[in]  mauto_arg   Option_AutoFit structure
+** \param[in]  cons_arg    Constraints structure
+** \param[in]  optvar_arg  Opt_Vario structure
 **
 *****************************************************************************/
-GEOSLIB_API int model_auto_fit(Vario      *vario,
+GEOSLIB_API int model_auto_fit(const Vario      *vario,
                                Model      *model,
                                bool        verbose,
-                               Option_AutoFit     mauto,
-                               const Constraints& consarg,
-                               Option_VarioFit    optvar)
+                               const Option_AutoFit& mauto_arg,
+                               const Constraints& cons_arg,
+                               const Option_VarioFit& optvar_arg)
 {
   int      i,error,status,nbexp,norder,npar,npadir,npar0;
   int      flag_hneg,flag_gneg,flag_reduce,nvar,ncova,ndim,flag_regular;
@@ -4529,17 +4530,22 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
   VectorDouble varchol, scale, param, lower, upper;
   static int flag_check_result = 0;
 
+  // Getting local copy of const references
+
+  Option_AutoFit mauto = mauto_arg;
+  Option_VarioFit optvar = optvar_arg;
+  Constraints constraints = cons_arg;
+
   /* Initializations */
 
   nbexp   = status = npadir = 0;
-  strmod  = (StrMod  *) NULL;
+  strmod  = nullptr;
   ncova   = model->getCovaNumber();
   ndim    = model->getDimensionNumber();
   nvar    = vario->getVariableNumber();
   VectorDouble angles;
   st_regularize_init();
   mauto.setVerbose(verbose);
-  Constraints constraints = consarg;
 
   /* Preliminary checks */
 
@@ -4618,14 +4624,14 @@ GEOSLIB_API int model_auto_fit(Vario      *vario,
   
   /* Generate the default values */
 
-  npar0 = st_model_auto_count(vario,model,(Model *) NULL,constraints,optvar,
+  npar0 = st_model_auto_count(vario,model,nullptr,constraints,optvar,
                               param,lower,upper);
 
   /* Create the Model structures */
 
   strmod = st_model_auto_strmod_alloc(model,NULL,npar0,norder,hmax,angles,
                                       optvar,&npar);
-  if (strmod == (StrMod *) NULL)  goto label_end;
+  if (strmod == nullptr)  goto label_end;
 
   /* Load the arrays */
 
@@ -4732,8 +4738,8 @@ GEOSLIB_API int model_fitting_sills(Vario *vario,
   /* Initializations */
   /*******************/
 
-  if (model == (Model *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (model == nullptr) return(1);
+  if (vario == nullptr) return(1);
   ndir   = vario->getDirectionNumber();
   ndim   = model->getDimensionNumber();
   nvar   = model->getVariableNumber();
@@ -4796,7 +4802,7 @@ GEOSLIB_API int model_fitting_sills(Vario *vario,
 ** \param[out] upper Array giving the maximum parameter value
 **
 *****************************************************************************/
-static int st_vmap_auto_count(Db         *dbmap,
+static int st_vmap_auto_count(const Db         *dbmap,
                               Model      *model,
                               Constraints& constraints,
                               Option_VarioFit& optvar,
@@ -4979,30 +4985,35 @@ static void st_load_vmap(int     npadir,
 ** \param[in]  dbmap       Db Grid structure containing the Vmap
 ** \param[in]  model       Model structure containing the basic structures
 ** \param[in]  verbose     Verbose flag
-** \param[in]  mauto       Option_AutoFit structure
-** \param[in]  consarg     Constraints structure
-** \param[in]  optvar      Opt_Vario structure
+** \param[in]  mauto_arg   Option_AutoFit structure
+** \param[in]  cons_arg    Constraints structure
+** \param[in]  optvar_arg  Opt_Vario structure
 **
 *****************************************************************************/
-GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
+GEOSLIB_API int vmap_auto_fit(const Db         *dbmap,
                               Model      *model,
                               bool        verbose,
-                              Option_AutoFit mauto,
-                              const Constraints& consarg,
-                              Option_VarioFit optvar)
+                              const Option_AutoFit& mauto_arg,
+                              const Constraints& cons_arg,
+                              const Option_VarioFit& optvar_arg)
 {
   int      i,error,status,nbexp,norder,npar0,npar,npadir,ndim;
   int      flag_reduce,ncova,nvar,idim;
   double   hmax,gmax;
   StrMod  *strmod;
   VectorDouble varchol, scale, param, lower, upper;
-  Constraints constraints = consarg;
+
+  // Copy of const reference classes
+
+  Option_AutoFit mauto = mauto_arg;
+  Constraints constraints = cons_arg;
+  Option_VarioFit optvar = optvar_arg;
 
   /* Initializations */
 
   nbexp   = status = norder = npadir = 0;
   hmax    = gmax = 0.;
-  strmod  = (StrMod  *) NULL;
+  strmod  = nullptr;
   ncova   = model->getCovaNumber();
   nvar    = model->getVariableNumber();
   ndim    = model->getDimensionNumber();
@@ -5054,9 +5065,9 @@ GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
   hmax /= 2.;
   DBMAP = dbmap;
   INDG1 = db_indg_alloc(dbmap);
-  if (INDG1 == (int *) NULL) goto label_end;
+  if (INDG1 == nullptr) goto label_end;
   INDG2 = db_indg_alloc(dbmap);
-  if (INDG2 == (int *) NULL) goto label_end;
+  if (INDG2 == nullptr) goto label_end;
 
   /* Core allocation */
 
@@ -5071,7 +5082,7 @@ GEOSLIB_API int vmap_auto_fit(Db         *dbmap,
 
   strmod = st_model_auto_strmod_alloc(model,NULL,npar0,norder,hmax,angles,
                                       optvar,&npar);
-  if (strmod == (StrMod *) NULL)  goto label_end;
+  if (strmod == nullptr)  goto label_end;
   if (npar == 0)
   {
     messerr("The VMAP Automatic Fitting procedure");

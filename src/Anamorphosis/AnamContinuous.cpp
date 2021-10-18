@@ -120,7 +120,7 @@ VectorDouble AnamContinuous::GaussianToRawVector(const VectorDouble& y) const
 
 int AnamContinuous::RawToGaussian(Db *db, const String& name, NamingConvention namconv)
 {
-  if (db == (Db *) NULL) return 1;
+  if (db == nullptr) return 1;
   VectorString exp_names = expandList(db->getNames(),name);
   if (exp_names.empty()) return 1;
 
@@ -143,7 +143,7 @@ int AnamContinuous::RawToGaussian(Db *db, const String& name, NamingConvention n
 
 int AnamContinuous::RawToGaussian(Db *db, const ELoc& locatorType, NamingConvention namconv)
 {
-  if (db == (Db *) NULL) return 1;
+  if (db == nullptr) return 1;
   int number = db->getLocatorNumber(locatorType);
   if (number <= 0) return 1;
 
@@ -162,7 +162,7 @@ int AnamContinuous::RawToGaussian(Db *db, const ELoc& locatorType, NamingConvent
 
 int AnamContinuous::GaussianToRaw(Db *db,const String& name, NamingConvention namconv)
 {
-  if (db == (Db *) NULL) return 1;
+  if (db == nullptr) return 1;
   VectorString exp_names = expandList(db->getNames(), name);
   if (exp_names.empty()) return 1;
 
@@ -185,7 +185,7 @@ int AnamContinuous::GaussianToRaw(Db *db,const String& name, NamingConvention na
 
 int AnamContinuous::GaussianToRaw(Db *db, const ELoc& locatorType, NamingConvention namconv)
 {
-  if (db == (Db *) NULL) return 1;
+  if (db == nullptr) return 1;
   int number = db->getLocatorNumber(locatorType);
   if (number <= 0) return 1;
 

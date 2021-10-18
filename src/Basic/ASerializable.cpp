@@ -11,6 +11,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -93,8 +94,8 @@ int ASerializable::_fileOpen(const String& filename,
 
   // Build the multi-platform filename and open it
   String fileComplete = buildFileName(filename, true);
-  _file = fopen(fileComplete.c_str(), mode.c_str());
-  if (_file == (FILE *) NULL)
+  _file = gslFopen(fileComplete, mode);
+  if (_file == nullptr)
   {
     messerr("Error when opening the Neutral File %s", fileComplete.c_str());
     return 1;
@@ -224,8 +225,8 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
 
   /* Loop on the elements to read (from the format) */
 
-  unsigned int ideb = 0;
-  while (ideb < format.size())
+  int ideb = 0;
+  while (ideb < static_cast<int>(format.size()))
   {
     /* Eliminate the blanks */
 
@@ -247,7 +248,7 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
         LINE[wsize] = 0;
       else
         LINE[strlen(LINE)-1] = '\0';
-      (void) strcpy(LINE_MEM, LINE);
+      (void) gslStrcpy(LINE_MEM, gslArraySize(LINE_MEM), LINE);
 
       /* Eliminate the comments and replace <TAB> by blank*/
 
@@ -398,7 +399,7 @@ void ASerializable::_fileWrite(const String& format, va_list ap) const
 
 bool ASerializable::_onlyBlanks(char *string) const
 {
-  int number = strlen(string);
+  int number = static_cast<int>(strlen(string));
   for (int i = 0; i < number; i++)
   {
     if (string[i] != ' ') return false;
@@ -448,10 +449,11 @@ String ASerializable::getHomeDirectory(const std::string& sub)
 #if defined(_WIN32) || defined(_WIN64)
   char* HomeDirectory = getenv("HOMEDIR");
   const char* Homepath = getenv("HOMEPATH");
-  HomeDirectory = static_cast<char *>(malloc(strlen(HomeDirectory)+strlen(Homepath)+1));
+  int size = strlen(HomeDirectory) + strlen(Homepath) + 1;
+  HomeDirectory = static_cast<char *>(malloc(size));
   strcat(HomeDirectory, Homepath);
 #else
-  const char* HomeDirectory = getenv("HOME");
+  const char* HomeDirectory = std::getenv("HOME");
 #endif
   std::stringstream sstr;
   // TODO : Cross-platform way to build file path (use boost ?)

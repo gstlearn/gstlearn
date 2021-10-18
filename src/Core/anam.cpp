@@ -545,7 +545,7 @@ GEOSLIB_API double anam_y2z(Anam   *anam,
                             double  y,
                             int     flag_bound)
 {
-  if (anam == (Anam *) NULL) return(y);
+  if (anam == nullptr) return(y);
   if (anam->getType() == EAnam::HERMITIAN)
   {
     AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(anam);
@@ -697,7 +697,7 @@ static void st_interpolate_qt_local(double  z_max,
 
   /* Initializations */
 
-  zz = TT = QQ = (double *) NULL;
+  zz = TT = QQ = nullptr;
 
   /* Core allocation */
 
@@ -1292,8 +1292,8 @@ GEOSLIB_API int anam_discrete_z2factor(Anam   *anam,
   /* Preliminary checks */
 
   error = 1;
-  if (anam == (Anam *) NULL) return(1);
-  if (db   == (Db   *) NULL) return(1);
+  if (anam == nullptr) return(1);
+  if (db   == nullptr) return(1);
   if (nfact <= 0) return(1);
   AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
@@ -1391,7 +1391,7 @@ GEOSLIB_API int anam_point_to_block(Anam   *anam,
   /* Initializations */
 
   error = 1;
-  if (anam == (Anam *) NULL) return(1);
+  if (anam == nullptr) return(1);
   AnamHermite*     anam_hermite     = dynamic_cast<AnamHermite*>(anam);
   AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
@@ -1521,7 +1521,7 @@ GEOSLIB_API int anam_get_r(Anam   *anam,
 
   /* Initializations */
 
-  if (anam == (Anam *) NULL) return(1);
+  if (anam == nullptr) return(1);
   AnamHermite*     anam_hermite     = dynamic_cast<AnamHermite*>(anam);
   AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
@@ -1590,14 +1590,14 @@ static int st_is_sample_skipped(Db     *db,
 
   if (! db->isActive(iech)) return(1);
 
-  if (cols_est != (int *) NULL)
+  if (cols_est != nullptr)
     for (int ivar=0; ivar<nb_est; ivar++)
     {
       value = db->getArray(iech,cols_est[ivar]);
       if (FFFF(value)) return(1);
     }
   
-  if (cols_std != (int *) NULL)
+  if (cols_std != nullptr)
     for (int ivar=0; ivar<nb_std; ivar++)
     {
       value = db->getArray(iech,cols_std[ivar]);
@@ -2388,7 +2388,7 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
 
   error  = 1;
   iptr   = -1;
-  calest = calcut = (double *) NULL;
+  calest = calcut = nullptr;
   flag_inter = 0;
   AnamHermite*     anam_hermite     = dynamic_cast<AnamHermite*>(anam);
   AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
@@ -2397,8 +2397,8 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
   /* Preliminary checks */
 
   (*ncut) = 0;
-  if (db   == (Db   *) NULL) goto label_end;
-  if (anam == (Anam *) NULL) goto label_end;
+  if (db   == nullptr) goto label_end;
+  if (anam == nullptr) goto label_end;
   if (nb_est <= 0 && nb_std <= 0)
   {
     messerr("The number of factors is zero");
@@ -2567,13 +2567,13 @@ GEOSLIB_API int anam_vario_z2y(Anam   *anam,
   /* Preliminary checks */
 
   error = 1;
-  if (anam == (Anam *) NULL) goto label_end;
+  if (anam == nullptr) goto label_end;
   if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("This function is restricted to Gaussian Anamorphosis");
     goto label_end;
   }
-  if (vario == (Vario *) NULL) goto label_end;
+  if (vario == nullptr) goto label_end;
   if (vario->getVariableNumber() != 1)
   {
     messerr("This function is restricted to Monovariate Variogram");
@@ -2644,7 +2644,7 @@ GEOSLIB_API int uc_f(Db *db,
 
   error  = 1;
   iptr = iptr_sV = iptr_yV = -1;
-  calest = (double *) NULL;
+  calest = nullptr;
   vv_min = zv_min = sv_min = yv_min =  1.e30;
   vv_max = zv_max = sv_max = yv_max = -1.e30;
   AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(anam);
@@ -2652,8 +2652,8 @@ GEOSLIB_API int uc_f(Db *db,
 
   /* Preliminary checks */
 
-  if (db   == (Db   *) NULL) goto label_end;
-  if (anam == (Anam *) NULL) goto label_end;
+  if (db   == nullptr) goto label_end;
+  if (anam == nullptr) goto label_end;
   if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("Uniform Conditioning is restricted to Hermitian Anamorphosis");
@@ -3337,13 +3337,13 @@ static double *st_ztoy_cutoffs(AnamHermite *anam_hermite,
 
   // Initializations
 
-  yc = (double *) NULL;
+  yc = nullptr;
   if (ncutmine < 0) return(yc);
 
   // Core allocation
 
   yc = (double *) mem_alloc(sizeof(double) * ncutmine,0);
-  if (yc == (double *) NULL) return(yc);
+  if (yc == nullptr) return(yc);
 
   // Loop on the cutoff values
 
@@ -3401,7 +3401,7 @@ GEOSLIB_API int ce_f(Db *db,
   error  = 1;
   count  = need_T = need_Q = 0;
   iptr_Z = iptr_T = iptr_Q = iptr_B = iptr_M = iptr_PROBA = iptr_QUANT = -1;
-  yc     = (double *) NULL;
+  yc     = nullptr;
   AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(anam);
 
   if (anam->getType() != EAnam::HERMITIAN)
@@ -3425,7 +3425,7 @@ GEOSLIB_API int ce_f(Db *db,
   need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M) ||
       QT_FLAG(ANAM_QT_PROBA);
   need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
-  if (yc == (double *) NULL) need_T = need_Q = 0;
+  if (yc == nullptr) need_T = need_Q = 0;
   
   /* Add the variables */
 

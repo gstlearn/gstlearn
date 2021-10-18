@@ -856,7 +856,7 @@
                                   Vario_Order *vorder,
                                   int *npair);
   GEOSLIB_API int variovect_compute(Db *db, Vario *vario, int ncomp);
-  GEOSLIB_API void variogram_extension(Vario *vario,
+  GEOSLIB_API void variogram_extension(const Vario *vario,
                                        int ivar,
                                        int jvar,
                                        int idir0,
@@ -873,13 +873,13 @@
                                        double *hmax,
                                        double *gmin,
                                        double *gmax);
-  GEOSLIB_API int code_comparable(Db *db1,
-                                  Db *db2,
+  GEOSLIB_API int code_comparable(const Db *db1,
+                                  const Db *db2,
                                   int iech,
                                   int jech,
                                   int opt_code,
                                   int tolcode);
-  GEOSLIB_API int variogram_reject_pair(Db *db,
+  GEOSLIB_API int variogram_reject_pair(const Db *db,
                                         int iech,
                                         int jech,
                                         double dist,
@@ -1016,7 +1016,7 @@
                                            double *covtab);
   GEOSLIB_API void model_calcul_drift(Model *model,
                                       const ECalcMember& member,
-                                      Db *db,
+                                      const Db *db,
                                       int iech,
                                       double *drftab);
   GEOSLIB_API void model_variance0(Model *model,
@@ -1220,7 +1220,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                  double *nugget);
   GEOSLIB_API double model_drift_evaluate(int verbose,
                                           Model *model,
-                                          Db *db,
+                                          const Db *db,
                                           int iech,
                                           int ivar,
                                           double *coef,
@@ -1465,21 +1465,21 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                       const VectorInt& order = VectorInt());
   GEOSLIB_API VectorInt grid_iterator_next(GridC *grid);
 
-  GEOSLIB_API int *db_indg_alloc(Db *db);
+  GEOSLIB_API int *db_indg_alloc(const Db *db);
   GEOSLIB_API int *db_indg_free(int *indice);
   GEOSLIB_API double *db_sample_free(double *tab);
   GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType);
   GEOSLIB_API int db_sample_load(Db *db, const ELoc& locatorType, int iech, double *tab);
   GEOSLIB_API double *db_vector_free(double *tab);
-  GEOSLIB_API double *db_vector_alloc(Db *db);
-  GEOSLIB_API int db_selection_get(Db *db, int item, double *tab);
+  GEOSLIB_API double *db_vector_alloc(const Db *db);
+  GEOSLIB_API int db_selection_get(const Db *db, int item, double *tab);
   GEOSLIB_API int db_vector_get(Db *db, const ELoc& locatorType, int locatorIndex, double *tab);
   GEOSLIB_API int db_vector_put(Db *db, const ELoc& locatorType, int locatorIndex, double *tab);
   GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
                                                  int icol,
                                                  int *number,
                                                  double *tab);
-  GEOSLIB_API int db_vector_get_att(Db *db, int iatt, double *tab);
+  GEOSLIB_API int db_vector_get_att(const Db *db, int iatt, double *tab);
   GEOSLIB_API int db_vector_get_att_sel(Db *db, int iatt, double *tab);
   GEOSLIB_API int db_name_set(Db *db, int iatt, const String& name);
   GEOSLIB_API String db_name_get_by_att(const Db *db, int iatt);
@@ -1512,7 +1512,7 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
                                        const VectorInt& current,
                                        int flag_locnew);
   GEOSLIB_API int db_coorvec_put(Db *db, int idim, double *tab);
-  GEOSLIB_API int db_coorvec_get(Db *db, int idim, double *tab);
+  GEOSLIB_API int db_coorvec_get(const Db *db, int idim, double *tab);
   GEOSLIB_API Db *db_delete(Db *db);
   GEOSLIB_API int db_grid_match(Db *db1, Db *db2);
   GEOSLIB_API int db_is_isotropic(Db *db, int iech, double *data);
@@ -1544,12 +1544,12 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                        double *mini_arg,
                                        double *maxi_arg,
                                        double *delta_arg);
-  GEOSLIB_API int db_attribute_range(Db *db,
+  GEOSLIB_API int db_attribute_range(const Db *db,
                                      int icol,
                                      double *mini,
                                      double *maxi,
                                      double *delta);
-  GEOSLIB_API int db_extension_diag(Db *db, double *diag);
+  GEOSLIB_API int db_extension_diag(const Db *db, double *diag);
   GEOSLIB_API double db_epsilon_distance(Db *db);
   GEOSLIB_API int db_index_grid_to_sample(const Db *db, const int* indg);
   GEOSLIB_API void db_index_sample_to_grid(const Db *db, int iech, int *indg);
@@ -1602,7 +1602,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                     int iech1,
                                     int iech2,
                                     double *dist_vect);
-  GEOSLIB_API double distance_intra(Db *db,
+  GEOSLIB_API double distance_intra(const Db *db,
                                     int iech1,
                                     int iech2,
                                     double *dist_vect);
@@ -1620,8 +1620,8 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                            int *n2,
                                            double *dmin,
                                            double *dmax);
-  GEOSLIB_API double bench_distance(Db *db, int iech1, int iech2);
-  GEOSLIB_API double cylinder_radius(Db *db,
+  GEOSLIB_API double bench_distance(const Db *db, int iech1, int iech2);
+  GEOSLIB_API double cylinder_radius(const Db *db,
                                      int iech1,
                                      int iech2,
                                      const VectorDouble& codir);

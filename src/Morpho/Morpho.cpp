@@ -1170,7 +1170,7 @@ VectorInt gridcell_neigh(int ndim,
   /* Initializations */
 
   (*nvois) = 0;
-  indg0 = indg1 = (int *) NULL;
+  indg0 = indg1 = nullptr;
 
   /* Create the grid attributes */
 
@@ -1191,9 +1191,9 @@ VectorInt gridcell_neigh(int ndim,
   nech = grid->getSampleNumber();
   indret.resize(nech * ndim);
   indg0 = db_indg_alloc(grid);
-  if (indg0 == (int *) NULL) goto label_end;
+  if (indg0 == nullptr) goto label_end;
   indg1 = db_indg_alloc(grid);
-  if (indg1 == (int *) NULL) goto label_end;
+  if (indg1 == nullptr) goto label_end;
 
   /* Scan the grid nodes */
 

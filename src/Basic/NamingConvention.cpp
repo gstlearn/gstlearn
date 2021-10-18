@@ -146,13 +146,13 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
   {
     names = dbin->getNames(locatorInType);
-    if (nvar <= 0) nvar = names.size();
+    if (nvar <= 0) nvar = static_cast<int>(names.size());
   }
   else
   {
     if (nvar < 0) nvar = 1;
   }
-  if (nvar != (int) names.size()) names.resize(nvar);
+  if (nvar != static_cast<int>(names.size())) names.resize(nvar);
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
 }
@@ -177,7 +177,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
 {
   if (iattout_start <= 0) return;
   if (dbin == nullptr) return;
-  int nvar = static_cast<int> (iatts.size());
+  int nvar = static_cast<int>(iatts.size());
   if (nvar <= 0) return;
 
   VectorString names;
@@ -249,12 +249,12 @@ void NamingConvention::_setNames(Db *dbout,
                                  int nitems) const
 {
   int ecr = 0;
-  int nvar = (names.empty()) ? 1 : static_cast<int> (names.size());
+  int nvar = (names.empty()) ? 1 : static_cast<int>(names.size());
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     String local;
-    if ((int) names.size() == nvar) local = names[ivar];
+    if (static_cast<int>(names.size()) == nvar) local = names[ivar];
     if (local.empty() && nvar > 1) local = std::to_string(ivar+1);
 
     for (int item = 0; item < nitems; item++)

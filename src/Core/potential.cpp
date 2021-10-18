@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Drifts/EDrift.hpp"
 #include "geoslib_e.h"
@@ -122,11 +123,11 @@ static void st_pot_env_manage(int mode,
     pot_env->start_tgt     = 0;
     pot_env->start_drf     = 0;
     pot_env->start_ext     = 0;
-    pot_env->nb_per_layer  = (int *) NULL;
-    pot_env->ptr_per_layer = (int *) NULL;
-    pot_env->rank_iso      = (int *) NULL;
-    pot_env->rank_grd      = (int *) NULL;
-    pot_env->rank_tgt      = (int *) NULL;
+    pot_env->nb_per_layer  = nullptr;
+    pot_env->ptr_per_layer = nullptr;
+    pot_env->rank_iso      = nullptr;
+    pot_env->rank_grd      = nullptr;
+    pot_env->rank_tgt      = nullptr;
   }
   else
   {
@@ -163,11 +164,11 @@ static int st_update_isopot(Db      *dbiso,
 
   // Initializations
 
-  if (dbiso == (Db *) NULL) return(0);
+  if (dbiso == nullptr) return(0);
   error = 1;
   nech = dbiso->getSampleNumber();
   nlayers = niso = size_iso = 0;
-  layval = laycnt = (int *) NULL;
+  layval = laycnt = nullptr;
 
   // Count the number of different iso-potential values 
 
@@ -215,11 +216,11 @@ static int st_update_isopot(Db      *dbiso,
   // Core allocation 
 
   pot_env->nb_per_layer   = (int *) mem_alloc(sizeof(int) * nlayers,0);
-  if (pot_env->nb_per_layer   == (int *) NULL) goto label_end;
+  if (pot_env->nb_per_layer   == nullptr) goto label_end;
   pot_env->ptr_per_layer  = (int *) mem_alloc(sizeof(int) * nlayers,0);
-  if (pot_env->ptr_per_layer  == (int *) NULL) goto label_end;
+  if (pot_env->ptr_per_layer  == nullptr) goto label_end;
   pot_env->rank_iso       = (int *) mem_alloc(sizeof(int) * niso,0);
-  if (pot_env->rank_iso       == (int *) NULL) goto label_end;
+  if (pot_env->rank_iso       == nullptr) goto label_end;
 
   // Set the final length and pointers 
 
@@ -296,14 +297,14 @@ static int st_update_gradient(Db      *dbgrd,
 {
   int found,ngrd,nech;
 
-  if (dbgrd == (Db *) NULL) return(0);
+  if (dbgrd == nullptr) return(0);
   nech = dbgrd->getSampleNumber();
   ngrd = 0;
 
   // Core allocation 
 
   pot_env->rank_grd = (int *) mem_alloc(sizeof(int) * nech,0);
-  if (pot_env->rank_grd == (int *) NULL) return(1);
+  if (pot_env->rank_grd == nullptr) return(1);
 
   // Loop on the gradients
 
@@ -366,14 +367,14 @@ static int st_update_tangent(Db      *dbtgt,
 {
   int found,ntgt,nech;
 
-  if (dbtgt == (Db *) NULL) return(0);
+  if (dbtgt == nullptr) return(0);
   nech = dbtgt->getSampleNumber();
   ntgt = 0;
 
   // Core allocation 
 
   pot_env->rank_tgt = (int *) mem_alloc(sizeof(int) * nech,0);
-  if (pot_env->rank_tgt == (int *) NULL) return(1);
+  if (pot_env->rank_tgt == nullptr) return(1);
 
   // Loop on the tangents
 
@@ -864,7 +865,7 @@ label_end:
 static void st_get_center(Db      *dbiso,
                           double  *center)
 {
-  //  if (dbiso != (Db *) NULL) 
+  //  if (dbiso != nullptr) 
   //    db_center(dbiso,center);
   //  else
   for (int idim=0; idim<3; idim++) center[idim] = 0.;
@@ -2414,9 +2415,9 @@ static void st_save_manage(int     mode,
   }
   else
   {
-    (void) sprintf(STRING,"%s.pot",radix);
+    (void) gslSPrintf(STRING,gslArraySize(STRING),"%s.pot",radix);
     set_keypair(STRING,1,nech,1,potval);
-    (void) sprintf(STRING,"%s.grd",radix);
+    (void) gslSPrintf(STRING,gslArraySize(STRING),"%s.grd",radix);
     set_keypair(STRING,1,nech,ndim,potgrd);
     potval = (double *) mem_free((char *) potval);
     potgrd = (double *) mem_free((char *) potgrd);
@@ -2468,7 +2469,7 @@ static void st_check_data(Pot_Env *pot_env,
   
   /* For the Iso-Potential file */
 
-  if (dbiso != (Db *) NULL)
+  if (dbiso != nullptr)
   {
     if (VERBOSE)
       mestitle(1,"Iso-Potential Information");
@@ -2514,7 +2515,7 @@ static void st_check_data(Pot_Env *pot_env,
 
   /* For the Gradient file */
 
-  if (dbgrd != (Db *) NULL)
+  if (dbgrd != nullptr)
   {
     if (VERBOSE)
       mestitle(1,"Gradient Information");
@@ -2559,7 +2560,7 @@ static void st_check_data(Pot_Env *pot_env,
 
   /* For the Tangent file */
 
-  if (dbtgt != (Db *) NULL)
+  if (dbtgt != nullptr)
   {
     if (VERBOSE)
       mestitle(1,"Tangent Information");
@@ -2629,7 +2630,7 @@ static double st_evaluate_refpot(Pot_Env *pot_env,
   double result[4];
   int    ip1,ic;
 
-  if (dbiso == (Db *) NULL) return(TEST);
+  if (dbiso == nullptr) return(TEST);
 
   // Calculate the reference values for isopotentials 
   
@@ -2683,7 +2684,7 @@ static void st_evaluate_potval(Pot_Env *pot_env,
   double result[4];
   int    ip1;
 
-  if (dbiso == (Db *) NULL) return;
+  if (dbiso == nullptr) return;
 
   // Calculate the reference values for isopotentials 
   
@@ -2711,9 +2712,9 @@ static void st_evaluate_potval(Pot_Env *pot_env,
   // Save the result using the keypair mechanism
 
   if (nbsimu > 0)
-    (void) sprintf(STRING,"Potential.Simulation.%d",isimu+1);
+    (void) gslSPrintf(STRING,gslArraySize(STRING),"Potential.Simulation.%d",isimu+1);
   else
-    (void) sprintf(STRING,"Potential.Estimation");
+    (void) gslSPrintf(STRING,gslArraySize(STRING),"Potential.Estimation");
   set_keypair(STRING,1,pot_env->nlayers,1,potval);
 
   // Sort them by ascending order 
@@ -2840,7 +2841,7 @@ static int st_extdrift_create_db(Db      *dbout,
 
   pot_ext->db = db_create_grid(dbout->isGridRotated(),pot_ext->ndim,0,ELoadBy::COLUMN,1,
                                nx,x0,dbout->getDX(),dbout->getAngles());
-  if (pot_ext->db == (Db *) NULL) goto label_end;
+  if (pot_ext->db == nullptr) goto label_end;
   pot_ext->nfull = nech;
 
   /* Add the selection */
@@ -2850,13 +2851,13 @@ static int st_extdrift_create_db(Db      *dbout,
   /* Complementary core allocation */
 
   pot_ext->data   = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (pot_ext->data   == (double *) NULL) goto label_end;
+  if (pot_ext->data   == nullptr) goto label_end;
   pot_ext->weight = (double *) mem_alloc(sizeof(double) * nech * 4,0);
-  if (pot_ext->weight == (double *) NULL) goto label_end;
+  if (pot_ext->weight == nullptr) goto label_end;
   pot_ext->indg0  = (int    *) mem_alloc(sizeof(int) * 3,0);
-  if (pot_ext->indg0  == (int    *) NULL) goto label_end;
+  if (pot_ext->indg0  == nullptr) goto label_end;
   pot_ext->indg   = (int    *) mem_alloc(sizeof(int) * 3,0);
-  if (pot_ext->indg   == (int    *) NULL) goto label_end;
+  if (pot_ext->indg   == nullptr) goto label_end;
 
   /* Set the error return code */
 
@@ -2894,7 +2895,7 @@ static int st_extdrift_calc_init(Db      *dbout,
   /* Initializations */
 
   error = 1;  
-  a = b = (double *) NULL;
+  a = b = nullptr;
 
   /* Creating the Db for neighborhood */
 
@@ -2908,9 +2909,9 @@ static int st_extdrift_calc_init(Db      *dbout,
   /* Core allocation */
 
   a   = (double *) mem_alloc(sizeof(double) * number * number,0);
-  if (a   == (double *) NULL) goto label_end;
+  if (a   == nullptr) goto label_end;
   b   = (double *) mem_alloc(sizeof(double) * number * 4,0);
-  if (b   == (double *) NULL) goto label_end;
+  if (b   == nullptr) goto label_end;
   
   /* Solve the kriging system */
 
@@ -2955,12 +2956,12 @@ static int st_pot_ext_manage(int      mode,
       pot_ext->nring  = 0;
       pot_ext->nfull  = 0;
       pot_ext->range  = 0.;
-      pot_ext->db     = (Db     *) NULL;
-      pot_ext->model  = (Model  *) NULL;
-      pot_ext->indg   = (int    *) NULL;
-      pot_ext->indg0  = (int    *) NULL;
-      pot_ext->data   = (double *) NULL;
-      pot_ext->weight = (double *) NULL;
+      pot_ext->db     = nullptr;
+      pot_ext->model  = nullptr;
+      pot_ext->indg   = nullptr;
+      pot_ext->indg0  = nullptr;
+      pot_ext->data   = nullptr;
+      pot_ext->weight = nullptr;
       return(0);
       
     case 1:                     /* Allocation */
@@ -3044,7 +3045,7 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
   // Initialization
 
   error = 1;
-  lhs = zval = zdualk = rhs = potval = (double *) NULL;
+  lhs = zval = zdualk = rhs = potval = nullptr;
   st_pot_env_manage(1,verbose,&pot_env);
   st_pot_ext_manage(0,&pot_ext,0,0.,NULL);
 
@@ -3057,12 +3058,12 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
     messerr("The input Db must be defined in Space with dimension < 3");
     goto label_end;
   }
-  if (dbgrd != (Db *) NULL && dbgrd->getNDim() != pot_env.ndim)
+  if (dbgrd != nullptr && dbgrd->getNDim() != pot_env.ndim)
   {
     messerr("The Gradient and Data Db must share the same space dimension");
     goto label_end;
   }
-  if (dbtgt != (Db *) NULL && dbtgt->getNDim() != pot_env.ndim)
+  if (dbtgt != nullptr && dbtgt->getNDim() != pot_env.ndim)
   {
     messerr("The Tangent and Data Db must share the same space dimension");
     goto label_end;
@@ -3137,15 +3138,15 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
 
   nequa  = pot_env.nequa;
   lhs    = (double *) mem_alloc(sizeof(double) * nequa * nequa,0);
-  if (lhs    == (double *) NULL) goto label_end;
+  if (lhs    == nullptr) goto label_end;
   zval   = (double *) mem_alloc(sizeof(double) * nequa,0);
-  if (zval   == (double *) NULL) goto label_end;
+  if (zval   == nullptr) goto label_end;
   zdualk = (double *) mem_alloc(sizeof(double) * nequa,0);
-  if (zdualk == (double *) NULL) goto label_end;
+  if (zdualk == nullptr) goto label_end;
   rhs    = (double *) mem_alloc(sizeof(double) * nequa * 4,0);
-  if (rhs    == (double *) NULL) goto label_end;
+  if (rhs    == nullptr) goto label_end;
   potval = (double *) mem_alloc(sizeof(double) * pot_env.nlayers,0);
-  if (potval == (double *) NULL) goto label_end;
+  if (potval == nullptr) goto label_end;
 
   // Establish the cokriging system
 
@@ -3288,7 +3289,7 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
   // Initialization
 
   error = 1;
-  lhs = zval = zduals = zdualk = rhs = potsim = potval = (double *) NULL;
+  lhs = zval = zduals = zdualk = rhs = potsim = potval = nullptr;
   st_pot_env_manage(1,verbose,&pot_env);
   st_pot_ext_manage(0,&pot_ext,0,0.,NULL);
   law_set_random_seed(seed);
@@ -3306,12 +3307,12 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
     messerr("The input Db must be defined in Space with dimension < 3");
     goto label_end;
   }
-  if (dbgrd != (Db *) NULL && dbgrd->getNDim() != pot_env.ndim)
+  if (dbgrd != nullptr && dbgrd->getNDim() != pot_env.ndim)
   {
     messerr("The Gradient and Data Db must share the same space dimension");
     goto label_end;
   }
-  if (dbtgt != (Db *) NULL && dbtgt->getNDim() != pot_env.ndim)
+  if (dbtgt != nullptr && dbtgt->getNDim() != pot_env.ndim)
   {
     messerr("The Tangent and Data Db must share the same space dimension");
     goto label_end;
@@ -3377,9 +3378,9 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
   /* Add the attributes for storing the results */
 
   dbiso->addFields(nbsimu,0.,String(),ELoc::SIMU);
-  if (dbgrd != (Db *) NULL)
+  if (dbgrd != nullptr)
     (void) dbgrd->addFields(2*nbsimu*pot_env.ndim,0.,String(),ELoc::SIMU);
-  if (dbtgt != (Db *) NULL)
+  if (dbtgt != nullptr)
     (void) dbtgt->addFields(2*nbsimu*pot_env.ndim,0.,String(),ELoc::SIMU);
   (void) dbout->addFields(nbsimu,0.,String(),ELoc::SIMU);
   if (flag_tempere)
@@ -3394,21 +3395,21 @@ GEOSLIB_API int potential_simulate(Db    *dbiso,
 
   nequa  = pot_env.nequa;
   lhs    = (double *) mem_alloc(sizeof(double) * nequa * nequa,0);
-  if (lhs    == (double *) NULL) goto label_end;
+  if (lhs    == nullptr) goto label_end;
   zval   = (double *) mem_alloc(sizeof(double) * nequa * nbsimu,0);
-  if (zval   == (double *) NULL) goto label_end;
+  if (zval   == nullptr) goto label_end;
   zduals = (double *) mem_alloc(sizeof(double) * nequa * nbsimu,0);
-  if (zduals == (double *) NULL) goto label_end;
+  if (zduals == nullptr) goto label_end;
   rhs    = (double *) mem_alloc(sizeof(double) * nequa * 4,0);
-  if (rhs    == (double *) NULL) goto label_end;
+  if (rhs    == nullptr) goto label_end;
   potsim = (double *) mem_alloc(sizeof(double) * nlayers * nbsimu,0);
-  if (potsim == (double *) NULL) goto label_end;
+  if (potsim == nullptr) goto label_end;
   potval = (double *) mem_alloc(sizeof(double) * nlayers,0);
-  if (potval == (double *) NULL) goto label_end;
+  if (potval == nullptr) goto label_end;
   if (flag_tempere)
   {
     zdualk = (double *) mem_alloc(sizeof(double) * nequa,0);
-    if (zdualk == (double *) NULL) goto label_end;
+    if (zdualk == nullptr) goto label_end;
   }
 
   // Establish the cokriging system
@@ -3541,7 +3542,7 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
   // Initialization
 
   error = 1;
-  lhs = zval = zdualk = rhs = lhs_orig = lhs_aux = (double *) NULL;
+  lhs = zval = zdualk = rhs = lhs_orig = lhs_aux = nullptr;
   st_pot_env_manage(1,verbose,&pot_env);
   st_pot_ext_manage(0,&pot_ext,0,0.,NULL);
 
@@ -3554,12 +3555,12 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
     messerr("The input Db must be defined in Space with dimension < 3");
     goto label_end;
   }
-  if (dbgrd != (Db *) NULL && dbgrd->getNDim() != pot_env.ndim)
+  if (dbgrd != nullptr && dbgrd->getNDim() != pot_env.ndim)
   {
     messerr("The Gradient and Data Db must share the same space dimension");
     goto label_end;
   }
-  if (dbtgt != (Db *) NULL && dbtgt->getNDim() != pot_env.ndim)
+  if (dbtgt != nullptr && dbtgt->getNDim() != pot_env.ndim)
   {
     messerr("The Tangent and Data Db must share the same space dimension");
     goto label_end;
@@ -3614,19 +3615,19 @@ GEOSLIB_API int potential_xvalid(Db    *dbiso,
 
   nequa  = pot_env.nequa;
   lhs    = (double *) mem_alloc(sizeof(double) * nequa * nequa,0);
-  if (lhs    == (double *) NULL) goto label_end;
+  if (lhs    == nullptr) goto label_end;
   zval   = (double *) mem_alloc(sizeof(double) * nequa,0);
-  if (zval   == (double *) NULL) goto label_end;
+  if (zval   == nullptr) goto label_end;
   zdualk = (double *) mem_alloc(sizeof(double) * nequa,0);
-  if (zdualk == (double *) NULL) goto label_end;
+  if (zdualk == nullptr) goto label_end;
   rhs    = (double *) mem_alloc(sizeof(double) * nequa * 4,0);
-  if (rhs    == (double *) NULL) goto label_end;
+  if (rhs    == nullptr) goto label_end;
   if (flag_dist_conv)
   {
     lhs_orig = (double *) mem_alloc(sizeof(double) * nequa * nequa,0);
-    if (lhs_orig == (double *) NULL) goto label_end;
+    if (lhs_orig == nullptr) goto label_end;
     lhs_aux  = (double *) mem_alloc(sizeof(double) * nequa * nequa,0);
-    if (lhs_aux  == (double *) NULL) goto label_end;
+    if (lhs_aux  == nullptr) goto label_end;
   }
 
   // Establish the cokriging system
@@ -3788,13 +3789,13 @@ GEOSLIB_API int potential_cov(Model  *model,
   if (verbose)
   {
     st_print_type(1,type1);
-    if (x10 != (double *) NULL) print_matrix("x10",0,1,1,ndim,NULL,x10);
-    if (x1p != (double *) NULL) print_matrix("x1p",0,1,1,ndim,NULL,x1p);
-    if (tx1 != (double *) NULL) print_matrix("tx1",0,1,1,ndim,NULL,tx1);
+    if (x10 != nullptr) print_matrix("x10",0,1,1,ndim,NULL,x10);
+    if (x1p != nullptr) print_matrix("x1p",0,1,1,ndim,NULL,x1p);
+    if (tx1 != nullptr) print_matrix("tx1",0,1,1,ndim,NULL,tx1);
     st_print_type(2,type2);
-    if (x20 != (double *) NULL) print_matrix("x20",0,1,1,ndim,NULL,x20);
-    if (x2p != (double *) NULL) print_matrix("x2p",0,1,1,ndim,NULL,x2p);
-    if (tx2 != (double *) NULL) print_matrix("tx2",0,1,1,ndim,NULL,tx2);
+    if (x20 != nullptr) print_matrix("x20",0,1,1,ndim,NULL,x20);
+    if (x2p != nullptr) print_matrix("x2p",0,1,1,ndim,NULL,x2p);
+    if (tx2 != nullptr) print_matrix("tx2",0,1,1,ndim,NULL,tx2);
   }
   
   /* Dispatch */

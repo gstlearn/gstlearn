@@ -32,11 +32,11 @@ int main(int argc, char *argv[])
 
   /* Initializations */
 
-  db    = (Db    *) NULL;
-  vario = (Vario *) NULL;
-  model = (Model *) NULL;
-  neigh = (Neigh *) NULL;
-  rule  = (Rule  *) NULL;
+  db    = nullptr;
+  vario = nullptr;
+  model = nullptr;
+  neigh = nullptr;
+  rule  = nullptr;
 
   /* Connect the Geoslib Library */
 
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     
     ascii_filename("Data",rank,0,filename);
     db = ascii_db_read(filename,0,verbose);
-    if (db != (Db *) NULL) 
+    if (db != nullptr) 
     {
       db->serialize(filename,verbose);
       db  = db_delete(db);
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     ascii_filename("Grid",rank,0,filename);
     db = ascii_db_read(filename,1,verbose);
-    if (db != (Db *) NULL) 
+    if (db != nullptr) 
     {
       db->serialize(filename,verbose);
       db  = db_delete(db);
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
     ascii_filename("Vario",rank,0,filename);
     vario = ascii_vario_read(filename,verbose);
-    if (vario != (Vario *) NULL) 
+    if (vario != nullptr) 
     {
       vario->serialize(filename,verbose);
       vario  = variogram_delete(vario);
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
     ascii_filename("Model",rank,0,filename);
     model = ascii_model_read(filename,verbose);
-    if (model != (Model *) NULL) 
+    if (model != nullptr) 
     {
       model->serialize(filename,verbose);
       model = model_free(model);
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
     ascii_filename("Neigh",rank,0,filename);
     neigh = ascii_neigh_read(filename,verbose);
-    if (neigh != (Neigh *) NULL) 
+    if (neigh != nullptr) 
     {
       neigh->serialize(filename,verbose);
       neigh = neigh_free(neigh);
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
     ascii_filename("Rule",rank,0,filename);
     rule = ascii_rule_read(filename,verbose);
-    if (rule != (Rule *) NULL) 
+    if (rule != nullptr) 
     {
       rule->serialize(filename,verbose);
       rule = rule_free(rule);

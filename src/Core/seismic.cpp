@@ -11,6 +11,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
@@ -538,14 +539,14 @@ GEOSLIB_API int seismic_z2t_grid(int     verbose,
     return(1);
   }
   error = 1;
-  vv    = (double *) NULL;
+  vv    = nullptr;
   ndim  = db_z->getNDim();
   nech  = db_z->getSampleNumber();
 
   /* Core allocation */
 
   vv = (double *) mem_alloc(nech * sizeof(double),0);
-  if (vv == (double *) NULL) goto label_end;
+  if (vv == nullptr) goto label_end;
   for (i=0; i<ndim; i++)
   {
     nx[i] = db_z->getNX(i);
@@ -618,14 +619,14 @@ GEOSLIB_API int seismic_t2z_grid(int     verbose,
     return(1);
   }
   error = 1;
-  vv    = (double *) NULL;
+  vv    = nullptr;
   ndim  = db_t->getNDim();
   nech  = db_t->getSampleNumber();
 
   /* Core allocation */
 
   vv = (double *) mem_alloc(nech * sizeof(double),0);
-  if (vv == (double *) NULL) goto label_end;
+  if (vv == nullptr) goto label_end;
   for (i=0; i<ndim; i++)
   {
     nx[i] = db_t->getNX(i);
@@ -733,7 +734,7 @@ static int st_match(Db *db_z,
 
   /* Check the grid characteristics */
 
-  if (db_t != (Db *) NULL)
+  if (db_t != nullptr)
   {
     if (! db_t->isSameGrid(db_z->getGrid())) goto label_end;
   }
@@ -1394,7 +1395,7 @@ static double *st_seismic_wavelet(int    verbose,
   ntw2 = 2 * ntw + 1;
   t0   = ntw * dt;
   wavelet = (double *) mem_alloc(sizeof(double) * ntw2,0);
-  if (wavelet == (double *) NULL) return(wavelet);
+  if (wavelet == nullptr) return(wavelet);
   for (it=0; it<ntw2; it++) wavelet[it] = 0.;
 
   /* Dispatch */
@@ -1560,7 +1561,7 @@ GEOSLIB_API int seismic_z2t_convert(Db *db_z,
   dt     = db_t->getDX(ndim-1);
   t1     = t0 + (nt-1) * dt;
   z1     = z0 + (nz-1) * dz;
-  zt = tz = az = at = (double *) NULL;
+  zt = tz = az = at = nullptr;
 
   /* Create the output variables */
 
@@ -1571,13 +1572,13 @@ GEOSLIB_API int seismic_z2t_convert(Db *db_z,
   /* Core allocation */
 
   zt  = (double *) mem_alloc(nt * sizeof(double), 0);
-  if (zt == (double *) NULL) goto label_end;
+  if (zt == nullptr) goto label_end;
   tz  = (double *) mem_alloc(nz * sizeof(double), 0);
-  if (tz == (double *) NULL) goto label_end;
+  if (tz == nullptr) goto label_end;
   az  = (double *) mem_alloc(nz * sizeof(double), 0);
-  if (az == (double *) NULL) goto label_end;
+  if (az == nullptr) goto label_end;
   at  = (double *) mem_alloc(nt * sizeof(double), 0);
-  if (at == (double *) NULL) goto label_end;
+  if (at == nullptr) goto label_end;
 
   /* Perform the conversion from Depth to Time */
 
@@ -1636,7 +1637,7 @@ GEOSLIB_API int seismic_t2z_convert(Db *db_t,
   dt     = db_t->getDX(ndim-1);
   t1     = t0 + (nt-1) * dt;
   z1     = z0 + (nz-1) * dz;
-  zt = tz = az = at = (double *) NULL;
+  zt = tz = az = at = nullptr;
 
   /* Create the output variables */
 
@@ -1647,13 +1648,13 @@ GEOSLIB_API int seismic_t2z_convert(Db *db_t,
   /* Core allocation */
 
   zt  = (double *) mem_alloc(nt * sizeof(double), 0);
-  if (zt == (double *) NULL) goto label_end;
+  if (zt == nullptr) goto label_end;
   tz  = (double *) mem_alloc(nz * sizeof(double), 0);
-  if (tz == (double *) NULL) goto label_end;
+  if (tz == nullptr) goto label_end;
   az  = (double *) mem_alloc(nz * sizeof(double), 0);
-  if (az == (double *) NULL) goto label_end;
+  if (az == nullptr) goto label_end;
   at  = (double *) mem_alloc(nt * sizeof(double), 0);
-  if (at == (double *) NULL) goto label_end;
+  if (at == nullptr) goto label_end;
 
   /* Perform the conversion from Time to Depth */
 
@@ -1695,7 +1696,7 @@ GEOSLIB_API int seismic_operate(Db  *db,
 
   /* Initializations */
 
-  if (st_match(db,(Db *) NULL)) return(1);
+  if (st_match(db,nullptr)) return(1);
   ndim   = db->getNDim();
   natt   = db->getVariableNumber();
   nt     = db->getNX(ndim-1);
@@ -1853,8 +1854,8 @@ GEOSLIB_API int seismic_convolve(Db     *db,
 
   /* Initializations */
 
-  if (st_match(db,(Db *) NULL)) return(1);
-  tab0    = tab1 = tab2 = (double *) NULL;
+  if (st_match(db,nullptr)) return(1);
+  tab0    = tab1 = tab2 = nullptr;
   ndim    = db->getNDim();
   natt    = db->getVariableNumber();
   nz      = db->getNX(ndim-1);
@@ -1868,7 +1869,7 @@ GEOSLIB_API int seismic_convolve(Db     *db,
     wavelet = st_seismic_wavelet(! flag_operate,type,ntw,tindex,dz,fpeak,
                                  period,amplitude,distort);
   }
-  if (wavelet == (double *) NULL) goto label_end;
+  if (wavelet == nullptr) goto label_end;
   if (! flag_operate) goto label_end;
 
   /* Create the output variables */
@@ -1884,11 +1885,11 @@ GEOSLIB_API int seismic_convolve(Db     *db,
   shift = (option > 0) ? ntw : 0;
   size  = nz + 2 * shift;
   tab0  = (double *) mem_alloc(size * sizeof(double), 0);
-  if (tab0 == (double *) NULL) goto label_end;
+  if (tab0 == nullptr) goto label_end;
   tab1  = (double *) mem_alloc(size * sizeof(double), 0);
-  if (tab1 == (double *) NULL) goto label_end;
+  if (tab1 == nullptr) goto label_end;
   tab2  = (double *) mem_alloc(size * sizeof(double), 0);
-  if (tab2 == (double *) NULL) goto label_end;
+  if (tab2 == nullptr) goto label_end;
 
   /* Loop on the attributes */
 
@@ -2146,31 +2147,31 @@ static ST_Seismic_Neigh *st_estimate_neigh_management(int mode,
     /* Allocation */
 
     ngh = (ST_Seismic_Neigh *) mem_alloc(sizeof(ST_Seismic_Neigh),0);
-    if (ngh == (ST_Seismic_Neigh *) NULL) return(ngh);
+    if (ngh == nullptr) return(ngh);
     ngh->nvois   = nvois;
     ngh->nactive = 0;
     ngh->n_v1    = 0;
     ngh->n_v2    = 0;
-    ngh->ix_ngh  = (int    *) NULL;
-    ngh->iz_ngh  = (int    *) NULL;
-    ngh->v1_ngh  = (double *) NULL;
-    ngh->v2_ngh  = (double *) NULL;
+    ngh->ix_ngh  = nullptr;
+    ngh->iz_ngh  = nullptr;
+    ngh->v1_ngh  = nullptr;
+    ngh->v2_ngh  = nullptr;
 
     ngh->ix_ngh = (int    *) mem_alloc(sizeof(int)    * nvois, 0);
-    if (ngh->ix_ngh == (int    *) NULL) goto label_free;
+    if (ngh->ix_ngh == nullptr) goto label_free;
     ngh->iz_ngh = (int    *) mem_alloc(sizeof(int)    * nvois, 0);
-    if (ngh->iz_ngh == (int    *) NULL) goto label_free;
+    if (ngh->iz_ngh == nullptr) goto label_free;
     ngh->v1_ngh = (double *) mem_alloc(sizeof(double) * nvois, 0);
-    if (ngh->v1_ngh == (double *) NULL) goto label_free;
+    if (ngh->v1_ngh == nullptr) goto label_free;
     ngh->v2_ngh = (double *) mem_alloc(sizeof(double) * nvois, 0);
-    if (ngh->v2_ngh == (double *) NULL) goto label_free;
+    if (ngh->v2_ngh == nullptr) goto label_free;
 
     st_estimate_neigh_init(ngh);
   }
   else
   {
   label_free:
-    if (ngh == (ST_Seismic_Neigh *) NULL) return(ngh);
+    if (ngh == nullptr) return(ngh);
     ngh->ix_ngh = (int    *) mem_free((char *) ngh->ix_ngh);
     ngh->iz_ngh = (int    *) mem_free((char *) ngh->iz_ngh);
     ngh->v1_ngh = (double *) mem_free((char *) ngh->v1_ngh);
@@ -2196,8 +2197,8 @@ static int st_estimate_neigh_unchanged(ST_Seismic_Neigh *ngh_old,
   int i,flag_unchanged;
 
   flag_unchanged = 0;
-  if (ngh_old == (ST_Seismic_Neigh *) NULL ||
-      ngh_cur == (ST_Seismic_Neigh *) NULL) goto label_end;
+  if (ngh_old == nullptr ||
+      ngh_cur == nullptr) goto label_end;
   if (ngh_old->nactive != ngh_cur->nactive) goto label_end;
   if (ngh_cur->nactive <= 0) goto label_end;
 
@@ -2709,7 +2710,7 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
   tab_prints(NULL,1,EJustify::RIGHT,"Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    (void) sprintf(string,"Z%d*",ivar+1);
+    (void) gslSPrintf(string,gslArraySize(string),"Z%d*",ivar+1);
     tab_prints(NULL,1,EJustify::RIGHT,string);
   }
   message("\n");
@@ -3005,12 +3006,12 @@ static int st_estimate_sort(int *presence,
 
   /* Initializations */
 
-  dist = (double *) NULL;
+  dist = nullptr;
 
   /* Core allocation */
 
   dist   = (double *) mem_alloc(sizeof(double) * NX,0);
-  if (dist   == (double *) NULL) return(1);
+  if (dist   == nullptr) return(1);
 
   /* Sort the traces */
   for (ix=0; ix<NX; ix++)
@@ -3073,15 +3074,15 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
 
   error = 1;
   nvois = size = nred = nb_total = nb_process = nb_calcul = 0;
-  lhs   = rhs = wgt = var0 = covtab = (double *) NULL;
-  flag  = rank = (int *) NULL;
+  lhs   = rhs = wgt = var0 = covtab = nullptr;
+  flag  = rank = nullptr;
   nfeq  = (flag_ks) ? 0 : 1;
-  ngh_cur = ngh_old = (ST_Seismic_Neigh *) NULL;
+  ngh_cur = ngh_old = nullptr;
   for (i=0; i<2; i++)
   {
     iatt_est[i] = -1;
     iatt_std[i] = -1;
-    presence[i] = (int *) NULL;
+    presence[i] = nullptr;
     npres[i] = 0;
   }
   if (krige_koption_manage(1,1,EKrigOpt::PONCTUAL,1,VectorInt())) goto label_end;
@@ -3118,7 +3119,7 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
   for (i=0; i<2; i++)
   {
     presence[i] = (int *) mem_alloc(sizeof(int) * NX,0);
-    if (presence[i] == (int *) NULL) goto label_end;
+    if (presence[i] == nullptr) goto label_end;
   }
 
   /* Look for columns where each variable is defined */
@@ -3134,25 +3135,25 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
   /* Core allocation (second) */
 
   ngh_cur = st_estimate_neigh_management(1,nvois,ngh_cur);
-  if (ngh_cur == (ST_Seismic_Neigh *) NULL) goto label_end;
+  if (ngh_cur == nullptr) goto label_end;
   ngh_old = st_estimate_neigh_management(1,nvois,ngh_old);
-  if (ngh_old == (ST_Seismic_Neigh *) NULL) goto label_end;
+  if (ngh_old == nullptr) goto label_end;
   covtab = (double *) mem_alloc(sizeof(double) * NVAR * NVAR,0);
-  if (covtab  == (double *) NULL) goto label_end;
+  if (covtab  == nullptr) goto label_end;
   lhs    = (double *) mem_alloc(sizeof(double) * size * size,0);
-  if (lhs     == (double *) NULL) goto label_end;
+  if (lhs     == nullptr) goto label_end;
   rhs    = (double *) mem_alloc(sizeof(double) * size * NVAR,0);
-  if (rhs     == (double *) NULL) goto label_end;
+  if (rhs     == nullptr) goto label_end;
   wgt    = (double *) mem_alloc(sizeof(double) * size * NVAR,0);
-  if (wgt     == (double *) NULL) goto label_end;
+  if (wgt     == nullptr) goto label_end;
   flag   = (int    *) mem_alloc(sizeof(int) * size,0);
-  if (flag    == (int    *) NULL) goto label_end;
+  if (flag    == nullptr) goto label_end;
   rank   = (int    *) mem_alloc(sizeof(int) * NX,0);
-  if (rank   == (int    *) NULL) goto label_end;
+  if (rank   == nullptr) goto label_end;
   if (flag_std)
   {
     var0   = (double *) mem_alloc(sizeof(double) * NVAR,0);
-    if (var0    == (double *) NULL) goto label_end;
+    if (var0    == nullptr) goto label_end;
   }
 
   /* Add the resulting variables */
@@ -3343,14 +3344,14 @@ GEOSLIB_API int seismic_simulate_XZ(Db    *db,
 
   error = 1;
   nvois = size = nred = nb_total = nb_process = nb_calcul = 0;
-  lhs   = rhs = wgt = c00 = covtab = (double *) NULL;
-  flag  = rank = (int *) NULL;
+  lhs   = rhs = wgt = c00 = covtab = nullptr;
+  flag  = rank = nullptr;
   nfeq  = (flag_ks) ? 0 : 1;
-  ngh_cur = ngh_old = (ST_Seismic_Neigh *) NULL;
+  ngh_cur = ngh_old = nullptr;
   for (i=0; i<2; i++)
   {
     iatt_sim[i] = -1;
-    presence[i] = (int *) NULL;
+    presence[i] = nullptr;
     npres[i] = 0;
   }
 
@@ -3384,7 +3385,7 @@ GEOSLIB_API int seismic_simulate_XZ(Db    *db,
   for (i=0; i<2; i++)
   {
     presence[i] = (int *) mem_alloc(sizeof(int) * NX,0);
-    if (presence[i] == (int *) NULL) goto label_end;
+    if (presence[i] == nullptr) goto label_end;
   }
 
   /* Look for columns where each variable is defined */
@@ -3401,23 +3402,23 @@ GEOSLIB_API int seismic_simulate_XZ(Db    *db,
   /* Core allocation (second) */
 
   ngh_cur = st_estimate_neigh_management(1,nvois,ngh_cur);
-  if (ngh_cur == (ST_Seismic_Neigh *) NULL) goto label_end;
+  if (ngh_cur == nullptr) goto label_end;
   ngh_old = st_estimate_neigh_management(1,nvois,ngh_old);
-  if (ngh_old == (ST_Seismic_Neigh *) NULL) goto label_end;
+  if (ngh_old == nullptr) goto label_end;
   covtab = (double *) mem_alloc(sizeof(double) * NVAR * NVAR,0);
-  if (covtab  == (double *) NULL) goto label_end;
+  if (covtab  == nullptr) goto label_end;
   lhs    = (double *) mem_alloc(sizeof(double) * size * size,0);
-  if (lhs     == (double *) NULL) goto label_end;
+  if (lhs     == nullptr) goto label_end;
   rhs    = (double *) mem_alloc(sizeof(double) * size * NVAR,0);
-  if (rhs     == (double *) NULL) goto label_end;
+  if (rhs     == nullptr) goto label_end;
   wgt    = (double *) mem_alloc(sizeof(double) * size * NVAR,0);
-  if (wgt     == (double *) NULL) goto label_end;
+  if (wgt     == nullptr) goto label_end;
   flag   = (int    *) mem_alloc(sizeof(int) * size,0);
-  if (flag    == (int    *) NULL) goto label_end;
+  if (flag    == nullptr) goto label_end;
   c00    = (double *) mem_alloc(sizeof(double) * NVAR * NVAR,0);
-  if (c00    == (double *) NULL) goto label_end;
+  if (c00    == nullptr) goto label_end;
   rank   = (int    *) mem_alloc(sizeof(int) * NX,0);
-  if (rank   == (int    *) NULL) goto label_end;
+  if (rank   == nullptr) goto label_end;
 
   /* Add the resulting variables */
 

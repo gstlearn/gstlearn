@@ -243,11 +243,11 @@ bool NoStatArray::isEmpty(int icas) const
   }
   if (icas == 1)
   {
-    if (_dbin == (Db *) NULL) return true;
+    if (_dbin == nullptr) return true;
   }
   if (icas == 2)
   {
-    if (_dbout == (Db *) NULL) return true;
+    if (_dbout == nullptr) return true;
   }
   return false;
 }
@@ -332,12 +332,12 @@ String NoStatArray::_displayStats(int ipar, int icas) const
   }
   else if (icas == 1)
   {
-    if (_dbin == (Db *) NULL) return sstr.str();
+    if (_dbin == nullptr) return sstr.str();
     vec = _dbin->getFieldByLocator(ELoc::NOSTAT,ipar,true);
   }
   else
   {
-    if (_dbout == (Db *) NULL) return sstr.str();
+    if (_dbout == nullptr) return sstr.str();
     vec = _dbout->getFieldByLocator(ELoc::NOSTAT,ipar,true);
   }
 

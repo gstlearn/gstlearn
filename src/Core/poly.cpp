@@ -27,7 +27,7 @@ GEOSLIB_API Polygons *polygon_create(void)
 
   /* Initializations */
   
-  polygon = (Polygons *) NULL;
+  polygon = nullptr;
 
   /* Core allocation */
 
@@ -46,7 +46,7 @@ GEOSLIB_API Polygons *polygon_create(void)
 GEOSLIB_API Polygons *polygon_free(Polygons *polygon)
 
 {
-  if (polygon == (Polygons *) NULL) return(polygon);
+  if (polygon == nullptr) return(polygon);
   delete polygon;
   polygon = (Polygons *) nullptr;
   return(polygon);
@@ -73,7 +73,7 @@ GEOSLIB_API Polygons *polygon_add(Polygons *polygon,
                                   double    zmin,
                                   double    zmax)
 {
-  if (polygon == (Polygons *) NULL) return(polygon);
+  if (polygon == nullptr) return(polygon);
   PolySet polyset = PolySet();
   polyset.init(x,y,zmin,zmax);
   polygon->addPolySet(polyset);
@@ -95,7 +95,7 @@ GEOSLIB_API void polygon_print(Polygons *polygon,
                                int flag_print)
 
 {
-  if (polygon == (Polygons *) NULL) return;
+  if (polygon == nullptr) return;
   polygon->display();
 }
 
@@ -319,12 +319,12 @@ GEOSLIB_API Polygons *input_polygon(void)
   /* Initializations */
 
   error   = 1;
-  polygon = (Polygons *) NULL;
+  polygon = nullptr;
 
   /* Core allocation */
 
   polygon = polygon_create();
-  if (polygon == (Polygons *) NULL) goto label_end;
+  if (polygon == nullptr) goto label_end;
 
   /* Implicit loop on the PolySets */
 
@@ -393,7 +393,7 @@ label_end:
 GEOSLIB_API Polygons *polygon_hull(const Db *db)
 
 {
-  Polygons* polygons = (Polygons *) NULL;
+  Polygons* polygons = nullptr;
 
   /* Preliminary check */
 
@@ -475,7 +475,7 @@ label_cont:
   /* Create the polygons */
 
   polygons = polygon_create();
-  if (polygons == (Polygons *) NULL) return polygons;
+  if (polygons == nullptr) return polygons;
 
   VectorDouble x(np);
   VectorDouble y(np);

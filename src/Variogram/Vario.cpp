@@ -11,6 +11,7 @@
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Variogram/VarioParam.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
@@ -92,7 +93,7 @@ Vario::Vario(const Vario& vario_in,
   else
   {
     selvars = varcols;
-    for (int i = 0; i < (int) varcols.size(); i++)
+    for (int i = 0; i < static_cast<int>(varcols.size()); i++)
     {
       if (selvars[i] < 0 || selvars[i] >= nvar_in)
       {
@@ -103,7 +104,7 @@ Vario::Vario(const Vario& vario_in,
       }
     }
   }
-  _nVar = (int) selvars.size();
+  _nVar = static_cast<int>(selvars.size());
   if (_nVar <= 0)
   {
     my_throw("The number of variables extracted cannot be zero");
@@ -125,7 +126,7 @@ Vario::Vario(const Vario& vario_in,
       }
     }
   }
-  int ndir = (int) seldirs.size();
+  int ndir = static_cast<int>(seldirs.size());
   if (ndir <= 0)
   {
     my_throw("The number of directions extracted cannot be zero");
@@ -337,7 +338,7 @@ int Vario::computeIndic(const String& calcul_name,
 
   // Calculate the number of Facies in 'Db'
   VectorDouble props = dbStatisticsFacies(_db);
-  int nclass = props.size();
+  int nclass = static_cast<int>(props.size());
   if (nclass <= 0 || (nfacmax > 0 && nclass > nfacmax))
   {
     messerr("The input variable should exhibit Facies");
@@ -386,7 +387,7 @@ int Vario::computeIndic(const String& calcul_name,
 int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
 {
   _db = db;
-  if (db != (Db *) NULL)
+  if (db != nullptr)
   {
     int nvar = _db->getVariableNumber();
     if (nvar <= 0)
@@ -404,7 +405,7 @@ int Vario::internalVariableResize() //TODO: to be called when nvar is modified..
 {
   if (! _means.empty())
   {
-    int nloc = _means.size();
+    int nloc = static_cast<int>(_means.size());
     if (nloc != _nVar)
     {
       messerr("Invalid dimension for 'means' (%d)",nloc);
@@ -419,7 +420,7 @@ int Vario::internalVariableResize() //TODO: to be called when nvar is modified..
 
   if (! _vars.empty())
   {
-    int nloc = _vars.size();
+    int nloc = static_cast<int>(_vars.size());
     if (nloc != _nVar * _nVar)
     {
       messerr("Invalid dimension for 'vars' (%d)",nloc);
@@ -464,9 +465,9 @@ IClonable* Vario::clone() const
 
 double Vario::getHmax(int ivar, int jvar, int idir) const
 {
-  VectorDouble ivb = _getVariableInterval(ivar);
-  VectorDouble jvb = _getVariableInterval(jvar);
-  VectorDouble idb = _getDirectionInterval(idir);
+  VectorInt ivb = _getVariableInterval(ivar);
+  VectorInt jvb = _getVariableInterval(jvar);
+  VectorInt idb = _getDirectionInterval(idir);
 
   double hmax = 0.;
   for (int idir = idb[0]; idir < idb[1]; idir++)
@@ -489,9 +490,9 @@ double Vario::getHmax(int ivar, int jvar, int idir) const
  */
 VectorDouble Vario::getHRange(int ivar, int jvar, int idir) const
 {
-  VectorDouble ivb = _getVariableInterval(ivar);
-  VectorDouble jvb = _getVariableInterval(jvar);
-  VectorDouble idb = _getDirectionInterval(idir);
+  VectorInt ivb = _getVariableInterval(ivar);
+  VectorInt jvb = _getVariableInterval(jvar);
+  VectorInt idb = _getDirectionInterval(idir);
 
   VectorDouble vec(2);
   vec[0] =  1.e30;
@@ -515,9 +516,9 @@ double Vario::getGmax(int ivar,
                        bool flagAbs,
                        bool flagSill) const
 {
-  VectorDouble ivb = _getVariableInterval(ivar);
-  VectorDouble jvb = _getVariableInterval(jvar);
-  VectorDouble idb = _getDirectionInterval(idir);
+  VectorInt ivb = _getVariableInterval(ivar);
+  VectorInt jvb = _getVariableInterval(jvar);
+  VectorInt idb = _getDirectionInterval(idir);
 
   double gmax = 0.;
 
@@ -542,9 +543,9 @@ VectorDouble Vario::getGRange(int ivar,
                                int idir,
                                bool flagSill) const
 {
-  VectorDouble ivb = _getVariableInterval(ivar);
-  VectorDouble jvb = _getVariableInterval(jvar);
-  VectorDouble idb = _getDirectionInterval(idir);
+  VectorInt ivb = _getVariableInterval(ivar);
+  VectorInt jvb = _getVariableInterval(jvar);
+  VectorInt idb = _getDirectionInterval(idir);
 
   VectorDouble vec(2);
   vec[0] =  1.e30;
@@ -798,7 +799,7 @@ void Vario::_initMeans()
 void Vario::setMeans(const VectorDouble& means)
 {
   if (_means.empty()) _initMeans();
-  if (! means.empty() && (int) means.size() == _nVar)
+  if (! means.empty() && static_cast<int>(means.size()) == _nVar)
     _means = means;
 }
 
@@ -821,7 +822,7 @@ void Vario::_initVars()
 void Vario::setVars(const VectorDouble& vars)
 {
   if (_vars.empty()) _initVars();
-  if (! vars.empty() && (int) vars.size() == _nVar * _nVar)
+  if (! vars.empty() && static_cast<int>(vars.size()) == _nVar * _nVar)
     _vars = vars;
 }
 
@@ -1410,14 +1411,14 @@ int Vario::fill(int idir,
 {
   if (! _isDirectionValid(idir)) return 1;
   int size = getDirSize(idir);
-  if (size != (int) sw.size() ||
-      size != (int) hh.size() ||
-      size != (int) gg.size())
+  if (size != static_cast<int>(sw.size()) ||
+      size != static_cast<int>(hh.size()) ||
+      size != static_cast<int>(gg.size()))
   {
     messerr("The argument do not have correct dimension");
     return 1;
   }
-  for (int i=0; i<(int) size; i++)
+  for (int i=0; i<size; i++)
   {
     setSw(idir, i, sw[i]);
     setHh(idir, i, hh[i]);
@@ -1426,9 +1427,9 @@ int Vario::fill(int idir,
   return 0;
 }
 
-VectorDouble Vario::_getVariableInterval(int ivar) const
+VectorInt Vario::_getVariableInterval(int ivar) const
 {
-  VectorDouble bounds(2);
+  VectorInt bounds(2);
   if (ivar < 0 || ivar >= getVariableNumber())
   {
     bounds[0] = 0;
@@ -1442,9 +1443,9 @@ VectorDouble Vario::_getVariableInterval(int ivar) const
   return bounds;
 }
 
-VectorDouble Vario::_getDirectionInterval(int idir) const
+VectorInt Vario::_getDirectionInterval(int idir) const
 {
-  VectorDouble bounds(2);
+  VectorInt bounds(2);
   if (idir < 0 || idir >= getDirectionNumber())
   {
     bounds[0] = 0;
@@ -1516,7 +1517,7 @@ int Vario::_getNVar(const Db* db)
   }
   else if (!_means.empty())
   {
-    _nVar = _means.size();
+    _nVar = static_cast<int>(_means.size());
     return 0;
   }
 
@@ -1563,7 +1564,7 @@ VectorDouble Vario::_varsFromProportions(VectorDouble props)
 {
   if (props.empty()) return VectorDouble();
 
-  int nvar = props.size();
+  int nvar = static_cast<int>(props.size());
   VectorDouble vars = VectorDouble(nvar * nvar);
   int ecr = 0;
   for (int ivar = 0; ivar < nvar; ivar++)

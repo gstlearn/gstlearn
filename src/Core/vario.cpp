@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Polynomials/Hermite.hpp"
@@ -17,6 +18,7 @@
 #include "Basic/Utilities.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -114,7 +116,7 @@ static int st_get_variable_order(int    nvar,
 ** \param[in]  vario   Vario structure
 **
 *****************************************************************************/
-static int st_get_generalized_variogram_order(Vario *vario)
+static int st_get_generalized_variogram_order(const Vario *vario)
 {
   int norder;
 
@@ -150,19 +152,19 @@ static void st_manage_drift_removal(int    type,
   switch (type)
   {
     case 0:
-      MODEL   = (Model  *) NULL;
-      BETA    = (double *) NULL;
-      DRFLOC  = (double *) NULL;
-      DRFTAB  = (double *) NULL;
-      MATDRF  = (double *) NULL;
-      DRFXA   = (double *) NULL;
-      DRFGX   = (double *) NULL;
-      DRFXGX  = (double *) NULL;
-      DRFDIAG = (double *) NULL;
+      MODEL   = nullptr;
+      BETA    = nullptr;
+      DRFLOC  = nullptr;
+      DRFTAB  = nullptr;
+      MATDRF  = nullptr;
+      DRFXA   = nullptr;
+      DRFGX   = nullptr;
+      DRFXGX  = nullptr;
+      DRFDIAG = nullptr;
       break;
 
     case 1:
-      if (model != (Model *) NULL)
+      if (model != nullptr)
       {
         nbfl    = model->getDriftNumber();
         nech    = db->getActiveAndDefinedNumber(0);
@@ -186,7 +188,7 @@ static void st_manage_drift_removal(int    type,
       break;
 
     case -1:
-      MODEL   = (Model  *) NULL;
+      MODEL   = nullptr;
       BETA    = (double *) mem_free((char *) BETA);
       DRFLOC  = (double *) mem_free((char *) DRFLOC);
       DRFTAB  = (double *) mem_free((char *) DRFTAB);
@@ -235,7 +237,7 @@ GEOSLIB_API int variogram_maximum_dist1D_reached(Db    *db,
 ** \remark  TEST is returned
 **
 *****************************************************************************/
-static double st_get_IVAR(Db    *db,
+static double st_get_IVAR(const Db    *db,
                           int    iech,
                           int    ivar)
 {
@@ -243,7 +245,7 @@ static double st_get_IVAR(Db    *db,
 
   zz = db->getVariable(iech,ivar);
   if (FFFF(zz)) return(TEST);
-  if (MODEL == (Model *) NULL) return(zz);
+  if (MODEL == nullptr) return(zz);
   if (ivar != 0) return(TEST);
   drfval = model_drift_evaluate(0,MODEL,db,iech,0,BETA,DRFLOC);
   if (FFFF(drfval)) return(TEST);
@@ -1063,8 +1065,8 @@ static void st_variogram_patch_c00(Db    *db,
 ** \remarks resulting value is 1.
 **
 *****************************************************************************/
-GEOSLIB_API int code_comparable(Db    *db1,
-                                Db    *db2,
+GEOSLIB_API int code_comparable(const Db    *db1,
+                                const Db    *db2,
                                 int    iech,
                                 int    jech,
                                 int    opt_code,
@@ -1106,8 +1108,8 @@ GEOSLIB_API int code_comparable(Db    *db1,
 **
 *****************************************************************************/
 static int st_date_is_used(const VarioParam *varioparam,
-                           Db     *db1,
-                           Db     *db2)
+                           const Db     *db1,
+                           const Db     *db2)
 {
   if (varioparam->getDates().empty()) return(0);
   if (! db1->hasDate()) return(0);
@@ -1132,11 +1134,11 @@ static int st_date_is_used(const VarioParam *varioparam,
 **
 *****************************************************************************/
 static int st_date_comparable(const VarioParam *varioparam,
-                                Db     *db1,
-                                Db     *db2,
-                                int     iech,
-                                int     jech,
-                                int     idate)
+                              const Db *db1,
+                              const Db *db2,
+                              int iech,
+                              int jech,
+                              int idate)
 {
   double date1,date2,delta;
 
@@ -1534,7 +1536,7 @@ static int st_update_variogram_ku(Db    *db,
     
     /* Perform the Automatic structure recognition */
     
-    if (MODEL != (Model *) NULL)
+    if (MODEL != nullptr)
     {
       if (model_auto_fit(vario,MODEL,verbose,mauto,constraints,optvar)) goto label_end;
     }
@@ -1657,7 +1659,7 @@ static void st_variogram_calcul_internal(Db    *db,
 ** \param[out] ps     The cosine between the vector of data and the direction
 **
 *****************************************************************************/
-GEOSLIB_API int variogram_reject_pair(Db     *db,
+GEOSLIB_API int variogram_reject_pair(const Db     *db,
                                       int     iech,
                                       int     jech,
                                       double  dist,
@@ -1830,7 +1832,7 @@ static int st_variogram_calcul2(Db    *db,
 
   error   = 1;
   ps      = 0.;
-  gg_sum  = hh_sum = sw_sum = (double *) NULL;
+  gg_sum  = hh_sum = sw_sum = nullptr;
   const VarioParam& varioparam = vario->getVarioParam();
   const DirParam& dirparam = vario->getDirParam(idir);
   psmin   = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
@@ -1842,11 +1844,11 @@ static int st_variogram_calcul2(Db    *db,
   /* Core allocation */
 
   gg_sum = (double *) mem_alloc(size * sizeof(double),0);
-  if (gg_sum == (double *) NULL) goto label_end;
+  if (gg_sum == nullptr) goto label_end;
   hh_sum = (double *) mem_alloc(size * sizeof(double),0);
-  if (hh_sum == (double *) NULL) goto label_end;
+  if (hh_sum == nullptr) goto label_end;
   sw_sum = (double *) mem_alloc(size * sizeof(double),0);
-  if (sw_sum == (double *) NULL) goto label_end;
+  if (sw_sum == nullptr) goto label_end;
   for (i=0; i<size; i++)
   {
     gg_sum[i] = 0.;
@@ -2097,7 +2099,7 @@ static int st_variogram_grid(Db    *db,
 
   error = 1;
   nech  = db->getSampleNumber();
-  indg1 = indg2 = (int *) NULL;
+  indg1 = indg2 = nullptr;
   npas  = vario->getLagNumber(idir);
   const DirParam& dirparam = vario->getDirParam(idir);
   const VarioParam& varioparam = vario->getVarioParam();
@@ -2105,9 +2107,9 @@ static int st_variogram_grid(Db    *db,
   /* Core allocation */
 
   indg1 = db_indg_alloc(db);
-  if (indg1 == (int *) NULL) goto label_end;
+  if (indg1 == nullptr) goto label_end;
   indg2 = db_indg_alloc(db);
-  if (indg2 == (int *) NULL) goto label_end;
+  if (indg2 == nullptr) goto label_end;
 
   /* Loop on the first point */
 
@@ -2286,7 +2288,7 @@ static int st_variogen_grid(Db    *db,
 
   error = 1;
   nech  = db->getSampleNumber();
-  indg1 = indg2 = (int *) NULL;
+  indg1 = indg2 = nullptr;
   npas  = vario->getLagNumber(idir);
   const DirParam& dirparam = vario->getDirParam(idir);
   const VarioParam& varioparam = vario->getVarioParam();
@@ -2294,9 +2296,9 @@ static int st_variogen_grid(Db    *db,
   /* Core allocation */
 
   indg1 = db_indg_alloc(db);
-  if (indg1 == (int *) NULL) goto label_end;
+  if (indg1 == nullptr) goto label_end;
   indg2 = db_indg_alloc(db);
-  if (indg2 == (int *) NULL) goto label_end;
+  if (indg2 == nullptr) goto label_end;
 
   /* Loop on the first point */
 
@@ -2391,8 +2393,8 @@ static int st_variogen_grid_calcul(Db *db, Vario *vario)
   /* Initializations */
 
   error = 1;
-  if (db    == (Db    *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (db    == nullptr) return(1);
+  if (vario == nullptr) return(1);
   norder = st_get_generalized_variogram_order(vario);
   st_manage_drift_removal(0,NULL,NULL);
 
@@ -2453,8 +2455,8 @@ static int st_variogen_line_calcul(Db *db, Vario *vario)
   /* Initializations */
 
   error = 1;
-  if (db    == (Db    *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (db    == nullptr) return(1);
+  if (vario == nullptr) return(1);
   norder = st_get_generalized_variogram_order(vario);
   st_manage_drift_removal(0,NULL,NULL);
 
@@ -2550,7 +2552,7 @@ GEOSLIB_API void vardir_print(Vario *vario,
                               int    idir,
                               int    verbose)
 {
-  if (vario == (Vario *) NULL) return;
+  if (vario == nullptr) return;
   if (idir < 0 || idir >= vario->getDirectionNumber()) return;
   message(vario->getDirParam(idir).toString(verbose).c_str());
   return;
@@ -2564,10 +2566,10 @@ GEOSLIB_API void vardir_print(Vario *vario,
 ** \param[in]  verbose 0 for brief output; 1 for a long output
 **
 *****************************************************************************/
-GEOSLIB_API void variogram_print(Vario *vario,
+GEOSLIB_API void variogram_print(const Vario *vario,
                                  int    verbose)
 {
-  if (vario != (Vario *) NULL) messageFlush(vario->toString());
+  if (vario != nullptr) messageFlush(vario->toString());
 }
 
 /****************************************************************************/
@@ -2589,11 +2591,11 @@ static int st_estimate_drift_coefficients(Db *db,
   
   /* Initializations */
 
-  if (MODEL == (Model *) NULL) return(0);
+  if (MODEL == nullptr) return(0);
   error = 1;
   nbfl  = MODEL->getDriftNumber();
   nech  = db->getActiveAndDefinedNumber(0);
-  b     = (double *) NULL;
+  b     = nullptr;
 
   /* Core allocation */
 
@@ -2684,8 +2686,8 @@ static int st_variogram_general(Db    *db,
 
   error = 1;
   flag_verr = flag_ku = nbfl = 0;
-  if (db    == (Db    *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (db    == nullptr) return(1);
+  if (vario == nullptr) return(1);
   vorder = (Vario_Order *) NULL;
   st_manage_drift_removal(0,NULL,NULL);
 
@@ -2719,7 +2721,7 @@ static int st_variogram_general(Db    *db,
 
   /* Auxiliary check for Drift removal */
 
-  if (model != (Model *) NULL && 
+  if (model != nullptr && 
       (model->getDriftNumber() > 1 || model->getDriftType(0) != EDrift::UC))
   {
     if (vorder == (Vario_Order *) NULL)
@@ -2827,8 +2829,8 @@ GEOSLIB_API int variovect_compute(Db    *db,
   /* Initializations */
 
   error = 0;
-  if (db    == (Db    *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (db    == nullptr) return(1);
+  if (vario == nullptr) return(1);
   st_manage_drift_removal(0,NULL,NULL);
 
   /* Preliminary checks */
@@ -2943,10 +2945,10 @@ static int st_vmap_general(Db*               db,
   /* Preliminary checks */
 
   error = 0;
-  indg0 = indg1 = ind1 = (int *) NULL;
-  delta = coor = mid = (double *) NULL;
-  if (db     == (Db    *) NULL) return(1);
-  if (dbmap  == (Db    *) NULL) return(1);
+  indg0 = indg1 = ind1 = nullptr;
+  delta = coor = mid = nullptr;
+  if (db     == nullptr) return(1);
+  if (dbmap  == nullptr) return(1);
 
   if (! is_grid(dbmap))
   {
@@ -2979,17 +2981,17 @@ static int st_vmap_general(Db*               db,
   /* Core allocation */
 
   indg0 = db_indg_alloc(dbmap);
-  if (indg0 == (int *) NULL) goto label_end;
+  if (indg0 == nullptr) goto label_end;
   indg1 = db_indg_alloc(dbmap);
-  if (indg1 == (int *) NULL) goto label_end;
+  if (indg1 == nullptr) goto label_end;
   ind1 = (int *) mem_alloc(sizeof(int) * nech,0);
-  if (ind1 == (int *) NULL) goto label_end;
+  if (ind1 == nullptr) goto label_end;
   delta = db_sample_alloc(db,ELoc::X);
-  if (delta == (double *) NULL) goto label_end;
+  if (delta == nullptr) goto label_end;
   mid   = db_sample_alloc(db,ELoc::X);
-  if (mid   == (double *) NULL) goto label_end;
+  if (mid   == nullptr) goto label_end;
   coor  = db_vector_alloc(db);
-  if (coor  == (double *) NULL) goto label_end;
+  if (coor  == nullptr) goto label_end;
   
   /* Create the variables in the Variogram Map file */
 
@@ -3110,9 +3112,9 @@ static int st_vmap_grid(Db*               dbgrid,
   /* Preliminary checks */
 
   error = 0;
-  ind0 = ind1 = ind2 = (int *) NULL;
-  if (dbgrid == (Db    *) NULL) return(1);
-  if (dbmap  == (Db    *) NULL) return(1);
+  ind0 = ind1 = ind2 = nullptr;
+  if (dbgrid == nullptr) return(1);
+  if (dbmap  == nullptr) return(1);
 
   if (! is_grid(dbgrid))
   {
@@ -3160,11 +3162,11 @@ static int st_vmap_grid(Db*               dbgrid,
   /* Core allocation */
 
   ind0 = db_indg_alloc(dbmap);
-  if (ind0 == (int *) NULL) goto label_end;
+  if (ind0 == nullptr) goto label_end;
   ind1 = db_indg_alloc(dbgrid);
-  if (ind1 == (int *) NULL) goto label_end;
+  if (ind1 == nullptr) goto label_end;
   ind2 = db_indg_alloc(dbgrid);
-  if (ind2 == (int *) NULL) goto label_end;
+  if (ind2 == nullptr) goto label_end;
 
   /* Create the variables in the Variogram Map file */
 
@@ -3246,7 +3248,7 @@ label_end:
 ** \param[out]  gmax      Maximum variogram value
 **
 *****************************************************************************/
-GEOSLIB_API void variogram_extension(Vario  *vario,
+GEOSLIB_API void variogram_extension(const Vario  *vario,
                                      int     ivar,
                                      int     jvar,
                                      int     idir0,
@@ -3375,8 +3377,8 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
 
   error = 1;
   iadd_new = iatt_old = -1;
-  if (db    == (Db    *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (db    == nullptr) return(1);
+  if (vario == nullptr) return(1);
   st_manage_drift_removal(0,NULL,NULL);
 
   /* Preliminary checks */
@@ -3498,8 +3500,8 @@ GEOSLIB_API int variogram_direction_add(VarioParam *varioparam,
 GEOSLIB_API Vario *variogram_delete(Vario *vario)
 
 {
-  if (vario == (Vario *) NULL) return(vario);
-  vario = (Vario *) NULL;
+  if (vario == nullptr) return(vario);
+  vario = nullptr;
   return(vario);
 }
 
@@ -3621,15 +3623,15 @@ GEOSLIB_API int correlation_f(Db     *db1,
 
   /* Initializations */
 
-  if (db1    == (Db *) NULL) return(1);
-  if (db2    == (Db *) NULL) return(1);
-  if (dbgrid == (Db *) NULL) return(1);
+  if (db1    == nullptr) return(1);
+  if (db2    == nullptr) return(1);
+  if (dbgrid == nullptr) return(1);
   nech  = db1->getSampleNumber();
   error = 1;
   iptr  = nalloc = 0;
   *correl  = 0.;
   *nindice = 0;
-  *indices = ind = (int *) NULL;
+  *indices = ind = nullptr;
   iptr = dbgrid->addFields(1,0.);
   if (iptr < 0) return(1);
   m1 = m2 = v1 = v2 = v12 = nb = 0.;
@@ -3639,7 +3641,7 @@ GEOSLIB_API int correlation_f(Db     *db1,
   npair  = 0;
   nalloc = nech;
   ind = (int *) mem_alloc(sizeof(int) * 2 * nalloc,0);
-  if (ind == (int *) NULL) goto label_end;
+  if (ind == nullptr) goto label_end;
 
   /* Dispatch */
 
@@ -3671,7 +3673,7 @@ GEOSLIB_API int correlation_f(Db     *db1,
       {
         nalloc += nech;
         ind = (int *) mem_realloc((char *) ind,2 * nalloc * sizeof(int),0);
-        if (ind == (int *) NULL) goto label_end;
+        if (ind == nullptr) goto label_end;
       }
       ind[2*npair]   = iech+1;
       ind[2*npair+1] = iech+1;
@@ -3734,7 +3736,7 @@ GEOSLIB_API int correlation_f(Db     *db1,
         {
           nalloc += nech;
           ind = (int *) mem_realloc((char *) ind,2 * nalloc * sizeof(int),0);
-          if (ind == (int *) NULL) goto label_end;
+          if (ind == nullptr) goto label_end;
         }
         ind[2*npair]   = iech+1;
         ind[2*npair+1] = jech+1;
@@ -3777,7 +3779,7 @@ GEOSLIB_API int correlation_f(Db     *db1,
   /* Point case: core reallocation */
 
   ind = (int *) mem_realloc((char *) ind,2 * npair * sizeof(int),0);
-  if (ind == (int *) NULL) goto label_end;
+  if (ind == nullptr) goto label_end;
   
   /* Messages */
 
@@ -3833,8 +3835,8 @@ GEOSLIB_API int correlation_ident(Db     *db1,
 
   /* Initializations */
 
-  if (db1    == (Db *) NULL) return(1);
-  if (db2    == (Db *) NULL) return(1);
+  if (db1    == nullptr) return(1);
+  if (db2    == nullptr) return(1);
   nech   = db1->getSampleNumber();
   number = 0;
 
@@ -3876,7 +3878,7 @@ GEOSLIB_API int correlation_ident(Db     *db1,
 ** \param[in]  idir    Rank of the Direction
 **
 *****************************************************************************/
-static void st_variogram_cloud(Db     *db,
+static void st_variogram_cloud(const Db     *db,
                                Db     *dbgrid,
                                int     iptr,
                                const VarioParam *varioparam,
@@ -3918,8 +3920,8 @@ static void st_variogram_cloud(Db     *db,
 
       /* Check if the pair must be kept (Date criterion) */
 
-      if (st_date_comparable(varioparam,db,db,iech,jech,
-                          dirparam.getIdate())) continue;
+      if (st_date_comparable(varioparam, db, db, iech, jech,
+                             dirparam.getIdate())) continue;
 
       /* Check if the pair must be kept */
 
@@ -3958,21 +3960,21 @@ GEOSLIB_API void variogram_cloud_ident(Db       *db,
 
   /* Initializations */
 
-  indg = rank = (int *) NULL;
-  ids  = coor = (double *) NULL;
+  indg = rank = nullptr;
+  ids  = coor = nullptr;
   const VarioParam& varioparam = vario->getVarioParam();
 
   /* Core allocation */
 
   nech  = db->getSampleNumber();
   indg = db_indg_alloc(dbgrid);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
   coor = db_sample_alloc(dbgrid,ELoc::X);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
   rank = (int *) mem_alloc(sizeof(int) * nech,0);
-  if (rank == (int *) NULL) goto label_end;
+  if (rank == nullptr) goto label_end;
   ids  = db_vector_alloc(db);
-  if (ids  == (double *) NULL) goto label_end;
+  if (ids  == nullptr) goto label_end;
   for (iech=0; iech<nech; iech++) ids[iech] = 0.;
   
   /* Loop on the first point */
@@ -4142,7 +4144,7 @@ static void st_variogram_cloud_dim(Db     *db,
 ** \param[in]  namconv      Naming convention
 **
 *****************************************************************************/
-GEOSLIB_API int variogram_cloud(Db *db,
+GEOSLIB_API int variogram_cloud(const Db *db,
                                 const VarioParam *varioparam,
                                 Db *dbgrid,
                                 NamingConvention namconv)
@@ -4151,8 +4153,8 @@ GEOSLIB_API int variogram_cloud(Db *db,
 
   /* Initializations */
 
-  if (db     == (Db    *) NULL) return(1);
-  if (dbgrid == (Db    *) NULL) return(1);
+  if (db     == nullptr) return(1);
+  if (dbgrid == nullptr) return(1);
   if (varioparam  == (VarioParam *) NULL) return(1);
   st_manage_drift_removal(0,NULL,NULL);
 
@@ -4216,7 +4218,7 @@ GEOSLIB_API int variogram_cloud_dim(Db     *db,
 
   /* Initializations */
 
-  if (db     == (Db    *) NULL) return(1);
+  if (db     == nullptr) return(1);
   if (varioparam == (VarioParam *) NULL) return(1);
 
   /* Preliminary checks */
@@ -4322,7 +4324,7 @@ GEOSLIB_API int regression_f(Db *db1,
   }
 
   siztri = size * (size + 1) / 2;
-  a = b = x = (double *) NULL;
+  a = b = x = nullptr;
   mean  = *variance = *varres = 0.;
   *count = 0;
   *variance = *varres = *correl = TEST;
@@ -4372,11 +4374,11 @@ GEOSLIB_API int regression_f(Db *db1,
   /* Core allocation */
 
   x = (double *) mem_alloc(size   * sizeof(double),0);
-  if (x == (double *) NULL) goto label_end;
+  if (x == nullptr) goto label_end;
   b = (double *) mem_alloc(size   * sizeof(double),0);
-  if (b == (double *) NULL) goto label_end;
+  if (b == nullptr) goto label_end;
   a = (double *) mem_alloc(siztri * sizeof(double),0);
-  if (a == (double *) NULL) goto label_end;
+  if (a == nullptr) goto label_end;
   for (i=0; i<size;   i++) b[i] = 0.;
   for (i=0; i<siztri; i++) a[i] = 0.;
   prod = value = 0.;
@@ -4483,7 +4485,7 @@ GEOSLIB_API int regression_f(Db *db1,
     tab_prints(NULL,1,EJustify::RIGHT,"Target");
     for (i=0; i<size; i++)
     {
-      (void) sprintf(string,"Aux.#%d",i+1);
+      (void) gslSPrintf(string,gslArraySize(string),"Aux.#%d",i+1);
       tab_prints(NULL,1,EJustify::RIGHT,string);
     }
     tab_prints(NULL,1,EJustify::RIGHT,"Residuals");
@@ -4925,12 +4927,12 @@ static int st_complex_array_alloc(int     size,
 {
   int ic;
 
-  for (ic=0; ic<2; ic++) tab[ic] = (double *) NULL;
+  for (ic=0; ic<2; ic++) tab[ic] = nullptr;
 
   for (ic=0; ic<2; ic++)
   {
     tab[ic] = (double *) mem_alloc(sizeof(double) * size,0);
-    if (tab[ic] == (double *) NULL) return(1);
+    if (tab[ic] == nullptr) return(1);
   }
   return(0);
 }
@@ -4952,7 +4954,7 @@ static void st_complex_array_free(int     size,
   if (tab == NULL) return;
   for (ic=0; ic<2; ic++)
   {
-    if (tab[ic] != (double *) NULL)
+    if (tab[ic] != nullptr)
       tab[ic] = (double *) mem_free((char *) tab[ic]);
   }
   return;
@@ -5114,18 +5116,18 @@ static int st_vmap_grid_fft(Db*               dbgrid,
 
   error     = 1;
   sizetot   = 0;
-  res_nn = res_gg = res_m1 = res_m2 = (double *) NULL;
+  res_nn = res_gg = res_m1 = res_m2 = nullptr;
   for (ic=0; ic<2; ic++)
   {
-    i1i1[ic] = z1i1[ic] = i2i2[ic] = z2i2[ic] = (double *) NULL;
-    i1i2[ic] = z1i2[ic] = z2i1[ic] = z1z2[ic] = (double *) NULL;
-    ztab[ic] = (double *) NULL;
+    i1i1[ic] = z1i1[ic] = i2i2[ic] = z2i2[ic] = nullptr;
+    i1i2[ic] = z1i2[ic] = z2i1[ic] = z1z2[ic] = nullptr;
+    ztab[ic] = nullptr;
   }
 
   /* Preliminary checks */
 
-  if (dbgrid == (Db    *) NULL) return(1);
-  if (dbmap  == (Db    *) NULL) return(1);
+  if (dbgrid == nullptr) return(1);
+  if (dbmap  == nullptr) return(1);
 
   if (calcul_type != ECalcVario::VARIOGRAM   &&
       calcul_type != ECalcVario::COVARIOGRAM &&
@@ -5241,17 +5243,17 @@ static int st_vmap_grid_fft(Db*               dbgrid,
   }
   
   res_nn = (double *) mem_alloc(sizeof(double) * sizemap,0);
-  if (res_nn == (double *) NULL) goto label_end;
+  if (res_nn == nullptr) goto label_end;
   res_gg = (double *) mem_alloc(sizeof(double) * sizemap,0);
-  if (res_gg == (double *) NULL) goto label_end;
+  if (res_gg == nullptr) goto label_end;
   for (i=0; i<sizemap; i++) res_nn[i] = res_gg[i] = 0.;
   if (calcul_type == ECalcVario::COVARIANCE ||
       calcul_type == ECalcVario::COVARIOGRAM)
   {
     res_m1 = (double *) mem_alloc(sizeof(double) * sizemap,0);
-    if (res_m1 == (double *) NULL) goto label_end;
+    if (res_m1 == nullptr) goto label_end;
     res_m2 = (double *) mem_alloc(sizeof(double) * sizemap,0);
-    if (res_m2 == (double *) NULL) goto label_end;
+    if (res_m2 == nullptr) goto label_end;
     for (i=0; i<sizemap; i++) res_m1[i] = res_m2[i] = 0.;
   }
   
@@ -5395,9 +5397,9 @@ GEOSLIB_API void vardir_copy(VarioParam *vario_in,
 GEOSLIB_API PCA *pca_free(PCA *pca)
 
 {
-  if (pca == (PCA *) NULL) return(pca);
+  if (pca == nullptr) return(pca);
   free(pca);
-  pca = (PCA *) NULL;
+  pca = nullptr;
   return(pca);
 }
 
@@ -5922,9 +5924,9 @@ GEOSLIB_API int maf_compute(Db     *db,
 
   error = 0;
   iptr  = -1;
-  if (db    == (Db    *) NULL) return(1);
-  data1 = data2 = identity = (double *) NULL;
-  pca2 = (PCA *) NULL;
+  if (db    == nullptr) return(1);
+  data1 = data2 = identity = nullptr;
+  pca2 = nullptr;
 
   /* Preliminary checks */
 
@@ -5944,11 +5946,11 @@ GEOSLIB_API int maf_compute(Db     *db,
   /* Core allocation */
 
   data1    = (double *) mem_alloc(sizeof(double) * nvar, 0);
-  if (data1    == (double *) NULL) goto label_end;
+  if (data1    == nullptr) goto label_end;
   data2    = (double *) mem_alloc(sizeof(double) * nvar, 0);
-  if (data2    == (double *) NULL) goto label_end;
+  if (data2    == nullptr) goto label_end;
   identity = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (identity == (double *) NULL) goto label_end;
+  if (identity == nullptr) goto label_end;
   for (int i=0; i<nvar * nvar; i++) identity[i] = 0.;
 
   /* Calculate the first PCA (centered and normalized) */
@@ -5963,7 +5965,7 @@ GEOSLIB_API int maf_compute(Db     *db,
   /* Calculate the variance-covariance matrix at distance [h0-dh,h0+dh] */
 
   pca2 = pca_alloc(nvar);
-  if (pca2 == (PCA *) NULL) goto label_end;
+  if (pca2 == nullptr) goto label_end;
   ch = st_pca_covarianceh(verbose,db,opt_code,tolcode,codir,
                           tolang,bench,cylrad,h0,dh,data1,data2);
   if (pca2->calculateEigen(nvar, ch)) goto label_end;
@@ -6029,8 +6031,8 @@ GEOSLIB_API int pca_compute(Db     *db,
   /* Initializations */
 
   error = 0;
-  if (db == (Db *) NULL) return(1);
-  c0 = data1 = (double *) NULL;
+  if (db == nullptr) return(1);
+  c0 = data1 = nullptr;
 
   /* Preliminary checks */
 
@@ -6045,9 +6047,9 @@ GEOSLIB_API int pca_compute(Db     *db,
   /* Core allocation */
 
   c0     = (double *) mem_alloc(sizeof(double) * nvar * nvar,0);
-  if (c0     == (double *) NULL) goto label_end;
+  if (c0     == nullptr) goto label_end;
   data1  = (double *) mem_alloc(sizeof(double) * nvar, 0);
-  if (data1  == (double *) NULL) goto label_end;
+  if (data1  == nullptr) goto label_end;
 
   /* Calculate the PCA */
 
@@ -6091,7 +6093,7 @@ GEOSLIB_API int pca_z2f(Db    *db,
 
   error = 1;
   nvar  = db->getVariableNumber();
-  data  = (double *) NULL;
+  data  = nullptr;
   if (nvar <= 0)
   {
     messerr("The Transformation requires Z located variables");
@@ -6114,7 +6116,7 @@ GEOSLIB_API int pca_z2f(Db    *db,
   /* Core allocation */
 
   data  = (double *) mem_alloc(sizeof(double) * nvar,0);
-  if (data  == (double *) NULL) goto label_end;
+  if (data  == nullptr) goto label_end;
 
   /* Normalization (optional) */
 
@@ -6167,7 +6169,7 @@ GEOSLIB_API int pca_f2z(Db    *db,
 
   error = 1;
   nvar  = db->getVariableNumber();
-  data  = (double *) NULL;
+  data  = nullptr;
   if (nvar <= 0)
   {
     messerr("The Transformation requires Z located variables");
@@ -6188,7 +6190,7 @@ GEOSLIB_API int pca_f2z(Db    *db,
   /* Core allocation */
 
   data = (double *) mem_alloc(sizeof(double) * nvar, 0);
-  if (data == (double *) NULL) goto label_end;
+  if (data == nullptr) goto label_end;
   
   /* Rotate the factors into data in the PCA system */
 
@@ -6236,8 +6238,8 @@ GEOSLIB_API int geometry_compute(Db    *db,
 
   /* Initializations */
 
-  if (db    == (Db    *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (db    == nullptr) return(1);
+  if (vario == nullptr) return(1);
   const VarioParam& varioparam = vario->getVarioParam();
   error  = 1;
 
@@ -6447,8 +6449,8 @@ GEOSLIB_API int variogram_mlayers(Db    *db,
 
   /* Initializations */
 
-  if (db    == (Db    *) NULL) return(1);
-  if (vario == (Vario *) NULL) return(1);
+  if (db    == nullptr) return(1);
+  if (vario == nullptr) return(1);
 
   /* Loop on the directions */
 
@@ -6535,9 +6537,9 @@ GEOSLIB_API int variogram_y2z(Vario *vario,
   /* Preliminary checks */
 
   error = 1;
-  if (vario == (Vario *) NULL) return(error);
+  if (vario == nullptr) return(error);
   if (anam  == (Anam *)  NULL) return(error);
-  if (model == (Model *) NULL) return(error);
+  if (model == nullptr) return(error);
   if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("This function is restricted to Gaussian Anamorphosis");
@@ -6549,7 +6551,7 @@ GEOSLIB_API int variogram_y2z(Vario *vario,
     messerr("This function is restricted to Punctual Anamoprhosis");
     return(error);
   }
-  if (vario == (Vario *) NULL) return(error);
+  if (vario == nullptr) return(error);
   if (vario->getVariableNumber() != 1)
   {
     messerr("This function is restricted to Monovariate Variogram");

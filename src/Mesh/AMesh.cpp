@@ -69,8 +69,8 @@ void AMesh::getDuplicates(int   verbose,
                           int **dupl2) const
 {
   *nbdupl = 0;
-  *dupl1 = (int *) NULL;
-  *dupl2 = (int *) NULL;
+  *dupl1 = nullptr;
+  *dupl2 = nullptr;
 }
 
 String AMesh::toString(int level) const
@@ -186,7 +186,7 @@ SPDE_Mesh* AMesh::_convertToOldMesh(AMesh* a_mesh) const
   int number;
 
   s_mesh = spde_mesh_manage(1, NULL);
-  if (s_mesh == (SPDE_Mesh *) NULL) return (s_mesh);
+  if (s_mesh == nullptr) return (s_mesh);
   s_mesh->ndim = a_mesh->getNDim();
   s_mesh->ncorner = a_mesh->getNApexPerMesh();
   s_mesh->nmesh = a_mesh->getNMeshes();

@@ -87,7 +87,7 @@ static int st_vector_get_col(Db *db, int icol, double *tab)
  ** \param[out]  tab Array of values
  **
  *****************************************************************************/
-static int st_vector_get_att(Db *db, int iatt, double *tab)
+static int st_vector_get_att(const Db *db, int iatt, double *tab)
 {
   if (!db->isAttributeIndexValid(iatt)) return (1);
   VectorDouble local = db->getFieldByAttribute(iatt);
@@ -135,7 +135,7 @@ GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
  ** \param[out]  tab Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get_att(Db *db, int iatt, double *tab)
+GEOSLIB_API int db_vector_get_att(const Db *db, int iatt, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, false);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -220,7 +220,7 @@ GEOSLIB_API int db_vector_get(Db *db,
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_selection_get(Db *db, int item, double *tab)
+GEOSLIB_API int db_selection_get(const Db *db, int item, double *tab)
 {
   int iatt = db->getAttribute(ELoc::SEL, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -311,7 +311,7 @@ static void st_load_data(Db *db,
  *****************************************************************************/
 GEOSLIB_API int is_grid(const Db *db, bool verbose)
 {
-  if (db == (Db *) NULL) return (0);
+  if (db == nullptr) return (0);
   if (db->isGrid()) return 1;
   if (verbose) messerr("The file should be a Grid Db");
   return 0;
@@ -347,7 +347,7 @@ GEOSLIB_API void set_IGRD(Db *db, int iech, int item, double value)
  *****************************************************************************/
 GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
 {
-  if (db == (Db *) NULL) return (0);
+  if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
     return (db->getNDim());
   else
@@ -366,7 +366,7 @@ GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
  *****************************************************************************/
 GEOSLIB_API int exist_LOCATOR(Db *db, const ELoc& locatorType)
 {
-  if (db == (Db *) NULL) return (0);
+  if (db == nullptr) return (0);
   return (db->getFromLocatorNumber(locatorType) > 0);
 }
 
@@ -443,15 +443,15 @@ GEOSLIB_API int *db_indg_free(int *indice)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API int *db_indg_alloc(Db *db)
+GEOSLIB_API int *db_indg_alloc(const Db *db)
 
 {
   int *indice, size;
 
   /* Initializations */
 
-  indice = (int *) NULL;
-  if (db == (Db *) NULL) return (indice);
+  indice = nullptr;
+  if (db == nullptr) return (indice);
   // The strange following line has been suppressed by DR on 27/08/2020
   // as there is no clear link between the status of the Db (grid or not)
   // and the allocation of such a vector
@@ -493,14 +493,14 @@ GEOSLIB_API double *db_vector_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API double *db_vector_alloc(Db *db)
+GEOSLIB_API double *db_vector_alloc(const Db *db)
 
 {
   double *tab;
 
   /* Initializations */
 
-  tab = (double *) NULL;
+  tab = nullptr;
   if (db->getSampleNumber() <= 0) return (tab);
   tab = (double *) mem_alloc(sizeof(double) * db->getSampleNumber(), 1);
 
@@ -522,7 +522,7 @@ GEOSLIB_API double *db_vector_alloc(Db *db)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GEOSLIB_API int db_coorvec_get(Db *db, int idim, double *tab)
+GEOSLIB_API int db_coorvec_get(const Db *db, int idim, double *tab)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -624,7 +624,7 @@ GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType)
 
   /* Initializations */
 
-  tab = (double *) NULL;
+  tab = nullptr;
   size = get_LOCATOR_NITEM(db, locatorType);
 
   /* In the case of a grid, there may be no actual data vector */
@@ -764,7 +764,7 @@ GEOSLIB_API double distance_inter(Db *db1,
     if (FFFF(v1) || FFFF(v2)) return (TEST);
     tab1[idim] = v1;
     tab2[idim] = v2;
-    if (dist_vect != (double *) NULL) dist_vect[idim] = v1 - v2;
+    if (dist_vect != nullptr) dist_vect[idim] = v1 - v2;
   }
   return (ut_distance(ndim, tab1, tab2));
 }
@@ -783,7 +783,7 @@ GEOSLIB_API double distance_inter(Db *db1,
  **                        Returns the distance as a vector
  **
  *****************************************************************************/
-GEOSLIB_API double distance_intra(Db *db,
+GEOSLIB_API double distance_intra(const Db *db,
                                   int iech1,
                                   int iech2,
                                   double *dist_vect)
@@ -801,7 +801,7 @@ GEOSLIB_API double distance_intra(Db *db,
     if (FFFF(v1) || FFFF(v2)) return (TEST);
     tab1[idim] = v1;
     tab2[idim] = v2;
-    if (dist_vect != (double *) NULL) dist_vect[idim] = v1 - v2;
+    if (dist_vect != nullptr) dist_vect[idim] = v1 - v2;
   }
   return (ut_distance(ndim, tab1, tab2));
 }
@@ -835,7 +835,7 @@ GEOSLIB_API double distance_grid(Db *db,
 
   if (iech1 == iech2)
   {
-    if (dist_vect != (double *) NULL)
+    if (dist_vect != nullptr)
       for (int idim = 0; idim < db->getNDim(); idim++)
         dist_vect[idim] = 0.;
     return (0.);
@@ -854,7 +854,7 @@ GEOSLIB_API double distance_grid(Db *db,
     int number = ABS(iwork1[idim] - iwork2[idim]);
     if (flag_moins1 && number > 1) number--;
     double delta = number * db->getDX(idim);
-    if (dist_vect != (double *) NULL) dist_vect[idim] = delta;
+    if (dist_vect != nullptr) dist_vect[idim] = delta;
     dist += delta * delta;
   }
 
@@ -876,7 +876,7 @@ GEOSLIB_API double distance_grid(Db *db,
  ** \remark  according to the 3rd coordinate with the bench width.
  **
  *****************************************************************************/
-GEOSLIB_API double bench_distance(Db *db, int iech1, int iech2)
+GEOSLIB_API double bench_distance(const Db *db, int iech1, int iech2)
 {
   int idim0 = 2;
   if (db->getNDim() <= idim0) return (0.);
@@ -895,7 +895,7 @@ GEOSLIB_API double bench_distance(Db *db, int iech1, int iech2)
  ** \param[in]  codir        Direction coefficient
  **
  *****************************************************************************/
-GEOSLIB_API double cylinder_radius(Db *db,
+GEOSLIB_API double cylinder_radius(const Db *db,
                                    int iech1,
                                    int iech2,
                                    const VectorDouble& codir)
@@ -1077,7 +1077,7 @@ GEOSLIB_API void db_print(Db *db,
 {
   /* Preliminary check */
 
-  if (db == (Db *) NULL) return;
+  if (db == nullptr) return;
 
   VectorInt cols;
   if (nrank > 0)
@@ -1153,11 +1153,11 @@ GEOSLIB_API int db_extension(Db *db,
 
   /* Copy to the returned arguments */
 
-  if (mini_arg != (double *) NULL) for (int idim = 0; idim < ndim; idim++)
+  if (mini_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
     mini_arg[idim] = mini[idim];
-  if (maxi_arg != (double *) NULL) for (int idim = 0; idim < ndim; idim++)
+  if (maxi_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
     maxi_arg[idim] = maxi[idim];
-  if (delta_arg != (double *) NULL) for (int idim = 0; idim < ndim; idim++)
+  if (delta_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
     delta_arg[idim] = delta[idim];
 
   return 0;
@@ -1180,19 +1180,19 @@ GEOSLIB_API int db_center(Db *db, double *center)
 
   /* Initializations */
 
-  tab = sel = wgt = (double *) NULL;
+  tab = sel = wgt = nullptr;
   tab = db_vector_alloc(db);
-  if (tab == (double *) NULL) return (1);
+  if (tab == nullptr) return (1);
   if (db->hasSelection())
   {
     sel = db_vector_alloc(db);
-    if (sel == (double *) NULL) return (1);
+    if (sel == nullptr) return (1);
     db_selection_get(db, 0, sel);
   }
   if (db->hasWeight())
   {
     wgt = db_vector_alloc(db);
-    if (wgt == (double *) NULL) return (1);
+    if (wgt == nullptr) return (1);
     db_vector_get(db, ELoc::W, 0, wgt);
   }
 
@@ -1226,7 +1226,7 @@ GEOSLIB_API int db_center(Db *db, double *center)
  ** \remarks  Different versions are provided for Euclidean and Spherical cases
  **
  *****************************************************************************/
-GEOSLIB_API int db_extension_diag(Db *db, double *diag)
+GEOSLIB_API int db_extension_diag(const Db *db, double *diag)
 {
   double *tab, *sel, vmin, vmax, diff, mean, stdv, coor[2][2];
   int idim, nval, flag_sphere;
@@ -1234,13 +1234,13 @@ GEOSLIB_API int db_extension_diag(Db *db, double *diag)
   /* Initializations */
 
   (*diag) = 0.;
-  tab = sel = (double *) NULL;
+  tab = sel = nullptr;
   tab = db_vector_alloc(db);
-  if (tab == (double *) NULL) return (1);
+  if (tab == nullptr) return (1);
   if (db->hasSelection())
   {
     sel = db_vector_alloc(db);
-    if (sel == (double *) NULL) return (1);
+    if (sel == nullptr) return (1);
     db_selection_get(db, 0, sel);
   }
   variety_query(&flag_sphere);
@@ -1327,7 +1327,7 @@ GEOSLIB_API double db_epsilon_distance(Db *db)
  ** \param[out]  delta  Extension
  **
  *****************************************************************************/
-GEOSLIB_API int db_attribute_range(Db *db,
+GEOSLIB_API int db_attribute_range(const Db *db,
                                    int iatt,
                                    double *mini,
                                    double *maxi,
@@ -1342,18 +1342,18 @@ GEOSLIB_API int db_attribute_range(Db *db,
   *mini = TEST;
   *maxi = TEST;
   *delta = TEST;
-  tab = sel = (double *) NULL;
+  tab = sel = nullptr;
 
   /* Load the variable */
 
   tab = db_vector_alloc(db);
-  if (tab == (double *) NULL) goto label_end;
+  if (tab == nullptr) goto label_end;
   if (db_vector_get_att(db, iatt, tab)) goto label_end;
 
   if (db->hasSelection())
   {
     sel = db_vector_alloc(db);
-    if (sel == (double *) NULL) goto label_end;
+    if (sel == nullptr) goto label_end;
     db_selection_get(db, 0, sel);
   }
 
@@ -1386,12 +1386,12 @@ GEOSLIB_API Db *db_delete(Db *db)
 {
   /* Initializations */
 
-  if (db == (Db *) NULL) return (db);
+  if (db == nullptr) return (db);
 
   /* Free the structure */
 
   delete db;
-  db = (Db *) NULL;
+  db = nullptr;
 
   return (db);
 }
@@ -1413,7 +1413,7 @@ GEOSLIB_API Db *db_delete(Db *db)
 GEOSLIB_API int db_grid_define_coordinates(Db *db)
 
 {
-  if (db == (Db *) NULL) return (0);
+  if (db == nullptr) return (0);
   if (!is_grid(db)) return (1);
   int ndim = db->getNDim();
   int nech = db->getSampleNumber();
@@ -1763,7 +1763,7 @@ GEOSLIB_API Db *db_create_from_target(double *target,
 
   /* Initializations */
 
-  db = (Db *) NULL;
+  db = nullptr;
 
   /* Create a Db with point organization */
 
@@ -2006,15 +2006,15 @@ GEOSLIB_API int db_selref(int ndim,
   /* Initializations */
 
   error = 1;
-  rank = ind1 = (int *) NULL;
+  rank = ind1 = nullptr;
   idim = jdim = 0;
 
   /* Core allocation */
 
   rank = (int *) mem_alloc(sizeof(int) * ndim, 0);
-  if (rank == (int *) NULL) goto label_end;
+  if (rank == nullptr) goto label_end;
   ind1 = (int *) mem_alloc(sizeof(int) * ndim, 0);
-  if (ind1 == (int *) NULL) goto label_end;
+  if (ind1 == nullptr) goto label_end;
 
   /* Set the indices */
 
@@ -2093,12 +2093,12 @@ GEOSLIB_API int db_locate_in_grid(Db *db_grid, double *coor)
   /* Initializations */
 
   indabs = -1;
-  indg = (int *) NULL;
+  indg = nullptr;
 
   /* Core allocation */
 
   indg = db_indg_alloc(db_grid);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
 
   if (point_to_grid(db_grid, coor, 0, indg) < 0) goto label_end;
 
@@ -2286,7 +2286,7 @@ GEOSLIB_API int db_grid_copy_dilate(Db *db1,
 
   error = 1;
   ndim = db1->getNDim();
-  indg = (int *) NULL;
+  indg = nullptr;
 
   /* Check that the grids are compatible */
 
@@ -2300,7 +2300,7 @@ GEOSLIB_API int db_grid_copy_dilate(Db *db1,
   /* Core allocation */
 
   indg = db_indg_alloc(db1);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
 
   /* Loop on the samples of the second Db */
 
@@ -2350,7 +2350,7 @@ GEOSLIB_API void grid_to_point(const Db *db, int *indg, double *percent, double 
   for (int idim = 0; idim < ndim; idim++)
   {
     work1[idim] = indg[idim];
-    if (percent != (double *) NULL) work1[idim] += percent[idim];
+    if (percent != nullptr) work1[idim] += percent[idim];
     work1[idim] *= db->getDX(idim);
   }
 
@@ -2796,7 +2796,7 @@ GEOSLIB_API int db_proportion(Db *db,
   nvar = db->getVariableNumber();
   nech = db->getSampleNumber();
   nclass = 0;
-  coor = tab = sel = (double *) NULL;
+  coor = tab = sel = nullptr;
   if (nvar <= 0 || nvar > 2)
   {
     messerr("This procedure is designed for 1 or 2 variables");
@@ -2817,12 +2817,12 @@ GEOSLIB_API int db_proportion(Db *db,
     if (nmax[ivar] <= 0)
     {
       tab = db_vector_alloc(db);
-      if (tab == (double *) NULL) goto label_end;
+      if (tab == nullptr) goto label_end;
       if (db_vector_get(db, ELoc::Z, ivar, tab)) continue;
       if (db->hasSelection())
       {
         sel = db_vector_alloc(db);
-        if (sel == (double *) NULL) goto label_end;
+        if (sel == nullptr) goto label_end;
         db_selection_get(db, 0, sel);
       }
       ut_facies_statistics(nech, tab, sel, &nval, &mini, &nmax[ivar]);
@@ -2834,7 +2834,7 @@ GEOSLIB_API int db_proportion(Db *db,
   /* Core allocation */
 
   coor = db_sample_alloc(db, ELoc::X);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
 
   /* Allocate the variables */
 
@@ -2975,7 +2975,7 @@ GEOSLIB_API int db_count_defined(Db *db, int icol)
   double value;
 
   number = 0;
-  if (db == (Db *) NULL) return (number);
+  if (db == nullptr) return (number);
   for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     value = db->getArray(iech, icol);
@@ -3302,7 +3302,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
   *n2 = 0;
   nech1 = db1->getActiveSampleNumber();
   nech2 = db2->getActiveSampleNumber();
-  dist = (double *) NULL;
+  dist = nullptr;
   max_all = nech1 * nech2;
 
   /* Preliminary checks */
@@ -3321,7 +3321,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
   if (mode > 0)
   {
     dist = (double *) mem_alloc(sizeof(double) * max_all, 0);
-    if (dist == (double *) NULL) return (dist);
+    if (dist == nullptr) return (dist);
     for (int i = 0; i < max_all; i++)
       dist[i] = 0.;
   }
@@ -3370,7 +3370,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
   if (mode > 0 && ecr < max_all)
   {
     dist = (double *) mem_realloc((char * ) dist, sizeof(double) * ecr, 0);
-    if (dist == (double *) NULL) return (dist);
+    if (dist == nullptr) return (dist);
   }
 
   /* Returned arguments */
@@ -3438,8 +3438,8 @@ GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
   /* Initializations */
 
   error = 1;
-  indg = (int *) NULL;
-  coor1 = coor2 = perc = (double *) NULL;
+  indg = nullptr;
+  coor1 = coor2 = perc = nullptr;
 
   /* Preliminary checks */
 
@@ -3505,8 +3505,8 @@ GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
                                         const VectorInt& nmult,
                                         int flag_add_rank)
 {
-  Db* dbout = (Db *) NULL;
-  if (dbin == (Db *) NULL) return (dbin);
+  Db* dbout = nullptr;
+  if (dbin == nullptr) return (dbin);
   int ndim = dbin->getNDim();
 
   /* Core allocation */
@@ -3542,8 +3542,8 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                        const VectorInt& nmult,
                                        int flag_add_rank)
 {
-  Db* dbout = (Db *) NULL;
-  if (dbin == (Db *) NULL) return dbin;
+  Db* dbout = nullptr;
+  if (dbin == nullptr) return dbin;
   if (! dbin->isGrid()) return dbin;
 
   int ndim = dbin->getNDim();
@@ -3580,8 +3580,8 @@ GEOSLIB_API Db *db_create_grid_dilate(Db *dbin,
                                       const VectorInt& nshift,
                                       int flag_add_rank)
 {
-  Db* dbout = (Db *) NULL;
-  if (dbin == (Db *) NULL) return dbin;
+  Db* dbout = nullptr;
+  if (dbin == nullptr) return dbin;
   if (! dbin->isGrid()) return dbin;
 
   /* Get the new grid characteristics */
@@ -3632,14 +3632,14 @@ GEOSLIB_API int db_gradient_modang_to_component(Db *db,
   /* Initializations */
 
   error = 1;
-  v1 = v2 = (double *) NULL;
+  v1 = v2 = nullptr;
 
   /* Core allocation */
 
   v1 = db_vector_alloc(db);
-  if (v1 == (double *) NULL) goto label_end;
+  if (v1 == nullptr) goto label_end;
   v2 = db_vector_alloc(db);
-  if (v2 == (double *) NULL) goto label_end;
+  if (v2 == nullptr) goto label_end;
 
   /* Load the information */
 
@@ -3708,14 +3708,14 @@ GEOSLIB_API int db_gradient_component_to_modang(Db *db,
   /* Initializations */
 
   error = 1;
-  v1 = v2 = (double *) NULL;
+  v1 = v2 = nullptr;
 
   /* Core allocation */
 
   v1 = db_vector_alloc(db);
-  if (v1 == (double *) NULL) goto label_end;
+  if (v1 == nullptr) goto label_end;
   v2 = db_vector_alloc(db);
-  if (v2 == (double *) NULL) goto label_end;
+  if (v2 == nullptr) goto label_end;
 
   /* Load the information */
 
@@ -3931,26 +3931,26 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
   // Initializations */
 
   error = 1;
-  ss_grid = (Db *) NULL;
-  indcur = indmin = indmax = (int *) NULL;
-  coor = (double *) NULL;
+  ss_grid = nullptr;
+  indcur = indmin = indmax = nullptr;
+  coor = nullptr;
 
   // Core allocation
 
   nech = db_grid->getSampleNumber();
   ndim = db_grid->getNDim();
   indcur = db_indg_alloc(db_grid);
-  if (indcur == (int *) NULL) goto label_end;
+  if (indcur == nullptr) goto label_end;
   indmin = db_indg_alloc(db_grid);
-  if (indmin == (int *) NULL) goto label_end;
+  if (indmin == nullptr) goto label_end;
   for (int idim = 0; idim < ndim; idim++)
     indmin[idim] = nech;
   indmax = db_indg_alloc(db_grid);
-  if (indmax == (int *) NULL) goto label_end;
+  if (indmax == nullptr) goto label_end;
   for (int idim = 0; idim < ndim; idim++)
     indmax[idim] = -1;
   coor = db_sample_alloc(db_grid, ELoc::X);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
 
   // Loop on the input grid
 
@@ -3976,10 +3976,10 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
     if (indmin[idim] > indmax[idim]) flag_refuse = 1;
     size = db_grid->getNX(idim);
     mini = indmin[idim];
-    if (margin != (int *) NULL) mini = MAX(0, mini - margin[idim]);
+    if (margin != nullptr) mini = MAX(0, mini - margin[idim]);
     maxi = indmax[idim];
-    if (margin != (int *) NULL) maxi = MIN(size - 1, maxi + margin[idim]);
-    if (limmin != (int *) NULL)
+    if (margin != nullptr) maxi = MIN(size - 1, maxi + margin[idim]);
+    if (limmin != nullptr)
     {
       ecart = limmin[idim];
       if (ecart > 0)
@@ -4118,8 +4118,8 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
 
   error = 1;
   ndim = ss_grid->getNDim();
-  indg = indg0 = (int *) NULL;
-  coor1 = coor2 = (double *) NULL;
+  indg = indg0 = nullptr;
+  coor1 = coor2 = nullptr;
 
   /* Check that the two grids are compatible */
 
@@ -4130,13 +4130,13 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
   /* Core allocation */
 
   coor1 = (double *) mem_alloc(sizeof(double) * ndim, 0);
-  if (coor1 == (double *) NULL) goto label_end;
+  if (coor1 == nullptr) goto label_end;
   coor2 = (double *) mem_alloc(sizeof(double) * ndim, 0);
-  if (coor2 == (double *) NULL) goto label_end;
+  if (coor2 == nullptr) goto label_end;
   indg0 = db_indg_alloc(db_grid);
-  if (indg0 == (int *) NULL) goto label_end;
+  if (indg0 == nullptr) goto label_end;
   indg = db_indg_alloc(db_grid);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
 
   /* Find the coordinates of the origin of the sub-grid within the main grid */
 
@@ -4356,7 +4356,7 @@ GEOSLIB_API int db_extension_rotated(Db *db,
   if (db_extension(db, mini, maxi, NULL)) goto label_end;
 
   // Bypass the calculations
-  if (rotmat == (double *) NULL) goto label_suite;
+  if (rotmat == nullptr) goto label_suite;
   if (ndim <= 1 || ndim > 3) goto label_suite;
 
   // Perform the rotation
@@ -4428,12 +4428,12 @@ GEOSLIB_API int db_extension_rotated(Db *db,
 
   /* Copy to the returned arguments */
 
-  label_suite: if (mini_arg != (double *) NULL)
+  label_suite: if (mini_arg != nullptr)
     for (int idim = 0; idim < ndim; idim++)
       mini_arg[idim] = mini[idim];
-  if (maxi_arg != (double *) NULL) for (int idim = 0; idim < ndim; idim++)
+  if (maxi_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
     maxi_arg[idim] = maxi[idim];
-  if (delta_arg != (double *) NULL) for (int idim = 0; idim < ndim; idim++)
+  if (delta_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
     delta_arg[idim] = maxi[idim] - mini[idim];
 
   /* Set the error return code */
@@ -4458,7 +4458,7 @@ GEOSLIB_API VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
 {
   VectorDouble vect;
 
-  if (dbgrid == (Db *) NULL) return (vect);
+  if (dbgrid == nullptr) return (vect);
   if (!is_grid(dbgrid)) return (vect);
   if (idim < 0 || idim >= dbgrid->getNDim()) return (vect);
 
@@ -4485,7 +4485,7 @@ GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
 {
   VectorDouble vect;
 
-  if (db == (Db *) NULL)
+  if (db == nullptr)
   {
     if (verbose) messerr("Function 'db_get_attribute' requires a valid 'Db'");
     return (vect);

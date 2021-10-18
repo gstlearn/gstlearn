@@ -347,7 +347,7 @@ int AGibbs::getSampleRankNumber() const
   if (_ranks.empty())
     return _db->getSampleNumber();
   else
-    return _ranks.size();
+    return static_cast<int>(_ranks.size());
 }
 
 int AGibbs::getSampleRank(int i) const

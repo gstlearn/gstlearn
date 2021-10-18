@@ -193,8 +193,8 @@ private:
   void _initMeans();
   void _initVars();
   int  _getNVar(const Db* db);
-  VectorDouble _getVariableInterval(int ivar) const;
-  VectorDouble _getDirectionInterval(int idir) const;
+  VectorInt _getVariableInterval(int ivar) const;
+  VectorInt _getDirectionInterval(int idir) const;
   String _toStringByDirection(int level, int idir) const;
   void _directionResize(int idir);
   void _setDPasFromGrid(bool flag_grid);

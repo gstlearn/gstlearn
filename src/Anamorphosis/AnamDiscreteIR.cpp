@@ -99,7 +99,7 @@ int AnamDiscreteIR::fit(const VectorDouble& tab, int verbose)
   int nech = static_cast<int> (tab.size());
   int nclass = getNClass();
   int ncut = getNCut();
-  residuals = T = Q = (double *) NULL;
+  residuals = T = Q = nullptr;
 
   /* Core allocation */
 

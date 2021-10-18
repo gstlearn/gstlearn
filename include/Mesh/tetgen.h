@@ -354,14 +354,14 @@ public:
   char *findnextnumber(char* string);
 
   static void init(polygon* p) {
-    p->vertexlist = (int *) NULL;
+    p->vertexlist = nullptr;
     p->numberofvertices = 0;
   }
 
   static void init(facet* f) {
-    f->polygonlist = (polygon *) NULL;
+    f->polygonlist = nullptr;
     f->numberofpolygons = 0;
-    f->holelist = (DREAL *) NULL;
+    f->holelist = nullptr;
     f->numberofholes = 0;
   }
 
@@ -372,58 +372,58 @@ public:
     mesh_dim = 3;
     useindex = 1;
 
-    pointlist = (DREAL *) NULL;
-    pointattributelist = (DREAL *) NULL;
-    pointmtrlist = (DREAL *) NULL;
-    pointmarkerlist = (int *) NULL;
-	point2tetlist = (int *) NULL;
-    pointparamlist = (pointparam *) NULL;
+    pointlist = nullptr;
+    pointattributelist = nullptr;
+    pointmtrlist = nullptr;
+    pointmarkerlist = nullptr;
+	point2tetlist = nullptr;
+    pointparamlist = nullptr;
     numberofpoints = 0;
     numberofpointattributes = 0;
     numberofpointmtrs = 0;
 
-    tetrahedronlist = (int *) NULL;
-    tetrahedronattributelist = (DREAL *) NULL;
-    tetrahedronvolumelist = (DREAL *) NULL;
-    neighborlist = (int *) NULL;
-	tet2facelist = (int *) NULL;
-	tet2edgelist = (int *) NULL;
+    tetrahedronlist = nullptr;
+    tetrahedronattributelist = nullptr;
+    tetrahedronvolumelist = nullptr;
+    neighborlist = nullptr;
+	tet2facelist = nullptr;
+	tet2edgelist = nullptr;
     numberoftetrahedra = 0;
     numberofcorners = 4; 
     numberoftetrahedronattributes = 0;
 
-    trifacelist = (int *) NULL;
-    trifacemarkerlist = (int *) NULL;
-    o2facelist = (int *) NULL;
-    face2tetlist = (int *) NULL;
-	face2edgelist = (int *) NULL;
+    trifacelist = nullptr;
+    trifacemarkerlist = nullptr;
+    o2facelist = nullptr;
+    face2tetlist = nullptr;
+	face2edgelist = nullptr;
     numberoftrifaces = 0; 
 
-    edgelist = (int *) NULL;
-    edgemarkerlist = (int *) NULL;
-    o2edgelist = (int *) NULL;
-    edge2tetlist = (int *) NULL;
+    edgelist = nullptr;
+    edgemarkerlist = nullptr;
+    o2edgelist = nullptr;
+    edge2tetlist = nullptr;
     numberofedges = 0;
 
-    facetlist = (facet *) NULL;
-    facetmarkerlist = (int *) NULL;
+    facetlist = nullptr;
+    facetmarkerlist = nullptr;
     numberoffacets = 0; 
 
-    holelist = (DREAL *) NULL;
+    holelist = nullptr;
     numberofholes = 0;
 
-    regionlist = (DREAL *) NULL;
+    regionlist = nullptr;
     numberofregions = 0;
 
-    facetconstraintlist = (DREAL *) NULL;
+    facetconstraintlist = nullptr;
     numberoffacetconstraints = 0;
-    segmentconstraintlist = (DREAL *) NULL;
+    segmentconstraintlist = nullptr;
     numberofsegmentconstraints = 0;
 
-    vpointlist = (DREAL *) NULL;
-    vedgelist = (voroedge *) NULL;
-    vfacetlist = (vorofacet *) NULL; 
-    vcelllist = (int **) NULL; 
+    vpointlist = nullptr;
+    vedgelist = nullptr;
+    vfacetlist = nullptr;
+    vcelllist = nullptr; 
     numberofvpoints = 0;
     numberofvedges = 0;
     numberofvfacets = 0;
@@ -445,74 +445,74 @@ public:
   {
     int i, j;
 
-    if (pointlist != (DREAL *) NULL) {
+    if (pointlist != nullptr) {
       delete [] pointlist;
     }
-    if (pointattributelist != (DREAL *) NULL) {
+    if (pointattributelist != nullptr) {
       delete [] pointattributelist;
     }
-    if (pointmtrlist != (DREAL *) NULL) {
+    if (pointmtrlist != nullptr) {
       delete [] pointmtrlist;
     }
-    if (pointmarkerlist != (int *) NULL) {
+    if (pointmarkerlist != nullptr) {
       delete [] pointmarkerlist;
     }
-	if (point2tetlist != (int *) NULL) {
+	if (point2tetlist != nullptr) {
       delete [] point2tetlist;
     }
-    if (pointparamlist != (pointparam *) NULL) {
+    if (pointparamlist != nullptr) {
       delete [] pointparamlist;
     }
 
-    if (tetrahedronlist != (int *) NULL) {
+    if (tetrahedronlist != nullptr) {
       delete [] tetrahedronlist;
     }
-    if (tetrahedronattributelist != (DREAL *) NULL) {
+    if (tetrahedronattributelist != nullptr) {
       delete [] tetrahedronattributelist;
     }
-    if (tetrahedronvolumelist != (DREAL *) NULL) {
+    if (tetrahedronvolumelist != nullptr) {
       delete [] tetrahedronvolumelist;
     }
-    if (neighborlist != (int *) NULL) {
+    if (neighborlist != nullptr) {
       delete [] neighborlist;
     }
-    if (tet2facelist != (int *) NULL) {
+    if (tet2facelist != nullptr) {
 	  delete [] tet2facelist;
 	}
-	if (tet2edgelist != (int *) NULL) {
+	if (tet2edgelist != nullptr) {
 	  delete [] tet2edgelist;
 	}
 
-    if (trifacelist != (int *) NULL) {
+    if (trifacelist != nullptr) {
       delete [] trifacelist;
     }
-    if (trifacemarkerlist != (int *) NULL) {
+    if (trifacemarkerlist != nullptr) {
       delete [] trifacemarkerlist;
     }
-    if (o2facelist != (int *) NULL) {
+    if (o2facelist != nullptr) {
       delete [] o2facelist;
     }
-    if (face2tetlist != (int *) NULL) {
+    if (face2tetlist != nullptr) {
       delete [] face2tetlist;
     }
-	if (face2edgelist != (int *) NULL) {
+	if (face2edgelist != nullptr) {
       delete [] face2edgelist;
     }
 
-    if (edgelist != (int *) NULL) {
+    if (edgelist != nullptr) {
       delete [] edgelist;
     }
-    if (edgemarkerlist != (int *) NULL) {
+    if (edgemarkerlist != nullptr) {
       delete [] edgemarkerlist;
     }
-    if (o2edgelist != (int *) NULL) {
+    if (o2edgelist != nullptr) {
       delete [] o2edgelist;
     }
-    if (edge2tetlist != (int *) NULL) {
+    if (edge2tetlist != nullptr) {
       delete [] edge2tetlist;
     }
 
-    if (facetlist != (facet *) NULL) {
+    if (facetlist != nullptr) {
       facet *f;
       polygon *p;
       for (i = 0; i < numberoffacets; i++) {
@@ -522,41 +522,41 @@ public:
           delete [] p->vertexlist;
         }
         delete [] f->polygonlist;
-        if (f->holelist != (DREAL *) NULL) {
+        if (f->holelist != nullptr) {
           delete [] f->holelist;
         }
       }
       delete [] facetlist;
     }
-    if (facetmarkerlist != (int *) NULL) {
+    if (facetmarkerlist != nullptr) {
       delete [] facetmarkerlist;
     }
 
-    if (holelist != (DREAL *) NULL) {
+    if (holelist != nullptr) {
       delete [] holelist;
     }
-    if (regionlist != (DREAL *) NULL) {
+    if (regionlist != nullptr) {
       delete [] regionlist;
     }
-    if (facetconstraintlist != (DREAL *) NULL) {
+    if (facetconstraintlist != nullptr) {
       delete [] facetconstraintlist;
     }
-    if (segmentconstraintlist != (DREAL *) NULL) {
+    if (segmentconstraintlist != nullptr) {
       delete [] segmentconstraintlist;
     }
-    if (vpointlist != (DREAL *) NULL) {
+    if (vpointlist != nullptr) {
       delete [] vpointlist;
     }
-    if (vedgelist != (voroedge *) NULL) {
+    if (vedgelist != nullptr) {
       delete [] vedgelist;
     }
-    if (vfacetlist != (vorofacet *) NULL) {
+    if (vfacetlist != nullptr) {
       for (i = 0; i < numberofvfacets; i++) {
         delete [] vfacetlist[i].elist;
       }
       delete [] vfacetlist;
     }
-    if (vcelllist != (int **) NULL) {
+    if (vcelllist != nullptr) {
       for (i = 0; i < numberofvcells; i++) {
         delete [] vcelllist[i];
       }
@@ -2162,14 +2162,14 @@ public:
       delete bgm;
     }
 
-    if (points != (memorypool *) NULL) {
+    if (points != nullptr) {
       delete points;
       delete [] dummypoint;
     }
-    if (tetrahedrons != (memorypool *) NULL) {
+    if (tetrahedrons != nullptr) {
       delete tetrahedrons;
     }
-    if (subfaces != (memorypool *) NULL) {
+    if (subfaces != nullptr) {
       delete subfaces;
       delete subsegs;
     }
