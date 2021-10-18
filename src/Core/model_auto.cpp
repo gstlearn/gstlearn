@@ -101,20 +101,22 @@ typedef struct {
 
 /*! \endcond */
 
+// TODO : rename this (and remove static string below)
 static char string[STRING_LENGTH];
 static char cov_name[STRING_LENGTH];
 
 static int CONGRUENCY = 50;
 static double EpsFit = 1.e-12;
 
-static Regularize   REGULARIZE;
+static Regularize REGULARIZE;
 static std::vector<StrExp> STREXPS;
-static StrMod      *STRMOD  = NULL;
+static StrMod* STRMOD = nullptr;
 static Option_AutoFit MAUTO;
-static int         *INDG1,*INDG2;
-static const Db          *DBMAP;
+static int* INDG1;
+static int* INDG2;
+static const Db* DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
-static Recint       RECINT;
+static Recint RECINT;
 
 /****************************************************************************/
 /*!
@@ -126,13 +128,13 @@ static Recint       RECINT;
 static void st_name_range(int ivar)
 {
   if (ivar == 0)
-    (void) gslSPrintf(string,gslArraySize(string),"Range U");
+    (void) gslStrcpy(string,"Range U");
   else if (ivar == 1)
-    (void) gslSPrintf(string,gslArraySize(string),"Range V");
+    (void) gslStrcpy(string,"Range V");
   else if (ivar == 2)
-    (void) gslSPrintf(string,gslArraySize(string),"Range W");
+    (void) gslStrcpy(string,"Range W");
   else
-    (void) gslSPrintf(string,gslArraySize(string),"Range in direction %d",ivar);
+    (void) gslSPrintf(string,"Range in direction %d",ivar);
 }
 
 /****************************************************************************/
@@ -145,13 +147,13 @@ static void st_name_range(int ivar)
 static void st_name_scale(int ivar)
 {
   if (ivar == 0)
-    (void) gslSPrintf(string,gslArraySize(string),"Scale U");
+    (void) gslStrcpy(string,"Scale U");
   else if (ivar == 1)
-    (void) gslSPrintf(string,gslArraySize(string),"Scale V");
+    (void) gslStrcpy(string,"Scale V");
   else if (ivar == 2)
-    (void) gslSPrintf(string,gslArraySize(string),"Scale W");
+    (void) gslStrcpy(string,"Scale W");
   else
-    (void) gslSPrintf(string,gslArraySize(string),"Scale in direction %d",ivar);
+    (void) gslSPrintf(string,"Scale in direction %d",ivar);
 }
 
 /****************************************************************************/
@@ -164,13 +166,13 @@ static void st_name_scale(int ivar)
 static void st_name_rotation(int rank)
 {
   if (rank == 0)
-    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Oz");
+    (void) gslStrcpy(string,"Anisotropy Rotation Angle around Oz");
   else if (rank == 1)
-    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Oy");
+    (void) gslStrcpy(string,"Anisotropy Rotation Angle around Oy");
   else if (rank == 2)
-    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle around Ox");
+    (void) gslStrcpy(string,"Anisotropy Rotation Angle around Ox");
   else
-    (void) gslSPrintf(string,gslArraySize(string),"Anisotropy Rotation Angle %d",rank);
+    (void) gslSPrintf(string,"Anisotropy Rotation Angle %d",rank);
 }
 
 /****************************************************************************/
@@ -1256,7 +1258,7 @@ static void st_goulard_debug_title(int nvar,
                                    int ncova)
 {
   int icov,ivar,jvar;
-  static  char string[20];
+  static char string[20];
 
   if (! debug_query("converge")) return;
   mestitle(1,"Trajectory of parameters in Goulard Algorithm");
@@ -1267,7 +1269,7 @@ static void st_goulard_debug_title(int nvar,
     for (ivar=0; ivar<nvar; ivar++)
       for (jvar=0; jvar<=ivar; jvar++)
       {
-        (void) gslSPrintf(string,gslArraySize(string),"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
+        (void) gslSPrintf(string,"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
       }
   message("\n");
@@ -1333,7 +1335,7 @@ static void st_keypair_sill(int   mode,
   {
     for (int icova=0; icova<ncova; icova++)
     {
-      (void) gslSPrintf(string,gslArraySize(string),"Fitted_Sill_%d",icova+1);
+      (void) gslSPrintf(string,"Fitted_Sill_%d",icova+1);
       set_keypair(string,1,nvar,nvar,
                   model->getSill(icova).getValues().data());
     }
@@ -1366,9 +1368,9 @@ static void st_keypair_results(int     mode,
   }
   else
   {
-    (void) gslSPrintf(string,gslArraySize(string),"Model_Auto_Eigen_Values_%d",icov+1);
+    (void) gslSPrintf(string,"Model_Auto_Eigen_Values_%d",icov+1);
     set_keypair(string,1,1,nvar,valpro);
-    (void) gslSPrintf(string,gslArraySize(string),"Model_Auto_Eigen_Vector_%d",icov+1);
+    (void) gslSPrintf(string,"Model_Auto_Eigen_Vector_%d",icov+1);
     set_keypair(string,1,nvar,nvar,vecpro);
   }
 }

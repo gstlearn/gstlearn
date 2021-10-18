@@ -968,7 +968,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
 
   /* Initializations */
 
-  (void) gslStrcpy(string, gslArraySize(string), "NA");
+  (void) gslStrcpy(string, "NA");
   nech = db->getSampleNumber();
   nvar = db->getFieldNumber();
 
@@ -1006,11 +1006,11 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
     if (db->getLocatorByColumn(jvar, &locatorType, &item))
     {
       String strloc = getLocatorName(locatorType, item);
-      (void) gslStrcpy(string, gslArraySize(string), strloc.c_str());
+      (void) gslStrcpy(string, strloc.c_str());
     }
     else
-      (void) gslStrcpy(string, gslArraySize(string), "NA");
-    if (jvar == ivar) (void) gslStrcat(string, gslArraySize(string), "*");
+      (void) gslStrcpy(string, "NA");
+    if (jvar == ivar) (void) gslStrcat(string, "*");
     tab_prints(NULL, 1, EJustify::RIGHT, string);
   }
   message("\n");

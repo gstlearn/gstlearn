@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Table.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
 

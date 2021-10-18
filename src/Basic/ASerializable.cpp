@@ -248,7 +248,7 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
         LINE[wsize] = 0;
       else
         LINE[strlen(LINE)-1] = '\0';
-      (void) gslStrcpy(LINE_MEM, gslArraySize(LINE_MEM), LINE);
+      (void) gslStrcpy(LINE_MEM, LINE);
 
       /* Eliminate the comments and replace <TAB> by blank*/
 

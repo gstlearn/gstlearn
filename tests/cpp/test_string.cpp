@@ -8,35 +8,45 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
-#include <string.h>
+#include <iostream>
 
 /**
- * This test is meant to check the interactive questioning
- * @return
+ * This test is meant to check the string manipulations
  */
 int main()
 {
-  int ianswer;
-  double ranswer;
+  // Testing string conversion Old to New style functions
 
-  // Testing numerical input
+  char buf_char[] = "abcde";
+  message("Buffer (char) = %s\n",buf_char);
 
-  message("Testing Interactive input\n");
+  // Testing strcpy
 
-  ianswer = askInt("Enter an Integer with no Default value");
-  message("Value read = %d\n",ianswer);
+  message("Testing gslStrcpy:\n");
+  message("- Expected result: abcde\n");
 
-  ianswer = askInt("Enter an Integer with Default value", 14.);
-  message("Value read = %d\n",ianswer);
-  
-  ranswer = askDouble("Enter a Double with no Default value");
-  message("Value read = %lf\n",ranswer);
+  char dst_char[10];
+  gslStrcpy(dst_char,buf_char);
+  message("- Result = %s\n",dst_char);
 
-  ranswer = askDouble("Enter a Double with Default value", 14.);
-  message("Value read = %lf\n",ranswer);
+  // Testing strcat
 
+  message("Testing gslStrcat:\n");
+  message("- Expected result: abcdefgh\n");
+
+  char newbuf_char[] = "fgh";
+  gslStrcat(dst_char,newbuf_char);
+  message("- Result = %s\n",dst_char);
+
+  // Testing sprintf
+
+  message("Testing gslSPrintf:\n");
+  message("- Expected result: A+fgh\n");
+  gslSPrintf(dst_char,"A+%s",newbuf_char);
+  message("- Result(char) = %s\n",dst_char);
 
   return 0;
 }

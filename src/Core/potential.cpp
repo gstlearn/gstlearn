@@ -2415,9 +2415,9 @@ static void st_save_manage(int     mode,
   }
   else
   {
-    (void) gslSPrintf(STRING,gslArraySize(STRING),"%s.pot",radix);
+    (void) gslSPrintf(STRING,"%s.pot",radix);
     set_keypair(STRING,1,nech,1,potval);
-    (void) gslSPrintf(STRING,gslArraySize(STRING),"%s.grd",radix);
+    (void) gslSPrintf(STRING,"%s.grd",radix);
     set_keypair(STRING,1,nech,ndim,potgrd);
     potval = (double *) mem_free((char *) potval);
     potgrd = (double *) mem_free((char *) potgrd);
@@ -2712,9 +2712,9 @@ static void st_evaluate_potval(Pot_Env *pot_env,
   // Save the result using the keypair mechanism
 
   if (nbsimu > 0)
-    (void) gslSPrintf(STRING,gslArraySize(STRING),"Potential.Simulation.%d",isimu+1);
+    (void) gslSPrintf(STRING,"Potential.Simulation.%d",isimu+1);
   else
-    (void) gslSPrintf(STRING,gslArraySize(STRING),"Potential.Estimation");
+    (void) gslStrcpy(STRING,"Potential.Estimation");
   set_keypair(STRING,1,pot_env->nlayers,1,potval);
 
   // Sort them by ascending order 

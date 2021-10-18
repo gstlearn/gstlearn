@@ -22,16 +22,16 @@
 #include "geoslib_old_f.h"
 
 NoStatArray::NoStatArray()
-    : ANoStat(),
-      _dbnostat(nullptr),
-      _tab()
+: ANoStat(),
+  _dbnostat(nullptr),
+  _tab()
 {
 }
 
 NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
-    : ANoStat(codes),
-      _dbnostat(dbnostat),
-      _tab()
+: ANoStat(codes),
+  _dbnostat(dbnostat),
+  _tab()
 {
   if (! _checkValid())
   {
@@ -41,9 +41,9 @@ NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
 }
 
 NoStatArray::NoStatArray(const NoStatArray &m)
-    : ANoStat(m),
-      _dbnostat(m._dbnostat),
-      _tab(m._tab)
+: ANoStat(m),
+  _dbnostat(m._dbnostat),
+  _tab(m._tab)
 {
 
 }
@@ -412,7 +412,7 @@ int NoStatArray::_informField(int ipar,
     }
 
     message("For Non-Stationary Parameter (%d), there are some undefined values (%d)\n",
-        ipar + 1, ndef);
+            ipar + 1, ndef);
     message("They have been replaced by its average value (%lf)\n", mean);
 
     // Modify the TEST values to the mean value
@@ -427,8 +427,10 @@ int NoStatArray::_informField(int ipar,
 
   if (verbose)
   {
-    String str;
-    (void) gslSPrintf(str,"Statistics for Non-Stationary Parameter #%d on Mesh",ipar + 1);
+    char str[LONG_SIZE];
+    (void) gslSPrintf(str,
+                      "Statistics for Non-Stationary Parameter #%d on Mesh",
+                      ipar + 1);
     ut_vector_display_stats(str,tab);
   }
 

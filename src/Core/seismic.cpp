@@ -2710,7 +2710,7 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
   tab_prints(NULL,1,EJustify::RIGHT,"Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    (void) gslSPrintf(string,gslArraySize(string),"Z%d*",ivar+1);
+    (void) gslSPrintf(string,"Z%d*",ivar+1);
     tab_prints(NULL,1,EJustify::RIGHT,string);
   }
   message("\n");

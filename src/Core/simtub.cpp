@@ -1886,12 +1886,12 @@ static void st_difference(Db     *dbin,
     {
       for (ivar=0; ivar<nvar; ivar++)
       {
-        (void) gslSPrintf(string,gslArraySize(string),"Data%d",ivar+1);
+        (void) gslSPrintf(string,"Data%d",ivar+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
         
         for (isimu=0; isimu<nbsimu; isimu++)
         {
-          (void) gslSPrintf(string,gslArraySize(string),"Simu%d",isimu+1);
+          (void) gslSPrintf(string,"Simu%d",isimu+1);
           tab_prints(NULL,1,EJustify::RIGHT,string);
         }
       }
@@ -1950,10 +1950,10 @@ static void st_difference(Db     *dbin,
     {
       for (isimu=0; isimu<nbsimu; isimu++)
       {
-        (void) gslSPrintf(string,gslArraySize(string),"Data%d",isimu+1);
+        (void) gslSPrintf(string,"Data%d",isimu+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
         
-        (void) gslSPrintf(string,gslArraySize(string),"Simulation%d",isimu+1);
+        (void) gslSPrintf(string,"Simulation%d",isimu+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
       }
       message("\n");

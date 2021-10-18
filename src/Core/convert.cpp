@@ -226,7 +226,7 @@ static void st_ifpen_write(FILE       *file,
 
   /* Initialize the string */
 
-  (void) gslStrcpy(line,gslArraySize(line),"");
+  (void) gslStrcpy(line,"");
 
   /* Comment */
 
@@ -2017,7 +2017,7 @@ static int st_read_find(int   s_length,
 {
   char big_target[1000];
   
-  (void) gslStrcpy(big_target,gslArraySize(big_target),target);
+  (void) gslStrcpy(big_target,target);
   string_to_uppercase(big_target);
 
   /* Check the current line */
@@ -2099,12 +2099,12 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
   for (int ivar=0; ivar<nvar_special; ivar++)
   {
     varloc[ivar] = (char *) mem_alloc(sizeof(char) * sizemax,1);
-    (void) gslStrcpy(varloc[ivar], sizemax, name_special[ivar]);
+    (void) gslStrcpy(varloc[ivar], name_special[ivar]);
     nvar++;
   }
 
   numline = 0;
-  (void) gslStrcpy(string,gslArraySize(string),"");
+  (void) gslStrcpy(string,"");
 
   // Decode the header
   if (verbose) message("Looking for ~Well\n");
@@ -2278,46 +2278,46 @@ GEOSLIB_API int db_grid_read_f2g(const char *filename,
   /* Read the header */
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_DIM");
+  (void) gslStrcpy(refchar,"F2G_DIM");
   if (strcmp(string,refchar)) goto label_key;
   if (_record_read(file,"%d",&ndim)) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_VERSION");
+  (void) gslStrcpy(refchar,"F2G_VERSION");
   if (strcmp(string,refchar)) goto label_key;
   if (_record_read(file,"%d",&version)) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_LOCATION");
+  (void) gslStrcpy(refchar,"F2G_LOCATION");
   if (strcmp(string,refchar)) goto label_key;
   for (int idim=0; idim<3; idim++) // Always three parameters
     if (_record_read(file,"%lf",&x0[idim])) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_ROTATION");
+  (void) gslStrcpy(refchar,"F2G_ROTATION");
   if (strcmp(string,refchar)) goto label_key;
   if (_record_read(file,"%lf",angle)) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_ORIGIN");
+  (void) gslStrcpy(refchar,"F2G_ORIGIN");
   if (strcmp(string,refchar)) goto label_key;
   for (int idim=0; idim<ndim; idim++)
     if (_record_read(file,"%lf",&dum)) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_NB_NODES");
+  (void) gslStrcpy(refchar,"F2G_NB_NODES");
   if (strcmp(string,refchar)) goto label_key;
   for (int idim=0; idim<ndim; idim++)
     if (_record_read(file,"%d",&nx[idim])) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_LAGS");
+  (void) gslStrcpy(refchar,"F2G_LAGS");
   if (strcmp(string,refchar)) goto label_key;
   for (int idim=0; idim<ndim; idim++)
     if (_record_read(file,"%lf",&dx[idim])) goto label_contents;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_ORDER");
+  (void) gslStrcpy(refchar,"F2G_ORDER");
   if (strcmp(string,refchar)) goto label_key; 
   // We need to read the three next strings (orders) 
   // Only the order +Y +X +Z is interfaced
@@ -2329,26 +2329,26 @@ GEOSLIB_API int db_grid_read_f2g(const char *filename,
   if (strcmp(string,"+Z")) goto label_end;
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_NB_VARIABLES");
+  (void) gslStrcpy(refchar,"F2G_NB_VARIABLES");
   if (strcmp(string,refchar)) goto label_key;
   if (_record_read(file,"%d",ncol)) goto label_contents;
 
   for (int i=0; i<(*ncol); i++)
   {
     if (_record_read(file,"%s",string)) goto label_end; // Variable Name
-    (void) gslSPrintf(refchar,gslArraySize(refchar),"F2G_VARIABLE_%d",i+1);
+    (void) gslSPrintf(refchar,"F2G_VARIABLE_%d",i+1);
     if (strcmp(string,refchar)) goto label_key;
     // We need to read the Name even if ignored
     if (_record_read(file,"%s",string)) goto label_end; 
 
     if (_record_read(file,"%s",string)) goto label_end; // NA value
-    (void) gslSPrintf(refchar,gslArraySize(refchar),"F2G_UNDEFINED_%d",i+1);
+    (void) gslSPrintf(refchar,"F2G_UNDEFINED_%d",i+1);
     if (strcmp(string,refchar)) goto label_key;
     if (_record_read(file,"%s",valtest)) goto label_contents;
   }
 
   if (_record_read(file,"%s",string)) goto label_end;
-  (void) gslStrcpy(refchar,gslArraySize(refchar),"F2G_VALUES");
+  (void) gslStrcpy(refchar,"F2G_VALUES");
   if (strcmp(string,refchar)) goto label_key;
 
   size = nx[0] * nx[1] * nx[2];

@@ -10,26 +10,16 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/String.hpp"
-
+#include "geoslib_define.h"
 
 /**
  * This file contains all the OLD-STYLE declarations causing warnings on Windows
  * They should gradually be replaced by modern statements
  * However, they are kept there to keep track on these statements
  */
-template<typename T, size_t N> size_t gslArraySize(T (&array)[N]) { return N; }
 
+// TODO : File manipulation class
 FILE* gslFopen(const char *path, const char* mode);
 FILE* gslFopen(const String& path, const String& mode);
 bool gslFileExist(const char *path, const char* mode);
 bool gslFileExist(const String& path, const String& mode);
-
-char* gslStrcpy(char* dst, int dst_size, const char* src);
-void gslStrcpy(String& dst, const String& src);
-
-char* gslStrcat(char* dst, int dst_size, const char* src);
-void gslStrcat(String& dst, const String& src);
-
-int gslSPrintf(char* dst, int dst_size, const char* format, ...);
-int gslSPrintf(String& dst, String format, ...);

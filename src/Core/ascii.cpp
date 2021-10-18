@@ -265,7 +265,7 @@ GEOSLIB_API void ascii_filename(const char *type,
 GEOSLIB_API void ascii_study_define(const char *study)
 
 {
-  (void) gslStrcpy(STUDY, gslArraySize(STUDY), study);
+  (void) gslStrcpy(STUDY, study);
   return;
 }
 
@@ -305,7 +305,7 @@ static FILE *st_file_open(const char *filename,
   /* Open the file */
 
   file = FILE_MEM = _file_open(filename, mode);
-  (void) gslStrcpy(FILE_NAME_MEM, gslArraySize(FILE_NAME_MEM), filename);
+  (void) gslStrcpy(FILE_NAME_MEM, filename);
 
   if (file == nullptr)
   {
@@ -388,7 +388,7 @@ static void st_table_write(const char *string, int ntab, const double *tab)
     st_record_write("%lf", tab[i]);
     if (string != NULL)
     {
-      (void) gslSPrintf(local, LONG_SIZE, "%s (%d)", string, i + 1);
+      (void) gslSPrintf(local, "%s (%d)", string, i + 1);
       st_record_write("#", local);
     }
     else
@@ -417,7 +417,7 @@ static void st_tablei_write(const char *string, int ntab, int *itab)
     st_record_write("%d", itab[i]);
     if (string != NULL)
     {
-      (void) gslSPrintf(local, LONG_SIZE, "%s (%d)", string, i + 1);
+      (void) gslSPrintf(local, "%s (%d)", string, i + 1);
       st_record_write("#", local);
     }
     else

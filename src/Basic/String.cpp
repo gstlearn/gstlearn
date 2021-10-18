@@ -8,20 +8,24 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "math.h"
 #include "Basic/String.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+
 #include <algorithm>
-#include <stdio.h>
-#include <stddef.h>
-#include <stdint.h>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <regex>
 #include <locale>
+
+#include <stdio.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <math.h>
 
 /**
  * Protect the matching pattern against Crash which happens when the string
@@ -681,3 +685,26 @@ String erase(const String& s, const String& t)
   return d;
 }
 
+char* gslStrcpy(char* dst, const char* src)
+{
+  return strcpy(dst, src);
+  //(void)gslSPrintf(dst, "%s", src);
+  //return dst;
+}
+
+char* gslStrcat(char* dst, const char* src)
+{
+  return strcat(dst, src);
+//  size_t size = String(dst).size();
+//  (void)gslSPrintf(&dst[size], "%s%s", dst, src);
+//  return dst;
+}
+
+int gslSPrintf(char* dst, const char* fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  int n = vsprintf(dst, fmt, ap);
+  va_end(ap);
+  return n;
+}

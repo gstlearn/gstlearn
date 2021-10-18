@@ -475,8 +475,8 @@ static void st_dump(const char *title,
 
   /* Process the title */
 
-  (void) gslStrcpy(STRING,gslArraySize(STRING),title);
-  (void) gslStrcat(STRING,gslArraySize(STRING)," : ");
+  (void) gslStrcpy(STRING,title);
+  (void) gslStrcat(STRING," : ");
 
   /* Process the address */
 
@@ -491,7 +491,7 @@ static void st_dump(const char *title,
 
   /* Print the header (if any) */
 
-  (void) gslStrcat(STRING,gslArraySize(STRING),"\n");
+  (void) gslStrcat(STRING,"\n");
   message(STRING);
 
   /* Dump the grid */

@@ -134,29 +134,29 @@ static void st_format(int mode)
   switch (mode)
   {
     case CASE_INT:
-      (void) gslSPrintf(FORMAT, STRING_LENGTH, "%%%dd", CST[CST_NTCAR].ival);
+      (void) gslSPrintf(FORMAT, "%%%dd", CST[CST_NTCAR].ival);
       break;
 
     case CASE_REAL:
-      (void) gslSPrintf(FORMAT,STRING_LENGTH,"%%%d.%dlf",
-                     CST[CST_NTCAR].ival,
-                     CST[CST_NTDEC].ival);
+      (void) gslSPrintf(FORMAT, "%%%d.%dlf",
+                        CST[CST_NTCAR].ival,
+                        CST[CST_NTDEC].ival);
       break;
 
     case CASE_DOUBLE:
-      (void) gslSPrintf(FORMAT,STRING_LENGTH,"%%%d.%dlg",
-                     CST[CST_NTCAR].ival,
-                     CST[CST_NTDEC].ival);
+      (void) gslSPrintf(FORMAT, "%%%d.%dlg",
+                        CST[CST_NTCAR].ival,
+                        CST[CST_NTDEC].ival);
       break;
 
     case CASE_COL:
-      (void) gslSPrintf(FORMAT,STRING_LENGTH,"[,%%%dd]",
-                     CST[CST_NTCAR].ival-3);
+      (void) gslSPrintf(FORMAT, "[,%%%dd]",
+                        CST[CST_NTCAR].ival-3);
       break;
 
     case CASE_ROW:
-      (void) gslSPrintf(FORMAT,STRING_LENGTH,"[%%%dd,]",
-                     CST[CST_NTCAR].ival-3);
+      (void) gslSPrintf(FORMAT, "[%%%dd,]",
+                        CST[CST_NTCAR].ival-3);
       break;
   }
 
@@ -483,7 +483,7 @@ GEOSLIB_API int _file_read(FILE *file,
 
       if (fgets(LINE,LONG_SIZE,file) == NULL) return(-1);
       LINE[strlen(LINE)-1] = '\0';
-      (void) gslStrcpy(LINE_MEM,gslArraySize(LINE_MEM),LINE);
+      (void) gslStrcpy(LINE_MEM,LINE);
       if (debug_query("interface"))
         message("Lecture ASCII = %s\n",LINE);
 
@@ -692,7 +692,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
 
       LINEB = strsep(buffer,"\n");
       if (LINEB == NULL) return(-1);
-      (void) gslStrcpy(LINE_MEM,gslArraySize(LINE_MEM),LINEB);
+      (void) gslStrcpy(LINE_MEM,LINEB);
       if (debug_query("interface"))
         message("Lecture ASCII = %s\n",LINEB);
       
@@ -1173,7 +1173,7 @@ GEOSLIB_API void tab_prints(const char*     title,
 
   /* Blank the string out */
 
-  (void) gslStrcpy(TABSTR,gslArraySize(TABSTR),"");
+  (void) gslStrcpy(TABSTR,"");
 
   /* Switch according to the justification */
 
@@ -1182,18 +1182,18 @@ GEOSLIB_API void tab_prints(const char*     title,
     case EJustify::E_LEFT:
       (void) strncpy(TABSTR,string,neff);
       TABSTR[neff] = '\0';
-      for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR,gslArraySize(TABSTR)," ");
+      for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
       break;
 
     case EJustify::E_CENTER:
-      for (i=0; i<n1; i++) (void) gslStrcat(TABSTR,gslArraySize(TABSTR)," ");
+      for (i=0; i<n1; i++) (void) gslStrcat(TABSTR," ");
       (void) strncpy(&TABSTR[n1],string,neff);
       TABSTR[n1+neff] = '\0';
       for (i=0; i<n2; i++) (void) strcat(TABSTR," ");
       break;
 
     case EJustify::E_RIGHT:
-      for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR,gslArraySize(TABSTR)," ");
+      for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
       (void) strncpy(&TABSTR[nrst],string,neff);
       TABSTR[nrst+neff] = '\0';
       break;
@@ -1223,10 +1223,10 @@ GEOSLIB_API void tab_print_rowname(const char *string,
 
   /* Blank the string out */
 
-  (void) gslStrcpy(TABSTR,gslArraySize(TABSTR),"");
+  (void) gslStrcpy(TABSTR,"");
   (void) strncpy(TABSTR,string,neff);
   TABSTR[neff] = '\0';
-  for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR,gslArraySize(TABSTR)," ");
+  for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
   message(TABSTR);
   return;
 }
@@ -1250,9 +1250,9 @@ GEOSLIB_API void tab_printg(const char*     title,
   st_format(CASE_REAL);
 
   if (FFFF(value))
-    (void) gslStrcpy(DECODE,gslArraySize(DECODE),"N/A");
+    (void) gslStrcpy(DECODE,"N/A");
   else
-    (void) gslSPrintf(DECODE,gslArraySize(DECODE),FORMAT,value);
+    (void) gslSPrintf(DECODE,FORMAT,value);
 
   tab_prints(title,ncol,justify,DECODE);
 
@@ -1278,9 +1278,9 @@ GEOSLIB_API void tab_printd(const char*     title,
   st_format(CASE_DOUBLE);
 
   if (FFFF(value))
-    (void) gslStrcpy(DECODE,gslArraySize(DECODE),"N/A");
+    (void) gslStrcpy(DECODE,"N/A");
   else
-    (void) gslSPrintf(DECODE,gslArraySize(DECODE),FORMAT,value);
+    (void) gslSPrintf(DECODE,FORMAT,value);
 
   tab_prints(title,ncol,justify,DECODE);
 
@@ -1306,9 +1306,9 @@ GEOSLIB_API void tab_printi(const char*     title,
   st_format(CASE_INT);
 
   if (IFFFF(value))
-    (void) gslStrcpy(DECODE,gslArraySize(DECODE),"N/A");
+    (void) gslStrcpy(DECODE,"N/A");
   else
-    (void) gslSPrintf(DECODE,gslArraySize(DECODE),FORMAT,value);
+    (void) gslSPrintf(DECODE,FORMAT,value);
 
   tab_prints(title,ncol,justify,DECODE);
 
@@ -1335,7 +1335,7 @@ GEOSLIB_API void tab_print_rc(const char*     title,
 {
   st_format(mode);
 
-  (void) gslSPrintf(DECODE,gslArraySize(DECODE),FORMAT,value);
+  (void) gslSPrintf(DECODE,FORMAT,value);
   string_strip_blanks(DECODE,0);
 
   tab_prints(title,ncol,justify,DECODE);
@@ -1750,14 +1750,14 @@ label_ques:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,gslArraySize(LINE),"%s ",question);
+  (void) gslSPrintf(LINE,"%s ",question);
   (void) strcat(LINE,"[");
   for (i=0; i<nkeys; i++)
   {
-    if (i > 0) gslStrcat(LINE,gslArraySize(LINE),",");
+    if (i > 0) gslStrcat(LINE,",");
     (void) sprintf(&LINE[strlen(LINE)],"%s",keys[i]);
   }
-  (void) gslStrcat(LINE,gslArraySize(LINE),"] : ");
+  (void) gslStrcat(LINE,"] : ");
 
   /* Read the answer */
 
@@ -1805,10 +1805,10 @@ loop:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,gslArraySize(LINE),"%s ",question);
+  (void) gslSPrintf(LINE,"%s ",question);
   if (flag_def)
     (void) sprintf(&LINE[strlen(LINE)],"(Def=%s) ",valdef);
-  (void) gslStrcat(LINE,gslArraySize(LINE),": ");
+  (void) gslStrcat(LINE,": ");
 
   /* Read the answer */
 
@@ -1863,7 +1863,7 @@ loop:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,gslArraySize(LINE),"%s ",question);
+  (void) gslSPrintf(LINE,"%s ",question);
   if (! IFFFF(valmin) && ! IFFFF(valmax) && valmin > valmax)
     valmin = valmax = ITEST;
   if (! IFFFF(valmin) && ! IFFFF(valdef) && valdef < valmin)
@@ -1873,14 +1873,14 @@ loop:
   if (flag_def && ! IFFFF(valdef))
     (void) sprintf(&LINE[strlen(LINE)],"(Def=%d) ",valdef);
   if (IFFFF(valmin))
-    (void) gslStrcat(LINE,gslArraySize(LINE),"[NA,");
+    (void) gslStrcat(LINE,"[NA,");
   else
     (void) sprintf(&LINE[strlen(LINE)],"[%d,",valmin);
   if (IFFFF(valmax))
-    (void) gslStrcat(LINE,gslArraySize(LINE),"NA] ");
+    (void) gslStrcat(LINE,"NA] ");
   else
     (void) sprintf(&LINE[strlen(LINE)],"%d] ",valmax);
-  (void) gslStrcat(LINE,gslArraySize(LINE),": ");
+  (void) gslStrcat(LINE,": ");
 
   /* Read the answer */
 
@@ -1948,7 +1948,7 @@ loop:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,gslArraySize(LINE),"%s ",question);
+  (void) gslSPrintf(LINE,"%s ",question);
   if (! FFFF(valmin) && ! FFFF(valmax) && valmin > valmax)
     valmin = valmax = TEST;
   if (! FFFF(valmin) && ! FFFF(valdef) && valdef < valmin)
@@ -1958,14 +1958,14 @@ loop:
   if (flag_def && ! FFFF(valdef))
     (void) sprintf(&LINE[strlen(LINE)],"(Def=%lf) ",valdef); 
   if (FFFF(valmin))
-    (void) gslStrcat(LINE,gslArraySize(LINE),"[NA,");
+    (void) gslStrcat(LINE,"[NA,");
   else
     (void) sprintf(&LINE[strlen(LINE)],"[%lf,",valmin);
   if (FFFF(valmax))
-    (void) gslStrcat(LINE,gslArraySize(LINE),"NA] ");
+    (void) gslStrcat(LINE,"NA] ");
   else
     (void) sprintf(&LINE[strlen(LINE)],"%lf] ",valmax);
-  (void) gslStrcat(LINE,gslArraySize(LINE),": ");
+  (void) gslStrcat(LINE,": ");
 
   /* Read the answer */
 
@@ -2027,15 +2027,15 @@ loop:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,gslArraySize(LINE),"%s ",question);
+  (void) gslSPrintf(LINE,"%s ",question);
   if (flag_def && ! IFFFF(valdef))
   {
     if (valdef == 0)
-      (void) gslStrcat(LINE,gslArraySize(LINE),"(Def=n)");
+      (void) gslStrcat(LINE,"(Def=n)");
     else
-      (void) gslStrcat(LINE,gslArraySize(LINE),"(Def=y)");
+      (void) gslStrcat(LINE,"(Def=y)");
   }
-  (void) gslStrcat(LINE,gslArraySize(LINE)," [y,n] : ");
+  (void) gslStrcat(LINE," [y,n] : ");
 
   /* Read the answer */
 
@@ -2252,7 +2252,7 @@ GEOSLIB_API void encode_printg(char  *string,
                                int    ntdec,
                                double value)
 {
-  (void) gslSPrintf(FORMAT,gslArraySize(FORMAT),"%%%d.%dlg",ntcar,ntdec);
+  (void) gslSPrintf(FORMAT,"%%%d.%dlg",ntcar,ntdec);
 
   if (FFFF(value))
     (void) strcpy(string,"N/A");

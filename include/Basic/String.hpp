@@ -10,7 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/AStringable.hpp"
+#include "geoslib_define.h"
+#include "Basic/AException.hpp"
+
+#include <memory>
+#include <string>
 
 // TODO : add Namespace
 #define SPACES " \t\r\n"
@@ -73,3 +77,54 @@ String trimRight (const String& s, const String& t = SPACES);
 String trimLeft(  const String& s, const String& t = SPACES);
 String trim(      const String& s, const String& t = SPACES);
 String erase(     const String& s, const String& t = SPACES);
+
+char* gslStrcpy(char* dst, const char* src);
+char* gslStrcat(char* dst, const char* src);
+int   gslSPrintf(char* dst, const char* fmt, ...);
+
+// Adapted from:
+// - https://stackoverflow.com/a/26310318
+// - https://stackoverflow.com/a/26221725
+
+/**
+ * Secured version of sprintf (using char *)
+ *
+ * @param dst Destination string
+ * @param fmt Formatted string
+ * @param args Additional arguments
+ *
+ * @remark: dst must be pre allocated with appropriate size
+ */
+/*
+template<typename... Args>
+int gslSPrintf(char* dst, const char* fmt, Args... args)
+{
+  size_t size_s = std::snprintf(nullptr, 0, fmt, args...);
+  if (size_s == 0) { my_throw("Error during formatting."); }
+  snprintf(dst, size_s + 1, fmt, args...);
+  return static_cast<int>(size_s + 1);
+}
+*/
+/**
+ * Secured version of sprintf (using String)
+ *
+ * @param dst Destination string
+ * @param fmt Formatted string
+ * @param args Additional arguments
+ *
+ */
+/*
+template<typename ... Args>
+int gslSPrintf(String& dst, String fmt, Args... args )
+{
+    int size_s = std::snprintf( nullptr, 0, fmt.c_str(), args ... ) + 1; // Extra space for '\0'
+    if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
+    size_t size = static_cast<size_t>( size_s );
+    char* buf = new char(size_s); // make_unique not yet available in c++11
+    std::snprintf( buf, size, fmt.c_str(), args ... );
+    dst = std::string( buf, buf + size - 1 ); // We don't want the '\0' inside
+    delete buf;
+    return static_cast<int>(size_s + 1);
+}
+*/
+

@@ -245,15 +245,15 @@ void setFormatBatchNumber(int nbatch)
  */
 void message(const char *format, ...)
 {
-  String str;
-  String sFormat(format);
+  char str[LONG_SIZE];
   va_list ap;
 
   va_start(ap, format);
-  gslSPrintf(str, sFormat, ap);
+  // TODO : use non old_style functions
+  //(void) gslSPrintf(str, format, ap);
+  (void) vsprintf(str, format, ap);
   va_end(ap);
-
-  message_extern(str.c_str());
+  message_extern(str);
 
   return;
 }
@@ -336,30 +336,30 @@ void mestitle(int level, const char *format, ...)
   va_end(ap);
   int size = strlen(STRING);
 
-  (void) gslStrcat(STRING, gslArraySize(STRING), "\n");
+  (void) gslStrcat(STRING, "\n");
   message_extern(STRING);
 
   /* Underline the string */
 
-  (void) gslStrcpy(STRING, gslArraySize(STRING), "");
+  (void) gslStrcpy(STRING, "");
   for (int i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void) gslStrcat(STRING, gslArraySize(STRING), "=");
+        (void) gslStrcat(STRING, "=");
         break;
 
       case 1:
-        (void) gslStrcat(STRING, gslArraySize(STRING), "-");
+        (void) gslStrcat(STRING, "-");
         break;
 
       case 2:
-        (void) gslStrcat(STRING, gslArraySize(STRING), ".");
+        (void) gslStrcat(STRING, ".");
         break;
     }
   }
-  (void) gslStrcat(STRING, gslArraySize(STRING), "\n");
+  (void) gslStrcat(STRING, "\n");
   message_extern(STRING);
 
   return;
@@ -386,21 +386,21 @@ String toTitle(int level, const char* format, ...)
   /* Underline the string */
 
   int size = strlen(STRING);
-  (void) gslStrcpy(STRING, gslArraySize(STRING), "");
+  (void) gslStrcpy(STRING, "");
   for (int i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void) gslStrcat(STRING, gslArraySize(STRING), "=");
+        (void) gslStrcat(STRING, "=");
         break;
 
       case 1:
-        (void) gslStrcat(STRING, gslArraySize(STRING), "-");
+        (void) gslStrcat(STRING, "-");
         break;
 
       case 2:
-        (void) gslStrcat(STRING, gslArraySize(STRING), ".");
+        (void) gslStrcat(STRING, ".");
         break;
     }
   }

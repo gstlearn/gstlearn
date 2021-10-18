@@ -2795,13 +2795,13 @@ static void krige_wgt_print(int     status,
   if (KOPTION->flag_data_disc)
     for (idim=0; idim<ndim; idim++)
     {
-      (void) gslSPrintf(string,gslArraySize(string),"Size%d",idim+1);
+      (void) gslSPrintf(string,"Size%d",idim+1);
       tab_prints(NULL,1,EJustify::RIGHT,string);
     }
   tab_prints(NULL,1,EJustify::RIGHT,"Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    (void) gslSPrintf(string,gslArraySize(string),"Z%d*",ivar+1);
+    (void) gslSPrintf(string,"Z%d*",ivar+1);
     tab_prints(NULL,1,EJustify::RIGHT,string);
   }
   message("\n");
@@ -7232,7 +7232,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
     dbin->setLocatorByAttribute(icols[ivar],ELoc::Z);
     IPTR_EST  = iptr_mem + ivar;
     IECH_NBGH = -1;
-    (void) gslSPrintf(string,gslArraySize(string),"Kriging of variable #%d at sample",ivar+1);
+    (void) gslSPrintf(string,"Kriging of variable #%d at sample",ivar+1);
 
     /* Loop on the targets to be processed */
 
@@ -7576,7 +7576,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
     dbin->setLocatorByAttribute(icols[ivar],ELoc::Z);
     IPTR_EST  = iptr_prop + ivar;
     IECH_NBGH = -1;
-    (void) gslSPrintf(string,gslArraySize(string),"Kriging of proportion #%d at sample",ivar+1);
+    (void) gslSPrintf(string,"Kriging of proportion #%d at sample",ivar+1);
 
     /* Loop on the target grid nodes */
 
