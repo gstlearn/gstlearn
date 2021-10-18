@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <regex>
 #include <locale>
