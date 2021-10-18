@@ -99,7 +99,9 @@ int gslSPrintf(char* dst, int dst_size, const char* format, ...)
   return ret;
 }
 
-int gslSPrintf(String& dst, const String& format, ...)
+// remarks: Format is not a reference here:
+// https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
+int gslSPrintf(String& dst, String format, ...)
 {
   int size=100;
   va_list ap;
