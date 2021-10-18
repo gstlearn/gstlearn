@@ -2113,7 +2113,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
   {
     if (st_read_next(s_length,file,1,&numline,string)) goto label_end;
 
-    // Looking for the TEST value (keyword "NULL.")
+    // Looking for the TEST value (keyword "NULL")
     if (strstr(string,"NULL"))
       sscanf(&string[8],"%lf",&test);
 
