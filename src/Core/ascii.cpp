@@ -1311,8 +1311,8 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
 
   /* Reading the CSV file */
 
-  if (csv_table_read2(file_name, verbose, flag_header, nskip, char_sep, char_dec,
-                      na_string, ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  if (csv_table_read(file_name, verbose, flag_header, nskip, char_sep, char_dec,
+                     na_string, ncol_max, nrow_max, &ncol, &nrow, names, tab))
     goto label_end;
 
   /* Creating the Db */

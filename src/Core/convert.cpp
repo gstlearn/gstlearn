@@ -2687,19 +2687,19 @@ label_end:
 ** \remarks The returned array 'tab' is organized by sample
 **
 *****************************************************************************/
-GEOSLIB_API int csv_table_read2(const String& filename,
-                                int           verbose,
-                                int           flag_header,
-                                int           nskip,
-                                char          char_sep,
-                                char          char_dec,
-                                const String& na_string,
-                                int           ncol_max,
-                                int           nrow_max,
-                                int*          ncol_arg,
-                                int*          nrow_arg,
-                                VectorString& names,
-                                VectorDouble& tab)
+GEOSLIB_API int csv_table_read(const String& filename,
+                               int           verbose,
+                               int           flag_header,
+                               int           nskip,
+                               char          char_sep,
+                               char          char_dec,
+                               const String& na_string,
+                               int           ncol_max,
+                               int           nrow_max,
+                               int*          ncol_arg,
+                               int*          nrow_arg,
+                               VectorString& names,
+                               VectorDouble& tab)
 {
   std::string line;
   std::ifstream file(filename.c_str());
