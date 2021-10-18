@@ -777,19 +777,6 @@
                                        const char *option_name,
                                        int type,
                                        void *answer);
-  GEOSLIB_API int ascii_table_write(const char *file_name,
-                                    int verbose,
-                                    int ntab,
-                                    double *tab);
-  GEOSLIB_API int ascii_tablei_write(const char *file_name,
-                                     int verbose,
-                                     int ntab,
-                                     int *itab);
-  GEOSLIB_API int ascii_table_read(const char *filename,
-                                   int nskip,
-                                   int ncol,
-                                   int *nrow,
-                                   double **tab_arg);
 
   /*****************************************/
   /* Prototyping the functions in morpho.c */
@@ -1994,32 +1981,19 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                    int *nechout,
                                    char ***var_names,
                                    double **tab);
-  GEOSLIB_API int csv_table_read(const char *filename,
+  GEOSLIB_API int csv_table_read(const String& filename,
                                  int verbose,
                                  int flag_header,
                                  int nskip,
                                  char char_sep,
                                  char char_dec,
-                                 const char *na_string,
+                                 const String& na_string,
                                  int ncol_max,
                                  int nrow_max,
-                                 int *ncol_arg,
-                                 int *nrow_arg,
+                                 int* ncol_arg,
+                                 int* nrow_arg,
                                  VectorString& names,
                                  VectorDouble& tab);
-  GEOSLIB_API int csv_table_read2(const String& filename,
-                                  int verbose,
-                                  int flag_header,
-                                  int nskip,
-                                  char char_sep,
-                                  char char_dec,
-                                  const String& na_string,
-                                  int ncol_max,
-                                  int nrow_max,
-                                  int* ncol_arg,
-                                  int* nrow_arg,
-                                  VectorString& names,
-                                  VectorDouble& tab);
 
   /****************************************/
   /* Prototyping the functions in krige.c */
