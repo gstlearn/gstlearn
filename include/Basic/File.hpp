@@ -27,6 +27,7 @@ bool gslFileExist(const String& path, const String& mode);
 
 char* gslStrcpy(char* dst, int dst_size, const char* src);
 void gslStrcpy(String& dst, const String& src);
+
 char* gslStrcat(char* dst, int dst_size, const char* src);
 void gslStrcat(String& dst, const String& src);
 

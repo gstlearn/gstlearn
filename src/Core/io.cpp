@@ -134,8 +134,7 @@ static void st_format(int mode)
   switch (mode)
   {
     case CASE_INT:
-      (void) gslSPrintf(FORMAT,STRING_LENGTH,"%%%dd",
-                     CST[CST_NTCAR].ival);
+      (void) gslSPrintf(FORMAT, STRING_LENGTH, "%%%dd", CST[CST_NTCAR].ival);
       break;
 
     case CASE_REAL:

@@ -359,7 +359,7 @@ public:
   }
 
   static void init(facet* f) {
-    f->polygonlist = (polygon *) NULL;
+    f->polygonlist = nullptr;
     f->numberofpolygons = 0;
     f->holelist = nullptr;
     f->numberofholes = 0;
@@ -377,7 +377,7 @@ public:
     pointmtrlist = nullptr;
     pointmarkerlist = nullptr;
 	point2tetlist = nullptr;
-    pointparamlist = (pointparam *) NULL;
+    pointparamlist = nullptr;
     numberofpoints = 0;
     numberofpointattributes = 0;
     numberofpointmtrs = 0;
@@ -405,7 +405,7 @@ public:
     edge2tetlist = nullptr;
     numberofedges = 0;
 
-    facetlist = (facet *) NULL;
+    facetlist = nullptr;
     facetmarkerlist = nullptr;
     numberoffacets = 0; 
 
@@ -421,8 +421,8 @@ public:
     numberofsegmentconstraints = 0;
 
     vpointlist = nullptr;
-    vedgelist = (voroedge *) NULL;
-    vfacetlist = (vorofacet *) NULL; 
+    vedgelist = nullptr;
+    vfacetlist = nullptr;
     vcelllist = nullptr; 
     numberofvpoints = 0;
     numberofvedges = 0;
@@ -460,7 +460,7 @@ public:
 	if (point2tetlist != nullptr) {
       delete [] point2tetlist;
     }
-    if (pointparamlist != (pointparam *) NULL) {
+    if (pointparamlist != nullptr) {
       delete [] pointparamlist;
     }
 
@@ -512,7 +512,7 @@ public:
       delete [] edge2tetlist;
     }
 
-    if (facetlist != (facet *) NULL) {
+    if (facetlist != nullptr) {
       facet *f;
       polygon *p;
       for (i = 0; i < numberoffacets; i++) {
@@ -547,10 +547,10 @@ public:
     if (vpointlist != nullptr) {
       delete [] vpointlist;
     }
-    if (vedgelist != (voroedge *) NULL) {
+    if (vedgelist != nullptr) {
       delete [] vedgelist;
     }
-    if (vfacetlist != (vorofacet *) NULL) {
+    if (vfacetlist != nullptr) {
       for (i = 0; i < numberofvfacets; i++) {
         delete [] vfacetlist[i].elist;
       }
@@ -2162,14 +2162,14 @@ public:
       delete bgm;
     }
 
-    if (points != (memorypool *) NULL) {
+    if (points != nullptr) {
       delete points;
       delete [] dummypoint;
     }
-    if (tetrahedrons != (memorypool *) NULL) {
+    if (tetrahedrons != nullptr) {
       delete tetrahedrons;
     }
-    if (subfaces != (memorypool *) NULL) {
+    if (subfaces != nullptr) {
       delete subfaces;
       delete subsegs;
     }

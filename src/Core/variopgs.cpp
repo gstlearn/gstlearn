@@ -3751,7 +3751,7 @@ static void st_manage_trace(Local_TracePgs *local_tracepgs)
 static void st_manage_pgs(int               mode,
                           Local_Pgs*        local_pgs,
                           Db*               db = nullptr,
-                          const Rule *      rule = nullptr,
+                          const Rule*       rule = nullptr,
                           Vario*            vario = nullptr,
                           Vario*            varioind = nullptr,
                           Model*            model = nullptr,

@@ -439,7 +439,7 @@ GEOSLIB_API CTables *ct_tables_manage(int      mode,
     // De-allocation
 
     ctables = ctables_old;
-    if (ctables == (CTables *) NULL) return(ctables);
+    if (ctables == nullptr) return(ctables);
     ctables->v = (double *) mem_free((char *) ctables->v);
     if (verbose)
       message("Freeing CTables from %d configuration(s)\n",ctables->nconf);

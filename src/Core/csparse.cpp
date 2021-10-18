@@ -4455,7 +4455,7 @@ void cs_multigrid_params(cs_MGS *mgs,
                          double tolcg,
                          double tolnmg)
 {
-  if (mgs == (cs_MGS *) NULL) return;
+  if (mgs == nullptr) return;
   mgs->flag_cg	   = flag_cg;
   if (mgs->nlevels == 0) mgs->flag_cg = 0;
   mgs->type_coarse = type_coarse;
@@ -4485,12 +4485,12 @@ static cs_MG *st_monogrid_manage(int	mode,
     mg->nh	 = 0;
     mg->nH	 = 0;
     mg->sumrow	 = nullptr;
-    mg->IhH	 = (cs	    *) NULL;
+    mg->IhH	 = nullptr;
     mg->A	 = qchol_manage(1,NULL);
   }
   else
   {
-    if (mg != (cs_MG *) NULL)
+    if (mg != nullptr)
     {
       mg->sumrow = (double  *) mem_free((char *) mg->sumrow);
       mg->IhH	 = cs_spfree(mg->IhH);
@@ -4532,7 +4532,7 @@ cs_MGS *cs_multigrid_manage(cs_MGS *mgs,
   }
   else
   {
-    if (mgs == (cs_MGS *) NULL) return(mgs);
+    if (mgs == nullptr) return(mgs);
     mgs->path	  = (int    *) mem_free((char *) mgs->path);
     mgs->diag	  = (double *) mem_free((char *) mgs->diag);
     for (int i=0; i<=nlevels; i++)
@@ -4605,7 +4605,7 @@ void cs_multigrid_print(cs_MGS *mgs)
 *****************************************************************************/
 int cs_multigrid_get_nlevels(cs_MGS *mgs)
 {
-  if (mgs == (cs_MGS *) NULL)
+  if (mgs == nullptr)
     return(0);
   else
     return(mgs->nlevels);
@@ -5208,8 +5208,8 @@ int cs_multigrid_setup(cs_MGS  *mgs,
 
   error = 1;
   flag_print = get_keypone("MG_Flag_Print",0.);
-  indCo = (int	  *) NULL;
-  L	= (cs	  *) NULL;
+  indCo = nullptr;
+  L	= nullptr;
   sel	= nullptr;
   if (verbose) mestitle(1,"Coarsening %d levels",mgs->nlevels);
   if (flag_print) cs_print_file("QTT_avant",ITEST,qctt->Q);

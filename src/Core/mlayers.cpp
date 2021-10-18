@@ -2528,7 +2528,7 @@ GEOSLIB_API int multilayers_vario(Db      *dbin,
   seltab   = nullptr;
   prop1    = zval = nullptr;
   lmlayers = nullptr;
-  vorder   = (Vario_Order *) NULL;
+  vorder   = nullptr;
   nechmax  = dbin->getSampleNumber();
   ptime    = (match_time) ? ELoc::F : ELoc::TIME;
   if (dbin->getNDim() != 2)

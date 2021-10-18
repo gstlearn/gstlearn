@@ -664,7 +664,7 @@ static void st_blank_object(Bool_Object *object)
   }
 
   object->orientation = 0.;
-  object->address     = (Bool_Object *) NULL;
+  object->address     = nullptr;
 
   return;
 }
@@ -1351,7 +1351,7 @@ static void st_print_object(const char *title,
 {
   int idim;
 
-  if (object == (Bool_Object *) NULL) return;
+  if (object == nullptr) return;
 
   message("Characteristics of the %s Object\n",title);
   message("- Type        = %d\n",object->type);
@@ -1719,7 +1719,7 @@ static int st_add_object(int          mode,
   Bool_Object *new_object;
 
   new_object = (Bool_Object *) mem_alloc(sizeof(Bool_Object),0);
-  if (new_object == (Bool_Object *) NULL) return(1);
+  if (new_object == nullptr) return(1);
 
   (void) memcpy((char *) new_object,(char *) object,sizeof(Bool_Object));
 
@@ -1782,14 +1782,14 @@ static int st_delete_object(int        mode,
 
   /* Search for the object to be deleted */
 
-  last_object = (Bool_Object *) NULL;
+  last_object = nullptr;
   rank = (int) (count * law_uniform(0.,1.));
 
   for (i=0; i<rank; i++)
   {
     last_object = object;
     object = object->address;
-    if (object == (Bool_Object *) NULL) 
+    if (object == nullptr) 
       messageAbort("st_delete_object; Error #1");
   }
 
@@ -1804,7 +1804,7 @@ static int st_delete_object(int        mode,
 
   /* Update the pointed address of the previous object */
 
-  if (last_object == (Bool_Object *) NULL)
+  if (last_object == nullptr)
   {
     if (mode == 0 && Start_object != Start_object_init)
     {
@@ -1818,9 +1818,9 @@ static int st_delete_object(int        mode,
         last_object = last_object->address;
     }
   }
-  if (last_object != (Bool_Object *) NULL)
+  if (last_object != nullptr)
     last_object->address = (rank == count - 1) ?
-      (Bool_Object *) NULL : object->address;
+      nullptr : object->address;
 
   /* Update the global pointers (if necessary) */
 
@@ -2023,7 +2023,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
 
   /* Initializations */
 
-  Start_object_init = Start_object = (Bool_Object *) NULL;
+  Start_object_init = Start_object = nullptr;
   Nb_object_init = Nb_object = memo_init = nbgrain = nbpore = 0;
   iptr_simu = iptr_rank = -1;
   tabtime = 0.;

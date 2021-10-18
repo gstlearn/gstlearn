@@ -1490,7 +1490,7 @@ GEOSLIB_API int krige_koption_manage(int             mode,
     /* Deallocation procedure */
 
   label_dealloc:
-    if (KOPTION != (Koption *) NULL)
+    if (KOPTION != nullptr)
     {
       KOPTION->ndisc = (int     *) mem_free((char *) KOPTION->ndisc);
       KOPTION->disc1 = (double  *) mem_free((char *) KOPTION->disc1);
@@ -2445,7 +2445,7 @@ GEOSLIB_API void krige_rhs_print(int      nvar,
 
   /* Kriging option */
 
-  if (KOPTION != (Koption *) NULL)
+  if (KOPTION != nullptr)
   {
     switch (KOPTION->calcul.toEnum())
     {

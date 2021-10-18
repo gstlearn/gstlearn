@@ -3732,7 +3732,7 @@ GEOSLIB_API int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
   /* Initializations */
 
   error = 1;
-  pldist = pldist0 = (PL_Dist *) NULL;
+  pldist = pldist0 = nullptr;
 
   /* Preliminary checks */
 
@@ -3815,7 +3815,7 @@ GEOSLIB_API int db_fold_polyline(Db *dbin,
   /* Initializations */
 
   error = 1;
-  pldist = pldist0 = (PL_Dist *) NULL;
+  pldist = pldist0 = nullptr;
 
   /* Preliminary checks */
 

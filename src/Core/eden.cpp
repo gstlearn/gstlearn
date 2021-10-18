@@ -57,7 +57,7 @@ static Eden_Stats *st_stats_undefine(Eden_Stats *stats)
 
   /* Deallocation */
 
-  if (stats != (Eden_Stats *) NULL)
+  if (stats != nullptr)
   {
     stats->number = (int    *) mem_free((char *) stats->number);
     stats->volume = (double *) mem_free((char *) stats->volume);
@@ -108,7 +108,7 @@ static Eden_Stats *st_stats_define(void)
   /* Allocation */
   
   stats = (Eden_Stats *) mem_alloc(sizeof(Eden_Stats),0);
-  if (stats == (Eden_Stats *) NULL) goto label_end;
+  if (stats == nullptr) goto label_end;
   stats->number = (int    *) mem_alloc(sizeof(int)    * NFACIES * NFLUIDS,0);
   if (stats->number == nullptr) goto label_end;
   stats->volume = (double *) mem_alloc(sizeof(double) * NFACIES * NFLUIDS,0);
@@ -939,7 +939,7 @@ GEOSLIB_API int fluid_propagation(Db     *dbgrid,
   /* Initializations */
 
   error = 1;
-  stats = (Eden_Stats *) NULL;
+  stats = nullptr;
 
   /* Preliminary checks */
 
