@@ -46,6 +46,7 @@ std::regex _protectRegexp(const String& match)
   return regexpr;
 }
 
+
 String toUpper(const String& string)
 {
   String str = string;
@@ -332,8 +333,9 @@ VectorString expandList(const VectorString& list,
   VectorString sublist;
   for (int i = 0; i< (int) list.size(); i++)
   {
-    if (std::regex_match(list[i], regexpr))
-      sublist.push_back(list[i]);
+    String toto = list[i];
+    if (std::regex_match(toto, regexpr))
+      sublist.push_back(toto);
   }
 
   int number = static_cast<int> (sublist.size());

@@ -1174,8 +1174,22 @@ void Db::setLocatorByAttribute(int iatt,
   {
     PtrGeos& p = _p[locatorType];
     int nitem = p.getLocatorNumber();
-    if (locatorIndex >= nitem) p.resize(locatorIndex + 1);
-    p.setLocatorByIndex(locatorIndex, iatt);
+    int iadd;
+    if (locatorIndex > nitem)
+    {
+      iadd = nitem;
+      p.resize(nitem + 1);
+    }
+    else if (locatorIndex == nitem)
+    {
+      iadd = locatorIndex;
+      p.resize(locatorIndex + 1);
+    }
+    else
+    {
+      iadd = locatorIndex;
+    }
+    p.setLocatorByIndex(iadd, iatt);
   }
 }
 

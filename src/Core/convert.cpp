@@ -2709,6 +2709,9 @@ GEOSLIB_API int csv_table_read2(const String& filename,
     return 1;
   }
 
+  // Remove windows stuff at the file beginning
+  skipBOM(file);
+
   // Initialization
   names.clear();
   tab.clear();
@@ -2720,11 +2723,13 @@ GEOSLIB_API int csv_table_read2(const String& filename,
     std::getline(file, line);
     if (!line.empty())
     {
+      line = trimRight(line);
       std::istringstream iss(line);
       std::string word;
       while (std::getline(iss, word, char_sep))
       {
         word = trim(word, "\"\'");
+        word = trim(word);
         names.push_back(word);
         if (verbose) message("Column Name (%d): %s\n",ncol+1,word.c_str());
         ncol++;

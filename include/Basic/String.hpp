@@ -19,6 +19,8 @@
 // TODO : add Namespace
 #define SPACES " \t\r\n"
 
+void skipBOM(std::ifstream &in);
+
 String toUpper(const String& string);
 String toLower(const String& string);
 
