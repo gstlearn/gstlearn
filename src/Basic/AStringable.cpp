@@ -245,7 +245,6 @@ void setFormatBatchNumber(int nbatch)
  */
 void message(const char *format, ...)
 {
-<<<<<<< HEAD
   String str;
   String sFormat(format);
   va_list ap;
@@ -293,82 +292,6 @@ void messerr(const char *format, ...)
   message(format,ap);
   va_end(ap);
 
-=======
-  char STRING[1000];
-  va_list ap;
-
-  va_start(ap, format);
-#if __STDC_WANT_LIB_EXT1__ == 1
-  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
-#else
-  (void) vsprintf(STRING, format, ap);
-#endif
-  va_end(ap);
-
-  message_extern(STRING);
-
-  return;
-}
-
-String stringCompose(const char *format,...)
-{
-  std::stringstream sstr;
-  char STRING[1000];
-  va_list ap;
-
-  va_start(ap, format);
-#if __STDC_WANT_LIB_EXT1__ == 1
-  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
-#else
-  (void) vsprintf(STRING, format, ap);
-#endif
-  va_end(ap);
-
-  sstr << STRING;
-  return sstr.str();
-}
-
-/**
- * When message has been collected as a String, this function produces it out
- * without passing through useless internal buffering
- * @param string String to be printed out
- */
-void messageFlush(const String& string)
-{
-  message_extern(string.c_str());
-}
-
-/**
- * When the error message has been collected as a String, this function produces it out
- * without passing through useless internal buffering
- * @param string String to be produced
- * @remark This function is similar to messageFlush but dedicated to Errors
- */
-void messerrFlush(const String& string)
-{
-  message_extern(string.c_str());
-}
-
-/**
- * Print Error message
- * @param format Output format
- * @param ...    Additional arguments
- */
-void messerr(const char *format, ...)
-{
-  char STRING[1000];
-  va_list ap;
-
-  va_start(ap, format);
-#if __STDC_WANT_LIB_EXT1__ == 1
-  (void) vsprintf_s( STRING, gslArraySize(STRING), format, ap);
-#else
-  (void) vsprintf(STRING, format, ap);
-#endif
-  va_end(ap);
-
-  message_extern(STRING);
->>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
   message_extern("\n");
 
   return;
