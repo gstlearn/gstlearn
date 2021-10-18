@@ -64,9 +64,9 @@ private:
   const CovAniso*                  _cova;
   EPowerPT                         _power;
   std::map<EPowerPT, APolynomial*> _polynomials;
-
-  bool                             _training;
   bool                             _verbose;
+  bool                             _training;
+
 
 
 protected :
