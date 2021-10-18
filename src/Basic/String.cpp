@@ -680,7 +680,7 @@ String trim(const String& s, const String& t)
 String erase(const String& s, const String& t)
 {
   String d(s);
-  for (unsigned int i; i < t.size(); i++)
+  for (unsigned int i = 0; i < t.size(); i++)
     d.erase(std::remove(d.begin(), d.end(), t[i]), d.end());
   return d;
 }

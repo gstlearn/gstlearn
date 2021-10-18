@@ -2705,7 +2705,7 @@ GEOSLIB_API int csv_table_read2(const String& filename,
   std::ifstream file(filename.c_str());
   if (!file.is_open())
   {
-    messerr("Error when opening the CSV file %s for reading",filename);
+    messerr("Error when opening the CSV file %s for reading",filename.c_str());
     return 1;
   }
 
@@ -2777,7 +2777,7 @@ GEOSLIB_API int csv_table_read2(const String& filename,
   // Optional printout
   if (verbose)
   {
-    message("Data table read (%s) successfully\n",filename);
+    message("Data table read (%s) successfully\n",filename.c_str());
     message("- Number of columns = %d\n",ncol);
     message("- Number of rows    = %d\n",nrow);
   }
