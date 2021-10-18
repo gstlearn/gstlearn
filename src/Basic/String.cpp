@@ -8,18 +8,24 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "math.h"
 #include "Basic/String.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <regex>
+#include <locale>
+
 #include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <regex>
+#include <stdarg.h>
+#include <math.h>
 
 /**
  * Protect the matching pattern against Crash which happens when the string
@@ -31,7 +37,7 @@ std::regex _protectRegexp(const String& match)
 {
   String str = match;
   std::size_t found = str.find('*');
-  if (found != std::string::npos)
+  if (found != String::npos)
   {
     if (found == 0 || str[found-1] != '.') str.insert(found,".");
   }
@@ -39,6 +45,7 @@ std::regex _protectRegexp(const String& match)
 
   return regexpr;
 }
+
 
 String toUpper(const String& string)
 {
@@ -326,8 +333,9 @@ VectorString expandList(const VectorString& list,
   VectorString sublist;
   for (int i = 0; i< (int) list.size(); i++)
   {
-    if (std::regex_match(list[i], regexpr))
-      sublist.push_back(list[i]);
+    String toto = list[i];
+    if (std::regex_match(toto, regexpr))
+      sublist.push_back(toto);
   }
 
   int number = static_cast<int> (sublist.size());
@@ -407,12 +415,12 @@ VectorString separateKeywords(const String& code)
 
 /**
  * Decode an integer from a string. Returns ITEST if impossible
- * @param code String to be decoded
+ * @param v String to be decoded
  * @return The integer value or ITEST (in case of failure)
  */
-int toInt(const String& code)
+int toInt(const String& v)
 {
-  std::istringstream iss(code);
+  std::istringstream iss(v);
   int number;
   iss >> number;
   if (iss.fail())
@@ -421,36 +429,49 @@ int toInt(const String& code)
     return number;
 }
 
-String intToString(int value)
+/**
+ * Decode an double from a string. Returns TEST if impossible
+ * @param v String to be decoded
+ * @param dec Decimal separator character
+ * @return The double value or TEST (in case of failure)
+ */
+template <typename T>
+class dec_separator : public std::numpunct<T>
+{
+public:
+  dec_separator(char dec = ',') : _dec(dec) {}
+private:
+  typename std::numpunct<T>::char_type do_decimal_point() const
+  {
+    return _dec;
+  }
+  char _dec;
+};
+
+double toDouble(const String& v, char dec)
+{
+  std::istringstream iss(v);
+  double number;
+  iss.imbue(std::locale(iss.getloc(), new dec_separator<char>(dec)));
+  iss >> number;
+  if (iss.fail())
+    return TEST;
+  else
+    return number;
+}
+
+String toString(int value)
 {
   std::stringstream sstr;
   sstr << value;
   return sstr.str();
 }
 
-String realToString(double value)
+String toString(double value)
 {
   std::stringstream sstr;
   sstr << value;
   return sstr.str();
-}
-
-String suppressTrailingBlanks(String value)
-{
-  value = std::regex_replace(value, std::regex(" +$"), "");
-  return value;
-}
-
-String suppressLeadingBlanks(String value)
-{
-  value = std::regex_replace(value, std::regex("^ +"), "");
-  return value;
-}
-
-String suppressAnyBlanks(String value)
-{
-  value = std::regex_replace(value, std::regex("^ +| +$|( ) +"), "$1");
-  return value;
 }
 
 /**
@@ -504,12 +525,12 @@ int askInt(const String& text, int defval, bool authTest)
       std::stringstream ss(str);
       if (ss >> answer) break;
 
-      std::cout << "The answer is not a valid Integer" << std::endl;
+      std::cout << "The answer is not a valid integer!" << std::endl;
     }
   }
-  catch(std::istream::failure e)
+  catch(std::istream::failure& e)
   {
-    std::cerr << "Problem when reading integer" << std::endl;
+    std::cerr << "Problem when reading integer:" << e.what() << std::endl;
   }
   return answer;
 }
@@ -564,12 +585,12 @@ double askDouble(const String& text, double defval, bool authTest)
       std::stringstream ss(str);
       if (ss >> answer) break;
 
-      std::cout << "The answer is not a valid Double" << std::endl;
+      std::cout << "The answer is not a valid double!" << std::endl;
     }
   }
-  catch(std::istream::failure e)
+  catch(std::istream::failure& e)
   {
-    std::cerr << "Problem when reading integer" << std::endl;
+    std::cerr << "Problem when reading double:" << e.what() << std::endl;
   }
   return answer;
 }
@@ -626,13 +647,66 @@ int askBool(const String& text, bool defval)
         break;
       }
 
-      std::cout << "The answer is not a valid Integer" << std::endl;
+      std::cout << "The answer is not a valid bool!" << std::endl;
     }
   }
-  catch(std::istream::failure e)
+  catch(std::istream::failure& e)
   {
-    std::cerr << "Problem when reading integer" << std::endl;
+    std::cerr << "Problem when reading bool:" << e.what() << std::endl;
   }
   return answer;
 }
 
+String trimRight(const String& s, const String& t)
+{
+  String d(s);
+  String::size_type i(d.find_last_not_of (t));
+  if (i == String::npos)
+    return "";
+  else
+    return d.erase(d.find_last_not_of (t) + 1);
+}
+
+String trimLeft(const String& s, const String& t)
+{
+  String d(s);
+  return d.erase(0, s.find_first_not_of (t));
+}
+
+String trim(const String& s, const String& t)
+{
+  String d(s);
+  return trimLeft(trimRight(d, t), t);
+}
+
+String erase(const String& s, const String& t)
+{
+  String d(s);
+  for (unsigned int i = 0; i < t.size(); i++)
+    d.erase(std::remove(d.begin(), d.end(), t[i]), d.end());
+  return d;
+}
+
+char* gslStrcpy(char* dst, const char* src)
+{
+  return strcpy(dst, src);
+  //(void)gslSPrintf(dst, "%s", src);
+  //return dst;
+}
+
+char* gslStrcat(char* dst, const char* src)
+{
+  return strcat(dst, src);
+//  size_t size = String(dst).size();
+//  (void)gslSPrintf(&dst[size], "%s%s", dst, src);
+//  return dst;
+}
+
+int gslSPrintf(char* dst, const char* fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  int n = vsprintf(dst, fmt, ap);
+  va_end(ap);
+  return n;
+}

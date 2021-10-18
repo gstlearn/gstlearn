@@ -30,8 +30,8 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
   , _cova(cova)
   , _power(power)
   , _polynomials()
-  , _training(false)
   , _verbose(verbose)
+  , _training(false)
   , _work()
   , _work2()
   , _work3()
@@ -49,8 +49,8 @@ PrecisionOp::PrecisionOp(const PrecisionOp &pmat)
   , _cova(pmat._cova)
   , _power(pmat._power)
   , _polynomials(pmat._polynomials)
-  , _training(false)
   , _verbose(pmat._verbose)
+  , _training(false)
   , _work(pmat._work)
   , _work2(pmat._work2)
   , _work3(pmat._work3)
@@ -64,6 +64,7 @@ PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
   _power         = pmat._power;
   _polynomials   = pmat._polynomials;
   _verbose       = pmat._verbose;
+  _training      = pmat._training;
   _work          = pmat._work;
   _work2         = pmat._work2;
   _work3         = pmat._work3;

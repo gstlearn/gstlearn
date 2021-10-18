@@ -162,10 +162,10 @@ static void st_simfft_init(Db     *db,
     simu->dims[i]  = 0;
     simu->dim2[i]  = 0;
   }
-  simu->cmat = (double *) NULL;
-  simu->rnd  = (double *) NULL;
-  simu->u    = (double *) NULL;
-  simu->v    = (double *) NULL;
+  simu->cmat = nullptr;
+  simu->rnd  = nullptr;
+  simu->u    = nullptr;
+  simu->v    = nullptr;
   
   /* Definition according to the grid */
 
@@ -219,12 +219,12 @@ static void st_simfft_prepar(Db     *db,
     xyz[i]   = xyz0[i]  = 0.;
     for (j=0; j<3; j++) xyz1[i][j] = 0.;
   }
-  grid_to_point(db,indg,(double *) NULL,xyz0);
+  grid_to_point(db,indg,nullptr,xyz0);
   for (i=0; i<3; i++)
   {
     for (j=0; j<3; j++) indg[j] = 0;
     indg[i] = 1;
-    grid_to_point(db,indg,(double *) NULL,xyz1[i]);
+    grid_to_point(db,indg,nullptr,xyz1[i]);
     for (j=0; j<3; j++) xyz1[i][j] -= xyz0[j];
     delta[i] = db->getDX(i) * db->getNX(i);
     if (i < ndim) continue;
@@ -561,7 +561,7 @@ static void st_grid_dilate(Db     *db,
 
   ndim = simu->ndim;
   for (i=0; i<3; i++) indg[i] = 0;
-  grid_to_point(db,indg,(double *) NULL,xyz0);
+  grid_to_point(db,indg,nullptr,xyz0);
 
   /* Location of the elementary end point */
 
@@ -569,7 +569,7 @@ static void st_grid_dilate(Db     *db,
   {
     for (j=0; j<3; j++) indg[j] = 0;
     indg[i] = 1;
-    grid_to_point(db,indg,(double *) NULL,xyz[i]);
+    grid_to_point(db,indg,nullptr,xyz[i]);
   }
 
   /* Coordinates of the grid vector in the rotated space */
@@ -758,13 +758,13 @@ static int st_simfft_alloc(Db     *db,
   /* Core allocation */
 
   simu->cmat = (double *) mem_alloc(sizeof(double) * simu->sizes_alloc,0);
-  if (simu->cmat == (double *) NULL) goto label_end;
+  if (simu->cmat == nullptr) goto label_end;
   simu->rnd  = (double *) mem_alloc(sizeof(double) * simu->sizes_alloc,0);
-  if (simu->rnd  == (double *) NULL) goto label_end;
+  if (simu->rnd  == nullptr) goto label_end;
   simu->u    = (double *) mem_alloc(sizeof(double) * simu->sizes_alloc,0);
-  if (simu->u    == (double *) NULL) goto label_end;
+  if (simu->u    == nullptr) goto label_end;
   simu->v    = (double *) mem_alloc(sizeof(double) * simu->sizes_alloc,0);
-  if (simu->v    == (double *) NULL) goto label_end;
+  if (simu->v    == nullptr) goto label_end;
   for (i=0; i<simu->sizes_alloc; i++) 
   {
     simu->cmat[i] = 0.;
@@ -804,7 +804,7 @@ static int st_check_simfft_environment(Db     *db,
 
   error = 1;
   ndim  = simu->ndim;
-  db_mini = db_maxi = (double *) NULL;
+  db_mini = db_maxi = nullptr;
 
   /**************************************************************/
   /* Check if the Space dimension is compatible with the method */
@@ -821,7 +821,7 @@ static int st_check_simfft_environment(Db     *db,
   /* Checking the model */
   /**********************/
 
-  if (model != (Model *) NULL) 
+  if (model != nullptr) 
   {
     if (model->getVariableNumber() != 1)
     {
@@ -853,15 +853,15 @@ static int st_check_simfft_environment(Db     *db,
   /********************/ 
 
   db_mini = db_sample_alloc(db,ELoc::X);
-  if (db_mini == (double *) NULL) goto label_end;
+  if (db_mini == nullptr) goto label_end;
   db_maxi = db_sample_alloc(db,ELoc::X);
-  if (db_maxi == (double *) NULL) goto label_end;
-  if (db_extension(db,db_mini,db_maxi,(double *) NULL)) goto label_end;
+  if (db_maxi == nullptr) goto label_end;
+  if (db_extension(db,db_mini,db_maxi,nullptr)) goto label_end;
 
-  if (model != (Model *) NULL)
+  if (model != nullptr)
     model->setField(
-        ut_merge_extension(ndim, db_mini, db_maxi, (double *) NULL,
-                           (double *) NULL));
+        ut_merge_extension(ndim, db_mini, db_maxi, nullptr,
+                           nullptr));
 
   db_mini  = db_sample_free(db_mini);
   db_maxi  = db_sample_free(db_maxi);

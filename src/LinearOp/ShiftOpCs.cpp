@@ -154,7 +154,7 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
     // Construct G sparse Matrix (locally stored in _S)
 
     _S = spde_fill_S(&amesh, model, units);
-    if (_S == (cs *) NULL) my_throw("Problem with spde_fill_S() method");
+    if (_S == nullptr) my_throw("Problem with spde_fill_S() method");
 
     // Construct the TildeC vector
 
@@ -389,7 +389,7 @@ int ShiftOpCs::initFromCS(const cs* S,
     // Duplicate the Shift Operator sparse matrix
 
     _S = cs_duplicate(S);
-    if (_S == (cs *) NULL) my_throw("Problem when duplicating S sparse matrix");
+    if (_S == nullptr) my_throw("Problem when duplicating S sparse matrix");
   }
 
   catch (const char * str)
@@ -788,7 +788,7 @@ cs* ShiftOpCs::_BuildSfromMap(std::map<std::pair<int, int>, double> &tab)
   /* Optional printout */
 
   cs* S = cs_triplet(Striplet);
-  if (S == (cs *) NULL) return nullptr;
+  if (S == nullptr) return nullptr;
 
   Striplet = cs_spfree(Striplet);
 

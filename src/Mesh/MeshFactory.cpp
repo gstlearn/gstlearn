@@ -46,13 +46,13 @@ AMesh* MeshFactory::createMesh(int variety,
   {
     // Euclidean case
 
-    if (dbin != (Db *) NULL || dbout != (Db *) NULL)
+    if (dbin != nullptr)
     {
       if (verbose)
       {
         mestitle(0,"Standard Meshing (from Dbs)");
       }
-      if (dbin != (Db *) NULL)
+      if (dbin != nullptr)
       {
         if (ndim > 0 && dbin->getNDim() != ndim)
         {
@@ -62,7 +62,7 @@ AMesh* MeshFactory::createMesh(int variety,
         }
         ndim = dbin->getNDim();
       }
-      if (dbout != (Db *) NULL)
+      if (dbout != nullptr)
       {
         if (ndim > 0 && dbout->getNDim() != ndim)
         {

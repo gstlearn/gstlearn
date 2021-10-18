@@ -47,15 +47,15 @@ int main(int argc, char *argv[])
   /* Initializations */
 
   npgs    = ntot = 0;
-  dbin    = (Db     *) NULL;
-  dbout   = (Db     *) NULL;
-  vario   = (Vario *) NULL;
-  neigh   = (Neigh  *) NULL;
+  dbin    = nullptr;
+  dbout   = nullptr;
+  vario   = nullptr;
+  neigh   = nullptr;
   for (i=0; i<2; i++)
   {
-    rule[i] = (Rule *) NULL;
+    rule[i] = nullptr;
     for (j=0; j<2; j++)
-      model[i][j] = (Model *) NULL;
+      model[i][j] = nullptr;
   }
 
   /* Connect the Geoslib Library */
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
   ascii_filename("Data",0,0,filename);
   dbin = ascii_db_read(filename,0,verbose);
-  if (dbin == (Db *) NULL) goto label_end;
+  if (dbin == nullptr) goto label_end;
   iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
   if (verbose) db_print(dbin,1,0,1,1,1);
 
@@ -93,13 +93,13 @@ int main(int argc, char *argv[])
   
   ascii_filename("Vario",0,0,filename);
   vario = ascii_vario_read(filename,verbose);
-  flag_vario = (vario != (Vario *) NULL);
+  flag_vario = (vario != nullptr);
 
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
   dbout = ascii_db_read(filename,1,verbose);
-  flag_grid = (dbout != (Db *) NULL);
+  flag_grid = (dbout != nullptr);
 
   /* Define the rules */
 
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
     ascii_filename("Rule",i,0,filename);
     rule[i] = ascii_rule_read(filename,verbose);
-    if (rule[i] == (Rule *) NULL) continue;
+    if (rule[i] == nullptr) continue;
 
     npgs++;
     if (verbose) rule[i]->display(false, false);
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
       if (! rule[i]->isYUsed(j)) continue;
       ascii_filename("Model",lec,0,filename);
       model[i][j] = ascii_model_read(filename,verbose);
-      if (model[i][j] == (Model *) NULL) goto label_end;
+      if (model[i][j] == nullptr) goto label_end;
     }
 
     /* Calculate the experimental variogram of indicators */

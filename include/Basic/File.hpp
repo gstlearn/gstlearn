@@ -8,35 +8,24 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/String.hpp"
-#include "Basic/AStringable.hpp"
-#include <string.h>
+#pragma once
+
+#include "geoslib_define.h"
+#include <fstream>
 
 /**
- * This test is meant to check the interactive questioning
- * @return
+ * This file contains all the OLD-STYLE declarations causing warnings on Windows
+ * They should gradually be replaced by modern statements
+ * However, they are kept there to keep track on these statements
  */
-int main()
-{
-  int ianswer;
-  double ranswer;
-
-  // Testing numerical input
-
-  message("Testing Interactive input\n");
-
-  ianswer = askInt("Enter an Integer with no Default value");
-  message("Value read = %d\n",ianswer);
-
-  ianswer = askInt("Enter an Integer with Default value", 14.);
-  message("Value read = %d\n",ianswer);
-  
-  ranswer = askDouble("Enter a Double with no Default value");
-  message("Value read = %lf\n",ranswer);
-
-  ranswer = askDouble("Enter a Double with Default value", 14.);
-  message("Value read = %lf\n",ranswer);
 
 
-  return 0;
-}
+// TODO : File manipulation class
+
+// Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
+//https://stackoverflow.com/a/17219495
+void skipBOM(std::ifstream &in);
+FILE* gslFopen(const char *path, const char* mode);
+FILE* gslFopen(const String& path, const String& mode);
+bool gslFileExist(const char *path, const char* mode);
+bool gslFileExist(const String& path, const String& mode);

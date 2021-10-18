@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   
   /* Perform the non-conditional Simulation */
   
-  if (dbout != (Db *) NULL) 
+  if (dbout != (Db *) NULL)
   {
     if (simtub((Db *) NULL,dbout,model,(Neigh *) NULL,nbsimu,seed,nbtuba,0))
       messageAbort("Simulations");

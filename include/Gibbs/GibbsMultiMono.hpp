@@ -27,7 +27,7 @@ public:
 
   Model* getModels(int ivar) const { return _models[ivar]; } // TODO: protect by const asap
   double getRho() const { return _rho; }
-  int getVariableNumber() const { return _models.size(); }
+  int getVariableNumber() const { return static_cast<int>(_models.size()); }
 
   int calculInitialize(VectorVectorDouble& y,
                        int isimu,

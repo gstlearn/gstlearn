@@ -66,12 +66,12 @@ static double *st_freq_array_realloc(double *freqs,
   {
     nquant++;
     newsize = nquant * QUANTUM;
-    if (freqs == (double *) NULL)
+    if (freqs == nullptr)
       freqs = (double *) mem_alloc(sizeof(double) * newsize,0);
     else {
       freqs = (double *) mem_realloc((char *) freqs,sizeof(double) * newsize,0);
     }
-    if (freqs == (double *) NULL) return(freqs);
+    if (freqs == nullptr) return(freqs);
     *nquloc = nquant;
   }
   return(freqs);
@@ -100,12 +100,12 @@ static double *st_spectrum_chentsov(double  tol,
   
   nquant = ifreq = 0;
   total  = 0.;
-  freqs  = (double *) NULL;
+  freqs  = nullptr;
   
   /* Core allocation */
   
   freqs = st_freq_array_realloc(freqs,ifreq,&nquant);
-  if (freqs == (double *) NULL) return(freqs);
+  if (freqs == nullptr) return(freqs);
   
   /* Loop on the spectrum items */
   
@@ -120,13 +120,13 @@ static double *st_spectrum_chentsov(double  tol,
   while (1)
   {
     freqs = st_freq_array_realloc(freqs,ifreq,&nquant);
-    if (freqs == (double *) NULL) return(freqs);
+    if (freqs == nullptr) return(freqs);
 
     freqs[ifreq] = 0.;
     ifreq++;
 
     freqs = st_freq_array_realloc(freqs,ifreq,&nquant);
-    if (freqs == (double *) NULL) return(freqs);
+    if (freqs == nullptr) return(freqs);
 
     ratio = ((double) (ifreq - 2.)) / ((double) (ifreq + 1.));
     freqs[ifreq]  = freqs[ifreq-2] * (2.*ifreq+1.) / (2.*ifreq-3.);
@@ -168,7 +168,7 @@ static double *st_spectrum_exponential(Model  *model,
 
   nquant = ifreq = 0;
   total  = 0.;
-  freqs  = (double *) NULL;
+  freqs  = nullptr;
   fcs    = 1. / model->getCova(0)->getTheoretical();
   fcs2   = fcs * fcs;
   expfc  = exp(-fcs * GV_PI);
@@ -176,7 +176,7 @@ static double *st_spectrum_exponential(Model  *model,
   /* Core allocation */
   
   freqs = st_freq_array_realloc(freqs,ifreq,&nquant);
-  if (freqs == (double *) NULL) return(freqs);
+  if (freqs == nullptr) return(freqs);
   
   freqs[ifreq] = (1. + expfc) / (fcs2 + 1.) / 2.;
   if (freqs[ifreq] < 0.) freqs[ifreq] = 0.;
@@ -193,7 +193,7 @@ static double *st_spectrum_exponential(Model  *model,
   while (1)
   {
     freqs = st_freq_array_realloc(freqs,ifreq,&nquant);
-    if (freqs == (double *) NULL) return(freqs);
+    if (freqs == nullptr) return(freqs);
 
     r1 = ifreq + 1.;
     r2 = ifreq - 2.;
@@ -329,13 +329,13 @@ static double *st_spectrum_any(Model  *model,
   dd.resize(2);
   dd[0]  = dd[1] = 0.;
   nquant = ifreq = 0;
-  freqs  = covs = (double *) NULL;
+  freqs  = covs = nullptr;
   dincr  = GV_PI / ((double) ndisc);
 
   /* Core allocation */
   
   covs  = (double *) mem_alloc(sizeof(double) * ndisc,0);
-  if (covs  == (double *) NULL) return(freqs);
+  if (covs  == nullptr) return(freqs);
   
   /* Calculate the discretized covariance values */
 
@@ -355,7 +355,7 @@ static double *st_spectrum_any(Model  *model,
   while(1)
   {
     freqs = st_freq_array_realloc(freqs,ifreq,&nquant);
-    if (freqs == (double *) NULL) return(freqs);
+    if (freqs == nullptr) return(freqs);
 
     /* Discretization of the frequency item */
     
@@ -440,8 +440,8 @@ GEOSLIB_API int simsph_f(Db    *db,
 
   error  = 1;
   iptr   = nfreq = 0;
-  degree = order = (int *) NULL;
-  freqs  = phase = (double *) NULL;
+  degree = order = nullptr;
+  freqs  = phase = nullptr;
   ndisc  = (int) get_keypone("Simsph_Ndisc",360);
   shunt  = (int) get_keypone("Simsph_Shunt",0);
   tol    = get_keypone("Simsph_Spectrum_Tolerance",1.e-5);
@@ -481,11 +481,11 @@ GEOSLIB_API int simsph_f(Db    *db,
   /* Core allocation */
 
   phase  = (double *) mem_alloc(sizeof(double) * nbf,0);
-  if (phase  == (double *) NULL) goto label_end;
+  if (phase  == nullptr) goto label_end;
   degree = (int    *) mem_alloc(sizeof(int)    * nbf,0);
-  if (degree == (int *) NULL) goto label_end;
+  if (degree == nullptr) goto label_end;
   order  = (int    *) mem_alloc(sizeof(int)    * nbf,0);
-  if (order  == (int *) NULL) goto label_end;
+  if (order  == nullptr) goto label_end;
 
   /* Define the spectrum */
 
@@ -495,7 +495,7 @@ GEOSLIB_API int simsph_f(Db    *db,
     freqs = st_spectrum_exponential(model,tol,nfmax,&nfreq);
   else
     freqs = st_spectrum_any(model,ndisc,tol,nfmax,&nfreq);
-  if (freqs == (double *) NULL) goto label_end;
+  if (freqs == nullptr) goto label_end;
   set_keypair("Simsph_Spectrum_Frequencies",1,nfreq,1,freqs);
 
   /* Optional printout */

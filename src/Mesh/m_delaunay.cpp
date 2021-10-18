@@ -104,18 +104,18 @@ static double *st_extend_grid(Db     *db,
   ndim   = db->getNDim();
   number = (int) pow(2.,ndim);
   ndiv0  = (int) pow(2.,ndim - 1);
-  indg   = (int *) NULL;
-  coor   = ext = (double *) NULL;
+  indg   = nullptr;
+  coor   = ext = nullptr;
   *nout  = 0;
 
   /* Core allocation */
 
   indg = db_indg_alloc(db);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
   coor = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
   ext  = (double *) mem_alloc(sizeof(double) * ndim * number,0);
-  if (ext  == (double *) NULL) goto label_end;
+  if (ext  == nullptr) goto label_end;
 
   /* Generate the corner points */
 
@@ -175,19 +175,19 @@ static double *st_extend_point(Db     *db,
   ndim   = db->getNDim();
   number = (int) pow(2.,ndim);
   ndiv0  = (int) pow(2.,ndim - 1);
-  mini   = maxi = ext = (double *) NULL;
+  mini   = maxi = ext = nullptr;
   *nout  = 0;
 
   /* Core allocation */
 
   coor = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
   mini = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (mini == (double *) NULL) goto label_end;
+  if (mini == nullptr) goto label_end;
   maxi = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (maxi == (double *) NULL) goto label_end;
+  if (maxi == nullptr) goto label_end;
   ext  = (double *) mem_alloc(sizeof(double) * ndim * number,0);
-  if (ext  == (double *) NULL) goto label_end;
+  if (ext  == nullptr) goto label_end;
 
   /* Calculate the extension of the domain */
 
@@ -256,10 +256,10 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
   /* Initializations */
 
   error      = 1;
-  indg       = (int    *) NULL;
-  coor_in    = (double *) NULL;
-  coor_out   = (double *) NULL;
-  extend     = (double *) NULL;
+  indg       = nullptr;
+  coor_in    = nullptr;
+  coor_out   = nullptr;
+  extend     = nullptr;
 
   /* Dispatch */
 
@@ -270,10 +270,10 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
 
     vercoloc = (Vercoloc *) mem_alloc(sizeof(Vercoloc),1);
     vercoloc->ndupl     = 0;
-    vercoloc->dupl_data = (int *) NULL;
-    vercoloc->dupl_dabs = (int *) NULL;
-    vercoloc->dupl_grid = (int *) NULL;
-    if (dbin == (Db *) NULL || dbout == (Db *) NULL || ! mesh_dbin) 
+    vercoloc->dupl_data = nullptr;
+    vercoloc->dupl_dabs = nullptr;
+    vercoloc->dupl_grid = nullptr;
+    if (dbin == nullptr || ! mesh_dbin) 
       return(vercoloc);
 
     /* Allocation */
@@ -281,15 +281,15 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
     if (is_grid(dbout))
     {
       indg      = db_indg_alloc(dbout);
-      if (indg  == (int *) NULL) goto label_end;
+      if (indg  == nullptr) goto label_end;
     }
     ndim       = dbout->getNDim();
     coor_in    = db_sample_alloc(dbin,ELoc::X);
-    if (coor_in    == (double *) NULL) goto label_end;
+    if (coor_in    == nullptr) goto label_end;
     coor_out   = db_sample_alloc(dbout,ELoc::X);
-    if (coor_out   == (double *) NULL) goto label_end;
+    if (coor_out   == nullptr) goto label_end;
     extend     = (double *) mem_alloc(sizeof(double) * ndim,0);
-    if (extend     == (double *) NULL) goto label_end;
+    if (extend     == nullptr) goto label_end;
     db_extension(dbin,NULL,NULL,extend);
 
     /* Look for duplicates */
@@ -414,7 +414,7 @@ GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
 
     /* Deallocation */
     
-    if (vercoloc == (Vercoloc *) NULL) return(vercoloc);
+    if (vercoloc == nullptr) return(vercoloc);
     vercoloc->dupl_data = (int *) mem_free((char *) vercoloc->dupl_data);
     vercoloc->dupl_dabs = (int *) mem_free((char *) vercoloc->dupl_dabs);
     vercoloc->dupl_grid = (int *) mem_free((char *) vercoloc->dupl_grid);
@@ -454,9 +454,9 @@ GEOSLIB_API Vercoloc *vercoloc_from_external(int  ndupl,
   
   vercoloc = (Vercoloc *) mem_alloc(sizeof(Vercoloc),1);
   vercoloc->ndupl     = 0;
-  vercoloc->dupl_data = (int *) NULL;
-  vercoloc->dupl_dabs = (int *) NULL;
-  vercoloc->dupl_grid = (int *) NULL;
+  vercoloc->dupl_data = nullptr;
+  vercoloc->dupl_dabs = nullptr;
+  vercoloc->dupl_grid = nullptr;
 
   if (ndupl > 0)
   {
@@ -543,33 +543,33 @@ GEOSLIB_API void meshes_2D_free(triangulateio *t,
 *****************************************************************************/
 GEOSLIB_API void meshes_2D_init(triangulateio *t)
 {
-  t->pointlist                  = (double *) NULL;
-  t->pointattributelist         = (double *) NULL;
-  t->pointmarkerlist            = (int    *) NULL;
+  t->pointlist                  = nullptr;
+  t->pointattributelist         = nullptr;
+  t->pointmarkerlist            = nullptr;
   t->numberofpoints             = 0;
   t->numberofpointattributes    = 0;
 
-  t->trianglelist               = (int    *) NULL;
-  t->triangleattributelist      = (double *) NULL;
-  t->trianglearealist           = (double *) NULL;
-  t->neighborlist               = (int    *) NULL;
+  t->trianglelist               = nullptr;
+  t->triangleattributelist      = nullptr;
+  t->trianglearealist           = nullptr;
+  t->neighborlist               = nullptr;
   t->numberoftriangles          = 0;
   t->numberofcorners            = 0;
   t->numberoftriangleattributes = 0;
 
-  t->segmentlist                = (int    *) NULL;
-  t->segmentmarkerlist          = (int    *) NULL;
+  t->segmentlist                = nullptr;
+  t->segmentmarkerlist          = nullptr;
   t->numberofsegments           = 0;
 
-  t->holelist                   = (double *) NULL;
+  t->holelist                   = nullptr;
   t->numberofholes              = 0;
 
-  t->regionlist                 = (double *) NULL;
+  t->regionlist                 = nullptr;
   t->numberofregions            = 0;
 
-  t->edgelist                   = (int    *) NULL;
-  t->edgemarkerlist             = (int    *) NULL;
-  t->normlist                   = (double *) NULL;
+  t->edgelist                   = nullptr;
+  t->edgemarkerlist             = nullptr;
+  t->normlist                   = nullptr;
   t->numberofedges              = 0;
 }
 
@@ -588,7 +588,7 @@ static int st_is_masked(int  nb_mask,
                         int *is_mask,
                         int  iech0)
 {
-  if (nb_mask <= 0 || is_mask == (int *) NULL) return(0);
+  if (nb_mask <= 0 || is_mask == nullptr) return(0);
   for (int i=0; i<nb_mask; i++)
   {
     if (is_mask[i] == iech0) return(1);
@@ -624,7 +624,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
   
   /* Initializations */
 
-  if (db == (Db *) NULL) return(0);
+  if (db == nullptr) return(0);
   error = 1;
   nech  = db->getSampleNumber();
   ndim  = db->getNDim();
@@ -650,7 +650,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
   ecr  = nold * ndim;
   t->pointlist = (double *) 
     mem_realloc((char *) t->pointlist,sizeof(double) * (nold+neff) * ndim,0);
-  if (t->pointlist == (double *) NULL) goto label_end;
+  if (t->pointlist == nullptr) goto label_end;
 
   for (iech=0; iech<nech; iech++)
   {
@@ -670,7 +670,7 @@ GEOSLIB_API int meshes_2D_from_db(Db  *db,
     ecr  = nold * ndim;
     t->holelist = (double *) 
       mem_realloc((char *) t->holelist,sizeof(double) * (nold+nhole) * ndim,0);
-    if (t->holelist == (double *) NULL) goto label_end;
+    if (t->holelist == nullptr) goto label_end;
     for (iech=0; iech<nech; iech++)
     {
       if (! db->isActive(iech)) continue;
@@ -720,11 +720,11 @@ static double *st_get_db_extension(Db  *dbin,
   
   /* Initializations */
   
-  ext = coor = mini_loc= maxi_loc = mini_abs = maxi_abs = (double *) NULL;
+  ext = coor = mini_loc= maxi_loc = mini_abs = maxi_abs = nullptr;
   error = 1;
   ndim = 0;
-  if (dbin  != (Db *) NULL) ndim = dbin->getNDim();
-  if (dbout != (Db *) NULL) ndim = dbout->getNDim();
+  if (dbin  != nullptr) ndim = dbin->getNDim();
+  if (dbout != nullptr) ndim = dbout->getNDim();
   if (ndim <= 0) goto label_end;
   number = (int) pow(2.,ndim);
   ndiv0  = (int) pow(2.,ndim - 1);
@@ -732,17 +732,17 @@ static double *st_get_db_extension(Db  *dbin,
   /* Core allocation */
 
   ext      = (double *) mem_alloc(sizeof(double) * ndim * number,0);
-  if (ext      == (double *) NULL) goto label_end;
+  if (ext      == nullptr) goto label_end;
   coor     = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (coor     == (double *) NULL) goto label_end;
+  if (coor     == nullptr) goto label_end;
   mini_loc = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (mini_loc == (double *) NULL) goto label_end;
+  if (mini_loc == nullptr) goto label_end;
   maxi_loc = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (maxi_loc == (double *) NULL) goto label_end;
+  if (maxi_loc == nullptr) goto label_end;
   mini_abs = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (mini_abs == (double *) NULL) goto label_end;
+  if (mini_abs == nullptr) goto label_end;
   maxi_abs = (double *) mem_alloc(sizeof(double) * ndim,0);
-  if (maxi_abs == (double *) NULL) goto label_end;
+  if (maxi_abs == nullptr) goto label_end;
 
   /* Get the extension */
   
@@ -751,7 +751,7 @@ static double *st_get_db_extension(Db  *dbin,
     mini_abs[idim] = +1.e30;
     maxi_abs[idim] = -1.e30;
   }
-  if (dbin != (Db *) NULL)
+  if (dbin != nullptr)
   {
     db_extension(dbin,mini_loc,maxi_loc,NULL);
     for (int idim=0; idim<ndim; idim++)
@@ -760,7 +760,7 @@ static double *st_get_db_extension(Db  *dbin,
       if (maxi_loc[idim] > maxi_abs[idim]) maxi_abs[idim] = maxi_loc[idim];
     }
   }
-  if (dbout != (Db *) NULL)
+  if (dbout != nullptr)
   {
     db_extension(dbout,mini_loc,maxi_loc,NULL);
     for (int idim=0; idim<ndim; idim++)
@@ -867,7 +867,7 @@ GEOSLIB_API int meshes_2D_from_points(int     nech,
   ecr  = nold * ndim;
   t->pointlist = (double *) 
     mem_realloc((char *) t->pointlist,sizeof(double) * (nold+nech) * ndim,0);
-  if (t->pointlist == (double *) NULL) goto label_end;
+  if (t->pointlist == nullptr) goto label_end;
   for (iech=0; iech<nech; iech++)
   {
     t->pointlist[ecr++] = x[iech];
@@ -918,11 +918,11 @@ GEOSLIB_API int meshes_2D_from_mem(int  nseg,
   /* List of segments */
 
   t->segmentlist = (int *) mem_alloc(sizeof(int) * nseg * ndim,0);
-  if (t->segmentlist == (int *) NULL) goto label_end;
+  if (t->segmentlist == nullptr) goto label_end;
   if (ncol > ndim)
   {
     t->segmentmarkerlist = (int *) mem_alloc(sizeof(int) * nseg,0);
-    if (t->segmentmarkerlist == (int *) NULL) goto label_end;
+    if (t->segmentmarkerlist == nullptr) goto label_end;
   }
 
   for (i=0; i<nseg; i++) 
@@ -967,7 +967,7 @@ GEOSLIB_API void meshes_2D_print(triangulateio *t,
   message("- Number of vertices   = %d\n",t->numberofpoints);
   message("- Number of attributes = %d\n",t->numberofpointattributes);
 
-  if (! brief && t->numberofpoints > 0 && t->pointlist != (double *) NULL)
+  if (! brief && t->numberofpoints > 0 && t->pointlist != nullptr)
   {
     lecp = leca = 0;
     for (i=0; i<t->numberofpoints; i++)
@@ -975,7 +975,7 @@ GEOSLIB_API void meshes_2D_print(triangulateio *t,
       message("%3d",i+1);
       for (j=0; j<ndim; j++)
         message(" %lf",t->pointlist[lecp++]);
-      if (t->pointmarkerlist != (int *) NULL)
+      if (t->pointmarkerlist != nullptr)
         message(" %d",t->pointmarkerlist[i]);
       for (j=0; j<t->numberofpointattributes; j++)
         message(" %lf",t->pointattributelist[leca++]);
@@ -988,7 +988,7 @@ GEOSLIB_API void meshes_2D_print(triangulateio *t,
 
   message("- Number of segments   = %d\n",t->numberofsegments);
 
-  if (! brief && t->numberofsegments > 0 && t->segmentlist != (int *) NULL)
+  if (! brief && t->numberofsegments > 0 && t->segmentlist != nullptr)
   {
     lecs = 0;
     for (i=0; i<t->numberofsegments; i++)
@@ -996,7 +996,7 @@ GEOSLIB_API void meshes_2D_print(triangulateio *t,
       message("%3d",i+1);
       for (j=0; j<ndim; j++)
         message(" %d",t->segmentlist[lecs++]);
-      if (t->segmentmarkerlist != (int *) NULL)
+      if (t->segmentmarkerlist != nullptr)
         message(" %d",t->segmentmarkerlist[i]);
       message("\n");
     }
@@ -1007,7 +1007,7 @@ GEOSLIB_API void meshes_2D_print(triangulateio *t,
 
   message("- Number of holes      = %d\n",t->numberofholes);
 
-  if (! brief && t->numberofholes > 0 && t->holelist != (double *) NULL)
+  if (! brief && t->numberofholes > 0 && t->holelist != nullptr)
   {
     lech = 0;
     for (i=0; i<t->numberofholes; i++)
@@ -1025,7 +1025,7 @@ GEOSLIB_API void meshes_2D_print(triangulateio *t,
   message("- Number of triangles  = %d\n",t->numberoftriangles);
   message("- Number of corners    = %d\n",t->numberofcorners);
 
-  if (! brief && t->numberoftriangles > 0 && t->trianglelist != (int *) NULL)
+  if (! brief && t->numberoftriangles > 0 && t->trianglelist != nullptr)
   {
     lect = lecta = lecn = 0;
     for (i=0; i<t->numberoftriangles; i++)
@@ -1033,12 +1033,12 @@ GEOSLIB_API void meshes_2D_print(triangulateio *t,
       message("%3d",i+1);
       for (j=0; j<t->numberofcorners; j++)
         message(" %d",t->trianglelist[lect++]);
-      if (t->triangleattributelist != (double *) NULL)
+      if (t->triangleattributelist != nullptr)
         for (j=0; j<t->numberoftriangleattributes; j++)
           message("%lf",t->triangleattributelist[lecta++]);
-      if (t->trianglearealist != (double *) NULL)
+      if (t->trianglearealist != nullptr)
         message(" %lf",t->trianglearealist[i]);
-      if (t->neighborlist != (int *) NULL)
+      if (t->neighborlist != nullptr)
         for (j=0; j<3; j++)
           message(" %d",t->neighborlist[lecn++]);
       message("\n");
@@ -1082,15 +1082,15 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   (*ntab_arg) = (*natt_arg) = 0;
   ntab = natt = type = 0;
-  itab = ifrom = (int    *) NULL;
-  rtab = rfrom = (double *) NULL;
+  itab = ifrom = nullptr;
+  rtab = rfrom = nullptr;
   *tab_arg = (void *) NULL;
 
   /* Dispatch */
 
   if (! strcmp(name,"Points"))
   {
-    if (t->pointlist == (double *) NULL) return;
+    if (t->pointlist == nullptr) return;
     type  = 1;
     natt  = 2;
     ntab  = t->numberofpoints;
@@ -1099,7 +1099,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Point_marker"))
   {
-    if (t->pointmarkerlist == (int *) NULL) return;
+    if (t->pointmarkerlist == nullptr) return;
     type  = 2;
     ntab  = t->numberofpoints;
     ifrom = t->pointmarkerlist;
@@ -1107,7 +1107,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Point_attribute"))
   {
-    if (t->pointattributelist == (double *) NULL) return;
+    if (t->pointattributelist == nullptr) return;
     type  = 1;
     natt  = t->numberofpointattributes;
     ntab  = t->numberofpoints;
@@ -1116,7 +1116,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Segments"))
   {
-    if (t->segmentlist == (int *) NULL) return;
+    if (t->segmentlist == nullptr) return;
     type  = 2;
     natt  = 2;
     ntab  = t->numberofsegments;
@@ -1125,7 +1125,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Segment_marker"))
   {
-    if (t->segmentmarkerlist == (int *) NULL) return;
+    if (t->segmentmarkerlist == nullptr) return;
     type  = 2;
     ntab  = t->numberofsegments;
     ifrom = t->segmentmarkerlist;
@@ -1133,7 +1133,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Holes"))
   {
-    if (t->holelist == (double *) NULL) return;
+    if (t->holelist == nullptr) return;
     type  = 1;
     natt  = 2;
     ntab  = t->numberofholes;
@@ -1142,7 +1142,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Triangles"))
   {
-    if (t->trianglelist == (int *) NULL) return;
+    if (t->trianglelist == nullptr) return;
     type  = 2;
     natt  = t->numberofcorners;
     ntab  = t->numberoftriangles;
@@ -1151,7 +1151,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Triangle_attribute"))
   {
-    if (t->triangleattributelist == (double *) NULL) return;
+    if (t->triangleattributelist == nullptr) return;
     type  = 1;
     natt  = t->numberoftriangleattributes;
     ntab  = t->numberoftriangles;
@@ -1160,7 +1160,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Triangle_area"))
   {
-    if (t->trianglearealist == (double *) NULL) return;
+    if (t->trianglearealist == nullptr) return;
     type  = 1;
     ntab  = t->numberoftriangles;
     rfrom = t->trianglearealist;
@@ -1168,7 +1168,7 @@ GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
 
   else if (! strcmp(name,"Triangle_neigh"))
   {
-    if (t->neighborlist == (int *) NULL) return;
+    if (t->neighborlist == nullptr) return;
     type  = 2;
     natt  = 3;
     ntab  = t->numberoftriangles;
@@ -1429,11 +1429,11 @@ static int st_manage_regular_grid(int   mode,
     number = 1;
     for (int idim=0; idim<ndim; idim++) number *= grid.getNX(idim);
     order = (int     *) mem_alloc(sizeof(int) * number,0);
-    if (order  == (int *) NULL) return(1);
+    if (order  == nullptr) return(1);
     ranks = (int     *) mem_alloc(sizeof(int) * number,0);
-    if (ranks  == (int *) NULL) return(1);
+    if (ranks  == nullptr) return(1);
     indg  = (int     *) mem_alloc(sizeof(int) * ndim,0);
-    if (indg  == (int *) NULL) return(1);
+    if (indg  == nullptr) return(1);
 
     for (int i=0; i<number; i++) 
     {
@@ -1488,14 +1488,14 @@ static int st_ultimate_regular_grid(Db  *dbgrid,
   // Initializations
 
   error  = 1;
-  points = (double *) NULL;
+  points = nullptr;
   number = dbgrid->getSampleNumber();
 
   // Rescale the meshing array
 
   meshes = (int *) mem_realloc((char *) meshes,
                                sizeof(int) * nmesh * ncorner,0);
-  if (meshes == (int *) NULL) goto label_end;
+  if (meshes == nullptr) goto label_end;
 
   /* Count the number of actives vertices */
 
@@ -1525,7 +1525,7 @@ static int st_ultimate_regular_grid(Db  *dbgrid,
   /* Store the (active) vertices */
 
   points = (double *) mem_alloc(sizeof(double) * nvertex * ndim,0);
-  if (points == (double *) NULL) goto label_end;
+  if (points == nullptr) goto label_end;
   for (int iech=0; iech<number; iech++)
   {
     local = order[iech];
@@ -1582,7 +1582,7 @@ GEOSLIB_API int meshes_turbo_2D_grid_build(int        verbose,
   error   = 1;
   ndim    = 2;
   ncorner = 3;
-  order   = meshes = indg = ranks = (int * ) NULL;
+  order   = meshes = indg = ranks = nullptr;
   nx      = dbgrid->getNX(0);
   ny      = dbgrid->getNX(1);
   number  = nx * ny;
@@ -1590,7 +1590,7 @@ GEOSLIB_API int meshes_turbo_2D_grid_build(int        verbose,
   /* Core allocation */
 
   meshes = (int *) mem_alloc(sizeof(int) * number * ncorner * 2,0);
-  if (meshes == (int *) NULL) goto label_end;
+  if (meshes == nullptr) goto label_end;
   if (st_manage_regular_grid(1,dbgrid->getGrid(),
                              &order,&ranks,&indg)) goto label_end;
 
@@ -1751,7 +1751,7 @@ GEOSLIB_API void meshes_2D_create(int            verbose,
 
   ndim    = 2;
   ncorner = 3;
-  faults  = (double *) NULL;
+  faults  = nullptr;
   triangulate(triswitch.c_str(),in,out,vorout);
 
   /* Strip off the triangles which intercept faults */
@@ -1795,9 +1795,9 @@ GEOSLIB_API void meshes_2D_extended_domain(Db            *dbout,
 
   /* Initializations */
   
-  if (dbout == (Db *) NULL) return;
-  if (gext == (double *) NULL) return;
-  ext = (double *) NULL;
+  if (dbout == nullptr) return;
+  if (gext == nullptr) return;
+  ext = nullptr;
 
   /* Check that the extension parameters are correctly defined */
 
@@ -1856,7 +1856,7 @@ GEOSLIB_API int meshes_2D_write(const char *file_name,
   /* Opening the ASCII File */
 
   file  = _file_open(file_name,1);
-  if (file == (FILE *) NULL)
+  if (file == nullptr)
   {
     messerr("Error when opening the file %s",file_name);
     return(1);
@@ -2001,12 +2001,12 @@ GEOSLIB_API void meshes_2D_sph_init(SphTriangle *t)
 {
   t->n_nodes   = 0;
   t->sph_size  = 0;
-  t->sph_x     = (double *) NULL;
-  t->sph_y     = (double *) NULL;
-  t->sph_z     = (double *) NULL;
-  t->sph_list  = (int    *) NULL;
-  t->sph_lptr  = (int    *) NULL;
-  t->sph_lend  = (int    *) NULL;
+  t->sph_x     = nullptr;
+  t->sph_y     = nullptr;
+  t->sph_z     = nullptr;
+  t->sph_list  = nullptr;
+  t->sph_lptr  = nullptr;
+  t->sph_lend  = nullptr;
 }
 
 /*****************************************************************************/
@@ -2059,7 +2059,7 @@ GEOSLIB_API int meshes_2D_sph_from_db(Db  *db,
 
   /* Initializations */
   
-  if (db == (Db *) NULL) return(0);
+  if (db == nullptr) return(0);
   error = 1;
   nech  = db->getSampleNumber();
   ndim  = db->getNDim();
@@ -2086,13 +2086,13 @@ GEOSLIB_API int meshes_2D_sph_from_db(Db  *db,
   ecr  = nold;
   t->sph_x = (double *) 
     mem_realloc((char *) t->sph_x,sizeof(double) * (nold+neff),0);
-  if (t->sph_x == (double *) NULL) goto label_end;
+  if (t->sph_x == nullptr) goto label_end;
   t->sph_y = (double *) 
     mem_realloc((char *) t->sph_y,sizeof(double) * (nold+neff),0);
-  if (t->sph_y == (double *) NULL) goto label_end;
+  if (t->sph_y == nullptr) goto label_end;
   t->sph_z = (double *) 
     mem_realloc((char *) t->sph_z,sizeof(double) * (nold+neff),0);
-  if (t->sph_z == (double *) NULL) goto label_end;
+  if (t->sph_z == nullptr) goto label_end;
 
   /* Load the points */
 
@@ -2148,13 +2148,13 @@ GEOSLIB_API int meshes_2D_sph_from_points(int     nech,
   ecr  = nold;
   t->sph_x = (double *) 
     mem_realloc((char *) t->sph_x,sizeof(double) * (nold+nech),0);
-  if (t->sph_x == (double *) NULL) goto label_end;
+  if (t->sph_x == nullptr) goto label_end;
   t->sph_y = (double *) 
     mem_realloc((char *) t->sph_y,sizeof(double) * (nold+nech),0);
-  if (t->sph_y == (double *) NULL) goto label_end;
+  if (t->sph_y == nullptr) goto label_end;
   t->sph_z = (double *) 
     mem_realloc((char *) t->sph_z,sizeof(double) * (nold+nech),0);
-  if (t->sph_z == (double *) NULL) goto label_end;
+  if (t->sph_z == nullptr) goto label_end;
 
   /* Load the information */
 
@@ -2198,7 +2198,7 @@ GEOSLIB_API int meshes_2D_sph_from_auxiliary(const String& triswitch,
   /* Initializations */
 
   error   = 1;
-  coord   = (double *) NULL;
+  coord   = nullptr;
   nold    = t->n_nodes;
   ndecode = flag_vdc = flag_reg = npoint = 0;
 
@@ -2211,13 +2211,13 @@ GEOSLIB_API int meshes_2D_sph_from_auxiliary(const String& triswitch,
   if (triswitch[0] == '-' && triswitch[1] == 'n') 
   {
     flag_vdc = 1;
-    ndecode = (int) strtod(&triswitch[2], (char **) NULL);
+    ndecode = (int) strtod(&triswitch[2], nullptr);
     if (ndecode <= 0) return(0);
   }
   if (triswitch[0] == '-' && triswitch[1] == 'r') 
   {
     flag_reg = 1;
-    ndecode = (int) strtod(&triswitch[2], (char **) NULL);
+    ndecode = (int) strtod(&triswitch[2], nullptr);
     if (ndecode <= 0) return(0);
   }
   if (triswitch[0] == '-' && triswitch[1] == 'h') 
@@ -2244,13 +2244,13 @@ GEOSLIB_API int meshes_2D_sph_from_auxiliary(const String& triswitch,
 
   t->sph_x = (double *) 
     mem_realloc((char *) t->sph_x,sizeof(double) * (nold+npoint),0);
-  if (t->sph_x == (double *) NULL) goto label_end;
+  if (t->sph_x == nullptr) goto label_end;
   t->sph_y = (double *) 
     mem_realloc((char *) t->sph_y,sizeof(double) * (nold+npoint),0);
-  if (t->sph_y == (double *) NULL) goto label_end;
+  if (t->sph_y == nullptr) goto label_end;
   t->sph_z = (double *) 
     mem_realloc((char *) t->sph_z,sizeof(double) * (nold+npoint),0);
-  if (t->sph_z == (double *) NULL) goto label_end;
+  if (t->sph_z == nullptr) goto label_end;
 
   /* Check that random points are not too close from hard nodes */
 
@@ -2290,13 +2290,13 @@ GEOSLIB_API int meshes_2D_sph_from_auxiliary(const String& triswitch,
   nech = ecr;
   t->sph_x = (double *) 
     mem_realloc((char *) t->sph_x,sizeof(double) * nech,0);
-  if (t->sph_x == (double *) NULL) goto label_end;
+  if (t->sph_x == nullptr) goto label_end;
   t->sph_y = (double *) 
     mem_realloc((char *) t->sph_y,sizeof(double) * nech,0);
-  if (t->sph_y == (double *) NULL) goto label_end;
+  if (t->sph_y == nullptr) goto label_end;
   t->sph_z = (double *) 
     mem_realloc((char *) t->sph_z,sizeof(double) * nech,0);
-  if (t->sph_z == (double *) NULL) goto label_end;
+  if (t->sph_z == nullptr) goto label_end;
   t->n_nodes = nech;
 
   /* Set the error return code */
@@ -2325,9 +2325,9 @@ GEOSLIB_API void meshes_2D_sph_print(SphTriangle *t,
   message("- Number of nodes   = %d\n",t->n_nodes);
 
   if (! brief && t->n_nodes > 0 &&
-      t->sph_x != (double *) NULL &&
-      t->sph_y != (double *) NULL &&
-      t->sph_z != (double *) NULL)
+      t->sph_x != nullptr &&
+      t->sph_y != nullptr &&
+      t->sph_z != nullptr)
   {
     message("\nCoordinates in Cartesian (R=1); then in Longitude - Latitude\n");
     for (int i=0; i<t->n_nodes; i++)
@@ -2361,8 +2361,8 @@ GEOSLIB_API int meshes_2D_sph_create(int           verbose,
 
   error    = 1;
   skip_rnd = (int) get_keypone("Skip_Random",0);
-  loc_near = loc_next = loc_lnew = (int *) NULL;
-  loc_dist = (double *) NULL;
+  loc_near = loc_next = loc_lnew = nullptr;
+  loc_dist = nullptr;
   if (t == (SphTriangle *) NULL || t->n_nodes < 3) return(1);
 
   /* Re-allocate the arrays within the SphTriangle structure */
@@ -2370,25 +2370,25 @@ GEOSLIB_API int meshes_2D_sph_create(int           verbose,
   meshes_2D_sph_free(t,1);
   t->sph_size = 6*t->n_nodes - 12;
   t->sph_list = (int *) mem_alloc(sizeof(int) * t->sph_size,0);
-  if (t->sph_list == (int *) NULL) goto label_end;
+  if (t->sph_list == nullptr) goto label_end;
   for (int i=0; i<t->sph_size; i++) t->sph_list[i] = ITEST;
   t->sph_lptr = (int *) mem_alloc(sizeof(int) * t->sph_size,0);
-  if (t->sph_lptr == (int *) NULL) goto label_end;
+  if (t->sph_lptr == nullptr) goto label_end;
   for (int i=0; i<t->sph_size; i++) t->sph_lptr[i] = ITEST;
   t->sph_lend = (int *) mem_alloc(sizeof(int) * t->n_nodes,0);
-  if (t->sph_lend == (int *) NULL) goto label_end;
+  if (t->sph_lend == nullptr) goto label_end;
   for (int i=0; i<t->n_nodes; i++) t->sph_lend[i] = ITEST;
 
   /* Allocate local arrays */
 
   loc_lnew = (int    *) mem_alloc(sizeof(int)    * t->sph_size,0);
-  if (loc_lnew == (int *) NULL) goto label_end;
+  if (loc_lnew == nullptr) goto label_end;
   loc_near = (int    *) mem_alloc(sizeof(int)    * t->n_nodes,0);
-  if (loc_near == (int    *) NULL) goto label_end;
+  if (loc_near == nullptr) goto label_end;
   loc_next = (int    *) mem_alloc(sizeof(int)    * t->n_nodes,0);
-  if (loc_next == (int    *) NULL) goto label_end;
+  if (loc_next == nullptr) goto label_end;
   loc_dist = (double *) mem_alloc(sizeof(double) * t->n_nodes,0);
-  if (loc_dist == (double *) NULL) goto label_end;
+  if (loc_dist == nullptr) goto label_end;
 
   /* Avoid having three first points colinear */
   
@@ -2494,8 +2494,8 @@ GEOSLIB_API void meshes_2D_sph_load_vertices(SphTriangle *t,
   *tab_arg  = NULL;
   if (t == (SphTriangle *) NULL || t->n_nodes <= 0 || t->sph_size <= 0) return;
   type      = ecr = lec = natt = ntab = 0;
-  ltri      = itab = (int *) NULL;
-  rtab      = (double *) NULL;
+  ltri      = itab = nullptr;
+  rtab      = nullptr;
 
   /* Retrieve information */
 
@@ -2505,7 +2505,7 @@ GEOSLIB_API void meshes_2D_sph_load_vertices(SphTriangle *t,
     natt = 2;
     ntab = t->n_nodes;
     rtab = (double *) mem_alloc(sizeof(double) * ntab * natt,0);
-    if (rtab == (double *) NULL) goto label_end;
+    if (rtab == nullptr) goto label_end;
 
     ecr = 0;
     for (int i=0; i<ntab; i++)
@@ -2520,7 +2520,7 @@ GEOSLIB_API void meshes_2D_sph_load_vertices(SphTriangle *t,
   {
     nrow = 6;
     ltri = (int *) mem_alloc(sizeof(int) * 2 * nrow * t->n_nodes,0);
-    if (ltri == (int *) NULL) return;
+    if (ltri == nullptr) return;
     (void) trlist_(&t->n_nodes,t->sph_list,t->sph_lptr,t->sph_lend,
                    &nrow,&nt,ltri,&error);
     if (error) goto label_end;
@@ -2529,7 +2529,7 @@ GEOSLIB_API void meshes_2D_sph_load_vertices(SphTriangle *t,
     ntab = nt;
 
     itab = (int *) mem_alloc(sizeof(int) * ntab * natt,0);
-    if (itab == (int *) NULL) goto label_end;
+    if (itab == nullptr) goto label_end;
     
     for (int i=0; i<ntab; i++)
     {
@@ -2623,7 +2623,7 @@ static void st_add_facet(tetgenio::facet *f,
 GEOSLIB_API void meshes_3D_free(tetgenio *t)
 
 {
-  if (t == (tetgenio *) NULL) return;
+  if (t == nullptr) return;
   t->pointlist               = 
     (double *) mem_free((char *) t->pointlist);
   t->pointattributelist      = 
@@ -2706,7 +2706,7 @@ GEOSLIB_API void meshes_3D_print(tetgenio *t,
 
   /* List of vertices */
 
-  if (! brief && t->numberofpoints > 0 && t->pointlist != (double *) NULL)
+  if (! brief && t->numberofpoints > 0 && t->pointlist != nullptr)
   {
     lecp = leca = 0;
     message("List of Vertices\n");
@@ -2715,7 +2715,7 @@ GEOSLIB_API void meshes_3D_print(tetgenio *t,
       message("%3d",i+1);
       for (j=0; j<ndim; j++)
         message(" %lf",t->pointlist[lecp++]);
-      if (t->pointmarkerlist != (int *) NULL)
+      if (t->pointmarkerlist != nullptr)
         message(" %d",t->pointmarkerlist[i]);
       for (j=0; j<t->numberofpointattributes; j++)
         message(" %lf",t->pointattributelist[leca++]);
@@ -2728,7 +2728,7 @@ GEOSLIB_API void meshes_3D_print(tetgenio *t,
 
   message("- Number of holes      = %d\n",t->numberofholes);
 
-  if (! brief && t->numberofholes > 0 && t->holelist != (double *) NULL)
+  if (! brief && t->numberofholes > 0 && t->holelist != nullptr)
   {
     lech = 0;
     message("List of Holes\n");
@@ -2748,7 +2748,7 @@ GEOSLIB_API void meshes_3D_print(tetgenio *t,
   message("- Number of corners    = %d\n",t->numberofcorners);
 
   if (! brief && 
-      t->numberoftetrahedra > 0 && t->tetrahedronlist != (int *) NULL)
+      t->numberoftetrahedra > 0 && t->tetrahedronlist != nullptr)
   {
     lect = lecta = lecn = 0;
     message("List of Tetrahedra\n");
@@ -2757,10 +2757,10 @@ GEOSLIB_API void meshes_3D_print(tetgenio *t,
       message("%3d",i+1);
       for (j=0; j<t->numberofcorners; j++)
         message(" %d",t->tetrahedronlist[lect++]);
-      if (t->tetrahedronattributelist != (double *) NULL)
+      if (t->tetrahedronattributelist != nullptr)
         for (j=0; j<t->numberoftetrahedronattributes; j++)
           message("%lf",t->tetrahedronattributelist[lecta++]);
-      if (t->tetrahedronvolumelist != (double *) NULL)
+      if (t->tetrahedronvolumelist != nullptr)
         message(" %lf",t->tetrahedronvolumelist[i]);
       message("\n");
     }
@@ -2931,7 +2931,7 @@ GEOSLIB_API int meshes_3D_from_db(Db  *db,
   
   /* Initializations */
 
-  if (db == (Db *) NULL) return(0);
+  if (db == nullptr) return(0);
   error = 1;
   nech  = db->getSampleNumber();
   ndim  = db->getNDim();
@@ -2953,7 +2953,7 @@ GEOSLIB_API int meshes_3D_from_db(Db  *db,
   ecr  = nold * ndim;
   t->pointlist = (double *) 
     mem_realloc((char *) t->pointlist,sizeof(double) * (nold+neff) * ndim,0);
-  if (t->pointlist == (double *) NULL) goto label_end;
+  if (t->pointlist == nullptr) goto label_end;
 
   for (iech=0; iech<nech; iech++)
   {
@@ -3043,7 +3043,7 @@ GEOSLIB_API int meshes_3D_from_points(int       nech,
   ecr  = nold * ndim;
   t->pointlist = (double *) 
     mem_realloc((char *) t->pointlist,sizeof(double) * (nold+nech) * ndim,0);
-  if (t->pointlist == (double *) NULL) goto label_end;
+  if (t->pointlist == nullptr) goto label_end;
   for (iech=0; iech<nech; iech++)
   {
     t->pointlist[ecr++] = x[iech];
@@ -3084,9 +3084,9 @@ GEOSLIB_API void meshes_3D_extended_domain(Db       *dbout,
   int     number,flag_extend;
   double *ext;
 
-  if (dbout == (Db *) NULL) return;
-  if (gext == (double *) NULL) return;
-  ext = (double *) NULL;
+  if (dbout == nullptr) return;
+  if (gext == nullptr) return;
+  ext = nullptr;
 
   /* Check that the extension parameters are correctly defined */
 
@@ -3138,15 +3138,15 @@ GEOSLIB_API void meshes_3D_load_vertices(tetgenio *t,
 
   (*ntab_arg) = (*natt_arg) = 0;
   ntab = natt = type = 0;
-  itab = ifrom = (int    *) NULL;
-  rtab = rfrom = (double *) NULL;
+  itab = ifrom = nullptr;
+  rtab = rfrom = nullptr;
   *tab_arg = (void *) NULL;
 
   /* Dispatch */
 
   if (! strcmp(name,"Points"))
   {
-    if (t->pointlist == (double *) NULL) return;
+    if (t->pointlist == nullptr) return;
     type  = 1;
     natt  = 3;
     ntab  = t->numberofpoints;
@@ -3155,7 +3155,7 @@ GEOSLIB_API void meshes_3D_load_vertices(tetgenio *t,
 
   else if (! strcmp(name,"Tetrahedra"))
   {
-    if (t->tetrahedronlist == (int *) NULL) return;
+    if (t->tetrahedronlist == nullptr) return;
     type  = 2;
     natt  = t->numberofcorners;
     ntab  = t->numberoftetrahedra;
@@ -3207,7 +3207,7 @@ GEOSLIB_API int meshes_turbo_3D_grid_build(int        verbose,
   error   = 1;
   ndim    = 3;
   ncorner = 4;
-  order   = meshes = indg = ranks = (int * ) NULL;
+  order   = meshes = indg = ranks = nullptr;
   nx      = dbgrid->getNX(0);
   ny      = dbgrid->getNX(1);
   nz      = dbgrid->getNX(2);
@@ -3216,7 +3216,7 @@ GEOSLIB_API int meshes_turbo_3D_grid_build(int        verbose,
   /* Core allocation */
 
   meshes = (int    *) mem_alloc(sizeof(int) * number * ncorner * 6,0);
-  if (meshes == (int    *) NULL) goto label_end;
+  if (meshes == nullptr) goto label_end;
   if (st_manage_regular_grid(1,dbgrid->getGrid(),
                              &order,&ranks,&indg)) goto label_end;
 
@@ -3302,12 +3302,12 @@ GEOSLIB_API void meshes_1D_free(segmentio *t,
 *****************************************************************************/
 GEOSLIB_API void meshes_1D_init(segmentio *t)
 {
-  t->pointlist                  = (double *) NULL;
-  t->pointattributelist         = (double *) NULL;
+  t->pointlist                  = nullptr;
+  t->pointattributelist         = nullptr;
   t->numberofpoints             = 0;
   t->numberofpointattributes    = 0;
 
-  t->segmentlist               = (int    *) NULL;
+  t->segmentlist               = nullptr;
   t->numberofsegments          = 0;
   t->numberofcorners           = 0;
 }
@@ -3337,7 +3337,7 @@ GEOSLIB_API int meshes_1D_from_db(Db  *db,
   
   /* Initializations */
 
-  if (db == (Db *) NULL) return(0);
+  if (db == nullptr) return(0);
   error = 1;
   nech  = db->getSampleNumber();
   ndim  = db->getNDim();
@@ -3359,7 +3359,7 @@ GEOSLIB_API int meshes_1D_from_db(Db  *db,
   ecr  = nold * ndim;
   t->pointlist = (double *) 
     mem_realloc((char *) t->pointlist,sizeof(double) * (nold+neff) * ndim,0);
-  if (t->pointlist == (double *) NULL) goto label_end;
+  if (t->pointlist == nullptr) goto label_end;
 
   for (iech=0; iech<nech; iech++)
   {
@@ -3447,7 +3447,7 @@ GEOSLIB_API int meshes_1D_from_points(int     nech,
   ecr  = nold * ndim;
   t->pointlist = (double *) 
     mem_realloc((char *) t->pointlist,sizeof(double) * (nold+nech) * ndim,0);
-  if (t->pointlist == (double *) NULL) goto label_end;
+  if (t->pointlist == nullptr) goto label_end;
   for (iech=0; iech<nech; iech++)
   {
     t->pointlist[ecr++] = x[iech];
@@ -3487,7 +3487,7 @@ GEOSLIB_API void meshes_1D_print(segmentio *t,
   message("- Number of vertices   = %d\n",t->numberofpoints);
   message("- Number of attributes = %d\n",t->numberofpointattributes);
 
-  if (! brief && t->numberofpoints > 0 && t->pointlist != (double *) NULL)
+  if (! brief && t->numberofpoints > 0 && t->pointlist != nullptr)
   {
     lecp = leca = 0;
     for (i=0; i<t->numberofpoints; i++)
@@ -3507,7 +3507,7 @@ GEOSLIB_API void meshes_1D_print(segmentio *t,
   message("- Number of segments   = %d\n",t->numberofsegments);
   message("- Number of corners    = %d\n",t->numberofcorners);
 
-  if (! brief && t->numberofsegments > 0 && t->segmentlist != (int *) NULL)
+  if (! brief && t->numberofsegments > 0 && t->segmentlist != nullptr)
   {
     lect = lecta = lecn = 0;
     for (i=0; i<t->numberofsegments; i++)
@@ -3548,15 +3548,15 @@ GEOSLIB_API void meshes_1D_load_vertices(segmentio *t,
 
   (*ntab_arg) = (*natt_arg) = 0;
   ntab = natt = type = 0;
-  itab = ifrom = (int    *) NULL;
-  rtab = rfrom = (double *) NULL;
+  itab = ifrom = nullptr;
+  rtab = rfrom = nullptr;
   *tab_arg = (void *) NULL;
 
   /* Dispatch */
 
   if (! strcmp(name,"Points"))
   {
-    if (t->pointlist == (double *) NULL) return;
+    if (t->pointlist == nullptr) return;
     type  = 1;
     natt  = 2;
     ntab  = t->numberofpoints;
@@ -3565,7 +3565,7 @@ GEOSLIB_API void meshes_1D_load_vertices(segmentio *t,
 
   else if (! strcmp(name,"Segments"))
   {
-    if (t->segmentlist == (int *) NULL) return;
+    if (t->segmentlist == nullptr) return;
     type  = 2;
     natt  = t->numberofcorners;
     ntab  = t->numberofsegments;
@@ -3617,14 +3617,14 @@ GEOSLIB_API int meshes_turbo_1D_grid_build(int        verbose,
   error   = 1;
   ndim    = 1;
   ncorner = 2;
-  order   = meshes = indg = ranks = (int * ) NULL;
+  order   = meshes = indg = ranks = nullptr;
   nx      = dbgrid->getNX(0);
   number  = nx - 1;
   
   /* Core allocation */
 
   meshes = (int *) mem_alloc(sizeof(int) * number * ncorner,0);
-  if (meshes == (int *) NULL) goto label_end;
+  if (meshes == nullptr) goto label_end;
   if (st_manage_regular_grid(1,dbgrid->getGrid(),
                              &order,&ranks,&indg)) goto label_end;
 
@@ -3757,9 +3757,9 @@ GEOSLIB_API void meshes_1D_extended_domain(Db *dbout,
 
   /* Initializations */
   
-  if (dbout == (Db *) NULL) return;
-  if (gext == (double *) NULL) return;
-  ext = (double *) NULL;
+  if (dbout == nullptr) return;
+  if (gext == nullptr) return;
+  ext = nullptr;
 
   /* Check that the extension parameters are correctly defined */
 

@@ -1080,9 +1080,9 @@ cs_Output AMatrixC::getValuesAsTriplets(bool flag_from_1) const
     getValuesAsTriplets(out.rows, out.cols, out.values);
   else
   {
-    int* rows = (int *) NULL;
-    int* cols = (int *) NULL;
-    double* vals = (double *) NULL;
+    int* rows = nullptr;
+    int* cols = nullptr;
+    double* vals = nullptr;
     cs_sparse_to_triplet(_csMatrix, (int) flag_from_1, &number, &cols, &rows, &vals);
 
     // Load the contents

@@ -124,16 +124,16 @@ GEOSLIB_API int cgi(Db     *db,
   error = 1;
   nech  = db->getSampleNumber();
   ndim  = db->getNDim();
-  coor  = mm = (double *) NULL;
+  coor  = mm = nullptr;
   flag_z = db->isAttributeDefined(iatt);
   flag_w = db->hasWeight();
 
   /* Core allocation */
 
   coor = db_sample_alloc(db,ELoc::X);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
   mm   = (double *) mem_alloc(sizeof(double) * ndim * ndim,0);
-  if (mm   == (double *) NULL) goto label_end;
+  if (mm   == nullptr) goto label_end;
 
   /* Initialize the arrays to zero */
 

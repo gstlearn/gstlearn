@@ -3350,7 +3350,7 @@ struct behavior *b;
               k++;
             }
             workstring[k] = '\0';
-            b->minangle = (DREAL) strtod(workstring, (char **) NULL);
+            b->minangle = (DREAL) strtod(workstring, nullptr);
 	  } else {
             b->minangle = 20.0;
 	  }
@@ -3368,7 +3368,7 @@ struct behavior *b;
               k++;
             }
             workstring[k] = '\0';
-            b->maxarea = (DREAL) strtod(workstring, (char **) NULL);
+            b->maxarea = (DREAL) strtod(workstring, nullptr);
             if (b->maxarea <= 0.0) {
               messerr("Error:  Maximum area must be greater than zero.");
               triexit(1);
@@ -3562,11 +3562,11 @@ struct behavior *b;
   }
 
 #ifndef TRILIBRARY
-  strcpy(b->inpolyfilename, b->innodefilename);
-  strcpy(b->inelefilename, b->innodefilename);
-  strcpy(b->areafilename, b->innodefilename);
+  gslStrcpy(b->inpolyfilename, b->innodefilename);
+  gslStrcpy(b->inelefilename, b->innodefilename);
+  gslStrcpy(b->areafilename, b->innodefilename);
   increment = 0;
-  strcpy(workstring, b->innodefilename);
+  gslStrcpy(workstring, b->innodefilename);
   j = 1;
   while (workstring[j] != '\0') {
     if ((workstring[j] == '.') && (workstring[j + 1] != '\0')) {
@@ -3587,62 +3587,62 @@ struct behavior *b;
     } while (workstring[j] != '\0');
   }
   if (b->noiterationnum) {
-    strcpy(b->outnodefilename, b->innodefilename);
-    strcpy(b->outelefilename, b->innodefilename);
-    strcpy(b->edgefilename, b->innodefilename);
-    strcpy(b->vnodefilename, b->innodefilename);
-    strcpy(b->vedgefilename, b->innodefilename);
-    strcpy(b->neighborfilename, b->innodefilename);
-    strcpy(b->offfilename, b->innodefilename);
-    strcat(b->outnodefilename, ".node");
-    strcat(b->outelefilename, ".ele");
-    strcat(b->edgefilename, ".edge");
-    strcat(b->vnodefilename, ".v.node");
-    strcat(b->vedgefilename, ".v.edge");
-    strcat(b->neighborfilename, ".neigh");
-    strcat(b->offfilename, ".off");
+    gslStrcpy(b->outnodefilename, b->innodefilename);
+    gslStrcpy(b->outelefilename, b->innodefilename);
+    gslStrcpy(b->edgefilename, b->innodefilename);
+    gslStrcpy(b->vnodefilename, b->innodefilename);
+    gslStrcpy(b->vedgefilename, b->innodefilename);
+    gslStrcpy(b->neighborfilename, b->innodefilename);
+    gslStrcpy(b->offfilename, b->innodefilename);
+    gslStrcat(b->outnodefilename, ".node");
+    gslStrcat(b->outelefilename, ".ele");
+    gslStrcat(b->edgefilename, ".edge");
+    gslStrcat(b->vnodefilename, ".v.node");
+    gslStrcat(b->vedgefilename, ".v.edge");
+    gslStrcat(b->neighborfilename, ".neigh");
+    gslStrcat(b->offfilename, ".off");
   } else if (increment == 0) {
-    strcpy(b->outnodefilename, b->innodefilename);
-    strcpy(b->outpolyfilename, b->innodefilename);
-    strcpy(b->outelefilename, b->innodefilename);
-    strcpy(b->edgefilename, b->innodefilename);
-    strcpy(b->vnodefilename, b->innodefilename);
-    strcpy(b->vedgefilename, b->innodefilename);
-    strcpy(b->neighborfilename, b->innodefilename);
-    strcpy(b->offfilename, b->innodefilename);
-    strcat(b->outnodefilename, ".1.node");
-    strcat(b->outpolyfilename, ".1.poly");
-    strcat(b->outelefilename, ".1.ele");
-    strcat(b->edgefilename, ".1.edge");
-    strcat(b->vnodefilename, ".1.v.node");
-    strcat(b->vedgefilename, ".1.v.edge");
-    strcat(b->neighborfilename, ".1.neigh");
-    strcat(b->offfilename, ".1.off");
+    gslStrcpy(b->outnodefilename, b->innodefilename);
+    gslStrcpy(b->outpolyfilename, b->innodefilename);
+    gslStrcpy(b->outelefilename, b->innodefilename);
+    gslStrcpy(b->edgefilename, b->innodefilename);
+    gslStrcpy(b->vnodefilename, b->innodefilename);
+    gslStrcpy(b->vedgefilename, b->innodefilename);
+    gslStrcpy(b->neighborfilename, b->innodefilename);
+    gslStrcpy(b->offfilename, b->innodefilename);
+    gslStrcat(b->outnodefilename, ".1.node");
+    gslStrcat(b->outpolyfilename, ".1.poly");
+    gslStrcat(b->outelefilename, ".1.ele");
+    gslStrcat(b->edgefilename, ".1.edge");
+    gslStrcat(b->vnodefilename, ".1.v.node");
+    gslStrcat(b->vedgefilename, ".1.v.edge");
+    gslStrcat(b->neighborfilename, ".1.neigh");
+    gslStrcat(b->offfilename, ".1.off");
   } else {
     workstring[increment] = '%';
     workstring[increment + 1] = 'd';
     workstring[increment + 2] = '\0';
     smessage(b->outnodefilename, workstring, meshnumber + 1);
-    strcpy(b->outpolyfilename, b->outnodefilename);
-    strcpy(b->outelefilename, b->outnodefilename);
-    strcpy(b->edgefilename, b->outnodefilename);
-    strcpy(b->vnodefilename, b->outnodefilename);
-    strcpy(b->vedgefilename, b->outnodefilename);
-    strcpy(b->neighborfilename, b->outnodefilename);
-    strcpy(b->offfilename, b->outnodefilename);
-    strcat(b->outnodefilename, ".node");
-    strcat(b->outpolyfilename, ".poly");
-    strcat(b->outelefilename, ".ele");
-    strcat(b->edgefilename, ".edge");
-    strcat(b->vnodefilename, ".v.node");
-    strcat(b->vedgefilename, ".v.edge");
-    strcat(b->neighborfilename, ".neigh");
-    strcat(b->offfilename, ".off");
+    gslStrcpy(b->outpolyfilename, b->outnodefilename);
+    gslStrcpy(b->outelefilename, b->outnodefilename);
+    gslStrcpy(b->edgefilename, b->outnodefilename);
+    gslStrcpy(b->vnodefilename, b->outnodefilename);
+    gslStrcpy(b->vedgefilename, b->outnodefilename);
+    gslStrcpy(b->neighborfilename, b->outnodefilename);
+    gslStrcpy(b->offfilename, b->outnodefilename);
+    gslStrcat(b->outnodefilename, ".node");
+    gslStrcat(b->outpolyfilename, ".poly");
+    gslStrcat(b->outelefilename, ".ele");
+    gslStrcat(b->edgefilename, ".edge");
+    gslStrcat(b->vnodefilename, ".v.node");
+    gslStrcat(b->vedgefilename, ".v.edge");
+    gslStrcat(b->neighborfilename, ".neigh");
+    gslStrcat(b->offfilename, ".off");
   }
-  strcat(b->innodefilename, ".node");
-  strcat(b->inpolyfilename, ".poly");
-  strcat(b->inelefilename, ".ele");
-  strcat(b->areafilename, ".area");
+  gslStrcat(b->innodefilename, ".node");
+  gslStrcat(b->inpolyfilename, ".poly");
+  gslStrcat(b->inelefilename, ".ele");
+  gslStrcat(b->areafilename, ".area");
 #endif /* not TRILIBRARY */
 }
 
@@ -11193,7 +11193,7 @@ FILE *polyfile;
     message("Opening %s.\n", elefilename);
   }
   elefile = fopen(elefilename, "r");
-  if (elefile == (FILE *) NULL) {
+  if (elefile == nullptr) {
     messerr("  Error:  Cannot access file %s.", elefilename);
     triexit(1);
   }
@@ -11233,7 +11233,7 @@ FILE *polyfile;
   if (b->poly) {
 #ifdef TRILIBRARY
     m->insegments = numberofsegments;
-    segmentmarkers = segmentmarkerlist != (int *) NULL;
+    segmentmarkers = segmentmarkerlist != nullptr;
 #else /* not TRILIBRARY */
     /* Read number of segments and number of segment */
     /*   boundary markers from .poly file.           */
@@ -11263,7 +11263,7 @@ FILE *polyfile;
       message("Opening %s.\n", areafilename);
     }
     areafile = fopen(areafilename, "r");
-    if (areafile == (FILE *) NULL) {
+    if (areafile == nullptr) {
       messerr("  Error:  Cannot access file %s.", areafilename);
       triexit(1);
     }
@@ -12462,9 +12462,9 @@ char *polyfilename;
       message("Recovering segments in Delaunay triangulation.\n");
     }
 #ifdef TRILIBRARY
-    strcpy(polyfilename, "input");
+    gslStrcpy(polyfilename, "input");
     m->insegments = numberofsegments;
-    segmentmarkers = segmentmarkerlist != (int *) NULL;
+    segmentmarkers = segmentmarkerlist != nullptr;
     index = 0;
 #else /* not TRILIBRARY */
     /* Read the segments from a .poly file. */
@@ -13823,7 +13823,7 @@ char *infilename;
   /* Search for something that looks like a number. */
   do {
     result = fgets(string, INPUTLINESIZE, infile);
-    if (result == (char *) NULL) {
+    if (result == nullptr) {
       messerr("  Error:  Unexpected end of file in %s.", infilename);
       triexit(1);
     }
@@ -13923,7 +13923,7 @@ FILE **polyfile;
       message("Opening %s.\n", polyfilename);
     }
     *polyfile = fopen(polyfilename, "r");
-    if (*polyfile == (FILE *) NULL) {
+    if (*polyfile == nullptr) {
       messerr("  Error:  Cannot access file %s.", polyfilename);
       triexit(1);
     }
@@ -13962,7 +13962,7 @@ FILE **polyfile;
   } else {
     m->readnodefile = 1;
     infilename = nodefilename;
-    *polyfile = (FILE *) NULL;
+    *polyfile = nullptr;
   }
 
   if (m->readnodefile) {
@@ -13971,7 +13971,7 @@ FILE **polyfile;
       message("Opening %s.\n", nodefilename);
     }
     infile = fopen(nodefilename, "r");
-    if (infile == (FILE *) NULL) {
+    if (infile == nullptr) {
       messerr("  Error:  Cannot access file %s.", nodefilename);
       triexit(1);
     }
@@ -14139,7 +14139,7 @@ int numberofpointattribs;
     for (j = 0; j < numberofpointattribs; j++) {
       vertexloop[2 + j] = pointattriblist[attribindex++];
     }
-    if (pointmarkerlist != (int *) NULL) {
+    if (pointmarkerlist != nullptr) {
       /* Read a vertex marker. */
       setvertexmark(vertexloop, pointmarkerlist[i]);
     } else {
@@ -14225,7 +14225,7 @@ int *regions;
       }
     }
   } else {
-    *hlist = (DREAL *) NULL;
+    *hlist = nullptr;
   }
 
 #ifndef CDT_ONLY
@@ -14276,7 +14276,7 @@ int *regions;
   } else {
     /* Set `*regions' to zero to avoid an accidental free() later. */
     *regions = 0;
-    *rlist = (DREAL *) NULL;
+    *rlist = nullptr;
   }
 #endif /* not CDT_ONLY */
 
@@ -14382,16 +14382,16 @@ char **argv;
     message("Writing vertices.\n");
   }
   /* Allocate memory for output vertices if necessary. */
-  if (*pointlist == (DREAL *) NULL) {
+  if (*pointlist == nullptr) {
     *pointlist = (DREAL *) trimalloc((int) (outvertices * 2 * sizeof(DREAL)));
   }
   /* Allocate memory for output vertex attributes if necessary. */
-  if ((m->nextras > 0) && (*pointattriblist == (DREAL *) NULL)) {
+  if ((m->nextras > 0) && (*pointattriblist == nullptr)) {
     *pointattriblist = (DREAL *) 
       trimalloc((int) (outvertices * m->nextras * sizeof(DREAL)));
   }
   /* Allocate memory for output vertex markers if necessary. */
-  if (!b->nobound && (*pointmarkerlist == (int *) NULL)) {
+  if (!b->nobound && (*pointmarkerlist == nullptr)) {
     *pointmarkerlist = (int *) trimalloc((int) (outvertices * sizeof(int)));
   }
   plist = *pointlist;
@@ -14404,7 +14404,7 @@ char **argv;
     message("Writing %s.\n", nodefilename);
   }
   outfile = fopen(nodefilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", nodefilename);
     triexit(1);
   }
@@ -14547,13 +14547,13 @@ char **argv;
     message("Writing triangles.\n");
   }
   /* Allocate memory for output triangles if necessary. */
-  if (*trianglelist == (int *) NULL) {
+  if (*trianglelist == nullptr) {
     *trianglelist = (int *) 
       trimalloc((int) (m->triangles.items * ((b->order + 1) * (b->order + 2) /
                                              2) * sizeof(int)));
   }
   /* Allocate memory for output triangle attributes if necessary. */
-  if ((m->eextras > 0) && (*triangleattriblist == (DREAL *) NULL)) {
+  if ((m->eextras > 0) && (*triangleattriblist == nullptr)) {
     *triangleattriblist = (DREAL *) 
       trimalloc((int) (m->triangles.items * m->eextras * sizeof(DREAL)));
   }
@@ -14566,7 +14566,7 @@ char **argv;
     message("Writing %s.\n", elefilename);
   }
   outfile = fopen(elefilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", elefilename);
     triexit(1);
   }
@@ -14691,12 +14691,12 @@ char **argv;
     message("Writing segments.\n");
   }
   /* Allocate memory for output segments if necessary. */
-  if (*segmentlist == (int *) NULL) {
+  if (*segmentlist == nullptr) {
     *segmentlist = (int *) 
       trimalloc((int) (m->subsegs.items * 2 * sizeof(int)));
   }
   /* Allocate memory for output segment markers if necessary. */
-  if (!b->nobound && (*segmentmarkerlist == (int *) NULL)) {
+  if (!b->nobound && (*segmentmarkerlist == nullptr)) {
     *segmentmarkerlist = (int *) 
       trimalloc((int) (m->subsegs.items * sizeof(int)));
   }
@@ -14708,7 +14708,7 @@ char **argv;
     message("Writing %s.\n", polyfilename);
   }
   outfile = fopen(polyfilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", polyfilename);
     triexit(1);
   }
@@ -14833,11 +14833,11 @@ char **argv;
     message("Writing edges.\n");
   }
   /* Allocate memory for edges if necessary. */
-  if (*edgelist == (int *) NULL) {
+  if (*edgelist == nullptr) {
     *edgelist = (int *) trimalloc((int) (m->edges * 2 * sizeof(int)));
   }
   /* Allocate memory for edge markers if necessary. */
-  if (!b->nobound && (*edgemarkerlist == (int *) NULL)) {
+  if (!b->nobound && (*edgemarkerlist == nullptr)) {
     *edgemarkerlist = (int *) trimalloc((int) (m->edges * sizeof(int)));
   }
   elist = *edgelist;
@@ -14848,7 +14848,7 @@ char **argv;
     message("Writing %s.\n", edgefilename);
   }
   outfile = fopen(edgefilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", edgefilename);
     triexit(1);
   }
@@ -14999,16 +14999,16 @@ char **argv;
     message("Writing Voronoi vertices.\n");
   }
   /* Allocate memory for Voronoi vertices if necessary. */
-  if (*vpointlist == (DREAL *) NULL) {
+  if (*vpointlist == nullptr) {
     *vpointlist = (DREAL *) 
       trimalloc((int) (m->triangles.items * 2 * sizeof(DREAL)));
   }
   /* Allocate memory for Voronoi vertex attributes if necessary. */
-  if (*vpointattriblist == (DREAL *) NULL) {
+  if (*vpointattriblist == nullptr) {
     *vpointattriblist = (DREAL *) 
       trimalloc((int) (m->triangles.items * m->nextras * sizeof(DREAL)));
   }
-  *vpointmarkerlist = (int *) NULL;
+  *vpointmarkerlist = nullptr;
   plist = *vpointlist;
   palist = *vpointattriblist;
   coordindex = 0;
@@ -15018,7 +15018,7 @@ char **argv;
     message("Writing %s.\n", vnodefilename);
   }
   outfile = fopen(vnodefilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", vnodefilename);
     triexit(1);
   }
@@ -15071,12 +15071,12 @@ char **argv;
     message("Writing Voronoi edges.\n");
   }
   /* Allocate memory for output Voronoi edges if necessary. */
-  if (*vedgelist == (int *) NULL) {
+  if (*vedgelist == nullptr) {
     *vedgelist = (int *) trimalloc((int) (m->edges * 2 * sizeof(int)));
   }
-  *vedgemarkerlist = (int *) NULL;
+  *vedgemarkerlist = nullptr;
   /* Allocate memory for output Voronoi norms if necessary. */
-  if (*vnormlist == (DREAL *) NULL) {
+  if (*vnormlist == nullptr) {
     *vnormlist = (DREAL *) trimalloc((int) (m->edges * 2 * sizeof(DREAL)));
   }
   elist = *vedgelist;
@@ -15087,7 +15087,7 @@ char **argv;
     message("Writing %s.\n", vedgefilename);
   }
   outfile = fopen(vedgefilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", vedgefilename);
     triexit(1);
   }
@@ -15195,7 +15195,7 @@ char **argv;
     message("Writing neighbors.\n");
   }
   /* Allocate memory for neighbors if necessary. */
-  if (*neighborlist == (int *) NULL) {
+  if (*neighborlist == nullptr) {
     *neighborlist = (int *) 
       trimalloc((int) (m->triangles.items * 3 * sizeof(int)));
   }
@@ -15206,7 +15206,7 @@ char **argv;
     message("Writing %s.\n", neighborfilename);
   }
   outfile = fopen(neighborfilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", neighborfilename);
     triexit(1);
   }
@@ -15298,7 +15298,7 @@ char **argv;
   }
 
   outfile = fopen(offfilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", offfilename);
     triexit(1);
   }
@@ -15942,8 +15942,8 @@ char **argv;
         out->holelist = in->holelist;
         out->regionlist = in->regionlist;
       } else {
-        out->holelist = (DREAL *) NULL;
-        out->regionlist = (DREAL *) NULL;
+        out->holelist = nullptr;
+        out->regionlist = nullptr;
       }
 #else /* not TRILIBRARY */
       writepoly(&m, &b, b.outpolyfilename, holearray, m.holes, regionarray,

@@ -10,8 +10,11 @@
 /******************************************************************************/
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/EDrift.hpp"
+#include "Drifts/ADrift.hpp"
+#include "Drifts/ADriftElem.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -19,6 +22,7 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Model/ModTrans.hpp"
 #include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
@@ -95,7 +99,7 @@ static int st_check_environ(const Model *model, const Db *db)
  *****************************************************************************/
 static int st_check_model(const Model *model)
 {
-  if (model != (Model *) NULL) return (0);
+  if (model != nullptr) return (0);
   messerr("No Model is defined");
   return (1);
 }
@@ -1077,7 +1081,7 @@ GEOSLIB_API Model *model_free(Model *model)
 {
   /* Initializations */
 
-  if (model == (Model *) NULL) return (model);
+  if (model == nullptr) return (model);
   delete model;
   return (NULL);
 }
@@ -1129,14 +1133,14 @@ GEOSLIB_API Model *model_init(int ndim,
                               const VectorDouble& mean,
                               const VectorDouble& covar0)
 {
-  Model* model = (Model *) NULL;
+  Model* model = nullptr;
 
   /// TODO : Force SpaceRN creation (modèle poubelle)
   SpaceRN space(ndim);
   CovContext ctxt = CovContext(nvar, 2, field, &space);
   ctxt.setBallRadius(ball_radius);
-  if (mean.size() > 0)   ctxt.setMean(mean);
-  if (covar0.size() > 0) ctxt.setCovar0(covar0);
+  if (static_cast<int>(mean.size()) > 0)   ctxt.setMean(mean);
+  if (static_cast<int>(covar0.size()) > 0) ctxt.setCovar0(covar0);
 
   model = new Model(ctxt, flag_gradient, flag_linked);
 
@@ -1239,7 +1243,7 @@ GEOSLIB_API int model_add_cova(Model *model,
     else
       covgrad.setRange(range);
 
-    if (sill.size() > 0) covgrad.setSill(sill);
+    if (static_cast<int>(sill.size()) > 0) covgrad.setSill(sill);
     model->addCova(&covgrad);
   }
   else
@@ -1254,7 +1258,7 @@ GEOSLIB_API int model_add_cova(Model *model,
     else
       cova.setRange(range);
 
-    if (sill.size() > 0) cova.setSill(sill);
+    if (static_cast<int>(sill.size()) > 0) cova.setSill(sill);
     model->addCova(&cova);
   }
 
@@ -1732,7 +1736,7 @@ GEOSLIB_API int model_evaluate(Model *model,
                                double *g)
 {
   int error = 1;
-  double* covtab = (double *) NULL;
+  double* covtab = nullptr;
   CovCalcMode mode;
   mode.update(nugget_opt, nostd, member, rank_sel, flag_norm, flag_cov);
   if (norder > 0) mode.setOrderVario(norder);
@@ -1749,7 +1753,7 @@ GEOSLIB_API int model_evaluate(Model *model,
 
   VectorDouble d1(ndim);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
 
   /* Normalize the direction vector codir */
 
@@ -1831,7 +1835,7 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
   /* Initializations */
 
   int error = 1;
-  covtab = (double *) NULL;
+  covtab = nullptr;
   CovCalcMode mode;
   mode.update(nugget_opt, nostd, member, rank_sel, flag_norm, flag_cov);
   if (norder > 0) mode.setOrderVario(norder);
@@ -1848,7 +1852,7 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
   /* Core allocation */
 
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
 
   /* Normalize the direction vector codir */
 
@@ -1910,7 +1914,7 @@ GEOSLIB_API int model_grid(Model *model,
   /* Initializations */
 
   error = 1;
-  covtab = (double *) NULL;
+  covtab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
 
@@ -1925,7 +1929,7 @@ GEOSLIB_API int model_grid(Model *model,
 
   d1.resize(ndim);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
 
   /* Initialization */
 
@@ -2026,7 +2030,7 @@ GEOSLIB_API double model_cxx(Model *model,
   /* Initializations */
 
   cxx = TEST;
-  covtab = (double *) NULL;
+  covtab = nullptr;
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db1)) goto label_end;
   if (st_check_environ(model, db2)) goto label_end;
@@ -2040,7 +2044,7 @@ GEOSLIB_API double model_cxx(Model *model,
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
   model_covtab_init(1, model, covtab);
 
   /* Loop on the first sample */
@@ -2121,7 +2125,7 @@ GEOSLIB_API void model_covmat(Model *model,
 
   /* Initializations */
 
-  covtab = (double *) NULL;
+  covtab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -2147,7 +2151,7 @@ GEOSLIB_API void model_covmat(Model *model,
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
 
   /* Loop on the first sample */
 
@@ -2249,7 +2253,7 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
   /* Initializations */
 
   error = 1;
-  covtab = covmat = (double *) NULL;
+  covtab = covmat = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -2272,9 +2276,9 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
   covmat = (double *) mem_alloc(sizeof(double) * nsize1 * nsize2, 0);
-  if (covmat == (double *) NULL) goto label_end;
+  if (covmat == nullptr) goto label_end;
 
   /* Loop on the number of variables */
 
@@ -2287,7 +2291,7 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
 
     for (i1 = 0; i1 < nsize1; i1++)
     {
-      iech1 = (ranks1 != (int *) NULL) ? ranks1[i1] : i1;
+      iech1 = (ranks1 != nullptr) ? ranks1[i1] : i1;
       if (iech1 < 0) continue;
 
       /* Loop on the second variable */
@@ -2300,7 +2304,7 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
 
         for (i2 = 0; i2 < nsize2; i2++)
         {
-          iech2 = (ranks2 != (int *) NULL) ? ranks2[i2] : i2;
+          iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
           if (iech2 < 0) continue;
 
           /* Loop on the dimension of the space */
@@ -2357,7 +2361,7 @@ GEOSLIB_API void model_drift_mat(Model *model,
 
   /* Initializations */
 
-  drftab = (double *) NULL;
+  drftab = nullptr;
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db)) goto label_end;
   nvar = model->getVariableNumber();
@@ -2368,7 +2372,7 @@ GEOSLIB_API void model_drift_mat(Model *model,
   /* Core allocation */
 
   drftab = (double *) mem_alloc(sizeof(double) * nbfl, 0);
-  if (drftab == (double *) NULL) goto label_end;
+  if (drftab == nullptr) goto label_end;
 
   ecr = 0;
 
@@ -2439,7 +2443,7 @@ GEOSLIB_API void model_drift_vector(Model *model,
 
   /* Initializations */
 
-  drftab = (double *) NULL;
+  drftab = nullptr;
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db)) goto label_end;
   nvar = model->getVariableNumber();
@@ -2449,7 +2453,7 @@ GEOSLIB_API void model_drift_vector(Model *model,
   /* Core allocation */
 
   drftab = (double *) mem_alloc(sizeof(double) * nbfl, 0);
-  if (drftab == (double *) NULL) goto label_end;
+  if (drftab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
 
@@ -2505,7 +2509,7 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
 
   /* Initializations */
 
-  covtab = (double *) NULL;
+  covtab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -2531,7 +2535,7 @@ GEOSLIB_API void model_covmat_nostat(Model *model,
 
   d1.resize(ndim, 0);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
 
   /* Loop on the first variable */
 
@@ -2644,7 +2648,7 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
 
   /* Initializations */
 
-  covtab = c00tab = (double *) NULL;
+  covtab = c00tab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -2657,9 +2661,9 @@ GEOSLIB_API void model_covmat_multivar(Model *model,
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
   c00tab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (c00tab == (double *) NULL) goto label_end;
+  if (c00tab == nullptr) goto label_end;
 
   /* Calculate the C(0) term */
 
@@ -2874,7 +2878,7 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 
   // Preliminary checks
 
-  new_model = (Model *) NULL;
+  new_model = nullptr;
   int nvar = model->getVariableNumber();
   int ndim = model->getDimensionNumber();
   int ncova = model->getCovaNumber();
@@ -3047,7 +3051,7 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 //
 //  /* Initializations */
 //
-//  new_model = (Model *) NULL;
+//  new_model = nullptr;
 //  error  = 1;
 //  nvar   = model->getNVar();
 //  ndim   = model->getNDim();
@@ -3067,17 +3071,17 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 //    messerr("This procedure must only be used when new_nvar(%d) is larger than 1",new_nvar);
 //    goto label_end;
 //  }
-//  if (vars != (double *) NULL && ! is_matrix_non_negative(1,new_nvar,vars,0))
+//  if (vars != nullptr && ! is_matrix_non_negative(1,new_nvar,vars,0))
 //  {
 //    messerr("You provided vars[]. It must be non negative");
 //    goto label_end;
 //  }
-//  if (vars != (double *) NULL && vars[0] == 0.)
+//  if (vars != nullptr && vars[0] == 0.)
 //  {
 //    messerr("You provided vars[]. It must have vars[0] != 0");
 //    goto label_end;
 //  }
-//  if (corr != (double *) NULL && ! is_matrix_correlation(new_nvar,corr))
+//  if (corr != nullptr && ! is_matrix_correlation(new_nvar,corr))
 //  {
 //    messerr("You provided corr[]. It must be a correlation matrix");
 //    goto label_end;
@@ -3091,7 +3095,7 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 //  /* Set the mean (if provided) */
 //
 //  for (ivar = 1; ivar < new_nvar; ivar++)
-//    new_model->setMean(ivar, (mean != (double *) NULL) ? mean[ivar] :
+//    new_model->setMean(ivar, (mean != nullptr) ? mean[ivar] :
 //                                                         model->getMean(0));
 //
 //  /* Set the variance-covariance at the origin (if provided) */
@@ -3100,7 +3104,7 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 //  for (ivar=0; ivar<new_nvar; ivar++)
 //    for (jvar=0; jvar<new_nvar; jvar++)
 //    {
-//      if (vars != (double *) NULL)
+//      if (vars != nullptr)
 //        new_model->setCovar0(ivar,jvar,vars[AD(ivar,jvar)]);
 //      else
 //        new_model->setCovar0(ivar,jvar,(ivar == 0 && jvar == 0) ?
@@ -3134,7 +3138,7 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 //      for (jvar=0; jvar<new_nvar; jvar++)
 //      {
 //        double value =
-//            (vars == (double *) NULL || corr == (double *) NULL) ?
+//            (vars == nullptr) ?
 //            sill : (sill * sqrt(vars[ivar] * vars[jvar]) *
 //                    corr[ivar * new_nvar + jvar] / vars[0]);
 //        new_model->getCova(icov)->setSill(ivar,jvar,value);
@@ -3183,7 +3187,7 @@ GEOSLIB_API int model_normalize(Model *model, int flag_verbose)
   error = 1;
   nvar = model->getVariableNumber();
   ncov = model->getCovaNumber();
-  total = (double *) NULL;
+  total = nullptr;
 
   /* Core allocation */
 
@@ -3324,8 +3328,8 @@ GEOSLIB_API void model_covupdt(Model *model,
 
   /* Initializations */
 
-  silltot = range = (double *) NULL;
-  rank = (int *) NULL;
+  silltot = range = nullptr;
+  rank = nullptr;
   nvar = model->getVariableNumber();
   ncova = model->getCovaNumber();
   flag_update = flag_rescale = 0;
@@ -3530,13 +3534,13 @@ GEOSLIB_API Model *input_model(int ndim,
 //  /* Initializations */
 //
 //  error    = 1;
-//  flag_def = (model_in != (Model *) NULL);
-//  model    = (Model *) NULL;
+//  flag_def = (model_in != nullptr);
+//  model    = nullptr;
 //
 //  /* Core allocation */
 //
 //  model = model_init(ndim,nvar,0,0.,0.,VectorDouble(),VectorDouble());
-//  if (model == (Model *) NULL) goto label_end;
+//  if (model == nullptr) goto label_end;
 //
 //  /* Number of Basic structures */
 //
@@ -3554,7 +3558,7 @@ GEOSLIB_API Model *input_model(int ndim,
 //
 //    /* Ask for the parameters of the basic structure */
 //
-//    cova_in = (Cova *) NULL;
+//    cova_in = nullptr;
 //    if (flag_def && i < model_in->getNCova())
 //      cova_in = model_in->getCova(i);
 //
@@ -3705,7 +3709,7 @@ GEOSLIB_API void model_cova_characteristics(const ECov& type,
   SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 2, 0., &space);
   ACovFunc* cov = CovFactory::createCovFunc(type, ctxt);
-  (void) strcpy((char *) cov_name, cov->getCovName().c_str());
+  (void) gslStrcpy((char *) cov_name, cov->getCovName().c_str());
   *flag_range = cov->hasRange();
   *flag_param = cov->hasParam();
   *min_order = cov->getMinOrder();
@@ -3744,7 +3748,7 @@ GEOSLIB_API int model_sample(Vario *vario,
   ndim = vario->getDimensionNumber();
   ndir = vario->getDirectionNumber();
   nvar = model->getVariableNumber();
-  covtab = (double *) NULL;
+  covtab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
 
@@ -3752,7 +3756,7 @@ GEOSLIB_API int model_sample(Vario *vario,
 
   d1.resize(ndim);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
   vario->setNVar(nvar);
 
   // Internal redimensioning
@@ -3831,7 +3835,7 @@ GEOSLIB_API void model_vector_multivar(Model *model,
 
   /* Initializations */
 
-  covtab = c00tab = (double *) NULL;
+  covtab = c00tab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -3845,9 +3849,9 @@ GEOSLIB_API void model_vector_multivar(Model *model,
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
   c00tab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (c00tab == (double *) NULL) goto label_end;
+  if (c00tab == nullptr) goto label_end;
 
   /* Calculate the C(0) term */
 
@@ -3914,7 +3918,7 @@ GEOSLIB_API void model_vector(Model *model,
 
   /* Initializations */
 
-  covtab = (double *) NULL;
+  covtab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) goto label_end;
@@ -3930,7 +3934,7 @@ GEOSLIB_API void model_vector(Model *model,
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
 
@@ -3992,7 +3996,7 @@ GEOSLIB_API void model_vector_nostat(Model *model,
 
   /* Initializations */
 
-  covtab = (double *) NULL;
+  covtab = nullptr;
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db)) goto label_end;
   ndim = model->getDimensionNumber();
@@ -4005,7 +4009,7 @@ GEOSLIB_API void model_vector_nostat(Model *model,
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
 
@@ -4137,31 +4141,31 @@ GEOSLIB_API Model *model_combine(const Model *model1,
   /* Initializations */
 
   error = 1;
-  model = (Model *) NULL;
+  model = nullptr;
   sill.resize(4);
   mean.resize(2);
   cova0.resize(4);
-  if (model1 == (Model *) NULL && model2 == (Model *) NULL)
+  if (model1 == nullptr)
   {
     messerr("This function requires at least one model defined");
     return (model);
   }
-  if (model1 != (Model* ) NULL && model1->getVariableNumber() != 1)
+  if (model1 != nullptr && model1->getVariableNumber() != 1)
   {
     messerr("This function can only combine monovariate models");
     return (model);
   }
-  if (model2 != (Model *) NULL && model2->getVariableNumber() != 1)
+  if (model2 != nullptr && model2->getVariableNumber() != 1)
   {
     messerr("This function can only combine monovariate models");
     return (model);
   }
-  if (model1 == (Model *) NULL)
+  if (model1 == nullptr)
   {
     model = model2->duplicate();
     return model;
   }
-  if (model2 == (Model *) NULL)
+  if (model2 == nullptr)
   {
     model = model1->duplicate();
     return model;
@@ -4286,7 +4290,7 @@ GEOSLIB_API int model_regularize(Model *model,
   /* Initializations */
 
   error = 1;
-  c00tab = covtab = (double *) NULL;
+  c00tab = covtab = nullptr;
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db)) goto label_end;
   ndim = model->getDimensionNumber();
@@ -4309,9 +4313,9 @@ GEOSLIB_API int model_regularize(Model *model,
 
   dd.resize(ndim, 0.);
   c00tab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (c00tab == (double *) NULL) goto label_end;
+  if (c00tab == nullptr) goto label_end;
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
 
   /* Calculate the Cvv (for a zero-shift) */
 
@@ -4435,19 +4439,19 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
 
   error = 1;
   nech = db->getSampleNumber();
-  pvec = (int *) NULL;
-  diag = crit = G = Gmatrix = (double *) NULL;
-  flag_incr = (center != (double *) NULL);
+  pvec = nullptr;
+  diag = crit = G = Gmatrix = nullptr;
+  flag_incr = (center != nullptr);
 
   if (npivot_max <= 0) npivot_max = nech;
   npivot_max = MIN(npivot_max, nech);
   d1.resize(db->getNDim());
   diag = (double *) mem_alloc(sizeof(double) * nech, 0);
-  if (diag == (double *) NULL) goto label_end;
+  if (diag == nullptr) goto label_end;
   crit = (double *) mem_alloc(sizeof(double) * (1 + nech), 0);
-  if (crit == (double *) NULL) goto label_end;
+  if (crit == nullptr) goto label_end;
   pvec = (int *) mem_alloc(sizeof(int) * nech, 0);
-  if (pvec == (int *) NULL) goto label_end;
+  if (pvec == nullptr) goto label_end;
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), &c00);
   for (i = 0; i < nech; i++)
     pvec[i] = i;
@@ -4481,7 +4485,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
     // Initialize and add a new zeros column to matrix G[]
     G = (double *) mem_realloc((char * ) G,
                                (npivot + 1) * nech * sizeof(double), 0);
-    if (G == (double *) NULL) goto label_end;
+    if (G == nullptr) goto label_end;
     for (i = 0; i < nech; i++)
       G(npivot,i) = 0.;
 
@@ -4595,7 +4599,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
   {
     G = (double *) mem_realloc((char * ) G,
                                (npivot + 1) * nech * sizeof(double), 0);
-    if (G == (double *) NULL) goto label_end;
+    if (G == nullptr) goto label_end;
     for (i = 0; i < nech; i++)
       G(npivot,i) = 0.;
     G(npivot,npivot) = sqrt(diag[npivot]);
@@ -4612,7 +4616,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
 
   // Reorder the output G matrix
   Gmatrix = (double *) mem_alloc(npivot * nech * sizeof(double), 0);
-  if (Gmatrix == (double *) NULL) goto label_end;
+  if (Gmatrix == nullptr) goto label_end;
   for (j = 0; j < npivot; j++)
     for (i = 0; i < nech; i++)
     {
@@ -4662,7 +4666,7 @@ GEOSLIB_API int model_maximum_order(Model *model)
 {
   int order, max_order;
 
-  if (model == (Model *) NULL) return (-1);
+  if (model == nullptr) return (-1);
 
   max_order = 0;
   for (int il = 0; il < model->getDriftNumber(); il++)
@@ -4686,7 +4690,7 @@ GEOSLIB_API int model_maximum_order(Model *model)
  *****************************************************************************/
 GEOSLIB_API int model_is_drift_defined(Model *model, const EDrift& type0)
 {
-  if (model == (Model *) NULL) return (0);
+  if (model == nullptr) return (0);
   for (int il = 0; il < model->getDriftNumber(); il++)
   {
     if (model->getDriftType(il) == type0) return (1);
@@ -4776,22 +4780,22 @@ GEOSLIB_API double *model_covmat_by_varranks(Model *model,
   /* Initializations */
 
   int error = 1;
-  covtab = covmat = (double *) NULL;
+  covtab = covmat = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db)) return nullptr;
   int ndim  = model->getDimensionNumber();
   int nvar  = model->getVariableNumber();
-  int nech  = iechs.size();
+  int nech  = static_cast<int>(iechs.size());
 
   /* Core allocation */
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == (double *) NULL) goto label_end;
+  if (covtab == nullptr) goto label_end;
   covmat = (double *) mem_alloc(sizeof(double) * nsize * nsize, 0);
-  if (covmat == (double *) NULL) goto label_end;
+  if (covmat == nullptr) goto label_end;
 
   /* Loop on the first sample */
 

@@ -125,7 +125,7 @@ static Def_Token DEF_TOKEN[] = {
 GEOSLIB_API Tokens *tokens_free(Tokens *tokens)
 
 {
-  if (tokens == (Tokens *) NULL) return(tokens);
+  if (tokens == nullptr) return(tokens);
   delete tokens;
   tokens = (Tokens *) nullptr;
   return(tokens);
@@ -179,7 +179,7 @@ GEOSLIB_API Tokens *tokens_create(int nb_tokens)
 
   /* Initializations */
 
-  tokens = (Tokens *) NULL;
+  tokens = nullptr;
   if (nb_tokens <= 0) return(tokens);
   
   /* Allocate the main structure */
@@ -221,7 +221,7 @@ GEOSLIB_API int tokone_create(Tokens *tokens,
                               int    *law,
                               double *valarg)
 {
-  if (tokens == (Tokens *) NULL) return 1;
+  if (tokens == nullptr) return 1;
   if (rank < 0 || rank >= tokens->nb_tokens) return 1;
   if (npar != DEF_TOKEN[type].npar) return 1;
 
@@ -485,7 +485,7 @@ GEOSLIB_API Tokens *tokens_input(void)
 
   /* Initializations */
 
-  tokens = (Tokens *) NULL;
+  tokens = nullptr;
   nb_tokens = _lire_int("Number of tokens",1,1,1,ITEST);
   
   /* Allocate the main structure */
@@ -610,7 +610,7 @@ GEOSLIB_API void tokone_get_params(Tokens *tokens,
 GEOSLIB_API void tokone_print(Tokens *tokens,
                               int rank)
 {
-  if (tokens == (Tokens *) NULL) return;
+  if (tokens == nullptr) return;
   if (rank < 0 || rank >= tokens->nb_tokens) return;
 
   Token_Def& def = tokens->defs[rank];
@@ -664,7 +664,7 @@ static void st_blank_object(Bool_Object *object)
   }
 
   object->orientation = 0.;
-  object->address     = (Bool_Object *) NULL;
+  object->address     = nullptr;
 
   return;
 }
@@ -1351,7 +1351,7 @@ static void st_print_object(const char *title,
 {
   int idim;
 
-  if (object == (Bool_Object *) NULL) return;
+  if (object == nullptr) return;
 
   message("Characteristics of the %s Object\n",title);
   message("- Type        = %d\n",object->type);
@@ -1719,7 +1719,7 @@ static int st_add_object(int          mode,
   Bool_Object *new_object;
 
   new_object = (Bool_Object *) mem_alloc(sizeof(Bool_Object),0);
-  if (new_object == (Bool_Object *) NULL) return(1);
+  if (new_object == nullptr) return(1);
 
   (void) memcpy((char *) new_object,(char *) object,sizeof(Bool_Object));
 
@@ -1782,14 +1782,14 @@ static int st_delete_object(int        mode,
 
   /* Search for the object to be deleted */
 
-  last_object = (Bool_Object *) NULL;
+  last_object = nullptr;
   rank = (int) (count * law_uniform(0.,1.));
 
   for (i=0; i<rank; i++)
   {
     last_object = object;
     object = object->address;
-    if (object == (Bool_Object *) NULL) 
+    if (object == nullptr) 
       messageAbort("st_delete_object; Error #1");
   }
 
@@ -1804,7 +1804,7 @@ static int st_delete_object(int        mode,
 
   /* Update the pointed address of the previous object */
 
-  if (last_object == (Bool_Object *) NULL)
+  if (last_object == nullptr)
   {
     if (mode == 0 && Start_object != Start_object_init)
     {
@@ -1818,9 +1818,9 @@ static int st_delete_object(int        mode,
         last_object = last_object->address;
     }
   }
-  if (last_object != (Bool_Object *) NULL)
+  if (last_object != nullptr)
     last_object->address = (rank == count - 1) ?
-      (Bool_Object *) NULL : object->address;
+      nullptr : object->address;
 
   /* Update the global pointers (if necessary) */
 
@@ -1866,7 +1866,7 @@ static void st_project_objects(double background,
     
   /* Initializations */
   
-  save_tab  = (double *) NULL;
+  save_tab  = nullptr;
   flag_save = (int) get_keypone("Boolean_Save",0);
   if (flag_save)
     save_tab = (double *) mem_alloc(sizeof(double) * NB_FIELDS * Nb_object,1);
@@ -2023,7 +2023,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
 
   /* Initializations */
 
-  Start_object_init = Start_object = (Bool_Object *) NULL;
+  Start_object_init = Start_object = nullptr;
   Nb_object_init = Nb_object = memo_init = nbgrain = nbpore = 0;
   iptr_simu = iptr_rank = -1;
   tabtime = 0.;
@@ -2063,13 +2063,13 @@ GEOSLIB_API int simbool_f(Db     *dbin,
   for (i=0; i<NDIM; i++)
   {
     Origin[i] = dbout->getX0(i) - dbout->getDX(i) / 2.;
-    if (dilate != (double *) NULL) Origin[i] -= dilate[i];
+    if (dilate != nullptr) Origin[i] -= dilate[i];
     Field[i]  = dbout->getDX(i) * dbout->getNX(i);
-    if (dilate != (double *) NULL) Field[i] += 2. * dilate[i];
+    if (dilate != nullptr) Field[i] += 2. * dilate[i];
   }
   if (verbose)
   {
-    if (dbin == (Db *) NULL)
+    if (dbin == nullptr)
       message("Boolean non conditional simulation. Average of %d objects\n",
               nb_average);
     else
@@ -2079,7 +2079,7 @@ GEOSLIB_API int simbool_f(Db     *dbin,
 
   /* Count the number of conditioning pores and grains */
 
-  if (dbin != (Db *) NULL)
+  if (dbin != nullptr)
   {
     for (iech=0; iech<dbin->getSampleNumber(); iech++)
     {
@@ -2299,7 +2299,7 @@ label_end:
             "Boolean simulation\n"
             "==================\n");
 
-    if (dbin != (Db *) NULL && dbin->getSampleNumber() > 0)
+    if (dbin != nullptr && dbin->getSampleNumber() > 0)
     {
       message("Conditioning option               = YES\n");
       message("Number of conditioning grains     = %d\n", nbgrain);
@@ -2311,7 +2311,7 @@ label_end:
     message("Ending simulation time            = %g\n", tmax);
     message("Average number of objects         = %d\n", nb_average);
 
-    if (dbin != (Db *) NULL && dbin->getSampleNumber() > 0)
+    if (dbin != nullptr && dbin->getSampleNumber() > 0)
     {
       message("Initial number of primary objects = %d\n", memo_init);
       message("Ending number of primary objects  = %d\n", Nb_object_init);

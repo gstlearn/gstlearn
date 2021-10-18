@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
   /* 1 - Initializations */
   /***********************/
 
-  dbgrid   = (Db       *) NULL;
-  model    = (Model    *) NULL;
+  dbgrid   = nullptr;
+  model    = nullptr;
   verbose  = 0;
   seed     = 31415;
   range    = 79.8;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
   // Create the 2-D grid output file
 
   dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,x0,dx);
-  if (dbgrid == (Db *) NULL) goto label_end;
+  if (dbgrid == nullptr) goto label_end;
   if (db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,
                                &iptr)) goto label_end;
   if (db_grid_define_coordinates(dbgrid)) goto label_end;

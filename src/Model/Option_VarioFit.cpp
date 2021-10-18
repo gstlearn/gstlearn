@@ -11,6 +11,8 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Basic/AStringable.hpp"
 
+#include <sstream>
+
 Option_VarioFit::Option_VarioFit()
     : _flag_noreduce(0),
       _flag_check_bounds(0),

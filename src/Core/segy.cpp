@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "segy.h"
 #include "geoslib_e.h"
 #include "geoslib_enum.h"
@@ -499,7 +500,7 @@ static int st_get_cuts(Db     *surfaces,
 
   // Check if the surface file has been defined
 
-  if (surfaces == (Db *) NULL) return(0);
+  if (surfaces == nullptr) return(0);
   if (iatt_bot < 0 && iatt_top < 0) return(0);
 
   // The surface is valid, return the vertical bounds along trace
@@ -1239,14 +1240,14 @@ GEOSLIB_API SegYArg segy_array(const char *filesegy,
   // Initializations
 
   code    = 1;
-  file    = (FILE *) NULL;
+  file    = nullptr;
   nbrefpt = nz = 0;
   delta   = z0 = 0.;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
 
   // Preliminary checks
 
-  flag_surf = (surf2D != (Db *) NULL);
+  flag_surf = (surf2D != nullptr);
   flag_top  = flag_surf && (option ==  1 || option == -2);
   flag_bot  = flag_surf && (option == -1 || option == -2);
   if (st_surface_identify(verbOption,surf2D,
@@ -1255,7 +1256,7 @@ GEOSLIB_API SegYArg segy_array(const char *filesegy,
 
   // Open Input SEGY file
 
-  if ((file = fopen(filesegy,"r")) == NULL)
+  if ((file = gslFopen(filesegy,"r")) == NULL)
   {
     messerr("ERROR:  cannot find input file %s",filesegy);
     return segyarg;
@@ -1417,14 +1418,14 @@ GEOSLIB_API GridC segy_summary(const char *filesegy,
   // Initializations
 
   code      = 1;
-  file      = (FILE *) NULL;
+  file      = nullptr;
   nbrefpt   = nz = 0;
   delta     = z0 = 0.;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
 
   // Preliminary checks
 
-  flag_surf = (surf2D != (Db *) NULL);
+  flag_surf = (surf2D != nullptr);
   flag_top  = flag_surf && (option ==  1 || option == -2);
   flag_bot  = flag_surf && (option == -1 || option == -2);
   if (st_surface_identify(verbOption,surf2D,
@@ -1433,7 +1434,7 @@ GEOSLIB_API GridC segy_summary(const char *filesegy,
 
   // Open Input SEGY file
 
-  if ((file = fopen(filesegy,"r")) == NULL)
+  if ((file = gslFopen(filesegy,"r")) == NULL)
   {
     messerr("ERROR:  cannot find input file %s",filesegy);
     return def_grid;
@@ -1589,7 +1590,7 @@ GEOSLIB_API int db_segy(const char *filesegy,
   // Initializations
 
   code      = 1;
-  file      = (FILE *) NULL;
+  file      = nullptr;
   nbrefpt   = nz = 0;
   delta     = z0 = 0.;
   for (int i=0; i<3; i++) indg[i] = 0;
@@ -1598,7 +1599,7 @@ GEOSLIB_API int db_segy(const char *filesegy,
 
   // Preliminary checks
 
-  flag_surf = (surf2D != (Db *) NULL);
+  flag_surf = (surf2D != nullptr);
   flag_top  = flag_surf && (option ==  1 || option == -2);
   flag_bot  = flag_surf && (option == -1 || option == -2);
   if (st_surface_identify(verbOption,surf2D,
@@ -1609,7 +1610,7 @@ GEOSLIB_API int db_segy(const char *filesegy,
 
   // Open Input SEGY file
 
-  file = fopen(filesegy,"r");
+  file = gslFopen(filesegy,"r");
   if (file == NULL)
   {
     messerr("ERROR:  cannot find input file %s",filesegy);

@@ -8,17 +8,19 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include <string>
 #include <iostream>
-#include <iomanip>
 #include <sstream>
+#include <typeinfo>
+#include <iomanip>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -36,6 +38,13 @@ static int _nRC = 3;
 static int _maxNCols = 7;
 static int _maxNRows = 7;
 static int _nBatch = 7;
+
+String AStringable::toString(int level) const
+{
+  std::stringstream sstr;
+  sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;
+  return sstr.str();
+}
 
 std::stringstream _formatColumn(int justify, int localSize = 0)
 {
@@ -236,27 +245,17 @@ void setFormatBatchNumber(int nbatch)
  */
 void message(const char *format, ...)
 {
-  char STRING[1000];
+  char str[LONG_SIZE];
   va_list ap;
 
   va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
+  // TODO : use non old_style functions
+  //(void) gslSPrintf(str, format, ap);
+  (void) vsprintf(str, format, ap);
   va_end(ap);
-  message_extern(STRING);
+  message_extern(str);
 
   return;
-}
-
-String stringCompose(const char *format,...)
-{
-  std::stringstream sstr;
-  char STRING[1000];
-  va_list ap;
-
-  va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
-  sstr << STRING;
-  return sstr.str();
 }
 
 /**
@@ -287,13 +286,16 @@ void messerrFlush(const String& string)
  */
 void messerr(const char *format, ...)
 {
-  char STRING[1000];
+  char str[1000];
   va_list ap;
 
   va_start(ap, format);
-  (void) vsprintf(STRING, format, ap);
+  // TODO : use non old_style functions
+  //(void) gslSPrintf(str, format, ap);
+  (void) vsprintf(str, format, ap);
   va_end(ap);
-  message_extern(STRING);
+
+  message_extern(str);
   message_extern("\n");
 
   return;
@@ -338,30 +340,30 @@ void mestitle(int level, const char *format, ...)
   va_end(ap);
   int size = strlen(STRING);
 
-  (void) strcat(STRING, "\n");
+  (void) gslStrcat(STRING, "\n");
   message_extern(STRING);
 
   /* Underline the string */
 
-  (void) strcpy(STRING, "");
+  (void) gslStrcpy(STRING, "");
   for (int i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void) strcat(STRING, "=");
+        (void) gslStrcat(STRING, "=");
         break;
 
       case 1:
-        (void) strcat(STRING, "-");
+        (void) gslStrcat(STRING, "-");
         break;
 
       case 2:
-        (void) strcat(STRING, ".");
+        (void) gslStrcat(STRING, ".");
         break;
     }
   }
-  (void) strcat(STRING, "\n");
+  (void) gslStrcat(STRING, "\n");
   message_extern(STRING);
 
   return;
@@ -388,21 +390,21 @@ String toTitle(int level, const char* format, ...)
   /* Underline the string */
 
   int size = strlen(STRING);
-  (void) strcpy(STRING, "");
+  (void) gslStrcpy(STRING, "");
   for (int i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void) strcat(STRING, "=");
+        (void) gslStrcat(STRING, "=");
         break;
 
       case 1:
-        (void) strcat(STRING, "-");
+        (void) gslStrcat(STRING, "-");
         break;
 
       case 2:
-        (void) strcat(STRING, ".");
+        (void) gslStrcat(STRING, ".");
         break;
     }
   }

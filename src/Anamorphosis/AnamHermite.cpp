@@ -480,8 +480,8 @@ int AnamHermite::_data_sort(int nech,
   /* Initializations */
 
   frc = ncl = nval = 0;
-  tmp = (double *) NULL;
-  ind = (int    *) NULL;
+  tmp = nullptr;
+  ind = nullptr;
 
   /* Copy the variable in arrays zs and ys eliminating undefined values */
 
@@ -508,9 +508,9 @@ int AnamHermite::_data_sort(int nech,
   if (!wt.empty())
   {
     tmp = (double *) mem_alloc(sizeof(double) * nval,0);
-    if (tmp == (double *) NULL) goto label_end;
+    if (tmp == nullptr) goto label_end;
     ind = (int    *) mem_alloc(sizeof(int)    * nval,0);
-    if (ind == (int *) NULL) goto label_end;
+    if (ind == nullptr) goto label_end;
     for (i = 0; i < nval; i++)  ind[i] = i;
     ut_sort_double(0,nval,ind,zs.data());
     for (i = 0; i < nval; i++) tmp[i] = ys[ind[i]];

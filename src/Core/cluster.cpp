@@ -252,12 +252,12 @@ static double *st_get_distmatrix(double *data,
 
   /* Initializations */
 
-  distmatrix = (double *) NULL;
+  distmatrix = nullptr;
 
   /* Core allocation */
 
   distmatrix = (double *) mem_alloc(sizeof(double) * nech * nech,0);
-  if (distmatrix == (double *) NULL) return(distmatrix);
+  if (distmatrix == nullptr) return(distmatrix);
 
   /* Calculate the distance matrix */
 
@@ -343,8 +343,8 @@ GEOSLIB_API double *kclusters(double *data,
 
   error  = 1;
   ifound = 0;
-  clusterid = tclusterid = saved = counts = cmask = mapping = (int *) NULL;
-  cdata = cache = (double *) NULL;
+  clusterid = tclusterid = saved = counts = cmask = mapping = nullptr;
+  cdata = cache = nullptr;
   if (nclusters >= nech)
   {
     messerr("The number of clusters (%d) cannot be larger than the number of points (%d)",
@@ -355,21 +355,21 @@ GEOSLIB_API double *kclusters(double *data,
   /* Core allocation */
 
   clusterid  = (int    *) mem_alloc(sizeof(int) * nech,0);
-  if (clusterid == (int *) NULL) goto label_end;
+  if (clusterid == nullptr) goto label_end;
   tclusterid = (int    *) mem_alloc(sizeof(int) * nech,0);
-  if (tclusterid == (int *) NULL) goto label_end;
+  if (tclusterid == nullptr) goto label_end;
   saved      = (int    *) mem_alloc(sizeof(int) * nech,0);
-  if (saved      == (int *) NULL) goto label_end;
+  if (saved      == nullptr) goto label_end;
   cache      = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (cache      == (double *) NULL) goto label_end;
+  if (cache      == nullptr) goto label_end;
   counts     = (int    *) mem_alloc(sizeof(int) * nclusters,0);
-  if (counts     == (int *) NULL) goto label_end;
+  if (counts     == nullptr) goto label_end;
   cmask      = (int    *) mem_alloc(sizeof(int) * nclusters,0);
-  if (cmask      == (int    *) NULL) goto label_end;
+  if (cmask      == nullptr) goto label_end;
   mapping    = (int    *) mem_alloc(sizeof(int) * nclusters,0);
-  if (mapping    == (int *) NULL) goto label_end;
+  if (mapping    == nullptr) goto label_end;
   cdata      = (double *) mem_alloc(sizeof(double) * nclusters * nvar,0);
-  if (cdata      == (double *) NULL) goto label_end;
+  if (cdata      == nullptr) goto label_end;
   for (i=0; i<nech; i++) clusterid[i] = 0;
   
   ifound = 1;
@@ -524,8 +524,8 @@ GEOSLIB_API int *kmedoids(double *data,
 
   error  = 1;
   ifound = 0;
-  saved  = centroids = tclusterid = clusterid = (int *) NULL;
-  errors = distmatrix = (double *) NULL;
+  saved  = centroids = tclusterid = clusterid = nullptr;
+  errors = distmatrix = nullptr;
   if (nclusters >= nech)
   {
     messerr("The number of clusters (%d) cannot be larger than the number of points (%d)",
@@ -536,21 +536,21 @@ GEOSLIB_API int *kmedoids(double *data,
   /* Core allocation */
   
   clusterid  = (int    *) mem_alloc(sizeof(int) * nech,0);
-  if (clusterid == (int *) NULL) goto label_end;
+  if (clusterid == nullptr) goto label_end;
   tclusterid = (int    *) mem_alloc(sizeof(int) * nech,0);
-  if (tclusterid == (int *) NULL) goto label_end;
+  if (tclusterid == nullptr) goto label_end;
   saved      = (int    *) mem_alloc(sizeof(int) * nech,0);
-  if (saved      == (int *) NULL) goto label_end;
+  if (saved      == nullptr) goto label_end;
   centroids  = (int    *) mem_alloc(sizeof(int) * nclusters,0);
-  if (centroids  == (int *) NULL) goto label_end;
+  if (centroids  == nullptr) goto label_end;
   errors     = (double *) mem_alloc(sizeof(double) * nclusters,0);
-  if (errors     == (double *) NULL) goto label_end;
+  if (errors     == nullptr) goto label_end;
   for (i=0; i<nech; i++) clusterid[i] = 0;
 
   /* Calculate the distance matrix */
 
   distmatrix = st_get_distmatrix(data,nvar,nech);
-  if (distmatrix == (double *) NULL) goto label_end;
+  if (distmatrix == nullptr) goto label_end;
   
   ifound = 1;
   distot = DBL_MAXIMUM;

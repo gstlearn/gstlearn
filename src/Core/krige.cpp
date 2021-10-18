@@ -12,6 +12,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Db/ELoadBy.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
@@ -147,7 +148,7 @@ static double *st_core(int nli,
 
   /* Initialization */
 
-  tab  = (double *) NULL;
+  tab  = nullptr;
   rsize = (double) nli * (double) nco;
   if (rsize < 0 || rsize > INT_MAX) 
   {
@@ -159,7 +160,7 @@ static double *st_core(int nli,
   /* Allocation */
 
   tab = (double *) mem_alloc(sizeof(double) * size,0);
-  if (tab == (double *) NULL) 
+  if (tab == nullptr) 
   {
     messerr("Core allocation problem: Size (%d) too big",size);
     return(tab);
@@ -186,13 +187,13 @@ static int *st_icore(int nli,
 
   /* Initialization */
 
-  tab  = (int *) NULL;
+  tab  = nullptr;
   size = nli * nco;
 
   /* Allocation */
 
   tab = (int *) mem_alloc(sizeof(int) * size,0);
-  if (tab != (int *) NULL) for (i=0; i<size; i++) tab[i] = 0;
+  if (tab != nullptr) for (i=0; i<size; i++) tab[i] = 0;
 
   return(tab);
 }
@@ -220,7 +221,7 @@ static int *st_relative_position_array(int  mode,
     /* Creation */
 
     rel = (int *) st_icore(neq,1);
-    if (rel == (int *) NULL) return(rel);
+    if (rel == nullptr) return(rel);
     for (i=j=0; i < neq; i++)
     {
       if (flag != NULL && flag[i]) 
@@ -832,7 +833,7 @@ static int st_check_environment(int    flag_in,
 
   error = 1;
   nvar = ndim = nfex = 0;
-  dbin_mini = dbin_maxi = dbout_mini = dbout_maxi = (double *) NULL;
+  dbin_mini = dbin_maxi = dbout_mini = dbout_maxi = nullptr;
 
   /*********************************/
   /* Compatibility between two Dbs */
@@ -847,7 +848,7 @@ static int st_check_environment(int    flag_in,
   /* Checking the model */
   /**********************/
 
-  if (model != (Model *) NULL)
+  if (model != nullptr)
   {
     nvar = model->getVariableNumber();
     if (nvar <= 0)
@@ -913,7 +914,7 @@ static int st_check_environment(int    flag_in,
   /* Calculate the field extension */
   /*********************************/
 
-  if (model != (Model *) NULL)
+  if (model != nullptr)
   {
 
     /* Input Db structure */
@@ -921,11 +922,11 @@ static int st_check_environment(int    flag_in,
     if (flag_in)
     {
       dbin_mini = db_sample_alloc(DBIN,ELoc::X);
-      if (dbin_mini == (double *) NULL) goto label_end;
+      if (dbin_mini == nullptr) goto label_end;
       dbin_maxi = db_sample_alloc(DBIN,ELoc::X);
-      if (dbin_maxi == (double *) NULL) goto label_end;
+      if (dbin_maxi == nullptr) goto label_end;
       if (db_extension(DBIN,
-                       dbin_mini,dbin_maxi,(double *) NULL)) goto label_end;
+                       dbin_mini,dbin_maxi,nullptr)) goto label_end;
     }
 
     /* Output Db structure */
@@ -933,11 +934,11 @@ static int st_check_environment(int    flag_in,
     if (flag_out)
     {
       dbout_mini = db_sample_alloc(DBOUT,ELoc::X);
-      if (dbout_mini == (double *) NULL) goto label_end;
+      if (dbout_mini == nullptr) goto label_end;
       dbout_maxi = db_sample_alloc(DBOUT,ELoc::X);
-      if (dbout_maxi == (double *) NULL) goto label_end;
+      if (dbout_maxi == nullptr) goto label_end;
       if (db_extension(DBOUT,
-                       dbout_mini,dbout_maxi,(double *) NULL)) goto label_end;
+                       dbout_mini,dbout_maxi,nullptr)) goto label_end;
     }
 
     if (flag_in && flag_out)
@@ -955,7 +956,7 @@ static int st_check_environment(int    flag_in,
   /* Checking the Neighborhood */
   /*****************************/
 
-  if (neigh != (Neigh *) NULL)
+  if (neigh != nullptr)
   {
     if (neigh->getNDim() != ndim)
     {
@@ -1013,18 +1014,18 @@ static int st_model_manage(int    mode,
     if (MODEL_INIT) return(1);
     d1.resize(DBIN->getNDim());
     d1_1 = db_sample_alloc(DBIN,ELoc::X);
-    if (d1_1 == (double *) NULL) return(1);
+    if (d1_1 == nullptr) return(1);
     d1_2 = db_sample_alloc(DBIN,ELoc::X);
-    if (d1_2 == (double *) NULL) return(1);
+    if (d1_2 == nullptr) return(1);
     d1_t.resize(DBIN->getNDim());
     covtab = st_core(nvar,nvar);
-    if (covtab == (double *) NULL) return(1);
+    if (covtab == nullptr) return(1);
     covaux = st_core(nvar,nvar);
-    if (covaux == (double *) NULL) return(1);
+    if (covaux == nullptr) return(1);
     if (nbfl > 0)
     {
       drftab = st_core(nbfl,1);
-      if (drftab == (double *) NULL) return(1);
+      if (drftab == nullptr) return(1);
     }
     MODEL_INIT = 1;
   }
@@ -1080,35 +1081,35 @@ static int st_krige_manage_basic(int mode,
 
     if (KRIGE_INIT) return(1);
     rank = st_icore(nech,1);
-    if (rank == (int *) NULL) return(1);
+    if (rank == nullptr) return(1);
     flag = st_icore(neqmax,1);
-    if (flag == (int *) NULL) return(1);
+    if (flag == nullptr) return(1);
     lhs = st_core(neqmax,neqmax);
-    if (lhs == (double *) NULL) return(1);
+    if (lhs == nullptr) return(1);
     lhs_b = st_core(neqmax,neqmax);
-    if (lhs_b == (double *) NULL) return(1);
+    if (lhs_b == nullptr) return(1);
     rhs = st_core(neqmax,nvar);
-    if (rhs == (double *) NULL) return(1);
+    if (rhs == nullptr) return(1);
     zext = st_core(neqmax,1);
-    if (zext == (double *) NULL) return(1);
+    if (zext == nullptr) return(1);
     zam1 = st_core(neqmax,1);
-    if (zam1 == (double *) NULL) return(1);
+    if (zam1 == nullptr) return(1);
     wgt = st_core(neqmax,nvar);
-    if (wgt == (double *) NULL) return(1);
+    if (wgt == nullptr) return(1);
     var0 = st_core(nvar,nvar);
-    if (var0 == (double *) NULL) return(1);
+    if (var0 == nullptr) return(1);
     if (FLAG_BAYES)
     {
       fsf = st_core(ncmax,ncmax);
-      if (fsf == (double *) NULL) return(1);
+      if (fsf == nullptr) return(1);
       varb   = st_core(nvar,nvar);
-      if (varb   == (double *) NULL) return(1);
+      if (varb   == nullptr) return(1);
       if (nfeq > 0)
       {
         fs = st_core(ncmax,nfeq);
-        if (fs == (double *) NULL) return(1);
+        if (fs == nullptr) return(1);
         ff0   = st_core(nfeq,nvar);
-        if (ff0   == (double *) NULL) return(1);
+        if (ff0   == nullptr) return(1);
       }
     }
     KRIGE_INIT = 1;
@@ -1158,14 +1159,14 @@ static int st_bench_nmax(Neigh *neigh)
 
   /* Initializations */
 
-  tab   = (double *) NULL;
+  tab   = nullptr;
   nech  = DBIN->getSampleNumber();
   nmax  = nech;
   if (DBIN->getNDim() <= 2) return(nmax);
 
   /* Core allocation */
   tab = db_vector_alloc(DBIN);
-  if (tab == (double *) NULL) goto label_end;
+  if (tab == nullptr) goto label_end;
 
   /* Read the vector of the third coordinates */
   if (db_coorvec_get(DBIN,DBIN->getNDim()-1,tab)) goto label_end;
@@ -1288,11 +1289,11 @@ static int st_block_discretize_alloc(int  ndim,
   KOPTION->ntot = ntot;
 
   KOPTION->ndisc = st_icore(ndim,1);
-  if (KOPTION->ndisc == (int *) NULL) return(1);
+  if (KOPTION->ndisc == nullptr) return(1);
   KOPTION->disc1 = st_core(ndim,ntot);
-  if (KOPTION->disc1 == (double *) NULL) return(1);
+  if (KOPTION->disc1 == nullptr) return(1);
   KOPTION->disc2 = st_core(ndim,ntot);
-  if (KOPTION->disc2 == (double *) NULL) return(1);
+  if (KOPTION->disc2 == nullptr) return(1);
   for (int idim=0; idim<ndim; idim++) KOPTION->ndisc[idim] = ndisc[idim];
   return(0);
 }
@@ -1439,13 +1440,13 @@ GEOSLIB_API int krige_koption_manage(int             mode,
     // Target discretization
     KOPTION->ndim   = ndim;
     KOPTION->ntot   = 0;
-    KOPTION->disc1  = (double *) NULL;
-    KOPTION->disc2  = (double *) NULL;
-    KOPTION->ndisc  = (int    *) NULL;
+    KOPTION->disc1  = nullptr;
+    KOPTION->disc2  = nullptr;
+    KOPTION->ndisc  = nullptr;
 
     // Data discretization
     KOPTION->flag_data_disc = 0;
-    KOPTION->dsize = (double *) NULL;
+    KOPTION->dsize = nullptr;
 
     /* Data discretization case (optional) */
 
@@ -1489,7 +1490,7 @@ GEOSLIB_API int krige_koption_manage(int             mode,
     /* Deallocation procedure */
 
   label_dealloc:
-    if (KOPTION != (Koption *) NULL)
+    if (KOPTION != nullptr)
     {
       KOPTION->ndisc = (int     *) mem_free((char *) KOPTION->ndisc);
       KOPTION->disc1 = (double  *) mem_free((char *) KOPTION->disc1);
@@ -1905,7 +1906,7 @@ GEOSLIB_API void krige_lhs_print(int     nech,
 
   /* Initializations */
 
-  rel   = (int *) NULL;
+  rel   = nullptr;
   rel   = st_relative_position_array(1,neq,rel);
   npass = (nred - 1) / NBYPAS + 1;
 
@@ -2241,7 +2242,7 @@ static void st_rhs(Model   *model,
                       st_get_idim(rank[iech],idim));
           // The next option is plugged for the case of target randomization
           // for the case of Point-Block Model
-          if (RAND_INDEX >= 0 && KOPTION->disc1 != (double *) NULL)
+          if (RAND_INDEX >= 0 && KOPTION->disc1 != nullptr)
             d1[idim] += DISC1(RAND_INDEX,idim);
         }
         st_cov_dg(model,0,0,0,ECalcMember::RHS,-1,1.,rank[iech],-1,d1,covtab);
@@ -2275,7 +2276,7 @@ static void st_rhs(Model   *model,
       for (int jvar_m=0; jvar_m<nvar_m; jvar_m++)
         COVTAB(ivar_m,jvar_m) *= ratio;
     
-    if (matCL == (double *) NULL)
+    if (matCL == nullptr)
     {
       for (int jvar=0; jvar<nvar; jvar++)
         for (int ivar=0; ivar<nvar; ivar++)
@@ -2306,7 +2307,7 @@ static void st_rhs(Model   *model,
       return;
     }
   
-  if (matCL != (double *) NULL)
+  if (matCL != nullptr)
   {
     if (model->isFlagLinked())
       messageAbort("Kriging of a Linear combination is incompatible with linked drifts");
@@ -2430,7 +2431,7 @@ GEOSLIB_API void krige_rhs_print(int      nvar,
 
   /* Initializations */
 
-  rel = (int *) NULL;
+  rel = nullptr;
   rel = st_relative_position_array(1,neq,NULL);
 
   /* General Header */
@@ -2444,7 +2445,7 @@ GEOSLIB_API void krige_rhs_print(int      nvar,
 
   /* Kriging option */
 
-  if (KOPTION != (Koption *) NULL)
+  if (KOPTION != nullptr)
   {
     switch (KOPTION->calcul.toEnum())
     {
@@ -2471,7 +2472,7 @@ GEOSLIB_API void krige_rhs_print(int      nvar,
   /* Header line */
 
   tab_prints(NULL,1,EJustify::RIGHT,"Rank");
-  if (flag != (int *) NULL) tab_prints(NULL,1,EJustify::RIGHT,"Flag");
+  if (flag != nullptr) tab_prints(NULL,1,EJustify::RIGHT,"Flag");
   for (ivar = 0; ivar < nvar; ivar++) tab_printi(NULL,1,EJustify::RIGHT,ivar+1);
   message("\n");
 
@@ -2480,7 +2481,7 @@ GEOSLIB_API void krige_rhs_print(int      nvar,
   for (i = 0; i < nred; i++)
   {
     tab_printi(NULL,1,EJustify::RIGHT,i+1);
-    if (flag != (int *) NULL) tab_printi(NULL,1,EJustify::RIGHT,rel[i]);
+    if (flag != nullptr) tab_printi(NULL,1,EJustify::RIGHT,rel[i]);
     for (ivar = 0; ivar < nvar; ivar++)
       tab_printg(NULL,1,EJustify::RIGHT,RHS_C(i,ivar));
     message("\n");
@@ -2511,7 +2512,7 @@ GEOSLIB_API void krige_dual_print(int      nech,
 
   /* Initializations */
 
-  rel = (int *) NULL;
+  rel = nullptr;
   rel = st_relative_position_array(1,neq,NULL);
 
   /* General Header */
@@ -2525,7 +2526,7 @@ GEOSLIB_API void krige_dual_print(int      nech,
   /* Header line */
 
   tab_prints(NULL,1,EJustify::RIGHT,"Rank");
-  if (flag != (int *) NULL) tab_prints(NULL,1,EJustify::RIGHT,"Flag");
+  if (flag != nullptr) tab_prints(NULL,1,EJustify::RIGHT,"Flag");
   message("\n");
 
   /* Matrix lines */
@@ -2533,7 +2534,7 @@ GEOSLIB_API void krige_dual_print(int      nech,
   for (i = 0; i < nred; i++)
   {
     tab_printi(NULL,1,EJustify::RIGHT,i+1);
-    if (flag != (int *) NULL) tab_printi(NULL,1,EJustify::RIGHT,rel[i]);
+    if (flag != nullptr) tab_printi(NULL,1,EJustify::RIGHT,rel[i]);
     tab_printg(NULL,1,EJustify::RIGHT,dual[i]);
     message("\n");
   }
@@ -2773,7 +2774,7 @@ static void krige_wgt_print(int     status,
 
   ndim  = DBIN->getNDim();
   sum   = (double *) st_core(nvar_m,1);
-  if (sum == (double *) NULL) return;
+  if (sum == nullptr) return;
 
   /* Header */
 
@@ -2794,13 +2795,13 @@ static void krige_wgt_print(int     status,
   if (KOPTION->flag_data_disc)
     for (idim=0; idim<ndim; idim++)
     {
-      (void) sprintf(string,"Size%d",idim+1);
+      (void) gslSPrintf(string,"Size%d",idim+1);
       tab_prints(NULL,1,EJustify::RIGHT,string);
     }
   tab_prints(NULL,1,EJustify::RIGHT,"Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    (void) sprintf(string,"Z%d*",ivar+1);
+    (void) gslSPrintf(string,"Z%d*",ivar+1);
     tab_prints(NULL,1,EJustify::RIGHT,string);
   }
   message("\n");
@@ -2816,7 +2817,7 @@ static void krige_wgt_print(int     status,
     for (ivar_m = 0; ivar_m < nvar_m; ivar_m++) sum[ivar_m] = 0.;
     for (iech = 0; iech < nech; iech++, lec++)
     {
-      flag_value = (flag != (int *) NULL) ? flag[lec] : 1;
+      flag_value = (flag != nullptr) ? flag[lec] : 1;
       tab_printi(NULL,1,EJustify::RIGHT,iech+1);
       for (idim=0; idim<ndim; idim++)
         tab_printg(NULL,1,EJustify::RIGHT,st_get_idim(rank[iech],idim));
@@ -2838,7 +2839,7 @@ static void krige_wgt_print(int     status,
       for (ivar = 0; ivar < nvar; ivar++)
       {
         iwgt  = nred * ivar + cumflag;
-        value = (wgt != (double *) NULL && status == 0 && flag_value) ?
+        value = (wgt != nullptr && status == 0 && flag_value) ?
           wgt[iwgt] : TEST;
         if (! FFFF(value)) sum[ivar] += value;
         tab_printg(NULL,1,EJustify::RIGHT,value);
@@ -2860,7 +2861,7 @@ static void krige_wgt_print(int     status,
   }
 
   sum = (double *) mem_free((char *) sum);
-  if (nfeq <= 0 || wgt == (double *) NULL) return;
+  if (nfeq <= 0 || wgt == nullptr) return;
 
   /* Header */
 
@@ -3110,9 +3111,9 @@ static Db *st_image_build(Neigh *neigh,
 
   /* Initializations */
 
-  dbaux = (Db  *) NULL;
-  indg  = (int    *) NULL;
-  coor  = (double *) NULL;
+  dbaux = nullptr;
+  indg  = nullptr;
+  coor  = nullptr;
   error = 1;
 
   /* Preliminary checks */
@@ -3161,11 +3162,11 @@ static Db *st_image_build(Neigh *neigh,
 
   for (i=0; i<ndim; i++) dbaux->setX0(i,0.);
   indg = db_indg_alloc(dbaux);
-  if (indg == (int *) NULL) goto label_end;
+  if (indg == nullptr) goto label_end;
   coor = db_sample_alloc(dbaux,ELoc::X);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
   db_index_sample_to_grid(dbaux,nech/2,indg);
-  grid_to_point(dbaux,indg,(double *) NULL,coor);
+  grid_to_point(dbaux,indg,nullptr,coor);
   for (i=0; i<ndim; i++) dbaux->setX0(i, dbaux->getX0(i) -coor[i]);
   indg = db_indg_free(indg);
   coor = db_sample_free(coor);
@@ -3281,7 +3282,7 @@ static int st_check_colcok(Db  *dbin,
   int ivar,jvar;
 
   FLAG_COLK = 0;
-  if (rank_colcok == (int *) NULL) return(0);
+  if (rank_colcok == nullptr) return(0);
 
   /* Loop on the ranks of the colocated variables */
 
@@ -3348,7 +3349,7 @@ static void st_save_keypair_weights(int     status,
     
     for (int iech = 0; iech < nech; iech++, lec++)
     {
-      flag_value = (flag != (int *) NULL) ? flag[lec] : 1;
+      flag_value = (flag != nullptr) ? flag[lec] : 1;
       if (flag_value)
       {
         values[2] = rank[iech];
@@ -3358,7 +3359,7 @@ static void st_save_keypair_weights(int     status,
         for (int ivar = 0; ivar < nvar; ivar++)
         {
           iwgt   = nred * ivar + cumflag;
-          wgtloc = (wgt != (double *) NULL && flag_value) ? wgt[iwgt] : TEST;
+          wgtloc = (wgt != nullptr && flag_value) ? wgt[iwgt] : TEST;
           if (! FFFF(wgtloc))
           {
             values[3] = ivar;
@@ -4123,13 +4124,13 @@ static int bayes_manage(int      mode,
     /* Allocation */
 
     *rmean = st_core(nfeq,1);
-    if (*rmean == (double *) NULL) return(1);
+    if (*rmean == nullptr) return(1);
     *rcov  = st_core(nfeq,nfeq);
-    if (*rcov  == (double *) NULL) return(1);
+    if (*rcov  == nullptr) return(1);
     if (nbsimu > 0)
     {
       *smean = st_core(nfeq,nbsimu);
-      if (*smean == (double *) NULL) return(1);
+      if (*smean == nullptr) return(1);
     }
   }
   else
@@ -4175,7 +4176,7 @@ static int bayes_precalc(Model  *model,
 
   error  = 1;
   nfeq   = model->getDriftEquationNumber();
-  ff     = smu = sigma = vars = (double *) NULL;
+  ff     = smu = sigma = vars = nullptr;
 
   /* Preliminary Checks */
 
@@ -4207,13 +4208,13 @@ static int bayes_precalc(Model  *model,
   /* Complementary core allocation */
 
   ff      = st_core(shift,nfeq);
-  if (ff      == (double *) NULL) goto label_end;
+  if (ff      == nullptr) goto label_end;
   smu     = st_core(shift,1);
-  if (smu     == (double *) NULL) goto label_end;
+  if (smu     == nullptr) goto label_end;
   sigma   = st_core(shift,shift);
-  if (sigma   == (double *) NULL) goto label_end;
+  if (sigma   == nullptr) goto label_end;
   vars    = st_core(shift,1);
-  if (vars    == (double *) NULL) goto label_end;
+  if (vars    == nullptr) goto label_end;
 
   // Create the array of variables
 
@@ -4397,8 +4398,8 @@ GEOSLIB_API int kribayes_f(Db *dbin,
   error      =  1;
   iext       = -1;
   nvar       =  0;
-  model_sk   = (Model   *) NULL;
-  rmean      = smean = rcov = (double *) NULL;
+  model_sk   = nullptr;
+  rmean      = smean = rcov = nullptr;
   st_global_init(dbin,dbout);
   FLAG_BAYES = 1;
   FLAG_EST   = flag_est;
@@ -4441,7 +4442,7 @@ GEOSLIB_API int kribayes_f(Db *dbin,
   /* Duplicate the model, suppressing the Drift terms */
 
   model_sk = model_duplicate(model,0.,-1);
-  if (model_sk == (Model *) NULL) goto label_end;
+  if (model_sk == nullptr) goto label_end;
 
   /* Loop on the targets to be processed */
 
@@ -4663,10 +4664,10 @@ GEOSLIB_API int krigsim(const char *strloc,
   error      =  1;
   iext       = -1;
   nvar       =  0;
-  model_sk   = (Model   *) NULL;
-  rmean      = smean = rcov = (double *) NULL;
+  model_sk   = nullptr;
+  rmean      = smean = rcov = nullptr;
   st_global_init(dbin,dbout);
-  FLAG_BAYES = (dmean != (double *) NULL && dcov  != (double *) NULL);
+  FLAG_BAYES = (dmean != nullptr);
   FLAG_EST   = 1;
   FLAG_STD   = 0;
   FLAG_WGT   = 1;
@@ -4714,7 +4715,7 @@ GEOSLIB_API int krigsim(const char *strloc,
   if (FLAG_BAYES)
   {
     model_sk = model_duplicate(model,0.,-1);
-    if (model_sk == (Model *) NULL) goto label_end;
+    if (model_sk == nullptr) goto label_end;
   }
   else
   {
@@ -4824,8 +4825,8 @@ GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
   /* Preliminary checks */
 
   error = 1;
-  dbaux = (Db *) NULL;
-  indn0 = indnl = indg0 = indgl = (int *) NULL;
+  dbaux = nullptr;
+  indn0 = indnl = indg0 = indgl = nullptr;
   st_global_init(dbgrid,dbgrid);
   nvar  = model->getVariableNumber();
   nfeq  = model->getDriftEquationNumber();
@@ -4848,7 +4849,7 @@ GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
   /* Create the secondary grid for image processing */
 
   dbaux = st_image_build(neigh,nvar);
-  if (dbaux == (Db *) NULL) goto label_end;
+  if (dbaux == nullptr) goto label_end;
 
   nb_neigh = dbaux->getSampleNumber();
   indn0 = db_indg_alloc(dbaux);
@@ -5099,7 +5100,7 @@ GEOSLIB_API int global_kriging(Db*             dbin,
 
   error   = 1;
   nvar    = 0;
-  rhs_tot = (double  *) NULL;
+  rhs_tot = nullptr;
   st_global_init(dbin,dbout);
   neigh = neigh_init_unique(dbin->getNDim());
   if (st_check_environment(1,1,model,neigh)) goto label_end;
@@ -5135,7 +5136,7 @@ GEOSLIB_API int global_kriging(Db*             dbin,
 
   size = (np + nbfl) * nvar * nvar;
   rhs_tot = (double *) mem_alloc(sizeof(double) * size,0);
-  if (rhs_tot == (double *) NULL) goto label_end;
+  if (rhs_tot == nullptr) goto label_end;
   for (i=0; i<size; i++) rhs_tot[i] = 0.;
 
   /* Average covariance over the territory */
@@ -5717,8 +5718,8 @@ GEOSLIB_API int invdist_f(Db    *dbin,
   /* Initializations */
 
   error = 1;
-  indg = indref = (int *) NULL;
-  coor = cooref = (double *) NULL;
+  indg = indref = nullptr;
+  coor = cooref = nullptr;
   st_global_init(dbin,dbout);
   if (st_check_environment(1,1,NULL,NULL)) goto label_end;
 
@@ -5727,9 +5728,9 @@ GEOSLIB_API int invdist_f(Db    *dbin,
   IPTR_EST = dbout->addFields(1,0.);
   if (IPTR_EST < 0) goto label_end;
   coor   = db_sample_alloc(dbout,ELoc::X);
-  if (coor   == (double *) NULL) goto label_end;
+  if (coor   == nullptr) goto label_end;
   cooref = db_sample_alloc(dbout,ELoc::X);
-  if (cooref == (double *) NULL) goto label_end;
+  if (cooref == nullptr) goto label_end;
 
   if (! is_grid(DBIN))
   {
@@ -5738,9 +5739,9 @@ GEOSLIB_API int invdist_f(Db    *dbin,
   else
   {
     indg   = db_indg_alloc(dbin);
-    if (indg   == (int *) NULL) goto label_end;
+    if (indg   == nullptr) goto label_end;
     indref = db_indg_alloc(dbin);
-    if (indref == (int *) NULL) goto label_end;
+    if (indref == nullptr) goto label_end;
     st_grid_invdist(exponent,flag_expand,indg,indref,coor,cooref);
   }
 
@@ -6030,7 +6031,7 @@ GEOSLIB_API int anakexp_f(Db     *db,
   error = 1;
   st_global_init(db,db);
   FLAG_EST = 1;
-  lhs    = rhs = wgt = (double *) NULL;
+  lhs    = rhs = wgt = nullptr;
   ndim   = db->getNDim();
   nvarin = db->getVariableNumber();
   nbefore_mem = nafter_mem = -1;
@@ -6654,7 +6655,7 @@ static void st_vario_dump(FILE   *file,
     for (iy=-cov_nn[1]; iy<=cov_nn[1]; iy++)
       for (iz=-cov_nn[2]; iz<=cov_nn[2]; iz++)
       {
-        num = (num_tot == (int *) NULL) ? 0 : NUM_TOT(ix,iy,iz);
+        num = (num_tot == nullptr) ? 0 : NUM_TOT(ix,iy,iz);
         cov = COV_TOT(ix,iy,iz);
         fprintf(file,"%3d %3d %3d %3d %lf\n",ix,iy,iz,num,cov);
       }
@@ -6712,10 +6713,10 @@ GEOSLIB_API int anakexp_3D(Db     *db,
   error = 1;
   st_global_init(db,db);
   FLAG_EST = 1;
-  fildmp   = (FILE *) NULL;
-  cov_tot  = cov_res = (double *) NULL;
-  num_tot  = nei_cur = nei_ref = (int *) NULL;
-  lhs      = rhs = wgt = (double *) NULL;
+  fildmp   = nullptr;
+  cov_tot  = cov_res = nullptr;
+  num_tot  = nei_cur = nei_ref = nullptr;
+  lhs      = rhs = wgt = nullptr;
   ndim     = db->getNDim();
   nvarin   = db->getVariableNumber();
   size_nei = 0;
@@ -6755,8 +6756,8 @@ GEOSLIB_API int anakexp_3D(Db     *db,
   if (dbg_ix >= -1 && dbg_ix < db->getNX(0) &&
       dbg_iy >= -1 && dbg_iy < db->getNX(1))
   {
-    fildmp = fopen("Vario.dat","w");
-    if (fildmp == (FILE *) NULL) goto label_end;
+    fildmp = gslFopen("Vario.dat","w");
+    if (fildmp == nullptr) goto label_end;
   }
 
   /* Add the attribute for storing the result */
@@ -6784,15 +6785,15 @@ GEOSLIB_API int anakexp_3D(Db     *db,
   /* Core allocation */
 
   num_tot = st_icore(size_cov,1);
-  if (num_tot == (int    *) NULL) goto label_end;
+  if (num_tot == nullptr) goto label_end;
   nei_cur = st_icore(size_nei,1);
-  if (nei_cur == (int    *) NULL) goto label_end;
+  if (nei_cur == nullptr) goto label_end;
   nei_ref = st_icore(size_nei,1);
-  if (nei_ref == (int    *) NULL) goto label_end;
+  if (nei_ref == nullptr) goto label_end;
   cov_tot = st_core(size_cov,1);
-  if (cov_tot == (double *) NULL) goto label_end;
+  if (cov_tot == nullptr) goto label_end;
   cov_res = st_core(size_cov,1);
-  if (cov_res == (double *) NULL) goto label_end;
+  if (cov_res == nullptr) goto label_end;
   st_krige_manage_basic(1,size_nei,size_nei,1,nfeq);
   for (i=0; i<size_nei; i++) nei_ref[i] = -1;
 
@@ -6801,7 +6802,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
   st_calculate_covres(db,model,cov_ref,cov_radius,flag_sym,
                       cov_ss,cov_nn,cov_res);
   if (dbg_ix == -1 && dbg_iy == -1)
-    st_vario_dump(fildmp,-1,-1,cov_ss,cov_nn,(int *) NULL,cov_res);
+    st_vario_dump(fildmp,-1,-1,cov_ss,cov_nn,nullptr,cov_res);
 
   /* Loop on the grid nodes */
 
@@ -6896,7 +6897,7 @@ GEOSLIB_API int anakexp_3D(Db     *db,
   /* Set the error return flag */
 
   error = 0;
-  if (fildmp != (FILE *) NULL) fclose(fildmp);
+  if (fildmp != nullptr) fclose(fildmp);
 
 label_end:
   debug_index(0);
@@ -6942,15 +6943,15 @@ GEOSLIB_API int bayes_simulate(Model  *model,
   error  = 1;
   nfeq   = model->getDriftEquationNumber();
   nftri  = nfeq * (nfeq + 1) / 2;
-  trimat = rndmat = (double *) NULL;
+  trimat = rndmat = nullptr;
   memo   = law_get_random_seed();
 
   /* Core allocation */
 
   trimat = (double *) mem_alloc(sizeof(double) * nftri,0);
-  if (trimat == (double *) NULL) goto label_end;
+  if (trimat == nullptr) goto label_end;
   rndmat = (double *) mem_alloc(sizeof(double) * nfeq,0);
-  if (rndmat == (double *) NULL) goto label_end;
+  if (rndmat == nullptr) goto label_end;
 
   /* Cholesky decomposition */
 
@@ -7036,8 +7037,8 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
   /* Preliminary checks */
 
   error = 1;
-  dbaux = (Db *) NULL;
-  indn0 = indnl = indg0 = indgl = (int *) NULL;
+  dbaux = nullptr;
+  indn0 = indnl = indg0 = indgl = nullptr;
   st_global_init(dbgrid,dbgrid);
   nvarin = dbgrid->getVariableNumber();
   ndim   = dbgrid->getNDim();
@@ -7066,7 +7067,7 @@ GEOSLIB_API int image_smoother(Db    *dbgrid,
   /* Create the secondary grid for image processing */
 
   dbaux = st_image_build(neigh,1);
-  if (dbaux == (Db *) NULL) goto label_end;
+  if (dbaux == nullptr) goto label_end;
   nb_neigh = dbaux->getSampleNumber();
   indn0 = db_indg_alloc(dbaux);
   indnl = db_indg_alloc(dbaux);
@@ -7163,8 +7164,8 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
 
   error      = 1;
   st_global_init(dbin,dbout);
-  icols      = active = (int     *) NULL;
-  lterm      = (double  *) NULL;
+  icols      = active = nullptr;
+  lterm      = nullptr;
   nvarin     = dbin->getVariableNumber();
   nvarmod    = model->getVariableNumber();
   FLAG_EST   = 1;
@@ -7196,11 +7197,11 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
   /* Core allocation */
 
   icols  = (int    *) mem_alloc(sizeof(int)    * nvarin,0);
-  if (icols  == (int    *) NULL) goto label_end;
+  if (icols  == nullptr) goto label_end;
   active = (int    *) mem_alloc(sizeof(int)    * nvarin,0);
-  if (active == (int    *) NULL) goto label_end;
+  if (active == nullptr) goto label_end;
   lterm  = (double *) mem_alloc(sizeof(double) * nvarin,0);
-  if (lterm  == (double *) NULL) goto label_end;
+  if (lterm  == nullptr) goto label_end;
 
   /* Save the columns for variable definitions */
 
@@ -7231,7 +7232,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
     dbin->setLocatorByAttribute(icols[ivar],ELoc::Z);
     IPTR_EST  = iptr_mem + ivar;
     IECH_NBGH = -1;
-    (void) sprintf(string,"Kriging of variable #%d at sample",ivar+1);
+    (void) gslSPrintf(string,"Kriging of variable #%d at sample",ivar+1);
 
     /* Loop on the targets to be processed */
 
@@ -7475,8 +7476,8 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
 
   error      =  1;
   st_global_init(dbin,db3grid);
-  icols      = (int     *) NULL;
-  lterm      = lback = proptab = cc = xx = bb = (double  *) NULL;
+  icols      = nullptr;
+  lterm      = lback = proptab = cc = xx = bb = nullptr;
   nvarin     = dbin->getVariableNumber();
   nvarmod    = model->getVariableNumber();
   nfeq       = model->getDriftEquationNumber();
@@ -7534,16 +7535,16 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
   /* Core allocation */
 
   lback = (double *) mem_alloc(sizeof(double) * nvarin * nz,0);
-  if (lback == (double *) NULL) goto label_end;
+  if (lback == nullptr) goto label_end;
   lterm = (double *) mem_alloc(sizeof(double) * nvarin * nz,0);
-  if (lterm == (double *) NULL) goto label_end;
+  if (lterm == nullptr) goto label_end;
   for (i=0; i<nvarin*nz; i++) lterm[i] = lback[i] = TEST;
   icols = (int    *) mem_alloc(sizeof(int)    * nvarin,0);
-  if (icols == (int    *) NULL) goto label_end;
+  if (icols == nullptr) goto label_end;
   if (fsum >= 0)
   {
     proptab = (double *) mem_alloc(sizeof(double) * nz * nvarin,0);
-    if (proptab == (double *) NULL) goto label_end;
+    if (proptab == nullptr) goto label_end;
   }
 
   /* Save the columns for variable definitions */
@@ -7575,7 +7576,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
     dbin->setLocatorByAttribute(icols[ivar],ELoc::Z);
     IPTR_EST  = iptr_prop + ivar;
     IECH_NBGH = -1;
-    (void) sprintf(string,"Kriging of proportion #%d at sample",ivar+1);
+    (void) gslSPrintf(string,"Kriging of proportion #%d at sample",ivar+1);
 
     /* Loop on the target grid nodes */
 
@@ -7653,11 +7654,11 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
 
   nsize = (fsum >= 0) ? nz + 1 : nz;
   cc = (double *) mem_alloc(sizeof(double) * nsize * (nsize+1)/2,0);
-  if (cc == (double *) NULL) goto label_end;
+  if (cc == nullptr) goto label_end;
   xx = (double *) mem_alloc(sizeof(double) * nsize,0);
-  if (xx == (double *) NULL) goto label_end;
+  if (xx == nullptr) goto label_end;
   bb = (double *) mem_alloc(sizeof(double) * nsize,0);
-  if (bb == (double *) NULL) goto label_end;
+  if (bb == nullptr) goto label_end;
 
   /* Posterior corrections */
 
@@ -8051,7 +8052,7 @@ label_end:
 *****************************************************************************/
 static void st_transform_gaussian_to_raw(Anam *anam)
 {
-  if (anam == (Anam *) NULL) return;
+  if (anam == nullptr) return;
   AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(anam);
 
   /* Get the estimation */
@@ -8472,9 +8473,9 @@ GEOSLIB_API int dk_f(Db *dbin,
 
   error   = 1;
   iptr_est_bck = iptr_std_bck = -1;
-  rhs_cum = (double *) NULL;
-  varloc  = (int    *) NULL;
-  dbsmu   = (Db     *) NULL;
+  rhs_cum = nullptr;
+  varloc  = nullptr;
+  dbsmu   = nullptr;
   st_global_init(dbin,dbgrid);
   FLAG_EST = flag_est;
   FLAG_STD = flag_std;
@@ -8750,21 +8751,21 @@ GEOSLIB_API int *neigh_calc(Db     *dbin,
 
   /* Preliminary checks */
 
-  neigh_tab = (int *) NULL;
-  dbout = (Db *) NULL;
+  neigh_tab = nullptr;
+  dbout = nullptr;
   *nech_out = 0;
   error =  1;
 
   /* Create a temporary dummy Db which contains the target */
 
-  if (model == (Model *) NULL) goto label_end;
+  if (model == nullptr) goto label_end;
   dbout = db_create_from_target(target,model->getDimensionNumber(),1);
-  if (dbout == (Db *) NULL) goto label_end;
+  if (dbout == nullptr) goto label_end;
   st_global_init(dbin,dbout);
 
   /* Modification of 'dbin' */
 
-  if (dbin != (Db *) NULL && model != (Model *) NULL &&
+  if (dbin != nullptr &&
       dbin->getVariableNumber() != model->getVariableNumber() && model->getVariableNumber() == 1)
   {
     zloc = dbin->getColumnByLocator(ELoc::Z);
@@ -8832,7 +8833,7 @@ static int *st_ranks_other(int  nech,
   int *rother,i;
 
   rother = (int *) mem_alloc(sizeof(int) * nech,0);
-  if (rother == (int *) NULL) return(rother);
+  if (rother == nullptr) return(rother);
 
   for (i=0; i<nech; i++) rother[i] = i;
   for (i=0; i<nsize1; i++) 
@@ -8891,9 +8892,9 @@ static int st_sampling_krige_data(Db      *db,
   /* Initializations */
 
   error  = 1;
-  utab   = s = tl = xl = c = v = tn1 = tn2 = sq = (double *) NULL;
-  eigval = eigvec = spart = vsort = tutil = invsig = (double *) NULL;
-  isort  = ralls = rutil = (int *) NULL;
+  utab   = s = tl = xl = c = v = tn1 = tn2 = sq = nullptr;
+  eigval = eigvec = spart = vsort = tutil = invsig = nullptr;
+  isort  = ralls = rutil = nullptr;
   ndat   = db->getActiveSampleNumber();
   ntot   = nsize1 + nsize2;
   ntri   = nsize2 * (nsize2 + 1) / 2;
@@ -8904,10 +8905,10 @@ static int st_sampling_krige_data(Db      *db,
   /* Core allocation */
 
   utab = (double *) mem_alloc(sizeof(double) * ndat * ntot,0);
-  if (utab == (double *) NULL) goto label_end;
+  if (utab == nullptr) goto label_end;
   for (i=0; i<ndat * ntot; i++) utab[i] = 0.;
   ralls = (int *) mem_alloc(sizeof(int) * ndat,0);
-  if (ralls == (int *) NULL) goto label_end;
+  if (ralls == nullptr) goto label_end;
 
   /* Defining 'utab' for exact pivots */
 
@@ -8923,46 +8924,46 @@ static int st_sampling_krige_data(Db      *db,
   if (nsize2 > 0)
   {
     tl  = (double *) mem_alloc(sizeof(double) * ntri,0);
-    if (tl  == (double *) NULL) goto label_end;
+    if (tl  == nullptr) goto label_end;
     xl  = (double *) mem_alloc(sizeof(double) * ntri,0);
-    if (xl  == (double *) NULL) goto label_end;
+    if (xl  == nullptr) goto label_end;
     v   = (double *) mem_alloc(sizeof(double) * nother * nsize2,0);
-    if (v   == (double *) NULL) goto label_end;
+    if (v   == nullptr) goto label_end;
     sq = (double *) mem_alloc(sizeof(double) * nsize2 * nsize2,0);
-    if (sq == (double *) NULL) goto label_end;
+    if (sq == nullptr) goto label_end;
     tn1 = (double *) mem_alloc(sizeof(double) * nsize2 * nsize2,0);
-    if (tn1 == (double *) NULL) goto label_end;
+    if (tn1 == nullptr) goto label_end;
     tn2 = (double *) mem_alloc(sizeof(double) * nsize2 * nsize2,0);
-    if (tn2 == (double *) NULL) goto label_end;
+    if (tn2 == nullptr) goto label_end;
     eigval = (double *) mem_alloc(sizeof(double) * nsize2,0);
-    if (eigval == (double *) NULL) goto label_end;
+    if (eigval == nullptr) goto label_end;
     eigvec = (double *) mem_alloc(sizeof(double) * nsize2 * nsize2,0);
-    if (eigvec == (double *) NULL) goto label_end;
+    if (eigvec == nullptr) goto label_end;
     if (beta > 0.) 
     {
       vsort = (double *) mem_alloc(sizeof(double) * npart,0);
-      if (vsort == (double *) NULL) goto label_end;
+      if (vsort == nullptr) goto label_end;
       isort = (int    *) mem_alloc(sizeof(double) * npart,0);
-      if (isort == (int    *) NULL) goto label_end;
+      if (isort == nullptr) goto label_end;
     }
 
     s = model_covmat_by_ranks(model,db,nsize2,ranks2,db,nsize2,ranks2,
                               -1,-1,0,1);
-    if (s == (double *) NULL) goto label_end;
+    if (s == nullptr) goto label_end;
     if (matrix_cholesky_decompose(s,tl,nsize2)) goto label_end;
     matrix_triangle_to_square(0,nsize2,tl,sq);
     matrix_cholesky_invert(nsize2,tl,xl);
     c = model_covmat_by_ranks(model,db,nsize2,ranks2,db,ndat,rother,
                               -1,-1,0,1);
-    if (c == (double *) NULL) goto label_end;
+    if (c == nullptr) goto label_end;
     matrix_cholesky_product(4,nsize2,nother,xl,c,v);
-    matrix_cholesky_norme(1,nsize2,tl,(double *) NULL,tn1);
+    matrix_cholesky_norme(1,nsize2,tl,nullptr,tn1);
     if (matrix_prod_norme(-1,nother,nsize2,v,NULL,tn2)) goto label_end;
     matrix_combine(nsize2 * nsize2,1,tn1,1,tn2,tn1);
     if (matrix_eigen(tn1,nsize2,eigval,eigvec)) goto label_end;
     matrix_product_by_diag(3,nsize2,eigvec,eigval,eigvec);
     spart = matrix_bind(1,nsize2,nsize2,sq,nother,nsize2,v,&npart,&n1);
-    if (spart == (double *) NULL) goto label_end;
+    if (spart == nullptr) goto label_end;
     matrix_product(npart,nsize2,nsize2,spart,eigvec,spart);
 
     if (beta > 0.)
@@ -9014,11 +9015,11 @@ static int st_sampling_krige_data(Db      *db,
   /* Create the output arrays */
   
   rutil = (int    *) mem_alloc(sizeof(int) * nutil,0);
-  if (rutil == (int    *) NULL) goto label_end;
+  if (rutil == nullptr) goto label_end;
   tutil = (double *) mem_alloc(sizeof(double) * ntot * nutil,0);
-  if (tutil == (double *) NULL) goto label_end;
+  if (tutil == nullptr) goto label_end;
   invsig = (double *) mem_alloc(sizeof(double) * ntot * ntot,0);
-  if (invsig == (double *) NULL) goto label_end;
+  if (invsig == nullptr) goto label_end;
 
   for (i=ecr=0; i<ndat; i++)
   {
@@ -9031,7 +9032,7 @@ static int st_sampling_krige_data(Db      *db,
   }
   s = model_covmat_by_ranks(model,db,nutil,rutil,db,nutil,rutil,
                             -1,-1,0,1);
-  if (s == (double *) NULL) goto label_end;
+  if (s == nullptr) goto label_end;
   if (matrix_prod_norme(-1,nutil,ntot,tutil,s,invsig)) goto label_end;
   if (matrix_invert(invsig,ntot,0)) goto label_end;
   s      = (double *) mem_free((char *) s);
@@ -9108,16 +9109,16 @@ GEOSLIB_API int st_krige_data(Db     *db,
   /* Initializations */
 
   error  = 1;
-  rutil  = (int    *) NULL;
-  tutil  = invsig = data = datm = s = c00 = (double *) NULL;
-  aux1   = aux2 = aux3 = aux4 = (double *) NULL;
+  rutil  = nullptr;
+  tutil  = invsig = data = datm = s = c00 = nullptr;
+  aux1   = aux2 = aux3 = aux4 = nullptr;
 
   /* Core allocation */
 
   nutil = ntot = 0;
   nech  = db->getSampleNumber();
   data  = db_vector_alloc(db);
-  if (data == (double *) NULL) goto label_end;
+  if (data == nullptr) goto label_end;
   
   /* Perform local sampling */
   
@@ -9128,17 +9129,17 @@ GEOSLIB_API int st_krige_data(Db     *db,
   /* Second core allocation */
   
   datm = (double *) mem_alloc(sizeof(double) * nutil,0);
-  if (datm == (double *) NULL) goto label_end;
+  if (datm == nullptr) goto label_end;
   aux1 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (aux1 == ( double *) NULL) goto label_end;
+  if (aux1 == nullptr) goto label_end;
   aux2 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (aux2 == ( double *) NULL) goto label_end;
+  if (aux2 == nullptr) goto label_end;
   aux3 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (aux3 == ( double *) NULL) goto label_end;
+  if (aux3 == nullptr) goto label_end;
   aux4 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (aux4 == ( double *) NULL) goto label_end;
+  if (aux4 == nullptr) goto label_end;
   
-  /* Get the vector of active data and substract the mean */
+  /* Get the vector of active data and subtract the mean */
   
   if (db_vector_get(db,ELoc::Z,0,data)) goto label_end;
   for (i=0; i<nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
@@ -9153,9 +9154,9 @@ GEOSLIB_API int st_krige_data(Db     *db,
     if (! db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
     c00 = model_covmat_by_ranks(model,db,1,&iech,db,1,&iech,-1,-1,0,1);
-    if (c00 == (double *) NULL) goto label_end;
+    if (c00 == nullptr) goto label_end;
     s = model_covmat_by_ranks(model,db,nutil,rutil,db,1,&iech,-1,-1,0,1);
-    if (s == (double *) NULL) goto label_end;
+    if (s == nullptr) goto label_end;
 
     matrix_product(1,nutil,ntot,s,tutil,aux3);
     matrix_product(1,ntot,1,aux2,aux3,&estim);
@@ -9228,8 +9229,8 @@ GEOSLIB_API int st_crit_global(Db     *db,
   error  = 1;
   ndat   = db->getActiveSampleNumber();
   nutil  = ndat - nsize1;
-  c00    = invc = data = datm = cs = temp = olderr = olddiv = (double *) NULL;
-  aux1   = cs1 = (double *) NULL;
+  c00    = invc = data = datm = cs = temp = olderr = olddiv = nullptr;
+  aux1   = cs1 = nullptr;
 
   /* Preliminary checks */
 
@@ -9238,23 +9239,23 @@ GEOSLIB_API int st_crit_global(Db     *db,
   /* Core allocation */
 
   data  = db_vector_alloc(db);
-  if (data == (double *) NULL) goto label_end;
+  if (data == nullptr) goto label_end;
   datm = (double *) mem_alloc(sizeof(double) * ndat,0);
-  if (datm == (double *) NULL) goto label_end;
+  if (datm == nullptr) goto label_end;
   olderr = (double *) mem_alloc(sizeof(double) * nutil,0);
-  if (olderr == (double *) NULL) goto label_end;
+  if (olderr == nullptr) goto label_end;
   olddiv = (double *) mem_alloc(sizeof(double) * nutil,0);
-  if (olddiv == (double *) NULL) goto label_end;
+  if (olddiv == nullptr) goto label_end;
   temp   = (double *) mem_alloc(sizeof(double) * nsize1 * nutil,0);
-  if (temp   == (double *) NULL) goto label_end;
+  if (temp   == nullptr) goto label_end;
   aux1   = (double *) mem_alloc(sizeof(double) * nutil,0);
-  if (aux1   == (double *) NULL) goto label_end;
+  if (aux1   == nullptr) goto label_end;
 
   /* Establish the Kriging matrix on the pivot samples */
 
   invc = model_covmat_by_ranks(model,db,nsize1,ranks1,db,nsize1,ranks1,
                                -1,-1,0,1);
-  if (invc == (double *) NULL) goto label_end;
+  if (invc == nullptr) goto label_end;
   if (matrix_invert(invc,nsize1,0)) goto label_end;
 
   /* Set the data vector (corrected by the mean */
@@ -9271,10 +9272,10 @@ GEOSLIB_API int st_crit_global(Db     *db,
     if (rother[iech] < 0) continue;
 
     c00 = model_covmat_by_ranks(model,db,1,&iech,db,1,&iech,-1,-1,0,1);
-    if (c00 == (double *) NULL) goto label_end;
+    if (c00 == nullptr) goto label_end;
 
     cs = model_covmat_by_ranks(model,db,nsize1,ranks1,db,1,&iech,-1,-1,0,1);
-    if (cs == (double *) NULL) goto label_end;
+    if (cs == nullptr) goto label_end;
   
     matrix_product(nsize1,nsize1,1,invc,cs,temp_loc);
     matrix_product(1,nsize1,1,datm,temp_loc,&estim);
@@ -9297,10 +9298,10 @@ GEOSLIB_API int st_crit_global(Db     *db,
     if (rother[iech] < 0) continue;
 
     cs = model_covmat_by_ranks(model,db,1,&iech,db,nsize1,ranks1,-1,-1,0,1);
-    if (cs == (double *) NULL) goto label_end;
+    if (cs == nullptr) goto label_end;
 
     cs1 = model_covmat_by_ranks(model,db,1,&iech,db,ndat,rother,-1,-1,0,1);
-    if (cs1 == (double *) NULL) goto label_end;
+    if (cs1 == nullptr) goto label_end;
 
     matrix_product(1,nsize1,nutil,cs,temp,aux1);
     matrix_combine(nutil,1,cs1,-1,aux1,cs1);
@@ -9377,8 +9378,8 @@ GEOSLIB_API int sampling_f(Db     *db,
   /* Initializations */
 
   error    = 1;
-  data_est = data_var = (double *) NULL;
-  rother   = (int *) NULL;
+  data_est = data_var = nullptr;
+  rother   = nullptr;
   nech     = db->getSampleNumber();
 
   /* Preliminary checks */
@@ -9398,11 +9399,11 @@ GEOSLIB_API int sampling_f(Db     *db,
   /* Core allocation */
 
   data_est = db_vector_alloc(db);
-  if (data_est == (double *) NULL) goto label_end;
+  if (data_est == nullptr) goto label_end;
   data_var = db_vector_alloc(db);
-  if (data_var == (double *) NULL) goto label_end;
+  if (data_var == nullptr) goto label_end;
   rother = st_ranks_other(nech,nsize1,ranks1,nsize2,ranks2);
-  if (rother == (int *) NULL) goto label_end;
+  if (rother == nullptr) goto label_end;
   
   /* Sample the exact pivots */
 
@@ -9510,9 +9511,9 @@ GEOSLIB_API int krigsampling_f(Db *dbin,
   /* Preliminary checks */
 
   error =  1;
-  rutil = rother = (int    *) NULL;
-  tutil = invsig = data = datm = s = c00 = (double *) NULL;
-  aux1  = aux2 = aux3 = aux4 = (double *) NULL;
+  rutil = rother = nullptr;
+  tutil = invsig = data = datm = s = c00 = nullptr;
+  aux1  = aux2 = aux3 = aux4 = nullptr;
   st_global_init(dbin,dbout);
   FLAG_EST  = 1;
   FLAG_STD  = flag_std;
@@ -9549,7 +9550,7 @@ GEOSLIB_API int krigsampling_f(Db *dbin,
   /* Core allocation */
 
   rother = st_ranks_other(nech,nsize1,ranks1,nsize2,ranks2);
-  if (rother == (int *) NULL) goto label_end;
+  if (rother == nullptr) goto label_end;
 
   /* Perform local sampling */
   
@@ -9571,19 +9572,19 @@ GEOSLIB_API int krigsampling_f(Db *dbin,
   /* Second core allocation */
   
   data = db_vector_alloc(dbin);
-  if (data == (double *) NULL) goto label_end;
+  if (data == nullptr) goto label_end;
   datm = (double *) mem_alloc(sizeof(double) * nutil,0);
-  if (datm == (double *) NULL) goto label_end;
+  if (datm == nullptr) goto label_end;
   aux1 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (aux1 == ( double *) NULL) goto label_end;
+  if (aux1 == nullptr) goto label_end;
   aux2 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (aux2 == ( double *) NULL) goto label_end;
+  if (aux2 == nullptr) goto label_end;
   aux3 = (double *) mem_alloc(sizeof(double) * ntot,0);
-  if (aux3 == ( double *) NULL) goto label_end;
+  if (aux3 == nullptr) goto label_end;
   if (FLAG_STD)
   {
     aux4 = (double *) mem_alloc(sizeof(double) * ntot,0);
-    if (aux4 == ( double *) NULL) goto label_end;
+    if (aux4 == nullptr) goto label_end;
   }
 
   /* Get the vector of active data and substract the mean */
@@ -9610,12 +9611,12 @@ GEOSLIB_API int krigsampling_f(Db *dbin,
 
     s = model_covmat_by_ranks(model,dbin,nutil,rutil,dbout,1,&IECH_OUT,
                               -1,-1,0,1);
-    if (s == (double *) NULL) goto label_end;
+    if (s == nullptr) goto label_end;
     if (FLAG_STD)
     {
       c00 = model_covmat_by_ranks(model,dbout,1,&IECH_OUT,dbout,1,&IECH_OUT,
                                   -1,-1,0,1);
-      if (c00 == (double *) NULL) goto label_end;
+      if (c00 == nullptr) goto label_end;
     }
 
     matrix_product(1,nutil,ntot,s,tutil,aux3);
@@ -9800,12 +9801,12 @@ static int st_declustering_1(Db     *db,
   /* Initializations */
 
   error = 1;
-  vect  = (double *) NULL;
+  vect  = nullptr;
 
   /* Core allocation */
 
   vect = db_sample_alloc(db,ELoc::X);
-  if (vect == (double *) NULL) goto label_end;
+  if (vect == nullptr) goto label_end;
 
   /* Loop on the target sample */
   
@@ -10194,7 +10195,7 @@ static double *st_calcul_covmat(const char *title,
   /* Core allocation */
 
   covgen = (double *) mem_alloc(sizeof(double) * n1 * n2,0);
-  if (covgen == (double *) NULL) return(covgen);
+  if (covgen == nullptr) return(covgen);
   
   for (int ii1=i1=0; ii1<db1->getSampleNumber(); ii1++)
   {
@@ -10265,7 +10266,7 @@ static double *st_calcul_drfmat(const char *title,
   /* Core allocation */
 
   drftab = (double *) mem_alloc(sizeof(double) * n1 * nbfl,0);
-  if (drftab == (double *) NULL) return(drftab);
+  if (drftab == nullptr) return(drftab);
 
   /* Loop on the samples */
 
@@ -10329,7 +10330,7 @@ static double *st_calcul_distmat(const char *title,
   /* Core allocation */
 
   distgen = (double *) mem_alloc(sizeof(double) * n1 * ns,0);
-  if (distgen == (double *) NULL) return(distgen);
+  if (distgen == nullptr) return(distgen);
   
   for (int ii1=i1=0; ii1<db1->getSampleNumber(); ii1++)
   {
@@ -10398,7 +10399,7 @@ static double *st_calcul_product(const char *title,
   double *prodgen;
   
   prodgen  = (double *) mem_alloc(sizeof(double) * n1 * ns,0);
-  if (prodgen  == (double *) NULL) return(prodgen);
+  if (prodgen  == nullptr) return(prodgen);
 
   for (int i1=0; i1<n1; i1++)
     for (int is=0; is<ns; is++)
@@ -10443,7 +10444,7 @@ static double *st_inhomogeneous_covpp(Db     *dbdat,
   /* Initializations */
 
   error = 1;
-  covpp = (double *) NULL;
+  covpp = nullptr;
   
   np = dbdat->getActiveAndDefinedNumber(0);
   ns = dbsrc->getActiveSampleNumber();
@@ -10451,7 +10452,7 @@ static double *st_inhomogeneous_covpp(Db     *dbdat,
   /* Covariance matrix between Mesures */
 
   covpp = st_calcul_covmat("Covariance P-P",dbdat,1,dbdat,1,model_dat);
-  if (covpp == (double *) NULL) goto label_end;
+  if (covpp == nullptr) goto label_end;
 
   /* Calculate the LHS matrix */
 
@@ -10505,7 +10506,7 @@ static double *st_inhomogeneous_covgp(Db     *dbdat,
   /* Initializations */
 
   error = 1;
-  covgp = (double *) NULL;
+  covgp = nullptr;
   
   np = dbdat->getActiveAndDefinedNumber(0);
   ns = dbsrc->getActiveSampleNumber();
@@ -10514,7 +10515,7 @@ static double *st_inhomogeneous_covgp(Db     *dbdat,
   /* Covariance matrix between Mesures and Target */
 
   covgp = st_calcul_covmat("Covariance G-P",dbout,0,dbdat,1,model_dat);
-  if (covgp == (double *) NULL) goto label_end;
+  if (covgp == nullptr) goto label_end;
 
   /* Add the contribution of the source */
 
@@ -10571,7 +10572,7 @@ static double *st_inhomogeneous_covgg(Db     *dbsrc,
   /* Initializations */
 
   error = 1;
-  covgg = (double *) NULL;
+  covgg = nullptr;
   
   ns = dbsrc->getActiveSampleNumber();
   ng = dbout->getActiveSampleNumber();
@@ -10579,7 +10580,7 @@ static double *st_inhomogeneous_covgg(Db     *dbsrc,
   /* Core allocation */
 
   covgg = (double *) mem_alloc(sizeof(double) * ng,0);
-  if (covgg == (double *) NULL) goto label_end;
+  if (covgg == nullptr) goto label_end;
   
   /* Calculate the variance term (for a zero-distance) */
   
@@ -10642,12 +10643,12 @@ static int st_drift_prepar(int     np,
   /* Initialization */
 
   error = 1;
-  ymat = zmat = (double *) NULL;
+  ymat = zmat = nullptr;
 
   /* First returned array */
   
   ymat = (double *) mem_alloc(sizeof(double) * nbfl * np,0);
-  if (ymat == (double *) NULL) goto label_end;
+  if (ymat == nullptr) goto label_end;
   
   ecr = 0;
   for (int il=0; il<nbfl; il++)
@@ -10662,7 +10663,7 @@ static int st_drift_prepar(int     np,
   /* Second retrned array */
 
   zmat = (double *) mem_alloc(sizeof(double) * nbfl * nbfl,0);
-  if (zmat == (double *) NULL) goto label_end;
+  if (zmat == nullptr) goto label_end;
   
   ecr = 0;
   for (int il=0; il<nbfl; il++)
@@ -10778,10 +10779,10 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   st_global_init(dbdat,dbout);
   FLAG_EST  = 1;
   FLAG_STD  = 1;
-  distps = distgs = prodgs = prodps = (double *) NULL;
-  covss  = covpp  = covgp  = covgg  = (double *) NULL;
-  lambda = data   = driftp = driftg = (double *) NULL;
-  ymat   = zmat   = mu     = maux   = (double *) NULL;
+  distps = distgs = prodgs = prodps = nullptr;
+  covss  = covpp  = covgp  = covgg  = nullptr;
+  lambda = data   = driftp = driftg = nullptr;
+  ymat   = zmat   = mu     = maux   = nullptr;
   if (st_check_environment(1,1,model_dat,NULL)) goto label_end;
 
   /* Preliminary checks */
@@ -10818,9 +10819,9 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   /* Core allocation */
 
   lambda = (double *) mem_alloc(sizeof(double) * np,0);
-  if (lambda == (double *) NULL) goto label_end;
+  if (lambda == nullptr) goto label_end;
   data   = (double *) mem_alloc(sizeof(double) * np,0);
-  if (data   == (double *) NULL) goto label_end;
+  if (data   == nullptr) goto label_end;
   
   /* Pre-calculations */
 
@@ -10841,30 +10842,30 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   /* Establish the covariance matrix between Sources */
 
   covss = st_calcul_covmat("Covarance S_S",dbsrc,0,dbsrc,0,model_src);
-  if (covss == (double *) NULL) goto label_end;
+  if (covss == nullptr) goto label_end;
 
   /* Establish the distance matrix between Data and Sources */
   
   distps = st_calcul_distmat("Distance P-S",dbdat,1,dbsrc,0,power);
-  if (distps == (double *) NULL) goto label_end;
+  if (distps == nullptr) goto label_end;
 
   /* Establish the distance matrix between Target and Sources */
 
   if (! flag_source)
   {
     distgs = st_calcul_distmat("Distance G-S",dbout,0,dbsrc,0,power);
-    if (distgs == (double *) NULL) goto label_end;
+    if (distgs == nullptr) goto label_end;
   }
   
   /* Establish the Data-Source Product matrix */
 
   prodps = st_calcul_product("Convolve P-S",np,ns,covss,distps);
-  if (prodps == (double *) NULL) goto label_end;
+  if (prodps == nullptr) goto label_end;
   
   /* Establish the complete kriging matrix */
 
   covpp = st_inhomogeneous_covpp(dbdat,dbsrc,model_dat,covss,distps,prodps);
-  if (covpp == (double *) NULL) goto label_end;
+  if (covpp == nullptr) goto label_end;
   if (debug_query("kriging") || is_debug_reference_defined())
     krige_lhs_print(np,neq,nred,NULL,covpp);
 
@@ -10877,12 +10878,12 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   if (nbfl > 0)
   {
     mu   = (double *) mem_alloc(sizeof(double) * nbfl,0);
-    if (mu   == (double *) NULL) goto label_end;
+    if (mu   == nullptr) goto label_end;
     maux = (double *) mem_alloc(sizeof(double) * nbfl,0);
-    if (maux == (double *) NULL) goto label_end;
+    if (maux == nullptr) goto label_end;
     
     driftp = st_calcul_drfmat("Drift P",dbdat,1,model_dat);
-    if (driftp == (double *) NULL) goto label_end;
+    if (driftp == nullptr) goto label_end;
 
     /* Prepare auxiliary arrays */
 
@@ -10894,28 +10895,28 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   if (! flag_source)
   {
     prodgs = st_calcul_product("Convolve G-S",ng,ns,covss,distgs);
-    if (prodgs == (double *) NULL) goto label_end;
+    if (prodgs == nullptr) goto label_end;
   }
   
   /* Establish the COVGP */
   
   covgp = st_inhomogeneous_covgp(dbdat,dbsrc,dbout,flag_source,model_dat,
                                  distps,prodps,prodgs);
-  if (covgp == (double *) NULL) goto label_end;
+  if (covgp == nullptr) goto label_end;
   
   /* Establish the drift at Target */
      
   if (nbfl > 0)
   {
     driftg = (double *) mem_alloc(sizeof(double) * nbfl,0);
-    if (driftg == (double *) NULL) goto label_end;
+    if (driftg == nullptr) goto label_end;
   }
 
   /* Establish the variance at targets */
 
   covgg = st_inhomogeneous_covgg(dbsrc,dbout,flag_source,model_dat,
                                  distgs,prodgs);
-  if (covgg == (double *) NULL) goto label_end;
+  if (covgg == nullptr) goto label_end;
   
   /* Loop on the targets to be processed */
 
@@ -10939,7 +10940,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
 
     /* Fill the drift at Target point (optional) */
     
-    if (driftp != (double *) NULL)
+    if (driftp != nullptr)
       model_calcul_drift(model_dat,ECalcMember::LHS,dbout,IECH_OUT,driftg);
     
     /* Calculate the Kriging weights */

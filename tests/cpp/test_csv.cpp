@@ -8,35 +8,29 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/String.hpp"
-#include "Basic/AStringable.hpp"
-#include <string.h>
+#include "Db/Db.hpp"
+#include "Basic/CSVformat.hpp"
 
 /**
- * This test is meant to check the interactive questioning
- * @return
+ * This test is meant to check the CSV loading procedure
  */
 int main()
 {
-  int ianswer;
-  double ranswer;
 
-  // Testing numerical input
+  String filepath("/home/fors/Documents/gstlearn/Oise/Database for kriging method Oise valley/BDD_kriggeage_Oise_elevationbottom_arcgis.csv");
+  CSVformat fmt(true, 0, ';', ',', "9999");
+  Db* mydb = new Db(filepath,true,fmt);
+  mydb->display();
 
-  message("Testing Interactive input\n");
+  // TODO : Fix Pollution.dat path
+  //String filepath("doc/data/Pollution.dat");
+  //Db* mydb = new Db(filepath,true,CSVformat());
+  //mydb->display();
 
-  ianswer = askInt("Enter an Integer with no Default value");
-  message("Value read = %d\n",ianswer);
-
-  ianswer = askInt("Enter an Integer with Default value", 14.);
-  message("Value read = %d\n",ianswer);
-  
-  ranswer = askDouble("Enter a Double with no Default value");
-  message("Value read = %lf\n",ranswer);
-
-  ranswer = askDouble("Enter a Double with Default value", 14.);
-  message("Value read = %lf\n",ranswer);
-
+  mydb->setLocator("X",ELoc::X,0);
+  mydb->setLocator("Y",ELoc::X,1);
+  //mydb->setLocator("Zn",ELoc::Z);
+  mydb->display(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
 
   return 0;
 }

@@ -14,6 +14,7 @@
 #include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "geoslib_e.h"
 #include "geoslib_enum.h"
@@ -56,15 +57,7 @@ static char Fichier_frac[] = "Frac";
 
 static bool st_file_exists(const char* file_name)
 {
-  if (FILE *file = fopen(file_name, "r"))
-  {
-    fclose(file);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return gslFileExist(file_name, "r");
 }
 
 /****************************************************************************/
@@ -86,7 +79,7 @@ static int st_record_read(const char *title, const char *format, ...)
   error = 0;
   va_start(ap, format);
 
-  if (FILE_MEM != (FILE *) NULL)
+  if (FILE_MEM != nullptr)
   {
     error = _file_read(FILE_MEM, format, ap);
   }
@@ -120,7 +113,7 @@ static void st_record_write(const char *format, ...)
   int long1, long2;
 
   va_start(ap, format);
-  if (FILE_MEM != (FILE *) NULL)
+  if (FILE_MEM != nullptr)
   {
     _file_write(FILE_MEM, format, ap);
   }
@@ -134,7 +127,7 @@ static void st_record_write(const char *format, ...)
       ASCII_BUFFER_LENGTH += ASCII_BUFFER_QUANT;
       ASCII_BUFFER = mem_realloc(ASCII_BUFFER, ASCII_BUFFER_LENGTH, 1);
     }
-    (void) strcat(ASCII_BUFFER, buf);
+    (void) gslStrcat(ASCII_BUFFER, buf);
   }
 
   va_end(ap);
@@ -167,15 +160,15 @@ static void st_filename_patch(const char *ref_name,
     switch (mode)
     {
       case 0:
-        (void) sprintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_DAT);
+        (void) gslSPrintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_DAT);
         break;
 
       case 1:
-        (void) sprintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_OUT);
+        (void) gslSPrintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_OUT);
         break;
 
       case -1:
-        (void) sprintf(file_name, "%s/%s", STUDY, ref_name);
+        (void) gslSPrintf(file_name, "%s/%s", STUDY, ref_name);
         break;
     }
   }
@@ -184,17 +177,17 @@ static void st_filename_patch(const char *ref_name,
     switch (mode)
     {
       case 0:
-        (void) sprintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
+        (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
                        EXT_DAT);
         break;
 
       case 1:
-        (void) sprintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
+        (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
                        EXT_OUT);
         break;
 
       case -1:
-        (void) sprintf(file_name, "%s/%s%1d", STUDY, ref_name, rank);
+        (void) gslSPrintf(file_name, "%s/%s%1d", STUDY, ref_name, rank);
         break;
     }
   }
@@ -272,7 +265,7 @@ GEOSLIB_API void ascii_filename(const char *type,
 GEOSLIB_API void ascii_study_define(const char *study)
 
 {
-  (void) strcpy(STUDY, study);
+  (void) gslStrcpy(STUDY, study);
   return;
 }
 
@@ -312,9 +305,9 @@ static FILE *st_file_open(const char *filename,
   /* Open the file */
 
   file = FILE_MEM = _file_open(filename, mode);
-  (void) strcpy(FILE_NAME_MEM, filename);
+  (void) gslStrcpy(FILE_NAME_MEM, filename);
 
-  if (file == (FILE *) NULL)
+  if (file == nullptr)
   {
     if (verbose) messerr("Error when opening the file %s", filename);
     FILE_MEM = NULL;
@@ -395,36 +388,7 @@ static void st_table_write(const char *string, int ntab, const double *tab)
     st_record_write("%lf", tab[i]);
     if (string != NULL)
     {
-      (void) sprintf(local, "%s (%d)", string, i + 1);
-      st_record_write("#", local);
-    }
-    else
-    {
-      st_record_write("\n");
-    }
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Write the table (integer values)
- **
- ** \param[in]  string     String of the table records (or NULL)
- ** \param[in]  ntab       Number of values in the table
- ** \param[in]  itab       Array of integer values to be written
- **
- *****************************************************************************/
-static void st_tablei_write(const char *string, int ntab, int *itab)
-{
-  int i;
-  char local[LONG_SIZE];
-
-  for (i = 0; i < ntab; i++)
-  {
-    st_record_write("%d", itab[i]);
-    if (string != NULL)
-    {
-      (void) sprintf(local, "%s (%d)", string, i + 1);
+      (void) gslSPrintf(local, "%s (%d)", string, i + 1);
       st_record_write("#", local);
     }
     else
@@ -472,7 +436,7 @@ GEOSLIB_API void ascii_environ_read(char *file_name, int verbose)
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Environ", OLD, verbose);
-  if (file == (FILE *) NULL) return;
+  if (file == nullptr) return;
 
   /* Reading the environment */
 
@@ -609,7 +573,7 @@ GEOSLIB_API void ascii_simu_read(char *file_name,
   /* Opening the Simulation Definition file */
 
   file = st_file_open(file_name, "Simu", OLD, verbose);
-  if (file == (FILE *) NULL) return;
+  if (file == nullptr) return;
 
   /* Read the parameters */
 
@@ -644,7 +608,7 @@ GEOSLIB_API int ascii_anam_write(const char *file_name,
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Anam", NEW, verbose);
-  if (file == (FILE *) NULL) return (1);
+  if (file == nullptr) return (1);
 
   /* Write the Anam structure */
 
@@ -791,7 +755,7 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Anam", OLD, verbose);
-  if (file == (FILE *) NULL) return (nullptr);
+  if (file == nullptr) return (nullptr);
 
   /* Read the general anamorphosis parameters */
 
@@ -972,7 +936,7 @@ GEOSLIB_API int ascii_option_defined(const char *file_name,
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Option", OLD, verbose);
-  if (file == (FILE *) NULL) return (lrep);
+  if (file == nullptr) return (lrep);
 
   /* Implicit loop on the lines of the file */
 
@@ -1032,7 +996,7 @@ GEOSLIB_API int ascii_frac_write(const char *file_name,
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Frac", NEW, verbose);
-  if (file == (FILE *) NULL) return (1);
+  if (file == nullptr) return (1);
 
   /* Create the Frac_Environ structure */
 
@@ -1135,12 +1099,12 @@ GEOSLIB_API Frac_Environ *ascii_frac_read(const char *file_name, int verbose)
 
   /* Initializations */
 
-  frac = (Frac_Environ *) NULL;
+  frac = nullptr;
 
   /* Opening the Data file */
 
   file = st_file_open(file_name, "Frac", OLD, verbose);
-  if (file == (FILE *) NULL) return (frac);
+  if (file == nullptr) return (frac);
 
   /* Create the structure */
 
@@ -1208,77 +1172,6 @@ GEOSLIB_API Frac_Environ *ascii_frac_read(const char *file_name, int verbose)
 
 /****************************************************************************/
 /*!
- **   Write a Table (of real values)
- **
- ** \return  Error returned code
- **
- ** \param[in]  file_name    Name of the ASCII file
- ** \param[in]  verbose      Verbose option if the file cannot be opened
- ** \param[in]  ntab         Number of samples
- ** \param[in]  tab          Array of real values to be written
- **
- *****************************************************************************/
-GEOSLIB_API int ascii_table_write(const char *file_name,
-                                  int verbose,
-                                  int ntab,
-                                  double *tab)
-{
-  FILE *file;
-
-  /* Opening the Data file */
-
-  file = st_file_open(file_name, NULL, NEW, verbose);
-  if (file == (FILE *) NULL) return (1);
-  st_record_write("%d", ntab);
-  st_record_write("\n");
-  st_table_write(NULL, ntab, tab);
-
-  /* Set the error return code */
-
-  st_create_message(file_name, "Table", verbose);
-
-  st_file_close(file);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **   Write a Table (of integer values)
- **
- ** \return  Error returned code
- **
- ** \param[in]  file_name    Name of the ASCII file
- ** \param[in]  verbose      Verbose option if the file cannot be opened
- ** \param[in]  ntab         Number of samples
- ** \param[in]  itab         Array of integer values to be written
- **
- *****************************************************************************/
-GEOSLIB_API int ascii_tablei_write(const char *file_name,
-                                   int verbose,
-                                   int ntab,
-                                   int *itab)
-{
-  FILE *file;
-
-  /* Opening the Data file */
-
-  file = st_file_open(file_name, NULL, NEW, verbose);
-  if (file == (FILE *) NULL) return (1);
-
-  st_record_write("%d", ntab);
-  st_record_write("\n");
-  st_tablei_write(NULL, ntab, itab);
-
-  /* Set the error return code */
-
-  st_create_message(file_name, "Table", verbose);
-
-  st_file_close(file);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **   Read a CSV file and load the results into a Db
  **
  ** \return  Pointer to the Db descriptor
@@ -1300,8 +1193,8 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
                             int verbose,
                             int flag_header,
                             int nskip,
-                            const char *char_sep,
-                            const char *char_dec,
+                            char char_sep,
+                            char char_dec,
                             const char *na_string,
                             int ncol_max,
                             int nrow_max,
@@ -1314,7 +1207,7 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
 
   /* Initializations */
 
-  db = (Db *) NULL;
+  db = nullptr;
 
   /* Reading the CSV file */
 
@@ -1325,7 +1218,7 @@ GEOSLIB_API Db *db_read_csv(const char *file_name,
   /* Creating the Db */
 
   db = db_create_point(nrow, ncol, ELoadBy::SAMPLE, flag_add_rank, tab);
-  if (db == (Db *) NULL) goto label_end;
+  if (db == nullptr) goto label_end;
 
   /* Loading the names */
 

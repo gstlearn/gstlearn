@@ -149,7 +149,7 @@ int RuleShadow::particularities(Db *db,
                                 int flag_stat) const
 {
   double sh_dsup_max,sh_down_max;
-  int ndim = (model != (Model *) NULL) ? model->getDimensionNumber() : 0;
+  int ndim = (model != nullptr) ? model->getDimensionNumber() : 0;
 
   _incr = 1.e30;
   for (int idim=0; idim<ndim; idim++)
@@ -172,7 +172,7 @@ void RuleShadow::_st_shadow_max(const Db *dbprop,
   int iech;
   double val2,val3;
 
-  if (flag_stat || dbprop == (Db *) NULL)
+  if (flag_stat || dbprop == nullptr)
   {
     /* Stationary case */
 
@@ -390,7 +390,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
   check_mandatory_attribute("rule_gaus2fac_result_shadow",dbout,ELoc::FACIES);
   check_mandatory_attribute("rule_gaus2fac_result_shadow",dbout,ELoc::SIMU);
   error = 1;
-  del   = (double *) NULL;
+  del   = nullptr;
   dy    = 0.;
   nstep = 0;
   ndim  = dbout->getNDim();
@@ -402,7 +402,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
   /* Initializations */
 
   del = db_vector_alloc(dbout);
-  if (del == (double *) NULL) goto label_end;
+  if (del == nullptr) goto label_end;
   dinc  = getIncr();
   nstep = (int) floor(getDMax() / dinc);
   dy    = dinc * getTgte();
@@ -498,7 +498,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
 
   /* Initializations */
 
-  if (dbin == (Db *) NULL) return(0);
+  if (dbin == nullptr) return(0);
   nadd = 0;
   nech = dbin->getSampleNumber();
   dist = 0.;

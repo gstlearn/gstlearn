@@ -34,7 +34,7 @@
 GEOSLIB_API Rule* rule_free(const Rule *rule)
 
 {
-  if (rule != (Rule *) NULL) delete rule;
+  if (rule != nullptr) delete rule;
   return (nullptr);
 }
 
@@ -177,7 +177,7 @@ GEOSLIB_API void proportion_rule_process(PropDef *propdef, const EProcessOper& m
 GEOSLIB_API void proportion_print(PropDef *propdef)
 
 {
-  if (propdef == (PropDef *) NULL) return;
+  if (propdef == nullptr) return;
   mestitle(0, "Proportions");
 
   print_matrix("Initial :", 0, 1, propdef->nfac[1], propdef->nfac[0], NULL,
@@ -536,7 +536,7 @@ GEOSLIB_API int db_rule_shadow(Db *db,
   error = 1;
   nbsimu = 1;
   iptr = -1;
-  propdef = (PropDef *) NULL;
+  propdef = nullptr;
 
   /* Preliminary checks */
 
@@ -546,7 +546,7 @@ GEOSLIB_API int db_rule_shadow(Db *db,
 
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               props, propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
 
   /* General setting for lithotype */
 
@@ -616,7 +616,7 @@ GEOSLIB_API int db_rule(Db *db,
                         Model *model,
                         NamingConvention namconv)
 {
-  if (db == (Db *) NULL)
+  if (db == nullptr)
   {
     messerr("The Db is not defined");
     return 1;
@@ -633,7 +633,7 @@ GEOSLIB_API int db_rule(Db *db,
 
   int error = 1;
   int iptr = -1;
-  PropDef* propdef = (PropDef *) NULL;
+  PropDef* propdef = nullptr;
   int ngrf = rule->getGRFNumber();
   VectorInt flagUsed = rule->whichGRFUsed();
   int nfacies = rule->getFaciesNumber();
@@ -652,7 +652,7 @@ GEOSLIB_API int db_rule(Db *db,
 
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
   if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
   proportion_rule_process(propdef, EProcessOper::COPY);
 
@@ -724,8 +724,8 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
 
   error = 1;
   ngrf = 0;
-  coor = (double *) NULL;
-  propdef = (PropDef *) NULL;
+  coor = nullptr;
+  propdef = nullptr;
 
   /**********************/
   /* Preliminary checks */
@@ -733,7 +733,7 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
 
   /* Input Db */
 
-  if (db == (Db *) NULL)
+  if (db == nullptr)
   {
     messerr("The Db is not defined");
     goto label_end;
@@ -742,7 +742,7 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
 
   /* Rule */
 
-  if (rule == (Rule *) NULL)
+  if (rule == nullptr)
   {
     messerr("The Rule is not defined");
     goto label_end;
@@ -756,11 +756,11 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
   /*******************/
 
   coor = db_sample_alloc(db, ELoc::X);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
 
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               props, propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
 
   /* General setting for lithotype */
 
@@ -812,7 +812,7 @@ GEOSLIB_API int db_bounds(Db* db,
                           Model* model,
                           NamingConvention namconv)
 {
-  if (db == (Db *) NULL)
+  if (db == nullptr)
   {
     messerr("The Db is not defined");
     return 1;
@@ -850,7 +850,7 @@ GEOSLIB_API int db_bounds(Db* db,
 
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
 
   /* General setting for lithotype */
 
@@ -953,7 +953,7 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
     propdef = new PropDef;
     propdef->case_facies = flag_facies;
     propdef->case_stat = flag_stat;
-    propdef->case_prop_interp = (dbprop != (Db *) NULL && is_grid(dbprop));
+    propdef->case_prop_interp = (dbprop != nullptr && is_grid(dbprop));
     propdef->ngrf[0] = ngrf1;
     propdef->ngrf[1] = ngrf2;
     propdef->nfac[0] = nfac1;
@@ -1025,13 +1025,13 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
   else
   {
     propdef = proploc;
-    if (propdef == (PropDef *) NULL) return (propdef);
+    if (propdef == nullptr) return (propdef);
 
     /* Deallocation */
 
     propdef->nfaccur = 0;
     propdef->nfacprod = 0;
-    propdef->dbprop = (Db *) NULL;
+    propdef->dbprop = nullptr;
 
     delete propdef;
     propdef = nullptr;
@@ -1099,7 +1099,7 @@ GEOSLIB_API int db_threshold(Db* db,
   int error = 1;
   int ngrf = 0;
   int nfacies = 0;
-  PropDef* propdef = (PropDef *) NULL;
+  PropDef* propdef = nullptr;
 
   /**********************/
   /* Preliminary checks */
@@ -1115,7 +1115,7 @@ GEOSLIB_API int db_threshold(Db* db,
   nfacies = rule->getFaciesNumber();
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
 
   if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
   proportion_rule_process(propdef, EProcessOper::COPY);
@@ -1156,20 +1156,20 @@ GEOSLIB_API int db_threshold(Db* db,
   {
     namconv.setNamesAndLocators(
         db, iptr + rank,
-        concatenateStrings("Thresh-F", intToString(ifac + 1), "-Y1-Low"));
+        concatenateStrings("Thresh-F", toString(ifac + 1), "-Y1-Low"));
     rank++;
     namconv.setNamesAndLocators(
         db, iptr + rank,
-        concatenateStrings("Thresh-F", intToString(ifac + 1), "-Y1-Up"));
+        concatenateStrings("Thresh-F", toString(ifac + 1), "-Y1-Up"));
     rank++;
     if (ngrf == 1) continue;
     namconv.setNamesAndLocators(
         db, iptr + rank,
-        concatenateStrings("Thresh-F", intToString(ifac + 1), "-Y2-Low"));
+        concatenateStrings("Thresh-F", toString(ifac + 1), "-Y2-Low"));
     rank++;
     namconv.setNamesAndLocators(
         db, iptr + rank,
-        concatenateStrings("Thresh-F", intToString(ifac + 1), "-Y2-Up"));
+        concatenateStrings("Thresh-F", toString(ifac + 1), "-Y2-Up"));
     rank++;
   }
   error = 0;
@@ -1203,16 +1203,16 @@ GEOSLIB_API Model *model_rule_combine(const Model *model1,
   /* Initializations */
 
   ngrf = 0;
-  new_model = (Model *) NULL;
+  new_model = nullptr;
 
   /* Preliminary checks */
 
-  if (rule == (Rule *) NULL)
+  if (rule == nullptr)
   {
     messerr("This function requires a valid rule.");
     return (new_model);
   }
-  if (model1 == (Model *) NULL)
+  if (model1 == nullptr)
   {
     messerr("This function requires the first model to be defined");
     return (new_model);
@@ -1229,7 +1229,7 @@ GEOSLIB_API Model *model_rule_combine(const Model *model1,
 
   /* If model2 is not defined, consider model1 */
 
-  if (model2 == (Model *) NULL)
+  if (model2 == nullptr)
   {
     if (rule->getModeRule() == ERule::SHIFT)
     {

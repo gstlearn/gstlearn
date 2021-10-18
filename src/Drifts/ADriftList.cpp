@@ -15,6 +15,8 @@
 #include "Drifts/ADriftElem.hpp"
 #include "Db/Db.hpp"
 
+#include <sstream>
+
 ADriftList::ADriftList(bool flagLinked, const ASpace* space)
     : ADrift(space),
       _flagLinked(flagLinked),
@@ -249,7 +251,7 @@ VectorDouble ADriftList::getDrift(const Db* db, int ib, bool useSel)
 
 VectorVectorDouble ADriftList::getDrifts(const Db* db, bool useSel)
 {
-  int ndrift = _drifts.size();
+  int ndrift = static_cast<int>(_drifts.size());
 
   VectorVectorDouble vec;
   for (int ib=0; ib<ndrift; ib++)

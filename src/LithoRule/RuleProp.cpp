@@ -53,7 +53,7 @@ RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)
       _rules(),
       _ruleInternal(false)
 {
-  if (rule != (Rule *) NULL) _rules.push_back(rule);
+  if (rule != nullptr) _rules.push_back(rule);
   if (! _checkConsistency())
     my_throw("Inconsistent arguments");
 }
@@ -197,7 +197,7 @@ bool RuleProp::_checkConsistency()
     _dbprop = nullptr;
 
     // Check consistency of the number of facies
-    int nfacprop = _propcst.size();
+    int nfacprop = static_cast<int>(_propcst.size());
     if (nfacies > 0 && nfacies != nfacprop)
     {
       messerr("Mismatch between:");
@@ -251,7 +251,7 @@ int RuleProp::_getNFacies()
   // Stationary proportions provided by 'propcst'
   if (! _propcst.empty())
   {
-    return _propcst.size();
+    return static_cast<int>(_propcst.size());
   }
 
   return 0;

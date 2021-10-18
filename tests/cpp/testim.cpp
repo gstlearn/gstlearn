@@ -35,7 +35,7 @@ static Model *st_modify(Model *model,
 
   /* Initializations */
 
-  new_model = (Model *) NULL;
+  new_model = nullptr;
 
   /* Modify the model */
 
@@ -76,11 +76,11 @@ int main(int argc, char *argv[])
 
   /* Initializations */
 
-  dbin  = (Db    *) NULL;
-  dbout = (Db    *) NULL;
-  vario = (Vario *) NULL;
-  model = new_model = (Model *) NULL;
-  neigh = (Neigh *) NULL;
+  dbin  = nullptr;
+  dbout = nullptr;
+  vario = nullptr;
+  model = new_model = nullptr;
+  neigh = nullptr;
 
   /* Connect the Geoslib Library */
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
   ascii_filename("Data",0,0,filename);
   dbin = ascii_db_read(filename,0,verbose);
-  if (dbin == (Db *) NULL) goto label_end;
+  if (dbin == nullptr) goto label_end;
   db_print(dbin,1,0,1,1,1);
 
   /* Define the Default Space according to the Dimension of the Input Db */
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
   ascii_filename("Vario",0,0,filename);
   vario = ascii_vario_read(filename,verbose);
-  if (vario != (Vario *) NULL)
+  if (vario != nullptr)
   {
     vario->attachDb(dbin);
     vario->compute("vg");
@@ -135,8 +135,8 @@ int main(int argc, char *argv[])
 
   ascii_filename("Model",0,0,filename);
   model = ascii_model_read(filename,verbose);
-  if (model == (Model *) NULL) goto label_end;
-  if (vario != (Vario *) NULL) 
+  if (model == nullptr) goto label_end;
+  if (vario != nullptr) 
   {
     if (model_fitting_sills(vario,model,mauto)) goto label_end;
     ascii_filename("Model",0,1,filename);
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
       messageAbort("ascii_model_write");
   }
   new_model = st_modify(model,dbin);
-  if (new_model == (Model *) NULL) goto label_end;
+  if (new_model == nullptr) goto label_end;
 
   /* Define the neighborhood */
 
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
   if (dbin->getIntervalNumber() > 0)
   {
     dbin->clearLocators(ELoc::Z);
-    if (gibbs_sampler(dbin,new_model,(Neigh *) NULL,
+    if (gibbs_sampler(dbin,new_model,nullptr,
                       1,seed,nboot,niter,false,true,false,false,false,0,
                       5.,toleps,true,true,true))
       messageAbort("gibbs_sampler");
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
   /* Perform the estimation */
 
-  if (neigh != (Neigh *) NULL)
+  if (neigh != nullptr)
   {
     if (nbsimu > 0)
     {
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
 
         /* Estimation case */
 
-        if (dbout == (Db *) NULL) goto label_end;
+        if (dbout == nullptr) goto label_end;
         if (kriging(dbin,dbout,new_model,neigh,EKrigOpt::PONCTUAL,
                     1,1,0)) messageAbort("kriging");
         db_print(dbout,1,0,1,1,1);

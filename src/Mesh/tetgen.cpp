@@ -59,18 +59,18 @@ bool tetgenio::load_node_call(FILE* infile, int markers, int uvflag,
 
   // Initialize 'pointlist', 'pointattributelist', and 'pointmarkerlist'.
   pointlist = new DREAL[numberofpoints * 3];
-  if (pointlist == (DREAL *) NULL) {
+  if (pointlist == nullptr) {
     terminatetetgen(NULL, 1);
   }
   if (numberofpointattributes > 0) {
     pointattributelist = new DREAL[numberofpoints * numberofpointattributes];
-    if (pointattributelist == (DREAL *) NULL) {
+    if (pointattributelist == nullptr) {
       terminatetetgen(NULL, 1);
     }
   }
   if (markers) {
     pointmarkerlist = new int[numberofpoints];
-    if (pointmarkerlist == (int *) NULL) {
+    if (pointmarkerlist == nullptr) {
       terminatetetgen(NULL, 1);
     }
   }
@@ -174,14 +174,14 @@ bool tetgenio::load_node_call(FILE* infile, int markers, int uvflag,
   if (i < numberofpoints) {
     // Failed to read points due to some error.
     delete [] pointlist;
-    pointlist = (DREAL *) NULL;
+    pointlist = nullptr;
     if (markers) {
       delete [] pointmarkerlist;
-      pointmarkerlist = (int *) NULL;
+      pointmarkerlist = nullptr;
     }
     if (numberofpointattributes > 0) {
       delete [] pointattributelist;
-      pointattributelist = (DREAL *) NULL;
+      pointattributelist = nullptr;
     }
     if (uvflag) {
       delete [] pointparamlist;
@@ -210,12 +210,12 @@ bool tetgenio::load_node(char* filebasename)
   int uvflag; // for psc input.
 
   // Assembling the actual file names we want to open.
-  strcpy(innodefilename, filebasename);
-  strcat(innodefilename, ".node");
+  gslStrcpy(innodefilename, filebasename);
+  gslStrcat(innodefilename, ".node");
 
   // Try to open a .node file.
   infile = fopen(innodefilename, "r");
-  if (infile == (FILE *) NULL) {
+  if (infile == nullptr) {
     message("  Cannot access file %s.\n", innodefilename);
     return false;
   }
@@ -287,11 +287,11 @@ bool tetgenio::load_edge(char* filebasename)
   int index;
   int i, j;
 
-  strcpy(inedgefilename, filebasename);
-  strcat(inedgefilename, ".edge");
+  gslStrcpy(inedgefilename, filebasename);
+  gslStrcat(inedgefilename, ".edge");
 
   infile = fopen(inedgefilename, "r");
-  if (infile != (FILE *) NULL) {
+  if (infile != nullptr) {
     message("Opening %s.\n", inedgefilename);
   } else {
     //message("  Cannot access file %s.\n", inedgefilename);
@@ -303,7 +303,7 @@ bool tetgenio::load_edge(char* filebasename)
   numberofedges = (int) strtol (stringptr, &stringptr, 0);
   if (numberofedges > 0) {
     edgelist = new int[numberofedges * 2];
-    if (edgelist == (int *) NULL) {
+    if (edgelist == nullptr) {
       terminatetetgen(NULL, 1);
     }
     stringptr = findnextnumber(stringptr);
@@ -369,11 +369,11 @@ bool tetgenio::load_face(char* filebasename)
   int index;
   int i, j;
 
-  strcpy(infilename, filebasename);
-  strcat(infilename, ".face");
+  gslStrcpy(infilename, filebasename);
+  gslStrcat(infilename, ".face");
 
   infile = fopen(infilename, "r");
-  if (infile != (FILE *) NULL) {
+  if (infile != nullptr) {
     message("Opening %s.\n", infilename);
   } else {
     return false;
@@ -394,12 +394,12 @@ bool tetgenio::load_face(char* filebasename)
   }
   if (numberoftrifaces > 0) {
     trifacelist = new int[numberoftrifaces * 3];
-    if (trifacelist == (int *) NULL) {
+    if (trifacelist == nullptr) {
       terminatetetgen(NULL, 1);
     }
     if (markers) {
       trifacemarkerlist = new int[numberoftrifaces];
-      if (trifacemarkerlist == (int *) NULL) {
+      if (trifacemarkerlist == nullptr) {
         terminatetetgen(NULL, 1);
       }
     }
@@ -465,11 +465,11 @@ bool tetgenio::load_tet(char* filebasename)
   int index, attribindex;
   int i, j;
 
-  strcpy(infilename, filebasename);
-  strcat(infilename, ".ele");
+  gslStrcpy(infilename, filebasename);
+  gslStrcat(infilename, ".ele");
 
   infile = fopen(infilename, "r");
-  if (infile != (FILE *) NULL) {
+  if (infile != nullptr) {
     message("Opening %s.\n", infilename);
   } else {
     return false;
@@ -505,14 +505,14 @@ bool tetgenio::load_tet(char* filebasename)
 
   // Allocate memory for tetrahedra.
   tetrahedronlist = new int[numberoftetrahedra * numberofcorners]; 
-  if (tetrahedronlist == (int *) NULL) {
+  if (tetrahedronlist == nullptr) {
     terminatetetgen(NULL, 1);
   }
   // Allocate memory for output tetrahedron attributes if necessary.
   if (numberoftetrahedronattributes > 0) {
     tetrahedronattributelist = new DREAL[numberoftetrahedra *
                                          numberoftetrahedronattributes];
-    if (tetrahedronattributelist == (DREAL *) NULL) {
+    if (tetrahedronattributelist == nullptr) {
       terminatetetgen(NULL, 1);
     }
   }
@@ -572,11 +572,11 @@ bool tetgenio::load_vol(char* filebasename)
   int volelements;
   int i;
 
-  strcpy(infilename, filebasename);
-  strcat(infilename, ".vol");
+  gslStrcpy(infilename, filebasename);
+  gslStrcat(infilename, ".vol");
 
   infile = fopen(infilename, "r");
-  if (infile != (FILE *) NULL) {
+  if (infile != nullptr) {
     message("Opening %s.\n", infilename);
   } else {
     return false;
@@ -586,8 +586,8 @@ bool tetgenio::load_vol(char* filebasename)
   stringptr = readnumberline(inputline, infile, infilename);
   volelements = (int) strtol (stringptr, &stringptr, 0);
   if (volelements != numberoftetrahedra) {
-    strcpy(inelefilename, filebasename);
-    strcat(infilename, ".ele");
+    gslStrcpy(inelefilename, filebasename);
+    gslStrcat(infilename, ".ele");
     message("Warning:  %s and %s disagree on number of tetrahedra.\n",
             inelefilename, infilename);
     fclose(infile);
@@ -595,7 +595,7 @@ bool tetgenio::load_vol(char* filebasename)
   }
 
   tetrahedronvolumelist = new DREAL[volelements];
-  if (tetrahedronvolumelist == (DREAL *) NULL) {
+  if (tetrahedronvolumelist == nullptr) {
     terminatetetgen(NULL, 1);
   }
 
@@ -633,10 +633,10 @@ bool tetgenio::load_var(char* filebasename)
   int i;
 
   // Variant constraints are saved in file "filename.var".
-  strcpy(varfilename, filebasename);
-  strcat(varfilename, ".var");
+  gslStrcpy(varfilename, filebasename);
+  gslStrcat(varfilename, ".var");
   infile = fopen(varfilename, "r");
-  if (infile != (FILE *) NULL) {
+  if (infile != nullptr) {
     message("Opening %s.\n", varfilename);
   } else {
     return false;
@@ -755,10 +755,10 @@ bool tetgenio::load_mtr(char* filebasename)
   int mtrindex;
   int i, j;
 
-  strcpy(mtrfilename, filebasename);
-  strcat(mtrfilename, ".mtr");
+  gslStrcpy(mtrfilename, filebasename);
+  gslStrcat(mtrfilename, ".mtr");
   infile = fopen(mtrfilename, "r");
-  if (infile != (FILE *) NULL) {
+  if (infile != nullptr) {
     message("Opening %s.\n", mtrfilename);
   } else {
     return false;
@@ -788,7 +788,7 @@ bool tetgenio::load_mtr(char* filebasename)
 
   // Allocate space for pointmtrlist.
   pointmtrlist = new DREAL[numberofpoints * numberofpointmtrs];
-  if (pointmtrlist == (DREAL *) NULL) {
+  if (pointmtrlist == nullptr) {
     terminatetetgen(NULL, 1);
   }
   mtrindex = 0;
@@ -829,19 +829,19 @@ bool tetgenio::load_poly(char* filebasename)
   int i, j, k;
 
   // Assembling the actual file names we want to open.
-  strcpy(inpolyfilename, filebasename);
-  strcpy(insmeshfilename, filebasename);
-  strcat(inpolyfilename, ".poly");
-  strcat(insmeshfilename, ".smesh");
+  gslStrcpy(inpolyfilename, filebasename);
+  gslStrcpy(insmeshfilename, filebasename);
+  gslStrcat(inpolyfilename, ".poly");
+  gslStrcat(insmeshfilename, ".smesh");
 
   // First assume it is a .poly file.
   smesh = 0;
   // Try to open a .poly file.
   infile = fopen(inpolyfilename, "r");
-  if (infile == (FILE *) NULL) {
+  if (infile == nullptr) {
     // .poly doesn't exist! Try to open a .smesh file.
     infile = fopen(insmeshfilename, "r");
-    if (infile == (FILE *) NULL) {
+    if (infile == nullptr) {
       message("  Cannot access file %s and %s.\n",
               inpolyfilename, insmeshfilename);
       return false;
@@ -1150,7 +1150,7 @@ bool tetgenio::load_poly(char* filebasename)
     // Read the region section.  The 'region' section is optional, if we
     //   don't reach the end-of-file, try read it in.
     stringptr = readnumberline(inputline, infile, NULL);
-    if (stringptr != (char *) NULL && *stringptr != '\0') {
+    if (stringptr != nullptr && *stringptr != '\0') {
       numberofregions = (int) strtol (stringptr, &stringptr, 0);
     } else {
       numberofregions = 0;
@@ -1246,7 +1246,7 @@ bool tetgenio::load_off(char* filebasename)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 4], ".off") != 0) {
-    strcat(infilename, ".off");
+    gslStrcat(infilename, ".off");
   }
 
   if (!(fp = fopen(infilename, "r"))) {
@@ -1408,7 +1408,7 @@ bool tetgenio::load_ply(char* filebasename)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 4], ".ply") != 0) {
-    strcat(infilename, ".ply");
+    gslStrcat(infilename, ".ply");
   }
 
   if (!(fp = fopen(infilename, "r"))) {
@@ -1624,7 +1624,7 @@ bool tetgenio::load_stl(char* filebasename)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 4], ".stl") != 0) {
-    strcat(infilename, ".stl");
+    gslStrcat(infilename, ".stl");
   }
 
   if (!(fp = fopen(infilename, "r"))) {
@@ -1757,7 +1757,7 @@ bool tetgenio::load_medit(char* filebasename, int istetmesh)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 5], ".mesh") != 0) {
-    strcat(infilename, ".mesh");
+    gslStrcat(infilename, ".mesh");
   }
   
   if (!(fp = fopen(infilename, "r"))) {
@@ -2118,7 +2118,7 @@ bool tetgenio::load_vtk(char* filebasename)
     return false;
   }
   if (strcmp(&infilename[strlen(infilename) - 4], ".vtk") != 0) {
-    strcat(infilename, ".vtk");
+    gslStrcat(infilename, ".vtk");
   }
   if (!(fp = fopen(infilename, "r"))) {
     message("Error:  Unable to open file %s\n", infilename);
@@ -2128,7 +2128,7 @@ bool tetgenio::load_vtk(char* filebasename)
 
   // Default uses the index starts from '0'.
   firstnumber = 0;
-  strcpy(mode, "BINARY");
+  gslStrcpy(mode, "BINARY");
 
   while((bufferp = readline(line, fp, &line_count)) != NULL) {
     if(strlen(line) == 0) continue;
@@ -2138,7 +2138,7 @@ bool tetgenio::load_vtk(char* filebasename)
 
     sscanf(line, "%s", id);
     if(!strcmp(id, "ASCII")) {
-      strcpy(mode, "ASCII");
+      gslStrcpy(mode, "ASCII");
     }
 
     if(!strcmp(id, "POINTS")) {
@@ -2416,7 +2416,7 @@ void tetgenio::save_nodes(char* filebasename)
   char outmtrfilename[FILENAMESIZE];
   int i, j;
 
-  sprintf(outnodefilename, "%s.node", filebasename);
+  gslSPrintf(outnodefilename, "%s.node", filebasename);
   message("Saving nodes to %s\n", outnodefilename);
   fout = fopen(outnodefilename, "w");
   fprintf(fout, "%d  %d  %d  %d\n", numberofpoints, mesh_dim,
@@ -2441,8 +2441,8 @@ void tetgenio::save_nodes(char* filebasename)
   fclose(fout);
 
   // If the point metrics exist, output them to a .mtr file.
-  if ((numberofpointmtrs > 0) && (pointmtrlist != (DREAL *) NULL)) {
-    sprintf(outmtrfilename, "%s.mtr", filebasename);
+  if ((numberofpointmtrs > 0) && (pointmtrlist != nullptr)) {
+    gslSPrintf(outmtrfilename, "%s.mtr", filebasename);
     message("Saving metrics to %s\n", outmtrfilename);
     fout = fopen(outmtrfilename, "w");
     fprintf(fout, "%d  %d\n", numberofpoints, numberofpointmtrs);
@@ -2468,7 +2468,7 @@ void tetgenio::save_elements(char* filebasename)
   char outelefilename[FILENAMESIZE];
   int i, j;
 
-  sprintf(outelefilename, "%s.ele", filebasename);
+  gslSPrintf(outelefilename, "%s.ele", filebasename);
   message("Saving elements to %s\n", outelefilename);
   fout = fopen(outelefilename, "w");
   if (mesh_dim == 3) {
@@ -2515,7 +2515,7 @@ void tetgenio::save_faces(char* filebasename)
   char outfacefilename[FILENAMESIZE];
   int i;
 
-  sprintf(outfacefilename, "%s.face", filebasename);
+  gslSPrintf(outfacefilename, "%s.face", filebasename);
   message("Saving faces to %s\n", outfacefilename);
   fout = fopen(outfacefilename, "w");
   fprintf(fout, "%d  %d\n", numberoftrifaces, 
@@ -2544,7 +2544,7 @@ void tetgenio::save_edges(char* filebasename)
   char outedgefilename[FILENAMESIZE];
   int i;
 
-  sprintf(outedgefilename, "%s.edge", filebasename);
+  gslSPrintf(outedgefilename, "%s.edge", filebasename);
   message("Saving edges to %s\n", outedgefilename);
   fout = fopen(outedgefilename, "w");
   fprintf(fout, "%d  %d\n", numberofedges, edgemarkerlist != NULL ? 1 : 0);
@@ -2572,7 +2572,7 @@ void tetgenio::save_neighbors(char* filebasename)
   char outneighborfilename[FILENAMESIZE];
   int i;
 
-  sprintf(outneighborfilename, "%s.neigh", filebasename);
+  gslSPrintf(outneighborfilename, "%s.neigh", filebasename);
   message("Saving neighbors to %s\n", outneighborfilename);
   fout = fopen(outneighborfilename, "w");
   fprintf(fout, "%d  %d\n", numberoftetrahedra, mesh_dim + 1);
@@ -2607,7 +2607,7 @@ void tetgenio::save_poly(char* filebasename)
   char outpolyfilename[FILENAMESIZE];
   int i, j, k;
 
-  sprintf(outpolyfilename, "%s.poly", filebasename);
+  gslSPrintf(outpolyfilename, "%s.poly", filebasename);
   message("Saving poly to %s\n", outpolyfilename);
   fout = fopen(outpolyfilename, "w");
 
@@ -2705,7 +2705,7 @@ void tetgenio::save_faces2smesh(char* filebasename)
   char outsmeshfilename[FILENAMESIZE];
   int i, j;
 
-  sprintf(outsmeshfilename, "%s.smesh", filebasename);
+  gslSPrintf(outsmeshfilename, "%s.smesh", filebasename);
   message("Saving faces to %s\n", outsmeshfilename);
   fout = fopen(outsmeshfilename, "w");
 
@@ -2757,8 +2757,8 @@ char* tetgenio::readline(char *string, FILE *infile, int *linenumber)
   do {
     result = fgets(string, INPUTLINESIZE - 1, infile);
     if (linenumber) (*linenumber)++;
-    if (result == (char *) NULL) {
-      return (char *) NULL;
+    if (result == nullptr) {
+      return nullptr;
     }
     // Skip white spaces.
     while ((*result == ' ') || (*result == '\t')) result++;
@@ -2811,7 +2811,7 @@ char* tetgenio::readnumberline(char *string, FILE *infile, char *infilename)
   // Search for something that looks like a number.
   do {
     result = fgets(string, INPUTLINESIZE, infile);
-    if (result == (char *) NULL) {
+    if (result == nullptr) {
       return result;
     }
     // Skip anything that doesn't look like a number, a comment, 
@@ -3000,14 +3000,14 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
     commandline[0] = '\0';
   } else {
     startindex = 1;
-    strcpy(commandline, argv[0]);
-    strcat(commandline, " ");
+    gslStrcpy(commandline, argv[0]);
+    gslStrcat(commandline, " ");
   }
 
   for (i = startindex; i < argc; i++) {
     // Remember the command line for output.
-    strcat(commandline, argv[i]);
-    strcat(commandline, " ");
+    gslStrcat(commandline, argv[i]);
+    gslStrcat(commandline, " ");
     if (startindex == 1) {
       // Is this string a filename?
       if (argv[i][0] != '-') {
@@ -3030,7 +3030,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
             k++;
           }
           workstring[k] = '\0';
-          facet_separate_ang_tol = (DREAL) strtod(workstring, (char **) NULL);
+          facet_separate_ang_tol = (DREAL) strtod(workstring, nullptr);
         }
         if ((argv[i][j + 1] == '/') || (argv[i][j + 1] == ',')) {
           j++;
@@ -3045,7 +3045,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
               k++;
             }
             workstring[k] = '\0';
-            facet_overlap_ang_tol = (DREAL) strtod(workstring, (char **) NULL);
+            facet_overlap_ang_tol = (DREAL) strtod(workstring, nullptr);
           }
         }
         if ((argv[i][j + 1] == '/') || (argv[i][j + 1] == ',')) {
@@ -3060,7 +3060,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
               k++;
             }
             workstring[k] = '\0';
-            facet_small_ang_tol = (DREAL) strtod(workstring, (char **) NULL);
+            facet_small_ang_tol = (DREAL) strtod(workstring, nullptr);
           }
         }
       } else if (argv[i][j] == 's') {
@@ -3099,7 +3099,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
             k++;
           }
           workstring[k] = '\0';
-          minratio = (DREAL) strtod(workstring, (char **) NULL);
+          minratio = (DREAL) strtod(workstring, nullptr);
         }
         if ((argv[i][j + 1] == '/') || (argv[i][j + 1] == ',')) {
           j++;
@@ -3113,7 +3113,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
               k++;
             }
             workstring[k] = '\0';
-            mindihedral = (DREAL) strtod(workstring, (char **) NULL);
+            mindihedral = (DREAL) strtod(workstring, nullptr);
           }
         }
       } else if (argv[i][j] == 'R') {
@@ -3134,7 +3134,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
               k++;
             }
             workstring[k] = '\0';
-            coarsen_percent = (DREAL) strtod(workstring, (char **) NULL);
+            coarsen_percent = (DREAL) strtod(workstring, nullptr);
           }
         }
       } else if (argv[i][j] == 'w') {
@@ -3170,7 +3170,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
               k++;
             }
             workstring[k] = '\0';
-            brio_ratio = (DREAL) strtod(workstring, (char **) NULL);
+            brio_ratio = (DREAL) strtod(workstring, nullptr);
           }
         }
         if ((argv[i][j + 1] == '/') || (argv[i][j + 1] == ',')) {
@@ -3201,7 +3201,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
             }
             workstring[k] = '\0';
             // TODO: Strange cast which was not corrected (non personal code)
-            hilbert_order = (DREAL) strtod(workstring, (char **) NULL);
+            hilbert_order = (DREAL) strtod(workstring, nullptr);
           }
         }
         if (brio_threshold == 0) { // -b0
@@ -3230,7 +3230,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
             k++;
           }
           workstring[k] = '\0';
-          maxvolume = (DREAL) strtod(workstring, (char **) NULL);
+          maxvolume = (DREAL) strtod(workstring, nullptr);
         } else {
           varvolume = 1;
         }
@@ -3312,7 +3312,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
             k++;
           }
           workstring[k] = '\0';
-          steinerleft = (int) strtol(workstring, (char **) NULL, 0);
+          steinerleft = (int) strtol(workstring, nullptr, 0);
         }
       } else if (argv[i][j] == 'o') {
         if (argv[i][j + 1] == '2') {
@@ -3331,7 +3331,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
               k++;
             }
             workstring[k] = '\0';
-            optmaxdihedral = (DREAL) strtod(workstring, (char **) NULL);
+            optmaxdihedral = (DREAL) strtod(workstring, nullptr);
           }
         }
       } else if (argv[i][j] == 'O') {
@@ -3358,7 +3358,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
             k++;
           }
           workstring[k] = '\0';
-          epsilon = (DREAL) strtod(workstring, (char **) NULL);
+          epsilon = (DREAL) strtod(workstring, nullptr);
         }
       } else if (argv[i][j] == 'C') {
         docheck++;
@@ -3378,7 +3378,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
             k++;
           }
           workstring[k] = '\0';
-          tetrahedraperblock = (int) strtol(workstring, (char **) NULL, 0);
+          tetrahedraperblock = (int) strtol(workstring, nullptr, 0);
           if (tetrahedraperblock > 8188) {
             vertexperblock = tetrahedraperblock / 2;
             shellfaceperblock = vertexperblock / 2;
@@ -3397,7 +3397,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
 
   if (startindex == 0) {
     // Set a temporary filename for debugging output.
-    strcpy(infilename, "tetgen-tmpfile");
+    gslStrcpy(infilename, "tetgen-tmpfile");
   } else {
     if (infilename[0] == '\0') {
       // No input file name. Print the syntax and exit.
@@ -3514,7 +3514,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
   }
 
   increment = 0;
-  strcpy(workstring, infilename);
+  gslStrcpy(workstring, infilename);
   j = 1;
   while (workstring[j] != '\0') {
     if ((workstring[j] == '.') && (workstring[j + 1] != '\0')) {
@@ -3535,22 +3535,22 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
     } while (workstring[j] != '\0');
   }
   if (noiterationnum) {
-    strcpy(outfilename, infilename);
+    gslStrcpy(outfilename, infilename);
   } else if (increment == 0) {
-    strcpy(outfilename, infilename);
-    strcat(outfilename, ".1");
+    gslStrcpy(outfilename, infilename);
+    gslStrcat(outfilename, ".1");
   } else {
     workstring[increment] = '%';
     workstring[increment + 1] = 'd';
     workstring[increment + 2] = '\0';
-    sprintf(outfilename, workstring, meshnumber + 1);
+    gslSPrintf(outfilename, workstring, meshnumber + 1);
   }
   // Additional input file name has the end ".a".
-  strcpy(addinfilename, infilename);
-  strcat(addinfilename, ".a");
+  gslStrcpy(addinfilename, infilename);
+  gslStrcat(addinfilename, ".a");
   // Background filename has the form "*.b.ele", "*.b.node", ...
-  strcpy(bgmeshfilename, infilename);
-  strcat(bgmeshfilename, ".b");
+  gslStrcpy(bgmeshfilename, infilename);
+  gslStrcat(bgmeshfilename, ".b");
 
   return true;
 }
@@ -3741,7 +3741,7 @@ void tetgenmesh::arraypool::poolinit(int sizeofobject, int log2objperblk)
   // No memory has been allocated.
   totalmemory = 0l;
   // The top array has not been allocated yet.
-  toparray = (char **) NULL;
+  toparray = nullptr;
   toparraylen = 0;
 
   // Ready all indices to be allocated.
@@ -3764,11 +3764,11 @@ tetgenmesh::arraypool::~arraypool()
   int i;
 
   // Has anything been allocated at all?
-  if (toparray != (char **) NULL) {
+  if (toparray != nullptr) {
     // Walk through the top array.
     for (i = 0; i < toparraylen; i++) {
       // Check every pointer; NULLs may be scattered randomly.
-      if (toparray[i] != (char *) NULL) {
+      if (toparray[i] != nullptr) {
         // Free an allocated block.
         free((void *) toparray[i]);
       }
@@ -3778,7 +3778,7 @@ tetgenmesh::arraypool::~arraypool()
   }
 
   // The top array is no longer allocated.
-  toparray = (char **) NULL;
+  toparray = nullptr;
   toparraylen = 0;
   objects = 0;
   totalmemory = 0;
@@ -3807,14 +3807,14 @@ char* tetgenmesh::arraypool::getblock(int objectindex)
   // Compute the index in the top array (upper bits).
   topindex = objectindex >> log2objectsperblock;
   // Does the top array need to be allocated or resized?
-  if (toparray == (char **) NULL) {
+  if (toparray == nullptr) {
     // Allocate the top array big enough to hold 'topindex', and NULL out
     //   its contents.
     newsize = topindex + 128;
     toparray = (char **) malloc((size_t) (newsize * sizeof(char *)));
     toparraylen = newsize;
     for (i = 0; i < newsize; i++) {
-      toparray[i] = (char *) NULL;
+      toparray[i] = nullptr;
     }
     // Account for the memory.
     totalmemory = newsize * (uintptr_t) sizeof(char *);
@@ -3831,7 +3831,7 @@ char* tetgenmesh::arraypool::getblock(int objectindex)
       newarray[i] = toparray[i];
     }
     for (i = toparraylen; i < newsize; i++) {
-      newarray[i] = (char *) NULL;
+      newarray[i] = nullptr;
     }
     free(toparray);
     // Account for the memory.
@@ -3842,7 +3842,7 @@ char* tetgenmesh::arraypool::getblock(int objectindex)
 
   // Find the block, or learn that it hasn't been allocated yet.
   block = toparray[topindex];
-  if (block == (char *) NULL) {
+  if (block == nullptr) {
     // Allocate a block at this index.
     block = (char *) malloc((size_t) (objectsperblock * objectbytes));
     toparray[topindex] = block;
@@ -3867,7 +3867,7 @@ void* tetgenmesh::arraypool::lookup(int objectindex)
   int topindex;
 
   // Has the top array been allocated yet?
-  if (toparray == (char **) NULL) {
+  if (toparray == nullptr) {
     return (void *) NULL;
   }
 
@@ -3880,7 +3880,7 @@ void* tetgenmesh::arraypool::lookup(int objectindex)
 
   // Find the block, or learn that it hasn't been allocated yet.
   block = toparray[topindex];
-  if (block == (char *) NULL) {
+  if (block == nullptr) {
     return (void *) NULL;
   }
 
@@ -4230,7 +4230,7 @@ void tetgenmesh::makepoint2submap(memorypool* pool, int*& idx2faclist,
   // Loop all subfaces, counter the number of subfaces incident at a vertex.
   pool->traversalinit();
   shloop.sh = shellfacetraverse(pool);
-  while (shloop.sh != (shellface *) NULL) {
+  while (shloop.sh != nullptr) {
     // Increment the number of incident subfaces for each vertex.
     j = pointmark((point) shloop.sh[3]) - in->firstnumber;
     idx2faclist[j]++;
@@ -4259,7 +4259,7 @@ void tetgenmesh::makepoint2submap(memorypool* pool, int*& idx2faclist,
   // Loop all subfaces again, remember the subfaces at each vertex.
   pool->traversalinit();
   shloop.sh = shellfacetraverse(pool);
-  while (shloop.sh != (shellface *) NULL) {
+  while (shloop.sh != nullptr) {
     j = pointmark((point) shloop.sh[3]) - in->firstnumber;
     shloop.shver = 0; // save the origin.
     facperverlist[idx2faclist[j]] = shloop;
@@ -4325,8 +4325,8 @@ tetgenmesh::tetrahedron* tetgenmesh::tetrahedrontraverse()
 
   do {
     newtetrahedron = (tetrahedron *) tetrahedrons->traverse();
-    if (newtetrahedron == (tetrahedron *) NULL) {
-      return (tetrahedron *) NULL;
+    if (newtetrahedron == nullptr) {
+      return nullptr;
     }
   } while ((newtetrahedron[4] == (tetrahedron) NULL) ||
            ((point) newtetrahedron[7] == dummypoint));
@@ -4339,8 +4339,8 @@ tetgenmesh::tetrahedron* tetgenmesh::alltetrahedrontraverse()
 
   do {
     newtetrahedron = (tetrahedron *) tetrahedrons->traverse();
-    if (newtetrahedron == (tetrahedron *) NULL) {
-      return (tetrahedron *) NULL;
+    if (newtetrahedron == nullptr) {
+      return nullptr;
     }
   } while (newtetrahedron[4] == (tetrahedron) NULL); // Skip dead ones.
   return newtetrahedron;
@@ -4374,8 +4374,8 @@ tetgenmesh::shellface* tetgenmesh::shellfacetraverse(memorypool *pool)
 
   do {
     newshellface = (shellface *) pool->traverse();
-    if (newshellface == (shellface *) NULL) {
-      return (shellface *) NULL;
+    if (newshellface == nullptr) {
+      return nullptr;
     }
   } while (newshellface[3] == (shellface) NULL);          // Skip dead ones.
   return newshellface;
@@ -4602,7 +4602,7 @@ void tetgenmesh::initializepools()
     // Decide the size (1, 3, or 6) of the metric tensor.
     if (bgm != (tetgenmesh *) NULL) {
       // A background mesh is allocated. It may not exist though.
-      sizeoftensor = (bgm->in != (tetgenio *) NULL) ? 
+      sizeoftensor = (bgm->in != nullptr) ? 
         bgm->in->numberofpointmtrs : in->numberofpointmtrs;
     } else {
       // No given background mesh - Itself is a background mesh.
@@ -6647,16 +6647,16 @@ bool tetgenmesh::circumsphere(DREAL* pa, DREAL* pb, DREAL* pc, DREAL* pd,
   // Solve the 3 by 3 equations use LU decomposition with partial pivoting
   //   and backward and forward substitute..
   if (!lu_decmp(A, 3, indx, &D, 0)) {
-    if (radius != (DREAL *) NULL) *radius = 0.0;
+    if (radius != nullptr) *radius = 0.0;
     return false;
   }    
   lu_solve(A, 3, indx, rhs, 0);
-  if (cent != (DREAL *) NULL) {
+  if (cent != nullptr) {
     cent[0] = pa[0] + rhs[0];
     cent[1] = pa[1] + rhs[1];
     cent[2] = pa[2] + rhs[2];
   }
-  if (radius != (DREAL *) NULL) {
+  if (radius != nullptr) {
     *radius = sqrt(rhs[0] * rhs[0] + rhs[1] * rhs[1] + rhs[2] * rhs[2]);
   }
   return true;
@@ -6694,17 +6694,17 @@ bool tetgenmesh::orthosphere(DREAL* pa, DREAL* pb, DREAL* pc, DREAL* pd,
   // Solve the 4 by 4 equations use LU decomposition with partial pivoting
   //   and backward and forward substitute..
   if (!lu_decmp(A, 4, indx, &D, 0)) {
-    if (radius != (DREAL *) NULL) *radius = 0.0;
+    if (radius != nullptr) *radius = 0.0;
     return false;
   }
   lu_solve(A, 4, indx, rhs, 0);
 
-  if (orthocent != (DREAL *) NULL) {
+  if (orthocent != nullptr) {
     orthocent[0] = rhs[1];
     orthocent[1] = rhs[2];
     orthocent[2] = rhs[3];
   }
-  if (radius != (DREAL *) NULL) {
+  if (radius != nullptr) {
     // rhs[0] = - rheight / 2;
     // rheight  = - 2 * rhs[0];
     //          =  r[0]^2 + r[1]^2 + r[2]^2 - radius^2
@@ -14002,7 +14002,7 @@ void tetgenmesh::unifysegments()
   subsegloop.shver = 0;
   subsegs->traversalinit();
   subsegloop.sh = shellfacetraverse(subsegs);
-  while (subsegloop.sh != (shellface *) NULL) {
+  while (subsegloop.sh != nullptr) {
     torg = sorg(subsegloop);
     tdest = sdest(subsegloop);
 
@@ -14193,7 +14193,7 @@ void tetgenmesh::unifysegments()
     flippool->restart();
 
     // Are there length constraints?
-    if (b->quality && (in->segmentconstraintlist != (DREAL *) NULL)) {
+    if (b->quality && (in->segmentconstraintlist != nullptr)) {
       int e1, e2;
       DREAL len;
       for (k = 0; k < in->numberofsegmentconstraints; k++) {
@@ -14332,7 +14332,7 @@ void tetgenmesh::identifyinputedges(point *idx2verlist)
 
     setshellmark(newseg, edgemarker);
 
-    if (b->quality && (in->segmentconstraintlist != (DREAL *) NULL)) {
+    if (b->quality && (in->segmentconstraintlist != nullptr)) {
       for (i = 0; i < in->numberofsegmentconstraints; i++) {
         e1 = (int) in->segmentconstraintlist[i * 3];
         e2 = (int) in->segmentconstraintlist[i * 3 + 1];
@@ -14375,7 +14375,7 @@ void tetgenmesh::mergefacets()
 
   subsegs->traversalinit();
   segloop.sh = shellfacetraverse(subsegs);
-  while (segloop.sh != (shellface *) NULL) {
+  while (segloop.sh != nullptr) {
     // Only remove a segment if it has a marker '-1'.
     if (shellmark(segloop) != -1) {
       segloop.sh = shellfacetraverse(subsegs);
@@ -14429,7 +14429,7 @@ void tetgenmesh::mergefacets()
 
   subfaces->traversalinit();
   shloop.sh = shellfacetraverse(subfaces);
-  while (shloop.sh != (shellface *) NULL) {
+  while (shloop.sh != nullptr) {
     for (i = 0; i < 3; i++) {
       if (isshsubseg(shloop)) {
         senext(shloop, neighsh);
@@ -14880,7 +14880,7 @@ void tetgenmesh::detectinterfaces()
   subfaces->traversalinit();
   shloop.sh = shellfacetraverse(subfaces);
   i = 0;
-  while (shloop.sh != (shellface *) NULL) {
+  while (shloop.sh != nullptr) {
     subfacearray[i] = shloop.sh;
     shloop.sh = shellfacetraverse(subfaces);
     i++;
@@ -14907,7 +14907,7 @@ void tetgenmesh::detectinterfaces()
     //   After this loop, only intersecting faces remain.
     subfaces->traversalinit();
     shloop.sh = shellfacetraverse(subfaces);
-    while (shloop.sh != (shellface *) NULL) {
+    while (shloop.sh != nullptr) {
       if (sinfected(shloop)) {
         suninfect(shloop);
       } else {
@@ -21967,7 +21967,7 @@ void tetgenmesh::carveholes()
   tetrahedrons->traversalinit();
   tetloop.ver = 11; // The face opposite to dummypoint.
   tetloop.tet = alltetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     if (ishulltet(tetloop)) {
       // Is this side protected by a subface?
       if (!issubface(tetloop)) {
@@ -22479,7 +22479,7 @@ void tetgenmesh::carveholes()
     attr = maxattr + 1;
     tetrahedrons->traversalinit();
     tetloop.tet = tetrahedrontraverse();
-    while (tetloop.tet != (tetrahedron *) NULL) {
+    while (tetloop.tet != nullptr) {
       if (!infected(tetloop)) {
         // An unmarked region.
         tetarray->restart(); // Re-use this array.
@@ -22514,7 +22514,7 @@ void tetgenmesh::carveholes()
     // Uninfect processed tets.
     tetrahedrons->traversalinit();
     tetloop.tet = tetrahedrontraverse();
-    while (tetloop.tet != (tetrahedron *) NULL) {
+    while (tetloop.tet != nullptr) {
       uninfect(tetloop);
       tetloop.tet = tetrahedrontraverse();
     }
@@ -22543,7 +22543,7 @@ void tetgenmesh::carveholes()
     tetrahedrons->traversalinit();
     tetloop.ver = 11; // The face opposite to dummypoint.
     tetloop.tet = alltetrahedrontraverse();
-    while (tetloop.tet != (tetrahedron *) NULL) {
+    while (tetloop.tet != nullptr) {
       if ((point) tetloop.tet[7] == dummypoint) {
         fsym(tetloop, neightet);
         flippush(flipstack, &neightet);
@@ -22647,7 +22647,7 @@ void tetgenmesh::reconstructmesh()
     // If -a switch is used (with no number follows) Set a volume
     //   constraint if it exists.
     if (b->varvolume) {
-      if (in->tetrahedronvolumelist != (DREAL *) NULL) {
+      if (in->tetrahedronvolumelist != nullptr) {
         volume = in->tetrahedronvolumelist[i];
       } else {
         volume = -1.0;
@@ -22737,7 +22737,7 @@ void tetgenmesh::reconstructmesh()
 
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     tptr = encode(tetloop);
     for (tetloop.ver = 0; tetloop.ver < 4; tetloop.ver++) {
       if (tetloop.tet[tetloop.ver] == NULL) {
@@ -22860,7 +22860,7 @@ void tetgenmesh::reconstructmesh()
   eextras = in->numberoftetrahedronattributes;
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     for (tetloop.ver = 0; tetloop.ver < 4; tetloop.ver++) {
       tspivot(tetloop, neighsh);
       if (neighsh.sh == NULL) {
@@ -22907,7 +22907,7 @@ void tetgenmesh::reconstructmesh()
   subfaces->traversalinit();
   subloop.shver = 0;
   subloop.sh = shellfacetraverse(subfaces);
-  while (subloop.sh != (shellface *) NULL) {
+  while (subloop.sh != nullptr) {
     for (i = 0; i < 3; i++) {
       spivot(subloop, neighsh);
       if (neighsh.sh == NULL) {
@@ -23006,7 +23006,7 @@ void tetgenmesh::reconstructmesh()
   subfaces->traversalinit();
   subloop.shver = 0;
   subloop.sh = shellfacetraverse(subfaces);
-  while (subloop.sh != (shellface *) NULL) {
+  while (subloop.sh != nullptr) {
     for (i = 0; i < 3; i++) {
       sspivot(subloop, segloop);
       if (segloop.sh == NULL) {
@@ -23139,7 +23139,7 @@ void tetgenmesh::reconstructmesh()
     }
 
     // Are there area constraints?
-    if (b->quality && (in->facetconstraintlist != (DREAL *) NULL)) {
+    if (b->quality && (in->facetconstraintlist != nullptr)) {
       // Set maximum area constraints on facets.
       for (i = 0; i < in->numberoffacetconstraints; i++) {
         fmarker = (int) in->facetconstraintlist[i * 2];
@@ -23156,7 +23156,7 @@ void tetgenmesh::reconstructmesh()
     }
 
     // Are there length constraints?
-    if (b->quality && (in->segmentconstraintlist != (DREAL *) NULL)) {
+    if (b->quality && (in->segmentconstraintlist != nullptr)) {
       // Set maximum length constraints on segments.
       int e1, e2;
       for (i = 0; i < in->numberofsegmentconstraints; i++) {
@@ -25583,7 +25583,7 @@ void tetgenmesh::delaunayrefinement()
     // Add all segments into the pool.
     subsegs->traversalinit();
     checkseg.sh = shellfacetraverse(subsegs);
-    while (checkseg.sh != (shellface *) NULL) {
+    while (checkseg.sh != nullptr) {
       enqueuesubface(badsubsegs, &checkseg);
       checkseg.sh = shellfacetraverse(subsegs);
     }
@@ -25612,7 +25612,7 @@ void tetgenmesh::delaunayrefinement()
       // Add all subfaces into the pool.
       subfaces->traversalinit();
       checksh.sh = shellfacetraverse(subfaces);
-      while (checksh.sh != (shellface *) NULL) {
+      while (checksh.sh != nullptr) {
         enqueuesubface(badsubfacs, &checksh);
         checksh.sh = shellfacetraverse(subfaces);
       }
@@ -27150,7 +27150,7 @@ int tetgenmesh::checkmesh(int topoflag)
   // Run through the list of tetrahedra, checking each one.
   tetrahedrons->traversalinit();
   tetloop.tet = alltetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     // Check all four faces of the tetrahedron.
     for (tetloop.ver = 0; tetloop.ver < 4; tetloop.ver++) {
       pa = org(tetloop);
@@ -27745,7 +27745,7 @@ int tetgenmesh::checkdelaunay(int perturb)
   // Run through the list of triangles, checking each one.
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     // Check all four faces of the tetrahedron.
     for (tetloop.ver = 0; tetloop.ver < 4; tetloop.ver++) {
       fsym(tetloop, symtet);
@@ -27835,7 +27835,7 @@ int tetgenmesh::checkregular(int type)
   // Run through the list of triangles, checking each one.
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     // Check all four faces of the tetrahedron.
     for (tetloop.ver = 0; tetloop.ver < 4; tetloop.ver++) {
       fsym(tetloop, symtet);
@@ -27931,7 +27931,7 @@ int tetgenmesh::checkconforming(int flag)
     // Run through the list of subsegments, check each one.
     subsegs->traversalinit();
     segloop.sh = shellfacetraverse(subsegs);
-    while (segloop.sh != (shellface *) NULL) {
+    while (segloop.sh != nullptr) {
       eorg = (point) segloop.sh[3];
       edest = (point) segloop.sh[4];
       radius = 0.5 * distance(eorg, edest);
@@ -27982,7 +27982,7 @@ int tetgenmesh::checkconforming(int flag)
     // Run through the list of subfaces, check each one.
     subfaces->traversalinit();
     shloop.sh = shellfacetraverse(subfaces);
-    while (shloop.sh != (shellface *) NULL) {
+    while (shloop.sh != nullptr) {
       pa = (point) shloop.sh[3];
       pb = (point) shloop.sh[4];
       pc = (point) shloop.sh[5];
@@ -28122,7 +28122,7 @@ void tetgenmesh::qualitystatistics()
   // Loop all elements, calculate quality parameters for each element.
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
 
     if (b->convex) {
       // Skip tets in the exterior.
@@ -28370,13 +28370,13 @@ void tetgenmesh::qualitystatistics()
           shortest, longest);
   message("  Smallest asp.ratio: %13.5g   |  Largest asp.ratio: %13.5g\n",
           smallestratio, biggestratio);
-  sprintf(sbuf, "%.17g", biggestfaangle);
+  gslSPrintf(sbuf, "%.17g", biggestfaangle);
   if (strlen(sbuf) > 8) {
     sbuf[8] = '\0';
   }
   message("  Smallest facangle: %14.5g   |  Largest facangle:       %s\n",
           smallestfaangle, sbuf);
-  sprintf(sbuf, "%.17g", biggestdiangle);
+  gslSPrintf(sbuf, "%.17g", biggestdiangle);
   if (strlen(sbuf) > 8) {
     sbuf[8] = '\0';
   }
@@ -28665,7 +28665,7 @@ void tetgenmesh::jettisonnodes()
     } else {
       // Re-index it.
       setpointmark(pointloop, newidx + in->firstnumber);
-      if (in->pointmarkerlist != (int *) NULL) {
+      if (in->pointmarkerlist != nullptr) {
         if (oldidx < in->numberofpoints) {
           // Re-index the point marker as well.
           in->pointmarkerlist[newidx] = in->pointmarkerlist[oldidx];
@@ -28733,7 +28733,7 @@ void tetgenmesh::highorder()
   i = 0;
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     tetloop.tet[highorderindex] = (tetrahedron) &highordertable[i];
     for (j = 0; j < 6; j++) {
       highordertable[i + j] = (point) NULL;
@@ -28749,7 +28749,7 @@ void tetgenmesh::highorder()
   //   node lists of all other tetrahedra sharing this edge.  
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     // Get the list of extra nodes.
     extralist = (point *) tetloop.tet[highorderindex];
     worktet.tet = tetloop.tet;
@@ -28881,13 +28881,13 @@ void tetgenmesh::outnodes(tetgenio* out)
   int pointnumber, firstindex;
   int index, i;
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(outnodefilename, b->outfilename);
-    strcat(outnodefilename, ".node");
+  if (out == nullptr) {
+    gslStrcpy(outnodefilename, b->outfilename);
+    gslStrcat(outnodefilename, ".node");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", outnodefilename);
     } else {
       message("Writing nodes.\n");
@@ -28901,9 +28901,9 @@ void tetgenmesh::outnodes(tetgenio* out)
 
   bmark = !b->nobound && in->pointmarkerlist;
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(outnodefilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outnodefilename);
       terminatetetgen(this, 1);
     }
@@ -28913,14 +28913,14 @@ void tetgenmesh::outnodes(tetgenio* out)
   } else {
     // Allocate space for 'pointlist';
     out->pointlist = new DREAL[points->items * 3];
-    if (out->pointlist == (DREAL *) NULL) {
+    if (out->pointlist == nullptr) {
       message("Error:  Out of memory.\n");
       terminatetetgen(this, 1);
     }
     // Allocate space for 'pointattributelist' if necessary;
     if (nextras > 0) {
       out->pointattributelist = new DREAL[points->items * nextras];
-      if (out->pointattributelist == (DREAL *) NULL) {
+      if (out->pointattributelist == nullptr) {
         message("Error:  Out of memory.\n");
         terminatetetgen(this, 1);
       }
@@ -28928,7 +28928,7 @@ void tetgenmesh::outnodes(tetgenio* out)
     // Allocate space for 'pointmarkerlist' if necessary;
     if (bmark) {
       out->pointmarkerlist = new int[points->items];
-      if (out->pointmarkerlist == (int *) NULL) {
+      if (out->pointmarkerlist == nullptr) {
         message("Error:  Out of memory.\n");
         terminatetetgen(this, 1);
       }
@@ -28971,7 +28971,7 @@ void tetgenmesh::outnodes(tetgenio* out)
         } // if (pointtype(...))
       }
     }
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       // Point number, x, y and z coordinates.
       fprintf(outfile, "%4d    %.17g  %.17g  %.17g", pointnumber,
               pointloop[0], pointloop[1], pointloop[2]);
@@ -29051,7 +29051,7 @@ void tetgenmesh::outnodes(tetgenio* out)
     index++;
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -29075,22 +29075,22 @@ void tetgenmesh::outmetrics(tetgenio* out)
     return;
   }
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(outmtrfilename, b->outfilename);
-    strcat(outmtrfilename, ".mtr");
+  if (out == nullptr) {
+    gslStrcpy(outmtrfilename, b->outfilename);
+    gslStrcat(outmtrfilename, ".mtr");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", outmtrfilename);
     } else {
       message("Writing metrics.\n");
     }
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(outmtrfilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outmtrfilename);
       terminatetetgen(this, 3);
     }
@@ -29100,7 +29100,7 @@ void tetgenmesh::outmetrics(tetgenio* out)
     // Allocate space for 'pointmtrlist'.
     out->numberofpointmtrs = msize; 
     out->pointmtrlist = new DREAL[points->items * msize];
-    if (out->pointmtrlist == (DREAL *) NULL) {
+    if (out->pointmtrlist == nullptr) {
       terminatetetgen(this, 1);
     }
   }
@@ -29108,7 +29108,7 @@ void tetgenmesh::outmetrics(tetgenio* out)
   points->traversalinit();
   ptloop = pointtraverse();
   while (ptloop != (point) NULL) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       for (i = 0; i < msize; i++) {
         fprintf(outfile, " %-16.8e", ptloop[pointmtrindex + i]);
       }
@@ -29122,22 +29122,22 @@ void tetgenmesh::outmetrics(tetgenio* out)
   }
 
   // Output the point-to-tet map.
-  if (out == (tetgenio *) NULL) {
-    strcpy(outmtrfilename, b->outfilename);
-    strcat(outmtrfilename, ".p2t");
+  if (out == nullptr) {
+    gslStrcpy(outmtrfilename, b->outfilename);
+    gslStrcat(outmtrfilename, ".p2t");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", outmtrfilename);
     } else {
       message("Writing point-to-tet map.\n");
     }
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(outmtrfilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outmtrfilename);
       terminatetetgen(this, 3);
     }
@@ -29146,7 +29146,7 @@ void tetgenmesh::outmetrics(tetgenio* out)
   } else {
     // Allocate space for 'point2tetlist'.
     out->point2tetlist = new int[points->items];
-    if (out->point2tetlist == (int *) NULL) {
+    if (out->point2tetlist == nullptr) {
       terminatetetgen(this, 1);
     }
   }
@@ -29169,7 +29169,7 @@ void tetgenmesh::outmetrics(tetgenio* out)
     } else {
       decode(point2tet(ptloop), parenttet);
     }
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       fprintf(outfile, "%d  %d\n", pointindex, elemindex(parenttet.tet));
     } else {
       out->point2tetlist[i] = elemindex(parenttet.tet);
@@ -29179,7 +29179,7 @@ void tetgenmesh::outmetrics(tetgenio* out)
     ptloop = pointtraverse();
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -29212,13 +29212,13 @@ void tetgenmesh::outelements(tetgenio* out)
   int eextras;
   int i;
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(outelefilename, b->outfilename);
-    strcat(outelefilename, ".ele");
+  if (out == nullptr) {
+    gslStrcpy(outelefilename, b->outfilename);
+    gslStrcat(outelefilename, ".ele");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", outelefilename);
     } else {
       message("Writing elements.\n");
@@ -29229,9 +29229,9 @@ void tetgenmesh::outelements(tetgenio* out)
   ntets = tetrahedrons->items - hullsize;
 
   eextras = numelemattrib;
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(outelefilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outelefilename);
       terminatetetgen(this, 1);
     }
@@ -29240,14 +29240,14 @@ void tetgenmesh::outelements(tetgenio* out)
   } else {
     // Allocate memory for output tetrahedra.
     out->tetrahedronlist = new int[ntets * (b->order == 1 ? 4 : 10)];
-    if (out->tetrahedronlist == (int *) NULL) {
+    if (out->tetrahedronlist == nullptr) {
       message("Error:  Out of memory.\n");
       terminatetetgen(this, 1);
     }
     // Allocate memory for output tetrahedron attributes if necessary.
     if (eextras > 0) {
       out->tetrahedronattributelist = new DREAL[ntets * eextras];
-      if (out->tetrahedronattributelist == (DREAL *) NULL) {
+      if (out->tetrahedronattributelist == nullptr) {
         message("Error:  Out of memory.\n");
         terminatetetgen(this, 1);
       }
@@ -29271,7 +29271,7 @@ void tetgenmesh::outelements(tetgenio* out)
   tetrahedrons->traversalinit();
   tptr = tetrahedrontraverse();
   elementnumber = firstindex; // in->firstnumber;
-  while (tptr != (tetrahedron *) NULL) {
+  while (tptr != nullptr) {
     if (!b->reversetetori) {
       p1 = (point) tptr[4];
       p2 = (point) tptr[5];
@@ -29281,7 +29281,7 @@ void tetgenmesh::outelements(tetgenio* out)
     }
     p3 = (point) tptr[6];
     p4 = (point) tptr[7];
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       // Tetrahedron number, indices for four points.
       fprintf(outfile, "%5d   %5d %5d %5d %5d", elementnumber,
               pointmark(p1) - shift, pointmark(p2) - shift,
@@ -29330,7 +29330,7 @@ void tetgenmesh::outelements(tetgenio* out)
   }
 
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -29367,13 +29367,13 @@ void tetgenmesh::outfaces(tetgenio* out)
   int *tet2facelist = NULL;
   int tidx; 
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(facefilename, b->outfilename);
-    strcat(facefilename, ".face");
+  if (out == nullptr) {
+    gslStrcpy(facefilename, b->outfilename);
+    gslStrcat(facefilename, ".face");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", facefilename);
     } else {
       message("Writing faces.\n");
@@ -29383,9 +29383,9 @@ void tetgenmesh::outfaces(tetgenio* out)
   ntets = tetrahedrons->items - hullsize;
   faces = (ntets * 4l + hullsize) / 2l;
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(facefilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", facefilename);
       terminatetetgen(this, 1);
     }
@@ -29393,7 +29393,7 @@ void tetgenmesh::outfaces(tetgenio* out)
   } else {
     // Allocate memory for 'trifacelist'.
     out->trifacelist = new int[faces * 3];
-    if (out->trifacelist == (int *) NULL) {
+    if (out->trifacelist == nullptr) {
       message("Error:  Out of memory.\n");
       terminatetetgen(this, 1);
     }
@@ -29403,7 +29403,7 @@ void tetgenmesh::outfaces(tetgenio* out)
     // Allocate memory for 'trifacemarkerlist' if necessary.
     if (!b->nobound) {
       out->trifacemarkerlist = new int[faces];
-      if (out->trifacemarkerlist == (int *) NULL) {
+      if (out->trifacemarkerlist == nullptr) {
         message("Error:  Out of memory.\n");
         terminatetetgen(this, 1);
       }
@@ -29411,7 +29411,7 @@ void tetgenmesh::outfaces(tetgenio* out)
     if (b->neighout > 1) {
       // '-nn' switch.
       out->face2tetlist = new int[faces * 2];
-      if (out->face2tetlist == (int *) NULL) {
+      if (out->face2tetlist == nullptr) {
         message("Error:  Out of memory.\n");
         terminatetetgen(this, 1);
       }
@@ -29440,7 +29440,7 @@ void tetgenmesh::outfaces(tetgenio* out)
   //   the four faces of each one. If its adjacent tet is a hull tet,
   //   operate on the face, otherwise, operate on the face only if the
   //   current tet has a smaller index than its neighbor.
-  while (tface.tet != (tetrahedron *) NULL) {
+  while (tface.tet != nullptr) {
     for (tface.ver = 0; tface.ver < 4; tface.ver ++) {
       fsym(tface, tsymface);
       if (ishulltet(tsymface) || 
@@ -29493,7 +29493,7 @@ void tetgenmesh::outfaces(tetgenio* out)
             tet2facelist[tidx * 4 + (tsymface.ver & 3)] = facenumber;
           }
         }
-        if (out == (tetgenio *) NULL) {
+        if (out == nullptr) {
           // Face number, indices of three vertices.
           fprintf(outfile, "%5d   %4d  %4d  %4d", facenumber,
                   pointmark(torg) - shift, pointmark(tdest) - shift,
@@ -29534,25 +29534,25 @@ void tetgenmesh::outfaces(tetgenio* out)
     tface.tet = tetrahedrontraverse();
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
 
   if (b->neighout > 1) { // -nn option
     // Output the tetrahedron-to-face map.
-    if (out == (tetgenio *) NULL) {
-      strcpy(facefilename, b->outfilename);
-      strcat(facefilename, ".t2f");
+    if (out == nullptr) {
+      gslStrcpy(facefilename, b->outfilename);
+      gslStrcat(facefilename, ".t2f");
     }
     if (!b->quiet) {
-      if (out == (tetgenio *) NULL) {
+      if (out == nullptr) {
         message("Writing %s.\n", facefilename);
       } else {
         message("Writing tetrahedron-to-face map.\n");
       }
     }
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       outfile = fopen(facefilename, "w");
       for (tidx = 0; tidx < ntets; tidx++) {
         index = tidx * 4;
@@ -29588,22 +29588,22 @@ void tetgenmesh::outhullfaces(tetgenio* out)
   int facenumber;
   int index;
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(facefilename, b->outfilename);
-    strcat(facefilename, ".face");
+  if (out == nullptr) {
+    gslStrcpy(facefilename, b->outfilename);
+    gslStrcat(facefilename, ".face");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", facefilename);
     } else {
       message("Writing faces.\n");
     }
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(facefilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", facefilename);
       terminatetetgen(this, 1);
     }
@@ -29611,7 +29611,7 @@ void tetgenmesh::outhullfaces(tetgenio* out)
   } else {
     // Allocate memory for 'trifacelist'.
     out->trifacelist = new int[hullsize * 3];
-    if (out->trifacelist == (int *) NULL) {
+    if (out->trifacelist == nullptr) {
       message("Error:  Out of memory.\n");
       terminatetetgen(this, 1);
     }
@@ -29630,12 +29630,12 @@ void tetgenmesh::outhullfaces(tetgenio* out)
   tetrahedrons->traversalinit();
   hulltet.tet = alltetrahedrontraverse();
   facenumber = firstindex;
-  while (hulltet.tet != (tetrahedron *) NULL) {
+  while (hulltet.tet != nullptr) {
     if (ishulltet(hulltet)) {
       torg = (point) hulltet.tet[4];
       tdest = (point) hulltet.tet[5];
       tapex = (point) hulltet.tet[6];
-      if (out == (tetgenio *) NULL) {
+      if (out == nullptr) {
         // Face number, indices of three vertices.
         fprintf(outfile, "%5d   %4d  %4d  %4d", facenumber,
                 pointmark(torg) - shift, pointmark(tdest) - shift,
@@ -29652,7 +29652,7 @@ void tetgenmesh::outhullfaces(tetgenio* out)
     hulltet.tet = alltetrahedrontraverse();
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -29692,22 +29692,22 @@ void tetgenmesh::outsubfaces(tetgenio* out)
 
   int t1ver; // used by fsymself()
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(facefilename, b->outfilename);
-    strcat(facefilename, ".face");
+  if (out == nullptr) {
+    gslStrcpy(facefilename, b->outfilename);
+    gslStrcat(facefilename, ".face");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", facefilename);
     } else {
       message("Writing faces.\n");
     }
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(facefilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", facefilename);
       terminatetetgen(this, 3);
     }
@@ -29716,7 +29716,7 @@ void tetgenmesh::outsubfaces(tetgenio* out)
   } else {
     // Allocate memory for 'trifacelist'.
     out->trifacelist = new int[subfaces->items * 3];
-    if (out->trifacelist == (int *) NULL) {
+    if (out->trifacelist == nullptr) {
       terminatetetgen(this, 1);
     }
     if (b->order == 2) {
@@ -29725,14 +29725,14 @@ void tetgenmesh::outsubfaces(tetgenio* out)
     if (!b->nobound) {
       // Allocate memory for 'trifacemarkerlist'.
       out->trifacemarkerlist = new int[subfaces->items];
-      if (out->trifacemarkerlist == (int *) NULL) {
+      if (out->trifacemarkerlist == nullptr) {
         terminatetetgen(this, 1);
       }
     }
     if (b->neighout > 1) {
       // '-nn' switch.
       out->face2tetlist = new int[subfaces->items * 2];
-      if (out->face2tetlist == (int *) NULL) {
+      if (out->face2tetlist == nullptr) {
         terminatetetgen(this, 1);
       }
     }
@@ -29751,7 +29751,7 @@ void tetgenmesh::outsubfaces(tetgenio* out)
   subfaces->traversalinit();
   faceloop.sh = shellfacetraverse(subfaces);
   facenumber = firstindex; // in->firstnumber;
-  while (faceloop.sh != (shellface *) NULL) {
+  while (faceloop.sh != nullptr) {
     stpivot(faceloop, abuttingtet);
     // If there is a tetrahedron containing this subface, orient it so
     //   that the normal of this face points to inside of the volume by
@@ -29804,7 +29804,7 @@ void tetgenmesh::outsubfaces(tetgenio* out)
         }
       }
     }
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       fprintf(outfile, "%5d   %4d  %4d  %4d", facenumber,
               pointmark(torg) - shift, pointmark(tdest) - shift,
               pointmark(tapex) - shift);
@@ -29841,7 +29841,7 @@ void tetgenmesh::outsubfaces(tetgenio* out)
     faceloop.sh = shellfacetraverse(subfaces);
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -29879,13 +29879,13 @@ void tetgenmesh::outedges(tetgenio* out)
   int *tet2edgelist = NULL;
   int tidx;
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(edgefilename, b->outfilename);
-    strcat(edgefilename, ".edge");
+  if (out == nullptr) {
+    gslStrcpy(edgefilename, b->outfilename);
+    gslStrcat(edgefilename, ".edge");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", edgefilename);
     } else {
       message("Writing edges.\n");
@@ -29907,9 +29907,9 @@ void tetgenmesh::outedges(tetgenio* out)
   }
   meshhulledges = 0l; // It will be counted.
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(edgefilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", edgefilename);
       terminatetetgen(this, 1);
     }
@@ -29919,7 +29919,7 @@ void tetgenmesh::outedges(tetgenio* out)
     // Allocate memory for 'edgelist'.
     out->numberofedges = meshedges;
     out->edgelist = new int[meshedges * 2];
-    if (out->edgelist == (int *) NULL) {
+    if (out->edgelist == nullptr) {
       message("Error:  Out of memory.\n");
       terminatetetgen(this, 1);
     }
@@ -29950,7 +29950,7 @@ void tetgenmesh::outedges(tetgenio* out)
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
   edgenumber = firstindex; // in->firstnumber;
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     // Count the number of Voronoi faces. 
     worktet.tet = tetloop.tet;
     for (i = 0; i < 6; i++) {
@@ -29975,7 +29975,7 @@ void tetgenmesh::outedges(tetgenio* out)
           extralist = (point *) worktet.tet[highorderindex];
           pp = extralist[ver2edge[worktet.ver]];
         }
-        if (out == (tetgenio *) NULL) {
+        if (out == nullptr) {
           fprintf(outfile, "%5d   %4d  %4d", edgenumber,
                   pointmark(torg) - shift, pointmark(tdest) - shift);
           if (b->order == 2) { // -o2
@@ -30002,14 +30002,14 @@ void tetgenmesh::outedges(tetgenio* out)
             // Mark it if it is a hull edge.
             marker = ishulledge ? 1 : 0;
           }
-          if (out == (tetgenio *) NULL) {
+          if (out == nullptr) {
             fprintf(outfile, "  %d", marker);
           } else {
             out->edgemarkerlist[index1++] = marker;
           }
         }
         if (b->neighout > 1) { // '-nn' switch.
-          if (out == (tetgenio *) NULL) {
+          if (out == nullptr) {
             fprintf(outfile, "  %d", elemindex(tetloop.tet));
           } else {
             out->edge2tetlist[index2++] = elemindex(tetloop.tet);
@@ -30025,7 +30025,7 @@ void tetgenmesh::outedges(tetgenio* out)
             if (spintet.tet == worktet.tet) break;
           }
         }
-        if (out == (tetgenio *) NULL) {
+        if (out == nullptr) {
           fprintf(outfile, "\n");
         }
         edgenumber++;
@@ -30034,7 +30034,7 @@ void tetgenmesh::outedges(tetgenio* out)
     tetloop.tet = tetrahedrontraverse();
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -30050,7 +30050,7 @@ void tetgenmesh::outedges(tetgenio* out)
       tetrahedrons->traversalinit();
       tetloop.tet = tetrahedrontraverse();
       int facenumber = 0; // firstindex; // in->firstnumber;
-      while (tetloop.tet != (tetrahedron *) NULL) {
+      while (tetloop.tet != nullptr) {
         for (tetloop.ver = 0; tetloop.ver < 4; tetloop.ver++) {
           fsym(tetloop, spintet);
           if (ishulltet(spintet) || 
@@ -30072,18 +30072,18 @@ void tetgenmesh::outedges(tetgenio* out)
       }
 
       // Output the face-to-edge map.
-      if (out == (tetgenio *) NULL) {
-        strcpy(edgefilename, b->outfilename);
-        strcat(edgefilename, ".f2e");
+      if (out == nullptr) {
+        gslStrcpy(edgefilename, b->outfilename);
+        gslStrcat(edgefilename, ".f2e");
       }
       if (!b->quiet) {
-        if (out == (tetgenio *) NULL) {
+        if (out == nullptr) {
           message("Writing %s.\n", edgefilename);
         } else {
           message("Writing face-to-edge map.\n");
         }
       }
-      if (out == (tetgenio *) NULL) {
+      if (out == nullptr) {
         outfile = fopen(edgefilename, "w");
         for (tidx = 0; tidx < fsize; tidx++) { // Re-use `tidx'
           i = tidx * 3;
@@ -30099,18 +30099,18 @@ void tetgenmesh::outedges(tetgenio* out)
     } // if (b->facesout)
 
     // Output the tetrahedron-to-edge map.
-    if (out == (tetgenio *) NULL) {
-      strcpy(edgefilename, b->outfilename);
-      strcat(edgefilename, ".t2e");
+    if (out == nullptr) {
+      gslStrcpy(edgefilename, b->outfilename);
+      gslStrcat(edgefilename, ".t2e");
     }
     if (!b->quiet) {
-      if (out == (tetgenio *) NULL) {
+      if (out == nullptr) {
         message("Writing %s.\n", edgefilename);
       } else {
         message("Writing tetrahedron-to-edge map.\n");
       }
     }
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       outfile = fopen(edgefilename, "w");
       for (tidx = 0; tidx < tsize; tidx++) {
         i = tidx * 6;
@@ -30157,22 +30157,22 @@ void tetgenmesh::outsubsegments(tetgenio* out)
 
   int t1ver; // used by fsymself()
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(edgefilename, b->outfilename);
-    strcat(edgefilename, ".edge");
+  if (out == nullptr) {
+    gslStrcpy(edgefilename, b->outfilename);
+    gslStrcat(edgefilename, ".edge");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", edgefilename);
     } else {
       message("Writing edges.\n");
     }
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(edgefilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", edgefilename);
       terminatetetgen(this, 3);
     }
@@ -30181,14 +30181,14 @@ void tetgenmesh::outsubsegments(tetgenio* out)
   } else {
     // Allocate memory for 'edgelist'.
     out->edgelist = new int[subsegs->items * (b->order == 1 ? 2 : 3)];
-    if (out->edgelist == (int *) NULL) {
+    if (out->edgelist == nullptr) {
       terminatetetgen(this, 1);
     }
     if (b->order == 2) {
       out->o2edgelist = new int[subsegs->items];
     }
     out->edgemarkerlist = new int[subsegs->items];
-    if (out->edgemarkerlist == (int *) NULL) {
+    if (out->edgemarkerlist == nullptr) {
       terminatetetgen(this, 1);
     }
     if (b->neighout > 1) {
@@ -30210,7 +30210,7 @@ void tetgenmesh::outsubsegments(tetgenio* out)
   subsegs->traversalinit();
   edgeloop.sh = shellfacetraverse(subsegs);
   edgenumber = firstindex; // in->firstnumber;
-  while (edgeloop.sh != (shellface *) NULL) {
+  while (edgeloop.sh != nullptr) {
     torg = sorg(edgeloop);
     tdest = sdest(edgeloop);
     if ((b->order == 2) || (b->neighout > 1)) {
@@ -30248,7 +30248,7 @@ void tetgenmesh::outsubsegments(tetgenio* out)
     if (marker == 0) {
       marker = 1; // Default marker of a boundary edge is 1. 
     }
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       fprintf(outfile, "%5d   %4d  %4d", edgenumber,
               pointmark(torg) - shift, pointmark(tdest) - shift);
       if (b->order == 2) { // -o2
@@ -30275,7 +30275,7 @@ void tetgenmesh::outsubsegments(tetgenio* out)
     edgeloop.sh = shellfacetraverse(subsegs);
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -30299,13 +30299,13 @@ void tetgenmesh::outneighbors(tetgenio* out)
   int elementnumber;
   long ntets;
 
-  if (out == (tetgenio *) NULL) {
-    strcpy(neighborfilename, b->outfilename);
-    strcat(neighborfilename, ".neigh");
+  if (out == nullptr) {
+    gslStrcpy(neighborfilename, b->outfilename);
+    gslStrcat(neighborfilename, ".neigh");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", neighborfilename);
     } else {
       message("Writing neighbors.\n");
@@ -30314,9 +30314,9 @@ void tetgenmesh::outneighbors(tetgenio* out)
 
   ntets = tetrahedrons->items - hullsize;
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(neighborfilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", neighborfilename);
       terminatetetgen(this, 1);
     }
@@ -30325,7 +30325,7 @@ void tetgenmesh::outneighbors(tetgenio* out)
   } else {
     // Allocate memory for 'neighborlist'.
     out->neighborlist = new int[ntets * 4];
-    if (out->neighborlist == (int *) NULL) {
+    if (out->neighborlist == nullptr) {
       message("Error:  Out of memory.\n");
       terminatetetgen(this, 1);
     }
@@ -30338,7 +30338,7 @@ void tetgenmesh::outneighbors(tetgenio* out)
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
   elementnumber = firstindex; // in->firstnumber;
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     for (tetloop.ver = 0; tetloop.ver < 4; tetloop.ver++) {
       fsym(tetloop, tetsym);
       if (!ishulltet(tetsym)) {
@@ -30347,7 +30347,7 @@ void tetgenmesh::outneighbors(tetgenio* out)
         neighbori[tetloop.ver] = -1;
       }
     }
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       // Tetrahedra number, neighboring tetrahedron numbers.
       fprintf(outfile, "%4d    %4d  %4d  %4d  %4d\n", elementnumber,
               neighbori[0], neighbori[1], neighbori[2], neighbori[3]);
@@ -30361,7 +30361,7 @@ void tetgenmesh::outneighbors(tetgenio* out)
     elementnumber++;
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -30409,13 +30409,13 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   int t1ver; // used by fsymself()
 
   // Output Voronoi vertices to .v.node file.
-  if (out == (tetgenio *) NULL) {
-    strcpy(outfilename, b->outfilename);
-    strcat(outfilename, ".v.node");
+  if (out == nullptr) {
+    gslStrcpy(outfilename, b->outfilename);
+    gslStrcat(outfilename, ".v.node");
   }
 
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", outfilename);
     } else {
       message("Writing Voronoi vertices.\n");
@@ -30459,9 +30459,9 @@ void tetgenmesh::outvoronoi(tetgenio* out)
     edges = meshedges; 
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(outfilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outfilename);
       terminatetetgen(this, 3);
     }
@@ -30471,7 +30471,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
     // Allocate space for 'vpointlist'.
     out->numberofvpoints = (int) ntets;
     out->vpointlist = new DREAL[out->numberofvpoints * 3];
-    if (out->vpointlist == (DREAL *) NULL) {
+    if (out->vpointlist == nullptr) {
       terminatetetgen(this, 1);
     }
   }
@@ -30481,7 +30481,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   tetloop.tet = tetrahedrontraverse();
   vpointcount = 0; // The (internal) v-index always starts from 0. 
   index = 0;
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     for (i = 0; i < 4; i++) {
       pt[i] = (point) tetloop.tet[4 + i];
       setpoint2tet(pt[i], encode(tetloop));
@@ -30492,7 +30492,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
     } else {
       circumsphere(pt[0], pt[1], pt[2], pt[3], ccent, NULL);
     }
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       fprintf(outfile, "%4d  %16.8e %16.8e %16.8e\n", vpointcount + shift,
               ccent[0], ccent[1], ccent[2]);
     } else {
@@ -30505,28 +30505,28 @@ void tetgenmesh::outvoronoi(tetgenio* out)
     tetloop.tet = tetrahedrontraverse();
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
 
   // Output Voronoi edges to .v.edge file.
-  if (out == (tetgenio *) NULL) {
-    strcpy(outfilename, b->outfilename);
-    strcat(outfilename, ".v.edge");
+  if (out == nullptr) {
+    gslStrcpy(outfilename, b->outfilename);
+    gslStrcat(outfilename, ".v.edge");
   }
   
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", outfilename);
     } else {
       message("Writing Voronoi edges.\n");
     }
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(outfilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outfilename);
       terminatetetgen(this, 3);
     }
@@ -30543,7 +30543,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   tetloop.tet = tetrahedrontraverse();
   vedgecount = 0; // D-Face (V-edge) index (from zero).
   index = 0; // The Delaunay-face index.
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     // Count the number of Voronoi edges. Look at the four faces of each
     //   tetrahedron. Count the face if the tetrahedron's index is
     //   smaller than its neighbor's or the neighbor is outside.
@@ -30553,7 +30553,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
       if (ishulltet(worktet) || 
           (elemindex(tetloop.tet) < elemindex(worktet.tet))) {
         // Found a Voronoi edge. Operate on it.
-        if (out == (tetgenio *) NULL) {
+        if (out == nullptr) {
           fprintf(outfile, "%4d  %4d", vedgecount + shift, end1 + shift);
         } else {
           vedge = &(out->vedgelist[index++]);
@@ -30577,7 +30577,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
           L = sqrt(infvec[0] * infvec[0] + infvec[1] * infvec[1]
                    + infvec[2] * infvec[2]);
           if (L > 0) for (j = 0; j < 3; j++) infvec[j] /= L;
-          if (out == (tetgenio *) NULL) {
+          if (out == nullptr) {
             fprintf(outfile, " -1");
             fprintf(outfile, " %g %g %g\n", infvec[0], infvec[1], infvec[2]);
           } else {
@@ -30587,7 +30587,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
             vedge->vnormal[2] = infvec[2];
           }
         } else {
-          if (out == (tetgenio *) NULL) {
+          if (out == nullptr) {
             fprintf(outfile, " %4d\n", end2 + shift);
           } else {
             vedge->v2 = end2 + shift;
@@ -30607,28 +30607,28 @@ void tetgenmesh::outvoronoi(tetgenio* out)
     tetloop.tet = tetrahedrontraverse();
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
 
   // Output Voronoi faces to .v.face file.
-  if (out == (tetgenio *) NULL) {
-    strcpy(outfilename, b->outfilename);
-    strcat(outfilename, ".v.face");
+  if (out == nullptr) {
+    gslStrcpy(outfilename, b->outfilename);
+    gslStrcat(outfilename, ".v.face");
   }
   
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", outfilename);
     } else {
       message("Writing Voronoi faces.\n");
     }
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(outfilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outfilename);
       terminatetetgen(this, 3);
     }
@@ -30646,7 +30646,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   tetrahedrons->traversalinit();
   tetloop.tet = tetrahedrontraverse();
   vfacecount = 0; // D-edge (V-facet) index (from zero).
-  while (tetloop.tet != (tetrahedron *) NULL) {
+  while (tetloop.tet != nullptr) {
     // Count the number of Voronoi faces. Look at the six edges of each
     //   tetrahedron. Count the edge only if the tetrahedron's index is
     //   smaller than those of all other tetrahedra that share the edge.
@@ -30679,7 +30679,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
         pt[1] = dest(worktet);
         end1 = pointmark(pt[0]) - in->firstnumber; // V-cell index
         end2 = pointmark(pt[1]) - in->firstnumber;
-        if (out == (tetgenio *) NULL) {
+        if (out == nullptr) {
           fprintf(outfile, "%4d  %4d %4d  %-2d ", vfacecount + shift, 
                   end1 + shift, end2 + shift, tcount);
         } else {
@@ -30700,7 +30700,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
           } else {
             ishullface = 1; // It's not a real face.
           }
-          if (out == (tetgenio *) NULL) {
+          if (out == nullptr) {
             fprintf(outfile, " %d", !ishullface ? (vedgecount + shift) : -1); 
           } else {
             vfacet->elist[index++] = !ishullface ? (vedgecount + shift) : -1;
@@ -30712,7 +30712,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
           fnextself(spintet);
           if (spintet.tet == firsttet.tet) break;
         } // while (1)
-        if (out == (tetgenio *) NULL) {
+        if (out == nullptr) {
           fprintf(outfile, "\n");
         }
         vfacecount++;
@@ -30721,28 +30721,28 @@ void tetgenmesh::outvoronoi(tetgenio* out)
     tetloop.tet = tetrahedrontraverse();
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
 
   // Output Voronoi cells to .v.cell file.
-  if (out == (tetgenio *) NULL) {
-    strcpy(outfilename, b->outfilename);
-    strcat(outfilename, ".v.cell");
+  if (out == nullptr) {
+    gslStrcpy(outfilename, b->outfilename);
+    gslStrcat(outfilename, ".v.cell");
   }
   
   if (!b->quiet) {
-    if (out == (tetgenio *) NULL) {
+    if (out == nullptr) {
       message("Writing %s.\n", outfilename);
     } else {
       message("Writing Voronoi cells.\n");
     }
   }
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     outfile = fopen(outfilename, "w");
-    if (outfile == (FILE *) NULL) {
+    if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outfilename);
       terminatetetgen(this, 3);
     }
@@ -30778,7 +30778,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
         }
       }
       tcount = (int) ptlist->objects;
-      if (out == (tetgenio *) NULL) {
+      if (out == nullptr) {
         fprintf(outfile, "%4d  %-2d ", vpointcount + shift, tcount);
       } else {
         arraysize = tcount;
@@ -30804,7 +30804,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
               // Get the V-face dual to this edge.
               eidxs = (int *) spintet.tet[11];
               vfacecount = eidxs[4 + ver2edge[spintet.ver]];
-              if (out == (tetgenio *) NULL) {
+              if (out == nullptr) {
                 fprintf(outfile, " %d", vfacecount + shift);
               } else {
                 vertarray[index++] = vfacecount + shift;
@@ -30816,13 +30816,13 @@ void tetgenmesh::outvoronoi(tetgenio* out)
       } // i
       if (ishullvert) {
         // Add a hull facet (-1) to the facet list.
-        if (out == (tetgenio *) NULL) {
+        if (out == nullptr) {
           fprintf(outfile, " -1");
         } else {
           vertarray[index++] = -1;
         }
       }
-      if (out == (tetgenio *) NULL) {
+      if (out == nullptr) {
         fprintf(outfile, "\n");
       }
       tetlist->restart();
@@ -30835,7 +30835,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   // Delete the space for face/edge indices.
   delete [] indexarray;
 
-  if (out == (tetgenio *) NULL) {
+  if (out == nullptr) {
     fprintf(outfile, "# Generated by %s\n", b->commandline);
     fclose(outfile);
   }
@@ -30864,22 +30864,22 @@ void tetgenmesh::outsmesh(char* smfilename)
   int marker;
   int i;
 
-  if (smfilename != (char *) NULL && smfilename[0] != '\0') {
-    strcpy(smefilename, smfilename);
+  if (smfilename != nullptr && smfilename[0] != '\0') {
+    gslStrcpy(smefilename, smfilename);
   } else if (b->outfilename[0] != '\0') {
-    strcpy(smefilename, b->outfilename);
+    gslStrcpy(smefilename, b->outfilename);
   } else {
-    strcpy(smefilename, "unnamed");
+    gslStrcpy(smefilename, "unnamed");
   }
-  strcpy(nodfilename, smefilename);
-  strcat(smefilename, ".smesh");
-  strcat(nodfilename, ".node");
+  gslStrcpy(nodfilename, smefilename);
+  gslStrcat(smefilename, ".smesh");
+  gslStrcat(nodfilename, ".node");
 
   if (!b->quiet) {
     message("Writing %s.\n", smefilename);
   }
   outfile = fopen(smefilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     message("File I/O Error:  Cannot create file %s.\n", smefilename);
     return;
   }
@@ -30904,7 +30904,7 @@ void tetgenmesh::outsmesh(char* smfilename)
   
   subfaces->traversalinit();
   faceloop.sh = shellfacetraverse(subfaces);
-  while (faceloop.sh != (shellface *) NULL) {
+  while (faceloop.sh != nullptr) {
     p1 = sorg(faceloop);
     p2 = sdest(faceloop);
     p3 = sapex(faceloop);
@@ -30967,20 +30967,20 @@ void tetgenmesh::outmesh2medit(char* mfilename)
   int marker;
   int i;
 
-  if (mfilename != (char *) NULL && mfilename[0] != '\0') {
-    strcpy(mefilename, mfilename);
+  if (mfilename != nullptr && mfilename[0] != '\0') {
+    gslStrcpy(mefilename, mfilename);
   } else if (b->outfilename[0] != '\0') {
-    strcpy(mefilename, b->outfilename);
+    gslStrcpy(mefilename, b->outfilename);
   } else {
-    strcpy(mefilename, "unnamed");
+    gslStrcpy(mefilename, "unnamed");
   }
-  strcat(mefilename, ".mesh");
+  gslStrcat(mefilename, ".mesh");
 
   if (!b->quiet) {
     message("Writing %s.\n", mefilename);
   }
   outfile = fopen(mefilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     message("File I/O Error:  Cannot create file %s.\n", mefilename);
     return;
   }
@@ -31022,7 +31022,7 @@ void tetgenmesh::outmesh2medit(char* mfilename)
 
   tetrahedrons->traversalinit();
   tface.tet = tetrahedrontraverse();
-  while (tface.tet != (tetrahedron *) NULL) {
+  while (tface.tet != nullptr) {
     for (tface.ver = 0; tface.ver < 4; tface.ver ++) {
       fsym(tface, tsymface);
       if (ishulltet(tsymface) || 
@@ -31051,7 +31051,7 @@ void tetgenmesh::outmesh2medit(char* mfilename)
 
   tetrahedrons->traversalinit();
   tetptr = tetrahedrontraverse();
-  while (tetptr != (tetrahedron *) NULL) {
+  while (tetptr != nullptr) {
     if (!b->reversetetori) {
       p1 = (point) tetptr[4];
       p2 = (point) tetptr[5];
@@ -31085,7 +31085,7 @@ void tetgenmesh::outmesh2medit(char* mfilename)
 
     subsegs->traversalinit();
     segloop.sh = shellfacetraverse(subsegs);
-    while (segloop.sh != (shellface *) NULL) {
+    while (segloop.sh != nullptr) {
       p1 = sorg(segloop);
       p2 = sdest(segloop);
       fprintf(outfile, "%5d  %5d", pointmark(p1), pointmark(p2));
@@ -31130,20 +31130,20 @@ void tetgenmesh::outmesh2vtk(char* ofilename)
   int NEL = tetrahedrons->items - hullsize;
   int NN = points->items;
 
-  if (ofilename != (char *) NULL && ofilename[0] != '\0') {
-    strcpy(vtkfilename, ofilename);
+  if (ofilename != nullptr && ofilename[0] != '\0') {
+    gslStrcpy(vtkfilename, ofilename);
   } else if (b->outfilename[0] != '\0') {
-    strcpy(vtkfilename, b->outfilename);
+    gslStrcpy(vtkfilename, b->outfilename);
   } else {
-    strcpy(vtkfilename, "unnamed");
+    gslStrcpy(vtkfilename, "unnamed");
   }
-  strcat(vtkfilename, ".vtk");
+  gslStrcat(vtkfilename, ".vtk");
 
   if (!b->quiet) {
     message("Writing %s.\n", vtkfilename);
   }
   outfile = fopen(vtkfilename, "w");
-  if (outfile == (FILE *) NULL) {
+  if (outfile == nullptr) {
     message("File I/O Error:  Cannot create file %s.\n", vtkfilename);
     return;
   }
@@ -31174,7 +31174,7 @@ void tetgenmesh::outmesh2vtk(char* ofilename)
   tetrahedrons->traversalinit();
   tptr = tetrahedrontraverse();
   //elementnumber = firstindex; // in->firstnumber;
-  while (tptr != (tetrahedron *) NULL) {
+  while (tptr != nullptr) {
     if (!b->reversetetori) {
       p1 = (point) tptr[4];
       p2 = (point) tptr[5];
@@ -31206,7 +31206,7 @@ void tetgenmesh::outmesh2vtk(char* ofilename)
     fprintf(outfile, "LOOKUP_TABLE default\n");
     tetrahedrons->traversalinit();
     tptr = tetrahedrontraverse();
-    while (tptr != (tetrahedron *) NULL) {
+    while (tptr != nullptr) {
       fprintf(outfile, "%d\n", (int) elemattribute(tptr, numelemattrib - 1));
       tptr = tetrahedrontraverse();
     }
@@ -31472,7 +31472,7 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
     message("\n");
   }
 
-  if (out != (tetgenio *) NULL) {
+  if (out != nullptr) {
     out->firstnumber = in->firstnumber;
     out->mesh_dim = in->mesh_dim;
   }

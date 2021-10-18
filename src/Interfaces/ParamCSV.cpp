@@ -1,8 +1,8 @@
 #include "Interfaces/ParamCSV.hpp"
 
 ParamCSV::ParamCSV(std::string filePath,
-                   std::string sep,
-                   std::string decimalChar,
+                   char sep,
+                   char decimalChar,
                    bool useHeader,
                    int skipNLines)
     : _filePath(filePath),
@@ -22,12 +22,12 @@ std::string ParamCSV::getFilePath() const
   return (_filePath);
 }
 
-std::string ParamCSV::getSeparatorChar() const
+char ParamCSV::getSeparatorChar() const
 {
   return (_separatorChar);
 }
 
-std::string ParamCSV::getDecimalChar() const
+char ParamCSV::getDecimalChar() const
 {
   return (_decimalChar);
 }

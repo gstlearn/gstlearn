@@ -12,6 +12,7 @@
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/CSVformat.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -128,8 +129,8 @@ Db::Db(const VectorInt& nx,
  * Creating a Db by reading a CSV file
  *
  * @param filename   Name of the CSV file
- * @param csv        Description of the CSV format
  * @param verbose    Verbose flag
+ * @param csv        Description of the CSV format
  * @param ncol_max   Maximum number of columns
  * @param nrow_max   Maximum number of rows
  * @param flag_add_rank 1 if the sample rank must be generated
@@ -158,9 +159,9 @@ Db::Db(const String& filename,
 
   /* Reading the CSV file */
 
-  if (csv_table_read(filename.c_str(), (int) verbose,
+  if (csv_table_read(filename, (int) verbose,
                      csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep().c_str(), csv.getCharDec().c_str(),csv.getNaString().c_str(),
+                     csv.getCharSep(), csv.getCharDec(),csv.getNaString(),
                      ncol_max, nrow_max, &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
@@ -1173,8 +1174,22 @@ void Db::setLocatorByAttribute(int iatt,
   {
     PtrGeos& p = _p[locatorType];
     int nitem = p.getLocatorNumber();
-    if (locatorIndex >= nitem) p.resize(locatorIndex + 1);
-    p.setLocatorByIndex(locatorIndex, iatt);
+    int iadd;
+    if (locatorIndex > nitem)
+    {
+      iadd = nitem;
+      p.resize(nitem + 1);
+    }
+    else if (locatorIndex == nitem)
+    {
+      iadd = locatorIndex;
+      p.resize(locatorIndex + 1);
+    }
+    else
+    {
+      iadd = locatorIndex;
+    }
+    p.setLocatorByIndex(iadd, iatt);
   }
 }
 

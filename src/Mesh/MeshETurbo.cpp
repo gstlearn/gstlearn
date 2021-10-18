@@ -305,8 +305,8 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
   // Initializations
 
   error    = 1;
-  Atriplet = A = (cs *) NULL;
-  rhs      = lambda = (double *) NULL;
+  Atriplet = A = nullptr;
+  rhs      = lambda = nullptr;
   ndim     = getNDim();
   ncorner  = getNApexPerMesh();
   VectorInt indg0(ndim);
@@ -321,12 +321,12 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
   // Core allocation
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == (cs *) NULL) goto label_end;
+  if (Atriplet == nullptr) goto label_end;
 
   rhs    = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (rhs    == (double *) NULL) goto label_end;
+  if (rhs    == nullptr) goto label_end;
   lambda = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (lambda == (double *) NULL) goto label_end;
+  if (lambda == nullptr) goto label_end;
 
   /* Optional title */
 
@@ -428,7 +428,7 @@ double* MeshETurbo::interpolateMeshToDb(Db *db,
   // Initializations
 
   error    = 1;
-  rhs      = lambda = dtab = (double *) NULL;
+  rhs      = lambda = dtab = nullptr;
   ndim     = getNDim();
   ncorner  = getNApexPerMesh();
   nech     = db->getActiveSampleNumber();
@@ -444,11 +444,11 @@ double* MeshETurbo::interpolateMeshToDb(Db *db,
   // Core allocation
 
   dtab   = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (dtab == (double *) NULL) goto label_end;
+  if (dtab == nullptr) goto label_end;
   rhs    = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (rhs    == (double *) NULL) goto label_end;
+  if (rhs    == nullptr) goto label_end;
   lambda = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (lambda == (double *) NULL) goto label_end;
+  if (lambda == nullptr) goto label_end;
 
   /* Loop on the samples */
 

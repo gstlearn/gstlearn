@@ -15,22 +15,23 @@
 #include "Basic/Tensor.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
 NoStatArray::NoStatArray()
-    : ANoStat(),
-      _dbnostat(nullptr),
-      _tab()
+: ANoStat(),
+  _dbnostat(nullptr),
+  _tab()
 {
 }
 
 NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
-    : ANoStat(codes),
-      _dbnostat(dbnostat),
-      _tab()
+: ANoStat(codes),
+  _dbnostat(dbnostat),
+  _tab()
 {
   if (! _checkValid())
   {
@@ -40,9 +41,9 @@ NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
 }
 
 NoStatArray::NoStatArray(const NoStatArray &m)
-    : ANoStat(m),
-      _dbnostat(m._dbnostat),
-      _tab(m._tab)
+: ANoStat(m),
+  _dbnostat(m._dbnostat),
+  _tab(m._tab)
 {
 
 }
@@ -243,11 +244,11 @@ bool NoStatArray::isEmpty(int icas) const
   }
   if (icas == 1)
   {
-    if (_dbin == (Db *) NULL) return true;
+    if (_dbin == nullptr) return true;
   }
   if (icas == 2)
   {
-    if (_dbout == (Db *) NULL) return true;
+    if (_dbout == nullptr) return true;
   }
   return false;
 }
@@ -332,12 +333,12 @@ String NoStatArray::_displayStats(int ipar, int icas) const
   }
   else if (icas == 1)
   {
-    if (_dbin == (Db *) NULL) return sstr.str();
+    if (_dbin == nullptr) return sstr.str();
     vec = _dbin->getFieldByLocator(ELoc::NOSTAT,ipar,true);
   }
   else
   {
-    if (_dbout == (Db *) NULL) return sstr.str();
+    if (_dbout == nullptr) return sstr.str();
     vec = _dbout->getFieldByLocator(ELoc::NOSTAT,ipar,true);
   }
 
@@ -411,7 +412,7 @@ int NoStatArray::_informField(int ipar,
     }
 
     message("For Non-Stationary Parameter (%d), there are some undefined values (%d)\n",
-        ipar + 1, ndef);
+            ipar + 1, ndef);
     message("They have been replaced by its average value (%lf)\n", mean);
 
     // Modify the TEST values to the mean value
@@ -425,8 +426,13 @@ int NoStatArray::_informField(int ipar,
   // Printout some statistics (optional)
 
   if (verbose)
-    ut_vector_display_stats(stringCompose("Statistics for Non-Stationary Parameter #%d on Mesh",
-                                          ipar + 1),tab);
+  {
+    char str[LONG_SIZE];
+    (void) gslSPrintf(str,
+                      "Statistics for Non-Stationary Parameter #%d on Mesh",
+                      ipar + 1);
+    ut_vector_display_stats(str,tab);
+  }
 
   return 0;
 }

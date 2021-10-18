@@ -16,6 +16,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/ECov.hpp"
 #include "Basic/MathFunc.hpp"
@@ -374,8 +375,8 @@ static int st_check_simtub_environment(Db    *dbin,
 
   error = 1;
   nvar = ndim = nfex = 0;
-  dbin_mini = dbin_maxi = dbout_mini = dbout_maxi = (double *) NULL;
-  flag_cond = (dbin != (Db *) NULL) && (neigh != (Neigh *) NULL);
+  dbin_mini = dbin_maxi = dbout_mini = dbout_maxi = nullptr;
+  flag_cond = (dbin != nullptr);
   ndim = dbout->getNDim();
 
   /**************************************************************/
@@ -399,7 +400,7 @@ static int st_check_simtub_environment(Db    *dbin,
   /* Checking the model */
   /**********************/
 
-  if (model != (Model *) NULL)
+  if (model != nullptr)
   {
     nvar = model->getVariableNumber();
     if (nvar <= 0)
@@ -462,23 +463,23 @@ static int st_check_simtub_environment(Db    *dbin,
   if (flag_cond)
   {
     dbin_mini = db_sample_alloc(dbin,ELoc::X);
-    if (dbin_mini == (double *) NULL) goto label_end;
+    if (dbin_mini == nullptr) goto label_end;
     dbin_maxi = db_sample_alloc(dbin,ELoc::X);
-    if (dbin_maxi == (double *) NULL) goto label_end;
+    if (dbin_maxi == nullptr) goto label_end;
     if (db_extension(dbin,
-                     dbin_mini,dbin_maxi,(double *) NULL)) goto label_end;
+                     dbin_mini,dbin_maxi,nullptr)) goto label_end;
   }
 
   /* Output Db structure */
 
   dbout_mini = db_sample_alloc(dbout,ELoc::X);
-  if (dbout_mini == (double *) NULL) goto label_end;
+  if (dbout_mini == nullptr) goto label_end;
   dbout_maxi = db_sample_alloc(dbout,ELoc::X);
-  if (dbout_maxi == (double *) NULL) goto label_end;
+  if (dbout_maxi == nullptr) goto label_end;
   if (db_extension(dbout,
-                   dbout_mini,dbout_maxi,(double *) NULL)) goto label_end;
+                   dbout_mini,dbout_maxi,nullptr)) goto label_end;
 
-  if (model != (Model *) NULL)
+  if (model != nullptr)
     model->setField(ut_merge_extension(ndim,dbin_mini,dbin_maxi,
                                       dbout_mini,dbout_maxi));
 
@@ -491,7 +492,7 @@ static int st_check_simtub_environment(Db    *dbin,
   /* Checking the Neighborhood */
   /*****************************/
 
-  if (flag_cond && neigh != (Neigh *) NULL)
+  if (flag_cond && neigh != nullptr)
   {
     if (neigh->getNDim() != ndim)
     {
@@ -576,7 +577,7 @@ static void st_irf_process_alloc(int nt,
 
   /* Initializations */
 
-  (*v0) = (*v1) = (*v2) = (double *) NULL;
+  (*v0) = (*v1) = (*v2) = nullptr;
 
   /* Generations of the independent gaussian variables */
 
@@ -585,15 +586,15 @@ static void st_irf_process_alloc(int nt,
   /* Core allocation */
 
   (*v0) = (double *) mem_alloc(sizeof(double) * nt,0);
-  if ((*v0) == (double *) NULL) return;
+  if ((*v0) == nullptr) return;
   if (type == ECov::LINEAR || type == ECov::ORDER1_GC) return;
 
   (*v1) = (double *) mem_alloc(sizeof(double) * nt,0);
-  if ((*v1) == (double *) NULL) return;
+  if ((*v1) == nullptr) return;
   if (type == ECov::ORDER3_GC) return;
 
   (*v2) = (double *) mem_alloc(sizeof(double) * nt,0);
-  if ((*v2) == (double *) NULL) return;
+  if ((*v2) == nullptr) return;
   if (type == ECov::ORDER5_GC) return;
 
   return;
@@ -1010,14 +1011,14 @@ static double *st_migration_alloc(double  tmin,
     step  = delta * EPS;
     count = (int) ceil(delta / EPS); 
     tab   = (double *) mem_alloc(sizeof(double) * count,0);
-    if (tab == (double *) NULL) return(tab);
+    if (tab == nullptr) return(tab);
     for (i=0; i<count; i++) tab[i] = tmin + i * step;
   }
   else
   {
     n_quant = count = 1;
     tab = (double *) mem_alloc(sizeof(double) * n_quant * QUANT,0);
-    if (tab == (double *) NULL) return(tab);
+    if (tab == nullptr) return(tab);
     tab[0] = tmin + scale * log(law_uniform(0.,1.));
     tab[1] = tmin - scale * log(law_uniform(0.,1.));
       
@@ -1029,7 +1030,7 @@ static double *st_migration_alloc(double  tmin,
         n_quant++;
         tab = (double *)
           mem_realloc((char *) tab, sizeof(double)*QUANT*n_quant,0);
-        if (tab == (double *) NULL) return(tab);
+        if (tab == nullptr) return(tab);
       }
       tab[count] = tab[count-1] - scale * log(law_uniform(0.,1.));
     }
@@ -1156,7 +1157,7 @@ static double *st_dilution_alloc(double  tmin,
   n_quant = 1;
   count   = 0;
   tab = (double *) mem_alloc(sizeof(double) * n_quant * QUANT,0);
-  if (tab == (double *) NULL) goto label_end;
+  if (tab == nullptr) goto label_end;
 
   tdeb = tmin - mesh * law_uniform(0.,1.);
 
@@ -1167,7 +1168,7 @@ static double *st_dilution_alloc(double  tmin,
       n_quant++;
       tab = (double *)
         mem_realloc((char *) tab,sizeof(double) * QUANT * n_quant,0);
-      if (tab == (double *) NULL) goto label_end;
+      if (tab == nullptr) goto label_end;
     }
     tab[count] = (law_uniform(0.,1.) < 0.5) ? -1. : 1.;
     count++;
@@ -1320,7 +1321,7 @@ static int st_initialize(Db     *dbin,
   nbtuba = situba->nbtuba;
   nbsimu = situba->nbsimu;
   theta1 = 1. / situba->theta;
-  t = v0 = v1 = v2 = (double *) NULL;
+  t = v0 = v1 = v2 = nullptr;
   nt     = 0;
 
   /* Loop on the turning bands */
@@ -1448,7 +1449,7 @@ static Situba *st_dealloc(Model  *model,
 {
   int ibs;
 
-  if (situba == (Situba *) NULL) return(situba);
+  if (situba == nullptr) return(situba);
 
   /* Deallocate the structures for the seeds */
 
@@ -1492,7 +1493,7 @@ static Situba *st_alloc(Model *model,
   /* Allocate the Situba structure */
 
   situba = (Situba *) mem_alloc(sizeof(Situba),0);
-  if (situba == (Situba *) NULL) goto label_end;
+  if (situba == nullptr) goto label_end;
   situba->nbands    = nbsimu * nbtuba * ncova;
   situba->nbsimu    = nbsimu;
   situba->nbtuba    = nbtuba;
@@ -1500,14 +1501,14 @@ static Situba *st_alloc(Model *model,
   situba->nb_points_simu = 0;
   situba->theta     = 0.;
   situba->field     = 0.;
-  situba->seeds     = (int *) NULL;
+  situba->seeds     = nullptr;
   situba->codir     = (Direction **) NULL;
 
   /* Allocate the structures for the seeds */
 
   size = nvar * ncova * nbtuba * nbsimu;
   situba->seeds = (int *) mem_alloc(sizeof(int) * size,0);
-  if (situba->seeds == (int *) NULL) goto label_end;
+  if (situba->seeds == nullptr) goto label_end;
   for (i=0; i<size; i++) situba->seeds[i] = 0;
 
   /* Allocate the structures for the directions */
@@ -1620,7 +1621,7 @@ static double st_project_grid(Db     *db,
   indg[0] = ix;
   indg[1] = iy;
   indg[2] = iz;
-  grid_to_point(db,indg,(double *) NULL,xyz);
+  grid_to_point(db,indg,nullptr,xyz);
 
   t = 0.;
   for (idim=0; idim<db->getNDim(); idim++)
@@ -1789,7 +1790,7 @@ static void st_minmax(Db     *db,
 
   /* Initializations */
 
-  if (db == (Db *) NULL) return;
+  if (db == nullptr) return;
 
   if (is_grid(db))
   {
@@ -1885,12 +1886,12 @@ static void st_difference(Db     *dbin,
     {
       for (ivar=0; ivar<nvar; ivar++)
       {
-        (void) sprintf(string,"Data%d",ivar+1);
+        (void) gslSPrintf(string,"Data%d",ivar+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
         
         for (isimu=0; isimu<nbsimu; isimu++)
         {
-          (void) sprintf(string,"Simu%d",isimu+1);
+          (void) gslSPrintf(string,"Simu%d",isimu+1);
           tab_prints(NULL,1,EJustify::RIGHT,string);
         }
       }
@@ -1949,10 +1950,10 @@ static void st_difference(Db     *dbin,
     {
       for (isimu=0; isimu<nbsimu; isimu++)
       {
-        (void) sprintf(string,"Data%d",isimu+1);
+        (void) gslSPrintf(string,"Data%d",isimu+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
         
-        (void) sprintf(string,"Simulation%d",isimu+1);
+        (void) gslSPrintf(string,"Simulation%d",isimu+1);
         tab_prints(NULL,1,EJustify::RIGHT,string);
       }
       message("\n");
@@ -1998,11 +1999,11 @@ static void st_difference(Db     *dbin,
 static void st_title_process(char *string,
                              const char *title)
 {
-  (void) strcpy(string,title);
+  (void) gslStrcpy(string,title);
   if (MES_NPGS > 1)
-    (void) sprintf(&string[strlen(string)],
+    (void) gslSPrintf(&string[strlen(string)],
                    " (PGS %d/%d)",MES_IPGS+1,MES_NPGS);
-  (void) sprintf(&string[strlen(string)],
+  (void) gslSPrintf(&string[strlen(string)],
                  " (GRF %d/%d)",MES_IGRF+1,MES_NGRF);
   return;
 }
@@ -2057,7 +2058,7 @@ static int st_simulate_grid(Db     *db,
   norme  = sqrt(1. / nbtuba);
   nt     = iech = 0;
   vexp   = 0.;
-  t = v0 = v1 = v2 = tab = (double *) NULL;
+  t = v0 = v1 = v2 = tab = nullptr;
  
   /* Core allocation */
 
@@ -2065,16 +2066,16 @@ static int st_simulate_grid(Db     *db,
   if (situba->max_alloc > 0)
   {
     t    = (double *) mem_alloc(sizeof(double) * situba->max_alloc,0);
-    if (t  == (double *) NULL) goto label_end;
+    if (t  == nullptr) goto label_end;
     v0   = (double *) mem_alloc(sizeof(double) * situba->max_alloc,0);
-    if (v0 == (double *) NULL) goto label_end;
+    if (v0 == nullptr) goto label_end;
     v1   = (double *) mem_alloc(sizeof(double) * situba->max_alloc,0);
-    if (v1 == (double *) NULL) goto label_end;
+    if (v1 == nullptr) goto label_end;
     v2   = (double *) mem_alloc(sizeof(double) * situba->max_alloc,0);
-    if (v2 == (double *) NULL) goto label_end;
+    if (v2 == nullptr) goto label_end;
   }
   tab  = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (tab == (double *) NULL) goto label_end;
+  if (tab == nullptr) goto label_end;
   
   /*****************************/
   /* Performing the simulation */
@@ -2578,7 +2579,7 @@ static int st_simulate_point(Db     *db,
   norme  = sqrt(1. / nbtuba);
   nt     = 0;
   vexp   = 0.;
-  t = v0 = v1 = v2 = tab = (double *) NULL;
+  t = v0 = v1 = v2 = tab = nullptr;
 
   /* Core allocation */
 
@@ -2586,16 +2587,16 @@ static int st_simulate_point(Db     *db,
   if (situba->max_alloc > 0)
   {
     t    = (double *) mem_alloc(sizeof(double) * situba->max_alloc,0);
-    if (t  == (double *) NULL) goto label_end;
+    if (t  == nullptr) goto label_end;
     v0   = (double *) mem_alloc(sizeof(double) * situba->max_alloc,0);
-    if (v0 == (double *) NULL) goto label_end;
+    if (v0 == nullptr) goto label_end;
     v1   = (double *) mem_alloc(sizeof(double) * situba->max_alloc,0);
-    if (v1 == (double *) NULL) goto label_end;
+    if (v1 == nullptr) goto label_end;
     v2   = (double *) mem_alloc(sizeof(double) * situba->max_alloc,0);
-    if (v2 == (double *) NULL) goto label_end;
+    if (v2 == nullptr) goto label_end;
   }
   tab  = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (tab == (double *) NULL) goto label_end;
+  if (tab == nullptr) goto label_end;
 
   /*****************************/
   /* Performing the simulation */
@@ -2858,7 +2859,7 @@ static void st_update_data2target(Db     *dbin,
       if (point_to_grid(dbout,coor2,1,indg)) continue;
       ik = db_index_grid_to_sample(dbout,indg);
       if (! dbout->isActive(ik)) continue;
-      grid_to_point(dbout,indg,(double *) NULL,coor1);
+      grid_to_point(dbout,indg,nullptr,coor1);
 
       /* Get the distance to the target point */
       
@@ -3166,7 +3167,7 @@ static void st_check_gaussian_data2grid(Db     *dbin,
 
   /* Initializations */
 
-  if (dbin == (Db *) NULL || dbout == (Db *) NULL) return;
+  if (dbin == nullptr) return;
   number = 0;
   check_mandatory_attribute("st_check_gaussian_data2grid",dbout,ELoc::SIMU);
   mestitle(1,"Checking Gaussian of data against closest grid node");
@@ -3272,8 +3273,8 @@ static int st_simtub_process(Db     *dbin,
   error = 1;
   ncova = model->getCovaNumber();
   nvar  = model->getVariableNumber();
-  aic   = valpro = vecpro = (double *) NULL;
-  flag_cond  = (dbin != (Db *) NULL) && (neigh != (Neigh *) NULL);
+  aic   = valpro = vecpro = nullptr;
+  flag_cond  = (dbin != nullptr);
   st_gendir(dbout,model,situba);
   st_minmax(dbout,model,situba);
   st_minmax(dbin ,model,situba);
@@ -3388,13 +3389,13 @@ GEOSLIB_API int simtub_potential(Db     *dbiso,
   icase = 0;
   ncova = model->getCovaNumber();
   nvar  = model->getVariableNumber();
-  aic   = valpro = vecpro = (double *) NULL;
-  situba = (Situba *) NULL;
+  aic   = valpro = vecpro = nullptr;
+  situba = nullptr;
 
   /* Processing the Turning Bands algorithm */
 
   situba = st_alloc(model,nbsimu,nbtuba);
-  if (situba == (Situba *) NULL) goto label_end;
+  if (situba == nullptr) goto label_end;
 
   st_gendir(dbout,model,situba);
   st_minmax(dbout,model,situba);
@@ -3413,21 +3414,21 @@ GEOSLIB_API int simtub_potential(Db     *dbiso,
 
   /* Non conditional simulations on the data points */
 
-  if (dbiso != (Db *) NULL)
+  if (dbiso != nullptr)
   {
     if (st_simulate_point(dbiso,DATA,model,situba,aic,icase,0)) goto label_end;
   }
 
   /* Non conditional simulations on the gradient points */
 
-  if (dbgrd != (Db *) NULL) 
+  if (dbgrd != nullptr) 
   {
     if (st_simulate_gradient(dbgrd,model,situba,aic,delta)) goto label_end;
   }
 
   /* Non conditional simulations on the tangent points */
 
-  if (dbtgt != (Db *) NULL) 
+  if (dbtgt != nullptr) 
   {
     if (st_simulate_tangent(dbtgt,model,situba,aic,delta)) goto label_end;
   }
@@ -3498,8 +3499,8 @@ GEOSLIB_API int simtub(Db *dbin,
   error = 1;
   nvar  = model->getVariableNumber();
   iptr_in = iptr_out = -1;
-  flag_cond = (dbin != (Db *) NULL && neigh != (Neigh *) NULL);
-  situba = (Situba *) NULL;
+  flag_cond = (dbin != nullptr);
+  situba = nullptr;
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin,dbout,model,neigh)) goto label_end;
   if (manage_external_info(1,ELoc::F,dbin,dbout,&iext)) goto label_end;
@@ -3523,9 +3524,9 @@ GEOSLIB_API int simtub(Db *dbin,
   /* Processing the Turning Bands algorithm */
 
   situba = st_alloc(model,nbsimu,nbtuba);
-  if (situba == (Situba *) NULL) goto label_end;
+  if (situba == nullptr) goto label_end;
   if (st_simtub_process(dbin,dbout,model,neigh,situba,
-                        (double *) NULL,(double *) NULL,
+                        nullptr,nullptr,
                         nbsimu,0,0,0,flag_check)) goto label_end;
 
   /* Free the temporary variables */
@@ -3584,8 +3585,8 @@ GEOSLIB_API int simdgm(Db    *dbin,
   error = 1;
   nvar  = model->getVariableNumber();
   iptr = -1;
-  flag_cond = (dbin != (Db *) NULL && neigh != (Neigh *) NULL);
-  situba = (Situba *) NULL;
+  flag_cond = (dbin != nullptr);
+  situba = nullptr;
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin,dbout,model,neigh)) goto label_end;
   if (manage_external_info(1,ELoc::F,dbin,dbout,&iext)) goto label_end;
@@ -3612,9 +3613,9 @@ GEOSLIB_API int simdgm(Db    *dbin,
   /* Processing the Turning Bands algorithm */
 
   situba = st_alloc(model,nbsimu,nbtuba);
-  if (situba == (Situba *) NULL) goto label_end;
+  if (situba == nullptr) goto label_end;
   if (st_simtub_process(dbin,dbout,model,neigh,situba,
-                        (double *) NULL,(double *) NULL,
+                        nullptr,nullptr,
                         nbsimu,0,0,0,flag_check)) goto label_end;
 
   /* Free the temporary variables */
@@ -3674,8 +3675,8 @@ GEOSLIB_API int simbayes(Db     *dbin,
   error = 1;
   nvar  = model->getVariableNumber();
   iptr  = -1;
-  flag_cond = (dbin != (Db *) NULL && neigh != (Neigh *) NULL);
-  situba = (Situba *) NULL;
+  flag_cond = (dbin != nullptr);
+  situba = nullptr;
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin,dbout,model,neigh)) goto label_end;
 
@@ -3697,7 +3698,7 @@ GEOSLIB_API int simbayes(Db     *dbin,
   /* Processing the Turning Bands algorithm */
 
   situba = st_alloc(model,nbsimu,nbtuba);
-  if (situba == (Situba *) NULL) goto label_end;
+  if (situba == nullptr) goto label_end;
   if (st_simtub_process(dbin,dbout,model,neigh,situba,dmean,dcov,
                         nbsimu,0,0,0,flag_check)) goto label_end;
 
@@ -3729,7 +3730,7 @@ GEOSLIB_API int get_rank_from_propdef(PropDef *propdef,
                                       int    ipgs,
                                       int    igrf)
 {
-  if (ipgs <= 0 || propdef == (PropDef *) NULL)
+  if (ipgs <= 0 || propdef == nullptr)
     return(igrf);
   else
     return(propdef->ngrf[0] + igrf);
@@ -3797,7 +3798,7 @@ static void st_check_facies_data2grid(PropDef  *propdef,
 
   check_mandatory_attribute("st_check_facies_data2grid",dbout,ELoc::FACIES);
   number = 0;
-  coor   = (double *) NULL;
+  coor   = nullptr;
   if (flag_check) 
     mestitle(1,"Checking facies of data against closest grid node (PGS=%d)",
              ipgs+1);
@@ -3805,7 +3806,7 @@ static void st_check_facies_data2grid(PropDef  *propdef,
   /* Core allocation */
 
   coor = db_sample_alloc(dbin,ELoc::X);
-  if (coor == (double *) NULL) goto label_end;
+  if (coor == nullptr) goto label_end;
 
   /* Loop on the data */
 
@@ -3932,11 +3933,11 @@ GEOSLIB_API int simpgs(Db *dbin,
   int nvar      = 1;
   int nechin    = 0;
   int ngrf      = 0;
-  situba    = (Situba *) NULL;
-  propdef   = (PropDef *) NULL;
+  situba    = nullptr;
+  propdef   = nullptr;
   models[0] = model1;
   models[1] = model2;
-  bool flag_cond = (dbin != (Db *) NULL);
+  bool flag_cond = (dbin != nullptr);
   iptr_RP   = iptr_RF = iptr_DF = nfacies = 0;
   iptr      = -1;
   bool    verbose = false;
@@ -3980,7 +3981,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   {
     flag_used[igrf] = rule->isYUsed(igrf);
     if (! flag_used[igrf]) continue;
-    if (models[igrf] == (Model *) NULL)
+    if (models[igrf] == nullptr)
     {
       messerr("The Underlying GRF #%d is needed",igrf+1);
       messerr("No corresponding Model is provided");
@@ -4063,7 +4064,7 @@ GEOSLIB_API int simpgs(Db *dbin,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
                               propcst,propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
   simu_define_func_update(simu_func_categorical_update);
   simu_define_func_scale (simu_func_categorical_scale);
   ModCat.propdef = propdef;
@@ -4117,9 +4118,9 @@ GEOSLIB_API int simpgs(Db *dbin,
     if (! flag_used[MES_IGRF]) continue;
     icase  = get_rank_from_propdef(propdef,0,MES_IGRF);
     situba = st_alloc(models[MES_IGRF],nbsimu,nbtuba);
-    if (situba == (Situba *) NULL) goto label_end;
+    if (situba == nullptr) goto label_end;
     if (st_simtub_process(dbin,dbout,models[MES_IGRF],neigh,situba,
-                          (double *) NULL,(double *) NULL,
+                          nullptr,nullptr,
                           nbsimu,icase,1,0,flag_check)) goto label_end;
     situba = st_dealloc(models[MES_IGRF],situba);
   }
@@ -4284,8 +4285,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   npgs      = 2;
   nechin    = 0;
   verbose   = false;
-  situba    = (Situba *) NULL;
-  propdef   = (PropDef  *) NULL;
+  situba    = nullptr;
+  propdef   = nullptr;
 
   if (ruleprop == nullptr)
   {
@@ -4312,7 +4313,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   models[1][0] = model21;
   models[1][1] = model22;
   nfactot   = nfac[0] + nfac[1];
-  flag_cond = (dbin != (Db *) NULL);
+  flag_cond = (dbin != nullptr);
   iptr_RP   = iptr_RF = iptr_DF = iptr_RN = iptr_DN = 0;
   iptr      = -1;
   for (ipgs=0; ipgs<2; ipgs++)
@@ -4360,7 +4361,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
     {
       flag_used[ipgs][igrf] = rules[ipgs]->isYUsed(igrf);
       if (! flag_used[ipgs][igrf]) continue;
-      if (models[ipgs][igrf] == (Model *) NULL)
+      if (models[ipgs][igrf] == nullptr)
       {
         messerr("Variable #%d needs the underlying GRF #%d",ipgs+1,igrf+1);
         messerr("No corresponding Model is provided");
@@ -4414,7 +4415,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf[0],ngrf[1],nfac[0],nfac[1],
                               dbin,dbprop,propcst,propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
   simu_define_func_update(simu_func_categorical_update);
   simu_define_func_scale (simu_func_categorical_scale);
   ModCat.propdef = propdef;
@@ -4551,9 +4552,9 @@ GEOSLIB_API int simbipgs(Db       *dbin,
       if (! flag_used[ipgs][MES_IGRF]) continue;
       icase  = get_rank_from_propdef(propdef,ipgs,MES_IGRF);
       situba = st_alloc(models[ipgs][MES_IGRF],nbsimu,nbtuba);
-      if (situba == (Situba *) NULL) goto label_end;
+      if (situba == nullptr) goto label_end;
       if (st_simtub_process(dbin,dbout,models[ipgs][MES_IGRF],neigh,situba,
-                            (double *) NULL,(double *) NULL,
+                            nullptr,nullptr,
                             nbsimu,icase,1,0,flag_check)) goto label_end;
       situba = st_dealloc(models[ipgs][MES_IGRF],situba);
     }
@@ -4669,7 +4670,7 @@ GEOSLIB_API int db_simulations_to_ce(Db    *db,
 
   error = 1;
   iptr_ce = iptr_cstd = iptr_nb = -1;
-  if (db == (Db *) NULL) goto label_end;
+  if (db == nullptr) goto label_end;
   nech = db->getSampleNumber();
   if (nbsimu <= 0 || nvar <= 0 || nech <= 0) return(1);
 
@@ -4811,7 +4812,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   error   = 1;
   npgs    = 1;
   iptr_ce = iptr_cstd = -1;
-  propdef = (PropDef *) NULL;
+  propdef = nullptr;
 
   /**********************/
   /* Preliminary checks */
@@ -4830,7 +4831,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
 
   /* Model */
 
-  if (model == (Model *) NULL)
+  if (model == nullptr)
   {
     messerr("No Model is provided");
     goto label_end;
@@ -4852,7 +4853,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
   law_set_random_seed(seed);
 
   propdef = proportion_manage(1,0,1,1,0,nvar,0,dbin,NULL,VectorDouble(),propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
 
   /**********************/
   /* Add the attributes */
@@ -5022,8 +5023,8 @@ GEOSLIB_API int simtub_constraints(Db       *dbin,
 
   error  = 1;
   law_set_random_seed(seed);
-  nx = (int *) NULL;
-  dx = x0 = (double *) NULL;
+  nx = nullptr;
+  dx = x0 = nullptr;
   cols.clear();
 
   /* Preliminary check */
@@ -5035,11 +5036,11 @@ GEOSLIB_API int simtub_constraints(Db       *dbin,
   if (flag_grid)
   {
     nx   = (int    *) mem_alloc(sizeof(int)    * ndim,0);
-    if (nx  == (int    *) NULL) goto label_end;
+    if (nx  == nullptr) goto label_end;
     dx   = (double *) mem_alloc(sizeof(double) * ndim,0);
-    if (dx  == (double *) NULL) goto label_end;
+    if (dx  == nullptr) goto label_end;
     x0   = (double *) mem_alloc(sizeof(double) * ndim,0);
-    if (x0  == (double *) NULL) goto label_end;
+    if (x0  == nullptr) goto label_end;
 
     for (i=0; i<ndim; i++)
     {
@@ -5241,7 +5242,7 @@ GEOSLIB_API int simmaxstable(Db    *dbout,
 
   error  = 1;
   iptrv  = iptrg = iptrs = iptrr = -1;
-  situba = (Situba *) NULL;
+  situba = nullptr;
   law_set_random_seed(seed);
   if (st_check_simtub_environment(NULL,dbout,model,NULL)) goto label_end;
   seuil = get_keypone("MaxStableThresh",seuil_ref);
@@ -5298,9 +5299,9 @@ GEOSLIB_API int simmaxstable(Db    *dbout,
     /* Processing the Turning Bands algorithm */
     
     situba = st_alloc(model,1,nbtuba);
-    if (situba == (Situba *) NULL) goto label_end;
+    if (situba == nullptr) goto label_end;
     if (st_simtub_process(NULL,dbout,model,NULL,situba,
-                          (double *) NULL,(double *) NULL,
+                          nullptr,nullptr,
                           1,0,0,0,0)) goto label_end;
     situba = st_dealloc(model,situba);
     
@@ -5409,8 +5410,8 @@ GEOSLIB_API int simRI(Db     *dbout,
 
   error  = 1;
   iptrg  = iptrs = -1;
-  pres   = pton = sort = (double *) NULL;
-  situba = (Situba *) NULL;
+  pres   = pton = sort = nullptr;
+  situba = nullptr;
   nech   = dbout->getSampleNumber();
   law_set_random_seed(seed);
   if (st_check_simtub_environment(NULL,dbout,model,NULL)) goto label_end;
@@ -5431,11 +5432,11 @@ GEOSLIB_API int simRI(Db     *dbout,
   /* Add the attributes for storing the results */
 
   sort = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (sort == (double *) NULL) goto label_end;
+  if (sort == nullptr) goto label_end;
   pton = (double *) mem_alloc(sizeof(double) * ncut,0);
-  if (pton == (double *) NULL) goto label_end;
+  if (pton == nullptr) goto label_end;
   pres = (double *) mem_alloc(sizeof(double) * (ncut-1),0);
-  if (pres == (double *) NULL) goto label_end;
+  if (pres == nullptr) goto label_end;
   if (db_locator_attribute_add(dbout,ELoc::SEL,1,0,0.,&iptrs))
     goto label_end;
   if (db_locator_attribute_add(dbout,ELoc::SIMU,1,0,0.,&iptrg))
@@ -5481,9 +5482,9 @@ GEOSLIB_API int simRI(Db     *dbout,
     /* Simulation in the non-masked part of the grid */
     
     situba = st_alloc(model,1,nbtuba);
-    if (situba == (Situba *) NULL) goto label_end;
+    if (situba == nullptr) goto label_end;
     if (st_simtub_process(NULL,dbout,model,NULL,situba,
-                          (double *) NULL,(double *) NULL,
+                          nullptr,nullptr,
                           1,0,0,0,0)) goto label_end;
     situba = st_dealloc(model,situba);
 
@@ -5598,12 +5599,12 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   nvar      = 1;
   nechin    = 0;
   ngrf      = 0;
-  propdef   = (PropDef *) NULL;
+  propdef   = nullptr;
   models[0] = model1;
   models[1] = model2;
   iptr_RF   = iptr_RP = 0;
   iptr      = -1;
-  flag_cond = (dbin != (Db *) NULL);
+  flag_cond = (dbin != nullptr);
   law_set_random_seed(seed);
 
   if (ruleprop == nullptr)
@@ -5635,7 +5636,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   }
 
   /* Output Db */
-  if (dbout == (Db *) NULL)
+  if (dbout == nullptr)
   {
     messerr("'dbout' is compulsory");
     goto label_end;
@@ -5652,7 +5653,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
     flag_used[igrf] = rule->isYUsed(igrf);
     if (! flag_used[igrf]) continue;
     ngrf++;
-    if (models[igrf] == (Model *) NULL)
+    if (models[igrf] == nullptr)
     {
       messerr("The Underlying GRF #%d is needed",igrf+1);
       messerr("No corresponding Model is provided");
@@ -5710,7 +5711,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
 
   propdef = proportion_manage(1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
                               propcst,propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
   if (! flag_gaus) simu_define_func_transf(simu_func_categorical_transf);
   simu_define_func_update(simu_func_categorical_update);
   simu_define_func_scale (simu_func_categorical_scale);
@@ -5883,12 +5884,12 @@ GEOSLIB_API int simcond(Db    *dbin,
   /* Initializations */
 
   error   = 1;
-  neigh   = (Neigh *) NULL;
+  neigh   = nullptr;
   nvar    = model->getVariableNumber();
   ndim    = model->getDimensionNumber();
   iptr    = -1;
-  situba  = (Situba *) NULL;
-  propdef = (PropDef *) NULL;
+  situba  = nullptr;
+  propdef = nullptr;
 
   /* Preliminary checks */
 
@@ -5915,7 +5916,7 @@ GEOSLIB_API int simcond(Db    *dbin,
   /* Core allocation */
 
   propdef = proportion_manage(1,0,1,1,0,nvar,0,dbin,NULL,VectorDouble(),propdef);
-  if (propdef == (PropDef *) NULL) goto label_end;
+  if (propdef == nullptr) goto label_end;
 
   /* Define the environment variables for printout */
 
@@ -5958,10 +5959,9 @@ GEOSLIB_API int simcond(Db    *dbin,
   /* Processing the Turning Bands algorithm */
 
   situba = st_alloc(model,nbsimu,nbtuba);
-  if (situba == (Situba *) NULL) goto label_end;
-  if (st_simtub_process(dbin,dbout,model,neigh,situba,
-                        (double *) NULL,(double *) NULL,
-                        nbsimu,0,0,1,flag_check)) goto label_end;
+  if (situba == nullptr) goto label_end;
+  if (st_simtub_process(dbin, dbout, model, neigh, situba, nullptr, nullptr,
+                        nbsimu, 0, 0, 1, flag_check)) goto label_end;
 
   /* Free the temporary variables not used anymore */
 

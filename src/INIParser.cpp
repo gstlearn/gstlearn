@@ -1,33 +1,6 @@
 #include "INIParser.hpp"
 #include "geoslib_e.h"
 
-#define SPACES " \t\r\n"
-
-inline std::string trim_right (const std::string & s,
-                               const std::string & t = SPACES)
-{
-  std::string d (s);
-  std::string::size_type i (d.find_last_not_of (t));
-  if (i == std::string::npos)
-    return "";
-  else
-    return d.erase (d.find_last_not_of (t) + 1) ;
-}
-
-inline std::string trim_left (const std::string & s,
-                              const std::string & t = SPACES)
-{
-  std::string d (s);
-  return d.erase (0, s.find_first_not_of (t)) ;
-}
-
-inline std::string trim (const std::string & s,
-                         const std::string & t = SPACES)
-{
-  std::string d (s);
-  return trim_left (trim_right (d, t), t) ;
-}
-
 INIParser::INIParser(bool autoSave) :
   ini(),
   FileName(""),
@@ -210,5 +183,16 @@ std::string INIParser::GetValue<std::string>(const std::string &section,
     return defaultValue;
 }
 
+template void INIParser::SetValue<bool>          (const std::string &, const std::string &, const bool &);
+template void INIParser::SetValue<short>         (const std::string &, const std::string &, const short &);
+template void INIParser::SetValue<unsigned short>(const std::string &, const std::string &, const unsigned short &);
+template void INIParser::SetValue<int>           (const std::string &, const std::string &, const int &);
+template void INIParser::SetValue<unsigned int>  (const std::string &, const std::string &, const unsigned int &);
+template void INIParser::SetValue<long>          (const std::string &, const std::string &, const long &);
+template void INIParser::SetValue<unsigned long> (const std::string &, const std::string &, const unsigned long &);
+template void INIParser::SetValue<float>         (const std::string &, const std::string &, const float &);
+template void INIParser::SetValue<double>        (const std::string &, const std::string &, const double &);
+template void INIParser::SetValue<long double>   (const std::string &, const std::string &, const long double &);
+template void INIParser::SetValue<std::string>   (const std::string &, const std::string &, const std::string &);
 
 

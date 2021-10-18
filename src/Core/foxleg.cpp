@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -1025,7 +1026,7 @@ static void st_foxleg_debug_title(void)
   tab_prints(NULL,1,EJustify::RIGHT,"Delta");
   for (ipar=0; ipar<NPAR; ipar++)
   {
-    (void) sprintf(string,"Par-%d",ipar+1);
+    (void) gslSPrintf(string,"Par-%d",ipar+1);
     tab_prints(NULL,1,EJustify::RIGHT,string);
   }
   message("\n");

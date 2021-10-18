@@ -213,9 +213,9 @@ GEOSLIB_API int matrix_eigen(const double *a_in,
 
   /* Initializations */
 
-  ind   = (int *) NULL;
-  a = tmp = (double *) NULL;
-  for (i=0; i<4; i++) work[i] = (double *) NULL;
+  ind   = nullptr;
+  a = tmp = nullptr;
+  for (i=0; i<4; i++) work[i] = nullptr;
 
   a34 = 0.0;
   if ( neq == 1 )
@@ -599,7 +599,7 @@ GEOSLIB_API int matrix_prod_norme(int transpose,
             if (vi != 0.)
               for (j1=0; j1<n1; j1++)
               {
-                if (a != (double *) NULL)
+                if (a != nullptr)
                   vala = AS(i1,j1);
                 else
                   vala = (i1 == j1);
@@ -622,7 +622,7 @@ GEOSLIB_API int matrix_prod_norme(int transpose,
             if (vi != 0.)
               for (j2=0; j2<n2; j2++)
               {
-                if (a != (double *) NULL)
+                if (a != nullptr)
                   vala = AS(i2,j2);
                 else
                   vala = (i2 == j2);
@@ -853,13 +853,13 @@ GEOSLIB_API int matrix_solve(int mode,
 
   if (loc_lhs > LNG_LHS)
   {
-    if (LNG_LHS > 0 && LHS_TAB != (double *) NULL)
+    if (LNG_LHS > 0 && LHS_TAB != nullptr)
     {
       LHS_TAB = (double *) mem_free((char *) LHS_TAB);
       LNG_LHS = 0;
     }
     LHS_TAB = (double *) mem_alloc(sizeof(double) * loc_lhs,0);
-    if (LHS_TAB == (double *) NULL) goto label_end;
+    if (LHS_TAB == nullptr) goto label_end;
     LNG_LHS = loc_lhs;
   }
 
@@ -867,13 +867,13 @@ GEOSLIB_API int matrix_solve(int mode,
 
   if (loc_rhs > LNG_RHS)
   {
-    if (LNG_RHS > 0 && RHS_TAB != (double *) NULL)
+    if (LNG_RHS > 0 && RHS_TAB != nullptr)
     {
       RHS_TAB = (double *) mem_free((char *) RHS_TAB);
       LNG_RHS = 0;
     }
     RHS_TAB = (double *) mem_alloc(sizeof(double) * loc_rhs,0);
-    if (RHS_TAB == (double *) NULL) goto label_end;
+    if (RHS_TAB == nullptr) goto label_end;
     LNG_RHS = loc_rhs;
   }
 
@@ -1198,7 +1198,7 @@ GEOSLIB_API int matrix_cofactor(int     neq,
     return 0;
   }
   c = (double *) mem_alloc(sizeof(double) * neqm1 * neqm1,0);
-  if (c == (double *) NULL) return(1);
+  if (c == nullptr) return(1);
 
   /* Processing */
 
@@ -1487,7 +1487,7 @@ GEOSLIB_API int matrix_cholesky_solve(int     neq,
 
   error = -2;
   r = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (r == (double *) NULL) return(-1);
+  if (r == nullptr) return(-1);
 
   /* Linear system associated to the lower triangular system */
 
@@ -1579,7 +1579,7 @@ GEOSLIB_API void matrix_cholesky_norme(int     mode,
         for (l=0; l<=j; l++)
           for (k=0; k<=i; k++)
           {
-            if (a != (double *) NULL)
+            if (a != nullptr)
               vala = AS(k,l);
             else
               vala = (k == l);
@@ -1591,7 +1591,7 @@ GEOSLIB_API void matrix_cholesky_norme(int     mode,
         for (l=j; l<neq; l++)
           for (k=i; k<neq; k++)
           {
-            if (a != (double *) NULL)
+            if (a != nullptr)
               vala = AS(k,l);
             else
               vala = (k == l);
@@ -1627,7 +1627,7 @@ GEOSLIB_API int matrix_cholesky_to_invert(int     neq,
 
   /* Initializations */
 
-  r = ek = res = (double *) NULL;
+  r = ek = res = nullptr;
 
   /* Look for a zero pivot */
 
@@ -1641,11 +1641,11 @@ GEOSLIB_API int matrix_cholesky_to_invert(int     neq,
 
   error = -1;
   r     = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (r   == (double *) NULL) goto label_end;
+  if (r   == nullptr) goto label_end;
   ek    = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (ek  == (double *) NULL) goto label_end;
+  if (ek  == nullptr) goto label_end;
   res   = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (res == (double *) NULL) goto label_end;
+  if (res == nullptr) goto label_end;
 
   /* Loop on the canonical basis */
 
@@ -1765,20 +1765,20 @@ GEOSLIB_API int matrix_invgen(double *a,
   /* Initializations */
   
   error  = 1;
-  eigvec = eigval = (double *) NULL;
+  eigvec = eigval = nullptr;
   
   /* Core allocation */
   
   eigval = (double *) mem_alloc(sizeof(double) * neq,0);
-  if (eigval == (double *) NULL) goto label_end;
+  if (eigval == nullptr) goto label_end;
   eigvec = (double *) mem_alloc(sizeof(double) * neq * neq,0);
-  if (eigvec == (double *) NULL) goto label_end;
+  if (eigvec == nullptr) goto label_end;
   
   /* Calculate the eigen vectors */
   
   if (matrix_eigen(a,neq,eigval,eigvec)) goto label_end;
   valcond = MAX(ABS(eigval[0]),ABS(eigval[neq-1]));
-  if(cond != (double *) NULL) *cond = valcond;
+  if(cond != nullptr) *cond = valcond;
 
   /* Calculate the generalized inverse */
 
@@ -2012,8 +2012,8 @@ GEOSLIB_API int matrix_invsym(double *a,
 
   /* Initializations */
 
-  b = c = x = (double *) NULL;
-  indx = (int *) NULL;
+  b = c = x = nullptr;
+  indx = nullptr;
 
   /* Core allocation */
 
@@ -2604,8 +2604,8 @@ GEOSLIB_API void matrix_combine(int     nval,
   for (i=0; i<nval; i++)
   {
     value = 0.;
-    if (a != (double *) NULL) value += coeffa * a[i];
-    if (b != (double *) NULL) value += coeffb * b[i];
+    if (a != nullptr) value += coeffa * a[i];
+    if (b != nullptr) value += coeffb * b[i];
     c[i] = value;
   }
 }
@@ -2986,7 +2986,7 @@ GEOSLIB_API int matrix_qoc(int     flag_invert,
   /* Initializations */
 
   error = 1;
-  temp  = evec = ha = (double *) NULL;
+  temp  = evec = ha = nullptr;
 
   /* Core allocation */
 
@@ -3169,7 +3169,7 @@ static int st_calcul_error(int     neq,
   number = ecr = 0;
   for (i=0; i<nai; i++)
   {
-    if (active != (int *) NULL && active[i]) continue;
+    if (active != nullptr && active[i]) continue;
     
     /* Calculate: T(a) %*% x */
 
@@ -3182,9 +3182,9 @@ static int st_calcul_error(int     neq,
 
     /* Store the results */
 
-    if (vmat != (double *) NULL) vmat[ecr] = ecart;
+    if (vmat != nullptr) vmat[ecr] = ecart;
     flag_active = (ecart < -eps);
-    if (flag != (int    *) NULL) flag[ecr] = flag_active;
+    if (flag != nullptr) flag[ecr] = flag_active;
     if (flag_active) number++;
     ecr++;
   }
@@ -3229,8 +3229,8 @@ GEOSLIB_API int matrix_qoci(int     neq,
   /* Initializations */
 
   error  = 1;
-  active = (int    *) NULL;
-  lambda = beimat = aeimat = vmat = xcand = (double *) NULL;
+  active = nullptr;
+  lambda = beimat = aeimat = vmat = xcand = nullptr;
   namax  = nae + nai;
 
   /* Case when there is no equality nor inequality constraints */
@@ -3428,7 +3428,7 @@ GEOSLIB_API double *matrix_bind(int     mode,
 
   error = 1;
   (*n31) = (*n32) = 0;
-  a = (double *) NULL;
+  a = nullptr;
 
   /* Preliminary tests */
 
@@ -3461,7 +3461,7 @@ GEOSLIB_API double *matrix_bind(int     mode,
   /* Core allocation */
 
   a = (double *) mem_alloc(sizeof(double) * (*n31) * (*n32),0);
-  if (a == (double *) NULL) goto label_end;
+  if (a == nullptr) goto label_end;
 
   /* Copy the first matrix */
 
@@ -3577,7 +3577,7 @@ GEOSLIB_API int matrix_invreal(double *mat,
   /* Initialization */
 
   error = 1;
-  cofac = (double *) NULL;
+  cofac = nullptr;
 
   /* Calculate the determinant */
 
@@ -3595,7 +3595,7 @@ GEOSLIB_API int matrix_invreal(double *mat,
     /* Core allocation */
 
     cofac = (double *) mem_alloc(sizeof(double) * neq * neq, 0);
-    if (cofac == (double *) NULL) goto label_end;
+    if (cofac == nullptr) goto label_end;
 
     /* Calculate the cofactor */
 

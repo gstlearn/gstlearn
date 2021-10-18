@@ -10,13 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <typeinfo>
-#include "Basic/Vector.hpp"
-#include "csparse_d.h"
-
+#include "geoslib_define.h"
+#include "csparse_f.h" // Cannot use forward declaration for cs and don't know why!
 /// TODO : include geoslib_f.h here makes the compilation crash !!!
 
 class AStringable
@@ -25,12 +20,7 @@ public:
   AStringable() {};
   virtual ~AStringable() {};
 
-  virtual String toString(int level = ITEST) const
-  {
-    std::stringstream sstr;
-    sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;
-    return sstr.str();
-  }
+  virtual String toString(int level = ITEST) const;
 
   virtual void display(int level = ITEST) const final;
 };
@@ -40,7 +30,6 @@ void   messageFlush(const String& string);
 void   messerrFlush(const String& string);
 void   messerr(const char *format,...);
 void   message(const char *format,...);
-String stringCompose(const char *format,...);
 void   mesArg(const char *title, int current, int nmax, bool flagStartOne = false);
 void   messageAbort(const char *format,...);
 void   mestitle(int level,const char *format,...);

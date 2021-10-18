@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Table.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
 
@@ -59,13 +60,13 @@ Table::~Table()
 int Table::getRowNumber() const
 {
   if (isEmpty()) return 0;
-  return _stats[0].size();
+  return static_cast<int>(_stats[0].size());
 }
 
 int Table::getColNumber() const
 {
   if (isEmpty()) return 0;
-  return _stats.size();
+  return static_cast<int>(_stats.size());
 }
 
 VectorDouble Table::getCol(int icol) const
