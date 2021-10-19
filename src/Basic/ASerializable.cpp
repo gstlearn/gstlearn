@@ -586,5 +586,13 @@ String ASerializable::getExecDirectory()
   if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
     dir = String(buffer);
 #endif
+  return getDirectory(dir);
+}
+
+String ASerializable::getDirectory(const String& path)
+{
+  // boost::filesystem::parent_path
+  size_t found = path.find_last_of("/\\");
+  String dir = path.substr(0,found+1);
   return dir;
 }
