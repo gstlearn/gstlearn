@@ -24,6 +24,8 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h> // for CreateDirectory
+#else
+#include <unistd.h> // for readlink
 #endif
 
 #include <sys/stat.h>
@@ -566,4 +568,23 @@ bool ASerializable::createDirectory(const String& dir)
     return true;
 #endif
   return false;
+}
+
+/*!
+ * Cross platform way to get executable directory
+  */
+String ASerializable::getExecDirectory()
+{
+  // boost::filesystem::path program_location
+  String dir = getHomeDirectory();
+#if defined(_WIN32) || defined(_WIN64)
+  char buffer[MAX_PATH];
+  if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
+    dir = String(buffer);
+#else
+  char buffer[LONG_SIZE];
+  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
+    dir = String(buffer);
+#endif
+  return dir;
 }
