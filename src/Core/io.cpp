@@ -507,7 +507,7 @@ GEOSLIB_API int _file_read(FILE *file,
 
     /* Decode the line looking for the next token */
 
-    LCUR = strtok(cur,&DEL_SEP);
+    LCUR = gslStrtok(cur,&DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
     if (debug_query("interface"))
@@ -617,10 +617,10 @@ GEOSLIB_API int _file_get_ncol(FILE *file)
 
   /* Get the number of tokens */
 
-  if (strtok(LINE,&DEL_SEP) != NULL)
+  if (gslStrtok(LINE,&DEL_SEP) != NULL)
   {
     ncol++;
-    while (strtok(NULL,&DEL_SEP) != NULL) ncol++;
+    while (gslStrtok(NULL,&DEL_SEP) != NULL) ncol++;
   }
 
   if (debug_query("interface"))
@@ -716,7 +716,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     
     /* Decode the line looking for the next token */
 
-    LCUR = strtok(cur,&DEL_SEP);
+    LCUR = gslStrtok(cur,&DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
     if (debug_query("interface"))
@@ -1180,21 +1180,21 @@ GEOSLIB_API void tab_prints(const char*     title,
   switch (justify.toEnum())
   {
     case EJustify::E_LEFT:
-      (void) strncpy(TABSTR,string,neff);
+      (void) gslStrncpy(TABSTR,string,neff);
       TABSTR[neff] = '\0';
       for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
       break;
 
     case EJustify::E_CENTER:
       for (i=0; i<n1; i++) (void) gslStrcat(TABSTR," ");
-      (void) strncpy(&TABSTR[n1],string,neff);
+      (void) gslStrncpy(&TABSTR[n1],string,neff);
       TABSTR[n1+neff] = '\0';
       for (i=0; i<n2; i++) (void) gslStrcat(TABSTR," ");
       break;
 
     case EJustify::E_RIGHT:
       for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
-      (void) strncpy(&TABSTR[nrst],string,neff);
+      (void) gslStrncpy(&TABSTR[nrst],string,neff);
       TABSTR[nrst+neff] = '\0';
       break;
   }
@@ -1224,7 +1224,7 @@ GEOSLIB_API void tab_print_rowname(const char *string,
   /* Blank the string out */
 
   (void) gslStrcpy(TABSTR,"");
-  (void) strncpy(TABSTR,string,neff);
+  (void) gslStrncpy(TABSTR,string,neff);
   TABSTR[neff] = '\0';
   for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
   message(TABSTR);

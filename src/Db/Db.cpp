@@ -1169,27 +1169,19 @@ void Db::setLocatorByAttribute(int iatt,
   }
 
   // Check if this locator already exists for the current pointer type
+  // Warning: the following code does not forbid declaring locatorIndex
+  // in incorrect order. This must be kkept as long as the Demonstration files
+  // use the db.locate() of unsorted ranks
 
   if (locatorType != ELoc::UNKNOWN)
   {
     PtrGeos& p = _p[locatorType];
     int nitem = p.getLocatorNumber();
-    int iadd;
-    if (locatorIndex > nitem)
+    if (locatorIndex >= nitem)
     {
-      iadd = nitem;
-      p.resize(nitem + 1);
-    }
-    else if (locatorIndex == nitem)
-    {
-      iadd = locatorIndex;
       p.resize(locatorIndex + 1);
     }
-    else
-    {
-      iadd = locatorIndex;
-    }
-    p.setLocatorByIndex(iadd, iatt);
+    p.setLocatorByIndex(locatorIndex, iatt);
   }
 }
 

@@ -90,6 +90,7 @@
 // ************************************************************************* */
  
 #include "vtk.h"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -147,7 +148,7 @@ static void open_file(const char *filename)
     gslSPrintf(full_filename, "%s.vtk", filename);
   }
  
-  fp = fopen(full_filename, "w+");
+  fp = gslFopen(full_filename, "w+");
 }
  
  

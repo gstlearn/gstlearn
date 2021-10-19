@@ -152,13 +152,8 @@ void PrecisionOpCs::evalDerivOptim(const VectorDouble& in, VectorDouble& out,int
 
   // Polynomial evaluation
 
-
-  ((ClassicalPolynomial*)getPoly(getPower()))->evalDerivOpOptim(getShiftOp()->getS(),
-                                                             *inPtr,
-                                                             _work,
-                                                             out,
-                                                             iapex,
-                                                             igparam);
+  ((ClassicalPolynomial*) getPoly(getPower()))->evalDerivOpOptim(
+      getShiftOp()->getS(), *inPtr, _work, out, iapex, igparam);
 
     // Post-processing
 

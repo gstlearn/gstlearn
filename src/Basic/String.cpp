@@ -17,7 +17,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <string>
+#include <string.h>
 #include <regex>
 #include <locale>
 
@@ -709,4 +709,14 @@ int gslSPrintf(char* dst, const char* fmt, ...)
   int n = vsprintf(dst, fmt, ap);
   va_end(ap);
   return n;
+}
+
+char* gslStrtok(char* str, const char* delim)
+{
+  return strtok(str, delim);
+}
+
+char* gslStrncpy(char* dest, const char* src, size_t n)
+{
+  return strncpy(dest, src, n);
 }
