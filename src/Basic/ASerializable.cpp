@@ -211,6 +211,8 @@ void ASerializable::_recordWrite(String format, ...) const
  ** \param[in]  format     format
  ** \param[in]  ap         Value to be read
  **
+ ** TODO : template function
+ **
  *****************************************************************************/
 int ASerializable::_fileRead(const String& format, va_list ap) const
 {
@@ -332,6 +334,8 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
  **
  ** \param[in]  format     Encoding format
  ** \param[in]  ap         Value to be written
+ **
+ ** TODO : template function
  **
  *****************************************************************************/
 void ASerializable::_fileWrite(const String& format, va_list ap) const
@@ -554,8 +558,7 @@ const String& ASerializable::getPrefixName()
  */
 bool ASerializable::createDirectory(const String& dir)
 {
-  // To be restored when using boost
-  //return boost::filesystem::create_directory(dir);
+  // TODO boost::filesystem::create_directory(dir);
 #if defined(_WIN32) || defined(_WIN64)
   if (CreateDirectory(dir.c_str(), NULL) ||       // Directory creation
       ERROR_ALREADY_EXISTS == GetLastError()) {   // or Directory was existing
@@ -571,11 +574,12 @@ bool ASerializable::createDirectory(const String& dir)
 }
 
 /*!
- * Cross platform way to get executable directory
-  */
+ * Cross platform way to get executable directory.
+ * Returned directory contains trailing separator
+ */
 String ASerializable::getExecDirectory()
 {
-  // boost::filesystem::path program_location
+  // TODO boost::filesystem::path program_location
   String dir = getHomeDirectory();
 #if defined(_WIN32) || defined(_WIN64)
   char buffer[MAX_PATH];
@@ -589,9 +593,13 @@ String ASerializable::getExecDirectory()
   return getDirectory(dir);
 }
 
+/**
+ * Corss-platform way to get parent directory from a path.
+ * Returned directory contains trailing separator.
+ */
 String ASerializable::getDirectory(const String& path)
 {
-  // boost::filesystem::parent_path
+  // TODO boost::filesystem::parent_path
   size_t found = path.find_last_of("/\\");
   String dir = path.substr(0,found+1);
   return dir;
