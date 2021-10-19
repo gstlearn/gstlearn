@@ -58,7 +58,7 @@ brew install git
 Download and install the following tools:
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (installed in the directory *C:\\doxygen* for example)
   * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below)
-  * Git client [from here](https://gitforwindows.org)
+  * Git client [from here](https://gitforwindows.org) (Use default options during installation)
   * Boost Library [from here](https://www.boost.org/users/download) (download and extract the zip file anywhere)
   
 Notes:
