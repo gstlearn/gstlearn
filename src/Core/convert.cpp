@@ -2135,14 +2135,14 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     if (strstr(string,"~")) break;
 
     // Reading the variable name
-    token = strtok(string, sep_point);
+    token = gslStrtok(string, sep_point);
     if (token == NULL) break;
 
     // Add the variable to the list
     string[strlen(token)] = '\0';
     varloc = (char **) mem_realloc((char *) varloc,sizeof(char *) * (nvar+1),1);
     varloc[nvar] = (char *) mem_alloc(sizeof(char) * sizemax,1);
-    (void) strncpy(varloc[nvar], token, sizemax);
+    (void) gslStrncpy(varloc[nvar], token, sizemax);
     string_strip_blanks(varloc[nvar],0);
     if (verbose) message("Variable: %s\n",varloc[nvar]);
     nvar++;
@@ -2175,7 +2175,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     lcur = string;
     while (nvarlu < nvar)
     {
-      token = strtok(lcur, sep_blank);
+      token = gslStrtok(lcur, sep_blank);
       lcur  = NULL;
       if (token == NULL || sscanf(token,"%lf",&value) == EOF) break;
       if (value == test) value = TEST;

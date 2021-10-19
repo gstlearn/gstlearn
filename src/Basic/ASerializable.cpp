@@ -271,7 +271,7 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
 
     /* Decode the line looking for the next token */
 
-    LCUR = strtok(cur, &DEL_SEP);
+    LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
 

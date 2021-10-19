@@ -83,6 +83,8 @@ String erase(     const String& s, const String& t = SPACES);
 char* gslStrcpy(char* dst, const char* src);
 char* gslStrcat(char* dst, const char* src);
 int   gslSPrintf(char* dst, const char* fmt, ...);
+char* gslStrtok(char* str, const char* delim);
+char* gslStrncpy(char* dest, const char* src, size_t n);
 
 // Adapted from:
 // - https://stackoverflow.com/a/26310318
