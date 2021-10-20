@@ -10,25 +10,15 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_define.h"
-#include <fstream>
+#include "Basic/String.hpp"
+#include "Basic/ASerializable.hpp"
 
-/**
- * This file contains all the OLD-STYLE declarations causing warnings on Windows
- * They should gradually be replaced by modern statements
- * However, they are kept there to keep track on these statements
- */
+  // TODO : Cross-platform way to build file path (use boost ?)
+String getTestData(const String& filename)
+{
+  String exec_dir = ASerializable::getExecDirectory();
 
+  String filepath(exec_dir + "../../../doc/data/" + filename);
 
-// TODO : File manipulation class
-
-// Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
-//https://stackoverflow.com/a/17219495
-void skipBOM(std::ifstream &in);
-FILE* gslFopen(const char *path, const char* mode);
-FILE* gslFopen(const String& path, const String& mode);
-bool gslFileExist(const char *path, const char* mode);
-bool gslFileExist(const String& path, const String& mode);
-
-char* gslGetEnv(const char* name);
-
+  return filepath;
+}

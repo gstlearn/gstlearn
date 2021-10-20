@@ -73,3 +73,4 @@ char* gslGetEnv(const char* name)
   return std::getenv(name);
 #endif
 }
+
