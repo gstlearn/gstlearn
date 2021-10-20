@@ -15,6 +15,8 @@ set(CMAKE_BUILD_TYPE
 add_subdirectory(src)
 add_subdirectory(doxygen)
 
+add_subdirectory(tests)
+
 install(
   EXPORT corelibs
   FILE gstlearnConfig.cmake
