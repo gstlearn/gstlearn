@@ -715,7 +715,7 @@ int gslScanf(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
-  int n = scanf(format, ap);
+  int n = vscanf(format, ap);
   va_end(ap);
   return n;
 }
@@ -724,7 +724,7 @@ int gslSScanf(const char* str, const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
-  int n = sscanf(str, format, ap);
+  int n = vsscanf(str, format, ap);
   va_end(ap);
   return n;
 }
@@ -733,7 +733,7 @@ int gslFScanf(FILE* stream, const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
-  int n = fscanf(stream, format, ap);
+  int n = vfscanf(stream, format, ap);
   va_end(ap);
   return n;
 }

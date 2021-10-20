@@ -87,5 +87,8 @@ int main(int argc, char *argv[])
   variog.compute("vg",true);
   variog.display(1);
 
+  // =================================
+  // Calculating Variogram Map on Data
+  // =================================
   return(error);
 }

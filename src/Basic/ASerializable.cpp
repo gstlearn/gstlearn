@@ -595,7 +595,7 @@ String ASerializable::getExecDirectory()
 }
 
 /**
- * Corss-platform way to get parent directory from a path.
+ * Cross-platform way to get parent directory from a path.
  * Returned directory contains trailing separator.
  */
 String ASerializable::getDirectory(const String& path)
