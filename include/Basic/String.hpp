@@ -85,6 +85,9 @@ char* gslStrcat(char* dst, const char* src);
 int   gslSPrintf(char* dst, const char* fmt, ...);
 char* gslStrtok(char* str, const char* delim);
 char* gslStrncpy(char* dest, const char* src, size_t n);
+int   gslScanf(const char* format, ...);
+int   gslSScanf(const char* str ,const char* format, ...);
+int   gslFScanf(FILE* stream, const char* format, ...);
 
 // Adapted from:
 // - https://stackoverflow.com/a/26310318

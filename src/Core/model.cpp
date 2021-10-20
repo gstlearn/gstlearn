@@ -1179,8 +1179,8 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
 
   sill = 1.;
   if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0.,
-                     VectorDouble(),
-                     VectorDouble(), VectorDouble(sill))) goto label_end;
+                     VectorDouble(), VectorDouble(), VectorDouble(1,sill)))
+    goto label_end;
 
   /* Set the error return flag */
 
@@ -3283,7 +3283,7 @@ GEOSLIB_API int model_stabilize(Model *model, int flag_verbose, double percent)
   /* Add a NUGGET EFFECT component */
 
   if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
-                     VectorDouble(), VectorDouble(total))) goto label_end;
+                     VectorDouble(), VectorDouble(1,total))) goto label_end;
 
   /* Printout */
 

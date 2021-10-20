@@ -711,6 +711,33 @@ int gslSPrintf(char* dst, const char* fmt, ...)
   return n;
 }
 
+int gslScanf(const char* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  int n = scanf(format, ap);
+  va_end(ap);
+  return n;
+}
+
+int gslSScanf(const char* str, const char* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  int n = sscanf(str, format, ap);
+  va_end(ap);
+  return n;
+}
+
+int gslFScanf(FILE* stream, const char* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  int n = fscanf(stream, format, ap);
+  va_end(ap);
+  return n;
+}
+
 char* gslStrtok(char* str, const char* delim)
 {
   return strtok(str, delim);

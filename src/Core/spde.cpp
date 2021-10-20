@@ -5480,9 +5480,9 @@ GEOSLIB_API Cheb_Elem *spde_cheb_manage(int mode,
     if (cheb_elem == nullptr) goto label_end;
     cheb_elem->coeffs = nullptr;
 
-    ncmax = get_keypone("Number_Polynomials_Chebychev", 10001.);
-    ndisc = get_keypone("Number_Discretization_Chebychev", 100.);
-    tol = get_keypone("Chebychev_Tolerance", 5.e-3);
+    ncmax = (int) get_keypone("Number_Polynomials_Chebychev", 10001.);
+    ndisc = (int) get_keypone("Number_Discretization_Chebychev", 100.);
+    tol   = get_keypone("Chebychev_Tolerance", 5.e-3);
 
     /* Calculate key values */
 
@@ -10547,7 +10547,7 @@ static void st_print_db_constraints(const char *title,
 
   // Initializations
 
-  nprint = get_keypone("Print_Data", 10.);
+  nprint = (int) get_keypone("Print_Data", 10.);
   if (!verbose || nprint == 0) return;
 
   // Printout
@@ -10564,8 +10564,7 @@ static void st_print_db_constraints(const char *title,
       upper = db->getUpperBound(iech, ilayer);
       value = db->getVariable(iech, ilayer);
       drift = db->getExternalDrift(iech,ilayer);
-      vgaus = (ydat != nullptr) ? YDAT(ilayer, iech) :
-                                          TEST;
+      vgaus = (ydat != nullptr) ? YDAT(ilayer, iech) : TEST;
       st_print_constraints_per_point(ilayer, iech, value, drift, vgaus, lower,
                                      upper);
     }

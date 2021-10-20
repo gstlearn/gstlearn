@@ -250,7 +250,6 @@ void message(const char *format, ...)
 
   va_start(ap, format);
   // TODO : use non old_style functions
-  //(void) gslSPrintf(str, format, ap);
   (void) vsprintf(str, format, ap);
   va_end(ap);
   message_extern(str);
@@ -291,7 +290,6 @@ void messerr(const char *format, ...)
 
   va_start(ap, format);
   // TODO : use non old_style functions
-  //(void) gslSPrintf(str, format, ap);
   (void) vsprintf(str, format, ap);
   va_end(ap);
 

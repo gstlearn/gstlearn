@@ -1268,7 +1268,7 @@ bool tetgenio::load_off(char* filebasename)
           // Read a non-empty line.
           bufferp = readline(buffer, fp, &line_count);
         }
-        if ((sscanf(bufferp, "%d%d%d", &nverts, &nfaces, &nedges) != 3) 
+        if ((gslSScanf(bufferp, "%d%d%d", &nverts, &nfaces, &nedges) != 3)
             || (nverts == 0)) {
           message("Syntax error reading header on line %d in file %s\n",
                   line_count, infilename);
@@ -2137,13 +2137,13 @@ bool tetgenio::load_vtk(char* filebasename)
     if(line[0] == '#' || line[0]=='\n' || line[0] == 10 || line[0] == 13 || 
        line[0] == 32) continue;
 
-    sscanf(line, "%s", id);
+    gslSScanf(line, "%s", id);
     if(!strcmp(id, "ASCII")) {
       gslStrcpy(mode, "ASCII");
     }
 
     if(!strcmp(id, "POINTS")) {
-      sscanf(line, "%s %d %s", id, &nverts, fmt);
+      gslSScanf(line, "%s %d %s", id, &nverts, fmt);
       if (nverts > 0) {
         numberofpoints = nverts;
         pointlist = new DREAL[nverts * 3];
@@ -2208,7 +2208,7 @@ bool tetgenio::load_vtk(char* filebasename)
     }
 
     if(!strcmp(id, "POLYGONS")) {
-      sscanf(line, "%s %d  %d", id, &nfaces, &dummy);
+      gslSScanf(line, "%s %d  %d", id, &nfaces, &dummy);
       if (nfaces > 0) {
         numberoffacets = nfaces;
         facetlist = new tetgenio::facet[nfaces];

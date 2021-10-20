@@ -518,7 +518,7 @@ GEOSLIB_API int _file_read(FILE *file,
       ret_s = va_arg(ap,char *);
       if (! st_only_blanks(LCUR))
       {
-        if (sscanf(LCUR,"%s",ret_s) <= 0) return(1);
+        if (gslSScanf(LCUR,"%s",ret_s) <= 0) return(1);
       }
       ideb += 2;
       if (debug_query("interface"))
@@ -527,7 +527,7 @@ GEOSLIB_API int _file_read(FILE *file,
     else if (! strcmp(fmt,"%d"))
     {
       ret_i = va_arg(ap,int *);
-      if (sscanf(LCUR,"%d",ret_i) <= 0) return(1);
+      if (gslSScanf(LCUR,"%d",ret_i) <= 0) return(1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
       if (debug_query("interface"))
@@ -536,7 +536,7 @@ GEOSLIB_API int _file_read(FILE *file,
     else if (! strcmp(fmt,"%f"))
     {
       ret_f = va_arg(ap,float *);
-      if (sscanf(LCUR,"%f",ret_f) <= 0) return(1);
+      if (gslSScanf(LCUR,"%f",ret_f) <= 0) return(1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
       if (debug_query("interface"))
@@ -545,7 +545,7 @@ GEOSLIB_API int _file_read(FILE *file,
     else if (! strcmp(fmt,"%lf"))
     {
       ret_d = va_arg(ap,double *);
-      if (sscanf(LCUR,"%lf",ret_d) <= 0) return(1);
+      if (gslSScanf(LCUR,"%lf",ret_d) <= 0) return(1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
       if (debug_query("interface"))
@@ -554,7 +554,7 @@ GEOSLIB_API int _file_read(FILE *file,
     else if (! strcmp(fmt,"%lg"))
     {
       ret_d = va_arg(ap,double *);
-      if (sscanf(LCUR,"%lg",ret_d) <= 0) return(1);
+      if (gslSScanf(LCUR,"%lg",ret_d) <= 0) return(1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
       if (debug_query("interface"))
@@ -725,7 +725,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     if (! strcmp(fmt,"%s"))
     {
       ret_s = va_arg(ap,char *);
-      if (sscanf(LCUR,"%s",ret_s) <= 0) return(1);
+      if (gslSScanf(LCUR,"%s",ret_s) <= 0) return(1);
       ideb += 2;
       if (debug_query("interface"))
         message("Decoded String = %s\n",ret_s);
@@ -733,7 +733,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     else if (! strcmp(fmt,"%d"))
     {
       ret_i = va_arg(ap,int *);
-      if (sscanf(LCUR,"%d",ret_i) <= 0) return(1);
+      if (gslSScanf(LCUR,"%d",ret_i) <= 0) return(1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
       if (debug_query("interface"))
@@ -742,7 +742,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     else if (! strcmp(fmt,"%f"))
     {
       ret_f = va_arg(ap,float *);
-      if (sscanf(LCUR,"%f",ret_f) <= 0) return(1);
+      if (gslSScanf(LCUR,"%f",ret_f) <= 0) return(1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
       if (debug_query("interface"))
@@ -751,7 +751,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     else if (! strcmp(fmt,"%lf"))
     {
       ret_d = va_arg(ap,double *);
-      if (sscanf(LCUR,"%lf",ret_d) <= 0) return(1);
+      if (gslSScanf(LCUR,"%lf",ret_d) <= 0) return(1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
       if (debug_query("interface"))
@@ -760,7 +760,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     else if (! strcmp(fmt,"%lg"))
     {
       ret_d = va_arg(ap,double *);
-      if (sscanf(LCUR,"%lg",ret_d) <= 0) return(1);
+      if (gslSScanf(LCUR,"%lg",ret_d) <= 0) return(1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
       if (debug_query("interface"))

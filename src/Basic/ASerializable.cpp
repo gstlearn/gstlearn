@@ -283,35 +283,35 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
       ret_s = va_arg(ap, char *);
       if (!_onlyBlanks(LCUR))
       {
-        if (sscanf(LCUR, "%s", ret_s) <= 0) return (1);
+        if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       }
       ideb += 2;
     }
     else if (!strcmp(fmt, "%d"))
     {
       ret_i = va_arg(ap, int *);
-      if (sscanf(LCUR, "%d", ret_i) <= 0) return (1);
+      if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
     }
     else if (!strcmp(fmt, "%f"))
     {
       ret_f = va_arg(ap, float *);
-      if (sscanf(LCUR, "%f", ret_f) <= 0) return (1);
+      if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = TEST;
     }
     else if (!strcmp(fmt, "%lf"))
     {
       ret_d = va_arg(ap, double *);
-      if (sscanf(LCUR, "%lf", ret_d) <= 0) return (1);
+      if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
     }
     else if (!strcmp(fmt, "%lg"))
     {
       ret_d = va_arg(ap, double *);
-      if (sscanf(LCUR, "%lg", ret_d) <= 0) return (1);
+      if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
     }
@@ -448,13 +448,13 @@ String ASerializable::getHomeDirectory(const std::string& sub)
 {
   // https://stackoverflow.com/a/2552458
 #if defined(_WIN32) || defined(_WIN64)
-  char* HomeDirectory = getenv("HOMEDIR");
-  const char* Homepath = getenv("HOMEPATH");
+  char* HomeDirectory = gslGetEnv("HOMEDIR");
+  const char* Homepath = gslGetEnv("HOMEPATH");
   int size = strlen(HomeDirectory) + strlen(Homepath) + 1;
   HomeDirectory = static_cast<char *>(malloc(size));
   gslStrcat(HomeDirectory, Homepath);
 #else
-  const char* HomeDirectory = std::getenv("HOME");
+  const char* HomeDirectory = gslGetEnv("HOME");
 #endif
   std::stringstream sstr;
   // TODO : Cross-platform way to build file path (use boost ?)
@@ -509,7 +509,7 @@ void ASerializable::setContainerName(bool useDefault,
   if (useDefault)
   {
     // Default is first set to PYGSTLEARN_DIR (if defined)
-    char* pydir(std::getenv("PYGSTLEARN_DIR"));
+    char* pydir(gslGetEnv("PYGSTLEARN_DIR"));
     String pygst;
     if (pydir == nullptr)
     {

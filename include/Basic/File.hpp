@@ -29,3 +29,5 @@ FILE* gslFopen(const char *path, const char* mode);
 FILE* gslFopen(const String& path, const String& mode);
 bool gslFileExist(const char *path, const char* mode);
 bool gslFileExist(const String& path, const String& mode);
+
+char* gslGetEnv(const char* name);
