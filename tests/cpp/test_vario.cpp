@@ -87,8 +87,19 @@ int main(int argc, char *argv[])
   variog.compute("vg",true);
   variog.display(1);
 
+  // ==========================================
+  // Calculating Variogram Map on Isolated Data
+  // ==========================================
+
+  Db* vmapP = db_vmap_compute(&db, ECalcVario::VARIOGRAM);
+  vmapP->display(1);
+
   // =================================
-  // Calculating Variogram Map on Data
+  // Calculating Variogram Map on Grid
   // =================================
-  return(error);
+
+  Db* vmapG = db_vmap_compute(&grid, ECalcVario::VARIOGRAM);
+  vmapG->display(1);
+
+  return (error);
 }
