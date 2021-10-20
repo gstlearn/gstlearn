@@ -53,6 +53,8 @@ public:
   static const String& getPrefixName();
   // TODO : Directory manipulation class
   static bool createDirectory(const String& dir);
+  static String getExecDirectory();
+  static String getDirectory(const String& path);
 
 private:
   mutable String _fileName;
