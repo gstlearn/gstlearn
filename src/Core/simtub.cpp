@@ -555,8 +555,6 @@ static void st_density(Situba *situba)
 **  the integration(s) of the previous process Perform the core
 **  allocation
 **
-** \return  The array of gaussian values
-**
 ** \param[in]  nt     number for exponential intervals
 ** \param[in]  type   degree of the IRF -> number of integrations
 **
@@ -605,8 +603,6 @@ static void st_irf_process_alloc(int nt,
 **  Generates the process constituted by independent gaussian
 **  variables along a 1D Poisson process. The process consists in
 **  the integration(s) of the previous process
-**
-** \return  The array of gaussian values
 **
 ** \param[in]  nt     The number for exponential intervals
 ** \param[in]  type   The covariance type

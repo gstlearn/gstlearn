@@ -149,8 +149,7 @@ void    cs_set_value(const cs *A,int row, int col, double value);
 
 // Qchol operations
 int  qchol_cholesky(int verbose,QChol *QC);
-void cs_chol_invert(QChol *qctt,double *xcr,double *rhs,
-                                double *work);
+void cs_chol_invert(QChol *qctt,double *xcr,double *rhs, double *work);
 void cs_chol_simulate(QChol	*qctt,double *simu,double *work);
 
 // Multigrid operations

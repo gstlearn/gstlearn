@@ -1302,8 +1302,6 @@ static int st_block_discretize_alloc(int  ndim,
 /*!
 **  Allocate the Data discretization 
 ** 
-** \returns Error return code
-**
 ** \param[in] ndim    Space dimension
 **
 *****************************************************************************/
@@ -4320,8 +4318,6 @@ label_end:
 /****************************************************************************/
 /*!
 **  Correct the arrays RHS and VARB in Bayesian case
-**
-** \return  Error return code
 **
 ** \param[in]  model  Model structure
 ** \param[in]  rcov   Array containing the posterior covariance matrix
@@ -10705,7 +10701,6 @@ label_end:
 ** \param[in]  ymat        Auxiliary array
 ** \param[in]  zmat        Auxiliary array
 ** \param[in]  maux        Auxiliary array (Dimension: nbfl)
-** \param[in]  lambda      Vector of weights
 **
 ** \param[out] lambda      Vector of weights
 ** \param[out] mu          Vector of Lagrange parameters

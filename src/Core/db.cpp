@@ -1882,8 +1882,6 @@ GEOSLIB_API void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
 /*!
  **  Remove a set of "n_del" attributes starting from "i_del"
  **
- ** \return  Error return code
- **
  ** \param[in]  db    Db structure
  ** \param[in]  i_del Rank of the first attribute to be deleted
  ** \param[in]  n_del Number of attributes to be deleted

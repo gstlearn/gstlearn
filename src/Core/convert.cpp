@@ -2608,8 +2608,6 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
 /*!
 **   Write a STRING element into the (opened) CSV file
 **
-** \return  Error return code
-**
 ** \param[in]  string       String to be written
 **
 ** \remark: This function uses CSV_ENCODING static structure
@@ -2638,8 +2636,6 @@ GEOSLIB_API void csv_print_string(const char *string)
 /****************************************************************************/
 /*!
 **   Write a DOUBLE element into the (opened) CSV file
-**
-** \return  Error return code
 **
 ** \param[in]  value        Real value to be written
 **

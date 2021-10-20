@@ -57,9 +57,7 @@ static int VARWGT[4][5] = {{1, -1, 0,  0, 0},
 **  They must be defined and with norm equal to 1
 **
 ** \param[in]  ndim      Space dimension
-** \param[in]  codir     Input Direction coefficients
-**
-** \param[out]  codir    Output Direction coefficients
+** \param[in,out]  codir Input/Output Direction coefficients
 **
 *****************************************************************************/
 GEOSLIB_API void vario_fix_codir(int ndim,
@@ -4762,12 +4760,10 @@ static void st_vmap_blank(int     size,
 /*!
 **  Scale the FFT arrays
 **
-** \param[in] size    Dimension of the vectors
-** \param[in] scale   Scaling factor
-** \param[in] tab1    First complex array 
-** \param[in] tab2    Second complex array 
-**
-** \param[out] tab1   First complex array 
+** \param[in] size     Dimension of the vectors
+** \param[in] scale    Scaling factor
+** \param[in,out] tab1 First complex array
+** \param[in] tab2     Second complex array
 **
 *****************************************************************************/
 static void st_vmap_rescale(int     size,
@@ -4795,7 +4791,7 @@ static void st_vmap_rescale(int     size,
 ** \param[in] tabm1   Complex array for mean of variable 1
 ** \param[in] tabm2   Complex array for mean of variable 2
 **
-** \param[out] tab    Output complex array 
+** \param[out] tab    Output complex array
 **
 *****************************************************************************/
 static void st_vmap_shift(int     size,
@@ -4911,7 +4907,7 @@ static int st_vmap_load(Db     *dbgrid,
   return(0);
 }
 
-/****************************************************************************/
+/*****************************************************************to be updated***********/
 /*!
 **  Allocate an array of complex values
 **
@@ -5258,7 +5254,7 @@ static int st_vmap_grid_fft(Db*               dbgrid,
   }
   
   /* Loop on the variables */
-  
+
   for (ivar=ijvar=0; ivar<nvar; ivar++)
     for (jvar=0; jvar<=ivar; jvar++,ijvar++)
     {
@@ -5429,11 +5425,9 @@ GEOSLIB_API PCA *pca_alloc(int nvar)
 **  Normalize the isotropic array of values
 **
 ** \param[in]  nvar         Number of variables
-** \param[in]  data         Array of information
+** \param[in,out] data      Array of information
 ** \param[in]  mean         Array containing the mean
 ** \param[in]  sigma        Array containing the standard deviation
-**
-** \param[out] data         Array of information
 **
 *****************************************************************************/
 static void st_center(int     nvar,
@@ -6365,11 +6359,9 @@ static double st_linear_interpolate(int     n,
 **  Calculate the experimental variogram of the completed variable starting
 **  from the experimental variogram of the truncated variable
 **
-** \param[in]  vario  Vario structure
+** \param[in,out] vario  Vario structure
 ** \param[in]  nh     Number of Hermite polynomials
 ** \param[in]  ycut   Truncation (lowest) value
-**
-** \param[out] vario  Vario structure (after transformation)
 **
 *****************************************************************************/
 GEOSLIB_API void variogram_trans_cut(Vario *vario, int nh, double ycut)
@@ -6515,11 +6507,9 @@ GEOSLIB_API int variogram_mlayers(Db    *db,
 **
 ** \return  Error return code
 **
-** \param[in]  vario       Input variogram 
+** \param[in,out] vario    Experimental variogram
 ** \param[in]  anam        Point anamorphosis
 ** \param[in]  model       Model of the Punctual Gaussian
-**
-** \param[out] vario       Experimental variogram on Z
 **
 ** \remark  At entrance, the input variogram only serves in providing
 ** \remark  the calculation parameters

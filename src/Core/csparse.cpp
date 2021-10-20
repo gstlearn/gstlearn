@@ -4744,10 +4744,9 @@ static void st_multigrid_descent(cs_MGS	  *mgs,
 **  Inversion using Cholesky
 **
 ** \param[in]  qctt	   Qchol structure
-** \param[in]  xcr	   Current vector
+** \param[in,out]  xcr	   Current vector
 ** \param[in]  rhs	   Current R.H.S. vector
 **
-** \param[out] xcr	   Current vector
 ** \param[out] work	   Working array
 **
 *****************************************************************************/
@@ -4796,10 +4795,9 @@ void cs_chol_simulate(QChol	 *qctt,
 ** \param[in]  mgs	   cs_MGS structure
 ** \param[in]  level	   Current level
 ** \param[in]  mode	   1 for Descending and -1 for Ascending
-** \param[in]  xcr	   Current vector
+** \param[in,out]  xcr	   Current vector
 ** \param[in]  rhs	   Current R.H.S. vector
 **
-** \param[out] xcr	   Current vector
 ** \param[out] work	   Working array
 **
 *****************************************************************************/

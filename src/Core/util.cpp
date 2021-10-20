@@ -1511,9 +1511,7 @@ GEOSLIB_API void variety_print(void)
  ** \param[in]  ny        Number of rows
  ** \param[in]  valmin    Minimum authorized value or TEST
  ** \param[in]  valmax    Maximum authorized value or TEST
- ** \param[in]  tab       Input matrix (if flag_def=1)
- **
- ** \param[out] tab       Output matrix
+ ** \param[in,out] tab    Input/Output matrix (if flag_def=1)
  **
  *****************************************************************************/
 GEOSLIB_API void get_matrix(const char *title,
@@ -1551,14 +1549,10 @@ GEOSLIB_API void get_matrix(const char *title,
 /*!
  **  Ask for the characteristics of a rotation
  **
- ** \return  Pointer to the array containing the rotation matrix
- **
  ** \param[in]  title     Title of the rotation
  ** \param[in]  flag_def  1 for default values; 0 otherwise
  ** \param[in]  ndim      Dimension of the space
- ** \param[in]  rot       Input rotation matrix (if flag_def=1)
- **
- ** \param[out] rot       Output matrix
+ ** \param[in,out] rot    Input/Output rotation matrix (if flag_def=1)
  **
  *****************************************************************************/
 GEOSLIB_API void get_rotation(const char *title,
@@ -2703,9 +2697,7 @@ GEOSLIB_API double ut_median(double *tab, int ntab)
  **  Normalize a vector
  **
  ** \param[in]  ntab   Vector dimension
- ** \param[in]  tab    Vector to be normalized
- **
- ** \param[out]  tab   Vector after normalization
+ ** \param[in,out]  tab    Vector to be normalized
  **
  *****************************************************************************/
 GEOSLIB_API void ut_normalize(int ntab, double *tab)
@@ -3174,9 +3166,7 @@ GEOSLIB_API double distance_points_to_polyline(double ap,
 /*!
  **  Convert a string into lowercase characters
  **
- ** \param[in]  string  Input string
- **
- ** \param[out]  string  Output string
+ ** \param[in,out]  string  Input/Output string
  **
  *****************************************************************************/
 GEOSLIB_API void string_to_lowercase(char *string)
@@ -3194,9 +3184,7 @@ GEOSLIB_API void string_to_lowercase(char *string)
 /*!
  **  Convert a string into uppercase characters
  **
- ** \param[in]  string  Input string
- **
- ** \param[out]  string  Output string
+ ** \param[in,out]  string  Input/Output string
  **
  *****************************************************************************/
 GEOSLIB_API void string_to_uppercase(char *string)
@@ -3842,9 +3830,7 @@ GEOSLIB_API int get_mirror_sample(int nx, int ix)
  **
  ** \param[in]  ct,st     Cosine and Sine of the rotation angle
  ** \param[in]  a         Random direction
- ** \param[in]  codir     Direction to be rotated
- **
- ** \param[out] codir     Rotated Direction
+ ** \param[in,out] codir  Direction to be rotated
  **
  *****************************************************************************/
 GEOSLIB_API void ut_rotation_direction(double ct,
@@ -3911,9 +3897,7 @@ static void st_init_rotation(double *ct, double *st, double *a)
  **
  ** \param[in]  nrow      Number of rows
  ** \param[in]  ncol      Number of columns
- ** \param[in]  tab       Array to be suffled
- **
- ** \param[out] tab       Shuffled array
+ ** \param[in,out] tab    Array to be suffled
  **
  *****************************************************************************/
 GEOSLIB_API void ut_shuffle_array(int nrow, int ncol, double *tab)
@@ -4287,8 +4271,6 @@ GEOSLIB_API void rgb2num(int red, int green, int blue, int a, unsigned char *c)
 /****************************************************************************/
 /*!
  **  Convert numeric to RGB
- **
- ** \return  Numeric value
  **
  ** \param[in]   value   Input value
  **
@@ -4720,8 +4702,6 @@ GEOSLIB_API void print_last_message(void)
 /****************************************************************************/
 /*!
  **  Return all the combinations of k within n (local recursive routine)
- **
- ** \return Return all the combinations of 'k' objects amongst 'n'
  **
  ** \param[in]  v     Array of indices to be sorted
  ** \param[in]  start Rank of the starting index

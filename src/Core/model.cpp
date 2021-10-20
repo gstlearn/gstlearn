@@ -143,11 +143,9 @@ GEOSLIB_API void model_covtab_init(int flag_init, Model *model, double *covtab)
 /*!
  **  Scale the array COVTAB
  **
- ** \param[in]  nvar   Number of variables
- ** \param[in]  norme  Number of values used for scaling
- ** \param[in]  covtab Input array covtab
- **
- ** \param[out]  covtab Output array covtab
+ ** \param[in]  nvar      Number of variables
+ ** \param[in]  norme     Number of values used for scaling
+ ** \param[in,out] covtab Input/output array covtab
  **
  *****************************************************************************/
 static void st_covtab_rescale(int nvar, double norme, double *covtab)
@@ -194,7 +192,7 @@ GEOSLIB_API double model_calcul_basic(Model *model,
  **  This is the generic internal function
  **  It can be called for stationary or non-stationary case
  **
- ** \param[in]  covint       Internal structure for non-stationarity
+ ** \param[in]  covint       Internal structure for non-stationarityAddress for the next term after the drift
  **                          or NULL (for stationary case)
  ** \param[in]  model        Model structure
  ** \param[in]  mode         CovCalcMode structure
@@ -282,7 +280,7 @@ static void st_model_calcul_cov_convolution(CovInternal *cov_nostat,
  ** \param[in]  model        Model structure
  ** \param[in]  mode         CovCalcMode structure
  ** \param[in]  flag_init    Initialize the array beforehand
- ** \param[in]  weight       Weight attached to this calculation
+ ** \param[in]  weight       Weight attached to this calcAddress for the next term after the driftulation
  **
  ** \param[out] d1          Working array (dimension = ndim) or NULL
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)

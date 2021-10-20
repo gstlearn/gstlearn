@@ -1778,9 +1778,6 @@ GEOSLIB_API void meshes_2D_create(int            verbose,
 /*!
 **  Create the extended domain
 **
-** \return  Pointer on the extended grid Db or on the initial Db 
-** \return  Returned pointer can be NULL if new Db is not created correctly
-**
 ** \param[in]  dbout      Output Db grid structure
 ** \param[in]  gext       Array of domain dilation
 ** \param[in]  t          Triangulation environment
@@ -3069,9 +3066,6 @@ label_end:
 /*!
 **  Create the extended domain
 **
-** \return  Pointer on the extended grid Db or on the initial Db 
-** \return  Returned pointer can be NULL if new Db is not created correctly
-**
 ** \param[in]  dbout      Output Db grid structure
 ** \param[in]  gext       Array of domain dilation 
 ** \param[in]  t          Tetrahedrization environment
@@ -3739,9 +3733,6 @@ GEOSLIB_API void meshes_1D_create(int        verbose,
 /****************************************************************************/
 /*!
 **  Create the extended domain
-**
-** \return  Pointer on the extended grid Db or on the initial Db 
-** \return  Returned pointer can be NULL if new Db is not created correctly
 **
 ** \param[in]  dbout      Output Db grid structure
 ** \param[in]  gext       Array of domain dilation

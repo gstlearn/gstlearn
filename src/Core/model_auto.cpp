@@ -1649,15 +1649,10 @@ static void st_affect(int     rank,
 ** \return  nb_tot      : Number of parameters (input)
 **
 ** \param[in]  n_init       Initial number of parameters
-** \param[in]  parid        Array of parameters identificators
-** \param[in]  param        Array of current values
-** \param[in]  lower        Array of lower values
-** \param[in]  upper        Array of upper values
-**
-** \param[out]  parid       Array of parameters identificators
-** \param[out]  param       Array of current values
-** \param[out]  lower       Array of lower values
-** \param[out]  upper       Array of upper values
+** \param[in,out] parid     Array of parameters identificators
+** \param[in,out] param     Array of current values
+** \param[in,out] lower     Array of lower values
+** \param[in,out] upper     Array of upper values
 **
 ****************************************************************************/
 static int st_compress_parid(int     n_init,
@@ -4723,10 +4718,8 @@ label_end:
 ** \return  Error return code
 **
 ** \param[in]  vario        Vario structure
-** \param[in]  model        Model to be fitted
+** \param[in,out] model     Model to be fitted
 ** \param[in]  mauto        Option_AutoFit structure
-**
-** \param[out] model        Fitted Model structure
 **
 *****************************************************************************/
 GEOSLIB_API int model_fitting_sills(Vario *vario,

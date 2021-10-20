@@ -979,8 +979,6 @@ static double TR_IN(Db *db,
 /*!
 **  Local function to write into the Data Base
 **
-** \return  Returned value
-**
 ** \param[in]  db        Db structure
 ** \param[in]  iatt_out  Address of the first input attribute
 ** \param[in]  iatt      Rank of the internal attribute
@@ -1971,9 +1969,7 @@ static int st_absolute_index(Db *db,
 **  Remove the sample which coincides with the target site
 **  from the neighborhood
 **
-** \param[in]  ngh        ST_Seismic_Neigh structure to be updated
-**
-** \param[out]  ngh       ST_Seismic_Neigh structure updated
+** \param[in,out]  ngh        ST_Seismic_Neigh structure
 **
 *****************************************************************************/
 static void st_sample_remove_central(ST_Seismic_Neigh *ngh)
@@ -2010,9 +2006,7 @@ static void st_sample_remove_central(ST_Seismic_Neigh *ngh)
 ** \li                    2 : only if the second variable is defined
 ** \param[in]  ix         Rank of the trace
 ** \param[in]  iz         Rank of the target sample within the target trace
-** \param[in]  ngh        ST_Seismic_Neigh structure to be updated
-**
-** \param[out]  ngh       ST_Seismic_Neigh structure updated
+** \param[in,out] ngh     ST_Seismic_Neigh structure
 **
 *****************************************************************************/
 static void st_sample_add(Db  *db,
@@ -3040,7 +3034,7 @@ static int st_estimate_sort(int *presence,
 **
 ** \return  Error return code
 **
-** \param[in]  db         Grid Db structure
+** \param[in,out]  db     Grid Db structure
 ** \param[in]  model      Model structure
 ** \param[in]  nbench     Vertical Radius of the neighborhood (center excluded)
 ** \param[in]  nv2max     Maximum number of traces of second variable on each
@@ -3051,8 +3045,6 @@ static int st_estimate_sort(int *presence,
 **                        by increasing distance to trace where first
 **                        variable is defined
 ** \param[in]  flag_stat  1 for producing final statistics
-**
-** \param[out]  db        Grid Db structure (with added variables)
 **
 *****************************************************************************/
 GEOSLIB_API int seismic_estimate_XZ(Db    *db,
@@ -3126,7 +3118,7 @@ GEOSLIB_API int seismic_estimate_XZ(Db    *db,
 
   for (i=0; i<2; i++)
     st_estimate_check_presence(db,i,&npres[i],presence[i]);
-
+  
   /* Maximum dimension of the neighborhood */
 
   nvois = (2 * nbench + 1) * (npres[0] + 2 * nv2max + 1);
@@ -3308,7 +3300,7 @@ static void st_copy_attribute(Db  *db,
 **
 ** \return  Error return code
 **
-** \param[in]  db         Grid Db structure
+** \param[in,out] db      Grid Db structure
 ** \param[in]  model      Model structure
 ** \param[in]  nbench     Vertical Radius of the neighborhood (center excluded)
 ** \param[in]  nv2max     Maximum number of traces of second variable on each
@@ -3320,8 +3312,6 @@ static void st_copy_attribute(Db  *db,
 **                        by increasing distance to trace where first
 **                        variable is defined
 ** \param[in]  flag_stat  1 for producing final statistics
-**
-** \param[out]  db        Grid Db structure (with added variables)
 **
 *****************************************************************************/
 GEOSLIB_API int seismic_simulate_XZ(Db    *db,

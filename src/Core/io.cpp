@@ -223,10 +223,8 @@ GEOSLIB_API void redefine_exit(void (*exit_func) (void))
 /*!
 **  Strip the blanks from a string
 **
-** \param[in]  string    String to be cleaned
+** \param[in,out] string  String to be cleaned
 ** \param[in]  flag_lead 1 to strip only the leading blanks
-**
-** \param[out] string    Cleaned string
 **
 *****************************************************************************/
 GEOSLIB_API void string_strip_blanks(char *string,
@@ -1784,8 +1782,6 @@ label_ques:
 /*! 
 **  Read astring
 **
-** \return  String read
-**
 ** \param[in]  question  Question to be asked
 ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
 ** \param[in]  valdef    Default string
@@ -2152,8 +2148,6 @@ GEOSLIB_API void mes_process(const char *string,
 /****************************************************************************/
 /*! 
 **  Read the next record
-**
-** \return Error return code
 **
 ** This method is not documented on purpose. It should remain private
 **

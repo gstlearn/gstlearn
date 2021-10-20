@@ -1549,8 +1549,6 @@ static int st_grid_fill_to_be_filled(int ipos)
 /*!
  **  Find the neighborhood of the current cell
  **
- ** \return  1 if the neighborhood criterion is not fulfilled; 0 otherwise
- **
  ** \param[in]  ipos    Absolute grid index of the input grid node
  ** \param[in]  ndim    Space dimension
  ** \param[in]  radius  Radius of the neighborhood
@@ -2777,9 +2775,7 @@ GEOSLIB_API void ut_trace_sample(Db *db,
  ** \param[in]  locatorType      Type of the pointer (ELoc)
  ** \param[in]  dbin        Descriptor of the input Db
  ** \param[in]  dbout       Descriptor of the output Db
- ** \param[in]  istart      Address of the first allocated external information
- **
- ** \param[out] istart Address of the first external information variable
+ ** \param[in,out]  istart      Address of the first allocated external information
  **
  ** \remark This function only functions when the Output Db is a grid
  ** \remark However, in case of a Point output Db, this function should not
@@ -3014,7 +3010,7 @@ GEOSLIB_API Db *db_grid_sample(Db *dbin, const VectorInt& nmult)
   ELoc locatorType;
 
   /* Initializations */
-
+ 
   dbout = nullptr;
   ncol = dbin->getFieldNumber();
   ndim = dbin->getNDim();
@@ -5987,8 +5983,6 @@ static int st_find_interval(double x, int ndef, double *X)
 /*!
  **  Fill an incomplete 1-D grid by linear interpolation from a set of
  **  valued samples
- **
- ** \return  Error returned code
  **
  ** \param[in]  dbgrid  Db grid structure
  ** \param[in]  ivar    Rank of the variable to be filled

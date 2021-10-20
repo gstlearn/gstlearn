@@ -184,6 +184,7 @@ int ASerializable::_recordRead(const String& title, String format, ...) const
 /**
  *
  * @param format String to be completed
+ * @param ... Variable list of arguments
  * @return
  *
  * @remark: Format is not a reference here:

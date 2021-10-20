@@ -609,13 +609,13 @@ static double st_ci0(LMlayers *lmlayers,
 **
 ** \return  Error return code
 **
-** \param[in]  lmlayers  Pointer to the LMlayers structure to be freed
-** \param[in]  coor      Array of coordinates
-** \param[in]  propval   Value for the proportion (used if flag_cumul=TRUE)
-** \param[in]  drext     Value of the external drift
-** \param[in]  ipos_loc  Address for the first drift term
+** \param[in]  lmlayers    Pointer to the LMlayers structure to be freed
+** \param[in]  coor        Array of coordinates
+** \param[in]  propval     Value for the proportion (used if flag_cumul=TRUE)
+** \param[in]  drext       Value of the external drift
+** \param[in,out] ipos_loc Address for the first drift term.
+**                         On output, address for the next term after the drift
 **
-** \param[out] ipos_loc  Address for the next term after the drift
 ** \param[out] b         Array for storing the drift
 **
 *****************************************************************************/
@@ -1276,7 +1276,6 @@ static int st_collocated_prepare(LMlayers *lmlayers,
 ** \param[in]  b         Working vector (Dimension = neq)
 ** \param[in]  dual      Dual vector
 ** \param[in]  wgt       Working array (Dimension = neq)
-** \param[in]  c00       Working array (Dimension = nlayers)
 **
 ** \param[out] estim     Estimated value
 ** \param[out] stdev     Standard deviation of estimation error

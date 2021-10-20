@@ -1107,7 +1107,6 @@ void Db::clearLocators(const ELoc& locatorType)
  * @param names        Vector if variable names
  * @param locatorType  Locator type (include ELoc::UNKNOWN)
  * @param locatorIndex Starting locator rank (starting from 0)
- * @return
  */
 void Db::setLocator(const VectorString& names,
                     const ELoc& locatorType,
@@ -1140,7 +1139,6 @@ void Db::setLocator(const String& names, const ELoc& locatorType, int locatorInd
  * @param iatt          Index of the Attribute
  * @param locatorType   Type of locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank in the Locator (starting from 0)
- * @return Error return code
  * @remark: At this stage, no check is performed to see if items
  * @remark: are consecutive and all defined
  * @remark: This allow using this function in any order.

@@ -69,8 +69,6 @@ static int st_end_point_count(Frac_List *frac_list)
 /*!
 **  Manage the Frac_Desc structure
 **
-** \return  Pointer to the Frac_Desc structure
-**
 ** \param[in]  frac_desc    Pointer to the Frac_Desc structure
 **
 *****************************************************************************/
@@ -756,9 +754,8 @@ static void st_check_fracture_intersect(Frac_Environ *frac_environ,
 ** \param[in]  cote         Ordinate of the fracture starting point
 ** \param[in]  thick        Thickness of the layer
 ** \param[in]  orient       Orientation
-** \param[in]  frac_list    Frac_List structure
+** \param[in,out] frac_list Frac_List structure
 **
-** \param[out] frac_list    Frac_List structure
 ** \param[out] xp           Abscissae of the ending point
 **
 *****************************************************************************/
@@ -865,11 +862,9 @@ static void st_update_repulsion(double  x0,
 ** \param[in]  thick        Thickness of the layer
 ** \param[in]  theta        Intensity of the layer
 ** \param[in]  denstab      Discretized density array
-** \param[in]  frac_list    Frac_List structure
+** \param[in,out] frac_list Frac_List structure
 **
-** \param[out] frac_list    Frac_List structure
-**
-*****************************************************************************/
+*******************************************************************F**********/
 static int st_simulate_fractures(Frac_Environ *frac_environ,
                                  int           ilayer,
                                  int           family,
@@ -960,7 +955,7 @@ static double st_fracture_extension(Frac_Desc& desc,
   return(dist);
 }
 
-/****************************************************************************/
+/******************************************************************F**********/
 /*!
 **  Check if the fracture must be interrupted
 **
@@ -1005,9 +1000,7 @@ static int st_fracture_interrupt(Frac_Fam&  frac_fam,
 ** \param[in]  family       Rank of the family (starting from 0)
 ** \param[in]  cote         Ordinate of the fracture starting point
 ** \param[in]  denstab      Discretization density array
-** \param[in]  frac_list    Frac_List structure
-**
-** \param[out] frac_list    Frac_List structure
+** \param[in,out]  frac_list Frac_List structure
 **
 *****************************************************************************/
 static void st_correct_density(Frac_Environ *frac_environ,
@@ -1051,14 +1044,12 @@ static void st_correct_density(Frac_Environ *frac_environ,
 **
 ** \return The proportion of survival
 **
-** \param[in]  frac_environ Frac_Environ structure
-** \param[in]  family       Rank of the family
-** \param[in]  cote         Ordinate of the fracture starting point
-** \param[in]  thick        Thickness of the layer
-** \param[in]  denstab      Discretization density array
-** \param[in]  frac_list    Frac_List structure
-**
-** \param[out] frac_list    Frac_List structure
+** \param[in]  frac_environ  Frac_Environ structure
+** \param[in]  family        Rank of the family
+** \param[in]  cote          Ordinate of the fracture starting point
+** \param[in]  thick         Thickness of the layer
+** \param[in]  denstab       Discretization density array
+** \param[in,out]  frac_list Frac_List structure
 **
 *****************************************************************************/
 static double st_extend_fractures(Frac_Environ *frac_environ,
@@ -1352,14 +1343,14 @@ static void st_layers_read(int      nlayers_in,
 ** \param[in]  elevations     Array of elevations (used if flag_sim_layer=F)
 ** \param[in]  seed           Seed for the random number generator
 ** \param[in]  verbose        Verbose option
-** \param[in]  frac_list      List of the previously defined fractures
+** \param[in,out] frac_list   List of the previously defined fractures
 **                            (NULL for the first usage)
+**                            At end, list of the finally defined fractures
 **
 ** \param[out]  nlayers       Number of layers
 ** \param[out]  ninfo_arg     Number of information per layer
 ** \param[out]  layinfo       Array of layer information
 **                            Dimension: ninfos * (nlayers+1)
-** \param[out]  frac_list     List of the finally defined fractures
 **
 ** \remark The number of discretization steps used to establish the fracture
 ** \remark density can be defined using:
@@ -2216,7 +2207,7 @@ label_end:
 ** \param[in]  ip           Rank of the segment (starting from 1)
 ** \param[in]  family       Family to which the fracture belongs
 ** \param[in]  perm         Assigned permeability or TEST
-** \param[in]  nout         Initial number of end points
+** \param[in,out] nout      Initial/Final number of end points
 **
 ** \param[out] nout         Final number of end points
 **
