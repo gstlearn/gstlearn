@@ -2216,144 +2216,144 @@ int cs_ltsolve ( const cs *L, double *x )
 
     Copyright 2011, Timothy A. Davis, http://www.suitesparse.com
  */
- int sparseinv	     /* returns -1 on error, or flop count if OK */
- (
-  /* inputs, not modified on output: */
-  int n,	  /* L, U, D, and Z are n-by-n */
-  int *Lp,	  /* L is sparse, lower triangular, stored by column */
-  int *Li,	  /* the row indices of L must be sorted */
-  double *Lx,	  /* diagonal of L, if present, is ignored */
-  double *d,	  /* diagonal of D, of size n */
-  int *Up,	  /* U is sparse, upper triangular, stored by row */
-  int *Uj,	  /* the column indices of U need not be sorted */
-  double *Ux,	  /* diagonal of U, if present, is ignored */
-  int *Zp,	  /* Z is sparse, stored by column */
-  int *Zi,	  /* the row indices of Z must be sorted */
+int sparseinv /* returns -1 on error, or flop count if OK */
+(
+/* inputs, not modified on output: */
+int n, /* L, U, D, and Z are n-by-n */
+ int *Lp, /* L is sparse, lower triangular, stored by column */
+ int *Li, /* the row indices of L must be sorted */
+ double *Lx, /* diagonal of L, if present, is ignored */
+ double *d, /* diagonal of D, of size n */
+ int *Up, /* U is sparse, upper triangular, stored by row */
+ int *Uj, /* the column indices of U need not be sorted */
+ double *Ux, /* diagonal of U, if present, is ignored */
+ int *Zp, /* Z is sparse, stored by column */
+ int *Zi, /* the row indices of Z must be sorted */
 
-  /* output, not defined on input: */ 
-  double *Zx,
+ /* output, not defined on input: */
+ double *Zx,
 
-  /* workspace: */
-  double *z,	  /* size n, zero on input, restored as such on output */
-  int *Zdiagp,	  /* size n */
-  int *Lmunch	  /* size n */
-  )
- {
-   double ljk, zkj ;
-   int j, i, k, p, znz, pdiag, up, zp, flops = n ;
+ /* workspace: */
+ double *z, /* size n, zero on input, restored as such on output */
+ int *Zdiagp, /* size n */
+ int *Lmunch /* size n */
+ )
+{
+  double ljk, zkj;
+  int j, i, k, p, znz, pdiag, up, zp, flops = n;
 
-   /* ---------------------------------------------------------------------- */
-   /* initializations */
-   /* ---------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------- */
+  /* initializations */
+  /* ---------------------------------------------------------------------- */
 
-   /* clear the numerical values of Z */
-   znz = Zp [n] ;
-   for (p = 0 ; p < znz ; p++)
-   {
-     Zx [p] = 0 ;
-   }
+  /* clear the numerical values of Z */
+  znz = Zp[n];
+  for (p = 0; p < znz; p++)
+  {
+    Zx[p] = 0;
+  }
 
-   /* find the diagonal of Z and initialize it */
-   for (j = 0 ; j < n ; j++)
-   {
-     pdiag = -1 ;
-     for (p = Zp [j] ; p < Zp [j+1] && pdiag == -1 ; p++)
-     {
-       if (Zi [p] == j)
-       {
-	 pdiag = p ;
-	 Zx [p] = 1 / d [j] ;
-       }
-     }
-     Zdiagp [j] = pdiag ;
-     if (pdiag == -1) return (-1) ;  /* Z must have a zero-free diagonal */
-   }
+  /* find the diagonal of Z and initialize it */
+  for (j = 0; j < n; j++)
+  {
+    pdiag = -1;
+    for (p = Zp[j]; p < Zp[j + 1] && pdiag == -1; p++)
+    {
+      if (Zi[p] == j)
+      {
+        pdiag = p;
+        Zx[p] = 1 / d[j];
+      }
+    }
+    Zdiagp[j] = pdiag;
+    if (pdiag == -1) return (-1); /* Z must have a zero-free diagonal */
+  }
 
-   /* Lmunch [k] points to the last entry in column k of L */
-   for (k = 0 ; k < n ; k++)
-   {
-     Lmunch [k] = Lp [k+1] - 1 ;
-   }
+  /* Lmunch [k] points to the last entry in column k of L */
+  for (k = 0; k < n; k++)
+  {
+    Lmunch[k] = Lp[k + 1] - 1;
+  }
 
-   /* ---------------------------------------------------------------------- */
-   /* compute the sparse inverse subset */
-   /* ---------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------- */
+  /* compute the sparse inverse subset */
+  /* ---------------------------------------------------------------------- */
 
-   for (j = n-1 ; j >= 0 ; j--)
-   {
+  for (j = n - 1; j >= 0; j--)
+  {
 
-     /* ------------------------------------------------------------------ */
-     /* scatter Z (:,j) into z workspace */
-     /* ------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------ */
+    /* scatter Z (:,j) into z workspace */
+    /* ------------------------------------------------------------------ */
 
-     /* only the lower triangular part is needed, since the upper triangular
-	part is all zero */
-     for (p = Zdiagp [j] ; p < Zp [j+1] ; p++)
-     {
-       z [Zi [p]] = Zx [p] ;
-     }
+    /* only the lower triangular part is needed, since the upper triangular
+     part is all zero */
+    for (p = Zdiagp[j]; p < Zp[j + 1]; p++)
+    {
+      z[Zi[p]] = Zx[p];
+    }
 
-     /* ------------------------------------------------------------------ */
-     /* compute the strictly upper triangular part of Z (:,j) */
-     /* ------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------ */
+    /* compute the strictly upper triangular part of Z (:,j) */
+    /* ------------------------------------------------------------------ */
 
-     /* for k = (j-1):-1:1 but only for the entries Z(k,j) */
-     for (p = Zdiagp [j]-1 ; p >= Zp [j] ; p--)
-     {
-       /* Z (k,j) = - U (k,k+1:n) * Z (k+1:n,j) */
-       k = Zi [p] ;
-       zkj = 0 ;
-       flops += (Up [k+1] - Up [k]) ;
-       for (up = Up [k] ; up < Up [k+1] ; up++)
-       {
-	 /* skip the diagonal of U, if present */
-	 i = Uj [up] ;
-	 if (i > k)
-	 {
-	   zkj -= Ux [up] * z [i] ;
-	 }
-       }
-       z [k] = zkj ;
-     }
+    /* for k = (j-1):-1:1 but only for the entries Z(k,j) */
+    for (p = Zdiagp[j] - 1; p >= Zp[j]; p--)
+    {
+      /* Z (k,j) = - U (k,k+1:n) * Z (k+1:n,j) */
+      k = Zi[p];
+      zkj = 0;
+      flops += (Up[k + 1] - Up[k]);
+      for (up = Up[k]; up < Up[k + 1]; up++)
+      {
+        /* skip the diagonal of U, if present */
+        i = Uj[up];
+        if (i > k)
+        {
+          zkj -= Ux[up] * z[i];
+        }
+      }
+      z[k] = zkj;
+    }
 
-     /* ------------------------------------------------------------------ */
-     /* left-looking update to lower triangular part of Z */
-     /* ------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------ */
+    /* left-looking update to lower triangular part of Z */
+    /* ------------------------------------------------------------------ */
 
-     /* for k = (j-1):-1:1 but only for the entries Z(k,j) */
-     for (p = Zdiagp [j]-1 ; p >= Zp [j] ; p--)
-     {
-       k = Zi [p] ;
+    /* for k = (j-1):-1:1 but only for the entries Z(k,j) */
+    for (p = Zdiagp[j] - 1; p >= Zp[j]; p--)
+    {
+      k = Zi[p];
 
-       /* ljk = L (j,k) */
-       if (Lmunch [k] < Lp [k] || Li [Lmunch [k]] != j)
-       {
-	 /* L (j,k) is zero, so there is no work to do */
-	 continue ;
-       }
-       ljk = Lx [Lmunch [k]--] ;
+      /* ljk = L (j,k) */
+      if (Lmunch[k] < Lp[k] || Li[Lmunch[k]] != j)
+      {
+        /* L (j,k) is zero, so there is no work to do */
+        continue;
+      }
+      ljk = Lx[Lmunch[k]--];
 
-       /* Z (k+1:n,k) = Z (k+1:n,k) - Z (k+1:n,j) * L (j,k) */
-       flops += (Zp [k+1] - Zdiagp [k]) ;
-       for (zp = Zdiagp [k] ; zp < Zp [k+1] ; zp++)
-       {
-	 Zx [zp] -= z [Zi [zp]] * ljk ;
-       }
-     }
+      /* Z (k+1:n,k) = Z (k+1:n,k) - Z (k+1:n,j) * L (j,k) */
+      flops += (Zp[k + 1] - Zdiagp[k]);
+      for (zp = Zdiagp[k]; zp < Zp[k + 1]; zp++)
+      {
+        Zx[zp] -= z[Zi[zp]] * ljk;
+      }
+    }
 
-     /* ------------------------------------------------------------------ */
-     /* gather Z (:,j) back from z workspace */
-     /* ------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------ */
+    /* gather Z (:,j) back from z workspace */
+    /* ------------------------------------------------------------------ */
 
-     for (p = Zp [j] ; p < Zp [j+1] ; p++)
-     {
-       i = Zi [p] ;
-       Zx [p] = z [i] ;
-       z [i] = 0 ;
-     }
-   }
-   return (flops) ;
- }
+    for (p = Zp[j]; p < Zp[j + 1]; p++)
+    {
+      i = Zi[p];
+      Zx[p] = z[i];
+      z[i] = 0;
+    }
+  }
+  return (flops);
+}
 
  /* compressed-column form into arrays */
  /* number: Number of non-zero terms in the sparse matrix A */
@@ -4744,7 +4744,7 @@ static void st_multigrid_descent(cs_MGS	  *mgs,
 **  Inversion using Cholesky
 **
 ** \param[in]  qctt	   Qchol structure
-** \param[in,out]  xcr	   Current vector
+** \param[in,out]  xcr Current vector
 ** \param[in]  rhs	   Current R.H.S. vector
 **
 ** \param[out] work	   Working array
@@ -4801,12 +4801,12 @@ void cs_chol_simulate(QChol	 *qctt,
 ** \param[out] work	   Working array
 **
 *****************************************************************************/
-static void st_relaxation(cs_MGS   *mgs,
-			  int	    level,
-			  int	    mode,
-			  double   *xcr,
-			  double   *rhs,
-			  double   *work)
+static void st_relaxation(cs_MGS *mgs,
+                          int level,
+                          int mode,
+                          double *xcr,
+                          double *rhs,
+                          double *work)
 {
   cs_MG	 *mg;
 
@@ -4906,60 +4906,61 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
   niter = 0;
   nfois = (flag_sym) ? 2 : 1;
 
-  for (int iter=0; iter<mgs->nmg; iter++)
+  for (int iter = 0; iter < mgs->nmg; iter++)
   {
     level = 0;
 
     if (mgs->nlevels > 0)
     {
       /* Loop for symmetrization */
-      
-      for (int ifois=0; ifois<nfois; ifois++)
+
+      for (int ifois = 0; ifois < nfois; ifois++)
       {
-	
-	/* Loop on the path levels */
-	
-	for (int k=0; k<mgs->npath; k++)
-	{
-	  if (level != nlevels)
-	  {
-	    mode = (k > 0) ? mgs->path[k-1] : 1;
-	    if (flag_sym) mode = 2 * ifois - 1;
-	    st_relaxation(mgs,level,mode,&XCR(level,0),&RHS(level,0),work);
-	  }
-	  else
-	    cs_chol_invert(mgs->mg[level]->A,&XCR(level,0),&RHS(level,0),work);
-	  
-	  level += mgs->path[k];
-	  
-	  if (mgs->path[k] > 0)
-	    st_multigrid_descent(mgs,level,&XCR(level-1,0),&RHS(level-1,0),
-				 &RHS(level,0),work);
-	  else
-	    st_multigrid_ascent(mgs,level,0,0,&XCR(level+1,0),
-				&XCR(level,0),work);
-	}
-	mode = (! flag_sym) ? -1 : 1;
-	st_relaxation(mgs,0,mode,&XCR(level,0),&RHS(level,0),work);
+
+        /* Loop on the path levels */
+
+        for (int k = 0; k < mgs->npath; k++)
+        {
+          if (level != nlevels)
+          {
+            mode = (k > 0) ? mgs->path[k - 1] : 1;
+            if (flag_sym) mode = 2 * ifois - 1;
+            st_relaxation(mgs, level, mode, &XCR(level, 0), &RHS(level, 0), work);
+          }
+          else
+            cs_chol_invert(mgs->mg[level]->A, &XCR(level, 0), &RHS(level, 0), work);
+
+          level += mgs->path[k];
+
+          if (mgs->path[k] > 0)
+            st_multigrid_descent(mgs, level, &XCR(level - 1, 0),
+                                 &RHS(level - 1, 0), &RHS(level, 0), work);
+          else
+            st_multigrid_ascent(mgs, level, 0, 0, &XCR(level + 1, 0),
+                                &XCR(level, 0), work);
+        }
+        mode = (!flag_sym) ? -1 : 1;
+        st_relaxation(mgs, 0, mode, &XCR(level, 0), &RHS(level, 0), work);
       }
     }
     else
     {
-      cs_chol_invert(mgs->mg[level]->A,&XCR(level,0),&RHS(level,0),work);
+      cs_chol_invert(mgs->mg[level]->A, &XCR(level, 0), &RHS(level, 0), work);
     }
 
     // Calculate the score
 
     score = 0.;
-    cs_mulvec(mgs->mg[0]->A->Q, mgs->mg[0]->A->Q->n, &XCR(0,0), work);
-    for (int icur=0; icur<ncur; icur++)
+    cs_mulvec(mgs->mg[0]->A->Q, mgs->mg[0]->A->Q->n, &XCR(0, 0), work);
+    for (int icur = 0; icur < ncur; icur++)
     {
       delta = (b[icur] - work[icur]);
       score += delta * delta;
     }
     score = sqrt(score / norm);
     scores[niter++] = score;
-    if (verbose) message("Iteration %3d -> Score = %15.10lf\n",iter+1,score);
+    if (verbose)
+      message("Iteration %3d -> Score = %15.10lf\n", iter + 1, score);
     if (score < mgs->tolnmg) break;
   }
      
@@ -5501,7 +5502,7 @@ void cs_add_cste(cs *A, double value)
 }
 
 /* Calculate the inverse of sparse matrix A and store the result in sparse B */
-cs* cs_invert(const cs *A, int order)
+cs* cs_invert(const cs *A, int order, double epsilon)
 {
   double *x, *b;
   cs  *Bt;
@@ -5536,7 +5537,7 @@ cs* cs_invert(const cs *A, int order)
       // Store the elements in the output sparse matrix (triplet format)
       for (int j=0; j<n; j++)
       {
-        if (ABS(b[j]) > 1.e-6) cs_entry(Bt,icol,j,b[j]);
+        if (ABS(b[j]) > epsilon) cs_entry(Bt,icol,j,b[j]);
       }
     }
     B = cs_triplet(Bt);

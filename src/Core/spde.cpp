@@ -2783,8 +2783,7 @@ GEOSLIB_API int spde_build_stdev(double *vcur)
 
   if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2, LDinv->p, LDinv->i,
                 LDinv->x, Pattern->p, Pattern->i, Pattern->x, wz, wZdiagp,
-                wLmunch)
-      == -1) goto label_end;
+                wLmunch) == -1) goto label_end;
 
   /* Extracting the diagonal of wz */
 

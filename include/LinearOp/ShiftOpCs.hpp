@@ -75,7 +75,7 @@ public:
                  Model* model,
                  bool verbose = false);
   int getSize() const override { return _S->n; }
-  int getDim() const { return _dim; }
+  int getNDim() const { return _ndim; }
   int getNModelGradParam() const { return _nModelGradParam; }
   void prodTildeC(const VectorDouble& in,
                   VectorDouble& out,
@@ -96,6 +96,9 @@ public:
   const VectorDouble& getLambdaGrad(int idim) const { return _LambdaGrad[idim]; }
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
+
+  bool getFlagGradByHh() const { return _flagGradByHH; }
+  void setFlagGradByHh(bool flagGradByHh) { _flagGradByHH = flagGradByHh; }
 
 private:
   int _getIcov() const { return _icov; }
@@ -147,8 +150,8 @@ private:
                       MatrixCSGeneral& matu,
                       MatrixCRectangular& matw) const;
   cs* _BuildSfromMap(std::map<std::pair<int, int>, double> &tab);
-  void _updateCova(CovAniso* cova, int ip, int ndim);
-  void _updateHH(MatrixCSGeneral& hh, int ip, int ndim);
+  void _updateCova(CovAniso* cova, int ip);
+  void _updateHH(MatrixCSGeneral& hh, int ip);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
 
 private:
@@ -158,10 +161,11 @@ private:
   int _nModelGradParam;
   std::vector<cs *> _SGrad;
   std::vector<VectorDouble> _LambdaGrad;
-  int _dim;
+  bool _flagGradByHH;
 
-  // Following list f members are there to ease the manipulation and reduce argument list
+  // Following list of members are there to ease the manipulation and reduce argument list
   Model* _model;
   int _igrf;
   int _icov;
+  int _ndim;
 };
