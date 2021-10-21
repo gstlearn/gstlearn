@@ -1050,6 +1050,7 @@ static void st_dksmrc(int *ndim,
 **                    Estimated absolute accuracy of FINEST.
 ** \param[in] releps  Required relative accuracy.
 **
+** \param[out] abserr Absolute returned accuracy
 ** \param[out] finest  Estimated value of integral.
 ** \param[out] inform = 0 for normal status, when
 **                        ABSERR <= MAX(ABSEPS, RELEPS*ABS(FINEST))
