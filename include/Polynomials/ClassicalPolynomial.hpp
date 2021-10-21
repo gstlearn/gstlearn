@@ -25,9 +25,9 @@ public:
   double eval(double x) const override;
   void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& in,
                    VectorDouble& out,int iapex,int igparam)const;
-  void evalOpTraining(cs* Op, const VectorDouble& in,VectorVectorDouble& store) const override;
-  void evalDerivOpOptim(cs* Op,const VectorDouble& in1,VectorDouble& in2,
-                       VectorDouble& out,int iapex,int igparam)const;
+  void evalOpTraining(cs* Op, const VectorDouble& in,VectorVectorDouble& store,VectorDouble& work) const override;
+  void evalDerivOpOptim(ShiftOpCs* shiftOp,VectorDouble& temp1,VectorDouble& temp2,
+                       VectorDouble& out,const VectorVectorDouble workpoly,int iapex,int igparam)const;
   void evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const ;
   void evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const override;
 };

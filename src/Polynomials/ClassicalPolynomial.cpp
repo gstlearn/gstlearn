@@ -107,21 +107,23 @@ void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& o
 }
 
 // Classical Hörner scheme starting from the highest degree
-void ClassicalPolynomial::evalOpTraining(cs* Op, const VectorDouble& in,VectorVectorDouble& store) const
+void ClassicalPolynomial::evalOpTraining(cs* Op, const VectorDouble& in,VectorVectorDouble& store,VectorDouble& work) const
 {
   int n = static_cast<int> (in.size());
 
-  VectorDouble work(n);
-
+  if(work.empty())
+  {
+    work.resize(n);
+  }
 
   for(int i = 0; i < n ;i++)
   {
-     store[0][i] = _coeffs.back() * in[i];
+     store[_coeffs.size()-1][i] = _coeffs.back() * in[i];
   }
 
-  for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
+  for(int j = (int)_coeffs.size()-2; j >= 0; j--)
   {
-    cs_vecmult(Op,store[j].data(),work.data());
+    cs_vecmult(Op,store[j+1].data(),work.data());
     for (int i = 0; i<n ; i++)
     {
         store[j][i] = _coeffs[j] * in[i] + work[i];
@@ -181,34 +183,61 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 
 
 
-void ClassicalPolynomial::evalDerivOpOptim(cs* Op,
-                                           const VectorDouble& in1,
-                                           VectorDouble& in2,
+//void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+//                                           const VectorDouble& in1,
+//                                           VectorDouble& in2,
+//                                           VectorDouble& out,
+//                                           const VectorVectorDouble workpoly,
+//                                           int iapex,
+//                                           int igparam) const
+//{
+//
+//  int n = static_cast<int> (in1.size());
+//  VectorDouble work1(n);
+//  VectorDouble work2(n);
+//  VectorDouble work3(n);
+//  VectorDouble deriv(n);
+//  cs_vecmult(Op,in2.data(),work2.data());
+//
+//    for(int i = 0; i < n ;i++)
+//    {
+//       work1[i] = _coeffs.back() * in1[i];
+//       deriv[i] = 0.;
+//    }
+//
+//    for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
+//    {
+//      cs_vecmult(Op,work1.data(),work1.data());
+//      for (int i = 0; i<n ; i++)
+//      {
+//          work1[i] = _coeffs[j] * in1[i] + work1[i];
+//      }
+//    }
+//
+//}
+
+void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
+                                           VectorDouble& temp1,
+                                           VectorDouble& temp2,
                                            VectorDouble& out,
+                                           const VectorVectorDouble workpoly,
                                            int iapex,
                                            int igparam) const
 {
 
-  int n = static_cast<int> (in1.size());
-  VectorDouble work1(n);
-  VectorDouble work2(n);
-  VectorDouble work3(n);
-  VectorDouble deriv(n);
-  cs_vecmult(Op,in2.data(),work2.data());
+  int n = static_cast<int> (temp1.size());
+  int degree = _coeffs.size();
+  cs_vecmult(shiftOp->getSGrad(iapex,igparam),workpoly[degree-1].data(),out.data());
 
-    for(int i = 0; i < n ;i++)
+
+  for(int i=degree-2;i>=0;i--)
+  {
+    cs_vecmult(shiftOp->getS(),out.data(),temp1.data());
+    cs_vecmult(shiftOp->getSGrad(iapex,igparam),workpoly[i+1].data(),temp2.data());
+
+    for(int j=0;j<n;j++)
     {
-       work1[i] = _coeffs.back() * in1[i];
-       deriv[i] = 0.;
+      out[j] = temp1[j] + temp2[j];
     }
-
-    for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
-    {
-      cs_vecmult(Op,work1.data(),work1.data());
-      for (int i = 0; i<n ; i++)
-      {
-          work1[i] = _coeffs[j] * in1[i] + work1[i];
-      }
-    }
-
+  }
 }

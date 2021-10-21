@@ -11,6 +11,9 @@
 #include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
+#include "Mesh/MeshETurbo.hpp"
 
 #include "MatrixC/MatrixCRectangular.hpp"
 
@@ -92,6 +95,19 @@ int main(int argc, char *argv[])
   model.display(1);
 
   message("Test performed successfully\n");
+
+  MeshETurbo mesh(workingDbc);
+  ShiftOpCs S(&mesh, &model, &workingDbc);
+  PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF, false);
+
+  VectorDouble vectnew = VectorDouble(Qsimu.getSize());
+  // Remplir vectnew de valeurs gaussiennes
+
+  VectorDouble result(Qsimu.getSize());
+  Qsimu.eval(vectnew,result);
+  workingDbc.addFields(result,"Simu",ELoc::Z);
+
+  //Sérialiser
 
   return 0;
 }
