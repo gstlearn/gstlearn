@@ -46,7 +46,6 @@ GEOSLIB_API int   _lire_int(const char *question,int flag_def,
 GEOSLIB_API double _lire_double(const char *question,int flag_def,
                                 double valdef,double valmin,double valmax);
 GEOSLIB_API int   _lire_logical(const char *question,int flag_def,int valdef);
-GEOSLIB_API char *_next_file(char *dirname,char *in_string,char *ex_string);
 GEOSLIB_API void  _erase_current_string(void);
 
 /****************************************/

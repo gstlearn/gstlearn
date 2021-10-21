@@ -16,42 +16,72 @@ The name 'gstlearn' stands for several purposes:
 The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats)
 
 ## Requirements
-For using (compiling) *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
+This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LTS and Windows 10
+For compiling and installing *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
   * [Git](https://git-scm.com/downloads) client
-  * [Boost](https://www.boost.org/users/download) library (MacOS and Windows)
-  * Following environment variables must be set:
-      + ARCH to one of this: {linux64, macosx, windows} and
-      + WIN_TYPE (Windows only) to one of {32, 64}
-      + BOOST_DIR (MacOS and Windows only) to the Boost library root folder (See below)
+  * [Boost](https://www.boost.org/users/download) library
+  * [CMake](https://cmake.org/download) tool
   
-## Library compilation
-Cloning the repository and compiling (Currently, **only the Linux version** has been tested)
+## Get the sources
+For getting the sources files, just clone the github repository:
+
 ```sh
 git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
-make gstlearn
 ```
+
+Notes:
+  * In the following, all instructions must be executed from this gstlearn directory.
+  
+## Library installation
+For compiling and installing the *gstlearn* library, execute the following instructions in a command prompt.
+
+### Install for all users
+This requires Administrator rights:
+
+```sh
+cmake ..
+cmake --build . --config Release
+sudo cmake --build . --target install
+```
+
+### Install for you only
+You can choose a different installation directory by modifying the first cmake command above:
+  
+```
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/fors/gstlearn ..
+cmake --build . --config Release
+cmake --build . --target install
+````
+
+Notes:
+  * If you want to build the *Debug* version, you must replace *Release* by *Debug* above.
 
 ## Usage
 TODO: Instructions will come soon
 
 ## Required tools installation
-This package has been successfully tested with Ubuntu 18.04 LTS and Windows 10
 
 ### Linux (Ubuntu):
 Under Linux, the GCC compiler is already installed
+
 ```sh
 sudo apt install doxygen
 sudo apt install git
+sudo apt install cmake
+sudo apt install libboost-dev
 ```
 
 ### MacOS:
 Under MacOS, the GCC (or Clang) compiler is already installed (Not tested)
+
 ```sh
 brew install doxygen
 brew install git
+brew install cmake
+brew install libboost-dev
 ```
 
 ### Windows:
@@ -59,14 +89,22 @@ Download and install the following tools:
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (installed in the directory *C:\\doxygen* for example)
   * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below)
   * Git client [from here](https://gitforwindows.org) (Use default options during installation)
-  * Boost Library [from here](https://www.boost.org/users/download) (download and extract the zip file anywhere)
-  
+  * Boost library [from here](https://www.boost.org/users/download) (download and extract the zip file anywhere)
+  * CMake tool [from here](https://cmake.org/download)
+    
 Notes:
   * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (more details [here](https://stackoverflow.com/a/44398715)). Administrator rights are required. If you prefer using another smaller compiler (i.e. MinGW), you could [try this](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) (not tested)
   * The *Path* environment variable must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
-TODO: Instructions will come soon
+
+### Clean
+Simply execute the following command:
+
+```
+cmake --build . --target clean
+```
+
 
 ***
 

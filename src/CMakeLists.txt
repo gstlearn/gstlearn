@@ -1,7 +1,6 @@
 # Why is cmake file GLOB evil?
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 set(SOURCES
-  License/dirent_win32.cpp
   License/MD5Utility.cpp
   License/RegistryUtility.cpp
   License/MACAddressUtility.cpp
@@ -261,7 +260,11 @@ set_target_properties(
   gstlearn-core-static PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
 
-install(TARGETS gstlearn-core gstlearn-core-static EXPORT corelibs)
+# https://stackoverflow.com/questions/14990343/cmake-error-targets-given-no-library-destination-for-shared-library-target
+install(TARGETS gstlearn-core gstlearn-core-static EXPORT corelibs
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib)
+        
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn
 )
