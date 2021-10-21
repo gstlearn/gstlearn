@@ -35,7 +35,8 @@ public:
                       VectorDouble& out) const {};
   virtual void evalOpTraining(cs* Op,
                       const VectorDouble& in,
-                      VectorVectorDouble& out) const {};
+                      VectorVectorDouble& out,
+                      VectorDouble& work) const {};
   VectorDouble evalOp(cs* Op, const VectorDouble& in) const;
   VectorDouble getCoeffs()const{ return _coeffs;}
   int getDegree() const { return _coeffs.size();}

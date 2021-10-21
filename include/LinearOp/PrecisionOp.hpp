@@ -36,6 +36,7 @@ public:
 
   void   eval(const VectorDouble& in, VectorDouble& out);
   virtual void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result){};
+  virtual void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result){};
   virtual void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
   virtual void evalDerivOptim(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
   virtual void evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
@@ -73,5 +74,6 @@ protected :
   mutable VectorDouble _work;
   mutable VectorDouble _work2;
   mutable VectorDouble _work3;
+  mutable VectorDouble _work4;
   mutable VectorVectorDouble _workPoly;
 };
