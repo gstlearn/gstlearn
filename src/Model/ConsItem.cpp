@@ -159,6 +159,10 @@ String ConsItem::toString(int level) const
       sstr << "S-Rotation";
       break;
 
+    case EConsElem::E_ROTMAT:
+      sstr << "Anis-Matrix";
+      break;
+
     default:
       break;
   }

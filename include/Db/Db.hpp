@@ -210,6 +210,7 @@ public:
 
   VectorDouble getSampleCoordinates(int iech) const;
   void   getSampleCoordinates(int iech, VectorDouble& coor) const;
+  VectorDouble getSampleAttributes(const ELoc& locatorType, int iech) const;
 
   double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   void   getCoordinate(int iech, VectorDouble& coor, bool flag_rotate=true) const;

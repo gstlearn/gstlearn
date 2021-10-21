@@ -394,6 +394,12 @@ int getMaxStringSize(const VectorString& list)
   return size;
 }
 
+/**
+ * Separate keywords in the input string
+ * The keywords are identified when switching between alpha, digit and other
+ * @param code String to be split
+ * @return
+ */
 VectorString separateKeywords(const String& code)
 {
   VectorString result;
@@ -401,7 +407,9 @@ VectorString separateKeywords(const String& code)
   charTypeT st = other;
   for (auto c : code)
   {
-    if ((st == alpha && _charType(c) == digit) || (st == digit && _charType(c) == alpha))
+    if ((st == alpha && _charType(c) != alpha) ||
+        (st == digit && _charType(c) != digit) ||
+        (st == other && _charType(c) != other))
     {
       if (oString.size() > 0) result.push_back(oString);
       oString = "";

@@ -265,7 +265,18 @@ const int ANoStat::attachModel(const Model* model)
  * @param code Input code
  * @param igrf Rank of the GRF
  * @param icov Rank of the Covariance
- * @param type Type of parameter ("R","A","P","V","S","T","C","I")
+ * @param type Type of parameter ("R","A","P","V","S","T","C","I","H")
+ *             G : Rank of the GRF
+ *             M : Rank of the Structure
+ *             R : Range
+ *             A : Angle
+ *             P : Third parameter
+ *             V : Sill
+ *             S : Scale
+ *             T : Tapering range
+ *             C : Velocity (advection)
+ *             I : Rotation angle for Sphere
+ *             H : Anisotropy matrix terms
  * @param iv1  Rank of the first variable
  * @param iv2  Rank of the second variable
  * @return 0 if a valid constraint has been defined; 1 otherwise
@@ -326,11 +337,11 @@ int ANoStat::_understandCode(const String& code,
     lec++;
   }
 
-  // Decoding the operator keyword ("R","A","P","V","S","T","C","I")
+  // Decoding the operator keyword ("R","A","P","V","S","T","C","I","H")
   if (lec < size)
   {
     // TODO better decoding which would not be dependent on the order in ENUM_CONS
-    VectorString list = {"R","A","P","V","S","T","C","I"};
+    VectorString list = {"R","A","P","V","S","T","C","I","H"};
     int itype = getRankInList(list, keywords[lec], false) + 1;
     (*type) = EConsElem::fromValue(itype);
     if ((*type) == EConsElem::UNKNOWN) return 1;
