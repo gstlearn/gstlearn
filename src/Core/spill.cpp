@@ -75,9 +75,7 @@ static void st_htop_evaluate(SPIMG *data,
 /*!
 **  Blanks the center of the image 
 **
-** \param[in]  image SPIMG structure to be initialized 
-**
-** \param[out] image SPIMG structure to be initialized 
+** \param[in,out]  image SPIMG structure to be initialized
 **
 *****************************************************************************/
 static void st_blank_center(SPIMG  *image)
@@ -99,9 +97,7 @@ static void st_blank_center(SPIMG  *image)
 ** \li                 0 : for the height variable
 ** \li                 1 : for the data variable
 ** \param[in]  iatt   Rank of the attribute
-** \param[in]  image  SPIMG structure to be initialized 
-**
-** \param[out] image  SPIMG structure to be initialized 
+** \param[in,out] image SPIMG structure to be initialized
 **
 *****************************************************************************/
 static void st_copy_center(int    mode,
@@ -167,10 +163,8 @@ static void st_extract_center(SPIMG *image,
 **  Converts the final image into the following codes: SURFACE_BELOW,
 **  SURFACE_INSIDE, SURFACE_OUTSIDE, SURFACE_UNKNOWN 
 **
-** \param[in]  out     SPIMG structure 
+** \param[in,out] out  SPIMG structure
 ** \param[in]  hspill  spill evelation 
-**
-** \param[out] out     SPIMG structure 
 **
 *****************************************************************************/
 static void st_convert(SPIMG  *out,
@@ -208,10 +202,8 @@ static void st_convert(SPIMG  *out,
 ** \return  Error returned code: 1 if the Maximum Reservoir Thickness
 ** \return  constraint is violated; 0 otherwise 
 **
-** \param[in]  out    SPIMG structure 
+** \param[in,out] out SPIMG structure
 ** \param[in]  hspill Spill elevation value 
-**
-** \param[out] out    SPIMG structure 
 **
 *****************************************************************************/
 static int st_add_unknown(SPIMG  *out,
@@ -510,8 +502,6 @@ static void st_dump(const char *title,
 /*****************************************************************************/
 /*!
 **  Returns the coordinates of a point, given its pointer 
-**
-** \return  Error return code 
 **
 ** \param[in]  pt_out       pointer to the point of interest 
 ** \param[in]  out          IMAGE structure 

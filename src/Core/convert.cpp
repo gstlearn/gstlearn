@@ -296,11 +296,11 @@ static int st_ifpen_read(FILE       *file,
 
   if (mode == 1)
   {
-    if (sscanf(&line[start],"%d",valint) != 1) return(1);
+    if (gslSScanf(&line[start],"%d",valint) != 1) return(1);
   }
   else if (mode == 2)
   {
-    if (sscanf(&line[start],"%lf",valrel) != 1) return(1);
+    if (gslSScanf(&line[start],"%lf",valrel) != 1) return(1);
   }
   return(0);
 }
@@ -974,14 +974,14 @@ GEOSLIB_API int db_grid_write_zycor(const char *filename,
               ind = yy * 15;
               if (! FFFF(buff[yy]))
               {
-                 sprintf ( &card[ind], "%15g", buff[yy] );
+                 gslSPrintf( &card[ind], "%15g", buff[yy] );
               }
               else
               {
                  memcpy ( &card[ind], (char *)ZYCOR_NULL_CH, 15 );
               }
            }
-           sprintf ( &card[15*nbyline], "\n" );
+           gslSPrintf( &card[15*nbyline], "\n" );
            fprintf ( file, "%s", card );
            kk = 0;
         }
@@ -994,14 +994,14 @@ GEOSLIB_API int db_grid_write_zycor(const char *filename,
            ind = yy * 15;
            if (! FFFF(buff[yy]))
            {
-              sprintf ( &card[ind], "%15g", buff[yy] );
+              gslSPrintf( &card[ind], "%15g", buff[yy] );
            }
            else
            {
               memcpy ( &card[ind], (char *)ZYCOR_NULL_CH, 15 );
            }
         }
-        sprintf ( &card[15*kk], "\n" );
+        gslSPrintf( &card[15*kk], "\n" );
         fprintf ( file, "%s", card );
      }
   }
@@ -1819,10 +1819,10 @@ GEOSLIB_API int db_write_vtk(const char *filename,
   nactive   = db->getActiveSampleNumber();
   flag_grid = is_grid(db);
   useBinary = (int) get_keypone("VTK_Use_Binary",1.);
-  factx     = get_keypone("VTK_Fact_X",1.);
-  facty     = get_keypone("VTK_Fact_Y",1.);
-  factz     = get_keypone("VTK_Fact_Z",1.);
-  factvar   = get_keypone("VTK_Fact_Var",1.);
+  factx     = (float) get_keypone("VTK_Fact_X",1.);
+  facty     = (float) get_keypone("VTK_Fact_Y",1.);
+  factz     = (float) get_keypone("VTK_Fact_Z",1.);
+  factvar   = (float) get_keypone("VTK_Fact_Var",1.);
 
   /* Define the reading parameters */
 
@@ -1885,7 +1885,7 @@ GEOSLIB_API int db_write_vtk(const char *filename,
         if (idim == 0) fact = factx;
         if (idim == 1) fact = facty;
         if (idim == 2) fact = factz;
-        points[ecr++] = (idim < ndim) ? (float) (fact * db->getCoordinate(iech,idim)) : 0.;
+        points[ecr++] = (idim < ndim) ? fact * (float) db->getCoordinate(iech,idim) : 0.;
       }
     }
   }
@@ -2115,7 +2115,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
 
     // Looking for the TEST value (keyword "NULL")
     if (strstr(string,"NULL"))
-      sscanf(&string[8],"%lf",&test);
+      gslSScanf(&string[8],"%lf",&test);
 
     // Looking for the next delimitor
     if (strstr(string,"~")) break;
@@ -2135,14 +2135,14 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     if (strstr(string,"~")) break;
 
     // Reading the variable name
-    token = strtok(string, sep_point);
+    token = gslStrtok(string, sep_point);
     if (token == NULL) break;
 
     // Add the variable to the list
     string[strlen(token)] = '\0';
     varloc = (char **) mem_realloc((char *) varloc,sizeof(char *) * (nvar+1),1);
     varloc[nvar] = (char *) mem_alloc(sizeof(char) * sizemax,1);
-    (void) strncpy(varloc[nvar], token, sizemax);
+    (void) gslStrncpy(varloc[nvar], token, sizemax);
     string_strip_blanks(varloc[nvar],0);
     if (verbose) message("Variable: %s\n",varloc[nvar]);
     nvar++;
@@ -2175,9 +2175,9 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     lcur = string;
     while (nvarlu < nvar)
     {
-      token = strtok(lcur, sep_blank);
+      token = gslStrtok(lcur, sep_blank);
       lcur  = NULL;
-      if (token == NULL || sscanf(token,"%lf",&value) == EOF) break;
+      if (token == NULL || gslSScanf(token,"%lf",&value) == EOF) break;
       if (value == test) value = TEST;
       tabloc[ecr++] = value;
       nvarlu++;
@@ -2608,8 +2608,6 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
 /*!
 **   Write a STRING element into the (opened) CSV file
 **
-** \return  Error return code
-**
 ** \param[in]  string       String to be written
 **
 ** \remark: This function uses CSV_ENCODING static structure
@@ -2638,8 +2636,6 @@ GEOSLIB_API void csv_print_string(const char *string)
 /****************************************************************************/
 /*!
 **   Write a DOUBLE element into the (opened) CSV file
-**
-** \return  Error return code
 **
 ** \param[in]  value        Real value to be written
 **

@@ -223,10 +223,8 @@ GEOSLIB_API void redefine_exit(void (*exit_func) (void))
 /*!
 **  Strip the blanks from a string
 **
-** \param[in]  string    String to be cleaned
+** \param[in,out] string  String to be cleaned
 ** \param[in]  flag_lead 1 to strip only the leading blanks
-**
-** \param[out] string    Cleaned string
 **
 *****************************************************************************/
 GEOSLIB_API void string_strip_blanks(char *string,
@@ -507,7 +505,7 @@ GEOSLIB_API int _file_read(FILE *file,
 
     /* Decode the line looking for the next token */
 
-    LCUR = strtok(cur,&DEL_SEP);
+    LCUR = gslStrtok(cur,&DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
     if (debug_query("interface"))
@@ -520,7 +518,7 @@ GEOSLIB_API int _file_read(FILE *file,
       ret_s = va_arg(ap,char *);
       if (! st_only_blanks(LCUR))
       {
-        if (sscanf(LCUR,"%s",ret_s) <= 0) return(1);
+        if (gslSScanf(LCUR,"%s",ret_s) <= 0) return(1);
       }
       ideb += 2;
       if (debug_query("interface"))
@@ -529,7 +527,7 @@ GEOSLIB_API int _file_read(FILE *file,
     else if (! strcmp(fmt,"%d"))
     {
       ret_i = va_arg(ap,int *);
-      if (sscanf(LCUR,"%d",ret_i) <= 0) return(1);
+      if (gslSScanf(LCUR,"%d",ret_i) <= 0) return(1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
       if (debug_query("interface"))
@@ -538,7 +536,7 @@ GEOSLIB_API int _file_read(FILE *file,
     else if (! strcmp(fmt,"%f"))
     {
       ret_f = va_arg(ap,float *);
-      if (sscanf(LCUR,"%f",ret_f) <= 0) return(1);
+      if (gslSScanf(LCUR,"%f",ret_f) <= 0) return(1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
       if (debug_query("interface"))
@@ -547,7 +545,7 @@ GEOSLIB_API int _file_read(FILE *file,
     else if (! strcmp(fmt,"%lf"))
     {
       ret_d = va_arg(ap,double *);
-      if (sscanf(LCUR,"%lf",ret_d) <= 0) return(1);
+      if (gslSScanf(LCUR,"%lf",ret_d) <= 0) return(1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
       if (debug_query("interface"))
@@ -556,7 +554,7 @@ GEOSLIB_API int _file_read(FILE *file,
     else if (! strcmp(fmt,"%lg"))
     {
       ret_d = va_arg(ap,double *);
-      if (sscanf(LCUR,"%lg",ret_d) <= 0) return(1);
+      if (gslSScanf(LCUR,"%lg",ret_d) <= 0) return(1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
       if (debug_query("interface"))
@@ -617,10 +615,10 @@ GEOSLIB_API int _file_get_ncol(FILE *file)
 
   /* Get the number of tokens */
 
-  if (strtok(LINE,&DEL_SEP) != NULL)
+  if (gslStrtok(LINE,&DEL_SEP) != NULL)
   {
     ncol++;
-    while (strtok(NULL,&DEL_SEP) != NULL) ncol++;
+    while (gslStrtok(NULL,&DEL_SEP) != NULL) ncol++;
   }
 
   if (debug_query("interface"))
@@ -716,7 +714,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     
     /* Decode the line looking for the next token */
 
-    LCUR = strtok(cur,&DEL_SEP);
+    LCUR = gslStrtok(cur,&DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
     if (debug_query("interface"))
@@ -727,7 +725,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     if (! strcmp(fmt,"%s"))
     {
       ret_s = va_arg(ap,char *);
-      if (sscanf(LCUR,"%s",ret_s) <= 0) return(1);
+      if (gslSScanf(LCUR,"%s",ret_s) <= 0) return(1);
       ideb += 2;
       if (debug_query("interface"))
         message("Decoded String = %s\n",ret_s);
@@ -735,7 +733,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     else if (! strcmp(fmt,"%d"))
     {
       ret_i = va_arg(ap,int *);
-      if (sscanf(LCUR,"%d",ret_i) <= 0) return(1);
+      if (gslSScanf(LCUR,"%d",ret_i) <= 0) return(1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
       if (debug_query("interface"))
@@ -744,7 +742,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     else if (! strcmp(fmt,"%f"))
     {
       ret_f = va_arg(ap,float *);
-      if (sscanf(LCUR,"%f",ret_f) <= 0) return(1);
+      if (gslSScanf(LCUR,"%f",ret_f) <= 0) return(1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
       if (debug_query("interface"))
@@ -753,7 +751,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     else if (! strcmp(fmt,"%lf"))
     {
       ret_d = va_arg(ap,double *);
-      if (sscanf(LCUR,"%lf",ret_d) <= 0) return(1);
+      if (gslSScanf(LCUR,"%lf",ret_d) <= 0) return(1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
       if (debug_query("interface"))
@@ -762,7 +760,7 @@ GEOSLIB_API int _buffer_read(char       **buffer,
     else if (! strcmp(fmt,"%lg"))
     {
       ret_d = va_arg(ap,double *);
-      if (sscanf(LCUR,"%lg",ret_d) <= 0) return(1);
+      if (gslSScanf(LCUR,"%lg",ret_d) <= 0) return(1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
       if (debug_query("interface"))
@@ -1180,21 +1178,21 @@ GEOSLIB_API void tab_prints(const char*     title,
   switch (justify.toEnum())
   {
     case EJustify::E_LEFT:
-      (void) strncpy(TABSTR,string,neff);
+      (void) gslStrncpy(TABSTR,string,neff);
       TABSTR[neff] = '\0';
       for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
       break;
 
     case EJustify::E_CENTER:
       for (i=0; i<n1; i++) (void) gslStrcat(TABSTR," ");
-      (void) strncpy(&TABSTR[n1],string,neff);
+      (void) gslStrncpy(&TABSTR[n1],string,neff);
       TABSTR[n1+neff] = '\0';
       for (i=0; i<n2; i++) (void) gslStrcat(TABSTR," ");
       break;
 
     case EJustify::E_RIGHT:
       for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
-      (void) strncpy(&TABSTR[nrst],string,neff);
+      (void) gslStrncpy(&TABSTR[nrst],string,neff);
       TABSTR[nrst+neff] = '\0';
       break;
   }
@@ -1224,7 +1222,7 @@ GEOSLIB_API void tab_print_rowname(const char *string,
   /* Blank the string out */
 
   (void) gslStrcpy(TABSTR,"");
-  (void) strncpy(TABSTR,string,neff);
+  (void) gslStrncpy(TABSTR,string,neff);
   TABSTR[neff] = '\0';
   for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
   message(TABSTR);
@@ -1784,8 +1782,6 @@ label_ques:
 /*! 
 **  Read astring
 **
-** \return  String read
-**
 ** \param[in]  question  Question to be asked
 ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
 ** \param[in]  valdef    Default string
@@ -2152,8 +2148,6 @@ GEOSLIB_API void mes_process(const char *string,
 /****************************************************************************/
 /*! 
 **  Read the next record
-**
-** \return Error return code
 **
 ** This method is not documented on purpose. It should remain private
 **

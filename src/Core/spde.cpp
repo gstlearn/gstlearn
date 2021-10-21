@@ -2361,9 +2361,7 @@ static void st_simu_add_vertices(int number, double *zsnc, double *zcur)
  **
  ** \param[in] number     : Number of terms in arrays 'perm' and 'aux'
  ** \param[in] aux        : Auxiliary array
- ** \param[in] perm       : Input array
- **
- ** \param[out] perm      : Output array
+ ** \param[in,out] perm   : Input/Output array
  **
  *****************************************************************************/
 static void st_load_array(int number, double *aux, double *perm)
@@ -2617,8 +2615,6 @@ GEOSLIB_API Vertype *vertype_manage(int mode,
 /****************************************************************************/
 /*!
  **  Prepare the RHS for Kriging
- **
- ** \return  Error return code
  **
  ** \param[in]  QCtd        Pointer to QChol structure (target-data)
  ** \param[in]  data        Input array (Dimension: ndata)
@@ -4498,8 +4494,6 @@ static int st_chebychev_calculate_coeffs(Cheb_Elem *cheb_elem,
 /*!
  **  Simulate the nugget effect component
  **
- ** \return Error return code
- **
  ** \param[in]  ncur       Number of target to be simulated
  ** \param[out] zsnc       Output array (Dimension: nvertex)
  **
@@ -5486,9 +5480,9 @@ GEOSLIB_API Cheb_Elem *spde_cheb_manage(int mode,
     if (cheb_elem == nullptr) goto label_end;
     cheb_elem->coeffs = nullptr;
 
-    ncmax = get_keypone("Number_Polynomials_Chebychev", 10001.);
-    ndisc = get_keypone("Number_Discretization_Chebychev", 100.);
-    tol = get_keypone("Chebychev_Tolerance", 5.e-3);
+    ncmax = (int) get_keypone("Number_Polynomials_Chebychev", 10001.);
+    ndisc = (int) get_keypone("Number_Discretization_Chebychev", 100.);
+    tol   = get_keypone("Chebychev_Tolerance", 5.e-3);
 
     /* Calculate key values */
 
@@ -8096,8 +8090,6 @@ GEOSLIB_API int spde_f(Db *dbin,
 /*!
  **  Perform the product of x by Q using the blin decomposition
  **
- ** \return Error return code
- **
  ** \param[in]  nblin     Number of blin coefficients
  ** \param[in]  blin      Array of coefficients for Linear combinaison
  ** \param[in]  S         Shift operator
@@ -10095,9 +10087,7 @@ static double st_m2d_draw_gaussian(M2D_Environ *m2denv,
  ** \param[in]  type        1 for the constraining Db
  **                         2 for the grid output Db
  ** \param[in]  iech        Rank of the sample
- ** \param[in]  tab         Input array of Z-values (Dimension: nlayer)
- **
- ** \param[out]  tab        Output array of Y-values (Dimension: nlayer)
+ ** \param[in,out] tab      Input/Output array of Z-values (Dimension: nlayer)
  **
  *****************************************************************************/
 static void st_convert_Z2Y(M2D_Environ *m2denv,
@@ -10149,9 +10139,7 @@ static void st_convert_Z2Y(M2D_Environ *m2denv,
  ** \param[in]  type        1 for the constraining Db
  **                         2 for the grid output Db
  ** \param[in]  iech        Rank of the sample
- ** \param[in]  tab         Input array of Y-values (Dimension: nlayer)
- **
- ** \param[out]  tab        Output array of Z-values (Dimension: nlayer)
+ ** \param[in,out] tab      Input/Ouput array of Y-values (Dimension: nlayer)
  **
  *****************************************************************************/
 static void st_convert_Y2Z(M2D_Environ *m2denv,
@@ -10233,9 +10221,8 @@ static void st_print_sample(const char *title,
  ** \param[in]  nlayer      Number of layers
  ** \param[in]  sigma       Standard deviation of the nugget value
  ** \param[in]  ymean       Array of mean values at constraints
- ** \param[in]  ydat        Array of values at constraints samples
+ ** \param[in,out] ydat     Array of values at constraints samples
  **
- ** \param[out] ydat        Array of values at constraints samples
  ** \param[out] work        Array of tentative values (Dimension: nlayer)
  **
  ** \remarks The [in,out] argument 'ydat' is expressed in working domain
@@ -10560,7 +10547,7 @@ static void st_print_db_constraints(const char *title,
 
   // Initializations
 
-  nprint = get_keypone("Print_Data", 10.);
+  nprint = (int) get_keypone("Print_Data", 10.);
   if (!verbose || nprint == 0) return;
 
   // Printout
@@ -10577,8 +10564,7 @@ static void st_print_db_constraints(const char *title,
       upper = db->getUpperBound(iech, ilayer);
       value = db->getVariable(iech, ilayer);
       drift = db->getExternalDrift(iech,ilayer);
-      vgaus = (ydat != nullptr) ? YDAT(ilayer, iech) :
-                                          TEST;
+      vgaus = (ydat != nullptr) ? YDAT(ilayer, iech) : TEST;
       st_print_constraints_per_point(ilayer, iech, value, drift, vgaus, lower,
                                      upper);
     }

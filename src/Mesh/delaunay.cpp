@@ -3493,7 +3493,7 @@ struct behavior *b;
       }
 #ifndef TRILIBRARY
     } else {
-      strncpy(b->innodefilename, argv[i], FILENAMESIZE - 1);
+      gslStrncpy(b->innodefilename, argv[i], FILENAMESIZE - 1);
       b->innodefilename[FILENAMESIZE - 1] = '\0';
     }
 #endif /* not TRILIBRARY */
@@ -11192,7 +11192,7 @@ FILE *polyfile;
   if (!b->quiet) {
     message("Opening %s.\n", elefilename);
   }
-  elefile = fopen(elefilename, "r");
+  elefile = gslFopen(elefilename, "r");
   if (elefile == nullptr) {
     messerr("  Error:  Cannot access file %s.", elefilename);
     triexit(1);
@@ -11262,7 +11262,7 @@ FILE *polyfile;
     if (!b->quiet) {
       message("Opening %s.\n", areafilename);
     }
-    areafile = fopen(areafilename, "r");
+    areafile = gslFopen(areafilename, "r");
     if (areafile == nullptr) {
       messerr("  Error:  Cannot access file %s.", areafilename);
       triexit(1);
@@ -13922,7 +13922,7 @@ FILE **polyfile;
     if (!b->quiet) {
       message("Opening %s.\n", polyfilename);
     }
-    *polyfile = fopen(polyfilename, "r");
+    *polyfile = gslFopen(polyfilename, "r");
     if (*polyfile == nullptr) {
       messerr("  Error:  Cannot access file %s.", polyfilename);
       triexit(1);
@@ -13970,7 +13970,7 @@ FILE **polyfile;
     if (!b->quiet) {
       message("Opening %s.\n", nodefilename);
     }
-    infile = fopen(nodefilename, "r");
+    infile = gslFopen(nodefilename, "r");
     if (infile == nullptr) {
       messerr("  Error:  Cannot access file %s.", nodefilename);
       triexit(1);
@@ -14403,7 +14403,7 @@ char **argv;
   if (!b->quiet) {
     message("Writing %s.\n", nodefilename);
   }
-  outfile = fopen(nodefilename, "w");
+  outfile = gslFopen(nodefilename, "w");
   if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", nodefilename);
     triexit(1);
@@ -14565,7 +14565,7 @@ char **argv;
   if (!b->quiet) {
     message("Writing %s.\n", elefilename);
   }
-  outfile = fopen(elefilename, "w");
+  outfile = gslFopen(elefilename, "w");
   if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", elefilename);
     triexit(1);
@@ -14707,7 +14707,7 @@ char **argv;
   if (!b->quiet) {
     message("Writing %s.\n", polyfilename);
   }
-  outfile = fopen(polyfilename, "w");
+  outfile = gslFopen(polyfilename, "w");
   if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", polyfilename);
     triexit(1);
@@ -14847,7 +14847,7 @@ char **argv;
   if (!b->quiet) {
     message("Writing %s.\n", edgefilename);
   }
-  outfile = fopen(edgefilename, "w");
+  outfile = gslFopen(edgefilename, "w");
   if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", edgefilename);
     triexit(1);
@@ -15017,7 +15017,7 @@ char **argv;
   if (!b->quiet) {
     message("Writing %s.\n", vnodefilename);
   }
-  outfile = fopen(vnodefilename, "w");
+  outfile = gslFopen(vnodefilename, "w");
   if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", vnodefilename);
     triexit(1);
@@ -15086,7 +15086,7 @@ char **argv;
   if (!b->quiet) {
     message("Writing %s.\n", vedgefilename);
   }
-  outfile = fopen(vedgefilename, "w");
+  outfile = gslFopen(vedgefilename, "w");
   if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", vedgefilename);
     triexit(1);
@@ -15205,7 +15205,7 @@ char **argv;
   if (!b->quiet) {
     message("Writing %s.\n", neighborfilename);
   }
-  outfile = fopen(neighborfilename, "w");
+  outfile = gslFopen(neighborfilename, "w");
   if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", neighborfilename);
     triexit(1);
@@ -15297,7 +15297,7 @@ char **argv;
     outvertices = m->vertices.items;
   }
 
-  outfile = fopen(offfilename, "w");
+  outfile = gslFopen(offfilename, "w");
   if (outfile == nullptr) {
     messerr("  Error:  Cannot create file %s.", offfilename);
     triexit(1);

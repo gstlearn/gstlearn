@@ -37,5 +37,3 @@ public:
   VectorDouble getCoeffs();
   cs* getQ();
 };
-
-

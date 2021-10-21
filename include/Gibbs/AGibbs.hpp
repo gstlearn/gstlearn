@@ -15,7 +15,7 @@
 
 class Db;
 
-class AGibbs
+class AGibbs: public AStringable
 {
 public:
   AGibbs();
@@ -32,6 +32,7 @@ public:
   AGibbs& operator=(const AGibbs &r);
   virtual ~AGibbs();
 
+  virtual String toString(int level = 0) const override;
   virtual int calculInitialize(VectorVectorDouble& y,
                                int isimu,
                                int ipgs,
@@ -57,10 +58,7 @@ public:
             bool flag_multi_mono,
             bool flag_decay);
   void getBoundsDecay(int iter, double *vmin, double *vmax) const;
-  void print(bool flag_init,
-             const VectorVectorDouble& y,
-             int isimu,
-             int ipgs) const;
+
 
   int getNvar() const { return _nvar; }
   void setNvar(int nvar) { _nvar = nvar; }
@@ -106,7 +104,10 @@ protected:
   int _getRowNumberStats() const;
   int _getColNumberStats() const;
   int _getColRankStats(int ipgs, int ivar, int mode) const;
-
+  void _displayCurrentVector(bool flag_init,
+                             const VectorVectorDouble& y,
+                             int isimu,
+                             int ipgs) const;
 
 private:
   int _npgs;
@@ -122,7 +123,7 @@ private:
 
   VectorInt _ranks; // Internal array use to store indices of active samples
 
-  // Pointer to the reference Db (stored for efficiency)
+  // Pointer to the reference Db (only stored for efficiency)
   Db*       _db;
 
   // Optional Table used to store performance statistics (see _optionStats)

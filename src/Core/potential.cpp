@@ -1786,8 +1786,7 @@ static void st_calc_point(Pot_Env *pot_env,
 ** \param[in]  isimu         Rank of the simulation
 ** \param[in]  potval        Array of potential values at different layers
 ** \param[in]  result        Resulting value (in potential scale)
-**
-** \param[out] result        Resulting value in layer scale
+**                           On output, Resulting value in layer scale
 **
 ** \remarks The potential values at iso-potential samples are assumed
 ** \remarks to be ordered
@@ -2193,8 +2192,7 @@ static void st_xvalid(Pot_Env *pot_env,
 ** \param[in]  reskrige      Kriging result
 ** \param[in]  resgrad       Kriged gradient
 ** \param[in]  result        Conditional Simulation result
-**
-** \param[out] result        Conditional Simulation tempered result
+**                           On output, Conditional Simulation tempered result
 **
 ** \remarks This function does nothing if 'dist_tempere' is undefined
 **

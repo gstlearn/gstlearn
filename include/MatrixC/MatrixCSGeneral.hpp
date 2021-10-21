@@ -15,6 +15,9 @@
 #include "Basic/Vector.hpp"
 #include "MatrixC/AMatrixCSquare.hpp"
 
+/**
+ * Square Matrix General
+ */
 class MatrixCSGeneral : public AMatrixCSquare {
 
 public:

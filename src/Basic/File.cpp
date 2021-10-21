@@ -13,6 +13,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 // Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
 //https://stackoverflow.com/a/17219495
@@ -62,5 +63,14 @@ bool gslFileExist(const String& path, const String& mode)
   bool exists = file != nullptr;
   if (exists) fclose(file);
   return exists;
+}
+
+char* gslGetEnv(const char* name)
+{
+#if defined(_WIN32) || defined(_WIN64)
+  return getenv(name);
+#else
+  return std::getenv(name);
+#endif
 }
 

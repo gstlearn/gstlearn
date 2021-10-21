@@ -18,7 +18,8 @@
 #include "geoslib_enum.h"
 
 AGibbs::AGibbs()
-    : _npgs(1),
+    : AStringable(),
+      _npgs(1),
       _nvar(1),
       _nburn(1),
       _niter(1),
@@ -32,7 +33,8 @@ AGibbs::AGibbs()
 }
 
 AGibbs::AGibbs(Db* db)
-    : _npgs(1),
+    : AStringable(),
+      _npgs(1),
       _nvar(1),
       _nburn(1),
       _niter(1),
@@ -48,7 +50,8 @@ AGibbs::AGibbs(Db* db)
 AGibbs::AGibbs(Db* db,
                int npgs, int nvar, int nburn, int niter,
                int flag_order, bool flag_multi_mono, bool flag_decay)
-    : _npgs(1),
+    : AStringable(),
+      _npgs(1),
       _nvar(1),
       _nburn(1),
       _niter(1),
@@ -228,10 +231,10 @@ void AGibbs::_printInequalities(int iact,
  ** \param[in]  ipgs        Rank of the GS
  **
  *****************************************************************************/
-void AGibbs::print(bool flag_init,
-                   const VectorVectorDouble& y,
-                   int isimu,
-                   int ipgs) const
+void AGibbs::_displayCurrentVector(bool flag_init,
+                                   const VectorVectorDouble& y,
+                                   int isimu,
+                                   int ipgs) const
 {
   int nact = getSampleRankNumber();
   int nvar = getNvar();
@@ -510,7 +513,8 @@ int AGibbs::getRelativeRank(int iech)
 int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool flagCheck)
 {
   if (calculInitialize(y, isimu, ipgs, verbose)) return 1;
-  if (flagCheck) print(true, y, isimu, ipgs);
+  if (flagCheck)
+    _displayCurrentVector(true, y, isimu, ipgs);
 
   /* Iterations of the Gibbs sampler */
 
@@ -519,12 +523,40 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool f
 
   /* Check the validity of the Gibbs results (optional) */
 
-  if (flagCheck) checkGibbs(y, isimu, ipgs);
-  if (flagCheck) print(false, y, isimu, ipgs);
+  if (flagCheck)
+  {
+    checkGibbs(y, isimu, ipgs);
+    _displayCurrentVector(false, y, isimu, ipgs);
+  }
 
   // Store the results
 
   storeResult(y, isimu, ipgs);
 
   return 0;
+}
+
+String AGibbs::toString(int level) const
+{
+  std::stringstream sstr;
+
+  sstr << toTitle(0, "Gibbs Characteristics");
+
+  sstr << "Number of Gaussian Systems" << _npgs;
+  sstr << "Number of Variables" << _nvar;
+  sstr << "Number of Gibbs Iterations" << _niter;
+  sstr << "Number of Burning Iterations" << _nburn;
+  if (_flagDecay)
+    sstr << "Decay option is switched ON" << std::endl;
+  if (_flagOrder == 1)
+    sstr << "Variables are ordered sequentially upwards" << std::endl;
+  if (_flagOrder == -1)
+    sstr << "Variables are ordered sequentially downwards" << std::endl;
+  if (_optionStats == 1)
+    sstr << "Statistics on Trajectories are stored for print out" << std::endl;
+  if (_optionStats == 2)
+    sstr << "Statistics on Trajectories are stored in Neutral File" << std::endl;
+
+  return sstr.str();
+
 }

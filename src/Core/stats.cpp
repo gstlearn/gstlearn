@@ -40,9 +40,7 @@ static int DEBUG = 0;
 **  Copy the multivariate into monovariate statistics (before printout)
 **
 ** \param[in]  ncol  Dimension of the (square) matrix
-** \param[in]  tab   Array to be refactored
-**
-** \param[out]  tab  Array to be refactored
+** \param[in,out]  tab   Array to be refactored
 **
 *****************************************************************************/
 static void st_refactor(int     ncol,
@@ -2331,9 +2329,7 @@ static int st_find_cell(int     ntot,
 ** \param[in]  valwrk    Working array (Dimension: n_nbgh)
 ** \param[in]  valtab0   Array containing the sample value
 ** \param[in]  locwrk    Working array for shifted seed positions
-** \param[in]  loccur    Current seed position
-**
-** \param[out]  loccur    Current seed positions (after shift)
+** \param[in,out] loccur    Current seed position
 **
 *****************************************************************************/
 static void st_migrate_seed(int     ndim,
@@ -2863,8 +2859,6 @@ static void st_get_rowname(const String& radix,
 /****************************************************************************/
 /*!
 **  Print the multivariate statistics between different variables of a Db
-**
-** \return  Error Return code
 **
 ** \param[in]  db          Db structure
 ** \param[in]  iatts_arg   Ranks of the attributes (empty = all)

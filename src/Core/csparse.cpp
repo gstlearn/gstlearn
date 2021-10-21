@@ -1061,7 +1061,7 @@ csn *cs_chol (const cs *A, const css *S)
       cs *T ;
       if (!f) return (NULL) ;
       T = cs_spalloc (0, 0, 1, 1, 1) ;
-      while (fscanf (f, "%d %d %lg\n", &i, &j, &x) == 3)
+      while (gslFScanf (f, "%d %d %lg\n", &i, &j, &x) == 3)
       {
 	  if (!cs_entry (T, i, j, x)) return (cs_spfree (T)) ;
       }
@@ -4744,10 +4744,9 @@ static void st_multigrid_descent(cs_MGS	  *mgs,
 **  Inversion using Cholesky
 **
 ** \param[in]  qctt	   Qchol structure
-** \param[in]  xcr	   Current vector
+** \param[in,out]  xcr	   Current vector
 ** \param[in]  rhs	   Current R.H.S. vector
 **
-** \param[out] xcr	   Current vector
 ** \param[out] work	   Working array
 **
 *****************************************************************************/
@@ -4796,10 +4795,9 @@ void cs_chol_simulate(QChol	 *qctt,
 ** \param[in]  mgs	   cs_MGS structure
 ** \param[in]  level	   Current level
 ** \param[in]  mode	   1 for Descending and -1 for Ascending
-** \param[in]  xcr	   Current vector
+** \param[in,out]  xcr	   Current vector
 ** \param[in]  rhs	   Current R.H.S. vector
 **
-** \param[out] xcr	   Current vector
 ** \param[out] work	   Working array
 **
 *****************************************************************************/
@@ -4883,7 +4881,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
   norm	   = matrix_norm(b,ncur);
   flag_sym = get_keypone("MG_Flag_Symmetric",1.);
   if (verbose) message("Pre-conditioning phase (Niter=%d Tol=%15.10lf)\n",
-		       mgs->nmg,mgs->tolnmg);
+                       mgs->nmg,mgs->tolnmg);
 
   /* Core allocation */
 

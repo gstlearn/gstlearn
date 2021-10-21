@@ -1184,9 +1184,7 @@ static int st_varcalc_from_vario_stat(Vario *vario,
 **
 ** \param[in]  flag_rho    1 if rho has to be calculated, 0 otherwise
 ** \param[in]  flag_correl 1 for the correlated case; 0 otherwise
-** \param[in]  local_pgs   Local_Pgs structure
-**
-** \param[out]  local_pgs   Local_Pgs structure
+** \param[in,out]  local_pgs   Local_Pgs structure
 **
 *****************************************************************************/
 static void st_define_trace(int        flag_rho,
@@ -1212,9 +1210,7 @@ static void st_define_trace(int        flag_rho,
 /*!
 **  Reset the Local_TracePgs structure
 **
-** \param[in]  local_pgs  Local_TracePgs structure
-**
-** \param[out]  local_pgs  Local_Pgs structure
+** \param[in,out]  local_pgs  Local_TracePgs structure
 **
 *****************************************************************************/
 static void st_retrace_define(Local_Pgs *local_pgs)
@@ -2350,13 +2346,9 @@ static void st_build_correl(Local_CorPgs *corpgs,
 **  Update the following matrices according to constraints on model
 **
 ** \param[in]  corpgs      Local_CorPgs structure
-** \param[in]  Grad        Vector of gradients (Dimension = 4)
-** \param[in]  Hess        Matrix of Hessian (Dimension = 4*4)
-** \param[in]  JJ          Matrix of t(JJ) * JJ (Dimension = 4*4)
-**
-** \param[out]  Grad        Vector of gradients (Dimension = npar)
-** \param[out]  Hess        Matrix of Hessian (Dimension = npar * npar)
-** \param[out]  JJ          Matrix of t(JJ) * JJ (Dimension = npar * npar)
+** \param[in,out]  Grad        Vector of gradients (Dimension = npar)
+** \param[in,out]  Hess        Matrix of Hessian (Dimension = npar * npar)
+** \param[in,out]  JJ          Matrix of t(JJ) * JJ (Dimension = npar * npar)
 **
 *****************************************************************************/
 static void st_update_constraints(Local_CorPgs *corpgs,
@@ -2571,9 +2563,7 @@ static void st_set_modif(Local_CorPgs *corpgs)
 ** \li                     2 : residual case
 ** \param[in]  flag_rho    1 if rho has to be calculated, 0 otherwise
 ** \param[in]  rho         Correlation between GRFs
-** \param[in]  local_pgs   Local_Pgs structure
-**
-** \param[out]  local_pgs   Local_Pgs structure
+** \param[in,out]  local_pgs   Local_Pgs structure
 **
 *****************************************************************************/
 static void st_define_corpgs(int option, 
@@ -3686,9 +3676,7 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs,
 /*!
 **  Manage the Local_CorPgs structure
 **
-** \param[in]  local_corpgs  Local_CorPgs structure
-**
-** \param[out]  local_corpgs  Local_CorPgs structure
+** \param[in,out]  local_corpgs  Local_CorPgs structure
 **
 *****************************************************************************/
 static void st_manage_corpgs(Local_CorPgs *local_corpgs)
@@ -3711,9 +3699,7 @@ static void st_manage_corpgs(Local_CorPgs *local_corpgs)
 /*!
 **  Manage the Local_TracePgs structure
 **
-** \param[in]  local_tracepgs  Local_TracePgs structure
-**
-** \param[out]  local_tracepgs  Local_TracePgs structure
+** \param[in,out]  local_tracepgs  Local_TracePgs structure
 **
 *****************************************************************************/
 static void st_manage_trace(Local_TracePgs *local_tracepgs)
@@ -3731,7 +3717,7 @@ static void st_manage_trace(Local_TracePgs *local_tracepgs)
 **  Manage the Local_Pgs structure
 **
 ** \param[in]  mode         0 initialization; 1 allocation; -1 deallocation
-** \param[in]  local_pgs    Local_Pgs structure
+** \param[in,out] local_pgs Local_Pgs structure
 ** \param[in]  db           Db structure
 ** \param[in]  rule         Lithotype Rule definition
 ** \param[in]  vario        Vario structure
@@ -3744,8 +3730,6 @@ static void st_manage_trace(Local_TracePgs *local_tracepgs)
 ** \param[in]  ngrf         Number of GRFs
 ** \param[in]  nfacies      Number of facies
 ** \param[in]  calcul_type  Type of the calculation (covariance, variogram, ...)
-**
-** \param[out] local_pgs    Local_Pgs structure
 **
 *****************************************************************************/
 static void st_manage_pgs(int               mode,

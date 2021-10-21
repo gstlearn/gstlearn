@@ -85,8 +85,6 @@ static double st_anam_hermitian_block_variance(Anam  *anam,
 /*!
 **  Update the Anam structure for Hermitian Anamorphosis 
 **
-** \return  Error returned code
-**
 ** \param[in,out] anam_hermite  Anam structure to be updated
 ** \param[in]  nbpoly   Number of Hermite polynomials
 ** \param[in]  pymin    Minimum practical value for Y
@@ -127,8 +125,6 @@ GEOSLIB_API void anam_update_hermitian(AnamHermite *anam_hermite,
 /*!
 **  Update the Anam structure for Empirical Anamorphosis 
 **
-** \return  Error returned code
-**
 ** \param[in,out] anam_empirical  Anam structure to be updated
 ** \param[in]  ndisc    Number of discretization lags
 ** \param[in]  pymin    Minimum practical value for Y
@@ -167,8 +163,6 @@ GEOSLIB_API void anam_update_empirical(AnamEmpirical *anam_empirical,
 /****************************************************************************/
 /*!
 **  Update the Anam structure for Discrete Diffusion Anamorphosis
-**
-** \return Error return code
 **
 ** \param[in,out] anam_discrete_DD  Anam structure to be updated
 ** \param[in]  ncut     Number of cutoffs
@@ -235,8 +229,6 @@ static double st_anam_discrete_IR_block_variance(Anam *anam,
 /****************************************************************************/
 /*!
 **  Update the Anam structure for Discrete Indicator Residuals Anamorphosis 
-**
-** \return Error return code
 **
 ** \param[in,out] anam_discrete_IR  Anam structure to be updated
 ** \param[in]  ncut     Number of cutoffs
@@ -1368,13 +1360,11 @@ label_end:
 **
 ** \return  Error return code
 **
-** \param[in]  anam        Point anamorphosis
+** \param[in]  anam        Point anamorphosis -> Block anamorphosis [out]
 ** \param[in]  verbose     Verbose option
 ** \param[in]  cvv         Block variance
 ** \param[in]  coeff       Coefficient of change of support
 ** \param[in]  mu          Additional coefficient for Discrete case
-**
-** \param[out] anam        Block anamorphosis
 **
 ** \remark If 'coeff' is provided, it is used directly ('cvv' is ignored)
 ** \remark Otherwise, it is derived from 'cvv'
@@ -2522,8 +2512,6 @@ label_end:
 /*!
 **  Interpolate the Grade-Tonnage curves
 **
-** \return Error return code
-**
 ** \param[in] verbose  Verbose flag
 ** \param[in] zcutmine Array of cutoffs
 ** \param[in] nclass   Number of classes
@@ -2553,9 +2541,7 @@ GEOSLIB_API void selectivity_interpolate(int     verbose,
 **
 ** \param[in]  anam        Point anamorphosis
 ** \param[in]  cvv         Block variance
-** \param[in]  vario       Experimental variogram of Z
-**
-** \param[out] vario       Experimental variogram on Y
+** \param[in]  vario       Experimental variogram of Z -> Y [out]
 **
 *****************************************************************************/
 GEOSLIB_API int anam_vario_z2y(Anam   *anam,

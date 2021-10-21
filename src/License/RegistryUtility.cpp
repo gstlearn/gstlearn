@@ -1,6 +1,6 @@
 #include "License/RegistryUtility.hpp"
 #include "INIParser.hpp"
-
+#include "Basic/File.hpp"
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -18,7 +18,7 @@ std::string RegistryUtility::get_environ(const std::string& varname)
   if (GetEnvironmentVariable(varname.c_str(), buffer, buffSize))
     value = std::string(buffer);
 #elif defined(__linux__) || defined(__APPLE__)
-  char const* temp = getenv(varname.c_str());
+  char const* temp = gslGetEnv(varname.c_str());
   if (temp != NULL) value = std::string(temp);
 #endif
   return value;
@@ -32,7 +32,7 @@ std::string RegistryUtility::get_value(const std::string& prog,
 {
   std::string val;
 #if defined(_WIN32) || defined(_WIN64)
-  std::string filename = getenv("APPDATA");
+  std::string filename = gslGetEnv("APPDATA");
   filename += "\\";
   filename += prog;
   filename += "\\";
@@ -43,7 +43,7 @@ std::string RegistryUtility::get_value(const std::string& prog,
     val = hkey_get(HKEY_CURRENT_USER, rkey, key);
   */
 #elif defined(__linux__) || defined(__APPLE__)
-  std::string filename = getenv("HOME");
+  std::string filename = gslGetEnv("HOME");
   filename += "/.";
   filename += prog;
 #endif
@@ -63,7 +63,7 @@ int RegistryUtility::set_value(const std::string& prog,
 {
   int ret = 1;
 #if defined(_WIN32) || defined(_WIN64)
-  std::string filename = getenv("APPDATA");
+  std::string filename = gslGetEnv("APPDATA");
   filename += "\\";
   filename += prog;
   if (CreateDirectory(filename.c_str(), NULL) ||
@@ -75,7 +75,7 @@ int RegistryUtility::set_value(const std::string& prog,
     std::cout << "Error creating directory:" << filename << std::endl;
   }
 #elif defined(__linux__) || defined(__APPLE__)
-  std::string filename = getenv("HOME");
+  std::string filename = gslGetEnv("HOME");
   filename += "/.";
   filename += prog;
 #endif

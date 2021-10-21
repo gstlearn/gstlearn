@@ -940,6 +940,18 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   return coor;
 }
 
+VectorDouble Db::getSampleAttributes(const ELoc& locatorType, int iech) const
+{
+  VectorDouble vec;
+  if (!isLocatorTypeValid(locatorType)) return vec;
+  int number = getLocatorNumber(locatorType);
+  if (number <= 0) return vec;
+  vec.resize(number);
+  for (int i = 0; i < number; i++)
+    vec[i] = getFromLocator(locatorType, iech, i);
+  return vec;
+}
+
 void Db::getSampleCoordinates(int iech, VectorDouble& coor) const
 {
   int ndim = getNDim();
@@ -1107,7 +1119,6 @@ void Db::clearLocators(const ELoc& locatorType)
  * @param names        Vector if variable names
  * @param locatorType  Locator type (include ELoc::UNKNOWN)
  * @param locatorIndex Starting locator rank (starting from 0)
- * @return
  */
 void Db::setLocator(const VectorString& names,
                     const ELoc& locatorType,
@@ -1140,7 +1151,6 @@ void Db::setLocator(const String& names, const ELoc& locatorType, int locatorInd
  * @param iatt          Index of the Attribute
  * @param locatorType   Type of locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank in the Locator (starting from 0)
- * @return Error return code
  * @remark: At this stage, no check is performed to see if items
  * @remark: are consecutive and all defined
  * @remark: This allow using this function in any order.
@@ -1169,27 +1179,19 @@ void Db::setLocatorByAttribute(int iatt,
   }
 
   // Check if this locator already exists for the current pointer type
+  // Warning: the following code does not forbid declaring locatorIndex
+  // in incorrect order. This must be kkept as long as the Demonstration files
+  // use the db.locate() of unsorted ranks
 
   if (locatorType != ELoc::UNKNOWN)
   {
     PtrGeos& p = _p[locatorType];
     int nitem = p.getLocatorNumber();
-    int iadd;
-    if (locatorIndex > nitem)
+    if (locatorIndex >= nitem)
     {
-      iadd = nitem;
-      p.resize(nitem + 1);
-    }
-    else if (locatorIndex == nitem)
-    {
-      iadd = locatorIndex;
       p.resize(locatorIndex + 1);
     }
-    else
-    {
-      iadd = locatorIndex;
-    }
-    p.setLocatorByIndex(iadd, iatt);
+    p.setLocatorByIndex(locatorIndex, iatt);
   }
 }
 

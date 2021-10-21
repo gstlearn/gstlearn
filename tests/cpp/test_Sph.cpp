@@ -35,13 +35,13 @@ static void st_test_1(void)
     if (INTER)
     {
       message("long1 = ");
-      if (scanf("%lf",&long1) == EOF) return;
+      if (gslScanf("%lf",&long1) == EOF) return;
       message("lat1  = ");
-      if (scanf("%lf",&lat1)  == EOF) return;
+      if (gslScanf("%lf",&lat1)  == EOF) return;
       message("long2 = ");
-      if (scanf("%lf",&long2) == EOF) return;
+      if (gslScanf("%lf",&long2) == EOF) return;
       message("lat2  = ");
-      if (scanf("%lf",&lat2)  == EOF) return;
+      if (gslScanf("%lf",&lat2)  == EOF) return;
     }
 
     double angle = ut_geodetic_angular_distance(long1,lat1,long2,lat2);
@@ -49,7 +49,7 @@ static void st_test_1(void)
 
     if (! INTER) break;
     message("Continue (1) or Stop(0) : ");
-    if (scanf("%d",&test) == EOF) return;
+    if (gslScanf("%d",&test) == EOF) return;
   }
 }
 
@@ -72,17 +72,17 @@ static void st_test_2(void)
     if (INTER)
     {
       message("long1 = ");
-      if (scanf("%lf", &long1) == EOF) return;
+      if (gslScanf("%lf", &long1) == EOF) return;
       message("lat1  = ");
-      if (scanf("%lf", &lat1) == EOF) return;
+      if (gslScanf("%lf", &lat1) == EOF) return;
       message("long2 = ");
-      if (scanf("%lf", &long2) == EOF) return;
+      if (gslScanf("%lf", &long2) == EOF) return;
       message("lat2  = ");
-      if (scanf("%lf", &lat2) == EOF) return;
+      if (gslScanf("%lf", &lat2) == EOF) return;
       message("long3 = ");
-      if (scanf("%lf", &long3) == EOF) return;
+      if (gslScanf("%lf", &long3) == EOF) return;
       message("lat3  = ");
-      if (scanf("%lf", &lat3) == EOF) return;
+      if (gslScanf("%lf", &lat3) == EOF) return;
     }
 
     ut_geodetic_angles(long1,lat1,long2,lat2,long3,lat3,
@@ -104,7 +104,7 @@ static void st_test_2(void)
     
     if (! INTER) break;
     message("Continue (1) or Stop(0) : ");
-    if (scanf("%d",&test) == EOF) return;
+    if (gslScanf("%d",&test) == EOF) return;
   }
 }
 
@@ -119,9 +119,9 @@ static void st_test_3(void)
   if (INTER)
   {
     message("nx = ");
-    if (scanf("%d", &nx) == EOF) return;
+    if (gslScanf("%d", &nx) == EOF) return;
     message("ny = ");
-    if (scanf("%d", &ny) == EOF) return;
+    if (gslScanf("%d", &ny) == EOF) return;
   }
   dy = 90.  / (double) ny;
   dx = 360. / (double) nx;

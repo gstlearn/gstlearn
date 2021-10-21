@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Mesh/tetgen.h"
+#include "Basic/File.hpp"
 #include "geoslib_e.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -214,7 +215,7 @@ bool tetgenio::load_node(char* filebasename)
   gslStrcat(innodefilename, ".node");
 
   // Try to open a .node file.
-  infile = fopen(innodefilename, "r");
+  infile = gslFopen(innodefilename, "r");
   if (infile == nullptr) {
     message("  Cannot access file %s.\n", innodefilename);
     return false;
@@ -290,7 +291,7 @@ bool tetgenio::load_edge(char* filebasename)
   gslStrcpy(inedgefilename, filebasename);
   gslStrcat(inedgefilename, ".edge");
 
-  infile = fopen(inedgefilename, "r");
+  infile = gslFopen(inedgefilename, "r");
   if (infile != nullptr) {
     message("Opening %s.\n", inedgefilename);
   } else {
@@ -372,7 +373,7 @@ bool tetgenio::load_face(char* filebasename)
   gslStrcpy(infilename, filebasename);
   gslStrcat(infilename, ".face");
 
-  infile = fopen(infilename, "r");
+  infile = gslFopen(infilename, "r");
   if (infile != nullptr) {
     message("Opening %s.\n", infilename);
   } else {
@@ -468,7 +469,7 @@ bool tetgenio::load_tet(char* filebasename)
   gslStrcpy(infilename, filebasename);
   gslStrcat(infilename, ".ele");
 
-  infile = fopen(infilename, "r");
+  infile = gslFopen(infilename, "r");
   if (infile != nullptr) {
     message("Opening %s.\n", infilename);
   } else {
@@ -575,7 +576,7 @@ bool tetgenio::load_vol(char* filebasename)
   gslStrcpy(infilename, filebasename);
   gslStrcat(infilename, ".vol");
 
-  infile = fopen(infilename, "r");
+  infile = gslFopen(infilename, "r");
   if (infile != nullptr) {
     message("Opening %s.\n", infilename);
   } else {
@@ -635,7 +636,7 @@ bool tetgenio::load_var(char* filebasename)
   // Variant constraints are saved in file "filename.var".
   gslStrcpy(varfilename, filebasename);
   gslStrcat(varfilename, ".var");
-  infile = fopen(varfilename, "r");
+  infile = gslFopen(varfilename, "r");
   if (infile != nullptr) {
     message("Opening %s.\n", varfilename);
   } else {
@@ -757,7 +758,7 @@ bool tetgenio::load_mtr(char* filebasename)
 
   gslStrcpy(mtrfilename, filebasename);
   gslStrcat(mtrfilename, ".mtr");
-  infile = fopen(mtrfilename, "r");
+  infile = gslFopen(mtrfilename, "r");
   if (infile != nullptr) {
     message("Opening %s.\n", mtrfilename);
   } else {
@@ -837,10 +838,10 @@ bool tetgenio::load_poly(char* filebasename)
   // First assume it is a .poly file.
   smesh = 0;
   // Try to open a .poly file.
-  infile = fopen(inpolyfilename, "r");
+  infile = gslFopen(inpolyfilename, "r");
   if (infile == nullptr) {
     // .poly doesn't exist! Try to open a .smesh file.
-    infile = fopen(insmeshfilename, "r");
+    infile = gslFopen(insmeshfilename, "r");
     if (infile == nullptr) {
       message("  Cannot access file %s and %s.\n",
               inpolyfilename, insmeshfilename);
@@ -1239,7 +1240,7 @@ bool tetgenio::load_off(char* filebasename)
   //   smallest index we found in the file. It should be either 0 or 1.
   int smallestidx = 0; 
 
-  strncpy(infilename, filebasename, 1024 - 1);
+  gslStrncpy(infilename, filebasename, 1024 - 1);
   infilename[FILENAMESIZE - 1] = '\0';
   if (infilename[0] == '\0') {
     message("Error:  No filename.\n");
@@ -1249,7 +1250,7 @@ bool tetgenio::load_off(char* filebasename)
     gslStrcat(infilename, ".off");
   }
 
-  if (!(fp = fopen(infilename, "r"))) {
+  if (!(fp = gslFopen(infilename, "r"))) {
     message("  Unable to open file %s\n", infilename);
     return false;
   }
@@ -1267,7 +1268,7 @@ bool tetgenio::load_off(char* filebasename)
           // Read a non-empty line.
           bufferp = readline(buffer, fp, &line_count);
         }
-        if ((sscanf(bufferp, "%d%d%d", &nverts, &nfaces, &nedges) != 3) 
+        if ((gslSScanf(bufferp, "%d%d%d", &nverts, &nfaces, &nedges) != 3)
             || (nverts == 0)) {
           message("Syntax error reading header on line %d in file %s\n",
                   line_count, infilename);
@@ -1401,7 +1402,7 @@ bool tetgenio::load_ply(char* filebasename)
   //   smallest index we found in the file. It should be either 0 or 1.
   int smallestidx = 0; 
 
-  strncpy(infilename, filebasename, FILENAMESIZE - 1);
+  gslStrncpy(infilename, filebasename, FILENAMESIZE - 1);
   infilename[FILENAMESIZE - 1] = '\0';
   if (infilename[0] == '\0') {
     message("Error:  No filename.\n");
@@ -1411,7 +1412,7 @@ bool tetgenio::load_ply(char* filebasename)
     gslStrcat(infilename, ".ply");
   }
 
-  if (!(fp = fopen(infilename, "r"))) {
+  if (!(fp = gslFopen(infilename, "r"))) {
     message("Error:  Unable to open file %s\n", infilename);
     return false;
   }
@@ -1617,7 +1618,7 @@ bool tetgenio::load_stl(char* filebasename)
   int nfaces = 0;
   int line_count = 0, i;
 
-  strncpy(infilename, filebasename, FILENAMESIZE - 1);
+  gslStrncpy(infilename, filebasename, FILENAMESIZE - 1);
   infilename[FILENAMESIZE - 1] = '\0';
   if (infilename[0] == '\0') {
     message("Error:  No filename.\n");
@@ -1627,7 +1628,7 @@ bool tetgenio::load_stl(char* filebasename)
     gslStrcat(infilename, ".stl");
   }
 
-  if (!(fp = fopen(infilename, "r"))) {
+  if (!(fp = gslFopen(infilename, "r"))) {
     message("Error:  Unable to open file %s\n", infilename);
     return false;
   }
@@ -1750,7 +1751,7 @@ bool tetgenio::load_medit(char* filebasename, int istetmesh)
 
   int smallestidx = 0;
 
-  strncpy(infilename, filebasename, FILENAMESIZE - 1);
+  gslStrncpy(infilename, filebasename, FILENAMESIZE - 1);
   infilename[FILENAMESIZE - 1] = '\0';
   if (infilename[0] == '\0') {
     message("Error:  No filename.\n");
@@ -1760,7 +1761,7 @@ bool tetgenio::load_medit(char* filebasename, int istetmesh)
     gslStrcat(infilename, ".mesh");
   }
   
-  if (!(fp = fopen(infilename, "r"))) {
+  if (!(fp = gslFopen(infilename, "r"))) {
     message("Error:  Unable to open file %s\n", infilename);
     return false;
   }
@@ -2111,7 +2112,7 @@ bool tetgenio::load_vtk(char* filebasename)
 
   int smallestidx = 0;
 
-  strncpy(infilename, filebasename, FILENAMESIZE - 1);
+  gslStrncpy(infilename, filebasename, FILENAMESIZE - 1);
   infilename[FILENAMESIZE - 1] = '\0';
   if (infilename[0] == '\0') {
     message("Error:  No filename.\n");
@@ -2120,7 +2121,7 @@ bool tetgenio::load_vtk(char* filebasename)
   if (strcmp(&infilename[strlen(infilename) - 4], ".vtk") != 0) {
     gslStrcat(infilename, ".vtk");
   }
-  if (!(fp = fopen(infilename, "r"))) {
+  if (!(fp = gslFopen(infilename, "r"))) {
     message("Error:  Unable to open file %s\n", infilename);
     return false;
   }
@@ -2136,13 +2137,13 @@ bool tetgenio::load_vtk(char* filebasename)
     if(line[0] == '#' || line[0]=='\n' || line[0] == 10 || line[0] == 13 || 
        line[0] == 32) continue;
 
-    sscanf(line, "%s", id);
+    gslSScanf(line, "%s", id);
     if(!strcmp(id, "ASCII")) {
       gslStrcpy(mode, "ASCII");
     }
 
     if(!strcmp(id, "POINTS")) {
-      sscanf(line, "%s %d %s", id, &nverts, fmt);
+      gslSScanf(line, "%s %d %s", id, &nverts, fmt);
       if (nverts > 0) {
         numberofpoints = nverts;
         pointlist = new DREAL[nverts * 3];
@@ -2207,7 +2208,7 @@ bool tetgenio::load_vtk(char* filebasename)
     }
 
     if(!strcmp(id, "POLYGONS")) {
-      sscanf(line, "%s %d  %d", id, &nfaces, &dummy);
+      gslSScanf(line, "%s %d  %d", id, &nfaces, &dummy);
       if (nfaces > 0) {
         numberoffacets = nfaces;
         facetlist = new tetgenio::facet[nfaces];
@@ -2418,7 +2419,7 @@ void tetgenio::save_nodes(char* filebasename)
 
   gslSPrintf(outnodefilename, "%s.node", filebasename);
   message("Saving nodes to %s\n", outnodefilename);
-  fout = fopen(outnodefilename, "w");
+  fout = gslFopen(outnodefilename, "w");
   fprintf(fout, "%d  %d  %d  %d\n", numberofpoints, mesh_dim,
           numberofpointattributes, pointmarkerlist != NULL ? 1 : 0);
   for (i = 0; i < numberofpoints; i++) {
@@ -2444,7 +2445,7 @@ void tetgenio::save_nodes(char* filebasename)
   if ((numberofpointmtrs > 0) && (pointmtrlist != nullptr)) {
     gslSPrintf(outmtrfilename, "%s.mtr", filebasename);
     message("Saving metrics to %s\n", outmtrfilename);
-    fout = fopen(outmtrfilename, "w");
+    fout = gslFopen(outmtrfilename, "w");
     fprintf(fout, "%d  %d\n", numberofpoints, numberofpointmtrs);
     for (i = 0; i < numberofpoints; i++) {
       for (j = 0; j < numberofpointmtrs; j++) {
@@ -2470,7 +2471,7 @@ void tetgenio::save_elements(char* filebasename)
 
   gslSPrintf(outelefilename, "%s.ele", filebasename);
   message("Saving elements to %s\n", outelefilename);
-  fout = fopen(outelefilename, "w");
+  fout = gslFopen(outelefilename, "w");
   if (mesh_dim == 3) {
     fprintf(fout, "%d  %d  %d\n", numberoftetrahedra, numberofcorners,
             numberoftetrahedronattributes);
@@ -2517,7 +2518,7 @@ void tetgenio::save_faces(char* filebasename)
 
   gslSPrintf(outfacefilename, "%s.face", filebasename);
   message("Saving faces to %s\n", outfacefilename);
-  fout = fopen(outfacefilename, "w");
+  fout = gslFopen(outfacefilename, "w");
   fprintf(fout, "%d  %d\n", numberoftrifaces, 
           trifacemarkerlist != NULL ? 1 : 0);
   for (i = 0; i < numberoftrifaces; i++) {
@@ -2546,7 +2547,7 @@ void tetgenio::save_edges(char* filebasename)
 
   gslSPrintf(outedgefilename, "%s.edge", filebasename);
   message("Saving edges to %s\n", outedgefilename);
-  fout = fopen(outedgefilename, "w");
+  fout = gslFopen(outedgefilename, "w");
   fprintf(fout, "%d  %d\n", numberofedges, edgemarkerlist != NULL ? 1 : 0);
   for (i = 0; i < numberofedges; i++) {
     fprintf(fout, "%d  %4d  %4d", i + firstnumber, edgelist[i * 2],
@@ -2574,7 +2575,7 @@ void tetgenio::save_neighbors(char* filebasename)
 
   gslSPrintf(outneighborfilename, "%s.neigh", filebasename);
   message("Saving neighbors to %s\n", outneighborfilename);
-  fout = fopen(outneighborfilename, "w");
+  fout = gslFopen(outneighborfilename, "w");
   fprintf(fout, "%d  %d\n", numberoftetrahedra, mesh_dim + 1);
   for (i = 0; i < numberoftetrahedra; i++) {
     if (mesh_dim == 2) {
@@ -2609,7 +2610,7 @@ void tetgenio::save_poly(char* filebasename)
 
   gslSPrintf(outpolyfilename, "%s.poly", filebasename);
   message("Saving poly to %s\n", outpolyfilename);
-  fout = fopen(outpolyfilename, "w");
+  fout = gslFopen(outpolyfilename, "w");
 
   // The zero indicates that the vertices are in a separate .node file.
   //   Followed by number of dimensions, number of vertex attributes,
@@ -2707,7 +2708,7 @@ void tetgenio::save_faces2smesh(char* filebasename)
 
   gslSPrintf(outsmeshfilename, "%s.smesh", filebasename);
   message("Saving faces to %s\n", outsmeshfilename);
-  fout = fopen(outsmeshfilename, "w");
+  fout = gslFopen(outsmeshfilename, "w");
 
   // The zero indicates that the vertices are in a separate .node file.
   //   Followed by number of dimensions, number of vertex attributes,
@@ -3011,7 +3012,7 @@ bool tetgenbehavior::parse_commandline(int argc, const char **argv)
     if (startindex == 1) {
       // Is this string a filename?
       if (argv[i][0] != '-') {
-        strncpy(infilename, argv[i], 1024 - 1);
+        gslStrncpy(infilename, argv[i], 1024 - 1);
         infilename[1024 - 1] = '\0';
         continue;                     
       }
@@ -28902,7 +28903,7 @@ void tetgenmesh::outnodes(tetgenio* out)
   bmark = !b->nobound && in->pointmarkerlist;
 
   if (out == nullptr) {
-    outfile = fopen(outnodefilename, "w");
+    outfile = gslFopen(outnodefilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outnodefilename);
       terminatetetgen(this, 1);
@@ -29089,7 +29090,7 @@ void tetgenmesh::outmetrics(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(outmtrfilename, "w");
+    outfile = gslFopen(outmtrfilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outmtrfilename);
       terminatetetgen(this, 3);
@@ -29136,7 +29137,7 @@ void tetgenmesh::outmetrics(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(outmtrfilename, "w");
+    outfile = gslFopen(outmtrfilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outmtrfilename);
       terminatetetgen(this, 3);
@@ -29230,7 +29231,7 @@ void tetgenmesh::outelements(tetgenio* out)
 
   eextras = numelemattrib;
   if (out == nullptr) {
-    outfile = fopen(outelefilename, "w");
+    outfile = gslFopen(outelefilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outelefilename);
       terminatetetgen(this, 1);
@@ -29384,7 +29385,7 @@ void tetgenmesh::outfaces(tetgenio* out)
   faces = (ntets * 4l + hullsize) / 2l;
 
   if (out == nullptr) {
-    outfile = fopen(facefilename, "w");
+    outfile = gslFopen(facefilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", facefilename);
       terminatetetgen(this, 1);
@@ -29553,7 +29554,7 @@ void tetgenmesh::outfaces(tetgenio* out)
       }
     }
     if (out == nullptr) {
-      outfile = fopen(facefilename, "w");
+      outfile = gslFopen(facefilename, "w");
       for (tidx = 0; tidx < ntets; tidx++) {
         index = tidx * 4;
         fprintf(outfile, "%4d  %d %d %d %d\n", tidx + in->firstnumber,
@@ -29602,7 +29603,7 @@ void tetgenmesh::outhullfaces(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(facefilename, "w");
+    outfile = gslFopen(facefilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", facefilename);
       terminatetetgen(this, 1);
@@ -29706,7 +29707,7 @@ void tetgenmesh::outsubfaces(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(facefilename, "w");
+    outfile = gslFopen(facefilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", facefilename);
       terminatetetgen(this, 3);
@@ -29908,7 +29909,7 @@ void tetgenmesh::outedges(tetgenio* out)
   meshhulledges = 0l; // It will be counted.
 
   if (out == nullptr) {
-    outfile = fopen(edgefilename, "w");
+    outfile = gslFopen(edgefilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", edgefilename);
       terminatetetgen(this, 1);
@@ -30084,7 +30085,7 @@ void tetgenmesh::outedges(tetgenio* out)
         }
       }
       if (out == nullptr) {
-        outfile = fopen(edgefilename, "w");
+        outfile = gslFopen(edgefilename, "w");
         for (tidx = 0; tidx < fsize; tidx++) { // Re-use `tidx'
           i = tidx * 3;
           fprintf(outfile, "%4d  %d %d %d\n", tidx + in->firstnumber,
@@ -30111,7 +30112,7 @@ void tetgenmesh::outedges(tetgenio* out)
       }
     }
     if (out == nullptr) {
-      outfile = fopen(edgefilename, "w");
+      outfile = gslFopen(edgefilename, "w");
       for (tidx = 0; tidx < tsize; tidx++) {
         i = tidx * 6;
         fprintf(outfile, "%4d  %d %d %d %d %d %d\n", tidx + in->firstnumber,
@@ -30171,7 +30172,7 @@ void tetgenmesh::outsubsegments(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(edgefilename, "w");
+    outfile = gslFopen(edgefilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", edgefilename);
       terminatetetgen(this, 3);
@@ -30315,7 +30316,7 @@ void tetgenmesh::outneighbors(tetgenio* out)
   ntets = tetrahedrons->items - hullsize;
 
   if (out == nullptr) {
-    outfile = fopen(neighborfilename, "w");
+    outfile = gslFopen(neighborfilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", neighborfilename);
       terminatetetgen(this, 1);
@@ -30460,7 +30461,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(outfilename, "w");
+    outfile = gslFopen(outfilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outfilename);
       terminatetetgen(this, 3);
@@ -30525,7 +30526,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(outfilename, "w");
+    outfile = gslFopen(outfilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outfilename);
       terminatetetgen(this, 3);
@@ -30627,7 +30628,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(outfilename, "w");
+    outfile = gslFopen(outfilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outfilename);
       terminatetetgen(this, 3);
@@ -30741,7 +30742,7 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   }
 
   if (out == nullptr) {
-    outfile = fopen(outfilename, "w");
+    outfile = gslFopen(outfilename, "w");
     if (outfile == nullptr) {
       message("File I/O Error:  Cannot create file %s.\n", outfilename);
       terminatetetgen(this, 3);
@@ -30878,7 +30879,7 @@ void tetgenmesh::outsmesh(char* smfilename)
   if (!b->quiet) {
     message("Writing %s.\n", smefilename);
   }
-  outfile = fopen(smefilename, "w");
+  outfile = gslFopen(smefilename, "w");
   if (outfile == nullptr) {
     message("File I/O Error:  Cannot create file %s.\n", smefilename);
     return;
@@ -30979,7 +30980,7 @@ void tetgenmesh::outmesh2medit(char* mfilename)
   if (!b->quiet) {
     message("Writing %s.\n", mefilename);
   }
-  outfile = fopen(mefilename, "w");
+  outfile = gslFopen(mefilename, "w");
   if (outfile == nullptr) {
     message("File I/O Error:  Cannot create file %s.\n", mefilename);
     return;
@@ -31142,7 +31143,7 @@ void tetgenmesh::outmesh2vtk(char* ofilename)
   if (!b->quiet) {
     message("Writing %s.\n", vtkfilename);
   }
-  outfile = fopen(vtkfilename, "w");
+  outfile = gslFopen(vtkfilename, "w");
   if (outfile == nullptr) {
     message("File I/O Error:  Cannot create file %s.\n", vtkfilename);
     return;

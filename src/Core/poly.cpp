@@ -266,8 +266,6 @@ GEOSLIB_API int polygon_inside(double  xx,
 /*!
 **  Returns the polygon extension
 **
-** \return  1 if the point belongs to the Polygons; 0 otherwise
-**
 ** \param[in]  polygon     Polygons structure
 **
 ** \param[out] xmin        Minimum coordinate along X-axis

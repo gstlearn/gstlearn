@@ -39,7 +39,7 @@ public:
                       VectorDouble& work) const {};
   VectorDouble evalOp(cs* Op, const VectorDouble& in) const;
   VectorDouble getCoeffs()const{ return _coeffs;}
-  int getDegree() const { return _coeffs.size();}
+  int getDegree() const { return static_cast<int>(_coeffs.size());}
   virtual int fit(std::function<double(double)> f,
                   double from = 0.,
                   double to = 1.,

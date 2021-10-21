@@ -727,16 +727,13 @@ GEOSLIB_API void matrix_int_transpose_in_place(int n1, int n2, int *v1)
 **
 ** \return  Return code: 0 no error; k if the k-th pivot is zero
 **
-** \param[in]  a    input matrix, destroyed in computation and replaced by
+** \param[in,out] a    input matrix, destroyed in computation and replaced by
 **                  resultant inverse
 ** \param[in]  neq  number of equations in the matrix 'a'
 ** \param[in]  rank Type of message when inversion problem is encountered
 **                  >=0: message involves 'rank+1'
 **                  -1:  neutral message
 **                  -2:  no message
-**
-** \param[out] a input matrix, destroyed in computation and replaced by
-**               resultant inverse
 **
 ** \remark  It is unnecessary to edit a message if inversion problem occurs
 **
@@ -1996,12 +1993,9 @@ static void st_elgs (double *a,
 **
 ** \return  Return code: 0 no error; k if the k-th pivot is zero
 **
-** \param[in]  a    input matrix, destroyed in computation and replaced by
+** \param[in,out] a input matrix, destroyed in computation and replaced by
 **                  resultant inverse
 ** \param[in]  neq  number of equations in the matrix 'a'
-**
-** \param[out] a   input matrix, destroyed in computation and replaced by
-**                 resultant inverse
 **
 *****************************************************************************/
 GEOSLIB_API int matrix_invsym(double *a,
@@ -2073,9 +2067,7 @@ GEOSLIB_API int matrix_invsym(double *a,
 **  Invert the sign of a matrix
 **
 ** \param[in]  neq    number of cells in the matrix
-** \param[in]  a      input matrix
-**
-** \param[out] a      output matrix
+** \param[in,out] a   input/output matrix
 **
 *****************************************************************************/
 GEOSLIB_API void matrix_invsign(int    neq,
@@ -2272,11 +2264,11 @@ GEOSLIB_API int is_matrix_product_identity(int     neq,
 ** \return Error return code
 **
 ** \param[in]  a2   pre-allocated with 2n rows and n columns. The matrix to be
-**                  decomposed is contained in the first n rows of A
+**                  decomposed is contained in the first n rows of A.
+**                  On return, the n first rows of A contain the product US
+**                  and the lower n rows contain V (not V').
 ** \param[in]  neq  number of equations in the matrix 'a'
 **
-** \param[out] a2   On return, the n first rows of A contain the product US 
-**                  and the lower n rows contain V (not V').
 ** \param[out] s    the square of the singular values.
 **
 *****************************************************************************/
@@ -2373,8 +2365,6 @@ static int st_svd(double *a2,
 /*****************************************************************************/
 /*!
 **  Invert a symmetric square matrix (SVD method)
-**
-** \return  Error return code
 **
 ** \param[in]  neq  number of equations in the matrix 'a'
 ** \param[in]  s    input matrix (square)
@@ -2957,9 +2947,9 @@ GEOSLIB_API int matrix_qo(int     neq,
 ** \param[in]  na     Number of equalities
 ** \param[in]  amat   matrix for inequalities (Dimension: neq * na)
 ** \param[in]  bmat   inequality vector (Dimension: na)
-** \param[in]  xmat   solution of the linear system with no constraint
+** \param[in]  xmat   solution of the linear system with no constraint.
+**                    On return, solution with constraints (Dimension: neq)
 **
-** \param[out] xmat   solution with constraints (Dimension: neq)
 ** \param[out] lambda working vector (Dimension: na)
 **
 ** \remark In input:

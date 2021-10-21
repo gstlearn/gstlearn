@@ -739,24 +739,25 @@ GEOSLIB_API int db_tool_duplicate(Db *db1,
                                   double *dist,
                                   double *sel)
 {
-  int idim, iech1, iech2, flag_diff, flag_code;
-  double v1, v2;
+  bool flag_code = db1->hasCode() && db2->hasCode();
+  int nmerge = 0;
 
-  /* Initializations */
+  // Title (optional)
 
-  flag_code = db1->hasCode() && db2->hasCode();
+  if (verbose)
+    mestitle(1,"Look for duplicates");
 
   /* Set the selection */
 
-  for (iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
     sel[iech2] = 1;
 
   /* Loop on the samples of the second Db */
 
-  for (iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
   {
     if (!db2->isActive(iech2)) continue;
-    for (iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
+    for (int iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
       if (flag_same)
@@ -767,21 +768,23 @@ GEOSLIB_API int db_tool_duplicate(Db *db1,
 
       /* Check if the two points are collocated */
 
-      for (idim = flag_diff = 0; idim < db1->getNDim() && flag_diff == 0; idim++)
+      bool flag_diff = false;
+      for (int idim = 0; idim < db1->getNDim() && ! flag_diff; idim++)
       {
-        v1 = db1->getCoordinate(iech1, idim);
-        v2 = db2->getCoordinate(iech2, idim);
+        double v1 = db1->getCoordinate(iech1, idim);
+        double v2 = db2->getCoordinate(iech2, idim);
         if (flag_code)
         {
           if (code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
             continue;
         }
         double dval = (dist != nullptr) ? dist[idim] : 0.;
-        if (ABS(v1 - v2) > dval) flag_diff = 1;
+        if (ABS(v1 - v2) > dval) flag_diff = true;
       }
       if (flag_diff) continue;
 
       sel[iech2] = 0;
+      nmerge++;
 
       /* Optional printout */
 
@@ -795,6 +798,15 @@ GEOSLIB_API int db_tool_duplicate(Db *db1,
     }
   }
 
+  // Final printout (optional)
+
+  if (verbose)
+  {
+    if (nmerge > 0)
+      message("- Count of masked samples = %d\n",nmerge);
+    else
+      message("- No duplicate found\n");
+  }
   return 0;
 }
 
@@ -1548,8 +1560,6 @@ static int st_grid_fill_to_be_filled(int ipos)
 /****************************************************************************/
 /*!
  **  Find the neighborhood of the current cell
- **
- ** \return  1 if the neighborhood criterion is not fulfilled; 0 otherwise
  **
  ** \param[in]  ipos    Absolute grid index of the input grid node
  ** \param[in]  ndim    Space dimension
@@ -2777,9 +2787,7 @@ GEOSLIB_API void ut_trace_sample(Db *db,
  ** \param[in]  locatorType      Type of the pointer (ELoc)
  ** \param[in]  dbin        Descriptor of the input Db
  ** \param[in]  dbout       Descriptor of the output Db
- ** \param[in]  istart      Address of the first allocated external information
- **
- ** \param[out] istart Address of the first external information variable
+ ** \param[in,out]  istart      Address of the first allocated external information
  **
  ** \remark This function only functions when the Output Db is a grid
  ** \remark However, in case of a Point output Db, this function should not
@@ -3014,7 +3022,7 @@ GEOSLIB_API Db *db_grid_sample(Db *dbin, const VectorInt& nmult)
   ELoc locatorType;
 
   /* Initializations */
-
+ 
   dbout = nullptr;
   ncol = dbin->getFieldNumber();
   ndim = dbin->getNDim();
@@ -5987,8 +5995,6 @@ static int st_find_interval(double x, int ndef, double *X)
 /*!
  **  Fill an incomplete 1-D grid by linear interpolation from a set of
  **  valued samples
- **
- ** \return  Error returned code
  **
  ** \param[in]  dbgrid  Db grid structure
  ** \param[in]  ivar    Rank of the variable to be filled

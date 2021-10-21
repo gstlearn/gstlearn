@@ -17,7 +17,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <string>
+#include <string.h>
 #include <regex>
 #include <locale>
 
@@ -394,6 +394,12 @@ int getMaxStringSize(const VectorString& list)
   return size;
 }
 
+/**
+ * Separate keywords in the input string
+ * The keywords are identified when switching between alpha, digit and other
+ * @param code String to be split
+ * @return
+ */
 VectorString separateKeywords(const String& code)
 {
   VectorString result;
@@ -401,7 +407,9 @@ VectorString separateKeywords(const String& code)
   charTypeT st = other;
   for (auto c : code)
   {
-    if ((st == alpha && _charType(c) == digit) || (st == digit && _charType(c) == alpha))
+    if ((st == alpha && _charType(c) != alpha) ||
+        (st == digit && _charType(c) != digit) ||
+        (st == other && _charType(c) != other))
     {
       if (oString.size() > 0) result.push_back(oString);
       oString = "";
@@ -709,4 +717,41 @@ int gslSPrintf(char* dst, const char* fmt, ...)
   int n = vsprintf(dst, fmt, ap);
   va_end(ap);
   return n;
+}
+
+int gslScanf(const char* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  int n = vscanf(format, ap);
+  va_end(ap);
+  return n;
+}
+
+int gslSScanf(const char* str, const char* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  int n = vsscanf(str, format, ap);
+  va_end(ap);
+  return n;
+}
+
+int gslFScanf(FILE* stream, const char* format, ...)
+{
+  va_list ap;
+  va_start(ap, format);
+  int n = vfscanf(stream, format, ap);
+  va_end(ap);
+  return n;
+}
+
+char* gslStrtok(char* str, const char* delim)
+{
+  return strtok(str, delim);
+}
+
+char* gslStrncpy(char* dest, const char* src, size_t n)
+{
+  return strncpy(dest, src, n);
 }

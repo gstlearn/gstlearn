@@ -24,6 +24,8 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h> // for CreateDirectory
+#else
+#include <unistd.h> // for readlink
 #endif
 
 #include <sys/stat.h>
@@ -184,6 +186,7 @@ int ASerializable::_recordRead(const String& title, String format, ...) const
 /**
  *
  * @param format String to be completed
+ * @param ... Variable list of arguments
  * @return
  *
  * @remark: Format is not a reference here:
@@ -208,6 +211,8 @@ void ASerializable::_recordWrite(String format, ...) const
  **
  ** \param[in]  format     format
  ** \param[in]  ap         Value to be read
+ **
+ ** TODO : template function
  **
  *****************************************************************************/
 int ASerializable::_fileRead(const String& format, va_list ap) const
@@ -271,7 +276,7 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
 
     /* Decode the line looking for the next token */
 
-    LCUR = strtok(cur, &DEL_SEP);
+    LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
 
@@ -282,35 +287,35 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
       ret_s = va_arg(ap, char *);
       if (!_onlyBlanks(LCUR))
       {
-        if (sscanf(LCUR, "%s", ret_s) <= 0) return (1);
+        if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       }
       ideb += 2;
     }
     else if (!strcmp(fmt, "%d"))
     {
       ret_i = va_arg(ap, int *);
-      if (sscanf(LCUR, "%d", ret_i) <= 0) return (1);
+      if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
     }
     else if (!strcmp(fmt, "%f"))
     {
       ret_f = va_arg(ap, float *);
-      if (sscanf(LCUR, "%f", ret_f) <= 0) return (1);
+      if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = TEST;
     }
     else if (!strcmp(fmt, "%lf"))
     {
       ret_d = va_arg(ap, double *);
-      if (sscanf(LCUR, "%lf", ret_d) <= 0) return (1);
+      if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
     }
     else if (!strcmp(fmt, "%lg"))
     {
       ret_d = va_arg(ap, double *);
-      if (sscanf(LCUR, "%lg", ret_d) <= 0) return (1);
+      if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
     }
@@ -330,6 +335,8 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
  **
  ** \param[in]  format     Encoding format
  ** \param[in]  ap         Value to be written
+ **
+ ** TODO : template function
  **
  *****************************************************************************/
 void ASerializable::_fileWrite(const String& format, va_list ap) const
@@ -447,13 +454,13 @@ String ASerializable::getHomeDirectory(const std::string& sub)
 {
   // https://stackoverflow.com/a/2552458
 #if defined(_WIN32) || defined(_WIN64)
-  char* HomeDirectory = getenv("HOMEDIR");
-  const char* Homepath = getenv("HOMEPATH");
+  char* HomeDirectory = gslGetEnv("HOMEDIR");
+  const char* Homepath = gslGetEnv("HOMEPATH");
   int size = strlen(HomeDirectory) + strlen(Homepath) + 1;
   HomeDirectory = static_cast<char *>(malloc(size));
   gslStrcat(HomeDirectory, Homepath);
 #else
-  const char* HomeDirectory = std::getenv("HOME");
+  const char* HomeDirectory = gslGetEnv("HOME");
 #endif
   std::stringstream sstr;
   // TODO : Cross-platform way to build file path (use boost ?)
@@ -508,7 +515,7 @@ void ASerializable::setContainerName(bool useDefault,
   if (useDefault)
   {
     // Default is first set to PYGSTLEARN_DIR (if defined)
-    char* pydir(std::getenv("PYGSTLEARN_DIR"));
+    char* pydir(gslGetEnv("PYGSTLEARN_DIR"));
     String pygst;
     if (pydir == nullptr)
     {
@@ -552,8 +559,7 @@ const String& ASerializable::getPrefixName()
  */
 bool ASerializable::createDirectory(const String& dir)
 {
-  // To be restored when using boost
-  //return boost::filesystem::create_directory(dir);
+  // TODO boost::filesystem::create_directory(dir);
 #if defined(_WIN32) || defined(_WIN64)
   if (CreateDirectory(dir.c_str(), NULL) ||       // Directory creation
       ERROR_ALREADY_EXISTS == GetLastError()) {   // or Directory was existing
@@ -566,4 +572,36 @@ bool ASerializable::createDirectory(const String& dir)
     return true;
 #endif
   return false;
+}
+
+/*!
+ * Cross platform way to get executable directory.
+ * Returned directory contains trailing separator
+ */
+String ASerializable::getExecDirectory()
+{
+  // TODO boost::filesystem::path program_location
+  String dir = getHomeDirectory();
+#if defined(_WIN32) || defined(_WIN64)
+  char buffer[MAX_PATH];
+  if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
+    dir = String(buffer);
+#else
+  char buffer[LONG_SIZE];
+  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
+    dir = String(buffer);
+#endif
+  return getDirectory(dir);
+}
+
+/**
+ * Cross-platform way to get parent directory from a path.
+ * Returned directory contains trailing separator.
+ */
+String ASerializable::getDirectory(const String& path)
+{
+  // TODO boost::filesystem::parent_path
+  size_t found = path.find_last_of("/\\");
+  String dir = path.substr(0,found+1);
+  return dir;
 }

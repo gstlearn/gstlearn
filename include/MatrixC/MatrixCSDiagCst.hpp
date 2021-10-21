@@ -15,6 +15,9 @@
 #include "Basic/Vector.hpp"
 #include "MatrixC/AMatrixCSquare.hpp"
 
+/**
+ * Square Diagonal Matrices with diagonal filled with a constant value
+ */
 class MatrixCSDiagCst : public AMatrixCSquare {
 
 public:

@@ -1038,18 +1038,18 @@ static void st_dksmrc(int *ndim,
 **
 ** \param[in] ndim    Number of variables, must exceed 1, but not exceed 40
 **                    Integer minimum number of function evaluations allowed.
-** \param[in] minvls  must not exceed MAXVLS.  If MINVLS < 0 then the
+** \param[in,out] minvls  must not exceed MAXVLS.  If MINVLS < 0 then the
 **                    routine assumes a previous call has been made with
-**                   the same integrand and continues that calculation.
+**                    the same integrand and continues that calculation.
+**                    Actual number of function evaluations used.
 ** \param[in] maxvls  Integer maximum number of function evaluations allowed.
 ** \param[in] functn  EXTERNALLY declared user defined function to be integrated.
 **                    It must have parameters (NDIM,Z), where Z is a real array
 **                    of dimension NDIM.
 ** \param[in] abseps  Required absolute accuracy.
+**                    Estimated absolute accuracy of FINEST.
 ** \param[in] releps  Required relative accuracy.
 **
-** \param[out] minvls  Actual number of function evaluations used.
-** \param[out] abserr  Estimated absolute accuracy of FINEST.
 ** \param[out] finest  Estimated value of integral.
 ** \param[out] inform = 0 for normal status, when
 **                        ABSERR <= MAX(ABSEPS, RELEPS*ABS(FINEST))
@@ -1302,8 +1302,6 @@ void mvndst(int n,
 /*!
 **  Calculate the quadri-variable gaussian integral
 **
-** \return  Integration value
-**
 ** \param[in]  lower        Array of lower bounds
 ** \param[in]  upper        Array of upper bounds
 ** \param[in]  correl       Correlation matrix (Dimension: 4*4)
@@ -1346,8 +1344,6 @@ void mvndst4(double *lower,
 /****************************************************************************/
 /*!
 **  Calculate the multigaussian integral (non-normalized)
-**
-** \return  Integral value
 **
 ** \param[in]  lower        Array of lower bounds (Dimension: nvar)
 ** \param[in]  upper        Array of upper bounds (Dimension: nvar)

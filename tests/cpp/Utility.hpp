@@ -10,30 +10,15 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/AFunctional.hpp"
+#include "Basic/String.hpp"
+#include "Basic/ASerializable.hpp"
 
-class FunctionalSpirale : public AFunctional
+  // TODO : Cross-platform way to build file path (use boost ?)
+String getTestData(const String& filename)
 {
-public:
-  FunctionalSpirale();
-  FunctionalSpirale(double a, double b, double c, double d, double sx, double sy);
-  FunctionalSpirale(const FunctionalSpirale &m);
-  FunctionalSpirale& operator=(const FunctionalSpirale &m);
-  virtual ~FunctionalSpirale();
+  String exec_dir = ASerializable::getExecDirectory();
 
-  virtual double getFunctionValue(const VectorDouble& coor) const override;
+  String filepath(exec_dir + "../../../doc/data/" + filename);
 
-  VectorVectorDouble getFunctionVectors(const VectorDouble& coor) const;
-
-private:
-  double _linearCombination(double x, double y, double a, double b) const;
-
-private:
-  double _a;
-  double _b;
-  double _c;
-  double _d;
-  double _sx;
-  double _sy;
-};
+  return filepath;
+}

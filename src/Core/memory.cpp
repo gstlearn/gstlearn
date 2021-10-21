@@ -127,7 +127,7 @@ GEOSLIB_API void time_chunk_add(const char *call_name)
       time_reset();
       return;
     }
-    (void) strncpy(tchunk->call_name,call_name,STORE_NAME_LENGTH);
+    (void) gslStrncpy(tchunk->call_name,call_name,STORE_NAME_LENGTH);
     tchunk->call_name[STORE_NAME_LENGTH-1] = '\0';
     tchunk->ncalls = 0;
     tchunk->msec   = 0;
@@ -228,7 +228,7 @@ static void st_memory_leak_add(const char *call_file,
     memory_leak_reset();
     return;
   }
-  (void) strncpy(chunk->call_file,call_file,STORE_NAME_LENGTH);
+  (void) gslStrncpy(chunk->call_file,call_file,STORE_NAME_LENGTH);
   chunk->call_file[STORE_NAME_LENGTH-1] = '\0';
   chunk->call_line = call_line;
   chunk->size = size;
