@@ -152,7 +152,8 @@ bool ANoStat::isDefinedforAnisotropy(int igrf, int icov) const
     if (! matchICov(ipar,icov)) continue;
     if (getType(ipar) == EConsElem::ANGLE ||
         getType(ipar) == EConsElem::RANGE ||
-        getType(ipar) == EConsElem::SCALE) return true;
+        getType(ipar) == EConsElem::SCALE ||
+        getType(ipar) == EConsElem::TENSOR) return true;
   }
   return false;
 }

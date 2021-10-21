@@ -233,7 +233,6 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
     if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
                    1, 1, 0, 0))
     my_throw("Problem with spde_check() method");
-    bool flag_vel = _isVelocity();
 
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
@@ -241,7 +240,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
     // Construct S sparse Matrix
     if (amesh->getVariety() == 0)
     {
-      if (!flag_vel)
+      if (!_isVelocity())
       {
         if (_buildS(amesh))
         my_throw("Problem when buildS");
@@ -542,7 +541,7 @@ cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
 }
 
 /**
- * Locally update the covariance
+ * Locally update the covariance (does nothing in Stationary Case)
  * @param cova Local CovAniso structure (updated here)
  * @param ip   Rank of the point
  * @param ndim Space dimension
@@ -552,64 +551,89 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
                             int ndim)
 {
   // Initializations
+  if (! _isNoStat()) return;
   int igrf = _getIgrf();
   int icov = _getIcov();
   const ANoStat* nostat = _getModel()->getNoStat();
 
   // Third parameter
- if (nostat->isDefined(igrf, icov, EConsElem::PARAM, -1, -1))
- {
-   double param = nostat->getValue(igrf, icov, EConsElem::PARAM, -1, -1, 0, ip);
-   cova->setParam(param);
- }
+  if (nostat->isDefined(igrf, icov, EConsElem::PARAM, -1, -1))
+  {
+    double param = nostat->getValue(igrf, icov, EConsElem::PARAM, -1, -1, 0, ip);
+    cova->setParam(param);
+  }
 
- // Anisotropy coefficients
-   for (int idim = 0; idim < ndim; idim++)
-   {
-     if (nostat->isDefined(igrf, icov, EConsElem::RANGE, idim, -1))
-     {
-       double range = nostat->getValue(igrf, icov, EConsElem::RANGE, idim, -1, 0, ip);
-       cova->setRange(idim, range);
-     }
-     if (nostat->isDefined(igrf, icov, EConsElem::SCALE, idim, -1))
-     {
-       double scale = nostat->getValue(igrf, icov, EConsElem::SCALE, idim, -1, 0, ip);
-       cova->setScale(idim, scale);
-     }
-   }
+  // Anisotropy coefficients
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    if (nostat->isDefined(igrf, icov, EConsElem::RANGE, idim, -1))
+    {
+      double range = nostat->getValue(igrf, icov, EConsElem::RANGE, idim, -1, 0, ip);
+      cova->setRange(idim, range);
+    }
+    if (nostat->isDefined(igrf, icov, EConsElem::SCALE, idim, -1))
+    {
+      double scale = nostat->getValue(igrf, icov, EConsElem::SCALE, idim, -1, 0, ip);
+      cova->setScale(idim, scale);
+    }
+  }
 
  // Anisotropy Rotation
-   for (int idim = 0; idim < ndim; idim++)
-   {
-     if (nostat->isDefined(igrf, icov, EConsElem::ANGLE, idim, -1))
-     {
-       double anisoAngle = nostat->getValue(igrf, icov, EConsElem::ANGLE, idim, -1, 0, ip);
-       cova->setAnisoAngle(idim, anisoAngle);
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    if (nostat->isDefined(igrf, icov, EConsElem::ANGLE, idim, -1))
+    {
+      double anisoAngle = nostat->getValue(igrf, icov, EConsElem::ANGLE, idim, -1, 0, ip);
+      cova->setAnisoAngle(idim, anisoAngle);
+    }
+  }
+}
+
+void ShiftOpCs::_updateHH(MatrixCSGeneral& hh, int ip, int ndim)
+{
+  // Initializations
+  if (_isNoStatByHH()) return;
+  int igrf = _getIgrf();
+  int icov = _getIcov();
+  const ANoStat* nostat = _getModel()->getNoStat();
+
+  for (int idim = 0; idim < ndim; idim++)
+    for (int jdim = idim; jdim < ndim; jdim++)
+    {
+      if (nostat->isDefined(igrf, icov, EConsElem::TENSOR, idim, jdim))
+      {
+       double value = nostat->getValue(igrf, icov, EConsElem::TENSOR, idim, jdim, 0, ip);
+       hh.setValue(idim, jdim, value);
+       hh.setValue(jdim, idim, value);
      }
- }
+   }
 }
 
 /**
  * Calculate HH matrix from parameters
+ * Note that this function is also called in Stationary case...
+ * So it must be workable without any updates
  * @param hh Output Array
- * @param ip   Rank of the point
+ * @param ip Rank of the point
  */
 void ShiftOpCs::_loadHHByApex(MatrixCSGeneral& hh, int ip)
 {
+  int ndim = hh.getNSize();
   const CovAniso* covini = _getCova();
   CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
-  bool flagNostat = _isNoStat();
-  int ndim = hh.getNSize();
 
-  // Locally update the covariance for non-stationarity
+  // Locally update the covariance for non-stationarity (if necessary)
+  _updateCova(cova, ip, ndim);
 
-  if (flagNostat) _updateCova(cova, ip, ndim);
-
+  // Calculate the current HH matrix (using local covariance parameters)
   const MatrixCSGeneral& rotmat = cova->getAnisoRotMat();
   VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
   MatrixCSSym temp(ndim);
   temp.setDiagonal(diag);
   hh.normMatrix(temp, rotmat);
+
+  // Patch the HH directly (if necessary)
+  _updateHH(hh, ip, ndim);
 }
 
 /**
@@ -629,12 +653,10 @@ void ShiftOpCs::_loadHHGradByApex(MatrixCSGeneral& hh,
 {
   const CovAniso* covini = _getCova();
   CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
-  bool flagNostat = _isNoStat();
   int ndim = hh.getNSize();
 
-  // Locally update the covariance for non-stationarity
-
-  if (flagNostat) _updateCova(cova, ip, ndim);
+  // Locally update the covariance for non-stationarity (if necessary)
+  _updateCova(cova, ip, ndim);
 
   const MatrixCSGeneral& rotmat = cova->getAnisoRotMat();
   VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
@@ -814,7 +836,6 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
   int ndim = amesh->getNDim();
   int ncorner = amesh->getNApexPerMesh();
   int ngparam = _nModelGradParam;
-  bool flag_nostat = _isNoStat();
 
   // Initialize the arrays
 
@@ -826,10 +847,8 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
 
   // Define the global HH matrix
 
-  if (! flag_nostat)
-  {
+  if (! _isNoStat())
     _loadHHByApex(hh, 0);
-  }
 
   /* Loop on the meshes */
 
@@ -926,7 +945,6 @@ int ShiftOpCs::_buildS(AMesh *amesh,
   int error = 1;
   int ndim = amesh->getNDim();
   int ncorner = amesh->getNApexPerMesh();
-  bool flag_nostat = _isNoStat();
 
   // Initialize the arrays
 
@@ -937,7 +955,7 @@ int ShiftOpCs::_buildS(AMesh *amesh,
 
   // Define the global HH matrix
 
-  if (!flag_nostat)
+  if (!_isNoStat())
     _loadHHByApex(hh, 0);
 
   /* Loop on the meshes */
@@ -954,7 +972,7 @@ int ShiftOpCs::_buildS(AMesh *amesh,
 
     // Non stationary case
 
-    if (flag_nostat)
+    if (_isNoStat())
     {
       const ANoStat* nostat = _getModel()->getNoStat();
       int igrf = _getIgrf();
@@ -1080,8 +1098,6 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
   int error = 1;
   int ndim = amesh->getNDim();
   int ncorner = amesh->getNApexPerMesh();
-  bool flag_nostat = _isNoStat();
-  bool flag_vel = _isVelocity();
 
   // Initialize the arrays
 
@@ -1093,7 +1109,7 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
 
   // Define the global HH matrix
 
-  if (!flag_nostat)
+  if (!_isNoStat())
   {
     _loadHHByApex(hh, 0);
     _loadAux(srot, EConsElem::SPHEROT, 0);
@@ -1108,7 +1124,7 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
 
     // Non stationary case
 
-    if (flag_nostat)
+    if (_isNoStat())
     {
       const ANoStat* nostat = _getModel()->getNoStat();
       int igrf = _getIgrf();
@@ -1145,7 +1161,7 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
 
     // Update for Advection (non-stationary)
 
-    if (flag_vel)
+    if (_isVelocity())
     {
       for (int icorn = 0; icorn < ncorner; icorn++)
       {
@@ -1164,7 +1180,7 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
       {
         int ip0 = amesh->getApex(imesh, j0);
         int ip1 = amesh->getApex(imesh, j1);
-        double vald = (flag_vel) ? matv[j1] : mat.getValue(j0, j1);
+        double vald = (_isVelocity()) ? matv[j1] : mat.getValue(j0, j1);
         _mapUpdate(tab, ip0, ip1, vald * amesh->getMeshSize(imesh), tol);
       }
   }
@@ -1239,7 +1255,6 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
 
   int ndim = amesh->getNDim();
   int nvertex = amesh->getNApices();
-  bool flag_nostat = _isNoStat();
   const CovAniso* cova = _getCova();
 
   /* Core allocation */
@@ -1247,7 +1262,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
   _Lambda.clear();
 
   MatrixCSGeneral hh = MatrixCSGeneral(ndim);
-  if (!flag_nostat)
+  if (!_isNoStat())
   {
     _loadHHByApex(hh, 0);
     sqdeth = sqrt(matrix_determinant(ndim, hh.getValues().data()));
@@ -1258,7 +1273,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
   double sill = cova->getSill(0, 0);
   for (int ip = 0; ip < nvertex; ip++)
   {
-    if (flag_nostat)
+    if (_isNoStat())
     {
       const ANoStat* nostat = _getModel()->getNoStat();
       int igrf = _getIgrf();
@@ -1297,7 +1312,8 @@ bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
   /* Fill the array */
   for (int ip = 0; ip < nvertex; ip++)
   {
-     _updateCova(cova, ip, ndim);
+    // Locally update the covariance for non-stationarity (if necessary)
+    _updateCova(cova, ip, ndim);
 
     for(int idim = 0;idim < ndim ;idim++)
     {
@@ -1406,6 +1422,16 @@ bool ShiftOpCs::_isNoStat()
 {
   Model* model = _getModel();
   return model->isNoStat();
+}
+
+bool ShiftOpCs::_isNoStatByHH()
+{
+  Model* model = _getModel();
+  int igrf = _getIgrf();
+  int icov = _getIcov();
+  const ANoStat* nostat = _getModel()->getNoStat();
+  if (! model->isNoStat()) return false;
+  return nostat->isDefined(igrf, icov, EConsElem::PARAM, -1, -1);
 }
 
 bool ShiftOpCs::_isVelocity()

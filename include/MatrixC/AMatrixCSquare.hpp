@@ -14,6 +14,9 @@
 
 #include "MatrixC/AMatrixC.hpp"
 
+/**
+ * Square Matrix
+ */
 class AMatrixCSquare : public AMatrixC {
 
 protected:

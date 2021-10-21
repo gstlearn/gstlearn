@@ -70,10 +70,15 @@ double FunctionalSpirale::_linearCombination(double x, double y, double a, doubl
     return a*x + b*y;
 }
 
-double FunctionalSpirale::getFunctionValue(const VectorDouble& pos) const
+/**
+ * return the angle of the spiral at a given coordinate
+ * @param coor 2-D coordinate of the target
+ * @return
+ */
+double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
 {
-  double x = pos[0] - _sx;
-  double y = pos[1] - _sy;
+  double x = coor[0] - _sx;
+  double y = coor[1] - _sy;
   double u1 = _linearCombination(x, y, _a, _b);
   double u2 = _linearCombination(x, y, _c, _d);
   double norm = sqrt(u1 * u1 + u2 * u2);
@@ -85,5 +90,26 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& pos) const
   {
     return 0.;
   }
+}
+
+/**
+ * return the anisotropy rotation matrix at a given coordinate
+ * @param coor 2-D coordinate of the target
+ * @return
+ */
+VectorVectorDouble FunctionalSpirale::getFunctionVectors(const VectorDouble& coor) const
+{
+  double x = coor[0] - _sx;
+  double y = coor[1] - _sy;
+  double u1 = _linearCombination(x, y, _a, _b);
+  double u2 = _linearCombination(x, y, _c, _d);
+  double norm = sqrt(u1 * u1 + u2 * u2);
+  u1 /= norm;
+  u2 /= norm;
+  VectorDouble vec1 = { u1,u2};
+  VectorDouble vec2 = {-u2,u1};
+
+  VectorVectorDouble vec = { vec1, vec2};
+  return vec;
 }
 

@@ -109,7 +109,7 @@ String ElemNostat::toString(int level) const
       sstr << "Type = Velocity";
       break;
 
-    case EConsElem::E_ROTMAT:
+    case EConsElem::E_TENSOR:
        sstr << "Anis-Matrix";
        break;
 

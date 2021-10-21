@@ -22,6 +22,10 @@ typedef struct {
 } cs_Output;
 
 /// TODO : Transform into template for storing something else from double
+
+/**
+ * Matrix
+ */
 class AMatrixC : public AStringable, public IClonable
 {
 protected:

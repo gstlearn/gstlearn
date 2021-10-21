@@ -15,6 +15,9 @@
 #include "Basic/Vector.hpp"
 #include "MatrixC/AMatrixCSquare.hpp"
 
+/**
+ * Square Diagonal matrices
+ */
 class MatrixCSDiag : public AMatrixCSquare {
 
 public:

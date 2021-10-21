@@ -22,6 +22,6 @@
                        T_RANGE,  6, "Non-stationary tapering range", \
                        VELOCITY, 7, "Non-stationary velocity (advection)", \
                        SPHEROT,  8, "Non-stationary rotation angle for Sphere", \
-                       ROTMAT,   9, "Non-stationary Anisotropy Matrix term"
+                       TENSOR,   9, "Non-stationary Anisotropy Matrix term"
 
 ENUM_DECLARE(ENUM_CONS_ELEM)

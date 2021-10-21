@@ -1825,7 +1825,7 @@ static void st_model_auto_strmod_print(int flag_title,
         st_print("Tapering Range",1,ntot,param,lower,upper);
         break;
 
-      case EConsElem::E_ROTMAT:
+      case EConsElem::E_TENSOR:
         st_print("Anisotropy Matrix",1,ntot,param,lower,upper);
         break;
 

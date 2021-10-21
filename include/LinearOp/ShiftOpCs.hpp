@@ -105,6 +105,7 @@ private:
   Model* _getModel() const { return _model; }
   void _setModel(Model* model) { _model = model; }
   bool _isNoStat();
+  bool _isNoStatByHH();
   bool _isVelocity();
   const CovAniso* _getCova();
 
@@ -147,6 +148,7 @@ private:
                       MatrixCRectangular& matw) const;
   cs* _BuildSfromMap(std::map<std::pair<int, int>, double> &tab);
   void _updateCova(CovAniso* cova, int ip, int ndim);
+  void _updateHH(MatrixCSGeneral& hh, int ip, int ndim);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
 
 private:
