@@ -101,10 +101,13 @@ int main(int argc, char *argv[])
   PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF, false);
 
   VectorDouble vectnew = VectorDouble(Qsimu.getSize());
+  // Remplir vectnew de valeurs gaussiennes
 
   VectorDouble result(Qsimu.getSize());
   Qsimu.eval(vectnew,result);
   workingDbc.addFields(result,"Simu",ELoc::Z);
+
+  //Sérialiser
 
   return 0;
 }
