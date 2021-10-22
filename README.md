@@ -33,31 +33,36 @@ cd gstlearn
 ```
 
 Notes:
-  * In the following, all instructions must be executed from this gstlearn directory.
+  * In the following, all instructions must be executed from the gstlearn sources directory.
   
-## Library installation
+## Library compilation & installation
 For compiling and installing the *gstlearn* library, execute the following instructions in a command prompt.
 
-### Install for all users
+### Compile and install for all users
 This requires Administrator rights:
 
 ```sh
-cmake ..
-cmake --build . --config Release
-sudo cmake --build . --target install
+cd build ; cmake .. ; cd ..
+cmake --build build --config Release
+sudo cmake --build build --target install
 ```
 
-### Install for you only
-You can choose a different installation directory by modifying the first cmake command above:
+### Compile and install for you only
+You can choose a different installation directory by modifying the first CMake command above:
   
 ```
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/fors/gstlearn ..
-cmake --build . --config Release
-cmake --build . --target install
-````
+cd build ; cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/fors/Programmes/gstlearn .. ; cd ..
+cmake --build build --config Release
+cmake --build build --target install
+```
 
 Notes:
-  * If you want to build the *Debug* version, you must replace *Release* by *Debug* above.
+  * If you want to build and install the *Debug* version, you must replace *Release* by *Debug* above.
+  * Using recent CMake version (+3.14), the first command can be replaced by:
+  
+```
+cmake -Bbuild -H.
+```
 
 ## Usage
 TODO: Instructions will come soon
@@ -98,12 +103,25 @@ Notes:
 
 ## Development
 
-### Clean
-Simply execute the following command:
+### Clean & uninstall
+To clean (partially) the build, execute the following command:
 
 ```
-cmake --build . --target clean
+cmake --build build --target clean
 ```
+
+To clean all CMake output, execute the following command:
+
+```
+rm -rf build/*
+```
+
+To uninstall all the installed files (only the files), execute this command:
+
+```
+cmake --build build --target uninstall
+```
+
 
 
 ***
