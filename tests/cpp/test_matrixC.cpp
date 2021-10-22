@@ -10,10 +10,10 @@
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSDiag.hpp"
-#include "Matrix/MatrixSDiagCst.hpp"
-#include "Matrix/MatrixSGeneral.hpp"
-#include "Matrix/MatrixSSym.hpp"
+#include "Matrix/MatrixSquareDiagonal.hpp"
+#include "Matrix/MatrixSquareDiagonalCst.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_d.h"
@@ -21,13 +21,13 @@
 #include "geoslib_old_f.h"
 
 void reset_to_initial_contents(AMatrix* M,
-                               MatrixSDiagCst& D,
+                               MatrixSquareDiagonalCst& D,
                                MatrixRectangular& MRR,
-                               MatrixSGeneral& MSG,
-                               MatrixSSym& MSS,
+                               MatrixSquareGeneral& MSG,
+                               MatrixSquareSymmetric& MSS,
                                AMatrix* MSP,
-                               MatrixSDiag& MSD,
-                               MatrixSDiagCst& MSC)
+                               MatrixSquareDiagonal& MSD,
+                               MatrixSquareDiagonalCst& MSC)
 {
   MRR.setValues (M->getValues());
   MSG.setValues (M->getValues());
@@ -102,12 +102,12 @@ int main(int argc, char *argv[])
   MRR.display();
 
   // To a square general matrix
-  MatrixSGeneral MSG(*M);
+  MatrixSquareGeneral MSG(*M);
   printf("Matrix MSG\n");
   MSG.display();
 
   // To a square symmetric matrix
-  MatrixSSym MSS(*M);
+  MatrixSquareSymmetric MSS(*M);
   printf("Matrix MSS\n");
   MSS.display();
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
   // Creating a Diagonal matrix (from M)
   double cst = law_gaussian();
 
-  MatrixSDiag MSD(nrow);
+  MatrixSquareDiagonal MSD(nrow);
   for (int irow=0; irow<nrow; irow++)
     MSD(irow,irow) = cst;
   printf("Matrix MSD\n");
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
   // Creating a Constant Diagonal Matrix
 
-  MatrixSDiagCst MSC, D;
+  MatrixSquareDiagonalCst MSC, D;
   D.reset(nrow,ncol,cst);
   MSC.reset(nrow,ncol,cst);
   printf("Matrix MSC\n");
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
   printf("Calculate B=A^{-1}. Compute A*B and compare to Identity\n");
 
   AMatrix* Res;
-  MatrixSGeneral MSGref = MSG; // Used to perform A*A-1 and check Identity
+  MatrixSquareGeneral MSGref = MSG; // Used to perform A*A-1 and check Identity
 
   MSG.invert();
   Res = prodMatrix(&MSG, &MSGref);
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
   printf("Are results correct for MSP: %d\n",Res->isIdentity());
   delete Res;
 
-  MatrixSDiag MSDref = MSD; // Used to perform A*A-1 and check Identity
+  MatrixSquareDiagonal MSDref = MSD; // Used to perform A*A-1 and check Identity
 
   MSD.invert();
   Res = prodMatrix(&MSD, &MSDref);

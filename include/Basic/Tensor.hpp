@@ -12,7 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/Rotation.hpp"
-#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
 
 class Tensor : public AStringable/// TODO : public ASpaceObject
@@ -26,8 +26,8 @@ public:
   void init(int ndim);
   virtual String toString(int level = 0) const override;
 
-  void setTensorDirect (const MatrixSGeneral& tensor) { _tensorDirect  = tensor; }
-  void setTensorInverse(const MatrixSGeneral& tensor) { _tensorInverse = tensor; }
+  void setTensorDirect (const MatrixSquareGeneral& tensor) { _tensorDirect  = tensor; }
+  void setTensorInverse(const MatrixSquareGeneral& tensor) { _tensorInverse = tensor; }
 
   void setRadius(double radius); // Make it isotropic
   void setRadius(const VectorDouble& radius);
@@ -38,12 +38,12 @@ public:
   void setRotationAngle(unsigned int idim, double angle);
 
   const VectorDouble&    getAngles()        const { return  _rotation.getAngles(); }
-  const MatrixSGeneral& getTensorDirect()  const { return  _tensorDirect; }
-  const MatrixSGeneral& getTensorInverse() const { return  _tensorInverse; }
+  const MatrixSquareGeneral& getTensorDirect()  const { return  _tensorDirect; }
+  const MatrixSquareGeneral& getTensorInverse() const { return  _tensorInverse; }
   const VectorDouble&    getRadius()        const { return  _radius; }
   const Rotation&        getRotation()      const { return  _rotation; }
-  const MatrixSGeneral& getMatrixDirect()  const { return  _rotation.getMatrixDirect(); }
-  const MatrixSGeneral& getMatrixInverse() const { return  _rotation.getMatrixInverse(); }
+  const MatrixSquareGeneral& getMatrixDirect()  const { return  _rotation.getMatrixDirect(); }
+  const MatrixSquareGeneral& getMatrixInverse() const { return  _rotation.getMatrixInverse(); }
   bool                   isIsotrop()        const { return  _isotrop; }
   bool                   hasRotation()      const { return !_rotation.isIdentity(); }
 
@@ -56,8 +56,8 @@ private:
 
 private:
   unsigned int    _nDim;     /// Number of dimensions
-  MatrixSGeneral _tensorDirect; /// Direct Tensor matrix (definite positive)
-  MatrixSGeneral _tensorInverse; /// Inverse Tensor matrix (definite positive)
+  MatrixSquareGeneral _tensorDirect; /// Direct Tensor matrix (definite positive)
+  MatrixSquareGeneral _tensorInverse; /// Inverse Tensor matrix (definite positive)
   VectorDouble    _radius;   /// Ellipsoid radius
   Rotation        _rotation; /// Ellipsoid rotation
   bool            _isotrop;  /// True if the tensor is isotropic

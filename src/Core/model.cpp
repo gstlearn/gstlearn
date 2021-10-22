@@ -217,7 +217,7 @@ GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
 
   // Evaluate the Model
 
-  MatrixSGeneral mat;
+  MatrixSquareGeneral mat;
   if (d1.empty())
     mat = model->getCovAnisoList()->ACov::eval0(mode);
   else

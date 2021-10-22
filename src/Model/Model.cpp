@@ -13,7 +13,7 @@
 #include "Drifts/DriftFactory.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/SpaceRN.hpp"
-#include "Matrix/MatrixSSym.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/AException.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMGradient.hpp"

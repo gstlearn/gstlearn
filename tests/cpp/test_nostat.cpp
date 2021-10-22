@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(&workingDbc);
-  MatrixSGeneral hh(2);
+  MatrixSquareGeneral hh(2);
 
   int nech = workingDbc.getSampleNumber();
   VectorDouble h11(nech);
@@ -65,14 +65,14 @@ int main(int argc, char *argv[])
     VectorDouble coor = workingDbc.getSampleCoordinates(i);
     VectorVectorDouble dirs = spirale.getFunctionVectors(coor);
 
-    MatrixSGeneral rotmat(2);
+    MatrixSquareGeneral rotmat(2);
     rotmat.setValue(0,0,dirs[0][0]);
     rotmat.setValue(1,0,dirs[1][0]);
     rotmat.setValue(0,1,dirs[0][1]);
     rotmat.setValue(1,1,dirs[1][1]);
 
     VectorDouble diag = ut_vector_power(cova.getScales(), 2.);
-    MatrixSSym temp(2);
+    MatrixSquareSymmetric temp(2);
     temp.setDiagonal(diag);
     hh.normMatrix(temp, rotmat);
 

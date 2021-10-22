@@ -18,13 +18,13 @@
 /**
  * Square Diagonal matrices
  */
-class MatrixSDiag : public AMatrixSquare {
+class MatrixSquareDiagonal : public AMatrixSquare {
 
 public:
-  MatrixSDiag(int nrow = 0, bool sparse = false);
-  MatrixSDiag(const MatrixSDiag &m);
-  MatrixSDiag& operator= (const MatrixSDiag &r);
-	virtual ~MatrixSDiag();
+  MatrixSquareDiagonal(int nrow = 0, bool sparse = false);
+  MatrixSquareDiagonal(const MatrixSquareDiagonal &m);
+  MatrixSquareDiagonal& operator= (const MatrixSquareDiagonal &r);
+	virtual ~MatrixSquareDiagonal();
 
   /*! Clonable interface */
   virtual IClonable* clone() const override;
@@ -76,7 +76,7 @@ private:
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
   double _determinant() const override;
 
-  void   _recopy(const MatrixSDiag &r);
+  void   _recopy(const MatrixSquareDiagonal &r);
   bool   _isIndexValid(int irow,int icol) const;
 
 private:

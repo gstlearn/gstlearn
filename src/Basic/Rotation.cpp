@@ -9,7 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Rotation.hpp"
-#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Utilities.hpp"
@@ -56,7 +56,7 @@ void Rotation::init(unsigned int ndim)
   _rotInv.setIdentity();
 }
 
-int Rotation::setMatrixDirect(const MatrixSGeneral& rotmat)
+int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
 {
   if (! rotmat.isEmpty())
   {

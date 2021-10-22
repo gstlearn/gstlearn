@@ -10,9 +10,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSSym.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
@@ -598,7 +598,7 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
   }
 }
 
-void ShiftOpCs::_updateHH(MatrixSSym& hh, int ip)
+void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int ip)
 {
   // Initializations
   if (_isNoStatByHH()) return;
@@ -625,7 +625,7 @@ void ShiftOpCs::_updateHH(MatrixSSym& hh, int ip)
  * @param hh Output Array
  * @param ip Rank of the point
  */
-void ShiftOpCs::_loadHHByApex(MatrixSSym& hh, int ip)
+void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
 {
   int ndim = getNDim();
   const CovAniso* covini = _getCova();
@@ -635,9 +635,9 @@ void ShiftOpCs::_loadHHByApex(MatrixSSym& hh, int ip)
   _updateCova(cova, ip);
 
   // Calculate the current HH matrix (using local covariance parameters)
-  const MatrixSGeneral& rotmat = cova->getAnisoRotMat();
+  const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
   VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
-  MatrixSSym temp(ndim);
+  MatrixSquareSymmetric temp(ndim);
   temp.setDiagonal(diag);
   hh.normMatrix(temp, rotmat);
 
@@ -656,7 +656,7 @@ void ShiftOpCs::_loadHHByApex(MatrixSSym& hh, int ip)
  * @details: - 0:(ndim-1)   : ranges in each Space direction
  * @details: - ndim:ngparam : rotation angles (=ndim or 1 in 2-D)
  */
-void ShiftOpCs::_loadHHGradByApex(MatrixSSym& hh,
+void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
                                   int igparam,
                                   int ip)
 {
@@ -667,7 +667,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSSym& hh,
   // Locally update the covariance for non-stationarity (if necessary)
   _updateCova(cova, ip);
 
-  const MatrixSGeneral& rotmat = cova->getAnisoRotMat();
+  const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
   VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
 
   // Derivation
@@ -691,7 +691,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSSym& hh,
 
     // Case where the derivation is performed on ranges and angles
 
-    MatrixSSym temp(ndim);
+    MatrixSquareSymmetric temp(ndim);
     if (igparam < ndim)
     {
       // Derivation with respect to the Range 'igparam'
@@ -705,7 +705,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSSym& hh,
       int ir = igparam - ndim;
       CovAniso* dcova = cova;
       dcova->setAnisoAngle(ir, dcova->getAnisoAngles(ir) + 90.);
-      const MatrixSGeneral& drotmat = dcova->getAnisoRotMat();
+      const MatrixSquareGeneral& drotmat = dcova->getAnisoRotMat();
       ut_vector_divide_inplace(diag, 180. / GV_PI); // Necessary as angles are provided in degrees
       temp.setDiagonal(diag);
       hh.innerMatrix(temp, rotmat, drotmat);
@@ -731,13 +731,13 @@ void ShiftOpCs::_loadAux(VectorDouble& tab,
     }
 }
 
-void ShiftOpCs::_loadHHPerMesh(MatrixSSym& hh,
+void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
                                AMesh* amesh,
                                int imesh)
 {
   int number = amesh->getNApexPerMesh();
   int ndim = amesh->getNDim();
-  MatrixSSym hhloc(ndim);
+  MatrixSquareSymmetric hhloc(ndim);
   hh.fill(0.);
 
   // HH per mesh is obtained as the average of the HH per apex of the mesh
@@ -759,7 +759,7 @@ void ShiftOpCs::_loadHHPerMesh(MatrixSSym& hh,
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
  * @param imesh   Rank of the current mesh
  */
-void ShiftOpCs::_loadHHGradPerMesh(MatrixSSym& hh,
+void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                                    AMesh* amesh,
                                    int igp0,
                                    int igparam,
@@ -794,7 +794,7 @@ void ShiftOpCs::_loadAuxPerMesh(VectorDouble& tab,
 
 int ShiftOpCs::_preparMatrices(AMesh *amesh,
                              int imesh,
-                             MatrixSGeneral& matu,
+                             MatrixSquareGeneral& matu,
                              MatrixRectangular& matw) const
 {
   int ndim = amesh->getNDim();
@@ -869,9 +869,9 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
   // Initialize the arrays
 
   VectorDouble matv(ncorner);
-  MatrixSSym hh(ndim);
-  MatrixSGeneral matu(ncorner);
-  MatrixSGeneral mat(ncorner);
+  MatrixSquareSymmetric hh(ndim);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixSquareGeneral mat(ncorner);
   MatrixRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
@@ -977,9 +977,9 @@ int ShiftOpCs::_buildS(AMesh *amesh,
 
   // Initialize the arrays
 
-  MatrixSSym hh(ndim);
-  MatrixSGeneral matu(ncorner);
-  MatrixSGeneral mat(ncorner);
+  MatrixSquareSymmetric hh(ndim);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixSquareGeneral mat(ncorner);
   MatrixRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
@@ -1055,7 +1055,7 @@ int ShiftOpCs::_buildSVel(AMesh *amesh,
 
   VectorDouble vel(2);
   VectorDouble matv(ncorner);
-  MatrixSGeneral matu(ncorner);
+  MatrixSquareGeneral matu(ncorner);
   MatrixRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
@@ -1131,9 +1131,9 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
   // Initialize the arrays
 
   VectorDouble srot(2), center[3], axe1(3), axe2(3), vel(3), matv(ncorner);
-  MatrixSSym hh(ndim);
-  MatrixSGeneral matu(ncorner);
-  MatrixSGeneral mat(ncorner);
+  MatrixSquareSymmetric hh(ndim);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixSquareGeneral mat(ncorner);
   MatrixRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
@@ -1290,7 +1290,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
 
   _Lambda.clear();
 
-  MatrixSSym hh(ndim);
+  MatrixSquareSymmetric hh(ndim);
   if (!_isNoStat())
   {
     _loadHHByApex(hh, 0);

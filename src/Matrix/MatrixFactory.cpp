@@ -13,10 +13,10 @@
 #include "Matrix/MatrixFactory.hpp"
 
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSDiag.hpp"
-#include "Matrix/MatrixSDiagCst.hpp"
-#include "Matrix/MatrixSGeneral.hpp"
-#include "Matrix/MatrixSSym.hpp"
+#include "Matrix/MatrixSquareDiagonal.hpp"
+#include "Matrix/MatrixSquareDiagonalCst.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 #include "Basic/AException.hpp"
 
@@ -47,12 +47,12 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x,
   }
 
   /// TODO : use typeinfo
-  const MatrixSDiag*    mxsd  = dynamic_cast<const MatrixSDiag*>(x);
-  const MatrixSDiagCst* mxsdc = dynamic_cast<const MatrixSDiagCst*>(x);
-  const MatrixSSym*     mxsym = dynamic_cast<const MatrixSSym*>(x);
-  const MatrixSDiag*    mysd  = dynamic_cast<const MatrixSDiag*>(y);
-  const MatrixSDiagCst* mysdc = dynamic_cast<const MatrixSDiagCst*>(y);
-  const MatrixSSym*     mysym = dynamic_cast<const MatrixSSym*>(y);
+  const MatrixSquareDiagonal*    mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
+  const MatrixSquareDiagonalCst* mxsdc = dynamic_cast<const MatrixSquareDiagonalCst*>(x);
+  const MatrixSquareSymmetric*     mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+  const MatrixSquareDiagonal*    mysd  = dynamic_cast<const MatrixSquareDiagonal*>(y);
+  const MatrixSquareDiagonalCst* mysdc = dynamic_cast<const MatrixSquareDiagonalCst*>(y);
+  const MatrixSquareSymmetric*     mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
 
   AMatrix* res = nullptr;
 
@@ -62,21 +62,21 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x,
 
     if (mxsdc != nullptr && mysdc != nullptr)
     {
-      res = new MatrixSDiagCst();
+      res = new MatrixSquareDiagonalCst();
     }
     else if ((mxsdc != nullptr || mxsd != nullptr)
           && (mysdc != nullptr || mysd != nullptr))
     {
-      res = new MatrixSDiag();
+      res = new MatrixSquareDiagonal();
     }
     else if ((mxsdc != nullptr || mxsd != nullptr || mxsym != nullptr)
           && (mysdc != nullptr || mysd != nullptr || mysym != nullptr))
     {
-      res = new MatrixSSym();
+      res = new MatrixSquareSymmetric();
     }
     else
     {
-      res = new MatrixSGeneral();
+      res = new MatrixSquareGeneral();
     }
   }
   else
@@ -108,32 +108,32 @@ AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare* x,
     my_throw("Incompatible dimensions when making norm product of two matrices");
   }
 
-  const MatrixSDiag*    mxsd  = dynamic_cast<const MatrixSDiag*>(x);
-  const MatrixSDiagCst* mxsdc = dynamic_cast<const MatrixSDiagCst*>(x);
-  const MatrixSSym*     mxsym = dynamic_cast<const MatrixSSym*>(x);
-  const MatrixSDiag*    mysd  = dynamic_cast<const MatrixSDiag*>(y);
-  const MatrixSDiagCst* mysdc = dynamic_cast<const MatrixSDiagCst*>(y);
-  const MatrixSSym*     mysym = dynamic_cast<const MatrixSSym*>(y);
+  const MatrixSquareDiagonal*    mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
+  const MatrixSquareDiagonalCst* mxsdc = dynamic_cast<const MatrixSquareDiagonalCst*>(x);
+  const MatrixSquareSymmetric*     mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+  const MatrixSquareDiagonal*    mysd  = dynamic_cast<const MatrixSquareDiagonal*>(y);
+  const MatrixSquareDiagonalCst* mysdc = dynamic_cast<const MatrixSquareDiagonalCst*>(y);
+  const MatrixSquareSymmetric*     mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
 
   AMatrixSquare* res = nullptr;
 
   if (mxsdc != nullptr && mysdc != nullptr)
   {
-    res = new MatrixSDiagCst();
+    res = new MatrixSquareDiagonalCst();
   }
   else if ((mxsdc != nullptr || mxsd != nullptr)
       && (mysdc != nullptr || mysd != nullptr))
   {
-    res = new MatrixSDiag();
+    res = new MatrixSquareDiagonal();
   }
   else if ((mxsdc != nullptr || mxsd != nullptr || mxsym != nullptr)
       && (mysdc != nullptr || mysd != nullptr || mysym != nullptr))
   {
-    res = new MatrixSSym();
+    res = new MatrixSquareSymmetric();
   }
   else
   {
-    res = new MatrixSGeneral();
+    res = new MatrixSquareGeneral();
   }
 
   res->reset(y->getNCols(), y->getNCols());
@@ -145,5 +145,5 @@ AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare* x,
 
 AMatrix* MatrixFactory::createIdentity(int nrow, bool sparse)
 {
-  return new MatrixSDiagCst(nrow, sparse);
+  return new MatrixSquareDiagonalCst(nrow, sparse);
 }

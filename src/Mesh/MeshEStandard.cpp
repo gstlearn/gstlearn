@@ -8,7 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Basic/AException.hpp"
@@ -85,7 +85,7 @@ double MeshEStandard::getMeshSize(int imesh) const
   int ncorner = getNApexPerMesh();
 
   // Calculate the mesh size
-  MatrixSGeneral mat;
+  MatrixSquareGeneral mat;
   mat.reset(ndim,ndim);
   for (int icorn=1; icorn<ncorner; icorn++)
     for (int idim=0; idim<ndim; idim++)
@@ -1068,7 +1068,7 @@ bool MeshEStandard::_coorInMesh(double    *coor,
   {
     
     // Build the determinant
-    MatrixSGeneral mat;
+    MatrixSquareGeneral mat;
     mat.reset(ndim,ndim);
     kcorn = 0;
     for (int jcorn=0; jcorn<ncorner; jcorn++)

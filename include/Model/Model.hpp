@@ -30,7 +30,7 @@ class Model;
 class Drift;
 class ModTrans;
 class CovInternal;
-class MatrixSSym;
+class MatrixSquareSymmetric;
 class CovCalcMode;
 class Vario;
 class CovAniso;
@@ -71,7 +71,7 @@ public:
   CovAniso* getCova(unsigned int icov)                   { return _covaList->getCova(icov); }
   int getCovaNumber()                              const { return _covaList->getCovNumber(); }
   const ECov& getCovaType(int icov)                const { return _covaList->getType(icov); }
-  const MatrixSSym& getSill(int icov)             const { return _covaList->getSill(icov); }
+  const MatrixSquareSymmetric& getSill(int icov)             const { return _covaList->getSill(icov); }
   double getSill(int icov, int ivar, int jvar)     const { return _covaList->getSill(icov, ivar, jvar); }
   double getParam(int icov)                        const { return _covaList->getParam(icov); }
   bool isCovaFiltered(int icov)                    const { return _covaList->isFiltered(icov); }

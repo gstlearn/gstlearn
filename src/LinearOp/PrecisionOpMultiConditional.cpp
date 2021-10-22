@@ -13,7 +13,7 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_e.h"
-#include "Matrix/MatrixSSym.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 PrecisionOpMultiConditional::PrecisionOpMultiConditional()
   :_multiPrecisionOp(std::vector<PrecisionOp*>())
@@ -187,7 +187,7 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
     XtInvSigmaZ[i] = ut_vector_inner_product(X[i],_work1);
   }
 
-  MatrixSSym XtInvSigmaX(xsize,false);
+  MatrixSquareSymmetric XtInvSigmaX(xsize,false);
 
   for(int i = 0; i< xsize; i++)
   {

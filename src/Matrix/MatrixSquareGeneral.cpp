@@ -8,26 +8,26 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 
-MatrixSGeneral::MatrixSGeneral(int nrow, bool sparse)
+MatrixSquareGeneral::MatrixSquareGeneral(int nrow, bool sparse)
   : AMatrixSquare(nrow, sparse)
   , _squareMatrix()
 {
   _allocate();
 }
 
-MatrixSGeneral::MatrixSGeneral(const MatrixSGeneral &r) 
+MatrixSquareGeneral::MatrixSquareGeneral(const MatrixSquareGeneral &r) 
   : AMatrixSquare(r)
 {
   _recopy(r);
 }
 
-MatrixSGeneral::MatrixSGeneral(const AMatrix &m)
+MatrixSquareGeneral::MatrixSquareGeneral(const AMatrix &m)
 {
   if (m.isEmpty())
     my_throw("The input matrix should be non-empty");
@@ -44,7 +44,7 @@ MatrixSGeneral::MatrixSGeneral(const AMatrix &m)
     }
 }
 
-MatrixSGeneral& MatrixSGeneral::operator= (const MatrixSGeneral &r)
+MatrixSquareGeneral& MatrixSquareGeneral::operator= (const MatrixSquareGeneral &r)
 {
   if (this != &r)
   {
@@ -55,36 +55,36 @@ MatrixSGeneral& MatrixSGeneral::operator= (const MatrixSGeneral &r)
   return *this;
 }
 
-MatrixSGeneral::~MatrixSGeneral()
+MatrixSquareGeneral::~MatrixSquareGeneral()
 {
   _deallocate();
 }
 
-IClonable* MatrixSGeneral::clone() const
+IClonable* MatrixSquareGeneral::clone() const
 {
-  return new MatrixSGeneral(*this);
+  return new MatrixSquareGeneral(*this);
 }
 
-double MatrixSGeneral::_getValue(int irow, int icol) const
+double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareMatrix[rank];
 }
 
-double MatrixSGeneral::_getValue(int irank) const
+double MatrixSquareGeneral::_getValue(int irank) const
 {
   return _squareMatrix[irank];
 }
 
-void MatrixSGeneral::_setValue(int irow, int icol, double value)
+void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   _squareMatrix[rank] = value;
 }
 
-void MatrixSGeneral::_setValue(int irank, double value)
+void MatrixSquareGeneral::_setValue(int irank, double value)
 {
   _isRankValid(irank);
   _squareMatrix[irank] = value;
@@ -94,14 +94,14 @@ void MatrixSGeneral::_setValue(int irank, double value)
  * @param in  Input Vector
  * @param out Output Vector
  */
-void MatrixSGeneral::_prodVector(const double *in, double *out) const
+void MatrixSquareGeneral::_prodVector(const double *in, double *out) const
 {
   int nrow = getNRows();
   int ncol = getNCols();
   matrix_product(nrow,ncol,1,_squareMatrix.data(),in,out);
 }
 
-void MatrixSGeneral::_transposeInPlace()
+void MatrixSquareGeneral::_transposeInPlace()
 {
   if (isSparse())
   {
@@ -119,7 +119,7 @@ void MatrixSGeneral::_transposeInPlace()
   }
 }
 
-void MatrixSGeneral::_setValues(const double* values, bool byCol)
+void MatrixSquareGeneral::_setValues(const double* values, bool byCol)
 {
   if (byCol)
   {
@@ -141,49 +141,49 @@ void MatrixSGeneral::_setValues(const double* values, bool byCol)
   }
 }
 
-double MatrixSGeneral::_determinant() const
+double MatrixSquareGeneral::_determinant() const
 {
   return matrix_determinant(getNRows(),_squareMatrix.data());
 }
 
-int MatrixSGeneral::_invert()
+int MatrixSquareGeneral::_invert()
 {
   return matrix_invreal(_squareMatrix.data(),getNRows());
 }
 
-double& MatrixSGeneral::_getValueRef(int irow, int icol)
+double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareMatrix[rank];
 }
 
-void MatrixSGeneral::_deallocate()
+void MatrixSquareGeneral::_deallocate()
 {
 }
 
-void MatrixSGeneral::_recopy(const MatrixSGeneral &r)
+void MatrixSquareGeneral::_recopy(const MatrixSquareGeneral &r)
 {
   _squareMatrix = r._squareMatrix;
 }
 
-void MatrixSGeneral::_allocate()
+void MatrixSquareGeneral::_allocate()
 {
   _squareMatrix.resize(_getMatrixSize());
 }
 
-int MatrixSGeneral::_getIndexToRank(int irow, int icol) const
+int MatrixSquareGeneral::_getIndexToRank(int irow, int icol) const
 {
   int rank = irow * getNCols() + icol;
   return rank;
 }
 
-int MatrixSGeneral::_getMatrixSize() const
+int MatrixSquareGeneral::_getMatrixSize() const
 {
   return(getNRows() * getNCols());
 }
 
-int MatrixSGeneral::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixSquareGeneral::_solve(const VectorDouble& b, VectorDouble& x) const
 {
   my_throw("Invert method is limited to Square Symmetrical Matrices");
   return 0;

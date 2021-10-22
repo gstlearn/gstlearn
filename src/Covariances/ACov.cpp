@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Basic/AException.hpp"
-#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/Vector.hpp"
 
 ACov::ACov(const ASpace* space)
@@ -42,10 +42,10 @@ bool ACov::isGradientCompatible() const
   return false;
 }
 
-MatrixSGeneral ACov::eval0(const CovCalcMode& mode) const
+MatrixSquareGeneral ACov::eval0(const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
-  MatrixSGeneral mat(nvar);
+  MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
       mat.setValue(ivar, jvar, eval0(ivar, jvar, mode)); // pure virtual method
@@ -66,12 +66,12 @@ VectorDouble ACov::eval(int ivar,
   return vec;
 }
 
-MatrixSGeneral ACov::eval(const SpacePoint& p1,
+MatrixSquareGeneral ACov::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
                            const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
-  MatrixSGeneral mat(nvar);
+  MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
       mat.setValue(ivar, jvar, eval(ivar, jvar, p1, p2, mode)); // pure virtual method
@@ -107,13 +107,13 @@ VectorDouble ACov::eval(int ivar,
   return vec;
 }
 
-MatrixSGeneral ACov::eval(double step,
+MatrixSquareGeneral ACov::eval(double step,
                            const VectorDouble& dir,
                            const VectorDouble& center,
                            const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
-  MatrixSGeneral mat(nvar);
+  MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
       mat.setValue(ivar, jvar, eval(ivar, jvar, step, dir, center, mode));
@@ -145,14 +145,14 @@ VectorDouble ACov::eval(int ivar,
   return vec;
 }
 
-MatrixSGeneral ACov::eval(double step,
+MatrixSquareGeneral ACov::eval(double step,
                        const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
   /// TODO : Not true whatever the space
   VectorDouble center = getOrigin();
   VectorDouble dir = getUnitaryVector();
-  MatrixSGeneral mat(nvar);
+  MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
       mat.setValue(ivar, jvar, eval(ivar, jvar, step, dir, center, mode));
