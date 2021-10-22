@@ -8,13 +8,25 @@ include(GNUInstallDirs)
 # https://stackoverflow.com/questions/10851247/how-do-i-activate-c-11-in-cmake
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_BUILD_TYPE
-  "Release"
-  CACHE
-  STRING
-  "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
-  FORCE
-)
+# Let the user choose between Debug or Release
+# https://stackoverflow.com/questions/7724569/debug-vs-release-in-cmake
+#set(CMAKE_BUILD_TYPE
+#  "Release"
+#  CACHE
+#  STRING
+#  "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+#  FORCE
+#)
+
+# Warning fiesta
+# https://cmake.org/cmake/help/latest/command/add_compile_options.html
+if (MSVC)
+  # Warning level 4
+  add_compile_options(/W4)
+else()
+  # Lots of warnings
+  add_compile_options(-Wall -Wextra -pedantic)
+endif()
 
 add_subdirectory(src)
 add_subdirectory(doxygen)

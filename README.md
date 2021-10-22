@@ -42,7 +42,7 @@ For compiling and installing the *gstlearn* library, execute the following instr
 This requires Administrator rights:
 
 ```sh
-cd build ; cmake .. ; cd ..
+cd build ; cmake  -DCMAKE_BUILD_TYPE=Release .. ; cd ..
 cmake --build build --config Release
 sudo cmake --build build --target install
 ```
@@ -51,18 +51,19 @@ sudo cmake --build build --target install
 You can choose a different installation directory by modifying the first CMake command above:
   
 ```
-cd build ; cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/fors/Programmes/gstlearn .. ; cd ..
+cd build ; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/home/fors/Programmes/gstlearn .. ; cd ..
 cmake --build build --config Release
 cmake --build build --target install
 ```
 
+Additionnal options:
+You may want to modify `make` behavior. In that case, add `--` at the end of the `cmake --build` command and complete:
+  * If you want to use N CPU for compiling, add `-j N` after `--`
+  * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` after `--`
+  
 Notes:
   * If you want to build and install the *Debug* version, you must replace *Release* by *Debug* above.
-  * Using recent CMake version (+3.14), the first command can be replaced by:
-  
-```
-cmake -Bbuild -H.
-```
+TODO : Ensure debug/release instructions are cross-platform
 
 ## Usage
 TODO: Instructions will come soon

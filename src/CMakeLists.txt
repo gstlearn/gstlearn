@@ -7,14 +7,14 @@ set(SOURCES
   License/TimeUtility.cpp
   License/LicenseUtility.cpp
   License/LicenseKey.cpp
-  MatrixC/MatrixCRectangular.cpp
-  MatrixC/AMatrixC.cpp
-  MatrixC/MatrixCSSym.cpp
-  MatrixC/MatrixCFactory.cpp
-  MatrixC/MatrixCSDiagCst.cpp
-  MatrixC/MatrixCSDiag.cpp
-  MatrixC/AMatrixCSquare.cpp
-  MatrixC/MatrixCSGeneral.cpp
+  Matrix/MatrixRectangular.cpp
+  Matrix/AMatrix.cpp
+  Matrix/MatrixSquareSymmetric.cpp
+  Matrix/MatrixFactory.cpp
+  Matrix/MatrixSquareDiagonalCst.cpp
+  Matrix/MatrixSquareDiagonal.cpp
+  Matrix/AMatrixSquare.cpp
+  Matrix/MatrixSquareGeneral.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   INIParser.cpp
