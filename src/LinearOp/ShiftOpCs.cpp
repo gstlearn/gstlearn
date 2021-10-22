@@ -598,7 +598,7 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
   }
 }
 
-void ShiftOpCs::_updateHH(MatrixCSGeneral& hh, int ip)
+void ShiftOpCs::_updateHH(MatrixCSSym& hh, int ip)
 {
   // Initializations
   if (_isNoStatByHH()) return;
@@ -614,7 +614,6 @@ void ShiftOpCs::_updateHH(MatrixCSGeneral& hh, int ip)
       {
        double value = nostat->getValue(igrf, icov, EConsElem::TENSOR, idim, jdim, 0, ip);
        hh.setValue(idim, jdim, value);
-       hh.setValue(jdim, idim, value);
      }
    }
 }
@@ -626,7 +625,7 @@ void ShiftOpCs::_updateHH(MatrixCSGeneral& hh, int ip)
  * @param hh Output Array
  * @param ip Rank of the point
  */
-void ShiftOpCs::_loadHHByApex(MatrixCSGeneral& hh, int ip)
+void ShiftOpCs::_loadHHByApex(MatrixCSSym& hh, int ip)
 {
   int ndim = getNDim();
   const CovAniso* covini = _getCova();
@@ -657,7 +656,7 @@ void ShiftOpCs::_loadHHByApex(MatrixCSGeneral& hh, int ip)
  * @details: - 0:(ndim-1)   : ranges in each Space direction
  * @details: - ndim:ngparam : rotation angles (=ndim or 1 in 2-D)
  */
-void ShiftOpCs::_loadHHGradByApex(MatrixCSGeneral& hh,
+void ShiftOpCs::_loadHHGradByApex(MatrixCSSym& hh,
                                   int igparam,
                                   int ip)
 {
@@ -685,7 +684,6 @@ void ShiftOpCs::_loadHHGradByApex(MatrixCSGeneral& hh,
       {
         if (ecr != igparam) continue;
         hh.setValue(idim, jdim, 1.);
-        hh.setValue(jdim, idim, 1.);
       }
   }
   else
@@ -733,13 +731,13 @@ void ShiftOpCs::_loadAux(VectorDouble& tab,
     }
 }
 
-void ShiftOpCs::_loadHHPerMesh(MatrixCSGeneral& hh,
+void ShiftOpCs::_loadHHPerMesh(MatrixCSSym& hh,
                                AMesh* amesh,
                                int imesh)
 {
   int number = amesh->getNApexPerMesh();
   int ndim = amesh->getNDim();
-  MatrixCSGeneral hhloc(ndim);
+  MatrixCSSym hhloc(ndim);
   hh.fill(0.);
 
   // HH per mesh is obtained as the average of the HH per apex of the mesh
@@ -761,7 +759,7 @@ void ShiftOpCs::_loadHHPerMesh(MatrixCSGeneral& hh,
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
  * @param imesh   Rank of the current mesh
  */
-void ShiftOpCs::_loadHHGradPerMesh(MatrixCSGeneral& hh,
+void ShiftOpCs::_loadHHGradPerMesh(MatrixCSSym& hh,
                                    AMesh* amesh,
                                    int igp0,
                                    int igparam,
@@ -871,10 +869,10 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
   // Initialize the arrays
 
   VectorDouble matv(ncorner);
-  MatrixCSGeneral hh = MatrixCSGeneral(ndim);
-  MatrixCSGeneral matu = MatrixCSGeneral(ncorner);
-  MatrixCSGeneral mat = MatrixCSGeneral(ncorner);
-  MatrixCRectangular matw = MatrixCRectangular(ndim, ncorner);
+  MatrixCSSym hh(ndim);
+  MatrixCSGeneral matu(ncorner);
+  MatrixCSGeneral mat(ncorner);
+  MatrixCRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
 
@@ -979,10 +977,10 @@ int ShiftOpCs::_buildS(AMesh *amesh,
 
   // Initialize the arrays
 
-  MatrixCSGeneral hh = MatrixCSGeneral(ndim);
-  MatrixCSGeneral matu = MatrixCSGeneral(ncorner);
-  MatrixCSGeneral mat = MatrixCSGeneral(ncorner);
-  MatrixCRectangular matw = MatrixCRectangular(ndim, ncorner);
+  MatrixCSSym hh(ndim);
+  MatrixCSGeneral matu(ncorner);
+  MatrixCSGeneral mat(ncorner);
+  MatrixCRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
 
@@ -1057,8 +1055,8 @@ int ShiftOpCs::_buildSVel(AMesh *amesh,
 
   VectorDouble vel(2);
   VectorDouble matv(ncorner);
-  MatrixCSGeneral matu = MatrixCSGeneral(ncorner);
-  MatrixCRectangular matw = MatrixCRectangular(ndim, ncorner);
+  MatrixCSGeneral matu(ncorner);
+  MatrixCRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
 
@@ -1133,10 +1131,10 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
   // Initialize the arrays
 
   VectorDouble srot(2), center[3], axe1(3), axe2(3), vel(3), matv(ncorner);
-  MatrixCSGeneral hh = MatrixCSGeneral(ndim);
-  MatrixCSGeneral matu = MatrixCSGeneral(ncorner);
-  MatrixCSGeneral mat = MatrixCSGeneral(ncorner);
-  MatrixCRectangular matw = MatrixCRectangular(ndim, ncorner);
+  MatrixCSSym hh(ndim);
+  MatrixCSGeneral matu(ncorner);
+  MatrixCSGeneral mat(ncorner);
+  MatrixCRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
 
@@ -1292,7 +1290,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
 
   _Lambda.clear();
 
-  MatrixCSGeneral hh = MatrixCSGeneral(ndim);
+  MatrixCSSym hh(ndim);
   if (!_isNoStat())
   {
     _loadHHByApex(hh, 0);

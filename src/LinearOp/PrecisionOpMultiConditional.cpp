@@ -205,8 +205,6 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   XtInvSigmaX.solve(XtInvSigmaZ,result);
 
   return result;
-
-
 }
 
 PrecisionOpMultiConditional::~PrecisionOpMultiConditional(){}
