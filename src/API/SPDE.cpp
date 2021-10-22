@@ -137,7 +137,7 @@ void SPDE::init(Model& model,
     }
     else
     {
-      varianceData = VectorDouble(dat->getActiveSampleNumber());
+      varianceData.resize(dat->getActiveSampleNumber());
       for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
       {
         varianceData[iech] = MAX(nugget, 0.01 * totalSill);
@@ -211,7 +211,7 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
       extendMin.push_back(limits[0]);
       extendMax.push_back(limits[1]);
   }
-  VectorDouble cellSize = VectorDouble(dim,ut_vector_min(cova.getRanges())/discr);
+  VectorDouble cellSize(dim,ut_vector_min(cova.getRanges())/discr);
 
   VectorInt nx;
   VectorDouble dx;
