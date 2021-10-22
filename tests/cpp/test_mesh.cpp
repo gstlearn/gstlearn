@@ -77,8 +77,6 @@ int main(int argc, char *argv[])
   angle[0]     = 30.;
   angle[1]     = 0.;
   angle[2]     = 0.;
-  apices       = MatrixCRectangular();
-  meshes       = VectorInt();
   dbin         = nullptr;
   dbgrid       = nullptr;
   loc_apices   = nullptr;

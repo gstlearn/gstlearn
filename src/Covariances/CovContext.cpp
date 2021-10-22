@@ -177,7 +177,7 @@ int CovContext::_getIndex(int ivar, int jvar) const
 void CovContext::_update()
 {
   _mean.resize(_nVar, 0.);
-  MatrixCSSym Id = MatrixCSSym(_nVar);
+  MatrixCSSym Id(_nVar);
   Id.setIdentity();
   _covar0 = Id.getValues();
 }

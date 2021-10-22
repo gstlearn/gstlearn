@@ -1188,7 +1188,7 @@ int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
   int lec;
   int napices = s_mesh->nvertex;
   int ndim    = s_mesh->ndim;
-  MatrixCRectangular points = MatrixCRectangular(napices, ndim);
+  MatrixCRectangular points(napices, ndim);
   lec = 0;
   for (int ip = 0; ip < napices; ip++)
     for (int idim = 0 ; idim < ndim; idim++, lec++)
