@@ -8,42 +8,36 @@ include(GNUInstallDirs)
 # https://stackoverflow.com/questions/10851247/how-do-i-activate-c-11-in-cmake
 set(CMAKE_CXX_STANDARD 11)
 
-# Let the user choose between Debug or Release
-# https://stackoverflow.com/questions/7724569/debug-vs-release-in-cmake
-#set(CMAKE_BUILD_TYPE
-#  "Release"
-#  CACHE
-#  STRING
-#  "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
-#  FORCE
-#)
-
-# Warning fiesta
+# Warning fiesta! (global property)
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
 if (MSVC)
-  # Warning level 4
+  # Warning level 4 (4 = maximum, 0 = none)
   add_compile_options(/W4)
 else()
-  # Lots of warnings
-  add_compile_options(-Wall -Wextra -pedantic)
+  # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
+  add_compile_options(-Wall)
 endif()
 
+# Impose 'd' suffix in debug (global property)
+set(CMAKE_DEBUG_POSTFIX d)
+
+# Process sub directories
 add_subdirectory(src)
 add_subdirectory(doxygen)
-
 add_subdirectory(tests)
 
+# TODO : what is the purpose of this below?
 install(
   EXPORT corelibs
   FILE gstlearnConfig.cmake
   NAMESPACE gstlearn::
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/cmake
 )
-# Uncomme the following line if you to register the package globally this will
-# avoid the manual specification of gstlearn_DIR
+# Uncomment the following line if you want to register the package globally
+# This will avoid the manual specification of gstlearn_DIR
 # set(CMAKE_EXPORT_PACKAGE_REGISTRY ON) export(PACKAGE gstlearn)
 
-# uninstall target
+# Uninstall target
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
   configure_file(
