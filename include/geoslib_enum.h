@@ -334,6 +334,7 @@ typedef enum
   CONS_T_RANGE = 6,  //!< Non-stationary tapering range
   CONS_VELOCITY = 7, //!< Non-stationary velocity (advection)
   CONS_SPHEROT = 8,  //!< Non-stationary rotation angle for Sphere
+  CONS_ROTMAT = 9,   //!< Non-stationary anisotropy matrix term
 } ENUM_CONS; // Now see EConsElem.hpp
 
 typedef enum

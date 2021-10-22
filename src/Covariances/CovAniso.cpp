@@ -113,7 +113,7 @@ void CovAniso::setSill(double sill)
   _sill.reset(1, 1, sill);
 }
 
-void CovAniso::setSill(const MatrixCSGeneral& sill)
+void CovAniso::setSill(const MatrixSquareGeneral& sill)
 {
   if (getNVariables() != sill.getNSize())
   my_throw("Number of provided sills doesn't match number of variables");

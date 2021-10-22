@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"

@@ -217,7 +217,7 @@ GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
 
   // Evaluate the Model
 
-  MatrixCSGeneral mat;
+  MatrixSquareGeneral mat;
   if (d1.empty())
     mat = model->getCovAnisoList()->ACov::eval0(mode);
   else
@@ -2093,120 +2093,6 @@ GEOSLIB_API double model_cxx(Model *model,
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs
- **
- ** \param[in]  model Model structure
- ** \param[in]  db1   First Db
- ** \param[in]  db2   Second Db
- ** \param[in]  ivar0 Rank of the first variable (-1: all variables)
- ** \param[in]  jvar0 Rank of the second variable (-1: all variables)
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov   1 if the result must be given in covariance
- **
- ** \param[out] covmat The covariance matrix
- **                    (Dimension = (nactive * nvar) [squared])
- **                    nactive: Number of samples active
- **                    nvar   : Number of selected variables (1 or nvar)
- **
- *****************************************************************************/
-GEOSLIB_API void model_covmat(Model *model,
-                              Db *db1,
-                              Db *db2,
-                              int ivar0,
-                              int jvar0,
-                              int flag_norm,
-                              int flag_cov,
-                              double *covmat)
-{
-  double *covtab, v1, v2, value;
-  int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, nech1, nech2, ecr;
-  VectorDouble d1;
-
-  /* Initializations */
-
-  covtab = nullptr;
-  CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
-  if (st_check_model(model)) goto label_end;
-  if (st_check_environ(model, db1)) goto label_end;
-  if (st_check_environ(model, db2)) goto label_end;
-  ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
-  nech1 = db1->getSampleNumber();
-  nech2 = db2->getSampleNumber();
-  nvar1 = nvar2 = nvar;
-  if (ivar0 >= 0)
-  {
-    nvar1 = 1;
-    if (st_check_variable(nvar, ivar0)) goto label_end;
-  }
-  if (jvar0 >= 0)
-  {
-    nvar2 = 1;
-    if (st_check_variable(nvar, jvar0)) goto label_end;
-  }
-
-  /* Core allocation */
-
-  d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == nullptr) goto label_end;
-
-  /* Loop on the first sample */
-
-  ecr = 0;
-
-  /* Loop on the first variable */
-
-  for (int ivar = 0; ivar < nvar1; ivar++)
-  {
-    if (ivar0 >= 0) ivar = ivar0;
-
-    for (iech1 = 0; iech1 < nech1; iech1++)
-    {
-      if (!db1->isActive(iech1)) continue;
-
-      /* Loop on the second variable */
-
-      for (int jvar = 0; jvar < nvar2; jvar++)
-      {
-        if (jvar0 >= 0) jvar = jvar0;
-
-        /* Loop on the second sample */
-
-        for (iech2 = 0; iech2 < nech2; iech2++)
-        {
-          if (!db2->isActive(iech2)) continue;
-
-          /* Loop on the dimension of the space */
-
-          value = TEST;
-          for (i = skip = 0; i < ndim && skip == 0; i++)
-          {
-            v1 = db1->getCoordinate(iech1, i);
-            v2 = db2->getCoordinate(iech2, i);
-            if (FFFF(v1) || FFFF(v2)) skip = 1;
-            d1[i] = v1 - v2;
-          }
-          if (!skip)
-          {
-            model_calcul_cov(model, mode, 1, 1., d1, covtab);
-            value = COVTAB(ivar, jvar);
-          }
-          covmat[ecr++] = value;
-        }
-      }
-    }
-  }
-
-  /* Free memory */
-
-  label_end: covtab = (double *) mem_free((char * ) covtab);
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Establish the covariance matrix between two Dbs
  **  where samples are selected by ranks
  **
  ** \return Array containing the covariance matrix
@@ -2214,10 +2100,10 @@ GEOSLIB_API void model_covmat(Model *model,
  ** \param[in]  model  Model structure
  ** \param[in]  db1    First Db
  ** \param[in]  nsize1 Number of selected samples
- ** \param[in]  ranks1 Array giving ranks of selected samples
+ ** \param[in]  ranks1 Array giving ranks of selected samples (optional)
  ** \param[in]  db2    Second Db
  ** \param[in]  nsize2 Number of selected samples
- ** \param[in]  ranks2 Array giving ranks of selected samples
+ ** \param[in]  ranks2 Array giving ranks of selected samples (optional)
  ** \param[in]  ivar0  Rank of the first variable (-1: all variables)
  ** \param[in]  jvar0  Rank of the second variable (-1: all variables)
  ** \param[in]  flag_norm  1 if the model is normalized
@@ -2235,10 +2121,10 @@ GEOSLIB_API void model_covmat(Model *model,
 GEOSLIB_API double *model_covmat_by_ranks(Model *model,
                                           Db *db1,
                                           int nsize1,
-                                          int *ranks1,
+                                          const int *ranks1,
                                           Db *db2,
                                           int nsize2,
-                                          int *ranks2,
+                                          const int *ranks2,
                                           int ivar0,
                                           int jvar0,
                                           int flag_norm,
@@ -2258,7 +2144,7 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
   if (st_check_environ(model, db1)) goto label_end;
   if (st_check_environ(model, db2)) goto label_end;
   ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
+  nvar = nvar1 = nvar2 = model->getVariableNumber();
   if (ivar0 >= 0)
   {
     nvar1 = 1;
@@ -2269,6 +2155,8 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
     nvar2 = 1;
     if (st_check_variable(nvar, jvar0)) goto label_end;
   }
+  if (ranks1 == nullptr) nvar1 = db1->getSampleNumber();
+  if (ranks2 == nullptr) nvar2 = db1->getSampleNumber();
 
   /* Core allocation */
 
@@ -2476,120 +2364,6 @@ GEOSLIB_API void model_drift_vector(Model *model,
 
 /****************************************************************************/
 /*!
- **  Establish the covariance matrix between two Dbs (Non stationary case)
- **
- ** \param[in]  model Model structure
- ** \param[in]  db1   First Db
- ** \param[in]  db2   Second Db
- ** \param[in]  ivar0 Rank of the first variable (-1: all variables)
- ** \param[in]  jvar0 Rank of the second variable (-1: all variables)
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov   1 if the result must be given in covariance
- **
- ** \param[out] covmat The covariance matrix
- **                    (Dimension = (nactive * nvar) [squared])
- **                    nactive: Number of samples active
- **                    nvar   : Number of selected variables (1 or nvar)
- **
- *****************************************************************************/
-GEOSLIB_API void model_covmat_nostat(Model *model,
-                                     Db *db1,
-                                     Db *db2,
-                                     int ivar0,
-                                     int jvar0,
-                                     int flag_norm,
-                                     int flag_cov,
-                                     double *covmat)
-{
-  double *covtab, v1, v2, value;
-  int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, nech1, nech2, ecr;
-  VectorDouble d1;
-
-  /* Initializations */
-
-  covtab = nullptr;
-  CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
-  if (st_check_model(model)) goto label_end;
-  if (st_check_environ(model, db1)) goto label_end;
-  if (st_check_environ(model, db2)) goto label_end;
-  ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
-  nech1 = db1->getSampleNumber();
-  nech2 = db2->getSampleNumber();
-  nvar1 = nvar2 = nvar;
-  if (ivar0 >= 0)
-  {
-    nvar1 = 1;
-    if (st_check_variable(nvar, ivar0)) goto label_end;
-  }
-  if (jvar0 >= 0)
-  {
-    nvar2 = 1;
-    if (st_check_variable(nvar, jvar0)) goto label_end;
-  }
-
-  /* Core allocation */
-
-  d1.resize(ndim, 0);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == nullptr) goto label_end;
-
-  /* Loop on the first variable */
-
-  ecr = 0;
-  for (int ivar = 0; ivar < nvar1; ivar++)
-  {
-    if (ivar0 >= 0) ivar = ivar0;
-
-    /* Loop on the first sample */
-
-    for (iech1 = 0; iech1 < nech1; iech1++)
-    {
-      if (!db1->isActive(iech1)) continue;
-
-      /* Loop on the second variable */
-
-      for (int jvar = 0; jvar < nvar2; jvar++)
-      {
-        if (jvar0 >= 0) jvar = jvar0;
-
-        /* Loop on the second sample */
-
-        for (iech2 = 0; iech2 < nech2; iech2++)
-        {
-          if (!db2->isActive(iech2)) continue;
-
-          /* Loop on the dimension of the space */
-
-          value = TEST;
-          for (i = skip = 0; i < ndim && skip == 0; i++)
-          {
-            v1 = db1->getCoordinate(iech1, i);
-            v2 = db2->getCoordinate(iech2, i);
-            if (FFFF(v1) || FFFF(v2)) skip = 1;
-            d1[i] = v1 - v2;
-          }
-          if (!skip)
-          {
-            CovInternal covint(1, iech1, 2, iech2, ndim, db1, db2);
-            model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
-            value = COVTAB(ivar, jvar);
-          }
-          covmat[ecr++] = value;
-        }
-      }
-    }
-  }
-
-  /* Free memory */
-
-  label_end: covtab = (double *) mem_free((char * ) covtab);
-  return;
-}
-
-/****************************************************************************/
-/*!
  **  Returns the matrix of covariance at the origin
  **
  ** \param[in]  model Model structure
@@ -2619,92 +2393,6 @@ static void st_matrix_c00(Model *model,
       if (c00 <= 0. || FFFF(c00)) c00 = var0;
       C00TAB(ivar1,ivar2)= c00;
     }
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Establish the multivariate covariance matrix for one Db
-   **
-   ** \param[in]  model Model structure
-   ** \param[in]  db    Db structure
-   ** \param[in]  flag_norm  1 if the model is normalized
-   ** \param[in]  flag_cov   1 if the result must be given in covariance
-   **
-   ** \param[out] covmat The covariance matrix
-   **                    (Dimension = neq * neq) where neq = nactive * nvar
-   **
-   *****************************************************************************/
-GEOSLIB_API void model_covmat_multivar(Model *model,
-                                       Db *db,
-                                       int flag_norm,
-                                       int flag_cov,
-                                       double *covmat)
-{
-  double *covtab, *c00tab, value;
-  int ndim, nvar, nech, ivar1, ivar2, iech1, iech2, i, skip, ecr;
-  VectorDouble d1;
-
-  /* Initializations */
-
-  covtab = c00tab = nullptr;
-  CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
-  if (st_check_model(model)) goto label_end;
-  if (st_check_environ(model, db)) goto label_end;
-  ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
-  nech = db->getSampleNumber();
-
-  /* Core allocation */
-
-  d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (covtab == nullptr) goto label_end;
-  c00tab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (c00tab == nullptr) goto label_end;
-
-  /* Calculate the C(0) term */
-
-  st_matrix_c00(model, mode, covtab, d1, c00tab);
-
-  /* Loop on the first sample */
-
-  ecr = 0;
-  for (ivar1 = 0; ivar1 < nvar; ivar1++)
-    for (iech1 = 0; iech1 < nech; iech1++)
-    {
-      if (!db->isActive(iech1)) continue;
-
-      /* Loop on the second sample */
-
-      for (ivar2 = 0; ivar2 < nvar; ivar2++)
-        for (iech2 = 0; iech2 < nech; iech2++)
-        {
-          if (!db->isActive(iech2)) continue;
-
-          /* Loop on the dimension of the space */
-
-          value = TEST;
-          for (i = skip = 0; i < ndim && skip == 0; i++)
-          {
-            d1[i] = db->getDistance1D(iech1, iech2, i);
-            if (FFFF(d1[i])) skip = 1;
-          }
-          if (!skip)
-          {
-            model_calcul_cov(model, mode, 1, 1., d1, covtab);
-            value = COVTAB(ivar1, ivar2);
-            if (flag_norm) value /= sqrt(C00TAB(ivar1,ivar1)* C00TAB(ivar2,ivar2));
-          }
-          covmat[ecr++] = value;
-        }
-    }
-
-  /* Free memory */
-
-  label_end: covtab = (double *) mem_free((char * ) covtab);
-  c00tab = (double *) mem_free((char * ) c00tab);
-  return;
 }
 
 /*****************************************************************************/
@@ -4751,90 +4439,265 @@ GEOSLIB_API double model_calcul_stdev(Model *model,
 
 /****************************************************************************/
 /*!
- **  Establish the covariance matrix within a Db
- **  where samples are selected by variable and sample ranks
+ **  Establish the covariance matrix between two Dbs
+ **  where samples are selected by ranks
+ **  The output is stored in a Sparse Matrix
  **
  ** \return Array containing the covariance matrix
  **
  ** \param[in]  model  Model structure
- ** \param[in]  db         First Db
- ** \param[in]  iechs      Vector of sample ranks
- ** \param[in]  nsize      Number of samples defined for all variables
+ ** \param[in]  db1    First Db
+ ** \param[in]  nsize1 Number of selected samples
+ ** \param[in]  ranks1 Array giving ranks of selected samples (optional)
+ ** \param[in]  db2    Second Db
+ ** \param[in]  nsize2 Number of selected samples
+ ** \param[in]  ranks2 Array giving ranks of selected samples (optional)
+ ** \param[in]  ivar0  Rank of the first variable (-1: all variables)
+ ** \param[in]  jvar0  Rank of the second variable (-1: all variables)
  ** \param[in]  flag_norm  1 if the model is normalized
  ** \param[in]  flag_cov   1 if the result must be given in covariance
  **
+ ** \remarks The covariance matrix (returned) must be freed by calling routine
+ ** \remarks The covariance matrix is established for the first variable
+ ** \remarks and returned as a covariance
+ ** \remarks As the ranks are used, no test is performed on any selection
+ ** \remarks but only ranks positive or null are considered
+ **
  *****************************************************************************/
-GEOSLIB_API double *model_covmat_by_varranks(Model *model,
-                                             Db *db,
-                                             const VectorInt& iechs,
-                                             int nsize,
-                                             int flag_norm,
-                                             int flag_cov)
+GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
+                                         Db *db1,
+                                         int nsize1,
+                                         const int *ranks1,
+                                         Db *db2,
+                                         int nsize2,
+                                         const int *ranks2,
+                                         int ivar0,
+                                         int jvar0,
+                                         int flag_norm,
+                                         int flag_cov)
 {
-  double *covmat, *covtab;
-  int ecr;
+  double *covtab, v1, v2, value;
+  int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, error, i1, i2;
   VectorDouble d1;
+  cs* T = nullptr;
+  cs* covmat = nullptr;
 
   /* Initializations */
 
-  int error = 1;
-  covtab = covmat = nullptr;
+  error = 1;
+  covtab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
-  if (st_check_model(model)) return nullptr;
-  if (st_check_environ(model, db)) return nullptr;
-  int ndim  = model->getDimensionNumber();
-  int nvar  = model->getVariableNumber();
-  int nech  = static_cast<int>(iechs.size());
+  if (st_check_model(model)) goto label_end;
+  if (st_check_environ(model, db1)) goto label_end;
+  if (st_check_environ(model, db2)) goto label_end;
+  ndim = model->getDimensionNumber();
+  nvar = nvar1 = nvar2 = model->getVariableNumber();
+  if (ivar0 >= 0)
+  {
+    nvar1 = 1;
+    if (st_check_variable(nvar, ivar0)) goto label_end;
+  }
+  if (jvar0 >= 0)
+  {
+    nvar2 = 1;
+    if (st_check_variable(nvar, jvar0)) goto label_end;
+  }
+  if (ranks1 == nullptr) nvar1 = db1->getSampleNumber();
+  if (ranks2 == nullptr) nvar2 = db1->getSampleNumber();
 
   /* Core allocation */
 
   d1.resize(ndim, 0.);
   covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
-  covmat = (double *) mem_alloc(sizeof(double) * nsize * nsize, 0);
-  if (covmat == nullptr) goto label_end;
 
-  /* Loop on the first sample */
+  // Constitute the triplet
 
-  ecr = 0;
-  for (int ivar1 = 0; ivar1 < nvar; ivar1++)
+  T = cs_spalloc(0, 0, 1, 1, 1);
+  if (T == nullptr) goto label_end;
+
+  /* Loop on the number of variables */
+
+  for (int ivar = 0; ivar < nvar1; ivar++)
   {
-    for (int i1 = 0; i1 < nech; i1++)
+    if (ivar0 >= 0) ivar = ivar0;
+
+    /* Loop on the first sample */
+
+    for (i1 = 0; i1 < nsize1; i1++)
     {
-      int iech1 = iechs[i1];
+      iech1 = (ranks1 != nullptr) ? ranks1[i1] : i1;
+      if (iech1 < 0) continue;
 
       /* Loop on the second variable */
 
-      for (int ivar2 = 0; ivar2 < nvar; ivar2++)
+      for (int jvar = 0; jvar < nvar2; jvar++)
       {
-        for (int i2 = 0; i2 < nech; i2++)
+        if (jvar0 >= 0) jvar = jvar0;
+
+        /* Loop on the second sample */
+
+        for (i2 = 0; i2 < nsize2; i2++)
         {
-          int iech2 = iechs[i2];
+          iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
+          if (iech2 < 0) continue;
 
           /* Loop on the dimension of the space */
 
-          for (int i = 0; i < ndim; i++)
+          value = TEST;
+          for (i = skip = 0; i < ndim && skip == 0; i++)
           {
-            double v1 = db->getCoordinate(iech1, i);
-            double v2 = db->getCoordinate(iech2, i);
+            v1 = db1->getCoordinate(iech1, i);
+            v2 = db2->getCoordinate(iech2, i);
+            if (FFFF(v1) || FFFF(v2)) skip = 1;
             d1[i] = v1 - v2;
           }
-          model_calcul_cov(model, mode, 1, 1., d1, covtab);
-          covmat[ecr++] = COVTAB(ivar1, ivar2);
+          if (!skip)
+          {
+            model_calcul_cov(model, mode, 1, 1., d1, covtab);
+            value = COVTAB(ivar, jvar);
+          }
+          int ecr1 = ivar * nsize1 + i1;
+          int ecr2 = jvar * nsize2 + i2;
+          if (! cs_entry(T, ecr1, ecr2, value)) goto label_end;
         }
       }
     }
   }
 
-  /* Set the error returned code */
+  // Convert from triplet to sparse matrix
 
+  covmat = cs_triplet(T);
+  T = cs_spfree(T);
   error = 0;
 
   /* Free memory */
 
   label_end:
+  T = cs_spfree(T);
   covtab = (double *) mem_free((char * ) covtab);
-  if (error) covmat = (double *) mem_free((char * ) covmat);
+  if (error) covmat = cs_spfree(covmat);
   return (covmat);
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the covariance matrix between two Dbs
+ **
+ ** \param[in]  model Model structure
+ ** \param[in]  db1   First Db
+ ** \param[in]  db2   Second Db
+ ** \param[in]  ivar0 Rank of the first variable (-1: all variables)
+ ** \param[in]  jvar0 Rank of the second variable (-1: all variables)
+ ** \param[in]  flag_norm  1 if the model is normalized
+ ** \param[in]  flag_cov   1 if the result must be given in covariance
+ **
+ ** \param[out] covmat The covariance matrix
+ **                    (Dimension = (nactive * nvar) [squared])
+ **                    nactive: Number of samples active
+ **                    nvar   : Number of selected variables (1 or nvar)
+ **
+ *****************************************************************************/
+GEOSLIB_API void model_covmat(Model *model,
+                              Db *db1,
+                              Db *db2,
+                              int ivar0,
+                              int jvar0,
+                              int flag_norm,
+                              int flag_cov,
+                              double *covmat)
+{
+  double *covtab, v1, v2, value;
+  int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, nech1, nech2, ecr;
+  VectorDouble d1;
+
+  /* Initializations */
+
+  covtab = nullptr;
+  CovCalcMode mode;
+  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
+  if (st_check_model(model)) goto label_end;
+  if (st_check_environ(model, db1)) goto label_end;
+  if (st_check_environ(model, db2)) goto label_end;
+  ndim = model->getDimensionNumber();
+  nvar = model->getVariableNumber();
+  nech1 = db1->getSampleNumber();
+  nech2 = db2->getSampleNumber();
+  nvar1 = nvar2 = nvar;
+  if (ivar0 >= 0)
+  {
+    nvar1 = 1;
+    if (st_check_variable(nvar, ivar0)) goto label_end;
+  }
+  if (jvar0 >= 0)
+  {
+    nvar2 = 1;
+    if (st_check_variable(nvar, jvar0)) goto label_end;
+  }
+
+  /* Core allocation */
+
+  d1.resize(ndim, 0);
+  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  if (covtab == nullptr) goto label_end;
+
+  /* Loop on the first variable */
+
+  ecr = 0;
+  for (int ivar = 0; ivar < nvar1; ivar++)
+  {
+    if (ivar0 >= 0) ivar = ivar0;
+
+    /* Loop on the first sample */
+
+    for (iech1 = 0; iech1 < nech1; iech1++)
+    {
+      if (!db1->isActive(iech1)) continue;
+
+      /* Loop on the second variable */
+
+      for (int jvar = 0; jvar < nvar2; jvar++)
+      {
+        if (jvar0 >= 0) jvar = jvar0;
+
+        /* Loop on the second sample */
+
+        for (iech2 = 0; iech2 < nech2; iech2++)
+        {
+          if (!db2->isActive(iech2)) continue;
+
+          /* Loop on the dimension of the space */
+
+          value = TEST;
+          for (i = skip = 0; i < ndim && skip == 0; i++)
+          {
+            v1 = db1->getCoordinate(iech1, i);
+            v2 = db2->getCoordinate(iech2, i);
+            if (FFFF(v1) || FFFF(v2)) skip = 1;
+            d1[i] = v1 - v2;
+          }
+          if (!skip)
+          {
+            if (model->isNoStat())
+            {
+              CovInternal covint(1, iech1, 2, iech2, ndim, db1, db2);
+              model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
+            }
+            else
+            {
+              model_calcul_cov(model, mode, 1, 1., d1, covtab);
+            }
+            value = COVTAB(ivar, jvar);
+          }
+          covmat[ecr++] = value;
+        }
+      }
+    }
+  }
+
+  /* Free memory */
+
+  label_end: covtab = (double *) mem_free((char * ) covtab);
+  return;
 }

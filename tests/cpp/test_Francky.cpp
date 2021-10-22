@@ -12,7 +12,7 @@
 #include "Model/NoStatFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 #include <algorithm>
 #include <math.h>
@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
   CovAniso cova = CovAniso(ECov::BESSEL_K,model.getContext());
   cova.setRanges({10,45});
   model.addCova(&cova);
+
   NoStatFunctional NoStat(&spirale);
   model.addNoStat(&NoStat);
 

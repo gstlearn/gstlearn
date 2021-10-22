@@ -13,18 +13,18 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "MatrixC/AMatrixC.hpp"
+#include "Matrix/AMatrix.hpp"
 
 /**
  * Rectangular matrices are stored by columns
  */
-class MatrixCRectangular : public AMatrixC {
+class MatrixRectangular : public AMatrix {
 
 public:
-  MatrixCRectangular(int nrow = 0, int ncol = 0, bool sparse = false);
-  MatrixCRectangular(const MatrixCRectangular &m);
-  MatrixCRectangular& operator= (const MatrixCRectangular &r);
-	virtual ~MatrixCRectangular();
+  MatrixRectangular(int nrow = 0, int ncol = 0, bool sparse = false);
+  MatrixRectangular(const MatrixRectangular &m);
+  MatrixRectangular& operator= (const MatrixRectangular &r);
+	virtual ~MatrixRectangular();
 
   /*! Clonable interface */
   virtual IClonable* clone() const override;
@@ -41,7 +41,7 @@ protected:
   virtual double& _getValueRef(int irow, int icol) override;
 
 private:
-  bool   _isCompatible(const AMatrixC& m) const override { return isSameSize(m); }
+  bool   _isCompatible(const AMatrix& m) const override { return isSameSize(m); }
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int rank, double value) override;
@@ -56,7 +56,7 @@ private:
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
   double _determinant() const override;
 
-  void   _recopy(const MatrixCRectangular &r);
+  void   _recopy(const MatrixRectangular &r);
   int    _getIndexToRank(int irow,int icol) const;
 
 private:

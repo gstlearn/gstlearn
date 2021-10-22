@@ -12,31 +12,17 @@
 /******************************************************************************/
 #pragma once
 
-#include "MatrixC/AMatrixC.hpp"
+class AMatrix;
+class AMatrixSquare;
 
-class AMatrixCSquare : public AMatrixC {
+class MatrixFactory {
 
-protected:
-  AMatrixCSquare(int nrow = 0, bool sparse = false);
-  AMatrixCSquare(const AMatrixCSquare &m);
-  AMatrixCSquare& operator= (const AMatrixCSquare &r);
 public:
-	virtual ~AMatrixCSquare();
+  MatrixFactory();
+  virtual ~MatrixFactory();
 
-  /*! Returns the size of the matrix (nrows=ncols) */
-  int  getNSize() const { return getNRows(); }
-  /*! Perform Norm matrix */
-  void normMatrix(const AMatrixCSquare& x, const AMatrixC& y);
-  /*! Perform inner product */
-  void innerMatrix(const AMatrixCSquare& x,
-                   const AMatrixC& r1,
-                   const AMatrixC& r2);
-  /*! Multiply the diagonal by a vector */
-  void prodDiagByVector(const VectorDouble& diag);
-  /*! Divide the diagonal by a vector */
-  void divideDiagByVector(const VectorDouble& diag);
-
-protected:
-  void   _setNSize(int nval);
-  bool   _isNumberValid(int nrows,int ncols) const;
+  /// TODO : Use smartpointer
+  static AMatrix* matProduct(const AMatrix* x, const AMatrix* y);
+  static AMatrixSquare* matNorm(const AMatrixSquare* x, const AMatrix* y);
+  static AMatrix* createIdentity(int nrow, bool sparse);
 };

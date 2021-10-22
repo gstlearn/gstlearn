@@ -144,7 +144,10 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     int neq   = nvar * nbgh;
 
     // Establishing the (moving) Covariance matrix
-    covmat = model_covmat_by_varranks(model, db, ww._ranks, neq, 0, 1);
+    covmat = model_covmat_by_ranks(model,
+                                   db, neq, ww._ranks.data(),
+                                   db, neq, ww._ranks.data(),
+                                   -1, -1, 0, 1);
     if (covmat == nullptr) goto label_end;
 
     // Inverting the (moving) Covariance matrix

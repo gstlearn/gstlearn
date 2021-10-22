@@ -6,23 +6,19 @@
 /* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
-/*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
 
-class AMatrixC;
-class AMatrixCSquare;
+#include "Basic/String.hpp"
+#include "Basic/ASerializable.hpp"
 
-class MatrixCFactory {
+  // TODO : Cross-platform way to build file path (use boost ?)
+String getTestData(const String& filename)
+{
+  String exec_dir = ASerializable::getExecDirectory();
 
-public:
-  MatrixCFactory();
-  virtual ~MatrixCFactory();
+  String filepath(exec_dir + "../../../doc/data/" + filename);
 
-  /// TODO : Use smartpointer
-  static AMatrixC* matProduct(const AMatrixC* x, const AMatrixC* y);
-  static AMatrixCSquare* matNorm(const AMatrixCSquare* x, const AMatrixC* y);
-  static AMatrixC* createIdentity(int nrow, bool sparse);
-};
+  return filepath;
+}

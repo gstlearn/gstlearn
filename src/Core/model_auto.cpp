@@ -1825,8 +1825,12 @@ static void st_model_auto_strmod_print(int flag_title,
         st_print("Tapering Range",1,ntot,param,lower,upper);
         break;
 
+      case EConsElem::E_TENSOR:
+        st_print("Anisotropy Matrix",1,ntot,param,lower,upper);
+        break;
+
       default:
-        messerr("Unknwon constraint!\n");
+        messerr("Unknown constraint!\n");
         break;
     }
   }
@@ -2082,7 +2086,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       if (flag_aic)
       {
         VectorDouble sill = matrix_produit_lu_VD(nvar, tritab.data());
-        MatrixCSGeneral mat(nvar);
+        MatrixSquareGeneral mat(nvar);
         mat.setValues(sill);
         cova->setSill(mat);
       }
@@ -2147,7 +2151,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if (flag_aic)
     {
       VectorDouble sill = matrix_produit_lu_VD(nvar, tritab.data());
-      MatrixCSGeneral mat(nvar);
+      MatrixSquareGeneral mat(nvar);
       mat.setValues(sill);
       cova->setSill(mat);
     }

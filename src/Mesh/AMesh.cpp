@@ -9,7 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Mesh/AMesh.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
@@ -104,7 +104,7 @@ String AMesh::_display(int level) const
 
   if (level <= 0) return sstr.str();
 
-  MatrixCRectangular apices;
+  MatrixRectangular apices;
   VectorInt meshes;
   getElements(apices, meshes);
 
@@ -193,7 +193,7 @@ SPDE_Mesh* AMesh::_convertToOldMesh(AMesh* a_mesh) const
   s_mesh->nvertex = a_mesh->getNApices();
 
   // Retrieve the elements
-  MatrixCRectangular points;
+  MatrixRectangular points;
   VectorInt meshes;
   a_mesh->getElements(points, meshes);
 
@@ -252,7 +252,7 @@ VectorInt AMesh::getMeshByApexPair(int apex1, int apex2) const
 ** \param[out]  meshes  Pointer on the array of Meshes
 **
 *****************************************************************************/
-void AMesh::getElements(MatrixCRectangular& apices, VectorInt& meshes) const
+void AMesh::getElements(MatrixRectangular& apices, VectorInt& meshes) const
 {
   int nmeshes = getNMeshes();
   int ndim    = getNDim();

@@ -10,8 +10,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #define CASE_MATRICES 0 
-#include "MatrixC/MatrixCFactory.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -2783,8 +2783,7 @@ GEOSLIB_API int spde_build_stdev(double *vcur)
 
   if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2, LDinv->p, LDinv->i,
                 LDinv->x, Pattern->p, Pattern->i, Pattern->x, wz, wZdiagp,
-                wLmunch)
-      == -1) goto label_end;
+                wLmunch) == -1) goto label_end;
 
   /* Extracting the diagonal of wz */
 

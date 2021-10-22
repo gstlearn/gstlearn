@@ -940,6 +940,18 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   return coor;
 }
 
+VectorDouble Db::getSampleAttributes(const ELoc& locatorType, int iech) const
+{
+  VectorDouble vec;
+  if (!isLocatorTypeValid(locatorType)) return vec;
+  int number = getLocatorNumber(locatorType);
+  if (number <= 0) return vec;
+  vec.resize(number);
+  for (int i = 0; i < number; i++)
+    vec[i] = getFromLocator(locatorType, iech, i);
+  return vec;
+}
+
 void Db::getSampleCoordinates(int iech, VectorDouble& coor) const
 {
   int ndim = getNDim();

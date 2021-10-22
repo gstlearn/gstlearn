@@ -22,7 +22,9 @@ public:
   FunctionalSpirale& operator=(const FunctionalSpirale &m);
   virtual ~FunctionalSpirale();
 
-  virtual double getFunctionValue(const VectorDouble& pos) const override;
+  virtual double getFunctionValue(const VectorDouble& coor) const override;
+
+  VectorVectorDouble getFunctionVectors(const VectorDouble& coor) const;
 
 private:
   double _linearCombination(double x, double y, double a, double b) const;

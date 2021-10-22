@@ -10,27 +10,24 @@
 /******************************************************************************/
 #include "Db/Db.hpp"
 #include "Basic/CSVformat.hpp"
+#include "Utility.hpp"
+#include "geoslib_f.h"
 
 /**
  * This test is meant to check the CSV loading procedure
  */
 int main()
 {
-  String exec_dir = ASerializable::getExecDirectory();
-  //String filepath("/home/fors/Documents/gstlearn/Oise/Database for kriging method Oise valley/BDD_kriggeage_Oise_elevationbottom_arcgis.csv");
-  //CSVformat fmt(true, 0, ';', ',', "9999");
-  //Db* mydb = new Db(filepath,true,fmt);
-  //mydb->display();
-
-  // TODO : Cross-platform way to build file path (use boost ?)
-  String filepath(exec_dir + "../../../doc/data/Pollution.dat");
+  String filepath = getTestData("Pollution.dat");
   Db* mydb = new Db(filepath,true,CSVformat());
-  mydb->display();
 
   mydb->setLocator("X",ELoc::X,0);
   mydb->setLocator("Y",ELoc::X,1);
   mydb->setLocator("Zn",ELoc::Z);
-  mydb->display(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
+  mydb->displayMore(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
 
+  // Looking for duplicates
+  VectorDouble dist = {0.3, 0.3};
+  db_duplicate(mydb, true, dist.data());
   return 0;
 }

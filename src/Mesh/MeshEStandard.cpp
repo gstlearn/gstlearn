@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/MatrixCSGeneral.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Basic/AException.hpp"
 #include "Db/Db.hpp"
@@ -85,7 +85,7 @@ double MeshEStandard::getMeshSize(int imesh) const
   int ncorner = getNApexPerMesh();
 
   // Calculate the mesh size
-  MatrixCSGeneral mat;
+  MatrixSquareGeneral mat;
   mat.reset(ndim,ndim);
   for (int icorn=1; icorn<ncorner; icorn++)
     for (int idim=0; idim<ndim; idim++)
@@ -177,7 +177,7 @@ int MeshEStandard::create(Db*                 dbin,
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshEStandard::create(const MatrixCRectangular& apices,
+int MeshEStandard::create(const MatrixRectangular& apices,
                           const VectorInt&          meshes,
                           bool                      verbose)
 {
@@ -1068,7 +1068,7 @@ bool MeshEStandard::_coorInMesh(double    *coor,
   {
     
     // Build the determinant
-    MatrixCSGeneral mat;
+    MatrixSquareGeneral mat;
     mat.reset(ndim,ndim);
     kcorn = 0;
     for (int jcorn=0; jcorn<ncorner; jcorn++)
@@ -1188,7 +1188,7 @@ int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
   int lec;
   int napices = s_mesh->nvertex;
   int ndim    = s_mesh->ndim;
-  MatrixCRectangular points = MatrixCRectangular(napices, ndim);
+  MatrixRectangular points(napices, ndim);
   lec = 0;
   for (int ip = 0; ip < napices; ip++)
     for (int idim = 0 ; idim < ndim; idim++, lec++)

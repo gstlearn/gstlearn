@@ -45,7 +45,7 @@ void    cs_print_short(const char *title, const cs *L, int nmax);
 void    cs_print_file(const char *radix, int rank, cs *A);
 cs     *cs_compress(cs *A);
 int    *cs_color_coding(cs *Q,int start,int *ncolor);
-cs     *cs_invert(const cs *A, int order);
+cs     *cs_invert(const cs *A, int order, double epsilon = EPSILON6);
 
 /* utilities */
 void   *cs_calloc  (int n, size_t size) ;

@@ -22,16 +22,20 @@ typedef struct {
 } cs_Output;
 
 /// TODO : Transform into template for storing something else from double
-class AMatrixC : public AStringable, public IClonable
+
+/**
+ * Matrix
+ */
+class AMatrix : public AStringable, public IClonable
 {
 protected:
-  AMatrixC(int nrow = 0, int ncol = 0, bool sparse = false);
-  AMatrixC(const cs* A);
-  AMatrixC(const AMatrixC &m);
-  AMatrixC& operator= (const AMatrixC &m);
+  AMatrix(int nrow = 0, int ncol = 0, bool sparse = false);
+  AMatrix(const cs* A);
+  AMatrix(const AMatrix &m);
+  AMatrix& operator= (const AMatrix &m);
 
 public:
-  virtual ~AMatrixC();
+  virtual ~AMatrix();
 
   void init(int nrows, int ncols, bool sparse = false);
 
@@ -63,9 +67,9 @@ public:
   /*! Extract a Column */
   VectorDouble getColumn(int icol) const;
   /*! Add a matrix to this */
-  void add(const AMatrixC& tab, double value = 1.);
+  void add(const AMatrix& tab, double value = 1.);
   /*! Subtract a matrix to this */
-  void subtract(const AMatrixC& tab, double value = 1.);
+  void subtract(const AMatrix& tab, double value = 1.);
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab);
   /*! Set the contents of a Row */
@@ -80,7 +84,7 @@ public:
 #endif
 
   /*! Check that both matrix have the same number of rows and columns */
-  bool isSameSize(const AMatrixC& m) const;
+  bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const { return _sparse; }
   /*! Returns if the current matrix is Empty */
@@ -105,7 +109,7 @@ public:
   virtual bool mustBeDiagCst() const { return false; }
 
   /*! Check if a matrix is the same as me (norm L1) */
-  bool isSame(const AMatrixC& m, double eps = EPSILON10);
+  bool isSame(const AMatrix& m, double eps = EPSILON10);
 
   void reset(int nrows, int ncols, bool sparse = false);
   void reset(int nrows, int ncols, double value, bool sparse = false);
@@ -113,15 +117,15 @@ public:
   void reset(int nrows, int ncols, const VectorDouble& tab, bool sparse = false);
 
   /*! Returns the sum of absolute difference between argument and this */
-  double compare(const AMatrixC& mat) const;
+  double compare(const AMatrix& mat) const;
   /*! Transform the current matrix (any format) in a Sparse format in place */
   void toSparseInPlace();
   /*! Transform any matrix in a Sparse format */
-  AMatrixC* toSparse() const;
+  AMatrix* toSparse() const;
   /*! Transpose the matrix in place*/
   virtual void transposeInPlace();
   /*! Transpose the matrix and return it as a copy*/
-  virtual AMatrixC* transpose() const;
+  virtual AMatrix* transpose() const;
 
   /*! Add a value to each matrix component */
   virtual void addScalar(double v);
@@ -141,11 +145,11 @@ public:
   /*! Divide a Matrix column-wise */
   void divideColumn(const VectorDouble& vec);
   /*! Add a matrix to this component by component */
-  virtual void addMatrix(const AMatrixC& y);
+  virtual void addMatrix(const AMatrix& y);
   /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatrix(const AMatrixC& x, const AMatrixC& y);
+  virtual void prodMatrix(const AMatrix& x, const AMatrix& y);
   /*! Linear combination of matrices */
-  virtual void linearCombination(double cx, double cy, const AMatrixC& y);
+  virtual void linearCombination(double cx, double cy, const AMatrix& y);
   /*! Matrix inversion in place */
   int invert();
   /*! Solving the Matrix Linear system */
@@ -179,7 +183,7 @@ public:
   double &operator()(int row, int col)       { return getValueRef(row, col); }
 
 protected:
-  virtual bool    _isCompatible(const AMatrixC& m) const = 0;
+  virtual bool    _isCompatible(const AMatrix& m) const = 0;
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
   virtual int     _getMatrixSize() const = 0;
@@ -220,6 +224,6 @@ private:
 };
 
 /* Shortcut functions for C style aficionados */
-AMatrixC* createIdentity(int nrow, bool sparse);
-AMatrixC* transpose(const AMatrixC* mat);
-AMatrixC* prodMatrix(const AMatrixC* mat1, const AMatrixC* mat2);
+AMatrix* createIdentity(int nrow, bool sparse);
+AMatrix* transpose(const AMatrix* mat);
+AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);

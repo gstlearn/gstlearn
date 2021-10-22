@@ -8,47 +8,47 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/MatrixCSDiag.hpp"
-#include "MatrixC/AMatrixCSquare.hpp"
+#include "Matrix/MatrixSquareDiagonal.hpp"
+#include "Matrix/AMatrixSquare.hpp"
 #include "geoslib_f.h"
 
 #include "Basic/AException.hpp"
 
-MatrixCSDiag::MatrixCSDiag(int nrows, bool sparse)
-  : AMatrixCSquare(nrows, sparse)
+MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows, bool sparse)
+  : AMatrixSquare(nrows, sparse)
   , _diagMatrix()
 {
   _allocate();
 }
 
-MatrixCSDiag::MatrixCSDiag(const MatrixCSDiag &r) 
-  : AMatrixCSquare(r)
+MatrixSquareDiagonal::MatrixSquareDiagonal(const MatrixSquareDiagonal &r) 
+  : AMatrixSquare(r)
 {
   _recopy(r);
 }
 
-MatrixCSDiag& MatrixCSDiag::operator= (const MatrixCSDiag &r)
+MatrixSquareDiagonal& MatrixSquareDiagonal::operator= (const MatrixSquareDiagonal &r)
 {
   if (this != &r)
   {
     _deallocate();
-    AMatrixCSquare::operator=(r);
+    AMatrixSquare::operator=(r);
     _recopy(r);
   }
   return *this;
 }
 
-MatrixCSDiag::~MatrixCSDiag()
+MatrixSquareDiagonal::~MatrixSquareDiagonal()
 {
   _deallocate();
 }
 
-IClonable* MatrixCSDiag::clone() const
+IClonable* MatrixSquareDiagonal::clone() const
 {
-  return new MatrixCSDiag(*this);
+  return new MatrixSquareDiagonal(*this);
 }
 
-double MatrixCSDiag::_getValue(int irow, int icol) const
+double MatrixSquareDiagonal::_getValue(int irow, int icol) const
 {
   if (irow == icol)
     return _diagMatrix[irow];
@@ -56,13 +56,13 @@ double MatrixCSDiag::_getValue(int irow, int icol) const
     return 0.;
 }
 
-double MatrixCSDiag::_getValue(int irank) const
+double MatrixSquareDiagonal::_getValue(int irank) const
 {
   _isRankValid(irank);
   return _diagMatrix[irank];
 }
 
-void MatrixCSDiag::_setValue(int irow, int icol, double value)
+void MatrixSquareDiagonal::_setValue(int irow, int icol, double value)
 {
   if (irow == icol)
   {
@@ -75,20 +75,20 @@ void MatrixCSDiag::_setValue(int irow, int icol, double value)
   }
 }
 
-void MatrixCSDiag::_setValue(int irank, double value)
+void MatrixSquareDiagonal::_setValue(int irank, double value)
 {
   _isRankValid(irank);
   _diagMatrix[irank] = value;
 }
 
-void MatrixCSDiag::_prodVector(const double *in, double *out) const
+void MatrixSquareDiagonal::_prodVector(const double *in, double *out) const
 {
   int nrow = getNRows();
   for (int irow=0; irow<nrow; irow++)
     out[irow] = in[irow] * _diagMatrix[irow];
 }
 
-void MatrixCSDiag::transposeInPlace()
+void MatrixSquareDiagonal::transposeInPlace()
 {
   // Nothing should be done
   return;
@@ -100,7 +100,7 @@ void MatrixCSDiag::transposeInPlace()
  * @param values Input array
  * @param byCol  True if values in 'tab' are sorted by Column
  */
-void MatrixCSDiag::_setValues(const double* values, bool byCol)
+void MatrixSquareDiagonal::_setValues(const double* values, bool byCol)
 {
   int ecr = 0;
   for (int icol = 0; icol < getNCols(); icol++)
@@ -118,7 +118,7 @@ void MatrixCSDiag::_setValues(const double* values, bool byCol)
     }
 }
 
-double MatrixCSDiag::_determinant() const
+double MatrixSquareDiagonal::_determinant() const
 {
   double deter = 1.;
   for (int irow = 0; irow < getNRows(); irow++)
@@ -126,7 +126,7 @@ double MatrixCSDiag::_determinant() const
   return deter;
 }
 
-int MatrixCSDiag::_invert()
+int MatrixSquareDiagonal::_invert()
 {
   for (int irow=0; irow<getNRows(); irow++) 
   {
@@ -136,30 +136,30 @@ int MatrixCSDiag::_invert()
   return 0;
 }
 
-double& MatrixCSDiag::_getValueRef(int irow, int icol)
+double& MatrixSquareDiagonal::_getValueRef(int irow, int icol)
 {
   if (! _isIndexValid(irow,icol))
     throw("Function aborted due to previous errors");
   return _diagMatrix[irow];
 }
 
-void MatrixCSDiag::_deallocate()
+void MatrixSquareDiagonal::_deallocate()
 {
 }
 
-void MatrixCSDiag::_recopy(const MatrixCSDiag &r)
+void MatrixSquareDiagonal::_recopy(const MatrixSquareDiagonal &r)
 {
   _diagMatrix = r._diagMatrix;
 }
 
-void MatrixCSDiag::_allocate()
+void MatrixSquareDiagonal::_allocate()
 {
   _diagMatrix.resize(_getMatrixSize());
 }
 
-bool MatrixCSDiag::_isIndexValid(int irow, int icol) const
+bool MatrixSquareDiagonal::_isIndexValid(int irow, int icol) const
 {
-  AMatrixC::_isIndexValid(irow,icol);
+  AMatrix::_isIndexValid(irow,icol);
   if (irow != icol)
   {
     messerr("Argument 'irow' and 'icol' should be equal for Diagonal Matrix");
@@ -168,14 +168,14 @@ bool MatrixCSDiag::_isIndexValid(int irow, int icol) const
   return true;
 }
 
-int MatrixCSDiag::_getMatrixSize() const
+int MatrixSquareDiagonal::_getMatrixSize() const
 {
   return (getNRows());
 }
 
-bool MatrixCSDiag::isValid(int irow, int icol, bool printWhyNot) const
+bool MatrixSquareDiagonal::isValid(int irow, int icol, bool printWhyNot) const
 {
-  if (! AMatrixC::isValid(irow,icol,printWhyNot)) return false;
+  if (! AMatrix::isValid(irow,icol,printWhyNot)) return false;
   if (irow != icol)
   {
     if (printWhyNot)
@@ -185,12 +185,12 @@ bool MatrixCSDiag::isValid(int irow, int icol, bool printWhyNot) const
   return true;
 }
 
-void MatrixCSDiag::addScalar(double v)
+void MatrixSquareDiagonal::addScalar(double v)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
 
-int MatrixCSDiag::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixSquareDiagonal::_solve(const VectorDouble& b, VectorDouble& x) const
 {
   for (int irow=0; irow<getNRows(); irow++)
   {
@@ -202,24 +202,24 @@ int MatrixCSDiag::_solve(const VectorDouble& b, VectorDouble& x) const
 }
 
 /*! Set the contents of a Column */
-void MatrixCSDiag::setColumn(int icol, const VectorDouble& tab)
+void MatrixSquareDiagonal::setColumn(int icol, const VectorDouble& tab)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
 
 /*! Set the contents of a Row */
-void MatrixCSDiag::setRow(int irow, const VectorDouble& tab)
+void MatrixSquareDiagonal::setRow(int irow, const VectorDouble& tab)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
 
-String MatrixCSDiag::toString(int level) const
+String MatrixSquareDiagonal::toString(int level) const
 {
   std::stringstream sstr;
 
    if (isSparse())
    {
-     sstr << AMatrixC::toString(level);
+     sstr << AMatrix::toString(level);
    }
    else
    {

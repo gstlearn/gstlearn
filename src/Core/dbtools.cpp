@@ -739,24 +739,25 @@ GEOSLIB_API int db_tool_duplicate(Db *db1,
                                   double *dist,
                                   double *sel)
 {
-  int idim, iech1, iech2, flag_diff, flag_code;
-  double v1, v2;
+  bool flag_code = db1->hasCode() && db2->hasCode();
+  int nmerge = 0;
 
-  /* Initializations */
+  // Title (optional)
 
-  flag_code = db1->hasCode() && db2->hasCode();
+  if (verbose)
+    mestitle(1,"Look for duplicates");
 
   /* Set the selection */
 
-  for (iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
     sel[iech2] = 1;
 
   /* Loop on the samples of the second Db */
 
-  for (iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
   {
     if (!db2->isActive(iech2)) continue;
-    for (iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
+    for (int iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
       if (flag_same)
@@ -767,21 +768,23 @@ GEOSLIB_API int db_tool_duplicate(Db *db1,
 
       /* Check if the two points are collocated */
 
-      for (idim = flag_diff = 0; idim < db1->getNDim() && flag_diff == 0; idim++)
+      bool flag_diff = false;
+      for (int idim = 0; idim < db1->getNDim() && ! flag_diff; idim++)
       {
-        v1 = db1->getCoordinate(iech1, idim);
-        v2 = db2->getCoordinate(iech2, idim);
+        double v1 = db1->getCoordinate(iech1, idim);
+        double v2 = db2->getCoordinate(iech2, idim);
         if (flag_code)
         {
           if (code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
             continue;
         }
         double dval = (dist != nullptr) ? dist[idim] : 0.;
-        if (ABS(v1 - v2) > dval) flag_diff = 1;
+        if (ABS(v1 - v2) > dval) flag_diff = true;
       }
       if (flag_diff) continue;
 
       sel[iech2] = 0;
+      nmerge++;
 
       /* Optional printout */
 
@@ -795,6 +798,15 @@ GEOSLIB_API int db_tool_duplicate(Db *db1,
     }
   }
 
+  // Final printout (optional)
+
+  if (verbose)
+  {
+    if (nmerge > 0)
+      message("- Count of masked samples = %d\n",nmerge);
+    else
+      message("- No duplicate found\n");
+  }
   return 0;
 }
 

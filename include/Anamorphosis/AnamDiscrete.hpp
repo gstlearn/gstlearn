@@ -12,7 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Anamorphosis/Anam.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 class AnamDiscrete: public Anam
 {
@@ -22,7 +22,7 @@ private:
   double _mean;
   double _variance;
   VectorDouble _zCut;
-  MatrixCRectangular _stats;
+  MatrixRectangular _stats;
 
 public:
   AnamDiscrete(const EAnam& type = EAnam::UNDEFINED);
@@ -76,7 +76,7 @@ public:
   void setIRStatR(int iclass, double value);
   void setIRStatRV(int iclass, double value);
 
-  const MatrixCRectangular& getStats() const { return _stats; }
+  const MatrixRectangular& getStats() const { return _stats; }
 
 private:
   bool _isClassValid(int iclass) const;
