@@ -27,8 +27,7 @@ Polygons::Polygons(const String& filename,
                    const CSVformat& csv,
                    int verbose,
                    int ncol_max,
-                   int nrow_max,
-                   int flag_add_rank)
+                   int nrow_max)
     : AStringable(),
       ASerializable(),
       _polysets()

@@ -98,9 +98,8 @@ void MatrixSquareDiagonal::transposeInPlace()
  * Fill 'this' with the contents of 'values'.
  * Note that 'values' is dimensioned to 'nrows' by 'ncols'
  * @param values Input array
- * @param byCol  True if values in 'tab' are sorted by Column
  */
-void MatrixSquareDiagonal::_setValues(const double* values, bool byCol)
+void MatrixSquareDiagonal::_setValues(const double* values, bool /*byCol*/)
 {
   int ecr = 0;
   for (int icol = 0; icol < getNCols(); icol++)
@@ -185,7 +184,7 @@ bool MatrixSquareDiagonal::isValid(int irow, int icol, bool printWhyNot) const
   return true;
 }
 
-void MatrixSquareDiagonal::addScalar(double v)
+void MatrixSquareDiagonal::addScalar(double /*v*/)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
@@ -202,13 +201,13 @@ int MatrixSquareDiagonal::_solve(const VectorDouble& b, VectorDouble& x) const
 }
 
 /*! Set the contents of a Column */
-void MatrixSquareDiagonal::setColumn(int icol, const VectorDouble& tab)
+void MatrixSquareDiagonal::setColumn(int /*icol*/, const VectorDouble& /*tab*/)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
 
 /*! Set the contents of a Row */
-void MatrixSquareDiagonal::setRow(int irow, const VectorDouble& tab)
+void MatrixSquareDiagonal::setRow(int /*irow*/, const VectorDouble& /*tab*/)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
@@ -230,3 +229,4 @@ String MatrixSquareDiagonal::toString(int level) const
    }
   return sstr.str();
 }
+

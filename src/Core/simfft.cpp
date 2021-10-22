@@ -1140,7 +1140,7 @@ static void st_simfft_symmetry(ST_FFT *simu)
 **
 *****************************************************************************/
 static void st_simfft_final(Db     *db,
-                            Model  *model,
+                            Model* /*model*/,
                             ST_FFT *simu,
                             int     iad)
 {

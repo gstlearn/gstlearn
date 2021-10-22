@@ -183,7 +183,7 @@ int MatrixSquareGeneral::_getMatrixSize() const
   return(getNRows() * getNCols());
 }
 
-int MatrixSquareGeneral::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) const
 {
   my_throw("Invert method is limited to Square Symmetrical Matrices");
   return 0;

@@ -42,7 +42,7 @@ public:
   /// TODO : isPositiveDefinite
 
   /// Is the matrix symmetrical ?
-  bool isSymmetric(bool printWhyNot = false) const override { return true; }
+  bool isSymmetric(bool /*printWhyNot*/ = false) const override { return true; }
 
   void initMatTri(int nsize,double* tab);
 

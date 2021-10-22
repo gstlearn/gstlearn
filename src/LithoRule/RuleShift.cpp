@@ -173,11 +173,11 @@ String RuleShift::displaySpecific(int flagProp, int flagThresh) const
 ** \param[in]  flag_stat       1 for stationary; 0 otherwise
 **
 *****************************************************************************/
-int RuleShift::particularities(Db *db,
-                               const Db *dbprop,
-                               Model *model,
+int RuleShift::particularities(Db* db,
+                               const Db* /*dbprop*/,
+                               Model* model,
                                int flag_grid_check,
-                               int flag_stat) const
+                               int /*flag_stat*/) const
 {
   int ndim = (model != nullptr) ? model->getDimensionNumber() : 0;
   VectorDouble wxyz(ndim);
@@ -276,9 +276,9 @@ bool RuleShift::checkModel(const Model* model, int nvar) const
 ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
 **
 *****************************************************************************/
-int RuleShift::gaus2facResult(PropDef *propdef,
-                              Db *dbout,
-                              int *flag_used,
+int RuleShift::gaus2facResult(PropDef* propdef,
+                              Db* dbout,
+                              int* /*flag_used*/,
                               int ipgs,
                               int isimu,
                               int nbsimu) const

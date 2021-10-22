@@ -36,11 +36,11 @@ static double *NBGH_dst   = nullptr;
 ** \li                   >=0 gives the angular sector in ENeigh::MOVING
 ** 
 *****************************************************************************/
-static void st_neigh_print(Db     *dbin,
-                           Db     *dbout,
-                           int     iech_out,
-                           Neigh  *neigh,
-                           int    *rank)
+static void st_neigh_print(Db* dbin,
+                           Db* /*dbout*/,
+                           int /*iech_out*/,
+                           Neigh* neigh,
+                           int* rank)
 {
   int iech,idim,ndim,sel,flag_ext;
   String string;

@@ -232,7 +232,7 @@ void CovAniso::setAnisoAngle(int idim, double angle)
   _aniso.setRotationAngle(idim, angle);
 }
 
-bool CovAniso::isConsistent(const ASpace* space) const
+bool CovAniso::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : check something in CovAniso::isConsistent?
   return _cova->isConsistent();
@@ -330,7 +330,7 @@ double CovAniso::eval(int ivar,
   return (cov);
 }
 
-String CovAniso::toString(int level) const
+String CovAniso::toString(int /*level*/) const
 {
   std::stringstream sstr;
   // Covariance Name

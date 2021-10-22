@@ -30,20 +30,20 @@ public:
   String toString(int level = 0) const override;
   virtual double eval(double x) const = 0;
 
-  virtual void evalOp(cs* Op,
-                      const VectorDouble& in,
-                      VectorDouble& out) const {};
-  virtual void evalOpTraining(cs* Op,
-                      const VectorDouble& in,
-                      VectorVectorDouble& out,
-                      VectorDouble& work) const {};
-  VectorDouble evalOp(cs* Op, const VectorDouble& in) const;
-  VectorDouble getCoeffs()const{ return _coeffs;}
+  virtual void evalOp(cs* /*Op*/,
+                      const VectorDouble& /*in*/,
+                      VectorDouble& /*out*/) const {};
+  virtual void evalOpTraining(cs* /*Op*/,
+                      const VectorDouble& /*in*/,
+                      VectorVectorDouble& /*out*/,
+                      VectorDouble& /*work*/) const {};
+  VectorDouble evalOp(cs* /*Op*/, const VectorDouble& /*in*/) const;
+  VectorDouble getCoeffs() const { return _coeffs; }
   int getDegree() const { return static_cast<int>(_coeffs.size());}
-  virtual int fit(std::function<double(double)> f,
-                  double from = 0.,
-                  double to = 1.,
-                  double tol = EPSILON5)
+  virtual int fit(std::function<double(double)> /*f*/,
+                  double /*from*/ = 0.,
+                  double /*to*/ = 1.,
+                  double /*tol*/ = EPSILON5)
   {
     return 1;
   }

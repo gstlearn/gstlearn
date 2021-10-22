@@ -219,7 +219,7 @@ void ANoStat::addNoStatElems(const VectorString &codes)
  * @param model Model structure
  * @return Error return code
  */
-const int ANoStat::attachModel(const Model* model)
+int ANoStat::attachModel(const Model* model)
 {
   if (model == nullptr)
   {

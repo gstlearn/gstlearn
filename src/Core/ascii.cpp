@@ -465,7 +465,9 @@ GEOSLIB_API void ascii_environ_read(char *file_name, int verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API Db *ascii_db_read(const char *file_name, int must_grid, int verbose)
+GEOSLIB_API Db *ascii_db_read(const char *file_name,
+                              int /*must_grid*/,
+                              int verbose)
 {
   if (! st_file_exists(file_name)) return nullptr;
   Db* db = new Db(String(file_name), verbose);

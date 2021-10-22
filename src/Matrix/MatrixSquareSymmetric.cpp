@@ -116,7 +116,7 @@ void MatrixSquareSymmetric::_prodVector(const double *in, double *out) const
 /**
  * \warning : values is provided as a square complete matrix
  */
-void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
+void MatrixSquareSymmetric::_setValues(const double* values, bool /*byCol*/)
 {
   // Check that the input argument corresponds to a square symmetric matrix
   for (int icol = 0; icol < getNCols(); icol++)

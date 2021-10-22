@@ -107,7 +107,7 @@ String CovContext::toString(int level) const
   return sstr.str();
 }
 
-bool CovContext::isConsistent(const ASpace* space) const
+bool CovContext::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO: Consistency of CovContext toward a space: Possible duplicate:
   /// - CovFatory::_isValid
