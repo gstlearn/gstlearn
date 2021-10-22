@@ -20,13 +20,6 @@
 #include "Model/ANoStat.hpp"
 #include "LithoRule/RuleProp.hpp"
 
-/***********************************************/
-/* Prototyping the functions in dirent_win32.c */
-/***********************************************/
-GEOSLIB_API DIR   *opendir(const char *dirname);
-GEOSLIB_API int    closedir(DIR *dirp);
-GEOSLIB_API struct dirent *readdir(DIR *dirp);
-
 /*************************************/
 /* Prototyping the functions in io.c */
 /*************************************/

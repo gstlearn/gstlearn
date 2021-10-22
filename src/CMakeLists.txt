@@ -237,6 +237,8 @@ set(SOURCES
   Drifts/ADriftList.cpp
   Neigh/Neigh.cpp
 )
+#option(Boost_DEBUG "Set to ON to enable debug output from FindBoost." ON)
+#option(Boost_DETAILED_FAILURE_MSG "Set to ON to get detailed information" ON)
 
 # Not for Linux?
 find_package(Boost REQUIRED)
@@ -253,6 +255,7 @@ target_compile_definitions(objlib PRIVATE NO_TIMER)
 
 # Include directories (-I)
 target_include_directories(objlib PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>")
+target_include_directories(objlib PUBLIC ${Boost_INCLUDE_DIRS})
 
 # Define objects list for each target library
 add_library(gstlearn-shared SHARED $<TARGET_OBJECTS:objlib>)
@@ -262,7 +265,7 @@ add_library(gstlearn-static STATIC $<TARGET_OBJECTS:objlib>)
 set_target_properties(gstlearn-shared PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
 set_target_properties(gstlearn-static PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.a  (on Linux)
 
-# Link to boost (Unused under Linux?)
+# Link to boost
 target_link_libraries(gstlearn-shared PUBLIC Boost::boost)
 
 # Install the libraries

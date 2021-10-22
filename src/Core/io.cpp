@@ -2065,53 +2065,6 @@ loop:
 
 /****************************************************************************/
 /*!
-**  Returns the name of the next file in the directory
-**
-** \return  Name of the next file or NULL
-**
-** \param[in]  dirname    Name of the directory
-** \param[in]  in_string  Compulsory substring
-** \param[in]  ex_string  Forbidden substring
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API char *_next_file(char *dirname,
-                             char *in_string,
-                             char *ex_string)
-{
-  static DIR *dir_ptr = NULL;
-  struct dirent *dirent = NULL;
-
-  if (dir_ptr == NULL)
-  {
-    dir_ptr = opendir(dirname);
-    if (dir_ptr == NULL) return(NULL);
-  }
-
-label_loop:
-  dirent = readdir(dir_ptr);
-  if (dirent == NULL)
-  {
-    (void) closedir(dir_ptr);
-    dir_ptr = NULL;
-    return(NULL);
-  }
-
-  /* Discard the file whose name do not contain the compulsory string */
-
-  if (in_string != NULL && strlen(in_string) > 0 &&
-      strstr(dirent->d_name,in_string) == NULL) goto label_loop;
-
-  /* Discard the file whose name contains the forbidden string */
-
-  if (ex_string != NULL && strlen(ex_string) > 0 &&
-      strstr(dirent->d_name,ex_string) != NULL) goto label_loop;
-  return(dirent->d_name);
-}
-
-/****************************************************************************/
-/*!
 **  Conditionally print the progress of a procedure
 **
 ** \param[in]  string   String to be printed
