@@ -160,6 +160,10 @@ void CovContext::setMean(int ivar, const double mean)
   _mean[ivar] = mean;
 }
 
+/**
+ * Define the covariance at the origin
+ * @param covar0 Values
+ */
 void CovContext::setCovar0(const VectorDouble& covar0)
 {
   if (_covar0.size() == covar0.size())
