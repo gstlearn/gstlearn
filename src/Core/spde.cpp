@@ -6840,15 +6840,13 @@ GEOSLIB_API int spde_external_mesh_define(int mode,
     S_EXTERNAL_MESH[icov0]->nmesh = nmesh;
 
     size = nvertex * ndim;
-    S_EXTERNAL_MESH[icov0]->points = (double *) mem_alloc(sizeof(double) * size,
-                                                          0);
+    S_EXTERNAL_MESH[icov0]->points = (double *) mem_alloc(sizeof(double) * size, 0);
     if (S_EXTERNAL_MESH[icov0]->points == nullptr) goto label_end;
     for (int i = 0; i < size; i++)
       S_EXTERNAL_MESH[icov0]->points[i] = points[i];
 
     size = nmesh * ncorner;
-    S_EXTERNAL_MESH[icov0]->meshes = (int *) mem_alloc(sizeof(double) * size,
-                                                       0);
+    S_EXTERNAL_MESH[icov0]->meshes = (int *) mem_alloc(sizeof(double) * size, 0);
     if (S_EXTERNAL_MESH[icov0]->meshes == nullptr) goto label_end;
     for (int i = 0; i < size; i++)
       S_EXTERNAL_MESH[icov0]->meshes[i] = meshes[i];
