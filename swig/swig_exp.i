@@ -187,13 +187,13 @@ class IClonable{};
 %include Drifts/DriftZ3.hpp
 %include Drifts/EDrift.hpp
 
-%include MatrixC/AMatrixC.hpp
-%include MatrixC/AMatrixCSquare.hpp
-%include MatrixC/MatrixCRectangular.hpp
-%include MatrixC/MatrixCSDiag.hpp
-%include MatrixC/MatrixCSDiagCst.hpp
-%include MatrixC/MatrixCSGeneral.hpp
-%include MatrixC/MatrixCSSym.hpp
+%include Matrix/AMatrix.hpp
+%include Matrix/AMatrixSquare.hpp
+%include Matrix/MatrixRectangular.hpp
+%include Matrix/MatrixSDiag.hpp
+%include Matrix/MatrixSDiagCst.hpp
+%include Matrix/MatrixSGeneral.hpp
+%include Matrix/MatrixSSym.hpp
 
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp

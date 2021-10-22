@@ -14,7 +14,7 @@
 #include "Basic/AStringable.hpp"
 #include "csparse_d.h"
 
-class MatrixCRectangular;
+class MatrixRectangular;
 class Db;
 class SPDE_Mesh;
 
@@ -42,7 +42,7 @@ public:
   /*! Returns the maximum of the Bounding box for a given space dimension */
   double getExtendMax(int idim) { return _extendMax[idim]; }
   /*! Returns the set of apexes and meshes */
-  void getElements(MatrixCRectangular& apices, VectorInt& meshes) const;
+  void getElements(MatrixRectangular& apices, VectorInt& meshes) const;
 
   int  setExtend(const VectorDouble extendmin, const VectorDouble extendmax);
   void getDuplicates(int verbose, Db *dbin, Db *dbout,

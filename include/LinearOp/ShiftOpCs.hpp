@@ -14,9 +14,9 @@
 
 #include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
-#include "MatrixC/MatrixCSSym.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSSym.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/ANoStat.hpp"
 #include "LinearOp/EPowerPT.hpp"
@@ -120,17 +120,17 @@ private:
   int  _buildTildeC(AMesh *amesh, const VectorDouble& units);
   void _buildLambda(AMesh *amesh);
   bool _buildLambdaGrad(AMesh *amesh);
-  void _loadHHByApex(MatrixCSSym& hh, int ip);
-  void _loadHHGradByApex(MatrixCSSym& hh,
+  void _loadHHByApex(MatrixSSym& hh, int ip);
+  void _loadHHGradByApex(MatrixSSym& hh,
                          int igparam,
                          int ip);
   void _loadAux(VectorDouble& tab,
                 const EConsElem& type,
                 int ip);
-  void _loadHHPerMesh(MatrixCSSym& hh,
+  void _loadHHPerMesh(MatrixSSym& hh,
                       AMesh* amesh,
                       int imesh = 0);
-  void _loadHHGradPerMesh(MatrixCSSym& hh,
+  void _loadHHGradPerMesh(MatrixSSym& hh,
                           AMesh* amesh,
                           int igp0,
                           int igparam,
@@ -148,11 +148,11 @@ private:
                     double coeff[3][2]);
   int _preparMatrices(AMesh *amesh,
                       int imesh,
-                      MatrixCSGeneral& matu,
-                      MatrixCRectangular& matw) const;
+                      MatrixSGeneral& matu,
+                      MatrixRectangular& matw) const;
   cs* _BuildSfromMap(std::map<std::pair<int, int>, double> &tab);
   void _updateCova(CovAniso* cova, int ip);
-  void _updateHH(MatrixCSSym& hh, int ip);
+  void _updateHH(MatrixSSym& hh, int ip);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
 
 private:

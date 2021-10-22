@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
@@ -52,5 +52,5 @@ private:
 
 private:
   const Db* _dbnostat;
-	mutable MatrixCRectangular _tab; // Dimension: nvertex * npar
+	mutable MatrixRectangular _tab; // Dimension: nvertex * npar
 };

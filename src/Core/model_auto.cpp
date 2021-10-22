@@ -2086,7 +2086,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       if (flag_aic)
       {
         VectorDouble sill = matrix_produit_lu_VD(nvar, tritab.data());
-        MatrixCSGeneral mat(nvar);
+        MatrixSGeneral mat(nvar);
         mat.setValues(sill);
         cova->setSill(mat);
       }
@@ -2151,7 +2151,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if (flag_aic)
     {
       VectorDouble sill = matrix_produit_lu_VD(nvar, tritab.data());
-      MatrixCSGeneral mat(nvar);
+      MatrixSGeneral mat(nvar);
       mat.setValues(sill);
       cova->setSill(mat);
     }

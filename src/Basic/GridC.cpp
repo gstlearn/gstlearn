@@ -135,7 +135,7 @@ void GridC::setNX(int idim,
   _nx[idim] = value;
 }
 
-void GridC::setRotationFromMatrix(const MatrixCSGeneral& rotmat)
+void GridC::setRotationFromMatrix(const MatrixSGeneral& rotmat)
 {
   _rotation.init(_nDim);
   _rotation.setMatrixDirect(rotmat);

@@ -1931,7 +1931,7 @@ static int st_anam_factor2qt_hermitian(Db     *db,
 
       if (need_Q)
       {
-        MatrixCSGeneral TAU = hermiteIncompleteIntegral(yc,nbpoly);
+        MatrixSGeneral TAU = hermiteIncompleteIntegral(yc,nbpoly);
 
         /* Metal Quantity: Estimation */
 

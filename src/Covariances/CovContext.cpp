@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Covariances/CovContext.hpp"
 
-#include "MatrixC/MatrixCSSym.hpp"
+#include "Matrix/MatrixSSym.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/Vector.hpp"
 #include "Variogram/Vario.hpp"
@@ -186,7 +186,7 @@ int CovContext::_getIndex(int ivar, int jvar) const
 void CovContext::_update()
 {
   _mean.resize(_nVar, 0.);
-  MatrixCSSym Id(_nVar);
+  MatrixSSym Id(_nVar);
   Id.setIdentity();
   _covar0 = Id.getValues();
 }

@@ -8,23 +8,23 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/AMatrixC.hpp"
-#include "MatrixC/AMatrixCSquare.hpp"
-#include "MatrixC/MatrixCFactory.hpp"
+#include "Matrix/AMatrix.hpp"
+#include "Matrix/AMatrixSquare.hpp"
+#include "Matrix/MatrixFactory.hpp"
 
-#include "MatrixC/MatrixCRectangular.hpp"
-#include "MatrixC/MatrixCSDiag.hpp"
-#include "MatrixC/MatrixCSDiagCst.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
-#include "MatrixC/MatrixCSSym.hpp"
+#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSDiag.hpp"
+#include "Matrix/MatrixSDiagCst.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixSSym.hpp"
 
 #include "Basic/AException.hpp"
 
-MatrixCFactory::MatrixCFactory()
+MatrixFactory::MatrixFactory()
 {
 }
 
-MatrixCFactory::~MatrixCFactory()
+MatrixFactory::~MatrixFactory()
 {
 }
 
@@ -32,14 +32,14 @@ MatrixCFactory::~MatrixCFactory()
 /*!
  **  Performs the product of two matrices: X * Y
  **
- ** \return Pointer to the newly created AMatrixC matrix
+ ** \return Pointer to the newly created AMatrix matrix
  **
- ** \param[in]  x          First AMatrixC matrix
- ** \param[in]  y          Second AMatrixC matrix
+ ** \param[in]  x          First AMatrix matrix
+ ** \param[in]  y          Second AMatrix matrix
  **
  *****************************************************************************/
-AMatrixC* MatrixCFactory::matProduct(const AMatrixC* x,
-                                     const AMatrixC* y)
+AMatrix* MatrixFactory::matProduct(const AMatrix* x,
+                                     const AMatrix* y)
 {
   if (x->getNCols() != y->getNRows())
   {
@@ -47,14 +47,14 @@ AMatrixC* MatrixCFactory::matProduct(const AMatrixC* x,
   }
 
   /// TODO : use typeinfo
-  const MatrixCSDiag*    mxsd  = dynamic_cast<const MatrixCSDiag*>(x);
-  const MatrixCSDiagCst* mxsdc = dynamic_cast<const MatrixCSDiagCst*>(x);
-  const MatrixCSSym*     mxsym = dynamic_cast<const MatrixCSSym*>(x);
-  const MatrixCSDiag*    mysd  = dynamic_cast<const MatrixCSDiag*>(y);
-  const MatrixCSDiagCst* mysdc = dynamic_cast<const MatrixCSDiagCst*>(y);
-  const MatrixCSSym*     mysym = dynamic_cast<const MatrixCSSym*>(y);
+  const MatrixSDiag*    mxsd  = dynamic_cast<const MatrixSDiag*>(x);
+  const MatrixSDiagCst* mxsdc = dynamic_cast<const MatrixSDiagCst*>(x);
+  const MatrixSSym*     mxsym = dynamic_cast<const MatrixSSym*>(x);
+  const MatrixSDiag*    mysd  = dynamic_cast<const MatrixSDiag*>(y);
+  const MatrixSDiagCst* mysdc = dynamic_cast<const MatrixSDiagCst*>(y);
+  const MatrixSSym*     mysym = dynamic_cast<const MatrixSSym*>(y);
 
-  AMatrixC* res = nullptr;
+  AMatrix* res = nullptr;
 
   if (x->getNRows() == y->getNCols())
   {
@@ -62,26 +62,26 @@ AMatrixC* MatrixCFactory::matProduct(const AMatrixC* x,
 
     if (mxsdc != nullptr && mysdc != nullptr)
     {
-      res = new MatrixCSDiagCst();
+      res = new MatrixSDiagCst();
     }
     else if ((mxsdc != nullptr || mxsd != nullptr)
           && (mysdc != nullptr || mysd != nullptr))
     {
-      res = new MatrixCSDiag();
+      res = new MatrixSDiag();
     }
     else if ((mxsdc != nullptr || mxsd != nullptr || mxsym != nullptr)
           && (mysdc != nullptr || mysd != nullptr || mysym != nullptr))
     {
-      res = new MatrixCSSym();
+      res = new MatrixSSym();
     }
     else
     {
-      res = new MatrixCSGeneral();
+      res = new MatrixSGeneral();
     }
   }
   else
   {
-    res = new MatrixCRectangular();
+    res = new MatrixRectangular();
   }
 
   res->reset(x->getNRows(), y->getNCols());
@@ -94,46 +94,46 @@ AMatrixC* MatrixCFactory::matProduct(const AMatrixC* x,
 /*!
  **  Performs the norm product of matrix V by matrix X: t(Y) * X * Y
  **
- ** \return Pointer to the newly created AMatrixC matrix
+ ** \return Pointer to the newly created AMatrix matrix
  **
- ** \param[in]  x          AMatrixCSquare matrix
- ** \param[in]  y          Second AMatrixC matrix
+ ** \param[in]  x          AMatrixSquare matrix
+ ** \param[in]  y          Second AMatrix matrix
  **
  *****************************************************************************/
-AMatrixCSquare* MatrixCFactory::matNorm(const AMatrixCSquare* x,
-                                        const AMatrixC* y)
+AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare* x,
+                                        const AMatrix* y)
 {
   if (x->getNCols() != y->getNRows())
   {
     my_throw("Incompatible dimensions when making norm product of two matrices");
   }
 
-  const MatrixCSDiag*    mxsd  = dynamic_cast<const MatrixCSDiag*>(x);
-  const MatrixCSDiagCst* mxsdc = dynamic_cast<const MatrixCSDiagCst*>(x);
-  const MatrixCSSym*     mxsym = dynamic_cast<const MatrixCSSym*>(x);
-  const MatrixCSDiag*    mysd  = dynamic_cast<const MatrixCSDiag*>(y);
-  const MatrixCSDiagCst* mysdc = dynamic_cast<const MatrixCSDiagCst*>(y);
-  const MatrixCSSym*     mysym = dynamic_cast<const MatrixCSSym*>(y);
+  const MatrixSDiag*    mxsd  = dynamic_cast<const MatrixSDiag*>(x);
+  const MatrixSDiagCst* mxsdc = dynamic_cast<const MatrixSDiagCst*>(x);
+  const MatrixSSym*     mxsym = dynamic_cast<const MatrixSSym*>(x);
+  const MatrixSDiag*    mysd  = dynamic_cast<const MatrixSDiag*>(y);
+  const MatrixSDiagCst* mysdc = dynamic_cast<const MatrixSDiagCst*>(y);
+  const MatrixSSym*     mysym = dynamic_cast<const MatrixSSym*>(y);
 
-  AMatrixCSquare* res = nullptr;
+  AMatrixSquare* res = nullptr;
 
   if (mxsdc != nullptr && mysdc != nullptr)
   {
-    res = new MatrixCSDiagCst();
+    res = new MatrixSDiagCst();
   }
   else if ((mxsdc != nullptr || mxsd != nullptr)
       && (mysdc != nullptr || mysd != nullptr))
   {
-    res = new MatrixCSDiag();
+    res = new MatrixSDiag();
   }
   else if ((mxsdc != nullptr || mxsd != nullptr || mxsym != nullptr)
       && (mysdc != nullptr || mysd != nullptr || mysym != nullptr))
   {
-    res = new MatrixCSSym();
+    res = new MatrixSSym();
   }
   else
   {
-    res = new MatrixCSGeneral();
+    res = new MatrixSGeneral();
   }
 
   res->reset(y->getNCols(), y->getNCols());
@@ -143,7 +143,7 @@ AMatrixCSquare* MatrixCFactory::matNorm(const AMatrixCSquare* x,
 
 }
 
-AMatrixC* MatrixCFactory::createIdentity(int nrow, bool sparse)
+AMatrix* MatrixFactory::createIdentity(int nrow, bool sparse)
 {
-  return new MatrixCSDiagCst(nrow, sparse);
+  return new MatrixSDiagCst(nrow, sparse);
 }

@@ -8,44 +8,44 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/MatrixCSDiagCst.hpp"
-#include "MatrixC/AMatrixCSquare.hpp"
+#include "Matrix/MatrixSDiagCst.hpp"
+#include "Matrix/AMatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
 
-MatrixCSDiagCst::MatrixCSDiagCst(int nrow, bool sparse)
-  : AMatrixCSquare(nrow, sparse)
+MatrixSDiagCst::MatrixSDiagCst(int nrow, bool sparse)
+  : AMatrixSquare(nrow, sparse)
   , _cstDiagMatrix(0.)
 {
 }
 
-MatrixCSDiagCst::MatrixCSDiagCst(const MatrixCSDiagCst &r) 
-  : AMatrixCSquare(r)
+MatrixSDiagCst::MatrixSDiagCst(const MatrixSDiagCst &r) 
+  : AMatrixSquare(r)
   , _cstDiagMatrix(r._cstDiagMatrix)
 {
 }
 
-MatrixCSDiagCst& MatrixCSDiagCst::operator= (const MatrixCSDiagCst &r)
+MatrixSDiagCst& MatrixSDiagCst::operator= (const MatrixSDiagCst &r)
 {
   if (this != &r)
   {
-    AMatrixCSquare::operator=(r);
+    AMatrixSquare::operator=(r);
     _cstDiagMatrix = r._cstDiagMatrix;
   }
   return *this;
 }
 
-MatrixCSDiagCst::~MatrixCSDiagCst()
+MatrixSDiagCst::~MatrixSDiagCst()
 {
 }
 
-IClonable* MatrixCSDiagCst::clone() const
+IClonable* MatrixSDiagCst::clone() const
 {
-  return new MatrixCSDiagCst(*this);
+  return new MatrixSDiagCst(*this);
 }
 
-double MatrixCSDiagCst::_getValue(int irow, int icol) const
+double MatrixSDiagCst::_getValue(int irow, int icol) const
 {
   if (irow == icol)
     return _cstDiagMatrix;
@@ -53,12 +53,12 @@ double MatrixCSDiagCst::_getValue(int irow, int icol) const
     return 0.;
 }
 
-double MatrixCSDiagCst::_getValue(int irank) const
+double MatrixSDiagCst::_getValue(int irank) const
 {
   return _cstDiagMatrix;
 }
 
-void MatrixCSDiagCst::_setValue(int irow, int icol, double value)
+void MatrixSDiagCst::_setValue(int irow, int icol, double value)
 {
   if (irow == icol)
     _cstDiagMatrix = value;
@@ -69,12 +69,12 @@ void MatrixCSDiagCst::_setValue(int irow, int icol, double value)
   }
 }
 
-void MatrixCSDiagCst::_setValue(int irank, double value)
+void MatrixSDiagCst::_setValue(int irank, double value)
 {
   _cstDiagMatrix = value;
 }
 
-double MatrixCSDiagCst::_determinant() const
+double MatrixSDiagCst::_determinant() const
 {
   double deter = 1.;
   for (int irow=0; irow<getNRows(); irow++)
@@ -82,36 +82,36 @@ double MatrixCSDiagCst::_determinant() const
   return deter;
 }
 
-void MatrixCSDiagCst::_prodVector(const double *in, double *out) const
+void MatrixSDiagCst::_prodVector(const double *in, double *out) const
 {
   int nrow = getNRows();
   for (int irow = 0; irow < nrow; irow++)
     out[irow] = in[irow] * _cstDiagMatrix;
 }
 
-void MatrixCSDiagCst::transposeInPlace()
+void MatrixSDiagCst::transposeInPlace()
 {
   // Nothing should be done
   return;
 }
 
-int MatrixCSDiagCst::_invert()
+int MatrixSDiagCst::_invert()
 {
   if (_cstDiagMatrix == 0) return 1;
   _cstDiagMatrix = 1. / _cstDiagMatrix;
   return 0;
 }
 
-double& MatrixCSDiagCst::_getValueRef(int irow, int icol)
+double& MatrixSDiagCst::_getValueRef(int irow, int icol)
 {
   if (! _isValidIndex(irow,icol))
     my_throw("Impossible to return the Address of the non-existant element");
   return _cstDiagMatrix;
 }
 
-bool MatrixCSDiagCst::_isValidIndex(int irow, int icol) const
+bool MatrixSDiagCst::_isValidIndex(int irow, int icol) const
 {
-  AMatrixC::_isIndexValid(irow,icol);
+  AMatrix::_isIndexValid(irow,icol);
   if (irow != icol)
   {
     messerr("Argument 'irow' and 'icol' should be equal for Diagonal Matrix");
@@ -120,7 +120,7 @@ bool MatrixCSDiagCst::_isValidIndex(int irow, int icol) const
   return true;
 }
 
-void MatrixCSDiagCst::_setValues(const double* values, bool byCol)
+void MatrixSDiagCst::_setValues(const double* values, bool byCol)
 {
   double refval = TEST;
   int ecr = 0;
@@ -146,9 +146,9 @@ void MatrixCSDiagCst::_setValues(const double* values, bool byCol)
     }
 }
 
-bool MatrixCSDiagCst::isValid(int irow, int icol, bool printWhyNot) const
+bool MatrixSDiagCst::isValid(int irow, int icol, bool printWhyNot) const
 {
-  if (! AMatrixC::isValid(irow,icol,printWhyNot)) return false;
+  if (! AMatrix::isValid(irow,icol,printWhyNot)) return false;
   if (irow != icol)
   {
     if (printWhyNot)
@@ -158,17 +158,17 @@ bool MatrixCSDiagCst::isValid(int irow, int icol, bool printWhyNot) const
   return true;
 }
 
-void MatrixCSDiagCst::addScalar(double v)
+void MatrixSDiagCst::addScalar(double v)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
 
-void MatrixCSDiagCst::addScalarDiag(double v)
+void MatrixSDiagCst::addScalarDiag(double v)
 {
   _cstDiagMatrix += v;
 }
 
-int MatrixCSDiagCst::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixSDiagCst::_solve(const VectorDouble& b, VectorDouble& x) const
 {
   if (ABS(_cstDiagMatrix) < EPSILON10) return 1;
   for (int rank=0; rank<(int) b.size(); rank++)
@@ -177,29 +177,29 @@ int MatrixCSDiagCst::_solve(const VectorDouble& b, VectorDouble& x) const
 }
 
 /*! Set the contents of a Column */
-void MatrixCSDiagCst::setColumn(int icol, const VectorDouble& tab)
+void MatrixSDiagCst::setColumn(int icol, const VectorDouble& tab)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
 
 /*! Set the contents of a Row */
-void MatrixCSDiagCst::setRow(int irow, const VectorDouble& tab)
+void MatrixSDiagCst::setRow(int irow, const VectorDouble& tab)
 {
   my_throw("This function does not make sense for Diagonal Constant Matrix");
 }
 
-void MatrixCSDiagCst::setDiagonal(const VectorDouble& tab)
+void MatrixSDiagCst::setDiagonal(const VectorDouble& tab)
 {
   my_throw("This function does not make sense for Diagonal Constant Matrix");
 }
 
-String MatrixCSDiagCst::toString(int level) const
+String MatrixSDiagCst::toString(int level) const
 {
   std::stringstream sstr;
 
   if (isSparse())
   {
-    sstr << AMatrixC::toString(level);
+    sstr << AMatrix::toString(level);
   }
   else
   {

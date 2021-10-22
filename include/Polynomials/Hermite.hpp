@@ -11,13 +11,13 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
 
 VectorDouble hermitePolynomials(double yc, double r, int nbpoly);
 VectorDouble hermiteCoefIndicator(double yc, int nbpoly);
 VectorDouble hermiteCoefMetal(double yc, const VectorDouble& phi);
 VectorDouble hermiteFunction(double y, int nbpoly);
-MatrixCSGeneral hermiteIncompleteIntegral(double yc, int nbpoly);
+MatrixSGeneral hermiteIncompleteIntegral(double yc, int nbpoly);
 VectorDouble hermiteLognormal(double mean, double sigma, int nbpoly);
 double hermiteSeries(const VectorDouble& an, const VectorDouble& hn);
 

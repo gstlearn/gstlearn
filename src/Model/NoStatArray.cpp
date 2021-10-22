@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Model/NoStatArray.hpp"
 #include "Basic/AException.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/Utilities.hpp"

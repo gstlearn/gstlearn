@@ -13,7 +13,7 @@
 #pragma once
 
 #include "Mesh/AMesh.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 /**
  * Meshing defined in the Spherical Space
@@ -48,7 +48,7 @@ private:
   int     _recopy(const MeshSpherical &m);
 
 private:
-  MatrixCRectangular _apices;
-  VectorInt          _meshes; // TODO Transform it into MatrixCRectangular of Int
+  MatrixRectangular _apices;
+  VectorInt          _meshes; // TODO Transform it into MatrixRectangular of Int
   VectorDouble       _units;
 };

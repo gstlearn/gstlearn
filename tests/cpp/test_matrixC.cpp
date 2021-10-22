@@ -8,26 +8,26 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/AMatrixC.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
-#include "MatrixC/MatrixCSDiag.hpp"
-#include "MatrixC/MatrixCSDiagCst.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
-#include "MatrixC/MatrixCSSym.hpp"
+#include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSDiag.hpp"
+#include "Matrix/MatrixSDiagCst.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixSSym.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-void reset_to_initial_contents(AMatrixC* M,
-                               MatrixCSDiagCst& D,
-                               MatrixCRectangular& MRR,
-                               MatrixCSGeneral& MSG,
-                               MatrixCSSym& MSS,
-                               AMatrixC* MSP,
-                               MatrixCSDiag& MSD,
-                               MatrixCSDiagCst& MSC)
+void reset_to_initial_contents(AMatrix* M,
+                               MatrixSDiagCst& D,
+                               MatrixRectangular& MRR,
+                               MatrixSGeneral& MSG,
+                               MatrixSSym& MSS,
+                               AMatrix* MSP,
+                               MatrixSDiag& MSD,
+                               MatrixSDiagCst& MSC)
 {
   MRR.setValues (M->getValues());
   MSG.setValues (M->getValues());
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
   // We create a square symmetrical matrix (not necessarily sparse)
   
-  MatrixCRectangular MR(nrow, ncol);
+  MatrixRectangular MR(nrow, ncol);
   for (int icol = 0; icol < ncol; icol++)
     for (int irow = 0; irow < nrow; irow++)
     {
@@ -66,23 +66,23 @@ int main(int argc, char *argv[])
 
   // The symmetric matrix is obtained as t(MR) %*% MR -> M is symmetric
 
-  AMatrixC* MRt = MR.transpose(); // Using clonable feature
+  AMatrix* MRt = MR.transpose(); // Using clonable feature
   
   // Equivalent instruction using shortcut function
-  //AMatrixC* MRt = transpose(MR);
+  //AMatrix* MRt = transpose(MR);
 
   // Still equivalent but in two lines
-  //AMatrixC* MRt = MR.clone();
+  //AMatrix* MRt = MR.clone();
   //MRt->transposeInPlace();
 
   // Still equivalent but with no more pointer
-  //MatrixCRectangular MRt = MR;
+  //MatrixRectangular MRt = MR;
   //MRt.transposeInPlace();
 
-  AMatrixC* M = prodMatrix(MRt, &MR);
+  AMatrix* M = prodMatrix(MRt, &MR);
 
   // Equivalent but more lengthy (but no more pointer)
-  //MatrixCRectangular M;
+  //MatrixRectangular M;
   //M.prodMatrix(*MRt, MR);
 
   printf("Matrix M\n");
@@ -96,30 +96,30 @@ int main(int argc, char *argv[])
   // Create the different matrix formats (by conversion or extraction)
  
   // To a rectangular matrix
-  MatrixCRectangular MRR(nrow,ncol);
+  MatrixRectangular MRR(nrow,ncol);
   MRR.setValues(M->getValues());
   printf("Matrix MRR\n");
   MRR.display();
 
   // To a square general matrix
-  MatrixCSGeneral MSG(*M);
+  MatrixSGeneral MSG(*M);
   printf("Matrix MSG\n");
   MSG.display();
 
   // To a square symmetric matrix
-  MatrixCSSym MSS(*M);
+  MatrixSSym MSS(*M);
   printf("Matrix MSS\n");
   MSS.display();
 
   // To a sparse matrix
-  AMatrixC* MSP = M->toSparse();
+  AMatrix* MSP = M->toSparse();
   printf("Matrix MSP\n");
   MSP->display();
 
   // Creating a Diagonal matrix (from M)
   double cst = law_gaussian();
 
-  MatrixCSDiag MSD(nrow);
+  MatrixSDiag MSD(nrow);
   for (int irow=0; irow<nrow; irow++)
     MSD(irow,irow) = cst;
   printf("Matrix MSD\n");
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
   // Creating a Constant Diagonal Matrix
 
-  MatrixCSDiagCst MSC, D;
+  MatrixSDiagCst MSC, D;
   D.reset(nrow,ncol,cst);
   MSC.reset(nrow,ncol,cst);
   printf("Matrix MSC\n");
@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
   reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
   printf("Calculate B=A^{-1}. Compute A*B and compare to Identity\n");
 
-  AMatrixC* Res;
-  MatrixCSGeneral MSGref = MSG; // Used to perform A*A-1 and check Identity
+  AMatrix* Res;
+  MatrixSGeneral MSGref = MSG; // Used to perform A*A-1 and check Identity
 
   MSG.invert();
   Res = prodMatrix(&MSG, &MSGref);
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
   printf("Are results correct for MSP: %d\n",Res->isIdentity());
   delete Res;
 
-  MatrixCSDiag MSDref = MSD; // Used to perform A*A-1 and check Identity
+  MatrixSDiag MSDref = MSD; // Used to perform A*A-1 and check Identity
 
   MSD.invert();
   Res = prodMatrix(&MSD, &MSDref);

@@ -251,7 +251,7 @@ double ACovAnisoList::getParam(unsigned int icov) const
   if (! _isCovarianceIndexValid(icov)) return 0.;
   return _covs[icov]->getParam();
 }
-const MatrixCSSym& ACovAnisoList::getSill(unsigned int icov) const
+const MatrixSSym& ACovAnisoList::getSill(unsigned int icov) const
 {
   return _covs[icov]->getSill();
 }
@@ -289,10 +289,10 @@ double ACovAnisoList::getTotalSill(int ivar, int jvar) const
   return eval0(ivar, jvar);
 }
 
-MatrixCSGeneral ACovAnisoList::getTotalSill() const
+MatrixSGeneral ACovAnisoList::getTotalSill() const
 {
   int nvar = getNVariables();
-  MatrixCSGeneral mat(nvar);
+  MatrixSGeneral mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar,jvar,eval0(ivar,jvar));

@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/MatrixCSGeneral.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Db/Db.hpp"
 #include "Basic/GridC.hpp"
@@ -582,7 +582,7 @@ int MeshETurbo::_addWeights(int  verbose,
   int ndim    =  getNDim();
   int ncorner =  getNApexPerMesh();
   int ipol    = _getPolarized(indg0);
-  MatrixCSGeneral lhs;
+  MatrixSGeneral lhs;
 
   // Build the LHS matrix
 

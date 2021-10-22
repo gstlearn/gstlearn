@@ -13,7 +13,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
 
-#include "MatrixC/MatrixCSSym.hpp"
+#include "Matrix/MatrixSSym.hpp"
 #include "Basic/Tensor.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ECov.hpp"
@@ -41,7 +41,7 @@ public:
   void setParam(double param);
 
   void setSill(double sill); /// Only valid when there is only one variable (in the context)
-  void setSill(const MatrixCSGeneral& sill);
+  void setSill(const MatrixSGeneral& sill);
   void setSill(const VectorDouble& sill);
   void setSill(int ivar, int jvar, double sill);
 
@@ -100,7 +100,7 @@ public:
   virtual double getIntegralRange(int ndisc, double hmax) const;
 
   virtual String getFormula() const { return _cova->getFormula(); }
-  const MatrixCSSym& getSill() const { return _sill; }
+  const MatrixSSym& getSill() const { return _sill; }
   double getSill(int ivar, int jvar) const;
   VectorDouble getRanges() const;
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
@@ -115,9 +115,9 @@ public:
   double getRange(int idim) const { return getRanges()[idim]; }
   double getScale(int idim) const { return getScales()[idim]; }
   const VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
-  const MatrixCSGeneral& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
+  const MatrixSGeneral& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
   const VectorDouble getAnisoRotMatVec() const { return getAnisoRotMat().getValues(); }
-  const MatrixCSGeneral& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
+  const MatrixSGeneral& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
   const VectorDouble getAnisoInvMatVec() const { return getAnisoInvMat().getValues(); }
   const VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
@@ -156,7 +156,7 @@ private:
 private:
   CovContext      _ctxt;   /// Context (space, irfDegree, field, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function
-  MatrixCSSym     _sill;   /// Sill matrix (nvar x nvar)
+  MatrixSSym     _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
 };
 

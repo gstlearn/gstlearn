@@ -8,27 +8,27 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/MatrixCSSym.hpp"
-#include "MatrixC/AMatrixCSquare.hpp"
+#include "Matrix/MatrixSSym.hpp"
+#include "Matrix/AMatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-MatrixCSSym::MatrixCSSym(int nrow, bool sparse)
-: AMatrixCSquare(nrow, sparse)
+MatrixSSym::MatrixSSym(int nrow, bool sparse)
+: AMatrixSquare(nrow, sparse)
 , _squareSymMatrix()
 {
   _allocate();
 }
 
-MatrixCSSym::MatrixCSSym(const MatrixCSSym &r) 
-  : AMatrixCSquare(r)
+MatrixSSym::MatrixSSym(const MatrixSSym &r) 
+  : AMatrixSquare(r)
 {
   _recopy(r);
 }
 
-MatrixCSSym::MatrixCSSym(const AMatrixC &m)
-    : AMatrixCSquare(m.getNRows(), m.isSparse()),
+MatrixSSym::MatrixSSym(const AMatrix &m)
+    : AMatrixSquare(m.getNRows(), m.isSparse()),
       _squareSymMatrix()
 {
   if (m.isEmpty())
@@ -48,47 +48,47 @@ MatrixCSSym::MatrixCSSym(const AMatrixC &m)
     }
 }
 
-MatrixCSSym& MatrixCSSym::operator= (const MatrixCSSym &r)
+MatrixSSym& MatrixSSym::operator= (const MatrixSSym &r)
 {
   if (this != &r)
   {
     _deallocate();
-    AMatrixCSquare::operator=(r);
+    AMatrixSquare::operator=(r);
     _recopy(r);
   }
   return *this;
 }
 
-MatrixCSSym::~MatrixCSSym()
+MatrixSSym::~MatrixSSym()
 {
   _deallocate();
 }
 
-IClonable* MatrixCSSym::clone() const
+IClonable* MatrixSSym::clone() const
 {
-  return new MatrixCSSym(*this);
+  return new MatrixSSym(*this);
 }
 
-double MatrixCSSym::_getValue(int irow, int icol) const
+double MatrixSSym::_getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
 
-double MatrixCSSym::_getValue(int irank) const
+double MatrixSSym::_getValue(int irank) const
 {
   return _squareSymMatrix[irank];
 }
 
-void MatrixCSSym::_setValue(int irow, int icol, double value)
+void MatrixSSym::_setValue(int irow, int icol, double value)
 {
   _isIndexValid(irow, icol);
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = value;
 }
 
-void MatrixCSSym::_setValue(int irank, double value)
+void MatrixSSym::_setValue(int irank, double value)
 {
   _isRankValid(irank);
   _squareSymMatrix[irank] = value;
@@ -99,7 +99,7 @@ void MatrixCSSym::_setValue(int irank, double value)
  * @param nsize
  * @param tab
  */
-void MatrixCSSym::initMatTri(int     nsize,
+void MatrixSSym::initMatTri(int     nsize,
                              double* tab)
 {
   _isNumberValid(nsize,nsize);
@@ -108,7 +108,7 @@ void MatrixCSSym::initMatTri(int     nsize,
   for (int i=0; i<_getMatrixSize(); i++) _squareSymMatrix[i] = tab[i];
 }
 
-void MatrixCSSym::_prodVector(const double *in, double *out) const
+void MatrixSSym::_prodVector(const double *in, double *out) const
 {
   matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),in,out);
 }
@@ -116,7 +116,7 @@ void MatrixCSSym::_prodVector(const double *in, double *out) const
 /**
  * \warning : values is provided as a square complete matrix
  */
-void MatrixCSSym::_setValues(const double* values, bool byCol)
+void MatrixSSym::_setValues(const double* values, bool byCol)
 {
   // Check that the input argument corresponds to a square symmetric matrix
   for (int icol = 0; icol < getNCols(); icol++)
@@ -136,33 +136,33 @@ void MatrixCSSym::_setValues(const double* values, bool byCol)
     }
 }
 
-int MatrixCSSym::_invert()
+int MatrixSSym::_invert()
 {
   return matrix_invert_triangle(getNRows(),_squareSymMatrix.data(), -1);
 }
 
-double& MatrixCSSym::_getValueRef(int irow, int icol)
+double& MatrixSSym::_getValueRef(int irow, int icol)
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
 
-void MatrixCSSym::_deallocate()
+void MatrixSSym::_deallocate()
 {
 }
 
-void MatrixCSSym::_recopy(const MatrixCSSym &r)
+void MatrixSSym::_recopy(const MatrixSSym &r)
 {
   _squareSymMatrix = r._squareSymMatrix;
 }
 
-void MatrixCSSym::_allocate()
+void MatrixSSym::_allocate()
 {
   _squareSymMatrix.resize(_getMatrixSize());
 }
 
-int MatrixCSSym::_getIndexToRank(int irow,
+int MatrixSSym::_getIndexToRank(int irow,
                                  int icol) const
 {
   int rank;
@@ -175,32 +175,32 @@ int MatrixCSSym::_getIndexToRank(int irow,
   return rank;
 }
 
-int MatrixCSSym::_getMatrixSize() const
+int MatrixSSym::_getMatrixSize() const
 {
   int n = getNRows();
   int size = n * (n + 1) / 2;
   return size;
 }
 
-int MatrixCSSym::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixSSym::_solve(const VectorDouble& b, VectorDouble& x) const
 {
   int pivot;
   return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),
                       static_cast<int> (b.size()),1,&pivot);
 }
 
-double MatrixCSSym::_determinant() const
+double MatrixSSym::_determinant() const
 {
   return matrix_determinant(getNRows(),_squareSymMatrix.data());
 }
 
-String MatrixCSSym::toString(int level) const
+String MatrixSSym::toString(int level) const
 {
   std::stringstream sstr;
 
    if (isSparse())
    {
-     sstr << AMatrixC::toString(level);
+     sstr << AMatrix::toString(level);
    }
    else
    {

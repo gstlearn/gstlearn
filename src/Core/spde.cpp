@@ -10,8 +10,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #define CASE_MATRICES 0 
-#include "MatrixC/MatrixCFactory.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"

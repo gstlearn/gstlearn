@@ -12,7 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/Rotation.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
 #include "Basic/AStringable.hpp"
 
 class GridOld;
@@ -39,7 +39,7 @@ public:
   void    setX0(int idim,double value);
   void    setDX(int idim,double value);
   void    setNX(int idim,int    value);
-  void    setRotationFromMatrix(const MatrixCSGeneral& rotmat);
+  void    setRotationFromMatrix(const MatrixSGeneral& rotmat);
   void    setRotationFromMatrix(const VectorDouble& rotmat);
   void    setRotationFromAngles(VectorDouble angles);
   void    setRotationFromAngles(double angle);
@@ -115,8 +115,8 @@ public:
                VectorDouble& x0) const;
 
 private:
-  const MatrixCSGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }
-  const MatrixCSGeneral _getRotInv() const { return _rotation.getMatrixInverse(); }
+  const MatrixSGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }
+  const MatrixSGeneral _getRotInv() const { return _rotation.getMatrixInverse(); }
   void _allocate();
   void _recopy(const GridC &r);
   bool _isValid(int idim) const;

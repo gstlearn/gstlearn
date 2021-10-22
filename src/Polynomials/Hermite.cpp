@@ -9,7 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Polynomials/Hermite.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "geoslib_f.h"
@@ -63,7 +63,7 @@ void _calculateIn(VectorDouble& In,
   }
 }
 
-void _calculateJJ(MatrixCSGeneral& JJ,
+void _calculateJJ(MatrixSGeneral& JJ,
                   VectorDouble& In,
                   double yk,
                   double sk,
@@ -212,7 +212,7 @@ double hermiteCondStdElement(double krigest,
                              double krigstd,
                              const VectorDouble& phi)
 {
-  MatrixCSGeneral JJ;
+  MatrixSGeneral JJ;
   int nbpoly = static_cast<int> (phi.size());
   VectorDouble In(nbpoly);
   JJ.reset(nbpoly, nbpoly, TEST);
@@ -335,7 +335,7 @@ VectorDouble hermiteMetalStd(double yc,
                              VectorDouble krigstd,
                              const VectorDouble& phi)
 {
-  MatrixCSGeneral JJ;
+  MatrixSGeneral JJ;
 
   int nech   = static_cast<int> (krigest.size());
   int nbpoly = static_cast<int> (phi.size());
@@ -366,7 +366,7 @@ double hermiteMetalStdElement(double yc,
                               double krigstd,
                               const VectorDouble& phi)
 {
-  MatrixCSGeneral JJ;
+  MatrixSGeneral JJ;
   int nbpoly = static_cast<int> (phi.size());
   VectorDouble In(nbpoly);
   JJ.reset(nbpoly, nbpoly, TEST);
@@ -416,7 +416,7 @@ VectorDouble hermiteCoefMetal(double yc, const VectorDouble& phi)
 {
   int nbpoly = static_cast<int> (phi.size());
   VectorDouble vect(nbpoly);
-  MatrixCSGeneral TAU = hermiteIncompleteIntegral(yc, nbpoly);
+  MatrixSGeneral TAU = hermiteIncompleteIntegral(yc, nbpoly);
   TAU.prodVector(phi.data(), vect.data());
   return vect;
 }
@@ -427,9 +427,9 @@ VectorDouble hermiteCoefMetal(double yc, const VectorDouble& phi)
  * @param nbpoly Number of Hermite polynomials
  * @return The matrix of Incomplete Integral (Dimension: nbpoly * nbpoly)
  */
-MatrixCSGeneral hermiteIncompleteIntegral(double yc, int nbpoly)
+MatrixSGeneral hermiteIncompleteIntegral(double yc, int nbpoly)
 {
-  MatrixCSGeneral TAU;
+  MatrixSGeneral TAU;
 
   TAU.reset(nbpoly, nbpoly, 0.);
   VectorDouble hn = hermitePolynomials(yc, 1., nbpoly);

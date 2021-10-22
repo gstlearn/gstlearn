@@ -12,7 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Matrix/MatrixSGeneral.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
 
@@ -43,7 +43,7 @@ public:
   /// Convenient shortcut methods
 
   /// Covariance at the origin
-  virtual MatrixCSGeneral eval0(const CovCalcMode& mode = CovCalcMode()) const;
+  virtual MatrixSGeneral eval0(const CovCalcMode& mode = CovCalcMode()) const;
 
   /// Covariance between two points
   virtual VectorDouble eval(int ivar,
@@ -51,7 +51,7 @@ public:
                             const std::vector<SpacePoint>& vec_p1,
                             const std::vector<SpacePoint>& vec_p2,
                             const CovCalcMode& mode = CovCalcMode()) const;
-  virtual MatrixCSGeneral eval(const SpacePoint& p1,
+  virtual MatrixSGeneral eval(const SpacePoint& p1,
                                const SpacePoint& p2,
                                const CovCalcMode& mode = CovCalcMode()) const;
 
@@ -68,7 +68,7 @@ public:
                             const VectorDouble& dir,
                             const VectorDouble& center = VectorDouble(),
                             const CovCalcMode& mode = CovCalcMode()) const;
-  virtual MatrixCSGeneral eval(double step,
+  virtual MatrixSGeneral eval(double step,
                                const VectorDouble& dir,
                                const VectorDouble& center = VectorDouble(),
                                const CovCalcMode& mode = CovCalcMode()) const;
@@ -82,7 +82,7 @@ public:
                             int jvar,
                             const VectorDouble& vec_step,
                             const CovCalcMode& mode = CovCalcMode()) const;
-  virtual MatrixCSGeneral eval(double step,
+  virtual MatrixSGeneral eval(double step,
                                const CovCalcMode& mode = CovCalcMode()) const;
 
 };

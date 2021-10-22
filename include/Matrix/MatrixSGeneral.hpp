@@ -13,19 +13,19 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "MatrixC/AMatrixCSquare.hpp"
+#include "Matrix/AMatrixSquare.hpp"
 
 /**
  * Square Matrix General
  */
-class MatrixCSGeneral : public AMatrixCSquare {
+class MatrixSGeneral : public AMatrixSquare {
 
 public:
-  MatrixCSGeneral(int nrow = 0, bool sparse = false);
-  MatrixCSGeneral(const MatrixCSGeneral &m);
-  MatrixCSGeneral(const AMatrixC &m);
-  MatrixCSGeneral& operator= (const MatrixCSGeneral &r);
-	virtual ~MatrixCSGeneral();
+  MatrixSGeneral(int nrow = 0, bool sparse = false);
+  MatrixSGeneral(const MatrixSGeneral &m);
+  MatrixSGeneral(const AMatrix &m);
+  MatrixSGeneral& operator= (const MatrixSGeneral &r);
+	virtual ~MatrixSGeneral();
 
   /*! Clonable interface */
   virtual IClonable* clone() const override;
@@ -45,7 +45,7 @@ protected:
   virtual double& _getValueRef(int irow, int icol) override;
 
 private:
-  bool   _isCompatible(const AMatrixC& m) const override { return (isSameSize(m) && isSquare()); }
+  bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSquare()); }
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int irow, int icol, double value) override;
@@ -60,7 +60,7 @@ private:
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
   double _determinant() const override;
 
-  void   _recopy(const MatrixCSGeneral &r);
+  void   _recopy(const MatrixSGeneral &r);
   int    _getIndexToRank(int irow,int icol) const;
 
 private:

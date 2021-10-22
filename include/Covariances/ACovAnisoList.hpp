@@ -12,7 +12,7 @@
 
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
-#include "MatrixC/MatrixCSSym.hpp"
+#include "Matrix/MatrixSSym.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -67,7 +67,7 @@ public:
   bool            isStationary() const;
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar, int jvar) const;
-  MatrixCSGeneral getTotalSill() const;
+  MatrixSGeneral getTotalSill() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -76,7 +76,7 @@ public:
   const ECov&        getType(unsigned int icov) const;
   String             getCovName(unsigned int icov) const;
   double             getParam(unsigned int icov) const;
-  const MatrixCSSym& getSill(unsigned int icov) const;
+  const MatrixSSym& getSill(unsigned int icov) const;
   double             getSill(unsigned int icov, int ivar, int jvar) const;
   int                getGradParamNumber(unsigned int icov) const;
   void               setSill(unsigned int icov, int ivar, int jvar, double value);

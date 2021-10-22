@@ -15,7 +15,7 @@
 #include "Basic/Vector.hpp"
 
 #include "AMesh.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 /**
  * Meshing defined in the Euclidean space
@@ -50,7 +50,7 @@ public:
              const VectorDouble& dilate = VectorDouble(),
              const String& triswitch = "Q",
              bool verbose = false);
-  int create(const MatrixCRectangular& apices,
+  int create(const MatrixRectangular& apices,
              const VectorInt& meshes,
              bool verbose = false);
   int create(int ndim,
@@ -103,7 +103,7 @@ private:
   void _checkConsistency() const;
 
 private:
-  MatrixCRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
-  VectorInt          _meshes; // TODO MatrixCRectangular of Int. Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
+  MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
+  VectorInt          _meshes; // TODO MatrixRectangular of Int. Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
   VectorDouble       _units;
 };
