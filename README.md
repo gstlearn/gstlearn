@@ -18,11 +18,11 @@ The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library 
 ## Requirements
 This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LTS and Windows 10
 For compiling and installing *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
-  * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
-  * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
   * [Git](https://git-scm.com/downloads) client
-  * [Boost](https://www.boost.org/users/download) library
   * [CMake](https://cmake.org/download) tool
+  * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
+  * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
+  * [Boost](https://www.boost.org/users/download) library
   
 ## Get the sources
 For getting the sources files, just clone the github repository:
@@ -42,7 +42,9 @@ For compiling and installing the *gstlearn* library, execute the following instr
 This requires Administrator rights:
 
 ```sh
-cd build ; cmake  -DCMAKE_BUILD_TYPE=Release .. ; cd ..
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cd ..
 cmake --build build --config Release
 sudo cmake --build build --target install
 ```
@@ -51,7 +53,9 @@ sudo cmake --build build --target install
 You can choose a different installation directory by modifying the first CMake command above:
   
 ```
-cd build ; cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/home/fors/Programmes/gstlearn .. ; cd ..
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/home/fors/Programmes/gstlearn ..
+cd ..
 cmake --build build --config Release
 cmake --build build --target install
 ```
@@ -63,6 +67,7 @@ You may want to modify `make` behavior. In that case, add `--` at the end of the
   
 Notes:
   * If you want to build and install the *Debug* version, you must replace *Release* by *Debug* above.
+  * In newer version of CMake, the three first commands will be replaced by `cmake -Bbuild -H.`
 TODO : Ensure debug/release instructions are cross-platform
 
 ## Usage
@@ -74,9 +79,9 @@ TODO: Instructions will come soon
 Under Linux, the GCC compiler is already installed
 
 ```sh
-sudo apt install doxygen
 sudo apt install git
 sudo apt install cmake
+sudo apt install doxygen
 sudo apt install libboost-dev
 ```
 
@@ -84,19 +89,19 @@ sudo apt install libboost-dev
 Under MacOS, the GCC (or Clang) compiler is already installed (Not tested)
 
 ```sh
-brew install doxygen
 brew install git
 brew install cmake
+brew install doxygen
 brew install libboost-dev
 ```
 
 ### Windows:
 Download and install the following tools:
-  * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (installed in the directory *C:\\doxygen* for example)
-  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below)
   * Git client [from here](https://gitforwindows.org) (Use default options during installation)
-  * Boost library [from here](https://www.boost.org/users/download) (download and extract the zip file anywhere)
-  * CMake tool [from here](https://cmake.org/download)
+  * CMake tool [from here](https://cmake.org/download) (Check the 'Add CMake to the Path' option during installation)
+  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below)
+  * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
+  * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory. If you choose another directory, CMake won't find it!)
     
 Notes:
   * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (more details [here](https://stackoverflow.com/a/44398715)). Administrator rights are required. If you prefer using another smaller compiler (i.e. MinGW), you could [try this](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) (not tested)
