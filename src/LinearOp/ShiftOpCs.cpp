@@ -218,6 +218,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
   try
   {
     if (verbose) message(">>> Using the new calculation module <<<\n");
+    _ndim = amesh->getNDim();
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
@@ -275,8 +276,6 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
 
     if (! flagAdvection)
       cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
-
-    _ndim = amesh->getNDim();
   }
 
   catch (const char * str)
@@ -601,6 +600,7 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
 void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int ip)
 {
   // Initializations
+  if (! _isNoStat()) return;
   if (_isNoStatByHH()) return;
   int igrf = _getIgrf();
   int icov = _getIcov();
