@@ -235,6 +235,9 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
     // Calculating and storing the mesh sizes
     VectorDouble units = amesh->getMeshSizes();
 
+    // Define if parametrization is in HH or in range/angle
+    _determineFlagGradByHH();
+
     // Attach the Model
     if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
                    1, 1, 0, 0))
@@ -680,10 +683,10 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
     hh.fill(0.);
     int ecr = 0;
     for (int idim = 0; idim < ndim; idim++)
-      for (int jdim = 0; jdim < ndim; jdim++)
+      for (int jdim = idim; jdim < ndim; jdim++)
       {
-        if (ecr != igparam) continue;
-        hh.setValue(idim, jdim, 1.);
+        if (ecr == igparam) hh.setValue(idim, jdim, 1.);
+        ecr++;
       }
   }
   else
@@ -757,13 +760,11 @@ void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
  * @param amesh   Meshing structure
  * @param igp0    Rank of the Apex for derivation (between 0 to nApices-1)
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
- * @param imesh   Rank of the current mesh
  */
 void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                                    AMesh* amesh,
                                    int igp0,
-                                   int igparam,
-                                   int imesh)
+                                   int igparam)
 {
   int number = amesh->getNApexPerMesh();
   hh.fill(0.);
@@ -907,7 +908,7 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
           {
             int ip0 = amesh->getApex(imesh, j0);
             int ip1 = amesh->getApex(imesh, j1);
-            _loadHHGradPerMesh(hh, amesh, igp0, igparam, imesh);
+            _loadHHGradPerMesh(hh, amesh, igp0, igparam);
             mat.normMatrix(hh, matw);
 
             double vald = mat.getValue(j0, j1) * meshSize;
@@ -1333,20 +1334,51 @@ bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
 
   /* Core allocation */
 
-  _LambdaGrad.clear();
-  VectorDouble temp(nvertex);
-  for(int i = 0; i< ndim; i++)
-    _LambdaGrad.push_back(temp);
+  int number = getLambdaGradSize();
+  if (_LambdaGrad.empty())
+  {
+    _LambdaGrad.clear();
+    VectorDouble temp(nvertex);
+    for(int i = 0; i< number; i++)
+      _LambdaGrad.push_back(temp);
+  }
 
   /* Fill the array */
-  for (int ip = 0; ip < nvertex; ip++)
-  {
-    // Locally update the covariance for non-stationarity (if necessary)
-    _updateCova(cova, ip);
 
-    for(int idim = 0;idim < ndim ;idim++)
+  if (_flagGradByHH)
+  {
+
+    // Filling by HH
+
+    MatrixSquareSymmetric hh(ndim);
+    for (int ip = 0; ip < nvertex; ip++)
     {
-      _LambdaGrad[idim][ip] = - _Lambda[ip] / (2. * cova->getScale(idim));
+      // Update HH locally
+      _updateHH(hh, ip);
+      double det = hh.determinant();
+      hh.invert();
+
+      for (int idim = 0; idim < number; idim++)
+       {
+        // TODO update the formula
+//         _LambdaGrad[idim][ip] = -_Lambda[ip] / (2. * cova->getScale(idim));
+       }
+    }
+  }
+  else
+  {
+
+    // Filling by range / angle
+
+    for (int ip = 0; ip < nvertex; ip++)
+    {
+      // Locally update the covariance for non-stationarity (if necessary)
+      _updateCova(cova, ip);
+
+      for (int idim = 0; idim < number; idim++)
+      {
+        _LambdaGrad[idim][ip] = -_Lambda[ip] / (2. * cova->getScale(idim));
+      }
     }
   }
   return false;
@@ -1470,4 +1502,22 @@ bool ShiftOpCs::_isVelocity()
   int igrf = _getIgrf();
   int icov = _getIcov();
   return nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1);
+}
+
+int ShiftOpCs::getLambdaGradSize() const
+{
+  if (_flagGradByHH)
+    return _nModelGradParam;
+  else
+    return _ndim;
+}
+
+void ShiftOpCs::_determineFlagGradByHH()
+{
+  _flagGradByHH = false;
+  if (! _isNoStat()) return;
+
+  int igrf = _getIgrf();
+  const ANoStat* nostat = _getModel()->getNoStat();
+  _flagGradByHH = nostat->isDefinedByType(igrf, EConsElem::TENSOR);
 }

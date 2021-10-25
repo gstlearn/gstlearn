@@ -100,6 +100,7 @@ public:
 
   bool getFlagGradByHh() const { return _flagGradByHH; }
   void setFlagGradByHh(bool flagGradByHh) { _flagGradByHH = flagGradByHh; }
+  int  getLambdaGradSize() const;
 
 private:
   int _getIcov() const { return _icov; }
@@ -119,26 +120,29 @@ private:
   int  _buildSGrad(AMesh *amesh, double tol = EPSILON10);
   int  _buildTildeC(AMesh *amesh, const VectorDouble& units);
   void _buildLambda(AMesh *amesh);
-  bool _buildLambdaGrad(AMesh *amesh);
-  void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
-  void _loadHHGradByApex(MatrixSquareSymmetric& hh,
-                         int igparam,
-                         int ip);
+
   void _loadAux(VectorDouble& tab,
                 const EConsElem& type,
                 int ip);
-  void _loadHHPerMesh(MatrixSquareSymmetric& hh,
-                      AMesh* amesh,
-                      int imesh = 0);
-  void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
-                          AMesh* amesh,
-                          int igp0,
-                          int igparam,
-                          int imesh = 0);
   void _loadAuxPerMesh(VectorDouble& tab,
                        AMesh* amesh,
                        const EConsElem& type,
                        int imesh = 0);
+  void _loadHHPerMesh(MatrixSquareSymmetric& hh,
+                      AMesh* amesh,
+                      int imesh = 0);
+  void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
+
+  void _loadHHGradByApex(MatrixSquareSymmetric& hh,
+                         int igparam,
+                         int ip);
+
+  void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
+                          AMesh* amesh,
+                          int igp0,
+                          int igparam);
+  bool _buildLambdaGrad(AMesh *amesh);
+
   void _reset();
   void _resetGrad();
   void _reallocate(const ShiftOpCs& shift);
@@ -154,6 +158,7 @@ private:
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
+  void _determineFlagGradByHH();
 
 private:
   VectorDouble _TildeC;
