@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   // Creating the Non-stationary Model
   Model model = Model(&workingDbc);
   CovAniso cova = CovAniso(ECov::BESSEL_K,model.getContext());
-  cova.setRanges({10,45});
+  cova.setRanges({45,10});
   model.addCova(&cova);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
@@ -100,14 +100,14 @@ int main(int argc, char *argv[])
   ShiftOpCs S(&mesh, &model, &workingDbc);
   PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF, false);
 
-  VectorDouble vectnew = VectorDouble(Qsimu.getSize());
-  // Remplir vectnew de valeurs gaussiennes
+  int nvertex = Qsimu.getSize();
+  VectorDouble vectnew = ut_vector_simulate_gaussian(nvertex);
 
   VectorDouble result(Qsimu.getSize());
   Qsimu.eval(vectnew,result);
   workingDbc.addFields(result,"Simu",ELoc::Z);
 
-  //Sérialiser
+  workingDbc.serialize("spirale.ascii");
 
   return 0;
 }
