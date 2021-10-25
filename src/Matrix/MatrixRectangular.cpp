@@ -8,82 +8,82 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/MatrixCRectangular.hpp"
-#include "MatrixC/AMatrixC.hpp"
+#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-MatrixCRectangular::MatrixCRectangular(int nrows, int ncols, bool sparse)
-    : AMatrixC(nrows, ncols, sparse),
+MatrixRectangular::MatrixRectangular(int nrows, int ncols, bool sparse)
+    : AMatrix(nrows, ncols, sparse),
       _rectMatrix()
 {
   _allocate();
 }
 
-MatrixCRectangular::MatrixCRectangular(const MatrixCRectangular &r)
-  : AMatrixC(r)
+MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
+  : AMatrix(r)
 {
   _recopy(r);
 }
 
-MatrixCRectangular& MatrixCRectangular::operator= (const MatrixCRectangular &r)
+MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
 {
   if (this != &r)
   {
     _deallocate();
-    AMatrixC::operator=(r);
+    AMatrix::operator=(r);
     _recopy(r);
   }
   return *this;
 }
 
-MatrixCRectangular::~MatrixCRectangular()
+MatrixRectangular::~MatrixRectangular()
 {
   _deallocate();
 }
 
-IClonable* MatrixCRectangular::clone() const
+IClonable* MatrixRectangular::clone() const
 {
-  return new MatrixCRectangular(*this);
+  return new MatrixRectangular(*this);
 }
 
-double MatrixCRectangular::_getValue(int irow, int icol) const
+double MatrixRectangular::_getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
 }
 
-double MatrixCRectangular::_getValue(int irank) const
+double MatrixRectangular::_getValue(int irank) const
 {
   _isRankValid(irank);
   return _rectMatrix[irank];
 }
 
-void MatrixCRectangular::_setValue(int irank, double value)
+void MatrixRectangular::_setValue(int irank, double value)
 {
   _isRankValid(irank);
   _rectMatrix[irank] = value;
 }
 
-void MatrixCRectangular::_setValue(int irow, int icol, double value)
+void MatrixRectangular::_setValue(int irow, int icol, double value)
 {
   _isIndexValid(irow, icol);
   int rank = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = value;
 }
 
-void MatrixCRectangular::_prodVector(const double *in, double *out) const
+void MatrixRectangular::_prodVector(const double *in, double *out) const
 {
   matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), in, out);
 }
 
-void MatrixCRectangular::_transposeInPlace()
+void MatrixRectangular::_transposeInPlace()
 {
   if (isSparse())
   {
-    AMatrixC::transposeInPlace();
+    AMatrix::transposeInPlace();
   }
   else
   {
@@ -97,7 +97,7 @@ void MatrixCRectangular::_transposeInPlace()
   }
 }
 
-void MatrixCRectangular::_setValues(const double* values, bool byCol)
+void MatrixRectangular::_setValues(const double* values, bool byCol)
 {
   if (byCol)
   {
@@ -120,53 +120,53 @@ void MatrixCRectangular::_setValues(const double* values, bool byCol)
 }
 
 /*! Gets a reference to the value at row 'irow' and column 'icol' */
-double& MatrixCRectangular::_getValueRef(int irow, int icol)
+double& MatrixRectangular::_getValueRef(int irow, int icol)
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
 }
 
-void MatrixCRectangular::_deallocate()
+void MatrixRectangular::_deallocate()
 {
 
 }
 
-void MatrixCRectangular::_recopy(const MatrixCRectangular &r)
+void MatrixRectangular::_recopy(const MatrixRectangular &r)
 {
   _rectMatrix = r._rectMatrix;
 }
 
-void MatrixCRectangular::_allocate()
+void MatrixRectangular::_allocate()
 {
   _rectMatrix.resize(_getMatrixSize(),0.);
 }
 
-int MatrixCRectangular::_getIndexToRank(int irow,
+int MatrixRectangular::_getIndexToRank(int irow,
                                         int icol) const
 {
   int rank = icol * getNRows() + irow;
   return rank;
 }
 
-int MatrixCRectangular::_getMatrixSize() const
+int MatrixRectangular::_getMatrixSize() const
 {
   return (getNRows() * getNCols());
 }
 
-int MatrixCRectangular::_invert()
+int MatrixRectangular::_invert()
 {
   my_throw("Invert method is limited to Square matrices");
   return 0;
 }
 
-int MatrixCRectangular::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixRectangular::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) const
 {
   my_throw("Invert method is limited to Square Symmetrical Matrices");
   return 0;
 }
 
-double MatrixCRectangular::_determinant() const
+double MatrixRectangular::_determinant() const
 {
   my_throw("Determinant method is limited to Square Matrices");
   return TEST;

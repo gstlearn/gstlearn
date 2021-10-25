@@ -8,34 +8,34 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <MatrixC/AMatrixCSquare.hpp>
-#include <MatrixC/AMatrixC.hpp>
+#include <Matrix/AMatrixSquare.hpp>
+#include <Matrix/AMatrix.hpp>
 #include "Basic/AException.hpp"
 
-AMatrixCSquare::AMatrixCSquare(int nrow, bool sparse)
-  : AMatrixC(nrow, nrow, sparse)
+AMatrixSquare::AMatrixSquare(int nrow, bool sparse)
+  : AMatrix(nrow, nrow, sparse)
 {
 }
 
-AMatrixCSquare::AMatrixCSquare(const AMatrixCSquare &r)
-  : AMatrixC(r)
+AMatrixSquare::AMatrixSquare(const AMatrixSquare &r)
+  : AMatrix(r)
 {
 }
 
-AMatrixCSquare& AMatrixCSquare::operator= (const AMatrixCSquare &r)
+AMatrixSquare& AMatrixSquare::operator= (const AMatrixSquare &r)
 {
   if (this != &r)
   {
-    AMatrixC::operator=(r);
+    AMatrix::operator=(r);
   }
   return *this;
 }
 
-AMatrixCSquare::~AMatrixCSquare()
+AMatrixSquare::~AMatrixSquare()
 {
 }
 
-void AMatrixCSquare::_setNSize(int nval)
+void AMatrixSquare::_setNSize(int nval)
 {
   _setNRows(nval);
   _setNCols(nval);
@@ -48,7 +48,7 @@ void AMatrixCSquare::_setNSize(int nval)
  * \remarks The number of rows of Y must be equal to the dimension of X
  * \remarks The output matrix is square with dimension equal to the number of columns of Y
  */
-void AMatrixCSquare::normMatrix(const AMatrixCSquare& x, const AMatrixC& y)
+void AMatrixSquare::normMatrix(const AMatrixSquare& x, const AMatrix& y)
 {
   if (x.getNSize() != y.getNRows())
   {
@@ -82,9 +82,9 @@ void AMatrixCSquare::normMatrix(const AMatrixCSquare& x, const AMatrixC& y)
  * \remarks The number of rows of Y must be equal to the dimension of X
  * \remarks The output matrix is square with dimension equal to the number of columns of Y
  */
-void AMatrixCSquare::innerMatrix(const AMatrixCSquare& x,
-                                 const AMatrixC& r1,
-                                 const AMatrixC& r2)
+void AMatrixSquare::innerMatrix(const AMatrixSquare& x,
+                                 const AMatrix& r1,
+                                 const AMatrix& r2)
 {
   int n = x.getNSize();
   if (n != r1.getNRows())
@@ -115,9 +115,9 @@ void AMatrixCSquare::innerMatrix(const AMatrixCSquare& x,
   }
 }
 
-bool AMatrixCSquare::_isNumberValid(int nrows, int ncols) const
+bool AMatrixSquare::_isNumberValid(int nrows, int ncols) const
 {
-  AMatrixC::_isNumbersValid(nrows,ncols);
+  AMatrix::_isNumbersValid(nrows,ncols);
   if (nrows != ncols)
   {
     messerr("Arguments 'nrows' and 'ncols' should be equal for Square Matrices");
@@ -127,7 +127,7 @@ bool AMatrixCSquare::_isNumberValid(int nrows, int ncols) const
 }
 
 /*! Multiply the diagonal by a vector */
-void AMatrixCSquare::prodDiagByVector(const VectorDouble& diag)
+void AMatrixSquare::prodDiagByVector(const VectorDouble& diag)
 {
   if ((int) diag.size() != getNRows())
     my_throw("Argument 'Diag' must match Matrix dimension");
@@ -139,7 +139,7 @@ void AMatrixCSquare::prodDiagByVector(const VectorDouble& diag)
 }
 
 /*! Divide the diagonal by a vector */
-void AMatrixCSquare::divideDiagByVector(const VectorDouble& diag)
+void AMatrixSquare::divideDiagByVector(const VectorDouble& diag)
 {
   if ((int) diag.size() != getNRows())
     my_throw("Argument 'Diag' must match Matrix dimension");

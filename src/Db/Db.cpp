@@ -411,11 +411,10 @@ Db::Db(const Db* dbin,
   // Creating the vector of selected samples
 
   int nfrom = dbin->getSampleNumber();
-  VectorInt ranks = ut_vector_sample(nfrom, proportion);
+  VectorInt ranks = ut_vector_sample(nfrom, proportion, seed);
   _nech = static_cast<int> (ranks.size());
   if (verbose)
-    message("From %d samples, the extraction concerns %d samples\n", nfrom,
-            _nech);
+    message("From %d samples, the extraction concerns %d samples\n", nfrom,_nech);
 
   // Create the new data base
 
@@ -1618,7 +1617,7 @@ double Db::getFieldSize(bool useSel) const
   double diag = 0.;
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    VectorDouble ext = getExtrema(idim);
+    VectorDouble ext = getExtrema(idim, useSel);
     double delta = ext[1] - ext[0];
     diag += delta * delta;
   }
@@ -1727,7 +1726,7 @@ int Db::getNDim() const
   }
 }
 
-bool Db::hasSameDimension(const Db* dbaux, bool verbose) const
+bool Db::hasSameDimension(const Db* dbaux) const
 {
   bool retOK = dbaux->getNDim() == getNDim();
   if (!retOK)
@@ -1738,10 +1737,9 @@ bool Db::hasSameDimension(const Db* dbaux, bool verbose) const
 /**
  * Check if the Space Dimension of 'dbaux' is larger (or equal) than the one of 'this'
  * @param dbaux    Second Db
- * @param verbose  Verbose flag
  * @return
  */
-bool Db::hasLargerDimension(const Db* dbaux, bool verbose) const
+bool Db::hasLargerDimension(const Db* dbaux) const
 {
   bool retOK = dbaux->getNDim() >= getNDim();
   if (!retOK)
@@ -2998,7 +2996,7 @@ String Db::_display(unsigned char params,
   return sstr.str();
 }
 
-String Db::toString(int level) const
+String Db::toString(int /*level*/) const
 {
   std::stringstream sstr;
   sstr << _display(FLAG_RESUME | FLAG_VARS);

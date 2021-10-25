@@ -145,7 +145,7 @@ String RuleShadow::displaySpecific(int flagProp, int flagThresh) const
 int RuleShadow::particularities(Db *db,
                                 const Db *dbprop,
                                 Model *model,
-                                int flag_grid_check,
+                                int /*flag_grid_check*/,
                                 int flag_stat) const
 {
   double sh_dsup_max,sh_down_max;
@@ -313,9 +313,9 @@ double RuleShadow::_st_grid_eval(Db *dbgrid,
 ** \remark Attributes ELoc::FACIES are mandatory
 **
 *****************************************************************************/
-int RuleShadow::gaus2facData(PropDef *propdef,
-                             Db *dbin,
-                             Db *dbout,
+int RuleShadow::gaus2facData(PropDef* propdef,
+                             Db* dbin,
+                             Db* /*dbout*/,
                              int *flag_used,
                              int ipgs,
                              int isimu,
@@ -374,9 +374,9 @@ int RuleShadow::gaus2facData(PropDef *propdef,
 ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
 **
 *****************************************************************************/
-int RuleShadow::gaus2facResult(PropDef *propdef,
-                               Db *dbout,
-                               int *flag_used,
+int RuleShadow::gaus2facResult(PropDef* propdef,
+                               Db* dbout,
+                               int* /*flag_used*/,
                                int ipgs,
                                int isimu,
                                int nbsimu) const

@@ -64,7 +64,7 @@ public:
   const std::vector<ConsItem>& getNoStat() const { return _items; }
   const ConsItem getNoStat(int ipar) const { return _items[ipar]; }
 
-  const int attachModel(const Model* model);
+  int attachModel(const Model* model);
 
   bool matchIGrf(int ipar, int igrf0) const { return _items[ipar].matchIGrf(igrf0); }
   bool matchICov(int ipar, int icov0) const { return _items[ipar].matchICov(icov0); }

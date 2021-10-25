@@ -702,10 +702,10 @@ static int st_belong_to_layer(Frac_Desc& desc,
 ** \param[in]  ifrac0       Rank of the current fracture
 **
 *****************************************************************************/
-static void st_check_fracture_intersect(Frac_Environ *frac_environ,
+static void st_check_fracture_intersect(Frac_Environ* /*frac_environ*/,
                                         Frac_List    *frac_list,
                                         double        cote,
-                                        double        thick,
+                                        double       /*thick*/,
                                         int           ifrac0)
 {
   double xd1,xe1,yd1,ye1,xd2,xe2,yd2,ye2,x,y;
@@ -866,7 +866,7 @@ static void st_update_repulsion(double  x0,
 **
 *******************************************************************F**********/
 static int st_simulate_fractures(Frac_Environ *frac_environ,
-                                 int           ilayer,
+                                 int         /*ilayer*/,
                                  int           family,
                                  double        cote,
                                  double        thick,
@@ -1141,12 +1141,12 @@ static double st_layer_intensity(Frac_Environ *frac_environ,
 ** \param[in]  thickp       Thickness of the previous layer
 **
 *****************************************************************************/
-static double st_derive_intensity(Frac_Environ *frac_environ,
-                                  int           family,
+static double st_derive_intensity(Frac_Environ* /*frac_environ*/,
+                                  int         /*family*/,
                                   double        theta1,
                                   double        thetap,
                                   double        propsur,
-                                  double        thickp)
+                                  double      /*thickp*/)
 {
   //  Frac_Fam *frac_fam;
   double theta2;
@@ -1710,11 +1710,11 @@ static int st_get_nbyout(void)
 ** \remarks The allocated array must be freed
 **
 *****************************************************************************/
-GEOSLIB_API void fracture_export(Frac_Environ *frac_environ,
-                                 Frac_List    *frac_list,
-                                 int          *nfracs_arg,
-                                 int          *nbyfrac_arg,
-                                 double      **fracs_arg)
+GEOSLIB_API void fracture_export(Frac_Environ* /*frac_environ*/,
+                                 Frac_List* frac_list,
+                                 int* nfracs_arg,
+                                 int* nbyfrac_arg,
+                                 double** fracs_arg)
 {
   int     nfracs,nbyfrac,ifrac,ip,ntotal;
   double *frac_segs;
@@ -2111,14 +2111,14 @@ static void st_plunge_segment_gradual(Db     *dbgrid,
 ** \param[in]  ndisc        Number of discretization steps
 **
 *****************************************************************************/
-GEOSLIB_API int fracture_to_block(Db           *dbgrid,
-                                  Frac_List    *frac_list,
-                                  double       *locinfo,
+GEOSLIB_API int fracture_to_block(Db* dbgrid,
+                                  Frac_List* frac_list,
+                                  double* locinfo,
                                   int           n_layers,
                                   int           nfamilies,
                                   double        xmax,
-                                  double       *permtab,
-                                  int           n_perm,
+                                  double* permtab,
+                                  int         /*n_perm*/,
                                   double        perm_mat,
                                   double        perm_bench,
                                   int           ndisc)

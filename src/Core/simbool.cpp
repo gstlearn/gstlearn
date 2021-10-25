@@ -807,10 +807,10 @@ static double st_generate_value(int rank)
 ** \param[in]  object  Bool_Object to be generated
 **
 *****************************************************************************/
-static int st_check_type0(double       dx,
-                          double       dy,
-                          double       dz,
-                          Bool_Object *object)
+static int st_check_type0(double       /*dx*/,
+                          double       /*dy*/,
+                          double       /*dz*/,
+                          Bool_Object* /*object*/)
 {
   return(1);
 }

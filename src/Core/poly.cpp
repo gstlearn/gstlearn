@@ -91,8 +91,8 @@ GEOSLIB_API Polygons *polygon_add(Polygons *polygon,
 ** \li                      2 : The vertices for each polyset
 **
 *****************************************************************************/
-GEOSLIB_API void polygon_print(Polygons *polygon,
-                               int flag_print)
+GEOSLIB_API void polygon_print(Polygons* polygon,
+                               int /*flag_print*/)
 
 {
   if (polygon == nullptr) return;

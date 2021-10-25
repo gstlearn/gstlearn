@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/AMatrixC.hpp"
-#include "MatrixC/MatrixCFactory.hpp"
+#include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
@@ -18,7 +18,7 @@
 
 #include <iomanip>
 
-AMatrixC::AMatrixC(int nrow, int ncol, bool sparse)
+AMatrix::AMatrix(int nrow, int ncol, bool sparse)
     : _nRows(nrow),
       _nCols(ncol),
       _sparse(sparse),
@@ -28,7 +28,7 @@ AMatrixC::AMatrixC(int nrow, int ncol, bool sparse)
   if (sparse) _initiateSparse();
 }
 
-AMatrixC::AMatrixC(const cs* A)
+AMatrix::AMatrix(const cs* A)
     : _nRows(0),
       _nCols(0),
       _sparse(true),
@@ -37,7 +37,7 @@ AMatrixC::AMatrixC(const cs* A)
   _recopySparse(A);
 }
 
-AMatrixC::AMatrixC(const AMatrixC &m)
+AMatrix::AMatrix(const AMatrix &m)
     : _nRows(m._nRows),
       _nCols(m._nCols),
       _sparse(m._sparse),
@@ -49,7 +49,7 @@ AMatrixC::AMatrixC(const AMatrixC &m)
   }
 }
 
-AMatrixC& AMatrixC::operator=(const AMatrixC &m)
+AMatrix& AMatrix::operator=(const AMatrix &m)
 {
   _nRows = m._nRows;
   _nCols = m._nCols;
@@ -65,7 +65,7 @@ AMatrixC& AMatrixC::operator=(const AMatrixC &m)
   return *this;
 }
 
-AMatrixC::~AMatrixC()
+AMatrix::~AMatrix()
 {
   if (_sparse)
   {
@@ -73,7 +73,7 @@ AMatrixC::~AMatrixC()
   }
 }
 
-void AMatrixC::init(int nrows, int ncols, bool sparse)
+void AMatrix::init(int nrows, int ncols, bool sparse)
 {
   if (_sparse)
   {
@@ -84,7 +84,7 @@ void AMatrixC::init(int nrows, int ncols, bool sparse)
   _sparse = sparse;
 }
 
-bool AMatrixC::isSquare(bool printWhyNot) const
+bool AMatrix::isSquare(bool printWhyNot) const
 {
   if (isEmpty()) return false;
   if (_nRows != _nCols)
@@ -105,7 +105,7 @@ bool AMatrixC::isSquare(bool printWhyNot) const
  * @param printWhyNot Print the message is the answer if false
  * @return true if indices are valid for the current matrix size
  */
-bool AMatrixC::isValid(int irow, int icol, bool printWhyNot) const
+bool AMatrix::isValid(int irow, int icol, bool printWhyNot) const
 {
   if (irow < 0 || irow >= getNRows())
   {
@@ -130,12 +130,12 @@ bool AMatrixC::isValid(int irow, int icol, bool printWhyNot) const
  * @param m Matrix to be compared to the current Matrix
  * @return true if 'm' has same dimensions as the current Matrix
  */
-bool AMatrixC::isSameSize(const AMatrixC& m) const
+bool AMatrix::isSameSize(const AMatrix& m) const
 {
   return (_nRows == m.getNRows() && _nCols == m.getNCols());
 }
 
-bool AMatrixC::isSame(const AMatrixC& m, double eps)
+bool AMatrix::isSame(const AMatrix& m, double eps)
 {
   if (! isSameSize(m)) return false;
 
@@ -147,7 +147,7 @@ bool AMatrixC::isSame(const AMatrixC& m, double eps)
   return true;
 }
 
-void AMatrixC::reset(int nrows, int ncols, bool sparse)
+void AMatrix::reset(int nrows, int ncols, bool sparse)
 {
   _isNumbersValid(nrows, ncols);
   _sparse = sparse;
@@ -165,7 +165,7 @@ void AMatrixC::reset(int nrows, int ncols, bool sparse)
   }
 }
 
-void AMatrixC::reset(int nrows, int ncols, double value, bool sparse)
+void AMatrix::reset(int nrows, int ncols, double value, bool sparse)
 {
   _isNumbersValid(nrows, ncols);
   _sparse = sparse;
@@ -184,7 +184,7 @@ void AMatrixC::reset(int nrows, int ncols, double value, bool sparse)
   }
 }
 
-void AMatrixC::reset(int nrows, int ncols, const double* tab, bool sparse)
+void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
 {
   _isNumbersValid(nrows, ncols);
   _sparse = sparse;
@@ -205,7 +205,7 @@ void AMatrixC::reset(int nrows, int ncols, const double* tab, bool sparse)
   }
 }
 
-void AMatrixC::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse)
+void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse)
 {
   _isNumbersValid(nrows, ncols);
   _sparse = sparse;
@@ -223,7 +223,7 @@ void AMatrixC::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse)
   }
 }
 
-void AMatrixC::fillRandom(int seed, double zeroPercent)
+void AMatrix::fillRandom(int seed, double zeroPercent)
 {
   law_set_random_seed(seed);
 
@@ -264,7 +264,7 @@ void AMatrixC::fillRandom(int seed, double zeroPercent)
   }
 }
 
-bool AMatrixC::isSymmetric(bool printWhyNot) const
+bool AMatrix::isSymmetric(bool printWhyNot) const
 {
   if (isEmpty() || ! isSquare()) return false;
 
@@ -283,7 +283,7 @@ bool AMatrixC::isSymmetric(bool printWhyNot) const
   return true;
 }
 
-bool AMatrixC::isIdentity(bool printWhyNot) const
+bool AMatrix::isIdentity(bool printWhyNot) const
 {
   for (int irow = 0; irow < getNRows(); irow++)
     for (int icol = 0; icol < getNCols(); icol++)
@@ -300,7 +300,7 @@ bool AMatrixC::isIdentity(bool printWhyNot) const
   return true;
 }
 
-bool AMatrixC::isDiagonal(bool printWhyNot) const
+bool AMatrix::isDiagonal(bool printWhyNot) const
 {
   if (isEmpty() || ! isSquare()) return false;
 
@@ -321,7 +321,7 @@ bool AMatrixC::isDiagonal(bool printWhyNot) const
   return true;
 }
 
-bool AMatrixC::isDiagCst(bool printWhyNot) const
+bool AMatrix::isDiagCst(bool printWhyNot) const
 {
   if (isEmpty() || ! isSquare()) return false;
 
@@ -356,7 +356,7 @@ bool AMatrixC::isDiagCst(bool printWhyNot) const
   return true;
 }
 
-void AMatrixC::transposeInPlace()
+void AMatrix::transposeInPlace()
 {
   if (_sparse)
   {
@@ -370,16 +370,16 @@ void AMatrixC::transposeInPlace()
   }
 }
 
-AMatrixC* AMatrixC::transpose() const
+AMatrix* AMatrix::transpose() const
 {
-  AMatrixC* mat = dynamic_cast<AMatrixC*>(clone());
+  AMatrix* mat = dynamic_cast<AMatrix*>(clone());
   mat->transposeInPlace();
   return mat;
 }
 
-AMatrixC* AMatrixC::toSparse() const
+AMatrix* AMatrix::toSparse() const
 {
-  AMatrixC* mat = dynamic_cast<AMatrixC*>(clone());
+  AMatrix* mat = dynamic_cast<AMatrix*>(clone());
 
   // Create the triplet structure from the non-zero terms of source matrix
 
@@ -399,7 +399,7 @@ AMatrixC* AMatrixC::toSparse() const
   return mat;
 }
 
-void AMatrixC::toSparseInPlace()
+void AMatrix::toSparseInPlace()
 {
   // Create the triplet structure from the non-zero terms of source matrix
 
@@ -419,7 +419,7 @@ void AMatrixC::toSparseInPlace()
 }
 
 /*! Sets the value at row 'irow' and column 'icol' */
-void AMatrixC::setValue(int irow, int icol, double value)
+void AMatrix::setValue(int irow, int icol, double value)
 {
   if (_sparse)
   {
@@ -433,7 +433,7 @@ void AMatrixC::setValue(int irow, int icol, double value)
 }
 
 /*! Gets the value at row 'irow' and column 'icol' */
-double AMatrixC::getValue(int irow, int icol) const
+double AMatrix::getValue(int irow, int icol) const
 {
   _isIndexValid(irow, icol);
   if (_sparse)
@@ -447,7 +447,7 @@ double AMatrixC::getValue(int irow, int icol) const
 }
 
 /*! Gets the value at rank 'rank' */
-double AMatrixC::getValue(int rank) const
+double AMatrix::getValue(int rank) const
 {
   if (_sparse)
   {
@@ -461,7 +461,7 @@ double AMatrixC::getValue(int rank) const
 }
 
 /*! Gets a reference to the value at row 'irow' and column 'icol' */
-double& AMatrixC::getValueRef(int irow, int icol)
+double& AMatrix::getValueRef(int irow, int icol)
 {
   if (_sparse)
   {
@@ -474,7 +474,7 @@ double& AMatrixC::getValueRef(int irow, int icol)
  * Fill 'this' with the constant 'value'
  * @param value Constant value used for filling 'this'
  */
-void AMatrixC::fill(double value)
+void AMatrix::fill(double value)
 {
   if (_sparse)
   {
@@ -503,7 +503,7 @@ void AMatrixC::fill(double value)
  * @param values
  * @param byCol true for Column major; false for Row Major
  */
-void AMatrixC::setValues(const double* values, bool byCol)
+void AMatrix::setValues(const double* values, bool byCol)
 {
   if (_sparse)
   {
@@ -546,7 +546,7 @@ void AMatrixC::setValues(const double* values, bool byCol)
  * @param values
  * @param byCol true for Column major; false for Row Major
  */
-void AMatrixC::setValues(const VectorDouble& values, bool byCol)
+void AMatrix::setValues(const VectorDouble& values, bool byCol)
 {
   if ((int) values.size() != getNTotal())
   {
@@ -557,7 +557,7 @@ void AMatrixC::setValues(const VectorDouble& values, bool byCol)
   setValues(values.data(),byCol);
 }
 
-void AMatrixC::setValues(const VectorInt irows,
+void AMatrix::setValues(const VectorInt irows,
                          const VectorInt icols,
                          const VectorDouble values)
 {
@@ -585,7 +585,7 @@ void AMatrixC::setValues(const VectorInt irows,
   }
 }
 
-void AMatrixC::setIdentity(double value)
+void AMatrix::setIdentity(double value)
 {
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
@@ -596,7 +596,7 @@ void AMatrixC::setIdentity(double value)
  *
  * @param v Add a scalar value to all terms of the current matrix
  */
-void AMatrixC::addScalar(double v)
+void AMatrix::addScalar(double v)
 {
   if (v == 0.) return;
   if (_sparse)
@@ -616,7 +616,7 @@ void AMatrixC::addScalar(double v)
  *
  * @param v Add constant value to the diagonal of the current Matrix
  */
-void AMatrixC::addScalarDiag(double v)
+void AMatrix::addScalarDiag(double v)
 {
   if (v == 0.) return;
   if (_sparse)
@@ -646,7 +646,7 @@ void AMatrixC::addScalarDiag(double v)
  *
  * @param v Multiply all the terms of the matrix by the scalar 'v'
  */
-void AMatrixC::prodScalar(double v)
+void AMatrix::prodScalar(double v)
 {
   if (v == 1.) return;
   if (_sparse)
@@ -669,7 +669,7 @@ void AMatrixC::prodScalar(double v)
  * @param in Input vector
  * @param out Output vector obtained by multiplying 'in' by current Matrix
  */
-void AMatrixC::prodVector(const double *in, double *out) const
+void AMatrix::prodVector(const double *in, double *out) const
 {
   if (_sparse)
   {
@@ -681,7 +681,7 @@ void AMatrixC::prodVector(const double *in, double *out) const
   }
 }
 
-void AMatrixC::prodVector(const VectorDouble& in, VectorDouble& out) const
+void AMatrix::prodVector(const VectorDouble& in, VectorDouble& out) const
 {
   prodVector(in.data(), out.data());
 }
@@ -691,7 +691,7 @@ void AMatrixC::prodVector(const VectorDouble& in, VectorDouble& out) const
  * Add the matrix 'y' to the current Matrix
  * @param y Matrix to be added
  */
-void AMatrixC::addMatrix(const AMatrixC& y)
+void AMatrix::addMatrix(const AMatrix& y)
 {
   if (! isSameSize(y))
   {
@@ -727,7 +727,7 @@ void AMatrixC::addMatrix(const AMatrixC& y)
  * @param x First Matrix
  * @param y Second matrix
  */
-void AMatrixC::prodMatrix(const AMatrixC& x, const AMatrixC& y)
+void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
 {
   if (! isSameSize(y) || x.getNCols() != y.getNRows())
   {
@@ -764,7 +764,7 @@ void AMatrixC::prodMatrix(const AMatrixC& x, const AMatrixC& y)
  * @param cy Coefficient applied to the Matrix  'y'
  * @param y Second Matrix in the Linear combination
  */
-void AMatrixC::linearCombination(double cx, double cy, const AMatrixC& y)
+void AMatrix::linearCombination(double cx, double cy, const AMatrix& y)
 {
   if (! isSameSize(y))
   {
@@ -791,7 +791,7 @@ void AMatrixC::linearCombination(double cx, double cy, const AMatrixC& y)
   }
 }
 
-void AMatrixC::multiplyRow(const VectorDouble& vec)
+void AMatrix::multiplyRow(const VectorDouble& vec)
 {
   if (_nRows != (int) vec.size())
     my_throw("The size of 'vec' must match the number of rows");
@@ -800,7 +800,7 @@ void AMatrixC::multiplyRow(const VectorDouble& vec)
       _setValue(irow, icol, _getValue(irow, icol) * vec[irow]);
 }
 
-void AMatrixC::divideRow(const VectorDouble& vec)
+void AMatrix::divideRow(const VectorDouble& vec)
 {
   if (_nRows != (int) vec.size())
     my_throw("The size of 'vec' must match the number of rows");
@@ -809,7 +809,7 @@ void AMatrixC::divideRow(const VectorDouble& vec)
       _setValue(irow, icol, _getValue(irow, icol) / vec[irow]);
 }
 
-void AMatrixC::multiplyColumn(const VectorDouble& vec)
+void AMatrix::multiplyColumn(const VectorDouble& vec)
 {
   if (_nCols != (int) vec.size())
     my_throw("The size of 'vec' must match the number of columns");
@@ -817,7 +817,7 @@ void AMatrixC::multiplyColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
       _setValue(irow, icol, _getValue(irow, icol) * vec[icol]);
 }
-void AMatrixC::divideColumn(const VectorDouble& vec)
+void AMatrix::divideColumn(const VectorDouble& vec)
 {
   if (_nCols != (int) vec.size())
     my_throw("The size of 'vec' must match the number of columns");
@@ -826,7 +826,7 @@ void AMatrixC::divideColumn(const VectorDouble& vec)
       _setValue(irow, icol, _getValue(irow, icol) / vec[icol]);
 }
 
-int AMatrixC::invert()
+int AMatrix::invert()
 {
   if (! isSquare())
     my_throw("Invert method is restricted to Square matrices");
@@ -843,7 +843,7 @@ int AMatrixC::invert()
   return 0;
 }
 
-int AMatrixC::solve(const VectorDouble& b, VectorDouble& x) const
+int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
 {
   int error = 0;
 
@@ -864,7 +864,7 @@ int AMatrixC::solve(const VectorDouble& b, VectorDouble& x) const
   return error;
 }
 
-double AMatrixC::determinant() const
+double AMatrix::determinant() const
 {
   double deter = TEST;
   if (! isSquare())
@@ -876,7 +876,7 @@ double AMatrixC::determinant() const
   return deter;
 }
 
-String AMatrixC::toString(int level) const
+String AMatrix::toString(int /*level*/) const
 {
   std::stringstream sstr;
 
@@ -895,7 +895,7 @@ String AMatrixC::toString(int level) const
   return sstr.str();
 }
 
-bool AMatrixC::_isNumbersValid(int nrows, int ncols) const
+bool AMatrix::_isNumbersValid(int nrows, int ncols) const
 {
   if (nrows < 0)
   {
@@ -910,7 +910,7 @@ bool AMatrixC::_isNumbersValid(int nrows, int ncols) const
   return true;
 }
 
-bool AMatrixC::_isIndexValid(int irow, int icol) const
+bool AMatrix::_isIndexValid(int irow, int icol) const
 {
   if (irow < 0 || irow >= getNRows())
   {
@@ -925,7 +925,7 @@ bool AMatrixC::_isIndexValid(int irow, int icol) const
   return true;
 }
 
-bool AMatrixC::_isRowVectorConsistent(const VectorDouble& tab)
+bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab)
 {
   if (tab.size() != (unsigned) getNRows())
   {
@@ -935,7 +935,7 @@ bool AMatrixC::_isRowVectorConsistent(const VectorDouble& tab)
   return true;
 }
 
-bool AMatrixC::_isColVectorConsistent(const VectorDouble& tab)
+bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
 {
   if (tab.size() != (unsigned) getNCols())
   {
@@ -945,7 +945,7 @@ bool AMatrixC::_isColVectorConsistent(const VectorDouble& tab)
   return true;
 }
 
-bool AMatrixC::_isVectorSizeConsistent(int nrows,
+bool AMatrix::_isVectorSizeConsistent(int nrows,
                                        int ncols,
                                        const VectorDouble& tab)
 {
@@ -957,7 +957,7 @@ bool AMatrixC::_isVectorSizeConsistent(int nrows,
   return true;
 }
 
-bool AMatrixC::_isRankValid(int rank) const
+bool AMatrix::_isRankValid(int rank) const
 {
   return (rank >= 0 && rank < _getMatrixSize());
 }
@@ -968,7 +968,7 @@ bool AMatrixC::_isRankValid(int rank) const
  * Therefore it is created by setting a single element at the lower bottom size of
  * the matrix ... filled with a zero.
  */
-void AMatrixC::_initiateSparse()
+void AMatrix::_initiateSparse()
 {
   cs *Atriplet;
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
@@ -977,7 +977,7 @@ void AMatrixC::_initiateSparse()
   Atriplet = cs_spfree(Atriplet);
 }
 
-void AMatrixC::_recopySparse(const cs* cs)
+void AMatrix::_recopySparse(const cs* cs)
 {
   int nrows, ncols, count;
   double percent;
@@ -989,34 +989,34 @@ void AMatrixC::_recopySparse(const cs* cs)
   _csMatrix = cs_duplicate(cs);
 }
 
-void AMatrixC::_deallocateSparse()
+void AMatrix::_deallocateSparse()
 {
   _csMatrix = cs_spfree(_csMatrix);
 }
 
-void AMatrixC::_forbiddenForSparse(const String& func) const
+void AMatrix::_forbiddenForSparse(const String& func) const
 {
   messerr("Problem with Function: %s",func.c_str());
   my_throw("This function is not available in Sparse Matrix");
 }
 
-AMatrixC* createIdentity(int nrow, bool sparse)
+AMatrix* createIdentity(int nrow, bool sparse)
 {
-  return MatrixCFactory::createIdentity(nrow, sparse);
+  return MatrixFactory::createIdentity(nrow, sparse);
 }
 
-AMatrixC* transpose(const AMatrixC* mat)
+AMatrix* transpose(const AMatrix* mat)
 {
   return mat->transpose();
 }
 
-AMatrixC* prodMatrix(const AMatrixC* mat1,
-                     const AMatrixC* mat2)
+AMatrix* prodMatrix(const AMatrix* mat1,
+                     const AMatrix* mat2)
 {
-  return MatrixCFactory::matProduct(mat1, mat2);
+  return MatrixFactory::matProduct(mat1, mat2);
 }
 
-void AMatrixC::dumpElements(const String& title, int ifrom, int ito) const
+void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
 {
   if (_sparse)
     messerr("This method is not implemented for Sparse Matrix");
@@ -1039,7 +1039,7 @@ void AMatrixC::dumpElements(const String& title, int ifrom, int ito) const
  * @param icols Output array of column indices
  * @param values Output array of non-zero values
  */
-void AMatrixC::getValuesAsTriplets(VectorInt&    irows,
+void AMatrix::getValuesAsTriplets(VectorInt&    irows,
                                    VectorInt&    icols,
                                    VectorDouble& values) const
 {
@@ -1064,7 +1064,7 @@ void AMatrixC::getValuesAsTriplets(VectorInt&    irows,
  * @param flag_from_1 1 if the indices are numbered starting from 1
  * @return
  */
-cs_Output AMatrixC::getValuesAsTriplets(bool flag_from_1) const
+cs_Output AMatrix::getValuesAsTriplets(bool flag_from_1) const
 {
   cs_Output out;
 
@@ -1101,7 +1101,7 @@ cs_Output AMatrixC::getValuesAsTriplets(bool flag_from_1) const
   return out;
 }
 
-VectorDouble AMatrixC::getValues() const
+VectorDouble AMatrix::getValues() const
 {
   VectorDouble vect;
   for (int icol = 0; icol < _nCols; icol++)
@@ -1114,7 +1114,7 @@ VectorDouble AMatrixC::getValues() const
   return vect;
 }
 
-double AMatrixC::compare(const AMatrixC& mat) const
+double AMatrix::compare(const AMatrix& mat) const
 {
   if (mat.getNRows() != _nRows || mat.getNCols() != _nCols)
     my_throw("We can only compare two matrices with same dimensions");
@@ -1130,7 +1130,7 @@ double AMatrixC::compare(const AMatrixC& mat) const
   return diff;
 }
 
-VectorDouble AMatrixC::getDiagonal(int shift) const
+VectorDouble AMatrix::getDiagonal(int shift) const
 {
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
@@ -1149,7 +1149,7 @@ VectorDouble AMatrixC::getDiagonal(int shift) const
   return vect;
 }
 
-void AMatrixC::setDiagonal(const VectorDouble& tab)
+void AMatrix::setDiagonal(const VectorDouble& tab)
 {
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
@@ -1163,7 +1163,7 @@ void AMatrixC::setDiagonal(const VectorDouble& tab)
   }
 }
 
-void AMatrixC::setDiagonal(double value)
+void AMatrix::setDiagonal(double value)
 {
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
@@ -1178,7 +1178,7 @@ void AMatrixC::setDiagonal(double value)
 }
 
 /*! Extract a Row */
-VectorDouble AMatrixC::getRow(int irow) const
+VectorDouble AMatrix::getRow(int irow) const
 {
   VectorDouble vect;
   if (irow < 0 || irow >= getNRows())
@@ -1193,7 +1193,7 @@ VectorDouble AMatrixC::getRow(int irow) const
 }
 
 /*! Set the contents of a Row */
-void AMatrixC::setRow(int irow, const VectorDouble& tab)
+void AMatrix::setRow(int irow, const VectorDouble& tab)
 {
   if (irow < 0 || irow >= getNRows())
     my_throw("Incorrect argument 'irow'");
@@ -1205,7 +1205,7 @@ void AMatrixC::setRow(int irow, const VectorDouble& tab)
 }
 
 /*! Extract a Column */
-VectorDouble AMatrixC::getColumn(int icol) const
+VectorDouble AMatrix::getColumn(int icol) const
 {
   if (icol < 0 || icol >= getNCols())
     my_throw("Incorrect argument 'icol'");
@@ -1217,7 +1217,7 @@ VectorDouble AMatrixC::getColumn(int icol) const
 }
 
 /*! Set the contents of a Column */
-void AMatrixC::setColumn(int icol, const VectorDouble& tab)
+void AMatrix::setColumn(int icol, const VectorDouble& tab)
 {
   if (icol < 0 || icol >= getNCols())
     my_throw("Incorrect argument 'icol'");
@@ -1233,7 +1233,7 @@ void AMatrixC::setColumn(int icol, const VectorDouble& tab)
  * @param tab    Current matrix
  * @param value  Multiplicative coefficient  (default = 1)
  */
-void AMatrixC::add(const AMatrixC& tab, double value)
+void AMatrix::add(const AMatrix& tab, double value)
 {
   if (! isSameSize(tab))
     my_throw("Can only add matrices of same dimensions");
@@ -1246,7 +1246,7 @@ void AMatrixC::add(const AMatrixC& tab, double value)
     }
 }
 
-void AMatrixC::subtract(const AMatrixC& tab, double value)
+void AMatrix::subtract(const AMatrix& tab, double value)
 {
   if (! isSameSize(tab))
     my_throw("Can only add matrices of same dimensions");

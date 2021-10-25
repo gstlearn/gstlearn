@@ -1297,8 +1297,8 @@ static ECov st_particular_case(const ECov& type,
 ** \param[out]  situba  Situba structure
 **
 *****************************************************************************/
-static int st_initialize(Db     *dbin,
-                         Db     *dbout,
+static int st_initialize(Db* /*dbin*/,
+                         Db* /*dbout*/,
                          Model  *model,
                          Situba *situba)
 {
@@ -1439,7 +1439,7 @@ label_end:
 ** \param[in]  situba  Situba structure to be deallocated
 **
 *****************************************************************************/
-static Situba *st_dealloc(Model  *model,
+static Situba *st_dealloc(Model* /*model*/,
                           Situba *situba)
 
 {
@@ -1777,8 +1777,8 @@ static void st_gendir(Db     *dbout,
 ** \param[in]  situba  Situba structure
 **
 *****************************************************************************/
-static void st_minmax(Db     *db,
-                      Model  *model,
+static void st_minmax(Db* db,
+                      Model* /*model*/,
                       Situba *situba)
 {
   double tt,delta;
@@ -2477,7 +2477,7 @@ label_end:
 **
 *****************************************************************************/
 static void st_simulate_nugget(Db     *db,
-                               int     file_type,
+                               int    /*file_type*/,
                                Model  *model,
                                Situba *situba,
                                double *aic,
@@ -2548,7 +2548,7 @@ static void st_simulate_nugget(Db     *db,
 **
 *****************************************************************************/
 static int st_simulate_point(Db     *db,
-                             int     file_type,
+                             int   /*file_type*/,
                              Model  *model,
                              Situba *situba,
                              double *aic,
@@ -3773,19 +3773,19 @@ static void st_suppress_added_samples(Db *db,
 ** \remark Attributes ELoc::GAUSFAC are mandatory
 **
 *****************************************************************************/
-static void st_check_facies_data2grid(PropDef  *propdef,
-                                      Db     *dbin,
-                                      Db     *dbout,
-                                      const Rule   *rule,
-                                      int    *flag_used,
-                                      int     flag_stat,
-                                      int     flag_check,
-                                      int     flag_show,
-                                      int     ipgs,
-                                      int     nechin,
-                                      int     nvar,
-                                      int     nfacies,
-                                      int     nbsimu)
+static void st_check_facies_data2grid(PropDef* /*propdef*/,
+                                      Db *dbin,
+                                      Db *dbout,
+                                      const Rule* /*rule*/,
+                                      int* /*flag_used*/,
+                                      int /*flag_stat*/,
+                                      int flag_check,
+                                      int flag_show,
+                                      int ipgs,
+                                      int nechin,
+                                      int /*nvar*/,
+                                      int nfacies,
+                                      int nbsimu)
 {
   int     iech,jech,isimu,facdat,facres,number;
   double *coor;
@@ -3912,8 +3912,8 @@ GEOSLIB_API int simpgs(Db *dbin,
                        int gibbs_nburn,
                        int gibbs_niter,
                        double percent,
-                       double gibbs_eps,
-                       double delta,
+                       double /*gibbs_eps*/,
+                       double /*delta*/,
                        NamingConvention namconv)
 {
   int     iptr,igrf,icase,nfacies,flag_used[2];
@@ -4260,7 +4260,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
                          int       gibbs_nburn,
                          int       gibbs_niter,
                          double    percent,
-                         double    gibbs_eps,
+                         double  /*gibbs_eps*/,
                          NamingConvention namconv)
 {
   int     iptr,igrf,iatt_z[2];
@@ -4791,10 +4791,10 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               bool    flag_multi_mono,
                               bool    flag_propagation,
                               bool    flag_sym_neigh,
-                              bool    flag_sym_Q,
+                              bool  /*flag_sym_Q*/,
                               int     gibbs_optstats,
                               double  percent,
-                              double  gibbs_eps,
+                              double /*gibbs_eps*/,
                               bool    flag_ce,
                               bool    flag_cstd,
                               bool    verbose,
@@ -5866,7 +5866,7 @@ GEOSLIB_API int simcond(Db    *dbin,
                         int    nbtuba,
                         int    gibbs_nburn,
                         int    gibbs_niter,
-                        double gibbs_eps,
+                        double /*gibbs_eps*/,
                         int    flag_check,
                         int    flag_ce,
                         int    flag_cstd,

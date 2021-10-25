@@ -12,7 +12,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 class Rotation: public AStringable /// TODO : public ASpaceObject
 {
@@ -24,14 +24,14 @@ public:
 
   unsigned int getNDim() const { return _nDim; }
   bool isRotated() const { return _flagRot; }
-  const MatrixCSGeneral& getMatrixDirect() const { return _rotMat; }
-  const MatrixCSGeneral& getMatrixInverse() const { return _rotInv; }
+  const MatrixSquareGeneral& getMatrixDirect() const { return _rotMat; }
+  const MatrixSquareGeneral& getMatrixInverse() const { return _rotInv; }
   const VectorDouble& getAngles() const { return _angles; }
   double getAngles(int idim) const { return _angles[idim]; }
 
   void init(unsigned int ndim);
   virtual String toString(int level = 0) const override;
-  int setMatrixDirect(const MatrixCSGeneral& rotmat);
+  int setMatrixDirect(const MatrixSquareGeneral& rotmat);
   int setMatrixDirect(const VectorDouble& rotmat);
   int setMatrixDirect(const double* rotmat);
   int setAngles(const VectorDouble& angles);
@@ -55,6 +55,6 @@ private:
   unsigned int _nDim;
   bool _flagRot; // true if a Rotation is defined other than Identity
   VectorDouble    _angles;
-  MatrixCSGeneral _rotMat;
-  MatrixCSGeneral _rotInv;
+  MatrixSquareGeneral _rotMat;
+  MatrixSquareGeneral _rotInv;
 };

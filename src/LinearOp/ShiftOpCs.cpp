@@ -10,9 +10,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/MatrixCSGeneral.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
-#include "MatrixC/MatrixCSSym.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
@@ -32,10 +32,11 @@ ShiftOpCs::ShiftOpCs()
       _nModelGradParam(0),
       _SGrad(),
       _LambdaGrad(),
-      _dim(0),
+      _flagGradByHH(false),
       _model(nullptr),
       _igrf(0),
-      _icov(0)
+      _icov(0),
+      _ndim(0)
 {
 }
 
@@ -52,10 +53,11 @@ ShiftOpCs::ShiftOpCs(AMesh* amesh,
       _nModelGradParam(0),
       _SGrad(),
       _LambdaGrad(),
-      _dim(amesh->getNDim()),
+      _flagGradByHH(false),
       _model(model),
       _igrf(0),
-      _icov(0)
+      _icov(0),
+      _ndim(amesh->getNDim())
 {
   (void) initFromMesh(amesh, model, dbout, igrf, icov, verbose);
 }
@@ -72,10 +74,11 @@ ShiftOpCs::ShiftOpCs(const cs* S,
       _nModelGradParam(0),
       _SGrad(),
       _LambdaGrad(),
-      _dim(0),
+      _flagGradByHH(false),
       _model(model),
       _igrf(0),
-      _icov(0)
+      _icov(0),
+      _ndim(0)
 {
   (void) initFromCS(S, TildeC, Lambda, model, verbose);
 }
@@ -87,10 +90,12 @@ ShiftOpCs::ShiftOpCs(const ShiftOpCs &shift)
       _S(nullptr),
       _nModelGradParam(0),
       _SGrad(),
-      _dim(shift.getDim()),
+      _LambdaGrad(),
+      _flagGradByHH(false),
       _model(nullptr),
       _igrf(0),
-      _icov(0)
+      _icov(0),
+      _ndim(shift.getNDim())
 {
   _reallocate(shift);
 }
@@ -213,6 +218,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
   try
   {
     if (verbose) message(">>> Using the new calculation module <<<\n");
+    _ndim = amesh->getNDim();
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
@@ -270,8 +276,6 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
 
     if (! flagAdvection)
       cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
-
-    _dim = amesh->getNDim();
   }
 
   catch (const char * str)
@@ -383,7 +387,7 @@ int ShiftOpCs::initFromCS(const cs* S,
 
     _TildeC = TildeC;
     _Lambda = Lambda;
-    _dim = model->getDimensionNumber();
+    _ndim = model->getDimensionNumber();
 
     // Duplicate the Shift Operator sparse matrix
 
@@ -519,12 +523,17 @@ void ShiftOpCs::_reallocate(const ShiftOpCs& shift)
   _TildeC = shift._TildeC;
   _Lambda = shift._Lambda;
   _S = cs_duplicate(shift._S);
+  _nModelGradParam = shift._nModelGradParam;
   for (int i = 0; i < (int) _SGrad.size(); i++)
     _SGrad[i] = cs_duplicate(shift._SGrad[i]);
+  for (int i = 0; i < (int) _LambdaGrad.size(); i++)
+    _LambdaGrad[i] = shift._LambdaGrad[i];
 
+  _flagGradByHH = shift._flagGradByHH;
   _model = shift._model;
   _igrf = shift._igrf;
   _icov = shift._icov;
+  _ndim = shift._ndim;
 }
 
 cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
@@ -544,16 +553,15 @@ cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
  * Locally update the covariance (does nothing in Stationary Case)
  * @param cova Local CovAniso structure (updated here)
  * @param ip   Rank of the point
- * @param ndim Space dimension
  */
 void ShiftOpCs::_updateCova(CovAniso* cova,
-                            int ip,
-                            int ndim)
+                            int ip)
 {
   // Initializations
   if (! _isNoStat()) return;
   int igrf = _getIgrf();
   int icov = _getIcov();
+  int ndim = getNDim();
   const ANoStat* nostat = _getModel()->getNoStat();
 
   // Third parameter
@@ -589,12 +597,14 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
   }
 }
 
-void ShiftOpCs::_updateHH(MatrixCSGeneral& hh, int ip, int ndim)
+void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int ip)
 {
   // Initializations
+  if (! _isNoStat()) return;
   if (_isNoStatByHH()) return;
   int igrf = _getIgrf();
   int icov = _getIcov();
+  int ndim = getNDim();
   const ANoStat* nostat = _getModel()->getNoStat();
 
   for (int idim = 0; idim < ndim; idim++)
@@ -604,7 +614,6 @@ void ShiftOpCs::_updateHH(MatrixCSGeneral& hh, int ip, int ndim)
       {
        double value = nostat->getValue(igrf, icov, EConsElem::TENSOR, idim, jdim, 0, ip);
        hh.setValue(idim, jdim, value);
-       hh.setValue(jdim, idim, value);
      }
    }
 }
@@ -616,24 +625,24 @@ void ShiftOpCs::_updateHH(MatrixCSGeneral& hh, int ip, int ndim)
  * @param hh Output Array
  * @param ip Rank of the point
  */
-void ShiftOpCs::_loadHHByApex(MatrixCSGeneral& hh, int ip)
+void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
 {
-  int ndim = hh.getNSize();
+  int ndim = getNDim();
   const CovAniso* covini = _getCova();
   CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
 
   // Locally update the covariance for non-stationarity (if necessary)
-  _updateCova(cova, ip, ndim);
+  _updateCova(cova, ip);
 
   // Calculate the current HH matrix (using local covariance parameters)
-  const MatrixCSGeneral& rotmat = cova->getAnisoRotMat();
+  const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
   VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
-  MatrixCSSym temp(ndim);
+  MatrixSquareSymmetric temp(ndim);
   temp.setDiagonal(diag);
   hh.normMatrix(temp, rotmat);
 
   // Patch the HH directly (if necessary)
-  _updateHH(hh, ip, ndim);
+  _updateHH(hh, ip);
 }
 
 /**
@@ -647,40 +656,60 @@ void ShiftOpCs::_loadHHByApex(MatrixCSGeneral& hh, int ip)
  * @details: - 0:(ndim-1)   : ranges in each Space direction
  * @details: - ndim:ngparam : rotation angles (=ndim or 1 in 2-D)
  */
-void ShiftOpCs::_loadHHGradByApex(MatrixCSGeneral& hh,
+void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
                                   int igparam,
                                   int ip)
 {
   const CovAniso* covini = _getCova();
   CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
-  int ndim = hh.getNSize();
+  int ndim = getNDim();
 
   // Locally update the covariance for non-stationarity (if necessary)
-  _updateCova(cova, ip, ndim);
+  _updateCova(cova, ip);
 
-  const MatrixCSGeneral& rotmat = cova->getAnisoRotMat();
+  const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
   VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
 
-  // Formal derivation
+  // Derivation
 
-  MatrixCSSym temp(ndim);
-  if (igparam < ndim)
+  if (_flagGradByHH)
   {
-    // Derivation with respect to the Range 'igparam'
-    temp.fill(0);
-    temp.setValue(igparam, igparam, 2. * cova->getScale(igparam));
-    hh.normMatrix(temp, rotmat);
+
+    // Case where the derivation must be performed on the HH terms
+
+    hh.fill(0.);
+    int ecr = 0;
+    for (int idim = 0; idim < ndim; idim++)
+      for (int jdim = 0; jdim < ndim; jdim++)
+      {
+        if (ecr != igparam) continue;
+        hh.setValue(idim, jdim, 1.);
+      }
   }
   else
   {
-    // Derivation with respect to the Angle 'igparam'-ndim
-    int ir = igparam - ndim;
-    CovAniso* dcova = cova;
-    dcova->setAnisoAngle(ir, dcova->getAnisoAngles(ir) + 90.);
-    const MatrixCSGeneral& drotmat = dcova->getAnisoRotMat();
-    ut_vector_divide_inplace(diag, 180. / GV_PI); // Necessary as angles are provided in degrees
-    temp.setDiagonal(diag);
-    hh.innerMatrix(temp, rotmat, drotmat);
+
+    // Case where the derivation is performed on ranges and angles
+
+    MatrixSquareSymmetric temp(ndim);
+    if (igparam < ndim)
+    {
+      // Derivation with respect to the Range 'igparam'
+      temp.fill(0);
+      temp.setValue(igparam, igparam, 2. * cova->getScale(igparam));
+      hh.normMatrix(temp, rotmat);
+    }
+    else
+    {
+      // Derivation with respect to the Angle 'igparam'-ndim
+      int ir = igparam - ndim;
+      CovAniso* dcova = cova;
+      dcova->setAnisoAngle(ir, dcova->getAnisoAngles(ir) + 90.);
+      const MatrixSquareGeneral& drotmat = dcova->getAnisoRotMat();
+      ut_vector_divide_inplace(diag, 180. / GV_PI); // Necessary as angles are provided in degrees
+      temp.setDiagonal(diag);
+      hh.innerMatrix(temp, rotmat, drotmat);
+    }
   }
 }
 
@@ -702,13 +731,13 @@ void ShiftOpCs::_loadAux(VectorDouble& tab,
     }
 }
 
-void ShiftOpCs::_loadHHPerMesh(MatrixCSGeneral& hh,
+void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
                                AMesh* amesh,
                                int imesh)
 {
   int number = amesh->getNApexPerMesh();
   int ndim = amesh->getNDim();
-  MatrixCSGeneral hhloc(ndim);
+  MatrixSquareSymmetric hhloc(ndim);
   hh.fill(0.);
 
   // HH per mesh is obtained as the average of the HH per apex of the mesh
@@ -730,7 +759,7 @@ void ShiftOpCs::_loadHHPerMesh(MatrixCSGeneral& hh,
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
  * @param imesh   Rank of the current mesh
  */
-void ShiftOpCs::_loadHHGradPerMesh(MatrixCSGeneral& hh,
+void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                                    AMesh* amesh,
                                    int igp0,
                                    int igparam,
@@ -765,8 +794,8 @@ void ShiftOpCs::_loadAuxPerMesh(VectorDouble& tab,
 
 int ShiftOpCs::_preparMatrices(AMesh *amesh,
                              int imesh,
-                             MatrixCSGeneral& matu,
-                             MatrixCRectangular& matw) const
+                             MatrixSquareGeneral& matu,
+                             MatrixRectangular& matw) const
 {
   int ndim = amesh->getNDim();
   int ncorner = amesh->getNApexPerMesh();
@@ -833,17 +862,17 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
   std::vector<std::map<std::pair<int, int>, double> > Mtab(number);
 
   int error = 1;
-  int ndim = amesh->getNDim();
+  int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
   int ngparam = _nModelGradParam;
 
   // Initialize the arrays
 
   VectorDouble matv(ncorner);
-  MatrixCSGeneral hh = MatrixCSGeneral(ndim);
-  MatrixCSGeneral matu = MatrixCSGeneral(ncorner);
-  MatrixCSGeneral mat = MatrixCSGeneral(ncorner);
-  MatrixCRectangular matw = MatrixCRectangular(ndim, ncorner);
+  MatrixSquareSymmetric hh(ndim);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixSquareGeneral mat(ncorner);
+  MatrixRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
 
@@ -943,15 +972,15 @@ int ShiftOpCs::_buildS(AMesh *amesh,
   std::map<std::pair<int, int>, double> tab;
 
   int error = 1;
-  int ndim = amesh->getNDim();
+  int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
 
   // Initialize the arrays
 
-  MatrixCSGeneral hh = MatrixCSGeneral(ndim);
-  MatrixCSGeneral matu = MatrixCSGeneral(ncorner);
-  MatrixCSGeneral mat = MatrixCSGeneral(ncorner);
-  MatrixCRectangular matw = MatrixCRectangular(ndim, ncorner);
+  MatrixSquareSymmetric hh(ndim);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixSquareGeneral mat(ncorner);
+  MatrixRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
 
@@ -1017,7 +1046,7 @@ int ShiftOpCs::_buildSVel(AMesh *amesh,
   std::map<std::pair<int, int>, double> tab;
 
   int error = 1;
-  int ndim = amesh->getNDim();
+  int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
   int igrf = _getIgrf();
   int icov = _getIcov();
@@ -1026,8 +1055,8 @@ int ShiftOpCs::_buildSVel(AMesh *amesh,
 
   VectorDouble vel(2);
   VectorDouble matv(ncorner);
-  MatrixCSGeneral matu = MatrixCSGeneral(ncorner);
-  MatrixCRectangular matw = MatrixCRectangular(ndim, ncorner);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
 
@@ -1096,16 +1125,16 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
   double coeff[3][2];
 
   int error = 1;
-  int ndim = amesh->getNDim();
+  int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
 
   // Initialize the arrays
 
   VectorDouble srot(2), center[3], axe1(3), axe2(3), vel(3), matv(ncorner);
-  MatrixCSGeneral hh = MatrixCSGeneral(ndim);
-  MatrixCSGeneral matu = MatrixCSGeneral(ncorner);
-  MatrixCSGeneral mat = MatrixCSGeneral(ncorner);
-  MatrixCRectangular matw = MatrixCRectangular(ndim, ncorner);
+  MatrixSquareSymmetric hh(ndim);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixSquareGeneral mat(ncorner);
+  MatrixRectangular matw(ndim, ncorner);
 
   // Define the global HH matrix
 
@@ -1253,7 +1282,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
 {
   double sqdeth = 0.;
 
-  int ndim = amesh->getNDim();
+  int ndim = getNDim();
   int nvertex = amesh->getNApices();
   const CovAniso* cova = _getCova();
 
@@ -1261,7 +1290,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
 
   _Lambda.clear();
 
-  MatrixCSGeneral hh = MatrixCSGeneral(ndim);
+  MatrixSquareSymmetric hh(ndim);
   if (!_isNoStat())
   {
     _loadHHByApex(hh, 0);
@@ -1297,7 +1326,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
  */
 bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
 {
-  int ndim = amesh->getNDim();
+  int ndim = getNDim();
   int nvertex = amesh->getNApices();
   const CovAniso* covini = _getCova();
   CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
@@ -1313,7 +1342,7 @@ bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
   for (int ip = 0; ip < nvertex; ip++)
   {
     // Locally update the covariance for non-stationarity (if necessary)
-    _updateCova(cova, ip, ndim);
+    _updateCova(cova, ip);
 
     for(int idim = 0;idim < ndim ;idim++)
     {

@@ -113,7 +113,7 @@ void CovAniso::setSill(double sill)
   _sill.reset(1, 1, sill);
 }
 
-void CovAniso::setSill(const MatrixCSGeneral& sill)
+void CovAniso::setSill(const MatrixSquareGeneral& sill)
 {
   if (getNVariables() != sill.getNSize())
   my_throw("Number of provided sills doesn't match number of variables");
@@ -232,7 +232,7 @@ void CovAniso::setAnisoAngle(int idim, double angle)
   _aniso.setRotationAngle(idim, angle);
 }
 
-bool CovAniso::isConsistent(const ASpace* space) const
+bool CovAniso::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : check something in CovAniso::isConsistent?
   return _cova->isConsistent();
@@ -330,7 +330,7 @@ double CovAniso::eval(int ivar,
   return (cov);
 }
 
-String CovAniso::toString(int level) const
+String CovAniso::toString(int /*level*/) const
 {
   std::stringstream sstr;
   // Covariance Name

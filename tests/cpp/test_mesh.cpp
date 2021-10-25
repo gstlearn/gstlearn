@@ -11,7 +11,7 @@
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshSpherical.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Db/ELoadBy.hpp"
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   Model *model;
   double  angle[3];
   double  range,param;
-  MatrixCRectangular apices;
+  MatrixRectangular apices;
   VectorInt meshes;
   char    triswitch[10];
   ShiftOpCs shiftop;
@@ -77,8 +77,6 @@ int main(int argc, char *argv[])
   angle[0]     = 30.;
   angle[1]     = 0.;
   angle[2]     = 0.;
-  apices       = MatrixCRectangular();
-  meshes       = VectorInt();
   dbin         = nullptr;
   dbgrid       = nullptr;
   loc_apices   = nullptr;

@@ -14,8 +14,9 @@
 
 #include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
-#include "MatrixC/MatrixCRectangular.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/ANoStat.hpp"
 #include "LinearOp/EPowerPT.hpp"
@@ -75,7 +76,7 @@ public:
                  Model* model,
                  bool verbose = false);
   int getSize() const override { return _S->n; }
-  int getDim() const { return _dim; }
+  int getNDim() const { return _ndim; }
   int getNModelGradParam() const { return _nModelGradParam; }
   void prodTildeC(const VectorDouble& in,
                   VectorDouble& out,
@@ -97,6 +98,9 @@ public:
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
 
+  bool getFlagGradByHh() const { return _flagGradByHH; }
+  void setFlagGradByHh(bool flagGradByHh) { _flagGradByHH = flagGradByHh; }
+
 private:
   int _getIcov() const { return _icov; }
   void _setIcov(int icov) { _icov = icov; }
@@ -116,17 +120,17 @@ private:
   int  _buildTildeC(AMesh *amesh, const VectorDouble& units);
   void _buildLambda(AMesh *amesh);
   bool _buildLambdaGrad(AMesh *amesh);
-  void _loadHHByApex(MatrixCSGeneral& hh, int ip);
-  void _loadHHGradByApex(MatrixCSGeneral& hh,
+  void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
+  void _loadHHGradByApex(MatrixSquareSymmetric& hh,
                          int igparam,
                          int ip);
   void _loadAux(VectorDouble& tab,
                 const EConsElem& type,
                 int ip);
-  void _loadHHPerMesh(MatrixCSGeneral& hh,
+  void _loadHHPerMesh(MatrixSquareSymmetric& hh,
                       AMesh* amesh,
                       int imesh = 0);
-  void _loadHHGradPerMesh(MatrixCSGeneral& hh,
+  void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                           AMesh* amesh,
                           int igp0,
                           int igparam,
@@ -144,11 +148,11 @@ private:
                     double coeff[3][2]);
   int _preparMatrices(AMesh *amesh,
                       int imesh,
-                      MatrixCSGeneral& matu,
-                      MatrixCRectangular& matw) const;
+                      MatrixSquareGeneral& matu,
+                      MatrixRectangular& matw) const;
   cs* _BuildSfromMap(std::map<std::pair<int, int>, double> &tab);
-  void _updateCova(CovAniso* cova, int ip, int ndim);
-  void _updateHH(MatrixCSGeneral& hh, int ip, int ndim);
+  void _updateCova(CovAniso* cova, int ip);
+  void _updateHH(MatrixSquareSymmetric& hh, int ip);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
 
 private:
@@ -158,10 +162,11 @@ private:
   int _nModelGradParam;
   std::vector<cs *> _SGrad;
   std::vector<VectorDouble> _LambdaGrad;
-  int _dim;
+  bool _flagGradByHH;
 
-  // Following list f members are there to ease the manipulation and reduce argument list
+  // Following list of members are there to ease the manipulation and reduce argument list
   Model* _model;
   int _igrf;
   int _icov;
+  int _ndim;
 };

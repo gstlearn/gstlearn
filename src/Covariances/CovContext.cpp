@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Covariances/CovContext.hpp"
 
-#include "MatrixC/MatrixCSSym.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/Vector.hpp"
 #include "Variogram/Vario.hpp"
@@ -107,7 +107,7 @@ String CovContext::toString(int level) const
   return sstr.str();
 }
 
-bool CovContext::isConsistent(const ASpace* space) const
+bool CovContext::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO: Consistency of CovContext toward a space: Possible duplicate:
   /// - CovFatory::_isValid
@@ -148,6 +148,11 @@ void CovContext::setMean(const VectorDouble& mean)
     _mean = mean;
 }
 
+/**
+ * Define the Mean for one variable
+ * @param ivar Rank of the variable (starting from 0)
+ * @param mean Value for the mean
+ */
 void CovContext::setMean(int ivar, const double mean)
 {
   if (ivar < 0 || ivar >= (int) _mean.size())
@@ -155,6 +160,10 @@ void CovContext::setMean(int ivar, const double mean)
   _mean[ivar] = mean;
 }
 
+/**
+ * Define the covariance at the origin
+ * @param covar0 Values
+ */
 void CovContext::setCovar0(const VectorDouble& covar0)
 {
   if (_covar0.size() == covar0.size())
@@ -177,7 +186,7 @@ int CovContext::_getIndex(int ivar, int jvar) const
 void CovContext::_update()
 {
   _mean.resize(_nVar, 0.);
-  MatrixCSSym Id = MatrixCSSym(_nVar);
+  MatrixSquareSymmetric Id(_nVar);
   Id.setIdentity();
   _covar0 = Id.getValues();
 }

@@ -1961,12 +1961,12 @@ static void st_model_auto_constraints_apply(StrMod *strmod,
 ** \param[out]  upper          Upper values for parameters
 **
 *****************************************************************************/
-static void st_model_auto_pardef(StrMod *strmod,
-                                 int     npar,
-                                 double  hmax,
+static void st_model_auto_pardef(StrMod* strmod,
+                                 int npar,
+                                 double hmax,
                                  VectorDouble& varchol,
                                  VectorDouble& angles,
-                                 const Option_AutoFit& mauto,
+                                 const Option_AutoFit& /*mauto*/,
                                  VectorDouble& param,
                                  VectorDouble& lower,
                                  VectorDouble& upper)
@@ -2086,7 +2086,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       if (flag_aic)
       {
         VectorDouble sill = matrix_produit_lu_VD(nvar, tritab.data());
-        MatrixCSGeneral mat(nvar);
+        MatrixSquareGeneral mat(nvar);
         mat.setValues(sill);
         cova->setSill(mat);
       }
@@ -2151,7 +2151,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if (flag_aic)
     {
       VectorDouble sill = matrix_produit_lu_VD(nvar, tritab.data());
-      MatrixCSGeneral mat(nvar);
+      MatrixSquareGeneral mat(nvar);
       mat.setValues(sill);
       cova->setSill(mat);
     }
@@ -3382,7 +3382,7 @@ static int st_sill_fitting_int(Model        *model,
                                VectorDouble& gg2,
                                VectorDouble& alphau,
                                VectorDouble& sill1,
-                               VectorDouble& sill)
+                               VectorDouble& /*sill*/)
 {
   double    sum,pivot,newval,crit,crit_mem;
   int       error,icov,nvs2,ivar,jvar,ijvar,ipadir,nvar,ncova,iter;
@@ -4253,7 +4253,7 @@ static void st_prepar_goulard_vmap(int imod)
 ** \param[out] tabge        Array of resulting values
 **
 *****************************************************************************/
-static void st_strmod_vmap_evaluate(int     nbexp,
+static void st_strmod_vmap_evaluate(int   /*nbexp*/,
                                     int     npar,
                                     VectorDouble& param,
                                     VectorDouble& tabge)

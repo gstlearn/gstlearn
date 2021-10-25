@@ -560,7 +560,7 @@ static void st_print_debug(int iech1,
 **
 *****************************************************************************/
 static void st_variogram_set(const ECalcVario& calcul_type,
-                             int               nvar,
+                             int             /*nvar*/,
                              int               ipas,
                              int               ivar,
                              int               jvar,
@@ -596,14 +596,14 @@ static void st_variogram_set(const ECalcVario& calcul_type,
 ** \param[in]  value       Variogram value
 **
 *****************************************************************************/
-static void st_vmap_set(const ECalcVario& calcul_type,
+static void st_vmap_set(const ECalcVario& /*calcul_type*/,
                         int               nvar,
                         int               ipas,
                         int               ivar,
                         int               jvar,
-                        int               orient,
+                        int             /*orient*/,
                         double            ww,
-                        double            dist,
+                        double          /*dist*/,
                         double            value)
 {
   int ijvar;
@@ -645,7 +645,7 @@ static void st_variogram_evaluate(Db*               db,
                                   int               iech1,
                                   int               iech2,
                                   int               ipas,
-                                  int               npas,
+                                  int             /*npas*/,
                                   double            dist,
                                   int               do_asym,
                                   void (*st_generic_set)(const ECalcVario& calcul_type,
@@ -2565,7 +2565,7 @@ GEOSLIB_API void vardir_print(Vario *vario,
 **
 *****************************************************************************/
 GEOSLIB_API void variogram_print(const Vario *vario,
-                                 int    verbose)
+                                 int   /*verbose*/)
 {
   if (vario != nullptr) messageFlush(vario->toString());
 }
@@ -4705,7 +4705,7 @@ static void st_product_conj(int     size,
 *****************************************************************************/
 static void st_vmap_store(Db     *dbmap,
                           double *tab,
-                          int     size,
+                          int   /*size*/,
                           int     iptr)
 {
   int ix,iy,iz,ecr,iech,indice[3];
@@ -4836,7 +4836,7 @@ static void st_vmap_shift(int     size,
 *****************************************************************************/
 static int st_vmap_load(Db     *dbgrid,
                         int     ndim,
-                        int     sizegrid,
+                        int   /*sizegrid*/,
                         int     sizetot,
                         int    *dims,
                         int    *dinv,
@@ -4942,7 +4942,7 @@ static int st_complex_array_alloc(int     size,
 ** \param[out] tab     Complex array to be freed
 **
 *****************************************************************************/
-static void st_complex_array_free(int     size,
+static void st_complex_array_free(int   /*size*/,
                                   double *tab[2])
 {
   int ic;
@@ -6715,8 +6715,8 @@ GEOSLIB_API void condexp(Db     *db1,
 *****************************************************************************/
 GEOSLIB_API int _variogram_compute(Db *db,
                                    Vario *vario,
-                                   const VectorDouble& means,
-                                   const VectorDouble& vars,
+                                   const VectorDouble& /*means*/,
+                                   const VectorDouble& /*vars*/,
                                    int flag_grid,
                                    int flag_gen,
                                    int flag_sample,

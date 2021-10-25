@@ -219,7 +219,7 @@ void ANoStat::addNoStatElems(const VectorString &codes)
  * @param model Model structure
  * @return Error return code
  */
-const int ANoStat::attachModel(const Model* model)
+int ANoStat::attachModel(const Model* model)
 {
   if (model == nullptr)
   {
@@ -520,7 +520,7 @@ void ANoStat::updateModel(Model* model,
       if (flagRot)   cova->setAnisoAngles(angle1);
       if (flagRange) cova->setRanges(range1);
       if (flagScale) cova->setScales(scale1);
-      const MatrixCSGeneral direct1 = cova->getAniso().getTensorDirect();
+      const MatrixSquareGeneral direct1 = cova->getAniso().getTensorDirect();
 
       // Create and exploit the Tensor for the second location
       if (flagRot)   cova->setAnisoAngles(angle2);
@@ -529,7 +529,7 @@ void ANoStat::updateModel(Model* model,
 
       // Build the new Tensor (as average of tensors at end-points)
       Tensor tensor = cova->getAniso();
-      MatrixCSGeneral direct = tensor.getTensorDirect();
+      MatrixSquareGeneral direct = tensor.getTensorDirect();
       direct.linearCombination(0.5, 0.5, direct1);
       tensor.setTensorDirect(direct);
       cova->setAniso(tensor);

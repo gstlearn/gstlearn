@@ -13,7 +13,7 @@
 #include "Basic/Vector.hpp"
 
 class AMesh;
-class MatrixCRectangular;
+class MatrixRectangular;
 
 class MeshFactory
 {
@@ -32,7 +32,7 @@ public:
                            Db *dbin,
                            Db *dbout,
                            const String& triswitch,
-                           MatrixCRectangular& apices,
+                           MatrixRectangular& apices,
                            VectorInt& meshes,
                            bool flag_polarize,
                            int verbose = 0);

@@ -300,7 +300,7 @@ int Rule::setMainNodeFromNodNames(const VectorInt& nodes)
   return 0;
 }
 
-String Rule::toString(int level) const
+String Rule::toString(int /*level*/) const
 {
   std::stringstream sstr;
   sstr << _display(false, false);
@@ -498,16 +498,16 @@ int Rule::statistics(int  verbose,
 ** \param[in]  flag_stat       1 for stationary; 0 otherwise
 **
 *****************************************************************************/
-int Rule::particularities(Db *db,
-                          const Db *dbprop,
-                          Model *model,
-                          int flag_grid_check,
-                          int flag_stat) const
+int Rule::particularities(Db* /*db*/,
+                          const Db* /*dbprop*/,
+                          Model* /*model*/,
+                          int /*flag_grid_check*/,
+                          int /*flag_stat*/) const
 {
   return(0);
 }
 
-bool Rule::checkModel(const Model* model, int nvar) const
+bool Rule::checkModel(const Model* /*model*/, int /*nvar*/) const
 {
   return true;
 }
@@ -829,9 +829,9 @@ void Rule::setMainNodeFromNodNames(const VectorString& nodnames)
 ** \remark Attributes ELoc::FACIES are mandatory
 **
 *****************************************************************************/
-int Rule::gaus2facData(PropDef *propdef,
-                       Db *dbin,
-                       Db *dbout,
+int Rule::gaus2facData(PropDef* propdef,
+                       Db* dbin,
+                       Db* /*dbout*/,
                        int *flag_used,
                        int ipgs,
                        int isimu,
@@ -979,9 +979,9 @@ int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech) const
 ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
 **
 *****************************************************************************/
-int Rule::evaluateBounds(PropDef *propdef,
-                         Db *dbin,
-                         Db *dbout,
+int Rule::evaluateBounds(PropDef* propdef,
+                         Db* dbin,
+                         Db* /*dbout*/,
                          int isimu,
                          int igrf,
                          int ipgs,

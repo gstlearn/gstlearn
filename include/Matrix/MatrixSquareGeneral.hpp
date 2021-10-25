@@ -13,51 +13,45 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "MatrixC/AMatrixCSquare.hpp"
+#include "Matrix/AMatrixSquare.hpp"
 
 /**
- * Symmetric matrices are stored as Lower Triangular matrices stored by column
+ * Square Matrix General
  */
-class MatrixCSSym : public AMatrixCSquare {
+class MatrixSquareGeneral : public AMatrixSquare {
 
 public:
-  MatrixCSSym(int nrow = 0, bool sparse = false);
-  MatrixCSSym(const MatrixCSSym &m);
-  MatrixCSSym(const AMatrixC &m);
-  MatrixCSSym& operator= (const MatrixCSSym &r);
-	virtual ~MatrixCSSym();
+  MatrixSquareGeneral(int nrow = 0, bool sparse = false);
+  MatrixSquareGeneral(const MatrixSquareGeneral &m);
+  MatrixSquareGeneral(const AMatrix &m);
+  MatrixSquareGeneral& operator= (const MatrixSquareGeneral &r);
+	virtual ~MatrixSquareGeneral();
 
-  /// Clonable interface
+  /*! Clonable interface */
   virtual IClonable* clone() const override;
 
-  virtual String toString(int level = 0) const override;
-
   /*! Say if the matrix must be symmetric */
-  bool mustBeSymmetric() const override { return true; }
+  bool mustBeSymmetric() const override { return false; }
   /*! Say if the matrix must be diagonal */
   bool mustBeDiagonal() const override { return false; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
 
-  /// TODO : isPositiveDefinite
-
-  /// Is the matrix symmetrical ?
-  bool isSymmetric(bool printWhyNot = false) const override { return true; }
-
-  void initMatTri(int nsize,double* tab);
+  /*! Check if the matrix is (non empty) square */
+  bool isSquare(bool /*printWhyNot*/ = false) const override { return 1; }
 
 protected:
 #ifndef SWIG
   virtual double& _getValueRef(int irow, int icol) override;
 
 private:
-  bool   _isCompatible(const AMatrixC& m) const override { return (isSameSize(m) && isSymmetric()); }
+  bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSquare()); }
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int irow, int icol, double value) override;
   void   _setValue(int irank, double value) override;
-  void   _transposeInPlace() override { return ; } // Nothing to do
-  void   _setValues(const double* values, bool byCol = true) override;
+  void   _transposeInPlace() override;
+  void   _setValues(const double *values, bool byCol = true) override;
   int    _getMatrixSize() const override;
   void   _allocate() override;
   void   _deallocate() override;
@@ -66,10 +60,10 @@ private:
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
   double _determinant() const override;
 
-  void   _recopy(const MatrixCSSym &r);
+  void   _recopy(const MatrixSquareGeneral &r);
   int    _getIndexToRank(int irow,int icol) const;
 
 private:
-  VectorDouble _squareSymMatrix;
+  VectorDouble _squareMatrix;
 #endif
 };

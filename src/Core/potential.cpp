@@ -595,7 +595,7 @@ static double matrix_UAV(int     ndim,
 *****************************************************************************/
 static void set_rhs(double *rhs,
                     int     nequa,
-                    int     nsol,
+                    int   /*nsol*/,
                     int     i,
                     int     isol,
                     double  value)
@@ -668,14 +668,14 @@ static double get_lhs(double *lhs,
 ** \param[out] covGG    Covariance between gradient and gradient
 **
 *****************************************************************************/
-static void st_cov(Model *model,
-                   int    flag_grad,
+static void st_cov(Model* /*model*/,
+                   int    /*flag_grad*/,
                    double dx,
                    double dy,
                    double dz,
-                   double *covar,
-                   double *covGp,
-                   double *covGG)
+                   double* /*covar*/,
+                   double* /*covGp*/,
+                   double* /*covGG*/)
 {
   VectorDouble vec(3);
   vec[0] = dx;
@@ -862,7 +862,7 @@ label_end:
 ** \param[out] center  Coordinates of the centering point
 **
 *****************************************************************************/
-static void st_get_center(Db      *dbiso,
+static void st_get_center(Db* /*dbiso*/,
                           double  *center)
 {
   //  if (dbiso != nullptr) 
@@ -2199,12 +2199,12 @@ static void st_xvalid(Pot_Env *pot_env,
 *****************************************************************************/
 static void st_tempere(Db      *db,
                        int      iech,
-                       int      isimu,
-                       int      nbsimu,
+                       int    /*isimu*/,
+                       int    /*nbsimu*/,
                        double   dist_tempere,
                        double   reskrige,
-                       double  *resgrad,
-                       double  *result)
+                       double* /*resgrad*/,
+                       double* result)
 {
   double simerr,amortval,kdist;
   int test;
@@ -2771,7 +2771,7 @@ static int st_model_invalid(Model *model)
 ** \param[out] pot_ext     Pot_Ext structure
 **
 *****************************************************************************/
-static int st_extdrift_create_model(Db      *dbout,
+static int st_extdrift_create_model(Db* /*dbout*/,
                                     Pot_Ext *pot_ext)
 {
   int error;
@@ -3025,10 +3025,10 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
                                   Neigh *neigh,
                                   double nugget_grd,
                                   double nugget_tgt,
-                                  int    z_number,
-                                  double z_min,
-                                  double z_max,
-                                  int    flag_up,
+                                  int    /*z_number*/,
+                                  double /*z_min*/,
+                                  double /*z_max*/,
+                                  int    /*flag_up*/,
                                   int    flag_grad,
                                   int    flag_trans,
                                   int    flag_part,

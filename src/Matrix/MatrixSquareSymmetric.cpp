@@ -8,27 +8,27 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "MatrixC/MatrixCSSym.hpp"
-#include "MatrixC/AMatrixCSquare.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/AMatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-MatrixCSSym::MatrixCSSym(int nrow, bool sparse)
-: AMatrixCSquare(nrow, sparse)
+MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, bool sparse)
+: AMatrixSquare(nrow, sparse)
 , _squareSymMatrix()
 {
   _allocate();
 }
 
-MatrixCSSym::MatrixCSSym(const MatrixCSSym &r) 
-  : AMatrixCSquare(r)
+MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
+  : AMatrixSquare(r)
 {
   _recopy(r);
 }
 
-MatrixCSSym::MatrixCSSym(const AMatrixC &m)
-    : AMatrixCSquare(m.getNRows(), m.isSparse()),
+MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
+    : AMatrixSquare(m.getNRows(), m.isSparse()),
       _squareSymMatrix()
 {
   if (m.isEmpty())
@@ -48,47 +48,47 @@ MatrixCSSym::MatrixCSSym(const AMatrixC &m)
     }
 }
 
-MatrixCSSym& MatrixCSSym::operator= (const MatrixCSSym &r)
+MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &r)
 {
   if (this != &r)
   {
     _deallocate();
-    AMatrixCSquare::operator=(r);
+    AMatrixSquare::operator=(r);
     _recopy(r);
   }
   return *this;
 }
 
-MatrixCSSym::~MatrixCSSym()
+MatrixSquareSymmetric::~MatrixSquareSymmetric()
 {
   _deallocate();
 }
 
-IClonable* MatrixCSSym::clone() const
+IClonable* MatrixSquareSymmetric::clone() const
 {
-  return new MatrixCSSym(*this);
+  return new MatrixSquareSymmetric(*this);
 }
 
-double MatrixCSSym::_getValue(int irow, int icol) const
+double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
 
-double MatrixCSSym::_getValue(int irank) const
+double MatrixSquareSymmetric::_getValue(int irank) const
 {
   return _squareSymMatrix[irank];
 }
 
-void MatrixCSSym::_setValue(int irow, int icol, double value)
+void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
   _isIndexValid(irow, icol);
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = value;
 }
 
-void MatrixCSSym::_setValue(int irank, double value)
+void MatrixSquareSymmetric::_setValue(int irank, double value)
 {
   _isRankValid(irank);
   _squareSymMatrix[irank] = value;
@@ -99,7 +99,7 @@ void MatrixCSSym::_setValue(int irank, double value)
  * @param nsize
  * @param tab
  */
-void MatrixCSSym::initMatTri(int     nsize,
+void MatrixSquareSymmetric::initMatTri(int     nsize,
                              double* tab)
 {
   _isNumberValid(nsize,nsize);
@@ -108,7 +108,7 @@ void MatrixCSSym::initMatTri(int     nsize,
   for (int i=0; i<_getMatrixSize(); i++) _squareSymMatrix[i] = tab[i];
 }
 
-void MatrixCSSym::_prodVector(const double *in, double *out) const
+void MatrixSquareSymmetric::_prodVector(const double *in, double *out) const
 {
   matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),in,out);
 }
@@ -116,7 +116,7 @@ void MatrixCSSym::_prodVector(const double *in, double *out) const
 /**
  * \warning : values is provided as a square complete matrix
  */
-void MatrixCSSym::_setValues(const double* values, bool byCol)
+void MatrixSquareSymmetric::_setValues(const double* values, bool /*byCol*/)
 {
   // Check that the input argument corresponds to a square symmetric matrix
   for (int icol = 0; icol < getNCols(); icol++)
@@ -136,33 +136,33 @@ void MatrixCSSym::_setValues(const double* values, bool byCol)
     }
 }
 
-int MatrixCSSym::_invert()
+int MatrixSquareSymmetric::_invert()
 {
   return matrix_invert_triangle(getNRows(),_squareSymMatrix.data(), -1);
 }
 
-double& MatrixCSSym::_getValueRef(int irow, int icol)
+double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
 
-void MatrixCSSym::_deallocate()
+void MatrixSquareSymmetric::_deallocate()
 {
 }
 
-void MatrixCSSym::_recopy(const MatrixCSSym &r)
+void MatrixSquareSymmetric::_recopy(const MatrixSquareSymmetric &r)
 {
   _squareSymMatrix = r._squareSymMatrix;
 }
 
-void MatrixCSSym::_allocate()
+void MatrixSquareSymmetric::_allocate()
 {
   _squareSymMatrix.resize(_getMatrixSize());
 }
 
-int MatrixCSSym::_getIndexToRank(int irow,
+int MatrixSquareSymmetric::_getIndexToRank(int irow,
                                  int icol) const
 {
   int rank;
@@ -175,32 +175,32 @@ int MatrixCSSym::_getIndexToRank(int irow,
   return rank;
 }
 
-int MatrixCSSym::_getMatrixSize() const
+int MatrixSquareSymmetric::_getMatrixSize() const
 {
   int n = getNRows();
   int size = n * (n + 1) / 2;
   return size;
 }
 
-int MatrixCSSym::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
 {
   int pivot;
   return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),
                       static_cast<int> (b.size()),1,&pivot);
 }
 
-double MatrixCSSym::_determinant() const
+double MatrixSquareSymmetric::_determinant() const
 {
   return matrix_determinant(getNRows(),_squareSymMatrix.data());
 }
 
-String MatrixCSSym::toString(int level) const
+String MatrixSquareSymmetric::toString(int level) const
 {
   std::stringstream sstr;
 
    if (isSparse())
    {
-     sstr << AMatrixC::toString(level);
+     sstr << AMatrix::toString(level);
    }
    else
    {

@@ -10,8 +10,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #define CASE_MATRICES 0 
-#include "MatrixC/MatrixCFactory.hpp"
-#include "MatrixC/MatrixCSGeneral.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -2783,8 +2783,7 @@ GEOSLIB_API int spde_build_stdev(double *vcur)
 
   if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2, LDinv->p, LDinv->i,
                 LDinv->x, Pattern->p, Pattern->i, Pattern->x, wz, wZdiagp,
-                wLmunch)
-      == -1) goto label_end;
+                wLmunch) == -1) goto label_end;
 
   /* Extracting the diagonal of wz */
 
@@ -6841,15 +6840,13 @@ GEOSLIB_API int spde_external_mesh_define(int mode,
     S_EXTERNAL_MESH[icov0]->nmesh = nmesh;
 
     size = nvertex * ndim;
-    S_EXTERNAL_MESH[icov0]->points = (double *) mem_alloc(sizeof(double) * size,
-                                                          0);
+    S_EXTERNAL_MESH[icov0]->points = (double *) mem_alloc(sizeof(double) * size, 0);
     if (S_EXTERNAL_MESH[icov0]->points == nullptr) goto label_end;
     for (int i = 0; i < size; i++)
       S_EXTERNAL_MESH[icov0]->points[i] = points[i];
 
     size = nmesh * ncorner;
-    S_EXTERNAL_MESH[icov0]->meshes = (int *) mem_alloc(sizeof(double) * size,
-                                                       0);
+    S_EXTERNAL_MESH[icov0]->meshes = (int *) mem_alloc(sizeof(double) * size, 0);
     if (S_EXTERNAL_MESH[icov0]->meshes == nullptr) goto label_end;
     for (int i = 0; i < size; i++)
       S_EXTERNAL_MESH[icov0]->meshes[i] = meshes[i];
