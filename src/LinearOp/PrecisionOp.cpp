@@ -230,7 +230,8 @@ void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
 
   // Polynomial evaluation
 
-  if (_evalPoly(_power,*inPtr,out))
+//  if (_evalPoly(_power,*inPtr,out))
+  if (_evalPoly(_power,in,out))
     my_throw("Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
   // Post-processing

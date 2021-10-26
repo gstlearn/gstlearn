@@ -206,6 +206,7 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
   tm2.resize(nvertex);
   px.resize(nvertex);
   tx.resize(nvertex);
+  cs_print_range("Range de S dans chebychef evalOp", S);
 
 /* Create the T1 sparse matrix */
 
