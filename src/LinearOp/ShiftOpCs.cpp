@@ -604,7 +604,7 @@ void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int ip)
 {
   // Initializations
   if (! _isNoStat()) return;
-  if (_isNoStatByHH()) return;
+  if (! _flagGradByHH) return;
   int igrf = _getIgrf();
   int icov = _getIcov();
   int ndim = getNDim();
@@ -1025,6 +1025,7 @@ int ShiftOpCs::_buildS(AMesh *amesh,
   _S = cs_spfree(_S);
   _S = _BuildSfromMap(tab);
   if (_S == nullptr) goto label_end;
+  cs_print_range("Matrix S", _S);
 
   /* Set the error return code */
 
@@ -1318,6 +1319,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
     }
     _Lambda.push_back(sqrt((_TildeC[ip]) / (sqdeth * sill)));
   }
+  ut_vector_display_stats("Lambda", _Lambda);
 }
 
 /**
@@ -1483,16 +1485,6 @@ bool ShiftOpCs::_isNoStat()
 {
   Model* model = _getModel();
   return model->isNoStat();
-}
-
-bool ShiftOpCs::_isNoStatByHH()
-{
-  Model* model = _getModel();
-  int igrf = _getIgrf();
-  int icov = _getIcov();
-  const ANoStat* nostat = _getModel()->getNoStat();
-  if (! model->isNoStat()) return false;
-  return nostat->isDefined(igrf, icov, EConsElem::PARAM, -1, -1);
 }
 
 bool ShiftOpCs::_isVelocity()
