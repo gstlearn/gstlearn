@@ -22,7 +22,6 @@
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
-
 PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
                          const CovAniso* cova,
                          const EPowerPT& power,
@@ -272,17 +271,17 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
       }
     }
 
-
     ((ClassicalPolynomial*)_polynomials[power])->evalOpTraining(_shiftOp->getS(),in,_workPoly,_work4);
+
     for(int i=0;i<(int)in.size();i++)
     {
-       out[i] = _workPoly[0][i];
+      out[i] = _workPoly[0][i];
     }
-   }
-    else
-    {
-      _polynomials[power]->evalOp(_shiftOp->getS(),in,out);
-    }
+  }
+  else
+  {
+    _polynomials[power]->evalOp(_shiftOp->getS(),in,out);
+  }
   return 0;
 }
 
