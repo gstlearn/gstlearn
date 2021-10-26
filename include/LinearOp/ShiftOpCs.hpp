@@ -98,8 +98,8 @@ public:
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
 
-  bool getFlagGradByHh() const { return _flagGradByHH; }
-  void setFlagGradByHh(bool flagGradByHh) { _flagGradByHH = flagGradByHh; }
+  bool getFlagGradByHH() const { return _flagGradByHH; }
+  void setFlagGradByHH(bool flagGradByHH) { _flagGradByHH = flagGradByHH; }
   int  getLambdaGradSize() const;
 
 
@@ -111,7 +111,6 @@ private:
   Model* _getModel() const { return _model; }
   void _setModel(Model* model) { _model = model; }
   bool _isNoStat();
-  bool _isNoStatByHH();
   bool _isVelocity();
   const CovAniso* _getCova();
 

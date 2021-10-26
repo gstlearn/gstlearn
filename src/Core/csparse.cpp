@@ -3170,9 +3170,7 @@ cs *cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_release)
 /* Return per column, the sum along the row */
 /* Note: Check existence of returned argument */
 /* Note: The returned array must be freed by calling function */
-double *cs_col_sumrow(const cs *A,
-		      int *ncol,
-		      int *nrow)
+double *cs_col_sumrow(const cs *A, int *ncol, int *nrow)
  {
    int *Ap,error;
    cs  *AT;			// Will store t(A)

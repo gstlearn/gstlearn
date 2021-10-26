@@ -246,7 +246,9 @@ void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
   }
   else if (_power == EPowerPT::MINUSHALF)
   {
+    ut_vector_display_stats("out avant prodlambda",out);
     _shiftOp->prodLambda(out, out, EPowerPT::MINUSONE);
+    ut_vector_display_stats("out apres prodlambda",out);
   }
 }
 
