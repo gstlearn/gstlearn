@@ -225,19 +225,18 @@ void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
                                            int igparam) const
 {
 
-  int n = static_cast<int> (temp1.size());
   int degree = _coeffs.size();
+  int n = temp1.size();
+  ut_vector_fill(out,0.,n);
   cs_vecmult(shiftOp->getSGrad(iapex,igparam),workpoly[degree-1].data(),out.data());
 
 
-  for(int i=degree-2;i>=0;i--)
+  for(int i=degree-3;i>=0;i--)
   {
-    cs_vecmult(shiftOp->getS(),out.data(),temp1.data());
-    cs_vecmult(shiftOp->getSGrad(iapex,igparam),workpoly[i+1].data(),temp2.data());
-
-    for(int j=0;j<n;j++)
-    {
-      out[j] = temp1[j] + temp2[j];
-    }
+      ut_vector_fill(temp1,0.,n);
+      cs_vecmult(shiftOp->getS(),out.data(),temp1.data());
+      ut_vector_fill(temp2,0.,n);
+      cs_vecmult(shiftOp->getSGrad(iapex,igparam),workpoly[i+1].data(),temp2.data());
+      ut_vector_sum(temp1,temp2,out);
   }
 }

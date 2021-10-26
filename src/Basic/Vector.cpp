@@ -309,6 +309,24 @@ void ut_vector_subtract_inplace(VectorDouble& vec1, const VectorDouble& vec2)
     vec1[i] -= vec2[i];
 }
 
+void ut_vector_sum(const VectorDouble& vec1,const VectorDouble& vec2,VectorDouble& res )
+{
+  if (vec1.size() != vec2.size())
+  {
+    my_throw("Wrong size");
+  }
+  int n = (int)vec1.size();
+  if ((int)res.size() != n)
+  {
+    res.resize(n);
+  }
+  for (int i = 0; i< n; i++)
+  {
+    res[i] = vec1[i] + vec2[i];
+  }
+}
+
+
 VectorDouble ut_vector_simulate_gaussian(int n, double mean, double sigma)
 {
   VectorDouble vec(n);

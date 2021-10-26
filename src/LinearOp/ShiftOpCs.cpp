@@ -1521,3 +1521,4 @@ void ShiftOpCs::_determineFlagGradByHH()
   const ANoStat* nostat = _getModel()->getNoStat();
   _flagGradByHH = nostat->isDefinedByType(igrf, EConsElem::TENSOR);
 }
+
