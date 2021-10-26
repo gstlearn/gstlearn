@@ -90,7 +90,7 @@ public:
   double getMaxEigenValue() const;
 
   cs* getS() const { return _S; }
-  cs *getSGrad(int iapex, int igparam) const;
+  cs* getSGrad(int iapex, int igparam) const;
   const VectorDouble& getTildeC() const { return _TildeC; }
   const VectorDouble& getLambda() const { return _Lambda; }
   double getLambda(int iapex) const { return _Lambda[iapex]; }
@@ -101,6 +101,7 @@ public:
   bool getFlagGradByHH() const { return _flagGradByHH; }
   void setFlagGradByHH(bool flagGradByHH) { _flagGradByHH = flagGradByHH; }
   int  getLambdaGradSize() const;
+
 
 private:
   int _getIcov() const { return _icov; }
