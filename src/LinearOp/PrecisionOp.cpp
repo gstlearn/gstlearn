@@ -229,8 +229,7 @@ void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
 
   // Polynomial evaluation
 
-//  if (_evalPoly(_power,*inPtr,out))
-  if (_evalPoly(_power,in,out))
+  if (_evalPoly(_power,*inPtr,out))
     my_throw("Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
   // Post-processing
@@ -247,9 +246,7 @@ void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
   }
   else if (_power == EPowerPT::MINUSHALF)
   {
-    ut_vector_display_stats("out avant prodlambda",out);
     _shiftOp->prodLambda(out, out, EPowerPT::MINUSONE);
-    ut_vector_display_stats("out apres prodlambda",out);
   }
 }
 

@@ -1025,7 +1025,6 @@ int ShiftOpCs::_buildS(AMesh *amesh,
   _S = cs_spfree(_S);
   _S = _BuildSfromMap(tab);
   if (_S == nullptr) goto label_end;
-  cs_print_range("Matrix S", _S);
 
   /* Set the error return code */
 
@@ -1319,7 +1318,6 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
     }
     _Lambda.push_back(sqrt((_TildeC[ip]) / (sqdeth * sill)));
   }
-  ut_vector_display_stats("Lambda", _Lambda);
 }
 
 /**

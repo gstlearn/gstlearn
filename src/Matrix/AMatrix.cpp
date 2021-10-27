@@ -139,11 +139,10 @@ bool AMatrix::isSame(const AMatrix& m, double eps)
 {
   if (! isSameSize(m)) return false;
 
-  for (int icol = 0; icol < _nCols; icol++)
-    for (int irow = 0; irow < _nRows; irow++)
-    {
-      if (ABS(getValue(irow,icol) - m.getValue(irow,icol)) > eps) return false;
-    }
+  for (int i = 0; i < _getMatrixSize(); i++)
+  {
+    if (ABS(getValue(i) - m.getValue(i)) > eps) return false;
+  }
   return true;
 }
 
@@ -500,7 +499,7 @@ void AMatrix::fill(double value)
  * of elements in the matrix.
  * Kept for compatibility with old code where matrix contents was stored as
  * a double* array
- * @param values
+ * @param values Input array (Dimension: nrow * ncol)
  * @param byCol true for Column major; false for Row Major
  */
 void AMatrix::setValues(const double* values, bool byCol)
@@ -558,8 +557,8 @@ void AMatrix::setValues(const VectorDouble& values, bool byCol)
 }
 
 void AMatrix::setValues(const VectorInt irows,
-                         const VectorInt icols,
-                         const VectorDouble values)
+                        const VectorInt icols,
+                        const VectorDouble values)
 {
   if (irows.size() != values.size() ||
       icols.size() != values.size())
@@ -716,6 +715,8 @@ void AMatrix::addMatrix(const AMatrix& y)
     {
       for (int icol = 0; icol < _nCols; icol++)
       {
+        if (mustBeDiagonal()  && irow != icol) continue;
+        if (mustBeSymmetric() && icol >  irow) continue;
         setValue(irow, icol, getValue(irow, icol) + y.getValue(irow, icol));
       }
     }
@@ -746,6 +747,9 @@ void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
     {
       for (int icol = 0; icol < _nCols; icol++)
       {
+        if (mustBeDiagonal()  && irow != icol) continue;
+        if (mustBeSymmetric() && icol >  irow) continue;
+
         double value = 0.;
         for (int k = 0; k < _nCols; k++)
         {
@@ -797,7 +801,11 @@ void AMatrix::multiplyRow(const VectorDouble& vec)
     my_throw("The size of 'vec' must match the number of rows");
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
+    {
+      if (mustBeDiagonal()  && irow != icol) continue;
+      if (mustBeSymmetric() && icol >  irow) continue;
       _setValue(irow, icol, _getValue(irow, icol) * vec[irow]);
+    }
 }
 
 void AMatrix::divideRow(const VectorDouble& vec)
@@ -806,7 +814,11 @@ void AMatrix::divideRow(const VectorDouble& vec)
     my_throw("The size of 'vec' must match the number of rows");
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
+    {
+      if (mustBeDiagonal()  && irow != icol) continue;
+      if (mustBeSymmetric() && icol >  irow) continue;
       _setValue(irow, icol, _getValue(irow, icol) / vec[irow]);
+    }
 }
 
 void AMatrix::multiplyColumn(const VectorDouble& vec)
@@ -815,7 +827,11 @@ void AMatrix::multiplyColumn(const VectorDouble& vec)
     my_throw("The size of 'vec' must match the number of columns");
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
+    {
+      if (mustBeDiagonal()  && irow != icol) continue;
+      if (mustBeSymmetric() && icol >  irow) continue;
       _setValue(irow, icol, _getValue(irow, icol) * vec[icol]);
+    }
 }
 void AMatrix::divideColumn(const VectorDouble& vec)
 {
@@ -823,7 +839,11 @@ void AMatrix::divideColumn(const VectorDouble& vec)
     my_throw("The size of 'vec' must match the number of columns");
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
+    {
+      if (mustBeDiagonal()  && irow != icol) continue;
+      if (mustBeSymmetric() && icol >  irow) continue;
       _setValue(irow, icol, _getValue(irow, icol) / vec[icol]);
+    }
 }
 
 int AMatrix::invert()
@@ -1241,6 +1261,8 @@ void AMatrix::add(const AMatrix& tab, double value)
   for (int icol = 0; icol < getNCols(); icol++)
     for (int irow = 0; irow < getNRows(); irow++)
     {
+      if (mustBeDiagonal()  && irow != icol) continue;
+      if (mustBeSymmetric() && icol >  irow) continue;
       double oldval = getValue(irow, icol);
       setValue(irow, icol, oldval + value * tab.getValue(irow, icol));
     }
@@ -1254,6 +1276,8 @@ void AMatrix::subtract(const AMatrix& tab, double value)
   for (int icol = 0; icol < getNCols(); icol++)
     for (int irow = 0; irow < getNRows(); irow++)
     {
+      if (mustBeDiagonal()  && irow != icol) continue;
+      if (mustBeSymmetric() && icol >  irow) continue;
       double oldval = getValue(irow, icol);
       setValue(irow, icol, oldval - value * tab.getValue(irow, icol));
     }
