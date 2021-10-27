@@ -289,6 +289,8 @@ int main(int argc, char *argv[])
 
   if (setup_license("Demonstration")) goto label_end;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("Gibbs-");
 
   // Setup constants
 
