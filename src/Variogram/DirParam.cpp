@@ -212,7 +212,7 @@ double DirParam::getMaximumDistance() const
   return (maxdist);
 }
 
-String DirParam::toString(int level) const
+String DirParam::toString(int /*level*/) const
 {
   std::stringstream sstr;
 

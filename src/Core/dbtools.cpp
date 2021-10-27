@@ -894,8 +894,7 @@ GEOSLIB_API int surface(Db *db_point,
 
   /* Preliminary calculations */
 
-  d2max = (FFFF(dlim)) ? 1.e30 :
-                         dlim * dlim;
+  d2max = (FFFF(dlim)) ? 1.e30 : dlim * dlim;
   maille = db_grid->getCellSize();
   for (iech = 0; iech < db_point->getSampleNumber(); iech++)
     dtab[iech] = 0.;
@@ -4761,7 +4760,6 @@ static int st_is_zero(Db *dbgrid, int iptr_grad, int iech)
  ** \param[in]  iptr_grad Rank of the first gradient component
  ** \param[in]  coor      Array of coordinates
  **
- ** \param[out] indg      Array of indices
  ** \param[out] knd       Absolute index
  ** \param[out] surf      Local value of the surface
  **
@@ -4769,7 +4767,6 @@ static int st_is_zero(Db *dbgrid, int iptr_grad, int iech)
 static int st_get_next(Db *dbgrid,
                        int iptr_grad,
                        VectorDouble& coor,
-                       int *indg,
                        int *knd,
                        double *surf)
 {
@@ -4890,7 +4887,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
     if (!dbpoint->isActive(iech)) continue;
     if (iech % nbyech != 0) continue;
     db_sample_load(dbpoint, ELoc::X, iech, coor.data());
-    if (st_get_next(dbgrid, iptr_grad, coor, indg, &knd, &surf)) break;
+    if (st_get_next(dbgrid, iptr_grad, coor, &knd, &surf)) break;
 
     /* Store the new point in the Streamline */
 
@@ -4911,7 +4908,7 @@ GEOSLIB_API int db_streamline(Db *dbgrid,
     {
       for (idim = ecr = 0; idim < ndim; idim++)
         coor[idim] -= step * dbgrid->getArray(knd, iptr_grad + idim);
-      if (st_get_next(dbgrid, iptr_grad, coor, indg, &knd, &surf)) break;
+      if (st_get_next(dbgrid, iptr_grad, coor, &knd, &surf)) break;
 
       /* Store the new point in the Streamline */
 

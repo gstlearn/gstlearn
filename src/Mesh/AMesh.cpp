@@ -61,9 +61,9 @@ int AMesh::setExtend(const VectorDouble extendmin,
 ** \remarks based on two Dbs where samples may coincide
 **
 *****************************************************************************/
-void AMesh::getDuplicates(int   verbose,
-                          Db   *dbin,
-                          Db   *dbout,
+void AMesh::getDuplicates(int   /*verbose*/,
+                          Db* /*dbin*/,
+                          Db* /*dbout*/,
                           int  *nbdupl,
                           int **dupl1,
                           int **dupl2) const

@@ -19,7 +19,7 @@
 ** Main Program for testing the sparse matrix algebra
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   int nrow, ncol, *rank_rows, *rank_cols;

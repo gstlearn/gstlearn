@@ -98,6 +98,7 @@ void MatrixSquareDiagonal::transposeInPlace()
  * Fill 'this' with the contents of 'values'.
  * Note that 'values' is dimensioned to 'nrows' by 'ncols'
  * @param values Input array
+ * @param byCol True is the values are sorted by Column
  */
 void MatrixSquareDiagonal::_setValues(const double* values, bool /*byCol*/)
 {

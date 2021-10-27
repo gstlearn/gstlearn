@@ -39,7 +39,7 @@ static int _maxNCols = 7;
 static int _maxNRows = 7;
 static int _nBatch = 7;
 
-String AStringable::toString(int level) const
+String AStringable::toString(int /*level*/) const
 {
   std::stringstream sstr;
   sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;
@@ -125,7 +125,6 @@ String _tabPrintRowColumn(int icase, int value, int flagAdd)
 String _printColumnHeader(const VectorString& colnames,
                           int colfrom,
                           int colto,
-                          int rowSize = _columnSize,
                           int colSize = _columnSize)
 {
   std::stringstream sstr;
@@ -502,7 +501,7 @@ String toMatrix(const String& title,
     /* Print the names of the columns and the column numbers */
 
     if (multi_row)
-      sstr << _printColumnHeader(colnames, jdeb, jfin, rowSize, colSize);
+      sstr << _printColumnHeader(colnames, jdeb, jfin, colSize);
 
     /* Loop on the rows */
 
@@ -591,7 +590,7 @@ String toMatrixSymmetric(const String& title,
     /* Print the names of the columns and the column numbers */
 
     if (multi_row)
-      sstr << _printColumnHeader(colnames, jdeb, jfin, rowSize, colSize);
+      sstr << _printColumnHeader(colnames, jdeb, jfin, colSize);
 
     /* Loop on the rows */
 
@@ -684,7 +683,7 @@ String toMatrixDiagonal(const String& title,
     /* Print the names of the columns and the column numbers */
 
     if (multi_row)
-      sstr << _printColumnHeader(colnames, jdeb, jfin, rowSize, colSize);
+      sstr << _printColumnHeader(colnames, jdeb, jfin, colSize);
 
     /* Loop on the rows */
 
@@ -776,7 +775,7 @@ String toMatrixDiagCst(const String& title,
     /* Print the names of the columns and the column numbers */
 
     if (multi_row)
-      sstr << _printColumnHeader(colnames, jdeb, jfin, rowSize, colSize);
+      sstr << _printColumnHeader(colnames, jdeb, jfin, colSize);
 
     /* Loop on the rows */
 
@@ -870,7 +869,7 @@ String toMatrix(const String& title,
     /* Print the names of the columns and the column numbers */
 
     if (multi_row)
-      sstr << _printColumnHeader(colnames, jdeb, jfin, rowSize, colSize);
+      sstr << _printColumnHeader(colnames, jdeb, jfin, colSize);
 
     /* Loop on the rows */
 

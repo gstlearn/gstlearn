@@ -807,8 +807,8 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
       if (st_table_read(nbpoly, hermite.data())) goto label_end;
     }
 
-    anam_update_hermitian(anam_hermite, nbpoly, pymin, pzmin, pymax, pzmax, aymin,
-                          azmin, aymax, azmax, r, variance, hermite);
+    anam_update_hermitian(anam_hermite, pymin, pzmin, pymax, pzmax, aymin,
+                          azmin, aymax, azmax, r, hermite);
     if (debug_query("interface")) anam_hermite->display();
     st_file_close(file);
     return (anam_hermite);

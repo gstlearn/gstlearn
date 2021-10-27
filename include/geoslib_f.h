@@ -85,8 +85,7 @@ GEOSLIB_API Db *db_create_point(int nech,
                                 const ELoadBy& order = ELoadBy::COLUMN,
                                 int flag_add_rank = 0,
                                 const VectorDouble& tab = VectorDouble());
-GEOSLIB_API Db *db_create_grid_generic(int flag_rot,
-                                       int ndim,
+GEOSLIB_API Db *db_create_grid_generic(int ndim,
                                        int ncol,
                                        const ELoadBy& order,
                                        int flag_add_rank,
@@ -134,8 +133,7 @@ GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
 GEOSLIB_API VectorDouble db_get_grid_axis(Db *dbgrid, int idim);
 GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose= false);
 GEOSLIB_API VectorInt db_identify_variables_by_name(Db *db,
-                                                    const String& pattern,
-                                                    int verbose = 0);
+                                                    const String& pattern);
 GEOSLIB_API void db_print(Db *db,
                           int flag_resume = 1,
                           int flag_vars = 1,

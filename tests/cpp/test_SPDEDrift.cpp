@@ -14,7 +14,7 @@
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   ASerializable::setPrefixName("SPDEDrift-");

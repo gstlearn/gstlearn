@@ -1468,7 +1468,6 @@ GEOSLIB_API int db_grid_define_coordinates(Db *db)
  ** \return  Pointer to the newly created Db grid structure
  **
  ** \param[in]  flag_rot  1 if the grid is rotated
- ** \param[in]  ndim      Space dimension
  ** \param[in]  natt      Number of attributes
  ** \param[in]  order     Manner in which values in tab are ordered.
  **                       (ELoadBy)
@@ -1481,7 +1480,7 @@ GEOSLIB_API int db_grid_define_coordinates(Db *db)
  **
  *****************************************************************************/
 GEOSLIB_API Db *db_create_grid(int flag_rot,
-                               int ndim,
+                               int /*ndim*/,
                                int natt,
                                const ELoadBy& order,
                                int flag_add_rank,
@@ -1504,7 +1503,10 @@ GEOSLIB_API Db *db_create_grid(int flag_rot,
 
   /* Dimension the data arrays */
 
-  error = db->gridDefine(nx, dx, x0, angles);
+  if (flag_rot)
+    error = db->gridDefine(nx, dx, x0, angles);
+  else
+    error = db->gridDefine(nx, dx, x0);
 
   /* Load the data */
 
@@ -1522,7 +1524,6 @@ GEOSLIB_API Db *db_create_grid(int flag_rot,
  **
  ** \return  Pointer to the newly created Db grid structure
  **
- ** \param[in]  flag_rot  1 if the grid is rotated
  ** \param[in]  ndim      Space dimension
  ** \param[in]  natt      Number of attributes
  ** \param[in]  order     Manner in which values in tab are ordered
@@ -1532,8 +1533,7 @@ GEOSLIB_API Db *db_create_grid(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_generic(int flag_rot,
-                                       int ndim,
+GEOSLIB_API Db *db_create_grid_generic(int ndim,
                                        int natt,
                                        const ELoadBy& order,
                                        int flag_add_rank,
@@ -1561,7 +1561,8 @@ GEOSLIB_API Db *db_create_grid_generic(int flag_rot,
 
   /* Load the data */
 
-  if (!error) st_load_data(db, order, flag_add_rank, tab);
+  if (! error)
+    st_load_data(db, order, flag_add_rank, tab);
 
   /* Remove the newly created Db if problem occurred */
 
@@ -4503,12 +4504,10 @@ GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
  **
  ** \param[in]   db       Db structure
  ** \param[in]   pattern  Matching pattern
- ** \param[in]   verbose  Verbose flag
  **
  ****************************************************************************/
 GEOSLIB_API VectorInt db_identify_variables_by_name(Db *db,
-                                                    const String& pattern,
-                                                    int verbose)
+                                                    const String& pattern)
 {
   VectorString names = db->getNames(pattern);
   VectorInt ranks = db->getAttributes(names);

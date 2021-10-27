@@ -313,8 +313,6 @@ static int st_proportion_define(PropDef *propdef,
  ** \param[in]  iech       Rank of the data in the input Db
  ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
  ** \param[in]  nbsimu     Number of simulations (EProcessOper::CONDITIONAL)
- ** \param[in]  flag_check 1 if the consistency check with the actual
- **                        proportion of the current facies must be done
  **
  ** \param[out] t1min      Minimum threshold for Y1
  ** \param[out] t1max      Maximum threshold for Y1
@@ -331,7 +329,6 @@ GEOSLIB_API int rule_thresh_define_shadow(PropDef *propdef,
                                           int iech,
                                           int isimu,
                                           int nbsimu,
-                                          int flag_check,
                                           double *t1min,
                                           double *t1max,
                                           double *t2min,

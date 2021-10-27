@@ -43,7 +43,7 @@ void reset_to_initial_contents(AMatrix* M,
 ** Main Program for testing the new classes of matrix algebra
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   VectorDouble V1,V2,V3,Vref;

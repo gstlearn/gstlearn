@@ -26,7 +26,6 @@ public:
          int nburn,
          int niter,
          int flag_order,
-         bool flag_multi_mono,
          bool flag_decay);
   AGibbs(const AGibbs &r);
   AGibbs& operator=(const AGibbs &r);
@@ -35,8 +34,7 @@ public:
   virtual String toString(int level = 0) const override;
   virtual int calculInitialize(VectorVectorDouble& y,
                                int isimu,
-                               int ipgs,
-                               bool verbose) = 0;
+                               int ipgs) = 0;
   virtual void update(VectorVectorDouble& y, int isimu, int ipgs, int iter) = 0;
   virtual int covmatAlloc(bool verbose) = 0;
   virtual double getSimulate(VectorVectorDouble& y,
@@ -48,14 +46,16 @@ public:
                              int iter) = 0;
   virtual int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) = 0;
 
-  virtual int run(VectorVectorDouble& y, int ipgs=0, int isimu=0, bool verbose = false, bool flagCheck = false);
+  virtual int run(VectorVectorDouble& y,
+                  int ipgs = 0,
+                  int isimu = 0,
+                  bool flagCheck = false);
 
   void init(int npgs,
             int nvar,
             int nburn,
             int niter,
             int flag_order,
-            bool flag_multi_mono,
             bool flag_decay);
   void getBoundsDecay(int iter, double *vmin, double *vmax) const;
 
@@ -96,8 +96,6 @@ protected:
   int _boundsCheck(int ipgs, int ivar, int iact, double *vmin, double *vmax);
   void _printInequalities(int iact,
                           int ivar,
-                          int nfois,
-                          int flag_cv,
                           double simval,
                           double vmin,
                           double vmax) const;

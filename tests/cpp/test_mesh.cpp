@@ -26,7 +26,7 @@
 /* Program principal */
 /*********************/
 
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   AMesh *mesh,*meshb;

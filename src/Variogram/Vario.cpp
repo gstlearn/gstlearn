@@ -669,7 +669,7 @@ String Vario::toString(int level) const
   return sstr.str();
 }
 
-String Vario::_toStringByDirection(int level, int idir) const
+String Vario::_toStringByDirection(int /*level*/, int idir) const
 {
   std::stringstream sstr;
 
@@ -1097,14 +1097,11 @@ const VectorDouble& Vario::getUtilizeVec(int idir) const
 int Vario::getCenter(int ivar, int jvar, int idir) const
 {
   if (! _isDirectionValid(idir)) return ITEST;
+  if (! _isVariableValid(ivar))  return ITEST;
+  if (! _isVariableValid(jvar))  return ITEST;
   if (! getFlagAsym()) return ITEST;
-  for (int ivar=0; ivar<_nVar; ivar++)
-    for (int jvar=0; jvar<=ivar; jvar++)
-    {
-      int i = getDirAddress(idir, ivar, jvar, 0, false, 0);
-      return i;
-    }
-  return ITEST;
+  int i = getDirAddress(idir, ivar, jvar, 0, false, 0);
+  return i;
 }
 
 int Vario::getVarAddress(int ivar, int jvar) const

@@ -743,7 +743,6 @@ static void st_check_fracture_intersect(Frac_List    *frac_list,
 **
 ** \return Rank of the fracture
 **
-** \param[in]  frac_environ Frac_Environ structure
 ** \param[in]  ifrac        Rank of the fracture (if old) or -1 for a new one
 ** \param[in]  family       Rank of the family
 ** \param[in]  xx           Abscissae of the starting point
@@ -755,8 +754,7 @@ static void st_check_fracture_intersect(Frac_List    *frac_list,
 ** \param[out] xp           Abscissae of the ending point
 **
 *****************************************************************************/
-static int st_frac_add(Frac_Environ *frac_environ,
-                       int           ifrac,
+static int st_frac_add(int           ifrac,
                        int           family,
                        double        xx,
                        double        cote,
@@ -902,8 +900,7 @@ static int st_simulate_fractures(Frac_Environ *frac_environ,
 
     /* Add a new fracture */
 
-    (void) st_frac_add(frac_environ,-1,family+1,xx,cote,thick,angle,
-                       frac_list,&xp);
+    (void) st_frac_add(-1,family+1,xx,cote,thick,angle,frac_list,&xp);
 
     /* Update the density to account for repulsion */
 
@@ -1079,8 +1076,7 @@ static double st_extend_fractures(Frac_Environ *frac_environ,
 
     next++;
     xx = XXF(desc.npoint - 1);
-    (void) st_frac_add(frac_environ,ifrac,desc.family,xx,cote,thick,
-                       angle,frac_list,&xp);
+    (void) st_frac_add(ifrac,desc.family,xx,cote,thick,angle,frac_list,&xp);
 
     /* Update the density to account for repulsion */
 
@@ -1415,8 +1411,7 @@ GEOSLIB_API int fracture_simulate(Frac_Environ *frac_environ,
     for (ilayer=0; ilayer<(*nlayers); ilayer++)
     {
       thick = thicks[ilayer];
-      ifrac = st_frac_add(frac_environ,ifrac,0,xx,cote,thick,
-                          angle,frac_list,&xx);
+      ifrac = st_frac_add(ifrac,0,xx,cote,thick,angle,frac_list,&xx);
       cote += thick;
     }
   }
