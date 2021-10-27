@@ -801,11 +801,6 @@ static double st_generate_value(int rank)
 **
 ** \return  1 if the pixel is in the grain, 0 if it is in the pore
 **
-** \param[in]  dx      location of the pixel along X 
-** \param[in]  dy      location of the pixel along Y
-** \param[in]  dz      location of the pixel along Z
-** \param[in]  object  Bool_Object to be generated
-**
 *****************************************************************************/
 static int st_check_type0(double       /*dx*/,
                           double       /*dy*/,

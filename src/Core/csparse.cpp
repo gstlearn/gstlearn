@@ -3216,12 +3216,14 @@ double *cs_col_sumrow(const cs *A, int *ncol, int *nrow)
 
  /* Operate the product of a vector by a sparse matrix */
  /* y = A %*% x */
- void cs_vecmult (const cs *A, const double *x, double *y)
+ void cs_vecmult (const cs *A, int nout, const double *x, double *y)
  {
    int	  *Ap, *Ai, n;
    double *Ax, value ;
 
      n = A->n; Ap = A->p ; Ai = A->i ; Ax = A->x ;
+
+     for (int j = 0 ; j < nout ; j++) y[j] = 0.;
 
      for (int j = 0 ; j < n ; j++)
      {
@@ -3234,13 +3236,15 @@ double *cs_col_sumrow(const cs *A, int *ncol, int *nrow)
 
  /* Operate the product of a vector by a sparse matrix */
  /* y = t(A) %*% x */
- void cs_tmulvec(const cs *A, const double *x, double *y)
+ void cs_tmulvec(const cs *A, int nout, const double *x, double *y)
  {
    int	  *Ap, *Ai, n;
    double *Ax, value;
    
    n = A->n; Ap = A->p ; Ai = A->i ; Ax = A->x ;
    
+   for (int j = 0 ; j < nout ; j++) y[j] = 0.;
+
    for (int j = 0 ; j < n ; j++)
    {
      value = 0.;
@@ -4664,9 +4668,9 @@ static void st_multigrid_scale(cs_MGS *mgs,
 **
 *****************************************************************************/
 static void st_multigrid_ascent(cs_MGS	 *mgs,
-                                int	  level,
-                                int	  flag_init,
-                                int	  flag_scale,
+                                int	      level,
+                                int	      flag_init,
+                                int	      flag_scale,
                                 double	 *zin,
                                 double	 *zout,
                                 double	 *work)
@@ -4677,7 +4681,7 @@ static void st_multigrid_ascent(cs_MGS	 *mgs,
     message("Ascending from %d to %d (init=%d scale=%d)\n",
 	    level+1,level,flag_init,flag_scale);
   mg  = mgs->mg[level];
-  cs_tmulvec(mg->IhH, zin, work);
+  cs_tmulvec(mg->IhH, mg->nh, zin, work);
   if (flag_init)
     for (int icur=0; icur<mg->nh; icur++) zout[icur]  = work[icur];
   else

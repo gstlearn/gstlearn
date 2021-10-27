@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
   Wtriplet = cs_spfree(Wtriplet);
   Mwork = cs_multiply(W, A);    
   cs_print_nice("cs_tmulvec:",Mwork,-1,-1);
-  cs_tmulvec(A, urow, work);
+  cs_tmulvec(A, ncol, urow, work);
   print_matrix("Should be equal to:",0,1,ncol,1,NULL,work);
   W = cs_spfree(W);
   Mwork = cs_spfree(Mwork);

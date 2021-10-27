@@ -56,8 +56,6 @@ GEOSLIB_API void  _erase_current_string(void);
 GEOSLIB_API double _variogram_convert_angular_tolerance(double tolang);
 GEOSLIB_API int _variogram_compute(Db* db,
                                    Vario* vario,
-                                   const VectorDouble& means = VectorDouble(),
-                                   const VectorDouble& vars = VectorDouble(),
                                    int flag_grid = 0,
                                    int flag_gen = 0,
                                    int flag_sample = 0,

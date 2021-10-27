@@ -466,11 +466,17 @@ GEOSLIB_API void ascii_environ_read(char *file_name, int verbose)
  **
  *****************************************************************************/
 GEOSLIB_API Db *ascii_db_read(const char *file_name,
-                              int /*must_grid*/,
+                              int must_grid,
                               int verbose)
 {
   if (! st_file_exists(file_name)) return nullptr;
   Db* db = new Db(String(file_name), verbose);
+  if (must_grid && ! db->isGrid())
+  {
+    messerr("The file (%s) does not correspond to a Grid file",file_name);
+    delete db;
+    db = nullptr;
+  }
   return (db);
 }
 

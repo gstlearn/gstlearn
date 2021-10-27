@@ -305,7 +305,7 @@ int Vario::compute(const String& calcul_name,
   if (internalVariableResize()) return 1;
   internalDirectionResize();
 
-  if (_variogram_compute(_db, this, _means, _vars, flag_grid, flag_gen,
+  if (_variogram_compute(_db, this, flag_grid, flag_gen,
                          flag_sample, verr_mode, model, verbose))
   {
     messerr("Error when calculating the Variogram");
@@ -370,7 +370,7 @@ int Vario::computeIndic(const String& calcul_name,
   internalDirectionResize();
 
   // Calculate the variogram of indicators
-  if (_variogram_compute(_db, this, _means, _vars, flag_grid, flag_gen,
+  if (_variogram_compute(_db, this, flag_grid, flag_gen,
                          flag_sample, verr_mode, model, verbose))
   {
     messerr("Error when calculating the Variogram of Indicators");

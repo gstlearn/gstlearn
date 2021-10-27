@@ -672,7 +672,7 @@ void AMatrix::prodVector(const double *in, double *out) const
 {
   if (_sparse)
   {
-    cs_vecmult(_csMatrix, in, out);
+    cs_vecmult(_csMatrix, _nRows, in, out);
   }
   else
   {
@@ -684,7 +684,6 @@ void AMatrix::prodVector(const VectorDouble& in, VectorDouble& out) const
 {
   prodVector(in.data(), out.data());
 }
-
 
 /**
  * Add the matrix 'y' to the current Matrix
