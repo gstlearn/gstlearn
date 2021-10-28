@@ -150,7 +150,7 @@ static void st_test_3(void)
 ** Main Program
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   int flag_1 = 1;

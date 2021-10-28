@@ -693,19 +693,15 @@ static int st_belong_to_layer(Frac_Desc& desc,
 
 /****************************************************************************/
 /*!
-**  Check fracture againt the other ones and possibly intersect the current one
+**  Check fracture against the other ones and possibly intersect the current one
 **
-** \param[in]  frac_environ Frac_Environ structure
 ** \param[in]  frac_list    Frac_List structure
 ** \param[in]  cote         Ordinate of the fracture starting point
-** \param[in]  thick        Thickness of the layer
 ** \param[in]  ifrac0       Rank of the current fracture
 **
 *****************************************************************************/
-static void st_check_fracture_intersect(Frac_Environ* /*frac_environ*/,
-                                        Frac_List    *frac_list,
+static void st_check_fracture_intersect(Frac_List    *frac_list,
                                         double        cote,
-                                        double       /*thick*/,
                                         int           ifrac0)
 {
   double xd1,xe1,yd1,ye1,xd2,xe2,yd2,ye2,x,y;
@@ -747,7 +743,6 @@ static void st_check_fracture_intersect(Frac_Environ* /*frac_environ*/,
 **
 ** \return Rank of the fracture
 **
-** \param[in]  frac_environ Frac_Environ structure
 ** \param[in]  ifrac        Rank of the fracture (if old) or -1 for a new one
 ** \param[in]  family       Rank of the family
 ** \param[in]  xx           Abscissae of the starting point
@@ -759,8 +754,7 @@ static void st_check_fracture_intersect(Frac_Environ* /*frac_environ*/,
 ** \param[out] xp           Abscissae of the ending point
 **
 *****************************************************************************/
-static int st_frac_add(Frac_Environ *frac_environ,
-                       int           ifrac,
+static int st_frac_add(int           ifrac,
                        int           family,
                        double        xx,
                        double        cote,
@@ -798,7 +792,7 @@ static int st_frac_add(Frac_Environ *frac_environ,
   YYF(desc.npoint)   = thick + cote;
   desc.npoint++;
 
-  st_check_fracture_intersect(frac_environ,frac_list,cote,thick,ifrac);
+  st_check_fracture_intersect(frac_list,cote,ifrac);
 
   return(ifrac);
 }
@@ -856,7 +850,6 @@ static void st_update_repulsion(double  x0,
 ** \return  Number of fracture created in this layer
 **
 ** \param[in]  frac_environ Frac_Environ structure
-** \param[in]  ilayer       Starting layer rank
 ** \param[in]  family       Rank of the family
 ** \param[in]  cote         Ordinate of the fracture starting point
 ** \param[in]  thick        Thickness of the layer
@@ -866,7 +859,6 @@ static void st_update_repulsion(double  x0,
 **
 *******************************************************************F**********/
 static int st_simulate_fractures(Frac_Environ *frac_environ,
-                                 int         /*ilayer*/,
                                  int           family,
                                  double        cote,
                                  double        thick,
@@ -908,8 +900,7 @@ static int st_simulate_fractures(Frac_Environ *frac_environ,
 
     /* Add a new fracture */
 
-    (void) st_frac_add(frac_environ,-1,family+1,xx,cote,thick,angle,
-                       frac_list,&xp);
+    (void) st_frac_add(-1,family+1,xx,cote,thick,angle,frac_list,&xp);
 
     /* Update the density to account for repulsion */
 
@@ -1085,8 +1076,7 @@ static double st_extend_fractures(Frac_Environ *frac_environ,
 
     next++;
     xx = XXF(desc.npoint - 1);
-    (void) st_frac_add(frac_environ,ifrac,desc.family,xx,cote,thick,
-                       angle,frac_list,&xp);
+    (void) st_frac_add(ifrac,desc.family,xx,cote,thick,angle,frac_list,&xp);
 
     /* Update the density to account for repulsion */
 
@@ -1133,48 +1123,19 @@ static double st_layer_intensity(Frac_Environ *frac_environ,
 **
 ** \return Layer actual intensity
 **
-** \param[in]  frac_environ Frac_Environ structure
-** \param[in]  family       Rank of family
 ** \param[in]  theta1       Apparent layer intensity
 ** \param[in]  thetap       Intensity of the previous layer
 ** \param[in]  propsur      Actual survival proportion
-** \param[in]  thickp       Thickness of the previous layer
 **
 *****************************************************************************/
-static double st_derive_intensity(Frac_Environ* /*frac_environ*/,
-                                  int         /*family*/,
-                                  double        theta1,
+static double st_derive_intensity(double        theta1,
                                   double        thetap,
-                                  double        propsur,
-                                  double      /*thickp*/)
+                                  double        propsur)
 {
-  //  Frac_Fam *frac_fam;
-  double theta2;
-  // double prop1,prop2,expb;
-
-  //  frac_fam = frac_environ->frac_fams[family];
-  theta2 = theta1;
+  double theta2 = theta1;
 
   if (thetap > 0)
-  {
-    /* Constant probability */
-    //prop1  = frac_fam->prop1;
-
-    /* Length dependent probability */
-    //prop2  = frac_fam->prop2;
-
-    /* Thickness dependent exponent */
-    //expb   = exp(-thickp / frac_fam->bterm);
-
-    /* Survival probability */
-    //proba  = (prop1 + prop2) * expb;
-    
-    /* Actual intensity of the layer */
-    // The following formula is not tractable //
-    // theta2 = MAX(0., theta1 - proba * thetap);
-    // replace it by this one
     theta2 = MAX(0., theta1 - propsur * thetap);
-  }
     
   if (VERBOSE) 
     message ("Intensity corrected from survival = %lf\n",theta2);
@@ -1450,8 +1411,7 @@ GEOSLIB_API int fracture_simulate(Frac_Environ *frac_environ,
     for (ilayer=0; ilayer<(*nlayers); ilayer++)
     {
       thick = thicks[ilayer];
-      ifrac = st_frac_add(frac_environ,ifrac,0,xx,cote,thick,
-                          angle,frac_list,&xx);
+      ifrac = st_frac_add(ifrac,0,xx,cote,thick,angle,frac_list,&xx);
       cote += thick;
     }
   }
@@ -1502,12 +1462,11 @@ GEOSLIB_API int fracture_simulate(Frac_Environ *frac_environ,
       
       /* Derive the layer intensity, given the survival from previous layers */
 
-      theta2 = st_derive_intensity(frac_environ,family,
-                                   theta1,thetap,propsur,thickp);
+      theta2 = st_derive_intensity(theta1,thetap,propsur);
 
-      /* Simulate the fractures abscissae */
+      /* Simulate the fractures abscissa */
       
-      nfracs = st_simulate_fractures(frac_environ,ilayer,family,cote,thick,
+      nfracs = st_simulate_fractures(frac_environ,family,cote,thick,
                                      theta2,denstab,frac_list);
       
       /* Shift the ordinate */
@@ -1700,7 +1659,6 @@ static int st_get_nbyout(void)
 /*!
 **  Export the Fractures
 **
-** \param[in]  frac_environ : Frac_Environ structure
 ** \param[in]  frac_list    : Pointer to the Frac_List structure
 **
 ** \param[out] nfracs_arg  : Number of fractures exported
@@ -1710,8 +1668,7 @@ static int st_get_nbyout(void)
 ** \remarks The allocated array must be freed
 **
 *****************************************************************************/
-GEOSLIB_API void fracture_export(Frac_Environ* /*frac_environ*/,
-                                 Frac_List* frac_list,
+GEOSLIB_API void fracture_export(Frac_List* frac_list,
                                  int* nfracs_arg,
                                  int* nbyfrac_arg,
                                  double** fracs_arg)
@@ -2105,20 +2062,18 @@ static void st_plunge_segment_gradual(Db     *dbgrid,
 ** \param[in]  nfamilies    Number of families
 ** \param[in]  xmax         Maximum extension along horizontal axis
 ** \param[in]  permtab      Permabilities per family (starting from 0)
-** \param[in]  n_perm       Number of permeability families
 ** \param[in]  perm_mat     Permability for the matrix
 ** \param[in]  perm_bench   Permability along the bench edge
 ** \param[in]  ndisc        Number of discretization steps
 **
 *****************************************************************************/
-GEOSLIB_API int fracture_to_block(Db* dbgrid,
-                                  Frac_List* frac_list,
-                                  double* locinfo,
+GEOSLIB_API int fracture_to_block(Db*           dbgrid,
+                                  Frac_List*    frac_list,
+                                  double*       locinfo,
                                   int           n_layers,
                                   int           nfamilies,
                                   double        xmax,
-                                  double* permtab,
-                                  int         /*n_perm*/,
+                                  double*       permtab,
                                   double        perm_mat,
                                   double        perm_bench,
                                   int           ndisc)

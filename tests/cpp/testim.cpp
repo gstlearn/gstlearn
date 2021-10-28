@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
   int        nbsimu,seed,nbtuba;
   static int    nboot   = 10;
   static int    niter   = 10;
-  static double toleps  = 1.;
   static int    verbose = 0;
 
   /* Initializations */
@@ -162,8 +161,8 @@ int main(int argc, char *argv[])
   {
     dbin->clearLocators(ELoc::Z);
     if (gibbs_sampler(dbin,new_model,nullptr,
-                      1,seed,nboot,niter,false,true,false,false,false,0,
-                      5.,toleps,true,true,true))
+                      1,seed,nboot,niter,false,true,false,false,0,
+                      5.,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
     dbin->setLocatorByAttribute(dbin->getFieldNumber()-1,ELoc::Z);

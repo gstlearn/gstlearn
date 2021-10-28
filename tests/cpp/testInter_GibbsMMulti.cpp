@@ -29,7 +29,7 @@
 ** Main Program
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   int iptr;
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   gibbs.setFlagSymNeigh(flag_sym_neigh);
   gibbs.setFlagSymQ(flag_sym_neigh);
   gibbs.setFlagPrintQ(flag_print_Q);
-  gibbs.init(1, nvar, nburn, niter,0, false, true);
+  gibbs.init(1, nvar, nburn, niter,0, true);
 
   // Allocate the Gaussian vector
 

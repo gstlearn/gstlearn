@@ -19,7 +19,6 @@ class ASpaceShape
 {
   public:
   ASpaceShape(){}
-  ASpaceShape(const ASpaceShape& ref){}
   virtual ~ASpaceShape(){}
   
   //bool is_inside(SpacePoint pt) const = 0;

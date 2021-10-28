@@ -4866,7 +4866,7 @@ static int st_kriging_several_rhs(double *data,
             work[i] += temp[i];
           B0 = cs_spfree(B0);
         }
-        cs_tmulvec(Matelem.Aproj, work, &RHS(icov, ivar, 0));
+        cs_tmulvec(Matelem.Aproj, ncur, work, &RHS(icov, ivar, 0));
       }
     }
     else
@@ -4908,7 +4908,7 @@ static int st_kriging_several_rhs(double *data,
             B0 = cs_spfree(B0);
           }
           // A^t(icov) * sum{ Q1_dd_ij * Z_j } 
-          cs_tmulvec(Matelem.Aproj, work, &RHS(icov, ivar, 0));
+          cs_tmulvec(Matelem.Aproj, ncur, work, &RHS(icov, ivar, 0));
         }
       }
     }
@@ -8126,7 +8126,7 @@ static void st_product_Q(int nblin,
   {
     for (int i = 0; i < n; i++)
       y[i] += blin[ilin] * x1[i];
-    cs_vecmult(S, x1, x2);
+    cs_vecmult(S, n, x1, x2);
     for (int i = 0; i < n; i++)
       x1[i] = x2[i];
   }
@@ -10910,7 +10910,7 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
           for (int i = 0; i < nvertex; i++)
             zkrig[i] = vwork[i] = 0.;
-          cs_tmulvec(Matelem.Aproj, ydat_loc, rhs);
+          cs_tmulvec(Matelem.Aproj, nvertex, ydat_loc, rhs);
           st_kriging_cholesky(Qc, rhs, vwork, zkrig);
           for (int i = 0; i < nvertex; i++)
             yvert_loc[i] += zkrig[i];

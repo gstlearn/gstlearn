@@ -53,16 +53,16 @@ void SpaceSN::move(SpacePoint& p1,
   p1.setCoord(ut_vector_add(p1.getCoord(), vec));
 }
 
-double SpaceSN::getDistance(const SpacePoint& p1,
-                            const SpacePoint& p2) const
+double SpaceSN::getDistance(const SpacePoint& /*p1*/,
+                            const SpacePoint& /*p2*/) const
 {
   /// TODO : SpaceSN::getDistance
   return 0.;
 }
 
-double SpaceSN::getDistance(const SpacePoint& p1,
-                            const SpacePoint& p2,
-                            const Tensor& tensor) const
+double SpaceSN::getDistance(const SpacePoint& /*p1*/,
+                            const SpacePoint& /*p2*/,
+                            const Tensor& /*tensor*/) const
 {
   /// TODO : SpaceSN::getDistance
   return 0.;

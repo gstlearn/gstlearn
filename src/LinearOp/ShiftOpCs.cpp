@@ -505,7 +505,8 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& in,
  *****************************************************************************/
 void ShiftOpCs::_evalDirect(const VectorDouble& x, VectorDouble& y) const
 {
-  cs_vecmult(_S, x.data(), y.data());
+  int n = (int) x.size();
+  cs_vecmult(_S, n, x.data(), y.data());
 }
 
 void ShiftOpCs::_resetGrad()

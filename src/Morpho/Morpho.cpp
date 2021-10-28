@@ -1105,8 +1105,9 @@ int bitmap_get_value(const VectorInt& nx,
                      int iy,
                      int iz)
 {
-  int retval;
-  retval = (VALIN(ix,iy,iz) > 0) ? 1 : 0;
+  _st_morpho_image_size_define(nx);
+
+  int retval = (VALIN(ix,iy,iz) > 0) ? 1 : 0;
   return(retval);
 }
 
@@ -1129,6 +1130,8 @@ void bitmap_set_value(const VectorInt& nx,
                       int iz,
                       int bitval)
 {
+  _st_morpho_image_size_define(nx);
+
   if (bitval > 0)
     IMAGOUT(ix,iy,iz) |= OFFSET(ix,iy,iz);
   else

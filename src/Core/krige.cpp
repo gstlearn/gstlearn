@@ -466,13 +466,11 @@ GEOSLIB_API int is_flag_data_disc_defined(void)
 **  This covariance takes possible Data discretization into account
 **
 ** \param[in]  model  Model structure
-** \param[in]  flag_init    Initialize the array beforehand
 ** \param[in]  nugget_opt   Option for the nugget effect basic structure
 ** \li                       0 : no particular option
 ** \li                       1 : discard the nugget effect
 ** \li                      -1 : only consider the nugget effect
 ** \param[in]  nostd        0 standard; +-1 special; ITEST normalized
-** \param[in]  member       Member of the Kriging System (ECalcMember)
 ** \param[in]  icov_r       rank of the target covariance or -1 for all
 ** \param[in]  weight       Weight attached to this calculation
 ** \param[in]  rank1        Rank of the first sample
@@ -483,10 +481,8 @@ GEOSLIB_API int is_flag_data_disc_defined(void)
 **
 *****************************************************************************/
 static void st_cov_dd(Model*             model,
-                      int                flag_init,
                       int                nugget_opt,
                       int                nostd,
-                      const ECalcMember& member,
                       int                icov_r,
                       double             weight,
                       int                rank1,
@@ -602,7 +598,6 @@ static void st_data_discretize_dg(int idim,
 **  This covariance takes possible Data discretization into account
 **
 ** \param[in]  model        Model structure
-** \param[in]  flag_init    Initialize the array beforehand
 ** \param[in]  nugget_opt   Option for the nugget effect basic structure
 ** \li                       0 : no particular option
 ** \li                       1 : discard the nugget effect
@@ -622,7 +617,6 @@ static void st_data_discretize_dg(int idim,
 **
 *****************************************************************************/
 static void st_cov_dg(Model*             model,
-                      int                flag_init,
                       int                nugget_opt,
                       int                nostd,
                       const ECalcMember& member,
@@ -1726,15 +1720,13 @@ static double st_variance(Model *model,
 /*!
 **  Establish the variance of the estimator
 **
-** \param[in]  model   Model structure
 ** \param[in]  ivar    Rank of the target variable
 ** \param[in]  jvar    Rank of the auxiliary variable
 ** \param[in]  nfeq    Number of drift equations
 ** \param[in]  nred    Reduced number of equations
 **
 *****************************************************************************/
-static double st_varestimate(Model *model,
-                             int    ivar,
+static double st_varestimate(int    ivar,
                              int    jvar,
                              int    nfeq,
                              int    nred)
@@ -1750,7 +1742,6 @@ static double st_varestimate(Model *model,
     signe = (i < cumflag) ? 1. : -1.;
     var += signe * RHS_C(i,jvar) * WGT(i,ivar);
   }
-
   return(var);
 }
 
@@ -1788,7 +1779,7 @@ static void st_lhs(Model  *model,
       for (idim=0; idim<DBIN->getNDim(); idim++)
         d1[idim] = (st_get_idim(rank[jech],idim) -
                     st_get_idim(rank[iech],idim));
-      st_cov_dd(model,0,0,0,ECalcMember::LHS,-1,1.,rank[iech],rank[jech],d1,covtab);
+      st_cov_dd(model,0,0,-1,1.,rank[iech],rank[jech],d1,covtab);
 
       for (ivar=0; ivar<nvar_m; ivar++)
         for (jvar=0; jvar<nvar_m; jvar++)
@@ -2243,7 +2234,7 @@ static void st_rhs(Model   *model,
           if (RAND_INDEX >= 0 && KOPTION->disc1 != nullptr)
             d1[idim] += DISC1(RAND_INDEX,idim);
         }
-        st_cov_dg(model,0,0,0,ECalcMember::RHS,-1,1.,rank[iech],-1,d1,covtab);
+        st_cov_dg(model,0,0,ECalcMember::RHS,-1,1.,rank[iech],-1,d1,covtab);
         break;
         
       case EKrigOpt::E_BLOCK:
@@ -2254,7 +2245,7 @@ static void st_rhs(Model   *model,
           for (idim=0; idim<DBIN->getNDim(); idim++)
             d1[idim] = (DBOUT->getCoordinate(IECH_OUT,idim) -
                         st_get_idim(rank[iech],idim) + DISC1(i,idim));
-          st_cov_dg(model,0,0,0,ECalcMember::RHS,-1,1.,rank[iech],-1,d1,covtab);
+          st_cov_dg(model,0,0,ECalcMember::RHS,-1,1.,rank[iech],-1,d1,covtab);
         }
         break;
           
@@ -2553,7 +2544,6 @@ GEOSLIB_API void krige_dual_print(int      nech,
 **                          > 0 for ONE Point out
 **                          < 0 for excluding information with same code
 ** \param[in]  status       Kriging error status
-** \param[in]  nech         Number of active samples
 ** \param[in]  nvar         Number of output variables
 ** \param[in]  nred         Reduced number of equations
 **
@@ -2566,7 +2556,6 @@ static void st_estimate(Model  *model,
                         double *rmean,
                         int     status,
                         int     flag_xvalid,
-                        int     nech,
                         int     nvar,
                         int     nred)
 {
@@ -2642,7 +2631,7 @@ static void st_estimate(Model  *model,
     for (ivar=0; ivar<nvar; ivar++)
     {
       if (status == 0 && (nred > 0 || nfeq <= 0))
-        var = st_varestimate(model,ivar,ivar,nfeq,nred);
+        var = st_varestimate(ivar,ivar,nfeq,nred);
       else
         var = TEST;
       DBOUT->setArray(IECH_OUT,IPTR_VARZ+ivar,var);
@@ -3063,12 +3052,10 @@ static void st_result_simulate_print(int nbsimu,
 **  Print the neighborhood parameters
 **
 ** \param[in]  status  Kriging error status
-** \param[in]  ntab    Number of neighborhood parameters
 ** \param[in]  tab     Array of neighborhood parameters
 **
 *****************************************************************************/
 static void st_res_nbgh_print(int     status,
-                              int     ntab,
                               double *tab)
 {
   if (status != 0) return;
@@ -3142,8 +3129,7 @@ static Db *st_image_build(Neigh *neigh,
 
   /* Create the grid */
 
-  dbaux = db_create_grid_generic(DBOUT->isGridRotated(),ndim,natt,
-                                 ELoadBy::COLUMN,1,nx,tab);
+  dbaux = db_create_grid_generic(ndim,natt,ELoadBy::COLUMN,1,nx,tab);
 
   /* Copy the grid characteristics */
 
@@ -3313,7 +3299,6 @@ static int st_check_colcok(Db  *dbin,
 ** \param[in]  status   Kriging error status
 ** \param[in]  iech_out Rank of the output sample
 ** \param[in]  nvar     Number of variables
-** \param[in]  nfeq     Number of drift equations
 ** \param[in]  nech     Number of active points
 ** \param[in]  nred     Reduced number of equations
 ** \param[in]  flag     Flag array
@@ -3323,7 +3308,6 @@ static int st_check_colcok(Db  *dbin,
 static void st_save_keypair_weights(int     status,
                                     int     iech_out,
                                     int     nvar,
-                                    int     nfeq,
                                     int     nech,
                                     int     nred,
                                     int    *flag,
@@ -3369,7 +3353,6 @@ static void st_save_keypair_weights(int     status,
       }
     }
   }
-  
   return;
 }
 
@@ -3514,13 +3497,13 @@ GEOSLIB_API int kriging(Db*              dbin,
     /* Optional save of the Kriging/Cokriging weights */
 
     if (save_keypair)
-      st_save_keypair_weights(status,IECH_OUT,model->getVariableNumber(),nfeq,nech,nred,
+      st_save_keypair_weights(status,IECH_OUT,model->getVariableNumber(),nech,nred,
                               flag,wgt);
 
     /* Perform the estimation */
 
   label_store:
-    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nech,nvar,nred);
+    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nvar,nred);
     if (debug_query("results"))
       st_result_kriging_print(neigh->getFlagXvalid(),nvar,status);
   }
@@ -3904,13 +3887,13 @@ GEOSLIB_API int krigdgm_f(Db     *dbin,
     /* Optional save of the Kriging/Cokriging weights */
 
     if (save_keypair)
-      st_save_keypair_weights(status,IECH_OUT,model->getVariableNumber(),nfeq,nech,nred,
+      st_save_keypair_weights(status,IECH_OUT,model->getVariableNumber(),nech,nred,
                               flag,wgt);
 
     /* Perform the estimation */
 
   label_store:
-    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nech,nvar,nred);
+    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nvar,nred);
     if (debug_query("results"))
       st_result_kriging_print(neigh->getFlagXvalid(),nvar,status);
   }
@@ -4061,7 +4044,7 @@ GEOSLIB_API int krigprof_f(Db    *dbin,
     /* Perform the estimation */
 
   label_store:
-    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nech,nvar,nred);
+    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nvar,nred);
     if (debug_query("results"))
       st_result_kriging_print(neigh->getFlagXvalid(),nvar,status);
   }
@@ -4322,16 +4305,12 @@ label_end:
 ** \param[in]  model  Model structure
 ** \param[in]  rcov   Array containing the posterior covariance matrix
 **                    for the drift terms
-** \param[in]  neq    Number of equations
-** \param[in]  nred   Reduced number of equations
 **
 ** \param[out] status Returned status
 **
 *****************************************************************************/
 static void st_bayes_correct(Model  *model,
                              double *rcov,
-                             int     neq,
-                             int     nred,
                              int    *status)
 {
   int ivar,jvar,il,jl,nvar,nfeq;
@@ -4479,7 +4458,7 @@ GEOSLIB_API int kribayes_f(Db *dbin,
 
     /* Modify the arrays in the Bayesian case */
 
-    st_bayes_correct(model,rcov,nred,neq,&status);
+    st_bayes_correct(model,rcov,&status);
     if (status) goto label_store;
     if (debug_query("kriging"))
       krige_rhs_print(nvar,nech,neq,nred,flag,rhs);
@@ -4497,7 +4476,7 @@ GEOSLIB_API int kribayes_f(Db *dbin,
 
   label_store:
     // We must use the drift initial assumption, hence model (not model_sk)
-    st_estimate(model,rmean,status,neigh->getFlagXvalid(),nech,nvar,nred);
+    st_estimate(model,rmean,status,neigh->getFlagXvalid(),nvar,nred);
     if (debug_query("results"))
       st_result_kriging_print(neigh->getFlagXvalid(),nvar,status);
   }
@@ -4596,7 +4575,7 @@ GEOSLIB_API int test_neigh(Db    *dbin,
     /* Store the neighborhood parameters */
 
     st_store_nbgh(status,ntab,tab);
-    if (debug_query("nbgh")) st_res_nbgh_print(status,ntab,tab);
+    if (debug_query("nbgh")) st_res_nbgh_print(status,tab);
   }
 
   /* Set the error return flag */
@@ -4757,7 +4736,7 @@ GEOSLIB_API int krigsim(const char *strloc,
 
     if (FLAG_BAYES)
     {
-      st_bayes_correct(model,dcov,nred,neq,&status);
+      st_bayes_correct(model,dcov,&status);
       if (status) goto label_store;
     }
     if (debug_query("kriging"))
@@ -5616,7 +5595,6 @@ static void st_grid_invdist(int     exponent,
 **  Inverse distance estimation when Input DB is a point file
 **
 ** \param[in]  exponent    exponent of the inverse distance
-** \param[in]  flag_expand 1 for expansion option
 ** \param[in]  dmax        Maximum search radius (only used for Point Db)
 **
 ** \param[out] coor        Working array
@@ -5624,7 +5602,6 @@ static void st_grid_invdist(int     exponent,
 **
 *****************************************************************************/
 static void st_point_invdist(int     exponent,
-                             int     flag_expand,
                              double  dmax,
                              double *coor,
                              double *cooref)
@@ -5730,7 +5707,7 @@ GEOSLIB_API int invdist_f(Db    *dbin,
 
   if (! is_grid(DBIN))
   {
-    st_point_invdist(exponent,flag_expand,dmax,coor,cooref);
+    st_point_invdist(exponent,dmax,coor,cooref);
   }
   else
   {
@@ -5816,7 +5793,6 @@ static int st_get_limits(Db     *db,
 ** \return  Error return code: 1 if the target does not belong to the
 ** \return  area of interest
 **
-** \param[in]  nz            Number of cells along Z
 ** \param[in]  ideb          Index of the starting sample
 ** \param[in]  ifin          Index of the ending sample
 ** \param[in]  neigh_radius  Radius of the Neighborhood
@@ -5826,8 +5802,7 @@ static int st_get_limits(Db     *db,
 ** \param[out] nafter        Number of samples in neighborhood after target
 **
 *****************************************************************************/
-static int st_get_neigh(int  nz,
-                        int  ideb,
+static int st_get_neigh(int  ideb,
                         int  ifin,
                         int  neigh_radius,
                         int *status,
@@ -6106,7 +6081,7 @@ GEOSLIB_API int anakexp_f(Db     *db,
 
     /* Look for the neighborhood */
 
-    if (st_get_neigh(nech,ideb,ifin,neigh_radius,
+    if (st_get_neigh(ideb,ifin,neigh_radius,
                      &status,&nbefore,&nafter)) continue;
 
     /* If the neighborhood has changed, establish the kriging system */
@@ -7270,7 +7245,7 @@ GEOSLIB_API int krigsum_f(Db    *dbin,
       /* Perform the estimation */
       
     label_store:
-      st_estimate(model,NULL,status,0,nech,nvarmod,nred);
+      st_estimate(model,NULL,status,0,nvarmod,nred);
       if (debug_query("results"))
         st_result_kriging_print(neigh->getFlagXvalid(),nvarmod,status);
     }
@@ -7627,7 +7602,7 @@ GEOSLIB_API int krigmvp_f(Db    *dbin,
           /* Perform the estimation */
           
         label_store:
-          st_estimate(model,NULL,status,0,nech,nvarmod,nred);
+          st_estimate(model,NULL,status,0,nvarmod,nred);
           if (debug_query("results"))
             st_result_kriging_print(neigh->getFlagXvalid(),nvarmod,status);
         }
@@ -7993,7 +7968,7 @@ GEOSLIB_API int krigtest_f(Db*             dbin,
   /* Perform the estimation */
 
 label_store:
-  st_estimate(model,NULL,status,neigh->getFlagXvalid(),nech,nvar,nred);
+  st_estimate(model,NULL,status,neigh->getFlagXvalid(),nvar,nred);
   if (debug_query("results"))
     st_result_kriging_print(neigh->getFlagXvalid(),nvar,status);
 
@@ -8183,7 +8158,7 @@ GEOSLIB_API int kriggam_f(Db    *dbin,
     /* Perform the estimation */
 
   label_store:
-    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nech,nvar,nred);
+    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nvar,nred);
 
     /* Transform the gaussian estimates into raw estimates */
 
@@ -8335,7 +8310,7 @@ GEOSLIB_API int krigcell_f(Db    *dbin,
     /* Perform the estimation */
 
   label_store:
-    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nech,nvar,nred);
+    st_estimate(model,NULL,status,neigh->getFlagXvalid(),nvar,nred);
     if (debug_query("results"))
       st_result_kriging_print(neigh->getFlagXvalid(),nvar,status);
   }
@@ -8693,7 +8668,7 @@ GEOSLIB_API int dk_f(Db *dbin,
       /* Perform the estimation */
 	
     label_store:
-      st_estimate(model,NULL,status,neigh->getFlagXvalid(),nech,nvar,nred);
+      st_estimate(model,NULL,status,neigh->getFlagXvalid(),nvar,nred);
       if (debug_query("results"))
         st_result_kriging_print(neigh->getFlagXvalid(),nvar,status);
     }
@@ -10422,7 +10397,6 @@ static double *st_calcul_product(const char *title,
 ** \param[in]  dbdat       Db structure containing Data
 ** \param[in]  dbsrc       Db structure containing Sources
 ** \param[in]  model_dat   Model structure for the data
-** \param[in]  covss       Covariance matrix between Sources
 ** \param[in]  distps      Distance matrix between Data and Sources
 ** \param[in]  prodps      Product of DistPS by CovSS
 **
@@ -10430,7 +10404,6 @@ static double *st_calcul_product(const char *title,
 static double *st_inhomogeneous_covpp(Db     *dbdat,
                                       Db     *dbsrc,
                                       Model  *model_dat,
-                                      double *covss,
                                       double *distps,
                                       double *prodps)
 {
@@ -10859,7 +10832,7 @@ GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
   
   /* Establish the complete kriging matrix */
 
-  covpp = st_inhomogeneous_covpp(dbdat,dbsrc,model_dat,covss,distps,prodps);
+  covpp = st_inhomogeneous_covpp(dbdat,dbsrc,model_dat,distps,prodps);
   if (covpp == nullptr) goto label_end;
   if (debug_query("kriging") || is_debug_reference_defined())
     krige_lhs_print(np,neq,nred,NULL,covpp);

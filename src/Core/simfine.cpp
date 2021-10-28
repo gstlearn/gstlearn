@@ -430,12 +430,10 @@ static int st_kriging_define(Model *model)
 **
 ** \param[in]  db     Grid Db structure
 ** \param[in]  iatt   Rank of the column
-** \param[in]  model  Model structure
 **
 *****************************************************************************/
 static void st_simulate_nodes(Db    *db,
-                              int    iatt,
-                              Model *model)
+                              int    iatt)
 {
   int ix,iy,iz;
 
@@ -537,7 +535,7 @@ GEOSLIB_API int simfine_f(Db *dbin,
 
     /* Perform the simulation */
 
-    st_simulate_nodes(db2,iatt2,model);
+    st_simulate_nodes(db2,iatt2);
 
     /* Create the new input file (for next step) */
 

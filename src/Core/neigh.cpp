@@ -28,8 +28,6 @@ static double *NBGH_dst   = nullptr;
 **  Print the information selected in the neighborhood
 **
 ** \param[in]  dbin      input Db structure
-** \param[in]  dbout     output Db structure
-** \param[in]  iech_out  rank of the output sample
 ** \param[in]  neigh     Neigh structure
 ** \param[in]  rank      Array of the data ranks
 ** \li                   -1 if not selected
@@ -37,8 +35,6 @@ static double *NBGH_dst   = nullptr;
 ** 
 *****************************************************************************/
 static void st_neigh_print(Db* dbin,
-                           Db* /*dbout*/,
-                           int /*iech_out*/,
                            Neigh* neigh,
                            int* rank)
 {
@@ -1146,7 +1142,7 @@ GEOSLIB_API int neigh_select(Db     *dbin,
 
   /* Print the Neighborhood search result */
 
-  if (debug_query("nbgh")) st_neigh_print(dbin,dbout,iech_out,neigh,rank);
+  if (debug_query("nbgh")) st_neigh_print(dbin,neigh,rank);
 
   /* Count and rank the active points */
 

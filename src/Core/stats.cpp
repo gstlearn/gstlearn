@@ -2416,7 +2416,6 @@ static void st_print_position(int  ndim,
 **                       Dimension: ndim
 ** \param[in]  valwrk    Working array
 **                       Dimension: n_nbgh
-** \param[in]  numrank   Array for storing ranks of available cells
 ** \param[in]  valtab0   Array containing the sample value
 ** \param[in]  verbose   Verbose option
 **
@@ -2441,7 +2440,6 @@ static void st_updiff(int     orient,
                       int    *tabcur,
                       int    *tabwrk,
                       double *valwrk,
-                      int    * /*numrank*/,
                       double *valtab0,
                       int     verbose,
                       double *cvdist2,
@@ -2779,7 +2777,7 @@ GEOSLIB_API int db_diffusion(Db     *dbgrid1,
         /* Upscale the diffusion */
         
         st_updiff(orient,ndim,ntot,nseed,niter,n_nbgh,flag_save,probtot,
-                  nxyz,nbgh.data(),tabini,tabcur,tabwrk,valwrk,numrank,valtab0,
+                  nxyz,nbgh.data(),tabini,tabcur,tabwrk,valwrk,valtab0,
                   verbose,cvdist2,trsave);
         
         /* Derive the diffusion coefficient */

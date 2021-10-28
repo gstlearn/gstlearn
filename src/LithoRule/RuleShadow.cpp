@@ -339,7 +339,7 @@ int RuleShadow::gaus2facData(PropDef* propdef,
     for (int igrf=0; igrf<2; igrf++) y[igrf] = TEST;
 
     if (rule_thresh_define_shadow(propdef,dbin,this,ITEST,
-                                  iech,isimu,nbsimu,1,
+                                  iech,isimu,nbsimu,
                                   &t1min,&t1max,&t2min,&t2max,
                                   &sh_dsup,&sh_down)) return 1;
 
@@ -422,7 +422,7 @@ int RuleShadow::gaus2facResult(PropDef* propdef,
     y[0] = dbout->getSimvar(ELoc::SIMU,iech,isimu,0,icase,nbsimu,1);
     if (FFFF(y[0])) break;
     if (rule_thresh_define_shadow(propdef,dbout,this,SHADOW_WATER,
-                                  iech,isimu,nbsimu,1,
+                                  iech,isimu,nbsimu,
                                   &t1min,&t1max,&t2min,&t2max,
                                   &yc_dsup,&yc_down)) goto label_end;
     db_index_sample_to_grid(dbout,iech,_ind2.data());
@@ -445,7 +445,7 @@ int RuleShadow::gaus2facResult(PropDef* propdef,
         if (FFFF(ys)) continue;
         jech  = db_index_grid_to_sample(dbout,_ind2.data());
         if (rule_thresh_define_shadow(propdef,dbout,this,SHADOW_WATER,
-                                      jech,isimu,nbsimu,1,
+                                      jech,isimu,nbsimu,
                                       &s1min,&s1max,&s2min,&s2max,
                                       &sh_dsup,&sh_down)) return(1);
         if (ys < s1max) continue;  /* Upstream point not in island */
@@ -516,7 +516,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
     if (! dbin->isActive(iech)) continue;
     if (! point_inside_grid(dbin,iech,dbout)) continue;
     facies = (int) dbin->getVariable(iech,0);
-    if (rule_thresh_define_shadow(propdef,dbin,this,facies,iech,isimu,nbsimu,1,
+    if (rule_thresh_define_shadow(propdef,dbin,this,facies,iech,isimu,nbsimu,
                                   &t1min,&t1max,&t2min,&t2max,
                                   &sh_dsup,&sh_down)) return(1);
     yc_down = sh_down;
@@ -564,7 +564,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
 
         /* Get proportion at the tentative replicate */
         if (rule_thresh_define_shadow(propdef,dbin,this,facies,
-                                      jech,isimu,nbsimu,1,
+                                      jech,isimu,nbsimu,
                                       &s1min,&s1max,&s2min,&s2max,
                                       &sh_dsup,&sh_down))
         {
@@ -616,7 +616,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
 
         /* Get proportion at the tentative replicate */
         if (rule_thresh_define_shadow(propdef,dbin,this,facies,
-                                      jech,isimu,nbsimu,1,
+                                      jech,isimu,nbsimu,
                                       &s1min,&s1max,&s2min,&s2max,
                                       &sh_dsup,&sh_down))
         {

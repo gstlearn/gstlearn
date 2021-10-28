@@ -92,11 +92,11 @@ GEOSLIB_API Polygons *polygon_add(Polygons *polygon,
 **
 *****************************************************************************/
 GEOSLIB_API void polygon_print(Polygons* polygon,
-                               int /*flag_print*/)
+                               int flag_print)
 
 {
   if (polygon == nullptr) return;
-  polygon->display();
+  polygon->display(flag_print);
 }
 
 /****************************************************************************/

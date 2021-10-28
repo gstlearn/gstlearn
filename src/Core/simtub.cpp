@@ -1290,16 +1290,12 @@ static ECov st_particular_case(const ECov& type,
 **
 ** \return  Error return code : 1 for problem; 0 otherwise
 **
-** \param[in]  dbin     Input Db structure (NULL is absent)
-** \param[in]  dbout    Output Db structure
 ** \param[in]  model    Model structure
 **
 ** \param[out]  situba  Situba structure
 **
 *****************************************************************************/
-static int st_initialize(Db* /*dbin*/,
-                         Db* /*dbout*/,
-                         Model  *model,
+static int st_initialize(Model  *model,
                          Situba *situba)
 {
   double *t,*v0,*v1,*v2;
@@ -1435,12 +1431,10 @@ label_end:
 **
 ** \return  Pointer to the freed Situba structure
 **
-** \param[in]  model   Model structure
 ** \param[in]  situba  Situba structure to be deallocated
 **
 *****************************************************************************/
-static Situba *st_dealloc(Model* /*model*/,
-                          Situba *situba)
+static Situba *st_dealloc(Situba *situba)
 
 {
   int ibs;
@@ -1525,7 +1519,7 @@ static Situba *st_alloc(Model *model,
   error = 0;
 
 label_end:
-  if (error) situba = st_dealloc(model,situba);
+  if (error) situba = st_dealloc(situba);
   return(situba);
 }
 
@@ -1773,12 +1767,10 @@ static void st_gendir(Db     *dbout,
 **  Calculates the data extension for a set of turning bands
 **
 ** \param[in]  db      Db structure
-** \param[in]  model   Model structure
 ** \param[in]  situba  Situba structure
 **
 *****************************************************************************/
 static void st_minmax(Db* db,
-                      Model* /*model*/,
                       Situba *situba)
 {
   double tt,delta;
@@ -2469,7 +2461,6 @@ label_end:
 **  simulations
 **
 ** \param[in]  db         Db structure
-** \param[in]  file_type  File type (DATA or RESULT)
 ** \param[in]  model      Model structure
 ** \param[in]  situba     Situba structure
 ** \param[in]  aic        Array 'aic'
@@ -2477,7 +2468,6 @@ label_end:
 **
 *****************************************************************************/
 static void st_simulate_nugget(Db     *db,
-                               int    /*file_type*/,
                                Model  *model,
                                Situba *situba,
                                double *aic,
@@ -2539,7 +2529,6 @@ static void st_simulate_nugget(Db     *db,
 ** \return    2 no structure to be simulated 1 core problem
 **
 ** \param[in]  db         Db structure
-** \param[in]  file_type  File type (DATA or RESULT)
 ** \param[in]  model      Model structure
 ** \param[in]  situba     Situba structure
 ** \param[in]  aic        Array 'aic'
@@ -2548,7 +2537,6 @@ static void st_simulate_nugget(Db     *db,
 **
 *****************************************************************************/
 static int st_simulate_point(Db     *db,
-                             int   /*file_type*/,
                              Model  *model,
                              Situba *situba,
                              double *aic,
@@ -3022,7 +3010,7 @@ static int st_simulate_gradient(Db     *dbgrd,
     for (int isimu=0; isimu<nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu;
-      if (st_simulate_point(dbgrd,DATA,model,situba,aic,icase,jsimu)) 
+      if (st_simulate_point(dbgrd,model,situba,aic,icase,jsimu))
         goto label_end;
     }
 
@@ -3037,7 +3025,7 @@ static int st_simulate_gradient(Db     *dbgrd,
     for (int isimu=0; isimu<nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      if (st_simulate_point(dbgrd,DATA,model,situba,aic,icase,jsimu)) 
+      if (st_simulate_point(dbgrd,model,situba,aic,icase,jsimu))
         goto label_end;
     }
 
@@ -3272,9 +3260,9 @@ static int st_simtub_process(Db     *dbin,
   aic   = valpro = vecpro = nullptr;
   flag_cond  = (dbin != nullptr);
   st_gendir(dbout,model,situba);
-  st_minmax(dbout,model,situba);
-  st_minmax(dbin ,model,situba);
-  if (st_initialize(dbin,dbout,model,situba)) goto label_end;
+  st_minmax(dbout,situba);
+  st_minmax(dbin ,situba);
+  if (st_initialize(model,situba)) goto label_end;
 
   /* Calculate the 'aic' array */
 
@@ -3288,7 +3276,7 @@ static int st_simtub_process(Db     *dbin,
 
   if (flag_cond)
   {
-    if (st_simulate_point(dbin,DATA,model,situba,aic,icase,0)) 
+    if (st_simulate_point(dbin,model,situba,aic,icase,0))
       goto label_end;
 
     /* Calculate the simulated error */
@@ -3305,13 +3293,13 @@ static int st_simtub_process(Db     *dbin,
   }
   else
   {
-    if (st_simulate_point(dbout,RESULT,model,situba,aic,icase,0))
+    if (st_simulate_point(dbout,model,situba,aic,icase,0))
       goto label_end;
   }
 
   /* Add the contribution of nugget effect (optional) */
 
-  st_simulate_nugget(dbout,RESULT,model,situba,aic,icase);
+  st_simulate_nugget(dbout,model,situba,aic,icase);
 
   /* Conditional simulations */
 
@@ -3394,11 +3382,11 @@ GEOSLIB_API int simtub_potential(Db     *dbiso,
   if (situba == nullptr) goto label_end;
 
   st_gendir(dbout,model,situba);
-  st_minmax(dbout,model,situba);
-  st_minmax(dbiso,model,situba);
-  st_minmax(dbgrd,model,situba);
-  st_minmax(dbtgt,model,situba);
-  if (st_initialize(dbiso,dbout,model,situba)) goto label_end;
+  st_minmax(dbout,situba);
+  st_minmax(dbiso,situba);
+  st_minmax(dbgrd,situba);
+  st_minmax(dbtgt,situba);
+  if (st_initialize(model,situba)) goto label_end;
 
   /* Calculate the 'aic' array */
 
@@ -3412,7 +3400,7 @@ GEOSLIB_API int simtub_potential(Db     *dbiso,
 
   if (dbiso != nullptr)
   {
-    if (st_simulate_point(dbiso,DATA,model,situba,aic,icase,0)) goto label_end;
+    if (st_simulate_point(dbiso,model,situba,aic,icase,0)) goto label_end;
   }
 
   /* Non conditional simulations on the gradient points */
@@ -3437,20 +3425,20 @@ GEOSLIB_API int simtub_potential(Db     *dbiso,
   }
   else
   {
-    if (st_simulate_point(dbout,RESULT,model,situba,aic,icase,0)) 
+    if (st_simulate_point(dbout,model,situba,aic,icase,0))
       goto label_end;
   }
 
   /* Add the contribution of nugget effect (optional) */
 
-  st_simulate_nugget(dbout,RESULT,model,situba,aic,icase);
+  st_simulate_nugget(dbout,model,situba,aic,icase);
 
   /* Set the error return code */
 
   error = 0;
 
 label_end:
-  situba = st_dealloc(model,situba);
+  situba = st_dealloc(situba);
   aic    = (double *) mem_free((char *) aic);
   valpro = (double *) mem_free((char *) valpro);
   vecpro = (double *) mem_free((char *) vecpro);
@@ -3538,7 +3526,7 @@ GEOSLIB_API int simtub(Db *dbin,
 label_end:
   (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iext);
   (void) manage_external_info(-1,ELoc::NOSTAT,dbin,dbout,&inostat);
-  situba = st_dealloc(model,situba);
+  situba = st_dealloc(situba);
   return(error);
 }
 
@@ -3625,7 +3613,7 @@ GEOSLIB_API int simdgm(Db    *dbin,
 label_end:
   (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iext);
   (void) manage_external_info(-1,ELoc::NOSTAT,dbin,dbout,&inostat);
-  situba = st_dealloc(model,situba);
+  situba = st_dealloc(situba);
   return(error);
 }
 
@@ -3707,7 +3695,7 @@ GEOSLIB_API int simbayes(Db     *dbin,
   error = 0;
 
 label_end:
-  situba = st_dealloc(model,situba);
+  situba = st_dealloc(situba);
   return(error);
 }
 
@@ -3755,17 +3743,12 @@ static void st_suppress_added_samples(Db *db,
 /*!
 **  Check/Show the data against facies at the closest grid node
 **
-** \param[in]  propdef    PropDef structure
 ** \param[in]  dbin       Input Db structure
 ** \param[in]  dbout      Output Db grid structure
-** \param[in]  rule       Lithotype Rule definition
-** \param[in]  flag_used  Tell if a GRF is used or not
-** \param[in]  flag_stat  1 for stationary; 0 otherwise
 ** \param[in]  flag_check 1 check the consistency between data and grid
 ** \param[in]  flag_show  1 show the data on grid
 ** \param[in]  ipgs       Rank of the PGS
 ** \param[in]  nechin     Initial number of data
-** \param[in]  nvar       Number of variables
 ** \param[in]  nfacies    Number of facies
 ** \param[in]  nbsimu     Number of simulations
 **
@@ -3773,17 +3756,12 @@ static void st_suppress_added_samples(Db *db,
 ** \remark Attributes ELoc::GAUSFAC are mandatory
 **
 *****************************************************************************/
-static void st_check_facies_data2grid(PropDef* /*propdef*/,
-                                      Db *dbin,
+static void st_check_facies_data2grid(Db *dbin,
                                       Db *dbout,
-                                      const Rule* /*rule*/,
-                                      int* /*flag_used*/,
-                                      int /*flag_stat*/,
                                       int flag_check,
                                       int flag_show,
                                       int ipgs,
                                       int nechin,
-                                      int /*nvar*/,
                                       int nfacies,
                                       int nbsimu)
 {
@@ -3886,8 +3864,6 @@ static void st_init_gibbs_params(double rho)
 ** \param[in]  gibbs_niter Maximum number of iterations
 ** \param[in]  percent     Amount of nugget effect added to too much continous
 **                         model (expressed in percentage of the total variance)
-** \param[in]  gibbs_eps   Relative immobile criterion
-** \param[in]  delta       Spatial increment (used for generating increments)
 ** \param[in]  namconv     Naming convention
 **
 ** \remark  When conditional, the unique variable in the input Db structure
@@ -3912,8 +3888,6 @@ GEOSLIB_API int simpgs(Db *dbin,
                        int gibbs_nburn,
                        int gibbs_niter,
                        double percent,
-                       double /*gibbs_eps*/,
-                       double /*delta*/,
                        NamingConvention namconv)
 {
   int     iptr,igrf,icase,nfacies,flag_used[2];
@@ -3926,7 +3900,6 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Initializations */
 
   int error     = 1;
-  int nvar      = 1;
   int nechin    = 0;
   int ngrf      = 0;
   situba    = nullptr;
@@ -4083,7 +4056,7 @@ GEOSLIB_API int simpgs(Db *dbin,
     // Create the Gibbs sampler (multi-mono case)
 
     AGibbs* gibbs = GibbsFactory::createGibbs(dbin, modvec, rule->getRho(), false);
-    gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true, true);
+    gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true);
       
     /* Allocate the covariance matrix inverted */
   
@@ -4118,7 +4091,7 @@ GEOSLIB_API int simpgs(Db *dbin,
     if (st_simtub_process(dbin,dbout,models[MES_IGRF],neigh,situba,
                           nullptr,nullptr,
                           nbsimu,icase,1,0,flag_check)) goto label_end;
-    situba = st_dealloc(models[MES_IGRF],situba);
+    situba = st_dealloc(situba);
   }
   
   /* Convert gaussian to facies at target point */
@@ -4141,9 +4114,8 @@ GEOSLIB_API int simpgs(Db *dbin,
   /* Check/show facies at data against facies at the closest grid node */
   
   if (flag_cond && ! flag_gaus && (flag_check || flag_show))
-    st_check_facies_data2grid(propdef,dbin,dbout,rule,flag_used,
-                              flag_stat,flag_check,flag_show,0,
-                              nechin,nvar,nfacies,nbsimu);
+    st_check_facies_data2grid(dbin,dbout,flag_check,flag_show,0,
+                              nechin,nfacies,nbsimu);
 
   /********************************/
   /* Free the temporary variables */
@@ -4198,7 +4170,7 @@ label_end:
                               propcst,propdef);
   st_suppress_added_samples(dbin,nechin);
   for (igrf=0; igrf<2; igrf++)
-    situba = st_dealloc(models[igrf],situba);
+    situba = st_dealloc(situba);
   return(error);
 }
 
@@ -4231,7 +4203,6 @@ label_end:
 ** \param[in]  gibbs_niter Maximum number of iterations
 ** \param[in]  percent     Amount of nugget effect added to too continuous
 **                         model (expressed in percentage of the total variance)
-** \param[in]  gibbs_eps   Relative stability criterion
 ** \param[in]  namconv     Naming convention
 **
 ** \remark  When conditional, the two first variables in the input Db
@@ -4260,11 +4231,10 @@ GEOSLIB_API int simbipgs(Db       *dbin,
                          int       gibbs_nburn,
                          int       gibbs_niter,
                          double    percent,
-                         double  /*gibbs_eps*/,
                          NamingConvention namconv)
 {
   int     iptr,igrf,iatt_z[2];
-  int     nvar,ipgs,npgs,flag_cond,error,isimu,icase;
+  int     ipgs,npgs,flag_cond,error,isimu,icase;
   int     nfac[2],nfactot,flag_used[2][2],nechin,ngrf[2],ngrftot;
   int     iptr_RP,iptr_RF,iptr_DF,iptr_RN,iptr_DN;
   bool    verbose;
@@ -4277,7 +4247,6 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   /* Initializations */
 
   error     = 1;
-  nvar      = 1;
   npgs      = 2;
   nechin    = 0;
   verbose   = false;
@@ -4501,7 +4470,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
       // Create the Gibbs sampler
 
       AGibbs* gibbs = GibbsFactory::createGibbs(dbin, modvec[ipgs], rules[ipgs]->getRho(), false);
-      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter,0, true, true);
+      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter,0, true);
 
       /* Allocate the covariance matrix inverted */
 
@@ -4552,7 +4521,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
       if (st_simtub_process(dbin,dbout,models[ipgs][MES_IGRF],neigh,situba,
                             nullptr,nullptr,
                             nbsimu,icase,1,0,flag_check)) goto label_end;
-      situba = st_dealloc(models[ipgs][MES_IGRF],situba);
+      situba = st_dealloc(situba);
     }
     
     /* Convert gaussian to facies at target point */
@@ -4573,10 +4542,9 @@ GEOSLIB_API int simbipgs(Db       *dbin,
     /* Check/show facies at data against facies at the closest grid node */
     
     if (flag_cond && ! flag_gaus && (flag_check || flag_show))
-      st_check_facies_data2grid(propdef,dbin,dbout,
-                                rules[ipgs],flag_used[ipgs],
-                                flag_stat,flag_check,flag_show,ipgs,
-                                nechin,nvar,nfac[ipgs],nbsimu);
+      st_check_facies_data2grid(dbin,dbout,
+                                flag_check,flag_show,ipgs,
+                                nechin,nfac[ipgs],nbsimu);
   }
 
   /********************************/
@@ -4631,7 +4599,7 @@ label_end:
   st_suppress_added_samples(dbin,nechin);
   for (ipgs=0; ipgs<npgs; ipgs++)
     for (igrf=0; igrf<2; igrf++)
-      situba = st_dealloc(models[ipgs][igrf],situba);
+      situba = st_dealloc(situba);
   propdef = proportion_manage(-1,1,flag_stat,ngrf[0],ngrf[1],nfac[0],nfac[1],
                               dbin,dbprop,propcst,propdef);
   return(error);
@@ -4767,11 +4735,9 @@ label_end:
 ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
 ** \param[in]  flag_propagation 1 for the propagation algorithm
 ** \param[in]  flag_sym_neigh   1 for symmetry of neighborhood (moving)
-** \param[in]  flag_sym_Q       1 for symmetrization of weights (moving)
 ** \param[in]  gibbs_optstats   0: No stats - 1: Print - 2: Save Neutral file
 ** \param[in]  percent     Amount of nugget effect added to too continuous
 **                         model (expressed in percentage of total variance)
-** \param[in]  gibbs_eps   Relative convergence criterion
 ** \param[in]  flag_ce     1 if the conditional expectation
 **                         should be returned instead of simulations
 ** \param[in]  flag_cstd   1 if the conditional standard deviation
@@ -4791,10 +4757,8 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               bool    flag_multi_mono,
                               bool    flag_propagation,
                               bool    flag_sym_neigh,
-                              bool  /*flag_sym_Q*/,
                               int     gibbs_optstats,
                               double  percent,
-                              double /*gibbs_eps*/,
                               bool    flag_ce,
                               bool    flag_cstd,
                               bool    verbose,
@@ -4880,7 +4844,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
       gibbsmmulti->setFlagSymNeigh(flag_sym_neigh);
       gibbsmmulti->setFlagSymQ(flag_sym_neigh);
     }
-    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter,0, false, true);
+    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter,0, true);
 
     // Allocate the Gaussian vector
 
@@ -5299,7 +5263,7 @@ GEOSLIB_API int simmaxstable(Db    *dbout,
     if (st_simtub_process(NULL,dbout,model,NULL,situba,
                           nullptr,nullptr,
                           1,0,0,0,0)) goto label_end;
-    situba = st_dealloc(model,situba);
+    situba = st_dealloc(situba);
     
     /* Combine the newly simulated outcome to the background */
     
@@ -5482,7 +5446,7 @@ GEOSLIB_API int simRI(Db     *dbout,
     if (st_simtub_process(NULL,dbout,model,NULL,situba,
                           nullptr,nullptr,
                           1,0,0,0,0)) goto label_end;
-    situba = st_dealloc(model,situba);
+    situba = st_dealloc(situba);
 
     /* Look for the quantile */
 
@@ -5583,7 +5547,7 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
                             int     verbose,
                             double  percent)
 {
-  int     iptr,ngrf,igrf,nechin,error,nvar,flag_used[2],flag_cond;
+  int     iptr,ngrf,igrf,nechin,error,flag_used[2],flag_cond;
   int     iptr_RF,iptr_RP;
   Model  *models[2];
   PropDef  *propdef;
@@ -5592,7 +5556,6 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   /* Initializations */
 
   error     = 1;
-  nvar      = 1;
   nechin    = 0;
   ngrf      = 0;
   propdef   = nullptr;
@@ -5749,9 +5712,8 @@ GEOSLIB_API int simpgs_spde(Db       *dbin,
   /* Check/show facies at data against facies at the closest grid node */
   
   if (flag_cond && ! flag_gaus && (flag_check || flag_show))
-    st_check_facies_data2grid(propdef,dbin,dbout,rule,flag_used,
-                              flag_stat,flag_check,flag_show,0,
-                              nechin,nvar,nfacies,nbsimu);
+    st_check_facies_data2grid(dbin,dbout,flag_check,flag_show,0,
+                              nechin,nfacies,nbsimu);
   
   /********************************/
   /* Free the temporary variables */
@@ -5845,7 +5807,6 @@ GEOSLIB_API int simtub_workable(Model  *model)
 ** \param[in]  nbtuba      Number of turning bands
 ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
 ** \param[in]  gibbs_niter Maximum number of iterations
-** \param[in]  gibbs_eps   Relative immobile criterion
 ** \param[in]  flag_check  1 to check the proximity in Gaussian scale
 ** \param[in]  flag_ce     1 if the conditional expectation
 **                         should be returned instead of simulations
@@ -5866,7 +5827,6 @@ GEOSLIB_API int simcond(Db    *dbin,
                         int    nbtuba,
                         int    gibbs_nburn,
                         int    gibbs_niter,
-                        double /*gibbs_eps*/,
                         int    flag_check,
                         int    flag_ce,
                         int    flag_cstd,
@@ -5934,7 +5894,7 @@ GEOSLIB_API int simcond(Db    *dbin,
 
   {
     AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, nullptr);
-    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, false, true);
+    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, true);
 
     /* Allocate the covariance matrix inverted */
 
@@ -5994,6 +5954,6 @@ label_end:
   neigh = neigh_free(neigh);
   (void) manage_external_info(-1,ELoc::F,dbin,dbout,&iext);
   (void) manage_external_info(-1,ELoc::NOSTAT,dbin,dbout,&inostat);
-  situba = st_dealloc(model,situba);
+  situba = st_dealloc(situba);
   return(error);
 }

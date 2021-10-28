@@ -92,7 +92,7 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt) const
   return ASpaceObject::getIncrement(*this, pt);
 }
 
-String SpacePoint::toString(int level) const
+String SpacePoint::toString(int /*level*/) const
 {
   return ut_vector_string(_coord);
 }

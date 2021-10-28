@@ -49,7 +49,7 @@ AGibbs::AGibbs(Db* db)
 
 AGibbs::AGibbs(Db* db,
                int npgs, int nvar, int nburn, int niter,
-               int flag_order, bool flag_multi_mono, bool flag_decay)
+               int flag_order, bool flag_decay)
     : AStringable(),
       _npgs(1),
       _nvar(1),
@@ -62,8 +62,7 @@ AGibbs::AGibbs(Db* db,
       _db(db),
       _stats()
 {
-  init(npgs, nvar, nburn, niter,
-       flag_order, flag_multi_mono, flag_decay);
+  init(npgs, nvar, nburn, niter, flag_order, flag_decay);
 }
 
 AGibbs::AGibbs(const AGibbs &r)
@@ -107,7 +106,6 @@ void AGibbs::init(int npgs,
                   int nburn,
                   int niter,
                   int flag_order,
-                  bool flag_multi_mono,
                   bool flag_decay)
 {
   _npgs = npgs;
@@ -167,8 +165,6 @@ int AGibbs::_boundsCheck(int ipgs,
 **
 ** \param[in]  iact      Relative rank of the sample
 ** \param[in]  ivar      Rank of the variable
-** \param[in]  nfois     Rank of the iteration (<=0 for bootstrap)
-** \param[in]  flag_cv   1 to print the convergence criterion
 ** \param[in]  simval    Simulated value
 ** \param[in]  vmin      Lower threshold
 ** \param[in]  vmax      Upper threshold
@@ -176,8 +172,6 @@ int AGibbs::_boundsCheck(int ipgs,
 *****************************************************************************/
 void AGibbs::_printInequalities(int iact,
                                 int ivar,
-                                int nfois,
-                                int flag_cv,
                                 double simval,
                                 double vmin,
                                 double vmax) const
@@ -264,7 +258,7 @@ void AGibbs::_displayCurrentVector(bool flag_init,
       int iech = getSampleRank(iact);
       double vmin = _db->getLowerBound(iech, icase);
       double vmax = _db->getUpperBound(iech, icase);
-      _printInequalities(iact,ivar,-1,0,y[icase][iact], vmin, vmax);
+      _printInequalities(iact,ivar,y[icase][iact], vmin, vmax);
     }
   }
 }
@@ -510,9 +504,9 @@ int AGibbs::getRelativeRank(int iech)
   return -1;
 }
 
-int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool flagCheck)
+int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool flagCheck)
 {
-  if (calculInitialize(y, isimu, ipgs, verbose)) return 1;
+  if (calculInitialize(y, isimu, ipgs)) return 1;
   if (flagCheck)
     _displayCurrentVector(true, y, isimu, ipgs);
 
@@ -536,7 +530,7 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool f
   return 0;
 }
 
-String AGibbs::toString(int level) const
+String AGibbs::toString(int /*level*/) const
 {
   std::stringstream sstr;
 

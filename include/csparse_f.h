@@ -22,9 +22,9 @@ int     cs_gaxpy (const cs *A, const double *x, double *y) ;
 cs     *cs_multiply (const cs *A, const cs *B) ;
 int     cs_qrsol (const cs *A, double *b, int order) ;
 cs     *cs_transpose (const cs *A, int values) ;
-void    cs_tmulvec(const cs *A, const double *x, double *y);
+void    cs_tmulvec(const cs *A, int nout, const double *x, double *y);
 void    cs_mulvec(const cs *A, int nout, const double *x, double *y);
-void    cs_vecmult (const cs *A, const double *x, double *y);
+void    cs_vecmult(const cs *A, int nout, const double *x, double *y);
 void    cs_mulvec_uptri(const cs *A, int nout, 
                         const double *x, double *y, int flag_diag);
 void    cs_mulvec_lowtri(const cs *A, int nout, 

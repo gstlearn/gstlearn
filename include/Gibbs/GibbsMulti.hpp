@@ -27,8 +27,7 @@ public:
 
   int calculInitialize(VectorVectorDouble& y,
                        int isimu,
-                       int ipgs,
-                       bool verbose);
+                       int ipgs);
   double getSimulate(VectorVectorDouble& y,
                      double yk,
                      double sk,

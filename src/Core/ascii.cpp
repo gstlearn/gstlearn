@@ -466,11 +466,17 @@ GEOSLIB_API void ascii_environ_read(char *file_name, int verbose)
  **
  *****************************************************************************/
 GEOSLIB_API Db *ascii_db_read(const char *file_name,
-                              int /*must_grid*/,
+                              int must_grid,
                               int verbose)
 {
   if (! st_file_exists(file_name)) return nullptr;
   Db* db = new Db(String(file_name), verbose);
+  if (must_grid && ! db->isGrid())
+  {
+    messerr("The file (%s) does not correspond to a Grid file",file_name);
+    delete db;
+    db = nullptr;
+  }
   return (db);
 }
 
@@ -801,8 +807,8 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
       if (st_table_read(nbpoly, hermite.data())) goto label_end;
     }
 
-    anam_update_hermitian(anam_hermite, nbpoly, pymin, pzmin, pymax, pzmax, aymin,
-                          azmin, aymax, azmax, r, variance, hermite);
+    anam_update_hermitian(anam_hermite, pymin, pzmin, pymax, pzmax, aymin,
+                          azmin, aymax, azmax, r, hermite);
     if (debug_query("interface")) anam_hermite->display();
     st_file_close(file);
     return (anam_hermite);

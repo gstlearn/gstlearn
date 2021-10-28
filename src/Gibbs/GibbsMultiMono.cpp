@@ -62,13 +62,11 @@ GibbsMultiMono::~GibbsMultiMono()
 ** \param[in]  y             Gaussian vector
 ** \param[in]  isimu         Rank of the simulation
 ** \param[in]  ipgs          Rank of the GS
-** \param[in]  verbose       Verbose flag
 **
 *****************************************************************************/
 int GibbsMultiMono::calculInitialize(VectorVectorDouble& y,
                                      int isimu,
-                                     int ipgs,
-                                     bool verbose)
+                                     int ipgs)
 {
   int nact = getSampleRankNumber();
   int nvar = getNvar();
