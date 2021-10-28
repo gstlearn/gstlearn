@@ -1355,14 +1355,17 @@ bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
     {
       // Update HH locally
       _updateHH(hh, ip);
-      double det = hh.determinant();
       hh.invert();
 
-      for (int idim = 0; idim < number; idim++)
-       {
-        // TODO update the formula
-//         _LambdaGrad[idim][ip] = -_Lambda[ip] / (2. * cova->getScale(idim));
-       }
+      int ecr = 0;
+      for(int idim = 0; idim < ndim; idim++)
+      {
+        for(int jdim = 0; jdim <= idim; jdim++, ecr++)
+        {
+          double ratio = (idim == jdim)? 1./4. : 1./2.;
+          _LambdaGrad[ecr][ip] = - _Lambda[ip] * hh.getValue(idim,jdim) * ratio ;
+        }
+      }
     }
   }
   else
