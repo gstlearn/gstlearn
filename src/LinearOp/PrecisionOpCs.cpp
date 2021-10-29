@@ -53,7 +53,7 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
     for(int iapex=0;iapex<getSize();iapex++)
     {
       iadress = getShiftOp()->getSGradAddress(iapex,igparam);
-      if(igparam < getShiftOp()->getNDim()) // range parameters
+      if(igparam < getShiftOp()->getLambdaGradSize()) // range parameters
       {
         val = getShiftOp()->getLambda(iapex);
         temp = getShiftOp()->getLambdaGrad(igparam,iapex);
