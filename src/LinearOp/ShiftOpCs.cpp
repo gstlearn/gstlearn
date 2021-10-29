@@ -1296,7 +1296,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
   if (!_isNoStat())
   {
     _loadHHByApex(hh, 0);
-    sqdeth = sqrt(matrix_determinant(ndim, hh.getValues().data()));
+    sqdeth = sqrt(hh.determinant());
   }
 
   /* Fill the array */
@@ -1312,7 +1312,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
       if (nostat->isDefinedforAnisotropy(igrf, icov))
       {
         _loadHHByApex(hh, ip);
-        sqdeth = sqrt(matrix_determinant(ndim, hh.getValues().data()));
+        sqdeth = sqrt(hh.determinant());
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SILL, -1, -1))
         sill = nostat->getValue(igrf, icov, EConsElem::SILL, -1, -1, 0, ip);

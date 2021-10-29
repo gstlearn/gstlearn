@@ -95,7 +95,6 @@ static double st_anam_hermitian_block_variance(Anam  *anam,
 ** \param[in]  aymax    Maximum absolute value for Y
 ** \param[in]  azmax    Maximum absolute value for Z
 ** \param[in]  r        Change of support coefficient
-** \param[in]  variance Variance of the data
 ** \param[in]  psi_hn   Coefficients of the Hermite polynomials
 **
 *****************************************************************************/

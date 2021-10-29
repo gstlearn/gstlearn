@@ -38,6 +38,8 @@ public:
   void prodDiagByVector(const VectorDouble& diag);
   /*! Divide the diagonal by a vector */
   void divideDiagByVector(const VectorDouble& diag);
+  /*! Returns the Determinant value */
+  virtual double _determinant(void) const override;
 
 protected:
   void   _setNSize(int nval);

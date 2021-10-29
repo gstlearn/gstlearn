@@ -189,11 +189,6 @@ int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
                       static_cast<int> (b.size()),1,&pivot);
 }
 
-double MatrixSquareSymmetric::_determinant() const
-{
-  return matrix_determinant(getNRows(),_squareSymMatrix.data());
-}
-
 String MatrixSquareSymmetric::toString(int level) const
 {
   std::stringstream sstr;

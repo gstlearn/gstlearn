@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
+#include <math.h>
 
 MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow, bool sparse)
   : AMatrixSquare(nrow, sparse)
@@ -76,9 +77,8 @@ void MatrixSquareDiagonalCst::_setValue(int /*irank*/, double value)
 
 double MatrixSquareDiagonalCst::_determinant() const
 {
-  double deter = 1.;
-  for (int irow=0; irow<getNRows(); irow++)
-    deter *= _cstDiagMatrix;
+  int nrow = getNRows();
+  double deter = pow(_cstDiagMatrix, (double) nrow);
   return deter;
 }
 

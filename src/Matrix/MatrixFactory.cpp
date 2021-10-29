@@ -38,8 +38,7 @@ MatrixFactory::~MatrixFactory()
  ** \param[in]  y          Second AMatrix matrix
  **
  *****************************************************************************/
-AMatrix* MatrixFactory::matProduct(const AMatrix* x,
-                                     const AMatrix* y)
+AMatrix* MatrixFactory::matProduct(const AMatrix* x, const AMatrix* y)
 {
   if (x->getNCols() != y->getNRows())
   {
@@ -49,10 +48,10 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x,
   /// TODO : use typeinfo
   const MatrixSquareDiagonal*    mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
   const MatrixSquareDiagonalCst* mxsdc = dynamic_cast<const MatrixSquareDiagonalCst*>(x);
-  const MatrixSquareSymmetric*     mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+  const MatrixSquareSymmetric*   mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
   const MatrixSquareDiagonal*    mysd  = dynamic_cast<const MatrixSquareDiagonal*>(y);
   const MatrixSquareDiagonalCst* mysdc = dynamic_cast<const MatrixSquareDiagonalCst*>(y);
-  const MatrixSquareSymmetric*     mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
+  const MatrixSquareSymmetric*   mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
 
   AMatrix* res = nullptr;
 
@@ -147,3 +146,43 @@ AMatrix* MatrixFactory::createIdentity(int nrow, bool sparse)
 {
   return new MatrixSquareDiagonalCst(nrow, sparse);
 }
+
+/****************************************************************************/
+/*!
+ **  Create a Matrix similar to the input one with a given row number
+ **
+ ** \return Pointer to the newly created AMatrix matrix
+ **
+ ** \param[in]  x          First AMatrix matrix
+ ** \param[in]  nrow       Number of rows
+ **
+ *****************************************************************************/
+AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare* x,
+                                                 int nrow)
+{
+  /// TODO : use typeinfo
+  const MatrixSquareGeneral*     mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
+  const MatrixSquareDiagonal*    mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
+  const MatrixSquareDiagonalCst* mxsdc = dynamic_cast<const MatrixSquareDiagonalCst*>(x);
+  const MatrixSquareSymmetric*   mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+
+  AMatrixSquare* res = nullptr;
+  if (mxsg != nullptr)
+  {
+    res = new MatrixSquareGeneral(nrow);
+  }
+  else if (mxsd != nullptr)
+  {
+    res = new MatrixSquareDiagonal(nrow);
+  }
+  else if (mxsdc != nullptr)
+  {
+    res = new MatrixSquareDiagonalCst(nrow);
+  }
+  else if (mxsym != nullptr)
+  {
+    res = new MatrixSquareSymmetric(nrow);
+  }
+  return res;
+}
+
