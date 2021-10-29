@@ -98,8 +98,8 @@ public:
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
 
-  bool getFlagGradByHH() const { return _flagGradByHH; }
-  void setFlagGradByHH(bool flagGradByHH) { _flagGradByHH = flagGradByHH; }
+  bool getFlagNoStatByHH() const { return _flagNoStatByHH; }
+  void setFlagNoStatByHH(bool flagGradByHH) { _flagNoStatByHH = flagGradByHH; }
   int  getLambdaGradSize() const;
 
 
@@ -158,7 +158,7 @@ private:
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
-  void _determineFlagGradByHH();
+  void _determineFlagNoStatByHH();
 
 private:
   VectorDouble _TildeC;
@@ -167,7 +167,7 @@ private:
   int _nModelGradParam;
   std::vector<cs *> _SGrad;
   std::vector<VectorDouble> _LambdaGrad;
-  bool _flagGradByHH;
+  bool _flagNoStatByHH;
 
   // Following list of members are there to ease the manipulation and reduce argument list
   Model* _model;

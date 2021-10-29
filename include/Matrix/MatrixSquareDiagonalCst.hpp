@@ -80,6 +80,7 @@ private:
   double _determinant() const override;
 
   bool   _isValidIndex(int irow, int icol) const;
+  bool   _isPhysicallyPresent(int irow, int icol) const override;
 
 private:
   double _cstDiagMatrix;

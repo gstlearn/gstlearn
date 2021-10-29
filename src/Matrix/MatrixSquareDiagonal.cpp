@@ -231,3 +231,8 @@ String MatrixSquareDiagonal::toString(int level) const
   return sstr.str();
 }
 
+bool MatrixSquareDiagonal::_isPhysicallyPresent(int irow, int icol) const
+{
+  if (irow != icol) return false;
+  return true;
+}

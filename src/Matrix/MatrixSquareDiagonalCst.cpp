@@ -210,3 +210,9 @@ String MatrixSquareDiagonalCst::toString(int level) const
   }
   return sstr.str();
 }
+
+bool MatrixSquareDiagonalCst::_isPhysicallyPresent(int irow, int icol) const
+{
+  if (irow != 0 || icol != 0) return false;
+  return true;
+}

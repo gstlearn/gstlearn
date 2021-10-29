@@ -78,6 +78,7 @@ private:
 
   void   _recopy(const MatrixSquareDiagonal &r);
   bool   _isIndexValid(int irow,int icol) const;
+  bool   _isPhysicallyPresent(int irow, int icol) const override;
 
 private:
   VectorDouble _diagMatrix;

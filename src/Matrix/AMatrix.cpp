@@ -234,11 +234,9 @@ void AMatrix::fillRandom(int seed, double zeroPercent)
     for (int irow = 0; irow < _nRows; irow++)
       for (int icol = 0; icol < _nCols; icol++)
       {
-        if (mustBeDiagonal()  && irow != icol) continue;
-        if (mustBeSymmetric() && icol >  irow) continue;
-        if (law_uniform(0.,1.) < zeroPercent) continue;
-        if (! (mustBeDiagCst() && irow > 0 && icol > 0))
-          value = law_gaussian();
+        if (! _isPhysicallyPresent(irow, icol)) continue;
+        if (!mustBeDiagCst() && law_uniform(0., 1.) < zeroPercent) continue;
+        value = law_gaussian();
         cs_entry(Atriplet, irow, icol, value);
       }
     _csMatrix = cs_triplet(Atriplet);
@@ -249,15 +247,11 @@ void AMatrix::fillRandom(int seed, double zeroPercent)
     for (int irow = 0; irow < _nRows; irow++)
       for (int icol = 0; icol <_nCols; icol++)
       {
-        if (mustBeDiagonal()  && irow != icol) continue;
-        if (mustBeSymmetric() && icol > irow) continue;
-        if (law_uniform(0.,1.) < zeroPercent)
+        if (! _isPhysicallyPresent(irow, icol)) continue;
+        if (!mustBeDiagCst() && law_uniform(0.,1.) < zeroPercent)
           value = 0.;
         else
-        {
-          if (! (mustBeDiagCst() && irow > 0 && icol > 0))
-            value = law_gaussian();
-        }
+          value = law_gaussian();
         setValue(irow,icol,value);
       }
   }
@@ -714,8 +708,7 @@ void AMatrix::addMatrix(const AMatrix& y)
     {
       for (int icol = 0; icol < _nCols; icol++)
       {
-        if (mustBeDiagonal()  && irow != icol) continue;
-        if (mustBeSymmetric() && icol >  irow) continue;
+        if (!_isPhysicallyPresent(irow, icol)) continue;
         setValue(irow, icol, getValue(irow, icol) + y.getValue(irow, icol));
       }
     }
@@ -746,8 +739,7 @@ void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
     {
       for (int icol = 0; icol < _nCols; icol++)
       {
-        if (mustBeDiagonal()  && irow != icol) continue;
-        if (mustBeSymmetric() && icol >  irow) continue;
+        if (!_isPhysicallyPresent(irow, icol)) continue;
 
         double value = 0.;
         for (int k = 0; k < _nCols; k++)
@@ -801,8 +793,7 @@ void AMatrix::multiplyRow(const VectorDouble& vec)
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
-      if (mustBeDiagonal()  && irow != icol) continue;
-      if (mustBeSymmetric() && icol >  irow) continue;
+      if (!_isPhysicallyPresent(irow, icol)) continue;
       _setValue(irow, icol, _getValue(irow, icol) * vec[irow]);
     }
 }
@@ -814,8 +805,7 @@ void AMatrix::divideRow(const VectorDouble& vec)
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
-      if (mustBeDiagonal()  && irow != icol) continue;
-      if (mustBeSymmetric() && icol >  irow) continue;
+      if (!_isPhysicallyPresent(irow, icol)) continue;
       _setValue(irow, icol, _getValue(irow, icol) / vec[irow]);
     }
 }
@@ -827,8 +817,7 @@ void AMatrix::multiplyColumn(const VectorDouble& vec)
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
-      if (mustBeDiagonal()  && irow != icol) continue;
-      if (mustBeSymmetric() && icol >  irow) continue;
+      if (!_isPhysicallyPresent(irow, icol)) continue;
       _setValue(irow, icol, _getValue(irow, icol) * vec[icol]);
     }
 }
@@ -839,8 +828,7 @@ void AMatrix::divideColumn(const VectorDouble& vec)
   for (int irow = 0; irow < _nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
-      if (mustBeDiagonal()  && irow != icol) continue;
-      if (mustBeSymmetric() && icol >  irow) continue;
+      if (!_isPhysicallyPresent(irow, icol)) continue;
       _setValue(irow, icol, _getValue(irow, icol) / vec[icol]);
     }
 }
@@ -1260,8 +1248,7 @@ void AMatrix::add(const AMatrix& tab, double value)
   for (int icol = 0; icol < getNCols(); icol++)
     for (int irow = 0; irow < getNRows(); irow++)
     {
-      if (mustBeDiagonal()  && irow != icol) continue;
-      if (mustBeSymmetric() && icol >  irow) continue;
+      if (!_isPhysicallyPresent(irow, icol)) continue;
       double oldval = getValue(irow, icol);
       setValue(irow, icol, oldval + value * tab.getValue(irow, icol));
     }
@@ -1275,8 +1262,7 @@ void AMatrix::subtract(const AMatrix& tab, double value)
   for (int icol = 0; icol < getNCols(); icol++)
     for (int irow = 0; irow < getNRows(); irow++)
     {
-      if (mustBeDiagonal()  && irow != icol) continue;
-      if (mustBeSymmetric() && icol >  irow) continue;
+      if (!_isPhysicallyPresent(irow, icol)) continue;
       double oldval = getValue(irow, icol);
       setValue(irow, icol, oldval - value * tab.getValue(irow, icol));
     }

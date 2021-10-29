@@ -244,16 +244,16 @@ int Model::getNoStatElemNumber() const
   return _noStat->getNoStatElemNumber();
 }
 
-void Model::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2)
+int Model::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2)
 {
-  if (! isNoStat()) return;
-  _noStat->addNoStatElem(igrf, icov, type, iv1, iv2);
+  if (! isNoStat()) return 0;
+  return _noStat->addNoStatElem(igrf, icov, type, iv1, iv2);
 }
 
-void Model::addNoStatElems(const VectorString& codes)
+int Model::addNoStatElems(const VectorString& codes)
 {
-  if (! isNoStat()) return;
-  _noStat->addNoStatElems(codes);
+  if (! isNoStat()) return 0;
+  return _noStat->addNoStatElems(codes);
 }
 
 ConsItem Model::getConsItem(int ipar) const

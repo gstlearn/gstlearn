@@ -206,3 +206,9 @@ String MatrixSquareSymmetric::toString(int level) const
    }
   return sstr.str();
 }
+
+bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
+{
+  if (icol >  irow) return false;
+  return true;
+}

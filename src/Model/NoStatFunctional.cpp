@@ -25,7 +25,7 @@ NoStatFunctional::NoStatFunctional()
       _func(nullptr)
 {
   VectorString code = {"A"};
-  addNoStatElems(code);
+  (void) addNoStatElems(code);
 }
 
 NoStatFunctional::NoStatFunctional(const AFunctional* func)
@@ -33,7 +33,7 @@ NoStatFunctional::NoStatFunctional(const AFunctional* func)
       _func(nullptr)
 {
   VectorString code = {"A"};
-  addNoStatElems(code);
+  (void) addNoStatElems(code);
   _func = func;
 }
 

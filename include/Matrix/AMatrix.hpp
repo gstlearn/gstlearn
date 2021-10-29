@@ -107,7 +107,6 @@ public:
   virtual bool mustBeDiagonal() const { return false; }
   /*! Say if the matrix must be diagonal constant */
   virtual bool mustBeDiagCst() const { return false; }
-
   /*! Check if a matrix is the same as me (norm L1) */
   bool isSame(const AMatrix& m, double eps = EPSILON10);
 
@@ -183,6 +182,8 @@ public:
   double &operator()(int row, int col)       { return getValueRef(row, col); }
 
 protected:
+  /*! Say if (irow, icol) is stored physically or not */
+  virtual bool    _isPhysicallyPresent(int irow, int icol) const { return true; }
   virtual bool    _isCompatible(const AMatrix& m) const = 0;
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
