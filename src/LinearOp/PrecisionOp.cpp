@@ -216,14 +216,9 @@ void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
 
   // Pre-processing
 
-  if (_power == EPowerPT::ONE)
+  if (_power == EPowerPT::ONE || _power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodTildeC(in, _work, EPowerPT::HALF);
-    inPtr = &_work;
-  }
-  else if (_power == EPowerPT::MINUSONE)
-  {
-    _shiftOp->prodTildeC(in, _work, EPowerPT::MINUSHALF);
+    _shiftOp->prodLambda(in, _work,_power);
     inPtr = &_work;
   }
 
@@ -234,15 +229,9 @@ void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
 
   // Post-processing
 
-  if (_power == EPowerPT::ONE)
+  if (_power == EPowerPT::ONE || _power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodTildeC(out, out, EPowerPT::HALF);
-    _shiftOp->prodLambdaOnSqrtTildeC(out, out, 2.);
-  }
-  else if (_power == EPowerPT::MINUSONE)
-  {
-    _shiftOp->prodTildeC(out, out, EPowerPT::MINUSHALF);
-    _shiftOp->prodLambdaOnSqrtTildeC(out, out, -2.);
+    _shiftOp->prodLambda(out, out, _power);
   }
   else if (_power == EPowerPT::MINUSHALF)
   {
@@ -268,7 +257,8 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
       }
     }
 
-    ((ClassicalPolynomial*)_polynomials[power])->evalOpTraining(_shiftOp->getS(),in,_workPoly,_work4);
+    if (_work5.empty()) _work5.resize(getSize());
+    ((ClassicalPolynomial*)_polynomials[power])->evalOpTraining(_shiftOp->getS(),in,_workPoly,_work5);
 
     for(int i=0;i<(int)in.size();i++)
     {
