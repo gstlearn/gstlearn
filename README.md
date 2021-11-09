@@ -110,15 +110,19 @@ Notes:
 ## Development
 
 ### Clean & uninstall
-To clean (partially) the build, execute the following command.
+To clean (partially) the build, execute the following command:
 
 ```
 cmake --build build --target clean
 ```
-If you want to clean all CMake output, you can remove all files or directories from build folder (*except .gitignore*)
+If you want to clean all CMake output, you can remove all files or directories from build folder (*except .gitignore*):
+
+```
+rm -rf build/*
+```
 
 ### Uninstall
-To uninstall all the installed files (only the files), execute this command:
+To uninstall all the installed files (only the files, not the directories), execute this command:
 
 ```
 cmake --build build --target uninstall
@@ -130,6 +134,12 @@ To generate documentation using doxygen, execute the command:
 
 ```
 cmake --build build --target doxygen
+```
+
+The documentation is then available by opening the following file with your favorite web-browser:
+
+```
+firefox build/doxygen/html/index.html
 ```
 
 ***

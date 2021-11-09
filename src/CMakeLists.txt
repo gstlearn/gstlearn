@@ -265,8 +265,13 @@ add_library(gstlearn-static STATIC $<TARGET_OBJECTS:objlib>)
 set_target_properties(gstlearn-shared PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
 set_target_properties(gstlearn-static PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.a  (on Linux)
 
+# Rename the export names (used by cmake for importing them like gstlearn::shared
+set_target_properties(gstlearn-shared PROPERTIES EXPORT_NAME shared)
+set_target_properties(gstlearn-static PROPERTIES EXPORT_NAME static)
+
 # Link to boost
 target_link_libraries(gstlearn-shared PUBLIC Boost::boost)
+target_link_libraries(gstlearn-static PUBLIC Boost::boost)
 
 # Install the libraries
 # https://stackoverflow.com/questions/14990343/cmake-error-targets-given-no-library-destination-for-shared-library-target
@@ -279,6 +284,6 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/                   # Includes from
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn         # in DESTINATION/include/gstlearn
 )
 # Install swig interface files
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/swig/                      # Swig files from souce folder
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/swig/                      # Swig files from source folder
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/swig   # in DESTINATION/share/gstlearn/swig
 )
