@@ -28,7 +28,7 @@
 ** Main Program
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char * /*argv*/[])
 
 {
   int error = 1;
@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
   double range  = 10.;
   double bound  = TEST;
   bool flag_sym_neigh = true;
-  bool flag_sym_Q = true;
 
   int seed     = 5452;
   int ndim     = 2;
@@ -100,8 +99,8 @@ int main(int argc, char *argv[])
 
   error = gibbs_sampler(db, model, neigh, nbsimu, seed, nburn, niter, false,
                         flag_multi_mono, flag_propagation,
-                        flag_sym_neigh, flag_sym_Q, 2,
-                        5., EPSILON3, false, false, verbose);
+                        flag_sym_neigh, 2,
+                        5., false, false, verbose);
   if (error) return 1;
   db->serialize("Result");
 

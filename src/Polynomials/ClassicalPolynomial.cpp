@@ -58,50 +58,50 @@ void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& in, VectorDoub
   swap1 = &work;
   swap2 = &work2;
 
-
   for (int i = 0; i<n ; i++)
   {
     out[i] += _coeffs[0] * in[i];
   }
 
-  cs_vecmult(Op,in.data(),swap1->data());
+  cs_vecmult(Op, swap1->size(), in.data(), swap1->data());
 
-  for(int j=1;j<(int)_coeffs.size();j++)
+  for (int j = 1; j < (int) _coeffs.size(); j++)
   {
-
-    for (int i = 0; i<n ; i++)
+    for (int i = 0; i < n; i++)
     {
-        out[i] += _coeffs[j] * (*swap1)[i];
+      out[i] += _coeffs[j] * (*swap1)[i];
     }
 
-    if(j <(int) _coeffs.size()-1)
+    if (j < (int) _coeffs.size() - 1)
     {
-         cs_vecmult(Op,swap1->data(),swap2->data());
-         swap3 = swap1;
-         swap1 = swap2;
-         swap2 = swap3;
+      cs_vecmult(Op, swap2->size(), swap1->data(), swap2->data());
+      swap3 = swap1;
+      swap1 = swap2;
+      swap2 = swap3;
     }
   }
 }
 
 // Classical Hörner scheme starting from the highest degree
-void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const
+void ClassicalPolynomial::evalOp(cs* Op,
+                                 const VectorDouble& in,
+                                 VectorDouble& out) const
 {
-  int n = static_cast<int> (in.size());
+  int n = static_cast<int>(in.size());
   VectorDouble work(n);
 
-
-  for(int i = 0; i < n ;i++)
+  for (int i = 0; i < n; i++)
   {
-     out[i] = _coeffs.back() * in[i];
+    out[i] = _coeffs.back() * in[i];
   }
 
-  for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
+  int nout = work.size();
+  for (int j = static_cast<int>(_coeffs.size()) - 2; j >= 0; j--)
   {
-    cs_vecmult(Op,out.data(),work.data());
-    for (int i = 0; i<n ; i++)
+    cs_vecmult(Op, nout, out.data(), work.data());
+    for (int i = 0; i < n; i++)
     {
-        out[i] = _coeffs[j] * in[i] + work[i];
+      out[i] = _coeffs[j] * in[i] + work[i];
     }
   }
 }
@@ -109,29 +109,28 @@ void ClassicalPolynomial::evalOp(cs* Op, const VectorDouble& in, VectorDouble& o
 // Classical Hörner scheme starting from the highest degree
 void ClassicalPolynomial::evalOpTraining(cs* Op, const VectorDouble& in,VectorVectorDouble& store,VectorDouble& work) const
 {
-  int n = static_cast<int> (in.size());
+  int n = static_cast<int>(in.size());
 
-  if(work.empty())
+  if (work.empty())
   {
     work.resize(n);
   }
 
-  for(int i = 0; i < n ;i++)
+  for (int i = 0; i < n; i++)
   {
-     store[_coeffs.size()-1][i] = _coeffs.back() * in[i];
+    store[_coeffs.size() - 1][i] = _coeffs.back() * in[i];
   }
 
-  for(int j = (int)_coeffs.size()-2; j >= 0; j--)
+  int nout = work.size();
+  for (int j = (int) _coeffs.size() - 2; j >= 0; j--)
   {
-    cs_vecmult(Op,store[j+1].data(),work.data());
-    for (int i = 0; i<n ; i++)
+    cs_vecmult(Op, nout, store[j + 1].data(), work.data());
+    for (int i = 0; i < n; i++)
     {
-        store[j][i] = _coeffs[j] * in[i] + work[i];
+      store[j][i] = _coeffs[j] * in[i] + work[i];
     }
   }
 }
-
-
 
 void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
                                       const VectorDouble& in,
@@ -163,16 +162,17 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 
   auto coeffsCur = polycur->getCoeffs();
 
+  int nout = swap2->size();
   for(int i = 0; i < degree - 1 ;i++)
   {
-    cs_vecmult(derivOp,swap1->data(),swap2->data());
+    cs_vecmult(derivOp, nout, swap1->data(),swap2->data());
     coeffsCur.erase(coeffsCur.begin());
     polycur->init(coeffsCur);
     polycur->evalOpCumul(Op,*swap2,out);
 
     if(i<degree-2) // to avoid useless and time consuming computation since it prepares next iteration
     {
-      cs_vecmult(Op,swap1->data(),swap2->data());
+      cs_vecmult(Op, nout, swap1->data(),swap2->data());
       swap3 = swap1;
       swap1 = swap2;
       swap2 = swap3;
@@ -180,8 +180,6 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
    }
    delete polycur;
 }
-
-
 
 //void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
 //                                           const VectorDouble& in1,
@@ -191,13 +189,12 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 //                                           int iapex,
 //                                           int igparam) const
 //{
-//
 //  int n = static_cast<int> (in1.size());
 //  VectorDouble work1(n);
 //  VectorDouble work2(n);
 //  VectorDouble work3(n);
 //  VectorDouble deriv(n);
-//  cs_vecmult(Op,in2.data(),work2.data());
+//  cs_vecmult(Op,work2.size(),in2.data(),work2.data());
 //
 //    for(int i = 0; i < n ;i++)
 //    {
@@ -207,13 +204,12 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 //
 //    for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
 //    {
-//      cs_vecmult(Op,work1.data(),work1.data());
+//      cs_vecmult(Op,work1.size(),work1.data(),work1.data());
 //      for (int i = 0; i<n ; i++)
 //      {
 //          work1[i] = _coeffs[j] * in1[i] + work1[i];
 //      }
 //    }
-//
 //}
 
 void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
@@ -225,19 +221,19 @@ void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
                                            int igparam) const
 {
 
-  int n = static_cast<int> (temp1.size());
   int degree = _coeffs.size();
-  cs_vecmult(shiftOp->getSGrad(iapex,igparam),workpoly[degree-1].data(),out.data());
 
+  cs* S = shiftOp->getS();
+  cs* gradS = shiftOp->getSGrad(iapex,igparam);
 
-  for(int i=degree-2;i>=0;i--)
+  cs_vecmult(shiftOp->getSGrad(iapex, igparam), out.size(),
+             workpoly[degree - 1].data(), out.data());
+
+  for (int i = degree - 3; i >= 0; i--)
   {
-    cs_vecmult(shiftOp->getS(),out.data(),temp1.data());
-    cs_vecmult(shiftOp->getSGrad(iapex,igparam),workpoly[i+1].data(),temp2.data());
-
-    for(int j=0;j<n;j++)
-    {
-      out[j] = temp1[j] + temp2[j];
-    }
+    cs_vecmult(S, temp1.size(), out.data(), temp1.data());
+    cs_vecmult(gradS, temp2.size(),
+               workpoly[i + 1].data(), temp2.data());
+    ut_vector_sum(temp1, temp2, out);
   }
 }

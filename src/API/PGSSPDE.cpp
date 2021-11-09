@@ -17,7 +17,7 @@ PGSSPDE::PGSSPDE(std::vector<Model*> models,
   _ruleProp = ruleprop;
 }
 
-void PGSSPDE::simulate(int seed,int nitergibbs) const
+void PGSSPDE::simulate(int seed,int /*nitergibbs*/) const
 {
   if(_calcul==ESPDECalcMode::SIMUNONCOND)
   {
@@ -58,11 +58,9 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
   {
     db->deleteField(names);
   }
-
-
 }
 
-void PGSSPDE::gibbs(int niter) const
+void PGSSPDE::gibbs(int /*niter*/) const
 {
    _ruleProp.categoryToThresh(_data);
 }

@@ -141,11 +141,6 @@ void MatrixSquareGeneral::_setValues(const double* values, bool byCol)
   }
 }
 
-double MatrixSquareGeneral::_determinant() const
-{
-  return matrix_determinant(getNRows(),_squareMatrix.data());
-}
-
 int MatrixSquareGeneral::_invert()
 {
   return matrix_invreal(_squareMatrix.data(),getNRows());
@@ -183,8 +178,9 @@ int MatrixSquareGeneral::_getMatrixSize() const
   return(getNRows() * getNCols());
 }
 
-int MatrixSquareGeneral::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) const
 {
   my_throw("Invert method is limited to Square Symmetrical Matrices");
   return 0;
 }
+

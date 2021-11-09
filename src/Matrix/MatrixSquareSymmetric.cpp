@@ -116,7 +116,7 @@ void MatrixSquareSymmetric::_prodVector(const double *in, double *out) const
 /**
  * \warning : values is provided as a square complete matrix
  */
-void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
+void MatrixSquareSymmetric::_setValues(const double* values, bool /*byCol*/)
 {
   // Check that the input argument corresponds to a square symmetric matrix
   for (int icol = 0; icol < getNCols(); icol++)
@@ -189,11 +189,6 @@ int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
                       static_cast<int> (b.size()),1,&pivot);
 }
 
-double MatrixSquareSymmetric::_determinant() const
-{
-  return matrix_determinant(getNRows(),_squareSymMatrix.data());
-}
-
 String MatrixSquareSymmetric::toString(int level) const
 {
   std::stringstream sstr;
@@ -210,4 +205,10 @@ String MatrixSquareSymmetric::toString(int level) const
                                true, getNCols(), getValues());
    }
   return sstr.str();
+}
+
+bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
+{
+  if (icol >  irow) return false;
+  return true;
 }

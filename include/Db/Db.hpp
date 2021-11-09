@@ -458,8 +458,8 @@ public:
   int  getNX(int idim) const;
   int  getNTotal() const { return _grid.getNTotal(); }
   double getCellSize() const { return _grid.getCellSize(); }
-  bool hasSameDimension(const Db* dbaux, bool verbose = true) const;
-  bool hasLargerDimension(const Db* dbaux, bool verbose = true) const;
+  bool hasSameDimension(const Db* dbaux) const;
+  bool hasLargerDimension(const Db* dbaux) const;
   VectorInt getNX() const { return _grid.getNX(); }
   double getDX(int idim) const;
   VectorDouble getDX() const { return _grid.getDX(); }

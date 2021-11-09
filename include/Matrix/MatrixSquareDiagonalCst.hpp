@@ -48,9 +48,9 @@ public:
   /*! Indicate if the given indices are valid for the current matrix size */
   bool isValid(int irow, int icol, bool printWhyNot = false) const override;
   /*! does the matrix is symmetrical ? */
-  bool isSymmetric(bool printWhyNot = false) const override { return true; }
+  bool isSymmetric(bool /*printWhyNot*/ = false) const override { return true; }
   /*! Check if the (non empty) matrix is diagonal */
-  bool isDiagonal(bool printWhyNot = false) const override { return true; }
+  bool isDiagonal(bool /*printWhyNot*/ = false) const override { return true; }
 
   /*! Set the contents of a Column */
   void setColumn(int icol, const VectorDouble& tab) override;
@@ -80,6 +80,7 @@ private:
   double _determinant() const override;
 
   bool   _isValidIndex(int irow, int icol) const;
+  bool   _isPhysicallyPresent(int irow, int icol) const override;
 
 private:
   double _cstDiagMatrix;

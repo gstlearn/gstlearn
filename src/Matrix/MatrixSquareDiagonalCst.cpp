@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
+#include <math.h>
 
 MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow, bool sparse)
   : AMatrixSquare(nrow, sparse)
@@ -53,7 +54,7 @@ double MatrixSquareDiagonalCst::_getValue(int irow, int icol) const
     return 0.;
 }
 
-double MatrixSquareDiagonalCst::_getValue(int irank) const
+double MatrixSquareDiagonalCst::_getValue(int /*irank*/) const
 {
   return _cstDiagMatrix;
 }
@@ -69,16 +70,15 @@ void MatrixSquareDiagonalCst::_setValue(int irow, int icol, double value)
   }
 }
 
-void MatrixSquareDiagonalCst::_setValue(int irank, double value)
+void MatrixSquareDiagonalCst::_setValue(int /*irank*/, double value)
 {
   _cstDiagMatrix = value;
 }
 
 double MatrixSquareDiagonalCst::_determinant() const
 {
-  double deter = 1.;
-  for (int irow=0; irow<getNRows(); irow++)
-    deter *= _cstDiagMatrix;
+  int nrow = getNRows();
+  double deter = pow(_cstDiagMatrix, (double) nrow);
   return deter;
 }
 
@@ -120,7 +120,7 @@ bool MatrixSquareDiagonalCst::_isValidIndex(int irow, int icol) const
   return true;
 }
 
-void MatrixSquareDiagonalCst::_setValues(const double* values, bool byCol)
+void MatrixSquareDiagonalCst::_setValues(const double* values, bool /*byCol*/)
 {
   double refval = TEST;
   int ecr = 0;
@@ -158,7 +158,7 @@ bool MatrixSquareDiagonalCst::isValid(int irow, int icol, bool printWhyNot) cons
   return true;
 }
 
-void MatrixSquareDiagonalCst::addScalar(double v)
+void MatrixSquareDiagonalCst::addScalar(double /*v*/)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
@@ -177,18 +177,18 @@ int MatrixSquareDiagonalCst::_solve(const VectorDouble& b, VectorDouble& x) cons
 }
 
 /*! Set the contents of a Column */
-void MatrixSquareDiagonalCst::setColumn(int icol, const VectorDouble& tab)
+void MatrixSquareDiagonalCst::setColumn(int /*icol*/, const VectorDouble& /*tab*/)
 {
   my_throw("This function does not make sense for Diagonal Matrix");
 }
 
 /*! Set the contents of a Row */
-void MatrixSquareDiagonalCst::setRow(int irow, const VectorDouble& tab)
+void MatrixSquareDiagonalCst::setRow(int /*irow*/, const VectorDouble& /*tab*/)
 {
   my_throw("This function does not make sense for Diagonal Constant Matrix");
 }
 
-void MatrixSquareDiagonalCst::setDiagonal(const VectorDouble& tab)
+void MatrixSquareDiagonalCst::setDiagonal(const VectorDouble& /*tab*/)
 {
   my_throw("This function does not make sense for Diagonal Constant Matrix");
 }
@@ -209,4 +209,10 @@ String MatrixSquareDiagonalCst::toString(int level) const
                             getValues());
   }
   return sstr.str();
+}
+
+bool MatrixSquareDiagonalCst::_isPhysicallyPresent(int irow, int icol) const
+{
+  if (irow != 0 || icol != 0) return false;
+  return true;
 }

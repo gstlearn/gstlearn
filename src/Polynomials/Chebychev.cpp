@@ -192,8 +192,8 @@ double Chebychev::eval(double x) const
 void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 {
   VectorDouble tm1, tm2, px, tx;
-  int     nvertex;
-  cs     *T1;
+  int nvertex;
+  cs *T1;
 
 /* Initializations */
 
@@ -224,7 +224,6 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
   if (! cs_gaxpy(T1, y.data(), tm1.data())) my_throw("Problem in cs_gaxpy");
   for (int i=0; i<nvertex; i++)
   {
-
     px[i]  = _coeffs[0] * y[i] + _coeffs[1] * tm1[i];
     tm2[i] = y[i];
   }
@@ -247,6 +246,4 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 
   for (int i=0; i<nvertex; i++)
     y[i] = px[i];
-
 }
-

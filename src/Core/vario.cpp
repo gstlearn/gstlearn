@@ -549,7 +549,6 @@ static void st_print_debug(int iech1,
 **  Internal function for setting a variogram value
 **
 ** \param[in]  calcul_type Type of calculation (ECalcVario)
-** \param[in]  nvar        Number of variables
 ** \param[in]  ipas        Rank of the variogram lag
 ** \param[in]  ivar        Index of the first variable
 ** \param[in]  jvar        Index of the second variable
@@ -560,7 +559,7 @@ static void st_print_debug(int iech1,
 **
 *****************************************************************************/
 static void st_variogram_set(const ECalcVario& calcul_type,
-                             int               nvar,
+                             int               /*nvar*/,
                              int               ipas,
                              int               ivar,
                              int               jvar,
@@ -585,25 +584,22 @@ static void st_variogram_set(const ECalcVario& calcul_type,
 /*!
 **  Internal function for setting a VMAP value
 **
-** \param[in]  calcul_type Unused
 ** \param[in]  nvar        Number of variables
 ** \param[in]  ipas        Rank of the variogram lag
 ** \param[in]  ivar        Index of the first variable
 ** \param[in]  jvar        Index of the second variable
-** \param[in]  orient      Orientation
 ** \param[in]  ww          Weight
-** \param[in]  dist        Distance
 ** \param[in]  value       Variogram value
 **
 *****************************************************************************/
-static void st_vmap_set(const ECalcVario& calcul_type,
+static void st_vmap_set(const ECalcVario& /*calcul_type*/,
                         int               nvar,
                         int               ipas,
                         int               ivar,
                         int               jvar,
-                        int               orient,
+                        int               /*orient*/,
                         double            ww,
-                        double            dist,
+                        double            /*dist*/,
                         double            value)
 {
   int ijvar;
@@ -628,7 +624,6 @@ static void st_vmap_set(const ECalcVario& calcul_type,
 ** \param[in]  iech1          Rank of the first sample
 ** \param[in]  iech2          Rank of the second sample
 ** \param[in]  ipas           Rank of the lag
-** \param[in]  npas           Number of lags (for the current direction)
 ** \param[in]  dist           Distance value
 ** \param[in]  do_asym        When FALSE, do not perform the symmetry
 ** \param[in]  st_generic_set Generic function for setting the variogram
@@ -645,7 +640,6 @@ static void st_variogram_evaluate(Db*               db,
                                   int               iech1,
                                   int               iech2,
                                   int               ipas,
-                                  int               npas,
                                   double            dist,
                                   int               do_asym,
                                   void (*st_generic_set)(const ECalcVario& calcul_type,
@@ -1620,7 +1614,7 @@ static void st_variogram_calcul_internal(Db    *db,
       IECH1   = iech;
       IECH2   = jech;
       st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
-                            iech,jech,ipas,npas,dist,1,st_variogram_set);
+                            iech,jech,ipas,dist,1,st_variogram_set);
     }
   }
 
@@ -1714,13 +1708,12 @@ static int st_variogram_calcul1(Db    *db,
                                 int   *rindex,
                                 Vario_Order *vorder)
 {
-  int    iiech,iech,jjech,jech,nech,ipas,npas,npair,ideb;
+  int    iiech,iech,jjech,jech,nech,ipas,npair,ideb;
   double psmin,ps,dist,maxdist;
 
   ps      = 0.;
   psmin   = _variogram_convert_angular_tolerance(vario->getDirParam(idir).getTolAngle());
   nech    = db->getSampleNumber();
-  npas    = vario->getLagNumber(idir);
   maxdist = vario->getMaximumDistance(idir);
   const VarioParam& varioparam = vario->getVarioParam();
 
@@ -1777,7 +1770,7 @@ static int st_variogram_calcul1(Db    *db,
         IECH1   = iech;
         IECH2   = jech;
         st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
-                              iech,jech,ipas,npas,dist,1,st_variogram_set);
+                              iech,jech,ipas,dist,1,st_variogram_set);
       }
     }
   }
@@ -1823,7 +1816,7 @@ static int st_variogram_calcul2(Db    *db,
                                 int    idir,
                                 int   *rindex)
 {
-  int     iiech,iech,jjech,jech,i,ipas,nech,size,error,npas,ideb;
+  int     iiech,iech,jjech,jech,i,ipas,nech,size,error,ideb;
   double *gg_sum,*hh_sum,*sw_sum,ps,psmin,dist,w1,maxdist;
 
   /* Initializations */
@@ -1836,7 +1829,6 @@ static int st_variogram_calcul2(Db    *db,
   psmin   = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech    = db->getSampleNumber();
   size    = vario->getDirSize(idir);
-  npas    = vario->getLagNumber(idir);
   maxdist = vario->getMaximumDistance(idir);
 
   /* Core allocation */
@@ -1902,7 +1894,7 @@ static int st_variogram_calcul2(Db    *db,
       IECH1  = iech;
       IECH2  = jech;
       st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
-                            iech,jech,ipas,npas,dist,1,st_variogram_set);
+                            iech,jech,ipas,dist,1,st_variogram_set);
     }
 
     /* Cumulate to the global variogram */
@@ -2145,7 +2137,7 @@ static int st_variogram_grid(Db    *db,
       IECH1   = iech;
       IECH2   = jech;
       st_variogram_evaluate(db,vario->getCalculType(),vario->getVariableNumber(),
-                            iech,jech,ipas,npas,dist,1,st_variogram_set);
+                            iech,jech,ipas,dist,1,st_variogram_set);
     }
   }
 
@@ -2565,9 +2557,9 @@ GEOSLIB_API void vardir_print(Vario *vario,
 **
 *****************************************************************************/
 GEOSLIB_API void variogram_print(const Vario *vario,
-                                 int    verbose)
+                                 int   verbose)
 {
-  if (vario != nullptr) messageFlush(vario->toString());
+  if (vario != nullptr) messageFlush(vario->toString(verbose));
 }
 
 /****************************************************************************/
@@ -2935,7 +2927,7 @@ static int st_vmap_general(Db*               db,
                            int               radius,
                            NamingConvention  namconv)
 {
-  int     error,nvar,nv2,i,idim,flag_out,npas,nbmax;
+  int     error,nvar,nv2,i,idim,flag_out,nbmax;
   int    *indg0,*indg1,*ind1,iech0,iech1,iech2,jech1,jech2,nech,ndim;
   double *delta,*mid,*coor,x0;
   VectorInt neigh;
@@ -2973,7 +2965,6 @@ static int st_vmap_general(Db*               db,
   ndim  = dbmap->getNDim();
   nvar  = db->getVariableNumber();
   nech  = db->getSampleNumber();
-  npas  = dbmap->getSampleNumber();
   nv2   = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
@@ -3048,7 +3039,7 @@ static int st_vmap_general(Db*               db,
         iech0 = st_find_neigh_cell(dbmap,indg0,neigh.data(),in,indg1);
         if (iech0 < 0) continue;
         st_variogram_evaluate(db,calcul_type,nvar,iech1,iech2,
-                              iech0,npas,TEST,0,st_vmap_set);
+                              iech0,TEST,0,st_vmap_set);
       }
 
       // Avoid symmetry if point is compared to itself
@@ -3062,7 +3053,7 @@ static int st_vmap_general(Db*               db,
         iech0 = st_find_neigh_cell(dbmap,indg0,neigh.data(),in,indg1);
         if (iech0 < 0) continue;
         st_variogram_evaluate(db,calcul_type,nvar,iech1,iech2,
-                              iech0,npas,TEST,0,st_vmap_set);
+                              iech0,TEST,0,st_vmap_set);
       }
     }
   }
@@ -3105,7 +3096,7 @@ static int st_vmap_grid(Db*               dbgrid,
                         NamingConvention  namconv)
 {
   int    error,nvar,nv2,idim,delta;
-  int   *ind1,*ind2,*ind0,iech0,iech1,iech2,flag_out,ndim,npas;
+  int   *ind1,*ind2,*ind0,iech0,iech1,iech2,flag_out,ndim;
 
   /* Preliminary checks */
 
@@ -3152,7 +3143,6 @@ static int st_vmap_grid(Db*               dbgrid,
 
   /* Initializations */
 
-  npas = dbmap->getSampleNumber();
   ndim = dbmap->getNDim();
   nvar = dbgrid->getVariableNumber();
   nv2  = nvar * (nvar + 1) / 2;
@@ -3201,7 +3191,7 @@ static int st_vmap_grid(Db*               dbgrid,
       
       DBMAP = dbmap;
       st_variogram_evaluate(dbgrid,calcul_type,nvar,iech1,iech2,
-                            iech0,npas,TEST,0,st_vmap_set);
+                            iech0,TEST,0,st_vmap_set);
     }
   }
 
@@ -4699,13 +4689,11 @@ static void st_product_conj(int     size,
 **
 ** \param[in]  dbmap     Db containing the VMAP
 ** \param[in]  tab       Array to be stored (in FFT space)
-** \param[in]  size      Dimension of the array
 ** \param[in]  iptr      Pointer for storage
 **
 *****************************************************************************/
 static void st_vmap_store(Db     *dbmap,
                           double *tab,
-                          int     size,
                           int     iptr)
 {
   int ix,iy,iz,ecr,iech,indice[3];
@@ -4816,7 +4804,6 @@ static void st_vmap_shift(int     size,
 ** \param[in] dbgrid    Db structure containing the input grid
 ** \param[in] ndim      Space dimension
 ** \param[in] sizetot   Dimension of the vectors
-** \param[in] sizegrid  Number of cells in the grid
 ** \param[in] dims      Array of dimensions of the extended images
 ** \param[in] dinv      Array of dimensions of the extended images (inverted)
 ** \param[in] ivar      Rank of the first variable
@@ -4836,7 +4823,6 @@ static void st_vmap_shift(int     size,
 *****************************************************************************/
 static int st_vmap_load(Db     *dbgrid,
                         int     ndim,
-                        int     sizegrid,
                         int     sizetot,
                         int    *dims,
                         int    *dinv,
@@ -4937,13 +4923,10 @@ static int st_complex_array_alloc(int     size,
 /*!
 **  Free an array of complex values
 **
-** \param[in]  size    Dimension of the complex array
-**
 ** \param[out] tab     Complex array to be freed
 **
 *****************************************************************************/
-static void st_complex_array_free(int     size,
-                                  double *tab[2])
+static void st_complex_array_free(double *tab[2])
 {
   int ic;
 
@@ -5263,7 +5246,7 @@ static int st_vmap_grid_fft(Db*               dbgrid,
       
       if (calcul_type == ECalcVario::VARIOGRAM)
       {
-        if (st_vmap_load(dbgrid,ndim,sizegrid,sizetot,dims,dinv,ivar,jvar,
+        if (st_vmap_load(dbgrid,ndim,sizetot,dims,dinv,ivar,jvar,
                          NULL,NULL,NULL,NULL,i1i2,z1i2,z2i1,z1z2)) continue;
         
         /* Calculate the number of pairs */
@@ -5284,7 +5267,7 @@ static int st_vmap_grid_fft(Db*               dbgrid,
       }
       else
       {
-        if (st_vmap_load(dbgrid,ndim,sizegrid,sizetot,dims,dinv,ivar,jvar,
+        if (st_vmap_load(dbgrid,ndim,sizetot,dims,dinv,ivar,jvar,
                          i1i1,z1i1,i2i2,z2i2,NULL,NULL,NULL,NULL)) continue;
         
         /* Calculate the number of pairs */
@@ -5323,8 +5306,8 @@ static int st_vmap_grid_fft(Db*               dbgrid,
       }
       
       /* Store the results */
-      st_vmap_store(dbmap,res_nn,sizemap,IPTW+ijvar);
-      st_vmap_store(dbmap,res_gg,sizemap,IPTV+ijvar);
+      st_vmap_store(dbmap,res_nn,IPTW+ijvar);
+      st_vmap_store(dbmap,res_gg,IPTV+ijvar);
     }
   
   /* Set the error return code */
@@ -5334,20 +5317,20 @@ static int st_vmap_grid_fft(Db*               dbgrid,
   error = 0;
   
 label_end:
-  st_complex_array_free(sizetot,ztab);
+  st_complex_array_free(ztab);
   if (calcul_type == ECalcVario::VARIOGRAM)
   {
-    st_complex_array_free(sizetot,i1i2);
-    st_complex_array_free(sizetot,z1i2);
-    st_complex_array_free(sizetot,z2i1);
-    st_complex_array_free(sizetot,z1z2);
+    st_complex_array_free(i1i2);
+    st_complex_array_free(z1i2);
+    st_complex_array_free(z2i1);
+    st_complex_array_free(z1z2);
   }
   else
   {
-    st_complex_array_free(sizetot,i1i1);
-    st_complex_array_free(sizetot,z1i1);
-    st_complex_array_free(sizetot,i2i2);
-    st_complex_array_free(sizetot,z2i2);
+    st_complex_array_free(i1i1);
+    st_complex_array_free(z1i1);
+    st_complex_array_free(i2i2);
+    st_complex_array_free(z2i2);
   }
   res_nn = (double *) mem_free((char *) res_nn);
   res_gg = (double *) mem_free((char *) res_gg);
@@ -6699,9 +6682,6 @@ GEOSLIB_API void condexp(Db     *db1,
 **
 ** \param[in]  db           Db descriptor
 ** \param[in]  vario        Vario structure
-** \param[in]  means        Array giving the mean of the variables
-**                          (Only used for ECalcVario::POISSON)
-** \param[in]  vars         Array of variance-covariances (Dim: nvar * nvar)
 ** \param[in]  flag_grid    1 for calculation on a grid
 ** \param[in]  flag_gen     1 for calculation of generalized variogram
 ** \param[in]  flag_sample  calculate the variogram per sample
@@ -6715,8 +6695,6 @@ GEOSLIB_API void condexp(Db     *db1,
 *****************************************************************************/
 GEOSLIB_API int _variogram_compute(Db *db,
                                    Vario *vario,
-                                   const VectorDouble& means,
-                                   const VectorDouble& vars,
                                    int flag_grid,
                                    int flag_gen,
                                    int flag_sample,

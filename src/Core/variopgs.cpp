@@ -896,14 +896,12 @@ static double st_extract_trace(Local_Pgs *local_pgs)
 ** \param[in]  local_pgs   Local_Pgs structure
 ** \param[in]  vario       Vario structure for the GRFs to be filled
 ** \param[in]  idir        Rank of the direction
-** \param[in]  ngrf        Number of GRFs
 ** \param[in]  rho         Correlation coefficient
 **
 *****************************************************************************/
 static void st_variogram_patch_C00(Local_Pgs *local_pgs,
                                    Vario *vario,
                                    int    idir,
-                                   int    ngrf,
                                    double rho)
 {
   Db* db  = local_pgs->db;
@@ -1113,15 +1111,11 @@ static void trace_define(Local_Pgs *local_pgs,
 ** \return  Error return code
 **
 ** \param[in]  vario         Vario structure for the GRFs to be filled
-** \param[in]  rule          Lithotype Rule definition
-** \param[in]  propdef       PropDef structure
 ** \param[in]  local_pgs     Local_Pgs structure
 ** \param[in]  ngrf          Number of GRFs
 **
 *****************************************************************************/
 static int st_varcalc_from_vario_stat(Vario *vario,
-                                      const Rule  *rule,
-                                      PropDef *propdef,
                                       Local_Pgs *local_pgs,
                                       int ngrf)
 {
@@ -1140,7 +1134,7 @@ static int st_varcalc_from_vario_stat(Vario *vario,
 
     /* Set the value of C(0) */
 
-    st_variogram_patch_C00(local_pgs,vario,idir,ngrf,0.);
+    st_variogram_patch_C00(local_pgs,vario,idir,0.);
     
     /* Loop on the lags */
 
@@ -1312,9 +1306,7 @@ static double st_rule_calcul(Local_Pgs *local_pgs,
   {
     st_set_rho(0.,local_pgs);
     (void) st_calculate_thresh_stat(local_pgs);
-    st_varcalc_from_vario_stat(local_pgs->vario,local_pgs->rule,
-                               local_pgs->propdef,local_pgs,
-                               local_pgs->ngrf);
+    st_varcalc_from_vario_stat(local_pgs->vario,local_pgs,local_pgs->ngrf);
   }
   else
   {
@@ -1326,7 +1318,7 @@ static double st_rule_calcul(Local_Pgs *local_pgs,
     {
       local_pgs->idircur = idir;
       st_variogram_patch_C00(local_pgs,local_pgs->vario,idir,
-                             local_pgs->ngrf,local_pgs->rule->getRho());
+                             local_pgs->rule->getRho());
       st_varcalc_uncorrelated_grf(local_pgs,idir);
     }
   }
@@ -2898,7 +2890,6 @@ static double st_d2_dkldkj(int     index1,
 ** \param[in]  local_pgs    Local_Pgs structure
 ** \param[in]  flag_deriv   1 if the derivatives must be calculated
 ** \param[in]  flag_reset   1 to update the probability calculations
-** \param[in]  params       Array of parameters
 ** \param[in]  correl       Correlation matrix updated
 **
 ** \param[out] Grad         Vector of cumulated gradients (Dimension= 4)
@@ -2909,7 +2900,6 @@ static double st_d2_dkldkj(int     index1,
 static double st_calcul_stat(Local_Pgs *local_pgs,
                              int        flag_deriv,
                              int        flag_reset,
-                             double    *params,
                              double    *correl,
                              double    *Grad,
                              double    *Hess,
@@ -3002,7 +2992,6 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
 ** \param[in]  local_pgs    Local_Pgs structure
 ** \param[in]  flag_deriv   1 if the derivatives must be calculated
 ** \param[in]  flag_reset   1 to update the probability calculations
-** \param[in]  params       Array of parameters
 ** \param[in]  correl       Correlation matrix updated
 **
 ** \param[out] Grad         Vector of cumulated gradients (Dimension= 4)
@@ -3013,7 +3002,6 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
 static double st_calcul_nostat(Local_Pgs *local_pgs,
                                int        flag_deriv,
                                int        flag_reset,
-                               double    *params,
                                double    *correl,
                                double    *Grad,
                                double    *Hess,
@@ -3130,10 +3118,10 @@ static double st_calcul(Local_Pgs *local_pgs,
     
   if (local_pgs->flag_stat)
     S = st_calcul_stat(local_pgs,flag_deriv,flag_reset,
-                       params,correl,Grad,Hess,JJ);
+                       correl,Grad,Hess,JJ);
   else
     S = st_calcul_nostat(local_pgs,flag_deriv,flag_reset,
-                         params,correl,Grad,Hess,JJ);
+                         correl,Grad,Hess,JJ);
   
   /* Modify the results due to the constraints on parameters */
   
@@ -3822,10 +3810,8 @@ static void st_manage_pgs(int               mode,
 **
 ** \return  Error return code
 **
-** \param[in]  db            Db structure
 ** \param[in]  vario         Vario structure for the GRFs to be filled
 ** \param[in]  rule          Lithotype Rule definition
-** \param[in]  propdef       PropDef structure
 ** \param[in]  local_pgs     Local_Pgs structure
 ** \param[in]  ngrf          Number of GRFs
 ** \param[in]  opt_correl    0 full model; 1 symetrical; 2 residuals
@@ -3834,10 +3820,8 @@ static void st_manage_pgs(int               mode,
 **                             calling this function
 **
 *****************************************************************************/
-static int st_variopgs_calcul_norho(Db    *db,
-                                    Vario *vario,
+static int st_variopgs_calcul_norho(Vario *vario,
                                     const Rule  *rule,
-                                    PropDef *propdef,
                                     Local_Pgs *local_pgs,
                                     int ngrf,
                                     int opt_correl,
@@ -3865,7 +3849,7 @@ static int st_variopgs_calcul_norho(Db    *db,
     
     /* Set the value of C(0) */
 
-    st_variogram_patch_C00(local_pgs,vario,idir,ngrf,rule->getRho());
+    st_variogram_patch_C00(local_pgs,vario,idir,rule->getRho());
     
     if (ngrf > 1 && (opt_correl != 2 || rule->getRho() != 0))
       st_varcalc_correlated_grf(local_pgs,idir);
@@ -3950,19 +3934,15 @@ static double st_rho_search(double rho, void *user_data)
 **
 ** \return  Error return code
 **
-** \param[in]  db            Db structure
 ** \param[in]  vario         Vario structure for the GRFs to be filled
 ** \param[in]  rule          Lithotype Rule definition
-** \param[in]  propdef       PropDef structure
 ** \param[in]  local_pgs     Local_Pgs structure
 ** \param[in]  ngrf          Number of GRFs
 ** \param[in]  opt_correl    0 full model; 1 symetrical; 2 residuals
 **
 *****************************************************************************/
-static int st_variopgs_calcul_rho(Db    *db,
-                                  Vario *vario,
+static int st_variopgs_calcul_rho(Vario *vario,
                                   const Rule  *rule,
-                                  PropDef *propdef,
                                   Local_Pgs *local_pgs,
                                   int ngrf,
                                   int opt_correl)
@@ -3987,7 +3967,7 @@ static int st_variopgs_calcul_rho(Db    *db,
   
   /* Perform the calculations with fixed rho */
 
-  if (st_variopgs_calcul_norho(db,vario,rule,propdef,local_pgs,
+  if (st_variopgs_calcul_norho(vario,rule,local_pgs,
                                ngrf,opt_correl,0)) return(1);
   
   /* Clean the geometry */
@@ -4209,12 +4189,12 @@ static int st_variogram_pgs_nostat(Db*       db,
   if (! flag_rho)
   {
     st_set_rho(rule->getRho(),&local_pgs);
-    if (st_variopgs_calcul_norho(db,vario,rule,propdef,&local_pgs,ngrf,
+    if (st_variopgs_calcul_norho(vario,rule,&local_pgs,ngrf,
                                  opt_correl,1)) goto label_end;
   }
   else
   {
-    if (st_variopgs_calcul_rho(db,vario,rule,propdef,&local_pgs,ngrf,
+    if (st_variopgs_calcul_rho(vario,rule,&local_pgs,ngrf,
                                opt_correl)) goto label_end;
   }
 
@@ -5137,7 +5117,7 @@ static int st_variogram_pgs_stat(Db     *db,
 
   /* Infer the variogram of PGS */
 
-  st_varcalc_from_vario_stat(vario,rule,propdef,&local_pgs,ngrf);
+  st_varcalc_from_vario_stat(vario,&local_pgs,ngrf);
 
   /* Set the error return flag */
 

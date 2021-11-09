@@ -15,7 +15,7 @@
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   ASerializable::setContainerName(true);
@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
   NoStatArray NoStat({"A"},&workingDbc);
   model.addNoStat(&NoStat);
 
+  model.display(1);
+
   ///////////////////////
   // Creating Data
   int ndata = 100;
@@ -51,7 +53,8 @@ int main(int argc, char *argv[])
 
   ///////////////////////
   // Running SPDE
-  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
+  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUNONCOND);
+//  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
   spde.compute();
   spde.query(&workingDbc);
   workingDbc.serialize("spde.ascii");

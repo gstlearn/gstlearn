@@ -86,7 +86,6 @@ static double st_anam_hermitian_block_variance(Anam  *anam,
 **  Update the Anam structure for Hermitian Anamorphosis 
 **
 ** \param[in,out] anam_hermite  Anam structure to be updated
-** \param[in]  nbpoly   Number of Hermite polynomials
 ** \param[in]  pymin    Minimum practical value for Y
 ** \param[in]  pzmin    Minimum practical value for Z
 ** \param[in]  pymax    Maximum practical value for Y
@@ -96,12 +95,10 @@ static double st_anam_hermitian_block_variance(Anam  *anam,
 ** \param[in]  aymax    Maximum absolute value for Y
 ** \param[in]  azmax    Maximum absolute value for Z
 ** \param[in]  r        Change of support coefficient
-** \param[in]  variance Variance of the data
 ** \param[in]  psi_hn   Coefficients of the Hermite polynomials
 **
 *****************************************************************************/
 GEOSLIB_API void anam_update_hermitian(AnamHermite *anam_hermite,
-                                       int nbpoly,
                                        double pymin,
                                        double pzmin,
                                        double pymax,
@@ -111,7 +108,6 @@ GEOSLIB_API void anam_update_hermitian(AnamHermite *anam_hermite,
                                        double aymax,
                                        double azmax,
                                        double r,
-                                       double variance,
                                        const VectorDouble& psi_hn)
 {
   anam_hermite->setPsiHn(psi_hn);
@@ -201,12 +197,11 @@ GEOSLIB_API void anam_update_discrete_DD(AnamDiscreteDD *anam_discrete_DD,
 **
 ** \param[in]  anam     Anam structure
 ** \param[in]  sval     Tentative Coefficient of change of support
-** \param[in]  power    Power of the change of support coefficient
 **
 *****************************************************************************/
 static double st_anam_discrete_IR_block_variance(Anam *anam,
                                                  double sval,
-                                                 double power)
+                                                 double /*power*/)
 {
   double  var,b,resid,tcur,tprev;
   int     iclass,nclass;
@@ -260,12 +255,11 @@ GEOSLIB_API void anam_update_discrete_IR(AnamDiscreteIR *anam_discrete_IR,
 **
 ** \param[in]  anam     Anam structure
 ** \param[in]  sval     Tentative Coefficient of change of support
-** \param[in]  power    Power of the change of support coefficient
 **
 *****************************************************************************/
 static double st_anam_discrete_DD_block_variance(Anam *anam,
                                                  double sval,
-                                                 double power)
+                                                 double /*power*/)
 {
   double var,mu,ci;
   int iclass,nclass;
@@ -1816,8 +1810,6 @@ static int st_code_analyze(int    verbose,
 ** \param[in]  anam         Point anamorphosis
 ** \param[in]  ncutmine     Number of required cutoffs
 ** \param[in]  cutmine      Array of the requested cutoffs
-** \param[in]  z_max        Maximum grade array (only for QT interpolation)
-** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
 ** \param[in]  nb_est       Number of columns for factor estimation
 ** \param[in]  cols_est     Array of columns for factor estimation
 ** \param[in]  nb_std       Number of columns for factor st. dev.
@@ -1834,8 +1826,6 @@ static int st_anam_factor2qt_hermitian(Db     *db,
                                        Anam   *anam,
                                        int     ncutmine,
                                        double *cutmine,
-                                       double  z_max,
-                                       int     flag_correct,
                                        int     nb_est,
                                        int    *cols_est,
                                        int     nb_std,
@@ -2470,8 +2460,7 @@ GEOSLIB_API int anam_factor2qt(Db     *db,
   switch (anam->getType().toEnum())
   {
     case EAnam::E_HERMITIAN:
-      if (st_anam_factor2qt_hermitian(db,anam,ncutmine,cutmine,z_max,
-                                      flag_correct,
+      if (st_anam_factor2qt_hermitian(db,anam,ncutmine,cutmine,
                                       nb_est,cols_est,nb_std,cols_std,
                                       iptr,ncode,codes,qt_vars,
                                       calest)) goto label_end;
@@ -2804,7 +2793,6 @@ label_end:
 ** \param[in]  iech         Rank of the sample
 ** \param[in]  att_est      Rank of the Kriging estimate
 ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
-** \param[in]  flag_OK      1 if kriging is performed with OK
 **
 ** \param[out] krigest      Kriging estimation
 ** \param[out] krigstd      Standard deviation of the estimation error
@@ -2818,7 +2806,7 @@ static void st_correct_from_OK(Db     *db,
                                int     iech,
                                int     att_est,
                                int     att_std,
-                               int     flag_OK,
+                               int     /*flag_OK*/,
                                double *krigest,
                                double *krigstd)
 {

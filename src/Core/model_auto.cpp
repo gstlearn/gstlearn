@@ -1954,19 +1954,17 @@ static void st_model_auto_constraints_apply(StrMod *strmod,
 ** \param[in]  hmax            Maximum experimental distance
 ** \param[in]  varchol         Cholesky decomposition of the variance matrix
 ** \param[in]  angles          Reference angles
-** \param[in]  mauto           Option_AutoFit structure
 **
 ** \param[out]  param          Current values for parameters
 ** \param[out]  lower          Lower values for parameters
 ** \param[out]  upper          Upper values for parameters
 **
 *****************************************************************************/
-static void st_model_auto_pardef(StrMod *strmod,
-                                 int     npar,
-                                 double  hmax,
+static void st_model_auto_pardef(StrMod* strmod,
+                                 int npar,
+                                 double hmax,
                                  VectorDouble& varchol,
                                  VectorDouble& angles,
-                                 const Option_AutoFit& mauto,
                                  VectorDouble& param,
                                  VectorDouble& lower,
                                  VectorDouble& upper)
@@ -3364,7 +3362,6 @@ static int st_goulard_with_constraints(const Option_AutoFit& mauto,
 **
 ** \param[out] alphau      Array
 ** \param[out] sill1       Array of resulting sills
-** \param[out] sill        Array of resulting sills
 **
 ** \remark  Internal arrays:
 ** \remark  MP : Contains the current Model (ijvar,ipadir)
@@ -3381,8 +3378,7 @@ static int st_sill_fitting_int(Model        *model,
                                VectorDouble& ge2,
                                VectorDouble& gg2,
                                VectorDouble& alphau,
-                               VectorDouble& sill1,
-                               VectorDouble& sill)
+                               VectorDouble& sill1)
 {
   double    sum,pivot,newval,crit,crit_mem;
   int       error,icov,nvs2,ivar,jvar,ijvar,ipadir,nvar,ncova,iter;
@@ -3535,8 +3531,7 @@ static int st_goulard_fitting(int          flag_reset,
     status = st_sill_fitting_int(model,mauto,RECINT.npadir,
                                  RECINT.wt,RECINT.gg,RECINT.ge,
                                  RECINT.wt2,RECINT.ge1,RECINT.ge2,
-                                 RECINT.gg2,RECINT.alphau,RECINT.sill1,
-                                 RECINT.sill);
+                                 RECINT.gg2,RECINT.alphau,RECINT.sill1);
   }
 
   return(status);
@@ -4246,14 +4241,13 @@ static void st_prepar_goulard_vmap(int imod)
 **
 ** \return  Value of the model
 **
-** \param[in]  nbexp        Number of experimental conditions
 ** \param[in]  npar         Number of parameters
 ** \param[in]  param        Current values for parameters
 **
 ** \param[out] tabge        Array of resulting values
 **
 *****************************************************************************/
-static void st_strmod_vmap_evaluate(int     nbexp,
+static void st_strmod_vmap_evaluate(int   /*nbexp*/,
                                     int     npar,
                                     VectorDouble& param,
                                     VectorDouble& tabge)
@@ -4646,7 +4640,7 @@ GEOSLIB_API int model_auto_fit(const Vario      *vario,
   
   /* Set the default values and bounds */
     
-  st_model_auto_pardef(strmod,npar,hmax,varchol,angles,mauto,param,lower,upper);
+  st_model_auto_pardef(strmod,npar,hmax,varchol,angles,param,lower,upper);
   st_model_auto_scldef(strmod,npar,hmax,varchol,scale);
   st_model_auto_constraints_apply(strmod,npar,constraints,param,lower,upper);
   
@@ -4678,8 +4672,7 @@ GEOSLIB_API int model_auto_fit(const Vario      *vario,
     if (status < 0)
     {
       for (i=0; i<npar; i++) param[i] = lower[i] = upper[i] = TEST;
-      st_model_auto_pardef(strmod,npar,hmax,varchol,angles,mauto,
-                           param,lower,upper);
+      st_model_auto_pardef(strmod,npar,hmax,varchol,angles,param,lower,upper);
     }
     st_model_auto_scldef(strmod,npar,hmax,varchol,scale);
   } while(flag_reduce && npar > 0);
@@ -5092,7 +5085,7 @@ GEOSLIB_API int vmap_auto_fit(const Db         *dbmap,
 
   /* Set the default values and bounds */
 
-  st_model_auto_pardef(strmod,npar,hmax,varchol,angles,mauto,param,lower,upper);
+  st_model_auto_pardef(strmod,npar,hmax,varchol,angles,param,lower,upper);
   st_model_auto_scldef(strmod,npar,hmax,varchol,scale);
   st_model_auto_constraints_apply(strmod,npar,constraints,param,lower,upper);
 
@@ -5117,8 +5110,7 @@ GEOSLIB_API int vmap_auto_fit(const Db         *dbmap,
     if (status < 0)
     {
       for (i=0; i<npar; i++) param[i] = lower[i] = upper[i] = TEST;
-      st_model_auto_pardef(strmod,npar,hmax,varchol,angles,mauto,
-                           param,lower,upper);
+      st_model_auto_pardef(strmod,npar,hmax,varchol,angles,param,lower,upper);
     }
     st_model_auto_scldef(strmod,npar,hmax,varchol,scale);
   } while(flag_reduce && npar > 0);

@@ -1102,7 +1102,7 @@ label_end:
 
 /****************************************************************************/
 /*!
-**  Calculate the determinant of the square matrix
+**  Calculate the determinant of the square matrix (full storage)
 **
 ** \return  Value of the determinant
 **
@@ -3549,7 +3549,7 @@ GEOSLIB_API int matrix_get_extreme(int     mode,
 
 /*****************************************************************************/
 /*!
-**  Invert a square real matrix
+**  Invert a square real full matrix
 **
 ** \return  Error return code
 **

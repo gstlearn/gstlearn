@@ -90,7 +90,7 @@ public:
   double getMaxEigenValue() const;
 
   cs* getS() const { return _S; }
-  cs *getSGrad(int iapex, int igparam) const;
+  cs* getSGrad(int iapex, int igparam) const;
   const VectorDouble& getTildeC() const { return _TildeC; }
   const VectorDouble& getLambda() const { return _Lambda; }
   double getLambda(int iapex) const { return _Lambda[iapex]; }
@@ -98,8 +98,10 @@ public:
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
 
-  bool getFlagGradByHh() const { return _flagGradByHH; }
-  void setFlagGradByHh(bool flagGradByHh) { _flagGradByHH = flagGradByHh; }
+  bool getFlagNoStatByHH() const { return _flagNoStatByHH; }
+  void setFlagNoStatByHH(bool flagGradByHH) { _flagNoStatByHH = flagGradByHH; }
+  int  getLambdaGradSize() const;
+
 
 private:
   int _getIcov() const { return _icov; }
@@ -109,7 +111,6 @@ private:
   Model* _getModel() const { return _model; }
   void _setModel(Model* model) { _model = model; }
   bool _isNoStat();
-  bool _isNoStatByHH();
   bool _isVelocity();
   const CovAniso* _getCova();
 
@@ -119,26 +120,29 @@ private:
   int  _buildSGrad(AMesh *amesh, double tol = EPSILON10);
   int  _buildTildeC(AMesh *amesh, const VectorDouble& units);
   void _buildLambda(AMesh *amesh);
-  bool _buildLambdaGrad(AMesh *amesh);
-  void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
-  void _loadHHGradByApex(MatrixSquareSymmetric& hh,
-                         int igparam,
-                         int ip);
+
   void _loadAux(VectorDouble& tab,
                 const EConsElem& type,
                 int ip);
-  void _loadHHPerMesh(MatrixSquareSymmetric& hh,
-                      AMesh* amesh,
-                      int imesh = 0);
-  void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
-                          AMesh* amesh,
-                          int igp0,
-                          int igparam,
-                          int imesh = 0);
   void _loadAuxPerMesh(VectorDouble& tab,
                        AMesh* amesh,
                        const EConsElem& type,
                        int imesh = 0);
+  void _loadHHPerMesh(MatrixSquareSymmetric& hh,
+                      AMesh* amesh,
+                      int imesh = 0);
+  void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
+
+  void _loadHHGradByApex(MatrixSquareSymmetric& hh,
+                         int igparam,
+                         int ip);
+
+  void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
+                          AMesh* amesh,
+                          int igp0,
+                          int igparam);
+  bool _buildLambdaGrad(AMesh *amesh);
+
   void _reset();
   void _resetGrad();
   void _reallocate(const ShiftOpCs& shift);
@@ -154,6 +158,7 @@ private:
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
+  void _determineFlagNoStatByHH();
 
 private:
   VectorDouble _TildeC;
@@ -162,7 +167,7 @@ private:
   int _nModelGradParam;
   std::vector<cs *> _SGrad;
   std::vector<VectorDouble> _LambdaGrad;
-  bool _flagGradByHH;
+  bool _flagNoStatByHH;
 
   // Following list of members are there to ease the manipulation and reduce argument list
   Model* _model;

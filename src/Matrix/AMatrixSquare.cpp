@@ -9,8 +9,10 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include <Matrix/AMatrixSquare.hpp>
+#include <Matrix/MatrixFactory.hpp>
 #include <Matrix/AMatrix.hpp>
 #include "Basic/AException.hpp"
+#include <math.h>
 
 AMatrixSquare::AMatrixSquare(int nrow, bool sparse)
   : AMatrix(nrow, nrow, sparse)
@@ -150,4 +152,57 @@ void AMatrixSquare::divideDiagByVector(const VectorDouble& diag)
       my_throw("Argument 'Diag' may not have too small values");
     setValue(i, i, getValue(i, i) / diag[i]);
   }
+}
+
+double AMatrixSquare::_determinant(void) const
+{
+  int neq = getNRows();
+
+  /* Dispatch according to the matrix dimension */
+
+  double deter = 0.;
+  switch (neq)
+  {
+    case 1:
+      deter = getValue(0, 0);
+      break;
+
+    case 2:
+      deter = (getValue(0, 0) * getValue(1, 1)
+               - getValue(1, 0) * getValue(0, 1));
+      break;
+
+    case 3:
+      deter = (getValue(0, 0) * getValue(1, 1) * getValue(2, 2)
+               + getValue(0, 1) * getValue(1, 2) * getValue(2, 0)
+               + getValue(1, 0) * getValue(2, 1) * getValue(0, 2)
+               - getValue(2, 0) * getValue(1, 1) * getValue(0, 2)
+               - getValue(1, 0) * getValue(0, 1) * getValue(2, 2)
+               - getValue(2, 1) * getValue(1, 2) * getValue(0, 0));
+      break;
+
+    default:
+
+      int neqm1 = neq - 1;
+      AMatrixSquare* c = MatrixFactory::createMatrixSquare(this,neqm1);
+
+      for (int j1 = 0; j1 < neq; j1++)
+      {
+        for (int i = 1; i < neq; i++)
+        {
+          int j2 = 0;
+          for (int j = 0; j < neq; j++)
+          {
+            if (j == j1) continue;
+            c->setValue(i - 1, j2, getValue(i, j));
+            j2++;
+          }
+        }
+        deter += pow(-1.0, j1 + 2.0) * getValue(0, j1)
+                 * c->_determinant();
+      }
+      break;
+  }
+
+  return(deter);
 }

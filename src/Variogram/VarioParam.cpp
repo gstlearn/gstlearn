@@ -115,7 +115,7 @@ String VarioParam::toString(int level) const
   return sstr.str();
 }
 
-String VarioParam::toStringMain(int level) const
+String VarioParam::toStringMain(int /*level*/) const
 {
   std::stringstream sstr;
   int ndir = getDirectionNumber();

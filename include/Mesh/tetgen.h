@@ -2279,7 +2279,7 @@ void tetrahedralize(const char *switches, tetgenio *in, tetgenio *out,
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-inline void terminatetetgen(tetgenmesh *m, int x)
+inline void terminatetetgen(tetgenmesh* /*m*/, int x)
 {
 #ifdef TETLIBRARY
   throw x;

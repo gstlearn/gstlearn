@@ -59,13 +59,11 @@ GibbsMulti::~GibbsMulti()
 ** \param[in]  y             Gaussian vector
 ** \param[in]  isimu         Rank of the simulation
 ** \param[in]  ipgs          Rank of the GS
-** \param[in]  verbose       Verbose flag
 **
 *****************************************************************************/
 int GibbsMulti::calculInitialize(VectorVectorDouble& y,
-                             int isimu,
-                             int ipgs,
-                             bool verbose)
+                                 int isimu,
+                                 int ipgs)
 {
   const Model* model = getModel();
   int nact = getSampleRankNumber();
@@ -123,7 +121,7 @@ double GibbsMulti::getSimulate(VectorVectorDouble& y,
   // Define the environment
 
   int icase = getRank(ipgs, ivar);
-  int iech = getSampleRank(iact);
+  int iech  = getSampleRank(iact);
 
   // Read the Bounds
 

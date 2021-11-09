@@ -34,14 +34,13 @@ int main(int argc, char *argv[])
   Neigh     *neigh;
   Rule      *rule[2];
   Option_VarioFit options;
-  double  delta,total;
+  double  total;
   int     i,j,lec,nbsimu,seed,nbtuba,npgs,ntot,nfac[2];
   int     flag_vario,flag_grid,iatt_z,iatt_ind,ifac,nclass;
   VectorDouble props;
   RuleProp ruleprop;
   static int    niter   = 100;
   static int    nboot   = 10;
-  static double toleps  = 1.;
   static int    verbose = 1;
 
   /* Initializations */
@@ -182,21 +181,18 @@ int main(int argc, char *argv[])
 
   if (flag_grid)
   {
-    delta = dbout->getDX(0);
     if (npgs == 1)
     {
       ruleprop = RuleProp(rule[0],props);
       if (simpgs(dbin,dbout,&ruleprop,model[0][0],model[0][1],
-                 neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1,toleps,
-                 delta)) goto label_end;
+                 neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
     else
     {
       ruleprop = RuleProp(rule[0],rule[1],props);
       if (simbipgs(dbin,dbout,&ruleprop,
                    model[0][0],model[0][1],model[1][0],model[1][1],
-                   neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1,toleps))
-        goto label_end;
+                   neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
     if (verbose) db_print(dbout,1,0,1,1,1);
   }

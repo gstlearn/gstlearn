@@ -217,7 +217,7 @@ Neigh::~Neigh()
 {
 }
 
-String Neigh::toString(int level) const
+String Neigh::toString(int /*level*/) const
 {
   std::stringstream sstr;
 

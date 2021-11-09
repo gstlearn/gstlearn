@@ -160,7 +160,7 @@ int MatrixRectangular::_invert()
   return 0;
 }
 
-int MatrixRectangular::_solve(const VectorDouble& b, VectorDouble& x) const
+int MatrixRectangular::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) const
 {
   my_throw("Invert method is limited to Square Symmetrical Matrices");
   return 0;

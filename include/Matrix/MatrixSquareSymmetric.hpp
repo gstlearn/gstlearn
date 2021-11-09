@@ -15,6 +15,8 @@
 #include "Basic/Vector.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 
+class AMatrix;
+
 /**
  * Square Symmetric matrices are stored as Lower Triangular matrices stored by column
  */
@@ -42,7 +44,7 @@ public:
   /// TODO : isPositiveDefinite
 
   /// Is the matrix symmetrical ?
-  bool isSymmetric(bool printWhyNot = false) const override { return true; }
+  bool isSymmetric(bool /*printWhyNot*/ = false) const override { return true; }
 
   void initMatTri(int nsize,double* tab);
 
@@ -51,7 +53,11 @@ protected:
   virtual double& _getValueRef(int irow, int icol) override;
 
 private:
-  bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSymmetric()); }
+  bool _isCompatible(const AMatrix& m) const override
+  {
+    return (isSameSize(m) && isSymmetric());
+  }
+  bool   _isPhysicallyPresent(int irow, int icol) const override;
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int irow, int icol, double value) override;
@@ -64,7 +70,6 @@ private:
   void   _prodVector(const double *in,double *out) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
-  double _determinant() const override;
 
   void   _recopy(const MatrixSquareSymmetric &r);
   int    _getIndexToRank(int irow,int icol) const;

@@ -235,7 +235,6 @@ GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
       else
         COVTAB(ivar,jvar) += value;
     }
-
   return;
 }
 

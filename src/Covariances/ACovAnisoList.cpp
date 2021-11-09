@@ -169,7 +169,7 @@ double ACovAnisoList::eval(int ivar,
   return cov;
 }
 
-String ACovAnisoList::toString(int level) const
+String ACovAnisoList::toString(int /*level*/) const
 {
   std::stringstream sstr;
   for (const auto& cov : _covs)
@@ -301,7 +301,7 @@ MatrixSquareGeneral ACovAnisoList::getTotalSill() const
 
 bool ACovAnisoList::_isCovarianceIndexValid(unsigned int i) const
 {
-  if (i < 0 || i >= (unsigned int) getCovNumber())
+  if (i >= (unsigned int) getCovNumber())
   {
     mesArg("Covariance Index",i,getCovNumber());
     return false;

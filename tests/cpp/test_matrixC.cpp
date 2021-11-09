@@ -43,7 +43,7 @@ void reset_to_initial_contents(AMatrix* M,
 ** Main Program for testing the new classes of matrix algebra
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   VectorDouble V1,V2,V3,Vref;
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   MSS.addScalarDiag(addendum);
   printf("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->addScalarDiag(addendum);
-  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+//  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.addScalarDiag(addendum);
   MSC.addScalarDiag(addendum);
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
   MSS.prodScalar(multiply);
   printf("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->prodScalar(multiply);
-  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+//  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.prodScalar(multiply);
   MSC.prodScalar(multiply);
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
   MSS.linearCombination(cx,cy,MSS);
   printf("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->linearCombination(cx,cy,*MSP);
-  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+//  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.linearCombination(cx,cy,MSD);
   MSC.linearCombination(cx,cy,MSC);

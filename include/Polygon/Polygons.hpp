@@ -26,8 +26,7 @@ public:
            const CSVformat& csv,
            int verbose = false,
            int ncol_max = -1,
-           int nrow_max = -1,
-           int flag_add_rank = 1);
+           int nrow_max = -1);
   Polygons(const String& neutralFilename, bool verbose = false);
   Polygons(const Db* db);
   Polygons(const Polygons& r);

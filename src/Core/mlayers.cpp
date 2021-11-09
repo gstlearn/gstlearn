@@ -1332,8 +1332,6 @@ static void st_estimate_regular(LMlayers *lmlayers,
 ** \param[in]  zval      Data vector
 ** \param[in]  b         Working vector (Dimension = neq)
 ** \param[in]  wgt       Working array (Dimension = neq)
-** \param[out] fftab      Working array for drift
-** \param[out] prior_mean Array of prior mean
 ** \param[out] post_mean  Array of posterior mean
 ** \param[out] a0         Constant term
 ** \param[out] cc         Output value
@@ -1351,8 +1349,6 @@ static void st_estimate_bayes(LMlayers *lmlayers,
                               double *zval,
                               double *b,
                               double *wgt,
-                              double *fftab,
-                              double *prior_mean,
                               double *post_mean,
                               double *a0,
                               double *cc,
@@ -1445,35 +1441,33 @@ static void st_estimate_bayes(LMlayers *lmlayers,
 ** \param[out] gs         Output value
 ** \param[out] prior_mean Array of prior mean
 ** \param[out] post_mean  Array of posterior mean
-** \param[out] post_S     Array of posterior standard deviations
 **
 *****************************************************************************/
 static void st_estimate(LMlayers *lmlayers,
-                        Db       *dbin,
-                        Db       *dbout,
-                        Model    *model,
-                        int      *seltab,
-                        int       flag_bayes,
-                        int       flag_std,
-                        double   *a,
-                        double   *zval,
-                        double   *dual,
-                        double   *prop1,
-                        double   *prop2,
-                        double   *covtab,
-                        double   *b,
-                        double   *b2,
-                        double   *baux,
-                        double   *wgt,
-                        double   *c00,
-                        double   *fftab,
-                        double   *a0,
-                        double   *cc,
-                        double   *ss,
-                        double   *gs,
-                        double   *prior_mean,
-                        double   *post_mean,
-                        double   *post_S)
+                        Db *dbin,
+                        Db *dbout,
+                        Model *model,
+                        int *seltab,
+                        int flag_bayes,
+                        int flag_std,
+                        double *a,
+                        double *zval,
+                        double *dual,
+                        double *prop1,
+                        double *prop2,
+                        double *covtab,
+                        double *b,
+                        double *b2,
+                        double *baux,
+                        double *wgt,
+                        double *c00,
+                        double *fftab,
+                        double *a0,
+                        double *cc,
+                        double *ss,
+                        double *gs,
+                        double *prior_mean,
+                        double *post_mean)
 {
   double estim,cx,coor[2],coefb,botval,ratio,stdv;
   int    iechout,ilayer,flag_correc,nlayers,neq;
@@ -1545,8 +1539,8 @@ static void st_estimate(LMlayers *lmlayers,
       /* Perform estimation */
 
       if (flag_bayes)
-        st_estimate_bayes(lmlayers,flag_std,c00[ilayer],a,zval,b,wgt,fftab,
-                          prior_mean,post_mean,a0,cc,ss,gs,&estim,&stdv);
+        st_estimate_bayes(lmlayers,flag_std,c00[ilayer],a,zval,b,wgt,
+                          post_mean,a0,cc,ss,gs,&estim,&stdv);
       else
         st_estimate_regular(lmlayers,flag_std,c00[ilayer],a,b,dual,wgt,
                             &estim,&stdv);
@@ -2218,7 +2212,7 @@ GEOSLIB_API int multilayers_kriging(Db     *dbin,
 
   st_estimate(lmlayers,dbin,dbout,model,seltab,flag_bayes,flag_std,
               a,zval,dual,prop1,prop2,covtab,b,b2,baux,wgt,c00,
-              fftab,a0,cc,ss,gs,prior_mean,post_mean,post_S);
+              fftab,a0,cc,ss,gs,prior_mean,post_mean);
 
   /* Reconstitute the surfaces (optional) */
 
@@ -2277,7 +2271,6 @@ label_end:
 ** \param[out] phib       Working array for proportions (Dimension: nlayers)
 ** \param[out] atab       Working array (Dimension: nhalf * nhalf)
 ** \param[out] btab       Working array (Dimension: nhalf)
-** \param[out] sill       Resulting array (Dimension: nhalf)
 **
 *****************************************************************************/
 static int st_evaluate_lag(LMlayers *lmlayers,
@@ -2294,8 +2287,7 @@ static int st_evaluate_lag(LMlayers *lmlayers,
                            double *phia,
                            double *phib,
                            double *atab,
-                           double *btab,
-                           double *sill)
+                           double *btab)
 {
   int    iech,jech,iiech,jjech,ilayer,jlayer,ecr1,ecr2,nhalf;
   double z1,z2,dist,fact1,fact2;
@@ -2419,7 +2411,7 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
     
     if (st_evaluate_lag(lmlayers,dbin,dbout,vorder,nlayers,
                         ifirst,ilast,zval,&nval,&distsum,
-                        stat,phia,phib,atab,btab,sill)) goto label_end;
+                        stat,phia,phib,atab,btab)) goto label_end;
 
     if (debug_query("variogram"))
     {
@@ -2436,7 +2428,7 @@ static int st_varioexp_chh(LMlayers    *lmlayers,
         /* Matrix must be evaluated (as it has been destroyed by inversion) */
         (void) st_evaluate_lag(lmlayers,dbin,dbout,vorder,nlayers,
                                ifirst,ilast,zval,&nval,&distsum,
-                               stat,phia,phib,atab,btab,sill);
+                               stat,phia,phib,atab,btab);
         messerr("Number of pairs  = %d",nval);
         messerr("Average distance = %lf",distsum);
         print_imatrix("Number of samples per layer",0,1,nlayers,nlayers,

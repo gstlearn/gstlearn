@@ -87,7 +87,7 @@ VectorDouble ACovFunc::evalCovDerivativeVec(int degree,
     vec.push_back(evalCovDerivative(degree, i));
   return vec;
 }
-String ACovFunc::toString(int level) const
+String ACovFunc::toString(int /*level*/) const
 {
   std::stringstream sstr;
   sstr << getCovName();
@@ -125,7 +125,7 @@ bool ACovFunc::hasInt2D() const
   * @param h Normalized distance
   * @return
   */
-double ACovFunc::_evaluateCovDerivate(int degree, double h) const
+double ACovFunc::_evaluateCovDerivate(int /*degree*/, double /*h*/) const
 {
   my_throw("Undefined derivative for this covariance");
   return 0.;

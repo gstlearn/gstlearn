@@ -1134,13 +1134,11 @@ static void st_simfft_symmetry(ST_FFT *simu)
 **  Perform a non-conditional simulation on the grid
 **
 ** \param[in]  db    Db structure
-** \param[in]  model Model structure
 ** \param[in]  simu  ST_FFT structure
 ** \param[in]  iad   address for writing the simulation
 **
 *****************************************************************************/
 static void st_simfft_final(Db     *db,
-                            Model  *model,
                             ST_FFT *simu,
                             int     iad)
 {
@@ -1225,7 +1223,7 @@ GEOSLIB_API int simfft_f(Db    *db,
 
     /* Perform the simulation */
 
-    st_simfft_final(db,model,&simu,iptr+isimu);
+    st_simfft_final(db,&simu,iptr+isimu);
   }
 
   /* Set the error code */

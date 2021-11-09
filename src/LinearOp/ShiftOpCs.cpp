@@ -32,7 +32,7 @@ ShiftOpCs::ShiftOpCs()
       _nModelGradParam(0),
       _SGrad(),
       _LambdaGrad(),
-      _flagGradByHH(false),
+      _flagNoStatByHH(false),
       _model(nullptr),
       _igrf(0),
       _icov(0),
@@ -53,7 +53,7 @@ ShiftOpCs::ShiftOpCs(AMesh* amesh,
       _nModelGradParam(0),
       _SGrad(),
       _LambdaGrad(),
-      _flagGradByHH(false),
+      _flagNoStatByHH(false),
       _model(model),
       _igrf(0),
       _icov(0),
@@ -74,7 +74,7 @@ ShiftOpCs::ShiftOpCs(const cs* S,
       _nModelGradParam(0),
       _SGrad(),
       _LambdaGrad(),
-      _flagGradByHH(false),
+      _flagNoStatByHH(false),
       _model(model),
       _igrf(0),
       _icov(0),
@@ -91,7 +91,7 @@ ShiftOpCs::ShiftOpCs(const ShiftOpCs &shift)
       _nModelGradParam(0),
       _SGrad(),
       _LambdaGrad(),
-      _flagGradByHH(false),
+      _flagNoStatByHH(false),
       _model(nullptr),
       _igrf(0),
       _icov(0),
@@ -218,6 +218,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
   try
   {
     if (verbose) message(">>> Using the new calculation module <<<\n");
+    _ndim = amesh->getNDim();
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
@@ -233,6 +234,9 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
 
     // Calculating and storing the mesh sizes
     VectorDouble units = amesh->getMeshSizes();
+
+    // Define if parametrization is in HH or in range/angle
+    _determineFlagNoStatByHH();
 
     // Attach the Model
     if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
@@ -275,8 +279,6 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
 
     if (! flagAdvection)
       cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
-
-    _ndim = amesh->getNDim();
   }
 
   catch (const char * str)
@@ -503,7 +505,8 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& in,
  *****************************************************************************/
 void ShiftOpCs::_evalDirect(const VectorDouble& x, VectorDouble& y) const
 {
-  cs_vecmult(_S, x.data(), y.data());
+  int n = (int) x.size();
+  cs_vecmult(_S, n, x.data(), y.data());
 }
 
 void ShiftOpCs::_resetGrad()
@@ -530,7 +533,7 @@ void ShiftOpCs::_reallocate(const ShiftOpCs& shift)
   for (int i = 0; i < (int) _LambdaGrad.size(); i++)
     _LambdaGrad[i] = shift._LambdaGrad[i];
 
-  _flagGradByHH = shift._flagGradByHH;
+  _flagNoStatByHH = shift._flagNoStatByHH;
   _model = shift._model;
   _igrf = shift._igrf;
   _icov = shift._icov;
@@ -573,27 +576,33 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
   }
 
   // Anisotropy coefficients
-  for (int idim = 0; idim < ndim; idim++)
+  if (nostat->isDefinedforRotation(igrf, icov))
   {
-    if (nostat->isDefined(igrf, icov, EConsElem::RANGE, idim, -1))
+    for (int idim = 0; idim < ndim; idim++)
     {
-      double range = nostat->getValue(igrf, icov, EConsElem::RANGE, idim, -1, 0, ip);
-      cova->setRange(idim, range);
+      if (nostat->isDefined(igrf, icov, EConsElem::RANGE, idim, -1))
+      {
+        double range = nostat->getValue(igrf, icov, EConsElem::RANGE, idim, -1,
+                                        0, ip);
+        cova->setRange(idim, range);
+      }
+      if (nostat->isDefined(igrf, icov, EConsElem::SCALE, idim, -1))
+      {
+        double scale = nostat->getValue(igrf, icov, EConsElem::SCALE, idim, -1,
+                                        0, ip);
+        cova->setScale(idim, scale);
+      }
     }
-    if (nostat->isDefined(igrf, icov, EConsElem::SCALE, idim, -1))
-    {
-      double scale = nostat->getValue(igrf, icov, EConsElem::SCALE, idim, -1, 0, ip);
-      cova->setScale(idim, scale);
-    }
-  }
 
- // Anisotropy Rotation
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    if (nostat->isDefined(igrf, icov, EConsElem::ANGLE, idim, -1))
+    // Anisotropy Rotation
+    for (int idim = 0; idim < ndim; idim++)
     {
-      double anisoAngle = nostat->getValue(igrf, icov, EConsElem::ANGLE, idim, -1, 0, ip);
-      cova->setAnisoAngle(idim, anisoAngle);
+      if (nostat->isDefined(igrf, icov, EConsElem::ANGLE, idim, -1))
+      {
+        double anisoAngle = nostat->getValue(igrf, icov, EConsElem::ANGLE, idim,
+                                             -1, 0, ip);
+        cova->setAnisoAngle(idim, anisoAngle);
+      }
     }
   }
 }
@@ -601,7 +610,8 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
 void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int ip)
 {
   // Initializations
-  if (_isNoStatByHH()) return;
+  if (! _isNoStat()) return;
+  if (! _flagNoStatByHH) return;
   int igrf = _getIgrf();
   int icov = _getIcov();
   int ndim = getNDim();
@@ -631,18 +641,22 @@ void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
   const CovAniso* covini = _getCova();
   CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
 
-  // Locally update the covariance for non-stationarity (if necessary)
-  _updateCova(cova, ip);
+  if (_flagNoStatByHH)
+  {
+    _updateHH(hh, ip);
+  }
+  else
+  {
+    // Locally update the covariance for non-stationarity (if necessary)
+    _updateCova(cova, ip);
 
-  // Calculate the current HH matrix (using local covariance parameters)
-  const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
-  VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
-  MatrixSquareSymmetric temp(ndim);
-  temp.setDiagonal(diag);
-  hh.normMatrix(temp, rotmat);
-
-  // Patch the HH directly (if necessary)
-  _updateHH(hh, ip);
+    // Calculate the current HH matrix (using local covariance parameters)
+    const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
+    VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
+    MatrixSquareSymmetric temp(ndim);
+    temp.setDiagonal(diag);
+    hh.normMatrix(temp, rotmat);
+  }
 }
 
 /**
@@ -660,36 +674,33 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
                                   int igparam,
                                   int ip)
 {
-  const CovAniso* covini = _getCova();
-  CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
   int ndim = getNDim();
 
-  // Locally update the covariance for non-stationarity (if necessary)
-  _updateCova(cova, ip);
-
-  const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
-  VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
-
-  // Derivation
-
-  if (_flagGradByHH)
+  if (_flagNoStatByHH)
   {
-
     // Case where the derivation must be performed on the HH terms
 
     hh.fill(0.);
     int ecr = 0;
     for (int idim = 0; idim < ndim; idim++)
-      for (int jdim = 0; jdim < ndim; jdim++)
+      for (int jdim = idim; jdim < ndim; jdim++)
       {
-        if (ecr != igparam) continue;
-        hh.setValue(idim, jdim, 1.);
+        if (ecr == igparam) hh.setValue(idim, jdim, 1.);
+        ecr++;
       }
   }
   else
   {
-
     // Case where the derivation is performed on ranges and angles
+
+    const CovAniso* covini = _getCova();
+    CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
+
+    const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
+    VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
+
+    // Locally update the covariance for non-stationarity (if necessary)
+    _updateCova(cova, ip);
 
     MatrixSquareSymmetric temp(ndim);
     if (igparam < ndim)
@@ -731,6 +742,12 @@ void ShiftOpCs::_loadAux(VectorDouble& tab,
     }
 }
 
+/**
+ * Constitue HH (only in non-stationary case)
+ * @param hh   Returned HH symmetric matrix
+ * @param amesh Pointer to the meshing
+ * @param imesh Rank of the mesh
+ */
 void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
                                AMesh* amesh,
                                int imesh)
@@ -757,13 +774,11 @@ void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
  * @param amesh   Meshing structure
  * @param igp0    Rank of the Apex for derivation (between 0 to nApices-1)
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
- * @param imesh   Rank of the current mesh
  */
 void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                                    AMesh* amesh,
                                    int igp0,
-                                   int igparam,
-                                   int imesh)
+                                   int igparam)
 {
   int number = amesh->getNApexPerMesh();
   hh.fill(0.);
@@ -907,7 +922,7 @@ int ShiftOpCs::_buildSGrad(AMesh *amesh,
           {
             int ip0 = amesh->getApex(imesh, j0);
             int ip1 = amesh->getApex(imesh, j1);
-            _loadHHGradPerMesh(hh, amesh, igp0, igparam, imesh);
+            _loadHHGradPerMesh(hh, amesh, igp0, igparam);
             mat.normMatrix(hh, matw);
 
             double vald = mat.getValue(j0, j1) * meshSize;
@@ -984,7 +999,7 @@ int ShiftOpCs::_buildS(AMesh *amesh,
 
   // Define the global HH matrix
 
-  if (!_isNoStat())
+  if (! _isNoStat())
     _loadHHByApex(hh, 0);
 
   /* Loop on the meshes */
@@ -1138,7 +1153,7 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
 
   // Define the global HH matrix
 
-  if (!_isNoStat())
+  if (! _isNoStat())
   {
     _loadHHByApex(hh, 0);
     _loadAux(srot, EConsElem::SPHEROT, 0);
@@ -1294,7 +1309,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
   if (!_isNoStat())
   {
     _loadHHByApex(hh, 0);
-    sqdeth = sqrt(matrix_determinant(ndim, hh.getValues().data()));
+    sqdeth = sqrt(hh.determinant());
   }
 
   /* Fill the array */
@@ -1310,7 +1325,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
       if (nostat->isDefinedforAnisotropy(igrf, icov))
       {
         _loadHHByApex(hh, ip);
-        sqdeth = sqrt(matrix_determinant(ndim, hh.getValues().data()));
+        sqdeth = sqrt(hh.determinant());
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SILL, -1, -1))
         sill = nostat->getValue(igrf, icov, EConsElem::SILL, -1, -1, 0, ip);
@@ -1333,20 +1348,54 @@ bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
 
   /* Core allocation */
 
-  _LambdaGrad.clear();
-  VectorDouble temp(nvertex);
-  for(int i = 0; i< ndim; i++)
-    _LambdaGrad.push_back(temp);
+  int number = getLambdaGradSize();
+  if (_LambdaGrad.empty())
+  {
+    _LambdaGrad.clear();
+    VectorDouble temp(nvertex);
+    for(int i = 0; i< number; i++)
+      _LambdaGrad.push_back(temp);
+  }
 
   /* Fill the array */
-  for (int ip = 0; ip < nvertex; ip++)
-  {
-    // Locally update the covariance for non-stationarity (if necessary)
-    _updateCova(cova, ip);
 
-    for(int idim = 0;idim < ndim ;idim++)
+  if (_flagNoStatByHH)
+  {
+
+    // Filling by HH
+
+    MatrixSquareSymmetric hh(ndim);
+    for (int ip = 0; ip < nvertex; ip++)
     {
-      _LambdaGrad[idim][ip] = - _Lambda[ip] / (2. * cova->getScale(idim));
+      // Update HH locally
+      _updateHH(hh, ip);
+      hh.invert();
+
+      int ecr = 0;
+      for(int idim = 0; idim < ndim; idim++)
+      {
+        for(int jdim = 0; jdim <= idim; jdim++, ecr++)
+        {
+          double ratio = (idim == jdim)? 1./4. : 1./2.;
+          _LambdaGrad[ecr][ip] = - _Lambda[ip] * hh.getValue(idim,jdim) * ratio ;
+        }
+      }
+    }
+  }
+  else
+  {
+
+    // Filling by range / angle
+
+    for (int ip = 0; ip < nvertex; ip++)
+    {
+      // Locally update the covariance for non-stationarity (if necessary)
+      _updateCova(cova, ip);
+
+      for (int idim = 0; idim < number; idim++)
+      {
+        _LambdaGrad[idim][ip] = -_Lambda[ip] / (2. * cova->getScale(idim));
+      }
     }
   }
   return false;
@@ -1453,16 +1502,6 @@ bool ShiftOpCs::_isNoStat()
   return model->isNoStat();
 }
 
-bool ShiftOpCs::_isNoStatByHH()
-{
-  Model* model = _getModel();
-  int igrf = _getIgrf();
-  int icov = _getIcov();
-  const ANoStat* nostat = _getModel()->getNoStat();
-  if (! model->isNoStat()) return false;
-  return nostat->isDefined(igrf, icov, EConsElem::PARAM, -1, -1);
-}
-
 bool ShiftOpCs::_isVelocity()
 {
   if (! _isNoStat()) return false;
@@ -1470,4 +1509,22 @@ bool ShiftOpCs::_isVelocity()
   int igrf = _getIgrf();
   int icov = _getIcov();
   return nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1);
+}
+
+int ShiftOpCs::getLambdaGradSize() const
+{
+  if (_flagNoStatByHH)
+    return _nModelGradParam;
+  else
+    return _ndim;
+}
+
+void ShiftOpCs::_determineFlagNoStatByHH()
+{
+  _flagNoStatByHH = false;
+  if (! _isNoStat()) return;
+
+  int igrf = _getIgrf();
+  const ANoStat* nostat = _getModel()->getNoStat();
+  _flagNoStatByHH = nostat->isDefinedByType(igrf, EConsElem::TENSOR);
 }

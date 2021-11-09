@@ -45,6 +45,7 @@ void ut_vector_copy(VectorDouble& vec1, const VectorDouble& vec2);
 void ut_vector_multiply_inplace(VectorDouble& vec, double v);
 void ut_vector_divide_inplace(VectorDouble& vec, double v);
 void ut_vector_addval(VectorDouble& vec, double v);
+void ut_vector_sum(const VectorDouble& vec1,const VectorDouble& vec2,VectorDouble& res );
 void ut_ivector_addval(VectorInt& vec, int v);
 void ut_vector_divide_vec(VectorDouble& vec, const VectorDouble& v);
 int  ut_vector_count_undefined(const VectorDouble& vec);

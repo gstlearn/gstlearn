@@ -122,7 +122,7 @@ Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_fac
   return;
 }
 
-Node::Node(bool flagShadow)
+Node::Node(bool /*flagShadow*/)
     : _nodnam("S1"),
       _r1(nullptr),
       _r2(nullptr),
@@ -422,7 +422,7 @@ void Node::scaleProp(double scale)
   return;
 }
 
-String Node::toString(int level) const
+String Node::toString(int /*level*/) const
 {
   std::stringstream sstr;
   sstr << nodePrint(false, false);

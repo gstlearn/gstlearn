@@ -30,7 +30,7 @@ ANoStat::ANoStat(const VectorString& codes)
     _dbin(nullptr),
     _dbout(nullptr)
 {
-  addNoStatElems(codes);
+  (void) addNoStatElems(codes);
 }
 
 ANoStat::ANoStat(const ANoStat &m)
@@ -139,6 +139,7 @@ bool ANoStat::isDefined(int igrf,
 
 /**
  * Look if a Non-stationary parameter for Anisotropy is defined
+ * either by Tensor or by (angle/range/scale)
  * @param igrf Rank of Target GRF (or -1 for any)
  * @param icov Rank of the Target Covariance (or -1 for any)
  * @return
@@ -154,6 +155,27 @@ bool ANoStat::isDefinedforAnisotropy(int igrf, int icov) const
         getType(ipar) == EConsElem::RANGE ||
         getType(ipar) == EConsElem::SCALE ||
         getType(ipar) == EConsElem::TENSOR) return true;
+  }
+  return false;
+}
+
+/**
+ * Look if a Non-stationary parameter for Anisotropy is defined
+ * only by angle / range / scale
+ * @param igrf Rank of Target GRF (or -1 for any)
+ * @param icov Rank of the Target Covariance (or -1 for any)
+ * @return
+ */
+bool ANoStat::isDefinedforRotation(int igrf, int icov) const
+{
+  if (_items.empty()) return false;
+  for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
+  {
+    if (! matchIGrf(ipar,igrf)) continue;
+    if (! matchICov(ipar,icov)) continue;
+    if (getType(ipar) == EConsElem::ANGLE ||
+        getType(ipar) == EConsElem::RANGE ||
+        getType(ipar) == EConsElem::SCALE) return true;
   }
   return false;
 }
@@ -189,28 +211,47 @@ int ANoStat::getRank(int igrf, int icov, const EConsElem& type, int iv1, int iv2
  * @param iv1  Rank of the first designation
  * @param iv2  Rank of the second designation
  */
-void ANoStat::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2)
+int ANoStat::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2)
 {
   int nelem = static_cast<int> (_items.size());
   _items.resize(nelem+1);
   _items[nelem].init(EConsType::DEFAULT, igrf, icov, type, iv1, iv2, TEST);
+  if (! _checkConsistency())
+  {
+    deleteNoStatElem(nelem);
+    return 1;
+  }
+  return 0;
 }
 
-void ANoStat::addNoStatElem(const ConsItem& item)
+int ANoStat::addNoStatElem(const ConsItem& item)
 {
-  addNoStatElem(item.getIGrf(),item.getICov(),item.getType(),item.getIV1(),item.getIV2());
+  return addNoStatElem(item.getIGrf(), item.getICov(), item.getType(),
+                       item.getIV1(), item.getIV2());
 }
 
-void ANoStat::addNoStatElems(const VectorString &codes)
+int ANoStat::addNoStatElems(const VectorString &codes)
 {
   int igrf, icov, iv1, iv2;
   EConsElem type;
 
+  int nerr = 0;
   for (int i = 0; i < (int) codes.size(); i++)
   {
     if (_understandCode(codes[i], &igrf, &icov, &type, &iv1, &iv2)) continue;
-    addNoStatElem(igrf, icov, type, iv1, iv2);
+    nerr += addNoStatElem(igrf, icov, type, iv1, iv2);
   }
+  return (nerr > 0);
+}
+
+void ANoStat::deleteNoStatElem(int ipar)
+{
+  _items.erase(_items.begin() + ipar);
+}
+
+void ANoStat::deleteNoStatElem()
+{
+  _items.clear();
 }
 
 /**
@@ -219,7 +260,7 @@ void ANoStat::addNoStatElems(const VectorString &codes)
  * @param model Model structure
  * @return Error return code
  */
-const int ANoStat::attachModel(const Model* model)
+int ANoStat::attachModel(const Model* model)
 {
   if (model == nullptr)
   {
@@ -398,7 +439,7 @@ void ANoStat::_updateFromModel(const Model* model)
   for (int ipar = 0; ipar < nelemFromModel; ipar++)
   {
     ConsItem item = model->getConsItem(ipar);
-    addNoStatElem(item);
+    (void) addNoStatElem(item);
   }
 }
 
@@ -686,4 +727,36 @@ void ANoStat::detachFromDb(Db* db, int icas) const
     setDbin(nullptr);
   else
     setDbout(nullptr);
+}
+
+/**
+ * This function is meant to check the consistency of the different
+ * non-stationary parameters, i.e:
+ * - HH is incompatible with (angle / range/ scale)
+ * @return
+ */
+bool ANoStat::_checkConsistency() const
+{
+  bool flagHH  = false;
+  bool flagRot = false;
+  int nitem = getNoStatElemNumber();
+
+  for (int ipar = 0; ipar < nitem; ipar++)
+  {
+    flagHH = flagHH   ||
+        matchType(ipar, EConsElem::TENSOR);
+    flagRot = flagRot ||
+        matchType(ipar, EConsElem::ANGLE) ||
+        matchType(ipar, EConsElem::RANGE) ||
+        matchType(ipar, EConsElem::SCALE);
+  }
+  if (flagHH && flagRot)
+  {
+    messerr("Error in the definition of Model Non-stationarity");
+    messerr("You cannot mix the following two parameterizations:");
+    messerr("- in Tensor using HH");
+    messerr("- in rotation matrix using Angle / [Scale | Range]");
+    return false;
+  }
+  return true;
 }

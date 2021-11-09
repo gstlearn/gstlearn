@@ -587,7 +587,6 @@ static double matrix_UAV(int     ndim,
 **
 ** \param[in] rhs      Vector to be filled
 ** \param[in] nequa    Number of equations
-** \param[in] nsol     Number of R.H.S.
 ** \param[in] i        Row number
 ** \param[in] isol     Column number
 ** \param[in] value    Value to be assigned to this cell
@@ -595,7 +594,6 @@ static double matrix_UAV(int     ndim,
 *****************************************************************************/
 static void set_rhs(double *rhs,
                     int     nequa,
-                    int     nsol,
                     int     i,
                     int     isol,
                     double  value)
@@ -657,25 +655,19 @@ static double get_lhs(double *lhs,
 /*!
 **  Calculate the covariance and the derivatives
 **
-** \param[in] model     Model structure
-** \param[in] flag_grad 1 if the Gradient must be taken into account
 ** \param[in] dx        Increment along X
 ** \param[in] dy        Increment along Y
 ** \param[in] dz        Increment along Z
 **
-** \param[out] covar    Covariance of the variable
-** \param[out] covGp    Covariance bet`<ween variable and gradient
-** \param[out] covGG    Covariance between gradient and gradient
-**
 *****************************************************************************/
-static void st_cov(Model *model,
-                   int    flag_grad,
+static void st_cov(Model* /*model*/,
+                   int    /*flag_grad*/,
                    double dx,
                    double dy,
                    double dz,
-                   double *covar,
-                   double *covGp,
-                   double *covGG)
+                   double* /*covar*/,
+                   double* /*covGp*/,
+                   double* /*covGG*/)
 {
   VectorDouble vec(3);
   vec[0] = dx;
@@ -857,17 +849,11 @@ label_end:
 /*!
 **  Returns the coordinates of the point used for centering the drift functions
 **
-** \param[in]  dbiso   Db containing the iso-values
-**
 ** \param[out] center  Coordinates of the centering point
 **
 *****************************************************************************/
-static void st_get_center(Db      *dbiso,
-                          double  *center)
+static void st_get_center(double *center)
 {
-  //  if (dbiso != nullptr) 
-  //    db_center(dbiso,center);
-  //  else
   for (int idim=0; idim<3; idim++) center[idim] = 0.;
 }
 
@@ -944,7 +930,7 @@ static int st_build_lhs(Pot_Env *pot_env,
   ndim  = pot_env->ndim;
   nequa = pot_env->nequa;
   for (int i=0; i<nequa * nequa; i++) lhs[i] = 0.;
-  st_get_center(dbiso,center);
+  st_get_center(center);
 
   /******************************/
   /* PART RELATIVE TO GRADIENTS */
@@ -1438,14 +1424,13 @@ static void st_rhs_part(Pot_Env *pot_env,
                         int      flag_part,
                         double  *rhs)
 {
-  int nequa,nsol,ideb,ifin;
+  int nequa,ideb,ifin;
 
   /* Initializations */
 
   nequa = pot_env->nequa;
-  nsol = (flag_grad) ? 1 + pot_env->ndim : 1;
-  ideb = 0;
-  ifin = nequa;
+  ideb  = 0;
+  ifin  = nequa;
   if (flag_part == 0) return;
 
   /* Dispatch */
@@ -1483,10 +1468,10 @@ static void st_rhs_part(Pot_Env *pot_env,
   for (int i=0; i<nequa; i++)
   {
     if (i >= ideb && i < ifin) continue;
-    set_rhs(rhs,nequa,nsol,i,0,0.);
+    set_rhs(rhs,nequa,i,0,0.);
     if (flag_grad)
       for (int igrad=1; igrad<4; igrad++)
-        set_rhs(rhs,nequa,nsol,i,igrad,0.);
+        set_rhs(rhs,nequa,i,igrad,0.);
   }
   return;
 }
@@ -1544,7 +1529,7 @@ static void st_build_rhs(Pot_Env *pot_env,
   nequa = pot_env->nequa;
   nsol  = (flag_grad) ? 1 + pot_env->ndim : 1;
   for (int i=0; i<nequa * nsol; i++) rhs[i] = 0.;
-  st_get_center(dbiso,center);
+  st_get_center(center);
   
   /*******************/
   /* Covariance part */
@@ -1559,20 +1544,20 @@ static void st_build_rhs(Pot_Env *pot_env,
            GRD_COO(ig,1) - coor[1],
            GRD_COO(ig,2) - coor[2],
            &covar, covGp, covGG);
-    set_rhs(rhs,nequa,nsol,GRX(ig),0,covGp[0]);
-    set_rhs(rhs,nequa,nsol,GRY(ig),0,covGp[1]);
-    set_rhs(rhs,nequa,nsol,GRZ(ig),0,covGp[2]);
+    set_rhs(rhs,nequa,GRX(ig),0,covGp[0]);
+    set_rhs(rhs,nequa,GRY(ig),0,covGp[1]);
+    set_rhs(rhs,nequa,GRZ(ig),0,covGp[2]);
     if (flag_grad)
     {
-      set_rhs(rhs,nequa,nsol,GRX(ig),1,covGG[0]);
-      set_rhs(rhs,nequa,nsol,GRY(ig),1,covGG[1]);
-      set_rhs(rhs,nequa,nsol,GRZ(ig),1,covGG[2]);
-      set_rhs(rhs,nequa,nsol,GRX(ig),2,covGG[3]);
-      set_rhs(rhs,nequa,nsol,GRY(ig),2,covGG[4]);
-      set_rhs(rhs,nequa,nsol,GRZ(ig),2,covGG[5]);
-      set_rhs(rhs,nequa,nsol,GRX(ig),3,covGG[6]);
-      set_rhs(rhs,nequa,nsol,GRY(ig),3,covGG[7]);
-      set_rhs(rhs,nequa,nsol,GRZ(ig),3,covGG[8]);
+      set_rhs(rhs,nequa,GRX(ig),1,covGG[0]);
+      set_rhs(rhs,nequa,GRY(ig),1,covGG[1]);
+      set_rhs(rhs,nequa,GRZ(ig),1,covGG[2]);
+      set_rhs(rhs,nequa,GRX(ig),2,covGG[3]);
+      set_rhs(rhs,nequa,GRY(ig),2,covGG[4]);
+      set_rhs(rhs,nequa,GRZ(ig),2,covGG[5]);
+      set_rhs(rhs,nequa,GRX(ig),3,covGG[6]);
+      set_rhs(rhs,nequa,GRY(ig),3,covGG[7]);
+      set_rhs(rhs,nequa,GRZ(ig),3,covGG[8]);
     }
   }
   
@@ -1585,18 +1570,18 @@ static void st_build_rhs(Pot_Env *pot_env,
            TGT_COO(it,1) - coor[1],
            TGT_COO(it,2) - coor[2],
            &covar, covGp, covGG);
-    set_rhs(rhs,nequa,nsol,TGT(it),0,
+    set_rhs(rhs,nequa,TGT(it),0,
             matrix_UV(ndim,TGT_VAL(it,0),TGT_VAL(it,1),TGT_VAL(it,2),
                       covGp[0],covGp[1],covGp[2]));
     if (flag_grad)
     {
-      set_rhs(rhs,nequa,nsol,TGT(it),1,
+      set_rhs(rhs,nequa,TGT(it),1,
               matrix_UV(ndim,TGT_VAL(it,0),TGT_VAL(it,1),TGT_VAL(it,2),
                         covGG[0],covGG[1],covGG[2]));
-      set_rhs(rhs,nequa,nsol,TGT(it),2,
+      set_rhs(rhs,nequa,TGT(it),2,
               matrix_UV(ndim,TGT_VAL(it,0),TGT_VAL(it,1),TGT_VAL(it,2),
                         covGG[3],covGG[4],covGG[5]));
-      set_rhs(rhs,nequa,nsol,TGT(it),3,
+      set_rhs(rhs,nequa,TGT(it),3,
               matrix_UV(ndim,TGT_VAL(it,0),TGT_VAL(it,1),TGT_VAL(it,2),
                         covGG[6],covGG[7],covGG[8]));
     }
@@ -1618,12 +1603,12 @@ static void st_build_rhs(Pot_Env *pot_env,
              ISO_COO(ic,0,1) - coor[1],
              ISO_COO(ic,0,2) - coor[2],
              &covar, covGp, covGG);
-      set_rhs(rhs,nequa,nsol,ISC(ic,j),0,covar1 - covar);
+      set_rhs(rhs,nequa,ISC(ic,j),0,covar1 - covar);
       if (flag_grad)
       {
-        set_rhs(rhs,nequa,nsol,ISC(ic,j),1,-(cov1Gp[0]-covGp[0]));
-        set_rhs(rhs,nequa,nsol,ISC(ic,j),2,-(cov1Gp[1]-covGp[1]));
-        set_rhs(rhs,nequa,nsol,ISC(ic,j),3,-(cov1Gp[2]-covGp[2]));
+        set_rhs(rhs,nequa,ISC(ic,j),1,-(cov1Gp[0]-covGp[0]));
+        set_rhs(rhs,nequa,ISC(ic,j),2,-(cov1Gp[1]-covGp[1]));
+        set_rhs(rhs,nequa,ISC(ic,j),3,-(cov1Gp[2]-covGp[2]));
       }
     }
   }
@@ -1636,36 +1621,36 @@ static void st_build_rhs(Pot_Env *pot_env,
 
   if (pot_env->order >= 1) 
   {
-    set_rhs(rhs,nequa,nsol,DRF(0),0,ccor[0]);
-    set_rhs(rhs,nequa,nsol,DRF(1),0,ccor[1]);
-    set_rhs(rhs,nequa,nsol,DRF(2),0,ccor[2]);
+    set_rhs(rhs,nequa,DRF(0),0,ccor[0]);
+    set_rhs(rhs,nequa,DRF(1),0,ccor[1]);
+    set_rhs(rhs,nequa,DRF(2),0,ccor[2]);
     if (flag_grad)
     {
-      set_rhs(rhs,nequa,nsol,DRF(0),1,1.);
-      set_rhs(rhs,nequa,nsol,DRF(1),2,1.);
-      set_rhs(rhs,nequa,nsol,DRF(2),3,1.);
+      set_rhs(rhs,nequa,DRF(0),1,1.);
+      set_rhs(rhs,nequa,DRF(1),2,1.);
+      set_rhs(rhs,nequa,DRF(2),3,1.);
     }
   }
   
   if (pot_env->order >= 2) 
   {
-    set_rhs(rhs,nequa,nsol,DRF(3),0,ccor[0] * ccor[0]);
-    set_rhs(rhs,nequa,nsol,DRF(4),0,ccor[1] * ccor[1]);
-    set_rhs(rhs,nequa,nsol,DRF(5),0,ccor[2] * ccor[2]);
-    set_rhs(rhs,nequa,nsol,DRF(6),0,ccor[0] * ccor[1]);
-    set_rhs(rhs,nequa,nsol,DRF(7),0,ccor[0] * ccor[2]);
-    set_rhs(rhs,nequa,nsol,DRF(8),0,ccor[1] * ccor[2]);
+    set_rhs(rhs,nequa,DRF(3),0,ccor[0] * ccor[0]);
+    set_rhs(rhs,nequa,DRF(4),0,ccor[1] * ccor[1]);
+    set_rhs(rhs,nequa,DRF(5),0,ccor[2] * ccor[2]);
+    set_rhs(rhs,nequa,DRF(6),0,ccor[0] * ccor[1]);
+    set_rhs(rhs,nequa,DRF(7),0,ccor[0] * ccor[2]);
+    set_rhs(rhs,nequa,DRF(8),0,ccor[1] * ccor[2]);
     if (flag_grad)
     {
-      set_rhs(rhs,nequa,nsol,DRF(3),1,ccor[0] * 2.);
-      set_rhs(rhs,nequa,nsol,DRF(4),2,ccor[1] * 2.);
-      set_rhs(rhs,nequa,nsol,DRF(5),3,ccor[2] * 2.);
-      set_rhs(rhs,nequa,nsol,DRF(6),1,ccor[1]);
-      set_rhs(rhs,nequa,nsol,DRF(6),2,ccor[0]);
-      set_rhs(rhs,nequa,nsol,DRF(7),1,ccor[2]);
-      set_rhs(rhs,nequa,nsol,DRF(7),3,ccor[0]);
-      set_rhs(rhs,nequa,nsol,DRF(8),2,ccor[2]);
-      set_rhs(rhs,nequa,nsol,DRF(8),3,ccor[1]);
+      set_rhs(rhs,nequa,DRF(3),1,ccor[0] * 2.);
+      set_rhs(rhs,nequa,DRF(4),2,ccor[1] * 2.);
+      set_rhs(rhs,nequa,DRF(5),3,ccor[2] * 2.);
+      set_rhs(rhs,nequa,DRF(6),1,ccor[1]);
+      set_rhs(rhs,nequa,DRF(6),2,ccor[0]);
+      set_rhs(rhs,nequa,DRF(7),1,ccor[2]);
+      set_rhs(rhs,nequa,DRF(7),3,ccor[0]);
+      set_rhs(rhs,nequa,DRF(8),2,ccor[2]);
+      set_rhs(rhs,nequa,DRF(8),3,ccor[1]);
     }
   }
 
@@ -1673,12 +1658,12 @@ static void st_build_rhs(Pot_Env *pot_env,
   {
     if (st_extdrift_eval("Target",coor[0],coor[1],coor[2],
                          dbgrid, pot_ext, &extval, extgrd)) return;
-    set_rhs(rhs,nequa,nsol,EXT(iext),0,extval);
+    set_rhs(rhs,nequa,EXT(iext),0,extval);
     if (flag_grad)
     {
-      set_rhs(rhs,nequa,nsol,EXT(iext),1,extgrd[0]);
-      set_rhs(rhs,nequa,nsol,EXT(iext),2,extgrd[1]);
-      set_rhs(rhs,nequa,nsol,EXT(iext),3,extgrd[2]);
+      set_rhs(rhs,nequa,EXT(iext),1,extgrd[0]);
+      set_rhs(rhs,nequa,EXT(iext),2,extgrd[1]);
+      set_rhs(rhs,nequa,EXT(iext),3,extgrd[2]);
     }
   }
   
@@ -2186,11 +2171,8 @@ static void st_xvalid(Pot_Env *pot_env,
 **
 ** \param[in]  db            Db structure
 ** \param[in]  iech          Rank of the sample
-** \param[in]  isimu         Rank of the simulation
-** \param[in]  nbsimu        Number of simulations
 ** \param[in]  dist_tempere  Distance for tempering simulations (or TEST)
 ** \param[in]  reskrige      Kriging result
-** \param[in]  resgrad       Kriged gradient
 ** \param[in]  result        Conditional Simulation result
 **                           On output, Conditional Simulation tempered result
 **
@@ -2199,12 +2181,9 @@ static void st_xvalid(Pot_Env *pot_env,
 *****************************************************************************/
 static void st_tempere(Db      *db,
                        int      iech,
-                       int      isimu,
-                       int      nbsimu,
                        double   dist_tempere,
                        double   reskrige,
-                       double  *resgrad,
-                       double  *result)
+                       double*  result)
 {
   double simerr,amortval,kdist;
   int test;
@@ -2324,8 +2303,7 @@ static void st_simcond(Pot_Env *pot_env,
       // Amortize the variance for conditional simulation
 
       if (! FFFF(dist_tempere))
-        st_tempere(dbout,iech,isimu,nbsimu,dist_tempere,resest[0],
-                   &resest[1],result);
+        st_tempere(dbout,iech,dist_tempere,resest[0],result);
 
       // Translate from potential into layer
       
@@ -2766,13 +2744,10 @@ static int st_model_invalid(Model *model)
 **
 ** \return  Error return code
 **
-** \param[in]  dbout      Output Db structure
-**
 ** \param[out] pot_ext     Pot_Ext structure
 **
 *****************************************************************************/
-static int st_extdrift_create_model(Db      *dbout,
-                                    Pot_Ext *pot_ext)
+static int st_extdrift_create_model(Pot_Ext *pot_ext)
 {
   int error;
   VectorDouble sill = {1};
@@ -2902,7 +2877,7 @@ static int st_extdrift_calc_init(Db      *dbout,
   
   /* Creating the model */
 
-  if (st_extdrift_create_model(dbout,pot_ext)) goto label_end;
+  if (st_extdrift_create_model(pot_ext)) goto label_end;
 
   /* Core allocation */
 
@@ -2995,11 +2970,6 @@ static int st_pot_ext_manage(int      mode,
 ** \param[in]  neigh      Neigh structrue
 ** \param[in]  nugget_grd Nugget effect for Gradients
 ** \param[in]  nugget_tgt Nugget effect for Tangents
-** \param[in]  z_number   Minimum number of sampling for surface interpolation
-** \param[in]  z_min      Minimum Z value for surface interpolation
-** \param[in]  z_max      Maximum Z value for surface interpolation
-** \param[in]  flag_up    1 if search must be performed by increasing Z
-**                       -1 otherwise
 ** \param[in]  flag_grad  1 if the gradient must also be estimated
 ** \param[in]  flag_trans 1 if the estimation result must be translated
 **                        into layer number
@@ -3025,10 +2995,6 @@ GEOSLIB_API int potential_kriging(Db    *dbiso,
                                   Neigh *neigh,
                                   double nugget_grd,
                                   double nugget_tgt,
-                                  int    z_number,
-                                  double z_min,
-                                  double z_max,
-                                  int    flag_up,
                                   int    flag_grad,
                                   int    flag_trans,
                                   int    flag_part,

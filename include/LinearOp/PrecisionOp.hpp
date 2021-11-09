@@ -35,11 +35,35 @@ public:
            bool verbose = false);
 
   void   eval(const VectorDouble& in, VectorDouble& out);
-  virtual void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result){};
-  virtual void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result){};
-  virtual void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
-  virtual void evalDerivOptim(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
-  virtual void evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam){};
+  virtual void gradYQX(const VectorDouble& /*X*/,
+                       const VectorDouble& /*Y*/,
+                       VectorDouble& /*result*/)
+  {
+  };
+
+  virtual void gradYQXOptim(const VectorDouble& /*X*/,
+                            const VectorDouble& /*Y*/,
+                            VectorDouble& /*result*/)
+  {
+  };
+
+  virtual void evalDeriv(const VectorDouble& /*in*/,
+                         VectorDouble& /*out*/,
+                         int /*iapex*/,
+                         int /*igparam*/)
+  {
+  };
+
+  virtual void evalDerivOptim(VectorDouble& /*out*/,
+                              int /*iapex*/,
+                              int /*igparam*/)
+  {
+  };
+
+//  virtual void evalDerivPoly(const VectorDouble& /*in*/,
+//                             VectorDouble& /*out*/,
+//                             int /*iapex*/,
+//                             int /*igparam*/){};
 
   int    getSize() const { return _shiftOp->getSize(); }
   double computeLogDet(int nsimus = 1, int seed = 0);

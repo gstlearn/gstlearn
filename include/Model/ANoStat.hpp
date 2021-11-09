@@ -35,6 +35,7 @@ public:
   bool isDefinedByCovType(int igrf, int icov, const EConsElem& type) const;
   bool isDefined(int igrf, int icov, const EConsElem& type, int iv1=0, int iv2=0) const;
   bool isDefinedforAnisotropy(int igrf, int icov) const;
+  bool isDefinedforRotation(int igrf, int icov) const;
 
   virtual double getValue(int igrf,
                           int icov,
@@ -50,11 +51,13 @@ public:
   virtual int  attachToDb(Db* db, int icas, bool verbose = false) const;
   virtual void detachFromDb(Db* db, int icas) const;
 
-  void addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
-  void addNoStatElems(const VectorString& codes);
-  void addNoStatElem(const ConsItem& item);
+  int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
+  int  addNoStatElems(const VectorString& codes);
+  int  addNoStatElem(const ConsItem& item);
+  void deleteNoStatElem(int ipar);
+  void deleteNoStatElem();
 
-  int getRank   (int igrf, int icov, const EConsElem& type, int iv1, int iv2) const;
+  int getRank(int igrf, int icov, const EConsElem& type, int iv1, int iv2) const;
   int getIGrf(int ipar) const { return _items[ipar].getIGrf(); }
   int getICov(int ipar) const { return _items[ipar].getICov(); }
   const EConsElem& getType(int ipar) const { return _items[ipar].getType(); }
@@ -64,7 +67,7 @@ public:
   const std::vector<ConsItem>& getNoStat() const { return _items; }
   const ConsItem getNoStat(int ipar) const { return _items[ipar]; }
 
-  const int attachModel(const Model* model);
+  int attachModel(const Model* model);
 
   bool matchIGrf(int ipar, int igrf0) const { return _items[ipar].matchIGrf(igrf0); }
   bool matchICov(int ipar, int icov0) const { return _items[ipar].matchICov(icov0); }
@@ -102,6 +105,7 @@ private:
                       int iech2,
                       double *val1,
                       double *val2) const;
+  bool _checkConsistency() const;
 
 private:
   std::vector<ConsItem> _items;

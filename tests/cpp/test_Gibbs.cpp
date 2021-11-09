@@ -63,7 +63,6 @@ static int st_save(Db    *dbgrid,
 /*!
 **  Print all the imported information (used for check only)
 **
-** \param[in]  nvertex  Dimension of the input array 'z'
 ** \param[in]  colors   Array of colors (same dimension as 'z')
 ** \param[in]  consmin  Array giving the minimum bounds per pixel (optional)
 ** \param[in]  consmax  Array giving the maximum bounds per pixel (optional)
@@ -71,8 +70,7 @@ static int st_save(Db    *dbgrid,
 ** \param[in]  Q        Precision matrix (for all colors)
 **
 *****************************************************************************/
-static void st_print_all(int     nvertex,
-                         int    *colors,
+static void st_print_all(int    *colors,
                          double *consmin,
                          double *consmax,
                          double *sigma,
@@ -240,7 +238,7 @@ static int st_gibbs(int  niter,
 ** Main Program
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   Db       *dbgrid;
@@ -289,6 +287,8 @@ int main(int argc, char *argv[])
 
   if (setup_license("Demonstration")) goto label_end;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("Gibbs-");
 
   // Setup constants
 
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
 
   // Check the imported information
 
-  if (flag_print) st_print_all(nvertex,colors,consmin,consmax,sigma,Q);
+  if (flag_print) st_print_all(colors,consmin,consmax,sigma,Q);
 
   //----------------//
   // Main Algorithm //

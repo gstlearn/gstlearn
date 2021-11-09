@@ -38,7 +38,7 @@ public:
   bool mustBeDiagCst() const override { return false; }
 
   /*! Check if the matrix is (non empty) square */
-  bool isSquare(bool printWhyNot = false) const override { return 1; }
+  bool isSquare(bool /*printWhyNot*/ = false) const override { return 1; }
 
 protected:
 #ifndef SWIG
@@ -58,7 +58,6 @@ private:
   void   _prodVector(const double *in,double *out) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
-  double _determinant() const override;
 
   void   _recopy(const MatrixSquareGeneral &r);
   int    _getIndexToRank(int irow,int icol) const;

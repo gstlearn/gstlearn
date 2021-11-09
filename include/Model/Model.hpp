@@ -124,8 +124,8 @@ public:
   int isNoStat() const;
   const ANoStat* getNoStat() { return _noStat; }
   int  getNoStatElemNumber() const;
-  void addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
-  void addNoStatElems(const VectorString& codes);
+  int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
+  int  addNoStatElems(const VectorString& codes);
   int  getNoStatElemIcov(int ipar);
   const EConsElem& getNoStatElemType(int ipar);
   ConsItem getConsItem(int ipar) const;

@@ -1989,7 +1989,15 @@ static int st_read_next(int   s_length,
 
   // Suppress the trailing newline
   if (string[size-1] == '\n') string[size-1] = '\0';
-  
+  size = static_cast<int> (strlen(string));
+
+  // Replace any illegal character from the string by a blank
+  for (int i=0; i<size; i++)
+  {
+    if (string[i] < ' ' || string[i] > '~')
+      string[i] = ' ';
+  }
+
   // Convert to uppercase (optional)
   if (flag_up) string_to_uppercase(string);
 
@@ -2015,18 +2023,13 @@ static int st_read_find(int   s_length,
                         int  *numline,
                         char *string)
 {
-  char big_target[1000];
-  
-  (void) gslStrcpy(big_target,target);
-  string_to_uppercase(big_target);
-
   /* Check the current line */
-  if (strstr(string,big_target)) return(0);
+  if (strcasestr(string,target)) return(0);
   
   while (1)
   {
     if (st_read_next(s_length,file,1,numline,string)) return(1);
-    if (strstr(string,big_target)) return(0);
+    if (strcasestr(string,target)) return(0);
   }
   return(1);
 }
@@ -2076,7 +2079,9 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
   error = 1;
   test = TEST;
   sep_blank[0] = ' ';
+  sep_blank[1] = '\0';
   sep_point[0] = '.';
+  sep_point[1] = '\0';
   *nvarout = *nechout = 0;
   file   = nullptr;
   varloc = nullptr;
@@ -2176,8 +2181,9 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
     while (nvarlu < nvar)
     {
       token = gslStrtok(lcur, sep_blank);
-      lcur  = NULL;
-      if (token == NULL || gslSScanf(token,"%lf",&value) == EOF) break;
+      if (token == NULL) break;
+      lcur = NULL;
+      if (gslSScanf(token, "%lf", &value) == EOF) break;
       if (value == test) value = TEST;
       tabloc[ecr++] = value;
       nvarlu++;
@@ -2185,7 +2191,7 @@ GEOSLIB_API int db_well_read_las(const char   *filename,
 
     if (nvarlu < nvar)
     {
-        if (fgets(string,s_length,file) == NULL) break;
+      if (fgets(string, s_length, file) == NULL) break;
     }
     nech++;
   }

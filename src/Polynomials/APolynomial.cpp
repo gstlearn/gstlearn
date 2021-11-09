@@ -40,7 +40,7 @@ APolynomial::APolynomial(VectorDouble coeffs)
   init(coeffs);
 }
 
-String APolynomial::toString(int level) const
+String APolynomial::toString(int /*level*/) const
 {
   String str;
   std::ostringstream oss;

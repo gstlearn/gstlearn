@@ -480,10 +480,10 @@ ES Database::eraseRole(ERoles role)
  *  Create a new VariableBool , which will have role ERoles::SEL (selection)
  *
  *  @param[in]  name  : name given to the column created
- *  @param[in]  sel   : vector of boolean indicating the selection(True)
+ *  @param sel : Selection
  */
 
-ES Database::select(const String& name, const VectorBool& sel)
+ES Database::select(const String& name, const VectorBool& /*sel*/)
 {
   VariableBool* var_bool = new VariableBool(name);
   VectorString names = { name };
