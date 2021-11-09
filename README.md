@@ -61,9 +61,9 @@ cmake --build build --target install
 ```
 
 Additionnal options:
-You may want to modify `make` behavior. In that case, add `--` at the end of the `cmake --build` command and complete:
-  * If you want to use N CPU for compiling, add `-j N` after `--`
-  * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` after `--`
+You may want to modify `make` behavior. In that case, add `--` (double dash) at the end of the `cmake --build` command and complete:
+  * If you want to use N CPU for compiling, add `-j N` at the end
+  * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` at the end
   
 Notes:
   * If you want to build and install the *Debug* version, you must replace *Release* by *Debug* above.
