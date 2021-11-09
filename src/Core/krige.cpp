@@ -3370,7 +3370,7 @@ static void st_save_keypair_weights(int     status,
 ** \param[in]  ndisc       Array giving the discretization counts
 ** \param[in]  flag_est    Option for storing the estimation
 ** \param[in]  flag_std    Option for storing the standard deviation
-** \param[in]  flag_var    Option for storing the variance of the estimator
+** \param[in]  flag_varz   Option for storing the variance of the estimator
 ** \param[in]  rank_colcok Option for running Collocated Cokriging
 ** \param[in]  matCL       Matrix of linear combination (or NULL)
 **                         (Dimension: nvarCL * model->getNVar())
@@ -3384,7 +3384,7 @@ GEOSLIB_API int kriging(Db*              dbin,
                         const EKrigOpt&  calcul,
                         int              flag_est,
                         int              flag_std,
-                        int              flag_var,
+                        int              flag_varz,
                         VectorInt        ndisc,
                         VectorInt        rank_colcok,
                         VectorDouble     matCL,
