@@ -47,8 +47,10 @@ public:
   void setFlagSymQ(bool flagSymQ) { _flagSymQ = flagSymQ; }
   bool getFlagPrintQ() const { return _flagPrintQ; }
   void setFlagPrintQ(bool flagPrintQ) { _flagPrintQ = flagPrintQ; }
+  void setEpsilon(double epsilon) { _epsilon = epsilon; }
 
 private:
+  int _covmatAllocMemo(bool verbose);
   int _improveConditioning(bool verbose);
   void _print(int iact) const;
   int _getVariableNumber() const;
@@ -68,4 +70,5 @@ private:
   bool _flagSymQ;
   bool _flagPrintQ;
   cs*  _Q;
+  double _epsilon;
 };

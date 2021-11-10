@@ -23,6 +23,7 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_define.h"
 
 /****************************************************************************/
 /*!
@@ -41,7 +42,8 @@ int main(int /*argc*/, char */*argv*/[])
   int nmaxi     = 10000;
   double range  = 10.;
   double bound  = TEST;
-  double radius = 10.;
+  double radius = 4.;
+  double eps    = EPSILON3;
   bool flag_sym_neigh = true;
   bool flag_sym_Q     = true;
   bool flag_print_Q   = false;
@@ -54,6 +56,7 @@ int main(int /*argc*/, char */*argv*/[])
     nmaxi = askInt("Number of samples in Neighborhood",nmaxi);
     range = askDouble("Isotropic Range",range);
     radius = askDouble("Neighborhood radius",radius);
+    eps    = askDouble("Epsilon",eps);
     bound = askDouble("Bounds [None: TEST]",bound, true);
     flag_sym_neigh = askBool("Symmetrization of Neighborhood",flag_sym_neigh);
     flag_sym_Q = askBool("Symmetrization of Q",flag_sym_Q);
@@ -115,6 +118,7 @@ int main(int /*argc*/, char */*argv*/[])
   gibbs.setFlagSymNeigh(flag_sym_neigh);
   gibbs.setFlagSymQ(flag_sym_neigh);
   gibbs.setFlagPrintQ(flag_print_Q);
+  gibbs.setEpsilon(eps);
   gibbs.init(1, nvar, nburn, niter,0, true);
 
   // Allocate the Gaussian vector
@@ -128,7 +132,9 @@ int main(int /*argc*/, char */*argv*/[])
   // Invoke the Gibbs calculator
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
-    if (gibbs.run(y, 0, isimu, verbose)) return 1;
+    if (gibbs.run(y, 0, isimu, false)) return 1;
+  // Check divergence on the first value of the returned vector
+  message("Check Y[0] = %lf\n",y[0][0]);
   db->serialize("Result");
 
   // Calculate a variogram on the samples

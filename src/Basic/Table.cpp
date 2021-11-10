@@ -227,7 +227,7 @@ void Table::display(int isimu) const
 void Table::plot(int isimu) const
 {
   if (_stats.empty()) return;
-  String filename = incrementStringVersion("GibbsStats",isimu+1);
+  String filename = incrementStringVersion("TableStats",isimu+1);
   serialize(filename,false);
 }
 
