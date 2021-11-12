@@ -237,10 +237,11 @@ set(SOURCES
   Drifts/ADriftList.cpp
   Neigh/Neigh.cpp
 )
+
 #option(Boost_DEBUG "Set to ON to enable debug output from FindBoost." ON)
 #option(Boost_DETAILED_FAILURE_MSG "Set to ON to get detailed information" ON)
 
-# Not for Linux?
+# TODO : Not needed for Linux?
 find_package(Boost REQUIRED)
 
 # Compile objects only once
@@ -254,7 +255,7 @@ set_property(TARGET objlib PROPERTY POSITION_INDEPENDENT_CODE 1)
 target_compile_definitions(objlib PRIVATE NO_TIMER) 
 
 # Include directories (-I)
-#target_include_directories(objlib PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>")
+# Add swig include directories (installed) for swig module who wants to link with gstlearn
 target_include_directories(objlib PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gstlearn>"
@@ -264,9 +265,11 @@ target_include_directories(objlib PUBLIC ${Boost_INCLUDE_DIRS})
 
 # Define objects list for each target library
 add_library(gstlearn-shared SHARED $<TARGET_OBJECTS:objlib>)
-#target_link_libraries(gstlearn-shared PUBLIC objlib)
 add_library(gstlearn-static STATIC $<TARGET_OBJECTS:objlib>)
-#target_link_libraries(gstlearn-static PUBLIC objlib)
+
+# Make a dependency between gstlearn libraries and objlib for transmitting include property
+target_link_libraries(gstlearn-shared PUBLIC objlib)
+target_link_libraries(gstlearn-static PUBLIC objlib)
 
 # Rename the output library names
 set_target_properties(gstlearn-shared PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
@@ -282,7 +285,8 @@ target_link_libraries(gstlearn-static PUBLIC Boost::boost)
 
 # Install the libraries
 # https://stackoverflow.com/questions/14990343/cmake-error-targets-given-no-library-destination-for-shared-library-target
-install(TARGETS gstlearn-shared gstlearn-static EXPORT corelibs  # Targets (libraries)
+# Export also objlib for transmitting include property to users of gstlearn lbrary
+install(TARGETS gstlearn-shared gstlearn-static objlib EXPORT corelibs  # Targets (libraries)
         ARCHIVE DESTINATION lib                                  # Static  library in DESTINATION/lib folder
         LIBRARY DESTINATION lib                                  # Dynamic library in DESTINATION/lib folder
 )

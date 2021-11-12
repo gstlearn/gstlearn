@@ -1,6 +1,6 @@
 project(gstlearn CXX)
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
 include(GNUInstallDirs)
 
@@ -25,6 +25,7 @@ set(CMAKE_DEBUG_POSTFIX d)
 add_subdirectory(src)
 add_subdirectory(doxygen)
 add_subdirectory(tests)
+add_subdirectory(testsCur)
 
 # Export the package
 install(
@@ -33,9 +34,12 @@ install(
   NAMESPACE gstlearn::
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/cmake
 )
-# Uncomment the following line if you want to register the package globally
+# Uncomment the following lines if you want to register the package globally
 # This will avoid the manual specification of gstlearn_DIR
 # Register the gstlearn library
+# TODO : But doesn't work : It seems to register the build directory not, the installation directory 
+#horlick:~> more .cmake/packages/gstlearn/0803e28e1916acff1b305242a59a11c4
+#/home/fors/Projets/gstlearn/gstlearn/build
 #set(CMAKE_EXPORT_PACKAGE_REGISTRY ON) # with CMake >= 3.15
 #export(PACKAGE gstlearn)
 

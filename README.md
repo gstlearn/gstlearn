@@ -19,7 +19,7 @@ The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library 
 This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LTS and Windows 10
 For compiling and installing *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
   * [Git](https://git-scm.com/downloads) client
-  * [CMake](https://cmake.org/download) tool
+  * [CMake](https://cmake.org/download) tool 3.15 or higher
   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [Boost](https://www.boost.org/users/download) library
@@ -33,7 +33,7 @@ cd gstlearn
 ```
 
 Notes:
-  * In the following, all instructions must be executed from the gstlearn sources directory.
+  * In the following, all instructions must be executed from the gstlearn sources directory
   
 ## Library compilation & installation
 For compiling and installing the *gstlearn* library, execute the following instructions in a command prompt.
@@ -66,7 +66,7 @@ You may want to modify `make` behavior. In that case, add `--` (double dash) at 
   * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` at the end
   
 Notes:
-  * If you want to build and install the *Debug* version, you must replace *Release* by *Debug* above.
+  * If you want to build and install the *Debug* version, you must replace *Release* by *Debug* above
   * In newer version of CMake, the three first commands will be replaced by `cmake -Bbuild -H.`
 TODO : Ensure debug/release instructions are cross-platform
 
@@ -76,7 +76,7 @@ TODO: Instructions will come soon
 ## Required tools installation
 
 ### Linux (Ubuntu):
-Under Linux, the GCC compiler is already installed
+Under Linux, the GCC compiler is already installed.
 
 ```sh
 sudo apt install git
@@ -84,6 +84,9 @@ sudo apt install cmake
 sudo apt install doxygen
 sudo apt install libboost-dev
 ```
+
+Notes:
+  * If your Linux distribution repository doesn't provide minimum required versions, please install manually
 
 ### MacOS:
 Under MacOS, the GCC (or Clang) compiler is already installed (Not tested)
@@ -95,6 +98,9 @@ brew install doxygen
 brew install libboost-dev
 ```
 
+Notes:
+  * If your MacOS repository doesn't provide minimum required versions, please install manually
+  
 ### Windows:
 Download and install the following tools:
   * Git client [from here](https://gitforwindows.org) (Use default options during installation)
