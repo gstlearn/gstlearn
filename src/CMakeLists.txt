@@ -254,18 +254,25 @@ set_property(TARGET objlib PROPERTY POSITION_INDEPENDENT_CODE 1)
 target_compile_definitions(objlib PRIVATE NO_TIMER) 
 
 # Include directories (-I)
-target_include_directories(objlib PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>")
+#target_include_directories(objlib PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>")
+target_include_directories(objlib PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gstlearn>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/swig>"
+)
 target_include_directories(objlib PUBLIC ${Boost_INCLUDE_DIRS})
 
 # Define objects list for each target library
 add_library(gstlearn-shared SHARED $<TARGET_OBJECTS:objlib>)
+#target_link_libraries(gstlearn-shared PUBLIC objlib)
 add_library(gstlearn-static STATIC $<TARGET_OBJECTS:objlib>)
+#target_link_libraries(gstlearn-static PUBLIC objlib)
 
 # Rename the output library names
 set_target_properties(gstlearn-shared PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
 set_target_properties(gstlearn-static PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.a  (on Linux)
 
-# Rename the export names (used by cmake for importing them like gstlearn::shared
+# Rename the export names (used by cmake for importing them like gstlearn::shared)
 set_target_properties(gstlearn-shared PROPERTIES EXPORT_NAME shared)
 set_target_properties(gstlearn-static PROPERTIES EXPORT_NAME static)
 

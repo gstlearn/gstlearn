@@ -26,9 +26,18 @@ add_subdirectory(src)
 add_subdirectory(doxygen)
 add_subdirectory(tests)
 
+# Export the package
+install(
+  EXPORT corelibs
+  FILE gstlearnConfig.cmake
+  NAMESPACE gstlearn::
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/cmake
+)
+# Uncomment the following line if you want to register the package globally
+# This will avoid the manual specification of gstlearn_DIR
 # Register the gstlearn library
-set(CMAKE_EXPORT_PACKAGE_REGISTRY ON)
-export(PACKAGE gstlearn)
+#set(CMAKE_EXPORT_PACKAGE_REGISTRY ON) # with CMake >= 3.15
+#export(PACKAGE gstlearn)
 
 # Uninstall target
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
