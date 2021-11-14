@@ -39,28 +39,20 @@ int main(int /*argc*/, char */*argv*/[])
   int nx        = 10;
   int niter     = 10000;
   int nburn     = 100;
-  int nmaxi     = 10000;
   double range  = 10.;
   double bound  = TEST;
-  double radius = 4.;
-  double eps    = EPSILON3;
-  bool flag_sym_neigh = true;
-  bool flag_sym_Q     = true;
-  bool flag_print_Q   = false;
+  double eps1   = EPSILON4;
+  double eps2   = 2. * EPSILON2;
 
   if (flag_inter)
   {
     nx    = askInt("Number of grid mesh [in each direction]", nx);
     niter = askInt("Number of Gibbs iterations",niter);
     nburn = askInt("Number of burning steps",nburn);
-    nmaxi = askInt("Number of samples in Neighborhood",nmaxi);
     range = askDouble("Isotropic Range",range);
-    radius = askDouble("Neighborhood radius",radius);
-    eps    = askDouble("Epsilon",eps);
+    eps2   = askDouble("Epsilon Cholesky",eps2);
+    eps1   = askDouble("Epsilon Weight",eps1);
     bound = askDouble("Bounds [None: TEST]",bound, true);
-    flag_sym_neigh = askBool("Symmetrization of Neighborhood",flag_sym_neigh);
-    flag_sym_Q = askBool("Symmetrization of Q",flag_sym_Q);
-    flag_print_Q = askBool("Printing Q",flag_print_Q);
   }
 
   int seed     = 5452;
@@ -106,19 +98,12 @@ int main(int /*argc*/, char */*argv*/[])
   model->addCova(&cova);
   model->display();
 
-  // Neighborhood
-
-  Neigh* neigh = new Neigh(ndim, nmaxi, radius);
-  neigh->display();
-
   // Initialize Gibbs
 
-  GibbsMMulti gibbs(db, model, neigh);
+  GibbsMMulti gibbs(db, model);
   gibbs.setOptionStats(2);
-  gibbs.setFlagSymNeigh(flag_sym_neigh);
-  gibbs.setFlagSymQ(flag_sym_neigh);
-  gibbs.setFlagPrintQ(flag_print_Q);
-  gibbs.setEpsilon(eps);
+  gibbs.setEpsilon1(eps1);
+  gibbs.setEpsilon2(eps2);
   gibbs.init(1, nvar, nburn, niter,0, true);
 
   // Allocate the Gaussian vector
@@ -156,6 +141,5 @@ int main(int /*argc*/, char */*argv*/[])
 
   db    = db_delete(db);
   model = model_free(model);
-  neigh = neigh_free(neigh);
   return(0);
 }

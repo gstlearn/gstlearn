@@ -21,39 +21,32 @@
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
 #define QFLAG(iech,jech)         (QFlag[(iech) * nech + jech])
 
+#define DEBUG 0
+
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
-  , _neigh(nullptr)
   , _wgt()
-  , _flagSymNeigh(false)
-  , _flagSymQ(false)
-  , _flagPrintQ(false)
   , _Q(nullptr)
-  , _epsilon(EPSILON6)
+  , _epsilon1(EPSILON6)
+  , _epsilon2(EPSILON6)
 {
 }
 
-GibbsMMulti::GibbsMMulti(Db* db, Model* model, Neigh* neigh)
+GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   : GibbsMulti(db, model)
-  , _neigh(neigh)
   , _wgt()
-  , _flagSymNeigh(false)
-  , _flagSymQ(false)
-  , _flagPrintQ(false)
   , _Q(nullptr)
-  , _epsilon(EPSILON6)
+  , _epsilon1(EPSILON6)
+  , _epsilon2(EPSILON6)
 {
 }
 
 GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   : GibbsMulti(r)
-  , _neigh(r._neigh)
   , _wgt(r._wgt)
-  , _flagSymNeigh(r._flagSymNeigh)
-  , _flagSymQ(r._flagSymQ)
-  , _flagPrintQ(r._flagPrintQ)
   , _Q(r._Q)
-  , _epsilon(r._epsilon)
+  , _epsilon1(r._epsilon1)
+  , _epsilon2(r._epsilon2)
 {
 }
 
@@ -62,13 +55,10 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
   if (this != &r)
   {
     GibbsMulti::operator=(r);
-    _neigh = r._neigh;
     _wgt = r._wgt;
-    _flagSymNeigh = r._flagSymNeigh;
-    _flagSymQ = r._flagSymQ;
-    _flagPrintQ = r._flagPrintQ;
     _Q = r._Q;
-    _epsilon = r._epsilon;
+    _epsilon1 = r._epsilon1;
+    _epsilon2 = r._epsilon2;
   }
   return *this;
 }
@@ -93,27 +83,27 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   // Initialization
 
   if (verbose) mestitle(1,"Gibbs using Moving Neighborhood");
-  cs*  Q = nullptr;
+  cs*  Cmat = nullptr;
   css* S = nullptr;
   csn* N = nullptr;
   double* x = nullptr;
   double* b = nullptr;
   int n;
-  int nbgh_max = 0;
+  int nbgh_max = ITEST;
   int nbgh_min = ITEST;
   int error = 1;
   int iact_max = -1;
-  double  delta_max = 0.;
-
+  int nstrip = 0;
+  double delta_max = 0.;
+  double q_min = TEST;
+  double q_max = 0.;
   Db* db = getDb();
   Model* model = getModel();
-  Neigh* neigh = getNeigh();
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
   int nech = db->getSampleNumber();
   int nvardb = db->getVariableNumber();
   bool flag_var_defined = nvardb > 0;
-  if (defineGeneralNeigh(1, db, model, neigh)) return 1;
 
   // Consistency check
 
@@ -127,17 +117,18 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   // Establish the covariance matrix as sparse (hopefully)
 
   if (verbose) message("Building Complete Covariance Sparse Matrix\n");
-  Q = model_covmat_by_ranks_cs(model,db,nech,nullptr,db,nech,nullptr,-1,-1,false,true);
-  if (Q == nullptr)
+  Cmat = model_covmat_by_ranks_cs(model,db,nech,nullptr,db,nech,nullptr,-1,-1,false,true);
+  if (Cmat == nullptr)
   {
     messerr("Impossible to create the Total Precision Matrix");
     goto label_end;
   }
 
+
   if (verbose) message("Cholesky Decomposition of Covariance Matrix\n");
-  n = Q->n;
-  S = cs_schol(Q, 0);
-  N = cs_chol(Q, S);
+  n = Cmat->n;
+  S = cs_schol(Cmat, 0);
+  N = cs_chol(Cmat, S);
   if (S == nullptr || N == nullptr)
   {
     messerr("Fail to perform Cholesky decomposition");
@@ -155,6 +146,24 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   if (verbose) message("Establishing Sets of Kriging Weights\n");
   _wgt.resize(nact);
+
+  // Optional printout
+
+  if (verbose)
+  {
+    mestitle(2,"Gibbs Convergence characteristics");
+    message("Epsilon (Cholesky) = %lf\n",_epsilon2);
+    message("Epsilon (weight) = %lf\n",_epsilon1);
+  }
+
+  // Stripping the Cholesky decomposition matrix
+
+  cs_strip(N->L, _epsilon2, verbose);
+
+  // Store experimental and approximate covariances in the table
+
+  _tableStore(db, Cmat, N, verbose);
+
   for (int iact = 0; iact < nact; iact++)
   {
     int iech = getSampleRank(iact);
@@ -169,21 +178,32 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     cs_ltsolve(N->L, x); /* x = L'\x */
     cs_pvec(nech, S->Pinv, x, b); /* b = P'*x */
 
-    // Cleaning the vector of the precision matrix Q
+    // Discarding the values leading to small weights
 
-    ww._pivot = iact;
+    ww._ranks = VectorInt(nech);
+    int nbgh = 0;
     for (int j = 0; j < nech; j++)
     {
       double wloc = ABS(b[j]);
-      if (wloc > _epsilon)
-        ww._ranks.push_back(j);
+      if (FFFF(q_min) || wloc < q_min) q_min = wloc;
+      if (FFFF(q_max) || wloc > q_max) q_max = wloc;
+      if (wloc > _epsilon1)
+      {
+        ww._ranks[nbgh] = j;
+        if (iact == j) ww._pivot = nbgh;
+        nbgh++;
+      }
       else
+      {
         b[j] = 0.;
+        nstrip++;
+      }
     }
+    ww._ranks.resize(nbgh);
 
     // Check against the identify
 
-    cs_mulvec(Q, nech, b, x);
+    cs_mulvec(Cmat, nech, b, x);
     for (int j = 0; j < nech; j++)
     {
       double ref = (j == iact) ? 1. : 0.;
@@ -197,11 +217,9 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
     // Storing the weights per variable for the target sample
 
-    int nbgh = static_cast<int>(ww._ranks.size());
-    if (nbgh > nbgh_max) nbgh_max = nbgh;
+    if (IFFFF(nbgh_min) || nbgh > nbgh_max) nbgh_max = nbgh;
     if (IFFFF(nbgh_min) || nbgh < nbgh_min) nbgh_min = nbgh;
     int neq  = nvar * nbgh;
-
     for (int ivar = 0; ivar < nvar; ivar++)
     {
       VectorDouble ll(neq);
@@ -213,8 +231,8 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   if (verbose)
   {
-    mestitle(2,"Gibbs Convergence characteristics");
-    message("Epsilon = %lf\n",_epsilon);
+    message("Range of Q values = [%lf ; %lf]\n", q_min,q_max);
+    message("Number of weights stripped off = %d\n",nstrip);
     message("Number of weights per neighborhood is in [%d ; %d]\n",nbgh_min,nbgh_max);
     message("Maximum departure from identity (at sample #%d) = %lg\n",iact_max,delta_max);
   }
@@ -223,138 +241,20 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   // Note: the return code is not tested on purpose, to let the rest
   // of the test to be performed.
 
-  if (verbose) message("Beautifying Kriging Weights (Symmetry, Checks, ...)\n");
-  if (_improveConditioning(verbose)) return 1;
+  if (_testConditioning(verbose)) return 1;
+  if (DEBUG) _display();
 
   // Initialize the statistics (optional)
 
   statsInit();
   error = 0;
 
-  label_end:
+ label_end:
   x = (double *) mem_free((char *) x);
   b = (double *) mem_free((char *) b);
-  Q = cs_spfree(Q);
+  Cmat = cs_spfree(Cmat);
   S = cs_sfree(S);
   N = cs_nfree(N);
-  return error;
-}
-
-int GibbsMMulti::_covmatAllocMemo(bool verbose)
-{
-  VectorInt ivars, iechs;
-  VectorBool QFlag;
-  double *covmat;
-
-  // Initialization
-
-  if (verbose) mestitle(1,"Gibbs using Moving Neighborhood");
-  int error = 1;
-  Db* db = getDb();
-  Model* model = getModel();
-  Neigh* neigh = getNeigh();
-  int nvar = _getVariableNumber();
-  int nact = getSampleRankNumber();
-  int nech = db->getSampleNumber();
-  int nvardb = db->getVariableNumber();
-  bool flag_var_defined = nvardb > 0;
-  covmat = nullptr;
-  if (defineGeneralNeigh(1, db, model, neigh)) return 1;
-
-  // Consistency check
-
-  if (flag_var_defined && nvar != nvardb)
-  {
-    messerr("Inconsistency in Number of Variables between Model (%d) and Db (%d)",
-            nvar,nvardb);
-    return 1;
-  }
-
-  // Clear the set of weight vectors
-
-  if (verbose) message("Establishing Neighborhoods\n");
-  _wgt.resize(nact);
-
-  QFlag.resize(nech * nech, false);
-  for (int iact = 0; iact < nact; iact++)
-  {
-    int iech = getSampleRank(iact);
-
-    // Select the Neighborhood
-    VectorInt ranks = getGeneralNeigh(db, neigh, iech);
-
-    // Update the neighborhood contingency matrix
-    _setQFlag(QFlag, nech, iech, ranks);
-  }
-
-  // Kriging weights
-
-  if (verbose) message("Establishing Sets of Kriging Weights\n");
-  for (int iact = 0; iact < nact; iact++)
-  {
-    int iech = getSampleRank(iact);
-    GibbsWeights& ww = _wgt[iact];
-
-    // Read the neighborhood from the contingency table
-
-    ww._ranks = _getQFlag(QFlag, nech, iech);
-    int nbgh  = static_cast<int>(ww._ranks.size());
-    int neq   = nvar * nbgh;
-
-    // Establishing the (moving) Covariance matrix
-    covmat = model_covmat_by_ranks(model,
-                                   db, neq, ww._ranks.data(),
-                                   db, neq, ww._ranks.data(),
-                                   -1, -1, 0, 1);
-    if (covmat == nullptr) goto label_end;
-
-    // Inverting the (moving) Covariance matrix
-    if (matrix_invert(covmat, neq, 0)) goto label_end;
-
-    // Find the rank of the pivot (in absolute sample number)
-
-    int found = -1;
-    for (int jech = 0; jech < nbgh && found < 0; jech++)
-      if (iech == ww._ranks[jech]) found = jech;
-    ww._pivot = found;
-
-    // Modify ranks into internal numbering
-
-    for (int jech = 0; jech < nbgh; jech++)
-    {
-      ww._ranks[jech] = getRelativeRank(ww._ranks[jech]);
-      if (ww._ranks[jech] < 0) goto label_end;
-    }
-
-    // Store the weights per variable for the target sample
-
-    for (int ivar = 0; ivar < nvar; ivar++)
-    {
-      VectorDouble ll(neq);
-      for (int i = 0; i < neq; i++)
-      {
-        ll[i] = COVMAT(i, ww._pivot + ivar * nbgh);
-      }
-      ww._ll.push_back(ll);
-    }
-    covmat = (double *) mem_free((char *) covmat);
-  }
-
-  // Improve the conditioning of the Precision resulting matrix
-  // Note: the return code is not tested on purpose, to let the rest
-  // of the test to be performed.
-
-  if (verbose) message("Beautifying Kriging Weights (Symmetry, Checks, ...)\n");
-  if (_improveConditioning(verbose)) return 1;
-
-  // Initialize the statistics (optional)
-
-  statsInit();
-  error = 0;
-
-  label_end:
-  (void) defineGeneralNeigh(-1, db, model, neigh);
-  covmat = (double *) mem_free((char * ) covmat);
   return error;
 }
 
@@ -422,35 +322,20 @@ void GibbsMMulti::update(VectorVectorDouble& y,
   updateStats(y, ipgs, iter);
 }
 
-int GibbsMMulti::_improveConditioning(bool verbose)
+int GibbsMMulti::_testConditioning(bool verbose)
 {
-  bool err_def, err_sym;
 
-  // Construct the Precision matrix Q
+  // Construct the Precision matrix Q (symmetric by construction)
 
   if (_buildQ()) return 1;
 
-  // Make the Matrix symmetric
-
-  if (_flagSymQ)
-    _makeQSymmetric(_Q);
-
-  // Optional printout
-
-  if (_flagPrintQ)
-    cs_print_nice("Reconstructed Precision Matrix", _Q, -1, -1);
-
   // Check that the matrix is symmetric
 
-  err_sym = ! cs_isSymmetric(_Q, verbose);
+  if (! cs_isSymmetric(_Q, verbose)) return 1;
 
   // Check that Q is definite-positive
 
-  err_def = ! cs_isDefinitePositive(_Q,  verbose);
-
-  // Summarize errors
-
-  if (err_sym || err_def) return 1;
+  if (! cs_isDefinitePositive(_Q,  verbose)) return 1;
 
   // Update the newly modified weights extracted from Q
 
@@ -459,7 +344,7 @@ int GibbsMMulti::_improveConditioning(bool verbose)
   return 0;
 }
 
-void GibbsMMulti::_print(int iact) const
+void GibbsMMulti::_display(int iact) const
 {
   int nvar = _getVariableNumber();
 
@@ -473,34 +358,18 @@ void GibbsMMulti::_print(int iact) const
     print_vector("Weights",0,nbgh,ww._ll[ivar]);
 }
 
+void GibbsMMulti::_display() const
+{
+  int nact = getSampleRankNumber();
+  mestitle(1,"Weight in Moving Gibbs");
+  for (int iact = 0; iact < nact; iact++)
+    _display(iact);
+}
+
 int GibbsMMulti::_getVariableNumber() const
 {
   Model* model = getModel();
   return model->getVariableNumber();
-}
-
-void GibbsMMulti::_setQFlag(VectorBool& QFlag,
-                            int nech,
-                            int iech,
-                            const VectorInt& ranks) const
-{
-  int nbgh = static_cast<int>(ranks.size());
-  for (int ibgh = 0; ibgh < nbgh; ibgh++)
-  {
-    QFLAG(iech, ranks[ibgh]) = 1;
-    if (_flagSymNeigh) QFLAG(ranks[ibgh], iech) = 1;
-  }
-}
-
-VectorInt GibbsMMulti::_getQFlag(VectorBool& QFlag, int nech, int iech)
-{
-  VectorInt ranks;
-
-  for (int jech = 0; jech < nech; jech++)
-  {
-    if (QFLAG(iech,jech)) ranks.push_back(jech);
-  }
-  return ranks;
 }
 
 void GibbsMMulti::_makeQSymmetric(cs* Q) const
@@ -528,6 +397,10 @@ void GibbsMMulti::_makeQSymmetric(cs* Q) const
 
 int GibbsMMulti::_buildQ()
 {
+  double* mat = nullptr;
+  double *eigval = nullptr;
+  double *eigvec = nullptr;
+  int n;
   cs* T = nullptr;
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
@@ -560,7 +433,19 @@ int GibbsMMulti::_buildQ()
 
   // Convert from triplet to sparse matrix
 
-   _Q = cs_triplet(T);
+  _Q = cs_triplet(T);
+  n = _Q->n;
+
+  // Get the Eigen values
+
+  mat = cs_toArray(_Q);
+  eigval = (double *) mem_alloc(sizeof(double) * n,1);
+  eigvec = (double *) mem_alloc(sizeof(double) * n * n,1);
+  matrix_eigen(mat, n, eigval, eigvec);
+  message("Range of Eigen values = [%lf ; %lf]\n",eigval[n-1],eigval[0]);
+  mat = (double *) mem_free((char * ) mat);
+  eigval = (double *) mem_free((char *) eigval);
+  eigvec = (double *) mem_free((char *) eigvec);
 
   label_end:
   T = cs_spfree(T);
@@ -590,4 +475,50 @@ void GibbsMMulti::_extractWeightFromQ()
         }
       }
     }
+}
+
+void GibbsMMulti::_tableStore(const Db* db, const cs* Cmat, const csn* N, bool verbose)
+{
+  int nech = db->getSampleNumber();
+  Table table(nech * nech, 3);
+
+  // Constitute the approximate covariance matrix (from modified Cholesky)
+
+  cs* L = N->L;
+  cs* Lt = cs_transpose(L, 1);
+  cs* Cmat2 = cs_multiply (L, Lt);
+  Lt = cs_spfree(Lt);
+
+  int ecr = 0;
+  double ecart = 0.;
+  double ecart_max = 0.;
+  int iech_max = -1;
+  int jech_max = -1;
+  for (int iech = 0; iech < nech; iech++)
+    for (int jech = 0; jech < nech; jech++, ecr++)
+    {
+      table.update(ecr, 0, db->getDistance(iech, jech));
+      table.update(ecr, 1, cs_get_value(Cmat, iech, jech));
+      table.update(ecr, 2, cs_get_value(Cmat2, iech, jech));
+      double delta = ABS(cs_get_value(Cmat,iech,jech) - cs_get_value(Cmat2, iech, jech));
+      if (delta > ecart_max)
+      {
+        iech_max = iech;
+        jech_max = jech;
+        ecart_max = delta;
+      }
+      ecart += delta * delta;
+    }
+
+  ecart /= (double) (nech * nech);
+  if (verbose)
+  {
+    message("Departure for Covariance Matrix between initial and reconstituted\n");
+    message("- Maximum = %lf (Initial=%lf - Reconstituted=%lf\n",
+            ecart_max,cs_get_value(Cmat,iech_max,jech_max),cs_get_value(Cmat2,iech_max,jech_max));
+    message("- Average = %lf\n",ecart);
+  }
+
+  // Serialize the table
+  table.serialize("Covariance", false);
 }

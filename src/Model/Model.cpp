@@ -645,9 +645,11 @@ void Model::_create(bool flagGradient, bool flagLinked)
 void Model::_destroy()
 {
   if (_covaList != nullptr)  _covaList->delAllCov();
-  if (_driftList != nullptr) _driftList->delAllDrift();
   delete _covaList;
+  if (_driftList != nullptr) _driftList->delAllDrift();
   delete _driftList;
+  if (_noStat != nullptr) _noStat->deleteNoStatElem();
+  delete _noStat;
 }
 
 double Model::getTotalSill(int ivar, int jvar) const

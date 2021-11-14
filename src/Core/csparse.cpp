@@ -17,6 +17,7 @@
 #define MAX_NEIGH 100
 #define XCR(ilevel,i)	      (xcr[(ilevel) * ncur + (i)])
 #define RHS(ilevel,i)	      (rhs[(ilevel) * ncur + (i)])
+#define MAT(i,j)            (mat[(i) * n + (j)])
 #define DEBUG 0
 
 cs *cs_add ( const cs *A, const cs *B, double alpha, double beta )
@@ -456,87 +457,99 @@ int *cs_amd ( const cs *A, int order )
       return (cs_idone (P, C, ww, 1)) ;
   }
 
-  /* compute nonzero pattern of L(k,:) */
-  static int cs_ereach (const cs *A, int k, const int *parent, int *s, int *w,
-			double *x, int top)
+/* compute nonzero pattern of L(k,:) */
+static int cs_ereach(const cs *A,
+                     int k,
+                     const int *parent,
+                     int *s,
+                     int *w,
+                     double *x,
+                     int top)
+{
+  int i, p, len, *Ap = A->p, *Ai = A->i;
+  double *Ax = A->x;
+  for (p = Ap[k]; p < Ap[k + 1]; p++) /* get pattern of L(k,:) */
   {
-      int i, p, len, *Ap = A->p, *Ai = A->i ;
-      double *Ax = A->x ;
-      for (p = Ap [k] ; p < Ap [k+1] ; p++)	/* get pattern of L(k,:) */
-      {
-	  i = Ai [p] ;		    /* A(i,k) is nonzero */
-	  if (i > k) continue ;	    /* only use upper triangular part of A */
-	  x [i] = Ax [p] ;	    /* x(i) = A(i,k) */
-	  for (len = 0 ; w [i] != k ; i = parent [i]) /* traverse up etree */
-	  {
-	      s [len++] = i ;	    /* L(k,i) is nonzero */
-	      w [i] = k ;		    /* mark i as visited */
-	  }
-	  while (len > 0) s [--top] = s [--len] ; /* push path onto stack */
-      }
-      return (top) ;		    /* s [top..n-1] contains pattern of L(k,:)*/
+    i = Ai[p]; /* A(i,k) is nonzero */
+    if (i > k) continue; /* only use upper triangular part of A */
+    x[i] = Ax[p]; /* x(i) = A(i,k) */
+    for (len = 0; w[i] != k; i = parent[i]) /* traverse up etree */
+    {
+      s[len++] = i; /* L(k,i) is nonzero */
+      w[i] = k; /* mark i as visited */
+    }
+    while (len > 0)
+      s[--top] = s[--len]; /* push path onto stack */
+  }
+  return (top); /* s [top..n-1] contains pattern of L(k,:)*/
+}
+
+/* L = chol (A, [Pinv parent cp]), Pinv is optional */
+csn *cs_chol(const cs *A, const css *S)
+{
+  double d, lki, *Lx, *x;
+  int top, i, p, k, n, *Li, *Lp, *cp, *Pinv, *w, *s, *c, *parent;
+  cs *L, *C, *E;
+  csn *N;
+  if (!A || !S || !S->cp || !S->parent) return (NULL); /* check inputs */
+  n = A->n;
+  N = (csn *) cs_calloc(1, sizeof(csn));
+  w = (int *) cs_malloc(3 * n, sizeof(int));
+  s = w + n, c = w + 2 * n;
+  x = (double *) cs_malloc(n, sizeof(double));
+  cp = S->cp;
+  Pinv = S->Pinv;
+  parent = S->parent;
+  C = Pinv ? cs_symperm(A, Pinv, 1) : ((cs *) A);
+  E = Pinv ? C : NULL;
+  if (!N || !w || !x || !C) return (cs_ndone(N, E, w, x, 0));
+  N->L = L = cs_spalloc(n, n, cp[n], 1, 0);
+  if (!L)
+  {
+    messerr("Core allocation problem in CSparse Library (%d x %d)", n, n);
+    return (cs_ndone(N, E, w, x, 0));
   }
 
-  /* L = chol (A, [Pinv parent cp]), Pinv is optional */
-csn *cs_chol (const cs *A, const css *S)
+  Lp = L->p;
+  Li = L->i;
+  Lx = L->x;
+  for (k = 0; k < n; k++)
   {
-      double d, lki, *Lx, *x ;
-      int top, i, p, k, n, *Li, *Lp, *cp, *Pinv, *w, *s, *c, *parent ;
-      cs *L, *C, *E ;
-      csn *N ;
-      if (!A || !S || !S->cp || !S->parent) return (NULL) ;   /* check inputs */
-      n = A->n ;
-      N = (csn *) cs_calloc (1, sizeof (csn)) ;
-      w = (int *) cs_malloc (3*n, sizeof (int)) ; s = w + n, c = w + 2*n ;
-      x = (double *) cs_malloc (n, sizeof (double)) ;
-      cp = S->cp ; Pinv = S->Pinv ; parent = S->parent ;
-      C = Pinv ? cs_symperm (A, Pinv, 1) : ((cs *) A) ;
-      E = Pinv ? C : NULL ;
-      if (!N || !w || !x || !C) return (cs_ndone (N, E, w, x, 0)) ;
-      N->L = L = cs_spalloc (n, n, cp [n], 1, 0) ;
-      if (!L) 
+    /* --- Nonzero pattern of L(k,:) ------------------------------------ */
+    Lp[k] = c[k] = cp[k]; /* column k of L starts here */
+    x[k] = 0; /* x (0:k) is now zero */
+    w[k] = k; /* mark node k as visited */
+    top = cs_ereach(C, k, parent, s, w, x, n); /* find row k of L*/
+    d = x[k]; /* d = C(k,k) */
+    x[k] = 0; /* clear workspace for k+1st iteration */
+    /* --- Triangular solve --------------------------------------------- */
+    for (; top < n; top++) /* solve L(0:k-1,0:k-1) * x = C(:,k) */
+    {
+      i = s[top]; /* s [top..n-1] is pattern of L(k,:) */
+      lki = x[i] / Lx[Lp[i]]; /* L(k,i) = x (i) / L(i,i) */
+      x[i] = 0; /* clear workspace for k+1st iteration */
+      for (p = Lp[i] + 1; p < c[i]; p++)
       {
-	messerr("Core allocation problem in CSparse Library (%d x %d)",n,n);
-	return (cs_ndone (N, E, w, x, 0)) ;
+        x[Li[p]] -= Lx[p] * lki;
       }
-      Lp = L->p ; Li = L->i ; Lx = L->x ;
-      for (k = 0 ; k < n ; k++)
-      {
-	  /* --- Nonzero pattern of L(k,:) ------------------------------------ */
-	  Lp [k] = c [k] = cp [k] ;   /* column k of L starts here */
-	  x [k] = 0 ;		    /* x (0:k) is now zero */
-	  w [k] = k ;		    /* mark node k as visited */
-	  top = cs_ereach (C, k, parent, s, w, x, n) ;	 /* find row k of L*/
-	  d = x [k] ;		    /* d = C(k,k) */
-	  x [k] = 0 ;		    /* clear workspace for k+1st iteration */
-	  /* --- Triangular solve --------------------------------------------- */
-	  for ( ; top < n ; top++)    /* solve L(0:k-1,0:k-1) * x = C(:,k) */
-	  {
-	      i = s [top] ;	    /* s [top..n-1] is pattern of L(k,:) */
-	      lki = x [i] / Lx [Lp [i]] ; /* L(k,i) = x (i) / L(i,i) */
-	      x [i] = 0 ;		    /* clear workspace for k+1st iteration */
-	      for (p = Lp [i] + 1 ; p < c [i] ; p++)
-	      {
-		  x [Li [p]] -= Lx [p] * lki ;
-	      }
-	      d -= lki * lki ;	    /* d = d - L(k,i)*L(k,i) */
-	      p = c [i]++ ;
-	      Li [p] = k ;	    /* store L(k,i) in column i */
-	      Lx [p] = lki ;
-	  }
-	  /* --- Compute L(k,k) ----------------------------------------------- */
-	  if (d <= 0) {
-	    messerr("Pivot line %d/%d should be positive (d= %lf)",k+1,n,d);
-	    return (cs_ndone (N, E, w, x, 0)) ; /* not pos def */
-	  }
-	  p = c [k]++ ;
-	  Li [p] = k ;		    /* store L(k,k) = sqrt (d) in column k */
-	  Lx [p] = sqrt (d) ;
-      }
-      Lp [n] = cp [n] ;		    /* finalize L */
-      return (cs_ndone (N, E, w, x, 1)) ; /* success: free E,w,x; return N */
+      d -= lki * lki; /* d = d - L(k,i)*L(k,i) */
+      p = c[i]++;
+      Li[p] = k; /* store L(k,i) in column i */
+      Lx[p] = lki;
+    }
+    /* --- Compute L(k,k) ----------------------------------------------- */
+    if (d <= 0)
+    {
+      messerr("Pivot line %d/%d should be positive (d= %lf)", k + 1, n, d);
+      return (cs_ndone(N, E, w, x, 0)); /* not positive definite */
+    }
+    p = c[k]++;
+    Li[p] = k; /* store L(k,k) = sqrt(d) in column k */
+    Lx[p] = sqrt(d);
   }
-
+  Lp[n] = cp[n]; /* finalize L */
+  return (cs_ndone(N, E, w, x, 1)); /* success: free E,w,x; return N */
+}
 
   /* x=A\b where A is symmetric positive definite; b overwritten with solution */
   int cs_cholsol (const cs *A, double *b, int order)
@@ -1043,6 +1056,7 @@ csn *cs_chol (const cs *A, const css *S)
       for (k = 0 ; k < n ; k++) x [P ? P [k] : k] = b [k] ;
       return (1) ;
   }
+
   cs *cs_load ( FILE *f )
   /*
     Purpose:
@@ -1068,7 +1082,6 @@ csn *cs_chol (const cs *A, const css *S)
       return (T) ;
   }
 
-int cs_lsolve ( const cs *L, double *x )
   /*
     Purpose:
     
@@ -1084,60 +1097,68 @@ int cs_lsolve ( const cs *L, double *x )
     Direct Methods for Sparse Linear Systems,
     SIAM, Philadelphia, 2006.
   */
+int cs_lsolve ( const cs *L, double *x )
 {
   int p, p0, j, n, *Lp, *Li;
   double *Lx;
-  if (!L || !x) return (0) ;	/* check inputs */
-  n = L->n ; Lp = L->p ; Li = L->i ; Lx = L->x ;
+  if (!L || !x) return (0); /* check inputs */
+  n = L->n;
+  Lp = L->p;
+  Li = L->i;
+  Lx = L->x;
 
-  for (j = 0 ; j < n ; j++)
+  for (j = 0; j < n; j++)
   {
     p0 = -1;
-    for (p = Lp[j] ; p < Lp[j+1] && p0 < 0; p++)
+    for (p = Lp[j]; p < Lp[j + 1] && p0 < 0; p++)
     {
       if (ABS(Lx[p]) > 1.e-10) p0 = p;
     }
 
-    x [j] /= Lx [p0] ;
-    for (p = Lp[j] ; p < Lp [j+1] ; p++)
+    x[j] /= Lx[p0];
+    for (p = Lp[j]; p < Lp[j + 1]; p++)
     {
-      if (p != p0) x [Li [p]] -= Lx [p] * x [j] ;
+      if (p != p0) x[Li[p]] -= Lx[p] * x[j];
     }
   }
-  return (1) ;
+  return (1);
 }
 
-int cs_ltsolve ( const cs *L, double *x )
+
   /*
-    Purpose:
+ Purpose:
 
-      CS_LTSOLVE solves L'*x=b.
+ CS_LTSOLVE solves L'*x=b.
 
-    Discussion:
+ Discussion:
 
-      On input, X contains the right hand side, and on output, the solution.
+ On input, X contains the right hand side, and on output, the solution.
 
-    Reference:
+ Reference:
 
-      Timothy Davis,
-      Direct Methods for Sparse Linear Systems,
-      SIAM, Philadelphia, 2006.
-  */
+ Timothy Davis,
+ Direct Methods for Sparse Linear Systems,
+ SIAM, Philadelphia, 2006.
+ */
+int cs_ltsolve(const cs *L, double *x)
+{
+  int p, j, n, *Lp, *Li;
+  double *Lx;
+  if (!L || !x) return (0); /* check inputs */
+  n = L->n;
+  Lp = L->p;
+  Li = L->i;
+  Lx = L->x;
+  for (j = n - 1; j >= 0; j--)
   {
-      int p, j, n, *Lp, *Li ;
-      double *Lx ;
-      if (!L || !x) return (0) ;				    /* check inputs */
-      n = L->n ; Lp = L->p ; Li = L->i ; Lx = L->x ;
-      for (j = n-1 ; j >= 0 ; j--)
-      {
-	  for (p = Lp [j]+1 ; p < Lp [j+1] ; p++)
-	  {
-	      x [j] -= Lx [p] * x [Li [p]] ;
-	  }
-	  x [j] /= Lx [Lp [j]] ;
-      }
-      return (1) ;
+    for (p = Lp[j] + 1; p < Lp[j + 1]; p++)
+    {
+      x[j] -= Lx[p] * x[Li[p]];
+    }
+    x[j] /= Lx[Lp[j]];
   }
+  return (1);
+}
 
   /* [L,U,Pinv]=lu(A, [Q lnz unz]). lnz and unz can be guess */
   csn *cs_lu (const cs *A, const css *S, double tol)
@@ -1746,31 +1767,31 @@ int cs_ltsolve ( const cs *L, double *x )
      return (cs_ddone (D, AT, xi, 1)) ;
  }
 
- /* ordering and symbolic analysis for a Cholesky factorization */
- css *cs_schol (const cs *A, int order)
- {
-     int n, *c, *post, *P ;
-     cs *C ;
-     css *S ;
-     if (!A) return (NULL) ;		    /* check inputs */
-     n = A->n ;
-     S = (css *) cs_calloc (1, sizeof (css)) ;	    /* allocate symbolic analysis */
-     if (!S) return (NULL) ;		    /* out of memory */
-     P = cs_amd (A, order) ;		    /* P = amd(A+A'), or natural */
-     S->Pinv = cs_pinv (P, n) ;		    /* find inverse permutation */
-     cs_free (P) ;
-     if (order >= 0 && !S->Pinv) return (cs_sfree (S)) ;
-     C = cs_symperm (A, S->Pinv, 0) ;	    /* C = spones(triu(A(P,P))) */
-     S->parent = cs_etree (C, 0) ;	    /* find etree of C */
-     post = cs_post (n, S->parent) ;	    /* postorder the etree */
-     c = cs_counts (C, S->parent, post, 0) ; /* find column counts of chol(C) */
-     cs_free (post) ;
-     cs_spfree (C) ;
-     S->cp = (int *) cs_malloc (n+1, sizeof (int)) ; /* find column pointers for L */
-     S->unz = S->lnz = cs_cumsum (S->cp, c, n) ;
-     cs_free (c) ;
-     return ((S->lnz >= 0) ? S : cs_sfree (S)) ;
- }
+/* ordering and symbolic analysis for a Cholesky factorization */
+css *cs_schol(const cs *A, int order)
+{
+  int n, *c, *post, *P;
+  cs *C;
+  css *S;
+  if (!A) return (NULL); /* check inputs */
+  n = A->n;
+  S = (css *) cs_calloc(1, sizeof(css)); /* allocate symbolic analysis */
+  if (!S) return (NULL); /* out of memory */
+  P = cs_amd(A, order); /* P = amd(A+A'), or natural */
+  S->Pinv = cs_pinv(P, n); /* find inverse permutation */
+  cs_free(P);
+  if (order >= 0 && !S->Pinv) return (cs_sfree(S));
+  C = cs_symperm(A, S->Pinv, 0); /* C = spones(triu(A(P,P))) */
+  S->parent = cs_etree(C, 0); /* find etree of C */
+  post = cs_post(n, S->parent); /* postorder the etree */
+  c = cs_counts(C, S->parent, post, 0); /* find column counts of chol(C) */
+  cs_free(post);
+  cs_spfree(C);
+  S->cp = (int *) cs_malloc(n + 1, sizeof(int)); /* find column pointers for L */
+  S->unz = S->lnz = cs_cumsum(S->cp, c, n);
+  cs_free(c);
+  return ((S->lnz >= 0) ? S : cs_sfree(S));
+}
 
  /* solve Lx=b(:,k), leaving pattern in xi[top..n-1], values scattered in x. */
  int cs_splsolve (cs *L, const cs *B, int k, int *xi, double *x, const int *Pinv)
@@ -2615,28 +2636,29 @@ cs *cs_extract_submatrix_by_color(cs *C,int *colors,
 
 int cs_get_nrow(const cs *A)
 {
-  int nrow;
-  cs *AT;
-
-  nrow = 0;
-  if (A != nullptr)
-  {
-    AT = cs_transpose(A,1);
-    if (AT != nullptr)
-    {
-      nrow = AT->n;
-      AT = cs_spfree(AT);
-    }
-  }
+  if (A == nullptr) return 0;
+  cs* AT = cs_transpose(A, 1);
+  if (AT == nullptr) return 0;
+  int nrow = AT->n;
+  AT = cs_spfree(AT);
   return(nrow);
 }
+
 int cs_get_ncol(const cs *A)
 {
-  int ncol;
-  ncol = 0;
-  if (A != nullptr)
-    ncol = A->n;
+  if (A == nullptr) return 0;
+  int ncol = A->n;
   return(ncol);
+}
+
+int cs_get_ncell(const cs *A)
+{
+  if (A == nullptr) return 0;
+  int ncol = A->n;
+  cs* AT = cs_transpose(A, 1);
+  int nrow = AT->n;
+  AT = cs_spfree(AT);
+  return (nrow * ncol);
 }
 
 void cs_print_dim(const char *title,
@@ -5613,7 +5635,7 @@ bool cs_isSymmetric(const cs* A, bool verbose, bool detail)
   }
 
   if (verbose)
-    message("Testing if Matrix is Symmetric\n");
+    message("Testing if Matrix is Symmetric:\n");
   int numError = 0;
   for (int irow = 0; irow < nrows; irow++)
     for (int icol = irow; icol < ncols; icol++)
@@ -5689,7 +5711,7 @@ bool cs_isDefinitePositive(cs* A, bool verbose)
   csn* N = nullptr;
 
   if (verbose)
-    message("Testing if Matrix is Definite Positive\n");
+    message("Testing if Matrix is Definite Positive:\n");
 
   S = cs_schol(A, 0);
   if (S == nullptr) goto label_end;
@@ -5715,4 +5737,55 @@ bool cs_isDefinitePositive(cs* A, bool verbose)
       message("-> Test successful\n");
   }
   return error <= 0;
+}
+
+/* Convert a sparse matrix to a complete matrix
+   returned as vector of double */
+double* cs_toArray(const cs *A)
+{
+  if (!A) { message ("(null)\n") ; return nullptr; }
+  int   n = A->n ;
+  int* Ap = A->p ;
+  int* Ai = A->i ;
+  double* Ax = A->x ;
+
+  // Core allocation
+
+  int size = cs_get_ncell(A);
+  double* mat = (double *) mem_alloc(sizeof(double) * size, 1);
+  for (int i = 0; i < size; i++) mat[i] = 0.;
+
+  /* Loop on the elements */
+
+  for (int j = 0 ; j < n; j++)
+    for (int p = Ap [j] ; p < Ap [j+1]; p++)
+      MAT(j,Ai[p]) = Ax[p];
+  return mat;
+}
+
+void cs_strip(cs *A, double epsilon, bool verbose)
+{
+  if (!A) return;
+  int   n = A->n ;
+  int* Ap = A->p ;
+  double* Ax = A->x ;
+
+  /* Loop on the elements */
+
+  int nstrip = 0;
+  int ntotal = 0;
+  for (int j = 0 ; j < n; j++)
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+    {
+      double value = Ax[p];
+      ntotal++;
+      if (ABS(value) < epsilon)
+      {
+        Ax[p] = 0.;
+        nstrip++;
+      }
+    }
+
+  if (verbose)
+    message("Number of Cholesky values stripped off = %d/%d\n",nstrip,ntotal);
 }

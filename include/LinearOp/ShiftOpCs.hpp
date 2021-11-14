@@ -25,6 +25,7 @@
 class Model;
 class CovAniso;
 class NoStatArray;
+class EConsElem;
 
 /**
  * \brief Shift Operator for performing the basic tasks of SPDE
@@ -34,7 +35,7 @@ class ShiftOpCs: public ALinearOp
 
 public:
   ShiftOpCs();
-  ShiftOpCs(AMesh* amesh,
+  ShiftOpCs(const AMesh* amesh,
             Model* model,
             const Db* dbout = nullptr,
             int igrf = 0,
@@ -56,14 +57,14 @@ public:
                       Db* dbout = nullptr,
                       bool flagAdvection = false,
                       bool verbose = false);
-  int initFromMesh(AMesh* amesh,
+  int initFromMesh(const AMesh* amesh,
                    Model* model,
                    const Db* dbout = nullptr,
                    int igrf = 0,
                    int icov = 0,
                    bool flagAdvection = false,
                    bool verbose = false);
-  int initGradFromMesh(AMesh* amesh,
+  int initGradFromMesh(const AMesh* amesh,
                        Model* model,
                        Db* dbout,
                        int igrf = 0,
@@ -108,28 +109,28 @@ private:
   void _setIcov(int icov) { _icov = icov; }
   int _getIgrf() const { return _igrf; }
   void _setIgrf(int igrf) { _igrf = igrf; }
-  Model* _getModel() const { return _model; }
-  void _setModel(Model* model) { _model = model; }
+  const Model* _getModel() const { return _model; }
+  void _setModel(const Model* model) { _model = model; }
   bool _isNoStat();
   bool _isVelocity();
   const CovAniso* _getCova();
 
-  int  _buildS(AMesh *amesh, double tol = EPSILON10);
-  int  _buildSVel(AMesh *amesh, double tol = EPSILON10);
-  int  _buildSSphere(AMesh *amesh, double tol = EPSILON10);
-  int  _buildSGrad(AMesh *amesh, double tol = EPSILON10);
-  int  _buildTildeC(AMesh *amesh, const VectorDouble& units);
-  void _buildLambda(AMesh *amesh);
+  int  _buildS(const AMesh *amesh, double tol = EPSILON10);
+  int  _buildSVel(const AMesh *amesh, double tol = EPSILON10);
+  int  _buildSSphere(const AMesh *amesh, double tol = EPSILON10);
+  int  _buildSGrad(const AMesh *amesh, double tol = EPSILON10);
+  int  _buildTildeC(const AMesh *amesh, const VectorDouble& units);
+  void _buildLambda(const AMesh *amesh);
 
   void _loadAux(VectorDouble& tab,
                 const EConsElem& type,
                 int ip);
   void _loadAuxPerMesh(VectorDouble& tab,
-                       AMesh* amesh,
+                       const AMesh* amesh,
                        const EConsElem& type,
                        int imesh = 0);
   void _loadHHPerMesh(MatrixSquareSymmetric& hh,
-                      AMesh* amesh,
+                      const AMesh* amesh,
                       int imesh = 0);
   void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
 
@@ -138,19 +139,19 @@ private:
                          int ip);
 
   void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
-                          AMesh* amesh,
+                          const AMesh* amesh,
                           int igp0,
                           int igparam);
-  bool _buildLambdaGrad(AMesh *amesh);
+  bool _buildLambdaGrad(const AMesh *amesh);
 
   void _reset();
   void _resetGrad();
   void _reallocate(const ShiftOpCs& shift);
-  void _projectMesh(AMesh *amesh,
+  void _projectMesh(const AMesh *amesh,
                     const VectorDouble& srot,
                     int imesh,
                     double coeff[3][2]);
-  int _preparMatrices(AMesh *amesh,
+  int _preparMatrices(const AMesh *amesh,
                       int imesh,
                       MatrixSquareGeneral& matu,
                       MatrixRectangular& matw) const;
@@ -170,7 +171,7 @@ private:
   bool _flagNoStatByHH;
 
   // Following list of members are there to ease the manipulation and reduce argument list
-  Model* _model;
+  const Model* _model;
   int _igrf;
   int _icov;
   int _ndim;

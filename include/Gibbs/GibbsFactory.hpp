@@ -25,7 +25,7 @@ public:
 
   static AGibbs *createGibbs(Db* db,
                              Model* model,
-                             Neigh* neigh);
+                             bool flagMoving);
   static AGibbs *createGibbs(Db* db,
                              std::vector<Model *> models,
                              double rho,

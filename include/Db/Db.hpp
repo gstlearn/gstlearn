@@ -217,6 +217,7 @@ public:
   void   setCoordinate(int iech, int idim, double value);
   VectorDouble getCoordinate(int idim, bool useSel = false, bool flag_rotate = true) const;
   double getDistance1D(int iech, int jech, int idim, bool flagAbs = false) const;
+  double getDistance(int iech, int jech) const;
 
   VectorVectorDouble getCoordinates(bool useSel = false) const;
 
