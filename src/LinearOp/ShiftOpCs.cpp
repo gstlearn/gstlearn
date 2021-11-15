@@ -510,14 +510,12 @@ void ShiftOpCs::_evalDirect(const VectorDouble& x, VectorDouble& y) const
 void ShiftOpCs::_resetGrad()
 {
   if (_SGrad.empty()) return;
-  message("On libere tous les Sgrad (%d)\n",(int) _SGrad.size());
   for (int i = 0; i < (int) _SGrad.size(); i++)
      _SGrad[i] = cs_spfree(_SGrad[i]);
 }
 
 void ShiftOpCs::_reset()
 {
-  message("On libere S\n");
   _S = cs_spfree(_S);
   _resetGrad();
 }
@@ -654,6 +652,8 @@ void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
     temp.setDiagonal(diag);
     hh.normMatrix(temp, rotmat);
   }
+
+  delete cova;
 }
 
 /**

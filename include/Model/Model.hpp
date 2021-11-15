@@ -60,7 +60,7 @@ public:
   void   addDrift(const VectorString& driftSymbols);
   void   delDrift(int rank);
   void   delAllDrifts();
-  int    addNoStat(ANoStat* anostat);
+  int    addNoStat(const ANoStat* anostat);
   bool   isFlagGradient() const { return _flagGradient; }
   bool   isFlagLinked() const { return _flagLinked; }
 
