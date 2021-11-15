@@ -53,7 +53,6 @@ ANoStat& ANoStat::operator= (const ANoStat &m)
 
 ANoStat::~ANoStat()
 {
-  message("On nettoie ANostat\n");
 }
 
 String ANoStat::toString(int level) const
