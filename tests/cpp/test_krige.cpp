@@ -52,13 +52,13 @@ int main(int /*argc*/, char */*argv*/[])
       tab.push_back(10 * law_gaussian());
     }
 
-  Db* data = new Db(nech,ELoadBy::SAMPLE,tab);
-  data->setName(0,"xcoor1");
-  data->setName(1,"xcoor2");
-  data->setName(2,"var");
-  data->setLocatorByAttribute(0,ELoc::X,0);
-  data->setLocatorByAttribute(1,ELoc::X,1);
-  data->setLocatorByAttribute(2,ELoc::Z);
+  Db* data = new Db(nech,ELoadBy::COLUMN,tab);
+  data->setName(1,"xcoor1");
+  data->setName(2,"xcoor2");
+  data->setName(3,"var");
+  data->setLocatorByAttribute(1,ELoc::X,0);
+  data->setLocatorByAttribute(2,ELoc::X,1);
+  data->setLocatorByAttribute(3,ELoc::Z);
   data->display(0);
 
   // Create the Model
