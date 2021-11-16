@@ -45,6 +45,7 @@ Under Linux, the GCC compiler is already installed
 ```sh
 sudo apt install doxygen
 sudo apt install git
+sudo apt install libboost-all-dev
 ```
 
 ### MacOS:
@@ -52,6 +53,7 @@ Under MacOS, the GCC (or Clang) compiler is already installed (Not tested)
 ```sh
 brew install doxygen
 brew install git
+brew install libboost-all-dev
 ```
 
 ### Windows:
