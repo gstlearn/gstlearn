@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#define __USE_MATH_DEFINES
+#define _USE_MATH_DEFINES // To make M_PI available under windows
 #include <cmath>
 
 double fa(double x,double y,double a,double b)

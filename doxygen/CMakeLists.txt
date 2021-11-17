@@ -22,6 +22,8 @@ set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or
 #set(DOXYGEN_UML_LOOK YES)
 #set(DOXYGEN_TEMPLATE_RELATIONS YES)
 
+# TODO : prevent from generating twice (for build and install)
+
 # Generate doxymentation
 doxygen_add_docs(doxygen ALL
                  ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
