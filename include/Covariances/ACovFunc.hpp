@@ -50,7 +50,7 @@ public:
   virtual double       getScadef()    const { return 1; }
   virtual double       getParMax()    const { return 0; }
   virtual unsigned int getMaxNDim()   const { return MAX_INT; } // No Space Dimension limit
-  virtual unsigned int getMinOrder()  const { return -1; } // Valid for FAST
+  virtual int          getMinOrder()  const { return -1; } // Valid for FAST
   virtual bool         hasInt1D()     const;
   virtual bool         hasInt2D()     const;
   virtual int          hasRange()     const { return 1 ; } // 0:No; 1:Yes; -1:from Sill

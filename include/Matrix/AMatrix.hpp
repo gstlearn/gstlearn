@@ -183,7 +183,7 @@ public:
 
 protected:
   /*! Say if (irow, icol) is stored physically or not */
-  virtual bool    _isPhysicallyPresent(int irow, int icol) const { return true; }
+  virtual bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }
   virtual bool    _isCompatible(const AMatrix& m) const = 0;
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
