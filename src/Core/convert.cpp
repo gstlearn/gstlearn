@@ -16,6 +16,7 @@
 #include "geoslib_old_f.h"
 
 #include <sstream>
+#include <string>
 
 /*! \cond */
 #define COLOR_MASK   -1
@@ -2003,6 +2004,26 @@ static int st_read_next(int   s_length,
 
   return(0);
 }
+
+
+namespace {
+    // STL replacement for strcasestr - far from optimal (several copies)
+    // C++23 introduces std::string::contains
+    // TODO: should be moved elsewhere...
+    std::string tolower(const std::string& s) {
+        std::string result;
+        result.reserve(s.size());
+        std::transform(s.begin(), s.end(), back_inserter(result),
+            [](unsigned char c) { return std::tolower(c); });
+        return result;
+    };
+    const char * strcasestr(const char* s, const char* ss) {
+        const auto pos = tolower(s).find(tolower(ss));
+        if (pos == std::string::npos) return (const char*) nullptr;
+        return s + pos;
+    };
+}
+
 
 /****************************************************************************/
 /*!
