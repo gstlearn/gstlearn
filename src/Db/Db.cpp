@@ -995,6 +995,22 @@ double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
   return delta;
 }
 
+double Db::getDistance(int iech, int jech) const
+{
+  int ndim = getNDim();
+  double dist = 0.;
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double v1 = getCoordinate(iech, idim);
+    if (FFFF(v1)) return TEST;
+    double v2 = getCoordinate(jech, idim);
+    if (FFFF(v2)) return TEST;
+    double delta = v1 - v2;
+    dist += delta * delta;
+  }
+  return sqrt(dist);
+}
+
 /**
  * Constitute a Vector of Vector of coordinates at a given sample, for all (active) samples
  * @param useSel

@@ -4502,8 +4502,8 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
     nvar2 = 1;
     if (st_check_variable(nvar, jvar0)) goto label_end;
   }
-  if (ranks1 == nullptr) nvar1 = db1->getSampleNumber();
-  if (ranks2 == nullptr) nvar2 = db1->getSampleNumber();
+  if (ranks1 == nullptr) nsize1 = db1->getSampleNumber();
+  if (ranks2 == nullptr) nsize2 = db1->getSampleNumber();
 
   /* Core allocation */
 

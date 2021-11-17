@@ -4838,12 +4838,6 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
     }
     if (gibbs == nullptr) goto label_end;
     gibbs->setOptionStats(gibbs_optstats);
-    GibbsMMulti* gibbsmmulti = dynamic_cast<GibbsMMulti*>(gibbs);
-    if (gibbsmmulti != nullptr)
-    {
-      gibbsmmulti->setFlagSymNeigh(flag_sym_neigh);
-      gibbsmmulti->setFlagSymQ(flag_sym_neigh);
-    }
     gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter,0, true);
 
     // Allocate the Gaussian vector
@@ -5893,7 +5887,7 @@ GEOSLIB_API int simcond(Db    *dbin,
   /*****************/
 
   {
-    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, nullptr);
+    AGibbs* gibbs = GibbsFactory::createGibbs(dbin, model, false);
     gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, true);
 
     /* Allocate the covariance matrix inverted */

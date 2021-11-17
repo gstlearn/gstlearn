@@ -162,3 +162,8 @@ String NoStatFunctional::toString(int level) const
     sstr << "Functional" << std::endl;
   return sstr.str();
 }
+
+IClonable* NoStatFunctional::clone() const
+{
+  return new NoStatFunctional(*this);
+}

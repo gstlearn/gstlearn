@@ -31,19 +31,19 @@ GibbsFactory::~GibbsFactory()
  * Create the relevant Gibbs with Multivariate complete model
  * @param db     Db structure
  * @param model  Multivariate structure
- * @param neigh  Neighborhood structure
+ * @param flagMoving True if a Moving Neighborhood must be used
  * @return
  */
 AGibbs* GibbsFactory::createGibbs(Db* db,
                                   Model* model,
-                                  Neigh* neigh)
+                                  bool flagMoving)
 {
-  if (neigh != nullptr && neigh->getType() == ENeigh::MOVING)
+  if (flagMoving)
   {
 
     // Moving Neighborhood
 
-    GibbsMMulti* gibbs = new GibbsMMulti(db, model, neigh);
+    GibbsMMulti* gibbs = new GibbsMMulti(db, model);
     return (static_cast<AGibbs *> (gibbs));
   }
   else

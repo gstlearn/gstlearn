@@ -16,9 +16,12 @@
 #define EPSILON1   1.e-1
 #define EPSILON2   1.e-2
 #define EPSILON3   1.e-3
+#define EPSILON4   1.e-4
 #define EPSILON5   1.e-5
 #define EPSILON6   1.e-6
+#define EPSILON7   1.e-7
 #define EPSILON8   1.e-8
+#define EPSILON9   1.e-9
 #define EPSILON10  1.e-10
 #define EPSILON20  1.e-20
 

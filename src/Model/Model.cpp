@@ -199,7 +199,12 @@ int Model::hasExternalCov() const
   return 0;
 }
 
-int Model::addNoStat(ANoStat* anostat)
+/**
+ * Define Non-stationary parameters
+ * @param anostat ANoStat pointer will be duplicated
+ * @return Error return code
+ */
+int Model::addNoStat(const ANoStat* anostat)
 {
   if (getDimensionNumber() > 3)
   {
@@ -229,7 +234,9 @@ int Model::addNoStat(ANoStat* anostat)
       return 1;
     }
   }
-  _noStat = anostat;
+
+  if (_noStat != nullptr) delete _noStat;
+  _noStat = dynamic_cast<ANoStat *> (anostat->clone());
   return 0;
 }
 
@@ -644,10 +651,9 @@ void Model::_create(bool flagGradient, bool flagLinked)
 
 void Model::_destroy()
 {
-  if (_covaList != nullptr)  _covaList->delAllCov();
-  if (_driftList != nullptr) _driftList->delAllDrift();
   delete _covaList;
   delete _driftList;
+  delete _noStat;
 }
 
 double Model::getTotalSill(int ivar, int jvar) const

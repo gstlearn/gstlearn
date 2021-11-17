@@ -44,7 +44,10 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
 {
   if (_work2.empty()) _work2.resize(getSize());
   if (_work3.empty()) _work3.resize(getSize());
+  if (_work4.empty()) _work4.resize(getSize());
+
   eval(X,_work3);
+  eval(Y,_work4);
   double temp,val;
   int iadress;
 
@@ -57,7 +60,7 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
       {
         val = getShiftOp()->getLambda(iapex);
         temp = getShiftOp()->getLambdaGrad(igparam,iapex);
-        result[iadress]= 2 * Y[iapex] * temp * _work3[iapex] / val;
+        result[iadress]= (X[iapex] * _work4[iapex] + Y[iapex] * _work3[iapex]) * temp / val;
 
       }
       else
@@ -76,12 +79,15 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,Vector
 
 void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result)
 {
-  if (_work.empty())  _work.resize(getSize());
   if (_work2.empty()) _work2.resize(getSize());
   if (_work3.empty()) _work3.resize(getSize());
-  if (_work4.empty()) _work3.resize(getSize());
+  if (_work4.empty()) _work4.resize(getSize());
 
-  eval(X,_work);
+  setTraining(false);
+  eval(Y,_work3);
+  setTraining(true);
+  eval(X,_work4);
+
   double temp,val;
   int iadress;
 
@@ -95,7 +101,7 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
       {
         val = getShiftOp()->getLambda(iapex);
         temp = getShiftOp()->getLambdaGrad(igparam,iapex);
-        result[iadress]= 2 * Y[iapex] * temp * _work[iapex] / val;
+        result[iadress]=  (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
 
       }
 
@@ -121,8 +127,7 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
 
   // Pre-processing
 
-   getShiftOp()->prodTildeC(in, _work, EPowerPT::HALF);
-
+    getShiftOp()->prodLambda(in, _work ,EPowerPT::ONE);
 
   // Polynomial evaluation
 
@@ -135,17 +140,15 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
 
     // Post-processing
 
-       getShiftOp()->prodTildeC(out, out, EPowerPT::HALF);
-       getShiftOp()->prodLambdaOnSqrtTildeC(out, out, 2.);
-
+       getShiftOp()->prodLambda(out, out ,EPowerPT::ONE);
 }
 
 void PrecisionOpCs::evalDerivOptim(VectorDouble& out,
                                    int iapex,
                                    int igparam)
 {
-  if (_work3.empty()) _work3.resize(getSize());
-  if (_work4.empty()) _work4.resize(getSize());
+  if (_work.empty()) _work3.resize(getSize());
+  if (_work5.empty()) _work4.resize(getSize());
 
   if(getPower() == EPowerPT::MINUSONE)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
@@ -156,12 +159,11 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& out,
 
 
   ((ClassicalPolynomial*) getPoly(getPower()))->evalDerivOpOptim(
-      getShiftOp(), _work3,_work4,out,_workPoly, iapex, igparam);
+      getShiftOp(), _work,_work5,out,_workPoly, iapex, igparam);
 
     // Post-processing
+       getShiftOp()->prodLambda(out, out ,EPowerPT::ONE);
 
-       getShiftOp()->prodTildeC(out, out, EPowerPT::HALF);
-       getShiftOp()->prodLambdaOnSqrtTildeC(out, out, 2.);
 }
 
 

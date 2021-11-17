@@ -15,7 +15,6 @@
 
 class Db;
 class Model;
-class Neigh;
 
 class GibbsMMulti : public GibbsMulti
 {
@@ -28,7 +27,7 @@ private:
 
 public:
   GibbsMMulti();
-  GibbsMMulti(Db* db, Model* model, Neigh* neigh);
+  GibbsMMulti(Db* db, Model* model);
   GibbsMMulti(const GibbsMMulti &r);
   GibbsMMulti& operator=(const GibbsMMulti &r);
   virtual ~GibbsMMulti();
@@ -39,33 +38,23 @@ public:
               int iter) override;
   int covmatAlloc(bool verbose) override;
 
-  Neigh* getNeigh() const { return _neigh; }
   const cs* getQ() const { return _Q; }
-  bool getFlagSymNeigh() const { return _flagSymNeigh; }
-  void setFlagSymNeigh(bool flagSymNeigh) { _flagSymNeigh = flagSymNeigh; }
-  bool getFlagSymQ() const { return _flagSymQ; }
-  void setFlagSymQ(bool flagSymQ) { _flagSymQ = flagSymQ; }
-  bool getFlagPrintQ() const { return _flagPrintQ; }
-  void setFlagPrintQ(bool flagPrintQ) { _flagPrintQ = flagPrintQ; }
+  void setEpsilon1(double epsilon) { _epsilon1 = epsilon; }
+  void setEpsilon2(double epsilon) { _epsilon2 = epsilon; }
 
 private:
-  int _improveConditioning(bool verbose);
-  void _print(int iact) const;
+  int _testConditioning(bool verbose);
+  void _display(int iact) const;
+  void _display() const;
   int _getVariableNumber() const;
-  void _setQFlag(VectorBool& QFlag,
-                 int nech,
-                 int iech,
-                 const VectorInt& ranks) const;
-  VectorInt _getQFlag(VectorBool& QFlag, int nech, int iech);
   void _makeQSymmetric(cs* Q) const;
   int  _buildQ();
   void _extractWeightFromQ();
+  void _tableStore(const Db* db, const cs* Cmat, const csn* N, bool verbose);
 
 private:
-  Neigh* _neigh;
   std::vector<GibbsWeights> _wgt; // For each sample
-  bool _flagSymNeigh;
-  bool _flagSymQ;
-  bool _flagPrintQ;
   cs*  _Q;
+  double _epsilon1;
+  double _epsilon2;
 };

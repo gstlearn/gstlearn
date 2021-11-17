@@ -40,7 +40,7 @@ ShiftOpCs::ShiftOpCs()
 {
 }
 
-ShiftOpCs::ShiftOpCs(AMesh* amesh,
+ShiftOpCs::ShiftOpCs(const AMesh* amesh,
                      Model* model,
                      const Db* dbout,
                      int igrf,
@@ -200,7 +200,7 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
  * @param verbose Verbose flag
  * @return Error return code
  */
-int ShiftOpCs::initFromMesh(AMesh* amesh,
+int ShiftOpCs::initFromMesh(const AMesh* amesh,
                             Model* model,
                             const Db* dbout,
                             int igrf,
@@ -224,8 +224,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
 
     if (model->isNoStat())
     {
-      const ANoStat* nostat = model->getNoStat();
-      if (nostat->attachToMesh(amesh, verbose))
+      if (model->getNoStat()->attachToMesh(amesh, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
@@ -235,7 +234,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
     // Calculating and storing the mesh sizes
     VectorDouble units = amesh->getMeshSizes();
 
-    // Define if parametrization is in HH or in range/angle
+    // Define if parameterization is in HH or in range/angle
     _determineFlagNoStatByHH();
 
     // Attach the Model
@@ -302,7 +301,7 @@ int ShiftOpCs::initFromMesh(AMesh* amesh,
  * @param tol Smallest value below which the value is not stored in sparse matrix
  * @return Error return code
  */
-int ShiftOpCs::initGradFromMesh(AMesh* amesh,
+int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
                                 Model* model,
                                 Db* dbout,
                                 int igrf,
@@ -325,8 +324,7 @@ int ShiftOpCs::initGradFromMesh(AMesh* amesh,
 
     if (model->isNoStat())
     {
-      const ANoStat* nostat = model->getNoStat();
-      if (nostat->attachToMesh(amesh, verbose))
+      if (model->getNoStat()->attachToMesh(amesh, verbose))
       {
         messerr("Problem when attaching 'mesh' to Non_stationary Parameters");
         return 1;
@@ -582,14 +580,12 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
     {
       if (nostat->isDefined(igrf, icov, EConsElem::RANGE, idim, -1))
       {
-        double range = nostat->getValue(igrf, icov, EConsElem::RANGE, idim, -1,
-                                        0, ip);
+        double range = nostat->getValue(igrf, icov, EConsElem::RANGE, idim, -1, 0, ip);
         cova->setRange(idim, range);
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SCALE, idim, -1))
       {
-        double scale = nostat->getValue(igrf, icov, EConsElem::SCALE, idim, -1,
-                                        0, ip);
+        double scale = nostat->getValue(igrf, icov, EConsElem::SCALE, idim, -1, 0, ip);
         cova->setScale(idim, scale);
       }
     }
@@ -599,8 +595,7 @@ void ShiftOpCs::_updateCova(CovAniso* cova,
     {
       if (nostat->isDefined(igrf, icov, EConsElem::ANGLE, idim, -1))
       {
-        double anisoAngle = nostat->getValue(igrf, icov, EConsElem::ANGLE, idim,
-                                             -1, 0, ip);
+        double anisoAngle = nostat->getValue(igrf, icov, EConsElem::ANGLE, idim,-1, 0, ip);
         cova->setAnisoAngle(idim, anisoAngle);
       }
     }
@@ -657,6 +652,8 @@ void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
     temp.setDiagonal(diag);
     hh.normMatrix(temp, rotmat);
   }
+
+  delete cova;
 }
 
 /**
@@ -749,7 +746,7 @@ void ShiftOpCs::_loadAux(VectorDouble& tab,
  * @param imesh Rank of the mesh
  */
 void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
-                               AMesh* amesh,
+                               const AMesh* amesh,
                                int imesh)
 {
   int number = amesh->getNApexPerMesh();
@@ -776,7 +773,7 @@ void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
  */
 void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
-                                   AMesh* amesh,
+                                   const AMesh* amesh,
                                    int igp0,
                                    int igparam)
 {
@@ -787,7 +784,7 @@ void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
 }
 
 void ShiftOpCs::_loadAuxPerMesh(VectorDouble& tab,
-                              AMesh* amesh,
+                              const AMesh* amesh,
                               const EConsElem& type,
                               int imesh)
 {
@@ -807,10 +804,10 @@ void ShiftOpCs::_loadAuxPerMesh(VectorDouble& tab,
   ut_vector_divide_inplace(tab, (double) number);
 }
 
-int ShiftOpCs::_preparMatrices(AMesh *amesh,
-                             int imesh,
-                             MatrixSquareGeneral& matu,
-                             MatrixRectangular& matw) const
+int ShiftOpCs::_preparMatrices(const AMesh *amesh,
+                               int imesh,
+                               MatrixSquareGeneral& matu,
+                               MatrixRectangular& matw) const
 {
   int ndim = amesh->getNDim();
   int ncorner = amesh->getNApexPerMesh();
@@ -867,7 +864,7 @@ cs* ShiftOpCs::_BuildSfromMap(std::map<std::pair<int, int>, double> &tab)
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
  */
-int ShiftOpCs::_buildSGrad(AMesh *amesh,
+int ShiftOpCs::_buildSGrad(const AMesh *amesh,
                            double tol)
 {
   // Store the number of derivation parameters for the model as member
@@ -969,9 +966,9 @@ void ShiftOpCs::_mapUpdate(std::map<std::pair<int, int>, double>& tab,
 
 const CovAniso* ShiftOpCs::_getCova()
 {
-  Model* model = _getModel();
+  const Model* model = _getModel();
   int icov = _getIcov();
-  CovAniso* cova = model->getCova(icov);
+  const CovAniso* cova = model->getCova(icov);
   return cova;
 }
 
@@ -981,7 +978,7 @@ const CovAniso* ShiftOpCs::_getCova()
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
  */
-int ShiftOpCs::_buildS(AMesh *amesh,
+int ShiftOpCs::_buildS(const AMesh *amesh,
                        double tol)
 {
   std::map<std::pair<int, int>, double> tab;
@@ -1055,7 +1052,7 @@ int ShiftOpCs::_buildS(AMesh *amesh,
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
  */
-int ShiftOpCs::_buildSVel(AMesh *amesh,
+int ShiftOpCs::_buildSVel(const AMesh *amesh,
                           double tol)
 {
   std::map<std::pair<int, int>, double> tab;
@@ -1133,7 +1130,7 @@ int ShiftOpCs::_buildSVel(AMesh *amesh,
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
  */
-int ShiftOpCs::_buildSSphere(AMesh *amesh,
+int ShiftOpCs::_buildSSphere(const AMesh *amesh,
                              double tol)
 {
   std::map<std::pair<int, int>, double> tab;
@@ -1247,7 +1244,7 @@ int ShiftOpCs::_buildSSphere(AMesh *amesh,
  * @param units Array of sizes for all meshes
  * @return Error return code
  */
-int ShiftOpCs::_buildTildeC(AMesh *amesh, const VectorDouble& units)
+int ShiftOpCs::_buildTildeC(const AMesh *amesh, const VectorDouble& units)
 {
   int nvertex = amesh->getNApices();
   int ncorner = amesh->getNApexPerMesh();
@@ -1293,7 +1290,7 @@ int ShiftOpCs::_buildTildeC(AMesh *amesh, const VectorDouble& units)
  * @param amesh Description of the Mesh (New class)
  * @return
  */
-void ShiftOpCs::_buildLambda(AMesh *amesh)
+void ShiftOpCs::_buildLambda(const AMesh *amesh)
 {
   double sqdeth = 0.;
 
@@ -1339,7 +1336,7 @@ void ShiftOpCs::_buildLambda(AMesh *amesh)
  * @param amesh Description of the Mesh (New class)
  * @return
  */
-bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
+bool ShiftOpCs::_buildLambdaGrad(const AMesh *amesh)
 {
   int ndim = getNDim();
   int nvertex = amesh->getNApices();
@@ -1408,7 +1405,7 @@ bool ShiftOpCs::_buildLambdaGrad(AMesh *amesh)
  * @param imesh Rank of the mesh of interest
  * @param coeff Coordinates of the projected vertices
  */
-void ShiftOpCs::_projectMesh(AMesh *amesh,
+void ShiftOpCs::_projectMesh(const AMesh *amesh,
                              const VectorDouble& srot,
                              int imesh,
                              double coeff[3][2])
@@ -1498,7 +1495,7 @@ double ShiftOpCs::getMaxEigenValue() const
 
 bool ShiftOpCs::_isNoStat()
 {
-  Model* model = _getModel();
+  const Model* model = _getModel();
   return model->isNoStat();
 }
 
@@ -1523,8 +1520,5 @@ void ShiftOpCs::_determineFlagNoStatByHH()
 {
   _flagNoStatByHH = false;
   if (! _isNoStat()) return;
-
-  int igrf = _getIgrf();
-  const ANoStat* nostat = _getModel()->getNoStat();
-  _flagNoStatByHH = nostat->isDefinedByType(igrf, EConsElem::TENSOR);
+  _flagNoStatByHH = _getModel()->getNoStat()->isDefinedByType(_getIgrf(), EConsElem::TENSOR);
 }

@@ -60,7 +60,7 @@ public:
   void   addDrift(const VectorString& driftSymbols);
   void   delDrift(int rank);
   void   delAllDrifts();
-  int    addNoStat(ANoStat* anostat);
+  int    addNoStat(const ANoStat* anostat);
   bool   isFlagGradient() const { return _flagGradient; }
   bool   isFlagLinked() const { return _flagLinked; }
 
@@ -122,7 +122,7 @@ public:
   /////////////////////////////////////////////////
   /// Shortcut for Non-stationary
   int isNoStat() const;
-  const ANoStat* getNoStat() { return _noStat; }
+  const ANoStat* getNoStat() const { return _noStat; }
   int  getNoStatElemNumber() const;
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElems(const VectorString& codes);

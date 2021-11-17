@@ -143,12 +143,14 @@ void    cs_keypair(const char *key, cs *A, int flag_from_1);
 int     cs_scale(cs *C);
 int     cs_get_nrow(const cs *A);
 int     cs_get_ncol(const cs *A);
+int     cs_get_ncell(const cs *A);
 double  cs_get_value(const cs *A,int row, int col);
 void    cs_set_value(const cs *A,int row, int col, double value);
-
+double* cs_toArray(const cs *A);
+void    cs_strip(cs *A, double epsilon, bool verbose);
 
 // Qchol operations
-int  qchol_cholesky(int verbose,QChol *QC);
+int qchol_cholesky(int verbose,QChol *QC);
 void cs_chol_invert(QChol *qctt,double *xcr,double *rhs, double *work);
 void cs_chol_simulate(QChol	*qctt,double *simu,double *work);
 

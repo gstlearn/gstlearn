@@ -27,6 +27,8 @@ public:
 
   virtual String toString(int level = 0) const override;
 
+  virtual IClonable* clone() const override;
+
   double getValue(int igrf, int icov, const EConsElem& type, int iv1, int iv2,
                   int icas, int rank) const override;
   double getValue(int ipar, int icas, int rank) const override;
@@ -39,14 +41,14 @@ public:
   bool   isEmpty(int icas) const;
 
 private:
-  bool _checkValid() const;
-  int  _getNpoints() const { return _tab.getNRows(); }
+  bool   _checkValid() const;
+  int    _getNpoints() const { return _tab.getNRows(); }
   double _interpolate(int ipar, int icas1, int iech1, int icas2, int iech2) const;
-  int _informField(int ipar,
-                   int nech,
-                   double* coor[3],
-                   VectorDouble& tab,
-                   bool verbose) const;
+  int    _informField(int ipar,
+                      int nech,
+                      double* coor[3],
+                      VectorDouble& tab,
+                      bool verbose) const;
   String _displayStats(int ipar, int icas) const;
   String _displayStats(int icas) const;
 

@@ -61,7 +61,6 @@ NoStatArray& NoStatArray::operator= (const NoStatArray &m)
 
 NoStatArray::~NoStatArray()
 {
-
 }
 
 bool NoStatArray::_checkValid() const
@@ -368,6 +367,11 @@ String NoStatArray::toString(int level) const
   return sstr.str();
 }
 
+IClonable* NoStatArray::clone() const
+{
+  return new NoStatArray(*this);
+}
+
 int NoStatArray::_informField(int ipar,
                               int nech,
                               double* coor[3],
@@ -388,8 +392,8 @@ int NoStatArray::_informField(int ipar,
 
   if (is_grid(_dbnostat))
   {
-    if (migrate_grid_to_coor(_dbnostat, iatt, nech, coor[0], coor[1],
-                             coor[2], tab.data())) return 1;
+    if (migrate_grid_to_coor(_dbnostat, iatt, nech, coor[0], coor[1], coor[2],
+                             tab.data())) return 1;
   }
   else
   {

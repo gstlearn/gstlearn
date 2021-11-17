@@ -18,7 +18,7 @@ class AMesh;
 class Model;
 class Db;
 
-class ANoStat : public AStringable
+class ANoStat : public AStringable, public IClonable
 {
 public:
   ANoStat();
@@ -28,6 +28,8 @@ public:
   virtual ~ANoStat();
 
   virtual String toString(int level = 0) const override;
+
+  virtual IClonable* clone() const override = 0;
 
   bool isDefined() const { return ! _items.empty(); }
   bool isDefinedByCov(int igrf, int icov) const;
