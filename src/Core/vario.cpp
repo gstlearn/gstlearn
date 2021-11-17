@@ -3489,6 +3489,7 @@ GEOSLIB_API Vario *variogram_delete(Vario *vario)
 
 {
   if (vario == nullptr) return(vario);
+  delete vario;
   vario = nullptr;
   return(vario);
 }

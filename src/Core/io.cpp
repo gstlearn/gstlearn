@@ -51,6 +51,8 @@ static Constant CST[CST_NUMBER] = {
   { 2,  0, 1.0e-15, "EPSSVD", "Tolerance value for SVD Matrix calculations"}
 };
 
+static double DBL_THRESH = 0.0005; // Because default NTDEC is 3
+
 static char TABSTR[BUFFER_LENGTH];
 static char FORMAT[STRING_LENGTH];
 static char DECODE[STRING_LENGTH];
@@ -94,9 +96,9 @@ static void st_exit(void)
 **
 *****************************************************************************/
 static void st_print(const char *string)
-
 {
-  (void) printf("%s",string); // Default printf statement
+  //(void) printf("%s",string); // Default printf statement
+  std::cout << string;
 }
 
 /****************************************************************************/
@@ -172,6 +174,7 @@ static void st_format(int mode)
 *****************************************************************************/
 GEOSLIB_API void redefine_message(void (*write_func)(const char *))
 {
+  std::cout << "Write function is redefined" << std::endl;
   if (write_func != NULL)
     WRITE_FUNC = write_func;
   return;
@@ -986,6 +989,8 @@ GEOSLIB_API void constant_reset(void)
   CST[CST_EPSMAT].rval = matrix_constant_query(CST_EPSMAT);
   CST[CST_EPSSVD].rval = matrix_constant_query(CST_EPSSVD);
 
+  DBL_THRESH = 0.0005; // because default NTDEC is 3;
+
   return;
 }
 
@@ -1052,6 +1057,10 @@ GEOSLIB_API void constant_define(const  char *name,
       if (found == CST_NTDEC) setFormatDecimalNumber(static_cast<int> (value));
       if (found == CST_NTCOL) setFormatMaxNCols(static_cast<int> (value));
       if (found == CST_NTROW) setFormatMaxNRows(static_cast<int> (value));
+
+      // Recalculate the threshold
+      if (found == CST_NTDEC) DBL_THRESH = (0.5 * pow(10, - CST[CST_NTDEC].ival));
+
     }
     else
     {
@@ -1250,7 +1259,11 @@ GEOSLIB_API void tab_printg(const char*     title,
   if (FFFF(value))
     (void) gslStrcpy(DECODE,"N/A");
   else
+  {
+    // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
+    value = (ABS(value) < DBL_THRESH) ? 0. : value;
     (void) gslSPrintf(DECODE,FORMAT,value);
+  }
 
   tab_prints(title,ncol,justify,DECODE);
 

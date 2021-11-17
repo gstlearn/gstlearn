@@ -25,7 +25,7 @@
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
-  int error = 0;
+  int error = 1; //TODO : temporary fail
   int ndim = 2;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   CovContext ctxt(1,2,1.); // use default space

@@ -12,8 +12,8 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-
-#include <stdlib.h>
+#include <iostream>
+#include <fstream>
 
 /*********************/
 /* Program principal */
@@ -38,6 +38,12 @@ int main(int argc, char *argv[])
   model = (Model *) NULL;
   flag_norm_sill = 0;
   flag_goulard_used = 1;
+
+  /* Standard output redirection to file */
+
+  std::ofstream out("Result.out");
+  std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+  std::cout.rdbuf(out.rdbuf()); //redirect std::cout to Result.out!
 
   /* Connect the Geoslib Library */
 
@@ -118,6 +124,7 @@ int main(int argc, char *argv[])
 /* Core deallocation */
 
 label_end:
+  std::cout.rdbuf(coutbuf); //reset to standard output again
   model = model_free(model);
   dbout = db_delete(dbout);
   vario = variogram_delete(vario);

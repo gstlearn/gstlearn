@@ -1,5 +1,6 @@
 lib
 bin
+build
 doxygen/latex
 doxygen/html
 doxygen/xml

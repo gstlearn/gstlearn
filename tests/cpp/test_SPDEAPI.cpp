@@ -57,7 +57,7 @@ int main(int /*argc*/, char */*argv*/[])
 //  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
   spde.compute();
   spde.query(&workingDbc);
-  workingDbc.serialize("spde.ascii");
+  workingDbc.serialize("spde_simunc.ascii");
   return 0;
 }
 

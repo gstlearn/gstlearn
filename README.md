@@ -1,5 +1,5 @@
 ## Overview
-*gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paristech - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
+*gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paristech - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
 Copyright (c) MINES Paristech / PSL University
 
 The name 'gstlearn' stands for several purposes:
@@ -38,37 +38,22 @@ Notes:
 ## Library compilation & installation
 For compiling and installing the *gstlearn* library, execute the following instructions in a command prompt.
 
-### Compile and install for all users
-This requires Administrator rights:
+### Compile and install
 
 ```sh
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-cd ..
-cmake --build build --config Release
+cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 sudo cmake --build build --target install
 ```
 
-### Compile and install for you only
-You can choose a different installation directory by modifying the first CMake command above:
-  
-```
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/home/fors/Programmes/gstlearn ..
-cd ..
-cmake --build build --config Release
-cmake --build build --target install
-```
+Notes:
+  * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
+  * If you don't want to generate doxygen documentation, use `-DEXCLUDE_DOXYGEN=1` in the first command
 
-Additionnal options:
-You may want to modify `make` behavior. In that case, add `--` (double dash) at the end of the `cmake --build` command and complete:
+Additional options:
+You may want to modify `make` behavior when running `cmake --build` command:
   * If you want to use N CPU for compiling, add `-j N` at the end
   * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` at the end
-  
-Notes:
-  * If you want to build and install the *Debug* version, you must replace *Release* by *Debug* above
-  * In newer version of CMake, the three first commands will be replaced by `cmake -Bbuild -H.`
-TODO : Ensure debug/release instructions are cross-platform
 
 ## Usage
 TODO: Instructions will come soon
@@ -86,7 +71,7 @@ sudo apt install libboost-dev
 ```
 
 Notes:
-  * If your Linux distribution repository doesn't provide minimum required versions, please install manually
+  * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 ### MacOS:
 Under MacOS, the GCC (or Clang) compiler is already installed (Not tested)
@@ -99,7 +84,7 @@ brew install libboost-dev
 ```
 
 Notes:
-  * If your MacOS repository doesn't provide minimum required versions, please install manually
+  * If your MacOS repository doesn't provide minimum required versions, please install manually (see provider website)
   
 ### Windows:
 Download and install the following tools:
@@ -121,19 +106,26 @@ To clean (partially) the build, execute the following command:
 ```
 cmake --build build --target clean
 ```
-If you want to clean all CMake output, you can remove all files or directories from build folder (*except .gitignore*):
+If you want to clean all CMake output, you can remove build directory:
 
 ```
-rm -rf build/*
+rm -rf build
 ```
+
+### Non regression tests
+To launch non regression tests, execute this command:
+
+```
+cmake --build build --target test
+```
+
 
 ### Uninstall
 To uninstall all the installed files (only the files, not the directories), execute this command:
 
 ```
-cmake --build build --target uninstall
+sudo cmake --build build --target uninstall
 ```
-Add sudo if you installed the library for all users.
 
 ### Generate the documentation
 To generate documentation using doxygen, execute the command:
