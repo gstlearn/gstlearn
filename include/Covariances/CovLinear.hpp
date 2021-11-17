@@ -25,8 +25,8 @@ public:
   virtual ~CovLinear();
 
   int    hasRange() const override { return -1; }
-  unsigned int getMinOrder()  const override { return 0; }
-  String         getCovName() const override { return "Linear"; }
+  int    getMinOrder()  const override { return 0; }
+  String getCovName() const override { return "Linear"; }
 
 protected:
   double _evaluateCov(double h) const override;

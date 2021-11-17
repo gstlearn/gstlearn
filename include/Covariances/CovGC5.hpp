@@ -25,8 +25,8 @@ public:
   virtual ~CovGC5();
 
   int    hasRange() const override { return -1; }
-  unsigned int getMinOrder()  const override { return 2; }
-  String         getCovName() const override { return "Order-5 G.C."; }
+  int    getMinOrder()  const override { return 2; }
+  String getCovName() const override { return "Order-5 G.C."; }
 
 protected:
   double _evaluateCov(double h) const override;
