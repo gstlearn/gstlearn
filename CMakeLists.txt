@@ -29,7 +29,8 @@ set(CMAKE_DEBUG_POSTFIX d)
 # Process sub directories
 add_subdirectory(src)
 add_subdirectory(doxygen)
-add_subdirectory(tests)
+# TODO : restore test compilation (MSVC)
+#add_subdirectory(tests)
 
 if (EXCLUDE_DOXYGEN)
   set_target_properties(doxygen PROPERTIES EXCLUDE_FROM_ALL TRUE)
