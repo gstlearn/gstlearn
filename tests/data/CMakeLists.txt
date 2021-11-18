@@ -1,18 +1,16 @@
-# List special non regression test sources
+# List special non-regression test sources
 set(TEST_SOURCES 
     testim.cpp
     testpgs.cpp
     testvar.cpp)
 
-# Prepare target list
+# Prepare executable targets list
 set(TARGETS_EXE "")
 
 # For each test executable
 foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Retrieve source file name without extension (will become executable name)
     get_filename_component(TEST_NAME ${TEST_SOURCE_FILE} NAME_WE)
-    # Append .exe extension
-    set(TEST_NAME ${TEST_NAME}.exe)
     # Add to executable targets list
     list(APPEND TARGETS_EXE ${TEST_NAME})
     # Define sources list for the target executable
