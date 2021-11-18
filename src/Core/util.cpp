@@ -1985,7 +1985,6 @@ static Keypair *st_get_keypair_address(const char *keyword)
  ** \param[in]  keypair        Keypair structure
  ** \param[in]  mode           0 for creation and 1 for appending
  ** \param[in]  origin         1 from C; 2 from R
- ** \param[in]  nrow           Number of rows
  ** \param[in]  ncol           Number of columns
  **
  ** \remarks The arguments 'ncol' and 'origin' are updated.
@@ -2838,7 +2837,6 @@ GEOSLIB_API int solve_P3(double a, double b, double c, double d, double *x)
  ** \li                   -1 : Deallocation
  ** \param[in]  pldist_loc Input PL_Dist structure (used for mode=-1)
  ** \param[in]  ndim       Space dimension
- ** \param[in]  nvert      Number of vertices in the Polyline
  **
  ** \remarks The PL_Dist structure that has been allocated (mode=1),
  ** \remarks must be freed using the same function with mode=-1
@@ -3329,7 +3327,6 @@ GEOSLIB_API double ut_geodetic_angular_distance(double long1,
 /*!
  **  Extract A from a,b,c
  **
- ** \param[in]  sina   Sine of first angle
  ** \param[in]  cosa   Cosine of first angle
  ** \param[in]  sinb   Sine of second angle
  ** \param[in]  cosb   Cosine of second angle
@@ -4249,7 +4246,6 @@ GEOSLIB_API int ut_icosphere(int n,
  ** \param[in]  red     Red index
  ** \param[in]  green   Green index
  ** \param[in]  blue    Blue index
- ** \param[in]  a       Additional parameter
  **
  ** \param[out] c       Numeric value
  **

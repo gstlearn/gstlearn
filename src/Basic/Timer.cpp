@@ -48,7 +48,7 @@ void Timer::reset()
  * Returns Timer elapsed (in ms) since the reference Timer
  * @param flag_reset True if the Reference must be set to current Time
  * @param verbose True if a message should be issued
- * @title title Title used for the internal display
+ * @param title Title used for the internal display
  * @return Timer elapsed (ms)
  */
 double Timer::getTimerInterval(bool flag_reset,
