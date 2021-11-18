@@ -432,7 +432,7 @@ GEOSLIB_API int simsph_f(Db    *db,
                        double test_phase)
 {
   int    *degree,*order,flag_sphere;
-  int     iptr,error,ndisc,nfreq,degmax,shunt,iech,nech,nx,ny,ecr,ntot;
+  int     iptr,error,ndisc,nfreq,degmax,shunt,nech,nx,ny,ecr,ntot;
   double *freqs,*phase;
   double  theta,phi,t1,t2,val,tol,degree_loc,order_loc,phase_loc;
 
@@ -565,17 +565,17 @@ GEOSLIB_API int simsph_f(Db    *db,
       t1 = ut_flegendre(1,(int) degree_loc,(int) order_loc,theta);
       for (int ix=0; ix<nx; ix++,ecr++)
       {
-        iech = IPTR(ix,iy);
+        int jech = IPTR(ix,iy);
         mes_process("Simulation on Sphere",ntot,ecr);
-        if (! db->isActive(iech)) continue;
-        phi = ut_deg2rad(db->getCoordinate(iech,0));       // Longitude [0,360]
+        if (! db->isActive(jech)) continue;
+        phi = ut_deg2rad(db->getCoordinate(jech,0));       // Longitude [0,360]
         t2  = cos(phi * order_loc + phase_loc);
-        db->updArray(iech,iptr,0,t1*t2);
+        db->updArray(jech,iptr,0,t1*t2);
       }
     }
   }
   
-  /* Final normation */
+  /* Final normalization */
     
   val = 2. / sqrt((double) nbf);
   for (int iech=0; iech<nech; iech++)

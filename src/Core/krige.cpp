@@ -277,18 +277,18 @@ static void st_global_init(Db *dbin,
 **  Returns the coordinate of the data (at rank if rank >= 0)
 **  or of the target (at IECH_OUT if rank < 0)
 **
-** \param[in]  rank   Rank of the sample
+** \param[in]  loc_rank   Rank of the sample
 ** \param[in]  idim   Rank of the coordinate
 **
 *****************************************************************************/
-static double st_get_idim(int rank,
+static double st_get_idim(int loc_rank,
                           int idim)
 {
   double value;
 
-  if (rank >= 0)
+  if (loc_rank >= 0)
   {
-    value = DBIN->getCoordinate(rank,idim);
+    value = DBIN->getCoordinate(loc_rank,idim);
   }
   else
   {

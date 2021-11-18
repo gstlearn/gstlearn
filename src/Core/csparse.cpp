@@ -1099,26 +1099,31 @@ csn *cs_chol(const cs *A, const css *S)
   */
 int cs_lsolve ( const cs *L, double *x )
 {
-  int p, p0, j, n, *Lp, *Li;
-  double *Lx;
+  int p, p0, j, n, *Lp, *Li, Lpj, Lpjp1;
+  double *Lx, xval;
   if (!L || !x) return (0); /* check inputs */
   n = L->n;
   Lp = L->p;
   Li = L->i;
   Lx = L->x;
 
+  Lpj = Lp[0];
+  Lpjp1 = Lp[1];
   for (j = 0; j < n; j++)
   {
     p0 = -1;
-    for (p = Lp[j]; p < Lp[j + 1] && p0 < 0; p++)
+    Lpj = Lpjp1;
+    Lpjp1 = Lp[j+1];
+    for (p = Lpj; p < Lpjp1 && p0 < 0; p++)
     {
       if (ABS(Lx[p]) > 1.e-10) p0 = p;
     }
 
     x[j] /= Lx[p0];
-    for (p = Lp[j]; p < Lp[j + 1]; p++)
+    xval  = x[j];
+    for (p = Lpj; p < Lpjp1; p++)
     {
-      if (p != p0) x[Li[p]] -= Lx[p] * x[j];
+      if (p != p0) x[Li[p]] -= Lx[p] * xval;
     }
   }
   return (1);
@@ -1142,16 +1147,21 @@ int cs_lsolve ( const cs *L, double *x )
  */
 int cs_ltsolve(const cs *L, double *x)
 {
-  int p, j, n, *Lp, *Li;
+  int p, j, n, *Lp, *Li, Lpj, Lpjp1;
   double *Lx;
   if (!L || !x) return (0); /* check inputs */
-  n = L->n;
+  n  = L->n;
   Lp = L->p;
   Li = L->i;
   Lx = L->x;
+
+  Lpj = Lp[n-1];
+  Lpjp1 = Lp[n];
   for (j = n - 1; j >= 0; j--)
   {
-    for (p = Lp[j] + 1; p < Lp[j + 1]; p++)
+    Lpjp1 = Lpj;
+    Lpj = Lp[j];
+    for (p = Lpj + 1; p < Lpjp1; p++)
     {
       x[j] -= Lx[p] * x[Li[p]];
     }
@@ -5763,29 +5773,71 @@ double* cs_toArray(const cs *A)
   return mat;
 }
 
-void cs_strip(cs *A, double epsilon, bool verbose)
+int cs_nnz(const cs* A)
 {
-  if (!A) return;
-  int   n = A->n ;
-  int* Ap = A->p ;
+  if (!A) return 0;
+  int n = A->n;
+  int* Ap = A->p;
+  return(Ap[n]);
+}
+
+/**
+ * Strip off elements of the input Sparse Matrix whose absolute value is smaller than eps.
+ * Return a new compressed sparse matrix.
+ * Consequently, strip off the vector P[in/out] which contains the order of the samples
+ * @param A       Input sparse matrix
+ * @param eps     Tolerance on absolute value of the input sparse matrix elements
+ * @param verbose Verbose flag
+ * @return A pointer to the new sparse matrix (it must be freed by calling function)
+ *
+ * @note Note that in the current version, the input matrix A is also modified
+ */
+cs* cs_strip(cs *A, double eps, bool verbose)
+{
+  cs *Q, *Qtriplet;
+  if (!A) return nullptr;
+  int error = 1;
+  int   n = A->n;
+  int* Ap = A->p;
+  int* Ai = A->i;
   double* Ax = A->x ;
+
+  Q = Qtriplet = nullptr;
+  Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
 
   /* Loop on the elements */
 
-  int nstrip = 0;
-  int ntotal = 0;
   for (int j = 0 ; j < n; j++)
+  {
+    double epsloc = eps * j / (n - 1);
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
     {
       double value = Ax[p];
-      ntotal++;
-      if (ABS(value) < epsilon)
+      if (ABS(value) < epsloc)
       {
         Ax[p] = 0.;
-        nstrip++;
+      }
+      else
+      {
+        if (! cs_entry(Qtriplet,Ai[p],j,value)) goto label_end;
       }
     }
+  }
+
+  // Transform triplet into Sparse matrix
+
+  Q = cs_triplet(Qtriplet);
+  if (Q == nullptr) goto label_end;
+
+  // Clean the P vector
 
   if (verbose)
-    message("Number of Cholesky values stripped off = %d/%d\n",nstrip,ntotal);
+    message("Stripping Q: Number of values = %d -> %d\n",cs_nnz(A),cs_nnz(Q));
+
+  error = 0;
+
+ label_end:
+  Qtriplet = cs_spfree(Qtriplet);
+  if (error) Q = cs_spfree(Q);
+  return(Q);
 }

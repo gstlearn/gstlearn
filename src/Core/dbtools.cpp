@@ -879,7 +879,7 @@ GEOSLIB_API int db_duplicate(Db *db,
  *****************************************************************************/
 GEOSLIB_API int surface(Db *db_point,
                         Db *db_grid,
-                        int icol,
+                        int /*icol*/,
                         double dlim,
                         double *dtab,
                         double *gtab)

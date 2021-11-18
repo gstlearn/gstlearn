@@ -104,7 +104,7 @@ private:
              const VectorDouble& nbgh_rotmat,
              const VectorInt& nbgh_image);
 
-public:  /// TODO : make members private
+private:
   int _nDim;                     /* Space dimension */
   ENeigh _type;                  /* Neighborhood type: ENeigh */
   int _flagXvalid;               /* 1 to suppress the target */
@@ -122,5 +122,5 @@ public:  /// TODO : make members private
   double _distCont;              /* Distance for continuous neighborhood */
   VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
-  VectorInt _imageRadius;        /* Vector of image neighborhood radius */
+  VectorInt    _imageRadius;     /* Vector of image neighborhood radius */
 };

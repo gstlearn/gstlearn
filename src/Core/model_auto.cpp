@@ -1258,7 +1258,7 @@ static void st_goulard_debug_title(int nvar,
                                    int ncova)
 {
   int icov,ivar,jvar;
-  static char string[20];
+  static char loc_string[20];
 
   if (! debug_query("converge")) return;
   mestitle(1,"Trajectory of parameters in Goulard Algorithm");
@@ -1269,8 +1269,8 @@ static void st_goulard_debug_title(int nvar,
     for (ivar=0; ivar<nvar; ivar++)
       for (jvar=0; jvar<=ivar; jvar++)
       {
-        (void) gslSPrintf(string,"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
-        tab_prints(NULL,1,EJustify::RIGHT,string);
+        (void) gslSPrintf(loc_string,"St%d(%d-%d)",icov+1,ivar+1,jvar+1);
+        tab_prints(NULL,1,EJustify::RIGHT,loc_string);
       }
   message("\n");
 }
@@ -1321,7 +1321,7 @@ static void st_keypair_sill(int   mode,
                             Model *model)
 {
   int ncova,nvar;
-  char string[100];
+  char loc_string[100];
 
   if (model == nullptr) return;
   ncova = model->getCovaNumber();
@@ -1335,8 +1335,8 @@ static void st_keypair_sill(int   mode,
   {
     for (int icova=0; icova<ncova; icova++)
     {
-      (void) gslSPrintf(string,"Fitted_Sill_%d",icova+1);
-      set_keypair(string,1,nvar,nvar,
+      (void) gslSPrintf(loc_string,"Fitted_Sill_%d",icova+1);
+      set_keypair(loc_string,1,nvar,nvar,
                   model->getSill(icova).getValues().data());
     }
   }
@@ -1359,7 +1359,7 @@ static void st_keypair_results(int     mode,
                                double *valpro,
                                double *vecpro)
 {
-  char string[50];
+  char loc_string[50];
 
   if (mode < 0)
   {
@@ -1368,10 +1368,10 @@ static void st_keypair_results(int     mode,
   }
   else
   {
-    (void) gslSPrintf(string,"Model_Auto_Eigen_Values_%d",icov+1);
-    set_keypair(string,1,1,nvar,valpro);
-    (void) gslSPrintf(string,"Model_Auto_Eigen_Vector_%d",icov+1);
-    set_keypair(string,1,nvar,nvar,vecpro);
+    (void) gslSPrintf(loc_string,"Model_Auto_Eigen_Values_%d",icov+1);
+    set_keypair(loc_string,1,1,nvar,valpro);
+    (void) gslSPrintf(loc_string,"Model_Auto_Eigen_Vector_%d",icov+1);
+    set_keypair(loc_string,1,nvar,nvar,vecpro);
   }
 }
 
@@ -2702,7 +2702,7 @@ static double st_minimize_P4(int icov0,
       nin = 0;
       xx[0] = x[0];
       xx[1] = x[2];
-      for (int k=0; k<2; k++)
+      for (k=0; k<2; k++)
       {
         xt[k]   = MAX(0., MIN(xrmax, xx[k]));
         xest[k] = (a*xt[k]*xt[k]*xt[k]*xt[k]+c*xt[k]*xt[k]+d*xt[k])/2.;
@@ -2729,7 +2729,6 @@ static double st_minimize_P4(int icov0,
 
   return retval;
 }
-
 
 /****************************************************************************/
 /*!
@@ -3778,7 +3777,7 @@ label_compress:
 
   for (imod=strmod->nmodel-1; imod>=0; imod--)
   {
-    int ncova = strmod->models[imod]->getCovaNumber();
+    ncova = strmod->models[imod]->getCovaNumber();
     for (icov=ncova-1; icov>=0; icov--)
     {
       if (! FLAG_COMPRESS(imod,icov)) continue;
@@ -4577,7 +4576,7 @@ GEOSLIB_API int model_auto_fit(const Vario      *vario,
 
   // Define regularizing constraints (temporarily) using "keypair" mechanism
 
-  flag_regular = get_keypone("Data_Discretization", 0.);
+  flag_regular = (int) get_keypone("Data_Discretization", 0.);
   if (flag_regular)
   {
     REGULARIZE.flag_regularize = 1;

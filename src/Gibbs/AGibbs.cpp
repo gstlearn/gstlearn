@@ -9,6 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Gibbs/AGibbs.hpp"
+
+#include "../../include/Basic/Timer.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
@@ -355,6 +357,14 @@ int AGibbs::getSampleRank(int i) const
     return _ranks[i];
 }
 
+int AGibbs::getSampleNumber() const
+{
+  if (_db == nullptr)
+    return 0;
+  else
+    return _db->getSampleNumber();
+}
+
 void AGibbs::updateStats(const VectorVectorDouble& y,
                          int ipgs,
                          int jter,
@@ -504,7 +514,7 @@ int AGibbs::getRelativeRank(int iech)
   return -1;
 }
 
-int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool flagCheck)
+int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool flagCheck)
 {
   if (calculInitialize(y, isimu, ipgs)) return 1;
   if (flagCheck)
@@ -512,8 +522,14 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool flagCheck)
 
   /* Iterations of the Gibbs sampler */
 
+  Timer timer;
   for (int iter = 0; iter < getNiter(); iter++)
+  {
+//    if (verbose) message("Iteration #%d/%d\n",iter+1,getNiter());
     update(y, isimu, ipgs, iter);
+  }
+  int msec = timer.getTimerInterval();
+  if (verbose) message("Time elapsed (%d iterations) = %d\n",msec);
 
   /* Check the validity of the Gibbs results (optional) */
 

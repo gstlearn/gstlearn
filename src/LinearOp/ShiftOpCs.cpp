@@ -652,7 +652,6 @@ void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
     temp.setDiagonal(diag);
     hh.normMatrix(temp, rotmat);
   }
-
   delete cova;
 }
 
@@ -718,6 +717,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
       temp.setDiagonal(diag);
       hh.innerMatrix(temp, rotmat, drotmat);
     }
+    delete cova;
   }
 }
 
@@ -945,7 +945,8 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
   error = 0;
 
   label_end:
-  if (error) for (int i = 0; i < (int) _SGrad.size(); i++)
+  if (error)
+    for (int i = 0; i < (int) _SGrad.size(); i++)
     _SGrad[i] = cs_spfree(_SGrad[i]);
   return error;
 }
@@ -962,14 +963,6 @@ void ShiftOpCs::_mapUpdate(std::map<std::pair<int, int>, double>& tab,
   std::pair<int, int> key(ip0, ip1);
   ret = tab.insert(std::pair<std::pair<int, int>, double>(key, value));
   if (!ret.second) ret.first->second += value;
-}
-
-const CovAniso* ShiftOpCs::_getCova()
-{
-  const Model* model = _getModel();
-  int icov = _getIcov();
-  const CovAniso* cova = model->getCova(icov);
-  return cova;
 }
 
 /**
@@ -1395,6 +1388,8 @@ bool ShiftOpCs::_buildLambdaGrad(const AMesh *amesh)
       }
     }
   }
+
+  delete cova;
   return false;
 }
 
@@ -1521,4 +1516,9 @@ void ShiftOpCs::_determineFlagNoStatByHH()
   _flagNoStatByHH = false;
   if (! _isNoStat()) return;
   _flagNoStatByHH = _getModel()->getNoStat()->isDefinedByType(_getIgrf(), EConsElem::TENSOR);
+}
+
+const CovAniso* ShiftOpCs::_getCova()
+{
+  return _getModel()->getCova(_getIcov());
 }

@@ -25,28 +25,40 @@
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
-  , _wgt()
-  , _Q(nullptr)
+  , _Ln(nullptr)
+  , _Pn()
   , _epsilon1(EPSILON6)
   , _epsilon2(EPSILON6)
+  , _flagCheckCovariance(false)
+  , _ranks()
+  , _b()
+  , _x()
 {
 }
 
 GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   : GibbsMulti(db, model)
-  , _wgt()
-  , _Q(nullptr)
+  , _Ln(nullptr)
+  , _Pn()
   , _epsilon1(EPSILON6)
   , _epsilon2(EPSILON6)
+  , _flagCheckCovariance(false)
+  , _ranks()
+  , _b()
+  , _x()
 {
 }
 
 GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   : GibbsMulti(r)
-  , _wgt(r._wgt)
-  , _Q(r._Q)
+  , _Ln(r._Ln)
+  , _Pn(r._Pn)
   , _epsilon1(r._epsilon1)
   , _epsilon2(r._epsilon2)
+  , _flagCheckCovariance(r._flagCheckCovariance)
+  , _ranks(r._ranks)
+  , _b(r._b)
+  , _x(r._x)
 {
 }
 
@@ -55,18 +67,22 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
   if (this != &r)
   {
     GibbsMulti::operator=(r);
-    _wgt = r._wgt;
-    _Q = r._Q;
+    _Ln  = r._Ln;
+    _Pn  = r._Pn;
     _epsilon1 = r._epsilon1;
     _epsilon2 = r._epsilon2;
+    _flagCheckCovariance = r._flagCheckCovariance;
+    _ranks = r._ranks;
+    _b = r._b;
+    _x = r._x;
   }
   return *this;
 }
 
 GibbsMMulti::~GibbsMMulti()
 {
-  if (_Q != nullptr)
-    _Q = cs_spfree(_Q);
+  if (_Ln != nullptr)
+    _Ln = cs_spfree(_Ln);
 }
 
 /****************************************************************************/
@@ -86,22 +102,12 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   cs*  Cmat = nullptr;
   css* S = nullptr;
   csn* N = nullptr;
-  double* x = nullptr;
-  double* b = nullptr;
   int n;
-  int nbgh_max = ITEST;
-  int nbgh_min = ITEST;
   int error = 1;
-  int iact_max = -1;
-  int nstrip = 0;
-  double delta_max = 0.;
-  double q_min = TEST;
-  double q_max = 0.;
   Db* db = getDb();
   Model* model = getModel();
-  int nvar = _getVariableNumber();
-  int nact = getSampleRankNumber();
-  int nech = db->getSampleNumber();
+  int nvar   = _getVariableNumber();
+  int nech   = getSampleNumber();
   int nvardb = db->getVariableNumber();
   bool flag_var_defined = nvardb > 0;
 
@@ -114,9 +120,18 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     return 1;
   }
 
+  // Core allocation
+
+  n = nech * nvar;
+  _Pn.resize(nech);
+  _ranks.resize(nech);
+  _b.resize(n);
+  _x.resize(n);
+
   // Establish the covariance matrix as sparse (hopefully)
 
-  if (verbose) message("Building Complete Covariance Sparse Matrix\n");
+  if (verbose)
+    message("Building Complete Covariance Sparse Matrix (Dimension=%d)\n",nech);
   Cmat = model_covmat_by_ranks_cs(model,db,nech,nullptr,db,nech,nullptr,-1,-1,false,true);
   if (Cmat == nullptr)
   {
@@ -124,6 +139,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     goto label_end;
   }
 
+  // Cholesky decomposition
 
   if (verbose) message("Cholesky Decomposition of Covariance Matrix\n");
   n = Cmat->n;
@@ -135,17 +151,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     goto label_end;
   }
 
-  // Core allocation
-
-  x = (double *) mem_alloc(sizeof(double) * n,0);
-  if (x == nullptr) goto label_end;
-  b = (double *) mem_alloc(sizeof(double) * n,0);
-  if (b == nullptr) goto label_end;
-
-  // Kriging weights
-
-  if (verbose) message("Establishing Sets of Kriging Weights\n");
-  _wgt.resize(nact);
+  for (int i = 0; i < nech; i++) _Pn[i] = S->Pinv[i];
 
   // Optional printout
 
@@ -158,90 +164,23 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Stripping the Cholesky decomposition matrix
 
-  cs_strip(N->L, _epsilon2, verbose);
+  _Ln = cs_strip(N->L, _epsilon2, verbose);
 
-  // Store experimental and approximate covariances in the table
-
-  _tableStore(db, Cmat, N, verbose);
-
-  for (int iact = 0; iact < nact; iact++)
+  if (_flagCheckCovariance)
   {
-    int iech = getSampleRank(iact);
-    GibbsWeights& ww = _wgt[iact];
+    // Convergence: Reconstruct the covariance matrix
 
-    for (int j = 0; j < n; j++) b[j] = 0.;
-    b[iech] = 1.;
+    if (verbose)
+      message(
+          "Checking the approximation by reconstructing Covariance Matrix\n");
+    _tableStore(db, Cmat, verbose);
 
-    // Solve the linear system and returns the result in 'x'
-    cs_ipvec(nech, S->Pinv, b, x); /* x = P*b */
-    cs_lsolve(N->L, x); /* x = L\x */
-    cs_ltsolve(N->L, x); /* x = L'\x */
-    cs_pvec(nech, S->Pinv, x, b); /* b = P'*x */
+    // Convergence: Check the identity
 
-    // Discarding the values leading to small weights
-
-    ww._ranks = VectorInt(nech);
-    int nbgh = 0;
-    for (int j = 0; j < nech; j++)
-    {
-      double wloc = ABS(b[j]);
-      if (FFFF(q_min) || wloc < q_min) q_min = wloc;
-      if (FFFF(q_max) || wloc > q_max) q_max = wloc;
-      if (wloc > _epsilon1)
-      {
-        ww._ranks[nbgh] = j;
-        if (iact == j) ww._pivot = nbgh;
-        nbgh++;
-      }
-      else
-      {
-        b[j] = 0.;
-        nstrip++;
-      }
-    }
-    ww._ranks.resize(nbgh);
-
-    // Check against the identify
-
-    cs_mulvec(Cmat, nech, b, x);
-    for (int j = 0; j < nech; j++)
-    {
-      double ref = (j == iact) ? 1. : 0.;
-      double delta = ABS(x[j] - ref);
-      if (delta > delta_max)
-      {
-        delta_max = delta;
-        iact_max = iact;
-      }
-    }
-
-    // Storing the weights per variable for the target sample
-
-    if (IFFFF(nbgh_min) || nbgh > nbgh_max) nbgh_max = nbgh;
-    if (IFFFF(nbgh_min) || nbgh < nbgh_min) nbgh_min = nbgh;
-    int neq  = nvar * nbgh;
-    for (int ivar = 0; ivar < nvar; ivar++)
-    {
-      VectorDouble ll(neq);
-      for (int i = 0; i < nbgh; i++)
-        ll[i] = b[ivar * nbgh + ww._ranks[i]];
-      ww._ll.push_back(ll);
-    }
+    if (verbose) message("Checking for Identity reproduction\n");
+    _checkForIdentity(Cmat, verbose);
   }
 
-  if (verbose)
-  {
-    message("Range of Q values = [%lf ; %lf]\n", q_min,q_max);
-    message("Number of weights stripped off = %d\n",nstrip);
-    message("Number of weights per neighborhood is in [%d ; %d]\n",nbgh_min,nbgh_max);
-    message("Maximum departure from identity (at sample #%d) = %lg\n",iact_max,delta_max);
-  }
-
-  // Improve the conditioning of the Precision resulting matrix
-  // Note: the return code is not tested on purpose, to let the rest
-  // of the test to be performed.
-
-  if (_testConditioning(verbose)) return 1;
   if (DEBUG) _display();
 
   // Initialize the statistics (optional)
@@ -250,8 +189,6 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   error = 0;
 
  label_end:
-  x = (double *) mem_free((char *) x);
-  b = (double *) mem_free((char *) b);
   Cmat = cs_spfree(Cmat);
   S = cs_sfree(S);
   N = cs_nfree(N);
@@ -275,8 +212,10 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 {
   double valsim;
 
-  int nact = getSampleRankNumber();
+  int pivot, nbgh;
+
   int nvar = _getVariableNumber();
+  int nact = getSampleRankNumber();
 
   /* Print the title */
 
@@ -290,24 +229,20 @@ void GibbsMMulti::update(VectorVectorDouble& y,
     int icase = getRank(ipgs,ivar);
     for (int iact = 0; iact < nact; iact++)
     {
+      int iech = getSampleRank(iact);
       if (! isConstraintTight(ipgs, ivar, iact, &valsim))
       {
-        const GibbsWeights& ww = _wgt[iact];
-        int nbgh  = static_cast<int>(ww._ranks.size());
-        int pivot = ww._pivot;
-
-        /* Loop on the Data */
-
-        double yk = 0.;
-        double vark = 1. / ww._ll[ivar][pivot + nbgh * ivar];
+        VectorVectorDouble wgt = _getWeights(iech,&nbgh,&pivot);
+        double yk   = 0.;
+        double vark = 1. / wgt[ivar][pivot + nbgh * ivar];
         for (int jvar = 0; jvar < nvar; jvar++)
         {
           int jcase = getRank(ipgs, jvar);
           for (int jbgh = 0; jbgh < nbgh; jbgh++)
           {
-            int jact = ww._ranks[jbgh];
+            int jact = _ranks[jbgh];
             if (ivar != jvar || iact != jact)
-              yk -= y[jcase][jact] * ww._ll[jvar][jbgh + nbgh * jvar];
+              yk -= y[jcase][jact] * wgt[jvar][jbgh + nbgh * jvar];
           }
         }
         yk *= vark;
@@ -322,40 +257,19 @@ void GibbsMMulti::update(VectorVectorDouble& y,
   updateStats(y, ipgs, iter);
 }
 
-int GibbsMMulti::_testConditioning(bool verbose)
+void GibbsMMulti::_display(int iech) const
 {
-
-  // Construct the Precision matrix Q (symmetric by construction)
-
-  if (_buildQ()) return 1;
-
-  // Check that the matrix is symmetric
-
-  if (! cs_isSymmetric(_Q, verbose)) return 1;
-
-  // Check that Q is definite-positive
-
-  if (! cs_isDefinitePositive(_Q,  verbose)) return 1;
-
-  // Update the newly modified weights extracted from Q
-
-  _extractWeightFromQ();
-
-  return 0;
-}
-
-void GibbsMMulti::_display(int iact) const
-{
+  int nbgh, pivot;
   int nvar = _getVariableNumber();
 
-  message("Active sample #%d\n",iact);
-  const GibbsWeights& ww = _wgt[iact];
-  message("Position within the neighboring sample list: %d\n",ww._pivot);
+  VectorVectorDouble wgt = _getWeights(iech,&nbgh,&pivot);
 
-  int nbgh = static_cast<int>(ww._ranks.size());
-  print_ivector("Ranks",0,nbgh,ww._ranks);
+  message("Active sample #%d\n",iech);
+  message("Position within the neighboring sample list: %d\n",pivot);
+
+  print_ivector("Ranks",0,nbgh,_ranks);
   for (int ivar=0; ivar < nvar; ivar++)
-    print_vector("Weights",0,nbgh,ww._ll[ivar]);
+    print_vector("Weights",0,nbgh,wgt[ivar]);
 }
 
 void GibbsMMulti::_display() const
@@ -372,121 +286,20 @@ int GibbsMMulti::_getVariableNumber() const
   return model->getVariableNumber();
 }
 
-void GibbsMMulti::_makeQSymmetric(cs* Q) const
+void GibbsMMulti::_tableStore(const Db* db, const cs* Cmat, bool verbose)
 {
-  int n = Q->n;
+  int nech = getSampleNumber();
+  Table table;
 
-  // Set the lower part of the matrix to symmetrical values
-  for (int irow = 0; irow < n; irow++)
-    for (int icol = 0; icol < irow; icol++)
-    {
-      double val1 = cs_get_value(Q, irow, icol);
-      double val2 = cs_get_value(Q, icol, irow);
-      cs_set_value(Q, irow, icol, (val1 + val2) / 2.);
-    }
+  // Getting maximum distance for covariance calculation
 
-  // Copy the upper part by symmetry
-
-  for (int irow = 0; irow < n; irow++)
-    for (int icol = irow; icol < n; icol++)
-    {
-      double val = cs_get_value(Q, icol, irow);
-      cs_set_value(Q, irow, icol, val);
-    }
-}
-
-int GibbsMMulti::_buildQ()
-{
-  double* mat = nullptr;
-  double *eigval = nullptr;
-  double *eigvec = nullptr;
-  int n;
-  cs* T = nullptr;
-  int nvar = _getVariableNumber();
-  int nact = getSampleRankNumber();
-
-  // Constitute the triplet
-
-  T = cs_spalloc(0, 0, 1, 1, 1);
-  if (T == nullptr) return 1;
-
-  // Create partial precision matrix Q from the weights
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-  for (int iact = 0; iact < nact; iact++)
-  {
-    const GibbsWeights& ww = _wgt[iact];
-    int nbgh  = static_cast<int>(ww._ranks.size());
-    int icol = iact + nbgh * ivar;
-
-    for (int jbgh = 0; jbgh < nbgh; jbgh++)
-    {
-      int jact = ww._ranks[jbgh];
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        int jcol = jact + nbgh * jvar;
-        double wgt = ww._ll[jvar][jbgh + nbgh * jvar];
-        if (! cs_entry(T, icol, jcol, wgt)) goto label_end;
-      }
-    }
-  }
-
-  // Convert from triplet to sparse matrix
-
-  _Q = cs_triplet(T);
-  n = _Q->n;
-
-  // Get the Eigen values
-
-  mat = cs_toArray(_Q);
-  eigval = (double *) mem_alloc(sizeof(double) * n,1);
-  eigvec = (double *) mem_alloc(sizeof(double) * n * n,1);
-  matrix_eigen(mat, n, eigval, eigvec);
-  message("Range of Eigen values = [%lf ; %lf]\n",eigval[n-1],eigval[0]);
-  mat = (double *) mem_free((char * ) mat);
-  eigval = (double *) mem_free((char *) eigval);
-  eigvec = (double *) mem_free((char *) eigvec);
-
-  label_end:
-  T = cs_spfree(T);
-  return 0;
-}
-
-void GibbsMMulti::_extractWeightFromQ()
-{
-  int nvar = _getVariableNumber();
-  int nact = getSampleRankNumber();
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int iact = 0; iact < nact; iact++)
-    {
-      GibbsWeights& ww = _wgt[iact];
-      int nbgh = static_cast<int>(ww._ranks.size());
-      int icol = iact + nbgh * ivar;
-
-      for (int jbgh = 0; jbgh < nbgh; jbgh++)
-      {
-        int jact = ww._ranks[jbgh];
-        for (int jvar = 0; jvar < nvar; jvar++)
-        {
-          int jcol = jact + nbgh * jvar;
-          double value = cs_get_value(_Q, icol, jcol);
-          ww._ll[jvar][jbgh + nbgh * jvar] = value;
-        }
-      }
-    }
-}
-
-void GibbsMMulti::_tableStore(const Db* db, const cs* Cmat, const csn* N, bool verbose)
-{
-  int nech = db->getSampleNumber();
-  Table table(nech * nech, 3);
+  Model* model = getModel();
+  double distmax = 1.5 * model->getCova(0)->getRange();
 
   // Constitute the approximate covariance matrix (from modified Cholesky)
 
-  cs* L = N->L;
-  cs* Lt = cs_transpose(L, 1);
-  cs* Cmat2 = cs_multiply (L, Lt);
+  cs* Lt = cs_transpose(_Ln, 1);
+  cs* Cmat2 = cs_multiply (_Ln, Lt);
   Lt = cs_spfree(Lt);
 
   int ecr = 0;
@@ -495,12 +308,17 @@ void GibbsMMulti::_tableStore(const Db* db, const cs* Cmat, const csn* N, bool v
   int iech_max = -1;
   int jech_max = -1;
   for (int iech = 0; iech < nech; iech++)
-    for (int jech = 0; jech < nech; jech++, ecr++)
+    for (int jech = 0; jech < nech; jech++)
     {
-      table.update(ecr, 0, db->getDistance(iech, jech));
-      table.update(ecr, 1, cs_get_value(Cmat, iech, jech));
-      table.update(ecr, 2, cs_get_value(Cmat2, iech, jech));
-      double delta = ABS(cs_get_value(Cmat,iech,jech) - cs_get_value(Cmat2, iech, jech));
+      double dist = db->getDistance(iech, jech);
+      if (dist > distmax) continue;
+      table.resize(ecr+1, 3);
+      table.update(ecr, 0, dist);
+      double val1 = cs_get_value(Cmat, iech, jech);
+      table.update(ecr, 1, val1);
+      double val2 = cs_get_value(Cmat2, iech, jech);
+      table.update(ecr, 2, val2);
+      double delta = ABS(val1 - val2);
       if (delta > ecart_max)
       {
         iech_max = iech;
@@ -508,17 +326,120 @@ void GibbsMMulti::_tableStore(const Db* db, const cs* Cmat, const csn* N, bool v
         ecart_max = delta;
       }
       ecart += delta * delta;
+      ecr++;
     }
 
   ecart /= (double) (nech * nech);
   if (verbose)
   {
     message("Departure for Covariance Matrix between initial and reconstituted\n");
-    message("- Maximum = %lf (Initial=%lf - Reconstituted=%lf\n",
+    message("- Maximum = %lf (Initial=%lf - Reconstituted=%lf)\n",
             ecart_max,cs_get_value(Cmat,iech_max,jech_max),cs_get_value(Cmat2,iech_max,jech_max));
     message("- Average = %lf\n",ecart);
   }
 
   // Serialize the table
   table.serialize("Covariance", false);
+}
+
+double GibbsMMulti::_checkForSampleIdentity(int iact, const cs* Cmat) const
+{
+  int nvar = _getVariableNumber();
+  int nech = getSampleNumber();
+  int n = nech * nvar;
+
+  for (int i = 0; i < n; i++) _b[i] = 0.;
+  _b[iact] = 1.;
+
+  double delta_max = 0.;
+  cs_mulvec(Cmat, n, _b.data(), _x.data());
+  for (int j = 0; j < n; j++)
+  {
+    double ref = (j == iact) ? 1. : 0.;
+    double delta = ABS(_x[j] - ref);
+    if (delta > delta_max) delta_max = delta;
+  }
+  return delta_max;
+}
+
+void GibbsMMulti::_checkForIdentity(const cs* Cmat, bool verbose) const
+{
+  int nbgh, pivot;
+  int nact = getSampleRankNumber();
+  double delta_max = 0.;
+  int iact_max = -1;
+  int nbgh_min = ITEST;
+  int nbgh_max = ITEST;
+
+  for (int iact = 0; iact < nact; iact++)
+  {
+    int iech = getSampleRank(iact);
+    VectorVectorDouble wgt = _getWeights(iech, &nbgh, &pivot);
+    if (IFFFF(nbgh_min) || nbgh > nbgh_max) nbgh_max = nbgh;
+    if (IFFFF(nbgh_min) || nbgh < nbgh_min) nbgh_min = nbgh;
+
+    // Check against the identify
+
+    double delta = _checkForSampleIdentity(iech, Cmat);
+    if (delta > delta_max)
+    {
+      delta_max = delta;
+      iact_max = iact;
+    }
+  }
+
+  if (verbose)
+  {
+    message("Number of weights per neighborhood is in [%d ; %d]\n", nbgh_min,
+            nbgh_max);
+    message("Maximum departure from identity (at sample #%d) = %lg\n", iact_max,
+            delta_max);
+  }
+}
+
+VectorVectorDouble GibbsMMulti::_getWeights(int iech,
+                                            int *nbgh_arg,
+                                            int *pivot_arg) const
+{
+  int pivot = -1;
+  int nvar  = _getVariableNumber();
+  int nech  = getSampleNumber();
+  int n = nech * nvar;
+  for (int i = 0; i < n; i++) _b[i] = 0.;
+  _b[iech] = 1.;
+
+  // Solve the linear system and returns the result in 'x'
+  cs_ipvec(nech, _Pn.data(), _b.data(), _x.data()); /* x = P*b */
+  cs_lsolve(_Ln, _x.data()); /* x = L\x */
+  cs_ltsolve(_Ln, _x.data()); /* x = L'\x */
+  cs_pvec(nech, _Pn.data(), _x.data(), _b.data()); /* b = P'*x */
+
+  // Discarding the values leading to small weights
+
+  int nbgh = 0;
+  for (int j = 0; j < nech; j++)
+  {
+    double wloc = ABS(_b[j]);
+    if (wloc > _epsilon1)
+    {
+      _ranks[nbgh] = j;
+      if (iech == j) pivot = nbgh;
+      nbgh++;
+    }
+  }
+
+  // Storing the weights per variable for the target sample
+
+  VectorVectorDouble weights;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    VectorDouble ll(nbgh);
+    for (int i = 0; i < nbgh; i++)
+      ll[i] = _b[ivar * nbgh + _ranks[i]];
+    weights.push_back(ll);
+  }
+
+  *pivot_arg = pivot;
+  *nbgh_arg = nbgh;
+  return weights;
 }

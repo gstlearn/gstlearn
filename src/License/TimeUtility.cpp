@@ -55,7 +55,7 @@ bool TimeUtility::convert_to_tm(const std::string& date,
 
 void TimeUtility::get_current_date(struct tm* timeinfo) {
   time_t cur = time(NULL);
-  struct tm* cur_time =localtime(&cur);
+  struct tm* cur_time = localtime(&cur);
   memcpy(timeinfo, cur_time, sizeof(struct tm));
 }
 

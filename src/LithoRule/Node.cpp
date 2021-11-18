@@ -619,7 +619,6 @@ double Node::_transform(int mode, double value)
     else
       return(value);
   }
-  return 0.;
 }
 
 /****************************************************************************/
@@ -676,7 +675,6 @@ double Node::_threshFromPropcum(double rho)
 
     return _threshDichotomy(rho);
   }
-  return TEST;
 }
 
 /****************************************************************************/

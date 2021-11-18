@@ -25,7 +25,7 @@ private:
   VectorDouble _psiHn;
 
 public:
-  AnamHermite(int nbpoly=0, bool flagBound=true, double rCoef=1., double sCoef=1.);
+  AnamHermite(int nbpoly=0, bool flagBound=true, double rCoef=1.);
   AnamHermite(const AnamHermite &m);
   AnamHermite& operator= (const AnamHermite &m);
   virtual ~AnamHermite();

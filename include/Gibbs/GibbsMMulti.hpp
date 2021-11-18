@@ -18,13 +18,6 @@ class Model;
 
 class GibbsMMulti : public GibbsMulti
 {
-private:
-  struct GibbsWeights {
-    int _pivot;
-    VectorInt _ranks;
-    VectorVectorDouble _ll;
-  }; // Per sample
-
 public:
   GibbsMMulti();
   GibbsMMulti(Db* db, Model* model);
@@ -38,23 +31,30 @@ public:
               int iter) override;
   int covmatAlloc(bool verbose) override;
 
-  const cs* getQ() const { return _Q; }
   void setEpsilon1(double epsilon) { _epsilon1 = epsilon; }
   void setEpsilon2(double epsilon) { _epsilon2 = epsilon; }
+  void setFlagCheckCovariance(bool flagCheckCovariance) { _flagCheckCovariance = flagCheckCovariance; }
 
 private:
-  int _testConditioning(bool verbose);
   void _display(int iact) const;
   void _display() const;
-  int _getVariableNumber() const;
-  void _makeQSymmetric(cs* Q) const;
-  int  _buildQ();
-  void _extractWeightFromQ();
-  void _tableStore(const Db* db, const cs* Cmat, const csn* N, bool verbose);
+  int  _getVariableNumber() const;
+  void _tableStore(const Db* db, const cs* Cmat, bool verbose);
+  double _checkForSampleIdentity(int iact, const cs* Cmat) const;
+  void   _checkForIdentity(const cs* Cmat, bool verbose = false) const;
+  VectorVectorDouble _getWeights(int iech,
+                                 int *nbgh_arg,
+                                 int *pivot_arg) const;
 
 private:
-  std::vector<GibbsWeights> _wgt; // For each sample
-  cs*  _Q;
-  double _epsilon1;
-  double _epsilon2;
+  cs*       _Ln;
+  VectorInt _Pn;
+  double    _epsilon1;
+  double    _epsilon2;
+  bool      _flagCheckCovariance;
+
+  // Mutable arrays (declared to speed up the process)
+  mutable VectorInt _ranks;
+  mutable VectorDouble _b;
+  mutable VectorDouble _x;
 };

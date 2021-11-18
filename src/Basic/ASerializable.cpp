@@ -184,12 +184,12 @@ int ASerializable::_recordRead(const String& title, String format, ...) const
 }
 
 /**
- *
+ * Record a String in the Serialized file
  * @param format String to be completed
  * @param ... Variable list of arguments
  * @return
  *
- * @remark: Format is not a reference here:
+ * @remark Format is not a reference here:
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
  */
 // TODO : Impose that va_list arguments are stringable ? (For example, we can serialize ECov objects !)

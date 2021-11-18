@@ -803,9 +803,7 @@ static int st_frac_add(int           ifrac,
 **
 ** \param[in]  x0           Abscissae of the fracture
 ** \param[in]  range        Range for the repulsion
-** \param[in]  denstab      Discretized density array
-**
-** \param[in]  denstab      Discretized density array (updated)
+** \param[in,out] denstab   Discretized density array
 **
 ** \remarks  We first designate the central cell of the discretized density
 ** \remarks  array where the new fault is located
@@ -1147,9 +1145,7 @@ static double st_derive_intensity(double        theta1,
 /*!
 **  Generate the series of layers
 **
-** \param[in]  frac_environ Pointer to the Frac_Environ structure
-**
-** \param[in]  frac_environ Pointer to the Frac_Environ structure
+** \param[in,out] frac_environ Pointer to the Frac_Environ structure
 ** \param[in]  nlayers      Number of layers
 ** \param[in]  y0           Ordinate of the origin
 **
@@ -2163,8 +2159,6 @@ label_end:
 ** \param[in]  family       Family to which the fracture belongs
 ** \param[in]  perm         Assigned permeability or TEST
 ** \param[in,out] nout      Initial/Final number of end points
-**
-** \param[out] nout         Final number of end points
 **
 *****************************************************************************/
 static double *st_wellout_add(double *wellout,

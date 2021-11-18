@@ -20,7 +20,7 @@
 #define ANAM_YMAX  10.
 #define YPAS       0.1
 
-AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef, double sCoef)
+AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
     : AnamContinuous(EAnam::HERMITIAN),
       _nbPoly(nbpoly),
       _flagBound(flagBound),

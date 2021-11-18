@@ -1995,7 +1995,7 @@ static Keypair *st_get_keypair_address(const char *keyword)
 static void st_keypair_attributes(Keypair *keypair,
                                   int mode,
                                   int origin,
-                                  int nrow,
+                                  int /*nrow*/,
                                   int ncol)
 {
   /* Dispatch */
@@ -2847,7 +2847,7 @@ GEOSLIB_API int solve_P3(double a, double b, double c, double d, double *x)
 GEOSLIB_API PL_Dist *pldist_manage(int mode,
                                    PL_Dist *pldist_loc,
                                    int ndim,
-                                   int nvert)
+                                   int /*nvert*/)
 {
   PL_Dist *pldist;
   int idim;
@@ -3337,7 +3337,7 @@ GEOSLIB_API double ut_geodetic_angular_distance(double long1,
  ** \param[in]  cosc   Cosine of third angle
  **
  *****************************************************************************/
-static double st_convert_geodetic_angle(double sina,
+static double st_convert_geodetic_angle(double /*sina*/,
                                         double cosa,
                                         double sinb,
                                         double cosb,
@@ -3347,8 +3347,7 @@ static double st_convert_geodetic_angle(double sina,
   double prod, cosA;
 
   prod = sinb * sinc;
-  cosA = (prod == 0.) ? 0. :
-                        (cosa - cosb * cosc) / prod;
+  cosA = (prod == 0.) ? 0. : (cosa - cosb * cosc) / prod;
   if (cosA < -1) cosA = -1.;
   if (cosA > +1) cosA = +1.;
   return (acos(cosA));
@@ -4019,7 +4018,7 @@ GEOSLIB_API void ut_vandercorput(int n,
   if (flag_rot)
   {
     st_init_rotation(&ct, &st, a);
-    for (int i = 0; i < ntri; i++)
+    for (i = 0; i < ntri; i++)
       ut_rotation_direction(ct, st, a, &coord[3 * i]);
   }
 
@@ -4255,7 +4254,11 @@ GEOSLIB_API int ut_icosphere(int n,
  ** \param[out] c       Numeric value
  **
  *****************************************************************************/
-GEOSLIB_API void rgb2num(int red, int green, int blue, int a, unsigned char *c)
+GEOSLIB_API void rgb2num(int red,
+                         int green,
+                         int blue,
+                         int /*a*/,
+                         unsigned char *c)
 {
   double value;
 
@@ -5076,8 +5079,8 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
     // We have reached the bottom of the pile, evaluate the absolute address
 
     ival = dlp->indg[ndim - 1];
-    for (int idim = ndim - 2; idim >= 0; idim--)
-      ival = ival * dlp->nx[idim] + dlp->indg[idim];
+    for (int jdim = ndim - 2; jdim >= 0; jdim--)
+      ival = ival * dlp->nx[jdim] + dlp->indg[jdim];
     dlp->tab[dlp->curech++] = ival + 1;
 
     // Optional printout
@@ -5085,8 +5088,8 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
     if (verbose)
     {
       message("node (");
-      for (int idim = 0; idim < ndim; idim++)
-        message(" %d", dlp->indg[idim] + 1);
+      for (int jdim = 0; jdim < ndim; jdim++)
+        message(" %d", dlp->indg[jdim] + 1);
       message(" ) -> %d\n", ival + 1);
     }
     return;
