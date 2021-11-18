@@ -1107,8 +1107,7 @@ int cs_lsolve ( const cs *L, double *x )
   Li = L->i;
   Lx = L->x;
 
-  Lpj = Lp[0];
-  Lpjp1 = Lp[1];
+  Lpj = Lpjp1 = Lp[0];
   for (j = 0; j < n; j++)
   {
     p0 = -1;
@@ -1155,8 +1154,7 @@ int cs_ltsolve(const cs *L, double *x)
   Li = L->i;
   Lx = L->x;
 
-  Lpj = Lp[n-1];
-  Lpjp1 = Lp[n];
+  Lpj = Lpjp1 = Lp[n];
   for (j = n - 1; j >= 0; j--)
   {
     Lpjp1 = Lpj;

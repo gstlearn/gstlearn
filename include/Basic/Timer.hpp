@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include <time.h>
 
 /**
@@ -24,7 +25,9 @@ public:
   virtual ~Timer();
 
   void reset();
-  int  getTimerInterval(bool flag_reset = false);
+  double getTimerInterval(bool flag_reset = false,
+                          bool verbose = false,
+                          const String& title = String());
 
 private:
   clock_t _refTimer;

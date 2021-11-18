@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Timer.hpp"
+#include "Basic/AStringable.hpp"
 
 Timer::Timer()
 {
@@ -45,13 +46,27 @@ void Timer::reset()
 
 /**
  * Returns Timer elapsed (in ms) since the reference Timer
+ * @param flag_reset True if the Reference must be set to current Time
+ * @param verbose True if a message should be issued
+ * @title title Title used for the internal display
  * @return Timer elapsed (ms)
  */
-int Timer::getTimerInterval(bool flag_reset)
+double Timer::getTimerInterval(bool flag_reset,
+                               bool verbose,
+                               const String& title)
 {
   clock_t newTimer  = clock();
   clock_t diffTimer = newTimer - _refTimer;
   if (flag_reset) _refTimer = newTimer;
-  int msec = diffTimer / CLOCKS_PER_SEC;
+  double msec = (double) (diffTimer) / CLOCKS_PER_SEC;
+
+  if (verbose)
+  {
+    if (! title.empty())
+      message("%s: %6.2lf ms.\n",title.c_str(),msec);
+    else
+      message("Timer: %6.2lf ms.\n",msec);
+  }
+
   return msec;
 }

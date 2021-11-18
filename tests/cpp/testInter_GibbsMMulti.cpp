@@ -34,11 +34,11 @@ int main(int /*argc*/, char */*argv*/[])
 
 {
   int iptr;
-  bool flag_inter = false;
+  bool flag_inter = true;
 
   int nx        = 20;
-  int niter     = 200;
-  int nburn     = 30;
+  int niter     = 100;
+  int nburn     = 20;
   double range  = 10.;
   double bound  = TEST;
   double eps1   = EPSILON6;

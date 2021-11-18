@@ -12,6 +12,7 @@
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Timer.hpp"
 #include "Morpho/Morpho.hpp"
 #include "csparse_f.h"
 #include "geoslib_f.h"
@@ -131,13 +132,15 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   // Establish the covariance matrix as sparse (hopefully)
 
   if (verbose)
-    message("Building Complete Covariance Sparse Matrix (Dimension=%d)\n",nech);
+    message("Building Covariance Sparse Matrix (Dimension = %d)\n",nech);
+  Timer timer;
   Cmat = model_covmat_by_ranks_cs(model,db,nech,nullptr,db,nech,nullptr,-1,-1,false,true);
   if (Cmat == nullptr)
   {
     messerr("Impossible to create the Total Precision Matrix");
     goto label_end;
   }
+  (void) timer.getTimerInterval(true, verbose, "Building Covariance");
 
   // Cholesky decomposition
 
@@ -150,8 +153,8 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     messerr("Fail to perform Cholesky decomposition");
     goto label_end;
   }
-
   for (int i = 0; i < nech; i++) _Pn[i] = S->Pinv[i];
+  (void) timer.getTimerInterval(true, true, "Cholesky Decomposition");
 
   // Optional printout
 

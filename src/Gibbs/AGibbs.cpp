@@ -525,11 +525,9 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool f
   Timer timer;
   for (int iter = 0; iter < getNiter(); iter++)
   {
-//    if (verbose) message("Iteration #%d/%d\n",iter+1,getNiter());
     update(y, isimu, ipgs, iter);
   }
-  int msec = timer.getTimerInterval();
-  if (verbose) message("Time elapsed (%d iterations) = %d\n",msec);
+  (void) timer.getTimerInterval(false,verbose,"Gibbs iterations");
 
   /* Check the validity of the Gibbs results (optional) */
 
