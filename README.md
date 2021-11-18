@@ -20,7 +20,7 @@ This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LT
 For compiling and installing *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
   * [Git](https://git-scm.com/downloads) client
   * [CMake](https://cmake.org/download) tool 3.15 or higher
-  * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows)
+  * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows) or MinGW 7 or higher (Windows also)
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [Boost](https://www.boost.org/users/download) library
   
@@ -59,11 +59,12 @@ sudo cmake --build build --target install
 Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
   * If you don't want to generate doxygen documentation, use `-DEXCLUDE_DOXYGEN=1` in the first command
+  * You may need to precise the location of Boost header files, in that case, add `-DBoost_INCLUDE_DIR="<path/to/boost_incs>"` in the first command
 
 Additional options:
 You may want to modify `make` behavior when running `cmake --build` command:
   * If you want to use N CPU for compiling, add `-j N` at the end
-  * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` at the end
+  * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` (Linux) or `--verbose` (Windows) at the end
 
 ## Usage
 TODO: Instructions will come soon
@@ -100,12 +101,13 @@ Notes:
 Download and install the following tools:
   * Git client [from here](https://gitforwindows.org) (Use default options during installation)
   * CMake tool [from here](https://cmake.org/download) (Check the 'Add CMake to the Path' option during installation)
-  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below)
+  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below) - OR - MinGW 7+ [from here] (https://www.mingw-w64.org/downloads/)
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
   * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory. If you choose another directory, CMake won't find it!)
     
 Notes:
-  * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (more details [here](https://stackoverflow.com/a/44398715)). Administrator rights are required. If you prefer using another smaller compiler (i.e. MinGW), you could [try this](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) (not tested)
+  * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (more details [here](https://stackoverflow.com/a/44398715)). Administrator rights are required.
+  * If you prefer using another smaller compiler (i.e. MinGW), you could [try this](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29)
   * The *Path* environment variable must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
