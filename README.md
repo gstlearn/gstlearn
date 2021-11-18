@@ -38,7 +38,17 @@ Notes:
 ## Library compilation & installation
 For compiling and installing the *gstlearn* library, execute the following instructions in a command prompt.
 
-### Compile and install
+### Microsoft Visual Studio
+(or any other multi-configuration generators)
+
+```sh
+cmake -Bbuild -H.
+cmake --build build --config Release
+sudo cmake --build build --target install
+```
+
+### Other compilers
+(or any other single-configuration generators)
 
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
@@ -99,7 +109,6 @@ Notes:
   * The *Path* environment variable must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
-
 ### Clean & uninstall
 To clean (partially) the build, execute the following command:
 
@@ -112,13 +121,23 @@ If you want to clean all CMake output, you can remove build directory:
 rm -rf build
 ```
 
-### Non regression tests
-To launch non regression tests, execute this command:
+### Non-regression tests
+#### Microsoft Visual Studio
+To launch non-regression tests, execute the following command (from he *build* directory):
 
 ```
-cmake --build build --target test
+cd build
+ctest -C Release
 ```
+Notes:
+  * If you want to run the *Debug* version of the tests, you must replace `Release` by `Debug` above (provided that *Debug* configuration has been built - see above)
+  
+#### Other compilers
+To launch non-regression tests, execute the following command:
 
+```
+sudo cmake --build build --target test
+```
 
 ### Uninstall
 To uninstall all the installed files (only the files, not the directories), execute this command:
@@ -128,13 +147,13 @@ sudo cmake --build build --target uninstall
 ```
 
 ### Generate the documentation
-To generate documentation using doxygen, execute the command:
+To generate the documentation using doxygen, execute the command:
 
 ```
 cmake --build build --target doxygen
 ```
 
-The documentation is then available by opening the following file with your favorite web-browser:
+The documentation is then available by opening the following HTML file with your favorite web-browser:
 
 ```
 firefox build/doxygen/html/index.html
