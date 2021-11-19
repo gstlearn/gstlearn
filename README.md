@@ -135,7 +135,7 @@ To clean (partially) the build, execute the following command:
 ```
 cmake --build build --target clean
 ```
-If you want to clean all CMake output, you can remove build directory:
+If you want to clean all CMake output, you can remove *build* directory:
 
 ```
 rm -rf build
