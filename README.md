@@ -33,7 +33,7 @@ cd gstlearn
 ```
 
 Notes:
-  * In the following, all instructions must be executed from the gstlearn sources directory
+  * In the following, all instructions must be executed from this root directory (i.e. gstlearn)
   
 ## Library compilation & installation
 For compiling and installing the *gstlearn* library, execute the following instructions in a command prompt.
@@ -85,7 +85,7 @@ Notes:
   * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 ### MacOS:
-Under MacOS, the GCC (or Clang) compiler is already installed (Not tested)
+Under MacOS, the GCC (or Clang) compiler is already installed (not tested)
 
 ```sh
 brew install git
@@ -101,7 +101,7 @@ Notes:
 Download and install the following tools:
   * Git client [from here](https://gitforwindows.org) (Use default options during installation)
   * CMake tool [from here](https://cmake.org/download) (Check the 'Add CMake to the Path' option during installation)
-  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below) - OR - MinGW 7+ [from here] (https://www.mingw-w64.org/downloads/)
+  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below) - OR - MinGW 7+ [from here](https://www.mingw-w64.org/downloads/)
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
   * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory. If you choose another directory, CMake won't find it!)
     
@@ -111,18 +111,6 @@ Notes:
   * The *Path* environment variable must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
-### Clean & uninstall
-To clean (partially) the build, execute the following command:
-
-```
-cmake --build build --target clean
-```
-If you want to clean all CMake output, you can remove build directory:
-
-```
-rm -rf build
-```
-
 ### Non-regression tests
 #### Microsoft Visual Studio
 To launch non-regression tests, execute the following command (from he *build* directory):
@@ -138,7 +126,19 @@ Notes:
 To launch non-regression tests, execute the following command:
 
 ```
-sudo cmake --build build --target test
+cmake --build build --target test
+```
+
+### Clean & uninstall
+To clean (partially) the build, execute the following command:
+
+```
+cmake --build build --target clean
+```
+If you want to clean all CMake output, you can remove build directory:
+
+```
+rm -rf build
 ```
 
 ### Uninstall
@@ -149,7 +149,7 @@ sudo cmake --build build --target uninstall
 ```
 
 ### Generate the documentation
-To generate the documentation using doxygen, execute the command:
+To (re)generate the documentation using doxygen, execute the command:
 
 ```
 cmake --build build --target doxygen
