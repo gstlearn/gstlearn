@@ -36,31 +36,23 @@ For getting the sources files, just clone the github repository:
 git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 ```
-
 Notes:
-  * In the following, all instructions must be executed from this root directory (i.e. gstlearn)
-  
+  * In the following, all instructions must be executed from a command prompt inside this root directory (thus the last command `cd gstlearn`)
+
 ## Library compilation & installation
-For compiling and installing the *gstlearn* library, execute the following instructions in a command prompt.
-
+For compiling and installing the *gstlearn* C++ Library, execute the following instructions:
 ### Microsoft Visual Studio
-(or any other multi-configuration generators)
-
 ```sh
 cmake -Bbuild -H.
 cmake --build build --config Release
 sudo cmake --build build --target install
 ```
-
-### Other compilers
-(or any other single-configuration generators)
-
+### Other compilers (GCC, Clang, MinGW, ...)
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 sudo cmake --build build --target install
 ```
-
 Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
   * If you don't want to generate doxygen documentation, use `-DEXCLUDE_DOXYGEN=1` in the first command
@@ -75,31 +67,26 @@ You may want to modify `make` behavior when running `cmake --build` command:
 TODO: Instructions will come soon
 
 ## Required tools installation
-
 ### Linux (Ubuntu):
-Under Linux, the GCC compiler is already installed.
-
 ```sh
 sudo apt install git
 sudo apt install cmake
 sudo apt install doxygen
 sudo apt install libboost-dev
 ```
-
 Notes:
+  * Under Linux, the GCC compiler is already installed
   * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 ### MacOS:
-Under MacOS, the GCC (or Clang) compiler is already installed (not tested)
-
 ```sh
 brew install git
 brew install cmake
 brew install doxygen
 brew install libboost-dev
 ```
-
 Notes:
+  * Under MacOS, the GCC (or Clang) compiler is already installed
   * If your MacOS repository doesn't provide minimum required versions, please install manually (see provider website)
   
 ### Windows:
@@ -118,7 +105,7 @@ Notes:
 ## Development
 ### Non-regression tests
 #### Microsoft Visual Studio
-To launch non-regression tests, execute the following command (from he *build* directory):
+To launch non-regression tests, execute the following commands (from he *build* directory):
 
 ```
 cd build
@@ -133,7 +120,6 @@ To launch non-regression tests, execute the following command:
 ```
 cmake --build build --target test
 ```
-
 ### Clean & uninstall
 To clean (partially) the build, execute the following command:
 
