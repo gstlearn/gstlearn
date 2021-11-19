@@ -20,7 +20,11 @@ This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LT
 For compiling and installing *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
   * [Git](https://git-scm.com/downloads) client
   * [CMake](https://cmake.org/download) tool 3.15 or higher
-  * [GCC](https://gcc.gnu.org) compiler 5.4 or higher (Linux/MacOS) or [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher (Windows) or [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher (Windows also)
+  * A C++ compiler:
+  ** Linux/MacOS: [GCC](https://gcc.gnu.org) compiler 5.4 or higher
+  ** Windows:
+  *** [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher
+  *** [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [Boost](https://www.boost.org/users/download) library
   
