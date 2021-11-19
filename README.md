@@ -55,13 +55,11 @@ sudo cmake --build build --target install
 ```
 Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-  * If you don't want to generate doxygen documentation, use `-DEXCLUDE_DOXYGEN=1` in the first command
+  * If you *don't want* to generate doxygen documentation, use `-DEXCLUDE_DOXYGEN=1` in the first command
   * You may need to precise the location of Boost header files, in that case, add `-DBoost_INCLUDE_DIR="<path/to/boost_incs>"` in the first command
-
-Additional options:
-You may want to modify `make` behavior when running `cmake --build` command:
-  * If you want to use N CPU for compiling, add `-j N` at the end
-  * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` (Linux) or `--verbose` (Windows) at the end
+  * You may want to modify `make` behavior when running `cmake --build` command:
+    * If you want to use N CPU for compiling, add `-j N` at the end
+    * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` (Linux) or `--verbose` (Windows) at the end
 
 ## Usage
 TODO: Instructions will come soon
