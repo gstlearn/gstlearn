@@ -17,7 +17,7 @@ The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library 
 
 ## Requirements
 This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LTS and Windows 10 (MacOS: not tested).
-For compiling and installing *gstlearn* C++ Library, the following tools must be available (See required tools installation instructions below):
+For compiling and installing *gstlearn* C++ Library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
   * [Git](https://git-scm.com/downloads) client
   * [CMake](https://cmake.org/download) tool 3.15 or higher
   * A C++ compiler:
