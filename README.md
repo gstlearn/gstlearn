@@ -112,7 +112,7 @@ ctest -C Release
 Notes:
   * If you want to run the *Debug* version of the tests, you must replace `Release` by `Debug` above (provided that *Debug* configuration has been built - see above)
   
-#### Other compilers
+#### Other compilers (GCC, Clang, MinGW, ...)
 To launch non-regression tests, execute the following command:
 
 ```
