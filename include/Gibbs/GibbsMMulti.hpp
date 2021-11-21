@@ -33,25 +33,24 @@ public:
 
   void setEpsilon1(double epsilon) { _epsilon1 = epsilon; }
   void setEpsilon2(double epsilon) { _epsilon2 = epsilon; }
-  void setFlagCheckCovariance(bool flagCheckCovariance) { _flagCheckCovariance = flagCheckCovariance; }
+  void setStoreTables(bool storeTables) { _storeTables = storeTables; }
 
 private:
   void _display(int iact) const;
   void _display() const;
   int  _getVariableNumber() const;
-  void _tableStore(const Db* db, const cs* Cmat, bool verbose);
-  double _checkForSampleIdentity(int iact, const cs* Cmat) const;
-  void   _checkForIdentity(const cs* Cmat, bool verbose = false) const;
+  void _tableStore(int mode, const cs* Cmat);
   VectorVectorDouble _getWeights(int iech,
                                  int *nbgh_arg,
                                  int *pivot_arg) const;
+  void _storageEvaluate();
 
 private:
   cs*       _Ln;
   VectorInt _Pn;
   double    _epsilon1;
   double    _epsilon2;
-  bool      _flagCheckCovariance;
+  bool      _storeTables;
 
   // Mutable arrays (declared to speed up the process)
   mutable VectorInt _ranks;

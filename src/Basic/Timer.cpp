@@ -45,28 +45,26 @@ void Timer::reset()
 }
 
 /**
- * Returns Timer elapsed (in ms) since the reference Timer
- * @param flag_reset True if the Reference must be set to current Time
- * @param verbose True if a message should be issued
+ * Displays the time elapsed (in ms) since the reference Timer
  * @param title Title used for the internal display
- * @return Timer elapsed (ms)
+ * @param flag_reset True if the Reference must be set to current Time
+ * @return Print the Timer elapsed (ms)
  */
-double Timer::getTimerInterval(bool flag_reset,
-                               bool verbose,
-                               const String& title)
+void Timer::Interval(const String& title, bool flag_reset)
+{
+  double msec = getInterval(flag_reset);
+
+  if (! title.empty())
+    message("%s: %6.2lf ms.\n",title.c_str(),msec);
+  else
+    message("Timer: %6.2lf ms.\n",msec);
+}
+
+double Timer::getInterval(bool flag_reset)
 {
   clock_t newTimer  = clock();
   clock_t diffTimer = newTimer - _refTimer;
   if (flag_reset) _refTimer = newTimer;
   double msec = (double) (diffTimer) / CLOCKS_PER_SEC;
-
-  if (verbose)
-  {
-    if (! title.empty())
-      message("%s: %6.2lf ms.\n",title.c_str(),msec);
-    else
-      message("Timer: %6.2lf ms.\n",msec);
-  }
-
   return msec;
 }

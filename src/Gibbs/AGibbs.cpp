@@ -524,10 +524,8 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool f
 
   Timer timer;
   for (int iter = 0; iter < getNiter(); iter++)
-  {
     update(y, isimu, ipgs, iter);
-  }
-  (void) timer.getTimerInterval(false,verbose,"Gibbs iterations");
+  timer.Interval("Gibbs iterations");
 
   /* Check the validity of the Gibbs results (optional) */
 

@@ -34,7 +34,7 @@ int main(int /*argc*/, char */*argv*/[])
 
 {
   int iptr;
-  bool flag_inter = true;
+  bool flag_inter = false;
 
   int nx        = 20;
   int niter     = 100;
@@ -42,8 +42,8 @@ int main(int /*argc*/, char */*argv*/[])
   double range  = 10.;
   double bound  = TEST;
   double eps1   = EPSILON6;
-  double eps2   = 5. * EPSILON2;
-  bool flagCheckCovariance = false;
+  double eps2   = EPSILON1;
+  bool storeTables = true;
 
   if (flag_inter)
   {
@@ -105,7 +105,7 @@ int main(int /*argc*/, char */*argv*/[])
   gibbs.setOptionStats(2);
   gibbs.setEpsilon1(eps1);
   gibbs.setEpsilon2(eps2);
-  gibbs.setFlagCheckCovariance(flagCheckCovariance);
+  gibbs.setStoreTables(storeTables);
   gibbs.init(1, nvar, nburn, niter,0, true);
 
   // Allocate the Gaussian vector
@@ -116,27 +116,30 @@ int main(int /*argc*/, char */*argv*/[])
 
   if (gibbs.covmatAlloc(verbose)) return 1;
 
-  // Invoke the Gibbs calculator
-
-  for (int isimu = 0; isimu < nbsimu; isimu++)
-    if (gibbs.run(y, 0, isimu, verbose, false)) return 1;
-  // Check divergence on the first value of the returned vector
-  message("Check Y[0] = %lf\n",y[0][0]);
-  db->serialize("Result");
-
-  // Calculate a variogram on the samples
-
-  VarioParam varioparam;
-  std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
-  varioparam.addDirs(dirparams);
-  VectorString names = db->getNames("gausfac*");
-  for (int isimu=0; isimu<(int) names.size(); isimu++)
+  if (!storeTables)
   {
-    db->clearLocators(ELoc::Z);
-    db->setLocator(names[isimu],ELoc::Z);
-    Vario vario(&varioparam,db);
-    vario.compute("vg",true);
-    vario.serialize(incrementStringVersion("Vario",isimu+1));
+    // Invoke the Gibbs calculator
+
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+      if (gibbs.run(y, 0, isimu, verbose, false)) return 1;
+    // Check divergence on the first value of the returned vector
+    message("Check Y[0] = %lf\n", y[0][0]);
+    db->serialize("Result");
+
+    // Calculate a variogram on the samples
+
+    VarioParam varioparam;
+    std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
+    varioparam.addDirs(dirparams);
+    VectorString names = db->getNames("gausfac*");
+    for (int isimu = 0; isimu < (int) names.size(); isimu++)
+    {
+      db->clearLocators(ELoc::Z);
+      db->setLocator(names[isimu], ELoc::Z);
+      Vario vario(&varioparam, db);
+      vario.compute("vg", true);
+      vario.serialize(incrementStringVersion("Vario", isimu + 1));
+    }
   }
 
   // Cleaning structures

@@ -5794,6 +5794,11 @@ cs* cs_strip(cs *A, double eps, bool verbose)
 {
   cs *Q, *Qtriplet;
   if (!A) return nullptr;
+  int Apj, Apjp1;
+  double epsloc;
+  bool rescale = true;
+  int hyp = 3;
+
   int error = 1;
   int   n = A->n;
   int* Ap = A->p;
@@ -5805,10 +5810,66 @@ cs* cs_strip(cs *A, double eps, bool verbose)
 
   /* Loop on the elements */
 
+  Apj = Apjp1 = Ap[0];
   for (int j = 0 ; j < n; j++)
   {
-    double epsloc = eps * j / (n - 1);
-    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+    Apj = Apjp1;
+    Apjp1 = Ap[j+1];
+
+    // Find the value of the diagonal term
+
+    int p0 = -1;
+    for (int p = Apj; p < Apjp1 && p0 < 0; p++)
+    {
+      if (Ai[p] == j) p0 = p;
+    }
+
+    // Adapt the value for 'epsloc' according to the choice 'hyp'
+
+    if (hyp == 1)
+    {
+      epsloc = eps;
+    }
+    else if (hyp == 2)
+    {
+      epsloc = eps * j / n;
+    }
+    else if (hyp == 3)
+    {
+      epsloc = eps * Ax[p0];
+    }
+    else
+    {
+      epsloc = eps * Ax[p0];
+      rescale = true;
+    }
+
+    // Establish the correcting value for non-zero terms
+
+    double ratio = 1.;
+    if (rescale)
+    {
+      double totpos = 0.;
+      double totnul = 0.;
+      for (int p = Apj; p < Apjp1; p++)
+      {
+        if (Ai[p] == p0) continue;
+        double value = Ax[p];
+        if (ABS(value) < epsloc)
+        {
+          totnul += value * value;
+        }
+        else
+        {
+          totpos += value * value;
+        }
+      }
+      ratio = sqrt((totpos + totnul) / totpos);
+    }
+
+    // Review all elements of the rwo, keeping only the ones larger than 'epsloc'
+
+    for (int p = Apj; p < Apjp1; p++)
     {
       double value = Ax[p];
       if (ABS(value) < epsloc)
@@ -5817,7 +5878,8 @@ cs* cs_strip(cs *A, double eps, bool verbose)
       }
       else
       {
-        if (! cs_entry(Qtriplet,Ai[p],j,value)) goto label_end;
+        double coeff = (p == p0) ? 1. : ratio;
+        if (!cs_entry(Qtriplet, Ai[p], j, value * coeff)) goto label_end;
       }
     }
   }
@@ -5830,7 +5892,11 @@ cs* cs_strip(cs *A, double eps, bool verbose)
   // Clean the P vector
 
   if (verbose)
-    message("Stripping Q: Number of values = %d -> %d\n",cs_nnz(A),cs_nnz(Q));
+  {
+    message("Stripping Sparse Matrix:\n");
+    message("- Tolerance = %lf\n",eps);
+    message("- Number of values = %d -> %d\n",cs_nnz(A),cs_nnz(Q));
+  }
 
   error = 0;
 

@@ -34,16 +34,18 @@ public:
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
 
-  void init(int nrows, int ncols) { resize(nrows, ncols); }
+  void init(int nrows, int ncols, bool zero = false) { resize(nrows, ncols, zero); }
   bool isEmpty() const { return _stats.empty(); }
   int getRowNumber() const;
   int getColNumber() const;
   VectorDouble getCol(int icol) const;
   VectorDouble getRow(int irow) const;
   void clear() { _stats.clear(); }
-  void resize(int irow, int ncols);
-  void update(int irow, int icol, double value) { _stats[icol][irow] = value; }
+  void resize(int irow, int ncols, bool zero=false);
+  void update(int irow, int icol, double value)    { _stats[icol][irow] = value; }
+  void increment(int irow, int icol, double value) { _stats[icol][irow] += value; }
   double getValue(int irow, int icol) const;
+  void setValue(int irow, int icol, double value);
   VectorDouble getRange(int icol) const;
   VectorDouble getRange() const;
   void display(int isimu) const;

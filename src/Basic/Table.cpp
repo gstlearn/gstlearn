@@ -12,12 +12,13 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/ASerializable.hpp"
 
 Table::Table(int nrows, int ncols)
   : ASerializable(),
     _stats()
 {
-  init (nrows, ncols);
+  init(nrows, ncols,true);
 }
 
 Table::Table(const VectorVectorDouble& table)
@@ -85,7 +86,7 @@ VectorDouble Table::getRow(int irow) const
   return vec;
 }
 
-void Table::resize(int nrows, int ncols)
+void Table::resize(int nrows, int ncols, bool zero)
 {
   int nrows_cur = 0;
   if (isEmpty())
@@ -97,7 +98,12 @@ void Table::resize(int nrows, int ncols)
   {
     int ncols = getColNumber();
     for (int icol = 0; icol < ncols; icol++)
-      _stats[icol].resize(nrows);
+    {
+      if (zero)
+        _stats[icol].resize(nrows,0.);
+      else
+        _stats[icol].resize(nrows);
+    }
   }
 }
 
@@ -106,6 +112,13 @@ double Table::getValue(int irow, int icol) const
   if (icol < 0 || icol >= getColNumber()) return 0.;
   if (irow < 0 || irow >= getRowNumber()) return 0.;
   return _stats[icol][irow];
+}
+
+void Table::setValue(int irow, int icol, double value)
+{
+  if (icol < 0 || icol >= getColNumber()) return;
+  if (irow < 0 || irow >= getRowNumber()) return;
+  _stats[icol][irow] = value;
 }
 
 VectorDouble Table::getRange(int icol) const

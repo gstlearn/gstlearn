@@ -25,9 +25,8 @@ public:
   virtual ~Timer();
 
   void reset();
-  double getTimerInterval(bool flag_reset = false,
-                          bool verbose = false,
-                          const String& title = String());
+  void Interval(const String& title = String(), bool flag_reset = true);
+  double getInterval(bool flag_reset = true);
 
 private:
   clock_t _refTimer;
