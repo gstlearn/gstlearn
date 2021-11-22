@@ -1,6 +1,6 @@
 # Minimum requirement for compiling gstlearn:
 # g++/clang/make (dev), Rtools (windows only)
-# git (client), Boost (dev), NetCDF (dev), doxygen
+# git (client), Boost (dev), NetCDF (dev), doxygen, hdf5
 
 AR       = ar r
 CXX      = g++
@@ -72,3 +72,4 @@ ifeq ($(USE_NETCDF),1)
      LIBS     += -lnetcdf_c++4 -lnetcdf
 endif
 
+LIBS += -lhdf5

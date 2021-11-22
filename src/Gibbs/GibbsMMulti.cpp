@@ -22,17 +22,17 @@
 #define QFLAG(iech,jech)         (QFlag[(iech) * nech + jech])
 
 #define DEBUG 0
+#define TOTAL_MAX 50000000
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
   , _Ln(nullptr)
   , _Pn()
-  , _epsilon1(EPSILON6)
-  , _epsilon2(EPSILON6)
+  , _eps(EPSILON6)
   , _storeTables(false)
-  , _ranks()
   , _b()
   , _x()
+  , _areas()
 {
 }
 
@@ -40,12 +40,11 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   : GibbsMulti(db, model)
   , _Ln(nullptr)
   , _Pn()
-  , _epsilon1(EPSILON6)
-  , _epsilon2(EPSILON6)
+  , _eps(EPSILON6)
   , _storeTables(false)
-  , _ranks()
   , _b()
   , _x()
+  , _areas()
 {
 }
 
@@ -53,12 +52,11 @@ GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   : GibbsMulti(r)
   , _Ln(r._Ln)
   , _Pn(r._Pn)
-  , _epsilon1(r._epsilon1)
-  , _epsilon2(r._epsilon2)
+  , _eps(r._eps)
   , _storeTables(r._storeTables)
-  , _ranks(r._ranks)
   , _b(r._b)
   , _x(r._x)
+  , _areas(r._areas)
 {
 }
 
@@ -69,12 +67,11 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
     GibbsMulti::operator=(r);
     _Ln  = r._Ln;
     _Pn  = r._Pn;
-    _epsilon1 = r._epsilon1;
-    _epsilon2 = r._epsilon2;
+    _eps = r._eps;
     _storeTables = r._storeTables;
-    _ranks = r._ranks;
     _b = r._b;
     _x = r._x;
+    _areas = r._areas;
   }
   return *this;
 }
@@ -124,7 +121,6 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   n = nech * nvar;
   _Pn.resize(nech);
-  _ranks.resize(nech);
   _b.resize(n);
   _x.resize(n);
 
@@ -165,12 +161,12 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Stripping the Cholesky decomposition matrix
 
-  _Ln = cs_strip(N->L, _epsilon2, verbose);
+  _Ln = cs_strip(N->L, _eps, verbose);
   timer.Interval("Stripping Cholesky Matrix");
 
-  // Evaluate storage capacity
+  // Evaluate storage capacity and store weights internally (or not)
 
-  (void) _storageEvaluate(verbose);
+  _storeAllWeights(verbose);
 
   // Store the reconstructed Covariance in Neutral File (optional)
 
@@ -273,7 +269,7 @@ void GibbsMMulti::_display(int iech) const
   message("Active sample #%d\n",iech);
   message("Position within the neighboring sample list: %d\n",area._pivot);
 
-  print_ivector("Ranks",0,area._nbgh,_ranks);
+  print_ivector("Ranks",0,area._nbgh,area._mvRanks);
   for (int ivar=0; ivar < nvar; ivar++)
     print_vector("Weights", 0, area._nbgh, area._weights[ivar]);
 }
@@ -361,7 +357,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
     tabmod.serialize("CovModBuilt", false);
 }
 
-void GibbsMMulti::_getWeights(int iech, WgtVect& area) const
+int GibbsMMulti::_calculateWeights(int iech, WgtVect& area, double tol) const
 {
   int pivot = -1;
   int nvar  = _getVariableNumber();
@@ -383,7 +379,7 @@ void GibbsMMulti::_getWeights(int iech, WgtVect& area) const
   for (int j = 0; j < nech; j++)
   {
     double wloc = ABS(_b[j]);
-    if (wloc > _epsilon1)
+    if (wloc > tol)
     {
       area._mvRanks[nbgh] = j;
       if (iech == j) pivot = nbgh;
@@ -391,22 +387,25 @@ void GibbsMMulti::_getWeights(int iech, WgtVect& area) const
     }
   }
   area._mvRanks.resize(nbgh);
+  if (area._mvRanks.empty()) return 1;
 
   // Storing the weights per variable for the target sample
 
-  area._weights = VectorVectorDouble();
+  area._weights.clear();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble ll(nbgh);
     for (int i = 0; i < nbgh; i++)
-      ll[i] = _b[ivar * nbgh + _ranks[i]];
+      ll[i] = _b[ivar * nbgh + area._mvRanks[i]];
     area._weights.push_back(ll);
+    if (area._weights.empty()) return 1;
   }
   area._pivot = pivot;
   area._nbgh  = nbgh;
+  return 0;
 }
 
-long GibbsMMulti::_storageEvaluate(bool verbose)
+bool GibbsMMulti::_checkForInternalStorage(bool verbose)
 {
   WgtVect area;
   int nvar   = _getVariableNumber();
@@ -414,16 +413,8 @@ long GibbsMMulti::_storageEvaluate(bool verbose)
 
   // Evaluate the sum of the number of weights per sample
 
-  long sumWgt   = 0;
-  long sumRanks = 0;
-  for (int iact = 0; iact < nact; iact++)
-  {
-    int iech = getSampleRank(iact);
-    _getWeights(iech, area);
-    sumWgt += area._nbgh * nvar * nvar;
-    sumRanks += area._nbgh;
-  }
-
+  long sumWgt   = nact * nvar * nact * nvar;
+  long sumRanks = nact * nact;
   long overHead = 1;
   for (int iact = 0; iact < nact ; iact++)
   {
@@ -433,12 +424,66 @@ long GibbsMMulti::_storageEvaluate(bool verbose)
 
   long total = sumWgt * sizeof(double) + sumRanks * sizeof(int) + overHead;
 
-  // Evaluate the overhead linked to management of structures
-  message("Total core for Weights = %ld\n",sumWgt * sizeof(double));
-  message("Total core for Weights = %ld\n",sumRanks * sizeof(int));
-  message("Core for storing std::vector structures = %ld\n",overHead);
-  message("Total core needs = %ld (bytes)\n",total);
+  // Printout of the different core storage quanta
 
+  if (verbose)
+  {
+    message("Total core for Weights          = %ld (bytes)\n",sumWgt * sizeof(double));
+    message("Total core for Weights          = %ld (bytes)\n",sumRanks * sizeof(int));
+    message("Core for std::vector structures = %ld (bytes)\n",overHead);
+    message("Total core needs                = %ld (bytes)\n",total);
+    message("(For spped up, calculations are based on an upper bound of dimension of weights)\n");
+  }
 
-  return total;
+  // Decide if weights are stored internally or not
+
+  bool flagStoreInternal;
+  if (verbose)
+    message("Decision Memory Threshold       = %ld (bytes)\n",TOTAL_MAX);
+  if (total > TOTAL_MAX)
+  {
+    flagStoreInternal = false;
+    if (verbose)
+      message("Weights are not stored internally: they will be calculated on the fly\n");
+  }
+  else
+  {
+    flagStoreInternal = true;
+    if (verbose)
+      message("Weights are calculated only once and stored internally\n");
+  }
+
+  return flagStoreInternal;
+}
+
+void GibbsMMulti::_storeAllWeights(bool verbose)
+{
+  WgtVect area;
+  int nact = getSampleRankNumber();
+  _areas.clear();
+
+  // Check if the weight must be stored internally or calculated on the fly
+  if (! _checkForInternalStorage(verbose)) return;
+
+  // Loop on the samples
+
+  for (int iact = 0; iact < nact; iact++)
+  {
+    int iech = getSampleRank(iact);
+
+    if (_calculateWeights(iech, area))
+    {
+      _areas.clear();
+      return;
+    }
+    _areas.push_back(area);
+  }
+}
+
+void GibbsMMulti::_getWeights(int iech, WgtVect& area) const
+{
+  if (! _areas.empty())
+    area = _areas[iech];
+  else
+    _calculateWeights(iech, area);
 }

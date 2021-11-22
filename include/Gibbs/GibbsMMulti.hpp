@@ -39,8 +39,7 @@ public:
               int iter) override;
   int covmatAlloc(bool verbose) override;
 
-  void setEpsilon1(double epsilon) { _epsilon1 = epsilon; }
-  void setEpsilon2(double epsilon) { _epsilon2 = epsilon; }
+  void setEps(double eps) { _eps = eps; }
   void setStoreTables(bool storeTables) { _storeTables = storeTables; }
 
 private:
@@ -49,17 +48,18 @@ private:
   int  _getVariableNumber() const;
   void _tableStore(int mode, const cs* Cmat);
   void _getWeights(int iech, WgtVect& area) const;
-  long _storageEvaluate(bool verbose = false);
+  int  _calculateWeights(int iech, WgtVect& area, double tol = EPSILON6) const;
+  bool _checkForInternalStorage(bool verbose = false);
+  void _storeAllWeights(bool verbose = false);
 
 private:
   cs*       _Ln;
   VectorInt _Pn;
-  double    _epsilon1;
-  double    _epsilon2;
+  double    _eps;
   bool      _storeTables;
 
   // Mutable arrays (declared to speed up the process)
-  mutable VectorInt _ranks;
   mutable VectorDouble _b;
   mutable VectorDouble _x;
+  mutable std::vector<WgtVect> _areas;
 };

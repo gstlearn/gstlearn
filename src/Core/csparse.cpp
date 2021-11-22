@@ -5794,6 +5794,12 @@ cs* cs_strip(cs *A, double eps, bool verbose)
 {
   cs *Q, *Qtriplet;
   if (!A) return nullptr;
+
+  if (eps <= 0)
+  {
+    Q = cs_duplicate(A);
+    return Q;
+  }
   int Apj, Apjp1;
   double epsloc;
   bool rescale = true;
@@ -5837,6 +5843,7 @@ cs* cs_strip(cs *A, double eps, bool verbose)
     else if (hyp == 3)
     {
       epsloc = eps * Ax[p0];
+      rescale = false;
     }
     else
     {

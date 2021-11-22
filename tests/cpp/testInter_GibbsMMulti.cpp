@@ -34,16 +34,15 @@ int main(int /*argc*/, char */*argv*/[])
 
 {
   int iptr;
-  bool flag_inter = false;
+  bool flag_inter = true;
 
   int nx        = 20;
   int niter     = 100;
   int nburn     = 20;
   double range  = 10.;
   double bound  = TEST;
-  double eps1   = EPSILON6;
-  double eps2   = EPSILON1;
-  bool storeTables = true;
+  double eps    = 0.;
+  bool storeTables = false;
 
   if (flag_inter)
   {
@@ -51,8 +50,7 @@ int main(int /*argc*/, char */*argv*/[])
     niter = askInt("Number of Gibbs iterations",niter);
     nburn = askInt("Number of burning steps",nburn);
     range = askDouble("Isotropic Range",range);
-    eps2  = askDouble("Epsilon Cholesky",eps2);
-    eps1  = askDouble("Epsilon Weight",eps1);
+    eps   = askDouble("Epsilon Cholesky",eps);
     bound = askDouble("Bounds [None: TEST]",bound, true);
   }
 
@@ -103,8 +101,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   GibbsMMulti gibbs(db, model);
   gibbs.setOptionStats(2);
-  gibbs.setEpsilon1(eps1);
-  gibbs.setEpsilon2(eps2);
+  gibbs.setEps(eps);
   gibbs.setStoreTables(storeTables);
   gibbs.init(1, nvar, nburn, niter,0, true);
 

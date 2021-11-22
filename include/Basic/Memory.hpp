@@ -10,25 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_define.h"
-#include <time.h>
 
 /**
- * Allow calculation of Timer spent in a portion of the code
+ * This file contains all some functions for Memory inquiries
  */
-class Timer
-{
-public:
-  Timer();
-  Timer(const Timer &m);
-  Timer& operator= (const Timer &m);
-  virtual ~Timer();
 
-  void reset();
-  void Interval(const String& title = String(), bool flag_reset = true);
-  double getInterval(bool flag_reset = true);
-  void display(const String& title, double msec);
+unsigned long long getTotalSystemMemory();
 
-private:
-  clock_t _refTimer;
-};

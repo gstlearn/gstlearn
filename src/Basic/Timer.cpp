@@ -53,11 +53,7 @@ void Timer::reset()
 void Timer::Interval(const String& title, bool flag_reset)
 {
   double msec = getInterval(flag_reset);
-
-  if (! title.empty())
-    message("%s: %6.2lf ms.\n",title.c_str(),msec);
-  else
-    message("Timer: %6.2lf ms.\n",msec);
+  display(title, msec);
 }
 
 double Timer::getInterval(bool flag_reset)
@@ -67,4 +63,13 @@ double Timer::getInterval(bool flag_reset)
   if (flag_reset) _refTimer = newTimer;
   double msec = (double) (diffTimer) / CLOCKS_PER_SEC;
   return msec;
+}
+
+void Timer::display(const String& title, double msec)
+{
+  if (! title.empty())
+    message("%s: %6.2lf ms.\n",title.c_str(),msec);
+  else
+    message("Timer: %6.2lf ms.\n",msec);
+
 }
