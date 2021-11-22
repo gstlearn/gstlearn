@@ -16,8 +16,16 @@
 class Db;
 class Model;
 
-class GibbsMMulti : public GibbsMulti
+class GibbsMMulti: public GibbsMulti
 {
+  typedef struct
+  {
+    int _nbgh;
+    int _pivot;
+    VectorInt _mvRanks;
+    VectorVectorDouble _weights;
+  } WgtVect;
+
 public:
   GibbsMMulti();
   GibbsMMulti(Db* db, Model* model);
@@ -40,10 +48,8 @@ private:
   void _display() const;
   int  _getVariableNumber() const;
   void _tableStore(int mode, const cs* Cmat);
-  VectorVectorDouble _getWeights(int iech,
-                                 int *nbgh_arg,
-                                 int *pivot_arg) const;
-  void _storageEvaluate();
+  void _getWeights(int iech, WgtVect& area) const;
+  long _storageEvaluate(bool verbose = false);
 
 private:
   cs*       _Ln;

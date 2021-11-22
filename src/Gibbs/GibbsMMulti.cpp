@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Model/Model.hpp"
-#include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Timer.hpp"
 #include "Morpho/Morpho.hpp"
@@ -171,7 +170,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Evaluate storage capacity
 
-  _storageEvaluate();
+  (void) _storageEvaluate(verbose);
 
   // Store the reconstructed Covariance in Neutral File (optional)
 
@@ -216,9 +215,8 @@ void GibbsMMulti::update(VectorVectorDouble& y,
                          int ipgs,
                          int iter)
 {
+  WgtVect area;
   double valsim;
-
-  int pivot, nbgh;
 
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
@@ -238,17 +236,19 @@ void GibbsMMulti::update(VectorVectorDouble& y,
       int iech = getSampleRank(iact);
       if (! isConstraintTight(ipgs, ivar, iact, &valsim))
       {
-        VectorVectorDouble wgt = _getWeights(iech,&nbgh,&pivot);
+        _getWeights(iech, area);
+        int nbgh    = area._nbgh;
+        int pivot   = area._pivot;
         double yk   = 0.;
-        double vark = 1. / wgt[ivar][pivot + nbgh * ivar];
+        double vark = 1. / area._weights[ivar][pivot + nbgh * ivar];
         for (int jvar = 0; jvar < nvar; jvar++)
         {
           int jcase = getRank(ipgs, jvar);
           for (int jbgh = 0; jbgh < nbgh; jbgh++)
           {
-            int jact = _ranks[jbgh];
+            int jact = area._mvRanks[jbgh];
             if (ivar != jvar || iact != jact)
-              yk -= y[jcase][jact] * wgt[jvar][jbgh + nbgh * jvar];
+              yk -= y[jcase][jact] * area._weights[jvar][jbgh + nbgh * jvar];
           }
         }
         yk *= vark;
@@ -265,17 +265,17 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 
 void GibbsMMulti::_display(int iech) const
 {
-  int nbgh, pivot;
+  WgtVect area;
   int nvar = _getVariableNumber();
 
-  VectorVectorDouble wgt = _getWeights(iech,&nbgh,&pivot);
+  _getWeights(iech, area);
 
   message("Active sample #%d\n",iech);
-  message("Position within the neighboring sample list: %d\n",pivot);
+  message("Position within the neighboring sample list: %d\n",area._pivot);
 
-  print_ivector("Ranks",0,nbgh,_ranks);
+  print_ivector("Ranks",0,area._nbgh,_ranks);
   for (int ivar=0; ivar < nvar; ivar++)
-    print_vector("Weights",0,nbgh,wgt[ivar]);
+    print_vector("Weights", 0, area._nbgh, area._weights[ivar]);
 }
 
 void GibbsMMulti::_display() const
@@ -361,9 +361,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
     tabmod.serialize("CovModBuilt", false);
 }
 
-VectorVectorDouble GibbsMMulti::_getWeights(int  iech,
-                                            int *nbgh_arg,
-                                            int *pivot_arg) const
+void GibbsMMulti::_getWeights(int iech, WgtVect& area) const
 {
   int pivot = -1;
   int nvar  = _getVariableNumber();
@@ -378,61 +376,69 @@ VectorVectorDouble GibbsMMulti::_getWeights(int  iech,
   cs_ltsolve(_Ln, _x.data()); /* x = L'\x */
   cs_pvec(nech, _Pn.data(), _x.data(), _b.data()); /* b = P'*x */
 
-  // Discarding the values leading to small weights
+  // Discarding the values leading to small vector of weights
 
   int nbgh = 0;
+  area._mvRanks.reserve(nech);
   for (int j = 0; j < nech; j++)
   {
     double wloc = ABS(_b[j]);
     if (wloc > _epsilon1)
     {
-      _ranks[nbgh] = j;
+      area._mvRanks[nbgh] = j;
       if (iech == j) pivot = nbgh;
       nbgh++;
     }
   }
+  area._mvRanks.resize(nbgh);
 
   // Storing the weights per variable for the target sample
 
-  VectorVectorDouble weights;
+  area._weights = VectorVectorDouble();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble ll(nbgh);
     for (int i = 0; i < nbgh; i++)
       ll[i] = _b[ivar * nbgh + _ranks[i]];
-    weights.push_back(ll);
+    area._weights.push_back(ll);
   }
-
-  *pivot_arg = pivot;
-  *nbgh_arg = nbgh;
-  return weights;
+  area._pivot = pivot;
+  area._nbgh  = nbgh;
 }
 
-void GibbsMMulti::_storageEvaluate()
+long GibbsMMulti::_storageEvaluate(bool verbose)
 {
-  int nbgh, pivot;
+  WgtVect area;
   int nvar   = _getVariableNumber();
-  int nech   = getSampleNumber();
   int nact   = getSampleRankNumber();
 
   // Evaluate the sum of the number of weights per sample
 
-  int total = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  long sumWgt   = 0;
+  long sumRanks = 0;
+  for (int iact = 0; iact < nact; iact++)
   {
-    for (int iact = 0; iact < nact; iact++)
-    {
-      int iech = getSampleRank(iact);
-      VectorVectorDouble wgt = _getWeights(iech,&nbgh,&pivot);
-      total += nbgh;
-    }
+    int iech = getSampleRank(iact);
+    _getWeights(iech, area);
+    sumWgt += area._nbgh * nvar * nvar;
+    sumRanks += area._nbgh;
   }
 
-  int total_size =
-      nech * sizeof(std::vector<std::vector<VectorDouble> >) +
-      nvar * nech * sizeof(std::vector<VectorDouble>) *
-      nech * nvar * nech * sizeof(VectorDouble) +
-      total * sizeof(double);
+  long overHead = 1;
+  for (int iact = 0; iact < nact ; iact++)
+  {
+    overHead += 2 + sizeof(VectorInt) + sizeof(VectorDouble);
+    overHead += nvar * sizeof(VectorDouble);
+  }
 
-  message("Total size for storage = %d / %d\n",total_size,total);
+  long total = sumWgt * sizeof(double) + sumRanks * sizeof(int) + overHead;
+
+  // Evaluate the overhead linked to management of structures
+  message("Total core for Weights = %ld\n",sumWgt * sizeof(double));
+  message("Total core for Weights = %ld\n",sumRanks * sizeof(int));
+  message("Core for storing std::vector structures = %ld\n",overHead);
+  message("Total core needs = %ld (bytes)\n",total);
+
+
+  return total;
 }

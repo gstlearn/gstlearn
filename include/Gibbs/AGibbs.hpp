@@ -120,10 +120,8 @@ private:
   int  _optionStats; // 0: no storage; 1: printout; 2: Neutral File
 
   VectorInt _ranks; // Internal array use to store indices of active samples
-
   // Pointer to the reference Db (only stored for efficiency)
   Db*       _db;
-
   // Optional Table used to store performance statistics (see _optionStats)
   Table     _stats;
 };
