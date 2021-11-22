@@ -1,8 +1,8 @@
 # List special non-regression test sources
 set(TEST_SOURCES 
-    testim.cpp
-    testpgs.cpp
-    testvar.cpp)
+  testim.cpp
+  testpgs.cpp
+  testvar.cpp)
 
 # Prepare executable targets list
 set(TARGETS_EXE "")
@@ -18,7 +18,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Include directories (-I)
     target_include_directories(${TEST_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>")
     # Make sure gstlearn is linked to each test
-    target_link_libraries(${TEST_NAME} gstlearn-shared)
+    target_link_libraries(${TEST_NAME} shared)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 
 # Iterate over each target executables

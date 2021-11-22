@@ -1,10 +1,7 @@
-# Using GLOB could be a bad idea (but use it for the tests)
-# https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
-
-# With GLOB:
-file(GLOB TEST_SOURCES test*.cpp)
-# Without GLOB:
-#set(TEST_SOURCES testInter_Ask.cpp testInter_GibbsMMulti.cpp) # To be completed...
+# List the source files
+set(TEST_SOURCES 
+  testInter_Ask.cpp
+  testInter_GibbsMMulti.cpp)
 
 # Compile each executable
 foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
@@ -15,7 +12,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Include directories (-I)
     target_include_directories(${TEST_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>")
     # Make sure gstlearn is linked to each test
-    target_link_libraries(${TEST_NAME} gstlearn-shared)
+    target_link_libraries(${TEST_NAME} shared)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 
-# Not automatic tests for interactive executable
+# No automatic tests for interactive executable

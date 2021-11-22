@@ -24,10 +24,15 @@ set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or
 
 # TODO : prevent from generating twice (for build and install)
 
-# Generate doxymentation
+# Add target for generating the doxymentation
 doxygen_add_docs(doxygen ALL
                  ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
                  COMMENT "Generate man pages")
+
+# Exclude doxygen target from default make if required
+if (EXCLUDE_DOXYGEN)
+  set_target_properties(doxygen PROPERTIES EXCLUDE_FROM_ALL TRUE)
+endif()
 
 # Install html and xml directories
 if (NOT EXCLUDE_DOXYGEN)

@@ -1,11 +1,18 @@
-project(gstlearn CXX)
+# Permits using project VERSION
+cmake_policy(SET CMP0048 NEW)
+project(gstlearn 
+        VERSION      0.1.0 # Make it consistent with CHANGES file
+        DESCRIPTION  "Geostatistics & Machine Learning toolbox"
+        HOMEPAGE_URL https://github.com/gstlearn/gstlearn
+        LANGUAGES    CXX)
 
+# Minimum CMake version
 cmake_minimum_required(VERSION 3.15)
 
 # Default GNU installed directory names
 include(GNUInstallDirs)
 
-# Add test target
+# Add test target (execution)
 include(CTest)
 enable_testing()
 
@@ -31,13 +38,9 @@ add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(doxygen)
 
-if (EXCLUDE_DOXYGEN)
-  set_target_properties(doxygen PROPERTIES EXCLUDE_FROM_ALL TRUE)
-endif()
-
 # Export the package
 install(
-  EXPORT corelibs
+  EXPORT corelibs # See src/CMakeLists.txt
   FILE gstlearnConfig.cmake
   NAMESPACE gstlearn::
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/cmake
@@ -51,7 +54,7 @@ install(
 #set(CMAKE_EXPORT_PACKAGE_REGISTRY ON) # with CMake >= 3.15
 #export(PACKAGE gstlearn)
 
-# Uninstall target
+# Add uninstall target
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
   configure_file(

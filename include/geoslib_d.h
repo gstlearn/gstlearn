@@ -27,6 +27,7 @@
 #endif
 #else
 #define GEOSLIB_API extern
+// TODO : strcasecmp macro to be kept ?
 #include <dirent.h>
 #endif
 

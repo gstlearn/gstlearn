@@ -244,52 +244,66 @@ set(SOURCES
 # TODO : Not needed for Linux?
 find_package(Boost REQUIRED)
 
-# Compile objects only once
-#https://stackoverflow.com/a/29824424/3952924
-add_library(objlib OBJECT ${SOURCES})
+# Define targets 
+add_library(shared SHARED ${SOURCES})
+add_library(static STATIC ${SOURCES})
 
-# Shared libraries need -fPIC (will be used also for static)
-set_property(TARGET objlib PROPERTY POSITION_INDEPENDENT_CODE 1)
+# Only compile shared library by default
+set_target_properties(static PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+# Shared libraries need -fPIC
+set_property(TARGET shared PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # On Windows, prevent the include sys/time.h (-DNO_TIMER)
-target_compile_definitions(objlib PRIVATE NO_TIMER) 
+target_compile_definitions(shared PRIVATE NO_TIMER)
+target_compile_definitions(static PRIVATE NO_TIMER) 
 
 # Include directories (-I)
 # Add swig include directories (installed) for swig module who wants to link with gstlearn
-target_include_directories(objlib PUBLIC
+target_include_directories(shared PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gstlearn>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/swig>"
 )
-target_include_directories(objlib PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(static PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gstlearn>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/swig>"
+)
 
-# Define objects list for each target library
-add_library(gstlearn-shared SHARED $<TARGET_OBJECTS:objlib>)
-add_library(gstlearn-static STATIC $<TARGET_OBJECTS:objlib>)
-
-# Make a dependency between gstlearn libraries and objlib for transmitting include property
-target_link_libraries(gstlearn-shared PUBLIC objlib)
-target_link_libraries(gstlearn-static PUBLIC objlib)
+# Add boost include directory
+target_include_directories(shared PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(static PUBLIC ${Boost_INCLUDE_DIRS})
 
 # Rename the output library names
-set_target_properties(gstlearn-shared PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
-set_target_properties(gstlearn-static PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.a  (on Linux)
+set_target_properties(shared PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
+set_target_properties(static PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.a  (on Linux)
 
 # Rename the export names (used by cmake for importing them like gstlearn::shared)
-set_target_properties(gstlearn-shared PROPERTIES EXPORT_NAME shared)
-set_target_properties(gstlearn-static PROPERTIES EXPORT_NAME static)
+#set_target_properties(gstlearn-shared PROPERTIES EXPORT_NAME shared)
+#set_target_properties(gstlearn-static PROPERTIES EXPORT_NAME static)
+
+# Set library version
+set_target_properties(shared PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(static PROPERTIES VERSION ${PROJECT_VERSION})
+
+# Set the so version to project major version
+set_target_properties(shared PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 
 # Link to boost
-target_link_libraries(gstlearn-shared PUBLIC Boost::boost)
-target_link_libraries(gstlearn-static PUBLIC Boost::boost)
+target_link_libraries(shared PUBLIC Boost::boost)
 
-# Install the libraries
-# https://stackoverflow.com/questions/14990343/cmake-error-targets-given-no-library-destination-for-shared-library-target
-# Export also objlib for transmitting include property to users of gstlearn lbrary
-install(TARGETS gstlearn-shared gstlearn-static objlib EXPORT corelibs # Targets (libraries)
-        ARCHIVE DESTINATION lib                                        # Static  library in DESTINATION/lib folder
-        LIBRARY DESTINATION lib                                        # Dynamic library in DESTINATION/lib folder
+# Install dynamic library in DESTINATION/lib folder
+install(TARGETS shared EXPORT corelibs
+        LIBRARY DESTINATION lib
+        OPTIONAL
 )
+# Install static library in DESTINATION/lib folder
+install(TARGETS static EXPORT corelibs
+        ARCHIVE DESTINATION lib
+        OPTIONAL
+)
+
 # Install the includes  
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/                 # Includes from source folder
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn       # in DESTINATION/include/gstlearn

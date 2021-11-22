@@ -4,7 +4,9 @@
 # With GLOB:
 file(GLOB TEST_SOURCES test*.cpp)
 # Without GLOB:
-#set(TEST_SOURCES test_AllGibbs.cpp test_krige.cpp) # To be completed...
+#set(TEST_SOURCES 
+#  test_AllGibbs.cpp
+#  test_krige.cpp)
 
 # Prepare executable target list
 set(TARGETS_EXE "")
@@ -20,7 +22,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Include directories (-I)
     target_include_directories(${TEST_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>")
     # Make sure gstlearn is linked to each test
-    target_link_libraries(${TEST_NAME} gstlearn-shared)
+    target_link_libraries(${TEST_NAME} shared)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 
 # Display test output in case of failure

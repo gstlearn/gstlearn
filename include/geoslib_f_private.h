@@ -11,8 +11,7 @@
 #ifndef GEOSLIB_F_PRIVATE_H
 #define GEOSLIB_F_PRIVATE_H
 
-#include <Variogram/Vario.hpp>
-#include "geoslib_d_private.h"
+#include "Variogram/Vario.hpp"
 #include "geoslib_d.h"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"

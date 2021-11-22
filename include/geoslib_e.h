@@ -48,7 +48,6 @@
 #include <malloc.h>
 #endif
 
-#include "geoslib_d_private.h"
 #include "geoslib_f_private.h"
 #include "geoslib_d.h"
 #include "geoslib_f.h"

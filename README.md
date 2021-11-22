@@ -44,17 +44,21 @@ For compiling and installing the *gstlearn* C++ Library, execute the following i
 ### Microsoft Visual Studio
 ```sh
 cmake -Bbuild -H.
-cmake --build build --config Release
+cmake --build build --config Release --target static
 sudo cmake --build build --target install
 ```
 ### Other compilers (GCC, Clang, MinGW, ...)
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
-cmake --build build
+cmake --build build --target static
 sudo cmake --build build --target install
 ```
 Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
+  * If you want to build and install the *shared* version, you must replace `static` by `shared` above
+    * The tests are compiled in *shared* version only
+    * The *static* version is mandatory for creating [pygstlearn package](https://github.com/gstlearn/pygstlearn)
+  * If you *don't want* to compile the tests, use `-DEXCLUDE_TEST=1` in the first command
   * If you *don't want* to generate doxygen documentation, use `-DEXCLUDE_DOXYGEN=1` in the first command
   * You may need to precise the location of Boost header files, in that case, add `-DBoost_INCLUDE_DIR="<path/to/boost_incs>"` in the first command
   * You may want to modify `make` behavior when running `cmake --build` command:
