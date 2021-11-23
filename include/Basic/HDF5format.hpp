@@ -22,32 +22,32 @@ public:
   virtual ~HDF5format();
 
 public:
-  int create(const String& filename,
-             const String& dsname,
-             hid_t type,
-             int ndim,
-             hsize_t *dims,
-             void *wdata);
-  void* read(const String& filename,
-             const String& dsname,
-             int flag_compress,
-             hid_t type,
-             int ndim,
-             hsize_t *start,
-             hsize_t *stride,
-             hsize_t *count,
-             hsize_t *block,
-             hsize_t *dimout);
-  int write(const String& filename,
-            const String& dsname,
-            hid_t type,
-            int ndim,
-            hsize_t *dims,
-            hsize_t *start,
-            hsize_t *stride,
-            hsize_t *count,
-            hsize_t *block,
-            void *wdata);
+  int createRegular(const String& filename,
+                    const String& dsname,
+                    hid_t type,
+                    int ndim,
+                    hsize_t *dims,
+                    void *wdata);
+  void* readRegular(const String& filename,
+                    const String& dsname,
+                    int flag_compress,
+                    hid_t type,
+                    int ndim,
+                    hsize_t *start,
+                    hsize_t *stride,
+                    hsize_t *count,
+                    hsize_t *block,
+                    hsize_t *dimout);
+  int writeRegular(const String& filename,
+                   const String& dsname,
+                   hid_t type,
+                   int ndim,
+                   hsize_t *dims,
+                   hsize_t *start,
+                   hsize_t *stride,
+                   hsize_t *count,
+                   hsize_t *block,
+                   void *wdata);
   int delfile(const String& filename);
   void* allocArray(hid_t type, int ndim, hsize_t *dims);
 };

@@ -20,6 +20,7 @@ class GibbsMMulti: public GibbsMulti
 {
   typedef struct
   {
+    int _size;
     int _nbgh;
     int _pivot;
     VectorInt _mvRanks;
@@ -48,9 +49,10 @@ private:
   int  _getVariableNumber() const;
   void _tableStore(int mode, const cs* Cmat);
   void _getWeights(int iech, WgtVect& area) const;
-  int  _calculateWeights(int iech, WgtVect& area, double tol = EPSILON6) const;
+  int  _calculateWeights(int iech, WgtVect& area, double tol = EPSILON3) const;
   bool _checkForInternalStorage(bool verbose = false);
   void _storeAllWeights(bool verbose = false);
+  int  _getSizeOfArea(const WgtVect& area) const;
 
 private:
   cs*       _Ln;

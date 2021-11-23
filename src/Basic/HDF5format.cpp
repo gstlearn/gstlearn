@@ -49,12 +49,12 @@ HDF5format::~HDF5format()
 ** \remarks Any message has been suppressed as HDF5 provides error information
 **
 *****************************************************************************/
-int HDF5format::create(const String& filename,
-                       const String& dsname,
-                       hid_t type,
-                       int ndim,
-                       hsize_t *dims,
-                       void *wdata)
+int HDF5format::createRegular(const String& filename,
+                              const String& dsname,
+                              hid_t type,
+                              int ndim,
+                              hsize_t *dims,
+                              void *wdata)
 {
   hid_t    datafile, dataspace, memspace, dataset, err;
   hsize_t *start0;
@@ -134,16 +134,16 @@ label_end:
 ** \remarks Any message has been suppressed as HDF5 provides error information
 **
 *****************************************************************************/
-void* HDF5format::read(const String& filename,
-                       const String& dsname,
-                       int flag_compress,
-                       hid_t type,
-                       int ndim,
-                       hsize_t *start,
-                       hsize_t *stride,
-                       hsize_t *count,
-                       hsize_t *block,
-                       hsize_t *dimout)
+void* HDF5format::readRegular(const String& filename,
+                              const String& dsname,
+                              int flag_compress,
+                              hid_t type,
+                              int ndim,
+                              hsize_t *start,
+                              hsize_t *stride,
+                              hsize_t *count,
+                              hsize_t *block,
+                              hsize_t *dimout)
 {
   hid_t    datafile, dataset, dataspace, memspace, err;
   hsize_t *start0,*dims;
@@ -262,16 +262,16 @@ label_end:
 ** \remarks Any message has been suppressed as HDF5 provides error information
 **
 *****************************************************************************/
-int HDF5format::write(const String& filename,
-                      const String& dsname,
-                      hid_t type,
-                      int ndim,
-                      hsize_t *dims,
-                      hsize_t *start,
-                      hsize_t *stride,
-                      hsize_t *count,
-                      hsize_t *block,
-                      void *wdata)
+int HDF5format::writeRegular(const String& filename,
+                             const String& dsname,
+                             hid_t type,
+                             int ndim,
+                             hsize_t *dims,
+                             hsize_t *start,
+                             hsize_t *stride,
+                             hsize_t *count,
+                             hsize_t *block,
+                             void *wdata)
 {
   hid_t    datafile, dataset, dataspace, memspace, err;
   hsize_t *start0;

@@ -402,6 +402,8 @@ int GibbsMMulti::_calculateWeights(int iech, WgtVect& area, double tol) const
   }
   area._pivot = pivot;
   area._nbgh  = nbgh;
+  area._size  = _getSizeOfArea(area);
+
   return 0;
 }
 
@@ -430,9 +432,9 @@ bool GibbsMMulti::_checkForInternalStorage(bool verbose)
   {
     message("Total core for Weights          = %ld (bytes)\n",sumWgt * sizeof(double));
     message("Total core for Weights          = %ld (bytes)\n",sumRanks * sizeof(int));
-    message("Core for std::vector structures = %ld (bytes)\n",overHead);
+    message("Core for Overhead               = %ld (bytes)\n",overHead);
     message("Total core needs                = %ld (bytes)\n",total);
-    message("(For spped up, calculations are based on an upper bound of dimension of weights)\n");
+    message("(To speed up, calculations are based on an upper bound of dimension of weights)\n");
   }
 
   // Decide if weights are stored internally or not
@@ -486,4 +488,18 @@ void GibbsMMulti::_getWeights(int iech, WgtVect& area) const
     area = _areas[iech];
   else
     _calculateWeights(iech, area);
+}
+
+/**
+ * Calculate the size of the current WgtVect structure
+ * @param area Current WgtVect structure
+ * @return
+ */
+int GibbsMMulti::_getSizeOfArea(const WgtVect& area) const
+{
+  int s1 = sizeof(area._size) + sizeof(area._nbgh) + sizeof(area._pivot);
+  int s2 = ut_vector_size(area._mvRanks);
+  int s3 = ut_vector_size(area._weights);
+  int total = s1 + s2 + s3;
+  return total;
 }

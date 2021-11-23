@@ -288,14 +288,14 @@ int main (void)
 
   // Creating the HDF5 file
 
-  hdf5.create(FILE,DATASET,type,ndim,dims,wdata);
+  hdf5.createRegular(FILE,DATASET,type,ndim,dims,wdata);
   st_print(flag_print,type,ndim,dims,wdata);
   timer.Interval("Creating the HDF5 file");
 
   // Reading without compression
 
   flag_compress = 0;
-  rdata = hdf5.read(FILE,DATASET,flag_compress,type,
+  rdata = hdf5.readRegular(FILE,DATASET,flag_compress,type,
                     ndim,start,stride,count0,block,dimout);
   st_print(flag_print,type,ndim,dimout,rdata);
   timer.Interval("Reading HDF5 array (no compression)");
@@ -304,7 +304,7 @@ int main (void)
 
   rdata = (void *) mem_free((char *) rdata);
   flag_compress = 1;
-  rdata = hdf5.read(FILE,DATASET,flag_compress,type,
+  rdata = hdf5.readRegular(FILE,DATASET,flag_compress,type,
                     ndim,start,stride,count0,block,dimout);
   timer.Interval("Reading HDF5 array (with compression)");
 
@@ -326,7 +326,7 @@ int main (void)
       // Reading
 
       rdata = (void *) mem_free((char *) rdata);
-      rdata = hdf5.read(FILE,DATASET,1,type,
+      rdata = hdf5.readRegular(FILE,DATASET,1,type,
                         ndim,start,stride,count,block,dimout);
       st_print(flag_print,type,ndim,dimout,rdata);
       total_read += timer_read.getInterval();
@@ -337,7 +337,7 @@ int main (void)
 
       // Writing
 
-      if (hdf5.write(FILE,DATASET,type,ndim,dimout,start,stride,count,block,
+      if (hdf5.writeRegular(FILE,DATASET,type,ndim,dimout,start,stride,count,block,
                      rdata)) goto label_end;
       total_write += timer_write.getInterval();
     }
