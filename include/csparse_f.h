@@ -1,15 +1,6 @@
 #ifndef _CS_F_H
 #define _CS_F_H
 
-#ifdef MATLAB_MEX_FILE
-#include "mex.h"
-#endif
-#define CS_VER 1		    /* CSparse Version 1.2.0 */
-#define CS_SUBVER 2
-#define CS_SUBSUB 0
-#define CS_DATE "Mar 6, 2006"	    /* CSparse release date */
-#define CS_COPYRIGHT "Copyright (c) Timothy A. Davis, 2006"
-
 #include "csparse_d.h"
 
 cs     *cs_add (const cs *A, const cs *B, double alpha, double beta) ;

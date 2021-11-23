@@ -14,6 +14,24 @@
 #include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
+/* Global symbols for Csparse */
+
+#ifdef MATLAB_MEX_FILE
+#include "mex.h"
+#endif
+#define CS_VER 1                   /* CSparse Version 1.2.0 */
+#define CS_SUBVER 2
+#define CS_SUBSUB 0
+#define CS_DATE "Mar 6, 2006"     /* CSparse release date */
+#define CS_COPYRIGHT "Copyright (c) Timothy A. Davis, 2006"
+#define CS_MAX(a,b) (((a) > (b)) ? (a) : (b))
+#define CS_MIN(a,b) (((a) < (b)) ? (a) : (b))
+#define CS_FLIP(i) (-(i)-2)
+#define CS_UNFLIP(i) (((i) < 0) ? CS_FLIP(i) : (i))
+#define CS_MARKED(Ap,j) (Ap [j] < 0)
+#define CS_MARK(Ap,j) { Ap [j] = CS_FLIP (Ap [j]) ; }
+#define CS_OVERFLOW(n,size) (n > INT_MAX / (int) size)
+
 #define MAX_NEIGH 100
 #define XCR(ilevel,i)	      (xcr[(ilevel) * ncur + (i)])
 #define RHS(ilevel,i)	      (rhs[(ilevel) * ncur + (i)])

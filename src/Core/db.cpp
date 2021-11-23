@@ -319,24 +319,6 @@ GEOSLIB_API int is_grid(const Db *db, bool verbose)
 
 /****************************************************************************/
 /*!
- **  Writes one gradient of a sample
- **
- ** \param[in]  db     Db structure
- ** \param[in]  iech   Rank of the sample
- ** \param[in]  item   Rank of the gradient
- ** \param[in]  value  Value of be written
- **
- ** \remark  For efficiency reason, argument validity is not tested
- **
- *****************************************************************************/
-GEOSLIB_API void set_IGRD(Db *db, int iech, int item, double value)
-{
-  if (db == NULL) return;
-  db->setGradient(iech, item, value);
-}
-
-/****************************************************************************/
-/*!
  **  Returns the number of items for a given locator in the Db
  **
  ** \return  Number of items
@@ -1796,7 +1778,7 @@ GEOSLIB_API Db *db_create_from_target(double *target,
  ** \param[in]  iatt   Rank of the attribute (starting at 0)
  **
  *****************************************************************************/
-GEOSLIB_API std::string db_name_get_by_att(const Db *db, int iatt)
+GEOSLIB_API String db_name_get_by_att(const Db *db, int iatt)
 {
   static char na_string[3] = "NA";
   int icol = db->getColumnByAttribute(iatt);
@@ -1804,7 +1786,17 @@ GEOSLIB_API std::string db_name_get_by_att(const Db *db, int iatt)
   return (db->getNameByColumn(icol));
 }
 
-GEOSLIB_API std::string db_name_get_by_col(Db *db, int icol)
+/****************************************************************************/
+/*!
+ **  Returns the name assigned to the given column
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db structure
+ ** \param[in]  icol   Rank of the column (starting at 0)
+ **
+ *****************************************************************************/
+GEOSLIB_API String db_name_get_by_col(Db *db, int icol)
 {
   static char na_string[3] = "NA";
   if (!db->isColumnIndexValid(icol)) return (na_string);

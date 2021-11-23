@@ -709,61 +709,6 @@ GEOSLIB_API char *mem_realloc_(const char  *call_file,
 
 /****************************************************************************/
 /*!
- * Core duplication routine
- * 
- * \return  Pointer to the duplicated array 
- *
- * \param[in]  call_file  Name of the calling file
- * \param[in]  call_line  Line in the calling file
- * \param[in]  tab_old    Array to be duplicated
- * \param[in]  size       Number of bytes
- * \param[in]  flag_fatal Error status (1 = the program stops)
- *
- *****************************************************************************/
-GEOSLIB_API char *mem_duplicate_(const char  *call_file,
-                                 unsigned int call_line,
-                                 char *tab_old, 
-                                 int   size,
-                                 int   flag_fatal)
-{
-  int   size_eff;
-  char *tab,*tab_aux;
-
-  tab = tab_aux = nullptr;
-  if (size <= 0) return(NULL);
-  size_eff = size;
-  size  = size_eff + SHIFT();
-
-  tab_aux = (char *) malloc(size);
-  if (tab_aux == NULL)
-  {
-    mem_error(size_eff);
-    if (flag_fatal) messageAbort("Fatal error");
-    return(NULL);
-  }
-
-  if (MEMORY_DEBUG)
-  {
-    (void) memcpy((char *) tab_aux,(char *) &size_eff,sizeof(int));
-    st_mem_update(size_eff);
-    st_mem_message(call_file,call_line,"Allocation   ",+1,size_eff);
-  }
-  if (MEMORY_LEAK)
-  {
-    st_memory_leak_add(call_file,call_line,size,tab_aux);
-  }
-
-  tab = &tab_aux[SHIFT()];
-
-  // Copy the contents of the old array into the new one
-
-  (void) memcpy((char *) tab,(char *) tab_old,size);
-
-  return(tab);
-}
-
-/****************************************************************************/
-/*!
 ** Core deallocation of an array of pointers
 **
 ** \return  Pointer to the freed array

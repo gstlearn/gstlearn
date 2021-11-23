@@ -8,7 +8,7 @@ project(gstlearn
 # Get the date in gstlearn_DATE variable
 string(TIMESTAMP gstlearn_DATE "%Y/%m/%d")
 # Fix version.h automatically
-configure_file(version.h.in version.h)
+#configure_file(version.h.in version.h)
 
                            
 # Minimum CMake version

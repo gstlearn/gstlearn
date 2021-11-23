@@ -253,6 +253,11 @@
                                    int nrow,
                                    int ncol,
                                    int *values);
+  GEOSLIB_API void app_keypair_int(const char *keyword,
+                                   int origin,
+                                   int nrow,
+                                   int ncol,
+                                   int *values);
   GEOSLIB_API double get_keypone(const char *keyword, double valdef);
   GEOSLIB_API int get_keypair(const char *keyword,
                               int *nrow,
@@ -425,7 +430,6 @@
   /* Prototyping the functions in io.c */
   /*************************************/
 
-  //GEOSLIB_API FILE *file_open(const char *filename, int mode);
   GEOSLIB_API void record_close(void);
 #ifndef SWIG
   GEOSLIB_API void redefine_message(void (*write_func)(const char *));
@@ -511,7 +515,6 @@
 #define mem_alloc(a,b)         mem_alloc_(__FILE__,__LINE__,a,b)
 #define mem_calloc(a,b,c)      mem_calloc_(__FILE__,__LINE__,a,b,c)
 #define mem_realloc(tab,a,b)   mem_realloc_(__FILE__,__LINE__,tab,a,b)
-#define mem_duplicate(tab,a,b) mem_duplicate_(__FILE__,__LINE__,tab,a,b)
 #define mem_copy(tab,a,b)      mem_copy_(__FILE__,__LINE__,tab,a,b)
 
   GEOSLIB_API void memory_leak_set(int flag);
@@ -696,6 +699,10 @@
                                              double *tl,
                                              double *a);
   GEOSLIB_API void matrix_tri2sq(int neq, double *tl, double *a);
+  GEOSLIB_API void matrix_square_to_triangle(int     mode,
+                                             int     neq,
+                                             double *a,
+                                             double *tl);
   GEOSLIB_API void matrix_tl2tu(int neq, const double *tl, double *tu);
   GEOSLIB_API void matrix_linear(int neq,
                                  double a1,
@@ -1370,6 +1377,16 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
                                            double s,
                                            const VectorDouble& zcut,
                                            const VectorDouble& stats);
+  GEOSLIB_API int anam_discrete_DD_z2factor(Anam   *anam,
+                                            Db     *db,
+                                            int     iptr,
+                                            int     nfact,
+                                            VectorInt ifacs);
+  GEOSLIB_API int anam_discrete_IR_z2factor(Anam   *anam,
+                                            Db     *db,
+                                            int     iptr,
+                                            int     nfact,
+                                            VectorInt ifacs);
   GEOSLIB_API int anam_discrete_z2factor(Anam *anam,
                                          Db *db,
                                          int nfact,
@@ -2440,22 +2457,6 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                      double *t1max,
                                      double *t2min,
                                      double *t2max);
-  GEOSLIB_API int rule_evaluate_bounds_shadow(PropDef *propdef,
-                                              Db *dbin,
-                                              Db *dbout,
-                                              RuleShadow *rule,
-                                              int isimu,
-                                              int igrf,
-                                              int ipgs,
-                                              int nbsimu);
-  GEOSLIB_API int rule_evaluate_bounds(PropDef *propdef,
-                                       Db *dbin,
-                                       Db *dbout,
-                                       Rule *rule,
-                                       int isimu,
-                                       int igrf,
-                                       int ipgs,
-                                       int nbsimu);
   GEOSLIB_API int db_rule_shadow(Db *db,
                                  Db *dbprop,
                                  RuleShadow *rule,
@@ -3073,6 +3074,10 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                               Db *dbout,
                               const VectorDouble& gext,
                               SPDE_Option& s_option);
+  GEOSLIB_API int spde_posterior(Db *dbin,
+                                 Db *dbout,
+                                 const VectorDouble& gext,
+                                 SPDE_Option& s_option);
   GEOSLIB_API int spde_process(Db *dbin,
                                Db *dbout,
                                SPDE_Option& s_option,
@@ -3137,6 +3142,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                             int *dupl_out,
                                             int *meshes,
                                             double *points);
+  GEOSLIB_API int spde_external_AQ_copy(SPDE_Matelem& matelem, int icov0);
   GEOSLIB_API int spde_external_AQ_define(int mode,
                                           int icov0,
                                           int ndim,

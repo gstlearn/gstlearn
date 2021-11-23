@@ -4559,12 +4559,12 @@ GEOSLIB_API int is_in_spherical_triangle(double *coor,
  ** \param[in]  rtab      Array of double values to be loaded
  **
  *****************************************************************************/
-GEOSLIB_API std::vector<double> util_set_array_double(int ntab,
-                                                      const double *rtab)
+GEOSLIB_API VectorDouble util_set_array_double(int ntab,
+                                               const double *rtab)
 {
   if (debug_query("interface")) message("util_set_array_double\n");
-  if (ntab <= 0 || rtab == nullptr) return std::vector<double>();
-  std::vector<double> rettab(ntab);
+  if (ntab <= 0 || rtab == nullptr) return VectorDouble();
+  VectorDouble rettab(ntab);
   if (rettab.empty()) return rettab;
 
   for (int i = 0; i < ntab; i++)
@@ -4583,10 +4583,10 @@ GEOSLIB_API std::vector<double> util_set_array_double(int ntab,
  ** \param[in]  itab      Array of integer values to be loaded
  **
  *****************************************************************************/
-GEOSLIB_API std::vector<int> util_set_array_integer(int ntab, const int *itab)
+GEOSLIB_API VectorInt util_set_array_integer(int ntab, const int *itab)
 {
   if (debug_query("interface")) message("util_set_array_integer\n");
-  std::vector<int> rettab(ntab);
+  VectorInt rettab(ntab);
   if (ntab <= 0 || itab == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
     rettab[i] = itab[i];
@@ -4603,10 +4603,10 @@ GEOSLIB_API std::vector<int> util_set_array_integer(int ntab, const int *itab)
  ** \param[in]  names     Array of character values to be loaded
  **
  *****************************************************************************/
-GEOSLIB_API std::vector<std::string> util_set_array_char(int ntab, char **names)
+GEOSLIB_API VectorString util_set_array_char(int ntab, char **names)
 {
   if (debug_query("interface")) message("util_set_array_char\n");
-  std::vector<std::string> rettab(ntab);
+  VectorString rettab(ntab);
   if (names == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
     rettab[i] = names[i];

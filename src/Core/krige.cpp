@@ -9061,17 +9061,17 @@ label_end:
 ** \param[out] data_var  Array of estimation variance at samples
 **
 *****************************************************************************/
-GEOSLIB_API int st_krige_data(Db     *db,
-                              Model  *model,
-                              double  beta,
-                              int     nsize1,
-                              int    *ranks1,
-                              int     nsize2,
-                              int    *ranks2,
-                              int    *rother,
-                              int     flag_abs,
-                              double *data_est,
-                              double *data_var)
+int st_krige_data(Db     *db,
+                  Model  *model,
+                  double  beta,
+                  int     nsize1,
+                  int    *ranks1,
+                  int     nsize2,
+                  int    *ranks2,
+                  int    *rother,
+                  int     flag_abs,
+                  double *data_est,
+                  double *data_var)
 {
   int    *rutil,error,ntot,nutil,i,iech,nech;
   double *data,*tutil,*invsig,*s,*datm,*aux1,*aux2,*aux3,*aux4,*c00;
@@ -9184,12 +9184,12 @@ label_end:
 ** \param[out] crit       Array of criterion
 **
 *****************************************************************************/
-GEOSLIB_API int st_crit_global(Db     *db,
-                               Model  *model,
-                               int     nsize1,
-                               int    *ranks1,
-                               int    *rother,
-                               double *crit)
+int st_crit_global(Db     *db,
+                   Model  *model,
+                   int     nsize1,
+                   int    *ranks1,
+                   int    *rother,
+                   double *crit)
 {
   int     error,ndat,i,iech,nutil,ecr;
   double *c00,*invc,*data,*datm,*cs,*temp,*olderr,*olddiv,*aux1,*cs1;

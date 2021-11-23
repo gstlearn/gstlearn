@@ -25,6 +25,11 @@
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 
+/* Global symbols for SPDE */
+
+#define NBLIN_TERMS 10
+#define SPDE_MAX_NGRF 2
+
 /*! \cond */
 #define VT_NONE      -1
 #define VT_IDLE       0

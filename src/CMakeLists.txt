@@ -262,8 +262,8 @@ target_compile_definitions(static PRIVATE NO_TIMER)
 
 # Add binary directory to find generated version.h (cf cmake tutorial/Step1!) 
 # TODO: Currently doesn't work but I don't know why ! :-(
-target_include_directories(shared PUBLIC "${PROJECT_BINARY_DIR}")
-target_include_directories(static PUBLIC "${PROJECT_BINARY_DIR}")
+#target_include_directories(shared PUBLIC "${PROJECT_BINARY_DIR}")
+#target_include_directories(static PUBLIC "${PROJECT_BINARY_DIR}")
 
 # Add swig include directories (installed) for swig module who wants to link with gstlearn
 target_include_directories(shared PUBLIC

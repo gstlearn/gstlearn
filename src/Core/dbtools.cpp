@@ -4464,14 +4464,14 @@ static VectorDouble st_point_init_poisthin(int verbose,
  ** \return  Error returned code
  **
  ** \param[in]  db      Db structure
- ** \param[in]  rank    Rank of the target variable
+ ** \param[in]  ivar    Index of the target variable
  ** \param[in]  ncut    Number of cutoffs
  ** \param[in]  zcut    Array containing the cutoffs
  **
  ** \remarks The array 'zcut' must be provided in increasing order
  **
  *****************************************************************************/
-GEOSLIB_API int db_resind(Db *db, int rank, int ncut, double *zcut)
+GEOSLIB_API int db_resind(Db *db, int ivar, int ncut, double *zcut)
 {
   double *tonnage, value, zval, ind_cut0, ind_cut1, ton_cut0, ton_cut1, ir;
   int ntot, nech, iptr;
@@ -4501,7 +4501,7 @@ GEOSLIB_API int db_resind(Db *db, int rank, int ncut, double *zcut)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    value = db->getArray(iech, rank);
+    value = db->getArray(iech, ivar);
     if (FFFF(value)) continue;
     ntot++;
 
@@ -4521,7 +4521,7 @@ GEOSLIB_API int db_resind(Db *db, int rank, int ncut, double *zcut)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    value = db->getArray(iech, rank);
+    value = db->getArray(iech, ivar);
     if (FFFF(value)) continue;
 
     /* Loop on the cutoffs */

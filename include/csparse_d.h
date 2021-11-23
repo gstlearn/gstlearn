@@ -1,15 +1,6 @@
 #ifndef _CS_D_H
 #define _CS_D_H
 
-#ifdef MATLAB_MEX_FILE
-#include "mex.h"
-#endif
-#define CS_VER 1		    /* CSparse Version 1.2.0 */
-#define CS_SUBVER 2
-#define CS_SUBSUB 0
-#define CS_DATE "Mar 6, 2006"	    /* CSparse release date */
-#define CS_COPYRIGHT "Copyright (c) Timothy A. Davis, 2006"
-
 /* --- primary CSparse routines and data structures ------------------------- */
 typedef struct // cs_sparse    /* matrix in compressed-column or triplet form */
 {
