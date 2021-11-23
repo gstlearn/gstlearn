@@ -8,8 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#ifndef GEOSLIB_F_H
-#define GEOSLIB_F_H
+#pragma once
 
 // WARNING: Make this include list as small as possible!
 #include "geoslib_d.h"
@@ -455,4 +454,3 @@ GEOSLIB_API int db_tool_duplicate(Db *db1,
                                   double *dist,
                                   double *sel);
 
-#endif

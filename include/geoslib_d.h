@@ -8,9 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#ifndef GEOSLIB_D_H
-#define GEOSLIB_D_H
-
+#pragma once
 /* Include other package definitions */
 // WARNING: Make this include list as small as possible!
 #include "geoslib_define.h"
@@ -508,5 +506,3 @@ typedef struct Local_Relem Relem;
 typedef struct Local_Split Split;
 
 #include "INIParser.hpp"
-
-#endif

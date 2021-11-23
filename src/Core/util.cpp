@@ -5111,7 +5111,7 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
 /*!
  **  Allocates and returns an array giving the ranks of the
  **  cells (sequentially according to user's order) coded
- **  with standard ranks (according to Geoslib internal order)
+ **  with standard ranks (according to gstlearn internal order)
  **
  ** \return Array of indices
  **

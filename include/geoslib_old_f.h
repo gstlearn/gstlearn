@@ -8,8 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#ifndef GEOSLIB_OLDF_H
-#define GEOSLIB_OLDF_H
+#pragma once
 
 // TODO: this include list is too long
 #include "Neigh/ENeigh.hpp"
@@ -46,8 +45,8 @@
   /**********************************************/
   /* Prototyping the functions in acknowledge.c */
   /**********************************************/
-  GEOSLIB_API void acknowledge_Geoslib(void);
-  GEOSLIB_API void inquire_Geoslib(char **release, char **date);
+  GEOSLIB_API void acknowledge_gstlearn(void);
+  GEOSLIB_API void inquire_gstlearn(char **release, char **date);
 
   /******************************************/
   /* Prototyping the functions in license.c */
@@ -3235,4 +3234,3 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                             int npass,
                             int verbose);
 
-#endif

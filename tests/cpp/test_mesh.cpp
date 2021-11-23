@@ -118,7 +118,7 @@ int main(int /*argc*/, char */*argv*/[])
     dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,extendmin,cellsize);
   }
 
-  /* Connect the Geoslib Library */
+  /* Setup the license */
 
   if (setup_license("Demonstration")) return(0);
 

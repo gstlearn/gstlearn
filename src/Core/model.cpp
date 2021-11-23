@@ -3746,7 +3746,7 @@ GEOSLIB_API double model_maximum_distance(Model *model)
 /****************************************************************************/
 /*!
  **  For a given basic structure, convert the theoretical range (scale) into
- **  the practical range (which is the one actually stored in Geoslib)
+ **  the practical range (which is the one actually stored in gstlearn)
  **
  ** \return  Range
  **

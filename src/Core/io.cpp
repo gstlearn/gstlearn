@@ -78,7 +78,7 @@ static char *cur = NULL;
 
 /****************************************************************************/
 /*!
-**  Exit from the Geoslib library 
+**  Exit from the gstlearn library
 **  (not killing the encapsulation if any) 
 **
 *****************************************************************************/

@@ -8,8 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#ifndef GEOSLIB_E_H
-#define GEOSLIB_E_H
+#pragma once
 
 #ifndef WINVER
   #define WINVER 0x0600
@@ -56,4 +55,3 @@
 #include "License/MD5Utility.hpp"
 #include "License/LicenseKey.hpp"
 
-#endif

@@ -23,36 +23,36 @@
 ** \remarks The output arrays should be freed by the calling program
 **
 ****************************************************************************/
-GEOSLIB_API void inquire_Geoslib(char **release,
-                                 char **date)
+GEOSLIB_API void inquire_gstlearn(char **release,
+                                  char **date)
 {
   char *buffer;
 
-  int size  = static_cast<int> (strlen(GEOSLIB_RELEASE));
+  int size  = static_cast<int> (strlen(GSTLEARN_RELEASE));
   buffer = (char *) mem_alloc(sizeof(char) * (size+1),1);
-  (void) gslStrcpy(buffer,GEOSLIB_RELEASE);
+  (void) gslStrcpy(buffer,GSTLEARN_RELEASE);
   buffer[size] = '\0';
   *release = buffer;
 
-  size  = static_cast<int> (strlen(GEOSLIB_DATE));
+  size  = static_cast<int> (strlen(GSTLEARN_RELEASE));
   buffer = (char *) mem_alloc(sizeof(char) * (size+1),1);
-  (void) gslStrcpy(buffer,GEOSLIB_DATE);
+  (void) gslStrcpy(buffer,GSTLEARN_RELEASE);
   buffer[size] = '\0';
   *date = buffer;
 }
   
 /****************************************************************************/
 /*!
- *  Acknowledgment of the authors for Geoslib Library
+ *  Acknowledgment of the authors for gstlearn Library
  *
  ****************************************************************************/
-GEOSLIB_API void acknowledge_Geoslib(void)
+GEOSLIB_API void acknowledge_gstlearn(void)
 
 {
   // Print the header 
 
-  message("Geoslib Library (Version:%s - Date:%s)",
-          GEOSLIB_RELEASE,GEOSLIB_DATE);
+  message("gstlearn Library (Version:%s - Date:%s)",
+          GSTLEARN_RELEASE,GSTLEARN_DATE);
 
   // Print the list of authors
 

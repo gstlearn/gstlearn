@@ -49,7 +49,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble sill{1.};
   VectorDouble gext{ 2*79.8, 2*79.8 };
 
-  /* 1.b - Connect the Geoslib Library */
+  /* 1.b - Setup the license */
 
   if (setup_license("Demonstration")) goto label_end;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);

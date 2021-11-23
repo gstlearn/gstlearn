@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
   std::cout.rdbuf(out.rdbuf()); //redirect std::cout to Result.out!
 
-  /* Connect the Geoslib Library */
+  /* Setup the license */
 
   if (setup_license("Demonstration")) goto label_end;
 

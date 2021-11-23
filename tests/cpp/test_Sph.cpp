@@ -157,7 +157,7 @@ int main(int /*argc*/, char */*argv*/[])
   int flag_2 = 1;
   int flag_3 = 1;
   
-  /* 1.b - Connect the Geoslib Library */
+  /* 1.b - Setup the license */
 
   if (setup_license("Demonstration")) goto label_end;
 

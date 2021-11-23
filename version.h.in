@@ -8,13 +8,19 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#ifndef VERSION_H
-#define VERSION_H
+#pragma once
 
-/* Version numbers */
+/* Get values from CMake command */
 
-#define GEOSLIB_RELEASE "12.1.1"              // Geoslib version (for acknowledge and identification)
-#define GEOSLIB_DATE    "June, 4nd 2021"      // Geoslib release date (for acknowledge and identification)
-#define GEOSLIB_VERSION 2                     // For License checking (Increase it to force License update)
+#define gstlearn_VERSION_MAJOR @gstlearn_VERSION_MAJOR@
+#define gstlearn_VERSION_MINOR @gstlearn_VERSION_MINOR@
+#define gstlearn_VERSION_PATCH @gstlearn_VERSION_PATCH@
+#define gstlearn_VERSION       @gstlearn_VERSION@
+#define gstlearn_DATE          @gstlearn_DATE@
 
-#endif
+/* Version numbers and date */
+
+#define GSTLEARN_RELEASE gstlearn_VERSION       // gstlearn version (for acknowledge and identification)
+#define GSTLEARN_DATE    gstlearn_DATE          // gstlearn release date (for acknowledge and identification)
+#define GSTLEARN_VERSION gstlearn_VERSION_MAJOR // For License checking (Increase it to force License update)
+

@@ -259,6 +259,12 @@ target_compile_definitions(shared PRIVATE NO_TIMER)
 target_compile_definitions(static PRIVATE NO_TIMER) 
 
 # Include directories (-I)
+
+# Add binary directory to find generated version.h (cf cmake tutorial/Step1!) 
+# TODO : Currently doesn't work but I don't know why ! :-(
+target_include_directories(shared PUBLIC "${PROJECT_BINARY_DIR}")
+target_include_directories(static PUBLIC "${PROJECT_BINARY_DIR}")
+
 # Add swig include directories (installed) for swig module who wants to link with gstlearn
 target_include_directories(shared PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
@@ -272,16 +278,16 @@ target_include_directories(static PUBLIC
 )
 
 # Add boost include directory
-target_include_directories(shared PUBLIC ${Boost_INCLUDE_DIRS})
-target_include_directories(static PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(shared PUBLIC "${Boost_INCLUDE_DIRS}")
+target_include_directories(static PUBLIC "${Boost_INCLUDE_DIRS}")
+
+# Debug message
+get_target_property(debug shared INTERFACE_INCLUDE_DIRECTORIES)
+message("${debug}")
 
 # Rename the output library names
 set_target_properties(shared PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
 set_target_properties(static PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.a  (on Linux)
-
-# Rename the export names (used by cmake for importing them like gstlearn::shared)
-#set_target_properties(gstlearn-shared PROPERTIES EXPORT_NAME shared)
-#set_target_properties(gstlearn-static PROPERTIES EXPORT_NAME static)
 
 # Set library version
 set_target_properties(shared PROPERTIES VERSION ${PROJECT_VERSION})
@@ -299,6 +305,7 @@ install(TARGETS shared EXPORT corelibs
         OPTIONAL
 )
 # Install static library in DESTINATION/lib folder
+# TODO : After compiling static library only, 'make install' forces dynamic library reconstruction!
 install(TARGETS static EXPORT corelibs
         ARCHIVE DESTINATION lib
         OPTIONAL

@@ -8,8 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#ifndef GEOSLIB_F_PRIVATE_H
-#define GEOSLIB_F_PRIVATE_H
+#pragma once
 
 #include "Variogram/Vario.hpp"
 #include "geoslib_d.h"
@@ -137,4 +136,3 @@ GEOSLIB_API int db_category(Db *db,
                             const VectorBool& incmaxi = VectorBool(),
                             NamingConvention namconv = NamingConvention("Category"));
 
-#endif

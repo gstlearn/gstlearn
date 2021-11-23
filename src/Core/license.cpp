@@ -12,7 +12,7 @@
 
 /****************************************************************************/
 /*!
- *  Check if the Library Geoslib is authorized and setup the License Id.
+ *  Check if the Library gstlearn is authorized and setup the License Id.
  *
  * \return Error return code (error = 1)
  *
@@ -22,7 +22,7 @@
  * \remarks This may be done using register_license_file() where
  * \remarks the License File is checked
  * \remarks The name of the License File can also be passed using the
- * \remarks Environment Variable GEOSLIB_LICENSE (on LINUX system only)
+ * \remarks Environment Variable GSTLEARN_LICENSE (on LINUX system only)
  *
  ****************************************************************************/
 GEOSLIB_API int setup_license(const char *target_name)

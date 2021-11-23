@@ -1,11 +1,16 @@
 # Permits using project VERSION
 cmake_policy(SET CMP0048 NEW)
 project(gstlearn 
-        VERSION      0.1.0 # Make it consistent with CHANGES file
+        VERSION      13.1.0 # Make it consistent with CHANGES file
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL https://github.com/gstlearn/gstlearn
         LANGUAGES    CXX)
+# Get the date in gstlearn_DATE variable
+string(TIMESTAMP gstlearn_DATE "%Y/%m/%d")
+# Fix version.h automatically
+configure_file(version.h.in version.h)
 
+                           
 # Minimum CMake version
 cmake_minimum_required(VERSION 3.15)
 
@@ -17,8 +22,8 @@ include(CTest)
 enable_testing()
 
 # Add c++11 support whatever the compiler
-# https://stackoverflow.com/questions/10851247/how-do-i-activate-c-11-in-cmake
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Warning fiesta! (global property)
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
@@ -48,7 +53,7 @@ install(
 # Uncomment the following lines if you want to register the package globally
 # This will avoid the manual specification of gstlearn_DIR
 # Register the gstlearn library
-# TODO : But doesn't work : It seems to register the build directory not, the installation directory
+# TODO : But doesn't work : It seems to register the build directory not the installation directory
 #horlick:~> more .cmake/packages/gstlearn/0803e28e1916acff1b305242a59a11c4
 #/home/fors/Projets/gstlearn/gstlearn/build
 #set(CMAKE_EXPORT_PACKAGE_REGISTRY ON) # with CMake >= 3.15

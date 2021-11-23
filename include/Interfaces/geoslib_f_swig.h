@@ -1,5 +1,4 @@
-#ifndef GEOSLIB_F_SWIG_H
-#define GEOSLIB_F_SWIG_H
+#pragma once
 
 #include "Interfaces/Database.hpp"
 #include "Interfaces/interface_d.hpp"
@@ -36,4 +35,3 @@ void kriging2(const Database & dbin, Database &dbout, Model* model, Neigh* neigh
 void mes_error(ES error);
 VectorDouble affiche(Db* db);
 void my_db_print(Db*  db);
-#endif
