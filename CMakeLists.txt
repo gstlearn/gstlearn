@@ -1,7 +1,7 @@
 # Permits using project VERSION
 cmake_policy(SET CMP0048 NEW)
 project(gstlearn 
-        VERSION      13.1.0 # Make it consistent with CHANGES file
+        VERSION      0.1.0 # Make it consistent with CHANGES file
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL https://github.com/gstlearn/gstlearn
         LANGUAGES    CXX)
@@ -53,7 +53,7 @@ install(
 # Uncomment the following lines if you want to register the package globally
 # This will avoid the manual specification of gstlearn_DIR
 # Register the gstlearn library
-# TODO : But doesn't work : It seems to register the build directory not the installation directory
+# TODO: But doesn't work : It seems to register the build directory not the installation directory
 #horlick:~> more .cmake/packages/gstlearn/0803e28e1916acff1b305242a59a11c4
 #/home/fors/Projets/gstlearn/gstlearn/build
 #set(CMAKE_EXPORT_PACKAGE_REGISTRY ON) # with CMake >= 3.15

@@ -20,7 +20,7 @@
 
 /* Version numbers and date */
 
-#define GSTLEARN_RELEASE gstlearn_VERSION       // gstlearn version (for acknowledge and identification)
-#define GSTLEARN_DATE    gstlearn_DATE          // gstlearn release date (for acknowledge and identification)
+#define GSTLEARN_RELEASE "gstlearn_VERSION"     // gstlearn version (for acknowledge and identification)
+#define GSTLEARN_DATE    "gstlearn_DATE"        // gstlearn release date (for acknowledge and identification)
 #define GSTLEARN_VERSION gstlearn_VERSION_MAJOR // For License checking (Increase it to force License update)
 

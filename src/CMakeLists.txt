@@ -241,14 +241,14 @@ set(SOURCES
 #option(Boost_DEBUG "Set to ON to enable debug output from FindBoost." ON)
 #option(Boost_DETAILED_FAILURE_MSG "Set to ON to get detailed information" ON)
 
-# TODO : Not needed for Linux?
+# TODO: Not needed for Linux?
 find_package(Boost REQUIRED)
 
 # Define targets 
 add_library(shared SHARED ${SOURCES})
 add_library(static STATIC ${SOURCES})
 
-# Only compile shared library by default
+# Only compile shared library by default (exclude static from all)
 set_target_properties(static PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Shared libraries need -fPIC
@@ -261,7 +261,7 @@ target_compile_definitions(static PRIVATE NO_TIMER)
 # Include directories (-I)
 
 # Add binary directory to find generated version.h (cf cmake tutorial/Step1!) 
-# TODO : Currently doesn't work but I don't know why ! :-(
+# TODO: Currently doesn't work but I don't know why ! :-(
 target_include_directories(shared PUBLIC "${PROJECT_BINARY_DIR}")
 target_include_directories(static PUBLIC "${PROJECT_BINARY_DIR}")
 
@@ -305,7 +305,7 @@ install(TARGETS shared EXPORT corelibs
         OPTIONAL
 )
 # Install static library in DESTINATION/lib folder
-# TODO : After compiling static library only, 'make install' forces dynamic library reconstruction!
+# TODO: After compiling static library only, 'make install' forces dynamic library reconstruction!
 install(TARGETS static EXPORT corelibs
         ARCHIVE DESTINATION lib
         OPTIONAL
