@@ -17,8 +17,8 @@
 String getTestData(const String& filename)
 {
   String exec_dir = ASerializable::getExecDirectory();
-
-  String filepath(exec_dir + "../../../doc/data/" + filename);
+  // This path is compatible with CMake generation
+  String filepath(exec_dir + "../../doc/data/" + filename);
 
   return filepath;
 }
