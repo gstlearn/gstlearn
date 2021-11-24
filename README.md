@@ -27,7 +27,7 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
       * [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher
       * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
-  * [Boost](https://www.boost.org/users/download) library
+  * [Boost](https://www.boost.org/users/download) and [HDF5](https://www.hdfgroup.org/solutions/hdf5/) libraries
   
 ## Get the sources
 For getting the sources files, just clone the github repository:
@@ -74,18 +74,22 @@ TODO: Instructions will come soon
 sudo apt install git
 sudo apt install cmake
 sudo apt install doxygen
-sudo apt install libboost-dev
+sudo apt install libboost-all-dev
+sudo apt install libhdf5-dev
 ```
 Notes:
   * Under Linux, the GCC compiler is already installed
   * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 ### MacOS:
+(not tested - following packages may not exist)
 ```sh
 brew install git
 brew install cmake
 brew install doxygen
-brew install libboost-dev
+brew install libboost-all-dev
+brew install libhdf5-dev
+
 ```
 Notes:
   * Under MacOS, the GCC (or Clang) compiler is already installed
@@ -98,6 +102,7 @@ Download and install the following tools:
   * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below) - OR - MinGW 7+ [from here](https://www.mingw-w64.org/downloads/)
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
   * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory. If you choose another directory, CMake won't find it!)
+  * HDF5 library [from here](https://www.hdfgroup.org/downloads/hdf5) (Download and extract the zip file) TODO : HDF5 to be tested on windows!
     
 Notes:
   * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (more details [here](https://stackoverflow.com/a/44398715)). Administrator rights are required.

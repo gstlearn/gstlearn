@@ -398,7 +398,7 @@ GEOSLIB_API double *kclusters(double *data,
       /* Save the current cluster */
       if (niter % period == 0)
       {
-        for (int i=0; i<nech; i++) saved[i] = tclusterid[i];
+        for (i=0; i<nech; i++) saved[i] = tclusterid[i];
         if (period < INT_MAX / 2) period *= 2;
       }
       niter++;
@@ -416,7 +416,7 @@ GEOSLIB_API double *kclusters(double *data,
         if (counts[k] == 1) continue;
 
         distance = st_distance(nvar,data,cdata,i,k);
-        for (int j=0; j < nclusters; j++)
+        for (j=0; j < nclusters; j++)
         {
           if (j == k) continue;
           tdistance = st_distance(nvar,data,cdata,i,j);
@@ -436,7 +436,7 @@ GEOSLIB_API double *kclusters(double *data,
       
       /* Check for identical clustering */
       flag_same = 1;
-      for (int i=0; i<nech && flag_same; i++)
+      for (i=0; i<nech && flag_same; i++)
         if (saved[i] != tclusterid[i]) flag_same = 0;
       if (flag_same) break;
     }
@@ -574,7 +574,7 @@ GEOSLIB_API int *kmedoids(double *data,
       /* Save the current cluster */
       if (niter % period == 0) 
       {
-        for (int i=0; i<nech; i++) saved[i] = tclusterid[i];
+        for (i=0; i<nech; i++) saved[i] = tclusterid[i];
         if (period < INT_MAX / 2) period *= 2;
       }
       niter++;
@@ -583,7 +583,7 @@ GEOSLIB_API int *kmedoids(double *data,
       st_getclustermedoids(nech, nclusters, distmatrix, tclusterid,
                            centroids, errors);
 
-      for (int i=0; i<nech; i++)
+      for (i=0; i<nech; i++)
       {
         /* Calculate the distance */
 
@@ -613,7 +613,7 @@ GEOSLIB_API int *kmedoids(double *data,
 
       /* Check for identical clustering */
       flag_same = 1;
-      for (int i=0; i<nech && flag_same; i++)
+      for (i=0; i<nech && flag_same; i++)
         if (saved[i] != tclusterid[i]) flag_same = 0;
       if (flag_same) break;
     }

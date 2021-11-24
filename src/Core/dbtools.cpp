@@ -866,8 +866,6 @@ GEOSLIB_API int db_duplicate(Db *db,
  **
  ** \param[in]  db_point Db containing the data points
  ** \param[in]  db_grid  Db containing the discretization grid
- ** \param[in]  icol     Rank of the variable whose value at a data
- **                      is attached to the grid nodes of the influence polygon
  ** \param[in]  dlim     Maximum distance (TEST if not defined)
  **
  ** \param[out]  dtab    Array containing the surface of influence
@@ -879,7 +877,7 @@ GEOSLIB_API int db_duplicate(Db *db,
  *****************************************************************************/
 GEOSLIB_API int surface(Db *db_point,
                         Db *db_grid,
-                        int icol,
+                        int /*icol*/,
                         double dlim,
                         double *dtab,
                         double *gtab)

@@ -162,41 +162,41 @@ static void st_color_in_rgb(int     rank,
   switch (rank)
   {
   case COLOR_MASK:
-    *ired   = mask_red;
-    *igreen = mask_green;
-    *iblue  = mask_blue;
+    *ired   = (unsigned char) mask_red;
+    *igreen = (unsigned char) mask_green;
+    *iblue  = (unsigned char) mask_blue;
     break;
     
   case COLOR_FFFF:
-    *ired   = ffff_red;
-    *igreen = ffff_green;
-    *iblue  = ffff_blue;
+    *ired   = (unsigned char) ffff_red;
+    *igreen = (unsigned char) ffff_green;
+    *iblue  = (unsigned char) ffff_blue;
     break;
     
   case COLOR_LOWER:
-    *ired   = low_red;
-    *igreen = low_green;
-    *iblue  = low_blue;
+    *ired   = (unsigned char) low_red;
+    *igreen = (unsigned char) low_green;
+    *iblue  = (unsigned char) low_blue;
     break;
     
   case COLOR_UPPER:
-    *ired   = high_red;
-    *igreen = high_green;
-    *iblue  = high_blue;
+    *ired   = (unsigned char) high_red;
+    *igreen = (unsigned char) high_green;
+    *iblue  = (unsigned char) high_blue;
     break;
     
   default:
     if (flag_color_scale)
     {
-      *ired   = red  [rank];
-      *igreen = green[rank];
-      *iblue  = blue [rank];
+      *ired   = (unsigned char) red  [rank];
+      *igreen = (unsigned char) green[rank];
+      *iblue  = (unsigned char) blue [rank];
     }
     else
     {
-      *ired   = rank;
-      *igreen = rank;
-      *iblue  = rank;
+      *ired   = (unsigned char) rank;
+      *igreen = (unsigned char) rank;
+      *iblue  = (unsigned char) rank;
     }
   }
 }

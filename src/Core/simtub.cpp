@@ -2562,7 +2562,7 @@ static int st_simulate_point(Db     *db,
   theta1 = 1. / situba->theta;
   norme  = sqrt(1. / nbtuba);
   nt     = 0;
-  vexp   = 0.;
+  vexp   = phi = omega = 0.;
   t = v0 = v1 = v2 = tab = nullptr;
 
   /* Core allocation */
@@ -3890,7 +3890,7 @@ GEOSLIB_API int simpgs(Db *dbin,
                        double percent,
                        NamingConvention namconv)
 {
-  int     iptr,igrf,icase,nfacies,flag_used[2];
+  int     iptr,icase,nfacies,flag_used[2];
   int     iptr_RP,iptr_RF,iptr_DF,iptr_DN,iptr_RN;
   Situba *situba;
   Model  *models[2];
@@ -3907,7 +3907,7 @@ GEOSLIB_API int simpgs(Db *dbin,
   models[0] = model1;
   models[1] = model2;
   bool flag_cond = (dbin != nullptr);
-  iptr_RP   = iptr_RF = iptr_DF = nfacies = 0;
+  iptr_RP   = iptr_RF = iptr_DF = iptr_DN = iptr_RN = nfacies = 0;
   iptr      = -1;
   bool    verbose = false;
   law_set_random_seed(seed);
@@ -4169,7 +4169,7 @@ label_end:
   propdef = proportion_manage(-1,1,flag_stat,ngrf,0,nfacies,0,dbin,dbprop,
                               propcst,propdef);
   st_suppress_added_samples(dbin,nechin);
-  for (igrf=0; igrf<2; igrf++)
+  for (int igrf=0; igrf<2; igrf++)
     situba = st_dealloc(situba);
   return(error);
 }
@@ -4234,7 +4234,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
                          NamingConvention namconv)
 {
   int     iptr,igrf,iatt_z[2];
-  int     ipgs,npgs,flag_cond,error,isimu,icase;
+  int     ipgs,npgs,flag_cond,error,icase;
   int     nfac[2],nfactot,flag_used[2][2],nechin,ngrf[2],ngrftot;
   int     iptr_RP,iptr_RF,iptr_DF,iptr_RN,iptr_DN;
   bool    verbose;
@@ -4482,7 +4482,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
       /* Loop on the simulations */
 
-      for (isimu=0; isimu<nbsimu; isimu++)
+      for (int isimu=0; isimu<nbsimu; isimu++)
       {
 	  
         /* Update the proportions */
@@ -4734,7 +4734,6 @@ label_end:
 ** \param[in]  flag_norm   1 if the Model must be normalized
 ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
 ** \param[in]  flag_propagation 1 for the propagation algorithm
-** \param[in]  flag_sym_neigh   1 for symmetry of neighborhood (moving)
 ** \param[in]  gibbs_optstats   0: No stats - 1: Print - 2: Save Neutral file
 ** \param[in]  percent     Amount of nugget effect added to too continuous
 **                         model (expressed in percentage of total variance)
@@ -4756,7 +4755,7 @@ GEOSLIB_API int gibbs_sampler(Db     *dbin,
                               bool    flag_norm,
                               bool    flag_multi_mono,
                               bool    flag_propagation,
-                              bool    flag_sym_neigh,
+                              bool    /*flag_sym_neigh*/,
                               int     gibbs_optstats,
                               double  percent,
                               bool    flag_ce,

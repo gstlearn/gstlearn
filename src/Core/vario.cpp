@@ -4776,11 +4776,9 @@ static void st_vmap_rescale(int     size,
 **  Shift the product of means for the FFT arrays
 **
 ** \param[in] size    Dimension of the vectors
-** \param[in] tab     Input complex array
+** \param[in,out] tab Input/Output complex array
 ** \param[in] tabm1   Complex array for mean of variable 1
 ** \param[in] tabm2   Complex array for mean of variable 2
-**
-** \param[out] tab    Output complex array
 **
 *****************************************************************************/
 static void st_vmap_shift(int     size,

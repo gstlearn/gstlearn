@@ -38,4 +38,3 @@ public:
 private:
   Dictionary _dico;
 };
-

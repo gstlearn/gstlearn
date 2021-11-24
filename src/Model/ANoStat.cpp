@@ -701,13 +701,13 @@ void ANoStat::_getInfoFromDb(int ipar,
     *val1 = *val2;
 }
 
-int ANoStat::attachToMesh(const AMesh* mesh, bool verbose) const
+int ANoStat::attachToMesh(const AMesh* mesh, bool /*verbose*/) const
 {
   setAmesh(mesh);
   return 0;
 }
 
-int ANoStat::attachToDb(Db* db, int icas, bool verbose) const
+int ANoStat::attachToDb(Db* db, int icas, bool /*verbose*/) const
 {
   if (icas == 1)
     setDbin(db);
@@ -721,7 +721,7 @@ void ANoStat::detachFromMesh() const
   setAmesh(nullptr);
 }
 
-void ANoStat::detachFromDb(Db* db, int icas) const
+void ANoStat::detachFromDb(Db* /*db*/, int icas) const
 {
   if (icas == 1)
     setDbin(nullptr);

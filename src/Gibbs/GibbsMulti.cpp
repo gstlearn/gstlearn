@@ -110,7 +110,7 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
  * @param iter  : Rank of the iteration
  * @return Simulated value
  */
-double GibbsMulti::getSimulate(VectorVectorDouble& y,
+double GibbsMulti::getSimulate(VectorVectorDouble& /*y*/,
                                double yk,
                                double sk,
                                int ipgs,

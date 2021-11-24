@@ -95,7 +95,7 @@ int ConsItem::init(const EConsType& icase,
   return 0;
 }
 
-String ConsItem::toString(int level) const
+String ConsItem::toString(int /*level*/) const
 {
   std::stringstream sstr;
 

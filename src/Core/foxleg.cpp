@@ -323,7 +323,6 @@ static void st_fill_constraints(const VectorDouble& acont,
 ** \param[in]  upper     Array of upper values
 ** \param[in]  scale     Array of scaling values
 ** \param[in]  acont     Array of constraints
-** \param[in]  tabexp    Array of values at control points
 ** \param[in]  tabwgt    Array of weights at control points
 **
 ** \param[out] residuals  Array of residuals
@@ -343,7 +342,6 @@ static int st_calcul0(VectorDouble& param,
                       VectorDouble& upper,
                       VectorDouble& scale,
                       const VectorDouble& acont,
-                      VectorDouble& tabexp,
                       VectorDouble& tabwgt,
                       VectorDouble& residuals,
                       VectorDouble& Jr,
@@ -416,7 +414,6 @@ static int st_possibilities(int     npar,
 ** \li                    -1 : the constraints which are non positive
 ** \li                     0 : the constraints must be zero
 ** \li                     1 : the constraints must be zero (cumul)
-** \param[in]  ind_util   List of retained constraint indices
 ** \param[in]  bords_red  Reduced array containing the bounds
 ** \param[in]  ai_red     Reduced AI matrix
 ** \param[in]  hgnc       Resulting hgnc array
@@ -426,13 +423,12 @@ static int st_possibilities(int     npar,
 ** \param[out] temp       Working array
 **
 *****************************************************************************/
-static int st_define_constraints(int     mode,
-                                 VectorInt& ind_util,
+static int st_define_constraints(int           mode,
                                  VectorDouble& bords_red,
                                  VectorDouble& ai_red,
                                  VectorDouble& hgnc,
                                  VectorDouble& consts,
-                                 VectorInt& flag,
+                                 VectorInt&    flag,
                                  VectorDouble& temp)
 {
   int ic,iparac,iparac2,number,flag_loc;
@@ -853,7 +849,7 @@ static int st_minimization_under_constraints(VectorInt& ind_util,
 
   /* Calculate the constraints vector */
 
-  nactaux = st_define_constraints(-1,ind_util,bords_red,ai_red,
+  nactaux = st_define_constraints(-1,bords_red,ai_red,
                                   hgnc,consts,flag_actaux,temp);
   if (nactaux <=  0) 
   {
@@ -871,7 +867,7 @@ static int st_minimization_under_constraints(VectorInt& ind_util,
 
   /* Calculate the constraints vector */
   
-  nactive = st_define_constraints(0,ind_util,bords_red,ai_red,
+  nactive = st_define_constraints(0,bords_red,ai_red,
                                   hgnadm,consts,flag_active,temp);
   min_adm_best = st_essai(hgnadm,grad_red,gauss_red);
   if (VERBOSE_GQO && debug_query("converge"))
@@ -892,7 +888,7 @@ static int st_minimization_under_constraints(VectorInt& ind_util,
 
     /* Calculate the constraints vector */
 
-    nactaux = st_define_constraints(-1,ind_util,bords_red,ai_red,
+    nactaux = st_define_constraints(-1,bords_red,ai_red,
                                     hgnc,consts,flag_actaux,temp);
     if (nactaux > 0)
     {
@@ -903,7 +899,7 @@ static int st_minimization_under_constraints(VectorInt& ind_util,
       st_minimum(ind_util,flag_actaux,bords_red,b1,b2,hgnc,hgnadm);
       st_check(ind_util,hgnadm,acont);
 
-      nactive = st_define_constraints(1,ind_util,bords_red,ai_red,
+      nactive = st_define_constraints(1,bords_red,ai_red,
                                       hgnadm,consts,flag_active,temp);
       min_adm_cur = st_essai(hgnadm,grad_red,gauss_red);
       if (VERBOSE_GQO && debug_query("converge"))
@@ -1316,7 +1312,7 @@ GEOSLIB_API int foxleg_f(int ndat,
   /* Calculate the gradient */
   ms0 = mscur = st_residuals(param,tabexp,tabwgt,tabmod1,residuals);
   if (st_calcul0(param,lower,upper,scale,acont,
-                 tabexp,tabwgt,residuals,Jr,grad,gauss,
+                 tabwgt,residuals,Jr,grad,gauss,
                  invhess,hgnc,param1,param2,tabmod1,tabmod2)) goto label_end;
 
   st_foxleg_debug_title();
@@ -1401,7 +1397,7 @@ GEOSLIB_API int foxleg_f(int ndat,
       mscur = msaux;
       for (ipar=0; ipar<NPAR; ipar++) param[ipar] = paramaux[ipar];
       if (st_calcul0(param,lower,upper,scale,acont,
-                     tabexp,tabwgt,residuals,Jr,grad,gauss,
+                     tabwgt,residuals,Jr,grad,gauss,
                      invhess,hgnc,param1,param2,tabmod1,tabmod2)) 
         goto label_end;
       st_constraints_init(ind_util,ai);

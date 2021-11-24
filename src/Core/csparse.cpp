@@ -1117,26 +1117,30 @@ csn *cs_chol(const cs *A, const css *S)
   */
 int cs_lsolve ( const cs *L, double *x )
 {
-  int p, p0, j, n, *Lp, *Li;
-  double *Lx;
+  int p, p0, j, n, *Lp, *Li, Lpj, Lpjp1;
+  double *Lx, xval;
   if (!L || !x) return (0); /* check inputs */
   n = L->n;
   Lp = L->p;
   Li = L->i;
   Lx = L->x;
 
+  Lpj = Lpjp1 = Lp[0];
   for (j = 0; j < n; j++)
   {
     p0 = -1;
-    for (p = Lp[j]; p < Lp[j + 1] && p0 < 0; p++)
+    Lpj = Lpjp1;
+    Lpjp1 = Lp[j+1];
+    for (p = Lpj; p < Lpjp1 && p0 < 0; p++)
     {
       if (ABS(Lx[p]) > 1.e-10) p0 = p;
     }
 
     x[j] /= Lx[p0];
-    for (p = Lp[j]; p < Lp[j + 1]; p++)
+    xval  = x[j];
+    for (p = Lpj; p < Lpjp1; p++)
     {
-      if (p != p0) x[Li[p]] -= Lx[p] * x[j];
+      if (p != p0) x[Li[p]] -= Lx[p] * xval;
     }
   }
   return (1);
@@ -1160,16 +1164,20 @@ int cs_lsolve ( const cs *L, double *x )
  */
 int cs_ltsolve(const cs *L, double *x)
 {
-  int p, j, n, *Lp, *Li;
+  int p, j, n, *Lp, *Li, Lpj, Lpjp1;
   double *Lx;
   if (!L || !x) return (0); /* check inputs */
-  n = L->n;
+  n  = L->n;
   Lp = L->p;
   Li = L->i;
   Lx = L->x;
+
+  Lpj = Lpjp1 = Lp[n];
   for (j = n - 1; j >= 0; j--)
   {
-    for (p = Lp[j] + 1; p < Lp[j + 1]; p++)
+    Lpjp1 = Lpj;
+    Lpj = Lp[j];
+    for (p = Lpj + 1; p < Lpjp1; p++)
     {
       x[j] -= Lx[p] * x[Li[p]];
     }
@@ -5781,29 +5789,144 @@ double* cs_toArray(const cs *A)
   return mat;
 }
 
-void cs_strip(cs *A, double epsilon, bool verbose)
+int cs_nnz(const cs* A)
 {
-  if (!A) return;
-  int   n = A->n ;
-  int* Ap = A->p ;
+  if (!A) return 0;
+  int n = A->n;
+  int* Ap = A->p;
+  return(Ap[n]);
+}
+
+/**
+ * Strip off elements of the input Sparse Matrix whose absolute value is smaller than eps.
+ * Return a new compressed sparse matrix.
+ * Consequently, strip off the vector P[in/out] which contains the order of the samples
+ * @param A       Input sparse matrix
+ * @param eps     Tolerance on absolute value of the input sparse matrix elements
+ * @param verbose Verbose flag
+ * @return A pointer to the new sparse matrix (it must be freed by calling function)
+ *
+ * @note Note that in the current version, the input matrix A is also modified
+ */
+cs* cs_strip(cs *A, double eps, bool verbose)
+{
+  cs *Q, *Qtriplet;
+  if (!A) return nullptr;
+
+  if (eps <= 0)
+  {
+    Q = cs_duplicate(A);
+    return Q;
+  }
+  int Apj, Apjp1;
+  double epsloc;
+  bool rescale = true;
+  int hyp = 3;
+
+  int error = 1;
+  int   n = A->n;
+  int* Ap = A->p;
+  int* Ai = A->i;
   double* Ax = A->x ;
+
+  Q = Qtriplet = nullptr;
+  Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
 
   /* Loop on the elements */
 
-  int nstrip = 0;
-  int ntotal = 0;
+  Apj = Apjp1 = Ap[0];
   for (int j = 0 ; j < n; j++)
-    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+  {
+    Apj = Apjp1;
+    Apjp1 = Ap[j+1];
+
+    // Find the value of the diagonal term
+
+    int p0 = -1;
+    for (int p = Apj; p < Apjp1 && p0 < 0; p++)
     {
-      double value = Ax[p];
-      ntotal++;
-      if (ABS(value) < epsilon)
-      {
-        Ax[p] = 0.;
-        nstrip++;
-      }
+      if (Ai[p] == j) p0 = p;
     }
 
+    // Adapt the value for 'epsloc' according to the choice 'hyp'
+
+    if (hyp == 1)
+    {
+      epsloc = eps;
+    }
+    else if (hyp == 2)
+    {
+      epsloc = eps * j / n;
+    }
+    else if (hyp == 3)
+    {
+      epsloc = eps * Ax[p0];
+      rescale = false;
+    }
+    else
+    {
+      epsloc = eps * Ax[p0];
+      rescale = true;
+    }
+
+    // Establish the correcting value for non-zero terms
+
+    double ratio = 1.;
+    if (rescale)
+    {
+      double totpos = 0.;
+      double totnul = 0.;
+      for (int p = Apj; p < Apjp1; p++)
+      {
+        if (Ai[p] == p0) continue;
+        double value = Ax[p];
+        if (ABS(value) < epsloc)
+        {
+          totnul += value * value;
+        }
+        else
+        {
+          totpos += value * value;
+        }
+      }
+      ratio = sqrt((totpos + totnul) / totpos);
+    }
+
+    // Review all elements of the rwo, keeping only the ones larger than 'epsloc'
+
+    for (int p = Apj; p < Apjp1; p++)
+    {
+      double value = Ax[p];
+      if (ABS(value) < epsloc)
+      {
+        Ax[p] = 0.;
+      }
+      else
+      {
+        double coeff = (p == p0) ? 1. : ratio;
+        if (!cs_entry(Qtriplet, Ai[p], j, value * coeff)) goto label_end;
+      }
+    }
+  }
+
+  // Transform triplet into Sparse matrix
+
+  Q = cs_triplet(Qtriplet);
+  if (Q == nullptr) goto label_end;
+
+  // Clean the P vector
+
   if (verbose)
-    message("Number of Cholesky values stripped off = %d/%d\n",nstrip,ntotal);
+  {
+    message("Stripping Sparse Matrix:\n");
+    message("- Tolerance = %lf\n",eps);
+    message("- Number of values = %d -> %d\n",cs_nnz(A),cs_nnz(Q));
+  }
+
+  error = 0;
+
+ label_end:
+  Qtriplet = cs_spfree(Qtriplet);
+  if (error) Q = cs_spfree(Q);
+  return(Q);
 }

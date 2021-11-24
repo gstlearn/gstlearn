@@ -10,8 +10,8 @@
 /******************************************************************************/
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Model/Model.hpp"
-#include "Db/Db.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Timer.hpp"
 #include "Morpho/Morpho.hpp"
 #include "csparse_f.h"
 #include "geoslib_f.h"
@@ -22,31 +22,41 @@
 #define QFLAG(iech,jech)         (QFlag[(iech) * nech + jech])
 
 #define DEBUG 0
+#define TOTAL_MAX 50000000
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
-  , _wgt()
-  , _Q(nullptr)
-  , _epsilon1(EPSILON6)
-  , _epsilon2(EPSILON6)
+  , _Ln(nullptr)
+  , _Pn()
+  , _eps(EPSILON6)
+  , _storeTables(false)
+  , _b()
+  , _x()
+  , _areas()
 {
 }
 
 GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   : GibbsMulti(db, model)
-  , _wgt()
-  , _Q(nullptr)
-  , _epsilon1(EPSILON6)
-  , _epsilon2(EPSILON6)
+  , _Ln(nullptr)
+  , _Pn()
+  , _eps(EPSILON6)
+  , _storeTables(false)
+  , _b()
+  , _x()
+  , _areas()
 {
 }
 
 GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   : GibbsMulti(r)
-  , _wgt(r._wgt)
-  , _Q(r._Q)
-  , _epsilon1(r._epsilon1)
-  , _epsilon2(r._epsilon2)
+  , _Ln(r._Ln)
+  , _Pn(r._Pn)
+  , _eps(r._eps)
+  , _storeTables(r._storeTables)
+  , _b(r._b)
+  , _x(r._x)
+  , _areas(r._areas)
 {
 }
 
@@ -55,18 +65,21 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
   if (this != &r)
   {
     GibbsMulti::operator=(r);
-    _wgt = r._wgt;
-    _Q = r._Q;
-    _epsilon1 = r._epsilon1;
-    _epsilon2 = r._epsilon2;
+    _Ln  = r._Ln;
+    _Pn  = r._Pn;
+    _eps = r._eps;
+    _storeTables = r._storeTables;
+    _b = r._b;
+    _x = r._x;
+    _areas = r._areas;
   }
   return *this;
 }
 
 GibbsMMulti::~GibbsMMulti()
 {
-  if (_Q != nullptr)
-    _Q = cs_spfree(_Q);
+  if (_Ln != nullptr)
+    _Ln = cs_spfree(_Ln);
 }
 
 /****************************************************************************/
@@ -86,22 +99,12 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   cs*  Cmat = nullptr;
   css* S = nullptr;
   csn* N = nullptr;
-  double* x = nullptr;
-  double* b = nullptr;
   int n;
-  int nbgh_max = ITEST;
-  int nbgh_min = ITEST;
   int error = 1;
-  int iact_max = -1;
-  int nstrip = 0;
-  double delta_max = 0.;
-  double q_min = TEST;
-  double q_max = 0.;
   Db* db = getDb();
   Model* model = getModel();
-  int nvar = _getVariableNumber();
-  int nact = getSampleRankNumber();
-  int nech = db->getSampleNumber();
+  int nvar   = _getVariableNumber();
+  int nech   = getSampleNumber();
   int nvardb = db->getVariableNumber();
   bool flag_var_defined = nvardb > 0;
 
@@ -114,16 +117,27 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     return 1;
   }
 
+  // Core allocation
+
+  n = nech * nvar;
+  _Pn.resize(nech);
+  _b.resize(n);
+  _x.resize(n);
+
   // Establish the covariance matrix as sparse (hopefully)
 
-  if (verbose) message("Building Complete Covariance Sparse Matrix\n");
+  if (verbose)
+    message("Building Covariance Sparse Matrix (Dimension = %d)\n",nech);
+  Timer timer;
   Cmat = model_covmat_by_ranks_cs(model,db,nech,nullptr,db,nech,nullptr,-1,-1,false,true);
   if (Cmat == nullptr)
   {
     messerr("Impossible to create the Total Precision Matrix");
     goto label_end;
   }
+  timer.Interval("Building Covariance");
 
+  // Cholesky decomposition
 
   if (verbose) message("Cholesky Decomposition of Covariance Matrix\n");
   n = Cmat->n;
@@ -134,114 +148,40 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     messerr("Fail to perform Cholesky decomposition");
     goto label_end;
   }
+  for (int i = 0; i < nech; i++) _Pn[i] = S->Pinv[i];
+  timer.Interval("Cholesky Decomposition");
 
-  // Core allocation
+  // Store the Initial Covariance in Neutral File (optional)
 
-  x = (double *) mem_alloc(sizeof(double) * n,0);
-  if (x == nullptr) goto label_end;
-  b = (double *) mem_alloc(sizeof(double) * n,0);
-  if (b == nullptr) goto label_end;
-
-  // Kriging weights
-
-  if (verbose) message("Establishing Sets of Kriging Weights\n");
-  _wgt.resize(nact);
-
-  // Optional printout
-
-  if (verbose)
+  if (_storeTables)
   {
-    mestitle(2,"Gibbs Convergence characteristics");
-    message("Epsilon (Cholesky) = %lf\n",_epsilon2);
-    message("Epsilon (weight) = %lf\n",_epsilon1);
+    _tableStore(1, Cmat);
+    timer.Interval("Storing Initial Covariance");
   }
 
   // Stripping the Cholesky decomposition matrix
 
-  cs_strip(N->L, _epsilon2, verbose);
+  _Ln = cs_strip(N->L, _eps, verbose);
+  timer.Interval("Stripping Cholesky Matrix");
 
-  // Store experimental and approximate covariances in the table
+  // Evaluate storage capacity and store weights internally (or not)
 
-  _tableStore(db, Cmat, N, verbose);
+  _storeAllWeights(verbose);
 
-  for (int iact = 0; iact < nact; iact++)
+  // Store the reconstructed Covariance in Neutral File (optional)
+
+  if (_storeTables)
   {
-    int iech = getSampleRank(iact);
-    GibbsWeights& ww = _wgt[iact];
-
-    for (int j = 0; j < n; j++) b[j] = 0.;
-    b[iech] = 1.;
-
-    // Solve the linear system and returns the result in 'x'
-    cs_ipvec(nech, S->Pinv, b, x); /* x = P*b */
-    cs_lsolve(N->L, x); /* x = L\x */
-    cs_ltsolve(N->L, x); /* x = L'\x */
-    cs_pvec(nech, S->Pinv, x, b); /* b = P'*x */
-
-    // Discarding the values leading to small weights
-
-    ww._ranks = VectorInt(nech);
-    int nbgh = 0;
-    for (int j = 0; j < nech; j++)
-    {
-      double wloc = ABS(b[j]);
-      if (FFFF(q_min) || wloc < q_min) q_min = wloc;
-      if (FFFF(q_max) || wloc > q_max) q_max = wloc;
-      if (wloc > _epsilon1)
-      {
-        ww._ranks[nbgh] = j;
-        if (iact == j) ww._pivot = nbgh;
-        nbgh++;
-      }
-      else
-      {
-        b[j] = 0.;
-        nstrip++;
-      }
-    }
-    ww._ranks.resize(nbgh);
-
-    // Check against the identify
-
-    cs_mulvec(Cmat, nech, b, x);
-    for (int j = 0; j < nech; j++)
-    {
-      double ref = (j == iact) ? 1. : 0.;
-      double delta = ABS(x[j] - ref);
-      if (delta > delta_max)
-      {
-        delta_max = delta;
-        iact_max = iact;
-      }
-    }
-
-    // Storing the weights per variable for the target sample
-
-    if (IFFFF(nbgh_min) || nbgh > nbgh_max) nbgh_max = nbgh;
-    if (IFFFF(nbgh_min) || nbgh < nbgh_min) nbgh_min = nbgh;
-    int neq  = nvar * nbgh;
-    for (int ivar = 0; ivar < nvar; ivar++)
-    {
-      VectorDouble ll(neq);
-      for (int i = 0; i < nbgh; i++)
-        ll[i] = b[ivar * nbgh + ww._ranks[i]];
-      ww._ll.push_back(ll);
-    }
+    cs* Lt = cs_transpose(_Ln, 1);
+    cs* Cmat2 = cs_multiply (_Ln, Lt);
+    Lt = cs_spfree(Lt);
+    _tableStore(2, Cmat2);
+    Cmat2 = cs_spfree(Cmat2);
+    timer.Interval("Storing Reconstructed Covariance");
   }
 
-  if (verbose)
-  {
-    message("Range of Q values = [%lf ; %lf]\n", q_min,q_max);
-    message("Number of weights stripped off = %d\n",nstrip);
-    message("Number of weights per neighborhood is in [%d ; %d]\n",nbgh_min,nbgh_max);
-    message("Maximum departure from identity (at sample #%d) = %lg\n",iact_max,delta_max);
-  }
+  // Display the weights (conditional to DEBUG variable)
 
-  // Improve the conditioning of the Precision resulting matrix
-  // Note: the return code is not tested on purpose, to let the rest
-  // of the test to be performed.
-
-  if (_testConditioning(verbose)) return 1;
   if (DEBUG) _display();
 
   // Initialize the statistics (optional)
@@ -250,8 +190,6 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   error = 0;
 
  label_end:
-  x = (double *) mem_free((char *) x);
-  b = (double *) mem_free((char *) b);
   Cmat = cs_spfree(Cmat);
   S = cs_sfree(S);
   N = cs_nfree(N);
@@ -273,10 +211,11 @@ void GibbsMMulti::update(VectorVectorDouble& y,
                          int ipgs,
                          int iter)
 {
+  WgtVect area;
   double valsim;
 
-  int nact = getSampleRankNumber();
   int nvar = _getVariableNumber();
+  int nact = getSampleRankNumber();
 
   /* Print the title */
 
@@ -290,24 +229,22 @@ void GibbsMMulti::update(VectorVectorDouble& y,
     int icase = getRank(ipgs,ivar);
     for (int iact = 0; iact < nact; iact++)
     {
+      int iech = getSampleRank(iact);
       if (! isConstraintTight(ipgs, ivar, iact, &valsim))
       {
-        const GibbsWeights& ww = _wgt[iact];
-        int nbgh  = static_cast<int>(ww._ranks.size());
-        int pivot = ww._pivot;
-
-        /* Loop on the Data */
-
-        double yk = 0.;
-        double vark = 1. / ww._ll[ivar][pivot + nbgh * ivar];
+        _getWeights(iech, area);
+        int nbgh    = area._nbgh;
+        int pivot   = area._pivot;
+        double yk   = 0.;
+        double vark = 1. / area._weights[ivar][pivot + nbgh * ivar];
         for (int jvar = 0; jvar < nvar; jvar++)
         {
           int jcase = getRank(ipgs, jvar);
           for (int jbgh = 0; jbgh < nbgh; jbgh++)
           {
-            int jact = ww._ranks[jbgh];
+            int jact = area._mvRanks[jbgh];
             if (ivar != jvar || iact != jact)
-              yk -= y[jcase][jact] * ww._ll[jvar][jbgh + nbgh * jvar];
+              yk -= y[jcase][jact] * area._weights[jvar][jbgh + nbgh * jvar];
           }
         }
         yk *= vark;
@@ -322,40 +259,19 @@ void GibbsMMulti::update(VectorVectorDouble& y,
   updateStats(y, ipgs, iter);
 }
 
-int GibbsMMulti::_testConditioning(bool verbose)
+void GibbsMMulti::_display(int iech) const
 {
-
-  // Construct the Precision matrix Q (symmetric by construction)
-
-  if (_buildQ()) return 1;
-
-  // Check that the matrix is symmetric
-
-  if (! cs_isSymmetric(_Q, verbose)) return 1;
-
-  // Check that Q is definite-positive
-
-  if (! cs_isDefinitePositive(_Q,  verbose)) return 1;
-
-  // Update the newly modified weights extracted from Q
-
-  _extractWeightFromQ();
-
-  return 0;
-}
-
-void GibbsMMulti::_display(int iact) const
-{
+  WgtVect area;
   int nvar = _getVariableNumber();
 
-  message("Active sample #%d\n",iact);
-  const GibbsWeights& ww = _wgt[iact];
-  message("Position within the neighboring sample list: %d\n",ww._pivot);
+  _getWeights(iech, area);
 
-  int nbgh = static_cast<int>(ww._ranks.size());
-  print_ivector("Ranks",0,nbgh,ww._ranks);
+  message("Active sample #%d\n",iech);
+  message("Position within the neighboring sample list: %d\n",area._pivot);
+
+  print_ivector("Ranks",0,area._nbgh,area._mvRanks);
   for (int ivar=0; ivar < nvar; ivar++)
-    print_vector("Weights",0,nbgh,ww._ll[ivar]);
+    print_vector("Weights", 0, area._nbgh, area._weights[ivar]);
 }
 
 void GibbsMMulti::_display() const
@@ -372,153 +288,218 @@ int GibbsMMulti::_getVariableNumber() const
   return model->getVariableNumber();
 }
 
-void GibbsMMulti::_makeQSymmetric(cs* Q) const
+void GibbsMMulti::_tableStore(int mode, const cs* A)
 {
-  int n = Q->n;
+  if (!A) return;
+  Table table;
+  const Db* db = getDb();
+  const Model* model = getModel();
 
-  // Set the lower part of the matrix to symmetrical values
-  for (int irow = 0; irow < n; irow++)
-    for (int icol = 0; icol < irow; icol++)
+  // Getting maximum distance for covariance calculation
+
+  double distmax = 1.5 * model->getCova(0)->getRange();
+  double dx = db->getDX(0);
+  int npas = ceil(distmax / dx);
+  Table tabmod(npas,2);
+
+  // Retrieve the elements from the sparse matrix
+
+  int   n = A->n ;
+  int* Ap = A->p ;
+  int* Ai = A->i ;
+  double* Ax = A->x ;
+
+  /* Loop on the elements */
+
+  int ecr = 0;
+  for (int j = 0 ; j < n; j++)
+    for (int p = Ap [j] ; p < Ap [j+1]; p++)
     {
-      double val1 = cs_get_value(Q, irow, icol);
-      double val2 = cs_get_value(Q, icol, irow);
-      cs_set_value(Q, irow, icol, (val1 + val2) / 2.);
-    }
+      int iech = j;
+      int jech = Ai[p];
+      double value = Ax[p];
 
-  // Copy the upper part by symmetry
+      double dist = db->getDistance(iech, jech);
+      if (dist > distmax) continue;
 
-  for (int irow = 0; irow < n; irow++)
-    for (int icol = irow; icol < n; icol++)
-    {
-      double val = cs_get_value(Q, icol, irow);
-      cs_set_value(Q, irow, icol, val);
-    }
-}
+      // Store the covariance cloud
+      table.resize(ecr+1, 2);
+      table.update(ecr, 0, dist);
+      table.update(ecr, 1, value);
+      ecr++;
 
-int GibbsMMulti::_buildQ()
-{
-  double* mat = nullptr;
-  double *eigval = nullptr;
-  double *eigvec = nullptr;
-  int n;
-  cs* T = nullptr;
-  int nvar = _getVariableNumber();
-  int nact = getSampleRankNumber();
-
-  // Constitute the triplet
-
-  T = cs_spalloc(0, 0, 1, 1, 1);
-  if (T == nullptr) return 1;
-
-  // Create partial precision matrix Q from the weights
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-  for (int iact = 0; iact < nact; iact++)
-  {
-    const GibbsWeights& ww = _wgt[iact];
-    int nbgh  = static_cast<int>(ww._ranks.size());
-    int icol = iact + nbgh * ivar;
-
-    for (int jbgh = 0; jbgh < nbgh; jbgh++)
-    {
-      int jact = ww._ranks[jbgh];
-      for (int jvar = 0; jvar < nvar; jvar++)
+      // Store the contribution to the covariance model
+      int ipas = floor(dist + dx/2.) / dx;
+      if (ipas >= 0 && ipas < npas)
       {
-        int jcol = jact + nbgh * jvar;
-        double wgt = ww._ll[jvar][jbgh + nbgh * jvar];
-        if (! cs_entry(T, icol, jcol, wgt)) goto label_end;
+        tabmod.increment(ipas, 0, 1.);
+        tabmod.increment(ipas, 1, value);
       }
     }
+
+  // Serialize the table (as a Covariance Cloud)
+  if (mode == 1)
+    table.serialize("CovInit", false);
+  else
+    table.serialize("CovBuilt", false);
+
+  // Serialize the table (as a Experimental Covariance)
+  for (int ipas = 0; ipas < npas; ipas++)
+  {
+    double value = tabmod.getValue(ipas, 0);
+    if (value > 0.) value = tabmod.getValue(ipas, 1) / value;
+    tabmod.update(ipas, 1, value);
   }
 
-  // Convert from triplet to sparse matrix
+  if (mode == 1)
+    tabmod.serialize("CovModInit", false);
+  else
+    tabmod.serialize("CovModBuilt", false);
+}
 
-  _Q = cs_triplet(T);
-  n = _Q->n;
+int GibbsMMulti::_calculateWeights(int iech, WgtVect& area, double tol) const
+{
+  int pivot = -1;
+  int nvar  = _getVariableNumber();
+  int nech  = getSampleNumber();
+  int n = nech * nvar;
+  for (int i = 0; i < n; i++) _b[i] = 0.;
+  _b[iech] = 1.;
 
-  // Get the Eigen values
+  // Solve the linear system and returns the result in 'x'
+  cs_ipvec(nech, _Pn.data(), _b.data(), _x.data()); /* x = P*b */
+  cs_lsolve(_Ln, _x.data()); /* x = L\x */
+  cs_ltsolve(_Ln, _x.data()); /* x = L'\x */
+  cs_pvec(nech, _Pn.data(), _x.data(), _b.data()); /* b = P'*x */
 
-  mat = cs_toArray(_Q);
-  eigval = (double *) mem_alloc(sizeof(double) * n,1);
-  eigvec = (double *) mem_alloc(sizeof(double) * n * n,1);
-  matrix_eigen(mat, n, eigval, eigvec);
-  message("Range of Eigen values = [%lf ; %lf]\n",eigval[n-1],eigval[0]);
-  mat = (double *) mem_free((char * ) mat);
-  eigval = (double *) mem_free((char *) eigval);
-  eigvec = (double *) mem_free((char *) eigvec);
+  // Discarding the values leading to small vector of weights
 
-  label_end:
-  T = cs_spfree(T);
+  int nbgh = 0;
+  area._mvRanks.reserve(nech);
+  for (int j = 0; j < nech; j++)
+  {
+    double wloc = ABS(_b[j]);
+    if (wloc > tol)
+    {
+      area._mvRanks[nbgh] = j;
+      if (iech == j) pivot = nbgh;
+      nbgh++;
+    }
+  }
+  area._mvRanks.resize(nbgh);
+  if (area._mvRanks.empty()) return 1;
+
+  // Storing the weights per variable for the target sample
+
+  area._weights.clear();
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    VectorDouble ll(nbgh);
+    for (int i = 0; i < nbgh; i++)
+      ll[i] = _b[ivar * nbgh + area._mvRanks[i]];
+    area._weights.push_back(ll);
+    if (area._weights.empty()) return 1;
+  }
+  area._pivot = pivot;
+  area._nbgh  = nbgh;
+  area._size  = _getSizeOfArea(area);
+
   return 0;
 }
 
-void GibbsMMulti::_extractWeightFromQ()
+bool GibbsMMulti::_checkForInternalStorage(bool verbose)
 {
-  int nvar = _getVariableNumber();
-  int nact = getSampleRankNumber();
+  WgtVect area;
+  int nvar   = _getVariableNumber();
+  int nact   = getSampleRankNumber();
 
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int iact = 0; iact < nact; iact++)
-    {
-      GibbsWeights& ww = _wgt[iact];
-      int nbgh = static_cast<int>(ww._ranks.size());
-      int icol = iact + nbgh * ivar;
+  // Evaluate the sum of the number of weights per sample
 
-      for (int jbgh = 0; jbgh < nbgh; jbgh++)
-      {
-        int jact = ww._ranks[jbgh];
-        for (int jvar = 0; jvar < nvar; jvar++)
-        {
-          int jcol = jact + nbgh * jvar;
-          double value = cs_get_value(_Q, icol, jcol);
-          ww._ll[jvar][jbgh + nbgh * jvar] = value;
-        }
-      }
-    }
-}
-
-void GibbsMMulti::_tableStore(const Db* db, const cs* Cmat, const csn* N, bool verbose)
-{
-  int nech = db->getSampleNumber();
-  Table table(nech * nech, 3);
-
-  // Constitute the approximate covariance matrix (from modified Cholesky)
-
-  cs* L = N->L;
-  cs* Lt = cs_transpose(L, 1);
-  cs* Cmat2 = cs_multiply (L, Lt);
-  Lt = cs_spfree(Lt);
-
-  int ecr = 0;
-  double ecart = 0.;
-  double ecart_max = 0.;
-  int iech_max = -1;
-  int jech_max = -1;
-  for (int iech = 0; iech < nech; iech++)
-    for (int jech = 0; jech < nech; jech++, ecr++)
-    {
-      table.update(ecr, 0, db->getDistance(iech, jech));
-      table.update(ecr, 1, cs_get_value(Cmat, iech, jech));
-      table.update(ecr, 2, cs_get_value(Cmat2, iech, jech));
-      double delta = ABS(cs_get_value(Cmat,iech,jech) - cs_get_value(Cmat2, iech, jech));
-      if (delta > ecart_max)
-      {
-        iech_max = iech;
-        jech_max = jech;
-        ecart_max = delta;
-      }
-      ecart += delta * delta;
-    }
-
-  ecart /= (double) (nech * nech);
-  if (verbose)
+  long sumWgt   = nact * nvar * nact * nvar;
+  long sumRanks = nact * nact;
+  long overHead = 1;
+  for (int iact = 0; iact < nact ; iact++)
   {
-    message("Departure for Covariance Matrix between initial and reconstituted\n");
-    message("- Maximum = %lf (Initial=%lf - Reconstituted=%lf\n",
-            ecart_max,cs_get_value(Cmat,iech_max,jech_max),cs_get_value(Cmat2,iech_max,jech_max));
-    message("- Average = %lf\n",ecart);
+    overHead += 2 + sizeof(VectorInt) + sizeof(VectorDouble);
+    overHead += nvar * sizeof(VectorDouble);
   }
 
-  // Serialize the table
-  table.serialize("Covariance", false);
+  long total = sumWgt * sizeof(double) + sumRanks * sizeof(int) + overHead;
+
+  // Printout of the different core storage quanta
+
+  if (verbose)
+  {
+    message("Total core for Weights          = %ld (bytes)\n",sumWgt * sizeof(double));
+    message("Total core for Weights          = %ld (bytes)\n",sumRanks * sizeof(int));
+    message("Core for Overhead               = %ld (bytes)\n",overHead);
+    message("Total core needs                = %ld (bytes)\n",total);
+    message("(To speed up, calculations are based on an upper bound of dimension of weights)\n");
+  }
+
+  // Decide if weights are stored internally or not
+
+  bool flagStoreInternal;
+  if (verbose)
+    message("Decision Memory Threshold       = %ld (bytes)\n",TOTAL_MAX);
+  if (total > TOTAL_MAX)
+  {
+    flagStoreInternal = false;
+    if (verbose)
+      message("Weights are not stored internally: they will be calculated on the fly\n");
+  }
+  else
+  {
+    flagStoreInternal = true;
+    if (verbose)
+      message("Weights are calculated only once and stored internally\n");
+  }
+
+  return flagStoreInternal;
+}
+
+void GibbsMMulti::_storeAllWeights(bool verbose)
+{
+  WgtVect area;
+  int nact = getSampleRankNumber();
+  _areas.clear();
+
+  // Check if the weight must be stored internally or calculated on the fly
+  if (! _checkForInternalStorage(verbose)) return;
+
+  // Loop on the samples
+
+  for (int iact = 0; iact < nact; iact++)
+  {
+    int iech = getSampleRank(iact);
+
+    if (_calculateWeights(iech, area))
+    {
+      _areas.clear();
+      return;
+    }
+    _areas.push_back(area);
+  }
+}
+
+void GibbsMMulti::_getWeights(int iech, WgtVect& area) const
+{
+  if (! _areas.empty())
+    area = _areas[iech];
+  else
+    _calculateWeights(iech, area);
+}
+
+/**
+ * Calculate the size of the current WgtVect structure
+ * @param area Current WgtVect structure
+ * @return
+ */
+int GibbsMMulti::_getSizeOfArea(const WgtVect& area) const
+{
+  int s1 = sizeof(area._size) + sizeof(area._nbgh) + sizeof(area._pivot);
+  int s2 = ut_vector_size(area._mvRanks);
+  int s3 = ut_vector_size(area._weights);
+  int total = s1 + s2 + s3;
+  return total;
 }

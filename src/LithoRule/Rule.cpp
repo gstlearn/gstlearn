@@ -947,21 +947,22 @@ int Rule::gaus2facResult(PropDef  *propdef,
 *****************************************************************************/
 int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech) const
 {
-  int    iech,idim;
-  double delta;
-
-  for (iech=0; iech<jech; iech++)
+  for (int iech=0; iech<jech; iech++)
   {
-    for (idim=0; idim<dbin->getNDim(); idim++)
+    bool similar = false;
+    for (int idim=0; idim<dbin->getNDim() && ! similar; idim++)
     {
-      delta = ABS(dbin->getCoordinate(iech,idim) - dbin->getCoordinate(jech,idim));
-      if (delta >= dbout->getDX(idim)) return(0);
+      double delta = ABS(dbin->getCoordinate(iech, idim) -
+                         dbin->getCoordinate(jech, idim));
+      if (delta >= dbout->getDX(idim)) similar = true;
     }
-    message("Replicate invalid\n");
-    return(1);
+    if (similar)
+    {
+      message("Replicate invalid\n");
+      return(1);
+    }
   }
-  message("Replicate invalid\n");
-  return(1);
+  return(0);
 }
 
 /****************************************************************************/

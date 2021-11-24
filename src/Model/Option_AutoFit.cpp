@@ -68,7 +68,7 @@ Option_AutoFit::~Option_AutoFit()
 
 }
 
-String Option_AutoFit::toString(int level) const
+String Option_AutoFit::toString(int /*level*/) const
 {
   std::stringstream sstr;
 

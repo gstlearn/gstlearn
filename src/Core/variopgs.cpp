@@ -627,14 +627,13 @@ static double st_get_proba_ind(double correl,
 static int st_calculate_thresh_stat(Local_Pgs *local_pgs)
 
 {
-  int nfacies,ifac,ngrf,iconf0;
   double t1min,t1max,t2min,t2max,cround;
 
-  nfacies = local_pgs->nfacies;
-  ngrf    = local_pgs->ngrf;
-  iconf0  = 0;
+  int nfacies = local_pgs->nfacies;
+  int ngrf    = local_pgs->ngrf;
+  int iconf0  = 0;
 
-  for (ifac=0; ifac<nfacies; ifac++)
+  for (int ifac=0; ifac<nfacies; ifac++)
   {
     if (rule_thresh_define(local_pgs->propdef,local_pgs->db,local_pgs->rule,
                            ifac+1,0,0,0,0,&t1min,&t1max,&t2min,&t2max)) return(1);
@@ -3184,7 +3183,8 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
   static double maxiter = 100;
   static double delta0  = 1;
   
-  double Spen,Srpen;
+  double Spen  = 0.;
+  double Srpen = 0.;
   double penalize = 1000;
   int barrier = 0;
 
@@ -3286,7 +3286,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
       
       mdiminution = Snew - Sr;
       if(barrier)
-        mdiminution = Spen -Srpen;
+        mdiminution = Spen - Srpen;
       matrix_product(1,npar,1,step,gr,&stepgr);
       mdiminution_pred = stepgr + 0.5 * matrix_normA(step,Gn,npar,npar);
       rval = mdiminution / mdiminution_pred;
@@ -4649,13 +4649,12 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
 
 {
   double cov[6];
-  int    ipas,jpas,ifac,jfac,nfacies,i,idir,flag_ind,iconf[2];
-  Vario *vario;
+  int    ii,flag_ind,iconf[2];
  
   /* Initializations */
 
-  nfacies = local_pgs->nfacies;
-  vario   = local_pgs->vario;
+  int nfacies = local_pgs->nfacies;
+  Vario* vario   = local_pgs->vario;
   for (int i = 0; i < 6; i++) cov[i] = 0.;
   
   // Duplicate Number and Distance for all lags (from the first simple variogram)
@@ -4664,41 +4663,41 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
 
   /* Loop on the directions */
   
-  for (idir=0; idir<vario->getDirectionNumber(); idir++)
+  for (int idir=0; idir<vario->getDirectionNumber(); idir++)
   {
     
     /* Loop on the lags */
     
-    for (ipas=0; ipas<vario->getLagNumber(idir); ipas++)
+    for (int ipas=0; ipas<vario->getLagNumber(idir); ipas++)
     {
       
       /* Calculate the distance vector */
       
-      for (i=0; i<vario->getDimensionNumber(); i++)
+      for (int i=0; i<vario->getDimensionNumber(); i++)
       {
-        jpas = vario->getDirAddress(idir,0,0,ipas,false,1);
+        int jpas = vario->getDirAddress(idir,0,0,ipas,false,1);
         local_pgs->d1[i] = vario->getHh(idir,jpas) * vario->getCodir(idir,i);
       }
       st_calcul_covmatrix(local_pgs,&flag_ind,iconf,cov);
       
       /* Loops on the facies */
       
-      for (ifac=0; ifac<nfacies; ifac++)
-        for (jfac=0; jfac<=ifac; jfac++)
+      for (int ifac=0; ifac<nfacies; ifac++)
+        for (int jfac=0; jfac<=ifac; jfac++)
         {
           if (local_pgs->vario->getFlagAsym())
           {
-            i = vario->getDirAddress(idir,ifac,jfac,ipas,false,1);
-            vario->setGg(idir, i,
+            ii = vario->getDirAddress(idir,ifac,jfac,ipas,false,1);
+            vario->setGg(idir, ii,
               st_get_value(local_pgs,flag_ind,0,0,ifac,jfac,iconf,cov));
-            i = vario->getDirAddress(idir,ifac,jfac,ipas,false,-1);
-            vario->setGg(idir, i,
+            ii = vario->getDirAddress(idir,ifac,jfac,ipas,false,-1);
+            vario->setGg(idir, ii,
               st_get_value(local_pgs,flag_ind,0,0,jfac,ifac,iconf,cov));
           }        
           else
           {
-            i = vario->getDirAddress(idir,ifac,jfac,ipas,false,0);
-            vario->setGg(idir, i,
+            ii = vario->getDirAddress(idir,ifac,jfac,ipas,false,0);
+            vario->setGg(idir, ii,
               st_get_value(local_pgs,flag_ind,0,0,ifac,jfac,iconf,cov));
           }        
         }

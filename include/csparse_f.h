@@ -138,7 +138,8 @@ int     cs_get_ncell(const cs *A);
 double  cs_get_value(const cs *A,int row, int col);
 void    cs_set_value(const cs *A,int row, int col, double value);
 double* cs_toArray(const cs *A);
-void    cs_strip(cs *A, double epsilon, bool verbose);
+cs*     cs_strip(cs *A, double eps, bool verbose);
+int     cs_nnz(const cs* A);
 
 // Qchol operations
 int qchol_cholesky(int verbose,QChol *QC);

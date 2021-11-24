@@ -499,11 +499,12 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
   /* Initializations */
 
   if (dbin == nullptr) return(0);
-  nadd = 0;
+  nadd = jech = 0;
   nech = dbin->getSampleNumber();
   dist = 0.;
   dinc  = getIncr();
   nstep = (int)floor(getDMax() / dinc);
+  seuil = s1min = s1max = s2min = s2max = TEST;
 
   /* Case of the shadow */
 

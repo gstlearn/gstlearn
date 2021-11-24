@@ -16,14 +16,16 @@
 class Db;
 class Model;
 
-class GibbsMMulti : public GibbsMulti
+class GibbsMMulti: public GibbsMulti
 {
-private:
-  struct GibbsWeights {
+  typedef struct
+  {
+    int _size;
+    int _nbgh;
     int _pivot;
-    VectorInt _ranks;
-    VectorVectorDouble _ll;
-  }; // Per sample
+    VectorInt _mvRanks;
+    VectorVectorDouble _weights;
+  } WgtVect;
 
 public:
   GibbsMMulti();
@@ -38,23 +40,28 @@ public:
               int iter) override;
   int covmatAlloc(bool verbose) override;
 
-  const cs* getQ() const { return _Q; }
-  void setEpsilon1(double epsilon) { _epsilon1 = epsilon; }
-  void setEpsilon2(double epsilon) { _epsilon2 = epsilon; }
+  void setEps(double eps) { _eps = eps; }
+  void setStoreTables(bool storeTables) { _storeTables = storeTables; }
 
 private:
-  int _testConditioning(bool verbose);
   void _display(int iact) const;
   void _display() const;
-  int _getVariableNumber() const;
-  void _makeQSymmetric(cs* Q) const;
-  int  _buildQ();
-  void _extractWeightFromQ();
-  void _tableStore(const Db* db, const cs* Cmat, const csn* N, bool verbose);
+  int  _getVariableNumber() const;
+  void _tableStore(int mode, const cs* Cmat);
+  void _getWeights(int iech, WgtVect& area) const;
+  int  _calculateWeights(int iech, WgtVect& area, double tol = EPSILON3) const;
+  bool _checkForInternalStorage(bool verbose = false);
+  void _storeAllWeights(bool verbose = false);
+  int  _getSizeOfArea(const WgtVect& area) const;
 
 private:
-  std::vector<GibbsWeights> _wgt; // For each sample
-  cs*  _Q;
-  double _epsilon1;
-  double _epsilon2;
+  cs*       _Ln;
+  VectorInt _Pn;
+  double    _eps;
+  bool      _storeTables;
+
+  // Mutable arrays (declared to speed up the process)
+  mutable VectorDouble _b;
+  mutable VectorDouble _x;
+  mutable std::vector<WgtVect> _areas;
 };

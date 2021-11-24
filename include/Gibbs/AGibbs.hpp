@@ -49,6 +49,7 @@ public:
   virtual int run(VectorVectorDouble& y,
                   int ipgs = 0,
                   int isimu = 0,
+                  bool verbose = false,
                   bool flagCheck = false);
 
   void init(int npgs,
@@ -58,7 +59,6 @@ public:
             int flag_order,
             bool flag_decay);
   void getBoundsDecay(int iter, double *vmin, double *vmax) const;
-
 
   int getNvar() const { return _nvar; }
   void setNvar(int nvar) { _nvar = nvar; }
@@ -78,7 +78,7 @@ public:
   VectorVectorDouble allocY() const;
   void storeResult(const VectorVectorDouble& y, int isimu, int ipgs);
 
-
+  int getSampleNumber() const;
   int getSampleRankNumber() const;
   int getSampleRank(int i) const;
   VectorInt calculateSampleRanks() const;
@@ -120,10 +120,8 @@ private:
   int  _optionStats; // 0: no storage; 1: printout; 2: Neutral File
 
   VectorInt _ranks; // Internal array use to store indices of active samples
-
   // Pointer to the reference Db (only stored for efficiency)
   Db*       _db;
-
   // Optional Table used to store performance statistics (see _optionStats)
   Table     _stats;
 };

@@ -105,9 +105,9 @@ public:
 
 
 private:
-  int _getIcov() const { return _icov; }
+  int  _getIcov() const { return _icov; }
   void _setIcov(int icov) { _icov = icov; }
-  int _getIgrf() const { return _igrf; }
+  int  _getIgrf() const { return _igrf; }
   void _setIgrf(int igrf) { _igrf = igrf; }
   const Model* _getModel() const { return _model; }
   void _setModel(const Model* model) { _model = model; }

@@ -4,7 +4,7 @@ project(gstlearn
         VERSION      0.1.0 # Make it consistent with CHANGES file
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL https://github.com/gstlearn/gstlearn
-        LANGUAGES    CXX)
+        LANGUAGES    C CXX) # Enable C langage for third party libraries (hdf5)
 # Get the date in gstlearn_DATE variable
 string(TIMESTAMP gstlearn_DATE "%Y/%m/%d")
 # Fix version.h automatically
@@ -40,6 +40,7 @@ set(CMAKE_DEBUG_POSTFIX d)
 
 # Process sub directories
 add_subdirectory(src)
+add_subdirectory(doc)
 add_subdirectory(tests)
 add_subdirectory(doxygen)
 

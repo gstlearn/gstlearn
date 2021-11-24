@@ -2094,12 +2094,10 @@ GEOSLIB_API void matrix_triangle_to_square(int     mode,
                                            double *tl,
                                            double *a)
 {
-  int i,j;
-
   for (int i=0; i<neq * neq; i++) a[i] = 0.;
 
-  for (i=0; i<neq; i++)
-    for (j=0; j<neq; j++)
+  for (int i=0; i<neq; i++)
+    for (int j=0; j<neq; j++)
     {
       if (mode == 0)
       {
@@ -2605,9 +2603,7 @@ GEOSLIB_API void matrix_combine(int     nval,
 **  Fill the matrix to take the symmetry into account
 **
 ** \param[in]  neq   matrix dimension
-** \param[in]  a     square symmetric matrix (dimension = neq*neq)
-**
-** \param[in]  a     square symmetric matrix (dimension = neq*neq)
+** \param[in,out]  a square symmetric matrix (dimension = neq*neq)
 **
 ** \remark  We assume that, in the input matrix, the elements A[i,j] where
 ** \remark  i >= j have already been filled
@@ -3631,16 +3627,13 @@ GEOSLIB_API void matrix_set_identity(int     neq,
 **
 ** \return  Error returned code
 **
-** \param[in]  tl   input matrix, destroyed in computation and replaced by
-**                  resultant inverse
+** \param[in,out] tl input matrix, destroyed in computation and replaced by
+**                   resultant inverse
 ** \param[in]  neq  number of equations in the matrix 'a'
 ** \param[in]  rank Type of message when inversion problem is encountered
 **                  >=0: message involves 'rank+1'
 **                  -1:  neutral message
 **                  -2:  no message
-**
-** \param[out] tl   input matrix, destroyed in computation and replaced by
-**                  resultant inverse
 **
 ** \remark  It is unnecessary to edit a message if inversion problem occurs
 **
