@@ -72,4 +72,4 @@ ifeq ($(USE_NETCDF),1)
      LIBS     += -lnetcdf_c++4 -lnetcdf
 endif
 
-LIBS += -lhdf5
+CXXFLAGS += `h5cc -shlib -show`
