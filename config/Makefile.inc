@@ -72,4 +72,6 @@ ifeq ($(USE_NETCDF),1)
      LIBS     += -lnetcdf_c++4 -lnetcdf
 endif
 
-CXXFLAGS += `h5cc -shlib -show`
+CXXFLAGS += -I/usr/include/hdf5/serial
+
+LIBS += -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lhdf5
