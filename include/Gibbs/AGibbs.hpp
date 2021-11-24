@@ -106,6 +106,7 @@ protected:
                              const VectorVectorDouble& y,
                              int isimu,
                              int ipgs) const;
+  const int* _getRanks() const { return _ranks.data(); }
 
 private:
   int _npgs;

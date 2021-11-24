@@ -32,11 +32,23 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
       _squareSymMatrix()
 {
   if (m.isEmpty())
-    my_throw("The input matrix should be non-empty");
+  {
+    messerr("The input matrix should be non-empty");
+    _clear();
+    return;
+  }
   if (!m.isSquare())
-    my_throw("The input matrix should be Square");
+  {
+    messerr("The input matrix should be Square");
+    _clear();
+    return;
+  }
   if (!m.isSymmetric())
-    my_throw("The input matrix should be Symmetric");
+  {
+    messerr("The input matrix should be Symmetric");
+    _clear();
+    return;
+  }
 
   _setNRows(m.getNRows());
   _setNCols(m.getNCols());
@@ -125,7 +137,13 @@ void MatrixSquareSymmetric::_setValues(const double* values, bool /*byCol*/)
       double val1 = values[icol * getNRows() + irow];
       double val2 = values[irow * getNCols() + icol];
       if (ABS(val1 - val2) > EPSILON10)
-        my_throw("'values' must correspond to a Square Symmetric Matrix");
+      {
+        messerr("Argument 'values' must correspond to a Square Symmetric Matrix");
+        messerr("- Element[%d,%d] = %lf",icol,irow,val1);
+        messerr("- Element(%d,%d) = %lf",irow,icol,val2);
+        messerr("Operation is aborted");
+        return;
+      }
     }
 
   int ecr = 0;
@@ -212,3 +230,4 @@ bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
   if (icol >  irow) return false;
   return true;
 }
+

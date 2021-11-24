@@ -145,7 +145,7 @@ int AGibbs::_boundsCheck(int ipgs,
 {
   const Db* db = getDb();
   int icase = getRank(ipgs, ivar);
-  int iech = getSampleRank(iact);
+  int iech  = getSampleRank(iact);
   double vmin = db->getLowerBound(iech,icase);
   double vmax = db->getUpperBound(iech,icase);
 

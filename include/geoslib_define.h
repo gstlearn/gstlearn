@@ -57,8 +57,10 @@
 typedef std::vector<double> VectorDouble; /// TODO : Create a class (fill, sum, mean...)
 typedef std::vector<int> VectorInt;
 typedef std::vector<bool> VectorBool;
+typedef std::vector<float> VectorFloat;
 typedef std::vector<std::string> VectorString;
 typedef std::vector<unsigned char> VectorUChar;
 typedef std::string String;
 typedef std::vector<VectorDouble> VectorVectorDouble;
 typedef std::vector<VectorInt>    VectorVectorInt;
+typedef std::vector<VectorFloat>  VectorVectorFloat;

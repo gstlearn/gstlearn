@@ -72,6 +72,6 @@ ifeq ($(USE_NETCDF),1)
      LIBS     += -lnetcdf_c++4 -lnetcdf
 endif
 
+# This is only for LINUX. To be improved for Windows
 CXXFLAGS += -I/usr/include/hdf5/serial
-
-LIBS += -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lhdf5
+LIBS += -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lhdf5 -lhdf5_cpp

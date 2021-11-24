@@ -464,12 +464,14 @@ VectorDouble ut_vector_sequence(double valFrom, double valTo, double valStep)
 
 int ut_vector_size(const VectorInt& vec)
 {
+  if (vec.empty()) return 0;
   int size = sizeof(std::vector<int>) + (sizeof(int) * vec.size());
   return size;
 }
 
 int ut_vector_size(const VectorDouble& vec)
 {
+  if (vec.empty()) return 0;
   int size = sizeof(std::vector<double>) + (sizeof(double) * vec.size());
   return size;
 }
@@ -477,6 +479,7 @@ int ut_vector_size(const VectorDouble& vec)
 int ut_vector_size(const VectorVectorInt& vec)
 {
   int size = 0;
+  if (vec.empty()) return size;
   for (auto i = 0; i != (int) vec.size(); i++)
     size += sizeof(std::vector<int>)
         + (sizeof(int) * vec[i].size());
@@ -487,6 +490,7 @@ int ut_vector_size(const VectorVectorInt& vec)
 int ut_vector_size(const VectorVectorDouble& vec)
 {
   int size = 0;
+  if (vec.empty()) return size;
   for (auto i = 0; i != (int) vec.size(); i++)
     size += sizeof(std::vector<double>)
         + (sizeof(double) * vec[i].size());

@@ -30,10 +30,17 @@ MatrixSquareGeneral::MatrixSquareGeneral(const MatrixSquareGeneral &r)
 MatrixSquareGeneral::MatrixSquareGeneral(const AMatrix &m)
 {
   if (m.isEmpty())
-    my_throw("The input matrix should be non-empty");
+  {
+    messerr("The input matrix should be non-empty");
+    _clear();
+    return;
+  }
   if (!m.isSquare())
-    my_throw("The input matrix should be Square");
-
+  {
+    messerr("The input matrix should be Square");
+    _clear();
+    return;
+  }
   _setNRows(m.getNRows());
   _setNCols(m.getNCols());
   _allocate();

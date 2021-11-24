@@ -208,6 +208,7 @@ protected:
   bool _isColVectorConsistent(const VectorDouble& tab);
   bool _isVectorSizeConsistent(int nrows, int ncols, const VectorDouble& tab);
   bool _isRankValid(int rank) const;
+  void _clear();
 
 private:
   void _setSparse(bool sparse) { _sparse = sparse; }

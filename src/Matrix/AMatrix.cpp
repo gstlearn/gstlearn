@@ -1268,3 +1268,9 @@ void AMatrix::subtract(const AMatrix& tab, double value)
     }
 }
 
+void AMatrix::_clear()
+{
+  _setNRows(0);
+  _setNCols(0);
+  _allocate();
+}

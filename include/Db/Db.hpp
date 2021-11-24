@@ -153,7 +153,7 @@ public:
                 const String& radix = "New",
                 const ELoc& locatorType = ELoc::UNKNOWN,
                 int locatorIndex = 0,
-                int nechInit = 1);
+                int nechInit = 0);
   int addSelection(const VectorDouble& tab,
                    const String& name = "NewSel");
   int addSelection(const String& testvar,
