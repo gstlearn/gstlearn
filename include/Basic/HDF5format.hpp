@@ -42,11 +42,11 @@ public:
                    hsize_t *count,
                    hsize_t *block,
                    void *wdata);
-  int deleteFile(const String& filename);
+  int deleteFile();
   void* allocArray(hid_t type, int ndim, hsize_t *dims);
 
-  void setFilename(const String& filename) { _filename = filename; }
-  void setVarname(const String& varname) { _varname = varname; }
+  void setFileName(const String& filename) { _filename = filename; }
+  void setVarName(const String& varname) { _varname = varname; }
 
   // Functions to be overloaded
   template<typename T>
@@ -56,18 +56,73 @@ public:
   template<typename T>
   void writeData(const std::vector<std::vector<T> >&);
 
-  int getDataint() const;
-  float getDatafloat() const;
-  double getDatadouble() const;
-  VectorInt getDataVint() const;
-  VectorFloat getDataVfloat() const;
+  int getDataInt() const;
+  float getDataFloat() const;
+  double getDataDouble() const;
+  VectorInt getDataVInt() const;
+  VectorFloat getDataVFloat() const;
   VectorDouble getDataVDouble() const;
-  VectorVectorInt getData2Dint() const;
-  VectorVectorFloat getData2Dfloat() const;
-  VectorVectorDouble getData2Ddouble() const;
+  VectorVectorInt getDataVVInt() const;
+  VectorVectorFloat getDataVVFloat() const;
+  VectorVectorDouble getDataVVDouble() const;
   // Return the size of the data
   // Note that for multi-dim arrays that it gets the total size and not the size of a single row.
   int getSize() const;
+
+  // We now make a proxy class so that we can overload the return type and use a single
+  // function to get data whether int or float. This could be made more advanced by
+  // adding more data types (such as double).
+  class Proxy
+  {
+  private:
+    HDF5format const* myOwner;
+  public:
+    Proxy(const HDF5format* owner)
+        : myOwner(owner)
+    {
+    }
+    operator int() const
+    {
+      return myOwner->getDataInt();
+    }
+    operator float() const
+    {
+      return myOwner->getDataFloat();
+    }
+    operator double() const
+    {
+      return myOwner->getDataDouble();
+    }
+    operator std::vector<int>() const
+    {
+      return myOwner->getDataVInt();
+    }
+    operator std::vector<float>() const
+    {
+      return myOwner->getDataVFloat();
+    }
+    operator std::vector<double>() const
+    {
+      return myOwner->getDataVDouble();
+    }
+    operator std::vector<std::vector<int> >() const
+    {
+      return myOwner->getDataVVInt();
+    }
+    operator std::vector<std::vector<float> >() const
+    {
+      return myOwner->getDataVVFloat();
+    }
+    operator std::vector<std::vector<double> >() const
+    {
+      return myOwner->getDataVVDouble();
+    }
+  };
+  // Here we use the Proxy class to have a single getData function
+  Proxy getData() const
+  {
+    return Proxy(this);
+  }
 
 public:
   String _filename;

@@ -14,8 +14,9 @@
 #include "geoslib_old_f.h"
 #include <malloc.h>
 
-#define FILE            "h5data.h5"
-#define DATASET         "DS1"
+#define FILE1           "h5data1.h5"
+#define FILE2           "h5data2.h5"
+#define DATASET1        "DS1"
 
 /**
  * This test is meant to check the HDF5 read/write facility
@@ -260,7 +261,6 @@ int main (void)
   double      n1,n2,mult;
   Timer       timer;
 
-
   // Initializations
 
   verbose  = 0;
@@ -277,12 +277,12 @@ int main (void)
 
   // Define the HDF5 file and variable names
 
-  HDF5format hdf5(FILE, DATASET);
+  HDF5format hdf5(FILE1, DATASET1);
 
   // Core allocation & filling the array
 
   wdata = hdf5.allocArray(type, ndim, dims);
-  if (wdata == NULL) goto label_end;
+  if (wdata == NULL) return 1;
   st_init(verbose, type, ndim, dims, wdata);
 
   // Creating the HDF5 file
@@ -294,8 +294,7 @@ int main (void)
   // Reading without compression
 
   flag_compress = 0;
-  rdata = hdf5.readRegular(flag_compress, type, ndim, start, stride, count0,
-                           block, dimout);
+  rdata = hdf5.readRegular(flag_compress, type, ndim, start, stride, count0, block, dimout);
   st_print(flag_print,type,ndim,dimout,rdata);
   timer.Interval("Reading HDF5 array (no compression)");
 
@@ -303,8 +302,7 @@ int main (void)
 
   rdata = (void *) mem_free((char *) rdata);
   flag_compress = 1;
-  rdata = hdf5.readRegular(flag_compress, type, ndim, start, stride, count0,
-                           block, dimout);
+  rdata = hdf5.readRegular(flag_compress, type, ndim, start, stride, count0,block, dimout);
   timer.Interval("Reading HDF5 array (with compression)");
 
   // Loop on multiple of chunk dimensions
@@ -325,9 +323,7 @@ int main (void)
       // Reading
 
       rdata = (void *) mem_free((char *) rdata);
-      rdata = hdf5.readRegular(1, type, ndim, start, stride,
-                               count, block,
-                               dimout);
+      rdata = hdf5.readRegular(1, type, ndim, start, stride, count, block, dimout);
       st_print(flag_print,type,ndim,dimout,rdata);
       total_read += timer_read.getInterval();
 
@@ -337,8 +333,7 @@ int main (void)
 
       // Writing
 
-      if (hdf5.writeRegular(type, ndim, dimout, start, stride, count, block,
-                            rdata)) goto label_end;
+      hdf5.writeRegular(type, ndim, dimout, start, stride, count, block, rdata);
       total_write += timer_write.getInterval();
     }
     timer_read.display("Reading HDF5 modified array",total_read);
@@ -362,11 +357,66 @@ int main (void)
 
   // Delete the file
 
-  hdf5.deleteFile(FILE);
+  hdf5.deleteFile();
+  free(wdata);
+  wdata = NULL;
+
+  // Define the HDF5 file and variable names
+
+#define dim0 10
+#define dim1 5
+#define dim2 3
+
+  VectorInt ival;
+  for (size_t i = 0; i < dim0; i++)
+    ival.push_back(i);
+  VectorFloat fval;
+  for (size_t i = 0; i < dim0; i++)
+    fval.push_back(i * 0.1);
+  VectorDouble dval;
+  for (size_t i = 0; i < dim0; i++)
+    dval.push_back(i * 0.1);
+  VectorVectorInt vival(dim1, VectorInt(dim2));
+  for ( size_t i = 0; i < dim1; ++i )
+     for ( size_t j = 0; j < dim2; ++j )
+        vival[i][j] = i + j;
+  VectorVectorDouble vdval(dim1, VectorDouble(dim2));
+  for ( size_t i = 0; i < dim1; ++i )
+     for ( size_t j = 0; j < dim2; ++j )
+        vdval[i][j] = i + j;
+
+  HDF5format hdf5b(FILE2);
+
+  // Write
+  hdf5b.setFileName(FILE2);
+  hdf5b.setVarName("VectorInt");
+  hdf5b.writeData(ival);
+  hdf5b.setVarName("VectorFloat");
+  hdf5b.writeData(fval);
+  hdf5b.setVarName("VectorDouble");
+  hdf5b.writeData(dval);
+  hdf5b.setVarName("VectorVectorInt");
+  hdf5b.writeData(vival);
+  hdf5b.setVarName("VectorVectorDouble");
+  hdf5b.writeData(vdval);
+
+  // To Load Data
+  hdf5b.setVarName("VectorInt");
+  VectorInt rival = hdf5b.getDataVInt();
+  hdf5b.setVarName("VectorFloat");
+  VectorFloat rfval = hdf5b.getDataVFloat();
+  hdf5b.setVarName("VectorDouble");
+  VectorDouble rdval = hdf5b.getDataVDouble();
+  hdf5b.setVarName("VectorVectorInt");
+  VectorVectorInt rvival = hdf5b.getDataVVInt();
+  hdf5b.setVarName("VectorVectorDouble");
+  VectorVectorDouble rvdval = hdf5b.getDataVVDouble();
+
+  // Delete the file
+
+  hdf5b.deleteFile();
 
   // Core deallocation
 
-label_end:
-  free(wdata); wdata = NULL;
   return 0;
 }

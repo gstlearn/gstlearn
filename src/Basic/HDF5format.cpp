@@ -347,9 +347,10 @@ void* HDF5format::allocArray(hid_t type, int ndim, hsize_t *dims)
   return data;
 }
 
-int HDF5format::deleteFile(const String& filename)
+int HDF5format::deleteFile()
 {
-  if( remove( filename.c_str() ) != 0 ) return 1;
+  if (_filename.empty()) return 0;
+  if( remove(_filename.c_str() ) != 0 ) return 1;
   return 0;
 }
 
@@ -615,7 +616,7 @@ int HDF5format::getSize() const
   }
 }
 
-int HDF5format::getDataint() const
+int HDF5format::getDataInt() const
 {
   try
   {
@@ -676,7 +677,7 @@ int HDF5format::getDataint() const
   }
 }
 
-float HDF5format::getDatafloat() const
+float HDF5format::getDataFloat() const
 {
   try
   {
@@ -733,7 +734,7 @@ float HDF5format::getDatafloat() const
   }
 }
 
-double HDF5format::getDatadouble() const
+double HDF5format::getDataDouble() const
 {
   try
   {
@@ -788,7 +789,7 @@ double HDF5format::getDatadouble() const
   }
 }
 
-VectorInt HDF5format::getDataVint() const
+VectorInt HDF5format::getDataVInt() const
 {
   try
   {
@@ -849,7 +850,7 @@ VectorInt HDF5format::getDataVint() const
   }
 }
 
-VectorFloat HDF5format::getDataVfloat() const
+VectorFloat HDF5format::getDataVFloat() const
 {
   try
   {
@@ -970,7 +971,7 @@ VectorDouble HDF5format::getDataVDouble() const
  * Reading VectorVectorInt
  * @return
  */
-VectorVectorInt HDF5format::getData2Dint() const
+VectorVectorInt HDF5format::getDataVVInt() const
 {
   try
   {
@@ -1035,7 +1036,7 @@ VectorVectorInt HDF5format::getData2Dint() const
   }
 }
 
-VectorVectorFloat HDF5format::getData2Dfloat() const
+VectorVectorFloat HDF5format::getDataVVFloat() const
 {
   try
   {
@@ -1092,7 +1093,7 @@ VectorVectorFloat HDF5format::getData2Dfloat() const
   }
 }
 
-VectorVectorDouble HDF5format::getData2Ddouble() const
+VectorVectorDouble HDF5format::getDataVVDouble() const
 {
   try
   {
