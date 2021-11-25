@@ -2616,11 +2616,6 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
                                     double zmin,
                                     double zmax);
   GEOSLIB_API void polygon_print(Polygons *polygon, int flag_print);
-  GEOSLIB_API int polygon_inside(double xx,
-                                 double yy,
-                                 double zz,
-                                 int flag_nested,
-                                 Polygons *polygon);
   GEOSLIB_API void polygon_extension(Polygons *polygon,
                                      double *xmin,
                                      double *xmax,

@@ -455,4 +455,13 @@ GEOSLIB_API int db_tool_duplicate(Db *db1,
                                   double *dist,
                                   double *sel);
 
+/***************************************/
+/* Prototyping the functions in poly.c */
+/***************************************/
+
+GEOSLIB_API int polygon_inside(double xx,
+                               double yy,
+                               double zz,
+                               int flag_nested,
+                               Polygons *polygon);
 #endif
