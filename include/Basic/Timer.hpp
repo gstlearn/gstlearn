@@ -10,13 +10,15 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+
 #include <time.h>
 
 /**
  * Allow calculation of Timer spent in a portion of the code
  */
-class Timer
+class GSTLEARN_EXPORT Timer
 {
 public:
   Timer();

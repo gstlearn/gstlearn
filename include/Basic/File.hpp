@@ -10,7 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+
 #include <fstream>
 
 /**
@@ -24,11 +26,11 @@
 
 // Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
 //https://stackoverflow.com/a/17219495
-void skipBOM(std::ifstream &in);
-FILE* gslFopen(const char *path, const char* mode);
-FILE* gslFopen(const String& path, const String& mode);
-bool gslFileExist(const char *path, const char* mode);
-bool gslFileExist(const String& path, const String& mode);
+GSTLEARN_EXPORT void skipBOM(std::ifstream &in);
+GSTLEARN_EXPORT FILE* gslFopen(const char *path, const char* mode);
+GSTLEARN_EXPORT FILE* gslFopen(const String& path, const String& mode);
+GSTLEARN_EXPORT bool gslFileExist(const char *path, const char* mode);
+GSTLEARN_EXPORT bool gslFileExist(const String& path, const String& mode);
 
-char* gslGetEnv(const char* name);
+GSTLEARN_EXPORT char* gslGetEnv(const char* name);
 

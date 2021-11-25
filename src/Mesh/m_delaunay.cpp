@@ -46,7 +46,7 @@ static double TOLPERC   = 1.e-3;
 ** \remarks When 'ndim' is provided as negative, a special case is programmed
 **
 *****************************************************************************/
-GEOSLIB_API int MSS(int ndim,
+GSTLEARN_EXPORT int MSS(int ndim,
                     int ipol,
                     int icas,
                     int icorn,
@@ -243,7 +243,7 @@ label_end:
 ** \remarks no duplicate. No need to search for them.
 **
 *****************************************************************************/
-GEOSLIB_API Vercoloc *vercoloc_manage(int       verbose,
+GSTLEARN_EXPORT Vercoloc *vercoloc_manage(int       verbose,
                                       int       mode,
                                       Db       *dbin,
                                       Db       *dbout,
@@ -446,7 +446,7 @@ label_end:
 ** \param[in]  dupl_out   Array of duplicate indices from Output Db
 **
 *****************************************************************************/
-GEOSLIB_API Vercoloc *vercoloc_from_external(int  ndupl,
+GSTLEARN_EXPORT Vercoloc *vercoloc_from_external(int  ndupl,
                                              int *dupl_in,
                                              int *dupl_out)
 {
@@ -486,7 +486,7 @@ GEOSLIB_API Vercoloc *vercoloc_from_external(int  ndupl,
 ** \remark  simply set to NULL (not actually freed)
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_free(triangulateio *t,
+GSTLEARN_EXPORT void meshes_2D_free(triangulateio *t,
                                 int mode)
 {
   if (t == (triangulateio *) NULL) return;
@@ -541,7 +541,7 @@ GEOSLIB_API void meshes_2D_free(triangulateio *t,
 ** \param[in]  t      Pointer to the triangulateio structure to be initialized
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_init(triangulateio *t)
+GSTLEARN_EXPORT void meshes_2D_init(triangulateio *t)
 {
   t->pointlist                  = nullptr;
   t->pointattributelist         = nullptr;
@@ -614,7 +614,7 @@ static int st_is_masked(int  nb_mask,
 ** \remarks Only the first two coordinates are considered
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_2D_from_db(Db  *db,
+GSTLEARN_EXPORT int meshes_2D_from_db(Db  *db,
                                   int  use_code,
                                   int  nb_mask,
                                   int *is_mask,
@@ -811,7 +811,7 @@ label_end:
 ** \param[in]  t         Pointer to the triangulateio structure to be loaded
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_default(Db  *dbin,
+GSTLEARN_EXPORT void meshes_2D_default(Db  *dbin,
                                    Db  *dbout,
                                    triangulateio *t)
 {
@@ -849,7 +849,7 @@ GEOSLIB_API void meshes_2D_default(Db  *dbin,
 ** \remarks triangulateio structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_2D_from_points(int     nech,
+GSTLEARN_EXPORT int meshes_2D_from_points(int     nech,
                                       double *x,
                                       double *y,
                                       triangulateio *t)
@@ -903,7 +903,7 @@ label_end:
 ** \remark are stored in memory by row
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_2D_from_mem(int  nseg,
+GSTLEARN_EXPORT int meshes_2D_from_mem(int  nseg,
                                    int  ncol,
                                    int *segments,
                                    triangulateio *t)
@@ -955,7 +955,7 @@ label_end:
 ** \param[in]  brief     1 for a brief output; 0 otherwise
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_print(triangulateio *t,
+GSTLEARN_EXPORT void meshes_2D_print(triangulateio *t,
                                  int brief)
 {
   int ndim,i,j,lecp,leca,lecs,lech,lect,lecta,lecn;
@@ -1069,7 +1069,7 @@ GEOSLIB_API void meshes_2D_print(triangulateio *t,
 ** \param[out] tab_arg   Returned array
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_load_vertices(triangulateio *t,
+GSTLEARN_EXPORT void meshes_2D_load_vertices(triangulateio *t,
                                          const char *name,
                                          int     *ntab_arg,
                                          int     *natt_arg,
@@ -1570,7 +1570,7 @@ label_end:
 ** \param[in,out]  s_mesh SPDE_Mesh structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_turbo_2D_grid_build(int        verbose,
+GSTLEARN_EXPORT int meshes_turbo_2D_grid_build(int        verbose,
                                            Db        *dbgrid,
                                            SPDE_Mesh *s_mesh)
 {
@@ -1740,7 +1740,7 @@ static void st_strip_triangles_intercepted_faults(triangulateio *t,
 ** \param[in]  vorout     triangulateio structure for voronoi
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_create(int            verbose,
+GSTLEARN_EXPORT void meshes_2D_create(int            verbose,
                                   const String&  triswitch,
                                   triangulateio *in,
                                   triangulateio *out,
@@ -1783,7 +1783,7 @@ GEOSLIB_API void meshes_2D_create(int            verbose,
 ** \param[in]  t          Triangulation environment
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_extended_domain(Db            *dbout,
+GSTLEARN_EXPORT void meshes_2D_extended_domain(Db            *dbout,
                                            const double        *gext,
                                            triangulateio *t)
 {
@@ -1835,7 +1835,7 @@ label_end:
 ** \param[in]  points    Array of 3-D coordinates for triangle vertices
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_2D_write(const char *file_name,
+GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
                                 const char *obj_name,
                                 int         verbose,
                                 int         ndim,
@@ -1926,7 +1926,7 @@ GEOSLIB_API int meshes_2D_write(const char *file_name,
 ** \param[in]  points    Array of 'ndim' coordinates for mesh vertex
 **
 *****************************************************************************/
-GEOSLIB_API void mesh_stats(int     ndim,
+GSTLEARN_EXPORT void mesh_stats(int     ndim,
                             int     ncorner,
                             int     nmesh,
                             int    *meshes,
@@ -1994,7 +1994,7 @@ GEOSLIB_API void mesh_stats(int     ndim,
 ** \param[in]  t      Pointer to the SphTriangle structure to be initialized
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_sph_init(SphTriangle *t)
+GSTLEARN_EXPORT void meshes_2D_sph_init(SphTriangle *t)
 {
   t->n_nodes   = 0;
   t->sph_size  = 0;
@@ -2015,7 +2015,7 @@ GEOSLIB_API void meshes_2D_sph_init(SphTriangle *t)
 **                    0 for total deallocation
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_sph_free(SphTriangle *t,
+GSTLEARN_EXPORT void meshes_2D_sph_free(SphTriangle *t,
                                     int mode)
 {
   if (t == (SphTriangle *) NULL) return;
@@ -2046,7 +2046,7 @@ GEOSLIB_API void meshes_2D_sph_free(SphTriangle *t,
 ** \remarks (longitude,latitude) into 3-D coordinates
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_2D_sph_from_db(Db  *db,
+GSTLEARN_EXPORT int meshes_2D_sph_from_db(Db  *db,
                                       int  nb_mask,
                                       int *is_mask,
                                       SphTriangle *t)
@@ -2127,7 +2127,7 @@ label_end:
 ** \remarks SphTriangle structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_2D_sph_from_points(int     nech,
+GSTLEARN_EXPORT int meshes_2D_sph_from_points(int     nech,
                                           double *x,
                                           double *y,
                                           SphTriangle *t)
@@ -2185,7 +2185,7 @@ label_end:
 ** \remarks SphTriangle structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_2D_sph_from_auxiliary(const String& triswitch,
+GSTLEARN_EXPORT int meshes_2D_sph_from_auxiliary(const String& triswitch,
                                              SphTriangle *t)
 {
   int     error,npoint,ecr,found_close,nech,nold,ndecode,flag_reg,flag_vdc;
@@ -2314,7 +2314,7 @@ label_end:
 ** \param[in]  brief     1 for a brief output; 0 otherwise
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_sph_print(SphTriangle *t,
+GSTLEARN_EXPORT void meshes_2D_sph_print(SphTriangle *t,
                                      int brief)
 {
   double rlong,rlat;
@@ -2348,7 +2348,7 @@ GEOSLIB_API void meshes_2D_sph_print(SphTriangle *t,
 ** \param[in]  t          SphTriangle structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_2D_sph_create(int           verbose,
+GSTLEARN_EXPORT int meshes_2D_sph_create(int           verbose,
                                      SphTriangle  *t)
 {
   int    *loc_near,*loc_next,*loc_lnew,error,skip_rnd,seed_memo;
@@ -2475,7 +2475,7 @@ label_end:
 ** \param[out] tab_arg   Returned array
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_2D_sph_load_vertices(SphTriangle *t,
+GSTLEARN_EXPORT void meshes_2D_sph_load_vertices(SphTriangle *t,
                                              const char *name,
                                              int     *ntab_arg,
                                              int     *natt_arg,
@@ -2617,7 +2617,7 @@ static void st_add_facet(tetgenio::facet *f,
 ** \param[in]  t           Pointer to the tetgenio structure to be freed
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_3D_free(tetgenio *t)
+GSTLEARN_EXPORT void meshes_3D_free(tetgenio *t)
 
 {
   if (t == nullptr) return;
@@ -2689,7 +2689,7 @@ GEOSLIB_API void meshes_3D_free(tetgenio *t)
 ** \param[in]  brief     1 for a brief output; 0 otherwise
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_3D_print(tetgenio *t,
+GSTLEARN_EXPORT void meshes_3D_print(tetgenio *t,
                                  int brief)
 {
   int ndim,i,j,lecp,leca,lech,lect,lecta,lecn;
@@ -2866,7 +2866,7 @@ static void tetgen_bounding(tetgenio *t)
 ** \param[in]  out        tetgenio structure for output
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_3D_create(int           verbose,
+GSTLEARN_EXPORT void meshes_3D_create(int           verbose,
                                   const String& triswitch,
                                   tetgenio     *in,
                                   tetgenio     *out)
@@ -2919,7 +2919,7 @@ GEOSLIB_API void meshes_3D_create(int           verbose,
 ** \remarks Only the first three coordinates are considered
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_3D_from_db(Db  *db,
+GSTLEARN_EXPORT int meshes_3D_from_db(Db  *db,
                                   int  nb_mask,
                                   int *is_mask,
                                   tetgenio *t)
@@ -2983,7 +2983,7 @@ label_end:
 ** \param[in]  t         Pointer to the tetgenio structure to be loaded
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_3D_default(Db  *dbin,
+GSTLEARN_EXPORT void meshes_3D_default(Db  *dbin,
                                    Db  *dbout,
                                    tetgenio *t)
 {
@@ -3021,7 +3021,7 @@ GEOSLIB_API void meshes_3D_default(Db  *dbin,
 ** \remarks tetgenio structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_3D_from_points(int       nech,
+GSTLEARN_EXPORT int meshes_3D_from_points(int       nech,
                                       double   *x,
                                       double   *y,
                                       double   *z,
@@ -3071,7 +3071,7 @@ label_end:
 ** \param[in]  t          Tetrahedrization environment
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_3D_extended_domain(Db       *dbout,
+GSTLEARN_EXPORT void meshes_3D_extended_domain(Db       *dbout,
                                            const double   *gext,
                                            tetgenio *t)
 {
@@ -3119,7 +3119,7 @@ label_end:
 ** \param[out] tab_arg   Returned array
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_3D_load_vertices(tetgenio *t,
+GSTLEARN_EXPORT void meshes_3D_load_vertices(tetgenio *t,
                                          const char *name,
                                          int     *ntab_arg,
                                          int     *natt_arg,
@@ -3189,7 +3189,7 @@ GEOSLIB_API void meshes_3D_load_vertices(tetgenio *t,
 ** \param[in,out]  s_mesh SPDE_Mesh structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_turbo_3D_grid_build(int        verbose,
+GSTLEARN_EXPORT int meshes_turbo_3D_grid_build(int        verbose,
                                            Db        *dbgrid,
                                            SPDE_Mesh *s_mesh)
 {
@@ -3270,7 +3270,7 @@ label_end:
 ** \remark  simply set to NULL (not actually freed)
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_1D_free(segmentio *t,
+GSTLEARN_EXPORT void meshes_1D_free(segmentio *t,
                                 int mode)
 {
   if (t == (segmentio *) NULL) return;
@@ -3294,7 +3294,7 @@ GEOSLIB_API void meshes_1D_free(segmentio *t,
 ** \param[in]  t      Pointer to the segmentio structure to be initialized
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_1D_init(segmentio *t)
+GSTLEARN_EXPORT void meshes_1D_init(segmentio *t)
 {
   t->pointlist                  = nullptr;
   t->pointattributelist         = nullptr;
@@ -3322,7 +3322,7 @@ GEOSLIB_API void meshes_1D_init(segmentio *t)
 ** \remarks Only the first coordinate is considered
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_1D_from_db(Db  *db,
+GSTLEARN_EXPORT int meshes_1D_from_db(Db  *db,
                                   int  nb_mask,
                                   int *is_mask,
                                   segmentio *t)
@@ -3386,7 +3386,7 @@ label_end:
 ** \param[in]  t         Pointer to the segmentio structure to be loaded
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_1D_default(Db  *dbin,
+GSTLEARN_EXPORT void meshes_1D_default(Db  *dbin,
                                    Db  *dbout,
                                    segmentio *t)
 {
@@ -3424,7 +3424,7 @@ GEOSLIB_API void meshes_1D_default(Db  *dbin,
 ** \remarks segmentio structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_1D_from_points(int     nech,
+GSTLEARN_EXPORT int meshes_1D_from_points(int     nech,
                                       double *x,
                                       segmentio *t)
 {
@@ -3469,7 +3469,7 @@ label_end:
 ** \param[in]  brief     1 for a brief output; 0 otherwise
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_1D_print(segmentio *t,
+GSTLEARN_EXPORT void meshes_1D_print(segmentio *t,
                                  int brief)
 {
   int ndim,i,j,lecp,leca,lect,lecta,lecn;
@@ -3529,7 +3529,7 @@ GEOSLIB_API void meshes_1D_print(segmentio *t,
 ** \param[out] tab_arg   Returned array
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_1D_load_vertices(segmentio *t,
+GSTLEARN_EXPORT void meshes_1D_load_vertices(segmentio *t,
                                          const char *name,
                                          int     *ntab_arg,
                                          int     *natt_arg,
@@ -3599,7 +3599,7 @@ GEOSLIB_API void meshes_1D_load_vertices(segmentio *t,
 ** \param[in,out]  s_mesh SPDE_Mesh structure
 **
 *****************************************************************************/
-GEOSLIB_API int meshes_turbo_1D_grid_build(int        verbose,
+GSTLEARN_EXPORT int meshes_turbo_1D_grid_build(int        verbose,
                                            Db        *dbgrid,
                                            SPDE_Mesh *s_mesh)
 {
@@ -3671,7 +3671,7 @@ label_end:
 ** \param[in]  out        segmentio structure for output
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_1D_create(int        verbose,
+GSTLEARN_EXPORT void meshes_1D_create(int        verbose,
                                   segmentio *in,
                                   segmentio *out)
 {
@@ -3739,7 +3739,7 @@ GEOSLIB_API void meshes_1D_create(int        verbose,
 ** \param[in]  t          segmentio structure
 **
 *****************************************************************************/
-GEOSLIB_API void meshes_1D_extended_domain(Db *dbout,
+GSTLEARN_EXPORT void meshes_1D_extended_domain(Db *dbout,
                                            const double *gext,
                                            segmentio *t)
 {

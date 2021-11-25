@@ -184,7 +184,7 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& out,
 cs *PrecisionOpCs::getQ()
 {
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
-  cs* Q = spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambda(),
-                       static_cast<int> (blin.size()), blin.data());
+  cs* Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambda(),
+                        static_cast<int> (blin.size()), blin.data());
   return Q;
 }

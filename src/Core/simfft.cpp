@@ -1178,7 +1178,7 @@ static void st_simfft_final(Db     *db,
 ** \param[in]  flag_aliasing  1 for anti-aliasing procedure; 0 otherwise
 **
 *****************************************************************************/
-GEOSLIB_API int simfft_f(Db    *db,
+GSTLEARN_EXPORT int simfft_f(Db    *db,
                        Model *model,
                        int    seed,
                        int    nbsimu,
@@ -1418,7 +1418,7 @@ static double st_support(ST_FFT *simu,
 ** \param[out] coeffs  r^2 coefficients for given logarithmic variances
 **
 *****************************************************************************/
-GEOSLIB_API int simfft_support(Db     *db,
+GSTLEARN_EXPORT int simfft_support(Db     *db,
                                Model  *model,
                                double  percent,
                                int     flag_aliasing,

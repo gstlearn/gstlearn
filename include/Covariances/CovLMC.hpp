@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 
 class ASpace;
 class SpacePoint;
 class CovAniso;
 
-class CovLMC : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMC : public ACovAnisoList
 {
 public:
   CovLMC(const ASpace* space = nullptr);

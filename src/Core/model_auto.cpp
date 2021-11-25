@@ -4509,7 +4509,7 @@ static void st_regularize_init()
 ** \param[in]  optvar_arg  Opt_Vario structure
 **
 *****************************************************************************/
-GEOSLIB_API int model_auto_fit(const Vario      *vario,
+GSTLEARN_EXPORT int model_auto_fit(const Vario      *vario,
                                Model      *model,
                                bool        verbose,
                                const Option_AutoFit& mauto_arg,
@@ -4718,7 +4718,7 @@ label_end:
 ** \param[in]  mauto        Option_AutoFit structure
 **
 *****************************************************************************/
-GEOSLIB_API int model_fitting_sills(Vario *vario,
+GSTLEARN_EXPORT int model_fitting_sills(Vario *vario,
                                     Model *model,
                                     Option_AutoFit mauto)
 {
@@ -4981,7 +4981,7 @@ static void st_load_vmap(int     npadir,
 ** \param[in]  optvar_arg  Opt_Vario structure
 **
 *****************************************************************************/
-GEOSLIB_API int vmap_auto_fit(const Db         *dbmap,
+GSTLEARN_EXPORT int vmap_auto_fit(const Db         *dbmap,
                               Model      *model,
                               bool        verbose,
                               const Option_AutoFit& mauto_arg,
@@ -5144,7 +5144,7 @@ label_end:
 ** \param[in]  constraints  Constraints structure
 **
 *****************************************************************************/
-GEOSLIB_API void constraints_print(const Constraints& constraints)
+GSTLEARN_EXPORT void constraints_print(const Constraints& constraints)
 {
   constraints.display();
 }
@@ -5163,7 +5163,7 @@ GEOSLIB_API void constraints_print(const Constraints& constraints)
 ** \param[in]  constraints  Constraints structure
 **
 *****************************************************************************/
-GEOSLIB_API int modify_constraints_on_sill(Constraints& constraints)
+GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints& constraints)
 
 {
   for (int i=0; i<(int) constraints.getConsItemNumber(); i++)
@@ -5191,7 +5191,7 @@ GEOSLIB_API int modify_constraints_on_sill(Constraints& constraints)
 ** \param[in]      iv2          Rank of the second variable
 **
 *****************************************************************************/
-GEOSLIB_API double constraints_get(const Constraints& constraints,
+GSTLEARN_EXPORT double constraints_get(const Constraints& constraints,
                                    const EConsType& icase,
                                    int igrf,
                                    int icov,

@@ -12,6 +12,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/GridC.hpp"
@@ -24,7 +25,7 @@ class Db;
  * It actually avoids storing all the meshing information
  * and produces quicker methods
  */
-class MeshETurbo: public AMesh
+class GSTLEARN_EXPORT MeshETurbo: public AMesh
 {
 public:
   MeshETurbo();

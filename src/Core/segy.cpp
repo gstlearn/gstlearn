@@ -1211,7 +1211,7 @@ static void st_refstats_init(RefStats& refstats,
 ** \details is meaningless. It is fixed by the user.
 **
 *****************************************************************************/
-GEOSLIB_API SegYArg segy_array(const char *filesegy,
+GSTLEARN_EXPORT SegYArg segy_array(const char *filesegy,
                               Db *surf2D,
                               const String& name_top,
                               const String& name_bot,
@@ -1387,7 +1387,7 @@ GEOSLIB_API SegYArg segy_array(const char *filesegy,
 ** \details: by the output grid (if flag_store == 1)
 **
 *****************************************************************************/
-GEOSLIB_API GridC segy_summary(const char *filesegy,
+GSTLEARN_EXPORT GridC segy_summary(const char *filesegy,
                                Db *surf2D,
                                const String& name_top,
                                const String& name_bot,
@@ -1558,7 +1558,7 @@ GEOSLIB_API GridC segy_summary(const char *filesegy,
 ** \remarks - no attention is paid to the vertical mesh value.
 **
 *****************************************************************************/
-GEOSLIB_API int db_segy(const char *filesegy,
+GSTLEARN_EXPORT int db_segy(const char *filesegy,
                         Db *grid3D,
                         Db *surf2D,
                         const String& name_top,

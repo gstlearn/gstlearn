@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ECov.hpp"
@@ -20,7 +20,7 @@
  * Positive definite function
  * */
 
-class ACovFunc : public AStringable
+class GSTLEARN_EXPORT ACovFunc : public AStringable
 {
 public:
   ACovFunc(const ECov& type, const CovContext& ctxt);

@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
-class AnamDiscrete: public Anam
+class GSTLEARN_EXPORT AnamDiscrete: public Anam
 {
 private:
   int _nCut;

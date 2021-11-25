@@ -10,7 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-class IClonable
+#include "gstlearn_export.hpp"
+
+class GSTLEARN_EXPORT IClonable
 {
 public:
   IClonable() {};

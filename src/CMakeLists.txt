@@ -297,6 +297,10 @@ set_target_properties(static PROPERTIES OUTPUT_NAME gstlearn) # Will produce lib
 set_target_properties(shared PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(static PROPERTIES VERSION ${PROJECT_VERSION})
 
+# Anyone who wants to build a binary linking to gstlearn needs -fPIC
+set_property(TARGET shared PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET static PROPERTY POSITION_INDEPENDENT_CODE 1)
+
 # Link to boost
 target_link_libraries(shared PUBLIC Boost::boost)
 target_link_libraries(static PUBLIC Boost::boost) # Not a real link. Transmit info to those who link gstlearn.
@@ -310,11 +314,26 @@ target_link_libraries(static PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES}) # N
 # Only compile shared library by default (exclude static from all)
 set_target_properties(static PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
-# Shared libraries need -fPIC
-set_property(TARGET shared PROPERTY POSITION_INDEPENDENT_CODE 1)
-
 # Set the so version to project major version
 set_target_properties(shared PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
+
+# Generate export header
+include(GenerateExportHeader)
+set(DISABLE_EXPORT_IF_SWIG "
+#ifdef SWIG
+#undef GSTLEARN_EXPORT
+#undef GSTLEARN_NO_EXPORT
+#define GSTLEARN_EXPORT
+#define GSTLEARN_NO_EXPORT
+#endif
+")
+
+generate_export_header(shared BASE_NAME gstlearn
+                       EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/gstlearn_export.hpp
+                       CUSTOM_CONTENT_FROM_VARIABLE DISABLE_EXPORT_IF_SWIG
+)
+set_target_properties(static PROPERTIES COMPILE_FLAGS -DGSTLEARN_STATIC_DEFINE)
+
 
 # Install dynamic library in DESTINATION/lib folder
 install(TARGETS shared EXPORT corelibs

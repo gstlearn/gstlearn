@@ -257,7 +257,7 @@ static int st_oper_check(const String& oper,
 **                       (Dimension: ncol (if flag_mono) or ncol*ncol)
 **
 *****************************************************************************/
-GEOSLIB_API int db_stats(Db     *db,
+GSTLEARN_EXPORT int db_stats(Db     *db,
                          const   String& oper,
                          const VectorInt& cols,
                          int     flag_mono,
@@ -563,7 +563,7 @@ static void st_get_neighboring_cell(int    ndim,
 ** \param[in]  radius Neighborhood radius
 **
 *****************************************************************************/
-GEOSLIB_API int db_stats_grid(Db           *db,
+GSTLEARN_EXPORT int db_stats_grid(Db           *db,
                               Db           *dbgrid,
                               const char   *oper,
                               int           ncol,
@@ -833,7 +833,7 @@ label_end:
 ** \param[out]  tab       Output array (Dimension: 1 or ncut)
 **
 *****************************************************************************/
-GEOSLIB_API int stats_point_to_grid(Db     *dbgrid,
+GSTLEARN_EXPORT int stats_point_to_grid(Db     *dbgrid,
                                     Db     *db,
                                     const char *oper,
                                     int     iatt,
@@ -1227,7 +1227,7 @@ static void st_scale_and_affect(Db     *dbout,
 ** \param[in]  radius     Radius of the neighborhood
 **
 *****************************************************************************/
-GEOSLIB_API int stats_proportion(Db     *dbin,
+GSTLEARN_EXPORT int stats_proportion(Db     *dbin,
                                  Db     *dbout,
                                  int     pos,
                                  int     nfacies,
@@ -1343,7 +1343,7 @@ label_end:
 ** \param[in]  orient     Orientation (+1 or -1)
 **
 *****************************************************************************/
-GEOSLIB_API int stats_transition(Db     *dbin,
+GSTLEARN_EXPORT int stats_transition(Db     *dbin,
                                  Db     *dbout,
                                  int     pos,
                                  int     nfacies,
@@ -2066,7 +2066,7 @@ static int st_is_subgrid(int  verbose,
 ** \param[in]  verbose    Verbose flag
 **
 *****************************************************************************/
-GEOSLIB_API int db_upscale(Db     *dbgrid1,
+GSTLEARN_EXPORT int db_upscale(Db     *dbgrid1,
                            Db     *dbgrid2,
                            int     orient,
                            int     verbose)
@@ -2664,7 +2664,7 @@ static double st_get_diff_coeff(int     niter,
 ** \remarks      set.keypair("Diffusion.Trajectory.XX")
 **
 *****************************************************************************/
-GEOSLIB_API int db_diffusion(Db     *dbgrid1,
+GSTLEARN_EXPORT int db_diffusion(Db     *dbgrid1,
                              Db     *dbgrid2,
                              int     orient,
                              int     niter,
@@ -2867,7 +2867,7 @@ static void st_get_rowname(const String& radix,
 ** \param[in]  opers       Array of operators
 **
 *****************************************************************************/
-GEOSLIB_API void db_stats_print(const Db *db,
+GSTLEARN_EXPORT void db_stats_print(const Db *db,
                                 const VectorInt& iatts_arg,
                                 const VectorString& opers,
                                 int flag_iso,
@@ -3078,7 +3078,7 @@ label_end:
   return;
 }
 
-GEOSLIB_API void db_stats_print(const Db *db,
+GSTLEARN_EXPORT void db_stats_print(const Db *db,
                                 const VectorString& names,
                                 const VectorString& opers,
                                 int flag_iso,
@@ -3110,7 +3110,7 @@ GEOSLIB_API void db_stats_print(const Db *db,
 ** \param[out] Q         Array of for metal quantity
 **
 *****************************************************************************/
-GEOSLIB_API int stats_residuals(int     verbose,
+GSTLEARN_EXPORT int stats_residuals(int     verbose,
                                 int     nech,
                                 double *tab,
                                 int     ncut,

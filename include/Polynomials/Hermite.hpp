@@ -10,54 +10,68 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
-VectorDouble hermitePolynomials(double yc, double r, int nbpoly);
-VectorDouble hermiteCoefIndicator(double yc, int nbpoly);
-VectorDouble hermiteCoefMetal(double yc, const VectorDouble& phi);
-VectorDouble hermiteFunction(double y, int nbpoly);
-MatrixSquareGeneral hermiteIncompleteIntegral(double yc, int nbpoly);
-VectorDouble hermiteLognormal(double mean, double sigma, int nbpoly);
-double hermiteSeries(const VectorDouble& an, const VectorDouble& hn);
+GSTLEARN_EXPORT VectorDouble hermitePolynomials(double yc,
+                                                double r,
+                                                int nbpoly);
+GSTLEARN_EXPORT VectorDouble hermiteCoefIndicator(double yc, int nbpoly);
+GSTLEARN_EXPORT VectorDouble hermiteCoefMetal(double yc,
+                                              const VectorDouble &phi);
+GSTLEARN_EXPORT VectorDouble hermiteFunction(double y, int nbpoly);
+GSTLEARN_EXPORT MatrixSquareGeneral hermiteIncompleteIntegral(double yc,
+                                                              int nbpoly);
+GSTLEARN_EXPORT VectorDouble hermiteLognormal(double mean,
+                                              double sigma,
+                                              int nbpoly);
+GSTLEARN_EXPORT double hermiteSeries(const VectorDouble &an,
+                                     const VectorDouble &hn);
 
-VectorDouble hermiteIndicator(double yc,
-                              VectorDouble krigest,
-                              VectorDouble krigstd);
-double hermiteIndicatorElement(double yc, double krigest, double krigstd);
-VectorDouble hermiteIndicatorStd(double yc,
-                                 VectorDouble krigest,
-                                 VectorDouble krigstd);
-double hermiteIndicatorStdElement(double yc, double krigest, double krigstd);
-VectorDouble hermiteMetal(double yc,
-                          VectorDouble krigest,
-                          VectorDouble krigstd,
-                          const VectorDouble& phi);
-double hermiteMetalElement(double yc,
-                           double krigest,
-                           double krigstd,
-                           const VectorDouble& phi);
-VectorDouble hermiteMetalStd(double yc,
-                             VectorDouble krigest,
-                             VectorDouble krigstd,
-                             const VectorDouble& phi);
-double hermiteMetalStdElement(double yc,
-                              double krigest,
-                              double krigstd,
-                              const VectorDouble& phi);
-VectorDouble hermiteCondExp(VectorDouble krigest,
-                            VectorDouble krigstd,
-                            const VectorDouble& phi);
-double hermiteCondExpElement(double krigest,
-                             double krigstd,
-                             const VectorDouble& phi);
+GSTLEARN_EXPORT VectorDouble hermiteIndicator(double yc,
+                                              VectorDouble krigest,
+                                              VectorDouble krigstd);
+GSTLEARN_EXPORT double hermiteIndicatorElement(double yc,
+                                               double krigest,
+                                               double krigstd);
+GSTLEARN_EXPORT VectorDouble hermiteIndicatorStd(double yc,
+                                                 VectorDouble krigest,
+                                                 VectorDouble krigstd);
+GSTLEARN_EXPORT double hermiteIndicatorStdElement(double yc,
+                                                  double krigest,
+                                                  double krigstd);
+GSTLEARN_EXPORT VectorDouble hermiteMetal(double yc,
+                                          VectorDouble krigest,
+                                          VectorDouble krigstd,
+                                          const VectorDouble &phi);
+GSTLEARN_EXPORT double hermiteMetalElement(double yc,
+                                           double krigest,
+                                           double krigstd,
+                                           const VectorDouble &phi);
+GSTLEARN_EXPORT VectorDouble hermiteMetalStd(double yc,
+                                             VectorDouble krigest,
+                                             VectorDouble krigstd,
+                                             const VectorDouble &phi);
+GSTLEARN_EXPORT double hermiteMetalStdElement(double yc,
+                                              double krigest,
+                                              double krigstd,
+                                              const VectorDouble &phi);
+GSTLEARN_EXPORT VectorDouble hermiteCondExp(VectorDouble krigest,
+                                            VectorDouble krigstd,
+                                            const VectorDouble &phi);
+GSTLEARN_EXPORT double hermiteCondExpElement(double krigest,
+                                             double krigstd,
+                                             const VectorDouble &phi);
 VectorDouble hermiteCondStd(VectorDouble krigest,
                             VectorDouble krigstd,
-                            const VectorDouble& phi);
-double hermiteCondStdElement(double krigest,
-                             double krigstd,
-                             const VectorDouble& phi);
-VectorDouble hermiteEvaluateZ2(VectorDouble yk,
-                               VectorDouble sk,
-                               const VectorDouble& phi);
-double hermiteEvaluateZ2(double yk, double sk, const VectorDouble& phi);
+                            const VectorDouble &phi);
+GSTLEARN_EXPORT double hermiteCondStdElement(double krigest,
+                                             double krigstd,
+                                             const VectorDouble &phi);
+GSTLEARN_EXPORT VectorDouble hermiteEvaluateZ2(VectorDouble yk,
+                                               VectorDouble sk,
+                                               const VectorDouble &phi);
+GSTLEARN_EXPORT double hermiteEvaluateZ2(double yk,
+                                         double sk,
+                                         const VectorDouble &phi);

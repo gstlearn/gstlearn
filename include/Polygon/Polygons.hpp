@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Polygon/PolySet.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
@@ -18,7 +19,7 @@
 
 class Db;
 
-class Polygons: public AStringable, public ASerializable
+class GSTLEARN_EXPORT Polygons: public AStringable, public ASerializable
 {
 public:
   Polygons();

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Variogram/ECalcVario.hpp"
@@ -21,7 +22,7 @@
 class Db;
 class Model;
 
-class Vario : public AStringable, public ASerializable, public IClonable
+class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public IClonable
 {
 public:
   Vario(const VarioParam* varioparam,

@@ -455,7 +455,7 @@ static void st_data_discretize_dd(int idim,
   }
 }
 
-GEOSLIB_API int is_flag_data_disc_defined(void)
+GSTLEARN_EXPORT int is_flag_data_disc_defined(void)
 {
   return KOPTION->flag_data_disc;
 }
@@ -1406,7 +1406,7 @@ static void st_block_discretize(int mode,
 ** \remark  This function manages the global structure KOPTION
 **
 *****************************************************************************/
-GEOSLIB_API int krige_koption_manage(int             mode,
+GSTLEARN_EXPORT int krige_koption_manage(int             mode,
                                      int             flag_check,
                                      const EKrigOpt& calcul,
                                      int             flag_rand,
@@ -1885,7 +1885,7 @@ static void st_lhs_iso2hetero(int neq)
 ** \param[in]  lhs   Kriging L.H.S
 **
 *****************************************************************************/
-GEOSLIB_API void krige_lhs_print(int     nech,
+GSTLEARN_EXPORT void krige_lhs_print(int     nech,
                                  int     neq,
                                  int     nred,
                                  int    *flag,
@@ -2409,7 +2409,7 @@ static void st_rhs_iso2hetero(int neq,
 ** \param[in]  rhs      Kriging R.H.S. matrix
 **
 *****************************************************************************/
-GEOSLIB_API void krige_rhs_print(int      nvar,
+GSTLEARN_EXPORT void krige_rhs_print(int      nvar,
                                  int      nech,
                                  int      neq,
                                  int      nred,
@@ -2491,7 +2491,7 @@ GEOSLIB_API void krige_rhs_print(int      nvar,
 ** \param[in]  dual     Kriging Dual matrix
 **
 *****************************************************************************/
-GEOSLIB_API void krige_dual_print(int      nech,
+GSTLEARN_EXPORT void krige_dual_print(int      nech,
                                   int      neq,
                                   int      nred,
                                   int     *flag,
@@ -3377,7 +3377,7 @@ static void st_save_keypair_weights(int     status,
 ** \param[in]  namconv     Naming convention
 **
 *****************************************************************************/
-GEOSLIB_API int kriging(Db*              dbin,
+GSTLEARN_EXPORT int kriging(Db*              dbin,
                         Db*              dbout,
                         Model*           model,
                         Neigh*           neigh,
@@ -3723,7 +3723,7 @@ label_end:
 ** \details - estimation: Z*; st. dev: S
 **
 *****************************************************************************/
-GEOSLIB_API int xvalid(Db    *db,
+GSTLEARN_EXPORT int xvalid(Db    *db,
                        Model *model,
                        Neigh *neigh,
                        int flag_xvalid,
@@ -3773,7 +3773,7 @@ GEOSLIB_API int xvalid(Db    *db,
 ** \param[in]  rval        Change of support coefficient
 **
 *****************************************************************************/
-GEOSLIB_API int krigdgm_f(Db     *dbin,
+GSTLEARN_EXPORT int krigdgm_f(Db     *dbin,
                         Db     *dbout,
                         Model  *model,
                         Neigh  *neigh,
@@ -3928,7 +3928,7 @@ label_end:
 ** \param[in]  flag_std  Option for the storing the standard deviation
 **
 *****************************************************************************/
-GEOSLIB_API int krigprof_f(Db    *dbin,
+GSTLEARN_EXPORT int krigprof_f(Db    *dbin,
                          Db    *dbout,
                          Model *model,
                          Neigh *neigh,
@@ -4355,7 +4355,7 @@ static void st_bayes_correct(Model  *model,
 ** \param[in]  flag_std  Pointer for the storing the standard deviation
 **
 *****************************************************************************/
-GEOSLIB_API int kribayes_f(Db *dbin,
+GSTLEARN_EXPORT int kribayes_f(Db *dbin,
                            Db *dbout,
                            Model *model,
                            Neigh *neigh,
@@ -4518,7 +4518,7 @@ label_end:
 ** \remark 5 - The number of consecutive empty sectors
 **
 *****************************************************************************/
-GEOSLIB_API int test_neigh(Db    *dbin,
+GSTLEARN_EXPORT int test_neigh(Db    *dbin,
                            Db    *dbout,
                            Model *model,
                            Neigh *neigh,
@@ -4618,7 +4618,7 @@ label_end:
 ** \param[in]  rval       Change of support coefficient
 **
 *****************************************************************************/
-GEOSLIB_API int krigsim(const char *strloc,
+int _krigsim(const char *strloc,
                         Db     *dbin,
                         Db     *dbout,
                         Model  *model,
@@ -4790,7 +4790,7 @@ label_end:
 ** \param[in]  neigh     Neigh structure
 **
 *****************************************************************************/
-GEOSLIB_API int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
+GSTLEARN_EXPORT int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
 {
   int    i,iech,jech,error,nvar,nfeq,nb_neigh,ecr,ndim,nred,neq;
   int   *indn0,*indnl,*indg0,*indgl;
@@ -4932,7 +4932,7 @@ label_end:
 ** \remark  This function erases any Weight variable already defined
 **
 *****************************************************************************/
-GEOSLIB_API int global_arithmetic(Db     *dbin,
+GSTLEARN_EXPORT int global_arithmetic(Db     *dbin,
                                   Db     *dbgrid,
                                   Model  *model,
                                   int     ivar,
@@ -5053,7 +5053,7 @@ label_end:
 **                       (Dimension: nvar * nech)
 **
 *****************************************************************************/
-GEOSLIB_API int global_kriging(Db*             dbin,
+GSTLEARN_EXPORT int global_kriging(Db*             dbin,
                                Db*             dbout,
                                Model*          model,
                                int             ivar,
@@ -5265,7 +5265,7 @@ label_end:
 ** \param[out]  cvtrans     CV transitive
 **
 *****************************************************************************/
-GEOSLIB_API int global_transitive(Db     *dbgrid,
+GSTLEARN_EXPORT int global_transitive(Db     *dbgrid,
                                   Model  *model,
                                   int     flag_verbose,
                                   int     flag_regular,
@@ -5679,7 +5679,7 @@ static void st_point_invdist(int     exponent,
 ** \param[in]  dmax        Maximum search radius (used only for Points Db)
 **
 *****************************************************************************/
-GEOSLIB_API int invdist_f(Db    *dbin,
+GSTLEARN_EXPORT int invdist_f(Db    *dbin,
                         Db    *dbout,
                         int    exponent,
                         int    flag_expand,
@@ -5983,7 +5983,7 @@ static double st_estim_exp(Db     *db,
 ** \param[in]  nfeq          0 or 1 drift function(s)
 **
 *****************************************************************************/
-GEOSLIB_API int anakexp_f(Db     *db,
+GSTLEARN_EXPORT int anakexp_f(Db     *db,
                         double *covdd,
                         double *covd0,
                         double  top,
@@ -6660,7 +6660,7 @@ static void st_vario_dump(FILE   *file,
 ** \remark  If dbg_ix < -1 || dbg_iy < -1, no variogram debug file is created
 **
 *****************************************************************************/
-GEOSLIB_API int anakexp_3D(Db     *db,
+GSTLEARN_EXPORT int anakexp_3D(Db     *db,
                            double *cov_ref,
                            int     cov_radius,
                            int     neigh_ver,
@@ -6900,7 +6900,7 @@ label_end:
 ** \remark the use of the routine matrix_cholesky_decompose
 **
 *****************************************************************************/
-GEOSLIB_API int bayes_simulate(Model  *model,
+GSTLEARN_EXPORT int bayes_simulate(Model  *model,
                                int     nbsimu,
                                double *rmean,
                                double *rcov,
@@ -6995,7 +6995,7 @@ label_end:
 ** \param[in]  range     Range (used for Gaussian only)
 **
 *****************************************************************************/
-GEOSLIB_API int image_smoother(Db    *dbgrid,
+GSTLEARN_EXPORT int image_smoother(Db    *dbgrid,
                                Neigh *neigh,
                                int    type,
                                double range)
@@ -7121,7 +7121,7 @@ label_end:
 ** \remark  - the constraints is stored in "f" (only used in dbout)
 **
 *****************************************************************************/
-GEOSLIB_API int krigsum_f(Db    *dbin,
+GSTLEARN_EXPORT int krigsum_f(Db    *dbin,
                         Db    *dbout,
                         Model *model,
                         Neigh *neigh,
@@ -7430,7 +7430,7 @@ static int st_check_constraint_seismic(int ix,
 ** \param[in]  neigh     Neigh structure (Unique or Bench)
 **
 *****************************************************************************/
-GEOSLIB_API int krigmvp_f(Db    *dbin,
+GSTLEARN_EXPORT int krigmvp_f(Db    *dbin,
                         Db    *db3grid,
                         Db    *db2grid,
                         int    fsum,
@@ -7779,7 +7779,7 @@ label_end:
 ** \param[out] nrhs_ret  Output number of RHS
 **
 *****************************************************************************/
-GEOSLIB_API int krigtest_dimension(Db*             dbin,
+GSTLEARN_EXPORT int krigtest_dimension(Db*             dbin,
                                    Db*             dbout,
                                    Model*          model,
                                    Neigh*          neigh,
@@ -7876,7 +7876,7 @@ label_end:
 ** \param[out] var_out   Output variance matrix (Dimension: nrhs_out * nrhs_out)
 **
 *****************************************************************************/
-GEOSLIB_API int krigtest_f(Db*             dbin,
+GSTLEARN_EXPORT int krigtest_f(Db*             dbin,
                            Db*             dbout,
                            Model*          model,
                            Neigh*          neigh,
@@ -8059,7 +8059,7 @@ static void st_transform_gaussian_to_raw(Anam *anam)
 ** \param[in]  neigh     Neigh structrue
 **
 *****************************************************************************/
-GEOSLIB_API int kriggam_f(Db    *dbin,
+GSTLEARN_EXPORT int kriggam_f(Db    *dbin,
                         Db    *dbout,
                         Anam  *anam,
                         Model *model,
@@ -8197,7 +8197,7 @@ label_end:
 ** \param[in]  rank_colcok Option for running Collocated Cokriging
 **
 *****************************************************************************/
-GEOSLIB_API int krigcell_f(Db    *dbin,
+GSTLEARN_EXPORT int krigcell_f(Db    *dbin,
                          Db    *dbout,
                          Model *model,
                          Neigh *neigh,
@@ -8423,7 +8423,7 @@ label_end:
 ** \remark of Panel into SMUs.
 **  
 *****************************************************************************/
-GEOSLIB_API int dk_f(Db *dbin,
+GSTLEARN_EXPORT int dk_f(Db *dbin,
                      Db *dbgrid,
                      Model *model,
                      Neigh *neigh,
@@ -8711,7 +8711,7 @@ label_end:
 ** \remark Dbin is modified so as to keep only the first Z-locator
 **
 *****************************************************************************/
-GEOSLIB_API int *neigh_calc(Db     *dbin,
+GSTLEARN_EXPORT int *neigh_calc(Db     *dbin,
                             Model  *model,
                             Neigh  *neigh,
                             double *target,
@@ -9329,7 +9329,7 @@ label_end:
 ** \param[in]  verbose    1 for a verbose output
 **
 *****************************************************************************/
-GEOSLIB_API int sampling_f(Db     *db,
+GSTLEARN_EXPORT int sampling_f(Db     *db,
                          Model  *model,
                          double  beta,
                          int     method1,
@@ -9464,7 +9464,7 @@ label_end:
 ** \param[in]  verbose    Verbose flag
 **
 *****************************************************************************/
-GEOSLIB_API int krigsampling_f(Db *dbin,
+GSTLEARN_EXPORT int krigsampling_f(Db *dbin,
                                Db *dbout,
                                Model *model,
                                double beta,
@@ -10052,7 +10052,7 @@ label_end:
 ** \param[in]  verbose   Verbose option
 **
 *****************************************************************************/
-GEOSLIB_API int declustering_f(Db     *dbin,
+GSTLEARN_EXPORT int declustering_f(Db     *dbin,
                              Model  *model,
                              Neigh  *neigh,
                              Db     *dbgrid,
@@ -10726,7 +10726,7 @@ static void st_drift_update(int     np,
 ** \param[in]  model_src   Model structure for the sources
 **
 *****************************************************************************/
-GEOSLIB_API int inhomogeneous_kriging(Db     *dbdat,
+GSTLEARN_EXPORT int inhomogeneous_kriging(Db     *dbdat,
                                       Db     *dbsrc,
                                       Db     *dbout,
                                       double  power,
@@ -11005,7 +11005,7 @@ label_end:
 ** \param[in]  neigh       Neigh structure
 **
 *****************************************************************************/
-GEOSLIB_API int defineGeneralNeigh(int mode,
+GSTLEARN_EXPORT int defineGeneralNeigh(int mode,
                                    Db* db,
                                    Model* model,
                                    Neigh* neigh)
@@ -11042,7 +11042,7 @@ GEOSLIB_API int defineGeneralNeigh(int mode,
 ** \remarks samples
 **
 *****************************************************************************/
-GEOSLIB_API VectorInt getGeneralNeigh(Db* db, Neigh* neigh, int iech)
+GSTLEARN_EXPORT VectorInt getGeneralNeigh(Db* db, Neigh* neigh, int iech)
 {
   int status, nech;
 

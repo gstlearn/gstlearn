@@ -1,5 +1,6 @@
-#ifndef _MACADDRESS_UTILITY_H
-#define _MACADDRESS_UTILITY_H
+#pragma once
+
+#include "gstlearn_export.hpp"
 
 #include <vector>
 #include <string>
@@ -34,7 +35,7 @@
 #endif
 
 
-class MacAddress {
+class GSTLEARN_EXPORT MacAddress {
 public:
   MacAddress(unsigned char* data, int size) : _data(NULL), _size(size) {
     _data = new unsigned char[_size]();
@@ -61,7 +62,7 @@ private:
   int _size;
 };
 
-class MACAddressUtility
+class GSTLEARN_EXPORT MACAddressUtility
 {
 public:
   static long GetMACAddress(std::vector<MacAddress>& result);
@@ -81,6 +82,4 @@ private:
 #endif
 
 };
-
-#endif
 

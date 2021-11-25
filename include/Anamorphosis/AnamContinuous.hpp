@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/Vector.hpp"
@@ -28,7 +29,7 @@ typedef struct {
   VectorDouble pzlim;
 } AnamContinuousFit;
 
-class AnamContinuous: public Anam
+class GSTLEARN_EXPORT AnamContinuous: public Anam
 {
 public:
   AnamContinuous(const EAnam& type = EAnam::UNDEFINED);

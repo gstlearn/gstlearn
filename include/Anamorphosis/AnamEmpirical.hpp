@@ -10,12 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
-
 #include "Basic/Interval.hpp"
 #include "Basic/Vector.hpp"
 
-class AnamEmpirical: public AnamContinuous
+class GSTLEARN_EXPORT AnamEmpirical: public AnamContinuous
 {
 private:
   int    _nDisc;

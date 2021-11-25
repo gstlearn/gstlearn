@@ -12,13 +12,16 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/EPowerPT.hpp"
+
 #include <map>
 
 class APolynomial;
-class PrecisionOp {
+
+class GSTLEARN_EXPORT PrecisionOp {
 
 public:
   PrecisionOp(ShiftOpCs* shiftop = nullptr,

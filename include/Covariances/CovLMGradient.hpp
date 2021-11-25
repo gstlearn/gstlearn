@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 
@@ -18,7 +19,7 @@ class SpacePoint;
 class CovGradientNumerical;
 class CovCalcMode;
 
-class CovLMGradient : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMGradient : public ACovAnisoList
 {
 public:
   CovLMGradient(const ASpace* space = nullptr);

@@ -103,7 +103,7 @@ static int st_facies(PropDef *propdef,
 ** \param[in]  nbsimu    Number of simulations 
 **
 *****************************************************************************/
-GEOSLIB_API void simu_func_categorical_transf(Db  *db,
+GSTLEARN_EXPORT void simu_func_categorical_transf(Db  *db,
                                               int  verbose,
                                               int  isimu,
                                               int  nbsimu)
@@ -129,7 +129,7 @@ GEOSLIB_API void simu_func_categorical_transf(Db  *db,
 ** \param[in]  nbsimu    Number of simulations (stored)
 **
 *****************************************************************************/
-GEOSLIB_API void simu_func_continuous_update(Db  *db,
+GSTLEARN_EXPORT void simu_func_continuous_update(Db  *db,
                                              int  verbose,
                                              int  isimu,
                                              int  nbsimu)
@@ -169,7 +169,7 @@ GEOSLIB_API void simu_func_continuous_update(Db  *db,
 ** \param[in]  nbsimu    Number of simulations (stored)
 **
 *****************************************************************************/
-GEOSLIB_API void simu_func_categorical_update(Db  *db,
+GSTLEARN_EXPORT void simu_func_categorical_update(Db  *db,
                                               int  verbose,
                                               int  isimu,
                                               int  nbsimu)
@@ -210,7 +210,7 @@ GEOSLIB_API void simu_func_categorical_update(Db  *db,
 ** \param[in]  nbsimu    Number of simulations
 **
 *****************************************************************************/
-GEOSLIB_API void simu_func_continuous_scale(Db  *db,
+GSTLEARN_EXPORT void simu_func_continuous_scale(Db  *db,
                                             int  verbose,
                                             int  nbsimu)
 {
@@ -247,7 +247,7 @@ GEOSLIB_API void simu_func_continuous_scale(Db  *db,
 ** \param[in]  nbsimu    Number of simulations
 **
 *****************************************************************************/
-GEOSLIB_API void simu_func_categorical_scale(Db  *db,
+GSTLEARN_EXPORT void simu_func_categorical_scale(Db  *db,
                                              int  verbose,
                                              int  nbsimu)
 {
@@ -290,7 +290,7 @@ GEOSLIB_API void simu_func_categorical_scale(Db  *db,
 ** \param[in]  locatorType  Mandatory attribute type
 **
 *****************************************************************************/
-GEOSLIB_API void check_mandatory_attribute(const char *method,
+GSTLEARN_EXPORT void check_mandatory_attribute(const char *method,
                                            Db* db,
                                            const ELoc& locatorType)
 {
@@ -3306,7 +3306,7 @@ static int st_simtub_process(Db     *dbin,
   if (flag_cond)
   {
     st_title_process(string,"Conditioning by Kriging");
-    if (krigsim(string,dbin,dbout,model,neigh,dmean,dcov,icase,
+    if (_krigsim(string,dbin,dbout,model,neigh,dmean,dcov,icase,
                 nbsimu,FLAG_DGM,R_COEFF)) goto label_end;
   }
   else
@@ -3354,7 +3354,7 @@ label_end:
 ** \param[in]  delta     Value of the increment
 **
 *****************************************************************************/
-GEOSLIB_API int simtub_potential(Db     *dbiso,
+GSTLEARN_EXPORT int simtub_potential(Db     *dbiso,
                                  Db     *dbgrd,
                                  Db     *dbtgt,
                                  Db     *dbout,
@@ -3465,7 +3465,7 @@ label_end:
 ** \remark  be defined only for conditional simulations
 **
  *****************************************************************************/
-GEOSLIB_API int simtub(Db *dbin,
+GSTLEARN_EXPORT int simtub(Db *dbin,
                        Db *dbout,
                        Model *model,
                        Neigh *neigh,
@@ -3551,7 +3551,7 @@ label_end:
 ** \remark  be defined only for conditional simulations
 **
 *****************************************************************************/
-GEOSLIB_API int simdgm(Db    *dbin,
+GSTLEARN_EXPORT int simdgm(Db    *dbin,
                        Db    *dbout,
                        Model *model,
                        Neigh *neigh,
@@ -3640,7 +3640,7 @@ label_end:
 ** \remark  be defined only for conditional simulations
 **
 *****************************************************************************/
-GEOSLIB_API int simbayes(Db     *dbin,
+GSTLEARN_EXPORT int simbayes(Db     *dbin,
                          Db     *dbout,
                          Model  *model,
                          Neigh  *neigh,
@@ -3710,7 +3710,7 @@ label_end:
 ** \param[in]  igrf       Rank of the Gaussian
 **
 *****************************************************************************/
-GEOSLIB_API int get_rank_from_propdef(PropDef *propdef,
+GSTLEARN_EXPORT int get_rank_from_propdef(PropDef *propdef,
                                       int    ipgs,
                                       int    igrf)
 {
@@ -3872,7 +3872,7 @@ static void st_init_gibbs_params(double rho)
 ** \remark  conditional simulations
 **
 *****************************************************************************/
-GEOSLIB_API int simpgs(Db *dbin,
+GSTLEARN_EXPORT int simpgs(Db *dbin,
                        Db *dbout,
                        RuleProp* ruleprop,
                        Model *model1,
@@ -4213,7 +4213,7 @@ label_end:
 ** \remark  f1af2a, f1bf2a, f1cf2a, ..., f1bf2a, f1bf2b, ..., f1nf2m
 **
 *****************************************************************************/
-GEOSLIB_API int simbipgs(Db       *dbin,
+GSTLEARN_EXPORT int simbipgs(Db       *dbin,
                          Db       *dbout,
                          RuleProp *ruleprop,
                          Model    *model11,
@@ -4620,7 +4620,7 @@ label_end:
 ** \param[out] iptr_cstd_arg Pointer to the Conditional St. Dev. attributes
 **
 *****************************************************************************/
-GEOSLIB_API int db_simulations_to_ce(Db    *db,
+GSTLEARN_EXPORT int db_simulations_to_ce(Db    *db,
                                      const ELoc& locatorType,
                                      int    nbsimu,
                                      int    nvar,
@@ -4745,7 +4745,7 @@ label_end:
 ** \param[in]  namconv     Naming convention
 **
 *****************************************************************************/
-GEOSLIB_API int gibbs_sampler(Db     *dbin,
+GSTLEARN_EXPORT int gibbs_sampler(Db     *dbin,
                               Model  *model,
                               Neigh  *neigh,
                               int     nbsimu,
@@ -4947,7 +4947,7 @@ label_end:
 ** \endcode
 ** 
 *****************************************************************************/
-GEOSLIB_API int simtub_constraints(Db       *dbin,
+GSTLEARN_EXPORT int simtub_constraints(Db       *dbin,
                                    Db       *dbout,
                                    Model    *model,
                                    Neigh    *neigh,
@@ -5177,7 +5177,7 @@ static void st_maxstable_combine(Db     *dbout,
 ** \remarks keypair mechanism with keyword "MaxStableThresh".
 **
 *****************************************************************************/
-GEOSLIB_API int simmaxstable(Db    *dbout,
+GSTLEARN_EXPORT int simmaxstable(Db    *dbout,
                              Model *model,
                              double ratio,
                              int    seed,
@@ -5346,7 +5346,7 @@ static double st_quantile(Db     *dbout,
 ** \param[in]  verbose   Verbose flag
 **
 *****************************************************************************/
-GEOSLIB_API int simRI(Db     *dbout,
+GSTLEARN_EXPORT int simRI(Db     *dbout,
                       Model  *model,
                       int     ncut,
                       double *zcut,
@@ -5520,7 +5520,7 @@ label_end:
 ** \remark  should correspond to the facies index (starting from 1)
 **
 *****************************************************************************/
-GEOSLIB_API int simpgs_spde(Db       *dbin,
+GSTLEARN_EXPORT int simpgs_spde(Db       *dbin,
                             Db       *dbout,
                             RuleProp *ruleprop,
                             Model    *model1,
@@ -5744,7 +5744,7 @@ label_end:
 ** \param[in]  model    Model structure
 **
 *****************************************************************************/
-GEOSLIB_API int simtub_workable(Model  *model)
+GSTLEARN_EXPORT int simtub_workable(Model  *model)
 
 {
   int workable;
@@ -5812,7 +5812,7 @@ GEOSLIB_API int simtub_workable(Model  *model)
 ** \remarks it is generated internally.
 **
 *****************************************************************************/
-GEOSLIB_API int simcond(Db    *dbin,
+GSTLEARN_EXPORT int simcond(Db    *dbin,
                         Db    *dbout,
                         Model *model,
                         int    seed,

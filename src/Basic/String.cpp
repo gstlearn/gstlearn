@@ -33,91 +33,98 @@
  * @param match Initial matching pattern
  * @return The std::regex item used for further comparisons
  */
-std::regex _protectRegexp(const String& match)
+std::regex _protectRegexp(const String &match)
 {
   String str = match;
   std::size_t found = str.find('*');
   if (found != String::npos)
   {
-    if (found == 0 || str[found-1] != '.') str.insert(found,".");
+    if (found == 0 || str[found - 1] != '.') str.insert(found, ".");
   }
   std::regex regexpr(str);
 
   return regexpr;
 }
 
-
-String toUpper(const String& string)
+GSTLEARN_EXPORT String toUpper(const String &string)
 {
   String str = string;
   toUpper(str);
   return (str);
 }
 
-String toLower(const String& string)
+GSTLEARN_EXPORT String toLower(const String &string)
 {
   String str = string;
   toLower(str);
   return (str);
 }
 
-void toUpper(String& string)
+GSTLEARN_EXPORT void toUpper(String &string)
 {
-  std::for_each(string.begin(), string.end(), [](char & c){
-      c = ::toupper(c);
+  std::for_each(string.begin(), string.end(), [](char &c)
+  {
+    c = ::toupper(c);
   });
 }
 
-void toLower(String& string)
+GSTLEARN_EXPORT void toLower(String &string)
 {
-  std::for_each(string.begin(), string.end(), [](char & c){
-      c = ::tolower(c);
+  std::for_each(string.begin(), string.end(), [](char &c)
+  {
+    c = ::tolower(c);
   });
 }
 
-enum charTypeT{ other, alpha, digit};
+enum charTypeT
+{
+  other,
+  alpha,
+  digit
+};
 
-charTypeT _charType(char c){
-    if(isdigit(c))return digit;
-    if(isalpha(c))return alpha;
-    return other;
+charTypeT _charType(char c)
+{
+  if (isdigit(c)) return digit;
+  if (isalpha(c)) return alpha;
+  return other;
 }
 
-String incrementStringVersion(const String& string,
-                              int rank,
-                              const String& delim)
+GSTLEARN_EXPORT String incrementStringVersion(const String &string,
+                                              int rank,
+                                              const String &delim)
 {
   std::stringstream ss;
   ss << string << delim << rank;
   return ss.str();
 }
 
-String concatenateStrings(const String& delim,
-                          const String& string1,
-                          const String& string2,
-                          const String& string3,
-                          const String& string4)
+GSTLEARN_EXPORT String concatenateStrings(const String &delim,
+                                          const String &string1,
+                                          const String &string2,
+                                          const String &string3,
+                                          const String &string4)
 {
   bool started = false;
   std::stringstream ss;
-  if (! string1.empty())
+  if (!string1.empty())
   {
     started = true;
     ss << string1;
   }
-  if (! string2.empty())
+  if (!string2.empty())
   {
     if (started) ss << delim;
     ss << string2;
     started = true;
   }
-  if (! string3.empty())
+  if (!string3.empty())
   {
     if (started) ss << delim;
     ss << string3;
     started = true;
   }
-  if (! string4.empty())
+  if (!string4.empty())
   {
     if (started) ss << delim;
     ss << string4;
@@ -126,14 +133,14 @@ String concatenateStrings(const String& delim,
   return ss.str();
 }
 
-VectorString generateMultipleNames(const String& radix,
-                                   int number)
+GSTLEARN_EXPORT VectorString generateMultipleNames(const String &radix,
+                                                   int number)
 {
   VectorString list;
 
   for (int i = 0; i < number; i++)
   {
-    list.push_back(incrementStringVersion(radix, i+1));
+    list.push_back(incrementStringVersion(radix, i + 1));
   }
   return list;
 }
@@ -144,10 +151,10 @@ VectorString generateMultipleNames(const String& radix,
  * @param list
  * @return Number of items whose names are modified
  */
-int correctNamesForDuplicates(VectorString& list)
+GSTLEARN_EXPORT int correctNamesForDuplicates(VectorString &list)
 {
   int numberRenamed = 0;
-  int number = static_cast<int> (list.size());
+  int number = static_cast<int>(list.size());
   for (int i = 1; i < number; i++)
   {
     // Check that a similar name does not appear among the previous names in list
@@ -168,24 +175,24 @@ int correctNamesForDuplicates(VectorString& list)
   return numberRenamed;
 }
 
-void correctNewNameForDuplicates(VectorString& list, int rank)
+GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString &list, int rank)
 {
-   int number = static_cast<int> (list.size());
-   int found = 1;
-   while (found > 0)
-   {
-     found = 0;
-     for (int i = 0; i < number; i++)
-     {
-       if (i == rank) continue;
-       if (list[rank].compare(list[i]) == 0) found++;
-     }
-     if (found <= 0) break;;
+  int number = static_cast<int>(list.size());
+  int found = 1;
+  while (found > 0)
+  {
+    found = 0;
+    for (int i = 0; i < number; i++)
+    {
+      if (i == rank) continue;
+      if (list[rank].compare(list[i]) == 0) found++;
+    }
+    if (found <= 0) break;;
 
-     // We have found a similar name
+    // We have found a similar name
 
-     list[rank] = incrementStringVersion(list[rank]);
-   }
+    list[rank] = incrementStringVersion(list[rank]);
+  }
 }
 
 /**
@@ -195,11 +202,11 @@ void correctNewNameForDuplicates(VectorString& list, int rank)
  * @param caseSensitive Case Sensitive flag
  * @return The index of the matching item or -1
  */
-int getRankInList(const VectorString& list,
-                  const String& match,
-                  bool caseSensitive)
+GSTLEARN_EXPORT int getRankInList(const VectorString &list,
+                                  const String &match,
+                                  bool caseSensitive)
 {
-  for (int i = 0; i< (int) list.size(); i++)
+  for (int i = 0; i < (int) list.size(); i++)
   {
     if (matchRegexp(list[i], match, caseSensitive)) return i;
   }
@@ -216,10 +223,10 @@ int getRankInList(const VectorString& list,
  * @param caseSensitive
  * @return Error returned code
  */
-int decodeInString(const String& symbol,
-                   const String& node,
-                   int *facies,
-                   bool caseSensitive)
+GSTLEARN_EXPORT int decodeInString(const String &symbol,
+                                   const String &node,
+                                   int *facies,
+                                   bool caseSensitive)
 {
   String locnode = node;
   String locsymb = symbol;
@@ -255,11 +262,11 @@ int decodeInString(const String& symbol,
  * @param caseSensitive
  * @return Error returned code
  */
-int decodeInList(const VectorString& symbols,
-                 const String& node,
-                 int *rank,
-                 int *facies,
-                 bool caseSensitive)
+GSTLEARN_EXPORT int decodeInList(const VectorString &symbols,
+                                 const String &node,
+                                 int *rank,
+                                 int *facies,
+                                 bool caseSensitive)
 {
   String local = node;
 
@@ -280,11 +287,13 @@ int decodeInList(const VectorString& symbols,
  * Otherwise, both strings are converted into upper case before comparison
  * @return true if both keywords are identical; false otherwise
  */
-bool matchRegexp(const String& string1, const String& string2, bool caseSensitive)
+GSTLEARN_EXPORT bool matchRegexp(const String &string1,
+                                 const String &string2,
+                                 bool caseSensitive)
 {
   String local1 = string1;
   String local2 = string2;
-  if (! caseSensitive)
+  if (!caseSensitive)
   {
     toUpper(local1);
     toUpper(local2);
@@ -302,11 +311,13 @@ bool matchRegexp(const String& string1, const String& string2, bool caseSensitiv
  * Otherwise, both strings are converted into upper case before comparison
  * @return true if both keywords are identical; false otherwise
  */
-bool matchKeyword(const String& string1, const String& string2, bool caseSensitive)
+GSTLEARN_EXPORT bool matchKeyword(const String &string1,
+                                  const String &string2,
+                                  bool caseSensitive)
 {
   String local1 = string1;
   String local2 = string2;
-  if (! caseSensitive)
+  if (!caseSensitive)
   {
     toUpper(local1);
     toUpper(local2);
@@ -324,29 +335,29 @@ bool matchKeyword(const String& string1, const String& string2, bool caseSensiti
  *       several matches have been found but onlyOne flag is True (message issued).
  * @remark Example:  expandList(["x", "y", "xcol"], "x.*") -> ("x", "xcol")
  */
-VectorString expandList(const VectorString& list,
-                        const String& match,
-                        bool onlyOne)
+GSTLEARN_EXPORT VectorString expandList(const VectorString &list,
+                                        const String &match,
+                                        bool onlyOne)
 {
   std::regex regexpr = _protectRegexp(match);
 
   VectorString sublist;
-  for (int i = 0; i< (int) list.size(); i++)
+  for (int i = 0; i < (int) list.size(); i++)
   {
     String toto = list[i];
-    if (std::regex_match(toto, regexpr))
-      sublist.push_back(toto);
+    if (std::regex_match(toto, regexpr)) sublist.push_back(toto);
   }
 
-  int number = static_cast<int> (sublist.size());
+  int number = static_cast<int>(sublist.size());
   if (onlyOne && number != 1)
   {
     if (number > 1)
     {
-      messerr("The name (%s) has been expanded to several matching possibilities",
-              match.c_str());
+      messerr(
+          "The name (%s) has been expanded to several matching possibilities",
+          match.c_str());
       for (int i = 0; i < (int) sublist.size(); i++)
-        messerr("- %s",sublist[i].c_str());
+        messerr("- %s", sublist[i].c_str());
     }
     else
       messerr("The name (%s) does not have any matching possibility",
@@ -357,17 +368,17 @@ VectorString expandList(const VectorString& list,
   return sublist;
 }
 
-VectorString expandList(const VectorString& list,
-                        const VectorString& matches)
+GSTLEARN_EXPORT VectorString expandList(const VectorString &list,
+                                        const VectorString &matches)
 {
   VectorString sublist;
 
   // Loop on the eligible names
-  for (int i = 0; i< (int) list.size(); i++)
+  for (int i = 0; i < (int) list.size(); i++)
   {
     // Loop on the target names
     bool found = false;
-    for (int j = 0; j < (int) matches.size() && ! found; j++)
+    for (int j = 0; j < (int) matches.size() && !found; j++)
     {
       std::regex regexpr = _protectRegexp(matches[j]);
       if (std::regex_match(list[i], regexpr)) found = true;
@@ -382,13 +393,13 @@ VectorString expandList(const VectorString& list,
  * @param list List of strings
  * @return The maximum number of characters
  */
-int getMaxStringSize(const VectorString& list)
+GSTLEARN_EXPORT int getMaxStringSize(const VectorString &list)
 {
   int size = 0;
   if (list.empty()) return size;
   for (int i = 0; i < (int) list.size(); i++)
   {
-    int local = static_cast<int> (list[i].length());
+    int local = static_cast<int>(list[i].length());
     if (local > size) size = local;
   }
   return size;
@@ -400,16 +411,16 @@ int getMaxStringSize(const VectorString& list)
  * @param code String to be split
  * @return
  */
-VectorString separateKeywords(const String& code)
+GSTLEARN_EXPORT VectorString separateKeywords(const String &code)
 {
   VectorString result;
   String oString = "";
   charTypeT st = other;
   for (auto c : code)
   {
-    if ((st == alpha && _charType(c) != alpha) ||
-        (st == digit && _charType(c) != digit) ||
-        (st == other && _charType(c) != other))
+    if ((st == alpha && _charType(c) != alpha) || (st == digit
+        && _charType(c) != digit)
+        || (st == other && _charType(c) != other))
     {
       if (oString.size() > 0) result.push_back(oString);
       oString = "";
@@ -426,7 +437,7 @@ VectorString separateKeywords(const String& code)
  * @param v String to be decoded
  * @return The integer value or ITEST (in case of failure)
  */
-int toInt(const String& v)
+GSTLEARN_EXPORT int toInt(const String &v)
 {
   std::istringstream iss(v);
   int number;
@@ -443,11 +454,15 @@ int toInt(const String& v)
  * @param dec Decimal separator character
  * @return The double value or TEST (in case of failure)
  */
-template <typename T>
-class dec_separator : public std::numpunct<T>
+template<typename T>
+class dec_separator: public std::numpunct<T>
 {
 public:
-  dec_separator(char dec = ',') : _dec(dec) {}
+  dec_separator(char dec = ',')
+      :
+      _dec(dec)
+  {
+  }
 private:
   typename std::numpunct<T>::char_type do_decimal_point() const
   {
@@ -456,7 +471,7 @@ private:
   char _dec;
 };
 
-double toDouble(const String& v, char dec)
+GSTLEARN_EXPORT double toDouble(const String &v, char dec)
 {
   std::istringstream iss(v);
   double number;
@@ -468,14 +483,14 @@ double toDouble(const String& v, char dec)
     return number;
 }
 
-String toString(int value)
+GSTLEARN_EXPORT String toString(int value)
 {
   std::stringstream sstr;
   sstr << value;
   return sstr.str();
 }
 
-String toString(double value)
+GSTLEARN_EXPORT String toString(double value)
 {
   std::stringstream sstr;
   sstr << value;
@@ -488,12 +503,11 @@ String toString(double value)
  * @param defval Default value (or IFFFF)
  * @param authTest True if TEST value is authorized (TEST)
  */
-int askInt(const String& text, int defval, bool authTest)
+GSTLEARN_EXPORT int askInt(const String &text, int defval, bool authTest)
 {
-  bool hasDefault = ! IFFFF(defval) || authTest;
+  bool hasDefault = !IFFFF(defval) || authTest;
   int answer = defval;
-  std::cin.exceptions(std::istream::failbit|
-                      std::istream::badbit);
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 
   try
   {
@@ -524,10 +538,10 @@ int askInt(const String& text, int defval, bool authTest)
       // Check the TEST answer
 
       if (authTest && str == "TEST")
-       {
-         answer = ITEST;
-         break;
-       }
+      {
+        answer = ITEST;
+        break;
+      }
 
       // Try casting in integer
       std::stringstream ss(str);
@@ -536,7 +550,7 @@ int askInt(const String& text, int defval, bool authTest)
       std::cout << "The answer is not a valid integer!" << std::endl;
     }
   }
-  catch(std::istream::failure& e)
+  catch (std::istream::failure &e)
   {
     std::cerr << "Problem when reading integer:" << e.what() << std::endl;
   }
@@ -549,12 +563,13 @@ int askInt(const String& text, int defval, bool authTest)
  * @param defval Default value (or IFFFF)
  * @param authTest True if a TEST answer is authorized (TEST)
  */
-double askDouble(const String& text, double defval, bool authTest)
+GSTLEARN_EXPORT double askDouble(const String &text,
+                                 double defval,
+                                 bool authTest)
 {
-  bool hasDefault = ! FFFF(defval) || authTest;
+  bool hasDefault = !FFFF(defval) || authTest;
   double answer = defval;
-  std::cin.exceptions(std::istream::failbit|
-                      std::istream::badbit);
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 
   try
   {
@@ -596,7 +611,7 @@ double askDouble(const String& text, double defval, bool authTest)
       std::cout << "The answer is not a valid double!" << std::endl;
     }
   }
-  catch(std::istream::failure& e)
+  catch (std::istream::failure &e)
   {
     std::cerr << "Problem when reading double:" << e.what() << std::endl;
   }
@@ -608,12 +623,11 @@ double askDouble(const String& text, double defval, bool authTest)
  * @param text Text of the question
  * @param defval Default value
  */
-int askBool(const String& text, bool defval)
+GSTLEARN_EXPORT int askBool(const String &text, bool defval)
 {
-  bool hasDefault = ! IFFFF(defval);
+  bool hasDefault = !IFFFF(defval);
   bool answer = defval;
-  std::cin.exceptions(std::istream::failbit|
-                      std::istream::badbit);
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 
   try
   {
@@ -658,36 +672,36 @@ int askBool(const String& text, bool defval)
       std::cout << "The answer is not a valid bool!" << std::endl;
     }
   }
-  catch(std::istream::failure& e)
+  catch (std::istream::failure &e)
   {
     std::cerr << "Problem when reading bool:" << e.what() << std::endl;
   }
   return answer;
 }
 
-String trimRight(const String& s, const String& t)
+GSTLEARN_EXPORT String trimRight(const String &s, const String &t)
 {
   String d(s);
-  String::size_type i(d.find_last_not_of (t));
+  String::size_type i(d.find_last_not_of(t));
   if (i == String::npos)
     return "";
   else
-    return d.erase(d.find_last_not_of (t) + 1);
+    return d.erase(d.find_last_not_of(t) + 1);
 }
 
-String trimLeft(const String& s, const String& t)
+GSTLEARN_EXPORT String trimLeft(const String &s, const String &t)
 {
   String d(s);
-  return d.erase(0, s.find_first_not_of (t));
+  return d.erase(0, s.find_first_not_of(t));
 }
 
-String trim(const String& s, const String& t)
+GSTLEARN_EXPORT String trim(const String &s, const String &t)
 {
   String d(s);
   return trimLeft(trimRight(d, t), t);
 }
 
-String erase(const String& s, const String& t)
+GSTLEARN_EXPORT String erase(const String &s, const String &t)
 {
   String d(s);
   for (unsigned int i = 0; i < t.size(); i++)
@@ -695,14 +709,14 @@ String erase(const String& s, const String& t)
   return d;
 }
 
-char* gslStrcpy(char* dst, const char* src)
+GSTLEARN_EXPORT char* gslStrcpy(char *dst, const char *src)
 {
   return strcpy(dst, src);
   //(void)gslSPrintf(dst, "%s", src);
   //return dst;
 }
 
-char* gslStrcat(char* dst, const char* src)
+GSTLEARN_EXPORT char* gslStrcat(char *dst, const char *src)
 {
   return strcat(dst, src);
 //  size_t size = String(dst).size();
@@ -710,7 +724,7 @@ char* gslStrcat(char* dst, const char* src)
 //  return dst;
 }
 
-int gslSPrintf(char* dst, const char* fmt, ...)
+GSTLEARN_EXPORT int gslSPrintf(char *dst, const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -719,7 +733,7 @@ int gslSPrintf(char* dst, const char* fmt, ...)
   return n;
 }
 
-int gslScanf(const char* format, ...)
+GSTLEARN_EXPORT int gslScanf(const char *format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -728,7 +742,7 @@ int gslScanf(const char* format, ...)
   return n;
 }
 
-int gslSScanf(const char* str, const char* format, ...)
+GSTLEARN_EXPORT int gslSScanf(const char *str, const char *format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -737,7 +751,7 @@ int gslSScanf(const char* str, const char* format, ...)
   return n;
 }
 
-int gslFScanf(FILE* stream, const char* format, ...)
+GSTLEARN_EXPORT int gslFScanf(FILE *stream, const char *format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -746,12 +760,12 @@ int gslFScanf(FILE* stream, const char* format, ...)
   return n;
 }
 
-char* gslStrtok(char* str, const char* delim)
+GSTLEARN_EXPORT char* gslStrtok(char *str, const char *delim)
 {
   return strtok(str, delim);
 }
 
-char* gslStrncpy(char* dest, const char* src, size_t n)
+GSTLEARN_EXPORT char* gslStrncpy(char *dest, const char *src, size_t n)
 {
   return strncpy(dest, src, n);
 }

@@ -1,4 +1,3 @@
-
 /******************************************************************************/
 /* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
@@ -144,9 +143,9 @@ typedef struct
   VectorDouble srot;
 } SPDE_Calcul;
 
-static void (*SIMU_FUNC_TRANSF)(Db *, int, int, int) = NULL;
-static void (*SIMU_FUNC_UPDATE)(Db *, int, int, int) = NULL;
-static void (*SIMU_FUNC_SCALE)(Db *, int, int) = NULL;
+static void (*SIMU_FUNC_TRANSF)(Db*, int, int, int) = NULL;
+static void (*SIMU_FUNC_UPDATE)(Db*, int, int, int) = NULL;
+static void (*SIMU_FUNC_SCALE)(Db*, int, int) = NULL;
 
 /*! \endcond */
 static int DEBUG = 0;
@@ -198,7 +197,7 @@ static void st_matelem_print(int icov)
 {
   static const char *NOK[] = { "OFF", "ON" };
 
-  const SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
+  const SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
 
   mestitle(1, "Contents of Matelem structure #%d", icov + 1);
   message("S is defined:      %s\n", NOK[Matelem.S != NULL]);
@@ -220,23 +219,23 @@ static void st_matelem_print(int icov)
  ** \param[in]  triswitch   String defining the meshing characteristics
  **
  *****************************************************************************/
-GEOSLIB_API void spde_option_update(SPDE_Option& s_option,
-                                    const String& triswitch)
+GSTLEARN_EXPORT void spde_option_update(SPDE_Option &s_option,
+                                        const String &triswitch)
 {
   /* Add a new SPDE_SS_Option structure */
 
-   int noption = static_cast<int> (s_option.options.size());
+  int noption = static_cast<int>(s_option.options.size());
 
-   /* Resize the array 'options' */
+  /* Resize the array 'options' */
 
-   s_option.options.resize(noption+1);
+  s_option.options.resize(noption + 1);
 
-   /* Initialize this new 'SPDE_SS_Option' structure */
+  /* Initialize this new 'SPDE_SS_Option' structure */
 
-   SPDE_SS_Option ss_option = s_option.options[noption];
-   s_option.options[noption].mesh_dbin = 0;
-   s_option.options[noption].mesh_dbout = 0;
-   s_option.options[noption].triswitch = triswitch;
+  SPDE_SS_Option ss_option = s_option.options[noption];
+  s_option.options[noption].mesh_dbin = 0;
+  s_option.options[noption].mesh_dbout = 0;
+  s_option.options[noption].triswitch = triswitch;
 }
 
 /****************************************************************************/
@@ -244,7 +243,7 @@ GEOSLIB_API void spde_option_update(SPDE_Option& s_option,
  **  Manage the SPDE_Option structure
  **
  *****************************************************************************/
-GEOSLIB_API SPDE_Option spde_option_alloc(void)
+GSTLEARN_EXPORT SPDE_Option spde_option_alloc(void)
 {
   SPDE_Option s_option;
 
@@ -291,7 +290,7 @@ static int st_get_current_igrf(void)
  **  Get the pointer to the current SPDE_SS_Environ structure
  **
  *****************************************************************************/
-static SPDE_SS_Environ *st_get_current_ssenv(void)
+static SPDE_SS_Environ* st_get_current_ssenv(void)
 {
   return (MATGRF(st_get_current_igrf()));
 }
@@ -313,10 +312,10 @@ static int st_get_current_icov(void)
  ** \param[in]  s_option   SPDE_Option structure
  **
  *****************************************************************************/
-static String st_get_current_triswitch(SPDE_Option& s_option)
+static String st_get_current_triswitch(SPDE_Option &s_option)
 {
   int rank_cov = st_get_current_icov();
-  int noption = static_cast<int> (s_option.options.size());
+  int noption = static_cast<int>(s_option.options.size());
   int rank = MIN(rank_cov, noption - 1);
   String triswitch = s_option.options[rank].triswitch;
   return (triswitch);
@@ -329,7 +328,7 @@ static String st_get_current_triswitch(SPDE_Option& s_option)
  ** \param[in] icov    Rank of the target Covariance (or -1)
  **
  *****************************************************************************/
-GEOSLIB_API SPDE_Matelem& spde_get_current_matelem(int icov)
+GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(int icov)
 {
   if (icov < 0)
     return (st_get_current_ssenv()->Matelems[st_get_current_icov()]);
@@ -360,10 +359,10 @@ static void st_title(int flag_igrf, int flag_icov, int rank, const char *title)
     (void) gslStrcpy(string_encode, "(");
     if (flag_igrf)
       (void) gslSPrintf(string_encode, "%s GRF:%d", string_encode,
-                     st_get_current_igrf() + 1);
+                        st_get_current_igrf() + 1);
     if (flag_icov)
       (void) gslSPrintf(string_encode, "%s - COV:%d", string_encode,
-                     st_get_current_icov() + 1);
+                        st_get_current_icov() + 1);
     (void) gslSPrintf(string_encode, "%s ) %s", string_encode, title);
   }
   else
@@ -386,7 +385,7 @@ static void st_title(int flag_igrf, int flag_icov, int rank, const char *title)
 
  **
  *****************************************************************************/
-static Model *st_get_model(void)
+static Model* st_get_model(void)
 {
   return (st_get_current_ssenv()->model);
 }
@@ -438,7 +437,7 @@ static void st_environ_init(void)
  ** \param[in]  mgs        cs_MGS to be freed (only for mode=-1)
  **
  *****************************************************************************/
-static cs_MGS *st_mgs_manage(int mode, cs_MGS *mgs)
+static cs_MGS* st_mgs_manage(int mode, cs_MGS *mgs)
 {
   int nlevels, path_type, flag_cg, ngc, nmg, ngs, type_coarse;
   double tolcg, tolnmg;
@@ -453,7 +452,7 @@ static cs_MGS *st_mgs_manage(int mode, cs_MGS *mgs)
     nlevels = (int) get_keypone("Multigrid_Number_Levels", 0);
     path_type = (int) get_keypone("Multigrid_Path_Type", 1);
     mgs = cs_multigrid_manage(NULL, 1, nlevels, path_type);
-    if (mgs == (cs_MGS *) NULL) return (mgs);
+    if (mgs == (cs_MGS*) NULL) return (mgs);
     flag_cg = (int) get_keypone("Flag_CG", 1);
     type_coarse = (int) get_keypone("Multigrid_Coarse", 0);
     ngc = (int) get_keypone("Multigrid_ngc", 100);
@@ -484,7 +483,7 @@ static cs_MGS *st_mgs_manage(int mode, cs_MGS *mgs)
  ** \param[in]  s_mesh_old Pointer to SPDE_Mesh to be deallocated
  **
  *****************************************************************************/
-GEOSLIB_API SPDE_Mesh *spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
+GSTLEARN_EXPORT SPDE_Mesh* spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
 {
   SPDE_Mesh *s_mesh;
 
@@ -499,7 +498,7 @@ GEOSLIB_API SPDE_Mesh *spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
 
     /* Allocation */
 
-    s_mesh = (SPDE_Mesh *) mem_alloc(sizeof(SPDE_Mesh), 0);
+    s_mesh = (SPDE_Mesh*) mem_alloc(sizeof(SPDE_Mesh), 0);
     if (s_mesh == nullptr) return (s_mesh);
     s_mesh->ndim = 0;
     s_mesh->ncorner = 0;
@@ -517,11 +516,11 @@ GEOSLIB_API SPDE_Mesh *spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
 
     if (s_mesh_old == nullptr) return (NULL);
     s_mesh = s_mesh_old;
-    s_mesh->meshes = (int *) mem_free((char * ) s_mesh->meshes);
-    s_mesh->points = (double *) mem_free((char * ) s_mesh->points);
+    s_mesh->meshes = (int*) mem_free((char* ) s_mesh->meshes);
+    s_mesh->points = (double*) mem_free((char* ) s_mesh->points);
     s_mesh->vertype = vertype_manage(-1, s_mesh->vertype, NULL, 0);
     s_mesh->vercoloc = vercoloc_manage(0, -1, NULL, NULL, 0, s_mesh->vercoloc);
-    s_mesh = (SPDE_Mesh *) mem_free((char * ) s_mesh);
+    s_mesh = (SPDE_Mesh*) mem_free((char* ) s_mesh);
   }
   return (s_mesh);
 }
@@ -533,10 +532,10 @@ GEOSLIB_API SPDE_Mesh *spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
  ** \param[in]  st_simu_transf  Pointer to the transformation function
  **
  *****************************************************************************/
-GEOSLIB_API void simu_define_func_transf(void (*st_simu_transf)(Db *,
-                                                                int,
-                                                                int,
-                                                                int))
+GSTLEARN_EXPORT void simu_define_func_transf(void (*st_simu_transf)(Db*,
+                                                                    int,
+                                                                    int,
+                                                                    int))
 {
   SIMU_FUNC_TRANSF = st_simu_transf;
 }
@@ -549,10 +548,10 @@ GEOSLIB_API void simu_define_func_transf(void (*st_simu_transf)(Db *,
  ** \param[in]  st_simu_update  Pointer to the update function
  **
  *****************************************************************************/
-GEOSLIB_API void simu_define_func_update(void (*st_simu_update)(Db *,
-                                                                int,
-                                                                int,
-                                                                int))
+GSTLEARN_EXPORT void simu_define_func_update(void (*st_simu_update)(Db*,
+                                                                    int,
+                                                                    int,
+                                                                    int))
 {
   SIMU_FUNC_UPDATE = st_simu_update;
 }
@@ -564,7 +563,9 @@ GEOSLIB_API void simu_define_func_update(void (*st_simu_update)(Db *,
  ** \param[in]  st_simu_scale  Pointer to the scaling function
  **
  *****************************************************************************/
-GEOSLIB_API void simu_define_func_scale(void (*st_simu_scale)(Db *, int, int))
+GSTLEARN_EXPORT void simu_define_func_scale(void (*st_simu_scale)(Db*,
+                                                                  int,
+                                                                  int))
 {
   SIMU_FUNC_SCALE = st_simu_scale;
 }
@@ -594,10 +595,10 @@ static int st_is_model_nugget(void)
  **  Returns the pointer to structure containing the Nugget Effect (or NULL)
  **
  *****************************************************************************/
-static CovAniso *st_get_nugget(void)
+static CovAniso* st_get_nugget(void)
 {
-  Model* model;
-  CovAniso* cova;
+  Model *model;
+  CovAniso *cova;
 
   model = st_get_model();
 
@@ -614,11 +615,11 @@ static CovAniso *st_get_nugget(void)
  **  Returns the pointer to the structure
  **
  *****************************************************************************/
-static CovAniso *st_get_cova(void)
+static CovAniso* st_get_cova(void)
 
 {
-  Model* model;
-  CovAniso* cova;
+  Model *model;
+  CovAniso *cova;
   int is0, jcov;
 
   model = st_get_model();
@@ -734,7 +735,7 @@ static void st_set_filnug(int flag_filnug)
 static double st_get_isill(int icov, int ivar, int jvar)
 {
   int nvar = st_get_nvar();
-  const SPDE_Matelem& Maticov = spde_get_current_matelem(icov);
+  const SPDE_Matelem &Maticov = spde_get_current_matelem(icov);
   double value = Maticov.Isill[(jvar) + nvar * (ivar)];
   return (value);
 }
@@ -752,8 +753,8 @@ static void st_clean_Bhetero(void)
 
   /* Clean the vector of number of data / target per variable */
 
-  SS->ndata1 = (int *) mem_free((char * ) SS->ndata1);
-  SS->ntarget1 = (int *) mem_free((char * ) SS->ntarget1);
+  SS->ndata1 = (int*) mem_free((char* ) SS->ndata1);
+  SS->ntarget1 = (int*) mem_free((char* ) SS->ntarget1);
 
   /* Clean the sparse matrices for heterotopy at data points */
 
@@ -761,7 +762,7 @@ static void st_clean_Bhetero(void)
   {
     for (int ivar = 0; ivar < st_get_nvar(); ivar++)
       SS->BheteroD[ivar] = cs_spfree(SS->BheteroD[ivar]);
-    SS->BheteroD = (cs **) mem_free((char * ) SS->BheteroD);
+    SS->BheteroD = (cs**) mem_free((char* ) SS->BheteroD);
   }
 
   /* Clean the sparse matrices for heterotopy at targets */
@@ -770,7 +771,7 @@ static void st_clean_Bhetero(void)
   {
     for (int ivar = 0; ivar < st_get_nvar(); ivar++)
       SS->BheteroT[ivar] = cs_spfree(SS->BheteroT[ivar]);
-    SS->BheteroT = (cs **) mem_free((char * ) SS->BheteroT);
+    SS->BheteroT = (cs**) mem_free((char* ) SS->BheteroT);
   }
 }
 
@@ -788,7 +789,7 @@ static void st_clean_Bnugget(void)
   {
     for (int i = 0; i < st_get_nvs2(); i++)
       SS->Bnugget[i] = cs_spfree(SS->Bnugget[i]);
-    SS->Bnugget = (cs **) mem_free((char * ) SS->Bnugget);
+    SS->Bnugget = (cs**) mem_free((char* ) SS->Bnugget);
   }
 }
 
@@ -843,9 +844,9 @@ static int st_is_duplicated(Vercoloc *vercoloc, int mode, int iech)
  ** \remarks The returned array is numbered starting from 1
  **
  *****************************************************************************/
-GEOSLIB_API int *vercoloc_get_dbin_indices(Vertype *vertype,
-                                           Vercoloc *vercoloc,
-                                           int *nbnodup)
+GSTLEARN_EXPORT int* vercoloc_get_dbin_indices(Vertype *vertype,
+                                               Vercoloc *vercoloc,
+                                               int *nbnodup)
 {
   int *indice, nech, pos, ndupl;
 
@@ -859,7 +860,7 @@ GEOSLIB_API int *vercoloc_get_dbin_indices(Vertype *vertype,
 
   /* Core allocation */
 
-  indice = (int *) mem_alloc(sizeof(int) * nech, 0);
+  indice = (int*) mem_alloc(sizeof(int) * nech, 0);
   if (indice == nullptr) return (indice);
   for (int i = 0; i < nech; i++)
     indice[i] = 0;
@@ -992,8 +993,8 @@ static void st_qchol_print(const char *title, QChol *QC)
 
   if (title != NULL) message("%s\n", title);
   cs_rowcol(QC->Q, &nrows, &ncols, &count, &percent);
-  message("- Nrows(%d) x Ncols(%d) - Non-zeros(%d) [%6.2lf (percent)]",
-          nrows, ncols, count, percent);
+  message("- Nrows(%d) x Ncols(%d) - Non-zeros(%d) [%6.2lf (percent)]", nrows,
+          ncols, count, percent);
   if (QC->S != NULL || QC->N != NULL) message(" (Cholesky)");
   message("\n");
 }
@@ -1050,7 +1051,7 @@ static int st_count_vertype(Vertype *vertype, int vertype_auth)
  ** \remarks The Cholesky decomposition is performed (if possible)
  **
  *****************************************************************************/
-static cs *st_extract_Q_from_Q(cs *Q_in,
+static cs* st_extract_Q_from_Q(cs *Q_in,
                                Vertype *vertype,
                                int row_auth,
                                int col_auth)
@@ -1065,9 +1066,9 @@ static cs *st_extract_Q_from_Q(cs *Q_in,
 
   /* Core allocation */
 
-  rank_rows = (int *) mem_alloc(sizeof(int) * vertype->nvertex, 0);
+  rank_rows = (int*) mem_alloc(sizeof(int) * vertype->nvertex, 0);
   if (rank_rows == nullptr) goto label_end;
-  rank_cols = (int *) mem_alloc(sizeof(int) * vertype->nvertex, 0);
+  rank_cols = (int*) mem_alloc(sizeof(int) * vertype->nvertex, 0);
   if (rank_cols == nullptr) goto label_end;
 
   /* Fill the index vectors */
@@ -1091,8 +1092,8 @@ static cs *st_extract_Q_from_Q(cs *Q_in,
   error = 0;
 
   label_end: if (error) Q = cs_spfree(Q);
-  rank_rows = (int *) mem_free((char * ) rank_rows);
-  rank_cols = (int *) mem_free((char * ) rank_cols);
+  rank_rows = (int*) mem_free((char* ) rank_rows);
+  rank_cols = (int*) mem_free((char* ) rank_cols);
   return (Q);
 }
 
@@ -1109,7 +1110,7 @@ static cs *st_extract_Q_from_Q(cs *Q_in,
  ** \param[in]  col_auth  Specification for columns extraction
  **
  *****************************************************************************/
-static QChol *st_extract_QC_from_Q(const char *title,
+static QChol* st_extract_QC_from_Q(const char *title,
                                    QChol *QC_in,
                                    Vertype *vertype,
                                    int row_auth,
@@ -1187,7 +1188,7 @@ static void st_vertype_print(Vertype *vertype)
  ** \param[in]  qsimu       QSimu structure
  **
  *****************************************************************************/
-static QSimu *st_qsimu_manage(int mode, SPDE_Mesh *s_mesh, QSimu *qsimu)
+static QSimu* st_qsimu_manage(int mode, SPDE_Mesh *s_mesh, QSimu *qsimu)
 {
   int error;
 
@@ -1201,7 +1202,7 @@ static QSimu *st_qsimu_manage(int mode, SPDE_Mesh *s_mesh, QSimu *qsimu)
   {
     case 1: /* Allocation */
       if (VERBOSE) st_title(0, 0, 1, "Building Environment");
-      qsimu = (QSimu *) mem_alloc(sizeof(QSimu), 0);
+      qsimu = (QSimu*) mem_alloc(sizeof(QSimu), 0);
       if (qsimu == nullptr) return (qsimu);
 
       /* Extract sub-matrices */
@@ -1227,7 +1228,7 @@ static QSimu *st_qsimu_manage(int mode, SPDE_Mesh *s_mesh, QSimu *qsimu)
       if (qsimu == nullptr) return (qsimu);
       qsimu->QCtt = qchol_manage(-1, qsimu->QCtt);
       qsimu->QCtd = qchol_manage(-1, qsimu->QCtd);
-      qsimu = (QSimu *) mem_free((char * ) qsimu);
+      qsimu = (QSimu*) mem_free((char* ) qsimu);
       break;
   }
 
@@ -1251,7 +1252,7 @@ static QSimu *st_qsimu_manage(int mode, SPDE_Mesh *s_mesh, QSimu *qsimu)
  ** \param[in]  QC         Pointer to the QChol structure (when mode < 0)
  **
  *****************************************************************************/
-GEOSLIB_API QChol *qchol_manage(int mode, QChol *QC)
+GSTLEARN_EXPORT QChol* qchol_manage(int mode, QChol *QC)
 {
 
   /* Dispatch */
@@ -1259,7 +1260,7 @@ GEOSLIB_API QChol *qchol_manage(int mode, QChol *QC)
   switch (mode)
   {
     case 1: /* Allocation */
-      QC = (QChol *) mem_alloc(sizeof(QChol), 1);
+      QC = (QChol*) mem_alloc(sizeof(QChol), 1);
       QC->Q = nullptr;
       QC->S = nullptr;
       QC->N = nullptr;
@@ -1270,7 +1271,7 @@ GEOSLIB_API QChol *qchol_manage(int mode, QChol *QC)
       QC->Q = cs_spfree(QC->Q);
       QC->S = cs_sfree(QC->S);
       QC->N = cs_nfree(QC->N);
-      QC = (QChol *) mem_free((char * ) QC);
+      QC = (QChol*) mem_free((char* ) QC);
       break;
   }
   return (QC);
@@ -1289,7 +1290,7 @@ GEOSLIB_API QChol *qchol_manage(int mode, QChol *QC)
  *****************************************************************************/
 static double st_get_nugget_sill(int ivar, int jvar)
 {
-  CovAniso* cova = st_get_nugget();
+  CovAniso *cova = st_get_nugget();
   if (cova == nullptr)
     return (TEST);
   else
@@ -1309,7 +1310,7 @@ static double st_get_nugget_sill(int ivar, int jvar)
  *****************************************************************************/
 static double st_get_cova_sill(int ivar, int jvar)
 {
-  CovAniso* cova = st_get_cova();
+  CovAniso *cova = st_get_cova();
   return (cova->getSill(ivar, jvar));
 }
 
@@ -1353,8 +1354,8 @@ static int st_get_ncova_max(void)
 static int st_get_ncova(void)
 
 {
-  Model* model;
-  CovAniso* cova;
+  Model *model;
+  CovAniso *cova;
   int ncova;
 
   ncova = 0;
@@ -1464,7 +1465,7 @@ static double st_get_sill_total(int ivar, int jvar)
 {
   double total = 0.;
 
-  CovAniso* cova = st_get_nugget();
+  CovAniso *cova = st_get_nugget();
   if (cova != nullptr) total += cova->getSill(ivar, jvar);
 
   for (int icov = 0; icov < st_get_ncova(); icov++)
@@ -1500,7 +1501,8 @@ static void st_keypair_array(const char *name, int iter, double *tab)
       if (iter < 0)
         (void) gslSPrintf(NAME, "%s.%d.%d", name, icov + 1, ivar + 1);
       else
-        (void) gslSPrintf(NAME, "%s.%d.%d.%d", name, iter + 1, icov + 1, ivar + 1);
+        (void) gslSPrintf(NAME, "%s.%d.%d.%d", name, iter + 1, icov + 1,
+                          ivar + 1);
       set_keypair(NAME, 1, ncur, 1, &TAB(icov, ivar, 0));
     }
 }
@@ -1549,7 +1551,7 @@ static void st_print_all(const char *title)
   /* Initializations */
 
   int ndim = st_get_ndim();
-  CovAniso* cova = st_get_cova();
+  CovAniso *cova = st_get_cova();
 
   /* Print the title */
 
@@ -1557,8 +1559,8 @@ static void st_print_all(const char *title)
 
   /* Global parameters */
 
-  message("Rank of the GRF       = %d\n",  st_get_current_igrf() + 1);
-  message("Rank of the structure = %d\n",  st_get_current_icov() + 1);
+  message("Rank of the GRF       = %d\n", st_get_current_igrf() + 1);
+  message("Rank of the structure = %d\n", st_get_current_icov() + 1);
   message("Param                 = %lf\n", st_get_cova_param());
   message("Alpha                 = %lf\n", st_get_cova_param() + ndim / 2.);
   message("Total Sill            = %lf\n", st_get_sill_total(0, 0));
@@ -1577,7 +1579,7 @@ static void st_print_all(const char *title)
 
   /* Linear combination */
 
-  int nblin = static_cast<int> (Calcul.blin.size());
+  int nblin = static_cast<int>(Calcul.blin.size());
   message("Number of terms in Linear Combination         = %d\n", nblin);
   print_matrix("Coefficients of the Linear Combination", 0, 1, 1, nblin, NULL,
                Calcul.blin.data());
@@ -1598,7 +1600,7 @@ static void st_compute_correc(void)
   Calcul.correc = value;
 }
 
-GEOSLIB_API double spde_compute_correc(int ndim, double param)
+GSTLEARN_EXPORT double spde_compute_correc(int ndim, double param)
 
 {
   double g0, ndims2, gammap, gammaa, value;
@@ -1642,8 +1644,8 @@ static void st_compute_blin(void)
   {
     /* Core allocation */
 
-    v = (double *) mem_alloc(sizeof(double) * ndimp, 1);
-    m = (double *) mem_alloc(sizeof(double) * ndimp * ndimp, 1);
+    v = (double*) mem_alloc(sizeof(double) * ndimp, 1);
+    m = (double*) mem_alloc(sizeof(double) * ndimp * ndimp, 1);
     tp = ut_pascal(ndimp);
 
     for (int idim = 0; idim < ndimp; idim++)
@@ -1666,9 +1668,9 @@ static void st_compute_blin(void)
 
   /* Core deallocation */
 
-  v = (double *) mem_free((char * ) v);
-  m = (double *) mem_free((char * ) m);
-  tp = (double *) mem_free((char * ) tp);
+  v = (double*) mem_free((char* ) v);
+  m = (double*) mem_free((char* ) m);
+  tp = (double*) mem_free((char* ) tp);
 }
 
 /****************************************************************************/
@@ -1684,7 +1686,7 @@ static void st_compute_hh()
   /* Initializations */
 
   int ndim = st_get_ndim();
-  CovAniso* cova = st_get_cova();
+  CovAniso *cova = st_get_cova();
   VectorDouble temp(ndim * ndim, 0.);
 
   /* Processing */
@@ -1695,8 +1697,8 @@ static void st_compute_hh()
     if (Calcul.flag_sphere) scale /= Calcul.R;
     TEMP(ndim,i,i) = scale * scale;
   }
-  matrix_prod_norme(1, ndim, ndim, cova->getAnisoRotMatVec().data(), temp.data(),
-                    Calcul.hh.data());
+  matrix_prod_norme(1, ndim, ndim, cova->getAnisoRotMatVec().data(),
+                    temp.data(), Calcul.hh.data());
 }
 
 /****************************************************************************/
@@ -1710,7 +1712,7 @@ static void st_calcul_init(int ndim)
 
   Calcul.sqdeth = 0.;
   Calcul.correc = 0.;
-  Calcul.R      = 0.;
+  Calcul.R = 0.;
   Calcul.hh.resize(ndim * ndim, 0.);
   if (Calcul.flag_sphere)
   {
@@ -1732,7 +1734,7 @@ static void st_calcul_update(void)
   // Check that the structure has already been initiated
 
   if (Calcul.hh.size() <= 0)
-    my_throw("You should run 'st_calcul_init' beforehand");
+  my_throw("You should run 'st_calcul_init' beforehand");
 
   // Calculate the 'correc' term (from 'param')
   st_compute_correc();
@@ -1790,7 +1792,7 @@ static void st_convert_exponential2bessel(CovAniso *cova)
  ** \param[in]  model        Model structure
  **
  *****************************************************************************/
-GEOSLIB_API int spde_attach_model(Model *model)
+GSTLEARN_EXPORT int spde_attach_model(Model *model)
 
 {
   CovAniso *cova;
@@ -1852,7 +1854,7 @@ GEOSLIB_API int spde_attach_model(Model *model)
 
   if (st_get_nvar() > 1)
   {
-    const ANoStat* nostat = st_get_model()->getNoStat();
+    const ANoStat *nostat = st_get_model()->getNoStat();
     if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
@@ -1874,9 +1876,9 @@ GEOSLIB_API int spde_attach_model(Model *model)
  ** \param[in]  model        Model structure
  **
  *****************************************************************************/
-static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
+static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
 {
-  CovAniso* cova;
+  CovAniso *cova;
   int ndim, nvar, flag_mult_data, flag_nugget;
   double silltot, nugval;
 
@@ -1905,7 +1907,8 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
     }
     else
     {
-      if (dbin->getVariableNumber() != nvar && S_DECIDE.flag_case != CASE_MATRICES
+      if (dbin->getVariableNumber() != nvar && S_DECIDE.flag_case
+          != CASE_MATRICES
           && !S_DECIDE.flag_gibbs)
       {
         messerr(
@@ -1991,7 +1994,7 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
 
   if (st_get_nvar() > 1)
   {
-    const ANoStat* nostat = model->getNoStat();
+    const ANoStat *nostat = model->getNoStat();
     if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
@@ -2020,9 +2023,12 @@ static int st_check_model(const Db *dbin,const Db *dbout, Model *model)
  ** \remark The nugget effect corresponds to rank (-1)
  **
  *****************************************************************************/
-static int st_identify_nostat_param(int icov0, const EConsElem& type0, int ivar0, int jvar0)
+static int st_identify_nostat_param(int icov0,
+                                    const EConsElem &type0,
+                                    int ivar0,
+                                    int jvar0)
 {
-  const ANoStat* nostat = st_get_model()->getNoStat();
+  const ANoStat *nostat = st_get_model()->getNoStat();
   if (nostat == nullptr) return -1;
   int igrf0 = st_get_current_igrf();
   int ipar = nostat->getRank(igrf0, icov0, type0, ivar0, jvar0);
@@ -2090,7 +2096,8 @@ static double st_simu_constraints(Db *db,
   vmax = db->getUpperBound(iech, igrf);
   ratio =
       (iter0 < ngibbs_burn) ? (double) (ngibbs_burn - iter0 - 1) / (double) (iter0
-                                  + 1) : 0.;
+                                  + 1) :
+                              0.;
   if (FFFF(vmin))
     delta = ABS(vmax);
   else if (FFFF(vmax))
@@ -2218,7 +2225,7 @@ static void st_gibbs(int igrf,
 static void st_save_result(Vertype *vertype,
                            double *z,
                            Db *dbout,
-                           const ELoc& locatorType,
+                           const ELoc &locatorType,
                            int iatt_simu)
 {
   int iech, lec, ecr;
@@ -2478,7 +2485,7 @@ static void st_vertype_load(Vertype *vertype,
                             Vercoloc *vercoloc,
                             Db *dbin,
                             Db *dbout,
-                            SPDE_Option& s_option)
+                            SPDE_Option &s_option)
 {
   int ecr, ijoint, vertype_loc, ngibbs;
 
@@ -2566,10 +2573,10 @@ static void st_vertype_load(Vertype *vertype,
  ** \param[in]  nvertex    Number of vertices
  **
  *****************************************************************************/
-GEOSLIB_API Vertype *vertype_manage(int mode,
-                                    Vertype *vertype,
-                                    Vercoloc *vercoloc,
-                                    int nvertex)
+GSTLEARN_EXPORT Vertype* vertype_manage(int mode,
+                                        Vertype *vertype,
+                                        Vercoloc *vercoloc,
+                                        int nvertex)
 {
   int error, ngibbs;
 
@@ -2581,18 +2588,18 @@ GEOSLIB_API Vertype *vertype_manage(int mode,
 
     /* Allocation */
 
-    vertype = (Vertype *) mem_alloc(sizeof(Vertype), 0);
+    vertype = (Vertype*) mem_alloc(sizeof(Vertype), 0);
     if (vertype == nullptr) return (vertype);
     vertype->nvertex = nvertex;
     vertype->ngibbs = ngibbs = 0;
     vertype->vt = nullptr;
     vertype->r_g = nullptr;
     vertype->r_abs = nullptr;
-    vertype->vt = (int *) mem_alloc(sizeof(int) * nvertex, 0);
+    vertype->vt = (int*) mem_alloc(sizeof(int) * nvertex, 0);
     if (vertype->vt == nullptr) goto label_end;
-    vertype->r_g = (int *) mem_alloc(sizeof(int) * nvertex, 0);
+    vertype->r_g = (int*) mem_alloc(sizeof(int) * nvertex, 0);
     if (vertype->r_g == nullptr) goto label_end;
-    vertype->r_abs = (int *) mem_alloc(sizeof(int) * nvertex, 0);
+    vertype->r_abs = (int*) mem_alloc(sizeof(int) * nvertex, 0);
     if (vertype->r_abs == nullptr) goto label_end;
     for (int i = 0; i < vertype->nvertex; i++)
       vertype->vt[i] = VT_OTHER | VT_FREE;
@@ -2603,10 +2610,10 @@ GEOSLIB_API Vertype *vertype_manage(int mode,
     /* Deallocation */
 
     if (vertype == nullptr) return (vertype);
-    vertype->r_g = (int *) mem_free((char * ) vertype->r_g);
-    vertype->r_abs = (int *) mem_free((char * ) vertype->r_abs);
-    vertype->vt = (int *) mem_free((char * ) vertype->vt);
-    vertype = (Vertype *) mem_free((char * ) vertype);
+    vertype->r_g = (int*) mem_free((char* ) vertype->r_g);
+    vertype->r_abs = (int*) mem_free((char* ) vertype->r_abs);
+    vertype->vt = (int*) mem_free((char* ) vertype->vt);
+    vertype = (Vertype*) mem_free((char* ) vertype);
   }
 
   /* Set the error return code */
@@ -2734,7 +2741,7 @@ static int st_filter(double *work, double *y)
  ** \param[out] vcur     Output array
  **
  *****************************************************************************/
-GEOSLIB_API int spde_build_stdev(double *vcur)
+GSTLEARN_EXPORT int spde_build_stdev(double *vcur)
 {
   int *wZdiagp, *wLmunch, error, nzmax, ntarget;
   double *d2, *wz, *diag, *z;
@@ -2745,7 +2752,7 @@ GEOSLIB_API int spde_build_stdev(double *vcur)
   /* Initializations */
 
   error = 1;
-  SPDE_Matelem& Matelem = spde_get_current_matelem(-1);
+  SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
   s_mesh = Matelem.s_mesh;
   QCtt = Matelem.qsimu->QCtt;
   wZdiagp = wLmunch = nullptr;
@@ -2775,20 +2782,21 @@ GEOSLIB_API int spde_build_stdev(double *vcur)
   /* Core allocation */
 
   nzmax = Pattern->nzmax;
-  z = (double *) mem_alloc(sizeof(double) * ntarget, 0);
+  z = (double*) mem_alloc(sizeof(double) * ntarget, 0);
   if (z == nullptr) goto label_end;
-  wz = (double *) mem_alloc(sizeof(double) * nzmax, 0);
+  wz = (double*) mem_alloc(sizeof(double) * nzmax, 0);
   if (wz == nullptr) goto label_end;
-  wZdiagp = (int *) mem_alloc(sizeof(int) * nzmax, 0);
+  wZdiagp = (int*) mem_alloc(sizeof(int) * nzmax, 0);
   if (wZdiagp == nullptr) goto label_end;
-  wLmunch = (int *) mem_alloc(sizeof(int) * nzmax, 0);
+  wLmunch = (int*) mem_alloc(sizeof(int) * nzmax, 0);
   if (wLmunch == nullptr) goto label_end;
   for (int i = 0; i < nzmax; i++)
     wz[i] = 0.;
 
   if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2, LDinv->p, LDinv->i,
                 LDinv->x, Pattern->p, Pattern->i, Pattern->x, wz, wZdiagp,
-                wLmunch) == -1) goto label_end;
+                wLmunch)
+      == -1) goto label_end;
 
   /* Extracting the diagonal of wz */
 
@@ -2802,12 +2810,12 @@ GEOSLIB_API int spde_build_stdev(double *vcur)
 
   error = 0;
 
-  label_end: wZdiagp = (int *) mem_free((char * ) wZdiagp);
-  wLmunch = (int *) mem_free((char * ) wLmunch);
-  wz = (double *) mem_free((char * ) wz);
-  d2 = (double *) mem_free((char * ) d2);
-  diag = (double *) mem_free((char * ) diag);
-  z = (double *) mem_free((char * ) z);
+  label_end: wZdiagp = (int*) mem_free((char* ) wZdiagp);
+  wLmunch = (int*) mem_free((char* ) wLmunch);
+  wz = (double*) mem_free((char* ) wz);
+  d2 = (double*) mem_free((char* ) d2);
+  diag = (double*) mem_free((char* ) diag);
+  z = (double*) mem_free((char* ) z);
   Dinv = cs_spfree(Dinv);
   LDinv = cs_spfree(LDinv);
   TLDinv = cs_spfree(TLDinv);
@@ -2826,7 +2834,7 @@ GEOSLIB_API int spde_build_stdev(double *vcur)
  ** \remark The array returned by this function must be deallocated
  **
  *****************************************************************************/
-GEOSLIB_API double *spde_get_mesh_dimension(MeshEStandard *amesh)
+double* _spde_get_mesh_dimension(MeshEStandard *amesh)
 
 {
   double *units, mat[9];
@@ -2842,7 +2850,7 @@ GEOSLIB_API double *spde_get_mesh_dimension(MeshEStandard *amesh)
 
   /* Core allocation */
 
-  units = (double *) mem_alloc(sizeof(double) * nmesh, 0);
+  units = (double*) mem_alloc(sizeof(double) * nmesh, 0);
   if (units == nullptr) return (units);
 
   /* Dispatch */
@@ -2882,11 +2890,11 @@ GEOSLIB_API double *spde_get_mesh_dimension(MeshEStandard *amesh)
  ** \param[in]  imesh0    Rank of the current mesh
  **
  *****************************************************************************/
-static void st_calcul_update_nostat(MeshEStandard* amesh, int imesh0)
+static void st_calcul_update_nostat(MeshEStandard *amesh, int imesh0)
 
 {
-  Model* model = st_get_model();
-  const ANoStat* nostat = model->getNoStat();
+  Model *model = st_get_model();
+  const ANoStat *nostat = model->getNoStat();
 
   /* Initializations */
 
@@ -2965,11 +2973,11 @@ static int st_fill_Isill(void)
   nvar2 = nvar * nvar;
   mcova = nullptr;
   icov = st_get_current_icov();
-  SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
+  SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
 
   /* Core allocation */
 
-  mcova = (double *) mem_alloc(sizeof(double) * nvar2, 0);
+  mcova = (double*) mem_alloc(sizeof(double) * nvar2, 0);
   if (mcova == nullptr) goto label_end;
 
   /* Load the sill of the covariance */
@@ -2991,7 +2999,7 @@ static int st_fill_Isill(void)
 
   error = 0;
 
-  label_end: if (error) mcova = (double *) mem_free((char * ) mcova);
+  label_end: if (error) mcova = (double*) mem_free((char* ) mcova);
   Matelem.Isill = mcova;
   return (error);
 }
@@ -3020,11 +3028,11 @@ static int st_fill_Csill(void)
   nvs2 = nvar * (nvar + 1) / 2;
   mcova = nullptr;
   icov = st_get_current_icov();
-  SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
+  SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
 
   /* Core allocation */
 
-  mcova = (double *) mem_alloc(sizeof(double) * nvs2, 0);
+  mcova = (double*) mem_alloc(sizeof(double) * nvs2, 0);
   if (mcova == nullptr) goto label_end;
 
   /* Load the sills of continuous covariance elements */
@@ -3041,7 +3049,7 @@ static int st_fill_Csill(void)
 
   error = 0;
 
-  label_end: if (error) mcova = (double *) mem_free((char * ) mcova);
+  label_end: if (error) mcova = (double*) mem_free((char* ) mcova);
   Matelem.Csill = mcova;
   return (error);
 }
@@ -3082,7 +3090,8 @@ static int st_fill_Bnugget(Db *dbin)
   /* In the non-stationary case, identify the rank of the parameter */
   /* which corresponds to the sill of the nugget effect */
 
-  flag_nostat_sillnug = st_identify_nostat_param(-1, EConsElem::SILL, -1, -1) >= 0;
+  flag_nostat_sillnug = st_identify_nostat_param(-1, EConsElem::SILL, -1, -1)
+      >= 0;
   if (flag_nostat_sillnug)
   {
     messerr("Non-stationarity on nugget sill values not programmed yet");
@@ -3092,13 +3101,13 @@ static int st_fill_Bnugget(Db *dbin)
   /* Core allocation */
 
   size = ndata * nvs2;
-  local = (double *) mem_alloc(sizeof(double) * nvar2, 0);
+  local = (double*) mem_alloc(sizeof(double) * nvar2, 0);
   if (local == nullptr) goto label_end;
-  local0 = (double *) mem_alloc(sizeof(double) * nvar2, 0);
+  local0 = (double*) mem_alloc(sizeof(double) * nvar2, 0);
   if (local0 == nullptr) goto label_end;
-  ind = (int *) mem_alloc(sizeof(int) * ndata, 0);
+  ind = (int*) mem_alloc(sizeof(int) * ndata, 0);
   if (ind == nullptr) goto label_end;
-  mat = (double *) mem_alloc(sizeof(double) * size, 0);
+  mat = (double*) mem_alloc(sizeof(double) * size, 0);
   if (mat == nullptr) goto label_end;
   for (int i = 0; i < size; i++)
     mat[i] = 0.;
@@ -3187,7 +3196,7 @@ static int st_fill_Bnugget(Db *dbin)
 
   /* Define the sparse matrices */
 
-  Bnugget = (cs **) mem_alloc(sizeof(cs *) * nvs2, 0);
+  Bnugget = (cs**) mem_alloc(sizeof(cs*) * nvs2, 0);
   if (Bnugget == nullptr) goto label_end;
   for (int ivs2 = 0; ivs2 < nvs2; ivs2++)
     Bnugget[ivs2] = nullptr;
@@ -3207,10 +3216,10 @@ static int st_fill_Bnugget(Db *dbin)
   label_end: if (error) st_clean_Bnugget();
   st_get_current_ssenv()->Bnugget = Bnugget;
   st_get_current_ssenv()->ndata = ndata;
-  ind = (int *) mem_free((char * ) ind);
-  local = (double *) mem_free((char * ) local);
-  local0 = (double *) mem_free((char * ) local0);
-  mat = (double *) mem_free((char * ) mat);
+  ind = (int*) mem_free((char* ) ind);
+  local = (double*) mem_free((char* ) local);
+  local0 = (double*) mem_free((char* ) local0);
+  mat = (double*) mem_free((char* ) mat);
   return (error);
 }
 
@@ -3235,7 +3244,7 @@ static int st_fill_Bnugget(Db *dbin)
  ** \remarks Dimension: nvertex
  **
  *****************************************************************************/
-static int *st_get_vertex_ranks(SPDE_Mesh *s_mesh, Db *dbin, Db *dbout)
+static int* st_get_vertex_ranks(SPDE_Mesh *s_mesh, Db *dbin, Db *dbout)
 {
   Vertype *vertype;
   int *ranks, nvertex, ndata, ngrid;
@@ -3248,7 +3257,7 @@ static int *st_get_vertex_ranks(SPDE_Mesh *s_mesh, Db *dbin, Db *dbout)
 
   /* Core allocation */
 
-  ranks = (int *) mem_alloc(sizeof(int) * nvertex, 0);
+  ranks = (int*) mem_alloc(sizeof(int) * nvertex, 0);
   if (ranks == nullptr) return (ranks);
 
   /* Identify the vertices */
@@ -3301,7 +3310,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
   BheteroD = BheteroT = nullptr;
   Btriplet = nullptr;
   ranks = ndata1 = ntarget1 = nullptr;
-  SPDE_Matelem& Mat1 = spde_get_current_matelem(0);
+  SPDE_Matelem &Mat1 = spde_get_current_matelem(0);
   s_mesh = Mat1.s_mesh;
   nvertex = s_mesh->nvertex;
 
@@ -3312,19 +3321,19 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
 
   /* Define the sparse matrices */
 
-  ndata1 = (int *) mem_alloc(sizeof(int) * nvar, 0);
+  ndata1 = (int*) mem_alloc(sizeof(int) * nvar, 0);
   if (ndata1 == nullptr) goto label_end;
   for (int ivar = 0; ivar < nvar; ivar++)
     ndata1[ivar] = 0;
-  ntarget1 = (int *) mem_alloc(sizeof(int) * nvar, 0);
+  ntarget1 = (int*) mem_alloc(sizeof(int) * nvar, 0);
   if (ntarget1 == nullptr) goto label_end;
   for (int ivar = 0; ivar < nvar; ivar++)
     ntarget1[ivar] = 0;
-  BheteroD = (cs **) mem_alloc(sizeof(cs *) * nvar, 0);
+  BheteroD = (cs**) mem_alloc(sizeof(cs*) * nvar, 0);
   if (BheteroD == nullptr) goto label_end;
   for (int ivar = 0; ivar < nvar; ivar++)
     BheteroD[ivar] = nullptr;
-  BheteroT = (cs **) mem_alloc(sizeof(cs *) * nvar, 0);
+  BheteroT = (cs**) mem_alloc(sizeof(cs*) * nvar, 0);
   if (BheteroT == nullptr) goto label_end;
   for (int ivar = 0; ivar < nvar; ivar++)
     BheteroT[ivar] = nullptr;
@@ -3350,7 +3359,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
       ndata1[ivar]++;
       iech = ranks[i] - 1;
       value = (FFFF(dbin->getVariable(iech, ivar))) ? 0. :
-                                                   1.;
+                                                      1.;
       if (!cs_entry(Btriplet, iech, i, value)) goto label_end;
     }
     // Add a fictitious sample (zero value) as a dimension constraint
@@ -3428,7 +3437,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
   st_get_current_ssenv()->ndata = ndata;
   st_get_current_ssenv()->ndata1 = ndata1;
   st_get_current_ssenv()->ntarget1 = ntarget1;
-  ranks = (int *) mem_free((char * ) ranks);
+  ranks = (int*) mem_free((char* ) ranks);
   if (error) st_clean_Bhetero();
   return (error);
 }
@@ -3565,7 +3574,7 @@ static void st_tangent_calculate(double center[3],
  ** \param[in]  units     Array containing the mesh dimensions
  **
  *****************************************************************************/
-GEOSLIB_API cs *spde_fill_S(MeshEStandard* amesh, Model* model, double* units)
+cs* _spde_fill_S(MeshEStandard *amesh, Model *model, double *units)
 {
   double vald, mat[16], matu[16], matw[16], matinvw[16], mat1[16];
   double xyz[3][3], center[3], axes[2][3], matv[3], coeff[3][2];
@@ -3711,7 +3720,7 @@ GEOSLIB_API cs *spde_fill_S(MeshEStandard* amesh, Model* model, double* units)
  ** \param[in]  units     Array containing the element units
  **
  *****************************************************************************/
-GEOSLIB_API VectorDouble spde_fill_TildeC(MeshEStandard *amesh, double *units)
+VectorDouble _spde_fill_TildeC(MeshEStandard *amesh, double *units)
 {
   VectorDouble tildec, cumunit;
   int nvertex = amesh->getNApices();
@@ -3758,22 +3767,22 @@ GEOSLIB_API VectorDouble spde_fill_TildeC(MeshEStandard *amesh, double *units)
  ** \param[in]  TildeC    Vector TildeC
  **
  *****************************************************************************/
-GEOSLIB_API VectorDouble spde_fill_Lambda(Model *model,
-                                          MeshEStandard* amesh,
-                                          const VectorDouble& TildeC)
+VectorDouble _spde_fill_Lambda(Model *model,
+                               MeshEStandard *amesh,
+                               const VectorDouble &TildeC)
 {
-  const ANoStat* nostat = model->getNoStat();
+  const ANoStat *nostat = model->getNoStat();
   VectorDouble Lambda;
-  int igrf0   = st_get_current_igrf();
-  int icov0   = st_get_current_icov();
-  int ndim    = st_get_ndim();
+  int igrf0 = st_get_current_igrf();
+  int icov0 = st_get_current_icov();
+  int ndim = st_get_ndim();
   int nvertex = amesh->getNApices();
   double sill = st_get_cova_sill(0, 0);
 
   /* Fill the array */
 
-  if (st_get_model()->isNoStat() &&
-      nostat->isDefinedforAnisotropy(igrf0, icov0))
+  if (st_get_model()->isNoStat() && nostat->isDefinedforAnisotropy(igrf0,
+                                                                   icov0))
   {
     for (int ip = 0; ip < nvertex; ip++)
     {
@@ -3810,7 +3819,7 @@ GEOSLIB_API VectorDouble spde_fill_Lambda(Model *model,
  ** \remarks - for Data-Data operators
  **
  *****************************************************************************/
-static cs *st_extract_Q1_nugget(int row_var,
+static cs* st_extract_Q1_nugget(int row_var,
                                 int col_var,
                                 int *nrows,
                                 int *ncols)
@@ -3850,7 +3859,7 @@ static cs *st_extract_Q1_nugget(int row_var,
  ** \remarks The returned matrix is multipled by the inverse of the Sill
  **
  *****************************************************************************/
-static cs *st_extract_Q1_hetero(int row_var,
+static cs* st_extract_Q1_hetero(int row_var,
                                 int col_var,
                                 int row_oper,
                                 int col_oper,
@@ -3866,7 +3875,7 @@ static cs *st_extract_Q1_hetero(int row_var,
   error = 1;
   Q = Brow = Bcol = B1 = Bt = Qn = nullptr;
   SS = st_get_current_ssenv();
-  SPDE_Matelem& Matelem1 = spde_get_current_matelem(0);
+  SPDE_Matelem &Matelem1 = spde_get_current_matelem(0);
 
   /* Identify the operating matrices */
 
@@ -3922,7 +3931,7 @@ static cs *st_extract_Q1_hetero(int row_var,
  ** \remarks Otherwise, we need 'BheteroD' and 'BheteroT'
  **
  *****************************************************************************/
-static int st_build_QCov(SPDE_Matelem& Matelem)
+static int st_build_QCov(SPDE_Matelem &Matelem)
 
 {
   int error, nvar, icov0, nrows, ncols;
@@ -3941,7 +3950,7 @@ static int st_build_QCov(SPDE_Matelem& Matelem)
 
   /* Core allocation */
 
-  QCov = (QChol **) mem_alloc(sizeof(QChol *) * nvar, 1);
+  QCov = (QChol**) mem_alloc(sizeof(QChol*) * nvar, 1);
   for (int ivar = 0; ivar < nvar; ivar++)
     QCov[ivar] = qchol_manage(1, NULL);
 
@@ -4040,10 +4049,7 @@ static int st_build_QCov(SPDE_Matelem& Matelem)
  ** \param[in] blin     Array of coefficients for Linear combinaison
  **
  *****************************************************************************/
-GEOSLIB_API cs *spde_build_Q(cs *S,
-                             const VectorDouble& Lambda,
-                             int nblin,
-                             double *blin)
+cs* _spde_build_Q(cs *S, const VectorDouble &Lambda, int nblin, double *blin)
 {
   int error, iterm, nvertex;
   double *work, *tblin;
@@ -4074,7 +4080,7 @@ GEOSLIB_API cs *spde_build_Q(cs *S,
   }
   /* Build the tblin array */
 
-  tblin = (double *) mem_alloc(sizeof(double) * nvertex * nblin, 0);
+  tblin = (double*) mem_alloc(sizeof(double) * nvertex * nblin, 0);
   if (tblin == nullptr) goto label_end;
   for (int i = 0; i < nvertex * nblin; i++)
     tblin[i] = 0;
@@ -4087,13 +4093,13 @@ GEOSLIB_API cs *spde_build_Q(cs *S,
 
   /* First step */
 
-  work = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+  work = (double*) mem_alloc(sizeof(double) * nvertex, 0);
   if (work == nullptr) goto label_end;
   for (int i = 0; i < nvertex; i++)
     work[i] = TBLIN(0,i) * TBLIN(0, i);
   Q = cs_eye_tab(nvertex, work);
   if (Q == nullptr) goto label_end;
-  work = (double *) mem_free((char * ) work);
+  work = (double*) mem_free((char* ) work);
   Bi = cs_duplicate(S);
   if (Bi == nullptr) goto label_end;
 
@@ -4126,8 +4132,8 @@ GEOSLIB_API cs *spde_build_Q(cs *S,
   label_end: if (error) Q = cs_spfree(Q);
 
   Bi = cs_spfree(Bi);
-  work = (double *) mem_free((char * ) work);
-  tblin = (double *) mem_free((char * ) tblin);
+  work = (double*) mem_free((char* ) work);
+  tblin = (double*) mem_free((char* ) tblin);
 
   return Q;
 }
@@ -4141,7 +4147,7 @@ GEOSLIB_API cs *spde_build_Q(cs *S,
  ** \param[in]  Matelem    SPDE_Matelem structure
  **
  *****************************************************************************/
-static int st_build_Q(SPDE_Matelem& Matelem)
+static int st_build_Q(SPDE_Matelem &Matelem)
 
 {
   int error;
@@ -4156,9 +4162,9 @@ static int st_build_Q(SPDE_Matelem& Matelem)
 
   Matelem.QC = qchol_manage(1, NULL);
 
-  int nblin = static_cast<int> (Calcul.blin.size());
-  Matelem.QC->Q = spde_build_Q(Matelem.S, Matelem.Lambda, nblin,
-                               Calcul.blin.data());
+  int nblin = static_cast<int>(Calcul.blin.size());
+  Matelem.QC->Q = _spde_build_Q(Matelem.S, Matelem.Lambda, nblin,
+                                Calcul.blin.data());
   if (Matelem.QC->Q == nullptr) goto label_end;
 
   /* Optional printout */
@@ -4186,7 +4192,7 @@ static int st_build_Q(SPDE_Matelem& Matelem)
  ** \remarks It must be freed by the calling functions
  **
  *****************************************************************************/
-GEOSLIB_API int spde_build_matrices(Model *model, int verbose)
+GSTLEARN_EXPORT int spde_build_matrices(Model *model, int verbose)
 {
   int error;
   double *units;
@@ -4197,29 +4203,29 @@ GEOSLIB_API int spde_build_matrices(Model *model, int verbose)
   error = 1;
   units = nullptr;
   VERBOSE = verbose;
-  SPDE_Matelem& Matelem = spde_get_current_matelem(-1);
+  SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
   MeshEStandard amesh;
   amesh.convertFromOldMesh(Matelem.s_mesh, 0);
 
   /* Calculate the units of the meshes */
 
-  units = spde_get_mesh_dimension(&amesh);
+  units = _spde_get_mesh_dimension(&amesh);
   if (units == nullptr) goto label_end;
 
   /* Fill S sparse matrix */
 
-  Matelem.S = spde_fill_S(&amesh, model, units);
+  Matelem.S = _spde_fill_S(&amesh, model, units);
   if (Matelem.S == nullptr) goto label_end;
   if (VERBOSE) message("Filling S Sparse Matrix performed successfully\n");
 
   /* Fill the TildeC vector */
 
-  tildec = spde_fill_TildeC(&amesh, units);
+  tildec = _spde_fill_TildeC(&amesh, units);
   if (VERBOSE) message("Filling TildeC Sparse Matrix performed successfully\n");
 
   /* Construct the matrix for the sill correction array */
 
-  Matelem.Lambda = spde_fill_Lambda(model, &amesh, tildec);
+  Matelem.Lambda = _spde_fill_Lambda(model, &amesh, tildec);
   if (VERBOSE) message("Filling Lambda Sparse Matrix performed successfully\n");
 
   /* Build the sparse matrix B */
@@ -4237,7 +4243,7 @@ GEOSLIB_API int spde_build_matrices(Model *model, int verbose)
 
   error = 0;
 
-  label_end: units = (double *) mem_free((char * ) units);
+  label_end: units = (double*) mem_free((char* ) units);
   return (error);
 }
 
@@ -4262,7 +4268,7 @@ GEOSLIB_API int spde_build_matrices(Model *model, int verbose)
 static void st_load_data(SPDE_Mesh *s_mesh,
                          Db *dbin,
                          Db *dbout,
-                         SPDE_Option& s_option,
+                         SPDE_Option &s_option,
                          int ivar0,
                          double *data,
                          double *zcur)
@@ -4448,8 +4454,7 @@ static int st_chebychev_calculate_coeffs(Cheb_Elem *cheb_elem,
 
   /* Calculate the polynomials */
 
-  cheb_elem->coeffs = (double *) mem_alloc(sizeof(double) * cheb_elem->ncmax,
-                                           0);
+  cheb_elem->coeffs = (double*) mem_alloc(sizeof(double) * cheb_elem->ncmax, 0);
   if (cheb_elem->coeffs == nullptr) goto label_end;
 
   /* Evaluate the coefficients of the Chebychev approximation */
@@ -4482,8 +4487,8 @@ static int st_chebychev_calculate_coeffs(Cheb_Elem *cheb_elem,
 
   /* Core Reallocation */
 
-  cheb_elem->coeffs = (double *) mem_realloc((char * ) cheb_elem->coeffs,
-                                             sizeof(double) * number, 0);
+  cheb_elem->coeffs = (double*) mem_realloc((char* ) cheb_elem->coeffs,
+                                            sizeof(double) * number, 0);
   if (cheb_elem->coeffs == nullptr) goto label_end;
   cheb_elem->ncoeffs = number;
 
@@ -4571,11 +4576,11 @@ static int st_simulate_cholesky(QChol *QC, double *work, double *zsnc)
  ** \param[out]    y          Output array (Dimension: nvertex)
  **
  *****************************************************************************/
-GEOSLIB_API int spde_chebychev_operate(cs *S,
-                                       Cheb_Elem *cheb_elem,
-                                       const VectorDouble& lambda,
-                                       const double *x,
-                                       double *y)
+GSTLEARN_EXPORT int spde_chebychev_operate(cs *S,
+                                           Cheb_Elem *cheb_elem,
+                                           const VectorDouble &lambda,
+                                           const double *x,
+                                           double *y)
 {
   double *coeffs, *tm1, *tm2, *px, *tx, v1, v2, coeff_ib, power;
   int error, ncoeffs, nvertex;
@@ -4595,13 +4600,13 @@ GEOSLIB_API int spde_chebychev_operate(cs *S,
 
   /* Core allocation */
 
-  tm1 = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+  tm1 = (double*) mem_alloc(sizeof(double) * nvertex, 0);
   if (tm1 == nullptr) goto label_end;
-  tm2 = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+  tm2 = (double*) mem_alloc(sizeof(double) * nvertex, 0);
   if (tm2 == nullptr) goto label_end;
-  px = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+  px = (double*) mem_alloc(sizeof(double) * nvertex, 0);
   if (px == nullptr) goto label_end;
-  tx = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+  tx = (double*) mem_alloc(sizeof(double) * nvertex, 0);
   if (tx == nullptr) goto label_end;
 
   /* Create the T1 sparse matrix */
@@ -4646,10 +4651,10 @@ GEOSLIB_API int spde_chebychev_operate(cs *S,
     y[i] = px[i] * pow(lambda[i], 2. * power);
 
   /* Core deallocation */
-  tm1 = (double *) mem_free((char * ) tm1);
-  tm2 = (double *) mem_free((char * ) tm2);
-  px = (double *) mem_free((char * ) px);
-  tx = (double *) mem_free((char * ) tx);
+  tm1 = (double*) mem_free((char* ) tm1);
+  tm2 = (double*) mem_free((char* ) tm2);
+  px = (double*) mem_free((char* ) px);
+  tx = (double*) mem_free((char* ) tx);
 
   /* Set the error return code */
 
@@ -4677,14 +4682,14 @@ static int st_simulate_chebychev(double *zsnc)
   /* Initializations */
 
   error = 1;
-  SPDE_Matelem& Matelem = spde_get_current_matelem(-1);
+  SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
   cheb_elem = Matelem.s_cheb;
   nvertex = Matelem.s_mesh->nvertex;
   x = nullptr;
 
   /* Core allocation */
 
-  x = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+  x = (double*) mem_alloc(sizeof(double) * nvertex, 0);
   if (x == nullptr) goto label_end;
 
   /* Initialize the simulation */
@@ -4701,7 +4706,7 @@ static int st_simulate_chebychev(double *zsnc)
 
   error = 0;
 
-  label_end: x = (double *) mem_free((char * ) x);
+  label_end: x = (double*) mem_free((char* ) x);
   return (error);
 }
 
@@ -4721,7 +4726,7 @@ static int st_simulate_chebychev(double *zsnc)
 static int st_kriging_multigrid(QChol *QC, double *rhs, double *work, double *z)
 {
   int ntarget = QC->Q->n;
-  SPDE_Matelem& Matelem = spde_get_current_matelem(-1);
+  SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
 
   if (cs_multigrid_process(Matelem.mgs, QC, VERBOSE, z, rhs, work)) return (1);
 
@@ -4834,14 +4839,14 @@ static int st_kriging_several_rhs(double *data,
 
   /* Core allocation */
 
-  temp = (double *) mem_alloc(sizeof(double) * size, 0);
+  temp = (double*) mem_alloc(sizeof(double) * size, 0);
   if (temp == nullptr) goto label_end;
 
   /* Constitute the RHS */
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
+    SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
     ncur = st_get_nvertex(icov);
     if (FLAG_KEYPAIR)
     {
@@ -4936,7 +4941,7 @@ static int st_kriging_several_rhs(double *data,
   *ss_arg = ss;
 
   label_end: B0 = cs_spfree(B0);
-  temp = (double *) mem_free((char * ) temp);
+  temp = (double*) mem_free((char* ) temp);
   return (error);
 }
 
@@ -4981,7 +4986,7 @@ static int st_kriging_several_loop(int flag_crit,
   (*crit) = 0.;
   for (int icov = 0; icov < ncova; icov++)
   {
-    SPDE_Matelem& Maticov = spde_get_current_matelem(icov);
+    SPDE_Matelem &Maticov = spde_get_current_matelem(icov);
     Qicov = Maticov.QC->Q;
     nicur = st_get_nvertex(icov);
     tAicov = cs_transpose(Maticov.Aproj, 1);
@@ -5071,7 +5076,7 @@ static int st_kriging_several_loop(int flag_crit,
 
         for (int jcov = 0; jcov < ncova; jcov++)
         {
-          SPDE_Matelem& Matjcov = spde_get_current_matelem(jcov);
+          SPDE_Matelem &Matjcov = spde_get_current_matelem(jcov);
           njcur = st_get_nvertex(jcov);
           Ajcov = Matjcov.Aproj;
 
@@ -5269,7 +5274,7 @@ static int st_kriging_several_results(double *xcur, double *z)
 
   error = 0;
 
-  label_end: ranks = (int *) mem_free((char * ) ranks);
+  label_end: ranks = (int*) mem_free((char* ) ranks);
   return (error);
 }
 
@@ -5314,11 +5319,11 @@ static int st_kriging_several(double *data,
 
   /* Core allocation */
 
-  xcur = (double *) mem_alloc(sizeof(double) * ncur * ncova * nvar, 0);
+  xcur = (double*) mem_alloc(sizeof(double) * ncur * ncova * nvar, 0);
   if (xcur == nullptr) goto label_end;
-  rhsloc = (double *) mem_alloc(sizeof(double) * ncur, 0);
+  rhsloc = (double*) mem_alloc(sizeof(double) * ncur, 0);
   if (rhsloc == nullptr) goto label_end;
-  rhscur = (double *) mem_alloc(sizeof(double) * ncur, 0);
+  rhscur = (double*) mem_alloc(sizeof(double) * ncur, 0);
   if (rhscur == nullptr) goto label_end;
 
   /* Define the Initial solution */
@@ -5364,9 +5369,9 @@ static int st_kriging_several(double *data,
 
   error = 0;
 
-  label_end: xcur = (double *) mem_free((char * ) xcur);
-  rhsloc = (double *) mem_free((char * ) rhsloc);
-  rhscur = (double *) mem_free((char * ) rhscur);
+  label_end: xcur = (double*) mem_free((char* ) xcur);
+  rhsloc = (double*) mem_free((char* ) rhsloc);
+  rhscur = (double*) mem_free((char* ) rhscur);
   return (error);
 }
 
@@ -5405,11 +5410,11 @@ static int st_kriging(SPDE_Mesh *s_mesh, double *data, double *zkrig)
 
   /* Core allocation */
 
-  work = (double *) mem_alloc(sizeof(double) * size, 0);
+  work = (double*) mem_alloc(sizeof(double) * size, 0);
   if (work == nullptr) goto label_end;
-  zkdat = (double *) mem_alloc(sizeof(double) * ncur * nvar, 0);
+  zkdat = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
   if (zkdat == nullptr) goto label_end;
-  rhs = (double *) mem_alloc(sizeof(double) * ncur * ncova * nvar, 0);
+  rhs = (double*) mem_alloc(sizeof(double) * ncur * ncova * nvar, 0);
   if (rhs == nullptr) goto label_end;
   for (int i = 0; i < ncur * ncova * nvar; i++)
     rhs[i] = 0.;
@@ -5433,9 +5438,9 @@ static int st_kriging(SPDE_Mesh *s_mesh, double *data, double *zkrig)
 
   error = 0;
 
-  label_end: work = (double *) mem_free((char * ) work);
-  rhs = (double *) mem_free((char * ) rhs);
-  zkdat = (double *) mem_free((char * ) zkdat);
+  label_end: work = (double*) mem_free((char* ) work);
+  rhs = (double*) mem_free((char* ) rhs);
+  zkdat = (double*) mem_free((char* ) zkdat);
   return (error);
 }
 
@@ -5457,13 +5462,13 @@ static int st_kriging(SPDE_Mesh *s_mesh, double *data, double *zkrig)
  ** \remarks Argument 'cheb_old' is used if mode=-1
  **
  *****************************************************************************/
-GEOSLIB_API Cheb_Elem *spde_cheb_manage(int mode,
-                                        int verbose,
-                                        double power,
-                                        int nblin,
-                                        double *blin,
-                                        cs *S,
-                                        Cheb_Elem *cheb_old)
+GSTLEARN_EXPORT Cheb_Elem* spde_cheb_manage(int mode,
+                                            int verbose,
+                                            double power,
+                                            int nblin,
+                                            double *blin,
+                                            cs *S,
+                                            Cheb_Elem *cheb_old)
 {
   Cheb_Elem *cheb_elem;
   double a, b, v1, v2, tol;
@@ -5480,13 +5485,13 @@ GEOSLIB_API Cheb_Elem *spde_cheb_manage(int mode,
 
     // Allocation
 
-    cheb_elem = (Cheb_Elem *) mem_alloc(sizeof(Cheb_Elem), 0);
+    cheb_elem = (Cheb_Elem*) mem_alloc(sizeof(Cheb_Elem), 0);
     if (cheb_elem == nullptr) goto label_end;
     cheb_elem->coeffs = nullptr;
 
     ncmax = (int) get_keypone("Number_Polynomials_Chebychev", 10001.);
     ndisc = (int) get_keypone("Number_Discretization_Chebychev", 100.);
-    tol   = get_keypone("Chebychev_Tolerance", 5.e-3);
+    tol = get_keypone("Chebychev_Tolerance", 5.e-3);
 
     /* Calculate key values */
 
@@ -5520,8 +5525,8 @@ GEOSLIB_API Cheb_Elem *spde_cheb_manage(int mode,
 
     cheb_elem = cheb_old;
     if (cheb_elem != nullptr)
-      cheb_elem->coeffs = (double *) mem_free((char * ) cheb_elem->coeffs);
-    cheb_elem = (Cheb_Elem *) mem_free((char * ) cheb_elem);
+      cheb_elem->coeffs = (double*) mem_free((char* ) cheb_elem->coeffs);
+    cheb_elem = (Cheb_Elem*) mem_free((char* ) cheb_elem);
   }
 
   // Set the error return code
@@ -5542,7 +5547,7 @@ GEOSLIB_API Cheb_Elem *spde_cheb_manage(int mode,
  ** \param[in]  cheb_in    Input Cheb_Eleme structure
  **
  *****************************************************************************/
-GEOSLIB_API Cheb_Elem *spde_cheb_duplicate(Cheb_Elem *cheb_in)
+Cheb_Elem* _spde_cheb_duplicate(Cheb_Elem *cheb_in)
 {
   Cheb_Elem *cheb_out;
   int error;
@@ -5555,7 +5560,7 @@ GEOSLIB_API Cheb_Elem *spde_cheb_duplicate(Cheb_Elem *cheb_in)
 
   // Allocation
 
-  cheb_out = (Cheb_Elem *) mem_alloc(sizeof(Cheb_Elem), 0);
+  cheb_out = (Cheb_Elem*) mem_alloc(sizeof(Cheb_Elem), 0);
   if (cheb_out == nullptr) goto label_end;
 
   cheb_out->ncoeffs = cheb_in->ncoeffs;
@@ -5569,7 +5574,7 @@ GEOSLIB_API Cheb_Elem *spde_cheb_duplicate(Cheb_Elem *cheb_in)
   cheb_out->tol = cheb_in->tol;
   cheb_out->coeffs = nullptr;
 
-  cheb_out->coeffs = (double *) mem_alloc(sizeof(double) * cheb_in->ncoeffs, 0);
+  cheb_out->coeffs = (double*) mem_alloc(sizeof(double) * cheb_in->ncoeffs, 0);
   if (cheb_out->coeffs == nullptr) goto label_end;
   for (int i = 0; i < cheb_in->ncoeffs; i++)
     cheb_out->coeffs[i] = cheb_in->coeffs[i];
@@ -5599,7 +5604,7 @@ static void st_matelem_manage(int mode)
 
 {
   int ncova = st_get_ncova();
-  SPDE_SS_Environ* SS = st_get_current_ssenv();
+  SPDE_SS_Environ *SS = st_get_current_ssenv();
 
   /* Dispatch */
 
@@ -5610,7 +5615,7 @@ static void st_matelem_manage(int mode)
 
       for (int is = 0; is < ncova; is++)
       {
-        SPDE_Matelem& Matelem = SS->Matelems[is];
+        SPDE_Matelem &Matelem = SS->Matelems[is];
         Matelem.S = nullptr;
         Matelem.Aproj = nullptr;
         Matelem.QC = nullptr;
@@ -5618,7 +5623,7 @@ static void st_matelem_manage(int mode)
         Matelem.Isill = nullptr;
         Matelem.Csill = nullptr;
         Matelem.qsimu = nullptr;
-        Matelem.mgs = (cs_MGS *) NULL;
+        Matelem.mgs = (cs_MGS*) NULL;
         if (S_DECIDE.flag_mgrid) Matelem.mgs = st_mgs_manage(1, NULL);
         Matelem.s_cheb = nullptr;
         Matelem.s_mesh = nullptr;
@@ -5628,7 +5633,7 @@ static void st_matelem_manage(int mode)
     case -1:                    // Deallocation
       for (int icov = 0; icov < ncova; icov++)
       {
-        SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
+        SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
         Matelem.S = cs_spfree(Matelem.S);
         Matelem.Aproj = cs_spfree(Matelem.Aproj);
         Matelem.QC = qchol_manage(-1, Matelem.QC);
@@ -5637,8 +5642,8 @@ static void st_matelem_manage(int mode)
           for (int ivar = 0; ivar < st_get_nvar(); ivar++)
             Matelem.QCov[ivar] = qchol_manage(-1, Matelem.QCov[ivar]);
         }
-        Matelem.Isill = (double *) mem_free((char * ) Matelem.Isill);
-        Matelem.Csill = (double *) mem_free((char * ) Matelem.Csill);
+        Matelem.Isill = (double*) mem_free((char* ) Matelem.Isill);
+        Matelem.Csill = (double*) mem_free((char* ) Matelem.Csill);
         Matelem.qsimu = st_qsimu_manage(-1, NULL, Matelem.qsimu);
         Matelem.mgs = st_mgs_manage(-1, Matelem.mgs);
         Matelem.s_cheb = spde_cheb_manage(-1, 0, 0, 0, NULL, NULL,
@@ -5677,9 +5682,9 @@ static int st_simulate(QChol *QC, double *zsnc)
 
   /* Core allocation */
 
-  work = (double *) mem_alloc(sizeof(double) * ncur, 0);
+  work = (double*) mem_alloc(sizeof(double) * ncur, 0);
   if (work == nullptr) goto label_end;
-  zloc = (double *) mem_alloc(sizeof(double) * ncur, 0);
+  zloc = (double*) mem_alloc(sizeof(double) * ncur, 0);
   if (zloc == nullptr) goto label_end;
   for (int i = 0; i < nvar * ncur; i++)
     zsnc[i] = 0.;
@@ -5689,7 +5694,7 @@ static int st_simulate(QChol *QC, double *zsnc)
   for (int icov = 0; icov < ncova; icov++)
   {
     st_set_current_icov(icov);
-    SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
+    SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
 
     /* Loop on the variables */
 
@@ -5726,8 +5731,8 @@ static int st_simulate(QChol *QC, double *zsnc)
 
   error = 0;
 
-  label_end: zloc = (double *) mem_free((char * ) zloc);
-  work = (double *) mem_free((char * ) work);
+  label_end: zloc = (double*) mem_free((char* ) zloc);
+  work = (double*) mem_free((char* ) work);
   return (error);
 }
 
@@ -5749,13 +5754,13 @@ static int st_simulate(QChol *QC, double *zsnc)
  ** \remarks  the simulation algorithm is turned into a kriging one
  **
  *****************************************************************************/
-GEOSLIB_API int spde_process(Db *dbin,
-                             Db *dbout,
-                             SPDE_Option& s_option,
-                             int nbsimu,
-                             int ngibbs_burn,
-                             int ngibbs_iter,
-                             int ngibbs_int)
+GSTLEARN_EXPORT int spde_process(Db *dbin,
+                                 Db *dbout,
+                                 SPDE_Option &s_option,
+                                 int nbsimu,
+                                 int ngibbs_burn,
+                                 int ngibbs_iter,
+                                 int ngibbs_int)
 {
   int ncur, ndata, nbsimuw, isimuw, error, iatt_simu, ivar0;
   int flag_mult_data, ngrf, nv_krige;
@@ -5779,28 +5784,28 @@ GEOSLIB_API int spde_process(Db *dbin,
 
   /* Core allocation and global initializations */
 
-  zcur = (double *) mem_alloc(sizeof(double) * ncur * nvar, 0);
+  zcur = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
   if (zcur == nullptr) goto label_end;
 
   if (S_DECIDE.flag_case == CASE_SIMULATE)
   {
-    zsnc = (double *) mem_alloc(sizeof(double) * ncur * nvar, 0);
+    zsnc = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zsnc == nullptr) goto label_end;
-    zout = (double *) mem_alloc(sizeof(double) * ncur * nvar, 0);
+    zout = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zout == nullptr) goto label_end;
   }
   if (S_DECIDE.flag_dbin)
   {
     ndata = dbin->getActiveSampleNumber();
-    zkrig = (double *) mem_alloc(sizeof(double) * ncur * nvar, 0);
+    zkrig = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zkrig == nullptr) goto label_end;
-    zdat = (double *) mem_alloc(sizeof(double) * ncur * nvar, 0);
+    zdat = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zdat == nullptr) goto label_end;
-    data = (double *) mem_alloc(sizeof(double) * ndata * nvar, 0);
+    data = (double*) mem_alloc(sizeof(double) * ndata * nvar, 0);
     if (data == nullptr) goto label_end;
     if (S_DECIDE.flag_std)
     {
-      vcur = (double *) mem_alloc(sizeof(double) * ncur * nvar, 0);
+      vcur = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
       if (vcur == nullptr) goto label_end;
     }
   }
@@ -5972,13 +5977,13 @@ GEOSLIB_API int spde_process(Db *dbin,
 
   error = 0;
 
-  label_end: data = (double *) mem_free((char * ) data);
-  zdat = (double *) mem_free((char * ) zdat);
-  zkrig = (double *) mem_free((char * ) zkrig);
-  zout = (double *) mem_free((char * ) zout);
-  zsnc = (double *) mem_free((char * ) zsnc);
-  zcur = (double *) mem_free((char * ) zcur);
-  vcur = (double *) mem_free((char * ) vcur);
+  label_end: data = (double*) mem_free((char* ) data);
+  zdat = (double*) mem_free((char* ) zdat);
+  zkrig = (double*) mem_free((char* ) zkrig);
+  zout = (double*) mem_free((char* ) zout);
+  zsnc = (double*) mem_free((char* ) zsnc);
+  zcur = (double*) mem_free((char* ) zcur);
+  vcur = (double*) mem_free((char* ) vcur);
   return (error);
 }
 
@@ -6002,10 +6007,10 @@ GEOSLIB_API int spde_process(Db *dbin,
 static int st_load_meshes_1D(int verbose,
                              Db *dbin,
                              Db *dbout,
-                             const VectorDouble& gext,
+                             const VectorDouble &gext,
                              int nb_dupl,
                              int *is_dupl,
-                             SPDE_Option& s_option,
+                             SPDE_Option &s_option,
                              SPDE_Mesh *s_mesh)
 {
   int error;
@@ -6030,16 +6035,15 @@ static int st_load_meshes_1D(int verbose,
   {
     if (meshes_1D_from_db(dbin, nb_dupl, is_dupl, &in)) goto label_end;
   }
-  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout
-      != nullptr
-                                                             && S_DECIDE.flag_mesh_dbout))
+  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout != nullptr
+      && S_DECIDE.flag_mesh_dbout))
   {
     meshes_1D_default(dbin, dbout, &in);
   }
 
   /* Extend the domain if gext is specified */
 
-  if (! gext.empty())
+  if (!gext.empty())
   {
     meshes_1D_extended_domain(dbout, gext.data(), &in);
   }
@@ -6051,10 +6055,10 @@ static int st_load_meshes_1D(int verbose,
   /* Coordinates of the triangle vertices */
 
   meshes_1D_load_vertices(&out, "Points", &s_mesh->nvertex, &s_mesh->ndim,
-                          (void **) &s_mesh->points);
+                          (void**) &s_mesh->points);
 
   meshes_1D_load_vertices(&out, "Segments", &s_mesh->nmesh, &s_mesh->ncorner,
-                          (void **) &s_mesh->meshes);
+                          (void**) &s_mesh->meshes);
 
   /* Set the error return code */
 
@@ -6085,10 +6089,10 @@ static int st_load_meshes_1D(int verbose,
 static int st_load_meshes_2D(int verbose,
                              Db *dbin,
                              Db *dbout,
-                             const VectorDouble& gext,
+                             const VectorDouble &gext,
                              int nb_dupl,
                              int *is_dupl,
-                             SPDE_Option& s_option,
+                             SPDE_Option &s_option,
                              SPDE_Mesh *s_mesh)
 {
   int error;
@@ -6114,16 +6118,15 @@ static int st_load_meshes_2D(int verbose,
   {
     if (meshes_2D_from_db(dbin, 1, nb_dupl, is_dupl, &in)) goto label_end;
   }
-  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout
-      != nullptr
-                                                             && S_DECIDE.flag_mesh_dbout))
+  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout != nullptr
+      && S_DECIDE.flag_mesh_dbout))
   {
     meshes_2D_default(dbin, dbout, &in);
   }
 
   /* Extend the domain if gext is specified */
 
-  if (! gext.empty())
+  if (!gext.empty())
   {
     meshes_2D_extended_domain(dbout, gext.data(), &in);
   }
@@ -6136,10 +6139,10 @@ static int st_load_meshes_2D(int verbose,
   /* Coordinates of the triangle vertices */
 
   meshes_2D_load_vertices(&out, "Points", &s_mesh->nvertex, &s_mesh->ndim,
-                          (void **) &s_mesh->points);
+                          (void**) &s_mesh->points);
 
   meshes_2D_load_vertices(&out, "Triangles", &s_mesh->nmesh, &s_mesh->ncorner,
-                          (void **) &s_mesh->meshes);
+                          (void**) &s_mesh->meshes);
 
   /* Set the error return code */
 
@@ -6172,7 +6175,7 @@ static int st_load_meshes_2D_sph(int verbose,
                                  Db *dbout,
                                  int nb_dupl,
                                  int *is_dupl,
-                                 SPDE_Option& s_option,
+                                 SPDE_Option &s_option,
                                  SPDE_Mesh *s_mesh)
 {
   int error;
@@ -6209,10 +6212,10 @@ static int st_load_meshes_2D_sph(int verbose,
   /* Coordinates of the triangle vertices */
 
   meshes_2D_sph_load_vertices(&in, "Points", &s_mesh->nvertex, &s_mesh->ndim,
-                              (void **) &s_mesh->points);
+                              (void**) &s_mesh->points);
 
   meshes_2D_sph_load_vertices(&in, "Triangles", &s_mesh->nmesh,
-                              &s_mesh->ncorner, (void **) &s_mesh->meshes);
+                              &s_mesh->ncorner, (void**) &s_mesh->meshes);
 
   /* Set the error return code */
 
@@ -6242,10 +6245,10 @@ static int st_load_meshes_2D_sph(int verbose,
 static int st_load_meshes_3D(int verbose,
                              Db *dbin,
                              Db *dbout,
-                             const VectorDouble& gext,
+                             const VectorDouble &gext,
                              int nb_dupl,
                              int *is_dupl,
-                             SPDE_Option& s_option,
+                             SPDE_Option &s_option,
                              SPDE_Mesh *s_mesh)
 {
   int error;
@@ -6265,16 +6268,15 @@ static int st_load_meshes_3D(int verbose,
   {
     if (meshes_3D_from_db(dbin, nb_dupl, is_dupl, &in)) goto label_end;
   }
-  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout
-      != nullptr
-                                                             && S_DECIDE.flag_mesh_dbout))
+  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout != nullptr
+      && S_DECIDE.flag_mesh_dbout))
   {
     meshes_3D_default(dbin, dbout, &in);
   }
 
   /* Extend the domain if gext is specified */
 
-  if (! gext.empty())
+  if (!gext.empty())
   {
     meshes_3D_extended_domain(dbout, gext.data(), &in);
   }
@@ -6286,10 +6288,10 @@ static int st_load_meshes_3D(int verbose,
   /* Coordinates of the vertices */
 
   meshes_3D_load_vertices(&out, "Points", &s_mesh->nvertex, &s_mesh->ndim,
-                          (void **) &s_mesh->points);
+                          (void**) &s_mesh->points);
 
   meshes_3D_load_vertices(&out, "Tetrahedra", &s_mesh->nmesh, &s_mesh->ncorner,
-                          (void **) &s_mesh->meshes);
+                          (void**) &s_mesh->meshes);
 
   /* Set the error return code */
 
@@ -6340,8 +6342,8 @@ static void st_save_meshing_keypair(SPDE_Mesh *s_mesh, int icov0)
  *****************************************************************************/
 static int st_load_all_meshes(Db *dbin,
                               Db *dbout,
-                              const VectorDouble& gext,
-                              SPDE_Option& s_option,
+                              const VectorDouble &gext,
+                              SPDE_Option &s_option,
                               SPDE_Mesh *s_mesh)
 {
   int *is_dupl, ndim_loc, flag_sphere, nb_dupl, flag_force;
@@ -6472,9 +6474,8 @@ static int st_is_external_mesh_defined(int icov0)
  *****************************************************************************/
 static int st_is_external_AQ_defined(int icov0)
 {
-  return (S_EXTERNAL_MESH[icov0] != nullptr
-      && S_EXTERNAL_Q[icov0] != nullptr
-      && S_EXTERNAL_A[icov0] != nullptr);
+  return (S_EXTERNAL_MESH[icov0] != nullptr && S_EXTERNAL_Q[icov0] != nullptr
+          && S_EXTERNAL_A[icov0] != nullptr);
 }
 
 /****************************************************************************/
@@ -6487,7 +6488,7 @@ static int st_is_external_AQ_defined(int icov0)
  ** \param[in]  icov0    Rank of the current Covariance
  **
  *****************************************************************************/
-GEOSLIB_API int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
+GSTLEARN_EXPORT int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
 {
   int size;
 
@@ -6509,18 +6510,18 @@ GEOSLIB_API int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
 
   /* Copy the array 'points' */
 
-  s_mesh->points = (double *) mem_free((char * ) s_mesh->points);
+  s_mesh->points = (double*) mem_free((char* ) s_mesh->points);
   size = S_EXTERNAL_MESH[icov0]->nvertex * S_EXTERNAL_MESH[icov0]->ndim;
-  s_mesh->points = (double *) mem_alloc(sizeof(double) * size, 0);
+  s_mesh->points = (double*) mem_alloc(sizeof(double) * size, 0);
   if (s_mesh->points == nullptr) return (1);
   for (int i = 0; i < size; i++)
     s_mesh->points[i] = S_EXTERNAL_MESH[icov0]->points[i];
 
   /* Copy the array 'meshes' */
 
-  s_mesh->meshes = (int *) mem_free((char * ) s_mesh->meshes);
+  s_mesh->meshes = (int*) mem_free((char* ) s_mesh->meshes);
   size = S_EXTERNAL_MESH[icov0]->nmesh * S_EXTERNAL_MESH[icov0]->ncorner;
-  s_mesh->meshes = (int *) mem_alloc(sizeof(double) * size, 0);
+  s_mesh->meshes = (int*) mem_alloc(sizeof(double) * size, 0);
   if (s_mesh->meshes == nullptr) return (1);
   for (int i = 0; i < size; i++)
     s_mesh->meshes[i] = S_EXTERNAL_MESH[icov0]->meshes[i];
@@ -6547,7 +6548,7 @@ GEOSLIB_API int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
  ** \param[in]  icov0    Rank of the current Covariance
  **
  *****************************************************************************/
-GEOSLIB_API int spde_external_AQ_copy(SPDE_Matelem& matelem, int icov0)
+GSTLEARN_EXPORT int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
 {
   SPDE_Mesh *s_mesh;
 
@@ -6609,12 +6610,12 @@ GEOSLIB_API int spde_external_AQ_copy(SPDE_Matelem& matelem, int icov0)
  ** \param[in]  s_option   SPDE_Option structure
  **
  *****************************************************************************/
-GEOSLIB_API int spde_mesh_load(SPDE_Mesh *s_mesh,
-                               int verbose,
-                               Db *dbin,
-                               Db *dbout,
-                               const VectorDouble& gext,
-                               SPDE_Option& s_option)
+GSTLEARN_EXPORT int spde_mesh_load(SPDE_Mesh *s_mesh,
+                                   int verbose,
+                                   Db *dbin,
+                                   Db *dbout,
+                                   const VectorDouble &gext,
+                                   SPDE_Option &s_option)
 {
   int icov0;
 
@@ -6811,20 +6812,20 @@ static int st_external_vertype_define(SPDE_Mesh *s_mesh,
  ** \param[in]  points    Array containing the vertex coordinates
  **
  *****************************************************************************/
-GEOSLIB_API int spde_external_mesh_define(int mode,
-                                          int icov0,
-                                          int ndim,
-                                          int ncorner,
-                                          int nvertex,
-                                          int nmesh,
-                                          int nbin,
-                                          int nbout,
-                                          int ndupl,
-                                          int order,
-                                          int *dupl_in,
-                                          int *dupl_out,
-                                          int *meshes,
-                                          double *points)
+GSTLEARN_EXPORT int spde_external_mesh_define(int mode,
+                                              int icov0,
+                                              int ndim,
+                                              int ncorner,
+                                              int nvertex,
+                                              int nmesh,
+                                              int nbin,
+                                              int nbout,
+                                              int ndupl,
+                                              int order,
+                                              int *dupl_in,
+                                              int *dupl_out,
+                                              int *meshes,
+                                              double *points)
 {
   int error, size;
 
@@ -6845,13 +6846,14 @@ GEOSLIB_API int spde_external_mesh_define(int mode,
     S_EXTERNAL_MESH[icov0]->nmesh = nmesh;
 
     size = nvertex * ndim;
-    S_EXTERNAL_MESH[icov0]->points = (double *) mem_alloc(sizeof(double) * size, 0);
+    S_EXTERNAL_MESH[icov0]->points = (double*) mem_alloc(sizeof(double) * size,
+                                                         0);
     if (S_EXTERNAL_MESH[icov0]->points == nullptr) goto label_end;
     for (int i = 0; i < size; i++)
       S_EXTERNAL_MESH[icov0]->points[i] = points[i];
 
     size = nmesh * ncorner;
-    S_EXTERNAL_MESH[icov0]->meshes = (int *) mem_alloc(sizeof(double) * size, 0);
+    S_EXTERNAL_MESH[icov0]->meshes = (int*) mem_alloc(sizeof(double) * size, 0);
     if (S_EXTERNAL_MESH[icov0]->meshes == nullptr) goto label_end;
     for (int i = 0; i < size; i++)
       S_EXTERNAL_MESH[icov0]->meshes[i] = meshes[i];
@@ -6896,19 +6898,19 @@ GEOSLIB_API int spde_external_mesh_define(int mode,
  ** \param[in]  Q         Sparse matrix
  **
  *****************************************************************************/
-GEOSLIB_API int spde_external_AQ_define(int mode,
-                                        int icov0,
-                                        int ndim,
-                                        int nvertex,
-                                        int nmesh,
-                                        int nbin,
-                                        int nbout,
-                                        int ndupl,
-                                        int order,
-                                        int *dupl_in,
-                                        int *dupl_out,
-                                        cs *A,
-                                        cs *Q)
+GSTLEARN_EXPORT int spde_external_AQ_define(int mode,
+                                            int icov0,
+                                            int ndim,
+                                            int nvertex,
+                                            int nmesh,
+                                            int nbin,
+                                            int nbout,
+                                            int ndupl,
+                                            int order,
+                                            int *dupl_in,
+                                            int *dupl_out,
+                                            cs *A,
+                                            cs *Q)
 {
   int error;
 
@@ -6969,14 +6971,14 @@ GEOSLIB_API int spde_external_AQ_define(int mode,
  ** \param[in,out]  s_mesh   Pointer to SPDE_Mesh to be assigned
  **
  *****************************************************************************/
-GEOSLIB_API void spde_mesh_assign(SPDE_Mesh *s_mesh,
-                                  int ndim,
-                                  int ncorner,
-                                  int nvertex,
-                                  int nmesh,
-                                  int *meshes,
-                                  double *points,
-                                  int verbose)
+GSTLEARN_EXPORT void spde_mesh_assign(SPDE_Mesh *s_mesh,
+                                      int ndim,
+                                      int ncorner,
+                                      int nvertex,
+                                      int nmesh,
+                                      int *meshes,
+                                      double *points,
+                                      int verbose)
 {
   int number;
   static int debug = 0;
@@ -6990,11 +6992,11 @@ GEOSLIB_API void spde_mesh_assign(SPDE_Mesh *s_mesh,
   // as the input argument may be a VectorDouble (freed automatically)
 
   number = nmesh * ncorner;
-  s_mesh->meshes = (int *) mem_alloc(sizeof(int) * number, 1);
+  s_mesh->meshes = (int*) mem_alloc(sizeof(int) * number, 1);
   for (int i = 0; i < number; i++)
     s_mesh->meshes[i] = meshes[i];
   number = ndim * nvertex;
-  s_mesh->points = (double *) mem_alloc(sizeof(double) * number, 1);
+  s_mesh->points = (double*) mem_alloc(sizeof(double) * number, 1);
   for (int i = 0; i < number; i++)
     s_mesh->points[i] = points[i];
 
@@ -7013,10 +7015,10 @@ GEOSLIB_API void spde_mesh_assign(SPDE_Mesh *s_mesh,
  ** \param[in]  s_option    SPDE_Option structure
  **
  *****************************************************************************/
-GEOSLIB_API int spde_prepar(Db *dbin,
-                            Db *dbout,
-                            const VectorDouble& gext,
-                            SPDE_Option& s_option)
+GSTLEARN_EXPORT int spde_prepar(Db *dbin,
+                                Db *dbout,
+                                const VectorDouble &gext,
+                                SPDE_Option &s_option)
 {
   int error, nblin, flag_AQ_defined;
 
@@ -7047,7 +7049,7 @@ GEOSLIB_API int spde_prepar(Db *dbin,
     for (int icov = 0; icov < st_get_ncova(); icov++)
     {
       st_set_current_icov(icov);
-      SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
+      SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
       flag_AQ_defined = st_is_external_AQ_defined(icov);
 
       /* Title (optional) */
@@ -7069,7 +7071,7 @@ GEOSLIB_API int spde_prepar(Db *dbin,
 
       // Locally convert from old to new Meshing
 
-      MeshEStandard* amesh = new MeshEStandard();
+      MeshEStandard *amesh = new MeshEStandard();
       amesh->convertFromOldMesh(Matelem.s_mesh, 0);
 
       /* Load External Q (if any) */
@@ -7088,9 +7090,9 @@ GEOSLIB_API int spde_prepar(Db *dbin,
 
       /* Preparation in non-stationary case */
 
-      if (st_get_model()->isNoStat() && ! flag_AQ_defined)
+      if (st_get_model()->isNoStat() && !flag_AQ_defined)
       {
-        const ANoStat* nostat = st_get_model()->getNoStat();
+        const ANoStat *nostat = st_get_model()->getNoStat();
         nostat->attachToMesh(amesh);
       }
 
@@ -7147,9 +7149,10 @@ GEOSLIB_API int spde_prepar(Db *dbin,
 
       if (S_DECIDE.simu_cheb)
       {
-        nblin = static_cast<int> (Calcul.blin.size());
+        nblin = static_cast<int>(Calcul.blin.size());
         Matelem.s_cheb = spde_cheb_manage(1, VERBOSE, -0.5, nblin,
-                                          Calcul.blin.data(), Matelem.S, NULL);
+                                          Calcul.blin.data(), Matelem.S,
+                                          NULL);
         if (Matelem.s_cheb == nullptr) goto label_end;
       }
 
@@ -7180,14 +7183,14 @@ GEOSLIB_API int spde_prepar(Db *dbin,
  ** \param[in]  s_option    SPDE_Option structure
  **
  *****************************************************************************/
-GEOSLIB_API int spde_posterior(Db *dbin,
-                               Db *dbout,
-                               const VectorDouble& gext,
-                               SPDE_Option& s_option)
+GSTLEARN_EXPORT int spde_posterior(Db *dbin,
+                                   Db *dbout,
+                                   const VectorDouble &gext,
+                                   SPDE_Option &s_option)
 {
   if (st_get_model()->isNoStat())
   {
-    const ANoStat* nostat = st_get_model()->getNoStat();
+    const ANoStat *nostat = st_get_model()->getNoStat();
     nostat->detachFromMesh();
   }
   return 0;
@@ -7201,7 +7204,7 @@ GEOSLIB_API int spde_posterior(Db *dbin,
  ** \param[in]  gext          Array of domain dilation
  **
  *****************************************************************************/
-static void st_environ_print(const Db *dbout, const VectorDouble& gext)
+static void st_environ_print(const Db *dbout, const VectorDouble &gext)
 {
   if (S_DECIDE.flag_case == CASE_KRIGING)
   {
@@ -7227,7 +7230,7 @@ static void st_environ_print(const Db *dbout, const VectorDouble& gext)
 
   if (S_DECIDE.flag_gibbs) message("- Gibbs iterations\n");
 
-  if (is_grid(dbout) && ! gext.empty())
+  if (is_grid(dbout) && !gext.empty())
   {
     message("- The resulting Grid is dilated: %lf", gext[0]);
     for (int idim = 1; idim < dbout->getNDim(); idim++)
@@ -7352,7 +7355,7 @@ static bool is_in_mesh_neigh(SPDE_Mesh *s_mesh,
       for (int idim = 0; idim < ndim; idim++)
       {
         delta = (POINTS(OLD_MESHES(imesh,jcorn), idim)
-               - POINTS(OLD_MESHES(imesh,icorn), idim));
+            - POINTS(OLD_MESHES(imesh,icorn), idim));
         top += delta * (POINTS(OLD_MESHES(imesh,icorn),idim) - coor[idim]);
         bot += delta * delta;
       }
@@ -7390,7 +7393,7 @@ static bool is_in_mesh_neigh(SPDE_Mesh *s_mesh,
  ** \remarks by calling function
  **
  *****************************************************************************/
-static double *st_get_containers(MeshEStandard *amesh)
+static double* st_get_containers(MeshEStandard *amesh)
 {
   double *contain, value, vmin, vmax;
   int ncorner, ndim, nmesh;
@@ -7403,7 +7406,7 @@ static double *st_get_containers(MeshEStandard *amesh)
 
   /* Allocation */
 
-  contain = (double *) mem_alloc(sizeof(double) * 2 * ndim * nmesh, 0);
+  contain = (double*) mem_alloc(sizeof(double) * 2 * ndim * nmesh, 0);
   if (contain == nullptr) return (contain);
 
   /* Loop on the meshes */
@@ -7489,7 +7492,7 @@ static bool is_in_mesh_container(double *coor,
  ** \remarks order in Db)
  **
  *****************************************************************************/
-GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
+GSTLEARN_EXPORT cs* db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
 {
   double *units, *coor, *contain, *weight;
   int error, imesh, imesh0, ip, flag_sphere, found, iech, ip_max;
@@ -7516,7 +7519,7 @@ GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
 
   coor = db_sample_alloc(db, ELoc::X);
   if (coor == nullptr) goto label_end;
-  weight = (double *) mem_alloc(sizeof(double) * ncorner, 0);
+  weight = (double*) mem_alloc(sizeof(double) * ncorner, 0);
   if (weight == nullptr) goto label_end;
   if (!flag_sphere)
   {
@@ -7526,7 +7529,7 @@ GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
 
   /* Calculate the mesh units */
 
-  units = spde_get_mesh_dimension(amesh);
+  units = _spde_get_mesh_dimension(amesh);
   if (units == nullptr) goto label_end;
 
   /* Loop on the samples */
@@ -7591,9 +7594,9 @@ GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
   error = 0;
 
   label_end: Atriplet = cs_spfree(Atriplet);
-  contain = (double *) mem_free((char * ) contain);
-  units = (double *) mem_free((char * ) units);
-  weight = (double *) mem_free((char * ) weight);
+  contain = (double*) mem_free((char* ) contain);
+  units = (double*) mem_free((char* ) units);
+  weight = (double*) mem_free((char* ) weight);
   coor = db_sample_free(coor);
   if (error) A = cs_spfree(A);
   return (A);
@@ -7613,7 +7616,7 @@ GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
  ** \param[out] np3d      Number of 3-D points
  **
  *****************************************************************************/
-static double *st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
+static double* st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
 {
   double *p3d, *points, value;
   int error, ndim, np, nvertex;
@@ -7629,7 +7632,7 @@ static double *st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
 
   /* Core allocation */
 
-  p3d = (double *) mem_alloc(sizeof(double) * ndim * nvertex, 0);
+  p3d = (double*) mem_alloc(sizeof(double) * ndim * nvertex, 0);
   if (p3d == nullptr) goto label_end;
 
   /* Load the array of 3-D coordinates */
@@ -7649,7 +7652,7 @@ static double *st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
 
   if (np != nvertex)
   {
-    p3d = (double *) mem_realloc((char * ) p3d, sizeof(double) * ndim * np, 0);
+    p3d = (double*) mem_realloc((char* ) p3d, sizeof(double) * ndim * np, 0);
     if (p3d == nullptr) goto label_end;
   }
   *np3d = np;
@@ -7658,7 +7661,7 @@ static double *st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
 
   error = 0;
 
-  label_end: if (error) p3d = (double *) mem_free((char * ) p3d);
+  label_end: if (error) p3d = (double*) mem_free((char* ) p3d);
   return (p3d);
 }
 
@@ -7667,7 +7670,7 @@ static double *st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
  **  Free all memory used in SPDE
  **
  *****************************************************************************/
-GEOSLIB_API void spde_free_all(void)
+GSTLEARN_EXPORT void spde_free_all(void)
 
 {
   for (int igrf = 0; igrf < SPDE_MAX_NGRF; igrf++)
@@ -7701,19 +7704,19 @@ GEOSLIB_API void spde_free_all(void)
  ** \param[in]  flag_modif    1 for post-processing simulations
  **
  *****************************************************************************/
-GEOSLIB_API int spde_check(const Db *dbin,
-                           const Db *dbout,
-                           Model *model1,
-                           Model *model2,
-                           int verbose,
-                           const VectorDouble& gext,
-                           int mesh_dbin,
-                           int mesh_dbout,
-                           int flag_advanced,
-                           int flag_est,
-                           int flag_std,
-                           int flag_gibbs,
-                           int flag_modif)
+GSTLEARN_EXPORT int spde_check(const Db *dbin,
+                               const Db *dbout,
+                               Model *model1,
+                               Model *model2,
+                               int verbose,
+                               const VectorDouble &gext,
+                               int mesh_dbin,
+                               int mesh_dbout,
+                               int flag_advanced,
+                               int flag_est,
+                               int flag_std,
+                               int flag_gibbs,
+                               int flag_modif)
 {
   Model *models[2];
   int nlevels, ncova;
@@ -7867,14 +7870,14 @@ GEOSLIB_API int spde_check(const Db *dbin,
  ** \remark Hence the test on the number of models
  **
  *****************************************************************************/
-GEOSLIB_API int kriging2D_spde(Db *dbin,
-                               Model *model,
-                               SPDE_Option& s_option,
-                               int verbose,
-                               int *nmesh_arg,
-                               int *nvertex_arg,
-                               int **meshes_arg,
-                               double **points_arg)
+GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
+                                   Model *model,
+                                   SPDE_Option &s_option,
+                                   int verbose,
+                                   int *nmesh_arg,
+                                   int *nvertex_arg,
+                                   int **meshes_arg,
+                                   double **points_arg)
 {
   int error, ncur, size, ndata, nvar, ncova;
   double *zcur, *work, *data;
@@ -7890,8 +7893,8 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
 
   /* Preliminary checks */
 
-  if (spde_check(dbin, NULL, model, NULL, verbose, VectorDouble(),
-                 1, 1, 1, 1, 0, 0, 0)) goto label_end;
+  if (spde_check(dbin, NULL, model, NULL, verbose, VectorDouble(), 1, 1, 1, 1,
+                 0, 0, 0)) goto label_end;
   if (st_get_number_grf() != 1)
   {
     messerr("This function should be called in the case of a single Model");
@@ -7913,7 +7916,7 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
   if (spde_prepar(NULL, dbin, VectorDouble(), s_option)) goto label_end;
   st_set_current_igrf(0);
   {
-    SPDE_Matelem& Matelem = spde_get_current_matelem(-1);
+    SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
     s_mesh = Matelem.s_mesh;
 
     /* Core allocation */
@@ -7922,11 +7925,11 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
     ncova = st_get_ncova_max();
     ndata = dbin->getActiveSampleNumber();
     ncur = s_mesh->nvertex;
-    zcur = (double *) mem_alloc(sizeof(double) * ncur * nvar, 0);
+    zcur = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zcur == nullptr) goto label_end;
-    work = (double *) mem_alloc(sizeof(double) * ncur, 0);
+    work = (double*) mem_alloc(sizeof(double) * ncur, 0);
     if (work == nullptr) goto label_end;
-    data = (double *) mem_alloc(sizeof(double) * ndata * nvar, 0);
+    data = (double*) mem_alloc(sizeof(double) * ndata * nvar, 0);
     if (data == nullptr) goto label_end;
 
     /* Load the data */
@@ -7950,9 +7953,9 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
 
   *points_arg = st_get_coords_3D(s_mesh, zcur, nvertex_arg);
   size = s_mesh->nmesh * s_mesh->ncorner;
-  *meshes_arg = (int *) mem_alloc(sizeof(int) * size, 0);
+  *meshes_arg = (int*) mem_alloc(sizeof(int) * size, 0);
   if (*meshes_arg == nullptr) goto label_end;
-  (void) memcpy((char *) *meshes_arg, (char *) s_mesh->meshes,
+  (void) memcpy((char*) *meshes_arg, (char*) s_mesh->meshes,
                 sizeof(int) * size);
   *nmesh_arg = s_mesh->nmesh;
 
@@ -7964,9 +7967,9 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
 
   error = 0;
 
-  label_end: zcur = (double *) mem_free((char * ) zcur);
-  work = (double *) mem_free((char * ) work);
-  data = (double *) mem_free((char * ) data);
+  label_end: zcur = (double*) mem_free((char* ) zcur);
+  work = (double*) mem_free((char* ) work);
+  data = (double*) mem_free((char* ) data);
   return (error);
 }
 
@@ -7998,23 +8001,23 @@ GEOSLIB_API int kriging2D_spde(Db *dbin,
  ** \remarks  the simulation algorithm is turned into a kriging one
  **
  *****************************************************************************/
-GEOSLIB_API int spde_f(Db *dbin,
-                       Db *dbout,
-                       Model *model,
-                       const VectorDouble& gext,
-                       SPDE_Option& s_option,
-                       int mesh_dbin,
-                       int mesh_dbout,
-                       int seed,
-                       int nbsimu,
-                       int ngibbs_burn,
-                       int ngibbs_iter,
-                       int ngibbs_int,
-                       int flag_est,
-                       int flag_std,
-                       int flag_gibbs,
-                       int flag_modif,
-                       int verbose)
+GSTLEARN_EXPORT int spde_f(Db *dbin,
+                           Db *dbout,
+                           Model *model,
+                           const VectorDouble &gext,
+                           SPDE_Option &s_option,
+                           int mesh_dbin,
+                           int mesh_dbout,
+                           int seed,
+                           int nbsimu,
+                           int ngibbs_burn,
+                           int ngibbs_iter,
+                           int ngibbs_int,
+                           int flag_est,
+                           int flag_std,
+                           int flag_gibbs,
+                           int flag_modif,
+                           int verbose)
 {
   int error, iad, nvar, nv_krige;
 
@@ -8083,8 +8086,7 @@ GEOSLIB_API int spde_f(Db *dbin,
 
   error = 0;
 
-  label_end:
-  if (S_DECIDE.flag_modif) dbout->deleteFieldByLocator(ELoc::SIMU);
+  label_end: if (S_DECIDE.flag_modif) dbout->deleteFieldByLocator(ELoc::SIMU);
   return (error);
 }
 
@@ -8105,8 +8107,8 @@ GEOSLIB_API int spde_f(Db *dbin,
 static void st_product_Q(int nblin,
                          double *blin,
                          cs *S,
-                         const VectorDouble& Lambda,
-                         const VectorDouble& TildeC,
+                         const VectorDouble &Lambda,
+                         const VectorDouble &TildeC,
                          double *x,
                          double *y)
 {
@@ -8119,8 +8121,8 @@ static void st_product_Q(int nblin,
 
   // Core allocation 
 
-  x1 = (double *) mem_alloc(sizeof(double) * n, 1);
-  x2 = (double *) mem_alloc(sizeof(double) * n, 1);
+  x1 = (double*) mem_alloc(sizeof(double) * n, 1);
+  x2 = (double*) mem_alloc(sizeof(double) * n, 1);
 
   for (int i = 0; i < n; i++)
     y[i] = 0.;
@@ -8139,8 +8141,8 @@ static void st_product_Q(int nblin,
   for (int i = 0; i < n; i++)
     y[i] *= pow(Lambda[i] / sqrt(TildeC[i]), 2.) * sqrt(TildeC[i]);
 
-  x1 = (double *) mem_free((char * ) x1);
-  x2 = (double *) mem_free((char * ) x2);
+  x1 = (double*) mem_free((char* ) x1);
+  x2 = (double*) mem_free((char* ) x2);
 }
 
 /****************************************************************************/
@@ -8161,14 +8163,14 @@ static void st_product_Q(int nblin,
  ** \param[out] y         Output array
  **
  *****************************************************************************/
-GEOSLIB_API int spde_eval(int nblin,
-                          double *blin,
-                          cs *S,
-                          const VectorDouble& Lambda,
-                          const VectorDouble& TildeC,
-                          double power,
-                          double *x,
-                          double *y)
+GSTLEARN_EXPORT int spde_eval(int nblin,
+                              double *blin,
+                              cs *S,
+                              const VectorDouble &Lambda,
+                              const VectorDouble &TildeC,
+                              double power,
+                              double *x,
+                              double *y)
 {
   Cheb_Elem *cheb_elem;
   int error, n;
@@ -8420,8 +8422,8 @@ static int st_check_validity_MS(Db *db,
   if (error == 0) return (0);
   if (flag_verbose)
   {
-    messerr("Error at Sample #%d/%d for Layer #%d", iech + 1, db->getSampleNumber(),
-            ilayer + 1);
+    messerr("Error at Sample #%d/%d for Layer #%d", iech + 1,
+            db->getSampleNumber(), ilayer + 1);
     if (FFFF(M))
       messerr("- Mean is undefined");
     else
@@ -8516,10 +8518,10 @@ static double st_m2d_external_drift_increment(M2D_Environ *m2denv,
 {
   double value, previous;
 
-  value = db->getExternalDrift(iech0,ilayer0);
+  value = db->getExternalDrift(iech0, ilayer0);
   if (FFFF(value)) return (TEST);
   if (ilayer0 > 1)
-    previous = db->getExternalDrift(iech0,ilayer0 - 1);
+    previous = db->getExternalDrift(iech0, ilayer0 - 1);
   else
     previous = m2denv->dmini;
   if (FFFF(previous)) return (TEST);
@@ -8638,14 +8640,14 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 
   // Store the resulting array in the file
 
-  dbc->setFieldByAttribute(tab,iptr);
+  dbc->setFieldByAttribute(tab, iptr);
 
   // Set the error returned code
 
   error = 0;
 
   label_end: if (error && iptr >= 0) dbc->deleteFieldByAttribute(iptr);
-  tab = (double *) mem_free((char * ) tab);
+  tab = (double*) mem_free((char* ) tab);
   return (iptr);
 }
 
@@ -8676,7 +8678,7 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  if (m2denv == (M2D_Environ *) NULL) return (1);
+  if (m2denv == (M2D_Environ*) NULL) return (1);
   iptr = -1;
 
   /* Dispatch */
@@ -9100,7 +9102,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
   if (m2denv->flag_ed)
   {
-    dval = (double *) mem_alloc(sizeof(double) * nechin, 0);
+    dval = (double*) mem_alloc(sizeof(double) * nechin, 0);
     if (dval == nullptr) goto label_end;
   }
 
@@ -9135,7 +9137,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
       for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
       {
         if (!dbout->isActive(iech)) continue;
-        value = dbout->getExternalDrift(iech,ilayer);
+        value = dbout->getExternalDrift(iech, ilayer);
         if (FFFF(value)) continue;
         nb++;
         if (FFFF(m2denv->dmini) || value < m2denv->dmini) m2denv->dmini = value;
@@ -9184,7 +9186,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
   error = 0;
 
-  label_end: dval = (double *) mem_free((char * ) dval);
+  label_end: dval = (double*) mem_free((char* ) dval);
   return (error);
 }
 
@@ -9258,11 +9260,11 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
   /* Core allocation */
 
-  m2denv->dcoef = (double *) mem_alloc(sizeof(double) * nlayer, 0);
+  m2denv->dcoef = (double*) mem_alloc(sizeof(double) * nlayer, 0);
   if (m2denv->dcoef == nullptr) goto label_end;
-  a = (double *) mem_alloc(sizeof(double) * nbfl * nbfl, 0);
+  a = (double*) mem_alloc(sizeof(double) * nbfl * nbfl, 0);
   if (a == nullptr) goto label_end;
-  b = (double *) mem_alloc(sizeof(double) * nbfl, 0);
+  b = (double*) mem_alloc(sizeof(double) * nbfl, 0);
   if (b == nullptr) goto label_end;
 
   /* Loop on the layers */
@@ -9360,8 +9362,8 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
   error = 0;
 
-  label_end: a = (double *) mem_free((char * ) a);
-  b = (double *) mem_free((char * ) b);
+  label_end: a = (double*) mem_free((char* ) a);
+  b = (double*) mem_free((char* ) b);
   return (error);
 }
 
@@ -9518,7 +9520,7 @@ static int st_record_sample(M2D_Environ *m2denv,
   // For each layer, set the External Drift value (optional) 
 
   if (m2denv->flag_ed) for (int ilayer = 0; ilayer < nlayer; ilayer++)
-    tab[ecr++] = db->getExternalDrift(iech,ilayer);
+    tab[ecr++] = db->getExternalDrift(iech, ilayer);
 
   /* Increment the number of records by 1 */
 
@@ -9559,8 +9561,7 @@ static void st_define_locators(M2D_Environ *m2denv,
     if (ilayer < nvar) db->setLocatorByAttribute(ivar, ELoc::Z, ilayer);
     ivar++;
   }
-  if (m2denv->flag_ed)
-    db->setLocatorsByAttribute(nlayer, ivar, ELoc::F);
+  if (m2denv->flag_ed) db->setLocatorsByAttribute(nlayer, ivar, ELoc::F);
 }
 
 /****************************************************************************/
@@ -9605,7 +9606,7 @@ static void st_m2d_print_environ(const char *title, M2D_Environ *m2denv)
  ** \remark as the number of ACTIVE samples of the input Db
  **
  *****************************************************************************/
-static Db *st_m2d_create_constraints(M2D_Environ *m2denv,
+static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
                                      Db *dbin,
                                      Db *dbout,
                                      int ndim,
@@ -9687,18 +9688,18 @@ static Db *st_m2d_create_constraints(M2D_Environ *m2denv,
   }
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    (void) gslSPrintf(string_encode,  "Lower%d", ilayer + 1);
+    (void) gslSPrintf(string_encode, "Lower%d", ilayer + 1);
     db_name_set(db, ecr++, string_encode);
-    (void) gslSPrintf(string_encode,  "Upper%d", ilayer + 1);
+    (void) gslSPrintf(string_encode, "Upper%d", ilayer + 1);
     db_name_set(db, ecr++, string_encode);
-    (void) gslSPrintf(string_encode,  "Value%d", ilayer + 1);
+    (void) gslSPrintf(string_encode, "Value%d", ilayer + 1);
     db_name_set(db, ecr++, string_encode);
   }
   if (m2denv->flag_ed)
   {
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      (void) gslSPrintf(string_encode,  "Drift%d", ilayer + 1);
+      (void) gslSPrintf(string_encode, "Drift%d", ilayer + 1);
       db_name_set(db, ecr++, string_encode);
     }
   }
@@ -9723,7 +9724,7 @@ static Db *st_m2d_create_constraints(M2D_Environ *m2denv,
  ** \param[in]  Matelem     Matelem structure
  **
  *****************************************************************************/
-static QChol *st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem& Matelem)
+static QChol* st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem &Matelem)
 {
   cs *Bt, *B2, *Q, *B;
   int error;
@@ -9796,13 +9797,13 @@ static QChol *st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem& Matelem)
  ** \remarks if the smallest value between the Db et Mesh space dimensions.
  **
  *****************************************************************************/
-GEOSLIB_API cs *db_mesh_neigh(const Db *db,
-                              SPDE_Mesh *s_mesh,
-                              double radius,
-                              int flag_exact,
-                              int verbose,
-                              int *nactive_arg,
-                              int **ranks_arg)
+GSTLEARN_EXPORT cs* db_mesh_neigh(const Db *db,
+                                  SPDE_Mesh *s_mesh,
+                                  double radius,
+                                  int flag_exact,
+                                  int verbose,
+                                  int *nactive_arg,
+                                  int **ranks_arg)
 {
   double *coor, *caux, total;
   int *pts, *ranks, error, ncorner, ip, flag_sphere, ndimd, ndimv, ndim, jech;
@@ -9832,7 +9833,7 @@ GEOSLIB_API cs *db_mesh_neigh(const Db *db,
 
   /* Core allocation */
 
-  ranks = (int *) mem_alloc(sizeof(int) * nech, 0);
+  ranks = (int*) mem_alloc(sizeof(int) * nech, 0);
   if (ranks == nullptr) goto label_end;
   for (int iech = 0; iech < nech; iech++)
     ranks[iech] = -1;
@@ -9846,7 +9847,7 @@ GEOSLIB_API cs *db_mesh_neigh(const Db *db,
   if (coor == nullptr) goto label_end;
   caux = db_sample_alloc(db, ELoc::X);
   if (caux == nullptr) goto label_end;
-  pts = (int *) mem_alloc(sizeof(int) * s_mesh->nvertex, 0);
+  pts = (int*) mem_alloc(sizeof(int) * s_mesh->nvertex, 0);
   if (pts == nullptr) goto label_end;
 
   /* Loop on the samples */
@@ -9930,7 +9931,7 @@ GEOSLIB_API cs *db_mesh_neigh(const Db *db,
   /* Core reallocation */
 
   nactive = jech_max + 1;
-  ranks = (int *) mem_realloc((char * ) ranks, sizeof(int) * nactive, 0);
+  ranks = (int*) mem_realloc((char* ) ranks, sizeof(int) * nactive, 0);
   if (ranks == nullptr) goto label_end;
 
   /* Convert the triplet into a sparse matrix */
@@ -9944,7 +9945,7 @@ GEOSLIB_API cs *db_mesh_neigh(const Db *db,
   *ranks_arg = ranks;
 
   label_end: Atriplet = cs_spfree(Atriplet);
-  pts = (int *) mem_free((char * ) pts);
+  pts = (int*) mem_free((char* ) pts);
   coor = db_sample_free(coor);
   caux = db_sample_free(caux);
   if (error) A = cs_spfree(A);
@@ -10432,7 +10433,7 @@ static int st_check_gibbs_data(const char *title,
  **                         (only used when mode==-1)
  **
  *****************************************************************************/
-static M2D_Environ *m2denv_manage(int mode,
+static M2D_Environ* m2denv_manage(int mode,
                                   int flag_ed,
                                   double ystdv,
                                   M2D_Environ *m2denv_old)
@@ -10446,8 +10447,8 @@ static M2D_Environ *m2denv_manage(int mode,
 
     // Allocation
 
-    m2denv = (M2D_Environ *) mem_alloc(sizeof(M2D_Environ), 0);
-    if (m2denv == (M2D_Environ *) NULL) return (m2denv);
+    m2denv = (M2D_Environ*) mem_alloc(sizeof(M2D_Environ), 0);
+    if (m2denv == (M2D_Environ*) NULL) return (m2denv);
     m2denv->flag_ed = flag_ed;
     m2denv->iatt_fd = -1;
     m2denv->iatt_fg = -1;
@@ -10464,11 +10465,11 @@ static M2D_Environ *m2denv_manage(int mode,
   else
   {
     m2denv = m2denv_old;
-    if (m2denv != (M2D_Environ *) NULL)
+    if (m2denv != (M2D_Environ*) NULL)
 
     {
-      m2denv->dcoef = (double *) mem_free((char * ) m2denv->dcoef);
-      m2denv = (M2D_Environ *) mem_free((char * ) m2denv);
+      m2denv->dcoef = (double*) mem_free((char* ) m2denv->dcoef);
+      m2denv = (M2D_Environ*) mem_free((char* ) m2denv);
     }
   }
   return (m2denv);
@@ -10565,8 +10566,9 @@ static void st_print_db_constraints(const char *title,
       lower = db->getLowerBound(iech, ilayer);
       upper = db->getUpperBound(iech, ilayer);
       value = db->getVariable(iech, ilayer);
-      drift = db->getExternalDrift(iech,ilayer);
-      vgaus = (ydat != nullptr) ? YDAT(ilayer, iech) : TEST;
+      drift = db->getExternalDrift(iech, ilayer);
+      vgaus = (ydat != nullptr) ? YDAT(ilayer, iech) :
+                                  TEST;
       st_print_constraints_per_point(ilayer, iech, value, drift, vgaus, lower,
                                      upper);
     }
@@ -10593,7 +10595,7 @@ static void st_m2d_stats_gaus(const char *title,
   if (!DEBUG) return;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    (void) gslSPrintf(string_encode,  "%s (Layer #%d)", title, ilayer + 1);
+    (void) gslSPrintf(string_encode, "%s (Layer #%d)", title, ilayer + 1);
     ut_stats_mima_print(string_encode, nech, &YDAT(ilayer, 0), NULL);
   }
 }
@@ -10632,19 +10634,19 @@ static void st_m2d_stats_gaus(const char *title,
  ** \remarks It will serve as a multiplier to the Mean thickness maps.
  **
  *****************************************************************************/
-GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               int flag_ed,
-                               int nlayer,
-                               int niter,
-                               int seed,
-                               int nbsimu,
-                               int icol_pinch,
-                               int flag_drift,
-                               int flag_ce,
-                               int flag_cstd,
-                               int verbose)
+GSTLEARN_EXPORT int m2d_gibbs_spde(Db *dbin,
+                                   Db *dbout,
+                                   Model *model,
+                                   int flag_ed,
+                                   int nlayer,
+                                   int niter,
+                                   int seed,
+                                   int nbsimu,
+                                   int icol_pinch,
+                                   int flag_drift,
+                                   int flag_ce,
+                                   int flag_cstd,
+                                   int verbose)
 {
   int error, iatt_f, iatt_out, nvertex, nech, ngrid, ndim, number_hard, nfois;
   int iptr_ce, iptr_cstd, ecr;
@@ -10665,7 +10667,7 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
   dbc = nullptr;
   Qc = nullptr;
   Bproj = nullptr;
-  m2denv = (M2D_Environ *) NULL;
+  m2denv = (M2D_Environ*) NULL;
   ysigma = 0.;
   number_hard = 0;
 
@@ -10733,10 +10735,10 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
   /* Prepare the M2D_Environ structure */
 
-  vartot = model->getCovAnisoList()->getTotalSill(0,0);
+  vartot = model->getCovAnisoList()->getTotalSill(0, 0);
 
   m2denv = m2denv_manage(1, flag_ed, sqrt(vartot), NULL);
-  if (m2denv == (M2D_Environ *) NULL) goto label_end;
+  if (m2denv == (M2D_Environ*) NULL) goto label_end;
 
   /* Preparing the variables in 'dbout' */
 
@@ -10747,7 +10749,7 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
   /* Core allocation */
 
-  lwork = (double *) mem_alloc(sizeof(double) * nlayer, 0);
+  lwork = (double*) mem_alloc(sizeof(double) * nlayer, 0);
   if (lwork == nullptr) goto label_end;
 
   /* Global statistics on Raw elevations */
@@ -10780,8 +10782,8 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
   // Then the environment is set to the multivariate case
   if (verbose) message("\n==> Checking SPDE Environment\n");
   st_define_locators(m2denv, dbc, ndim, 1, nlayer);
-  if (spde_check(dbc, dbout, model, NULL, 0, VectorDouble(), 0, 1, 1, 0, 0, 0, 0))
-    goto label_end;
+  if (spde_check(dbc, dbout, model, NULL, 0, VectorDouble(), 0, 1, 1, 0, 0, 0,
+                 0)) goto label_end;
   st_define_locators(m2denv, dbc, ndim, nlayer, nlayer);
 
   /* Define initial values at constraints and set in Db */
@@ -10803,13 +10805,13 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
   if (flag_drift)
   {
-    gwork = (double *) mem_alloc(sizeof(double) * ngrid * nlayer, 0);
+    gwork = (double*) mem_alloc(sizeof(double) * ngrid * nlayer, 0);
     if (gwork == nullptr) goto label_end;
     st_m2d_drift_save(m2denv, dbout, nlayer, gwork);
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      dbout->setFieldByAttribute(&GWORK(ilayer,0),iatt_out+ilayer);
-      (void) gslSPrintf(string_encode,  "Drift%d", ilayer + 1);
+      dbout->setFieldByAttribute(&GWORK(ilayer, 0), iatt_out + ilayer);
+      (void) gslSPrintf(string_encode, "Drift%d", ilayer + 1);
       db_name_set(dbout, iatt_out + ilayer, string_encode);
     }
     error = 0;
@@ -10833,24 +10835,24 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
   s_option = spde_option_alloc();
   if (spde_prepar(dbc, dbout, VectorDouble(), s_option)) goto label_end;
   {
-    SPDE_Matelem& Matelem = spde_get_current_matelem(0);
+    SPDE_Matelem &Matelem = spde_get_current_matelem(0);
     MeshEStandard amesh;
     amesh.convertFromOldMesh(Matelem.s_mesh, 0);
     nvertex = st_get_nvertex(0);
 
     /* Core allocation */
 
-    ydat = (double *) mem_alloc(sizeof(double) * nech * nlayer, 0);
+    ydat = (double*) mem_alloc(sizeof(double) * nech * nlayer, 0);
     if (ydat == nullptr) goto label_end;
-    ymean = (double *) mem_alloc(sizeof(double) * nech * nlayer, 0);
+    ymean = (double*) mem_alloc(sizeof(double) * nech * nlayer, 0);
     if (ymean == nullptr) goto label_end;
-    yvert = (double *) mem_alloc(sizeof(double) * nlayer * nvertex, 0);
+    yvert = (double*) mem_alloc(sizeof(double) * nlayer * nvertex, 0);
     if (yvert == nullptr) goto label_end;
-    rhs = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+    rhs = (double*) mem_alloc(sizeof(double) * nvertex, 0);
     if (rhs == nullptr) goto label_end;
-    vwork = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+    vwork = (double*) mem_alloc(sizeof(double) * nvertex, 0);
     if (vwork == nullptr) goto label_end;
-    zkrig = (double *) mem_alloc(sizeof(double) * nvertex, 0);
+    zkrig = (double*) mem_alloc(sizeof(double) * nvertex, 0);
     if (zkrig == nullptr) goto label_end;
 
     for (int i = 0; i < nlayer * nvertex; i++)
@@ -10944,7 +10946,7 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
       Bproj = db_mesh_sparse(dbout, &amesh, 0);
       if (Bproj == nullptr) goto label_end;
-      gwork = (double *) mem_alloc(sizeof(double) * ngrid * nlayer, 0);
+      gwork = (double*) mem_alloc(sizeof(double) * ngrid * nlayer, 0);
       if (gwork == nullptr) goto label_end;
 
       /* Project from vertices to grid nodes */
@@ -10967,7 +10969,8 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
       st_m2d_stats_gaus("Depth on grid", nlayer, ngrid, gwork);
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        dbout->setFieldByAttribute(&GWORK(ilayer,0),iatt_out + isimu * nlayer + ilayer);
+        dbout->setFieldByAttribute(&GWORK(ilayer, 0),
+                                   iatt_out + isimu * nlayer + ilayer);
       }
     }
 
@@ -10978,8 +10981,8 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
     {
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        (void) gslSPrintf(string_encode,
-                          "Layer-%d_Simu-%d", ilayer + 1, isimu + 1);
+        (void) gslSPrintf(string_encode, "Layer-%d_Simu-%d", ilayer + 1,
+                          isimu + 1);
         db_name_set(dbout, iatt_out + ecr, string_encode);
         ecr++;
       }
@@ -11014,12 +11017,12 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
 
       if (iptr_ce >= 0) for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        (void) gslSPrintf(string_encode,  "Layer-%d_CE", ilayer + 1);
+        (void) gslSPrintf(string_encode, "Layer-%d_CE", ilayer + 1);
         db_name_set(dbout, iptr_ce + ilayer, string_encode);
       }
       if (iptr_cstd >= 0) for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        (void) gslSPrintf(string_encode,  "Layer-%d_CStd", ilayer + 1);
+        (void) gslSPrintf(string_encode, "Layer-%d_CStd", ilayer + 1);
         db_name_set(dbout, iptr_cstd + ilayer, string_encode);
       }
     }
@@ -11035,14 +11038,14 @@ GEOSLIB_API int m2d_gibbs_spde(Db *dbin,
   m2denv = m2denv_manage(-1, flag_ed, 0., m2denv);
   Qc = qchol_manage(-1, Qc);
   Bproj = cs_spfree(Bproj);
-  ydat = (double *) mem_free((char * ) ydat);
-  ymean = (double *) mem_free((char * ) ymean);
-  yvert = (double *) mem_free((char * ) yvert);
-  gwork = (double *) mem_free((char * ) gwork);
-  vwork = (double *) mem_free((char * ) vwork);
-  lwork = (double *) mem_free((char * ) lwork);
-  rhs = (double *) mem_free((char * ) rhs);
-  zkrig = (double *) mem_free((char * ) zkrig);
+  ydat = (double*) mem_free((char* ) ydat);
+  ymean = (double*) mem_free((char* ) ymean);
+  yvert = (double*) mem_free((char* ) yvert);
+  gwork = (double*) mem_free((char* ) gwork);
+  vwork = (double*) mem_free((char* ) vwork);
+  lwork = (double*) mem_free((char* ) lwork);
+  rhs = (double*) mem_free((char* ) rhs);
+  zkrig = (double*) mem_free((char* ) zkrig);
   if (iatt_f >= 0) (void) db_attribute_del_mult(dbin, iatt_f, nlayer);
   if (error && iatt_out >= 0)
     (void) db_attribute_del_mult(dbout, iatt_out, nlayer);

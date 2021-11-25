@@ -204,7 +204,7 @@ static void st_filename_patch(const char *ref_name,
  ** \param[out] filename  Output filename
  **
  *****************************************************************************/
-GEOSLIB_API void ascii_external_filename(const char *filein,
+GSTLEARN_EXPORT void ascii_external_filename(const char *filein,
                                          int mode,
                                          char *filename)
 {
@@ -222,7 +222,7 @@ GEOSLIB_API void ascii_external_filename(const char *filein,
  ** \param[out] filename  Output filename
  **
  *****************************************************************************/
-GEOSLIB_API void ascii_filename(const char *type,
+GSTLEARN_EXPORT void ascii_filename(const char *type,
                                 int rank,
                                 int mode,
                                 char *filename)
@@ -262,7 +262,7 @@ GEOSLIB_API void ascii_filename(const char *type,
  ** \param[in]  study Local name of the study
  **
  *****************************************************************************/
-GEOSLIB_API void ascii_study_define(const char *study)
+GSTLEARN_EXPORT void ascii_study_define(const char *study)
 
 {
   (void) gslStrcpy(STUDY, study);
@@ -426,7 +426,7 @@ static int st_table_read(int ntab, double *tab)
  ** \param[in] verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API void ascii_environ_read(char *file_name, int verbose)
+GSTLEARN_EXPORT void ascii_environ_read(char *file_name, int verbose)
 
 {
   FILE *file;
@@ -465,7 +465,7 @@ GEOSLIB_API void ascii_environ_read(char *file_name, int verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API Db *ascii_db_read(const char *file_name,
+GSTLEARN_EXPORT Db *ascii_db_read(const char *file_name,
                               int must_grid,
                               int verbose)
 {
@@ -490,7 +490,7 @@ GEOSLIB_API Db *ascii_db_read(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API Vario *ascii_vario_read(const char *file_name, bool verbose)
+GSTLEARN_EXPORT Vario *ascii_vario_read(const char *file_name, bool verbose)
 {
   if (! st_file_exists(file_name)) return nullptr;
   Vario* vario = new Vario(file_name,verbose);
@@ -507,7 +507,7 @@ GEOSLIB_API Vario *ascii_vario_read(const char *file_name, bool verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API Model *ascii_model_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Model *ascii_model_read(const char *file_name, int verbose)
 
 {
   if (! st_file_exists(file_name)) return nullptr;
@@ -528,7 +528,7 @@ GEOSLIB_API Model *ascii_model_read(const char *file_name, int verbose)
  ** \remark  For MOVING neighborhood, only isotropic case is considered
  **
  *****************************************************************************/
-GEOSLIB_API Neigh *ascii_neigh_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Neigh *ascii_neigh_read(const char *file_name, int verbose)
 {
   if (! st_file_exists(file_name)) return nullptr;
   Neigh* neigh = new Neigh(file_name,verbose);
@@ -545,7 +545,7 @@ GEOSLIB_API Neigh *ascii_neigh_read(const char *file_name, int verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API Rule *ascii_rule_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Rule *ascii_rule_read(const char *file_name, int verbose)
 {
   if (! st_file_exists(file_name)) return nullptr;
   Rule* rule = new Rule(file_name,verbose);
@@ -564,7 +564,7 @@ GEOSLIB_API Rule *ascii_rule_read(const char *file_name, int verbose)
  ** \param[out]  seed      Seed for the random number generator
  **
  *****************************************************************************/
-GEOSLIB_API void ascii_simu_read(char *file_name,
+GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
                                  int verbose,
                                  int *nbsimu,
                                  int *nbtuba,
@@ -605,7 +605,7 @@ GEOSLIB_API void ascii_simu_read(char *file_name,
  ** \param[in]  flag_calcul  1 if anamorphosis calculations are stored
  **
  *****************************************************************************/
-GEOSLIB_API int ascii_anam_write(const char *file_name,
+GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
                                  const Anam* anam,
                                  int verbose,
                                  int flag_calcul)
@@ -747,7 +747,7 @@ GEOSLIB_API int ascii_anam_write(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Anam *ascii_anam_read(const char *file_name, int verbose)
 {
   FILE *file;
   double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax;
@@ -926,7 +926,7 @@ GEOSLIB_API Anam *ascii_anam_read(const char *file_name, int verbose)
  ** \param[out]  answer      Answer
  **
  *****************************************************************************/
-GEOSLIB_API int ascii_option_defined(const char *file_name,
+GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
                                      int verbose,
                                      const char *option_name,
                                      int type,
@@ -994,7 +994,7 @@ GEOSLIB_API int ascii_option_defined(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API int ascii_frac_write(const char *file_name,
+GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
                                  Frac_Environ *frac,
                                  int verbose)
 {
@@ -1095,7 +1095,7 @@ GEOSLIB_API int ascii_frac_write(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GEOSLIB_API Frac_Environ *ascii_frac_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Frac_Environ *ascii_frac_read(const char *file_name, int verbose)
 {
   Frac_Environ *frac;
   FILE *file;
@@ -1197,7 +1197,7 @@ GEOSLIB_API Frac_Environ *ascii_frac_read(const char *file_name, int verbose)
  ** \param[in]  flag_add_rank 1 To add the rank number
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_read_csv(const char *file_name,
+GSTLEARN_EXPORT Db *db_read_csv(const char *file_name,
                             int verbose,
                             int flag_header,
                             int nskip,

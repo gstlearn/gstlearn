@@ -95,7 +95,7 @@ static int st_skin_grid_shift(Skin *skin,
 ** \param[out]  iad  Absolute sample address
 **
 *****************************************************************************/
-GEOSLIB_API int skin_grid_shift(Skin *skin,
+GSTLEARN_EXPORT int skin_grid_shift(Skin *skin,
                                 int   lec,
                                 int   dir,
                                 int  *iad)
@@ -127,7 +127,7 @@ GEOSLIB_API int skin_grid_shift(Skin *skin,
 ** \remark  If func_get_weight is not defined, the weight is set to 1
 **
 *****************************************************************************/
-GEOSLIB_API Skin *skin_define(Db      *db,
+GSTLEARN_EXPORT Skin *skin_define(Db      *db,
                               int    (*func_already_done)(int ipos),
                               int    (*func_to_be_done)(int ipos),
                               double (*func_get_weight)(int ipos,int dir))
@@ -180,7 +180,7 @@ label_end:
 ** \param[in]  skin    Pointer to the skin to be deallocated
 **
 *****************************************************************************/
-GEOSLIB_API Skin *skin_undefine(Skin *skin)
+GSTLEARN_EXPORT Skin *skin_undefine(Skin *skin)
 
 {
 
@@ -347,7 +347,7 @@ static int st_skin_cell_add(Skin  *skin,
 ** \param[in] verbose  Verbose flag
 **
 *****************************************************************************/
-GEOSLIB_API int skin_init(Skin  *skin,
+GSTLEARN_EXPORT int skin_init(Skin  *skin,
                           int    verbose)
 {
   int    lec,ecr,dir,nb_count,nb_done,nb_mask,total,indg[3];
@@ -429,7 +429,7 @@ GEOSLIB_API int skin_init(Skin  *skin,
 ** \param[out] skin    Skin structure
 **
 *****************************************************************************/
-GEOSLIB_API int skin_remains(Skin *skin)
+GSTLEARN_EXPORT int skin_remains(Skin *skin)
 
 {
   skin->date++;
@@ -449,7 +449,7 @@ GEOSLIB_API int skin_remains(Skin *skin)
 ** \param[out] ipos     Cell location
 **
 *****************************************************************************/
-GEOSLIB_API void skin_next(Skin *skin,
+GSTLEARN_EXPORT void skin_next(Skin *skin,
                            int  *rank,
                            int  *ipos)
 {
@@ -492,7 +492,7 @@ GEOSLIB_API void skin_next(Skin *skin,
 ** \param[in] ipos0    Cell location
 **
 *****************************************************************************/
-GEOSLIB_API int skin_unstack(Skin *skin,
+GSTLEARN_EXPORT int skin_unstack(Skin *skin,
                              int   rank0,
                              int   ipos0)
 {
@@ -540,7 +540,7 @@ GEOSLIB_API int skin_unstack(Skin *skin,
 ** \param[in] skin    Skin structure
 **
 *****************************************************************************/
-GEOSLIB_API void skin_print(Skin *skin)
+GSTLEARN_EXPORT void skin_print(Skin *skin)
 
 {
   mestitle(1,"Skin algorithm: Final status");

@@ -12,11 +12,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "PrecisionOp.hpp"
 #include "ProjMatrix.hpp"
 
-class HessianOp : public ALinearOp {
+class GSTLEARN_EXPORT HessianOp : public ALinearOp {
 
 public:
 	HessianOp();

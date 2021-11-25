@@ -1,12 +1,12 @@
-#ifndef CATEGORY_HPP
-#define CATEGORY_HPP
+#pragma once
+
+#include "gstlearn_export.hpp"
+#include "Interfaces/interface_d.hpp"
 
 #include <iostream>
 #include <string>
 
-#include "Interfaces/interface_d.hpp"  //USE
-
-class Category
+class GSTLEARN_EXPORT Category
 {
 public:
   Category(int value = UNDEF_CAT_VAL, const std::string& label = UNDEF_CAT_LABEL);
@@ -33,5 +33,3 @@ private:
   int   _value;
   std::string _label;
 };
-
-#endif

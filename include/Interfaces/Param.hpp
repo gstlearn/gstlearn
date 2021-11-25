@@ -1,11 +1,12 @@
-#ifndef PARAM_HPP
-#define PARAM_HPP
+#pragma once
 
-#include "Interfaces/AParam.hpp" // ISA
-#include "Space/SpacePoint.hpp"  // HASA
-#include "Space/SpaceShape.hpp"  // HASA
-#include "Interfaces/interface_d.hpp" // USE enum (ECalcRules)
-#include <vector>          // USE
+#include "gstlearn_export.hpp"
+#include "Interfaces/AParam.hpp"
+#include "Space/SpacePoint.hpp"
+#include "Space/SpaceShape.hpp"
+#include "Interfaces/interface_d.hpp"
+
+#include <vector>
 
 /**********************************************************************
  ** Class defining the Condition to accept a Pair of Point (refering "code" notion)
@@ -20,7 +21,7 @@
  ** Default: Everything is set to 0
  ************************************************************************/
 //:WARNING: ParamVarioCond must be attached to a variable
-class ParamVarioCond: public AParam
+class GSTLEARN_EXPORT ParamVarioCond: public AParam
 {
 public:
   ParamVarioCond()
@@ -339,6 +340,4 @@ public:
   ECalcRules rules;
   bool useWeight; //:WARNING: unused
 };
-
-#endif
 

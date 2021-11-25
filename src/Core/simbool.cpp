@@ -122,7 +122,7 @@ static Def_Token DEF_TOKEN[] = {
 ** \param[in]  tokens Pointer to the Tokens structure to be freed
 **
 *****************************************************************************/
-GEOSLIB_API Tokens *tokens_free(Tokens *tokens)
+GSTLEARN_EXPORT Tokens *tokens_free(Tokens *tokens)
 
 {
   if (tokens == nullptr) return(tokens);
@@ -172,7 +172,7 @@ static void st_normalize_proportions(Tokens *tokens)
 ** \param[in]  nb_tokens  Number of tokens
 ** 
 *****************************************************************************/
-GEOSLIB_API Tokens *tokens_create(int nb_tokens)
+GSTLEARN_EXPORT Tokens *tokens_create(int nb_tokens)
 
 {
   Tokens *tokens;
@@ -210,7 +210,7 @@ GEOSLIB_API Tokens *tokens_create(int nb_tokens)
 **                        (Dimension: 4 * npar)
 ** 
 *****************************************************************************/
-GEOSLIB_API int tokone_create(Tokens *tokens,
+GSTLEARN_EXPORT int tokone_create(Tokens *tokens,
                               int     rank,
                               int     type,
                               int     npar,
@@ -477,7 +477,7 @@ static int st_lire_extension_linkage(Token_Def& def,
 ** \return  Pointer to the newly created Tokens structure
 **
 *****************************************************************************/
-GEOSLIB_API Tokens *tokens_input(void)
+GSTLEARN_EXPORT Tokens *tokens_input(void)
 
 {
   Tokens    *tokens;
@@ -547,7 +547,7 @@ GEOSLIB_API Tokens *tokens_input(void)
 ** \param[out]  prop    Token proportions
 ** 
 *****************************************************************************/
-GEOSLIB_API void tokone_get_nbparams(Tokens *tokens,
+GSTLEARN_EXPORT void tokone_get_nbparams(Tokens *tokens,
                                      int     rank,
                                      int    *type,
                                      int    *npar,
@@ -575,7 +575,7 @@ GEOSLIB_API void tokone_get_nbparams(Tokens *tokens,
 ** \param[out]  valarg     Array of randomization parameters (Dimension: 4*npar)
 ** 
 *****************************************************************************/
-GEOSLIB_API void tokone_get_params(Tokens *tokens,
+GSTLEARN_EXPORT void tokone_get_params(Tokens *tokens,
                                    int     rank,
                                    double *factor_x2y,
                                    double *factor_x2z,
@@ -607,7 +607,7 @@ GEOSLIB_API void tokone_get_params(Tokens *tokens,
 ** \param[in]  rank     Rank of the Token set
 ** 
 *****************************************************************************/
-GEOSLIB_API void tokone_print(Tokens *tokens,
+GSTLEARN_EXPORT void tokone_print(Tokens *tokens,
                               int rank)
 {
   if (tokens == nullptr) return;
@@ -631,7 +631,7 @@ GEOSLIB_API void tokone_print(Tokens *tokens,
 ** \param[in]  tokens   Tokens structure
 ** 
 *****************************************************************************/
-GEOSLIB_API void tokens_print(Tokens *tokens)
+GSTLEARN_EXPORT void tokens_print(Tokens *tokens)
 
 {
   int i;
@@ -1995,7 +1995,7 @@ static void st_print_grain(Bool_Cond *cdgrain)
 ** \param[in]  verbose       1 for a verbose output
 **
 *****************************************************************************/
-GEOSLIB_API int simbool_f(Db     *dbin,
+GSTLEARN_EXPORT int simbool_f(Db     *dbin,
                         Db     *dbout,
                         Tokens *tokens,
                         int     seed,
@@ -2339,7 +2339,7 @@ label_end:
 ** \param[in]   type    Token type (starting from 0)
 **
 *****************************************************************************/
-GEOSLIB_API int toktype_get_nbparams(int type)
+GSTLEARN_EXPORT int toktype_get_nbparams(int type)
 {
   if (type < 0 || type >= NB_TOKEN_TYPES)
   {

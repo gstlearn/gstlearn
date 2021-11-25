@@ -327,7 +327,7 @@ static void st_getclustermedoids(int     nech,
 ** \param[in]  verbose   Verbose option
 **
 ****************************************************************************/
-GEOSLIB_API double *kclusters(double *data,
+GSTLEARN_EXPORT double *kclusters(double *data,
                               int     nvar,
                               int     nech,
                               int     nclusters,
@@ -509,7 +509,7 @@ label_end:
 ** \param[in]  verbose   Verbose option
 **
 *****************************************************************************/
-GEOSLIB_API int *kmedoids(double *data,
+GSTLEARN_EXPORT int *kmedoids(double *data,
                           int     nvar,
                           int     nech,
                           int     nclusters,

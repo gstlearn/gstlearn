@@ -12,9 +12,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "LinearOp/ALinearOp.hpp"
 
-class ProdMatVect : public ALinearOp {
+class GSTLEARN_EXPORT ProdMatVect : public ALinearOp {
 
 public:
   ProdMatVect(int nx, int ny, double *A);

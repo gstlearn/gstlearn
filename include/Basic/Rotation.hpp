@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
-class Rotation: public AStringable /// TODO : public ASpaceObject
+class GSTLEARN_EXPORT Rotation: public AStringable /// TODO : public ASpaceObject
 {
 public:
   Rotation(unsigned int ndim = 2);

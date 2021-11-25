@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Covariances/ECalcMember.hpp"
 
-class CovCalcMode : public AStringable
+class GSTLEARN_EXPORT CovCalcMode : public AStringable
 {
 private:
   ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */

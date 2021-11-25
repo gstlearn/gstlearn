@@ -67,7 +67,7 @@ static double *RHS_TAB = NULL;
 ** \param[in]  value   Value of the parameter
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_constant_define(int    keywrd,
+GSTLEARN_EXPORT void matrix_constant_define(int    keywrd,
                                         double value)
 {
   if (keywrd == CST_TOLINV)
@@ -93,7 +93,7 @@ GEOSLIB_API void matrix_constant_define(int    keywrd,
 ** \param[in]  keywrd  Number of the keyword to be defined
 **
 *****************************************************************************/
-GEOSLIB_API double matrix_constant_query(int keywrd)
+GSTLEARN_EXPORT double matrix_constant_query(int keywrd)
 
 {
   if (keywrd == CST_TOLINV)
@@ -200,7 +200,7 @@ static int st_matrix_solve(double *at,
 ** \remark  a_in is protected
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_eigen(const double *a_in,
+GSTLEARN_EXPORT int matrix_eigen(const double *a_in,
                              int     neq,
                              double *value,
                              double *vector)
@@ -494,7 +494,7 @@ label_end:
 ** \remark  The matrix v3[] may coincide with one of the two initial ones
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_product(int n1,
+GSTLEARN_EXPORT void matrix_product(int n1,
                                 int n2,
                                 int n3,
                                 const double *v1,
@@ -532,7 +532,7 @@ GEOSLIB_API void matrix_product(int n1,
 ** \remark  The matrix v3[] may NOT coincide with one of the two initial ones
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_product_safe(int n1,
+GSTLEARN_EXPORT void matrix_product_safe(int n1,
                                      int n2,
                                      int n3,
                                      const double *v1,
@@ -573,7 +573,7 @@ GEOSLIB_API void matrix_product_safe(int n1,
 ** \remarks +1: the optional array A has dimension (n2,n2)
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_prod_norme(int transpose,
+GSTLEARN_EXPORT int matrix_prod_norme(int transpose,
                                   int n1,
                                   int n2,
                                   const double *v1,
@@ -649,7 +649,7 @@ GEOSLIB_API int matrix_prod_norme(int transpose,
 ** \remark  The matrix w1[] may NOT coincide with v1[]
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_transpose(int n1,
+GSTLEARN_EXPORT void matrix_transpose(int n1,
                                   int n2,
                                   double *v1,
                                   double *w1)
@@ -673,7 +673,7 @@ GEOSLIB_API void matrix_transpose(int n1,
 ** \param[in,out]  v1 rectangular matrix (n1,n2)
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_transpose_in_place(int n1, int n2, double *v1)
+GSTLEARN_EXPORT void matrix_transpose_in_place(int n1, int n2, double *v1)
 {
   int i1, i2, ecr;
   double *w1;
@@ -701,7 +701,7 @@ GEOSLIB_API void matrix_transpose_in_place(int n1, int n2, double *v1)
 ** \param[in,out]  v1 rectangular matrix (n1,n2)
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_int_transpose_in_place(int n1, int n2, int *v1)
+GSTLEARN_EXPORT void matrix_int_transpose_in_place(int n1, int n2, int *v1)
 {
   int i1, i2, ecr;
   int *w1;
@@ -738,7 +738,7 @@ GEOSLIB_API void matrix_int_transpose_in_place(int n1, int n2, int *v1)
 ** \remark  It is unnecessary to edit a message if inversion problem occurs
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_invert(double *a,
+GSTLEARN_EXPORT int matrix_invert(double *a,
                               int     neq,
                               int     rank)
 {
@@ -794,7 +794,7 @@ GEOSLIB_API int matrix_invert(double *a,
 ** \remark  matrix is different from input matrix
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_invert_copy(const double *a,
+GSTLEARN_EXPORT int matrix_invert_copy(const double *a,
                                    int     neq,
                                    double *b)
 {
@@ -830,7 +830,7 @@ GEOSLIB_API int matrix_invert_copy(const double *a,
 ** \param[out] pivot rank of the pivoting error (0 none)
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_solve(int mode,
+GSTLEARN_EXPORT int matrix_solve(int mode,
                              const double *a,
                              const double *b,
                              double *x,
@@ -901,7 +901,7 @@ label_end:
 ** \param[in]  verbose  1 for the verbose option
 **
 *****************************************************************************/
-GEOSLIB_API int is_matrix_symmetric(int     neq,
+GSTLEARN_EXPORT int is_matrix_symmetric(int     neq,
                                     const double *a,
                                     int     verbose)
 {
@@ -938,7 +938,7 @@ GEOSLIB_API int is_matrix_symmetric(int     neq,
 ** \param[out]  vecpro Array of eigen vectors (Dimension: neq * neq)
 **
 *****************************************************************************/
-GEOSLIB_API int is_matrix_definite_positive(int     neq,
+GSTLEARN_EXPORT int is_matrix_definite_positive(int     neq,
                                             const double *a,
                                             double *valpro,
                                             double *vecpro,
@@ -1005,7 +1005,7 @@ label_end:
 ** \param[in]  verbose  1 for the verbose option
 **
 *****************************************************************************/
-GEOSLIB_API int is_matrix_non_negative(int     nrow,
+GSTLEARN_EXPORT int is_matrix_non_negative(int     nrow,
                                        int     ncol,
                                        double *a,
                                        int     verbose)
@@ -1036,7 +1036,7 @@ GEOSLIB_API int is_matrix_non_negative(int     nrow,
 ** \param[in]  verbose  1 for the verbose option
 **
 *****************************************************************************/
-GEOSLIB_API int is_matrix_null(int     nrow,
+GSTLEARN_EXPORT int is_matrix_null(int     nrow,
                                int     ncol,
                                double *a,
                                int     verbose)
@@ -1066,7 +1066,7 @@ GEOSLIB_API int is_matrix_null(int     nrow,
 ** \param[in]  a      Symmetric square matrix to be checked
 **
 *****************************************************************************/
-GEOSLIB_API int is_matrix_correlation(int     neq,
+GSTLEARN_EXPORT int is_matrix_correlation(int     neq,
                                       double *a)
 {
   double *valpro,*vecpro;
@@ -1110,7 +1110,7 @@ label_end:
 ** \param[in]  b      Square matrix to be checked
 **
 *****************************************************************************/
-GEOSLIB_API double matrix_determinant(int     neq,
+GSTLEARN_EXPORT double matrix_determinant(int     neq,
                                       const double *b)
 {
   int     i,j,neqm1,j1,j2;
@@ -1177,7 +1177,7 @@ GEOSLIB_API double matrix_determinant(int     neq,
 ** \param[out] b      Square cofactor
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_cofactor(int     neq,
+GSTLEARN_EXPORT int matrix_cofactor(int     neq,
                                 double *a,
                                 double *b)
 {
@@ -1239,7 +1239,7 @@ GEOSLIB_API int matrix_cofactor(int     neq,
 ** \param[in]  tl  Lower triangular matrix defined by column
 **
 *****************************************************************************/
-GEOSLIB_API double matrix_cholesky_determinant(int     neq,
+GSTLEARN_EXPORT double matrix_cholesky_determinant(int     neq,
                                                double *tl)
 {
   int    i;
@@ -1263,7 +1263,7 @@ GEOSLIB_API double matrix_cholesky_determinant(int     neq,
 ** \remark  A rotation matrix must be orthogonal with determinant equal to 1
 **
 *****************************************************************************/
-GEOSLIB_API int is_matrix_rotation(int     neq,
+GSTLEARN_EXPORT int is_matrix_rotation(int     neq,
                                    const double *a,
                                    int     verbose)
 {
@@ -1314,7 +1314,7 @@ GEOSLIB_API int is_matrix_rotation(int     neq,
 ** \remark  the matrix a[] is destroyed during the calculations
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_cholesky_decompose(const double *a,
+GSTLEARN_EXPORT int matrix_cholesky_decompose(const double *a,
                                           double *tl,
                                           int     neq)
 {
@@ -1365,7 +1365,7 @@ GEOSLIB_API int matrix_cholesky_decompose(const double *a,
 ** \param[out] x    resulting matrix (dimension neq * nrhs)
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_cholesky_product(int     mode,
+GSTLEARN_EXPORT void matrix_cholesky_product(int     mode,
                                          int     neq,
                                          int     nrhs,
                                          double *tl,
@@ -1472,7 +1472,7 @@ GEOSLIB_API void matrix_cholesky_product(int     mode,
 ** \param[out] x    resulting matrix (dimension neq)
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_cholesky_solve(int     neq,
+GSTLEARN_EXPORT int matrix_cholesky_solve(int     neq,
                                       double *tl,
                                       double *b,
                                       double *x)
@@ -1525,7 +1525,7 @@ label_end:
 ** \param[out] xl   lower triangular inverted matrix defined by column
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_cholesky_invert(int     neq,
+GSTLEARN_EXPORT void matrix_cholesky_invert(int     neq,
                                         double *tl,
                                         double *xl)
 {
@@ -1558,7 +1558,7 @@ GEOSLIB_API void matrix_cholesky_invert(int     neq,
 ** \param[out] b    Square symmetric matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_cholesky_norme(int     mode,
+GSTLEARN_EXPORT void matrix_cholesky_norme(int     mode,
                                        int     neq,
                                        double *tl,
                                        double *a,
@@ -1615,7 +1615,7 @@ GEOSLIB_API void matrix_cholesky_norme(int     mode,
 ** \param[out] xl   invert lower triangular matrix 
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_cholesky_to_invert(int     neq,
+GSTLEARN_EXPORT int matrix_cholesky_to_invert(int     neq,
                                           double *tl,
                                           double *xl)
 {
@@ -1698,7 +1698,7 @@ label_end:
 ** \param[out] x      Resulting product vector
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_triangular_product(int neq,
+GSTLEARN_EXPORT void matrix_triangular_product(int neq,
                                            int mode,
                                            const double *al,
                                            const double *b,
@@ -1751,7 +1751,7 @@ GEOSLIB_API void matrix_triangular_product(int neq,
 ** \remark The input and output matrices can match
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_invgen(double *a,
+GSTLEARN_EXPORT int matrix_invgen(double *a,
                               int     neq,
                               double *tabout,
                               double *cond)
@@ -1811,7 +1811,7 @@ label_end:
 ** \param[in]  neq       Number of equations
 ** 
 *****************************************************************************/
-GEOSLIB_API double matrix_norm(double *a,
+GSTLEARN_EXPORT double matrix_norm(double *a,
                                int     neq)
 {
   double value;
@@ -1832,7 +1832,7 @@ GEOSLIB_API double matrix_norm(double *a,
 ** \param[out] v         Vector product
 **
 *****************************************************************************/
-GEOSLIB_API void vector_product(double *a,
+GSTLEARN_EXPORT void vector_product(double *a,
                                 double *b,
                                 double *v)
 {
@@ -1852,7 +1852,7 @@ GEOSLIB_API void vector_product(double *a,
 ** \param[out] b         Coordinates of the resulting point (Dimension: ndim)
 **
 *****************************************************************************/
-GEOSLIB_API void vector_translate(int ndim,
+GSTLEARN_EXPORT void vector_translate(int ndim,
                                   double *a,
                                   double *v,
                                   double *b)
@@ -1871,7 +1871,7 @@ GEOSLIB_API void vector_translate(int ndim,
 ** \param[in]  neq       Space dimension
 **
 *****************************************************************************/
-GEOSLIB_API double inner_product(const double *a,
+GSTLEARN_EXPORT double inner_product(const double *a,
                                  const double *b,
                                  int     neq)
 {
@@ -1896,7 +1896,7 @@ GEOSLIB_API double inner_product(const double *a,
 ** \param[in]  subneq    Dimension of the subspace to be considered
 **
 *****************************************************************************/
-GEOSLIB_API double matrix_normA(double *b,
+GSTLEARN_EXPORT double matrix_normA(double *b,
                                 double *a,
                                 int     neq,
                                 int     subneq)
@@ -1998,7 +1998,7 @@ static void st_elgs (double *a,
 ** \param[in]  neq  number of equations in the matrix 'a'
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_invsym(double *a,
+GSTLEARN_EXPORT int matrix_invsym(double *a,
                               int     neq)
 {
   double *x,*b,*c,ratio;
@@ -2070,7 +2070,7 @@ GEOSLIB_API int matrix_invsym(double *a,
 ** \param[in,out] a   input/output matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_invsign(int    neq,
+GSTLEARN_EXPORT void matrix_invsign(int    neq,
                                 double *a)
 {
   int i;
@@ -2089,7 +2089,7 @@ GEOSLIB_API void matrix_invsign(int    neq,
 ** \param[out] a      Resulting square matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_triangle_to_square(int     mode,
+GSTLEARN_EXPORT void matrix_triangle_to_square(int     mode,
                                            int     neq,
                                            double *tl,
                                            double *a)
@@ -2121,7 +2121,7 @@ GEOSLIB_API void matrix_triangle_to_square(int     mode,
 ** \param[out] a      Resulting square matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_tri2sq(int neq, double *tl, double *a)
+GSTLEARN_EXPORT void matrix_tri2sq(int neq, double *tl, double *a)
 {
   int i,j;
 
@@ -2145,7 +2145,7 @@ GEOSLIB_API void matrix_tri2sq(int neq, double *tl, double *a)
 ** \remark: No test is performed to check that the input matrix is symmetric
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_square_to_triangle(int     mode,
+GSTLEARN_EXPORT void matrix_square_to_triangle(int     mode,
                                            int     neq,
                                            double *a,
                                            double *tl)
@@ -2176,7 +2176,7 @@ GEOSLIB_API void matrix_square_to_triangle(int     mode,
 ** \param[out] a      Resulting square matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_produit_lu(int     neq,
+GSTLEARN_EXPORT void matrix_produit_lu(int     neq,
                                    double *tl,
                                    double *a)
 {
@@ -2206,7 +2206,7 @@ GEOSLIB_API void matrix_produit_lu(int     neq,
 ** \param[in]  tl     Lower triangular matrix defined by column
 **
 *****************************************************************************/
-GEOSLIB_API VectorDouble matrix_produit_lu_VD(int neq, double *tl)
+GSTLEARN_EXPORT VectorDouble matrix_produit_lu_VD(int neq, double *tl)
 {
   VectorDouble a;
   a.resize(neq * neq);
@@ -2229,7 +2229,7 @@ GEOSLIB_API VectorDouble matrix_produit_lu_VD(int neq, double *tl)
 ** \param[out] errmax  Maximum error encountered
 **
 *****************************************************************************/
-GEOSLIB_API int is_matrix_product_identity(int     neq,
+GSTLEARN_EXPORT int is_matrix_product_identity(int     neq,
                                            double *a,
                                            double *b,
                                            double *errmax)
@@ -2376,7 +2376,7 @@ static int st_svd(double *a2,
 ** \remark Hilger 1990.
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_svd_inverse(int     neq,
+GSTLEARN_EXPORT void matrix_svd_inverse(int     neq,
                                     double *s,
                                     double *u,
                                     double *v,
@@ -2425,7 +2425,7 @@ GEOSLIB_API void matrix_svd_inverse(int     neq,
 ** \remark Hilger 1990.
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_invsvdsym(double *mat,
+GSTLEARN_EXPORT int matrix_invsvdsym(double *mat,
                                  int     neq,
                                  int     rank)
 {
@@ -2537,7 +2537,7 @@ static int st_match_index(int  index,
 ** \param[out] v2      Output rectangular matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_manage(int     nrows,
+GSTLEARN_EXPORT void matrix_manage(int     nrows,
                                int     ncols,
                                int     nr,
                                int     nc,
@@ -2579,7 +2579,7 @@ GEOSLIB_API void matrix_manage(int     nrows,
 ** \remark  Matrix c[] can coincide with matrices a[] or b[]
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_combine(int     nval,
+GSTLEARN_EXPORT void matrix_combine(int     nval,
                                 double  coeffa,
                                 double *a,
                                 double  coeffb,
@@ -2609,7 +2609,7 @@ GEOSLIB_API void matrix_combine(int     nval,
 ** \remark  i >= j have already been filled
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_fill_symmetry(int     neq,
+GSTLEARN_EXPORT void matrix_fill_symmetry(int     neq,
                                       double *a)
 {
   int i,j;
@@ -2627,7 +2627,7 @@ GEOSLIB_API void matrix_fill_symmetry(int     neq,
 ** \param[in]  tab   vector
 **
 *****************************************************************************/
-GEOSLIB_API double matrix_norminf(int     nval,
+GSTLEARN_EXPORT double matrix_norminf(int     nval,
                                   double *tab)
 {
   double value,retval;
@@ -2650,7 +2650,7 @@ GEOSLIB_API double matrix_norminf(int     nval,
 ** \param[in]  tab   vector
 **
 *****************************************************************************/
-GEOSLIB_API double matrix_norml1(int     nval,
+GSTLEARN_EXPORT double matrix_norml1(int     nval,
                                  double *tab)
 {
   double retval;
@@ -2674,7 +2674,7 @@ GEOSLIB_API double matrix_norml1(int     nval,
 ** \remark Matrices a() and b() may not coincide
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_square(int     neq,
+GSTLEARN_EXPORT void matrix_square(int     neq,
                                double *a,
                                double *b)
 {
@@ -2702,7 +2702,7 @@ GEOSLIB_API void matrix_square(int     neq,
 ** \param[in]  a   square matrix (VectorDouble)
 **
 *****************************************************************************/
-GEOSLIB_API VectorDouble matrix_square_VD(int neq, const VectorDouble& a)
+GSTLEARN_EXPORT VectorDouble matrix_square_VD(int neq, const VectorDouble& a)
 {
   VectorDouble b;
   int i1,i2,i3;
@@ -2734,7 +2734,7 @@ GEOSLIB_API VectorDouble matrix_square_VD(int neq, const VectorDouble& a)
 ** \remark Matrices a() and b() may coincide
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_product_by_diag(int     mode,
+GSTLEARN_EXPORT void matrix_product_by_diag(int     mode,
                                         int     neq,
                                         double *a,
                                         double *c,
@@ -2769,7 +2769,7 @@ GEOSLIB_API void matrix_product_by_diag(int     mode,
 ** \param[in]  c     vector
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_product_by_diag_VD(int mode,
+GSTLEARN_EXPORT void matrix_product_by_diag_VD(int mode,
                                            int neq,
                                            VectorDouble a,
                                            const VectorDouble &c)
@@ -2809,7 +2809,7 @@ GEOSLIB_API void matrix_product_by_diag_VD(int mode,
 ** \remark Matrix x() can coincide with a() or b()
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_linear(int     neq,
+GSTLEARN_EXPORT void matrix_linear(int     neq,
                                double  a1,
                                double *a,
                                double  b1,
@@ -2842,7 +2842,7 @@ GEOSLIB_API void matrix_linear(int     neq,
 ** \remark and zero only when both factors are zero
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_eigen_tridiagonal(const double *vecdiag,
+GSTLEARN_EXPORT int matrix_eigen_tridiagonal(const double *vecdiag,
                                          const double *vecinf,
                                          const double *vecsup,
                                          int     neq,
@@ -2917,7 +2917,7 @@ GEOSLIB_API int matrix_eigen_tridiagonal(const double *vecdiag,
 ** \remark In output, hmat contains the inverse matrix
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_qo(int     neq,
+GSTLEARN_EXPORT int matrix_qo(int     neq,
                           double *hmat,
                           double *gmat,
                           double *xmat)
@@ -2956,7 +2956,7 @@ GEOSLIB_API int matrix_qo(int     neq,
 ** \remark In output, H contains the inverse matrix
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_qoc(int     flag_invert,
+GSTLEARN_EXPORT int matrix_qoc(int     flag_invert,
                            int     neq,
                            double *hmat,
                            double *gmat,
@@ -3198,7 +3198,7 @@ static int st_calcul_error(int     neq,
 ** 
 ** REMAKRS:    The initial xmat has to satisfied all the constraints.
 *****************************************************************************/
-GEOSLIB_API int matrix_qoci(int     neq,
+GSTLEARN_EXPORT int matrix_qoci(int     neq,
                             double *hmat,
                             double *gmat,
                             int     nae,
@@ -3348,7 +3348,7 @@ label_end:
 ** \param[out] norme2 Norm L2 of the matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_range(int n1,
+GSTLEARN_EXPORT void matrix_range(int n1,
                               int n2,
                               double *v1,
                               double *mini,
@@ -3397,7 +3397,7 @@ GEOSLIB_API void matrix_range(int n1,
 ** \param[out] n32  Second dimension of the output matrix
 **
 *****************************************************************************/
-GEOSLIB_API double *matrix_bind(int     mode,
+GSTLEARN_EXPORT double *matrix_bind(int     mode,
                                 int     n11,
                                 int     n12,
                                 double *a1,
@@ -3501,7 +3501,7 @@ label_end:
 ** \param[in]  tab  Array of values
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_get_extreme(int     mode,
+GSTLEARN_EXPORT int matrix_get_extreme(int     mode,
                                    int     ntab,
                                    double *tab)
 {
@@ -3554,7 +3554,7 @@ GEOSLIB_API int matrix_get_extreme(int     mode,
 ** \param[in]  neq  number of equations in the matrix 'a'
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_invreal(double *mat,
+GSTLEARN_EXPORT int matrix_invreal(double *mat,
                                int     neq)
 {
   double *cofac,det;
@@ -3613,7 +3613,7 @@ label_end:
 ** \param[in]  a    Square matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_set_identity(int     neq,
+GSTLEARN_EXPORT void matrix_set_identity(int     neq,
                                      double *a)
 {
   for (int i=0; i<neq; i++)
@@ -3638,7 +3638,7 @@ GEOSLIB_API void matrix_set_identity(int     neq,
 ** \remark  It is unnecessary to edit a message if inversion problem occurs
 **
 *****************************************************************************/
-GEOSLIB_API int matrix_invert_triangle(int     neq,
+GSTLEARN_EXPORT int matrix_invert_triangle(int     neq,
                                        double *tl,
                                        int     rank)
 {
@@ -3664,7 +3664,7 @@ GEOSLIB_API int matrix_invert_triangle(int     neq,
 ** \param[in]  tu   Upper Triangular Matrix
 **
 *****************************************************************************/
-GEOSLIB_API void matrix_tl2tu(int neq,
+GSTLEARN_EXPORT void matrix_tl2tu(int neq,
                               const double *tl,
                               double *tu)
 {

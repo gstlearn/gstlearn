@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "csparse_d.h"
@@ -18,7 +19,7 @@ class MatrixRectangular;
 class Db;
 class SPDE_Mesh;
 
-class AMesh : public AStringable
+class GSTLEARN_EXPORT AMesh : public AStringable
 {
 
 public:

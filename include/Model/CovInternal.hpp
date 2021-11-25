@@ -9,10 +9,13 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
+
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
+
 class Db;
 
-class CovInternal
+class GSTLEARN_EXPORT CovInternal
 {
 public:
   CovInternal();

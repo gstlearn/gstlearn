@@ -12,12 +12,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Matrix/AMatrix.hpp"
 
 /**
  * Square Matrix
  */
-class AMatrixSquare : public AMatrix {
+class GSTLEARN_EXPORT AMatrixSquare : public AMatrix {
 
 protected:
   AMatrixSquare(int nrow = 0, bool sparse = false);

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Db/Db.hpp"
 #include "Model/ModTrans.hpp"
 #include "Model/Option_AutoFit.hpp"
@@ -35,7 +36,7 @@ class CovCalcMode;
 class Vario;
 class CovAniso;
 
-class Model : public AStringable, public ASerializable
+class GSTLEARN_EXPORT Model : public AStringable, public ASerializable
 {
 public:
   Model(const CovContext& ctxt, bool flagGradient = false, bool flagLinked = false);

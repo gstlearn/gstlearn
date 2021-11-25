@@ -299,7 +299,7 @@ static void st_calcul_value(SubPlan& plan,
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-GEOSLIB_API int substitution(Db      *dbgrid,
+GSTLEARN_EXPORT int substitution(Db      *dbgrid,
                              int      seed,
                              int      nfacies,
                              int      nstates,

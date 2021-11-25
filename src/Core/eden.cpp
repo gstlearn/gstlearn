@@ -917,7 +917,7 @@ static int st_fluid_check(void)
 ** \remark  it is always <= number of cells invaded.
 **
 *****************************************************************************/
-GEOSLIB_API int fluid_propagation(Db     *dbgrid,
+GSTLEARN_EXPORT int fluid_propagation(Db     *dbgrid,
                                   int     verbose,
                                   int     seed,
                                   int     niter,
@@ -1156,7 +1156,7 @@ static int st_get_time_interval(double date,
 ** \param[in]  tab           Array of extracted statistics
 **
 *****************************************************************************/
-GEOSLIB_API int fluid_extract(Db      *dbgrid,
+GSTLEARN_EXPORT int fluid_extract(Db      *dbgrid,
                               int      verbose,
                               int      ind_date,
                               int      ind_facies,

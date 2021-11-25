@@ -12,20 +12,20 @@
 #include "geoslib_d.h"
 #include "Basic/Utilities.hpp"
 
-bool isInteger(double value, double eps)
+GSTLEARN_EXPORT bool isInteger(double value, double eps)
 {
   int iclose = getClosestInteger(value);
   if (ABS((double) iclose - value) > eps) return false;
   return true;
 }
 
-int getClosestInteger(double value)
+GSTLEARN_EXPORT int getClosestInteger(double value)
 {
   int iclose = (int) round(value);
   return iclose;
 }
 
-bool isMultiple(int nbig, int nsmall)
+GSTLEARN_EXPORT bool isMultiple(int nbig, int nsmall)
 {
   double ratio;
 
@@ -33,7 +33,7 @@ bool isMultiple(int nbig, int nsmall)
   return (isInteger(ratio));
 }
 
-bool isOdd(int number)
+GSTLEARN_EXPORT bool isOdd(int number)
 {
   int middle;
 
@@ -44,7 +44,7 @@ bool isOdd(int number)
     return false;
 }
 
-bool isEven(int number)
+GSTLEARN_EXPORT bool isEven(int number)
 {
   int middle;
 
@@ -55,26 +55,26 @@ bool isEven(int number)
     return true;
 }
 
-double getMin(double val1, double val2)
+GSTLEARN_EXPORT double getMin(double val1, double val2)
 {
   if (FFFF(val1)) return (val2);
   if (FFFF(val2)) return (val1);
   return (MIN(val1, val2));
 }
 
-double getMax(double val1, double val2)
+GSTLEARN_EXPORT double getMax(double val1, double val2)
 {
   if (FFFF(val1)) return (val2);
   if (FFFF(val2)) return (val1);
   return (MAX(val1, val2));
 }
 
-double getTEST()
+GSTLEARN_EXPORT double getTEST()
 {
   return TEST;
 }
 
-int    getITEST()
+GSTLEARN_EXPORT int    getITEST()
 {
   return ITEST;
 }
@@ -88,7 +88,7 @@ int    getITEST()
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int FFFF(double value)
+GSTLEARN_EXPORT int FFFF(double value)
 {
   int rep;
 
@@ -108,7 +108,7 @@ int FFFF(double value)
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-int IFFFF(int value)
+GSTLEARN_EXPORT int IFFFF(int value)
 {
   int rep;
 

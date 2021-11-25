@@ -10,12 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Table.hpp"
 
 class Db;
 
-class AGibbs: public AStringable
+class GSTLEARN_EXPORT AGibbs : public AStringable
 {
 public:
   AGibbs();

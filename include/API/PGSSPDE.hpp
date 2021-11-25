@@ -1,14 +1,16 @@
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "API/SPDE.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "API/ESPDECalcMode.hpp"
+
 #include <vector>
 
-class PGSSPDE
+class GSTLEARN_EXPORT PGSSPDE
 {
 public:
   PGSSPDE(std::vector<Model*> models,

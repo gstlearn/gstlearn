@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "GibbsMultiMono.hpp"
-
 #include "Gibbs/AGibbs.hpp"
 #include "Basic/Vector.hpp"
 
@@ -24,7 +24,7 @@ class Model;
  * - Multivariate case: Multiple Monovariate systems
  * (even if the model is provided as multivariate)
  */
-class GibbsUMultiMono : public GibbsMultiMono
+class GSTLEARN_EXPORT GibbsUMultiMono : public GibbsMultiMono
 {
 public:
   GibbsUMultiMono();

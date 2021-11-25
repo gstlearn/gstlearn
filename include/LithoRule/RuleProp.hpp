@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -17,7 +18,7 @@
 class Db;
 class VarioParam;
 
-class RuleProp : public AStringable
+class GSTLEARN_EXPORT RuleProp : public AStringable
 {
 public:
   RuleProp();

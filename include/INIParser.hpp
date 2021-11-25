@@ -1,5 +1,6 @@
-#ifndef INIPARSER_H
-#define INIPARSER_H
+#pragma once
+
+#include "gstlearn_export.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -37,7 +38,7 @@
  * to the end of the line.
  *
  */
-class INIParser
+class GSTLEARN_EXPORT INIParser
 {
   public:
     // Constructor
@@ -62,4 +63,3 @@ class INIParser
 };
 
 
-#endif // INIPARSER_H

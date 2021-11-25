@@ -10,10 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/String.hpp"
 #include "hdf5.h"
 
-class HDF5format
+class GSTLEARN_EXPORT HDF5format
 {
 public:
   HDF5format();

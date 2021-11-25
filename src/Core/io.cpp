@@ -27,29 +27,80 @@
 
 /*! \endcond */
 
-typedef struct {
-  int    mode;                  // 1 for integer; 2 for real
-  int    ival;
+typedef struct
+{
+  int mode;                  // 1 for integer; 2 for real
+  int ival;
   double rval;
-  char   keyword[20];
-  char   comment[STRING_LENGTH];
+  char keyword[20];
+  char comment[STRING_LENGTH];
 } Constant;
 
-static Constant CST[CST_NUMBER] = {
-  { 1, 10,      0., "NTCAR" , "Number of characters in printout" },
-  { 1,  3,      0., "NTDEC" , "Number of decimal digits in printout" },
-  { 1,  7,      0., "NTROW" , "Maximum number of rows in table printout" },
-  { 1,  7,      0., "NTCOL" , "Maximum number of columns in table printout" },
-  { 1,  0,      0., "NPROC" , "Display the Progress Bar"},
-  { 1,  0,      0., "LOCMOD", "Option for updating locator of new variable"},
-  { 1,  1,      0., "LOCNEW", "When defining new locator, option for old ones"},
-  { 2,  0,      0., "RGL"   , "Use 'rgl' for graphic rendition"},
-  { 2,  0,      0., "ASP"   , "Defaulted y/x aspect ratio for graphics"},
-  { 2,  0, 1.0e-20, "TOLINV", "Tolerance for matrix inversion"},
-  { 2,  0, 1.0e-20, "TOLGEN", "Tolerance for matrix generalized inversion"},
-  { 2,  0, 2.3e-16, "EPSMAT", "Tolerance value for Matrix calculations"},
-  { 2,  0, 1.0e-15, "EPSSVD", "Tolerance value for SVD Matrix calculations"}
-};
+static Constant CST[CST_NUMBER] = { { 1,
+                                      10,
+                                      0.,
+                                      "NTCAR",
+                                      "Number of characters in printout" },
+                                    { 1,
+                                      3,
+                                      0.,
+                                      "NTDEC",
+                                      "Number of decimal digits in printout" },
+                                    { 1,
+                                      7,
+                                      0.,
+                                      "NTROW",
+                                      "Maximum number of rows in table printout" },
+                                    { 1,
+                                      7,
+                                      0.,
+                                      "NTCOL",
+                                      "Maximum number of columns in table printout" },
+                                    { 1,
+                                      0,
+                                      0.,
+                                      "NPROC",
+                                      "Display the Progress Bar" },
+                                    { 1,
+                                      0,
+                                      0.,
+                                      "LOCMOD",
+                                      "Option for updating locator of new variable" },
+                                    { 1,
+                                      1,
+                                      0.,
+                                      "LOCNEW",
+                                      "When defining new locator, option for old ones" },
+                                    { 2,
+                                      0,
+                                      0.,
+                                      "RGL",
+                                      "Use 'rgl' for graphic rendition" },
+                                    { 2,
+                                      0,
+                                      0.,
+                                      "ASP",
+                                      "Defaulted y/x aspect ratio for graphics" },
+                                    { 2,
+                                      0,
+                                      1.0e-20,
+                                      "TOLINV",
+                                      "Tolerance for matrix inversion" },
+                                    { 2,
+                                      0,
+                                      1.0e-20,
+                                      "TOLGEN",
+                                      "Tolerance for matrix generalized inversion" },
+                                    { 2,
+                                      0,
+                                      2.3e-16,
+                                      "EPSMAT",
+                                      "Tolerance value for Matrix calculations" },
+                                    { 2,
+                                      0,
+                                      1.0e-15,
+                                      "EPSSVD",
+                                      "Tolerance value for SVD Matrix calculations" } };
 
 static double DBL_THRESH = 0.0005; // Because default NTDEC is 3
 
@@ -62,26 +113,26 @@ static char DEL_SEP = ' ';
 static char DEL_BLK = ' ';
 
 static void st_print(const char *string);
-static void st_read(const char *,char *);
+static void st_read(const char*, char*);
 static void st_exit(void);
-static void (*WRITE_FUNC)(const char *) =
-  (void (*)(const char*)) st_print;
-static void (*WARN_FUNC)(const char *)  =
-  (void (*)(const char*)) st_print;
-static void (*READ_FUNC)(const char *,char *) = 
-  st_read;
-static void (*EXIT_FUNC)(void)   = 
-  st_exit;
+static void (*WRITE_FUNC)(const char*) =
+(void (*)(const char*)) st_print;
+static void (*WARN_FUNC)(const char*) =
+(void (*)(const char*)) st_print;
+static void (*READ_FUNC)(const char*, char*) =
+st_read;
+static void (*EXIT_FUNC)(void) =
+st_exit;
 
-static char LINE[LONG_SIZE],LINE_MEM[LONG_SIZE],*LCUR,*LINEB;
+static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR, *LINEB;
 static char *cur = NULL;
 
 /****************************************************************************/
 /*!
-**  Exit from the gstlearn library
-**  (not killing the encapsulation if any) 
-**
-*****************************************************************************/
+ **  Exit from the gstlearn library
+ **  (not killing the encapsulation if any)
+ **
+ *****************************************************************************/
 static void st_exit(void)
 
 {
@@ -90,11 +141,11 @@ static void st_exit(void)
 
 /****************************************************************************/
 /*!
-**  Internal print from the library
-**
-**  \param[in]  string Message to be printed
-**
-*****************************************************************************/
+ **  Internal print from the library
+ **
+ **  \param[in]  string Message to be printed
+ **
+ *****************************************************************************/
 static void st_print(const char *string)
 {
   //(void) printf("%s",string); // Default printf statement
@@ -103,31 +154,31 @@ static void st_print(const char *string)
 
 /****************************************************************************/
 /*!
-**  Read a string from the Standard Input
-**
-** \param[in]  prompt String to be prompted to ask the question
-** \param[in]  buffer Array where the Input string is stored
-**
-*****************************************************************************/
-static void st_read(const char *prompt,
-                    char *buffer)
+ **  Read a string from the Standard Input
+ **
+ ** \param[in]  prompt String to be prompted to ask the question
+ ** \param[in]  buffer Array where the Input string is stored
+ **
+ *****************************************************************************/
+static void st_read(const char *prompt, char *buffer)
 
 {
-  message("%s :",prompt);
+  message("%s :", prompt);
 
-  while (fgets(LINE,LONG_SIZE,stdin) == NULL);
+  while (fgets(LINE, LONG_SIZE, stdin) == NULL)
+    ;
 
-  (void) gslStrcpy(buffer,LINE);
-  buffer[strlen(buffer)-1] = '\0';
+  (void) gslStrcpy(buffer, LINE);
+  buffer[strlen(buffer) - 1] = '\0';
 }
 
 /****************************************************************************/
 /*!
-**  Construct the FORMAT string
-**
-** \param[in]  mode  CASE_DOUBLE or CASE_REAL or CASE_INT
-**
-*****************************************************************************/
+ **  Construct the FORMAT string
+ **
+ ** \param[in]  mode  CASE_DOUBLE or CASE_REAL or CASE_INT
+ **
+ *****************************************************************************/
 static void st_format(int mode)
 {
 
@@ -140,25 +191,21 @@ static void st_format(int mode)
       break;
 
     case CASE_REAL:
-      (void) gslSPrintf(FORMAT, "%%%d.%dlf",
-                        CST[CST_NTCAR].ival,
+      (void) gslSPrintf(FORMAT, "%%%d.%dlf", CST[CST_NTCAR].ival,
                         CST[CST_NTDEC].ival);
       break;
 
     case CASE_DOUBLE:
-      (void) gslSPrintf(FORMAT, "%%%d.%dlg",
-                        CST[CST_NTCAR].ival,
+      (void) gslSPrintf(FORMAT, "%%%d.%dlg", CST[CST_NTCAR].ival,
                         CST[CST_NTDEC].ival);
       break;
 
     case CASE_COL:
-      (void) gslSPrintf(FORMAT, "[,%%%dd]",
-                        CST[CST_NTCAR].ival-3);
+      (void) gslSPrintf(FORMAT, "[,%%%dd]", CST[CST_NTCAR].ival - 3);
       break;
 
     case CASE_ROW:
-      (void) gslSPrintf(FORMAT, "[%%%dd,]",
-                        CST[CST_NTCAR].ival-3);
+      (void) gslSPrintf(FORMAT, "[%%%dd,]", CST[CST_NTCAR].ival - 3);
       break;
   }
 
@@ -167,80 +214,75 @@ static void st_format(int mode)
 
 /****************************************************************************/
 /*!
-**  Redefine the IO routine for printing message
-**
-** \param[in]  write_func Writing function
-**
-*****************************************************************************/
-GEOSLIB_API void redefine_message(void (*write_func)(const char *))
+ **  Redefine the IO routine for printing message
+ **
+ ** \param[in]  write_func Writing function
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void redefine_message(void (*write_func)(const char*))
 {
   std::cout << "Write function is redefined" << std::endl;
-  if (write_func != NULL)
-    WRITE_FUNC = write_func;
+  if (write_func != NULL) WRITE_FUNC = write_func;
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Redefine the IO routine for printing error message
-**
-** \param[in]  warn_func  Warning function
-**
-*****************************************************************************/
-GEOSLIB_API void redefine_error(void (*warn_func) (const char *))
+ **  Redefine the IO routine for printing error message
+ **
+ ** \param[in]  warn_func  Warning function
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void redefine_error(void (*warn_func)(const char*))
 {
-  if (warn_func != NULL)
-    WARN_FUNC = warn_func;
+  if (warn_func != NULL) WARN_FUNC = warn_func;
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Redefine the IO routine for Reading
-**
-** \param[in]  read_func  Reading function
-**
-*****************************************************************************/
-GEOSLIB_API void redefine_read(void (*read_func) (const char *,char *))
+ **  Redefine the IO routine for Reading
+ **
+ ** \param[in]  read_func  Reading function
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void redefine_read(void (*read_func)(const char*, char*))
 {
-  if (read_func != NULL)
-    READ_FUNC  = read_func;
+  if (read_func != NULL) READ_FUNC = read_func;
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Redefine the exiting routine
-**
-** \param[in]  exit_func  Exiting function
-**
-*****************************************************************************/
-GEOSLIB_API void redefine_exit(void (*exit_func) (void))
+ **  Redefine the exiting routine
+ **
+ ** \param[in]  exit_func  Exiting function
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void redefine_exit(void (*exit_func)(void))
 {
-  if (exit_func != NULL)
-    EXIT_FUNC = exit_func;
+  if (exit_func != NULL) EXIT_FUNC = exit_func;
   return;
 }
 
 /*****************************************************************************/
 /*!
-**  Strip the blanks from a string
-**
-** \param[in,out] string  String to be cleaned
-** \param[in]  flag_lead 1 to strip only the leading blanks
-**
-*****************************************************************************/
-GEOSLIB_API void string_strip_blanks(char *string,
-                                     int   flag_lead)
+ **  Strip the blanks from a string
+ **
+ ** \param[in,out] string  String to be cleaned
+ ** \param[in]  flag_lead 1 to strip only the leading blanks
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void string_strip_blanks(char *string, int flag_lead)
 
 {
-  int  i, ecr, length, flag_test;
+  int i, ecr, length, flag_test;
 
   flag_test = 0;
-  length = static_cast<int> (strlen(string));
+  length = static_cast<int>(strlen(string));
   for (i = ecr = 0; i < length; i++)
   {
-    if (string[i] == ' ' && ! flag_test) continue;
+    if (string[i] == ' ' && !flag_test) continue;
     string[ecr++] = string[i];
     if (flag_lead) flag_test = 1;
   }
@@ -251,27 +293,27 @@ GEOSLIB_API void string_strip_blanks(char *string,
 
 /*****************************************************************************/
 /*!
-**  Strip the leading and trailing quotes from a string
-**
-** \param[in,out]  string    String to be cleaned
-**
-** \remarks The quote is searched in first position. If not found, nothing done
-** \remarks If found, the trailing quote is stripped, if similar to the first
-** \remarks character
-**
-*****************************************************************************/
-GEOSLIB_API void string_strip_quotes(char *string)
+ **  Strip the leading and trailing quotes from a string
+ **
+ ** \param[in,out]  string    String to be cleaned
+ **
+ ** \remarks The quote is searched in first position. If not found, nothing done
+ ** \remarks If found, the trailing quote is stripped, if similar to the first
+ ** \remarks character
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void string_strip_quotes(char *string)
 
 {
-  int ecr,length;
+  int ecr, length;
 
-  length = static_cast<int> (strlen(string));
+  length = static_cast<int>(strlen(string));
 
   if (string[0] != '"') return;
   ecr = 0;
-  for (int i=1; i < length; i++)
+  for (int i = 1; i < length; i++)
   {
-    if (string[i] == '"') 
+    if (string[i] == '"')
     {
       string[ecr] = '\0';
       return;
@@ -284,18 +326,18 @@ GEOSLIB_API void string_strip_quotes(char *string)
 #if defined(_WIN32) || defined(_WIN64)
 /****************************************************************************/
 /*!
-**  Duplicates the strsep function (not available on Windows)
-**  Split the buffer per sentence (delimited by \n)
-**
-** \return Pointer to the next sentence
-**
-** \param[in,out]  stringp    Pointer to the buffer to decoded
-** \param[in]      delim      Delimeter ca
-**
-** \remark  In output, the buffer he input buffer
-**
-*****************************************************************************/
-GEOSLIB_API char * strsep(char **stringp, const char* delim)
+ **  Duplicates the strsep function (not available on Windows)
+ **  Split the buffer per sentence (delimited by \n)
+ **
+ ** \return Pointer to the next sentence
+ **
+ ** \param[in,out]  stringp    Pointer to the buffer to decoded
+ ** \param[in]      delim      Delimeter ca
+ **
+ ** \remark  In output, the buffer he input buffer
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT char * strsep(char **stringp, const char* delim)
 {
   char* start = *stringp;
   char* p;
@@ -317,13 +359,13 @@ GEOSLIB_API char * strsep(char **stringp, const char* delim)
 
 /****************************************************************************/
 /*!
-**  Print a message
-**  This call comes from AStringable where initial message() has been moved
-**
-** \param[in]  string   String to be displayed
-**
-****************************************************************************/
-GEOSLIB_API void message_extern(const char *string)
+ **  Print a message
+ **  This call comes from AStringable where initial message() has been moved
+ **
+ ** \param[in]  string   String to be displayed
+ **
+ ****************************************************************************/
+GSTLEARN_EXPORT void message_extern(const char *string)
 
 {
   WRITE_FUNC(string);
@@ -331,11 +373,11 @@ GEOSLIB_API void message_extern(const char *string)
 
 /****************************************************************************/
 /*!
-**  External function to provoke an exit of API
-**  This call comes from AStringable where initial mes_abort() has been moved
-**
-****************************************************************************/
-GEOSLIB_API void exit_extern()
+ **  External function to provoke an exit of API
+ **  This call comes from AStringable where initial mes_abort() has been moved
+ **
+ ****************************************************************************/
+GSTLEARN_EXPORT void exit_extern()
 
 {
   EXIT_FUNC();
@@ -343,61 +385,58 @@ GEOSLIB_API void exit_extern()
 
 /****************************************************************************/
 /*!
-**  Problem in memory allocation
-**
-** \param[in]  nbyte  number of bytes to be allocated
-**
-****************************************************************************/
-GEOSLIB_API void mem_error(int nbyte)
+ **  Problem in memory allocation
+ **
+ ** \param[in]  nbyte  number of bytes to be allocated
+ **
+ ****************************************************************************/
+GSTLEARN_EXPORT void mem_error(int nbyte)
 
 {
   message("Error: Core allocation problem.\n");
-  message("       Number of bytes to be allocated = %d\n",nbyte);
+  message("       Number of bytes to be allocated = %d\n", nbyte);
   return;
 }
 
 /****************************************************************************/
 /*! 
-**  Open an ASCII file
-**
-** \return  FILE returned pointer
-**
-** \param[in]  filename Local file name
-** \param[in]  mode     type of file (OLD or NEW)
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API FILE *_file_open(const char *filename,
-                             int   mode)
+ **  Open an ASCII file
+ **
+ ** \return  FILE returned pointer
+ **
+ ** \param[in]  filename Local file name
+ ** \param[in]  mode     type of file (OLD or NEW)
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+FILE* _file_open(const char *filename, int mode)
 {
   FILE *file;
 
   /* Dispatch */
 
   if (mode == OLD)
-    file = gslFopen(filename,"r");
+    file = gslFopen(filename, "r");
   else
-    file = gslFopen(filename,"w");
+    file = gslFopen(filename, "w");
 
   _erase_current_string();
-  return(file);
+  return (file);
 }
 
 /****************************************************************************/
 /*!
-**  Define the file delimitors
-**
-** \param[in]  del_com  Delimitor for comments
-** \param[in]  del_sep  Delimitor for separator
-** \param[in]  del_blk  Delimitor for blank
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API void _file_delimitors(char del_com,
-                                  char del_sep,
-                                  char del_blk)
+ **  Define the file delimitors
+ **
+ ** \param[in]  del_com  Delimitor for comments
+ ** \param[in]  del_sep  Delimitor for separator
+ ** \param[in]  del_blk  Delimitor for blank
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+void _file_delimitors(char del_com, char del_sep, char del_blk)
 {
   DEL_COM = del_com;
   DEL_SEP = del_sep;
@@ -406,61 +445,59 @@ GEOSLIB_API void _file_delimitors(char del_com,
 
 /****************************************************************************/
 /*! 
-**  Print the current line read from an ASCII file
-**
-*****************************************************************************/
-GEOSLIB_API void print_current_line(void)
+ **  Print the current line read from an ASCII file
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void print_current_line(void)
 {
-  messerr("Current Line: %s",LINE_MEM);
+  messerr("Current Line: %s", LINE_MEM);
 }
 
 /****************************************************************************/
 /*! 
-**  Check if a string is composed of blanks only
-**
-** \return  1 if it is only blanks
-**
-** \param[in]  string     String to be checked
-**
-*****************************************************************************/
+ **  Check if a string is composed of blanks only
+ **
+ ** \return  1 if it is only blanks
+ **
+ ** \param[in]  string     String to be checked
+ **
+ *****************************************************************************/
 static int st_only_blanks(char *string)
 {
   int number;
 
-  number = static_cast<int> (strlen(string));
-  for (int i=0; i<number; i++)
+  number = static_cast<int>(strlen(string));
+  for (int i = 0; i < number; i++)
   {
-    if (string[i] != ' ') return(0);
+    if (string[i] != ' ') return (0);
   }
-  return(1);
+  return (1);
 }
 
 /****************************************************************************/
 /*! 
-**  Read the next token from the file
-**
-** \return  -1 if the end-of-file has been found
-** \return   1 for a decoding error
-** \return   0 otherwise
-**
-** \param[in]  file       FILE structure
-** \param[in]  format     format 
-** \param[in]  ap         Value to be read
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API int _file_read(FILE *file,
-                           const char *format,
-                           va_list ap)
+ **  Read the next token from the file
+ **
+ ** \return  -1 if the end-of-file has been found
+ ** \return   1 for a decoding error
+ ** \return   0 otherwise
+ **
+ ** \param[in]  file       FILE structure
+ ** \param[in]  format     format
+ ** \param[in]  ap         Value to be read
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+int _file_read(FILE *file, const char *format, va_list ap)
 {
   int flag_com;
-  unsigned int ideb,i;
-  const char   *fmt;
-  int    *ret_i;
-  float  *ret_f;
+  unsigned int ideb, i;
+  const char *fmt;
+  int *ret_i;
+  float *ret_f;
   double *ret_d;
-  char   *ret_s;
+  char *ret_s;
 
   /* Loop on the elements to read (from the format) */
 
@@ -475,23 +512,21 @@ GEOSLIB_API int _file_read(FILE *file,
       continue;
     }
 
-  label_start:
-    fmt = &format[ideb];
+    label_start: fmt = &format[ideb];
     if (LCUR == NULL)
     {
 
       /* Read the next line */
 
-      if (fgets(LINE,LONG_SIZE,file) == NULL) return(-1);
-      LINE[strlen(LINE)-1] = '\0';
-      (void) gslStrcpy(LINE_MEM,LINE);
-      if (debug_query("interface"))
-        message("Lecture ASCII = %s\n",LINE);
+      if (fgets(LINE, LONG_SIZE, file) == NULL) return (-1);
+      LINE[strlen(LINE) - 1] = '\0';
+      (void) gslStrcpy(LINE_MEM, LINE);
+      if (debug_query("interface")) message("Lecture ASCII = %s\n", LINE);
 
       /* Eliminate the comments */
 
       flag_com = 0;
-      for (i=0; i<strlen(LINE); i++)
+      for (i = 0; i < strlen(LINE); i++)
       {
         if (LINE[i] == DEL_COM)
         {
@@ -508,86 +543,81 @@ GEOSLIB_API int _file_read(FILE *file,
 
     /* Decode the line looking for the next token */
 
-    LCUR = gslStrtok(cur,&DEL_SEP);
+    LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
     if (debug_query("interface"))
-      message("String to be decoded = '%s'\n",LCUR);
+      message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
 
-    if (! strcmp(fmt,"%s"))
+    if (!strcmp(fmt, "%s"))
     {
-      ret_s = va_arg(ap,char *);
-      if (! st_only_blanks(LCUR))
+      ret_s = va_arg(ap, char*);
+      if (!st_only_blanks(LCUR))
       {
-        if (gslSScanf(LCUR,"%s",ret_s) <= 0) return(1);
+        if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       }
       ideb += 2;
-      if (debug_query("interface"))
-        message("Decoded String = %s\n",ret_s);
+      if (debug_query("interface")) message("Decoded String = %s\n", ret_s);
     }
-    else if (! strcmp(fmt,"%d"))
+    else if (!strcmp(fmt, "%d"))
     {
-      ret_i = va_arg(ap,int *);
-      if (gslSScanf(LCUR,"%d",ret_i) <= 0) return(1);
+      ret_i = va_arg(ap, int*);
+      if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-      if (debug_query("interface"))
-        message("Decoded Integer = %i\n",*ret_i);
+      if (debug_query("interface")) message("Decoded Integer = %i\n", *ret_i);
     }
-    else if (! strcmp(fmt,"%f"))
+    else if (!strcmp(fmt, "%f"))
     {
-      ret_f = va_arg(ap,float *);
-      if (gslSScanf(LCUR,"%f",ret_f) <= 0) return(1);
+      ret_f = va_arg(ap, float*);
+      if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
-      if (debug_query("interface"))
-        message("Decoded Float = %s\n",*ret_f);
+      if (debug_query("interface")) message("Decoded Float = %s\n", *ret_f);
     }
-    else if (! strcmp(fmt,"%lf"))
+    else if (!strcmp(fmt, "%lf"))
     {
-      ret_d = va_arg(ap,double *);
-      if (gslSScanf(LCUR,"%lf",ret_d) <= 0) return(1);
+      ret_d = va_arg(ap, double*);
+      if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface"))
-        message("Decoded Double = %lf\n",*ret_d);
+      if (debug_query("interface")) message("Decoded Double = %lf\n", *ret_d);
     }
-    else if (! strcmp(fmt,"%lg"))
+    else if (!strcmp(fmt, "%lg"))
     {
-      ret_d = va_arg(ap,double *);
-      if (gslSScanf(LCUR,"%lg",ret_d) <= 0) return(1);
+      ret_d = va_arg(ap, double*);
+      if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface"))
-        message("Decoded Double = %lg\n",*ret_d);
+      if (debug_query("interface")) message("Decoded Double = %lg\n", *ret_d);
     }
     else
     {
-      messerr("Wrong format %s",fmt);
+      messerr("Wrong format %s", fmt);
       va_end(ap);
-      return(2);
+      return (2);
     }
   }
-  return(0);
+  return (0);
 }
 
 /****************************************************************************/
 /*! 
-**  Get the number of tokens in the line
-**
-** \return   Number of tokens
-**
-** \param[in]  file       FILE structure
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API int _file_get_ncol(FILE *file)
+ **  Get the number of tokens in the line
+ **
+ ** \return   Number of tokens
+ **
+ ** \param[in]  file       FILE structure
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+int _file_get_ncol(FILE *file)
 
 {
-  int ncol,flag_com,i;
+  int ncol, flag_com, i;
 
   /* Initializations */
 
@@ -595,15 +625,14 @@ GEOSLIB_API int _file_get_ncol(FILE *file)
 
   /* Read the next line */
 
-  if (fgets(LINE,LONG_SIZE,file) == NULL) return(ncol);
-  LINE[strlen(LINE)-1] = '\0';
-  if (debug_query("interface"))
-    message("Lecture ASCII = %s\n",LINE);
+  if (fgets(LINE, LONG_SIZE, file) == NULL) return (ncol);
+  LINE[strlen(LINE) - 1] = '\0';
+  if (debug_query("interface")) message("Lecture ASCII = %s\n", LINE);
 
   /* Eliminate the comments */
-  
+
   flag_com = 0;
-  for (i=0; i<(int) strlen(LINE); i++)
+  for (i = 0; i < (int) strlen(LINE); i++)
   {
     if (LINE[i] == DEL_COM)
     {
@@ -618,56 +647,54 @@ GEOSLIB_API int _file_get_ncol(FILE *file)
 
   /* Get the number of tokens */
 
-  if (gslStrtok(LINE,&DEL_SEP) != NULL)
+  if (gslStrtok(LINE, &DEL_SEP) != NULL)
   {
     ncol++;
-    while (gslStrtok(NULL,&DEL_SEP) != NULL) ncol++;
+    while (gslStrtok(NULL, &DEL_SEP) != NULL)
+      ncol++;
   }
 
-  if (debug_query("interface"))
-    message("Number of columns = %d\n",ncol);
-  return(ncol);
+  if (debug_query("interface")) message("Number of columns = %d\n", ncol);
+  return (ncol);
 }
 
 /****************************************************************************/
 /*! 
-**  Erase the current decoding string
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API void _erase_current_string(void)
+ **  Erase the current decoding string
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+void _erase_current_string(void)
 {
   LCUR = NULL;
 }
 
 /****************************************************************************/
 /*!
-**  Read the next token from the buffer
-**
-** \return  -1 if the end-of-record has been found
-** \return   1 for a decoding error
-** \return   0 otherwise
-**
-** \param[in]  buffer     Buffer to be read
-** \param[in]  format     format 
-**
-** \param[out] ap         va_list containing the read variables
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API int _buffer_read(char       **buffer,
-                             const char  *format,
-                             va_list      ap)
+ **  Read the next token from the buffer
+ **
+ ** \return  -1 if the end-of-record has been found
+ ** \return   1 for a decoding error
+ ** \return   0 otherwise
+ **
+ ** \param[in]  buffer     Buffer to be read
+ ** \param[in]  format     format
+ **
+ ** \param[out] ap         va_list containing the read variables
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+int _buffer_read(char **buffer, const char *format, va_list ap)
 {
   int flag_com;
-  unsigned int ideb,i;
+  unsigned int ideb, i;
   const char *fmt;
-  int    *ret_i;
-  float  *ret_f;
+  int *ret_i;
+  float *ret_f;
   double *ret_d;
-  char   *ret_s;
+  char *ret_s;
 
   /* Loop on the elements to read (from the format) */
 
@@ -684,23 +711,21 @@ GEOSLIB_API int _buffer_read(char       **buffer,
 
     /* Loop on the buffer to be decode */
 
-  label_start:
-    fmt = &format[ideb];
+    label_start: fmt = &format[ideb];
     if (LCUR == NULL)
     {
 
       /* Read the next line */
 
-      LINEB = strsep(buffer,"\n");
-      if (LINEB == NULL) return(-1);
-      (void) gslStrcpy(LINE_MEM,LINEB);
-      if (debug_query("interface"))
-        message("Lecture ASCII = %s\n",LINEB);
-      
+      LINEB = strsep(buffer, "\n");
+      if (LINEB == NULL) return (-1);
+      (void) gslStrcpy(LINE_MEM, LINEB);
+      if (debug_query("interface")) message("Lecture ASCII = %s\n", LINEB);
+
       /* Eliminate the comments */
-      
+
       flag_com = 0;
-      for (i=0; i<strlen(LINEB); i++)
+      for (i = 0; i < strlen(LINEB); i++)
       {
         if (LINEB[i] == DEL_COM)
         {
@@ -714,89 +739,82 @@ GEOSLIB_API int _buffer_read(char       **buffer,
       }
       cur = LINEB;
     }
-    
+
     /* Decode the line looking for the next token */
 
-    LCUR = gslStrtok(cur,&DEL_SEP);
+    LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
     if (debug_query("interface"))
-      message("String to be decoded = '%s'\n",LCUR);
+      message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
 
-    if (! strcmp(fmt,"%s"))
+    if (!strcmp(fmt, "%s"))
     {
-      ret_s = va_arg(ap,char *);
-      if (gslSScanf(LCUR,"%s",ret_s) <= 0) return(1);
+      ret_s = va_arg(ap, char*);
+      if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       ideb += 2;
-      if (debug_query("interface"))
-        message("Decoded String = %s\n",ret_s);
+      if (debug_query("interface")) message("Decoded String = %s\n", ret_s);
     }
-    else if (! strcmp(fmt,"%d"))
+    else if (!strcmp(fmt, "%d"))
     {
-      ret_i = va_arg(ap,int *);
-      if (gslSScanf(LCUR,"%d",ret_i) <= 0) return(1);
+      ret_i = va_arg(ap, int*);
+      if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-      if (debug_query("interface"))
-        message("Decoded Integer = %i\n",*ret_i);
+      if (debug_query("interface")) message("Decoded Integer = %i\n", *ret_i);
     }
-    else if (! strcmp(fmt,"%f"))
+    else if (!strcmp(fmt, "%f"))
     {
-      ret_f = va_arg(ap,float *);
-      if (gslSScanf(LCUR,"%f",ret_f) <= 0) return(1);
+      ret_f = va_arg(ap, float*);
+      if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
-      if (debug_query("interface"))
-        message("Decoded Float = %s\n",*ret_f);
+      if (debug_query("interface")) message("Decoded Float = %s\n", *ret_f);
     }
-    else if (! strcmp(fmt,"%lf"))
+    else if (!strcmp(fmt, "%lf"))
     {
-      ret_d = va_arg(ap,double *);
-      if (gslSScanf(LCUR,"%lf",ret_d) <= 0) return(1);
+      ret_d = va_arg(ap, double*);
+      if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface"))
-        message("Decoded Double = %lf\n",*ret_d);
+      if (debug_query("interface")) message("Decoded Double = %lf\n", *ret_d);
     }
-    else if (! strcmp(fmt,"%lg"))
+    else if (!strcmp(fmt, "%lg"))
     {
-      ret_d = va_arg(ap,double *);
-      if (gslSScanf(LCUR,"%lg",ret_d) <= 0) return(1);
+      ret_d = va_arg(ap, double*);
+      if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface"))
-        message("Decoded Double = %lg\n",*ret_d);
+      if (debug_query("interface")) message("Decoded Double = %lg\n", *ret_d);
     }
     else
     {
-      messerr("Wrong format %s",fmt);
+      messerr("Wrong format %s", fmt);
       va_end(ap);
-      return(2);
+      return (2);
     }
   }
-  return(0);
+  return (0);
 }
 
 /****************************************************************************/
 /*! 
-**  Write the next token from the file
-**
-** \param[in]  file       FILE structure
-** \param[in]  format     Encoding format
-** \param[in]  ap         Value to be written
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API void _file_write(FILE *file,
-                             const char *format,
-                             va_list ap)
+ **  Write the next token from the file
+ **
+ ** \param[in]  file       FILE structure
+ ** \param[in]  format     Encoding format
+ ** \param[in]  ap         Value to be written
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+void _file_write(FILE *file, const char *format, va_list ap)
 {
-  int     ret_i,no_blank;
-  double  ret_d;
-  char   *ret_s;
+  int ret_i, no_blank;
+  double ret_d;
+  char *ret_s;
 
   /* Initializations */
 
@@ -804,93 +822,85 @@ GEOSLIB_API void _file_write(FILE *file,
 
   /* Writing */
 
-  if (! strcmp(format,"%s"))
+  if (!strcmp(format, "%s"))
   {
-    ret_s = va_arg(ap,char *);
-    fprintf(file,"%s",ret_s);
-    if (debug_query("interface"))
-      message("Encoded String = %s\n",ret_s);
+    ret_s = va_arg(ap, char*);
+    fprintf(file, "%s", ret_s);
+    if (debug_query("interface")) message("Encoded String = %s\n", ret_s);
   }
-  else if (! strcmp(format,"%d"))
+  else if (!strcmp(format, "%d"))
   {
-    ret_i = va_arg(ap,int);
-    if (ret_i == TEST) 
-      fprintf(file,"%5.1lf",ASCII_TEST);
+    ret_i = va_arg(ap, int);
+    if (ret_i == TEST)
+      fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(file,"%d",ret_i);
-    if (debug_query("interface"))
-      message("Encoded Integer = %i\n",ret_i);
+      fprintf(file, "%d", ret_i);
+    if (debug_query("interface")) message("Encoded Integer = %i\n", ret_i);
   }
-  else if (! strcmp(format,"%f"))
+  else if (!strcmp(format, "%f"))
   {
-    ret_d = va_arg(ap,double);
-    if (ret_d == TEST) 
-      fprintf(file,"%5.1lf",ASCII_TEST);
+    ret_d = va_arg(ap, double);
+    if (ret_d == TEST)
+      fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(file,"%f",ret_d);
-    if (debug_query("interface"))
-      message("Encoded Float = %s\n",ret_d);
+      fprintf(file, "%f", ret_d);
+    if (debug_query("interface")) message("Encoded Float = %s\n", ret_d);
   }
-  else if (! strcmp(format,"%lf"))
+  else if (!strcmp(format, "%lf"))
   {
-    ret_d = va_arg(ap,double);
-    if (ret_d == TEST) 
-      fprintf(file,"%5.1lf",ASCII_TEST);
+    ret_d = va_arg(ap, double);
+    if (ret_d == TEST)
+      fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(file,"%lf",ret_d);
-    if (debug_query("interface"))
-      message("Encoded Double = %lf\n",ret_d);
+      fprintf(file, "%lf", ret_d);
+    if (debug_query("interface")) message("Encoded Double = %lf\n", ret_d);
   }
-  else if (! strcmp(format,"%lg"))
+  else if (!strcmp(format, "%lg"))
   {
-    ret_d = va_arg(ap,double);
-    if (ret_d == TEST) 
-      fprintf(file,"%5.1lf",ASCII_TEST);
+    ret_d = va_arg(ap, double);
+    if (ret_d == TEST)
+      fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(file,"%lg",ret_d);
-    if (debug_query("interface"))
-      message("Encoded Double = %lg\n",ret_d);
+      fprintf(file, "%lg", ret_d);
+    if (debug_query("interface")) message("Encoded Double = %lg\n", ret_d);
   }
-  else if (! strcmp(format,"\n"))
+  else if (!strcmp(format, "\n"))
   {
-    fprintf(file,"\n");
+    fprintf(file, "\n");
     no_blank = 1;
   }
-  else if (! strcmp(format,"#"))
+  else if (!strcmp(format, "#"))
   {
-    ret_s = va_arg(ap,char *);
-    fprintf(file,"# %s\n",ret_s);
+    ret_s = va_arg(ap, char*);
+    fprintf(file, "# %s\n", ret_s);
     no_blank = 1;
-    if (debug_query("interface"))
-      message("Encoded Comment = %s\n",ret_s);
+    if (debug_query("interface")) message("Encoded Comment = %s\n", ret_s);
   }
   else
   {
-    messerr("Wrong format %s",format);
+    messerr("Wrong format %s", format);
     return;
   }
-  if (! no_blank) fprintf(file," ");
+  if (!no_blank) fprintf(file, " ");
   return;
 }
 
 /****************************************************************************/
 /*! 
-**  Write the next token into the buffer
-**
-** \param[in]  buffer     Writing buffer
-** \param[in]  format     Encoding format
-** \param[in]  ap         va_list to be written
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API void _buffer_write(char       *buffer,
-                               const char *format,
-                               va_list     ap)
+ **  Write the next token into the buffer
+ **
+ ** \param[in]  buffer     Writing buffer
+ ** \param[in]  format     Encoding format
+ ** \param[in]  ap         va_list to be written
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+void _buffer_write(char *buffer, const char *format, va_list ap)
 {
-  int     ret_i,no_blank;
-  double  ret_d;
-  char   *ret_s;
+  int ret_i, no_blank;
+  double ret_d;
+  char *ret_s;
 
   /* Initializations */
 
@@ -898,92 +908,86 @@ GEOSLIB_API void _buffer_write(char       *buffer,
 
   /* Writing */
 
-  if (! strcmp(format,"%s"))
+  if (!strcmp(format, "%s"))
   {
-    ret_s = va_arg(ap,char *);
-    (void) gslSPrintf(buffer,"%s",ret_s);
-    if (debug_query("interface"))
-      message("Encoded String = %s\n",ret_s);
+    ret_s = va_arg(ap, char*);
+    (void) gslSPrintf(buffer, "%s", ret_s);
+    if (debug_query("interface")) message("Encoded String = %s\n", ret_s);
   }
-  else if (! strcmp(format,"%d"))
+  else if (!strcmp(format, "%d"))
   {
-    ret_i = va_arg(ap,int);
-    if (ret_i == TEST) 
-      (void) gslSPrintf(buffer,"%5.1lf",ASCII_TEST);
+    ret_i = va_arg(ap, int);
+    if (ret_i == TEST)
+      (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
-      (void) gslSPrintf(buffer,"%d",ret_i);
-    if (debug_query("interface"))
-      message("Encoded Integer = %i\n",ret_i);
+      (void) gslSPrintf(buffer, "%d", ret_i);
+    if (debug_query("interface")) message("Encoded Integer = %i\n", ret_i);
   }
-  else if (! strcmp(format,"%f"))
+  else if (!strcmp(format, "%f"))
   {
-    ret_d = va_arg(ap,double);
-    if (ret_d == TEST) 
-      (void) gslSPrintf(buffer,"%5.1lf",ASCII_TEST);
+    ret_d = va_arg(ap, double);
+    if (ret_d == TEST)
+      (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
-      (void) gslSPrintf(buffer,"%f",ret_d);
-    if (debug_query("interface"))
-      message("Encoded Float = %s\n",ret_d);
+      (void) gslSPrintf(buffer, "%f", ret_d);
+    if (debug_query("interface")) message("Encoded Float = %s\n", ret_d);
   }
-  else if (! strcmp(format,"%lf"))
+  else if (!strcmp(format, "%lf"))
   {
-    ret_d = va_arg(ap,double);
-    if (ret_d == TEST) 
-      (void) gslSPrintf(buffer,"%5.1lf",ASCII_TEST);
+    ret_d = va_arg(ap, double);
+    if (ret_d == TEST)
+      (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
-      (void) gslSPrintf(buffer,"%lf",ret_d);
-    if (debug_query("interface"))
-      message("Encoded Double = %lf\n",ret_d);
+      (void) gslSPrintf(buffer, "%lf", ret_d);
+    if (debug_query("interface")) message("Encoded Double = %lf\n", ret_d);
   }
-  else if (! strcmp(format,"%lg"))
+  else if (!strcmp(format, "%lg"))
   {
-    ret_d = va_arg(ap,double);
-    if (ret_d == TEST) 
-      (void) gslSPrintf(buffer,"%5.1lf",ASCII_TEST);
+    ret_d = va_arg(ap, double);
+    if (ret_d == TEST)
+      (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
-      (void) gslSPrintf(buffer,"%lg",ret_d);
-    if (debug_query("interface"))
-      message("Encoded Double = %lg\n",ret_d);
+      (void) gslSPrintf(buffer, "%lg", ret_d);
+    if (debug_query("interface")) message("Encoded Double = %lg\n", ret_d);
   }
-  else if (! strcmp(format,"\n"))
+  else if (!strcmp(format, "\n"))
   {
-    (void) gslSPrintf(buffer,"\n");
+    (void) gslSPrintf(buffer, "\n");
     no_blank = 1;
   }
-  else if (! strcmp(format,"#"))
+  else if (!strcmp(format, "#"))
   {
-    ret_s = va_arg(ap,char *);
-    (void) gslSPrintf(buffer,"# %s\n",ret_s);
+    ret_s = va_arg(ap, char*);
+    (void) gslSPrintf(buffer, "# %s\n", ret_s);
     no_blank = 1;
-    if (debug_query("interface"))
-      message("Encoded Comment = %s\n",ret_s);
+    if (debug_query("interface")) message("Encoded Comment = %s\n", ret_s);
   }
   else
   {
-    messerr("Wrong format %s",format);
+    messerr("Wrong format %s", format);
     return;
   }
-  if (! no_blank) (void) gslStrcat(buffer," ");
+  if (!no_blank) (void) gslStrcat(buffer, " ");
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Reset the IO parameters
-**
-*****************************************************************************/
-GEOSLIB_API void constant_reset(void)
+ **  Reset the IO parameters
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void constant_reset(void)
 
 {
-  CST[CST_NTCAR].ival  =      10;
-  CST[CST_NTDEC].ival  =       3;
-  CST[CST_NTROW].ival  =       7;
-  CST[CST_NTCOL].ival  =       7;
-  CST[CST_NPROC].ival  =       0;
-  CST[CST_LOCMOD].ival =       1;
-  CST[CST_LOCNEW].ival =       0;
-  CST[CST_RGL].ival    =       0;
-  CST[CST_ASP].ival    =       0;
+  CST[CST_NTCAR].ival = 10;
+  CST[CST_NTDEC].ival = 3;
+  CST[CST_NTROW].ival = 7;
+  CST[CST_NTCOL].ival = 7;
+  CST[CST_NPROC].ival = 0;
+  CST[CST_LOCMOD].ival = 1;
+  CST[CST_LOCNEW].ival = 0;
+  CST[CST_RGL].ival = 0;
+  CST[CST_ASP].ival = 0;
   CST[CST_TOLINV].rval = matrix_constant_query(CST_TOLINV);
   CST[CST_TOLGEN].rval = matrix_constant_query(CST_TOLGEN);
   CST[CST_EPSMAT].rval = matrix_constant_query(CST_EPSMAT);
@@ -996,82 +1000,81 @@ GEOSLIB_API void constant_reset(void)
 
 /****************************************************************************/
 /*!
-**  Print the authorized keywords
-**
-*****************************************************************************/
+ **  Print the authorized keywords
+ **
+ *****************************************************************************/
 static void st_constant_list(void)
 {
   int i;
 
   message("The keywords for IO parameter definition are:\n");
-  for (i=0; i<CST_NUMBER; i++)
-    message("%6s : %s\n",CST[i].keyword,CST[i].comment);
+  for (i = 0; i < CST_NUMBER; i++)
+    message("%6s : %s\n", CST[i].keyword, CST[i].comment);
 
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Define one IO parameter
-**
-** \param[in]  name   Name of the parameter to be defined
-** \li                NTCAR  : Number of characters in printout
-** \li                NTDEC  : Number of decimal digits in printout
-** \li                NTROW  : Maximum number of rows in table printout
-** \li                NTCOL  : Maximum number of columns in table printout
-** \li                NPROC  : Display the Progress Bar
-** \li                LOCMOD : Option for updating locator of new variable
-** \li                LOCNEW : When defining new locator, option for old ones
-** \li                RGL    : Using 'rgl' for graphic rendition
-** \li                ASP    : Default y/x aspcet ratio for graphics
-** \li                TOLINV : Tolerance for matrix inversion
-** \li                TOLGEN : Tolerance for matrix generalized inversion
-** \li                EPSMAT : Tolerance value for Matrix calculations
-** \li                EPSSVD : Tolerance value for SVD Matrix calculations
-** \param[in]  value  New value for the IO parameter
-**
-*****************************************************************************/
-GEOSLIB_API void constant_define(const  char *name,
-                                 double value)
+ **  Define one IO parameter
+ **
+ ** \param[in]  name   Name of the parameter to be defined
+ ** \li                NTCAR  : Number of characters in printout
+ ** \li                NTDEC  : Number of decimal digits in printout
+ ** \li                NTROW  : Maximum number of rows in table printout
+ ** \li                NTCOL  : Maximum number of columns in table printout
+ ** \li                NPROC  : Display the Progress Bar
+ ** \li                LOCMOD : Option for updating locator of new variable
+ ** \li                LOCNEW : When defining new locator, option for old ones
+ ** \li                RGL    : Using 'rgl' for graphic rendition
+ ** \li                ASP    : Default y/x aspcet ratio for graphics
+ ** \li                TOLINV : Tolerance for matrix inversion
+ ** \li                TOLGEN : Tolerance for matrix generalized inversion
+ ** \li                EPSMAT : Tolerance value for Matrix calculations
+ ** \li                EPSSVD : Tolerance value for SVD Matrix calculations
+ ** \param[in]  value  New value for the IO parameter
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void constant_define(const char *name, double value)
 {
-  int i,found,flag_defined;
+  int i, found, flag_defined;
 
   /* Look for an authorized keyword */
 
-  for (i=0, found= -1; i<CST_NUMBER; i++)
-    if (! strcasecmp(name,CST[i].keyword)) found = i;
+  for (i = 0, found = -1; i < CST_NUMBER; i++)
+    if (!strcasecmp(name, CST[i].keyword)) found = i;
 
   if (found < 0)
   {
     st_constant_list();
-    message("The keyword '%s' is unknown\n",name);
+    message("The keyword '%s' is unknown\n", name);
   }
   else
   {
-    flag_defined = ! FFFF(value);
+    flag_defined = !FFFF(value);
 
     if (CST[found].mode == 1)
     {
-      CST[found].ival = (flag_defined) ? (int) value : -1;
-      if (found == CST_NTCAR) setFormatColumnSize(static_cast<int> (value));
-      if (found == CST_NTDEC) setFormatDecimalNumber(static_cast<int> (value));
-      if (found == CST_NTCOL) setFormatMaxNCols(static_cast<int> (value));
-      if (found == CST_NTROW) setFormatMaxNRows(static_cast<int> (value));
+      CST[found].ival = (flag_defined) ? (int) value :
+                                         -1;
+      if (found == CST_NTCAR) setFormatColumnSize(static_cast<int>(value));
+      if (found == CST_NTDEC) setFormatDecimalNumber(static_cast<int>(value));
+      if (found == CST_NTCOL) setFormatMaxNCols(static_cast<int>(value));
+      if (found == CST_NTROW) setFormatMaxNRows(static_cast<int>(value));
 
       // Recalculate the threshold
-      if (found == CST_NTDEC) DBL_THRESH = (0.5 * pow(10, - CST[CST_NTDEC].ival));
+      if (found == CST_NTDEC)
+        DBL_THRESH = (0.5 * pow(10, -CST[CST_NTDEC].ival));
 
     }
     else
     {
-      CST[found].rval = (flag_defined) ? value : -1;
+      CST[found].rval = (flag_defined) ? value :
+                                         -1;
     }
 
-    if (found == CST_TOLINV ||
-        found == CST_TOLGEN ||
-        found == CST_EPSMAT ||
-        found == CST_EPSSVD)
-      matrix_constant_define(found,value);
+    if (found == CST_TOLINV || found == CST_TOLGEN || found == CST_EPSMAT
+        || found == CST_EPSSVD) matrix_constant_define(found, value);
   }
 
   return;
@@ -1079,28 +1082,28 @@ GEOSLIB_API void constant_define(const  char *name,
 
 /****************************************************************************/
 /*!
-**  Query one IO parameter
-**
-** \return  Value of the IO parameter
-**
-** \param[in]  name  Name of the IO parameter to be asked
-**
-*****************************************************************************/
-GEOSLIB_API double constant_query(const char *name)
+ **  Query one IO parameter
+ **
+ ** \return  Value of the IO parameter
+ **
+ ** \param[in]  name  Name of the IO parameter to be asked
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT double constant_query(const char *name)
 
 {
-  int    i,found;
+  int i, found;
   double value;
 
   /* Look for an authorized keyword */
 
-  for (i=0, found= -1; i<CST_NUMBER; i++)
-    if (! strcasecmp(name,CST[i].keyword)) found = i;
+  for (i = 0, found = -1; i < CST_NUMBER; i++)
+    if (!strcasecmp(name, CST[i].keyword)) found = i;
 
   if (found < 0)
   {
     st_constant_list();
-    message("The keyword '%s' is unknown\n",name);
+    message("The keyword '%s' is unknown\n", name);
     value = 0;
   }
   else
@@ -1111,39 +1114,39 @@ GEOSLIB_API double constant_query(const char *name)
       value = CST[found].rval;
   }
 
-  return(value);
+  return (value);
 }
 
 /****************************************************************************/
 /*!
-**  Print the constants for IO
-**
-*****************************************************************************/
-GEOSLIB_API void constant_print(void)
+ **  Print the constants for IO
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void constant_print(void)
 
 {
-  int    i,ival;
+  int i, ival;
   double rval;
 
-  mestitle(1,"Parameters for printout");
-  for (i=0; i<CST_NUMBER; i++)
+  mestitle(1, "Parameters for printout");
+  for (i = 0; i < CST_NUMBER; i++)
   {
-    message (". %-50s [%6s] = ",CST[i].comment,CST[i].keyword);
+    message(". %-50s [%6s] = ", CST[i].comment, CST[i].keyword);
     if (CST[i].mode == 1)
     {
       ival = CST[i].ival;
       if (ival > 0)
-        message ("%d\n",ival);
+        message("%d\n", ival);
       else
-        message ("NA\n");
+        message("NA\n");
     }
     else
     {
       rval = CST[i].rval;
       if (rval > 0)
-        message ("%lg\n",rval);
+        message("%lg\n", rval);
       else
-        message ("NA\n");
+        message("NA\n");
     }
   }
   message("Use 'constant.define' to modify previous values\n");
@@ -1151,58 +1154,62 @@ GEOSLIB_API void constant_print(void)
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of a string
-**
-** \param[in]  title    optional title (NULL if not defined)
-** \param[in]  ncol     number of columns for the printout
-** \param[in]  justify  justification flag
-**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
-** \param[in]  string   String to be written
-**
-*****************************************************************************/
-GEOSLIB_API void tab_prints(const char*     title,
-                            int             ncol,
-                            const EJustify& justify,
-                            const char*     string)
+ **  Tabulated printout of a string
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ ** \param[in]  string   String to be written
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void tab_prints(const char *title,
+                                int ncol,
+                                const EJustify &justify,
+                                const char *string)
 {
-  int i,size,neff,nrst,n1,n2,taille;
+  int i, size, neff, nrst, n1, n2, taille;
 
   taille = CST[CST_NTCAR].ival * ncol;
-  size   = static_cast<int> (strlen(string));
-  neff   = MIN(taille, size);
-  nrst   = taille - neff;
-  n1     = nrst / 2;
-  n2     = taille - size - n1;
+  size = static_cast<int>(strlen(string));
+  neff = MIN(taille, size);
+  nrst = taille - neff;
+  n1 = nrst / 2;
+  n2 = taille - size - n1;
 
   /* Encode the title (if defined) */
 
-  if (title != NULL) message("%s",title);
+  if (title != NULL) message("%s", title);
 
   /* Blank the string out */
 
-  (void) gslStrcpy(TABSTR,"");
+  (void) gslStrcpy(TABSTR, "");
 
   /* Switch according to the justification */
 
   switch (justify.toEnum())
   {
     case EJustify::E_LEFT:
-      (void) gslStrncpy(TABSTR,string,neff);
+      (void) gslStrncpy(TABSTR, string, neff);
       TABSTR[neff] = '\0';
-      for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
+      for (i = 0; i < nrst; i++)
+        (void) gslStrcat(TABSTR, " ");
       break;
 
     case EJustify::E_CENTER:
-      for (i=0; i<n1; i++) (void) gslStrcat(TABSTR," ");
-      (void) gslStrncpy(&TABSTR[n1],string,neff);
-      TABSTR[n1+neff] = '\0';
-      for (i=0; i<n2; i++) (void) gslStrcat(TABSTR," ");
+      for (i = 0; i < n1; i++)
+        (void) gslStrcat(TABSTR, " ");
+      (void) gslStrncpy(&TABSTR[n1], string, neff);
+      TABSTR[n1 + neff] = '\0';
+      for (i = 0; i < n2; i++)
+        (void) gslStrcat(TABSTR, " ");
       break;
 
     case EJustify::E_RIGHT:
-      for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
-      (void) gslStrncpy(&TABSTR[nrst],string,neff);
-      TABSTR[nrst+neff] = '\0';
+      for (i = 0; i < nrst; i++)
+        (void) gslStrcat(TABSTR, " ");
+      (void) gslStrncpy(&TABSTR[nrst], string, neff);
+      TABSTR[nrst + neff] = '\0';
       break;
   }
   message(TABSTR);
@@ -1211,219 +1218,223 @@ GEOSLIB_API void tab_prints(const char*     title,
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of a string (character size provided)
-**
-** \param[in]  string   String to be written
-** \param[in]  taille   Number of characters
-**
-** \remarks The string is printed (left-adjusted) on 'taille' characters
-**
-*****************************************************************************/
-GEOSLIB_API void tab_print_rowname(const char *string,
-                                   int   taille)
+ **  Tabulated printout of a string (character size provided)
+ **
+ ** \param[in]  string   String to be written
+ ** \param[in]  taille   Number of characters
+ **
+ ** \remarks The string is printed (left-adjusted) on 'taille' characters
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void tab_print_rowname(const char *string, int taille)
 {
-  int i,size,neff,nrst;
+  int i, size, neff, nrst;
 
-  size   = static_cast<int> (strlen(string));
-  neff   = MIN(taille, size);
-  nrst   = taille - neff;
+  size = static_cast<int>(strlen(string));
+  neff = MIN(taille, size);
+  nrst = taille - neff;
 
   /* Blank the string out */
 
-  (void) gslStrcpy(TABSTR,"");
-  (void) gslStrncpy(TABSTR,string,neff);
+  (void) gslStrcpy(TABSTR, "");
+  (void) gslStrncpy(TABSTR, string, neff);
   TABSTR[neff] = '\0';
-  for (i=0; i<nrst; i++) (void) gslStrcat(TABSTR," ");
+  for (i = 0; i < nrst; i++)
+    (void) gslStrcat(TABSTR, " ");
   message(TABSTR);
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of a real value
-**
-** \param[in]  title    optional title (NULL if not defined)
-** \param[in]  ncol     number of columns for the printout
-** \param[in]  justify  justification flag
-**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
-** \param[in]  value    Value to be written
-**
-*****************************************************************************/
-GEOSLIB_API void tab_printg(const char*     title,
-                            int             ncol,
-                            const EJustify& justify,
-                            double          value)
+ **  Tabulated printout of a real value
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ ** \param[in]  value    Value to be written
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void tab_printg(const char *title,
+                                int ncol,
+                                const EJustify &justify,
+                                double value)
 {
   st_format(CASE_REAL);
 
   if (FFFF(value))
-    (void) gslStrcpy(DECODE,"N/A");
+    (void) gslStrcpy(DECODE, "N/A");
   else
   {
     // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-    value = (ABS(value) < DBL_THRESH) ? 0. : value;
-    (void) gslSPrintf(DECODE,FORMAT,value);
+    value = (ABS(value) < DBL_THRESH) ? 0. :
+                                        value;
+    (void) gslSPrintf(DECODE, FORMAT, value);
   }
 
-  tab_prints(title,ncol,justify,DECODE);
+  tab_prints(title, ncol, justify, DECODE);
 
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of a double value
-**
-** \param[in]  title    optional title (NULL if not defined)
-** \param[in]  ncol     number of columns for the printout
-** \param[in]  justify  justification flag
-**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
-** \param[in]  value    Value to be written
-**
-*****************************************************************************/
-GEOSLIB_API void tab_printd(const char*     title,
-                            int             ncol,
-                            const EJustify& justify,
-                            double          value)
+ **  Tabulated printout of a double value
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ ** \param[in]  value    Value to be written
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void tab_printd(const char *title,
+                                int ncol,
+                                const EJustify &justify,
+                                double value)
 {
   st_format(CASE_DOUBLE);
 
   if (FFFF(value))
-    (void) gslStrcpy(DECODE,"N/A");
+    (void) gslStrcpy(DECODE, "N/A");
   else
-    (void) gslSPrintf(DECODE,FORMAT,value);
+    (void) gslSPrintf(DECODE, FORMAT, value);
 
-  tab_prints(title,ncol,justify,DECODE);
+  tab_prints(title, ncol, justify, DECODE);
 
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of an integer value
-**
-** \param[in]  title    optional title (NULL if not defined)
-** \param[in]  ncol     number of columns for the printout
-** \param[in]  justify  justification flag
-**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
-** \param[in]  value    Value to be written
-**
-*****************************************************************************/
-GEOSLIB_API void tab_printi(const char*     title,
-                            int             ncol,
-                            const EJustify& justify,
-                            int             value)
+ **  Tabulated printout of an integer value
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ ** \param[in]  value    Value to be written
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void tab_printi(const char *title,
+                                int ncol,
+                                const EJustify &justify,
+                                int value)
 {
   st_format(CASE_INT);
 
   if (IFFFF(value))
-    (void) gslStrcpy(DECODE,"N/A");
+    (void) gslStrcpy(DECODE, "N/A");
   else
-    (void) gslSPrintf(DECODE,FORMAT,value);
+    (void) gslSPrintf(DECODE, FORMAT, value);
 
-  tab_prints(title,ncol,justify,DECODE);
+  tab_prints(title, ncol, justify, DECODE);
 
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of a row or column value
-**
-** \param[in]  title    optional title (NULL if not defined)
-** \param[in]  ncol     number of columns for the printout
-** \param[in]  justify  justification flag
-**                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
-** \param[in]  mode     CASE_ROW or CASE_COL
-** \param[in]  value    Value to be written
-**
-*****************************************************************************/
-GEOSLIB_API void tab_print_rc(const char*     title,
-                              int             ncol,
-                              const EJustify& justify,
-                              int             mode,
-                              int             value)
+ **  Tabulated printout of a row or column value
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ ** \param[in]  mode     CASE_ROW or CASE_COL
+ ** \param[in]  value    Value to be written
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void tab_print_rc(const char *title,
+                                  int ncol,
+                                  const EJustify &justify,
+                                  int mode,
+                                  int value)
 {
   st_format(mode);
 
-  (void) gslSPrintf(DECODE,FORMAT,value);
-  string_strip_blanks(DECODE,0);
+  (void) gslSPrintf(DECODE, FORMAT, value);
+  string_strip_blanks(DECODE, 0);
 
-  tab_prints(title,ncol,justify,DECODE);
+  tab_prints(title, ncol, justify, DECODE);
 
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of a matrix
-**
-** \param[in]  title  Title (Optional)
-** \param[in]  flag_limit  option for the limits
-** \li                      1 if limits must be applied
-** \li                      0 if the whole matrix is printed
-** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
-** \param[in]  nx     number of columns in the matrix
-** \param[in]  ny     number of rows in the matrix
-** \param[in]  sel    array of selection or NULL
-** \param[in]  tab    array containing the matrix
-**
-** \remarks The order of the dimension (nx,ny) is opposite
-** \remarks of the one used in R-packages where dim[1]=nrow and dim[2]=ncol
-**
-*****************************************************************************/
-GEOSLIB_API void print_matrix(const char   *title,
-                              int     flag_limit,
-                              int     bycol,
-                              int     nx,
-                              int     ny,
-                              const double *sel,
-                              const double *tab)
+ **  Tabulated printout of a matrix
+ **
+ ** \param[in]  title  Title (Optional)
+ ** \param[in]  flag_limit  option for the limits
+ ** \li                      1 if limits must be applied
+ ** \li                      0 if the whole matrix is printed
+ ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
+ ** \param[in]  nx     number of columns in the matrix
+ ** \param[in]  ny     number of rows in the matrix
+ ** \param[in]  sel    array of selection or NULL
+ ** \param[in]  tab    array containing the matrix
+ **
+ ** \remarks The order of the dimension (nx,ny) is opposite
+ ** \remarks of the one used in R-packages where dim[1]=nrow and dim[2]=ncol
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void print_matrix(const char *title,
+                                  int flag_limit,
+                                  int bycol,
+                                  int nx,
+                                  int ny,
+                                  const double *sel,
+                                  const double *tab)
 {
-  int ix,iy,nx_util,ny_util,ny_done,multi_row,iad;
+  int ix, iy, nx_util, ny_util, ny_done, multi_row, iad;
 
   /* Initializations */
 
   if (tab == nullptr || nx <= 0 || ny <= 0) return;
-  nx_util = (flag_limit && CST[CST_NTCOL].ival > 0) ?
-    MIN(CST[CST_NTCOL].ival,nx) : nx;
-  ny_util = (flag_limit && CST[CST_NTROW].ival > 0) ?
-    MIN(CST[CST_NTROW].ival,ny) : ny;
+  nx_util =
+      (flag_limit && CST[CST_NTCOL].ival > 0) ? MIN(CST[CST_NTCOL].ival, nx) :
+                                                nx;
+  ny_util =
+      (flag_limit && CST[CST_NTROW].ival > 0) ? MIN(CST[CST_NTROW].ival, ny) :
+                                                ny;
   multi_row = (ny > 1 || title == NULL);
 
   /* Print the title (optional) */
 
-  if (title != NULL) 
+  if (title != NULL)
   {
     if (multi_row)
-      message("%s\n",title);
+      message("%s\n", title);
     else
-      message("%s ",title);
+      message("%s ", title);
   }
 
   /* Print the header */
 
   if (multi_row)
   {
-    tab_prints(NULL,1,EJustify::RIGHT," ");
-    for (ix=0; ix<nx_util; ix++)
-      tab_print_rc(NULL,1,EJustify::RIGHT,CASE_COL,ix+1);
+    tab_prints(NULL, 1, EJustify::RIGHT, " ");
+    for (ix = 0; ix < nx_util; ix++)
+      tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_COL, ix + 1);
     message("\n");
   }
 
   /* Print the contents of the array */
 
   ny_done = 0;
-  for (iy=0; iy<ny; iy++)
+  for (iy = 0; iy < ny; iy++)
   {
-    if (sel != nullptr && ! sel[iy]) continue;
+    if (sel != nullptr && !sel[iy]) continue;
     ny_done++;
     if (ny_done > ny_util) break;
-    if (multi_row) tab_print_rc(NULL,1,EJustify::RIGHT,CASE_ROW,iy+1);
-    for (ix=0; ix<nx_util; ix++)
+    if (multi_row) tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_ROW, iy + 1);
+    for (ix = 0; ix < nx_util; ix++)
     {
-      iad = (bycol) ? iy + ny * ix : ix + nx * iy;
-      tab_printg(NULL,1,EJustify::RIGHT,tab[iad]);
+      iad = (bycol) ? iy + ny * ix :
+                      ix + nx * iy;
+      tab_printg(NULL, 1, EJustify::RIGHT, tab[iad]);
     }
     message("\n");
   }
@@ -1433,14 +1444,14 @@ GEOSLIB_API void print_matrix(const char   *title,
   if (nx != nx_util || ny != ny_util)
   {
     if (nx == nx_util)
-      message("(Ncol=%d",nx);
+      message("(Ncol=%d", nx);
     else
-      message("(Ncol=%d[from %d]",nx_util,nx);
+      message("(Ncol=%d[from %d]", nx_util, nx);
 
     if (ny == ny_util)
-      message(",Nrow=%d)",ny);
+      message(",Nrow=%d)", ny);
     else
-      message(",Nrow=%d[from %d])",ny_util,ny);
+      message(",Nrow=%d[from %d])", ny_util, ny);
     message("\n");
   }
 
@@ -1449,26 +1460,26 @@ GEOSLIB_API void print_matrix(const char   *title,
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of a upper triangular matrix
-**
-** \param[in]  title  Title (Optional)
-** \param[in]  mode   1 if the matrix is stored linewise
-**                    2 if the matrix is stored columnwise
-** \param[in]  neq    size of the matrix
-** \param[in]  tl     array containing the upper triangular matrix
-**
-** \remarks The ordering (compatible with matrix_solve is mode==2)
-**
-*****************************************************************************/
-GEOSLIB_API void print_trimat(const char   *title,
-                              int     mode,
-                              int     neq,
-                              const double *tl)
+ **  Tabulated printout of a upper triangular matrix
+ **
+ ** \param[in]  title  Title (Optional)
+ ** \param[in]  mode   1 if the matrix is stored linewise
+ **                    2 if the matrix is stored columnwise
+ ** \param[in]  neq    size of the matrix
+ ** \param[in]  tl     array containing the upper triangular matrix
+ **
+ ** \remarks The ordering (compatible with matrix_solve is mode==2)
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void print_trimat(const char *title,
+                                  int mode,
+                                  int neq,
+                                  const double *tl)
 {
 #define TRI(i)        (((i) * ((i) + 1)) / 2)
 #define TL1(i,j)      (tl[(j)*neq+(i)-TRI(j)])  /* only for i >= j */
 #define TL2(i,j)      (tl[TRI(i)+(j)])          /* only for i >= j */
-  int ix,iy;
+  int ix, iy;
 
   /* Initializations */
 
@@ -1476,31 +1487,31 @@ GEOSLIB_API void print_trimat(const char   *title,
 
   /* Print the title (optional) */
 
-  if (title != NULL) message("%s\n",title);
+  if (title != NULL) message("%s\n", title);
 
   /* Print the header */
 
-  tab_prints(NULL,1,EJustify::RIGHT," ");
-  for (ix=0; ix<neq; ix++)
-    tab_print_rc(NULL,1,EJustify::RIGHT,CASE_COL,ix+1);
+  tab_prints(NULL, 1, EJustify::RIGHT, " ");
+  for (ix = 0; ix < neq; ix++)
+    tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_COL, ix + 1);
   message("\n");
 
   /* Print the contents of the array */
 
-  for (iy=0; iy<neq; iy++)
+  for (iy = 0; iy < neq; iy++)
   {
-    tab_print_rc(NULL,1,EJustify::RIGHT,CASE_ROW,iy+1);
-    for (ix=0; ix<neq; ix++)
+    tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_ROW, iy + 1);
+    for (ix = 0; ix < neq; ix++)
     {
       if (ix >= iy)
       {
         if (mode == 1)
-          tab_printg(NULL,1,EJustify::RIGHT,TL1(ix,iy));
+          tab_printg(NULL, 1, EJustify::RIGHT, TL1(ix, iy));
         else
-          tab_printg(NULL,1,EJustify::RIGHT,TL2(ix,iy));
+          tab_printg(NULL, 1, EJustify::RIGHT, TL2(ix, iy));
       }
       else
-        tab_prints(NULL,1,EJustify::RIGHT," ");
+        tab_prints(NULL, 1, EJustify::RIGHT, " ");
     }
     message("\n");
   }
@@ -1513,71 +1524,74 @@ GEOSLIB_API void print_trimat(const char   *title,
 
 /****************************************************************************/
 /*!
-**  Tabulated printout of a matrix (integer version)
-**
-** \param[in]  title  Title (Optional)
-** \param[in]  flag_limit  option for the limits
-** \li                      1 if limits must be applied
-** \li                      0 if the whole matrix is printed
-** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
-** \param[in]  nx     number of columns in the matrix
-** \param[in]  ny     number of rows in the matrix
-** \param[in]  sel    array of selection or NULL
-** \param[in]  tab    array containing the matrix
-**
-*****************************************************************************/
-GEOSLIB_API void print_imatrix(const char   *title,
-                               int     flag_limit,
-                               int     bycol,
-                               int     nx,
-                               int     ny,
-                               const double *sel,
-                               const int    *tab)
+ **  Tabulated printout of a matrix (integer version)
+ **
+ ** \param[in]  title  Title (Optional)
+ ** \param[in]  flag_limit  option for the limits
+ ** \li                      1 if limits must be applied
+ ** \li                      0 if the whole matrix is printed
+ ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
+ ** \param[in]  nx     number of columns in the matrix
+ ** \param[in]  ny     number of rows in the matrix
+ ** \param[in]  sel    array of selection or NULL
+ ** \param[in]  tab    array containing the matrix
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void print_imatrix(const char *title,
+                                   int flag_limit,
+                                   int bycol,
+                                   int nx,
+                                   int ny,
+                                   const double *sel,
+                                   const int *tab)
 {
-  int ix,iy,nx_util,ny_util,ny_done,multi_row,iad;
+  int ix, iy, nx_util, ny_util, ny_done, multi_row, iad;
 
   /* Initializations */
 
   if (tab == nullptr || nx <= 0 || ny <= 0) return;
-  nx_util = (flag_limit && CST[CST_NTCOL].ival > 0) ?
-    MIN(CST[CST_NTCOL].ival,nx) : nx;
-  ny_util = (flag_limit && CST[CST_NTROW].ival > 0) ?
-    MIN(CST[CST_NTROW].ival,ny) : ny;
+  nx_util =
+      (flag_limit && CST[CST_NTCOL].ival > 0) ? MIN(CST[CST_NTCOL].ival, nx) :
+                                                nx;
+  ny_util =
+      (flag_limit && CST[CST_NTROW].ival > 0) ? MIN(CST[CST_NTROW].ival, ny) :
+                                                ny;
   multi_row = (ny > 1 || title == NULL);
 
   /* Print the title (optional) */
 
-  if (title != NULL) 
+  if (title != NULL)
   {
     if (multi_row)
-      message("%s\n",title);
+      message("%s\n", title);
     else
-      message("%s ",title);
+      message("%s ", title);
   }
 
   /* Print the header */
 
   if (multi_row)
   {
-    tab_prints(NULL,1,EJustify::RIGHT," ");
-    for (ix=0; ix<nx_util; ix++)
-      tab_print_rc(NULL,1,EJustify::RIGHT,CASE_COL,ix+1);
+    tab_prints(NULL, 1, EJustify::RIGHT, " ");
+    for (ix = 0; ix < nx_util; ix++)
+      tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_COL, ix + 1);
     message("\n");
   }
 
   /* Print the contents of the array */
 
   ny_done = 0;
-  for (iy=0; iy<ny; iy++)
+  for (iy = 0; iy < ny; iy++)
   {
-    if (sel != nullptr && ! sel[iy]) continue;
+    if (sel != nullptr && !sel[iy]) continue;
     ny_done++;
     if (ny_done > ny_util) break;
-    if (multi_row) tab_print_rc(NULL,1,EJustify::RIGHT,CASE_ROW,iy+1);
-    for (ix=0; ix<nx_util; ix++)
+    if (multi_row) tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_ROW, iy + 1);
+    for (ix = 0; ix < nx_util; ix++)
     {
-      iad = (bycol) ? iy + ny * ix : ix + nx * iy;
-      tab_printi(NULL,1,EJustify::RIGHT,tab[iad]);
+      iad = (bycol) ? iy + ny * ix :
+                      ix + nx * iy;
+      tab_printi(NULL, 1, EJustify::RIGHT, tab[iad]);
     }
     message("\n");
   }
@@ -1587,14 +1601,14 @@ GEOSLIB_API void print_imatrix(const char   *title,
   if (nx != nx_util || ny != ny_util)
   {
     if (nx == nx_util)
-      message("(Ncol=%d",nx);
+      message("(Ncol=%d", nx);
     else
-      message("(Ncol=%d[from %d]",nx_util,nx);
+      message("(Ncol=%d[from %d]", nx_util, nx);
 
     if (ny == ny_util)
-      message(",Nrow=%d)",ny);
+      message(",Nrow=%d)", ny);
     else
-      message(",Nrow=%d[from %d])",ny_util,ny);
+      message(",Nrow=%d[from %d])", ny_util, ny);
     message("\n");
   }
 
@@ -1603,42 +1617,41 @@ GEOSLIB_API void print_imatrix(const char   *title,
 
 /****************************************************************************/
 /*!
-**  Print a vector of real values in a matrix form
-**
-** \param[in]  title      Title (Optional)
-** \param[in]  flag_limit 1 if CST[CST_NTCOL] is used; 0 otherwise
-** \param[in]  ntab       Number of elements in the array
-** \param[in]  tab        Array to be printed
-**
-*****************************************************************************/
-GEOSLIB_API void print_vector(const char *title,
-                              int     flag_limit,
-                              int     ntab,
-                              const double *tab)
+ **  Print a vector of real values in a matrix form
+ **
+ ** \param[in]  title      Title (Optional)
+ ** \param[in]  flag_limit 1 if CST[CST_NTCOL] is used; 0 otherwise
+ ** \param[in]  ntab       Number of elements in the array
+ ** \param[in]  tab        Array to be printed
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void print_vector(const char *title,
+                                  int flag_limit,
+                                  int ntab,
+                                  const double *tab)
 {
-  int i,j,lec,nby,flag_many;
+  int i, j, lec, nby, flag_many;
   static int nby_def = 5;
 
   /* Initializations */
 
   if (ntab <= 0) return;
-  nby = (flag_limit && CST[CST_NTCOL].ival >= 0) ?
-    CST[CST_NTCOL].ival : nby_def;
+  nby = (flag_limit && CST[CST_NTCOL].ival >= 0) ? CST[CST_NTCOL].ival :
+                                                   nby_def;
   flag_many = (ntab > nby);
 
-  if (title != NULL) 
+  if (title != NULL)
   {
-    message("%s",title);
+    message("%s", title);
     if (flag_many) message("\n");
   }
-  for (i=lec=0; i<ntab; i+=nby)
+  for (i = lec = 0; i < ntab; i += nby)
   {
-    if (flag_many) 
-      message(" %2d+  ",i);
-    for (j=0; j<nby; j++)
+    if (flag_many) message(" %2d+  ", i);
+    for (j = 0; j < nby; j++)
     {
       if (lec >= ntab) continue;
-      message(" %10f",tab[lec]);
+      message(" %10f", tab[lec]);
       lec++;
     }
     message("\n");
@@ -1646,52 +1659,51 @@ GEOSLIB_API void print_vector(const char *title,
   return;
 }
 
-GEOSLIB_API void print_vector(const char *title,
-                              int flag_limit,
-                              int ntab,
-                              const VectorDouble& tab)
+GSTLEARN_EXPORT void print_vector(const char *title,
+                                  int flag_limit,
+                                  int ntab,
+                                  const VectorDouble &tab)
 {
   print_vector(title, flag_limit, ntab, tab.data());
 }
 
 /****************************************************************************/
 /*!
-**  Print a vector of integer values in a matrix form
-**
-** \param[in]  title      Title (Optional)
-** \param[in]  flag_limit 1 if CST[CST_NTCOL] is used; 0 otherwise
-** \param[in]  ntab       Number of elements in the array
-** \param[in]  itab       Array to be printed
-**
-*****************************************************************************/
-GEOSLIB_API void print_ivector(const char *title,
-                               int     flag_limit,
-                               int     ntab,
-                               const int *itab)
+ **  Print a vector of integer values in a matrix form
+ **
+ ** \param[in]  title      Title (Optional)
+ ** \param[in]  flag_limit 1 if CST[CST_NTCOL] is used; 0 otherwise
+ ** \param[in]  ntab       Number of elements in the array
+ ** \param[in]  itab       Array to be printed
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void print_ivector(const char *title,
+                                   int flag_limit,
+                                   int ntab,
+                                   const int *itab)
 {
-  int i,j,lec,nby,flag_many;
+  int i, j, lec, nby, flag_many;
   static int nby_def = 5;
 
   /* Initializations */
 
   if (ntab <= 0) return;
-  nby = (flag_limit && CST[CST_NTCOL].ival >= 0) ?
-    CST[CST_NTCOL].ival : nby_def;
+  nby = (flag_limit && CST[CST_NTCOL].ival >= 0) ? CST[CST_NTCOL].ival :
+                                                   nby_def;
   flag_many = (ntab > nby);
 
-  if (title != NULL) 
+  if (title != NULL)
   {
-    message("%s",title);
+    message("%s", title);
     if (flag_many) message("\n");
   }
-  for (i=lec=0; i<ntab; i+=nby)
+  for (i = lec = 0; i < ntab; i += nby)
   {
-    if (flag_many) 
-      message(" %2d+  ",i);
-    for (j=0; j<nby; j++)
+    if (flag_many) message(" %2d+  ", i);
+    for (j = 0; j < nby; j++)
     {
       if (lec >= ntab) continue;
-      message(" %10d",itab[lec]);
+      message(" %10d", itab[lec]);
       lec++;
     }
     message("\n");
@@ -1699,40 +1711,40 @@ GEOSLIB_API void print_ivector(const char *title,
   return;
 }
 
-GEOSLIB_API void print_ivector(const char *title,
-                               int     flag_limit,
-                               int     ntab,
-                               const VectorInt& itab)
+GSTLEARN_EXPORT void print_ivector(const char *title,
+                                   int flag_limit,
+                                   int ntab,
+                                   const VectorInt &itab)
 {
-  print_ivector(title,flag_limit,ntab,itab.data());
+  print_ivector(title, flag_limit, ntab, itab.data());
 }
 
 /****************************************************************************/
 /*!
-**  Print the names of the columns
-**
-** \param[in]  nx     number of columns in the matrix
-** \param[in]  ranks  Indirection array (optional)
-** \param[in]  names  Array of locator names
-**
-*****************************************************************************/
-GEOSLIB_API void print_names(int    nx,
-                             int   *ranks,
-                             VectorString names)
+ **  Print the names of the columns
+ **
+ ** \param[in]  nx     number of columns in the matrix
+ ** \param[in]  ranks  Indirection array (optional)
+ ** \param[in]  names  Array of locator names
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void print_names(int nx, int *ranks, VectorString names)
 {
-  int ix,iix,nx_util;
+  int ix, iix, nx_util;
 
   /* Initializations */
 
-  nx_util = (CST[CST_NTCOL].ival < 0) ? nx : MIN(CST[CST_NTCOL].ival,nx);
+  nx_util = (CST[CST_NTCOL].ival < 0) ? nx :
+                                        MIN(CST[CST_NTCOL].ival, nx);
 
   /* Loop on the columns */
 
-  tab_prints(NULL,1,EJustify::RIGHT," ");
-  for (iix=0; iix<nx_util; iix++)
+  tab_prints(NULL, 1, EJustify::RIGHT, " ");
+  for (iix = 0; iix < nx_util; iix++)
   {
-    ix = (ranks == nullptr) ? iix : ranks[iix];
-    tab_prints(NULL,1,EJustify::RIGHT,names[ix].c_str());
+    ix = (ranks == nullptr) ? iix :
+                              ranks[iix];
+    tab_prints(NULL, 1, EJustify::RIGHT, names[ix].c_str());
   }
   message("\n");
   return;
@@ -1740,52 +1752,51 @@ GEOSLIB_API void print_names(int    nx,
 
 /****************************************************************************/
 /*! 
-**  Read a keyword
-**
-** \return  Rank of the keyword (starting from 0) or -1 if not recognized
-**
-** \param[in]  question Question to be asked
-** \param[in]  nkeys    Number of authorized keys
-** \param[in]  keys     List of the keywords
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API int _lire_key(const char  *question,
-                          int    nkeys,
-                          const char **keys)
+ **  Read a keyword
+ **
+ ** \return  Rank of the keyword (starting from 0) or -1 if not recognized
+ **
+ ** \param[in]  question Question to be asked
+ ** \param[in]  nkeys    Number of authorized keys
+ ** \param[in]  keys     List of the keywords
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+int _lire_key(const char *question, int nkeys, const char **keys)
 {
   int i;
 
-label_ques:
+  label_ques:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,"%s ",question);
-  (void) gslStrcat(LINE,"[");
-  for (i=0; i<nkeys; i++)
+  (void) gslSPrintf(LINE, "%s ", question);
+  (void) gslStrcat(LINE, "[");
+  for (i = 0; i < nkeys; i++)
   {
-    if (i > 0) gslStrcat(LINE,",");
-    (void) gslSPrintf(&LINE[strlen(LINE)],"%s",keys[i]);
+    if (i > 0) gslStrcat(LINE, ",");
+    (void) gslSPrintf(&LINE[strlen(LINE)], "%s", keys[i]);
   }
-  (void) gslStrcat(LINE,"] : ");
+  (void) gslStrcat(LINE, "] : ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE,BUFFER);
+  READ_FUNC(LINE, BUFFER);
 
   /* Interruption */
 
-  if (! strcasecmp(BUFFER,"STOP")) return(-1);
+  if (!strcasecmp(BUFFER, "STOP")) return (-1);
 
   /* Check that the answer if authorized */
 
-  string_strip_blanks(BUFFER,0);
-  for (i=0; i<nkeys; i++)
-    if (! strcasecmp(BUFFER,keys[i])) return(i);
-  message("Error: the keyword '%s' is unknown\n",BUFFER);
+  string_strip_blanks(BUFFER, 0);
+  for (i = 0; i < nkeys; i++)
+    if (!strcasecmp(BUFFER, keys[i])) return (i);
+  message("Error: the keyword '%s' is unknown\n", BUFFER);
   message("The only keywords authorized are : ");
-  for (i=0; i<nkeys; i++) message(" %s",keys[i]);
+  for (i = 0; i < nkeys; i++)
+    message(" %s", keys[i]);
   message("\n");
   goto label_ques;
   return -1; // Just to prevent from an eclispe warning
@@ -1793,35 +1804,34 @@ label_ques:
 
 /****************************************************************************/
 /*! 
-**  Read astring
-**
-** \param[in]  question  Question to be asked
-** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
-** \param[in]  valdef    Default string
-**
-** \param[out] answer    Answering string
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API void _lire_string(const char *question,
-                              int   flag_def,
-                              const char *valdef,
-                              char *answer)
+ **  Read astring
+ **
+ ** \param[in]  question  Question to be asked
+ ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
+ ** \param[in]  valdef    Default string
+ **
+ ** \param[out] answer    Answering string
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+void _lire_string(const char *question,
+                  int flag_def,
+                  const char *valdef,
+                  char *answer)
 {
 
-loop:
+  loop:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,"%s ",question);
-  if (flag_def)
-    (void) gslSPrintf(&LINE[strlen(LINE)],"(Def=%s) ",valdef);
-  (void) gslStrcat(LINE,": ");
+  (void) gslSPrintf(LINE, "%s ", question);
+  if (flag_def) (void) gslSPrintf(&LINE[strlen(LINE)], "(Def=%s) ", valdef);
+  (void) gslStrcat(LINE, ": ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE,BUFFER);
+  READ_FUNC(LINE, BUFFER);
 
   /* Handle the default value */
 
@@ -1829,7 +1839,7 @@ loop:
   {
     if (flag_def)
     {
-      (void) gslStrcpy(answer,valdef);
+      (void) gslStrcpy(answer, valdef);
     }
     else
     {
@@ -1839,7 +1849,7 @@ loop:
   }
   else
   {
-    (void) gslStrcpy(answer,BUFFER);
+    (void) gslStrcpy(answer, BUFFER);
   }
 
   return;
@@ -1847,59 +1857,57 @@ loop:
 
 /****************************************************************************/
 /*! 
-**  Read an integer value
-**
-** \return  Integer value
-**
-** \param[in]  question  Question to be asked
-** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
-** \param[in]  valdef    Default value or ITEST
-** \param[in]  valmin    Minimum authorized value or ITEST
-** \param[in]  valmax    Maximum authorized value or ITEST
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API int _lire_int(const char *question,
-                          int   flag_def,
-                          int   valdef,
-                          int   valmin,
-                          int   valmax)
+ **  Read an integer value
+ **
+ ** \return  Integer value
+ **
+ ** \param[in]  question  Question to be asked
+ ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
+ ** \param[in]  valdef    Default value or ITEST
+ ** \param[in]  valmin    Minimum authorized value or ITEST
+ ** \param[in]  valmax    Maximum authorized value or ITEST
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+int _lire_int(const char *question,
+              int flag_def,
+              int valdef,
+              int valmin,
+              int valmax)
 {
   int rep;
 
-loop:
+  loop:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,"%s ",question);
-  if (! IFFFF(valmin) && ! IFFFF(valmax) && valmin > valmax)
+  (void) gslSPrintf(LINE, "%s ", question);
+  if (!IFFFF(valmin) && !IFFFF(valmax) && valmin > valmax)
     valmin = valmax = ITEST;
-  if (! IFFFF(valmin) && ! IFFFF(valdef) && valdef < valmin)
-    valdef = valmin;
-  if (! IFFFF(valmax) && ! IFFFF(valdef) && valdef > valmax)
-    valdef = valmax;
-  if (flag_def && ! IFFFF(valdef))
-    (void) gslSPrintf(&LINE[strlen(LINE)],"(Def=%d) ",valdef);
+  if (!IFFFF(valmin) && !IFFFF(valdef) && valdef < valmin) valdef = valmin;
+  if (!IFFFF(valmax) && !IFFFF(valdef) && valdef > valmax) valdef = valmax;
+  if (flag_def && !IFFFF(valdef))
+    (void) gslSPrintf(&LINE[strlen(LINE)], "(Def=%d) ", valdef);
   if (IFFFF(valmin))
-    (void) gslStrcat(LINE,"[NA,");
+    (void) gslStrcat(LINE, "[NA,");
   else
-    (void) gslSPrintf(&LINE[strlen(LINE)],"[%d,",valmin);
+    (void) gslSPrintf(&LINE[strlen(LINE)], "[%d,", valmin);
   if (IFFFF(valmax))
-    (void) gslStrcat(LINE,"NA] ");
+    (void) gslStrcat(LINE, "NA] ");
   else
-    (void) gslSPrintf(&LINE[strlen(LINE)],"%d] ",valmax);
-  (void) gslStrcat(LINE,": ");
+    (void) gslSPrintf(&LINE[strlen(LINE)], "%d] ", valmax);
+  (void) gslStrcat(LINE, ": ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE,BUFFER);
+  READ_FUNC(LINE, BUFFER);
 
   /* Handle the default value */
 
   if (strlen(BUFFER) <= 0)
   {
-    if (flag_def && ! IFFFF(valdef))
+    if (flag_def && !IFFFF(valdef))
     {
       rep = valdef;
     }
@@ -1911,74 +1919,71 @@ loop:
   }
   else
   {
-    if (! strcmp(BUFFER,"NA")) return(ITEST);
+    if (!strcmp(BUFFER, "NA")) return (ITEST);
     rep = atoi(BUFFER);
   }
 
   /* Check the bounds */
 
-  if (! IFFFF(valmin) && rep < valmin)
+  if (!IFFFF(valmin) && rep < valmin)
   {
-    messerr("Answer (%d) must be larger than Minimum (%d)",rep,valmin);
+    messerr("Answer (%d) must be larger than Minimum (%d)", rep, valmin);
     goto loop;
   }
-  if (! IFFFF(valmax) && rep > valmax)
+  if (!IFFFF(valmax) && rep > valmax)
   {
-    messerr("Answer (%d) must be smaller than Maximum (%d)",rep,valmax);
+    messerr("Answer (%d) must be smaller than Maximum (%d)", rep, valmax);
     goto loop;
   }
-  return(rep);
+  return (rep);
 }
 
 /****************************************************************************/
 /*!
-**  Read a double value
-**
-** \return  Double value
-**
-** \param[in]  question  Question to be asked
-** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
-** \param[in]  valdef    Default value or TEST
-** \param[in]  valmin    Minimum authorized value or TEST
-** \param[in]  valmax    Maximum authorized value or TEST
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API double _lire_double(const char  *question,
-                                int    flag_def,
-                                double valdef,
-                                double valmin,
-                                double valmax)
+ **  Read a double value
+ **
+ ** \return  Double value
+ **
+ ** \param[in]  question  Question to be asked
+ ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
+ ** \param[in]  valdef    Default value or TEST
+ ** \param[in]  valmin    Minimum authorized value or TEST
+ ** \param[in]  valmax    Maximum authorized value or TEST
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+double _lire_double(const char *question,
+                    int flag_def,
+                    double valdef,
+                    double valmin,
+                    double valmax)
 {
   double rep;
 
-loop:
+  loop:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,"%s ",question);
-  if (! FFFF(valmin) && ! FFFF(valmax) && valmin > valmax)
-    valmin = valmax = TEST;
-  if (! FFFF(valmin) && ! FFFF(valdef) && valdef < valmin)
-    valdef = valmin;
-  if (! FFFF(valmax) && ! FFFF(valdef) && valdef > valmax)
-    valdef = valmax;
-  if (flag_def && ! FFFF(valdef))
-    (void) gslSPrintf(&LINE[strlen(LINE)],"(Def=%lf) ",valdef); 
+  (void) gslSPrintf(LINE, "%s ", question);
+  if (!FFFF(valmin) && !FFFF(valmax) && valmin > valmax) valmin = valmax = TEST;
+  if (!FFFF(valmin) && !FFFF(valdef) && valdef < valmin) valdef = valmin;
+  if (!FFFF(valmax) && !FFFF(valdef) && valdef > valmax) valdef = valmax;
+  if (flag_def && !FFFF(valdef))
+    (void) gslSPrintf(&LINE[strlen(LINE)], "(Def=%lf) ", valdef);
   if (FFFF(valmin))
-    (void) gslStrcat(LINE,"[NA,");
+    (void) gslStrcat(LINE, "[NA,");
   else
-    (void) gslSPrintf(&LINE[strlen(LINE)],"[%lf,",valmin);
+    (void) gslSPrintf(&LINE[strlen(LINE)], "[%lf,", valmin);
   if (FFFF(valmax))
-    (void) gslStrcat(LINE,"NA] ");
+    (void) gslStrcat(LINE, "NA] ");
   else
-    (void) gslSPrintf(&LINE[strlen(LINE)],"%lf] ",valmax);
-  (void) gslStrcat(LINE,": ");
+    (void) gslSPrintf(&LINE[strlen(LINE)], "%lf] ", valmax);
+  (void) gslStrcat(LINE, ": ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE,BUFFER);
+  READ_FUNC(LINE, BUFFER);
 
   /* Handle the default value */
 
@@ -1996,67 +2001,65 @@ loop:
   }
   else
   {
-    if (! strcmp(BUFFER,"NA")) return(TEST);
+    if (!strcmp(BUFFER, "NA")) return (TEST);
     rep = atof(BUFFER);
   }
 
   /* Check the bounds */
 
-  if (! FFFF(valmin) && rep < valmin)
+  if (!FFFF(valmin) && rep < valmin)
   {
-    messerr("Answer (%lf) must be larger than Minimum (%lf)",rep,valmin);
+    messerr("Answer (%lf) must be larger than Minimum (%lf)", rep, valmin);
     goto loop;
   }
-  if (! FFFF(valmax) && rep > valmax)
+  if (!FFFF(valmax) && rep > valmax)
   {
-    messerr("Answer (%lf) must be smaller than Maximum (%lf)",rep,valmax);
+    messerr("Answer (%lf) must be smaller than Maximum (%lf)", rep, valmax);
     goto loop;
   }
-  return(rep);
+  return (rep);
 }
 
 /****************************************************************************/
 /*!
-**  Read a boolean answer
-**
-** \return  Integer value: 1 for 'yes' and 0 for 'no'
-**
-** \param[in]  question  Question to be asked
-** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
-** \param[in]  valdef    Default value (0 for NO and 1 for YES)
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API int _lire_logical(const char *question,
-                              int   flag_def,
-                              int   valdef)
+ **  Read a boolean answer
+ **
+ ** \return  Integer value: 1 for 'yes' and 0 for 'no'
+ **
+ ** \param[in]  question  Question to be asked
+ ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
+ ** \param[in]  valdef    Default value (0 for NO and 1 for YES)
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+int _lire_logical(const char *question, int flag_def, int valdef)
 {
-loop:
+  loop:
 
   /* Compose the question */
 
-  (void) gslSPrintf(LINE,"%s ",question);
-  if (flag_def && ! IFFFF(valdef))
+  (void) gslSPrintf(LINE, "%s ", question);
+  if (flag_def && !IFFFF(valdef))
   {
     if (valdef == 0)
-      (void) gslStrcat(LINE,"(Def=n)");
+      (void) gslStrcat(LINE, "(Def=n)");
     else
-      (void) gslStrcat(LINE,"(Def=y)");
+      (void) gslStrcat(LINE, "(Def=y)");
   }
-  (void) gslStrcat(LINE," [y,n] : ");
+  (void) gslStrcat(LINE, " [y,n] : ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE,BUFFER);
+  READ_FUNC(LINE, BUFFER);
 
   /* Handle the default value */
 
   if (strlen(BUFFER) <= 0)
   {
-    if (flag_def && ! IFFFF(valdef))
+    if (flag_def && !IFFFF(valdef))
     {
-      return(valdef);
+      return (valdef);
     }
     else
     {
@@ -2069,8 +2072,8 @@ loop:
 
     /* Check the aurhotized values */
 
-    if (! strcasecmp(BUFFER,"Y")) return(1);
-    if (! strcasecmp(BUFFER,"N")) return(0);
+    if (!strcasecmp(BUFFER, "Y")) return (1);
+    if (!strcasecmp(BUFFER, "N")) return (0);
     message("The only authorized answers are 'y' or 'n'\n");
     goto loop;
   }
@@ -2078,20 +2081,18 @@ loop:
 
 /****************************************************************************/
 /*!
-**  Conditionally print the progress of a procedure
-**
-** \param[in]  string   String to be printed
-** \param[in]  ntot     Total number of samples
-** \param[in]  iech     Rank of the current sample
-**
-*****************************************************************************/
-GEOSLIB_API void mes_process(const char *string,
-                             int   ntot,
-                             int   iech)
+ **  Conditionally print the progress of a procedure
+ **
+ ** \param[in]  string   String to be printed
+ ** \param[in]  ntot     Total number of samples
+ ** \param[in]  iech     Rank of the current sample
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void mes_process(const char *string, int ntot, int iech)
 {
   static int memo = 0;
   double ratio;
-  int nproc,jech,percent;
+  int nproc, jech, percent;
 
   nproc = CST[CST_NPROC].ival;
   if (nproc <= 0) return;
@@ -2099,13 +2100,12 @@ GEOSLIB_API void mes_process(const char *string,
 
   /* Calculate the current percentage */
 
-  ratio   = 100. * (double) jech / (double) ntot;
+  ratio = 100. * (double) jech / (double) ntot;
   percent = (int) (ratio / (double) nproc) * nproc;
 
   /* Conditional printout */
 
-  if (percent != memo)
-    message("%s : %d (percent)\n",string,percent);
+  if (percent != memo) message("%s : %d (percent)\n", string, percent);
   memo = percent;
 
   return;
@@ -2113,12 +2113,12 @@ GEOSLIB_API void mes_process(const char *string,
 
 /****************************************************************************/
 /*! 
-**  Read the next record
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API void record_close(void)
+ **  Read the next record
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void record_close(void)
 {
   cur = NULL;
   LCUR = NULL;
@@ -2128,119 +2128,116 @@ GEOSLIB_API void record_close(void)
 
 /****************************************************************************/
 /*! 
-**  Read the next record
-**
-** \return Error return code
-**
-** \param[in]  file       Pointer to the file to be read
-** \param[in]  format     Encoding format
-** \param[in]  ...        Value to be written
-**
-** This method is not documented on purpose. It should remain private
-**
-*****************************************************************************/
-GEOSLIB_API int _record_read(FILE *file,
-                             const char *format,
-                             ...)
+ **  Read the next record
+ **
+ ** \return Error return code
+ **
+ ** \param[in]  file       Pointer to the file to be read
+ ** \param[in]  format     Encoding format
+ ** \param[in]  ...        Value to be written
+ **
+ ** This method is not documented on purpose. It should remain private
+ **
+ *****************************************************************************/
+int _record_read(FILE *file, const char *format, ...)
 {
   va_list ap;
   int error;
 
   error = 0;
-  va_start(ap,format);
-  error = _file_read(file,format,ap);
+  va_start(ap, format);
+  error = _file_read(file, format, ap);
   va_end(ap);
-  return(error);
+  return (error);
 }
 
 /****************************************************************************/
 /*!
-**  Print the range of values in an array
-**
-** \param[in]  title    optional title (NULL if not defined)
-** \param[in]  ntab     number of values
-** \param[in]  tab      array of values
-** \param[in]  sel      (optional) selection
-**
-*****************************************************************************/
-GEOSLIB_API void print_range(const char *title,
-                             int     ntab,
-                             double *tab,
-                             double *sel)
+ **  Print the range of values in an array
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  ntab     number of values
+ ** \param[in]  tab      array of values
+ ** \param[in]  sel      (optional) selection
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void print_range(const char *title,
+                                 int ntab,
+                                 double *tab,
+                                 double *sel)
 {
-  double mini,maxi;
+  double mini, maxi;
   int nvalid;
 
   if (tab == nullptr || ntab <= 0) return;
   mini = maxi = TEST;
   nvalid = 0;
-  ut_stats_mima(ntab,tab,sel,&nvalid,&mini,&maxi);
+  ut_stats_mima(ntab, tab, sel, &nvalid, &mini, &maxi);
 
   /* Encode the title (if defined) */
 
-  if (title != NULL) 
-    message("%s : ",title);
+  if (title != NULL)
+    message("%s : ", title);
   else
     message("Range : ");
   message("  ");
 
-  if (FFFF(mini)) 
+  if (FFFF(mini))
     message("NA");
   else
-    message("%lf",mini);
+    message("%lf", mini);
   message(" ; ");
   if (FFFF(maxi))
     message("NA");
   else
-    message("%lf",maxi);
-  message(" (%d/%d)\n",nvalid,ntab);
+    message("%lf", maxi);
+  message(" (%d/%d)\n", nvalid, ntab);
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Encode a real value
-**
-** \param[in]  string   Char array where the value is encoded
-** \param[in]  ntcar    Number of characters (for real values)
-** \param[in]  ntdec    Number of decimals (for real values)
-** \param[in]  value    Value to be written
-**
-*****************************************************************************/
-GEOSLIB_API void encode_printg(char  *string,
-                               int    ntcar,
-                               int    ntdec,
-                               double value)
+ **  Encode a real value
+ **
+ ** \param[in]  string   Char array where the value is encoded
+ ** \param[in]  ntcar    Number of characters (for real values)
+ ** \param[in]  ntdec    Number of decimals (for real values)
+ ** \param[in]  value    Value to be written
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void encode_printg(char *string,
+                                   int ntcar,
+                                   int ntdec,
+                                   double value)
 {
-  (void) gslSPrintf(FORMAT,"%%%d.%dlg",ntcar,ntdec);
+  (void) gslSPrintf(FORMAT, "%%%d.%dlg", ntcar, ntdec);
 
   if (FFFF(value))
-    (void) gslStrcpy(string,"N/A");
+    (void) gslStrcpy(string, "N/A");
   else
-    (void) gslSPrintf(string,FORMAT,value);
-  string_strip_blanks(string,0);
+    (void) gslSPrintf(string, FORMAT, value);
+  string_strip_blanks(string, 0);
 
   return;
 }
 
 /****************************************************************************/
 /*!
-**  Dump a vector of real values in a file
-**  (used for debugging)
-**
-** \param[in]  ntab     Number of values to be dumped
-** \param[in]  tab      Vector of values to be dumped out
-**
-*****************************************************************************/
-GEOSLIB_API void file_dump(int ntab,
-                           double *tab)
+ **  Dump a vector of real values in a file
+ **  (used for debugging)
+ **
+ ** \param[in]  ntab     Number of values to be dumped
+ ** \param[in]  tab      Vector of values to be dumped out
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT void file_dump(int ntab, double *tab)
 {
   FILE *file;
   char Local[] = "/home/drenard/Bureau/Dump_trunk";
 
-  file = _file_open(Local,NEW);
+  file = _file_open(Local, NEW);
   if (file == nullptr) return;
   for (int i = 0; i < ntab; i++)
-    fprintf(file,"%d %30.20lf\n",i+1,tab[i]);
+    fprintf(file, "%d %30.20lf\n", i + 1, tab[i]);
   fclose(file);
 }

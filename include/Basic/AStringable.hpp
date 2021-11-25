@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "csparse_f.h" // Cannot use forward declaration for cs and don't know why!
 /// TODO : include geoslib_f.h here makes the compilation crash !!!
 
-class AStringable
+class GSTLEARN_EXPORT AStringable
 {
 public:
   AStringable() {};

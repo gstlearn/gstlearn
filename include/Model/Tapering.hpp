@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
@@ -30,9 +31,9 @@ double _tape_storkey(double);
 double _tape_wendland1(double);
 double _tape_wendland2(double);
 
-Def_Tapering& D_TAPE(int rank);
+GSTLEARN_EXPORT Def_Tapering& D_TAPE(int rank);
 
-class Tapering : public AStringable
+class GSTLEARN_EXPORT Tapering : public AStringable
 {
 public:
   Tapering();

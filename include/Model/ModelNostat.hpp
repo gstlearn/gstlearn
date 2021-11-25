@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/ElemNostat.hpp"
 #include "Basic/AStringable.hpp"
@@ -17,7 +18,7 @@
 class ElemNostat;
 class CovAniso;
 
-class ModelNostat : public AStringable
+class GSTLEARN_EXPORT ModelNostat : public AStringable
 {
 private:
   int _nDim;

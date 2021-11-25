@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/ConsItem.hpp"
 #include "Basic/AStringable.hpp"
 
-class Constraints : public AStringable
+class GSTLEARN_EXPORT Constraints : public AStringable
 {
 public:
   Constraints();

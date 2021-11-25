@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
@@ -19,7 +20,7 @@
 class Db;
 class Model;
 
-class VarioParam : public AStringable, public IClonable
+class GSTLEARN_EXPORT VarioParam : public AStringable, public IClonable
 {
 public:
   VarioParam(double scale = 0.,

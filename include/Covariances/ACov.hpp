@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
 
-class ACov : public ASpaceObject
+class GSTLEARN_EXPORT ACov : public ASpaceObject
 {
 public:
   ACov(const ASpace* space = nullptr);

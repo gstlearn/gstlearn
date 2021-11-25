@@ -98,7 +98,7 @@ static double st_anam_hermitian_block_variance(Anam  *anam,
 ** \param[in]  psi_hn   Coefficients of the Hermite polynomials
 **
 *****************************************************************************/
-GEOSLIB_API void anam_update_hermitian(AnamHermite *anam_hermite,
+GSTLEARN_EXPORT void anam_update_hermitian(AnamHermite *anam_hermite,
                                        double pymin,
                                        double pzmin,
                                        double pymax,
@@ -135,7 +135,7 @@ GEOSLIB_API void anam_update_hermitian(AnamHermite *anam_hermite,
 ** \param[in]  tdisc    Discretization array 
 **
 *****************************************************************************/
-GEOSLIB_API void anam_update_empirical(AnamEmpirical *anam_empirical,
+GSTLEARN_EXPORT void anam_update_empirical(AnamEmpirical *anam_empirical,
                                        int ndisc,
                                        double pymin,
                                        double pzmin,
@@ -170,7 +170,7 @@ GEOSLIB_API void anam_update_empirical(AnamEmpirical *anam_empirical,
 ** \param[in]  stats    Array of statistics for KDD (optional)
 **
 *****************************************************************************/
-GEOSLIB_API void anam_update_discrete_DD(AnamDiscreteDD *anam_discrete_DD,
+GSTLEARN_EXPORT void anam_update_discrete_DD(AnamDiscreteDD *anam_discrete_DD,
                                          int ncut,
                                          double scoef,
                                          double mu,
@@ -232,7 +232,7 @@ static double st_anam_discrete_IR_block_variance(Anam *anam,
 ** \param[in]  stats    Array of statistics for KDD (optional)
 **
 *****************************************************************************/
-GEOSLIB_API void anam_update_discrete_IR(AnamDiscreteIR *anam_discrete_IR,
+GSTLEARN_EXPORT void anam_update_discrete_IR(AnamDiscreteIR *anam_discrete_IR,
                                          int ncut,
                                          double r_coef,
                                          const VectorDouble& zcut,
@@ -527,7 +527,7 @@ static void st_anam_point_to_block_discrete_IR(Anam *anam)
 ** \remark  - performs the internal transform (EAnam::HERMITIAN)
 ** 
 *****************************************************************************/
-GEOSLIB_API double anam_y2z(Anam   *anam,
+GSTLEARN_EXPORT double anam_y2z(Anam   *anam,
                             double  y,
                             int     flag_bound)
 {
@@ -1117,7 +1117,7 @@ static void st_anam_selectivity_hermitian(Anam *anam,
 ** \remark is defined by the number of cutoffs
 **
 *****************************************************************************/
-GEOSLIB_API VectorDouble anam_selectivity(Anam *anam,
+GSTLEARN_EXPORT VectorDouble anam_selectivity(Anam *anam,
                                           int nclass,
                                           VectorDouble zcut,
                                           int flag_correct,
@@ -1177,7 +1177,7 @@ GEOSLIB_API VectorDouble anam_selectivity(Anam *anam,
 ** \param[in]  ifacs       Array of factor ranks (starting at 1)
 **
 *****************************************************************************/
-GEOSLIB_API int anam_discrete_DD_z2factor(Anam   *anam,
+GSTLEARN_EXPORT int anam_discrete_DD_z2factor(Anam   *anam,
                                           Db     *db,
                                           int     iptr,
                                           int     nfact,
@@ -1235,7 +1235,7 @@ GEOSLIB_API int anam_discrete_DD_z2factor(Anam   *anam,
 ** \param[in]  ifacs       Array of factor ranks (starting at 1)
 **
 *****************************************************************************/
-GEOSLIB_API int anam_discrete_IR_z2factor(Anam   *anam,
+GSTLEARN_EXPORT int anam_discrete_IR_z2factor(Anam   *anam,
                                           Db     *db,
                                           int     iptr,
                                           int     nfact,
@@ -1268,7 +1268,7 @@ GEOSLIB_API int anam_discrete_IR_z2factor(Anam   *anam,
 ** \param[in]  ifacs       Array of factor ranks (starting at 1)
 **
 *****************************************************************************/
-GEOSLIB_API int anam_discrete_z2factor(Anam   *anam,
+GSTLEARN_EXPORT int anam_discrete_z2factor(Anam   *anam,
                                        Db     *db,
                                        int     nfact,
                                        const VectorInt& ifacs)
@@ -1364,7 +1364,7 @@ label_end:
 ** \remark Otherwise, it is derived from 'cvv'
 **
 *****************************************************************************/
-GEOSLIB_API int anam_point_to_block(Anam   *anam,
+GSTLEARN_EXPORT int anam_point_to_block(Anam   *anam,
                                     int     verbose,
                                     double  cvv,
                                     double  coeff,
@@ -1497,7 +1497,7 @@ label_end:
 ** \param[out] r_coef      Change of support coefficient
 **
 *****************************************************************************/
-GEOSLIB_API int anam_get_r(Anam   *anam,
+GSTLEARN_EXPORT int anam_get_r(Anam   *anam,
                            double  cvv,
                            double  mu,
                            double *r_coef)
@@ -2345,7 +2345,7 @@ static int st_anam_factor2qt_discrete_IR(Db     *db,
 ** \remark for the estimated cutoffs in the discrete case
 **
 *****************************************************************************/
-GEOSLIB_API int anam_factor2qt(Db     *db,
+GSTLEARN_EXPORT int anam_factor2qt(Db     *db,
                                Anam   *anam,
                                int     ncutmine,
                                double *cutmine,
@@ -2510,7 +2510,7 @@ label_end:
 ** \param[out] calcut  Output array
 **
 *****************************************************************************/
-GEOSLIB_API void selectivity_interpolate(int     verbose,
+GSTLEARN_EXPORT void selectivity_interpolate(int     verbose,
                                          double *zcutmine,
                                          int     nclass,
                                          double *calest,
@@ -2533,7 +2533,7 @@ GEOSLIB_API void selectivity_interpolate(int     verbose,
 ** \param[in]  vario       Experimental variogram of Z -> Y [out]
 **
 *****************************************************************************/
-GEOSLIB_API int anam_vario_z2y(Anam   *anam,
+GSTLEARN_EXPORT int anam_vario_z2y(Anam   *anam,
                                double  cvv,
                                Vario  *vario)
 {
@@ -2596,7 +2596,7 @@ label_end:
 ** \param[out]  qt_vars     Array of results
 **
 *****************************************************************************/
-GEOSLIB_API int uc_f(Db *db,
+GSTLEARN_EXPORT int uc_f(Db *db,
                      Anam *anam,
                      int att_est,
                      int att_var,
@@ -2971,7 +2971,7 @@ static int st_ce_compute_Z(Db     *db,
 ** \param[in]  phis         Array of the Polynomial expansion
 **
 *****************************************************************************/
-GEOSLIB_API double ce_compute_Z2(double krigest,
+GSTLEARN_EXPORT double ce_compute_Z2(double krigest,
                                  double krigstd,
                                  const VectorDouble& phis)
 {
@@ -3350,7 +3350,7 @@ static double *st_ztoy_cutoffs(AnamHermite *anam_hermite,
 ** \param[out] qt_vars      Array for storage (Dimension: 2*ANAM_N_QT)
 **
 *****************************************************************************/
-GEOSLIB_API int ce_f(Db *db,
+GSTLEARN_EXPORT int ce_f(Db *db,
                      Anam *anam,
                      int att_est,
                      int att_std,

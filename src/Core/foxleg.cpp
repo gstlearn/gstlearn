@@ -1226,7 +1226,7 @@ static int st_check_param(VectorDouble& param,
 ** \remark  When not used, we must set: ncont=0, acont=NULL
 **
 *****************************************************************************/
-GEOSLIB_API int foxleg_f(int ndat,
+GSTLEARN_EXPORT int foxleg_f(int ndat,
                          int npar,
                          int ncont,
                          const VectorDouble& acont,
@@ -1440,7 +1440,7 @@ label_end:
 ** \param[in]  constantSill Constant value for the Sill as a constraint
 **
 *****************************************************************************/
-GEOSLIB_API int opt_mauto_add_constraints(Option_AutoFit& mauto,
+GSTLEARN_EXPORT int opt_mauto_add_constraints(Option_AutoFit& mauto,
                                           double     constantSill)
 {
   mauto.setConstantSillValue(constantSill);
@@ -1457,7 +1457,7 @@ GEOSLIB_API int opt_mauto_add_constraints(Option_AutoFit& mauto,
 ** \param[in]  mauto       Option_AutoFit structure
 **
 *****************************************************************************/
-GEOSLIB_API int opt_mauto_add_unit_constraints(Option_AutoFit& mauto)
+GSTLEARN_EXPORT int opt_mauto_add_unit_constraints(Option_AutoFit& mauto)
 {
   mauto.setConstantSillValue(1.);
   return(0);

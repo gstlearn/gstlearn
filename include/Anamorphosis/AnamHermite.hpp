@@ -10,13 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
-
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Interval.hpp"
 
-class AnamHermite: public AnamContinuous
+class GSTLEARN_EXPORT AnamHermite: public AnamContinuous
 {
 private:
   int    _nbPoly;

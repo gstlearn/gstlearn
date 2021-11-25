@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Basic/Vector.hpp"
 #include "Stats/PCA.hpp"
 
-class AnamDiscreteDD: public AnamDiscrete
+class GSTLEARN_EXPORT AnamDiscreteDD: public AnamDiscrete
 {
 
 private:

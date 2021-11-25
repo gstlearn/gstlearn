@@ -1520,7 +1520,7 @@ L5:
 /*                      a triangulation of nodes 1 to M-1 in   */
 /*                      this case.                             */
 /* *********************************************************** */
-GEOSLIB_API int trmesh_(int    *n,
+GSTLEARN_EXPORT int trmesh_(int    *n,
                         double *x,
                         double *y,
                         double *z__,
@@ -1797,7 +1797,7 @@ GEOSLIB_API int trmesh_(int    *n,
 ** \param[out] z     Third cartesian coordinate
 **
 *****************************************************************************/
-GEOSLIB_API void util_convert_sph2cart(double rlong,
+GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
                                        double rlat,
                                        double *x,
                                        double *y,
@@ -1829,7 +1829,7 @@ GEOSLIB_API void util_convert_sph2cart(double rlong,
 ** \param[out] rlat  Latitude (in degrees)
 **
 *****************************************************************************/
-GEOSLIB_API void util_convert_cart2sph(double x,
+GSTLEARN_EXPORT void util_convert_cart2sph(double x,
                                        double y,
                                        double z,
                                        double *rlong,
@@ -1918,7 +1918,7 @@ GEOSLIB_API void util_convert_cart2sph(double x,
 /*                     completely tested for validity.         */
 /*                                                             */
 /* *********************************************************** */
-GEOSLIB_API int trlist_(int     *n, 
+GSTLEARN_EXPORT int trlist_(int     *n, 
                         int     *list, 
                         int     *lptr, 
                         int     *lend, 

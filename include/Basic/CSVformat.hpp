@@ -10,9 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/String.hpp"
 
-class CSVformat
+class GSTLEARN_EXPORT CSVformat
 {
 public:
   CSVformat(int flagHeader = true,

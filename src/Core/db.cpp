@@ -31,7 +31,7 @@
  ** \remarks The opposite is not correct.
  **
  *****************************************************************************/
-GEOSLIB_API int compat_NDIM(Db *db1, Db *db2)
+GSTLEARN_EXPORT int compat_NDIM(Db *db1, Db *db2)
 {
   if (db1->getNDim() <= db2->getNDim()) return (1);
   messerr("The Space Dimension of the First Db (%d)", db1->getNDim());
@@ -47,7 +47,7 @@ GEOSLIB_API int compat_NDIM(Db *db1, Db *db2)
  ** \param[in]  db  Pointer to the Db structure (organized as a grid)
  **
  *****************************************************************************/
-GEOSLIB_API void db_grid_print(Db *db)
+GSTLEARN_EXPORT void db_grid_print(Db *db)
 {
   if (db->isGrid()) message(db->toString().c_str());
 }
@@ -110,7 +110,7 @@ static int st_vector_get_att(const Db *db, int iatt, double *tab)
  ** \param[out]  number Number of returned values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
+GSTLEARN_EXPORT int db_vector_get_att_sel_compress(Db *db,
                                                int iatt,
                                                int *number,
                                                double *tab)
@@ -135,7 +135,7 @@ GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
  ** \param[out]  tab Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get_att(const Db *db, int iatt, double *tab)
+GSTLEARN_EXPORT int db_vector_get_att(const Db *db, int iatt, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, false);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -158,7 +158,7 @@ GEOSLIB_API int db_vector_get_att(const Db *db, int iatt, double *tab)
  ** \remark If a selection is defined, the masked samples are set to TEST
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get_att_sel(Db *db, int iatt, double *tab)
+GSTLEARN_EXPORT int db_vector_get_att_sel(Db *db, int iatt, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, true);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -198,7 +198,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get(Db *db,
+GSTLEARN_EXPORT int db_vector_get(Db *db,
                               const ELoc& locatorType,
                               int item,
                               double *tab)
@@ -220,7 +220,7 @@ GEOSLIB_API int db_vector_get(Db *db,
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_selection_get(const Db *db, int item, double *tab)
+GSTLEARN_EXPORT int db_selection_get(const Db *db, int item, double *tab)
 {
   int iatt = db->getAttribute(ELoc::SEL, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -237,7 +237,7 @@ GEOSLIB_API int db_selection_get(const Db *db, int item, double *tab)
  ** \param[in]  tab    Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_put(Db *db,
+GSTLEARN_EXPORT int db_vector_put(Db *db,
                               const ELoc& locatorType,
                               int locatorIndex,
                               double *tab)
@@ -309,7 +309,7 @@ static void st_load_data(Db *db,
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-GEOSLIB_API int is_grid(const Db *db, bool verbose)
+GSTLEARN_EXPORT int is_grid(const Db *db, bool verbose)
 {
   if (db == nullptr) return (0);
   if (db->isGrid()) return 1;
@@ -327,7 +327,7 @@ GEOSLIB_API int is_grid(const Db *db, bool verbose)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
+GSTLEARN_EXPORT int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
 {
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
@@ -346,7 +346,7 @@ GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-GEOSLIB_API int exist_LOCATOR(Db *db, const ELoc& locatorType)
+GSTLEARN_EXPORT int exist_LOCATOR(Db *db, const ELoc& locatorType)
 {
   if (db == nullptr) return (0);
   return (db->getFromLocatorNumber(locatorType) > 0);
@@ -366,7 +366,7 @@ GEOSLIB_API int exist_LOCATOR(Db *db, const ELoc& locatorType)
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-GEOSLIB_API double get_LOCATOR_ITEM(Db *db,
+GSTLEARN_EXPORT double get_LOCATOR_ITEM(Db *db,
                                     const ELoc& locatorType,
                                     int item,
                                     int iech)
@@ -387,7 +387,7 @@ GEOSLIB_API double get_LOCATOR_ITEM(Db *db,
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-GEOSLIB_API void set_LOCATOR_ITEM(Db *db,
+GSTLEARN_EXPORT void set_LOCATOR_ITEM(Db *db,
                                   const ELoc& locatorType,
                                   int item,
                                   int iech,
@@ -406,7 +406,7 @@ GEOSLIB_API void set_LOCATOR_ITEM(Db *db,
  ** \param[in]  indice Array to be freed
  **
  *****************************************************************************/
-GEOSLIB_API int *db_indg_free(int *indice)
+GSTLEARN_EXPORT int *db_indg_free(int *indice)
 
 {
   indice = (int *) mem_free((char * ) indice);
@@ -425,7 +425,7 @@ GEOSLIB_API int *db_indg_free(int *indice)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API int *db_indg_alloc(const Db *db)
+GSTLEARN_EXPORT int *db_indg_alloc(const Db *db)
 
 {
   int *indice, size;
@@ -456,7 +456,7 @@ GEOSLIB_API int *db_indg_alloc(const Db *db)
  ** \param[in]  tab Vector array to be freed
  **
  *****************************************************************************/
-GEOSLIB_API double *db_vector_free(double *tab)
+GSTLEARN_EXPORT double *db_vector_free(double *tab)
 
 {
   tab = (double *) mem_free((char * ) tab);
@@ -475,7 +475,7 @@ GEOSLIB_API double *db_vector_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API double *db_vector_alloc(const Db *db)
+GSTLEARN_EXPORT double *db_vector_alloc(const Db *db)
 
 {
   double *tab;
@@ -504,7 +504,7 @@ GEOSLIB_API double *db_vector_alloc(const Db *db)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GEOSLIB_API int db_coorvec_get(const Db *db, int idim, double *tab)
+GSTLEARN_EXPORT int db_coorvec_get(const Db *db, int idim, double *tab)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -534,7 +534,7 @@ GEOSLIB_API int db_coorvec_get(const Db *db, int idim, double *tab)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GEOSLIB_API int db_coorvec_put(Db *db, int idim, double *tab)
+GSTLEARN_EXPORT int db_coorvec_put(Db *db, int idim, double *tab)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -564,7 +564,7 @@ GEOSLIB_API int db_coorvec_put(Db *db, int idim, double *tab)
  ** \param[in]  item   Rank of the attribute in the pointer
  **
  *****************************************************************************/
-GEOSLIB_API int db_attribute_identify(const Db *db, const ELoc& locatorType, int item)
+GSTLEARN_EXPORT int db_attribute_identify(const Db *db, const ELoc& locatorType, int item)
 {
   int iatt = db->getAttribute(locatorType, item);
   return (iatt);
@@ -579,7 +579,7 @@ GEOSLIB_API int db_attribute_identify(const Db *db, const ELoc& locatorType, int
  ** \param[in]  tab  Sample array to be freed
  **
  *****************************************************************************/
-GEOSLIB_API double *db_sample_free(double *tab)
+GSTLEARN_EXPORT double *db_sample_free(double *tab)
 
 {
   tab = (double *) mem_free((char * ) tab);
@@ -599,7 +599,7 @@ GEOSLIB_API double *db_sample_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType)
+GSTLEARN_EXPORT double *db_sample_alloc(const Db *db, const ELoc& locatorType)
 {
   double *tab;
   int size;
@@ -630,7 +630,7 @@ GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GEOSLIB_API int db_sample_load(Db *db,
+GSTLEARN_EXPORT int db_sample_load(Db *db,
                                const ELoc& locatorType,
                                int iech,
                                double *tab)
@@ -667,7 +667,7 @@ GEOSLIB_API int db_sample_load(Db *db,
  ** \param[out] tab     Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_sample_get_att(Db *db,
+GSTLEARN_EXPORT int db_sample_get_att(Db *db,
                                   int iech,
                                   int number,
                                   int iatt,
@@ -695,7 +695,7 @@ GEOSLIB_API int db_sample_get_att(Db *db,
  ** \param[in]  tab     array of values
  **
  *****************************************************************************/
-GEOSLIB_API void db_sample_put_att(Db *db,
+GSTLEARN_EXPORT void db_sample_put_att(Db *db,
                                    int iech,
                                    int number,
                                    int iatt,
@@ -727,7 +727,7 @@ GEOSLIB_API void db_sample_put_att(Db *db,
  ** \remark: The returned array 'vect' must be dimension to that value
  **
  *****************************************************************************/
-GEOSLIB_API double distance_inter(Db *db1,
+GSTLEARN_EXPORT double distance_inter(Db *db1,
                                   Db *db2,
                                   int iech1,
                                   int iech2,
@@ -765,7 +765,7 @@ GEOSLIB_API double distance_inter(Db *db1,
  **                        Returns the distance as a vector
  **
  *****************************************************************************/
-GEOSLIB_API double distance_intra(const Db *db,
+GSTLEARN_EXPORT double distance_intra(const Db *db,
                                   int iech1,
                                   int iech2,
                                   double *dist_vect)
@@ -803,7 +803,7 @@ GEOSLIB_API double distance_intra(const Db *db,
  **                         Returns the distance as a vector
  **
  *****************************************************************************/
-GEOSLIB_API double distance_grid(Db *db,
+GSTLEARN_EXPORT double distance_grid(Db *db,
                                  int flag_moins1,
                                  int iech1,
                                  int iech2,
@@ -858,7 +858,7 @@ GEOSLIB_API double distance_grid(Db *db,
  ** \remark  according to the 3rd coordinate with the bench width.
  **
  *****************************************************************************/
-GEOSLIB_API double bench_distance(const Db *db, int iech1, int iech2)
+GSTLEARN_EXPORT double bench_distance(const Db *db, int iech1, int iech2)
 {
   int idim0 = 2;
   if (db->getNDim() <= idim0) return (0.);
@@ -877,7 +877,7 @@ GEOSLIB_API double bench_distance(const Db *db, int iech1, int iech2)
  ** \param[in]  codir        Direction coefficient
  **
  *****************************************************************************/
-GEOSLIB_API double cylinder_radius(const Db *db,
+GSTLEARN_EXPORT double cylinder_radius(const Db *db,
                                    int iech1,
                                    int iech2,
                                    const VectorDouble& codir)
@@ -909,7 +909,7 @@ GEOSLIB_API double cylinder_radius(const Db *db,
  ** \remark  If one grid index does not lie within the grid, -1 is returned
  **
  *****************************************************************************/
-GEOSLIB_API int db_index_grid_to_sample(const Db *db, const int *indg)
+GSTLEARN_EXPORT int db_index_grid_to_sample(const Db *db, const int *indg)
 {
   int ndim = db->getNDim();
   VectorInt local(ndim);
@@ -927,7 +927,7 @@ GEOSLIB_API int db_index_grid_to_sample(const Db *db, const int *indg)
  ** \param[out]  indg Grid indices
  **
  *****************************************************************************/
-GEOSLIB_API void db_index_sample_to_grid(const Db *db, int iech, int *indg)
+GSTLEARN_EXPORT void db_index_sample_to_grid(const Db *db, int iech, int *indg)
 {
   int ndim = db->getNDim();
   int nval = 1;
@@ -958,7 +958,7 @@ GEOSLIB_API void db_index_sample_to_grid(const Db *db, int iech, int *indg)
  ** \remark which minimizes the distance between any pair of successive indices
  **
  *****************************************************************************/
-GEOSLIB_API int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
+GSTLEARN_EXPORT int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
 {
   int jech, idim, ndim, indref;
 
@@ -985,7 +985,7 @@ GEOSLIB_API int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
  ** \param[in]  flag_nerr 1 if the error measurement variance must be printed
  **
  *****************************************************************************/
-GEOSLIB_API void db_sample_print(Db *db,
+GSTLEARN_EXPORT void db_sample_print(Db *db,
                                  int iech,
                                  int flag_ndim,
                                  int flag_nvar,
@@ -1048,7 +1048,7 @@ GEOSLIB_API void db_sample_print(Db *db,
  ** \param[in]  ranks         Array of field ranks to be printed
  **
  *****************************************************************************/
-GEOSLIB_API void db_print(Db *db,
+GSTLEARN_EXPORT void db_print(Db *db,
                           int flag_resume,
                           int flag_vars,
                           int flag_extend,
@@ -1106,7 +1106,7 @@ GEOSLIB_API void db_print(Db *db,
  **                        (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-GEOSLIB_API int db_extension(Db *db,
+GSTLEARN_EXPORT int db_extension(Db *db,
                              double *mini_arg,
                              double *maxi_arg,
                              double *delta_arg)
@@ -1155,7 +1155,7 @@ GEOSLIB_API int db_extension(Db *db,
  **                     (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-GEOSLIB_API int db_center(Db *db, double *center)
+GSTLEARN_EXPORT int db_center(Db *db, double *center)
 {
   double *tab, *sel, *wgt, vmin, vmax, diff, mean, stdv;
   int idim, nval;
@@ -1208,7 +1208,7 @@ GEOSLIB_API int db_center(Db *db, double *center)
  ** \remarks  Different versions are provided for Euclidean and Spherical cases
  **
  *****************************************************************************/
-GEOSLIB_API int db_extension_diag(const Db *db, double *diag)
+GSTLEARN_EXPORT int db_extension_diag(const Db *db, double *diag)
 {
   double *tab, *sel, vmin, vmax, diff, mean, stdv, coor[2][2];
   int idim, nval, flag_sphere;
@@ -1273,7 +1273,7 @@ GEOSLIB_API int db_extension_diag(const Db *db, double *diag)
  ** \param[in]  db   Db structure
  **
  *****************************************************************************/
-GEOSLIB_API double db_epsilon_distance(Db *db)
+GSTLEARN_EXPORT double db_epsilon_distance(Db *db)
 
 {
   double diag;
@@ -1309,7 +1309,7 @@ GEOSLIB_API double db_epsilon_distance(Db *db)
  ** \param[out]  delta  Extension
  **
  *****************************************************************************/
-GEOSLIB_API int db_attribute_range(const Db *db,
+GSTLEARN_EXPORT int db_attribute_range(const Db *db,
                                    int iatt,
                                    double *mini,
                                    double *maxi,
@@ -1363,7 +1363,7 @@ GEOSLIB_API int db_attribute_range(const Db *db,
  ** \param[in]  db Db structure
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_delete(Db *db)
+GSTLEARN_EXPORT Db *db_delete(Db *db)
 
 {
   /* Initializations */
@@ -1392,7 +1392,7 @@ GEOSLIB_API Db *db_delete(Db *db)
  ** \remark characteristics have changed
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_define_coordinates(Db *db)
+GSTLEARN_EXPORT int db_grid_define_coordinates(Db *db)
 
 {
   if (db == nullptr) return (0);
@@ -1461,7 +1461,7 @@ GEOSLIB_API int db_grid_define_coordinates(Db *db)
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid(int flag_rot,
+GSTLEARN_EXPORT Db *db_create_grid(int flag_rot,
                                int /*ndim*/,
                                int natt,
                                const ELoadBy& order,
@@ -1515,7 +1515,7 @@ GEOSLIB_API Db *db_create_grid(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_generic(int ndim,
+GSTLEARN_EXPORT Db *db_create_grid_generic(int ndim,
                                        int natt,
                                        const ELoadBy& order,
                                        int flag_add_rank,
@@ -1575,7 +1575,7 @@ GEOSLIB_API Db *db_create_grid_generic(int ndim,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
+GSTLEARN_EXPORT Db *db_create_grid_2D(int flag_rot,
                                   int natt,
                                   const ELoadBy& order,
                                   int flag_add_rank,
@@ -1642,7 +1642,7 @@ GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
+GSTLEARN_EXPORT Db *db_create_grid_3D(int flag_rot,
                                   int natt,
                                   const ELoadBy& order,
                                   int flag_add_rank,
@@ -1705,7 +1705,7 @@ GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
  ** \param[in]  tab    Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_point(int nech,
+GSTLEARN_EXPORT Db *db_create_point(int nech,
                                 int natt,
                                 const ELoadBy& order,
                                 int flag_add_rank,
@@ -1737,7 +1737,7 @@ GEOSLIB_API Db *db_create_point(int nech,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_from_target(double *target,
+GSTLEARN_EXPORT Db *db_create_from_target(double *target,
                                       int ndim,
                                       int flag_add_rank)
 {
@@ -1778,7 +1778,7 @@ GEOSLIB_API Db *db_create_from_target(double *target,
  ** \param[in]  iatt   Rank of the attribute (starting at 0)
  **
  *****************************************************************************/
-GEOSLIB_API String db_name_get_by_att(const Db *db, int iatt)
+GSTLEARN_EXPORT String db_name_get_by_att(const Db *db, int iatt)
 {
   static char na_string[3] = "NA";
   int icol = db->getColumnByAttribute(iatt);
@@ -1796,7 +1796,7 @@ GEOSLIB_API String db_name_get_by_att(const Db *db, int iatt)
  ** \param[in]  icol   Rank of the column (starting at 0)
  **
  *****************************************************************************/
-GEOSLIB_API String db_name_get_by_col(Db *db, int icol)
+GSTLEARN_EXPORT String db_name_get_by_col(Db *db, int icol)
 {
   static char na_string[3] = "NA";
   if (!db->isColumnIndexValid(icol)) return (na_string);
@@ -1814,7 +1814,7 @@ GEOSLIB_API String db_name_get_by_col(Db *db, int icol)
  ** \param[in]  name   Name assigned to the current attribute
  **
  *****************************************************************************/
-GEOSLIB_API int db_name_set(Db *db, int iatt, const String& name)
+GSTLEARN_EXPORT int db_name_set(Db *db, int iatt, const String& name)
 {
   if (!db->isAttributeIndexValid(iatt)) return 1;
   db->setName(iatt, name);
@@ -1832,7 +1832,7 @@ GEOSLIB_API int db_name_set(Db *db, int iatt, const String& name)
  ** \remark The output attribute must already be allocated
  **
  *****************************************************************************/
-GEOSLIB_API void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
+GSTLEARN_EXPORT void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
     db->setArray(iech, iatt_out, db->getArray(iech, iatt_in));
@@ -1849,7 +1849,7 @@ GEOSLIB_API void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
  ** \param[in]  valinit   Value set to the variable
  **
  *****************************************************************************/
-GEOSLIB_API void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
+GSTLEARN_EXPORT void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
 {
   int iech, icol, jcol, jatt;
 
@@ -1880,7 +1880,7 @@ GEOSLIB_API void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
  ** \param[in]  n_del Number of attributes to be deleted
  **
  *****************************************************************************/
-GEOSLIB_API void db_attribute_del_mult(Db *db, int i_del, int n_del)
+GSTLEARN_EXPORT void db_attribute_del_mult(Db *db, int i_del, int n_del)
 {
   if (i_del <= 0) return;
   for (int i = n_del - 1; i >= 0; i--)
@@ -1903,7 +1903,7 @@ GEOSLIB_API void db_attribute_del_mult(Db *db, int i_del, int n_del)
  ** \param[out]  dbout  Output Grid Db structure
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
+GSTLEARN_EXPORT int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
 {
   if (!dbin->isGrid()) return (1);
   if (!dbout->isGrid()) return (1);
@@ -1921,7 +1921,7 @@ GEOSLIB_API int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
  ** \param[in]  db Db structure
  **
  *****************************************************************************/
-GEOSLIB_API double db_grid_maille(Db *db)
+GSTLEARN_EXPORT double db_grid_maille(Db *db)
 
 {
   if (!db->isGrid()) return (TEST);
@@ -1941,7 +1941,7 @@ GEOSLIB_API double db_grid_maille(Db *db)
  ** \remark  are transformed into additional variables
  **
  *****************************************************************************/
-GEOSLIB_API int db_gradient_update(Db *db)
+GSTLEARN_EXPORT int db_gradient_update(Db *db)
 
 {
   int ndim = db->getNDim();
@@ -1985,7 +1985,7 @@ GEOSLIB_API int db_gradient_update(Db *db)
  ** \param[out] tabout Output array
  **
  *****************************************************************************/
-GEOSLIB_API int db_selref(int ndim,
+GSTLEARN_EXPORT int db_selref(int ndim,
                           int *nx,
                           int *ref,
                           double *tabin,
@@ -2077,7 +2077,7 @@ GEOSLIB_API int db_selref(int ndim,
  ** \param[in]  coor     Array containing the coordinates of the sample
  **
  *****************************************************************************/
-GEOSLIB_API int db_locate_in_grid(Db *db_grid, double *coor)
+GSTLEARN_EXPORT int db_locate_in_grid(Db *db_grid, double *coor)
 {
   int *indg, indabs;
 
@@ -2113,7 +2113,7 @@ GEOSLIB_API int db_locate_in_grid(Db *db_grid, double *coor)
  ** \remark  The test returns 0 if one of the two file is not a grid
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_match(Db *db1, Db *db2)
+GSTLEARN_EXPORT int db_grid_match(Db *db1, Db *db2)
 
 {
   return ((int) db1->isSameGrid(db2->getGrid()));
@@ -2134,7 +2134,7 @@ GEOSLIB_API int db_grid_match(Db *db1, Db *db2)
  ** \param[out] iptr    Rank of the first new attribute
  **
  *****************************************************************************/
-GEOSLIB_API int db_locator_attribute_add(Db *db,
+GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
                                          const ELoc& locatorType,
                                          int number,
                                          int r_tem,
@@ -2169,7 +2169,7 @@ GEOSLIB_API int db_locator_attribute_add(Db *db,
  ** \param[in]  cols    Array of input variable columns
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_copy(Db *db1,
+GSTLEARN_EXPORT int db_grid_copy(Db *db1,
                              Db *db2,
                              int *ind1,
                              int *ind2,
@@ -2263,7 +2263,7 @@ GEOSLIB_API int db_grid_copy(Db *db1,
  **                     along each space direction
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_copy_dilate(Db *db1,
+GSTLEARN_EXPORT int db_grid_copy_dilate(Db *db1,
                                     int iatt1,
                                     Db *db2,
                                     int iatt2,
@@ -2330,7 +2330,7 @@ GEOSLIB_API int db_grid_copy_dilate(Db *db1,
  ** \param[out] coor     coordinates of the point
  **
  *****************************************************************************/
-GEOSLIB_API void grid_to_point(const Db *db, int *indg, double *percent, double *coor)
+GSTLEARN_EXPORT void grid_to_point(const Db *db, int *indg, double *percent, double *coor)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2367,7 +2367,7 @@ GEOSLIB_API void grid_to_point(const Db *db, int *indg, double *percent, double 
  ** \param[in]  coor  array of coordinates of the point
  **
  *****************************************************************************/
-GEOSLIB_API int point_to_point(Db *db, double *coor)
+GSTLEARN_EXPORT int point_to_point(Db *db, double *coor)
 {
   double dist, distmin, delta, x;
   int idim, iech, iechmin;
@@ -2420,7 +2420,7 @@ GEOSLIB_API int point_to_point(Db *db, double *coor)
  ** \param[out] indg          indices of the closest grid node
  **
  *****************************************************************************/
-GEOSLIB_API int point_to_grid(const Db *db, double *coor, int flag_outside, int *indg)
+GSTLEARN_EXPORT int point_to_grid(const Db *db, double *coor, int flag_outside, int *indg)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2486,7 +2486,7 @@ GEOSLIB_API int point_to_grid(const Db *db, double *coor, int flag_outside, int 
  ** \remarks as reference
  **
  *****************************************************************************/
-GEOSLIB_API int point_to_bench(const Db *db,
+GSTLEARN_EXPORT int point_to_bench(const Db *db,
                                double *coor,
                                int flag_outside,
                                int *indb)
@@ -2568,7 +2568,7 @@ GEOSLIB_API int point_to_bench(const Db *db,
  ** \param[out] coor          Working array (dimension: ndim)
  **
  *****************************************************************************/
-GEOSLIB_API int index_point_to_grid(const Db *dbin,
+GSTLEARN_EXPORT int index_point_to_grid(const Db *dbin,
                                     int iech,
                                     int flag_outside,
                                     const Db *dbout,
@@ -2606,7 +2606,7 @@ GEOSLIB_API int index_point_to_grid(const Db *dbin,
  ** \param[in]  dbgrid  Grid Db structure
  **
  *****************************************************************************/
-GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid)
+GSTLEARN_EXPORT int point_inside_grid(Db *db, int iech, Db *dbgrid)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2643,7 +2643,7 @@ GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid)
  ** \param[out]  maxi Maximum value
  **
  *****************************************************************************/
-GEOSLIB_API void db_monostat(Db *db,
+GSTLEARN_EXPORT void db_monostat(Db *db,
                              int iatt,
                              double *wtot,
                              double *mean,
@@ -2711,7 +2711,7 @@ GEOSLIB_API void db_monostat(Db *db,
  ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **
  *****************************************************************************/
-GEOSLIB_API void db_polygon(Db *db,
+GSTLEARN_EXPORT void db_polygon(Db *db,
                             Polygons *polygon,
                             int flag_sel,
                             int flag_period,
@@ -2771,7 +2771,7 @@ GEOSLIB_API void db_polygon(Db *db,
  ** \remark  variables
  **
  *****************************************************************************/
-GEOSLIB_API int db_proportion(Db *db,
+GSTLEARN_EXPORT int db_proportion(Db *db,
                               Db *dbgrid,
                               int nfac1max,
                               int nfac2max,
@@ -2912,7 +2912,7 @@ GEOSLIB_API int db_proportion(Db *db,
  ** \param[in]  cols    Array of input variable columns
  **
  *****************************************************************************/
-GEOSLIB_API int db_merge(Db *db, int ncol, int *cols)
+GSTLEARN_EXPORT int db_merge(Db *db, int ncol, int *cols)
 {
   int iptr, iech, icol;
   double value;
@@ -2960,7 +2960,7 @@ GEOSLIB_API int db_merge(Db *db, int ncol, int *cols)
  ** \param[in]  icol    Rank of the Column
  **
  *****************************************************************************/
-GEOSLIB_API int db_count_defined(Db *db, int icol)
+GSTLEARN_EXPORT int db_count_defined(Db *db, int icol)
 {
   int iech, number;
   double value;
@@ -2986,7 +2986,7 @@ GEOSLIB_API int db_count_defined(Db *db, int icol)
  ** \remark  The elements of the array current are numbered starting from 1
  **
  *****************************************************************************/
-GEOSLIB_API void db_locators_correct(VectorString& strings,
+GSTLEARN_EXPORT void db_locators_correct(VectorString& strings,
                                      const VectorInt& current,
                                      int flag_locnew)
 {
@@ -3130,7 +3130,7 @@ GEOSLIB_API void db_locators_correct(VectorString& strings,
  ** \remark  This procedure is meant for a 3-D grid file
  **
  *****************************************************************************/
-GEOSLIB_API int db_prop_read(Db *db, int ix, int iy, double *props)
+GSTLEARN_EXPORT int db_prop_read(Db *db, int ix, int iy, double *props)
 {
   int iz, nz, nprop, iprop, ecr, indices[3], i, iech, flag_no;
   double value, total;
@@ -3194,7 +3194,7 @@ GEOSLIB_API int db_prop_read(Db *db, int ix, int iy, double *props)
  ** \remark  This procedure is meant for a 3-D grid file
  **
  *****************************************************************************/
-GEOSLIB_API int db_prop_write(Db *db, int ix, int iy, double *props)
+GSTLEARN_EXPORT int db_prop_write(Db *db, int ix, int iy, double *props)
 {
   int iz, nz, nprop, iprop, ecr, indices[3], iech;
 
@@ -3274,7 +3274,7 @@ static int st_is_isotopic(Db *db, int iech, int niso)
  ** \remarks the comparison between one sample and itself
  **
  *****************************************************************************/
-GEOSLIB_API double *db_distances_general(Db *db1,
+GSTLEARN_EXPORT double *db_distances_general(Db *db1,
                                          Db *db2,
                                          int niso,
                                          int mode,
@@ -3396,7 +3396,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
  ** \remark  If the sample is masked off, the function returns 0
  **
  *****************************************************************************/
-GEOSLIB_API int db_is_isotropic(Db *db, int iech, double *data)
+GSTLEARN_EXPORT int db_is_isotropic(Db *db, int iech, double *data)
 {
   int ivar;
   double value;
@@ -3421,7 +3421,7 @@ GEOSLIB_API int db_is_isotropic(Db *db, int iech, double *data)
  ** \param[in]  db2   Db1 coarse grid structure
  **
  *****************************************************************************/
-GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
+GSTLEARN_EXPORT int is_grid_multiple(Db *db1, Db *db2)
 {
   int *indg, idim, ndim, error;
   double *coor1, *coor2, *perc, ratio, delta;
@@ -3492,7 +3492,7 @@ GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
+GSTLEARN_EXPORT Db *db_create_grid_multiple(Db *dbin,
                                         const VectorInt& nmult,
                                         int flag_add_rank)
 {
@@ -3529,7 +3529,7 @@ GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
+GSTLEARN_EXPORT Db *db_create_grid_divider(Db *dbin,
                                        const VectorInt& nmult,
                                        int flag_add_rank)
 {
@@ -3566,7 +3566,7 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_dilate(Db *dbin,
+GSTLEARN_EXPORT Db *db_create_grid_dilate(Db *dbin,
                                       int mode,
                                       const VectorInt& nshift,
                                       int flag_add_rank)
@@ -3610,7 +3610,7 @@ GEOSLIB_API Db *db_create_grid_dilate(Db *dbin,
  ** \remarks  Attributes 'gx' and 'gy' may coincide with 'modulus' and 'angle'
  **
  *****************************************************************************/
-GEOSLIB_API int db_gradient_modang_to_component(Db *db,
+GSTLEARN_EXPORT int db_gradient_modang_to_component(Db *db,
                                                 int ang_conv,
                                                 int iad_mod,
                                                 int iad_ang,
@@ -3684,7 +3684,7 @@ GEOSLIB_API int db_gradient_modang_to_component(Db *db,
  ** \remarks  Nothing is done (more than the conversion if scale=1 and ve=0)
  **
  *****************************************************************************/
-GEOSLIB_API int db_gradient_component_to_modang(Db *db,
+GSTLEARN_EXPORT int db_gradient_component_to_modang(Db *db,
                                                 int verbose,
                                                 int iad_gx,
                                                 int iad_gy,
@@ -3775,7 +3775,7 @@ GEOSLIB_API int db_gradient_component_to_modang(Db *db,
  ** \param[in]  iech0 Absolute sample rank
  **
  *****************************************************************************/
-GEOSLIB_API int db_get_rank_absolute_to_relative(Db *db, int iech0)
+GSTLEARN_EXPORT int db_get_rank_absolute_to_relative(Db *db, int iech0)
 {
   int iech, jech;
 
@@ -3802,7 +3802,7 @@ GEOSLIB_API int db_get_rank_absolute_to_relative(Db *db, int iech0)
  ** \param[in]  iech0 Relative sample rank
  **
  *****************************************************************************/
-GEOSLIB_API int db_get_rank_relative_to_absolute(Db *db, int iech0)
+GSTLEARN_EXPORT int db_get_rank_relative_to_absolute(Db *db, int iech0)
 {
   int iech, jech;
 
@@ -3831,7 +3831,7 @@ GEOSLIB_API int db_get_rank_relative_to_absolute(Db *db, int iech0)
  ** \param[in]  iz       Rank of the node along third dimension
  **
  *****************************************************************************/
-GEOSLIB_API double get_grid_value(Db *dbgrid,
+GSTLEARN_EXPORT double get_grid_value(Db *dbgrid,
                                   int iptr,
                                   int *indg,
                                   int ix,
@@ -3864,7 +3864,7 @@ GEOSLIB_API double get_grid_value(Db *dbgrid,
  ** \param[in]  value    Assigned value
  **
  *****************************************************************************/
-GEOSLIB_API void set_grid_value(Db *dbgrid,
+GSTLEARN_EXPORT void set_grid_value(Db *dbgrid,
                                 int iptr,
                                 int *indg,
                                 int ix,
@@ -3900,7 +3900,7 @@ GEOSLIB_API void set_grid_value(Db *dbgrid,
  ** \param[in]  vmax          Upper bound (excluded)
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
+GSTLEARN_EXPORT Db *db_grid_reduce(Db *db_grid,
                                int iptr,
                                int *margin,
                                int *limmin,
@@ -4092,7 +4092,7 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
  ** \remarks useless
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_patch(Db *ss_grid,
+GSTLEARN_EXPORT int db_grid_patch(Db *ss_grid,
                               Db *db_grid,
                               int iptr_ss,
                               int iptr_db,
@@ -4269,7 +4269,7 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
  ** \param[in]  string   attribute name
  **
  *****************************************************************************/
-GEOSLIB_API int db_name_identify(Db *db, const String& string)
+GSTLEARN_EXPORT int db_name_identify(Db *db, const String& string)
 {
   for (int iatt = 0; iatt < db->getAttributeMaxNumber(); iatt++)
   {
@@ -4327,7 +4327,7 @@ static void st_rotate(int ndim,
  ** \remarks - space dimension is 1 or larger than 3
  **
  *****************************************************************************/
-GEOSLIB_API int db_extension_rotated(Db *db,
+GSTLEARN_EXPORT int db_extension_rotated(Db *db,
                                      double *rotmat,
                                      double *mini_arg,
                                      double *maxi_arg,
@@ -4445,7 +4445,7 @@ GEOSLIB_API int db_extension_rotated(Db *db,
  ** \param[in]   idim      Rank of the space dimension
  **
  ****************************************************************************/
-GEOSLIB_API VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
+GSTLEARN_EXPORT VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
 {
   VectorDouble vect;
 
@@ -4472,7 +4472,7 @@ GEOSLIB_API VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
  ** \param[in]   verbose   Verbose flag
  **
  ****************************************************************************/
-GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
+GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
 {
   VectorDouble vect;
 
@@ -4498,7 +4498,7 @@ GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
  ** \param[in]   pattern  Matching pattern
  **
  ****************************************************************************/
-GEOSLIB_API VectorInt db_identify_variables_by_name(Db *db,
+GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
                                                     const String& pattern)
 {
   VectorString names = db->getNames(pattern);
@@ -4511,7 +4511,7 @@ GEOSLIB_API VectorInt db_identify_variables_by_name(Db *db,
  **  Initialize the Grid iterator
  **
  ****************************************************************************/
-GEOSLIB_API void grid_iterator_init(GridC *grid, const VectorInt& order)
+GSTLEARN_EXPORT void grid_iterator_init(GridC *grid, const VectorInt& order)
 {
   grid->iteratorInit(order);
 }
@@ -4523,7 +4523,7 @@ GEOSLIB_API void grid_iterator_init(GridC *grid, const VectorInt& order)
  **  Increment the Grid iterator
  **
  ****************************************************************************/
-GEOSLIB_API VectorInt grid_iterator_next(GridC *grid)
+GSTLEARN_EXPORT VectorInt grid_iterator_next(GridC *grid)
 {
   VectorInt indices = grid->iteratorNext();
   return (indices);

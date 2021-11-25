@@ -12,6 +12,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 
@@ -20,7 +21,7 @@ class AMatrix;
 /**
  * Square Symmetric matrices are stored as Lower Triangular matrices stored by column
  */
-class MatrixSquareSymmetric : public AMatrixSquare {
+class GSTLEARN_EXPORT MatrixSquareSymmetric : public AMatrixSquare {
 
 public:
   MatrixSquareSymmetric(int nrow = 0, bool sparse = false);

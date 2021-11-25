@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Enum/AEnum.hpp"
 
@@ -25,14 +26,14 @@ ENUM_DECLARE(ENUM_TESTS)
  * for Python and R interfaces
  */
 
-void argumentTestInt(int value);
-void argumentTestDouble(double value);
-void argumentTestVectorInt(const VectorInt& values);
-void argumentTestVectorDouble(const VectorDouble& values);
-void argumentTestString(const String& value);
-void argumentTestVectorString(const VectorString& values);
+GSTLEARN_EXPORT void argumentTestInt(int value);
+GSTLEARN_EXPORT void argumentTestDouble(double value);
+GSTLEARN_EXPORT void argumentTestVectorInt(const VectorInt& values);
+GSTLEARN_EXPORT void argumentTestVectorDouble(const VectorDouble& values);
+GSTLEARN_EXPORT void argumentTestString(const String& value);
+GSTLEARN_EXPORT void argumentTestVectorString(const VectorString& values);
 
-void argumentTestSurcharge(const String& value);
-void argumentTestSurcharge(const VectorString& values);
+GSTLEARN_EXPORT void argumentTestSurcharge(const String& value);
+GSTLEARN_EXPORT void argumentTestSurcharge(const VectorString& values);
 
-void argumentTestEnum(ETests value);
+GSTLEARN_EXPORT void argumentTestEnum(ETests value);

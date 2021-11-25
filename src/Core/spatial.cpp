@@ -108,7 +108,7 @@ static int st_cgi_data(Db     *db,
 ** \remark The array mvector must be dimensionned to ndim * ndim
 **
 *****************************************************************************/
-GEOSLIB_API int cgi(Db     *db,
+GSTLEARN_EXPORT int cgi(Db     *db,
                     int     iatt,
                     double *center,
                     double *mvalue,
@@ -218,7 +218,7 @@ label_end:
 ** \remark program Fisboat, DG-Fish, STREP #502572
 **
 *****************************************************************************/
-GEOSLIB_API int spatial(Db     *db,
+GSTLEARN_EXPORT int spatial(Db     *db,
                         double *totab,
                         double *parea,
                         double *eqarea)

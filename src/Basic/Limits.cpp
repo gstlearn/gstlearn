@@ -153,7 +153,7 @@ bool Limits::isInside(double value) const
 
 int Limits::toCategory(Db* db, int iatt, NamingConvention namconv)
 {
-  return db_category(db, iatt, getLowerBounds(), getUpperBounds(),
+  return _db_category(db, iatt, getLowerBounds(), getUpperBounds(),
                      getLowerIncluded(), getUpperIncluded(), namconv);
 }
 
@@ -179,7 +179,7 @@ int Limits::toIndicator(Db* db,
                         int OptionIndicator,
                         NamingConvention namconv)
 {
-  return db_indicator(db, iatt, OptionIndicator, getLowerBounds(),
+  return _db_indicator(db, iatt, OptionIndicator, getLowerBounds(),
                       getUpperBounds(), getLowerIncluded(),
                       getUpperIncluded(), namconv);
 }

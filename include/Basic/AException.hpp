@@ -10,10 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include <exception>
 #include <string>
 
-class AException : public std::exception
+class GSTLEARN_EXPORT AException : public std::exception
 {
 public:
   AException(const std::string& msg = "");

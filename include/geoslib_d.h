@@ -9,23 +9,21 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
+
 /* Include other package definitions */
 // WARNING: Make this include list as small as possible!
 #include "geoslib_define.h"
 
 /* External function definition */
 
+// TODO : strcasecmp macro to be kept ?
 #if defined(_WIN32) || defined(_WIN64)
-#define GEOSLIB_API __declspec(dllexport)
 #if !defined(strcasecmp)
 #define strcasecmp _stricmp
 #endif
 #if !defined(strncasecmp)
 #define strncasecmp _strnicmp
 #endif
-#else
-#define GEOSLIB_API extern
-// TODO : strcasecmp macro to be kept ?
 #endif
 
 /* Structures */

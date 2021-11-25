@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/IClonable.hpp"
@@ -26,7 +27,7 @@ typedef struct {
 /**
  * Matrix
  */
-class AMatrix : public AStringable, public IClonable
+class GSTLEARN_EXPORT AMatrix : public AStringable, public IClonable
 {
 protected:
   AMatrix(int nrow = 0, int ncol = 0, bool sparse = false);

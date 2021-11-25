@@ -12,10 +12,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 class AMatrix;
 class AMatrixSquare;
 
-class MatrixFactory {
+class GSTLEARN_EXPORT MatrixFactory {
 
 public:
   MatrixFactory();

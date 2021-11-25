@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -17,7 +18,7 @@
 
 class GridOld;
 
-class GridC : public AStringable
+class GSTLEARN_EXPORT GridC : public AStringable
 {
 
 public:

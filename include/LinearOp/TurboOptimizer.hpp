@@ -8,6 +8,9 @@
 /*                                                                            */
 /******************************************************************************/
 #pragma once
+
+#include "gstlearn_export.hpp"
+
 #include <string>
 #include <vector>
 
@@ -26,7 +29,7 @@ typedef struct
  * \brief Turbo Optimizer for a specific 2-D environment,
  * \brief with an isotropic Matérn Model
  */
-class TurboOptimizer
+class GSTLEARN_EXPORT TurboOptimizer
 {
 private:
   bool _isCalculated;

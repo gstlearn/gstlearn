@@ -12,6 +12,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -20,6 +21,7 @@
 #include "Basic/Vector.hpp"
 #include "Model/ANoStat.hpp"
 #include "LinearOp/EPowerPT.hpp"
+
 #include <map>
 
 class Model;
@@ -30,7 +32,7 @@ class EConsElem;
 /**
  * \brief Shift Operator for performing the basic tasks of SPDE
  */
-class ShiftOpCs: public ALinearOp
+class GSTLEARN_EXPORT ShiftOpCs: public ALinearOp
 {
 
 public:

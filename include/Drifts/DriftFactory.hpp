@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Drifts/EDrift.hpp"
 
 class ADriftElem;
 
-class DriftFactory
+class GSTLEARN_EXPORT DriftFactory
 {
 public:
   static ADriftElem*  createDriftFunc(const EDrift& type, const CovContext& ctxt);

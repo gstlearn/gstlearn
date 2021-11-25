@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Covariances/ACovFunc.hpp"
 
 class CovContext;
 
-class CovExponential : public ACovFunc
+class GSTLEARN_EXPORT CovExponential : public ACovFunc
 {
 public:
   CovExponential(const CovContext& ctx);

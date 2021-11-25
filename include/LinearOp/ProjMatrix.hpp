@@ -10,17 +10,17 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "IProjMatrix.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
-
 #include "csparse_d.h"
 
 class AMesh;
 class Db;
 class SPDE_Mesh;
 
-class ProjMatrix: public IProjMatrix, public AStringable
+class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public AStringable
 {
 public:
   ProjMatrix();

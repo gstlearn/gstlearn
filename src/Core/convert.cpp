@@ -442,7 +442,7 @@ label_end:
 ** \param[out]  dx        Array of grid mesh
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_read_zycor1(const char   *filename,
+GSTLEARN_EXPORT int db_grid_read_zycor1(const char   *filename,
                                     int     verbose,
                                     int    *nx,
                                     double *x0,
@@ -493,7 +493,7 @@ label_end:
 ** \param[out] tab       Array of values
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_read_zycor2(const char   *filename,
+GSTLEARN_EXPORT int db_grid_read_zycor2(const char   *filename,
                                     int    *nx_r,
                                     double *x0_r,
                                     double *dx_r,
@@ -758,7 +758,7 @@ static int st_grid_read_bmp_header(FILE   *file,
 ** \param[out]  dx        Array of grid mesh
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_read_bmp1(const char   *filename,
+GSTLEARN_EXPORT int db_grid_read_bmp1(const char   *filename,
                                   int     verbose,
                                   int    *nx,
                                   double *x0,
@@ -810,7 +810,7 @@ label_end:
 ** \param[out] tab       Array of values read
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_read_bmp2(const char   *filename,
+GSTLEARN_EXPORT int db_grid_read_bmp2(const char   *filename,
                                   int    *nx_r,
                                   double *x0_r,
                                   double *dx_r,
@@ -902,7 +902,7 @@ label_end:
 ** \param[in]  icol      Rank of the attribute
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_write_zycor(const char *filename,
+GSTLEARN_EXPORT int db_grid_write_zycor(const char *filename,
                                     Db     *db,
                                     int     icol)
 {
@@ -1089,7 +1089,7 @@ static void st_out(FILE *file, int mode, unsigned int ival)
 ** \remark  If ncolor=0, the colors scale is generated as the grey scale
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_write_bmp(const char *filename,
+GSTLEARN_EXPORT int db_grid_write_bmp(const char *filename,
                                   Db     *db,
                                   int     icol,
                                   int     nsamplex,
@@ -1273,7 +1273,7 @@ GEOSLIB_API int db_grid_write_bmp(const char *filename,
 ** \remark  the standard output
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_write_irap(const char *filename,
+GSTLEARN_EXPORT int db_grid_write_irap(const char *filename,
                                    Db   *db,
                                    int   icol,
                                    int   nsamplex,
@@ -1370,7 +1370,7 @@ GEOSLIB_API int db_grid_write_irap(const char *filename,
 ** \param[in]  icols     Rank(s) of the attribute
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_write_prop(const char *filename,
+GSTLEARN_EXPORT int db_grid_write_prop(const char *filename,
                                    Db     *db,
                                    int     ncol,
                                    int    *icols)
@@ -1468,7 +1468,7 @@ GEOSLIB_API int db_grid_write_prop(const char *filename,
 ** \param[in]  icol      Rank of the attribute
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_write_eclipse(const char   *filename,
+GSTLEARN_EXPORT int db_grid_write_eclipse(const char   *filename,
                                       Db     *db,
                                       int     icol)
 {
@@ -1645,7 +1645,7 @@ static int st_grid_read_prop_header(FILE   *file,
 ** \param[out]  dx        Array of grid mesh
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_read_prop1(const char *filename,
+GSTLEARN_EXPORT int db_grid_read_prop1(const char *filename,
                                    int     verbose,
                                    int    *ncol,
                                    int    *nx,
@@ -1698,7 +1698,7 @@ label_end:
 ** \param[out] tab       Array of values
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_read_prop2(const char   *filename,
+GSTLEARN_EXPORT int db_grid_read_prop2(const char   *filename,
                                    int     ncol_r,
                                    int    *nx_r,
                                    double *x0_r,
@@ -1784,7 +1784,7 @@ label_end:
 ** \param[in]  names     Array of "selected" variable names
 **
 *****************************************************************************/
-GEOSLIB_API int db_write_vtk(const char *filename,
+GSTLEARN_EXPORT int db_write_vtk(const char *filename,
                              Db     *db,
                              const VectorInt& cols,
                              const VectorString& names)
@@ -2075,7 +2075,7 @@ static int st_read_find(int   s_length,
 ** \remarks The arrays 'var_names' and 'tab' must be freed by calling functions
 **
 *****************************************************************************/
-GEOSLIB_API int db_well_read_las(const char   *filename,
+GSTLEARN_EXPORT int db_well_read_las(const char   *filename,
                                  int      verbose,
                                  double   xwell,
                                  double   ywell,
@@ -2270,7 +2270,7 @@ label_end:
 ** \remarks The returned array 'tab_arg' must be freed by the calling function
 **
 *****************************************************************************/
-GEOSLIB_API int db_grid_read_f2g(const char *filename,
+GSTLEARN_EXPORT int db_grid_read_f2g(const char *filename,
                                  int      verbose,
                                  int      nx[3],
                                  double   x0[3],
@@ -2462,7 +2462,7 @@ label_end:
 ** \remarks The returned array 'tab' is organized by sample
 **
 *****************************************************************************/
-GEOSLIB_API int csv_table_read(const String& filename,
+GSTLEARN_EXPORT int csv_table_read(const String& filename,
                                int           verbose,
                                int           flag_header,
                                int           nskip,
@@ -2579,7 +2579,7 @@ GEOSLIB_API int csv_table_read(const String& filename,
 ** \param[in]  icol      Rank of the attribute
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
+GSTLEARN_EXPORT int db_grid_write_XYZ(const char *filename, Db *db, int icol)
 {
   FILE  *file;
   int    lec;
@@ -2641,7 +2641,7 @@ GEOSLIB_API int db_grid_write_XYZ(const char *filename, Db *db, int icol)
 ** \remark: which must have been initiated beforehand
 **
 *****************************************************************************/
-GEOSLIB_API void csv_print_string(const char *string)
+GSTLEARN_EXPORT void csv_print_string(const char *string)
 {
   if (CSV_ENCODE == NULL)
     my_throw("You must initiate CSV_ENCODING first");
@@ -2670,7 +2670,7 @@ GEOSLIB_API void csv_print_string(const char *string)
 ** \remark: which must have been initiated beforehand
 **
 *****************************************************************************/
-GEOSLIB_API void csv_print_double(double value)
+GSTLEARN_EXPORT void csv_print_double(double value)
 {
   if (CSV_ENCODE == NULL)
     my_throw("You must initiate CSV_ENCODING first");
@@ -2705,7 +2705,7 @@ GEOSLIB_API void csv_print_double(double value)
 ** \remark: which must have been initiated beforehand
 **
 *****************************************************************************/
-GEOSLIB_API void csv_print_eol(void)
+GSTLEARN_EXPORT void csv_print_eol(void)
 {
   if (CSV_ENCODE->current <= 0) return;
 
@@ -2734,7 +2734,7 @@ GEOSLIB_API void csv_print_eol(void)
 ** \remark: Do not forget to use csv_manage(-1,...) to close the file
 **
 *****************************************************************************/
-GEOSLIB_API int csv_manage(const char *filename,
+GSTLEARN_EXPORT int csv_manage(const char *filename,
                            int mode,
                            int nitem,
                            bool flag_integer,
@@ -2820,7 +2820,7 @@ GEOSLIB_API int csv_manage(const char *filename,
 ** \remarks: This procedure dumps the Z-variables and optionally the X-variables
 **
 *****************************************************************************/
-GEOSLIB_API int db_write_csv(Db *db,
+GSTLEARN_EXPORT int db_write_csv(Db *db,
                              const char *filename,
                              int flag_header,
                              int flag_allcol,

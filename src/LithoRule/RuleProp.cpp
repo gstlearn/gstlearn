@@ -274,7 +274,7 @@ void RuleProp::clearRule()
 
 int RuleProp::fit(Db* db, const VarioParam* varioparam, int ngrfmax, bool verbose)
 {
-  Rule* ruleFit = rule_auto(db,varioparam,this,ngrfmax,verbose);
+  Rule* ruleFit = _rule_auto(db,varioparam,this,ngrfmax,verbose);
   if (ruleFit == nullptr) return 1;
   clearRule();
   addRule(ruleFit);
@@ -295,7 +295,7 @@ int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
     messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
-  return db_rule(db, this, nullptr, namconv);
+  return _db_rule(db, this, nullptr, namconv);
 }
 
 /**
@@ -311,7 +311,7 @@ int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
     messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
-  return db_bounds(db, this, nullptr, namconv);
+  return _db_bounds(db, this, nullptr, namconv);
 }
 
 /**
@@ -327,5 +327,5 @@ int RuleProp::computeAllThreshes(Db *db, NamingConvention namconv) const
     messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
-  return db_threshold(db, this, nullptr, namconv);
+  return _db_threshold(db, this, nullptr, namconv);
 }

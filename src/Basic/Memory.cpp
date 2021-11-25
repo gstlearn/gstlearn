@@ -47,7 +47,7 @@ unsigned long long getTotalSystemMemory()
 #else // assume Linux
 #include <unistd.h>
 
-unsigned long long getTotalSystemMemory()
+GSTLEARN_EXPORT unsigned long long getTotalSystemMemory()
 {
   long avail_pages = sysconf(_SC_AVPHYS_PAGES);
   long page_size = sysconf(_SC_PAGE_SIZE);

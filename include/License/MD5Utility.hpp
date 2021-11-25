@@ -41,7 +41,7 @@
  */
 
 #ifndef MD5_UTILITY_H
-#  define MD5_UTILITY_H
+#define MD5_UTILITY_H
 
 /*
  * This code has some adaptations for the Ghostscript environment, but it

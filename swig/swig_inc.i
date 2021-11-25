@@ -5,6 +5,7 @@
 #define SWIG_FILE_WITH_INIT
 
 // TODO: find a way to maintain only one headers list (with swig_exp.i)
+#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "geoslib_enum.h"
 #include "geoslib_d.h"

@@ -10,7 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-class IOptimCost {
+#include "gstlearn_export.hpp"
+
+class GSTLEARN_EXPORT IOptimCost {
 
 public:
   IOptimCost() {};

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/IClonable.hpp"
 #include "Model/EConsElem.hpp"
@@ -20,7 +21,7 @@
  * - to define the constraints for the Model Automatic Fitting (authAssign true)
  * - to define the non-stationary parameters of a Model
  */
-class ConsItem : public AStringable, public IClonable
+class GSTLEARN_EXPORT ConsItem : public AStringable, public IClonable
 {
 public:
   ConsItem(bool authAssign = false,

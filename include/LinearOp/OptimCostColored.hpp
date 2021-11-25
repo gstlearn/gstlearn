@@ -10,10 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "OptimCostBinary.hpp"
 #include "Basic/AStringable.hpp"
 
-class OptimCostColored : public OptimCostBinary
+class GSTLEARN_EXPORT OptimCostColored : public OptimCostBinary
 {
 public:
   OptimCostColored();

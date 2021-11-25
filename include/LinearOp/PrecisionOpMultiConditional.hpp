@@ -1,22 +1,17 @@
-/*
- * PrecisionOpMultiConditional.hpp
- *
- *  Created on: 18 déc. 2020
- *      Author: ndesassis
- */
-
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "ALinearOpMulti.hpp"
 #include "PrecisionOp.hpp"
-#include <vector>
 #include "ProjMatrix.hpp"
+
+#include <vector>
 
 /**
  * Class to store objects for SPDE
  */
-class PrecisionOpMultiConditional : public ALinearOpMulti {
+class GSTLEARN_EXPORT PrecisionOpMultiConditional : public ALinearOpMulti {
 
 public:
   PrecisionOpMultiConditional();

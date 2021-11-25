@@ -370,7 +370,7 @@ static void error(int flag)
 
 /*-------------------------------------------------Time_3d()----------------*/
 
-GEOSLIB_API int time_3db(double *HS, double *T, int NX, int NY, int NZ,
+GSTLEARN_EXPORT int time_3db(double *HS, double *T, int NX, int NY, int NZ,
                          int BX, int BY, int BZ,
                          double XS, double YS, double ZS, 
                          double HS_EPS_INIT, int MSG)

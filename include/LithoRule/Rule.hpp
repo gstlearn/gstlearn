@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "LithoRule/Node.hpp"
 #include "LithoRule/ERule.hpp"
 #include "Basic/Vector.hpp"
@@ -21,7 +22,7 @@ class Db;
 class Model;
 class PropDef;
 
-class Rule: public AStringable, public ASerializable
+class GSTLEARN_EXPORT Rule: public AStringable, public ASerializable
 {
 public:
   Rule(double rho = 0.);

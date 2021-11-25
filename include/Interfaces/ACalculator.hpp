@@ -1,7 +1,8 @@
-#ifndef ACALCULATOR_HPP
-#define ACALCULATOR_HPP
+#pragma once
 
-class ACalculator
+#include "gstlearn_export.hpp"
+
+class GSTLEARN_EXPORT ACalculator
 {
   public:
     ACalculator(){};
@@ -10,4 +11,3 @@ class ACalculator
     virtual bool check() const = 0;
 };
 
-#endif

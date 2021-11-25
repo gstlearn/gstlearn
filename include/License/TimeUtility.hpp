@@ -1,5 +1,6 @@
-#ifndef TIME_UTILITY_HPP
-#define TIME_UTILITY_HPP
+#pragma once
+
+#include "gstlearn_export.hpp"
 
 // - Standard includes --------------------------------
 #include <time.h>
@@ -11,7 +12,7 @@
 
 // -Class definition ----------------------------------
 
-class TimeUtility {
+class GSTLEARN_EXPORT TimeUtility {
 public :
   static bool is_expired(const std::string& expiration_date);
   static void shift_one_year(std::string & expiration_date);
@@ -21,4 +22,3 @@ private:
   static bool convert_to_tm(const std::string& date, struct tm* time);
 };
 
-#endif // TIME_UTILITY_HPP

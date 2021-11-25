@@ -54,7 +54,7 @@ static void st_valid(int type,
 ** \remark  This function must be called compulsorily when entering RGeostats
 **
 *****************************************************************************/
-GEOSLIB_API void pile_reset(int type)
+GSTLEARN_EXPORT void pile_reset(int type)
 
 {
   int i;
@@ -75,7 +75,7 @@ GEOSLIB_API void pile_reset(int type)
 ** \remark  This function must be called compulsorily when entering RGeostats
 **
 *****************************************************************************/
-GEOSLIB_API void piles_reset(void)
+GSTLEARN_EXPORT void piles_reset(void)
 
 {
   int type;
@@ -107,7 +107,7 @@ GEOSLIB_API void piles_reset(void)
 ** \param[in]  type    Type of the pile
 **
 *****************************************************************************/
-GEOSLIB_API int pile_next(int type)
+GSTLEARN_EXPORT int pile_next(int type)
 
 {
   int ival,i;
@@ -143,7 +143,7 @@ GEOSLIB_API int pile_next(int type)
 ** \param[in]  ptr     Pointor to be stored (allocation mode)
 **
 *****************************************************************************/
-GEOSLIB_API void pile_manage(int type,
+GSTLEARN_EXPORT void pile_manage(int type,
                              int rank,
                              int mode,
                              char *ptr)
@@ -181,7 +181,7 @@ GEOSLIB_API void pile_manage(int type,
 ** \li                 -1 : Check that the element will be allocated
 **
 *****************************************************************************/
-GEOSLIB_API int pile_correct(int type,
+GSTLEARN_EXPORT int pile_correct(int type,
                              int rank,
                              int mode)
 {
@@ -223,7 +223,7 @@ GEOSLIB_API int pile_correct(int type,
 ** \param[in]  rank    Rank of the slot
 **
 *****************************************************************************/
-GEOSLIB_API char *pile_get(int type,
+GSTLEARN_EXPORT char *pile_get(int type,
                            int rank)
 {
   if (piles == NULL)
@@ -244,7 +244,7 @@ GEOSLIB_API char *pile_get(int type,
 **  Dump the piles contents
 **
 *****************************************************************************/
-GEOSLIB_API void piles_dump(void)
+GSTLEARN_EXPORT void piles_dump(void)
 
 {
   int type,i;

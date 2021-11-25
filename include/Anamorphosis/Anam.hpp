@@ -10,12 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Anamorphosis/EAnam.hpp"
 
-class Anam : public AStringable
+class GSTLEARN_EXPORT Anam : public AStringable
 {
 public:
   Anam(const EAnam& type = EAnam::UNDEFINED);

@@ -419,7 +419,7 @@ static double *st_spectrum_any(Model  *model,
 ** \remarks: Simsph_Fixed_Degree: to define the Maximum Degree 
 **
 *****************************************************************************/
-GEOSLIB_API int simsph_f(Db    *db,
+GSTLEARN_EXPORT int simsph_f(Db    *db,
                        Model *model,
                        int    seed,
                        int    special,

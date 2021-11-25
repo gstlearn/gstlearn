@@ -10,11 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/String.hpp"
+
 #include <stdarg.h>
 #include <stdio.h>
 
-class ASerializable
+class GSTLEARN_EXPORT ASerializable
 {
 public:
   ASerializable();

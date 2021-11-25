@@ -1,9 +1,9 @@
-#ifndef PARAM_CSV_HPP
-#define PARAM_CSV_HPP
+#pragma once
 
+#include "gstlearn_export.hpp"
 #include "Interfaces/interface_d.hpp"
 
-class ParamCSV
+class GSTLEARN_EXPORT ParamCSV
 {
 
 public:
@@ -27,4 +27,4 @@ private:
   bool _useHeader;
   int _skipNLines;
 };
-#endif
+

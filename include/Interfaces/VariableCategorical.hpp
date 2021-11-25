@@ -10,12 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include <string>
+#include "gstlearn_export.hpp"
 #include "Interfaces/AVariableTemplate.hpp"
 #include "Interfaces/Dictionary.hpp"
 
+#include <string>
+
 /// TODO : to be terminated
-class VariableCategorical: public AVariableTemplate<Category>
+class GSTLEARN_EXPORT VariableCategorical: public AVariableTemplate<Category>
 {
 public:
   VariableCategorical(const String& name, const Dictionary& dico);

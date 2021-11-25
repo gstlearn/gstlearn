@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/IClonable.hpp"
@@ -24,7 +24,7 @@ class Rotation;
  * Class dedicated to manipulating a variables and its derivatives.
  * This feature is limited to the monovariate case
  */
-class CovGradientNumerical: public ACovGradient
+class GSTLEARN_EXPORT CovGradientNumerical: public ACovGradient
 {
 public:
   CovGradientNumerical(const ECov& type, const CovContext& ctxt);

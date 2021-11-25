@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
@@ -7,10 +8,11 @@
 #include "Model/Model.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "API/ESPDECalcMode.hpp"
+
 #include <vector>
 
 class ShiftOpCs;
-class SPDE
+class GSTLEARN_EXPORT SPDE
 {
 public:
   SPDE();

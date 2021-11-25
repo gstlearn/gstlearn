@@ -704,7 +704,7 @@ static int st_spill(SPIMG  *in,
 ** \remark  must start with 1
 **
 *****************************************************************************/
-GEOSLIB_API int spill_point(Db      *dbgrid,
+GSTLEARN_EXPORT int spill_point(Db      *dbgrid,
                             int      ind_depth,
                             int      ind_data,
                             int      flag_up,

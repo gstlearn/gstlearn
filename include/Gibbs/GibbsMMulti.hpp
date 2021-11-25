@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Gibbs/GibbsMulti.hpp"
 #include "Basic/Vector.hpp"
 
 class Db;
 class Model;
 
-class GibbsMMulti: public GibbsMulti
+class GSTLEARN_EXPORT GibbsMMulti: public GibbsMulti
 {
   typedef struct
   {

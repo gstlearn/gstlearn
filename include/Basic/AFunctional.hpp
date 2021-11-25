@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 
 class Db;
 
-class AFunctional
+class GSTLEARN_EXPORT AFunctional
 {
 public:
   AFunctional(int ndim);

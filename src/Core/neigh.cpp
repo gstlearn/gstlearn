@@ -292,7 +292,7 @@ static void st_bench(Db     *dbin,
 ** \remarks this function systematically returns 0.
 **
 *****************************************************************************/
-GEOSLIB_API double neigh_continuous_variance(Neigh *neigh,
+GSTLEARN_EXPORT double neigh_continuous_variance(Neigh *neigh,
                                              Db    *db1,
                                              int    rank1,
                                              Db    *db2,
@@ -661,7 +661,7 @@ static int st_moving(Db     *dbin,
 ** \param[in]  neigh Neigh structure to be freed
 **
 *****************************************************************************/
-GEOSLIB_API Neigh *neigh_free(Neigh *neigh)
+GSTLEARN_EXPORT Neigh *neigh_free(Neigh *neigh)
 
 {
   delete neigh;
@@ -681,7 +681,7 @@ GEOSLIB_API Neigh *neigh_free(Neigh *neigh)
 **                          (centered on the target vertically)
 **
 *****************************************************************************/
-GEOSLIB_API Neigh *neigh_init_bench(int    ndim,
+GSTLEARN_EXPORT Neigh *neigh_init_bench(int    ndim,
                                     int    flag_xvalid,
                                     double width)
 {
@@ -705,7 +705,7 @@ GEOSLIB_API Neigh *neigh_init_bench(int    ndim,
 ** \param[in]  nbgh_image   Vector of image neighborhood radius
 **
 *****************************************************************************/
-GEOSLIB_API Neigh *neigh_init_image(int     ndim,
+GSTLEARN_EXPORT Neigh *neigh_init_image(int     ndim,
                                     int     flag_xvalid,
                                     int     skip,
                                     const VectorInt& nbgh_image)
@@ -730,7 +730,7 @@ GEOSLIB_API Neigh *neigh_init_image(int     ndim,
 ** \remark  Cross-Validation option
 **
 *****************************************************************************/
-GEOSLIB_API Neigh *neigh_init_unique(int ndim)
+GSTLEARN_EXPORT Neigh *neigh_init_unique(int ndim)
 
 {
   Neigh *neigh;
@@ -843,7 +843,7 @@ static void st_get_neigh_anisotropy(Neigh *neigh,
 **                         (only used for ENeigh::IMAGE)
 **
 *****************************************************************************/
-GEOSLIB_API Neigh *neigh_init(int ndim,
+GSTLEARN_EXPORT Neigh *neigh_init(int ndim,
                               ENeigh type,
                               int flag_xvalid,
                               int flag_sector,
@@ -916,7 +916,7 @@ GEOSLIB_API Neigh *neigh_init(int ndim,
 ** \param[in]  neigh Neigh structure
 **
 *****************************************************************************/
-GEOSLIB_API void neigh_print(const Neigh *neigh)
+GSTLEARN_EXPORT void neigh_print(const Neigh *neigh)
 
 {
   int ndim,idim;
@@ -1017,7 +1017,7 @@ GEOSLIB_API void neigh_print(const Neigh *neigh)
 ** \li                    4 : Number of consecutive empty sectors
 **
 *****************************************************************************/
-GEOSLIB_API void neigh_echo(Db     *dbin,
+GSTLEARN_EXPORT void neigh_echo(Db     *dbin,
                             Neigh  *neigh,
                             int    *rank,
                             int     nsel,
@@ -1104,7 +1104,7 @@ GEOSLIB_API void neigh_echo(Db     *dbin,
 ** \remarks on ELoc::SIMU rather than on ELoc::Z
 **
 *****************************************************************************/
-GEOSLIB_API int neigh_select(Db     *dbin,
+GSTLEARN_EXPORT int neigh_select(Db     *dbin,
                              Db     *dbout,
                              int     iech_out,
                              Neigh  *neigh,
@@ -1166,7 +1166,7 @@ GEOSLIB_API int neigh_select(Db     *dbin,
 ** \param[in]  neigh  Neigh structure
 **
 *****************************************************************************/
-GEOSLIB_API int neigh_start(Db    *dbin,
+GSTLEARN_EXPORT int neigh_start(Db    *dbin,
                             Neigh *neigh)
 
 {
@@ -1199,7 +1199,7 @@ GEOSLIB_API int neigh_start(Db    *dbin,
 **  Performs the core deallocation after using neighborhood
 **
 *****************************************************************************/
-GEOSLIB_API void neigh_stop(void)
+GSTLEARN_EXPORT void neigh_stop(void)
 
 {
   /* Initialization */
@@ -1257,7 +1257,7 @@ GEOSLIB_API void neigh_stop(void)
 **                          (only used for ENeigh::IMAGE)
 **
 *****************************************************************************/
-GEOSLIB_API int neigh_extract(Neigh  *neigh,
+GSTLEARN_EXPORT int neigh_extract(Neigh  *neigh,
                               ENeigh *type,
                               int    *nmini,
                               int    *nmaxi,

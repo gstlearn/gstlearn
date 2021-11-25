@@ -75,7 +75,7 @@ int Tapering::getTapeNumber()
   return N_DEF_TAPERING;
 }
 
-Def_Tapering& D_TAPE(int rank)
+GSTLEARN_EXPORT Def_Tapering& D_TAPE(int rank)
 {
   static Def_Tapering DEF_TAPES[] =
   {

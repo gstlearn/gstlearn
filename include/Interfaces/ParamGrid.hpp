@@ -1,11 +1,11 @@
-#ifndef PARAM_GRID_HPP
-#define PARAM_GRID_HPP
+#pragma once
 
+#include "gstlearn_export.hpp"
 #include "Interfaces/interface_d.hpp"
 #include "Basic/GridC.hpp"
 #include "Db/ELoadBy.hpp"
 
-class ParamGrid {
+class GSTLEARN_EXPORT ParamGrid {
 public:
   ParamGrid();
   ParamGrid(VectorInt nx,
@@ -32,4 +32,3 @@ private:
   ELoadBy       _CellOrder;
 };
 
-#endif

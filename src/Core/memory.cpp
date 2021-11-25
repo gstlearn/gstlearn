@@ -47,7 +47,7 @@ static TimeChunk **TimeStat = NULL;
 ** Initialize the Timer
 **
 *****************************************************************************/
-GEOSLIB_API void time_start(void)
+GSTLEARN_EXPORT void time_start(void)
 {
   TIME_CURRENT = clock();
 }
@@ -80,7 +80,7 @@ static void st_time_chunk_close(void)
 ** Reset the Time 
 **
 *****************************************************************************/
-GEOSLIB_API void time_reset(void)
+GSTLEARN_EXPORT void time_reset(void)
 {
   // Close the current Time Chunk (if any)
 
@@ -101,7 +101,7 @@ GEOSLIB_API void time_reset(void)
 ** \param[in]  call_name       Name of the Chunk
 **
 *****************************************************************************/
-GEOSLIB_API void time_chunk_add(const char *call_name)
+GSTLEARN_EXPORT void time_chunk_add(const char *call_name)
 {
   TimeChunk *tchunk;
   int found;
@@ -155,7 +155,7 @@ GEOSLIB_API void time_chunk_add(const char *call_name)
 ** Report the Time Stats
 **
 *****************************************************************************/
-GEOSLIB_API void time_report(void)
+GSTLEARN_EXPORT void time_report(void)
 {
   TimeChunk *tchunk;
 
@@ -189,7 +189,7 @@ static void st_mem_update(int size)
 ** Reset the Memory Leak processing structure
 **
 *****************************************************************************/
-GEOSLIB_API void memory_leak_reset(void)
+GSTLEARN_EXPORT void memory_leak_reset(void)
 {
   if (! MEMORY_LEAK) return;
 
@@ -301,7 +301,7 @@ static void st_memory_leak_delete(const char  *call_file,
 ** Report Memory Leak
 **
 *****************************************************************************/
-GEOSLIB_API void memory_leak_report(void)
+GSTLEARN_EXPORT void memory_leak_report(void)
 {
   MemChunk *chunk;
   int total;
@@ -333,7 +333,7 @@ GEOSLIB_API void memory_leak_report(void)
 ** \param[in]  flag      Activiation flag
 **
 *****************************************************************************/
-GEOSLIB_API void mem_debug_set(int flag)
+GSTLEARN_EXPORT void mem_debug_set(int flag)
 {
   MEMORY_DEBUG = flag;
 }
@@ -345,7 +345,7 @@ GEOSLIB_API void mem_debug_set(int flag)
 ** \param[in]  flag      Activation flag
 **
 *****************************************************************************/
-GEOSLIB_API void memory_leak_set(int flag)
+GSTLEARN_EXPORT void memory_leak_set(int flag)
 {
   MEMORY_LEAK = flag;
   if (flag == 1)
@@ -361,7 +361,7 @@ GEOSLIB_API void memory_leak_set(int flag)
 ** \param[in] title   Title printed when checking memory
 **
 *****************************************************************************/
-GEOSLIB_API void memory_status(const char *title)
+GSTLEARN_EXPORT void memory_status(const char *title)
 
 {
   if (! MEMORY_DEBUG) return;
@@ -420,7 +420,7 @@ static void st_mem_message(const char  *call_file,
 ** \param[in]  tab       Array to be freed
 **
 *****************************************************************************/
-GEOSLIB_API char *mem_free_(const char  *call_file,
+GSTLEARN_EXPORT char *mem_free_(const char  *call_file,
                             unsigned int call_line,
                             char *tab)
 {
@@ -458,7 +458,7 @@ GEOSLIB_API char *mem_free_(const char  *call_file,
 ** \param[in]  flag_fatal Error status (1 = the program stops)
 **
 *****************************************************************************/
-GEOSLIB_API char *mem_alloc_(const char  *call_file,
+GSTLEARN_EXPORT char *mem_alloc_(const char  *call_file,
                              unsigned int call_line,
                              int size,
                              int flag_fatal)
@@ -507,7 +507,7 @@ GEOSLIB_API char *mem_alloc_(const char  *call_file,
 ** \param[in]  flag_fatal Error status (1 = the program stops)
 **
 *****************************************************************************/
-GEOSLIB_API char *mem_copy_(const char  *call_file,
+GSTLEARN_EXPORT char *mem_copy_(const char  *call_file,
                             unsigned int call_line,
                             char   *tabin,
                             int     size,
@@ -562,7 +562,7 @@ GEOSLIB_API char *mem_copy_(const char  *call_file,
 ** \param[in]  flag_fatal Error status (1 = the program stops)
 **
 *****************************************************************************/
-GEOSLIB_API char *mem_calloc_(const char  *call_file,
+GSTLEARN_EXPORT char *mem_calloc_(const char  *call_file,
                               unsigned int call_line,
                               int size,
                               int size_elem,
@@ -612,7 +612,7 @@ GEOSLIB_API char *mem_calloc_(const char  *call_file,
  * \param[in]  flag_fatal Error status (1 = the program stops)
  *
  *****************************************************************************/
-GEOSLIB_API char *mem_realloc_(const char  *call_file,
+GSTLEARN_EXPORT char *mem_realloc_(const char  *call_file,
                                unsigned int call_line,
                                char *tab, 
                                int   size,
@@ -717,7 +717,7 @@ GEOSLIB_API char *mem_realloc_(const char  *call_file,
 ** \param[in]  nvar  Number of elements in the array
 **
 *****************************************************************************/
-GEOSLIB_API double **mem_tab_free(double **tab,
+GSTLEARN_EXPORT double **mem_tab_free(double **tab,
                                   int      nvar)
 {
   int ivar;
@@ -740,7 +740,7 @@ GEOSLIB_API double **mem_tab_free(double **tab,
 ** \param[in]  flag_fatal  error status (1 = the program stops)
 **
 *****************************************************************************/
-GEOSLIB_API double **mem_tab_alloc(int nvar,
+GSTLEARN_EXPORT double **mem_tab_alloc(int nvar,
                                    int size,
                                    int flag_fatal)
 {

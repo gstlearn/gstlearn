@@ -470,7 +470,7 @@ static void st_simulate_nodes(Db    *db,
 ** \param[out] tab        Output array
 **
 *****************************************************************************/
-GEOSLIB_API int simfine_f(Db *dbin,
+GSTLEARN_EXPORT int simfine_f(Db *dbin,
                           Model *model,
                           int flag_ks,
                           int nmult,
@@ -584,7 +584,7 @@ label_end:
 ** \param[out] dx         Array of grid mesh dimensions
 **
 *****************************************************************************/
-GEOSLIB_API int simfine_dim(Db     *dbin,
+GSTLEARN_EXPORT int simfine_dim(Db     *dbin,
                             int     nmult,
                             int    *ndim,
                             int    *ntot,

@@ -20,7 +20,7 @@
 ** \return  Pointer to the newly created Polygonsn structure
 **
 *****************************************************************************/
-GEOSLIB_API Polygons *polygon_create(void)
+GSTLEARN_EXPORT Polygons *polygon_create(void)
 
 {
   Polygons *polygon;
@@ -43,7 +43,7 @@ GEOSLIB_API Polygons *polygon_create(void)
 ** \return  Pointer to the newly freed Polygons structure
 **
 *****************************************************************************/
-GEOSLIB_API Polygons *polygon_free(Polygons *polygon)
+GSTLEARN_EXPORT Polygons *polygon_free(Polygons *polygon)
 
 {
   if (polygon == nullptr) return(polygon);
@@ -67,7 +67,7 @@ GEOSLIB_API Polygons *polygon_free(Polygons *polygon)
 ** \remark  Polygons are closed (if necessary) when added
 **
 *****************************************************************************/
-GEOSLIB_API Polygons *polygon_add(Polygons *polygon,
+GSTLEARN_EXPORT Polygons *polygon_add(Polygons *polygon,
                                   const VectorDouble& x,
                                   const VectorDouble& y,
                                   double    zmin,
@@ -91,7 +91,7 @@ GEOSLIB_API Polygons *polygon_add(Polygons *polygon,
 ** \li                      2 : The vertices for each polyset
 **
 *****************************************************************************/
-GEOSLIB_API void polygon_print(Polygons* polygon,
+GSTLEARN_EXPORT void polygon_print(Polygons* polygon,
                                int flag_print)
 
 {
@@ -227,7 +227,7 @@ static int st_polyset_inside(double  xx,
 ** \remarks belongs to one PolySet
 **
 *****************************************************************************/
-GEOSLIB_API int polygon_inside(double  xx,
+GSTLEARN_EXPORT int polygon_inside(double  xx,
                                double  yy,
                                double  zz,
                                int     flag_nested,
@@ -274,7 +274,7 @@ GEOSLIB_API int polygon_inside(double  xx,
 ** \param[out] ymax        Maximum coordinate along Y-axis
 **
 *****************************************************************************/
-GEOSLIB_API void polygon_extension(Polygons *polygon,
+GSTLEARN_EXPORT void polygon_extension(Polygons *polygon,
                                    double *xmin,
                                    double *xmax,
                                    double *ymin,
@@ -292,7 +292,7 @@ GEOSLIB_API void polygon_extension(Polygons *polygon,
 ** \param[in]  polygon  Polygons structure
 **
 *****************************************************************************/
-GEOSLIB_API double polygon_surface(Polygons *polygon)
+GSTLEARN_EXPORT double polygon_surface(Polygons *polygon)
 
 {
   return polygon->getSurface();
@@ -305,7 +305,7 @@ GEOSLIB_API double polygon_surface(Polygons *polygon)
 ** \return  Pointer to the newly allocated Polygon
 **
 *****************************************************************************/
-GEOSLIB_API Polygons *input_polygon(void)
+GSTLEARN_EXPORT Polygons *input_polygon(void)
 
 {
   Polygons *polygon;
@@ -388,7 +388,7 @@ label_end:
 ** \param[in]  db    descriptor of the Db serving for convex hull calculation
 **
 *****************************************************************************/
-GEOSLIB_API Polygons *polygon_hull(const Db *db)
+GSTLEARN_EXPORT Polygons *polygon_hull(const Db *db)
 
 {
   Polygons* polygons = nullptr;
@@ -499,7 +499,7 @@ label_cont:
 ** \param[out] y     Array of second coordinates
 **
 *****************************************************************************/
-GEOSLIB_API int polygon_hull(const Db *db,
+GSTLEARN_EXPORT int polygon_hull(const Db *db,
                              VectorDouble& x,
                              VectorDouble& y)
 {

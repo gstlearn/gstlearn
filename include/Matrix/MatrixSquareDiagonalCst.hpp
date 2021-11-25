@@ -12,13 +12,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 
 /**
  * Square Diagonal Matrices with diagonal filled with a constant value
  */
-class MatrixSquareDiagonalCst : public AMatrixSquare {
+class GSTLEARN_EXPORT MatrixSquareDiagonalCst : public AMatrixSquare {
 
 public:
   MatrixSquareDiagonalCst(int nrow = 0, bool sparse = false);

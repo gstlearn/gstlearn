@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/ELoadBy.hpp"
@@ -38,7 +39,7 @@ class Limits;
  * Class containing the Data Set.
  * It can be organized as a set of Isolated Points or as a regular Grid
  */
-class Db: public AStringable, public ASerializable
+class GSTLEARN_EXPORT Db: public AStringable, public ASerializable
 {
 public:
   Db();

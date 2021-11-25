@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Drifts/EDrift.hpp"
@@ -24,7 +25,7 @@
 
 class Db;
 
-class ADriftElem : public ADrift, public IClonable
+class GSTLEARN_EXPORT ADriftElem : public ADrift, public IClonable
 {
 public:
   ADriftElem(const EDrift& type, const CovContext& ctxt, int rankFex = 0);

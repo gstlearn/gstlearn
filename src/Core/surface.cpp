@@ -647,7 +647,7 @@ label_end:
 ** \remarks must be freed by the calling function
 **
 *****************************************************************************/
-GEOSLIB_API int db_trisurf(Db         *db,
+GSTLEARN_EXPORT int db_trisurf(Db         *db,
                            Model      *model,
                            const String& triswitch,
                            int         icode0,

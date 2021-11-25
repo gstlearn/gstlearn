@@ -1,14 +1,13 @@
-#ifndef DICTIONARY_HPP
-#define DICTIONARY_HPP
+#pragma once
 
-#include <vector>           //USE
-#include <string>           //USE
+#include "gstlearn_export.hpp"
+#include "Interfaces/Category.hpp"
+#include "Interfaces/interface_d.hpp"
 
-#include "Interfaces/Category.hpp"     //HASA
+#include <vector>
+#include <string>
 
-#include "Interfaces/interface_d.hpp"  //USE
-
-class Dictionary
+class GSTLEARN_EXPORT Dictionary
 {
   public:
     Dictionary();
@@ -31,4 +30,3 @@ class Dictionary
     std::vector<Category> _categories;
 };
 
-#endif

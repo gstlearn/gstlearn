@@ -10,12 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/IClonable.hpp"
 #include "Basic/Vector.hpp"
 
 class ShiftOpCs;
-class ClassicalPolynomial : public APolynomial
+class GSTLEARN_EXPORT ClassicalPolynomial : public APolynomial
 {
 public:
   ClassicalPolynomial();

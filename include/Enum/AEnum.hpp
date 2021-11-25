@@ -10,14 +10,15 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+#include "Basic/RepeatMacro.hpp"
+
 #include <iostream>
 #include <string>
 #include <map>
 
-#include "geoslib_define.h"
-#include "Basic/RepeatMacro.hpp"
-
-class AEnum
+class GSTLEARN_EXPORT AEnum
 {
 public:
   //! Return the enum key as a string
@@ -106,7 +107,7 @@ private:\
   NAME ## Map&          _refmap;\
 };\
 \
-class NAME : public AEnum\
+class GSTLEARN_EXPORT NAME : public AEnum\
 {\
 \
 public:\

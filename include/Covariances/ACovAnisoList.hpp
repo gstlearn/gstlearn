@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -21,7 +22,7 @@
 class ASpace;
 class SpacePoint;
 
-class ACovAnisoList : public ACov, public IClonable
+class GSTLEARN_EXPORT ACovAnisoList : public ACov, public IClonable
 {
 public:
   ACovAnisoList(const ASpace* space = nullptr);

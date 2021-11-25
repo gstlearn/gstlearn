@@ -9,7 +9,7 @@
 #include <numeric>
 #include <iostream>
 
-VectorDouble range(int n)
+GSTLEARN_EXPORT VectorDouble range(int n)
 {
   VectorDouble res;
   int i = 0;
@@ -21,7 +21,7 @@ VectorDouble range(int n)
   return(res);
 }
 
-void migrate_grid_to_point2(const Database& db_grid, Database& db_point, const std::string& name, int ldmax, VectorDouble dmax)
+GSTLEARN_EXPORT void migrate_grid_to_point2(const Database& db_grid, Database& db_point, const std::string& name, int ldmax, VectorDouble dmax)
 {
   std::vector<double> vec(db_point.getNSamples());
   std::string new_name = name + std::string("_migrate");
@@ -34,7 +34,7 @@ void migrate_grid_to_point2(const Database& db_grid, Database& db_point, const s
   db_point.fromGeoslib(dbpointgeos);
 }
 
-void migrate_point_to_grid2(const Database &db_point, Database& db_grid, const std::string& name, int ldmax, VectorDouble dmax)
+GSTLEARN_EXPORT void migrate_point_to_grid2(const Database &db_point, Database& db_grid, const std::string& name, int ldmax, VectorDouble dmax)
 {
   std::vector<double> vec(db_grid.getGridSize());
   std::string new_name = name + std::string("_migrate");
@@ -47,7 +47,7 @@ void migrate_point_to_grid2(const Database &db_point, Database& db_grid, const s
   db_grid.fromGeoslib(dbg_geos);
 }
 
-void migrate_grid_to_grid2(const Database &dbgin, Database& dbgout, const std::string& name, int ldmax, VectorDouble dmax)
+GSTLEARN_EXPORT void migrate_grid_to_grid2(const Database &dbgin, Database& dbgout, const std::string& name, int ldmax, VectorDouble dmax)
 {
   std::vector<double> vec(dbgout.getGridSize());
   std::string new_name = name + std::string("_migrate");
@@ -60,7 +60,7 @@ void migrate_grid_to_grid2(const Database &dbgin, Database& dbgout, const std::s
   dbgout.fromGeoslib(dbg_geos);
 }
 
-void mes_error(ES error)
+GSTLEARN_EXPORT void mes_error(ES error)
 {
   if (error == ES_NAME)
     std::cout << "Error : Duplicate name in Database" << std::endl;
@@ -129,7 +129,7 @@ void mes_error(ES error)
 //  return res;
 //}
 
-void kriging2(const Database & dbin, Database &dbout, Model* model, Neigh* neigh)
+GSTLEARN_EXPORT void kriging2(const Database & dbin, Database &dbout, Model* model, Neigh* neigh)
 {
   Db* dbin2 = dbin.toGeoslib();
   Db* dbout2 = dbout.toGeoslib();
@@ -138,20 +138,20 @@ void kriging2(const Database & dbin, Database &dbout, Model* model, Neigh* neigh
   dbout.display();
 }
 
-Neigh* neigh_unique(int ndim)
+GSTLEARN_EXPORT Neigh* neigh_unique(int ndim)
 {
   return(neigh_init(ndim, ENeigh::UNIQUE, false, false, false, false, false, 1, 1, 1, 1, 1, 1, 1, 0.5,
                     VectorDouble(), VectorDouble(), VectorInt()));
 }
 
-Neigh* neigh_moving(int ndim,int flag_sector, int flag_rotation, int nmini,int nmaxi,int nsect, int nsmax,
+GSTLEARN_EXPORT Neigh* neigh_moving(int ndim,int flag_sector, int flag_rotation, int nmini,int nmaxi,int nsect, int nsmax,
                     int radius,VectorDouble Rotation)
 {
   return(neigh_init(ndim, ENeigh::MOVING, false, flag_sector, false, flag_rotation,false, nmini, nmaxi, nsect, nsmax,
                     1, 1 , radius, 0.5, VectorDouble(), Rotation, VectorInt()));
 }
 
-Neigh* my_neigh_init(int ndim, ENeigh type, int flag_xvalid, int flag_sector,
+GSTLEARN_EXPORT Neigh* my_neigh_init(int ndim, ENeigh type, int flag_xvalid, int flag_sector,
                      int flag_aniso, int flag_rotation, int flag_continuous,
                      int nmini, int nmaxi, int nsect, int nsmax, int skip,
                      double width, double radius, double dist_count,
@@ -163,12 +163,12 @@ Neigh* my_neigh_init(int ndim, ENeigh type, int flag_xvalid, int flag_sector,
         radius,dist_count, nbgh_radius,nbgh_rotmat,nbgh_image));
 }
 
-VectorDouble affiche(Db* db)
+GSTLEARN_EXPORT VectorDouble affiche(Db* db)
 {
   return (db->getArrays());
 }
 
-void my_db_print(Db* db)
+GSTLEARN_EXPORT void my_db_print(Db* db)
 {
   db_print(db,1,1,1,1,1);
 

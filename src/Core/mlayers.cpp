@@ -1996,7 +1996,7 @@ label_end:
 ** \param[in]  verbose    Verbose option
 **
 *****************************************************************************/
-GEOSLIB_API int multilayers_kriging(Db     *dbin,
+GSTLEARN_EXPORT int multilayers_kriging(Db     *dbin,
                                     Db     *dbout,
                                     Model  *model,
                                     Neigh  *neigh,
@@ -2495,7 +2495,7 @@ label_end:
 ** \param[in]  verbose    1 for a  verbose option
 **
 *****************************************************************************/
-GEOSLIB_API int multilayers_vario(Db      *dbin,
+GSTLEARN_EXPORT int multilayers_vario(Db      *dbin,
                                   Db      *dbout,
                                   Vario   *vario,
                                   int      nlayers,
@@ -2763,7 +2763,7 @@ label_end:
 ** \param[out] vars       Array of variances
 **
 *****************************************************************************/
-GEOSLIB_API int multilayers_get_prior(Db      *dbin,
+GSTLEARN_EXPORT int multilayers_get_prior(Db      *dbin,
                                       Db      *dbout,
                                       Model   *model,
                                       int      flag_same,

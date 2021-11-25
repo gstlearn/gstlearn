@@ -10,98 +10,102 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 
-int morpho_image_size(const VectorInt& nx);
-int morpho_count(const VectorInt& nx, const VectorUChar& imagin);
-VectorUChar morpho_image_manage(const VectorInt& nx);
-void morpho_duplicate(const VectorInt& nx,
-                      const VectorUChar& imagin,
-                      VectorUChar& imagout);
-int morpho_labelling(const VectorInt& nx,
+GSTLEARN_EXPORT int morpho_image_size(const VectorInt &nx);
+GSTLEARN_EXPORT int morpho_count(const VectorInt &nx,
+                                 const VectorUChar &imagin);
+GSTLEARN_EXPORT VectorUChar morpho_image_manage(const VectorInt &nx);
+GSTLEARN_EXPORT void morpho_duplicate(const VectorInt &nx,
+                                      const VectorUChar &imagin,
+                                      VectorUChar &imagout);
+GSTLEARN_EXPORT int morpho_labelling(const VectorInt &nx,
+                                     int option,
+                                     int flag_size,
+                                     const VectorUChar &imagin,
+                                     double ccvoid,
+                                     VectorDouble &compnum,
+                                     bool verbose = false);
+GSTLEARN_EXPORT VectorDouble morpho_labelling(const VectorInt &nx,
+                                              int option,
+                                              int flag_size,
+                                              const VectorUChar &imagin,
+                                              double ccvoid,
+                                              bool verbose = false);
+GSTLEARN_EXPORT VectorInt morpho_labelsize(const VectorInt &nx,
+                                           int option,
+                                           const VectorUChar &imagin);
+GSTLEARN_EXPORT void morpho_erosion(const VectorInt &nx,
+                                    int option,
+                                    const VectorInt &radius,
+                                    const VectorUChar &imagin,
+                                    VectorUChar &imagout,
+                                    bool verbose = false);
+GSTLEARN_EXPORT void morpho_dilation(const VectorInt &nx,
+                                     int option,
+                                     const VectorInt &radius,
+                                     const VectorUChar &imagin,
+                                     VectorUChar &imagout,
+                                     bool verbose = false);
+GSTLEARN_EXPORT void morpho_intersection(const VectorInt &nx,
+                                         const VectorUChar &image1,
+                                         const VectorUChar &image2,
+                                         VectorUChar &imagout,
+                                         bool verbose = false);
+GSTLEARN_EXPORT void morpho_union(const VectorInt &nx,
+                                  const VectorUChar &image1,
+                                  const VectorUChar &image2,
+                                  VectorUChar &imagout,
+                                  bool verbose = false);
+GSTLEARN_EXPORT void morpho_opening(const VectorInt &nx,
+                                    int option,
+                                    const VectorInt &radius,
+                                    const VectorUChar &imagin,
+                                    VectorUChar &imagout);
+GSTLEARN_EXPORT void morpho_closing(const VectorInt &nx,
+                                    int option,
+                                    const VectorInt &radius,
+                                    const VectorUChar &imagin,
+                                    VectorUChar &imagout);
+GSTLEARN_EXPORT void morpho_negation(const VectorInt &nx,
+                                     const VectorUChar &imagin,
+                                     VectorUChar &imagout,
+                                     bool verbse = false);
+GSTLEARN_EXPORT void morpho_double2image(const VectorInt &nx,
+                                         const VectorDouble &tab,
+                                         double vmin,
+                                         double vmax,
+                                         VectorUChar &imagout,
+                                         bool verbose = false);
+GSTLEARN_EXPORT VectorUChar morpho_double2image(const VectorInt &nx,
+                                                const VectorDouble &tab,
+                                                double vmin,
+                                                double vmax,
+                                                bool verbose = false);
+GSTLEARN_EXPORT void morpho_image2double(const VectorInt &nx,
+                                         const VectorUChar &imagin,
+                                         int mode,
+                                         double grain,
+                                         double pore,
+                                         VectorDouble &tab,
+                                         bool verbose = false);
+void morpho_distance(const VectorInt &nx,
                      int option,
-                     int flag_size,
-                     const VectorUChar& imagin,
-                     double ccvoid,
-                     VectorDouble& compnum,
-                     bool verbose = false);
-VectorDouble morpho_labelling(const VectorInt& nx,
-                              int option,
-                              int flag_size,
-                              const VectorUChar& imagin,
-                              double ccvoid,
-                              bool verbose = false);
-VectorInt morpho_labelsize(const VectorInt& nx, int option, const VectorUChar& imagin);
-void morpho_erosion(const VectorInt& nx,
-                    int option,
-                    const VectorInt& radius,
-                    const VectorUChar &imagin,
-                    VectorUChar& imagout,
-                    bool verbose = false);
-void morpho_dilation(const VectorInt& nx,
-                     int option,
-                     const VectorInt& radius,
-                     const VectorUChar& imagin,
-                     VectorUChar& imagout,
-                     bool verbose = false);
-void morpho_intersection(const VectorInt& nx,
-                         const VectorUChar& image1,
-                         const VectorUChar& image2,
-                         VectorUChar& imagout,
-                         bool verbose = false);
-void morpho_union(const VectorInt& nx,
-                  const VectorUChar& image1,
-                  const VectorUChar& image2,
-                  VectorUChar& imagout,
-                  bool verbose = false);
-void morpho_opening(const VectorInt& nx,
-                    int option,
-                    const VectorInt& radius,
-                    const VectorUChar& imagin,
-                    VectorUChar& imagout);
-void morpho_closing(const VectorInt& nx,
-                    int option,
-                    const VectorInt& radius,
-                    const VectorUChar& imagin,
-                    VectorUChar& imagout);
-void morpho_negation(const VectorInt& nx,
-                     const VectorUChar& imagin,
-                     VectorUChar& imagout,
-                     bool verbse = false);
-void morpho_double2image(const VectorInt& nx,
-                         const VectorDouble& tab,
-                         double vmin,
-                         double vmax,
-                         VectorUChar& imagout,
-                         bool verbose = false);
-VectorUChar morpho_double2image(const VectorInt& nx,
-                                const VectorDouble& tab,
-                                double vmin,
-                                double vmax,
-                                bool verbose = false);
-void morpho_image2double(const VectorInt& nx,
-                         const VectorUChar& imagin,
-                         int mode,
-                         double grain,
-                         double pore,
-                         VectorDouble& tab,
-                         bool verbose = false);
-void morpho_distance(const VectorInt& nx,
-                     int option,
-                     const VectorInt& radius,
+                     const VectorInt &radius,
                      int flag_erode,
-                     VectorUChar& imagin,
-                     VectorDouble& dist);
-void morpho_angle(const VectorInt& nx, int radius, double *tab, double *tabout);
-void bitmap_print(const VectorInt& nx, const VectorUChar& imagin);
-int  bitmap_size(const VectorInt& nx);
-int bitmap_get_value(const VectorInt& nx,
-                     const VectorUChar& imagin,
+                     VectorUChar &imagin,
+                     VectorDouble &dist);
+void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout);
+void bitmap_print(const VectorInt &nx, const VectorUChar &imagin);
+int bitmap_size(const VectorInt &nx);
+int bitmap_get_value(const VectorInt &nx,
+                     const VectorUChar &imagin,
                      int ix,
                      int iy,
                      int iz);
-void bitmap_set_value(const VectorInt& nx,
-                      VectorUChar& imagout,
+void bitmap_set_value(const VectorInt &nx,
+                      VectorUChar &imagout,
                       int ix,
                       int iy,
                       int iz,

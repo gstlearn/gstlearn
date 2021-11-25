@@ -10,37 +10,39 @@
 /******************************************************************************/
 #pragma once
 
-int mvndst_infin(double low, double sup);
-void mvndst(int n,
-            double *lower,
-            double *upper,
-            int *infin,
-            double *correl,
-            int maxpts,
-            double abseps,
-            double releps,
-            double *error,
-            double *value,
-            int *inform);
-void mvndst2n(double *lower,
-              double *upper,
-              double *means,
-              double *correl,
-              int maxpts,
-              double abseps,
-              double releps,
-              double *error,
-              double *value,
-              int *inform);
-void mvndst4(double *lower,
-             double *upper,
-             double *correl,
-             int maxpts,
-             double abseps,
-             double releps,
-             double *error,
-             double *value,
-             int *inform);
-int bessel_j(double x, double alpha, int nb, double *b);
-int bessel_k(double x, double alpha, int nb, double *bk);
-double loggamma(double parameter);
+#include "gstlearn_export.hpp"
+
+GSTLEARN_EXPORT int mvndst_infin(double low, double sup);
+GSTLEARN_EXPORT void mvndst(int n,
+                            double *lower,
+                            double *upper,
+                            int *infin,
+                            double *correl,
+                            int maxpts,
+                            double abseps,
+                            double releps,
+                            double *error,
+                            double *value,
+                            int *inform);
+GSTLEARN_EXPORT void mvndst2n(double *lower,
+                              double *upper,
+                              double *means,
+                              double *correl,
+                              int maxpts,
+                              double abseps,
+                              double releps,
+                              double *error,
+                              double *value,
+                              int *inform);
+GSTLEARN_EXPORT void mvndst4(double *lower,
+                             double *upper,
+                             double *correl,
+                             int maxpts,
+                             double abseps,
+                             double releps,
+                             double *error,
+                             double *value,
+                             int *inform);
+GSTLEARN_EXPORT int bessel_j(double x, double alpha, int nb, double *b);
+GSTLEARN_EXPORT int bessel_k(double x, double alpha, int nb, double *bk);
+GSTLEARN_EXPORT double loggamma(double parameter);

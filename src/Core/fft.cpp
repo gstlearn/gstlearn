@@ -848,7 +848,7 @@ Memory_Error:
 ** \return  Error return code
 **
 *****************************************************************************/
-GEOSLIB_API int fftn (int ndim,
+GSTLEARN_EXPORT int fftn (int ndim,
                       const int dims[],
                       double Re[],
                       double Im[],

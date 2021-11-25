@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Basic/Vector.hpp"
@@ -22,7 +23,7 @@
  * It can be considered as an example of a 2-D implementation of a spirale with
  * a single non-stationary parameter (the angle)
  */
-class NoStatFunctional : public ANoStat
+class GSTLEARN_EXPORT NoStatFunctional : public ANoStat
 {
 public:
 	NoStatFunctional();

@@ -1242,17 +1242,17 @@ static double st_mvndfn(int *n,
 ** \remark      Email : AlanGenz@wsu.edu
 **
 *****************************************************************************/
-void mvndst(int n,
-            double *lower,
-            double *upper,
-            int *infin,
-            double *correl,
-            int maxpts,
-            double abseps,
-            double releps,
-            double *error,
-            double *value,
-            int *inform)
+GSTLEARN_EXPORT void mvndst(int n,
+                            double *lower,
+                            double *upper,
+                            int *infin,
+                            double *correl,
+                            int maxpts,
+                            double abseps,
+                            double releps,
+                            double *error,
+                            double *value,
+                            int *inform)
 {
   int seed_memo;
   int i__1;
@@ -1315,15 +1315,15 @@ void mvndst(int n,
 ** \param[out]  inform      Returned code
 **
 *****************************************************************************/
-void mvndst4(double *lower,
-             double *upper,
-             double *correl,
-             int maxpts,
-             double abseps,
-             double releps,
-             double *error,
-             double *value,
-             int *inform)
+GSTLEARN_EXPORT void mvndst4(double *lower,
+                             double *upper,
+                             double *correl,
+                             int maxpts,
+                             double abseps,
+                             double releps,
+                             double *error,
+                             double *value,
+                             int *inform)
 {
   int    i,j,ecr,infin[4];
   double corloc[6];
@@ -1359,16 +1359,16 @@ void mvndst4(double *lower,
 ** \param[out]  inform      Returned code
 **
 *****************************************************************************/
-void mvndst2n(double *lower,
-              double *upper,
-              double *means,
-              double *correl,
-              int maxpts,
-              double abseps,
-              double releps,
-              double *error,
-              double *value,
-              int *inform)
+GSTLEARN_EXPORT void mvndst2n(double *lower,
+                              double *upper,
+                              double *means,
+                              double *correl,
+                              int maxpts,
+                              double abseps,
+                              double releps,
+                              double *error,
+                              double *value,
+                              int *inform)
 {
   int    i,infin[2];
   double scale,covar,low[2],upp[2];
@@ -1400,7 +1400,7 @@ void mvndst2n(double *lower,
 ** \param[in]  sup Upper integration bound
 **
 *****************************************************************************/
-int mvndst_infin(double low, double sup)
+GSTLEARN_EXPORT int mvndst_infin(double low, double sup)
 {
   if (low == THRESH_INF && sup == THRESH_SUP) return(-1);
   if (low == THRESH_INF) return(0);
@@ -1442,7 +1442,7 @@ int mvndst_infin(double low, double sup)
 ** \remark  J., NBS Jour. of Res. B. 77B, 1973, pp 125-132.
 **
 *****************************************************************************/
-int bessel_j(double x, double alpha, int nb, double *b)
+GSTLEARN_EXPORT int bessel_j(double x, double alpha, int nb, double *b)
 {
   static double enten = 1e38;
   static double ensig = 1e17;
@@ -1843,7 +1843,7 @@ int bessel_j(double x, double alpha, int nb, double *b)
 ** \remark  Research Council, Canada.
 **
 *****************************************************************************/
-int bessel_k(double x, double alpha, int nb, double *bk)
+GSTLEARN_EXPORT int bessel_k(double x, double alpha, int nb, double *bk)
 {
   static double p[] = {
     .805629875690432845,20.4045500205365151,
@@ -2191,7 +2191,7 @@ int bessel_k(double x, double alpha, int nb, double *bk)
 ** \param[in]  parameter raw value
 **
 *****************************************************************************/
-double loggamma(double parameter)
+GSTLEARN_EXPORT double loggamma(double parameter)
 
 {
   static double cval[2][8] =

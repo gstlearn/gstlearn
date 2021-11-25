@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/IClonable.hpp"
 #include "Basic/Vector.hpp"
@@ -18,7 +19,7 @@
 
 #include <functional>
 
-class APolynomial: public AStringable, public IClonable
+class GSTLEARN_EXPORT APolynomial: public AStringable, public IClonable
 {
 public:
   APolynomial() {};

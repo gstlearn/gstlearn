@@ -22,35 +22,41 @@
  * @param psi Vector of Hermite coefficients
  * @return Vector of returned values for all Hermite coefficients
  */
-double integralGaussHermite(double yc, double r, const VectorDouble& psi)
+GSTLEARN_EXPORT double integralGaussHermite(double yc,
+                                            double r,
+                                            const VectorDouble &psi)
 {
-  int nbpoly = static_cast<int> (psi.size()) - 1;
-  VectorDouble vect = hermitePolynomials(yc,1.,nbpoly);
-  double value = hermiteSeries(vect,psi);
+  int nbpoly = static_cast<int>(psi.size()) - 1;
+  VectorDouble vect = hermitePolynomials(yc, 1., nbpoly);
+  double value = hermiteSeries(vect, psi);
   return r * r * value;
 }
-void normalizeResults(int nbsimu, double& valest)
+GSTLEARN_EXPORT void normalizeResults(int nbsimu, double &valest)
 {
   valest /= (double) nbsimu;
 }
-void normalizeResults(int nbsimu, double& valest, double& valstd)
+
+GSTLEARN_EXPORT void normalizeResults(int nbsimu,
+                                      double &valest,
+                                      double &valstd)
 {
   valest /= (double) nbsimu;
   valstd = valstd / nbsimu - valest * valest;
-  valstd = (valstd > 0.) ? sqrt(valstd) : 0.;
+  valstd = (valstd > 0.) ? sqrt(valstd) :
+                           0.;
 }
 
-VectorDouble MCCondExp(VectorDouble krigest,
-                       VectorDouble krigstd,
-                       const VectorDouble& psi,
-                       int nbsimu)
+GSTLEARN_EXPORT VectorDouble MCCondExp(VectorDouble krigest,
+                                       VectorDouble krigstd,
+                                       const VectorDouble &psi,
+                                       int nbsimu)
 {
   VectorDouble condexp;
 
-  int nech = static_cast<int> (krigest.size());
-  condexp.resize(nech,0.);
+  int nech = static_cast<int>(krigest.size());
+  condexp.resize(nech, 0.);
 
-  for (int iech=0; iech<nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
     double valest = 0.;
     for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -59,16 +65,16 @@ VectorDouble MCCondExp(VectorDouble krigest,
       double z = hermiteCondExpElement(y, 0., psi);
       valest += z;
     }
-    normalizeResults(nbsimu,valest);
+    normalizeResults(nbsimu, valest);
     condexp[iech] = valest;
   }
   return condexp;
 }
 
-double MCCondExpElement(double krigest,
-                        double krigstd,
-                        const VectorDouble& psi,
-                        int nbsimu)
+GSTLEARN_EXPORT double MCCondExpElement(double krigest,
+                                        double krigstd,
+                                        const VectorDouble &psi,
+                                        int nbsimu)
 {
   double valest = 0.;
   for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -81,14 +87,14 @@ double MCCondExpElement(double krigest,
   return valest;
 }
 
-VectorDouble MCCondStd(VectorDouble krigest,
-                       VectorDouble krigstd,
-                       const VectorDouble& psi,
-                       int nbsimu)
+GSTLEARN_EXPORT VectorDouble MCCondStd(VectorDouble krigest,
+                                       VectorDouble krigstd,
+                                       const VectorDouble &psi,
+                                       int nbsimu)
 {
   VectorDouble condstd;
 
-  int nech = static_cast<int> (krigest.size());
+  int nech = static_cast<int>(krigest.size());
   condstd.resize(nech);
 
   for (int iech = 0; iech < nech; iech++)
@@ -102,16 +108,16 @@ VectorDouble MCCondStd(VectorDouble krigest,
       valest += z;
       valstd += z * z;
     }
-    normalizeResults(nbsimu,valest,valstd);
+    normalizeResults(nbsimu, valest, valstd);
     condstd[iech] = valstd;
   }
   return condstd;
 }
 
-double MCCondStdElement(double krigest,
-                        double krigstd,
-                        const VectorDouble& psi,
-                        int nbsimu)
+GSTLEARN_EXPORT double MCCondStdElement(double krigest,
+                                        double krigstd,
+                                        const VectorDouble &psi,
+                                        int nbsimu)
 {
   double valest = 0.;
   double valstd = 0.;
@@ -126,14 +132,14 @@ double MCCondStdElement(double krigest,
   return valstd;
 }
 
-VectorDouble MCIndicator(double yc,
-                         VectorDouble krigest,
-                         VectorDouble krigstd,
-                         int nbsimu)
+GSTLEARN_EXPORT VectorDouble MCIndicator(double yc,
+                                         VectorDouble krigest,
+                                         VectorDouble krigstd,
+                                         int nbsimu)
 {
   VectorDouble proba;
 
-  int nech = static_cast<int> (krigest.size());
+  int nech = static_cast<int>(krigest.size());
   proba.resize(nech, 0.);
 
   for (int iech = 0; iech < nech; iech++)
@@ -147,13 +153,16 @@ VectorDouble MCIndicator(double yc,
         valest += 1.;
       }
     }
-    normalizeResults(nbsimu,valest);
+    normalizeResults(nbsimu, valest);
     proba[iech] = valest;
   }
   return proba;
 }
 
-double MCIndicatorElement(double yc, double krigest, double krigstd, int nbsimu)
+GSTLEARN_EXPORT double MCIndicatorElement(double yc,
+                                          double krigest,
+                                          double krigstd,
+                                          int nbsimu)
 {
   double proba = 0.;
   for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -164,7 +173,7 @@ double MCIndicatorElement(double yc, double krigest, double krigstd, int nbsimu)
       proba += 1.;
     }
   }
-  normalizeResults(nbsimu,proba);
+  normalizeResults(nbsimu, proba);
   return proba;
 }
 
@@ -175,7 +184,7 @@ VectorDouble MCIndicatorStd(double yc,
 {
   VectorDouble probstd = MCIndicator(yc, krigest, krigstd, nbsimu);
 
-  int nech = static_cast<int> (krigest.size());
+  int nech = static_cast<int>(krigest.size());
 
   for (int iech = 0; iech < nech; iech++)
   {
@@ -185,10 +194,10 @@ VectorDouble MCIndicatorStd(double yc,
   return probstd;
 }
 
-double MCIndicatorStdElement(double yc,
-                             double krigest,
-                             double krigstd,
-                             int nbsimu)
+GSTLEARN_EXPORT double MCIndicatorStdElement(double yc,
+                                             double krigest,
+                                             double krigstd,
+                                             int nbsimu)
 {
   double proba = MCIndicatorElement(yc, krigest, krigstd, nbsimu);
   double probstd = sqrt(proba * (1. - proba));
@@ -198,12 +207,12 @@ double MCIndicatorStdElement(double yc,
 VectorDouble MCMetal(double yc,
                      VectorDouble krigest,
                      VectorDouble krigstd,
-                     const VectorDouble& psi,
+                     const VectorDouble &psi,
                      int nbsimu)
 {
   VectorDouble metal;
 
-  int nech = static_cast<int> (krigest.size());
+  int nech = static_cast<int>(krigest.size());
   metal.resize(nech, 0.);
 
   for (int iech = 0; iech < nech; iech++)
@@ -217,17 +226,17 @@ VectorDouble MCMetal(double yc,
         valest += hermiteCondExpElement(y, 0., psi);
       }
     }
-    normalizeResults(nbsimu,valest);
+    normalizeResults(nbsimu, valest);
     metal[iech] = valest;
   }
   return metal;
 }
 
-double MCMetalElement(double yc,
-                      double krigest,
-                      double krigstd,
-                      const VectorDouble& psi,
-                      int nbsimu)
+GSTLEARN_EXPORT double MCMetalElement(double yc,
+                                      double krigest,
+                                      double krigstd,
+                                      const VectorDouble &psi,
+                                      int nbsimu)
 {
   double metal = 0.;
   for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -238,19 +247,19 @@ double MCMetalElement(double yc,
       metal += hermiteCondExpElement(y, 0., psi);
     }
   }
-  normalizeResults(nbsimu,metal);
+  normalizeResults(nbsimu, metal);
   return metal;
 }
 
-VectorDouble MCMetalStd(double yc,
-                        VectorDouble krigest,
-                        VectorDouble krigstd,
-                        const VectorDouble& psi,
-                        int nbsimu)
+GSTLEARN_EXPORT VectorDouble MCMetalStd(double yc,
+                                        VectorDouble krigest,
+                                        VectorDouble krigstd,
+                                        const VectorDouble &psi,
+                                        int nbsimu)
 {
   VectorDouble metstd;
 
-  int nech = static_cast<int> (krigest.size());
+  int nech = static_cast<int>(krigest.size());
   metstd.resize(nech, 0.);
 
   for (int iech = 0; iech < nech; iech++)
@@ -273,11 +282,11 @@ VectorDouble MCMetalStd(double yc,
   return metstd;
 }
 
-double MCMetalStdElement(double yc,
-                         double krigest,
-                         double krigstd,
-                         const VectorDouble& psi,
-                         int nbsimu)
+GSTLEARN_EXPORT double MCMetalStdElement(double yc,
+                                         double krigest,
+                                         double krigstd,
+                                         const VectorDouble &psi,
+                                         int nbsimu)
 {
   double metstd = 0.;
   double metest = 0.;
