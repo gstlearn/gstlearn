@@ -43,6 +43,11 @@ add_subdirectory(doc)
 add_subdirectory(tests)
 add_subdirectory(doxygen)
 
+# Install the version file
+install(FILES ${PROJECT_BINARY_DIR}/version.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn
+)
+
 # Export the package
 install(
   EXPORT corelibs # See src/CMakeLists.txt
