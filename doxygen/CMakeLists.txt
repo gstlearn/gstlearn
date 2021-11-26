@@ -22,24 +22,17 @@ set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or
 #set(DOXYGEN_UML_LOOK YES)
 #set(DOXYGEN_TEMPLATE_RELATIONS YES)
 
-# TODO : prevent from generating twice (for build and install)
-
 # Add target for generating the doxymentation
-doxygen_add_docs(doxygen ALL
+doxygen_add_docs(doxygen
                  ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
                  COMMENT "Generate man pages")
 
-# Exclude doxygen target from default make if required
-if (EXCLUDE_DOXYGEN)
-  set_target_properties(doxygen PROPERTIES EXCLUDE_FROM_ALL TRUE)
-endif()
-
-# Install html and xml directories
-if (NOT EXCLUDE_DOXYGEN)
-  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/                    # HTML files from build folder
-          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/doxygen/html # in DESTINATION/share/gstlearn/doxygen
-  )
-  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/xml/                     # XML files from build folder
-          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/doxygen/xml  # in DESTINATION/share/gstlearn/doxygen
-  )
-endif()
+# Install html and xml directories (optional)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/                    # HTML files from build folder
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/doxygen/html # in DESTINATION/share/gstlearn/doxygen
+        OPTIONAL
+)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/xml/                     # XML files from build folder
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/doxygen/xml  # in DESTINATION/share/gstlearn/doxygen
+        OPTIONAL
+)

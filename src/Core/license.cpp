@@ -42,7 +42,7 @@ GSTLEARN_EXPORT int setup_license(const char *target_name)
  *
  ****************************************************************************/
 GSTLEARN_EXPORT int register_license_file(const char *file_name,
-                                      const char *target_name)
+                                          const char *target_name)
 {
   if (! LicenseKey::registerLicenseFromFile(target_name, file_name)) return(1);
   return(0);

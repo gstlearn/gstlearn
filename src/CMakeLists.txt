@@ -1,3 +1,4 @@
+# Include all sources
 include(all_sources.cmake)
 
 # Look for Boost
@@ -9,66 +10,49 @@ find_package(Boost REQUIRED)
 # https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
-############################## TODO : Start loop on flavor: shared and static
+# Define the targets
+add_library(shared SHARED EXCLUDE_FROM_ALL ${SOURCES})
+add_library(static STATIC EXCLUDE_FROM_ALL ${SOURCES})
 
-# Define targets 
-add_library(shared SHARED ${SOURCES})
-add_library(static STATIC ${SOURCES})
+############################## Loop on flavor: shared and static
+set(FLAVORS shared static)
+foreach(FLAVOR ${FLAVORS})
+  
+  # On Windows, prevent the include sys/time.h (-DNO_TIMER)
+  target_compile_definitions(${FLAVOR} PRIVATE NO_TIMER)
+  
+  # Add gstlearn includes (add swig include directories (installed) for swig module who wants to link with gstlearn)
+  target_include_directories(${FLAVOR} PUBLIC
+      "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
+      "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gstlearn>"
+      "$<INSTALL_INTERFACE:${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/swig>"
+  )
+  
+  # Add binary directory to find generated version.h and gstlearn_export.h
+  target_include_directories(${FLAVOR} PUBLIC "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
+  
+  # Rename the output library name
+  set_target_properties(${FLAVOR} PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
+  
+  # Set library version
+  set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_VERSION})
+  
+  # Anyone who wants to build a binary which links the gstlearn needs -fPIC
+  set_property(TARGET ${FLAVOR} PROPERTY POSITION_INDEPENDENT_CODE 1)
+  
+  # Link to boost
+  # Target for header-only dependencies. (Boost include directory)
+  # It should be PRIVATE if no headers of the gstlearn include boost files
+  target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
+  
+  # Link to HDF5
+  # CMake>=3.19 introduces hdf5 targets that could be used the same way as boost targets
+  target_include_directories(${FLAVOR} PUBLIC ${HDF5_INCLUDE_DIRS})
+  target_link_libraries(${FLAVOR} PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
 
-# On Windows, prevent the include sys/time.h (-DNO_TIMER)
-target_compile_definitions(shared PRIVATE NO_TIMER)
-target_compile_definitions(static PRIVATE NO_TIMER) 
-
-# Add gstlearn includes (add swig include directories (installed) for swig module who wants to link with gstlearn)
-target_include_directories(shared PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gstlearn>"   # TODO : still needed ?
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/swig>"
-)
-target_include_directories(static PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gstlearn>"
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/swig>"
-)
-
-
-# Add binary directory to find generated version.h
-target_include_directories(shared PRIVATE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
-target_include_directories(static PRIVATE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
-
-# Debug message
-#get_target_property(debug shared INTERFACE_INCLUDE_DIRECTORIES)
-#message("${debug}")
-
-# Rename the output library names
-set_target_properties(shared PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.so (on Linux)
-set_target_properties(static PROPERTIES OUTPUT_NAME gstlearn) # Will produce libgstlearn.a  (on Linux)
-
-# Set library version
-set_target_properties(shared PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(static PROPERTIES VERSION ${PROJECT_VERSION})
-
-# Anyone who wants to build a binary linking to gstlearn needs -fPIC
-set_property(TARGET shared PROPERTY POSITION_INDEPENDENT_CODE 1)
-set_property(TARGET static PROPERTY POSITION_INDEPENDENT_CODE 1)
-
-# Link to boost
-# Target for header-only dependencies. (Boost include directory)
-# It should be PRIVATE if no headers of the gstlearn include boost files
-target_link_libraries(shared PUBLIC Boost::boost)
-target_link_libraries(static PUBLIC Boost::boost)
-
-# Link to HDF5
-# CMake>=3.19 introduces hdf5 targets that could be used the same way as boost targets
-target_include_directories(shared PUBLIC ${HDF5_INCLUDE_DIRS})
-target_include_directories(static PUBLIC ${HDF5_INCLUDE_DIRS})
-target_link_libraries(shared PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
-target_link_libraries(static PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
+endforeach(FLAVOR ${FLAVORS})
 
 ############################## End loop on flavor
-
-# Only compile shared library by default (exclude static from all)
-set_target_properties(static PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # Set the so version to project major version
 set_target_properties(shared PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
@@ -83,13 +67,16 @@ set(DISABLE_EXPORT_IF_SWIG "
 #define GSTLEARN_NO_EXPORT
 #endif
 ")
-
 generate_export_header(shared BASE_NAME gstlearn
                        EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/gstlearn_export.hpp
                        CUSTOM_CONTENT_FROM_VARIABLE DISABLE_EXPORT_IF_SWIG
 )
 set_target_properties(static PROPERTIES COMPILE_FLAGS -DGSTLEARN_STATIC_DEFINE)
 
+# Install the version file
+install(FILES ${PROJECT_BINARY_DIR}/gstlearn_export.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn
+)
 
 # Install dynamic library in DESTINATION/lib folder
 install(TARGETS shared EXPORT corelibs
@@ -97,7 +84,6 @@ install(TARGETS shared EXPORT corelibs
         OPTIONAL
 )
 # Install static library in DESTINATION/lib folder
-# TODO: After compiling static library only, 'make install' forces dynamic library reconstruction!
 install(TARGETS static EXPORT corelibs
         ARCHIVE DESTINATION lib
         OPTIONAL

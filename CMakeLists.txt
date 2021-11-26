@@ -1,3 +1,6 @@
+# Minimum CMake version
+cmake_minimum_required(VERSION 3.19)
+
 # Permits using project VERSION
 cmake_policy(SET CMP0048 NEW)
 project(gstlearn 
@@ -10,8 +13,10 @@ string(TIMESTAMP gstlearn_DATE "%Y/%m/%d")
 # Fix version.h automatically
 configure_file(version.h.in version.h)
 
-# Minimum CMake version
-cmake_minimum_required(VERSION 3.15)
+# Install the version file
+install(FILES ${PROJECT_BINARY_DIR}/version.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn
+)
 
 # Default GNU installed directory names
 include(GNUInstallDirs)
@@ -19,6 +24,27 @@ include(GNUInstallDirs)
 # Add test target (execution)
 include(CTest)
 enable_testing()
+
+# Make Release version the default
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Release' as none was specified")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+# Nothing is built by default (target all)
+add_custom_target(nothing ALL
+  ${CMAKE_COMMAND} -E cmake_echo_color --cyan "Please, use one of the available targets:"
+                                                " - shared     Build shared library"
+                                                " - static     Build static library"
+                                                " - build_test Build non-regression tests executables"
+                                                " - doxygen    Build doxygen documentation"
+                                                " - test       Execute non-regression tests"
+                                                " - install    Install libraries, headers and documentation"
+                                                " - uninstall  Uninstall libraries, headers and documentation"
+                                                " - clean      Clean generated files"
+)
 
 # Add c++11 support whatever the compiler
 set(CMAKE_CXX_STANDARD 11)
@@ -42,11 +68,6 @@ add_subdirectory(src)
 add_subdirectory(doc)
 add_subdirectory(tests)
 add_subdirectory(doxygen)
-
-# Install the version file
-install(FILES ${PROJECT_BINARY_DIR}/version.h
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn
-)
 
 # Export the package
 install(

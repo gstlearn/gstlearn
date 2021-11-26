@@ -55,7 +55,7 @@ GSTLEARN_EXPORT int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
 
   for (ip = 0; ip < splanes->nplan; ip++)
   {
-    SubPlan& plan = splanes->plans[ip];
+    SubPlan &plan = splanes->plans[ip];
     d0 = diagonal * law_uniform(-1., 1.) / 2.;
     u = 0.;
     for (idim = 0; idim < 3; idim++)
@@ -97,9 +97,9 @@ GSTLEARN_EXPORT int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
  ** \param[in]  splanes     SubPlanes structure to be deallocated
  **
  *****************************************************************************/
-GSTLEARN_EXPORT SubPlanes *poisson_manage_planes(int mode,
-                                             int np,
-                                             SubPlanes *splanes)
+GSTLEARN_EXPORT SubPlanes* poisson_manage_planes(int mode,
+                                                 int np,
+                                                 SubPlanes *splanes)
 {
 
   /* Dispatch */
@@ -114,7 +114,7 @@ GSTLEARN_EXPORT SubPlanes *poisson_manage_planes(int mode,
     splanes->nplan = np;
     for (int ip = 0; ip < np; ip++)
     {
-      SubPlan& plan = splanes->plans[ip];
+      SubPlan &plan = splanes->plans[ip];
       for (int idim = 0; idim < 3; idim++)
         plan.coor[idim] = 0.;
       plan.intercept = 0.;
@@ -218,11 +218,11 @@ static int st_stack_search(Stack *stack, double valref, double *valsim)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int tessellation_poisson(Db *dbgrid,
-                                     Model *model,
-                                     int seed,
-                                     double intensity,
-                                     int nbtuba,
-                                     int verbose)
+                                         Model *model,
+                                         int seed,
+                                         double intensity,
+                                         int nbtuba,
+                                         int verbose)
 {
   SubPlanes *splanes;
   Stack stack;
@@ -288,8 +288,10 @@ GSTLEARN_EXPORT int tessellation_poisson(Db *dbgrid,
 
   for (ip = 0; ip < np; ip++)
   {
-    SubPlan& plan = splanes->plans[ip];
-    plan.value = (plan.rndval > 0.5) ? -1 : 1;;
+    SubPlan &plan = splanes->plans[ip];
+    plan.value = (plan.rndval > 0.5) ? -1 :
+                                       1;
+    ;
   }
 
   /* Simulating the directing function */
@@ -306,11 +308,12 @@ GSTLEARN_EXPORT int tessellation_poisson(Db *dbgrid,
     valtot = 0.;
     for (ip = 0; ip < np; ip++)
     {
-      SubPlan& plan = splanes->plans[ip];
+      SubPlan &plan = splanes->plans[ip];
       prod = 0.;
       for (i = 0; i < 3; i++)
         prod += plan.coor[i] * cen[i];
-      valtot += (prod + plan.intercept > 0) ? plan.rndval : -plan.rndval;
+      valtot += (prod + plan.intercept > 0) ? plan.rndval :
+                                              -plan.rndval;
     }
     dbgrid->setArray(iech, iatts, valtot);
   }
@@ -362,7 +365,7 @@ GSTLEARN_EXPORT int tessellation_poisson(Db *dbgrid,
   splanes = poisson_manage_planes(-1, np, splanes);
   st_manage_stack(&stack, -1, 0., 0.);
   indg = db_indg_free(indg);
-  status = (int *) mem_free((char * ) status);
+  status = (int*) mem_free((char* ) status);
   return (error);
 }
 
@@ -382,12 +385,12 @@ GSTLEARN_EXPORT int tessellation_poisson(Db *dbgrid,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int tessellation_voronoi(Db *dbgrid,
-                                     Model *model,
-                                     double *dilate,
-                                     int seed,
-                                     double intensity,
-                                     int nbtuba,
-                                     int verbose)
+                                         Model *model,
+                                         double *dilate,
+                                         int seed,
+                                         double intensity,
+                                         int nbtuba,
+                                         int verbose)
 {
   int i, ip, nbpoints, error, iatts, iattp, ndim;
   double volume, origin[2], field[3], dil, oriloc, dimloc;
@@ -429,10 +432,11 @@ GSTLEARN_EXPORT int tessellation_voronoi(Db *dbgrid,
   volume = 1.;
   for (i = 0; i < ndim; i++)
   {
-    dil = (dilate != nullptr) ? dilate[i] : 0.;
-    field[i]  = dbgrid->getDX(i) * dbgrid->getNX(i);
+    dil = (dilate != nullptr) ? dilate[i] :
+                                0.;
+    field[i] = dbgrid->getDX(i) * dbgrid->getNX(i);
     origin[i] = dbgrid->getX0(i) - dbgrid->getDX(i) / 2. - dil * field[i] / 2.;
-    field[i]  = field[i] * (1. + dil);
+    field[i] = field[i] * (1. + dil);
     volume *= field[i];
   }
 
@@ -481,8 +485,7 @@ GSTLEARN_EXPORT int tessellation_voronoi(Db *dbgrid,
 
   error = 0;
 
-  label_end:
-  dbpoint = db_delete(dbpoint);
+  label_end: dbpoint = db_delete(dbpoint);
   return (error);
 }
 

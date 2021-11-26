@@ -44,7 +44,7 @@
 #define Gmatrix(i,j)           (Gmatrix[(j) * nech + i])
 /*! \endcond */
 
-static CovInternal* COVINT = nullptr;
+static CovInternal *COVINT = nullptr;
 int NDIM_LOCAL = 0;
 VectorDouble X1_LOCAL = VectorDouble();
 VectorDouble X2_LOCAL = VectorDouble();
@@ -59,13 +59,13 @@ VectorDouble X2_LOCAL = VectorDouble();
  ** \param[in]  model        Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_nostat_update(CovInternal *covint, Model* model)
+GSTLEARN_EXPORT void model_nostat_update(CovInternal *covint, Model *model)
 {
   if (!model->isNoStat()) return;
   if (covint == NULL) return;
   COVINT = covint;
 
-  const ANoStat* nostat = model->getNoStat();
+  const ANoStat *nostat = model->getNoStat();
   nostat->updateModel(model, covint->getIcas1(), covint->getIech1(),
                       covint->getIcas2(), covint->getIech2());
 }
@@ -131,7 +131,9 @@ static int st_check_variable(int nvar, int ivar)
  ** \param[in]  covtab      Array to be initialized
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_covtab_init(int flag_init, Model *model, double *covtab)
+GSTLEARN_EXPORT void model_covtab_init(int flag_init,
+                                       Model *model,
+                                       double *covtab)
 {
   int nvar = model->getVariableNumber();
   if (flag_init) for (int ivar = 0; ivar < nvar; ivar++)
@@ -172,13 +174,13 @@ static void st_covtab_rescale(int nvar, double norme, double *covtab)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT double model_calcul_basic(Model *model,
-                                      int icov,
-                                      const ECalcMember& member,
-                                      const VectorDouble& d1)
+                                          int icov,
+                                          const ECalcMember &member,
+                                          const VectorDouble &d1)
 {
   //  const CovAniso* cova = model->getCova(icov);
   // TODO: Why having to use ACov rather than CovAniso?
-  const ACov* cova = dynamic_cast<const ACov*>(model->getCova(icov));
+  const ACov *cova = dynamic_cast<const ACov*>(model->getCova(icov));
 
   if (member != ECalcMember::LHS && model->isCovaFiltered(icov))
     return (0.);
@@ -204,12 +206,12 @@ GSTLEARN_EXPORT double model_calcul_basic(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_calcul_cov_direct(CovInternal *covint,
-                                         Model* model,
-                                         const CovCalcMode& mode,
-                                         int flag_init,
-                                         double weight,
-                                         VectorDouble d1,
-                                         double *covtab)
+                                             Model *model,
+                                             const CovCalcMode &mode,
+                                             int flag_init,
+                                             double weight,
+                                             VectorDouble d1,
+                                             double *covtab)
 {
   // Load the non-stationary parameters if needed
 
@@ -225,16 +227,16 @@ GSTLEARN_EXPORT void model_calcul_cov_direct(CovInternal *covint,
 
   int nvar = model->getVariableNumber();
   if (mat.getNTotal() != nvar * nvar)
-   my_throw("Error in loading Covariance calculation into COVTAB");
+  my_throw("Error in loading Covariance calculation into COVTAB");
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = mat.getValue(ivar, jvar);
       if (flag_init)
         COVTAB(ivar,jvar)= value;
-      else
+        else
         COVTAB(ivar,jvar) += value;
-    }
+      }
   return;
 }
 
@@ -255,7 +257,7 @@ GSTLEARN_EXPORT void model_calcul_cov_direct(CovInternal *covint,
  *****************************************************************************/
 static void st_model_calcul_cov_convolution(CovInternal *cov_nostat,
                                             Model *model,
-                                            const CovCalcMode& mode,
+                                            const CovCalcMode &mode,
                                             int flag_init,
                                             double weight,
                                             VectorDouble d1,
@@ -289,7 +291,7 @@ static void st_model_calcul_cov_convolution(CovInternal *cov_nostat,
  *****************************************************************************/
 static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
                                                Model *model,
-                                               const CovCalcMode& mode,
+                                               const CovCalcMode &mode,
                                                int flag_init,
                                                double weight,
                                                VectorDouble d1,
@@ -300,8 +302,8 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
 
   /* Initializations */
 
-  const ModTrans& modtrs = model->getModTrans();
-  AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(modtrs.getAnam());
+  const ModTrans &modtrs = model->getModTrans();
+  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(modtrs.getAnam());
 
   /* Check if the distance is zero */
 
@@ -448,7 +450,7 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
  *****************************************************************************/
 static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
                                         Model *model,
-                                        const CovCalcMode& mode,
+                                        const CovCalcMode &mode,
                                         int flag_init,
                                         double weight,
                                         VectorDouble d1,
@@ -459,8 +461,8 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
 
   /* Initializations */
 
-  const ModTrans& modtrs = model->getModTrans();
-  AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(modtrs.getAnam());
+  const ModTrans &modtrs = model->getModTrans();
+  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(modtrs.getAnam());
   ndim = model->getDimensionNumber();
 
   /* Check if the distance is zero */
@@ -595,10 +597,10 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
  *****************************************************************************/
 static double st_cov_residual(Model *model,
                               int icut0,
-                              const VectorDouble& covwrk)
+                              const VectorDouble &covwrk)
 {
-  ModTrans& modtrs = model->getModTrans();
-  AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
+  ModTrans &modtrs = model->getModTrans();
+  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
 
   /* Get the pointer of the basic structure for the current model */
 
@@ -628,7 +630,7 @@ static double st_cov_residual(Model *model,
  *****************************************************************************/
 static double st_covsum_residual(Model *model,
                                  int icut0,
-                                 const VectorDouble& covwrk)
+                                 const VectorDouble &covwrk)
 {
   double covsum = 0.;
   for (int icut = 0; icut <= icut0; icut++)
@@ -655,7 +657,7 @@ static double st_covsum_residual(Model *model,
  *****************************************************************************/
 static void st_model_calcul_cov_anam_IR(CovInternal *cov_nostat,
                                         Model *model,
-                                        const CovCalcMode& mode,
+                                        const CovCalcMode &mode,
                                         int flag_init,
                                         double weight,
                                         VectorDouble d1,
@@ -666,8 +668,8 @@ static void st_model_calcul_cov_anam_IR(CovInternal *cov_nostat,
 
   /* Initializations */
 
-  ModTrans& modtrs = model->getModTrans();
-  AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
+  ModTrans &modtrs = model->getModTrans();
+  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
   nclass = modtrs.getAnamNClass();
   ncut = nclass - 1;
   ncova = model->getCovaNumber();
@@ -747,7 +749,7 @@ static void st_model_calcul_cov_anam_IR(CovInternal *cov_nostat,
  *****************************************************************************/
 static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
                                          Model *model,
-                                         const CovCalcMode& mode,
+                                         const CovCalcMode &mode,
                                          int flag_init,
                                          double weight,
                                          VectorDouble d1,
@@ -762,7 +764,7 @@ static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
 
   /* Calculate the tapering effect */
 
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   h = 0.;
   if (!d1.empty())
     h = sqrt(matrix_norm(d1.data(), model->getDimensionNumber())) / modtrs.getTape()->getRange();
@@ -791,11 +793,11 @@ static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_calcul_cov(Model *model,
-                                  CovCalcMode& mode,
-                                  int flag_init,
-                                  double weight,
-                                  const VectorDouble& d1,
-                                  double *covtab)
+                                      CovCalcMode &mode,
+                                      int flag_init,
+                                      double weight,
+                                      const VectorDouble &d1,
+                                      double *covtab)
 {
   /* Modify the member in case of properties */
 
@@ -827,10 +829,10 @@ GSTLEARN_EXPORT void model_calcul_cov(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT double model_calcul_cov_ij(Model *model,
-                                       const CovCalcMode& mode,
-                                       int ivar,
-                                       int jvar,
-                                       const VectorDouble& d1)
+                                           const CovCalcMode &mode,
+                                           int ivar,
+                                           int jvar,
+                                           const VectorDouble &d1)
 {
 
   /* Modify the member in case of properties */
@@ -882,12 +884,12 @@ GSTLEARN_EXPORT const CovInternal* get_external_covariance()
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_calcul_cov_nostat(Model *model,
-                                         CovCalcMode& mode,
-                                         CovInternal* covint,
-                                         int flag_init,
-                                         double weight,
-                                         VectorDouble& d1,
-                                         double *covtab)
+                                             CovCalcMode &mode,
+                                             CovInternal *covint,
+                                             int flag_init,
+                                             double weight,
+                                             VectorDouble &d1,
+                                             double *covtab)
 {
   /* Modify the member in case of properties */
 
@@ -923,10 +925,10 @@ GSTLEARN_EXPORT void model_calcul_cov_nostat(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_calcul_drift(Model *model,
-                                    const ECalcMember& member,
-                                    const Db *db,
-                                    int iech,
-                                    double *drftab)
+                                        const ECalcMember &member,
+                                        const Db *db,
+                                        int iech,
+                                        double *drftab)
 {
   for (int il = 0; il < model->getDriftNumber(); il++)
     drftab[il] = model->evaluateDrift(db, iech, il, member);
@@ -945,9 +947,9 @@ GSTLEARN_EXPORT void model_calcul_drift(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_variance0(Model *model,
-                                 Koption *koption,
-                                 double *covtab,
-                                 double *var0)
+                                     Koption *koption,
+                                     double *covtab,
+                                     double *var0)
 {
   int i, j, ecr, ivar, jvar, idim, nscale;
   CovCalcMode mode;
@@ -1015,10 +1017,10 @@ GSTLEARN_EXPORT void model_variance0(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_variance0_nostat(Model *model,
-                                        Koption *koption,
-                                        CovInternal* covint,
-                                        double *covtab,
-                                        double *var0)
+                                            Koption *koption,
+                                            CovInternal *covint,
+                                            double *covtab,
+                                            double *var0)
 {
   int i, j, ecr, ivar, jvar, idim, nscale;
   CovCalcMode mode;
@@ -1073,7 +1075,7 @@ GSTLEARN_EXPORT void model_variance0_nostat(Model *model,
  ** \param[in]  model Model to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model *model_free(Model *model)
+GSTLEARN_EXPORT Model* model_free(Model *model)
 
 {
   /* Initializations */
@@ -1093,10 +1095,10 @@ GSTLEARN_EXPORT Model *model_free(Model *model)
  ** \param[in]   type0    Requested type (EConsElem)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_model_nostat_param(Model *model, const EConsElem& type0)
+GSTLEARN_EXPORT int is_model_nostat_param(Model *model, const EConsElem &type0)
 {
-  if (! model->isNoStat()) return 1;
-  const ANoStat* nostat = model->getNoStat();
+  if (!model->isNoStat()) return 1;
+  const ANoStat *nostat = model->getNoStat();
   if (nostat->isDefinedByType(-1, type0)) return 1;
 
   return (0);
@@ -1121,22 +1123,22 @@ GSTLEARN_EXPORT int is_model_nostat_param(Model *model, const EConsElem& type0)
  **                           (dimension: nvar*nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model *model_init(int ndim,
-                              int nvar,
-                              double field,
-                              int flag_linked,
-                              double ball_radius,
-                              bool flag_gradient,
-                              const VectorDouble& mean,
-                              const VectorDouble& covar0)
+GSTLEARN_EXPORT Model* model_init(int ndim,
+                                  int nvar,
+                                  double field,
+                                  int flag_linked,
+                                  double ball_radius,
+                                  bool flag_gradient,
+                                  const VectorDouble &mean,
+                                  const VectorDouble &covar0)
 {
-  Model* model = nullptr;
+  Model *model = nullptr;
 
   /// TODO : Force SpaceRN creation (modèle poubelle)
   SpaceRN space(ndim);
   CovContext ctxt = CovContext(nvar, 2, field, &space);
   ctxt.setBallRadius(ball_radius);
-  if (static_cast<int>(mean.size()) > 0)   ctxt.setMean(mean);
+  if (static_cast<int>(mean.size()) > 0) ctxt.setMean(mean);
   if (static_cast<int>(covar0.size()) > 0) ctxt.setCovar0(covar0);
 
   model = new Model(ctxt, flag_gradient, flag_linked);
@@ -1158,7 +1160,7 @@ GSTLEARN_EXPORT Model *model_init(int ndim,
  ** \param[in]  nvar Number of variables
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model *model_default(int ndim, int nvar)
+GSTLEARN_EXPORT Model* model_default(int ndim, int nvar)
 {
   Model *model;
   double sill;
@@ -1171,15 +1173,13 @@ GSTLEARN_EXPORT Model *model_default(int ndim, int nvar)
   /* Create the empty Model */
 
   model = model_init(ndim, nvar, 1.);
-  if (model == nullptr)
-    return model;
+  if (model == nullptr) return model;
 
   /* Add the nugget effect variogram model */
 
   sill = 1.;
-  if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0.,
-                     VectorDouble(), VectorDouble(), VectorDouble(1,sill)))
-    goto label_end;
+  if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
+                     VectorDouble(), VectorDouble(1, sill))) goto label_end;
 
   /* Set the error return flag */
 
@@ -1214,14 +1214,14 @@ GSTLEARN_EXPORT Model *model_default(int ndim, int nvar)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_add_cova(Model *model,
-                               const ECov& type,
-                               int flag_aniso,
-                               int flag_rotation,
-                               double range,
-                               double param,
-                               const VectorDouble& aniso_ranges,
-                               const VectorDouble& aniso_rotmat,
-                               const VectorDouble& sill)
+                                   const ECov &type,
+                                   int flag_aniso,
+                                   int flag_rotation,
+                                   double range,
+                                   double param,
+                                   const VectorDouble &aniso_ranges,
+                                   const VectorDouble &aniso_rotmat,
+                                   const VectorDouble &sill)
 {
   if (st_check_model(model)) return 1;
 
@@ -1282,7 +1282,9 @@ GSTLEARN_EXPORT int model_add_cova(Model *model,
  ** \remark  is equal to the number of drift functions.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_add_drift(Model *model, const EDrift& type, int rank_fex)
+GSTLEARN_EXPORT int model_add_drift(Model *model,
+                                    const EDrift &type,
+                                    int rank_fex)
 {
   ADriftElem *drift;
   int error;
@@ -1324,7 +1326,7 @@ GSTLEARN_EXPORT int model_add_no_property(Model *model)
 
   error = 1;
 
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   // Cancel the property
@@ -1356,17 +1358,17 @@ GSTLEARN_EXPORT int model_add_no_property(Model *model)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_add_convolution(Model *model,
-                                      int conv_type,
-                                      int conv_idir,
-                                      int conv_ndisc,
-                                      double conv_range)
+                                          int conv_type,
+                                          int conv_idir,
+                                          int conv_ndisc,
+                                          double conv_range)
 {
   int error;
 
   /* Initializations */
 
   error = 1;
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   /* Load the Convolution parameters */
@@ -1408,7 +1410,7 @@ GSTLEARN_EXPORT int model_anamorphosis_set_factor(Model *model, int anam_iclass)
   /* Initializations */
 
   error = 1;
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   /* Preliminary checks */
@@ -1456,21 +1458,21 @@ GSTLEARN_EXPORT int model_anamorphosis_set_factor(Model *model, int anam_iclass)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_add_anamorphosis(Model *model,
-                                       const EAnam& anam_type,
-                                       int anam_nclass,
-                                       int anam_iclass,
-                                       int anam_var,
-                                       double anam_coefr,
-                                       double anam_coefs,
-                                       VectorDouble& anam_strcnt,
-                                       VectorDouble& anam_stats)
+                                           const EAnam &anam_type,
+                                           int anam_nclass,
+                                           int anam_iclass,
+                                           int anam_var,
+                                           double anam_coefr,
+                                           double anam_coefs,
+                                           VectorDouble &anam_strcnt,
+                                           VectorDouble &anam_stats)
 {
   int error;
 
   /* Initializations */
 
   error = 1;
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   /* Preliminary checks */
@@ -1510,15 +1512,15 @@ GSTLEARN_EXPORT int model_add_anamorphosis(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_add_tapering(Model *model,
-                                   int tape_type,
-                                   double tape_range)
+                                       int tape_type,
+                                       double tape_range)
 {
   int error;
 
   /* Initializations */
 
   error = 1;
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   /* Preliminary check */
@@ -1557,11 +1559,11 @@ GSTLEARN_EXPORT int model_add_tapering(Model *model,
  ** \param[in]  param     Value of the third parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double cova_get_scale_factor(const ECov& type, double param)
+GSTLEARN_EXPORT double cova_get_scale_factor(const ECov &type, double param)
 {
   SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 1000, 0., &space);
-  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
+  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   return cova->getScadef();
 }
@@ -1573,7 +1575,7 @@ GSTLEARN_EXPORT double cova_get_scale_factor(const ECov& type, double param)
  ** \param[in,out]  model Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_setup(Model* model)
+GSTLEARN_EXPORT void model_setup(Model *model)
 
 {
   if (model == nullptr) return;
@@ -1647,9 +1649,9 @@ GSTLEARN_EXPORT void model_setup(Model* model)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_update_coreg(Model *model,
-                                   double *aic,
-                                   double *valpro,
-                                   double *vecpro)
+                                       double *aic,
+                                       double *valpro,
+                                       double *vecpro)
 {
   int ivar, jvar, icov, ncova, nvar, error;
 
@@ -1718,22 +1720,22 @@ GSTLEARN_EXPORT int model_update_coreg(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_evaluate(Model *model,
-                               int ivar,
-                               int jvar,
-                               int rank_sel,
-                               int flag_norm,
-                               int flag_cov,
-                               int nugget_opt,
-                               int nostd,
-                               int norder,
-                               const ECalcMember& member,
-                               int nh,
-                               VectorDouble& codir,
-                               double *h,
-                               double *g)
+                                   int ivar,
+                                   int jvar,
+                                   int rank_sel,
+                                   int flag_norm,
+                                   int flag_cov,
+                                   int nugget_opt,
+                                   int nostd,
+                                   int norder,
+                                   const ECalcMember &member,
+                                   int nh,
+                                   VectorDouble &codir,
+                                   double *h,
+                                   double *g)
 {
   int error = 1;
-  double* covtab = nullptr;
+  double *covtab = nullptr;
   CovCalcMode mode;
   mode.update(nugget_opt, nostd, member, rank_sel, flag_norm, flag_cov);
   if (norder > 0) mode.setOrderVario(norder);
@@ -1749,7 +1751,7 @@ GSTLEARN_EXPORT int model_evaluate(Model *model,
   /* Core allocation */
 
   VectorDouble d1(ndim);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Normalize the direction vector codir */
@@ -1770,7 +1772,7 @@ GSTLEARN_EXPORT int model_evaluate(Model *model,
 
   error = 0;
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -1808,23 +1810,23 @@ GSTLEARN_EXPORT int model_evaluate(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
-                                      int ivar,
-                                      int jvar,
-                                      int rank_sel,
-                                      int flag_norm,
-                                      int flag_cov,
-                                      int nugget_opt,
-                                      int nostd,
-                                      int norder,
-                                      const ECalcMember& member,
-                                      Db *db1,
-                                      int iech1,
-                                      Db *db2,
-                                      int iech2,
-                                      int nh,
-                                      VectorDouble& codir,
-                                      double *h,
-                                      double *g)
+                                          int ivar,
+                                          int jvar,
+                                          int rank_sel,
+                                          int flag_norm,
+                                          int flag_cov,
+                                          int nugget_opt,
+                                          int nostd,
+                                          int norder,
+                                          const ECalcMember &member,
+                                          Db *db1,
+                                          int iech1,
+                                          Db *db2,
+                                          int iech2,
+                                          int nh,
+                                          VectorDouble &codir,
+                                          double *h,
+                                          double *g)
 {
   double *covtab, c00, var0;
   VectorDouble d1;
@@ -1844,11 +1846,11 @@ GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
   int nvar = model->getVariableNumber();
   if (st_check_variable(nvar, ivar)) return 1;
   if (st_check_variable(nvar, jvar)) return 1;
-  CovInternal covint(1,iech1,2,iech2,ndim,db1,db2);
+  CovInternal covint(1, iech1, 2, iech2, ndim, db1, db2);
 
   /* Core allocation */
 
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Normalize the direction vector codir */
@@ -1878,7 +1880,7 @@ GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
 
   error = 0;
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -1897,12 +1899,12 @@ GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_grid(Model *model,
-                           Db *db,
-                           int ivar,
-                           int jvar,
-                           int flag_norm,
-                           int flag_cov,
-                           double *g)
+                               Db *db,
+                               int ivar,
+                               int jvar,
+                               int flag_norm,
+                               int flag_cov,
+                               double *g)
 {
   double *covtab;
   int iech, nvar, ndim, error;
@@ -1925,7 +1927,7 @@ GSTLEARN_EXPORT int model_grid(Model *model,
   /* Core allocation */
 
   d1.resize(ndim);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Initialization */
@@ -1947,7 +1949,7 @@ GSTLEARN_EXPORT int model_grid(Model *model,
 
   error = 0;
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -2012,12 +2014,12 @@ GSTLEARN_EXPORT void model_drift_filter(Model *model, int rank, int filter)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT double model_cxx(Model *model,
-                             Db *db1,
-                             Db *db2,
-                             int ivar,
-                             int jvar,
-                             int seed,
-                             double eps)
+                                 Db *db1,
+                                 Db *db2,
+                                 int ivar,
+                                 int jvar,
+                                 int seed,
+                                 double eps)
 {
   double *covtab, cxx, v1, v2, w1, w2, norme;
   int ndim, nvar, iech1, iech2, i, skip;
@@ -2040,7 +2042,7 @@ GSTLEARN_EXPORT double model_cxx(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
   model_covtab_init(1, model, covtab);
 
@@ -2085,7 +2087,7 @@ GSTLEARN_EXPORT double model_cxx(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (cxx);
 }
 
@@ -2117,17 +2119,17 @@ GSTLEARN_EXPORT double model_cxx(Model *model,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double *model_covmat_by_ranks(Model *model,
-                                          Db *db1,
-                                          int nsize1,
-                                          const int *ranks1,
-                                          Db *db2,
-                                          int nsize2,
-                                          const int *ranks2,
-                                          int ivar0,
-                                          int jvar0,
-                                          int flag_norm,
-                                          int flag_cov)
+GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
+                                              Db *db1,
+                                              int nsize1,
+                                              const int *ranks1,
+                                              Db *db2,
+                                              int nsize2,
+                                              const int *ranks2,
+                                              int ivar0,
+                                              int jvar0,
+                                              int flag_norm,
+                                              int flag_cov)
 {
   double *covmat, *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, ecr, error, i1, i2;
@@ -2160,9 +2162,9 @@ GSTLEARN_EXPORT double *model_covmat_by_ranks(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
-  covmat = (double *) mem_alloc(sizeof(double) * nsize1 * nsize2, 0);
+  covmat = (double*) mem_alloc(sizeof(double) * nsize1 * nsize2, 0);
   if (covmat == nullptr) goto label_end;
 
   /* Loop on the number of variables */
@@ -2176,7 +2178,8 @@ GSTLEARN_EXPORT double *model_covmat_by_ranks(Model *model,
 
     for (i1 = 0; i1 < nsize1; i1++)
     {
-      iech1 = (ranks1 != nullptr) ? ranks1[i1] : i1;
+      iech1 = (ranks1 != nullptr) ? ranks1[i1] :
+                                    i1;
       if (iech1 < 0) continue;
 
       /* Loop on the second variable */
@@ -2189,7 +2192,8 @@ GSTLEARN_EXPORT double *model_covmat_by_ranks(Model *model,
 
         for (i2 = 0; i2 < nsize2; i2++)
         {
-          iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
+          iech2 = (ranks2 != nullptr) ? ranks2[i2] :
+                                        i2;
           if (iech2 < 0) continue;
 
           /* Loop on the dimension of the space */
@@ -2219,8 +2223,8 @@ GSTLEARN_EXPORT double *model_covmat_by_ranks(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
-  if (error) covmat = (double *) mem_free((char * ) covmat);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
+  if (error) covmat = (double*) mem_free((char* ) covmat);
   return (covmat);
 }
 
@@ -2237,9 +2241,9 @@ GSTLEARN_EXPORT double *model_covmat_by_ranks(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_drift_mat(Model *model,
-                                 const ECalcMember& member,
-                                 Db *db,
-                                 double *drfmat)
+                                     const ECalcMember &member,
+                                     Db *db,
+                                     double *drfmat)
 {
   int nech, nvar, nbfl, nfeq, ecr, jb;
   double *drftab, value;
@@ -2256,7 +2260,7 @@ GSTLEARN_EXPORT void model_drift_mat(Model *model,
 
   /* Core allocation */
 
-  drftab = (double *) mem_alloc(sizeof(double) * nbfl, 0);
+  drftab = (double*) mem_alloc(sizeof(double) * nbfl, 0);
   if (drftab == nullptr) goto label_end;
 
   ecr = 0;
@@ -2300,7 +2304,7 @@ GSTLEARN_EXPORT void model_drift_mat(Model *model,
     }
   }
 
-  label_end: drftab = (double *) mem_free((char * ) drftab);
+  label_end: drftab = (double*) mem_free((char* ) drftab);
   return;
 }
 
@@ -2318,10 +2322,10 @@ GSTLEARN_EXPORT void model_drift_mat(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_drift_vector(Model *model,
-                                    const ECalcMember& member,
-                                    Db *db,
-                                    int iech,
-                                    double *vector)
+                                        const ECalcMember &member,
+                                        Db *db,
+                                        int iech,
+                                        double *vector)
 {
   int nvar, nbfl, nfeq, ivar, ib, il, ecr, i;
   double *drftab, value;
@@ -2337,7 +2341,7 @@ GSTLEARN_EXPORT void model_drift_vector(Model *model,
 
   /* Core allocation */
 
-  drftab = (double *) mem_alloc(sizeof(double) * nbfl, 0);
+  drftab = (double*) mem_alloc(sizeof(double) * nbfl, 0);
   if (drftab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
@@ -2357,7 +2361,7 @@ GSTLEARN_EXPORT void model_drift_vector(Model *model,
       vector[ecr++] = value;
     }
 
-  label_end: drftab = (double *) mem_free((char * ) drftab);
+  label_end: drftab = (double*) mem_free((char* ) drftab);
   return;
 }
 
@@ -2374,7 +2378,7 @@ GSTLEARN_EXPORT void model_drift_vector(Model *model,
  **
  *****************************************************************************/
 static void st_matrix_c00(Model *model,
-                          CovCalcMode& mode,
+                          CovCalcMode &mode,
                           double *covtab,
                           VectorDouble d1,
                           double *c00tab)
@@ -2392,29 +2396,29 @@ static void st_matrix_c00(Model *model,
       if (c00 <= 0. || FFFF(c00)) c00 = var0;
       C00TAB(ivar1,ivar2)= c00;
     }
-}
+  }
 
-/*****************************************************************************/
-/*!
- **  Patches the value of the drift coefficient in the model for the
- **  rank of variable 'iv' and of the equation 'ib'. The rank of the
- **  drift function is found by matching the type in the basis of the
- **  drift functions available.
- **  Note : this function is only used when the model has linked
- **  drift functions
- **
- ** \param[in]  model Model structure
- ** \param[in]  iv    rank of the variable
- ** \param[in]  ib    rank of the equation
- ** \param[in]  type  type of the drift function (EDrift)
- ** \param[in]  rank  rank of the external drift
- ** \param[in]  value value to be added to the drift coefficient
- **
- *****************************************************************************/
+  /*****************************************************************************/
+  /*!
+   **  Patches the value of the drift coefficient in the model for the
+   **  rank of variable 'iv' and of the equation 'ib'. The rank of the
+   **  drift function is found by matching the type in the basis of the
+   **  drift functions available.
+   **  Note : this function is only used when the model has linked
+   **  drift functions
+   **
+   ** \param[in]  model Model structure
+   ** \param[in]  iv    rank of the variable
+   ** \param[in]  ib    rank of the equation
+   ** \param[in]  type  type of the drift function (EDrift)
+   ** \param[in]  rank  rank of the external drift
+   ** \param[in]  value value to be added to the drift coefficient
+   **
+   *****************************************************************************/
 static void st_drift_modify(Model *model,
                             int iv,
                             int ib,
-                            const EDrift& type,
+                            const EDrift &type,
                             int rank,
                             double value)
 {
@@ -2423,8 +2427,8 @@ static void st_drift_modify(Model *model,
   /* Look for the drift function */
 
   for (i = 0, il = -1; i < model->getDriftNumber() && il < 0; i++)
-    if (model->getDriftType(i) == type &&
-        model->getDrift(i)->getRankFex() == rank) il = i;
+    if (model->getDriftType(i) == type && model->getDrift(i)->getRankFex()
+        == rank) il = i;
   if (il < 0) messageAbort("st_drift_modify");
 
   /* Patch the drift coefficient */
@@ -2551,7 +2555,9 @@ static void st_drift_derivative(int iv,
  ** \li                      1 for Data - Gradient
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model *model_duplicate(const Model *model, double ball_radius, int mode)
+GSTLEARN_EXPORT Model* model_duplicate(const Model *model,
+                                       double ball_radius,
+                                       int mode)
 
 {
   Model *new_model;
@@ -2596,10 +2602,10 @@ GSTLEARN_EXPORT Model *model_duplicate(const Model *model, double ball_radius, i
       break;
   }
   new_model = model_init(ndim, new_nvar, model->getField(), flag_linked,
-                         ball_radius, flag_gradient, model->getContext().getMean(),
+                         ball_radius, flag_gradient,
+                         model->getContext().getMean(),
                          model->getContext().getCovar0());
-  if (new_model == nullptr)
-    return new_model;
+  if (new_model == nullptr) return new_model;
 
   // ****************************************
   // Create the basic covariance structures
@@ -2679,8 +2685,8 @@ GSTLEARN_EXPORT Model *model_duplicate(const Model *model, double ball_radius, i
     for (int il = 0; il < nbfl; il++)
     {
       drft = model->getDrift(il);
-      ADriftElem* newdrft = DriftFactory::createDriftFunc(drft->getType(),
-                                                          new_model->getContext());
+      ADriftElem *newdrft = DriftFactory::createDriftFunc(
+          drft->getType(), new_model->getContext());
       newdrft->setRankFex(drft->getRankFex());
       new_model->addDrift(newdrft);
       new_model->setDriftFiltered(il, model->isDriftFiltered(il));
@@ -2726,7 +2732,7 @@ GSTLEARN_EXPORT Model *model_duplicate(const Model *model, double ball_radius, i
 //                                double *vars,
 //                                double *corr)
 //{
-  /// TODO [Cova] : to be restored ?
+/// TODO [Cova] : to be restored ?
 //  Model  *new_model;
 //  int     ivar,jvar,nvar,icov,ncova,il,nbfl,error,ndim;
 //  double  sill;
@@ -2876,7 +2882,7 @@ GSTLEARN_EXPORT int model_normalize(Model *model, int flag_verbose)
 
   /* Core allocation */
 
-  total = (double *) mem_alloc(sizeof(double) * nvar, 1);
+  total = (double*) mem_alloc(sizeof(double) * nvar, 1);
 
   /* Calculate the total sills for each variable */
 
@@ -2913,7 +2919,7 @@ GSTLEARN_EXPORT int model_normalize(Model *model, int flag_verbose)
 
   error = 0;
 
-  label_end: total = (double *) mem_free((char * ) total);
+  label_end: total = (double*) mem_free((char* ) total);
   return (error);
 }
 
@@ -2934,7 +2940,9 @@ GSTLEARN_EXPORT int model_normalize(Model *model, int flag_verbose)
  ** \remark  This function does not do anything in the multivariate case
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_stabilize(Model *model, int flag_verbose, double percent)
+GSTLEARN_EXPORT int model_stabilize(Model *model,
+                                    int flag_verbose,
+                                    double percent)
 {
   CovAniso *cova;
   double total;
@@ -2970,7 +2978,7 @@ GSTLEARN_EXPORT int model_stabilize(Model *model, int flag_verbose, double perce
   /* Add a NUGGET EFFECT component */
 
   if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
-                     VectorDouble(), VectorDouble(1,total))) goto label_end;
+                     VectorDouble(), VectorDouble(1, total))) goto label_end;
 
   /* Printout */
 
@@ -3000,10 +3008,10 @@ GSTLEARN_EXPORT int model_stabilize(Model *model, int flag_verbose, double perce
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_covupdt(Model *model,
-                               double *c0,
-                               int flag_verbose,
-                               int *flag_nugget,
-                               double *nugget)
+                                   double *c0,
+                                   int flag_verbose,
+                                   int *flag_nugget,
+                                   double *nugget)
 {
   /// TODO : dead code ?
   CovAniso *cova;
@@ -3021,9 +3029,9 @@ GSTLEARN_EXPORT void model_covupdt(Model *model,
 
   /* Core allocation */
 
-  rank = (int *) mem_alloc(sizeof(int) * ncova, 1);
-  range = (double *) mem_alloc(sizeof(double) * ncova, 1);
-  silltot = (double *) mem_alloc(sizeof(double) * nvar * nvar, 1);
+  rank = (int*) mem_alloc(sizeof(int) * ncova, 1);
+  range = (double*) mem_alloc(sizeof(double) * ncova, 1);
+  silltot = (double*) mem_alloc(sizeof(double) * nvar * nvar, 1);
   for (i = 0; i < nvar * nvar; i++)
     silltot[i] = 0.;
 
@@ -3126,9 +3134,9 @@ GSTLEARN_EXPORT void model_covupdt(Model *model,
 
   /* Returning arguments */
 
-  rank = (int *) mem_free((char * ) rank);
-  range = (double *) mem_free((char * ) range);
-  silltot = (double *) mem_free((char * ) silltot);
+  rank = (int*) mem_free((char* ) rank);
+  range = (double*) mem_free((char* ) range);
+  silltot = (double*) mem_free((char* ) silltot);
   *flag_nugget = flag_update && (rank_nugget < 0);
   if (flag_verbose && (*flag_nugget))
   {
@@ -3153,12 +3161,12 @@ GSTLEARN_EXPORT void model_covupdt(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT double model_drift_evaluate(int verbose,
-                                        Model *model,
-                                        const Db *db,
-                                        int iech,
-                                        int ivar,
-                                        double *coef,
-                                        double *drftab)
+                                            Model *model,
+                                            const Db *db,
+                                            int iech,
+                                            int ivar,
+                                            double *coef,
+                                            double *drftab)
 {
   double drift, value;
   int il, ib;
@@ -3204,12 +3212,12 @@ GSTLEARN_EXPORT double model_drift_evaluate(int verbose,
  ** \param[in]  model_in  Input Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model *input_model(int ndim,
-                               int nvar,
-                               int order,
-                               int flag_sill,
-                               int flag_norm,
-                               Model *model_in)
+GSTLEARN_EXPORT Model* input_model(int ndim,
+                                   int nvar,
+                                   int order,
+                                   int flag_sill,
+                                   int flag_norm,
+                                   Model *model_in)
 {
   /// TODO [Cova] : to be restored ?
 //  int    i,flag_def,error,ncova;
@@ -3300,14 +3308,14 @@ GSTLEARN_EXPORT int model_dimension(Model *model)
  ** \param[out]  aniso_ranges  Rotation ranges (Dimension = ndim)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_extract_cova(Model*        model,
-                                   int           icov,
-                                   ECov*         cov_type,
-                                   int *         flag_aniso,
-                                   double*       param,
-                                   VectorDouble& sill,
-                                   VectorDouble& aniso_rotmat,
-                                   VectorDouble& aniso_ranges)
+GSTLEARN_EXPORT int model_extract_cova(Model *model,
+                                       int icov,
+                                       ECov *cov_type,
+                                       int *flag_aniso,
+                                       double *param,
+                                       VectorDouble &sill,
+                                       VectorDouble &aniso_rotmat,
+                                       VectorDouble &aniso_ranges)
 {
   CovAniso *cova;
   int ndim;
@@ -3352,7 +3360,7 @@ GSTLEARN_EXPORT int model_extract_cova(Model*        model,
  *****************************************************************************/
 GSTLEARN_EXPORT void model_extract_properties(Model *model, double *tape_range)
 {
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
 
   *tape_range = modtrs.getTape()->getRange();
 }
@@ -3378,23 +3386,23 @@ GSTLEARN_EXPORT void model_extract_properties(Model *model, double *tape_range)
  ** \param[out] parmax         Maximum value for the third parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_cova_characteristics(const ECov& type,
-                                            char cov_name[STRING_LENGTH],
-                                            int *flag_range,
-                                            int *flag_param,
-                                            int *min_order,
-                                            int *max_ndim,
-                                            int *flag_int_1d,
-                                            int *flag_int_2d,
-                                            int *flag_aniso,
-                                            int *flag_rotation,
-                                            double *scale,
-                                            double *parmax)
+GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
+                                                char cov_name[STRING_LENGTH],
+                                                int *flag_range,
+                                                int *flag_param,
+                                                int *min_order,
+                                                int *max_ndim,
+                                                int *flag_int_1d,
+                                                int *flag_int_2d,
+                                                int *flag_aniso,
+                                                int *flag_rotation,
+                                                double *scale,
+                                                double *parmax)
 {
   SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 2, 0., &space);
-  ACovFunc* cov = CovFactory::createCovFunc(type, ctxt);
-  (void) gslStrcpy((char *) cov_name, cov->getCovName().c_str());
+  ACovFunc *cov = CovFactory::createCovFunc(type, ctxt);
+  (void) gslStrcpy((char*) cov_name, cov->getCovName().c_str());
   *flag_range = cov->hasRange();
   *flag_param = cov->hasParam();
   *min_order = cov->getMinOrder();
@@ -3421,9 +3429,9 @@ GSTLEARN_EXPORT void model_cova_characteristics(const ECov& type,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_sample(Vario *vario,
-                             Model *model,
-                             int flag_norm,
-                             int flag_cov)
+                                 Model *model,
+                                 int flag_norm,
+                                 int flag_cov)
 {
   double *covtab;
   int i, idir, ndir, ipas, npas, idim, ndim, error, nvar, ivar, jvar, ijvar;
@@ -3440,7 +3448,7 @@ GSTLEARN_EXPORT int model_sample(Vario *vario,
   /* Core allocation */
 
   d1.resize(ndim);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
   vario->setNVar(nvar);
 
@@ -3475,7 +3483,7 @@ GSTLEARN_EXPORT int model_sample(Vario *vario,
           vario->setSw(idir, i, 1.);
           vario->setHh(idir, i, ipas * vario->getDPas(idir));
           for (idim = 0; idim < ndim; idim++)
-            d1[idim] = vario->getHh(idir,i) * vario->getCodir(idir,idim);
+            d1[idim] = vario->getHh(idir, i) * vario->getCodir(idir, idim);
           model_calcul_cov(model, mode, 1, 1., d1, covtab);
           vario->setGg(idir, i, COVTAB(ivar, jvar));
         }
@@ -3486,7 +3494,7 @@ GSTLEARN_EXPORT int model_sample(Vario *vario,
 
   error = 0;
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -3507,12 +3515,12 @@ GSTLEARN_EXPORT int model_sample(Vario *vario,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_vector_multivar(Model *model,
-                                       Db *db,
-                                       int ivar,
-                                       int iech,
-                                       int flag_norm,
-                                       int flag_cov,
-                                       double *vector)
+                                           Db *db,
+                                           int ivar,
+                                           int iech,
+                                           int flag_norm,
+                                           int flag_cov,
+                                           double *vector)
 {
   double *covtab, *c00tab;
   int ndim, nvar, jech, i, skip, nech, ecr, jvar;
@@ -3533,9 +3541,9 @@ GSTLEARN_EXPORT void model_vector_multivar(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
-  c00tab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  c00tab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (c00tab == nullptr) goto label_end;
 
   /* Calculate the C(0) term */
@@ -3565,8 +3573,8 @@ GSTLEARN_EXPORT void model_vector_multivar(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
-  c00tab = (double *) mem_free((char * ) c00tab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
+  c00tab = (double*) mem_free((char* ) c00tab);
   return;
 }
 
@@ -3588,14 +3596,14 @@ GSTLEARN_EXPORT void model_vector_multivar(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_vector(Model *model,
-                              Db *db1,
-                              Db *db2,
-                              int ivar,
-                              int jvar,
-                              int jech,
-                              int flag_norm,
-                              int flag_cov,
-                              double *vector)
+                                  Db *db1,
+                                  Db *db2,
+                                  int ivar,
+                                  int jvar,
+                                  int jech,
+                                  int flag_norm,
+                                  int flag_cov,
+                                  double *vector)
 {
   double *covtab, v1, v2;
   int ndim, nvar, iech, i, skip, nech;
@@ -3618,7 +3626,7 @@ GSTLEARN_EXPORT void model_vector(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
@@ -3649,7 +3657,7 @@ GSTLEARN_EXPORT void model_vector(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return;
 }
 
@@ -3668,13 +3676,13 @@ GSTLEARN_EXPORT void model_vector(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_vector_nostat(Model *model,
-                                     Db *db,
-                                     int ivar,
-                                     int jvar,
-                                     int iech,
-                                     double *vector)
+                                         Db *db,
+                                         int ivar,
+                                         int jvar,
+                                         int iech,
+                                         double *vector)
 {
-  double *covtab,  value;
+  double *covtab, value;
   int ndim, nvar, jech, i, skip, nech;
   VectorDouble d1;
   CovCalcMode mode;
@@ -3693,7 +3701,7 @@ GSTLEARN_EXPORT void model_vector_nostat(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
@@ -3724,7 +3732,7 @@ GSTLEARN_EXPORT void model_vector_nostat(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return;
 }
 
@@ -3755,7 +3763,9 @@ GSTLEARN_EXPORT double model_maximum_distance(Model *model)
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_scale2range(const ECov& type, double scale, double param)
+GSTLEARN_EXPORT double model_scale2range(const ECov &type,
+                                         double scale,
+                                         double param)
 {
   double factor, range;
 
@@ -3776,7 +3786,9 @@ GSTLEARN_EXPORT double model_scale2range(const ECov& type, double scale, double 
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_range2scale(const ECov& type, double range, double param)
+GSTLEARN_EXPORT double model_range2scale(const ECov &type,
+                                         double range,
+                                         double param)
 {
   double factor, scale;
 
@@ -3813,9 +3825,9 @@ GSTLEARN_EXPORT double model_get_field(Model *model)
  ** \remarks: It has been exptended to the case where only one model is defined
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model *model_combine(const Model *model1,
-                                 const Model *model2,
-                                 double r)
+GSTLEARN_EXPORT Model* model_combine(const Model *model1,
+                                     const Model *model2,
+                                     double r)
 {
   Model *model;
   const CovAniso *cova;
@@ -3879,8 +3891,7 @@ GSTLEARN_EXPORT Model *model_combine(const Model *model1,
                       model2->getContext().getBallRadius());
   model = model_init(model1->getDimensionNumber(), 2, field, 0, radius, false,
                      mean, cova0);
-  if (model == nullptr)
-    return model;
+  if (model == nullptr) return model;
 
   ncov = 0;
 
@@ -3962,10 +3973,10 @@ GSTLEARN_EXPORT int model_get_nonugget_cova(Model *model)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_regularize(Model *model,
-                                 Vario *vario,
-                                 Db *db,
-                                 int opt_norm,
-                                 double nug_ratio)
+                                     Vario *vario,
+                                     Db *db,
+                                     int opt_norm,
+                                     double nug_ratio)
 {
   double *covtab, *c00tab, v1, v2, norme, dist;
   int idim, ndim, nvar, idir, nech, ipas, iech, jech, ivar, jvar, iad, error;
@@ -3997,9 +4008,9 @@ GSTLEARN_EXPORT int model_regularize(Model *model,
   /* Core allocation */
 
   dd.resize(ndim, 0.);
-  c00tab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  c00tab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (c00tab == nullptr) goto label_end;
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Calculate the Cvv (for a zero-shift) */
@@ -4040,7 +4051,8 @@ GSTLEARN_EXPORT int model_regularize(Model *model,
           for (idim = 0; idim < ndim; idim++)
           {
             v1 = db->getCoordinate(iech, idim);
-            v2 = db->getCoordinate(jech, idim) + dist * vario->getCodir(idir,idim);
+            v2 = db->getCoordinate(jech, idim)
+                + dist * vario->getCodir(idir, idim);
             dd[idim] = v1 - v2;
           }
           model_calcul_cov(model, mode, 0, 1, dd, covtab);
@@ -4062,8 +4074,8 @@ GSTLEARN_EXPORT int model_regularize(Model *model,
 
   error = 0;
 
-  label_end: c00tab = (double *) mem_free((char * ) c00tab);
-  covtab = (double *) mem_free((char * ) covtab);
+  label_end: c00tab = (double*) mem_free((char* ) c00tab);
+  covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -4105,17 +4117,17 @@ GSTLEARN_EXPORT int model_regularize(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
-                                    Db *db,
-                                    Model *model,
-                                    double eta,
-                                    int npivot_max,
-                                    int nsize1,
-                                    int *ranks1,
-                                    double *center,
-                                    int flag_sort,
-                                    int *npivot_arg,
-                                    int **Pret,
-                                    double **Gret)
+                                        Db *db,
+                                        Model *model,
+                                        double eta,
+                                        int npivot_max,
+                                        int nsize1,
+                                        int *ranks1,
+                                        double *center,
+                                        int flag_sort,
+                                        int *npivot_arg,
+                                        int **Pret,
+                                        double **Gret)
 {
   int *pvec, i, j, npivot, jstar, nech, error, flag_incr;
   double *G, *Gmatrix, *diag, *crit, g, residual, maxdiag, tol, b, c00;
@@ -4131,11 +4143,11 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
   if (npivot_max <= 0) npivot_max = nech;
   npivot_max = MIN(npivot_max, nech);
   d1.resize(db->getNDim());
-  diag = (double *) mem_alloc(sizeof(double) * nech, 0);
+  diag = (double*) mem_alloc(sizeof(double) * nech, 0);
   if (diag == nullptr) goto label_end;
-  crit = (double *) mem_alloc(sizeof(double) * (1 + nech), 0);
+  crit = (double*) mem_alloc(sizeof(double) * (1 + nech), 0);
   if (crit == nullptr) goto label_end;
-  pvec = (int *) mem_alloc(sizeof(int) * nech, 0);
+  pvec = (int*) mem_alloc(sizeof(int) * nech, 0);
   if (pvec == nullptr) goto label_end;
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), &c00);
   for (i = 0; i < nech; i++)
@@ -4168,8 +4180,8 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
   while ((residual > tol) && (npivot < npivot_max))
   {
     // Initialize and add a new zeros column to matrix G[]
-    G = (double *) mem_realloc((char * ) G,
-                               (npivot + 1) * nech * sizeof(double), 0);
+    G = (double*) mem_realloc((char* ) G, (npivot + 1) * nech * sizeof(double),
+                              0);
     if (G == nullptr) goto label_end;
     for (i = 0; i < nech; i++)
       G(npivot,i) = 0.;
@@ -4282,8 +4294,8 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
   // Last column
   if (npivot == nech - 1)
   {
-    G = (double *) mem_realloc((char * ) G,
-                               (npivot + 1) * nech * sizeof(double), 0);
+    G = (double*) mem_realloc((char* ) G, (npivot + 1) * nech * sizeof(double),
+                              0);
     if (G == nullptr) goto label_end;
     for (i = 0; i < nech; i++)
       G(npivot,i) = 0.;
@@ -4300,7 +4312,7 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
     crit[i] /= (double) nech;
 
   // Reorder the output G matrix
-  Gmatrix = (double *) mem_alloc(npivot * nech * sizeof(double), 0);
+  Gmatrix = (double*) mem_alloc(npivot * nech * sizeof(double), 0);
   if (Gmatrix == nullptr) goto label_end;
   for (j = 0; j < npivot; j++)
     for (i = 0; i < nech; i++)
@@ -4331,9 +4343,9 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
 
   /* Core deallocation */
 
-  label_end: diag = (double *) mem_free((char * ) diag);
-  crit = (double *) mem_free((char * ) crit);
-  G = (double *) mem_free((char * ) G);
+  label_end: diag = (double*) mem_free((char* ) diag);
+  crit = (double*) mem_free((char* ) crit);
+  G = (double*) mem_free((char* ) G);
   return (error);
 }
 
@@ -4356,7 +4368,7 @@ GSTLEARN_EXPORT int model_maximum_order(Model *model)
   max_order = 0;
   for (int il = 0; il < model->getDriftNumber(); il++)
   {
-    ADriftElem* drft = model->getDrift(il);
+    ADriftElem *drft = model->getDrift(il);
     order = drft->getOrderIRF();
     if (order > max_order) max_order = order;
   }
@@ -4373,7 +4385,7 @@ GSTLEARN_EXPORT int model_maximum_order(Model *model)
  ** \param[in]  type0      Drift function to be found (EDrift)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_is_drift_defined(Model *model, const EDrift& type0)
+GSTLEARN_EXPORT int model_is_drift_defined(Model *model, const EDrift &type0)
 {
   if (model == nullptr) return (0);
   for (int il = 0; il < model->getDriftNumber(); il++)
@@ -4397,12 +4409,12 @@ GSTLEARN_EXPORT int model_is_drift_defined(Model *model, const EDrift& type0)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
-                                      Db *db1,
-                                      int iech1,
-                                      Db *db2,
-                                      int iech2,
-                                      int verbose,
-                                      double factor)
+                                          Db *db1,
+                                          int iech1,
+                                          Db *db2,
+                                          int iech2,
+                                          int verbose,
+                                          double factor)
 {
   int ndim;
   double c00, cov, stdev;
@@ -4464,22 +4476,22 @@ GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
-                                         Db *db1,
-                                         int nsize1,
-                                         const int *ranks1,
-                                         Db *db2,
-                                         int nsize2,
-                                         const int *ranks2,
-                                         int ivar0,
-                                         int jvar0,
-                                         int flag_norm,
-                                         int flag_cov)
+                                             Db *db1,
+                                             int nsize1,
+                                             const int *ranks1,
+                                             Db *db2,
+                                             int nsize2,
+                                             const int *ranks2,
+                                             int ivar0,
+                                             int jvar0,
+                                             int flag_norm,
+                                             int flag_cov)
 {
   double *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, error, i1, i2;
   VectorDouble d1;
-  cs* T = nullptr;
-  cs* covmat = nullptr;
+  cs *T = nullptr;
+  cs *covmat = nullptr;
 
   /* Initializations */
 
@@ -4508,7 +4520,7 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   // Constitute the triplet
@@ -4526,7 +4538,8 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
 
     for (i1 = 0; i1 < nsize1; i1++)
     {
-      iech1 = (ranks1 != nullptr) ? ranks1[i1] : i1;
+      iech1 = (ranks1 != nullptr) ? ranks1[i1] :
+                                    i1;
       if (iech1 < 0) continue;
 
       /* Loop on the second variable */
@@ -4539,7 +4552,8 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
 
         for (i2 = 0; i2 < nsize2; i2++)
         {
-          iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
+          iech2 = (ranks2 != nullptr) ? ranks2[i2] :
+                                        i2;
           if (iech2 < 0) continue;
 
           /* Loop on the dimension of the space */
@@ -4559,7 +4573,7 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
           }
           int ecr1 = ivar * nsize1 + i1;
           int ecr2 = jvar * nsize2 + i2;
-          if (! cs_entry(T, ecr1, ecr2, value)) goto label_end;
+          if (!cs_entry(T, ecr1, ecr2, value)) goto label_end;
         }
       }
     }
@@ -4573,9 +4587,8 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
 
   /* Free memory */
 
-  label_end:
-  T = cs_spfree(T);
-  covtab = (double *) mem_free((char * ) covtab);
+  label_end: T = cs_spfree(T);
+  covtab = (double*) mem_free((char* ) covtab);
   if (error) covmat = cs_spfree(covmat);
   return (covmat);
 }
@@ -4599,13 +4612,13 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void model_covmat(Model *model,
-                              Db *db1,
-                              Db *db2,
-                              int ivar0,
-                              int jvar0,
-                              int flag_norm,
-                              int flag_cov,
-                              double *covmat)
+                                  Db *db1,
+                                  Db *db2,
+                                  int ivar0,
+                                  int jvar0,
+                                  int flag_norm,
+                                  int flag_cov,
+                                  double *covmat)
 {
   double *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, nech1, nech2, ecr;
@@ -4638,7 +4651,7 @@ GSTLEARN_EXPORT void model_covmat(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Loop on the first variable */
@@ -4697,6 +4710,6 @@ GSTLEARN_EXPORT void model_covmat(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return;
 }

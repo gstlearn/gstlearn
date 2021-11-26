@@ -1,6 +1,6 @@
-# Build the tests executable except if the user excludes them
-if (NOT EXCLUDE_TEST)
-  add_subdirectory(data)
-  add_subdirectory(cpp)
-  add_subdirectory(inter)
-endif()
+# Target for building the tests executable
+add_custom_target(build_test)
+
+add_subdirectory(data)
+add_subdirectory(cpp)
+add_subdirectory(inter)

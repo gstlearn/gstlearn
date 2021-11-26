@@ -24,7 +24,7 @@
 **
 ****************************************************************************/
 GSTLEARN_EXPORT void inquire_gstlearn(char **release,
-                                  char **date)
+                                      char **date)
 {
   char *buffer;
 

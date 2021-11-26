@@ -55,7 +55,7 @@ static char Fichier_rule[] = "Rule";
 static char Fichier_simu[] = "Simu";
 static char Fichier_frac[] = "Frac";
 
-static bool st_file_exists(const char* file_name)
+static bool st_file_exists(const char *file_name)
 {
   return gslFileExist(file_name, "r");
 }
@@ -120,8 +120,9 @@ static void st_record_write(const char *format, ...)
   else
   {
     _buffer_write(buf, format, ap);
-    long1 = static_cast<int> (strlen(buf));
-    long2 = (ASCII_BUFFER != NULL) ? static_cast<int> (strlen(ASCII_BUFFER)) : 0;
+    long1 = static_cast<int>(strlen(buf));
+    long2 = (ASCII_BUFFER != NULL) ? static_cast<int>(strlen(ASCII_BUFFER)) :
+                                     0;
     while (long1 + long2 > ASCII_BUFFER_LENGTH)
     {
       ASCII_BUFFER_LENGTH += ASCII_BUFFER_QUANT;
@@ -178,12 +179,12 @@ static void st_filename_patch(const char *ref_name,
     {
       case 0:
         (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
-                       EXT_DAT);
+                          EXT_DAT);
         break;
 
       case 1:
         (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
-                       EXT_OUT);
+                          EXT_OUT);
         break;
 
       case -1:
@@ -205,8 +206,8 @@ static void st_filename_patch(const char *ref_name,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void ascii_external_filename(const char *filein,
-                                         int mode,
-                                         char *filename)
+                                             int mode,
+                                             char *filename)
 {
   st_filename_patch(filein, 0, mode, filename);
 }
@@ -223,9 +224,9 @@ GSTLEARN_EXPORT void ascii_external_filename(const char *filein,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void ascii_filename(const char *type,
-                                int rank,
-                                int mode,
-                                char *filename)
+                                    int rank,
+                                    int mode,
+                                    char *filename)
 {
   if (!strcmp(type, "Environ"))
     st_filename_patch(Fichier_environ, rank, mode, filename);
@@ -294,7 +295,7 @@ static void st_file_close(FILE *file)
  ** \param[in]  verbose  Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-static FILE *st_file_open(const char *filename,
+static FILE* st_file_open(const char *filename,
                           const char *filetype,
                           int mode,
                           int verbose)
@@ -465,15 +466,15 @@ GSTLEARN_EXPORT void ascii_environ_read(char *file_name, int verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db *ascii_db_read(const char *file_name,
-                              int must_grid,
-                              int verbose)
+GSTLEARN_EXPORT Db* ascii_db_read(const char *file_name,
+                                  int must_grid,
+                                  int verbose)
 {
-  if (! st_file_exists(file_name)) return nullptr;
-  Db* db = new Db(String(file_name), verbose);
-  if (must_grid && ! db->isGrid())
+  if (!st_file_exists(file_name)) return nullptr;
+  Db *db = new Db(String(file_name), verbose);
+  if (must_grid && !db->isGrid())
   {
-    messerr("The file (%s) does not correspond to a Grid file",file_name);
+    messerr("The file (%s) does not correspond to a Grid file", file_name);
     delete db;
     db = nullptr;
   }
@@ -490,10 +491,10 @@ GSTLEARN_EXPORT Db *ascii_db_read(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vario *ascii_vario_read(const char *file_name, bool verbose)
+GSTLEARN_EXPORT Vario* ascii_vario_read(const char *file_name, bool verbose)
 {
-  if (! st_file_exists(file_name)) return nullptr;
-  Vario* vario = new Vario(file_name,verbose);
+  if (!st_file_exists(file_name)) return nullptr;
+  Vario *vario = new Vario(file_name, verbose);
   return (vario);
 }
 
@@ -507,11 +508,11 @@ GSTLEARN_EXPORT Vario *ascii_vario_read(const char *file_name, bool verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model *ascii_model_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Model* ascii_model_read(const char *file_name, int verbose)
 
 {
-  if (! st_file_exists(file_name)) return nullptr;
-  Model *model = new Model(file_name,verbose);
+  if (!st_file_exists(file_name)) return nullptr;
+  Model *model = new Model(file_name, verbose);
   model_setup(model);
   return (model);
 }
@@ -528,10 +529,10 @@ GSTLEARN_EXPORT Model *ascii_model_read(const char *file_name, int verbose)
  ** \remark  For MOVING neighborhood, only isotropic case is considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Neigh *ascii_neigh_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Neigh* ascii_neigh_read(const char *file_name, int verbose)
 {
-  if (! st_file_exists(file_name)) return nullptr;
-  Neigh* neigh = new Neigh(file_name,verbose);
+  if (!st_file_exists(file_name)) return nullptr;
+  Neigh *neigh = new Neigh(file_name, verbose);
   return (neigh);
 }
 
@@ -545,10 +546,10 @@ GSTLEARN_EXPORT Neigh *ascii_neigh_read(const char *file_name, int verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Rule *ascii_rule_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Rule* ascii_rule_read(const char *file_name, int verbose)
 {
-  if (! st_file_exists(file_name)) return nullptr;
-  Rule* rule = new Rule(file_name,verbose);
+  if (!st_file_exists(file_name)) return nullptr;
+  Rule *rule = new Rule(file_name, verbose);
   return (rule);
 }
 
@@ -565,10 +566,10 @@ GSTLEARN_EXPORT Rule *ascii_rule_read(const char *file_name, int verbose)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
-                                 int verbose,
-                                 int *nbsimu,
-                                 int *nbtuba,
-                                 int *seed)
+                                     int verbose,
+                                     int *nbsimu,
+                                     int *nbtuba,
+                                     int *seed)
 {
   FILE *file;
 
@@ -606,9 +607,9 @@ GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
-                                 const Anam* anam,
-                                 int verbose,
-                                 int flag_calcul)
+                                     const Anam *anam,
+                                     int verbose,
+                                     int flag_calcul)
 {
   FILE *file;
   int error;
@@ -627,7 +628,7 @@ GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
 
   if (anam->getType() == EAnam::HERMITIAN)
   {
-    const AnamHermite* anam_hermite = dynamic_cast<const AnamHermite*>(anam);
+    const AnamHermite *anam_hermite = dynamic_cast<const AnamHermite*>(anam);
     st_record_write("%d", anam_hermite->getNbPoly());
     st_record_write("#", "Number of Hermite Polynomials");
     st_record_write("%lf", anam_hermite->getRCoef());
@@ -657,7 +658,7 @@ GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
   }
   else if (anam->getType() == EAnam::EMPIRICAL)
   {
-    const AnamEmpirical* anam_empirical = dynamic_cast<const AnamEmpirical*>(anam);
+    const AnamEmpirical *anam_empirical = dynamic_cast<const AnamEmpirical*>(anam);
     st_record_write("%d", anam_empirical->getNDisc());
     st_record_write("#", "Number of Discretization lags");
     st_record_write("%lf", anam_empirical->getAzmin());
@@ -683,7 +684,7 @@ GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
   }
   else if (anam->getType() == EAnam::DISCRETE_DD)
   {
-    const AnamDiscreteDD* anam_discrete_DD = dynamic_cast<const AnamDiscreteDD*>(anam);
+    const AnamDiscreteDD *anam_discrete_DD = dynamic_cast<const AnamDiscreteDD*>(anam);
     st_record_write("%d", anam_discrete_DD->getNCut());
     st_record_write("#", "Number of cutoffs");
     st_record_write("%d", anam_discrete_DD->getNClass());
@@ -696,20 +697,23 @@ GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
     st_record_write("#", "Additional Mu coefficient");
     st_table_write("Cutoff value", anam_discrete_DD->getNCut(),
                    anam_discrete_DD->getZCut().data());
-    st_table_write("PCA Z2Y", anam_discrete_DD->getNCut() * anam_discrete_DD->getNCut(),
+    st_table_write("PCA Z2Y",
+                   anam_discrete_DD->getNCut() * anam_discrete_DD->getNCut(),
                    anam_discrete_DD->getPcaZ2F().data());
-    st_table_write("PCA Y2Z", anam_discrete_DD->getNCut() * anam_discrete_DD->getNCut(),
+    st_table_write("PCA Y2Z",
+                   anam_discrete_DD->getNCut() * anam_discrete_DD->getNCut(),
                    anam_discrete_DD->getPcaF2Z().data());
     st_record_write("%d", flag_calcul);
     st_record_write("#", "Storage of Calculation results");
     if (flag_calcul)
-      st_table_write("DD Stats",
-                     anam_discrete_DD->getNClass() * anam_discrete_DD->getNElem(),
-                     anam_discrete_DD->getStats().getValues().data());
+      st_table_write(
+          "DD Stats",
+          anam_discrete_DD->getNClass() * anam_discrete_DD->getNElem(),
+          anam_discrete_DD->getStats().getValues().data());
   }
   else if (anam->getType() == EAnam::DISCRETE_IR)
   {
-    const AnamDiscreteIR* anam_discrete_IR = dynamic_cast<const AnamDiscreteIR*>(anam);
+    const AnamDiscreteIR *anam_discrete_IR = dynamic_cast<const AnamDiscreteIR*>(anam);
     st_record_write("%d", anam_discrete_IR->getNCut());
     st_record_write("#", "Number of cutoffs");
     st_record_write("%d", anam_discrete_IR->getNClass());
@@ -723,9 +727,10 @@ GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
     st_record_write("%d", flag_calcul);
     st_record_write("#", "Storage of Calculation results");
     if (flag_calcul)
-      st_table_write("IR Stats",
-                     anam_discrete_IR->getNClass() * anam_discrete_IR->getNElem(),
-                     anam_discrete_IR->getStats().getValues().data());
+      st_table_write(
+          "IR Stats",
+          anam_discrete_IR->getNClass() * anam_discrete_IR->getNElem(),
+          anam_discrete_IR->getStats().getValues().data());
   }
 
   /* Set the error return code */
@@ -747,7 +752,7 @@ GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Anam *ascii_anam_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Anam* ascii_anam_read(const char *file_name, int verbose)
 {
   FILE *file;
   double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax;
@@ -775,7 +780,7 @@ GSTLEARN_EXPORT Anam *ascii_anam_read(const char *file_name, int verbose)
 
   if (type == EAnam::HERMITIAN)
   {
-    AnamHermite* anam_hermite = new AnamHermite;
+    AnamHermite *anam_hermite = new AnamHermite;
 
     if (st_record_read("Number of Hermite Polynomials", "%d", &nbpoly))
       goto label_end;
@@ -815,7 +820,7 @@ GSTLEARN_EXPORT Anam *ascii_anam_read(const char *file_name, int verbose)
   }
   else if (type == EAnam::EMPIRICAL)
   {
-    AnamEmpirical* anam_empirical = new(AnamEmpirical);
+    AnamEmpirical *anam_empirical = new (AnamEmpirical);
 
     if (st_record_read("Number of Discretization classes", "%d", &ndisc))
       goto label_end;
@@ -844,15 +849,15 @@ GSTLEARN_EXPORT Anam *ascii_anam_read(const char *file_name, int verbose)
       tdisc.resize(2 * ndisc);
       if (st_table_read(2 * ndisc, tdisc.data())) goto label_end;
     }
-    anam_update_empirical(anam_empirical, ndisc, pymin, pzmin, pymax, pzmax, aymin,
-                              azmin, aymax, azmax, sigma2e, tdisc);
+    anam_update_empirical(anam_empirical, ndisc, pymin, pzmin, pymax, pzmax,
+                          aymin, azmin, aymax, azmax, sigma2e, tdisc);
     if (debug_query("interface")) anam_empirical->display();
     st_file_close(file);
     return (anam_empirical);
   }
   else if (type == EAnam::DISCRETE_DD)
   {
-    AnamDiscreteDD* anam_discrete_DD = new(AnamDiscreteDD);
+    AnamDiscreteDD *anam_discrete_DD = new (AnamDiscreteDD);
 
     if (st_record_read("Number of Cutoffs", "%d", &nCut)) goto label_end;
     if (st_record_read("Number of Classes", "%d", &nClass)) goto label_end;
@@ -875,14 +880,15 @@ GSTLEARN_EXPORT Anam *ascii_anam_read(const char *file_name, int verbose)
       stats.resize(nClass * nElem);
       if (st_table_read(nClass * nElem, stats.data())) goto label_end;
     }
-    anam_update_discrete_DD(anam_discrete_DD, nCut, s, mu, zCut, pcaz2f, pcaf2z, stats);
+    anam_update_discrete_DD(anam_discrete_DD, nCut, s, mu, zCut, pcaz2f, pcaf2z,
+                            stats);
     if (debug_query("interface")) anam_discrete_DD->display();
     st_file_close(file);
     return (anam_discrete_DD);
   }
   else if (type == EAnam::DISCRETE_IR)
   {
-    AnamDiscreteIR* anam_discrete_IR = new(AnamDiscreteIR);
+    AnamDiscreteIR *anam_discrete_IR = new (AnamDiscreteIR);
 
     if (st_record_read("Number of Cutoffs", "%d", &nCut)) goto label_end;
     if (st_record_read("Number of Classes", "%d", &nClass)) goto label_end;
@@ -905,8 +911,7 @@ GSTLEARN_EXPORT Anam *ascii_anam_read(const char *file_name, int verbose)
     return (anam_discrete_IR);
   }
 
-  label_end:
-  return (nullptr);
+  label_end: return (nullptr);
 }
 
 /****************************************************************************/
@@ -927,10 +932,10 @@ GSTLEARN_EXPORT Anam *ascii_anam_read(const char *file_name, int verbose)
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
-                                     int verbose,
-                                     const char *option_name,
-                                     int type,
-                                     void *answer)
+                                         int verbose,
+                                         const char *option_name,
+                                         int type,
+                                         void *answer)
 {
   FILE *file;
   char keyword[100], keyval[100];
@@ -962,17 +967,17 @@ GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
         if (!strcmp(keyval, "Y") || !strcmp(keyval, "YES")
             || !strcmp(keyval, "y") || !strcmp(keyval, "yes")
             || atoi(keyval) == 1) ival = 1;
-        *((int *) answer) = ival;
+        *((int*) answer) = ival;
         break;
 
       case 1:
         ival = atoi(keyval);
-        *((int *) answer) = ival;
+        *((int*) answer) = ival;
         break;
 
       case 2:
         rval = atof(keyval);
-        *((double *) answer) = rval;
+        *((double*) answer) = rval;
         break;
     }
     lrep = 1;
@@ -995,8 +1000,8 @@ GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
-                                 Frac_Environ *frac,
-                                 int verbose)
+                                     Frac_Environ *frac,
+                                     int verbose)
 {
   FILE *file;
   int family, ifault, error;
@@ -1030,7 +1035,7 @@ GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
   for (family = 0; family < frac->nfamilies; family++)
   {
     st_record_write("#", "Characteristics of family");
-    const Frac_Fam& frac_fam = frac->frac_fams[family];
+    const Frac_Fam &frac_fam = frac->frac_fams[family];
     st_record_write("%lf", frac_fam.orient);
     st_record_write("#", "Mean orientation");
     st_record_write("%lf", frac_fam.dorient);
@@ -1058,7 +1063,7 @@ GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
   for (ifault = 0; ifault < frac->nfaults; ifault++)
   {
     st_record_write("#", "Characteristics of main fault");
-    const Frac_Fault& frac_fault = frac->frac_faults[ifault];
+    const Frac_Fault &frac_fault = frac->frac_faults[ifault];
     st_record_write("%lf", frac_fault.coord);
     st_record_write("#", "Abscissae of the first Fault point");
     st_record_write("%lf", frac_fault.orient);
@@ -1095,7 +1100,8 @@ GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Frac_Environ *ascii_frac_read(const char *file_name, int verbose)
+GSTLEARN_EXPORT Frac_Environ* ascii_frac_read(const char *file_name,
+                                              int verbose)
 {
   Frac_Environ *frac;
   FILE *file;
@@ -1197,16 +1203,16 @@ GSTLEARN_EXPORT Frac_Environ *ascii_frac_read(const char *file_name, int verbose
  ** \param[in]  flag_add_rank 1 To add the rank number
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db *db_read_csv(const char *file_name,
-                            int verbose,
-                            int flag_header,
-                            int nskip,
-                            char char_sep,
-                            char char_dec,
-                            const char *na_string,
-                            int ncol_max,
-                            int nrow_max,
-                            int flag_add_rank)
+GSTLEARN_EXPORT Db* db_read_csv(const char *file_name,
+                                int verbose,
+                                int flag_header,
+                                int nskip,
+                                char char_sep,
+                                char char_dec,
+                                const char *na_string,
+                                int ncol_max,
+                                int nrow_max,
+                                int flag_add_rank)
 {
   Db *db;
   int ncol, nrow;
@@ -1232,7 +1238,8 @@ GSTLEARN_EXPORT Db *db_read_csv(const char *file_name,
 
   for (int i = 0; i < ncol; i++)
   {
-    int j = (flag_add_rank) ? i+1 : i;
+    int j = (flag_add_rank) ? i + 1 :
+                              i;
     if (db_name_set(db, j, names[i])) messerr("Error in db_name_set");
   }
 

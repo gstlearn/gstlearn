@@ -19,7 +19,7 @@ The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library 
 This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LTS and Windows 10 (MacOS: not tested).
 For compiling and installing *gstlearn* C++ Library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
   * [Git](https://git-scm.com/downloads) client
-  * [CMake](https://cmake.org/download) tool 3.15 or higher
+  * [CMake](https://cmake.org/download) tool 3.19 or higher
   * A C++ compiler:
     * Linux/MacOS:
       * [GCC](https://gcc.gnu.org) compiler 5.4 or higher
@@ -30,40 +30,38 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
   * [Boost](https://www.boost.org/users/download) and [HDF5](https://www.hdfgroup.org/solutions/hdf5/) libraries
   
 ## Get the sources
-For getting the sources files, just clone the github repository:
+For getting the sources files, just clone the github repository and create the build directory (out of the sources):
 
 ```sh
 git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
+mkdir -P build
+cd build
 ```
 Notes:
-  * In the following, all instructions must be executed from a command prompt inside this root directory (thus the last command `cd gstlearn`)
+  * In the following, all instructions must be executed from a command prompt inside this *build* directory (thus the last command `cd build`)
 
 ## Library compilation & installation
-For compiling and installing the *gstlearn* C++ Library, execute the following instructions:
-### Microsoft Visual Studio
+For compiling and installing the *gstlearn* C++ Library, execute the following instructions (example given with static library and release version):
+### Multi-configuration compilers (Microsoft Visual Studio, XCode, ...)
 ```sh
-cmake -Bbuild -H.
-cmake --build build --config Release --target static
-sudo cmake --build build --target install
+cmake ..
+cmake --build . --target static --config Release
+sudo make install
 ```
-### Other compilers (GCC, Clang, MinGW, ...)
+### Single configuration compilers (GCC, Clang, MinGW, ...)
 ```sh
-cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target static
-sudo cmake --build build --target install
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make static
+sudo make install
 ```
 Notes:
+  * If you want to build and install the documentation, you must execute `make doxygen` before installing (see below)
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-  * If you want to build and install the *shared* version, you must replace `static` by `shared` above
+  * If you want to build and install the *shared* library, you must replace `static` by `shared` above
     * The tests are compiled in *shared* version only
     * The *static* version is mandatory for creating [pygstlearn package](https://github.com/gstlearn/pygstlearn)
-  * If you *don't want* to compile the tests, use `-DEXCLUDE_TEST=1` in the first command
-  * If you *don't want* to generate doxygen documentation, use `-DEXCLUDE_DOXYGEN=1` in the first command
   * You may need to precise the location of Boost header files, in that case, add `-DBoost_INCLUDE_DIR="<path/to/boost_incs>"` in the first command
-  * You may want to modify `make` behavior when running `cmake --build` command:
-    * If you want to use N CPU for compiling, add `-j N` at the end
-    * If you want to activate verbose mode, add `--no-print-directory VERBOSE=1` (Linux) or `--verbose` (Windows) at the end
 
 ## Usage
 TODO: Instructions will come soon
@@ -78,21 +76,21 @@ sudo apt install libboost-all-dev
 sudo apt install libhdf5-dev
 ```
 Notes:
-  * Under Linux, the GCC compiler is already installed
+  * Under Linux, the GCC compiler and GNU make is already installed
   * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 ### MacOS:
 (not tested - following packages may not exist)
+
 ```sh
 brew install git
 brew install cmake
 brew install doxygen
 brew install libboost-all-dev
 brew install libhdf5-dev
-
 ```
 Notes:
-  * Under MacOS, the GCC (or Clang) compiler is already installed
+  * Under MacOS, the GCC (or Clang) compiler and GNU make is already installed
   * If your MacOS repository doesn't provide minimum required versions, please install manually (see provider website)
   
 ### Windows:
@@ -110,12 +108,12 @@ Notes:
   * The *Path* environment variable must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
+All commands below must be executed from he *build* directory.
 ### Non-regression tests
 #### Microsoft Visual Studio
-To launch non-regression tests, execute the following commands (from he *build* directory):
+To launch non-regression tests, execute the following commands:
 
 ```
-cd build
 ctest -C Release
 ```
 Notes:
@@ -125,38 +123,34 @@ Notes:
 To launch non-regression tests, execute the following command:
 
 ```
-cmake --build build --target test
+make test
 ```
-### Clean & uninstall
+### Clean
 To clean (partially) the build, execute the following command:
 
 ```
-cmake --build build --target clean
+make clean
 ```
-If you want to clean all CMake output, you can remove *build* directory:
-
-```
-rm -rf build
-```
+Note: If you really want to clean all files generated by CMake, you can remove *build* directory content by hand.
 
 ### Uninstall
 To uninstall all the installed files (only the files, not the directories), execute this command:
 
 ```
-sudo cmake --build build --target uninstall
+sudo make uninstall
 ```
 
 ### Generate the documentation
 To (re)generate the documentation using doxygen, execute the command:
 
 ```
-cmake --build build --target doxygen
+make doxygen
 ```
 
 The documentation is then available by opening the following HTML file with your favorite web-browser:
 
 ```
-firefox build/doxygen/html/index.html
+firefox doxygen/html/index.html
 ```
 
 ***
