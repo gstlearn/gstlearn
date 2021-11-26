@@ -33,8 +33,8 @@ target_include_directories(static PUBLIC
 
 
 # Add binary directory to find generated version.h
-target_include_directories(shared PRIVATE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
-target_include_directories(static PRIVATE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
+target_include_directories(shared PUBLIC "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
+target_include_directories(static PUBLIC "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
 
 # Debug message
 #get_target_property(debug shared INTERFACE_INCLUDE_DIRECTORIES)

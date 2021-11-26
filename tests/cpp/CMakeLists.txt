@@ -19,9 +19,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     list(APPEND TARGETS_EXE ${TEST_NAME})
     # Define sources list for the target executable
     add_executable(${TEST_NAME} ${TEST_SOURCE_FILE})
-    # Include directories (-I)
-    target_include_directories(${TEST_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>")
-    # Make sure gstlearn is linked to each test
+    # Link gstlearn to each test
     target_link_libraries(${TEST_NAME} shared)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 
