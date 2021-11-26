@@ -34,6 +34,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Nothing is built by default (target all)
+# TODO : this message is displayed when 'make install'
+# TODO : this message is not displayed for multi-configuation generators
 add_custom_target(nothing ALL
   ${CMAKE_COMMAND} -E cmake_echo_color --cyan "Please, use one of the available targets:"
                                                 " - shared     Build shared library"
