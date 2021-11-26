@@ -31,9 +31,6 @@ target_include_directories(static PUBLIC
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/swig>"
 )
 
-# Add Boost include directory
-target_include_directories(shared PUBLIC "${Boost_INCLUDE_DIRS}")
-target_include_directories(static PUBLIC "${Boost_INCLUDE_DIRS}")
 
 # Add HDF5 include directory
 target_include_directories(shared PUBLIC "${HDF5_INCLUDE_DIRS}")
@@ -61,8 +58,10 @@ set_property(TARGET shared PROPERTY POSITION_INDEPENDENT_CODE 1)
 set_property(TARGET static PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 # Link to boost
+# Target for header-only dependencies. (Boost include directory)
+# It should be PRIVATE if no headers of the gstlearn include boost files
 target_link_libraries(shared PUBLIC Boost::boost)
-target_link_libraries(static PUBLIC Boost::boost) # Not a real link. Transmit info to those who link gstlearn.
+target_link_libraries(static PUBLIC Boost::boost)
 
 # Link to HDF5
 target_link_libraries(shared PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
