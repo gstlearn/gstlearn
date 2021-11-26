@@ -32,10 +32,6 @@ target_include_directories(static PUBLIC
 )
 
 
-# Add HDF5 include directory
-target_include_directories(shared PUBLIC "${HDF5_INCLUDE_DIRS}")
-target_include_directories(static PUBLIC "${HDF5_INCLUDE_DIRS}")
-
 # Add binary directory to find generated version.h (cf cmake tutorial/Step1!) 
 # TODO: Currently doesn't work but I don't know why ! :-(
 #target_include_directories(shared PUBLIC "${PROJECT_BINARY_DIR}")
@@ -64,8 +60,11 @@ target_link_libraries(shared PUBLIC Boost::boost)
 target_link_libraries(static PUBLIC Boost::boost)
 
 # Link to HDF5
+# CMake>=3.19 introduces hdf5 targets that could be used the same way as boost targets
+target_include_directories(shared PUBLIC ${HDF5_INCLUDE_DIRS})
+target_include_directories(static PUBLIC ${HDF5_INCLUDE_DIRS})
 target_link_libraries(shared PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
-target_link_libraries(static PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES}) # Not a real link. Transmit info to those who link gstlearn.
+target_link_libraries(static PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
 
 ############################## End loop on flavor
 
