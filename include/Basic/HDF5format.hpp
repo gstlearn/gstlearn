@@ -11,7 +11,12 @@
 #pragma once
 
 #include "Basic/String.hpp"
+#include "Basic/AStringable.hpp"
 #include "hdf5.h"
+#include "H5Cpp.h"
+#include "typeinfo"
+
+using namespace H5;
 
 class HDF5format
 {
@@ -48,6 +53,8 @@ public:
   void setFileName(const String& filename) { _filename = filename; }
   void setVarName(const String& varname) { _varname = varname; }
 
+  int displayNames() const;
+
   // Functions to be overloaded
   template<typename T>
   void writeData(const T&);
@@ -65,6 +72,9 @@ public:
   VectorVectorInt getDataVVInt() const;
   VectorVectorFloat getDataVVFloat() const;
   VectorVectorDouble getDataVVDouble() const;
+
+  VectorVectorDouble getDataVVDoublePartial() const;
+
   // Return the size of the data
   // Note that for multi-dim arrays that it gets the total size and not the size of a single row.
   int getSize() const;
@@ -128,3 +138,241 @@ public:
   String _filename;
   String _varname;
 };
+
+/**
+ * Numeric implementation of our write data function
+ * Only accepts numerical values. Integers, floats, or doubles
+ * @param data
+ */
+template<typename T>
+void HDF5format::writeData(const T &data)
+{
+  Exception::dontPrint();
+  uint itr = 0;
+  auto *a = new T { data };
+  char* type = (char*) (typeid(T).name());
+  int vrank = 0;
+  hsize_t dims[1];
+  dims[0] = 1;
+  while (true)
+  {
+    try
+    {
+      H5File file(H5std_string (_filename.c_str()), H5F_ACC_TRUNC);
+      DataSpace dsp = DataSpace(vrank, dims);
+      // int
+      if (type == (char*) typeid(int).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::STD_I32LE, dsp);
+        dset.write(a, PredType::STD_I32LE);
+        dset.close();
+      }
+      // float
+      else if (type == (char*) typeid(float).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::IEEE_F32LE, dsp);
+        dset.write(a, PredType::IEEE_F32LE);
+        dset.close();
+      }
+      else if (type == (char*) typeid(double).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::IEEE_F64LE, dsp);
+        dset.write(a, PredType::IEEE_F64LE);
+        dset.close();
+      }
+      else
+      {
+        messerr("Unknown data type! EXITING");
+      }
+      dsp.close();
+      file.close();
+      delete a;
+      break;
+    }
+    catch (FileIException error)
+    {
+      H5File file(H5std_string (_filename.c_str()), H5F_ACC_TRUNC);
+      file.close();
+      itr++;
+      if (itr > 3)
+      {
+        messerr("We've tried too many times in the Int writing sequence");
+        break;
+      }
+    }
+  }
+}
+
+template<typename T>
+void HDF5format::writeData(const std::vector<T> &data)
+{
+  Exception::dontPrint();
+  uint itr = 0; // Used to ensure we don't get stuck in an infinite loop
+  uint npts = data.size(); // size of our data
+  auto *a = new T[npts]; // convert to an array
+  char* type = (char*) (typeid(a[0]).name());
+  int vrank = 1; // since we are using std::vectors we are storing everything in one dimension
+
+  // convert std::vector to array. H5 does not seem to like the pointer implementation
+  for (size_t i = 0; i < npts; ++i)
+    a[i] = data[i];
+  // conventional syntax for H5 data writing
+  hsize_t dims[1];
+  dims[0] = npts;
+  // Let's make sure we are doing what we want and output it to the std output
+
+  // loop here will check if the file exists.
+  while (true)
+  {
+    // This assumes that the file already exists and will then write to the file
+    try
+    {
+      H5File file(H5std_string (_filename.c_str()), H5F_ACC_RDWR);
+      DataSpace dsp = DataSpace(vrank, dims);
+      // int
+      if (type == (char*) typeid(int).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::STD_I32LE, dsp);
+        dset.write(a, PredType::STD_I32LE);
+        dset.close();
+      }
+      // uint
+      else if (type == (char*) typeid(uint).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::STD_U32LE, dsp);
+        dset.write(a, PredType::STD_U32LE);
+        dset.close();
+      }
+      // float
+      else if (type == (char*) typeid(float).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::IEEE_F32LE, dsp);
+        dset.write(a, PredType::IEEE_F32LE);
+        dset.close();
+      }
+      // double
+      else if (type == (char*) typeid(double).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::IEEE_F64LE, dsp);
+        dset.write(a, PredType::IEEE_F64LE);
+        dset.close();
+      }
+      else
+      {
+        messerr("Unknown data type! EXITING");
+      }
+
+      // remember to close everything and delete our arrays
+      dsp.close();
+      file.close();
+      delete[] a;
+      break;
+    }
+    // Here we are catching if the file does not exist. We will then create a new file and return
+    // back to the try statement
+    catch (FileIException error)
+    {
+      H5File file(H5std_string (_filename.c_str()), H5F_ACC_TRUNC);
+      file.close();
+      // Just some warning that we have gone through this catch
+      itr++;
+      if (itr > 3)
+      {
+        messerr("We've tried too many times in the Int writing sequence");
+        break;
+      }
+    }
+  }
+}
+
+template<typename T>
+void HDF5format::writeData(const std::vector<std::vector<T> > &data)
+{
+  Exception::dontPrint();
+  uint itr = 0; // Used to ensure we don't get stuck in an infinite loop
+  uint dim1 = data.size(); // size of our data
+  uint dim2 = data[0].size();
+  auto a = new T[dim1 * dim2]; // convert to an array
+  auto md = new T*[dim1];
+  for (size_t i = 0; i < dim1; ++i)
+    md[i] = a + i * dim2;
+
+  int vrank = 2; // since we are using std::vectors we are storing everything in one dimension
+
+  // convert std::vector to array. H5 does not seem to like the pointer implementation
+  for (size_t i = 0; i < dim1; ++i)
+    for (size_t j = 0; j < dim2; ++j)
+      md[i][j] = data[i][j];
+  // conventional syntax for H5 data writing
+  hsize_t dims[2];
+  dims[0] = (int) dim1;
+  dims[1] = (int) dim2;
+  //hid_t memspace_id = H5Screate_simple(vrank, dims, NULL);
+  // Let's make sure we are doing what we want and output it to the std output
+
+  // loop here will check if the file exists.
+  while (true)
+  {
+    // This assumes that the file already exists and will then write to the file
+    try
+    {
+      H5File file(H5std_string (_filename.c_str()), H5F_ACC_RDWR);
+      DataSpace dsp = DataSpace(vrank, dims);
+      // int
+      if (typeid(T).name() == typeid(int).name())
+      {
+
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::STD_I32LE, dsp);
+        dset.write(a, PredType::STD_I32LE);
+        dset.close();
+      }
+      // uint
+      else if (typeid(T).name() == typeid(uint).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::STD_U32LE, dsp);
+        dset.write(a, PredType::STD_U32LE);
+        dset.close();
+      }
+      // float
+      else if (typeid(T).name() == typeid(float).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::IEEE_F32LE, dsp);
+        dset.write(a, PredType::IEEE_F32LE);
+        dset.close();
+      }
+      // double
+      else if (typeid(T).name() == typeid(double).name())
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::IEEE_F64LE, dsp);
+        dset.write(a, PredType::IEEE_F64LE);
+        dset.close();
+      }
+      else
+      {
+        messerr("Unknown data type! EXITING");
+      }
+
+      // remember to close everything and delete our arrays
+      dsp.close();
+      file.close();
+      delete[] md;
+      delete a;
+      break;
+    }
+    // Here we are catching if the file does not exist. We will then create a new file and return
+    // back to the try statement
+    catch (FileIException error)
+    {
+      H5File file(H5std_string (_filename.c_str()), H5F_ACC_TRUNC);
+      file.close();
+      // Just some warning that we have gone through this catch
+      itr++;
+      if (itr > 3)
+      {
+        messerr("We've tried too many times in the Int writing sequence");
+        break;
+      }
+    }
+  }
+}
+

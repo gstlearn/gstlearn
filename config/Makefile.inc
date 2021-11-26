@@ -75,3 +75,4 @@ endif
 # This is only for LINUX. To be improved for Windows
 CXXFLAGS += -I/usr/include/hdf5/serial
 LIBS += -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lhdf5 -lhdf5_cpp
+#LIBS += -lhdf5 -lhdf5_cpp
