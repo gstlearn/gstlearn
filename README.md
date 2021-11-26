@@ -27,7 +27,8 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
       * [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher
       * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
-  * [Boost](https://www.boost.org/users/download) and [HDF5](https://www.hdfgroup.org/solutions/hdf5/) libraries
+  * [Boost](https://www.boost.org/users/download)
+  * [HDF5](https://www.hdfgroup.org/solutions/hdf5/) libraries
   
 ## Get the sources
 For getting the sources files, just clone the github repository and create the build directory (out of the sources):
@@ -100,20 +101,22 @@ Download and install the following tools:
   * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below) - OR - MinGW 7+ [from here](https://www.mingw-w64.org/downloads/)
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
   * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory. If you choose another directory, CMake won't find it!)
-  * HDF5 library [from here](https://www.hdfgroup.org/downloads/hdf5) (Download and extract the zip file) TODO : HDF5 to be tested on windows!
+  * HDF5 library [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
     
 Notes:
+  * You must restart your computer after installing these requirements
   * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (more details [here](https://stackoverflow.com/a/44398715)). Administrator rights are required.
   * If you prefer using another smaller compiler (i.e. MinGW), you could [try this](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29)
-  * The *Path* environment variable must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
+  * The *Path* environment variable must be updated to make *doxygen.exe* available (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
 All commands below must be executed from he *build* directory.
 ### Non-regression tests
 #### Microsoft Visual Studio
-To launch non-regression tests, execute the following commands:
+To build and launch non-regression tests, execute the following commands:
 
 ```
+cmake --build . --target  build_test
 ctest -C Release
 ```
 Notes:
@@ -123,6 +126,7 @@ Notes:
 To launch non-regression tests, execute the following command:
 
 ```
+make build_test
 make test
 ```
 ### Clean
