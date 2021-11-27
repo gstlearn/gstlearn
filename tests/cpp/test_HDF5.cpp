@@ -257,7 +257,7 @@ int main (void)
   // Initializations
 
   int verbose  = 0;
-  int ipart    = 3;
+  int ipart    = 0;
 
   // Main dispatch
 
@@ -452,15 +452,11 @@ int main (void)
     // Extract a row (VectorDouble) of the VectorVectorDouble file
     hdf5b.setVarName("VectorVectorDouble");
     ut_vector_display("Ensemble of VectorDouble",rvdval);
-    int myrank = 3;
-    message("Extracting the rank %d\n",myrank);
-    VectorDouble rpdval = hdf5b.getDataDoublePartial(myrank);
-    ut_vector_display("Extracted VectorDouble",rpdval);
 
-    // Modify the contents of the extracted vector (by adding constant to all terms)
-    // Write it back into the file
+    int myrank = 3;
+    message("\nExtracting the rank #%d (then add 100)\n",myrank);
+    VectorDouble rpdval = hdf5b.getDataDoublePartial(myrank);
     ut_vector_addval(rpdval, 100.);
-    ut_vector_display("Modified VectorDouble",rpdval);
     hdf5b.writeDataDoublePartial(myrank, rpdval);
 
     // Extract the whole file and print it
@@ -491,7 +487,7 @@ int main (void)
       for (size_t j = 0; j < dim2; ++j)
         vdval[i][j] = i + j;
 
-    mestitle(1, "Read/Write series of same type");
+    mestitle(1, "Read/Write VectorDouble in a file created incrementally");
     HDF5format hdf5c(FILE, DATASET);
 
     // Create the empty file
@@ -511,6 +507,19 @@ int main (void)
 
     // Extract the whole file and print it
     VectorVectorDouble rpvdval = hdf5c.getData();
+    ut_vector_display("Initial VectorDouble",rpvdval);
+
+    // Extracting one VectorDouble (at a given row number). Modify it by adding 1000
+
+    int myrank = 5;
+    message("\nExtracting the rank #%d (then add 1000)\n",myrank);
+    VectorDouble rpdval = hdf5c.getDataDoublePartial(myrank);
+    ut_vector_addval(rpdval, 1000.);
+
+    hdf5c.writeDataDoublePartial(myrank, rpdval);
+
+    // Extract the whole file and print it
+    rpvdval = hdf5c.getData();
     ut_vector_display("Modified VectorVectorDouble",rpvdval);
 
     // Delete the file
