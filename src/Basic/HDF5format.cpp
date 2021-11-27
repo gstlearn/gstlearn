@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <typeinfo>
 
+#define DEBUG 0
+
 HDF5format::HDF5format(const String& filename,
                        const String& varname)
   : _filename(filename)
@@ -209,11 +211,9 @@ void* HDF5format::readRegular(int flag_compress,
   // In the compression case, update the arguments
 
   if (flag_compress)
-    err = H5Sselect_hyperslab(memspace,H5S_SELECT_SET,
-                              start0,block,count,block);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, start0, block, count, block);
   else
-    err = H5Sselect_hyperslab(memspace,H5S_SELECT_SET,
-                              start,stride,count,block);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, start, stride, count, block);
   if (err < 0) goto label_end;
 
   err = H5Dread(dataset, type, memspace, dataspace,H5P_DEFAULT, rdata);
@@ -303,8 +303,6 @@ int HDF5format::writeRegular(hid_t type,
   memspace = H5Screate_simple(ndim,dims,NULL);
   if (memspace < 0) goto label_end;
 
-  // Define the hyperslab in memory
-
   err = H5Sselect_hyperslab(memspace,H5S_SELECT_SET,start0,block,count,block);
   if (err < 0) goto label_end;
 
@@ -383,6 +381,7 @@ int HDF5format::getDataInt() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
+    hsize_t* dims = _getDims(dataspace);
     H5T_class_t classt = datatype.getClass();
     if (classt != 0)
     {
@@ -391,12 +390,10 @@ int HDF5format::getDataInt() const
       return -1;
     }
     int *data = new int;
-    IntType itype = dataset.getIntType();
-
-    H5std_string order_string;
-    FloatType ftype = dataset.getFloatType();
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
 
     if (order == 0 && size == 1)
       dataset.read(data, PredType::STD_I8LE); // Our standard integer
@@ -420,6 +417,7 @@ int HDF5format::getDataInt() const
     // Manage our memory properly
     int v = *data;
 
+    delete[] dims;
     delete data;
     dataspace.close();
     datatype.close();
@@ -448,16 +446,17 @@ float HDF5format::getDataFloat() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
+    hsize_t* dims = _getDims(dataspace);
     H5T_class_t classt = datatype.getClass();
     if (classt != 1)
     {
       messerr("%s is not a float... you can't save this as a float.", _varname.c_str());
       return -1;
     }
-    FloatType ftype = dataset.getFloatType();
-    H5std_string order_string;
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
     float *data = new float;
 
     if (order == 0 && size == 4)
@@ -469,9 +468,7 @@ float HDF5format::getDataFloat() const
     }
     else if (order == 1 && size == 4)
       dataset.read(data, PredType::IEEE_F32BE);
-    else if ((order_string == "Big endian byte order_stringing (1)"
-        || order == 1)
-             && size == 8)
+    else if ((big_endian || order == 1) && size == 8)
     {
       message("NOTE: This is actually double data. We are casting to float\n");
       dataset.read((float*) data, PredType::IEEE_F64BE);
@@ -481,6 +478,7 @@ float HDF5format::getDataFloat() const
 
     float v = *data;
 
+    delete[] dims;
     delete data;
     dataspace.close();
     datatype.close();
@@ -509,16 +507,17 @@ double HDF5format::getDataDouble() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
+    hsize_t* dims = _getDims(dataspace);
     H5T_class_t classt = datatype.getClass();
     if (classt != 1)
     {
       messerr("%s is not a float... you can't save this as a float.",_varname.c_str());
       return -1.;
     }
-    FloatType ftype = dataset.getFloatType();
-    H5std_string order_string;
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
     double *data = new double;
 
     if (order == 0 && size == 4)
@@ -540,6 +539,7 @@ double HDF5format::getDataDouble() const
 
     float v = *data;
 
+    delete[] dims;
     delete data;
     dataspace.close();
     datatype.close();
@@ -568,6 +568,7 @@ VectorInt HDF5format::getDataVInt() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
+    hsize_t* dims = _getDims(dataspace);
     const int npts = dataspace.getSimpleExtentNpoints(); // Gets length of data
     H5T_class_t classt = datatype.getClass(); // Gets the data type of the data
     // Let's make a quick error check
@@ -579,9 +580,10 @@ VectorInt HDF5format::getDataVInt() const
     }
     int *data = new int[npts]; // allocate at run time what the size will be
     IntType itype = dataset.getIntType();
-    H5std_string order_string;
-    H5T_order_t order = itype.getOrder(order_string);
-    size_t size = itype.getSize();
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
 
     if (order == 0 && size == 1)
       dataset.read(data, PredType::STD_I8LE); // Our standard integer
@@ -604,6 +606,7 @@ VectorInt HDF5format::getDataVInt() const
 
     VectorInt v(data, data + npts); // Arrays are nice, but vectors are better
 
+    delete[] dims;
     delete[] data;
     dataspace.close();
     datatype.close();
@@ -632,6 +635,8 @@ VectorFloat HDF5format::getDataVFloat() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
+    hsize_t* dims = _getDims(dataspace);
+
     const int npts = dataspace.getSimpleExtentNpoints();
     H5T_class_t classt = datatype.getClass();
     if (classt != 1)
@@ -641,24 +646,22 @@ VectorFloat HDF5format::getDataVFloat() const
       VectorFloat err { 1, -1. };
       return err;
     }
-    FloatType ftype = dataset.getFloatType();
-    H5std_string order_string;
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
     float *data = new float[npts];
 
     if (order == 0 && size == 4)
       dataset.read(data, PredType::IEEE_F32LE); // Our standard integer
     else if (order == 0 && size == 8)
     {
-      dataset.read((float*) data, PredType::IEEE_F64LE);
       message("NOTE: This is actually double data. We are casting to float\n");
+      dataset.read((float*) data, PredType::IEEE_F64LE);
     }
     else if (order == 1 && size == 4)
       dataset.read(data, PredType::IEEE_F32BE);
-    else if ((order_string == "Big endian byte order_stringing (1)"
-        || order == 1)
-             && size == 8)
+    else if ((big_endian || order == 1) && size == 8)
     {
       message("NOTE: This is actually double data We are casting to float\n");
       dataset.read((float*) data, PredType::IEEE_F64BE);
@@ -668,6 +671,7 @@ VectorFloat HDF5format::getDataVFloat() const
 
     VectorFloat v(data, data + npts);
 
+    delete[] dims;
     delete[] data;
     dataspace.close();
     datatype.close();
@@ -696,6 +700,8 @@ VectorDouble HDF5format::getDataVDouble() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
+    hsize_t* dims = _getDims(dataspace);
+
     const int npts = dataspace.getSimpleExtentNpoints();
     H5T_class_t classt = datatype.getClass();
     if (classt != 1)
@@ -705,10 +711,10 @@ VectorDouble HDF5format::getDataVDouble() const
       VectorDouble err { 1, -1. };
       return err;
     }
-    FloatType ftype = dataset.getFloatType();
-    H5std_string order_string;
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
     double *data = new double[npts];
 
     if (order == 0 && size == 4)
@@ -730,6 +736,7 @@ VectorDouble HDF5format::getDataVDouble() const
 
     VectorDouble v(data, data + npts);
 
+    delete[] dims;
     delete[] data;
     dataspace.close();
     datatype.close();
@@ -762,13 +769,11 @@ VectorVectorInt HDF5format::getDataVVInt() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
-    int rank = dataspace.getSimpleExtentNdims();
-    hsize_t dims[rank];
-    dataspace.getSimpleExtentDims(dims);
-    FloatType ftype = dataset.getFloatType();
-    H5std_string order_string;
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    hsize_t* dims = _getDims(dataspace);
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
     size_t dim1 = dims[0];
     size_t dim2 = dims[1];
     auto data = new int[dim1 * dim2];
@@ -800,6 +805,7 @@ VectorVectorInt HDF5format::getDataVVInt() const
       for (size_t j = 0; j < dim2; ++j)
         v[i][j] = md[i][j];
 
+    delete[] dims;
     delete[] md;
     delete data;
     dataspace.close();
@@ -829,13 +835,11 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
-    int rank = dataspace.getSimpleExtentNdims();
-    hsize_t dims[rank];
-    dataspace.getSimpleExtentDims(dims);
-    FloatType ftype = dataset.getFloatType();
-    H5std_string order_string;
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    hsize_t* dims = _getDims(dataspace);
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
     size_t dim1 = dims[0];
     size_t dim2 = dims[1];
     //float data[dim1][dim2];
@@ -853,13 +857,14 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
     else if (order == 1 && size == 8)
       dataset.read(data, PredType::IEEE_F64BE);
     else
-      messageAbort("Did not find data typn");
+      messageAbort("Did not find data type");
 
     VectorVectorFloat v(dim1, VectorFloat(dim2, 0)); //data, data + npts);
     for (size_t i = 0; i < dim1; ++i)
       for (size_t j = 0; j < dim2; ++j)
         v[i][j] = md[i][j];
 
+    delete[] dims;
     delete[] md;
     delete data;
     dataspace.close();
@@ -889,16 +894,13 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
-    int rank = dataspace.getSimpleExtentNdims();
-    hsize_t dims[rank];
-    dataspace.getSimpleExtentDims(dims);
-    FloatType ftype = dataset.getFloatType();
-    H5std_string order_string;
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    hsize_t* dims = _getDims(dataspace);
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
     size_t dim1 = dims[0];
     size_t dim2 = dims[1];
-    //double data[dim1][dim2];
     auto data = new double[dim1 * dim2];
     auto md = new double*[dim1];
     for (size_t i = 0; i < dim1; ++i)
@@ -920,6 +922,7 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
       for (size_t j = 0; j < dim2; ++j)
         v[i][j] = md[i][j];
 
+    delete[] dims;
     delete[] md;
     delete data;
     dataspace.close();
@@ -940,7 +943,13 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
   }
 }
 
-VectorVectorDouble HDF5format::getDataVVDoublePartial() const
+/**
+ * This function extracts one VectorDouble from a data set constructed
+ * with a set of VectorDouble (i.e. VectorVectorDouble)
+ * @param myrank Rank of the extracted VectorDouble
+ * @return The extracted VectorDouble
+ */
+VectorDouble HDF5format::getDataDoublePartial(int myrank) const
 {
   try
   {
@@ -948,42 +957,50 @@ VectorVectorDouble HDF5format::getDataVVDoublePartial() const
     DataSet dataset = file.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
-    int rank = dataspace.getSimpleExtentNdims();
-    hsize_t dims[rank];
-    dataspace.getSimpleExtentDims(dims);
-    message("Dataset rank = %d. dimensions = ",rank);
-    for (int idim = 0; idim < rank ; idim++) message(" %d",dims[idim]);
-    message("\n");
-
-    FloatType ftype = dataset.getFloatType();
-    H5std_string order_string;
-    H5T_order_t order = ftype.getOrder(order_string);
-    size_t size = ftype.getSize();
+    hsize_t* dims = _getDims(dataspace);
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
     size_t dim1 = dims[0];
     size_t dim2 = dims[1];
-    //double data[dim1][dim2];
-    auto data = new double[dim1 * dim2];
-    auto md = new double*[dim1];
-    for (size_t i = 0; i < dim1; ++i)
-      md[i] = data + i * dim2;
+    if (myrank < 0 || myrank >= (int) dim1)
+    {
+      messerr("The argument 'myrank' should be smaller than %d",(int) dim1);
+      return VectorDouble();
+    }
+
+    // Read a single element (VectorDouble) from the dataset
+    // - First define memory dataspace, then define hyperslab and read it into output array.
+
+    hsize_t mydims[1];
+    mydims[0] = dim2;
+    DataSpace myspace( 1, mydims );
+    hsize_t  count[2] = { 1, dim2 };
+    hsize_t offset[2] = { (hsize_t) myrank, 0};
+    auto data = new double[dim2];
+    dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
 
     if (order == 0 && size == 4)
-      dataset.read(data, PredType::IEEE_F32LE); // Our standard integer
+    {
+      message("NOTE: This is actually float data. We are casting to double\n");
+      dataset.read((double*) data, PredType::IEEE_F32LE, myspace, dataspace);
+    }
     else if (order == 0 && size == 8)
-      dataset.read(data, PredType::IEEE_F64LE);
+      dataset.read(data, PredType::IEEE_F64LE, myspace, dataspace);
     else if (order == 1 && size == 4)
-      dataset.read(data, PredType::IEEE_F32BE);
+    {
+      message("NOTE: This is actually float data. We are casting to double\n");
+      dataset.read((double*) data, PredType::IEEE_F32BE, myspace, dataspace);
+    }
     else if (order == 1 && size == 8)
-      dataset.read(data, PredType::IEEE_F64BE);
+      dataset.read((double*) data, PredType::IEEE_F64BE, myspace, dataspace);
     else
       messageAbort("Did not find data type\n");
 
-    VectorVectorDouble v(dim1, VectorDouble(dim2, 0)); //data, data + npts);
-    for (size_t i = 0; i < dim1; ++i)
-      for (size_t j = 0; j < dim2; ++j)
-        v[i][j] = md[i][j];
+    VectorDouble v(data, data + dim2);
 
-    delete[] md;
+    delete[] dims;
     delete data;
     dataspace.close();
     datatype.close();
@@ -993,16 +1010,165 @@ VectorVectorDouble HDF5format::getDataVVDoublePartial() const
   }
   catch (FileIException error)
   {
-    VectorVectorDouble err { 1, VectorDouble(1, -1.) };
+    VectorDouble err { VectorDouble(1, -1.) };
     return err;
   }
   catch (GroupIException error)
   {
-    VectorVectorDouble err { 1, VectorDouble(1, -1.) };
+    VectorDouble err { VectorDouble(1, -1.) };
     return err;
   }
 }
 
+int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
+{
+  Exception::dontPrint();
+  uint npts = data.size(); // size of our data
+  auto *a = new double[npts]; // convert to an array
+  // convert std::vector to array. H5 does not seem to like the pointer implementation
+  for (size_t i = 0; i < npts; ++i)
+    a[i] = data[i];
+
+  try
+  {
+    H5File file(H5std_string (_filename.c_str()), H5F_ACC_RDWR);
+    DataSet dataset = file.openDataSet(_varname.c_str());
+    DataType datatype = dataset.getDataType();
+    DataSpace dataspace = dataset.getSpace();
+    hsize_t* dims = _getDims(dataspace);
+    H5T_order_t order;
+    size_t size;
+    bool big_endian;
+    _getOrderSize(dataset, &order, &size, &big_endian);
+    size_t dim1 = dims[0];
+    size_t dim2 = dims[1];
+    if (myrank < 0 || myrank >= (int) dim1)
+    {
+      messerr("The argument 'myrank' should be smaller than %d",(int) dim1);
+      return 1;
+    }
+    if (npts != dim2)
+    {
+      messerr("Wrong dimension of argument 'data'. It should be %d long",dim2);
+      return 1;
+    }
+
+    // Read a single element (VectorDouble) from the dataset
+    // - First define memory dataspace, then define hyperslab and read it into output array.
+
+    hsize_t mydims[1];
+    mydims[0] = dim2;
+    DataSpace myspace( 1, mydims );
+    hsize_t  count[2] = { 1, dim2 };
+    hsize_t offset[2] = { (hsize_t) myrank, 0};
+    dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
+
+    if (order == 0 && size == 4)
+    {
+      message("NOTE: This is actually float data. We are casting to double\n");
+      dataset.write((double*) a, PredType::IEEE_F32LE, myspace, dataspace);
+    }
+    else if (order == 0 && size == 8)
+      dataset.write(a, PredType::IEEE_F64LE, myspace, dataspace);
+    else if (order == 1 && size == 4)
+    {
+      message("NOTE: This is actually float data. We are casting to double\n");
+      dataset.write((double*) a, PredType::IEEE_F32BE, myspace, dataspace);
+    }
+    else if (order == 1 && size == 8)
+      dataset.write((double*) a, PredType::IEEE_F64BE, myspace, dataspace);
+    else
+      messageAbort("Did not find data type\n");
+
+    delete[] dims;
+    dataspace.close();
+    datatype.close();
+    dataset.close();
+    file.close();
+    return 0;
+  }
+  catch (FileIException error)
+  {
+    return 1;
+  }
+  catch (GroupIException error)
+  {
+    return 1;
+  }
+}
+
+/**
+ * Initialize an empty HDF5 file. The user must give the vector of dimension
+ * and the type of storage
+ * @param argdims Vector of dimensions
+ * @param type 1 for Int, 2 for Uint, 3 for Float, 4 for Double
+ */
+void HDF5format::createData(const VectorInt& argdims,int type)
+{
+  Exception::dontPrint();
+  uint itr = 0;
+  int ndim = argdims.size();
+  hsize_t dims[ndim];
+  for (int i = 0; i < ndim; i++) dims[i] = argdims[i];
+
+  while (true)
+  {
+    try
+    {
+      H5File file(H5std_string (_filename.c_str()), H5F_ACC_RDWR);
+      DataSpace dsp = DataSpace(ndim, dims);
+      // int
+      if (type == 1)
+      {
+
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::STD_I32LE, dsp);
+        dset.close();
+      }
+      // uint
+      else if (type == 2)
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::STD_U32LE, dsp);
+        dset.close();
+      }
+      // float
+      else if (type == 3)
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::IEEE_F32LE, dsp);
+        dset.close();
+      }
+      // double
+      else if (type == 4)
+      {
+        DataSet dset = file.createDataSet(H5std_string (_varname.c_str()), PredType::IEEE_F64LE, dsp);
+        dset.close();
+      }
+      else
+      {
+        messerr("Unknown data type! EXITING");
+      }
+
+      // remember to close everything and delete our arrays
+      dsp.close();
+      file.close();
+      break;
+    }
+    // Here we are catching if the file does not exist. We will then create a new file and return
+    // back to the try statement
+    catch (FileIException error)
+    {
+      H5File file(H5std_string (_filename.c_str()), H5F_ACC_TRUNC);
+      file.close();
+      itr++;
+      if (itr > 3)
+      {
+        messerr("We've tried too many times in the Int writing sequence");
+        break;
+      }
+    }
+  }
+}
+
+// TODO To be implemented
 int HDF5format::displayNames() const
 {
   try
@@ -1016,5 +1182,40 @@ int HDF5format::displayNames() const
   catch (GroupIException error)
   {
     return 1;
+  }
+}
+
+hsize_t* HDF5format::_getDims(const DataSpace& dataspace) const
+{
+  int rank = dataspace.getSimpleExtentNdims();
+  hsize_t* dims = new hsize_t[rank];
+  dataspace.getSimpleExtentDims(dims);
+
+  if (DEBUG)
+  {
+    message("Dataset rank = %d. dimensions = %d", rank, dims[0]);
+    for (int idim = 1; idim < rank; idim++)
+      message(" x %d", dims[idim]);
+    message("\n");
+  }
+  return dims;
+}
+
+void HDF5format::_getOrderSize(const DataSet& dataset,
+                               H5T_order_t* order,
+                               size_t* size,
+                               bool* big_endian) const
+{
+  H5std_string order_string;
+  FloatType ftype = dataset.getFloatType();
+  *order = ftype.getOrder(order_string);
+  *size = ftype.getSize();
+  *big_endian = (order_string == "Big endian byte order_stringing (1)");
+
+  if (DEBUG)
+  {
+    message("Order = %d - Size = %d",(int) *order,(int) *size);
+    if (*big_endian) message(" - Big Endian");
+    message("\n");
   }
 }

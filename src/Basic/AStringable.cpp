@@ -1007,6 +1007,26 @@ String toVector(const String& title, const VectorDouble& tab)
 }
 
 /**
+ * Printout a list of vectors in a formatted manner
+ * @param title Title of the printout (or empty string)
+ * @param tab   Vector of vectors (real values) to be printed
+ * @return The string (terminated with a newline)
+ */
+String toVector(const String& title, const VectorVectorDouble& tab)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  if (! title.empty())
+    sstr << title << std::endl;
+
+  for (int i = 0; i < (int) tab.size(); i++)
+    sstr << toVector(String(), tab[i]);
+
+  return sstr.str();
+}
+
+/**
  * Printout a vector in a formatted manner
  * @param title Title of the printout (or empty string)
  * @param tab   Vector (integer values) to be printed

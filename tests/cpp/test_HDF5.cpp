@@ -14,10 +14,6 @@
 #include "geoslib_old_f.h"
 #include <malloc.h>
 
-#define FILE1           "h5data1.h5"
-#define FILE2           "h5data2.h5"
-#define DATASET1        "DS1"
-
 /**
  * This test is meant to check the HDF5 read/write facility
  */
@@ -261,12 +257,15 @@ int main (void)
   // Initializations
 
   int verbose  = 0;
-  int ipart    = 2;
+  int ipart    = 3;
 
   // Main dispatch
 
   if (ipart == 0 || ipart == 1)
   {
+#define FILE    "h5data1.h5"
+#define DATASET "DS1"
+
     int icas = 2;
     int nfois = 1;
     int niter = 1000;
@@ -280,7 +279,7 @@ int main (void)
 
     // Define the HDF5 file and variable names
 
-    HDF5format hdf5(FILE1, DATASET1);
+    HDF5format hdf5(FILE, DATASET);
 
     // Core allocation & filling the array
 
@@ -368,25 +367,29 @@ int main (void)
     hdf5.deleteFile();
     free(wdata);
     wdata = NULL;
+
+#undef FILE
+#undef DATASET
   }
 
   // Define the HDF5 file and variable names
 
   if (ipart == 0 || ipart == 2)
   {
+#define FILE "h5data2.h5"
 #define dim0 10
-#define dim1 5
-#define dim2 3
+#define dim1 7
+#define dim2 5
 
-    VectorInt ival;
+    VectorInt ival(dim0);
     for (size_t i = 0; i < dim0; i++)
-      ival.push_back(i);
-    VectorFloat fval;
+      ival[i] = i;
+    VectorFloat fval(dim0);
     for (size_t i = 0; i < dim0; i++)
-      fval.push_back(i * 0.1);
-    VectorDouble dval;
+      fval[i] = i * 0.1;
+    VectorDouble dval(dim0);
     for (size_t i = 0; i < dim0; i++)
-      dval.push_back(i * 0.1);
+      dval[i] = i * 0.1;
     VectorVectorInt vival(dim1, VectorInt(dim2));
     for (size_t i = 0; i < dim1; ++i)
       for (size_t j = 0; j < dim2; ++j)
@@ -397,7 +400,7 @@ int main (void)
         vdval[i][j] = i + j;
 
     mestitle(1, "Read/Write series of same type");
-    HDF5format hdf5b(FILE2);
+    HDF5format hdf5b(FILE);
 
     // Write
     hdf5b.setVarName("ValueInt");
@@ -422,35 +425,100 @@ int main (void)
 
     // To Load Data
 //    hdf5b.setVarName("ValueInt");
-//    int rival0 = hdf5b.getDataInt();
+//    int rival0 = hdf5b.getData();
 //    if (rival0 != ival[0]) messageAbort("Error when handling Int");
 //    hdf5b.setVarName("ValueFloat");
-//    float rfval0 = hdf5b.getDataFloat();
+//    float rfval0 = hdf5b.getData();
 //    if (rfval0 != fval[0]) messageAbort("Error when handling Float");
     hdf5b.setVarName("ValueDouble");
-    double rdval0 = hdf5b.getDataDouble();
+    double rdval0 = hdf5b.getData();
     if (rdval0 != dval[0]) messageAbort("Error when handling Double");
     hdf5b.setVarName("VectorInt");
-    VectorInt rival = hdf5b.getDataVInt();
+    VectorInt rival = hdf5b.getData();
     if (ival != rival) messageAbort("Error when handling VectorInt");
     hdf5b.setVarName("VectorFloat");
-    VectorFloat rfval = hdf5b.getDataVFloat();
+    VectorFloat rfval = hdf5b.getData();
     if (fval != rfval) messageAbort("Error when handling VectorFloat");
     hdf5b.setVarName("VectorDouble");
-    VectorDouble rdval = hdf5b.getDataVDouble();
+    VectorDouble rdval = hdf5b.getData();
     if (dval != rdval) messageAbort("Error when handling VectorDouble");
     hdf5b.setVarName("VectorVectorInt");
-    VectorVectorInt rvival = hdf5b.getDataVVInt();
+    VectorVectorInt rvival = hdf5b.getData();
     if (vival != rvival) messageAbort("Error when handling VectorVectorInt");
     hdf5b.setVarName("VectorVectorDouble");
-    VectorVectorDouble rvdval = hdf5b.getDataVVDouble();
+    VectorVectorDouble rvdval = hdf5b.getData();
     if (vdval != rvdval) messageAbort("Error when handling VectorVectorDouble");
 
-    rvdval = hdf5b.getDataVVDoublePartial();
+    // Extract a row (VectorDouble) of the VectorVectorDouble file
+    hdf5b.setVarName("VectorVectorDouble");
+    ut_vector_display("Ensemble of VectorDouble",rvdval);
+    int myrank = 3;
+    message("Extracting the rank %d\n",myrank);
+    VectorDouble rpdval = hdf5b.getDataDoublePartial(myrank);
+    ut_vector_display("Extracted VectorDouble",rpdval);
+
+    // Modify the contents of the extracted vector (by adding constant to all terms)
+    // Write it back into the file
+    ut_vector_addval(rpdval, 100.);
+    ut_vector_display("Modified VectorDouble",rpdval);
+    hdf5b.writeDataDoublePartial(myrank, rpdval);
+
+    // Extract the whole file and print it
+    VectorVectorDouble rpvdval = hdf5b.getData();
+    ut_vector_display("Modified VectorVectorDouble",rpvdval);
 
     // Delete the file
 
     hdf5b.deleteFile();
+
+#undef FILE
+#undef dim0
+#undef dim1
+#undef dim2
+  }
+
+  // Defining a HDF5 file and file it incrementally
+
+  if (ipart == 0 || ipart == 3)
+  {
+#define FILE    "h5data3.h5"
+#define DATASET "Set3"
+#define dim1 8
+#define dim2 5
+
+    VectorVectorDouble vdval(dim1, VectorDouble(dim2));
+    for (size_t i = 0; i < dim1; ++i)
+      for (size_t j = 0; j < dim2; ++j)
+        vdval[i][j] = i + j;
+
+    mestitle(1, "Read/Write series of same type");
+    HDF5format hdf5c(FILE, DATASET);
+
+    // Create the empty file
+    VectorInt dims = { dim1, dim2 };
+    hdf5c.createData(dims, 4);
+
+    // Store VectorDouble incrementally
+    VectorDouble rowval(dim2);
+    for (int irow = 0; irow < dim1; irow++)
+    {
+      // Define the values in the row
+      for (int icol = 0; icol < dim2; icol++) rowval[icol] = 100 * (1+irow) + (1+icol);
+
+      // Store the row (VectorDouble)
+      hdf5c.writeDataDoublePartial(irow, rowval);
+    }
+
+    // Extract the whole file and print it
+    VectorVectorDouble rpvdval = hdf5c.getData();
+    ut_vector_display("Modified VectorVectorDouble",rpvdval);
+
+    // Delete the file
+
+    hdf5c.deleteFile();
+
+#undef dim1
+#undef dim2
   }
 
   // Core deallocation

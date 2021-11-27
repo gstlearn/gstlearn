@@ -73,15 +73,16 @@ public:
   VectorVectorFloat getDataVVFloat() const;
   VectorVectorDouble getDataVVDouble() const;
 
-  VectorVectorDouble getDataVVDoublePartial() const;
+  void createData(const VectorInt& argdims,int type);
+  VectorDouble getDataDoublePartial(int myrank) const;
+  int writeDataDoublePartial(int myrank, const VectorDouble& data);
 
   // Return the size of the data
   // Note that for multi-dim arrays that it gets the total size and not the size of a single row.
   int getSize() const;
 
   // We now make a proxy class so that we can overload the return type and use a single
-  // function to get data whether int or float. This could be made more advanced by
-  // adding more data types (such as double).
+  // function to get data whether int or float or double.
   class Proxy
   {
   private:
@@ -133,6 +134,13 @@ public:
   {
     return Proxy(this);
   }
+
+private:
+  hsize_t* _getDims(const DataSpace& dataspace) const;
+  void _getOrderSize(const DataSet& dataset,
+                     H5T_order_t* order,
+                     size_t* size,
+                     bool* big_endian) const;
 
 public:
   String _filename;
@@ -207,21 +215,16 @@ template<typename T>
 void HDF5format::writeData(const std::vector<T> &data)
 {
   Exception::dontPrint();
-  uint itr = 0; // Used to ensure we don't get stuck in an infinite loop
-  uint npts = data.size(); // size of our data
-  auto *a = new T[npts]; // convert to an array
+  uint itr = 0;
+  uint npts = data.size();
+  auto *a = new T[npts];
   char* type = (char*) (typeid(a[0]).name());
-  int vrank = 1; // since we are using std::vectors we are storing everything in one dimension
-
-  // convert std::vector to array. H5 does not seem to like the pointer implementation
+  int vrank = 1;
   for (size_t i = 0; i < npts; ++i)
     a[i] = data[i];
-  // conventional syntax for H5 data writing
   hsize_t dims[1];
   dims[0] = npts;
-  // Let's make sure we are doing what we want and output it to the std output
 
-  // loop here will check if the file exists.
   while (true)
   {
     // This assumes that the file already exists and will then write to the file
@@ -289,28 +292,21 @@ template<typename T>
 void HDF5format::writeData(const std::vector<std::vector<T> > &data)
 {
   Exception::dontPrint();
-  uint itr = 0; // Used to ensure we don't get stuck in an infinite loop
-  uint dim1 = data.size(); // size of our data
+  uint itr = 0;
+  uint dim1 = data.size();
   uint dim2 = data[0].size();
-  auto a = new T[dim1 * dim2]; // convert to an array
+  auto a = new T[dim1 * dim2];
   auto md = new T*[dim1];
   for (size_t i = 0; i < dim1; ++i)
     md[i] = a + i * dim2;
-
-  int vrank = 2; // since we are using std::vectors we are storing everything in one dimension
-
-  // convert std::vector to array. H5 does not seem to like the pointer implementation
+  int vrank = 2;
   for (size_t i = 0; i < dim1; ++i)
     for (size_t j = 0; j < dim2; ++j)
       md[i][j] = data[i][j];
-  // conventional syntax for H5 data writing
   hsize_t dims[2];
   dims[0] = (int) dim1;
   dims[1] = (int) dim2;
-  //hid_t memspace_id = H5Screate_simple(vrank, dims, NULL);
-  // Let's make sure we are doing what we want and output it to the std output
 
-  // loop here will check if the file exists.
   while (true)
   {
     // This assumes that the file already exists and will then write to the file

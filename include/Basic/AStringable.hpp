@@ -69,13 +69,10 @@ String toMatrixDiagCst(const String& title,
                        int ncols,
                        const VectorDouble &tab,
                        bool flagOverride = false);
-String toMatrix(const String& title,
-                const cs* A,
-                bool  flagOverride = false);
-String toVector(const String& title,
-                const VectorDouble& tab);
-String toVector(const String& title,
-                const VectorInt& tab);
+String toMatrix(const String& title, const cs* A, bool flagOverride = false);
+String toVector(const String& title, const VectorDouble& tab);
+String toVector(const String& title, const VectorVectorDouble& tab);
+String toVector(const String& title, const VectorInt& tab);
 String toStr(const String& string, int justify = 1);
 String toDouble(double value, int justify = 1);
 String toInt(int value, int justify = 1);
