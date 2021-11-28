@@ -187,6 +187,29 @@ static void st_print(int verbose,
   }
 }
 
+void st_print_condition_item(const String& title, int ndim, hsize_t* itab)
+{
+  message("%s : %d",title.c_str(),(int) itab[0]);
+  for (int idim = 1; idim < ndim; idim++)
+    message(" x %d",(int) itab[idim]);
+  message("\n");
+}
+
+void st_print_condition(int ndim,
+                        hsize_t* dims,
+                        hsize_t* count,
+                        hsize_t* start,
+                        hsize_t* stride,
+                        hsize_t* block)
+{
+  message("Number of dimensions = %d\n",ndim);
+  st_print_condition_item("Dims  ",ndim,dims);
+  st_print_condition_item("Count ",ndim,count);
+  st_print_condition_item("Start ",ndim,start);
+  st_print_condition_item("Stride",ndim,stride);
+  st_print_condition_item("Block ",ndim,block);
+}
+
 static void st_dimension(int icas,
                          int *ndim,
                          hsize_t *dims,
@@ -202,8 +225,8 @@ static void st_dimension(int icas,
     *flag_print = 1;
 
     dims[0]   = 3;
-    dims[1]   = 8;
-    dims[2]   = 9;
+    dims[1]   = 7;
+    dims[2]   = 8;
 
     start[0]  = 1;
     start[1]  = 2;
@@ -211,10 +234,10 @@ static void st_dimension(int icas,
 
     count[0]  = 2;
     count[1]  = 2;
-    count[2]  = 4;
+    count[2]  = 3;
 
     stride[0] = 1;
-    stride[1] = 3;
+    stride[1] = 2;
     stride[2] = 2;
 
     block[0]  = 1;
@@ -266,10 +289,10 @@ int main (void)
 #define FILE    "h5data1.h5"
 #define DATASET "DS1"
 
-    int icas = 2;
+    int icas = 1;
     int nfois = 1;
-    int niter = 1000;
-    double mult = 10.;
+    int niter = (icas == 1) ? 3 : 1000;
+    double mult = 2.;
     hid_t type = H5T_NATIVE_INT;
 
     // Define the dimensions
@@ -289,12 +312,15 @@ int main (void)
 
     // Creating the HDF5 file
 
+    message("Initial Array\n");
     hdf5.createRegular(type, ndim, dims, wdata);
     st_print(flag_print, type, ndim, dims, wdata);
     timer.Interval("Creating the HDF5 file");
 
     // Reading without compression
 
+    message("Extraction without compression\n");
+    st_print_condition(ndim,dims,count0,start,stride,block);
     flag_compress = 0;
     void* rdata1 = hdf5.readRegular(flag_compress, type, ndim, start, stride,
                                     count0, block, dimout);
@@ -304,9 +330,12 @@ int main (void)
 
     // Reading with compression
 
+    message("Extraction with compression\n");
+    st_print_condition(ndim,dims,count0,start,stride,block);
     flag_compress = 1;
     void* rdata2 = hdf5.readRegular(flag_compress, type, ndim, start, stride,
                                     count0, block, dimout);
+    st_print(flag_print, type, ndim, dimout, rdata2);
     rdata2 = (void *) mem_free((char * ) rdata2);
     timer.Interval("Reading HDF5 array (with compression)");
 
@@ -315,7 +344,7 @@ int main (void)
     for (int ifois = 0; ifois < nfois; ifois++)
     {
       for (int idim = 0; idim < ndim; idim++)
-        count[idim] = count0[idim] * (ifois + 1) * mult;
+        count[idim] = count0[idim] * (ifois+0.5) * mult;
 
       // Loop on iterations
 
@@ -327,9 +356,9 @@ int main (void)
       {
         // Reading
 
+        message("Modifying by adding a unit to all terms (%d times)\n",iter+1);
         void* rdata3 = hdf5.readRegular(1, type, ndim, start, stride, count,
                                         block, dimout);
-        st_print(flag_print, type, ndim, dimout, rdata3);
         total_read += timer_read.getInterval();
 
         // Modifying the array
@@ -340,26 +369,12 @@ int main (void)
 
         hdf5.writeRegular(type, ndim, dimout, start, stride, count, block,
                           rdata3);
+        st_print(flag_print, type, ndim, dimout, rdata3);
         rdata3 = (void *) mem_free((char * ) rdata3);
         total_write += timer_write.getInterval();
       }
       timer_read.display("Reading HDF5 modified array", total_read);
       timer_write.display("Writing HDF5 modified array", total_write);
-
-      // Print time scores
-
-      double n1 = 1.;
-      double n2 = 1.;
-      for (int idim = 0; idim < ndim; idim++)
-      {
-        n1 *= dims[idim];
-        n2 *= count[idim] * block[idim];
-      }
-      message("Complete Grid (uncompressed): %d %d %d -> %d\n", (int) dims[0],
-              (int) dims[1], (int) dims[2], (int) n1);
-      message("Local Grid (compressed): %d(x%d) %d(x%d) %d(x%d) -> %d\n",
-              (int) count[0], (int) block[0], (int) count[1], (int) block[1],
-              (int) count[2], (int) block[2], (int) n2);
     }
 
     // Delete the file

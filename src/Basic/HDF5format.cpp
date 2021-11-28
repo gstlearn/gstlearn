@@ -63,57 +63,38 @@ int HDF5format::createRegular(hid_t type,
                               hsize_t *dims,
                               void *wdata)
 {
-  hid_t    datafile, dataspace, memspace, dataset, err;
-  hsize_t *start0;
-  int      error;
+  try
+  {
+    hsize_t start0[ndim];
+    for (int idim = 0; idim < ndim; idim++)
+      start0[idim] = 0;
 
-  // Initializations
+    H5File datafile(_filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    DataSpace dataspace(ndim, dims);
+    DataType datatype(H5::PredType::NATIVE_DOUBLE);
+    DataSet dataset = datafile.createDataSet(_varname.c_str(),datatype, dataspace);
+    dataspace.selectHyperslab(H5S_SELECT_SET, dims, start0);
+    DataSpace memspace(ndim, dims, NULL);
+    memspace.selectHyperslab(H5S_SELECT_SET, dims, start0);
 
-  error    = 1;
-  datafile = dataspace = memspace = dataset = -1;
+    dataset.write((double *) wdata, PredType::IEEE_F32LE, memspace, dataspace);
 
-  // Local core allocation
+    dataspace.close();
+    datatype.close();
+    dataset.close();
+    datafile.close();
+    memspace.close();
 
-  start0 = (hsize_t *) mem_alloc(sizeof(hsize_t) * ndim,0);
-  if (start0 == NULL) goto label_end;
-  for (int idim=0; idim<ndim; idim++) start0[idim] = 0;
-
-  // Open the Datafile
-
-  datafile = H5Fcreate(_filename.c_str(),H5F_ACC_TRUNC,H5P_DEFAULT,H5P_DEFAULT);
-  if (datafile < 0) goto label_end;
-
-  dataspace = H5Screate_simple(ndim, dims, NULL);
-  if (dataspace < 0) goto label_end;
-
-  err = H5Sselect_hyperslab(dataspace,H5S_SELECT_SET,start0,NULL,dims,NULL);
-  if (err < 0) goto label_end;
-
-  memspace = H5Screate_simple(ndim, dims, NULL);
-  if (memspace < 0) goto label_end;
-
-  err = H5Sselect_hyperslab(memspace,H5S_SELECT_SET,start0,NULL,dims,NULL);
-  if (err < 0) goto label_end;
-
-  dataset = H5Dcreate(datafile, _varname.c_str(), type,
-                      dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-  if (dataset < 0) goto label_end;
-
-  err = H5Dwrite(dataset, type, memspace, dataspace, H5P_DEFAULT, wdata);
-  if (err < 0) goto label_end;
-
-  // Set the error return code
-
-  error = 0;
-
-label_end:
-  start0 = (hsize_t *) mem_free((char *) start0);
-  if (memspace  >= 0) (void) H5Sclose(memspace);
-  if (dataspace >= 0) (void) H5Sclose(dataspace);
-  if (dataset   >= 0) (void) H5Dclose(dataset);
-  if (datafile  >= 0) (void) H5Fclose(datafile);
-
-  return(error);
+    return 0;
+  }
+  catch (FileIException& error)
+  {
+    return 1;
+  }
+  catch (GroupIException& error)
+  {
+    return 1;
+  }
 }
 
 /****************************************************************************/
@@ -149,93 +130,65 @@ void* HDF5format::readRegular(int flag_compress,
                               hsize_t *block,
                               hsize_t *dimout)
 {
-  hid_t    datafile, dataset, dataspace, memspace, err;
-  hsize_t *start0,*dims;
-  int      error;
-  void    *rdata;
-
-  // Initializations
-
-  error    = 1;
-  datafile = dataset = dataspace = memspace = -1;
-  rdata    = NULL;
-  start0   = dims = (hsize_t *) NULL;
-
-  // Local core allocation
-
-  start0 = (hsize_t *) mem_alloc(sizeof(hsize_t) * ndim,0);
-  if (start0 == NULL) goto label_end;
-  dims   = (hsize_t *) mem_alloc(sizeof(hsize_t) * ndim,0);
-  if (dims   == NULL) goto label_end;
-  for (int idim=0; idim<ndim; idim++) start0[idim] = 0;
-
-  // Open the Datafile
-
-  datafile = H5Fopen(_filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-  if (datafile < 0) goto label_end;
-
-  dataset = H5Dopen(datafile, _varname.c_str(), H5P_DEFAULT);
-  if (dataset < 0) goto label_end;
-
-  dataspace = H5Dget_space(dataset);
-  if (dataspace < 0) goto label_end;
-
-  // Core allocation for returned array
-
-  if (! flag_compress)
+  try
   {
-    err = H5Sget_simple_extent_dims(dataspace, dims, NULL);
-    if (err < 0) goto label_end;
-    for (int idim=0; idim<ndim; idim++) dimout[idim] = dims[idim];
-  }
-  else
-  {
-    for (int idim=0; idim<ndim; idim++)
+    hsize_t start0[ndim];
+    for (int idim = 0; idim < ndim; idim++)
+      start0[idim] = 0;
+    hsize_t dims[ndim];
+
+    H5File datafile(_filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT, H5P_DEFAULT);
+    DataSet dataset = datafile.openDataSet(_varname.c_str());
+    DataType datatype = dataset.getDataType();
+    DataSpace dataspace = dataset.getSpace();
+    dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
+
+    // Core allocation for returned array
+
+    if (!flag_compress)
     {
-      dimout[idim] = count[idim];
-      if (block != NULL) dimout[idim] *= block[idim];
+      (void) dataspace.getSimpleExtentDims( dims, NULL);
+      for (int idim = 0; idim < ndim; idim++)
+        dimout[idim] = dims[idim];
     }
+    else
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        dimout[idim] = count[idim];
+        if (block != NULL) dimout[idim] *= block[idim];
+      }
+    }
+
+    // Core allocation
+
+    void* rdata = allocArray(type, ndim, dimout);
+    if (rdata == NULL) return (rdata);
+
+    DataSpace memspace(ndim, dimout, NULL);
+    if (flag_compress)
+      memspace.selectHyperslab(H5S_SELECT_SET, dimout, start0);
+    else
+      memspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
+
+    dataset.read((double*) rdata, PredType::IEEE_F32LE, memspace, dataspace);
+
+    dataspace.close();
+    datatype.close();
+    dataset.close();
+    datafile.close();
+    memspace.close();
+
+    return rdata;
   }
-
-  // Core allocation
-
-  rdata = allocArray(type,ndim,dimout);
-  if (rdata == NULL) return(rdata);
-
-  err = H5Sselect_hyperslab(dataspace,H5S_SELECT_SET,start,stride,count,block);
-  if (err < 0) goto label_end;
-
-  memspace = H5Screate_simple(ndim,dimout,NULL);
-  if (memspace < 0) goto label_end;
-
-  // In the compression case, update the arguments
-
-  if (flag_compress)
-    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, start0, block, count, block);
-  else
-    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, start, stride, count, block);
-  if (err < 0) goto label_end;
-
-  err = H5Dread(dataset, type, memspace, dataspace,H5P_DEFAULT, rdata);
-  if (err < 0) goto label_end;
-
-  // Set the error return code
-
-  error = 0;
-
-label_end:
-  start0 = (hsize_t *) mem_free((char *) start0);
-  dims   = (hsize_t *) mem_free((char *) dims);
-  if (dataset   >= 0) (void) H5Dclose(dataset);
-  if (dataspace >= 0) (void) H5Sclose(dataspace);
-  if (memspace  >= 0) (void) H5Sclose(memspace);
-  if (datafile  >= 0) (void) H5Fclose(datafile);
-  if (error)
+  catch (FileIException& error)
   {
-    rdata = (void *) mem_free((char *) rdata);
-    rdata = NULL;
+    return nullptr;
   }
-  return rdata;
+  catch (GroupIException& error)
+  {
+    return nullptr;
+  }
 }
 
 /****************************************************************************/
@@ -271,55 +224,40 @@ int HDF5format::writeRegular(hid_t type,
                              hsize_t *block,
                              void *wdata)
 {
-  hid_t    datafile, dataset, dataspace, memspace, err;
-  hsize_t *start0;
-  int      error;
+  try
+  {
+    Exception::dontPrint();
+    hsize_t start0[ndim];
+    for (int idim = 0; idim < ndim; idim++)
+      start0[idim] = 0;
 
-  // Initializations
+    H5File datafile(_filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+    DataSet dataset = datafile.openDataSet(_varname.c_str());
+    DataType datatype = dataset.getDataType();
+    DataSpace dataspace = dataset.getSpace();
+    dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
+    DataSpace memspace(ndim, dims, NULL);
+    memspace.selectHyperslab(H5S_SELECT_SET, count, start0, block, block);
 
-  error    = 1;
-  datafile = dataset = dataspace = memspace = -1;
+    dataset.write((double *) wdata, PredType::IEEE_F32LE, memspace, dataspace);
 
-  // Local core allocation
+    dataspace.close();
+    datatype.close();
+    dataset.close();
+    datafile.close();
+    memspace.close();
 
-  start0 = (hsize_t *) mem_alloc(sizeof(hsize_t) * ndim,0);
-  if (start0 == NULL) goto label_end;
-  for (int idim=0; idim<ndim; idim++) start0[idim] = 0;
+    return 0;
+  }
 
-  // Open the Datafile
-
-  datafile = H5Fopen(_filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
-  if (datafile < 0) goto label_end;
-
-  dataset = H5Dopen(datafile, _varname.c_str(), H5P_DEFAULT);
-  if (dataset < 0) goto label_end;
-
-  dataspace = H5Dget_space(dataset);
-  if (dataspace < 0) goto label_end;
-
-  err = H5Sselect_hyperslab(dataspace,H5S_SELECT_SET,start,stride,count,block);
-  if (err < 0) goto label_end;
-
-  memspace = H5Screate_simple(ndim,dims,NULL);
-  if (memspace < 0) goto label_end;
-
-  err = H5Sselect_hyperslab(memspace,H5S_SELECT_SET,start0,block,count,block);
-  if (err < 0) goto label_end;
-
-  err = H5Dwrite(dataset, type, memspace, dataspace ,H5P_DEFAULT, wdata);
-  if (err < 0) goto label_end;
-
-  // Set the error return code
-
-  error = 0;
-
-label_end:
-  start0 = (hsize_t *) mem_free((char *) start0);
-  if (dataset   >= 0) (void) H5Dclose(dataset);
-  if (dataspace >= 0) (void) H5Sclose(dataspace);
-  if (memspace  >= 0) (void) H5Sclose(memspace);
-  if (datafile  >= 0) (void) H5Fclose(datafile);
-  return error;
+  catch (FileIException& error)
+  {
+    return 1;
+  }
+  catch (GroupIException& error)
+  {
+    return 1;
+  }
 }
 
 /****************************************************************************/
@@ -360,12 +298,12 @@ int HDF5format::getSize() const
     const int npts = dataspace.getSimpleExtentNpoints();
     return npts;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     int err = -1;
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     int err = -1;
     return err;
@@ -425,12 +363,12 @@ int HDF5format::getDataInt() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     int err = -1;
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     int err = -1;
     return err;
@@ -486,12 +424,12 @@ float HDF5format::getDataFloat() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     float err = -1.;
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     float err = -1.;
     return err;
@@ -547,12 +485,12 @@ double HDF5format::getDataDouble() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     double err = -1.;
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     double err = -1.;
     return err;
@@ -614,12 +552,12 @@ VectorInt HDF5format::getDataVInt() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     VectorInt err { 1, -1 };
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     VectorInt err { 1, -1 };
     return err;
@@ -679,12 +617,12 @@ VectorFloat HDF5format::getDataVFloat() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     VectorFloat err { 1, -1. };
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     VectorFloat err { 1, -1. };
     return err;
@@ -744,12 +682,12 @@ VectorDouble HDF5format::getDataVDouble() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     VectorDouble err { 1, -1. };
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     VectorDouble err { 1, -1. };
     return err;
@@ -814,12 +752,12 @@ VectorVectorInt HDF5format::getDataVVInt() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     VectorVectorInt err { 1, VectorInt(1, -1) };
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     VectorVectorInt err { 1, VectorInt(1, -1) };
     return err;
@@ -873,12 +811,12 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     VectorVectorFloat err { 1, VectorFloat(1, -1.) };
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     VectorVectorFloat err { 1, VectorFloat(1, -1.) };
     return err;
@@ -931,12 +869,12 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     VectorVectorDouble err { 1, VectorDouble(1, -1.) };
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     VectorVectorDouble err { 1, VectorDouble(1, -1.) };
     return err;
@@ -1005,15 +943,16 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
     dataspace.close();
     datatype.close();
     dataset.close();
+    myspace.close();
     file.close();
     return v;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     VectorDouble err { VectorDouble(1, -1.) };
     return err;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     VectorDouble err { VectorDouble(1, -1.) };
     return err;
@@ -1087,11 +1026,11 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
     file.close();
     return 0;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     return 1;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     return 1;
   }
@@ -1154,7 +1093,7 @@ void HDF5format::createData(const VectorInt& argdims,int type)
     }
     // Here we are catching if the file does not exist. We will then create a new file and return
     // back to the try statement
-    catch (FileIException error)
+    catch (FileIException& error)
     {
       H5File file(H5std_string (_filename.c_str()), H5F_ACC_TRUNC);
       file.close();
@@ -1168,18 +1107,36 @@ void HDF5format::createData(const VectorInt& argdims,int type)
   }
 }
 
-// TODO To be implemented
+herr_t
+file_info(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *opdata)
+{
+    hid_t group;
+    group = H5Gopen2(loc_id, name, H5P_DEFAULT);
+    message("Data Set Name : %s\n",name);
+    H5Gclose(group);
+    return 0;
+}
+
 int HDF5format::displayNames() const
 {
   try
   {
+    H5File file(H5std_string(_filename.c_str()), H5F_ACC_RDWR);
+    DataSet dataset = file.openDataSet(_varname.c_str());
+    DataType datatype = dataset.getDataType();
+    DataSpace dataspace = dataset.getSpace();
+
+    mestitle(2,"Liste of Data Sets contained in the File");
+    (void) H5Literate(file.getId(), H5_INDEX_NAME, H5_ITER_INC, NULL, file_info, NULL);
+    message("\n");
+
     return 0;
   }
-  catch (FileIException error)
+  catch (FileIException& error)
   {
     return 1;
   }
-  catch (GroupIException error)
+  catch (GroupIException& error)
   {
     return 1;
   }
