@@ -195,13 +195,15 @@ void st_print_condition_item(const String& title, int ndim, hsize_t* itab)
   message("\n");
 }
 
-void st_print_condition(int ndim,
+void st_print_condition(int verbose,
+                        int ndim,
                         hsize_t* dims,
                         hsize_t* count,
                         hsize_t* start,
                         hsize_t* stride,
                         hsize_t* block)
 {
+  if (! verbose) return;
   message("Number of dimensions = %d\n",ndim);
   st_print_condition_item("Dims  ",ndim,dims);
   st_print_condition_item("Count ",ndim,count);
@@ -279,8 +281,7 @@ int main (void)
 
   // Initializations
 
-  int verbose  = 0;
-  int ipart    = 0;
+  int ipart = 0;
 
   // Main dispatch
 
@@ -289,11 +290,12 @@ int main (void)
 #define FILE    "h5data1.h5"
 #define DATASET "DS1"
 
-    int icas = 1;
+    int icas  = 2;
     int nfois = 1;
     int niter = (icas == 1) ? 3 : 1000;
     double mult = 2.;
     hid_t type = H5T_NATIVE_INT;
+    bool verbose = icas == 1;
 
     // Define the dimensions
 
@@ -312,15 +314,15 @@ int main (void)
 
     // Creating the HDF5 file
 
-    message("Initial Array\n");
+    if (verbose) message("Initial Array\n");
     hdf5.createRegular(type, ndim, dims, wdata);
     st_print(flag_print, type, ndim, dims, wdata);
     timer.Interval("Creating the HDF5 file");
 
     // Reading without compression
 
-    message("Extraction without compression\n");
-    st_print_condition(ndim,dims,count0,start,stride,block);
+    if (verbose) message("Extraction without compression\n");
+    st_print_condition(verbose,ndim,dims,count0,start,stride,block);
     flag_compress = 0;
     void* rdata1 = hdf5.readRegular(flag_compress, type, ndim, start, stride,
                                     count0, block, dimout);
@@ -330,8 +332,8 @@ int main (void)
 
     // Reading with compression
 
-    message("Extraction with compression\n");
-    st_print_condition(ndim,dims,count0,start,stride,block);
+    if (verbose) message("Extraction with compression\n");
+    st_print_condition(verbose,ndim,dims,count0,start,stride,block);
     flag_compress = 1;
     void* rdata2 = hdf5.readRegular(flag_compress, type, ndim, start, stride,
                                     count0, block, dimout);
@@ -356,7 +358,7 @@ int main (void)
       {
         // Reading
 
-        message("Modifying by adding a unit to all terms (%d times)\n",iter+1);
+        if (verbose) message("Modifying by adding a unit to all terms (%d times)\n",iter+1);
         void* rdata3 = hdf5.readRegular(1, type, ndim, start, stride, count,
                                         block, dimout);
         total_read += timer_read.getInterval();

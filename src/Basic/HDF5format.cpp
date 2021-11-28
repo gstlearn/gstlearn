@@ -141,6 +141,7 @@ void* HDF5format::readRegular(int flag_compress,
     DataSet dataset = datafile.openDataSet(_varname.c_str());
     DataType datatype = dataset.getDataType();
     DataSpace dataspace = dataset.getSpace();
+
     dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
 
     // Core allocation for returned array
