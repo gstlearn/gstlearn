@@ -41,7 +41,7 @@ public:
     _data = new unsigned char[_size]();
     memcpy(_data, data, _size);
   }
-  MacAddress(std::string addr) : _data(NULL), _size(addr.size()) {
+  MacAddress(std::string addr) : _data(NULL), _size(static_cast<int>(addr.size())) {
     _data = new unsigned char[_size]();
     memcpy(_data, addr.c_str(), _size);
   }

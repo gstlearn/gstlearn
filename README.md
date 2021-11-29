@@ -54,11 +54,12 @@ cmake --build build --target doxygen
 sudo cmake --build build --target install
 ```
 #### Microsoft Visual Studio, XCode, ...
+Under windows, you must launch a command prompt with administrator rights ('Execute as Administrator')
 ```sh
 cmake -Bbuild -H.
 cmake --build build --target static --config Release
 cmake --build build --target doxygen
-sudo cmake --build build --target install # Not yet available !
+cmake --build build --target install --config Release
 ```
 Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
@@ -114,7 +115,7 @@ Notes:
 
 ## Development
 ### Non-regression tests
-### GCC, Clang, MinGW, ...
+#### GCC, Clang, MinGW, ...
 To launch non-regression tests, execute the following command:
 
 ```

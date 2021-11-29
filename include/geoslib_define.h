@@ -54,11 +54,23 @@
 #define THRESH_INF      -10
 #define THRESH_SUP       10
 
-typedef std::vector<double> VectorDouble; /// TODO : Create a class (fill, sum, mean...)
-typedef std::vector<int> VectorInt;
-typedef std::vector<bool> VectorBool;
-typedef std::vector<std::string> VectorString;
+typedef std::vector<double>        VectorDouble; /// TODO : Create a class (fill, sum, mean...)
+typedef std::vector<int>           VectorInt;
+typedef std::vector<bool>          VectorBool;
+typedef std::vector<std::string>   VectorString;
 typedef std::vector<unsigned char> VectorUChar;
-typedef std::string String;
-typedef std::vector<VectorDouble> VectorVectorDouble;
-typedef std::vector<VectorInt>    VectorVectorInt;
+typedef std::string                String;
+typedef std::vector<VectorDouble>  VectorVectorDouble;
+typedef std::vector<VectorInt>     VectorVectorInt;
+
+// To prevent warning C4251 under windows: https://stackoverflow.com/a/22054743
+#ifdef GSTLEARN_EXPORT
+template class GSTLEARN_EXPORT VectorDouble;
+template class GSTLEARN_EXPORT VectorInt;
+template class GSTLEARN_EXPORT VectorBool;
+template class GSTLEARN_EXPORT VectorString;
+template class GSTLEARN_EXPORT VectorUChar;
+template class GSTLEARN_EXPORT String;
+template class GSTLEARN_EXPORT VectorVectorDouble;
+template class GSTLEARN_EXPORT VectorVectorInt;
+#endif
