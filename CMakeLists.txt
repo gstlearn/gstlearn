@@ -101,9 +101,7 @@ set(HELP_MESSAGE
 )
 
 if (WINDOWS)
-  execute_process(COMMAND
-    ${CMAKE_COMMAND} -E echo ${HELP_MESSAGE}
-  )
+  message(${HELP_MESSAGE})
 else()
   # To make output colored
   execute_process(COMMAND
