@@ -100,7 +100,7 @@ set(HELP_MESSAGE
                                                               \r\n"
 )
 
-if (WINDOWS)
+if (WIN32)
   message(${HELP_MESSAGE})
 else()
   # To make output colored
