@@ -13,6 +13,7 @@
 #include "Model/Model.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/HDF5format.hpp"
 #include "Morpho/Morpho.hpp"
 #include "csparse_f.h"
 #include "geoslib_f.h"
@@ -406,10 +407,11 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
 
   if (! _flagStoreInternal)
   {
-    VectorInt argdims(2);
-    argdims[0] = nact;
-    argdims[1] = nvar * nact * nvar;
-    _hdf5.createData(argdims, 4);
+    std::vector<hsize_t> dims(2);
+    dims[0] = nact;
+    dims[1] = nvar * nact * nvar;
+    _hdf5.openNewFile("h5data3.h5");
+    _hdf5.openNewDataSet("Set3", 2, dims.data(), H5::PredType::NATIVE_DOUBLE);
   }
 
   // Loop on the samples
@@ -448,5 +450,7 @@ void GibbsMMulti::_getWeights(int iact0) const
 
 void GibbsMMulti::cleanup()
 {
+  _hdf5.closeDataSet();
+  _hdf5.closeFile();
   _hdf5.deleteFile();
 }
