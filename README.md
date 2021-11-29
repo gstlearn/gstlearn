@@ -42,18 +42,14 @@ Notes:
 
 ## Library compilation & installation
 For compiling and installing the *gstlearn* C++ Library, execute the following instructions (example given with static library (release version) and doxygen documentation generation):
-### GCC, Clang, MinGW
-<sub>and for all other single-configuration compilers</sub>
-
+#### GCC, Clang, MinGW, ...
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target static
 cmake --build build --target doxygen
 sudo cmake --build build --target install
 ```
-#### Microsoft Visual Studio
-<sub>and for all multi single-configuration compilers</sub>
-
+#### Microsoft Visual Studio, XCode, ...
 ```sh
 cmake -Bbuild -H.
 cmake --build build --target static --config Release
@@ -85,8 +81,6 @@ Notes:
   * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 ### MacOS:
-(not tested - following packages may not exist)
-
 ```sh
 brew install git
 brew install cmake
@@ -95,6 +89,7 @@ brew install libboost-all-dev
 brew install libhdf5-dev
 ```
 Notes:
+  * This is currently not tested - above packages may not exist
   * Under MacOS, the GCC (or Clang) compiler and GNU make is already installed
   * If your MacOS repository doesn't provide minimum required versions, please install manually (see provider website)
   
@@ -115,18 +110,14 @@ Notes:
 
 ## Development
 ### Non-regression tests
-### GCC, Clang, MinGW
-<sub>and for all other single-configuration compilers</sub>
-
+### GCC, Clang, MinGW, ...
 To launch non-regression tests, execute the following command:
 
 ```
 cmake --build build --target build_test
 cmake --build build --target test
 ```
-#### Microsoft Visual Studio
-<sub>and for all multi single-configuration compilers</sub>
-
+#### Microsoft Visual Studio, XCode, ...
 To build and launch non-regression tests, execute the following commands:
 
 ```
