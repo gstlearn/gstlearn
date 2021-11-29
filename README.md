@@ -42,19 +42,23 @@ Notes:
 
 ## Library compilation & installation
 For compiling and installing the *gstlearn* C++ Library, execute the following instructions (example given with static library (release version) and doxygen documentation generation):
-### Multi-configuration compilers (Microsoft Visual Studio, XCode, ...)
-```sh
-cmake -Bbuild -H.
-cmake --build build --target static --config Release
-cmake --build build --target doxygen
-sudo cmake --build build --target install # Not yet available !
-```
-### Single configuration compilers (GCC, Clang, MinGW, ...)
+### GCC, Clang, MinGW
+<sub>and for all other single-configuration compilers</sub>
+
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target static
 cmake --build build --target doxygen
 sudo cmake --build build --target install
+```
+#### Microsoft Visual Studio
+<sub>and for all multi single-configuration compilers</sub>
+
+```sh
+cmake -Bbuild -H.
+cmake --build build --target static --config Release
+cmake --build build --target doxygen
+sudo cmake --build build --target install # Not yet available !
 ```
 Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
@@ -110,8 +114,19 @@ Notes:
   * The *Path* environment variable must be updated to make *doxygen.exe* available (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
-### Non-regression tests {.tabset}
+### Non-regression tests
+### GCC, Clang, MinGW
+<sub>and for all other single-configuration compilers</sub>
+
+To launch non-regression tests, execute the following command:
+
+```
+cmake --build build --target build_test
+cmake --build build --target test
+```
 #### Microsoft Visual Studio
+<sub>and for all multi single-configuration compilers</sub>
+
 To build and launch non-regression tests, execute the following commands:
 
 ```
@@ -122,14 +137,7 @@ ctest -C Release
 Notes:
   * If you want to run the *Debug* version of the tests, you must replace `Release` by `Debug` above (provided that *Debug* configuration has been built - see above)
   
-#### Other compilers (GCC, Clang, MinGW, ...)
-To launch non-regression tests, execute the following command:
-
-```
-cmake --build build --target build_test
-cmake --build build --target test
-```
-### Clean {-}
+### Clean
 To clean (partially) the build, execute the following command:
 
 ```
