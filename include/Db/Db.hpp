@@ -576,7 +576,8 @@ private:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
-  int  _variableWrite(bool flag_grid, bool onlyLocator=false) const;
+  int  _variableWrite(bool flag_grid, bool onlyLocator=false,
+                      bool writeCoorForGrid=false) const;
   void _variableRead(int *natt_r,
                      int *ndim_r,
                      int *nech_r,
