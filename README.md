@@ -129,7 +129,7 @@ To launch non-regression tests, execute the following command:
 cmake --build build --target build_test
 cmake --build build --target test
 ```
-### Clean
+### Clean {-}
 To clean (partially) the build, execute the following command:
 
 ```
