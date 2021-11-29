@@ -85,18 +85,29 @@ if(NOT TARGET uninstall)
 endif()
 
 # Nothing is built by default (nothing in target 'all')
-execute_process(COMMAND
-  ${CMAKE_COMMAND} -E cmake_echo_color --cyan   ""
-                                                " Thank you for compiling gstlearn!"
-                                                " Please, use one of the available targets:"
-                                                "  - shared     Build shared library"
-                                                "  - static     Build static library"
-                                                "  - doxygen    Build doxygen documentation"
-                                                "  - build_test Build non-regression tests executables"
-                                                "  - test       Execute non-regression tests"
-                                                "  - install    Install libraries, headers and documentation"
-                                                "  - uninstall  Uninstall libraries, headers and documentation"
-                                                "  - clean      Clean generated files"
-                                                ""
-  OUTPUT_FILE /dev/stdout ERROR_FILE /dev/stderr # To make output colored
+set(HELP_MESSAGE
+"                                                             \r\n\
+ Thank you for compiling gstlearn!                            \r\n\
+ Please, use one of the available targets:                    \r\n\
+  - shared     Build shared library                           \r\n\
+  - static     Build static library                           \r\n\
+  - doxygen    Build doxygen documentation                    \r\n\
+  - build_test Build non-regression tests executables         \r\n\
+  - test       Execute non-regression tests                   \r\n\
+  - install    Install libraries, headers and documentation   \r\n\
+  - uninstall  Uninstall libraries, headers and documentation \r\n\
+  - clean      Clean generated files                          \r\n\
+                                                              \r\n"
 )
+
+if (WINDOWS)
+  execute_process(COMMAND
+    ${CMAKE_COMMAND} -E echo ${HELP_MESSAGE}
+  )
+else()
+  # To make output colored
+  execute_process(COMMAND
+    ${CMAKE_COMMAND} -E cmake_echo_color --cyan ${HELP_MESSAGE}
+    OUTPUT_FILE /dev/stdout ERROR_FILE /dev/stderr
+  )
+endif()
