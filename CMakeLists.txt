@@ -7,7 +7,7 @@ project(gstlearn
         VERSION      0.1.0 # Make it consistent with CHANGES file
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL https://github.com/gstlearn/gstlearn
-        LANGUAGES    C CXX) # Enable C langage for third party libraries (hdf5)
+        LANGUAGES    C CXX) # Enable C language for third party libraries
 # Get the date in gstlearn_DATE variable
 string(TIMESTAMP gstlearn_DATE "%Y/%m/%d")
 # Fix version.h automatically
@@ -32,21 +32,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   # Set the possible values of build type for cmake-gui
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-
-# Nothing is built by default (target all)
-# TODO : this message is displayed when 'make install'
-# TODO : this message is not displayed for multi-configuation generators
-add_custom_target(nothing ALL
-  ${CMAKE_COMMAND} -E cmake_echo_color --cyan "Please, use one of the available targets:"
-                                                " - shared     Build shared library"
-                                                " - static     Build static library"
-                                                " - build_test Build non-regression tests executables"
-                                                " - doxygen    Build doxygen documentation"
-                                                " - test       Execute non-regression tests"
-                                                " - install    Install libraries, headers and documentation"
-                                                " - uninstall  Uninstall libraries, headers and documentation"
-                                                " - clean      Clean generated files"
-)
 
 # Add c++11 support whatever the compiler
 set(CMAKE_CXX_STANDARD 11)
@@ -99,3 +84,19 @@ if(NOT TARGET uninstall)
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
 
+# Nothing is built by default (nothing in target 'all')
+execute_process(COMMAND
+  ${CMAKE_COMMAND} -E cmake_echo_color --cyan   ""
+                                                " Thank you for compiling gstlearn!"
+                                                " Please, use one of the available targets:"
+                                                "  - shared     Build shared library"
+                                                "  - static     Build static library"
+                                                "  - doxygen    Build doxygen documentation"
+                                                "  - build_test Build non-regression tests executables"
+                                                "  - test       Execute non-regression tests"
+                                                "  - install    Install libraries, headers and documentation"
+                                                "  - uninstall  Uninstall libraries, headers and documentation"
+                                                "  - clean      Clean generated files"
+                                                ""
+  OUTPUT_FILE /dev/stdout ERROR_FILE /dev/stderr # To make output colored
+)
