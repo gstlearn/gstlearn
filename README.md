@@ -15,9 +15,9 @@ The name 'gstlearn' stands for several purposes:
 ## References
 The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
-The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES PariTech](https://mines-paristech.eu/) - PSL University - France)
+The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES PariTech](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
-When using the *gstlearn* C++ Library, please use the citation from doc/gstlearn.bib
+When using the *gstlearn* C++ Library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
 
 ## Requirements
 This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LTS and Windows 10 (MacOS: not tested).
