@@ -15,6 +15,8 @@
 #include "LithoRule/Rule.hpp"
 #include "Basic/NamingConvention.hpp"
 
+#include <vector>
+
 class Db;
 class VarioParam;
 

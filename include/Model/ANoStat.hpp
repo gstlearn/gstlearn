@@ -15,6 +15,8 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
+#include <vector>
+
 class AMesh;
 class Model;
 class Db;

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 
 #include <string>
 #include <vector>
@@ -20,9 +21,9 @@
 
 typedef struct
 {
-  std::vector<int> rows;
-  std::vector<int> cols;
-  std::vector<double> values;
+  VectorInt rows;
+  VectorInt cols;
+  VectorDouble values;
 } TripletND;
 
 /**
@@ -47,11 +48,11 @@ private:
   int _nxred;
   int _half;
   int _flagOne;
-  std::vector<double> _Blin;
-  std::vector<double> _TildeC_T;
-  std::vector<double> _Lambda_T;
-  std::vector<double> _S_T;
-  std::vector<double> _Q_T;
+  VectorDouble _Blin;
+  VectorDouble _TildeC_T;
+  VectorDouble _Lambda_T;
+  VectorDouble _S_T;
+  VectorDouble _Q_T;
 
 public:
   TurboOptimizer(int nx = 2,
@@ -78,39 +79,39 @@ public:
   void setModelByScale(double scale = 1., double sill = 1., int param = 1);
   void setEnviron(int flagOne = 1);
   void run(bool verbose = false);
-  std::vector<double> getBlin() const;
-  std::vector<double> getTildeC() const;
-  std::vector<double> getLambda() const;
+  VectorDouble getBlin() const;
+  VectorDouble getTildeC() const;
+  VectorDouble getLambda() const;
   TripletND getS() const;
   TripletND getQ() const;
-  TripletND interpolate(const std::vector<double>& x,
-                      const std::vector<double>& y) const;
+  TripletND interpolate(const VectorDouble& x,
+                        const VectorDouble& y) const;
 
-  std::vector<int> interpolate_rows(const std::vector<double>& x,
-                                    const std::vector<double>& y) const
+  VectorInt interpolate_rows(const VectorDouble& x,
+                             const VectorDouble& y) const
   {
     return interpolate(x, y).rows;
   }
-  std::vector<int> interpolate_cols(const std::vector<double>& x,
-                                    const std::vector<double>& y) const
+  VectorInt interpolate_cols(const VectorDouble& x,
+                             const VectorDouble& y) const
   {
     return interpolate(x, y).cols;
   }
-  std::vector<double> interpolate_values(const std::vector<double>& x,
-                                         const std::vector<double>& y) const
+  VectorDouble interpolate_values(const VectorDouble& x,
+                                  const VectorDouble& y) const
   {
     return interpolate(x, y).values;
   }
 
-  std::vector<int> getQ_rows() const
+  VectorInt getQ_rows() const
   {
     return getQ().rows;
   }
-  std::vector<int> getQ_cols() const
+  VectorInt getQ_cols() const
   {
     return getQ().cols;
   }
-  std::vector<double> getQ_values() const
+  VectorDouble getQ_values() const
   {
     return getQ().values;
   }
@@ -144,19 +145,19 @@ public:
   {
     return _poncif;
   }
-  const std::vector<double>& getTildeCT() const
+  const VectorDouble& getTildeCT() const
   {
     return _TildeC_T;
   }
-  const std::vector<double>& getLambdaT() const
+  const VectorDouble& getLambdaT() const
   {
     return _Lambda_T;
   }
-  const std::vector<double>& getQT() const
+  const VectorDouble& getQT() const
   {
     return _Q_T;
   }
-  const std::vector<double>& getST() const
+  const VectorDouble& getST() const
   {
     return _S_T;
   }
@@ -182,59 +183,59 @@ private:
   double _getCoor(int node, int idim0) const;
   double _getCoorByMesh(int imesh, int rank, int idim0) const;
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
-  void _rankToIndice(int rank, std::vector<int>& indice, bool minusOne) const;
+  void _rankToIndice(int rank, VectorInt& indice, bool minusOne) const;
   int _MSS(int icas, int icorn, int idim0) const;
-  int _indiceToRank(std::vector<int>& indice, bool flag_complete = true) const;
-  void _loadHH(std::vector<double>& hh) const;
+  int _indiceToRank(VectorInt& indice, bool flag_complete = true) const;
+  void _loadHH(VectorDouble& hh) const;
   double _rangeToScale(double range) const;
-  int _coordinateToIndice(double x, double y, std::vector<int>& indice) const;
-  double _indiceToCoordinate(int idim0, const std::vector<int> indice) const;
+  int _coordinateToIndice(double x, double y, VectorInt& indice) const;
+  double _indiceToCoordinate(int idim0, const VectorInt indice) const;
   void _printVector(const std::string& title,
-                    std::vector<double>& uu,
+                    VectorDouble& uu,
                     int width = 10,
                     int ndec = 3) const;
   void _printMatrix(const std::string& title,
                     int nrow,
                     int ncol,
-                    std::vector<double>& uu,
+                    VectorDouble& uu,
                     int nper_batch,
                     int row_shift = 0,
                     int col_shift = 0,
                     int width = 10,
                     int ndec = 6) const;
-  void _invert_3x3(std::vector<double>& uu,
-                   std::vector<double>& vv,
+  void _invert_3x3(VectorDouble& uu,
+                   VectorDouble& vv,
                    double tol = 1.e-6) const;
   void _prodMatrix(int size,
-                   const std::vector<double>& aa,
-                   const std::vector<double>& bb,
-                   std::vector<double> & cc) const;
+                   const VectorDouble& aa,
+                   const VectorDouble& bb,
+                   VectorDouble & cc) const;
   void _prodMatVect(int size,
-                    const std::vector<double>& aa,
-                    const std::vector<double>& bb,
-                    std::vector<double> & cc) const;
+                    const VectorDouble& aa,
+                    const VectorDouble& bb,
+                    VectorDouble & cc) const;
 
-  void _updateMargin(int idim0, std::vector<int>& indice) const;
-  void _getRankInTemplate(std::vector<int>& indice1,
-                          std::vector<int>& indice2) const;
+  void _updateMargin(int idim0, VectorInt& indice) const;
+  void _getRankInTemplate(VectorInt& indice1,
+                          VectorInt& indice2) const;
   int _determineInternalGrid(bool verbose);
-  std::vector<double> _buildTildeC() const;
-  std::vector<double> _buildLambda(const std::vector<double> TildeC) const;
-  std::vector<double> _buildS(const std::vector<double>& TildeC) const;
-  std::vector<double> _buildBlin() const;
-  std::vector<double> _buildQ(const std::vector<double>& ss,
-                              const std::vector<double>& blin,
-                              const std::vector<double>& lambda) const;
-  std::vector<double> _getVectorFromTemplate(const std::vector<double>& vecin) const;
-  TripletND _getMatrixFromTemplate(const std::vector<double>& matin,
+  VectorDouble _buildTildeC() const;
+  VectorDouble _buildLambda(const VectorDouble TildeC) const;
+  VectorDouble _buildS(const VectorDouble& TildeC) const;
+  VectorDouble _buildBlin() const;
+  VectorDouble _buildQ(const VectorDouble& ss,
+                       const VectorDouble& blin,
+                       const VectorDouble& lambda) const;
+  VectorDouble _getVectorFromTemplate(const VectorDouble& vecin) const;
+  TripletND _getMatrixFromTemplate(const VectorDouble& matin,
                                  int nperline) const;
   int _addWeights(int icas,
                   double x,
                   double y,
-                  const std::vector<int>& indg0,
-                  std::vector<int>& indices,
-                  std::vector<double>& lambda) const;
-  std::vector<double> _expandTripletToMatrix(int row_begin,
+                  const VectorInt& indg0,
+                  VectorInt& indices,
+                  VectorDouble& lambda) const;
+  VectorDouble _expandTripletToMatrix(int row_begin,
                                              int row_end,
                                              int col_begin,
                                              int col_end,

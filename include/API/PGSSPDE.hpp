@@ -14,9 +14,9 @@ class GSTLEARN_EXPORT PGSSPDE
 {
 public:
   PGSSPDE(std::vector<Model*> models,
-         const Db& field,
-         RuleProp ruleprop,
-         const Db* dat=nullptr);
+          const Db& field,
+          RuleProp ruleprop,
+          const Db* dat=nullptr);
   void simulate(int seed= 32145,int nitergibbs = 0) const;
   void simulateNonCond(int seed = 32145) const;
   void gibbs(int niter) const;

@@ -15,6 +15,8 @@
 #include "Model/ConsItem.hpp"
 #include "Basic/AStringable.hpp"
 
+#include <vector>
+
 class GSTLEARN_EXPORT Constraints : public AStringable
 {
 public:

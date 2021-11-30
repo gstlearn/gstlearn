@@ -41,8 +41,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
 if (MSVC)
   # Warning level 4 (4 = maximum, 0 = none)
-  # Deactivate the C4251 warning
-  add_compile_options(/W4 /w4251)
+  add_compile_options(/W4)
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
   add_compile_options(-Wall)

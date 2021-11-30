@@ -90,9 +90,9 @@ private:
   std::multimap<ERoles,String>::const_iterator getItRole(const String& name) const;
 
 private:
-  ParamGrid   _pgrid;
-  bool        _isGrid;
-  std::vector<AVariable*> _vars;
+  ParamGrid                    _pgrid;
+  bool                         _isGrid;
+  std::vector<AVariable*>      _vars;
   std::multimap<ERoles,String> _roles; //order have an importance
 
 };

@@ -27,6 +27,8 @@
 #include "Drifts/ADriftList.hpp"
 #include "Space/SpaceRN.hpp"
 
+#include <vector>
+
 class Model;
 class Drift;
 class ModTrans;
@@ -158,7 +160,7 @@ public:
 
   // TODO : Remove Model::fit duplicate declaration
   int fit(Vario *vario,
-          const std::vector<int>& types,
+          const VectorInt& types,
           bool verbose = false,
           Option_AutoFit mauto = Option_AutoFit(),
           const Constraints& constraints = Constraints(),

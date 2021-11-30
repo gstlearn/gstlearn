@@ -206,12 +206,12 @@ double model_calcul_basic(Model *model,
  **
  *****************************************************************************/
 void model_calcul_cov_direct(CovInternal *covint,
-                                             Model *model,
-                                             const CovCalcMode &mode,
-                                             int flag_init,
-                                             double weight,
-                                             VectorDouble d1,
-                                             double *covtab)
+                             Model *model,
+                             const CovCalcMode &mode,
+                             int flag_init,
+                             double weight,
+                             VectorDouble d1,
+                             double *covtab)
 {
   // Load the non-stationary parameters if needed
 

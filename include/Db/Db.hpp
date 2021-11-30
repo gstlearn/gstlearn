@@ -33,11 +33,6 @@ typedef enum
   FLAG_ARRAY = 16,    //!< Print the variable contents
 } DISPLAY_PARAMS;
 
-// Prevent C4251
-#ifdef GSTLEARN_EXPORT
-template class GSTLEARN_EXPORT std::map<ELoc,PtrGeos>;
-#endif
-
 class Limits;
 
 /**

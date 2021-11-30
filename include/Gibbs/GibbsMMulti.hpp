@@ -14,6 +14,8 @@
 #include "Gibbs/GibbsMulti.hpp"
 #include "Basic/Vector.hpp"
 
+#include <vector>
+
 class Db;
 class Model;
 

@@ -12,6 +12,7 @@
 #include <vector>
 
 class ShiftOpCs;
+
 class GSTLEARN_EXPORT SPDE
 {
 public:
@@ -20,6 +21,7 @@ public:
        const Db& field,
        const Db* dat = nullptr,
        const ESPDECalcMode& calc = ESPDECalcMode::SIMUCOND);
+  // TODO : copy constructor and assignment operator
   virtual ~SPDE();
 
   void init(Model& model,

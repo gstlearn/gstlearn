@@ -169,7 +169,7 @@ private:
   cs* _S;
   int _nModelGradParam;
   std::vector<cs *> _SGrad;
-  std::vector<VectorDouble> _LambdaGrad;
+  VectorVectorDouble _LambdaGrad;
   bool _flagNoStatByHH;
 
   // Following list of members are there to ease the manipulation and reduce argument list
