@@ -80,7 +80,8 @@ set_target_properties(static PROPERTIES COMPILE_FLAGS -DGSTLEARN_STATIC_DEFINE)
 
 # Deactivate the C4251 warning under MSVC
 # TODO : restore warning C4251 ?
-if(MSVC)  
+if(MSVC)
+  message("Deactivate C4251")
   target_compile_definitions(shared PUBLIC /wd4251)
 endif()
 
