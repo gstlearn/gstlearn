@@ -3615,6 +3615,11 @@ cs* _spde_fill_S(MeshEStandard *amesh, Model *model, double *units)
       // Case of the calculations on the Sphere
 
       st_triangle_center(amesh, ncorner, imesh, center, xyz);
+      if (ncorner < 0 || ncorner > 3)
+      {
+        messerr("Error in st_triangle_center: wrong number or corners: %d", ncorner);
+        goto label_end;
+      }
 
       /* Look for the tangent plane and its axes */
 

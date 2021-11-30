@@ -51,13 +51,12 @@
 #define THRESH_INF      -10
 #define THRESH_SUP       10
 
+// TODO : Disable warning C4251 (doesn't really work) : to be kept?
 #include "Basic/WarningMacro.hpp"
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_DLL_EXPORT
-
 #include <vector>
 #include <string>
-
 DISABLE_WARNING_POP
 
 typedef std::string                String;

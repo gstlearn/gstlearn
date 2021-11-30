@@ -10,7 +10,11 @@
 /******************************************************************************/
 #include "Mesh/tetgen.h"
 #include "Basic/File.hpp"
+#include "Basic/WarningMacro.hpp"
 #include "geoslib_e.h"
+
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_STRIC_OVERFLOW
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
@@ -31657,3 +31661,4 @@ void tetrahedralize(const char *switches, tetgenio *in, tetgenio *out,
 ////                                                                       ////
 //// main_cxx /////////////////////////////////////////////////////////////////
 
+DISABLE_WARNING_POP

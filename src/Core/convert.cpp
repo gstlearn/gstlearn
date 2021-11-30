@@ -1961,7 +1961,9 @@ int db_write_vtk(const char *filename,
  ** \param[in]      file       File structure
  ** \param[in]      flag_up    Convert to uppercase
  ** \param[in,out]  numline    Rank of the line
- ** \param[out] string         New line
+ ** \param[out]     string     New line
+ **
+ ** TODO : Replace char* by String
  **
  *****************************************************************************/
 static int st_read_next(int s_length,
@@ -1992,6 +1994,7 @@ static int st_read_next(int s_length,
   return (0);
 }
 
+#if defined(_WIN32) || defined(_WIN64)
 namespace
 {
   // STL replacement for strcasestr - far from optimal (several copies)
@@ -2015,6 +2018,7 @@ namespace
   }
   ;
 }
+#endif
 
 /****************************************************************************/
 /*!
@@ -2067,14 +2071,14 @@ static int st_read_find(int s_length,
  **
  *****************************************************************************/
 int db_well_read_las(const char *filename,
-                                     int verbose,
-                                     double xwell,
-                                     double ywell,
-                                     double cwell,
-                                     int *nvarout,
-                                     int *nechout,
-                                     char ***var_names,
-                                     double **tab)
+                     int verbose,
+                     double xwell,
+                     double ywell,
+                     double cwell,
+                     int *nvarout,
+                     int *nechout,
+                     char ***var_names,
+                     double **tab)
 {
   FILE *file;
   char string[1000], *lcur, sep_blank[2], sep_point[2], *token, **varloc;
@@ -2262,13 +2266,13 @@ int db_well_read_las(const char *filename,
  **
  *****************************************************************************/
 int db_grid_read_f2g(const char *filename,
-                                     int verbose,
-                                     int nx[3],
-                                     double x0[3],
-                                     double dx[3],
-                                     double *angle,
-                                     int *ncol,
-                                     double **tab_arg)
+                     int verbose,
+                     int nx[3],
+                     double x0[3],
+                     double dx[3],
+                     double *angle,
+                     int *ncol,
+                     double **tab_arg)
 {
   FILE *file;
   char string[100], refchar[100], valtest[10], valread[10];
@@ -2454,18 +2458,18 @@ int db_grid_read_f2g(const char *filename,
  **
  *****************************************************************************/
 int csv_table_read(const String &filename,
-                                   int verbose,
-                                   int flag_header,
-                                   int nskip,
-                                   char char_sep,
-                                   char char_dec,
-                                   const String &na_string,
-                                   int ncol_max,
-                                   int nrow_max,
-                                   int *ncol_arg,
-                                   int *nrow_arg,
-                                   VectorString &names,
-                                   VectorDouble &tab)
+                   int verbose,
+                   int flag_header,
+                   int nskip,
+                   char char_sep,
+                   char char_dec,
+                   const String &na_string,
+                   int ncol_max,
+                   int nrow_max,
+                   int *ncol_arg,
+                   int *nrow_arg,
+                   VectorString &names,
+                   VectorDouble &tab)
 {
   std::string line;
   std::ifstream file(filename.c_str());
@@ -2726,12 +2730,12 @@ void csv_print_eol(void)
  **
  *****************************************************************************/
 int csv_manage(const char *filename,
-                               int mode,
-                               int nitem,
-                               bool flag_integer,
-                               const char *char_sep,
-                               const char *na_string,
-                               bool verbose)
+               int mode,
+               int nitem,
+               bool flag_integer,
+               const char *char_sep,
+               const char *na_string,
+               bool verbose)
 {
   // Dispatch
 
@@ -2813,13 +2817,13 @@ int csv_manage(const char *filename,
  **
  *****************************************************************************/
 int db_write_csv(Db *db,
-                                 const char *filename,
-                                 int flag_header,
-                                 int flag_allcol,
-                                 int flag_coor,
-                                 bool flag_integer,
-                                 const char *char_sep,
-                                 const char *na_string)
+                 const char *filename,
+                 int flag_header,
+                 int flag_allcol,
+                 int flag_coor,
+                 bool flag_integer,
+                 const char *char_sep,
+                 const char *na_string)
 {
   if (db == nullptr) return 1;
   int ncol = db->getFieldNumber();

@@ -617,7 +617,7 @@ bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
   if (!isLocatorTypeValid(locatorType)) return false;
   bool ok = _p.at(locatorType).isLocatorIndexValid(locatorIndex);
   if (! ok)
-    messerr("Problem in the identification of Locator %d",locatorType);
+    messerr("Problem in the identification of Locator %d", locatorType.getValue());
   return ok;
 }
 

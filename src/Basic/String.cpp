@@ -64,7 +64,7 @@ void toUpper(String &string)
 {
   std::for_each(string.begin(), string.end(), [](char &c)
   {
-    c = ::toupper(c);
+    c = static_cast<char>(::toupper(c));
   });
 }
 
@@ -72,7 +72,7 @@ void toLower(String &string)
 {
   std::for_each(string.begin(), string.end(), [](char &c)
   {
-    c = ::tolower(c);
+    c = static_cast<char>(::tolower(c));
   });
 }
 
