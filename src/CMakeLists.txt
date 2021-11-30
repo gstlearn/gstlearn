@@ -78,13 +78,6 @@ generate_export_header(shared BASE_NAME gstlearn
 )
 set_target_properties(static PROPERTIES COMPILE_FLAGS -DGSTLEARN_STATIC_DEFINE)
 
-# Deactivate the C4251 warning under MSVC
-# TODO : restore warning C4251 ?
-if(MSVC)
-  message("Deactivate C4251")
-  target_compile_definitions(shared PUBLIC /wd4251)
-endif()
-
 # Install the version file
 install(FILES ${PROJECT_BINARY_DIR}/gstlearn_export.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn

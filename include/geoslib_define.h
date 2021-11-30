@@ -63,3 +63,12 @@ typedef std::vector<std::string>   VectorString;
 typedef std::vector<unsigned char> VectorUChar;
 typedef std::vector<VectorDouble>  VectorVectorDouble;
 typedef std::vector<VectorInt>     VectorVectorInt;
+
+// To prevent (a part of) the warnings C4251 under windows: https://stackoverflow.com/a/22054743
+template class GSTLEARN_EXPORT std::vector<double>;
+template class GSTLEARN_EXPORT std::vector<int>;
+template class GSTLEARN_EXPORT std::vector<bool>;
+template class GSTLEARN_EXPORT std::vector<std::string>;
+template class GSTLEARN_EXPORT std::vector<unsigned char>;
+template class GSTLEARN_EXPORT std::vector<std::vector<double>>;
+template class GSTLEARN_EXPORT std::vector<std::vector<int>>;
