@@ -1413,29 +1413,29 @@ static void st_sill_reset(int nvar, int ncova, VectorDouble &sill)
     for (int ivar = ijvar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         SILL(icov,ijvar)= (ivar == jvar);
-      }
+}
 
-      /****************************************************************************/
-      /*!
-       **  Routine for fitting a model using an experimental variogram
-       **
-       ** \return  Error return code
-       **
-       ** \param[in]  mauto       Option_AutoFit structure
-       ** \param[in]  nvar        Number of variables
-       ** \param[in]  ncova       Number of covariances
-       ** \param[in]  npadir      Maximum number of lags for all directions
-       ** \param[in]  wt          Array of weights (Dimension: npadir)
-       ** \param[in]  gg          Array of experimental values (Dimension: npadir)
-       ** \param[in]  ge          Array of model values (Dimension: npadir)
-       **
-       ** \param[out] sill        Array of resulting sills
-       ** \param[out] crit_arg    Convergence criterion
-       **
-       ** \remark  Internal arrays:
-       ** \remark  MP : Contains the current Model (ijvar,ipadir)
-       **
-       *****************************************************************************/
+/****************************************************************************/
+/*!
+ **  Routine for fitting a model using an experimental variogram
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  mauto       Option_AutoFit structure
+ ** \param[in]  nvar        Number of variables
+ ** \param[in]  ncova       Number of covariances
+ ** \param[in]  npadir      Maximum number of lags for all directions
+ ** \param[in]  wt          Array of weights (Dimension: npadir)
+ ** \param[in]  gg          Array of experimental values (Dimension: npadir)
+ ** \param[in]  ge          Array of model values (Dimension: npadir)
+ **
+ ** \param[out] sill        Array of resulting sills
+ ** \param[out] crit_arg    Convergence criterion
+ **
+ ** \remark  Internal arrays:
+ ** \remark  MP : Contains the current Model (ijvar,ipadir)
+ **
+ *****************************************************************************/
 static int st_goulard_without_constraint(const Option_AutoFit &mauto,
                                          int nvar,
                                          int ncova,
@@ -1537,24 +1537,24 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           CC(jvar,ivar)= CC(ivar,jvar);
         }
 
-        /* Computing and sorting the eigen values and eigen vectors */
+      /* Computing and sorting the eigen values and eigen vectors */
 
-        if (matrix_eigen(cc.data(),nvar,valpro.data(),vecpro.data())) return 1;
+      if (matrix_eigen(cc.data(),nvar,valpro.data(),vecpro.data())) return 1;
 
-        /* Store the values using the keypair mechanism */
+      /* Store the values using the keypair mechanism */
 
-        st_keypair_results(1,icov,nvar,valpro.data(),vecpro.data());
+      st_keypair_results(1,icov,nvar,valpro.data(),vecpro.data());
 
-        ivar=0;
-        allpos=1;
-        while((ivar<nvar) && allpos)
-        {
-          if (valpro[ivar++] < 0) allpos=0;
-        }
+      ivar=0;
+      allpos=1;
+      while((ivar<nvar) && allpos)
+      {
+        if (valpro[ivar++] < 0) allpos=0;
+      }
 
-        /* Calculate the new coregionalization matrix */
+      /* Calculate the new coregionalization matrix */
 
-        for (ivar=ijvar=0; ivar<nvar; ivar++)
+      for (ivar=ijvar=0; ivar<nvar; ivar++)
         for (jvar=0; jvar<=ivar; jvar++, ijvar++)
         {
           if (allpos)
@@ -1572,31 +1572,31 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           for (ipadir=0; ipadir<npadir; ipadir++)
           MP(ijvar,ipadir) += SILL(icov,ijvar) * GE(icov,ijvar,ipadir);
         }
-      }
-
-      /* Update the global criterion */
-
-      crit_mem = crit;
-      crit = 0.;
-      for (ipadir=0; ipadir<npadir; ipadir++)
-      for (ivar=ijvar=0; ivar<nvar; ivar++)
-      for (jvar=0; jvar<=ivar; jvar++, ijvar++)
-      {
-        if (FFFF(WT(ijvar,ipadir))) continue;
-        temp = GG(ijvar,ipadir) - MP(ijvar,ipadir);
-        value = (ivar != jvar) ? 2. : 1.;
-        crit += value * WT(ijvar,ipadir) * temp * temp;
-      }
-
-      /* Optional printout */
-
-      st_goulard_debug_current(nvar,ncova,iter,sill,crit);
-
-      /* Stopping criterion */
-
-      if (ABS(crit) < mauto.getTolred() ||
-          ABS(crit-crit_mem) / ABS(crit) < mauto.getTolred()) break;
     }
+
+    /* Update the global criterion */
+
+    crit_mem = crit;
+    crit = 0.;
+    for (ipadir=0; ipadir<npadir; ipadir++)
+      for (ivar=ijvar=0; ivar<nvar; ivar++)
+        for (jvar=0; jvar<=ivar; jvar++, ijvar++)
+        {
+          if (FFFF(WT(ijvar,ipadir))) continue;
+          temp = GG(ijvar,ipadir) - MP(ijvar,ipadir);
+          value = (ivar != jvar) ? 2. : 1.;
+          crit += value * WT(ijvar,ipadir) * temp * temp;
+        }
+
+    /* Optional printout */
+
+    st_goulard_debug_current(nvar,ncova,iter,sill,crit);
+
+    /* Stopping criterion */
+
+    if (ABS(crit) < mauto.getTolred() ||
+        ABS(crit-crit_mem) / ABS(crit) < mauto.getTolred()) break;
+  }
 
   st_goulard_score(mauto, 0, ncova, iter, crit);
 
@@ -3436,40 +3436,40 @@ static int st_sill_fitting_int(Model *model,
           GE1(ijvar,ipadir)= sum;
         }
 
-        /* Call Goulard with 1 structure (no constraint) */
+    /* Call Goulard with 1 structure (no constraint) */
 
-        st_sill_reset(nvar,1,sill1);
-        if (st_goulard_without_constraint(mauto,nvar,1,npadir,
-                wt,gg,ge1,sill1,&crit)) goto label_end;
+    st_sill_reset(nvar,1,sill1);
+    if (st_goulard_without_constraint(mauto,nvar,1,npadir,
+            wt,gg,ge1,sill1,&crit)) goto label_end;
 
-        /* Initialize the arrays for the second pass */
+    /* Initialize the arrays for the second pass */
 
-        for (ivar=ijvar=0; ivar<nvar; ivar++)
-        for (jvar=0; jvar<=ivar; jvar++, ijvar++)
-        {
-          pivot = sill1[ijvar];
-          for (ipadir=0; ipadir<npadir; ipadir++)
-          {
-            GG2(ijvar,ipadir) = (pivot == 0) ? 0. : GG(ijvar,ipadir) / pivot;
-            WT2(ijvar,ipadir) = WT(ijvar,ipadir) * pivot * pivot;
-            for (icov=0; icov<ncova; icov++)
-            GE2(icov,ijvar,ipadir) = GE(icov,ijvar,ipadir);
-          }
-        }
-
-        /* Call Goulard with 1 variable (no constraint) */
-
-        if (st_goulard_without_constraint(mauto,1,ncova,npadir*nvs2,
-                wt2,gg2,ge2,alphau,&crit)) goto label_end;
-
-        /* Stopping criterion */
-
-        if (ABS(crit) < mauto.getTolred() ||
-            ABS(crit-crit_mem) / ABS(crit) < mauto.getTolred()) break;
-        crit_mem = crit;
+    for (ivar=ijvar=0; ivar<nvar; ivar++)
+    for (jvar=0; jvar<=ivar; jvar++, ijvar++)
+    {
+      pivot = sill1[ijvar];
+      for (ipadir=0; ipadir<npadir; ipadir++)
+      {
+        GG2(ijvar,ipadir) = (pivot == 0) ? 0. : GG(ijvar,ipadir) / pivot;
+        WT2(ijvar,ipadir) = WT(ijvar,ipadir) * pivot * pivot;
+        for (icov=0; icov<ncova; icov++)
+        GE2(icov,ijvar,ipadir) = GE(icov,ijvar,ipadir);
       }
+    }
 
-      /* Patch the final model */
+    /* Call Goulard with 1 variable (no constraint) */
+
+    if (st_goulard_without_constraint(mauto,1,ncova,npadir*nvs2,
+            wt2,gg2,ge2,alphau,&crit)) goto label_end;
+
+    /* Stopping criterion */
+
+    if (ABS(crit) < mauto.getTolred() ||
+        ABS(crit-crit_mem) / ABS(crit) < mauto.getTolred()) break;
+    crit_mem = crit;
+  }
+
+  /* Patch the final model */
 
   for (icov = 0; icov < ncova; icov++)
     for (ivar = ijvar = 0; ivar < nvar; ivar++)

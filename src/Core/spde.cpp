@@ -1057,7 +1057,7 @@ static cs* st_extract_Q_from_Q(cs *Q_in,
                                int col_auth)
 {
   int *rank_rows, *rank_cols, error, ecr_row, ecr_col;
-  cs *Q;
+  cs *Q = nullptr;
 
   /* Initializations */
 
@@ -3116,8 +3116,8 @@ static int st_fill_Bnugget(Db *dbin)
 
   if (!flag_nostat_sillnug)
   {
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
+    for (ivar = 0; ivar < nvar; ivar++)
+      for (jvar = 0; jvar < nvar; jvar++)
         LOCAL0(ivar,jvar) = st_get_nugget_sill(ivar, jvar);
     if (matrix_invert(local0, nvar, -1))
     {
@@ -3155,8 +3155,8 @@ static int st_fill_Bnugget(Db *dbin)
 
       /* Isotopic case: Store the sill partial matrix */
 
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
+      for (ivar = 0; ivar < nvar; ivar++)
+        for (jvar = 0; jvar <= ivar; jvar++)
         {
           iad = st_get_rank(ivar, jvar);
           mat[iad * ndata + ecr] = LOCAL0(ivar, jvar);
@@ -3201,8 +3201,8 @@ static int st_fill_Bnugget(Db *dbin)
   for (int ivs2 = 0; ivs2 < nvs2; ivs2++)
     Bnugget[ivs2] = nullptr;
   ecr = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar <= ivar; jvar++, ecr++)
+  for (ivar = 0; ivar < nvar; ivar++)
+    for (jvar = 0; jvar <= ivar; jvar++, ecr++)
       Bnugget[ecr] = cs_eye_tab(ndata, &mat[ecr * ndata]);
 
   /* Optional printout */
@@ -4386,7 +4386,7 @@ static void st_load_data(SPDE_Mesh *s_mesh,
   if (DEBUG)
   {
     message("(DEBUG) Load Data\n");
-    for (int ivar = 0; ivar < nvar; ivar++)
+    for (ivar = 0; ivar < nvar; ivar++)
       print_range("- Load  ", nvertex, &zcur[ivar * nvertex], NULL);
   }
 }
@@ -9904,13 +9904,13 @@ cs* db_mesh_neigh(const Db *db,
     /* Count the number of vertices hit by the point neighborhood */
 
     total = 0.;
-    for (int ip = 0; ip < s_mesh->nvertex; ip++)
+    for (ip = 0; ip < s_mesh->nvertex; ip++)
       total += pts[ip];
     if (total <= 0.) continue;
 
     /* Add the active vertices to the triplet */
 
-    for (int ip = 0; ip < s_mesh->nvertex; ip++)
+    for (ip = 0; ip < s_mesh->nvertex; ip++)
     {
       if (pts[ip] <= 0) continue;
       if (ip > ip_max) ip_max = ip;

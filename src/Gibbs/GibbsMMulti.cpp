@@ -299,7 +299,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
 
   double distmax = 1.5 * model->getCova(0)->getRange();
   double dx = db->getDX(0);
-  int npas = ceil(distmax / dx);
+  int npas = static_cast<int>(ceil(distmax / dx));
   Table tabmod(npas,2);
 
   // Retrieve the elements from the sparse matrix
@@ -329,7 +329,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
       ecr++;
 
       // Store the contribution to the covariance model
-      int ipas = floor(dist + dx/2.) / dx;
+      int ipas = static_cast<int>(floor(dist + dx/2.) / dx);
       if (ipas >= 0 && ipas < npas)
       {
         tabmod.increment(ipas, 0, 1.);

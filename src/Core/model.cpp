@@ -3460,7 +3460,7 @@ int model_sample(Vario *vario,
   /* Calculate the C(0) constant term */
 
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
-  for (int i = 0; i < nvar * nvar; i++)
+  for (i = 0; i < nvar * nvar; i++)
     vario->setVars(i, covtab[i]);
 
   /* Loop on the directions */

@@ -4045,7 +4045,7 @@ void variogram_cloud_ident(Db *db,
     rank[iech] = iech;
   ut_sort_double(0, nech, rank, ids);
 
-  for (int iech = 0; iech < nech; iech++)
+  for (iech = 0; iech < nech; iech++)
   {
     jech = nech - iech - 1;
     if (ids[jech] <= 0.) break;
@@ -4329,7 +4329,7 @@ int regression_f(Db *db1,
   mean = *variance = *varres = 0.;
   *count = 0;
   *variance = *varres = *correl = TEST;
-  for (int i = 0; i < size; i++)
+  for (i = 0; i < size; i++)
     coeff[i] = TEST;
 
   /* Preliminary checks */

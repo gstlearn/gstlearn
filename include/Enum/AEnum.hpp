@@ -13,6 +13,10 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Basic/RepeatMacro.hpp"
+#include "Basic/WarningMacro.hpp"
+
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_DLL_EXPORT
 
 #include <iostream>
 #include <string>
@@ -278,4 +282,4 @@ const String& NAME ## Iterator::getDescr() const\
 #define ENUM_DECLARE(...) EXPAND(ENUM_DECLARE_(__VA_ARGS__))
 #define ENUM_DEFINE(...)  EXPAND(ENUM_DEFINE_(__VA_ARGS__))
 
-
+DISABLE_WARNING_POP

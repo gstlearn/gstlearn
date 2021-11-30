@@ -1563,9 +1563,8 @@ int anam_get_r(Anam *anam,
     default:
       messerr(
           "The change of support cannot be calculated for this Anamorphosis");
-      return (1);
   }
-  return (0);
+  return (1);
 }
 
 /*****************************************************************************/

@@ -10,9 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include <vector>
-#include <string>
-
 #define EPSILON1   1.e-1
 #define EPSILON2   1.e-2
 #define EPSILON3   1.e-3
@@ -53,6 +50,15 @@
 
 #define THRESH_INF      -10
 #define THRESH_SUP       10
+
+#include "Basic/WarningMacro.hpp"
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_DLL_EXPORT
+
+#include <vector>
+#include <string>
+
+DISABLE_WARNING_POP
 
 typedef std::string                String;
 

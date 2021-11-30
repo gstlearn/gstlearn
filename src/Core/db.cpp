@@ -2928,7 +2928,7 @@ int db_proportion(Db *db,
 int db_merge(Db *db, int ncol, int *cols)
 {
   int iptr, iech, icol;
-  double value;
+  double value = TEST;
 
   /* Preliminary check */
 
