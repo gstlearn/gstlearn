@@ -66,11 +66,6 @@ set(DISABLE_EXPORT_IF_SWIG "
 #define GSTLEARN_EXPORT
 #define GSTLEARN_NO_EXPORT
 #endif
-#if defined(_WIN32) || defined(_WIN64) 
-#define XSTR(x) STR(x)
-#define STR(x) #x
-#pragma message(\"GSTLEARN_EXPORT is \" XSTR(GSTLEARN_EXPORT) )
-#endif
 ")
 
 

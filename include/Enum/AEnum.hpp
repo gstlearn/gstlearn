@@ -82,7 +82,7 @@ class NAME;\
 \
 typedef std::map<int, NAME*> NAME ## Map;\
 \
-class NAME ## Iterator\
+class GSTLEARN_EXPORT NAME ## Iterator\
 {\
   friend class NAME;\
 \
