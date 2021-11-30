@@ -65,6 +65,7 @@ typedef std::vector<VectorDouble>  VectorVectorDouble;
 typedef std::vector<VectorInt>     VectorVectorInt;
 
 // To prevent (a part of) the warnings C4251 under windows: https://stackoverflow.com/a/22054743
+#include "gstlearn_export.hpp"
 template class GSTLEARN_EXPORT std::vector<double>;
 template class GSTLEARN_EXPORT std::vector<int>;
 template class GSTLEARN_EXPORT std::vector<bool>;
