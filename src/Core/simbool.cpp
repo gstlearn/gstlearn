@@ -226,7 +226,7 @@ static Def_Token DEF_TOKEN[] = { { "Parallelepiped",
  ** \param[in]  tokens Pointer to the Tokens structure to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Tokens* tokens_free(Tokens *tokens)
+Tokens* tokens_free(Tokens *tokens)
 
 {
   if (tokens == nullptr) return (tokens);
@@ -276,7 +276,7 @@ static void st_normalize_proportions(Tokens *tokens)
  ** \param[in]  nb_tokens  Number of tokens
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Tokens* tokens_create(int nb_tokens)
+Tokens* tokens_create(int nb_tokens)
 
 {
   Tokens *tokens;
@@ -314,7 +314,7 @@ GSTLEARN_EXPORT Tokens* tokens_create(int nb_tokens)
  **                        (Dimension: 4 * npar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int tokone_create(Tokens *tokens,
+int tokone_create(Tokens *tokens,
                                   int rank,
                                   int type,
                                   int npar,
@@ -587,7 +587,7 @@ static int st_lire_extension_linkage(Token_Def &def, int rank)
  ** \return  Pointer to the newly created Tokens structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Tokens* tokens_input(void)
+Tokens* tokens_input(void)
 
 {
   Tokens *tokens;
@@ -657,7 +657,7 @@ GSTLEARN_EXPORT Tokens* tokens_input(void)
  ** \param[out]  prop    Token proportions
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tokone_get_nbparams(Tokens *tokens,
+void tokone_get_nbparams(Tokens *tokens,
                                          int rank,
                                          int *type,
                                          int *npar,
@@ -685,7 +685,7 @@ GSTLEARN_EXPORT void tokone_get_nbparams(Tokens *tokens,
  ** \param[out]  valarg     Array of randomization parameters (Dimension: 4*npar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tokone_get_params(Tokens *tokens,
+void tokone_get_params(Tokens *tokens,
                                        int rank,
                                        double *factor_x2y,
                                        double *factor_x2z,
@@ -717,7 +717,7 @@ GSTLEARN_EXPORT void tokone_get_params(Tokens *tokens,
  ** \param[in]  rank     Rank of the Token set
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tokone_print(Tokens *tokens, int rank)
+void tokone_print(Tokens *tokens, int rank)
 {
   if (tokens == nullptr) return;
   if (rank < 0 || rank >= tokens->nb_tokens) return;
@@ -740,7 +740,7 @@ GSTLEARN_EXPORT void tokone_print(Tokens *tokens, int rank)
  ** \param[in]  tokens   Tokens structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tokens_print(Tokens *tokens)
+void tokens_print(Tokens *tokens)
 
 {
   int i;
@@ -2065,7 +2065,7 @@ static void st_print_grain(Bool_Cond *cdgrain)
  ** \param[in]  verbose       1 for a verbose output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simbool_f(Db *dbin,
+int simbool_f(Db *dbin,
                               Db *dbout,
                               Tokens *tokens,
                               int seed,
@@ -2409,7 +2409,7 @@ GSTLEARN_EXPORT int simbool_f(Db *dbin,
  ** \param[in]   type    Token type (starting from 0)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int toktype_get_nbparams(int type)
+int toktype_get_nbparams(int type)
 {
   if (type < 0 || type >= NB_TOKEN_TYPES)
   {

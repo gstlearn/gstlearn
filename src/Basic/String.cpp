@@ -46,21 +46,21 @@ std::regex _protectRegexp(const String &match)
   return regexpr;
 }
 
-GSTLEARN_EXPORT String toUpper(const String &string)
+String toUpper(const String &string)
 {
   String str = string;
   toUpper(str);
   return (str);
 }
 
-GSTLEARN_EXPORT String toLower(const String &string)
+String toLower(const String &string)
 {
   String str = string;
   toLower(str);
   return (str);
 }
 
-GSTLEARN_EXPORT void toUpper(String &string)
+void toUpper(String &string)
 {
   std::for_each(string.begin(), string.end(), [](char &c)
   {
@@ -68,7 +68,7 @@ GSTLEARN_EXPORT void toUpper(String &string)
   });
 }
 
-GSTLEARN_EXPORT void toLower(String &string)
+void toLower(String &string)
 {
   std::for_each(string.begin(), string.end(), [](char &c)
   {
@@ -90,7 +90,7 @@ charTypeT _charType(char c)
   return other;
 }
 
-GSTLEARN_EXPORT String incrementStringVersion(const String &string,
+String incrementStringVersion(const String &string,
                                               int rank,
                                               const String &delim)
 {
@@ -99,7 +99,7 @@ GSTLEARN_EXPORT String incrementStringVersion(const String &string,
   return ss.str();
 }
 
-GSTLEARN_EXPORT String concatenateStrings(const String &delim,
+String concatenateStrings(const String &delim,
                                           const String &string1,
                                           const String &string2,
                                           const String &string3,
@@ -133,7 +133,7 @@ GSTLEARN_EXPORT String concatenateStrings(const String &delim,
   return ss.str();
 }
 
-GSTLEARN_EXPORT VectorString generateMultipleNames(const String &radix,
+VectorString generateMultipleNames(const String &radix,
                                                    int number)
 {
   VectorString list;
@@ -151,7 +151,7 @@ GSTLEARN_EXPORT VectorString generateMultipleNames(const String &radix,
  * @param list
  * @return Number of items whose names are modified
  */
-GSTLEARN_EXPORT int correctNamesForDuplicates(VectorString &list)
+int correctNamesForDuplicates(VectorString &list)
 {
   int numberRenamed = 0;
   int number = static_cast<int>(list.size());
@@ -175,7 +175,7 @@ GSTLEARN_EXPORT int correctNamesForDuplicates(VectorString &list)
   return numberRenamed;
 }
 
-GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString &list, int rank)
+void correctNewNameForDuplicates(VectorString &list, int rank)
 {
   int number = static_cast<int>(list.size());
   int found = 1;
@@ -202,7 +202,7 @@ GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString &list, int rank)
  * @param caseSensitive Case Sensitive flag
  * @return The index of the matching item or -1
  */
-GSTLEARN_EXPORT int getRankInList(const VectorString &list,
+int getRankInList(const VectorString &list,
                                   const String &match,
                                   bool caseSensitive)
 {
@@ -223,7 +223,7 @@ GSTLEARN_EXPORT int getRankInList(const VectorString &list,
  * @param caseSensitive
  * @return Error returned code
  */
-GSTLEARN_EXPORT int decodeInString(const String &symbol,
+int decodeInString(const String &symbol,
                                    const String &node,
                                    int *facies,
                                    bool caseSensitive)
@@ -262,7 +262,7 @@ GSTLEARN_EXPORT int decodeInString(const String &symbol,
  * @param caseSensitive
  * @return Error returned code
  */
-GSTLEARN_EXPORT int decodeInList(const VectorString &symbols,
+int decodeInList(const VectorString &symbols,
                                  const String &node,
                                  int *rank,
                                  int *facies,
@@ -287,7 +287,7 @@ GSTLEARN_EXPORT int decodeInList(const VectorString &symbols,
  * Otherwise, both strings are converted into upper case before comparison
  * @return true if both keywords are identical; false otherwise
  */
-GSTLEARN_EXPORT bool matchRegexp(const String &string1,
+bool matchRegexp(const String &string1,
                                  const String &string2,
                                  bool caseSensitive)
 {
@@ -311,7 +311,7 @@ GSTLEARN_EXPORT bool matchRegexp(const String &string1,
  * Otherwise, both strings are converted into upper case before comparison
  * @return true if both keywords are identical; false otherwise
  */
-GSTLEARN_EXPORT bool matchKeyword(const String &string1,
+bool matchKeyword(const String &string1,
                                   const String &string2,
                                   bool caseSensitive)
 {
@@ -335,7 +335,7 @@ GSTLEARN_EXPORT bool matchKeyword(const String &string1,
  *       several matches have been found but onlyOne flag is True (message issued).
  * @remark Example:  expandList(["x", "y", "xcol"], "x.*") -> ("x", "xcol")
  */
-GSTLEARN_EXPORT VectorString expandList(const VectorString &list,
+VectorString expandList(const VectorString &list,
                                         const String &match,
                                         bool onlyOne)
 {
@@ -368,7 +368,7 @@ GSTLEARN_EXPORT VectorString expandList(const VectorString &list,
   return sublist;
 }
 
-GSTLEARN_EXPORT VectorString expandList(const VectorString &list,
+VectorString expandList(const VectorString &list,
                                         const VectorString &matches)
 {
   VectorString sublist;
@@ -393,7 +393,7 @@ GSTLEARN_EXPORT VectorString expandList(const VectorString &list,
  * @param list List of strings
  * @return The maximum number of characters
  */
-GSTLEARN_EXPORT int getMaxStringSize(const VectorString &list)
+int getMaxStringSize(const VectorString &list)
 {
   int size = 0;
   if (list.empty()) return size;
@@ -411,7 +411,7 @@ GSTLEARN_EXPORT int getMaxStringSize(const VectorString &list)
  * @param code String to be split
  * @return
  */
-GSTLEARN_EXPORT VectorString separateKeywords(const String &code)
+VectorString separateKeywords(const String &code)
 {
   VectorString result;
   String oString = "";
@@ -437,7 +437,7 @@ GSTLEARN_EXPORT VectorString separateKeywords(const String &code)
  * @param v String to be decoded
  * @return The integer value or ITEST (in case of failure)
  */
-GSTLEARN_EXPORT int toInt(const String &v)
+int toInt(const String &v)
 {
   std::istringstream iss(v);
   int number;
@@ -471,7 +471,7 @@ private:
   char _dec;
 };
 
-GSTLEARN_EXPORT double toDouble(const String &v, char dec)
+double toDouble(const String &v, char dec)
 {
   std::istringstream iss(v);
   double number;
@@ -483,14 +483,14 @@ GSTLEARN_EXPORT double toDouble(const String &v, char dec)
     return number;
 }
 
-GSTLEARN_EXPORT String toString(int value)
+String toString(int value)
 {
   std::stringstream sstr;
   sstr << value;
   return sstr.str();
 }
 
-GSTLEARN_EXPORT String toString(double value)
+String toString(double value)
 {
   std::stringstream sstr;
   sstr << value;
@@ -503,7 +503,7 @@ GSTLEARN_EXPORT String toString(double value)
  * @param defval Default value (or IFFFF)
  * @param authTest True if TEST value is authorized (TEST)
  */
-GSTLEARN_EXPORT int askInt(const String &text, int defval, bool authTest)
+int askInt(const String &text, int defval, bool authTest)
 {
   bool hasDefault = !IFFFF(defval) || authTest;
   int answer = defval;
@@ -563,7 +563,7 @@ GSTLEARN_EXPORT int askInt(const String &text, int defval, bool authTest)
  * @param defval Default value (or IFFFF)
  * @param authTest True if a TEST answer is authorized (TEST)
  */
-GSTLEARN_EXPORT double askDouble(const String &text,
+double askDouble(const String &text,
                                  double defval,
                                  bool authTest)
 {
@@ -623,7 +623,7 @@ GSTLEARN_EXPORT double askDouble(const String &text,
  * @param text Text of the question
  * @param defval Default value
  */
-GSTLEARN_EXPORT int askBool(const String &text, bool defval)
+int askBool(const String &text, bool defval)
 {
   bool hasDefault = !IFFFF(defval);
   bool answer = defval;
@@ -679,7 +679,7 @@ GSTLEARN_EXPORT int askBool(const String &text, bool defval)
   return answer;
 }
 
-GSTLEARN_EXPORT String trimRight(const String &s, const String &t)
+String trimRight(const String &s, const String &t)
 {
   String d(s);
   String::size_type i(d.find_last_not_of(t));
@@ -689,19 +689,19 @@ GSTLEARN_EXPORT String trimRight(const String &s, const String &t)
     return d.erase(d.find_last_not_of(t) + 1);
 }
 
-GSTLEARN_EXPORT String trimLeft(const String &s, const String &t)
+String trimLeft(const String &s, const String &t)
 {
   String d(s);
   return d.erase(0, s.find_first_not_of(t));
 }
 
-GSTLEARN_EXPORT String trim(const String &s, const String &t)
+String trim(const String &s, const String &t)
 {
   String d(s);
   return trimLeft(trimRight(d, t), t);
 }
 
-GSTLEARN_EXPORT String erase(const String &s, const String &t)
+String erase(const String &s, const String &t)
 {
   String d(s);
   for (unsigned int i = 0; i < t.size(); i++)
@@ -709,14 +709,14 @@ GSTLEARN_EXPORT String erase(const String &s, const String &t)
   return d;
 }
 
-GSTLEARN_EXPORT char* gslStrcpy(char *dst, const char *src)
+char* gslStrcpy(char *dst, const char *src)
 {
   return strcpy(dst, src);
   //(void)gslSPrintf(dst, "%s", src);
   //return dst;
 }
 
-GSTLEARN_EXPORT char* gslStrcat(char *dst, const char *src)
+char* gslStrcat(char *dst, const char *src)
 {
   return strcat(dst, src);
 //  size_t size = String(dst).size();
@@ -724,7 +724,7 @@ GSTLEARN_EXPORT char* gslStrcat(char *dst, const char *src)
 //  return dst;
 }
 
-GSTLEARN_EXPORT int gslSPrintf(char *dst, const char *fmt, ...)
+int gslSPrintf(char *dst, const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -733,7 +733,7 @@ GSTLEARN_EXPORT int gslSPrintf(char *dst, const char *fmt, ...)
   return n;
 }
 
-GSTLEARN_EXPORT int gslScanf(const char *format, ...)
+int gslScanf(const char *format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -742,7 +742,7 @@ GSTLEARN_EXPORT int gslScanf(const char *format, ...)
   return n;
 }
 
-GSTLEARN_EXPORT int gslSScanf(const char *str, const char *format, ...)
+int gslSScanf(const char *str, const char *format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -751,7 +751,7 @@ GSTLEARN_EXPORT int gslSScanf(const char *str, const char *format, ...)
   return n;
 }
 
-GSTLEARN_EXPORT int gslFScanf(FILE *stream, const char *format, ...)
+int gslFScanf(FILE *stream, const char *format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -760,12 +760,12 @@ GSTLEARN_EXPORT int gslFScanf(FILE *stream, const char *format, ...)
   return n;
 }
 
-GSTLEARN_EXPORT char* gslStrtok(char *str, const char *delim)
+char* gslStrtok(char *str, const char *delim)
 {
   return strtok(str, delim);
 }
 
-GSTLEARN_EXPORT char* gslStrncpy(char *dest, const char *src, size_t n)
+char* gslStrncpy(char *dest, const char *src, size_t n)
 {
   return strncpy(dest, src, n);
 }

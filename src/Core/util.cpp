@@ -135,7 +135,7 @@ static int NB_LAST_MESSAGE = 0;
  ** \remark  The 'neff' values are placed at the beginning of 'tab' in output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_tab_unique(int ntab, double *tab, int *neff)
+void ut_tab_unique(int ntab, double *tab, int *neff)
 {
   int ecr;
   double value;
@@ -172,7 +172,7 @@ GSTLEARN_EXPORT void ut_tab_unique(int ntab, double *tab, int *neff)
  ** \remark  If ind = NULL, ind is ignored
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int *ind, double *value)
+void ut_sort_double(int safe, int nech, int *ind, double *value)
 {
   static int LISTE_L[LSTACK];
   static int LISTE_R[LSTACK];
@@ -420,7 +420,7 @@ GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int *ind, double *value)
  ** \remark  If ind = NULL, ind is ignored
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_sort_int(int safe, int nech, int *ind, int *value)
+void ut_sort_int(int safe, int nech, int *ind, int *value)
 {
   static int LISTE_L[LSTACK];
   static int LISTE_R[LSTACK];
@@ -670,7 +670,7 @@ GSTLEARN_EXPORT void ut_sort_int(int safe, int nech, int *ind, int *value)
  ** \param[out]  stdv   Standard Deviation
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void ut_statistics(int nech,
+void ut_statistics(int nech,
                                    double *tab,
                                    double *sel,
                                    double *wgt,
@@ -744,7 +744,7 @@ GSTLEARN_EXPORT void ut_statistics(int nech,
  ** \remark and set nvalid to 0
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void ut_stats_mima(int nech,
+void ut_stats_mima(int nech,
                                    double *tab,
                                    double *sel,
                                    int *nvalid,
@@ -796,7 +796,7 @@ GSTLEARN_EXPORT void ut_stats_mima(int nech,
  ** \param[in]  sel     Array containing the Selection or NULL
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void ut_stats_mima_print(const char *title,
+void ut_stats_mima_print(const char *title,
                                          int nech,
                                          double *tab,
                                          double *sel)
@@ -832,7 +832,7 @@ GSTLEARN_EXPORT void ut_stats_mima_print(const char *title,
  ** \param[out]  maxi   Maximum value
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void ut_facies_statistics(int nech,
+void ut_facies_statistics(int nech,
                                           double *tab,
                                           double *sel,
                                           int *nval,
@@ -890,7 +890,7 @@ GSTLEARN_EXPORT void ut_facies_statistics(int nech,
  ** \param[out]  classe Array for number of samples per sieve
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_classify(int nech,
+void ut_classify(int nech,
                                  double *tab,
                                  double *sel,
                                  int nclass,
@@ -947,7 +947,7 @@ GSTLEARN_EXPORT void ut_classify(int nech,
  ** \param[out]  sina  sine function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_rotation_sincos(double angle,
+void ut_rotation_sincos(double angle,
                                         double *cosa,
                                         double *sina)
 {
@@ -995,7 +995,7 @@ GSTLEARN_EXPORT void ut_rotation_sincos(double angle,
  ** \param[out]  rot   Rotation matrix (Dimension = 4)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_rotation_matrix_2D(double angle, double *rot)
+void ut_rotation_matrix_2D(double angle, double *rot)
 {
   double ca, sa;
 
@@ -1022,7 +1022,7 @@ GSTLEARN_EXPORT void ut_rotation_matrix_2D(double angle, double *rot)
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_rotation_matrix_3D(double alpha,
+void ut_rotation_matrix_3D(double alpha,
                                            double beta,
                                            double gamma,
                                            double *rot)
@@ -1060,7 +1060,7 @@ GSTLEARN_EXPORT void ut_rotation_matrix_3D(double alpha,
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_rotation_matrix(int ndim,
+void ut_rotation_matrix(int ndim,
                                         const double *angles,
                                         double *rot)
 {
@@ -1081,7 +1081,7 @@ GSTLEARN_EXPORT void ut_rotation_matrix(int ndim,
  ** \param[in]  angles Array of angles
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble ut_rotation_matrix_VD(int ndim,
+VectorDouble ut_rotation_matrix_VD(int ndim,
                                                    const VectorDouble &angles)
 {
   VectorDouble rot;
@@ -1107,7 +1107,7 @@ GSTLEARN_EXPORT VectorDouble ut_rotation_matrix_VD(int ndim,
  ** \param[out] rotout Output rotation matrix (already allocated)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_rotation_copy(int ndim,
+void ut_rotation_copy(int ndim,
                                       const double *rotin,
                                       double *rotout)
 {
@@ -1133,7 +1133,7 @@ GSTLEARN_EXPORT void ut_rotation_copy(int ndim,
  ** \remark  input and output Db structures
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_merge_extension(int ndim,
+double ut_merge_extension(int ndim,
                                           double *mini1,
                                           double *maxi1,
                                           double *mini2,
@@ -1167,7 +1167,7 @@ GSTLEARN_EXPORT double ut_merge_extension(int ndim,
  **  Reset the DEBUG status to Idle value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void debug_reset(void)
+void debug_reset(void)
 
 {
   int i;
@@ -1185,7 +1185,7 @@ GSTLEARN_EXPORT void debug_reset(void)
  **  Print the status of the debug options
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void debug_print(void)
+void debug_print(void)
 
 {
   int i;
@@ -1210,7 +1210,7 @@ GSTLEARN_EXPORT void debug_print(void)
  ** \param[in]  rank    rank of the DEBUG target or 0 for undefine
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void debug_index(int rank)
+void debug_index(int rank)
 {
 
   DBGENV.index = rank;
@@ -1225,7 +1225,7 @@ GSTLEARN_EXPORT void debug_index(int rank)
  ** \return 0 if DEBUG reference is not defined; rank of this index otherwise
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_debug_reference_defined(void)
+int is_debug_reference_defined(void)
 
 {
   return (DBGENV.reference);
@@ -1238,7 +1238,7 @@ GSTLEARN_EXPORT int is_debug_reference_defined(void)
  ** \param[in]  rank    rank of the DEBUG target or 0 for undefine
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void debug_reference(int rank)
+void debug_reference(int rank)
 
 {
   DBGENV.reference = rank;
@@ -1251,7 +1251,7 @@ GSTLEARN_EXPORT void debug_reference(int rank)
  **  Force the action according to the Target Debugging option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int debug_force(void)
+int debug_force(void)
 
 {
   if (DBGENV.reference <= 0) return (0);
@@ -1267,7 +1267,7 @@ GSTLEARN_EXPORT int debug_force(void)
  ** \param[in]  status  value of the DEBUG status
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void debug_define(const char *name, int status)
+void debug_define(const char *name, int status)
 {
   int i, found;
 
@@ -1308,7 +1308,7 @@ GSTLEARN_EXPORT void debug_define(const char *name, int status)
  ** \param[in]  name  name of the environment where DEBUG status is set
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int debug_query(const char *name)
+int debug_query(const char *name)
 
 {
   int i;
@@ -1340,7 +1340,7 @@ GSTLEARN_EXPORT int debug_query(const char *name)
  ** \li              else : Do not modify the flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void projec_toggle(int mode)
+void projec_toggle(int mode)
 {
   int projec_actif;
 
@@ -1379,7 +1379,7 @@ GSTLEARN_EXPORT void projec_toggle(int mode)
  ** \li              else : Toggle the flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variety_toggle(int mode)
+void variety_toggle(int mode)
 {
   int variety_actif;
 
@@ -1414,7 +1414,7 @@ GSTLEARN_EXPORT void variety_toggle(int mode)
  ** \param[out]  actif activity flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void projec_query(int *actif)
+void projec_query(int *actif)
 
 {
   *actif = PROJEC.actif;
@@ -1427,7 +1427,7 @@ GSTLEARN_EXPORT void projec_query(int *actif)
  **  Print the characteristics of the projection
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void projec_print(void)
+void projec_print(void)
 
 {
   mestitle(1, "Parameters for Projection");
@@ -1447,7 +1447,7 @@ GSTLEARN_EXPORT void projec_print(void)
  ** \param[in]  radius       Radius of the Sphere
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius)
+void variety_define(int flag_sphere, double radius)
 {
   int projec_actif;
 
@@ -1475,7 +1475,7 @@ GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius)
  ** \param[out]  flag_sphere 1 if the Spherical coordinates must be used
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variety_query(int *flag_sphere)
+void variety_query(int *flag_sphere)
 
 {
   *flag_sphere = VARIETY.flag_sphere;
@@ -1490,7 +1490,7 @@ GSTLEARN_EXPORT void variety_query(int *flag_sphere)
  ** \param[out]  radius  Radius of the Sphere for the Spherical System
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variety_get_characteristics(double *radius)
+void variety_get_characteristics(double *radius)
 
 {
   *radius = VARIETY.radius;
@@ -1503,7 +1503,7 @@ GSTLEARN_EXPORT void variety_get_characteristics(double *radius)
  **  Print the characteristics of the Variety
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variety_print(void)
+void variety_print(void)
 
 {
   if (!VARIETY.flag_sphere) return;
@@ -1527,7 +1527,7 @@ GSTLEARN_EXPORT void variety_print(void)
  ** \param[in,out] tab    Input/Output matrix (if flag_def=1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void get_matrix(const char *title,
+void get_matrix(const char *title,
                                 int flag_sym,
                                 int flag_def,
                                 int nx,
@@ -1568,7 +1568,7 @@ GSTLEARN_EXPORT void get_matrix(const char *title,
  ** \param[in,out] rot    Input/Output rotation matrix (if flag_def=1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void get_rotation(const char *title,
+void get_rotation(const char *title,
                                   int flag_def,
                                   int ndim,
                                   double *rot)
@@ -1658,7 +1658,7 @@ GSTLEARN_EXPORT void get_rotation(const char *title,
  ** \param[out]  angles Rotation angles (Dimension = ndim)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ut_angles_from_rotation_matrix(const double *rot,
+int ut_angles_from_rotation_matrix(const double *rot,
                                                    int ndim,
                                                    double *angles)
 {
@@ -1737,7 +1737,7 @@ GSTLEARN_EXPORT int ut_angles_from_rotation_matrix(const double *rot,
  ** \param[out]  angles Rotation angles (Dimension = ndim * ndir)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_angles_from_codir(int ndim,
+void ut_angles_from_codir(int ndim,
                                           int ndir,
                                           const VectorDouble &codir,
                                           VectorDouble &angles)
@@ -1796,7 +1796,7 @@ GSTLEARN_EXPORT void ut_angles_from_codir(int ndim,
  ** \param[in]  ndim     Space dimension
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ut_rotation_check(double *rot, int ndim)
+int ut_rotation_check(double *rot, int ndim)
 {
   int i, j;
 
@@ -1831,7 +1831,7 @@ GSTLEARN_EXPORT int ut_rotation_check(double *rot, int ndim)
  ** \param[out] niter          Number of iterations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double golden_search(double (*func_evaluate)(double test,
+double golden_search(double (*func_evaluate)(double test,
                                                              void *user_data),
                                      void *user_data,
                                      double tolstop,
@@ -2141,7 +2141,7 @@ static void st_keypair_copy(Keypair *keypair, int type, int start, void *values)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void set_keypair(const char *keyword,
+void set_keypair(const char *keyword,
                                  int origin,
                                  int nrow,
                                  int ncol,
@@ -2184,7 +2184,7 @@ GSTLEARN_EXPORT void set_keypair(const char *keyword,
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void app_keypair(const char *keyword,
+void app_keypair(const char *keyword,
                                  int origin,
                                  int nrow,
                                  int ncol,
@@ -2235,7 +2235,7 @@ GSTLEARN_EXPORT void app_keypair(const char *keyword,
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void set_keypair_int(const char *keyword,
+void set_keypair_int(const char *keyword,
                                      int origin,
                                      int nrow,
                                      int ncol,
@@ -2277,7 +2277,7 @@ GSTLEARN_EXPORT void set_keypair_int(const char *keyword,
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void app_keypair_int(const char *keyword,
+void app_keypair_int(const char *keyword,
                                      int origin,
                                      int nrow,
                                      int ncol,
@@ -2361,7 +2361,7 @@ static void del_keypone(int indice)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void del_keypair(const char *keyword, int flag_exact)
+void del_keypair(const char *keyword, int flag_exact)
 {
   int found;
 
@@ -2424,7 +2424,7 @@ GSTLEARN_EXPORT void del_keypair(const char *keyword, int flag_exact)
  ** \remark  if the targeted keypair contains more than a single value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double get_keypone(const char *keyword, double valdef)
+double get_keypone(const char *keyword, double valdef)
 {
   int found;
   double *rtab, retval;
@@ -2465,7 +2465,7 @@ GSTLEARN_EXPORT double get_keypone(const char *keyword, double valdef)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int get_keypair(const char *keyword,
+int get_keypair(const char *keyword,
                                 int *nrow,
                                 int *ncol,
                                 double **values)
@@ -2512,7 +2512,7 @@ GSTLEARN_EXPORT int get_keypair(const char *keyword,
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int get_keypair_int(const char *keyword,
+int get_keypair_int(const char *keyword,
                                     int *nrow,
                                     int *ncol,
                                     int **values)
@@ -2547,7 +2547,7 @@ GSTLEARN_EXPORT int get_keypair_int(const char *keyword,
  ** \param[in]  flag_short  1 for a short output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_keypair(int flag_short)
+void print_keypair(int flag_short)
 
 {
   int i;
@@ -2584,7 +2584,7 @@ GSTLEARN_EXPORT void print_keypair(int flag_short)
  ** \param[out] rot       Rotation matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_rotation_init(int ndim, double *rot)
+void ut_rotation_init(int ndim, double *rot)
 {
   int i, j, ecr;
 
@@ -2603,7 +2603,7 @@ GSTLEARN_EXPORT void ut_rotation_init(int ndim, double *rot)
  ** \param[in]  ntab      Number of samples
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_median(double *tab, int ntab)
+double ut_median(double *tab, int ntab)
 {
   int i, j, k, nr, nl, even, lo, hi, loop, mid;
   double result, xlo, xhi, temp, xmin, xmax;
@@ -2714,7 +2714,7 @@ GSTLEARN_EXPORT double ut_median(double *tab, int ntab)
  ** \param[in,out]  tab    Vector to be normalized
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_normalize(int ntab, double *tab)
+void ut_normalize(int ntab, double *tab)
 {
   int i;
   double norme;
@@ -2743,7 +2743,7 @@ GSTLEARN_EXPORT void ut_normalize(int ntab, double *tab)
  ** \remarks When the solution is double, the returned number os 1.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int solve_P2(double a, double b, double c, double *x)
+int solve_P2(double a, double b, double c, double *x)
 {
   double delta;
 
@@ -2792,7 +2792,7 @@ GSTLEARN_EXPORT int solve_P2(double a, double b, double c, double *x)
  ** \remarks When the solution is double, the returned number os 1.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, double *x)
+int solve_P3(double a, double b, double c, double d, double *x)
 {
   double delta, p, q, ecart, u, v, s1;
   int k;
@@ -2857,7 +2857,7 @@ GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, double *x)
  ** \remarks must be freed using the same function with mode=-1
  **
  *****************************************************************************/
-GSTLEARN_EXPORT PL_Dist* pldist_manage(int mode,
+PL_Dist* pldist_manage(int mode,
                                        PL_Dist *pldist_loc,
                                        int ndim,
                                        int /*nvert*/)
@@ -2904,7 +2904,7 @@ GSTLEARN_EXPORT PL_Dist* pldist_manage(int mode,
  **                     =0 if it is set to one of the segment vertices
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double distance_point_to_segment(double x0,
+double distance_point_to_segment(double x0,
                                                  double y0,
                                                  double x1,
                                                  double y1,
@@ -2963,7 +2963,7 @@ GSTLEARN_EXPORT double distance_point_to_segment(double x0,
  ** \remarks  The number of points of the polyline is equal to nvert
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void distance_point_to_polyline(double x0,
+void distance_point_to_polyline(double x0,
                                                 double y0,
                                                 int nvert,
                                                 const double *xl,
@@ -3004,7 +3004,7 @@ GSTLEARN_EXPORT void distance_point_to_polyline(double x0,
  ** \remarks  The number of points of the polyline is equal to nvert
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double distance_along_polyline(PL_Dist *pldist1,
+double distance_along_polyline(PL_Dist *pldist1,
                                                PL_Dist *pldist2,
                                                double *xl,
                                                double *yl)
@@ -3118,7 +3118,7 @@ static void st_shift_point(double x1,
  ** \remarks  The number of points of the polyline is equal to nvert
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double distance_points_to_polyline(double ap,
+double distance_points_to_polyline(double ap,
                                                    double al,
                                                    double x1,
                                                    double y1,
@@ -3182,7 +3182,7 @@ GSTLEARN_EXPORT double distance_points_to_polyline(double ap,
  ** \param[in,out]  string  Input/Output string
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void string_to_lowercase(char *string)
+void string_to_lowercase(char *string)
 
 {
   int i, n;
@@ -3200,7 +3200,7 @@ GSTLEARN_EXPORT void string_to_lowercase(char *string)
  ** \param[in,out]  string  Input/Output string
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void string_to_uppercase(char *string)
+void string_to_uppercase(char *string)
 
 {
   int i, n;
@@ -3222,7 +3222,7 @@ GSTLEARN_EXPORT void string_to_uppercase(char *string)
  ** \param[in]  string2   Second input string
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int string_compare(int flag_case,
+int string_compare(int flag_case,
                                    const char *string1,
                                    const char *string2)
 {
@@ -3255,7 +3255,7 @@ GSTLEARN_EXPORT int string_compare(int flag_case,
  ** \param[in]  k     Selected number of objects (>= 1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_cnp(int n, int k)
+double ut_cnp(int n, int k)
 {
   double result, v1, v2;
 
@@ -3284,7 +3284,7 @@ GSTLEARN_EXPORT double ut_cnp(int n, int k)
  ** \remarks The calling function must free the returned matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* ut_pascal(int ndim)
+double* ut_pascal(int ndim)
 {
   double *m;
 #define M(j,i)            (m[(i) * ndim + (j)])
@@ -3322,7 +3322,7 @@ GSTLEARN_EXPORT double* ut_pascal(int ndim)
  ** \param[in]  lat2   Latitude of the second point (in degrees)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_geodetic_angular_distance(double long1,
+double ut_geodetic_angular_distance(double long1,
                                                     double lat1,
                                                     double long2,
                                                     double lat2)
@@ -3385,7 +3385,7 @@ static double st_convert_geodetic_angle(double /*sina*/,
  ** \param[out] C      Angle (P1,P3,P2)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_geodetic_angles(double long1,
+void ut_geodetic_angles(double long1,
                                         double lat1,
                                         double long2,
                                         double lat2,
@@ -3432,7 +3432,7 @@ GSTLEARN_EXPORT void ut_geodetic_angles(double long1,
  ** \param[in]  lat3   Latitude of the third point (in degrees)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_geodetic_triangle_perimeter(double long1,
+double ut_geodetic_triangle_perimeter(double long1,
                                                       double lat1,
                                                       double long2,
                                                       double lat2,
@@ -3461,7 +3461,7 @@ GSTLEARN_EXPORT double ut_geodetic_triangle_perimeter(double long1,
  ** \param[in]  lat3   Latitude of the third point (in degrees)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_geodetic_triangle_surface(double long1,
+double ut_geodetic_triangle_surface(double long1,
                                                     double lat1,
                                                     double long2,
                                                     double lat2,
@@ -3487,7 +3487,7 @@ GSTLEARN_EXPORT double ut_geodetic_triangle_surface(double long1,
  ** \param[in]  tab2   Array corresponding to the second endpoint
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_distance(int ndim, double *tab1, double *tab2)
+double ut_distance(int ndim, double *tab1, double *tab2)
 {
   double distance, distang, R, v1, v2, delta;
   int flag_sphere;
@@ -3536,7 +3536,7 @@ GSTLEARN_EXPORT double ut_distance(int ndim, double *tab1, double *tab2)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
+void ut_distance_allocated(int ndim,
                                            double **tab1,
                                            double **tab2)
 {
@@ -3567,7 +3567,7 @@ GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
  ** \param[out]   xint,yint  Coordinates of the intersection
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int segment_intersect(double xd1,
+int segment_intersect(double xd1,
                                       double yd1,
                                       double xe1,
                                       double ye1,
@@ -3674,7 +3674,7 @@ GSTLEARN_EXPORT int segment_intersect(double xd1,
  ** \param[in]  blin       Array of coefficients for polynomial expansion
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ut_chebychev_count(double (*func)(double,
+int ut_chebychev_count(double (*func)(double,
                                                       double,
                                                       int,
                                                       double*),
@@ -3730,7 +3730,7 @@ GSTLEARN_EXPORT int ut_chebychev_count(double (*func)(double,
  ** \param[in]  blin      Array of coefficients for polynomial expansion
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ut_chebychev_coeffs(double (*func)(double,
+int ut_chebychev_coeffs(double (*func)(double,
                                                        double,
                                                        int,
                                                        double*),
@@ -3824,7 +3824,7 @@ GSTLEARN_EXPORT int ut_chebychev_coeffs(double (*func)(double,
  ** \param[in]  ix        Rank of the cell to be restrained
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int get_mirror_sample(int nx, int ix)
+int get_mirror_sample(int nx, int ix)
 {
   int nmax;
 
@@ -3847,7 +3847,7 @@ GSTLEARN_EXPORT int get_mirror_sample(int nx, int ix)
  ** \param[in,out] codir  Direction to be rotated
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_rotation_direction(double ct,
+void ut_rotation_direction(double ct,
                                            double st,
                                            double *a,
                                            double *codir)
@@ -3914,7 +3914,7 @@ static void st_init_rotation(double *ct, double *st, double *a)
  ** \param[in,out] tab    Array to be suffled
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab)
+void ut_shuffle_array(int nrow, int ncol, double *tab)
 {
   double *newtab, *rrank;
   int *irank, jrow;
@@ -3968,7 +3968,7 @@ GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab)
  **                       (Dimension: 3*ntri)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_vandercorput(int n,
+void ut_vandercorput(int n,
                                      int flag_sym,
                                      int flag_rot,
                                      int *ntri_arg,
@@ -4152,7 +4152,7 @@ static int st_already_present(Reg_Coor *R_coor, int i0, int ntri, double *coord)
  ** \remarks is fixed here
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ut_icosphere(int n,
+int ut_icosphere(int n,
                                  int flag_rot,
                                  int *ntri_arg,
                                  double **coor_arg)
@@ -4268,7 +4268,7 @@ GSTLEARN_EXPORT int ut_icosphere(int n,
  ** \param[out] c       Numeric value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void rgb2num(int red,
+void rgb2num(int red,
                              int green,
                              int blue,
                              int /*a*/,
@@ -4297,7 +4297,7 @@ GSTLEARN_EXPORT void rgb2num(int red,
  ** \param[out]  a     Transparency index
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void num2rgb(unsigned char value,
+void num2rgb(unsigned char value,
                              int *r,
                              int *g,
                              int *b,
@@ -4319,7 +4319,7 @@ GSTLEARN_EXPORT void num2rgb(unsigned char value,
  ** \remarks been defined
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ut_is_legendre_defined(void)
+int ut_is_legendre_defined(void)
 {
   if (LEGENDRE_PL == NULL)
   {
@@ -4345,7 +4345,7 @@ GSTLEARN_EXPORT int ut_is_legendre_defined(void)
  ** \param[in]  v           Value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_legendre(int flag_norm, int n, double v)
+double ut_legendre(int flag_norm, int n, double v)
 {
   int renard = -1;
   double res1 = 0.;
@@ -4394,7 +4394,7 @@ GSTLEARN_EXPORT double ut_legendre(int flag_norm, int n, double v)
  ** \param[in]  theta       Theta angle in radian
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_flegendre(int flag_norm, int n, int k0, double theta)
+double ut_flegendre(int flag_norm, int n, int k0, double theta)
 {
   int k, flag_negative;
   int renard = -1;
@@ -4458,7 +4458,7 @@ GSTLEARN_EXPORT double ut_flegendre(int flag_norm, int n, int k0, double theta)
  ** \param[in]  legendre_Pl
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void define_legendre(double (*legendre_sphPlm)(int,
+void define_legendre(double (*legendre_sphPlm)(int,
                                                                int,
                                                                double),
                                      double (*legendre_Pl)(int, double))
@@ -4476,7 +4476,7 @@ GSTLEARN_EXPORT void define_legendre(double (*legendre_sphPlm)(int,
  ** \param[out] factor  logarithm of factorials
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor)
+void ut_log_factorial(int nbpoly, double *factor)
 {
   int i;
 
@@ -4494,7 +4494,7 @@ GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor)
  ** \param[in]  k     Value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_factorial(int k)
+double ut_factorial(int k)
 {
   double val;
 
@@ -4511,7 +4511,7 @@ GSTLEARN_EXPORT double ut_factorial(int k)
  ** \param[in]  angle  Angle in degrees
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_deg2rad(double angle)
+double ut_deg2rad(double angle)
 {
   return (angle * GV_PI / 180.);
 }
@@ -4523,7 +4523,7 @@ GSTLEARN_EXPORT double ut_deg2rad(double angle)
  ** \param[in]  angle  Angle in radian
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ut_rad2deg(double angle)
+double ut_rad2deg(double angle)
 {
   return (angle * 180. / GV_PI);
 }
@@ -4543,7 +4543,7 @@ GSTLEARN_EXPORT double ut_rad2deg(double angle)
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_in_spherical_triangle(double *coor,
+int is_in_spherical_triangle(double *coor,
                                              double surface,
                                              double *pts1,
                                              double *pts2,
@@ -4581,7 +4581,7 @@ GSTLEARN_EXPORT int is_in_spherical_triangle(double *coor,
  ** \param[in]  rtab      Array of double values to be loaded
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab, const double *rtab)
+VectorDouble util_set_array_double(int ntab, const double *rtab)
 {
   if (debug_query("interface")) message("util_set_array_double\n");
   if (ntab <= 0 || rtab == nullptr) return VectorDouble();
@@ -4604,7 +4604,7 @@ GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab, const double *rtab)
  ** \param[in]  itab      Array of integer values to be loaded
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab)
+VectorInt util_set_array_integer(int ntab, const int *itab)
 {
   if (debug_query("interface")) message("util_set_array_integer\n");
   VectorInt rettab(ntab);
@@ -4624,7 +4624,7 @@ GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab)
  ** \param[in]  names     Array of character values to be loaded
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names)
+VectorString util_set_array_char(int ntab, char **names)
 {
   if (debug_query("interface")) message("util_set_array_char\n");
   VectorString rettab(ntab);
@@ -4648,7 +4648,7 @@ GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void set_last_message(int mode, const char *string)
+void set_last_message(int mode, const char *string)
 {
   char *address;
   int size, sizaux;
@@ -4708,7 +4708,7 @@ GSTLEARN_EXPORT void set_last_message(int mode, const char *string)
  **  Print the array of last messages
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_last_message(void)
+void print_last_message(void)
 {
   if (NB_LAST_MESSAGE <= 0) return;
 
@@ -4790,7 +4790,7 @@ static void st_combinations(int *v,
  ** \remarks The calling function must free the returned array.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb)
+int* ut_combinations(int n, int maxk, int *ncomb)
 {
   int *v, *comb;
 
@@ -4822,7 +4822,7 @@ GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb)
  ** \remarks The elements of each row are set to 0 or 1 (subset rank)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int* ut_split_into_two(int ncolor,
+int* ut_split_into_two(int ncolor,
                                        int flag_half,
                                        int verbose,
                                        int *nposs)
@@ -4892,7 +4892,7 @@ GSTLEARN_EXPORT int* ut_split_into_two(int ncolor,
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_in_spherical_triangle_optimized(double *coor,
+int is_in_spherical_triangle_optimized(double *coor,
                                                        double *ptsa,
                                                        double *ptsb,
                                                        double *ptsc,
@@ -4977,7 +4977,7 @@ GSTLEARN_EXPORT int is_in_spherical_triangle_optimized(double *coor,
  ** \remarks The calling function must free the returned array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int* ut_name_decode(const char *name,
+int* ut_name_decode(const char *name,
                                     int ndim,
                                     int *nx,
                                     int verbose)
@@ -5143,7 +5143,7 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* ut_rank_cells(int ndim,
+double* ut_rank_cells(int ndim,
                                       int *nx,
                                       int *order,
                                       int verbose)
@@ -5231,7 +5231,7 @@ char* convert(const std::string &s)
  ** \param[in]  vs        Input VectorString
  **
  *****************************************************************************/
-GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs)
+std::vector<char*> util_vs_to_vs(VectorString vs)
 {
   std::vector<char*> vc;
   std::transform(vs.begin(), vs.end(), std::back_inserter(vc), convert);
@@ -5253,7 +5253,7 @@ GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs)
  ** \remarks - if ndim < ndim: return 'ndir' directions regular in the 2-D
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_angles_to_codir(int ndim,
+void ut_angles_to_codir(int ndim,
                                         int ndir,
                                         const VectorDouble &angles,
                                         VectorDouble &codir)
@@ -5351,7 +5351,7 @@ static int st_string_search(const String &string,
  ** \param[in]  verbose         Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorInt util_string_search(const VectorString &list_string,
+VectorInt util_string_search(const VectorString &list_string,
                                              const String &pattern,
                                              int verbose)
 {

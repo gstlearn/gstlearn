@@ -958,7 +958,7 @@ static int fftradix(double Re[],
  ** \return  Error return code
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int fftn(int ndim,
+int fftn(int ndim,
                          const int dims[],
                          double Re[],
                          double Im[],

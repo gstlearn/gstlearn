@@ -94,7 +94,7 @@ static int st_skin_grid_shift(Skin *skin, int indg0[3], int dir, int *iad)
  ** \param[out]  iad  Absolute sample address
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int skin_grid_shift(Skin *skin, int lec, int dir, int *iad)
+int skin_grid_shift(Skin *skin, int lec, int dir, int *iad)
 {
   int indg[3];
 
@@ -123,7 +123,7 @@ GSTLEARN_EXPORT int skin_grid_shift(Skin *skin, int lec, int dir, int *iad)
  ** \remark  If func_get_weight is not defined, the weight is set to 1
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Skin* skin_define(Db *db,
+Skin* skin_define(Db *db,
                                   int (*func_already_done)(int ipos),
                                   int (*func_to_be_done)(int ipos),
                                   double (*func_get_weight)(int ipos, int dir))
@@ -175,7 +175,7 @@ GSTLEARN_EXPORT Skin* skin_define(Db *db,
  ** \param[in]  skin    Pointer to the skin to be deallocated
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Skin* skin_undefine(Skin *skin)
+Skin* skin_undefine(Skin *skin)
 
 {
 
@@ -336,7 +336,7 @@ static int st_skin_cell_add(Skin *skin, int ipos, double energy)
  ** \param[in] verbose  Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int skin_init(Skin *skin, int verbose)
+int skin_init(Skin *skin, int verbose)
 {
   int lec, ecr, dir, nb_count, nb_done, nb_mask, total, indg[3];
   double local;
@@ -417,7 +417,7 @@ GSTLEARN_EXPORT int skin_init(Skin *skin, int verbose)
  ** \param[out] skin    Skin structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int skin_remains(Skin *skin)
+int skin_remains(Skin *skin)
 
 {
   skin->date++;
@@ -437,7 +437,7 @@ GSTLEARN_EXPORT int skin_remains(Skin *skin)
  ** \param[out] ipos     Cell location
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void skin_next(Skin *skin, int *rank, int *ipos)
+void skin_next(Skin *skin, int *rank, int *ipos)
 {
   int i;
   double tirage, total;
@@ -479,7 +479,7 @@ GSTLEARN_EXPORT void skin_next(Skin *skin, int *rank, int *ipos)
  ** \param[in] ipos0    Cell location
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int skin_unstack(Skin *skin, int rank0, int ipos0)
+int skin_unstack(Skin *skin, int rank0, int ipos0)
 {
   int dir, ecr, rank, indg[3];
   double local;
@@ -525,7 +525,7 @@ GSTLEARN_EXPORT int skin_unstack(Skin *skin, int rank0, int ipos0)
  ** \param[in] skin    Skin structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void skin_print(Skin *skin)
+void skin_print(Skin *skin)
 
 {
   mestitle(1, "Skin algorithm: Final status");

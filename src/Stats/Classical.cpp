@@ -91,7 +91,7 @@ ENUM_STATS _statIdentify(const String &oper)
   return STAT_UNKNOWN;
 }
 
-GSTLEARN_EXPORT String statsName(int ioper)
+String statsName(int ioper)
 {
   if (ioper == STAT_NUM) return "Number";
   if (ioper == STAT_MEAN) return "Mean";
@@ -109,7 +109,7 @@ GSTLEARN_EXPORT String statsName(int ioper)
   return "Unknown";
 }
 
-GSTLEARN_EXPORT VectorInt statsList(const VectorString &opers)
+VectorInt statsList(const VectorString &opers)
 {
   int noper = static_cast<int>(opers.size());
   VectorInt iopers(noper);
@@ -121,7 +121,7 @@ GSTLEARN_EXPORT VectorInt statsList(const VectorString &opers)
   return iopers;
 }
 
-GSTLEARN_EXPORT VectorString statsNames(const VectorInt &iopers)
+VectorString statsNames(const VectorInt &iopers)
 {
   VectorString names;
   for (int i = 0; i < (int) iopers.size(); i++)
@@ -131,7 +131,7 @@ GSTLEARN_EXPORT VectorString statsNames(const VectorInt &iopers)
   return names;
 }
 
-GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
+void dbStatisticsVariables(Db *db,
                                            const VectorInt &iatts,
                                            const VectorInt &iopers,
                                            int iattn,
@@ -249,7 +249,7 @@ GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
  ** \param[in]  vmax       Maximum threshold
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
+VectorDouble dbStatisticsMono(Db *db,
                                               const VectorInt &iatts,
                                               const VectorInt &iopers,
                                               bool flagIso,
@@ -378,7 +378,7 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
  ** \param[in]  db         Db structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db)
+VectorDouble dbStatisticsFacies(Db *db)
 {
   VectorDouble props;
 
@@ -425,7 +425,7 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db)
  ** \param[in]  db         Db structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db)
+double dbStatisticsIndicator(Db *db)
 {
   if (db->getLocatorNumber(ELoc::Z) != 1)
   {
@@ -464,7 +464,7 @@ GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db)
  ** \param[in]  flagIso    Restrain statistics to isotopic samples
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
+VectorDouble dbStatisticsMulti(Db *db,
                                                const VectorInt &iatts,
                                                bool flagIso)
 {
@@ -560,7 +560,7 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
  ** \param[in]  title       Title for the printout (optional)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT String statisticsMonoPrint(const VectorDouble &stats,
+String statisticsMonoPrint(const VectorDouble &stats,
                                            const VectorInt &iopers,
                                            const VectorString &varnames,
                                            const String &title)
@@ -589,7 +589,7 @@ GSTLEARN_EXPORT String statisticsMonoPrint(const VectorDouble &stats,
  ** \param[in]  title       Title for the printout (optional)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT String statisticsMultiPrint(const VectorDouble &stats,
+String statisticsMultiPrint(const VectorDouble &stats,
                                             const VectorString &varnames,
                                             const String &title)
 {

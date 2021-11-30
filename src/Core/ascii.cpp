@@ -205,7 +205,7 @@ static void st_filename_patch(const char *ref_name,
  ** \param[out] filename  Output filename
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ascii_external_filename(const char *filein,
+void ascii_external_filename(const char *filein,
                                              int mode,
                                              char *filename)
 {
@@ -223,7 +223,7 @@ GSTLEARN_EXPORT void ascii_external_filename(const char *filein,
  ** \param[out] filename  Output filename
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ascii_filename(const char *type,
+void ascii_filename(const char *type,
                                     int rank,
                                     int mode,
                                     char *filename)
@@ -263,7 +263,7 @@ GSTLEARN_EXPORT void ascii_filename(const char *type,
  ** \param[in]  study Local name of the study
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ascii_study_define(const char *study)
+void ascii_study_define(const char *study)
 
 {
   (void) gslStrcpy(STUDY, study);
@@ -427,7 +427,7 @@ static int st_table_read(int ntab, double *tab)
  ** \param[in] verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ascii_environ_read(char *file_name, int verbose)
+void ascii_environ_read(char *file_name, int verbose)
 
 {
   FILE *file;
@@ -466,7 +466,7 @@ GSTLEARN_EXPORT void ascii_environ_read(char *file_name, int verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* ascii_db_read(const char *file_name,
+Db* ascii_db_read(const char *file_name,
                                   int must_grid,
                                   int verbose)
 {
@@ -491,7 +491,7 @@ GSTLEARN_EXPORT Db* ascii_db_read(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vario* ascii_vario_read(const char *file_name, bool verbose)
+Vario* ascii_vario_read(const char *file_name, bool verbose)
 {
   if (!st_file_exists(file_name)) return nullptr;
   Vario *vario = new Vario(file_name, verbose);
@@ -508,7 +508,7 @@ GSTLEARN_EXPORT Vario* ascii_vario_read(const char *file_name, bool verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model* ascii_model_read(const char *file_name, int verbose)
+Model* ascii_model_read(const char *file_name, int verbose)
 
 {
   if (!st_file_exists(file_name)) return nullptr;
@@ -529,7 +529,7 @@ GSTLEARN_EXPORT Model* ascii_model_read(const char *file_name, int verbose)
  ** \remark  For MOVING neighborhood, only isotropic case is considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Neigh* ascii_neigh_read(const char *file_name, int verbose)
+Neigh* ascii_neigh_read(const char *file_name, int verbose)
 {
   if (!st_file_exists(file_name)) return nullptr;
   Neigh *neigh = new Neigh(file_name, verbose);
@@ -546,7 +546,7 @@ GSTLEARN_EXPORT Neigh* ascii_neigh_read(const char *file_name, int verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Rule* ascii_rule_read(const char *file_name, int verbose)
+Rule* ascii_rule_read(const char *file_name, int verbose)
 {
   if (!st_file_exists(file_name)) return nullptr;
   Rule *rule = new Rule(file_name, verbose);
@@ -565,7 +565,7 @@ GSTLEARN_EXPORT Rule* ascii_rule_read(const char *file_name, int verbose)
  ** \param[out]  seed      Seed for the random number generator
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
+void ascii_simu_read(char *file_name,
                                      int verbose,
                                      int *nbsimu,
                                      int *nbtuba,
@@ -606,7 +606,7 @@ GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
  ** \param[in]  flag_calcul  1 if anamorphosis calculations are stored
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
+int ascii_anam_write(const char *file_name,
                                      const Anam *anam,
                                      int verbose,
                                      int flag_calcul)
@@ -752,7 +752,7 @@ GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Anam* ascii_anam_read(const char *file_name, int verbose)
+Anam* ascii_anam_read(const char *file_name, int verbose)
 {
   FILE *file;
   double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax;
@@ -931,7 +931,7 @@ GSTLEARN_EXPORT Anam* ascii_anam_read(const char *file_name, int verbose)
  ** \param[out]  answer      Answer
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
+int ascii_option_defined(const char *file_name,
                                          int verbose,
                                          const char *option_name,
                                          int type,
@@ -999,7 +999,7 @@ GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
+int ascii_frac_write(const char *file_name,
                                      Frac_Environ *frac,
                                      int verbose)
 {
@@ -1100,7 +1100,7 @@ GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Frac_Environ* ascii_frac_read(const char *file_name,
+Frac_Environ* ascii_frac_read(const char *file_name,
                                               int verbose)
 {
   Frac_Environ *frac;
@@ -1203,7 +1203,7 @@ GSTLEARN_EXPORT Frac_Environ* ascii_frac_read(const char *file_name,
  ** \param[in]  flag_add_rank 1 To add the rank number
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_read_csv(const char *file_name,
+Db* db_read_csv(const char *file_name,
                                 int verbose,
                                 int flag_header,
                                 int nskip,

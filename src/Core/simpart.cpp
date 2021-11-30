@@ -41,7 +41,7 @@ typedef struct
  ** \remarks  The valuation of each line is assigned a uniform value [0,1]
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
+int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
 {
   double ap[3], mini[3], maxi[3], diagonal, d0, u;
   int ip, idim;
@@ -97,7 +97,7 @@ GSTLEARN_EXPORT int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
  ** \param[in]  splanes     SubPlanes structure to be deallocated
  **
  *****************************************************************************/
-GSTLEARN_EXPORT SubPlanes* poisson_manage_planes(int mode,
+SubPlanes* poisson_manage_planes(int mode,
                                                  int np,
                                                  SubPlanes *splanes)
 {
@@ -217,7 +217,7 @@ static int st_stack_search(Stack *stack, double valref, double *valsim)
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int tessellation_poisson(Db *dbgrid,
+int tessellation_poisson(Db *dbgrid,
                                          Model *model,
                                          int seed,
                                          double intensity,
@@ -384,7 +384,7 @@ GSTLEARN_EXPORT int tessellation_poisson(Db *dbgrid,
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int tessellation_voronoi(Db *dbgrid,
+int tessellation_voronoi(Db *dbgrid,
                                          Model *model,
                                          double *dilate,
                                          int seed,

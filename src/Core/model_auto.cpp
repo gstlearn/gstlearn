@@ -4542,7 +4542,7 @@ static void st_regularize_init()
  ** \param[in]  optvar_arg  Opt_Vario structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_auto_fit(const Vario *vario,
+int model_auto_fit(const Vario *vario,
                                    Model *model,
                                    bool verbose,
                                    const Option_AutoFit &mauto_arg,
@@ -4760,7 +4760,7 @@ GSTLEARN_EXPORT int model_auto_fit(const Vario *vario,
  ** \param[in]  mauto        Option_AutoFit structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_fitting_sills(Vario *vario,
+int model_fitting_sills(Vario *vario,
                                         Model *model,
                                         Option_AutoFit mauto)
 {
@@ -5024,7 +5024,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
  ** \param[in]  optvar_arg  Opt_Vario structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int vmap_auto_fit(const Db *dbmap,
+int vmap_auto_fit(const Db *dbmap,
                                   Model *model,
                                   bool verbose,
                                   const Option_AutoFit &mauto_arg,
@@ -5198,7 +5198,7 @@ GSTLEARN_EXPORT int vmap_auto_fit(const Db *dbmap,
  ** \param[in]  constraints  Constraints structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void constraints_print(const Constraints &constraints)
+void constraints_print(const Constraints &constraints)
 {
   constraints.display();
 }
@@ -5216,7 +5216,7 @@ GSTLEARN_EXPORT void constraints_print(const Constraints &constraints)
  ** \param[in]  constraints  Constraints structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints)
+int modify_constraints_on_sill(Constraints &constraints)
 
 {
   for (int i = 0; i < (int) constraints.getConsItemNumber(); i++)
@@ -5244,7 +5244,7 @@ GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints)
  ** \param[in]      iv2          Rank of the second variable
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
+double constraints_get(const Constraints &constraints,
                                        const EConsType &icase,
                                        int igrf,
                                        int icov,

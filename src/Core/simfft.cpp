@@ -1178,7 +1178,7 @@ static void st_simfft_final(Db *db, ST_FFT *simu, int iad)
  ** \param[in]  flag_aliasing  1 for anti-aliasing procedure; 0 otherwise
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simfft_f(Db *db,
+int simfft_f(Db *db,
                              Model *model,
                              int seed,
                              int nbsimu,
@@ -1410,7 +1410,7 @@ static double st_support(ST_FFT *simu, double sigma)
  ** \param[out] coeffs  r^2 coefficients for given logarithmic variances
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simfft_support(Db *db,
+int simfft_support(Db *db,
                                    Model *model,
                                    double percent,
                                    int flag_aliasing,

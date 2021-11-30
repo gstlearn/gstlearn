@@ -325,7 +325,7 @@ static void st_getclustermedoids(int nech,
  ** \param[in]  verbose   Verbose option
  **
  ****************************************************************************/
-GSTLEARN_EXPORT double* kclusters(double *data,
+double* kclusters(double *data,
                                   int nvar,
                                   int nech,
                                   int nclusters,
@@ -516,7 +516,7 @@ GSTLEARN_EXPORT double* kclusters(double *data,
  ** \param[in]  verbose   Verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int* kmedoids(double *data,
+int* kmedoids(double *data,
                               int nvar,
                               int nech,
                               int nclusters,

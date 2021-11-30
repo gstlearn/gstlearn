@@ -89,7 +89,7 @@ static void st_frac_desc_init(Frac_Desc &frac_desc)
  ** \param[in]  frac_list    Pointer to the Frac_List structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Frac_List* fracture_manage_list(int mode, Frac_List *frac_list)
+Frac_List* fracture_manage_list(int mode, Frac_List *frac_list)
 {
   int nfracs;
 
@@ -128,7 +128,7 @@ GSTLEARN_EXPORT Frac_List* fracture_manage_list(int mode, Frac_List *frac_list)
  ** \param[in]  level     0 summary; 1 fracture; 2 end-points
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void fracture_list_print(const char *title,
+void fracture_list_print(const char *title,
                                          Frac_List *frac_list,
                                          int level)
 {
@@ -168,7 +168,7 @@ GSTLEARN_EXPORT void fracture_list_print(const char *title,
  ** \param[in]  stdev        Standard deviation of thickness law
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Frac_Environ* fracture_alloc_environ(int nfamilies,
+Frac_Environ* fracture_alloc_environ(int nfamilies,
                                                      double xmax,
                                                      double ymax,
                                                      double deltax,
@@ -222,7 +222,7 @@ GSTLEARN_EXPORT Frac_Environ* fracture_alloc_environ(int nfamilies,
  ** \param[in]  frac_environ Pointer to the Frac_Environ structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Frac_Environ* fracture_dealloc_environ(Frac_Environ *frac_environ)
+Frac_Environ* fracture_dealloc_environ(Frac_Environ *frac_environ)
 
 {
   if (frac_environ == nullptr) return (frac_environ);
@@ -242,7 +242,7 @@ GSTLEARN_EXPORT Frac_Environ* fracture_dealloc_environ(Frac_Environ *frac_enviro
  ** \param[in]  fault_orient Orientation of the fault
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int fracture_add_fault(Frac_Environ *frac_environ,
+int fracture_add_fault(Frac_Environ *frac_environ,
                                        double fault_coord,
                                        double fault_orient)
 {
@@ -292,7 +292,7 @@ GSTLEARN_EXPORT int fracture_add_fault(Frac_Environ *frac_environ,
  ** \param[in]  range        Range of fracture repulsion area
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void fracture_update_family(Frac_Environ *frac_environ,
+void fracture_update_family(Frac_Environ *frac_environ,
                                             int family,
                                             double orient,
                                             double dorient,
@@ -333,7 +333,7 @@ GSTLEARN_EXPORT void fracture_update_family(Frac_Environ *frac_environ,
  ** \param[in]  fault_ranger Range of density decrease on the right
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void fracture_update_fault(Frac_Environ *frac_environ,
+void fracture_update_fault(Frac_Environ *frac_environ,
                                            int ifault,
                                            int family,
                                            double fault_thetal,
@@ -356,7 +356,7 @@ GSTLEARN_EXPORT void fracture_update_fault(Frac_Environ *frac_environ,
  ** \param[in]  frac_environ Frac_Environ structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void fracture_print(Frac_Environ *frac_environ)
+void fracture_print(Frac_Environ *frac_environ)
 
 {
   if (frac_environ == nullptr) return;
@@ -1321,7 +1321,7 @@ static void st_layers_read(int nlayers_in,
  ** \remark set_keypair("Fracture_Repulsion_Low1",newval)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int fracture_simulate(Frac_Environ *frac_environ,
+int fracture_simulate(Frac_Environ *frac_environ,
                                       int flag_sim_layer,
                                       int flag_sim_fract,
                                       int seed,
@@ -1492,7 +1492,7 @@ GSTLEARN_EXPORT int fracture_simulate(Frac_Environ *frac_environ,
  ** \param[in] frac_def : Frac_Environ default structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Frac_Environ* fracture_input(Frac_Environ *frac_def)
+Frac_Environ* fracture_input(Frac_Environ *frac_def)
 
 {
   Frac_Environ *frac_environ;
@@ -1682,7 +1682,7 @@ static int st_get_nbyout(void)
  ** \remarks The allocated array must be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void fracture_export(Frac_List *frac_list,
+void fracture_export(Frac_List *frac_list,
                                      int *nfracs_arg,
                                      int *nbyfrac_arg,
                                      double **fracs_arg)
@@ -1743,7 +1743,7 @@ GSTLEARN_EXPORT void fracture_export(Frac_List *frac_list,
  ** \param[in]  frac_segs    : Array of fracture segments
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Frac_List* fracture_import(int nval, double *frac_segs)
+Frac_List* fracture_import(int nval, double *frac_segs)
 {
   int i, icur, ifam, nbyfrac, flag_new, nseg;
   double xx, yy, orient;
@@ -1810,7 +1810,7 @@ GSTLEARN_EXPORT Frac_List* fracture_import(int nval, double *frac_segs)
  ** \remark The returned array must be freed by the calling routine
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* fracture_extract_length(Frac_List *frac_list,
+double* fracture_extract_length(Frac_List *frac_list,
                                                 int family,
                                                 double cote,
                                                 double dcote,
@@ -1872,7 +1872,7 @@ GSTLEARN_EXPORT double* fracture_extract_length(Frac_List *frac_list,
  ** \remark The returned array must be freed by the calling routine
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* fracture_extract_dist(Frac_List *frac_list,
+double* fracture_extract_dist(Frac_List *frac_list,
                                               int family,
                                               double cote,
                                               double dcote,
@@ -2079,7 +2079,7 @@ static void st_plunge_segment_gradual(Db *dbgrid,
  ** \param[in]  ndisc        Number of discretization steps
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int fracture_to_block(Db *dbgrid,
+int fracture_to_block(Db *dbgrid,
                                       Frac_List *frac_list,
                                       double *locinfo,
                                       int n_layers,
@@ -2224,7 +2224,7 @@ static double* st_wellout_add(double *wellout,
  ** \remark Output array must be freed by the calling function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* fracture_to_well(int nval,
+double* fracture_to_well(int nval,
                                          double *well,
                                          Frac_List *frac_list,
                                          double xmax,
@@ -2344,7 +2344,7 @@ static void st_traj_add(double *traj, double x, double y, int *ntraj)
  ** \param[in]  verbose      Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int fracture_well_to_block(Db *dbgrid,
+int fracture_well_to_block(Db *dbgrid,
                                            Frac_List *frac_list,
                                            int col_perm,
                                            int col_fluid,

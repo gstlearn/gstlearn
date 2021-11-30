@@ -15,24 +15,24 @@
 #include "Basic/Law.hpp"
 #include <iomanip>
 
-GSTLEARN_EXPORT String ut_vector_string(const VectorDouble &vec)
+String ut_vector_string(const VectorDouble &vec)
 {
   return toVector(String(), vec);
 }
 
-GSTLEARN_EXPORT String ut_ivector_string(const VectorInt &vec)
+String ut_ivector_string(const VectorInt &vec)
 {
   return toVector(String(), vec);
 }
 
-GSTLEARN_EXPORT void ut_vector_display(const String &title,
+void ut_vector_display(const String &title,
                                        const VectorDouble &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
   messageFlush(ut_vector_string(vect));
 }
 
-GSTLEARN_EXPORT void ut_vector_display_stats(const String &title,
+void ut_vector_display_stats(const String &title,
                                              const VectorDouble &vect)
 {
   int ntotal = (int) vect.size();
@@ -73,7 +73,7 @@ GSTLEARN_EXPORT void ut_vector_display_stats(const String &title,
   }
 }
 
-GSTLEARN_EXPORT void ut_vector_display_range(const String &title,
+void ut_vector_display_range(const String &title,
                                              const VectorDouble &vect)
 {
   int ntotal = (int) vect.size();
@@ -103,14 +103,14 @@ GSTLEARN_EXPORT void ut_vector_display_range(const String &title,
   }
 }
 
-GSTLEARN_EXPORT void ut_ivector_display(const String &title,
+void ut_ivector_display(const String &title,
                                         const VectorInt &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
   messageFlush(ut_ivector_string(vect));
 }
 
-GSTLEARN_EXPORT double ut_vector_max(const VectorDouble &vec, bool flagAbs)
+double ut_vector_max(const VectorDouble &vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0.;
   double max = -1.e30;
@@ -122,7 +122,7 @@ GSTLEARN_EXPORT double ut_vector_max(const VectorDouble &vec, bool flagAbs)
   return (max);
 }
 
-GSTLEARN_EXPORT double ut_vector_min(const VectorDouble &vec, bool flagAbs)
+double ut_vector_min(const VectorDouble &vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0.;
   double min = 1.e30;
@@ -134,7 +134,7 @@ GSTLEARN_EXPORT double ut_vector_min(const VectorDouble &vec, bool flagAbs)
   return (min);
 }
 
-GSTLEARN_EXPORT double ut_vector_mean(const VectorDouble &vec)
+double ut_vector_mean(const VectorDouble &vec)
 {
   if (vec.size() <= 0) return 0.;
   double mean = 0.;
@@ -152,7 +152,7 @@ GSTLEARN_EXPORT double ut_vector_mean(const VectorDouble &vec)
   return (mean);
 }
 
-GSTLEARN_EXPORT double ut_vector_var(const VectorDouble &vec)
+double ut_vector_var(const VectorDouble &vec)
 {
   if (vec.size() <= 0) return 0.;
   double mean = 0.;
@@ -178,7 +178,7 @@ GSTLEARN_EXPORT double ut_vector_var(const VectorDouble &vec)
   return (var);
 }
 
-GSTLEARN_EXPORT double ut_vector_stdv(const VectorDouble &vec)
+double ut_vector_stdv(const VectorDouble &vec)
 {
   double var = ut_vector_var(vec);
   if (!FFFF(var))
@@ -187,7 +187,7 @@ GSTLEARN_EXPORT double ut_vector_stdv(const VectorDouble &vec)
     return TEST;
 }
 
-GSTLEARN_EXPORT double ut_vector_inner_product(const VectorDouble &vec1,
+double ut_vector_inner_product(const VectorDouble &vec1,
                                                const VectorDouble &vec2)
 {
   if (vec1.size() != vec2.size())
@@ -198,7 +198,7 @@ GSTLEARN_EXPORT double ut_vector_inner_product(const VectorDouble &vec1,
   return prod;
 }
 
-GSTLEARN_EXPORT double ut_vector_norm(const VectorDouble &vec)
+double ut_vector_norm(const VectorDouble &vec)
 {
   double ip = static_cast<double>(ut_vector_inner_product(vec, vec));
   return sqrt(ip);
@@ -210,7 +210,7 @@ GSTLEARN_EXPORT double ut_vector_norm(const VectorDouble &vec)
  * @param vec2 Second Vector
  * @return
  */
-GSTLEARN_EXPORT VectorDouble ut_vector_cross_product(const VectorDouble &vec1,
+VectorDouble ut_vector_cross_product(const VectorDouble &vec1,
                                                      const VectorDouble &vec2)
 {
   if (vec1.size() != vec2.size())
@@ -222,7 +222,7 @@ GSTLEARN_EXPORT VectorDouble ut_vector_cross_product(const VectorDouble &vec1,
   return res;
 }
 
-GSTLEARN_EXPORT bool ut_vector_same(const VectorDouble &v1,
+bool ut_vector_same(const VectorDouble &v1,
                                     const VectorDouble &v2,
                                     double eps)
 {
@@ -232,7 +232,7 @@ GSTLEARN_EXPORT bool ut_vector_same(const VectorDouble &v1,
   return true;
 }
 
-GSTLEARN_EXPORT bool ut_ivector_same(const VectorInt &v1, const VectorInt &v2)
+bool ut_ivector_same(const VectorInt &v1, const VectorInt &v2)
 {
   if (v1.size() != v2.size()) return false;
   for (int i = 0, n = static_cast<int>(v1.size()); i < n; i++)
@@ -240,19 +240,19 @@ GSTLEARN_EXPORT bool ut_ivector_same(const VectorInt &v1, const VectorInt &v2)
   return true;
 }
 
-GSTLEARN_EXPORT void ut_vector_fill(VectorDouble &vec, double value, int size)
+void ut_vector_fill(VectorDouble &vec, double value, int size)
 {
   if (size > 0) vec.resize(size);
   std::fill(vec.begin(), vec.end(), value);
 }
 
-GSTLEARN_EXPORT void ut_ivector_fill(VectorInt &vec, int value, int size)
+void ut_ivector_fill(VectorInt &vec, int value, int size)
 {
   if (size > 0) vec.resize(size);
   std::fill(vec.begin(), vec.end(), value);
 }
 
-GSTLEARN_EXPORT VectorDouble ut_vector_add(const VectorDouble &vec1,
+VectorDouble ut_vector_add(const VectorDouble &vec1,
                                            const VectorDouble &vec2)
 {
   VectorDouble res;
@@ -268,7 +268,7 @@ GSTLEARN_EXPORT VectorDouble ut_vector_add(const VectorDouble &vec1,
  * @param vec1 Input/Output vector
  * @param vec2 Auxiliary vector
  */
-GSTLEARN_EXPORT void ut_vector_add_inplace(VectorDouble &vec1,
+void ut_vector_add_inplace(VectorDouble &vec1,
                                            const VectorDouble &vec2)
 {
   VectorDouble res;
@@ -278,7 +278,7 @@ GSTLEARN_EXPORT void ut_vector_add_inplace(VectorDouble &vec1,
     vec1[i] += vec2[i];
 }
 
-GSTLEARN_EXPORT VectorDouble ut_vector_subtract(const VectorDouble &vec1,
+VectorDouble ut_vector_subtract(const VectorDouble &vec1,
                                                 const VectorDouble &vec2)
 {
   VectorDouble res;
@@ -289,7 +289,7 @@ GSTLEARN_EXPORT VectorDouble ut_vector_subtract(const VectorDouble &vec1,
   return res;
 }
 
-GSTLEARN_EXPORT VectorDouble ut_vector_power(const VectorDouble &vec,
+VectorDouble ut_vector_power(const VectorDouble &vec,
                                              double power)
 {
   int size = static_cast<int>(vec.size());
@@ -299,7 +299,7 @@ GSTLEARN_EXPORT VectorDouble ut_vector_power(const VectorDouble &vec,
   return res;
 }
 
-GSTLEARN_EXPORT VectorDouble ut_vector_simulate_uniform(int n,
+VectorDouble ut_vector_simulate_uniform(int n,
                                                         double mini,
                                                         double maxi)
 {
@@ -313,7 +313,7 @@ GSTLEARN_EXPORT VectorDouble ut_vector_simulate_uniform(int n,
  * @param vec1 Input/Output vector
  * @param vec2 Auxiliary vector
  */
-GSTLEARN_EXPORT void ut_vector_subtract_inplace(VectorDouble &vec1,
+void ut_vector_subtract_inplace(VectorDouble &vec1,
                                                 const VectorDouble &vec2)
 {
   VectorDouble res;
@@ -323,7 +323,7 @@ GSTLEARN_EXPORT void ut_vector_subtract_inplace(VectorDouble &vec1,
     vec1[i] -= vec2[i];
 }
 
-GSTLEARN_EXPORT void ut_vector_sum(const VectorDouble &vec1,
+void ut_vector_sum(const VectorDouble &vec1,
                                    const VectorDouble &vec2,
                                    VectorDouble &res)
 {
@@ -342,7 +342,7 @@ GSTLEARN_EXPORT void ut_vector_sum(const VectorDouble &vec1,
   }
 }
 
-GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n,
+VectorDouble ut_vector_simulate_gaussian(int n,
                                                          double mean,
                                                          double sigma)
 {
@@ -359,7 +359,7 @@ GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n,
  * @param seed        Seed used for the random number generator
  * @return A vector of ranks (between 0 and 'ntotal-1'). No duplicate
  */
-GSTLEARN_EXPORT VectorInt ut_vector_sample(int ntotal,
+VectorInt ut_vector_sample(int ntotal,
                                            double proportion,
                                            int seed)
 {
@@ -381,7 +381,7 @@ GSTLEARN_EXPORT VectorInt ut_vector_sample(int ntotal,
   return ranks;
 }
 
-GSTLEARN_EXPORT void ut_vector_cumul(VectorDouble &vec1,
+void ut_vector_cumul(VectorDouble &vec1,
                                      const VectorDouble &vec2,
                                      double coeff)
 {
@@ -391,7 +391,7 @@ GSTLEARN_EXPORT void ut_vector_cumul(VectorDouble &vec1,
     vec1[i] += coeff * vec2[i];
 }
 
-GSTLEARN_EXPORT void ut_vector_copy(VectorDouble &vec1,
+void ut_vector_copy(VectorDouble &vec1,
                                     const VectorDouble &vec2)
 {
   if (vec1.size() != vec2.size())
@@ -400,13 +400,13 @@ GSTLEARN_EXPORT void ut_vector_copy(VectorDouble &vec1,
     vec1[i] = vec2[i];
 }
 
-GSTLEARN_EXPORT void ut_vector_multiply_inplace(VectorDouble &vec, double v)
+void ut_vector_multiply_inplace(VectorDouble &vec, double v)
 {
   std::for_each(vec.begin(), vec.end(), [v](double &d)
   { d *= v;});
 }
 
-GSTLEARN_EXPORT void ut_vector_divide_inplace(VectorDouble &vec, double v)
+void ut_vector_divide_inplace(VectorDouble &vec, double v)
 {
   if (ABS(v) < EPSILON10)
   my_throw("division by 0");
@@ -414,19 +414,19 @@ GSTLEARN_EXPORT void ut_vector_divide_inplace(VectorDouble &vec, double v)
   { d /= v;});
 }
 
-GSTLEARN_EXPORT void ut_vector_addval(VectorDouble &vec, double v)
+void ut_vector_addval(VectorDouble &vec, double v)
 {
   std::for_each(vec.begin(), vec.end(), [v](double &d)
   { d += v;});
 }
 
-GSTLEARN_EXPORT void ut_ivector_addval(VectorInt &vec, int v)
+void ut_ivector_addval(VectorInt &vec, int v)
 {
   std::for_each(vec.begin(), vec.end(), [v](int &d)
   { d += v;});
 }
 
-GSTLEARN_EXPORT void ut_vector_divide_vec(VectorDouble &vec,
+void ut_vector_divide_vec(VectorDouble &vec,
                                           const VectorDouble &v)
 {
   if (vec.size() != v.size())
@@ -439,7 +439,7 @@ GSTLEARN_EXPORT void ut_vector_divide_vec(VectorDouble &vec,
   }
 }
 
-GSTLEARN_EXPORT int ut_vector_count_undefined(const VectorDouble &vec)
+int ut_vector_count_undefined(const VectorDouble &vec)
 {
   int count = 0;
   for (int i = 0; i < (int) vec.size(); i++)
@@ -449,7 +449,7 @@ GSTLEARN_EXPORT int ut_vector_count_undefined(const VectorDouble &vec)
   return count;
 }
 
-GSTLEARN_EXPORT int ut_ivector_prod(const VectorInt vec)
+int ut_ivector_prod(const VectorInt vec)
 {
   if (vec.empty()) return 0;
   int nprod = 1;
@@ -465,7 +465,7 @@ GSTLEARN_EXPORT int ut_ivector_prod(const VectorInt vec)
  * @param number  Length of the output vector
  * @param ideb    Index of the first element of the output vector
  */
-GSTLEARN_EXPORT VectorInt ut_ivector_sequence(int number, int ideb)
+VectorInt ut_ivector_sequence(int number, int ideb)
 {
   VectorInt vec(number);
 
@@ -477,7 +477,7 @@ GSTLEARN_EXPORT VectorInt ut_ivector_sequence(int number, int ideb)
 /**
  * Create an output vector going from 'valFrom' to 'ValTo' by step of 'valStep'
  */
-GSTLEARN_EXPORT VectorDouble ut_vector_sequence(double valFrom,
+VectorDouble ut_vector_sequence(double valFrom,
                                                 double valTo,
                                                 double valStep)
 {
@@ -492,19 +492,19 @@ GSTLEARN_EXPORT VectorDouble ut_vector_sequence(double valFrom,
   return vec;
 }
 
-GSTLEARN_EXPORT int ut_vector_size(const VectorInt &vec)
+int ut_vector_size(const VectorInt &vec)
 {
   int size = sizeof(std::vector<int>) + (sizeof(int) * vec.size());
   return size;
 }
 
-GSTLEARN_EXPORT int ut_vector_size(const VectorDouble &vec)
+int ut_vector_size(const VectorDouble &vec)
 {
   int size = sizeof(std::vector<double>) + (sizeof(double) * vec.size());
   return size;
 }
 
-GSTLEARN_EXPORT int ut_vector_size(const VectorVectorInt &vec)
+int ut_vector_size(const VectorVectorInt &vec)
 {
   int size = 0;
   for (auto i = 0; i != (int) vec.size(); i++)
@@ -513,7 +513,7 @@ GSTLEARN_EXPORT int ut_vector_size(const VectorVectorInt &vec)
 
 }
 
-GSTLEARN_EXPORT int ut_vector_size(const VectorVectorDouble &vec)
+int ut_vector_size(const VectorVectorDouble &vec)
 {
   int size = 0;
   for (auto i = 0; i != (int) vec.size(); i++)

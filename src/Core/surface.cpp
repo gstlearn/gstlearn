@@ -638,7 +638,7 @@ static int st_rectangle_surface(Surf_Def *surf_reference,
  ** \remarks must be freed by the calling function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_trisurf(Db *db,
+int db_trisurf(Db *db,
                                Model *model,
                                const String &triswitch,
                                int icode0,

@@ -111,7 +111,7 @@ static void st_relem_explore(Relem *relem, int verbose);
  ** IN_ARGS:  flag_discret  : Flag for the discrete option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void set_test_discrete(bool flag_discret)
+void set_test_discrete(bool flag_discret)
 {
   TEST_DISCRET = flag_discret;
 }
@@ -1779,7 +1779,7 @@ static void st_relem_explore(Relem *relem, int verbose)
  ** \param[in]  vorder      Vario_Order structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vario_Order* vario_order_manage(int mode,
+Vario_Order* vario_order_manage(int mode,
                                                 int flag_dist,
                                                 int size_aux,
                                                 Vario_Order *vorder)
@@ -1859,7 +1859,7 @@ GSTLEARN_EXPORT Vario_Order* vario_order_manage(int mode,
  ** \param[in]  dist        Calculated distance (only stored if flag_dist == 1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int vario_order_add(Vario_Order *vorder,
+int vario_order_add(Vario_Order *vorder,
                                     int iech,
                                     int jech,
                                     void *aux_iech,
@@ -1938,7 +1938,7 @@ GSTLEARN_EXPORT int vario_order_add(Vario_Order *vorder,
  ** \param[in]  verbose     1 for a complete printout
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vario_order_print(Vario_Order *vorder,
+void vario_order_print(Vario_Order *vorder,
                                        int idir_target,
                                        int ipas_target,
                                        int verbose)
@@ -1992,7 +1992,7 @@ GSTLEARN_EXPORT void vario_order_print(Vario_Order *vorder,
  ** \param[in]  npair       Final number of pairs
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vario_Order* vario_order_final(Vario_Order *vorder, int *npair)
+Vario_Order* vario_order_final(Vario_Order *vorder, int *npair)
 {
   int i, error;
 
@@ -2061,7 +2061,7 @@ GSTLEARN_EXPORT Vario_Order* vario_order_final(Vario_Order *vorder, int *npair)
  ** \param[out] dist        Calculated distance or TEST (if flag_dist == 0)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vario_order_get_indices(Vario_Order *vorder,
+void vario_order_get_indices(Vario_Order *vorder,
                                              int ipair,
                                              int *iech,
                                              int *jech,
@@ -2088,7 +2088,7 @@ GSTLEARN_EXPORT void vario_order_get_indices(Vario_Order *vorder,
  ** \param[out] aux_jech    Array to auxiliary information for sample 'jech'
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order *vorder,
+void vario_order_get_auxiliary(Vario_Order *vorder,
                                                int ipair,
                                                char *aux_iech,
                                                char *aux_jech)
@@ -2114,7 +2114,7 @@ GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order *vorder,
  ** \param[out] ilast       Rank of the last sample of the lag (excluded)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vario_order_get_bounds(Vario_Order *vorder,
+void vario_order_get_bounds(Vario_Order *vorder,
                                             int idir,
                                             int ipas,
                                             int *ifirst,
@@ -4924,7 +4924,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
  ** \param[in]  model2     Second Model structure (optional)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vario* model_pgs(Db *db,
+Vario* model_pgs(Db *db,
                                  const VarioParam *varioparam,
                                  const RuleProp *ruleprop,
                                  const Model *model1,
@@ -5191,7 +5191,7 @@ static int st_variogram_pgs_stat(Db *db,
  ** \remarks and the non-stationary one
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
+Vario* variogram_pgs(Db *db,
                                      const VarioParam *varioparam,
                                      const RuleProp *ruleprop,
                                      int flag_rho,

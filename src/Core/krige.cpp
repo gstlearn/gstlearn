@@ -452,7 +452,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
   }
 }
 
-GSTLEARN_EXPORT int is_flag_data_disc_defined(void)
+int is_flag_data_disc_defined(void)
 {
   return KOPTION->flag_data_disc;
 }
@@ -1395,7 +1395,7 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
  ** \remark  This function manages the global structure KOPTION
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krige_koption_manage(int mode,
+int krige_koption_manage(int mode,
                                          int flag_check,
                                          const EKrigOpt &calcul,
                                          int flag_rand,
@@ -1863,7 +1863,7 @@ static void st_lhs_iso2hetero(int neq)
  ** \param[in]  lhs   Kriging L.H.S
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void krige_lhs_print(int nech,
+void krige_lhs_print(int nech,
                                      int neq,
                                      int nred,
                                      int *flag,
@@ -2389,7 +2389,7 @@ static void st_rhs_iso2hetero(int neq, int nvar)
  ** \param[in]  rhs      Kriging R.H.S. matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void krige_rhs_print(int nvar,
+void krige_rhs_print(int nvar,
                                      int nech,
                                      int neq,
                                      int nred,
@@ -2472,7 +2472,7 @@ GSTLEARN_EXPORT void krige_rhs_print(int nvar,
  ** \param[in]  dual     Kriging Dual matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void krige_dual_print(int nech,
+void krige_dual_print(int nech,
                                       int neq,
                                       int nred,
                                       int *flag,
@@ -3374,7 +3374,7 @@ static void st_save_keypair_weights(int status,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int kriging(Db *dbin,
+int kriging(Db *dbin,
                             Db *dbout,
                             Model *model,
                             Neigh *neigh,
@@ -3724,7 +3724,7 @@ static int st_xvalid_unique(Db *dbin,
  ** \details - estimation: Z*; st. dev: S
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int xvalid(Db *db,
+int xvalid(Db *db,
                            Model *model,
                            Neigh *neigh,
                            int flag_xvalid,
@@ -3774,7 +3774,7 @@ GSTLEARN_EXPORT int xvalid(Db *db,
  ** \param[in]  rval        Change of support coefficient
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krigdgm_f(Db *dbin,
+int krigdgm_f(Db *dbin,
                               Db *dbout,
                               Model *model,
                               Neigh *neigh,
@@ -3928,7 +3928,7 @@ GSTLEARN_EXPORT int krigdgm_f(Db *dbin,
  ** \param[in]  flag_std  Option for the storing the standard deviation
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krigprof_f(Db *dbin,
+int krigprof_f(Db *dbin,
                                Db *dbout,
                                Model *model,
                                Neigh *neigh,
@@ -4349,7 +4349,7 @@ static void st_bayes_correct(Model *model, double *rcov, int *status)
  ** \param[in]  flag_std  Pointer for the storing the standard deviation
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int kribayes_f(Db *dbin,
+int kribayes_f(Db *dbin,
                                Db *dbout,
                                Model *model,
                                Neigh *neigh,
@@ -4510,7 +4510,7 @@ GSTLEARN_EXPORT int kribayes_f(Db *dbin,
  ** \remark 5 - The number of consecutive empty sectors
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int test_neigh(Db *dbin,
+int test_neigh(Db *dbin,
                                Db *dbout,
                                Model *model,
                                Neigh *neigh,
@@ -4781,7 +4781,7 @@ int _krigsim(const char *strloc,
  ** \param[in]  neigh     Neigh structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
+int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
 {
   int i, iech, jech, error, nvar, nfeq, nb_neigh, ecr, ndim, nred, neq;
   int *indn0, *indnl, *indg0, *indgl;
@@ -4921,7 +4921,7 @@ GSTLEARN_EXPORT int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
  ** \remark  This function erases any Weight variable already defined
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int global_arithmetic(Db *dbin,
+int global_arithmetic(Db *dbin,
                                       Db *dbgrid,
                                       Model *model,
                                       int ivar,
@@ -5046,7 +5046,7 @@ GSTLEARN_EXPORT int global_arithmetic(Db *dbin,
  **                       (Dimension: nvar * nech)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int global_kriging(Db *dbin,
+int global_kriging(Db *dbin,
                                    Db *dbout,
                                    Model *model,
                                    int ivar,
@@ -5266,7 +5266,7 @@ GSTLEARN_EXPORT int global_kriging(Db *dbin,
  ** \param[out]  cvtrans     CV transitive
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int global_transitive(Db *dbgrid,
+int global_transitive(Db *dbgrid,
                                       Model *model,
                                       int flag_verbose,
                                       int flag_regular,
@@ -5684,7 +5684,7 @@ static void st_point_invdist(int exponent,
  ** \param[in]  dmax        Maximum search radius (used only for Points Db)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int invdist_f(Db *dbin,
+int invdist_f(Db *dbin,
                               Db *dbout,
                               int exponent,
                               int flag_expand,
@@ -5977,7 +5977,7 @@ static double st_estim_exp(Db *db, double *wgt, int nbefore, int nafter)
  ** \param[in]  nfeq          0 or 1 drift function(s)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anakexp_f(Db *db,
+int anakexp_f(Db *db,
                               double *covdd,
                               double *covd0,
                               double top,
@@ -6656,7 +6656,7 @@ static void st_vario_dump(FILE *file,
  ** \remark  If dbg_ix < -1 || dbg_iy < -1, no variogram debug file is created
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anakexp_3D(Db *db,
+int anakexp_3D(Db *db,
                                double *cov_ref,
                                int cov_radius,
                                int neigh_ver,
@@ -6900,7 +6900,7 @@ GSTLEARN_EXPORT int anakexp_3D(Db *db,
  ** \remark the use of the routine matrix_cholesky_decompose
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int bayes_simulate(Model *model,
+int bayes_simulate(Model *model,
                                    int nbsimu,
                                    double *rmean,
                                    double *rcov,
@@ -6995,7 +6995,7 @@ GSTLEARN_EXPORT int bayes_simulate(Model *model,
  ** \param[in]  range     Range (used for Gaussian only)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int image_smoother(Db *dbgrid,
+int image_smoother(Db *dbgrid,
                                    Neigh *neigh,
                                    int type,
                                    double range)
@@ -7123,7 +7123,7 @@ GSTLEARN_EXPORT int image_smoother(Db *dbgrid,
  ** \remark  - the constraints is stored in "f" (only used in dbout)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krigsum_f(Db *dbin,
+int krigsum_f(Db *dbin,
                               Db *dbout,
                               Model *model,
                               Neigh *neigh,
@@ -7433,7 +7433,7 @@ static int st_check_constraint_seismic(int ix,
  ** \param[in]  neigh     Neigh structure (Unique or Bench)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krigmvp_f(Db *dbin,
+int krigmvp_f(Db *dbin,
                               Db *db3grid,
                               Db *db2grid,
                               int fsum,
@@ -7786,7 +7786,7 @@ GSTLEARN_EXPORT int krigmvp_f(Db *dbin,
  ** \param[out] nrhs_ret  Output number of RHS
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krigtest_dimension(Db *dbin,
+int krigtest_dimension(Db *dbin,
                                        Db *dbout,
                                        Model *model,
                                        Neigh *neigh,
@@ -7882,7 +7882,7 @@ GSTLEARN_EXPORT int krigtest_dimension(Db *dbin,
  ** \param[out] var_out   Output variance matrix (Dimension: nrhs_out * nrhs_out)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krigtest_f(Db *dbin,
+int krigtest_f(Db *dbin,
                                Db *dbout,
                                Model *model,
                                Neigh *neigh,
@@ -8067,7 +8067,7 @@ static void st_transform_gaussian_to_raw(Anam *anam)
  ** \param[in]  neigh     Neigh structrue
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int kriggam_f(Db *dbin,
+int kriggam_f(Db *dbin,
                               Db *dbout,
                               Anam *anam,
                               Model *model,
@@ -8203,7 +8203,7 @@ GSTLEARN_EXPORT int kriggam_f(Db *dbin,
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krigcell_f(Db *dbin,
+int krigcell_f(Db *dbin,
                                Db *dbout,
                                Model *model,
                                Neigh *neigh,
@@ -8424,7 +8424,7 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
  ** \remark of Panel into SMUs.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int dk_f(Db *dbin,
+int dk_f(Db *dbin,
                          Db *dbgrid,
                          Model *model,
                          Neigh *neigh,
@@ -8712,7 +8712,7 @@ GSTLEARN_EXPORT int dk_f(Db *dbin,
  ** \remark Dbin is modified so as to keep only the first Z-locator
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int* neigh_calc(Db *dbin,
+int* neigh_calc(Db *dbin,
                                 Model *model,
                                 Neigh *neigh,
                                 double *target,
@@ -9348,7 +9348,7 @@ int st_crit_global(Db *db,
  ** \param[in]  verbose    1 for a verbose output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int sampling_f(Db *db,
+int sampling_f(Db *db,
                                Model *model,
                                double beta,
                                int method1,
@@ -9482,7 +9482,7 @@ GSTLEARN_EXPORT int sampling_f(Db *db,
  ** \param[in]  verbose    Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int krigsampling_f(Db *dbin,
+int krigsampling_f(Db *dbin,
                                    Db *dbout,
                                    Model *model,
                                    double beta,
@@ -10057,7 +10057,7 @@ static int st_declustering_3(Db *db,
  ** \param[in]  verbose   Verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int declustering_f(Db *dbin,
+int declustering_f(Db *dbin,
                                    Model *model,
                                    Neigh *neigh,
                                    Db *dbgrid,
@@ -10730,7 +10730,7 @@ static void st_drift_update(int np,
  ** \param[in]  model_src   Model structure for the sources
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int inhomogeneous_kriging(Db *dbdat,
+int inhomogeneous_kriging(Db *dbdat,
                                           Db *dbsrc,
                                           Db *dbout,
                                           double power,
@@ -11008,7 +11008,7 @@ GSTLEARN_EXPORT int inhomogeneous_kriging(Db *dbdat,
  ** \param[in]  neigh       Neigh structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int defineGeneralNeigh(int mode,
+int defineGeneralNeigh(int mode,
                                        Db *db,
                                        Model *model,
                                        Neigh *neigh)
@@ -11045,7 +11045,7 @@ GSTLEARN_EXPORT int defineGeneralNeigh(int mode,
  ** \remarks samples
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorInt getGeneralNeigh(Db *db, Neigh *neigh, int iech)
+VectorInt getGeneralNeigh(Db *db, Neigh *neigh, int iech)
 {
   int status, nech;
 

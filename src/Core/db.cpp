@@ -31,7 +31,7 @@
  ** \remarks The opposite is not correct.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int compat_NDIM(Db *db1, Db *db2)
+int compat_NDIM(Db *db1, Db *db2)
 {
   if (db1->getNDim() <= db2->getNDim()) return (1);
   messerr("The Space Dimension of the First Db (%d)", db1->getNDim());
@@ -47,7 +47,7 @@ GSTLEARN_EXPORT int compat_NDIM(Db *db1, Db *db2)
  ** \param[in]  db  Pointer to the Db structure (organized as a grid)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_grid_print(Db *db)
+void db_grid_print(Db *db)
 {
   if (db->isGrid()) message(db->toString().c_str());
 }
@@ -110,7 +110,7 @@ static int st_vector_get_att(const Db *db, int iatt, double *tab)
  ** \param[out]  number Number of returned values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_vector_get_att_sel_compress(Db *db,
+int db_vector_get_att_sel_compress(Db *db,
                                                    int iatt,
                                                    int *number,
                                                    double *tab)
@@ -135,7 +135,7 @@ GSTLEARN_EXPORT int db_vector_get_att_sel_compress(Db *db,
  ** \param[out]  tab Array of values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_vector_get_att(const Db *db, int iatt, double *tab)
+int db_vector_get_att(const Db *db, int iatt, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, false);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -158,7 +158,7 @@ GSTLEARN_EXPORT int db_vector_get_att(const Db *db, int iatt, double *tab)
  ** \remark If a selection is defined, the masked samples are set to TEST
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_vector_get_att_sel(Db *db, int iatt, double *tab)
+int db_vector_get_att_sel(Db *db, int iatt, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, true);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -198,7 +198,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_vector_get(Db *db,
+int db_vector_get(Db *db,
                                   const ELoc &locatorType,
                                   int item,
                                   double *tab)
@@ -220,7 +220,7 @@ GSTLEARN_EXPORT int db_vector_get(Db *db,
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_selection_get(const Db *db, int item, double *tab)
+int db_selection_get(const Db *db, int item, double *tab)
 {
   int iatt = db->getAttribute(ELoc::SEL, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -237,7 +237,7 @@ GSTLEARN_EXPORT int db_selection_get(const Db *db, int item, double *tab)
  ** \param[in]  tab    Array of values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_vector_put(Db *db,
+int db_vector_put(Db *db,
                                   const ELoc &locatorType,
                                   int locatorIndex,
                                   double *tab)
@@ -309,7 +309,7 @@ static void st_load_data(Db *db,
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_grid(const Db *db, bool verbose)
+int is_grid(const Db *db, bool verbose)
 {
   if (db == nullptr) return (0);
   if (db->isGrid()) return 1;
@@ -327,7 +327,7 @@ GSTLEARN_EXPORT int is_grid(const Db *db, bool verbose)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType)
+int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType)
 {
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
@@ -346,7 +346,7 @@ GSTLEARN_EXPORT int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int exist_LOCATOR(Db *db, const ELoc &locatorType)
+int exist_LOCATOR(Db *db, const ELoc &locatorType)
 {
   if (db == nullptr) return (0);
   return (db->getFromLocatorNumber(locatorType) > 0);
@@ -366,7 +366,7 @@ GSTLEARN_EXPORT int exist_LOCATOR(Db *db, const ELoc &locatorType)
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double get_LOCATOR_ITEM(Db *db,
+double get_LOCATOR_ITEM(Db *db,
                                         const ELoc &locatorType,
                                         int item,
                                         int iech)
@@ -387,7 +387,7 @@ GSTLEARN_EXPORT double get_LOCATOR_ITEM(Db *db,
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void set_LOCATOR_ITEM(Db *db,
+void set_LOCATOR_ITEM(Db *db,
                                       const ELoc &locatorType,
                                       int item,
                                       int iech,
@@ -406,7 +406,7 @@ GSTLEARN_EXPORT void set_LOCATOR_ITEM(Db *db,
  ** \param[in]  indice Array to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int* db_indg_free(int *indice)
+int* db_indg_free(int *indice)
 
 {
   indice = (int*) mem_free((char* ) indice);
@@ -425,7 +425,7 @@ GSTLEARN_EXPORT int* db_indg_free(int *indice)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int* db_indg_alloc(const Db *db)
+int* db_indg_alloc(const Db *db)
 
 {
   int *indice, size;
@@ -456,7 +456,7 @@ GSTLEARN_EXPORT int* db_indg_alloc(const Db *db)
  ** \param[in]  tab Vector array to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* db_vector_free(double *tab)
+double* db_vector_free(double *tab)
 
 {
   tab = (double*) mem_free((char* ) tab);
@@ -475,7 +475,7 @@ GSTLEARN_EXPORT double* db_vector_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* db_vector_alloc(const Db *db)
+double* db_vector_alloc(const Db *db)
 
 {
   double *tab;
@@ -504,7 +504,7 @@ GSTLEARN_EXPORT double* db_vector_alloc(const Db *db)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_coorvec_get(const Db *db, int idim, double *tab)
+int db_coorvec_get(const Db *db, int idim, double *tab)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -534,7 +534,7 @@ GSTLEARN_EXPORT int db_coorvec_get(const Db *db, int idim, double *tab)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_coorvec_put(Db *db, int idim, double *tab)
+int db_coorvec_put(Db *db, int idim, double *tab)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -564,7 +564,7 @@ GSTLEARN_EXPORT int db_coorvec_put(Db *db, int idim, double *tab)
  ** \param[in]  item   Rank of the attribute in the pointer
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_attribute_identify(const Db *db,
+int db_attribute_identify(const Db *db,
                                           const ELoc &locatorType,
                                           int item)
 {
@@ -581,7 +581,7 @@ GSTLEARN_EXPORT int db_attribute_identify(const Db *db,
  ** \param[in]  tab  Sample array to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* db_sample_free(double *tab)
+double* db_sample_free(double *tab)
 
 {
   tab = (double*) mem_free((char* ) tab);
@@ -601,7 +601,7 @@ GSTLEARN_EXPORT double* db_sample_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* db_sample_alloc(const Db *db, const ELoc &locatorType)
+double* db_sample_alloc(const Db *db, const ELoc &locatorType)
 {
   double *tab;
   int size;
@@ -632,7 +632,7 @@ GSTLEARN_EXPORT double* db_sample_alloc(const Db *db, const ELoc &locatorType)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_sample_load(Db *db,
+int db_sample_load(Db *db,
                                    const ELoc &locatorType,
                                    int iech,
                                    double *tab)
@@ -669,7 +669,7 @@ GSTLEARN_EXPORT int db_sample_load(Db *db,
  ** \param[out] tab     Array of values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_sample_get_att(Db *db,
+int db_sample_get_att(Db *db,
                                       int iech,
                                       int number,
                                       int iatt,
@@ -697,7 +697,7 @@ GSTLEARN_EXPORT int db_sample_get_att(Db *db,
  ** \param[in]  tab     array of values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_sample_put_att(Db *db,
+void db_sample_put_att(Db *db,
                                        int iech,
                                        int number,
                                        int iatt,
@@ -729,7 +729,7 @@ GSTLEARN_EXPORT void db_sample_put_att(Db *db,
  ** \remark: The returned array 'vect' must be dimension to that value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double distance_inter(Db *db1,
+double distance_inter(Db *db1,
                                       Db *db2,
                                       int iech1,
                                       int iech2,
@@ -767,7 +767,7 @@ GSTLEARN_EXPORT double distance_inter(Db *db1,
  **                        Returns the distance as a vector
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double distance_intra(const Db *db,
+double distance_intra(const Db *db,
                                       int iech1,
                                       int iech2,
                                       double *dist_vect)
@@ -805,7 +805,7 @@ GSTLEARN_EXPORT double distance_intra(const Db *db,
  **                         Returns the distance as a vector
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double distance_grid(Db *db,
+double distance_grid(Db *db,
                                      int flag_moins1,
                                      int iech1,
                                      int iech2,
@@ -859,7 +859,7 @@ GSTLEARN_EXPORT double distance_grid(Db *db,
  ** \remark  according to the 3rd coordinate with the bench width.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double bench_distance(const Db *db, int iech1, int iech2)
+double bench_distance(const Db *db, int iech1, int iech2)
 {
   int idim0 = 2;
   if (db->getNDim() <= idim0) return (0.);
@@ -878,7 +878,7 @@ GSTLEARN_EXPORT double bench_distance(const Db *db, int iech1, int iech2)
  ** \param[in]  codir        Direction coefficient
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double cylinder_radius(const Db *db,
+double cylinder_radius(const Db *db,
                                        int iech1,
                                        int iech2,
                                        const VectorDouble &codir)
@@ -910,7 +910,7 @@ GSTLEARN_EXPORT double cylinder_radius(const Db *db,
  ** \remark  If one grid index does not lie within the grid, -1 is returned
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_index_grid_to_sample(const Db *db, const int *indg)
+int db_index_grid_to_sample(const Db *db, const int *indg)
 {
   int ndim = db->getNDim();
   VectorInt local(ndim);
@@ -929,7 +929,7 @@ GSTLEARN_EXPORT int db_index_grid_to_sample(const Db *db, const int *indg)
  ** \param[out]  indg Grid indices
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_index_sample_to_grid(const Db *db, int iech, int *indg)
+void db_index_sample_to_grid(const Db *db, int iech, int *indg)
 {
   int ndim = db->getNDim();
   int nval = 1;
@@ -960,7 +960,7 @@ GSTLEARN_EXPORT void db_index_sample_to_grid(const Db *db, int iech, int *indg)
  ** \remark which minimizes the distance between any pair of successive indices
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
+int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
 {
   int jech, idim, ndim, indref;
 
@@ -987,7 +987,7 @@ GSTLEARN_EXPORT int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
  ** \param[in]  flag_nerr 1 if the error measurement variance must be printed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_sample_print(Db *db,
+void db_sample_print(Db *db,
                                      int iech,
                                      int flag_ndim,
                                      int flag_nvar,
@@ -1052,7 +1052,7 @@ GSTLEARN_EXPORT void db_sample_print(Db *db,
  ** \param[in]  ranks         Array of field ranks to be printed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_print(Db *db,
+void db_print(Db *db,
                               int flag_resume,
                               int flag_vars,
                               int flag_extend,
@@ -1110,7 +1110,7 @@ GSTLEARN_EXPORT void db_print(Db *db,
  **                        (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_extension(Db *db,
+int db_extension(Db *db,
                                  double *mini_arg,
                                  double *maxi_arg,
                                  double *delta_arg)
@@ -1159,7 +1159,7 @@ GSTLEARN_EXPORT int db_extension(Db *db,
  **                     (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_center(Db *db, double *center)
+int db_center(Db *db, double *center)
 {
   double *tab, *sel, *wgt, vmin, vmax, diff, mean, stdv;
   int idim, nval;
@@ -1212,7 +1212,7 @@ GSTLEARN_EXPORT int db_center(Db *db, double *center)
  ** \remarks  Different versions are provided for Euclidean and Spherical cases
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_extension_diag(const Db *db, double *diag)
+int db_extension_diag(const Db *db, double *diag)
 {
   double *tab, *sel, vmin, vmax, diff, mean, stdv, coor[2][2];
   int idim, nval, flag_sphere;
@@ -1277,7 +1277,7 @@ GSTLEARN_EXPORT int db_extension_diag(const Db *db, double *diag)
  ** \param[in]  db   Db structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double db_epsilon_distance(Db *db)
+double db_epsilon_distance(Db *db)
 
 {
   double diag;
@@ -1313,7 +1313,7 @@ GSTLEARN_EXPORT double db_epsilon_distance(Db *db)
  ** \param[out]  delta  Extension
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_attribute_range(const Db *db,
+int db_attribute_range(const Db *db,
                                        int iatt,
                                        double *mini,
                                        double *maxi,
@@ -1367,7 +1367,7 @@ GSTLEARN_EXPORT int db_attribute_range(const Db *db,
  ** \param[in]  db Db structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_delete(Db *db)
+Db* db_delete(Db *db)
 
 {
   /* Initializations */
@@ -1396,7 +1396,7 @@ GSTLEARN_EXPORT Db* db_delete(Db *db)
  ** \remark characteristics have changed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid_define_coordinates(Db *db)
+int db_grid_define_coordinates(Db *db)
 
 {
   if (db == nullptr) return (0);
@@ -1465,7 +1465,7 @@ GSTLEARN_EXPORT int db_grid_define_coordinates(Db *db)
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_grid(int flag_rot,
+Db* db_create_grid(int flag_rot,
                                    int /*ndim*/,
                                    int natt,
                                    const ELoadBy &order,
@@ -1519,7 +1519,7 @@ GSTLEARN_EXPORT Db* db_create_grid(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_grid_generic(int ndim,
+Db* db_create_grid_generic(int ndim,
                                            int natt,
                                            const ELoadBy &order,
                                            int flag_add_rank,
@@ -1578,7 +1578,7 @@ GSTLEARN_EXPORT Db* db_create_grid_generic(int ndim,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_grid_2D(int flag_rot,
+Db* db_create_grid_2D(int flag_rot,
                                       int natt,
                                       const ELoadBy &order,
                                       int flag_add_rank,
@@ -1645,7 +1645,7 @@ GSTLEARN_EXPORT Db* db_create_grid_2D(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_grid_3D(int flag_rot,
+Db* db_create_grid_3D(int flag_rot,
                                       int natt,
                                       const ELoadBy &order,
                                       int flag_add_rank,
@@ -1708,7 +1708,7 @@ GSTLEARN_EXPORT Db* db_create_grid_3D(int flag_rot,
  ** \param[in]  tab    Array containing the data
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_point(int nech,
+Db* db_create_point(int nech,
                                     int natt,
                                     const ELoadBy &order,
                                     int flag_add_rank,
@@ -1740,7 +1740,7 @@ GSTLEARN_EXPORT Db* db_create_point(int nech,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_from_target(double *target,
+Db* db_create_from_target(double *target,
                                           int ndim,
                                           int flag_add_rank)
 {
@@ -1781,7 +1781,7 @@ GSTLEARN_EXPORT Db* db_create_from_target(double *target,
  ** \param[in]  iatt   Rank of the attribute (starting at 0)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT String db_name_get_by_att(const Db *db, int iatt)
+String db_name_get_by_att(const Db *db, int iatt)
 {
   static char na_string[3] = "NA";
   int icol = db->getColumnByAttribute(iatt);
@@ -1799,7 +1799,7 @@ GSTLEARN_EXPORT String db_name_get_by_att(const Db *db, int iatt)
  ** \param[in]  icol   Rank of the column (starting at 0)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT String db_name_get_by_col(Db *db, int icol)
+String db_name_get_by_col(Db *db, int icol)
 {
   static char na_string[3] = "NA";
   if (!db->isColumnIndexValid(icol)) return (na_string);
@@ -1817,7 +1817,7 @@ GSTLEARN_EXPORT String db_name_get_by_col(Db *db, int icol)
  ** \param[in]  name   Name assigned to the current attribute
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_name_set(Db *db, int iatt, const String &name)
+int db_name_set(Db *db, int iatt, const String &name)
 {
   if (!db->isAttributeIndexValid(iatt)) return 1;
   db->setName(iatt, name);
@@ -1835,7 +1835,7 @@ GSTLEARN_EXPORT int db_name_set(Db *db, int iatt, const String &name)
  ** \remark The output attribute must already be allocated
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
+void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
     db->setArray(iech, iatt_out, db->getArray(iech, iatt_in));
@@ -1852,7 +1852,7 @@ GSTLEARN_EXPORT void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
  ** \param[in]  valinit   Value set to the variable
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_attribute_init(Db *db,
+void db_attribute_init(Db *db,
                                        int ncol,
                                        int iatt,
                                        double valinit)
@@ -1886,7 +1886,7 @@ GSTLEARN_EXPORT void db_attribute_init(Db *db,
  ** \param[in]  n_del Number of attributes to be deleted
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_attribute_del_mult(Db *db, int i_del, int n_del)
+void db_attribute_del_mult(Db *db, int i_del, int n_del)
 {
   if (i_del <= 0) return;
   for (int i = n_del - 1; i >= 0; i--)
@@ -1909,7 +1909,7 @@ GSTLEARN_EXPORT void db_attribute_del_mult(Db *db, int i_del, int n_del)
  ** \param[out]  dbout  Output Grid Db structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
+int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
 {
   if (!dbin->isGrid()) return (1);
   if (!dbout->isGrid()) return (1);
@@ -1927,7 +1927,7 @@ GSTLEARN_EXPORT int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
  ** \param[in]  db Db structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double db_grid_maille(Db *db)
+double db_grid_maille(Db *db)
 
 {
   if (!db->isGrid()) return (TEST);
@@ -1947,7 +1947,7 @@ GSTLEARN_EXPORT double db_grid_maille(Db *db)
  ** \remark  are transformed into additional variables
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_gradient_update(Db *db)
+int db_gradient_update(Db *db)
 
 {
   int ndim = db->getNDim();
@@ -1991,7 +1991,7 @@ GSTLEARN_EXPORT int db_gradient_update(Db *db)
  ** \param[out] tabout Output array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_selref(int ndim,
+int db_selref(int ndim,
                               int *nx,
                               int *ref,
                               double *tabin,
@@ -2083,7 +2083,7 @@ GSTLEARN_EXPORT int db_selref(int ndim,
  ** \param[in]  coor     Array containing the coordinates of the sample
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_locate_in_grid(Db *db_grid, double *coor)
+int db_locate_in_grid(Db *db_grid, double *coor)
 {
   int *indg, indabs;
 
@@ -2119,7 +2119,7 @@ GSTLEARN_EXPORT int db_locate_in_grid(Db *db_grid, double *coor)
  ** \remark  The test returns 0 if one of the two file is not a grid
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid_match(Db *db1, Db *db2)
+int db_grid_match(Db *db1, Db *db2)
 
 {
   return ((int) db1->isSameGrid(db2->getGrid()));
@@ -2140,7 +2140,7 @@ GSTLEARN_EXPORT int db_grid_match(Db *db1, Db *db2)
  ** \param[out] iptr    Rank of the first new attribute
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
+int db_locator_attribute_add(Db *db,
                                              const ELoc &locatorType,
                                              int number,
                                              int r_tem,
@@ -2175,7 +2175,7 @@ GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
  ** \param[in]  cols    Array of input variable columns
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid_copy(Db *db1,
+int db_grid_copy(Db *db1,
                                  Db *db2,
                                  int *ind1,
                                  int *ind2,
@@ -2269,7 +2269,7 @@ GSTLEARN_EXPORT int db_grid_copy(Db *db1,
  **                     along each space direction
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid_copy_dilate(Db *db1,
+int db_grid_copy_dilate(Db *db1,
                                         int iatt1,
                                         Db *db2,
                                         int iatt2,
@@ -2336,7 +2336,7 @@ GSTLEARN_EXPORT int db_grid_copy_dilate(Db *db1,
  ** \param[out] coor     coordinates of the point
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void grid_to_point(const Db *db,
+void grid_to_point(const Db *db,
                                    int *indg,
                                    double *percent,
                                    double *coor)
@@ -2376,7 +2376,7 @@ GSTLEARN_EXPORT void grid_to_point(const Db *db,
  ** \param[in]  coor  array of coordinates of the point
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int point_to_point(Db *db, double *coor)
+int point_to_point(Db *db, double *coor)
 {
   double dist, distmin, delta, x;
   int idim, iech, iechmin;
@@ -2429,7 +2429,7 @@ GSTLEARN_EXPORT int point_to_point(Db *db, double *coor)
  ** \param[out] indg          indices of the closest grid node
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int point_to_grid(const Db *db,
+int point_to_grid(const Db *db,
                                   double *coor,
                                   int flag_outside,
                                   int *indg)
@@ -2498,7 +2498,7 @@ GSTLEARN_EXPORT int point_to_grid(const Db *db,
  ** \remarks as reference
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int point_to_bench(const Db *db,
+int point_to_bench(const Db *db,
                                    double *coor,
                                    int flag_outside,
                                    int *indb)
@@ -2580,7 +2580,7 @@ GSTLEARN_EXPORT int point_to_bench(const Db *db,
  ** \param[out] coor          Working array (dimension: ndim)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int index_point_to_grid(const Db *dbin,
+int index_point_to_grid(const Db *dbin,
                                         int iech,
                                         int flag_outside,
                                         const Db *dbout,
@@ -2618,7 +2618,7 @@ GSTLEARN_EXPORT int index_point_to_grid(const Db *dbin,
  ** \param[in]  dbgrid  Grid Db structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int point_inside_grid(Db *db, int iech, Db *dbgrid)
+int point_inside_grid(Db *db, int iech, Db *dbgrid)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2655,7 +2655,7 @@ GSTLEARN_EXPORT int point_inside_grid(Db *db, int iech, Db *dbgrid)
  ** \param[out]  maxi Maximum value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_monostat(Db *db,
+void db_monostat(Db *db,
                                  int iatt,
                                  double *wtot,
                                  double *mean,
@@ -2723,7 +2723,7 @@ GSTLEARN_EXPORT void db_monostat(Db *db,
  ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_polygon(Db *db,
+void db_polygon(Db *db,
                                 Polygons *polygon,
                                 int flag_sel,
                                 int flag_period,
@@ -2784,7 +2784,7 @@ GSTLEARN_EXPORT void db_polygon(Db *db,
  ** \remark  variables
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_proportion(Db *db,
+int db_proportion(Db *db,
                                   Db *dbgrid,
                                   int nfac1max,
                                   int nfac2max,
@@ -2925,7 +2925,7 @@ GSTLEARN_EXPORT int db_proportion(Db *db,
  ** \param[in]  cols    Array of input variable columns
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_merge(Db *db, int ncol, int *cols)
+int db_merge(Db *db, int ncol, int *cols)
 {
   int iptr, iech, icol;
   double value;
@@ -2973,7 +2973,7 @@ GSTLEARN_EXPORT int db_merge(Db *db, int ncol, int *cols)
  ** \param[in]  icol    Rank of the Column
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_count_defined(Db *db, int icol)
+int db_count_defined(Db *db, int icol)
 {
   int iech, number;
   double value;
@@ -2999,7 +2999,7 @@ GSTLEARN_EXPORT int db_count_defined(Db *db, int icol)
  ** \remark  The elements of the array current are numbered starting from 1
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_locators_correct(VectorString &strings,
+void db_locators_correct(VectorString &strings,
                                          const VectorInt &current,
                                          int flag_locnew)
 {
@@ -3143,7 +3143,7 @@ GSTLEARN_EXPORT void db_locators_correct(VectorString &strings,
  ** \remark  This procedure is meant for a 3-D grid file
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_prop_read(Db *db, int ix, int iy, double *props)
+int db_prop_read(Db *db, int ix, int iy, double *props)
 {
   int iz, nz, nprop, iprop, ecr, indices[3], i, iech, flag_no;
   double value, total;
@@ -3207,7 +3207,7 @@ GSTLEARN_EXPORT int db_prop_read(Db *db, int ix, int iy, double *props)
  ** \remark  This procedure is meant for a 3-D grid file
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_prop_write(Db *db, int ix, int iy, double *props)
+int db_prop_write(Db *db, int ix, int iy, double *props)
 {
   int iz, nz, nprop, iprop, ecr, indices[3], iech;
 
@@ -3287,7 +3287,7 @@ static int st_is_isotopic(Db *db, int iech, int niso)
  ** \remarks the comparison between one sample and itself
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* db_distances_general(Db *db1,
+double* db_distances_general(Db *db1,
                                              Db *db2,
                                              int niso,
                                              int mode,
@@ -3409,7 +3409,7 @@ GSTLEARN_EXPORT double* db_distances_general(Db *db1,
  ** \remark  If the sample is masked off, the function returns 0
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_is_isotropic(Db *db, int iech, double *data)
+int db_is_isotropic(Db *db, int iech, double *data)
 {
   int ivar;
   double value;
@@ -3434,7 +3434,7 @@ GSTLEARN_EXPORT int db_is_isotropic(Db *db, int iech, double *data)
  ** \param[in]  db2   Db1 coarse grid structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_grid_multiple(Db *db1, Db *db2)
+int is_grid_multiple(Db *db1, Db *db2)
 {
   int *indg, idim, ndim, error;
   double *coor1, *coor2, *perc, ratio, delta;
@@ -3505,7 +3505,7 @@ GSTLEARN_EXPORT int is_grid_multiple(Db *db1, Db *db2)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_grid_multiple(Db *dbin,
+Db* db_create_grid_multiple(Db *dbin,
                                             const VectorInt &nmult,
                                             int flag_add_rank)
 {
@@ -3542,7 +3542,7 @@ GSTLEARN_EXPORT Db* db_create_grid_multiple(Db *dbin,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_grid_divider(Db *dbin,
+Db* db_create_grid_divider(Db *dbin,
                                            const VectorInt &nmult,
                                            int flag_add_rank)
 {
@@ -3579,7 +3579,7 @@ GSTLEARN_EXPORT Db* db_create_grid_divider(Db *dbin,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_create_grid_dilate(Db *dbin,
+Db* db_create_grid_dilate(Db *dbin,
                                           int mode,
                                           const VectorInt &nshift,
                                           int flag_add_rank)
@@ -3623,7 +3623,7 @@ GSTLEARN_EXPORT Db* db_create_grid_dilate(Db *dbin,
  ** \remarks  Attributes 'gx' and 'gy' may coincide with 'modulus' and 'angle'
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_gradient_modang_to_component(Db *db,
+int db_gradient_modang_to_component(Db *db,
                                                     int ang_conv,
                                                     int iad_mod,
                                                     int iad_ang,
@@ -3697,7 +3697,7 @@ GSTLEARN_EXPORT int db_gradient_modang_to_component(Db *db,
  ** \remarks  Nothing is done (more than the conversion if scale=1 and ve=0)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_gradient_component_to_modang(Db *db,
+int db_gradient_component_to_modang(Db *db,
                                                     int verbose,
                                                     int iad_gx,
                                                     int iad_gy,
@@ -3788,7 +3788,7 @@ GSTLEARN_EXPORT int db_gradient_component_to_modang(Db *db,
  ** \param[in]  iech0 Absolute sample rank
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_get_rank_absolute_to_relative(Db *db, int iech0)
+int db_get_rank_absolute_to_relative(Db *db, int iech0)
 {
   int iech, jech;
 
@@ -3815,7 +3815,7 @@ GSTLEARN_EXPORT int db_get_rank_absolute_to_relative(Db *db, int iech0)
  ** \param[in]  iech0 Relative sample rank
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_get_rank_relative_to_absolute(Db *db, int iech0)
+int db_get_rank_relative_to_absolute(Db *db, int iech0)
 {
   int iech, jech;
 
@@ -3844,7 +3844,7 @@ GSTLEARN_EXPORT int db_get_rank_relative_to_absolute(Db *db, int iech0)
  ** \param[in]  iz       Rank of the node along third dimension
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double get_grid_value(Db *dbgrid,
+double get_grid_value(Db *dbgrid,
                                       int iptr,
                                       int *indg,
                                       int ix,
@@ -3877,7 +3877,7 @@ GSTLEARN_EXPORT double get_grid_value(Db *dbgrid,
  ** \param[in]  value    Assigned value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void set_grid_value(Db *dbgrid,
+void set_grid_value(Db *dbgrid,
                                     int iptr,
                                     int *indg,
                                     int ix,
@@ -3913,7 +3913,7 @@ GSTLEARN_EXPORT void set_grid_value(Db *dbgrid,
  ** \param[in]  vmax          Upper bound (excluded)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_grid_reduce(Db *db_grid,
+Db* db_grid_reduce(Db *db_grid,
                                    int iptr,
                                    int *margin,
                                    int *limmin,
@@ -4105,7 +4105,7 @@ GSTLEARN_EXPORT Db* db_grid_reduce(Db *db_grid,
  ** \remarks useless
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid_patch(Db *ss_grid,
+int db_grid_patch(Db *ss_grid,
                                   Db *db_grid,
                                   int iptr_ss,
                                   int iptr_db,
@@ -4284,7 +4284,7 @@ GSTLEARN_EXPORT int db_grid_patch(Db *ss_grid,
  ** \param[in]  string   attribute name
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_name_identify(Db *db, const String &string)
+int db_name_identify(Db *db, const String &string)
 {
   for (int iatt = 0; iatt < db->getAttributeMaxNumber(); iatt++)
   {
@@ -4342,7 +4342,7 @@ static void st_rotate(int ndim,
  ** \remarks - space dimension is 1 or larger than 3
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_extension_rotated(Db *db,
+int db_extension_rotated(Db *db,
                                          double *rotmat,
                                          double *mini_arg,
                                          double *maxi_arg,
@@ -4459,7 +4459,7 @@ GSTLEARN_EXPORT int db_extension_rotated(Db *db,
  ** \param[in]   idim      Rank of the space dimension
  **
  ****************************************************************************/
-GSTLEARN_EXPORT VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
+VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
 {
   VectorDouble vect;
 
@@ -4486,7 +4486,7 @@ GSTLEARN_EXPORT VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
  ** \param[in]   verbose   Verbose flag
  **
  ****************************************************************************/
-GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
+VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
 {
   VectorDouble vect;
 
@@ -4512,7 +4512,7 @@ GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
  ** \param[in]   pattern  Matching pattern
  **
  ****************************************************************************/
-GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
+VectorInt db_identify_variables_by_name(Db *db,
                                                         const String &pattern)
 {
   VectorString names = db->getNames(pattern);
@@ -4525,7 +4525,7 @@ GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
  **  Initialize the Grid iterator
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void grid_iterator_init(GridC *grid, const VectorInt &order)
+void grid_iterator_init(GridC *grid, const VectorInt &order)
 {
   grid->iteratorInit(order);
 }
@@ -4537,7 +4537,7 @@ GSTLEARN_EXPORT void grid_iterator_init(GridC *grid, const VectorInt &order)
  **  Increment the Grid iterator
  **
  ****************************************************************************/
-GSTLEARN_EXPORT VectorInt grid_iterator_next(GridC *grid)
+VectorInt grid_iterator_next(GridC *grid)
 {
   VectorInt indices = grid->iteratorNext();
   return (indices);

@@ -295,7 +295,7 @@ static void st_calcul_value(SubPlan &plan, double factor, double *vector)
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int substitution(Db *dbgrid,
+int substitution(Db *dbgrid,
                                  int seed,
                                  int nfacies,
                                  int nstates,

@@ -101,7 +101,7 @@ static int st_facies(PropDef *propdef, int ipgs, int ifac)
  ** \param[in]  nbsimu    Number of simulations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void simu_func_categorical_transf(Db *db,
+void simu_func_categorical_transf(Db *db,
                                                   int verbose,
                                                   int isimu,
                                                   int nbsimu)
@@ -128,7 +128,7 @@ GSTLEARN_EXPORT void simu_func_categorical_transf(Db *db,
  ** \param[in]  nbsimu    Number of simulations (stored)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void simu_func_continuous_update(Db *db,
+void simu_func_continuous_update(Db *db,
                                                  int verbose,
                                                  int isimu,
                                                  int nbsimu)
@@ -168,7 +168,7 @@ GSTLEARN_EXPORT void simu_func_continuous_update(Db *db,
  ** \param[in]  nbsimu    Number of simulations (stored)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void simu_func_categorical_update(Db *db,
+void simu_func_categorical_update(Db *db,
                                                   int verbose,
                                                   int isimu,
                                                   int nbsimu)
@@ -209,7 +209,7 @@ GSTLEARN_EXPORT void simu_func_categorical_update(Db *db,
  ** \param[in]  nbsimu    Number of simulations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
+void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
 {
   double mean, stdv;
 
@@ -244,7 +244,7 @@ GSTLEARN_EXPORT void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
  ** \param[in]  nbsimu    Number of simulations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void simu_func_categorical_scale(Db *db,
+void simu_func_categorical_scale(Db *db,
                                                  int verbose,
                                                  int nbsimu)
 {
@@ -286,7 +286,7 @@ GSTLEARN_EXPORT void simu_func_categorical_scale(Db *db,
  ** \param[in]  locatorType  Mandatory attribute type
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void check_mandatory_attribute(const char *method,
+void check_mandatory_attribute(const char *method,
                                                Db *db,
                                                const ELoc &locatorType)
 {
@@ -3347,7 +3347,7 @@ static int st_simtub_process(Db *dbin,
  ** \param[in]  delta     Value of the increment
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simtub_potential(Db *dbiso,
+int simtub_potential(Db *dbiso,
                                      Db *dbgrd,
                                      Db *dbtgt,
                                      Db *dbout,
@@ -3456,7 +3456,7 @@ GSTLEARN_EXPORT int simtub_potential(Db *dbiso,
  ** \remark  be defined only for conditional simulations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simtub(Db *dbin,
+int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,
                            Neigh *neigh,
@@ -3541,7 +3541,7 @@ GSTLEARN_EXPORT int simtub(Db *dbin,
  ** \remark  be defined only for conditional simulations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simdgm(Db *dbin,
+int simdgm(Db *dbin,
                            Db *dbout,
                            Model *model,
                            Neigh *neigh,
@@ -3628,7 +3628,7 @@ GSTLEARN_EXPORT int simdgm(Db *dbin,
  ** \remark  be defined only for conditional simulations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simbayes(Db *dbin,
+int simbayes(Db *dbin,
                              Db *dbout,
                              Model *model,
                              Neigh *neigh,
@@ -3697,7 +3697,7 @@ GSTLEARN_EXPORT int simbayes(Db *dbin,
  ** \param[in]  igrf       Rank of the Gaussian
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf)
+int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf)
 {
   if (ipgs <= 0 || propdef == nullptr)
     return (igrf);
@@ -3856,7 +3856,7 @@ static void st_init_gibbs_params(double rho)
  ** \remark  conditional simulations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simpgs(Db *dbin,
+int simpgs(Db *dbin,
                            Db *dbout,
                            RuleProp *ruleprop,
                            Model *model1,
@@ -4200,7 +4200,7 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
  ** \remark  f1af2a, f1bf2a, f1cf2a, ..., f1bf2a, f1bf2b, ..., f1nf2m
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simbipgs(Db *dbin,
+int simbipgs(Db *dbin,
                              Db *dbout,
                              RuleProp *ruleprop,
                              Model *model11,
@@ -4610,7 +4610,7 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
  ** \param[out] iptr_cstd_arg Pointer to the Conditional St. Dev. attributes
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_simulations_to_ce(Db *db,
+int db_simulations_to_ce(Db *db,
                                          const ELoc &locatorType,
                                          int nbsimu,
                                          int nvar,
@@ -4735,7 +4735,7 @@ GSTLEARN_EXPORT int db_simulations_to_ce(Db *db,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
+int gibbs_sampler(Db *dbin,
                                   Model *model,
                                   Neigh *neigh,
                                   int nbsimu,
@@ -4938,7 +4938,7 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
  ** \endcode
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simtub_constraints(Db *dbin,
+int simtub_constraints(Db *dbin,
                                        Db *dbout,
                                        Model *model,
                                        Neigh *neigh,
@@ -5168,7 +5168,7 @@ static void st_maxstable_combine(Db *dbout,
  ** \remarks keypair mechanism with keyword "MaxStableThresh".
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simmaxstable(Db *dbout,
+int simmaxstable(Db *dbout,
                                  Model *model,
                                  double ratio,
                                  int seed,
@@ -5333,7 +5333,7 @@ static double st_quantile(Db *dbout, double proba, double *sort)
  ** \param[in]  verbose   Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simRI(Db *dbout,
+int simRI(Db *dbout,
                           Model *model,
                           int ncut,
                           double *zcut,
@@ -5509,7 +5509,7 @@ GSTLEARN_EXPORT int simRI(Db *dbout,
  ** \remark  should correspond to the facies index (starting from 1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
+int simpgs_spde(Db *dbin,
                                 Db *dbout,
                                 RuleProp *ruleprop,
                                 Model *model1,
@@ -5734,7 +5734,7 @@ GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
  ** \param[in]  model    Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simtub_workable(Model *model)
+int simtub_workable(Model *model)
 
 {
   int workable;
@@ -5802,7 +5802,7 @@ GSTLEARN_EXPORT int simtub_workable(Model *model)
  ** \remarks it is generated internally.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simcond(Db *dbin,
+int simcond(Db *dbin,
                             Db *dbout,
                             Model *model,
                             int seed,

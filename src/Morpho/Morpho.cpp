@@ -149,7 +149,7 @@ void _st_morpho_label_order(VectorDouble &compnum,
  ** \param[out]  nx     Number of grid meshes (dimension = 3)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int morpho_image_size(const VectorInt &nx)
+int morpho_image_size(const VectorInt &nx)
 
 {
   _st_morpho_image_size_define(nx);
@@ -166,7 +166,7 @@ GSTLEARN_EXPORT int morpho_image_size(const VectorInt &nx)
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_duplicate(const VectorInt &nx,
+void morpho_duplicate(const VectorInt &nx,
                                       const VectorUChar &imagin,
                                       VectorUChar &imagout)
 {
@@ -200,7 +200,7 @@ GSTLEARN_EXPORT void morpho_duplicate(const VectorInt &nx,
  ** \remark  is issued for displaying the component sizes
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int morpho_labelling(const VectorInt &nx,
+int morpho_labelling(const VectorInt &nx,
                                      int option,
                                      int flag_size,
                                      const VectorUChar &imagin,
@@ -407,7 +407,7 @@ GSTLEARN_EXPORT int morpho_labelling(const VectorInt &nx,
  ** \remark  is issued for displaying the component sizes
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble morpho_labelling(const VectorInt &nx,
+VectorDouble morpho_labelling(const VectorInt &nx,
                                               int option,
                                               int flag_size,
                                               const VectorUChar &imagin,
@@ -435,7 +435,7 @@ GSTLEARN_EXPORT VectorDouble morpho_labelling(const VectorInt &nx,
  ** \remark  is issued for displaying the component sizes
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorInt morpho_labelsize(const VectorInt &nx,
+VectorInt morpho_labelsize(const VectorInt &nx,
                                            int option,
                                            const VectorUChar &imagin)
 {
@@ -465,7 +465,7 @@ GSTLEARN_EXPORT VectorInt morpho_labelsize(const VectorInt &nx,
  ** \param[out] imagout Output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_erosion(const VectorInt &nx,
+void morpho_erosion(const VectorInt &nx,
                                     int option,
                                     const VectorInt &radius,
                                     const VectorUChar &imagin,
@@ -574,7 +574,7 @@ GSTLEARN_EXPORT void morpho_erosion(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_dilation(const VectorInt &nx,
+void morpho_dilation(const VectorInt &nx,
                                      int option,
                                      const VectorInt &radius,
                                      const VectorUChar &imagin,
@@ -682,7 +682,7 @@ GSTLEARN_EXPORT void morpho_dilation(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_intersection(const VectorInt &nx,
+void morpho_intersection(const VectorInt &nx,
                                          const VectorUChar &image1,
                                          const VectorUChar &image2,
                                          VectorUChar &imagout,
@@ -721,7 +721,7 @@ GSTLEARN_EXPORT void morpho_intersection(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_union(const VectorInt &nx,
+void morpho_union(const VectorInt &nx,
                                   const VectorUChar &image1,
                                   const VectorUChar &image2,
                                   VectorUChar &imagout,
@@ -759,7 +759,7 @@ GSTLEARN_EXPORT void morpho_union(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_negation(const VectorInt &nx,
+void morpho_negation(const VectorInt &nx,
                                      const VectorUChar &imagin,
                                      VectorUChar &imagout,
                                      bool verbose)
@@ -789,7 +789,7 @@ GSTLEARN_EXPORT void morpho_negation(const VectorInt &nx,
  ** \param[in]  imagin  input image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int morpho_count(const VectorInt &nx, const VectorUChar &imagin)
+int morpho_count(const VectorInt &nx, const VectorUChar &imagin)
 {
   int ix, iy, iz, ncount;
 
@@ -816,7 +816,7 @@ GSTLEARN_EXPORT int morpho_count(const VectorInt &nx, const VectorUChar &imagin)
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_opening(const VectorInt &nx,
+void morpho_opening(const VectorInt &nx,
                                     int option,
                                     const VectorInt &radius,
                                     const VectorUChar &imagin,
@@ -843,7 +843,7 @@ GSTLEARN_EXPORT void morpho_opening(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_closing(const VectorInt &nx,
+void morpho_closing(const VectorInt &nx,
                                     int option,
                                     const VectorInt &radius,
                                     const VectorUChar &imagin,
@@ -871,7 +871,7 @@ GSTLEARN_EXPORT void morpho_closing(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_double2image(const VectorInt &nx,
+void morpho_double2image(const VectorInt &nx,
                                          const VectorDouble &tab,
                                          double vmin,
                                          double vmax,
@@ -926,7 +926,7 @@ GSTLEARN_EXPORT void morpho_double2image(const VectorInt &nx,
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorUChar morpho_double2image(const VectorInt &nx,
+VectorUChar morpho_double2image(const VectorInt &nx,
                                                 const VectorDouble &tab,
                                                 double vmin,
                                                 double vmax,
@@ -954,7 +954,7 @@ GSTLEARN_EXPORT VectorUChar morpho_double2image(const VectorInt &nx,
  ** \param[out] tab    output array (double)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_image2double(const VectorInt &nx,
+void morpho_image2double(const VectorInt &nx,
                                          const VectorUChar &imagin,
                                          int mode,
                                          double grain,
@@ -1007,7 +1007,7 @@ GSTLEARN_EXPORT void morpho_image2double(const VectorInt &nx,
  ** \param[out] dist       output array containing the distances
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_distance(const VectorInt &nx,
+void morpho_distance(const VectorInt &nx,
                                      int option,
                                      const VectorInt &radius,
                                      int flag_erode,
@@ -1064,7 +1064,7 @@ GSTLEARN_EXPORT void morpho_distance(const VectorInt &nx,
  ** \param[in]  imagin  input image
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void bitmap_print(const VectorInt &nx, const VectorUChar &imagin)
+void bitmap_print(const VectorInt &nx, const VectorUChar &imagin)
 {
   int ix, iy, iz;
   unsigned char val;
@@ -1113,7 +1113,7 @@ GSTLEARN_EXPORT void bitmap_print(const VectorInt &nx, const VectorUChar &imagin
  ** \param[in]  nx      Number of grid meshes (dimension = 3)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int bitmap_size(const VectorInt &nx)
+int bitmap_size(const VectorInt &nx)
 {
   _st_morpho_image_size_define(nx);
   return (NRED);
@@ -1157,7 +1157,7 @@ int bitmap_get_value(const VectorInt &nx,
  ** \param[in]  bitval  Value of the bit (0 or 1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void bitmap_set_value(const VectorInt &nx,
+void bitmap_set_value(const VectorInt &nx,
                                       VectorUChar &imagout,
                                       int ix,
                                       int iy,
@@ -1191,7 +1191,7 @@ GSTLEARN_EXPORT void bitmap_set_value(const VectorInt &nx,
  ** \remarks  The resulting array has dimension: nvois * ndim
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
+VectorInt gridcell_neigh(int ndim,
                                          int option,
                                          int radius,
                                          int flag_center,
@@ -1292,7 +1292,7 @@ GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
  ** \param[out] tabout  Output angle
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout)
+void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout)
 {
   int ix, iy, iz, iiz, pivot, lec;
   double xi, yi, zi, z0, a[3], b[2], x[2], result;
@@ -1364,7 +1364,7 @@ GSTLEARN_EXPORT void morpho_angle(const VectorInt &nx, int radius, double *tab, 
  ** \param[in]  nx     Number of grid meshes (dimension = 3)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorUChar morpho_image_manage(const VectorInt &nx)
+VectorUChar morpho_image_manage(const VectorInt &nx)
 {
   _st_morpho_image_size_define(nx);
 

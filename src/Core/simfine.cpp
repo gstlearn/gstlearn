@@ -472,7 +472,7 @@ static void st_simulate_nodes(Db *db, int iatt)
  ** \param[out] tab        Output array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simfine_f(Db *dbin,
+int simfine_f(Db *dbin,
                               Model *model,
                               int flag_ks,
                               int nmult,
@@ -585,7 +585,7 @@ GSTLEARN_EXPORT int simfine_f(Db *dbin,
  ** \param[out] dx         Array of grid mesh dimensions
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simfine_dim(Db *dbin,
+int simfine_dim(Db *dbin,
                                 int nmult,
                                 int *ndim,
                                 int *ntot,

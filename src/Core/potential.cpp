@@ -3005,7 +3005,7 @@ static int st_pot_ext_manage(int mode,
  ** \remark - the gradient components in the variables ELoc::GRD
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int potential_kriging(Db *dbiso,
+int potential_kriging(Db *dbiso,
                                       Db *dbgrd,
                                       Db *dbtgt,
                                       Db *dbout,
@@ -3245,7 +3245,7 @@ static int st_distance_to_isoline(Db *dbout)
  ** \remark The simulations will be stored in the dbout file (ELoc::SIMU)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
+int potential_simulate(Db *dbiso,
                                        Db *dbgrd,
                                        Db *dbtgt,
                                        Db *dbout,
@@ -3506,7 +3506,7 @@ GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
  ** \param[in]  verbose        Verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
+int potential_xvalid(Db *dbiso,
                                      Db *dbgrd,
                                      Db *dbtgt,
                                      Model *model,
@@ -3718,7 +3718,7 @@ static void st_print_type(int rank, int type)
  ** \remarks The output array "covtab" must be dimensioned to ndim*ndim
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int potential_cov(Model *model,
+int potential_cov(Model *model,
                                   int verbose,
                                   int type1,
                                   double *x10,

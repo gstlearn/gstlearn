@@ -90,29 +90,33 @@ GSTLEARN_EXPORT void morpho_image2double(const VectorInt &nx,
                                          double pore,
                                          VectorDouble &tab,
                                          bool verbose = false);
-void morpho_distance(const VectorInt &nx,
-                     int option,
-                     const VectorInt &radius,
-                     int flag_erode,
-                     VectorUChar &imagin,
-                     VectorDouble &dist);
-void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout);
-void bitmap_print(const VectorInt &nx, const VectorUChar &imagin);
-int bitmap_size(const VectorInt &nx);
-int bitmap_get_value(const VectorInt &nx,
-                     const VectorUChar &imagin,
-                     int ix,
-                     int iy,
-                     int iz);
-void bitmap_set_value(const VectorInt &nx,
-                      VectorUChar &imagout,
-                      int ix,
-                      int iy,
-                      int iz,
-                      int bitval);
-VectorInt gridcell_neigh(int ndim,
-                         int option,
-                         int radius,
-                         int flag_center,
-                         int verbose,
-                         int *nvois);
+GSTLEARN_EXPORT void morpho_distance(const VectorInt &nx,
+                                     int option,
+                                     const VectorInt &radius,
+                                     int flag_erode,
+                                     VectorUChar &imagin,
+                                     VectorDouble &dist);
+GSTLEARN_EXPORT void morpho_angle(const VectorInt &nx,
+                                  int radius,
+                                  double *tab,
+                                  double *tabout);
+GSTLEARN_EXPORT void bitmap_print(const VectorInt &nx,
+                                  const VectorUChar &imagin);
+GSTLEARN_EXPORT int bitmap_size(const VectorInt &nx);
+GSTLEARN_EXPORT int bitmap_get_value(const VectorInt &nx,
+                                     const VectorUChar &imagin,
+                                     int ix,
+                                     int iy,
+                                     int iz);
+GSTLEARN_EXPORT void bitmap_set_value(const VectorInt &nx,
+                                      VectorUChar &imagout,
+                                      int ix,
+                                      int iy,
+                                      int iz,
+                                      int bitval);
+GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
+                                         int option,
+                                         int radius,
+                                         int flag_center,
+                                         int verbose,
+                                         int *nvois);

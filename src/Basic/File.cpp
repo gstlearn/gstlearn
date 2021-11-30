@@ -17,7 +17,7 @@
 
 // Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
 //https://stackoverflow.com/a/17219495
-GSTLEARN_EXPORT void skipBOM(std::ifstream &in)
+void skipBOM(std::ifstream &in)
 {
   char test[3] = {0};
   in.read(test, 3);
@@ -30,7 +30,7 @@ GSTLEARN_EXPORT void skipBOM(std::ifstream &in)
   in.seekg(0);
 }
 
-GSTLEARN_EXPORT FILE* gslFopen(const char* path, const char* mode)
+FILE* gslFopen(const char* path, const char* mode)
 {
   FILE *file;
 
@@ -44,12 +44,12 @@ GSTLEARN_EXPORT FILE* gslFopen(const char* path, const char* mode)
   return file;
 }
 
-GSTLEARN_EXPORT FILE* gslFopen(const String& path, const String& mode)
+FILE* gslFopen(const String& path, const String& mode)
 {
   return gslFopen(path.c_str(), mode.c_str());
 }
 
-GSTLEARN_EXPORT bool gslFileExist(const char *path, const char* mode)
+bool gslFileExist(const char *path, const char* mode)
 {
   FILE* file = gslFopen(path, mode);
   bool exists = file != nullptr;
@@ -57,7 +57,7 @@ GSTLEARN_EXPORT bool gslFileExist(const char *path, const char* mode)
   return exists;
 }
 
-GSTLEARN_EXPORT bool gslFileExist(const String& path, const String& mode)
+bool gslFileExist(const String& path, const String& mode)
 {
   FILE* file = gslFopen(path, mode);
   bool exists = file != nullptr;
@@ -65,7 +65,7 @@ GSTLEARN_EXPORT bool gslFileExist(const String& path, const String& mode)
   return exists;
 }
 
-GSTLEARN_EXPORT char* gslGetEnv(const char* name)
+char* gslGetEnv(const char* name)
 {
 #if defined(_WIN32) || defined(_WIN64)
   return getenv(name);

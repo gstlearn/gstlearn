@@ -400,7 +400,7 @@ static void error(int flag)
 
 /*-------------------------------------------------Time_3d()----------------*/
 
-GSTLEARN_EXPORT int time_3db(double *HS,
+int time_3db(double *HS,
                              double *T,
                              int NX,
                              int NY,

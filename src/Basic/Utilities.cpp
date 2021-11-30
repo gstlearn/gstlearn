@@ -12,20 +12,20 @@
 #include "geoslib_d.h"
 #include "Basic/Utilities.hpp"
 
-GSTLEARN_EXPORT bool isInteger(double value, double eps)
+bool isInteger(double value, double eps)
 {
   int iclose = getClosestInteger(value);
   if (ABS((double) iclose - value) > eps) return false;
   return true;
 }
 
-GSTLEARN_EXPORT int getClosestInteger(double value)
+int getClosestInteger(double value)
 {
   int iclose = (int) round(value);
   return iclose;
 }
 
-GSTLEARN_EXPORT bool isMultiple(int nbig, int nsmall)
+bool isMultiple(int nbig, int nsmall)
 {
   double ratio;
 
@@ -33,7 +33,7 @@ GSTLEARN_EXPORT bool isMultiple(int nbig, int nsmall)
   return (isInteger(ratio));
 }
 
-GSTLEARN_EXPORT bool isOdd(int number)
+bool isOdd(int number)
 {
   int middle;
 
@@ -44,7 +44,7 @@ GSTLEARN_EXPORT bool isOdd(int number)
     return false;
 }
 
-GSTLEARN_EXPORT bool isEven(int number)
+bool isEven(int number)
 {
   int middle;
 
@@ -55,26 +55,26 @@ GSTLEARN_EXPORT bool isEven(int number)
     return true;
 }
 
-GSTLEARN_EXPORT double getMin(double val1, double val2)
+double getMin(double val1, double val2)
 {
   if (FFFF(val1)) return (val2);
   if (FFFF(val2)) return (val1);
   return (MIN(val1, val2));
 }
 
-GSTLEARN_EXPORT double getMax(double val1, double val2)
+double getMax(double val1, double val2)
 {
   if (FFFF(val1)) return (val2);
   if (FFFF(val2)) return (val1);
   return (MAX(val1, val2));
 }
 
-GSTLEARN_EXPORT double getTEST()
+double getTEST()
 {
   return TEST;
 }
 
-GSTLEARN_EXPORT int    getITEST()
+int    getITEST()
 {
   return ITEST;
 }
@@ -88,7 +88,7 @@ GSTLEARN_EXPORT int    getITEST()
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int FFFF(double value)
+int FFFF(double value)
 {
   int rep;
 
@@ -108,7 +108,7 @@ GSTLEARN_EXPORT int FFFF(double value)
  ** \param[in]  value Value to be tested
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int IFFFF(int value)
+int IFFFF(int value)
 {
   int rep;
 

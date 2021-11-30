@@ -104,7 +104,7 @@ static void st_tableone_manage(CTables *ctables,
  ** OUT_ARGS: cround  : Round discretized covariance value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ct_tableone_covrank(const CTables *ctables,
+int ct_tableone_covrank(const CTables *ctables,
                                         double cova,
                                         double *cround)
 {
@@ -138,7 +138,7 @@ GSTLEARN_EXPORT int ct_tableone_covrank(const CTables *ctables,
  ** IN_ARGS:  jdisc0  : Index along second dimension
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ct_INTRES2(CTables *ctables,
+double ct_INTRES2(CTables *ctables,
                                   int iconf0,
                                   int idisc0,
                                   int jdisc0)
@@ -230,7 +230,7 @@ GSTLEARN_EXPORT double ct_INTRES2(CTables *ctables,
  ** IN_ARGS:  kdisc0  : Index along third dimension
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ct_INTRES3(CTables *ctables,
+double ct_INTRES3(CTables *ctables,
                                   int iconf0,
                                   int idisc0,
                                   int jdisc0,
@@ -324,7 +324,7 @@ GSTLEARN_EXPORT double ct_INTRES3(CTables *ctables,
  ** IN_ARGS:  flag_print : Verbose option (0, 1 or 2)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ct_tables_print(CTables *ctables, int flag_print)
+void ct_tables_print(CTables *ctables, int flag_print)
 {
   int ndisc, nconf, nelem;
 
@@ -389,7 +389,7 @@ GSTLEARN_EXPORT void ct_tables_print(CTables *ctables, int flag_print)
  ** IN_ARGS:  ctables_old : Address to CTables to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT CTables* ct_tables_manage(int mode,
+CTables* ct_tables_manage(int mode,
                                           int verbose,
                                           int flag_cumul,
                                           int nconf,
@@ -554,7 +554,7 @@ static void st_tableone_getrank(const CTables *ctables,
  ** REMAKRS: parallel to the main axes
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ct_tableone_calculate(CTables *ctables,
+double ct_tableone_calculate(CTables *ctables,
                                              int iconf0,
                                              double *lows,
                                              double *ups)
@@ -612,7 +612,7 @@ GSTLEARN_EXPORT double ct_tableone_calculate(CTables *ctables,
  ** REMARKS: they designate ranks.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ct_tableone_calculate_by_rank(CTables *ctables,
+double ct_tableone_calculate_by_rank(CTables *ctables,
                                                      int iconf0,
                                                      double *rklows,
                                                      double *rkups)
@@ -660,7 +660,7 @@ GSTLEARN_EXPORT double ct_tableone_calculate_by_rank(CTables *ctables,
  ** IN_ARGS:  gaussian : Gaussian bound
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ct_tableone_getrank_from_proba(CTables *ctables,
+int ct_tableone_getrank_from_proba(CTables *ctables,
                                                    double gaussian)
 {
   double dp, proba, vmin, vmax;

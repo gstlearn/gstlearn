@@ -46,7 +46,7 @@ static double TOLPERC = 1.e-3;
  ** \remarks When 'ndim' is provided as negative, a special case is programmed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int MSS(int ndim, int ipol, int icas, int icorn, int idim)
+int MSS(int ndim, int ipol, int icas, int icorn, int idim)
 {
   // Arrays S*D are provided for [icas][icorn][idim]
 
@@ -254,7 +254,7 @@ static double* st_extend_point(Db *db, const double *gext, int *nout)
  ** \remarks no duplicate. No need to search for them.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vercoloc* vercoloc_manage(int verbose,
+Vercoloc* vercoloc_manage(int verbose,
                                           int mode,
                                           Db *dbin,
                                           Db *dbout,
@@ -456,7 +456,7 @@ GSTLEARN_EXPORT Vercoloc* vercoloc_manage(int verbose,
  ** \param[in]  dupl_out   Array of duplicate indices from Output Db
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vercoloc* vercoloc_from_external(int ndupl,
+Vercoloc* vercoloc_from_external(int ndupl,
                                                  int *dupl_in,
                                                  int *dupl_out)
 {
@@ -496,7 +496,7 @@ GSTLEARN_EXPORT Vercoloc* vercoloc_from_external(int ndupl,
  ** \remark  simply set to NULL (not actually freed)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_free(triangulateio *t, int mode)
+void meshes_2D_free(triangulateio *t, int mode)
 {
   if (t == (triangulateio*) NULL) return;
   t->pointlist = (double*) mem_free((char* ) t->pointlist);
@@ -537,7 +537,7 @@ GSTLEARN_EXPORT void meshes_2D_free(triangulateio *t, int mode)
  ** \param[in]  t      Pointer to the triangulateio structure to be initialized
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_init(triangulateio *t)
+void meshes_2D_init(triangulateio *t)
 {
   t->pointlist = nullptr;
   t->pointattributelist = nullptr;
@@ -608,7 +608,7 @@ static int st_is_masked(int nb_mask, int *is_mask, int iech0)
  ** \remarks Only the first two coordinates are considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_2D_from_db(Db *db,
+int meshes_2D_from_db(Db *db,
                                       int use_code,
                                       int nb_mask,
                                       int *is_mask,
@@ -805,7 +805,7 @@ static double* st_get_db_extension(Db *dbin, Db *dbout, int *nout)
  ** \param[in]  t         Pointer to the triangulateio structure to be loaded
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_default(Db *dbin, Db *dbout, triangulateio *t)
+void meshes_2D_default(Db *dbin, Db *dbout, triangulateio *t)
 {
   double *ext;
   int number;
@@ -841,7 +841,7 @@ GSTLEARN_EXPORT void meshes_2D_default(Db *dbin, Db *dbout, triangulateio *t)
  ** \remarks triangulateio structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_2D_from_points(int nech,
+int meshes_2D_from_points(int nech,
                                           double *x,
                                           double *y,
                                           triangulateio *t)
@@ -895,7 +895,7 @@ GSTLEARN_EXPORT int meshes_2D_from_points(int nech,
  ** \remark are stored in memory by row
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_2D_from_mem(int nseg,
+int meshes_2D_from_mem(int nseg,
                                        int ncol,
                                        int *segments,
                                        triangulateio *t)
@@ -945,7 +945,7 @@ GSTLEARN_EXPORT int meshes_2D_from_mem(int nseg,
  ** \param[in]  brief     1 for a brief output; 0 otherwise
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_print(triangulateio *t, int brief)
+void meshes_2D_print(triangulateio *t, int brief)
 {
   int ndim, i, j, lecp, leca, lecs, lech, lect, lecta, lecn;
 
@@ -1056,7 +1056,7 @@ GSTLEARN_EXPORT void meshes_2D_print(triangulateio *t, int brief)
  ** \param[out] tab_arg   Returned array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_load_vertices(triangulateio *t,
+void meshes_2D_load_vertices(triangulateio *t,
                                              const char *name,
                                              int *ntab_arg,
                                              int *natt_arg,
@@ -1568,7 +1568,7 @@ static int st_ultimate_regular_grid(Db *dbgrid,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_turbo_2D_grid_build(int verbose,
+int meshes_turbo_2D_grid_build(int verbose,
                                                Db *dbgrid,
                                                SPDE_Mesh *s_mesh)
 {
@@ -1740,7 +1740,7 @@ static void st_strip_triangles_intercepted_faults(triangulateio *t,
  ** \param[in]  vorout     triangulateio structure for voronoi
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_create(int verbose,
+void meshes_2D_create(int verbose,
                                       const String &triswitch,
                                       triangulateio *in,
                                       triangulateio *out,
@@ -1783,7 +1783,7 @@ GSTLEARN_EXPORT void meshes_2D_create(int verbose,
  ** \param[in]  t          Triangulation environment
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_extended_domain(Db *dbout,
+void meshes_2D_extended_domain(Db *dbout,
                                                const double *gext,
                                                triangulateio *t)
 {
@@ -1834,7 +1834,7 @@ GSTLEARN_EXPORT void meshes_2D_extended_domain(Db *dbout,
  ** \param[in]  points    Array of 3-D coordinates for triangle vertices
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
+int meshes_2D_write(const char *file_name,
                                     const char *obj_name,
                                     int verbose,
                                     int ndim,
@@ -1926,7 +1926,7 @@ GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
  ** \param[in]  points    Array of 'ndim' coordinates for mesh vertex
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void mesh_stats(int ndim,
+void mesh_stats(int ndim,
                                 int ncorner,
                                 int nmesh,
                                 int *meshes,
@@ -1995,7 +1995,7 @@ GSTLEARN_EXPORT void mesh_stats(int ndim,
  ** \param[in]  t      Pointer to the SphTriangle structure to be initialized
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_sph_init(SphTriangle *t)
+void meshes_2D_sph_init(SphTriangle *t)
 {
   t->n_nodes = 0;
   t->sph_size = 0;
@@ -2016,7 +2016,7 @@ GSTLEARN_EXPORT void meshes_2D_sph_init(SphTriangle *t)
  **                    0 for total deallocation
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_sph_free(SphTriangle *t, int mode)
+void meshes_2D_sph_free(SphTriangle *t, int mode)
 {
   if (t == (SphTriangle*) NULL) return;
   if (mode == 0)
@@ -2046,7 +2046,7 @@ GSTLEARN_EXPORT void meshes_2D_sph_free(SphTriangle *t, int mode)
  ** \remarks (longitude,latitude) into 3-D coordinates
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_2D_sph_from_db(Db *db,
+int meshes_2D_sph_from_db(Db *db,
                                           int nb_mask,
                                           int *is_mask,
                                           SphTriangle *t)
@@ -2128,7 +2128,7 @@ GSTLEARN_EXPORT int meshes_2D_sph_from_db(Db *db,
  ** \remarks SphTriangle structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_2D_sph_from_points(int nech,
+int meshes_2D_sph_from_points(int nech,
                                               double *x,
                                               double *y,
                                               SphTriangle *t)
@@ -2185,7 +2185,7 @@ GSTLEARN_EXPORT int meshes_2D_sph_from_points(int nech,
  ** \remarks SphTriangle structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_2D_sph_from_auxiliary(const String &triswitch,
+int meshes_2D_sph_from_auxiliary(const String &triswitch,
                                                  SphTriangle *t)
 {
   int error, npoint, ecr, found_close, nech, nold, ndecode, flag_reg, flag_vdc;
@@ -2310,7 +2310,7 @@ GSTLEARN_EXPORT int meshes_2D_sph_from_auxiliary(const String &triswitch,
  ** \param[in]  brief     1 for a brief output; 0 otherwise
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_sph_print(SphTriangle *t, int brief)
+void meshes_2D_sph_print(SphTriangle *t, int brief)
 {
   double rlong, rlat;
 
@@ -2342,7 +2342,7 @@ GSTLEARN_EXPORT void meshes_2D_sph_print(SphTriangle *t, int brief)
  ** \param[in]  t          SphTriangle structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_2D_sph_create(int verbose, SphTriangle *t)
+int meshes_2D_sph_create(int verbose, SphTriangle *t)
 {
   int *loc_near, *loc_next, *loc_lnew, error, skip_rnd, seed_memo;
   double *loc_dist, memo[3][3], ampli, value, cste;
@@ -2469,7 +2469,7 @@ GSTLEARN_EXPORT int meshes_2D_sph_create(int verbose, SphTriangle *t)
  ** \param[out] tab_arg   Returned array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_2D_sph_load_vertices(SphTriangle *t,
+void meshes_2D_sph_load_vertices(SphTriangle *t,
                                                  const char *name,
                                                  int *ntab_arg,
                                                  int *natt_arg,
@@ -2612,7 +2612,7 @@ static void st_add_facet(tetgenio::facet *f,
  ** \param[in]  t           Pointer to the tetgenio structure to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_3D_free(tetgenio *t)
+void meshes_3D_free(tetgenio *t)
 
 {
   if (t == nullptr) return;
@@ -2669,7 +2669,7 @@ GSTLEARN_EXPORT void meshes_3D_free(tetgenio *t)
  ** \param[in]  brief     1 for a brief output; 0 otherwise
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_3D_print(tetgenio *t, int brief)
+void meshes_3D_print(tetgenio *t, int brief)
 {
   int ndim, i, j, lecp, leca, lech, lect, lecta, lecn;
 
@@ -2841,7 +2841,7 @@ static void tetgen_bounding(tetgenio *t)
  ** \param[in]  out        tetgenio structure for output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_3D_create(int verbose,
+void meshes_3D_create(int verbose,
                                       const String &triswitch,
                                       tetgenio *in,
                                       tetgenio *out)
@@ -2894,7 +2894,7 @@ GSTLEARN_EXPORT void meshes_3D_create(int verbose,
  ** \remarks Only the first three coordinates are considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_3D_from_db(Db *db,
+int meshes_3D_from_db(Db *db,
                                       int nb_mask,
                                       int *is_mask,
                                       tetgenio *t)
@@ -2958,7 +2958,7 @@ GSTLEARN_EXPORT int meshes_3D_from_db(Db *db,
  ** \param[in]  t         Pointer to the tetgenio structure to be loaded
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_3D_default(Db *dbin, Db *dbout, tetgenio *t)
+void meshes_3D_default(Db *dbin, Db *dbout, tetgenio *t)
 {
   double *ext;
   int number;
@@ -2994,7 +2994,7 @@ GSTLEARN_EXPORT void meshes_3D_default(Db *dbin, Db *dbout, tetgenio *t)
  ** \remarks tetgenio structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_3D_from_points(int nech,
+int meshes_3D_from_points(int nech,
                                           double *x,
                                           double *y,
                                           double *z,
@@ -3044,7 +3044,7 @@ GSTLEARN_EXPORT int meshes_3D_from_points(int nech,
  ** \param[in]  t          Tetrahedrization environment
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_3D_extended_domain(Db *dbout,
+void meshes_3D_extended_domain(Db *dbout,
                                                const double *gext,
                                                tetgenio *t)
 {
@@ -3091,7 +3091,7 @@ GSTLEARN_EXPORT void meshes_3D_extended_domain(Db *dbout,
  ** \param[out] tab_arg   Returned array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_3D_load_vertices(tetgenio *t,
+void meshes_3D_load_vertices(tetgenio *t,
                                              const char *name,
                                              int *ntab_arg,
                                              int *natt_arg,
@@ -3163,7 +3163,7 @@ GSTLEARN_EXPORT void meshes_3D_load_vertices(tetgenio *t,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_turbo_3D_grid_build(int verbose,
+int meshes_turbo_3D_grid_build(int verbose,
                                                Db *dbgrid,
                                                SPDE_Mesh *s_mesh)
 {
@@ -3245,7 +3245,7 @@ GSTLEARN_EXPORT int meshes_turbo_3D_grid_build(int verbose,
  ** \remark  simply set to NULL (not actually freed)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_1D_free(segmentio *t, int mode)
+void meshes_1D_free(segmentio *t, int mode)
 {
   if (t == (segmentio*) NULL) return;
   t->pointlist = (double*) mem_free((char* ) t->pointlist);
@@ -3265,7 +3265,7 @@ GSTLEARN_EXPORT void meshes_1D_free(segmentio *t, int mode)
  ** \param[in]  t      Pointer to the segmentio structure to be initialized
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_1D_init(segmentio *t)
+void meshes_1D_init(segmentio *t)
 {
   t->pointlist = nullptr;
   t->pointattributelist = nullptr;
@@ -3293,7 +3293,7 @@ GSTLEARN_EXPORT void meshes_1D_init(segmentio *t)
  ** \remarks Only the first coordinate is considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_1D_from_db(Db *db,
+int meshes_1D_from_db(Db *db,
                                       int nb_mask,
                                       int *is_mask,
                                       segmentio *t)
@@ -3357,7 +3357,7 @@ GSTLEARN_EXPORT int meshes_1D_from_db(Db *db,
  ** \param[in]  t         Pointer to the segmentio structure to be loaded
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_1D_default(Db *dbin, Db *dbout, segmentio *t)
+void meshes_1D_default(Db *dbin, Db *dbout, segmentio *t)
 {
   double *ext;
   int number;
@@ -3393,7 +3393,7 @@ GSTLEARN_EXPORT void meshes_1D_default(Db *dbin, Db *dbout, segmentio *t)
  ** \remarks segmentio structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_1D_from_points(int nech, double *x, segmentio *t)
+int meshes_1D_from_points(int nech, double *x, segmentio *t)
 {
   int iech, error, ecr, ndim, nold;
 
@@ -3436,7 +3436,7 @@ GSTLEARN_EXPORT int meshes_1D_from_points(int nech, double *x, segmentio *t)
  ** \param[in]  brief     1 for a brief output; 0 otherwise
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_1D_print(segmentio *t, int brief)
+void meshes_1D_print(segmentio *t, int brief)
 {
   int ndim, i, j, lecp, leca, lect, lecta, lecn;
 
@@ -3495,7 +3495,7 @@ GSTLEARN_EXPORT void meshes_1D_print(segmentio *t, int brief)
  ** \param[out] tab_arg   Returned array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_1D_load_vertices(segmentio *t,
+void meshes_1D_load_vertices(segmentio *t,
                                              const char *name,
                                              int *ntab_arg,
                                              int *natt_arg,
@@ -3567,7 +3567,7 @@ GSTLEARN_EXPORT void meshes_1D_load_vertices(segmentio *t,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int meshes_turbo_1D_grid_build(int verbose,
+int meshes_turbo_1D_grid_build(int verbose,
                                                Db *dbgrid,
                                                SPDE_Mesh *s_mesh)
 {
@@ -3637,7 +3637,7 @@ GSTLEARN_EXPORT int meshes_turbo_1D_grid_build(int verbose,
  ** \param[in]  out        segmentio structure for output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_1D_create(int verbose,
+void meshes_1D_create(int verbose,
                                       segmentio *in,
                                       segmentio *out)
 {
@@ -3706,7 +3706,7 @@ GSTLEARN_EXPORT void meshes_1D_create(int verbose,
  ** \param[in]  t          segmentio structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void meshes_1D_extended_domain(Db *dbout,
+void meshes_1D_extended_domain(Db *dbout,
                                                const double *gext,
                                                segmentio *t)
 {

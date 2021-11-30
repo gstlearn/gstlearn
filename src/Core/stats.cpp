@@ -252,7 +252,7 @@ static int st_oper_check(const String &oper,
  **                       (Dimension: ncol (if flag_mono) or ncol*ncol)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_stats(Db *db,
+int db_stats(Db *db,
                              const String &oper,
                              const VectorInt &cols,
                              int flag_mono,
@@ -565,7 +565,7 @@ static void st_get_neighboring_cell(int ndim,
  ** \param[in]  radius Neighborhood radius
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_stats_grid(Db *db,
+int db_stats_grid(Db *db,
                                   Db *dbgrid,
                                   const char *oper,
                                   int ncol,
@@ -830,7 +830,7 @@ GSTLEARN_EXPORT int db_stats_grid(Db *db,
  ** \param[out]  tab       Output array (Dimension: 1 or ncut)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int stats_point_to_grid(Db *dbgrid,
+int stats_point_to_grid(Db *dbgrid,
                                         Db *db,
                                         const char *oper,
                                         int iatt,
@@ -1222,7 +1222,7 @@ static void st_scale_and_affect(Db *dbout,
  ** \param[in]  radius     Radius of the neighborhood
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int stats_proportion(Db *dbin,
+int stats_proportion(Db *dbin,
                                      Db *dbout,
                                      int pos,
                                      int nfacies,
@@ -1338,7 +1338,7 @@ GSTLEARN_EXPORT int stats_proportion(Db *dbin,
  ** \param[in]  orient     Orientation (+1 or -1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int stats_transition(Db *dbin,
+int stats_transition(Db *dbin,
                                      Db *dbout,
                                      int pos,
                                      int nfacies,
@@ -2068,7 +2068,7 @@ static int st_is_subgrid(int verbose,
  ** \param[in]  verbose    Verbose flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_upscale(Db *dbgrid1,
+int db_upscale(Db *dbgrid1,
                                Db *dbgrid2,
                                int orient,
                                int verbose)
@@ -2658,7 +2658,7 @@ static double st_get_diff_coeff(int niter,
  ** \remarks      set.keypair("Diffusion.Trajectory.XX")
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_diffusion(Db *dbgrid1,
+int db_diffusion(Db *dbgrid1,
                                  Db *dbgrid2,
                                  int orient,
                                  int niter,
@@ -2859,7 +2859,7 @@ static void st_get_rowname(const String &radix,
  ** \param[in]  opers       Array of operators
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void db_stats_print(const Db *db,
+void db_stats_print(const Db *db,
                                     const VectorInt &iatts_arg,
                                     const VectorString &opers,
                                     int flag_iso,
@@ -3069,7 +3069,7 @@ GSTLEARN_EXPORT void db_stats_print(const Db *db,
   return;
 }
 
-GSTLEARN_EXPORT void db_stats_print(const Db *db,
+void db_stats_print(const Db *db,
                                     const VectorString &names,
                                     const VectorString &opers,
                                     int flag_iso,
@@ -3101,7 +3101,7 @@ GSTLEARN_EXPORT void db_stats_print(const Db *db,
  ** \param[out] Q         Array of for metal quantity
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int stats_residuals(int verbose,
+int stats_residuals(int verbose,
                                     int nech,
                                     double *tab,
                                     int ncut,

@@ -63,7 +63,7 @@ static int VARWGT[4][5] = { { 1, -1, 0, 0, 0 }, { 1, -2, 1, 0, 0 }, { 1,
  ** \param[in,out]  codir Input/Output Direction coefficients
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vario_fix_codir(int ndim, VectorDouble &codir)
+void vario_fix_codir(int ndim, VectorDouble &codir)
 {
   double norme;
 
@@ -218,7 +218,7 @@ static void st_manage_drift_removal(int type, Db *db, Model *model)
  ** \param[in]  maxdist Maximum distance
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variogram_maximum_dist1D_reached(Db *db,
+int variogram_maximum_dist1D_reached(Db *db,
                                                      int iech,
                                                      int jech,
                                                      double maxdist)
@@ -487,7 +487,7 @@ double _variogram_convert_angular_tolerance(double tolang)
  ** \param[in]  dist         Distance
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variogram_get_lag(Vario *vario,
+int variogram_get_lag(Vario *vario,
                                       int idir,
                                       double ps,
                                       double psmin,
@@ -833,7 +833,7 @@ static void st_variogram_evaluate(Db *db,
  ** \param[in]  idir  Rank of the Direction
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variogram_scale(Vario *vario, int idir)
+void variogram_scale(Vario *vario, int idir)
 {
   int nvar = vario->getVariableNumber();
 
@@ -1069,7 +1069,7 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
  ** \remarks resulting value is 1.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int code_comparable(const Db *db1,
+int code_comparable(const Db *db1,
                                     const Db *db2,
                                     int iech,
                                     int jech,
@@ -1658,7 +1658,7 @@ static void st_variogram_calcul_internal(Db *db,
  ** \param[out] ps     The cosine between the vector of data and the direction
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variogram_reject_pair(const Db *db,
+int variogram_reject_pair(const Db *db,
                                           int iech,
                                           int jech,
                                           double dist,
@@ -2547,7 +2547,7 @@ static void st_vario_params_print(int ndim,
  ** \param[in]  verbose   0 for brief output; 1 for a long output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vardir_print(Vario *vario, int idir, int verbose)
+void vardir_print(Vario *vario, int idir, int verbose)
 {
   if (vario == nullptr) return;
   if (idir < 0 || idir >= vario->getDirectionNumber()) return;
@@ -2563,7 +2563,7 @@ GSTLEARN_EXPORT void vardir_print(Vario *vario, int idir, int verbose)
  ** \param[in]  verbose 0 for brief output; 1 for a long output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variogram_print(const Vario *vario, int verbose)
+void variogram_print(const Vario *vario, int verbose)
 {
   if (vario != nullptr) messageFlush(vario->toString(verbose));
 }
@@ -2816,7 +2816,7 @@ static int st_variogram_general(Db *db,
  ** \param[in]  ncomp  Number of components
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variovect_compute(Db *db, Vario *vario, int ncomp)
+int variovect_compute(Db *db, Vario *vario, int ncomp)
 {
   int idir, error;
   VectorInt rindex;
@@ -3245,7 +3245,7 @@ static int st_vmap_grid(Db *dbgrid,
  ** \param[out]  gmax      Maximum variogram value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variogram_extension(const Vario *vario,
+void variogram_extension(const Vario *vario,
                                          int ivar,
                                          int jvar,
                                          int idir0,
@@ -3467,7 +3467,7 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
  **                          (Dimension = ndim)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variogram_direction_add(VarioParam *varioparam,
+int variogram_direction_add(VarioParam *varioparam,
                                             int npas,
                                             int opt_code,
                                             int idate,
@@ -3498,7 +3498,7 @@ GSTLEARN_EXPORT int variogram_direction_add(VarioParam *varioparam,
  ** \param[in]  vario Vario structure to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vario* variogram_delete(Vario *vario)
+Vario* variogram_delete(Vario *vario)
 
 {
   if (vario == nullptr) return (vario);
@@ -3598,7 +3598,7 @@ static int st_update_discretization_grid(Db *db, double x, double y)
  ** \remarks This array must be freed by the calling function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int correlation_f(Db *db1,
+int correlation_f(Db *db1,
                                   Db *db2,
                                   Db *dbgrid,
                                   int flag_same,
@@ -3822,7 +3822,7 @@ GSTLEARN_EXPORT int correlation_f(Db *db1,
  ** \remarks same set of coordinates and same optional selection)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int correlation_ident(Db *db1,
+int correlation_ident(Db *db1,
                                       Db *db2,
                                       int icol1,
                                       int icol2,
@@ -3947,7 +3947,7 @@ static void st_variogram_cloud(const Db *db,
  ** \param[in]  polygon Polygons structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variogram_cloud_ident(Db *db,
+void variogram_cloud_ident(Db *db,
                                            Db *dbgrid,
                                            Vario *vario,
                                            Polygons *polygon)
@@ -4142,7 +4142,7 @@ static void st_variogram_cloud_dim(Db *db,
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variogram_cloud(const Db *db,
+int variogram_cloud(const Db *db,
                                     const VarioParam *varioparam,
                                     Db *dbgrid,
                                     NamingConvention namconv)
@@ -4209,7 +4209,7 @@ GSTLEARN_EXPORT int variogram_cloud(const Db *db,
  ** \param[out] vmax         Maximum variogram value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variogram_cloud_dim(Db *db,
+int variogram_cloud_dim(Db *db,
                                         const VarioParam *varioparam,
                                         double *vmax)
 {
@@ -4280,7 +4280,7 @@ GSTLEARN_EXPORT int variogram_cloud_dim(Db *db,
  ** \remark  been calculated).
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int regression_f(Db *db1,
+int regression_f(Db *db1,
                                  Db *db2,
                                  int flag_mode,
                                  int icol,
@@ -4616,7 +4616,7 @@ GSTLEARN_EXPORT int regression_f(Db *db1,
  ** \remark from a variogram
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int vario_extract(Vario *vario,
+int vario_extract(Vario *vario,
                                   ECalcVario *calcul_type,
                                   int *ndim,
                                   int *nvar,
@@ -4660,7 +4660,7 @@ GSTLEARN_EXPORT int vario_extract(Vario *vario,
  ** \remark  or if 'idate' is negative or larger than 'ndate'
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int vario_get_rank(Vario *vario, int idir, int idate)
+int vario_get_rank(Vario *vario, int idir, int idate)
 {
   int ndir, ndate, rank;
 
@@ -5376,7 +5376,7 @@ static int st_vmap_grid_fft(Db *dbgrid,
  ** \param[in]  idir_out     Rank of the Output Direction
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vardir_copy(VarioParam *vario_in,
+void vardir_copy(VarioParam *vario_in,
                                  int idir_in,
                                  VarioParam *vario_out,
                                  int idir_out)
@@ -5400,7 +5400,7 @@ GSTLEARN_EXPORT void vardir_copy(VarioParam *vario_in,
  ** \param[in]  pca          PCA structure to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT PCA* pca_free(PCA *pca)
+PCA* pca_free(PCA *pca)
 
 {
   if (pca == nullptr) return (pca);
@@ -5418,7 +5418,7 @@ GSTLEARN_EXPORT PCA* pca_free(PCA *pca)
  ** \param[in]  nvar         Number of variables
  **
  *****************************************************************************/
-GSTLEARN_EXPORT PCA* pca_alloc(int nvar)
+PCA* pca_alloc(int nvar)
 {
   PCA *pca;
 
@@ -5910,7 +5910,7 @@ static int st_pca_calculate(int flag_norm,
  ** \remarks Note that the ELoc::Z is redefined in this function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int maf_compute(Db *db,
+int maf_compute(Db *db,
                                 int opt_code,
                                 double tolcode,
                                 VectorDouble &codir,
@@ -6029,7 +6029,7 @@ GSTLEARN_EXPORT int maf_compute(Db *db,
  ** \param[out] pca        Output PCA structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int pca_compute(Db *db, int verbose, PCA *pca)
+int pca_compute(Db *db, int verbose, PCA *pca)
 {
   int error, nvar;
   double *c0, *data1;
@@ -6086,7 +6086,7 @@ GSTLEARN_EXPORT int pca_compute(Db *db, int verbose, PCA *pca)
  ** \param[in]  verbose      1 for a verbose output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int pca_z2f(Db *db, PCA *pca, int flag_norm_in, int verbose)
+int pca_z2f(Db *db, PCA *pca, int flag_norm_in, int verbose)
 {
   int iptr, nvar, error, ivar;
   double *data;
@@ -6162,7 +6162,7 @@ GSTLEARN_EXPORT int pca_z2f(Db *db, PCA *pca, int flag_norm_in, int verbose)
  ** \param[in]  verbose      1 for a verbose output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int pca_f2z(Db *db, PCA *pca, int flag_norm_out, int verbose)
+int pca_f2z(Db *db, PCA *pca, int flag_norm_out, int verbose)
 {
   int iptr, nvar, error;
   double *data;
@@ -6232,7 +6232,7 @@ GSTLEARN_EXPORT int pca_f2z(Db *db, PCA *pca, int flag_norm_out, int verbose)
  ** \param[out] npair  Number of pairs
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int geometry_compute(Db *db,
+int geometry_compute(Db *db,
                                      Vario *vario,
                                      Vario_Order *vorder,
                                      int *npair)
@@ -6374,7 +6374,7 @@ static double st_linear_interpolate(int n, double *x, double *y, double x0)
  ** \param[in]  ycut   Truncation (lowest) value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void variogram_trans_cut(Vario *vario, int nh, double ycut)
+void variogram_trans_cut(Vario *vario, int nh, double ycut)
 {
   double variance, sum, cyp, cyy;
   int ih, idisc, ndisc, idir, ipas;
@@ -6443,7 +6443,7 @@ GSTLEARN_EXPORT void variogram_trans_cut(Vario *vario, int nh, double ycut)
  ure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variogram_mlayers(Db *db,
+int variogram_mlayers(Db *db,
                                       int *seltab,
                                       Vario *vario,
                                       Vario_Order *vorder)
@@ -6526,7 +6526,7 @@ GSTLEARN_EXPORT int variogram_mlayers(Db *db,
  ** \remark  the calculation parameters
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int variogram_y2z(Vario *vario, Anam *anam, Model *model)
+int variogram_y2z(Vario *vario, Anam *anam, Model *model)
 {
   int error, idir, ndim;
   double chh, varz, cov_value;
@@ -6629,7 +6629,7 @@ GSTLEARN_EXPORT int variogram_y2z(Vario *vario, Anam *anam, Model *model)
  ** \param[out] ycond         Array of conditional expectation along Y
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void condexp(Db *db1,
+void condexp(Db *db1,
                              Db *db2,
                              int icol1,
                              int icol2,
@@ -6762,7 +6762,7 @@ int _variogram_compute(Db *db,
  ** REMARKS:  The error message is produced internally
  **
  *****************************************************************************/
-GSTLEARN_EXPORT ECalcVario vario_identify_calcul_type(const String &calcul_name)
+ECalcVario vario_identify_calcul_type(const String &calcul_name)
 
 {
   ECalcVario calcul_type;
@@ -6834,7 +6834,7 @@ GSTLEARN_EXPORT ECalcVario vario_identify_calcul_type(const String &calcul_name)
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_variogram_cloud(Db *db,
+Db* db_variogram_cloud(Db *db,
                                        const VarioParam *varioparam,
                                        double lagmax,
                                        double varmax,
@@ -6883,7 +6883,7 @@ GSTLEARN_EXPORT Db* db_variogram_cloud(Db *db,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int vmap_compute(Db *db,
+int vmap_compute(Db *db,
                                  Db *dbmap,
                                  const ECalcVario &calcul_type,
                                  int radius,
@@ -6930,7 +6930,7 @@ GSTLEARN_EXPORT int vmap_compute(Db *db,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_vmap_compute(Db *db,
+Db* db_vmap_compute(Db *db,
                                     const ECalcVario &calcul_type,
                                     int nxx,
                                     int nyy,

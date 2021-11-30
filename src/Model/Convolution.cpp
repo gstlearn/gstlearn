@@ -250,7 +250,7 @@ String Convolution::toString(int /*level*/) const
   return sstr.str();
 }
 
-GSTLEARN_EXPORT Def_Conv& D_CONV(int rank)
+Def_Conv& D_CONV(int rank)
 {
   static Def_Conv DEF_CONVS[] =
   {

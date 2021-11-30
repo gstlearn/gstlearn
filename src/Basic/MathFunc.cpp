@@ -16,10 +16,7 @@
 
 DISABLE_WARNING_PUSH
 
-// TODO : Disable warning for other compilators
-#if defined(__GNUC__) || defined(__clang__)
 DISABLE_WARNING_ARRAY_BOUNDS
-#endif
 
 static double c_b11 = 1.;
 
@@ -1242,7 +1239,7 @@ static double st_mvndfn(int *n,
 ** \remark      Email : AlanGenz@wsu.edu
 **
 *****************************************************************************/
-GSTLEARN_EXPORT void mvndst(int n,
+void mvndst(int n,
                             double *lower,
                             double *upper,
                             int *infin,
@@ -1315,7 +1312,7 @@ GSTLEARN_EXPORT void mvndst(int n,
 ** \param[out]  inform      Returned code
 **
 *****************************************************************************/
-GSTLEARN_EXPORT void mvndst4(double *lower,
+void mvndst4(double *lower,
                              double *upper,
                              double *correl,
                              int maxpts,
@@ -1359,7 +1356,7 @@ GSTLEARN_EXPORT void mvndst4(double *lower,
 ** \param[out]  inform      Returned code
 **
 *****************************************************************************/
-GSTLEARN_EXPORT void mvndst2n(double *lower,
+void mvndst2n(double *lower,
                               double *upper,
                               double *means,
                               double *correl,
@@ -1400,7 +1397,7 @@ GSTLEARN_EXPORT void mvndst2n(double *lower,
 ** \param[in]  sup Upper integration bound
 **
 *****************************************************************************/
-GSTLEARN_EXPORT int mvndst_infin(double low, double sup)
+int mvndst_infin(double low, double sup)
 {
   if (low == THRESH_INF && sup == THRESH_SUP) return(-1);
   if (low == THRESH_INF) return(0);
@@ -1442,7 +1439,7 @@ GSTLEARN_EXPORT int mvndst_infin(double low, double sup)
 ** \remark  J., NBS Jour. of Res. B. 77B, 1973, pp 125-132.
 **
 *****************************************************************************/
-GSTLEARN_EXPORT int bessel_j(double x, double alpha, int nb, double *b)
+int bessel_j(double x, double alpha, int nb, double *b)
 {
   static double enten = 1e38;
   static double ensig = 1e17;
@@ -1843,7 +1840,7 @@ GSTLEARN_EXPORT int bessel_j(double x, double alpha, int nb, double *b)
 ** \remark  Research Council, Canada.
 **
 *****************************************************************************/
-GSTLEARN_EXPORT int bessel_k(double x, double alpha, int nb, double *bk)
+int bessel_k(double x, double alpha, int nb, double *bk)
 {
   static double p[] = {
     .805629875690432845,20.4045500205365151,
@@ -2191,7 +2188,7 @@ GSTLEARN_EXPORT int bessel_k(double x, double alpha, int nb, double *bk)
 ** \param[in]  parameter raw value
 **
 *****************************************************************************/
-GSTLEARN_EXPORT double loggamma(double parameter)
+double loggamma(double parameter)
 
 {
   static double cval[2][8] =

@@ -286,7 +286,7 @@ static void st_bench(Db *dbin, Db *dbout, int iech_out, Neigh *neigh, int *rank)
  ** \remarks this function systematically returns 0.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double neigh_continuous_variance(Neigh *neigh,
+double neigh_continuous_variance(Neigh *neigh,
                                                  Db *db1,
                                                  int rank1,
                                                  Db *db2,
@@ -649,7 +649,7 @@ static int st_moving(Db *dbin, Db *dbout, int iech_out, Neigh *neigh, int *rank)
  ** \param[in]  neigh Neigh structure to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Neigh* neigh_free(Neigh *neigh)
+Neigh* neigh_free(Neigh *neigh)
 
 {
   delete neigh;
@@ -669,7 +669,7 @@ GSTLEARN_EXPORT Neigh* neigh_free(Neigh *neigh)
  **                          (centered on the target vertically)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Neigh* neigh_init_bench(int ndim, int flag_xvalid, double width)
+Neigh* neigh_init_bench(int ndim, int flag_xvalid, double width)
 {
   Neigh *neigh;
 
@@ -692,7 +692,7 @@ GSTLEARN_EXPORT Neigh* neigh_init_bench(int ndim, int flag_xvalid, double width)
  ** \param[in]  nbgh_image   Vector of image neighborhood radius
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Neigh* neigh_init_image(int ndim,
+Neigh* neigh_init_image(int ndim,
                                         int flag_xvalid,
                                         int skip,
                                         const VectorInt &nbgh_image)
@@ -718,7 +718,7 @@ GSTLEARN_EXPORT Neigh* neigh_init_image(int ndim,
  ** \remark  Cross-Validation option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Neigh* neigh_init_unique(int ndim)
+Neigh* neigh_init_unique(int ndim)
 
 {
   Neigh *neigh;
@@ -830,7 +830,7 @@ static void st_get_neigh_anisotropy(Neigh *neigh, VectorDouble &nbgh_radius)
  **                         (only used for ENeigh::IMAGE)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Neigh* neigh_init(int ndim,
+Neigh* neigh_init(int ndim,
                                   ENeigh type,
                                   int flag_xvalid,
                                   int flag_sector,
@@ -905,7 +905,7 @@ GSTLEARN_EXPORT Neigh* neigh_init(int ndim,
  ** \param[in]  neigh Neigh structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void neigh_print(const Neigh *neigh)
+void neigh_print(const Neigh *neigh)
 
 {
   int ndim, idim;
@@ -1012,7 +1012,7 @@ GSTLEARN_EXPORT void neigh_print(const Neigh *neigh)
  ** \li                    4 : Number of consecutive empty sectors
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void neigh_echo(Db *dbin,
+void neigh_echo(Db *dbin,
                                 Neigh *neigh,
                                 int *rank,
                                 int nsel,
@@ -1099,7 +1099,7 @@ GSTLEARN_EXPORT void neigh_echo(Db *dbin,
  ** \remarks on ELoc::SIMU rather than on ELoc::Z
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int neigh_select(Db *dbin,
+int neigh_select(Db *dbin,
                                  Db *dbout,
                                  int iech_out,
                                  Neigh *neigh,
@@ -1163,7 +1163,7 @@ GSTLEARN_EXPORT int neigh_select(Db *dbin,
  ** \param[in]  neigh  Neigh structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int neigh_start(Db *dbin, Neigh *neigh)
+int neigh_start(Db *dbin, Neigh *neigh)
 
 {
   /* Initializations */
@@ -1195,7 +1195,7 @@ GSTLEARN_EXPORT int neigh_start(Db *dbin, Neigh *neigh)
  **  Performs the core deallocation after using neighborhood
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void neigh_stop(void)
+void neigh_stop(void)
 
 {
   /* Initialization */
@@ -1253,7 +1253,7 @@ GSTLEARN_EXPORT void neigh_stop(void)
  **                          (only used for ENeigh::IMAGE)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int neigh_extract(Neigh *neigh,
+int neigh_extract(Neigh *neigh,
                                   ENeigh *type,
                                   int *nmini,
                                   int *nmaxi,

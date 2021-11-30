@@ -98,7 +98,7 @@ static double st_anam_hermitian_block_variance(Anam *anam,
  ** \param[in]  psi_hn   Coefficients of the Hermite polynomials
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void anam_update_hermitian(AnamHermite *anam_hermite,
+void anam_update_hermitian(AnamHermite *anam_hermite,
                                            double pymin,
                                            double pzmin,
                                            double pymax,
@@ -135,7 +135,7 @@ GSTLEARN_EXPORT void anam_update_hermitian(AnamHermite *anam_hermite,
  ** \param[in]  tdisc    Discretization array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void anam_update_empirical(AnamEmpirical *anam_empirical,
+void anam_update_empirical(AnamEmpirical *anam_empirical,
                                            int ndisc,
                                            double pymin,
                                            double pzmin,
@@ -170,7 +170,7 @@ GSTLEARN_EXPORT void anam_update_empirical(AnamEmpirical *anam_empirical,
  ** \param[in]  stats    Array of statistics for KDD (optional)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void anam_update_discrete_DD(AnamDiscreteDD *anam_discrete_DD,
+void anam_update_discrete_DD(AnamDiscreteDD *anam_discrete_DD,
                                              int ncut,
                                              double scoef,
                                              double mu,
@@ -234,7 +234,7 @@ static double st_anam_discrete_IR_block_variance(Anam *anam,
  ** \param[in]  stats    Array of statistics for KDD (optional)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void anam_update_discrete_IR(AnamDiscreteIR *anam_discrete_IR,
+void anam_update_discrete_IR(AnamDiscreteIR *anam_discrete_IR,
                                              int ncut,
                                              double r_coef,
                                              const VectorDouble &zcut,
@@ -532,7 +532,7 @@ static void st_anam_point_to_block_discrete_IR(Anam *anam)
  ** \remark  - performs the internal transform (EAnam::HERMITIAN)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double anam_y2z(Anam *anam, double y, int flag_bound)
+double anam_y2z(Anam *anam, double y, int flag_bound)
 {
   if (anam == nullptr) return (y);
   if (anam->getType() == EAnam::HERMITIAN)
@@ -1131,7 +1131,7 @@ static void st_anam_selectivity_hermitian(Anam *anam,
  ** \remark is defined by the number of cutoffs
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble anam_selectivity(Anam *anam,
+VectorDouble anam_selectivity(Anam *anam,
                                               int nclass,
                                               VectorDouble zcut,
                                               int flag_correct,
@@ -1193,7 +1193,7 @@ GSTLEARN_EXPORT VectorDouble anam_selectivity(Anam *anam,
  ** \param[in]  ifacs       Array of factor ranks (starting at 1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anam_discrete_DD_z2factor(Anam *anam,
+int anam_discrete_DD_z2factor(Anam *anam,
                                               Db *db,
                                               int iptr,
                                               int nfact,
@@ -1251,7 +1251,7 @@ GSTLEARN_EXPORT int anam_discrete_DD_z2factor(Anam *anam,
  ** \param[in]  ifacs       Array of factor ranks (starting at 1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anam_discrete_IR_z2factor(Anam *anam,
+int anam_discrete_IR_z2factor(Anam *anam,
                                               Db *db,
                                               int iptr,
                                               int nfact,
@@ -1284,7 +1284,7 @@ GSTLEARN_EXPORT int anam_discrete_IR_z2factor(Anam *anam,
  ** \param[in]  ifacs       Array of factor ranks (starting at 1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anam_discrete_z2factor(Anam *anam,
+int anam_discrete_z2factor(Anam *anam,
                                            Db *db,
                                            int nfact,
                                            const VectorInt &ifacs)
@@ -1381,7 +1381,7 @@ GSTLEARN_EXPORT int anam_discrete_z2factor(Anam *anam,
  ** \remark Otherwise, it is derived from 'cvv'
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anam_point_to_block(Anam *anam,
+int anam_point_to_block(Anam *anam,
                                         int verbose,
                                         double cvv,
                                         double coeff,
@@ -1513,7 +1513,7 @@ GSTLEARN_EXPORT int anam_point_to_block(Anam *anam,
  ** \param[out] r_coef      Change of support coefficient
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anam_get_r(Anam *anam,
+int anam_get_r(Anam *anam,
                                double cvv,
                                double mu,
                                double *r_coef)
@@ -2377,7 +2377,7 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
  ** \remark for the estimated cutoffs in the discrete case
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anam_factor2qt(Db *db,
+int anam_factor2qt(Db *db,
                                    Anam *anam,
                                    int ncutmine,
                                    double *cutmine,
@@ -2543,7 +2543,7 @@ GSTLEARN_EXPORT int anam_factor2qt(Db *db,
  ** \param[out] calcut  Output array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
+void selectivity_interpolate(int verbose,
                                              double *zcutmine,
                                              int nclass,
                                              double *calest,
@@ -2566,7 +2566,7 @@ GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
  ** \param[in]  vario       Experimental variogram of Z -> Y [out]
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int anam_vario_z2y(Anam *anam, double cvv, Vario *vario)
+int anam_vario_z2y(Anam *anam, double cvv, Vario *vario)
 {
   int error, idir, i;
 
@@ -2628,7 +2628,7 @@ GSTLEARN_EXPORT int anam_vario_z2y(Anam *anam, double cvv, Vario *vario)
  ** \param[out]  qt_vars     Array of results
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int uc_f(Db *db,
+int uc_f(Db *db,
                          Anam *anam,
                          int att_est,
                          int att_var,
@@ -3009,7 +3009,7 @@ static int st_ce_compute_Z(Db *db,
  ** \param[in]  phis         Array of the Polynomial expansion
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double ce_compute_Z2(double krigest,
+double ce_compute_Z2(double krigest,
                                      double krigstd,
                                      const VectorDouble &phis)
 {
@@ -3390,7 +3390,7 @@ static double* st_ztoy_cutoffs(AnamHermite *anam_hermite,
  ** \param[out] qt_vars      Array for storage (Dimension: 2*ANAM_N_QT)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int ce_f(Db *db,
+int ce_f(Db *db,
                          Anam *anam,
                          int att_est,
                          int att_std,

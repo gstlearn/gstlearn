@@ -219,7 +219,7 @@ static void st_format(int mode)
  ** \param[in]  write_func Writing function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void redefine_message(void (*write_func)(const char*))
+void redefine_message(void (*write_func)(const char*))
 {
   std::cout << "Write function is redefined" << std::endl;
   if (write_func != NULL) WRITE_FUNC = write_func;
@@ -233,7 +233,7 @@ GSTLEARN_EXPORT void redefine_message(void (*write_func)(const char*))
  ** \param[in]  warn_func  Warning function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void redefine_error(void (*warn_func)(const char*))
+void redefine_error(void (*warn_func)(const char*))
 {
   if (warn_func != NULL) WARN_FUNC = warn_func;
   return;
@@ -246,7 +246,7 @@ GSTLEARN_EXPORT void redefine_error(void (*warn_func)(const char*))
  ** \param[in]  read_func  Reading function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void redefine_read(void (*read_func)(const char*, char*))
+void redefine_read(void (*read_func)(const char*, char*))
 {
   if (read_func != NULL) READ_FUNC = read_func;
   return;
@@ -259,7 +259,7 @@ GSTLEARN_EXPORT void redefine_read(void (*read_func)(const char*, char*))
  ** \param[in]  exit_func  Exiting function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void redefine_exit(void (*exit_func)(void))
+void redefine_exit(void (*exit_func)(void))
 {
   if (exit_func != NULL) EXIT_FUNC = exit_func;
   return;
@@ -273,7 +273,7 @@ GSTLEARN_EXPORT void redefine_exit(void (*exit_func)(void))
  ** \param[in]  flag_lead 1 to strip only the leading blanks
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void string_strip_blanks(char *string, int flag_lead)
+void string_strip_blanks(char *string, int flag_lead)
 
 {
   int i, ecr, length, flag_test;
@@ -302,7 +302,7 @@ GSTLEARN_EXPORT void string_strip_blanks(char *string, int flag_lead)
  ** \remarks character
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void string_strip_quotes(char *string)
+void string_strip_quotes(char *string)
 
 {
   int ecr, length;
@@ -337,7 +337,7 @@ GSTLEARN_EXPORT void string_strip_quotes(char *string)
  ** \remark  In output, the buffer he input buffer
  **
  *****************************************************************************/
-GSTLEARN_EXPORT char * strsep(char **stringp, const char* delim)
+char * strsep(char **stringp, const char* delim)
 {
   char* start = *stringp;
   char* p;
@@ -365,7 +365,7 @@ GSTLEARN_EXPORT char * strsep(char **stringp, const char* delim)
  ** \param[in]  string   String to be displayed
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void message_extern(const char *string)
+void message_extern(const char *string)
 
 {
   WRITE_FUNC(string);
@@ -377,7 +377,7 @@ GSTLEARN_EXPORT void message_extern(const char *string)
  **  This call comes from AStringable where initial mes_abort() has been moved
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void exit_extern()
+void exit_extern()
 
 {
   EXIT_FUNC();
@@ -390,7 +390,7 @@ GSTLEARN_EXPORT void exit_extern()
  ** \param[in]  nbyte  number of bytes to be allocated
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void mem_error(int nbyte)
+void mem_error(int nbyte)
 
 {
   message("Error: Core allocation problem.\n");
@@ -448,7 +448,7 @@ void _file_delimitors(char del_com, char del_sep, char del_blk)
  **  Print the current line read from an ASCII file
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_current_line(void)
+void print_current_line(void)
 {
   messerr("Current Line: %s", LINE_MEM);
 }
@@ -976,7 +976,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
  **  Reset the IO parameters
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void constant_reset(void)
+void constant_reset(void)
 
 {
   CST[CST_NTCAR].ival = 10;
@@ -1035,7 +1035,7 @@ static void st_constant_list(void)
  ** \param[in]  value  New value for the IO parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void constant_define(const char *name, double value)
+void constant_define(const char *name, double value)
 {
   int i, found, flag_defined;
 
@@ -1089,7 +1089,7 @@ GSTLEARN_EXPORT void constant_define(const char *name, double value)
  ** \param[in]  name  Name of the IO parameter to be asked
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double constant_query(const char *name)
+double constant_query(const char *name)
 
 {
   int i, found;
@@ -1122,7 +1122,7 @@ GSTLEARN_EXPORT double constant_query(const char *name)
  **  Print the constants for IO
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void constant_print(void)
+void constant_print(void)
 
 {
   int i, ival;
@@ -1163,7 +1163,7 @@ GSTLEARN_EXPORT void constant_print(void)
  ** \param[in]  string   String to be written
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tab_prints(const char *title,
+void tab_prints(const char *title,
                                 int ncol,
                                 const EJustify &justify,
                                 const char *string)
@@ -1226,7 +1226,7 @@ GSTLEARN_EXPORT void tab_prints(const char *title,
  ** \remarks The string is printed (left-adjusted) on 'taille' characters
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tab_print_rowname(const char *string, int taille)
+void tab_print_rowname(const char *string, int taille)
 {
   int i, size, neff, nrst;
 
@@ -1256,7 +1256,7 @@ GSTLEARN_EXPORT void tab_print_rowname(const char *string, int taille)
  ** \param[in]  value    Value to be written
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tab_printg(const char *title,
+void tab_printg(const char *title,
                                 int ncol,
                                 const EJustify &justify,
                                 double value)
@@ -1289,7 +1289,7 @@ GSTLEARN_EXPORT void tab_printg(const char *title,
  ** \param[in]  value    Value to be written
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tab_printd(const char *title,
+void tab_printd(const char *title,
                                 int ncol,
                                 const EJustify &justify,
                                 double value)
@@ -1317,7 +1317,7 @@ GSTLEARN_EXPORT void tab_printd(const char *title,
  ** \param[in]  value    Value to be written
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tab_printi(const char *title,
+void tab_printi(const char *title,
                                 int ncol,
                                 const EJustify &justify,
                                 int value)
@@ -1346,7 +1346,7 @@ GSTLEARN_EXPORT void tab_printi(const char *title,
  ** \param[in]  value    Value to be written
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void tab_print_rc(const char *title,
+void tab_print_rc(const char *title,
                                   int ncol,
                                   const EJustify &justify,
                                   int mode,
@@ -1380,7 +1380,7 @@ GSTLEARN_EXPORT void tab_print_rc(const char *title,
  ** \remarks of the one used in R-packages where dim[1]=nrow and dim[2]=ncol
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_matrix(const char *title,
+void print_matrix(const char *title,
                                   int flag_limit,
                                   int bycol,
                                   int nx,
@@ -1471,7 +1471,7 @@ GSTLEARN_EXPORT void print_matrix(const char *title,
  ** \remarks The ordering (compatible with matrix_solve is mode==2)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_trimat(const char *title,
+void print_trimat(const char *title,
                                   int mode,
                                   int neq,
                                   const double *tl)
@@ -1537,7 +1537,7 @@ GSTLEARN_EXPORT void print_trimat(const char *title,
  ** \param[in]  tab    array containing the matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_imatrix(const char *title,
+void print_imatrix(const char *title,
                                    int flag_limit,
                                    int bycol,
                                    int nx,
@@ -1625,7 +1625,7 @@ GSTLEARN_EXPORT void print_imatrix(const char *title,
  ** \param[in]  tab        Array to be printed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_vector(const char *title,
+void print_vector(const char *title,
                                   int flag_limit,
                                   int ntab,
                                   const double *tab)
@@ -1659,7 +1659,7 @@ GSTLEARN_EXPORT void print_vector(const char *title,
   return;
 }
 
-GSTLEARN_EXPORT void print_vector(const char *title,
+void print_vector(const char *title,
                                   int flag_limit,
                                   int ntab,
                                   const VectorDouble &tab)
@@ -1677,7 +1677,7 @@ GSTLEARN_EXPORT void print_vector(const char *title,
  ** \param[in]  itab       Array to be printed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_ivector(const char *title,
+void print_ivector(const char *title,
                                    int flag_limit,
                                    int ntab,
                                    const int *itab)
@@ -1711,7 +1711,7 @@ GSTLEARN_EXPORT void print_ivector(const char *title,
   return;
 }
 
-GSTLEARN_EXPORT void print_ivector(const char *title,
+void print_ivector(const char *title,
                                    int flag_limit,
                                    int ntab,
                                    const VectorInt &itab)
@@ -1728,7 +1728,7 @@ GSTLEARN_EXPORT void print_ivector(const char *title,
  ** \param[in]  names  Array of locator names
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_names(int nx, int *ranks, VectorString names)
+void print_names(int nx, int *ranks, VectorString names)
 {
   int ix, iix, nx_util;
 
@@ -2088,7 +2088,7 @@ int _lire_logical(const char *question, int flag_def, int valdef)
  ** \param[in]  iech     Rank of the current sample
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void mes_process(const char *string, int ntot, int iech)
+void mes_process(const char *string, int ntot, int iech)
 {
   static int memo = 0;
   double ratio;
@@ -2118,7 +2118,7 @@ GSTLEARN_EXPORT void mes_process(const char *string, int ntot, int iech)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void record_close(void)
+void record_close(void)
 {
   cur = NULL;
   LCUR = NULL;
@@ -2161,7 +2161,7 @@ int _record_read(FILE *file, const char *format, ...)
  ** \param[in]  sel      (optional) selection
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void print_range(const char *title,
+void print_range(const char *title,
                                  int ntab,
                                  double *tab,
                                  double *sel)
@@ -2205,7 +2205,7 @@ GSTLEARN_EXPORT void print_range(const char *title,
  ** \param[in]  value    Value to be written
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void encode_printg(char *string,
+void encode_printg(char *string,
                                    int ntcar,
                                    int ntdec,
                                    double value)
@@ -2230,7 +2230,7 @@ GSTLEARN_EXPORT void encode_printg(char *string,
  ** \param[in]  tab      Vector of values to be dumped out
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void file_dump(int ntab, double *tab)
+void file_dump(int ntab, double *tab)
 {
   FILE *file;
   char Local[] = "/home/drenard/Bureau/Dump_trunk";

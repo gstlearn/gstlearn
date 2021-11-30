@@ -54,12 +54,13 @@
 #define THRESH_INF      -10
 #define THRESH_SUP       10
 
+typedef std::string                String;
+
 typedef std::vector<double>        VectorDouble; /// TODO : Create a class (fill, sum, mean...)
 typedef std::vector<int>           VectorInt;
 typedef std::vector<bool>          VectorBool;
 typedef std::vector<std::string>   VectorString;
 typedef std::vector<unsigned char> VectorUChar;
-typedef std::string                String;
 typedef std::vector<VectorDouble>  VectorVectorDouble;
 typedef std::vector<VectorInt>     VectorVectorInt;
 
@@ -70,7 +71,6 @@ template class GSTLEARN_EXPORT std::vector<int>;
 template class GSTLEARN_EXPORT std::vector<bool>;
 template class GSTLEARN_EXPORT std::vector<std::string>;
 template class GSTLEARN_EXPORT std::vector<unsigned char>;
-template class GSTLEARN_EXPORT std::string;
 template class GSTLEARN_EXPORT std::vector<std::vector<double> >;
 template class GSTLEARN_EXPORT std::vector<std::vector<int> >;
 #endif

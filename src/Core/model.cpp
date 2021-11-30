@@ -59,7 +59,7 @@ VectorDouble X2_LOCAL = VectorDouble();
  ** \param[in]  model        Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_nostat_update(CovInternal *covint, Model *model)
+void model_nostat_update(CovInternal *covint, Model *model)
 {
   if (!model->isNoStat()) return;
   if (covint == NULL) return;
@@ -131,7 +131,7 @@ static int st_check_variable(int nvar, int ivar)
  ** \param[in]  covtab      Array to be initialized
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_covtab_init(int flag_init,
+void model_covtab_init(int flag_init,
                                        Model *model,
                                        double *covtab)
 {
@@ -173,7 +173,7 @@ static void st_covtab_rescale(int nvar, double norme, double *covtab)
  ** \param[in]  d1          vector of increment (or NULL)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_calcul_basic(Model *model,
+double model_calcul_basic(Model *model,
                                           int icov,
                                           const ECalcMember &member,
                                           const VectorDouble &d1)
@@ -205,7 +205,7 @@ GSTLEARN_EXPORT double model_calcul_basic(Model *model,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_calcul_cov_direct(CovInternal *covint,
+void model_calcul_cov_direct(CovInternal *covint,
                                              Model *model,
                                              const CovCalcMode &mode,
                                              int flag_init,
@@ -792,7 +792,7 @@ static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_calcul_cov(Model *model,
+void model_calcul_cov(Model *model,
                                       CovCalcMode &mode,
                                       int flag_init,
                                       double weight,
@@ -828,7 +828,7 @@ GSTLEARN_EXPORT void model_calcul_cov(Model *model,
  ** \param[in]  d1          vector of increment (or NULL)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_calcul_cov_ij(Model *model,
+double model_calcul_cov_ij(Model *model,
                                            const CovCalcMode &mode,
                                            int ivar,
                                            int jvar,
@@ -862,7 +862,7 @@ GSTLEARN_EXPORT double model_calcul_cov_ij(Model *model,
  ** \return A (protected) pointer on the Covariance Internal class
  **
  *****************************************************************************/
-GSTLEARN_EXPORT const CovInternal* get_external_covariance()
+const CovInternal* get_external_covariance()
 {
   return COVINT;
 }
@@ -883,7 +883,7 @@ GSTLEARN_EXPORT const CovInternal* get_external_covariance()
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_calcul_cov_nostat(Model *model,
+void model_calcul_cov_nostat(Model *model,
                                              CovCalcMode &mode,
                                              CovInternal *covint,
                                              int flag_init,
@@ -924,7 +924,7 @@ GSTLEARN_EXPORT void model_calcul_cov_nostat(Model *model,
  ** \param[out] drftab  Array of drift values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_calcul_drift(Model *model,
+void model_calcul_drift(Model *model,
                                         const ECalcMember &member,
                                         const Db *db,
                                         int iech,
@@ -946,7 +946,7 @@ GSTLEARN_EXPORT void model_calcul_drift(Model *model,
  ** \param[out]  var0     array for C0[] (Dimension = nvar * nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_variance0(Model *model,
+void model_variance0(Model *model,
                                      Koption *koption,
                                      double *covtab,
                                      double *var0)
@@ -1016,7 +1016,7 @@ GSTLEARN_EXPORT void model_variance0(Model *model,
  ** \param[out]  var0     array for C0[] (Dimension = nvar * nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_variance0_nostat(Model *model,
+void model_variance0_nostat(Model *model,
                                             Koption *koption,
                                             CovInternal *covint,
                                             double *covtab,
@@ -1075,7 +1075,7 @@ GSTLEARN_EXPORT void model_variance0_nostat(Model *model,
  ** \param[in]  model Model to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model* model_free(Model *model)
+Model* model_free(Model *model)
 
 {
   /* Initializations */
@@ -1095,7 +1095,7 @@ GSTLEARN_EXPORT Model* model_free(Model *model)
  ** \param[in]   type0    Requested type (EConsElem)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_model_nostat_param(Model *model, const EConsElem &type0)
+int is_model_nostat_param(Model *model, const EConsElem &type0)
 {
   if (!model->isNoStat()) return 1;
   const ANoStat *nostat = model->getNoStat();
@@ -1123,7 +1123,7 @@ GSTLEARN_EXPORT int is_model_nostat_param(Model *model, const EConsElem &type0)
  **                           (dimension: nvar*nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model* model_init(int ndim,
+Model* model_init(int ndim,
                                   int nvar,
                                   double field,
                                   int flag_linked,
@@ -1160,7 +1160,7 @@ GSTLEARN_EXPORT Model* model_init(int ndim,
  ** \param[in]  nvar Number of variables
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model* model_default(int ndim, int nvar)
+Model* model_default(int ndim, int nvar)
 {
   Model *model;
   double sill;
@@ -1213,7 +1213,7 @@ GSTLEARN_EXPORT Model* model_default(int ndim, int nvar)
  **                             (Dimension = nvar * nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_add_cova(Model *model,
+int model_add_cova(Model *model,
                                    const ECov &type,
                                    int flag_aniso,
                                    int flag_rotation,
@@ -1282,7 +1282,7 @@ GSTLEARN_EXPORT int model_add_cova(Model *model,
  ** \remark  is equal to the number of drift functions.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_add_drift(Model *model,
+int model_add_drift(Model *model,
                                     const EDrift &type,
                                     int rank_fex)
 {
@@ -1317,7 +1317,7 @@ GSTLEARN_EXPORT int model_add_drift(Model *model,
  ** \param[in]  model      Pointer to the Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_add_no_property(Model *model)
+int model_add_no_property(Model *model)
 
 {
   int error;
@@ -1357,7 +1357,7 @@ GSTLEARN_EXPORT int model_add_no_property(Model *model)
  ** \param[in]  conv_range Convolution parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_add_convolution(Model *model,
+int model_add_convolution(Model *model,
                                           int conv_type,
                                           int conv_idir,
                                           int conv_ndisc,
@@ -1403,7 +1403,7 @@ GSTLEARN_EXPORT int model_add_convolution(Model *model,
  ** \remark    the covariance mode as a function of anam_var rather than member
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_anamorphosis_set_factor(Model *model, int anam_iclass)
+int model_anamorphosis_set_factor(Model *model, int anam_iclass)
 {
   int error;
 
@@ -1457,7 +1457,7 @@ GSTLEARN_EXPORT int model_anamorphosis_set_factor(Model *model, int anam_iclass)
  ** \param[in]  anam_stats  Array of statistics
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_add_anamorphosis(Model *model,
+int model_add_anamorphosis(Model *model,
                                            const EAnam &anam_type,
                                            int anam_nclass,
                                            int anam_iclass,
@@ -1511,7 +1511,7 @@ GSTLEARN_EXPORT int model_add_anamorphosis(Model *model,
  ** \param[in]  tape_range Range of the tapering function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_add_tapering(Model *model,
+int model_add_tapering(Model *model,
                                        int tape_type,
                                        double tape_range)
 {
@@ -1559,7 +1559,7 @@ GSTLEARN_EXPORT int model_add_tapering(Model *model,
  ** \param[in]  param     Value of the third parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double cova_get_scale_factor(const ECov &type, double param)
+double cova_get_scale_factor(const ECov &type, double param)
 {
   SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 1000, 0., &space);
@@ -1575,7 +1575,7 @@ GSTLEARN_EXPORT double cova_get_scale_factor(const ECov &type, double param)
  ** \param[in,out]  model Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_setup(Model *model)
+void model_setup(Model *model)
 
 {
   if (model == nullptr) return;
@@ -1648,7 +1648,7 @@ GSTLEARN_EXPORT void model_setup(Model *model)
  ** \remark  As a consequence the array "aic()" is not evaluated
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_update_coreg(Model *model,
+int model_update_coreg(Model *model,
                                        double *aic,
                                        double *valpro,
                                        double *vecpro)
@@ -1719,7 +1719,7 @@ GSTLEARN_EXPORT int model_update_coreg(Model *model,
  ** \remark  basic structure to be accounted for
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_evaluate(Model *model,
+int model_evaluate(Model *model,
                                    int ivar,
                                    int jvar,
                                    int rank_sel,
@@ -1809,7 +1809,7 @@ GSTLEARN_EXPORT int model_evaluate(Model *model,
  ** \remark  basic structure to be accounted for
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
+int model_evaluate_nostat(Model *model,
                                           int ivar,
                                           int jvar,
                                           int rank_sel,
@@ -1898,7 +1898,7 @@ GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
  ** \param[out] g          Array containing the model values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_grid(Model *model,
+int model_grid(Model *model,
                                Db *db,
                                int ivar,
                                int jvar,
@@ -1962,7 +1962,7 @@ GSTLEARN_EXPORT int model_grid(Model *model,
  ** \param[in]  model Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_nfex(Model *model)
+int model_nfex(Model *model)
 
 {
   int il, nfex;
@@ -1991,7 +1991,7 @@ GSTLEARN_EXPORT int model_nfex(Model *model)
  ** \param[in]  filter  1 to filter; 0 to unfilter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_drift_filter(Model *model, int rank, int filter)
+void model_drift_filter(Model *model, int rank, int filter)
 {
   if (rank < 0 || rank >= model->getDriftNumber()) return;
   model->setDriftFiltered(rank, filter);
@@ -2013,7 +2013,7 @@ GSTLEARN_EXPORT void model_drift_filter(Model *model, int rank, int filter)
  ** \param[in]  eps   Epsilon used for randomization in calculation of CVV
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_cxx(Model *model,
+double model_cxx(Model *model,
                                  Db *db1,
                                  Db *db2,
                                  int ivar,
@@ -2119,7 +2119,7 @@ GSTLEARN_EXPORT double model_cxx(Model *model,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
+double* model_covmat_by_ranks(Model *model,
                                               Db *db1,
                                               int nsize1,
                                               const int *ranks1,
@@ -2240,7 +2240,7 @@ GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
  **                    (Dimension = nech * nvar * nfeq * nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_drift_mat(Model *model,
+void model_drift_mat(Model *model,
                                      const ECalcMember &member,
                                      Db *db,
                                      double *drfmat)
@@ -2321,7 +2321,7 @@ GSTLEARN_EXPORT void model_drift_mat(Model *model,
  **                    (Dimension = nvar * nfeq)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_drift_vector(Model *model,
+void model_drift_vector(Model *model,
                                         const ECalcMember &member,
                                         Db *db,
                                         int iech,
@@ -2555,7 +2555,7 @@ static void st_drift_derivative(int iv,
  ** \li                      1 for Data - Gradient
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model* model_duplicate(const Model *model,
+Model* model_duplicate(const Model *model,
                                        double ball_radius,
                                        int mode)
 
@@ -2726,7 +2726,7 @@ GSTLEARN_EXPORT Model* model_duplicate(const Model *model,
 // ** \param[in]  corr        Array for correlations (optional)
 // **
 // *****************************************************************************/
-//GSTLEARN_EXPORT Model *model_modify(Model  *model,
+//Model *model_modify(Model  *model,
 //                                int     new_nvar,
 //                                double *mean,
 //                                double *vars,
@@ -2867,7 +2867,7 @@ GSTLEARN_EXPORT Model* model_duplicate(const Model *model,
  ** \param[in]  flag_verbose  1 for a verbose output
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_normalize(Model *model, int flag_verbose)
+int model_normalize(Model *model, int flag_verbose)
 
 {
   double *total;
@@ -2940,7 +2940,7 @@ GSTLEARN_EXPORT int model_normalize(Model *model, int flag_verbose)
  ** \remark  This function does not do anything in the multivariate case
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_stabilize(Model *model,
+int model_stabilize(Model *model,
                                     int flag_verbose,
                                     double percent)
 {
@@ -3007,7 +3007,7 @@ GSTLEARN_EXPORT int model_stabilize(Model *model,
  ** \param[out] nugget       Array of sills for the nugget component
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_covupdt(Model *model,
+void model_covupdt(Model *model,
                                    double *c0,
                                    int flag_verbose,
                                    int *flag_nugget,
@@ -3160,7 +3160,7 @@ GSTLEARN_EXPORT void model_covupdt(Model *model,
  ** \param[out] drftab  Working array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_drift_evaluate(int verbose,
+double model_drift_evaluate(int verbose,
                                             Model *model,
                                             const Db *db,
                                             int iech,
@@ -3212,7 +3212,7 @@ GSTLEARN_EXPORT double model_drift_evaluate(int verbose,
  ** \param[in]  model_in  Input Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model* input_model(int ndim,
+Model* input_model(int ndim,
                                    int nvar,
                                    int order,
                                    int flag_sill,
@@ -3286,7 +3286,7 @@ GSTLEARN_EXPORT Model* input_model(int ndim,
  ** \param[in]  model     Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_dimension(Model *model)
+int model_dimension(Model *model)
 {
   return (model->getCovaNumber());
 }
@@ -3308,7 +3308,7 @@ GSTLEARN_EXPORT int model_dimension(Model *model)
  ** \param[out]  aniso_ranges  Rotation ranges (Dimension = ndim)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_extract_cova(Model *model,
+int model_extract_cova(Model *model,
                                        int icov,
                                        ECov *cov_type,
                                        int *flag_aniso,
@@ -3358,7 +3358,7 @@ GSTLEARN_EXPORT int model_extract_cova(Model *model,
  ** \remark procedure.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_extract_properties(Model *model, double *tape_range)
+void model_extract_properties(Model *model, double *tape_range)
 {
   ModTrans &modtrs = model->getModTrans();
 
@@ -3386,7 +3386,7 @@ GSTLEARN_EXPORT void model_extract_properties(Model *model, double *tape_range)
  ** \param[out] parmax         Maximum value for the third parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
+void model_cova_characteristics(const ECov &type,
                                                 char cov_name[STRING_LENGTH],
                                                 int *flag_range,
                                                 int *flag_param,
@@ -3428,7 +3428,7 @@ GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
  ** \param[in]  flag_cov  1 if the result must be given in covariance
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_sample(Vario *vario,
+int model_sample(Vario *vario,
                                  Model *model,
                                  int flag_norm,
                                  int flag_cov)
@@ -3514,7 +3514,7 @@ GSTLEARN_EXPORT int model_sample(Vario *vario,
  **                    (Dimension = neq) where neq = nactive * nvar
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_vector_multivar(Model *model,
+void model_vector_multivar(Model *model,
                                            Db *db,
                                            int ivar,
                                            int iech,
@@ -3595,7 +3595,7 @@ GSTLEARN_EXPORT void model_vector_multivar(Model *model,
  ** \param[out] vector     Returned vector
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_vector(Model *model,
+void model_vector(Model *model,
                                   Db *db1,
                                   Db *db2,
                                   int ivar,
@@ -3675,7 +3675,7 @@ GSTLEARN_EXPORT void model_vector(Model *model,
  ** \param[out] vector     Returned vector
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_vector_nostat(Model *model,
+void model_vector_nostat(Model *model,
                                          Db *db,
                                          int ivar,
                                          int jvar,
@@ -3745,7 +3745,7 @@ GSTLEARN_EXPORT void model_vector_nostat(Model *model,
  ** \param[in]  model      Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_maximum_distance(Model *model)
+double model_maximum_distance(Model *model)
 
 {
   return model->getCovAnisoList()->getMaximumDistance();
@@ -3763,7 +3763,7 @@ GSTLEARN_EXPORT double model_maximum_distance(Model *model)
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_scale2range(const ECov &type,
+double model_scale2range(const ECov &type,
                                          double scale,
                                          double param)
 {
@@ -3786,7 +3786,7 @@ GSTLEARN_EXPORT double model_scale2range(const ECov &type,
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_range2scale(const ECov &type,
+double model_range2scale(const ECov &type,
                                          double range,
                                          double param)
 {
@@ -3806,7 +3806,7 @@ GSTLEARN_EXPORT double model_range2scale(const ECov &type,
  ** \param[in]  model     Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_get_field(Model *model)
+double model_get_field(Model *model)
 {
   return (model->getField());
 }
@@ -3825,7 +3825,7 @@ GSTLEARN_EXPORT double model_get_field(Model *model)
  ** \remarks: It has been exptended to the case where only one model is defined
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model* model_combine(const Model *model1,
+Model* model_combine(const Model *model1,
                                      const Model *model2,
                                      double r)
 {
@@ -3942,7 +3942,7 @@ GSTLEARN_EXPORT Model* model_combine(const Model *model1,
  ** \param[in]  model   Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_get_nonugget_cova(Model *model)
+int model_get_nonugget_cova(Model *model)
 
 {
   CovAniso *cova;
@@ -3972,7 +3972,7 @@ GSTLEARN_EXPORT int model_get_nonugget_cova(Model *model)
  ** \param[in]  nug_ratio Ratio of the nugget effect
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_regularize(Model *model,
+int model_regularize(Model *model,
                                      Vario *vario,
                                      Db *db,
                                      int opt_norm,
@@ -4116,7 +4116,7 @@ GSTLEARN_EXPORT int model_regularize(Model *model,
  ** \remark must provide the coordinates of the origin point.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
+int model_covmat_inchol(int verbose,
                                         Db *db,
                                         Model *model,
                                         double eta,
@@ -4358,7 +4358,7 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
  ** \param[in]  model      Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_maximum_order(Model *model)
+int model_maximum_order(Model *model)
 
 {
   int order, max_order;
@@ -4385,7 +4385,7 @@ GSTLEARN_EXPORT int model_maximum_order(Model *model)
  ** \param[in]  type0      Drift function to be found (EDrift)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int model_is_drift_defined(Model *model, const EDrift &type0)
+int model_is_drift_defined(Model *model, const EDrift &type0)
 {
   if (model == nullptr) return (0);
   for (int il = 0; il < model->getDriftNumber(); il++)
@@ -4408,7 +4408,7 @@ GSTLEARN_EXPORT int model_is_drift_defined(Model *model, const EDrift &type0)
  ** \param[in]  factor      Multiplicative factor for st. deviation
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
+double model_calcul_stdev(Model *model,
                                           Db *db1,
                                           int iech1,
                                           Db *db2,
@@ -4475,7 +4475,7 @@ GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
+cs* model_covmat_by_ranks_cs(Model *model,
                                              Db *db1,
                                              int nsize1,
                                              const int *ranks1,
@@ -4611,7 +4611,7 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
  **                    nvar   : Number of selected variables (1 or nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void model_covmat(Model *model,
+void model_covmat(Model *model,
                                   Db *db1,
                                   Db *db2,
                                   int ivar0,

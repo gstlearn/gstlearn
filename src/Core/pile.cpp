@@ -53,7 +53,7 @@ static void st_valid(int type, int rank)
  ** \remark  This function must be called compulsorily when entering RGeostats
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void pile_reset(int type)
+void pile_reset(int type)
 
 {
   int i;
@@ -75,7 +75,7 @@ GSTLEARN_EXPORT void pile_reset(int type)
  ** \remark  This function must be called compulsorily when entering RGeostats
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void piles_reset(void)
+void piles_reset(void)
 
 {
   int type;
@@ -107,7 +107,7 @@ GSTLEARN_EXPORT void piles_reset(void)
  ** \param[in]  type    Type of the pile
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int pile_next(int type)
+int pile_next(int type)
 
 {
   int ival, i;
@@ -143,7 +143,7 @@ GSTLEARN_EXPORT int pile_next(int type)
  ** \param[in]  ptr     Pointor to be stored (allocation mode)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void pile_manage(int type, int rank, int mode, char *ptr)
+void pile_manage(int type, int rank, int mode, char *ptr)
 {
   st_valid(type, rank);
 
@@ -178,7 +178,7 @@ GSTLEARN_EXPORT void pile_manage(int type, int rank, int mode, char *ptr)
  ** \li                 -1 : Check that the element will be allocated
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int pile_correct(int type, int rank, int mode)
+int pile_correct(int type, int rank, int mode)
 {
   if (piles == NULL)
   {
@@ -218,7 +218,7 @@ GSTLEARN_EXPORT int pile_correct(int type, int rank, int mode)
  ** \param[in]  rank    Rank of the slot
  **
  *****************************************************************************/
-GSTLEARN_EXPORT char* pile_get(int type, int rank)
+char* pile_get(int type, int rank)
 {
   if (piles == NULL)
   {
@@ -238,7 +238,7 @@ GSTLEARN_EXPORT char* pile_get(int type, int rank)
  **  Dump the piles contents
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void piles_dump(void)
+void piles_dump(void)
 
 {
   int type, i;

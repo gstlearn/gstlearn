@@ -31,7 +31,7 @@
  ** \param[in]  rule Rule structure to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Rule* rule_free(const Rule *rule)
+Rule* rule_free(const Rule *rule)
 
 {
   if (rule != nullptr) delete rule;
@@ -148,7 +148,7 @@ static int st_proportion_transform(PropDef *propdef)
  ** \param[in]  mode     Type of operation (EProcessOper)
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void proportion_rule_process(PropDef *propdef,
+void proportion_rule_process(PropDef *propdef,
                                              const EProcessOper &mode)
 {
   /* Assignments */
@@ -175,7 +175,7 @@ GSTLEARN_EXPORT void proportion_rule_process(PropDef *propdef,
  ** \param[in]  propdef   PropDef structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void proportion_print(PropDef *propdef)
+void proportion_print(PropDef *propdef)
 
 {
   if (propdef == nullptr) return;
@@ -323,7 +323,7 @@ static int st_proportion_define(PropDef *propdef,
  ** \param[out] sh_down    Local or global downwards shift (shadow)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int rule_thresh_define_shadow(PropDef *propdef,
+int rule_thresh_define_shadow(PropDef *propdef,
                                               Db *db,
                                               const RuleShadow *rule,
                                               int facies,
@@ -419,7 +419,7 @@ GSTLEARN_EXPORT int rule_thresh_define_shadow(PropDef *propdef,
  ** \param[out] t2max      Maximum threshold for Y2
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int rule_thresh_define(PropDef *propdef,
+int rule_thresh_define(PropDef *propdef,
                                        Db *db,
                                        const Rule *rule,
                                        int facies,
@@ -519,7 +519,7 @@ GSTLEARN_EXPORT int rule_thresh_define(PropDef *propdef,
  ** \remark It will be changed in this function to locator ELoc::SIMU
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_rule_shadow(Db *db,
+int db_rule_shadow(Db *db,
                                    Db *dbprop,
                                    RuleShadow *rule,
                                    Model *model,
@@ -707,7 +707,7 @@ int _db_rule(Db *db,
  ** \param[in]  nfacies   Number of facies
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_bounds_shadow(Db *db,
+int db_bounds_shadow(Db *db,
                                      Db *dbprop,
                                      RuleShadow *rule,
                                      Model *model,
@@ -896,7 +896,7 @@ int _db_bounds(Db *db,
  ** \param[in]  propdef     Pointer to Propdef structure
  **
  ****************************************************************************/
-GSTLEARN_EXPORT void propdef_reset(PropDef *propdef)
+void propdef_reset(PropDef *propdef)
 {
   if (propdef == nullptr) return;
   if (propdef->propmem.empty()) return;
@@ -925,7 +925,7 @@ GSTLEARN_EXPORT void propdef_reset(PropDef *propdef)
  ** \param[in]  proploc     PropDef structure (used for mode<0)
  **
  ****************************************************************************/
-GSTLEARN_EXPORT PropDef* proportion_manage(int mode,
+PropDef* proportion_manage(int mode,
                                            int flag_facies,
                                            int flag_stat,
                                            int ngrf1,
@@ -1198,7 +1198,7 @@ int _db_threshold(Db *db,
  ** \remarks: The drift is not copied into the new model
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Model* model_rule_combine(const Model *model1,
+Model* model_rule_combine(const Model *model1,
                                           const Model *model2,
                                           const Rule *rule)
 {

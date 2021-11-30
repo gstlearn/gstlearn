@@ -67,7 +67,7 @@ static double *RHS_TAB = NULL;
  ** \param[in]  value   Value of the parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_constant_define(int keywrd, double value)
+void matrix_constant_define(int keywrd, double value)
 {
   if (keywrd == CST_TOLINV)
     TolInvert = value;
@@ -92,7 +92,7 @@ GSTLEARN_EXPORT void matrix_constant_define(int keywrd, double value)
  ** \param[in]  keywrd  Number of the keyword to be defined
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double matrix_constant_query(int keywrd)
+double matrix_constant_query(int keywrd)
 
 {
   if (keywrd == CST_TOLINV)
@@ -196,7 +196,7 @@ static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
  ** \remark  a_in is protected
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_eigen(const double *a_in,
+int matrix_eigen(const double *a_in,
                                  int neq,
                                  double *value,
                                  double *vector)
@@ -495,7 +495,7 @@ GSTLEARN_EXPORT int matrix_eigen(const double *a_in,
  ** \remark  The matrix v3[] may coincide with one of the two initial ones
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_product(int n1,
+void matrix_product(int n1,
                                     int n2,
                                     int n3,
                                     const double *v1,
@@ -536,7 +536,7 @@ GSTLEARN_EXPORT void matrix_product(int n1,
  ** \remark  The matrix v3[] may NOT coincide with one of the two initial ones
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_product_safe(int n1,
+void matrix_product_safe(int n1,
                                          int n2,
                                          int n3,
                                          const double *v1,
@@ -579,7 +579,7 @@ GSTLEARN_EXPORT void matrix_product_safe(int n1,
  ** \remarks +1: the optional array A has dimension (n2,n2)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_prod_norme(int transpose,
+int matrix_prod_norme(int transpose,
                                       int n1,
                                       int n2,
                                       const double *v1,
@@ -653,7 +653,7 @@ GSTLEARN_EXPORT int matrix_prod_norme(int transpose,
  ** \remark  The matrix w1[] may NOT coincide with v1[]
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_transpose(int n1, int n2, double *v1, double *w1)
+void matrix_transpose(int n1, int n2, double *v1, double *w1)
 {
   int i1, i2, ecr;
 
@@ -674,7 +674,7 @@ GSTLEARN_EXPORT void matrix_transpose(int n1, int n2, double *v1, double *w1)
  ** \param[in,out]  v1 rectangular matrix (n1,n2)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_transpose_in_place(int n1, int n2, double *v1)
+void matrix_transpose_in_place(int n1, int n2, double *v1)
 {
   int i1, i2, ecr;
   double *w1;
@@ -703,7 +703,7 @@ GSTLEARN_EXPORT void matrix_transpose_in_place(int n1, int n2, double *v1)
  ** \param[in,out]  v1 rectangular matrix (n1,n2)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_int_transpose_in_place(int n1, int n2, int *v1)
+void matrix_int_transpose_in_place(int n1, int n2, int *v1)
 {
   int i1, i2, ecr;
   int *w1;
@@ -741,7 +741,7 @@ GSTLEARN_EXPORT void matrix_int_transpose_in_place(int n1, int n2, int *v1)
  ** \remark  It is unnecessary to edit a message if inversion problem occurs
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_invert(double *a, int neq, int rank)
+int matrix_invert(double *a, int neq, int rank)
 {
   int i, j, k;
   double biga, hold;
@@ -794,7 +794,7 @@ GSTLEARN_EXPORT int matrix_invert(double *a, int neq, int rank)
  ** \remark  matrix is different from input matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_invert_copy(const double *a, int neq, double *b)
+int matrix_invert_copy(const double *a, int neq, double *b)
 {
   int i, error;
 
@@ -829,7 +829,7 @@ GSTLEARN_EXPORT int matrix_invert_copy(const double *a, int neq, double *b)
  ** \param[out] pivot rank of the pivoting error (0 none)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_solve(int mode,
+int matrix_solve(int mode,
                                  const double *a,
                                  const double *b,
                                  double *x,
@@ -901,7 +901,7 @@ GSTLEARN_EXPORT int matrix_solve(int mode,
  ** \param[in]  verbose  1 for the verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_matrix_symmetric(int neq, const double *a, int verbose)
+int is_matrix_symmetric(int neq, const double *a, int verbose)
 {
   int i, j;
   double ratio;
@@ -936,7 +936,7 @@ GSTLEARN_EXPORT int is_matrix_symmetric(int neq, const double *a, int verbose)
  ** \param[out]  vecpro Array of eigen vectors (Dimension: neq * neq)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_matrix_definite_positive(int neq,
+int is_matrix_definite_positive(int neq,
                                                 const double *a,
                                                 double *valpro,
                                                 double *vecpro,
@@ -1001,7 +1001,7 @@ GSTLEARN_EXPORT int is_matrix_definite_positive(int neq,
  ** \param[in]  verbose  1 for the verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_matrix_non_negative(int nrow,
+int is_matrix_non_negative(int nrow,
                                            int ncol,
                                            double *a,
                                            int verbose)
@@ -1032,7 +1032,7 @@ GSTLEARN_EXPORT int is_matrix_non_negative(int nrow,
  ** \param[in]  verbose  1 for the verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_matrix_null(int nrow, int ncol, double *a, int verbose)
+int is_matrix_null(int nrow, int ncol, double *a, int verbose)
 {
   int i;
 
@@ -1059,7 +1059,7 @@ GSTLEARN_EXPORT int is_matrix_null(int nrow, int ncol, double *a, int verbose)
  ** \param[in]  a      Symmetric square matrix to be checked
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_matrix_correlation(int neq, double *a)
+int is_matrix_correlation(int neq, double *a)
 {
   double *valpro, *vecpro;
   int i, status;
@@ -1102,7 +1102,7 @@ GSTLEARN_EXPORT int is_matrix_correlation(int neq, double *a)
  ** \param[in]  b      Square matrix to be checked
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double matrix_determinant(int neq, const double *b)
+double matrix_determinant(int neq, const double *b)
 {
   int i, j, neqm1, j1, j2;
   double *c, deter;
@@ -1171,7 +1171,7 @@ GSTLEARN_EXPORT double matrix_determinant(int neq, const double *b)
  ** \param[out] b      Square cofactor
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_cofactor(int neq, double *a, double *b)
+int matrix_cofactor(int neq, double *a, double *b)
 {
   int i, j, ii, jj, i1, j1, neqm1;
   double *c, det;
@@ -1235,7 +1235,7 @@ GSTLEARN_EXPORT int matrix_cofactor(int neq, double *a, double *b)
  ** \param[in]  tl  Lower triangular matrix defined by column
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double matrix_cholesky_determinant(int neq, double *tl)
+double matrix_cholesky_determinant(int neq, double *tl)
 {
   int i;
   double deter;
@@ -1259,7 +1259,7 @@ GSTLEARN_EXPORT double matrix_cholesky_determinant(int neq, double *tl)
  ** \remark  A rotation matrix must be orthogonal with determinant equal to 1
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_matrix_rotation(int neq, const double *a, int verbose)
+int is_matrix_rotation(int neq, const double *a, int verbose)
 {
   double deter, comp, prod;
   int i, j, k;
@@ -1310,7 +1310,7 @@ GSTLEARN_EXPORT int is_matrix_rotation(int neq, const double *a, int verbose)
  ** \remark  the matrix a[] is destroyed during the calculations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_cholesky_decompose(const double *a,
+int matrix_cholesky_decompose(const double *a,
                                               double *tl,
                                               int neq)
 {
@@ -1361,7 +1361,7 @@ GSTLEARN_EXPORT int matrix_cholesky_decompose(const double *a,
  ** \param[out] x    resulting matrix (dimension neq * nrhs)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_cholesky_product(int mode,
+void matrix_cholesky_product(int mode,
                                              int neq,
                                              int nrhs,
                                              double *tl,
@@ -1468,7 +1468,7 @@ GSTLEARN_EXPORT void matrix_cholesky_product(int mode,
  ** \param[out] x    resulting matrix (dimension neq)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_cholesky_solve(int neq,
+int matrix_cholesky_solve(int neq,
                                           double *tl,
                                           double *b,
                                           double *x)
@@ -1522,7 +1522,7 @@ GSTLEARN_EXPORT int matrix_cholesky_solve(int neq,
  ** \param[out] xl   lower triangular inverted matrix defined by column
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_cholesky_invert(int neq, double *tl, double *xl)
+void matrix_cholesky_invert(int neq, double *tl, double *xl)
 {
   double sum;
   int i, j, l;
@@ -1553,7 +1553,7 @@ GSTLEARN_EXPORT void matrix_cholesky_invert(int neq, double *tl, double *xl)
  ** \param[out] b    Square symmetric matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_cholesky_norme(int mode,
+void matrix_cholesky_norme(int mode,
                                            int neq,
                                            double *tl,
                                            double *a,
@@ -1610,7 +1610,7 @@ GSTLEARN_EXPORT void matrix_cholesky_norme(int mode,
  ** \param[out] xl   invert lower triangular matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_cholesky_to_invert(int neq, double *tl, double *xl)
+int matrix_cholesky_to_invert(int neq, double *tl, double *xl)
 {
   int i, j, k, error;
   double *r, *ek, *res, sum, pivot;
@@ -1693,7 +1693,7 @@ GSTLEARN_EXPORT int matrix_cholesky_to_invert(int neq, double *tl, double *xl)
  ** \param[out] x      Resulting product vector
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_triangular_product(int neq,
+void matrix_triangular_product(int neq,
                                                int mode,
                                                const double *al,
                                                const double *b,
@@ -1746,7 +1746,7 @@ GSTLEARN_EXPORT void matrix_triangular_product(int neq,
  ** \remark The input and output matrices can match
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_invgen(double *a,
+int matrix_invgen(double *a,
                                   int neq,
                                   double *tabout,
                                   double *cond)
@@ -1804,7 +1804,7 @@ GSTLEARN_EXPORT int matrix_invgen(double *a,
  ** \param[in]  neq       Number of equations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double matrix_norm(double *a, int neq)
+double matrix_norm(double *a, int neq)
 {
   double value;
   int i;
@@ -1825,7 +1825,7 @@ GSTLEARN_EXPORT double matrix_norm(double *a, int neq)
  ** \param[out] v         Vector product
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vector_product(double *a, double *b, double *v)
+void vector_product(double *a, double *b, double *v)
 {
   v[0] = a[1] * b[2] - a[2] * b[1];
   v[1] = a[2] * b[0] - a[0] * b[2];
@@ -1843,7 +1843,7 @@ GSTLEARN_EXPORT void vector_product(double *a, double *b, double *v)
  ** \param[out] b         Coordinates of the resulting point (Dimension: ndim)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void vector_translate(int ndim, double *a, double *v, double *b)
+void vector_translate(int ndim, double *a, double *v, double *b)
 {
   for (int i = 0; i < ndim; i++)
     b[i] = a[i] + v[i];
@@ -1860,7 +1860,7 @@ GSTLEARN_EXPORT void vector_translate(int ndim, double *a, double *v, double *b)
  ** \param[in]  neq       Space dimension
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double inner_product(const double *a, const double *b, int neq)
+double inner_product(const double *a, const double *b, int neq)
 {
   double value;
   int i;
@@ -1884,7 +1884,7 @@ GSTLEARN_EXPORT double inner_product(const double *a, const double *b, int neq)
  ** \param[in]  subneq    Dimension of the subspace to be considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double matrix_normA(double *b, double *a, int neq, int subneq)
+double matrix_normA(double *b, double *a, int neq, int subneq)
 {
   double value;
   int i, j;
@@ -1981,7 +1981,7 @@ static void st_elgs(double *a, int neq, int *indx, double *c)
  ** \param[in]  neq  number of equations in the matrix 'a'
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_invsym(double *a, int neq)
+int matrix_invsym(double *a, int neq)
 {
   double *x, *b, *c, ratio;
   int *indx, i, j, k;
@@ -2053,7 +2053,7 @@ GSTLEARN_EXPORT int matrix_invsym(double *a, int neq)
  ** \param[in,out] a   input/output matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_invsign(int neq, double *a)
+void matrix_invsign(int neq, double *a)
 {
   int i;
 
@@ -2072,7 +2072,7 @@ GSTLEARN_EXPORT void matrix_invsign(int neq, double *a)
  ** \param[out] a      Resulting square matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_triangle_to_square(int mode,
+void matrix_triangle_to_square(int mode,
                                                int neq,
                                                double *tl,
                                                double *a)
@@ -2105,7 +2105,7 @@ GSTLEARN_EXPORT void matrix_triangle_to_square(int mode,
    ** \param[out] a      Resulting square matrix
    **
    *****************************************************************************/
-GSTLEARN_EXPORT void matrix_tri2sq(int neq, double *tl, double *a)
+void matrix_tri2sq(int neq, double *tl, double *a)
 {
   int i, j;
 
@@ -2129,7 +2129,7 @@ GSTLEARN_EXPORT void matrix_tri2sq(int neq, double *tl, double *a)
    ** \remark: No test is performed to check that the input matrix is symmetric
    **
    *****************************************************************************/
-GSTLEARN_EXPORT void matrix_square_to_triangle(int mode,
+void matrix_square_to_triangle(int mode,
                                                int neq,
                                                double *a,
                                                double *tl)
@@ -2160,7 +2160,7 @@ GSTLEARN_EXPORT void matrix_square_to_triangle(int mode,
    ** \param[out] a      Resulting square matrix
    **
    *****************************************************************************/
-GSTLEARN_EXPORT void matrix_produit_lu(int neq, double *tl, double *a)
+void matrix_produit_lu(int neq, double *tl, double *a)
 {
   int i, j, k;
 
@@ -2188,7 +2188,7 @@ GSTLEARN_EXPORT void matrix_produit_lu(int neq, double *tl, double *a)
  ** \param[in]  tl     Lower triangular matrix defined by column
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble matrix_produit_lu_VD(int neq, double *tl)
+VectorDouble matrix_produit_lu_VD(int neq, double *tl)
 {
   VectorDouble a;
   a.resize(neq * neq);
@@ -2211,7 +2211,7 @@ GSTLEARN_EXPORT VectorDouble matrix_produit_lu_VD(int neq, double *tl)
  ** \param[out] errmax  Maximum error encountered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int is_matrix_product_identity(int neq,
+int is_matrix_product_identity(int neq,
                                                double *a,
                                                double *b,
                                                double *errmax)
@@ -2360,7 +2360,7 @@ static int st_svd(double *a2, double *s, int neq)
  ** \remark Hilger 1990.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_svd_inverse(int neq,
+void matrix_svd_inverse(int neq,
                                         double *s,
                                         double *u,
                                         double *v,
@@ -2409,7 +2409,7 @@ GSTLEARN_EXPORT void matrix_svd_inverse(int neq,
  ** \remark Hilger 1990.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_invsvdsym(double *mat, int neq, int rank)
+int matrix_invsvdsym(double *mat, int neq, int rank)
 {
   int i, j, lec, error;
   double *a2, *s, *u, *v;
@@ -2516,7 +2516,7 @@ static int st_match_index(int index, int nitem, int *items)
  ** \param[out] v2      Output rectangular matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_manage(int nrows,
+void matrix_manage(int nrows,
                                    int ncols,
                                    int nr,
                                    int nc,
@@ -2558,7 +2558,7 @@ GSTLEARN_EXPORT void matrix_manage(int nrows,
  ** \remark  Matrix c[] can coincide with matrices a[] or b[]
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_combine(int nval,
+void matrix_combine(int nval,
                                     double coeffa,
                                     double *a,
                                     double coeffb,
@@ -2588,7 +2588,7 @@ GSTLEARN_EXPORT void matrix_combine(int nval,
  ** \remark  i >= j have already been filled
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_fill_symmetry(int neq, double *a)
+void matrix_fill_symmetry(int neq, double *a)
 {
   int i, j;
 
@@ -2605,7 +2605,7 @@ GSTLEARN_EXPORT void matrix_fill_symmetry(int neq, double *a)
      ** \param[in]  tab   vector
      **
      *****************************************************************************/
-GSTLEARN_EXPORT double matrix_norminf(int nval, double *tab)
+double matrix_norminf(int nval, double *tab)
 {
   double value, retval;
   int i;
@@ -2627,7 +2627,7 @@ GSTLEARN_EXPORT double matrix_norminf(int nval, double *tab)
  ** \param[in]  tab   vector
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double matrix_norml1(int nval, double *tab)
+double matrix_norml1(int nval, double *tab)
 {
   double retval;
   int i;
@@ -2650,7 +2650,7 @@ GSTLEARN_EXPORT double matrix_norml1(int nval, double *tab)
  ** \remark Matrices a() and b() may not coincide
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_square(int neq, double *a, double *b)
+void matrix_square(int neq, double *a, double *b)
 {
   int i1, i2, i3;
   double value;
@@ -2677,7 +2677,7 @@ GSTLEARN_EXPORT void matrix_square(int neq, double *a, double *b)
  ** \param[in]  a   square matrix (VectorDouble)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT VectorDouble matrix_square_VD(int neq, const VectorDouble &a)
+VectorDouble matrix_square_VD(int neq, const VectorDouble &a)
 {
   VectorDouble b;
   int i1, i2, i3;
@@ -2710,7 +2710,7 @@ GSTLEARN_EXPORT VectorDouble matrix_square_VD(int neq, const VectorDouble &a)
  ** \remark Matrices a() and b() may coincide
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_product_by_diag(int mode,
+void matrix_product_by_diag(int mode,
                                             int neq,
                                             double *a,
                                             double *c,
@@ -2744,7 +2744,7 @@ GSTLEARN_EXPORT void matrix_product_by_diag(int mode,
  ** \param[in]  c     vector
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_product_by_diag_VD(int mode,
+void matrix_product_by_diag_VD(int mode,
                                                int neq,
                                                VectorDouble a,
                                                const VectorDouble &c)
@@ -2782,7 +2782,7 @@ GSTLEARN_EXPORT void matrix_product_by_diag_VD(int mode,
  ** \remark Matrix x() can coincide with a() or b()
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_linear(int neq,
+void matrix_linear(int neq,
                                    double a1,
                                    double *a,
                                    double b1,
@@ -2815,7 +2815,7 @@ GSTLEARN_EXPORT void matrix_linear(int neq,
      ** \remark and zero only when both factors are zero
      **
      *****************************************************************************/
-GSTLEARN_EXPORT int matrix_eigen_tridiagonal(const double *vecdiag,
+int matrix_eigen_tridiagonal(const double *vecdiag,
                                              const double *vecinf,
                                              const double *vecsup,
                                              int neq,
@@ -2891,7 +2891,7 @@ GSTLEARN_EXPORT int matrix_eigen_tridiagonal(const double *vecdiag,
  ** \remark In output, hmat contains the inverse matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_qo(int neq, double *hmat, double *gmat, double *xmat)
+int matrix_qo(int neq, double *hmat, double *gmat, double *xmat)
 {
   int error;
   double cond;
@@ -2928,7 +2928,7 @@ GSTLEARN_EXPORT int matrix_qo(int neq, double *hmat, double *gmat, double *xmat)
  ** \remark In output, H contains the inverse matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_qoc(int flag_invert,
+int matrix_qoc(int flag_invert,
                                int neq,
                                double *hmat,
                                double *gmat,
@@ -3171,7 +3171,7 @@ static int st_calcul_error(int neq,
  **
  ** REMAKRS:    The initial xmat has to satisfied all the constraints.
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_qoci(int neq,
+int matrix_qoci(int neq,
                                 double *hmat,
                                 double *gmat,
                                 int nae,
@@ -3326,7 +3326,7 @@ GSTLEARN_EXPORT int matrix_qoci(int neq,
  ** \param[out] norme2 Norm L2 of the matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_range(int n1,
+void matrix_range(int n1,
                                   int n2,
                                   double *v1,
                                   double *mini,
@@ -3375,7 +3375,7 @@ GSTLEARN_EXPORT void matrix_range(int n1,
  ** \param[out] n32  Second dimension of the output matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* matrix_bind(int mode,
+double* matrix_bind(int mode,
                                     int n11,
                                     int n12,
                                     double *a1,
@@ -3478,7 +3478,7 @@ GSTLEARN_EXPORT double* matrix_bind(int mode,
  ** \param[in]  tab  Array of values
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_get_extreme(int mode, int ntab, double *tab)
+int matrix_get_extreme(int mode, int ntab, double *tab)
 {
   int i, ibest;
   double vbest;
@@ -3529,7 +3529,7 @@ GSTLEARN_EXPORT int matrix_get_extreme(int mode, int ntab, double *tab)
  ** \param[in]  neq  number of equations in the matrix 'a'
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int matrix_invreal(double *mat, int neq)
+int matrix_invreal(double *mat, int neq)
 {
   double *cofac, det;
   int error;
@@ -3587,7 +3587,7 @@ GSTLEARN_EXPORT int matrix_invreal(double *mat, int neq)
  ** \param[in]  a    Square matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_set_identity(int neq, double *a)
+void matrix_set_identity(int neq, double *a)
 {
   for (int i = 0; i < neq; i++)
     for (int j = 0; j < neq; j++)
@@ -3611,7 +3611,7 @@ GSTLEARN_EXPORT void matrix_set_identity(int neq, double *a)
      ** \remark  It is unnecessary to edit a message if inversion problem occurs
      **
      *****************************************************************************/
-GSTLEARN_EXPORT int matrix_invert_triangle(int neq, double *tl, int rank)
+int matrix_invert_triangle(int neq, double *tl, int rank)
 {
   double *a;
   int error;
@@ -3635,7 +3635,7 @@ GSTLEARN_EXPORT int matrix_invert_triangle(int neq, double *tl, int rank)
  ** \param[in]  tu   Upper Triangular Matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void matrix_tl2tu(int neq, const double *tl, double *tu)
+void matrix_tl2tu(int neq, const double *tl, double *tu)
 {
   for (int i = 0; i < neq; i++)
     for (int j = 0; j <= i; j++)

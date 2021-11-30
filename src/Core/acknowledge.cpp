@@ -23,7 +23,7 @@
 ** \remarks The output arrays should be freed by the calling program
 **
 ****************************************************************************/
-GSTLEARN_EXPORT void inquire_gstlearn(char **release,
+void inquire_gstlearn(char **release,
                                       char **date)
 {
   char *buffer;
@@ -46,7 +46,7 @@ GSTLEARN_EXPORT void inquire_gstlearn(char **release,
  *  Acknowledgment of the authors for gstlearn Library
  *
  ****************************************************************************/
-GSTLEARN_EXPORT void acknowledge_gstlearn(void)
+void acknowledge_gstlearn(void)
 
 {
   // Print the header 

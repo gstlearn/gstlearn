@@ -9,7 +9,7 @@
 #include <numeric>
 #include <iostream>
 
-GSTLEARN_EXPORT VectorDouble range(int n)
+VectorDouble range(int n)
 {
   VectorDouble res;
   int i = 0;
@@ -21,7 +21,7 @@ GSTLEARN_EXPORT VectorDouble range(int n)
   return (res);
 }
 
-GSTLEARN_EXPORT void migrate_grid_to_point2(const Database &db_grid,
+void migrate_grid_to_point2(const Database &db_grid,
                                             Database &db_point,
                                             const std::string &name,
                                             int ldmax,
@@ -38,7 +38,7 @@ GSTLEARN_EXPORT void migrate_grid_to_point2(const Database &db_grid,
   db_point.fromGeoslib(dbpointgeos);
 }
 
-GSTLEARN_EXPORT void migrate_point_to_grid2(const Database &db_point,
+void migrate_point_to_grid2(const Database &db_point,
                                             Database &db_grid,
                                             const std::string &name,
                                             int ldmax,
@@ -55,7 +55,7 @@ GSTLEARN_EXPORT void migrate_point_to_grid2(const Database &db_point,
   db_grid.fromGeoslib(dbg_geos);
 }
 
-GSTLEARN_EXPORT void migrate_grid_to_grid2(const Database &dbgin,
+void migrate_grid_to_grid2(const Database &dbgin,
                                            Database &dbgout,
                                            const std::string &name,
                                            int ldmax,
@@ -73,7 +73,7 @@ GSTLEARN_EXPORT void migrate_grid_to_grid2(const Database &dbgin,
   dbgout.fromGeoslib(dbg_geos);
 }
 
-GSTLEARN_EXPORT void mes_error(ES error)
+void mes_error(ES error)
 {
   if (error == ES_NAME)
     std::cout << "Error : Duplicate name in Database" << std::endl;
@@ -141,7 +141,7 @@ GSTLEARN_EXPORT void mes_error(ES error)
 //                 incr.data(),res.data());
 //  return res;
 //}
-GSTLEARN_EXPORT void kriging2(const Database &dbin,
+void kriging2(const Database &dbin,
                               Database &dbout,
                               Model *model,
                               Neigh *neigh)
@@ -153,14 +153,14 @@ GSTLEARN_EXPORT void kriging2(const Database &dbin,
   dbout.display();
 }
 
-GSTLEARN_EXPORT Neigh* neigh_unique(int ndim)
+Neigh* neigh_unique(int ndim)
 {
   return (neigh_init(ndim, ENeigh::UNIQUE, false, false, false, false, false, 1,
                      1, 1, 1, 1, 1, 1, 0.5, VectorDouble(), VectorDouble(),
                      VectorInt()));
 }
 
-GSTLEARN_EXPORT Neigh* neigh_moving(int ndim,
+Neigh* neigh_moving(int ndim,
                                     int flag_sector,
                                     int flag_rotation,
                                     int nmini,
@@ -175,7 +175,7 @@ GSTLEARN_EXPORT Neigh* neigh_moving(int ndim,
                      radius, 0.5, VectorDouble(), Rotation, VectorInt()));
 }
 
-GSTLEARN_EXPORT Neigh* my_neigh_init(int ndim,
+Neigh* my_neigh_init(int ndim,
                                      ENeigh type,
                                      int flag_xvalid,
                                      int flag_sector,
@@ -200,12 +200,12 @@ GSTLEARN_EXPORT Neigh* my_neigh_init(int ndim,
                      nbgh_image));
 }
 
-GSTLEARN_EXPORT VectorDouble affiche(Db *db)
+VectorDouble affiche(Db *db)
 {
   return (db->getArrays());
 }
 
-GSTLEARN_EXPORT void my_db_print(Db *db)
+void my_db_print(Db *db)
 {
   db_print(db, 1, 1, 1, 1, 1);
 

@@ -275,7 +275,7 @@ String DirParam::toString(int /*level*/) const
   return sstr.str();
 }
 
-GSTLEARN_EXPORT std::vector<DirParam> generateMultipleDirs(int ndim,
+std::vector<DirParam> generateMultipleDirs(int ndim,
                                                            int ndir,
                                                            int npas,
                                                            double dpas,
@@ -296,7 +296,7 @@ GSTLEARN_EXPORT std::vector<DirParam> generateMultipleDirs(int ndim,
   return dirs;
 }
 
-GSTLEARN_EXPORT std::vector<DirParam> generateMultipleGridDirs(int ndim, int npas)
+std::vector<DirParam> generateMultipleGridDirs(int ndim, int npas)
 {
   VectorInt grincr = VectorInt(ndim);
   std::vector<DirParam> dirs;

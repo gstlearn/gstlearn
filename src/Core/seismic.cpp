@@ -533,7 +533,7 @@ static void st_seismic_debug(int rankz,
  ** \param[out] dx      Mesh of the grid along each direction
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int seismic_z2t_grid(int verbose,
+int seismic_z2t_grid(int verbose,
                                      Db *db_z,
                                      int iatt_v,
                                      int *nx,
@@ -612,7 +612,7 @@ GSTLEARN_EXPORT int seismic_z2t_grid(int verbose,
  ** \param[out] dx      Mesh of the grid along each direction
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int seismic_t2z_grid(int verbose,
+int seismic_t2z_grid(int verbose,
                                      Db *db_t,
                                      int iatt_v,
                                      int *nx,
@@ -1554,7 +1554,7 @@ static void st_seismic_convolve(int nx,
  ** \remark determine interval velocities at times not specified.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int seismic_z2t_convert(Db *db_z, int iatt_v, Db *db_t)
+int seismic_z2t_convert(Db *db_z, int iatt_v, Db *db_t)
 {
   Db *db_v;
   double *tz, *zt, *az, *at, z0, z1, t0, t1, dz, dt;
@@ -1625,7 +1625,7 @@ GSTLEARN_EXPORT int seismic_z2t_convert(Db *db_z, int iatt_v, Db *db_t)
  ** \remark determine interval velocities at times not specified.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int seismic_t2z_convert(Db *db_t, int iatt_v, Db *db_z)
+int seismic_t2z_convert(Db *db_t, int iatt_v, Db *db_z)
 {
   Db *db_v;
   double *zt, *tz, *az, *at, z0, z1, t0, t1, dz, dt;
@@ -1694,7 +1694,7 @@ GSTLEARN_EXPORT int seismic_t2z_convert(Db *db_t, int iatt_v, Db *db_z)
  ** \remark the input contains 0 values, 0 values are returned.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int seismic_operate(Db *db, int oper)
+int seismic_operate(Db *db, int oper)
 {
   int ndim, natt, nt, iatt_in, iatt_out;
   double dt;
@@ -1841,7 +1841,7 @@ static void st_seismic_contrast(int nz, double *tab)
  ** \param[in]  wavelet     Wavelet defined as input (Dimension: 2*ntw+1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int seismic_convolve(Db *db,
+int seismic_convolve(Db *db,
                                      int flag_operate,
                                      int flag_contrast,
                                      int type,
@@ -3060,7 +3060,7 @@ static int st_estimate_sort(int *presence, int *rank)
  ** \param[in]  flag_stat  1 for producing final statistics
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int seismic_estimate_XZ(Db *db,
+int seismic_estimate_XZ(Db *db,
                                         Model *model,
                                         int nbench,
                                         int nv2max,
@@ -3327,7 +3327,7 @@ static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
  ** \param[in]  flag_stat  1 for producing final statistics
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int seismic_simulate_XZ(Db *db,
+int seismic_simulate_XZ(Db *db,
                                         Model *model,
                                         int nbench,
                                         int nv2max,

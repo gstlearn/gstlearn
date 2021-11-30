@@ -42,21 +42,21 @@ void _endOfLine()
   std::cout << std::endl;
 }
 
-GSTLEARN_EXPORT void argumentTestInt(int value)
+void argumentTestInt(int value)
 {
   _introduction("Integer");
   _printInt(value);
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentTestDouble(double value)
+void argumentTestDouble(double value)
 {
   _introduction("Double");
   _printDouble(value);
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentTestVectorInt(const VectorInt& values)
+void argumentTestVectorInt(const VectorInt& values)
 {
   _introduction("Vector Integer");
   for (int i = 0; i < (int) values.size(); i++)
@@ -64,7 +64,7 @@ GSTLEARN_EXPORT void argumentTestVectorInt(const VectorInt& values)
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentTestVectorDouble(const VectorDouble& values)
+void argumentTestVectorDouble(const VectorDouble& values)
 {
   _introduction("Vector Double");
   for (int i = 0; i < (int) values.size(); i++)
@@ -72,14 +72,14 @@ GSTLEARN_EXPORT void argumentTestVectorDouble(const VectorDouble& values)
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentTestString(const String& value)
+void argumentTestString(const String& value)
 {
   _introduction("String");
   _printString(value);
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentTestVectorString(const VectorString& values)
+void argumentTestVectorString(const VectorString& values)
 {
   _introduction("Vector String");
   for (int i = 0; i < (int) values.size(); i++)
@@ -87,14 +87,14 @@ GSTLEARN_EXPORT void argumentTestVectorString(const VectorString& values)
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentTestSurcharge(const String& value)
+void argumentTestSurcharge(const String& value)
 {
   _introduction("String (surcharge)");
   _printString(value);
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentTestSurcharge(const VectorString& values)
+void argumentTestSurcharge(const VectorString& values)
 {
   _introduction("Vector String (surcharge)");
   for (int i = 0; i < (int) values.size(); i++)
@@ -102,7 +102,7 @@ GSTLEARN_EXPORT void argumentTestSurcharge(const VectorString& values)
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentTestEnum(ETests value)
+void argumentTestEnum(ETests value)
 {
   std::cout << value.getValue() << std::endl;
 }

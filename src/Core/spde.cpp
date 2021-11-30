@@ -219,7 +219,7 @@ static void st_matelem_print(int icov)
  ** \param[in]  triswitch   String defining the meshing characteristics
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void spde_option_update(SPDE_Option &s_option,
+void spde_option_update(SPDE_Option &s_option,
                                         const String &triswitch)
 {
   /* Add a new SPDE_SS_Option structure */
@@ -243,7 +243,7 @@ GSTLEARN_EXPORT void spde_option_update(SPDE_Option &s_option,
  **  Manage the SPDE_Option structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT SPDE_Option spde_option_alloc(void)
+SPDE_Option spde_option_alloc(void)
 {
   SPDE_Option s_option;
 
@@ -328,7 +328,7 @@ static String st_get_current_triswitch(SPDE_Option &s_option)
  ** \param[in] icov    Rank of the target Covariance (or -1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(int icov)
+SPDE_Matelem& spde_get_current_matelem(int icov)
 {
   if (icov < 0)
     return (st_get_current_ssenv()->Matelems[st_get_current_icov()]);
@@ -483,7 +483,7 @@ static cs_MGS* st_mgs_manage(int mode, cs_MGS *mgs)
  ** \param[in]  s_mesh_old Pointer to SPDE_Mesh to be deallocated
  **
  *****************************************************************************/
-GSTLEARN_EXPORT SPDE_Mesh* spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
+SPDE_Mesh* spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
 {
   SPDE_Mesh *s_mesh;
 
@@ -532,7 +532,7 @@ GSTLEARN_EXPORT SPDE_Mesh* spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
  ** \param[in]  st_simu_transf  Pointer to the transformation function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void simu_define_func_transf(void (*st_simu_transf)(Db*,
+void simu_define_func_transf(void (*st_simu_transf)(Db*,
                                                                     int,
                                                                     int,
                                                                     int))
@@ -548,7 +548,7 @@ GSTLEARN_EXPORT void simu_define_func_transf(void (*st_simu_transf)(Db*,
  ** \param[in]  st_simu_update  Pointer to the update function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void simu_define_func_update(void (*st_simu_update)(Db*,
+void simu_define_func_update(void (*st_simu_update)(Db*,
                                                                     int,
                                                                     int,
                                                                     int))
@@ -563,7 +563,7 @@ GSTLEARN_EXPORT void simu_define_func_update(void (*st_simu_update)(Db*,
  ** \param[in]  st_simu_scale  Pointer to the scaling function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void simu_define_func_scale(void (*st_simu_scale)(Db*,
+void simu_define_func_scale(void (*st_simu_scale)(Db*,
                                                                   int,
                                                                   int))
 {
@@ -844,7 +844,7 @@ static int st_is_duplicated(Vercoloc *vercoloc, int mode, int iech)
  ** \remarks The returned array is numbered starting from 1
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int* vercoloc_get_dbin_indices(Vertype *vertype,
+int* vercoloc_get_dbin_indices(Vertype *vertype,
                                                Vercoloc *vercoloc,
                                                int *nbnodup)
 {
@@ -1252,7 +1252,7 @@ static QSimu* st_qsimu_manage(int mode, SPDE_Mesh *s_mesh, QSimu *qsimu)
  ** \param[in]  QC         Pointer to the QChol structure (when mode < 0)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT QChol* qchol_manage(int mode, QChol *QC)
+QChol* qchol_manage(int mode, QChol *QC)
 {
 
   /* Dispatch */
@@ -1600,7 +1600,7 @@ static void st_compute_correc(void)
   Calcul.correc = value;
 }
 
-GSTLEARN_EXPORT double spde_compute_correc(int ndim, double param)
+double spde_compute_correc(int ndim, double param)
 
 {
   double g0, ndims2, gammap, gammaa, value;
@@ -1792,7 +1792,7 @@ static void st_convert_exponential2bessel(CovAniso *cova)
  ** \param[in]  model        Model structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_attach_model(Model *model)
+int spde_attach_model(Model *model)
 
 {
   CovAniso *cova;
@@ -2573,7 +2573,7 @@ static void st_vertype_load(Vertype *vertype,
  ** \param[in]  nvertex    Number of vertices
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Vertype* vertype_manage(int mode,
+Vertype* vertype_manage(int mode,
                                         Vertype *vertype,
                                         Vercoloc *vercoloc,
                                         int nvertex)
@@ -2741,7 +2741,7 @@ static int st_filter(double *work, double *y)
  ** \param[out] vcur     Output array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_build_stdev(double *vcur)
+int spde_build_stdev(double *vcur)
 {
   int *wZdiagp, *wLmunch, error, nzmax, ntarget;
   double *d2, *wz, *diag, *z;
@@ -4192,7 +4192,7 @@ static int st_build_Q(SPDE_Matelem &Matelem)
  ** \remarks It must be freed by the calling functions
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_build_matrices(Model *model, int verbose)
+int spde_build_matrices(Model *model, int verbose)
 {
   int error;
   double *units;
@@ -4576,7 +4576,7 @@ static int st_simulate_cholesky(QChol *QC, double *work, double *zsnc)
  ** \param[out]    y          Output array (Dimension: nvertex)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_chebychev_operate(cs *S,
+int spde_chebychev_operate(cs *S,
                                            Cheb_Elem *cheb_elem,
                                            const VectorDouble &lambda,
                                            const double *x,
@@ -5462,7 +5462,7 @@ static int st_kriging(SPDE_Mesh *s_mesh, double *data, double *zkrig)
  ** \remarks Argument 'cheb_old' is used if mode=-1
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Cheb_Elem* spde_cheb_manage(int mode,
+Cheb_Elem* spde_cheb_manage(int mode,
                                             int verbose,
                                             double power,
                                             int nblin,
@@ -5754,7 +5754,7 @@ static int st_simulate(QChol *QC, double *zsnc)
  ** \remarks  the simulation algorithm is turned into a kriging one
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_process(Db *dbin,
+int spde_process(Db *dbin,
                                  Db *dbout,
                                  SPDE_Option &s_option,
                                  int nbsimu,
@@ -6488,7 +6488,7 @@ static int st_is_external_AQ_defined(int icov0)
  ** \param[in]  icov0    Rank of the current Covariance
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
+int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
 {
   int size;
 
@@ -6548,7 +6548,7 @@ GSTLEARN_EXPORT int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
  ** \param[in]  icov0    Rank of the current Covariance
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
+int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
 {
   SPDE_Mesh *s_mesh;
 
@@ -6610,7 +6610,7 @@ GSTLEARN_EXPORT int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
  ** \param[in]  s_option   SPDE_Option structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_mesh_load(SPDE_Mesh *s_mesh,
+int spde_mesh_load(SPDE_Mesh *s_mesh,
                                    int verbose,
                                    Db *dbin,
                                    Db *dbout,
@@ -6812,7 +6812,7 @@ static int st_external_vertype_define(SPDE_Mesh *s_mesh,
  ** \param[in]  points    Array containing the vertex coordinates
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_external_mesh_define(int mode,
+int spde_external_mesh_define(int mode,
                                               int icov0,
                                               int ndim,
                                               int ncorner,
@@ -6898,7 +6898,7 @@ GSTLEARN_EXPORT int spde_external_mesh_define(int mode,
  ** \param[in]  Q         Sparse matrix
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_external_AQ_define(int mode,
+int spde_external_AQ_define(int mode,
                                             int icov0,
                                             int ndim,
                                             int nvertex,
@@ -6971,7 +6971,7 @@ GSTLEARN_EXPORT int spde_external_AQ_define(int mode,
  ** \param[in,out]  s_mesh   Pointer to SPDE_Mesh to be assigned
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void spde_mesh_assign(SPDE_Mesh *s_mesh,
+void spde_mesh_assign(SPDE_Mesh *s_mesh,
                                       int ndim,
                                       int ncorner,
                                       int nvertex,
@@ -7015,7 +7015,7 @@ GSTLEARN_EXPORT void spde_mesh_assign(SPDE_Mesh *s_mesh,
  ** \param[in]  s_option    SPDE_Option structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_prepar(Db *dbin,
+int spde_prepar(Db *dbin,
                                 Db *dbout,
                                 const VectorDouble &gext,
                                 SPDE_Option &s_option)
@@ -7183,7 +7183,7 @@ GSTLEARN_EXPORT int spde_prepar(Db *dbin,
  ** \param[in]  s_option    SPDE_Option structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_posterior(Db *dbin,
+int spde_posterior(Db *dbin,
                                    Db *dbout,
                                    const VectorDouble &gext,
                                    SPDE_Option &s_option)
@@ -7492,7 +7492,7 @@ static bool is_in_mesh_container(double *coor,
  ** \remarks order in Db)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT cs* db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
+cs* db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
 {
   double *units, *coor, *contain, *weight;
   int error, imesh, imesh0, ip, flag_sphere, found, iech, ip_max;
@@ -7670,7 +7670,7 @@ static double* st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
  **  Free all memory used in SPDE
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void spde_free_all(void)
+void spde_free_all(void)
 
 {
   for (int igrf = 0; igrf < SPDE_MAX_NGRF; igrf++)
@@ -7704,7 +7704,7 @@ GSTLEARN_EXPORT void spde_free_all(void)
  ** \param[in]  flag_modif    1 for post-processing simulations
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_check(const Db *dbin,
+int spde_check(const Db *dbin,
                                const Db *dbout,
                                Model *model1,
                                Model *model2,
@@ -7870,7 +7870,7 @@ GSTLEARN_EXPORT int spde_check(const Db *dbin,
  ** \remark Hence the test on the number of models
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
+int kriging2D_spde(Db *dbin,
                                    Model *model,
                                    SPDE_Option &s_option,
                                    int verbose,
@@ -8001,7 +8001,7 @@ GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
  ** \remarks  the simulation algorithm is turned into a kriging one
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_f(Db *dbin,
+int spde_f(Db *dbin,
                            Db *dbout,
                            Model *model,
                            const VectorDouble &gext,
@@ -8163,7 +8163,7 @@ static void st_product_Q(int nblin,
  ** \param[out] y         Output array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spde_eval(int nblin,
+int spde_eval(int nblin,
                               double *blin,
                               cs *S,
                               const VectorDouble &Lambda,
@@ -9797,7 +9797,7 @@ static QChol* st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem &Matelem)
  ** \remarks if the smallest value between the Db et Mesh space dimensions.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT cs* db_mesh_neigh(const Db *db,
+cs* db_mesh_neigh(const Db *db,
                                   SPDE_Mesh *s_mesh,
                                   double radius,
                                   int flag_exact,
@@ -10634,7 +10634,7 @@ static void st_m2d_stats_gaus(const char *title,
  ** \remarks It will serve as a multiplier to the Mean thickness maps.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int m2d_gibbs_spde(Db *dbin,
+int m2d_gibbs_spde(Db *dbin,
                                    Db *dbout,
                                    Model *model,
                                    int flag_ed,

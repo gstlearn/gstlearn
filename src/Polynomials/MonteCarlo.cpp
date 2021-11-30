@@ -22,7 +22,7 @@
  * @param psi Vector of Hermite coefficients
  * @return Vector of returned values for all Hermite coefficients
  */
-GSTLEARN_EXPORT double integralGaussHermite(double yc,
+double integralGaussHermite(double yc,
                                             double r,
                                             const VectorDouble &psi)
 {
@@ -31,12 +31,12 @@ GSTLEARN_EXPORT double integralGaussHermite(double yc,
   double value = hermiteSeries(vect, psi);
   return r * r * value;
 }
-GSTLEARN_EXPORT void normalizeResults(int nbsimu, double &valest)
+void normalizeResults(int nbsimu, double &valest)
 {
   valest /= (double) nbsimu;
 }
 
-GSTLEARN_EXPORT void normalizeResults(int nbsimu,
+void normalizeResults(int nbsimu,
                                       double &valest,
                                       double &valstd)
 {
@@ -46,7 +46,7 @@ GSTLEARN_EXPORT void normalizeResults(int nbsimu,
                            0.;
 }
 
-GSTLEARN_EXPORT VectorDouble MCCondExp(VectorDouble krigest,
+VectorDouble MCCondExp(VectorDouble krigest,
                                        VectorDouble krigstd,
                                        const VectorDouble &psi,
                                        int nbsimu)
@@ -71,7 +71,7 @@ GSTLEARN_EXPORT VectorDouble MCCondExp(VectorDouble krigest,
   return condexp;
 }
 
-GSTLEARN_EXPORT double MCCondExpElement(double krigest,
+double MCCondExpElement(double krigest,
                                         double krigstd,
                                         const VectorDouble &psi,
                                         int nbsimu)
@@ -87,7 +87,7 @@ GSTLEARN_EXPORT double MCCondExpElement(double krigest,
   return valest;
 }
 
-GSTLEARN_EXPORT VectorDouble MCCondStd(VectorDouble krigest,
+VectorDouble MCCondStd(VectorDouble krigest,
                                        VectorDouble krigstd,
                                        const VectorDouble &psi,
                                        int nbsimu)
@@ -114,7 +114,7 @@ GSTLEARN_EXPORT VectorDouble MCCondStd(VectorDouble krigest,
   return condstd;
 }
 
-GSTLEARN_EXPORT double MCCondStdElement(double krigest,
+double MCCondStdElement(double krigest,
                                         double krigstd,
                                         const VectorDouble &psi,
                                         int nbsimu)
@@ -132,7 +132,7 @@ GSTLEARN_EXPORT double MCCondStdElement(double krigest,
   return valstd;
 }
 
-GSTLEARN_EXPORT VectorDouble MCIndicator(double yc,
+VectorDouble MCIndicator(double yc,
                                          VectorDouble krigest,
                                          VectorDouble krigstd,
                                          int nbsimu)
@@ -159,7 +159,7 @@ GSTLEARN_EXPORT VectorDouble MCIndicator(double yc,
   return proba;
 }
 
-GSTLEARN_EXPORT double MCIndicatorElement(double yc,
+double MCIndicatorElement(double yc,
                                           double krigest,
                                           double krigstd,
                                           int nbsimu)
@@ -194,7 +194,7 @@ VectorDouble MCIndicatorStd(double yc,
   return probstd;
 }
 
-GSTLEARN_EXPORT double MCIndicatorStdElement(double yc,
+double MCIndicatorStdElement(double yc,
                                              double krigest,
                                              double krigstd,
                                              int nbsimu)
@@ -232,7 +232,7 @@ VectorDouble MCMetal(double yc,
   return metal;
 }
 
-GSTLEARN_EXPORT double MCMetalElement(double yc,
+double MCMetalElement(double yc,
                                       double krigest,
                                       double krigstd,
                                       const VectorDouble &psi,
@@ -251,7 +251,7 @@ GSTLEARN_EXPORT double MCMetalElement(double yc,
   return metal;
 }
 
-GSTLEARN_EXPORT VectorDouble MCMetalStd(double yc,
+VectorDouble MCMetalStd(double yc,
                                         VectorDouble krigest,
                                         VectorDouble krigstd,
                                         const VectorDouble &psi,
@@ -282,7 +282,7 @@ GSTLEARN_EXPORT VectorDouble MCMetalStd(double yc,
   return metstd;
 }
 
-GSTLEARN_EXPORT double MCMetalStdElement(double yc,
+double MCMetalStdElement(double yc,
                                          double krigest,
                                          double krigstd,
                                          const VectorDouble &psi,

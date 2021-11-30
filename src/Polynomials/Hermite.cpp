@@ -123,7 +123,7 @@ void _calculateJJ(MatrixSquareGeneral &JJ,
  * @param nbpoly Number of Hermite polynomials
  * @return The vector of polynomials (Dimension: nbpoly)
  */
-GSTLEARN_EXPORT VectorDouble hermitePolynomials(double y, double r, int nbpoly)
+VectorDouble hermitePolynomials(double y, double r, int nbpoly)
 {
   VectorDouble poly(nbpoly);
   if (nbpoly < 1) return poly;
@@ -161,7 +161,7 @@ GSTLEARN_EXPORT VectorDouble hermitePolynomials(double y, double r, int nbpoly)
  * @param phi Array of Hermite coefficients
  * @return Conditional Expectation
  */
-GSTLEARN_EXPORT VectorDouble hermiteCondExp(VectorDouble krigest,
+VectorDouble hermiteCondExp(VectorDouble krigest,
                                             VectorDouble krigstd,
                                             const VectorDouble &phi)
 {
@@ -177,7 +177,7 @@ GSTLEARN_EXPORT VectorDouble hermiteCondExp(VectorDouble krigest,
   return condexp;
 }
 
-GSTLEARN_EXPORT double hermiteCondExpElement(double krigest,
+double hermiteCondExpElement(double krigest,
                                              double krigstd,
                                              const VectorDouble &phi)
 {
@@ -198,7 +198,7 @@ GSTLEARN_EXPORT double hermiteCondExpElement(double krigest,
  * @param phi Array of Hermite coefficients
  * @return
  */
-GSTLEARN_EXPORT VectorDouble hermiteCondStd(VectorDouble krigest,
+VectorDouble hermiteCondStd(VectorDouble krigest,
                                             VectorDouble krigstd,
                                             const VectorDouble &phi)
 {
@@ -213,7 +213,7 @@ GSTLEARN_EXPORT VectorDouble hermiteCondStd(VectorDouble krigest,
   return condstd;
 }
 
-GSTLEARN_EXPORT double hermiteCondStdElement(double krigest,
+double hermiteCondStdElement(double krigest,
                                              double krigstd,
                                              const VectorDouble &phi)
 {
@@ -243,7 +243,7 @@ GSTLEARN_EXPORT double hermiteCondStdElement(double krigest,
  * @param krigstd Standard deviation of estimation error
  * @return The indicator above Cutoff
  */
-GSTLEARN_EXPORT VectorDouble hermiteIndicator(double yc,
+VectorDouble hermiteIndicator(double yc,
                                               VectorDouble krigest,
                                               VectorDouble krigstd)
 {
@@ -257,7 +257,7 @@ GSTLEARN_EXPORT VectorDouble hermiteIndicator(double yc,
   return proba;
 }
 
-GSTLEARN_EXPORT double hermiteIndicatorElement(double yc,
+double hermiteIndicatorElement(double yc,
                                                double krigest,
                                                double krigstd)
 {
@@ -269,7 +269,7 @@ GSTLEARN_EXPORT double hermiteIndicatorElement(double yc,
   return proba;
 }
 
-GSTLEARN_EXPORT VectorDouble hermiteIndicatorStd(double yc,
+VectorDouble hermiteIndicatorStd(double yc,
                                                  VectorDouble krigest,
                                                  VectorDouble krigstd)
 {
@@ -283,7 +283,7 @@ GSTLEARN_EXPORT VectorDouble hermiteIndicatorStd(double yc,
   return probstd;
 }
 
-GSTLEARN_EXPORT double hermiteIndicatorStdElement(double yc,
+double hermiteIndicatorStdElement(double yc,
                                                   double krigest,
                                                   double krigstd)
 {
@@ -300,7 +300,7 @@ GSTLEARN_EXPORT double hermiteIndicatorStdElement(double yc,
  * @param phi  Hermite coefficients
  * @return The Metal
  */
-GSTLEARN_EXPORT VectorDouble hermiteMetal(double yc,
+VectorDouble hermiteMetal(double yc,
                                           VectorDouble krigest,
                                           VectorDouble krigstd,
                                           const VectorDouble &phi)
@@ -324,7 +324,7 @@ GSTLEARN_EXPORT VectorDouble hermiteMetal(double yc,
   return metal;
 }
 
-GSTLEARN_EXPORT double hermiteMetalElement(double yc,
+double hermiteMetalElement(double yc,
                                            double krigest,
                                            double krigstd,
                                            const VectorDouble &phi)
@@ -343,7 +343,7 @@ GSTLEARN_EXPORT double hermiteMetalElement(double yc,
   return metal;
 }
 
-GSTLEARN_EXPORT VectorDouble hermiteMetalStd(double yc,
+VectorDouble hermiteMetalStd(double yc,
                                              VectorDouble krigest,
                                              VectorDouble krigstd,
                                              const VectorDouble &phi)
@@ -374,7 +374,7 @@ GSTLEARN_EXPORT VectorDouble hermiteMetalStd(double yc,
   return metstd;
 }
 
-GSTLEARN_EXPORT double hermiteMetalStdElement(double yc,
+double hermiteMetalStdElement(double yc,
                                               double krigest,
                                               double krigstd,
                                               const VectorDouble &phi)
@@ -408,7 +408,7 @@ GSTLEARN_EXPORT double hermiteMetalStdElement(double yc,
  * @param nbpoly Number of Hermite polynomials
  * @return The vector of coefficients of the Indicator
  */
-GSTLEARN_EXPORT VectorDouble hermiteCoefIndicator(double yc, int nbpoly)
+VectorDouble hermiteCoefIndicator(double yc, int nbpoly)
 {
   VectorDouble hn = hermitePolynomials(yc, 1., nbpoly);
   VectorDouble an(nbpoly);
@@ -426,7 +426,7 @@ GSTLEARN_EXPORT VectorDouble hermiteCoefIndicator(double yc, int nbpoly)
  * @param phi Coefficients of Hermite polynomial
  * @return The vector of coefficients of the Metal Quantity
  */
-GSTLEARN_EXPORT VectorDouble hermiteCoefMetal(double yc,
+VectorDouble hermiteCoefMetal(double yc,
                                               const VectorDouble &phi)
 {
   int nbpoly = static_cast<int>(phi.size());
@@ -442,7 +442,7 @@ GSTLEARN_EXPORT VectorDouble hermiteCoefMetal(double yc,
  * @param nbpoly Number of Hermite polynomials
  * @return The matrix of Incomplete Integral (Dimension: nbpoly * nbpoly)
  */
-GSTLEARN_EXPORT MatrixSquareGeneral hermiteIncompleteIntegral(double yc,
+MatrixSquareGeneral hermiteIncompleteIntegral(double yc,
                                                               int nbpoly)
 {
   MatrixSquareGeneral TAU;
@@ -489,7 +489,7 @@ GSTLEARN_EXPORT MatrixSquareGeneral hermiteIncompleteIntegral(double yc,
  * @param nbpoly Number of Hermite polynomials
  * @return The array of coefficients
  */
-GSTLEARN_EXPORT VectorDouble hermiteLognormal(double mean,
+VectorDouble hermiteLognormal(double mean,
                                               double sigma,
                                               int nbpoly)
 {
@@ -511,7 +511,7 @@ GSTLEARN_EXPORT VectorDouble hermiteLognormal(double mean,
  * @param hn Hermite polynomial values
  * @return The result of the expansion
  */
-GSTLEARN_EXPORT double hermiteSeries(const VectorDouble &an,
+double hermiteSeries(const VectorDouble &an,
                                      const VectorDouble &hn)
 {
   double value = 0.;
@@ -528,7 +528,7 @@ GSTLEARN_EXPORT double hermiteSeries(const VectorDouble &an,
  * @param nbpoly Number of Polynomial functions
  * @return Coefficients of f(Y)=Yp in Hermite polynomials
  */
-GSTLEARN_EXPORT VectorDouble hermiteFunction(double y, int nbpoly)
+VectorDouble hermiteFunction(double y, int nbpoly)
 {
 // TODO a corriger car le texte actuel ne fait pas sens.
 
@@ -555,7 +555,7 @@ GSTLEARN_EXPORT VectorDouble hermiteFunction(double y, int nbpoly)
  * @param phi Array of Hermite coefficient
  * @return Calculate: E[Z^2| z1,...,zn]
  */
-GSTLEARN_EXPORT VectorDouble hermiteEvaluateZ2(VectorDouble yk,
+VectorDouble hermiteEvaluateZ2(VectorDouble yk,
                                                VectorDouble sk,
                                                const VectorDouble &phi)
 {
@@ -621,7 +621,7 @@ GSTLEARN_EXPORT VectorDouble hermiteEvaluateZ2(VectorDouble yk,
   return tab;
 }
 
-GSTLEARN_EXPORT double hermiteEvaluateZ2(double yk,
+double hermiteEvaluateZ2(double yk,
                                          double sk,
                                          const VectorDouble &phi)
 {

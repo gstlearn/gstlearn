@@ -414,7 +414,7 @@ static double* st_spectrum_any(Model *model,
  ** \remarks: Simsph_Fixed_Degree: to define the Maximum Degree
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int simsph_f(Db *db,
+int simsph_f(Db *db,
                              Model *model,
                              int seed,
                              int special,

@@ -1589,7 +1589,7 @@ static int addnod_(int *nst,
 /*                      a triangulation of nodes 1 to M-1 in   */
 /*                      this case.                             */
 /* *********************************************************** */
-GSTLEARN_EXPORT int trmesh_(int *n,
+int trmesh_(int *n,
                             double *x,
                             double *y,
                             double *z__,
@@ -1886,7 +1886,7 @@ GSTLEARN_EXPORT int trmesh_(int *n,
  ** \param[out] z     Third cartesian coordinate
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
+void util_convert_sph2cart(double rlong,
                                            double rlat,
                                            double *x,
                                            double *y,
@@ -1918,7 +1918,7 @@ GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
  ** \param[out] rlat  Latitude (in degrees)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void util_convert_cart2sph(double x,
+void util_convert_cart2sph(double x,
                                            double y,
                                            double z,
                                            double *rlong,
@@ -2005,7 +2005,7 @@ GSTLEARN_EXPORT void util_convert_cart2sph(double x,
 /*                     completely tested for validity.         */
 /*                                                             */
 /* *********************************************************** */
-GSTLEARN_EXPORT int trlist_(int *n,
+int trlist_(int *n,
                             int *list,
                             int *lptr,
                             int *lend,

@@ -20,7 +20,7 @@
  ** \return  Pointer to the newly created Polygonsn structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Polygons* polygon_create(void)
+Polygons* polygon_create(void)
 
 {
   Polygons *polygon;
@@ -43,7 +43,7 @@ GSTLEARN_EXPORT Polygons* polygon_create(void)
  ** \return  Pointer to the newly freed Polygons structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Polygons* polygon_free(Polygons *polygon)
+Polygons* polygon_free(Polygons *polygon)
 
 {
   if (polygon == nullptr) return (polygon);
@@ -67,7 +67,7 @@ GSTLEARN_EXPORT Polygons* polygon_free(Polygons *polygon)
  ** \remark  Polygons are closed (if necessary) when added
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Polygons* polygon_add(Polygons *polygon,
+Polygons* polygon_add(Polygons *polygon,
                                       const VectorDouble &x,
                                       const VectorDouble &y,
                                       double zmin,
@@ -91,7 +91,7 @@ GSTLEARN_EXPORT Polygons* polygon_add(Polygons *polygon,
  ** \li                      2 : The vertices for each polyset
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void polygon_print(Polygons *polygon, int flag_print)
+void polygon_print(Polygons *polygon, int flag_print)
 
 {
   if (polygon == nullptr) return;
@@ -222,7 +222,7 @@ static int st_polyset_inside(double xx,
  ** \remarks belongs to one PolySet
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int polygon_inside(double xx,
+int polygon_inside(double xx,
                                    double yy,
                                    double zz,
                                    int flag_nested,
@@ -271,7 +271,7 @@ GSTLEARN_EXPORT int polygon_inside(double xx,
  ** \param[out] ymax        Maximum coordinate along Y-axis
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void polygon_extension(Polygons *polygon,
+void polygon_extension(Polygons *polygon,
                                        double *xmin,
                                        double *xmax,
                                        double *ymin,
@@ -289,7 +289,7 @@ GSTLEARN_EXPORT void polygon_extension(Polygons *polygon,
  ** \param[in]  polygon  Polygons structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double polygon_surface(Polygons *polygon)
+double polygon_surface(Polygons *polygon)
 
 {
   return polygon->getSurface();
@@ -302,7 +302,7 @@ GSTLEARN_EXPORT double polygon_surface(Polygons *polygon)
  ** \return  Pointer to the newly allocated Polygon
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Polygons* input_polygon(void)
+Polygons* input_polygon(void)
 
 {
   Polygons *polygon;
@@ -382,7 +382,7 @@ GSTLEARN_EXPORT Polygons* input_polygon(void)
  ** \param[in]  db    descriptor of the Db serving for convex hull calculation
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Polygons* polygon_hull(const Db *db)
+Polygons* polygon_hull(const Db *db)
 
 {
   Polygons *polygons = nullptr;
@@ -493,7 +493,7 @@ GSTLEARN_EXPORT Polygons* polygon_hull(const Db *db)
  ** \param[out] y     Array of second coordinates
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int polygon_hull(const Db *db, VectorDouble &x, VectorDouble &y)
+int polygon_hull(const Db *db, VectorDouble &x, VectorDouble &y)
 {
   /* Preliminary check */
 

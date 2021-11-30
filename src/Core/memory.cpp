@@ -49,7 +49,7 @@ static TimeChunk **TimeStat = NULL;
  ** Initialize the Timer
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void time_start(void)
+void time_start(void)
 {
   TIME_CURRENT = clock();
 }
@@ -82,7 +82,7 @@ static void st_time_chunk_close(void)
  ** Reset the Time
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void time_reset(void)
+void time_reset(void)
 {
   // Close the current Time Chunk (if any)
 
@@ -103,7 +103,7 @@ GSTLEARN_EXPORT void time_reset(void)
  ** \param[in]  call_name       Name of the Chunk
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void time_chunk_add(const char *call_name)
+void time_chunk_add(const char *call_name)
 {
   TimeChunk *tchunk;
   int found;
@@ -158,7 +158,7 @@ GSTLEARN_EXPORT void time_chunk_add(const char *call_name)
  ** Report the Time Stats
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void time_report(void)
+void time_report(void)
 {
   TimeChunk *tchunk;
 
@@ -192,7 +192,7 @@ static void st_mem_update(int size)
  ** Reset the Memory Leak processing structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void memory_leak_reset(void)
+void memory_leak_reset(void)
 {
   if (!MEMORY_LEAK) return;
 
@@ -304,7 +304,7 @@ static void st_memory_leak_delete(const char *call_file,
  ** Report Memory Leak
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void memory_leak_report(void)
+void memory_leak_report(void)
 {
   MemChunk *chunk;
   int total;
@@ -336,7 +336,7 @@ GSTLEARN_EXPORT void memory_leak_report(void)
  ** \param[in]  flag      Activiation flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void mem_debug_set(int flag)
+void mem_debug_set(int flag)
 {
   MEMORY_DEBUG = flag;
 }
@@ -348,7 +348,7 @@ GSTLEARN_EXPORT void mem_debug_set(int flag)
  ** \param[in]  flag      Activation flag
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void memory_leak_set(int flag)
+void memory_leak_set(int flag)
 {
   MEMORY_LEAK = flag;
   if (flag == 1)
@@ -364,7 +364,7 @@ GSTLEARN_EXPORT void memory_leak_set(int flag)
  ** \param[in] title   Title printed when checking memory
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void memory_status(const char *title)
+void memory_status(const char *title)
 
 {
   if (!MEMORY_DEBUG) return;
@@ -423,7 +423,7 @@ static void st_mem_message(const char *call_file,
  ** \param[in]  tab       Array to be freed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT char* mem_free_(const char *call_file,
+char* mem_free_(const char *call_file,
                                 unsigned int call_line,
                                 char *tab)
 {
@@ -461,7 +461,7 @@ GSTLEARN_EXPORT char* mem_free_(const char *call_file,
  ** \param[in]  flag_fatal Error status (1 = the program stops)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT char* mem_alloc_(const char *call_file,
+char* mem_alloc_(const char *call_file,
                                  unsigned int call_line,
                                  int size,
                                  int flag_fatal)
@@ -510,7 +510,7 @@ GSTLEARN_EXPORT char* mem_alloc_(const char *call_file,
  ** \param[in]  flag_fatal Error status (1 = the program stops)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT char* mem_copy_(const char *call_file,
+char* mem_copy_(const char *call_file,
                                 unsigned int call_line,
                                 char *tabin,
                                 int size,
@@ -565,7 +565,7 @@ GSTLEARN_EXPORT char* mem_copy_(const char *call_file,
  ** \param[in]  flag_fatal Error status (1 = the program stops)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT char* mem_calloc_(const char *call_file,
+char* mem_calloc_(const char *call_file,
                                   unsigned int call_line,
                                   int size,
                                   int size_elem,
@@ -615,7 +615,7 @@ GSTLEARN_EXPORT char* mem_calloc_(const char *call_file,
  * \param[in]  flag_fatal Error status (1 = the program stops)
  *
  *****************************************************************************/
-GSTLEARN_EXPORT char* mem_realloc_(const char *call_file,
+char* mem_realloc_(const char *call_file,
                                    unsigned int call_line,
                                    char *tab,
                                    int size,
@@ -720,7 +720,7 @@ GSTLEARN_EXPORT char* mem_realloc_(const char *call_file,
  ** \param[in]  nvar  Number of elements in the array
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double** mem_tab_free(double **tab, int nvar)
+double** mem_tab_free(double **tab, int nvar)
 {
   int ivar;
 
@@ -742,7 +742,7 @@ GSTLEARN_EXPORT double** mem_tab_free(double **tab, int nvar)
  ** \param[in]  flag_fatal  error status (1 = the program stops)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double** mem_tab_alloc(int nvar, int size, int flag_fatal)
+double** mem_tab_alloc(int nvar, int size, int flag_fatal)
 {
   double **tab;
   int ivar, i;

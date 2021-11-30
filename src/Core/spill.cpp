@@ -693,7 +693,7 @@ static int st_spill(SPIMG *in,
  ** \remark  must start with 1
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int spill_point(Db *dbgrid,
+int spill_point(Db *dbgrid,
                                 int ind_depth,
                                 int ind_data,
                                 int flag_up,

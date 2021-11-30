@@ -1223,7 +1223,7 @@ static void st_refstats_init(RefStats &refstats,
  ** \details is meaningless. It is fixed by the user.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT SegYArg segy_array(const char *filesegy,
+SegYArg segy_array(const char *filesegy,
                                    Db *surf2D,
                                    const String &name_top,
                                    const String &name_bot,
@@ -1400,7 +1400,7 @@ GSTLEARN_EXPORT SegYArg segy_array(const char *filesegy,
  ** \details: by the output grid (if flag_store == 1)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT GridC segy_summary(const char *filesegy,
+GridC segy_summary(const char *filesegy,
                                    Db *surf2D,
                                    const String &name_top,
                                    const String &name_bot,
@@ -1570,7 +1570,7 @@ GSTLEARN_EXPORT GridC segy_summary(const char *filesegy,
  ** \remarks - no attention is paid to the vertical mesh value.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_segy(const char *filesegy,
+int db_segy(const char *filesegy,
                             Db *grid3D,
                             Db *surf2D,
                             const String &name_top,

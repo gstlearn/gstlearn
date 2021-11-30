@@ -34,7 +34,7 @@ static int Random_value = 43241421;
  ** \return  The current value of the seed (integer)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int law_get_random_seed(void)
+int law_get_random_seed(void)
 
 {
   return (Random_value);
@@ -47,7 +47,7 @@ GSTLEARN_EXPORT int law_get_random_seed(void)
  ** \param[in]  seed the new value given to the seed
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void law_set_random_seed(int seed)
+void law_set_random_seed(int seed)
 
 {
   if (seed > 0) Random_value = seed;
@@ -65,7 +65,7 @@ GSTLEARN_EXPORT void law_set_random_seed(int seed)
  ** \param[in]  maxi  maximum value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_uniform(double mini, double maxi)
+double law_uniform(double mini, double maxi)
 
 {
   double value;
@@ -90,7 +90,7 @@ GSTLEARN_EXPORT double law_uniform(double mini, double maxi)
  ** \param[in]  maxi  maximum value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int law_int_uniform(int mini, int maxi)
+int law_int_uniform(int mini, int maxi)
 {
   double rndval;
   int number, rank;
@@ -108,7 +108,7 @@ GSTLEARN_EXPORT int law_int_uniform(int mini, int maxi)
  ** \return  Gaussian random value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_gaussian(void)
+double law_gaussian(void)
 
 {
   double random1, random2, val;
@@ -127,7 +127,7 @@ GSTLEARN_EXPORT double law_gaussian(void)
  ** \return  Exponential random value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_exponential(void)
+double law_exponential(void)
 
 {
   double result;
@@ -147,7 +147,7 @@ GSTLEARN_EXPORT double law_exponential(void)
  ** \param[in]  parameter parameter of the gamma distribution
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_gamma(double parameter)
+double law_gamma(double parameter)
 
 {
   double c1, c2, c3, t, v, res;
@@ -205,7 +205,7 @@ GSTLEARN_EXPORT double law_gamma(double parameter)
  **
  ** \param[in]  alpha  value of the alpha parameter
  *****************************************************************************/
-GSTLEARN_EXPORT double law_stable_standard_abgd(double alpha)
+double law_stable_standard_abgd(double alpha)
 {
   double unif, expo, temp, ialpha, b, res;
 
@@ -231,7 +231,7 @@ GSTLEARN_EXPORT double law_stable_standard_abgd(double alpha)
  ** \param[in]  alpha  value of the alpha parameter
  ** \param[in]  beta   value of the beta parameter
  *****************************************************************************/
-GSTLEARN_EXPORT double law_stable_standard_agd(double alpha, double beta)
+double law_stable_standard_agd(double alpha, double beta)
 {
   double unif, expo, unif_norm, ialpha, temp, temp1, b, temp2, temp3, res;
 
@@ -259,7 +259,7 @@ GSTLEARN_EXPORT double law_stable_standard_agd(double alpha, double beta)
  **
  ** \param[in]  beta   value of the beta parameter
  *****************************************************************************/
-GSTLEARN_EXPORT double law_stable_standard_a1gd(double beta)
+double law_stable_standard_a1gd(double beta)
 {
   double unif, expo, temp, temp2, res;
 
@@ -286,7 +286,7 @@ GSTLEARN_EXPORT double law_stable_standard_a1gd(double beta)
  ** \param[in]  gamma  value of the gamma parameter
  ** \param[in]  delta  value of the delta parameter
  *****************************************************************************/
-GSTLEARN_EXPORT double law_stable_a(double alpha, double beta, double gamma, double delta)
+double law_stable_a(double alpha, double beta, double gamma, double delta)
 {
   double stable, res;
   stable = law_stable_standard_agd(alpha, beta);
@@ -306,7 +306,7 @@ GSTLEARN_EXPORT double law_stable_a(double alpha, double beta, double gamma, dou
  ** \param[in]  gamma  value of the gamma parameter
  ** \param[in]  delta  value of the delta parameter
  *****************************************************************************/
-GSTLEARN_EXPORT double law_stable_a1(double beta, double gamma, double delta)
+double law_stable_a1(double beta, double gamma, double delta)
 {
   double stable, res;
   stable = law_stable_standard_a1gd(beta);
@@ -328,7 +328,7 @@ GSTLEARN_EXPORT double law_stable_a1(double beta, double gamma, double delta)
  ** \param[in]  delta  value of the delta parameter
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_stable(double alpha, double beta, double gamma, double delta)
+double law_stable(double alpha, double beta, double gamma, double delta)
 {
   double res;
   if (alpha == 1)
@@ -348,7 +348,7 @@ GSTLEARN_EXPORT double law_stable(double alpha, double beta, double gamma, doubl
  ** \param[in]  parameter2 first parameter of the beta distribution
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_beta1(double parameter1, double parameter2)
+double law_beta1(double parameter1, double parameter2)
 {
   double a, b, res;
 
@@ -370,7 +370,7 @@ GSTLEARN_EXPORT double law_beta1(double parameter1, double parameter2)
  ** \param[in]  parameter2 first parameter of the beta distribution
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_beta2(double parameter1, double parameter2)
+double law_beta2(double parameter1, double parameter2)
 {
   double a, b, res;
 
@@ -391,7 +391,7 @@ GSTLEARN_EXPORT double law_beta2(double parameter1, double parameter2)
  ** \param[in]  value raw value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_df_gaussian(double value)
+double law_df_gaussian(double value)
 
 {
   double val;
@@ -412,7 +412,7 @@ GSTLEARN_EXPORT double law_df_gaussian(double value)
  ** \param[in]  std   Standard deviation
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_dnorm(double value, double mean, double std)
+double law_dnorm(double value, double mean, double std)
 {
   double val, center;
 
@@ -437,7 +437,7 @@ GSTLEARN_EXPORT double law_dnorm(double value, double mean, double std)
  ** \remark  Handbook P932 (26.2.17)  precision <7.5 E-08
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_cdf_gaussian(double value)
+double law_cdf_gaussian(double value)
 
 {
   static double b[] = { 0.319381530,
@@ -477,7 +477,7 @@ GSTLEARN_EXPORT double law_cdf_gaussian(double value)
  ** \param[in]  value cumulative density
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_invcdf_gaussian(double value)
+double law_invcdf_gaussian(double value)
 
 {
   static double b[] = { 0.319381530,
@@ -528,7 +528,7 @@ GSTLEARN_EXPORT double law_invcdf_gaussian(double value)
  ** \param[in]  bsup upper bound of the interval
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_gaussian_between_bounds(double binf, double bsup)
+double law_gaussian_between_bounds(double binf, double bsup)
 {
   double atab[4], btab[4], ptab[4];
   double a, b, aa, bb, total, a2, b2, c2, u, wgt, x;
@@ -692,7 +692,7 @@ GSTLEARN_EXPORT double law_gaussian_between_bounds(double binf, double bsup)
  ** \param[in]  corr  Correlation matrix (Dimension: 2*2)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_df_bigaussian(double *vect, double *mean, double *corr)
+double law_df_bigaussian(double *vect, double *mean, double *corr)
 
 {
   double xc[2], detv, det2, logres, density;
@@ -717,7 +717,7 @@ GSTLEARN_EXPORT double law_df_bigaussian(double *vect, double *mean, double *cor
  ** \param[in]  corr  Correlation matrix (Dimension: nvar*nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_df_quadgaussian(double *vect, double *corr)
+double law_df_quadgaussian(double *vect, double *corr)
 {
   double eigval[4], eigvec[16], invcor[16], density;
   int i, error, nvar;
@@ -753,7 +753,7 @@ GSTLEARN_EXPORT double law_df_quadgaussian(double *vect, double *corr)
  ** \param[in]  corr  Correlation matrix (Dimension: nvar*nvar)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double law_df_multigaussian(int nvar, double *vect, double *corr)
+double law_df_multigaussian(int nvar, double *vect, double *corr)
 
 {
   double *eigval, *eigvec, *invcor, density;
@@ -799,7 +799,7 @@ GSTLEARN_EXPORT double law_df_multigaussian(int nvar, double *vect, double *corr
  ** \remarks  Method Ahrens-Dieter (1973)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int law_poisson(double parameter)
+int law_poisson(double parameter)
 {
   double x, t, p, q;
   int k, n, ok;
@@ -853,7 +853,7 @@ GSTLEARN_EXPORT int law_poisson(double parameter)
  ** \param[out] path      : Array giving the random path (Dimension: nech)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void law_random_path(int nech, int *path)
+void law_random_path(int nech, int *path)
 {
   double *order;
   int i;
@@ -879,7 +879,7 @@ GSTLEARN_EXPORT void law_random_path(int nech, int *path)
  ** \param[in]  p    Event probability
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int law_binomial(int n, double p)
+int law_binomial(int n, double p)
 {
   const double q = 1 - p;
   if (n * p < 30.0) /* Algorithm BINV */
@@ -1043,7 +1043,7 @@ GSTLEARN_EXPORT int law_binomial(int n, double p)
  ** \remarks  Sum_ivar1^{1:nvar1) consts[iconst,ivar1) * temp[ivar1] > 0
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* law_exp_sample(double *tabin,
+double* law_exp_sample(double *tabin,
                        int mode,
                        int nvar,
                        int nechin,

@@ -2023,7 +2023,7 @@ static int st_drift_bayes(LMlayers *lmlayers,
  ** \param[in]  verbose    Verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int multilayers_kriging(Db *dbin,
+int multilayers_kriging(Db *dbin,
                                         Db *dbout,
                                         Model *model,
                                         Neigh *neigh,
@@ -2530,7 +2530,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
  ** \param[in]  verbose    1 for a  verbose option
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int multilayers_vario(Db *dbin,
+int multilayers_vario(Db *dbin,
                                       Db *dbout,
                                       Vario *vario,
                                       int nlayers,
@@ -2804,7 +2804,7 @@ static int st_get_prior(int nech,
  ** \param[out] vars       Array of variances
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int multilayers_get_prior(Db *dbin,
+int multilayers_get_prior(Db *dbin,
                                           Db *dbout,
                                           Model *model,
                                           int flag_same,

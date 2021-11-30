@@ -89,7 +89,7 @@ bool PtrGeos::isLocatorIndexValid(int locatorIndex) const
  * @param locatorIndex   Rank within the locator starting from 1 (can be <0 for the keyword only)
  * @return
  */
-GSTLEARN_EXPORT String getLocatorName(const ELoc& locatorType, int locatorIndex)
+String getLocatorName(const ELoc& locatorType, int locatorIndex)
 {
   std::stringstream sstr;
   if (locatorType == ELoc::UNKNOWN)
@@ -120,7 +120,7 @@ GSTLEARN_EXPORT String getLocatorName(const ELoc& locatorType, int locatorIndex)
  * @param unknownValid True if ELoc::UNKNOWN is considered as valid
  * @return
  */
-GSTLEARN_EXPORT bool isLocatorTypeValid(const ELoc& locatorType, bool unknownValid)
+bool isLocatorTypeValid(const ELoc& locatorType, bool unknownValid)
 {
   if (unknownValid) return true;
   if (locatorType == ELoc::UNKNOWN)
@@ -131,7 +131,7 @@ GSTLEARN_EXPORT bool isLocatorTypeValid(const ELoc& locatorType, bool unknownVal
   return true;
 }
 
-GSTLEARN_EXPORT int getLocatorTypeFromName(const String& name_type)
+int getLocatorTypeFromName(const String& name_type)
 {
   auto it = ELoc::getIterator();
   while (it.hasNext())
@@ -155,7 +155,7 @@ GSTLEARN_EXPORT int getLocatorTypeFromName(const String& name_type)
  * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
  * @return Error code
  */
-GSTLEARN_EXPORT int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* ret_mult)
+int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* ret_mult)
 {
   *ret_locatorType   = ELoc::UNKNOWN;
   *ret_item     = -1;
@@ -192,7 +192,7 @@ GSTLEARN_EXPORT int locatorIdentify(String string, ELoc* ret_locatorType, int* r
   return 0;
 }
 
-GSTLEARN_EXPORT void printLocatorList()
+void printLocatorList()
 {
   mestitle(0, "List of the available locators");
   auto it = ELoc::getIterator();
@@ -212,7 +212,7 @@ GSTLEARN_EXPORT void printLocatorList()
   return;
 }
 
-GSTLEARN_EXPORT VectorString getLocatorNames()
+VectorString getLocatorNames()
 {
   VectorString strings;
   auto it = ELoc::getIterator();
@@ -228,7 +228,7 @@ GSTLEARN_EXPORT VectorString getLocatorNames()
   return strings;
 }
 
-GSTLEARN_EXPORT VectorInt getLocatorMultiples()
+VectorInt getLocatorMultiples()
 {
   VectorInt mult;
   auto it = ELoc::getIterator();

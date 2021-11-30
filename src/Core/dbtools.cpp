@@ -301,7 +301,7 @@ static int st_get_ndim(double *xp, double *yp, double *zp)
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int migrate_grid_to_coor(const Db *db_grid,
+int migrate_grid_to_coor(const Db *db_grid,
                                          int iatt,
                                          int np,
                                          double *xp,
@@ -592,7 +592,7 @@ static int st_expand_point_to_point(Db *db1,
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int expand_point_to_coor(const Db *db1,
+int expand_point_to_coor(const Db *db1,
                                          int iatt,
                                          int np,
                                          double *xp,
@@ -733,7 +733,7 @@ static int st_expand_grid_to_grid(Db *db_gridin,
  ** \param[out]  sel       Array containing the selection
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_tool_duplicate(Db *db1,
+int db_tool_duplicate(Db *db1,
                                       Db *db2,
                                       bool flag_same,
                                       bool verbose,
@@ -830,7 +830,7 @@ GSTLEARN_EXPORT int db_tool_duplicate(Db *db1,
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_duplicate(Db *db,
+int db_duplicate(Db *db,
                                  bool verbose,
                                  double *dist,
                                  int opt_code,
@@ -878,7 +878,7 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
  **                      (Dimension = Number of samples in db_grid)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int surface(Db *db_point,
+int surface(Db *db_point,
                             Db *db_grid,
                             int /*icol*/,
                             double dlim,
@@ -1257,7 +1257,7 @@ static int st_edit_ask(int *item, int *rank, double *vmin, double *vmax)
  ** \param[out] flag_valid: 1 for 'stop' and 0 for 'quit'
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_edit(Db *db, int *flag_valid)
+int db_edit(Db *db, int *flag_valid)
 
 {
   int nech, nvar, ivar, iech, incr, type, ok, nrds, nrdv, flag_inter;
@@ -1353,7 +1353,7 @@ GSTLEARN_EXPORT int db_edit(Db *db, int *flag_valid)
  ** \param[in]  stdv   Theoretical Standard Deviation value
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_normalize(Db *db,
+int db_normalize(Db *db,
                                  const char *oper,
                                  int ncol,
                                  int *cols,
@@ -1746,7 +1746,7 @@ static int st_grid_fill_calculate(int ipos,
  ** \param[in]  namconv Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid_fill(Db *dbgrid,
+int db_grid_fill(Db *dbgrid,
                                  int mode,
                                  int seed,
                                  int radius,
@@ -2224,7 +2224,7 @@ int _db_indicator(Db *db,
  ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_selhull(Db *db1,
+int db_selhull(Db *db1,
                                Db *db2,
                                bool verbose,
                                NamingConvention namconv)
@@ -2513,7 +2513,7 @@ static int st_interpolate_grid_to_point(Db *db_grid,
  ** \remark (in all space dimensions) is always set to FFFF
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int interpolate_variable_to_point(Db *db_grid,
+int interpolate_variable_to_point(Db *db_grid,
                                                   int iatt,
                                                   int np,
                                                   double *xp,
@@ -2580,7 +2580,7 @@ GSTLEARN_EXPORT int interpolate_variable_to_point(Db *db_grid,
  ** \param[out] dist_arg Total distance of the trace
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_trace_discretize(int nseg,
+void ut_trace_discretize(int nseg,
                                          double *trace,
                                          double disc,
                                          int *np_arg,
@@ -2686,7 +2686,7 @@ GSTLEARN_EXPORT void ut_trace_discretize(int nseg,
  **                        3 for upper bound
  **
  *****************************************************************************/
-GSTLEARN_EXPORT void ut_trace_sample(Db *db,
+void ut_trace_sample(Db *db,
                                      const ELoc &ptype,
                                      int np,
                                      double *xp,
@@ -2813,7 +2813,7 @@ GSTLEARN_EXPORT void ut_trace_sample(Db *db,
  ** \remark If this is not the case, an error is issued.
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int manage_external_info(int mode,
+int manage_external_info(int mode,
                                          const ELoc &locatorType,
                                          Db *dbin,
                                          Db *dbout,
@@ -2908,7 +2908,7 @@ GSTLEARN_EXPORT int manage_external_info(int mode,
  ** \param[in]  dbout       Descriptor of the output Db
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int manage_nostat_info(int mode,
+int manage_nostat_info(int mode,
                                        Model *model,
                                        Db *dbin,
                                        Db *dbout)
@@ -2958,7 +2958,7 @@ GSTLEARN_EXPORT int manage_nostat_info(int mode,
  ** \remark The perturbation is calculated as DX(i) * eps
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_center_point_to_grid(Db *db_point,
+int db_center_point_to_grid(Db *db_point,
                                             Db *db_grid,
                                             double eps_random)
 {
@@ -3034,7 +3034,7 @@ GSTLEARN_EXPORT int db_center_point_to_grid(Db *db_point,
  ** \param[in]  nmult Array of multiplicity coefficients
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_grid_sample(Db *dbin, const VectorInt &nmult)
+Db* db_grid_sample(Db *dbin, const VectorInt &nmult)
 {
   Db *dbout;
   VectorDouble coor;
@@ -3264,7 +3264,7 @@ static int st_get_closest_sample(Db *dbgrid,
  ** \remarks Only positive Time Shifts are considered
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int expand_point_to_grid(Db *db_point,
+int expand_point_to_grid(Db *db_point,
                                          Db *db_grid,
                                          int iatt,
                                          int iatt_time,
@@ -3522,7 +3522,7 @@ static int st_read_active_sample(Db *db,
  ** \remarks  Math Geosciences (2008) 40: 233-248
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_compositional_transform(Db *db,
+int db_compositional_transform(Db *db,
                                                int verbose,
                                                int mode,
                                                int type,
@@ -3756,7 +3756,7 @@ GSTLEARN_EXPORT int db_compositional_transform(Db *db,
  ** \param[in]  yl      Array of Y-coordinates of the polyline
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_unfold_polyline(Db *db,
+int db_unfold_polyline(Db *db,
                                        int nvert,
                                        double *xl,
                                        double *yl)
@@ -3835,7 +3835,7 @@ GSTLEARN_EXPORT int db_unfold_polyline(Db *db,
  ** \param[in]  yl      Array of Y-coordinates of the polyline
 
  *****************************************************************************/
-GSTLEARN_EXPORT int db_fold_polyline(Db *dbin,
+int db_fold_polyline(Db *dbin,
                                      Db *dbout,
                                      int ncol,
                                      int *cols,
@@ -4001,7 +4001,7 @@ static void st_expand(int flag_size,
  ** \remarks using: set_keypair("PTB_flag_index")
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int points_to_block(Db *dbpoint,
+int points_to_block(Db *dbpoint,
                                     Db *dbgrid,
                                     int option,
                                     int flag_size,
@@ -4504,7 +4504,7 @@ static VectorDouble st_point_init_poisthin(int verbose,
  ** \remarks The array 'zcut' must be provided in increasing order
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_resind(Db *db, int ivar, int ncut, double *zcut)
+int db_resind(Db *db, int ivar, int ncut, double *zcut)
 {
   double *tonnage, value, zval, ind_cut0, ind_cut1, ton_cut0, ton_cut1, ir;
   int ntot, nech, iptr;
@@ -4627,7 +4627,7 @@ static void st_gradient_normalize(Db *dbgrid)
  ** \param[in]  dbgrid  Db structure (grid organized)
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_gradient_components(Db *dbgrid)
+int db_gradient_components(Db *dbgrid)
 
 {
   int *indg, iptrz, iptr, nx, ny, nz, nmax, error, ndim, j1, j2, number;
@@ -4841,7 +4841,7 @@ static int st_get_next(Db *dbgrid,
  ** \remarks Use get_keypone("Streamline_Skip",1) to define the skipping ratio
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_streamline(Db *dbgrid,
+int db_streamline(Db *dbgrid,
                                   Db *dbpoint,
                                   int niter,
                                   double step,
@@ -5019,7 +5019,7 @@ GSTLEARN_EXPORT int db_streamline(Db *dbgrid,
  ** \remarks 1 field for storing the sill
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_model_nostat(Db *db,
+int db_model_nostat(Db *db,
                                     Model *model,
                                     int icov,
                                     NamingConvention namconv)
@@ -5097,7 +5097,7 @@ GSTLEARN_EXPORT int db_model_nostat(Db *db,
  ** \remarks Work is performed IN PLACE
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_smooth_vpc(Db *db, int width, double range)
+int db_smooth_vpc(Db *db, int width, double range)
 {
   int iz, nz, nprop, ecr, nkern, jz, error;
   double *prop1, *prop2, *kernel, total, propval, dz, quant, quant0;
@@ -5201,7 +5201,7 @@ GSTLEARN_EXPORT int db_smooth_vpc(Db *db, int width, double range)
  ** \remarks Possible selection in the input Db is taken into account
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_extract(Db *db, int *ranks)
+Db* db_extract(Db *db, int *ranks)
 {
   int *iatts, nech, nech_all, natt, error, ecr;
   VectorDouble tab;
@@ -5292,7 +5292,7 @@ GSTLEARN_EXPORT Db* db_extract(Db *db, int *ranks)
  ** \remarks This function takes a sample into account only if isotopic
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_regularize(Db *db, Db *dbgrid, int flag_center)
+Db* db_regularize(Db *db, Db *dbgrid, int flag_center)
 {
   int ncode, nvar, nz, ndim, not_defined, ecr, nech, size, ntot, iz, icode;
   double *wcnt, *wtab, *wcor, *coor, code, ratio;
@@ -5492,7 +5492,7 @@ GSTLEARN_EXPORT Db* db_regularize(Db *db, Db *dbgrid, int flag_center)
  ** \remarks The program returns the list of all these intersection coordinates
  **
  *****************************************************************************/
-GSTLEARN_EXPORT double* db_grid_sampling(Db *dbgrid,
+double* db_grid_sampling(Db *dbgrid,
                                          double *x1,
                                          double *x2,
                                          int ndisc,
@@ -5600,7 +5600,7 @@ GSTLEARN_EXPORT double* db_grid_sampling(Db *dbgrid,
  ** \remarks the calling function
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid2point_sampling(Db *dbgrid,
+int db_grid2point_sampling(Db *dbgrid,
                                            int nvar,
                                            int *vars,
                                            int *npacks,
@@ -5797,7 +5797,7 @@ GSTLEARN_EXPORT int db_grid2point_sampling(Db *dbgrid,
  ** \remarks 3 : put maximum distance
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_polygon_distance(Db *db,
+int db_polygon_distance(Db *db,
                                         Polygons *polygon,
                                         double dmax,
                                         int scale,
@@ -5949,7 +5949,7 @@ GSTLEARN_EXPORT int db_polygon_distance(Db *db,
  ** \param[in]  extend      Vector of field extends
  **
  *****************************************************************************/
-GSTLEARN_EXPORT Db* db_point_init(int mode,
+Db* db_point_init(int mode,
                                   int verbose,
                                   int ndim,
                                   int seed,
@@ -6158,7 +6158,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
  ** \param[in]  namconv Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_grid1D_fill(Db *dbgrid,
+int db_grid1D_fill(Db *dbgrid,
                                    int mode,
                                    int seed,
                                    NamingConvention namconv)
@@ -6350,7 +6350,7 @@ static int st_migrate(Db *db1,
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int migrateByAttribute(Db *db1,
+int migrateByAttribute(Db *db1,
                                        Db *db2,
                                        const VectorInt &atts_arg,
                                        int ldmax,
@@ -6405,7 +6405,7 @@ GSTLEARN_EXPORT int migrateByAttribute(Db *db1,
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int migrate(Db *db1,
+int migrate(Db *db1,
                             Db *db2,
                             const String &name,
                             int ldmax,
@@ -6449,7 +6449,7 @@ GSTLEARN_EXPORT int migrate(Db *db1,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int migrateByLocator(Db *db1,
+int migrateByLocator(Db *db1,
                                      Db *db2,
                                      const ELoc &locatorType,
                                      int ldmax,
@@ -6498,7 +6498,7 @@ GSTLEARN_EXPORT int migrateByLocator(Db *db1,
  ** \remarks to describe the spatial structure
  **
  *****************************************************************************/
-GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
+int db_proportion_estimate(Db *dbin,
                                            Db *dbout,
                                            Model *model,
                                            int niter,

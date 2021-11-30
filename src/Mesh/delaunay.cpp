@@ -17068,7 +17068,7 @@ struct behavior *b;
 #ifdef TRILIBRARY
 
 #ifdef ANSI_DECLARATORS
-GSTLEARN_EXPORT void triangulate(const char *triswitches,
+void triangulate(const char *triswitches,
                                  struct triangulateio *in,
                                  struct triangulateio *out,
                                  struct triangulateio *vorout)
