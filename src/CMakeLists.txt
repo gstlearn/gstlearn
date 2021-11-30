@@ -72,13 +72,17 @@ set(DISABLE_EXPORT_IF_SWIG "
 #define GSTLEARN_NO_EXPORT
 #endif
 ")
-
-
 generate_export_header(shared BASE_NAME gstlearn
                        EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/gstlearn_export.hpp
                        CUSTOM_CONTENT_FROM_VARIABLE DISABLE_EXPORT_IF_SWIG
 )
 set_target_properties(static PROPERTIES COMPILE_FLAGS -DGSTLEARN_STATIC_DEFINE)
+
+# Deactivate the C4251 warning under MSVC
+# TODO : restore warning C4251 ?
+if(MSVC)  
+  target_compile_definitions(shared PUBLIC /wd4251)
+endif()
 
 # Install the version file
 install(FILES ${PROJECT_BINARY_DIR}/gstlearn_export.hpp
