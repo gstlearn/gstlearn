@@ -41,17 +41,14 @@ static Vario *VARIO;
 static Model *MODEL;
 static Db *DBMAP;
 static int IDIRLOC;
-static double *BETA, *DRFLOC, *DRFTAB, *MATDRF, *DRFXA, *DRFGX, *DRFXGX,
-    *DRFDIAG;
+static double *BETA, *DRFLOC, *DRFTAB, *MATDRF, *DRFXA, *DRFGX, *DRFXGX, *DRFDIAG;
 static int IECH1, IECH2, IPTV, IPTW;
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
-static int VARWGT[4][5] = { { 1, -1, 0, 0, 0 }, { 1, -2, 1, 0, 0 }, { 1,
-                                                                      -3,
-                                                                      3,
-                                                                      -1,
-                                                                      0 },
+static int VARWGT[4][5] = { { 1, -1, 0, 0, 0 },
+                            { 1, -2, 1, 0, 0 },
+                            { 1, -3, 3, -1, 0 },
                             { 1, -4, 6, -4, 1 } };
 
 /****************************************************************************/
@@ -218,10 +215,7 @@ static void st_manage_drift_removal(int type, Db *db, Model *model)
  ** \param[in]  maxdist Maximum distance
  **
  *****************************************************************************/
-int variogram_maximum_dist1D_reached(Db *db,
-                                                     int iech,
-                                                     int jech,
-                                                     double maxdist)
+int variogram_maximum_dist1D_reached(Db *db, int iech, int jech, double maxdist)
 {
   double dist = db->getDistance1D(iech, jech, 0, true);
   return (dist > maxdist);
@@ -488,10 +482,10 @@ double _variogram_convert_angular_tolerance(double tolang)
  **
  *****************************************************************************/
 int variogram_get_lag(Vario *vario,
-                                      int idir,
-                                      double ps,
-                                      double psmin,
-                                      double *dist)
+                      int idir,
+                      double ps,
+                      double psmin,
+                      double *dist)
 {
   int k, ilag;
   const DirParam &dirparam = vario->getDirParam(idir);
@@ -1070,11 +1064,11 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
  **
  *****************************************************************************/
 int code_comparable(const Db *db1,
-                                    const Db *db2,
-                                    int iech,
-                                    int jech,
-                                    int opt_code,
-                                    int tolcode)
+                    const Db *db2,
+                    int iech,
+                    int jech,
+                    int opt_code,
+                    int tolcode)
 {
   double code1, code2;
 
@@ -1659,14 +1653,14 @@ static void st_variogram_calcul_internal(Db *db,
  **
  *****************************************************************************/
 int variogram_reject_pair(const Db *db,
-                                          int iech,
-                                          int jech,
-                                          double dist,
-                                          double psmin,
-                                          double bench,
-                                          double cylrad,
-                                          const VectorDouble &codir,
-                                          double *ps)
+                          int iech,
+                          int jech,
+                          double dist,
+                          double psmin,
+                          double bench,
+                          double cylrad,
+                          const VectorDouble &codir,
+                          double *ps)
 {
   /* When the distance is zero, the pair is always accepted */
 
@@ -3201,7 +3195,8 @@ static int st_vmap_grid(Db *dbgrid,
 
       DBMAP = dbmap;
       st_variogram_evaluate(dbgrid, calcul_type, nvar, iech1, iech2, iech0,
-                            TEST, 0, st_vmap_set);
+      TEST,
+                            0, st_vmap_set);
     }
   }
 
@@ -3246,22 +3241,22 @@ static int st_vmap_grid(Db *dbgrid,
  **
  *****************************************************************************/
 void variogram_extension(const Vario *vario,
-                                         int ivar,
-                                         int jvar,
-                                         int idir0,
-                                         int flag_norm,
-                                         int flag_vars,
-                                         double distmin,
-                                         double distmax,
-                                         double varmin,
-                                         double varmax,
-                                         int *flag_hneg,
-                                         int *flag_gneg,
-                                         double *c0,
-                                         double *hmin,
-                                         double *hmax,
-                                         double *gmin,
-                                         double *gmax)
+                         int ivar,
+                         int jvar,
+                         int idir0,
+                         int flag_norm,
+                         int flag_vars,
+                         double distmin,
+                         double distmax,
+                         double varmin,
+                         double varmax,
+                         int *flag_hneg,
+                         int *flag_gneg,
+                         double *c0,
+                         double *hmin,
+                         double *hmax,
+                         double *gmin,
+                         double *gmax)
 {
   double hh, gg;
   int i, j, idir, jdir, ndir;
@@ -3468,18 +3463,18 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
  **
  *****************************************************************************/
 int variogram_direction_add(VarioParam *varioparam,
-                                            int npas,
-                                            int opt_code,
-                                            int idate,
-                                            double dpas,
-                                            double toldis,
-                                            double tolang,
-                                            double bench,
-                                            double cylrad,
-                                            double tolcode,
-                                            const VectorDouble &breaks,
-                                            const VectorDouble &codir,
-                                            const VectorInt &grincr)
+                            int npas,
+                            int opt_code,
+                            int idate,
+                            double dpas,
+                            double toldis,
+                            double tolang,
+                            double bench,
+                            double cylrad,
+                            double tolcode,
+                            const VectorDouble &breaks,
+                            const VectorDouble &codir,
+                            const VectorInt &grincr)
 {
   if (varioparam == (VarioParam*) NULL) return (1);
   DirParam dirparam = DirParam(varioparam->getDimensionNumber(), npas, dpas,
@@ -3599,23 +3594,23 @@ static int st_update_discretization_grid(Db *db, double x, double y)
  **
  *****************************************************************************/
 int correlation_f(Db *db1,
-                                  Db *db2,
-                                  Db *dbgrid,
-                                  int flag_same,
-                                  int icol1,
-                                  int icol2,
-                                  int flag_verbose,
-                                  double dmin,
-                                  double dmax,
-                                  double tolang,
-                                  double bench,
-                                  double cylrad,
-                                  VectorDouble &codir,
-                                  int opt_code,
-                                  int tolcode,
-                                  int *nindice,
-                                  int **indices,
-                                  double *correl)
+                  Db *db2,
+                  Db *dbgrid,
+                  int flag_same,
+                  int icol1,
+                  int icol2,
+                  int flag_verbose,
+                  double dmin,
+                  double dmax,
+                  double tolang,
+                  double bench,
+                  double cylrad,
+                  VectorDouble &codir,
+                  int opt_code,
+                  int tolcode,
+                  int *nindice,
+                  int **indices,
+                  double *correl)
 {
   int *ind, iech, jech, nech, iptr, igrid, nalloc, npair, error;
   double ps, psmin, dist, val1, val2, m1, m2, v1, v2, v12, nb, rho;
@@ -3822,11 +3817,7 @@ int correlation_f(Db *db1,
  ** \remarks same set of coordinates and same optional selection)
  **
  *****************************************************************************/
-int correlation_ident(Db *db1,
-                                      Db *db2,
-                                      int icol1,
-                                      int icol2,
-                                      Polygons *polygon)
+int correlation_ident(Db *db1, Db *db2, int icol1, int icol2, Polygons *polygon)
 {
   int iech, nech, number;
   double coor[2], val1, val2;
@@ -3947,10 +3938,7 @@ static void st_variogram_cloud(const Db *db,
  ** \param[in]  polygon Polygons structure
  **
  *****************************************************************************/
-void variogram_cloud_ident(Db *db,
-                                           Db *dbgrid,
-                                           Vario *vario,
-                                           Polygons *polygon)
+void variogram_cloud_ident(Db *db, Db *dbgrid, Vario *vario, Polygons *polygon)
 {
   double *ids, *coor, ps, psmin, dist, w1, w2, z1, z2, value, zcoor;
   int *indg, *rank, nech, iech, jech, igrid, idir, ideb;
@@ -4143,9 +4131,9 @@ static void st_variogram_cloud_dim(Db *db,
  **
  *****************************************************************************/
 int variogram_cloud(const Db *db,
-                                    const VarioParam *varioparam,
-                                    Db *dbgrid,
-                                    NamingConvention namconv)
+                    const VarioParam *varioparam,
+                    Db *dbgrid,
+                    NamingConvention namconv)
 {
   int idir, iptr;
 
@@ -4209,9 +4197,7 @@ int variogram_cloud(const Db *db,
  ** \param[out] vmax         Maximum variogram value
  **
  *****************************************************************************/
-int variogram_cloud_dim(Db *db,
-                                        const VarioParam *varioparam,
-                                        double *vmax)
+int variogram_cloud_dim(Db *db, const VarioParam *varioparam, double *vmax)
 {
   int idir;
 
@@ -4281,19 +4267,19 @@ int variogram_cloud_dim(Db *db,
  **
  *****************************************************************************/
 int regression_f(Db *db1,
-                                 Db *db2,
-                                 int flag_mode,
-                                 int icol,
-                                 int ncol,
-                                 int *icols,
-                                 Model *model,
-                                 int flag_one,
-                                 int flag_verbose,
-                                 int *count,
-                                 double *coeff,
-                                 double *variance,
-                                 double *varres,
-                                 double *correl)
+                 Db *db2,
+                 int flag_mode,
+                 int icol,
+                 int ncol,
+                 int *icols,
+                 Model *model,
+                 int flag_one,
+                 int flag_verbose,
+                 int *count,
+                 double *coeff,
+                 double *variance,
+                 double *varres,
+                 double *correl)
 {
   int nfex, nech, size, siztri, iech, i, j, error, iptr, ecr, pivot, number,
       nvar;
@@ -4617,13 +4603,13 @@ int regression_f(Db *db1,
  **
  *****************************************************************************/
 int vario_extract(Vario *vario,
-                                  ECalcVario *calcul_type,
-                                  int *ndim,
-                                  int *nvar,
-                                  int *ndir,
-                                  int *ndate,
-                                  double *scale,
-                                  double **dates)
+                  ECalcVario *calcul_type,
+                  int *ndim,
+                  int *nvar,
+                  int *ndir,
+                  int *ndate,
+                  double *scale,
+                  double **dates)
 {
   double *date_loc;
 
@@ -5377,9 +5363,9 @@ static int st_vmap_grid_fft(Db *dbgrid,
  **
  *****************************************************************************/
 void vardir_copy(VarioParam *vario_in,
-                                 int idir_in,
-                                 VarioParam *vario_out,
-                                 int idir_out)
+                 int idir_in,
+                 VarioParam *vario_out,
+                 int idir_out)
 {
   if (vario_in == (VarioParam*) NULL) return;
   if (idir_in < 0 || idir_in >= vario_in->getDirectionNumber()) return;
@@ -5911,16 +5897,16 @@ static int st_pca_calculate(int flag_norm,
  **
  *****************************************************************************/
 int maf_compute(Db *db,
-                                int opt_code,
-                                double tolcode,
-                                VectorDouble &codir,
-                                double tolang,
-                                double bench,
-                                double cylrad,
-                                double h0,
-                                double dh,
-                                int verbose,
-                                PCA *pca)
+                int opt_code,
+                double tolcode,
+                VectorDouble &codir,
+                double tolang,
+                double bench,
+                double cylrad,
+                double h0,
+                double dh,
+                int verbose,
+                PCA *pca)
 {
   int iptr, error, nvar, kvar;
   double *data1, *data2, *identity;
@@ -6232,10 +6218,7 @@ int pca_f2z(Db *db, PCA *pca, int flag_norm_out, int verbose)
  ** \param[out] npair  Number of pairs
  **
  *****************************************************************************/
-int geometry_compute(Db *db,
-                                     Vario *vario,
-                                     Vario_Order *vorder,
-                                     int *npair)
+int geometry_compute(Db *db, Vario *vario, Vario_Order *vorder, int *npair)
 {
   double psmin, ps, dist, maxdist;
   int iiech, iech, jjech, jech, nech, ipas, error, idir, ideb;
@@ -6443,10 +6426,7 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
  ure
  **
  *****************************************************************************/
-int variogram_mlayers(Db *db,
-                                      int *seltab,
-                                      Vario *vario,
-                                      Vario_Order *vorder)
+int variogram_mlayers(Db *db, int *seltab, Vario *vario, Vario_Order *vorder)
 {
   int iiech, iech, jjech, jech, nech, ipas, npair, idir;
   double psmin, ps, dist;
@@ -6630,16 +6610,16 @@ int variogram_y2z(Vario *vario, Anam *anam, Model *model)
  **
  *****************************************************************************/
 void condexp(Db *db1,
-                             Db *db2,
-                             int icol1,
-                             int icol2,
-                             double mini,
-                             double maxi,
-                             int nclass,
-                             int verbose,
-                             int *ncond,
-                             double *xcond,
-                             double *ycond)
+             Db *db2,
+             int icol1,
+             int icol2,
+             double mini,
+             double maxi,
+             int nclass,
+             int verbose,
+             int *ncond,
+             double *xcond,
+             double *ycond)
 {
   int rank;
   double val1, val2;
@@ -6835,12 +6815,12 @@ ECalcVario vario_identify_calcul_type(const String &calcul_name)
  **
  *****************************************************************************/
 Db* db_variogram_cloud(Db *db,
-                                       const VarioParam *varioparam,
-                                       double lagmax,
-                                       double varmax,
-                                       int lagnb,
-                                       int varnb,
-                                       NamingConvention namconv)
+                       const VarioParam *varioparam,
+                       double lagmax,
+                       double varmax,
+                       int lagnb,
+                       int varnb,
+                       NamingConvention namconv)
 {
   if (FFFF(lagmax)) lagmax = db->getFieldSize();
   if (FFFF(varmax)) (void) variogram_cloud_dim(db, varioparam, &varmax);
@@ -6884,11 +6864,11 @@ Db* db_variogram_cloud(Db *db,
  **
  *****************************************************************************/
 int vmap_compute(Db *db,
-                                 Db *dbmap,
-                                 const ECalcVario &calcul_type,
-                                 int radius,
-                                 bool flag_FFT,
-                                 NamingConvention namconv)
+                 Db *dbmap,
+                 const ECalcVario &calcul_type,
+                 int radius,
+                 bool flag_FFT,
+                 NamingConvention namconv)
 {
   int error = 0;
 
@@ -6931,14 +6911,14 @@ int vmap_compute(Db *db,
  **
  *****************************************************************************/
 Db* db_vmap_compute(Db *db,
-                                    const ECalcVario &calcul_type,
-                                    int nxx,
-                                    int nyy,
-                                    double dxx,
-                                    double dyy,
-                                    int radius,
-                                    bool flag_FFT,
-                                    NamingConvention namconv)
+                    const ECalcVario &calcul_type,
+                    int nxx,
+                    int nyy,
+                    double dxx,
+                    double dyy,
+                    int radius,
+                    bool flag_FFT,
+                    NamingConvention namconv)
 {
   int error = 0;
 

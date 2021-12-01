@@ -15,6 +15,7 @@
 
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_STRIC_OVERFLOW
+DISABLE_WARNING_RESTRIC
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
