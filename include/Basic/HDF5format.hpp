@@ -55,7 +55,7 @@ public:
   void closeDataSet() const;
 
   // Functions to be overloaded
-  void _writeAll(const char* type, void* a);
+
   template<typename T>
   void writeData(const T&);
   template<typename T>
@@ -151,6 +151,7 @@ private:
                     const H5::DataSpace& memspace = H5::DataSpace::ALL,
                     const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
   int _checkClass(int value) const;
+  void _writeAll(const char* type, void* a);
 
 public:
   mutable String        _filename;
@@ -161,29 +162,6 @@ public:
   mutable H5::DataSpace _dataspace;
 };
 
-void HDF5format::_writeAll(const char* type, void *a)
-{
-  try
-  {
-    if (type == (char*) typeid(int).name())
-      _dataset.write(a, H5::PredType::STD_I32LE);
-    else if (type == (char*) typeid(float).name())
-      _dataset.write(a, H5::PredType::IEEE_F32LE);
-    else if (type == (char*) typeid(double).name())
-      _dataset.write(a, H5::PredType::IEEE_F64LE);
-    else
-      messerr("Unknown data type! EXITING");
-
-    return;
-  }
-  catch (H5::Exception& error)
-  {
-    messerr("---> Problem in writeAll. Operation aborted");
-    error.printError();
-    return;
-  }
-
-}
 
 /**
  * Numeric implementation of our write data function

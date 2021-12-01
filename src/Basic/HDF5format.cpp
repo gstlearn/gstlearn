@@ -847,3 +847,26 @@ void HDF5format::_writeDouble(double *data,
   else
     messageAbort("Did not find data type\n");
 }
+
+void HDF5format::_writeAll(const char* type, void *a)
+{
+  try
+  {
+    if (type == (char*) typeid(int).name())
+      _dataset.write(a, H5::PredType::STD_I32LE);
+    else if (type == (char*) typeid(float).name())
+      _dataset.write(a, H5::PredType::IEEE_F32LE);
+    else if (type == (char*) typeid(double).name())
+      _dataset.write(a, H5::PredType::IEEE_F64LE);
+    else
+      messerr("Unknown data type! EXITING");
+
+    return;
+  }
+  catch (H5::Exception& error)
+  {
+    messerr("---> Problem in writeAll. Operation aborted");
+    error.printError();
+    return;
+  }
+}
