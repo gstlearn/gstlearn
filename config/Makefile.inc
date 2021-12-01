@@ -80,4 +80,3 @@ ifeq ($(USE_NETCDF),1)
      LDFLAGS  += -L/usr/local/lib
      LIBS     += -lnetcdf_c++4 -lnetcdf
 endif
-

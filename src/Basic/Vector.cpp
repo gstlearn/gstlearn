@@ -15,7 +15,35 @@
 #include "Basic/Law.hpp"
 #include <iomanip>
 
+VectorInt ut_vector_int(int nval, int value)
+{
+  VectorInt tab(nval, value);
+  return tab;
+}
+
+VectorDouble ut_vector_double(int nval, double value)
+{
+  VectorDouble tab(nval, value);
+  return tab;
+}
+
+VectorVectorDouble ut_vector_vector_double(int nval1, int nval2, double value)
+{
+  VectorVectorDouble tab(nval1, VectorDouble(nval2, value));
+  return tab;
+}
+
+VectorVectorInt ut_vector_vector_int(int nval1, int nval2, int value)
+{
+  VectorVectorInt tab(nval1, VectorInt(nval2, value));
+  return tab;
+}
+
 String ut_vector_string(const VectorDouble& vec)
+{
+  return toVector(String(),vec);
+}
+String ut_vector_string(const VectorVectorDouble& vec)
 {
   return toVector(String(),vec);
 }
@@ -26,6 +54,12 @@ String ut_ivector_string(const VectorInt& vec)
 }
 
 void ut_vector_display(const String& title, const VectorDouble& vect)
+{
+  if (!title.empty()) message("%s\n", title.c_str());
+  messageFlush(ut_vector_string(vect));
+}
+
+void ut_vector_display(const String& title, const VectorVectorDouble& vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
   messageFlush(ut_vector_string(vect));

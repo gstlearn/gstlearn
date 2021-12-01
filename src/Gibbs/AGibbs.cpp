@@ -539,6 +539,10 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool f
 
   storeResult(y, isimu, ipgs);
 
+  // Clean the spurious elements
+
+  cleanup();
+
   return 0;
 }
 

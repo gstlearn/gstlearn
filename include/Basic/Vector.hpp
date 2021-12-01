@@ -13,11 +13,17 @@
 #include "geoslib_define.h"
 
 /// TODO to be removed when VectorDouble will be OK
+VectorInt ut_vector_int(int nval, int value = 0.);
+VectorDouble ut_vector_double(int nval, double value = 0.);
+VectorVectorDouble ut_vector_vector_double(int nval1, int nval2, double value = 0.);
+VectorVectorInt ut_vector_vector_int(int nval1, int nval2, int value = 0);
 void ut_vector_display(const String& title, const VectorDouble& vect);
+void ut_vector_display(const String& title, const VectorVectorDouble& vect);
 void ut_vector_display_stats(const String& title, const VectorDouble& vect);
 void ut_vector_display_range(const String& title, const VectorDouble& vect);
 void ut_ivector_display(const String& title, const VectorInt& vect);
 String ut_vector_string(const VectorDouble& vec);
+String ut_vector_string(const VectorVectorDouble& vec);
 String ut_ivector_string(const VectorInt& vec);
 double ut_vector_max(const VectorDouble& vec, bool flagAbs = false);
 double ut_vector_min(const VectorDouble& vec, bool flagAbs = false);

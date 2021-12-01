@@ -64,8 +64,7 @@ void law_set_random_seed(int seed)
 ** \param[in]  maxi  maximum value
 **
 *****************************************************************************/
-double law_uniform(double mini,
-                               double maxi)
+double law_uniform(double mini, double maxi)
 
 {
   double value;

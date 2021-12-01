@@ -12,6 +12,7 @@
 
 #include "Gibbs/GibbsMulti.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/HDF5format.hpp"
 
 class Db;
 class Model;
@@ -20,7 +21,7 @@ class GibbsMMulti: public GibbsMulti
 {
   typedef struct
   {
-    VectorVectorDouble _weights;
+    VectorDouble _weights;
   } WgtVect;
 
 public:
@@ -38,26 +39,30 @@ public:
 
   void setEps(double eps) { _eps = eps; }
   void setStoreTables(bool storeTables) { _storeTables = storeTables; }
+  void cleanup() override;
+
+  bool getFlagStoreInternal() const { return _flagStoreInternal; }
+  void setFlagStoreInternal(bool flagStoreInternal) { _flagStoreInternal = flagStoreInternal; }
 
 private:
-  void _display(int iact) const;
-  void _display() const;
   int  _getVariableNumber() const;
   void _tableStore(int mode, const cs* Cmat);
-  void _getWeights(int iact0, WgtVect& area) const;
-  int  _calculateWeights(int iact0, WgtVect& area, double tol = EPSILON3) const;
-  bool _checkForInternalStorage(bool verbose = false);
-  void _storeAllWeights(bool verbose = false);
-  int  _getSizeOfArea(const WgtVect& area) const;
+  void _getWeights(int iact0) const;
+  int  _calculateWeights(int iact0, double tol = EPSILON3) const;
+  int  _storeAllWeights(bool verbose = false);
+  int  _getSizeOfWeights(const VectorDouble& weights) const;
 
 private:
-  cs*       _Ln;
-  VectorInt _Pn;
-  double    _eps;
-  bool      _storeTables;
+  cs*        _Ln;
+  VectorInt  _Pn;
+  double     _eps;
+  bool       _storeTables;
+  HDF5format _hdf5;
+  bool       _flagStoreInternal;
 
   // Mutable arrays (declared to speed up the process)
   mutable VectorDouble _b;
   mutable VectorDouble _x;
-  mutable std::vector<WgtVect> _areas;
+  mutable VectorDouble _weights;
+  mutable VectorVectorDouble _areas;
 };

@@ -9,17 +9,17 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Gibbs/GibbsMMulti.hpp"
+#include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/HDF5format.hpp"
 #include "Morpho/Morpho.hpp"
 #include "csparse_f.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "csparse_f.h"
 
-#define DEBUG 0
-#define TOTAL_MAX 50000000
+#define WEIGHTS(ivar, jvar, iact)  (_weights[iact + nact * (jvar + ivar * nvar)])
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
@@ -27,8 +27,11 @@ GibbsMMulti::GibbsMMulti()
   , _Pn()
   , _eps(EPSILON6)
   , _storeTables(false)
+  , _hdf5("Gibbs.hdf5","GibbsSet")
+  , _flagStoreInternal(true)
   , _b()
   , _x()
+  , _weights()
   , _areas()
 {
 }
@@ -39,8 +42,11 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   , _Pn()
   , _eps(EPSILON6)
   , _storeTables(false)
+  , _hdf5("Gibbs.hdf5","GibbsSet")
+  , _flagStoreInternal(true)
   , _b()
   , _x()
+  , _weights()
   , _areas()
 {
 }
@@ -51,8 +57,11 @@ GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   , _Pn(r._Pn)
   , _eps(r._eps)
   , _storeTables(r._storeTables)
+  , _hdf5(r._hdf5)
+  , _flagStoreInternal(r._flagStoreInternal)
   , _b(r._b)
   , _x(r._x)
+  , _weights(r._weights)
   , _areas(r._areas)
 {
 }
@@ -66,8 +75,11 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
     _Pn  = r._Pn;
     _eps = r._eps;
     _storeTables = r._storeTables;
+    _hdf5 = r._hdf5;
+    _flagStoreInternal = r._flagStoreInternal;
     _b = r._b;
     _x = r._x;
+    _weights = r._weights;
     _areas = r._areas;
   }
   return *this;
@@ -120,6 +132,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   _Pn.resize(nact);
   _b.resize(n);
   _x.resize(n);
+  _weights.resize(nact * nvar * nvar);
 
   // Establish the covariance matrix as sparse (hopefully)
 
@@ -163,7 +176,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Evaluate storage capacity and store weights internally (or not)
 
-  _storeAllWeights(verbose);
+  if (_storeAllWeights(verbose)) goto label_end;
 
   // Store the reconstructed Covariance in Neutral File (optional)
 
@@ -176,10 +189,6 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     Cmat2 = cs_spfree(Cmat2);
     timer.Interval("Storing Reconstructed Covariance");
   }
-
-  // Display the weights (conditional to DEBUG variable)
-
-  if (DEBUG) _display();
 
   // Initialize the statistics (optional)
 
@@ -208,7 +217,6 @@ void GibbsMMulti::update(VectorVectorDouble& y,
                          int ipgs,
                          int iter)
 {
-  WgtVect area;
   double valsim;
 
   int nvar = _getVariableNumber();
@@ -228,16 +236,16 @@ void GibbsMMulti::update(VectorVectorDouble& y,
     {
       if (! isConstraintTight(ipgs, ivar, iact, &valsim))
       {
-        _getWeights(iact, area);
+        _getWeights(iact);
         double yk   = 0.;
-        double vark = 1. / area._weights[ivar][iact + nact * ivar];
+        double vark = 1. / WEIGHTS(ivar, ivar, iact);
         for (int jvar = 0; jvar < nvar; jvar++)
         {
           int jcase = getRank(ipgs, jvar);
           for (int jact = 0; jact < nact; jact++)
           {
             if (ivar != jvar || iact != jact)
-              yk -= y[jcase][jact] * area._weights[jvar][jact + nact * jvar];
+              yk -= y[jcase][jact] * WEIGHTS(ivar, jvar, jact);
           }
         }
         yk *= vark;
@@ -250,28 +258,6 @@ void GibbsMMulti::update(VectorVectorDouble& y,
   // Update statistics (optional)
 
   updateStats(y, ipgs, iter);
-}
-
-void GibbsMMulti::_display(int iact) const
-{
-  WgtVect area;
-  int nvar = _getVariableNumber();
-  int nact = getSampleRankNumber();
-
-  _getWeights(iact, area);
-
-  int iech = getSampleRank(iact);
-  message("Active sample #%d\n",iech);
-  for (int ivar=0; ivar < nvar; ivar++)
-    print_vector("Weights", 0, nact, area._weights[ivar]);
-}
-
-void GibbsMMulti::_display() const
-{
-  int nact = getSampleRankNumber();
-  mestitle(1,"Weight in Moving Gibbs");
-  for (int iact = 0; iact < nact; iact++)
-    _display(iact);
 }
 
 int GibbsMMulti::_getVariableNumber() const
@@ -349,130 +335,122 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
     tabmod.serialize("CovModBuilt", false);
 }
 
-int GibbsMMulti::_calculateWeights(int iact0, WgtVect& area, double tol) const
+/**
+ * Calculate the set of (multivariate) weights for one given sample
+ * @param iact0   Rank of the sample
+ * @param tol     Tolerance below which weights are set to 0
+ * @return
+ */
+int GibbsMMulti::_calculateWeights(int iact0, double tol) const
 {
-  int nvar  = _getVariableNumber();
-  int nact  = getSampleRankNumber();
-  int n = nact * nvar;
-  for (int i = 0; i < n; i++) _b[i] = 0.;
-  _b[iact0] = 1.;
+  int nvar = _getVariableNumber();
+  int nact = getSampleRankNumber();
+  int n    = nact * nvar;
 
-  // Solve the linear system and returns the result in 'x'
-  cs_ipvec(nact, _Pn.data(), _b.data(), _x.data()); /* x = P*b */
-  cs_lsolve(_Ln, _x.data()); /* x = L\x */
-  cs_ltsolve(_Ln, _x.data()); /* x = L'\x */
-  cs_pvec(nact, _Pn.data(), _x.data(), _b.data()); /* b = P'*x */
+  // Loop on the variables
 
-  // Discarding the values leading to small vector of weights
-
-  for (int iact = 0; iact < nact; iact++)
+  for (int ivar0 = 0; ivar0 < nvar; ivar0++)
   {
-    double wloc = ABS(_b[iact]);
-    if (wloc < tol) _b[iact] = 0.;
-  }
+    for (int i = 0; i < n; i++) _b[i] = 0.;
+    _b[iact0 + ivar0 * nact] = 1.;
 
-  // Storing the weights per variable for the target sample
+    // Solve the linear system and returns the result in 'x'
+    cs_ipvec(nact, _Pn.data(), _b.data(), _x.data()); /* x = P*b */
+    cs_lsolve(_Ln, _x.data()); /* x = L\x */
+    cs_ltsolve(_Ln, _x.data()); /* x = L'\x */
+    cs_pvec(nact, _Pn.data(), _x.data(), _b.data()); /* b = P'*x */
 
-  area._weights.clear();
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    VectorDouble ll(nact);
-    for (int iact = 0; iact < nact; iact++)
-      ll[iact] = _b[ivar * nact + iact];
-    area._weights.push_back(ll);
-    if (area._weights.empty()) return 1;
+    // Discarding the values leading to small vector of weights
+
+    for (int i = 0; i < n; i++)
+    {
+      double wloc = ABS(_b[i]);
+      if (wloc < tol) _b[i] = 0.;
+    }
+
+    // Storing the weights for the current sample and the current variable
+
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int iact = 0; iact < nact; iact++)
+        WEIGHTS(ivar0, ivar, iact) = _b[ivar * nact + iact];
   }
 
   return 0;
 }
 
-bool GibbsMMulti::_checkForInternalStorage(bool verbose)
+int GibbsMMulti::_storeAllWeights(bool verbose)
 {
-  WgtVect area;
+  VectorDouble weights;
   int nvar   = _getVariableNumber();
   int nact   = getSampleRankNumber();
+  _areas.clear();
 
-  // Evaluate the sum of the number of weights per sample
+  // Check if the weight must be stored internally or externally
 
-  long sumWgt   = nact * nvar * nact * nvar;
-  long sumRanks = nact * nact;
-  long overHead = 1;
-  for (int iact = 0; iact < nact ; iact++)
-  {
-    overHead += 2 + sizeof(VectorInt) + sizeof(VectorDouble);
-    overHead += nvar * sizeof(VectorDouble);
-  }
-
-  long total = sumWgt * sizeof(double) + sumRanks * sizeof(int) + overHead;
-
-  // Printout of the different core storage quanta
-
+  long total = nact * nvar * nact * nvar;
   if (verbose)
   {
-    message("Total core for Weights          = %ld (bytes)\n",sumWgt * sizeof(double));
-    message("Total core for Weights          = %ld (bytes)\n",sumRanks * sizeof(int));
-    message("Core for Overhead               = %ld (bytes)\n",overHead);
     message("Total core needs                = %ld (bytes)\n",total);
-    message("(To speed up, calculations are based on an upper bound of dimension of weights)\n");
   }
 
   // Decide if weights are stored internally or not
 
-  bool flagStoreInternal;
   if (verbose)
-    message("Decision Memory Threshold       = %ld (bytes)\n",TOTAL_MAX);
-  if (total > TOTAL_MAX)
   {
-    flagStoreInternal = false;
-    if (verbose)
-      message("Weights are not stored internally: they will be calculated on the fly\n");
-  }
-  else
-  {
-    flagStoreInternal = true;
-    if (verbose)
-      message("Weights are calculated only once and stored internally\n");
+    if (! _flagStoreInternal)
+      message("Weights are stored externally (HDF5 format)\n");
+    else
+      message("Weights are stored internally\n");
   }
 
-  return flagStoreInternal;
-}
+  // Create the HDF5 file (optional)
 
-void GibbsMMulti::_storeAllWeights(bool verbose)
-{
-  WgtVect area;
-  int nact = getSampleRankNumber();
-  _areas.clear();
-
-  // Check if the weight must be stored internally or calculated on the fly
-  if (! _checkForInternalStorage(verbose)) return;
+  if (! _flagStoreInternal)
+  {
+    std::vector<hsize_t> dims(2);
+    dims[0] = nact;
+    dims[1] = nvar * nact * nvar;
+    _hdf5.openNewFile("h5data3.h5");
+    _hdf5.openNewDataSet("Set3", 2, dims.data(), H5::PredType::NATIVE_DOUBLE);
+  }
 
   // Loop on the samples
 
   for (int iact = 0; iact < nact; iact++)
   {
-    if (_calculateWeights(iact, area))
+    if (_calculateWeights(iact)) return 1;
+
+    if (_flagStoreInternal)
     {
-      _areas.clear();
-      return;
+      // Store internally
+      _areas.push_back(_weights);
     }
-    _areas.push_back(area);
+    else
+    {
+      // Store in hdf5 file
+      _hdf5.writeDataDoublePartial(iact, _weights);
+    }
+  }
+  return 0;
+}
+
+void GibbsMMulti::_getWeights(int iact0) const
+{
+  if (! _areas.empty())
+  {
+    // Load from the internal storage
+    _weights = _areas[iact0];
+  }
+  else
+  {
+    // Read from the external file
+    _weights = _hdf5.getDataDoublePartial(iact0);
   }
 }
 
-void GibbsMMulti::_getWeights(int iact0, WgtVect& area) const
+void GibbsMMulti::cleanup()
 {
-  if (! _areas.empty())
-    area = _areas[iact0];
-  else
-    _calculateWeights(iact0, area);
-}
-
-/**
- * Calculate the size of the current WgtVect structure
- * @param area Current WgtVect structure
- * @return
- */
-int GibbsMMulti::_getSizeOfArea(const WgtVect& area) const
-{
-  return ut_vector_size(area._weights);
+  _hdf5.closeDataSet();
+  _hdf5.closeFile();
+  _hdf5.deleteFile();
 }

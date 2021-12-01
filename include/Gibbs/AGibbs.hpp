@@ -51,6 +51,7 @@ public:
                   int isimu = 0,
                   bool verbose = false,
                   bool flagCheck = false);
+  virtual void cleanup() { return; }
 
   void init(int npgs,
             int nvar,

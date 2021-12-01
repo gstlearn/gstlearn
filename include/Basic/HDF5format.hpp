@@ -11,7 +11,12 @@
 #pragma once
 
 #include "Basic/String.hpp"
+#include "Basic/AStringable.hpp"
 #include "hdf5.h"
+#include "H5Cpp.h"
+#include "typeinfo"
+
+using namespace H5;
 
 class HDF5format
 {
@@ -22,31 +27,34 @@ public:
   virtual ~HDF5format();
 
 public:
-  int createRegular(hid_t type,
-                    int ndim,
-                    hsize_t *dims,
-                    void *wdata);
   void* readRegular(int flag_compress,
-                    hid_t type,
-                    int ndim,
                     hsize_t *start,
                     hsize_t *stride,
                     hsize_t *count,
                     hsize_t *block,
                     hsize_t *dimout);
-  int writeRegular(hid_t type,
-                   int ndim,
-                   hsize_t *dims,
-                   hsize_t *start,
+  int writeRegular(hsize_t *start,
                    hsize_t *stride,
                    hsize_t *count,
                    hsize_t *block,
                    void *wdata);
   int deleteFile();
-  void* allocArray(hid_t type, int ndim, hsize_t *dims);
+  void* allocArray(H5::DataType type, int ndim, hsize_t *dims);
 
   void setFileName(const String& filename) { _filename = filename; }
   void setVarName(const String& varname) { _varname = varname; }
+
+  int displayNames() const;
+
+  void openFile(const String& filename = String()) const;
+  void openNewFile(const String& filename) const;
+  void openDataSet(const String& varname = String()) const;
+  void openNewDataSet(const String& varname,
+                      int ndim,
+                      hsize_t *dims,
+                      H5::DataType type) const;
+  void closeFile() const;
+  void closeDataSet() const;
 
   // Functions to be overloaded
   template<typename T>
@@ -65,13 +73,16 @@ public:
   VectorVectorInt getDataVVInt() const;
   VectorVectorFloat getDataVVFloat() const;
   VectorVectorDouble getDataVVDouble() const;
+
+  VectorDouble getDataDoublePartial(int myrank) const;
+  int writeDataDoublePartial(int myrank, const VectorDouble& data);
+
   // Return the size of the data
   // Note that for multi-dim arrays that it gets the total size and not the size of a single row.
   int getSize() const;
 
   // We now make a proxy class so that we can overload the return type and use a single
-  // function to get data whether int or float. This could be made more advanced by
-  // adding more data types (such as double).
+  // function to get data whether int or float or double.
   class Proxy
   {
   private:
@@ -124,7 +135,153 @@ public:
     return Proxy(this);
   }
 
+private:
+  int _getNDim() const;
+  hsize_t* _getDims() const;
+  void _getOrderSize(H5T_order_t* order, size_t* size, bool* big_endian) const;
+  void _readInt(int *data,
+                const DataSpace& memspace = DataSpace::ALL,
+                const DataSpace& dataspace = DataSpace::ALL) const;
+  void _readFloat(float *data,
+                  const DataSpace&  = DataSpace::ALL,
+                  const DataSpace& dataspace = DataSpace::ALL) const;
+  void _readDouble(double *data,
+                   const DataSpace& memspace = DataSpace::ALL,
+                   const DataSpace& dataspace = DataSpace::ALL) const;
+  int _checkClass(int value) const;
+
 public:
-  String _filename;
-  String _varname;
+  mutable String    _filename;
+  mutable String    _varname;
+  mutable H5File    _datafile;
+  mutable DataSet   _dataset;
+  mutable DataType  _datatype;
+  mutable DataSpace _dataspace;
 };
+
+/**
+ * Numeric implementation of our write data function
+ * Only accepts numerical values. Integers, floats, or doubles
+ * @param data
+ */
+template<typename T>
+void HDF5format::writeData(const T &data)
+{
+  Exception::dontPrint();
+  auto *a = new T { data };
+  char* type = (char*) (typeid(T).name());
+  try
+  {
+    if (type == (char*) typeid(int).name())
+    {
+      _dataset.write(a, PredType::STD_I32LE);
+    }
+    else if (type == (char*) typeid(float).name())
+    {
+      _dataset.write(a, PredType::IEEE_F32LE);
+    }
+    else if (type == (char*) typeid(double).name())
+    {
+      _dataset.write(a, PredType::IEEE_F64LE);
+    }
+    else
+    {
+      messerr("Unknown data type! EXITING");
+    }
+    delete a;
+    return;
+  }
+  catch (Exception& error)
+  {
+    messerr("---> Problem in writeData(const T). Operation aborted");
+    error.printError();
+    return;
+  }
+}
+
+template<typename T>
+void HDF5format::writeData(const std::vector<T> &data)
+{
+  Exception::dontPrint();
+  uint npts = data.size();
+  auto *a = new T[npts];
+  char* type = (char*) (typeid(a[0]).name());
+  for (size_t i = 0; i < npts; ++i)
+    a[i] = data[i];
+
+  try
+  {
+    if (type == (char*) typeid(int).name())
+    {
+      _dataset.write(a, PredType::STD_I32LE);
+    }
+    else if (type == (char*) typeid(float).name())
+    {
+      _dataset.write(a, PredType::IEEE_F32LE);
+    }
+    else if (type == (char*) typeid(double).name())
+    {
+      _dataset.write(a, PredType::IEEE_F64LE);
+    }
+    else
+    {
+      messerr("Unknown data type! EXITING");
+    }
+
+    // remember to close everything and delete our arrays
+    delete[] a;
+    return;
+  }
+  catch (Exception& error)
+   {
+     messerr("---> Problem in writeData(const std::vector<T>). Operation aborted");
+     error.printError();
+     return;
+   }
+ }
+
+template<typename T>
+void HDF5format::writeData(const std::vector<std::vector<T> > &data)
+{
+  Exception::dontPrint();
+  uint dim1 = data.size();
+  uint dim2 = data[0].size();
+  auto a = new T[dim1 * dim2];
+  auto md = new T*[dim1];
+  for (size_t i = 0; i < dim1; ++i)
+    md[i] = a + i * dim2;
+  for (size_t i = 0; i < dim1; ++i)
+    for (size_t j = 0; j < dim2; ++j)
+      md[i][j] = data[i][j];
+
+  try
+  {
+    if (typeid(T).name() == typeid(int).name())
+    {
+      _dataset.write(a, PredType::STD_I32LE);
+    }
+    else if (typeid(T).name() == typeid(float).name())
+    {
+      _dataset.write(a, PredType::IEEE_F32LE);
+    }
+    else if (typeid(T).name() == typeid(double).name())
+    {
+      _dataset.write(a, PredType::IEEE_F64LE);
+    }
+    else
+    {
+      messerr("Unknown data type! EXITING");
+    }
+
+    // remember to close everything and delete our arrays
+    delete[] md;
+    delete a;
+    return;
+  }
+  catch (Exception& error)
+   {
+     messerr("---> Problem in writeData(const std::vector<std::vector<T> >). Operation aborted");
+     error.printError();
+     return;
+   }
+}
