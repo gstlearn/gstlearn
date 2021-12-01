@@ -146,14 +146,22 @@ private:
   void _readDouble(double *data,
                    const H5::DataSpace& memspace = H5::DataSpace::ALL,
                    const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
+<<<<<<< HEAD
   void _writeDouble(double *data,
                     const H5::DataSpace& memspace = H5::DataSpace::ALL,
                     const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
+=======
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
   int _checkClass(int value) const;
 
 public:
+<<<<<<< HEAD
   mutable String        _filename;
   mutable String        _varname;
+=======
+  mutable String    _filename;
+  mutable String    _varname;
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
   mutable H5::H5File    _datafile;
   mutable H5::DataSet   _dataset;
   mutable H5::DataType  _datatype;
@@ -174,11 +182,29 @@ void HDF5format::writeData(const T &data)
   try
   {
     if (type == (char*) typeid(int).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::STD_I32LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::STD_I32LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else if (type == (char*) typeid(float).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::IEEE_F32LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::IEEE_F32LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else if (type == (char*) typeid(double).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::IEEE_F64LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::IEEE_F64LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else
       messerr("Unknown data type! EXITING");
 
@@ -206,11 +232,29 @@ void HDF5format::writeData(const std::vector<T> &data)
   try
   {
     if (type == (char*) typeid(int).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::STD_I32LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::STD_I32LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else if (type == (char*) typeid(float).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::IEEE_F32LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::IEEE_F32LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else if (type == (char*) typeid(double).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::IEEE_F64LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::IEEE_F64LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else
       messerr("Unknown data type! EXITING");
 
@@ -243,11 +287,29 @@ void HDF5format::writeData(const std::vector<std::vector<T> > &data)
   try
   {
     if (typeid(T).name() == typeid(int).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::STD_I32LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::STD_I32LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else if (typeid(T).name() == typeid(float).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::IEEE_F32LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::IEEE_F32LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else if (typeid(T).name() == typeid(double).name())
+<<<<<<< HEAD
       _dataset.write(a, H5::PredType::IEEE_F64LE);
+=======
+    {
+      _dataset.write(a, H5::PredType::IEEE_F64LE);
+    }
+>>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
     else
       messerr("Unknown data type! EXITING");
 

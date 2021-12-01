@@ -16,6 +16,8 @@
 
 #define DEBUG 0
 
+using namespace H5;
+
 HDF5format::HDF5format(const String& filename,
                        const String& varname)
   : _filename(filename)
