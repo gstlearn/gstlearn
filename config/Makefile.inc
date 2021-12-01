@@ -33,6 +33,9 @@ ifeq ($(ARCH),linux)
      LA        = $(LIBDIR)/$(TARGET).a
      LIBS      = -lm -lboost_system
      CHMODCMD  = chmod 777
+
+     CXXFLAGS += -I/usr/include/hdf5/serial
+     LIBS     += -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lhdf5 -lhdf5_cpp
 endif
 
 ifeq ($(ARCH),linux64)
@@ -42,6 +45,9 @@ ifeq ($(ARCH),linux64)
      LA        = $(LIBDIR)/$(TARGET).a
      LIBS      = -lm -lboost_system
      CHMODCMD  = chmod 777
+
+     CXXFLAGS += -I/usr/include/hdf5/serial
+     LIBS     += -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lhdf5 -lhdf5_cpp
 endif
 
 ifeq ($(ARCH),macosx)
@@ -60,7 +66,10 @@ ifeq ($(ARCH),windows)
      LSO       = $(LIBDIR)/$(TARGET).dll
      LA        = $(LIBDIR)/$(TARGET).lib
      LIBS      = -liphlpapi -lrpcrt4
-     CHMODCMD  = echo 
+     CHMODCMD  = echo
+
+     CXXFLAGS += -IC:/Program\ Files/HDF_Group/HDF5/1.12.1/include
+     LIBS     += -LC:/Program\ Files/HDF_Group/HDF5/1.12.1/bin -lhdf5 -lhdf5_cpp
 endif
 
 ifeq ($(USE_NETCDF),1)
@@ -72,6 +81,3 @@ ifeq ($(USE_NETCDF),1)
      LIBS     += -lnetcdf_c++4 -lnetcdf
 endif
 
-# This is only for LINUX. To be improved for Windows
-CXXFLAGS += -I/usr/include/hdf5/serial
-LIBS += -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lhdf5 -lhdf5_cpp
