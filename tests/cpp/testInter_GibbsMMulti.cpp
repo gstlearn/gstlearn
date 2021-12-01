@@ -34,14 +34,14 @@ int main(int /*argc*/, char */*argv*/[])
 
 {
   int iptr;
-  bool flag_inter = false;
+  bool flag_inter = true;
 
   int nx        = 20;
   int niter     = 100;
   int nburn     = 20;
   double range  = 10.;
   double bound  = TEST;
-  double eps    = 0.;
+  double eps    = EPSILON6;
   bool storeTables = false;
   bool storeInternal = false;
 
@@ -51,8 +51,7 @@ int main(int /*argc*/, char */*argv*/[])
     niter = askInt("Number of Gibbs iterations",niter);
     nburn = askInt("Number of burning steps",nburn);
     range = askDouble("Isotropic Range",range);
-    eps   = askDouble("Epsilon Cholesky",eps);
-    bound = askDouble("Bounds [None: TEST]",bound, true);
+    storeInternal = askBool("Store Internal", storeInternal);
   }
 
   int seed     = 5452;

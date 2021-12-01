@@ -171,7 +171,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Stripping the Cholesky decomposition matrix
 
-  _Ln = cs_strip(N->L, _eps, verbose);
+  _Ln = cs_strip(N->L, _eps, false);
   timer.Interval("Stripping Cholesky Matrix");
 
   // Evaluate storage capacity and store weights internally (or not)

@@ -90,8 +90,8 @@ void* HDF5format::readRegular(int flag_compress,
     hsize_t start0[ndim];
     hsize_t dims[ndim];
 
-    DataType datatype = _dataset.getDataType();
-		DataSpace dataspace = _dataset.getSpace();
+    H5::DataType datatype = _dataset.getDataType();
+		H5::DataSpace dataspace = _dataset.getSpace();
     dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
 
     // Core allocation for returned array
@@ -115,7 +115,7 @@ void* HDF5format::readRegular(int flag_compress,
     void* rdata = allocArray(datatype, ndim, dimout);
     if (rdata == NULL) return (rdata);
 
-    DataSpace memspace(ndim, dimout, NULL);
+    H5::DataSpace memspace(ndim, dimout, NULL);
     if (flag_compress)
       memspace.selectHyperslab(H5S_SELECT_SET, dimout, start0);
     else
@@ -128,7 +128,7 @@ void* HDF5format::readRegular(int flag_compress,
 
     return rdata;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in readRegular. Operation aborted");
     error.printError();
@@ -165,7 +165,7 @@ int HDF5format::writeRegular(hsize_t *start,
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     int ndim = _getNDim();
     hsize_t start0[ndim];
     hsize_t dimin[ndim];
@@ -176,10 +176,10 @@ int HDF5format::writeRegular(hsize_t *start,
       if (block != NULL) dimin[idim] *= block[idim];
     }
 
-    DataType datatype = _dataset.getDataType();
-		DataSpace dataspace = _dataset.getSpace();
+    H5::DataType datatype = _dataset.getDataType();
+		H5::DataSpace dataspace = _dataset.getSpace();
     dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
-    DataSpace memspace(ndim, dimin, NULL);
+    H5::DataSpace memspace(ndim, dimin, NULL);
     memspace.selectHyperslab(H5S_SELECT_SET, dimin, start0);
 
     _dataset.write((double *) wdata, datatype, memspace, dataspace);
@@ -189,7 +189,7 @@ int HDF5format::writeRegular(hsize_t *start,
 
     return 0;
   }
-  catch (DataSetIException& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in writeRegular. Operation aborted");
     error.printError();
@@ -228,11 +228,11 @@ int HDF5format::getSize() const
 {
   try
   {
-    Exception::dontPrint();
-    DataSpace dataspace = _dataset.getSpace();
+    H5::Exception::dontPrint();
+    H5::DataSpace dataspace = _dataset.getSpace();
     return dataspace.getSimpleExtentNpoints();
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     error.printError();
     return 0;
@@ -243,7 +243,7 @@ int HDF5format::getDataInt() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(0)) return 0;
 
     int *data = new int;
@@ -253,7 +253,7 @@ int HDF5format::getDataInt() const
     delete data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataInt. Operation aborted");
     error.printError();
@@ -265,7 +265,7 @@ float HDF5format::getDataFloat() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(1)) return 0.;
 
     float *data = new float;
@@ -275,7 +275,7 @@ float HDF5format::getDataFloat() const
     delete data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataFloat. Operation aborted");
     error.printError();
@@ -287,7 +287,7 @@ double HDF5format::getDataDouble() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(1)) return 0.;
 
     double *data = new double;
@@ -297,7 +297,7 @@ double HDF5format::getDataDouble() const
     delete data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataDouble. Operation aborted");
     error.printError();
@@ -309,7 +309,7 @@ VectorInt HDF5format::getDataVInt() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(0)) return VectorInt{1,-1};
 
     const int npts = _dataset.getSpace().getSimpleExtentNpoints();
@@ -320,7 +320,7 @@ VectorInt HDF5format::getDataVInt() const
     delete[] data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVInt. Operation aborted");
     error.printError();
@@ -332,7 +332,7 @@ VectorFloat HDF5format::getDataVFloat() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(1)) return VectorFloat{1,-1.};
 
     const int npts = _dataset.getSpace().getSimpleExtentNpoints();
@@ -343,7 +343,7 @@ VectorFloat HDF5format::getDataVFloat() const
     delete[] data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVFloat. Operation aborted");
     error.printError();
@@ -355,7 +355,7 @@ VectorDouble HDF5format::getDataVDouble() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(1)) return VectorDouble{1, -1.};
 
     const int npts = _dataset.getSpace().getSimpleExtentNpoints();
@@ -366,7 +366,7 @@ VectorDouble HDF5format::getDataVDouble() const
     delete[] data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVDouble. Operation aborted");
     error.printError();
@@ -382,7 +382,7 @@ VectorVectorInt HDF5format::getDataVVInt() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(0)) return { 1, VectorInt(1, -1) };
 
     hsize_t* dims = _getDims();
@@ -404,7 +404,7 @@ VectorVectorInt HDF5format::getDataVVInt() const
     delete data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVVInt. Operation aborted");
     error.printError();
@@ -416,7 +416,7 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(1)) return { 1, VectorFloat(1, -1.) };
 
     hsize_t* dims = _getDims();
@@ -438,7 +438,7 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
     delete data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVVFloat. Operation aborted");
     error.printError();
@@ -450,7 +450,7 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
 {
   try
   {
-    Exception::dontPrint();
+    H5::Exception::dontPrint();
     if (_checkClass(1)) return { 1, VectorDouble(1, -1.) };
 
     hsize_t* dims = _getDims();
@@ -472,7 +472,7 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
     delete data;
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVVDouble. Operation aborted");
     error.printError();
@@ -490,7 +490,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
 {
   try
   {
-    DataSpace dataspace = _dataset.getSpace();
+    H5::DataSpace dataspace = _dataset.getSpace();
 
     hsize_t* dims = _getDims();
     H5T_order_t order;
@@ -507,7 +507,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
 
     hsize_t mydims[1];
     mydims[0] = dim2;
-    DataSpace memspace( 1, mydims );
+    H5::DataSpace memspace( 1, mydims );
     hsize_t  count[2] = { 1, dim2 };
     hsize_t offset[2] = { (hsize_t) myrank, 0};
     dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
@@ -522,7 +522,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
     memspace.close();
     return v;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataDoublePartial. Operation aborted");
     error.printError();
@@ -532,7 +532,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
 
 int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
 {
-  Exception::dontPrint();
+  H5::Exception::dontPrint();
   uint npts = data.size(); // size of our data
   auto *a = new double[npts]; // convert to an array
   // convert std::vector to array. H5 does not seem to like the pointer implementation
@@ -541,12 +541,8 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
 
   try
   {
-    DataSpace dataspace = _dataset.getSpace();
+    H5::DataSpace dataspace = _dataset.getSpace();
     hsize_t* dims = _getDims();
-    H5T_order_t order;
-    size_t size;
-    bool big_endian;
-    _getOrderSize(&order, &size, &big_endian);
     size_t dim1 = dims[0];
     size_t dim2 = dims[1];
     if (myrank < 0 || myrank >= (int) dim1)
@@ -565,34 +561,19 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
 
     hsize_t mydims[1];
     mydims[0] = dim2;
-    DataSpace memspace( 1, mydims );
+    H5::DataSpace memspace( 1, mydims );
     hsize_t  count[2] = { 1, dim2 };
     hsize_t offset[2] = { (hsize_t) myrank, 0};
     dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
 
-    if (order == 0 && size == 4)
-    {
-      message("NOTE: This is actually float data. We are casting to double\n");
-      _dataset.write((double*) a, PredType::IEEE_F32LE, memspace, dataspace);
-    }
-    else if (order == 0 && size == 8)
-      _dataset.write((double*) a, PredType::IEEE_F64LE, memspace, dataspace);
-    else if (order == 1 && size == 4)
-    {
-      message("NOTE: This is actually float data. We are casting to double\n");
-      _dataset.write((double*) a, PredType::IEEE_F32BE, memspace, dataspace);
-    }
-    else if (order == 1 && size == 8)
-      _dataset.write((double*) a, PredType::IEEE_F64BE, memspace, dataspace);
-    else
-      messageAbort("Did not find data type\n");
+    _writeDouble(a, memspace, dataspace);
 
     delete[] dims;
     memspace.close();
     dataspace.close();
     return 0;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in writeDataDoublePartial. Operation aborted");
     error.printError();
@@ -620,7 +601,7 @@ int HDF5format::displayNames() const
 
     return 0;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in displayNames. Operation aborted");
     error.printError();
@@ -630,14 +611,14 @@ int HDF5format::displayNames() const
 
 int HDF5format::_getNDim() const
 {
-  DataSpace dataspace = _dataset.getSpace();
+  H5::DataSpace dataspace = _dataset.getSpace();
   int rank = dataspace.getSimpleExtentNdims();
   return rank;
 }
 
 hsize_t* HDF5format::_getDims() const
 {
-  DataSpace dataspace = _dataset.getSpace();
+  H5::DataSpace dataspace = _dataset.getSpace();
   int rank = dataspace.getSimpleExtentNdims();
   hsize_t* dims = new hsize_t[rank];
   dataspace.getSimpleExtentDims(dims);
@@ -657,7 +638,7 @@ void HDF5format::_getOrderSize(H5T_order_t* order,
                                bool* big_endian) const
 {
   H5std_string order_string;
-  FloatType ftype = _dataset.getFloatType();
+  H5::FloatType ftype = _dataset.getFloatType();
   *order = ftype.getOrder(order_string);
   *size = ftype.getSize();
   *big_endian = (order_string == "Big endian byte order_stringing (1)");
@@ -678,9 +659,9 @@ void HDF5format::openFile(const String& filename) const
   // Perform the Open operation
   try
   {
-    _datafile = H5File(H5std_string (_filename.c_str()), H5F_ACC_RDONLY);
+    _datafile = H5::H5File(H5std_string (_filename.c_str()), H5F_ACC_RDONLY);
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in openFile. Operation aborted");
     error.printError();
@@ -696,10 +677,10 @@ void HDF5format::openNewFile(const String& filename) const
   // Perform the Open operation
   try
   {
-    _datafile = H5File(_filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT);
+    _datafile = H5::H5File(_filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT);
 
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in openNewFile. Operation aborted");
     error.printError();
@@ -719,7 +700,7 @@ void HDF5format::openDataSet(const String& varname) const
     _datatype = _dataset.getDataType();
     _dataspace = _dataset.getSpace();
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in openDataSet. Operation aborted");
     error.printError();
@@ -738,11 +719,11 @@ void HDF5format::openNewDataSet(const String& varname,
   // Perform the Open operation
   try
   {
-    _dataspace = DataSpace(ndim, dims);
+    _dataspace = H5::DataSpace(ndim, dims);
     _datatype = type;
     _dataset = _datafile.createDataSet(H5std_string(_varname.c_str()), _datatype, _dataspace);
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in openNewDataSet. Operation aborted");
     error.printError();
@@ -763,8 +744,8 @@ void HDF5format::closeDataSet() const
 }
 
 void HDF5format::_readInt(int *data,
-                          const DataSpace& memspace,
-                          const DataSpace& dataspace) const
+                          const H5::DataSpace& memspace,
+                          const H5::DataSpace& dataspace) const
 {
   H5T_order_t order;
   size_t size;
@@ -772,28 +753,28 @@ void HDF5format::_readInt(int *data,
   _getOrderSize(&order, &size, &big_endian);
 
   if (order == 0 && size == 1)
-    _dataset.read(data, PredType::STD_I8LE, memspace, dataspace);
+    _dataset.read(data, H5::PredType::STD_I8LE, memspace, dataspace);
   else if (order == 0 && size == 2)
-    _dataset.read(data, PredType::STD_I16LE, memspace, dataspace);
+    _dataset.read(data, H5::PredType::STD_I16LE, memspace, dataspace);
   else if (order == 0 && size == 4)
-    _dataset.read(data, PredType::STD_I32LE, memspace, dataspace);
+    _dataset.read(data, H5::PredType::STD_I32LE, memspace, dataspace);
   else if (order == 0 && size == 8)
-    _dataset.read(data, PredType::STD_I64LE, memspace, dataspace);
+    _dataset.read(data, H5::PredType::STD_I64LE, memspace, dataspace);
   else if (order == 1 && size == 1)
-    _dataset.read(data, PredType::STD_I8BE, memspace, dataspace);
+    _dataset.read(data, H5::PredType::STD_I8BE, memspace, dataspace);
   else if (order == 1 && size == 2)
-    _dataset.read(data, PredType::STD_I16BE, memspace, dataspace);
+    _dataset.read(data, H5::PredType::STD_I16BE, memspace, dataspace);
   else if (order == 1 && size == 4)
-    _dataset.read(data, PredType::STD_I32BE, memspace, dataspace);
+    _dataset.read(data, H5::PredType::STD_I32BE, memspace, dataspace);
   else if (order == 1 && size == 8)
-    _dataset.read(data, PredType::STD_I64BE, memspace, dataspace);
+    _dataset.read(data, H5::PredType::STD_I64BE, memspace, dataspace);
   else
     messageAbort("Did not find data type");
 }
 
 void HDF5format::_readFloat(float *data,
-                            const DataSpace& memspace,
-                            const DataSpace& dataspace) const
+                            const H5::DataSpace& memspace,
+                            const H5::DataSpace& dataspace) const
 {
   H5T_order_t order;
   size_t size;
@@ -801,20 +782,20 @@ void HDF5format::_readFloat(float *data,
   _getOrderSize(&order, &size, &big_endian);
 
   if (order == 0 && size == 4)
-    _dataset.read((float*) data, PredType::IEEE_F32LE, memspace, dataspace);
+    _dataset.read((float*) data, H5::PredType::IEEE_F32LE, memspace, dataspace);
   else if (order == 0 && size == 8)
-    _dataset.read((float*) data, PredType::IEEE_F64LE, memspace, dataspace);
+    _dataset.read((float*) data, H5::PredType::IEEE_F64LE, memspace, dataspace);
   else if (order == 1 && size == 4)
-    _dataset.read((float*) data, PredType::IEEE_F32BE, memspace, dataspace);
+    _dataset.read((float*) data, H5::PredType::IEEE_F32BE, memspace, dataspace);
   else if ((big_endian || order == 1) && size == 8)
-    _dataset.read((float*) data, PredType::IEEE_F64BE, memspace, dataspace);
+    _dataset.read((float*) data, H5::PredType::IEEE_F64BE, memspace, dataspace);
   else
     messageAbort("Did not find data type");
 }
 
 void HDF5format::_readDouble(double *data,
-                             const DataSpace& memspace,
-                             const DataSpace& dataspace) const
+                             const H5::DataSpace& memspace,
+                             const H5::DataSpace& dataspace) const
 {
   H5T_order_t order;
   size_t size;
@@ -822,13 +803,13 @@ void HDF5format::_readDouble(double *data,
   _getOrderSize(&order, &size, &big_endian);
 
   if (order == 0 && size == 4)
-    _dataset.read((double*) data, PredType::IEEE_F32LE, memspace, dataspace);
+    _dataset.read((double*) data, H5::PredType::IEEE_F32LE, memspace, dataspace);
   else if (order == 0 && size == 8)
-    _dataset.read((double*) data, PredType::IEEE_F64LE, memspace, dataspace);
+    _dataset.read((double*) data, H5::PredType::IEEE_F64LE, memspace, dataspace);
   else if (order == 1 && size == 4)
-    _dataset.read((double*) data, PredType::IEEE_F32BE, memspace, dataspace);
+    _dataset.read((double*) data, H5::PredType::IEEE_F32BE, memspace, dataspace);
   else if (order == 1 && size == 8)
-    _dataset.read((double*) data, PredType::IEEE_F64BE, memspace, dataspace);
+    _dataset.read((double*) data, H5::PredType::IEEE_F64BE, memspace, dataspace);
   else
     messageAbort("Did not find data type");
 }
@@ -844,3 +825,23 @@ int HDF5format::_checkClass(int value) const
   return 0;
 }
 
+void HDF5format::_writeDouble(double *data,
+                              const H5::DataSpace& memspace,
+                              const H5::DataSpace& dataspace) const
+{
+  H5T_order_t order;
+  size_t size;
+  bool big_endian;
+  _getOrderSize(&order, &size, &big_endian);
+
+  if (order == 0 && size == 4)
+    _dataset.write((double*) data, H5::PredType::IEEE_F32LE, memspace, dataspace);
+  else if (order == 0 && size == 8)
+    _dataset.write((double*) data, H5::PredType::IEEE_F64LE, memspace, dataspace);
+  else if (order == 1 && size == 4)
+    _dataset.write((double*) data, H5::PredType::IEEE_F32BE, memspace, dataspace);
+  else if (order == 1 && size == 8)
+    _dataset.write((double*) data, H5::PredType::IEEE_F64BE, memspace, dataspace);
+  else
+    messageAbort("Did not find data type\n");
+}
