@@ -16,8 +16,6 @@
 #include "H5Cpp.h"
 #include "typeinfo"
 
-using namespace H5;
-
 class HDF5format
 {
 public:
@@ -140,23 +138,23 @@ private:
   hsize_t* _getDims() const;
   void _getOrderSize(H5T_order_t* order, size_t* size, bool* big_endian) const;
   void _readInt(int *data,
-                const DataSpace& memspace = DataSpace::ALL,
-                const DataSpace& dataspace = DataSpace::ALL) const;
+                const H5::DataSpace& memspace = H5::DataSpace::ALL,
+                const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
   void _readFloat(float *data,
-                  const DataSpace&  = DataSpace::ALL,
-                  const DataSpace& dataspace = DataSpace::ALL) const;
+                  const H5::DataSpace&  = H5::DataSpace::ALL,
+                  const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
   void _readDouble(double *data,
-                   const DataSpace& memspace = DataSpace::ALL,
-                   const DataSpace& dataspace = DataSpace::ALL) const;
+                   const H5::DataSpace& memspace = H5::DataSpace::ALL,
+                   const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
   int _checkClass(int value) const;
 
 public:
   mutable String    _filename;
   mutable String    _varname;
-  mutable H5File    _datafile;
-  mutable DataSet   _dataset;
-  mutable DataType  _datatype;
-  mutable DataSpace _dataspace;
+  mutable H5::H5File    _datafile;
+  mutable H5::DataSet   _dataset;
+  mutable H5::DataType  _datatype;
+  mutable H5::DataSpace _dataspace;
 };
 
 /**
@@ -167,22 +165,22 @@ public:
 template<typename T>
 void HDF5format::writeData(const T &data)
 {
-  Exception::dontPrint();
+  H5::Exception::dontPrint();
   auto *a = new T { data };
   char* type = (char*) (typeid(T).name());
   try
   {
     if (type == (char*) typeid(int).name())
     {
-      _dataset.write(a, PredType::STD_I32LE);
+      _dataset.write(a, H5::PredType::STD_I32LE);
     }
     else if (type == (char*) typeid(float).name())
     {
-      _dataset.write(a, PredType::IEEE_F32LE);
+      _dataset.write(a, H5::PredType::IEEE_F32LE);
     }
     else if (type == (char*) typeid(double).name())
     {
-      _dataset.write(a, PredType::IEEE_F64LE);
+      _dataset.write(a, H5::PredType::IEEE_F64LE);
     }
     else
     {
@@ -191,7 +189,7 @@ void HDF5format::writeData(const T &data)
     delete a;
     return;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
   {
     messerr("---> Problem in writeData(const T). Operation aborted");
     error.printError();
@@ -202,7 +200,7 @@ void HDF5format::writeData(const T &data)
 template<typename T>
 void HDF5format::writeData(const std::vector<T> &data)
 {
-  Exception::dontPrint();
+  H5::Exception::dontPrint();
   uint npts = data.size();
   auto *a = new T[npts];
   char* type = (char*) (typeid(a[0]).name());
@@ -213,15 +211,15 @@ void HDF5format::writeData(const std::vector<T> &data)
   {
     if (type == (char*) typeid(int).name())
     {
-      _dataset.write(a, PredType::STD_I32LE);
+      _dataset.write(a, H5::PredType::STD_I32LE);
     }
     else if (type == (char*) typeid(float).name())
     {
-      _dataset.write(a, PredType::IEEE_F32LE);
+      _dataset.write(a, H5::PredType::IEEE_F32LE);
     }
     else if (type == (char*) typeid(double).name())
     {
-      _dataset.write(a, PredType::IEEE_F64LE);
+      _dataset.write(a, H5::PredType::IEEE_F64LE);
     }
     else
     {
@@ -232,7 +230,7 @@ void HDF5format::writeData(const std::vector<T> &data)
     delete[] a;
     return;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
    {
      messerr("---> Problem in writeData(const std::vector<T>). Operation aborted");
      error.printError();
@@ -243,7 +241,7 @@ void HDF5format::writeData(const std::vector<T> &data)
 template<typename T>
 void HDF5format::writeData(const std::vector<std::vector<T> > &data)
 {
-  Exception::dontPrint();
+  H5::Exception::dontPrint();
   uint dim1 = data.size();
   uint dim2 = data[0].size();
   auto a = new T[dim1 * dim2];
@@ -258,15 +256,15 @@ void HDF5format::writeData(const std::vector<std::vector<T> > &data)
   {
     if (typeid(T).name() == typeid(int).name())
     {
-      _dataset.write(a, PredType::STD_I32LE);
+      _dataset.write(a, H5::PredType::STD_I32LE);
     }
     else if (typeid(T).name() == typeid(float).name())
     {
-      _dataset.write(a, PredType::IEEE_F32LE);
+      _dataset.write(a, H5::PredType::IEEE_F32LE);
     }
     else if (typeid(T).name() == typeid(double).name())
     {
-      _dataset.write(a, PredType::IEEE_F64LE);
+      _dataset.write(a, H5::PredType::IEEE_F64LE);
     }
     else
     {
@@ -278,7 +276,7 @@ void HDF5format::writeData(const std::vector<std::vector<T> > &data)
     delete a;
     return;
   }
-  catch (Exception& error)
+  catch (H5::Exception& error)
    {
      messerr("---> Problem in writeData(const std::vector<std::vector<T> >). Operation aborted");
      error.printError();
