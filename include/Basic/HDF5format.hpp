@@ -55,6 +55,7 @@ public:
   void closeDataSet() const;
 
   // Functions to be overloaded
+  void _writeAll(const char* type, void* a);
   template<typename T>
   void writeData(const T&);
   template<typename T>
@@ -160,17 +161,8 @@ public:
   mutable H5::DataSpace _dataspace;
 };
 
-/**
- * Numeric implementation of our write data function
- * Only accepts numerical values. Integers, floats, or doubles
- * @param data
- */
-template<typename T>
-void HDF5format::writeData(const T &data)
+void HDF5format::_writeAll(const char* type, void *a)
 {
-  H5::Exception::dontPrint();
-  auto *a = new T { data };
-  char* type = (char*) (typeid(T).name());
   try
   {
     if (type == (char*) typeid(int).name())
@@ -182,15 +174,30 @@ void HDF5format::writeData(const T &data)
     else
       messerr("Unknown data type! EXITING");
 
-    delete a;
     return;
   }
   catch (H5::Exception& error)
   {
-    messerr("---> Problem in writeData(const T). Operation aborted");
+    messerr("---> Problem in writeAll. Operation aborted");
     error.printError();
     return;
   }
+
+}
+
+/**
+ * Numeric implementation of our write data function
+ * Only accepts numerical values. Integers, floats, or doubles
+ * @param data
+ */
+template<typename T>
+void HDF5format::writeData(const T &data)
+{
+  H5::Exception::dontPrint();
+  char* type = (char*) (typeid(T).name());
+  auto *a = new T { data };
+  _writeAll(type, (void*) a);
+  delete a;
 }
 
 template<typename T>
@@ -202,27 +209,8 @@ void HDF5format::writeData(const std::vector<T> &data)
   char* type = (char*) (typeid(a[0]).name());
   for (size_t i = 0; i < npts; ++i)
     a[i] = data[i];
-
-  try
-  {
-    if (type == (char*) typeid(int).name())
-      _dataset.write(a, H5::PredType::STD_I32LE);
-    else if (type == (char*) typeid(float).name())
-      _dataset.write(a, H5::PredType::IEEE_F32LE);
-    else if (type == (char*) typeid(double).name())
-      _dataset.write(a, H5::PredType::IEEE_F64LE);
-    else
-      messerr("Unknown data type! EXITING");
-
-    delete[] a;
-    return;
-  }
-  catch (H5::Exception& error)
-   {
-     messerr("---> Problem in writeData(const std::vector<T>). Operation aborted");
-     error.printError();
-     return;
-   }
+  _writeAll(type, (void*) a);
+  delete[] a;
  }
 
 template<typename T>
@@ -238,26 +226,8 @@ void HDF5format::writeData(const std::vector<std::vector<T> > &data)
   for (size_t i = 0; i < dim1; ++i)
     for (size_t j = 0; j < dim2; ++j)
       md[i][j] = data[i][j];
-
-  try
-  {
-    if (typeid(T).name() == typeid(int).name())
-      _dataset.write(a, H5::PredType::STD_I32LE);
-    else if (typeid(T).name() == typeid(float).name())
-      _dataset.write(a, H5::PredType::IEEE_F32LE);
-    else if (typeid(T).name() == typeid(double).name())
-      _dataset.write(a, H5::PredType::IEEE_F64LE);
-    else
-      messerr("Unknown data type! EXITING");
-
-    delete[] md;
-    delete a;
-    return;
-  }
-  catch (H5::Exception& error)
-   {
-     messerr("---> Problem in writeData(const std::vector<std::vector<T> >). Operation aborted");
-     error.printError();
-     return;
-   }
+  char* type = (char*) (typeid(a[0]).name());
+  _writeAll(type, (void* ) a);
+  delete[] md;
+  delete a;
 }
