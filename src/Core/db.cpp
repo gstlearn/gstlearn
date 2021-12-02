@@ -114,10 +114,7 @@ static int st_vector_get_att(const Db *db, int iatt, double *tab)
  ** \param[out]  number Number of returned values
  **
  *****************************************************************************/
-int db_vector_get_att_sel_compress(Db *db,
-                                                   int iatt,
-                                                   int *number,
-                                                   double *tab)
+int db_vector_get_att_sel_compress(Db *db, int iatt, int *number, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, true);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -202,10 +199,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-int db_vector_get(Db *db,
-                                  const ELoc &locatorType,
-                                  int item,
-                                  double *tab)
+int db_vector_get(Db *db, const ELoc &locatorType, int item, double *tab)
 {
   int iatt = db->getAttribute(locatorType, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -242,9 +236,9 @@ int db_selection_get(const Db *db, int item, double *tab)
  **
  *****************************************************************************/
 int db_vector_put(Db *db,
-                                  const ELoc &locatorType,
-                                  int locatorIndex,
-                                  double *tab)
+                  const ELoc &locatorType,
+                  int locatorIndex,
+                  double *tab)
 {
   int icol = db->getColumnByLocator(locatorType, locatorIndex);
   if (!db->isColumnIndexValid(icol)) return (1);
@@ -286,8 +280,7 @@ static void st_load_data(Db *db,
   // Add the input array 'tab' (if provided)
 
   if (tab.empty()) return;
-  int ntab = (flag_add_rank) ? db->getFieldNumber() - 1 :
-                               db->getFieldNumber();
+  int ntab = (flag_add_rank) ? db->getFieldNumber() - 1 : db->getFieldNumber();
   int ecr = 0;
   for (int icol = 0; icol < ntab; icol++)
   {
@@ -370,10 +363,7 @@ int exist_LOCATOR(Db *db, const ELoc &locatorType)
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-double get_LOCATOR_ITEM(Db *db,
-                                        const ELoc &locatorType,
-                                        int item,
-                                        int iech)
+double get_LOCATOR_ITEM(Db *db, const ELoc &locatorType, int item, int iech)
 {
   return db->getFromLocator(locatorType, iech, item);
 }
@@ -392,10 +382,10 @@ double get_LOCATOR_ITEM(Db *db,
  **
  *****************************************************************************/
 void set_LOCATOR_ITEM(Db *db,
-                                      const ELoc &locatorType,
-                                      int item,
-                                      int iech,
-                                      double value)
+                      const ELoc &locatorType,
+                      int item,
+                      int iech,
+                      double value)
 {
   db->setFromLocator(locatorType, iech, item, value);
   return;
@@ -568,9 +558,7 @@ int db_coorvec_put(Db *db, int idim, double *tab)
  ** \param[in]  item   Rank of the attribute in the pointer
  **
  *****************************************************************************/
-int db_attribute_identify(const Db *db,
-                                          const ELoc &locatorType,
-                                          int item)
+int db_attribute_identify(const Db *db, const ELoc &locatorType, int item)
 {
   int iatt = db->getAttribute(locatorType, item);
   return (iatt);
@@ -636,10 +624,7 @@ double* db_sample_alloc(const Db *db, const ELoc &locatorType)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-int db_sample_load(Db *db,
-                                   const ELoc &locatorType,
-                                   int iech,
-                                   double *tab)
+int db_sample_load(Db *db, const ELoc &locatorType, int iech, double *tab)
 {
   if (!isLocatorTypeValid(locatorType)) return (1);
 
@@ -673,11 +658,7 @@ int db_sample_load(Db *db,
  ** \param[out] tab     Array of values
  **
  *****************************************************************************/
-int db_sample_get_att(Db *db,
-                                      int iech,
-                                      int number,
-                                      int iatt,
-                                      double *tab)
+int db_sample_get_att(Db *db, int iech, int number, int iatt, double *tab)
 {
   int ivar, flag_ffff;
 
@@ -701,11 +682,7 @@ int db_sample_get_att(Db *db,
  ** \param[in]  tab     array of values
  **
  *****************************************************************************/
-void db_sample_put_att(Db *db,
-                                       int iech,
-                                       int number,
-                                       int iatt,
-                                       double *tab)
+void db_sample_put_att(Db *db, int iech, int number, int iatt, double *tab)
 {
   int ivar;
 
@@ -733,11 +710,7 @@ void db_sample_put_att(Db *db,
  ** \remark: The returned array 'vect' must be dimension to that value
  **
  *****************************************************************************/
-double distance_inter(Db *db1,
-                                      Db *db2,
-                                      int iech1,
-                                      int iech2,
-                                      double *dist_vect)
+double distance_inter(Db *db1, Db *db2, int iech1, int iech2, double *dist_vect)
 {
   double v1, v2, *tab1, *tab2;
   int idim, ndim;
@@ -771,10 +744,7 @@ double distance_inter(Db *db1,
  **                        Returns the distance as a vector
  **
  *****************************************************************************/
-double distance_intra(const Db *db,
-                                      int iech1,
-                                      int iech2,
-                                      double *dist_vect)
+double distance_intra(const Db *db, int iech1, int iech2, double *dist_vect)
 {
   double v1, v2, *tab1, *tab2;
   int idim, ndim;
@@ -810,10 +780,10 @@ double distance_intra(const Db *db,
  **
  *****************************************************************************/
 double distance_grid(Db *db,
-                                     int flag_moins1,
-                                     int iech1,
-                                     int iech2,
-                                     double *dist_vect)
+                     int flag_moins1,
+                     int iech1,
+                     int iech2,
+                     double *dist_vect)
 {
   int ndim = db->getNDim();
   VectorInt iwork1(ndim);
@@ -883,9 +853,9 @@ double bench_distance(const Db *db, int iech1, int iech2)
  **
  *****************************************************************************/
 double cylinder_radius(const Db *db,
-                                       int iech1,
-                                       int iech2,
-                                       const VectorDouble &codir)
+                       int iech1,
+                       int iech2,
+                       const VectorDouble &codir)
 {
   double delta, dproj, v, dn1, dn2;
 
@@ -992,10 +962,10 @@ int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
  **
  *****************************************************************************/
 void db_sample_print(Db *db,
-                                     int iech,
-                                     int flag_ndim,
-                                     int flag_nvar,
-                                     int flag_nerr)
+                     int iech,
+                     int flag_ndim,
+                     int flag_nvar,
+                     int flag_nerr)
 {
   int idim, ivar, ierr;
   double value;
@@ -1057,13 +1027,13 @@ void db_sample_print(Db *db,
  **
  *****************************************************************************/
 void db_print(Db *db,
-                              int flag_resume,
-                              int flag_vars,
-                              int flag_extend,
-                              int flag_stats,
-                              int flag_array,
-                              int nrank,
-                              int *ranks)
+              int flag_resume,
+              int flag_vars,
+              int flag_extend,
+              int flag_stats,
+              int flag_array,
+              int nrank,
+              int *ranks)
 {
   /* Preliminary check */
 
@@ -1114,10 +1084,7 @@ void db_print(Db *db,
  **                        (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-int db_extension(Db *db,
-                                 double *mini_arg,
-                                 double *maxi_arg,
-                                 double *delta_arg)
+int db_extension(Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
 {
   double vmin, vmax, diff, mean, stdv;
   int nval;
@@ -1318,10 +1285,10 @@ double db_epsilon_distance(Db *db)
  **
  *****************************************************************************/
 int db_attribute_range(const Db *db,
-                                       int iatt,
-                                       double *mini,
-                                       double *maxi,
-                                       double *delta)
+                       int iatt,
+                       double *mini,
+                       double *maxi,
+                       double *delta)
 {
   double *tab, *sel, vmin, vmax, diff, mean, stdv;
   int nval, error;
@@ -1470,15 +1437,15 @@ int db_grid_define_coordinates(Db *db)
  **
  *****************************************************************************/
 Db* db_create_grid(int flag_rot,
-                                   int /*ndim*/,
-                                   int natt,
-                                   const ELoadBy &order,
-                                   int flag_add_rank,
-                                   const VectorInt &nx,
-                                   const VectorDouble &x0,
-                                   const VectorDouble &dx,
-                                   const VectorDouble &angles,
-                                   const VectorDouble &tab)
+                   int /*ndim*/,
+                   int natt,
+                   const ELoadBy &order,
+                   int flag_add_rank,
+                   const VectorInt &nx,
+                   const VectorDouble &x0,
+                   const VectorDouble &dx,
+                   const VectorDouble &angles,
+                   const VectorDouble &tab)
 {
   Db *db = new Db;
   int error;
@@ -1524,11 +1491,11 @@ Db* db_create_grid(int flag_rot,
  **
  *****************************************************************************/
 Db* db_create_grid_generic(int ndim,
-                                           int natt,
-                                           const ELoadBy &order,
-                                           int flag_add_rank,
-                                           const VectorInt &nx,
-                                           const VectorDouble &tab)
+                           int natt,
+                           const ELoadBy &order,
+                           int flag_add_rank,
+                           const VectorInt &nx,
+                           const VectorDouble &tab)
 {
   // Initializations
 
@@ -1583,17 +1550,17 @@ Db* db_create_grid_generic(int ndim,
  **
  *****************************************************************************/
 Db* db_create_grid_2D(int flag_rot,
-                                      int natt,
-                                      const ELoadBy &order,
-                                      int flag_add_rank,
-                                      int nx,
-                                      int ny,
-                                      double x0,
-                                      double y0,
-                                      double dx,
-                                      double dy,
-                                      double angle,
-                                      const VectorDouble &tab)
+                      int natt,
+                      const ELoadBy &order,
+                      int flag_add_rank,
+                      int nx,
+                      int ny,
+                      double x0,
+                      double y0,
+                      double dx,
+                      double dy,
+                      double angle,
+                      const VectorDouble &tab)
 {
   Db *db;
   VectorInt nn;
@@ -1650,22 +1617,22 @@ Db* db_create_grid_2D(int flag_rot,
  **
  *****************************************************************************/
 Db* db_create_grid_3D(int flag_rot,
-                                      int natt,
-                                      const ELoadBy &order,
-                                      int flag_add_rank,
-                                      int nx,
-                                      int ny,
-                                      int nz,
-                                      double x0,
-                                      double y0,
-                                      double z0,
-                                      double dx,
-                                      double dy,
-                                      double dz,
-                                      double angle_z,
-                                      double angle_y,
-                                      double angle_x,
-                                      const VectorDouble &tab)
+                      int natt,
+                      const ELoadBy &order,
+                      int flag_add_rank,
+                      int nx,
+                      int ny,
+                      int nz,
+                      double x0,
+                      double y0,
+                      double z0,
+                      double dx,
+                      double dy,
+                      double dz,
+                      double angle_z,
+                      double angle_y,
+                      double angle_x,
+                      const VectorDouble &tab)
 {
   Db *db;
   VectorInt nn;
@@ -1713,10 +1680,10 @@ Db* db_create_grid_3D(int flag_rot,
  **
  *****************************************************************************/
 Db* db_create_point(int nech,
-                                    int natt,
-                                    const ELoadBy &order,
-                                    int flag_add_rank,
-                                    const VectorDouble &tab)
+                    int natt,
+                    const ELoadBy &order,
+                    int flag_add_rank,
+                    const VectorDouble &tab)
 {
   /* Allocate the main structure */
 
@@ -1744,9 +1711,7 @@ Db* db_create_point(int nech,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-Db* db_create_from_target(double *target,
-                                          int ndim,
-                                          int flag_add_rank)
+Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
 {
   Db *db;
   int idim;
@@ -1856,10 +1821,7 @@ void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
  ** \param[in]  valinit   Value set to the variable
  **
  *****************************************************************************/
-void db_attribute_init(Db *db,
-                                       int ncol,
-                                       int iatt,
-                                       double valinit)
+void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
 {
   int iech, icol, jcol, jatt;
 
@@ -1995,11 +1957,7 @@ int db_gradient_update(Db *db)
  ** \param[out] tabout Output array
  **
  *****************************************************************************/
-int db_selref(int ndim,
-                              int *nx,
-                              int *ref,
-                              double *tabin,
-                              double *tabout)
+int db_selref(int ndim, int *nx, int *ref, double *tabin, double *tabout)
 {
   int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, skip, ival, error,
       neff_ndim;
@@ -2145,11 +2103,11 @@ int db_grid_match(Db *db1, Db *db2)
  **
  *****************************************************************************/
 int db_locator_attribute_add(Db *db,
-                                             const ELoc &locatorType,
-                                             int number,
-                                             int r_tem,
-                                             double valinit,
-                                             int *iptr)
+                             const ELoc &locatorType,
+                             int number,
+                             int r_tem,
+                             double valinit,
+                             int *iptr)
 {
   (*iptr) = db->addFields(number, valinit);
   if ((*iptr) < 0) return (1);
@@ -2179,12 +2137,7 @@ int db_locator_attribute_add(Db *db,
  ** \param[in]  cols    Array of input variable columns
  **
  *****************************************************************************/
-int db_grid_copy(Db *db1,
-                                 Db *db2,
-                                 int *ind1,
-                                 int *ind2,
-                                 int ncol,
-                                 int *cols)
+int db_grid_copy(Db *db1, Db *db2, int *ind1, int *ind2, int ncol, int *cols)
 {
   if (!(db1->isGrid() && db2->isGrid()))
   {
@@ -2274,11 +2227,11 @@ int db_grid_copy(Db *db1,
  **
  *****************************************************************************/
 int db_grid_copy_dilate(Db *db1,
-                                        int iatt1,
-                                        Db *db2,
-                                        int iatt2,
-                                        int mode,
-                                        int *nshift)
+                        int iatt1,
+                        Db *db2,
+                        int iatt2,
+                        int mode,
+                        int *nshift)
 {
   int *indg, iech1, iech2, idim, ndim, error;
   double value;
@@ -2340,10 +2293,7 @@ int db_grid_copy_dilate(Db *db1,
  ** \param[out] coor     coordinates of the point
  **
  *****************************************************************************/
-void grid_to_point(const Db *db,
-                                   int *indg,
-                                   double *percent,
-                                   double *coor)
+void grid_to_point(const Db *db, int *indg, double *percent, double *coor)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2433,10 +2383,7 @@ int point_to_point(Db *db, double *coor)
  ** \param[out] indg          indices of the closest grid node
  **
  *****************************************************************************/
-int point_to_grid(const Db *db,
-                                  double *coor,
-                                  int flag_outside,
-                                  int *indg)
+int point_to_grid(const Db *db, double *coor, int flag_outside, int *indg)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2502,10 +2449,7 @@ int point_to_grid(const Db *db,
  ** \remarks as reference
  **
  *****************************************************************************/
-int point_to_bench(const Db *db,
-                                   double *coor,
-                                   int flag_outside,
-                                   int *indb)
+int point_to_bench(const Db *db, double *coor, int flag_outside, int *indb)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2585,10 +2529,10 @@ int point_to_bench(const Db *db,
  **
  *****************************************************************************/
 int index_point_to_grid(const Db *dbin,
-                                        int iech,
-                                        int flag_outside,
-                                        const Db *dbout,
-                                        double *coor)
+                        int iech,
+                        int flag_outside,
+                        const Db *dbout,
+                        double *coor)
 {
   int ndim = dbin->getNDim();
   int nech = dbin->getSampleNumber();
@@ -2660,12 +2604,12 @@ int point_inside_grid(Db *db, int iech, Db *dbgrid)
  **
  *****************************************************************************/
 void db_monostat(Db *db,
-                                 int iatt,
-                                 double *wtot,
-                                 double *mean,
-                                 double *var,
-                                 double *mini,
-                                 double *maxi)
+                 int iatt,
+                 double *wtot,
+                 double *mean,
+                 double *var,
+                 double *mini,
+                 double *maxi)
 {
   int iech;
   double weight, value;
@@ -2728,11 +2672,11 @@ void db_monostat(Db *db,
  **
  *****************************************************************************/
 void db_polygon(Db *db,
-                                Polygons *polygon,
-                                int flag_sel,
-                                int flag_period,
-                                int flag_nested,
-                                NamingConvention namconv)
+                Polygons *polygon,
+                int flag_sel,
+                int flag_period,
+                int flag_nested,
+                const NamingConvention& namconv)
 {
   // Adding a new variable
 
@@ -2788,11 +2732,7 @@ void db_polygon(Db *db,
  ** \remark  variables
  **
  *****************************************************************************/
-int db_proportion(Db *db,
-                                  Db *dbgrid,
-                                  int nfac1max,
-                                  int nfac2max,
-                                  int *nclout)
+int db_proportion(Db *db, Db *dbgrid, int nfac1max, int nfac2max, int *nclout)
 {
   int error, iptr, ivar, nech, nval, mini, nvar, invalid, iclass, nclass;
   int ifac[2], nmax[2], iech, jech;
@@ -3004,8 +2944,8 @@ int db_count_defined(Db *db, int icol)
  **
  *****************************************************************************/
 void db_locators_correct(VectorString &strings,
-                                         const VectorInt &current,
-                                         int flag_locnew)
+                         const VectorInt &current,
+                         int flag_locnew)
 {
   int cur_item, ref_item, found, nmatch, ncount, nmult;
   ELoc cur_type, ref_type;
@@ -3191,8 +3131,8 @@ int db_prop_read(Db *db, int ix, int iy, double *props)
 
     for (iprop = 0; iprop < nprop; iprop++, ecr++)
       props[ecr] =
-          (flag_no && total > 0) ? TEST :
-                                   db->getProportion(iech, iprop) / total;
+          (flag_no && total > 0) ? TEST : db->getProportion(iech, iprop)
+              / total;
   }
   return (0);
 }
@@ -3292,14 +3232,14 @@ static int st_is_isotopic(Db *db, int iech, int niso)
  **
  *****************************************************************************/
 double* db_distances_general(Db *db1,
-                                             Db *db2,
-                                             int niso,
-                                             int mode,
-                                             int flag_same,
-                                             int *n1,
-                                             int *n2,
-                                             double *dmin,
-                                             double *dmax)
+                             Db *db2,
+                             int niso,
+                             int mode,
+                             int flag_same,
+                             int *n1,
+                             int *n2,
+                             double *dmin,
+                             double *dmax)
 {
   int nech1, nech2, iech1, iech2, ecr, max_all, nvalid;
   double *dist, dlocmin, dloc, dist_min, dist_max;
@@ -3509,9 +3449,7 @@ int is_grid_multiple(Db *db1, Db *db2)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **  **
  *****************************************************************************/
-Db* db_create_grid_multiple(Db *dbin,
-                                            const VectorInt &nmult,
-                                            int flag_add_rank)
+Db* db_create_grid_multiple(Db *dbin, const VectorInt &nmult, int flag_add_rank)
 {
   Db *dbout = nullptr;
   if (dbin == nullptr) return (dbin);
@@ -3546,9 +3484,7 @@ Db* db_create_grid_multiple(Db *dbin,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-Db* db_create_grid_divider(Db *dbin,
-                                           const VectorInt &nmult,
-                                           int flag_add_rank)
+Db* db_create_grid_divider(Db *dbin, const VectorInt &nmult, int flag_add_rank)
 {
   Db *dbout = nullptr;
   if (dbin == nullptr) return dbin;
@@ -3584,9 +3520,9 @@ Db* db_create_grid_divider(Db *dbin,
  **
  *****************************************************************************/
 Db* db_create_grid_dilate(Db *dbin,
-                                          int mode,
-                                          const VectorInt &nshift,
-                                          int flag_add_rank)
+                          int mode,
+                          const VectorInt &nshift,
+                          int flag_add_rank)
 {
   Db *dbout = nullptr;
   if (dbin == nullptr) return dbin;
@@ -3628,11 +3564,11 @@ Db* db_create_grid_dilate(Db *dbin,
  **
  *****************************************************************************/
 int db_gradient_modang_to_component(Db *db,
-                                                    int ang_conv,
-                                                    int iad_mod,
-                                                    int iad_ang,
-                                                    int iad_gx,
-                                                    int iad_gy)
+                                    int ang_conv,
+                                    int iad_mod,
+                                    int iad_ang,
+                                    int iad_gx,
+                                    int iad_gy)
 {
   int error, iech;
   double *v1, *v2, angdeg, angrad, modulus;
@@ -3702,13 +3638,13 @@ int db_gradient_modang_to_component(Db *db,
  **
  *****************************************************************************/
 int db_gradient_component_to_modang(Db *db,
-                                                    int verbose,
-                                                    int iad_gx,
-                                                    int iad_gy,
-                                                    int iad_mod,
-                                                    int iad_ang,
-                                                    double scale,
-                                                    double ve)
+                                    int verbose,
+                                    int iad_gx,
+                                    int iad_gy,
+                                    int iad_mod,
+                                    int iad_ang,
+                                    double scale,
+                                    double ve)
 {
   double *v1, *v2, norme, angle, vmax, surr, alpha, mini, maxi;
   int error, iech;
@@ -3848,12 +3784,7 @@ int db_get_rank_relative_to_absolute(Db *db, int iech0)
  ** \param[in]  iz       Rank of the node along third dimension
  **
  *****************************************************************************/
-double get_grid_value(Db *dbgrid,
-                                      int iptr,
-                                      int *indg,
-                                      int ix,
-                                      int iy,
-                                      int iz)
+double get_grid_value(Db *dbgrid, int iptr, int *indg, int ix, int iy, int iz)
 {
   int ndim, iad;
   double value;
@@ -3882,12 +3813,12 @@ double get_grid_value(Db *dbgrid,
  **
  *****************************************************************************/
 void set_grid_value(Db *dbgrid,
-                                    int iptr,
-                                    int *indg,
-                                    int ix,
-                                    int iy,
-                                    int iz,
-                                    double value)
+                    int iptr,
+                    int *indg,
+                    int ix,
+                    int iy,
+                    int iz,
+                    double value)
 {
   int ndim, iad;
 
@@ -3918,14 +3849,14 @@ void set_grid_value(Db *dbgrid,
  **
  *****************************************************************************/
 Db* db_grid_reduce(Db *db_grid,
-                                   int iptr,
-                                   int *margin,
-                                   int *limmin,
-                                   int flag_sel,
-                                   int flag_copy,
-                                   int verbose,
-                                   double vmin,
-                                   double vmax)
+                   int iptr,
+                   int *margin,
+                   int *limmin,
+                   int flag_sel,
+                   int flag_copy,
+                   int verbose,
+                   double vmin,
+                   double vmax)
 {
   Db *ss_grid;
   int *indcur, *indmin, *indmax, error, ndim, nech, flag_refuse, isel, icopy,
@@ -4110,13 +4041,13 @@ Db* db_grid_reduce(Db *db_grid,
  **
  *****************************************************************************/
 int db_grid_patch(Db *ss_grid,
-                                  Db *db_grid,
-                                  int iptr_ss,
-                                  int iptr_db,
-                                  int iptr_rank,
-                                  int new_rank,
-                                  int oper,
-                                  int verbose)
+                  Db *db_grid,
+                  int iptr_ss,
+                  int iptr_db,
+                  int iptr_rank,
+                  int new_rank,
+                  int oper,
+                  int verbose)
 {
   int *indg, *indg0, flag_save;
   int error, ndim, jech, nused, noused, nout, nundef, nmask, ndef, nbnomask;
@@ -4347,10 +4278,10 @@ static void st_rotate(int ndim,
  **
  *****************************************************************************/
 int db_extension_rotated(Db *db,
-                                         double *rotmat,
-                                         double *mini_arg,
-                                         double *maxi_arg,
-                                         double *delta_arg)
+                         double *rotmat,
+                         double *mini_arg,
+                         double *maxi_arg,
+                         double *delta_arg)
 {
   double *mini, *maxi, coor[3], minrot[3], maxrot[3];
   int error, ndim;
@@ -4516,8 +4447,7 @@ VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
  ** \param[in]   pattern  Matching pattern
  **
  ****************************************************************************/
-VectorInt db_identify_variables_by_name(Db *db,
-                                                        const String &pattern)
+VectorInt db_identify_variables_by_name(Db *db, const String &pattern)
 {
   VectorString names = db->getNames(pattern);
   VectorInt ranks = db->getAttributes(names);

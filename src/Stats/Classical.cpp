@@ -13,7 +13,6 @@
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 #include "Stats/Classical.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 

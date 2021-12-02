@@ -288,7 +288,7 @@ int RuleProp::fit(Db* db, const VarioParam* varioparam, int ngrfmax, bool verbos
  * @return Error return code
  * @remarks The input variables must be locatorized Z or SIMU
  */
-int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
+int RuleProp::gaussToCategory(Db* db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
@@ -304,7 +304,7 @@ int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
  * @param namconv Naming convention
  * @return Error return code
  */
-int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
+int RuleProp::categoryToThresh(Db *db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
@@ -320,7 +320,7 @@ int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
  * @param namconv Naming convention
  * @return Error return code
  */
-int RuleProp::computeAllThreshes(Db *db, NamingConvention namconv) const
+int RuleProp::computeAllThreshes(Db *db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {

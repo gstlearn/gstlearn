@@ -3,7 +3,7 @@ This file contains the logs between consecutive releases
 
 Release 0.1.0
 ==============
-- Use CMake 3.15+
+- Use CMake 3.19+
 
 Release 0.0.2
 ==============

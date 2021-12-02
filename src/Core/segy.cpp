@@ -1587,7 +1587,7 @@ int db_segy(const char *filesegy,
                             double modif_high,
                             double modif_low,
                             double modif_scale,
-                            NamingConvention namconv)
+                            const NamingConvention& namconv)
 {
   traceHead traceHead_;
   FILE *file;

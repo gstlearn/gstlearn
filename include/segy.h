@@ -208,5 +208,5 @@ GSTLEARN_EXPORT int db_segy(const char *filesegy,
                             double modif_high = TEST,
                             double modif_low = TEST,
                             double modif_scale = TEST,
-                            NamingConvention namconv = NamingConvention("SEGY"));
+                            const NamingConvention& namconv = NamingConvention("SEGY"));
 

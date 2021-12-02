@@ -31,8 +31,8 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
       * [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher
       * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
-  * [Boost](https://www.boost.org/users/download)
-  * [HDF5](https://www.hdfgroup.org/solutions/hdf5/) libraries
+  * [Boost](https://www.boost.org/users/download) header files
+  * [HDF5](https://www.hdfgroup.org/solutions/hdf5/) C & C++ library and header files 1.8 or higher
   
 ## Get the sources
 For getting the sources files, just clone the github repository and create the build directory (out of the sources):
