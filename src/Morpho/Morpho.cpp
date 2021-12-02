@@ -8,11 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Morpho/Morpho.hpp"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 static int NX[3], NXYZ, NRED, RADIUS[3];
 static int LARGE = 9999999;

@@ -11,9 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+// WARNING: Make this include list as small as possible!
 #include "geoslib_define.h"
-#include "csparse_f.h" // Cannot use forward declaration for cs and don't know why!
-/// TODO : include geoslib_f.h here makes the compilation crash !!!
+// Put it in the header because inherited objects will need it
+#include <sstream>
+
+struct cs;
 
 class GSTLEARN_EXPORT AStringable
 {
@@ -75,6 +79,8 @@ GSTLEARN_EXPORT String toMatrix(const String& title,
                                 bool  flagOverride = false);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorDouble& tab);
+GSTLEARN_EXPORT String toVector(const String& title,
+                                const VectorVectorDouble& tab);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorInt& tab);
 GSTLEARN_EXPORT String toStr(const String& string, int justify = 1);

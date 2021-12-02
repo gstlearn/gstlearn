@@ -14,8 +14,9 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "csparse_f.h"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 
+#include <iostream>
 #include <iomanip>
 
 AMatrix::AMatrix(int nrow, int ncol, bool sparse)
@@ -1268,3 +1269,9 @@ void AMatrix::subtract(const AMatrix& tab, double value)
     }
 }
 
+void AMatrix::_clear()
+{
+  _setNRows(0);
+  _setNCols(0);
+  _allocate();
+}

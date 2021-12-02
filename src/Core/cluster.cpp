@@ -15,9 +15,11 @@
 /* Human Genome Center, Institute of Medical Science, University of Tokyo,    */
 /* 4-6-1 Shirokanedai, Minato-ku, Tokyo 108-8639, Japan.                      */
 /******************************************************************************/
-#include "Basic/Law.hpp"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
+#include "Basic/Law.hpp"
+
+#include <limits.h>
 
 #define DBL_MAXIMUM 1.e30
 #define DATA(iech,ivar)         (data[(iech)    * nvar + (ivar)])

@@ -8,7 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
+#include "geoslib_define.h"
+#include "Basic/AStringable.hpp"
+
+#include <math.h>
 
 /*---------------------------------------------------------------------------*/
 /*  TIME_3DB: FINITE DIFFERENCE COMPUTATION OF FIRST ARRIVAL TIMES IN 3D.    */

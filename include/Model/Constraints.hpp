@@ -11,11 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
-#include "Model/ConsItem.hpp"
+
+// WARNING: Make this include list as small as possible!
 #include "Basic/AStringable.hpp"
 
 #include <vector>
+
+class ConsItem;
 
 class GSTLEARN_EXPORT Constraints : public AStringable
 {
@@ -37,7 +39,7 @@ public:
   void modifyConstraintsForSill();
 
   // Pipe to Consitem
-  void setValue(int item, double value) { _consItems[item]->setValue(value); }
+  void setValue(int item, double value);
 
 private:
   std::vector<ConsItem *> _consItems;

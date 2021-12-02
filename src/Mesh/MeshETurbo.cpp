@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -15,8 +17,9 @@
 #include "Basic/GridC.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "csparse_f.h"
+
+#include <math.h>
 
 MeshETurbo::MeshETurbo()
     : AMesh(),

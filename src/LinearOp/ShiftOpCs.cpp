@@ -10,6 +10,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f_private.h"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -21,8 +24,10 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Model/Model.hpp"
+#include "csparse_f.h"
+
+#include <math.h>
 
 ShiftOpCs::ShiftOpCs()
     : ALinearOp(),

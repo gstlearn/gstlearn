@@ -8,21 +8,30 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#define CASE_MATRICES 0 
+//#include "geoslib_e.h"
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/File.hpp"
+#include "Basic/String.hpp"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+#include "Mesh/tetgen.h"
 #include "csparse_f.h"
-#include "geoslib_e.h"
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
+#include "csparse_d.h"
+
+#include <math.h>
+#include <string.h>
 
 /* Global symbols for SPDE */
 
@@ -219,8 +228,7 @@ static void st_matelem_print(int icov)
  ** \param[in]  triswitch   String defining the meshing characteristics
  **
  *****************************************************************************/
-void spde_option_update(SPDE_Option &s_option,
-                                        const String &triswitch)
+void spde_option_update(SPDE_Option &s_option, const String &triswitch)
 {
   /* Add a new SPDE_SS_Option structure */
 
@@ -532,10 +540,7 @@ SPDE_Mesh* spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
  ** \param[in]  st_simu_transf  Pointer to the transformation function
  **
  *****************************************************************************/
-void simu_define_func_transf(void (*st_simu_transf)(Db*,
-                                                                    int,
-                                                                    int,
-                                                                    int))
+void simu_define_func_transf(void (*st_simu_transf)(Db*, int, int, int))
 {
   SIMU_FUNC_TRANSF = st_simu_transf;
 }
@@ -548,10 +553,7 @@ void simu_define_func_transf(void (*st_simu_transf)(Db*,
  ** \param[in]  st_simu_update  Pointer to the update function
  **
  *****************************************************************************/
-void simu_define_func_update(void (*st_simu_update)(Db*,
-                                                                    int,
-                                                                    int,
-                                                                    int))
+void simu_define_func_update(void (*st_simu_update)(Db*, int, int, int))
 {
   SIMU_FUNC_UPDATE = st_simu_update;
 }
@@ -563,9 +565,7 @@ void simu_define_func_update(void (*st_simu_update)(Db*,
  ** \param[in]  st_simu_scale  Pointer to the scaling function
  **
  *****************************************************************************/
-void simu_define_func_scale(void (*st_simu_scale)(Db*,
-                                                                  int,
-                                                                  int))
+void simu_define_func_scale(void (*st_simu_scale)(Db*, int, int))
 {
   SIMU_FUNC_SCALE = st_simu_scale;
 }
@@ -845,8 +845,8 @@ static int st_is_duplicated(Vercoloc *vercoloc, int mode, int iech)
  **
  *****************************************************************************/
 int* vercoloc_get_dbin_indices(Vertype *vertype,
-                                               Vercoloc *vercoloc,
-                                               int *nbnodup)
+                               Vercoloc *vercoloc,
+                               int *nbnodup)
 {
   int *indice, nech, pos, ndupl;
 
@@ -2574,9 +2574,9 @@ static void st_vertype_load(Vertype *vertype,
  **
  *****************************************************************************/
 Vertype* vertype_manage(int mode,
-                                        Vertype *vertype,
-                                        Vercoloc *vercoloc,
-                                        int nvertex)
+                        Vertype *vertype,
+                        Vercoloc *vercoloc,
+                        int nvertex)
 {
   int error, ngibbs;
 
@@ -3617,7 +3617,8 @@ cs* _spde_fill_S(MeshEStandard *amesh, Model *model, double *units)
       st_triangle_center(amesh, ncorner, imesh, center, xyz);
       if (ncorner < 0 || ncorner > 3)
       {
-        messerr("Error in st_triangle_center: wrong number or corners: %d", ncorner);
+        messerr("Error in st_triangle_center: wrong number or corners: %d",
+                ncorner);
         goto label_end;
       }
 
@@ -4582,10 +4583,10 @@ static int st_simulate_cholesky(QChol *QC, double *work, double *zsnc)
  **
  *****************************************************************************/
 int spde_chebychev_operate(cs *S,
-                                           Cheb_Elem *cheb_elem,
-                                           const VectorDouble &lambda,
-                                           const double *x,
-                                           double *y)
+                           Cheb_Elem *cheb_elem,
+                           const VectorDouble &lambda,
+                           const double *x,
+                           double *y)
 {
   double *coeffs, *tm1, *tm2, *px, *tx, v1, v2, coeff_ib, power;
   int error, ncoeffs, nvertex;
@@ -5468,12 +5469,12 @@ static int st_kriging(SPDE_Mesh *s_mesh, double *data, double *zkrig)
  **
  *****************************************************************************/
 Cheb_Elem* spde_cheb_manage(int mode,
-                                            int verbose,
-                                            double power,
-                                            int nblin,
-                                            double *blin,
-                                            cs *S,
-                                            Cheb_Elem *cheb_old)
+                            int verbose,
+                            double power,
+                            int nblin,
+                            double *blin,
+                            cs *S,
+                            Cheb_Elem *cheb_old)
 {
   Cheb_Elem *cheb_elem;
   double a, b, v1, v2, tol;
@@ -5490,7 +5491,7 @@ Cheb_Elem* spde_cheb_manage(int mode,
 
     // Allocation
 
-    cheb_elem = (Cheb_Elem*) mem_alloc(sizeof(Cheb_Elem), 0);
+    cheb_elem = new Cheb_Elem();
     if (cheb_elem == nullptr) goto label_end;
     cheb_elem->coeffs = nullptr;
 
@@ -5531,7 +5532,8 @@ Cheb_Elem* spde_cheb_manage(int mode,
     cheb_elem = cheb_old;
     if (cheb_elem != nullptr)
       cheb_elem->coeffs = (double*) mem_free((char* ) cheb_elem->coeffs);
-    cheb_elem = (Cheb_Elem*) mem_free((char* ) cheb_elem);
+    delete cheb_elem;
+    cheb_elem = nullptr;
   }
 
   // Set the error return code
@@ -5565,7 +5567,7 @@ Cheb_Elem* _spde_cheb_duplicate(Cheb_Elem *cheb_in)
 
   // Allocation
 
-  cheb_out = (Cheb_Elem*) mem_alloc(sizeof(Cheb_Elem), 0);
+  cheb_out = new Cheb_Elem();
   if (cheb_out == nullptr) goto label_end;
 
   cheb_out->ncoeffs = cheb_in->ncoeffs;
@@ -5760,12 +5762,12 @@ static int st_simulate(QChol *QC, double *zsnc)
  **
  *****************************************************************************/
 int spde_process(Db *dbin,
-                                 Db *dbout,
-                                 SPDE_Option &s_option,
-                                 int nbsimu,
-                                 int ngibbs_burn,
-                                 int ngibbs_iter,
-                                 int ngibbs_int)
+                 Db *dbout,
+                 SPDE_Option &s_option,
+                 int nbsimu,
+                 int ngibbs_burn,
+                 int ngibbs_iter,
+                 int ngibbs_int)
 {
   int ncur, ndata, nbsimuw, isimuw, error, iatt_simu, ivar0;
   int flag_mult_data, ngrf, nv_krige;
@@ -6616,11 +6618,11 @@ int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
  **
  *****************************************************************************/
 int spde_mesh_load(SPDE_Mesh *s_mesh,
-                                   int verbose,
-                                   Db *dbin,
-                                   Db *dbout,
-                                   const VectorDouble &gext,
-                                   SPDE_Option &s_option)
+                   int verbose,
+                   Db *dbin,
+                   Db *dbout,
+                   const VectorDouble &gext,
+                   SPDE_Option &s_option)
 {
   int icov0;
 
@@ -6818,19 +6820,19 @@ static int st_external_vertype_define(SPDE_Mesh *s_mesh,
  **
  *****************************************************************************/
 int spde_external_mesh_define(int mode,
-                                              int icov0,
-                                              int ndim,
-                                              int ncorner,
-                                              int nvertex,
-                                              int nmesh,
-                                              int nbin,
-                                              int nbout,
-                                              int ndupl,
-                                              int order,
-                                              int *dupl_in,
-                                              int *dupl_out,
-                                              int *meshes,
-                                              double *points)
+                              int icov0,
+                              int ndim,
+                              int ncorner,
+                              int nvertex,
+                              int nmesh,
+                              int nbin,
+                              int nbout,
+                              int ndupl,
+                              int order,
+                              int *dupl_in,
+                              int *dupl_out,
+                              int *meshes,
+                              double *points)
 {
   int error, size;
 
@@ -6904,18 +6906,18 @@ int spde_external_mesh_define(int mode,
  **
  *****************************************************************************/
 int spde_external_AQ_define(int mode,
-                                            int icov0,
-                                            int ndim,
-                                            int nvertex,
-                                            int nmesh,
-                                            int nbin,
-                                            int nbout,
-                                            int ndupl,
-                                            int order,
-                                            int *dupl_in,
-                                            int *dupl_out,
-                                            cs *A,
-                                            cs *Q)
+                            int icov0,
+                            int ndim,
+                            int nvertex,
+                            int nmesh,
+                            int nbin,
+                            int nbout,
+                            int ndupl,
+                            int order,
+                            int *dupl_in,
+                            int *dupl_out,
+                            cs *A,
+                            cs *Q)
 {
   int error;
 
@@ -6977,13 +6979,13 @@ int spde_external_AQ_define(int mode,
  **
  *****************************************************************************/
 void spde_mesh_assign(SPDE_Mesh *s_mesh,
-                                      int ndim,
-                                      int ncorner,
-                                      int nvertex,
-                                      int nmesh,
-                                      int *meshes,
-                                      double *points,
-                                      int verbose)
+                      int ndim,
+                      int ncorner,
+                      int nvertex,
+                      int nmesh,
+                      int *meshes,
+                      double *points,
+                      int verbose)
 {
   int number;
   static int debug = 0;
@@ -7021,9 +7023,9 @@ void spde_mesh_assign(SPDE_Mesh *s_mesh,
  **
  *****************************************************************************/
 int spde_prepar(Db *dbin,
-                                Db *dbout,
-                                const VectorDouble &gext,
-                                SPDE_Option &s_option)
+                Db *dbout,
+                const VectorDouble &gext,
+                SPDE_Option &s_option)
 {
   int error, nblin, flag_AQ_defined;
 
@@ -7189,9 +7191,9 @@ int spde_prepar(Db *dbin,
  **
  *****************************************************************************/
 int spde_posterior(Db *dbin,
-                                   Db *dbout,
-                                   const VectorDouble &gext,
-                                   SPDE_Option &s_option)
+                   Db *dbout,
+                   const VectorDouble &gext,
+                   SPDE_Option &s_option)
 {
   if (st_get_model()->isNoStat())
   {
@@ -7710,18 +7712,18 @@ void spde_free_all(void)
  **
  *****************************************************************************/
 int spde_check(const Db *dbin,
-                               const Db *dbout,
-                               Model *model1,
-                               Model *model2,
-                               int verbose,
-                               const VectorDouble &gext,
-                               int mesh_dbin,
-                               int mesh_dbout,
-                               int flag_advanced,
-                               int flag_est,
-                               int flag_std,
-                               int flag_gibbs,
-                               int flag_modif)
+               const Db *dbout,
+               Model *model1,
+               Model *model2,
+               int verbose,
+               const VectorDouble &gext,
+               int mesh_dbin,
+               int mesh_dbout,
+               int flag_advanced,
+               int flag_est,
+               int flag_std,
+               int flag_gibbs,
+               int flag_modif)
 {
   Model *models[2];
   int nlevels, ncova;
@@ -7876,13 +7878,13 @@ int spde_check(const Db *dbin,
  **
  *****************************************************************************/
 int kriging2D_spde(Db *dbin,
-                                   Model *model,
-                                   SPDE_Option &s_option,
-                                   int verbose,
-                                   int *nmesh_arg,
-                                   int *nvertex_arg,
-                                   int **meshes_arg,
-                                   double **points_arg)
+                   Model *model,
+                   SPDE_Option &s_option,
+                   int verbose,
+                   int *nmesh_arg,
+                   int *nvertex_arg,
+                   int **meshes_arg,
+                   double **points_arg)
 {
   int error, ncur, size, ndata, nvar, ncova;
   double *zcur, *work, *data;
@@ -8007,22 +8009,22 @@ int kriging2D_spde(Db *dbin,
  **
  *****************************************************************************/
 int spde_f(Db *dbin,
-                           Db *dbout,
-                           Model *model,
-                           const VectorDouble &gext,
-                           SPDE_Option &s_option,
-                           int mesh_dbin,
-                           int mesh_dbout,
-                           int seed,
-                           int nbsimu,
-                           int ngibbs_burn,
-                           int ngibbs_iter,
-                           int ngibbs_int,
-                           int flag_est,
-                           int flag_std,
-                           int flag_gibbs,
-                           int flag_modif,
-                           int verbose)
+           Db *dbout,
+           Model *model,
+           const VectorDouble &gext,
+           SPDE_Option &s_option,
+           int mesh_dbin,
+           int mesh_dbout,
+           int seed,
+           int nbsimu,
+           int ngibbs_burn,
+           int ngibbs_iter,
+           int ngibbs_int,
+           int flag_est,
+           int flag_std,
+           int flag_gibbs,
+           int flag_modif,
+           int verbose)
 {
   int error, iad, nvar, nv_krige;
 
@@ -8169,13 +8171,13 @@ static void st_product_Q(int nblin,
  **
  *****************************************************************************/
 int spde_eval(int nblin,
-                              double *blin,
-                              cs *S,
-                              const VectorDouble &Lambda,
-                              const VectorDouble &TildeC,
-                              double power,
-                              double *x,
-                              double *y)
+              double *blin,
+              cs *S,
+              const VectorDouble &Lambda,
+              const VectorDouble &TildeC,
+              double power,
+              double *x,
+              double *y)
 {
   Cheb_Elem *cheb_elem;
   int error, n;
@@ -9803,12 +9805,12 @@ static QChol* st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem &Matelem)
  **
  *****************************************************************************/
 cs* db_mesh_neigh(const Db *db,
-                                  SPDE_Mesh *s_mesh,
-                                  double radius,
-                                  int flag_exact,
-                                  int verbose,
-                                  int *nactive_arg,
-                                  int **ranks_arg)
+                  SPDE_Mesh *s_mesh,
+                  double radius,
+                  int flag_exact,
+                  int verbose,
+                  int *nactive_arg,
+                  int **ranks_arg)
 {
   double *coor, *caux, total;
   int *pts, *ranks, error, ncorner, ip, flag_sphere, ndimd, ndimv, ndim, jech;
@@ -10640,18 +10642,18 @@ static void st_m2d_stats_gaus(const char *title,
  **
  *****************************************************************************/
 int m2d_gibbs_spde(Db *dbin,
-                                   Db *dbout,
-                                   Model *model,
-                                   int flag_ed,
-                                   int nlayer,
-                                   int niter,
-                                   int seed,
-                                   int nbsimu,
-                                   int icol_pinch,
-                                   int flag_drift,
-                                   int flag_ce,
-                                   int flag_cstd,
-                                   int verbose)
+                   Db *dbout,
+                   Model *model,
+                   int flag_ed,
+                   int nlayer,
+                   int niter,
+                   int seed,
+                   int nbsimu,
+                   int icol_pinch,
+                   int flag_drift,
+                   int flag_ce,
+                   int flag_cstd,
+                   int verbose)
 {
   int error, iatt_f, iatt_out, nvertex, nech, ngrid, ndim, number_hard, nfois;
   int iptr_ce, iptr_cstd, ecr;

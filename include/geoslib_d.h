@@ -10,11 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-/* Include other package definitions */
 // WARNING: Make this include list as small as possible!
 #include "geoslib_define.h"
 
-/* External function definition */
+#include "Enum/EKrigOpt.hpp"
+#include "Model/Option_VarioFit.hpp"
 
 // TODO : strcasecmp macro to be kept ?
 #if defined(_WIN32) || defined(_WIN64)
@@ -26,9 +26,7 @@
 #endif
 #endif
 
-/* Structures */
-#include "Enum/EKrigOpt.hpp"
-class Koption // Transform to a class and prevent calling malloc and memfree
+class Koption
 {
 public:
   EKrigOpt calcul; /* Type of calculation (EKrigOpt) */
@@ -41,6 +39,7 @@ public:
   double *dsize;
 };
 
+// TODO: Transform to a class and prevent calling malloc and memfree
 typedef struct
 {
   double tmin; /* Minimum abscissa along line */
@@ -110,7 +109,6 @@ typedef struct
   int nb_cover; /* Number of covering tokens */
 } Bool_Cond;
 
-#include "Model/Option_VarioFit.hpp"
 class Model;
 typedef struct
 {
@@ -311,14 +309,16 @@ typedef struct
   int *sph_lend; /* Set of pointers to adjacency lists */
 } SphTriangle;
 
+struct QChol;
 typedef struct
 {
   QChol *QCtt;
   QChol *QCtd;
 } QSimu;
 
-typedef struct
+class Cheb_Elem
 {
+public:
   int ncoeffs; /* Number of coefficients */
   int ncmax; /* Maximum number of polynomials */
   int ndisc; /* Number of discretizations */
@@ -329,7 +329,7 @@ typedef struct
   double v2;
   double tol; /* Tolerance */
   double *coeffs; /* Array of coefficients */
-} Cheb_Elem;
+};
 
 typedef struct
 {
@@ -365,6 +365,7 @@ public:
   Vertype *vertype;
 };
 
+class cs_MGS;
 typedef struct
 {
   VectorDouble Lambda;
@@ -438,5 +439,3 @@ struct Local_Relem
 
 typedef struct Local_Relem Relem;
 typedef struct Local_Split Split;
-
-#include "INIParser.hpp"

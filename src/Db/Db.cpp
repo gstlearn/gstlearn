@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
+#include "geoslib_old_f.h"
+#include "geoslib_define.h"
 #include "Db/Db.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
@@ -21,11 +25,10 @@
 #include "Basic/AException.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Stats/Classical.hpp"
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
-#include "geoslib_f.h"
+
 #include <algorithm>
 #include <functional>
+#include <math.h>
 
 Db::Db()
     : AStringable(),
@@ -3410,7 +3413,7 @@ VectorDouble Db::_statistics(const VectorInt& iatts,
                              double vmin,
                              double vmax,
                              const String& title,
-                             NamingConvention namconv)
+                             const NamingConvention& namconv)
 {
   VectorDouble stats;
 
@@ -3457,7 +3460,7 @@ VectorDouble Db::statistics(const VectorString& names,
                             double vmin,
                             double vmax,
                             const String& title,
-                            NamingConvention namconv)
+                            const NamingConvention& namconv)
 {
   VectorInt iatts = ids(names, false);
   if (iatts.empty()) return VectorDouble();
@@ -3613,6 +3616,7 @@ int Db::deSerialize(const String& filename, bool verbose)
 int Db::serialize(const String& filename, bool verbose) const
 {
   bool onlyLocator = false;
+  bool writeCoorForGrid = true;
   bool flag_grid = isGrid();
 
   /* Opening the Data file */
@@ -3647,7 +3651,7 @@ int Db::serialize(const String& filename, bool verbose) const
 
   /* Writing the tail of the file */
 
-  if (_variableWrite(flag_grid, onlyLocator)) return 1;
+  if (_variableWrite(flag_grid, onlyLocator, writeCoorForGrid)) return 1;
 
   // Close the Neutral file
 
@@ -3656,7 +3660,7 @@ int Db::serialize(const String& filename, bool verbose) const
   return 0;
 }
 
-int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
+int Db::_variableWrite(bool flag_grid, bool onlyLocator, bool writeCoorForGrid) const
 {
   int ecr, item, rankZ;
   ELoc locatorType = ELoc::UNKNOWN;
@@ -3675,7 +3679,7 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
       if (onlyLocator) continue;
       locatorType = ELoc::Z;
     }
-    if (flag_grid && locatorType == ELoc::X) continue;
+    if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
     ncol++;
   }
   _recordWrite("%d", ncol);
@@ -3694,7 +3698,7 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
       locatorType = ELoc::Z;
       item = rankZ++;
     }
-    if (flag_grid && locatorType == ELoc::X) continue;
+    if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
     if (ecr >= ncol) break;
     String string = getLocatorName(locatorType, item);
     _recordWrite("%s", string.c_str());
@@ -3714,7 +3718,7 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator) const
       if (onlyLocator) continue;
       locatorType = ELoc::Z;
     }
-    if (flag_grid && locatorType == ELoc::X) continue;
+    if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
     if (ecr >= ncol) break;
     _recordWrite("%s", getNameByColumn(icol).c_str());
     iatts.push_back(getAttribute(getNameByColumn(icol)));

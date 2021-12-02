@@ -11,7 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+#include "geoslib_define.h"
 
 GSTLEARN_EXPORT int morpho_image_size(const VectorInt &nx);
 GSTLEARN_EXPORT int morpho_count(const VectorInt &nx,

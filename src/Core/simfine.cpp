@@ -8,9 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Law.hpp"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
+#include "Basic/Law.hpp"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+
+#include <math.h>
 
 static int NDIM, NMULT, FLAG_KS, IX[2][5], IY[2][5], IZ[2][5];
 static double XN[2][5], YN[2][5], ZN[2][5], WGT[2][2][5], STDV[2][2];

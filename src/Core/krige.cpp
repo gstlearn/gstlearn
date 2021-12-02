@@ -8,14 +8,27 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "Polynomials/Hermite.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Db/ELoadBy.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+#include "Model/CovInternal.hpp"
+#include "Neigh/Neigh.hpp"
+#include "Anamorphosis/AnamDiscreteDD.hpp"
+#include "Anamorphosis/AnamDiscreteIR.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Basic/String.hpp"
+
+#include <math.h>
+#include <string.h>
+#include <limits.h>
 
 /*! \cond */
 #define NBYPAS 5
@@ -1373,7 +1386,7 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
       DISC1(i,idim) = taille * ((j + 0.5) / nd - 0.5);
       DISC2(i,idim) = DISC1(i, idim);
       if (flag_rand)
-        DISC2(i,idim) += taille * law_uniform(-0.5, 0.5) / (double) nd;
+      DISC2(i,idim) += taille * law_uniform(-0.5, 0.5) / (double) nd;
     }
   }
   law_set_random_seed(memo);
@@ -1396,10 +1409,10 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
  **
  *****************************************************************************/
 int krige_koption_manage(int mode,
-                                         int flag_check,
-                                         const EKrigOpt &calcul,
-                                         int flag_rand,
-                                         VectorInt ndisc)
+                         int flag_check,
+                         const EKrigOpt &calcul,
+                         int flag_rand,
+                         VectorInt ndisc)
 {
   int ndim, error;
 
@@ -1863,11 +1876,7 @@ static void st_lhs_iso2hetero(int neq)
  ** \param[in]  lhs   Kriging L.H.S
  **
  *****************************************************************************/
-void krige_lhs_print(int nech,
-                                     int neq,
-                                     int nred,
-                                     int *flag,
-                                     double *lhs)
+void krige_lhs_print(int nech, int neq, int nred, int *flag, double *lhs)
 {
   int *rel, i, j, ipass, npass, ideb, ifin;
 
@@ -2390,11 +2399,11 @@ static void st_rhs_iso2hetero(int neq, int nvar)
  **
  *****************************************************************************/
 void krige_rhs_print(int nvar,
-                                     int nech,
-                                     int neq,
-                                     int nred,
-                                     int *flag,
-                                     double *rhs)
+                     int nech,
+                     int neq,
+                     int nred,
+                     int *flag,
+                     double *rhs)
 {
   int *rel, i, ivar, idim;
 
@@ -2472,11 +2481,7 @@ void krige_rhs_print(int nvar,
  ** \param[in]  dual     Kriging Dual matrix
  **
  *****************************************************************************/
-void krige_dual_print(int nech,
-                                      int neq,
-                                      int nred,
-                                      int *flag,
-                                      double *dual)
+void krige_dual_print(int nech, int neq, int nred, int *flag, double *dual)
 {
   int *rel, i;
 
@@ -3375,17 +3380,17 @@ static void st_save_keypair_weights(int status,
  **
  *****************************************************************************/
 int kriging(Db *dbin,
-                            Db *dbout,
-                            Model *model,
-                            Neigh *neigh,
-                            const EKrigOpt &calcul,
-                            int flag_est,
-                            int flag_std,
-                            int flag_varz,
-                            VectorInt ndisc,
-                            VectorInt rank_colcok,
-                            VectorDouble matCL,
-                            NamingConvention namconv)
+            Db *dbout,
+            Model *model,
+            Neigh *neigh,
+            const EKrigOpt &calcul,
+            int flag_est,
+            int flag_std,
+            int flag_varz,
+            VectorInt ndisc,
+            VectorInt rank_colcok,
+            VectorDouble matCL,
+            const NamingConvention& namconv)
 {
   int iext, error, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq;
   int save_keypair;
@@ -3552,7 +3557,7 @@ static int st_xvalid_unique(Db *dbin,
                             int flag_est,
                             int flag_std,
                             VectorInt rank_colcok,
-                            NamingConvention namconv)
+                            const NamingConvention& namconv)
 {
   int iext, error, status, nech, neq, nred, nvar, flag_xvalid_memo,
       flag_new_nbgh;
@@ -3725,14 +3730,14 @@ static int st_xvalid_unique(Db *dbin,
  **
  *****************************************************************************/
 int xvalid(Db *db,
-                           Model *model,
-                           Neigh *neigh,
-                           int flag_xvalid,
-                           int flag_code,
-                           int flag_est,
-                           int flag_std,
-                           VectorInt rank_colcok,
-                           NamingConvention namconv)
+           Model *model,
+           Neigh *neigh,
+           int flag_xvalid,
+           int flag_code,
+           int flag_est,
+           int flag_std,
+           VectorInt rank_colcok,
+           const NamingConvention& namconv)
 {
   int ret_code;
   if (flag_code)
@@ -3775,13 +3780,13 @@ int xvalid(Db *db,
  **
  *****************************************************************************/
 int krigdgm_f(Db *dbin,
-                              Db *dbout,
-                              Model *model,
-                              Neigh *neigh,
-                              int flag_est,
-                              int flag_std,
-                              int flag_varz,
-                              double rval)
+              Db *dbout,
+              Model *model,
+              Neigh *neigh,
+              int flag_est,
+              int flag_std,
+              int flag_varz,
+              double rval)
 {
   int iext, error, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq;
   int save_keypair;
@@ -3929,12 +3934,12 @@ int krigdgm_f(Db *dbin,
  **
  *****************************************************************************/
 int krigprof_f(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               Neigh *neigh,
-                               int ncode,
-                               int flag_est,
-                               int flag_std)
+               Db *dbout,
+               Model *model,
+               Neigh *neigh,
+               int ncode,
+               int flag_est,
+               int flag_std)
 {
   int iext, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq, iptr_dat, icode;
   int error;
@@ -4350,13 +4355,13 @@ static void st_bayes_correct(Model *model, double *rcov, int *status)
  **
  *****************************************************************************/
 int kribayes_f(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               Neigh *neigh,
-                               double *dmean,
-                               double *dcov,
-                               int flag_est,
-                               int flag_std)
+               Db *dbout,
+               Model *model,
+               Neigh *neigh,
+               double *dmean,
+               double *dcov,
+               int flag_est,
+               int flag_std)
 {
   int iext, error, status, nech, neq, nred, nvar, flag_new_nbgh;
   double *rmean, *rcov, *smean, ldum;
@@ -4511,10 +4516,10 @@ int kribayes_f(Db *dbin,
  **
  *****************************************************************************/
 int test_neigh(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               Neigh *neigh,
-                               NamingConvention namconv)
+               Db *dbout,
+               Model *model,
+               Neigh *neigh,
+               const NamingConvention &namconv)
 {
   int error, status, nech, ntab, iext;
   double tab[5];
@@ -4922,15 +4927,15 @@ int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
  **
  *****************************************************************************/
 int global_arithmetic(Db *dbin,
-                                      Db *dbgrid,
-                                      Model *model,
-                                      int ivar,
-                                      int flag_verbose,
-                                      int seed,
-                                      double surface,
-                                      double *zest,
-                                      double *sse,
-                                      double *cvgeo)
+                      Db *dbgrid,
+                      Model *model,
+                      int ivar,
+                      int flag_verbose,
+                      int seed,
+                      double surface,
+                      double *zest,
+                      double *sse,
+                      double *cvgeo)
 {
   double cvv, cxv, cxx, wtot, ave, var, cvsam, cviid, mini, maxi;
   int error, np, ng, iatt;
@@ -5047,17 +5052,17 @@ int global_arithmetic(Db *dbin,
  **
  *****************************************************************************/
 int global_kriging(Db *dbin,
-                                   Db *dbout,
-                                   Model *model,
-                                   int ivar,
-                                   int flag_verbose,
-                                   const EKrigOpt &calcul,
-                                   int seed,
-                                   double surface,
-                                   double *zest,
-                                   double *sse,
-                                   double *cvgeo,
-                                   double *weights)
+                   Db *dbout,
+                   Model *model,
+                   int ivar,
+                   int flag_verbose,
+                   const EKrigOpt &calcul,
+                   int seed,
+                   double surface,
+                   double *zest,
+                   double *sse,
+                   double *cvgeo,
+                   double *weights)
 {
   double *rhs_tot, estim, stdv, cvv, ldum;
   int error, i, np, ng, size, nbfl, status, nech, nred, neq, nfeq, nvar;
@@ -5267,13 +5272,13 @@ int global_kriging(Db *dbin,
  **
  *****************************************************************************/
 int global_transitive(Db *dbgrid,
-                                      Model *model,
-                                      int flag_verbose,
-                                      int flag_regular,
-                                      int ndisc,
-                                      double *abundance,
-                                      double *sse,
-                                      double *cvtrans)
+                      Model *model,
+                      int flag_verbose,
+                      int flag_regular,
+                      int ndisc,
+                      double *abundance,
+                      double *sse,
+                      double *cvtrans)
 {
   int idim, ndim, i, ix, iy, ix1, ix2, iy1, iy2, nx, ny, error, flag_value;
   double c00, cvv, dx, dy, dsum, gint, dsse, wtot;
@@ -5684,11 +5689,7 @@ static void st_point_invdist(int exponent,
  ** \param[in]  dmax        Maximum search radius (used only for Points Db)
  **
  *****************************************************************************/
-int invdist_f(Db *dbin,
-                              Db *dbout,
-                              int exponent,
-                              int flag_expand,
-                              double dmax)
+int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
 {
   int *indg, *indref, error;
   double *coor, *cooref;
@@ -5978,14 +5979,14 @@ static double st_estim_exp(Db *db, double *wgt, int nbefore, int nafter)
  **
  *****************************************************************************/
 int anakexp_f(Db *db,
-                              double *covdd,
-                              double *covd0,
-                              double top,
-                              double bot,
-                              int cov_radius,
-                              int neigh_radius,
-                              int flag_sym,
-                              int nfeq)
+              double *covdd,
+              double *covd0,
+              double top,
+              double bot,
+              int cov_radius,
+              int neigh_radius,
+              int flag_sym,
+              int nfeq)
 {
   int i, ndim, nvarin, nech, size, error, ideb, ifin, neq, status;
   int nbefore, nafter, nbefore_mem, nafter_mem;
@@ -6657,16 +6658,16 @@ static void st_vario_dump(FILE *file,
  **
  *****************************************************************************/
 int anakexp_3D(Db *db,
-                               double *cov_ref,
-                               int cov_radius,
-                               int neigh_ver,
-                               int neigh_hor,
-                               int flag_sym,
-                               Model *model,
-                               double nugget,
-                               int nfeq,
-                               int dbg_ix,
-                               int dbg_iy)
+               double *cov_ref,
+               int cov_radius,
+               int neigh_ver,
+               int neigh_hor,
+               int flag_sym,
+               Model *model,
+               double nugget,
+               int nfeq,
+               int dbg_ix,
+               int dbg_iy)
 {
   int i, ix, iy, iz, ndim, nvarin, nech, error, neq, status, ecr;
   int size_cov, size_nei, flag_new, flag_col;
@@ -6901,10 +6902,10 @@ int anakexp_3D(Db *db,
  **
  *****************************************************************************/
 int bayes_simulate(Model *model,
-                                   int nbsimu,
-                                   double *rmean,
-                                   double *rcov,
-                                   double *smean)
+                   int nbsimu,
+                   double *rmean,
+                   double *rcov,
+                   double *smean)
 {
   double *trimat, *rndmat;
   int nfeq, il, isimu, nftri, error, rank, memo;
@@ -6995,10 +6996,7 @@ int bayes_simulate(Model *model,
  ** \param[in]  range     Range (used for Gaussian only)
  **
  *****************************************************************************/
-int image_smoother(Db *dbgrid,
-                                   Neigh *neigh,
-                                   int type,
-                                   double range)
+int image_smoother(Db *dbgrid, Neigh *neigh, int type, double range)
 {
   int i, iech, jech, error, nvarin, nb_neigh, ndim, idelta;
   int *indn0, *indnl, *indg0, *indgl;
@@ -7124,10 +7122,10 @@ int image_smoother(Db *dbgrid,
  **
  *****************************************************************************/
 int krigsum_f(Db *dbin,
-                              Db *dbout,
-                              Model *model,
-                              Neigh *neigh,
-                              int flag_positive)
+              Db *dbout,
+              Model *model,
+              Neigh *neigh,
+              int flag_positive)
 {
   double *lterm, seisloc, seistot, estim;
   int *icols, *active, error, iptr_mem, correct;
@@ -7434,11 +7432,11 @@ static int st_check_constraint_seismic(int ix,
  **
  *****************************************************************************/
 int krigmvp_f(Db *dbin,
-                              Db *db3grid,
-                              Db *db2grid,
-                              int fsum,
-                              Model *model,
-                              Neigh *neigh)
+              Db *db3grid,
+              Db *db2grid,
+              int fsum,
+              Model *model,
+              Neigh *neigh)
 {
   int *icols, indg[3], nloc, error;
   int status, nech, neq, nred, nvarin, nvarmod, flag_new_nbgh, nfeq, nz, pivot;
@@ -7787,16 +7785,16 @@ int krigmvp_f(Db *dbin,
  **
  *****************************************************************************/
 int krigtest_dimension(Db *dbin,
-                                       Db *dbout,
-                                       Model *model,
-                                       Neigh *neigh,
-                                       int iech0,
-                                       const EKrigOpt &calcul,
-                                       VectorInt ndisc,
-                                       int *ndim_ret,
-                                       int *nech_ret,
-                                       int *nred_ret,
-                                       int *nrhs_ret)
+                       Db *dbout,
+                       Model *model,
+                       Neigh *neigh,
+                       int iech0,
+                       const EKrigOpt &calcul,
+                       VectorInt ndisc,
+                       int *ndim_ret,
+                       int *nech_ret,
+                       int *nred_ret,
+                       int *nrhs_ret)
 {
   int iext, error, status, nech, neq, nred, nvar;
 
@@ -7883,21 +7881,21 @@ int krigtest_dimension(Db *dbin,
  **
  *****************************************************************************/
 int krigtest_f(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               Neigh *neigh,
-                               int iech0,
-                               const EKrigOpt &calcul,
-                               VectorInt ndisc,
-                               int nred_out,
-                               int nrhs_out,
-                               double *xyz_out,
-                               double *data_out,
-                               double *lhs_out,
-                               double *rhs_out,
-                               double *wgt_out,
-                               double *zam_out,
-                               double *var_out)
+               Db *dbout,
+               Model *model,
+               Neigh *neigh,
+               int iech0,
+               const EKrigOpt &calcul,
+               VectorInt ndisc,
+               int nred_out,
+               int nrhs_out,
+               double *xyz_out,
+               double *data_out,
+               double *lhs_out,
+               double *rhs_out,
+               double *wgt_out,
+               double *zam_out,
+               double *var_out)
 {
   int iext, ivar, jvar, ecr, status, nech, neq, nred, nvar, nfeq, iech, idim,
       ndim, error;
@@ -8067,11 +8065,7 @@ static void st_transform_gaussian_to_raw(Anam *anam)
  ** \param[in]  neigh     Neigh structrue
  **
  *****************************************************************************/
-int kriggam_f(Db *dbin,
-                              Db *dbout,
-                              Anam *anam,
-                              Model *model,
-                              Neigh *neigh)
+int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
 {
   int error, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq;
   double ldum;
@@ -8204,13 +8198,13 @@ int kriggam_f(Db *dbin,
  **
  *****************************************************************************/
 int krigcell_f(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               Neigh *neigh,
-                               VectorInt ndisc,
-                               int flag_est,
-                               int flag_std,
-                               VectorInt rank_colcok)
+               Db *dbout,
+               Model *model,
+               Neigh *neigh,
+               VectorInt ndisc,
+               int flag_est,
+               int flag_std,
+               VectorInt rank_colcok)
 {
   int iext, error, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq, ndim;
   double ldum;
@@ -8425,14 +8419,14 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
  **
  *****************************************************************************/
 int dk_f(Db *dbin,
-                         Db *dbgrid,
-                         Model *model,
-                         Neigh *neigh,
-                         int nfactor,
-                         const VectorInt &nmult,
-                         const VectorInt &ndisc,
-                         int flag_est,
-                         int flag_std)
+         Db *dbgrid,
+         Model *model,
+         Neigh *neigh,
+         int nfactor,
+         const VectorInt &nmult,
+         const VectorInt &ndisc,
+         int flag_est,
+         int flag_std)
 {
   Db *dbsmu;
   int error, status, nech, neq, nred, nvar, nvarz, nfeq, iclass, imult, nb_mult;
@@ -8713,10 +8707,10 @@ int dk_f(Db *dbin,
  **
  *****************************************************************************/
 int* neigh_calc(Db *dbin,
-                                Model *model,
-                                Neigh *neigh,
-                                double *target,
-                                int *nech_out)
+                Model *model,
+                Neigh *neigh,
+                double *target,
+                int *nech_out)
 {
   int *neigh_tab, i, error, status, nech, zloc;
   Db *dbout;
@@ -9349,17 +9343,17 @@ int st_crit_global(Db *db,
  **
  *****************************************************************************/
 int sampling_f(Db *db,
-                               Model *model,
-                               double beta,
-                               int method1,
-                               int nsize1_max,
-                               int nsize1,
-                               int *ranks1,
-                               int method2,
-                               int nsize2_max,
-                               int nsize2,
-                               int *ranks2,
-                               int verbose)
+               Model *model,
+               double beta,
+               int method1,
+               int nsize1_max,
+               int nsize1,
+               int *ranks1,
+               int method2,
+               int nsize2_max,
+               int nsize2,
+               int *ranks2,
+               int verbose)
 {
   int *rother, error, best_rank, nech, nval;
   double *data_est, *data_var;
@@ -9483,15 +9477,15 @@ int sampling_f(Db *db,
  **
  *****************************************************************************/
 int krigsampling_f(Db *dbin,
-                                   Db *dbout,
-                                   Model *model,
-                                   double beta,
-                                   int nsize1,
-                                   int *ranks1,
-                                   int nsize2,
-                                   int *ranks2,
-                                   int flag_std,
-                                   int verbose)
+                   Db *dbout,
+                   Model *model,
+                   double beta,
+                   int nsize1,
+                   int *ranks1,
+                   int nsize2,
+                   int *ranks2,
+                   int flag_std,
+                   int verbose)
 {
   int *rutil, *rother, error, nvar, ntot, nutil, i, nech;
   double *tutil, *data, *invsig, *datm, *aux1, *aux2, *aux3, *aux4, *s, *c00;
@@ -10058,14 +10052,14 @@ static int st_declustering_3(Db *db,
  **
  *****************************************************************************/
 int declustering_f(Db *dbin,
-                                   Model *model,
-                                   Neigh *neigh,
-                                   Db *dbgrid,
-                                   int method,
-                                   double *radius,
-                                   VectorInt ndisc,
-                                   int flag_sel,
-                                   int verbose)
+                   Model *model,
+                   Neigh *neigh,
+                   Db *dbgrid,
+                   int method,
+                   double *radius,
+                   VectorInt ndisc,
+                   int flag_sel,
+                   int verbose)
 {
   int error, iptr, iptr_sel;
   double indic;
@@ -10731,12 +10725,12 @@ static void st_drift_update(int np,
  **
  *****************************************************************************/
 int inhomogeneous_kriging(Db *dbdat,
-                                          Db *dbsrc,
-                                          Db *dbout,
-                                          double power,
-                                          int flag_source,
-                                          Model *model_dat,
-                                          Model *model_src)
+                          Db *dbsrc,
+                          Db *dbout,
+                          double power,
+                          int flag_source,
+                          Model *model_dat,
+                          Model *model_src)
 {
   int error, np, ip, ns, ng, nvar, neq, nred, nfeq, nbfl;
   double *covss, *distps, *distgs, *covpp, *covgp, *covgg, *prodps, *prodgs;
@@ -11008,10 +11002,7 @@ int inhomogeneous_kriging(Db *dbdat,
  ** \param[in]  neigh       Neigh structure
  **
  *****************************************************************************/
-int defineGeneralNeigh(int mode,
-                                       Db *db,
-                                       Model *model,
-                                       Neigh *neigh)
+int defineGeneralNeigh(int mode, Db *db, Model *model, Neigh *neigh)
 {
   int nvar = model->getVariableNumber();
   DBIN = db;

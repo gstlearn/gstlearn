@@ -11,6 +11,8 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "Basic/String.hpp"
+
 #include <math.h>
 
 #define VERBOSE 0

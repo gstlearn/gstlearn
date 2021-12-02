@@ -8,10 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/File.hpp"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
+#include "Basic/File.hpp"
+#include "Basic/String.hpp"
 #include "version.h"
+
+#include <string.h>
 
 /****************************************************************************/
 /*!

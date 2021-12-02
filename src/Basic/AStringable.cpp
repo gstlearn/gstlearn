@@ -8,13 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "csparse_d.h"
 
 #include <string>
 #include <iostream>
@@ -23,6 +24,8 @@
 #include <iomanip>
 #include <stdio.h>
 #include <stdarg.h>
+#include <math.h>
+#include <string.h>
 
 #define JUSTIFY_LEFT  0
 #define JUSTIFY_RIGHT 1
@@ -1010,6 +1013,26 @@ String toVector(const String& title, const VectorDouble& tab)
     }
     sstr << std::endl;
   }
+  return sstr.str();
+}
+
+/**
+ * Printout a list of vectors in a formatted manner
+ * @param title Title of the printout (or empty string)
+ * @param tab   Vector of vectors (real values) to be printed
+ * @return The string (terminated with a newline)
+ */
+String toVector(const String& title, const VectorVectorDouble& tab)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  if (! title.empty())
+    sstr << title << std::endl;
+
+  for (int i = 0; i < (int) tab.size(); i++)
+    sstr << toVector(String(), tab[i]);
+
   return sstr.str();
 }
 

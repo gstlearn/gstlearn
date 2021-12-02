@@ -8,7 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
+#include "Basic/AStringable.hpp"
+
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
 
 /*! \cond */
 # define MD_PI    3.14159265358979323846264338327950288 /* Pi with many decimals */

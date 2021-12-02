@@ -8,9 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Utilities.hpp"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
+#include "Basic/Utilities.hpp"
+#include "Db/Db.hpp"
 
 /*! \cond */
 #define F_IATT(iatt)  ((iatt) < 0 || (iatt) >= db->getNMax())

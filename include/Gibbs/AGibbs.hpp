@@ -11,7 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Basic/AStringable.hpp"
+
 #include "Basic/Table.hpp"
 
 class Db;
@@ -52,6 +54,7 @@ public:
                   int isimu = 0,
                   bool verbose = false,
                   bool flagCheck = false);
+  virtual void cleanup() { return; }
 
   void init(int npgs,
             int nvar,
@@ -107,6 +110,7 @@ protected:
                              const VectorVectorDouble& y,
                              int isimu,
                              int ipgs) const;
+  const int* _getRanks() const { return _ranks.data(); }
 
 private:
   int _npgs;

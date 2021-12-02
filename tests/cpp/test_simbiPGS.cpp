@@ -12,6 +12,10 @@
 /* non-conditional simulations using in turn simpgs and simbipgs              */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "Db/Db.hpp"
+#include "Covariances/ECov.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Variogram/Vario.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
@@ -19,7 +23,7 @@
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/RuleProp.hpp"
-#include "geoslib_f.h"
+
 
 /****************************************************************************/
 /*!

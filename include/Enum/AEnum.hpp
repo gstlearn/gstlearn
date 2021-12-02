@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+// WARNING: Make this include list as small as possible!
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Basic/RepeatMacro.hpp"

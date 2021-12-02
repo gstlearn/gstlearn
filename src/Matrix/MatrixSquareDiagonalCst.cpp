@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
+
 #include <math.h>
 
 MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow, bool sparse)
@@ -66,7 +67,12 @@ void MatrixSquareDiagonalCst::_setValue(int irow, int icol, double value)
   else
   {
     if (abs(value) > EPSILON10)
-      my_throw("Attempt to assign a non-zero value to a non-diagonal term");
+    {
+      messerr("Attempt to assign a non-zero value to a non-diagonal term");
+      messerr("Element(%d,%d) = %lf",irow,icol,value);
+      messerr("Operation is aborted");
+      return;
+    }
   }
 }
 
@@ -130,7 +136,12 @@ void MatrixSquareDiagonalCst::_setValues(const double* values, bool /*byCol*/)
       if (irow != icol)
       {
         if (! FFFF(values[ecr]) && ABS(values[ecr]) > EPSILON10)
-          my_throw("Input 'values' does not correspond to a Diagonal matrix");
+        {
+          messerr("Input 'values' does not correspond to a Diagonal matrix");
+          messerr("- Element(%d,%d) = %lf",irow,icol,values[ecr]);
+          messerr("Operation is aborted");
+          return;
+        }
       }
       else
       {
@@ -139,7 +150,12 @@ void MatrixSquareDiagonalCst::_setValues(const double* values, bool /*byCol*/)
         else
         {
           if (ABS(refval - values[ecr]) > EPSILON10)
-            my_throw("Input 'values' does not correspond to a Diagonal matrix");
+          {
+            messerr("Input 'values' does not correspond to a Diagonal matrix");
+            messerr("- Element(%d,%d) = %lf",irow,icol,values[ecr]);
+            messerr("Operation is aborted");
+            return;
+          }
         }
         setValue(irow, icol, values[ecr]);
       }

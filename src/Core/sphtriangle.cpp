@@ -8,8 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
+
+#include <math.h>
 
 /******************************************************************************/
 /*                                                              From STRIPACK */
@@ -1590,17 +1592,17 @@ static int addnod_(int *nst,
 /*                      this case.                             */
 /* *********************************************************** */
 int trmesh_(int *n,
-                            double *x,
-                            double *y,
-                            double *z__,
-                            int *list,
-                            int *lptr,
-                            int *lend,
-                            int *lnew,
-                            int *near__,
-                            int *next,
-                            double *dist,
-                            int *ier)
+            double *x,
+            double *y,
+            double *z__,
+            int *list,
+            int *lptr,
+            int *lend,
+            int *lnew,
+            int *near__,
+            int *next,
+            double *dist,
+            int *ier)
 {
   /* System generated locals */
   int i__1, i__2;
@@ -1887,10 +1889,10 @@ int trmesh_(int *n,
  **
  *****************************************************************************/
 void util_convert_sph2cart(double rlong,
-                                           double rlat,
-                                           double *x,
-                                           double *y,
-                                           double *z)
+                           double rlat,
+                           double *x,
+                           double *y,
+                           double *z)
 {
   double phi, theta, sinphi, cosphi, sinthe, costhe;
 
@@ -1919,10 +1921,10 @@ void util_convert_sph2cart(double rlong,
  **
  *****************************************************************************/
 void util_convert_cart2sph(double x,
-                                           double y,
-                                           double z,
-                                           double *rlong,
-                                           double *rlat)
+                           double y,
+                           double z,
+                           double *rlong,
+                           double *rlat)
 {
   double loc_long, loc_lat;
 
@@ -2006,13 +2008,13 @@ void util_convert_cart2sph(double x,
 /*                                                             */
 /* *********************************************************** */
 int trlist_(int *n,
-                            int *list,
-                            int *lptr,
-                            int *lend,
-                            int *nrow,
-                            int *nt,
-                            int *ltri,
-                            int *ier)
+            int *list,
+            int *lptr,
+            int *lend,
+            int *nrow,
+            int *nt,
+            int *ltri,
+            int *ier)
 {
   /* System generated locals */
   int ltri_dim1, ltri_offset, i__1, i__2;

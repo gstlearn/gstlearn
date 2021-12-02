@@ -8,13 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+
+#include <math.h>
 
 #define ANAM_YMIN -10.
 #define ANAM_YMAX  10.

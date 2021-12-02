@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_d.h"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
+#include "geoslib_define.h"
 #include "Basic/Law.hpp"
 #include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
@@ -20,10 +24,8 @@
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Db/Db.hpp"
 #include "Neigh/Neigh.hpp"
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-#include "geoslib_define.h"
+#include "Basic/String.hpp"
+
 
 /****************************************************************************/
 /*!
@@ -34,7 +36,7 @@ int main(int /*argc*/, char */*argv*/[])
 
 {
   int iptr;
-  bool flag_inter = true;
+  bool flag_inter = false;
 
   int nx        = 20;
   int niter     = 100;
@@ -43,6 +45,7 @@ int main(int /*argc*/, char */*argv*/[])
   double bound  = TEST;
   double eps    = 0.;
   bool storeTables = false;
+  bool storeInternal = false;
 
   if (flag_inter)
   {
@@ -102,6 +105,7 @@ int main(int /*argc*/, char */*argv*/[])
   GibbsMMulti gibbs(db, model);
   gibbs.setOptionStats(2);
   gibbs.setEps(eps);
+  gibbs.setFlagStoreInternal(storeInternal);
   gibbs.setStoreTables(storeTables);
   gibbs.init(1, nvar, nburn, niter,0, true);
 
@@ -141,6 +145,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Cleaning structures
 
+  gibbs.cleanup();
   db    = db_delete(db);
   model = model_free(model);
   return(0);

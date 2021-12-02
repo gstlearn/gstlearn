@@ -151,13 +151,14 @@ bool Limits::isInside(double value) const
   return true;
 }
 
-int Limits::toCategory(Db* db, int iatt, NamingConvention namconv)
+int Limits::toCategory(Db* db, int iatt, const NamingConvention& namconv)
 {
   return _db_category(db, iatt, getLowerBounds(), getUpperBounds(),
-                     getLowerIncluded(), getUpperIncluded(), namconv);
+                      getLowerIncluded(), getUpperIncluded(), namconv);
 }
 
-int Limits::toCategory(Db* db, const String& name, NamingConvention namconv)
+int Limits::toCategory(Db* db, const String& name,
+                       const NamingConvention& namconv)
 {
   VectorInt iatts = db->ids(name, true);
   if (iatts.empty()) return 1;
@@ -167,7 +168,7 @@ int Limits::toCategory(Db* db, const String& name, NamingConvention namconv)
 int Limits::toIndicator(Db* db,
                         const String& name,
                         int OptionIndicator,
-                        NamingConvention namconv)
+                        const NamingConvention& namconv)
 {
   VectorInt iatts = db->ids(name, true);
   if (iatts.empty()) return 1;
@@ -177,9 +178,9 @@ int Limits::toIndicator(Db* db,
 int Limits::toIndicator(Db* db,
                         int iatt,
                         int OptionIndicator,
-                        NamingConvention namconv)
+                        const NamingConvention& namconv)
 {
   return _db_indicator(db, iatt, OptionIndicator, getLowerBounds(),
-                      getUpperBounds(), getLowerIncluded(),
-                      getUpperIncluded(), namconv);
+                       getUpperBounds(), getLowerIncluded(),
+                       getUpperIncluded(), namconv);
 }

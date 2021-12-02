@@ -8,10 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Law.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "Variogram/Vario.hpp"
+#include "Basic/Law.hpp"
+#include "Model/Model.hpp"
+#include "Db/Db.hpp"
+
 #include <iostream>
 #include <fstream>
 

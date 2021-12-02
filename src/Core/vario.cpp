@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Anamorphosis/Anam.hpp"
@@ -19,8 +22,13 @@
 #include "Drifts/EDrift.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Basic/String.hpp"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+#include "Stats/PCA.hpp"
+
+#include <string.h>
+#include <math.h>
 
 /*! \cond */
 #define VARS(ivar,jvar)     (vario->vars[(ivar) * vario->getNVar() + (jvar)])
@@ -2926,7 +2934,7 @@ static int st_vmap_general(Db *db,
                            Db *dbmap,
                            const ECalcVario &calcul_type,
                            int radius,
-                           NamingConvention namconv)
+                           const NamingConvention& namconv)
 {
   int error, nvar, nv2, i, idim, flag_out, nbmax;
   int *indg0, *indg1, *ind1, iech0, iech1, iech2, jech1, jech2, nech, ndim;
@@ -3096,7 +3104,7 @@ static int st_vmap_general(Db *db,
 static int st_vmap_grid(Db *dbgrid,
                         Db *dbmap,
                         const ECalcVario &calcul_type,
-                        NamingConvention namconv)
+                        const NamingConvention& namconv)
 {
   int error, nvar, nv2, idim, delta;
   int *ind1, *ind2, *ind0, iech0, iech1, iech2, flag_out, ndim;
@@ -4133,7 +4141,7 @@ static void st_variogram_cloud_dim(Db *db,
 int variogram_cloud(const Db *db,
                     const VarioParam *varioparam,
                     Db *dbgrid,
-                    NamingConvention namconv)
+                    const NamingConvention& namconv)
 {
   int idir, iptr;
 
@@ -5087,7 +5095,7 @@ static void st_vmap_extract(int *nxmap,
 static int st_vmap_grid_fft(Db *dbgrid,
                             Db *dbmap,
                             const ECalcVario &calcul_type,
-                            NamingConvention namconv)
+                            const NamingConvention& namconv)
 {
   int dims[3], dinv[3], nxmap[3], nxgrid[3], sizetot, sizemap, sizegrid;
   int i, ndim, ic, error, idim, ivar, jvar, ijvar, nvar, nvs2;
@@ -6820,7 +6828,7 @@ Db* db_variogram_cloud(Db *db,
                        double varmax,
                        int lagnb,
                        int varnb,
-                       NamingConvention namconv)
+                       const NamingConvention& namconv)
 {
   if (FFFF(lagmax)) lagmax = db->getFieldSize();
   if (FFFF(varmax)) (void) variogram_cloud_dim(db, varioparam, &varmax);
@@ -6868,7 +6876,7 @@ int vmap_compute(Db *db,
                  const ECalcVario &calcul_type,
                  int radius,
                  bool flag_FFT,
-                 NamingConvention namconv)
+                 const NamingConvention& namconv)
 {
   int error = 0;
 
@@ -6918,7 +6926,7 @@ Db* db_vmap_compute(Db *db,
                     double dyy,
                     int radius,
                     bool flag_FFT,
-                    NamingConvention namconv)
+                    const NamingConvention& namconv)
 {
   int error = 0;
 

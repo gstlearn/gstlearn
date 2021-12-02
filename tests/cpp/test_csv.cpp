@@ -8,10 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_define.h"
+#include "Basic/String.hpp"
 #include "Db/Db.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Utility.hpp"
-#include "geoslib_f.h"
+
 
 /**
  * This test is meant to check the CSV loading procedure

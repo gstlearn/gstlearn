@@ -10,13 +10,19 @@
 /******************************************************************************/
 #pragma once
 
-#include "Variogram/Vario.hpp"
-#include "geoslib_d.h"
-#include "Neigh/Neigh.hpp"
-#include "Model/Model.hpp"
-#include "Mesh/MeshEStandard.hpp"
-#include "Model/ANoStat.hpp"
-#include "LithoRule/RuleProp.hpp"
+//#include "geoslib_d.h"
+
+#include "Basic/NamingConvention.hpp"
+
+class Model;
+class Vario;
+class Neigh;
+class MeshEStandard;
+class RuleProp;
+class cs;
+class Cheb_Elem;
+class Rule;
+class VarioParam;
 
 /*************************************/
 /* Prototyping the functions in io.c */
@@ -107,16 +113,16 @@ Rule* _rule_auto(Db *db,
 int _db_rule(Db *db,
              const RuleProp *ruleprop,
              Model *model = nullptr,
-             NamingConvention namconv = NamingConvention("Facies",
+             const NamingConvention& namconv = NamingConvention("Facies",
                                                          ELoc::FACIES));
 int _db_bounds(Db *db,
                const RuleProp *ruleprop,
                Model *model = nullptr,
-               NamingConvention namconv = NamingConvention("Bounds"));
+               const NamingConvention& namconv = NamingConvention("Bounds"));
 int _db_threshold(Db *db,
                   const RuleProp *ruleprop,
                   Model *model = nullptr,
-                  NamingConvention namconv = NamingConvention("Thresh"));
+                  const NamingConvention& namconv = NamingConvention("Thresh"));
 
 /******************************************/
 /* Prototyping the functions in dbtools.c */
@@ -129,12 +135,12 @@ int _db_indicator(Db *db,
                   const VectorDouble &maxi = VectorDouble(),
                   const VectorBool &incmini = VectorBool(),
                   const VectorBool &incmaxi = VectorBool(),
-                  NamingConvention namconv = NamingConvention("Indicator"));
+                  const NamingConvention& namconv = NamingConvention("Indicator"));
 int _db_category(Db *db,
                  int ivar,
                  const VectorDouble &mini = VectorDouble(),
                  const VectorDouble &maxi = VectorDouble(),
                  const VectorBool &incmini = VectorBool(),
                  const VectorBool &incmaxi = VectorBool(),
-                 NamingConvention namconv = NamingConvention("Category"));
+                 const NamingConvention& namconv = NamingConvention("Category"));
 

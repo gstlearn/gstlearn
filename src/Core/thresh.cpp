@@ -7,14 +7,18 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/String.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Variogram/Vario.hpp"
+#include "Model/Model.hpp"
 
 /*! \cond */
 #define INDLOC(ifac1,ifac2)  ((ifac2)*propdef->nfac[0]+(ifac1))
@@ -148,8 +152,7 @@ static int st_proportion_transform(PropDef *propdef)
  ** \param[in]  mode     Type of operation (EProcessOper)
  **
  ****************************************************************************/
-void proportion_rule_process(PropDef *propdef,
-                                             const EProcessOper &mode)
+void proportion_rule_process(PropDef *propdef, const EProcessOper &mode)
 {
   /* Assignments */
 
@@ -324,18 +327,18 @@ static int st_proportion_define(PropDef *propdef,
  **
  *****************************************************************************/
 int rule_thresh_define_shadow(PropDef *propdef,
-                                              Db *db,
-                                              const RuleShadow *rule,
-                                              int facies,
-                                              int iech,
-                                              int isimu,
-                                              int nbsimu,
-                                              double *t1min,
-                                              double *t1max,
-                                              double *t2min,
-                                              double *t2max,
-                                              double *sh_dsup,
-                                              double *sh_down)
+                              Db *db,
+                              const RuleShadow *rule,
+                              int facies,
+                              int iech,
+                              int isimu,
+                              int nbsimu,
+                              double *t1min,
+                              double *t1max,
+                              double *t2min,
+                              double *t2max,
+                              double *sh_dsup,
+                              double *sh_down)
 {
   int unmodify, facloc, jech;
 
@@ -420,17 +423,17 @@ int rule_thresh_define_shadow(PropDef *propdef,
  **
  *****************************************************************************/
 int rule_thresh_define(PropDef *propdef,
-                                       Db *db,
-                                       const Rule *rule,
-                                       int facies,
-                                       int iech,
-                                       int isimu,
-                                       int nbsimu,
-                                       int flag_check,
-                                       double *t1min,
-                                       double *t1max,
-                                       double *t2min,
-                                       double *t2max)
+                       Db *db,
+                       const Rule *rule,
+                       int facies,
+                       int iech,
+                       int isimu,
+                       int nbsimu,
+                       int flag_check,
+                       double *t1min,
+                       double *t1max,
+                       double *t2min,
+                       double *t2max)
 {
   int unmodify, facloc, jech;
 
@@ -520,12 +523,12 @@ int rule_thresh_define(PropDef *propdef,
  **
  *****************************************************************************/
 int db_rule_shadow(Db *db,
-                                   Db *dbprop,
-                                   RuleShadow *rule,
-                                   Model *model,
-                                   const VectorDouble &props,
-                                   int flag_stat,
-                                   int nfacies)
+                   Db *dbprop,
+                   RuleShadow *rule,
+                   Model *model,
+                   const VectorDouble &props,
+                   int flag_stat,
+                   int nfacies)
 {
   int iptr, error, flag_used[2], nbsimu, igrf, ngrf;
   PropDef *propdef;
@@ -590,8 +593,10 @@ int db_rule_shadow(Db *db,
 
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, props, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, props, propdef);
   return (error);
 }
 
@@ -613,7 +618,7 @@ int db_rule_shadow(Db *db,
 int _db_rule(Db *db,
              const RuleProp *ruleprop,
              Model *model,
-             NamingConvention namconv)
+             const NamingConvention &namconv)
 {
   if (db == nullptr)
   {
@@ -686,8 +691,10 @@ int _db_rule(Db *db,
   namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptr);
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, propcst, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, propcst, propdef);
   return (error);
 }
 
@@ -708,12 +715,12 @@ int _db_rule(Db *db,
  **
  *****************************************************************************/
 int db_bounds_shadow(Db *db,
-                                     Db *dbprop,
-                                     RuleShadow *rule,
-                                     Model *model,
-                                     const VectorDouble &props,
-                                     int flag_stat,
-                                     int nfacies)
+                     Db *dbprop,
+                     RuleShadow *rule,
+                     Model *model,
+                     const VectorDouble &props,
+                     int flag_stat,
+                     int nfacies)
 {
   int flag_used[2], ngrf, error, iptr, igrf;
   double *coor;
@@ -788,8 +795,10 @@ int db_bounds_shadow(Db *db,
 
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, props, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, props, propdef);
   coor = db_sample_free(coor);
   return (error);
 }
@@ -809,8 +818,10 @@ int db_bounds_shadow(Db *db,
 int _db_bounds(Db *db,
                const RuleProp *ruleprop,
                Model *model,
-               NamingConvention namconv)
+               const NamingConvention &namconv)
 {
+  NamingConvention nc(namconv);
+
   if (db == nullptr)
   {
     messerr("The Db is not defined");
@@ -878,14 +889,17 @@ int _db_bounds(Db *db,
 
   // Naming convention
 
-  namconv.setLocatorOutType(ELoc::L);
-  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
-  namconv.setLocatorOutType(ELoc::U);
-  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
+  nc.setLocatorOutType(ELoc::L);
+  nc.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
+  nc.setLocatorOutType(ELoc::U);
+  nc.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, propcst, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, propcst, propdef);
+
   return (error);
 }
 
@@ -926,16 +940,16 @@ void propdef_reset(PropDef *propdef)
  **
  ****************************************************************************/
 PropDef* proportion_manage(int mode,
-                                           int flag_facies,
-                                           int flag_stat,
-                                           int ngrf1,
-                                           int ngrf2,
-                                           int nfac1,
-                                           int nfac2,
-                                           Db *db,
-                                           const Db *dbprop,
-                                           const VectorDouble &propcst,
-                                           PropDef *proploc)
+                           int flag_facies,
+                           int flag_stat,
+                           int ngrf1,
+                           int ngrf2,
+                           int nfac1,
+                           int nfac2,
+                           Db *db,
+                           const Db *dbprop,
+                           const VectorDouble &propcst,
+                           PropDef *proploc)
 {
   int ifac, error, nfacprod;
   const Db *db_loc;
@@ -1047,7 +1061,9 @@ PropDef* proportion_manage(int mode,
 
   error = 0;
 
-  label_end: if (error)
+  label_end:
+
+  if (error)
   {
     if (propdef != nullptr) delete propdef;
     propdef = nullptr;
@@ -1070,7 +1086,7 @@ PropDef* proportion_manage(int mode,
 int _db_threshold(Db *db,
                   const RuleProp *ruleprop,
                   Model *model,
-                  NamingConvention namconv)
+                  const NamingConvention &namconv)
 {
   if (db == nullptr)
   {
@@ -1180,8 +1196,11 @@ int _db_threshold(Db *db,
   }
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, propcst, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, propcst, propdef);
+
   return (error);
 }
 
@@ -1199,8 +1218,8 @@ int _db_threshold(Db *db,
  **
  *****************************************************************************/
 Model* model_rule_combine(const Model *model1,
-                                          const Model *model2,
-                                          const Rule *rule)
+                          const Model *model2,
+                          const Rule *rule)
 {
   Model *new_model;
   int ngrf;

@@ -10,6 +10,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
@@ -19,8 +21,8 @@
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
                          const CovAniso* cova,

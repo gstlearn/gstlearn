@@ -11,7 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/String.hpp"
+#include "geoslib_define.h"
 
 class GSTLEARN_EXPORT CSVformat
 {

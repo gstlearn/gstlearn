@@ -1,5 +1,8 @@
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "License/TimeUtility.hpp"
+#include "Basic/AStringable.hpp"
+
+#include <string.h>
 #include <sstream>
 
 const std::string day_keys = "AZE9RTY5UPM8LKJ4HGF2D6S3W7XCVBNQ";

@@ -15,6 +15,8 @@
 #include "version.h"
 #include "geoslib_old_f.h"
 
+#include <fstream>
+
 #define DEBUG 0
 
 /****************************************************************************/

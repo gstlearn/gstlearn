@@ -38,8 +38,10 @@
   1999-05-03 lpd Original version.
 */
 
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "License/MD5Utility.hpp"
+
+#include <string.h>
 
 /*
  * For reference, here is the program that computed the T values.

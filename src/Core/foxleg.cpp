@@ -8,11 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Basic/String.hpp"
+
+#include <math.h>
 
 /*! \cond */
 #define TOLVAL     1.e-09

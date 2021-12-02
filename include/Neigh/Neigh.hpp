@@ -11,10 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
+// Enums
 #include "Neigh/ENeigh.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/Vector.hpp"
 
 class GSTLEARN_EXPORT Neigh: public AStringable , public ASerializable // TODO : inherits from ASpaceObject (see _init)
 {

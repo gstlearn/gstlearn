@@ -15,6 +15,10 @@
 #include "Model/Model.hpp"
 #include "API/SPDE.hpp"
 #include "API/PGSSPDE.hpp"
+#include "Db/Db.hpp"
+#include "Covariances/ECov.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Basic/String.hpp"
 
 /****************************************************************************/
 /*!

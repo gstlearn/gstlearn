@@ -8,10 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
+#include "geoslib_f_private.h"
 #include "Polygon/Polygons.hpp"
 #include "Polygon/PolySet.hpp"
 #include "Basic/Utilities.hpp"
+#include "Db/Db.hpp"
+#include "LithoRule/Rule.hpp"
+#include "csparse_d.h"
 
 /****************************************************************************/
 /*!

@@ -10,12 +10,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/Model.hpp"
-#include "geoslib_e.h"
 #include "csparse_d.h"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"

@@ -1,14 +1,17 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/NamingConvention.hpp"
-#include "Db/Db.hpp"
-#include "Model/Model.hpp"
+
+#include "API/ESPDECalcMode.hpp"
+#include "Covariances/ECalcMember.hpp"
+
 #include "API/SPDE.hpp"
 #include "LithoRule/RuleProp.hpp"
-#include "API/ESPDECalcMode.hpp"
 
 #include <vector>
+
+class Db;
+class Model;
 
 class GSTLEARN_EXPORT PGSSPDE
 {

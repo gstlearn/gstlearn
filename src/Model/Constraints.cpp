@@ -11,6 +11,7 @@
 #include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
 #include "geoslib_f.h"
+
 #include <math.h>
 
 Constraints::Constraints()
@@ -84,4 +85,9 @@ void Constraints::modifyConstraintsForSill()
     if (consitem->getType() != EConsElem::SILL) continue;
     if (consitem->getValue() > 0) setValue(i,sqrt(consitem->getValue()));
   }
+}
+
+void Constraints::setValue(int item, double value)
+{
+  _consItems[item]->setValue(value);
 }

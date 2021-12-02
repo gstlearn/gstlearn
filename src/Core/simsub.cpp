@@ -8,9 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Law.hpp"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
+#include "Basic/Law.hpp"
+#include "Db/Db.hpp"
+
+#include <math.h>
 
 /*! \cond */
 

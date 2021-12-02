@@ -16,6 +16,9 @@
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
+#include "Db/Db.hpp"
+#include "Covariances/ECov.hpp"
+#include "Covariances/CovAniso.hpp"
 #include <stdlib.h>
 
 /****************************************************************************/

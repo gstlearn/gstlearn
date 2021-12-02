@@ -52,6 +52,3 @@
 #include "geoslib_f.h"
 #include "version.h"
 
-#include "License/MD5Utility.hpp"
-#include "License/LicenseKey.hpp"
-

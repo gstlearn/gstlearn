@@ -10,10 +10,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_e.h"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+
+#include <math.h>
 
 PrecisionOpMultiConditional::PrecisionOpMultiConditional()
   :_multiPrecisionOp(std::vector<PrecisionOp*>())

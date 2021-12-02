@@ -11,22 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+// WARNING: Make this include list as small as possible!
 #include "Basic/AStringable.hpp"
 #include "Covariances/ECalcMember.hpp"
 
 class GSTLEARN_EXPORT CovCalcMode : public AStringable
 {
-private:
-  ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */
-  bool          _asVario;        /*! True to calculate variogram and not covariance (default = false)*/
-  bool          _normalized;     /*! Normalized variogram */
-  bool          _filterNugget;   /*! True to filter nugget structure (default = false) */
-  unsigned int  _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */
-  bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
-  int           _envelop;        /*! Envelop of Multivariate model: 1(upper) or -1(lower) */
-  int           _orderVario;     /*! Higher Variogram Order (0: standard) */
-
 public:
   CovCalcMode(const ECalcMember& member = ECalcMember::LHS,
               bool asVario = false,
@@ -97,4 +88,15 @@ public:
               int                icov_r     = -1,
               int                flag_norm  = 0,
               int                flag_cov   = 1);
+
+private:
+  ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */
+  bool          _asVario;        /*! True to calculate variogram and not covariance (default = false)*/
+  bool          _normalized;     /*! Normalized variogram */
+  bool          _filterNugget;   /*! True to filter nugget structure (default = false) */
+  unsigned int  _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */
+  bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
+  int           _envelop;        /*! Envelop of Multivariate model: 1(upper) or -1(lower) */
+  int           _orderVario;     /*! Higher Variogram Order (0: standard) */
+
 };

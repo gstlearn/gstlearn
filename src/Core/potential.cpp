@@ -8,13 +8,21 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/String.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Drifts/EDrift.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/Neigh.hpp"
+
+#include <math.h>
+#include <string.h>
 
 /*! \cond */
 

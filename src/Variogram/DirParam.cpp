@@ -8,12 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 DirParam::DirParam(int ndim,
                    int npas,

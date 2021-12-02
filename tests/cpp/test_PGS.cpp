@@ -11,11 +11,15 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_f.h"
 #include "Variogram/Vario.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
 #include "LithoRule/RuleProp.hpp"
-#include "geoslib_f.h"
+#include "Db/Db.hpp"
+#include "Basic/String.hpp"
+#include "Covariances/ECov.hpp"
+#include "Covariances/CovAniso.hpp"
 
 /****************************************************************************/
 /*!

@@ -9,12 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/ACovGradient.hpp"
-
+#include "Basic/AException.hpp"
+#include "Basic/Vector.hpp"
+#include "Drifts/ADriftElem.hpp"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 
-#include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
 #include <math.h>
 
 ACovGradient::ACovGradient(const ECov& type, const CovContext& ctxt)

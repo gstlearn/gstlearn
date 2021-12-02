@@ -8,10 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/EJustify.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Neigh/Neigh.hpp"
+
+#include <math.h>
+#include <string.h>
 
 static int FLAG_SIMU = 0;
 static int FLAG_NO_VAR_CHECK = 0;
@@ -287,10 +292,10 @@ static void st_bench(Db *dbin, Db *dbout, int iech_out, Neigh *neigh, int *rank)
  **
  *****************************************************************************/
 double neigh_continuous_variance(Neigh *neigh,
-                                                 Db *db1,
-                                                 int rank1,
-                                                 Db *db2,
-                                                 int rank2)
+                                 Db *db1,
+                                 int rank1,
+                                 Db *db2,
+                                 int rank2)
 {
   double *dd, dist, var;
   int ndim;
@@ -693,9 +698,9 @@ Neigh* neigh_init_bench(int ndim, int flag_xvalid, double width)
  **
  *****************************************************************************/
 Neigh* neigh_init_image(int ndim,
-                                        int flag_xvalid,
-                                        int skip,
-                                        const VectorInt &nbgh_image)
+                        int flag_xvalid,
+                        int skip,
+                        const VectorInt &nbgh_image)
 {
   Neigh *neigh;
 
@@ -831,23 +836,23 @@ static void st_get_neigh_anisotropy(Neigh *neigh, VectorDouble &nbgh_radius)
  **
  *****************************************************************************/
 Neigh* neigh_init(int ndim,
-                                  ENeigh type,
-                                  int flag_xvalid,
-                                  int flag_sector,
-                                  int flag_aniso,
-                                  int flag_rotation,
-                                  int flag_continuous,
-                                  int nmini,
-                                  int nmaxi,
-                                  int nsect,
-                                  int nsmax,
-                                  int skip,
-                                  double width,
-                                  double radius,
-                                  double dist_cont,
-                                  const VectorDouble &nbgh_radius,
-                                  const VectorDouble &nbgh_rotmat,
-                                  const VectorInt &nbgh_image)
+                  const ENeigh &type,
+                  int flag_xvalid,
+                  int flag_sector,
+                  int flag_aniso,
+                  int flag_rotation,
+                  int flag_continuous,
+                  int nmini,
+                  int nmaxi,
+                  int nsect,
+                  int nsmax,
+                  int skip,
+                  double width,
+                  double radius,
+                  double dist_cont,
+                  const VectorDouble &nbgh_radius,
+                  const VectorDouble &nbgh_rotmat,
+                  const VectorInt &nbgh_image)
 {
   Neigh *neigh;
 
@@ -1012,11 +1017,7 @@ void neigh_print(const Neigh *neigh)
  ** \li                    4 : Number of consecutive empty sectors
  **
  *****************************************************************************/
-void neigh_echo(Db *dbin,
-                                Neigh *neigh,
-                                int *rank,
-                                int nsel,
-                                double *tab)
+void neigh_echo(Db *dbin, Neigh *neigh, int *rank, int nsel, double *tab)
 {
   int iech, jech, isect, n_empty, number;
   double dist, dmin, dmax;
@@ -1100,13 +1101,13 @@ void neigh_echo(Db *dbin,
  **
  *****************************************************************************/
 int neigh_select(Db *dbin,
-                                 Db *dbout,
-                                 int iech_out,
-                                 Neigh *neigh,
-                                 int flag_simu,
-                                 int flag_no_var_check,
-                                 int *nsel,
-                                 int *rank)
+                 Db *dbout,
+                 int iech_out,
+                 Neigh *neigh,
+                 int flag_simu,
+                 int flag_no_var_check,
+                 int *nsel,
+                 int *rank)
 {
   int iech;
 
@@ -1254,22 +1255,22 @@ void neigh_stop(void)
  **
  *****************************************************************************/
 int neigh_extract(Neigh *neigh,
-                                  ENeigh *type,
-                                  int *nmini,
-                                  int *nmaxi,
-                                  int *nsect,
-                                  int *nsmax,
-                                  int *skip,
-                                  int *flag_sector,
-                                  int *flag_aniso,
-                                  int *flag_rotation,
-                                  int *flag_continuous,
-                                  double *width,
-                                  double *radius,
-                                  double *dist_cont,
-                                  VectorDouble &nbgh_rotmat,
-                                  VectorDouble &nbgh_radius,
-                                  VectorInt &nbgh_image)
+                  ENeigh *type,
+                  int *nmini,
+                  int *nmaxi,
+                  int *nsect,
+                  int *nsmax,
+                  int *skip,
+                  int *flag_sector,
+                  int *flag_aniso,
+                  int *flag_rotation,
+                  int *flag_continuous,
+                  double *width,
+                  double *radius,
+                  double *dist_cont,
+                  VectorDouble &nbgh_rotmat,
+                  VectorDouble &nbgh_radius,
+                  VectorInt &nbgh_image)
 {
   int i, j, ecr, ndim;
 

@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Gibbs/AGibbs.hpp"
 
-#include "../../include/Basic/Timer.hpp"
+#include "Basic/Timer.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
@@ -18,6 +18,8 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "geoslib_enum.h"
+
+#include <math.h>
 
 AGibbs::AGibbs()
     : AStringable(),
@@ -145,7 +147,7 @@ int AGibbs::_boundsCheck(int ipgs,
 {
   const Db* db = getDb();
   int icase = getRank(ipgs, ivar);
-  int iech = getSampleRank(iact);
+  int iech  = getSampleRank(iact);
   double vmin = db->getLowerBound(iech,icase);
   double vmax = db->getUpperBound(iech,icase);
 
@@ -538,6 +540,10 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool f
   // Store the results
 
   storeResult(y, isimu, ipgs);
+
+  // Clean the spurious elements
+
+  cleanup();
 
   return 0;
 }

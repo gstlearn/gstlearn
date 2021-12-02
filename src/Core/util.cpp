@@ -8,13 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f_private.h"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "LithoRule/Rule.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
-//#include <tr1/cmath>
+#include "Basic/String.hpp"
+#include "Neigh/Neigh.hpp"
+
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <complex>

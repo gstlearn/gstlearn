@@ -11,10 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
+#include "geoslib_define.h"
+
+//Enums
 #include "Anamorphosis/EAnam.hpp"
+
+#include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT Anam : public AStringable
 {

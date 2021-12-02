@@ -8,9 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Mesh/tetgen.h"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
+#include "Mesh/tetgen.h"
+#include "Basic/String.hpp"
+
+#include <math.h>
 
 #define ANSI_DECLARATORS
 

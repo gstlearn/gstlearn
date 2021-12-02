@@ -17,6 +17,8 @@
 #include "geoslib_f.h"
 #include "geoslib_enum.h"
 
+#include <sstream>
+
 #define THRESH_IDLE 0
 #define THRESH_Y1   1
 #define THRESH_Y2   2

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+#include "geoslib_define.h"
 
 GSTLEARN_EXPORT bool isInteger(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT int  getClosestInteger(double value);

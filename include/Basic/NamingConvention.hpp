@@ -11,8 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+
+// WARNING: Make this include list as small as possible!
 #include "Db/ELoc.hpp"
 
 class Db;

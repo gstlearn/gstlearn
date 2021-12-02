@@ -11,17 +11,21 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
-#include "Db/PtrGeos.hpp"
+#include "geoslib_d.h"
+
+// Enums
 #include "Db/ELoadBy.hpp"
-#include "Polygon/Polygons.hpp"
+
+#include "Db/PtrGeos.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/GridC.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+
+class Polygons;
 
 // Do not convert to AEnum (mask combination is not used as enum)
 typedef enum
@@ -33,7 +37,6 @@ typedef enum
   FLAG_ARRAY = 16,    //!< Print the variable contents
 } DISPLAY_PARAMS;
 
-class Limits;
 
 /**
  * Class containing the Data Set.
@@ -154,7 +157,7 @@ public:
                 const String& radix = "New",
                 const ELoc& locatorType = ELoc::UNKNOWN,
                 int locatorIndex = 0,
-                int nechInit = 1);
+                int nechInit = 0);
   int addSelection(const VectorDouble& tab,
                    const String& name = "NewSel");
   int addSelection(const String& testvar,
@@ -431,7 +434,7 @@ public:
                           double vmax = TEST,
                           double proba = TEST,
                           const String& title = "",
-                          NamingConvention namconv = NamingConvention("Stats"));
+                          const NamingConvention& namconv = NamingConvention("Stats"));
 
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
@@ -572,12 +575,13 @@ private:
                           double vmin = TEST,
                           double vmax = TEST,
                           const String& title = "",
-                          NamingConvention namconv = NamingConvention("Stats"));
+                          const NamingConvention& namconv = NamingConvention("Stats"));
   VectorDouble _statisticsMulti(const VectorInt& iatts,
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
-  int  _variableWrite(bool flag_grid, bool onlyLocator=false) const;
+  int  _variableWrite(bool flag_grid, bool onlyLocator=false,
+                      bool writeCoorForGrid=false) const;
   void _variableRead(int *natt_r,
                      int *ndim_r,
                      int *nech_r,

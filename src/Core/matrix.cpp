@@ -8,10 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Utilities.hpp"
-#include "geoslib_old_f.h"
+//#include "geoslib_e.h"
 #include "geoslib_enum.h"
-#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include "Basic/Utilities.hpp"
+
+#include <math.h>
 
 /*! \cond */
 #define TRI(i)        (((i) * ((i) + 1)) / 2)

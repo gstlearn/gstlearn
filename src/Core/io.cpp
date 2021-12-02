@@ -8,12 +8,18 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_e.h"
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
+#include "Basic/String.hpp"
+
+#include <string.h>
+#include <stdarg.h>
+#include <math.h>
 
 /*! \cond */
 #define OLD 0

@@ -1,3 +1,4 @@
+
 /******************************************************************************/
 /* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
@@ -10,11 +11,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <LinearOp/HessianOp.hpp>
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
+#include "LinearOp/HessianOp.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+
+#include <math.h>
 
 HessianOp::HessianOp() 
   : ALinearOp()

@@ -12,6 +12,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
+
 #include <string>
 
 NamingConvention::NamingConvention(String radix,

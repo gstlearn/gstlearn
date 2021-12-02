@@ -7,10 +7,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Basic/String.hpp"
+
+#include <string.h>
 
 typedef struct
 {

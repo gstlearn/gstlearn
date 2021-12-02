@@ -11,32 +11,36 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Db/Db.hpp"
+#include "geoslib_define.h"
+
+//Enums
+#include "Covariances/ECov.hpp"
+#include "Model/EModelProperty.hpp"
+#include "Covariances/ECalcMember.hpp"
+#include "Model/EConsElem.hpp"
+#include "Drifts/EDrift.hpp"
+
 #include "Model/ModTrans.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/ANoStat.hpp"
-#include "Model/EModelProperty.hpp"
-#include "Basic/Vector.hpp"
+#include "Covariances/CovContext.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Covariances/ACovAnisoList.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Covariances/ECov.hpp"
-#include "Drifts/ADriftList.hpp"
-#include "Space/SpaceRN.hpp"
-
-#include <vector>
 
 class Model;
+class Db;
 class Drift;
-class ModTrans;
 class CovInternal;
 class MatrixSquareSymmetric;
 class CovCalcMode;
+class ACovAnisoList;
 class Vario;
 class CovAniso;
+class ANoStat;
+class ADriftList;
+class ADriftElem;
 
 class GSTLEARN_EXPORT Model : public AStringable, public ASerializable
 {
@@ -69,42 +73,41 @@ public:
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
-  const ACovAnisoList* getCovAnisoList()           const { return _covaList; }
-  const CovAniso* getCova(unsigned int icov)       const { return _covaList->getCova(icov); }
-  CovAniso* getCova(unsigned int icov)                   { return _covaList->getCova(icov); }
-  int getCovaNumber()                              const { return _covaList->getCovNumber(); }
-  const ECov& getCovaType(int icov)                const { return _covaList->getType(icov); }
-  const MatrixSquareSymmetric& getSill(int icov)             const { return _covaList->getSill(icov); }
-  double getSill(int icov, int ivar, int jvar)     const { return _covaList->getSill(icov, ivar, jvar); }
-  double getParam(int icov)                        const { return _covaList->getParam(icov); }
-  bool isCovaFiltered(int icov)                    const { return _covaList->isFiltered(icov); }
-  String getCovName(int icov)                      const { return _covaList->getCovName(icov); }
-  int getGradParamNumber(int icov)                 const { return _covaList->getGradParamNumber(icov); }
+  const ACovAnisoList* getCovAnisoList() const;
+  const CovAniso* getCova(unsigned int icov) const;
+  CovAniso* getCova(unsigned int icov);
+  int getCovaNumber() const;
+  const ECov& getCovaType(int icov) const;
+  const MatrixSquareSymmetric& getSill(int icov) const;
+  double getSill(int icov, int ivar, int jvar) const;
+  double getParam(int icov) const;
+  bool isCovaFiltered(int icov) const;
+  String getCovName(int icov) const;
+  int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
 
-  void setSill(int icov, int ivar, int jvar, double value) { _covaList->setSill(icov, ivar, jvar, value); }
-  void setCovaFiltered(int icov, bool filtered)            { _covaList->setFiltered(icov, filtered); }
+  void setSill(int icov, int ivar, int jvar, double value);
+  void setCovaFiltered(int icov, bool filtered);
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ADriftList)
-  /////////////////////////////////////////////////
-  const ADriftList* getDriftList()                 const { return _driftList; }
-  const ADriftElem* getDrift(int il)               const { return _driftList->getDrift(il); }
-  ADriftElem* getDrift(int il)                           { return _driftList->getDrift(il); }
-  int getDriftNumber()                             const { return _driftList->getDriftNumber(); }
-  const EDrift& getDriftType(int il)               const { return _driftList->getType(il); }
-  int getRankFext(int il)                          const { return _driftList->getRankFex(il); }
-  const VectorDouble& getCoefDrift()               const { return _driftList->getCoefDrift(); }
-  double getCoefDrift(int ivar, int il, int ib)    const { return _driftList->getCoefDrift(ivar, il, ib); }
-  int getDriftEquationNumber()                     const { return _driftList->getDriftEquationNumber(); }
-  bool isDriftFiltered(unsigned int il)            const { return _driftList->isFiltered(il); }
+  const ADriftList* getDriftList()                 const;
+  const ADriftElem* getDrift(int il)               const;
+  ADriftElem* getDrift(int il)                          ;
+  int getDriftNumber()                             const;
+  const EDrift& getDriftType(int il)               const;
+  int getRankFext(int il)                          const;
+  const VectorDouble& getCoefDrift()               const;
+  double getCoefDrift(int ivar, int il, int ib)    const;
+  int getDriftEquationNumber()                     const;
+  bool isDriftFiltered(unsigned int il)            const;
 
-  void setCoefDrift(int ivar, int il, int ib, double coeff)     { _driftList->setCoefDrift(ivar, il, ib, coeff); }
-  void setCoefDrift(int rank, double coeff)                     { _driftList->setCoefDrift(rank, coeff); }
-  void setDriftFiltered(int il, bool filtered)                  { _driftList->setFiltered(il, filtered); }
-  VectorDouble getDrift(const Db* db, int ib, bool useSel=true) { return _driftList->getDrift(db,ib,useSel); }
-  VectorVectorDouble getDrifts(const Db* db, bool useSel=true)  { return _driftList->getDrifts(db, useSel); }
+  void setCoefDrift(int ivar, int il, int ib, double coeff)    ;
+  void setCoefDrift(int rank, double coeff)                    ;
+  void setDriftFiltered(int il, bool filtered)                 ;
+  VectorDouble getDrift(const Db* db, int ib, bool useSel=true);
+  VectorVectorDouble getDrifts(const Db* db, bool useSel=true) ;
 
   double evaluateDrift(const Db* db, int iech, int il,
                        const ECalcMember& member = ECalcMember::LHS) const;

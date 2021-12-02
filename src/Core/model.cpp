@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Drifts/ADrift.hpp"
@@ -20,15 +24,21 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
+#include "Model/CovInternal.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/ModTrans.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Anamorphosis/AnamDiscreteDD.hpp"
+#include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_e.h"
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
+#include "Basic/String.hpp"
+#include "Db/Db.hpp"
+#include "csparse_f.h"
+
+#include <math.h>
 
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)
@@ -131,9 +141,7 @@ static int st_check_variable(int nvar, int ivar)
  ** \param[in]  covtab      Array to be initialized
  **
  *****************************************************************************/
-void model_covtab_init(int flag_init,
-                                       Model *model,
-                                       double *covtab)
+void model_covtab_init(int flag_init, Model *model, double *covtab)
 {
   int nvar = model->getVariableNumber();
   if (flag_init) for (int ivar = 0; ivar < nvar; ivar++)
@@ -174,9 +182,9 @@ static void st_covtab_rescale(int nvar, double norme, double *covtab)
  **
  *****************************************************************************/
 double model_calcul_basic(Model *model,
-                                          int icov,
-                                          const ECalcMember &member,
-                                          const VectorDouble &d1)
+                          int icov,
+                          const ECalcMember &member,
+                          const VectorDouble &d1)
 {
   //  const CovAniso* cova = model->getCova(icov);
   // TODO: Why having to use ACov rather than CovAniso?
@@ -793,11 +801,11 @@ static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
  **
  *****************************************************************************/
 void model_calcul_cov(Model *model,
-                                      CovCalcMode &mode,
-                                      int flag_init,
-                                      double weight,
-                                      const VectorDouble &d1,
-                                      double *covtab)
+                      CovCalcMode &mode,
+                      int flag_init,
+                      double weight,
+                      const VectorDouble &d1,
+                      double *covtab)
 {
   /* Modify the member in case of properties */
 
@@ -829,10 +837,10 @@ void model_calcul_cov(Model *model,
  **
  *****************************************************************************/
 double model_calcul_cov_ij(Model *model,
-                                           const CovCalcMode &mode,
-                                           int ivar,
-                                           int jvar,
-                                           const VectorDouble &d1)
+                           const CovCalcMode &mode,
+                           int ivar,
+                           int jvar,
+                           const VectorDouble &d1)
 {
 
   /* Modify the member in case of properties */
@@ -884,12 +892,12 @@ const CovInternal* get_external_covariance()
  **
  *****************************************************************************/
 void model_calcul_cov_nostat(Model *model,
-                                             CovCalcMode &mode,
-                                             CovInternal *covint,
-                                             int flag_init,
-                                             double weight,
-                                             VectorDouble &d1,
-                                             double *covtab)
+                             CovCalcMode &mode,
+                             CovInternal *covint,
+                             int flag_init,
+                             double weight,
+                             VectorDouble &d1,
+                             double *covtab)
 {
   /* Modify the member in case of properties */
 
@@ -925,10 +933,10 @@ void model_calcul_cov_nostat(Model *model,
  **
  *****************************************************************************/
 void model_calcul_drift(Model *model,
-                                        const ECalcMember &member,
-                                        const Db *db,
-                                        int iech,
-                                        double *drftab)
+                        const ECalcMember &member,
+                        const Db *db,
+                        int iech,
+                        double *drftab)
 {
   for (int il = 0; il < model->getDriftNumber(); il++)
     drftab[il] = model->evaluateDrift(db, iech, il, member);
@@ -947,9 +955,9 @@ void model_calcul_drift(Model *model,
  **
  *****************************************************************************/
 void model_variance0(Model *model,
-                                     Koption *koption,
-                                     double *covtab,
-                                     double *var0)
+                     Koption *koption,
+                     double *covtab,
+                     double *var0)
 {
   int i, j, ecr, ivar, jvar, idim, nscale;
   CovCalcMode mode;
@@ -1017,10 +1025,10 @@ void model_variance0(Model *model,
  **
  *****************************************************************************/
 void model_variance0_nostat(Model *model,
-                                            Koption *koption,
-                                            CovInternal *covint,
-                                            double *covtab,
-                                            double *var0)
+                            Koption *koption,
+                            CovInternal *covint,
+                            double *covtab,
+                            double *var0)
 {
   int i, j, ecr, ivar, jvar, idim, nscale;
   CovCalcMode mode;
@@ -1124,13 +1132,13 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
  **
  *****************************************************************************/
 Model* model_init(int ndim,
-                                  int nvar,
-                                  double field,
-                                  int flag_linked,
-                                  double ball_radius,
-                                  bool flag_gradient,
-                                  const VectorDouble &mean,
-                                  const VectorDouble &covar0)
+                  int nvar,
+                  double field,
+                  int flag_linked,
+                  double ball_radius,
+                  bool flag_gradient,
+                  const VectorDouble &mean,
+                  const VectorDouble &covar0)
 {
   Model *model = nullptr;
 
@@ -1214,14 +1222,14 @@ Model* model_default(int ndim, int nvar)
  **
  *****************************************************************************/
 int model_add_cova(Model *model,
-                                   const ECov &type,
-                                   int flag_aniso,
-                                   int flag_rotation,
-                                   double range,
-                                   double param,
-                                   const VectorDouble &aniso_ranges,
-                                   const VectorDouble &aniso_rotmat,
-                                   const VectorDouble &sill)
+                   const ECov &type,
+                   int flag_aniso,
+                   int flag_rotation,
+                   double range,
+                   double param,
+                   const VectorDouble &aniso_ranges,
+                   const VectorDouble &aniso_rotmat,
+                   const VectorDouble &sill)
 {
   if (st_check_model(model)) return 1;
 
@@ -1282,9 +1290,7 @@ int model_add_cova(Model *model,
  ** \remark  is equal to the number of drift functions.
  **
  *****************************************************************************/
-int model_add_drift(Model *model,
-                                    const EDrift &type,
-                                    int rank_fex)
+int model_add_drift(Model *model, const EDrift &type, int rank_fex)
 {
   ADriftElem *drift;
   int error;
@@ -1358,10 +1364,10 @@ int model_add_no_property(Model *model)
  **
  *****************************************************************************/
 int model_add_convolution(Model *model,
-                                          int conv_type,
-                                          int conv_idir,
-                                          int conv_ndisc,
-                                          double conv_range)
+                          int conv_type,
+                          int conv_idir,
+                          int conv_ndisc,
+                          double conv_range)
 {
   int error;
 
@@ -1458,14 +1464,14 @@ int model_anamorphosis_set_factor(Model *model, int anam_iclass)
  **
  *****************************************************************************/
 int model_add_anamorphosis(Model *model,
-                                           const EAnam &anam_type,
-                                           int anam_nclass,
-                                           int anam_iclass,
-                                           int anam_var,
-                                           double anam_coefr,
-                                           double anam_coefs,
-                                           VectorDouble &anam_strcnt,
-                                           VectorDouble &anam_stats)
+                           const EAnam &anam_type,
+                           int anam_nclass,
+                           int anam_iclass,
+                           int anam_var,
+                           double anam_coefr,
+                           double anam_coefs,
+                           VectorDouble &anam_strcnt,
+                           VectorDouble &anam_stats)
 {
   int error;
 
@@ -1511,9 +1517,7 @@ int model_add_anamorphosis(Model *model,
  ** \param[in]  tape_range Range of the tapering function
  **
  *****************************************************************************/
-int model_add_tapering(Model *model,
-                                       int tape_type,
-                                       double tape_range)
+int model_add_tapering(Model *model, int tape_type, double tape_range)
 {
   int error;
 
@@ -1649,9 +1653,9 @@ void model_setup(Model *model)
  **
  *****************************************************************************/
 int model_update_coreg(Model *model,
-                                       double *aic,
-                                       double *valpro,
-                                       double *vecpro)
+                       double *aic,
+                       double *valpro,
+                       double *vecpro)
 {
   int ivar, jvar, icov, ncova, nvar, error;
 
@@ -1720,19 +1724,19 @@ int model_update_coreg(Model *model,
  **
  *****************************************************************************/
 int model_evaluate(Model *model,
-                                   int ivar,
-                                   int jvar,
-                                   int rank_sel,
-                                   int flag_norm,
-                                   int flag_cov,
-                                   int nugget_opt,
-                                   int nostd,
-                                   int norder,
-                                   const ECalcMember &member,
-                                   int nh,
-                                   VectorDouble &codir,
-                                   double *h,
-                                   double *g)
+                   int ivar,
+                   int jvar,
+                   int rank_sel,
+                   int flag_norm,
+                   int flag_cov,
+                   int nugget_opt,
+                   int nostd,
+                   int norder,
+                   const ECalcMember &member,
+                   int nh,
+                   VectorDouble &codir,
+                   double *h,
+                   double *g)
 {
   int error = 1;
   double *covtab = nullptr;
@@ -1810,23 +1814,23 @@ int model_evaluate(Model *model,
  **
  *****************************************************************************/
 int model_evaluate_nostat(Model *model,
-                                          int ivar,
-                                          int jvar,
-                                          int rank_sel,
-                                          int flag_norm,
-                                          int flag_cov,
-                                          int nugget_opt,
-                                          int nostd,
-                                          int norder,
-                                          const ECalcMember &member,
-                                          Db *db1,
-                                          int iech1,
-                                          Db *db2,
-                                          int iech2,
-                                          int nh,
-                                          VectorDouble &codir,
-                                          double *h,
-                                          double *g)
+                          int ivar,
+                          int jvar,
+                          int rank_sel,
+                          int flag_norm,
+                          int flag_cov,
+                          int nugget_opt,
+                          int nostd,
+                          int norder,
+                          const ECalcMember &member,
+                          Db *db1,
+                          int iech1,
+                          Db *db2,
+                          int iech2,
+                          int nh,
+                          VectorDouble &codir,
+                          double *h,
+                          double *g)
 {
   double *covtab, c00, var0;
   VectorDouble d1;
@@ -1899,12 +1903,12 @@ int model_evaluate_nostat(Model *model,
  **
  *****************************************************************************/
 int model_grid(Model *model,
-                               Db *db,
-                               int ivar,
-                               int jvar,
-                               int flag_norm,
-                               int flag_cov,
-                               double *g)
+               Db *db,
+               int ivar,
+               int jvar,
+               int flag_norm,
+               int flag_cov,
+               double *g)
 {
   double *covtab;
   int iech, nvar, ndim, error;
@@ -2014,12 +2018,12 @@ void model_drift_filter(Model *model, int rank, int filter)
  **
  *****************************************************************************/
 double model_cxx(Model *model,
-                                 Db *db1,
-                                 Db *db2,
-                                 int ivar,
-                                 int jvar,
-                                 int seed,
-                                 double eps)
+                 Db *db1,
+                 Db *db2,
+                 int ivar,
+                 int jvar,
+                 int seed,
+                 double eps)
 {
   double *covtab, cxx, v1, v2, w1, w2, norme;
   int ndim, nvar, iech1, iech2, i, skip;
@@ -2120,16 +2124,16 @@ double model_cxx(Model *model,
  **
  *****************************************************************************/
 double* model_covmat_by_ranks(Model *model,
-                                              Db *db1,
-                                              int nsize1,
-                                              const int *ranks1,
-                                              Db *db2,
-                                              int nsize2,
-                                              const int *ranks2,
-                                              int ivar0,
-                                              int jvar0,
-                                              int flag_norm,
-                                              int flag_cov)
+                              Db *db1,
+                              int nsize1,
+                              const int *ranks1,
+                              Db *db2,
+                              int nsize2,
+                              const int *ranks2,
+                              int ivar0,
+                              int jvar0,
+                              int flag_norm,
+                              int flag_cov)
 {
   double *covmat, *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, ecr, error, i1, i2;
@@ -2241,9 +2245,9 @@ double* model_covmat_by_ranks(Model *model,
  **
  *****************************************************************************/
 void model_drift_mat(Model *model,
-                                     const ECalcMember &member,
-                                     Db *db,
-                                     double *drfmat)
+                     const ECalcMember &member,
+                     Db *db,
+                     double *drfmat)
 {
   int nech, nvar, nbfl, nfeq, ecr, jb;
   double *drftab, value;
@@ -2322,10 +2326,10 @@ void model_drift_mat(Model *model,
  **
  *****************************************************************************/
 void model_drift_vector(Model *model,
-                                        const ECalcMember &member,
-                                        Db *db,
-                                        int iech,
-                                        double *vector)
+                        const ECalcMember &member,
+                        Db *db,
+                        int iech,
+                        double *vector)
 {
   int nvar, nbfl, nfeq, ivar, ib, il, ecr, i;
   double *drftab, value;
@@ -2555,9 +2559,7 @@ static void st_drift_derivative(int iv,
  ** \li                      1 for Data - Gradient
  **
  *****************************************************************************/
-Model* model_duplicate(const Model *model,
-                                       double ball_radius,
-                                       int mode)
+Model* model_duplicate(const Model *model, double ball_radius, int mode)
 
 {
   Model *new_model;
@@ -2940,9 +2942,7 @@ int model_normalize(Model *model, int flag_verbose)
  ** \remark  This function does not do anything in the multivariate case
  **
  *****************************************************************************/
-int model_stabilize(Model *model,
-                                    int flag_verbose,
-                                    double percent)
+int model_stabilize(Model *model, int flag_verbose, double percent)
 {
   CovAniso *cova;
   double total;
@@ -3008,10 +3008,10 @@ int model_stabilize(Model *model,
  **
  *****************************************************************************/
 void model_covupdt(Model *model,
-                                   double *c0,
-                                   int flag_verbose,
-                                   int *flag_nugget,
-                                   double *nugget)
+                   double *c0,
+                   int flag_verbose,
+                   int *flag_nugget,
+                   double *nugget)
 {
   /// TODO : dead code ?
   CovAniso *cova;
@@ -3161,12 +3161,12 @@ void model_covupdt(Model *model,
  **
  *****************************************************************************/
 double model_drift_evaluate(int verbose,
-                                            Model *model,
-                                            const Db *db,
-                                            int iech,
-                                            int ivar,
-                                            double *coef,
-                                            double *drftab)
+                            Model *model,
+                            const Db *db,
+                            int iech,
+                            int ivar,
+                            double *coef,
+                            double *drftab)
 {
   double drift, value;
   int il, ib;
@@ -3213,11 +3213,11 @@ double model_drift_evaluate(int verbose,
  **
  *****************************************************************************/
 Model* input_model(int ndim,
-                                   int nvar,
-                                   int order,
-                                   int flag_sill,
-                                   int flag_norm,
-                                   Model *model_in)
+                   int nvar,
+                   int order,
+                   int flag_sill,
+                   int flag_norm,
+                   Model *model_in)
 {
   /// TODO [Cova] : to be restored ?
 //  int    i,flag_def,error,ncova;
@@ -3309,13 +3309,13 @@ int model_dimension(Model *model)
  **
  *****************************************************************************/
 int model_extract_cova(Model *model,
-                                       int icov,
-                                       ECov *cov_type,
-                                       int *flag_aniso,
-                                       double *param,
-                                       VectorDouble &sill,
-                                       VectorDouble &aniso_rotmat,
-                                       VectorDouble &aniso_ranges)
+                       int icov,
+                       ECov *cov_type,
+                       int *flag_aniso,
+                       double *param,
+                       VectorDouble &sill,
+                       VectorDouble &aniso_rotmat,
+                       VectorDouble &aniso_ranges)
 {
   CovAniso *cova;
   int ndim;
@@ -3387,17 +3387,17 @@ void model_extract_properties(Model *model, double *tape_range)
  **
  *****************************************************************************/
 void model_cova_characteristics(const ECov &type,
-                                                char cov_name[STRING_LENGTH],
-                                                int *flag_range,
-                                                int *flag_param,
-                                                int *min_order,
-                                                int *max_ndim,
-                                                int *flag_int_1d,
-                                                int *flag_int_2d,
-                                                int *flag_aniso,
-                                                int *flag_rotation,
-                                                double *scale,
-                                                double *parmax)
+                                char cov_name[STRING_LENGTH],
+                                int *flag_range,
+                                int *flag_param,
+                                int *min_order,
+                                int *max_ndim,
+                                int *flag_int_1d,
+                                int *flag_int_2d,
+                                int *flag_aniso,
+                                int *flag_rotation,
+                                double *scale,
+                                double *parmax)
 {
   SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 2, 0., &space);
@@ -3428,10 +3428,7 @@ void model_cova_characteristics(const ECov &type,
  ** \param[in]  flag_cov  1 if the result must be given in covariance
  **
  *****************************************************************************/
-int model_sample(Vario *vario,
-                                 Model *model,
-                                 int flag_norm,
-                                 int flag_cov)
+int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
 {
   double *covtab;
   int i, idir, ndir, ipas, npas, idim, ndim, error, nvar, ivar, jvar, ijvar;
@@ -3515,12 +3512,12 @@ int model_sample(Vario *vario,
  **
  *****************************************************************************/
 void model_vector_multivar(Model *model,
-                                           Db *db,
-                                           int ivar,
-                                           int iech,
-                                           int flag_norm,
-                                           int flag_cov,
-                                           double *vector)
+                           Db *db,
+                           int ivar,
+                           int iech,
+                           int flag_norm,
+                           int flag_cov,
+                           double *vector)
 {
   double *covtab, *c00tab;
   int ndim, nvar, jech, i, skip, nech, ecr, jvar;
@@ -3596,14 +3593,14 @@ void model_vector_multivar(Model *model,
  **
  *****************************************************************************/
 void model_vector(Model *model,
-                                  Db *db1,
-                                  Db *db2,
-                                  int ivar,
-                                  int jvar,
-                                  int jech,
-                                  int flag_norm,
-                                  int flag_cov,
-                                  double *vector)
+                  Db *db1,
+                  Db *db2,
+                  int ivar,
+                  int jvar,
+                  int jech,
+                  int flag_norm,
+                  int flag_cov,
+                  double *vector)
 {
   double *covtab, v1, v2;
   int ndim, nvar, iech, i, skip, nech;
@@ -3676,11 +3673,11 @@ void model_vector(Model *model,
  **
  *****************************************************************************/
 void model_vector_nostat(Model *model,
-                                         Db *db,
-                                         int ivar,
-                                         int jvar,
-                                         int iech,
-                                         double *vector)
+                         Db *db,
+                         int ivar,
+                         int jvar,
+                         int iech,
+                         double *vector)
 {
   double *covtab, value;
   int ndim, nvar, jech, i, skip, nech;
@@ -3763,9 +3760,7 @@ double model_maximum_distance(Model *model)
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-double model_scale2range(const ECov &type,
-                                         double scale,
-                                         double param)
+double model_scale2range(const ECov &type, double scale, double param)
 {
   double factor, range;
 
@@ -3786,9 +3781,7 @@ double model_scale2range(const ECov &type,
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-double model_range2scale(const ECov &type,
-                                         double range,
-                                         double param)
+double model_range2scale(const ECov &type, double range, double param)
 {
   double factor, scale;
 
@@ -3825,9 +3818,7 @@ double model_get_field(Model *model)
  ** \remarks: It has been exptended to the case where only one model is defined
  **
  *****************************************************************************/
-Model* model_combine(const Model *model1,
-                                     const Model *model2,
-                                     double r)
+Model* model_combine(const Model *model1, const Model *model2, double r)
 {
   Model *model;
   const CovAniso *cova;
@@ -3973,10 +3964,10 @@ int model_get_nonugget_cova(Model *model)
  **
  *****************************************************************************/
 int model_regularize(Model *model,
-                                     Vario *vario,
-                                     Db *db,
-                                     int opt_norm,
-                                     double nug_ratio)
+                     Vario *vario,
+                     Db *db,
+                     int opt_norm,
+                     double nug_ratio)
 {
   double *covtab, *c00tab, v1, v2, norme, dist;
   int idim, ndim, nvar, idir, nech, ipas, iech, jech, ivar, jvar, iad, error;
@@ -4117,17 +4108,17 @@ int model_regularize(Model *model,
  **
  *****************************************************************************/
 int model_covmat_inchol(int verbose,
-                                        Db *db,
-                                        Model *model,
-                                        double eta,
-                                        int npivot_max,
-                                        int nsize1,
-                                        int *ranks1,
-                                        double *center,
-                                        int flag_sort,
-                                        int *npivot_arg,
-                                        int **Pret,
-                                        double **Gret)
+                        Db *db,
+                        Model *model,
+                        double eta,
+                        int npivot_max,
+                        int nsize1,
+                        int *ranks1,
+                        double *center,
+                        int flag_sort,
+                        int *npivot_arg,
+                        int **Pret,
+                        double **Gret)
 {
   int *pvec, i, j, npivot, jstar, nech, error, flag_incr;
   double *G, *Gmatrix, *diag, *crit, g, residual, maxdiag, tol, b, c00;
@@ -4409,12 +4400,12 @@ int model_is_drift_defined(Model *model, const EDrift &type0)
  **
  *****************************************************************************/
 double model_calcul_stdev(Model *model,
-                                          Db *db1,
-                                          int iech1,
-                                          Db *db2,
-                                          int iech2,
-                                          int verbose,
-                                          double factor)
+                          Db *db1,
+                          int iech1,
+                          Db *db2,
+                          int iech2,
+                          int verbose,
+                          double factor)
 {
   int ndim;
   double c00, cov, stdev;
@@ -4476,16 +4467,16 @@ double model_calcul_stdev(Model *model,
  **
  *****************************************************************************/
 cs* model_covmat_by_ranks_cs(Model *model,
-                                             Db *db1,
-                                             int nsize1,
-                                             const int *ranks1,
-                                             Db *db2,
-                                             int nsize2,
-                                             const int *ranks2,
-                                             int ivar0,
-                                             int jvar0,
-                                             int flag_norm,
-                                             int flag_cov)
+                             Db *db1,
+                             int nsize1,
+                             const int *ranks1,
+                             Db *db2,
+                             int nsize2,
+                             const int *ranks2,
+                             int ivar0,
+                             int jvar0,
+                             int flag_norm,
+                             int flag_cov)
 {
   double *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, error, i1, i2;
@@ -4612,13 +4603,13 @@ cs* model_covmat_by_ranks_cs(Model *model,
  **
  *****************************************************************************/
 void model_covmat(Model *model,
-                                  Db *db1,
-                                  Db *db2,
-                                  int ivar0,
-                                  int jvar0,
-                                  int flag_norm,
-                                  int flag_cov,
-                                  double *covmat)
+                  Db *db1,
+                  Db *db2,
+                  int ivar0,
+                  int jvar0,
+                  int flag_norm,
+                  int flag_cov,
+                  double *covmat)
 {
   double *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, nech1, nech2, ecr;

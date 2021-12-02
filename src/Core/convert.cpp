@@ -8,13 +8,18 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
+#include "Basic/String.hpp"
+#include "Db/Db.hpp"
 #include "vtk.h"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
 
+#include <string.h>
 #include <sstream>
 #include <string>
 

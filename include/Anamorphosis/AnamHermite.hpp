@@ -11,19 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Db/Db.hpp"
-#include "Basic/Vector.hpp"
-#include "Basic/Interval.hpp"
+
+class Db;
 
 class GSTLEARN_EXPORT AnamHermite: public AnamContinuous
 {
-private:
-  int    _nbPoly;
-  bool   _flagBound;
-  double _rCoef;
-  VectorDouble _psiHn;
-
 public:
   AnamHermite(int nbpoly=0, bool flagBound=true, double rCoef=1.);
   AnamHermite(const AnamHermite &m);
@@ -67,4 +61,10 @@ private:
                  const VectorDouble& wt,
                  VectorDouble& zs,
                  VectorDouble& ys);
+
+private:
+  int    _nbPoly;
+  bool   _flagBound;
+  double _rCoef;
+  VectorDouble _psiHn;
 };

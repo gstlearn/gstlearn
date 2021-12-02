@@ -8,15 +8,22 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 #include "Model/Constraints.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/Option_AutoFit.hpp"
+#include "Model/Model.hpp"
+#include "Model/ConsItem.hpp"
 #include "Basic/EJustify.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Basic/String.hpp"
+#include "Db/Db.hpp"
+#include "Variogram/Vario.hpp"
+
+#include <math.h>
 
 /*! \cond */
 #define TAKE_ROT       (( optvar.getLockSamerot() && first_covrot < 0) ||  \
@@ -1410,9 +1417,11 @@ static void st_sill_reset(int nvar, int ncova, VectorDouble &sill)
 
   nvs2 = nvar * (nvar + 1) / 2;
   for (int icov = 0; icov < ncova; icov++)
+  {
     for (int ivar = ijvar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         SILL(icov,ijvar)= (ivar == jvar);
+  }
 }
 
 /****************************************************************************/
@@ -1525,6 +1534,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
       /* Establish the coregionalization matrix */
 
       for (ivar = ijvar = 0; ivar < nvar; ivar++)
+      {
         for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           sum = 0;
@@ -1536,7 +1546,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           CC(ivar,jvar)= AIC(icov,ijvar) - ALPHAK(icov,ijvar) * sum;
           CC(jvar,ivar)= CC(ivar,jvar);
         }
-
+      }
       /* Computing and sorting the eigen values and eigen vectors */
 
       if (matrix_eigen(cc.data(),nvar,valpro.data(),vecpro.data())) return 1;
@@ -1555,6 +1565,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
       /* Calculate the new coregionalization matrix */
 
       for (ivar=ijvar=0; ivar<nvar; ivar++)
+      {
         for (jvar=0; jvar<=ivar; jvar++, ijvar++)
         {
           if (allpos)
@@ -1572,6 +1583,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
           for (ipadir=0; ipadir<npadir; ipadir++)
           MP(ijvar,ipadir) += SILL(icov,ijvar) * GE(icov,ijvar,ipadir);
         }
+      }
     }
 
     /* Update the global criterion */
@@ -1579,14 +1591,14 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
     crit_mem = crit;
     crit = 0.;
     for (ipadir=0; ipadir<npadir; ipadir++)
-      for (ivar=ijvar=0; ivar<nvar; ivar++)
-        for (jvar=0; jvar<=ivar; jvar++, ijvar++)
-        {
-          if (FFFF(WT(ijvar,ipadir))) continue;
-          temp = GG(ijvar,ipadir) - MP(ijvar,ipadir);
-          value = (ivar != jvar) ? 2. : 1.;
-          crit += value * WT(ijvar,ipadir) * temp * temp;
-        }
+    for (ivar=ijvar=0; ivar<nvar; ivar++)
+    for (jvar=0; jvar<=ivar; jvar++, ijvar++)
+    {
+      if (FFFF(WT(ijvar,ipadir))) continue;
+      temp = GG(ijvar,ipadir) - MP(ijvar,ipadir);
+      value = (ivar != jvar) ? 2. : 1.;
+      crit += value * WT(ijvar,ipadir) * temp * temp;
+    }
 
     /* Optional printout */
 
@@ -3391,7 +3403,7 @@ static int st_goulard_with_constraints(const Option_AutoFit &mauto,
  **
  *****************************************************************************/
 static int st_sill_fitting_int(Model *model,
-                               Option_AutoFit &mauto,
+                               const Option_AutoFit& mauto,
                                int npadir,
                                VectorDouble &wt,
                                VectorDouble &gg,
@@ -3405,7 +3417,6 @@ static int st_sill_fitting_int(Model *model,
 {
   double sum, pivot, newval, crit, crit_mem;
   int error, icov, nvs2, ivar, jvar, ijvar, ipadir, nvar, ncova, iter;
-  int maxiter_memo;
 
   /* Initializations */
 
@@ -3419,15 +3430,17 @@ static int st_sill_fitting_int(Model *model,
 
   /* Iterative procedure */
 
-  maxiter_memo = mauto.getMaxiter();
-  mauto.setMaxiter(1);
-  for (iter = 0; iter < maxiter_memo; iter++)
+  Option_AutoFit mauto_new(mauto);
+  mauto_new.setMaxiter(1);
+  for (iter = 0; iter < mauto.getMaxiter(); iter++)
   {
 
     /* Initialize the arrays for the first pass */
 
     for (ipadir = 0; ipadir < npadir; ipadir++)
+    {
       for (ivar = ijvar = 0; ivar < nvar; ivar++)
+      {
         for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           sum = 0.;
@@ -3435,11 +3448,13 @@ static int st_sill_fitting_int(Model *model,
             sum += alphau[icov] * GE(icov, ijvar, ipadir);
           GE1(ijvar,ipadir)= sum;
         }
+      }
+    }
 
     /* Call Goulard with 1 structure (no constraint) */
 
     st_sill_reset(nvar,1,sill1);
-    if (st_goulard_without_constraint(mauto,nvar,1,npadir,
+    if (st_goulard_without_constraint(mauto_new,nvar,1,npadir,
             wt,gg,ge1,sill1,&crit)) goto label_end;
 
     /* Initialize the arrays for the second pass */
@@ -3459,13 +3474,13 @@ static int st_sill_fitting_int(Model *model,
 
     /* Call Goulard with 1 variable (no constraint) */
 
-    if (st_goulard_without_constraint(mauto,1,ncova,npadir*nvs2,
+    if (st_goulard_without_constraint(mauto_new,1,ncova,npadir*nvs2,
             wt2,gg2,ge2,alphau,&crit)) goto label_end;
 
     /* Stopping criterion */
 
-    if (ABS(crit) < mauto.getTolred() ||
-        ABS(crit-crit_mem) / ABS(crit) < mauto.getTolred()) break;
+    if (ABS(crit) < mauto_new.getTolred() ||
+        ABS(crit-crit_mem) / ABS(crit) < mauto_new.getTolred()) break;
     crit_mem = crit;
   }
 
@@ -3484,7 +3499,8 @@ static int st_sill_fitting_int(Model *model,
 
   error = 0;
 
-  label_end: mauto.setMaxiter(maxiter_memo);
+  label_end:
+
   return (error);
 }
 
@@ -3503,7 +3519,7 @@ static int st_sill_fitting_int(Model *model,
 static int st_goulard_fitting(int flag_reset,
                               int flag_title,
                               Model *model,
-                              Option_AutoFit &mauto)
+                              const Option_AutoFit& mauto)
 {
   int status;
   double crit;
@@ -4543,11 +4559,11 @@ static void st_regularize_init()
  **
  *****************************************************************************/
 int model_auto_fit(const Vario *vario,
-                                   Model *model,
-                                   bool verbose,
-                                   const Option_AutoFit &mauto_arg,
-                                   const Constraints &cons_arg,
-                                   const Option_VarioFit &optvar_arg)
+                   Model *model,
+                   bool verbose,
+                   const Option_AutoFit &mauto_arg,
+                   const Constraints &cons_arg,
+                   const Option_VarioFit &optvar_arg)
 {
   int i, error, status, nbexp, norder, npar, npadir, npar0;
   int flag_hneg, flag_gneg, flag_reduce, nvar, ncova, ndim, flag_regular;
@@ -4755,14 +4771,12 @@ int model_auto_fit(const Vario *vario,
  **
  ** \return  Error return code
  **
- ** \param[in]  vario        Vario structure
+ ** \param[in]     vario     Vario structure
  ** \param[in,out] model     Model to be fitted
- ** \param[in]  mauto        Option_AutoFit structure
+ ** \param[in]     mauto     Option_AutoFit structure
  **
  *****************************************************************************/
-int model_fitting_sills(Vario *vario,
-                                        Model *model,
-                                        Option_AutoFit mauto)
+int model_fitting_sills(const Vario *vario, Model *model, const Option_AutoFit &mauto)
 {
   int nvar, ncova, ndir, nbexp, npadir, ndim;
   std::vector<StrExp> strexps;
@@ -5025,11 +5039,11 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
  **
  *****************************************************************************/
 int vmap_auto_fit(const Db *dbmap,
-                                  Model *model,
-                                  bool verbose,
-                                  const Option_AutoFit &mauto_arg,
-                                  const Constraints &cons_arg,
-                                  const Option_VarioFit &optvar_arg)
+                  Model *model,
+                  bool verbose,
+                  const Option_AutoFit &mauto_arg,
+                  const Constraints &cons_arg,
+                  const Option_VarioFit &optvar_arg)
 {
   int i, error, status, nbexp, norder, npar0, npar, npadir, ndim;
   int flag_reduce, ncova, nvar, idim;
@@ -5245,12 +5259,12 @@ int modify_constraints_on_sill(Constraints &constraints)
  **
  *****************************************************************************/
 double constraints_get(const Constraints &constraints,
-                                       const EConsType &icase,
-                                       int igrf,
-                                       int icov,
-                                       const EConsElem &icons,
-                                       int iv1,
-                                       int iv2)
+                       const EConsType &icase,
+                       int igrf,
+                       int icov,
+                       const EConsElem &icons,
+                       int iv1,
+                       int iv2)
 {
   if (!constraints.isDefined()) return (TEST);
 

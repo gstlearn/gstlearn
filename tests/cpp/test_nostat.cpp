@@ -1,12 +1,10 @@
+//#include "geoslib_e.h"
+#include "geoslib_f.h"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_e.h"
-
-#include "geoslib_f.h"
-
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
@@ -14,7 +12,6 @@
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Mesh/MeshETurbo.hpp"
-
 #include "Matrix/MatrixRectangular.hpp"
 
 #include <algorithm>

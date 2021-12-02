@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_d.h"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshSpherical.hpp"
@@ -16,11 +19,11 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Basic/String.hpp"
 #include "Covariances/ECov.hpp"
 #include "csparse_f.h"
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 /*********************/
 /* Program principal */

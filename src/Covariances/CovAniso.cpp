@@ -9,15 +9,15 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovAniso.hpp"
-
-#include "geoslib_f.h"
-#include "geoslib_f_private.h"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
-#include <math.h>
 #include "Covariances/CovFactory.hpp"
+#include "Space/ASpace.hpp"
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
+
+#include <math.h>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };

@@ -10,14 +10,14 @@
 /******************************************************************************/
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
 #include <math.h>
 
-static int Random_factor = 105;
+static int Random_factor    = 105;
 static int Random_congruent = 20000159;
-static int Random_value = 43241421;
+static int Random_value     = 43241421;
 
 /*! \cond */
 #define TABIN_BY_COL(iech,ivar)       (tabin [(ivar) * nechin  + (iech)])

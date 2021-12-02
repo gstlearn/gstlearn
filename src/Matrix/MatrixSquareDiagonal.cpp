@@ -10,9 +10,8 @@
 /******************************************************************************/
 #include "Matrix/MatrixSquareDiagonal.hpp"
 #include "Matrix/AMatrixSquare.hpp"
-#include "geoslib_f.h"
-
 #include "Basic/AException.hpp"
+#include "geoslib_f.h"
 
 MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows, bool sparse)
   : AMatrixSquare(nrows, sparse)
@@ -71,7 +70,12 @@ void MatrixSquareDiagonal::_setValue(int irow, int icol, double value)
   else
   {
     if (ABS(value) > EPSILON10)
-      my_throw("Attempt to assign a non-zero value to a non-diagonal term");
+    {
+      messerr("Attempt to assign a non-zero value to a non-diagonal term");
+      messerr("- Element(%d,%d) = %lf", irow, icol, value);
+      messerr("Operation is aborted");
+      return;
+    }
   }
 }
 
@@ -109,7 +113,12 @@ void MatrixSquareDiagonal::_setValues(const double* values, bool /*byCol*/)
       if (irow != icol)
       {
         if (ABS(values[ecr]) > EPSILON10)
-          my_throw("Input 'values' does not correspond to a Diagonal matrix");
+        {
+          messerr("Input 'values' does not correspond to a Diagonal matrix");
+          messerr("- Element(%d,%d) = %lf", irow, icol, values[ecr]);
+          messerr("Operation is aborted");
+          return;
+        }
       }
       else
       {

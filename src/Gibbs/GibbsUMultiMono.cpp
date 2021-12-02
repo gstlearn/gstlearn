@@ -16,6 +16,8 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include <math.h>
+
 #define COVMAT(ivar,i,j)              (_covmat[ivar][(i) * nact + (j)])
 
 GibbsUMultiMono::GibbsUMultiMono()

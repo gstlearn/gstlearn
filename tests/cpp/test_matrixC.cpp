@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_d.h"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareDiagonal.hpp"
@@ -16,9 +19,6 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 void reset_to_initial_contents(AMatrix* M,
                                MatrixSquareDiagonalCst& D,

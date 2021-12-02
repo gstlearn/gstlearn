@@ -11,8 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Basic/Vector.hpp"
 
 class GSTLEARN_EXPORT AnamUser: public AnamContinuous
 {

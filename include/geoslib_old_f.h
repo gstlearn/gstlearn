@@ -10,39 +10,50 @@
 /******************************************************************************/
 #pragma once
 
+// WARNING: Make this include list as small as possible!
 #include "gstlearn_export.hpp"
-
-// TODO: this include list is too long
-#include "Anamorphosis/Anam.hpp"
-#include "Anamorphosis/AnamDiscreteDD.hpp"
-#include "Anamorphosis/AnamDiscreteIR.hpp"
-#include "Anamorphosis/AnamEmpirical.hpp"
-#include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamUser.hpp"
-#include "Basic/EJustify.hpp"
-#include "csparse_d.h"
-#include "csparse_f.h"
-#include "Db/Db.hpp"
 #include "geoslib_d.h"
+
+// Enums
+#include "Covariances/ECov.hpp"
+#include "Covariances/ECalcMember.hpp"
+#include "Basic/EJustify.hpp"
+#include "Db/ELoc.hpp"
 #include "LithoRule/EProcessOper.hpp"
-#include "LithoRule/PropDef.hpp"
-#include "LithoRule/Rule.hpp"
-#include "LithoRule/RuleShadow.hpp"
-#include "Mesh/MeshEStandard.hpp"
-#include "Mesh/tetgen.h"
-#include "Model/ANoStat.hpp"
-#include "Model/Constraints.hpp"
-#include "Model/CovInternal.hpp"
-#include "Model/Model.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/EConsElem.hpp"
+#include "Model/EConsType.hpp"
+#include "Anamorphosis/EAnam.hpp"
+#include "Drifts/EDrift.hpp"
 #include "Neigh/ENeigh.hpp"
-#include "Neigh/Neigh.hpp"
-#include "Polygon/Polygons.hpp"
-#include "segy.h"
-#include "Stats/PCA.hpp"
 #include "Variogram/ECalcVario.hpp"
-#include "Variogram/Vario.hpp"
+
+// References
+#include "Covariances/CovCalcMode.hpp"
+#include "Model/Constraints.hpp"
+#include "Model/Option_AutoFit.hpp"
+
+class Anam;
+class AnamDiscreteDD;
+class AnamDiscreteIR;
+class AnamEmpirical;
+class AnamHermite;
+class PropDef;
+class Rule;
+class RuleShadow;
+class MeshEStandard;
+class CovInternal;
+class Db;
+class Model;
+class Vario;
+class VarioParam;
+class Neigh;
+class Polygons;
+class PCA;
+class GridC;
+
+class cs;
+class QChol;
+class tetgenio;
 
 /**********************************************/
 /* Prototyping the functions in acknowledge.c */
@@ -1093,9 +1104,9 @@ GSTLEARN_EXPORT void model_calcul_cov_direct(CovInternal *covint,
                                              double weight,
                                              VectorDouble d1,
                                              double *covtab);
-GSTLEARN_EXPORT int model_fitting_sills(Vario *vario,
+GSTLEARN_EXPORT int model_fitting_sills(const Vario *vario,
                                         Model *model,
-                                        Option_AutoFit mauto);
+                                        const Option_AutoFit& mauto);
 GSTLEARN_EXPORT int model_nfex(Model *model);
 GSTLEARN_EXPORT int model_update_coreg(Model *model,
                                        double *aic,
@@ -1323,7 +1334,7 @@ GSTLEARN_EXPORT Neigh* neigh_init_image(int ndim,
                                         int skip,
                                         const VectorInt &nbgh_image = VectorInt());
 GSTLEARN_EXPORT Neigh* neigh_init(int ndim,
-                                  ENeigh type,
+                                  const ENeigh& type,
                                   int flag_xvalid,
                                   int flag_sector,
                                   int flag_aniso,

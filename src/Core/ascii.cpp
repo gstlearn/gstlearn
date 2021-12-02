@@ -7,6 +7,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
@@ -15,10 +20,14 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
+#include "Basic/String.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "geoslib_e.h"
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "LithoRule/Rule.hpp"
+#include "Neigh/Neigh.hpp"
+#include "Model/Model.hpp"
+
+#include <string.h>
 
 /*! \cond */
 #define OLD 0

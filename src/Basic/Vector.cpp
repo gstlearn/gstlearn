@@ -9,13 +9,45 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "math.h"
-#include "geoslib_e.h"
+//#include "geoslib_e.h"
+#include "geoslib_f.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+
+#include <string.h>
+#include <algorithm>
 #include <iomanip>
 
+VectorInt ut_vector_int(int nval, int value)
+{
+  VectorInt tab(nval, value);
+  return tab;
+}
+
+VectorDouble ut_vector_double(int nval, double value)
+{
+  VectorDouble tab(nval, value);
+  return tab;
+}
+
+VectorVectorDouble ut_vector_vector_double(int nval1, int nval2, double value)
+{
+  VectorVectorDouble tab(nval1, VectorDouble(nval2, value));
+  return tab;
+}
+
+VectorVectorInt ut_vector_vector_int(int nval1, int nval2, int value)
+{
+  VectorVectorInt tab(nval1, VectorInt(nval2, value));
+  return tab;
+}
+
 String ut_vector_string(const VectorDouble &vec)
+{
+  return toVector(String(), vec);
+}
+String ut_vector_string(const VectorVectorDouble &vec)
 {
   return toVector(String(), vec);
 }
@@ -25,15 +57,19 @@ String ut_ivector_string(const VectorInt &vec)
   return toVector(String(), vec);
 }
 
-void ut_vector_display(const String &title,
-                                       const VectorDouble &vect)
+void ut_vector_display(const String &title, const VectorDouble &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
   messageFlush(ut_vector_string(vect));
 }
 
-void ut_vector_display_stats(const String &title,
-                                             const VectorDouble &vect)
+void ut_vector_display(const String &title, const VectorVectorDouble &vect)
+{
+  if (!title.empty()) message("%s\n", title.c_str());
+  messageFlush(ut_vector_string(vect));
+}
+
+void ut_vector_display_stats(const String &title, const VectorDouble &vect)
 {
   int ntotal = (int) vect.size();
   int number = 0;
@@ -73,8 +109,7 @@ void ut_vector_display_stats(const String &title,
   }
 }
 
-void ut_vector_display_range(const String &title,
-                                             const VectorDouble &vect)
+void ut_vector_display_range(const String &title, const VectorDouble &vect)
 {
   int ntotal = (int) vect.size();
   int number = 0;
@@ -103,8 +138,7 @@ void ut_vector_display_range(const String &title,
   }
 }
 
-void ut_ivector_display(const String &title,
-                                        const VectorInt &vect)
+void ut_ivector_display(const String &title, const VectorInt &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
   messageFlush(ut_ivector_string(vect));
@@ -188,7 +222,7 @@ double ut_vector_stdv(const VectorDouble &vec)
 }
 
 double ut_vector_inner_product(const VectorDouble &vec1,
-                                               const VectorDouble &vec2)
+                               const VectorDouble &vec2)
 {
   if (vec1.size() != vec2.size())
   my_throw("Wrong size");
@@ -211,7 +245,7 @@ double ut_vector_norm(const VectorDouble &vec)
  * @return
  */
 VectorDouble ut_vector_cross_product(const VectorDouble &vec1,
-                                                     const VectorDouble &vec2)
+                                     const VectorDouble &vec2)
 {
   if (vec1.size() != vec2.size())
   my_throw("Wrong size");
@@ -222,9 +256,7 @@ VectorDouble ut_vector_cross_product(const VectorDouble &vec1,
   return res;
 }
 
-bool ut_vector_same(const VectorDouble &v1,
-                                    const VectorDouble &v2,
-                                    double eps)
+bool ut_vector_same(const VectorDouble &v1, const VectorDouble &v2, double eps)
 {
   if (v1.size() != v2.size()) return false;
   for (int i = 0, n = static_cast<int>(v1.size()); i < n; i++)
@@ -252,8 +284,7 @@ void ut_ivector_fill(VectorInt &vec, int value, int size)
   std::fill(vec.begin(), vec.end(), value);
 }
 
-VectorDouble ut_vector_add(const VectorDouble &vec1,
-                                           const VectorDouble &vec2)
+VectorDouble ut_vector_add(const VectorDouble &vec1, const VectorDouble &vec2)
 {
   VectorDouble res;
   if (vec1.size() != vec2.size())
@@ -268,8 +299,7 @@ VectorDouble ut_vector_add(const VectorDouble &vec1,
  * @param vec1 Input/Output vector
  * @param vec2 Auxiliary vector
  */
-void ut_vector_add_inplace(VectorDouble &vec1,
-                                           const VectorDouble &vec2)
+void ut_vector_add_inplace(VectorDouble &vec1, const VectorDouble &vec2)
 {
   VectorDouble res;
   if (vec1.size() != vec2.size())
@@ -279,7 +309,7 @@ void ut_vector_add_inplace(VectorDouble &vec1,
 }
 
 VectorDouble ut_vector_subtract(const VectorDouble &vec1,
-                                                const VectorDouble &vec2)
+                                const VectorDouble &vec2)
 {
   VectorDouble res;
   if (vec1.size() != vec2.size())
@@ -289,8 +319,7 @@ VectorDouble ut_vector_subtract(const VectorDouble &vec1,
   return res;
 }
 
-VectorDouble ut_vector_power(const VectorDouble &vec,
-                                             double power)
+VectorDouble ut_vector_power(const VectorDouble &vec, double power)
 {
   int size = static_cast<int>(vec.size());
   VectorDouble res(size);
@@ -299,9 +328,7 @@ VectorDouble ut_vector_power(const VectorDouble &vec,
   return res;
 }
 
-VectorDouble ut_vector_simulate_uniform(int n,
-                                                        double mini,
-                                                        double maxi)
+VectorDouble ut_vector_simulate_uniform(int n, double mini, double maxi)
 {
   VectorDouble vec(n);
   for (int i = 0; i < n; i++)
@@ -313,8 +340,7 @@ VectorDouble ut_vector_simulate_uniform(int n,
  * @param vec1 Input/Output vector
  * @param vec2 Auxiliary vector
  */
-void ut_vector_subtract_inplace(VectorDouble &vec1,
-                                                const VectorDouble &vec2)
+void ut_vector_subtract_inplace(VectorDouble &vec1, const VectorDouble &vec2)
 {
   VectorDouble res;
   if (vec1.size() != vec2.size())
@@ -324,8 +350,8 @@ void ut_vector_subtract_inplace(VectorDouble &vec1,
 }
 
 void ut_vector_sum(const VectorDouble &vec1,
-                                   const VectorDouble &vec2,
-                                   VectorDouble &res)
+                   const VectorDouble &vec2,
+                   VectorDouble &res)
 {
   if (vec1.size() != vec2.size())
   {
@@ -342,9 +368,7 @@ void ut_vector_sum(const VectorDouble &vec1,
   }
 }
 
-VectorDouble ut_vector_simulate_gaussian(int n,
-                                                         double mean,
-                                                         double sigma)
+VectorDouble ut_vector_simulate_gaussian(int n, double mean, double sigma)
 {
   VectorDouble vec(n);
   for (int i = 0; i < n; i++)
@@ -359,9 +383,7 @@ VectorDouble ut_vector_simulate_gaussian(int n,
  * @param seed        Seed used for the random number generator
  * @return A vector of ranks (between 0 and 'ntotal-1'). No duplicate
  */
-VectorInt ut_vector_sample(int ntotal,
-                                           double proportion,
-                                           int seed)
+VectorInt ut_vector_sample(int ntotal, double proportion, int seed)
 {
   int number = (int) (ntotal * proportion);
   number = MIN(ntotal, MAX(1, number));
@@ -381,9 +403,7 @@ VectorInt ut_vector_sample(int ntotal,
   return ranks;
 }
 
-void ut_vector_cumul(VectorDouble &vec1,
-                                     const VectorDouble &vec2,
-                                     double coeff)
+void ut_vector_cumul(VectorDouble &vec1, const VectorDouble &vec2, double coeff)
 {
   if (vec1.size() != vec2.size())
   my_throw("Wrong size");
@@ -391,8 +411,7 @@ void ut_vector_cumul(VectorDouble &vec1,
     vec1[i] += coeff * vec2[i];
 }
 
-void ut_vector_copy(VectorDouble &vec1,
-                                    const VectorDouble &vec2)
+void ut_vector_copy(VectorDouble &vec1, const VectorDouble &vec2)
 {
   if (vec1.size() != vec2.size())
   my_throw("Wrong size");
@@ -426,8 +445,7 @@ void ut_ivector_addval(VectorInt &vec, int v)
   { d += v;});
 }
 
-void ut_vector_divide_vec(VectorDouble &vec,
-                                          const VectorDouble &v)
+void ut_vector_divide_vec(VectorDouble &vec, const VectorDouble &v)
 {
   if (vec.size() != v.size())
   my_throw("Arguments 'vec' and 'v' should have same dimension");
@@ -477,9 +495,7 @@ VectorInt ut_ivector_sequence(int number, int ideb)
 /**
  * Create an output vector going from 'valFrom' to 'ValTo' by step of 'valStep'
  */
-VectorDouble ut_vector_sequence(double valFrom,
-                                                double valTo,
-                                                double valStep)
+VectorDouble ut_vector_sequence(double valFrom, double valTo, double valStep)
 {
   VectorDouble vec;
 
@@ -494,12 +510,14 @@ VectorDouble ut_vector_sequence(double valFrom,
 
 int ut_vector_size(const VectorInt &vec)
 {
+  if (vec.empty()) return 0;
   int size = sizeof(std::vector<int>) + (sizeof(int) * vec.size());
   return size;
 }
 
 int ut_vector_size(const VectorDouble &vec)
 {
+  if (vec.empty()) return 0;
   int size = sizeof(std::vector<double>) + (sizeof(double) * vec.size());
   return size;
 }
@@ -507,6 +525,7 @@ int ut_vector_size(const VectorDouble &vec)
 int ut_vector_size(const VectorVectorInt &vec)
 {
   int size = 0;
+  if (vec.empty()) return size;
   for (auto i = 0; i != (int) vec.size(); i++)
     size += sizeof(std::vector<int>) + (sizeof(int) * vec[i].size());
   return size;
@@ -516,6 +535,7 @@ int ut_vector_size(const VectorVectorInt &vec)
 int ut_vector_size(const VectorVectorDouble &vec)
 {
   int size = 0;
+  if (vec.empty()) return size;
   for (auto i = 0; i != (int) vec.size(); i++)
     size += sizeof(std::vector<double>) + (sizeof(double) * vec[i].size());
   return size;

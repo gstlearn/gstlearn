@@ -8,13 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Basic/GridC.hpp"
 #include "Basic/Rotation.hpp"
 #include "Basic/GridC.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 GridC::GridC(int ndim,
              const VectorInt& nx,

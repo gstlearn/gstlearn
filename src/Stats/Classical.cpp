@@ -8,14 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 #include "Stats/Classical.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 /****************************************************************************/
 /*!

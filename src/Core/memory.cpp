@@ -8,8 +8,11 @@
 //                                                                            //
 // TAG_SOURCE_CG                                                              //
 //****************************************************************************//
+//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
-#include "geoslib_e.h"
+#include "Basic/String.hpp"
+
+#include <string.h>
 
 /*! \cond */
 #define STORE_NAME_LENGTH 10
@@ -423,9 +426,7 @@ static void st_mem_message(const char *call_file,
  ** \param[in]  tab       Array to be freed
  **
  *****************************************************************************/
-char* mem_free_(const char *call_file,
-                                unsigned int call_line,
-                                char *tab)
+char* mem_free_(const char *call_file, unsigned int call_line, char *tab)
 {
   int size_eff;
   char *tab_aux;
@@ -462,9 +463,9 @@ char* mem_free_(const char *call_file,
  **
  *****************************************************************************/
 char* mem_alloc_(const char *call_file,
-                                 unsigned int call_line,
-                                 int size,
-                                 int flag_fatal)
+                 unsigned int call_line,
+                 int size,
+                 int flag_fatal)
 {
   int size_eff;
   char *tab, *tab_aux;
@@ -511,10 +512,10 @@ char* mem_alloc_(const char *call_file,
  **
  *****************************************************************************/
 char* mem_copy_(const char *call_file,
-                                unsigned int call_line,
-                                char *tabin,
-                                int size,
-                                int flag_fatal)
+                unsigned int call_line,
+                char *tabin,
+                int size,
+                int flag_fatal)
 {
   int size_eff;
   char *tab, *tab_aux;
@@ -566,10 +567,10 @@ char* mem_copy_(const char *call_file,
  **
  *****************************************************************************/
 char* mem_calloc_(const char *call_file,
-                                  unsigned int call_line,
-                                  int size,
-                                  int size_elem,
-                                  int flag_fatal)
+                  unsigned int call_line,
+                  int size,
+                  int size_elem,
+                  int flag_fatal)
 {
   int size_eff;
   char *tab, *tab_aux;
@@ -616,10 +617,10 @@ char* mem_calloc_(const char *call_file,
  *
  *****************************************************************************/
 char* mem_realloc_(const char *call_file,
-                                   unsigned int call_line,
-                                   char *tab,
-                                   int size,
-                                   int flag_fatal)
+                   unsigned int call_line,
+                   char *tab,
+                   int size,
+                   int flag_fatal)
 {
   int size_eff, size_old;
   char *tab_aux;

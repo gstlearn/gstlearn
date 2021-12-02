@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
 #include "Gibbs/GibbsUMultiMono.hpp"
 #include "Gibbs/GibbsUPropMono.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
@@ -20,14 +24,20 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/ECov.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Basic/String.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
+#include "LithoRule/RuleProp.hpp"
 #include "Basic/EJustify.hpp"
 #include "LithoRule/EProcessOper.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/Neigh.hpp"
+
+#include <math.h>
+#include <string.h>
 
 /*! \cond */
 #define DATA   0
@@ -101,10 +111,7 @@ static int st_facies(PropDef *propdef, int ipgs, int ifac)
  ** \param[in]  nbsimu    Number of simulations
  **
  *****************************************************************************/
-void simu_func_categorical_transf(Db *db,
-                                                  int verbose,
-                                                  int isimu,
-                                                  int nbsimu)
+void simu_func_categorical_transf(Db *db, int verbose, int isimu, int nbsimu)
 {
   const Rule *rule = ModCat.rule;
 
@@ -128,10 +135,7 @@ void simu_func_categorical_transf(Db *db,
  ** \param[in]  nbsimu    Number of simulations (stored)
  **
  *****************************************************************************/
-void simu_func_continuous_update(Db *db,
-                                                 int verbose,
-                                                 int isimu,
-                                                 int nbsimu)
+void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
 {
   int iptr_simu;
   double simval;
@@ -168,10 +172,7 @@ void simu_func_continuous_update(Db *db,
  ** \param[in]  nbsimu    Number of simulations (stored)
  **
  *****************************************************************************/
-void simu_func_categorical_update(Db *db,
-                                                  int verbose,
-                                                  int isimu,
-                                                  int nbsimu)
+void simu_func_categorical_update(Db *db, int verbose, int isimu, int nbsimu)
 {
   int iptr_simu, facies, rank, ipgs;
   double prop;
@@ -244,9 +245,7 @@ void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
  ** \param[in]  nbsimu    Number of simulations
  **
  *****************************************************************************/
-void simu_func_categorical_scale(Db *db,
-                                                 int verbose,
-                                                 int nbsimu)
+void simu_func_categorical_scale(Db *db, int verbose, int nbsimu)
 {
   int rank, nfacies, ipgs;
   double prop;
@@ -287,8 +286,8 @@ void simu_func_categorical_scale(Db *db,
  **
  *****************************************************************************/
 void check_mandatory_attribute(const char *method,
-                                               Db *db,
-                                               const ELoc &locatorType)
+                               Db *db,
+                               const ELoc &locatorType)
 {
   if (get_LOCATOR_NITEM(db, locatorType) <= 0)
     messageAbort("%s : Attributes %d are mandatory", method, locatorType);
@@ -3348,13 +3347,13 @@ static int st_simtub_process(Db *dbin,
  **
  *****************************************************************************/
 int simtub_potential(Db *dbiso,
-                                     Db *dbgrd,
-                                     Db *dbtgt,
-                                     Db *dbout,
-                                     Model *model,
-                                     int nbsimu,
-                                     int nbtuba,
-                                     double delta)
+                     Db *dbgrd,
+                     Db *dbtgt,
+                     Db *dbout,
+                     Model *model,
+                     int nbsimu,
+                     int nbtuba,
+                     double delta)
 {
   Situba *situba;
   int error, ncova, nvar, icase;
@@ -3457,14 +3456,14 @@ int simtub_potential(Db *dbiso,
  **
  *****************************************************************************/
 int simtub(Db *dbin,
-                           Db *dbout,
-                           Model *model,
-                           Neigh *neigh,
-                           int nbsimu,
-                           int seed,
-                           int nbtuba,
-                           int flag_check,
-                           NamingConvention namconv)
+           Db *dbout,
+           Model *model,
+           Neigh *neigh,
+           int nbsimu,
+           int seed,
+           int nbtuba,
+           int flag_check,
+           const NamingConvention& namconv)
 {
   Situba *situba;
   int flag_cond, nvar, error, iext, inostat, iptr_in, iptr_out;
@@ -3542,14 +3541,14 @@ int simtub(Db *dbin,
  **
  *****************************************************************************/
 int simdgm(Db *dbin,
-                           Db *dbout,
-                           Model *model,
-                           Neigh *neigh,
-                           double rval,
-                           int seed,
-                           int nbsimu,
-                           int nbtuba,
-                           int flag_check)
+           Db *dbout,
+           Model *model,
+           Neigh *neigh,
+           double rval,
+           int seed,
+           int nbsimu,
+           int nbtuba,
+           int flag_check)
 {
   Situba *situba;
   int flag_cond, nvar, error, iext, inostat, iptr;
@@ -3629,15 +3628,15 @@ int simdgm(Db *dbin,
  **
  *****************************************************************************/
 int simbayes(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             Neigh *neigh,
-                             double *dmean,
-                             double *dcov,
-                             int seed,
-                             int nbsimu,
-                             int nbtuba,
-                             int flag_check)
+             Db *dbout,
+             Model *model,
+             Neigh *neigh,
+             double *dmean,
+             double *dcov,
+             int seed,
+             int nbsimu,
+             int nbtuba,
+             int flag_check)
 {
   Situba *situba;
   int flag_cond, nvar, error, iptr;
@@ -3857,22 +3856,22 @@ static void st_init_gibbs_params(double rho)
  **
  *****************************************************************************/
 int simpgs(Db *dbin,
-                           Db *dbout,
-                           RuleProp *ruleprop,
-                           Model *model1,
-                           Model *model2,
-                           Neigh *neigh,
-                           int nbsimu,
-                           int seed,
-                           int flag_gaus,
-                           int flag_modif,
-                           int flag_check,
-                           int flag_show,
-                           int nbtuba,
-                           int gibbs_nburn,
-                           int gibbs_niter,
-                           double percent,
-                           NamingConvention namconv)
+           Db *dbout,
+           RuleProp *ruleprop,
+           Model *model1,
+           Model *model2,
+           Neigh *neigh,
+           int nbsimu,
+           int seed,
+           int flag_gaus,
+           int flag_modif,
+           int flag_check,
+           int flag_show,
+           int nbtuba,
+           int gibbs_nburn,
+           int gibbs_niter,
+           double percent,
+           const NamingConvention& namconv)
 {
   int iptr, icase, nfacies, flag_used[2];
   int iptr_RP, iptr_RF, iptr_DF, iptr_DN, iptr_RN;
@@ -4201,24 +4200,24 @@ int simpgs(Db *dbin,
  **
  *****************************************************************************/
 int simbipgs(Db *dbin,
-                             Db *dbout,
-                             RuleProp *ruleprop,
-                             Model *model11,
-                             Model *model12,
-                             Model *model21,
-                             Model *model22,
-                             Neigh *neigh,
-                             int nbsimu,
-                             int seed,
-                             int flag_gaus,
-                             int flag_modif,
-                             int flag_check,
-                             int flag_show,
-                             int nbtuba,
-                             int gibbs_nburn,
-                             int gibbs_niter,
-                             double percent,
-                             NamingConvention namconv)
+             Db *dbout,
+             RuleProp *ruleprop,
+             Model *model11,
+             Model *model12,
+             Model *model21,
+             Model *model22,
+             Neigh *neigh,
+             int nbsimu,
+             int seed,
+             int flag_gaus,
+             int flag_modif,
+             int flag_check,
+             int flag_show,
+             int nbtuba,
+             int gibbs_nburn,
+             int gibbs_niter,
+             double percent,
+             const NamingConvention& namconv)
 {
   int iptr, igrf, iatt_z[2];
   int ipgs, npgs, flag_cond, error, icase;
@@ -4611,11 +4610,11 @@ int simbipgs(Db *dbin,
  **
  *****************************************************************************/
 int db_simulations_to_ce(Db *db,
-                                         const ELoc &locatorType,
-                                         int nbsimu,
-                                         int nvar,
-                                         int *iptr_ce_arg,
-                                         int *iptr_cstd_arg)
+                         const ELoc &locatorType,
+                         int nbsimu,
+                         int nvar,
+                         int *iptr_ce_arg,
+                         int *iptr_cstd_arg)
 {
   int error, iptr_ce, iptr_cstd, iptr_nb, nech;
   double value, count, mean, var;
@@ -4736,22 +4735,22 @@ int db_simulations_to_ce(Db *db,
  **
  *****************************************************************************/
 int gibbs_sampler(Db *dbin,
-                                  Model *model,
-                                  Neigh *neigh,
-                                  int nbsimu,
-                                  int seed,
-                                  int gibbs_nburn,
-                                  int gibbs_niter,
-                                  bool flag_norm,
-                                  bool flag_multi_mono,
-                                  bool flag_propagation,
-                                  bool /*flag_sym_neigh*/,
-                                  int gibbs_optstats,
-                                  double percent,
-                                  bool flag_ce,
-                                  bool flag_cstd,
-                                  bool verbose,
-                                  NamingConvention namconv)
+                  Model *model,
+                  Neigh *neigh,
+                  int nbsimu,
+                  int seed,
+                  int gibbs_nburn,
+                  int gibbs_niter,
+                  bool flag_norm,
+                  bool flag_multi_mono,
+                  bool flag_propagation,
+                  bool /*flag_sym_neigh*/,
+                  int gibbs_optstats,
+                  double percent,
+                  bool flag_ce,
+                  bool flag_cstd,
+                  bool verbose,
+                  const NamingConvention& namconv)
 {
   int error, iptr, npgs, nvar, iptr_ce, iptr_cstd;
   PropDef *propdef;
@@ -4874,7 +4873,8 @@ int gibbs_sampler(Db *dbin,
 
   label_end: propdef = proportion_manage(-1, 0, 1, 1, 0,
                                          model->getVariableNumber(), 0, dbin,
-                                         NULL, VectorDouble(), propdef);
+                                         NULL,
+                                         VectorDouble(), propdef);
   return (error);
 }
 
@@ -4939,24 +4939,24 @@ int gibbs_sampler(Db *dbin,
  **
  *****************************************************************************/
 int simtub_constraints(Db *dbin,
-                                       Db *dbout,
-                                       Model *model,
-                                       Neigh *neigh,
-                                       int seed,
-                                       int nbtuba,
-                                       int nbsimu_min,
-                                       int nbsimu_quant,
-                                       int niter_max,
-                                       VectorInt &cols,
-                                       int (*func_valid)(int flag_grid,
-                                                         int nDim,
-                                                         int nech,
-                                                         int *nx,
-                                                         double *dx,
-                                                         double *x0,
-                                                         double nonval,
-                                                         double percent,
-                                                         VectorDouble &tab))
+                       Db *dbout,
+                       Model *model,
+                       Neigh *neigh,
+                       int seed,
+                       int nbtuba,
+                       int nbsimu_min,
+                       int nbsimu_quant,
+                       int niter_max,
+                       VectorInt &cols,
+                       int (*func_valid)(int flag_grid,
+                                         int nDim,
+                                         int nech,
+                                         int *nx,
+                                         double *dx,
+                                         double *x0,
+                                         double nonval,
+                                         double percent,
+                                         VectorDouble &tab))
 {
   int *nx, iatt, retval, nbtest;
   int error, nbsimu, nvalid, isimu, ndim, iter, nech, flag_grid, i;
@@ -5169,13 +5169,13 @@ static void st_maxstable_combine(Db *dbout,
  **
  *****************************************************************************/
 int simmaxstable(Db *dbout,
-                                 Model *model,
-                                 double ratio,
-                                 int seed,
-                                 int nbtuba,
-                                 int flag_simu,
-                                 int flag_rank,
-                                 int verbose)
+                 Model *model,
+                 double ratio,
+                 int seed,
+                 int nbtuba,
+                 int flag_simu,
+                 int flag_rank,
+                 int verbose)
 {
   Situba *situba;
   double tpois, seuil;
@@ -5334,13 +5334,13 @@ static double st_quantile(Db *dbout, double proba, double *sort)
  **
  *****************************************************************************/
 int simRI(Db *dbout,
-                          Model *model,
-                          int ncut,
-                          double *zcut,
-                          double *wcut,
-                          int seed,
-                          int nbtuba,
-                          int verbose)
+          Model *model,
+          int ncut,
+          double *zcut,
+          double *wcut,
+          int seed,
+          int nbtuba,
+          int verbose)
 {
   Situba *situba;
   double *pres, *pton, *sort, cumul, simval, proba, seuil;
@@ -5510,24 +5510,24 @@ int simRI(Db *dbout,
  **
  *****************************************************************************/
 int simpgs_spde(Db *dbin,
-                                Db *dbout,
-                                RuleProp *ruleprop,
-                                Model *model1,
-                                Model *model2,
-                                const String &triswitch,
-                                const VectorDouble &gext,
-                                int flag_gaus,
-                                int flag_modif,
-                                int flag_check,
-                                int flag_show,
-                                int nfacies,
-                                int seed,
-                                int nbsimu,
-                                int gibbs_nburn,
-                                int gibbs_niter,
-                                int ngibbs_int,
-                                int verbose,
-                                double percent)
+                Db *dbout,
+                RuleProp *ruleprop,
+                Model *model1,
+                Model *model2,
+                const String &triswitch,
+                const VectorDouble &gext,
+                int flag_gaus,
+                int flag_modif,
+                int flag_check,
+                int flag_show,
+                int nfacies,
+                int seed,
+                int nbsimu,
+                int gibbs_nburn,
+                int gibbs_niter,
+                int ngibbs_int,
+                int verbose,
+                double percent)
 {
   int iptr, ngrf, igrf, nechin, error, flag_used[2], flag_cond;
   int iptr_RF, iptr_RP;
@@ -5803,17 +5803,17 @@ int simtub_workable(Model *model)
  **
  *****************************************************************************/
 int simcond(Db *dbin,
-                            Db *dbout,
-                            Model *model,
-                            int seed,
-                            int nbsimu,
-                            int nbtuba,
-                            int gibbs_nburn,
-                            int gibbs_niter,
-                            int flag_check,
-                            int flag_ce,
-                            int flag_cstd,
-                            int verbose)
+            Db *dbout,
+            Model *model,
+            int seed,
+            int nbsimu,
+            int nbtuba,
+            int gibbs_nburn,
+            int gibbs_niter,
+            int flag_check,
+            int flag_ce,
+            int flag_cstd,
+            int verbose)
 {
   Neigh *neigh;
   Situba *situba;

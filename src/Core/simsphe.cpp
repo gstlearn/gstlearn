@@ -8,10 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+
+#include <math.h>
 
 /*! \cond */
 #define QUANTUM 1000

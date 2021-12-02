@@ -228,7 +228,7 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
   return mesh;
 }
 
-int SPDE::query(Db* db, NamingConvention namconv) const
+int SPDE::query(Db* db, const NamingConvention& namconv) const
 {
   VectorDouble temp(db->getActiveSampleNumber());
   VectorDouble result(db->getActiveSampleNumber(),0.);

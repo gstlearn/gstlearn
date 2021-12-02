@@ -1,5 +1,7 @@
 #include "INIParser.hpp"
-#include "geoslib_e.h"
+#include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
+//#include "geoslib_e.h"
 
 INIParser::INIParser(bool autoSave) :
   ini(),

@@ -13,7 +13,11 @@
 // WARNING: Make this include list as small as possible!
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
+
+// Enums
 #include "Db/ELoadBy.hpp"
+#include "Model/EConsElem.hpp"
+
 #include "Model/Constraints.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Model/Option_AutoFit.hpp"
@@ -179,14 +183,14 @@ GSTLEARN_EXPORT int variogram_direction_add(VarioParam *varioparam,
 GSTLEARN_EXPORT int variogram_cloud(const Db *db,
                                     const VarioParam *varioparam,
                                     Db *dbgrid,
-                                    NamingConvention namconv = NamingConvention("Cloud"));
+                                    const NamingConvention& namconv = NamingConvention("Cloud"));
 GSTLEARN_EXPORT Db* db_variogram_cloud(Db *db,
                                        const VarioParam *varioparam,
                                        double lagmax = TEST,
                                        double varmax = TEST,
                                        int lagnb = 100,
                                        int varnb = 100,
-                                       NamingConvention namconv = NamingConvention("Cloud"));
+                                       const NamingConvention& namconv = NamingConvention("Cloud"));
 GSTLEARN_EXPORT void variogram_print(const Vario *vario, int verbose = false);
 GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
                                      const VarioParam *varioparam,
@@ -198,7 +202,7 @@ GSTLEARN_EXPORT int vmap_compute(Db *db,
                                  const ECalcVario &calcul_type, // = ECalcVario::UNDEFINED,
                                  int radius = 0,
                                  bool flag_FFT = true,
-                                 NamingConvention namconv = NamingConvention("VMAP"));
+                                 const NamingConvention& namconv = NamingConvention("VMAP"));
 GSTLEARN_EXPORT Db* db_vmap_compute(Db *db, const ECalcVario &calcul_type, // = ECalcVario::UNDEFINED,
                                     int nxx = 20,
                                     int nyy = 20,
@@ -206,7 +210,7 @@ GSTLEARN_EXPORT Db* db_vmap_compute(Db *db, const ECalcVario &calcul_type, // = 
                                     double dy = TEST,
                                     int radius = 0.,
                                     bool flag_FFT = true,
-                                    NamingConvention namconv = NamingConvention("VMAP"));
+                                    const NamingConvention& namconv = NamingConvention("VMAP"));
 
 /***********************/
 /* Functions for Model */
@@ -235,7 +239,7 @@ GSTLEARN_EXPORT int vmap_auto_fit(const Db *dbvmap,
 GSTLEARN_EXPORT int db_model_nostat(Db *db,
                                     Model *model,
                                     int icov = 0,
-                                    NamingConvention namconv = NamingConvention("Nostat"));
+                                    const NamingConvention& namconv = NamingConvention("Nostat"));
 GSTLEARN_EXPORT int is_model_nostat_param(Model *model, const EConsElem &type0);
 GSTLEARN_EXPORT void set_test_discrete(bool flag_discret);
 GSTLEARN_EXPORT Vario* model_pgs(Db *db,
@@ -262,7 +266,7 @@ GSTLEARN_EXPORT int test_neigh(Db *dbin,
                                Db *dbout,
                                Model *model,
                                Neigh *neigh,
-                               NamingConvention namconv = NamingConvention("Neigh"));
+                               const NamingConvention& namconv = NamingConvention("Neigh"));
 
 /**********************/
 /* Functions for SPDE */
@@ -291,7 +295,7 @@ GSTLEARN_EXPORT int migrateByAttribute(Db *db1,
                                        const VectorDouble &dmax = VectorDouble(),
                                        int flag_fill = false,
                                        int flag_inter = false,
-                                       NamingConvention namconv = NamingConvention("Migrate"));
+                                       const NamingConvention& namconv = NamingConvention("Migrate"));
 GSTLEARN_EXPORT int migrate(Db *db1,
                             Db *db2,
                             const String &name,
@@ -299,7 +303,7 @@ GSTLEARN_EXPORT int migrate(Db *db1,
                             const VectorDouble &dmax = VectorDouble(),
                             int flag_fill = 0,
                             int flag_inter = 0,
-                            NamingConvention namconv = NamingConvention("Migrate"));
+                            const NamingConvention& namconv = NamingConvention("Migrate"));
 GSTLEARN_EXPORT int migrateByLocator(Db *db1,
                                      Db *db2,
                                      const ELoc &locatorType,
@@ -307,33 +311,33 @@ GSTLEARN_EXPORT int migrateByLocator(Db *db1,
                                      const VectorDouble &dmax = VectorDouble(),
                                      int flag_fill = false,
                                      int flag_inter = false,
-                                     NamingConvention namconv = NamingConvention("Migrate"));
+                                     const NamingConvention& namconv = NamingConvention("Migrate"));
 GSTLEARN_EXPORT int db_selhull(Db *db1,
                                Db *db2,
                                bool verbose = false,
-                               NamingConvention namconv = NamingConvention("Hull", ELoc::SEL));
+                               const NamingConvention& namconv = NamingConvention("Hull", ELoc::SEL));
 GSTLEARN_EXPORT void db_polygon(Db *db,
                                 Polygons *polygon,
                                 int flag_sel = 0,
                                 int flag_period = 0,
                                 int flag_nested = 0,
-                                NamingConvention namconv = NamingConvention("Polygon", ELoc::SEL));
+                                const NamingConvention& namconv = NamingConvention("Polygon", ELoc::SEL));
 GSTLEARN_EXPORT int db_grid_fill(Db *dbgrid,
                                  int mode = 0,
                                  int seed = 34243,
                                  int radius = 1,
                                  bool verbose = false,
-                                 NamingConvention namconv = NamingConvention("Fill"));
+                                 const NamingConvention& namconv = NamingConvention("Fill"));
 GSTLEARN_EXPORT int db_grid1D_fill(Db *dbgrid,
                                    int mode = 0,
                                    int seed = 34243,
-                                   NamingConvention namconv = NamingConvention("Fill"));
+                                   const NamingConvention& namconv = NamingConvention("Fill"));
 GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  bool verbose = false,
                                  double *dist = nullptr,
                                  int opt_code = 0,
                                  double tolcode = 0.,
-                                 NamingConvention namconv = NamingConvention("Duplicate", ELoc::SEL));
+                                 const NamingConvention& namconv = NamingConvention("Duplicate", ELoc::SEL));
 GSTLEARN_EXPORT int kriging(Db *dbin,
                             Db *dbout,
                             Model *model,
@@ -345,7 +349,7 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             VectorInt ndisc = VectorInt(),
                             VectorInt rank_colcok = VectorInt(),
                             VectorDouble matCL = VectorDouble(),
-                            NamingConvention namconv = NamingConvention("Kriging"));
+                            const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
                            Neigh *neigh,
@@ -354,7 +358,7 @@ GSTLEARN_EXPORT int xvalid(Db *db,
                            int flag_est = 1,
                            int flag_std = 1,
                            VectorInt rank_colcok = VectorInt(),
-                           NamingConvention namconv = NamingConvention("Xvalid"));
+                           const NamingConvention& namconv = NamingConvention("Xvalid"));
 GSTLEARN_EXPORT int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,
@@ -363,7 +367,7 @@ GSTLEARN_EXPORT int simtub(Db *dbin,
                            int seed = 43431,
                            int nbtuba = 100,
                            int flag_check = 0,
-                           NamingConvention namconv = NamingConvention("Simu"));
+                           const NamingConvention& namconv = NamingConvention("Simu"));
 GSTLEARN_EXPORT int simpgs(Db *dbin,
                            Db *dbout,
                            RuleProp *ruleprop,
@@ -380,7 +384,7 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
                            int nboot = 10,
                            int niter = 100,
                            double percent = 5.,
-                           NamingConvention namconv = NamingConvention("Facies", ELoc::FACIES));
+                           const NamingConvention& namconv = NamingConvention("Facies", ELoc::FACIES));
 GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              Db *dbout,
                              RuleProp *ruleprop,
@@ -399,7 +403,7 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              int nboot = 10,
                              int niter = 100,
                              double percent = 5.,
-                             NamingConvention namconv = NamingConvention("Facies", ELoc::FACIES));
+                             const NamingConvention& namconv = NamingConvention("Facies", ELoc::FACIES));
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 Db *dbout,
                                 RuleProp *ruleprop,
@@ -442,7 +446,7 @@ GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            Model *model,
                                            int niter = 100,
                                            bool verbose = false,
-                                           NamingConvention namconv = NamingConvention("Prop", ELoc::P));
+                                           const NamingConvention& namconv = NamingConvention("Prop", ELoc::P));
 GSTLEARN_EXPORT int defineGeneralNeigh(int mode,
                                        Db *db,
                                        Model *model,
@@ -464,7 +468,7 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *db,
                                   bool flag_ce,
                                   bool flag_cstd,
                                   bool verbose,
-                                  NamingConvention namconv = NamingConvention("Gibbs"));
+                                  const NamingConvention& namconv = NamingConvention("Gibbs"));
 
 /*****************/
 /* Various Tools */
@@ -478,3 +482,12 @@ GSTLEARN_EXPORT int db_tool_duplicate(Db *db1,
                                       double *dist,
                                       double *sel);
 
+/***************************************/
+/* Prototyping the functions in poly.c */
+/***************************************/
+
+GSTLEARN_EXPORT int polygon_inside(double xx,
+                                   double yy,
+                                   double zz,
+                                   int flag_nested,
+                                   Polygons *polygon);

@@ -11,16 +11,20 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Variogram/DirParam.hpp"
+#include "geoslib_define.h"
+
+// Enums
 #include "Variogram/ECalcVario.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Variogram/VarioParam.hpp"
+
 #include "Basic/IClonable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
 class Db;
 class Model;
+class DirParam;
 
 class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public IClonable
 {

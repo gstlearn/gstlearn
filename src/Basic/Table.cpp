@@ -11,6 +11,7 @@
 #include "Basic/Table.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 

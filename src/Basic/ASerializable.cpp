@@ -12,6 +12,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
+#include "Basic/String.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>

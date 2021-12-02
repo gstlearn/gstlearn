@@ -11,8 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include "Db/ELoc.hpp"
-#include "Basic/Vector.hpp"
+
 
 /**
  * Gives the Rank of the Attribute for:

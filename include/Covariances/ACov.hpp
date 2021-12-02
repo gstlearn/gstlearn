@@ -11,8 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+#include "geoslib_define.h"
+
 #include "Space/ASpaceObject.hpp"
+
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
@@ -53,8 +55,8 @@ public:
                             const std::vector<SpacePoint>& vec_p2,
                             const CovCalcMode& mode = CovCalcMode()) const;
   virtual MatrixSquareGeneral eval(const SpacePoint& p1,
-                               const SpacePoint& p2,
-                               const CovCalcMode& mode = CovCalcMode()) const;
+                                   const SpacePoint& p2,
+                                   const CovCalcMode& mode = CovCalcMode()) const;
 
   /// Covariance from a given point (center) in a given direction (dir * step)
   virtual double eval(int ivar,
@@ -70,9 +72,9 @@ public:
                             const VectorDouble& center = VectorDouble(),
                             const CovCalcMode& mode = CovCalcMode()) const;
   virtual MatrixSquareGeneral eval(double step,
-                               const VectorDouble& dir,
-                               const VectorDouble& center = VectorDouble(),
-                               const CovCalcMode& mode = CovCalcMode()) const;
+                                   const VectorDouble& dir,
+                                   const VectorDouble& center = VectorDouble(),
+                                   const CovCalcMode& mode = CovCalcMode()) const;
 
   /// Covariance for a given unit global distance (without anisotropy)
   virtual double eval(int ivar,
@@ -84,6 +86,6 @@ public:
                             const VectorDouble& vec_step,
                             const CovCalcMode& mode = CovCalcMode()) const;
   virtual MatrixSquareGeneral eval(double step,
-                               const CovCalcMode& mode = CovCalcMode()) const;
+                                   const CovCalcMode& mode = CovCalcMode()) const;
 
 };

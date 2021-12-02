@@ -7,6 +7,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+//#include "geoslib_e.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOp.hpp"
@@ -20,12 +24,16 @@
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Model/Model.hpp"
+#include "Model/CovInternal.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Polygon/Polygons.hpp"
+
+#include <math.h>
+#include <string.h>
 
 /*! \cond */
 #define TRACE(i,iseg)       (trace[(i) * nseg + (iseg)])
@@ -302,12 +310,12 @@ static int st_get_ndim(double *xp, double *yp, double *zp)
  **
  *****************************************************************************/
 int migrate_grid_to_coor(const Db *db_grid,
-                                         int iatt,
-                                         int np,
-                                         double *xp,
-                                         double *yp,
-                                         double *zp,
-                                         double *tab)
+                         int iatt,
+                         int np,
+                         double *xp,
+                         double *yp,
+                         double *zp,
+                         double *tab)
 {
   int ndim = st_get_ndim(xp, yp, zp);
   if (db_grid->getNDim() != ndim)
@@ -593,12 +601,12 @@ static int st_expand_point_to_point(Db *db1,
  **
  *****************************************************************************/
 int expand_point_to_coor(const Db *db1,
-                                         int iatt,
-                                         int np,
-                                         double *xp,
-                                         double *yp,
-                                         double *zp,
-                                         double *tab)
+                         int iatt,
+                         int np,
+                         double *xp,
+                         double *yp,
+                         double *zp,
+                         double *tab)
 {
   double *tab1 = nullptr;
   double *tab2 = nullptr;
@@ -734,13 +742,13 @@ static int st_expand_grid_to_grid(Db *db_gridin,
  **
  *****************************************************************************/
 int db_tool_duplicate(Db *db1,
-                                      Db *db2,
-                                      bool flag_same,
-                                      bool verbose,
-                                      int opt_code,
-                                      double tolcode,
-                                      double *dist,
-                                      double *sel)
+                      Db *db2,
+                      bool flag_same,
+                      bool verbose,
+                      int opt_code,
+                      double tolcode,
+                      double *dist,
+                      double *sel)
 {
   bool flag_code = db1->hasCode() && db2->hasCode();
   int nmerge = 0;
@@ -831,11 +839,11 @@ int db_tool_duplicate(Db *db1,
  **
  *****************************************************************************/
 int db_duplicate(Db *db,
-                                 bool verbose,
-                                 double *dist,
-                                 int opt_code,
-                                 double tolcode,
-                                 NamingConvention namconv)
+                 bool verbose,
+                 double *dist,
+                 int opt_code,
+                 double tolcode,
+                 const NamingConvention &namconv)
 {
   if (db == nullptr)
   {
@@ -879,11 +887,11 @@ int db_duplicate(Db *db,
  **
  *****************************************************************************/
 int surface(Db *db_point,
-                            Db *db_grid,
-                            int /*icol*/,
-                            double dlim,
-                            double *dtab,
-                            double *gtab)
+            Db *db_grid,
+            int /*icol*/,
+            double dlim,
+            double *dtab,
+            double *gtab)
 {
   double v1, v2, dist, d2min, d2max, delta, maille;
   int idim, iech, igrid, ndim;
@@ -1316,7 +1324,7 @@ int db_edit(Db *db, int *flag_valid)
 
       case 6: /* Modify the Value */
         value = _lire_double("New value", 1, db->getArray(iech, ivar), TEST,
-                             TEST);
+        TEST);
         db->setArray(iech, ivar, value);
         break;
 
@@ -1354,11 +1362,11 @@ int db_edit(Db *db, int *flag_valid)
  **
  *****************************************************************************/
 int db_normalize(Db *db,
-                                 const char *oper,
-                                 int ncol,
-                                 int *cols,
-                                 double center,
-                                 double stdv)
+                 const char *oper,
+                 int ncol,
+                 int *cols,
+                 double center,
+                 double stdv)
 {
   int iech, nech, icol, jcol, ndef, iptr;
   double *num, *mm, *vv, proptot, value;
@@ -1747,11 +1755,11 @@ static int st_grid_fill_calculate(int ipos,
  **
  *****************************************************************************/
 int db_grid_fill(Db *dbgrid,
-                                 int mode,
-                                 int seed,
-                                 int radius,
-                                 bool verbose,
-                                 NamingConvention namconv)
+                 int mode,
+                 int seed,
+                 int radius,
+                 bool verbose,
+                 const NamingConvention &namconv)
 {
   Skin *skin;
   double *tabval;
@@ -1952,7 +1960,7 @@ int _db_category(Db *db,
                  const VectorDouble &maxi,
                  const VectorBool &incmini,
                  const VectorBool &incmaxi,
-                 NamingConvention namconv)
+                 const NamingConvention &namconv)
 {
   // Determination of the number of classes
 
@@ -2038,7 +2046,7 @@ int _db_indicator(Db *db,
                   const VectorDouble &maxi,
                   const VectorBool &incmini,
                   const VectorBool &incmaxi,
-                  NamingConvention namconv)
+                  const NamingConvention &namconv)
 {
   int nactive = 0;
   int iptr = 0;
@@ -2224,10 +2232,7 @@ int _db_indicator(Db *db,
  ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **
  *****************************************************************************/
-int db_selhull(Db *db1,
-                               Db *db2,
-                               bool verbose,
-                               NamingConvention namconv)
+int db_selhull(Db *db1, Db *db2, bool verbose, const NamingConvention &namconv)
 {
   Polygons *polygons = nullptr;
 
@@ -2514,12 +2519,12 @@ static int st_interpolate_grid_to_point(Db *db_grid,
  **
  *****************************************************************************/
 int interpolate_variable_to_point(Db *db_grid,
-                                                  int iatt,
-                                                  int np,
-                                                  double *xp,
-                                                  double *yp,
-                                                  double *zp,
-                                                  double *tab)
+                                  int iatt,
+                                  int np,
+                                  double *xp,
+                                  double *yp,
+                                  double *zp,
+                                  double *tab)
 {
   int error, ndim;
   double coor[3];
@@ -2581,14 +2586,14 @@ int interpolate_variable_to_point(Db *db_grid,
  **
  *****************************************************************************/
 void ut_trace_discretize(int nseg,
-                                         double *trace,
-                                         double disc,
-                                         int *np_arg,
-                                         double **xp_arg,
-                                         double **yp_arg,
-                                         double **dd_arg,
-                                         double **del_arg,
-                                         double *dist_arg)
+                         double *trace,
+                         double disc,
+                         int *np_arg,
+                         double **xp_arg,
+                         double **yp_arg,
+                         double **dd_arg,
+                         double **del_arg,
+                         double *dist_arg)
 {
   double *xp, *yp, *dd, *del, deltax, deltay, x0, y0, x1, y1, dist;
   int iseg, np, ecr, nloc, ip;
@@ -2687,18 +2692,18 @@ void ut_trace_discretize(int nseg,
  **
  *****************************************************************************/
 void ut_trace_sample(Db *db,
-                                     const ELoc &ptype,
-                                     int np,
-                                     double *xp,
-                                     double *yp,
-                                     double *dd,
-                                     double radius,
-                                     int *ns_arg,
-                                     double **xs_arg,
-                                     double **ys_arg,
-                                     int **rks_arg,
-                                     int **lys_arg,
-                                     int **typ_arg)
+                     const ELoc &ptype,
+                     int np,
+                     double *xp,
+                     double *yp,
+                     double *dd,
+                     double radius,
+                     int *ns_arg,
+                     double **xs_arg,
+                     double **ys_arg,
+                     int **rks_arg,
+                     int **lys_arg,
+                     int **typ_arg)
 {
   int *lys, *typ, *rks, iech, ip, ns, ipmin, nvar;
   double *xs, *ys, cote, layer, bound[2];
@@ -2814,10 +2819,10 @@ void ut_trace_sample(Db *db,
  **
  *****************************************************************************/
 int manage_external_info(int mode,
-                                         const ELoc &locatorType,
-                                         Db *dbin,
-                                         Db *dbout,
-                                         int *istart)
+                         const ELoc &locatorType,
+                         Db *dbin,
+                         Db *dbout,
+                         int *istart)
 {
   int info, jstart, iatt, jatt, nechin, ninfo;
   VectorDouble tab;
@@ -2908,10 +2913,7 @@ int manage_external_info(int mode,
  ** \param[in]  dbout       Descriptor of the output Db
  **
  *****************************************************************************/
-int manage_nostat_info(int mode,
-                                       Model *model,
-                                       Db *dbin,
-                                       Db *dbout)
+int manage_nostat_info(int mode, Model *model, Db *dbin, Db *dbout)
 {
   VectorDouble tab;
 
@@ -2958,9 +2960,7 @@ int manage_nostat_info(int mode,
  ** \remark The perturbation is calculated as DX(i) * eps
  **
  *****************************************************************************/
-int db_center_point_to_grid(Db *db_point,
-                                            Db *db_grid,
-                                            double eps_random)
+int db_center_point_to_grid(Db *db_point, Db *db_grid, double eps_random)
 {
   int *indg, iech, error, idim, ndim;
   double *coor;
@@ -3265,17 +3265,17 @@ static int st_get_closest_sample(Db *dbgrid,
  **
  *****************************************************************************/
 int expand_point_to_grid(Db *db_point,
-                                         Db *db_grid,
-                                         int iatt,
-                                         int iatt_time,
-                                         int iatt_angle,
-                                         int iatt_scaleu,
-                                         int iatt_scalev,
-                                         int iatt_scalew,
-                                         int flag_index,
-                                         int ldmax,
-                                         const VectorDouble &dmax,
-                                         VectorDouble &tab)
+                         Db *db_grid,
+                         int iatt,
+                         int iatt_time,
+                         int iatt_angle,
+                         int iatt_scaleu,
+                         int iatt_scalev,
+                         int iatt_scalew,
+                         int flag_index,
+                         int ldmax,
+                         const VectorDouble &dmax,
+                         VectorDouble &tab)
 {
   /* Preliminary checks */
 
@@ -3523,13 +3523,13 @@ static int st_read_active_sample(Db *db,
  **
  *****************************************************************************/
 int db_compositional_transform(Db *db,
-                                               int verbose,
-                                               int mode,
-                                               int type,
-                                               int number,
-                                               int *iatt_in,
-                                               int *iatt_out,
-                                               int *numout)
+                               int verbose,
+                               int mode,
+                               int type,
+                               int number,
+                               int *iatt_in,
+                               int *iatt_out,
+                               int *numout)
 {
   int error, nech, number1, iech, ivar, jvar;
   double *tabin, *tabout, sum, eps;
@@ -3756,10 +3756,7 @@ int db_compositional_transform(Db *db,
  ** \param[in]  yl      Array of Y-coordinates of the polyline
  **
  *****************************************************************************/
-int db_unfold_polyline(Db *db,
-                                       int nvert,
-                                       double *xl,
-                                       double *yl)
+int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, newx, newy;
@@ -3836,12 +3833,12 @@ int db_unfold_polyline(Db *db,
 
  *****************************************************************************/
 int db_fold_polyline(Db *dbin,
-                                     Db *dbout,
-                                     int ncol,
-                                     int *cols,
-                                     int nvert,
-                                     double *xl,
-                                     double *yl)
+                     Db *dbout,
+                     int ncol,
+                     int *cols,
+                     int nvert,
+                     double *xl,
+                     double *yl)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, value;
@@ -4002,15 +3999,15 @@ static void st_expand(int flag_size,
  **
  *****************************************************************************/
 int points_to_block(Db *dbpoint,
-                                    Db *dbgrid,
-                                    int option,
-                                    int flag_size,
-                                    int iatt_time,
-                                    int iatt_size,
-                                    int iatt_angle,
-                                    int iatt_scaleu,
-                                    int iatt_scalev,
-                                    int iatt_scalew)
+                    Db *dbgrid,
+                    int option,
+                    int flag_size,
+                    int iatt_time,
+                    int iatt_size,
+                    int iatt_angle,
+                    int iatt_scaleu,
+                    int iatt_scalev,
+                    int iatt_scalew)
 {
   int *indg, *indg0, iatt_edge, iatt_rank, iatt_surf, iatt_vol, iatt_code;
   int val_iech, val_jech, jech, ndim, nvois, lec, error, flag_index;
@@ -4842,15 +4839,15 @@ static int st_get_next(Db *dbgrid,
  **
  *****************************************************************************/
 int db_streamline(Db *dbgrid,
-                                  Db *dbpoint,
-                                  int niter,
-                                  double step,
-                                  int flag_norm,
-                                  int use_grad,
-                                  int save_grad,
-                                  int *nbline_loc,
-                                  int *npline_loc,
-                                  double **line_loc)
+                  Db *dbpoint,
+                  int niter,
+                  double step,
+                  int flag_norm,
+                  int use_grad,
+                  int save_grad,
+                  int *nbline_loc,
+                  int *npline_loc,
+                  double **line_loc)
 {
   int *indg, error, npline, idim, ecr;
   int iptr_time, iptr_accu, iptr_grad, nbline, knd, nquant, nbyech, ndim;
@@ -5020,9 +5017,9 @@ int db_streamline(Db *dbgrid,
  **
  *****************************************************************************/
 int db_model_nostat(Db *db,
-                                    Model *model,
-                                    int icov,
-                                    NamingConvention namconv)
+                    Model *model,
+                    int icov,
+                    const NamingConvention &namconv)
 {
   if (icov < 0 || icov >= model->getCovaNumber()) return 1;
   if (!model->isNoStat()) return 0;
@@ -5493,12 +5490,12 @@ Db* db_regularize(Db *db, Db *dbgrid, int flag_center)
  **
  *****************************************************************************/
 double* db_grid_sampling(Db *dbgrid,
-                                         double *x1,
-                                         double *x2,
-                                         int ndisc,
-                                         int ncut,
-                                         double *cuts,
-                                         int *nval_ret)
+                         double *x1,
+                         double *x2,
+                         int ndisc,
+                         int ncut,
+                         double *cuts,
+                         int *nval_ret)
 {
   double *xi1, *xi2, *res, delta, vi1, vi2, cut, v1, v2;
   int ndim, iatt, nval;
@@ -5601,14 +5598,14 @@ double* db_grid_sampling(Db *dbgrid,
  **
  *****************************************************************************/
 int db_grid2point_sampling(Db *dbgrid,
-                                           int nvar,
-                                           int *vars,
-                                           int *npacks,
-                                           int npcell,
-                                           int nmini,
-                                           int *nech_ret,
-                                           double **coor_ret,
-                                           double **data_ret)
+                           int nvar,
+                           int *vars,
+                           int *npacks,
+                           int npcell,
+                           int nmini,
+                           int *nech_ret,
+                           double **coor_ret,
+                           double **data_ret)
 {
   int ndim, ntotal, nech, indg[3], nret, nfine, iech, ecrc, ecrd, error;
   int *ranks, *retain;
@@ -5798,10 +5795,10 @@ int db_grid2point_sampling(Db *dbgrid,
  **
  *****************************************************************************/
 int db_polygon_distance(Db *db,
-                                        Polygons *polygon,
-                                        double dmax,
-                                        int scale,
-                                        int polin)
+                        Polygons *polygon,
+                        double dmax,
+                        int scale,
+                        int polin)
 {
   PL_Dist *pldist;
   double distmin, distloc, distmax, value, valtest;
@@ -5950,15 +5947,15 @@ int db_polygon_distance(Db *db,
  **
  *****************************************************************************/
 Db* db_point_init(int mode,
-                                  int verbose,
-                                  int ndim,
-                                  int seed,
-                                  double density,
-                                  double range,
-                                  double beta,
-                                  Db *dbgrid,
-                                  const VectorDouble &origin,
-                                  const VectorDouble &extend)
+                  int verbose,
+                  int ndim,
+                  int seed,
+                  double density,
+                  double range,
+                  double beta,
+                  Db *dbgrid,
+                  const VectorDouble &origin,
+                  const VectorDouble &extend)
 {
   VectorDouble tab;
   int count;
@@ -6159,9 +6156,9 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
  **
  *****************************************************************************/
 int db_grid1D_fill(Db *dbgrid,
-                                   int mode,
-                                   int seed,
-                                   NamingConvention namconv)
+                   int mode,
+                   int seed,
+                   const NamingConvention &namconv)
 {
   /* Preliminary checks */
 
@@ -6351,13 +6348,13 @@ static int st_migrate(Db *db1,
  **
  *****************************************************************************/
 int migrateByAttribute(Db *db1,
-                                       Db *db2,
-                                       const VectorInt &atts_arg,
-                                       int ldmax,
-                                       const VectorDouble &dmax,
-                                       int flag_fill,
-                                       int flag_inter,
-                                       NamingConvention namconv)
+                       Db *db2,
+                       const VectorInt &atts_arg,
+                       int ldmax,
+                       const VectorDouble &dmax,
+                       int flag_fill,
+                       int flag_inter,
+                       const NamingConvention &namconv)
 {
   // CDesignate the input variables
 
@@ -6406,13 +6403,13 @@ int migrateByAttribute(Db *db1,
  **
  *****************************************************************************/
 int migrate(Db *db1,
-                            Db *db2,
-                            const String &name,
-                            int ldmax,
-                            const VectorDouble &dmax,
-                            int flag_fill,
-                            int flag_inter,
-                            NamingConvention namconv)
+            Db *db2,
+            const String &name,
+            int ldmax,
+            const VectorDouble &dmax,
+            int flag_fill,
+            int flag_inter,
+            const NamingConvention &namconv)
 {
   VectorInt iatts = db1->ids(name, true);
   if (iatts.empty()) return 1;
@@ -6450,13 +6447,13 @@ int migrate(Db *db1,
  **
  *****************************************************************************/
 int migrateByLocator(Db *db1,
-                                     Db *db2,
-                                     const ELoc &locatorType,
-                                     int ldmax,
-                                     const VectorDouble &dmax,
-                                     int flag_fill,
-                                     int flag_inter,
-                                     NamingConvention namconv)
+                     Db *db2,
+                     const ELoc &locatorType,
+                     int ldmax,
+                     const VectorDouble &dmax,
+                     int flag_fill,
+                     int flag_inter,
+                     const NamingConvention &namconv)
 {
   VectorString names = db1->getNames(locatorType);
   int natt = static_cast<int>(names.size());
@@ -6499,11 +6496,11 @@ int migrateByLocator(Db *db1,
  **
  *****************************************************************************/
 int db_proportion_estimate(Db *dbin,
-                                           Db *dbout,
-                                           Model *model,
-                                           int niter,
-                                           bool verbose,
-                                           NamingConvention namconv)
+                           Db *dbout,
+                           Model *model,
+                           int niter,
+                           bool verbose,
+                           const NamingConvention &namconv)
 {
   VectorVectorInt splits;
 
