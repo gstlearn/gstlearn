@@ -169,8 +169,8 @@ int HDF5format::writeRegular(hsize_t *start,
   {
     Exception::dontPrint();
     int ndim = _getNDim();
-    hsize_t start0[ndim];
-    hsize_t dimin[ndim];
+    std::vector<hsize_t> start0(ndim);
+    std::vector<hsize_t> dimin(ndim);
     for (int idim = 0; idim < ndim; idim++)
     {
       start0[idim] = 0;
@@ -181,8 +181,8 @@ int HDF5format::writeRegular(hsize_t *start,
     DataType datatype = _dataset.getDataType();
     DataSpace dataspace = _dataset.getSpace();
     dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
-    DataSpace memspace(ndim, dimin, NULL);
-    memspace.selectHyperslab(H5S_SELECT_SET, dimin, start0);
+    DataSpace memspace(ndim, dimin.data(), NULL);
+    memspace.selectHyperslab(H5S_SELECT_SET, dimin.data(), start0.data());
 
     _dataset.write((double *) wdata, datatype, memspace, dataspace);
 
@@ -535,7 +535,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
 int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
 {
   Exception::dontPrint();
-  uint npts = data.size(); // size of our data
+  size_t npts = data.size(); // size of our data
   auto *a = new double[npts]; // convert to an array
   // convert std::vector to array. H5 does not seem to like the pointer implementation
   for (size_t i = 0; i < npts; ++i)
