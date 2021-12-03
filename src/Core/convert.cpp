@@ -21,6 +21,7 @@
 #include <string.h>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 /*! \cond */
 #define COLOR_MASK   -1
