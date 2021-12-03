@@ -89,8 +89,8 @@ void* HDF5format::readRegular(int flag_compress,
   try
   {
     int ndim = _getNDim();
-    hsize_t start0[ndim];
-    hsize_t dims[ndim];
+    std::vector<hsize_t> start0(ndim);
+    std::vector<hsize_t> dims(ndim);
 
     DataType datatype = _dataset.getDataType();
     DataSpace dataspace = _dataset.getSpace();
@@ -100,7 +100,7 @@ void* HDF5format::readRegular(int flag_compress,
 
     if (!flag_compress)
     {
-      (void) _dataspace.getSimpleExtentDims(dims, NULL);
+      (void) _dataspace.getSimpleExtentDims(dims.data(), NULL);
       for (int idim = 0; idim < ndim; idim++)
         dimout[idim] = dims[idim];
     }
@@ -119,7 +119,7 @@ void* HDF5format::readRegular(int flag_compress,
 
     DataSpace memspace(ndim, dimout, NULL);
     if (flag_compress)
-      memspace.selectHyperslab(H5S_SELECT_SET, dimout, start0);
+      memspace.selectHyperslab(H5S_SELECT_SET, dimout, start0.data());
     else
       memspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
 
