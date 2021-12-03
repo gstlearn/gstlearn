@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-//#include "geoslib_e.h"
 #include "geoslib_f_private.h"
 #include "Polygon/Polygons.hpp"
 #include "Polygon/PolySet.hpp"

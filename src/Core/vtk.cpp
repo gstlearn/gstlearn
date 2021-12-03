@@ -94,7 +94,6 @@
  
 #include "vtk.h"
 #include "Basic/File.hpp"
-//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
 /*

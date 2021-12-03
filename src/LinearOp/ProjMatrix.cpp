@@ -10,7 +10,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/AMesh.hpp"

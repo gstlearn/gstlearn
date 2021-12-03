@@ -19,7 +19,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
 #include "Db/Db.hpp"
-//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
 #include <math.h>

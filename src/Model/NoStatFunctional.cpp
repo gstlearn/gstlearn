@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Model/NoStatFunctional.hpp"
 
-//#include "geoslib_e.h"
 
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"

@@ -7,7 +7,6 @@
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-//#include "geoslib_e.h"
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"

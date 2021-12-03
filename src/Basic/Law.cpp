@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
 #include <math.h>

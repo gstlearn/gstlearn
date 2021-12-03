@@ -1,4 +1,3 @@
-//#include "geoslib_e.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
 #include "API/SPDE.hpp"

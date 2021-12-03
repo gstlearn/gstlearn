@@ -11,7 +11,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-//#include "geoslib_e.h"
 #include "LinearOp/HessianOp.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"

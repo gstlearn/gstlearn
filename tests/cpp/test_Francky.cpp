@@ -1,4 +1,3 @@
-//#include "geoslib_e.h"
 #include "geoslib_f.h"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
