@@ -409,7 +409,7 @@ VectorVectorInt HDF5format::getDataVVInt() const
 
     delete[] dims;
     delete[] md;
-    delete data;
+    delete[] data;
     return v;
   }
   catch (Exception& error)
@@ -477,7 +477,7 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
 
     delete[] dims;
     delete[] md;
-    delete data;
+    delete[] data;
     return v;
   }
   catch (Exception& error)
@@ -525,7 +525,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
     VectorDouble v(data, data + dim2);
 
     delete[] dims;
-    delete data;
+    delete[] data;
     dataspace.close();
     memspace.close();
     return v;
@@ -596,6 +596,7 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
       messageAbort("Did not find data type\n");
 
     delete[] dims;
+    delete[] a;
     memspace.close();
     dataspace.close();
     return 0;
