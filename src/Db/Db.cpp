@@ -248,7 +248,7 @@ Db::Db(Db* db,
     if (ndim == (int) dcell.size())
     {
       dx = dcell[idim];
-      nx = static_cast<int> (ext / dx);
+      nx = static_cast<int> (ext / dx) + 1;
     }
 
     nx_tab.push_back(nx);
