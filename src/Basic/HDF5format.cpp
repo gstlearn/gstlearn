@@ -7,14 +7,20 @@
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_old_f.h"
 #include "Basic/HDF5format.hpp"
 
-#include "geoslib_old_f.h"
 #include <malloc.h>
 #include <stdio.h>
 #include <typeinfo>
 
 #define DEBUG 0
+
+#if H5_VERSION_GE(1,8,20)
+#define EXCEPTION_PRINT_ERROR(e) e.printErrorStack();
+#else
+#define EXCEPTION_PRINT_ERROR(e) e.printError();
+#endif
 
 using namespace H5;
 
@@ -133,7 +139,7 @@ void* HDF5format::readRegular(int flag_compress,
   catch (Exception& error)
   {
     messerr("---> Problem in readRegular. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return nullptr;
   }
 }
@@ -194,7 +200,7 @@ int HDF5format::writeRegular(hsize_t *start,
   catch (DataSetIException& error)
   {
     messerr("---> Problem in writeRegular. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
 }
@@ -236,7 +242,7 @@ int HDF5format::getSize() const
   }
   catch (Exception& error)
   {
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return 0;
   }
 }
@@ -258,7 +264,7 @@ int HDF5format::getDataInt() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataInt. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return -1;
   }
 }
@@ -280,7 +286,7 @@ float HDF5format::getDataFloat() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataFloat. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return -1.;
   }
 }
@@ -302,7 +308,7 @@ double HDF5format::getDataDouble() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataDouble. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return -1.;
   }
 }
@@ -325,7 +331,7 @@ VectorInt HDF5format::getDataVInt() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataVInt. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, -1 };
   }
 }
@@ -348,7 +354,7 @@ VectorFloat HDF5format::getDataVFloat() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataVFloat. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, -1. };
   }
 }
@@ -371,7 +377,7 @@ VectorDouble HDF5format::getDataVDouble() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataVDouble. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, -1. };
   }
 }
@@ -409,7 +415,7 @@ VectorVectorInt HDF5format::getDataVVInt() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataVVInt. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorInt(1, -1) };
   }
 }
@@ -443,7 +449,7 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataVVFloat. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorFloat(1, -1.) };
   }
 }
@@ -477,7 +483,7 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataVVDouble. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorDouble(1, -1.) };
   }
 }
@@ -527,7 +533,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
   catch (Exception& error)
   {
     messerr("---> Problem in getDataDoublePartial. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { VectorDouble(1, -1.) };
   }
 }
@@ -597,7 +603,7 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
   catch (Exception& error)
   {
     messerr("---> Problem in writeDataDoublePartial. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
 }
@@ -625,7 +631,7 @@ int HDF5format::displayNames() const
   catch (Exception& error)
   {
     messerr("---> Problem in displayNames. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
 }
@@ -685,7 +691,7 @@ void HDF5format::openFile(const String& filename) const
   catch (Exception& error)
   {
     messerr("---> Problem in openFile. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
@@ -704,7 +710,7 @@ void HDF5format::openNewFile(const String& filename) const
   catch (Exception& error)
   {
     messerr("---> Problem in openNewFile. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
@@ -724,7 +730,7 @@ void HDF5format::openDataSet(const String& varname) const
   catch (Exception& error)
   {
     messerr("---> Problem in openDataSet. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
@@ -747,7 +753,7 @@ void HDF5format::openNewDataSet(const String& varname,
   catch (Exception& error)
   {
     messerr("---> Problem in openNewDataSet. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
