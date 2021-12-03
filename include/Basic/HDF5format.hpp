@@ -17,6 +17,12 @@
 #include "H5Cpp.h"
 #include "typeinfo"
 
+#if H5_VERSION_GE(1,8,20)
+#define EXCEPTION_PRINT_ERROR(e) e.printErrorStack();
+#else
+#define EXCEPTION_PRINT_ERROR(e) e.printError();
+#endif
+
 class GSTLEARN_EXPORT HDF5format
 {
 public:
@@ -193,7 +199,7 @@ void HDF5format::writeData(const T &data)
   catch (H5::Exception& error)
   {
     messerr("---> Problem in writeData(const T). Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
@@ -202,7 +208,7 @@ template<typename T>
 void HDF5format::writeData(const std::vector<T> &data)
 {
   H5::Exception::dontPrint();
-  uint npts = data.size();
+  size_t npts = data.size();
   auto *a = new T[npts];
   char* type = (char*) (typeid(a[0]).name());
   for (size_t i = 0; i < npts; ++i)
@@ -234,7 +240,7 @@ void HDF5format::writeData(const std::vector<T> &data)
   catch (H5::Exception& error)
    {
      messerr("---> Problem in writeData(const std::vector<T>). Operation aborted");
-     error.printError();
+     EXCEPTION_PRINT_ERROR(error);
      return;
    }
  }
@@ -243,8 +249,8 @@ template<typename T>
 void HDF5format::writeData(const std::vector<std::vector<T> > &data)
 {
   H5::Exception::dontPrint();
-  uint dim1 = data.size();
-  uint dim2 = data[0].size();
+  size_t dim1 = data.size();
+  size_t dim2 = data[0].size();
   auto a = new T[dim1 * dim2];
   auto md = new T*[dim1];
   for (size_t i = 0; i < dim1; ++i)
@@ -274,13 +280,13 @@ void HDF5format::writeData(const std::vector<std::vector<T> > &data)
 
     // remember to close everything and delete our arrays
     delete[] md;
-    delete a;
+    delete[] a;
     return;
   }
   catch (H5::Exception& error)
    {
      messerr("---> Problem in writeData(const std::vector<std::vector<T> >). Operation aborted");
-     error.printError();
+     EXCEPTION_PRINT_ERROR(error);
      return;
    }
 }

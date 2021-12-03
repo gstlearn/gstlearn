@@ -16,12 +16,6 @@
 
 #define DEBUG 0
 
-#if H5_VERSION_GE(1,8,20)
-#define EXCEPTION_PRINT_ERROR(e) e.printErrorStack();
-#else
-#define EXCEPTION_PRINT_ERROR(e) e.printError();
-#endif
-
 using namespace H5;
 
 HDF5format::HDF5format(const String& filename,
