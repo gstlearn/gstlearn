@@ -17,7 +17,7 @@
 // Put it in the header because inherited objects will need it
 #include <sstream>
 
-struct cs;
+class cs;
 
 class GSTLEARN_EXPORT AStringable
 {

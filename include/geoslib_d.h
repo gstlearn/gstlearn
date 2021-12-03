@@ -309,7 +309,7 @@ typedef struct
   int *sph_lend; /* Set of pointers to adjacency lists */
 } SphTriangle;
 
-struct QChol;
+class QChol;
 typedef struct
 {
   QChol *QCtt;

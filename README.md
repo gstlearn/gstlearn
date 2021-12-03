@@ -63,7 +63,6 @@ cmake --build build --target install --config Release
 ```
 Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-  * The tests are compiled using the *shared* version of the *gstlearn* library
   * The *static* version of the library is mandatory for creating [pygstlearn package](https://github.com/gstlearn/pygstlearn)
   * You may need to precise the location of Boost or HDF5 header files, in that case, add the following in the first command above:
     * `-DBoost_INCLUDE_DIR="<path/to/boost/includes>"`
@@ -83,7 +82,7 @@ sudo apt install libhdf5-dev
 ```
 Notes:
   * Under Linux, the GCC compiler and GNU make is already installed
-  * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+  * If your Linux distribution repositories don't provide minimum required versions, please install the tools manually (see provider website)
 
 ### MacOS:
 ```sh
@@ -96,21 +95,19 @@ brew install libhdf5-dev
 Notes:
   * This is currently not tested - above packages may not exist
   * Under MacOS, the GCC (or Clang) compiler and GNU make is already installed
-  * If your MacOS repository doesn't provide minimum required versions, please install manually (see provider website)
+  * If your MacOS repositories don't provide minimum required versions, please install the tools manually (see provider website)
   
 ### Windows:
 Download and install the following tools:
   * Git client [from here](https://gitforwindows.org) (Use default options during installation)
   * CMake tool [from here](https://cmake.org/download) (Check the 'Add CMake to the Path' option during installation)
-  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below) - OR - MinGW 7+ [from here](https://www.mingw-w64.org/downloads/)
+  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below) - OR - MinGW 7+ [from here](https://osdn.net/projects/mingw)
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
   * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory. If you choose another directory, CMake won't find it!)
   * HDF5 library [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
     
 Notes:
   * You must restart your computer after installing these requirements
-  * The full Visual Studio C++ IDE is not necessary. You can 'only' download Visual Studio Build Tools (more details [here](https://stackoverflow.com/a/44398715)). Administrator rights are required.
-  * If you prefer using another smaller compiler (i.e. MinGW), you could [try this](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29)
   * The *Path* environment variable must be updated to make *doxygen.exe* available (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
 ## Development
