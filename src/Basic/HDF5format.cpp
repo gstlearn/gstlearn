@@ -93,7 +93,7 @@ void* HDF5format::readRegular(int flag_compress,
     hsize_t dims[ndim];
 
     DataType datatype = _dataset.getDataType();
-		DataSpace dataspace = _dataset.getSpace();
+    DataSpace dataspace = _dataset.getSpace();
     dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
 
     // Core allocation for returned array
@@ -125,7 +125,7 @@ void* HDF5format::readRegular(int flag_compress,
 
     _dataset.read((double*) rdata, datatype, memspace, dataspace);
 
-		dataspace.close();
+    dataspace.close();
     memspace.close();
 
     return rdata;
@@ -179,14 +179,14 @@ int HDF5format::writeRegular(hsize_t *start,
     }
 
     DataType datatype = _dataset.getDataType();
-		DataSpace dataspace = _dataset.getSpace();
+    DataSpace dataspace = _dataset.getSpace();
     dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
     DataSpace memspace(ndim, dimin, NULL);
     memspace.selectHyperslab(H5S_SELECT_SET, dimin, start0);
 
     _dataset.write((double *) wdata, datatype, memspace, dataspace);
 
-		dataspace.close();
+    dataspace.close();
     memspace.close();
 
     return 0;
