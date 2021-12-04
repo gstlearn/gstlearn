@@ -2279,7 +2279,7 @@ cs* cs_triplet(const cs *T)
   Ci = C->i;
   Cx = C->x;
   for (k = 0; k < nz; k++)
-    w[Tj[k]]++; /* column counts */
+    w[Tj[k]]++; /* count rows in column Tj[k] */
   cs_cumsum(Cp, w, n); /* column pointers */
   for (k = 0; k < nz; k++)
   {
