@@ -597,6 +597,8 @@ int MeshETurbo::_addWeights(const int verbose,
       indgg[idim] = indg0[idim] + MSS(ndim,ipol,icas,icorner,idim);
     indices[icorner] = _grid.indiceToRank(indgg);
 
+    if(indices[icorner]<0) return 1; // outside grid
+
     // Update the LHS matrix
     for (int idim=0; idim<ndim; idim++)
       lhs.setValue(icorner,idim,_grid.indiceToCoordinate(idim,indgg,VectorDouble()));
