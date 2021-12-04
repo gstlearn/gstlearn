@@ -76,11 +76,11 @@ private:
   int  _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
   int  _getPolarized(VectorInt indg) const;
-  int  _addWeights(int verbose,
-                  int icas,
-                  VectorInt indg0,
-                  VectorInt indgg,
-                  VectorDouble coor,
+  int  _addWeights(const int verbose,
+                  const int icas,
+                  const VectorInt& indg0,
+                  VectorInt& indgg,
+                  const VectorDouble& coor,
                   VectorInt& indices,
                   double *rhs,
                   double *lambda) const;

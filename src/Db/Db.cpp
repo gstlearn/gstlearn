@@ -248,7 +248,9 @@ Db::Db(Db* db,
     if (ndim == (int) dcell.size())
     {
       dx = dcell[idim];
-      nx = static_cast<int> (ext / dx);
+      nx = static_cast<int> (ext / dx) + 1;
+      dx = ext / nx; // recompute dx to keep the extent
+      ++nx; // one more node than intervals
     }
 
     nx_tab.push_back(nx);
