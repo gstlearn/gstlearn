@@ -573,11 +573,11 @@ void MeshETurbo::_setNumberElementPerCell()
     _nPerCell = 6;
 }
 
-int MeshETurbo::_addWeights(int  verbose,
-                            int  icas,
-                            VectorInt indg0,
-                            VectorInt indgg,
-                            VectorDouble coor,
+int MeshETurbo::_addWeights(const int verbose,
+                            const int icas,
+                            const VectorInt& indg0,
+                            VectorInt& indgg, // work array
+                            const VectorDouble& coor,
                             VectorInt& indices,
                             double *rhs,
                             double *lambda) const
