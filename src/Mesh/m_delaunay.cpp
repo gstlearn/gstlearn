@@ -55,12 +55,12 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
 {
   // Arrays S*D are provided for [icas][icorn][idim]
 
-  static int S1D[1][1][2][1] = { { { { 0 }, { 1 } } } };
-  static int S2D[2][2][3][2] = { { { { 0, 0 }, { 1, 0 }, { 0, 1 } },
+  constexpr int S1D[1][1][2][1] = { { { { 0 }, { 1 } } } };
+  constexpr int S2D[2][2][3][2] = { { { { 0, 0 }, { 1, 0 }, { 0, 1 } },
                                    { { 0, 1 }, { 1, 0 }, { 1, 1 } } },
                                  { { { 0, 0 }, { 1, 0 }, { 1, 1 } },
                                    { { 0, 0 }, { 0, 1 }, { 1, 1 } } } };
-  static int S3D[1][6][4][3] = { { { { 0, 0, 0 },
+  constexpr int S3D[1][6][4][3] = { { { { 0, 0, 0 },
                                      { 1, 0, 0 },
                                      { 1, 0, 1 },
                                      { 1, 1, 1 } },
