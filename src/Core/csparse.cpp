@@ -5785,12 +5785,13 @@ int cs_nnz(const cs* A)
  * Consequently, strip off the vector P[in/out] which contains the order of the samples
  * @param A       Input sparse matrix
  * @param eps     Tolerance on absolute value of the input sparse matrix elements
+ * @param hypothesis Stripping hypothesis
  * @param verbose Verbose flag
  * @return A pointer to the new sparse matrix (it must be freed by calling function)
  *
  * @note Note that in the current version, the input matrix A is also modified
  */
-cs* cs_strip(cs *A, double eps, bool verbose)
+cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
 {
   cs *Q, *Qtriplet;
   if (!A) return nullptr;
@@ -5802,8 +5803,7 @@ cs* cs_strip(cs *A, double eps, bool verbose)
   }
   int Apj, Apjp1;
   double epsloc;
-  bool rescale = true;
-  int hyp = 3;
+  bool rescale = false;
 
   int error = 1;
   int   n = A->n;
@@ -5832,15 +5832,15 @@ cs* cs_strip(cs *A, double eps, bool verbose)
 
     // Adapt the value for 'epsloc' according to the choice 'hyp'
 
-    if (hyp == 1)
+    if (hypothesis == 1)
     {
       epsloc = eps;
     }
-    else if (hyp == 2)
+    else if (hypothesis == 2)
     {
       epsloc = eps * j / n;
     }
-    else if (hyp == 3)
+    else if (hypothesis == 3)
     {
       epsloc = eps * Ax[p0];
       rescale = false;
@@ -5874,7 +5874,7 @@ cs* cs_strip(cs *A, double eps, bool verbose)
       ratio = sqrt((totpos + totnul) / totpos);
     }
 
-    // Review all elements of the rwo, keeping only the ones larger than 'epsloc'
+    // Review all elements of the row, keeping only the ones larger than 'epsloc'
 
     for (int p = Apj; p < Apjp1; p++)
     {

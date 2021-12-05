@@ -147,7 +147,7 @@ int     cs_get_ncell(const cs *A);
 double  cs_get_value(const cs *A,int row, int col);
 void    cs_set_value(const cs *A,int row, int col, double value);
 double* cs_toArray(const cs *A);
-cs*     cs_strip(cs *A, double eps, bool verbose);
+cs*     cs_strip(cs *A, double eps, int hypothesis = 3, bool verbose = false);
 int     cs_nnz(const cs* A);
 
 // Qchol operations

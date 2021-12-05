@@ -149,7 +149,8 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   // Cholesky decomposition
 
-  if (verbose) message("Cholesky Decomposition of Covariance Matrix\n");
+  if (verbose)
+    message("Cholesky Decomposition of Covariance Matrix\n");
   n = Cmat->n;
   S = cs_schol(Cmat, 0);
   N = cs_chol(Cmat, S);
@@ -166,29 +167,35 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   if (_storeTables)
   {
     _tableStore(1, Cmat);
+    cs_print_nice("Cmat", Cmat, -1, -1);
     timer.Interval("Storing Initial Covariance");
   }
 
   // Stripping the Cholesky decomposition matrix
 
-  _Ln = cs_strip(N->L, _eps, false);
-  timer.Interval("Stripping Cholesky Matrix");
-
-  // Evaluate storage capacity and store weights internally (or not)
-
-  if (_storeAllWeights(verbose)) goto label_end;
+  _Ln = cs_strip(N->L, _eps, 2, false);
 
   // Store the reconstructed Covariance in Neutral File (optional)
 
   if (_storeTables)
   {
     cs* Lt = cs_transpose(_Ln, 1);
+    cs_print_nice("L",_Ln,-1,-1);
+    cs_print_nice("U",Lt,-1,-1);
     cs* Cmat2 = cs_multiply (_Ln, Lt);
     Lt = cs_spfree(Lt);
     _tableStore(2, Cmat2);
+    cs_print_nice("Cmat2", Cmat2, -1, -1);
+    timer.Interval("Calculating Reconstructed Covariance");
     Cmat2 = cs_spfree(Cmat2);
-    timer.Interval("Storing Reconstructed Covariance");
   }
+
+  // Evaluate storage capacity and store weights
+
+  if (verbose)
+    message("Calculating and storing the weights\n");
+  if (_storeAllWeights(verbose)) goto label_end;
+  timer.Interval("Calculating and storing Weights");
 
   // Initialize the statistics (optional)
 
@@ -217,7 +224,7 @@ void GibbsMMulti::update(VectorVectorDouble& y,
                          int ipgs,
                          int iter)
 {
-  double valsim;
+  double valsim, yk, vark;
 
   int nvar = _getVariableNumber();
   int nact = getSampleRankNumber();
@@ -229,26 +236,22 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 
   /* Loop on the target */
 
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (int iact = 0; iact < nact; iact++)
   {
-    int icase = getRank(ipgs,ivar);
-    for (int iact = 0; iact < nact; iact++)
+    for (int ivar = 0; ivar < nvar; ivar++)
     {
+      int icase = getRank(ipgs,ivar);
       if (! isConstraintTight(ipgs, ivar, iact, &valsim))
       {
+        // Calculate the estimation for variable 'ivar' of sample 'iact'
+
+        // Load the vector of weights
         _getWeights(iact);
-        double yk   = 0.;
-        double vark = 1. / WEIGHTS(ivar, ivar, iact);
-        for (int jvar = 0; jvar < nvar; jvar++)
-        {
-          int jcase = getRank(ipgs, jvar);
-          for (int jact = 0; jact < nact; jact++)
-          {
-            if (ivar != jvar || iact != jact)
-              yk -= y[jcase][jact] * WEIGHTS(ivar, jvar, jact);
-          }
-        }
-        yk *= vark;
+
+        // Calculate the estimate and the variance of estimation
+        _getEstimate(ipgs, ivar, iact, icase, y, &yk, &vark);
+
+        // Simulate the new value
         valsim = getSimulate(y, yk, sqrt(vark), ipgs, ivar, iact, iter);
       }
       y[icase][iact] = valsim;
@@ -278,7 +281,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
   double distmax = 1.5 * model->getCova(0)->getRange();
   double dx = db->getDX(0);
   int npas = ceil(distmax / dx);
-  Table tabmod(npas,2);
+  Table tabmod(npas,3);
 
   // Retrieve the elements from the sparse matrix
 
@@ -307,11 +310,12 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
       ecr++;
 
       // Store the contribution to the covariance model
-      int ipas = floor(dist + dx/2.) / dx;
+      int ipas = floor(dist / dx + 0.5);
       if (ipas >= 0 && ipas < npas)
       {
         tabmod.increment(ipas, 0, 1.);
-        tabmod.increment(ipas, 1, value);
+        tabmod.increment(ipas, 1, dist);
+        tabmod.increment(ipas, 2, value);
       }
     }
 
@@ -325,8 +329,11 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
   for (int ipas = 0; ipas < npas; ipas++)
   {
     double value = tabmod.getValue(ipas, 0);
-    if (value > 0.) value = tabmod.getValue(ipas, 1) / value;
-    tabmod.update(ipas, 1, value);
+    if (value > 0.)
+    {
+      tabmod.update(ipas, 1, tabmod.getValue(ipas, 1) / value);
+      tabmod.update(ipas, 2, tabmod.getValue(ipas, 2) / value);
+    }
   }
 
   if (mode == 1)
@@ -356,7 +363,7 @@ int GibbsMMulti::_calculateWeights(int iact0, double tol) const
 
     // Solve the linear system and returns the result in 'x'
     cs_ipvec(nact, _Pn.data(), _b.data(), _x.data()); /* x = P*b */
-    cs_lsolve(_Ln, _x.data()); /* x = L\x */
+    cs_lsolve(_Ln,  _x.data()); /* x = L\x */
     cs_ltsolve(_Ln, _x.data()); /* x = L'\x */
     cs_pvec(nact, _Pn.data(), _x.data(), _b.data()); /* b = P'*x */
 
@@ -453,4 +460,35 @@ void GibbsMMulti::cleanup()
   _hdf5.closeDataSet();
   _hdf5.closeFile();
   _hdf5.deleteFile();
+}
+
+void GibbsMMulti::_getEstimate(int ipgs,
+                               int ivar,
+                               int iact,
+                               int icase,
+                               VectorVectorDouble& y,
+                               double *yk_arg,
+                               double *vark_arg) const
+{
+  int nvar = _getVariableNumber();
+  int nact = getSampleRankNumber();
+
+  double yk   = 0.;
+  double vark = 1. / WEIGHTS(ivar, ivar, iact);
+
+  // The term of y corresponding to the current (variable, sample)
+  // is set to 0 in order to avoid testing it in the next loop
+  y[icase][iact] = 0.;
+
+  for (int jvar = 0; jvar < nvar; jvar++)
+  {
+    int jcase = getRank(ipgs, jvar);
+    VectorDouble yloc = y[jcase];
+    for (int jact = 0; jact < nact; jact++)
+        yk -= yloc[jact] * WEIGHTS(ivar, jvar, jact);
+  }
+
+  // Setting returned arguments
+  *yk_arg = yk * vark;
+  *vark_arg = vark;
 }

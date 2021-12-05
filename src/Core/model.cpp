@@ -4542,6 +4542,15 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
           iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
           if (iech2 < 0) continue;
 
+          /* Determine the indices */
+
+          int ecr1 = ivar * nsize1 + i1;
+          int ecr2 = jvar * nsize2 + i2;
+
+          // Save calculations due to matrix symmetry
+
+          if (ecr2 > ecr1) continue;
+
           /* Loop on the dimension of the space */
 
           value = TEST;
@@ -4552,14 +4561,13 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
             if (FFFF(v1) || FFFF(v2)) skip = 1;
             d1[i] = v1 - v2;
           }
-          if (!skip)
-          {
-            model_calcul_cov(model, mode, 1, 1., d1, covtab);
-            value = COVTAB(ivar, jvar);
-          }
-          int ecr1 = ivar * nsize1 + i1;
-          int ecr2 = jvar * nsize2 + i2;
+          if (skip) continue;
+
+          model_calcul_cov(model, mode, 1, 1., d1, covtab);
+          value = COVTAB(ivar, jvar);
+          if (ABS(value) < EPSILON10) continue;
           if (! cs_entry(T, ecr1, ecr2, value)) goto label_end;
+          if (! cs_entry(T, ecr2, ecr1, value)) goto label_end;
         }
       }
     }

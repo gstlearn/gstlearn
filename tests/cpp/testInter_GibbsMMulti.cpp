@@ -41,9 +41,10 @@ int main(int /*argc*/, char */*argv*/[])
   int nburn     = 20;
   double range  = 10.;
   double bound  = TEST;
-  double eps    = EPSILON6;
-  bool storeTables = false;
-  bool storeInternal = false;
+  double eps    = EPSILON10;
+  bool storeTables = true;
+  bool storeInternal = true;
+  bool storeVario = true;
 
   if (flag_inter)
   {
@@ -73,8 +74,7 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Data file
 
-  VectorDouble dx = {1., 1.};
-  Db* db = new Db({nx,nx},dx);
+  Db* db = new Db({nx,nx},{1.,1.});
   if (! FFFF(bound))
   {
     db->addFields(1, -bound, "Lower", ELoc::L);
@@ -114,18 +114,16 @@ int main(int /*argc*/, char */*argv*/[])
 
   if (gibbs.covmatAlloc(verbose)) return 1;
 
-  if (!storeTables)
+  // Invoke the Gibbs calculator
+
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+    if (gibbs.run(y, 0, isimu, verbose, false)) return 1;
+  db->serialize("Result");
+
+  // Calculate a variogram on the samples
+
+  if (storeVario)
   {
-    // Invoke the Gibbs calculator
-
-    for (int isimu = 0; isimu < nbsimu; isimu++)
-      if (gibbs.run(y, 0, isimu, verbose, false)) return 1;
-    // Check divergence on the first value of the returned vector
-    message("Check Y[0] = %lf\n", y[0][0]);
-    db->serialize("Result");
-
-    // Calculate a variogram on the samples
-
     VarioParam varioparam;
     std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
     varioparam.addDirs(dirparams);
