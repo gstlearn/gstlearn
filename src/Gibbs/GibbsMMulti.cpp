@@ -151,8 +151,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
 
   if (verbose)
     message("Cholesky Decomposition of Covariance Matrix\n");
-  n = Cmat->n;
-  S = cs_schol(Cmat, 0);
+  S = cs_schol(Cmat, 1);
   N = cs_chol(Cmat, S);
   if (S == nullptr || N == nullptr)
   {
@@ -167,26 +166,22 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   if (_storeTables)
   {
     _tableStore(1, Cmat);
-    cs_print_nice("Cmat", Cmat, -1, -1);
     timer.Interval("Storing Initial Covariance");
   }
 
   // Stripping the Cholesky decomposition matrix
 
-  _Ln = cs_strip(N->L, _eps, 2, false);
+  _Ln = cs_strip(N->L, _eps, 3, verbose);
 
   // Store the reconstructed Covariance in Neutral File (optional)
 
   if (_storeTables)
   {
     cs* Lt = cs_transpose(_Ln, 1);
-    cs_print_nice("L",_Ln,-1,-1);
-    cs_print_nice("U",Lt,-1,-1);
     cs* Cmat2 = cs_multiply (_Ln, Lt);
-    Lt = cs_spfree(Lt);
     _tableStore(2, Cmat2);
-    cs_print_nice("Cmat2", Cmat2, -1, -1);
     timer.Interval("Calculating Reconstructed Covariance");
+    Lt = cs_spfree(Lt);
     Cmat2 = cs_spfree(Cmat2);
   }
 

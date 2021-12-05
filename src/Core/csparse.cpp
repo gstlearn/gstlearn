@@ -123,7 +123,7 @@ int *cs_amd ( const cs *A, int order )
       AT = cs_transpose (A, 0) ;		    /* compute A' */
       if (!AT) return (NULL) ;
       m = A->m ; n = A->n ;
-      dense = CS_MAX (16, 10 * (int) sqrt ((double) n)) ;   /* find dense threshold */
+      dense = CS_MAX (16, 10 * sqrt ((double) n)) ;   /* find dense threshold */
       dense = CS_MIN (n-2, dense) ;
       if (order == 0 && n == m)
       {
@@ -1099,7 +1099,7 @@ csn *cs_chol(const cs *A, const css *S)
   */
 int cs_lsolve ( const cs *L, double *x )
 {
-  int p, p0, j, n, *Lp, *Li, Lpj, Lpjp1;
+  int p, j, n, *Lp, *Li, Lpj, Lpjp1;
   double *Lx, xval;
   if (!L || !x) return (0); /* check inputs */
   n = L->n;
@@ -1110,19 +1110,13 @@ int cs_lsolve ( const cs *L, double *x )
   Lpj = Lpjp1 = Lp[0];
   for (j = 0; j < n; j++)
   {
-    p0 = -1;
     Lpj = Lpjp1;
     Lpjp1 = Lp[j+1];
-    for (p = Lpj; p < Lpjp1 && p0 < 0; p++)
-    {
-      if (ABS(Lx[p]) > 1.e-10) p0 = p;
-    }
-
-    x[j] /= Lx[p0];
+    x[j] /= Lx[Lpj];
     xval  = x[j];
-    for (p = Lpj; p < Lpjp1; p++)
+    for (p = Lpj+1; p < Lpjp1; p++)
     {
-      if (p != p0) x[Li[p]] -= Lx[p] * xval;
+      x[Li[p]] -= Lx[p] * xval;
     }
   }
   return (1);
@@ -1163,7 +1157,7 @@ int cs_ltsolve(const cs *L, double *x)
     {
       x[j] -= Lx[p] * x[Li[p]];
     }
-    x[j] /= Lx[Lp[j]];
+    x[j] /= Lx[Lpj];
   }
   return (1);
 }
@@ -1428,16 +1422,18 @@ int cs_ltsolve(const cs *L, double *x)
      {
        if (nz + m > C->nzmax && !cs_sprealloc (C, 2*(C->nzmax)+m))
        {
-	 messerr("Out of memory in CSparse Library %d",2*(C->nzmax)+m);
-	 return (cs_done (C, w, x, 0)) ;		/* out of memory */
+         messerr("Out of memory in CSparse Library %d",2*(C->nzmax)+m);
+         return (cs_done (C, w, x, 0)) ;		/* out of memory */
        } 
        Ci = C->i ; Cx = C->x ;		/* C may have been reallocated */
        Cp [j] = nz ;			/* column j of C starts here */
        for (p = Bp [j] ; p < Bp [j+1] ; p++)
        {
-	 nz = cs_scatter (A, Bi [p], Bx ? Bx [p] : 1, w, x, j+1, C, nz) ;
+         nz = cs_scatter (A, Bi [p], Bx ? Bx [p] : 1, w, x, j+1, C, nz) ;
        }
-       if (values) for (p = Cp [j] ; p < nz ; p++) Cx [p] = x [Ci [p]] ;
+       if (values)
+         for (p = Cp [j] ; p < nz ; p++)
+           Cx [p] = x [Ci [p]] ;
      }
      Cp [n] = nz ;			/* finalize the last column of C */
      cs_sprealloc (C, 0) ;		/* remove extra space from C */
@@ -5799,6 +5795,14 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
   if (eps <= 0)
   {
     Q = cs_duplicate(A);
+
+    if (verbose)
+    {
+      message("No Stripping Sparse Matrix:\n");
+      message("- Dimension of the sparse matrix = %d\n",Q->n);
+      message("- Number of non-zero values = %d\n",cs_nnz(Q));
+    }
+
     return Q;
   }
   int Apj, Apjp1;
@@ -5902,7 +5906,9 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
   {
     message("Stripping Sparse Matrix:\n");
     message("- Tolerance = %lf\n",eps);
-    message("- Number of values = %d -> %d\n",cs_nnz(A),cs_nnz(Q));
+    message("- Filtering Hypothesis = %d\n",hypothesis);
+    message("- Dimension of the sparse matrix = %d\n",n);
+    message("- Number of non-zero values = %d -> %d\n",cs_nnz(A),cs_nnz(Q));
   }
 
   error = 0;

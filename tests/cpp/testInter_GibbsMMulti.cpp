@@ -32,16 +32,17 @@
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 
+
 {
   int iptr;
   bool flag_inter = true;
 
-  int nx        = 20;
+  int nx        = 30;
   int niter     = 100;
   int nburn     = 20;
   double range  = 10.;
   double bound  = TEST;
-  double eps    = EPSILON10;
+  double eps    = 0.05;
   bool storeTables = true;
   bool storeInternal = true;
   bool storeVario = true;
@@ -51,6 +52,7 @@ int main(int /*argc*/, char */*argv*/[])
     nx    = askInt("Number of grid mesh [in each direction]", nx);
     niter = askInt("Number of Gibbs iterations",niter);
     nburn = askInt("Number of burning steps",nburn);
+    eps   = askDouble("Epsilon",eps);
     range = askDouble("Isotropic Range",range);
     storeInternal = askBool("Store Internal", storeInternal);
   }

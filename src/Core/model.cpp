@@ -4567,7 +4567,10 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
           value = COVTAB(ivar, jvar);
           if (ABS(value) < EPSILON10) continue;
           if (! cs_entry(T, ecr1, ecr2, value)) goto label_end;
-          if (! cs_entry(T, ecr2, ecr1, value)) goto label_end;
+          if (ecr1 != ecr2)
+          {
+            if (! cs_entry(T, ecr2, ecr1, value)) goto label_end;
+          }
         }
       }
     }
