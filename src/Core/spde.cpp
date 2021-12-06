@@ -2466,7 +2466,6 @@ static int st_simu_subtract_data(Vertype *vertype,
  ** \param[in]  vercoloc   Vercoloc structure
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
- ** \param[in]  s_option   SPDE_Option structure
  **
  *****************************************************************************/
 static void st_vertype_load(Vertype *vertype,
@@ -2557,7 +2556,6 @@ static void st_vertype_load(Vertype *vertype,
  **                         1 : Create
  **                        -1 : Delete
  ** \param[in]  vertype    Vertype structure
- ** \param[in]  vercoloc   Vercoloc structure
  ** \param[in]  nvertex    Number of vertices
  **
  *****************************************************************************/
@@ -3216,8 +3214,6 @@ static int st_fill_Bnugget(Db *dbin)
  ** \return An array of vertex identification (Dimension: nvertex) or NULL
  **
  ** \param[in]  s_mesh      SPDE_Mesh structure
- ** \param[in]  dbin        Db input structure
- ** \param[in]  dbout       Db output structure
  **
  ** \remarks The array ranks is filled as follows:
  ** \remarks - Its contents follows the mesh numbering
@@ -4243,7 +4239,6 @@ GEOSLIB_API int spde_build_matrices(Model *model, int verbose)
  ** \param[in]  s_mesh      SPDE_Mesh structure
  ** \param[in]  dbin        Db input structure
  ** \param[in]  dbout       Db output structure
- ** \param[in]  s_option    SPDE_Option structure
  ** \param[in]  ivar0       Rank of the variable or -1
  **
  ** \param[out] data        Vector of active data
@@ -5983,13 +5978,11 @@ GEOSLIB_API int spde_process(Db *dbin,
  **
  ** \return  Error return code
  **
- ** \param[in]  verbose    Verbose flag
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  gext       Array of domain dilation
  ** \param[in]  nb_dupl    Number of samples to be masked (optional)
  ** \param[in]  is_dupl    Array of indices of the samples to be masked
- ** \param[in]  s_option   SPDE_Option structure
  **
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
@@ -6065,7 +6058,6 @@ static int st_load_meshes_1D(int /*verbose*/,
  **
  ** \return  Error return code
  **
- ** \param[in]  verbose    Verbose flag
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  gext       Array of domain dilation
@@ -6151,7 +6143,6 @@ static int st_load_meshes_2D(int /*verbose*/,
  **
  ** \return  Error return code
  **
- ** \param[in]  verbose    Verbose flag
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  nb_dupl    Number of samples to be masked (optional)
@@ -6222,7 +6213,6 @@ static int st_load_meshes_2D_sph(int /*verbose*/,
  **
  ** \return  Error return code
  **
- ** \param[in]  verbose    Verbose flag
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  gext       Array of domain dilation
@@ -6958,7 +6948,6 @@ GEOSLIB_API int spde_external_AQ_define(int mode,
  ** \param[in]  nmesh     Number of meshes
  ** \param[in]  meshes    Array containing the meshes
  ** \param[in]  points    Array containing the vertex coordinates
- ** \param[in]  verbose   Verbose flag
  **
  ** \param[in,out]  s_mesh   Pointer to SPDE_Mesh to be assigned
  **
@@ -7167,11 +7156,6 @@ GEOSLIB_API int spde_prepar(Db *dbin,
  **  Cleaning operation after SPDE
  **
  ** \return  Error return code
- **
- ** \param[in]  dbin        Db structure for the conditioning data
- ** \param[in]  dbout       Db structure of the grid
- ** \param[in]  gext        Array of domain dilation
- ** \param[in]  s_option    SPDE_Option structure
  **
  *****************************************************************************/
 GEOSLIB_API int spde_posterior(Db * /*dbin*/,
@@ -7476,7 +7460,6 @@ static bool is_in_mesh_container(double *coor,
  **
  ** \param[in]  db         Db structure
  ** \param[in]  amesh      MeshEStandard structure
- ** \param[in]  verbose    Verbose flag
  **
  ** \remarks In the returned array 'Aproj', the samples are ordered as they
  ** \remarks appear within the array vertype (rather than in their natural
@@ -8273,8 +8256,6 @@ static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
  ** \return The value assigned to this inequality
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  nlayer      Number of layers
- ** \param[in]  ilayer      Rank of the target layer
  ** \param[in]  lower       Lower bound
  ** \param[in]  upper       Upper bound
  **
@@ -8472,11 +8453,6 @@ static double st_m2d_get_M(M2D_Environ *m2denv,
  ** \return The mean value or TEST value
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  db          Db structure containing the constraints
- ** \param[in]  type        1 for the constraining Db
- **                         2 for the grid output Db
- ** \param[in]  ilayer      Rank of the layer of interest
- ** \param[in]  iech        Rank of the sample of interest
  **
  *****************************************************************************/
 static double st_m2d_get_S(M2D_Environ *m2denv,
@@ -9772,7 +9748,6 @@ static QChol *st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem& Matelem)
  ** \param[in]  s_mesh     SPDE_Mesh structure
  ** \param[in]  flag_exact Type of test for intersection (See remarks)
  ** \param[in]  radius     Neighborhood radius
- ** \param[in]  verbose    Verbose flag
  **
  ** \param[out] nactive_arg Number of active samples from the Db
  ** \param[out] ranks_arg   Ranks of the active samples
@@ -10175,7 +10150,6 @@ static void st_convert_Y2Z(M2D_Environ *m2denv,
 /*!
  **  Print the values at a sample location
  **
- ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  title       Title
  ** \param[in]  dbc         Db structure containing the constraints
  ** \param[in]  nlayer      Number of layers

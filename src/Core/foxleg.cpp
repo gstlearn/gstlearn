@@ -482,7 +482,6 @@ static int st_define_constraints(int           mode,
 /*!
 **  Calculate the minimum of the criterion and update hgnadm
 **
-** \param[in]  ind_util     List of retained constraint indices
 ** \param[in]  flag         Array of indices with negative valid constraint
 ** \param[in]  bords_red    Reduced array containing the bounds
 ** \param[in]  top          Calculated top of the fraction
@@ -685,7 +684,6 @@ static void st_update_constraints(VectorDouble& bords,
 ** \return  Error returned code
 **
 ** \param[in]  nactive      Number of active constraints
-** \param[in]  ind_util     List of retained constraint indices
 ** \param[in]  flag_active  Array of indices with zero valid constraint
 ** \param[in]  bords_red    Reduced array containing the bounds
 ** \param[in]  ai_red       Reduced AI matrix

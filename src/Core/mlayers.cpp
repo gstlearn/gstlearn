@@ -1436,12 +1436,10 @@ static void st_estimate_bayes(LMlayers *lmlayers,
 ** \param[out] baux       Working vector (Dimension = neq)
 ** \param[out] wgt        Working array (Dimension = neq)
 ** \param[out] c00        Working array (Dimension = nlayers)
-** \param[out] fftab      Working array for drift
 ** \param[out] a0         Constant term
 ** \param[out] cc         Output value
 ** \param[out] ss         Output value
 ** \param[out] gs         Output value
-** \param[out] prior_mean Array of prior mean
 ** \param[out] post_mean  Array of posterior mean
 **
 *****************************************************************************/

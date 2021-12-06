@@ -773,7 +773,6 @@ label_end:
 ** \param[in]  iatt_z   Address of the first variable of the Depth Db
 ** \param[in]  nz       Number of meshes of the Depth Db
 ** \param[in]  z0       First Depth
-** \param[in]  z1       Last Depth
 ** \param[in]  dz       Mesh of the Depth Db
 ** \param[in]  db_t     Time Db
 ** \param[in]  iatt_t   Address of the first variable of the Time Db
@@ -1717,7 +1716,6 @@ GEOSLIB_API int seismic_operate(Db  *db,
 **  Loads the values of a Db column in the output array
 **  Completes undefined values
 **
-** \param[in]  db          Db structure
 ** \param[in]  nz          Number of elements in the column
 ** \param[in]  shift       The shift of the trace before convolution
 ** \param[in]  val_before  Replacement value for undefined element
@@ -2755,7 +2753,6 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
 ** \return  Error return code
 **
 ** \param[in]  ngh       Current ST_Seismic_Neigh structure
-** \param[in]  model     Model structure
 ** \param[in]  nred      Reduced number of Kriging equations
 ** \param[in]  flag      Array giving the flag
 ** \param[in]  lhs       Array of Kriging L.H.S.
@@ -2797,7 +2794,6 @@ static int st_estimate_wgt(ST_Seismic_Neigh *ngh,
 ** \param[in]  db        Grid Db structure
 ** \param[in]  ngh       Current ST_Seismic_Neigh structure
 ** \param[in]  flag_std  1 for the calculation of the St. Dev.
-** \param[in]  nfeq      Number of drift condition per variable
 ** \param[in]  nred      Reduced number of equations
 ** \param[in]  flag      Array giving the flag
 ** \param[in]  wgt       Array containing the Kriging weights
@@ -2878,7 +2874,6 @@ static void st_estimate_result(Db     *db,
 ** \param[in]  iz0       Rank of the target sample within the target trace
 ** \param[in]  ngh       Current ST_Seismic_Neigh structure
 ** \param[in]  nbsimu    Number of simulations
-** \param[in]  nfeq      Number of drift condition per variable
 ** \param[in]  nred      Reduced number of equations
 ** \param[in]  flag      Array giving the flag
 ** \param[in]  wgt       Array containing the Kriging weights
