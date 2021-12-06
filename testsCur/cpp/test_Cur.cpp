@@ -21,6 +21,9 @@
 #include <string>
 #include <vector>
 
+#include <random>
+
+
 #define __USE_MATH_DEFINES
 #include <cmath>
 
@@ -93,13 +96,24 @@ int main(int argc, char *argv[])
                              &flag_aniso,&flag_rotation,&scale,&parmax);
 
 
-  return 0;
+
 
 
 
   int seed = 10355;
   law_set_random_seed(seed);
 
+  std::normal_distribution<double> d{0,1};
+  std::mt19937 gen{seed};
+
+  double val = d(gen);
+  std::cout << "Gaussian std " << val <<std::endl;
+  std::cout << "Gaussian Didier" << law_gaussian() <<std::endl;
+
+
+
+
+  return 0;
   ///////////////////////
   // Creating the Grid Db
   auto nx = { 101, 101 };
