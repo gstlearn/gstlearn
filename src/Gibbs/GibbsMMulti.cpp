@@ -149,7 +149,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     messerr("Impossible to create the Total Precision Matrix");
     goto label_end;
   }
-  timer.Interval("Building Covariance");
+  timer.displayIntervalMilliseconds("Building Covariance");
 
   // Cholesky decomposition
 
@@ -163,20 +163,20 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     goto label_end;
   }
   for (int iact = 0; iact < nact; iact++) _Pn[iact] = S->Pinv[iact];
-  timer.Interval("Cholesky Decomposition");
+  timer.displayIntervalMilliseconds("Cholesky Decomposition");
 
   // Store the Initial Covariance in Neutral File (optional)
 
   if (_storeTables)
   {
     _tableStore(1, Cmat);
-    timer.Interval("Storing Initial Covariance");
+    timer.displayIntervalMilliseconds("Storing Initial Covariance");
   }
 
   // Stripping the Cholesky decomposition matrix
 
   _Ln = cs_strip(N->L, _eps, verbose);
-  timer.Interval("Stripping Cholesky Matrix");
+  timer.displayIntervalMilliseconds("Stripping Cholesky Matrix");
 
   // Evaluate storage capacity and store weights internally (or not)
 
@@ -191,7 +191,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     Lt = cs_spfree(Lt);
     _tableStore(2, Cmat2);
     Cmat2 = cs_spfree(Cmat2);
-    timer.Interval("Storing Reconstructed Covariance");
+    timer.displayIntervalMilliseconds("Storing Reconstructed Covariance");
   }
 
   // Initialize the statistics (optional)

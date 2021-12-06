@@ -17,7 +17,7 @@ Timer::Timer()
 }
 
 Timer::Timer(const Timer &m)
-    : _refTimer(m._refTimer)
+    : _refTime(m._refTime)
 {
 
 }
@@ -26,7 +26,7 @@ Timer& Timer::operator=(const Timer &m)
 {
   if (this != &m)
   {
-    _refTimer = m._refTimer;
+    _refTime = m._refTime;
   }
   return *this;
 }
@@ -41,7 +41,36 @@ Timer::~Timer()
  */
 void Timer::reset()
 {
-  _refTimer = clock();
+  _refTime = hrc::now();
+}
+
+/**
+ * Displays the time elapsed (in s) since the reference Timer
+ * @param title Title used for the internal display
+ * @param flag_reset True if the Reference must be set to current Time
+ * @return Print the Timer elapsed (s)
+ */
+void Timer::displayIntervalSeconds(const String& title, bool flag_reset)
+{
+  double sec = getIntervalSeconds(flag_reset);
+  displaySeconds(title, sec);
+}
+
+double Timer::getIntervalSeconds(bool flag_reset)
+{
+  auto newTime = hrc::now();
+  sec fs = newTime - _refTime;
+  if (flag_reset) _refTime = newTime;
+  return fs.count();
+}
+
+void Timer::displaySeconds(const String& title, double sec)
+{
+  if (! title.empty())
+    message("%s: %6.2lf s\n",title.c_str(),sec);
+  else
+    message("Timer: %6.2lf s\n",sec);
+
 }
 
 /**
@@ -50,22 +79,22 @@ void Timer::reset()
  * @param flag_reset True if the Reference must be set to current Time
  * @return Print the Timer elapsed (ms)
  */
-void Timer::Interval(const String& title, bool flag_reset)
+void Timer::displayIntervalMilliseconds(const String& title, bool flag_reset)
 {
-  double msec = getInterval(flag_reset);
-  display(title, msec);
+  double msec = getIntervalMilliseconds(flag_reset);
+  displayMilliseconds(title, msec);
 }
 
-double Timer::getInterval(bool flag_reset)
+double Timer::getIntervalMilliseconds(bool flag_reset)
 {
-  clock_t newTimer  = clock();
-  clock_t diffTimer = newTimer - _refTimer;
-  if (flag_reset) _refTimer = newTimer;
-  double msec = (double) (diffTimer) / CLOCKS_PER_SEC;
-  return msec;
+  auto newTime = hrc::now();
+  sec fs = newTime - _refTime;
+  ms inter = std::chrono::duration_cast<ms>(fs);
+  if (flag_reset) _refTime = newTime;
+  return inter.count();
 }
 
-void Timer::display(const String& title, double msec)
+void Timer::displayMilliseconds(const String& title, double msec)
 {
   if (! title.empty())
     message("%s: %6.2lf ms.\n",title.c_str(),msec);

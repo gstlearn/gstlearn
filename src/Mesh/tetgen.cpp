@@ -11876,7 +11876,7 @@ void tetgenmesh::initialdelaunay(point pa, point pb, point pc, point pd)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void tetgenmesh::incrementaldelaunay(clock_t& tv)
+void tetgenmesh::incrementaldelaunay(hrc::time_point& tv)
 {
   triface searchtet;
   point *permutarray, swapvertex;
@@ -11921,7 +11921,7 @@ void tetgenmesh::incrementaldelaunay(clock_t& tv)
     }
   }
 
-  tv = clock(); // Remember the time for sorting points.
+  tv = hrc::now(); // Remember the time for sorting points.
 
   // Calculate the diagonal size of its bounding box.
   bboxsize = sqrt(norm2(xmax - xmin, ymax - ymin, zmax - zmin));
@@ -18234,7 +18234,7 @@ void tetgenmesh::constrainedfacets()
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-void tetgenmesh::constraineddelaunay(clock_t& tv)
+void tetgenmesh::constraineddelaunay(hrc::time_point& tv)
 {
   face searchsh, *parysh;
   face searchseg, *paryseg;
@@ -18279,7 +18279,7 @@ void tetgenmesh::constraineddelaunay(clock_t& tv)
     message("  Inserted %ld Steiner points.\n", st_segref_count); 
   }
 
-  tv = clock();
+  tv = hrc::now();
 
   if (b->verbose) {
     message("  Constraining facets.\n");
@@ -21616,7 +21616,7 @@ int tetgenmesh::suppresssteinerpoints()
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-void tetgenmesh::recoverboundary(clock_t& tv)
+void tetgenmesh::recoverboundary(hrc::time_point& tv)
 {
   arraypool *misseglist, *misshlist;
   arraypool *bdrysteinerptlist;
@@ -21808,7 +21808,7 @@ void tetgenmesh::recoverboundary(clock_t& tv)
   }
 
 
-  tv = clock();
+  tv = hrc::now();
 
   if (b->verbose) {
     message("  Recovering facets.\n");
@@ -31261,10 +31261,9 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
                     tetgenio *addin, tetgenio *bgmin)
 {
   tetgenmesh m;
-  clock_t tv[12], ts[5]; // Timing informations (defined in time.h)
-  DREAL cps = (DREAL) CLOCKS_PER_SEC;
+  hrc::time_point tv[12], ts[5]; // Timing informations
 
-  tv[0] = clock();
+  tv[0] = hrc::now();
  
   m.b = b;
   m.in = in;
@@ -31282,7 +31281,7 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
   exactinit(b->verbose, b->noexact, b->nostaticfilter,
             m.xmax - m.xmin, m.ymax - m.ymin, m.zmax - m.zmin);
 
-  tv[1] = clock();
+  tv[1] = hrc::now();
 
   if (b->refine) { // -r
     m.reconstructmesh();
@@ -31290,15 +31289,18 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
     m.incrementaldelaunay(ts[0]);
   }
 
-  tv[2] = clock();
+  tv[2] = hrc::now();
 
   if (!b->quiet) {
     if (b->refine) {
-      message("Mesh reconstruction seconds:  %g\n", ((DREAL)(tv[2]-tv[1])) / cps);
+      sec inter = std::chrono::duration_cast<sec>(tv[2]-tv[1]);
+      message("Mesh reconstruction seconds:  %g\n", ((DREAL)(inter.count())));
     } else {
-      message("Delaunay seconds:  %g\n", ((DREAL)(tv[2]-tv[1])) / cps);
+      sec inter = std::chrono::duration_cast<sec>(tv[2]-tv[1]);
+      message("Delaunay seconds:  %g\n", ((DREAL)(inter.count())));
       if (b->verbose) {
-        message("  Point sorting seconds:  %g\n", ((DREAL)(ts[0]-tv[1])) / cps);
+        sec inter = std::chrono::duration_cast<sec>(ts[0]-tv[1]);
+        message("  Point sorting seconds:  %g\n", ((DREAL)(inter.count())));
       }
     }
   }
@@ -31306,19 +31308,21 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
   if (b->plc && !b->refine) { // -p
     m.meshsurface();
 
-    ts[0] = clock();
+    ts[0] = hrc::now();
 
     if (!b->quiet) {
-      message("Surface mesh seconds:  %g\n", ((DREAL)(ts[0]-tv[2])) / cps);
+      sec inter = std::chrono::duration_cast<sec>(tv[0]-tv[2]);
+      message("Surface mesh seconds:  %g\n", ((DREAL)(inter.count())));
     }
 
     if (b->diagnose) { // -d
       m.detectinterfaces();
 
-      ts[1] = clock();
+      ts[1] = hrc::now();
 
       if (!b->quiet) {
-        message("Self-intersection seconds:  %g\n", ((DREAL)(ts[1]-ts[0])) / cps);
+        sec inter = std::chrono::duration_cast<sec>(ts[1]-ts[0]);
+        message("Self-intersection seconds:  %g\n", ((DREAL)(inter.count())));
       }
 
       // Only output when self-intersecting faces exist.
@@ -31331,32 +31335,34 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
     }
   }
 
-  tv[3] = clock();
+  tv[3] = hrc::now();
 
   if ((b->metric) && (m.bgm != NULL)) { // -m
     m.bgm->initializepools();
     m.bgm->transfernodes();
     m.bgm->reconstructmesh();
 
-    ts[0] = clock();
+    ts[0] = hrc::now();
 
     if (!b->quiet) {
+      sec inter = std::chrono::duration_cast<sec>(ts[0]-tv[3]);
       message("Background mesh reconstruct seconds:  %g\n",
-              ((DREAL)(ts[0] - tv[3])) / cps);
+              ((DREAL)(inter.count())));
     }
 
     if (b->metric) { // -m
       m.interpolatemeshsize();
 
-      ts[1] = clock();
+      ts[1] = hrc::now();
 
       if (!b->quiet) {
-        message("Size interpolating seconds:  %g\n",((DREAL)(ts[1]-ts[0])) / cps);
+        sec inter = std::chrono::duration_cast<sec>(ts[1]-ts[0]);
+        message("Size interpolating seconds:  %g\n",((DREAL)(inter.count())));
       }
     }
   }
 
-  tv[4] = clock();
+  tv[4] = hrc::now();
 
   if (b->plc && !b->refine) { // -p
     if (b->nobisect) { // -Y
@@ -31365,7 +31371,7 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
       m.constraineddelaunay(ts[0]);
     }
 
-    ts[1] = clock();
+    ts[1] = hrc::now();
 
     if (!b->quiet) {
       if (b->nobisect) {
@@ -31373,46 +31379,52 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
       } else {
         message("Constrained Delaunay ");
       }
-      message("seconds:  %g\n", ((DREAL)(ts[1] - tv[4])) / cps);
+      sec inter = std::chrono::duration_cast<sec>(ts[1]-tv[4]);
+      message("seconds:  %g\n", ((DREAL)(inter.count())));
       if (b->verbose) {
-        message("  Segment recovery seconds:  %g\n",((DREAL)(ts[0]-tv[4]))/ cps);
-        message("  Facet recovery seconds:  %g\n", ((DREAL)(ts[1]-ts[0])) / cps);
+        sec inter = std::chrono::duration_cast<sec>(ts[0]-tv[4]);
+        message("  Segment recovery seconds:  %g\n",((DREAL)(inter.count())));
+        inter = std::chrono::duration_cast<sec>(ts[1]-ts[0]);
+        message("  Facet recovery seconds:  %g\n", ((DREAL)(inter.count())));
       }
     }
 
     m.carveholes();
 
-    ts[2] = clock();
+    ts[2] = hrc::now();
 
     if (!b->quiet) {
-      message("Exterior tets removal seconds:  %g\n",((DREAL)(ts[2]-ts[1]))/cps);
+      sec inter = std::chrono::duration_cast<sec>(ts[2]-ts[1]);
+      message("Exterior tets removal seconds:  %g\n",((DREAL)(inter.count())));
     }
 
     if (b->nobisect) { // -Y
       if (m.subvertstack->objects > 0l) {
         m.suppresssteinerpoints();
 
-        ts[3] = clock();
+        ts[3] = hrc::now();
 
         if (!b->quiet) {
+          sec inter = std::chrono::duration_cast<sec>(ts[3]-ts[2]);
           message("Steiner suppression seconds:  %g\n",
-                  ((DREAL)(ts[3]-ts[2]))/cps);
+                  ((DREAL)(inter.count())));
         }
       }
     }
   }
 
-  tv[5] = clock();
+  tv[5] = hrc::now();
 
   if (b->coarsen) { // -R
     m.meshcoarsening();
   }
 
-  tv[6] = clock();
+  tv[6] = hrc::now();
 
   if (!b->quiet) {
     if (b->coarsen) {
-      message("Mesh coarsening seconds:  %g\n", ((DREAL)(tv[6] - tv[5])) / cps);
+      sec inter = std::chrono::duration_cast<sec>(tv[6]-tv[5]);
+      message("Mesh coarsening seconds:  %g\n", ((DREAL)(inter.count())));
     }
   }
 
@@ -31420,11 +31432,12 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
     m.recoverdelaunay();
   }
 
-  tv[7] = clock();
+  tv[7] = hrc::now();
 
   if (!b->quiet) {
     if ((b->plc && b->nobisect) || b->coarsen) {
-      message("Delaunay recovery seconds:  %g\n", ((DREAL)(tv[7] - tv[6]))/cps);
+      sec inter = std::chrono::duration_cast<sec>(tv[7]-tv[6]);
+      message("Delaunay recovery seconds:  %g\n", ((DREAL)(inter.count())));
     }
   }
 
@@ -31434,12 +31447,13 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
     }
   }
 
-  tv[8] = clock();
+  tv[8] = hrc::now();
 
   if (!b->quiet) {
     if ((b->plc || b->refine) && b->insertaddpoints) { // -i
       if ((addin != NULL) && (addin->numberofpoints > 0)) {
-        message("Constrained points seconds:  %g\n", ((DREAL)(tv[8]-tv[7]))/cps);
+        sec inter = std::chrono::duration_cast<sec>(tv[8]-tv[7]);
+        message("Constrained points seconds:  %g\n", ((DREAL)(inter.count())));
       }
     }
   }
@@ -31448,11 +31462,12 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
     m.delaunayrefinement();    
   }
 
-  tv[9] = clock();
+  tv[9] = hrc::now();
 
   if (!b->quiet) {
     if (b->quality) {
-      message("Refinement seconds:  %g\n", ((DREAL)(tv[9] - tv[8])) / cps);
+      sec inter = std::chrono::duration_cast<sec>(tv[9]-tv[8]);
+      message("Refinement seconds:  %g\n", ((DREAL)(inter.count())));
     }
   }
 
@@ -31460,11 +31475,12 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
     m.optimizemesh();
   }
 
-  tv[10] = clock();
+  tv[10] = hrc::now();
 
   if (!b->quiet) {
     if ((b->plc || b->refine) && (b->optlevel > 0)) {
-      message("Optimization seconds:  %g\n", ((DREAL)(tv[10] - tv[9])) / cps);
+      sec inter = std::chrono::duration_cast<sec>(tv[10]-tv[9]);
+      message("Optimization seconds:  %g\n", ((DREAL)(inter.count())));
     }
   }
 
@@ -31571,11 +31587,13 @@ void tetrahedralize(tetgenbehavior *b, tetgenio *in, tetgenio *out,
   }
 
 
-  tv[11] = clock();
+  tv[11] = hrc::now();
 
   if (!b->quiet) {
-    message("\nOutput seconds:  %g\n", ((DREAL)(tv[11] - tv[10])) / cps);
-    message("Total running seconds:  %g\n", ((DREAL)(tv[11] - tv[0])) / cps);
+    sec inter = std::chrono::duration_cast<sec>(tv[11]-tv[10]);
+    message("\nOutput seconds:  %g\n", ((DREAL)(inter.count())));
+    inter = std::chrono::duration_cast<sec>(tv[11]-tv[0]);
+    message("Total running seconds:  %g\n", ((DREAL)(inter.count())));
   }
 
   if (b->docheck) {

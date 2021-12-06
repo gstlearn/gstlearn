@@ -320,7 +320,7 @@ int main (void)
 
     hdf5.writeRegular(start0, NULL, dims, NULL, wdata);
     st_print(flag_print, type, ndim, dims, wdata);
-    timer.Interval("Creating the HDF5 file");
+    timer.displayIntervalMilliseconds("Creating the HDF5 file");
 
     // Reading without compression
 
@@ -329,7 +329,7 @@ int main (void)
     void* rdata1 = hdf5.readRegular(0, start, stride, count0, block, dimout);
     st_print(flag_print, type, ndim, dimout, rdata1);
     rdata1 = (void *) mem_free((char * ) rdata1);
-    timer.Interval("Reading HDF5 array (no compression)");
+    timer.displayIntervalMilliseconds("Reading HDF5 array (no compression)");
 
     // Reading with compression
 
@@ -338,7 +338,7 @@ int main (void)
     void* rdata2 = hdf5.readRegular(1, start, stride, count0, block, dimout);
     st_print(flag_print, type, ndim, dimout, rdata2);
     rdata2 = (void *) mem_free((char * ) rdata2);
-    timer.Interval("Reading HDF5 array (with compression)");
+    timer.displayIntervalMilliseconds("Reading HDF5 array (with compression)");
 
     // Loop on multiple of chunk dimensions
 
@@ -359,7 +359,7 @@ int main (void)
 
         if (verbose) message("Modifying by adding a unit to all terms (%d times)\n",iter+1);
         void* rdata3 = hdf5.readRegular(1, start, stride, count, block, dimout);
-        total_read += timer_read.getInterval();
+        total_read += timer_read.getIntervalMilliseconds();
 
         // Modifying the array
 
@@ -370,10 +370,10 @@ int main (void)
         hdf5.writeRegular(start, stride, count, block, rdata3);
         st_print(flag_print, type, ndim, dimout, rdata3);
         rdata3 = (void *) mem_free((char * ) rdata3);
-        total_write += timer_write.getInterval();
+        total_write += timer_write.getIntervalMilliseconds();
       }
-      timer_read.display("Reading HDF5 modified array", total_read);
-      timer_write.display("Writing HDF5 modified array", total_write);
+      timer_read.displayMilliseconds("Reading HDF5 modified array", total_read);
+      timer_write.displayMilliseconds("Writing HDF5 modified array", total_write);
     }
 
     // Delete the file

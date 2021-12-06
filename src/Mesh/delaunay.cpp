@@ -361,9 +361,9 @@
 #include <string>
 #include <cstdlib>
 #include <cmath>
-#ifndef NO_TIMER
-#include <sys/time.h>
-#endif /* not NO_TIMER */
+//#ifndef NO_TIMER
+//#include <sys/time.h>
+//#endif /* not NO_TIMER */
 #ifdef CPU86
 #include <float.h>
 #endif /* CPU86 */
@@ -17102,12 +17102,12 @@ char **argv;
 #ifndef TRILIBRARY
   FILE *polyfile;
 #endif /* not TRILIBRARY */
-#ifndef NO_TIMER
+//#ifndef NO_TIMER
   /* Variables for timing the performance of Triangle.  The types are */
   /*   defined in sys/time.h.                                         */
-  struct timeval tv0, tv1, tv2, tv3, tv4, tv5, tv6;
-  struct timezone tz;
-#endif /* not NO_TIMER */
+//  struct timeval tv0, tv1, tv2, tv3, tv4, tv5, tv6;
+//  struct timezone tz;
+//#endif /* not NO_TIMER */
 
 #ifndef NO_TIMER
   gettimeofday(&tv0, &tz);

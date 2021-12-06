@@ -10,6 +10,7 @@
 //****************************************************************************//
 #include "geoslib_old_f.h"
 #include "Basic/String.hpp"
+#include "Basic/Timer.hpp"
 
 #include <string.h>
 
@@ -42,7 +43,7 @@ static int MEMORY_MIN_PT = 1000000;
 static int NB_MEM_CHUNK = 0;
 static int NB_TIME_CHUNK = 0;
 static int TIME_FOCUS = -1;
-static clock_t TIME_CURRENT = 0;
+static hrc::time_point TIME_CURRENT = hrc::time_point();
 static MemChunk **MemLeak = NULL;
 static TimeChunk **TimeStat = NULL;
 
@@ -53,7 +54,7 @@ static TimeChunk **TimeStat = NULL;
  *****************************************************************************/
 void time_start(void)
 {
-  TIME_CURRENT = clock();
+  TIME_CURRENT = hrc::now();
 }
 
 /****************************************************************************/
@@ -64,16 +65,15 @@ void time_start(void)
 static void st_time_chunk_close(void)
 {
   TimeChunk *tchunk;
-  clock_t newtime, difftime;
 
   if (TIME_FOCUS < 0) return;
 
   // Update the current Time Chunk
 
   tchunk = TimeStat[TIME_FOCUS];
-  newtime = clock();
-  difftime = newtime - TIME_CURRENT;
-  tchunk->msec += difftime / CLOCKS_PER_SEC;
+  hrc::time_point newtime = hrc::now();
+  ms difftime = std::chrono::duration_cast<ms>(newtime - TIME_CURRENT);
+  tchunk->msec += difftime.count();
 
   TIME_CURRENT = newtime;
   TIME_FOCUS = -1;
@@ -171,7 +171,7 @@ void time_report(void)
   for (int i = 0; i < NB_TIME_CHUNK; i++)
   {
     tchunk = TimeStat[i];
-    message("Time %s : %d s (%d calls)\n", tchunk->call_name, tchunk->msec,
+    message("Time %s : %d ms (%d calls)\n", tchunk->call_name, tchunk->msec,
             tchunk->ncalls);
   }
 }

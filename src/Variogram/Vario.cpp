@@ -999,8 +999,8 @@ VectorDouble Vario::getGgVec(int idir,
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
   if (!_isDirectionValid(idir)) return VectorDouble();
+  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble gg;
   double c0 = 0.;
@@ -1024,8 +1024,8 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
   if (!_isDirectionValid(idir)) return VectorDouble();
+  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble hh;
   int npas = dirparam.getLagNumber();
@@ -1042,8 +1042,8 @@ VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
   if (!_isDirectionValid(idir)) return VectorDouble();
+  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble sw;
   int npas = dirparam.getLagNumber();
@@ -1060,8 +1060,8 @@ VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
   if (!_isDirectionValid(idir)) return VectorDouble();
+  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble utilize;
   int npas = dirparam.getLagNumber();
