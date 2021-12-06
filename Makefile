@@ -10,7 +10,10 @@
 #  - clean_all  Clean the build directory
 #
 # You can use the following variables:
-
+#
+#  - DEBUG=1          Build the debug version of the library and tests
+#  - N_PROC=N         Use more CPUs for building procedure
+#  - BUILD_DIR=<path> Define a specific build directory
 
 .PHONY: all cmake static shared build_test test doxygen clean clean_all
 
