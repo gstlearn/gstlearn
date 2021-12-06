@@ -37,15 +37,15 @@ int main(int /*argc*/, char */*argv*/[])
   int iptr;
   bool flag_inter = true;
 
-  int nx        = 30;
-  int niter     = 100;
+  int nx        = 50;
+  int niter     = 1000;
   int nburn     = 20;
   double range  = 10.;
   double bound  = TEST;
-  double eps    = 0.05;
+  double eps    = EPSILON6;
   bool storeTables = true;
-  bool storeInternal = true;
-  bool storeVario = true;
+  bool storeInternal = false;
+  bool storeVario = false;
 
   if (flag_inter)
   {

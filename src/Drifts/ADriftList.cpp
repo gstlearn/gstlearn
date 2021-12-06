@@ -70,12 +70,12 @@ IClonable* ADriftList::clone() const
   return new ADriftList(*this);
 }
 
-bool ADriftList::isConsistent(const ASpace* space) const
+bool ADriftList::isConsistent(const ASpace* /*space*/) const
 {
   return true;
 }
 
-String ADriftList::toString(int level) const
+String ADriftList::toString(int /*level*/) const
 {
   std::stringstream sstr;
   for (int i = 0; i < (int) getDriftNumber(); i++)
@@ -88,7 +88,7 @@ String ADriftList::toString(int level) const
   return sstr.str();
 }
 
-double ADriftList::eval(const Db* db, int iech1) const
+double ADriftList::eval(const Db* /*db*/, int /*iech1*/) const
 {
   double drift = 0;
   return drift;
@@ -243,7 +243,7 @@ VectorDouble ADriftList::getDrift(const Db* db, int ib, bool useSel)
   int ecr = 0;
   for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
-    if (! db->isActive(iech)) continue;
+    if (useSel && ! db->isActive(iech)) continue;
     vec[ecr++] = _drifts[ib]->eval(db, iech);
   }
   return vec;

@@ -51,9 +51,9 @@ private:
   int  _calculateWeights(int iact0, double tol = EPSILON3) const;
   int  _storeAllWeights(bool verbose = false);
   int  _getSizeOfWeights(const VectorDouble& weights) const;
-  void _getEstimate(int ipgs,
-                    int ivar,
-                    int iact,
+  void _getEstimate(int ipgs0,
+                    int ivar0,
+                    int iact0,
                     int icase,
                     VectorVectorDouble& y,
                     double *yk,

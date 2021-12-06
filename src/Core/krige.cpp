@@ -2206,7 +2206,7 @@ static void st_rhs(Model   *model,
                    double  *matCL,
                    int     *status)
 {
-  int    i,iech,il,ib,nvar_m,nbfl,nfeq,idim,nscale;
+  int    i,iech,ib,nvar_m,nbfl,nfeq,idim,nscale;
   double value,ratio;
 
   /* Initializations */
@@ -2289,7 +2289,7 @@ static void st_rhs(Model   *model,
   if (nfeq <= 0) return;
   
   model_calcul_drift(model,ECalcMember::RHS,DBOUT,IECH_OUT,drftab);
-  for (il=0; il<nbfl; il++)
+  for (int il=0; il<nbfl; il++)
     if (FFFF(drftab[il]))
     {
       *status = 1;
@@ -3086,9 +3086,8 @@ static void st_res_nbgh_print(int     status,
 *****************************************************************************/
 static Db *st_image_build(Neigh *neigh,
                           int    nvar)
-
 {
-  int    *indg,error,ndim,i,nech,natt;
+  int    *indg,error,ndim,nech,natt;
   double *coor,seuil,value;
   Db     *dbaux;
   VectorInt nx;
@@ -3112,7 +3111,7 @@ static Db *st_image_build(Neigh *neigh,
 
   nx.resize(ndim);
   nech = 1;
-  for (i=0; i<ndim; i++)
+  for (int i=0; i<ndim; i++)
   {
     nx[i] = 2 * neigh->getImageRadius(i) + 1;
     nech *= nx[i];
@@ -3144,14 +3143,14 @@ static Db *st_image_build(Neigh *neigh,
 
   /* Shift the origin */
 
-  for (i=0; i<ndim; i++) dbaux->setX0(i,0.);
+  for (int i=0; i<ndim; i++) dbaux->setX0(i,0.);
   indg = db_indg_alloc(dbaux);
   if (indg == nullptr) goto label_end;
   coor = db_sample_alloc(dbaux,ELoc::X);
   if (coor == nullptr) goto label_end;
   db_index_sample_to_grid(dbaux,nech/2,indg);
   grid_to_point(dbaux,indg,nullptr,coor);
-  for (i=0; i<ndim; i++) dbaux->setX0(i, dbaux->getX0(i) -coor[i]);
+  for (int i=0; i<ndim; i++) dbaux->setX0(i, dbaux->getX0(i) -coor[i]);
   indg = db_indg_free(indg);
   coor = db_sample_free(coor);
   if (db_grid_define_coordinates(dbaux)) goto label_end;
@@ -4151,7 +4150,7 @@ static int bayes_precalc(Model  *model,
                          double *rcov)
 {
   int nfeq,error,status,nech,nred,neq,shift,ib,jb,il,jl,flag_fix;
-  double *ff,*smu,*sigma,*vars,value;
+  double *ff,*smu,*sigma,*vars;
 
   /* Initializations */
 
@@ -4246,7 +4245,7 @@ static int bayes_precalc(Model  *model,
   for (il=0; il<nfeq; il++)
     for (jl=0; jl<nfeq; jl++)
     {
-      value = 0.;
+      double value = 0.;
       for (ib=0; ib<shift; ib++)
         for (jb=0; jb<shift; jb++)
           value += FF(ib,il) * SIGMA(ib,jb) * FF(jb,jl);
@@ -4257,7 +4256,7 @@ static int bayes_precalc(Model  *model,
 
   for (il=0; il<nfeq; il++)
   {
-    value = 0.;
+    double value = 0.;
     for (ib=0; ib<shift; ib++)
       for (jb=0; jb<shift; jb++)
         value += FF(ib,il) * SIGMA(ib,jb) * vars[jb];
@@ -11056,7 +11055,7 @@ GEOSLIB_API VectorInt getGeneralNeigh(Db* db, Neigh* neigh, int iech)
   // Loop on the variables
 
   VectorInt retechs(nech);
-  for (int iech = 0; iech < nech; iech++)
-    retechs[iech] = rank[iech];
+  for (int jech = 0; jech < nech; jech++)
+    retechs[jech] = rank[jech];
   return retechs;
 }

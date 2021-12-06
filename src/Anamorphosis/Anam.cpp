@@ -38,7 +38,7 @@ Anam::~Anam()
 
 }
 
-String Anam::toString(int level) const
+String Anam::toString(int /*level*/) const
 {
   std::stringstream sstr;
   sstr << toTitle(1, "Anamorphosis characteristics");

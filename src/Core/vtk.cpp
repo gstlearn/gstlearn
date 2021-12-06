@@ -833,8 +833,7 @@ void write_unstructured_mesh(const char *filename, int ub, int npts,
   new_section();
   for (i = 0 ; i < ncells ; i++)
   {
-    int npts = num_points_for_cell(celltypes[i]);
- 
+    npts = num_points_for_cell(celltypes[i]);
     conn_size += npts+1;
   }
   gslSPrintf(str, "CELLS %d %d\n", ncells, conn_size);

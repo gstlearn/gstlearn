@@ -2761,7 +2761,6 @@ GEOSLIB_API int solve_P2(double a, double b, double c, double *x)
       return (2);
     }
   }
-  return (0);
 }
 
 /****************************************************************************/
@@ -2822,7 +2821,6 @@ GEOSLIB_API int solve_P3(double a, double b, double c, double d, double *x)
             + 2. * sqrt(-p / 3.) * cos((acos(s1) + 2. * k * GV_PI) / 3.);
       return (3);
     }
-    return (3);
   }
 }
 
@@ -4299,13 +4297,13 @@ GEOSLIB_API void num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
  *****************************************************************************/
 GEOSLIB_API int ut_is_legendre_defined(void)
 {
-  if (LEGENDRE_PL == NULL)
+  if (LEGENDRE_PL == nullptr)
   {
     messerr("You must define function 'legendre_Pl' beforehand");
     messerr("using the function 'define_legendre'");
     return (0);
   }
-  if (LEGENDRE_SPHPLM == NULL)
+  if (LEGENDRE_SPHPLM == nullptr)
   {
     messerr("You must define function 'legendre_sphPlm' beforehand");
     messerr("using the function 'define_legendre'");

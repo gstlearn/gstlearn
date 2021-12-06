@@ -577,10 +577,10 @@ label_end:
 ** \param[in]  file  File pointer
 **
 *****************************************************************************/
-static int st_in(FILE *file)
+static unsigned char st_in(FILE *file)
 
 {
-  int c;
+  unsigned char c;
 
   if ((c = fgetc(file)) != EOF) return( c );
   

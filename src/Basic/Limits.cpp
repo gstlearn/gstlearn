@@ -96,7 +96,7 @@ Limits::~Limits()
 
 }
 
-String Limits::toString(int level) const
+String Limits::toString(int /*level*/) const
 {
   std::stringstream sstr;
 

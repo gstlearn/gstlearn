@@ -105,7 +105,7 @@ Model::~Model()
   _destroy();
 }
 
-String Model::toString(int level) const
+String Model::toString(int /*level*/) const
 {
   std::stringstream sstr;
   int ncov   = _covaList->getCovNumber();
@@ -660,7 +660,7 @@ double Model::getTotalSill(int ivar, int jvar) const
 {
   double var = 0.;
   for (int icov=0; icov<getCovaNumber(); icov++)
-    var += getSill(icov,ivar,ivar);
+    var += getSill(icov,ivar,jvar);
   return var;
 }
 

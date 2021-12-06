@@ -107,7 +107,7 @@ int MeshETurbo::getNMeshes() const
   return nmesh;
 }
 
-double MeshETurbo::getMeshSize(int imesh) const
+double MeshETurbo::getMeshSize(int /*imesh*/) const
 {
   int ndim = getNDim();
 

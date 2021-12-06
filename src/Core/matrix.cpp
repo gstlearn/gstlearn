@@ -213,6 +213,7 @@ GEOSLIB_API int matrix_eigen(const double *a_in,
 
   /* Initializations */
 
+  error = 1;
   ind   = nullptr;
   a = tmp = nullptr;
   for (i=0; i<4; i++) work[i] = nullptr;

@@ -327,6 +327,7 @@ static int st_read_trace(FILE   *file,
   float fvalue,fmaxvalue,fminvalue,cote;
 
   cote       = 0;
+  ivalue     = 0;
   imaxvalue  = 0;
   iminvalue  = 0;
   fminvalue  = 0.0;
@@ -1407,9 +1408,7 @@ GEOSLIB_API GridC segy_summary(const char *filesegy,
   FILE    *file;
   double   xtrace,ytrace,z0,cztop,czbot,delta;
   int      iline,xline,nbvalues;
-  int      nPerTrace,code,nz;
-  int      flag_surf,flag_top,flag_bot,iatt_top,iatt_bot;
-  int      nbrefpt;
+  int      nPerTrace,code,nz,flag_surf,flag_top,flag_bot,iatt_top,iatt_bot,nbrefpt;
   RefPt    refpt[3];
   RefStats refstats;
   GridC    def_grid;

@@ -856,26 +856,27 @@ static int st_lhs(LMlayers *lmlayers,
                   double   *a,
                   double   *acov)
 {
-  int    i,iech,iiech,jjech,ilayer,ifois,neq,nlayers,nech;
+  int    iiech,jjech;
   double coor[2];
 
   /* Initialize the matrix with zeroes */
 
-  nech    = lmlayers->nech;
-  neq     = lmlayers->neq;
-  nlayers = lmlayers->nlayers;
-  for (i=0; i<neq * neq; i++) a[i] = 0.;
+  int nech    = lmlayers->nech;
+  int neq     = lmlayers->neq;
+  int nlayers = lmlayers->nlayers;
+  for (int i=0; i<neq * neq; i++) a[i] = 0.;
 
   /* Loop on the first sample */
 
-  for (iech=iiech=0; iech<dbin->getSampleNumber(); iech++)
+  iiech = 0;
+  for (int iech=0; iech<dbin->getSampleNumber(); iech++)
   {
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech,0);
     coor[1] = dbin->getCoordinate(iech,1);
-    for (ifois=0; ifois<seltab[iech]; ifois++, iiech++)
+    for (int ifois=0; ifois<seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? 
+      int ilayer = (ifois == 0) ?
         (int) get_LOCATOR_ITEM(dbin,ELoc::LAYER,0,iech) : nlayers;
       
       /* Evaluate the proportion vector */
@@ -903,6 +904,7 @@ static int st_lhs(LMlayers *lmlayers,
   
   if (get_keypone("Bayes_Debug_Flag",0))
     set_keypair("Mlayers_LHS_Matrix",1,neq,neq,a);
+
   return(0);
 }
 
@@ -1461,12 +1463,12 @@ static void st_estimate(LMlayers *lmlayers,
                         double *baux,
                         double *wgt,
                         double *c00,
-                        double *fftab,
+                        double * /*fftab*/,
                         double *a0,
                         double *cc,
                         double *ss,
                         double *gs,
-                        double *prior_mean,
+                        double * /*prior_mean*/,
                         double *post_mean)
 {
   double estim,cx,coor[2],coefb,botval,ratio,stdv;

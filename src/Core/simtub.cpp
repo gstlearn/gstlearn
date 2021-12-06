@@ -295,7 +295,7 @@ GEOSLIB_API void check_mandatory_attribute(const char *method,
                                            const ELoc& locatorType)
 {
   if (get_LOCATOR_NITEM(db,locatorType) <= 0)
-    messageAbort("%s : Attributes %d are mandatory",method,locatorType);
+    messageAbort("%s : Attributes %d are mandatory",method,locatorType.getValue());
   return;
 }
 
@@ -2021,7 +2021,7 @@ static int st_simulate_grid(Db     *db,
                             int     icase,
                             int     shift)
 {
-  double  * t,*v0,*v1,*v2,*tab,correc,correc0,vexp;
+  double   *t,*v0,*v1,*v2,*tab,correc,correc0,vexp;
   double    tmin,tmax,tdeb,omega,phi,scale,param,t0,dt0,norme;
   double    t00,t0y,t0z,dxp,dyp,dzp,dt,theta1;
   double    c1,s1,c0x,s0x,c0y,s0y,c0z,s0z,cxp,sxp,cyp,syp,czp,szp;
@@ -2045,7 +2045,7 @@ static int st_simulate_grid(Db     *db,
   nech   = nx * ny * nz;
   norme  = sqrt(1. / nbtuba);
   nt     = iech = 0;
-  vexp   = 0.;
+  vexp   = phi = omega = 0.;
   t = v0 = v1 = v2 = tab = nullptr;
  
   /* Core allocation */
@@ -4233,8 +4233,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
                          double    percent,
                          NamingConvention namconv)
 {
-  int     iptr,igrf,iatt_z[2];
-  int     ipgs,npgs,flag_cond,error,icase;
+  int     iptr,iatt_z[2];
+  int     npgs,flag_cond,error,icase;
   int     nfac[2],nfactot,flag_used[2][2],nechin,ngrf[2],ngrftot;
   int     iptr_RP,iptr_RF,iptr_DF,iptr_RN,iptr_DN;
   bool    verbose;
@@ -4281,7 +4281,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   flag_cond = (dbin != nullptr);
   iptr_RP   = iptr_RF = iptr_DF = iptr_RN = iptr_DN = 0;
   iptr      = -1;
-  for (ipgs=0; ipgs<2; ipgs++)
+  for (int ipgs=0; ipgs<2; ipgs++)
   {
     ngrf[ipgs] = 0;
     iatt_z[ipgs] = -1;
@@ -4315,14 +4315,14 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   /* Model */
 
   ngrftot = 0;
-  for (ipgs=0; ipgs<npgs; ipgs++)
+  for (int ipgs=0; ipgs<npgs; ipgs++)
   {
     ngrf[ipgs] = rules[ipgs]->getGRFNumber();
     ngrftot += ngrf[ipgs];
 
     /* Check the validity of the model */
 
-    for (igrf=0; igrf<2; igrf++)
+    for (int igrf=0; igrf<2; igrf++)
     {
       flag_used[ipgs][igrf] = rules[ipgs]->isYUsed(igrf);
       if (! flag_used[ipgs][igrf]) continue;
@@ -4354,7 +4354,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
   /* Rules */
 
-  for (ipgs=0; ipgs<npgs; ipgs++)
+  for (int ipgs=0; ipgs<npgs; ipgs++)
   {
     // Check the Rules (only ERule::STD case is authorized)
     if (rules[ipgs]->getModeRule() != ERule::STD)
@@ -4365,7 +4365,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
   /* Final checks */
 
-  for (ipgs=0; ipgs<2; ipgs++)
+  for (int ipgs=0; ipgs<2; ipgs++)
   {
     if (flag_cond)
     {
@@ -4442,7 +4442,7 @@ GEOSLIB_API int simbipgs(Db       *dbin,
   /* Main loop on the PGS */
   /************************/
 
-  for (ipgs=0; ipgs<npgs; ipgs++)
+  for (int ipgs=0; ipgs<npgs; ipgs++)
   {
     if (flag_cond)
     {
@@ -4597,8 +4597,8 @@ GEOSLIB_API int simbipgs(Db       *dbin,
 
 label_end:
   st_suppress_added_samples(dbin,nechin);
-  for (ipgs=0; ipgs<npgs; ipgs++)
-    for (igrf=0; igrf<2; igrf++)
+  for (int ipgs=0; ipgs<npgs; ipgs++)
+    for (int igrf=0; igrf<2; igrf++)
       situba = st_dealloc(situba);
   propdef = proportion_manage(-1,1,flag_stat,ngrf[0],ngrf[1],nfac[0],nfac[1],
                               dbin,dbprop,propcst,propdef);

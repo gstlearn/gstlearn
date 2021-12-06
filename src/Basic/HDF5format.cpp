@@ -215,7 +215,7 @@ void* HDF5format::allocArray(H5::DataType type, int ndim, hsize_t *dims)
   hsize_t size = type.getSize();
   int ntot = 1;
   for (int idim=0; idim<ndim; idim++) ntot *= dims[idim];
-  void* data = (void *) calloc(ntot,size);
+  void* data = (void *) calloc(ntot,(size_t) size);
   return data;
 }
 

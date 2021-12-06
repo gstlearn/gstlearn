@@ -1431,7 +1431,7 @@ static int st_get_dimension(void)
  *****************************************************************************/
 static double st_get_model_mean(int ivar)
 {
-  return (st_get_model()->getMean(0));
+  return (st_get_model()->getMean(ivar));
 }
 
 /****************************************************************************/
@@ -2473,7 +2473,7 @@ static void st_vertype_load(Vertype *vertype,
                             Vercoloc *vercoloc,
                             Db *dbin,
                             Db *dbout,
-                            SPDE_Option& s_option)
+                            SPDE_Option& /*s_option*/)
 {
   int ecr, ijoint, vertype_loc, ngibbs;
 
@@ -2563,7 +2563,7 @@ static void st_vertype_load(Vertype *vertype,
  *****************************************************************************/
 GEOSLIB_API Vertype *vertype_manage(int mode,
                                     Vertype *vertype,
-                                    Vercoloc *vercoloc,
+                                    Vercoloc * /*vercoloc*/,
                                     int nvertex)
 {
   int error, ngibbs;
@@ -3230,7 +3230,7 @@ static int st_fill_Bnugget(Db *dbin)
  ** \remarks Dimension: nvertex
  **
  *****************************************************************************/
-static int *st_get_vertex_ranks(SPDE_Mesh *s_mesh, Db *dbin, Db *dbout)
+static int *st_get_vertex_ranks(SPDE_Mesh *s_mesh, Db * /*dbin*/, Db * /*dbout*/)
 {
   Vertype *vertype;
   int *ranks, nvertex, ndata, ngrid;
@@ -4257,7 +4257,7 @@ GEOSLIB_API int spde_build_matrices(Model *model, int verbose)
 static void st_load_data(SPDE_Mesh *s_mesh,
                          Db *dbin,
                          Db *dbout,
-                         SPDE_Option& s_option,
+                         SPDE_Option& /*s_option*/,
                          int ivar0,
                          double *data,
                          double *zcur)
@@ -5994,13 +5994,13 @@ GEOSLIB_API int spde_process(Db *dbin,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-static int st_load_meshes_1D(int verbose,
+static int st_load_meshes_1D(int /*verbose*/,
                              Db *dbin,
                              Db *dbout,
                              const VectorDouble& gext,
                              int nb_dupl,
                              int *is_dupl,
-                             SPDE_Option& s_option,
+                             SPDE_Option& /*s_option*/,
                              SPDE_Mesh *s_mesh)
 {
   int error;
@@ -6025,9 +6025,8 @@ static int st_load_meshes_1D(int verbose,
   {
     if (meshes_1D_from_db(dbin, nb_dupl, is_dupl, &in)) goto label_end;
   }
-  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout
-      != nullptr
-                                                             && S_DECIDE.flag_mesh_dbout))
+  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) &&
+      !(dbout != nullptr && S_DECIDE.flag_mesh_dbout))
   {
     meshes_1D_default(dbin, dbout, &in);
   }
@@ -6077,7 +6076,7 @@ static int st_load_meshes_1D(int verbose,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-static int st_load_meshes_2D(int verbose,
+static int st_load_meshes_2D(int /*verbose*/,
                              Db *dbin,
                              Db *dbout,
                              const VectorDouble& gext,
@@ -6162,7 +6161,7 @@ static int st_load_meshes_2D(int verbose,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-static int st_load_meshes_2D_sph(int verbose,
+static int st_load_meshes_2D_sph(int /*verbose*/,
                                  Db *dbin,
                                  Db *dbout,
                                  int nb_dupl,
@@ -6234,7 +6233,7 @@ static int st_load_meshes_2D_sph(int verbose,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-static int st_load_meshes_3D(int verbose,
+static int st_load_meshes_3D(int /*verbose*/,
                              Db *dbin,
                              Db *dbout,
                              const VectorDouble& gext,
@@ -6971,7 +6970,7 @@ GEOSLIB_API void spde_mesh_assign(SPDE_Mesh *s_mesh,
                                   int nmesh,
                                   int *meshes,
                                   double *points,
-                                  int verbose)
+                                  int /*verbose*/)
 {
   int number;
   static int debug = 0;
@@ -7175,10 +7174,10 @@ GEOSLIB_API int spde_prepar(Db *dbin,
  ** \param[in]  s_option    SPDE_Option structure
  **
  *****************************************************************************/
-GEOSLIB_API int spde_posterior(Db *dbin,
-                               Db *dbout,
-                               const VectorDouble& gext,
-                               SPDE_Option& s_option)
+GEOSLIB_API int spde_posterior(Db * /*dbin*/,
+                               Db * /*dbout*/,
+                               const VectorDouble& /*gext*/,
+                               SPDE_Option& /*s_option*/)
 {
   if (st_get_model()->isNoStat())
   {
@@ -7484,7 +7483,7 @@ static bool is_in_mesh_container(double *coor,
  ** \remarks order in Db)
  **
  *****************************************************************************/
-GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose)
+GEOSLIB_API cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int /*verbose*/)
 {
   double *units, *coor, *contain, *weight;
   int error, imesh, imesh0, ip, flag_sphere, found, iech, ip_max;
@@ -8281,8 +8280,8 @@ static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
  **
  *****************************************************************************/
 static double st_m2d_draw_elevation(M2D_Environ *m2denv,
-                                    int nlayer,
-                                    int ilayer,
+                                    int /*nlayer*/,
+                                    int /*ilayer*/,
                                     double lower,
                                     double upper)
 {
@@ -8481,10 +8480,10 @@ static double st_m2d_get_M(M2D_Environ *m2denv,
  **
  *****************************************************************************/
 static double st_m2d_get_S(M2D_Environ *m2denv,
-                           Db *db,
-                           int type,
-                           int ilayer,
-                           int iech)
+                           Db * /*db*/,
+                           int /*type*/,
+                           int /*ilayer*/,
+                           int /*iech*/)
 {
   double value;
 
@@ -8933,7 +8932,7 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
                                      int nlayer,
                                      double *work)
 {
-  int nech, flag_jter;
+  int nech;
   double zmin, zmax, zval, eps;
   static int njter_max = 20;
 
@@ -8941,6 +8940,7 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
 
   nech = dbc->getSampleNumber();
   eps = m2denv->zeps;
+  int flag_jter = 0;
 
   /* Loop on the samples */
 
@@ -9795,7 +9795,7 @@ GEOSLIB_API cs *db_mesh_neigh(const Db *db,
                               SPDE_Mesh *s_mesh,
                               double radius,
                               int flag_exact,
-                              int verbose,
+                              int /*verbose*/,
                               int *nactive_arg,
                               int **ranks_arg)
 {
@@ -10184,7 +10184,7 @@ static void st_convert_Y2Z(M2D_Environ *m2denv,
  **
  *****************************************************************************/
 static void st_print_sample(const char *title,
-                            M2D_Environ *m2denv,
+                            M2D_Environ * /*m2denv*/,
                             Db *dbc,
                             int nlayer,
                             int iech,

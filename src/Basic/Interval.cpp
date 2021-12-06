@@ -48,7 +48,7 @@ Interval::~Interval()
 
 }
 
-String Interval::toString(int level) const
+String Interval::toString(int /*level*/) const
 {
   std::stringstream sstr;
   if (FFFF(_vmin))

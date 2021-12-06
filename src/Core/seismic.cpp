@@ -798,7 +798,7 @@ static void st_seismic_z2t_convert(Db    *db_z,
                                    int    iatt_z,
                                    int    nz,
                                    double z0,
-                                   double z1,
+                                   double /*z1*/,
                                    double dz,
                                    Db    *db_t,
                                    int    iatt_t,
@@ -1731,7 +1731,7 @@ GEOSLIB_API int seismic_operate(Db  *db,
 ** \param[out] tab1        Output array (Dimension: nz)
 **
 *****************************************************************************/
-static void st_seismic_affect(Db     *db,
+static void st_seismic_affect(Db     * /*db*/,
                               int     nz,
                               int     shift,
                               double  val_before,
@@ -2765,7 +2765,7 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
 **
 *****************************************************************************/
 static int st_estimate_wgt(ST_Seismic_Neigh *ngh,
-                           Model  *model,
+                           Model  * /*model*/,
                            int     nred,
                            int    *flag,
                            double *lhs,
@@ -2810,7 +2810,7 @@ static int st_estimate_wgt(ST_Seismic_Neigh *ngh,
 static void st_estimate_result(Db     *db,
                                ST_Seismic_Neigh *ngh,
                                int     flag_std,
-                               int     nfeq,
+                               int     /*nfeq*/,
                                int     nred,
                                int    *flag,
                                double *wgt,
@@ -2892,7 +2892,7 @@ static void st_simulate_result(Db     *db,
                                int     iz0,
                                ST_Seismic_Neigh *ngh,
                                int     nbsimu,
-                               int     nfeq,
+                               int     /*nfeq*/,
                                int     nred,
                                int    *flag,
                                double *wgt,
@@ -2909,7 +2909,7 @@ static void st_simulate_result(Db     *db,
   if (debug_query("results"))
     mestitle(0,"(Co-) Simulation results");
 
-  /* Precalculations */
+  /* Pre-calculations */
 
   for (ivar=0; ivar<NVAR; ivar++)
     for (jvar=0; jvar<NVAR; jvar++)

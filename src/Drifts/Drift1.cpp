@@ -36,7 +36,7 @@ Drift1::~Drift1()
 {
 }
 
-double Drift1::eval(const Db* db, int iech) const
+double Drift1::eval(const Db* /*db*/, int /*iech*/) const
 {
   return 1;
 }

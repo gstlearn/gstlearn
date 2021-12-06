@@ -5919,7 +5919,7 @@ GEOSLIB_API Db *db_point_init(int mode,
                               const VectorDouble& extend)
 {
   VectorDouble tab;
-  int count;
+  int count = 0;
   Db* db;
   String string;
   static int flag_add_rank = 1;

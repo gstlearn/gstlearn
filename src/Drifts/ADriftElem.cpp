@@ -52,12 +52,12 @@ ADriftElem::~ADriftElem()
 {
 }
 
-bool ADriftElem::isConsistent(const ASpace* space) const
+bool ADriftElem::isConsistent(const ASpace* /*space*/) const
 {
   return true;
 }
 
-String ADriftElem::toString(int level) const
+String ADriftElem::toString(int /*level*/) const
 {
   std::stringstream sstr;
   sstr << getDriftName();

@@ -492,7 +492,7 @@ static int st_define_constraints(int           mode,
 ** \param[out] hgnadm       Admissible Hgn array
 **
 *****************************************************************************/
-static void st_minimum(VectorInt& ind_util,
+static void st_minimum(VectorInt& /*ind_util*/,
                        VectorInt& flag,
                        VectorDouble& bords_red,
                        const VectorDouble& top,
@@ -700,7 +700,7 @@ static void st_update_constraints(VectorDouble& bords,
 **
 *****************************************************************************/
 static int st_establish_minimization(int     nactive,
-                                     VectorInt& ind_util,
+                                     VectorInt& /*ind_util*/,
                                      VectorInt& flag_active,
                                      VectorDouble& bords_red,
                                      VectorDouble& ai_red,

@@ -85,7 +85,7 @@ static int cs_wclear (int mark, int lemax, int *w, int n)
 }
 
 /* keep off-diagonal entries; drop diagonal entries */
-static int cs_diag (int i, int j, double aij, void *other) 
+static int cs_diag (int i, int j, double /*aij*/, void * /*other*/)
 { 
   return (i != j); 
 }
@@ -106,7 +106,7 @@ int *cs_amd ( const cs *A, int order )
     Parameters:
     
     Input, int ORDER:
-    -1:natural, 
+    -1:natural, <other
     0:Cholesky,  
     1:LU, 
     2:QR
@@ -5791,6 +5791,7 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
 {
   cs *Q, *Qtriplet;
   if (!A) return nullptr;
+  int ntotal = cs_nnz(A);
 
   if (eps <= 0)
   {
@@ -5799,8 +5800,8 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
     if (verbose)
     {
       message("No Stripping Sparse Matrix:\n");
-      message("- Dimension of the sparse matrix = %d\n",Q->n);
-      message("- Number of non-zero values = %d\n",cs_nnz(Q));
+      message("- Dimension of the sparse matrix   = %d\n",Q->n);
+      message("- Number of non-zero terms         = %d\n",ntotal);
     }
 
     return Q;
@@ -5904,11 +5905,15 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
 
   if (verbose)
   {
+    int nremain = cs_nnz(Q);
     message("Stripping Sparse Matrix:\n");
     message("- Tolerance = %lf\n",eps);
     message("- Filtering Hypothesis = %d\n",hypothesis);
-    message("- Dimension of the sparse matrix = %d\n",n);
-    message("- Number of non-zero values = %d -> %d\n",cs_nnz(A),cs_nnz(Q));
+    message("- Dimension of the sparse matrix    = %d\n",n);
+    message("- Initial Number of non-zero values = %d\n",ntotal);
+    message("- Final number of non-zero values   = %d\n",nremain);
+    double reduc = 100. * (double) (ntotal - nremain) / (double) ntotal;
+    message("- Reduction percentage              = %6.2lf\n",reduc);
   }
 
   error = 0;

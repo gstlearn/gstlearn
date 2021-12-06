@@ -264,7 +264,7 @@ void MeshSpherical::getDuplicates(Db   *dbin,
 **
 *****************************************************************************/
 cs* MeshSpherical::getMeshToDb(const Db  *db,
-                               int verbose) const
+                               int /*verbose*/) const
 {
   double *coor,*weight;
   int     error,imesh,imesh0,ncorner,ip,found;

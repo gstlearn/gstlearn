@@ -96,7 +96,6 @@ void Table::resize(int nrows, int ncols, bool zero)
 
   if (nrows >= nrows_cur)
   {
-    int ncols = getColNumber();
     for (int icol = 0; icol < ncols; icol++)
     {
       if (zero)
