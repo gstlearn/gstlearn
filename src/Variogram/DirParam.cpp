@@ -143,7 +143,7 @@ void DirParam::init(int ndim,
 
 double DirParam::getBreak(int i) const
 {
-  if (i < 0 || i >= _breaks.size())
+  if (i < 0 || i >= (int)_breaks.size())
   {
     mesArg("Break Index",i,_breaks.size());
     return TEST;
@@ -153,7 +153,7 @@ double DirParam::getBreak(int i) const
 
 double DirParam::getCodir(int i) const
 {
-  if (i < 0 || i >= _codir.size())
+  if (i < 0 || i >= (int)_codir.size())
   {
     mesArg("Codir Index",i,_codir.size());
     return TEST;
