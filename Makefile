@@ -33,8 +33,9 @@ ifndef BUILD_DIR
   BUILD_DIR = build
 endif
 
-ifndef INSTALL_DIR
-  INSTALL_DIR = ${HOME}/gstlearn_install
+ifndef GSTLEARN_INSTALL_DIR
+  # Default Linux installation folder also referenced in pygstlearn/CMakeLists.txt
+  GSTLEARN_INSTALL_DIR = ${HOME}/gstlearn_install
 endif
 
 ifdef N_PROC
@@ -44,7 +45,7 @@ endif
 all: static
 
 cmake:
-	@cmake -B$(BUILD_DIR) -H. -DCMAKE_BUILD_TYPE=$(FLAVOR)
+	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DCMAKE_INSTALL_PREFIX=$(GSTLEARN_INSTALL_DIR) -B$(BUILD_DIR) -H. 
 
 static: cmake
 	@cmake --build $(BUILD_DIR) --target static $(N_PROC_OPT)
@@ -61,19 +62,16 @@ test: build_test
 doxygen: cmake
 	@cmake --build $(BUILD_DIR) --target doxygen $(N_PROC_OPT) 
 
-install: static doxygen
-	@cmake --build $(BUILD_DIR) --target install -- DESTDIR=$(INSTALL_DIR)
+# TODO : I would like to install only static (but find_package(gstlearn) requires both!
+install: static shared doxygen
+	@cmake --build $(BUILD_DIR) --target install
 
 uninstall: 
-	@cmake --build $(BUILD_DIR) --target uninstall -- DESTDIR=$(INSTALL_DIR)
+	@cmake --build $(BUILD_DIR) --target uninstall
 
 clean: 
 	@cmake --build $(BUILD_DIR) --target clean $(N_PROC_OPT) 
-	
+
 clean_all:
 	@rm -rf $(BUILD_DIR)
 
-	
-
-
-	

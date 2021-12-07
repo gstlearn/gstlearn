@@ -52,6 +52,7 @@ add_subdirectory(tests)
 add_subdirectory(doxygen)
 
 # Export the package
+# TODO : importing the package gstlearn imposes that static AND shared are installed
 install(
   EXPORT corelibs # See src/CMakeLists.txt
   FILE gstlearnConfig.cmake
@@ -62,7 +63,7 @@ install(
 # Uncomment the following lines if you want to register the package globally
 # This will avoid the manual specification of gstlearn_DIR
 # Register the gstlearn library
-# TODO: But doesn't work : It seems to register the build directory not the installation directory
+# TODO: It registers the build directory - big deal... but latter find_package doesn't find gstlearn
 #horlick:~> more .cmake/packages/gstlearn/0803e28e1916acff1b305242a59a11c4
 #/home/fors/Projets/gstlearn/gstlearn/build
 #cmake_policy(SET CMP0090 NEW)
