@@ -103,7 +103,7 @@ Notes:
 Download and install the following tools:
   * Git client [from here](https://gitforwindows.org) (Use default options during installation)
   * CMake tool [from here](https://cmake.org/download) (Check the 'Add CMake to the Path' option during installation)
-  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) (see Notes below) - OR - MinGW 7+ [from here](https://osdn.net/projects/mingw) (not tested)
+  * Microsoft Visual C++ Compiler 14+ [from here](https://visualstudio.microsoft.com/visual-cpp-build-tools) - OR - MinGW 7+ [from here](https://osdn.net/projects/mingw) (not tested)
   * Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
   * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory. If you choose another directory, CMake won't find it!)
   * HDF5 library [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
