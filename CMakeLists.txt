@@ -13,11 +13,6 @@ string(TIMESTAMP gstlearn_DATE "%Y/%m/%d")
 # Fix version.h automatically
 configure_file(version.h.in version.h)
 
-# Install the version file
-install(FILES ${PROJECT_BINARY_DIR}/version.h
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn
-)
-
 # Default GNU installed directory names
 include(GNUInstallDirs)
 
@@ -63,12 +58,14 @@ install(
   NAMESPACE gstlearn::
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/cmake
 )
+
 # Uncomment the following lines if you want to register the package globally
 # This will avoid the manual specification of gstlearn_DIR
 # Register the gstlearn library
 # TODO: But doesn't work : It seems to register the build directory not the installation directory
 #horlick:~> more .cmake/packages/gstlearn/0803e28e1916acff1b305242a59a11c4
 #/home/fors/Projets/gstlearn/gstlearn/build
+#cmake_policy(SET CMP0090 NEW)
 #set(CMAKE_EXPORT_PACKAGE_REGISTRY ON) # with CMake >= 3.15
 #export(PACKAGE gstlearn)
 

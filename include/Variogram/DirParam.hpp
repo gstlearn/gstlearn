@@ -57,9 +57,9 @@ public:
 
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
-  double getBreaks(int i) const { return _breaks[i]; }
+  double getBreak(int i) const;
   const  VectorDouble& getCodir() const { return _codir; }
-  double getCodir(int i) const { return _codir[i]; }
+  double getCodir(int i) const;
   double getCylRad() const { return _cylRad; }
   double getDPas() const { return _dPas; }
   double getLag() const { return _dPas; }

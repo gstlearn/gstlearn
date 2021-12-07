@@ -2,8 +2,6 @@
 include(all_sources.cmake)
 
 # Look for Boost
-#option(Boost_DEBUG "Set to ON to enable debug output from FindBoost." ON)
-#option(Boost_DETAILED_FAILURE_MSG "Set to ON to get detailed information" ON)
 find_package(Boost REQUIRED)
 
 # Look for HDF5
@@ -78,8 +76,13 @@ generate_export_header(shared BASE_NAME gstlearn
 )
 set_target_properties(static PROPERTIES COMPILE_FLAGS -DGSTLEARN_STATIC_DEFINE)
 
-# Install the version file
+# Install the gstlearn_export file
 install(FILES ${PROJECT_BINARY_DIR}/gstlearn_export.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn
+)
+
+# Install the version file
+install(FILES ${PROJECT_BINARY_DIR}/version.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gstlearn
 )
 

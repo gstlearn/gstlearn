@@ -141,6 +141,26 @@ void DirParam::init(int ndim,
   _completeDefinition();
 }
 
+double DirParam::getBreak(int i) const
+{
+  if (i < 0 || i >= _breaks.size())
+  {
+    mesArg("Break Index",i,_breaks.size());
+    return TEST;
+  }
+  return _breaks[i];
+}
+
+double DirParam::getCodir(int i) const
+{
+  if (i < 0 || i >= _codir.size())
+  {
+    mesArg("Codir Index",i,_codir.size());
+    return TEST;
+  }
+  return _codir[i];
+}
+
 void DirParam::_completeDefinition()
 {
   if (! _breaks.empty())
@@ -210,7 +230,7 @@ double DirParam::getMaximumDistance() const
   if (getFlagRegular())
     maxdist = getDPas() * (getLagNumber() + getTolDist());
   else
-    maxdist = getBreaks(getLagNumber());
+    maxdist = getBreak(getLagNumber());
   return (maxdist);
 }
 
@@ -254,7 +274,7 @@ String DirParam::toString(int /*level*/) const
       for (int i = 0; i < getBreakNumber(); i++)
       {
         sstr << " - Interval " << i + 1 << " = ["
-            << toInterval(getBreaks(i), getBreaks(i + 1)) << "]" << std::endl;
+            << toInterval(getBreak(i), getBreak(i + 1)) << "]" << std::endl;
       }
     }
   }
