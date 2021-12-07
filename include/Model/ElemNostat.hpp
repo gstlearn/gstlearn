@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Model/EConsElem.hpp"
 
-class ElemNostat: public AStringable
+class GSTLEARN_EXPORT ElemNostat: public AStringable
 {
 public:
   ElemNostat();

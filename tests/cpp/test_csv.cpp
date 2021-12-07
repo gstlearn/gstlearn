@@ -8,10 +8,24 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_define.h"
+#include "Basic/String.hpp"
 #include "Db/Db.hpp"
 #include "Basic/CSVformat.hpp"
-#include "Utility.hpp"
-#include "geoslib_f.h"
+
+
+  // TODO : Cross-platform way to build file path (use boost ?)
+String getTestData(const String& filename)
+{
+  String exec_dir = ASerializable::getExecDirectory();
+  // This path is compatible with CMake generation
+  String filepath(exec_dir + "../../doc/data/" + filename);
+
+  return filepath;
+}
+
+
 
 /**
  * This test is meant to check the CSV loading procedure

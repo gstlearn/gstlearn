@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Basic/AException.hpp"
 
@@ -19,75 +20,80 @@
 // TODO : add Namespace
 #define SPACES " \t\r\n"
 
-void skipBOM(std::ifstream &in);
+GSTLEARN_EXPORT void skipBOM(std::ifstream &in);
 
-String toUpper(const String& string);
-String toLower(const String& string);
+GSTLEARN_EXPORT String toUpper(const String &string);
+GSTLEARN_EXPORT String toLower(const String &string);
 
-void toUpper(String& string);
-void toLower(String& string);
+GSTLEARN_EXPORT void toUpper(String &string);
+GSTLEARN_EXPORT void toLower(String &string);
 
-bool matchKeyword(const String& string1,
-                  const String& string2,
-                  bool caseSensitive = true);
-bool matchRegexp(const String& string1,
-                 const String& string2,
-                 bool caseSensitive = true);
-int getRankInList(const VectorString& list,
-                  const String& string,
-                  bool caseSensitive = true);
-int decodeInString(const String& symbol,
-                   const String& node,
-                   int *facies,
-                   bool caseSensitive = true);
-int decodeInList(const VectorString& symbols,
-                 const String& node,
-                 int *rank,
-                 int *facies,
-                 bool caseSenstive = true);
-int  correctNamesForDuplicates(VectorString& list);
-void correctNewNameForDuplicates(VectorString& list, int rank);
+GSTLEARN_EXPORT bool matchKeyword(const String &string1,
+                                  const String &string2,
+                                  bool caseSensitive = true);
+GSTLEARN_EXPORT bool matchRegexp(const String &string1,
+                                 const String &string2,
+                                 bool caseSensitive = true);
+GSTLEARN_EXPORT int getRankInList(const VectorString &list,
+                                  const String &string,
+                                  bool caseSensitive = true);
+GSTLEARN_EXPORT int decodeInString(const String &symbol,
+                                   const String &node,
+                                   int *facies,
+                                   bool caseSensitive = true);
+GSTLEARN_EXPORT int decodeInList(const VectorString &symbols,
+                                 const String &node,
+                                 int *rank,
+                                 int *facies,
+                                 bool caseSenstive = true);
+GSTLEARN_EXPORT int correctNamesForDuplicates(VectorString &list);
+GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString &list, int rank);
 
-String incrementStringVersion(const String& string,
-                              int rank = 1,
-                              const String& delim = ".");
-String concatenateStrings(const String& delimt = ".",
-                          const String& string1 = String(),
-                          const String& string2 = String(),
-                          const String& string3 = String(),
-                          const String& string4 = String());
+GSTLEARN_EXPORT String incrementStringVersion(const String &string,
+                                              int rank = 1,
+                                              const String &delim = ".");
+GSTLEARN_EXPORT String concatenateStrings(const String &delimt = ".",
+                                          const String &string1 = String(),
+                                          const String &string2 = String(),
+                                          const String &string3 = String(),
+                                          const String &string4 = String());
 
-VectorString generateMultipleNames(const String& radix, int number);
-VectorString expandList(const VectorString& list,
-                        const String& match,
-                        bool onlyOne = false);
-VectorString expandList(const VectorString& list,
-                        const VectorString& matches);
-int getMaxStringSize(const VectorString& list);
-VectorString separateKeywords(const String& code);
+GSTLEARN_EXPORT VectorString generateMultipleNames(const String &radix,
+                                                   int number);
+GSTLEARN_EXPORT VectorString expandList(const VectorString &list,
+                                        const String &match,
+                                        bool onlyOne = false);
+GSTLEARN_EXPORT VectorString expandList(const VectorString &list,
+                                        const VectorString &matches);
+GSTLEARN_EXPORT int getMaxStringSize(const VectorString &list);
+GSTLEARN_EXPORT VectorString separateKeywords(const String &code);
 
 // TODO : Use template functions
-int toInt(const String& v);
-double toDouble(const String& v, char dec = '.');
-String toString(int value);
-String toString(double value);
-int    askInt(   const String& text, int    defval = ITEST, bool authTest = false);
-double askDouble(const String& text, double defval = TEST,  bool authTest = false);
-int    askBool(  const String& text, bool   defval = false);
+GSTLEARN_EXPORT int toInt(const String &v);
+GSTLEARN_EXPORT double toDouble(const String &v, char dec = '.');
+GSTLEARN_EXPORT String toString(int value);
+GSTLEARN_EXPORT String toString(double value);
+GSTLEARN_EXPORT int askInt(const String &text,
+                           int defval = ITEST,
+                           bool authTest = false);
+GSTLEARN_EXPORT double askDouble(const String &text,
+                                 double defval = TEST,
+                                 bool authTest = false);
+GSTLEARN_EXPORT int askBool(const String &text, bool defval = false);
 
-String trimRight (const String& s, const String& t = SPACES);
-String trimLeft(  const String& s, const String& t = SPACES);
-String trim(      const String& s, const String& t = SPACES);
-String erase(     const String& s, const String& t = SPACES);
+GSTLEARN_EXPORT String trimRight(const String &s, const String &t = SPACES);
+GSTLEARN_EXPORT String trimLeft(const String &s, const String &t = SPACES);
+GSTLEARN_EXPORT String trim(const String &s, const String &t = SPACES);
+GSTLEARN_EXPORT String erase(const String &s, const String &t = SPACES);
 
-char* gslStrcpy(char* dst, const char* src);
-char* gslStrcat(char* dst, const char* src);
-int   gslSPrintf(char* dst, const char* fmt, ...);
-char* gslStrtok(char* str, const char* delim);
-char* gslStrncpy(char* dest, const char* src, size_t n);
-int   gslScanf(const char* format, ...);
-int   gslSScanf(const char* str ,const char* format, ...);
-int   gslFScanf(FILE* stream, const char* format, ...);
+GSTLEARN_EXPORT char* gslStrcpy(char *dst, const char *src);
+GSTLEARN_EXPORT char* gslStrcat(char *dst, const char *src);
+GSTLEARN_EXPORT int gslSPrintf(char *dst, const char *fmt, ...);
+GSTLEARN_EXPORT char* gslStrtok(char *str, const char *delim);
+GSTLEARN_EXPORT char* gslStrncpy(char *dest, const char *src, size_t n);
+GSTLEARN_EXPORT int gslScanf(const char *format, ...);
+GSTLEARN_EXPORT int gslSScanf(const char *str, const char *format, ...);
+GSTLEARN_EXPORT int gslFScanf(FILE *stream, const char *format, ...);
 
 // Adapted from:
 // - https://stackoverflow.com/a/26310318
@@ -103,15 +109,15 @@ int   gslFScanf(FILE* stream, const char* format, ...);
  * @remark: dst must be pre allocated with appropriate size
  */
 /*
-template<typename... Args>
-int gslSPrintf(char* dst, const char* fmt, Args... args)
-{
-  size_t size_s = std::snprintf(nullptr, 0, fmt, args...);
-  if (size_s == 0) { my_throw("Error during formatting."); }
-  snprintf(dst, size_s + 1, fmt, args...);
-  return static_cast<int>(size_s + 1);
-}
-*/
+ template<typename... Args>
+ int gslSPrintf(char* dst, const char* fmt, Args... args)
+ {
+ size_t size_s = std::snprintf(nullptr, 0, fmt, args...);
+ if (size_s == 0) { my_throw("Error during formatting."); }
+ snprintf(dst, size_s + 1, fmt, args...);
+ return static_cast<int>(size_s + 1);
+ }
+ */
 /**
  * Secured version of sprintf (using String)
  *
@@ -121,17 +127,17 @@ int gslSPrintf(char* dst, const char* fmt, Args... args)
  *
  */
 /*
-template<typename ... Args>
-int gslSPrintf(String& dst, String fmt, Args... args )
-{
-    int size_s = std::snprintf( nullptr, 0, fmt.c_str(), args ... ) + 1; // Extra space for '\0'
-    if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
-    size_t size = static_cast<size_t>( size_s );
-    char* buf = new char(size_s); // make_unique not yet available in c++11
-    std::snprintf( buf, size, fmt.c_str(), args ... );
-    dst = std::string( buf, buf + size - 1 ); // We don't want the '\0' inside
-    delete buf;
-    return static_cast<int>(size_s + 1);
-}
-*/
+ template<typename ... Args>
+ int gslSPrintf(String& dst, String fmt, Args... args )
+ {
+ int size_s = std::snprintf( nullptr, 0, fmt.c_str(), args ... ) + 1; // Extra space for '\0'
+ if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
+ size_t size = static_cast<size_t>( size_s );
+ char* buf = new char(size_s); // make_unique not yet available in c++11
+ std::snprintf( buf, size, fmt.c_str(), args ... );
+ dst = std::string( buf, buf + size - 1 ); // We don't want the '\0' inside
+ delete buf;
+ return static_cast<int>(size_s + 1);
+ }
+ */
 

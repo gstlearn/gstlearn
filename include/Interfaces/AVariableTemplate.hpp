@@ -10,16 +10,17 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+#include "Interfaces/interface_d.hpp"
+#include "Interfaces/AVariable.hpp"
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <sstream>
 
-#include "Interfaces/interface_d.hpp"
-#include "Interfaces/AVariable.hpp"
-
 template<class T>
-class AVariableTemplate : public AVariable
+class GSTLEARN_EXPORT AVariableTemplate : public AVariable
 {
   public:
 

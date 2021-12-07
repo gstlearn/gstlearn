@@ -12,13 +12,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 
 /**
  * Square Diagonal matrices
  */
-class MatrixSquareDiagonal : public AMatrixSquare {
+class GSTLEARN_EXPORT MatrixSquareDiagonal : public AMatrixSquare {
 
 public:
   MatrixSquareDiagonal(int nrow = 0, bool sparse = false);

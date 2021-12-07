@@ -9,13 +9,15 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
-#include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+
+#include "gstlearn_export.hpp"
+
+// WARNING: Make this include list as small as possible!
 #include "Db/ELoc.hpp"
 
 class Db;
 
-class NamingConvention
+class GSTLEARN_EXPORT NamingConvention
 {
 public:
   NamingConvention(String radix = String(),

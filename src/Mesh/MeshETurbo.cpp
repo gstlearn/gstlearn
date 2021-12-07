@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -15,8 +17,9 @@
 #include "Basic/GridC.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "csparse_f.h"
+
+#include <math.h>
 
 MeshETurbo::MeshETurbo()
     : AMesh(),
@@ -570,11 +573,11 @@ void MeshETurbo::_setNumberElementPerCell()
     _nPerCell = 6;
 }
 
-int MeshETurbo::_addWeights(int  verbose,
-                            int  icas,
-                            VectorInt indg0,
-                            VectorInt indgg,
-                            VectorDouble coor,
+int MeshETurbo::_addWeights(const int verbose,
+                            const int icas,
+                            const VectorInt& indg0,
+                            VectorInt& indgg, // work array
+                            const VectorDouble& coor,
                             VectorInt& indices,
                             double *rhs,
                             double *lambda) const
@@ -593,6 +596,8 @@ int MeshETurbo::_addWeights(int  verbose,
     for (int idim=0; idim<ndim; idim++) 
       indgg[idim] = indg0[idim] + MSS(ndim,ipol,icas,icorner,idim);
     indices[icorner] = _grid.indiceToRank(indgg);
+
+    if(indices[icorner]<0) return 1; // outside grid
 
     // Update the LHS matrix
     for (int idim=0; idim<ndim; idim++)

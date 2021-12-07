@@ -10,10 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "LithoRule/EProcessOper.hpp"
+
 class Db;
 
-class PropDef
+class GSTLEARN_EXPORT PropDef
 {
   // TODO To be transformed in private URGENT
 public:

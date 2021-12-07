@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
 
@@ -33,36 +34,38 @@ typedef enum
   STAT_B
 } ENUM_STATS;
 
-String statsName(int ioper);
-VectorInt statsList(const VectorString& opers);
-VectorString statsNames(const VectorInt& iopers);
+GSTLEARN_EXPORT String statsName(int ioper);
+GSTLEARN_EXPORT VectorInt statsList(const VectorString &opers);
+GSTLEARN_EXPORT VectorString statsNames(const VectorInt &iopers);
 
-void dbStatisticsVariables(Db *db,
-                           const VectorInt& iatts,
-                           const VectorInt& iopers,
-                           int iattn,
-                           double vmin = TEST,
-                           double vmax = TEST,
-                           double proba = TEST);
+GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
+                                           const VectorInt &iatts,
+                                           const VectorInt &iopers,
+                                           int iattn,
+                                           double vmin = TEST,
+                                           double vmax = TEST,
+                                           double proba = TEST);
 
-VectorDouble dbStatisticsMono(Db *db,
-                              const VectorInt& iatts,
-                              const VectorInt& iopers = VectorInt(STAT_MEAN),
-                              bool flagIso = true,
-                              double proba = TEST,
-                              double vmin = TEST,
-                              double vmax = TEST);
-VectorDouble dbStatisticsMulti(Db *db,
-                               const VectorInt& iatts,
-                               bool flagIso = true);
-VectorDouble dbStatisticsFacies(Db *db);
-double dbStatisticsIndicator(Db *db);
+GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
+                                              const VectorInt &iatts,
+                                              const VectorInt &iopers = VectorInt(
+                                                  STAT_MEAN),
+                                              bool flagIso = true,
+                                              double proba = TEST,
+                                              double vmin = TEST,
+                                              double vmax = TEST);
+GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
+                                               const VectorInt &iatts,
+                                               bool flagIso = true);
+GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db);
+GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
 
-String statisticsMonoPrint(const VectorDouble& tab,
-                           const VectorInt& iopers = VectorInt(STAT_MEAN),
-                           const VectorString& varnames = VectorString(),
-                           const String& title = "");
-String statisticsMultiPrint(const VectorDouble& cov,
-                            const VectorString& varnames = VectorString(),
-                            const String& title = "");
+GSTLEARN_EXPORT String statisticsMonoPrint(const VectorDouble &tab,
+                                           const VectorInt &iopers = VectorInt(
+                                               STAT_MEAN),
+                                           const VectorString &varnames = VectorString(),
+                                           const String &title = "");
+GSTLEARN_EXPORT String statisticsMultiPrint(const VectorDouble &cov,
+                                            const VectorString &varnames = VectorString(),
+                                            const String &title = "");
 

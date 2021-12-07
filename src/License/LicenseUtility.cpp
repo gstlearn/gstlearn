@@ -78,7 +78,7 @@ std::vector<std::string> LicenseUtility::get_activation_code()
   if (activation_codes.size() <= 0)
   {
     messerr("Your computer does not have any network card connected");
-    messerr("This makes the usage of Geoslib license impossible");
+    messerr("This makes the usage of gstlearn library impossible");
   }
   return activation_codes;
 }

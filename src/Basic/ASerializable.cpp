@@ -12,6 +12,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
+#include "Basic/String.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -164,8 +166,11 @@ int ASerializable::_fileClose(bool verbose) const
  *
  * @remarks: Format is not a reference here:
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
+ * => roll back to const char* to prevent warning C4840 (MSVC)
+ *
+ * TODO: replace this method by a template one?
  */
-int ASerializable::_recordRead(const String& title, String format, ...) const
+int ASerializable::_recordRead(const char* title, const char* format, ...) const
 {
   va_list ap;
   int error;
@@ -176,7 +181,7 @@ int ASerializable::_recordRead(const String& title, String format, ...) const
 
   if (error > 0)
   {
-    messerr("Error when reading '%s' from %s", title.c_str(), _fileName.c_str());
+    messerr("Error when reading '%s' from %s", title, _fileName.c_str());
     messerr("Current Line: %s", _currentRecord.c_str());
   }
   va_end(ap);
@@ -191,9 +196,11 @@ int ASerializable::_recordRead(const String& title, String format, ...) const
  *
  * @remark Format is not a reference here:
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
+ * => roll back to const char* to prevent warning C4840 (MSVC)
+ *
+ * TODO : Impose that va_list arguments are stringable ? (For example, we can serialize ECov objects !)
  */
-// TODO : Impose that va_list arguments are stringable ? (For example, we can serialize ECov objects !)
-void ASerializable::_recordWrite(String format, ...) const
+void ASerializable::_recordWrite(const char* format, ...) const
 {
   va_list ap;
   va_start(ap, format);
@@ -456,7 +463,7 @@ String ASerializable::getHomeDirectory(const std::string& sub)
 #if defined(_WIN32) || defined(_WIN64)
   char* HomeDirectory = gslGetEnv("HOMEDIR");
   const char* Homepath = gslGetEnv("HOMEPATH");
-  int size = strlen(HomeDirectory) + strlen(Homepath) + 1;
+  size_t size = strlen(HomeDirectory) + strlen(Homepath) + 1;
   HomeDirectory = static_cast<char *>(malloc(size));
   gslStrcat(HomeDirectory, Homepath);
 #else

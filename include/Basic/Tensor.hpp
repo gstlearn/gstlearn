@@ -10,12 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
 
-class Tensor : public AStringable/// TODO : public ASpaceObject
+class GSTLEARN_EXPORT Tensor : public AStringable/// TODO : public ASpaceObject
 {
 public:
   Tensor(unsigned int ndim = 2);

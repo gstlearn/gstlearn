@@ -10,17 +10,22 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Db/PtrGeos.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_d.h"
+
+// Enums
 #include "Db/ELoadBy.hpp"
-#include "Polygon/Polygons.hpp"
+
+#include "Db/PtrGeos.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/GridC.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+
+class Polygons;
 
 // Do not convert to AEnum (mask combination is not used as enum)
 typedef enum
@@ -32,13 +37,12 @@ typedef enum
   FLAG_ARRAY = 16,    //!< Print the variable contents
 } DISPLAY_PARAMS;
 
-class Limits;
 
 /**
  * Class containing the Data Set.
  * It can be organized as a set of Isolated Points or as a regular Grid
  */
-class Db: public AStringable, public ASerializable
+class GSTLEARN_EXPORT Db: public AStringable, public ASerializable
 {
 public:
   Db();
@@ -434,7 +438,7 @@ public:
                           double vmax = TEST,
                           double proba = TEST,
                           const String& title = "",
-                          NamingConvention namconv = NamingConvention("Stats"));
+                          const NamingConvention& namconv = NamingConvention("Stats"));
 
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
@@ -575,7 +579,7 @@ private:
                           double vmin = TEST,
                           double vmax = TEST,
                           const String& title = "",
-                          NamingConvention namconv = NamingConvention("Stats"));
+                          const NamingConvention& namconv = NamingConvention("Stats"));
   VectorDouble _statisticsMulti(const VectorInt& iatts,
                                bool flagIso = true,
                                bool flagPrint = false,

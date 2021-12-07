@@ -11,11 +11,14 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include <Variogram/Vario.hpp>
 #include "geoslib_f.h"
+#include "Variogram/Vario.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
+#include "Db/Db.hpp"
+#include "Covariances/ECov.hpp"
+#include "Covariances/CovAniso.hpp"
 #include <stdlib.h>
 
 /****************************************************************************/
@@ -25,7 +28,7 @@
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
-  int error = 0;
+  int error = 1; //TODO : temporary fail
   int ndim = 2;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   CovContext ctxt(1,2,1.); // use default space

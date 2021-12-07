@@ -11,6 +11,7 @@
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include "Drifts/ADriftList.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -23,48 +24,51 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
-Model::Model(const CovContext& ctxt, bool flagGradient, bool flagLinked)
-    : AStringable(),
-      ASerializable(),
-      _flagGradient(flagGradient),
-      _flagLinked(flagLinked),
-      _covaList(nullptr),
-      _driftList(nullptr),
-      _modTrans(),
-      _noStat(),
-      _ctxt(ctxt),
-      generic_cov_function(nullptr)
+Model::Model(const CovContext &ctxt, bool flagGradient, bool flagLinked)
+    :
+    AStringable(),
+    ASerializable(),
+    _flagGradient(flagGradient),
+    _flagLinked(flagLinked),
+    _covaList(nullptr),
+    _driftList(nullptr),
+    _modTrans(),
+    _noStat(),
+    _ctxt(ctxt),
+    generic_cov_function(nullptr)
 {
   _create(flagGradient, flagLinked);
 }
 
 Model::Model(const Db *db, bool flagGradient, bool flagLinked)
-    : AStringable(),
-      ASerializable(),
-      _flagGradient(flagGradient),
-      _flagLinked(flagLinked),
-      _covaList(nullptr),
-      _driftList(nullptr),
-      _modTrans(),
-      _noStat(),
-      _ctxt(),
-      generic_cov_function(nullptr)
+    :
+    AStringable(),
+    ASerializable(),
+    _flagGradient(flagGradient),
+    _flagLinked(flagLinked),
+    _covaList(nullptr),
+    _driftList(nullptr),
+    _modTrans(),
+    _noStat(),
+    _ctxt(),
+    generic_cov_function(nullptr)
 {
   _ctxt = CovContext(db); /// TODO : What to do with that ?
   _create(flagGradient, flagLinked);
 }
 
-Model::Model(const String& neutralFileName, bool verbose)
-    : AStringable(),
-      ASerializable(),
-      _flagGradient(false),
-      _flagLinked(false),
-      _covaList(nullptr),
-      _driftList(nullptr),
-      _modTrans(),
-      _noStat(),
-      _ctxt(),
-      generic_cov_function(nullptr)
+Model::Model(const String &neutralFileName, bool verbose)
+    :
+    AStringable(),
+    ASerializable(),
+    _flagGradient(false),
+    _flagLinked(false),
+    _covaList(nullptr),
+    _driftList(nullptr),
+    _modTrans(),
+    _noStat(),
+    _ctxt(),
+    generic_cov_function(nullptr)
 {
   if (deSerialize(neutralFileName, verbose))
   {
@@ -74,28 +78,29 @@ Model::Model(const String& neutralFileName, bool verbose)
 }
 
 Model::Model(const Model &m)
-    : _flagGradient(m._flagGradient),
-      _flagLinked(m._flagLinked),
-      _covaList(dynamic_cast<ACovAnisoList*>(m._covaList->clone())),
-      _driftList(dynamic_cast<ADriftList*>(m._driftList->clone())),
-      _modTrans(m._modTrans),
-      _noStat(m._noStat),
-      _ctxt(m._ctxt),
-      generic_cov_function(m.generic_cov_function)
+    :
+    _flagGradient(m._flagGradient),
+    _flagLinked(m._flagLinked),
+    _covaList(dynamic_cast<ACovAnisoList*>(m._covaList->clone())),
+    _driftList(dynamic_cast<ADriftList*>(m._driftList->clone())),
+    _modTrans(m._modTrans),
+    _noStat(m._noStat),
+    _ctxt(m._ctxt),
+    generic_cov_function(m.generic_cov_function)
 {
 }
 
-Model& Model::operator= (const Model &m)
+Model& Model::operator=(const Model &m)
 {
   if (this != &m)
   {
     _flagGradient = m._flagGradient;
-    _flagLinked   = m._flagLinked;
-    _covaList     = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
-    _driftList    = dynamic_cast<ADriftList*>(m._driftList->clone());
-    _modTrans     = m._modTrans;
-    _noStat       = m._noStat;
-    _ctxt         = m._ctxt;
+    _flagLinked = m._flagLinked;
+    _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
+    _driftList = dynamic_cast<ADriftList*>(m._driftList->clone());
+    _modTrans = m._modTrans;
+    _noStat = m._noStat;
+    _ctxt = m._ctxt;
   }
   return (*this);
 }
@@ -108,17 +113,18 @@ Model::~Model()
 String Model::toString(int /*level*/) const
 {
   std::stringstream sstr;
-  int ncov   = _covaList->getCovNumber();
+  int ncov = _covaList->getCovNumber();
   int ndrift = _driftList->getDriftNumber();
 
-  sstr << toTitle(0,"Model characteristics");
-  if (_flagGradient)
-    sstr << "(Specific for Handling Gradient)" << std::endl;
-  sstr << "Space dimension              = " << getDimensionNumber() << std::endl;
+  sstr << toTitle(0, "Model characteristics");
+  if (_flagGradient) sstr << "(Specific for Handling Gradient)" << std::endl;
+  sstr << "Space dimension              = " << getDimensionNumber()
+       << std::endl;
   sstr << "Number of variable(s)        = " << getVariableNumber() << std::endl;
   sstr << "Number of basic structure(s) = " << ncov << std::endl;
   sstr << "Number of drift function(s)  = " << ndrift << std::endl;
-  sstr << "Number of drift equation(s)  = " << getDriftEquationNumber() << std::endl;
+  sstr << "Number of drift equation(s)  = " << getDriftEquationNumber()
+       << std::endl;
 
   /* Covariance part */
 
@@ -157,24 +163,24 @@ void Model::delAllCovas()
   _covaList->delAllCov();
 }
 
-void Model::addCova(const CovAniso* cov)
+void Model::addCova(const CovAniso *cov)
 {
   _covaList->addCov(cov);
   model_setup(this);
 }
 
-void Model::addDrift(const ADriftElem* drift)
+void Model::addDrift(const ADriftElem *drift)
 {
   _driftList->addDrift(drift);
 }
 
-void Model::addDrift(const VectorString& driftSymbols)
+void Model::addDrift(const VectorString &driftSymbols)
 {
   for (int i = 0; i < (int) driftSymbols.size(); i++)
   {
     int rank = 0;
     EDrift type = DriftFactory::identifyDrift(driftSymbols[i], &rank, _ctxt);
-    ADriftElem* drift = DriftFactory::createDriftFunc(type, _ctxt);
+    ADriftElem *drift = DriftFactory::createDriftFunc(type, _ctxt);
     drift->setRankFex(rank);
     addDrift(drift);
   }
@@ -190,9 +196,63 @@ void Model::delAllDrifts()
   _driftList->delAllDrift();
 }
 
+const ACovAnisoList* Model::getCovAnisoList() const
+{
+  return _covaList;
+}
+const CovAniso* Model::getCova(unsigned int icov) const
+{
+  return _covaList->getCova(icov);
+}
+CovAniso* Model::getCova(unsigned int icov)
+{
+  return _covaList->getCova(icov);
+}
+int Model::getCovaNumber() const
+{
+  return _covaList->getCovNumber();
+}
+const ECov& Model::getCovaType(int icov) const
+{
+  return _covaList->getType(icov);
+}
+const MatrixSquareSymmetric& Model::getSill(int icov) const
+{
+  return _covaList->getSill(icov);
+}
+double Model::getSill(int icov, int ivar, int jvar) const
+{
+  return _covaList->getSill(icov, ivar, jvar);
+}
+double Model::getParam(int icov) const
+{
+  return _covaList->getParam(icov);
+}
+bool Model::isCovaFiltered(int icov) const
+{
+  return _covaList->isFiltered(icov);
+}
+String Model::getCovName(int icov) const
+{
+  return _covaList->getCovName(icov);
+}
+int Model::getGradParamNumber(int icov) const
+{
+  return _covaList->getGradParamNumber(icov);
+}
+
+void Model::setSill(int icov, int ivar, int jvar, double value)
+{
+  _covaList->setSill(icov, ivar, jvar, value);
+}
+void Model::setCovaFiltered(int icov, bool filtered)
+{
+  _covaList->setFiltered(icov, filtered);
+}
+
 int Model::hasExternalCov() const
 {
-  for (int icov=0; icov<(int) _covaList->getCovNumber(); icov++)
+  for (int icov = 0; icov < (int) _covaList->getCovNumber(); icov++)
   {
     if (_covaList->getType(icov) == ECov::FUNCTION) return 1;
   }
@@ -204,7 +264,7 @@ int Model::hasExternalCov() const
  * @param anostat ANoStat pointer will be duplicated
  * @return Error return code
  */
-int Model::addNoStat(const ANoStat* anostat)
+int Model::addNoStat(const ANoStat *anostat)
 {
   if (getDimensionNumber() > 3)
   {
@@ -236,7 +296,7 @@ int Model::addNoStat(const ANoStat* anostat)
   }
 
   if (_noStat != nullptr) delete _noStat;
-  _noStat = dynamic_cast<ANoStat *> (anostat->clone());
+  _noStat = dynamic_cast<ANoStat*>(anostat->clone());
   return 0;
 }
 
@@ -247,50 +307,119 @@ int Model::isNoStat() const
 
 int Model::getNoStatElemNumber() const
 {
-  if (! isNoStat()) return 0;
+  if (!isNoStat()) return 0;
   return _noStat->getNoStatElemNumber();
 }
 
-int Model::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2)
+int Model::addNoStatElem(int igrf,
+                         int icov,
+                         const EConsElem &type,
+                         int iv1,
+                         int iv2)
 {
-  if (! isNoStat()) return 0;
+  if (!isNoStat()) return 0;
   return _noStat->addNoStatElem(igrf, icov, type, iv1, iv2);
 }
 
-int Model::addNoStatElems(const VectorString& codes)
+int Model::addNoStatElems(const VectorString &codes)
 {
-  if (! isNoStat()) return 0;
+  if (!isNoStat()) return 0;
   return _noStat->addNoStatElems(codes);
 }
 
 ConsItem Model::getConsItem(int ipar) const
 {
-  if (! isNoStat())
-    my_throw("Nostat is not defined and cannot be returned");
+  if (!isNoStat())
+  my_throw("Nostat is not defined and cannot be returned");
   return _noStat->getItems(ipar);
 }
 
 int Model::getNoStatElemIcov(int ipar)
 {
-  if (! isNoStat())
-    my_throw("Nostat is not defined");
+  if (!isNoStat())
+  my_throw("Nostat is not defined");
   return _noStat->getICov(ipar);
 }
 
 const EConsElem& Model::getNoStatElemType(int ipar)
 {
-  if (! isNoStat())
-    my_throw("Nostat is not defined");
+  if (!isNoStat())
+  my_throw("Nostat is not defined");
   return _noStat->getType(ipar);
 }
 
-double Model::evaluateDrift(const Db* db, int iech, int il, const ECalcMember& member) const
+const ADriftList* Model::getDriftList() const
+{
+  return _driftList;
+}
+const ADriftElem* Model::getDrift(int il) const
+{
+  return _driftList->getDrift(il);
+}
+ADriftElem* Model::getDrift(int il)
+{
+  return _driftList->getDrift(il);
+}
+int Model::getDriftNumber() const
+{
+  return _driftList->getDriftNumber();
+}
+const EDrift& Model::getDriftType(int il) const
+{
+  return _driftList->getType(il);
+}
+int Model::getRankFext(int il) const
+{
+  return _driftList->getRankFex(il);
+}
+const VectorDouble& Model::getCoefDrift() const
+{
+  return _driftList->getCoefDrift();
+}
+double Model::getCoefDrift(int ivar, int il, int ib) const
+{
+  return _driftList->getCoefDrift(ivar, il, ib);
+}
+int Model::getDriftEquationNumber() const
+{
+  return _driftList->getDriftEquationNumber();
+}
+bool Model::isDriftFiltered(unsigned int il) const
+{
+  return _driftList->isFiltered(il);
+}
+
+void Model::setCoefDrift(int ivar, int il, int ib, double coeff)
+{
+  _driftList->setCoefDrift(ivar, il, ib, coeff);
+}
+void Model::setCoefDrift(int rank, double coeff)
+{
+  _driftList->setCoefDrift(rank, coeff);
+}
+void Model::setDriftFiltered(int il, bool filtered)
+{
+  _driftList->setFiltered(il, filtered);
+}
+VectorDouble Model::getDrift(const Db *db, int ib, bool useSel)
+{
+  return _driftList->getDrift(db, ib, useSel);
+}
+VectorVectorDouble Model::getDrifts(const Db *db, bool useSel)
+{
+  return _driftList->getDrifts(db, useSel);
+}
+
+double Model::evaluateDrift(const Db *db,
+                            int iech,
+                            int il,
+                            const ECalcMember &member) const
 {
   if (member != ECalcMember::LHS && isDriftFiltered(il))
     return 0.;
   else
   {
-    ADriftElem* drift = _driftList->getDrift(il);
+    ADriftElem *drift = _driftList->getDrift(il);
     if (drift != nullptr) return drift->eval(db, iech);
   }
   return TEST;
@@ -327,10 +456,11 @@ VectorDouble Model::sample(double hmax,
   hh.resize(nh);
   gg.resize(nh);
 
-  for (int i = 0; i < nh; i++) hh[i] = hmax * i / nh;
+  for (int i = 0; i < nh; i++)
+    hh[i] = hmax * i / nh;
 
-  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS,
-                 nh, codir, hh.data(), gg.data());
+  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS, nh,
+                 codir, hh.data(), gg.data());
   return gg;
 }
 
@@ -347,10 +477,10 @@ VectorDouble Model::sample(double hmax,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fit(Vario *vario,
-               const std::vector<int>& types,
+               const VectorInt &types,
                bool verbose,
                Option_AutoFit mauto,
-               const Constraints& constraints,
+               const Constraints &constraints,
                Option_VarioFit optvar)
 {
   if (vario == nullptr) return 1;
@@ -365,7 +495,7 @@ int Model::fit(Vario *vario,
   for (int is = 0; is < (int) types.size(); is++)
   {
     ECov covtype = ECov::fromValue(types[is]);
-    CovAniso cov = CovAniso(covtype,_ctxt);
+    CovAniso cov = CovAniso(covtype, _ctxt);
     addCova(&cov);
   }
 
@@ -385,10 +515,10 @@ int Model::fit(Vario *vario,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fit(Vario *vario,
-               const std::vector<ECov>& types,
+               const std::vector<ECov> &types,
                bool verbose,
                Option_AutoFit mauto,
-               const Constraints& constraints,
+               const Constraints &constraints,
                Option_VarioFit optvar)
 {
   if (vario == nullptr) return 1;
@@ -402,13 +532,13 @@ int Model::fit(Vario *vario,
   _ctxt = CovContext(vario); /// TODO : What to do with that ?
   for (int is = 0; is < (int) types.size(); is++)
   {
-    CovAniso cov = CovAniso(types[is],_ctxt);
+    CovAniso cov = CovAniso(types[is], _ctxt);
     addCova(&cov);
   }
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
 }
 
-int Model::deSerialize(const String& filename, bool verbose)
+int Model::deSerialize(const String &filename, bool verbose)
 {
   double field, range, value, param, radius;
   int ndim, nvar, ncova, nbfl, type, flag_aniso, flag_rotation;
@@ -452,11 +582,13 @@ int Model::deSerialize(const String& filename, bool verbose)
       // In fact, the file contains the anisotropy coefficients
       // After reading, we must turn them into anisotropic ranges
       for (int idim = 0; idim < ndim; idim++)
-        if (_recordRead("Anisotropy coefficient", "%lf",
-                           &aniso_ranges[idim])) return 1;
-      for (int idim = 0; idim < ndim; idim++) aniso_ranges[idim] *= range;
+        if (_recordRead("Anisotropy coefficient", "%lf", &aniso_ranges[idim]))
+          return 1;
+      for (int idim = 0; idim < ndim; idim++)
+        aniso_ranges[idim] *= range;
 
-      if (_recordRead("Flag for Anisotropy Rotation", "%d", &flag_rotation))  return 1;
+      if (_recordRead("Flag for Anisotropy Rotation", "%d", &flag_rotation))
+        return 1;
       if (flag_rotation)
       {
         // Warning: the storage in the File is performed by column
@@ -466,7 +598,7 @@ int Model::deSerialize(const String& filename, bool verbose)
         for (int idim = 0; idim < ndim; idim++)
           for (int jdim = 0; jdim < ndim; jdim++)
             if (_recordRead("Anisotropy Rotation Matrix", "%lf",
-                               &aniso_rotmat[lec++])) return 1;
+                            &aniso_rotmat[lec++])) return 1;
       }
     }
 
@@ -504,20 +636,19 @@ int Model::deSerialize(const String& filename, bool verbose)
   {
     if (_recordRead("Drift Function", "%d", &type)) return 1;
     EDrift dtype = EDrift::fromValue(type);
-    ADriftElem* drift = DriftFactory::createDriftFunc(dtype, getContext());
+    ADriftElem *drift = DriftFactory::createDriftFunc(dtype, getContext());
     drift->setRankFex(0); // TODO : zero? really?
     addDrift(drift);
   }
 
   /* Reading the matrix of means (only if nbfl <= 0) */
 
-  if (nbfl <= 0)
-    for (int ivar = 0; ivar < nvar; ivar++)
-    {
-      double mean;
-      if (_recordRead("Mean of Variable", "%lf", &mean)) return 1;
-      setMean(ivar,mean);
-    }
+  if (nbfl <= 0) for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double mean;
+    if (_recordRead("Mean of Variable", "%lf", &mean)) return 1;
+    setMean(ivar, mean);
+  }
 
   /* Reading the matrices of sills (optional) */
 
@@ -527,7 +658,7 @@ int Model::deSerialize(const String& filename, bool verbose)
       for (int jvar = 0; jvar < nvar; jvar++)
       {
         if (_recordRead("Matrix of Sills", "%lf", &value)) continue;
-        setSill(icova,ivar,jvar,value);
+        setSill(icova, ivar, jvar, value);
       }
   }
 
@@ -549,14 +680,14 @@ int Model::deSerialize(const String& filename, bool verbose)
   return 0;
 }
 
-int Model::serialize(const String& filename, bool verbose) const
+int Model::serialize(const String &filename, bool verbose) const
 {
   if (_fileOpen(filename, "Model", "w", verbose)) return 1;
 
   /* Write the Model structure */
 
-  _recordWrite("%d",  getDimensionNumber());
-  _recordWrite("%d",  getVariableNumber());
+  _recordWrite("%d", getDimensionNumber());
+  _recordWrite("%d", getVariableNumber());
   _recordWrite("%lf", getField());
   _recordWrite("%lf", getContext().getBallRadius());
   _recordWrite("#", "General parameters");
@@ -569,8 +700,8 @@ int Model::serialize(const String& filename, bool verbose) const
 
   for (int icova = 0; icova < getCovaNumber(); icova++)
   {
-    const CovAniso* cova = getCova(icova);
-    _recordWrite("%d",  cova->getType().getValue());
+    const CovAniso *cova = getCova(icova);
+    _recordWrite("%d", cova->getType().getValue());
     _recordWrite("%lf", cova->getRange());
     _recordWrite("%lf", cova->getParam());
     _recordWrite("#", "Covariance characteristics");
@@ -580,17 +711,17 @@ int Model::serialize(const String& filename, bool verbose) const
     _recordWrite("%d", cova->getFlagAniso());
     _recordWrite("#", "Anisotropy Flag");
 
-    if (! cova->getFlagAniso()) continue;
+    if (!cova->getFlagAniso()) continue;
     for (int idim = 0; idim < getDimensionNumber(); idim++)
       _recordWrite("%lf", cova->getAnisoCoeffs(idim));
     _recordWrite("#", "Anisotropy Coefficients");
     _recordWrite("%d", cova->getFlagRotation());
     _recordWrite("#", "Anisotropy Rotation Flag");
-    if (! cova->getFlagRotation()) continue;
+    if (!cova->getFlagRotation()) continue;
     // Storing the rotation matrix by Column (compatibility)
     for (int idim = 0; idim < getDimensionNumber(); idim++)
       for (int jdim = 0; jdim < getDimensionNumber(); jdim++)
-        _recordWrite("%lf", cova->getAnisoRotMat(jdim,idim));
+        _recordWrite("%lf", cova->getAnisoRotMat(jdim, idim));
     _recordWrite("#", "Anisotropy Rotation Matrix");
   }
 
@@ -598,7 +729,7 @@ int Model::serialize(const String& filename, bool verbose) const
 
   for (int ibfl = 0; ibfl < getDriftNumber(); ibfl++)
   {
-    const ADriftElem* drift = getDrift(ibfl);
+    const ADriftElem *drift = getDrift(ibfl);
     _recordWrite("%d", drift->getType().getValue());
     _recordWrite("#", "Drift characteristics");
   }
@@ -607,10 +738,10 @@ int Model::serialize(const String& filename, bool verbose) const
 
   if (getDriftNumber() <= 0)
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
-  {
-    _recordWrite("%lf", getContext().getMean(ivar));
-    _recordWrite("#", "Mean of Variables");
-  }
+    {
+      _recordWrite("%lf", getContext().getMean(ivar));
+      _recordWrite("#", "Mean of Variables");
+    }
 
   /* Writing the matrices of sills (optional) */
 
@@ -618,7 +749,7 @@ int Model::serialize(const String& filename, bool verbose) const
   {
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-        _recordWrite("%lf",getSill(icova,ivar,jvar));
+        _recordWrite("%lf", getSill(icova, ivar, jvar));
     _recordWrite("#", "Matrix of sills");
   }
 
@@ -666,7 +797,7 @@ double Model::getTotalSill(int ivar, int jvar) const
 
 Model* Model::duplicate() const
 {
-  Model* model = nullptr;
+  Model *model = nullptr;
 
   model = new Model(getContext(), isFlagGradient(), isFlagLinked());
 

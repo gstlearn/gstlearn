@@ -10,12 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 
 class AMesh;
 class MatrixRectangular;
 
-class MeshFactory
+class GSTLEARN_EXPORT MeshFactory
 {
 
 public:

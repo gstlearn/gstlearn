@@ -18,7 +18,7 @@
 /**
  * Rectangular matrices are stored by columns
  */
-class MatrixRectangular : public AMatrix {
+class GSTLEARN_EXPORT MatrixRectangular : public AMatrix {
 
 public:
   MatrixRectangular(int nrow = 0, int ncol = 0, bool sparse = false);

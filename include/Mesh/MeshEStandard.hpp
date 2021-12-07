@@ -12,15 +12,15 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-
-#include "AMesh.hpp"
+#include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 /**
  * Meshing defined in the Euclidean space
  */
-class MeshEStandard: public AMesh
+class GSTLEARN_EXPORT MeshEStandard: public AMesh
 {
 public:
   MeshEStandard();

@@ -10,14 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Space/ASpace.hpp"
-
 #include "Basic/Vector.hpp"
 
 class SpacePoint;
 class Tensor;
 
-class SpaceRN : public ASpace {
+class GSTLEARN_EXPORT SpaceRN : public ASpace {
 
 public:
   SpaceRN(unsigned int ndim);

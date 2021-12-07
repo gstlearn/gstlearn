@@ -10,8 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include "Db/ELoc.hpp"
-#include "Basic/Vector.hpp"
+
 
 /**
  * Gives the Rank of the Attribute for:
@@ -21,7 +24,7 @@
  * The dimension of the internal vector is equal to the number of items for a
  * given pointer type
  */
-class PtrGeos {
+class GSTLEARN_EXPORT PtrGeos {
 public:
   VectorInt _r;    /* Rank of the attribute */
 
@@ -35,10 +38,10 @@ public:
   void resize(int count) { _r.resize(count,0); }
 };
 
-int    getLocatorTypeFromName(const String& name_type);
-int    locatorIdentify(String string, ELoc* locatorType, int* locatorIndex, int *mult);
-bool   isLocatorTypeValid(const ELoc& locatorType, bool unknownValid = false);
-String getLocatorName(const ELoc& locatorType, int locatorIndex=1);
-void   printLocatorList();
-VectorString getLocatorNames();
-VectorInt    getLocatorMultiples();
+GSTLEARN_EXPORT int    getLocatorTypeFromName(const String& name_type);
+GSTLEARN_EXPORT int    locatorIdentify(String string, ELoc* locatorType, int* locatorIndex, int *mult);
+GSTLEARN_EXPORT bool   isLocatorTypeValid(const ELoc& locatorType, bool unknownValid = false);
+GSTLEARN_EXPORT String getLocatorName(const ELoc& locatorType, int locatorIndex=1);
+GSTLEARN_EXPORT void   printLocatorList();
+GSTLEARN_EXPORT VectorString getLocatorNames();
+GSTLEARN_EXPORT VectorInt    getLocatorMultiples();

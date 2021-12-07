@@ -20,9 +20,6 @@
 #define V(i,j)   (vv[GETADR(TO_ncorner,i,j)])
 #define H(i,j)   (hh[GETADR(TO_ndim,i,j)])
 #define W(i,j)   (ww[GETADR(TO_ndim,i,j)])
-#define ABS(x)   ((x > 0.) ? x : -x)
-#define MAX(a,b) ((a > b) ? a : b)
-#define MIN(a,b) ((a > b) ? b : a)
 
 TurboOptimizer::TurboOptimizer(int nx,
                                int ny,
@@ -177,7 +174,7 @@ double TurboOptimizer::_rangeToScale(double range) const
 
 int TurboOptimizer::_getVertex(int imesh, int rank) const
 {
-  std::vector<int> indice(2);
+  VectorInt indice(2);
   int node,icas;
   _fromMeshToIndex(imesh,&node,&icas);
   _rankToIndice(node,indice,false);
@@ -188,7 +185,7 @@ int TurboOptimizer::_getVertex(int imesh, int rank) const
 
 void TurboOptimizer::_fromMeshToIndex(int imesh, int *node, int *icas) const
 {
-  std::vector<int> indice(2);
+  VectorInt indice(2);
   int rank = imesh / TO_npercell;
   _rankToIndice(rank,indice,true);
   *icas = imesh - rank * TO_npercell;
@@ -201,7 +198,7 @@ int TurboOptimizer::_MSS(int icas, int icorn, int idim0) const
   return S2D[icas][icorn][idim0];
 }
 
-void TurboOptimizer::_rankToIndice(int rank, std::vector<int>& indice, bool minusOne) const
+void TurboOptimizer::_rankToIndice(int rank, VectorInt& indice, bool minusOne) const
 {
   int nval = minusOne? (_ny - 1) : _ny;
   indice[1] = rank / nval;
@@ -209,7 +206,7 @@ void TurboOptimizer::_rankToIndice(int rank, std::vector<int>& indice, bool minu
   indice[0] = rank;
 }
 
-int TurboOptimizer::_indiceToRank(std::vector<int>& indice, bool flag_complete) const
+int TurboOptimizer::_indiceToRank(VectorInt& indice, bool flag_complete) const
 {
   if (flag_complete)
   {
@@ -230,7 +227,7 @@ int TurboOptimizer::_indiceToRank(std::vector<int>& indice, bool flag_complete) 
 }
 
 double TurboOptimizer::_indiceToCoordinate(int idim0,
-                                           const std::vector<int> indice) const
+                                           const VectorInt indice) const
 {
   if (idim0 == 0)
     return (_x0 + indice[0] * _dx);
@@ -241,20 +238,20 @@ double TurboOptimizer::_indiceToCoordinate(int idim0,
 
 double TurboOptimizer::_getCoor(int node, int idim0) const
 {
-  std::vector<int> indice(TO_ndim);
+  VectorInt indice(TO_ndim);
   _rankToIndice(node, indice,false);
   return _indiceToCoordinate(idim0, indice);
 }
 
 double TurboOptimizer::_getCoorByMesh(int imesh, int rank, int idim0) const
 {
-  std::vector<int> indice(TO_ndim);
+  VectorInt indice(TO_ndim);
   int node = _getVertex(imesh,rank);
   return _getCoor(node,idim0);
 }
 
 void TurboOptimizer::_printVector(const std::string& title,
-                                  std::vector<double>& uu,
+                                  VectorDouble& uu,
                                   int width,
                                   int ndec) const
 {
@@ -272,7 +269,7 @@ void TurboOptimizer::_printVector(const std::string& title,
 void TurboOptimizer::_printMatrix(const std::string& title,
                                   int nrow,
                                   int ncol,
-                                  std::vector<double>& uu,
+                                  VectorDouble& uu,
                                   int nper_batch,
                                   int row_shift,
                                   int col_shift,
@@ -312,8 +309,8 @@ void TurboOptimizer::_printMatrix(const std::string& title,
   }
 }
 
-void TurboOptimizer::_invert_3x3(std::vector<double>& uu,
-                                 std::vector<double>& vv,
+void TurboOptimizer::_invert_3x3(VectorDouble& uu,
+                                 VectorDouble& vv,
                                  double tol) const
 {
   double det00 = U(1,1) * U(2,2) - U(2,1) * U(1,2);
@@ -343,9 +340,9 @@ void TurboOptimizer::_invert_3x3(std::vector<double>& uu,
  * @param cc Resulting square matrix
  */
 void TurboOptimizer::_prodMatrix(int size,
-                                 const std::vector<double>& aa,
-                                 const std::vector<double>& bb,
-                                 std::vector<double>& cc) const
+                                 const VectorDouble& aa,
+                                 const VectorDouble& bb,
+                                 VectorDouble& cc) const
 {
   for (int i = 0; i < size; i++)
     for (int j = 0; j < size; j++)
@@ -358,9 +355,9 @@ void TurboOptimizer::_prodMatrix(int size,
 }
 
 void TurboOptimizer::_prodMatVect(int size,
-                                  const std::vector<double>& aa,
-                                  const std::vector<double>& bb,
-                                  std::vector<double> & cc) const
+                                  const VectorDouble& aa,
+                                  const VectorDouble& bb,
+                                  VectorDouble & cc) const
 {
   for (int i = 0; i < size; i++)
   {
@@ -371,14 +368,14 @@ void TurboOptimizer::_prodMatVect(int size,
   }
 }
 
-std::vector<double> TurboOptimizer::_buildS(const std::vector<double>& TildeC) const
+VectorDouble TurboOptimizer::_buildS(const VectorDouble& TildeC) const
 {
   int nvertex_red = _getNVertices_red();
-  std::vector<double> ss(nvertex_red*nvertex_red,0.);
-  std::vector<double> hh(TO_ndim    * TO_ndim);
-  std::vector<double> uu(TO_ncorner * TO_ncorner);
-  std::vector<double> vv(TO_ncorner * TO_ncorner);
-  std::vector<double> ww(TO_ndim    * TO_ncorner);
+  VectorDouble ss(nvertex_red*nvertex_red,0.);
+  VectorDouble hh(TO_ndim    * TO_ndim);
+  VectorDouble uu(TO_ncorner * TO_ncorner);
+  VectorDouble vv(TO_ncorner * TO_ncorner);
+  VectorDouble ww(TO_ndim    * TO_ncorner);
 
   // Load the matrix HH which accounts for the Model
 
@@ -495,10 +492,10 @@ void TurboOptimizer::run(bool verbose)
   _isCalculated = true;
 }
 
-std::vector<double> TurboOptimizer::_buildTildeC() const
+VectorDouble TurboOptimizer::_buildTildeC() const
 {
   int nvertex = _getNVertices();
-  std::vector<double> TildeC(nvertex,0.);
+  VectorDouble TildeC(nvertex,0.);
 
   /* Loop on the meshes */
 
@@ -519,10 +516,10 @@ std::vector<double> TurboOptimizer::_buildTildeC() const
   return TildeC;
 }
 
-std::vector<double> TurboOptimizer::_buildLambda(const std::vector<double> TildeC) const
+VectorDouble TurboOptimizer::_buildLambda(const VectorDouble TildeC) const
 {
   int nvertex = _getNVertices();
-  std::vector<double> Lambda(nvertex,0);
+  VectorDouble Lambda(nvertex,0);
   double value = _scale * _scale;
   for (int ip = 0; ip < _getNVertices(); ip++)
     Lambda[ip] = sqrt(TildeC[ip] / (value * _sill));
@@ -530,7 +527,7 @@ std::vector<double> TurboOptimizer::_buildLambda(const std::vector<double> Tilde
   return Lambda;
 }
 
-std::vector<double> TurboOptimizer::_buildBlin() const
+VectorDouble TurboOptimizer::_buildBlin() const
 {
   double PI = 3.14159265358979323846;
   double v1, v2;
@@ -550,7 +547,7 @@ std::vector<double> TurboOptimizer::_buildBlin() const
   double g0 = pow(4. * PI, ndims2);
   double correc = gammap / (g0 * gammaa);
 
-  std::vector<double> blin(p + 1, 0.);
+  VectorDouble blin(p + 1, 0.);
   for (int i = 0; i <= p; i++)
   {
     // Calculate cnp(p,i)
@@ -566,15 +563,15 @@ std::vector<double> TurboOptimizer::_buildBlin() const
   return blin;
 }
 
-std::vector<double> TurboOptimizer::_buildQ(const std::vector<double>& ss,
-                                            const std::vector<double>& blin,
-                                            const std::vector<double>& lambda) const
+VectorDouble TurboOptimizer::_buildQ(const VectorDouble& ss,
+                                     const VectorDouble& blin,
+                                     const VectorDouble& lambda) const
 {
   int nvertex = _getNVertices();
   int nblin = static_cast<int> (blin.size());
-  std::vector<double> qq(nvertex * nvertex, 0.);
-  std::vector<double> bi(nvertex * nvertex, 0.);
-  std::vector<double> be(nvertex * nvertex, 0.);
+  VectorDouble qq(nvertex * nvertex, 0.);
+  VectorDouble bi(nvertex * nvertex, 0.);
+  VectorDouble be(nvertex * nvertex, 0.);
 
   // First term
   for (int i = 0; i < nvertex; i++)
@@ -602,7 +599,7 @@ std::vector<double> TurboOptimizer::_buildQ(const std::vector<double>& ss,
   return qq;
 }
 
-void TurboOptimizer::_loadHH(std::vector<double>& hh) const
+void TurboOptimizer::_loadHH(VectorDouble& hh) const
 {
   double value = _scale * _scale;
   H(0,0) = value;
@@ -659,7 +656,7 @@ void TurboOptimizer::printMeshes() const
   }
 }
 
-void TurboOptimizer::_updateMargin(int idim0, std::vector<int>& indice) const
+void TurboOptimizer::_updateMargin(int idim0, VectorInt& indice) const
 {
   int nmax = (idim0 == 0) ? _nx : _ny;
   if (indice[idim0] < _half)
@@ -674,8 +671,8 @@ void TurboOptimizer::_updateMargin(int idim0, std::vector<int>& indice) const
   }
 }
 
-void TurboOptimizer::_getRankInTemplate(std::vector<int>& indice1,
-                                        std::vector<int>& indice2) const
+void TurboOptimizer::_getRankInTemplate(VectorInt& indice1,
+                                        VectorInt& indice2) const
 {
   int decalx = indice2[0] - indice1[0];
   int decaly = indice2[1] - indice1[1];
@@ -687,14 +684,14 @@ void TurboOptimizer::_getRankInTemplate(std::vector<int>& indice1,
   indice2[1] = indice1[1] + decaly;
 }
 
-std::vector<double> TurboOptimizer::_getVectorFromTemplate(const std::vector<double>& vecin) const
+VectorDouble TurboOptimizer::_getVectorFromTemplate(const VectorDouble& vecin) const
 {
   int nvertex = _getNVertices();
-  std::vector<double> vecout(nvertex,0.);
+  VectorDouble vecout(nvertex,0.);
   if (! _isCalculated)
     throw("You must use the method 'run' beforehand");
 
-  std::vector<int> indice(TO_ndim,0);
+  VectorInt indice(TO_ndim,0);
 
   for (int ix = 0; ix< _nx; ix++)
     for (int iy = 0; iy < _ny; iy++)
@@ -710,11 +707,11 @@ std::vector<double> TurboOptimizer::_getVectorFromTemplate(const std::vector<dou
   return vecout;
 }
 
-TripletND TurboOptimizer::_getMatrixFromTemplate(const std::vector<double>& matin,
-                                               int nperline) const
+TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
+                                                 int nperline) const
 {
-  std::vector<int> indice1(TO_ndim,0);
-  std::vector<int> indice2(TO_ndim,0);
+  VectorInt indice1(TO_ndim,0);
+  VectorInt indice2(TO_ndim,0);
 
   // Pre-dimensioning of TripletND structure (to avoid iterative concatenations
   // Trying to guess the number of non-zero terms in matrices
@@ -786,7 +783,7 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const std::vector<double>& mati
  * Allows retrieving the vector Blin
  * @return The Blin vector
  */
-std::vector<double> TurboOptimizer::getBlin() const
+VectorDouble TurboOptimizer::getBlin() const
 {
   if (! _isCalculated)
     throw("You must use the method 'run' beforehand");
@@ -797,7 +794,7 @@ std::vector<double> TurboOptimizer::getBlin() const
  * Allows retrieving the vector TildeC
  * @return The TildeC vector
  */
-std::vector<double> TurboOptimizer::getTildeC() const
+VectorDouble TurboOptimizer::getTildeC() const
 {
   return _getVectorFromTemplate(_TildeC_T);
 }
@@ -807,7 +804,7 @@ std::vector<double> TurboOptimizer::getTildeC() const
  * @return The Lambda vector
  */
 
-std::vector<double> TurboOptimizer::getLambda() const
+VectorDouble TurboOptimizer::getLambda() const
 {
   return _getVectorFromTemplate(_Lambda_T);
 }
@@ -835,7 +832,7 @@ TripletND TurboOptimizer::getQ() const
 
 int TurboOptimizer::_coordinateToIndice(double x,
                                         double y,
-                                        std::vector<int>& indice) const
+                                        VectorInt& indice) const
 {
   int ix = (int) floor((x - _x0) / _dx);
   if (ix < 0 || ix >= _nx) return 1;
@@ -849,14 +846,14 @@ int TurboOptimizer::_coordinateToIndice(double x,
 int TurboOptimizer::_addWeights(int icas,
                                 double x,
                                 double y,
-                                const std::vector<int>& indg0,
-                                std::vector<int>& indices,
-                                std::vector<double>& lambda) const
+                                const VectorInt& indg0,
+                                VectorInt& indices,
+                                VectorDouble& lambda) const
 {
-  std::vector<double> lhs(TO_ncorner * TO_ncorner);
-  std::vector<double> lhsinv(TO_ncorner * TO_ncorner);
-  std::vector<double> rhs(TO_ncorner);
-  std::vector<int>    indgg(2);
+  VectorDouble lhs(TO_ncorner * TO_ncorner);
+  VectorDouble lhsinv(TO_ncorner * TO_ncorner);
+  VectorDouble rhs(TO_ncorner);
+  VectorInt    indgg(2);
 
   for (int icorner=0; icorner<TO_ncorner; icorner++)
   {
@@ -901,12 +898,12 @@ int TurboOptimizer::_addWeights(int icas,
  * @note: - cols: the index of the node of the grid
  * @note: - values: the corresponding weight
  */
-TripletND TurboOptimizer::interpolate(const std::vector<double>& x,
-                                    const std::vector<double>& y) const
+TripletND TurboOptimizer::interpolate(const VectorDouble& x,
+                                      const VectorDouble& y) const
 {
-  std::vector<int> indg0(2);
-  std::vector<int> indices(TO_ncorner);
-  std::vector<double> lambda(TO_ncorner);
+  VectorInt indg0(2);
+  VectorInt indices(TO_ncorner);
+  VectorDouble lambda(TO_ncorner);
   int nech = static_cast<int> (x.size());
 
   // Pre-allocate the triplet structure
@@ -960,15 +957,15 @@ TripletND TurboOptimizer::interpolate(const std::vector<double>& x,
  * @param triplet Input matrix stored as TripletNDs
  * @return Matrix stored in full format
  */
-std::vector<double> TurboOptimizer::_expandTripletToMatrix(int row_begin,
-                                                           int row_end,
-                                                           int col_begin,
-                                                           int col_end,
-                                                           const TripletND& triplet) const
+VectorDouble TurboOptimizer::_expandTripletToMatrix(int row_begin,
+                                                    int row_end,
+                                                    int col_begin,
+                                                    int col_end,
+                                                    const TripletND& triplet) const
 {
   int nrows = row_end - row_begin + 1;
   int ncols = col_end - col_begin + 1;
-  std::vector<double> mat(nrows * ncols, 0.);
+  VectorDouble mat(nrows * ncols, 0.);
   int size = static_cast<int> (triplet.rows.size());
 
   for (int i = 0; i < size; i++)
@@ -996,7 +993,7 @@ void TurboOptimizer::printS(int nper_batch,
   if (row_end <= 0 || row_end >= _getNVertices()) row_end = _getNVertices() - 1;
   if (col_end <= 0 || col_end >= _getNVertices()) col_end = _getNVertices() - 1;
 
-  std::vector<double> temp = _expandTripletToMatrix(row_begin, row_end,
+  VectorDouble temp = _expandTripletToMatrix(row_begin, row_end,
                                                     col_begin, col_end, getS());
   int nrows = row_end - row_begin + 1;
   int ncols = col_end - col_begin + 1;
@@ -1017,7 +1014,7 @@ void TurboOptimizer::printQ(int nper_batch,
   if (row_end <= 0 || row_end >= _getNVertices()) row_end = _getNVertices() - 1;
   if (col_end <= 0 || col_end >= _getNVertices()) col_end = _getNVertices() - 1;
 
-  std::vector<double> temp = _expandTripletToMatrix(row_begin, row_end,
+  VectorDouble temp = _expandTripletToMatrix(row_begin, row_end,
                                                     col_begin, col_end, getQ());
   int nrows = row_end - row_begin + 1;
   int ncols = col_end - col_begin + 1;

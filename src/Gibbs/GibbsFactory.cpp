@@ -17,6 +17,7 @@
 #include "Neigh/Neigh.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Basic/AStringable.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_f.h"
 
 GibbsFactory::GibbsFactory()
@@ -46,17 +47,11 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
     GibbsMMulti* gibbs = new GibbsMMulti(db, model);
     return (static_cast<AGibbs *> (gibbs));
   }
-  else
-  {
 
-    // Unique Neighborhood
+  // Unique Neighborhood
 
-    GibbsUMulti* gibbs = new GibbsUMulti(db, model);
-    return (static_cast<AGibbs *> (gibbs));
-  }
-
-  messerr("No relevant option found in Gibbs Factory");
-  return nullptr;
+  GibbsUMulti* gibbs = new GibbsUMulti(db, model);
+  return (static_cast<AGibbs *> (gibbs));
 }
 
 /**

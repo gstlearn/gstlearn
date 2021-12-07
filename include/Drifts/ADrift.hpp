@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpacePoint.hpp"
 
 class Db;
 
-class ADrift : public ASpaceObject
+class GSTLEARN_EXPORT ADrift : public ASpaceObject
 {
 public:
   ADrift(const ASpace* space = nullptr);

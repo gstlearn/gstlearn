@@ -1,7 +1,8 @@
-#ifndef APARAM_HPP
-#define APARAM_HPP
+#pragma once
 
-class AParam
+#include "gstlearn_export.hpp"
+
+class GSTLEARN_EXPORT AParam
 {
 public:
   AParam(){}
@@ -10,4 +11,3 @@ public:
   virtual bool checkConsistence() const = 0;
 private:
 };
-#endif

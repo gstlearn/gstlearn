@@ -1,8 +1,6 @@
-#ifndef  INTERFACE_D_HPP
-#define  INTERFACE_D_HPP
+#pragma once
 
 #include "Enum/AEnum.hpp"
-#include <vector>
 
 #define UNDEF_DOUBLE 1.234e30
 #define UNDEF_STRING "??"
@@ -44,4 +42,3 @@ ENUM_DECLARE(ENUM_ROLES)
 
 ENUM_DECLARE(ENUM_CALC_RULES)
 
-#endif

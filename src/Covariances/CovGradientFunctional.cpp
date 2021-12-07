@@ -9,12 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovGradientFunctional.hpp"
-
+#include "Basic/AException.hpp"
+#include "Basic/Vector.hpp"
+#include "Space/ASpace.hpp"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 
-#include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
 #include <math.h>
 
 #define TR(i,j) (Tr[ndim * (i) + (j)])

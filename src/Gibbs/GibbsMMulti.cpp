@@ -15,9 +15,13 @@
 #include "Basic/Timer.hpp"
 #include "Basic/HDF5format.hpp"
 #include "Morpho/Morpho.hpp"
+#include "Db/Db.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "csparse_f.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include <math.h>
 
 #define WEIGHTS(ivar, jvar, iact)  (_weights[iact + nact * (jvar + ivar * nvar)])
 
@@ -145,7 +149,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     messerr("Impossible to create the Total Precision Matrix");
     goto label_end;
   }
-  timer.Interval("Building Covariance");
+  timer.displayIntervalMilliseconds("Building Covariance");
 
   // Cholesky decomposition
 
@@ -159,14 +163,14 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     goto label_end;
   }
   for (int iact = 0; iact < nact; iact++) _Pn[iact] = S->Pinv[iact];
-  timer.Interval("Cholesky Decomposition");
+  timer.displayIntervalMilliseconds("Cholesky Decomposition");
 
   // Store the Initial Covariance in Neutral File (optional)
 
   if (_storeTables)
   {
     _tableStore(1, Cmat);
-    timer.Interval("Storing Initial Covariance");
+    timer.displayIntervalMilliseconds("Storing Initial Covariance");
   }
 
   // Stripping the Cholesky decomposition matrix
@@ -180,7 +184,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
     cs* Lt = cs_transpose(_Ln, 1);
     cs* Cmat2 = cs_multiply (_Ln, Lt);
     _tableStore(2, Cmat2);
-    timer.Interval("Calculating Reconstructed Covariance");
+    timer.displayIntervalMilliseconds("Calculating Reconstructed Covariance");
     Lt = cs_spfree(Lt);
     Cmat2 = cs_spfree(Cmat2);
   }
@@ -190,7 +194,7 @@ int GibbsMMulti::covmatAlloc(bool verbose)
   if (verbose)
     message("Calculating and storing the weights\n");
   if (_storeAllWeights(verbose)) goto label_end;
-  timer.Interval("Calculating and storing Weights");
+  timer.displayIntervalMilliseconds("Calculating and storing Weights");
 
   // Initialize the statistics (optional)
 

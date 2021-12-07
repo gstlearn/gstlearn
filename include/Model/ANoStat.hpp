@@ -10,15 +10,18 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Model/ConsItem.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+
+#include <vector>
 
 class AMesh;
 class Model;
 class Db;
 
-class ANoStat : public AStringable, public IClonable
+class GSTLEARN_EXPORT ANoStat : public AStringable, public IClonable
 {
 public:
   ANoStat();

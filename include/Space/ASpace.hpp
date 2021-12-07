@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Space/Space.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
@@ -18,7 +19,7 @@
 class SpacePoint;
 class Tensor;
 
-class ASpace : public AStringable, public IClonable
+class GSTLEARN_EXPORT ASpace : public AStringable, public IClonable
 {
 public:
   ASpace(unsigned int ndim);

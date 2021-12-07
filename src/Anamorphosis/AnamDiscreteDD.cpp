@@ -8,11 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 #define EIGVEC(i,j)      eigvec[(i)*nclass+(j)]
 #define CHI(i,j)         chi[(i)*nclass+(j)]

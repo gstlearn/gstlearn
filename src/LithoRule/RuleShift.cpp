@@ -15,9 +15,12 @@
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
 #include "Model/Model.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+
+#include <sstream>
 #include <math.h>
 
 /**

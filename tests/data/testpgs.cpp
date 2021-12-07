@@ -8,17 +8,19 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_d.h"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 #include "Basic/Limits.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "Variogram/Vario.hpp"
 
-#include <stdlib.h>
+#include <iostream>
+#include <fstream>
 
 /*********************/
 /* Program principal */
@@ -41,7 +43,7 @@ int main(int argc, char *argv[])
   RuleProp ruleprop;
   static int    niter   = 100;
   static int    nboot   = 10;
-  static int    verbose = 1;
+  static int    verbose = 0;
 
   /* Initializations */
 
@@ -57,7 +59,13 @@ int main(int argc, char *argv[])
       model[i][j] = nullptr;
   }
 
-  /* Connect the Geoslib Library */
+  /* Standard output redirection to file */
+
+  std::ofstream out("Result.out");
+  std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+  std::cout.rdbuf(out.rdbuf()); //redirect std::cout to Result.out!
+
+  /* Setup the license */
 
   if (setup_license("Demonstration")) goto label_end;
 
@@ -82,7 +90,7 @@ int main(int argc, char *argv[])
   dbin = ascii_db_read(filename,0,verbose);
   if (dbin == nullptr) goto label_end;
   iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
-  if (verbose) db_print(dbin,1,0,1,1,1);
+  db_print(dbin,1,0,1,1,1);
 
   /* Define the Default Space according to the Dimension of the Input Db */
 
@@ -112,7 +120,7 @@ int main(int argc, char *argv[])
     if (rule[i] == nullptr) continue;
 
     npgs++;
-    if (verbose) rule[i]->display(false, false);
+    rule[i]->display(false, false);
     nfac[i] = rule[i]->getFaciesNumber();
 
     /* Define the models */
@@ -142,7 +150,7 @@ int main(int argc, char *argv[])
       
       vario->attachDb(dbin);
       vario->compute("vg");
-      if (verbose) variogram_print(vario,1);
+      variogram_print(vario,1);
       ascii_filename("Vario",0,1,filename);
       if (vario->serialize(filename,verbose))
         messageAbort("ascii_vario_write");
@@ -194,7 +202,7 @@ int main(int argc, char *argv[])
                    model[0][0],model[0][1],model[1][0],model[1][1],
                    neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
-    if (verbose) db_print(dbout,1,0,1,1,1);
+    db_print(dbout,1,0,1,1,1);
   }
 
   /* Serialization of results (for visual check) */
@@ -206,6 +214,7 @@ int main(int argc, char *argv[])
   /* Core deallocation */
 
 label_end:
+  std::cout.rdbuf(coutbuf); //reset to standard output again
   dbin   = db_delete(dbin);
   dbout  = db_delete(dbout);
   for (i=0; i<2; i++)

@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_d.h"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
+#include "geoslib_define.h"
 #include "Basic/Law.hpp"
 #include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
@@ -20,10 +24,6 @@
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Db/Db.hpp"
 #include "Neigh/Neigh.hpp"
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-#include "geoslib_define.h"
 
 /****************************************************************************/
 /*!
@@ -31,8 +31,6 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
-
 {
   int iptr;
   bool flag_inter = false;

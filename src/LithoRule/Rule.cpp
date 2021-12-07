@@ -14,9 +14,12 @@
 #include "Model/Model.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+
+#include <sstream>
 
 #define THRESH_IDLE 0
 #define THRESH_Y1   1

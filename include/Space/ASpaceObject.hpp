@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Space/Space.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
@@ -27,7 +28,7 @@ class SpacePoint;
  * space definition at any time. Space definition of pre-existing ASpaceObjects remains the same.
  * (no more shared pointer)
  */
-class ASpaceObject : public AStringable
+class GSTLEARN_EXPORT ASpaceObject : public AStringable
 {
 public:
   ASpaceObject(const ASpace* space = nullptr);

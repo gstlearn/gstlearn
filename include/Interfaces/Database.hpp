@@ -8,10 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#ifndef DATABASE_HPP
-#define DATABASE_HPP
+#pragma once
 
-#include "Space/ASpaceObject.hpp" // ISA
+#include "gstlearn_export.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Interfaces/interface_d.hpp"
 #include "Interfaces/ParamGrid.hpp"
 #include "geoslib_enum.h"
@@ -29,7 +29,7 @@ class ParamCSV;
  * A Database is a representation of an excel sheet
  * 
  ****************************************************************************/
-class Database : public ASpaceObject
+class GSTLEARN_EXPORT Database : public ASpaceObject
 {
 public:
   Database(const ASpace* space = nullptr);
@@ -90,11 +90,9 @@ private:
   std::multimap<ERoles,String>::const_iterator getItRole(const String& name) const;
 
 private:
-  ParamGrid   _pgrid;
-  bool        _isGrid;
-  std::vector<AVariable*> _vars;
+  ParamGrid                    _pgrid;
+  bool                         _isGrid;
+  std::vector<AVariable*>      _vars;
   std::multimap<ERoles,String> _roles; //order have an importance
 
 };
-
-#endif

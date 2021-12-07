@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
+#include "geoslib_old_f.h"
+#include "geoslib_define.h"
 #include "Db/Db.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
@@ -21,11 +25,10 @@
 #include "Basic/AException.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Stats/Classical.hpp"
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
-#include "geoslib_f.h"
+
 #include <algorithm>
 #include <functional>
+#include <math.h>
 
 Db::Db()
     : AStringable(),
@@ -245,7 +248,9 @@ Db::Db(Db* db,
     if (ndim == (int) dcell.size())
     {
       dx = dcell[idim];
-      nx = static_cast<int> (ext / dx);
+      nx = static_cast<int> (ext / dx) + 1;
+      dx = ext / nx; // recompute dx to keep the extent
+      ++nx; // one more node than intervals
     }
 
     nx_tab.push_back(nx);
@@ -617,7 +622,7 @@ bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
   if (!isLocatorTypeValid(locatorType)) return false;
   bool ok = _p.at(locatorType).isLocatorIndexValid(locatorIndex);
   if (! ok)
-    messerr("Problem in the identification of Locator %d",locatorType);
+    messerr("Problem in the identification of Locator %d", locatorType.getValue());
   return ok;
 }
 
@@ -3419,7 +3424,7 @@ VectorDouble Db::_statistics(const VectorInt& iatts,
                              double vmin,
                              double vmax,
                              const String& title,
-                             NamingConvention namconv)
+                             const NamingConvention& namconv)
 {
   VectorDouble stats;
 
@@ -3466,7 +3471,7 @@ VectorDouble Db::statistics(const VectorString& names,
                             double vmin,
                             double vmax,
                             const String& title,
-                            NamingConvention namconv)
+                            const NamingConvention& namconv)
 {
   VectorInt iatts = ids(names, false);
   if (iatts.empty()) return VectorDouble();

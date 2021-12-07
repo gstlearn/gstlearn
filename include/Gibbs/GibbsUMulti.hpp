@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Gibbs/GibbsMulti.hpp"
 #include "Basic/Vector.hpp"
 
 class Db;
 class Model;
 
-class GibbsUMulti : public GibbsMulti
+class GSTLEARN_EXPORT GibbsUMulti : public GibbsMulti
 {
 public:
   GibbsUMulti();

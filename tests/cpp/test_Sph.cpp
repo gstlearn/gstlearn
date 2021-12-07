@@ -11,6 +11,8 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "Basic/String.hpp"
+
 #include <math.h>
 
 #define VERBOSE 0
@@ -157,7 +159,7 @@ int main(int /*argc*/, char */*argv*/[])
   int flag_2 = 1;
   int flag_3 = 1;
   
-  /* 1.b - Connect the Geoslib Library */
+  /* 1.b - Setup the license */
 
   if (setup_license("Demonstration")) goto label_end;
 

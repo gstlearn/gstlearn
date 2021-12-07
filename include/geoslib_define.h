@@ -10,6 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
+// WARNING: Make this include list as small as possible!
 #include <vector>
 #include <string>
 
@@ -54,13 +57,26 @@
 #define THRESH_INF      -10
 #define THRESH_SUP       10
 
-typedef std::vector<double> VectorDouble; /// TODO : Create a class (fill, sum, mean...)
-typedef std::vector<int> VectorInt;
-typedef std::vector<bool> VectorBool;
-typedef std::vector<float> VectorFloat;
-typedef std::vector<std::string> VectorString;
+template class GSTLEARN_EXPORT std::vector<double>;
+template class GSTLEARN_EXPORT std::vector<int>;
+template class GSTLEARN_EXPORT std::vector<bool>;
+template class GSTLEARN_EXPORT std::vector<float>;
+template class GSTLEARN_EXPORT std::vector<unsigned char>;
+template class GSTLEARN_EXPORT std::vector<std::string>;
+template class GSTLEARN_EXPORT std::vector<std::vector<double>>;
+template class GSTLEARN_EXPORT std::vector<std::vector<int>>;
+template class GSTLEARN_EXPORT std::vector<std::vector<float>>;
+
+typedef std::string                String;
+
+// To prevent (a part of) the warnings C4251 under windows: https://stackoverflow.com/a/22054743
+typedef std::vector<double>        VectorDouble; /// TODO : Create a class (fill, sum, mean...)
+typedef std::vector<int>           VectorInt;
+typedef std::vector<bool>          VectorBool;
+typedef std::vector<float>         VectorFloat;
 typedef std::vector<unsigned char> VectorUChar;
-typedef std::string String;
-typedef std::vector<VectorDouble> VectorVectorDouble;
-typedef std::vector<VectorInt>    VectorVectorInt;
-typedef std::vector<VectorFloat>  VectorVectorFloat;
+typedef std::vector<std::string>   VectorString;
+typedef std::vector<VectorDouble>  VectorVectorDouble;
+typedef std::vector<VectorInt>     VectorVectorInt;
+typedef std::vector<VectorFloat>   VectorVectorFloat;
+

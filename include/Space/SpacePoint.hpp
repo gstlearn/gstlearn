@@ -10,13 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-
 #include "Space/ASpaceObject.hpp"
 
 //#include "Basic/VectorT.hpp"
 
-class SpacePoint : public ASpaceObject
+class GSTLEARN_EXPORT SpacePoint : public ASpaceObject
 {
 public:
   SpacePoint(const ASpace* space = nullptr);

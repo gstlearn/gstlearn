@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
@@ -26,9 +27,9 @@ double _conv_exponential(int number, double v);
 double _conv_gaussian(int number, double v);
 double _conv_sincard(int number, double v);
 
-Def_Conv& D_CONV(int rank);
+GSTLEARN_EXPORT Def_Conv& D_CONV(int rank);
 
-class Convolution : public AStringable
+class GSTLEARN_EXPORT Convolution : public AStringable
 {
 public:
   Convolution();

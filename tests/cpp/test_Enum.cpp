@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <string>
-#include <iostream>
-
 #include "Basic/RepeatMacro.hpp"
 #include "Enum/AEnum.hpp"
+
+#include <string>
+#include <iostream>
 
 #define PRINT_THAT(X) std::cout << #X << std::endl; 
 #define PRINT_ALL_THAT(...) REPEAT(PRINT_THAT, __VA_ARGS__)

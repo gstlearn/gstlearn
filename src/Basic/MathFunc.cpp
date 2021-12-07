@@ -16,10 +16,7 @@
 
 DISABLE_WARNING_PUSH
 
-// TODO : Disable warning for other compilators
-#if defined(__GNUC__) || defined(__clang__)
 DISABLE_WARNING_ARRAY_BOUNDS
-#endif
 
 static double c_b11 = 1.;
 
@@ -1243,16 +1240,16 @@ static double st_mvndfn(int *n,
 **
 *****************************************************************************/
 void mvndst(int n,
-            double *lower,
-            double *upper,
-            int *infin,
-            double *correl,
-            int maxpts,
-            double abseps,
-            double releps,
-            double *error,
-            double *value,
-            int *inform)
+                            double *lower,
+                            double *upper,
+                            int *infin,
+                            double *correl,
+                            int maxpts,
+                            double abseps,
+                            double releps,
+                            double *error,
+                            double *value,
+                            int *inform)
 {
   int seed_memo;
   int i__1;
@@ -1316,14 +1313,14 @@ void mvndst(int n,
 **
 *****************************************************************************/
 void mvndst4(double *lower,
-             double *upper,
-             double *correl,
-             int maxpts,
-             double abseps,
-             double releps,
-             double *error,
-             double *value,
-             int *inform)
+                             double *upper,
+                             double *correl,
+                             int maxpts,
+                             double abseps,
+                             double releps,
+                             double *error,
+                             double *value,
+                             int *inform)
 {
   int    i,j,ecr,infin[4];
   double corloc[6];
@@ -1360,15 +1357,15 @@ void mvndst4(double *lower,
 **
 *****************************************************************************/
 void mvndst2n(double *lower,
-              double *upper,
-              double *means,
-              double *correl,
-              int maxpts,
-              double abseps,
-              double releps,
-              double *error,
-              double *value,
-              int *inform)
+                              double *upper,
+                              double *means,
+                              double *correl,
+                              int maxpts,
+                              double abseps,
+                              double releps,
+                              double *error,
+                              double *value,
+                              int *inform)
 {
   int    i,infin[2];
   double scale,covar,low[2],upp[2];

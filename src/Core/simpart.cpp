@@ -8,10 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+
+#include <math.h>
+
 
 /*! \cond */
 
@@ -41,7 +46,7 @@ typedef struct
  ** \remarks  The valuation of each line is assigned a uniform value [0,1]
  **
  *****************************************************************************/
-GEOSLIB_API int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
+int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
 {
   double ap[3], mini[3], maxi[3], diagonal, d0, u;
   int ip, idim;
@@ -55,7 +60,7 @@ GEOSLIB_API int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
 
   for (ip = 0; ip < splanes->nplan; ip++)
   {
-    SubPlan& plan = splanes->plans[ip];
+    SubPlan &plan = splanes->plans[ip];
     d0 = diagonal * law_uniform(-1., 1.) / 2.;
     u = 0.;
     for (idim = 0; idim < 3; idim++)
@@ -97,9 +102,9 @@ GEOSLIB_API int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
  ** \param[in]  splanes     SubPlanes structure to be deallocated
  **
  *****************************************************************************/
-GEOSLIB_API SubPlanes *poisson_manage_planes(int mode,
-                                             int np,
-                                             SubPlanes *splanes)
+SubPlanes* poisson_manage_planes(int mode,
+                                                 int np,
+                                                 SubPlanes *splanes)
 {
 
   /* Dispatch */
@@ -114,7 +119,7 @@ GEOSLIB_API SubPlanes *poisson_manage_planes(int mode,
     splanes->nplan = np;
     for (int ip = 0; ip < np; ip++)
     {
-      SubPlan& plan = splanes->plans[ip];
+      SubPlan &plan = splanes->plans[ip];
       for (int idim = 0; idim < 3; idim++)
         plan.coor[idim] = 0.;
       plan.intercept = 0.;
@@ -217,12 +222,12 @@ static int st_stack_search(Stack *stack, double valref, double *valsim)
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-GEOSLIB_API int tessellation_poisson(Db *dbgrid,
-                                     Model *model,
-                                     int seed,
-                                     double intensity,
-                                     int nbtuba,
-                                     int verbose)
+int tessellation_poisson(Db *dbgrid,
+                                         Model *model,
+                                         int seed,
+                                         double intensity,
+                                         int nbtuba,
+                                         int verbose)
 {
   SubPlanes *splanes;
   Stack stack;
@@ -288,8 +293,10 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
 
   for (ip = 0; ip < np; ip++)
   {
-    SubPlan& plan = splanes->plans[ip];
-    plan.value = (plan.rndval > 0.5) ? -1 : 1;;
+    SubPlan &plan = splanes->plans[ip];
+    plan.value = (plan.rndval > 0.5) ? -1 :
+                                       1;
+    ;
   }
 
   /* Simulating the directing function */
@@ -306,11 +313,12 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
     valtot = 0.;
     for (ip = 0; ip < np; ip++)
     {
-      SubPlan& plan = splanes->plans[ip];
+      SubPlan &plan = splanes->plans[ip];
       prod = 0.;
       for (i = 0; i < 3; i++)
         prod += plan.coor[i] * cen[i];
-      valtot += (prod + plan.intercept > 0) ? plan.rndval : -plan.rndval;
+      valtot += (prod + plan.intercept > 0) ? plan.rndval :
+                                              -plan.rndval;
     }
     dbgrid->setArray(iech, iatts, valtot);
   }
@@ -362,7 +370,7 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
   splanes = poisson_manage_planes(-1, np, splanes);
   st_manage_stack(&stack, -1, 0., 0.);
   indg = db_indg_free(indg);
-  status = (int *) mem_free((char * ) status);
+  status = (int*) mem_free((char* ) status);
   return (error);
 }
 
@@ -381,13 +389,13 @@ GEOSLIB_API int tessellation_poisson(Db *dbgrid,
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
-                                     Model *model,
-                                     double *dilate,
-                                     int seed,
-                                     double intensity,
-                                     int nbtuba,
-                                     int verbose)
+int tessellation_voronoi(Db *dbgrid,
+                                         Model *model,
+                                         double *dilate,
+                                         int seed,
+                                         double intensity,
+                                         int nbtuba,
+                                         int verbose)
 {
   int i, ip, nbpoints, error, iatts, iattp, ndim;
   double volume, origin[2], field[3], dil, oriloc, dimloc;
@@ -429,10 +437,11 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
   volume = 1.;
   for (i = 0; i < ndim; i++)
   {
-    dil = (dilate != nullptr) ? dilate[i] : 0.;
-    field[i]  = dbgrid->getDX(i) * dbgrid->getNX(i);
+    dil = (dilate != nullptr) ? dilate[i] :
+                                0.;
+    field[i] = dbgrid->getDX(i) * dbgrid->getNX(i);
     origin[i] = dbgrid->getX0(i) - dbgrid->getDX(i) / 2. - dil * field[i] / 2.;
-    field[i]  = field[i] * (1. + dil);
+    field[i] = field[i] * (1. + dil);
     volume *= field[i];
   }
 
@@ -481,8 +490,7 @@ GEOSLIB_API int tessellation_voronoi(Db *dbgrid,
 
   error = 0;
 
-  label_end:
-  dbpoint = db_delete(dbpoint);
+  label_end: dbpoint = db_delete(dbpoint);
   return (error);
 }
 

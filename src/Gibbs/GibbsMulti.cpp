@@ -13,8 +13,11 @@
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
+
+#include <math.h>
 
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
 

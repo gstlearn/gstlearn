@@ -2,8 +2,6 @@
 #include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_e.h"
-
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "API/SPDE.hpp"
@@ -14,8 +12,8 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
-
 #include "Matrix/MatrixRectangular.hpp"
+#include "Mesh/MeshFactory.hpp"
 
 #include <algorithm>
 #include <math.h>
@@ -24,8 +22,6 @@
 #include <random>
 #include <string>
 #include <vector>
-
-#include "../../include/Mesh/MeshFactory.hpp"
 
 #define __USE_MATH_DEFINES
 #include <cmath>

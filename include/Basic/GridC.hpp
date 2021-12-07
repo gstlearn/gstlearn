@@ -10,14 +10,15 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 #include "Basic/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
 
 class GridOld;
 
-class GridC : public AStringable
+class GSTLEARN_EXPORT GridC : public AStringable
 {
 
 public:

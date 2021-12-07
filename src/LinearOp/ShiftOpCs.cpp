@@ -10,6 +10,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_f_private.h"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -21,8 +23,10 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Model/Model.hpp"
+#include "csparse_f.h"
+
+#include <math.h>
 
 ShiftOpCs::ShiftOpCs()
     : ALinearOp(),
@@ -152,26 +156,26 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
 
     // Calculate the meshes of the vertices
 
-    units = spde_get_mesh_dimension(&amesh);
+    units = _spde_get_mesh_dimension(&amesh);
     if (units == (double *) nullptr)
     my_throw("Problem with spde_get_mesh_dimension() method");
 
     // Construct G sparse Matrix (locally stored in _S)
 
-    _S = spde_fill_S(&amesh, model, units);
+    _S = _spde_fill_S(&amesh, model, units);
     if (_S == nullptr) my_throw("Problem with spde_fill_S() method");
 
     // Construct the TildeC vector
 
-    _TildeC = spde_fill_TildeC(&amesh, units);
+    _TildeC = _spde_fill_TildeC(&amesh, units);
     if (_TildeC.empty())
     my_throw("Problem with spde_fill_TildeC() method");
 
     // Construct the Lambda vector
 
-    _Lambda = spde_fill_Lambda(model, &amesh, _TildeC);
+    _Lambda = _spde_fill_Lambda(model, &amesh, _TildeC);
     if (_Lambda.empty())
-    my_throw("Problem with spde_fill_Lambda() method");
+    my_throw("Problem with _spde_fill_Lambda() method");
 
     // Construct the final Sparse matrix S
 

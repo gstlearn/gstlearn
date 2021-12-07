@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
@@ -19,7 +20,7 @@
 class Db;
 class Model;
 
-class VarioParam : public AStringable, public IClonable
+class GSTLEARN_EXPORT VarioParam : public AStringable, public IClonable
 {
 public:
   VarioParam(double scale = 0.,
@@ -35,7 +36,7 @@ public:
   virtual IClonable* clone() const override;
 
   void addDirs(const DirParam& dirparam);
-  void addDirs(const std::vector<DirParam> dirparams);
+  void addDirs(const std::vector<DirParam>& dirparams);
   void delDir(int rank);
   void delAllDirs();
 
@@ -76,7 +77,7 @@ private:
   VectorDouble _getDirectionInterval(int idir) const;
 
 private:
-  double       _scale;
-  VectorDouble _dates;
+  double                _scale;
+  VectorDouble          _dates;
   std::vector<DirParam> _dirparams;
 };

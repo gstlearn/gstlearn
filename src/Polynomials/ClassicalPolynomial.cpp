@@ -21,7 +21,6 @@
 ClassicalPolynomial::ClassicalPolynomial()
 {
   // TODO Auto-generated constructor stub
-
 }
 
 

@@ -8,12 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/GlobalEnvironment.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+
+#include <math.h>
 
 /****************************************************************************/
 /*!
@@ -31,7 +34,7 @@
  ** \remarks The opposite is not correct.
  **
  *****************************************************************************/
-GEOSLIB_API int compat_NDIM(Db *db1, Db *db2)
+int compat_NDIM(Db *db1, Db *db2)
 {
   if (db1->getNDim() <= db2->getNDim()) return (1);
   messerr("The Space Dimension of the First Db (%d)", db1->getNDim());
@@ -47,7 +50,7 @@ GEOSLIB_API int compat_NDIM(Db *db1, Db *db2)
  ** \param[in]  db  Pointer to the Db structure (organized as a grid)
  **
  *****************************************************************************/
-GEOSLIB_API void db_grid_print(Db *db)
+void db_grid_print(Db *db)
 {
   if (db->isGrid()) message(db->toString().c_str());
 }
@@ -110,15 +113,12 @@ static int st_vector_get_att(const Db *db, int iatt, double *tab)
  ** \param[out]  number Number of returned values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
-                                               int iatt,
-                                               int *number,
-                                               double *tab)
+int db_vector_get_att_sel_compress(Db *db, int iatt, int *number, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, true);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
-  *number = static_cast<int> (local.size());
+  *number = static_cast<int>(local.size());
   return (0);
 }
 
@@ -135,7 +135,7 @@ GEOSLIB_API int db_vector_get_att_sel_compress(Db *db,
  ** \param[out]  tab Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get_att(const Db *db, int iatt, double *tab)
+int db_vector_get_att(const Db *db, int iatt, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, false);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -158,7 +158,7 @@ GEOSLIB_API int db_vector_get_att(const Db *db, int iatt, double *tab)
  ** \remark If a selection is defined, the masked samples are set to TEST
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get_att_sel(Db *db, int iatt, double *tab)
+int db_vector_get_att_sel(Db *db, int iatt, double *tab)
 {
   VectorDouble local = db->getFieldByAttribute(iatt, true);
   for (int iech = 0; iech < (int) local.size(); iech++)
@@ -198,10 +198,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_get(Db *db,
-                              const ELoc& locatorType,
-                              int item,
-                              double *tab)
+int db_vector_get(Db *db, const ELoc &locatorType, int item, double *tab)
 {
   int iatt = db->getAttribute(locatorType, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -220,7 +217,7 @@ GEOSLIB_API int db_vector_get(Db *db,
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_selection_get(const Db *db, int item, double *tab)
+int db_selection_get(const Db *db, int item, double *tab)
 {
   int iatt = db->getAttribute(ELoc::SEL, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -237,10 +234,10 @@ GEOSLIB_API int db_selection_get(const Db *db, int item, double *tab)
  ** \param[in]  tab    Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_vector_put(Db *db,
-                              const ELoc& locatorType,
-                              int locatorIndex,
-                              double *tab)
+int db_vector_put(Db *db,
+                  const ELoc &locatorType,
+                  int locatorIndex,
+                  double *tab)
 {
   int icol = db->getColumnByLocator(locatorType, locatorIndex);
   if (!db->isColumnIndexValid(icol)) return (1);
@@ -259,9 +256,9 @@ GEOSLIB_API int db_vector_put(Db *db,
  ** \param[in]  tab    Array containing the data
  *****************************************************************************/
 static void st_load_data(Db *db,
-                         const ELoadBy& order,
+                         const ELoadBy &order,
                          int flag_add_rank,
-                         const VectorDouble& tab)
+                         const VectorDouble &tab)
 {
   // Preliminary check
 
@@ -282,8 +279,7 @@ static void st_load_data(Db *db,
   // Add the input array 'tab' (if provided)
 
   if (tab.empty()) return;
-  int ntab = (flag_add_rank) ? db->getFieldNumber() - 1 :
-                               db->getFieldNumber();
+  int ntab = (flag_add_rank) ? db->getFieldNumber() - 1 : db->getFieldNumber();
   int ecr = 0;
   for (int icol = 0; icol < ntab; icol++)
   {
@@ -309,30 +305,12 @@ static void st_load_data(Db *db,
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-GEOSLIB_API int is_grid(const Db *db, bool verbose)
+int is_grid(const Db *db, bool verbose)
 {
   if (db == nullptr) return (0);
   if (db->isGrid()) return 1;
   if (verbose) messerr("The file should be a Grid Db");
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Writes one gradient of a sample
- **
- ** \param[in]  db     Db structure
- ** \param[in]  iech   Rank of the sample
- ** \param[in]  item   Rank of the gradient
- ** \param[in]  value  Value of be written
- **
- ** \remark  For efficiency reason, argument validity is not tested
- **
- *****************************************************************************/
-GEOSLIB_API void set_IGRD(Db *db, int iech, int item, double value)
-{
-  if (db == NULL) return;
-  db->setGradient(iech, item, value);
 }
 
 /****************************************************************************/
@@ -345,7 +323,7 @@ GEOSLIB_API void set_IGRD(Db *db, int iech, int item, double value)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
+int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType)
 {
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
@@ -364,7 +342,7 @@ GEOSLIB_API int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-GEOSLIB_API int exist_LOCATOR(Db *db, const ELoc& locatorType)
+int exist_LOCATOR(Db *db, const ELoc &locatorType)
 {
   if (db == nullptr) return (0);
   return (db->getFromLocatorNumber(locatorType) > 0);
@@ -384,10 +362,7 @@ GEOSLIB_API int exist_LOCATOR(Db *db, const ELoc& locatorType)
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-GEOSLIB_API double get_LOCATOR_ITEM(Db *db,
-                                    const ELoc& locatorType,
-                                    int item,
-                                    int iech)
+double get_LOCATOR_ITEM(Db *db, const ELoc &locatorType, int item, int iech)
 {
   return db->getFromLocator(locatorType, iech, item);
 }
@@ -405,11 +380,11 @@ GEOSLIB_API double get_LOCATOR_ITEM(Db *db,
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-GEOSLIB_API void set_LOCATOR_ITEM(Db *db,
-                                  const ELoc& locatorType,
-                                  int item,
-                                  int iech,
-                                  double value)
+void set_LOCATOR_ITEM(Db *db,
+                      const ELoc &locatorType,
+                      int item,
+                      int iech,
+                      double value)
 {
   db->setFromLocator(locatorType, iech, item, value);
   return;
@@ -424,10 +399,10 @@ GEOSLIB_API void set_LOCATOR_ITEM(Db *db,
  ** \param[in]  indice Array to be freed
  **
  *****************************************************************************/
-GEOSLIB_API int *db_indg_free(int *indice)
+int* db_indg_free(int *indice)
 
 {
-  indice = (int *) mem_free((char * ) indice);
+  indice = (int*) mem_free((char* ) indice);
   return (indice);
 }
 
@@ -443,7 +418,7 @@ GEOSLIB_API int *db_indg_free(int *indice)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API int *db_indg_alloc(const Db *db)
+int* db_indg_alloc(const Db *db)
 
 {
   int *indice, size;
@@ -460,7 +435,7 @@ GEOSLIB_API int *db_indg_alloc(const Db *db)
   size = db->getNDim();
   if (size <= 0) return (indice);
 
-  indice = (int *) mem_alloc(sizeof(int) * size, 1);
+  indice = (int*) mem_alloc(sizeof(int) * size, 1);
 
   return (indice);
 }
@@ -474,10 +449,10 @@ GEOSLIB_API int *db_indg_alloc(const Db *db)
  ** \param[in]  tab Vector array to be freed
  **
  *****************************************************************************/
-GEOSLIB_API double *db_vector_free(double *tab)
+double* db_vector_free(double *tab)
 
 {
-  tab = (double *) mem_free((char * ) tab);
+  tab = (double*) mem_free((char* ) tab);
   return (tab);
 }
 
@@ -493,7 +468,7 @@ GEOSLIB_API double *db_vector_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API double *db_vector_alloc(const Db *db)
+double* db_vector_alloc(const Db *db)
 
 {
   double *tab;
@@ -502,7 +477,7 @@ GEOSLIB_API double *db_vector_alloc(const Db *db)
 
   tab = nullptr;
   if (db->getSampleNumber() <= 0) return (tab);
-  tab = (double *) mem_alloc(sizeof(double) * db->getSampleNumber(), 1);
+  tab = (double*) mem_alloc(sizeof(double) * db->getSampleNumber(), 1);
 
   return (tab);
 }
@@ -522,7 +497,7 @@ GEOSLIB_API double *db_vector_alloc(const Db *db)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GEOSLIB_API int db_coorvec_get(const Db *db, int idim, double *tab)
+int db_coorvec_get(const Db *db, int idim, double *tab)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -552,7 +527,7 @@ GEOSLIB_API int db_coorvec_get(const Db *db, int idim, double *tab)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GEOSLIB_API int db_coorvec_put(Db *db, int idim, double *tab)
+int db_coorvec_put(Db *db, int idim, double *tab)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -582,7 +557,7 @@ GEOSLIB_API int db_coorvec_put(Db *db, int idim, double *tab)
  ** \param[in]  item   Rank of the attribute in the pointer
  **
  *****************************************************************************/
-GEOSLIB_API int db_attribute_identify(const Db *db, const ELoc& locatorType, int item)
+int db_attribute_identify(const Db *db, const ELoc &locatorType, int item)
 {
   int iatt = db->getAttribute(locatorType, item);
   return (iatt);
@@ -597,10 +572,10 @@ GEOSLIB_API int db_attribute_identify(const Db *db, const ELoc& locatorType, int
  ** \param[in]  tab  Sample array to be freed
  **
  *****************************************************************************/
-GEOSLIB_API double *db_sample_free(double *tab)
+double* db_sample_free(double *tab)
 
 {
-  tab = (double *) mem_free((char * ) tab);
+  tab = (double*) mem_free((char* ) tab);
   return (tab);
 }
 
@@ -617,7 +592,7 @@ GEOSLIB_API double *db_sample_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType)
+double* db_sample_alloc(const Db *db, const ELoc &locatorType)
 {
   double *tab;
   int size;
@@ -629,7 +604,7 @@ GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType)
 
   /* In the case of a grid, there may be no actual data vector */
   if (locatorType == ELoc::X && db->isGrid()) size = db->getNDim();
-  if (size > 0) tab = (double *) mem_alloc(sizeof(double) * size, 1);
+  if (size > 0) tab = (double*) mem_alloc(sizeof(double) * size, 1);
   return (tab);
 }
 
@@ -648,10 +623,7 @@ GEOSLIB_API double *db_sample_alloc(const Db *db, const ELoc& locatorType)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-GEOSLIB_API int db_sample_load(Db *db,
-                               const ELoc& locatorType,
-                               int iech,
-                               double *tab)
+int db_sample_load(Db *db, const ELoc &locatorType, int iech, double *tab)
 {
   if (!isLocatorTypeValid(locatorType)) return (1);
 
@@ -685,11 +657,7 @@ GEOSLIB_API int db_sample_load(Db *db,
  ** \param[out] tab     Array of values
  **
  *****************************************************************************/
-GEOSLIB_API int db_sample_get_att(Db *db,
-                                  int iech,
-                                  int number,
-                                  int iatt,
-                                  double *tab)
+int db_sample_get_att(Db *db, int iech, int number, int iatt, double *tab)
 {
   int ivar, flag_ffff;
 
@@ -713,11 +681,7 @@ GEOSLIB_API int db_sample_get_att(Db *db,
  ** \param[in]  tab     array of values
  **
  *****************************************************************************/
-GEOSLIB_API void db_sample_put_att(Db *db,
-                                   int iech,
-                                   int number,
-                                   int iatt,
-                                   double *tab)
+void db_sample_put_att(Db *db, int iech, int number, int iatt, double *tab)
 {
   int ivar;
 
@@ -745,11 +709,7 @@ GEOSLIB_API void db_sample_put_att(Db *db,
  ** \remark: The returned array 'vect' must be dimension to that value
  **
  *****************************************************************************/
-GEOSLIB_API double distance_inter(Db *db1,
-                                  Db *db2,
-                                  int iech1,
-                                  int iech2,
-                                  double *dist_vect)
+double distance_inter(Db *db1, Db *db2, int iech1, int iech2, double *dist_vect)
 {
   double v1, v2, *tab1, *tab2;
   int idim, ndim;
@@ -783,10 +743,7 @@ GEOSLIB_API double distance_inter(Db *db1,
  **                        Returns the distance as a vector
  **
  *****************************************************************************/
-GEOSLIB_API double distance_intra(const Db *db,
-                                  int iech1,
-                                  int iech2,
-                                  double *dist_vect)
+double distance_intra(const Db *db, int iech1, int iech2, double *dist_vect)
 {
   double v1, v2, *tab1, *tab2;
   int idim, ndim;
@@ -821,11 +778,11 @@ GEOSLIB_API double distance_intra(const Db *db,
  **                         Returns the distance as a vector
  **
  *****************************************************************************/
-GEOSLIB_API double distance_grid(Db *db,
-                                 int flag_moins1,
-                                 int iech1,
-                                 int iech2,
-                                 double *dist_vect)
+double distance_grid(Db *db,
+                     int flag_moins1,
+                     int iech1,
+                     int iech2,
+                     double *dist_vect)
 {
   int ndim = db->getNDim();
   VectorInt iwork1(ndim);
@@ -835,9 +792,8 @@ GEOSLIB_API double distance_grid(Db *db,
 
   if (iech1 == iech2)
   {
-    if (dist_vect != nullptr)
-      for (int idim = 0; idim < db->getNDim(); idim++)
-        dist_vect[idim] = 0.;
+    if (dist_vect != nullptr) for (int idim = 0; idim < db->getNDim(); idim++)
+      dist_vect[idim] = 0.;
     return (0.);
   }
 
@@ -876,7 +832,7 @@ GEOSLIB_API double distance_grid(Db *db,
  ** \remark  according to the 3rd coordinate with the bench width.
  **
  *****************************************************************************/
-GEOSLIB_API double bench_distance(const Db *db, int iech1, int iech2)
+double bench_distance(const Db *db, int iech1, int iech2)
 {
   int idim0 = 2;
   if (db->getNDim() <= idim0) return (0.);
@@ -895,10 +851,10 @@ GEOSLIB_API double bench_distance(const Db *db, int iech1, int iech2)
  ** \param[in]  codir        Direction coefficient
  **
  *****************************************************************************/
-GEOSLIB_API double cylinder_radius(const Db *db,
-                                   int iech1,
-                                   int iech2,
-                                   const VectorDouble& codir)
+double cylinder_radius(const Db *db,
+                       int iech1,
+                       int iech2,
+                       const VectorDouble &codir)
 {
   double delta, dproj, v, dn1, dn2;
 
@@ -927,11 +883,12 @@ GEOSLIB_API double cylinder_radius(const Db *db,
  ** \remark  If one grid index does not lie within the grid, -1 is returned
  **
  *****************************************************************************/
-GEOSLIB_API int db_index_grid_to_sample(const Db *db, const int *indg)
+int db_index_grid_to_sample(const Db *db, const int *indg)
 {
   int ndim = db->getNDim();
   VectorInt local(ndim);
-  for (int idim = 0; idim < ndim; idim++) local[idim] = indg[idim];
+  for (int idim = 0; idim < ndim; idim++)
+    local[idim] = indg[idim];
   return db->getGrid().indiceToRank(local);
 }
 
@@ -945,7 +902,7 @@ GEOSLIB_API int db_index_grid_to_sample(const Db *db, const int *indg)
  ** \param[out]  indg Grid indices
  **
  *****************************************************************************/
-GEOSLIB_API void db_index_sample_to_grid(const Db *db, int iech, int *indg)
+void db_index_sample_to_grid(const Db *db, int iech, int *indg)
 {
   int ndim = db->getNDim();
   int nval = 1;
@@ -976,7 +933,7 @@ GEOSLIB_API void db_index_sample_to_grid(const Db *db, int iech, int *indg)
  ** \remark which minimizes the distance between any pair of successive indices
  **
  *****************************************************************************/
-GEOSLIB_API int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
+int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
 {
   int jech, idim, ndim, indref;
 
@@ -1003,24 +960,26 @@ GEOSLIB_API int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
  ** \param[in]  flag_nerr 1 if the error measurement variance must be printed
  **
  *****************************************************************************/
-GEOSLIB_API void db_sample_print(Db *db,
-                                 int iech,
-                                 int flag_ndim,
-                                 int flag_nvar,
-                                 int flag_nerr)
+void db_sample_print(Db *db,
+                     int iech,
+                     int flag_ndim,
+                     int flag_nvar,
+                     int flag_nerr)
 {
   int idim, ivar, ierr;
   double value;
 
   message("Sample #%d (from %d)\n", iech + 1, db->getSampleNumber());
-  if (flag_ndim) for (idim = 0; idim < db->getNDim(); idim++)
-  {
-    value = db->getCoordinate(iech, idim);
-    if (FFFF(value))
-      message("Coordinate #%d = NA\n", idim + 1);
-    else
-      message("Coordinate #%d = %lf\n", idim + 1, db->getCoordinate(iech, idim));
-  }
+  if (flag_ndim)
+    for (idim = 0; idim < db->getNDim(); idim++)
+    {
+      value = db->getCoordinate(iech, idim);
+      if (FFFF(value))
+        message("Coordinate #%d = NA\n", idim + 1);
+      else
+        message("Coordinate #%d = %lf\n", idim + 1,
+                db->getCoordinate(iech, idim));
+    }
   if (flag_nvar) for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
   {
     value = db->getVariable(iech, ivar);
@@ -1066,14 +1025,14 @@ GEOSLIB_API void db_sample_print(Db *db,
  ** \param[in]  ranks         Array of field ranks to be printed
  **
  *****************************************************************************/
-GEOSLIB_API void db_print(Db *db,
-                          int flag_resume,
-                          int flag_vars,
-                          int flag_extend,
-                          int flag_stats,
-                          int flag_array,
-                          int nrank,
-                          int *ranks)
+void db_print(Db *db,
+              int flag_resume,
+              int flag_vars,
+              int flag_extend,
+              int flag_stats,
+              int flag_array,
+              int nrank,
+              int *ranks)
 {
   /* Preliminary check */
 
@@ -1124,10 +1083,7 @@ GEOSLIB_API void db_print(Db *db,
  **                        (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-GEOSLIB_API int db_extension(Db *db,
-                             double *mini_arg,
-                             double *maxi_arg,
-                             double *delta_arg)
+int db_extension(Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
 {
   double vmin, vmax, diff, mean, stdv;
   int nval;
@@ -1144,8 +1100,8 @@ GEOSLIB_API int db_extension(Db *db,
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
     VectorDouble coor = db->getCoordinate(idim, true);
-    ut_statistics(static_cast<int> (coor.size()), coor.data(), NULL, NULL,
-                  &nval, &vmin, &vmax, &diff, &mean, &stdv);
+    ut_statistics(static_cast<int>(coor.size()), coor.data(), NULL, NULL, &nval,
+                  &vmin, &vmax, &diff, &mean, &stdv);
     mini[idim] = vmin;
     maxi[idim] = vmax;
     delta[idim] = diff;
@@ -1173,7 +1129,7 @@ GEOSLIB_API int db_extension(Db *db,
  **                     (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-GEOSLIB_API int db_center(Db *db, double *center)
+int db_center(Db *db, double *center)
 {
   double *tab, *sel, *wgt, vmin, vmax, diff, mean, stdv;
   int idim, nval;
@@ -1226,7 +1182,7 @@ GEOSLIB_API int db_center(Db *db, double *center)
  ** \remarks  Different versions are provided for Euclidean and Spherical cases
  **
  *****************************************************************************/
-GEOSLIB_API int db_extension_diag(const Db *db, double *diag)
+int db_extension_diag(const Db *db, double *diag)
 {
   double *tab, *sel, vmin, vmax, diff, mean, stdv, coor[2][2];
   int idim, nval, flag_sphere;
@@ -1291,7 +1247,7 @@ GEOSLIB_API int db_extension_diag(const Db *db, double *diag)
  ** \param[in]  db   Db structure
  **
  *****************************************************************************/
-GEOSLIB_API double db_epsilon_distance(Db *db)
+double db_epsilon_distance(Db *db)
 
 {
   double diag;
@@ -1327,11 +1283,11 @@ GEOSLIB_API double db_epsilon_distance(Db *db)
  ** \param[out]  delta  Extension
  **
  *****************************************************************************/
-GEOSLIB_API int db_attribute_range(const Db *db,
-                                   int iatt,
-                                   double *mini,
-                                   double *maxi,
-                                   double *delta)
+int db_attribute_range(const Db *db,
+                       int iatt,
+                       double *mini,
+                       double *maxi,
+                       double *delta)
 {
   double *tab, *sel, vmin, vmax, diff, mean, stdv;
   int nval, error;
@@ -1381,7 +1337,7 @@ GEOSLIB_API int db_attribute_range(const Db *db,
  ** \param[in]  db Db structure
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_delete(Db *db)
+Db* db_delete(Db *db)
 
 {
   /* Initializations */
@@ -1410,7 +1366,7 @@ GEOSLIB_API Db *db_delete(Db *db)
  ** \remark characteristics have changed
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_define_coordinates(Db *db)
+int db_grid_define_coordinates(Db *db)
 
 {
   if (db == nullptr) return (0);
@@ -1479,18 +1435,18 @@ GEOSLIB_API int db_grid_define_coordinates(Db *db)
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid(int flag_rot,
-                               int /*ndim*/,
-                               int natt,
-                               const ELoadBy& order,
-                               int flag_add_rank,
-                               const VectorInt& nx,
-                               const VectorDouble& x0,
-                               const VectorDouble& dx,
-                               const VectorDouble& angles,
-                               const VectorDouble& tab)
+Db* db_create_grid(int flag_rot,
+                   int /*ndim*/,
+                   int natt,
+                   const ELoadBy &order,
+                   int flag_add_rank,
+                   const VectorInt &nx,
+                   const VectorDouble &x0,
+                   const VectorDouble &dx,
+                   const VectorDouble &angles,
+                   const VectorDouble &tab)
 {
-  Db* db = new Db;
+  Db *db = new Db;
   int error;
 
   /* Initializations */
@@ -1533,12 +1489,12 @@ GEOSLIB_API Db *db_create_grid(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_generic(int ndim,
-                                       int natt,
-                                       const ELoadBy& order,
-                                       int flag_add_rank,
-                                       const VectorInt& nx,
-                                       const VectorDouble& tab)
+Db* db_create_grid_generic(int ndim,
+                           int natt,
+                           const ELoadBy &order,
+                           int flag_add_rank,
+                           const VectorInt &nx,
+                           const VectorDouble &tab)
 {
   // Initializations
 
@@ -1552,7 +1508,7 @@ GEOSLIB_API Db *db_create_grid_generic(int ndim,
 
   /* Allocate the main structure */
 
-  Db* db = new (Db);
+  Db *db = new (Db);
   db->reset(natt, nech);
 
   /* Dimension the data arrays */
@@ -1561,8 +1517,7 @@ GEOSLIB_API Db *db_create_grid_generic(int ndim,
 
   /* Load the data */
 
-  if (! error)
-    st_load_data(db, order, flag_add_rank, tab);
+  if (!error) st_load_data(db, order, flag_add_rank, tab);
 
   /* Remove the newly created Db if problem occurred */
 
@@ -1593,18 +1548,18 @@ GEOSLIB_API Db *db_create_grid_generic(int ndim,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
-                                  int natt,
-                                  const ELoadBy& order,
-                                  int flag_add_rank,
-                                  int nx,
-                                  int ny,
-                                  double x0,
-                                  double y0,
-                                  double dx,
-                                  double dy,
-                                  double angle,
-                                  const VectorDouble& tab)
+Db* db_create_grid_2D(int flag_rot,
+                      int natt,
+                      const ELoadBy &order,
+                      int flag_add_rank,
+                      int nx,
+                      int ny,
+                      double x0,
+                      double y0,
+                      double dx,
+                      double dy,
+                      double angle,
+                      const VectorDouble &tab)
 {
   Db *db;
   VectorInt nn;
@@ -1660,23 +1615,23 @@ GEOSLIB_API Db *db_create_grid_2D(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
-                                  int natt,
-                                  const ELoadBy& order,
-                                  int flag_add_rank,
-                                  int nx,
-                                  int ny,
-                                  int nz,
-                                  double x0,
-                                  double y0,
-                                  double z0,
-                                  double dx,
-                                  double dy,
-                                  double dz,
-                                  double angle_z,
-                                  double angle_y,
-                                  double angle_x,
-                                  const VectorDouble& tab)
+Db* db_create_grid_3D(int flag_rot,
+                      int natt,
+                      const ELoadBy &order,
+                      int flag_add_rank,
+                      int nx,
+                      int ny,
+                      int nz,
+                      double x0,
+                      double y0,
+                      double z0,
+                      double dx,
+                      double dy,
+                      double dz,
+                      double angle_z,
+                      double angle_y,
+                      double angle_x,
+                      const VectorDouble &tab)
 {
   Db *db;
   VectorInt nn;
@@ -1723,15 +1678,15 @@ GEOSLIB_API Db *db_create_grid_3D(int flag_rot,
  ** \param[in]  tab    Array containing the data
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_point(int nech,
-                                int natt,
-                                const ELoadBy& order,
-                                int flag_add_rank,
-                                const VectorDouble& tab)
+Db* db_create_point(int nech,
+                    int natt,
+                    const ELoadBy &order,
+                    int flag_add_rank,
+                    const VectorDouble &tab)
 {
   /* Allocate the main structure */
 
-  Db* db = new (Db);
+  Db *db = new (Db);
 
   db->reset(natt + flag_add_rank, nech);
 
@@ -1755,9 +1710,7 @@ GEOSLIB_API Db *db_create_point(int nech,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_from_target(double *target,
-                                      int ndim,
-                                      int flag_add_rank)
+Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
 {
   Db *db;
   int idim;
@@ -1796,7 +1749,7 @@ GEOSLIB_API Db *db_create_from_target(double *target,
  ** \param[in]  iatt   Rank of the attribute (starting at 0)
  **
  *****************************************************************************/
-GEOSLIB_API std::string db_name_get_by_att(const Db *db, int iatt)
+String db_name_get_by_att(const Db *db, int iatt)
 {
   static char na_string[3] = "NA";
   int icol = db->getColumnByAttribute(iatt);
@@ -1804,7 +1757,17 @@ GEOSLIB_API std::string db_name_get_by_att(const Db *db, int iatt)
   return (db->getNameByColumn(icol));
 }
 
-GEOSLIB_API std::string db_name_get_by_col(Db *db, int icol)
+/****************************************************************************/
+/*!
+ **  Returns the name assigned to the given column
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db structure
+ ** \param[in]  icol   Rank of the column (starting at 0)
+ **
+ *****************************************************************************/
+String db_name_get_by_col(Db *db, int icol)
 {
   static char na_string[3] = "NA";
   if (!db->isColumnIndexValid(icol)) return (na_string);
@@ -1822,7 +1785,7 @@ GEOSLIB_API std::string db_name_get_by_col(Db *db, int icol)
  ** \param[in]  name   Name assigned to the current attribute
  **
  *****************************************************************************/
-GEOSLIB_API int db_name_set(Db *db, int iatt, const String& name)
+int db_name_set(Db *db, int iatt, const String &name)
 {
   if (!db->isAttributeIndexValid(iatt)) return 1;
   db->setName(iatt, name);
@@ -1840,7 +1803,7 @@ GEOSLIB_API int db_name_set(Db *db, int iatt, const String& name)
  ** \remark The output attribute must already be allocated
  **
  *****************************************************************************/
-GEOSLIB_API void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
+void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
 {
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
     db->setArray(iech, iatt_out, db->getArray(iech, iatt_in));
@@ -1857,7 +1820,7 @@ GEOSLIB_API void db_attribute_copy(Db *db, int iatt_in, int iatt_out)
  ** \param[in]  valinit   Value set to the variable
  **
  *****************************************************************************/
-GEOSLIB_API void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
+void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
 {
   int iech, icol, jcol, jatt;
 
@@ -1866,7 +1829,7 @@ GEOSLIB_API void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
     jatt = iatt + jcol;
     icol = db->getColumnByAttribute(jatt);
 
-    if (! GlobalEnvironment::getEnv()->isDomainReference() || !db->hasDomain())
+    if (!GlobalEnvironment::getEnv()->isDomainReference() || !db->hasDomain())
       for (iech = 0; iech < db->getSampleNumber(); iech++)
         db->setArray(iech, icol, valinit);
     else
@@ -1888,7 +1851,7 @@ GEOSLIB_API void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
  ** \param[in]  n_del Number of attributes to be deleted
  **
  *****************************************************************************/
-GEOSLIB_API void db_attribute_del_mult(Db *db, int i_del, int n_del)
+void db_attribute_del_mult(Db *db, int i_del, int n_del)
 {
   if (i_del <= 0) return;
   for (int i = n_del - 1; i >= 0; i--)
@@ -1911,7 +1874,7 @@ GEOSLIB_API void db_attribute_del_mult(Db *db, int i_del, int n_del)
  ** \param[out]  dbout  Output Grid Db structure
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
+int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
 {
   if (!dbin->isGrid()) return (1);
   if (!dbout->isGrid()) return (1);
@@ -1929,7 +1892,7 @@ GEOSLIB_API int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
  ** \param[in]  db Db structure
  **
  *****************************************************************************/
-GEOSLIB_API double db_grid_maille(Db *db)
+double db_grid_maille(Db *db)
 
 {
   if (!db->isGrid()) return (TEST);
@@ -1949,7 +1912,7 @@ GEOSLIB_API double db_grid_maille(Db *db)
  ** \remark  are transformed into additional variables
  **
  *****************************************************************************/
-GEOSLIB_API int db_gradient_update(Db *db)
+int db_gradient_update(Db *db)
 
 {
   int ndim = db->getNDim();
@@ -1993,11 +1956,7 @@ GEOSLIB_API int db_gradient_update(Db *db)
  ** \param[out] tabout Output array
  **
  *****************************************************************************/
-GEOSLIB_API int db_selref(int ndim,
-                          int *nx,
-                          int *ref,
-                          double *tabin,
-                          double *tabout)
+int db_selref(int ndim, int *nx, int *ref, double *tabin, double *tabout)
 {
   int *rank, *ind1, idim, jdim, ntotal, nval, lec, ecr, iech, skip, ival, error,
       neff_ndim;
@@ -2010,9 +1969,9 @@ GEOSLIB_API int db_selref(int ndim,
 
   /* Core allocation */
 
-  rank = (int *) mem_alloc(sizeof(int) * ndim, 0);
+  rank = (int*) mem_alloc(sizeof(int) * ndim, 0);
   if (rank == nullptr) goto label_end;
-  ind1 = (int *) mem_alloc(sizeof(int) * ndim, 0);
+  ind1 = (int*) mem_alloc(sizeof(int) * ndim, 0);
   if (ind1 == nullptr) goto label_end;
 
   /* Set the indices */
@@ -2070,8 +2029,8 @@ GEOSLIB_API int db_selref(int ndim,
 
   /* Core deallocation */
 
-  label_end: rank = (int *) mem_free((char * ) rank);
-  ind1 = (int *) mem_free((char * ) ind1);
+  label_end: rank = (int*) mem_free((char* ) rank);
+  ind1 = (int*) mem_free((char* ) ind1);
   return (error);
 }
 
@@ -2085,7 +2044,7 @@ GEOSLIB_API int db_selref(int ndim,
  ** \param[in]  coor     Array containing the coordinates of the sample
  **
  *****************************************************************************/
-GEOSLIB_API int db_locate_in_grid(Db *db_grid, double *coor)
+int db_locate_in_grid(Db *db_grid, double *coor)
 {
   int *indg, indabs;
 
@@ -2121,7 +2080,7 @@ GEOSLIB_API int db_locate_in_grid(Db *db_grid, double *coor)
  ** \remark  The test returns 0 if one of the two file is not a grid
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_match(Db *db1, Db *db2)
+int db_grid_match(Db *db1, Db *db2)
 
 {
   return ((int) db1->isSameGrid(db2->getGrid()));
@@ -2142,12 +2101,12 @@ GEOSLIB_API int db_grid_match(Db *db1, Db *db2)
  ** \param[out] iptr    Rank of the first new attribute
  **
  *****************************************************************************/
-GEOSLIB_API int db_locator_attribute_add(Db *db,
-                                         const ELoc& locatorType,
-                                         int number,
-                                         int r_tem,
-                                         double valinit,
-                                         int *iptr)
+int db_locator_attribute_add(Db *db,
+                             const ELoc &locatorType,
+                             int number,
+                             int r_tem,
+                             double valinit,
+                             int *iptr)
 {
   (*iptr) = db->addFields(number, valinit);
   if ((*iptr) < 0) return (1);
@@ -2177,12 +2136,7 @@ GEOSLIB_API int db_locator_attribute_add(Db *db,
  ** \param[in]  cols    Array of input variable columns
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_copy(Db *db1,
-                             Db *db2,
-                             int *ind1,
-                             int *ind2,
-                             int ncol,
-                             int *cols)
+int db_grid_copy(Db *db1, Db *db2, int *ind1, int *ind2, int ncol, int *cols)
 {
   if (!(db1->isGrid() && db2->isGrid()))
   {
@@ -2271,12 +2225,12 @@ GEOSLIB_API int db_grid_copy(Db *db1,
  **                     along each space direction
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_copy_dilate(Db *db1,
-                                    int iatt1,
-                                    Db *db2,
-                                    int iatt2,
-                                    int mode,
-                                    int *nshift)
+int db_grid_copy_dilate(Db *db1,
+                        int iatt1,
+                        Db *db2,
+                        int iatt2,
+                        int mode,
+                        int *nshift)
 {
   int *indg, iech1, iech2, idim, ndim, error;
   double value;
@@ -2338,7 +2292,7 @@ GEOSLIB_API int db_grid_copy_dilate(Db *db1,
  ** \param[out] coor     coordinates of the point
  **
  *****************************************************************************/
-GEOSLIB_API void grid_to_point(const Db *db, int *indg, double *percent, double *coor)
+void grid_to_point(const Db *db, int *indg, double *percent, double *coor)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2375,7 +2329,7 @@ GEOSLIB_API void grid_to_point(const Db *db, int *indg, double *percent, double 
  ** \param[in]  coor  array of coordinates of the point
  **
  *****************************************************************************/
-GEOSLIB_API int point_to_point(Db *db, double *coor)
+int point_to_point(Db *db, double *coor)
 {
   double dist, distmin, delta, x;
   int idim, iech, iechmin;
@@ -2428,7 +2382,7 @@ GEOSLIB_API int point_to_point(Db *db, double *coor)
  ** \param[out] indg          indices of the closest grid node
  **
  *****************************************************************************/
-GEOSLIB_API int point_to_grid(const Db *db, double *coor, int flag_outside, int *indg)
+int point_to_grid(const Db *db, double *coor, int flag_outside, int *indg)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2494,10 +2448,7 @@ GEOSLIB_API int point_to_grid(const Db *db, double *coor, int flag_outside, int 
  ** \remarks as reference
  **
  *****************************************************************************/
-GEOSLIB_API int point_to_bench(const Db *db,
-                               double *coor,
-                               int flag_outside,
-                               int *indb)
+int point_to_bench(const Db *db, double *coor, int flag_outside, int *indb)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2576,11 +2527,11 @@ GEOSLIB_API int point_to_bench(const Db *db,
  ** \param[out] coor          Working array (dimension: ndim)
  **
  *****************************************************************************/
-GEOSLIB_API int index_point_to_grid(const Db *dbin,
-                                    int iech,
-                                    int flag_outside,
-                                    const Db *dbout,
-                                    double *coor)
+int index_point_to_grid(const Db *dbin,
+                        int iech,
+                        int flag_outside,
+                        const Db *dbout,
+                        double *coor)
 {
   int ndim = dbin->getNDim();
   int nech = dbin->getSampleNumber();
@@ -2614,7 +2565,7 @@ GEOSLIB_API int index_point_to_grid(const Db *dbin,
  ** \param[in]  dbgrid  Grid Db structure
  **
  *****************************************************************************/
-GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid)
+int point_inside_grid(Db *db, int iech, Db *dbgrid)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2651,13 +2602,13 @@ GEOSLIB_API int point_inside_grid(Db *db, int iech, Db *dbgrid)
  ** \param[out]  maxi Maximum value
  **
  *****************************************************************************/
-GEOSLIB_API void db_monostat(Db *db,
-                             int iatt,
-                             double *wtot,
-                             double *mean,
-                             double *var,
-                             double *mini,
-                             double *maxi)
+void db_monostat(Db *db,
+                 int iatt,
+                 double *wtot,
+                 double *mean,
+                 double *var,
+                 double *mini,
+                 double *maxi)
 {
   int iech;
   double weight, value;
@@ -2719,12 +2670,12 @@ GEOSLIB_API void db_monostat(Db *db,
  ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **
  *****************************************************************************/
-GEOSLIB_API void db_polygon(Db *db,
-                            Polygons *polygon,
-                            int flag_sel,
-                            int flag_period,
-                            int flag_nested,
-                            NamingConvention namconv)
+void db_polygon(Db *db,
+                Polygons *polygon,
+                int flag_sel,
+                int flag_period,
+                int flag_nested,
+                const NamingConvention& namconv)
 {
   // Adding a new variable
 
@@ -2734,7 +2685,8 @@ GEOSLIB_API void db_polygon(Db *db,
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
-    mes_process("Checking if sample belongs to a polygon", db->getSampleNumber(), iech);
+    mes_process("Checking if sample belongs to a polygon",
+                db->getSampleNumber(), iech);
     int selval = 0;
     if (!(flag_sel && !db->isActive(iech)))
     {
@@ -2779,11 +2731,7 @@ GEOSLIB_API void db_polygon(Db *db,
  ** \remark  variables
  **
  *****************************************************************************/
-GEOSLIB_API int db_proportion(Db *db,
-                              Db *dbgrid,
-                              int nfac1max,
-                              int nfac2max,
-                              int *nclout)
+int db_proportion(Db *db, Db *dbgrid, int nfac1max, int nfac2max, int *nclout)
 {
   int error, iptr, ivar, nech, nval, mini, nvar, invalid, iclass, nclass;
   int ifac[2], nmax[2], iech, jech;
@@ -2920,10 +2868,10 @@ GEOSLIB_API int db_proportion(Db *db,
  ** \param[in]  cols    Array of input variable columns
  **
  *****************************************************************************/
-GEOSLIB_API int db_merge(Db *db, int ncol, int *cols)
+int db_merge(Db *db, int ncol, int *cols)
 {
   int iptr, iech, icol;
-  double value;
+  double value = TEST;
 
   /* Preliminary check */
 
@@ -2968,7 +2916,7 @@ GEOSLIB_API int db_merge(Db *db, int ncol, int *cols)
  ** \param[in]  icol    Rank of the Column
  **
  *****************************************************************************/
-GEOSLIB_API int db_count_defined(Db *db, int icol)
+int db_count_defined(Db *db, int icol)
 {
   int iech, number;
   double value;
@@ -2994,17 +2942,17 @@ GEOSLIB_API int db_count_defined(Db *db, int icol)
  ** \remark  The elements of the array current are numbered starting from 1
  **
  *****************************************************************************/
-GEOSLIB_API void db_locators_correct(VectorString& strings,
-                                     const VectorInt& current,
-                                     int flag_locnew)
+void db_locators_correct(VectorString &strings,
+                         const VectorInt &current,
+                         int flag_locnew)
 {
   int cur_item, ref_item, found, nmatch, ncount, nmult;
   ELoc cur_type, ref_type;
 
   /* Dispatch */
 
-  int number = static_cast<int> (strings.size());
-  int ncur = static_cast<int> (current.size());
+  int number = static_cast<int>(strings.size());
+  int ncur = static_cast<int>(current.size());
   if (number <= 0 || ncur <= 0) return;
   VectorInt rank(number);
   VectorInt ind(number);
@@ -3138,7 +3086,7 @@ GEOSLIB_API void db_locators_correct(VectorString& strings,
  ** \remark  This procedure is meant for a 3-D grid file
  **
  *****************************************************************************/
-GEOSLIB_API int db_prop_read(Db *db, int ix, int iy, double *props)
+int db_prop_read(Db *db, int ix, int iy, double *props)
 {
   int iz, nz, nprop, iprop, ecr, indices[3], i, iech, flag_no;
   double value, total;
@@ -3182,8 +3130,8 @@ GEOSLIB_API int db_prop_read(Db *db, int ix, int iy, double *props)
 
     for (iprop = 0; iprop < nprop; iprop++, ecr++)
       props[ecr] =
-          (flag_no && total > 0) ? TEST :
-                                   db->getProportion(iech, iprop) / total;
+          (flag_no && total > 0) ? TEST : db->getProportion(iech, iprop)
+              / total;
   }
   return (0);
 }
@@ -3202,7 +3150,7 @@ GEOSLIB_API int db_prop_read(Db *db, int ix, int iy, double *props)
  ** \remark  This procedure is meant for a 3-D grid file
  **
  *****************************************************************************/
-GEOSLIB_API int db_prop_write(Db *db, int ix, int iy, double *props)
+int db_prop_write(Db *db, int ix, int iy, double *props)
 {
   int iz, nz, nprop, iprop, ecr, indices[3], iech;
 
@@ -3282,15 +3230,15 @@ static int st_is_isotopic(Db *db, int iech, int niso)
  ** \remarks the comparison between one sample and itself
  **
  *****************************************************************************/
-GEOSLIB_API double *db_distances_general(Db *db1,
-                                         Db *db2,
-                                         int niso,
-                                         int mode,
-                                         int flag_same,
-                                         int *n1,
-                                         int *n2,
-                                         double *dmin,
-                                         double *dmax)
+double* db_distances_general(Db *db1,
+                             Db *db2,
+                             int niso,
+                             int mode,
+                             int flag_same,
+                             int *n1,
+                             int *n2,
+                             double *dmin,
+                             double *dmax)
 {
   int nech1, nech2, iech1, iech2, ecr, max_all, nvalid;
   double *dist, dlocmin, dloc, dist_min, dist_max;
@@ -3319,7 +3267,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
 
   if (mode > 0)
   {
-    dist = (double *) mem_alloc(sizeof(double) * max_all, 0);
+    dist = (double*) mem_alloc(sizeof(double) * max_all, 0);
     if (dist == nullptr) return (dist);
     for (int i = 0; i < max_all; i++)
       dist[i] = 0.;
@@ -3368,7 +3316,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
 
   if (mode > 0 && ecr < max_all)
   {
-    dist = (double *) mem_realloc((char * ) dist, sizeof(double) * ecr, 0);
+    dist = (double*) mem_realloc((char* ) dist, sizeof(double) * ecr, 0);
     if (dist == nullptr) return (dist);
   }
 
@@ -3404,7 +3352,7 @@ GEOSLIB_API double *db_distances_general(Db *db1,
  ** \remark  If the sample is masked off, the function returns 0
  **
  *****************************************************************************/
-GEOSLIB_API int db_is_isotropic(Db *db, int iech, double *data)
+int db_is_isotropic(Db *db, int iech, double *data)
 {
   int ivar;
   double value;
@@ -3429,7 +3377,7 @@ GEOSLIB_API int db_is_isotropic(Db *db, int iech, double *data)
  ** \param[in]  db2   Db1 coarse grid structure
  **
  *****************************************************************************/
-GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
+int is_grid_multiple(Db *db1, Db *db2)
 {
   int *indg, idim, ndim, error;
   double *coor1, *coor2, *perc, ratio, delta;
@@ -3447,10 +3395,10 @@ GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
 
   /* Core allocation */
 
-  indg = (int *) mem_alloc(sizeof(int) * ndim, 1);
-  perc = (double *) mem_alloc(sizeof(double) * ndim, 1);
-  coor1 = (double *) mem_alloc(sizeof(double) * ndim, 1);
-  coor2 = (double *) mem_alloc(sizeof(double) * ndim, 1);
+  indg = (int*) mem_alloc(sizeof(int) * ndim, 1);
+  perc = (double*) mem_alloc(sizeof(double) * ndim, 1);
+  coor1 = (double*) mem_alloc(sizeof(double) * ndim, 1);
+  coor2 = (double*) mem_alloc(sizeof(double) * ndim, 1);
 
   /* Check that the grid meshes are multiple */
 
@@ -3482,10 +3430,10 @@ GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
 
   error = 0;
 
-  label_end: indg = (int *) mem_free((char * ) indg);
-  perc = (double *) mem_free((char * ) perc);
-  coor1 = (double *) mem_free((char * ) coor1);
-  coor2 = (double *) mem_free((char * ) coor2);
+  label_end: indg = (int*) mem_free((char* ) indg);
+  perc = (double*) mem_free((char* ) perc);
+  coor1 = (double*) mem_free((char* ) coor1);
+  coor2 = (double*) mem_free((char* ) coor2);
   return (1 - error);
 }
 
@@ -3500,11 +3448,9 @@ GEOSLIB_API int is_grid_multiple(Db *db1, Db *db2)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
-                                        const VectorInt& nmult,
-                                        int flag_add_rank)
+Db* db_create_grid_multiple(Db *dbin, const VectorInt &nmult, int flag_add_rank)
 {
-  Db* dbout = nullptr;
+  Db *dbout = nullptr;
   if (dbin == nullptr) return (dbin);
   int ndim = dbin->getNDim();
 
@@ -3520,8 +3466,8 @@ GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN, flag_add_rank, nx,
-                         x0, dx, dbin->getAngles());
+  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN,
+                         flag_add_rank, nx, x0, dx, dbin->getAngles());
 
   return (dbout);
 }
@@ -3537,13 +3483,11 @@ GEOSLIB_API Db *db_create_grid_multiple(Db *dbin,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
-                                       const VectorInt& nmult,
-                                       int flag_add_rank)
+Db* db_create_grid_divider(Db *dbin, const VectorInt &nmult, int flag_add_rank)
 {
-  Db* dbout = nullptr;
+  Db *dbout = nullptr;
   if (dbin == nullptr) return dbin;
-  if (! dbin->isGrid()) return dbin;
+  if (!dbin->isGrid()) return dbin;
 
   int ndim = dbin->getNDim();
   VectorInt nx(ndim);
@@ -3556,8 +3500,8 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN, flag_add_rank, nx,
-                         x0, dx, dbin->getAngles());
+  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN,
+                         flag_add_rank, nx, x0, dx, dbin->getAngles());
 
   return (dbout);
 }
@@ -3574,14 +3518,14 @@ GEOSLIB_API Db *db_create_grid_divider(Db *dbin,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_create_grid_dilate(Db *dbin,
-                                      int mode,
-                                      const VectorInt& nshift,
-                                      int flag_add_rank)
+Db* db_create_grid_dilate(Db *dbin,
+                          int mode,
+                          const VectorInt &nshift,
+                          int flag_add_rank)
 {
-  Db* dbout = nullptr;
+  Db *dbout = nullptr;
   if (dbin == nullptr) return dbin;
-  if (! dbin->isGrid()) return dbin;
+  if (!dbin->isGrid()) return dbin;
 
   /* Get the new grid characteristics */
 
@@ -3593,8 +3537,8 @@ GEOSLIB_API Db *db_create_grid_dilate(Db *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN, flag_add_rank, nx,
-                         x0, dx, dbin->getAngles());
+  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN,
+                         flag_add_rank, nx, x0, dx, dbin->getAngles());
 
   return (dbout);
 }
@@ -3618,12 +3562,12 @@ GEOSLIB_API Db *db_create_grid_dilate(Db *dbin,
  ** \remarks  Attributes 'gx' and 'gy' may coincide with 'modulus' and 'angle'
  **
  *****************************************************************************/
-GEOSLIB_API int db_gradient_modang_to_component(Db *db,
-                                                int ang_conv,
-                                                int iad_mod,
-                                                int iad_ang,
-                                                int iad_gx,
-                                                int iad_gy)
+int db_gradient_modang_to_component(Db *db,
+                                    int ang_conv,
+                                    int iad_mod,
+                                    int iad_ang,
+                                    int iad_gx,
+                                    int iad_gy)
 {
   int error, iech;
   double *v1, *v2, angdeg, angrad, modulus;
@@ -3692,14 +3636,14 @@ GEOSLIB_API int db_gradient_modang_to_component(Db *db,
  ** \remarks  Nothing is done (more than the conversion if scale=1 and ve=0)
  **
  *****************************************************************************/
-GEOSLIB_API int db_gradient_component_to_modang(Db *db,
-                                                int verbose,
-                                                int iad_gx,
-                                                int iad_gy,
-                                                int iad_mod,
-                                                int iad_ang,
-                                                double scale,
-                                                double ve)
+int db_gradient_component_to_modang(Db *db,
+                                    int verbose,
+                                    int iad_gx,
+                                    int iad_gy,
+                                    int iad_mod,
+                                    int iad_ang,
+                                    double scale,
+                                    double ve)
 {
   double *v1, *v2, norme, angle, vmax, surr, alpha, mini, maxi;
   int error, iech;
@@ -3783,7 +3727,7 @@ GEOSLIB_API int db_gradient_component_to_modang(Db *db,
  ** \param[in]  iech0 Absolute sample rank
  **
  *****************************************************************************/
-GEOSLIB_API int db_get_rank_absolute_to_relative(Db *db, int iech0)
+int db_get_rank_absolute_to_relative(Db *db, int iech0)
 {
   int iech, jech;
 
@@ -3810,7 +3754,7 @@ GEOSLIB_API int db_get_rank_absolute_to_relative(Db *db, int iech0)
  ** \param[in]  iech0 Relative sample rank
  **
  *****************************************************************************/
-GEOSLIB_API int db_get_rank_relative_to_absolute(Db *db, int iech0)
+int db_get_rank_relative_to_absolute(Db *db, int iech0)
 {
   int iech, jech;
 
@@ -3839,12 +3783,7 @@ GEOSLIB_API int db_get_rank_relative_to_absolute(Db *db, int iech0)
  ** \param[in]  iz       Rank of the node along third dimension
  **
  *****************************************************************************/
-GEOSLIB_API double get_grid_value(Db *dbgrid,
-                                  int iptr,
-                                  int *indg,
-                                  int ix,
-                                  int iy,
-                                  int iz)
+double get_grid_value(Db *dbgrid, int iptr, int *indg, int ix, int iy, int iz)
 {
   int ndim, iad;
   double value;
@@ -3872,13 +3811,13 @@ GEOSLIB_API double get_grid_value(Db *dbgrid,
  ** \param[in]  value    Assigned value
  **
  *****************************************************************************/
-GEOSLIB_API void set_grid_value(Db *dbgrid,
-                                int iptr,
-                                int *indg,
-                                int ix,
-                                int iy,
-                                int iz,
-                                double value)
+void set_grid_value(Db *dbgrid,
+                    int iptr,
+                    int *indg,
+                    int ix,
+                    int iy,
+                    int iz,
+                    double value)
 {
   int ndim, iad;
 
@@ -3908,15 +3847,15 @@ GEOSLIB_API void set_grid_value(Db *dbgrid,
  ** \param[in]  vmax          Upper bound (excluded)
  **
  *****************************************************************************/
-GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
-                               int iptr,
-                               int *margin,
-                               int *limmin,
-                               int flag_sel,
-                               int flag_copy,
-                               int verbose,
-                               double vmin,
-                               double vmax)
+Db* db_grid_reduce(Db *db_grid,
+                   int iptr,
+                   int *margin,
+                   int *limmin,
+                   int flag_sel,
+                   int flag_copy,
+                   int verbose,
+                   double vmin,
+                   double vmax)
 {
   Db *ss_grid;
   int *indcur, *indmin, *indmax, error, ndim, nech, flag_refuse, isel, icopy,
@@ -4019,9 +3958,9 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
   grid_to_point(db_grid, indmin, NULL, coor);
   nx.assign(indmax, indmax + ndim);
   x0.assign(coor, coor + ndim);
-  ss_grid = db_create_grid(db_grid->isGridRotated(), db_grid->getNDim(), 0, ELoadBy::COLUMN,
-                           flag_add_rank, nx, x0, db_grid->getDX(),
-                           db_grid->getAngles());
+  ss_grid = db_create_grid(db_grid->isGridRotated(), db_grid->getNDim(), 0,
+                           ELoadBy::COLUMN, flag_add_rank, nx, x0,
+                           db_grid->getDX(), db_grid->getAngles());
 
   // Create the selection (optional)
 
@@ -4100,14 +4039,14 @@ GEOSLIB_API Db *db_grid_reduce(Db *db_grid,
  ** \remarks useless
  **
  *****************************************************************************/
-GEOSLIB_API int db_grid_patch(Db *ss_grid,
-                              Db *db_grid,
-                              int iptr_ss,
-                              int iptr_db,
-                              int iptr_rank,
-                              int new_rank,
-                              int oper,
-                              int verbose)
+int db_grid_patch(Db *ss_grid,
+                  Db *db_grid,
+                  int iptr_ss,
+                  int iptr_db,
+                  int iptr_rank,
+                  int new_rank,
+                  int oper,
+                  int verbose)
 {
   int *indg, *indg0, flag_save;
   int error, ndim, jech, nused, noused, nout, nundef, nmask, ndef, nbnomask;
@@ -4122,15 +4061,15 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
 
   /* Check that the two grids are compatible */
 
-  if (! db_grid->hasSameDimension(ss_grid)) goto label_end;
-  if (! db_grid->isSameGridMesh(ss_grid)) goto label_end;
-  if (! db_grid->isSameGridRotation(ss_grid)) goto label_end;
+  if (!db_grid->hasSameDimension(ss_grid)) goto label_end;
+  if (!db_grid->isSameGridMesh(ss_grid)) goto label_end;
+  if (!db_grid->isSameGridRotation(ss_grid)) goto label_end;
 
   /* Core allocation */
 
-  coor1 = (double *) mem_alloc(sizeof(double) * ndim, 0);
+  coor1 = (double*) mem_alloc(sizeof(double) * ndim, 0);
   if (coor1 == nullptr) goto label_end;
-  coor2 = (double *) mem_alloc(sizeof(double) * ndim, 0);
+  coor2 = (double*) mem_alloc(sizeof(double) * ndim, 0);
   if (coor2 == nullptr) goto label_end;
   indg0 = db_indg_alloc(db_grid);
   if (indg0 == nullptr) goto label_end;
@@ -4245,13 +4184,15 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
     for (int idim = 0; idim < ndim; idim++)
       message("- Dimension %d: NX_S =%4d - NX_G =%4d - Shift =%4d\n", idim + 1,
               ss_grid->getNX(idim), db_grid->getNX(idim), indg0[idim]);
-    message("Subgrid                               = %d\n", ss_grid->getSampleNumber());
+    message("Subgrid                               = %d\n",
+            ss_grid->getSampleNumber());
     message("- Number of masked off samples        = %d\n", nmask);
     message("- Number of undefined values          = %d\n", nundef);
     message("- Number of samples outside main grid = %d\n", nout);
     message("- Number of valid values (save)       = %d\n", nused);
     message("- Number of valid values (skip)       = %d\n", noused);
-    message("Main Grid                             = %d\n", db_grid->getSampleNumber());
+    message("Main Grid                             = %d\n",
+            db_grid->getSampleNumber());
     message("- Number of non-masked values         = %d\n", nbnomask);
     message("- Number of valid values              = %d\n", ndef);
   }
@@ -4262,8 +4203,8 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
 
   label_end: indg0 = db_indg_free(indg0);
   indg = db_indg_free(indg);
-  coor1 = (double *) mem_free((char * ) coor1);
-  coor2 = (double *) mem_free((char * ) coor2);
+  coor1 = (double*) mem_free((char* ) coor1);
+  coor2 = (double*) mem_free((char* ) coor2);
   return (error);
 }
 
@@ -4277,7 +4218,7 @@ GEOSLIB_API int db_grid_patch(Db *ss_grid,
  ** \param[in]  string   attribute name
  **
  *****************************************************************************/
-GEOSLIB_API int db_name_identify(Db *db, const String& string)
+int db_name_identify(Db *db, const String &string)
 {
   for (int iatt = 0; iatt < db->getAttributeMaxNumber(); iatt++)
   {
@@ -4335,11 +4276,11 @@ static void st_rotate(int ndim,
  ** \remarks - space dimension is 1 or larger than 3
  **
  *****************************************************************************/
-GEOSLIB_API int db_extension_rotated(Db *db,
-                                     double *rotmat,
-                                     double *mini_arg,
-                                     double *maxi_arg,
-                                     double *delta_arg)
+int db_extension_rotated(Db *db,
+                         double *rotmat,
+                         double *mini_arg,
+                         double *maxi_arg,
+                         double *delta_arg)
 {
   double *mini, *maxi, coor[3], minrot[3], maxrot[3];
   int error, ndim;
@@ -4348,8 +4289,8 @@ GEOSLIB_API int db_extension_rotated(Db *db,
 
   error = 1;
   ndim = db->getNDim();
-  mini = (double *) mem_alloc(sizeof(double) * ndim, 1);
-  maxi = (double *) mem_alloc(sizeof(double) * ndim, 1);
+  mini = (double*) mem_alloc(sizeof(double) * ndim, 1);
+  maxi = (double*) mem_alloc(sizeof(double) * ndim, 1);
 
   // Calculate the extension (without rotation)
   if (db_extension(db, mini, maxi, NULL)) goto label_end;
@@ -4427,9 +4368,8 @@ GEOSLIB_API int db_extension_rotated(Db *db,
 
   /* Copy to the returned arguments */
 
-  label_suite: if (mini_arg != nullptr)
-    for (int idim = 0; idim < ndim; idim++)
-      mini_arg[idim] = mini[idim];
+  label_suite: if (mini_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
+    mini_arg[idim] = mini[idim];
   if (maxi_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
     maxi_arg[idim] = maxi[idim];
   if (delta_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
@@ -4439,8 +4379,8 @@ GEOSLIB_API int db_extension_rotated(Db *db,
 
   error = 0;
 
-  label_end: mini = (double *) mem_free((char * ) mini);
-  maxi = (double *) mem_free((char * ) maxi);
+  label_end: mini = (double*) mem_free((char* ) mini);
+  maxi = (double*) mem_free((char* ) maxi);
   return (error);
 }
 
@@ -4453,7 +4393,7 @@ GEOSLIB_API int db_extension_rotated(Db *db,
  ** \param[in]   idim      Rank of the space dimension
  **
  ****************************************************************************/
-GEOSLIB_API VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
+VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
 {
   VectorDouble vect;
 
@@ -4480,7 +4420,7 @@ GEOSLIB_API VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
  ** \param[in]   verbose   Verbose flag
  **
  ****************************************************************************/
-GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
+VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
 {
   VectorDouble vect;
 
@@ -4506,8 +4446,7 @@ GEOSLIB_API VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
  ** \param[in]   pattern  Matching pattern
  **
  ****************************************************************************/
-GEOSLIB_API VectorInt db_identify_variables_by_name(Db *db,
-                                                    const String& pattern)
+VectorInt db_identify_variables_by_name(Db *db, const String &pattern)
 {
   VectorString names = db->getNames(pattern);
   VectorInt ranks = db->getAttributes(names);
@@ -4519,7 +4458,7 @@ GEOSLIB_API VectorInt db_identify_variables_by_name(Db *db,
  **  Initialize the Grid iterator
  **
  ****************************************************************************/
-GEOSLIB_API void grid_iterator_init(GridC *grid, const VectorInt& order)
+void grid_iterator_init(GridC *grid, const VectorInt &order)
 {
   grid->iteratorInit(order);
 }
@@ -4531,10 +4470,9 @@ GEOSLIB_API void grid_iterator_init(GridC *grid, const VectorInt& order)
  **  Increment the Grid iterator
  **
  ****************************************************************************/
-GEOSLIB_API VectorInt grid_iterator_next(GridC *grid)
+VectorInt grid_iterator_next(GridC *grid)
 {
   VectorInt indices = grid->iteratorNext();
   return (indices);
 }
-
 

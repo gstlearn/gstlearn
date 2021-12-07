@@ -18,8 +18,10 @@
 #include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
-#include "geoslib_e.h"
+#include "Db/Db.hpp"
 #include "geoslib_old_f.h"
+
+#include <math.h>
 
 NoStatArray::NoStatArray()
 : ANoStat(),

@@ -7,16 +7,14 @@
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_old_f.h"
 #include "Basic/HDF5format.hpp"
 
-#include "geoslib_old_f.h"
 #include <malloc.h>
 #include <stdio.h>
 #include <typeinfo>
 
 #define DEBUG 0
-
-using namespace H5;
 
 HDF5format::HDF5format(const String& filename,
                        const String& varname)
@@ -89,18 +87,18 @@ void* HDF5format::readRegular(int flag_compress,
   try
   {
     int ndim = _getNDim();
-    hsize_t start0[ndim];
-    hsize_t dims[ndim];
+    std::vector<hsize_t> start0(ndim);
+    std::vector<hsize_t> dims(ndim);
 
     H5::DataType datatype = _dataset.getDataType();
-		H5::DataSpace dataspace = _dataset.getSpace();
+    H5::DataSpace dataspace = _dataset.getSpace();
     dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
 
     // Core allocation for returned array
 
     if (!flag_compress)
     {
-      (void) _dataspace.getSimpleExtentDims(dims, NULL);
+      (void) _dataspace.getSimpleExtentDims(dims.data(), NULL);
       for (int idim = 0; idim < ndim; idim++)
         dimout[idim] = dims[idim];
     }
@@ -119,13 +117,13 @@ void* HDF5format::readRegular(int flag_compress,
 
     H5::DataSpace memspace(ndim, dimout, NULL);
     if (flag_compress)
-      memspace.selectHyperslab(H5S_SELECT_SET, dimout, start0);
+      memspace.selectHyperslab(H5S_SELECT_SET, dimout, start0.data());
     else
       memspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
 
     _dataset.read((double*) rdata, datatype, memspace, dataspace);
 
-		dataspace.close();
+    dataspace.close();
     memspace.close();
 
     return rdata;
@@ -133,7 +131,7 @@ void* HDF5format::readRegular(int flag_compress,
   catch (H5::Exception& error)
   {
     messerr("---> Problem in readRegular. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return nullptr;
   }
 }
@@ -169,8 +167,8 @@ int HDF5format::writeRegular(hsize_t *start,
   {
     H5::Exception::dontPrint();
     int ndim = _getNDim();
-    hsize_t start0[ndim];
-    hsize_t dimin[ndim];
+    std::vector<hsize_t> start0(ndim);
+    std::vector<hsize_t> dimin(ndim);
     for (int idim = 0; idim < ndim; idim++)
     {
       start0[idim] = 0;
@@ -179,14 +177,14 @@ int HDF5format::writeRegular(hsize_t *start,
     }
 
     H5::DataType datatype = _dataset.getDataType();
-		H5::DataSpace dataspace = _dataset.getSpace();
+    H5::DataSpace dataspace = _dataset.getSpace();
     dataspace.selectHyperslab(H5S_SELECT_SET, count, start, stride, block);
-    H5::DataSpace memspace(ndim, dimin, NULL);
-    memspace.selectHyperslab(H5S_SELECT_SET, dimin, start0);
+    H5::DataSpace memspace(ndim, dimin.data(), NULL);
+    memspace.selectHyperslab(H5S_SELECT_SET, dimin.data(), start0.data());
 
     _dataset.write((double *) wdata, datatype, memspace, dataspace);
 
-		dataspace.close();
+    dataspace.close();
     memspace.close();
 
     return 0;
@@ -194,7 +192,7 @@ int HDF5format::writeRegular(hsize_t *start,
   catch (H5::Exception& error)
   {
     messerr("---> Problem in writeRegular. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
 }
@@ -236,7 +234,7 @@ int HDF5format::getSize() const
   }
   catch (H5::Exception& error)
   {
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return 0;
   }
 }
@@ -258,7 +256,7 @@ int HDF5format::getDataInt() const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataInt. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return -1;
   }
 }
@@ -280,7 +278,7 @@ float HDF5format::getDataFloat() const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataFloat. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return -1.;
   }
 }
@@ -302,7 +300,7 @@ double HDF5format::getDataDouble() const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataDouble. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return -1.;
   }
 }
@@ -325,7 +323,7 @@ VectorInt HDF5format::getDataVInt() const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVInt. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, -1 };
   }
 }
@@ -348,7 +346,7 @@ VectorFloat HDF5format::getDataVFloat() const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVFloat. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, -1. };
   }
 }
@@ -371,7 +369,7 @@ VectorDouble HDF5format::getDataVDouble() const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVDouble. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, -1. };
   }
 }
@@ -403,13 +401,13 @@ VectorVectorInt HDF5format::getDataVVInt() const
 
     delete[] dims;
     delete[] md;
-    delete data;
+    delete[] data;
     return v;
   }
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVVInt. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorInt(1, -1) };
   }
 }
@@ -443,7 +441,7 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVVFloat. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorFloat(1, -1.) };
   }
 }
@@ -471,13 +469,13 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
 
     delete[] dims;
     delete[] md;
-    delete data;
+    delete[] data;
     return v;
   }
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataVVDouble. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorDouble(1, -1.) };
   }
 }
@@ -519,7 +517,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
     VectorDouble v(data, data + dim2);
 
     delete[] dims;
-    delete data;
+    delete[] data;
     dataspace.close();
     memspace.close();
     return v;
@@ -527,7 +525,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in getDataDoublePartial. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return { VectorDouble(1, -1.) };
   }
 }
@@ -535,7 +533,7 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
 int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
 {
   H5::Exception::dontPrint();
-  uint npts = data.size(); // size of our data
+  size_t npts = data.size(); // size of our data
   auto *a = new double[npts]; // convert to an array
   // convert std::vector to array. H5 does not seem to like the pointer implementation
   for (size_t i = 0; i < npts; ++i)
@@ -571,6 +569,7 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
     _writeDouble(a, memspace, dataspace);
 
     delete[] dims;
+    delete[] a;
     memspace.close();
     dataspace.close();
     return 0;
@@ -578,7 +577,7 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
   catch (H5::Exception& error)
   {
     messerr("---> Problem in writeDataDoublePartial. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
 }
@@ -606,7 +605,7 @@ int HDF5format::displayNames() const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in displayNames. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
 }
@@ -666,7 +665,7 @@ void HDF5format::openFile(const String& filename) const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in openFile. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
@@ -685,7 +684,7 @@ void HDF5format::openNewFile(const String& filename) const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in openNewFile. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
@@ -705,7 +704,7 @@ void HDF5format::openDataSet(const String& varname) const
   catch (H5::Exception& error)
   {
     messerr("---> Problem in openDataSet. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
@@ -728,7 +727,7 @@ void HDF5format::openNewDataSet(const String& varname,
   catch (H5::Exception& error)
   {
     messerr("---> Problem in openNewDataSet. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }

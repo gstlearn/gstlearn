@@ -7,14 +7,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/String.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
+#include "Variogram/Vario.hpp"
+#include "Model/Model.hpp"
 
 /*! \cond */
 #define INDLOC(ifac1,ifac2)  ((ifac2)*propdef->nfac[0]+(ifac1))
@@ -31,7 +34,7 @@
  ** \param[in]  rule Rule structure to be freed
  **
  *****************************************************************************/
-GEOSLIB_API Rule* rule_free(const Rule *rule)
+Rule* rule_free(const Rule *rule)
 
 {
   if (rule != nullptr) delete rule;
@@ -148,7 +151,7 @@ static int st_proportion_transform(PropDef *propdef)
  ** \param[in]  mode     Type of operation (EProcessOper)
  **
  ****************************************************************************/
-GEOSLIB_API void proportion_rule_process(PropDef *propdef, const EProcessOper& mode)
+void proportion_rule_process(PropDef *propdef, const EProcessOper &mode)
 {
   /* Assignments */
 
@@ -174,7 +177,7 @@ GEOSLIB_API void proportion_rule_process(PropDef *propdef, const EProcessOper& m
  ** \param[in]  propdef   PropDef structure
  **
  *****************************************************************************/
-GEOSLIB_API void proportion_print(PropDef *propdef)
+void proportion_print(PropDef *propdef)
 
 {
   if (propdef == nullptr) return;
@@ -322,19 +325,19 @@ static int st_proportion_define(PropDef *propdef,
  ** \param[out] sh_down    Local or global downwards shift (shadow)
  **
  *****************************************************************************/
-GEOSLIB_API int rule_thresh_define_shadow(PropDef *propdef,
-                                          Db *db,
-                                          const RuleShadow *rule,
-                                          int facies,
-                                          int iech,
-                                          int isimu,
-                                          int nbsimu,
-                                          double *t1min,
-                                          double *t1max,
-                                          double *t2min,
-                                          double *t2max,
-                                          double *sh_dsup,
-                                          double *sh_down)
+int rule_thresh_define_shadow(PropDef *propdef,
+                              Db *db,
+                              const RuleShadow *rule,
+                              int facies,
+                              int iech,
+                              int isimu,
+                              int nbsimu,
+                              double *t1min,
+                              double *t1max,
+                              double *t2min,
+                              double *t2max,
+                              double *sh_dsup,
+                              double *sh_down)
 {
   int unmodify, facloc, jech;
 
@@ -418,18 +421,18 @@ GEOSLIB_API int rule_thresh_define_shadow(PropDef *propdef,
  ** \param[out] t2max      Maximum threshold for Y2
  **
  *****************************************************************************/
-GEOSLIB_API int rule_thresh_define(PropDef *propdef,
-                                   Db *db,
-                                   const Rule *rule,
-                                   int facies,
-                                   int iech,
-                                   int isimu,
-                                   int nbsimu,
-                                   int flag_check,
-                                   double *t1min,
-                                   double *t1max,
-                                   double *t2min,
-                                   double *t2max)
+int rule_thresh_define(PropDef *propdef,
+                       Db *db,
+                       const Rule *rule,
+                       int facies,
+                       int iech,
+                       int isimu,
+                       int nbsimu,
+                       int flag_check,
+                       double *t1min,
+                       double *t1max,
+                       double *t2min,
+                       double *t2max)
 {
   int unmodify, facloc, jech;
 
@@ -477,7 +480,7 @@ GEOSLIB_API int rule_thresh_define(PropDef *propdef,
 
   /* Set the proportions and translate proportions into thresholds */
 
-  if (! unmodify)
+  if (!unmodify)
   {
     if (rule->setProportions(propdef->proploc)) return (1);
 
@@ -488,7 +491,8 @@ GEOSLIB_API int rule_thresh_define(PropDef *propdef,
 
   /* Convert the proportions into thresholds */
 
-  facloc = (IFFFF(facies)) ? 1 : facies;
+  facloc = (IFFFF(facies)) ? 1 :
+                             facies;
   VectorDouble bounds = rule->getThresh(facloc);
   *t1min = bounds[0];
   *t1max = bounds[1];
@@ -517,13 +521,13 @@ GEOSLIB_API int rule_thresh_define(PropDef *propdef,
  ** \remark It will be changed in this function to locator ELoc::SIMU
  **
  *****************************************************************************/
-GEOSLIB_API int db_rule_shadow(Db *db,
-                               Db *dbprop,
-                               RuleShadow *rule,
-                               Model *model,
-                               const VectorDouble& props,
-                               int flag_stat,
-                               int nfacies)
+int db_rule_shadow(Db *db,
+                   Db *dbprop,
+                   RuleShadow *rule,
+                   Model *model,
+                   const VectorDouble &props,
+                   int flag_stat,
+                   int nfacies)
 {
   int iptr, error, flag_used[2], nbsimu, igrf, ngrf;
   PropDef *propdef;
@@ -588,8 +592,10 @@ GEOSLIB_API int db_rule_shadow(Db *db,
 
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, props, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, props, propdef);
   return (error);
 }
 
@@ -608,10 +614,10 @@ GEOSLIB_API int db_rule_shadow(Db *db,
  ** \remark The input variable must be locatorized as Z or ELoc::SIMU
  **
  *****************************************************************************/
-GEOSLIB_API int db_rule(Db *db,
-                        const RuleProp *ruleprop,
-                        Model *model,
-                        NamingConvention namconv)
+int _db_rule(Db *db,
+             const RuleProp *ruleprop,
+             Model *model,
+             const NamingConvention &namconv)
 {
   if (db == nullptr)
   {
@@ -624,13 +630,13 @@ GEOSLIB_API int db_rule(Db *db,
     return 1;
   }
   int flag_stat = ruleprop->isFlagStat();
-  const Rule* rule = ruleprop->getRule();
-  const VectorDouble& propcst = ruleprop->getPropCst();
-  const Db* dbprop = ruleprop->getDbprop();
+  const Rule *rule = ruleprop->getRule();
+  const VectorDouble &propcst = ruleprop->getPropCst();
+  const Db *dbprop = ruleprop->getDbprop();
 
   int error = 1;
   int iptr = -1;
-  PropDef* propdef = nullptr;
+  PropDef *propdef = nullptr;
   int ngrf = rule->getGRFNumber();
   VectorInt flagUsed = rule->whichGRFUsed();
   int nfacies = rule->getFaciesNumber();
@@ -684,8 +690,10 @@ GEOSLIB_API int db_rule(Db *db,
   namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptr);
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, propcst, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, propcst, propdef);
   return (error);
 }
 
@@ -705,13 +713,13 @@ GEOSLIB_API int db_rule(Db *db,
  ** \param[in]  nfacies   Number of facies
  **
  *****************************************************************************/
-GEOSLIB_API int db_bounds_shadow(Db *db,
-                                 Db *dbprop,
-                                 RuleShadow *rule,
-                                 Model *model,
-                                 const VectorDouble& props,
-                                 int flag_stat,
-                                 int nfacies)
+int db_bounds_shadow(Db *db,
+                     Db *dbprop,
+                     RuleShadow *rule,
+                     Model *model,
+                     const VectorDouble &props,
+                     int flag_stat,
+                     int nfacies)
 {
   int flag_used[2], ngrf, error, iptr, igrf;
   double *coor;
@@ -786,8 +794,10 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
 
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, props, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, props, propdef);
   coor = db_sample_free(coor);
   return (error);
 }
@@ -804,11 +814,13 @@ GEOSLIB_API int db_bounds_shadow(Db *db,
  ** \param[in]  namconv   Naming convention
  **
  *****************************************************************************/
-GEOSLIB_API int db_bounds(Db* db,
-                          const RuleProp* ruleprop,
-                          Model* model,
-                          NamingConvention namconv)
+int _db_bounds(Db *db,
+               const RuleProp *ruleprop,
+               Model *model,
+               const NamingConvention &namconv)
 {
+  NamingConvention nc(namconv);
+
   if (db == nullptr)
   {
     messerr("The Db is not defined");
@@ -820,13 +832,13 @@ GEOSLIB_API int db_bounds(Db* db,
     return 1;
   }
   int flag_stat = ruleprop->isFlagStat();
-  const Rule* rule = ruleprop->getRule();
-  const VectorDouble& propcst = ruleprop->getPropCst();
-  const Db* dbprop = ruleprop->getDbprop();
+  const Rule *rule = ruleprop->getRule();
+  const VectorDouble &propcst = ruleprop->getPropCst();
+  const Db *dbprop = ruleprop->getDbprop();
 
   int error = 1;
   int iptrl, iptru;
-  PropDef* propdef = nullptr;
+  PropDef *propdef = nullptr;
 
   VectorInt flagUsed = rule->whichGRFUsed();
   int nfacies = rule->getFaciesNumber();
@@ -859,10 +871,12 @@ GEOSLIB_API int db_bounds(Db* db,
   /**********************/
 
   /* Lower bound at input data points */
-  if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptrl)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptrl))
+    goto label_end;
 
   /* Upper bound at input data points */
-  if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptru)) goto label_end;
+  if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptru))
+    goto label_end;
 
   /* Calculate the thresholds and store them in the Db file */
 
@@ -874,14 +888,17 @@ GEOSLIB_API int db_bounds(Db* db,
 
   // Naming convention
 
-  namconv.setLocatorOutType(ELoc::L);
-  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
-  namconv.setLocatorOutType(ELoc::U);
-  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
+  nc.setLocatorOutType(ELoc::L);
+  nc.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
+  nc.setLocatorOutType(ELoc::U);
+  nc.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, propcst, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, propcst, propdef);
+
   return (error);
 }
 
@@ -892,7 +909,7 @@ GEOSLIB_API int db_bounds(Db* db,
  ** \param[in]  propdef     Pointer to Propdef structure
  **
  ****************************************************************************/
-GEOSLIB_API void propdef_reset(PropDef* propdef)
+void propdef_reset(PropDef *propdef)
 {
   if (propdef == nullptr) return;
   if (propdef->propmem.empty()) return;
@@ -921,17 +938,17 @@ GEOSLIB_API void propdef_reset(PropDef* propdef)
  ** \param[in]  proploc     PropDef structure (used for mode<0)
  **
  ****************************************************************************/
-GEOSLIB_API PropDef *proportion_manage(int mode,
-                                       int flag_facies,
-                                       int flag_stat,
-                                       int ngrf1,
-                                       int ngrf2,
-                                       int nfac1,
-                                       int nfac2,
-                                       Db *db,
-                                       const Db *dbprop,
-                                       const VectorDouble& propcst,
-                                       PropDef *proploc)
+PropDef* proportion_manage(int mode,
+                           int flag_facies,
+                           int flag_stat,
+                           int ngrf1,
+                           int ngrf2,
+                           int nfac1,
+                           int nfac2,
+                           Db *db,
+                           const Db *dbprop,
+                           const VectorDouble &propcst,
+                           PropDef *proploc)
 {
   int ifac, error, nfacprod;
   const Db *db_loc;
@@ -977,7 +994,8 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
       {
         // Non-stationary case
 
-        db_loc = (propdef->case_prop_interp) ? dbprop : db;
+        db_loc = (propdef->case_prop_interp) ? dbprop :
+                                               db;
         if (db_loc == nullptr)
         {
           messerr("You have requested Non-stationary proportions");
@@ -1007,10 +1025,14 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
         double pref = 1. / (double) nfacprod;
         for (ifac = 0; ifac < nfacprod; ifac++)
         {
-          propdef->propfix[ifac] = (propcst.empty()) ? pref : propcst[ifac];
-          propdef->propwrk[ifac] = (propcst.empty()) ? pref : propcst[ifac];
-          propdef->proploc[ifac] = (propcst.empty()) ? pref : propcst[ifac];
-          propdef->propmem[ifac] = (propcst.empty()) ? pref : propcst[ifac];
+          propdef->propfix[ifac] = (propcst.empty()) ? pref :
+                                                       propcst[ifac];
+          propdef->propwrk[ifac] = (propcst.empty()) ? pref :
+                                                       propcst[ifac];
+          propdef->proploc[ifac] = (propcst.empty()) ? pref :
+                                                       propcst[ifac];
+          propdef->propmem[ifac] = (propcst.empty()) ? pref :
+                                                       propcst[ifac];
         }
       }
 
@@ -1038,7 +1060,9 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
 
   error = 0;
 
-  label_end: if (error)
+  label_end:
+
+  if (error)
   {
     if (propdef != nullptr) delete propdef;
     propdef = nullptr;
@@ -1058,10 +1082,10 @@ GEOSLIB_API PropDef *proportion_manage(int mode,
  ** \param[in]  namconv   Naming Convention
  **
  *****************************************************************************/
-GEOSLIB_API int db_threshold(Db* db,
-                             const RuleProp* ruleprop,
-                             Model* model,
-                             NamingConvention namconv)
+int _db_threshold(Db *db,
+                  const RuleProp *ruleprop,
+                  Model *model,
+                  const NamingConvention &namconv)
 {
   if (db == nullptr)
   {
@@ -1079,14 +1103,14 @@ GEOSLIB_API int db_threshold(Db* db,
     return 1;
   }
   int flag_stat = ruleprop->isFlagStat();
-  const Rule* rule = ruleprop->getRule();
+  const Rule *rule = ruleprop->getRule();
   if (rule->getModeRule() != ERule::STD)
   {
     messerr("This function is only programmed for standard rule");
     return 1;
   }
-  const VectorDouble& propcst = ruleprop->getPropCst();
-  const Db* dbprop = ruleprop->getDbprop();
+  const VectorDouble &propcst = ruleprop->getPropCst();
+  const Db *dbprop = ruleprop->getDbprop();
 
   int rank, iptr;
   double t1min, t1max, t2min, t2max;
@@ -1096,7 +1120,7 @@ GEOSLIB_API int db_threshold(Db* db,
   int error = 1;
   int ngrf = 0;
   int nfacies = 0;
-  PropDef* propdef = nullptr;
+  PropDef *propdef = nullptr;
 
   /**********************/
   /* Preliminary checks */
@@ -1132,8 +1156,8 @@ GEOSLIB_API int db_threshold(Db* db,
     rank = 0;
     for (int ifac = 0; ifac < nfacies; ifac++)
     {
-      if (rule_thresh_define(propdef, db, rule, ifac + 1, iech, 0, 0, 0,
-                             &t1min, &t1max, &t2min, &t2max)) goto label_end;
+      if (rule_thresh_define(propdef, db, rule, ifac + 1, iech, 0, 0, 0, &t1min,
+                             &t1max, &t2min, &t2max)) goto label_end;
       db->setArray(iech, iptr + rank, t1min);
       rank++;
       db->setArray(iech, iptr + rank, t1max);
@@ -1171,8 +1195,11 @@ GEOSLIB_API int db_threshold(Db* db,
   }
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         db, dbprop, propcst, propdef);
+  label_end:
+
+  propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                              db, dbprop, propcst, propdef);
+
   return (error);
 }
 
@@ -1189,9 +1216,9 @@ GEOSLIB_API int db_threshold(Db* db,
  ** \remarks: The drift is not copied into the new model
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_rule_combine(const Model *model1,
-                                      const Model *model2,
-                                      const Rule *rule)
+Model* model_rule_combine(const Model *model1,
+                          const Model *model2,
+                          const Rule *rule)
 {
   Model *new_model;
   int ngrf;

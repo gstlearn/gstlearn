@@ -10,14 +10,17 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Basic/NamingConvention.hpp"
 
+#include <vector>
+
 class Db;
 class VarioParam;
 
-class RuleProp : public AStringable
+class GSTLEARN_EXPORT RuleProp : public AStringable
 {
 public:
   RuleProp();
@@ -47,9 +50,9 @@ public:
           const VarioParam* varioparam,
           int ngrfmax = 1,
           bool verbose = false);
-  int gaussToCategory(Db* db, NamingConvention namconv = NamingConvention("Facies",ELoc::FACIES)) const;
-  int categoryToThresh(Db *db, NamingConvention namconv = NamingConvention("Bounds")) const;
-  int computeAllThreshes(Db *db, NamingConvention namconv = NamingConvention("Thresh")) const;
+  int gaussToCategory(Db* db, const NamingConvention& namconv = NamingConvention("Facies",ELoc::FACIES)) const;
+  int categoryToThresh(Db *db, const NamingConvention& namconv = NamingConvention("Bounds")) const;
+  int computeAllThreshes(Db *db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
 
 private:
   bool _checkConsistency();

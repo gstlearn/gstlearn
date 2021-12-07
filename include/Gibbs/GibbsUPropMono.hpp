@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Gibbs/GibbsMultiMono.hpp"
 #include "Basic/Vector.hpp"
 
@@ -23,7 +24,7 @@ class Model;
  * - Propagation algorithm (no need to establish and invert Covariance matrix)
  * - No bound provided
  */
-class GibbsUPropMono : public GibbsMultiMono
+class GSTLEARN_EXPORT GibbsUPropMono : public GibbsMultiMono
 {
 public:
   GibbsUPropMono();

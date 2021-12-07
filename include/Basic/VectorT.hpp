@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
-
 #include "Basic/Vector.hpp"
 
 #include <vector>
@@ -29,7 +29,7 @@
  **
  ***************************************************************************/
 template <typename T>
-class VectorT : public AStringable
+class GSTLEARN_EXPORT VectorT : public AStringable
 {
 public:
   typedef std::vector<T> Vector;

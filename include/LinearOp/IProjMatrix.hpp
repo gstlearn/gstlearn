@@ -10,9 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 
-class IProjMatrix
+class GSTLEARN_EXPORT IProjMatrix
 {
 public:
   IProjMatrix() { }

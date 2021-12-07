@@ -12,10 +12,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/Vector.hpp"
 
-class Identity: public ALinearOp
+class GSTLEARN_EXPORT Identity: public ALinearOp
 {
 
 public:

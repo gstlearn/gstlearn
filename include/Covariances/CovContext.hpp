@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/ASpaceObject.hpp"
 
@@ -17,7 +18,7 @@ class ASpace;
 class Vario;
 class Db;
 
-class CovContext : public ASpaceObject
+class GSTLEARN_EXPORT CovContext : public ASpaceObject
 {
 public:
   /// TODO : default context (1 variable, big max IRF degree, and field size of 1) ok ?

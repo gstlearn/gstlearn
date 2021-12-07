@@ -8,12 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/Identity.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "Basic/Timer.hpp"
+
 #include <iostream>
 
 ALinearOpMulti::ALinearOpMulti()
@@ -110,7 +112,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
   double nb;
   double crit,alpha;
 
-  double clock_start = clock();
+  Timer time;
 
   nb = _prod(in,in);
 
@@ -184,7 +186,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
             _precondStatus,niter,_nIterMax,_eps);
   }
 
-  _timeCG   += (clock() - clock_start) / CLOCKS_PER_SEC;
+  _timeCG   += time.getIntervalSeconds();
   _niterCG  += niter;
   _numberCG ++;
 }

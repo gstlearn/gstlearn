@@ -1,4 +1,11 @@
 #include "API/PGSSPDE.hpp"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+#include "Drifts/ADriftElem.hpp"
+#include "Drifts/ADriftList.hpp"
+#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Basic/String.hpp"
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
                  const Db& field,

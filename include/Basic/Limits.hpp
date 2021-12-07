@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/NamingConvention.hpp"
 
-class Limits : public AStringable
+class GSTLEARN_EXPORT Limits : public AStringable
 {
 public:
   Limits();
@@ -41,18 +42,18 @@ public:
 
   int toCategory(Db* db,
                  const String& name = String(),
-                 NamingConvention namconv = NamingConvention("Category"));
+                 const NamingConvention& namconv = NamingConvention("Category"));
 
   int toIndicator(Db* db,
                   const String& name = String(),
                   int OptionIndicator = 1,
-                  NamingConvention namconv = NamingConvention("Indicator"));
+                  const NamingConvention& namconv = NamingConvention("Indicator"));
 
-  int toCategory(Db* db, int iatt, NamingConvention namconv);
+  int toCategory(Db* db, int iatt, const NamingConvention& namconv);
   int toIndicator(Db* db,
                   int iatt,
                   int OptionIndicator = 1,
-                  NamingConvention namconv = NamingConvention("Indicator"));
+                  const NamingConvention& namconv = NamingConvention("Indicator"));
 
 private:
   std::vector<Interval> _bounds;

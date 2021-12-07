@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "IOptimCost.hpp"
 
 class PrecisionOp;
 class ProjMatrix;
 
-class OptimCostBinary: public IOptimCost
+class GSTLEARN_EXPORT OptimCostBinary: public IOptimCost
 {
 
 public:

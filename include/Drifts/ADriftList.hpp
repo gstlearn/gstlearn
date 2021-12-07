@@ -10,10 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Drifts/EDrift.hpp"
-
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
 
@@ -21,7 +21,7 @@ class ASpace;
 class SpacePoint;
 class Db;
 
-class ADriftList : public ADrift, public IClonable
+class GSTLEARN_EXPORT ADriftList : public ADrift, public IClonable
 {
 public:
   ADriftList(bool flagLinked = false, const ASpace* space = nullptr);

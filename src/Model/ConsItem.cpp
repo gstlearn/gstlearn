@@ -13,7 +13,6 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-
 ConsItem::ConsItem(bool authAssign,
                    const EConsType& icase,
                    int igrf,

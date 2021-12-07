@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Basic/String.hpp"
+
+#include <string.h>
 
 /*****************************************************************************
  *
@@ -91,7 +94,6 @@
  
 #include "vtk.h"
 #include "Basic/File.hpp"
-#include "geoslib_e.h"
 #include "geoslib_old_f.h"
 
 /*

@@ -14,6 +14,8 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include <math.h>
+
 Tapering::Tapering()
   : _type(0)
   , _maxNDim(0)

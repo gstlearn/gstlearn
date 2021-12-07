@@ -10,10 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 
 /**
- * This file contains all some functions for Memory inquiries
+ * This file contains some functions for Memory inquiries
  */
 
-unsigned long long getTotalSystemMemory();
+GSTLEARN_EXPORT unsigned long long getTotalSystemMemory();
 

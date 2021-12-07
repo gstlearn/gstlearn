@@ -12,13 +12,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 /**
  * Meshing defined in the Spherical Space
  */
-class MeshSpherical : public AMesh {
+class GSTLEARN_EXPORT MeshSpherical : public AMesh {
 
 public:
 	MeshSpherical();

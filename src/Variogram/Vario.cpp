@@ -470,11 +470,11 @@ double Vario::getHmax(int ivar, int jvar, int idir) const
   VectorInt idb = _getDirectionInterval(idir);
 
   double hmax = 0.;
-  for (int idir = idb[0]; idir < idb[1]; idir++)
-    for (int ivar = ivb[0]; ivar < ivb[1]; ivar++)
-      for (int jvar = jvb[0]; jvar < jvb[1]; jvar++)
+  for (int id = idb[0]; id < idb[1]; id++)
+    for (int iv = ivb[0]; iv < ivb[1]; iv++)
+      for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
-        VectorDouble hh = getHhVec(idir, ivar, jvar);
+        VectorDouble hh = getHhVec(id, iv, jv);
         double hhloc = ut_vector_max(hh);
         if (hhloc > hmax) hmax = hhloc;
       }
@@ -497,11 +497,11 @@ VectorDouble Vario::getHRange(int ivar, int jvar, int idir) const
   VectorDouble vec(2);
   vec[0] =  1.e30;
   vec[1] = -1.e30;
-  for (int idir = idb[0]; idir < idb[1]; idir++)
-    for (int ivar = ivb[0]; ivar < ivb[1]; ivar++)
-      for (int jvar = jvb[0]; jvar < jvb[1]; jvar++)
+  for (int id = idb[0]; id < idb[1]; id++)
+    for (int iv = ivb[0]; iv < ivb[1]; iv++)
+      for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
-        VectorDouble hh = getHhVec(idir, ivar, jvar);
+        VectorDouble hh = getHhVec(id, iv, jv);
         double hhmin = ut_vector_min(hh);
         double hhmax = ut_vector_max(hh);
         if (hhmin < vec[0]) vec[0] = hhmin;
@@ -511,10 +511,10 @@ VectorDouble Vario::getHRange(int ivar, int jvar, int idir) const
 }
 
 double Vario::getGmax(int ivar,
-                       int jvar,
-                       int idir,
-                       bool flagAbs,
-                       bool flagSill) const
+                      int jvar,
+                      int idir,
+                      bool flagAbs,
+                      bool flagSill) const
 {
   VectorInt ivb = _getVariableInterval(ivar);
   VectorInt jvb = _getVariableInterval(jvar);
@@ -522,16 +522,16 @@ double Vario::getGmax(int ivar,
 
   double gmax = 0.;
 
-  for (int idir = idb[0]; idir < idb[1]; idir++)
-    for (int ivar = ivb[0]; ivar < ivb[1]; ivar++)
-      for (int jvar = jvb[0]; jvar < jvb[1]; jvar++)
+  for (int id = idb[0]; id < idb[1]; id++)
+    for (int iv = ivb[0]; iv < ivb[1]; iv++)
+      for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
-        VectorDouble gg = getGgVec(idir, ivar, jvar);
+        VectorDouble gg = getGgVec(id, iv, jv);
         double ggloc = ut_vector_max(gg, flagAbs);
         if (ggloc > gmax) gmax = ggloc;
         if (flagSill)
         {
-          double sill = ABS(getVars(ivar, jvar));
+          double sill = ABS(getVars(iv, jv));
           if (gmax < sill) gmax = sill;
         }
       }
@@ -539,9 +539,9 @@ double Vario::getGmax(int ivar,
 }
 
 VectorDouble Vario::getGRange(int ivar,
-                               int jvar,
-                               int idir,
-                               bool flagSill) const
+                              int jvar,
+                              int idir,
+                              bool flagSill) const
 {
   VectorInt ivb = _getVariableInterval(ivar);
   VectorInt jvb = _getVariableInterval(jvar);
@@ -551,18 +551,18 @@ VectorDouble Vario::getGRange(int ivar,
   vec[0] =  1.e30;
   vec[1] = -1.e30;
 
-  for (int idir = idb[0]; idir < idb[1]; idir++)
-    for (int ivar = ivb[0]; ivar < ivb[1]; ivar++)
-      for (int jvar = jvb[0]; jvar < jvb[1]; jvar++)
+  for (int id = idb[0]; id < idb[1]; id++)
+    for (int iv = ivb[0]; iv < ivb[1]; iv++)
+      for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
-        VectorDouble gg = getGgVec(idir, ivar, jvar);
+        VectorDouble gg = getGgVec(id, iv, jv);
         double ggmin = ut_vector_min(gg);
         double ggmax = ut_vector_max(gg);
         if (ggmin < vec[0]) vec[0] = ggmin;
         if (ggmax > vec[1]) vec[1] = ggmax;
         if (flagSill)
         {
-          double sill = getVars(ivar, jvar);
+          double sill = getVars(iv, jv);
           if (sill < vec[0]) vec[0] = sill;
           if (sill > vec[1]) vec[1] = sill;
         }
@@ -999,8 +999,8 @@ VectorDouble Vario::getGgVec(int idir,
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
   if (!_isDirectionValid(idir)) return VectorDouble();
+  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble gg;
   double c0 = 0.;
@@ -1024,8 +1024,8 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
   if (!_isDirectionValid(idir)) return VectorDouble();
+  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble hh;
   int npas = dirparam.getLagNumber();
@@ -1042,8 +1042,8 @@ VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
   if (!_isDirectionValid(idir)) return VectorDouble();
+  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble sw;
   int npas = dirparam.getLagNumber();
@@ -1060,8 +1060,8 @@ VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
   if (!_isDirectionValid(idir)) return VectorDouble();
+  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble utilize;
   int npas = dirparam.getLagNumber();

@@ -1,13 +1,8 @@
-/*
- * GlobalEnvironment.hpp
- *
- *  Created on: 22 juil. 2021
- *      Author: drenard
- */
-
 #pragma once
 
-class GlobalEnvironment
+#include "gstlearn_export.hpp"
+
+class GSTLEARN_EXPORT GlobalEnvironment
 {
 private:
   static GlobalEnvironment* _env;

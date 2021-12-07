@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+#include "Interfaces/AVariableTemplate.hpp"
+
 #include <string>
 #include <vector>
 #include <iostream>
 
-#include "Interfaces/AVariableTemplate.hpp"
-
-class VariableBool : public AVariableTemplate<bool>
+class GSTLEARN_EXPORT VariableBool : public AVariableTemplate<bool>
 {
   public:
     VariableBool();

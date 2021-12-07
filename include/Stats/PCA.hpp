@@ -10,9 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 
-class PCA
+class GSTLEARN_EXPORT PCA
 {
 private:
   int          _nVar;

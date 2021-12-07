@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Covariances/ACovFunc.hpp"
 
 /* Be careful ! This is not a real covariance */
 
 class CovContext;
 
-class CovGC5 : public ACovFunc
+class GSTLEARN_EXPORT CovGC5 : public ACovFunc
 {
 public:
   CovGC5(const CovContext& ctx);
@@ -25,8 +26,8 @@ public:
   virtual ~CovGC5();
 
   int    hasRange() const override { return -1; }
-  unsigned int getMinOrder()  const override { return 2; }
-  String         getCovName() const override { return "Order-5 G.C."; }
+  int    getMinOrder()  const override { return 2; }
+  String getCovName() const override { return "Order-5 G.C."; }
 
 protected:
   double _evaluateCov(double h) const override;

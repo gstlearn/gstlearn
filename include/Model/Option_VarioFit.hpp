@@ -10,9 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
+// WARNING: Make this include list as small as possible!
 #include "Basic/AStringable.hpp"
 
-class Option_VarioFit : public AStringable
+class GSTLEARN_EXPORT Option_VarioFit : public AStringable
 {
 private:
   int _flag_noreduce; /* Forbid discarding useless basic structures */

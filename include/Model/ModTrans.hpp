@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Model/Convolution.hpp"
 #include "Model/Tapering.hpp"
 #include "Model/EModelProperty.hpp"
@@ -17,7 +18,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
-class ModTrans : public AStringable
+class GSTLEARN_EXPORT ModTrans : public AStringable
 {
 public:
   ModTrans();

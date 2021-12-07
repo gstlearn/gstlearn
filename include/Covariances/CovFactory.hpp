@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Covariances/ECov.hpp"
 
@@ -17,7 +18,7 @@ class CovAniso;
 class ACovFunc;
 class CovContext;
 
-class CovFactory
+class GSTLEARN_EXPORT CovFactory
 {
 public:
   static ACovFunc*    createCovFunc(const ECov& type, const CovContext& ctxt);

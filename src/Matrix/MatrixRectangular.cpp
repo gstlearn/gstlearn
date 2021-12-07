@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "csparse_d.h"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols, bool sparse)
     : AMatrix(nrows, ncols, sparse),

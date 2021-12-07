@@ -8,94 +8,25 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#ifndef GEOSLIB_D_H
-#define GEOSLIB_D_H
+#pragma once
 
-/* Include other package definitions */
 // WARNING: Make this include list as small as possible!
 #include "geoslib_define.h"
 
-/* External function definition */
+#include "Enum/EKrigOpt.hpp"
+#include "Model/Option_VarioFit.hpp"
 
+// TODO : strcasecmp macro to be kept ?
 #if defined(_WIN32) || defined(_WIN64)
-#define GEOSLIB_API __declspec(dllexport)
 #if !defined(strcasecmp)
 #define strcasecmp _stricmp
 #endif
 #if !defined(strncasecmp)
 #define strncasecmp _strnicmp
 #endif
-#else
-#define GEOSLIB_API extern
-#include <dirent.h>
 #endif
 
-/* Global symbols */
-
-#define MAX_GEOS_PATH 200
-#define N_PROJEC_MAX 5
-
-
-/* Global symbols for Csparse */
-
-#ifdef MATLAB_MEX_FILE
-#include "mex.h"
-#endif
-#define CS_VER 1                   /* CSparse Version 1.2.0 */
-#define CS_SUBVER 2
-#define CS_SUBSUB 0
-#define CS_DATE "Mar 6, 2006"	    /* CSparse release date */
-#define CS_COPYRIGHT "Copyright (c) Timothy A. Davis, 2006"
-#define CS_MAX(a,b) (((a) > (b)) ? (a) : (b))
-#define CS_MIN(a,b) (((a) < (b)) ? (a) : (b))
-#define CS_FLIP(i) (-(i)-2)
-#define CS_UNFLIP(i) (((i) < 0) ? CS_FLIP(i) : (i))
-#define CS_MARKED(Ap,j) (Ap [j] < 0)
-#define CS_MARK(Ap,j) { Ap [j] = CS_FLIP (Ap [j]) ; }
-#define CS_OVERFLOW(n,size) (n > INT_MAX / (int) size)
-
-/* Global symbols for SPDE */
-
-#define NBLIN_TERMS 10
-#define SPDE_MAX_NGRF 2
-
-/* Structures for WINDOWS */
-
-#if defined(_WIN32) || defined(_WIN64)
-#include <winsock2.h>
-#include <windows.h>
-#include <string>
-#include <assert.h>
-typedef struct dirent
-{
-  /* name of current directory entry (a multi-byte character string) */
-  char d_name[MAX_GEOS_PATH + 1];
-
-  /* file attributes */
-  WIN32_FIND_DATAA data;
-}dirent;
-
-typedef struct DIR
-{
-  /* current directory entry */
-  dirent current;
-
-  /* is there an un-processed entry in current? */
-  int cached;
-
-  /* file search handle */
-  HANDLE search_handle;
-
-  /* search pattern (3 = zero terminator + pattern "\\*") */
-  char patt[MAX_GEOS_PATH + 3];
-}DIR;
-
-#endif
-
-
-/* Structures */
-#include "Enum/EKrigOpt.hpp"
-class Koption // Transform to a class and prevent calling malloc and memfree
+class Koption
 {
 public:
   EKrigOpt calcul; /* Type of calculation (EKrigOpt) */
@@ -108,6 +39,7 @@ public:
   double *dsize;
 };
 
+// TODO: Transform to a class and prevent calling malloc and memfree
 typedef struct
 {
   double tmin; /* Minimum abscissa along line */
@@ -177,7 +109,6 @@ typedef struct
   int nb_cover; /* Number of covering tokens */
 } Bool_Cond;
 
-#include "Model/Option_VarioFit.hpp"
 class Model;
 typedef struct
 {
@@ -378,14 +309,16 @@ typedef struct
   int *sph_lend; /* Set of pointers to adjacency lists */
 } SphTriangle;
 
+class QChol;
 typedef struct
 {
   QChol *QCtt;
   QChol *QCtd;
 } QSimu;
 
-typedef struct
+class Cheb_Elem
 {
+public:
   int ncoeffs; /* Number of coefficients */
   int ncmax; /* Maximum number of polynomials */
   int ndisc; /* Number of discretizations */
@@ -396,7 +329,7 @@ typedef struct
   double v2;
   double tol; /* Tolerance */
   double *coeffs; /* Array of coefficients */
-} Cheb_Elem;
+};
 
 typedef struct
 {
@@ -432,6 +365,7 @@ public:
   Vertype *vertype;
 };
 
+class cs_MGS;
 typedef struct
 {
   VectorDouble Lambda;
@@ -505,7 +439,3 @@ struct Local_Relem
 
 typedef struct Local_Relem Relem;
 typedef struct Local_Split Split;
-
-#include "INIParser.hpp"
-
-#endif

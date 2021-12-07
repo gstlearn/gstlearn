@@ -13,8 +13,10 @@
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Morpho/Morpho.hpp"
+#include "Model/CovInternal.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include <math.h>
 
 GibbsUPropMono::GibbsUPropMono()

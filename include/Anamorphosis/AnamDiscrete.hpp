@@ -10,20 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include "Anamorphosis/Anam.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
-class AnamDiscrete: public Anam
+class GSTLEARN_EXPORT AnamDiscrete: public Anam
 {
-private:
-  int _nCut;
-  int _nElem;
-  double _mean;
-  double _variance;
-  VectorDouble _zCut;
-  MatrixRectangular _stats;
-
 public:
   AnamDiscrete(const EAnam& type = EAnam::UNDEFINED);
   AnamDiscrete(const AnamDiscrete &m);
@@ -81,4 +75,12 @@ public:
 private:
   bool _isClassValid(int iclass) const;
   void _resize();
+
+private:
+  int _nCut;
+  int _nElem;
+  double _mean;
+  double _variance;
+  VectorDouble _zCut;
+  MatrixRectangular _stats;
 };

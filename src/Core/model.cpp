@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Drifts/ADrift.hpp"
@@ -20,15 +23,21 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
+#include "Model/CovInternal.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/ModTrans.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Anamorphosis/AnamDiscreteDD.hpp"
+#include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_e.h"
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
+#include "Basic/String.hpp"
+#include "Db/Db.hpp"
+#include "csparse_f.h"
+
+#include <math.h>
 
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)
@@ -44,7 +53,7 @@
 #define Gmatrix(i,j)           (Gmatrix[(j) * nech + i])
 /*! \endcond */
 
-static CovInternal* COVINT = nullptr;
+static CovInternal *COVINT = nullptr;
 int NDIM_LOCAL = 0;
 VectorDouble X1_LOCAL = VectorDouble();
 VectorDouble X2_LOCAL = VectorDouble();
@@ -59,13 +68,13 @@ VectorDouble X2_LOCAL = VectorDouble();
  ** \param[in]  model        Model structure
  **
  *****************************************************************************/
-GEOSLIB_API void model_nostat_update(CovInternal *covint, Model* model)
+void model_nostat_update(CovInternal *covint, Model *model)
 {
   if (!model->isNoStat()) return;
   if (covint == NULL) return;
   COVINT = covint;
 
-  const ANoStat* nostat = model->getNoStat();
+  const ANoStat *nostat = model->getNoStat();
   nostat->updateModel(model, covint->getIcas1(), covint->getIech1(),
                       covint->getIcas2(), covint->getIech2());
 }
@@ -131,7 +140,7 @@ static int st_check_variable(int nvar, int ivar)
  ** \param[in]  covtab      Array to be initialized
  **
  *****************************************************************************/
-GEOSLIB_API void model_covtab_init(int flag_init, Model *model, double *covtab)
+void model_covtab_init(int flag_init, Model *model, double *covtab)
 {
   int nvar = model->getVariableNumber();
   if (flag_init) for (int ivar = 0; ivar < nvar; ivar++)
@@ -171,14 +180,14 @@ static void st_covtab_rescale(int nvar, double norme, double *covtab)
  ** \param[in]  d1          vector of increment (or NULL)
  **
  *****************************************************************************/
-GEOSLIB_API double model_calcul_basic(Model *model,
-                                      int icov,
-                                      const ECalcMember& member,
-                                      const VectorDouble& d1)
+double model_calcul_basic(Model *model,
+                          int icov,
+                          const ECalcMember &member,
+                          const VectorDouble &d1)
 {
   //  const CovAniso* cova = model->getCova(icov);
   // TODO: Why having to use ACov rather than CovAniso?
-  const ACov* cova = dynamic_cast<const ACov*>(model->getCova(icov));
+  const ACov *cova = dynamic_cast<const ACov*>(model->getCova(icov));
 
   if (member != ECalcMember::LHS && model->isCovaFiltered(icov))
     return (0.);
@@ -203,13 +212,13 @@ GEOSLIB_API double model_calcul_basic(Model *model,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
-                                         Model* model,
-                                         const CovCalcMode& mode,
-                                         int flag_init,
-                                         double weight,
-                                         VectorDouble d1,
-                                         double *covtab)
+void model_calcul_cov_direct(CovInternal *covint,
+                             Model *model,
+                             const CovCalcMode &mode,
+                             int flag_init,
+                             double weight,
+                             VectorDouble d1,
+                             double *covtab)
 {
   // Load the non-stationary parameters if needed
 
@@ -225,16 +234,16 @@ GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
 
   int nvar = model->getVariableNumber();
   if (mat.getNTotal() != nvar * nvar)
-   my_throw("Error in loading Covariance calculation into COVTAB");
+  my_throw("Error in loading Covariance calculation into COVTAB");
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = mat.getValue(ivar, jvar);
       if (flag_init)
         COVTAB(ivar,jvar)= value;
-      else
+        else
         COVTAB(ivar,jvar) += value;
-    }
+      }
   return;
 }
 
@@ -255,7 +264,7 @@ GEOSLIB_API void model_calcul_cov_direct(CovInternal *covint,
  *****************************************************************************/
 static void st_model_calcul_cov_convolution(CovInternal *cov_nostat,
                                             Model *model,
-                                            const CovCalcMode& mode,
+                                            const CovCalcMode &mode,
                                             int flag_init,
                                             double weight,
                                             VectorDouble d1,
@@ -289,7 +298,7 @@ static void st_model_calcul_cov_convolution(CovInternal *cov_nostat,
  *****************************************************************************/
 static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
                                                Model *model,
-                                               const CovCalcMode& mode,
+                                               const CovCalcMode &mode,
                                                int flag_init,
                                                double weight,
                                                VectorDouble d1,
@@ -300,8 +309,8 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
 
   /* Initializations */
 
-  const ModTrans& modtrs = model->getModTrans();
-  AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(modtrs.getAnam());
+  const ModTrans &modtrs = model->getModTrans();
+  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(modtrs.getAnam());
 
   /* Check if the distance is zero */
 
@@ -448,7 +457,7 @@ static void st_model_calcul_cov_anam_hermitian(CovInternal *cov_nostat,
  *****************************************************************************/
 static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
                                         Model *model,
-                                        const CovCalcMode& mode,
+                                        const CovCalcMode &mode,
                                         int flag_init,
                                         double weight,
                                         VectorDouble d1,
@@ -459,8 +468,8 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
 
   /* Initializations */
 
-  const ModTrans& modtrs = model->getModTrans();
-  AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(modtrs.getAnam());
+  const ModTrans &modtrs = model->getModTrans();
+  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(modtrs.getAnam());
   ndim = model->getDimensionNumber();
 
   /* Check if the distance is zero */
@@ -595,10 +604,10 @@ static void st_model_calcul_cov_anam_DD(CovInternal *cov_nostat,
  *****************************************************************************/
 static double st_cov_residual(Model *model,
                               int icut0,
-                              const VectorDouble& covwrk)
+                              const VectorDouble &covwrk)
 {
-  ModTrans& modtrs = model->getModTrans();
-  AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
+  ModTrans &modtrs = model->getModTrans();
+  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
 
   /* Get the pointer of the basic structure for the current model */
 
@@ -628,7 +637,7 @@ static double st_cov_residual(Model *model,
  *****************************************************************************/
 static double st_covsum_residual(Model *model,
                                  int icut0,
-                                 const VectorDouble& covwrk)
+                                 const VectorDouble &covwrk)
 {
   double covsum = 0.;
   for (int icut = 0; icut <= icut0; icut++)
@@ -655,7 +664,7 @@ static double st_covsum_residual(Model *model,
  *****************************************************************************/
 static void st_model_calcul_cov_anam_IR(CovInternal *cov_nostat,
                                         Model *model,
-                                        const CovCalcMode& mode,
+                                        const CovCalcMode &mode,
                                         int flag_init,
                                         double weight,
                                         VectorDouble d1,
@@ -666,8 +675,8 @@ static void st_model_calcul_cov_anam_IR(CovInternal *cov_nostat,
 
   /* Initializations */
 
-  ModTrans& modtrs = model->getModTrans();
-  AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
+  ModTrans &modtrs = model->getModTrans();
+  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
   nclass = modtrs.getAnamNClass();
   ncut = nclass - 1;
   ncova = model->getCovaNumber();
@@ -747,7 +756,7 @@ static void st_model_calcul_cov_anam_IR(CovInternal *cov_nostat,
  *****************************************************************************/
 static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
                                          Model *model,
-                                         const CovCalcMode& mode,
+                                         const CovCalcMode &mode,
                                          int flag_init,
                                          double weight,
                                          VectorDouble d1,
@@ -762,7 +771,7 @@ static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
 
   /* Calculate the tapering effect */
 
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   h = 0.;
   if (!d1.empty())
     h = sqrt(matrix_norm(d1.data(), model->getDimensionNumber())) / modtrs.getTape()->getRange();
@@ -790,12 +799,12 @@ static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-GEOSLIB_API void model_calcul_cov(Model *model,
-                                  CovCalcMode& mode,
-                                  int flag_init,
-                                  double weight,
-                                  const VectorDouble& d1,
-                                  double *covtab)
+void model_calcul_cov(Model *model,
+                      CovCalcMode &mode,
+                      int flag_init,
+                      double weight,
+                      const VectorDouble &d1,
+                      double *covtab)
 {
   /* Modify the member in case of properties */
 
@@ -826,11 +835,11 @@ GEOSLIB_API void model_calcul_cov(Model *model,
  ** \param[in]  d1          vector of increment (or NULL)
  **
  *****************************************************************************/
-GEOSLIB_API double model_calcul_cov_ij(Model *model,
-                                       const CovCalcMode& mode,
-                                       int ivar,
-                                       int jvar,
-                                       const VectorDouble& d1)
+double model_calcul_cov_ij(Model *model,
+                           const CovCalcMode &mode,
+                           int ivar,
+                           int jvar,
+                           const VectorDouble &d1)
 {
 
   /* Modify the member in case of properties */
@@ -860,7 +869,7 @@ GEOSLIB_API double model_calcul_cov_ij(Model *model,
  ** \return A (protected) pointer on the Covariance Internal class
  **
  *****************************************************************************/
-GEOSLIB_API const CovInternal* get_external_covariance()
+const CovInternal* get_external_covariance()
 {
   return COVINT;
 }
@@ -881,13 +890,13 @@ GEOSLIB_API const CovInternal* get_external_covariance()
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-GEOSLIB_API void model_calcul_cov_nostat(Model *model,
-                                         CovCalcMode& mode,
-                                         CovInternal* covint,
-                                         int flag_init,
-                                         double weight,
-                                         VectorDouble& d1,
-                                         double *covtab)
+void model_calcul_cov_nostat(Model *model,
+                             CovCalcMode &mode,
+                             CovInternal *covint,
+                             int flag_init,
+                             double weight,
+                             VectorDouble &d1,
+                             double *covtab)
 {
   /* Modify the member in case of properties */
 
@@ -922,11 +931,11 @@ GEOSLIB_API void model_calcul_cov_nostat(Model *model,
  ** \param[out] drftab  Array of drift values
  **
  *****************************************************************************/
-GEOSLIB_API void model_calcul_drift(Model *model,
-                                    const ECalcMember& member,
-                                    const Db *db,
-                                    int iech,
-                                    double *drftab)
+void model_calcul_drift(Model *model,
+                        const ECalcMember &member,
+                        const Db *db,
+                        int iech,
+                        double *drftab)
 {
   for (int il = 0; il < model->getDriftNumber(); il++)
     drftab[il] = model->evaluateDrift(db, iech, il, member);
@@ -944,10 +953,10 @@ GEOSLIB_API void model_calcul_drift(Model *model,
  ** \param[out]  var0     array for C0[] (Dimension = nvar * nvar)
  **
  *****************************************************************************/
-GEOSLIB_API void model_variance0(Model *model,
-                                 Koption *koption,
-                                 double *covtab,
-                                 double *var0)
+void model_variance0(Model *model,
+                     Koption *koption,
+                     double *covtab,
+                     double *var0)
 {
   int i, j, ecr, ivar, jvar, idim, nscale;
   CovCalcMode mode;
@@ -1014,11 +1023,11 @@ GEOSLIB_API void model_variance0(Model *model,
  ** \param[out]  var0     array for C0[] (Dimension = nvar * nvar)
  **
  *****************************************************************************/
-GEOSLIB_API void model_variance0_nostat(Model *model,
-                                        Koption *koption,
-                                        CovInternal* covint,
-                                        double *covtab,
-                                        double *var0)
+void model_variance0_nostat(Model *model,
+                            Koption *koption,
+                            CovInternal *covint,
+                            double *covtab,
+                            double *var0)
 {
   int i, j, ecr, ivar, jvar, idim, nscale;
   CovCalcMode mode;
@@ -1073,7 +1082,7 @@ GEOSLIB_API void model_variance0_nostat(Model *model,
  ** \param[in]  model Model to be freed
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_free(Model *model)
+Model* model_free(Model *model)
 
 {
   /* Initializations */
@@ -1093,10 +1102,10 @@ GEOSLIB_API Model *model_free(Model *model)
  ** \param[in]   type0    Requested type (EConsElem)
  **
  *****************************************************************************/
-GEOSLIB_API int is_model_nostat_param(Model *model, const EConsElem& type0)
+int is_model_nostat_param(Model *model, const EConsElem &type0)
 {
-  if (! model->isNoStat()) return 1;
-  const ANoStat* nostat = model->getNoStat();
+  if (!model->isNoStat()) return 1;
+  const ANoStat *nostat = model->getNoStat();
   if (nostat->isDefinedByType(-1, type0)) return 1;
 
   return (0);
@@ -1121,22 +1130,22 @@ GEOSLIB_API int is_model_nostat_param(Model *model, const EConsElem& type0)
  **                           (dimension: nvar*nvar)
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_init(int ndim,
-                              int nvar,
-                              double field,
-                              int flag_linked,
-                              double ball_radius,
-                              bool flag_gradient,
-                              const VectorDouble& mean,
-                              const VectorDouble& covar0)
+Model* model_init(int ndim,
+                  int nvar,
+                  double field,
+                  int flag_linked,
+                  double ball_radius,
+                  bool flag_gradient,
+                  const VectorDouble &mean,
+                  const VectorDouble &covar0)
 {
-  Model* model = nullptr;
+  Model *model = nullptr;
 
   /// TODO : Force SpaceRN creation (modèle poubelle)
   SpaceRN space(ndim);
   CovContext ctxt = CovContext(nvar, 2, field, &space);
   ctxt.setBallRadius(ball_radius);
-  if (static_cast<int>(mean.size()) > 0)   ctxt.setMean(mean);
+  if (static_cast<int>(mean.size()) > 0) ctxt.setMean(mean);
   if (static_cast<int>(covar0.size()) > 0) ctxt.setCovar0(covar0);
 
   model = new Model(ctxt, flag_gradient, flag_linked);
@@ -1158,7 +1167,7 @@ GEOSLIB_API Model *model_init(int ndim,
  ** \param[in]  nvar Number of variables
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_default(int ndim, int nvar)
+Model* model_default(int ndim, int nvar)
 {
   Model *model;
   double sill;
@@ -1171,15 +1180,13 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
   /* Create the empty Model */
 
   model = model_init(ndim, nvar, 1.);
-  if (model == nullptr)
-    return model;
+  if (model == nullptr) return model;
 
   /* Add the nugget effect variogram model */
 
   sill = 1.;
-  if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0.,
-                     VectorDouble(), VectorDouble(), VectorDouble(1,sill)))
-    goto label_end;
+  if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
+                     VectorDouble(), VectorDouble(1, sill))) goto label_end;
 
   /* Set the error return flag */
 
@@ -1213,15 +1220,15 @@ GEOSLIB_API Model *model_default(int ndim, int nvar)
  **                             (Dimension = nvar * nvar)
  **
  *****************************************************************************/
-GEOSLIB_API int model_add_cova(Model *model,
-                               const ECov& type,
-                               int flag_aniso,
-                               int flag_rotation,
-                               double range,
-                               double param,
-                               const VectorDouble& aniso_ranges,
-                               const VectorDouble& aniso_rotmat,
-                               const VectorDouble& sill)
+int model_add_cova(Model *model,
+                   const ECov &type,
+                   int flag_aniso,
+                   int flag_rotation,
+                   double range,
+                   double param,
+                   const VectorDouble &aniso_ranges,
+                   const VectorDouble &aniso_rotmat,
+                   const VectorDouble &sill)
 {
   if (st_check_model(model)) return 1;
 
@@ -1282,7 +1289,7 @@ GEOSLIB_API int model_add_cova(Model *model,
  ** \remark  is equal to the number of drift functions.
  **
  *****************************************************************************/
-GEOSLIB_API int model_add_drift(Model *model, const EDrift& type, int rank_fex)
+int model_add_drift(Model *model, const EDrift &type, int rank_fex)
 {
   ADriftElem *drift;
   int error;
@@ -1315,7 +1322,7 @@ GEOSLIB_API int model_add_drift(Model *model, const EDrift& type, int rank_fex)
  ** \param[in]  model      Pointer to the Model structure
  **
  *****************************************************************************/
-GEOSLIB_API int model_add_no_property(Model *model)
+int model_add_no_property(Model *model)
 
 {
   int error;
@@ -1324,7 +1331,7 @@ GEOSLIB_API int model_add_no_property(Model *model)
 
   error = 1;
 
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   // Cancel the property
@@ -1355,18 +1362,18 @@ GEOSLIB_API int model_add_no_property(Model *model)
  ** \param[in]  conv_range Convolution parameter
  **
  *****************************************************************************/
-GEOSLIB_API int model_add_convolution(Model *model,
-                                      int conv_type,
-                                      int conv_idir,
-                                      int conv_ndisc,
-                                      double conv_range)
+int model_add_convolution(Model *model,
+                          int conv_type,
+                          int conv_idir,
+                          int conv_ndisc,
+                          double conv_range)
 {
   int error;
 
   /* Initializations */
 
   error = 1;
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   /* Load the Convolution parameters */
@@ -1401,14 +1408,14 @@ GEOSLIB_API int model_add_convolution(Model *model,
  ** \remark    the covariance mode as a function of anam_var rather than member
  **
  *****************************************************************************/
-GEOSLIB_API int model_anamorphosis_set_factor(Model *model, int anam_iclass)
+int model_anamorphosis_set_factor(Model *model, int anam_iclass)
 {
   int error;
 
   /* Initializations */
 
   error = 1;
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   /* Preliminary checks */
@@ -1455,22 +1462,22 @@ GEOSLIB_API int model_anamorphosis_set_factor(Model *model, int anam_iclass)
  ** \param[in]  anam_stats  Array of statistics
  **
  *****************************************************************************/
-GEOSLIB_API int model_add_anamorphosis(Model *model,
-                                       const EAnam& anam_type,
-                                       int anam_nclass,
-                                       int anam_iclass,
-                                       int anam_var,
-                                       double anam_coefr,
-                                       double anam_coefs,
-                                       VectorDouble& anam_strcnt,
-                                       VectorDouble& anam_stats)
+int model_add_anamorphosis(Model *model,
+                           const EAnam &anam_type,
+                           int anam_nclass,
+                           int anam_iclass,
+                           int anam_var,
+                           double anam_coefr,
+                           double anam_coefs,
+                           VectorDouble &anam_strcnt,
+                           VectorDouble &anam_stats)
 {
   int error;
 
   /* Initializations */
 
   error = 1;
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   /* Preliminary checks */
@@ -1509,16 +1516,14 @@ GEOSLIB_API int model_add_anamorphosis(Model *model,
  ** \param[in]  tape_range Range of the tapering function
  **
  *****************************************************************************/
-GEOSLIB_API int model_add_tapering(Model *model,
-                                   int tape_type,
-                                   double tape_range)
+int model_add_tapering(Model *model, int tape_type, double tape_range)
 {
   int error;
 
   /* Initializations */
 
   error = 1;
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
   if (st_check_model(model)) goto label_end;
 
   /* Preliminary check */
@@ -1557,11 +1562,11 @@ GEOSLIB_API int model_add_tapering(Model *model,
  ** \param[in]  param     Value of the third parameter
  **
  *****************************************************************************/
-GEOSLIB_API double cova_get_scale_factor(const ECov& type, double param)
+double cova_get_scale_factor(const ECov &type, double param)
 {
   SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 1000, 0., &space);
-  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
+  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   return cova->getScadef();
 }
@@ -1573,7 +1578,7 @@ GEOSLIB_API double cova_get_scale_factor(const ECov& type, double param)
  ** \param[in,out]  model Model structure
  **
  *****************************************************************************/
-GEOSLIB_API void model_setup(Model* model)
+void model_setup(Model *model)
 
 {
   if (model == nullptr) return;
@@ -1646,10 +1651,10 @@ GEOSLIB_API void model_setup(Model* model)
  ** \remark  As a consequence the array "aic()" is not evaluated
  **
  *****************************************************************************/
-GEOSLIB_API int model_update_coreg(Model *model,
-                                   double *aic,
-                                   double *valpro,
-                                   double *vecpro)
+int model_update_coreg(Model *model,
+                       double *aic,
+                       double *valpro,
+                       double *vecpro)
 {
   int ivar, jvar, icov, ncova, nvar, error;
 
@@ -1717,23 +1722,23 @@ GEOSLIB_API int model_update_coreg(Model *model,
  ** \remark  basic structure to be accounted for
  **
  *****************************************************************************/
-GEOSLIB_API int model_evaluate(Model *model,
-                               int ivar,
-                               int jvar,
-                               int rank_sel,
-                               int flag_norm,
-                               int flag_cov,
-                               int nugget_opt,
-                               int nostd,
-                               int norder,
-                               const ECalcMember& member,
-                               int nh,
-                               VectorDouble& codir,
-                               double *h,
-                               double *g)
+int model_evaluate(Model *model,
+                   int ivar,
+                   int jvar,
+                   int rank_sel,
+                   int flag_norm,
+                   int flag_cov,
+                   int nugget_opt,
+                   int nostd,
+                   int norder,
+                   const ECalcMember &member,
+                   int nh,
+                   VectorDouble &codir,
+                   double *h,
+                   double *g)
 {
   int error = 1;
-  double* covtab = nullptr;
+  double *covtab = nullptr;
   CovCalcMode mode;
   mode.update(nugget_opt, nostd, member, rank_sel, flag_norm, flag_cov);
   if (norder > 0) mode.setOrderVario(norder);
@@ -1749,7 +1754,7 @@ GEOSLIB_API int model_evaluate(Model *model,
   /* Core allocation */
 
   VectorDouble d1(ndim);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Normalize the direction vector codir */
@@ -1770,7 +1775,7 @@ GEOSLIB_API int model_evaluate(Model *model,
 
   error = 0;
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -1807,24 +1812,24 @@ GEOSLIB_API int model_evaluate(Model *model,
  ** \remark  basic structure to be accounted for
  **
  *****************************************************************************/
-GEOSLIB_API int model_evaluate_nostat(Model *model,
-                                      int ivar,
-                                      int jvar,
-                                      int rank_sel,
-                                      int flag_norm,
-                                      int flag_cov,
-                                      int nugget_opt,
-                                      int nostd,
-                                      int norder,
-                                      const ECalcMember& member,
-                                      Db *db1,
-                                      int iech1,
-                                      Db *db2,
-                                      int iech2,
-                                      int nh,
-                                      VectorDouble& codir,
-                                      double *h,
-                                      double *g)
+int model_evaluate_nostat(Model *model,
+                          int ivar,
+                          int jvar,
+                          int rank_sel,
+                          int flag_norm,
+                          int flag_cov,
+                          int nugget_opt,
+                          int nostd,
+                          int norder,
+                          const ECalcMember &member,
+                          Db *db1,
+                          int iech1,
+                          Db *db2,
+                          int iech2,
+                          int nh,
+                          VectorDouble &codir,
+                          double *h,
+                          double *g)
 {
   double *covtab, c00, var0;
   VectorDouble d1;
@@ -1844,11 +1849,11 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
   int nvar = model->getVariableNumber();
   if (st_check_variable(nvar, ivar)) return 1;
   if (st_check_variable(nvar, jvar)) return 1;
-  CovInternal covint(1,iech1,2,iech2,ndim,db1,db2);
+  CovInternal covint(1, iech1, 2, iech2, ndim, db1, db2);
 
   /* Core allocation */
 
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Normalize the direction vector codir */
@@ -1878,7 +1883,7 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
 
   error = 0;
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -1896,13 +1901,13 @@ GEOSLIB_API int model_evaluate_nostat(Model *model,
  ** \param[out] g          Array containing the model values
  **
  *****************************************************************************/
-GEOSLIB_API int model_grid(Model *model,
-                           Db *db,
-                           int ivar,
-                           int jvar,
-                           int flag_norm,
-                           int flag_cov,
-                           double *g)
+int model_grid(Model *model,
+               Db *db,
+               int ivar,
+               int jvar,
+               int flag_norm,
+               int flag_cov,
+               double *g)
 {
   double *covtab;
   int iech, nvar, ndim, error;
@@ -1925,7 +1930,7 @@ GEOSLIB_API int model_grid(Model *model,
   /* Core allocation */
 
   d1.resize(ndim);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Initialization */
@@ -1947,7 +1952,7 @@ GEOSLIB_API int model_grid(Model *model,
 
   error = 0;
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -1960,7 +1965,7 @@ GEOSLIB_API int model_grid(Model *model,
  ** \param[in]  model Model structure
  **
  *****************************************************************************/
-GEOSLIB_API int model_nfex(Model *model)
+int model_nfex(Model *model)
 
 {
   int il, nfex;
@@ -1989,7 +1994,7 @@ GEOSLIB_API int model_nfex(Model *model)
  ** \param[in]  filter  1 to filter; 0 to unfilter
  **
  *****************************************************************************/
-GEOSLIB_API void model_drift_filter(Model *model, int rank, int filter)
+void model_drift_filter(Model *model, int rank, int filter)
 {
   if (rank < 0 || rank >= model->getDriftNumber()) return;
   model->setDriftFiltered(rank, filter);
@@ -2011,13 +2016,13 @@ GEOSLIB_API void model_drift_filter(Model *model, int rank, int filter)
  ** \param[in]  eps   Epsilon used for randomization in calculation of CVV
  **
  *****************************************************************************/
-GEOSLIB_API double model_cxx(Model *model,
-                             Db *db1,
-                             Db *db2,
-                             int ivar,
-                             int jvar,
-                             int seed,
-                             double eps)
+double model_cxx(Model *model,
+                 Db *db1,
+                 Db *db2,
+                 int ivar,
+                 int jvar,
+                 int seed,
+                 double eps)
 {
   double *covtab, cxx, v1, v2, w1, w2, norme;
   int ndim, nvar, iech1, iech2, i, skip;
@@ -2040,7 +2045,7 @@ GEOSLIB_API double model_cxx(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
   model_covtab_init(1, model, covtab);
 
@@ -2085,7 +2090,7 @@ GEOSLIB_API double model_cxx(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (cxx);
 }
 
@@ -2117,17 +2122,17 @@ GEOSLIB_API double model_cxx(Model *model,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-GEOSLIB_API double *model_covmat_by_ranks(Model *model,
-                                          Db *db1,
-                                          int nsize1,
-                                          const int *ranks1,
-                                          Db *db2,
-                                          int nsize2,
-                                          const int *ranks2,
-                                          int ivar0,
-                                          int jvar0,
-                                          int flag_norm,
-                                          int flag_cov)
+double* model_covmat_by_ranks(Model *model,
+                              Db *db1,
+                              int nsize1,
+                              const int *ranks1,
+                              Db *db2,
+                              int nsize2,
+                              const int *ranks2,
+                              int ivar0,
+                              int jvar0,
+                              int flag_norm,
+                              int flag_cov)
 {
   double *covmat, *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, ecr, error, i1, i2;
@@ -2160,9 +2165,9 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
-  covmat = (double *) mem_alloc(sizeof(double) * nsize1 * nsize2, 0);
+  covmat = (double*) mem_alloc(sizeof(double) * nsize1 * nsize2, 0);
   if (covmat == nullptr) goto label_end;
 
   /* Loop on the number of variables */
@@ -2176,7 +2181,8 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
 
     for (i1 = 0; i1 < nsize1; i1++)
     {
-      iech1 = (ranks1 != nullptr) ? ranks1[i1] : i1;
+      iech1 = (ranks1 != nullptr) ? ranks1[i1] :
+                                    i1;
       if (iech1 < 0) continue;
 
       /* Loop on the second variable */
@@ -2189,7 +2195,8 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
 
         for (i2 = 0; i2 < nsize2; i2++)
         {
-          iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
+          iech2 = (ranks2 != nullptr) ? ranks2[i2] :
+                                        i2;
           if (iech2 < 0) continue;
 
           /* Loop on the dimension of the space */
@@ -2219,8 +2226,8 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
-  if (error) covmat = (double *) mem_free((char * ) covmat);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
+  if (error) covmat = (double*) mem_free((char* ) covmat);
   return (covmat);
 }
 
@@ -2236,10 +2243,10 @@ GEOSLIB_API double *model_covmat_by_ranks(Model *model,
  **                    (Dimension = nech * nvar * nfeq * nvar)
  **
  *****************************************************************************/
-GEOSLIB_API void model_drift_mat(Model *model,
-                                 const ECalcMember& member,
-                                 Db *db,
-                                 double *drfmat)
+void model_drift_mat(Model *model,
+                     const ECalcMember &member,
+                     Db *db,
+                     double *drfmat)
 {
   int nech, nvar, nbfl, nfeq, ecr, jb;
   double *drftab, value;
@@ -2256,7 +2263,7 @@ GEOSLIB_API void model_drift_mat(Model *model,
 
   /* Core allocation */
 
-  drftab = (double *) mem_alloc(sizeof(double) * nbfl, 0);
+  drftab = (double*) mem_alloc(sizeof(double) * nbfl, 0);
   if (drftab == nullptr) goto label_end;
 
   ecr = 0;
@@ -2300,7 +2307,7 @@ GEOSLIB_API void model_drift_mat(Model *model,
     }
   }
 
-  label_end: drftab = (double *) mem_free((char * ) drftab);
+  label_end: drftab = (double*) mem_free((char* ) drftab);
   return;
 }
 
@@ -2317,11 +2324,11 @@ GEOSLIB_API void model_drift_mat(Model *model,
  **                    (Dimension = nvar * nfeq)
  **
  *****************************************************************************/
-GEOSLIB_API void model_drift_vector(Model *model,
-                                    const ECalcMember& member,
-                                    Db *db,
-                                    int iech,
-                                    double *vector)
+void model_drift_vector(Model *model,
+                        const ECalcMember &member,
+                        Db *db,
+                        int iech,
+                        double *vector)
 {
   int nvar, nbfl, nfeq, ivar, ib, il, ecr, i;
   double *drftab, value;
@@ -2337,7 +2344,7 @@ GEOSLIB_API void model_drift_vector(Model *model,
 
   /* Core allocation */
 
-  drftab = (double *) mem_alloc(sizeof(double) * nbfl, 0);
+  drftab = (double*) mem_alloc(sizeof(double) * nbfl, 0);
   if (drftab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
@@ -2357,7 +2364,7 @@ GEOSLIB_API void model_drift_vector(Model *model,
       vector[ecr++] = value;
     }
 
-  label_end: drftab = (double *) mem_free((char * ) drftab);
+  label_end: drftab = (double*) mem_free((char* ) drftab);
   return;
 }
 
@@ -2374,7 +2381,7 @@ GEOSLIB_API void model_drift_vector(Model *model,
  **
  *****************************************************************************/
 static void st_matrix_c00(Model *model,
-                          CovCalcMode& mode,
+                          CovCalcMode &mode,
                           double *covtab,
                           VectorDouble d1,
                           double *c00tab)
@@ -2392,29 +2399,29 @@ static void st_matrix_c00(Model *model,
       if (c00 <= 0. || FFFF(c00)) c00 = var0;
       C00TAB(ivar1,ivar2)= c00;
     }
-}
+  }
 
-/*****************************************************************************/
-/*!
- **  Patches the value of the drift coefficient in the model for the
- **  rank of variable 'iv' and of the equation 'ib'. The rank of the
- **  drift function is found by matching the type in the basis of the
- **  drift functions available.
- **  Note : this function is only used when the model has linked
- **  drift functions
- **
- ** \param[in]  model Model structure
- ** \param[in]  iv    rank of the variable
- ** \param[in]  ib    rank of the equation
- ** \param[in]  type  type of the drift function (EDrift)
- ** \param[in]  rank  rank of the external drift
- ** \param[in]  value value to be added to the drift coefficient
- **
- *****************************************************************************/
+  /*****************************************************************************/
+  /*!
+   **  Patches the value of the drift coefficient in the model for the
+   **  rank of variable 'iv' and of the equation 'ib'. The rank of the
+   **  drift function is found by matching the type in the basis of the
+   **  drift functions available.
+   **  Note : this function is only used when the model has linked
+   **  drift functions
+   **
+   ** \param[in]  model Model structure
+   ** \param[in]  iv    rank of the variable
+   ** \param[in]  ib    rank of the equation
+   ** \param[in]  type  type of the drift function (EDrift)
+   ** \param[in]  rank  rank of the external drift
+   ** \param[in]  value value to be added to the drift coefficient
+   **
+   *****************************************************************************/
 static void st_drift_modify(Model *model,
                             int iv,
                             int ib,
-                            const EDrift& type,
+                            const EDrift &type,
                             int rank,
                             double value)
 {
@@ -2423,8 +2430,8 @@ static void st_drift_modify(Model *model,
   /* Look for the drift function */
 
   for (i = 0, il = -1; i < model->getDriftNumber() && il < 0; i++)
-    if (model->getDriftType(i) == type &&
-        model->getDrift(i)->getRankFex() == rank) il = i;
+    if (model->getDriftType(i) == type && model->getDrift(i)->getRankFex()
+        == rank) il = i;
   if (il < 0) messageAbort("st_drift_modify");
 
   /* Patch the drift coefficient */
@@ -2551,7 +2558,7 @@ static void st_drift_derivative(int iv,
  ** \li                      1 for Data - Gradient
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int mode)
+Model* model_duplicate(const Model *model, double ball_radius, int mode)
 
 {
   Model *new_model;
@@ -2596,10 +2603,10 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
       break;
   }
   new_model = model_init(ndim, new_nvar, model->getField(), flag_linked,
-                         ball_radius, flag_gradient, model->getContext().getMean(),
+                         ball_radius, flag_gradient,
+                         model->getContext().getMean(),
                          model->getContext().getCovar0());
-  if (new_model == nullptr)
-    return new_model;
+  if (new_model == nullptr) return new_model;
 
   // ****************************************
   // Create the basic covariance structures
@@ -2679,8 +2686,8 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
     for (int il = 0; il < nbfl; il++)
     {
       drft = model->getDrift(il);
-      ADriftElem* newdrft = DriftFactory::createDriftFunc(drft->getType(),
-                                                          new_model->getContext());
+      ADriftElem *newdrft = DriftFactory::createDriftFunc(
+          drft->getType(), new_model->getContext());
       newdrft->setRankFex(drft->getRankFex());
       new_model->addDrift(newdrft);
       new_model->setDriftFiltered(il, model->isDriftFiltered(il));
@@ -2720,13 +2727,13 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
 // ** \param[in]  corr        Array for correlations (optional)
 // **
 // *****************************************************************************/
-//GEOSLIB_API Model *model_modify(Model  *model,
+//Model *model_modify(Model  *model,
 //                                int     new_nvar,
 //                                double *mean,
 //                                double *vars,
 //                                double *corr)
 //{
-  /// TODO [Cova] : to be restored ?
+/// TODO [Cova] : to be restored ?
 //  Model  *new_model;
 //  int     ivar,jvar,nvar,icov,ncova,il,nbfl,error,ndim;
 //  double  sill;
@@ -2861,7 +2868,7 @@ GEOSLIB_API Model *model_duplicate(const Model *model, double ball_radius, int m
  ** \param[in]  flag_verbose  1 for a verbose output
  **
  *****************************************************************************/
-GEOSLIB_API int model_normalize(Model *model, int flag_verbose)
+int model_normalize(Model *model, int flag_verbose)
 
 {
   double *total;
@@ -2876,7 +2883,7 @@ GEOSLIB_API int model_normalize(Model *model, int flag_verbose)
 
   /* Core allocation */
 
-  total = (double *) mem_alloc(sizeof(double) * nvar, 1);
+  total = (double*) mem_alloc(sizeof(double) * nvar, 1);
 
   /* Calculate the total sills for each variable */
 
@@ -2913,7 +2920,7 @@ GEOSLIB_API int model_normalize(Model *model, int flag_verbose)
 
   error = 0;
 
-  label_end: total = (double *) mem_free((char * ) total);
+  label_end: total = (double*) mem_free((char* ) total);
   return (error);
 }
 
@@ -2934,7 +2941,7 @@ GEOSLIB_API int model_normalize(Model *model, int flag_verbose)
  ** \remark  This function does not do anything in the multivariate case
  **
  *****************************************************************************/
-GEOSLIB_API int model_stabilize(Model *model, int flag_verbose, double percent)
+int model_stabilize(Model *model, int flag_verbose, double percent)
 {
   CovAniso *cova;
   double total;
@@ -2970,7 +2977,7 @@ GEOSLIB_API int model_stabilize(Model *model, int flag_verbose, double percent)
   /* Add a NUGGET EFFECT component */
 
   if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
-                     VectorDouble(), VectorDouble(1,total))) goto label_end;
+                     VectorDouble(), VectorDouble(1, total))) goto label_end;
 
   /* Printout */
 
@@ -2999,11 +3006,11 @@ GEOSLIB_API int model_stabilize(Model *model, int flag_verbose, double percent)
  ** \param[out] nugget       Array of sills for the nugget component
  **
  *****************************************************************************/
-GEOSLIB_API void model_covupdt(Model *model,
-                               double *c0,
-                               int flag_verbose,
-                               int *flag_nugget,
-                               double *nugget)
+void model_covupdt(Model *model,
+                   double *c0,
+                   int flag_verbose,
+                   int *flag_nugget,
+                   double *nugget)
 {
   /// TODO : dead code ?
   CovAniso *cova;
@@ -3021,9 +3028,9 @@ GEOSLIB_API void model_covupdt(Model *model,
 
   /* Core allocation */
 
-  rank = (int *) mem_alloc(sizeof(int) * ncova, 1);
-  range = (double *) mem_alloc(sizeof(double) * ncova, 1);
-  silltot = (double *) mem_alloc(sizeof(double) * nvar * nvar, 1);
+  rank = (int*) mem_alloc(sizeof(int) * ncova, 1);
+  range = (double*) mem_alloc(sizeof(double) * ncova, 1);
+  silltot = (double*) mem_alloc(sizeof(double) * nvar * nvar, 1);
   for (i = 0; i < nvar * nvar; i++)
     silltot[i] = 0.;
 
@@ -3126,9 +3133,9 @@ GEOSLIB_API void model_covupdt(Model *model,
 
   /* Returning arguments */
 
-  rank = (int *) mem_free((char * ) rank);
-  range = (double *) mem_free((char * ) range);
-  silltot = (double *) mem_free((char * ) silltot);
+  rank = (int*) mem_free((char* ) rank);
+  range = (double*) mem_free((char* ) range);
+  silltot = (double*) mem_free((char* ) silltot);
   *flag_nugget = flag_update && (rank_nugget < 0);
   if (flag_verbose && (*flag_nugget))
   {
@@ -3152,13 +3159,13 @@ GEOSLIB_API void model_covupdt(Model *model,
  ** \param[out] drftab  Working array
  **
  *****************************************************************************/
-GEOSLIB_API double model_drift_evaluate(int verbose,
-                                        Model *model,
-                                        const Db *db,
-                                        int iech,
-                                        int ivar,
-                                        double *coef,
-                                        double *drftab)
+double model_drift_evaluate(int verbose,
+                            Model *model,
+                            const Db *db,
+                            int iech,
+                            int ivar,
+                            double *coef,
+                            double *drftab)
 {
   double drift, value;
   int il, ib;
@@ -3204,12 +3211,12 @@ GEOSLIB_API double model_drift_evaluate(int verbose,
  ** \param[in]  model_in  Input Model structure
  **
  *****************************************************************************/
-GEOSLIB_API Model *input_model(int ndim,
-                               int nvar,
-                               int order,
-                               int flag_sill,
-                               int flag_norm,
-                               Model *model_in)
+Model* input_model(int ndim,
+                   int nvar,
+                   int order,
+                   int flag_sill,
+                   int flag_norm,
+                   Model *model_in)
 {
   /// TODO [Cova] : to be restored ?
 //  int    i,flag_def,error,ncova;
@@ -3278,7 +3285,7 @@ GEOSLIB_API Model *input_model(int ndim,
  ** \param[in]  model     Model structure
  **
  *****************************************************************************/
-GEOSLIB_API int model_dimension(Model *model)
+int model_dimension(Model *model)
 {
   return (model->getCovaNumber());
 }
@@ -3300,14 +3307,14 @@ GEOSLIB_API int model_dimension(Model *model)
  ** \param[out]  aniso_ranges  Rotation ranges (Dimension = ndim)
  **
  *****************************************************************************/
-GEOSLIB_API int model_extract_cova(Model*        model,
-                                   int           icov,
-                                   ECov*         cov_type,
-                                   int *         flag_aniso,
-                                   double*       param,
-                                   VectorDouble& sill,
-                                   VectorDouble& aniso_rotmat,
-                                   VectorDouble& aniso_ranges)
+int model_extract_cova(Model *model,
+                       int icov,
+                       ECov *cov_type,
+                       int *flag_aniso,
+                       double *param,
+                       VectorDouble &sill,
+                       VectorDouble &aniso_rotmat,
+                       VectorDouble &aniso_ranges)
 {
   CovAniso *cova;
   int ndim;
@@ -3350,9 +3357,9 @@ GEOSLIB_API int model_extract_cova(Model*        model,
  ** \remark procedure.
  **
  *****************************************************************************/
-GEOSLIB_API void model_extract_properties(Model *model, double *tape_range)
+void model_extract_properties(Model *model, double *tape_range)
 {
-  ModTrans& modtrs = model->getModTrans();
+  ModTrans &modtrs = model->getModTrans();
 
   *tape_range = modtrs.getTape()->getRange();
 }
@@ -3378,23 +3385,23 @@ GEOSLIB_API void model_extract_properties(Model *model, double *tape_range)
  ** \param[out] parmax         Maximum value for the third parameter
  **
  *****************************************************************************/
-GEOSLIB_API void model_cova_characteristics(const ECov& type,
-                                            char cov_name[STRING_LENGTH],
-                                            int *flag_range,
-                                            int *flag_param,
-                                            int *min_order,
-                                            int *max_ndim,
-                                            int *flag_int_1d,
-                                            int *flag_int_2d,
-                                            int *flag_aniso,
-                                            int *flag_rotation,
-                                            double *scale,
-                                            double *parmax)
+void model_cova_characteristics(const ECov &type,
+                                char cov_name[STRING_LENGTH],
+                                int *flag_range,
+                                int *flag_param,
+                                int *min_order,
+                                int *max_ndim,
+                                int *flag_int_1d,
+                                int *flag_int_2d,
+                                int *flag_aniso,
+                                int *flag_rotation,
+                                double *scale,
+                                double *parmax)
 {
   SpaceRN space(1); // Retrieve all covariances
   CovContext ctxt = CovContext(1, 2, 0., &space);
-  ACovFunc* cov = CovFactory::createCovFunc(type, ctxt);
-  (void) gslStrcpy((char *) cov_name, cov->getCovName().c_str());
+  ACovFunc *cov = CovFactory::createCovFunc(type, ctxt);
+  (void) gslStrcpy((char*) cov_name, cov->getCovName().c_str());
   *flag_range = cov->hasRange();
   *flag_param = cov->hasParam();
   *min_order = cov->getMinOrder();
@@ -3420,10 +3427,7 @@ GEOSLIB_API void model_cova_characteristics(const ECov& type,
  ** \param[in]  flag_cov  1 if the result must be given in covariance
  **
  *****************************************************************************/
-GEOSLIB_API int model_sample(Vario *vario,
-                             Model *model,
-                             int flag_norm,
-                             int flag_cov)
+int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
 {
   double *covtab;
   int i, idir, ndir, ipas, npas, idim, ndim, error, nvar, ivar, jvar, ijvar;
@@ -3440,7 +3444,7 @@ GEOSLIB_API int model_sample(Vario *vario,
   /* Core allocation */
 
   d1.resize(ndim);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
   vario->setNVar(nvar);
 
@@ -3452,7 +3456,7 @@ GEOSLIB_API int model_sample(Vario *vario,
   /* Calculate the C(0) constant term */
 
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
-  for (int i = 0; i < nvar * nvar; i++)
+  for (i = 0; i < nvar * nvar; i++)
     vario->setVars(i, covtab[i]);
 
   /* Loop on the directions */
@@ -3475,7 +3479,7 @@ GEOSLIB_API int model_sample(Vario *vario,
           vario->setSw(idir, i, 1.);
           vario->setHh(idir, i, ipas * vario->getDPas(idir));
           for (idim = 0; idim < ndim; idim++)
-            d1[idim] = vario->getHh(idir,i) * vario->getCodir(idir,idim);
+            d1[idim] = vario->getHh(idir, i) * vario->getCodir(idir, idim);
           model_calcul_cov(model, mode, 1, 1., d1, covtab);
           vario->setGg(idir, i, COVTAB(ivar, jvar));
         }
@@ -3486,7 +3490,7 @@ GEOSLIB_API int model_sample(Vario *vario,
 
   error = 0;
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -3506,13 +3510,13 @@ GEOSLIB_API int model_sample(Vario *vario,
  **                    (Dimension = neq) where neq = nactive * nvar
  **
  *****************************************************************************/
-GEOSLIB_API void model_vector_multivar(Model *model,
-                                       Db *db,
-                                       int ivar,
-                                       int iech,
-                                       int flag_norm,
-                                       int flag_cov,
-                                       double *vector)
+void model_vector_multivar(Model *model,
+                           Db *db,
+                           int ivar,
+                           int iech,
+                           int flag_norm,
+                           int flag_cov,
+                           double *vector)
 {
   double *covtab, *c00tab;
   int ndim, nvar, jech, i, skip, nech, ecr, jvar;
@@ -3533,9 +3537,9 @@ GEOSLIB_API void model_vector_multivar(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
-  c00tab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  c00tab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (c00tab == nullptr) goto label_end;
 
   /* Calculate the C(0) term */
@@ -3565,8 +3569,8 @@ GEOSLIB_API void model_vector_multivar(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
-  c00tab = (double *) mem_free((char * ) c00tab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
+  c00tab = (double*) mem_free((char* ) c00tab);
   return;
 }
 
@@ -3587,15 +3591,15 @@ GEOSLIB_API void model_vector_multivar(Model *model,
  ** \param[out] vector     Returned vector
  **
  *****************************************************************************/
-GEOSLIB_API void model_vector(Model *model,
-                              Db *db1,
-                              Db *db2,
-                              int ivar,
-                              int jvar,
-                              int jech,
-                              int flag_norm,
-                              int flag_cov,
-                              double *vector)
+void model_vector(Model *model,
+                  Db *db1,
+                  Db *db2,
+                  int ivar,
+                  int jvar,
+                  int jech,
+                  int flag_norm,
+                  int flag_cov,
+                  double *vector)
 {
   double *covtab, v1, v2;
   int ndim, nvar, iech, i, skip, nech;
@@ -3618,7 +3622,7 @@ GEOSLIB_API void model_vector(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
@@ -3649,7 +3653,7 @@ GEOSLIB_API void model_vector(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return;
 }
 
@@ -3667,14 +3671,14 @@ GEOSLIB_API void model_vector(Model *model,
  ** \param[out] vector     Returned vector
  **
  *****************************************************************************/
-GEOSLIB_API void model_vector_nostat(Model *model,
-                                     Db *db,
-                                     int ivar,
-                                     int jvar,
-                                     int iech,
-                                     double *vector)
+void model_vector_nostat(Model *model,
+                         Db *db,
+                         int ivar,
+                         int jvar,
+                         int iech,
+                         double *vector)
 {
-  double *covtab,  value;
+  double *covtab, value;
   int ndim, nvar, jech, i, skip, nech;
   VectorDouble d1;
   CovCalcMode mode;
@@ -3693,7 +3697,7 @@ GEOSLIB_API void model_vector_nostat(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Initialize the covariance matrix */
@@ -3724,7 +3728,7 @@ GEOSLIB_API void model_vector_nostat(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return;
 }
 
@@ -3737,7 +3741,7 @@ GEOSLIB_API void model_vector_nostat(Model *model,
  ** \param[in]  model      Model structure
  **
  *****************************************************************************/
-GEOSLIB_API double model_maximum_distance(Model *model)
+double model_maximum_distance(Model *model)
 
 {
   return model->getCovAnisoList()->getMaximumDistance();
@@ -3746,7 +3750,7 @@ GEOSLIB_API double model_maximum_distance(Model *model)
 /****************************************************************************/
 /*!
  **  For a given basic structure, convert the theoretical range (scale) into
- **  the practical range (which is the one actually stored in Geoslib)
+ **  the practical range (which is the one actually stored in gstlearn)
  **
  ** \return  Range
  **
@@ -3755,7 +3759,7 @@ GEOSLIB_API double model_maximum_distance(Model *model)
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-GEOSLIB_API double model_scale2range(const ECov& type, double scale, double param)
+double model_scale2range(const ECov &type, double scale, double param)
 {
   double factor, range;
 
@@ -3776,7 +3780,7 @@ GEOSLIB_API double model_scale2range(const ECov& type, double scale, double para
  ** \param[in]  param     Third parameter
  **
  *****************************************************************************/
-GEOSLIB_API double model_range2scale(const ECov& type, double range, double param)
+double model_range2scale(const ECov &type, double range, double param)
 {
   double factor, scale;
 
@@ -3794,7 +3798,7 @@ GEOSLIB_API double model_range2scale(const ECov& type, double range, double para
  ** \param[in]  model     Model structure
  **
  *****************************************************************************/
-GEOSLIB_API double model_get_field(Model *model)
+double model_get_field(Model *model)
 {
   return (model->getField());
 }
@@ -3813,9 +3817,7 @@ GEOSLIB_API double model_get_field(Model *model)
  ** \remarks: It has been exptended to the case where only one model is defined
  **
  *****************************************************************************/
-GEOSLIB_API Model *model_combine(const Model *model1,
-                                 const Model *model2,
-                                 double r)
+Model* model_combine(const Model *model1, const Model *model2, double r)
 {
   Model *model;
   const CovAniso *cova;
@@ -3879,8 +3881,7 @@ GEOSLIB_API Model *model_combine(const Model *model1,
                       model2->getContext().getBallRadius());
   model = model_init(model1->getDimensionNumber(), 2, field, 0, radius, false,
                      mean, cova0);
-  if (model == nullptr)
-    return model;
+  if (model == nullptr) return model;
 
   ncov = 0;
 
@@ -3931,7 +3932,7 @@ GEOSLIB_API Model *model_combine(const Model *model1,
  ** \param[in]  model   Model structure
  **
  *****************************************************************************/
-GEOSLIB_API int model_get_nonugget_cova(Model *model)
+int model_get_nonugget_cova(Model *model)
 
 {
   CovAniso *cova;
@@ -3961,11 +3962,11 @@ GEOSLIB_API int model_get_nonugget_cova(Model *model)
  ** \param[in]  nug_ratio Ratio of the nugget effect
  **
  *****************************************************************************/
-GEOSLIB_API int model_regularize(Model *model,
-                                 Vario *vario,
-                                 Db *db,
-                                 int opt_norm,
-                                 double nug_ratio)
+int model_regularize(Model *model,
+                     Vario *vario,
+                     Db *db,
+                     int opt_norm,
+                     double nug_ratio)
 {
   double *covtab, *c00tab, v1, v2, norme, dist;
   int idim, ndim, nvar, idir, nech, ipas, iech, jech, ivar, jvar, iad, error;
@@ -3997,9 +3998,9 @@ GEOSLIB_API int model_regularize(Model *model,
   /* Core allocation */
 
   dd.resize(ndim, 0.);
-  c00tab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  c00tab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (c00tab == nullptr) goto label_end;
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Calculate the Cvv (for a zero-shift) */
@@ -4040,7 +4041,8 @@ GEOSLIB_API int model_regularize(Model *model,
           for (idim = 0; idim < ndim; idim++)
           {
             v1 = db->getCoordinate(iech, idim);
-            v2 = db->getCoordinate(jech, idim) + dist * vario->getCodir(idir,idim);
+            v2 = db->getCoordinate(jech, idim)
+                + dist * vario->getCodir(idir, idim);
             dd[idim] = v1 - v2;
           }
           model_calcul_cov(model, mode, 0, 1, dd, covtab);
@@ -4062,8 +4064,8 @@ GEOSLIB_API int model_regularize(Model *model,
 
   error = 0;
 
-  label_end: c00tab = (double *) mem_free((char * ) c00tab);
-  covtab = (double *) mem_free((char * ) covtab);
+  label_end: c00tab = (double*) mem_free((char* ) c00tab);
+  covtab = (double*) mem_free((char* ) covtab);
   return (error);
 }
 
@@ -4104,18 +4106,18 @@ GEOSLIB_API int model_regularize(Model *model,
  ** \remark must provide the coordinates of the origin point.
  **
  *****************************************************************************/
-GEOSLIB_API int model_covmat_inchol(int verbose,
-                                    Db *db,
-                                    Model *model,
-                                    double eta,
-                                    int npivot_max,
-                                    int nsize1,
-                                    int *ranks1,
-                                    double *center,
-                                    int flag_sort,
-                                    int *npivot_arg,
-                                    int **Pret,
-                                    double **Gret)
+int model_covmat_inchol(int verbose,
+                        Db *db,
+                        Model *model,
+                        double eta,
+                        int npivot_max,
+                        int nsize1,
+                        int *ranks1,
+                        double *center,
+                        int flag_sort,
+                        int *npivot_arg,
+                        int **Pret,
+                        double **Gret)
 {
   int *pvec, i, j, npivot, jstar, nech, error, flag_incr;
   double *G, *Gmatrix, *diag, *crit, g, residual, maxdiag, tol, b, c00;
@@ -4131,11 +4133,11 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
   if (npivot_max <= 0) npivot_max = nech;
   npivot_max = MIN(npivot_max, nech);
   d1.resize(db->getNDim());
-  diag = (double *) mem_alloc(sizeof(double) * nech, 0);
+  diag = (double*) mem_alloc(sizeof(double) * nech, 0);
   if (diag == nullptr) goto label_end;
-  crit = (double *) mem_alloc(sizeof(double) * (1 + nech), 0);
+  crit = (double*) mem_alloc(sizeof(double) * (1 + nech), 0);
   if (crit == nullptr) goto label_end;
-  pvec = (int *) mem_alloc(sizeof(int) * nech, 0);
+  pvec = (int*) mem_alloc(sizeof(int) * nech, 0);
   if (pvec == nullptr) goto label_end;
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), &c00);
   for (i = 0; i < nech; i++)
@@ -4168,8 +4170,8 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
   while ((residual > tol) && (npivot < npivot_max))
   {
     // Initialize and add a new zeros column to matrix G[]
-    G = (double *) mem_realloc((char * ) G,
-                               (npivot + 1) * nech * sizeof(double), 0);
+    G = (double*) mem_realloc((char* ) G, (npivot + 1) * nech * sizeof(double),
+                              0);
     if (G == nullptr) goto label_end;
     for (i = 0; i < nech; i++)
       G(npivot,i) = 0.;
@@ -4282,8 +4284,8 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
   // Last column
   if (npivot == nech - 1)
   {
-    G = (double *) mem_realloc((char * ) G,
-                               (npivot + 1) * nech * sizeof(double), 0);
+    G = (double*) mem_realloc((char* ) G, (npivot + 1) * nech * sizeof(double),
+                              0);
     if (G == nullptr) goto label_end;
     for (i = 0; i < nech; i++)
       G(npivot,i) = 0.;
@@ -4300,7 +4302,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
     crit[i] /= (double) nech;
 
   // Reorder the output G matrix
-  Gmatrix = (double *) mem_alloc(npivot * nech * sizeof(double), 0);
+  Gmatrix = (double*) mem_alloc(npivot * nech * sizeof(double), 0);
   if (Gmatrix == nullptr) goto label_end;
   for (j = 0; j < npivot; j++)
     for (i = 0; i < nech; i++)
@@ -4331,9 +4333,9 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
 
   /* Core deallocation */
 
-  label_end: diag = (double *) mem_free((char * ) diag);
-  crit = (double *) mem_free((char * ) crit);
-  G = (double *) mem_free((char * ) G);
+  label_end: diag = (double*) mem_free((char* ) diag);
+  crit = (double*) mem_free((char* ) crit);
+  G = (double*) mem_free((char* ) G);
   return (error);
 }
 
@@ -4346,7 +4348,7 @@ GEOSLIB_API int model_covmat_inchol(int verbose,
  ** \param[in]  model      Model structure
  **
  *****************************************************************************/
-GEOSLIB_API int model_maximum_order(Model *model)
+int model_maximum_order(Model *model)
 
 {
   int order, max_order;
@@ -4356,7 +4358,7 @@ GEOSLIB_API int model_maximum_order(Model *model)
   max_order = 0;
   for (int il = 0; il < model->getDriftNumber(); il++)
   {
-    ADriftElem* drft = model->getDrift(il);
+    ADriftElem *drft = model->getDrift(il);
     order = drft->getOrderIRF();
     if (order > max_order) max_order = order;
   }
@@ -4373,7 +4375,7 @@ GEOSLIB_API int model_maximum_order(Model *model)
  ** \param[in]  type0      Drift function to be found (EDrift)
  **
  *****************************************************************************/
-GEOSLIB_API int model_is_drift_defined(Model *model, const EDrift& type0)
+int model_is_drift_defined(Model *model, const EDrift &type0)
 {
   if (model == nullptr) return (0);
   for (int il = 0; il < model->getDriftNumber(); il++)
@@ -4396,13 +4398,13 @@ GEOSLIB_API int model_is_drift_defined(Model *model, const EDrift& type0)
  ** \param[in]  factor      Multiplicative factor for st. deviation
  **
  *****************************************************************************/
-GEOSLIB_API double model_calcul_stdev(Model *model,
-                                      Db *db1,
-                                      int iech1,
-                                      Db *db2,
-                                      int iech2,
-                                      int verbose,
-                                      double factor)
+double model_calcul_stdev(Model *model,
+                          Db *db1,
+                          int iech1,
+                          Db *db2,
+                          int iech2,
+                          int verbose,
+                          double factor)
 {
   int ndim;
   double c00, cov, stdev;
@@ -4463,23 +4465,23 @@ GEOSLIB_API double model_calcul_stdev(Model *model,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
-                                         Db *db1,
-                                         int nsize1,
-                                         const int *ranks1,
-                                         Db *db2,
-                                         int nsize2,
-                                         const int *ranks2,
-                                         int ivar0,
-                                         int jvar0,
-                                         int flag_norm,
-                                         int flag_cov)
+cs* model_covmat_by_ranks_cs(Model *model,
+                             Db *db1,
+                             int nsize1,
+                             const int *ranks1,
+                             Db *db2,
+                             int nsize2,
+                             const int *ranks2,
+                             int ivar0,
+                             int jvar0,
+                             int flag_norm,
+                             int flag_cov)
 {
   double *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, error, i1, i2;
   VectorDouble d1;
-  cs* T = nullptr;
-  cs* covmat = nullptr;
+  cs *T = nullptr;
+  cs *covmat = nullptr;
 
   /* Initializations */
 
@@ -4508,7 +4510,7 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0.);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   // Constitute the triplet
@@ -4526,7 +4528,8 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
 
     for (i1 = 0; i1 < nsize1; i1++)
     {
-      iech1 = (ranks1 != nullptr) ? ranks1[i1] : i1;
+      iech1 = (ranks1 != nullptr) ? ranks1[i1] :
+                                    i1;
       if (iech1 < 0) continue;
 
       /* Loop on the second variable */
@@ -4539,7 +4542,8 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
 
         for (i2 = 0; i2 < nsize2; i2++)
         {
-          iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
+          iech2 = (ranks2 != nullptr) ? ranks2[i2] :
+                                        i2;
           if (iech2 < 0) continue;
 
           /* Determine the indices */
@@ -4584,9 +4588,8 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
 
   /* Free memory */
 
-  label_end:
-  T = cs_spfree(T);
-  covtab = (double *) mem_free((char * ) covtab);
+  label_end: T = cs_spfree(T);
+  covtab = (double*) mem_free((char* ) covtab);
   if (error) covmat = cs_spfree(covmat);
   return (covmat);
 }
@@ -4609,14 +4612,14 @@ GEOSLIB_API cs* model_covmat_by_ranks_cs(Model *model,
  **                    nvar   : Number of selected variables (1 or nvar)
  **
  *****************************************************************************/
-GEOSLIB_API void model_covmat(Model *model,
-                              Db *db1,
-                              Db *db2,
-                              int ivar0,
-                              int jvar0,
-                              int flag_norm,
-                              int flag_cov,
-                              double *covmat)
+void model_covmat(Model *model,
+                  Db *db1,
+                  Db *db2,
+                  int ivar0,
+                  int jvar0,
+                  int flag_norm,
+                  int flag_cov,
+                  double *covmat)
 {
   double *covtab, v1, v2, value;
   int ndim, nvar, nvar1, nvar2, iech1, iech2, i, skip, nech1, nech2, ecr;
@@ -4649,7 +4652,7 @@ GEOSLIB_API void model_covmat(Model *model,
   /* Core allocation */
 
   d1.resize(ndim, 0);
-  covtab = (double *) mem_alloc(sizeof(double) * nvar * nvar, 0);
+  covtab = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
   if (covtab == nullptr) goto label_end;
 
   /* Loop on the first variable */
@@ -4708,6 +4711,6 @@ GEOSLIB_API void model_covmat(Model *model,
 
   /* Free memory */
 
-  label_end: covtab = (double *) mem_free((char * ) covtab);
+  label_end: covtab = (double*) mem_free((char* ) covtab);
   return;
 }

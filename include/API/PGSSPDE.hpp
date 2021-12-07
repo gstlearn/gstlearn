@@ -1,20 +1,25 @@
 #pragma once
 
-#include "Basic/NamingConvention.hpp"
-#include "Db/Db.hpp"
-#include "Model/Model.hpp"
+#include "gstlearn_export.hpp"
+
+#include "API/ESPDECalcMode.hpp"
+#include "Covariances/ECalcMember.hpp"
+
 #include "API/SPDE.hpp"
 #include "LithoRule/RuleProp.hpp"
-#include "API/ESPDECalcMode.hpp"
+
 #include <vector>
 
-class PGSSPDE
+class Db;
+class Model;
+
+class GSTLEARN_EXPORT PGSSPDE
 {
 public:
   PGSSPDE(std::vector<Model*> models,
-         const Db& field,
-         RuleProp ruleprop,
-         const Db* dat=nullptr);
+          const Db& field,
+          RuleProp ruleprop,
+          const Db* dat=nullptr);
   void simulate(int seed= 32145,int nitergibbs = 0) const;
   void simulateNonCond(int seed = 32145) const;
   void gibbs(int niter) const;

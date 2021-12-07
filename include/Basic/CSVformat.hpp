@@ -10,9 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/String.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 
-class CSVformat
+class GSTLEARN_EXPORT CSVformat
 {
 public:
   CSVformat(int flagHeader = true,

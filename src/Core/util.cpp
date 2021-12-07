@@ -8,13 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_f_private.h"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "LithoRule/Rule.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_e.h"
-#include "geoslib_old_f.h"
-//#include <tr1/cmath>
+#include "Basic/String.hpp"
+#include "Neigh/Neigh.hpp"
+
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <complex>
@@ -48,21 +51,30 @@ typedef struct
   char comment[STRING_LENGTH];
 } Debug;
 
-static Debug DBG[DBG_NUMBER] = { { 0, "interface", "Communication with interface" },
-                                 { 0, "db",        "Data Base Management" },
-                                 { 0, "nbgh",      "Neighborhood Management" },
-                                 { 0, "model",     "Model Management" },
-                                 { 0, "kriging",   "Kriging Operations" },
-                                 { 0, "simulate",  "Simulations" },
-                                 { 0, "results",   "Kriging Results" },
-                                 { 0, "variogram", "Variogram calculations" },
-                                 { 0, "converge",  "Convergence test" },
-                                 { 0, "condexp",   "Conditional Expectation" },
-                                 { 0, "bayes",     "Bayesian Estimation" },
-                                 { 0, "morpho",    "Morphological Operations" },
-                                 { 0, "props",     "Proportions or Intensities" },
-                                 { 0, "upscale",   "Upscaling" },
-                                 { 0, "spde",      "S.P.D.E" } };
+static Debug DBG[DBG_NUMBER] = { { 0,
+                                   "interface",
+                                   "Communication with interface" },
+                                 { 0, "db", "Data Base Management" }, { 0,
+                                                                        "nbgh",
+                                                                        "Neighborhood Management" },
+                                 { 0, "model", "Model Management" }, { 0,
+                                                                       "kriging",
+                                                                       "Kriging Operations" },
+                                 { 0, "simulate", "Simulations" }, { 0,
+                                                                     "results",
+                                                                     "Kriging Results" },
+                                 { 0, "variogram", "Variogram calculations" }, { 0,
+                                                                                 "converge",
+                                                                                 "Convergence test" },
+                                 { 0, "condexp", "Conditional Expectation" }, { 0,
+                                                                                "bayes",
+                                                                                "Bayesian Estimation" },
+                                 { 0, "morpho", "Morphological Operations" }, { 0,
+                                                                                "props",
+                                                                                "Proportions or Intensities" },
+                                 { 0, "upscale", "Upscaling" }, { 0,
+                                                                  "spde",
+                                                                  "S.P.D.E" } };
 
 typedef struct
 {
@@ -114,7 +126,6 @@ static char INSTR2[STRING_LENGTH];
 static char **LAST_MESSAGE = NULL;
 static int NB_LAST_MESSAGE = 0;
 
-
 /*****************************************************************************/
 /*!
  **  Returns the unique occurrence of values in a vector of values
@@ -127,7 +138,7 @@ static int NB_LAST_MESSAGE = 0;
  ** \remark  The 'neff' values are placed at the beginning of 'tab' in output
  **
  *****************************************************************************/
-GEOSLIB_API void ut_tab_unique(int ntab, double *tab, int *neff)
+void ut_tab_unique(int ntab, double *tab, int *neff)
 {
   int ecr;
   double value;
@@ -164,7 +175,7 @@ GEOSLIB_API void ut_tab_unique(int ntab, double *tab, int *neff)
  ** \remark  If ind = NULL, ind is ignored
  **
  *****************************************************************************/
-GEOSLIB_API void ut_sort_double(int safe, int nech, int *ind, double *value)
+void ut_sort_double(int safe, int nech, int *ind, double *value)
 {
   static int LISTE_L[LSTACK];
   static int LISTE_R[LSTACK];
@@ -176,7 +187,7 @@ GEOSLIB_API void ut_sort_double(int safe, int nech, int *ind, double *value)
   inddev = inddeu = 0;
   if (safe)
   {
-    tab = (double *) mem_alloc(sizeof(double) * nech, 1);
+    tab = (double*) mem_alloc(sizeof(double) * nech, 1);
     for (i = 0; i < nech; i++)
       tab[i] = value[i];
   }
@@ -393,7 +404,7 @@ GEOSLIB_API void ut_sort_double(int safe, int nech, int *ind, double *value)
     }
   }
 
-  if (safe) tab = (double *) mem_free((char * ) tab);
+  if (safe) tab = (double*) mem_free((char* ) tab);
   return;
 }
 
@@ -412,7 +423,7 @@ GEOSLIB_API void ut_sort_double(int safe, int nech, int *ind, double *value)
  ** \remark  If ind = NULL, ind is ignored
  **
  *****************************************************************************/
-GEOSLIB_API void ut_sort_int(int safe, int nech, int *ind, int *value)
+void ut_sort_int(int safe, int nech, int *ind, int *value)
 {
   static int LISTE_L[LSTACK];
   static int LISTE_R[LSTACK];
@@ -424,7 +435,7 @@ GEOSLIB_API void ut_sort_int(int safe, int nech, int *ind, int *value)
   inddev = inddeu = 0;
   if (safe)
   {
-    tab = (int *) mem_alloc(sizeof(int) * nech, 1);
+    tab = (int*) mem_alloc(sizeof(int) * nech, 1);
     for (i = 0; i < nech; i++)
       tab[i] = value[i];
   }
@@ -641,7 +652,7 @@ GEOSLIB_API void ut_sort_int(int safe, int nech, int *ind, int *value)
     }
   }
 
-  if (safe) tab = (int *) mem_free((char * ) tab);
+  if (safe) tab = (int*) mem_free((char* ) tab);
   return;
 }
 
@@ -662,16 +673,16 @@ GEOSLIB_API void ut_sort_int(int safe, int nech, int *ind, int *value)
  ** \param[out]  stdv   Standard Deviation
  **
  ****************************************************************************/
-GEOSLIB_API void ut_statistics(int nech,
-                               double *tab,
-                               double *sel,
-                               double *wgt,
-                               int *nval,
-                               double *mini,
-                               double *maxi,
-                               double *delta,
-                               double *mean,
-                               double *stdv)
+void ut_statistics(int nech,
+                                   double *tab,
+                                   double *sel,
+                                   double *wgt,
+                                   int *nval,
+                                   double *mini,
+                                   double *maxi,
+                                   double *delta,
+                                   double *mean,
+                                   double *stdv)
 {
   int i;
   double num, tmin, tmax, mm, vv, weight;
@@ -688,7 +699,7 @@ GEOSLIB_API void ut_statistics(int nech,
     if (sel != nullptr && sel[i] == 0.) continue;
     if (FFFF(tab[i])) continue;
     weight = (wgt != nullptr && wgt[i] >= 0) ? wgt[i] :
-                                                       1.;
+                                               1.;
     if (tab[i] < tmin) tmin = tab[i];
     if (tab[i] > tmax) tmax = tab[i];
     (*nval)++;
@@ -736,12 +747,12 @@ GEOSLIB_API void ut_statistics(int nech,
  ** \remark and set nvalid to 0
  **
  ****************************************************************************/
-GEOSLIB_API void ut_stats_mima(int nech,
-                               double *tab,
-                               double *sel,
-                               int *nvalid,
-                               double *mini,
-                               double *maxi)
+void ut_stats_mima(int nech,
+                                   double *tab,
+                                   double *sel,
+                                   int *nvalid,
+                                   double *mini,
+                                   double *maxi)
 {
   double tmin, tmax;
   int i;
@@ -788,10 +799,10 @@ GEOSLIB_API void ut_stats_mima(int nech,
  ** \param[in]  sel     Array containing the Selection or NULL
  **
  ****************************************************************************/
-GEOSLIB_API void ut_stats_mima_print(const char *title,
-                                     int nech,
-                                     double *tab,
-                                     double *sel)
+void ut_stats_mima_print(const char *title,
+                                         int nech,
+                                         double *tab,
+                                         double *sel)
 {
   int nvalid;
   double mini, maxi;
@@ -824,12 +835,12 @@ GEOSLIB_API void ut_stats_mima_print(const char *title,
  ** \param[out]  maxi   Maximum value
  **
  ****************************************************************************/
-GEOSLIB_API void ut_facies_statistics(int nech,
-                                      double *tab,
-                                      double *sel,
-                                      int *nval,
-                                      int *mini,
-                                      int *maxi)
+void ut_facies_statistics(int nech,
+                                          double *tab,
+                                          double *sel,
+                                          int *nval,
+                                          int *mini,
+                                          int *maxi)
 {
   int i, number, facies, facmin, facmax;
 
@@ -882,16 +893,16 @@ GEOSLIB_API void ut_facies_statistics(int nech,
  ** \param[out]  classe Array for number of samples per sieve
  **
  *****************************************************************************/
-GEOSLIB_API void ut_classify(int nech,
-                             double *tab,
-                             double *sel,
-                             int nclass,
-                             double start,
-                             double pas,
-                             int *nmask,
-                             int *ntest,
-                             int *nout,
-                             int *classe)
+void ut_classify(int nech,
+                                 double *tab,
+                                 double *sel,
+                                 int nclass,
+                                 double start,
+                                 double pas,
+                                 int *nmask,
+                                 int *ntest,
+                                 int *nout,
+                                 int *classe)
 {
   int i, icl, rank;
 
@@ -939,7 +950,9 @@ GEOSLIB_API void ut_classify(int nech,
  ** \param[out]  sina  sine function
  **
  *****************************************************************************/
-GEOSLIB_API void ut_rotation_sincos(double angle, double *cosa, double *sina)
+void ut_rotation_sincos(double angle,
+                                        double *cosa,
+                                        double *sina)
 {
   double value;
 
@@ -985,7 +998,7 @@ GEOSLIB_API void ut_rotation_sincos(double angle, double *cosa, double *sina)
  ** \param[out]  rot   Rotation matrix (Dimension = 4)
  **
  *****************************************************************************/
-GEOSLIB_API void ut_rotation_matrix_2D(double angle, double *rot)
+void ut_rotation_matrix_2D(double angle, double *rot)
 {
   double ca, sa;
 
@@ -1012,30 +1025,30 @@ GEOSLIB_API void ut_rotation_matrix_2D(double angle, double *rot)
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-GEOSLIB_API void ut_rotation_matrix_3D(double alpha,
-                                       double beta,
-                                       double gamma,
-                                       double *rot)
+void ut_rotation_matrix_3D(double alpha,
+                                           double beta,
+                                           double gamma,
+                                           double *rot)
 {
   double ca[3], sa[3];
 
   /* Initializations */
 
   ut_rotation_sincos(alpha, &ca[0], &sa[0]);
-  ut_rotation_sincos(beta,  &ca[1], &sa[1]);
+  ut_rotation_sincos(beta, &ca[1], &sa[1]);
   ut_rotation_sincos(gamma, &ca[2], &sa[2]);
 
   /* Define the 3-D rotation matrix */
 
-  rot[0] =  ca[0] * ca[1];
+  rot[0] = ca[0] * ca[1];
   rot[3] = -sa[0] * ca[2] + ca[0] * sa[1] * sa[2];
-  rot[6] =  sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
-  rot[1] =  sa[0] * ca[1];
-  rot[4] =  ca[0] * ca[2] + sa[0] * sa[1] * sa[2];
+  rot[6] = sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
+  rot[1] = sa[0] * ca[1];
+  rot[4] = ca[0] * ca[2] + sa[0] * sa[1] * sa[2];
   rot[7] = -ca[0] * sa[2] + sa[0] * sa[1] * ca[2];
   rot[2] = -sa[1];
-  rot[5] =  ca[1] * sa[2];
-  rot[8] =  ca[1] * ca[2];
+  rot[5] = ca[1] * sa[2];
+  rot[8] = ca[1] * ca[2];
 
   return;
 }
@@ -1050,7 +1063,9 @@ GEOSLIB_API void ut_rotation_matrix_3D(double alpha,
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-GEOSLIB_API void ut_rotation_matrix(int ndim, const double *angles, double *rot)
+void ut_rotation_matrix(int ndim,
+                                        const double *angles,
+                                        double *rot)
 {
   if (ndim == 2)
     ut_rotation_matrix_2D(angles[0], rot);
@@ -1069,8 +1084,8 @@ GEOSLIB_API void ut_rotation_matrix(int ndim, const double *angles, double *rot)
  ** \param[in]  angles Array of angles
  **
  *****************************************************************************/
-GEOSLIB_API VectorDouble ut_rotation_matrix_VD(int ndim,
-                                               const VectorDouble& angles)
+VectorDouble ut_rotation_matrix_VD(int ndim,
+                                                   const VectorDouble &angles)
 {
   VectorDouble rot;
 
@@ -1095,7 +1110,9 @@ GEOSLIB_API VectorDouble ut_rotation_matrix_VD(int ndim,
  ** \param[out] rotout Output rotation matrix (already allocated)
  **
  *****************************************************************************/
-GEOSLIB_API void ut_rotation_copy(int ndim, const double *rotin, double *rotout)
+void ut_rotation_copy(int ndim,
+                                      const double *rotin,
+                                      double *rotout)
 {
   int i;
 
@@ -1119,11 +1136,11 @@ GEOSLIB_API void ut_rotation_copy(int ndim, const double *rotin, double *rotout)
  ** \remark  input and output Db structures
  **
  *****************************************************************************/
-GEOSLIB_API double ut_merge_extension(int ndim,
-                                      double *mini1,
-                                      double *maxi1,
-                                      double *mini2,
-                                      double *maxi2)
+double ut_merge_extension(int ndim,
+                                          double *mini1,
+                                          double *maxi1,
+                                          double *mini2,
+                                          double *maxi2)
 {
   double delta, field, mini, maxi;
   int idim;
@@ -1153,7 +1170,7 @@ GEOSLIB_API double ut_merge_extension(int ndim,
  **  Reset the DEBUG status to Idle value
  **
  *****************************************************************************/
-GEOSLIB_API void debug_reset(void)
+void debug_reset(void)
 
 {
   int i;
@@ -1171,7 +1188,7 @@ GEOSLIB_API void debug_reset(void)
  **  Print the status of the debug options
  **
  *****************************************************************************/
-GEOSLIB_API void debug_print(void)
+void debug_print(void)
 
 {
   int i;
@@ -1196,7 +1213,7 @@ GEOSLIB_API void debug_print(void)
  ** \param[in]  rank    rank of the DEBUG target or 0 for undefine
  **
  *****************************************************************************/
-GEOSLIB_API void debug_index(int rank)
+void debug_index(int rank)
 {
 
   DBGENV.index = rank;
@@ -1211,7 +1228,7 @@ GEOSLIB_API void debug_index(int rank)
  ** \return 0 if DEBUG reference is not defined; rank of this index otherwise
  **
  *****************************************************************************/
-GEOSLIB_API int is_debug_reference_defined(void)
+int is_debug_reference_defined(void)
 
 {
   return (DBGENV.reference);
@@ -1224,7 +1241,7 @@ GEOSLIB_API int is_debug_reference_defined(void)
  ** \param[in]  rank    rank of the DEBUG target or 0 for undefine
  **
  *****************************************************************************/
-GEOSLIB_API void debug_reference(int rank)
+void debug_reference(int rank)
 
 {
   DBGENV.reference = rank;
@@ -1237,7 +1254,7 @@ GEOSLIB_API void debug_reference(int rank)
  **  Force the action according to the Target Debugging option
  **
  *****************************************************************************/
-GEOSLIB_API int debug_force(void)
+int debug_force(void)
 
 {
   if (DBGENV.reference <= 0) return (0);
@@ -1253,7 +1270,7 @@ GEOSLIB_API int debug_force(void)
  ** \param[in]  status  value of the DEBUG status
  **
  *****************************************************************************/
-GEOSLIB_API void debug_define(const char *name, int status)
+void debug_define(const char *name, int status)
 {
   int i, found;
 
@@ -1294,7 +1311,7 @@ GEOSLIB_API void debug_define(const char *name, int status)
  ** \param[in]  name  name of the environment where DEBUG status is set
  **
  *****************************************************************************/
-GEOSLIB_API int debug_query(const char *name)
+int debug_query(const char *name)
 
 {
   int i;
@@ -1326,7 +1343,7 @@ GEOSLIB_API int debug_query(const char *name)
  ** \li              else : Do not modify the flag
  **
  *****************************************************************************/
-GEOSLIB_API void projec_toggle(int mode)
+void projec_toggle(int mode)
 {
   int projec_actif;
 
@@ -1365,7 +1382,7 @@ GEOSLIB_API void projec_toggle(int mode)
  ** \li              else : Toggle the flag
  **
  *****************************************************************************/
-GEOSLIB_API void variety_toggle(int mode)
+void variety_toggle(int mode)
 {
   int variety_actif;
 
@@ -1400,7 +1417,7 @@ GEOSLIB_API void variety_toggle(int mode)
  ** \param[out]  actif activity flag
  **
  *****************************************************************************/
-GEOSLIB_API void projec_query(int *actif)
+void projec_query(int *actif)
 
 {
   *actif = PROJEC.actif;
@@ -1413,7 +1430,7 @@ GEOSLIB_API void projec_query(int *actif)
  **  Print the characteristics of the projection
  **
  *****************************************************************************/
-GEOSLIB_API void projec_print(void)
+void projec_print(void)
 
 {
   mestitle(1, "Parameters for Projection");
@@ -1433,7 +1450,7 @@ GEOSLIB_API void projec_print(void)
  ** \param[in]  radius       Radius of the Sphere
  **
  *****************************************************************************/
-GEOSLIB_API void variety_define(int flag_sphere, double radius)
+void variety_define(int flag_sphere, double radius)
 {
   int projec_actif;
 
@@ -1461,7 +1478,7 @@ GEOSLIB_API void variety_define(int flag_sphere, double radius)
  ** \param[out]  flag_sphere 1 if the Spherical coordinates must be used
  **
  *****************************************************************************/
-GEOSLIB_API void variety_query(int *flag_sphere)
+void variety_query(int *flag_sphere)
 
 {
   *flag_sphere = VARIETY.flag_sphere;
@@ -1476,7 +1493,7 @@ GEOSLIB_API void variety_query(int *flag_sphere)
  ** \param[out]  radius  Radius of the Sphere for the Spherical System
  **
  *****************************************************************************/
-GEOSLIB_API void variety_get_characteristics(double *radius)
+void variety_get_characteristics(double *radius)
 
 {
   *radius = VARIETY.radius;
@@ -1489,7 +1506,7 @@ GEOSLIB_API void variety_get_characteristics(double *radius)
  **  Print the characteristics of the Variety
  **
  *****************************************************************************/
-GEOSLIB_API void variety_print(void)
+void variety_print(void)
 
 {
   if (!VARIETY.flag_sphere) return;
@@ -1498,7 +1515,6 @@ GEOSLIB_API void variety_print(void)
   message("- Radius of the Sphere = %lf\n", VARIETY.radius);
   return;
 }
-
 
 /****************************************************************************/
 /*!
@@ -1514,14 +1530,14 @@ GEOSLIB_API void variety_print(void)
  ** \param[in,out] tab    Input/Output matrix (if flag_def=1)
  **
  *****************************************************************************/
-GEOSLIB_API void get_matrix(const char *title,
-                            int flag_sym,
-                            int flag_def,
-                            int nx,
-                            int ny,
-                            double valmin,
-                            double valmax,
-                            double *tab)
+void get_matrix(const char *title,
+                                int flag_sym,
+                                int flag_def,
+                                int nx,
+                                int ny,
+                                double valmin,
+                                double valmax,
+                                double *tab)
 {
   int ix, iy;
 
@@ -1555,10 +1571,10 @@ GEOSLIB_API void get_matrix(const char *title,
  ** \param[in,out] rot    Input/Output rotation matrix (if flag_def=1)
  **
  *****************************************************************************/
-GEOSLIB_API void get_rotation(const char *title,
-                              int flag_def,
-                              int ndim,
-                              double *rot)
+void get_rotation(const char *title,
+                                  int flag_def,
+                                  int ndim,
+                                  double *rot)
 {
   double dir[2], angles2D[2], angles3D[3], alpha, beta, gamma;
   int mode;
@@ -1608,11 +1624,11 @@ GEOSLIB_API void get_rotation(const char *title,
       {
         (void) ut_angles_from_rotation_matrix(rot, ndim, angles3D);
         alpha = _lire_double("Rotation angle around Oz  ", 1, angles3D[0], TEST,
-                             TEST);
+        TEST);
         beta = _lire_double("Rotation angle around Oy' ", 1, angles3D[1], TEST,
-                            TEST);
+        TEST);
         gamma = _lire_double("Rotation angle around Ox''", 1, angles3D[2], TEST,
-                             TEST);
+        TEST);
         ut_rotation_matrix_3D(alpha, beta, gamma, rot);
       }
       break;
@@ -1645,9 +1661,9 @@ GEOSLIB_API void get_rotation(const char *title,
  ** \param[out]  angles Rotation angles (Dimension = ndim)
  **
  *****************************************************************************/
-GEOSLIB_API int ut_angles_from_rotation_matrix(const double *rot,
-                                               int ndim,
-                                               double *angles)
+int ut_angles_from_rotation_matrix(const double *rot,
+                                                   int ndim,
+                                                   double *angles)
 {
   double s0, c0, s1, c1, s2, c2;
   int i, nval;
@@ -1724,17 +1740,18 @@ GEOSLIB_API int ut_angles_from_rotation_matrix(const double *rot,
  ** \param[out]  angles Rotation angles (Dimension = ndim * ndir)
  **
  *****************************************************************************/
-GEOSLIB_API void ut_angles_from_codir(int ndim,
-                                      int ndir,
-                                      const VectorDouble& codir,
-                                      VectorDouble& angles)
+void ut_angles_from_codir(int ndim,
+                                          int ndir,
+                                          const VectorDouble &codir,
+                                          VectorDouble &angles)
 {
   double norme;
   int i, nval;
 
   /* Initializations */
 
-  for (i = 0; i < ndim * ndir; i++) angles[i] = 0.;
+  for (i = 0; i < ndim * ndir; i++)
+    angles[i] = 0.;
 
   /* Dispatch */
 
@@ -1782,7 +1799,7 @@ GEOSLIB_API void ut_angles_from_codir(int ndim,
  ** \param[in]  ndim     Space dimension
  **
  *****************************************************************************/
-GEOSLIB_API int ut_rotation_check(double *rot, int ndim)
+int ut_rotation_check(double *rot, int ndim)
 {
   int i, j;
 
@@ -1817,14 +1834,14 @@ GEOSLIB_API int ut_rotation_check(double *rot, int ndim)
  ** \param[out] niter          Number of iterations
  **
  *****************************************************************************/
-GEOSLIB_API double golden_search(double (*func_evaluate)(double test,
-                                                         void *user_data),
-                                 void *user_data,
-                                 double tolstop,
-                                 double a0,
-                                 double c0,
-                                 double *test_loc,
-                                 double *niter)
+double golden_search(double (*func_evaluate)(double test,
+                                                             void *user_data),
+                                     void *user_data,
+                                     double tolstop,
+                                     double a0,
+                                     double c0,
+                                     double *test_loc,
+                                     double *niter)
 {
   double phi, resphi, b, x, fb, fx, result, a, c;
   int flag_test;
@@ -1931,7 +1948,7 @@ static int st_match_keypair(const char *keyword, int flag_exact)
  ** \remarks Otherwise they are not updated
  **
  *****************************************************************************/
-static Keypair *st_get_keypair_address(const char *keyword)
+static Keypair* st_get_keypair_address(const char *keyword)
 
 {
   Keypair *keypair;
@@ -1954,8 +1971,8 @@ static Keypair *st_get_keypair_address(const char *keyword)
   {
     found = KEYPAIR_NTAB;
     KEYPAIR_NTAB++;
-    KEYPAIR_TABS = (Keypair *)
-        realloc((char *) KEYPAIR_TABS, sizeof(Keypair) * KEYPAIR_NTAB);
+    KEYPAIR_TABS = (Keypair*) realloc((char*) KEYPAIR_TABS,
+                                      sizeof(Keypair) * KEYPAIR_NTAB);
   }
 
   /* Store the attribute (compressing the name and suppressing blanks) */
@@ -2007,7 +2024,7 @@ static void st_keypair_attributes(Keypair *keypair,
     {
       if (keypair->ncol != ncol)
       {
-        free((char *) keypair->values);
+        free((char*) keypair->values);
         keypair->values = nullptr;
       }
     }
@@ -2030,7 +2047,8 @@ static void st_keypair_attributes(Keypair *keypair,
     else
     {
       if (keypair->origin != origin || keypair->ncol != ncol)
-        messageAbort("Keypair append cannot change origin or number of columns");
+        messageAbort(
+            "Keypair append cannot change origin or number of columns");
     }
   }
 }
@@ -2062,15 +2080,15 @@ static void st_keypair_allocate(Keypair *keypair, int nrow, int ncol)
 
     // The old dimensions are null, allocate the contents
 
-    keypair->values = (double *) malloc(sizeof(double) * new_size);
+    keypair->values = (double*) malloc(sizeof(double) * new_size);
   }
   else
   {
 
     // The old_dimensions are non zero, reallocate the contents
 
-    keypair->values = (double *) realloc((char *) keypair->values,
-                                         sizeof(double) * new_size);
+    keypair->values = (double*) realloc((char*) keypair->values,
+                                        sizeof(double) * new_size);
   }
 
   // Ultimate check that allocaiton has been performed correctly
@@ -2100,13 +2118,13 @@ static void st_keypair_copy(Keypair *keypair, int type, int start, void *values)
   size = keypair->nrow * keypair->ncol;
   if (type == 1)
   {
-    icopy = (int *) values;
+    icopy = (int*) values;
     for (int i = 0; i < size; i++)
       keypair->values[i + start] = icopy[i];
   }
   else
   {
-    rcopy = (double *) values;
+    rcopy = (double*) values;
     for (int i = 0; i < size; i++)
       keypair->values[i + start] = rcopy[i];
   }
@@ -2126,11 +2144,11 @@ static void st_keypair_copy(Keypair *keypair, int type, int start, void *values)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API void set_keypair(const char *keyword,
-                             int origin,
-                             int nrow,
-                             int ncol,
-                             const double *values)
+void set_keypair(const char *keyword,
+                                 int origin,
+                                 int nrow,
+                                 int ncol,
+                                 const double *values)
 {
   Keypair *keypair;
 
@@ -2148,7 +2166,7 @@ GEOSLIB_API void set_keypair(const char *keyword,
 
   /* Copy the values */
 
-  st_keypair_copy(keypair, 2, 0, (void *) values);
+  st_keypair_copy(keypair, 2, 0, (void*) values);
 
   return;
 }
@@ -2169,11 +2187,11 @@ GEOSLIB_API void set_keypair(const char *keyword,
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API void app_keypair(const char *keyword,
-                             int origin,
-                             int nrow,
-                             int ncol,
-                             double *values)
+void app_keypair(const char *keyword,
+                                 int origin,
+                                 int nrow,
+                                 int ncol,
+                                 double *values)
 {
   Keypair *keypair;
   int start, newrow;
@@ -2202,7 +2220,7 @@ GEOSLIB_API void app_keypair(const char *keyword,
 
   /* Copy the values */
 
-  st_keypair_copy(keypair, 2, start, (void *) values);
+  st_keypair_copy(keypair, 2, start, (void*) values);
   return;
 }
 
@@ -2220,11 +2238,11 @@ GEOSLIB_API void app_keypair(const char *keyword,
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API void set_keypair_int(const char *keyword,
-                                 int origin,
-                                 int nrow,
-                                 int ncol,
-                                 int *values)
+void set_keypair_int(const char *keyword,
+                                     int origin,
+                                     int nrow,
+                                     int ncol,
+                                     int *values)
 {
   Keypair *keypair;
 
@@ -2242,7 +2260,7 @@ GEOSLIB_API void set_keypair_int(const char *keyword,
 
   /* Copy the values */
 
-  st_keypair_copy(keypair, 1, 0, (void *) values);
+  st_keypair_copy(keypair, 1, 0, (void*) values);
   return;
 }
 
@@ -2262,11 +2280,11 @@ GEOSLIB_API void set_keypair_int(const char *keyword,
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API void app_keypair_int(const char *keyword,
-                                 int origin,
-                                 int nrow,
-                                 int ncol,
-                                 int *values)
+void app_keypair_int(const char *keyword,
+                                     int origin,
+                                     int nrow,
+                                     int ncol,
+                                     int *values)
 {
   Keypair *keypair;
   int newrow, start;
@@ -2295,7 +2313,7 @@ GEOSLIB_API void app_keypair_int(const char *keyword,
 
   /* Copy the values */
 
-  st_keypair_copy(keypair, 1, start, (void *) values);
+  st_keypair_copy(keypair, 1, start, (void*) values);
   return;
 }
 
@@ -2320,7 +2338,7 @@ static void del_keypone(int indice)
   /* Delete the current keypair */
 
   keypair = &KEYPAIR_TABS[indice];
-  free((char *) keypair->values);
+  free((char*) keypair->values);
   keypair->values = nullptr;
 
   /* Shift all subsequent keypairs */
@@ -2329,8 +2347,8 @@ static void del_keypone(int indice)
     KEYPAIR_TABS[i - 1] = KEYPAIR_TABS[i];
 
   KEYPAIR_NTAB--;
-  KEYPAIR_TABS = (Keypair *) realloc((char *) KEYPAIR_TABS,
-                                     sizeof(Keypair) * KEYPAIR_NTAB);
+  KEYPAIR_TABS = (Keypair*) realloc((char*) KEYPAIR_TABS,
+                                    sizeof(Keypair) * KEYPAIR_NTAB);
 
   return;
 }
@@ -2346,7 +2364,7 @@ static void del_keypone(int indice)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API void del_keypair(const char *keyword, int flag_exact)
+void del_keypair(const char *keyword, int flag_exact)
 {
   int found;
 
@@ -2409,7 +2427,7 @@ GEOSLIB_API void del_keypair(const char *keyword, int flag_exact)
  ** \remark  if the targeted keypair contains more than a single value
  **
  *****************************************************************************/
-GEOSLIB_API double get_keypone(const char *keyword, double valdef)
+double get_keypone(const char *keyword, double valdef)
 {
   int found;
   double *rtab, retval;
@@ -2422,7 +2440,7 @@ GEOSLIB_API double get_keypone(const char *keyword, double valdef)
   if (found >= 0)
   {
     keypair = &KEYPAIR_TABS[found];
-    rtab = (double *) keypair->values;
+    rtab = (double*) keypair->values;
     if (keypair->nrow * keypair->ncol == 1) retval = rtab[0];
   }
 
@@ -2450,10 +2468,10 @@ GEOSLIB_API double get_keypone(const char *keyword, double valdef)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API int get_keypair(const char *keyword,
-                            int *nrow,
-                            int *ncol,
-                            double **values)
+int get_keypair(const char *keyword,
+                                int *nrow,
+                                int *ncol,
+                                double **values)
 {
   int found, size;
   double *valloc;
@@ -2471,7 +2489,7 @@ GEOSLIB_API int get_keypair(const char *keyword,
   *ncol = keypair->ncol;
   size = (*nrow) * (*ncol);
 
-  valloc = (double *) malloc(sizeof(double) * size);
+  valloc = (double*) malloc(sizeof(double) * size);
   for (int i = 0; i < size; i++)
     valloc[i] = keypair->values[i];
   *values = valloc;
@@ -2497,10 +2515,10 @@ GEOSLIB_API int get_keypair(const char *keyword,
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API int get_keypair_int(const char *keyword,
-                                int *nrow,
-                                int *ncol,
-                                int **values)
+int get_keypair_int(const char *keyword,
+                                    int *nrow,
+                                    int *ncol,
+                                    int **values)
 {
   int *valloc, found, size;
   Keypair *keypair;
@@ -2517,7 +2535,7 @@ GEOSLIB_API int get_keypair_int(const char *keyword,
   *ncol = keypair->ncol;
   size = (*nrow) * (*ncol);
 
-  valloc = (int *) malloc(sizeof(int) * size);
+  valloc = (int*) malloc(sizeof(int) * size);
   for (int i = 0; i < size; i++)
     valloc[i] = (int) keypair->values[i];
   *values = valloc;
@@ -2532,7 +2550,7 @@ GEOSLIB_API int get_keypair_int(const char *keyword,
  ** \param[in]  flag_short  1 for a short output
  **
  *****************************************************************************/
-GEOSLIB_API void print_keypair(int flag_short)
+void print_keypair(int flag_short)
 
 {
   int i;
@@ -2569,7 +2587,7 @@ GEOSLIB_API void print_keypair(int flag_short)
  ** \param[out] rot       Rotation matrix
  **
  *****************************************************************************/
-GEOSLIB_API void ut_rotation_init(int ndim, double *rot)
+void ut_rotation_init(int ndim, double *rot)
 {
   int i, j, ecr;
 
@@ -2588,7 +2606,7 @@ GEOSLIB_API void ut_rotation_init(int ndim, double *rot)
  ** \param[in]  ntab      Number of samples
  **
  *****************************************************************************/
-GEOSLIB_API double ut_median(double *tab, int ntab)
+double ut_median(double *tab, int ntab)
 {
   int i, j, k, nr, nl, even, lo, hi, loop, mid;
   double result, xlo, xhi, temp, xmin, xmax;
@@ -2699,7 +2717,7 @@ GEOSLIB_API double ut_median(double *tab, int ntab)
  ** \param[in,out]  tab    Vector to be normalized
  **
  *****************************************************************************/
-GEOSLIB_API void ut_normalize(int ntab, double *tab)
+void ut_normalize(int ntab, double *tab)
 {
   int i;
   double norme;
@@ -2728,7 +2746,7 @@ GEOSLIB_API void ut_normalize(int ntab, double *tab)
  ** \remarks When the solution is double, the returned number os 1.
  **
  *****************************************************************************/
-GEOSLIB_API int solve_P2(double a, double b, double c, double *x)
+int solve_P2(double a, double b, double c, double *x)
 {
   double delta;
 
@@ -2776,7 +2794,7 @@ GEOSLIB_API int solve_P2(double a, double b, double c, double *x)
  ** \remarks When the solution is double, the returned number os 1.
  **
  *****************************************************************************/
-GEOSLIB_API int solve_P3(double a, double b, double c, double d, double *x)
+int solve_P3(double a, double b, double c, double d, double *x)
 {
   double delta, p, q, ecart, u, v, s1;
   int k;
@@ -2840,10 +2858,10 @@ GEOSLIB_API int solve_P3(double a, double b, double c, double d, double *x)
  ** \remarks must be freed using the same function with mode=-1
  **
  *****************************************************************************/
-GEOSLIB_API PL_Dist *pldist_manage(int mode,
-                                   PL_Dist *pldist_loc,
-                                   int ndim,
-                                   int /*nvert*/)
+PL_Dist* pldist_manage(int mode,
+                                       PL_Dist *pldist_loc,
+                                       int ndim,
+                                       int /*nvert*/)
 {
   PL_Dist *pldist;
   int idim;
@@ -2852,20 +2870,20 @@ GEOSLIB_API PL_Dist *pldist_manage(int mode,
 
   if (mode > 0)
   {
-    pldist = (PL_Dist *) mem_alloc(sizeof(PL_Dist), 1);
+    pldist = (PL_Dist*) mem_alloc(sizeof(PL_Dist), 1);
     pldist->ndim = ndim;
     pldist->rank = -1;
     pldist->dist = TEST;
-    pldist->coor = (double *) mem_alloc(sizeof(double) * ndim, 1);
+    pldist->coor = (double*) mem_alloc(sizeof(double) * ndim, 1);
     for (idim = 0; idim < ndim; idim++)
       pldist->coor[idim] = TEST;
   }
   else
   {
     pldist = pldist_loc;
-    if (pldist == (PL_Dist *) NULL) return (pldist);
-    pldist->coor = (double *) mem_free((char * ) pldist->coor);
-    pldist = (PL_Dist *) mem_free((char * ) pldist);
+    if (pldist == (PL_Dist*) NULL) return (pldist);
+    pldist->coor = (double*) mem_free((char* ) pldist->coor);
+    pldist = (PL_Dist*) mem_free((char* ) pldist);
   }
 
   return (pldist);
@@ -2887,15 +2905,15 @@ GEOSLIB_API PL_Dist *pldist_manage(int mode,
  **                     =0 if it is set to one of the segment vertices
  **
  *****************************************************************************/
-GEOSLIB_API double distance_point_to_segment(double x0,
-                                             double y0,
-                                             double x1,
-                                             double y1,
-                                             double x2,
-                                             double y2,
-                                             double *xd,
-                                             double *yd,
-                                             int *nint)
+double distance_point_to_segment(double x0,
+                                                 double y0,
+                                                 double x1,
+                                                 double y1,
+                                                 double x2,
+                                                 double y2,
+                                                 double *xd,
+                                                 double *yd,
+                                                 int *nint)
 {
   double dx, dy, dxp, dyp, ratio, dist, signe;
 
@@ -2946,12 +2964,12 @@ GEOSLIB_API double distance_point_to_segment(double x0,
  ** \remarks  The number of points of the polyline is equal to nvert
  **
  *****************************************************************************/
-GEOSLIB_API void distance_point_to_polyline(double x0,
-                                            double y0,
-                                            int nvert,
-                                            const double *xl,
-                                            const double *yl,
-                                            PL_Dist *pldist)
+void distance_point_to_polyline(double x0,
+                                                double y0,
+                                                int nvert,
+                                                const double *xl,
+                                                const double *yl,
+                                                PL_Dist *pldist)
 {
   double xx, yy, dist, dmin;
   int i, nint;
@@ -2987,10 +3005,10 @@ GEOSLIB_API void distance_point_to_polyline(double x0,
  ** \remarks  The number of points of the polyline is equal to nvert
  **
  *****************************************************************************/
-GEOSLIB_API double distance_along_polyline(PL_Dist *pldist1,
-                                           PL_Dist *pldist2,
-                                           double *xl,
-                                           double *yl)
+double distance_along_polyline(PL_Dist *pldist1,
+                                               PL_Dist *pldist2,
+                                               double *xl,
+                                               double *yl)
 {
   int i;
   double dist, local1[2], local2[2];
@@ -3101,15 +3119,15 @@ static void st_shift_point(double x1,
  ** \remarks  The number of points of the polyline is equal to nvert
  **
  *****************************************************************************/
-GEOSLIB_API double distance_points_to_polyline(double ap,
-                                               double al,
-                                               double x1,
-                                               double y1,
-                                               double x2,
-                                               double y2,
-                                               int nvert,
-                                               double *xl,
-                                               double *yl)
+double distance_points_to_polyline(double ap,
+                                                   double al,
+                                                   double x1,
+                                                   double y1,
+                                                   double x2,
+                                                   double y2,
+                                                   int nvert,
+                                                   double *xl,
+                                                   double *yl)
 {
   double dist, d1, d2, dh, dv, dloc, dmin, xp1, xp2, yp1, yp2, dist1, dist2;
   PL_Dist *pldist1, *pldist2;
@@ -3165,12 +3183,12 @@ GEOSLIB_API double distance_points_to_polyline(double ap,
  ** \param[in,out]  string  Input/Output string
  **
  *****************************************************************************/
-GEOSLIB_API void string_to_lowercase(char *string)
+void string_to_lowercase(char *string)
 
 {
   int i, n;
 
-  n = static_cast<int> (strlen(string));
+  n = static_cast<int>(strlen(string));
   for (i = 0; i < n; i++)
     if (string[i] >= 'A' && string[i] <= 'Z')
       string[i] = ('a' + string[i] - 'A');
@@ -3183,12 +3201,12 @@ GEOSLIB_API void string_to_lowercase(char *string)
  ** \param[in,out]  string  Input/Output string
  **
  *****************************************************************************/
-GEOSLIB_API void string_to_uppercase(char *string)
+void string_to_uppercase(char *string)
 
 {
   int i, n;
 
-  n = static_cast<int> (strlen(string));
+  n = static_cast<int>(strlen(string));
   for (i = 0; i < n; i++)
     if (string[i] >= 'a' && string[i] <= 'z')
       string[i] = ('A' + string[i] - 'a');
@@ -3205,9 +3223,9 @@ GEOSLIB_API void string_to_uppercase(char *string)
  ** \param[in]  string2   Second input string
  **
  *****************************************************************************/
-GEOSLIB_API int string_compare(int flag_case,
-                               const char *string1,
-                               const char *string2)
+int string_compare(int flag_case,
+                                   const char *string1,
+                                   const char *string2)
 {
   int flag_diff;
 
@@ -3238,7 +3256,7 @@ GEOSLIB_API int string_compare(int flag_case,
  ** \param[in]  k     Selected number of objects (>= 1)
  **
  *****************************************************************************/
-GEOSLIB_API double ut_cnp(int n, int k)
+double ut_cnp(int n, int k)
 {
   double result, v1, v2;
 
@@ -3267,14 +3285,14 @@ GEOSLIB_API double ut_cnp(int n, int k)
  ** \remarks The calling function must free the returned matrix
  **
  *****************************************************************************/
-GEOSLIB_API double *ut_pascal(int ndim)
+double* ut_pascal(int ndim)
 {
   double *m;
 #define M(j,i)            (m[(i) * ndim + (j)])
 
   /* Core allocation */
 
-  m = (double *) mem_alloc(sizeof(double) * ndim * ndim, 0);
+  m = (double*) mem_alloc(sizeof(double) * ndim * ndim, 0);
   if (m == nullptr) return (m);
   for (int i = 0; i < ndim * ndim; i++)
     m[i] = 0.;
@@ -3305,10 +3323,10 @@ GEOSLIB_API double *ut_pascal(int ndim)
  ** \param[in]  lat2   Latitude of the second point (in degrees)
  **
  *****************************************************************************/
-GEOSLIB_API double ut_geodetic_angular_distance(double long1,
-                                                double lat1,
-                                                double long2,
-                                                double lat2)
+double ut_geodetic_angular_distance(double long1,
+                                                    double lat1,
+                                                    double long2,
+                                                    double lat2)
 {
   double rlon1, rlat1, rlon2, rlat2, dlong, angdst;
 
@@ -3342,7 +3360,8 @@ static double st_convert_geodetic_angle(double /*sina*/,
   double prod, cosA;
 
   prod = sinb * sinc;
-  cosA = (prod == 0.) ? 0. : (cosa - cosb * cosc) / prod;
+  cosA = (prod == 0.) ? 0. :
+                        (cosa - cosb * cosc) / prod;
   if (cosA < -1) cosA = -1.;
   if (cosA > +1) cosA = +1.;
   return (acos(cosA));
@@ -3367,18 +3386,18 @@ static double st_convert_geodetic_angle(double /*sina*/,
  ** \param[out] C      Angle (P1,P3,P2)
  **
  *****************************************************************************/
-GEOSLIB_API void ut_geodetic_angles(double long1,
-                                    double lat1,
-                                    double long2,
-                                    double lat2,
-                                    double long3,
-                                    double lat3,
-                                    double *a,
-                                    double *b,
-                                    double *c,
-                                    double *A,
-                                    double *B,
-                                    double *C)
+void ut_geodetic_angles(double long1,
+                                        double lat1,
+                                        double long2,
+                                        double lat2,
+                                        double long3,
+                                        double lat3,
+                                        double *a,
+                                        double *b,
+                                        double *c,
+                                        double *A,
+                                        double *B,
+                                        double *C)
 {
   double cosa, cosb, cosc, sina, sinb, sinc;
 
@@ -3414,12 +3433,12 @@ GEOSLIB_API void ut_geodetic_angles(double long1,
  ** \param[in]  lat3   Latitude of the third point (in degrees)
  **
  *****************************************************************************/
-GEOSLIB_API double ut_geodetic_triangle_perimeter(double long1,
-                                                  double lat1,
-                                                  double long2,
-                                                  double lat2,
-                                                  double long3,
-                                                  double lat3)
+double ut_geodetic_triangle_perimeter(double long1,
+                                                      double lat1,
+                                                      double long2,
+                                                      double lat2,
+                                                      double long3,
+                                                      double lat3)
 {
   double a, b, c, ga, gb, gc, perimeter;
 
@@ -3443,12 +3462,12 @@ GEOSLIB_API double ut_geodetic_triangle_perimeter(double long1,
  ** \param[in]  lat3   Latitude of the third point (in degrees)
  **
  *****************************************************************************/
-GEOSLIB_API double ut_geodetic_triangle_surface(double long1,
-                                                double lat1,
-                                                double long2,
-                                                double lat2,
-                                                double long3,
-                                                double lat3)
+double ut_geodetic_triangle_surface(double long1,
+                                                    double lat1,
+                                                    double long2,
+                                                    double lat2,
+                                                    double long3,
+                                                    double lat3)
 {
   double a, b, c, A, B, C, surface;
 
@@ -3469,7 +3488,7 @@ GEOSLIB_API double ut_geodetic_triangle_surface(double long1,
  ** \param[in]  tab2   Array corresponding to the second endpoint
  **
  *****************************************************************************/
-GEOSLIB_API double ut_distance(int ndim, double *tab1, double *tab2)
+double ut_distance(int ndim, double *tab1, double *tab2)
 {
   double distance, distang, R, v1, v2, delta;
   int flag_sphere;
@@ -3518,14 +3537,16 @@ GEOSLIB_API double ut_distance(int ndim, double *tab1, double *tab2)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API void ut_distance_allocated(int ndim, double **tab1, double **tab2)
+void ut_distance_allocated(int ndim,
+                                           double **tab1,
+                                           double **tab2)
 {
   if (DISTANCE_NDIM < ndim)
   {
-    DISTANCE_TAB1 = (double *) realloc((char *) DISTANCE_TAB1,
-                                       sizeof(double) * ndim);
-    DISTANCE_TAB2 = (double *) realloc((char *) DISTANCE_TAB2,
-                                       sizeof(double) * ndim);
+    DISTANCE_TAB1 = (double*) realloc((char*) DISTANCE_TAB1,
+                                      sizeof(double) * ndim);
+    DISTANCE_TAB2 = (double*) realloc((char*) DISTANCE_TAB2,
+                                      sizeof(double) * ndim);
     DISTANCE_NDIM = ndim;
   }
   *tab1 = DISTANCE_TAB1;
@@ -3547,16 +3568,16 @@ GEOSLIB_API void ut_distance_allocated(int ndim, double **tab1, double **tab2)
  ** \param[out]   xint,yint  Coordinates of the intersection
  **
  *****************************************************************************/
-GEOSLIB_API int segment_intersect(double xd1,
-                                  double yd1,
-                                  double xe1,
-                                  double ye1,
-                                  double xd2,
-                                  double yd2,
-                                  double xe2,
-                                  double ye2,
-                                  double *xint,
-                                  double *yint)
+int segment_intersect(double xd1,
+                                      double yd1,
+                                      double xe1,
+                                      double ye1,
+                                      double xd2,
+                                      double yd2,
+                                      double xe2,
+                                      double ye2,
+                                      double *xint,
+                                      double *yint)
 {
   double a1, a2, b1, b2, x, y, x1m, x1M, x2m, x2M, testval;
 
@@ -3654,14 +3675,14 @@ GEOSLIB_API int segment_intersect(double xd1,
  ** \param[in]  blin       Array of coefficients for polynomial expansion
  **
  *****************************************************************************/
-GEOSLIB_API int ut_chebychev_count(double (*func)(double,
-                                                  double,
-                                                  int,
-                                                  double *),
-                                   Cheb_Elem *cheb_elem,
-                                   double x,
-                                   int nblin,
-                                   double *blin)
+int ut_chebychev_count(double (*func)(double,
+                                                      double,
+                                                      int,
+                                                      double*),
+                                       Cheb_Elem *cheb_elem,
+                                       double x,
+                                       int nblin,
+                                       double *blin)
 {
   double *coeffs, y, y0, T1, Tx, Tm1, Tm2, power, a, b, tol;
   int ncmax;
@@ -3710,17 +3731,17 @@ GEOSLIB_API int ut_chebychev_count(double (*func)(double,
  ** \param[in]  blin      Array of coefficients for polynomial expansion
  **
  *****************************************************************************/
-GEOSLIB_API int ut_chebychev_coeffs(double (*func)(double,
-                                                   double,
-                                                   int,
-                                                   double *),
-                                    Cheb_Elem *cheb_elem,
-                                    int nblin,
-                                    double *blin)
+int ut_chebychev_coeffs(double (*func)(double,
+                                                       double,
+                                                       int,
+                                                       double*),
+                                        Cheb_Elem *cheb_elem,
+                                        int nblin,
+                                        double *blin)
 {
   double *coeffs, *x1, *y1, *x2, *y2;
-  double  minsubdiv, theta, ct, val1, val2, coeff, power, a, b;
-  int     n, ncmax, error;
+  double minsubdiv, theta, ct, val1, val2, coeff, power, a, b;
+  int n, ncmax, error;
 
   /* Initializations */
 
@@ -3734,19 +3755,19 @@ GEOSLIB_API int ut_chebychev_coeffs(double (*func)(double,
 
   minsubdiv = pow(2., 20.);
   if (minsubdiv >= (ncmax + 1) / 2)
-    n = static_cast<int> (minsubdiv);
+    n = static_cast<int>(minsubdiv);
   else
-    n = static_cast<int> (ceil((double) (ncmax + 1) / 2));
+    n = static_cast<int>(ceil((double) (ncmax + 1) / 2));
 
   /* Core allocation */
 
-  x1 = (double *) mem_alloc(sizeof(double) * n, 0);
+  x1 = (double*) mem_alloc(sizeof(double) * n, 0);
   if (x1 == nullptr) goto label_end;
-  y1 = (double *) mem_alloc(sizeof(double) * n, 0);
+  y1 = (double*) mem_alloc(sizeof(double) * n, 0);
   if (y1 == nullptr) goto label_end;
-  x2 = (double *) mem_alloc(sizeof(double) * n, 0);
+  x2 = (double*) mem_alloc(sizeof(double) * n, 0);
   if (x2 == nullptr) goto label_end;
-  y2 = (double *) mem_alloc(sizeof(double) * n, 0);
+  y2 = (double*) mem_alloc(sizeof(double) * n, 0);
   if (y2 == nullptr) goto label_end;
 
   /* Filling the arrays */
@@ -3765,7 +3786,7 @@ GEOSLIB_API int ut_chebychev_coeffs(double (*func)(double,
 
   /* Perform the FFT transform */
 
-  if (fftn(1, &n, x1, y1,  1, 1.)) goto label_end;
+  if (fftn(1, &n, x1, y1, 1, 1.)) goto label_end;
   if (fftn(1, &n, x2, y2, -1, 1.)) goto label_end;
 
   /* Store the coefficients */
@@ -3786,10 +3807,10 @@ GEOSLIB_API int ut_chebychev_coeffs(double (*func)(double,
 
   error = 0;
 
-  label_end: x1 = (double *) mem_free((char * ) x1);
-  y1 = (double *) mem_free((char * ) y1);
-  x2 = (double *) mem_free((char * ) x2);
-  y2 = (double *) mem_free((char * ) y2);
+  label_end: x1 = (double*) mem_free((char* ) x1);
+  y1 = (double*) mem_free((char* ) y1);
+  x2 = (double*) mem_free((char* ) x2);
+  y2 = (double*) mem_free((char* ) y2);
   return (error);
 }
 
@@ -3804,7 +3825,7 @@ GEOSLIB_API int ut_chebychev_coeffs(double (*func)(double,
  ** \param[in]  ix        Rank of the cell to be restrained
  **
  *****************************************************************************/
-GEOSLIB_API int get_mirror_sample(int nx, int ix)
+int get_mirror_sample(int nx, int ix)
 {
   int nmax;
 
@@ -3827,10 +3848,10 @@ GEOSLIB_API int get_mirror_sample(int nx, int ix)
  ** \param[in,out] codir  Direction to be rotated
  **
  *****************************************************************************/
-GEOSLIB_API void ut_rotation_direction(double ct,
-                                       double st,
-                                       double *a,
-                                       double *codir)
+void ut_rotation_direction(double ct,
+                                           double st,
+                                           double *a,
+                                           double *codir)
 {
   double rd, b[3], c[3], p[3];
 
@@ -3894,16 +3915,16 @@ static void st_init_rotation(double *ct, double *st, double *a)
  ** \param[in,out] tab    Array to be suffled
  **
  *****************************************************************************/
-GEOSLIB_API void ut_shuffle_array(int nrow, int ncol, double *tab)
+void ut_shuffle_array(int nrow, int ncol, double *tab)
 {
   double *newtab, *rrank;
   int *irank, jrow;
 
   /* Core allocation */
 
-  newtab = (double *) mem_alloc(sizeof(double) * nrow * ncol, 1);
-  rrank = (double *) mem_alloc(sizeof(double) * nrow, 1);
-  irank = (int *) mem_alloc(sizeof(int) * nrow, 1);
+  newtab = (double*) mem_alloc(sizeof(double) * nrow * ncol, 1);
+  rrank = (double*) mem_alloc(sizeof(double) * nrow, 1);
+  irank = (int*) mem_alloc(sizeof(int) * nrow, 1);
 
   /* Draw the permutation array */
 
@@ -3930,9 +3951,9 @@ GEOSLIB_API void ut_shuffle_array(int nrow, int ncol, double *tab)
 
   /* Core deallocation */
 
-  irank = (int *) mem_free((char * ) irank);
-  rrank = (double *) mem_free((char * ) rrank);
-  newtab = (double *) mem_free((char * ) newtab);
+  irank = (int*) mem_free((char* ) irank);
+  rrank = (double*) mem_free((char* ) rrank);
+  newtab = (double*) mem_free((char* ) newtab);
 }
 
 /****************************************************************************/
@@ -3948,11 +3969,11 @@ GEOSLIB_API void ut_shuffle_array(int nrow, int ncol, double *tab)
  **                       (Dimension: 3*ntri)
  **
  *****************************************************************************/
-GEOSLIB_API void ut_vandercorput(int n,
-                                 int flag_sym,
-                                 int flag_rot,
-                                 int *ntri_arg,
-                                 double **coor_arg)
+void ut_vandercorput(int n,
+                                     int flag_sym,
+                                     int flag_rot,
+                                     int *ntri_arg,
+                                     double **coor_arg)
 {
   int i, j, ri, nb, ntri;
   double *coord, base, u, v, ct, st, a[3];
@@ -3960,7 +3981,7 @@ GEOSLIB_API void ut_vandercorput(int n,
   /* Core allocation */
 
   ntri = 2 * n;
-  coord = (double *) mem_alloc(sizeof(double) * 3 * ntri, 1);
+  coord = (double*) mem_alloc(sizeof(double) * 3 * ntri, 1);
 
   /* Processing */
 
@@ -4053,8 +4074,8 @@ static void st_addTriangle(double v1[3],
 
   n = R_coor->ntri;
 
-  R_coor->coor = (double *) mem_realloc((char * ) R_coor->coor,
-                                        sizeof(double) * 3 * (n + 3), 1);
+  R_coor->coor = (double*) mem_realloc((char* ) R_coor->coor,
+                                       sizeof(double) * 3 * (n + 3), 1);
 
   for (int i = 0; i < 3; i++)
     RCOORD(i,n) = v1[i];
@@ -4132,10 +4153,10 @@ static int st_already_present(Reg_Coor *R_coor, int i0, int ntri, double *coord)
  ** \remarks is fixed here
  **
  *****************************************************************************/
-GEOSLIB_API int ut_icosphere(int n,
-                             int flag_rot,
-                             int *ntri_arg,
-                             double **coor_arg)
+int ut_icosphere(int n,
+                                 int flag_rot,
+                                 int *ntri_arg,
+                                 double **coor_arg)
 {
   Reg_Coor R_coor;
   double *coord, ct, st, a[3];
@@ -4199,7 +4220,7 @@ GEOSLIB_API int ut_icosphere(int n,
   /* Suppress repeated triangle vertices */
 
   ntri = 0;
-  coord = (double *) mem_alloc(sizeof(double) * 3 * R_coor.ntri, 1);
+  coord = (double*) mem_alloc(sizeof(double) * 3 * R_coor.ntri, 1);
   for (int i = 0; i < R_coor.ntri; i++)
   {
     if (st_already_present(&R_coor, i, ntri, coord)) continue;
@@ -4210,7 +4231,7 @@ GEOSLIB_API int ut_icosphere(int n,
 
   /* Final resize */
 
-  coord = (double *) mem_realloc((char * ) coord, sizeof(double) * 3 * ntri, 1);
+  coord = (double*) mem_realloc((char* ) coord, sizeof(double) * 3 * ntri, 1);
 
   /* Random rotation */
 
@@ -4232,7 +4253,7 @@ GEOSLIB_API int ut_icosphere(int n,
 
   /* Free the Reg_Coor structure */
 
-  R_coor.coor = (double *) mem_free((char * ) R_coor.coor);
+  R_coor.coor = (double*) mem_free((char* ) R_coor.coor);
   law_set_random_seed(seed_memo);
   return (0);
 }
@@ -4248,11 +4269,11 @@ GEOSLIB_API int ut_icosphere(int n,
  ** \param[out] c       Numeric value
  **
  *****************************************************************************/
-GEOSLIB_API void rgb2num(int red,
-                         int green,
-                         int blue,
-                         int /*a*/,
-                         unsigned char *c)
+void rgb2num(int red,
+                             int green,
+                             int blue,
+                             int /*a*/,
+                             unsigned char *c)
 {
   double value;
 
@@ -4277,12 +4298,16 @@ GEOSLIB_API void rgb2num(int red,
  ** \param[out]  a     Transparency index
  **
  *****************************************************************************/
-GEOSLIB_API void num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
+void num2rgb(unsigned char value,
+                             int *r,
+                             int *g,
+                             int *b,
+                             int *a)
 {
-  *r = static_cast<int> ((value >> 24) & 0xff);
-  *g = static_cast<int> ((value >> 16) & 0xff);
-  *b = static_cast<int> ((value >>  8) & 0xff);
-  *a = static_cast<int> ((value)       & 0xff);
+  *r = static_cast<int>((value >> 24) & 0xff);
+  *g = static_cast<int>((value >> 16) & 0xff);
+  *b = static_cast<int>((value >> 8) & 0xff);
+  *a = static_cast<int>((value) & 0xff);
 }
 
 /*****************************************************************************/
@@ -4295,7 +4320,7 @@ GEOSLIB_API void num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
  ** \remarks been defined
  **
  *****************************************************************************/
-GEOSLIB_API int ut_is_legendre_defined(void)
+int ut_is_legendre_defined(void)
 {
   if (LEGENDRE_PL == nullptr)
   {
@@ -4321,7 +4346,7 @@ GEOSLIB_API int ut_is_legendre_defined(void)
  ** \param[in]  v           Value
  **
  *****************************************************************************/
-GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
+double ut_legendre(int flag_norm, int n, double v)
 {
   int renard = -1;
   double res1 = 0.;
@@ -4370,7 +4395,7 @@ GEOSLIB_API double ut_legendre(int flag_norm, int n, double v)
  ** \param[in]  theta       Theta angle in radian
  **
  *****************************************************************************/
-GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
+double ut_flegendre(int flag_norm, int n, int k0, double theta)
 {
   int k, flag_negative;
   int renard = -1;
@@ -4404,8 +4429,8 @@ GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
 //
   if (renard >= 0)
   {
-    std::complex<double>
-    resbis = boost::math::spherical_harmonic<double, double>(n, k, theta, 0.);
+    std::complex<double> resbis = boost::math::spherical_harmonic<double, double>(
+        n, k, theta, 0.);
     res2 = resbis.real();
   }
   if (renard == 0)
@@ -4413,9 +4438,8 @@ GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
     double diff = ABS(res1 + res2);
     if (diff > EPSILON5) diff = 100. * ABS(res1 - res2) / diff;
     if (diff > 5)
-      messerr(
-          "---> Sph-Legendre n=%d k0=%d theta=%lf res1=%lf res2=%lf",
-          n, k0, theta, res1, res2);
+      messerr("---> Sph-Legendre n=%d k0=%d theta=%lf res1=%lf res2=%lf", n, k0,
+              theta, res1, res2);
   }
   double result = res1;
 
@@ -4435,8 +4459,10 @@ GEOSLIB_API double ut_flegendre(int flag_norm, int n, int k0, double theta)
  ** \param[in]  legendre_Pl
  **
  *****************************************************************************/
-GEOSLIB_API void define_legendre(double (*legendre_sphPlm)(int, int, double),
-                                 double (*legendre_Pl)(int, double))
+void define_legendre(double (*legendre_sphPlm)(int,
+                                                               int,
+                                                               double),
+                                     double (*legendre_Pl)(int, double))
 {
   LEGENDRE_SPHPLM = legendre_sphPlm;
   LEGENDRE_PL = legendre_Pl;
@@ -4451,7 +4477,7 @@ GEOSLIB_API void define_legendre(double (*legendre_sphPlm)(int, int, double),
  ** \param[out] factor  logarithm of factorials
  **
  *****************************************************************************/
-GEOSLIB_API void ut_log_factorial(int nbpoly, double *factor)
+void ut_log_factorial(int nbpoly, double *factor)
 {
   int i;
 
@@ -4469,7 +4495,7 @@ GEOSLIB_API void ut_log_factorial(int nbpoly, double *factor)
  ** \param[in]  k     Value
  **
  *****************************************************************************/
-GEOSLIB_API double ut_factorial(int k)
+double ut_factorial(int k)
 {
   double val;
 
@@ -4486,7 +4512,7 @@ GEOSLIB_API double ut_factorial(int k)
  ** \param[in]  angle  Angle in degrees
  **
  *****************************************************************************/
-GEOSLIB_API double ut_deg2rad(double angle)
+double ut_deg2rad(double angle)
 {
   return (angle * GV_PI / 180.);
 }
@@ -4498,7 +4524,7 @@ GEOSLIB_API double ut_deg2rad(double angle)
  ** \param[in]  angle  Angle in radian
  **
  *****************************************************************************/
-GEOSLIB_API double ut_rad2deg(double angle)
+double ut_rad2deg(double angle)
 {
   return (angle * 180. / GV_PI);
 }
@@ -4518,12 +4544,12 @@ GEOSLIB_API double ut_rad2deg(double angle)
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-GEOSLIB_API int is_in_spherical_triangle(double *coor,
-                                         double surface,
-                                         double *pts1,
-                                         double *pts2,
-                                         double *pts3,
-                                         double *wgts)
+int is_in_spherical_triangle(double *coor,
+                                             double surface,
+                                             double *pts1,
+                                             double *pts2,
+                                             double *pts3,
+                                             double *wgts)
 {
   double total, s[3], eps;
 
@@ -4556,12 +4582,11 @@ GEOSLIB_API int is_in_spherical_triangle(double *coor,
  ** \param[in]  rtab      Array of double values to be loaded
  **
  *****************************************************************************/
-GEOSLIB_API std::vector<double> util_set_array_double(int ntab,
-                                                      const double *rtab)
+VectorDouble util_set_array_double(int ntab, const double *rtab)
 {
   if (debug_query("interface")) message("util_set_array_double\n");
-  if (ntab <= 0 || rtab == nullptr) return std::vector<double>();
-  std::vector<double> rettab(ntab);
+  if (ntab <= 0 || rtab == nullptr) return VectorDouble();
+  VectorDouble rettab(ntab);
   if (rettab.empty()) return rettab;
 
   for (int i = 0; i < ntab; i++)
@@ -4580,10 +4605,10 @@ GEOSLIB_API std::vector<double> util_set_array_double(int ntab,
  ** \param[in]  itab      Array of integer values to be loaded
  **
  *****************************************************************************/
-GEOSLIB_API std::vector<int> util_set_array_integer(int ntab, const int *itab)
+VectorInt util_set_array_integer(int ntab, const int *itab)
 {
   if (debug_query("interface")) message("util_set_array_integer\n");
-  std::vector<int> rettab(ntab);
+  VectorInt rettab(ntab);
   if (ntab <= 0 || itab == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
     rettab[i] = itab[i];
@@ -4600,10 +4625,10 @@ GEOSLIB_API std::vector<int> util_set_array_integer(int ntab, const int *itab)
  ** \param[in]  names     Array of character values to be loaded
  **
  *****************************************************************************/
-GEOSLIB_API std::vector<std::string> util_set_array_char(int ntab, char **names)
+VectorString util_set_array_char(int ntab, char **names)
 {
   if (debug_query("interface")) message("util_set_array_char\n");
-  std::vector<std::string> rettab(ntab);
+  VectorString rettab(ntab);
   if (names == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
     rettab[i] = names[i];
@@ -4624,7 +4649,7 @@ GEOSLIB_API std::vector<std::string> util_set_array_char(int ntab, char **names)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-GEOSLIB_API void set_last_message(int mode, const char *string)
+void set_last_message(int mode, const char *string)
 {
   char *address;
   int size, sizaux;
@@ -4637,30 +4662,30 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
       if (NB_LAST_MESSAGE <= 0) return;
       for (int i = 0; i < NB_LAST_MESSAGE; i++)
       {
-        free((char *) LAST_MESSAGE[i]);
+        free((char*) LAST_MESSAGE[i]);
         LAST_MESSAGE[i] = nullptr;
       }
-      free((char *) LAST_MESSAGE);
+      free((char*) LAST_MESSAGE);
       NB_LAST_MESSAGE = 0;
       break;
 
     case 1:                       // Add string to array of messages
-      size = static_cast<int> (strlen(string));
+      size = static_cast<int>(strlen(string));
       if (size <= 0) return;
 
       if (NB_LAST_MESSAGE <= 0)
-        LAST_MESSAGE = (char **) malloc(sizeof(char *) * 1);
+        LAST_MESSAGE = (char**) malloc(sizeof(char*) * 1);
       else
-        LAST_MESSAGE = (char **) realloc(
-            (char *) LAST_MESSAGE, sizeof(char *) * (NB_LAST_MESSAGE + 1));
-      LAST_MESSAGE[NB_LAST_MESSAGE] = address = (char *) malloc(size + 1);
+        LAST_MESSAGE = (char**) realloc((char*) LAST_MESSAGE,
+                                        sizeof(char*) * (NB_LAST_MESSAGE + 1));
+      LAST_MESSAGE[NB_LAST_MESSAGE] = address = (char*) malloc(size + 1);
       (void) gslStrcpy(address, string);
       address[size] = '\0';
       NB_LAST_MESSAGE++;
       break;
 
     case -1:                    // Concatenate
-      size = static_cast<int> (strlen(string));
+      size = static_cast<int>(strlen(string));
       if (size <= 0) return;
 
       if (NB_LAST_MESSAGE <= 0)
@@ -4669,9 +4694,9 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
         return;
       }
 
-      sizaux = static_cast<int> (strlen(LAST_MESSAGE[NB_LAST_MESSAGE - 1]));
-      LAST_MESSAGE[NB_LAST_MESSAGE - 1] = address = (char *) realloc(
-          (char *) LAST_MESSAGE[NB_LAST_MESSAGE - 1], size + sizaux + 2);
+      sizaux = static_cast<int>(strlen(LAST_MESSAGE[NB_LAST_MESSAGE - 1]));
+      LAST_MESSAGE[NB_LAST_MESSAGE - 1] = address = (char*) realloc(
+          (char*) LAST_MESSAGE[NB_LAST_MESSAGE - 1], size + sizaux + 2);
       address[sizaux] = ' ';
       (void) gslStrcpy(&address[sizaux + 1], string);
       address[size + sizaux + 1] = '\0';
@@ -4684,7 +4709,7 @@ GEOSLIB_API void set_last_message(int mode, const char *string)
  **  Print the array of last messages
  **
  *****************************************************************************/
-GEOSLIB_API void print_last_message(void)
+void print_last_message(void)
 {
   if (NB_LAST_MESSAGE <= 0) return;
 
@@ -4729,8 +4754,8 @@ static void st_combinations(int *v,
   if (k > maxk)
   {
     /* insert code here to use combinations as you please */
-    cloc = (int *) mem_realloc((char * ) cloc, sizeof(int) * maxk * (nloc + 1),
-                               1);
+    cloc = (int*) mem_realloc((char* ) cloc, sizeof(int) * maxk * (nloc + 1),
+                              1);
     ndeb = nloc * maxk;
     for (i = 0; i < maxk; i++)
       cloc[ndeb + i] = v[i + 1];
@@ -4766,18 +4791,18 @@ static void st_combinations(int *v,
  ** \remarks The calling function must free the returned array.
  **
  *****************************************************************************/
-GEOSLIB_API int *ut_combinations(int n, int maxk, int *ncomb)
+int* ut_combinations(int n, int maxk, int *ncomb)
 {
   int *v, *comb;
 
-  v = (int *) mem_alloc(sizeof(int) * n, 1);
+  v = (int*) mem_alloc(sizeof(int) * n, 1);
   for (int i = 0; i < n; i++)
     v[i] = i;
 
   (*ncomb) = 0;
   comb = nullptr;
   st_combinations(v, 1, n, 1, maxk, ncomb, &comb);
-  v = (int *) mem_free((char * ) v);
+  v = (int*) mem_free((char* ) v);
   return (comb);
 }
 
@@ -4798,24 +4823,25 @@ GEOSLIB_API int *ut_combinations(int n, int maxk, int *ncomb)
  ** \remarks The elements of each row are set to 0 or 1 (subset rank)
  **
  *****************************************************************************/
-GEOSLIB_API int *ut_split_into_two(int ncolor,
-                                   int flag_half,
-                                   int verbose,
-                                   int *nposs)
+int* ut_split_into_two(int ncolor,
+                                       int flag_half,
+                                       int verbose,
+                                       int *nposs)
 {
   int p, nmax, ncomb, np, lec;
   int *mattab, *comb;
 
   /* Initializations */
 
-  p = (flag_half) ? static_cast<int> (floor((double) ncolor / 2.)) : ncolor - 1;
-  nmax = static_cast<int> (pow(2, ncolor));
+  p = (flag_half) ? static_cast<int>(floor((double) ncolor / 2.)) :
+                    ncolor - 1;
+  nmax = static_cast<int>(pow(2, ncolor));
   mattab = comb = nullptr;
   np = 0;
 
   /* Core allocation */
 
-  mattab = (int *) mem_alloc(sizeof(int) * ncolor * nmax, 1);
+  mattab = (int*) mem_alloc(sizeof(int) * ncolor * nmax, 1);
   for (int i = 0; i < ncolor * nmax; i++)
     mattab[i] = 0;
 
@@ -4830,11 +4856,11 @@ GEOSLIB_API int *ut_split_into_two(int ncolor,
       np++;
     }
   }
-  comb = (int *) mem_free((char * ) comb);
+  comb = (int*) mem_free((char* ) comb);
 
   /* Resize */
 
-  mattab = (int *) mem_realloc((char * ) mattab, sizeof(int) * ncolor * np, 1);
+  mattab = (int*) mem_realloc((char* ) mattab, sizeof(int) * ncolor * np, 1);
   *nposs = np;
 
   /* Verbose option */
@@ -4867,11 +4893,11 @@ GEOSLIB_API int *ut_split_into_two(int ncolor,
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-GEOSLIB_API int is_in_spherical_triangle_optimized(double *coor,
-                                                   double *ptsa,
-                                                   double *ptsb,
-                                                   double *ptsc,
-                                                   double *wgts)
+int is_in_spherical_triangle_optimized(double *coor,
+                                                       double *ptsa,
+                                                       double *ptsb,
+                                                       double *ptsc,
+                                                       double *wgts)
 {
   double total, s[3], stot, eps;
   double A, B, C, AB, AC, BA, BC, CA, CB, OA, OB, OC;
@@ -4952,10 +4978,10 @@ GEOSLIB_API int is_in_spherical_triangle_optimized(double *coor,
  ** \remarks The calling function must free the returned array
  **
  *****************************************************************************/
-GEOSLIB_API int *ut_name_decode(const char *name,
-                                int ndim,
-                                int *nx,
-                                int verbose)
+int* ut_name_decode(const char *name,
+                                    int ndim,
+                                    int *nx,
+                                    int verbose)
 {
   int *order, *ranks, num, orient, idim, error, a_order;
   char *p;
@@ -4967,9 +4993,9 @@ GEOSLIB_API int *ut_name_decode(const char *name,
 
   // Core allocation
 
-  order = (int *) mem_alloc(sizeof(int) * ndim, 0);
+  order = (int*) mem_alloc(sizeof(int) * ndim, 0);
   if (order == nullptr) goto label_end;
-  ranks = (int *) mem_alloc(sizeof(int) * ndim, 0);
+  ranks = (int*) mem_alloc(sizeof(int) * ndim, 0);
   if (ranks == nullptr) goto label_end;
   for (int i = 0; i < ndim; i++)
     ranks[i] = 0;
@@ -4977,7 +5003,7 @@ GEOSLIB_API int *ut_name_decode(const char *name,
   // Loop on the character string
 
   idim = 0;
-  p = (char *) name;
+  p = (char*) name;
   while (*p)
   {
     if ((*p) == '-' && (*(p + 1)) == 'x' && isdigit(*(p + 2)))
@@ -5043,8 +5069,8 @@ GEOSLIB_API int *ut_name_decode(const char *name,
 
   error = 0;
 
-  label_end: ranks = (int *) mem_free((char * ) ranks);
-  if (error) order = (int *) mem_free((char * ) order);
+  label_end: ranks = (int*) mem_free((char* ) ranks);
+  if (error) order = (int*) mem_free((char* ) order);
   return (order);
 }
 
@@ -5064,7 +5090,7 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
 
   // Assignments
 
-  dlp = (Dim_Loop *) int_str;
+  dlp = (Dim_Loop*) int_str;
   ndim = dlp->ndim;
 
   if (idim < 0)
@@ -5099,7 +5125,7 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
   {
     dlp->indg[sdim] = (order < 0) ? nval - jy - 1 :
                                     jy;
-    st_dimension_recursion(idim - 1, verbose, (void *) dlp);
+    st_dimension_recursion(idim - 1, verbose, (void*) dlp);
   }
   return;
 }
@@ -5108,7 +5134,7 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
 /*!
  **  Allocates and returns an array giving the ranks of the
  **  cells (sequentially according to user's order) coded
- **  with standard ranks (according to Geoslib internal order)
+ **  with standard ranks (according to gstlearn internal order)
  **
  ** \return Array of indices
  **
@@ -5118,7 +5144,10 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-GEOSLIB_API double *ut_rank_cells(int ndim, int *nx, int *order, int verbose)
+double* ut_rank_cells(int ndim,
+                                      int *nx,
+                                      int *order,
+                                      int verbose)
 {
   double *tab, *tab2;
   int *indg, *ind, error, ncell;
@@ -5135,13 +5164,13 @@ GEOSLIB_API double *ut_rank_cells(int ndim, int *nx, int *order, int verbose)
 
   // Core allocation
 
-  tab = (double *) mem_alloc(sizeof(double) * ncell, 0);
+  tab = (double*) mem_alloc(sizeof(double) * ncell, 0);
   if (tab == nullptr) goto label_end;
-  indg = (int *) mem_alloc(sizeof(int) * ndim, 0);
+  indg = (int*) mem_alloc(sizeof(int) * ndim, 0);
   if (indg == nullptr) goto label_end;
-  ind = (int *) mem_alloc(sizeof(int) * ncell, 0);
+  ind = (int*) mem_alloc(sizeof(int) * ncell, 0);
   if (ind == nullptr) goto label_end;
-  tab2 = (double *) mem_alloc(sizeof(double) * ncell, 0);
+  tab2 = (double*) mem_alloc(sizeof(double) * ncell, 0);
   if (tab2 == nullptr) goto label_end;
   for (int i = 0; i < ndim; i++)
     indg[i] = 0;
@@ -5157,7 +5186,7 @@ GEOSLIB_API double *ut_rank_cells(int ndim, int *nx, int *order, int verbose)
 
   // Recursion
 
-  st_dimension_recursion(ndim - 1, verbose, (void *) &dlp);
+  st_dimension_recursion(ndim - 1, verbose, (void*) &dlp);
 
   // Invert order
 
@@ -5171,10 +5200,10 @@ GEOSLIB_API double *ut_rank_cells(int ndim, int *nx, int *order, int verbose)
 
   error = 0;
 
-  label_end: if (error) tab = (double *) mem_free((char * ) tab);
-  tab = (double *) mem_free((char * ) tab);
-  ind = (int *) mem_free((char * ) ind);
-  indg = (int *) mem_free((char * ) indg);
+  label_end: if (error) tab = (double*) mem_free((char* ) tab);
+  tab = (double*) mem_free((char* ) tab);
+  ind = (int*) mem_free((char* ) ind);
+  indg = (int*) mem_free((char* ) indg);
   return (tab2);
 }
 
@@ -5187,7 +5216,7 @@ GEOSLIB_API double *ut_rank_cells(int ndim, int *nx, int *order, int verbose)
  ** \param[in]  s        Input VectorString
  **
  *****************************************************************************/
-char *convert(const std::string & s)
+char* convert(const std::string &s)
 {
   char *pc = new char[s.size() + 1];
   std::strcpy(pc, s.c_str());
@@ -5203,9 +5232,9 @@ char *convert(const std::string & s)
  ** \param[in]  vs        Input VectorString
  **
  *****************************************************************************/
-GEOSLIB_API std::vector<char *> util_vs_to_vs(VectorString vs)
+std::vector<char*> util_vs_to_vs(VectorString vs)
 {
-  std::vector<char *> vc;
+  std::vector<char*> vc;
   std::transform(vs.begin(), vs.end(), std::back_inserter(vc), convert);
   return vc;
 }
@@ -5225,15 +5254,16 @@ GEOSLIB_API std::vector<char *> util_vs_to_vs(VectorString vs)
  ** \remarks - if ndim < ndim: return 'ndir' directions regular in the 2-D
  **
  *****************************************************************************/
-GEOSLIB_API void ut_angles_to_codir(int ndim,
-                                    int ndir,
-                                    const VectorDouble& angles,
-                                    VectorDouble& codir)
+void ut_angles_to_codir(int ndim,
+                                        int ndir,
+                                        const VectorDouble &angles,
+                                        VectorDouble &codir)
 {
   if (ndim <= 1) return;
 
   codir.resize(ndim * ndir);
-  for (int i = 0; i < ndim * ndir; i++) codir[i] = 0.;
+  for (int i = 0; i < ndim * ndir; i++)
+    codir[i] = 0.;
 
   if (angles.size() <= 0)
   {
@@ -5242,7 +5272,8 @@ GEOSLIB_API void ut_angles_to_codir(int ndim,
       int ecr = 0;
       for (int idir = 0; idir < ndir; idir++)
         for (int idim = 0; idim < ndim; idim++)
-          codir[ecr++] = (idir == idim) ? 1. : 0.;
+          codir[ecr++] = (idir == idim) ? 1. :
+                                          0.;
     }
     else
     {
@@ -5282,8 +5313,8 @@ GEOSLIB_API void ut_angles_to_codir(int ndim,
  ** \param[in]  verbose   Verbose flag
  **
  *****************************************************************************/
-static int st_string_search(const String& string,
-                            const String& pattern,
+static int st_string_search(const String &string,
+                            const String &pattern,
                             int verbose)
 {
   int ok = 0;
@@ -5294,14 +5325,14 @@ static int st_string_search(const String& string,
     ok = (std::regex_match(string, string_regex));
     if (verbose)
     {
-      message("Searching '%s' in '%s' : ",pattern.c_str(),string.c_str());
+      message("Searching '%s' in '%s' : ", pattern.c_str(), string.c_str());
       if (ok)
         message("OK\n");
       else
         message("Not found\n");
     }
   }
-  catch (std::regex_error& e)
+  catch (std::regex_error &e)
   {
     std::cerr << "Invalid Regular Expression." << std::endl;
   }
@@ -5321,16 +5352,16 @@ static int st_string_search(const String& string,
  ** \param[in]  verbose         Verbose flag
  **
  *****************************************************************************/
-GEOSLIB_API VectorInt util_string_search(const VectorString& list_string,
-                                         const String& pattern,
-                                         int verbose)
+VectorInt util_string_search(const VectorString &list_string,
+                                             const String &pattern,
+                                             int verbose)
 {
   VectorInt ranks;
-  int ns = static_cast<int> (list_string.size());
+  int ns = static_cast<int>(list_string.size());
   for (int is = 0; is < ns; is++)
   {
     if (st_string_search(list_string[is], pattern, verbose))
-      ranks.push_back(is+1);
+      ranks.push_back(is + 1);
   }
   return ranks;
 }

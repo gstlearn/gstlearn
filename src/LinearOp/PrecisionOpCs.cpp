@@ -10,12 +10,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/Model.hpp"
-#include "geoslib_e.h"
 #include "csparse_d.h"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
@@ -184,7 +184,7 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& out,
 cs *PrecisionOpCs::getQ()
 {
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
-  cs* Q = spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambda(),
-                       static_cast<int> (blin.size()), blin.data());
+  cs* Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambda(),
+                        static_cast<int> (blin.size()), blin.data());
   return Q;
 }

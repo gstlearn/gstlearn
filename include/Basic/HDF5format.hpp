@@ -10,13 +10,19 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
-#include "hdf5.h"
 #include "H5Cpp.h"
 #include "typeinfo"
 
-class HDF5format
+#if H5_VERSION_GE(1,8,20)
+#define EXCEPTION_PRINT_ERROR(e) e.printErrorStack();
+#else
+#define EXCEPTION_PRINT_ERROR(e) e.printError();
+#endif
+
+class GSTLEARN_EXPORT HDF5format
 {
 public:
   HDF5format(const String& filename = String(), const String& varname = String());
@@ -182,7 +188,7 @@ template<typename T>
 void HDF5format::writeData(const std::vector<T> &data)
 {
   H5::Exception::dontPrint();
-  uint npts = data.size();
+  size_t npts = data.size();
   auto *a = new T[npts];
   char* type = (char*) (typeid(a[0]).name());
   for (size_t i = 0; i < npts; ++i)
@@ -195,8 +201,8 @@ template<typename T>
 void HDF5format::writeData(const std::vector<std::vector<T> > &data)
 {
   H5::Exception::dontPrint();
-  uint dim1 = data.size();
-  uint dim2 = data[0].size();
+  size_t dim1 = data.size();
+  size_t dim2 = data[0].size();
   auto a = new T[dim1 * dim2];
   auto md = new T*[dim1];
   for (size_t i = 0; i < dim1; ++i)

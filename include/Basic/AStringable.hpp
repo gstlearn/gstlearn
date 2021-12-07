@@ -10,11 +10,16 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_define.h"
-#include "csparse_f.h" // Cannot use forward declaration for cs and don't know why!
-/// TODO : include geoslib_f.h here makes the compilation crash !!!
+#include "gstlearn_export.hpp"
 
-class AStringable
+// WARNING: Make this include list as small as possible!
+#include "geoslib_define.h"
+// Put it in the header because inherited objects will need it
+#include <sstream>
+
+class cs;
+
+class GSTLEARN_EXPORT AStringable
 {
 public:
   AStringable() {};
@@ -26,61 +31,66 @@ public:
 };
 
 // Set of functions regarding the printout
-void   messageFlush(const String& string);
-void   messerrFlush(const String& string);
-void   messerr(const char *format,...);
-void   message(const char *format,...);
-void   mesArg(const char *title, int current, int nmax, bool flagStartOne = false);
-void   messageAbort(const char *format,...);
-void   mestitle(int level,const char *format,...);
-String toTitle(int level, const char* format, ...);
-String toMatrix(const String& title,
-                const VectorString& colnames,
-                const VectorString& rownames,
-                bool bycol,
-                int ncols,
-                int nrows,
-                const VectorDouble &tab,
-                bool flagOverride = false);
-String toMatrix(const String& title,
-                const VectorString& colnames,
-                const VectorString& rownames,
-                bool bycol,
-                int ncols,
-                int nrows,
-                const VectorInt &tab,
-                bool flagOverride = false);
-String toMatrixSymmetric(const String& title,
-                         const VectorString& colnames,
-                         const VectorString& rownames,
-                         bool bycol,
-                         int ncols,
-                         const VectorDouble &tab,
-                         bool flagOverride = false);
-String toMatrixDiagonal(const String& title,
-                        const VectorString& colnames,
-                        const VectorString& rownames,
-                        int ncols,
-                        const VectorDouble &tab,
-                        bool flagOverride = false);
-String toMatrixDiagCst(const String& title,
-                       const VectorString& colnames,
-                       const VectorString& rownames,
-                       int ncols,
-                       const VectorDouble &tab,
-                       bool flagOverride = false);
-String toMatrix(const String& title, const cs* A, bool flagOverride = false);
-String toVector(const String& title, const VectorDouble& tab);
-String toVector(const String& title, const VectorVectorDouble& tab);
-String toVector(const String& title, const VectorInt& tab);
-String toStr(const String& string, int justify = 1);
-String toDouble(double value, int justify = 1);
-String toInt(int value, int justify = 1);
-String toInterval(double zmin, double zmax);
-void   setFormatDecimalNumber(int number = 3);
-void   setFormatColumnSize(int column = 10);
-void   setFormatColnameSize(int column = 10);
-void   setFormatMaxNRows(int maxnrows = 7);
-void   setFormatMaxNCols(int maxncols = 7);
-void   setFormatRCSize(int column = 3);
-void   setFormatBatchNumber(int nbatch = 7);
+GSTLEARN_EXPORT void   messageFlush(const String& string);
+GSTLEARN_EXPORT void   messerrFlush(const String& string);
+GSTLEARN_EXPORT void   messerr(const char *format,...);
+GSTLEARN_EXPORT void   message(const char *format,...);
+GSTLEARN_EXPORT void   mesArg(const char *title, int current, int nmax, bool flagStartOne = false);
+GSTLEARN_EXPORT void   messageAbort(const char *format,...);
+GSTLEARN_EXPORT void   mestitle(int level,const char *format,...);
+GSTLEARN_EXPORT String toTitle(int level, const char* format, ...);
+GSTLEARN_EXPORT String toMatrix(const String& title,
+                                const VectorString& colnames,
+                                const VectorString& rownames,
+                                bool bycol,
+                                int ncols,
+                                int nrows,
+                                const VectorDouble &tab,
+                                bool flagOverride = false);
+GSTLEARN_EXPORT String toMatrix(const String& title,
+                                const VectorString& colnames,
+                                const VectorString& rownames,
+                                bool bycol,
+                                int ncols,
+                                int nrows,
+                                const VectorInt &tab,
+                                bool flagOverride = false);
+GSTLEARN_EXPORT String toMatrixSymmetric(const String& title,
+                                         const VectorString& colnames,
+                                         const VectorString& rownames,
+                                         bool bycol,
+                                         int ncols,
+                                         const VectorDouble &tab,
+                                         bool flagOverride = false);
+GSTLEARN_EXPORT String toMatrixDiagonal(const String& title,
+                                        const VectorString& colnames,
+                                        const VectorString& rownames,
+                                        int ncols,
+                                        const VectorDouble &tab,
+                                        bool flagOverride = false);
+GSTLEARN_EXPORT String toMatrixDiagCst(const String& title,
+                                       const VectorString& colnames,
+                                       const VectorString& rownames,
+                                       int ncols,
+                                       const VectorDouble &tab,
+                                       bool flagOverride = false);
+GSTLEARN_EXPORT String toMatrix(const String& title,
+                                const cs* A,
+                                bool  flagOverride = false);
+GSTLEARN_EXPORT String toVector(const String& title,
+                                const VectorDouble& tab);
+GSTLEARN_EXPORT String toVector(const String& title,
+                                const VectorVectorDouble& tab);
+GSTLEARN_EXPORT String toVector(const String& title,
+                                const VectorInt& tab);
+GSTLEARN_EXPORT String toStr(const String& string, int justify = 1);
+GSTLEARN_EXPORT String toDouble(double value, int justify = 1);
+GSTLEARN_EXPORT String toInt(int value, int justify = 1);
+GSTLEARN_EXPORT String toInterval(double zmin, double zmax);
+GSTLEARN_EXPORT void   setFormatDecimalNumber(int number = 3);
+GSTLEARN_EXPORT void   setFormatColumnSize(int column = 10);
+GSTLEARN_EXPORT void   setFormatColnameSize(int column = 10);
+GSTLEARN_EXPORT void   setFormatMaxNRows(int maxnrows = 7);
+GSTLEARN_EXPORT void   setFormatMaxNCols(int maxncols = 7);
+GSTLEARN_EXPORT void   setFormatRCSize(int column = 3);
+GSTLEARN_EXPORT void   setFormatBatchNumber(int nbatch = 7);

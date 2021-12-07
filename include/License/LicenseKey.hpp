@@ -1,14 +1,15 @@
-#ifndef LICENSE_KEY_H
-#define LICENSE_KEY_H
+#pragma once
 
+#include "gstlearn_export.hpp"
 #include "License/MD5Utility.hpp"
+
 #include <map>
 #include <string>
 #include <vector>
 
 typedef std::map<std::string, std::vector<std::string> > FeatureList;
  
-class LicenseKey {
+class GSTLEARN_EXPORT LicenseKey {
 
 public:
   static bool encodeLicenseFile(const std::string &features_file,
@@ -50,4 +51,3 @@ private:
   static FeatureList _featureTable;
 } ;
 
-#endif // LICENSE_KEY_H

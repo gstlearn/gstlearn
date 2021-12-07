@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Basic/AStringable.hpp"
 
 class Db;
 class Model;
 
-class GibbsMultiMono : public AGibbs
+class GSTLEARN_EXPORT GibbsMultiMono : public AGibbs
 {
 public:
   GibbsMultiMono();

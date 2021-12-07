@@ -12,6 +12,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 
 class ShiftOpCs;
@@ -21,7 +22,7 @@ class CovAniso;
 * Operator is built with sparse (cs) matrices.
 * It allows to return the precision matrix as a cs. */
 
-class PrecisionOpCs : public PrecisionOp
+class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
 {
 public:
   PrecisionOpCs(ShiftOpCs* shiftop = nullptr,

@@ -10,14 +10,15 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+#include "Interfaces/AVariableTemplate.hpp"
+#include "Interfaces/interface_d.hpp"
+
 #include <string>
 #include <vector>
 #include <iostream>
 
-#include "Interfaces/AVariableTemplate.hpp"
-#include "Interfaces/interface_d.hpp"
-
-class VariableInt: public AVariableTemplate<int>
+class GSTLEARN_EXPORT VariableInt: public AVariableTemplate<int>
 {
   public:
     VariableInt();

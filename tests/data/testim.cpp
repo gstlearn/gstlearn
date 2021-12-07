@@ -8,13 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Model/Model.hpp"
-#include "Variogram/Vario.hpp"
-#include "Neigh/Neigh.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include <stdlib.h>
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+#include "Variogram/Vario.hpp"
+#include "Neigh/Neigh.hpp"
+
+#include <iostream>
+#include <fstream>
 
 /****************************************************************************
 **
@@ -81,7 +84,13 @@ int main(int argc, char *argv[])
   model = new_model = nullptr;
   neigh = nullptr;
 
-  /* Connect the Geoslib Library */
+  /* Standard output redirection to file */
+
+  std::ofstream out("Result.out");
+  std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+  std::cout.rdbuf(out.rdbuf()); //redirect std::cout to Result.out
+
+  /* Setup the license */
 
   if (setup_license("Demonstration")) goto label_end;
 
@@ -209,6 +218,7 @@ int main(int argc, char *argv[])
   /* Core deallocation */
 
 label_end:
+  std::cout.rdbuf(coutbuf); //reset to standard output again
   dbin  = db_delete(dbin);
   dbout = db_delete(dbout);
   vario = variogram_delete(vario);

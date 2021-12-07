@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 
-class Interval : public AStringable
+class GSTLEARN_EXPORT Interval : public AStringable
 {
   private:
   double _vmin;

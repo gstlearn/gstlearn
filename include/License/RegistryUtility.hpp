@@ -1,9 +1,10 @@
-#ifndef REGISTRY_UTILITY_H
-#define REGISTRY_UTILITY_H
+#pragma once
+
+#include "gstlearn_export.hpp"
 
 #include <string>
 
-class RegistryUtility {
+class GSTLEARN_EXPORT RegistryUtility {
 public :
   static std::string get_environ(const std::string& varname);
   static std::string get_value(const std::string& prog,
@@ -12,5 +13,3 @@ public :
                                const std::string& key,
                                const std::string& value);
 };
-
-#endif // REGISTRY_UTILITY_H

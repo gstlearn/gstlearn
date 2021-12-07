@@ -10,14 +10,15 @@
 /******************************************************************************/
 #include "Model/NoStatFunctional.hpp"
 
-#include "geoslib_e.h"
 
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Model/ANoStat.hpp"
+#include "Db/Db.hpp"
 #include "Mesh/AMesh.hpp"
+
 #include <math.h>
 
 NoStatFunctional::NoStatFunctional()

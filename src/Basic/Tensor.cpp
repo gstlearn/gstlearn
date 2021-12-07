@@ -127,8 +127,7 @@ void Tensor::setRotationAngles(const VectorDouble& angles)
 
 void Tensor::setRotationAngle(unsigned int idim, double angle)
 {
-  if ((idim < 0) ||
-      (_nDim == 2 && idim != 0) ||
+  if ((_nDim == 2 && idim != 0) ||
       (_nDim >  2 && idim >= _nDim))
     my_throw ("Wrong rank for Angle");
   VectorDouble angles = _rotation.getAngles();

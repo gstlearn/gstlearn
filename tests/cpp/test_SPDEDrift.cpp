@@ -2,7 +2,6 @@
 #include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_e.h"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"

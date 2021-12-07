@@ -10,7 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include "Basic/ASerializable.hpp"
 
 /**
@@ -20,7 +22,7 @@
  * The organization stands as a vector (variables) or samples.
  * This allows adding the statistics for all variables for a new sample
  */
-class Table: public ASerializable
+class GSTLEARN_EXPORT Table: public ASerializable
 {
 public:
   Table(int nrows = 0, int ncols = 0);

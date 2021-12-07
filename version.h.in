@@ -10,15 +10,17 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/String.hpp"
-#include "Basic/ASerializable.hpp"
+/* Get values from CMake command */
 
-  // TODO : Cross-platform way to build file path (use boost ?)
-String getTestData(const String& filename)
-{
-  String exec_dir = ASerializable::getExecDirectory();
+#define gstlearn_VERSION_MAJOR @gstlearn_VERSION_MAJOR@
+#define gstlearn_VERSION_MINOR @gstlearn_VERSION_MINOR@
+#define gstlearn_VERSION_PATCH @gstlearn_VERSION_PATCH@
+#define gstlearn_VERSION       @gstlearn_VERSION@
+#define gstlearn_DATE          @gstlearn_DATE@
 
-  String filepath(exec_dir + "../../../doc/data/" + filename);
+/* Version numbers and date */
 
-  return filepath;
-}
+#define GSTLEARN_RELEASE "gstlearn_VERSION"     // gstlearn version (for acknowledge and identification)
+#define GSTLEARN_DATE    "gstlearn_DATE"        // gstlearn release date (for acknowledge and identification)
+#define GSTLEARN_VERSION gstlearn_VERSION_MAJOR // For License checking (Increase it to force License update)
+

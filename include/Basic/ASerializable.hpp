@@ -10,11 +10,13 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/String.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 
-class ASerializable
+class GSTLEARN_EXPORT ASerializable
 {
 public:
   ASerializable();
@@ -37,8 +39,8 @@ protected:
                 const String& mode,
                 bool verbose = false) const;
   int  _fileClose(bool verbose = false) const;
-  int  _recordRead(const String& title, String format, ...) const;
-  void _recordWrite(String format, ...) const;
+  int  _recordRead(const char* title, const char* format, ...) const;
+  void _recordWrite(const char* format, ...) const;
   int  _fileRead(const String& format, va_list ap) const;
   void _fileWrite(const String& format, va_list ap) const;
   bool _onlyBlanks(char *string) const;

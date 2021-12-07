@@ -10,6 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+#include "Interfaces/interface_d.hpp"
+#include "Basic/AStringable.hpp"
+
 #include <string>
 #include <vector>
 
@@ -17,16 +21,12 @@
 #include <netcdf>
 #endif
 
-#include "Interfaces/interface_d.hpp"
-
-#include "Basic/AStringable.hpp"
-
 class VariableDouble;
 class VariableBool;
 class VariableInt;
 class VariableString;
 
-class AVariable : public AStringable
+class GSTLEARN_EXPORT AVariable : public AStringable
 {
 public:
   AVariable();

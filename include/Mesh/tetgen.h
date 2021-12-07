@@ -37,13 +37,15 @@
 
 #define INPUTLINESIZE 2048
 
-// TetGen only uses the C standard library.
+// TetGen only uses the C standard library (not really).
 
 #include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <cmath>
-#include <time.h>
+
+// Here is some C++
+#include "Basic/Timer.hpp"
 
 // The types 'intptr_t' and 'uintptr_t' are signed and unsigned integer types,
 //   respectively. They are guaranteed to be the same width as a pointer.
@@ -1769,7 +1771,7 @@ public:
 
   // Incremental Delaunay construction.
   void initialdelaunay(point pa, point pb, point pc, point pd);
-  void incrementaldelaunay(clock_t&);
+  void incrementaldelaunay(hrc::time_point& tv);
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
@@ -1904,7 +1906,7 @@ public:
                     arraypool*, arraypool*);
   void constrainedfacets();  
 
-  void constraineddelaunay(clock_t&);
+  void constraineddelaunay(hrc::time_point& tv);
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
@@ -1935,7 +1937,7 @@ public:
   int suppressbdrysteinerpoint(point steinerpt);
   int suppresssteinerpoints();
 
-  void recoverboundary(clock_t&);
+  void recoverboundary(hrc::time_point& tv);
 
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //

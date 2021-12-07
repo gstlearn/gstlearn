@@ -1,25 +1,18 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.0
+==============
+- Use CMake 3.19+
+
 Release 0.0.2
 ==============
-
-New functions :
----------------
 - New ENUM Macros + refactoring
-
-Modification in functions :
----------------------------
-
-Bug Fixes :
------------
--Bug fixed in OptimBinaryCost
-
+- Bug fixed in OptimBinaryCost
 
 Release 0.0.1
 ==============
-
 This is the first version of the 'gstlearn' C++ Library!
 Previous changes are listed in the CHANGELOG file of the Geoslib Library (its ancestor).
-For more details, please look at config/CHANGELOG.Geoslib.
+For more details, please look at doc/CHANGELOG.Geoslib.
 

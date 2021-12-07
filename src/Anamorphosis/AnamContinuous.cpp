@@ -14,25 +14,27 @@
 #include "Basic/NamingConvention.hpp"
 #include "geoslib_f.h"
 
-AnamContinuous::AnamContinuous(const EAnam& type)
-    : Anam(type),
-      _az(),
-      _ay(),
-      _pz(),
-      _py(),
-      _mean(TEST),
-      _variance(TEST)
+AnamContinuous::AnamContinuous(const EAnam &type)
+    :
+    Anam(type),
+    _az(),
+    _ay(),
+    _pz(),
+    _py(),
+    _mean(TEST),
+    _variance(TEST)
 {
 }
 
 AnamContinuous::AnamContinuous(const AnamContinuous &m)
-    : Anam(m),
-      _az(m._az),
-      _ay(m._ay),
-      _pz(m._pz),
-      _py(m._py),
-      _mean(m._mean),
-      _variance(m._variance)
+    :
+    Anam(m),
+    _az(m._az),
+    _ay(m._ay),
+    _pz(m._pz),
+    _py(m._py),
+    _mean(m._mean),
+    _variance(m._variance)
 {
 }
 
@@ -98,92 +100,54 @@ void AnamContinuous::calculateMeanAndVariance()
   _variance = TEST;
 }
 
-VectorDouble AnamContinuous::RawToGaussianVector(const VectorDouble& z) const
+VectorDouble AnamContinuous::RawToGaussianVector(const VectorDouble &z) const
 {
-  int number = static_cast<int> (z.size());
+  int number = static_cast<int>(z.size());
   VectorDouble y;
   y.resize(number);
-  for (int i=0; i<number; i++)
+  for (int i = 0; i < number; i++)
     y[i] = RawToGaussianValue(z[i]);
   return y;
 }
 
-VectorDouble AnamContinuous::GaussianToRawVector(const VectorDouble& y) const
+VectorDouble AnamContinuous::GaussianToRawVector(const VectorDouble &y) const
 {
-  int number = static_cast<int> (y.size());
+  int number = static_cast<int>(y.size());
   VectorDouble z;
   z.resize(number);
-  for (int i=0; i<number; i++)
+  for (int i = 0; i < number; i++)
     z[i] = GaussianToRawValue(y[i]);
   return z;
 }
 
-int AnamContinuous::RawToGaussian(Db *db, const String& name, NamingConvention namconv)
-{
-  if (db == nullptr) return 1;
-  VectorString exp_names = expandList(db->getNames(),name);
-  if (exp_names.empty()) return 1;
-
-  int nadd = static_cast<int> (exp_names.size());
-  int iatt = db->addFields(nadd);
-  if (iatt < 0) return 1;
-
-  for (int i = 0; i < nadd; i++)
-  {
-    VectorDouble z = db->getField(exp_names[i],true);
-    if (z.size() <= 0) return 1;
-    VectorDouble y = RawToGaussianVector(z);
-    db->setFieldByAttribute(y,iatt+i,true);
-    namconv.setNamesAndLocators(exp_names[i],db,iatt+i,String(),1,false);
-  }
-
-  namconv.setLocators(db, iatt, nadd);
-  return 0;
-}
-
-int AnamContinuous::RawToGaussian(Db *db, const ELoc& locatorType, NamingConvention namconv)
-{
-  if (db == nullptr) return 1;
-  int number = db->getLocatorNumber(locatorType);
-  if (number <= 0) return 1;
-
-  int iatt = db->addFields(number);
-
-  for (int item=0; item<number; item++)
-  {
-    VectorDouble z = db->getFieldByLocator(locatorType,item,true);
-    if (z.size() <= 0) continue;
-    VectorDouble y = RawToGaussianVector(z);
-    db->setFieldByAttribute(y,iatt+item,true);
-  }
-  namconv.setNamesAndLocators(db,locatorType,-1,db,iatt,String(),1,true);
-  return 0;
-}
-
-int AnamContinuous::GaussianToRaw(Db *db,const String& name, NamingConvention namconv)
+int AnamContinuous::RawToGaussian(Db *db,
+                                  const String &name,
+                                  const NamingConvention &namconv)
 {
   if (db == nullptr) return 1;
   VectorString exp_names = expandList(db->getNames(), name);
   if (exp_names.empty()) return 1;
 
-  int nadd = static_cast<int> (exp_names.size());
+  int nadd = static_cast<int>(exp_names.size());
   int iatt = db->addFields(nadd);
   if (iatt < 0) return 1;
 
   for (int i = 0; i < nadd; i++)
   {
-    VectorDouble y = db->getField(exp_names[i],true);
-    if (y.size() <= 0) return 1;
-    VectorDouble z = GaussianToRawVector(y);
-    db->setFieldByAttribute(z,iatt+i,true);
-    namconv.setNamesAndLocators(exp_names[i],db,iatt+i,String(),1,false);
+    VectorDouble z = db->getField(exp_names[i], true);
+    if (z.size() <= 0) return 1;
+    VectorDouble y = RawToGaussianVector(z);
+    db->setFieldByAttribute(y, iatt + i, true);
+    namconv.setNamesAndLocators(exp_names[i], db, iatt + i, String(), 1, false);
   }
 
   namconv.setLocators(db, iatt, nadd);
   return 0;
 }
 
-int AnamContinuous::GaussianToRaw(Db *db, const ELoc& locatorType, NamingConvention namconv)
+int AnamContinuous::RawToGaussian(Db *db,
+                                  const ELoc &locatorType,
+                                  const NamingConvention &namconv)
 {
   if (db == nullptr) return 1;
   int number = db->getLocatorNumber(locatorType);
@@ -191,15 +155,61 @@ int AnamContinuous::GaussianToRaw(Db *db, const ELoc& locatorType, NamingConvent
 
   int iatt = db->addFields(number);
 
-  for (int item=0; item<number; item++)
+  for (int item = 0; item < number; item++)
   {
-    VectorDouble y = db->getFieldByLocator(locatorType,item,true);
-    if (y.size() <= 0) continue;
+    VectorDouble z = db->getFieldByLocator(locatorType, item, true);
+    if (z.size() <= 0) continue;
+    VectorDouble y = RawToGaussianVector(z);
+    db->setFieldByAttribute(y, iatt + item, true);
+  }
+  namconv.setNamesAndLocators(db, locatorType, -1, db, iatt, String(), 1, true);
+  return 0;
+}
+
+int AnamContinuous::GaussianToRaw(Db *db,
+                                  const String &name,
+                                  const NamingConvention &namconv)
+{
+  if (db == nullptr) return 1;
+  VectorString exp_names = expandList(db->getNames(), name);
+  if (exp_names.empty()) return 1;
+
+  int nadd = static_cast<int>(exp_names.size());
+  int iatt = db->addFields(nadd);
+  if (iatt < 0) return 1;
+
+  for (int i = 0; i < nadd; i++)
+  {
+    VectorDouble y = db->getField(exp_names[i], true);
+    if (y.size() <= 0) return 1;
     VectorDouble z = GaussianToRawVector(y);
-    db->setFieldByAttribute(z,iatt+item,true);
+    db->setFieldByAttribute(z, iatt + i, true);
+    namconv.setNamesAndLocators(exp_names[i], db, iatt + i, String(), 1, false);
   }
 
-  namconv.setNamesAndLocators(db,locatorType,-1,db,iatt,String(),1,true);
+  namconv.setLocators(db, iatt, nadd);
+  return 0;
+}
+
+int AnamContinuous::GaussianToRaw(Db *db,
+                                  const ELoc &locatorType,
+                                  const NamingConvention &namconv)
+{
+  if (db == nullptr) return 1;
+  int number = db->getLocatorNumber(locatorType);
+  if (number <= 0) return 1;
+
+  int iatt = db->addFields(number);
+
+  for (int item = 0; item < number; item++)
+  {
+    VectorDouble y = db->getFieldByLocator(locatorType, item, true);
+    if (y.size() <= 0) continue;
+    VectorDouble z = GaussianToRawVector(y);
+    db->setFieldByAttribute(z, iatt + item, true);
+  }
+
+  namconv.setNamesAndLocators(db, locatorType, -1, db, iatt, String(), 1, true);
   return 0;
 }
 
@@ -214,24 +224,24 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
 {
   VectorDouble y(ndisc);
   VectorDouble z(ndisc);
-  double pas  = (aymax - aymin) / ndisc;
+  double pas = (aymax - aymin) / ndisc;
   int ind0 = ndisc / 2;
   y[ind0] = 0.;
   z[ind0] = GaussianToRawValue(y[ind0]);
 
   /* Calculating the values below y=0 */
 
-  for (int ind = ind0-1; ind >= 0; ind--)
+  for (int ind = ind0 - 1; ind >= 0; ind--)
   {
-    y[ind] = y[ind+1] - pas;
+    y[ind] = y[ind + 1] - pas;
     z[ind] = GaussianToRawValue(y[ind]);
   }
 
-/* Calculating the values above y=0 */
+  /* Calculating the values above y=0 */
 
-  for (int ind = ind0+1; ind<ndisc; ind++)
+  for (int ind = ind0 + 1; ind < ndisc; ind++)
   {
-    y[ind] = y[ind-1] + pas;
+    y[ind] = y[ind - 1] + pas;
     z[ind] = GaussianToRawValue(y[ind]);
   }
 

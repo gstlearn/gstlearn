@@ -10,9 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Drifts/ADriftElem.hpp"
 
-class DriftF : public ADriftElem
+class GSTLEARN_EXPORT DriftF : public ADriftElem
 {
 public:
   DriftF(const CovContext& ctxt);

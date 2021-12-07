@@ -15,6 +15,8 @@
 #include "version.h"
 #include "geoslib_old_f.h"
 
+#include <fstream>
+
 #define DEBUG 0
 
 /****************************************************************************/
@@ -110,9 +112,9 @@ std::string LicenseKey::stringClean(const std::string str)
 void LicenseKey::messageLicenseInvalid(void)
 {
   messerr(" ");
-  messerr("Geoslib %s - %s", GEOSLIB_RELEASE, GEOSLIB_DATE);
+  messerr("gstlearn %s - %s", GSTLEARN_RELEASE, GSTLEARN_DATE);
   messerr(" ");
-  messerr("Problem with the Geoslib License");
+  messerr("Problem with the gstlearn License");
   messerr("================================");
 
   // Get the activation codes
@@ -122,14 +124,14 @@ void LicenseKey::messageLicenseInvalid(void)
   {
     // Print network interface error
     messerr("Your computer does not have any network interface activated!");
-    messerr("This makes the usage of Geoslib license impossible :-(");
+    messerr("This makes the usage of gstlearn license impossible :-(");
     messerr("Please, try to activate one network interface (Wifi, Ethernet Card, other...).");
     messerr(" ");
   }
   else
   {
     // Print the default message
-    messerr("You must register a valid License for Geoslib!");
+    messerr("You must register a valid License for gstlearn!");
     messerr("To identify yourself, please carefully note the activation code:");
     messerr(" ");
     messerr("%s", all_codes[0].c_str());
@@ -141,13 +143,13 @@ void LicenseKey::messageLicenseInvalid(void)
     messerr(" ");
     messerr("For LINUX:");
     messerr("- Store its complete path into the environment variable:");
-    messerr("          setenv GEOSLIB_LICENSE complete_path");
+    messerr("          setenv GSTLEARN_LICENSE complete_path");
     messerr("- Its contents will be copied in the local (hidden) file:");
-    messerr("          .Geoslib (in the HOME Directory");
+    messerr("          .gstlearn (in the HOME Directory");
     messerr("You can then remove the License File");
 
     messerr(" ");
-    messerr("In case of problem, please contact: rgeostats@geosciences.mines-paristech.fr");
+    messerr("In case of problem, please contact: gstlearn@groupes.mines-paristech.fr");
   }
   messerr(" ");
 }
@@ -169,8 +171,8 @@ bool LicenseKey::checkLicense(std::string & lic_key)
     return true;
 
   // Check if the filename is passed through the environment variable
-  // named GEOSLIB_LICENSE
-  std::string lic_file1 = readEnvironVariable("GEOSLIB_LICENSE");
+  // named GSTLEARN_LICENSE
+  std::string lic_file1 = readEnvironVariable("GSTLEARN_LICENSE");
   if (checkLicenseFromFile(lic_file1, lic_key))
     return true;
 
@@ -491,7 +493,7 @@ bool LicenseKey::encodeLicenseFile(const std::string &features_file,
   
   // Append the version number
   std::stringstream ssversion;
-  ssversion << GEOSLIB_VERSION;
+  ssversion << GSTLEARN_VERSION;
   lic_file << appendVersion(ssversion.str(), state) << ";";
 
   // Append the activation code
@@ -520,7 +522,7 @@ bool LicenseKey::encodeLicenseFile(const std::string &features_file,
 void LicenseKey::writeRegistry(const std::string &key,
                                const std::string &string)
 {
-  RegistryUtility::set_value("Geoslib", key, string);
+  RegistryUtility::set_value("gstlearn", key, string);
 }
 
 /****************************************************************************/
@@ -534,7 +536,7 @@ void LicenseKey::writeRegistry(const std::string &key,
  ****************************************************************************/
 std::string LicenseKey::readRegistry(const std::string &key)
 {
-  std::string string = RegistryUtility::get_value("Geoslib", key);
+  std::string string = RegistryUtility::get_value("gstlearn", key);
   return string;
 }
 
@@ -542,7 +544,7 @@ std::string LicenseKey::readRegistry(const std::string &key)
 /*!
  * FUNCTION: readEnvironVariable
  *
- *  Read from the Environment Variable GEOSLIB_LICENSE
+ *  Read from the Environment Variable GSTLEARN_LICENSE
  *
  ****************************************************************************/
 std::string LicenseKey::readEnvironVariable(const std::string& varname)
@@ -588,7 +590,7 @@ bool LicenseKey::isAuthorized(const std::string& feature)
     iter++;
   }
 
-  messerr("Geoslib %s - %s", GEOSLIB_RELEASE, GEOSLIB_DATE);
+  messerr("gstlearn %s - %s", GSTLEARN_RELEASE, GSTLEARN_DATE);
   messerr("\n---> Feature \'%s\' for Target \'%s\'",
           feature.c_str(),_targetName.c_str());
   messerr("     is not authorized with the current License!\n");
@@ -664,9 +666,9 @@ std::string LicenseKey::appendActivationCode(const std::string activation_code,
 bool LicenseKey::isValidVersion(const std::string &version)
 {
   if (version.empty()) return true;
-  if (atoi(version.c_str()) < GEOSLIB_VERSION)
+  if (atoi(version.c_str()) < GSTLEARN_VERSION)
   {
-    messerr("The License does not correspond to the correct Geoslib version: %s", version.c_str());
+    messerr("The License does not correspond to the correct gstlearn version: %s", version.c_str());
     return false;
   }
   return true;

@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/IClonable.hpp"
-
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
 #include "Covariances/ACov.hpp"
@@ -22,7 +22,7 @@
 
 class Rotation;
 
-class CovAniso: public ACov, public IClonable
+class GSTLEARN_EXPORT CovAniso: public ACov, public IClonable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);

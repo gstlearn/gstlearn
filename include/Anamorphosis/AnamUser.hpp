@@ -10,11 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include "Anamorphosis/AnamContinuous.hpp"
 
-#include "Basic/Vector.hpp"
-
-class AnamUser: public AnamContinuous
+class GSTLEARN_EXPORT AnamUser: public AnamContinuous
 {
 private:
   double (*_y2z_function)(double);

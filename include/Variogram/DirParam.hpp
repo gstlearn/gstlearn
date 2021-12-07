@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "geoslib_define.h"
 
 class Db;
 
-class DirParam : public AStringable // TODO : Should inherit from ASpaceObject
+class GSTLEARN_EXPORT DirParam : public AStringable // TODO : Should inherit from ASpaceObject
 {
 public:
   DirParam(int ndim = 2,
@@ -56,9 +57,9 @@ public:
 
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
-  double getBreaks(int i) const { return _breaks[i]; }
+  double getBreak(int i) const;
   const  VectorDouble& getCodir() const { return _codir; }
-  double getCodir(int i) const { return _codir[i]; }
+  double getCodir(int i) const;
   double getCylRad() const { return _cylRad; }
   double getDPas() const { return _dPas; }
   double getLag() const { return _dPas; }
@@ -115,9 +116,10 @@ private:
   VectorInt    _grincr;
 };
 
-std::vector<DirParam> generateMultipleDirs(int ndim,
-                                            int ndir,
-                                            int npas = 0,
-                                            double dpas = 0.,
-                                            double toldis = 0.5);
-std::vector<DirParam> generateMultipleGridDirs(int ndim, int npas);
+GSTLEARN_EXPORT std::vector<DirParam> generateMultipleDirs(int ndim,
+                                                           int ndir,
+                                                           int npas = 0,
+                                                           double dpas = 0.,
+                                                           double toldis = 0.5);
+GSTLEARN_EXPORT std::vector<DirParam> generateMultipleGridDirs(int ndim,
+                                                               int npas);

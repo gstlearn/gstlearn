@@ -1,14 +1,12 @@
-lib
-bin
+build*
 doxygen/latex
 doxygen/html
 doxygen/xml
 doxygen/*.tmp
 tests/data/*/*.out
-tests/res*
+./*.ascii
 .project
 .cproject
 .settings
-./*.ascii
 core
 

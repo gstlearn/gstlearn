@@ -1,3 +1,5 @@
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Interfaces/interface_d.hpp"
 #include "Interfaces/Database.hpp"
 #include "Interfaces/AVariable.hpp"
@@ -10,8 +12,7 @@
 #include "Space/ASpace.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "Db/Db.hpp"
 
 #include <cstddef>
 #include <algorithm>

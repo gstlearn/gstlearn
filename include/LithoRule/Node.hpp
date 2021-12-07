@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
 class Db;
 class Model;
 
-class Node: public AStringable
+class GSTLEARN_EXPORT Node: public AStringable
 {
 public:
   Node(const String& nodnam, int orient, int facies);

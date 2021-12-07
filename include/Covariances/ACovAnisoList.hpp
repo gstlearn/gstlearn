@@ -10,18 +10,23 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Covariances/ACov.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
+// Enums
 #include "Covariances/ECov.hpp"
-#include "Covariances/CovAniso.hpp"
+
+#include "Basic/IClonable.hpp"
+
+#include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 
 class ASpace;
 class SpacePoint;
+class MatrixSquareSymmetric;
+class CovAniso;
 
-class ACovAnisoList : public ACov, public IClonable
+class GSTLEARN_EXPORT ACovAnisoList : public ACov, public IClonable
 {
 public:
   ACovAnisoList(const ASpace* space = nullptr);

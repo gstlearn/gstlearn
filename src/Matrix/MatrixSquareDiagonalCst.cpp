@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
+
 #include <math.h>
 
 MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow, bool sparse)

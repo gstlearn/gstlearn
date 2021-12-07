@@ -10,10 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 
-class PolySet: public AStringable
+class GSTLEARN_EXPORT PolySet: public AStringable
 {
 public:
   PolySet();

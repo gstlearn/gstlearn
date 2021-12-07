@@ -8,13 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "csparse_d.h"
 
 #include <string>
 #include <iostream>
@@ -23,6 +24,8 @@
 #include <iomanip>
 #include <stdio.h>
 #include <stdarg.h>
+#include <math.h>
+#include <string.h>
 
 #define JUSTIFY_LEFT  0
 #define JUSTIFY_RIGHT 1
@@ -31,13 +34,14 @@
 #define CASE_ROW 1
 
 // TODO : move this as AStringable static members
-static int _columnSize = 10;
-static int _colnameSize = 12;
-static int _nDec = 3;
-static int _nRC = 3;
-static int _maxNCols = 7;
-static int _maxNRows = 7;
-static int _nBatch = 7;
+static int    _columnSize = 10;
+static int    _colnameSize = 12;
+static int    _nDec = 3;
+static int    _nRC = 3;
+static int    _maxNCols = 7;
+static int    _maxNRows = 7;
+static int    _nBatch = 7;
+static double _dblThresh = 0.0005; // because default _nDec is 3
 
 String AStringable::toString(int /*level*/) const
 {
@@ -85,7 +89,11 @@ String _tabPrintDouble(double value, int justify, int localSize = 0)
   if (FFFF(value))
     sstr << "N/A";
   else
+  {
+    // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
+    value = (ABS(value) < _dblThresh) ? 0. : value;
     sstr << value;
+  }
 
   return sstr.str();
 }
@@ -183,6 +191,8 @@ String _printTrailer(int ncols, int nrows, int ncols_util, int nrows_util)
 void setFormatDecimalNumber(int number)
 {
   _nDec = number;
+  // Recalculate threshold under which any small value must be displayed has 0.0
+  _dblThresh = (0.5 * pow(10, - _nDec));
 }
 
 /**

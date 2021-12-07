@@ -2,7 +2,6 @@
 #include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_e.h"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
@@ -57,7 +56,7 @@ int main(int /*argc*/, char */*argv*/[])
 //  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
   spde.compute();
   spde.query(&workingDbc);
-  workingDbc.serialize("spde.ascii");
+  workingDbc.serialize("spde_simunc.ascii");
   return 0;
 }
 

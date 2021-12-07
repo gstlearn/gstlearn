@@ -274,7 +274,7 @@ void RuleProp::clearRule()
 
 int RuleProp::fit(Db* db, const VarioParam* varioparam, int ngrfmax, bool verbose)
 {
-  Rule* ruleFit = rule_auto(db,varioparam,this,ngrfmax,verbose);
+  Rule* ruleFit = _rule_auto(db,varioparam,this,ngrfmax,verbose);
   if (ruleFit == nullptr) return 1;
   clearRule();
   addRule(ruleFit);
@@ -288,14 +288,14 @@ int RuleProp::fit(Db* db, const VarioParam* varioparam, int ngrfmax, bool verbos
  * @return Error return code
  * @remarks The input variables must be locatorized Z or SIMU
  */
-int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
+int RuleProp::gaussToCategory(Db* db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
     messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
-  return db_rule(db, this, nullptr, namconv);
+  return _db_rule(db, this, nullptr, namconv);
 }
 
 /**
@@ -304,14 +304,14 @@ int RuleProp::gaussToCategory(Db* db, NamingConvention namconv) const
  * @param namconv Naming convention
  * @return Error return code
  */
-int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
+int RuleProp::categoryToThresh(Db *db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
     messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
-  return db_bounds(db, this, nullptr, namconv);
+  return _db_bounds(db, this, nullptr, namconv);
 }
 
 /**
@@ -320,12 +320,12 @@ int RuleProp::categoryToThresh(Db *db, NamingConvention namconv) const
  * @param namconv Naming convention
  * @return Error return code
  */
-int RuleProp::computeAllThreshes(Db *db, NamingConvention namconv) const
+int RuleProp::computeAllThreshes(Db *db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
     messerr("This method is only available for ERule::STD type of Rule");
     return 1;
   }
-  return db_threshold(db, this, nullptr, namconv);
+  return _db_threshold(db, this, nullptr, namconv);
 }

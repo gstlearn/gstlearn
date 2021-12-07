@@ -8,7 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_d.h"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
+#include "Basic/String.hpp"
 #include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -19,9 +23,6 @@
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Neigh/Neigh.hpp"
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 /****************************************************************************/
 /*!

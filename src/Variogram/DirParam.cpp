@@ -8,12 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 DirParam::DirParam(int ndim,
                    int npas,
@@ -139,6 +141,26 @@ void DirParam::init(int ndim,
   _completeDefinition();
 }
 
+double DirParam::getBreak(int i) const
+{
+  if (i < 0 || i >= (int)_breaks.size())
+  {
+    mesArg("Break Index",i,_breaks.size());
+    return TEST;
+  }
+  return _breaks[i];
+}
+
+double DirParam::getCodir(int i) const
+{
+  if (i < 0 || i >= (int)_codir.size())
+  {
+    mesArg("Codir Index",i,_codir.size());
+    return TEST;
+  }
+  return _codir[i];
+}
+
 void DirParam::_completeDefinition()
 {
   if (! _breaks.empty())
@@ -208,7 +230,7 @@ double DirParam::getMaximumDistance() const
   if (getFlagRegular())
     maxdist = getDPas() * (getLagNumber() + getTolDist());
   else
-    maxdist = getBreaks(getLagNumber());
+    maxdist = getBreak(getLagNumber());
   return (maxdist);
 }
 
@@ -252,7 +274,7 @@ String DirParam::toString(int /*level*/) const
       for (int i = 0; i < getBreakNumber(); i++)
       {
         sstr << " - Interval " << i + 1 << " = ["
-            << toInterval(getBreaks(i), getBreaks(i + 1)) << "]" << std::endl;
+            << toInterval(getBreak(i), getBreak(i + 1)) << "]" << std::endl;
       }
     }
   }
@@ -276,10 +298,10 @@ String DirParam::toString(int /*level*/) const
 }
 
 std::vector<DirParam> generateMultipleDirs(int ndim,
-                                           int ndir,
-                                           int npas,
-                                           double dpas,
-                                           double toldis)
+                                                           int ndir,
+                                                           int npas,
+                                                           double dpas,
+                                                           double toldis)
 {
   VectorDouble angles = VectorDouble(1);
   VectorDouble codir  = VectorDouble(ndim);

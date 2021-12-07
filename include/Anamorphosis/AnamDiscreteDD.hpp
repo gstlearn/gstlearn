@@ -10,19 +10,15 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include "Anamorphosis/AnamDiscrete.hpp"
-#include "Basic/Vector.hpp"
+
 #include "Stats/PCA.hpp"
 
-class AnamDiscreteDD: public AnamDiscrete
+class GSTLEARN_EXPORT AnamDiscreteDD: public AnamDiscrete
 {
-
-private:
-  double _mu;
-  double _sCoef;
-  PCA    _maf;
-  VectorDouble _i2Chi;
-
 public:
   AnamDiscreteDD();
   AnamDiscreteDD(const AnamDiscreteDD &m);
@@ -62,4 +58,11 @@ private:
                           VectorDouble& eigvec,
                           VectorDouble& eigval);
   void _lambda_to_mul();
+
+private:
+  double _mu;
+  double _sCoef;
+  PCA    _maf;
+  VectorDouble _i2Chi;
+
 };

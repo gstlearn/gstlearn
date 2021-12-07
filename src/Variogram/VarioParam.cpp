@@ -40,7 +40,6 @@ VarioParam::VarioParam(const VarioParam& VarioParam, const VectorInt& dircols)
     _scale = VarioParam.getScale();
     _dates = VarioParam.getDates();
 
-    _dirparams = std::vector<DirParam>();
     for (int idir = 0; idir < (int) dircols.size(); idir++)
     {
       _dirparams.push_back(VarioParam.getDirParam(dircols[idir]));
@@ -79,7 +78,7 @@ void VarioParam::addDirs(const DirParam& dirparam)
   _dirparams.push_back(dirparam);
 }
 
-void VarioParam::addDirs(const std::vector<DirParam> dirparams)
+void VarioParam::addDirs(const std::vector<DirParam>& dirparams)
 {
   for (int i = 0; i < (int) dirparams.size(); i++)
     _dirparams.push_back(dirparams[i]);

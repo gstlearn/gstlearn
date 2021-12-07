@@ -12,11 +12,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
+
 #include <vector>
+
 class ALinearOpMulti;
 
-class ALinearOpMulti {
+class GSTLEARN_EXPORT ALinearOpMulti {
 
 public:
   ALinearOpMulti();

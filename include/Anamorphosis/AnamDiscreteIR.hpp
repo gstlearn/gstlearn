@@ -10,14 +10,13 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+
 #include "Anamorphosis/AnamDiscrete.hpp"
 
-class AnamDiscreteIR: public AnamDiscrete
+class GSTLEARN_EXPORT AnamDiscreteIR: public AnamDiscrete
 {
-private:
-  double _rCoef;
-
 public:
   AnamDiscreteIR();
   AnamDiscreteIR(const AnamDiscreteIR &m);
@@ -42,4 +41,7 @@ private:
                        double *T,
                        double *Q);
   double _getResidual(int iclass, double z) const;
+
+private:
+  double _rCoef;
 };

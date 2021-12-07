@@ -10,14 +10,17 @@
 /******************************************************************************/
 #pragma once
 
+// WARNING: Make this include list as small as possible!
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
+#include "Basic/RepeatMacro.hpp"
+#include "Basic/WarningMacro.hpp"
+
 #include <iostream>
 #include <string>
 #include <map>
 
-#include "geoslib_define.h"
-#include "Basic/RepeatMacro.hpp"
-
-class AEnum
+class GSTLEARN_EXPORT AEnum
 {
 public:
   //! Return the enum key as a string
@@ -81,7 +84,7 @@ class NAME;\
 \
 typedef std::map<int, NAME*> NAME ## Map;\
 \
-class NAME ## Iterator\
+class GSTLEARN_EXPORT NAME ## Iterator\
 {\
   friend class NAME;\
 \
@@ -106,7 +109,7 @@ private:\
   NAME ## Map&          _refmap;\
 };\
 \
-class NAME : public AEnum\
+class GSTLEARN_EXPORT NAME : public AEnum\
 {\
 \
 public:\
@@ -276,5 +279,3 @@ const String& NAME ## Iterator::getDescr() const\
 // Top level macros
 #define ENUM_DECLARE(...) EXPAND(ENUM_DECLARE_(__VA_ARGS__))
 #define ENUM_DEFINE(...)  EXPAND(ENUM_DEFINE_(__VA_ARGS__))
-
-

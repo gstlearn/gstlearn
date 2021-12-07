@@ -9,7 +9,11 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "License/MACAddressUtility.hpp"
+#include "Basic/String.hpp"
 #include "geoslib_old_f.h"
+
+#include <fstream>
+#include <sstream>
 
 /****************************************************************************
  **

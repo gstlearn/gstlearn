@@ -1,10 +1,6 @@
-/*
- * Chebychev.hpp
- *
- *  Created on: 16 juin 2021
- *      Author: drenard
- */
 #pragma once
+
+#include "gstlearn_export.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/IClonable.hpp"
 #include "geoslib_define.h"
@@ -12,7 +8,7 @@
 
 #include <functional>
 
-class Chebychev: public APolynomial
+class GSTLEARN_EXPORT Chebychev: public APolynomial
 {
 public:
   Chebychev();

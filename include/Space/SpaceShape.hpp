@@ -10,12 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 /// TODO : to be kept ?
 
 /****************************************************************************
 **
 ****************************************************************************/
-class ASpaceShape
+class GSTLEARN_EXPORT ASpaceShape
 {
   public:
   ASpaceShape(){}
@@ -27,7 +29,7 @@ class ASpaceShape
 /****************************************************************************
 ** Description of a Cone
 ****************************************************************************/
-class Cone : public ASpaceShape
+class GSTLEARN_EXPORT Cone : public ASpaceShape
 {
   public:
     Cone() : ASpaceShape(),angle(90){}
@@ -39,7 +41,7 @@ class Cone : public ASpaceShape
 /****************************************************************************
 **
 ****************************************************************************/
-class Cylinder : public ASpaceShape
+class GSTLEARN_EXPORT Cylinder : public ASpaceShape
 {
   public:
     Cylinder() : ASpaceShape(),radius(TEST){}
@@ -51,7 +53,7 @@ class Cylinder : public ASpaceShape
 /****************************************************************************
 **
 ****************************************************************************/
-class Pencil : public ASpaceShape
+class GSTLEARN_EXPORT Pencil : public ASpaceShape
 {
   public:
 

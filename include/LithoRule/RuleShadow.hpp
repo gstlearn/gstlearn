@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
 #include "Basic/Vector.hpp"
@@ -19,7 +20,7 @@
 
 class PropDef;
 
-class RuleShadow: public Rule
+class GSTLEARN_EXPORT RuleShadow: public Rule
 {
 public:
   RuleShadow(double slope,

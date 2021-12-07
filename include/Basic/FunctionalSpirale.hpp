@@ -10,10 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AFunctional.hpp"
 
-class FunctionalSpirale : public AFunctional
+class GSTLEARN_EXPORT FunctionalSpirale : public AFunctional
 {
 public:
   FunctionalSpirale();

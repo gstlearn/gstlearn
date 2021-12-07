@@ -14,8 +14,8 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "csparse_f.h"
-#include "geoslib_e.h"
 
+#include <iostream>
 #include <iomanip>
 
 AMatrix::AMatrix(int nrow, int ncol, bool sparse)

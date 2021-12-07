@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
 #include "Basic/Vector.hpp"
@@ -17,7 +18,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/IClonable.hpp"
 
-class RuleShift: public Rule
+class GSTLEARN_EXPORT RuleShift: public Rule
 {
 public:
   RuleShift(const VectorInt& nodes, const VectorDouble& shift);
