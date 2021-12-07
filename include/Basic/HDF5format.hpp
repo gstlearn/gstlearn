@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
-#include "hdf5.h"
 #include "H5Cpp.h"
 #include "typeinfo"
 

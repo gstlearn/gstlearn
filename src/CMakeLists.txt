@@ -8,7 +8,7 @@ find_package(Boost REQUIRED)
 
 # Look for HDF5
 # https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
-find_package(HDF5 REQUIRED COMPONENTS C CXX)
+find_package(HDF5 REQUIRED COMPONENTS CXX)
 
 # Define the targets
 add_library(shared SHARED EXCLUDE_FROM_ALL ${SOURCES})
