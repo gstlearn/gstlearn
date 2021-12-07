@@ -50,6 +50,7 @@ For compiling and installing the *gstlearn* C++ Library, execute the following i
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target static
+cmake --build build --target shared
 cmake --build build --target doxygen
 sudo cmake --build build --target install
 ```
@@ -58,6 +59,7 @@ Under windows, you must launch a command prompt with administrator rights ('Exec
 ```sh
 cmake -Bbuild -H.
 cmake --build build --target static --config Release
+cmake --build build --target shared --config Release
 cmake --build build --target doxygen
 cmake --build build --target install --config Release
 ```
