@@ -45,7 +45,7 @@ Notes:
   * In the following, all instructions must be executed from a command prompt inside this *root* directory (thus the last command `cd gstlearn`)
 
 ## Library compilation & installation
-For compiling and installing the *gstlearn* C++ Library, execute the following instructions (example given with static library (release version) and doxygen documentation generation):
+For compiling and installing the *gstlearn* C++ Library, execute the following instructions (example given with release version and doxygen documentation generation):
 #### GCC, Clang, MinGW, ...
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
@@ -66,9 +66,9 @@ cmake --build build --target install --config Release
 Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
   * The *static* version of the library is mandatory for creating [pygstlearn package](https://github.com/gstlearn/pygstlearn)
-  * You may need to precise the location of Boost or HDF5 header files, in that case, add the following in the first command above:
-    * `-DBoost_INCLUDE_DIR="<path/to/boost/includes>"`
-    * `-DHDF5_INCLUDE_DIR="<path/to/hdf5/includes>"`
+  * You may need to precise the location of Boost or HDF5 installation directory (which contain include and lib folders), in that case, add the following in the first command above:
+    * `-DBoost_ROOT="<path/to/boost/install/dir>"`
+    * `-DHDF5_ROOT="<path/to/hdf5/install/dir>"`
 
 ## Usage
 TODO: Instructions will come soon
