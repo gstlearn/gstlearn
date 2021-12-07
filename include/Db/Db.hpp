@@ -108,11 +108,15 @@ public:
   void setName(const VectorString list, const String& name);
   void setName(int iatt, const String& name);
   void setName(const ELoc& locatorType, const String& name);
-  const GridC& getGrid() const { return _grid; }
-  int getAttributeMaxNumber() const { return static_cast<int>(_attcol.size()); }
-  int getFieldNumber() const { return _ncol; }
+  inline const GridC& getGrid() const { return _grid; }
+  inline int getAttributeMaxNumber() const { return static_cast<int>(_attcol.size()); }
+  inline int getFieldNumber() const { return _ncol; }
   double getFieldSize(bool useSel = false) const;
-  int getSampleNumber() const { return _nech; }
+  /**
+   * Returns the total number of samples
+   * @return Number of samples
+   */
+  inline int getSampleNumber() const { return _nech; }
   int getActiveSampleNumber() const;
   int isGrid() const { return _isGrid; }
 
@@ -129,7 +133,7 @@ public:
 
   void clearLocators(const ELoc& locatorType);
   void setLocatorByAttribute(int iatt,
-                             const ELoc& locatorType,
+                             const ELoc& locatorType = ELoc::UNKNOWN,
                              int locatorIndex = 0);
   void setLocator(const VectorString& names,
                   const ELoc& locatorType = ELoc::UNKNOWN,
@@ -139,7 +143,7 @@ public:
                   int locatorIndex = 0);
   void setLocatorsByAttribute(int number,
                               int iatt,
-                              const ELoc& locatorType,
+                              const ELoc& locatorType = ELoc::UNKNOWN,
                               int locatorIndex = 0);
   int addFields(const VectorDouble& tab,
                 const String& radix = "New",

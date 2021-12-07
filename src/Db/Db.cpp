@@ -1305,9 +1305,12 @@ int Db::addFields(int nadd,
  * @param radix  Generic name for the newly created variables
  * @param locatorType Generic locator assigned to new variables
  * @param locatorIndex   Locator index (starting from 0)
- * @param useSel true if values for active samples are provided
+ * @param useSel true if the Selection must be taken into account
  * @param valinit initial value (for unselected samples)
  * @param nvar   Number of variables loaded
+ *
+ * @remark When 'useSel' is used, you must have a Selection already defined. Then the number
+ * @remark of samples provided in 'tab' must match the number of active samples (see getActiveSampleNumber())
  * @return Rank of the first attribute
  */
 int Db::addFields(const VectorDouble& tab,
@@ -2158,6 +2161,12 @@ bool Db::hasSelection() const
   return (getFromLocatorNumber(ELoc::SEL) > 0);
 }
 
+/**
+ * Returns the number of active samples if a Selection is already defined.
+ *
+ * If no Selection is currently defined, it returns the total number of samples (see getSampleNumber())
+ * @return Number of active samples
+ */
 int Db::getActiveSampleNumber() const
 {
   if (!hasSelection()) return (getSampleNumber());

@@ -19,11 +19,6 @@ class Model;
 
 class GibbsMMulti: public GibbsMulti
 {
-  typedef struct
-  {
-    VectorDouble _weights;
-  } WgtVect;
-
 public:
   GibbsMMulti();
   GibbsMMulti(Db* db, Model* model);

@@ -17,6 +17,7 @@
  * Gives the Rank of the Attribute for:
  * - a given pointer type
  * - a given locatorIndex rank
+ *
  * The dimension of the internal vector is equal to the number of items for a
  * given pointer type
  */

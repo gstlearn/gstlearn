@@ -35,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 
 {
   int iptr;
-  bool flag_inter = true;
+  bool flag_inter = false;
 
   int nx        = 50;
   int niter     = 1000;

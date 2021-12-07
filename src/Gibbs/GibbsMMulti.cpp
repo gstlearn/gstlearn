@@ -486,7 +486,7 @@ void GibbsMMulti::_getEstimate(int ipgs0,
   // is set to 0 in order to avoid testing it in the next loop
   y[icase][iact0] = 0.;
 
-  double *wloc = &WEIGHTS(ivar0,0,0);
+  VectorDouble::iterator wloc = _weights.begin() + nact * nvar * ivar0;
   for (int jvar = 0; jvar < nvar; jvar++)
   {
     int jcase = getRank(ipgs0, jvar);
