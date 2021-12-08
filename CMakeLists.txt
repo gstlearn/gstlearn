@@ -1,6 +1,18 @@
 # Minimum CMake version
 cmake_minimum_required(VERSION 3.19)
 
+# Setup the gstlearn installation directory
+if(DEFINED GSTLEARN_INSTALL_DIR) # Check for CMake variable first
+  set(CMAKE_INSTALL_PREFIX ${GSTLEARN_INSTALL_DIR})
+else()
+  if(DEFINED ENV{GSTLEARN_INSTALL_DIR}) # Check for environment variable then
+    set(CMAKE_INSTALL_PREFIX $ENV{GSTLEARN_INSTALL_DIR})
+  else()
+    # Default installation folder (also referenced in pygstlearn/CMakeLists.txt)
+    set(CMAKE_INSTALL_PREFIX $ENV{HOME}/gstlearn_install)
+  endif()
+endif()
+
 # Permits using project VERSION
 cmake_policy(SET CMP0048 NEW)
 project(gstlearn 
@@ -92,9 +104,12 @@ set(HELP_MESSAGE
   - doxygen    Build doxygen documentation                    \r\n\
   - build_test Build non-regression tests executables         \r\n\
   - test       Execute non-regression tests                   \r\n\
+  - clean      Clean generated files from the build           \r\n\
   - install    Install libraries, headers and documentation   \r\n\
   - uninstall  Uninstall libraries, headers and documentation \r\n\
-  - clean      Clean generated files                          \r\n\
+                                                              \r\n\
+ Installation directory:                                      \r\n\
+  ${CMAKE_INSTALL_PREFIX}                                     \r\n\
                                                               \r\n"
 )
 

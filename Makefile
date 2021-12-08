@@ -16,9 +16,6 @@
 #  - DEBUG=1            Build the debug version of the library and tests (default =0)
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build)
-#  - INSTALL_DIR=<path> Define a specific build directory (default =$HOME/gstlearn_install)
-#
-# Note: You must have write access to INSTALL_DIR
 #
 
 .PHONY: all cmake static shared build_test test doxygen clean clean_all
@@ -33,11 +30,6 @@ ifndef BUILD_DIR
   BUILD_DIR = build
 endif
 
-ifndef GSTLEARN_INSTALL_DIR
-  # Default Linux installation folder also referenced in pygstlearn/CMakeLists.txt
-  GSTLEARN_INSTALL_DIR = ${HOME}/gstlearn_install
-endif
-
 ifdef N_PROC
   N_PROC_OPT = -- -j$(N_PROC)
 endif
@@ -45,7 +37,7 @@ endif
 all: static
 
 cmake:
-	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DCMAKE_INSTALL_PREFIX=$(GSTLEARN_INSTALL_DIR) -B$(BUILD_DIR) -H. 
+	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -B$(BUILD_DIR) -H. 
 
 static: cmake
 	@cmake --build $(BUILD_DIR) --target static $(N_PROC_OPT)
