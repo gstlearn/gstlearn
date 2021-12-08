@@ -359,6 +359,7 @@ GSTLEARN_EXPORT int xvalid(Db *db,
                            int flag_std = 1,
                            VectorInt rank_colcok = VectorInt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
+GSTLEARN_EXPORT int krimage_func(Db *dbgrid, Model *model, Neigh *neigh); // TODO : NamingConvention?
 GSTLEARN_EXPORT int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,

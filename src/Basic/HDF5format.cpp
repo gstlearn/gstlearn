@@ -865,7 +865,7 @@ void HDF5format::_writeAll(const char* type, void *a)
   catch (H5::Exception& error)
   {
     messerr("---> Problem in writeAll. Operation aborted");
-    error.printError();
+    EXCEPTION_PRINT_ERROR(error);
     return;
   }
 }
