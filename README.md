@@ -54,6 +54,15 @@ cmake --build build --target shared
 cmake --build build --target doxygen
 cmake --build build --target install
 ```
+or for those who prefer a single command line
+```
+mkdir -p build & cd build & cmake .. & make all install
+```
+or even faster
+```
+make
+```
+
 #### Microsoft Visual Studio, XCode, ...
 ```sh
 cmake -Bbuild -H.

@@ -1,18 +1,6 @@
 # Minimum CMake version
 cmake_minimum_required(VERSION 3.19)
 
-# Setup the gstlearn installation directory
-if(DEFINED GSTLEARN_INSTALL_DIR) # Check for CMake variable first
-  set(CMAKE_INSTALL_PREFIX ${GSTLEARN_INSTALL_DIR})
-else()
-  if(DEFINED ENV{GSTLEARN_INSTALL_DIR}) # Check for environment variable then
-    set(CMAKE_INSTALL_PREFIX $ENV{GSTLEARN_INSTALL_DIR})
-  else()
-    # Default installation folder (also referenced in pygstlearn/CMakeLists.txt)
-    set(CMAKE_INSTALL_PREFIX $ENV{HOME}/gstlearn_install)
-  endif()
-endif()
-
 # Permits using project VERSION
 cmake_policy(SET CMP0048 NEW)
 project(gstlearn 
@@ -38,6 +26,21 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   # Set the possible values of build type for cmake-gui
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+# Setup the gstlearn installation directory
+# https://stackoverflow.com/questions/39481958/setting-cmake-install-prefix-from-cmakelists-txt-file/39485990#39485990
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  if(DEFINED GSTLEARN_INSTALL_DIR) # Check for CMake variable first
+    set(CMAKE_INSTALL_PREFIX ${GSTLEARN_INSTALL_DIR} CACHE PATH "" FORCE)
+  else()
+    if(DEFINED ENV{GSTLEARN_INSTALL_DIR}) # Check for environment variable then
+      set(CMAKE_INSTALL_PREFIX $ENV{GSTLEARN_INSTALL_DIR} CACHE PATH "" FORCE)
+    else()
+      # Default installation folder (also referenced in pygstlearn/CMakeLists.txt)
+      set(CMAKE_INSTALL_PREFIX $ENV{HOME}/gstlearn_install CACHE PATH "" FORCE)
+    endif()
+  endif()
 endif()
 
 # Add c++11 support whatever the compiler
@@ -94,7 +97,7 @@ if(NOT TARGET uninstall)
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
 
-# Nothing is built by default (nothing in target 'all')
+# The target 'all' triggers 'static', 'shared' and 'doxygen'
 set(HELP_MESSAGE
 "                                                             \r\n\
  Thank you for compiling gstlearn!                            \r\n\

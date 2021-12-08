@@ -9,8 +9,8 @@ find_package(Boost REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
 # Define the targets
-add_library(shared SHARED EXCLUDE_FROM_ALL ${SOURCES})
-add_library(static STATIC EXCLUDE_FROM_ALL ${SOURCES})
+add_library(shared SHARED ${SOURCES})
+add_library(static STATIC ${SOURCES})
 
 ############################## Loop on flavor: shared and static
 set(FLAVORS shared static)
