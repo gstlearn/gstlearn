@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
+GSTLEARN_EXPORT void set_style(bool style);
 GSTLEARN_EXPORT int law_get_random_seed(void);
 GSTLEARN_EXPORT void law_set_random_seed(int seed);
 GSTLEARN_EXPORT double law_uniform(double mini, double maxi);

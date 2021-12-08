@@ -1142,8 +1142,8 @@ Model* model_init(int ndim,
   Model *model = nullptr;
 
   /// TODO : Force SpaceRN creation (modèle poubelle)
-  SpaceRN space(ndim);
-  CovContext ctxt = CovContext(nvar, 2, field, &space);
+  CovContext ctxt = CovContext(nvar, ndim);
+  ctxt.setField(field);
   ctxt.setBallRadius(ball_radius);
   if (static_cast<int>(mean.size()) > 0) ctxt.setMean(mean);
   if (static_cast<int>(covar0.size()) > 0) ctxt.setCovar0(covar0);
@@ -1564,8 +1564,7 @@ int model_add_tapering(Model *model, int tape_type, double tape_range)
  *****************************************************************************/
 double cova_get_scale_factor(const ECov &type, double param)
 {
-  SpaceRN space(1); // Retrieve all covariances
-  CovContext ctxt = CovContext(1, 1000, 0., &space);
+  CovContext ctxt = CovContext(1, 1);
   ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   return cova->getScadef();
@@ -3399,7 +3398,7 @@ void model_cova_characteristics(const ECov &type,
                                 double *parmax)
 {
   SpaceRN space(1); // Retrieve all covariances
-  CovContext ctxt = CovContext(1, 2, 0., &space);
+  CovContext ctxt = CovContext(1, 1);
   ACovFunc *cov = CovFactory::createCovFunc(type, ctxt);
   (void) gslStrcpy((char*) cov_name, cov->getCovName().c_str());
   *flag_range = cov->hasRange();

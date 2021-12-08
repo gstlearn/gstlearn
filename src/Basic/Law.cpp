@@ -13,10 +13,13 @@
 #include "geoslib_old_f.h"
 
 #include <math.h>
+#include <random>
 
 static int Random_factor    = 105;
 static int Random_congruent = 20000159;
 static int Random_value     = 43241421;
+static std::mt19937 Random_gen{(long unsigned int) Random_value};
+static bool Random_Old_Style = true;
 
 /*! \cond */
 #define TABIN_BY_COL(iech,ivar)       (tabin [(ivar) * nechin  + (iech)])
@@ -25,6 +28,15 @@ static int Random_value     = 43241421;
 #define TABOUT_BY_LINE(iech,ivar)     (tabout[(iech) * nvarout + (ivar)])
 #define CONSTS(iconst,ivar1)          (consts[(iconst) * nvar1 + (ivar1)])
 /*! \endcond */
+
+/**
+ * Set the type of Usage for Random Number Generation
+ * @param style true for using Old Style; false for using New Style
+ */
+void set_style(bool style)
+{
+  Random_Old_Style = style;
+}
 
 /*****************************************************************************/
 /*!
@@ -36,7 +48,10 @@ static int Random_value     = 43241421;
 int law_get_random_seed(void)
 
 {
-  return (Random_value);
+  if (Random_Old_Style)
+    return Random_value;
+  else
+    return Random_gen();
 }
 
 /*****************************************************************************/
@@ -49,8 +64,13 @@ int law_get_random_seed(void)
 void law_set_random_seed(int seed)
 
 {
-  if (seed > 0) Random_value = seed;
-
+  if (seed > 0)
+  {
+    if (Random_Old_Style)
+      Random_value = seed;
+    else
+      Random_gen.seed((long unsigned int) seed);
+  }
   return;
 }
 
@@ -72,9 +92,7 @@ double law_uniform(double mini, double maxi)
 
   random_product = Random_factor * Random_value;
   Random_value = random_product % Random_congruent;
-
   value = (double) Random_value / (double) Random_congruent;
-
   value = mini + value * (maxi - mini);
   return (value);
 }

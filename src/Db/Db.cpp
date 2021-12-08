@@ -750,7 +750,7 @@ int Db::getLocator(const String& name,
                    ELoc *ret_locatorType,
                    int *ret_locatorIndex) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return -1;
   return getLocator(iatts[0], ret_locatorType, ret_locatorIndex);
 }
@@ -792,7 +792,7 @@ VectorString Db::expandNameList(const String& names) const
   return expandList(_colNames, names);
 }
 
-VectorInt Db::ids(const String& name, bool flagOne) const
+VectorInt Db::_ids(const String& name, bool flagOne) const
 {
   VectorString exp_names = expandNameList(name);
   VectorInt iatts = getAttributesBasic(exp_names);
@@ -800,7 +800,7 @@ VectorInt Db::ids(const String& name, bool flagOne) const
   return iatts;
 }
 
-VectorInt Db::ids(const VectorString& names, bool flagOne) const
+VectorInt Db::_ids(const VectorString& names, bool flagOne) const
 {
   VectorString exp_names = expandNameList(names);
   VectorInt iatts = getAttributesBasic(exp_names);
@@ -808,7 +808,7 @@ VectorInt Db::ids(const VectorString& names, bool flagOne) const
   return iatts;
 }
 
-VectorInt Db::ids(const ELoc& locatorType, bool flagOne) const
+VectorInt Db::_ids(const ELoc& locatorType, bool flagOne) const
 {
   VectorString exp_names = getNames(locatorType);
   VectorInt iatts = getAttributesBasic(exp_names);
@@ -816,7 +816,7 @@ VectorInt Db::ids(const ELoc& locatorType, bool flagOne) const
   return iatts;
 }
 
-VectorInt Db::ids(const VectorInt& iatts, bool flagOne) const
+VectorInt Db::_ids(const VectorInt& iatts, bool flagOne) const
 {
   VectorString exp_names = getNames(iatts);
   if (! _isCountValid(iatts, flagOne)) return VectorInt();
@@ -1145,7 +1145,7 @@ void Db::setLocator(const VectorString& names,
                     int locatorIndex)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
-  VectorInt iatts = ids(names, false);
+  VectorInt iatts = _ids(names, false);
   if (iatts.empty()) return;
   for (unsigned int i = 0; i < iatts.size(); i++)
     setLocatorByAttribute(iatts[i], locatorType, locatorIndex + i);
@@ -1160,7 +1160,7 @@ void Db::setLocator(const VectorString& names,
 void Db::setLocator(const String& names, const ELoc& locatorType, int locatorIndex)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
-  VectorInt iatts = ids(names, false);
+  VectorInt iatts = _ids(names, false);
   if (iatts.empty()) return;
   for (unsigned int i = 0; i < iatts.size(); i++)
     setLocatorByAttribute(iatts[i], locatorType, locatorIndex + i);
@@ -1414,7 +1414,7 @@ void Db::setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel)
 
 void Db::setField(const VectorDouble& tab, const String& name, bool useSel)
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return;
   setFieldByAttribute(tab.data(), iatts[0], useSel);
 }
@@ -1432,7 +1432,7 @@ void Db::duplicateColumnByAttribute(int iatt_in, int iatt_out)
 
 void Db::deleteField(const String& names)
 {
-  VectorInt iatts = ids(names, false);
+  VectorInt iatts = _ids(names, false);
   if (iatts.empty()) return;
 
   for (unsigned int i = 0; i < iatts.size(); i++)
@@ -1441,7 +1441,7 @@ void Db::deleteField(const String& names)
 
 void Db::deleteField(const VectorString& names)
 {
-  VectorInt iatts = ids(names, false);
+  VectorInt iatts = _ids(names, false);
   if (iatts.empty()) return;
 
   for (unsigned int i = 0; i < iatts.size(); i++)
@@ -1650,7 +1650,7 @@ double Db::getFieldSize(bool useSel) const
 
 double Db::getMinimum(const String& name, bool useSel) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return TEST;
   VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_min(tab);
@@ -1658,7 +1658,7 @@ double Db::getMinimum(const String& name, bool useSel) const
 
 double Db::getMaximum(const String& name, bool useSel) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return TEST;
   VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_max(tab);
@@ -1666,7 +1666,7 @@ double Db::getMaximum(const String& name, bool useSel) const
 
 double Db::getMean(const String& name, bool useSel) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return TEST;
   VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_mean(tab);
@@ -1674,7 +1674,7 @@ double Db::getMean(const String& name, bool useSel) const
 
 double Db::getVariance(const String& name, bool useSel) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return TEST;
   VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_var(tab);
@@ -1682,7 +1682,7 @@ double Db::getVariance(const String& name, bool useSel) const
 
 double Db::getStdv(const String& name, bool useSel) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return TEST;
   VectorDouble tab = getFieldByAttribute(iatts[0], useSel);
   return ut_vector_stdv(tab);
@@ -2585,7 +2585,7 @@ int Db::getActiveAndDefinedNumber(int item) const
  */
 int Db::getActiveAndDefinedNumber(const String& name) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return 0;
   VectorDouble tab = getFieldByAttribute(iatts[0], false);
 
@@ -2677,7 +2677,7 @@ int Db::getLastAttribute(int number) const
 String Db::getLastName(int number) const
 {
   int iatt = getLastAttribute(number);
-  String name = getName(iatt);
+  String name = getNameByAttribute(iatt);
   return name;
 }
 
@@ -2696,7 +2696,7 @@ String Db::getName(const ELoc& locatorType, int locatorIndex) const
   return _colNames[icol];
 }
 
-String Db::getName(int iatt) const
+String Db::getNameByAttribute(int iatt) const
 {
   int icol = getColumnByAttribute(iatt);
   if (icol < 0) return ("");
@@ -2979,7 +2979,7 @@ void Db::displayMore(unsigned char params,
                      bool flagSel,
                      int mode) const
 {
-  VectorInt iatts = ids(names, false);
+  VectorInt iatts = _ids(names, false);
   if (iatts.empty()) return;
   VectorInt cols = getColumnByAttribute(iatts);
   messageFlush(_display(params, cols, flagSel, mode));
@@ -3087,7 +3087,7 @@ VectorDouble Db::getFieldByLocator(const ELoc& locatorType,
 
 VectorDouble Db::getField(const String& name, bool useSel) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return VectorDouble();
   int icol = getColumnByAttribute(iatts[0]);
   if (icol < 0) return VectorDouble();
@@ -3161,7 +3161,7 @@ VectorDouble Db::getFields(const VectorString& names, bool useSel) const
   if (names.empty())
     iatts = getAttributes();
   else
-    iatts = ids(names, false);
+    iatts = _ids(names, false);
   return getFieldsByAttribute(iatts, useSel);
 }
 
@@ -3237,7 +3237,7 @@ VectorInt Db::getColumnsByAttribute(const ELoc& locatorType) const
  */
 int Db::getAttribute(const String& name) const
 {
-  VectorInt iatts = ids(name, true);
+  VectorInt iatts = _ids(name, true);
   if (iatts.empty()) return -1;
   int icol = getColumnByAttribute(iatts[0]);
   return _getAttributeByColumn(icol);
@@ -3473,7 +3473,7 @@ VectorDouble Db::statistics(const VectorString& names,
                             const String& title,
                             const NamingConvention& namconv)
 {
-  VectorInt iatts = ids(names, false);
+  VectorInt iatts = _ids(names, false);
   if (iatts.empty()) return VectorDouble();
   return _statistics(iatts, opers, flagIso, flagVariableWise, flagPrint, proba,
                      vmin, vmax, title, namconv);
@@ -3504,7 +3504,7 @@ VectorDouble Db::statisticsMulti(const VectorString& names,
                                  bool flagPrint,
                                  const String& title)
 {
-  VectorInt iatts = ids(names, false);
+  VectorInt iatts = _ids(names, false);
   if (iatts.empty()) return VectorDouble();
 
   return _statisticsMulti(iatts, flagIso, flagPrint, title);
@@ -3865,7 +3865,7 @@ bool Db::_isCountValid(const VectorInt iatts, bool flagOne) const
       messerr("You wanted to designate a SINGLE variable.");
       messerr("There are several variables matching your criterion:");
       for (unsigned int i = 0; i < iatts.size(); i++)
-        messerr("- %s", getName(iatts[i]).c_str());
+        messerr("- %s", getNameByAttribute(iatts[i]).c_str());
       return false;
     }
   }

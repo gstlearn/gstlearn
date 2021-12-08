@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   /* Identify the covariance */
 
   SpaceRN space = SpaceRN(ndim);
-  CovContext ctxt = CovContext(1, order, 0., &space);
+  CovContext ctxt = CovContext(1, ndim);
   ECov type = CovFactory::identifyCovariance(cov_name, ctxt);
   if (type == ECov::UNKNOWN)
     return 1;
@@ -100,12 +100,11 @@ int main(int argc, char *argv[])
 
   int seed = 10355;
   law_set_random_seed(seed);
-
   std::normal_distribution<double> d{0,1};
   std::mt19937 gen{seed};
 
   double val = d(gen);
-  std::cout << "Gaussian std " << val <<std::endl;
+  std::cout << "Gaussian std " << val << std::endl;
   std::cout << "Gaussian Didier" << law_gaussian() <<std::endl;
 
 

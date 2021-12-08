@@ -101,7 +101,7 @@ public:
 
   const VectorDouble& getArrays() const { return _array; }
   String getNameByColumn(int icol) const { return _colNames[icol]; }
-  String getName(int iatt) const;
+  String getNameByAttribute(int iatt) const;
   String getName(const ELoc& locatorType, int locatorIndex=0) const;
   VectorString getNames(const VectorString& names) const;
   VectorString getNames(const String& name) const;
@@ -126,10 +126,6 @@ public:
 
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
-  VectorInt ids(const String& name, bool flagOne) const;
-  VectorInt ids(const VectorString& names, bool flagOne) const;
-  VectorInt ids(const ELoc& locatorType, bool flagOne) const;
-  VectorInt ids(const VectorInt& iatts, bool flagOne) const;
 
   void reset(int ncol, int nech);
 
@@ -568,6 +564,10 @@ private:
   int _findColumnInLocator(const ELoc& locatorType, int icol) const;
   int _findAttributeInLocator(const ELoc& locatorType, int iatt) const;
   String _getLocatorNameByColumn(int icol) const;
+  VectorInt _ids(const String& name, bool flagOne) const;
+  VectorInt _ids(const VectorString& names, bool flagOne) const;
+  VectorInt _ids(const ELoc& locatorType, bool flagOne) const;
+  VectorInt _ids(const VectorInt& iatts, bool flagOne) const;
 
   // Higher level methods
   VectorDouble _statistics(const VectorInt& iatts,

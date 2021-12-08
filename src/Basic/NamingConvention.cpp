@@ -183,7 +183,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
 
   VectorString names;
   for (int ivar = 0; ivar < nvar; ivar++)
-    names.push_back(dbin->getName(iatts[ivar]));
+    names.push_back(dbin->getNameByAttribute(iatts[ivar]));
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
  }
@@ -210,7 +210,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   if (dbin == nullptr) return;
 
   VectorString names;
-  names.push_back(dbin->getName(iatt));
+  names.push_back(dbin->getNameByAttribute(iatt));
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, 1, nitems, flagLocate);
  }

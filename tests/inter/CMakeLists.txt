@@ -1,6 +1,7 @@
 # List the source files
 set(TEST_SOURCES 
-  testInter_Ask.cpp)
+  testInter_Ask.cpp
+  testInter_GibbsMMulti.cpp)
 
 # Compile each executable
 foreach(TEST_SOURCE_FILE ${TEST_SOURCES})

@@ -21,11 +21,14 @@ class Db;
 class GSTLEARN_EXPORT CovContext : public ASpaceObject
 {
 public:
-  /// TODO : default context (1 variable, big max IRF degree, and field size of 1) ok ?
   CovContext(int nvar = 1,
+             const ASpace* space = nullptr,
              int irfMaxDegree = 1000,
-             double field = 1,
-             const ASpace* space = nullptr);
+             double field = 1);
+  CovContext(int nvar,
+             int ndim,
+             int irfMaxDegree = 1000,
+             double field = 1.);
   CovContext(const Db *db,
              int irfMaxDegree = 1000,
              const ASpace* space = nullptr);

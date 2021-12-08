@@ -32,6 +32,7 @@ class GSTLEARN_EXPORT ASpaceObject : public AStringable
 {
 public:
   ASpaceObject(const ASpace* space = nullptr);
+  ASpaceObject(const ASpace& space);
   ASpaceObject(const ASpaceObject& r);
   ASpaceObject& operator= (const ASpaceObject& r);
   virtual ~ASpaceObject();

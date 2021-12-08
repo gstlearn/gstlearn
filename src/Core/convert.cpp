@@ -583,7 +583,8 @@ static unsigned char st_in(FILE *file)
 {
   unsigned char c;
 
-  if ((c = fgetc(file)) != EOF) return (c);
+  c = fgetc(file);
+  if (! feof(file)) return c;
 
   if (feof(file)) message(" End-of-file reached\n");
   if (ferror(file)) message(" A READ error occured (%d)\n", ferror(file));

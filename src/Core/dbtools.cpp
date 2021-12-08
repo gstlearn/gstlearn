@@ -6410,8 +6410,8 @@ int migrate(Db *db1,
             int flag_inter,
             const NamingConvention &namconv)
 {
-  VectorInt iatts = db1->ids(name, true);
-  if (iatts.empty()) return 1;
+  int iatt = db1->getAttribute(name);
+  if (iatt < 0) return 1;
 
   // Create the output variables
 
@@ -6419,7 +6419,7 @@ int migrate(Db *db1,
 
   // Perform the migration
 
-  if (st_migrate(db1, db2, iatts[0], iatt0, ldmax, dmax, flag_fill, flag_inter))
+  if (st_migrate(db1, db2, iatt, iatt0, ldmax, dmax, flag_fill, flag_inter))
     return 1;
 
   // Set the output variable names and locators

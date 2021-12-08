@@ -14,14 +14,31 @@
 #include "Space/ASpace.hpp"
 #include "Basic/Vector.hpp"
 #include "Variogram/Vario.hpp"
+#include "Space/SpaceRN.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_f.h"
 
 CovContext::CovContext(int nvar,
+                       const ASpace* space,
                        int irfMaxDegree,
-                       double field,
-                       const ASpace* space)
+                       double field)
+
 : ASpaceObject(space)
+,  _nVar(nvar)
+,  _irfMaxDegree(irfMaxDegree)
+,  _field(field)
+,  _ballRadius(0.)
+,  _mean()
+,  _covar0()
+{
+  _update();
+}
+
+CovContext::CovContext(int nvar,
+                       int ndim,
+                       int irfMaxDegree,
+                       double field)
+: ASpaceObject(SpaceRN(ndim))
 ,  _nVar(nvar)
 ,  _irfMaxDegree(irfMaxDegree)
 ,  _field(field)

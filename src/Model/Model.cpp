@@ -562,7 +562,7 @@ int Model::deSerialize(const String &filename, bool verbose)
 
   /// TODO : Force SpaceRN creation (deSerialization doesn't know yet how to manage other space types)
   SpaceRN space(ndim);
-  _ctxt = CovContext(nvar, 2, field, &space);
+  _ctxt = CovContext(nvar, &space, 2, field);
   _ctxt.setBallRadius(radius);
   _create(false, false);
 
