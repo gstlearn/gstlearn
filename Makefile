@@ -57,10 +57,10 @@ doxygen: cmake
 # TODO : I would like to install only static (but find_package(gstlearn) requires both!
 # TODO : doxygen is always executed even if up-to-date
 install: static shared doxygen
-	@cmake --build $(BUILD_DIR) --target install
+	@cmake --build $(BUILD_DIR) --target install -- --no-print-directory $(N_PROC_OPT)
 
 uninstall: 
-	@cmake --build $(BUILD_DIR) --target uninstall
+	@cmake --build $(BUILD_DIR) --target uninstall -- --no-print-directory $(N_PROC_OPT)
 
 clean: 
 	@cmake --build $(BUILD_DIR) --target clean -- --no-print-directory $(N_PROC_OPT)
