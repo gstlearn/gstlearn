@@ -63,12 +63,12 @@ cmake --build build --target doxygen
 cmake --build build --target install --config Release
 ```
 Notes:
-  * The default installation directory named `gstlearn_install` is located in your *Home*. If you want to change it, you can either:
-    * Define the `GSTLEARN_INSTALL_DIR` environment variable
+  * The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can either:
+    * Define the `GSTLEARN_INSTALL_DIR` environment variable or
     * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first command above
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
   * The *static* version of the library is mandatory for creating [pygstlearn package](https://github.com/gstlearn/pygstlearn)
-  * You may need to precise the location of Boost or HDF5 installation directory (which contain include and lib folders), in that case, add the following in the first command above:
+  * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
     * `-DBoost_ROOT=<path/to/boost/install/dir>`
     * `-DHDF5_ROOT=<path/to/hdf5/install/dir>`
 
