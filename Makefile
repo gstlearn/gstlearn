@@ -49,7 +49,7 @@ build_test: shared
 	@cmake --build $(BUILD_DIR) --target build_test -- --no-print-directory $(N_PROC_OPT)
 
 test: build_test
-	@cmake --build $(BUILD_DIR) --target test -- --no-print-directory $(N_PROC_OPT)
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target test -- --no-print-directory $(N_PROC_OPT)
 
 doxygen: cmake
 	@cmake --build $(BUILD_DIR) --target doxygen -- --no-print-directory $(N_PROC_OPT)
