@@ -98,17 +98,16 @@ int main(int argc, char *argv[])
 
 
 
-  int seed = 10355;
+  int seed = 432432;
   law_set_random_seed(seed);
-  std::normal_distribution<double> d{0,1};
-  std::mt19937 gen{seed};
+  std::mt19937 gen;
+  gen.seed(seed);
 
+  std::normal_distribution<double> d{0,1};
   double val = d(gen);
+
   std::cout << "Gaussian std " << val << std::endl;
   std::cout << "Gaussian Didier" << law_gaussian() <<std::endl;
-
-
-
 
   return 0;
   ///////////////////////

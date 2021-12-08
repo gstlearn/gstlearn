@@ -12,14 +12,14 @@
 
 #include "gstlearn_export.hpp"
 
-GSTLEARN_EXPORT void set_style(bool style);
+GSTLEARN_EXPORT void law_set_old_style(bool style);
 GSTLEARN_EXPORT int law_get_random_seed(void);
 GSTLEARN_EXPORT void law_set_random_seed(int seed);
-GSTLEARN_EXPORT double law_uniform(double mini, double maxi);
+GSTLEARN_EXPORT double law_uniform(double mini=0., double maxi=1.);
 GSTLEARN_EXPORT int law_int_uniform(int mini, int maxi);
 GSTLEARN_EXPORT double law_gaussian(void);
-GSTLEARN_EXPORT double law_exponential(void);
-GSTLEARN_EXPORT double law_gamma(double parameter);
+GSTLEARN_EXPORT double law_exponential(double lambda = 1.);
+GSTLEARN_EXPORT double law_gamma(double alpha, double beta = 1.);
 GSTLEARN_EXPORT int law_poisson(double parameter);
 GSTLEARN_EXPORT double law_stable_standard_agd(double alpha, double beta);
 GSTLEARN_EXPORT double law_stable_standard_a1gd(double beta);

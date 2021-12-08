@@ -18,8 +18,8 @@
 static int Random_factor    = 105;
 static int Random_congruent = 20000159;
 static int Random_value     = 43241421;
-static std::mt19937 Random_gen{(long unsigned int) Random_value};
 static bool Random_Old_Style = true;
+std::mt19937 Random_gen;
 
 /*! \cond */
 #define TABIN_BY_COL(iech,ivar)       (tabin [(ivar) * nechin  + (iech)])
@@ -33,7 +33,7 @@ static bool Random_Old_Style = true;
  * Set the type of Usage for Random Number Generation
  * @param style true for using Old Style; false for using New Style
  */
-void set_style(bool style)
+void law_set_old_style(bool style)
 {
   Random_Old_Style = style;
 }
@@ -48,10 +48,7 @@ void set_style(bool style)
 int law_get_random_seed(void)
 
 {
-  if (Random_Old_Style)
-    return Random_value;
-  else
-    return Random_gen();
+  return Random_value;
 }
 
 /*****************************************************************************/
@@ -66,10 +63,9 @@ void law_set_random_seed(int seed)
 {
   if (seed > 0)
   {
-    if (Random_Old_Style)
-      Random_value = seed;
-    else
-      Random_gen.seed((long unsigned int) seed);
+    Random_value = seed;
+    if (! Random_Old_Style)
+      Random_gen.seed((unsigned) seed);
   }
   return;
 }
@@ -87,13 +83,21 @@ void law_set_random_seed(int seed)
 double law_uniform(double mini, double maxi)
 
 {
-  double value;
-  unsigned int random_product;
+  double value = 0.;
 
-  random_product = Random_factor * Random_value;
-  Random_value = random_product % Random_congruent;
-  value = (double) Random_value / (double) Random_congruent;
-  value = mini + value * (maxi - mini);
+  if (Random_Old_Style)
+  {
+    unsigned int random_product;
+    random_product = Random_factor * Random_value;
+    Random_value = random_product % Random_congruent;
+    value = (double) Random_value / (double) Random_congruent;
+    value = mini + value * (maxi - mini);
+  }
+  else
+  {
+    std::uniform_real_distribution<double> d{mini,maxi};
+    value = d(Random_gen);
+  }
   return (value);
 }
 
@@ -128,13 +132,20 @@ int law_int_uniform(int mini, int maxi)
 double law_gaussian(void)
 
 {
-  double random1, random2, val;
+  double value = 0.;
 
-  random1 = law_uniform(0., 1.);
-  random2 = law_uniform(0., 2. * GV_PI);
-  val = sqrt(-2. * log(random1)) * cos(random2);
-
-  return (val);
+  if (Random_Old_Style)
+  {
+    double random1 = law_uniform(0., 1.);
+    double random2 = law_uniform(0., 2. * GV_PI);
+    value = sqrt(-2. * log(random1)) * cos(random2);
+  }
+  else
+  {
+    std::normal_distribution<double> d{0.,1.};
+    value = d(Random_gen);
+  }
+  return value;
 }
 
 /*****************************************************************************/
@@ -143,16 +154,25 @@ double law_gaussian(void)
  **
  ** \return  Exponential random value
  **
+ ** \param[in]  param Parameter of exponential distribution
+ **
  *****************************************************************************/
-double law_exponential(void)
+double law_exponential(double lambda)
 
 {
-  double result;
+  double value = 0;
 
-  result = law_uniform(0., 1.);
-  result = -log(result);
-
-  return (result);
+  if (Random_Old_Style)
+  {
+    value = law_uniform(0., 1.);
+    value = -log(value) / lambda;
+  }
+  else
+  {
+    std::exponential_distribution<double> d(lambda);
+    value = d(Random_gen);
+  }
+  return value;
 }
 
 /*****************************************************************************/
@@ -161,56 +181,66 @@ double law_exponential(void)
  **
  ** \return  Gamma random value
  **
- ** \param[in]  parameter parameter of the gamma distribution
+ ** \param[in]  alpha parameter of the gamma distribution
+ ** \param[in]  beta  Second parameter of the Gamma distribution
  **
  *****************************************************************************/
-double law_gamma(double parameter)
+double law_gamma(double alpha, double beta)
 
 {
-  double c1, c2, c3, t, v, res;
-  int test;
+  double value = 0.;
+  if (alpha <= 0.) return (TEST);
 
-  if (parameter <= 0.) return (TEST);
-
-  if (fabs((double) parameter - 1.) < 0.00001)
-    return (-log(law_uniform(0., 1.)));
-  else if (parameter > 1.)
+  if (Random_Old_Style)
   {
-    c1 = parameter - 1.;
-    c2 = parameter + c1;
-    c3 = sqrt(c2);
-    do
+
+    if (fabs((double) alpha - 1.) < 0.00001)
+      return (-log(law_uniform(0., 1.)));
+    else if (alpha > 1.)
     {
-      t = c3 * tan(GV_PI * (law_uniform(-0.5, 0.5)));
-      res = c1 + t;
+      double c1 = alpha - 1.;
+      double c2 = alpha + c1;
+      double c3 = sqrt(c2);
+      double t;
+      do
+      {
+        t = c3 * tan(GV_PI * (law_uniform(-0.5, 0.5)));
+        value = c1 + t;
+      }
+      while (value < 0
+          || law_uniform(0., 1.) > exp(c1 * log(value / c1) - t + log(1 + t * t / c2)));
+      return (value);
     }
-    while (res < 0
-        || law_uniform(0., 1.) > exp(
-            c1 * log(res / c1) - t + log(1 + t * t / c2)));
-    return (res);
+    else
+    {
+      double c1 = 1. + alpha / GV_EE;
+      double c2 = 1 / alpha;
+      double c3 = alpha - 1;
+      int test;
+      do
+      {
+        double v = law_uniform(0., 1.);
+        value = c1 * law_uniform(0., 1.);
+        if (value <= 1)
+        {
+          value = pow(value, c2);
+          test = (v >= exp(-value));
+        }
+        else
+        {
+          value = -log((c1 - value) * c2);
+          test = (log(v) > c3 * log(value));
+        }
+      }
+      while (test);
+      return (value);
+    }
   }
   else
   {
-    c1 = 1. + parameter / GV_EE;
-    c2 = 1 / parameter;
-    c3 = parameter - 1;
-    do
-    {
-      v = law_uniform(0., 1.);
-      res = c1 * law_uniform(0., 1.);
-      if (res <= 1)
-      {
-        res = pow(res, c2);
-        test = (v >= exp(-res));
-      }
-      else
-      {
-        res = -log((c1 - res) * c2);
-        test = (log(v) > c3 * log(res));
-      }
-    }
-    while (test);
-    return (res);
+    std::gamma_distribution<double> d(alpha, beta);
+    value = d(Random_gen);
+    return value;
   }
 }
 
@@ -221,6 +251,7 @@ double law_gamma(double parameter)
  ** \return  Stable value with std. parameters (beta=gamma=1,delta=0,alpha!=1)
  **
  ** \param[in]  alpha  value of the alpha parameter
+ **
  *****************************************************************************/
 double law_stable_standard_abgd(double alpha)
 {
@@ -228,14 +259,13 @@ double law_stable_standard_abgd(double alpha)
 
   b = GV_PI / 2;
   unif = law_uniform(-b, b);
-  expo = law_exponential();
+  expo = law_exponential(1.);
   ialpha = 1. / alpha;
   if (alpha > 1) b *= (1 - 2. / alpha);
   temp = alpha * (unif + b);
   res = sin(temp) / pow(cos(unif), ialpha);
   res *= pow(cos(unif - temp) / expo, ialpha - 1.);
-  res = (!FFFF(unif) && !FFFF(expo)) ? res :
-                                       TEST;
+  res = (!FFFF(unif) && !FFFF(expo)) ? res : TEST;
   return (res);
 }
 
@@ -247,6 +277,7 @@ double law_stable_standard_abgd(double alpha)
  **
  ** \param[in]  alpha  value of the alpha parameter
  ** \param[in]  beta   value of the beta parameter
+ **
  *****************************************************************************/
 double law_stable_standard_agd(double alpha, double beta)
 {
@@ -255,7 +286,7 @@ double law_stable_standard_agd(double alpha, double beta)
   temp = alpha * GV_PI / 2;
   ialpha = 1. / alpha;
   unif = law_uniform(-temp, temp);
-  expo = law_exponential();
+  expo = law_exponential(1.);
   unif_norm = unif * ialpha;
   temp1 = beta * tan(temp);
   b = atan(temp1);
@@ -282,7 +313,7 @@ double law_stable_standard_a1gd(double beta)
 
   temp = GV_PI / 2;
   unif = law_uniform(-temp, temp);
-  expo = law_exponential();
+  expo = law_exponential(1.);
   temp2 = temp + beta * unif;
   res = temp2 * tan(unif);
   res -= beta * log(expo * cos(unif) / temp2);
@@ -369,11 +400,10 @@ double law_beta1(double parameter1, double parameter2)
 {
   double a, b, res;
 
-  a = law_gamma(parameter1);
-  b = law_gamma(parameter2);
+  a = law_gamma(parameter1,1.);
+  b = law_gamma(parameter2,1.);
 
-  res = (!FFFF(a) && !FFFF(b)) ? a / (a + b) :
-                                 TEST;
+  res = (!FFFF(a) && !FFFF(b)) ? a / (a + b) : TEST;
   return (res);
 }
 
@@ -391,11 +421,10 @@ double law_beta2(double parameter1, double parameter2)
 {
   double a, b, res;
 
-  a = law_gamma(parameter1);
-  b = law_gamma(parameter2);
+  a = law_gamma(parameter1,1.);
+  b = law_gamma(parameter2,1.);
 
-  res = (!FFFF(a) && !FFFF(b)) ? a / b :
-                                 TEST;
+  res = (!FFFF(a) && !FFFF(b)) ? a / b : TEST;
   return (res);
 }
 
@@ -413,8 +442,7 @@ double law_df_gaussian(double value)
 {
   double val;
 
-  val = (ABS(value) > 10) ? 0 :
-                            exp(-value * value / 2.);
+  val = (ABS(value) > 10) ? 0 : exp(-value * value / 2.);
   return (val / sqrt(2. * GV_PI));
 }
 
@@ -818,47 +846,55 @@ double law_df_multigaussian(int nvar, double *vect, double *corr)
  *****************************************************************************/
 int law_poisson(double parameter)
 {
-  double x, t, p, q;
-  int k, n, ok;
-
-  k = 0;
-  t = parameter;
-
-  while (t >= 16)
+  if (Random_Old_Style)
   {
-    n = (int) floor(0.875 * t);
-    x = law_gamma((double) n);
-    if (FFFF(x)) return (ITEST);
+    double x, p, q;
+    int n, ok;
 
-    if (x > t)
+    int k = 0;
+    double t = parameter;
+
+    while (t >= 16)
     {
-      p = t / x;
-      ok = 1;
-      while (ok)
+      n = (int) floor(0.875 * t);
+      x = law_gamma((double) n, 1.);
+      if (FFFF(x)) return (ITEST);
+
+      if (x > t)
       {
-        if (law_uniform(0., 1.) <= p) k++;
-        if (n-- <= 1) ok = 0;
+        p = t / x;
+        ok = 1;
+        while (ok)
+        {
+          if (law_uniform(0., 1.) <= p) k++;
+          if (n-- <= 1) ok = 0;
+        }
+        return (k);
       }
-      return (k);
+      else
+      {
+        k += n;
+        t -= x;
+      }
     }
-    else
+
+    p = 1;
+    q = exp(-t);
+
+    ok = 1;
+    while (ok)
     {
-      k += n;
-      t -= x;
+      p *= law_uniform(0., 1.);
+      if (p < q) ok = 0;
+      k++;
     }
+    return (k - 1);
   }
-
-  p = 1;
-  q = exp(-t);
-
-  ok = 1;
-  while (ok)
+  else
   {
-    p *= law_uniform(0., 1.);
-    if (p < q) ok = 0;
-    k++;
+    std::poisson_distribution<int> d(parameter);
+    return d(Random_gen);
   }
-  return (k - 1);
 }
 
 /****************************************************************************/
