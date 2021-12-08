@@ -75,6 +75,24 @@ Db::Db(int nech,
 
 }
 
+/**
+ * Creating a Db regular grid of any dimension
+ *
+ * @param nx            A vector of the number of grid meshes.
+ *                      The number of items in this argument gives the dimension of the space.
+ *                      (size = ndim)
+ * @param dx            Vector cell meshes size in each direction (size = ndim)
+ * @param x0            Vecor of origin coordinates (size = ndim)
+ * @param angles        Array giving the rotation angles (only for dimension 2 or 3).
+ *                      The first angle corresponds to the rotation around OZ axis,
+ *                      the second to a rotation around OY'and the third one around Ox.
+ *                      The dimension of this array cannot exceed the space dimension.
+ * @param order         Flag for values order in 'tab' (defined ELoadBy.hpp)
+ * @param tab           Variable values array (size = nvar * nsamples)
+ * @param names         Variable names (size = nvar)
+ * @param locatorNames  Locators for each variable (size = nvar)
+ * @param flag_add_rank If 1, add an automatic rank variable
+ */
 Db::Db(const VectorInt& nx,
        const VectorDouble& dx,
        const VectorDouble& x0,
