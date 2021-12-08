@@ -20,8 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    # install dependencies
-    - name: boost and hdf5
+    - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen
       
     - name: Configure CMake
