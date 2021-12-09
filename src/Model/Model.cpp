@@ -14,6 +14,7 @@
 #include "Drifts/ADriftList.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/AException.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -807,4 +808,76 @@ Model* Model::duplicate() const
     model->addCova(getCova(i));
 
   return model;
+}
+
+void Model::covmatMatrix(Db *db1,
+                         Db *db2,
+                         int ivar0,
+                         int jvar0,
+                         int flag_norm,
+                         int flag_cov,
+                         VectorDouble& covmat)
+{
+  model_covmat(this, db1, db2, ivar0, jvar0, flag_norm, flag_cov, covmat.data());
+}
+
+/**
+ * Evaluate the Goodness-of_fit of the Model on the Experimental Variogram
+ * It is expressed as the average departure between Model and Variogram
+ * scaled to the sill
+ * @param vario Experimental variogram
+ * @return Value for the Goodness-of_fot
+ */
+double Model::gofToVario(const Vario* vario)
+{
+  VectorDouble hh, gg;
+
+  int nvar = getVariableNumber();
+  int ndir = vario->getDimensionNumber();
+
+  double total = 0.;
+
+  // Loop on the pair of variables
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double sill = getTotalSill(ivar, jvar);
+
+      // Loop on the variogram directions
+
+      double totdir = 0.;
+      for (int idir = 0; idir < ndir; idir++)
+      {
+
+        // Read information from Experimental Variogram
+
+        VectorDouble codir = vario->getCodir(idir);
+        VectorDouble hh = vario->getHhVec(idir, ivar, jvar);
+        VectorDouble gexp = vario->getGgVec(idir, ivar, jvar);
+
+        // Evaluate the Model
+
+        int npas = gexp.size();
+        VectorDouble gmod(npas);
+        model_evaluate(this, ivar, jvar, -1, 0, 0, 0, 0, 0, ECalcMember::LHS,
+                       npas, codir, hh.data(), gmod.data());
+
+        // Evaluate the score
+
+        double totpas = 0;
+        for (int ipas = 0; ipas < npas; ipas++)
+        {
+          double ecart = gexp[ipas] - gmod[ipas];
+          totpas += ecart * ecart;
+        }
+        totpas /= (double) npas;
+        totdir += totpas;
+      }
+      totdir /= (double) ndir;
+      totdir /= sill;
+      total  += ABS(totdir);
+    }
+  total /= (double) (nvar * nvar);
+  return total;
 }

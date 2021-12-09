@@ -154,12 +154,19 @@ public:
 
   int hasExternalCov() const;
 
+  void covmatMatrix(Db *db1,
+                    Db *db2,
+                    int ivar0,
+                    int jvar0,
+                    int flag_norm,
+                    int flag_cov,
+                    VectorDouble& covmat);
   VectorDouble sample(double hmax,
-                    int nh = 100,
-                    int ivar = 0,
-                    int jvar = 0,
-                    VectorDouble codir = VectorDouble(),
-                    int norder = 0);
+                      int nh = 100,
+                      int ivar = 0,
+                      int jvar = 0,
+                      VectorDouble codir = VectorDouble(),
+                      int norder = 0);
 
   // TODO : Remove Model::fit duplicate declaration
   int fit(Vario *vario,
@@ -174,6 +181,8 @@ public:
           Option_AutoFit mauto = Option_AutoFit(),
           const Constraints& constraints = Constraints(),
           Option_VarioFit optvar = Option_VarioFit());
+
+  double gofToVario(const Vario* vario);
 
 private:
   void _create(bool flagGradient, bool flagLinked);
