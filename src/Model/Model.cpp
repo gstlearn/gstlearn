@@ -25,6 +25,8 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
+#include <math.h>
+
 Model::Model(const CovContext &ctxt, bool flagGradient, bool flagLinked)
     :
     AStringable(),
@@ -826,14 +828,12 @@ void Model::covmatMatrix(Db *db1,
  * It is expressed as the average departure between Model and Variogram
  * scaled to the sill
  * @param vario Experimental variogram
- * @return Value for the Goodness-of_fot
+ * @return Value for the Goodness-of_fit (as percentage of the total sill)
  */
 double Model::gofToVario(const Vario* vario)
 {
-  VectorDouble hh, gg;
-
   int nvar = getVariableNumber();
-  int ndir = vario->getDimensionNumber();
+  int ndir = vario->getDirectionNumber();
 
   double total = 0.;
 
@@ -871,13 +871,13 @@ double Model::gofToVario(const Vario* vario)
           double ecart = gexp[ipas] - gmod[ipas];
           totpas += ecart * ecart;
         }
-        totpas /= (double) npas;
+        totpas  = sqrt(totpas) / (double) npas;
         totdir += totpas;
       }
       totdir /= (double) ndir;
       totdir /= sill;
       total  += ABS(totdir);
     }
-  total /= (double) (nvar * nvar);
+  total = 100. * total / (double) (nvar * nvar);
   return total;
 }

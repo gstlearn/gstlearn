@@ -1,15 +1,1 @@
-
-Model characteristics
-=====================
-Space dimension              = 3
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-Spherical
-- Sill         =      0.743
-- Range        =      6.521
-Total Sill     =      0.743
+Goodness of Fit = 4.20 percent of the Sill

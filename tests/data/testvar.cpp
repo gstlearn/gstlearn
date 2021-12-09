@@ -120,11 +120,16 @@ int main(int argc, char *argv[])
   if (flag_norm_sill) opt_mauto_add_unit_constraints(mauto);
   options.setFlagGoulardUsed(flag_goulard_used);
   (void) model_auto_fit(vario,model,verbose,mauto,constraints,options);
-  model->display();
+  // Model is not printed any more to avoid differences among platforms
+  //  model->display();
   ascii_filename("Model",0,1,filename);
   if (model->serialize(filename,verbose))
     messageAbort("ascii_model_write");
   
+  // produce the Goodness-of-fit score
+
+  message("Goodness of Fit =%5.2lf percent of the Sill\n",model->gofToVario(vario));
+
 /* Core deallocation */
 
 label_end:
