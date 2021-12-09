@@ -8,16 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_old_f.h"
+#include "Basic/Law.hpp"
 
 #include <math.h>
 #include <random>
 
-static int Random_factor    = 105;
-static int Random_congruent = 20000159;
-static int Random_value     = 43241421;
+static int Random_factor     = 105;
+static int Random_congruent  = 20000159;
+static int Random_value      = 43241421;
 static bool Random_Old_Style = true;
 std::mt19937 Random_gen;
 
@@ -128,21 +129,25 @@ int law_int_uniform(int mini, int maxi)
  **
  ** \return  Gaussian random value
  **
+ ** \param[in]  mean Mean of the Normal Distribution
+ ** \param[in]  sigma Standard deviation of the Normal Distribution
+ **
  *****************************************************************************/
-double law_gaussian(void)
+double law_gaussian(double mean, double sigma)
 
 {
   double value = 0.;
 
   if (Random_Old_Style)
   {
-    double random1 = law_uniform(0., 1.);
+    double random1 = law_uniform();
     double random2 = law_uniform(0., 2. * GV_PI);
     value = sqrt(-2. * log(random1)) * cos(random2);
+    value = value * sigma + mean;
   }
   else
   {
-    std::normal_distribution<double> d{0.,1.};
+    std::normal_distribution<double> d{mean,sigma};
     value = d(Random_gen);
   }
   return value;
@@ -154,7 +159,7 @@ double law_gaussian(void)
  **
  ** \return  Exponential random value
  **
- ** \param[in]  param Parameter of exponential distribution
+ ** \param[in]  lambda Parameter of exponential distribution
  **
  *****************************************************************************/
 double law_exponential(double lambda)

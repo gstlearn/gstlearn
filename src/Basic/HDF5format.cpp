@@ -586,7 +586,7 @@ herr_t
 file_info(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *opdata)
 {
     hid_t group;
-    group = H5Gopen2(loc_id, name, H5P_DEFAULT);
+    group = H5Gopen(loc_id, name, H5P_DEFAULT);
     message("Data Set Name : %s\n",name);
     H5Gclose(group);
     return 0;
