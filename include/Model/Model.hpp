@@ -155,12 +155,12 @@ public:
   int hasExternalCov() const;
 
   void covMatrix(Db *db1,
-                    Db *db2,
-                    int ivar0,
-                    int jvar0,
-                    int flag_norm,
-                    int flag_cov,
-                    VectorDouble& covmat);
+                 Db *db2,
+                 int ivar0,
+                 int jvar0,
+                 int flag_norm,
+                 int flag_cov,
+                 VectorDouble& covmat);
   VectorDouble sample(double hmax,
                       int nh = 100,
                       int ivar = 0,
