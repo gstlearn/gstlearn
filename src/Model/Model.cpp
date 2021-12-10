@@ -812,7 +812,7 @@ Model* Model::duplicate() const
   return model;
 }
 
-void Model::covmatMatrix(Db *db1,
+void Model::covMatrix(Db *db1,
                          Db *db2,
                          int ivar0,
                          int jvar0,

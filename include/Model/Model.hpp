@@ -154,7 +154,7 @@ public:
 
   int hasExternalCov() const;
 
-  void covmatMatrix(Db *db1,
+  void covMatrix(Db *db1,
                     Db *db2,
                     int ivar0,
                     int jvar0,
