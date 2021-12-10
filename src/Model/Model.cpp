@@ -812,13 +812,29 @@ Model* Model::duplicate() const
   return model;
 }
 
+/**
+ * Calculate the covariance matrix between active samples of Db1
+ * and active samples of Db2
+ * @param db1 First Data Base
+ * @param db2 Second Data Base (if not provided, the first Db is provided instead)
+ * @param ivar0 Rank of the first variable (all variables if not defined)
+ * @param jvar0 Rank of the second variable (all variables if not defined)
+ * @param flag_norm 1 if the Model must be normalized beforehand
+ * @param flag_cov 1 if the Model must be expressed in covariance
+ * @param covmat Returned matrix (resturned as a vector).
+ *
+ * @remark The returned argument must have been dimensioned beforehand to
+ * @remark (nvar * nechA)^2 where:
+ * @remark nvar stands for the number of (active) variables
+ * @remark nechA stands for the number of active samples
+ */
 void Model::covMatrix(Db *db1,
-                         Db *db2,
-                         int ivar0,
-                         int jvar0,
-                         int flag_norm,
-                         int flag_cov,
-                         VectorDouble& covmat)
+                      Db *db2,
+                      int ivar0,
+                      int jvar0,
+                      int flag_norm,
+                      int flag_cov,
+                      VectorDouble& covmat)
 {
   model_covmat(this, db1, db2, ivar0, jvar0, flag_norm, flag_cov, covmat.data());
 }

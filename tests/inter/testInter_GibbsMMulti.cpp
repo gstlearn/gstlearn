@@ -77,13 +77,13 @@ int main(int /*argc*/, char */*argv*/[])
   Db* db = new Db({nx,nx},{1.,1.});
   if (! FFFF(bound))
   {
-    db->addFields(1, -bound, "Lower", ELoc::L);
-    db->addFields(1, +bound, "Upper", ELoc::U);
+    db->addFieldsByConstant(1, -bound, "Lower", ELoc::L);
+    db->addFieldsByConstant(1, +bound, "Upper", ELoc::U);
   }
   else
   {
-    db->addFields(1, TEST, "Lower", ELoc::L);
-    db->addFields(1, TEST, "Upper", ELoc::U);
+    db->addFieldsByConstant(1, TEST, "Lower", ELoc::L);
+    db->addFieldsByConstant(1, TEST, "Upper", ELoc::U);
   }
   if (db_locator_attribute_add(db,ELoc::GAUSFAC,nbsimu*nvar,0,0.,&iptr)) return 1;
 

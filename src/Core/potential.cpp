@@ -2846,7 +2846,7 @@ static int st_extdrift_create_db(Db *dbout, Pot_Ext *pot_ext)
 
   /* Add the selection */
 
-  pot_ext->db->addFields(1, 0., String(), ELoc::SEL);
+  pot_ext->db->addFieldsByConstant(1, 0., String(), ELoc::SEL);
 
   /* Complementary core allocation */
 
@@ -3120,8 +3120,8 @@ int potential_kriging(Db *dbiso,
   // Allocating the output variables
 
   nvar = 1;
-  (void) dbout->addFields(nvar, TEST, String(), ELoc::Z);
-  if (flag_grad) (void) dbout->addFields(pot_env.ndim, TEST, String(), ELoc::G);
+  (void) dbout->addFieldsByConstant(nvar, TEST, String(), ELoc::Z);
+  if (flag_grad) (void) dbout->addFieldsByConstant(pot_env.ndim, TEST, String(), ELoc::G);
 
   // Core allocation
 
@@ -3366,15 +3366,15 @@ int potential_simulate(Db *dbiso,
 
   /* Add the attributes for storing the results */
 
-  dbiso->addFields(nbsimu, 0., String(), ELoc::SIMU);
+  dbiso->addFieldsByConstant(nbsimu, 0., String(), ELoc::SIMU);
   if (dbgrd != nullptr)
-    (void) dbgrd->addFields(2 * nbsimu * pot_env.ndim, 0., String(),
+    (void) dbgrd->addFieldsByConstant(2 * nbsimu * pot_env.ndim, 0., String(),
                             ELoc::SIMU);
   if (dbtgt != nullptr)
-    (void) dbtgt->addFields(2 * nbsimu * pot_env.ndim, 0., String(),
+    (void) dbtgt->addFieldsByConstant(2 * nbsimu * pot_env.ndim, 0., String(),
                             ELoc::SIMU);
-  (void) dbout->addFields(nbsimu, 0., String(), ELoc::SIMU);
-  if (flag_tempere) (void) dbout->addFields(1, TEST, String(), ELoc::Z);
+  (void) dbout->addFieldsByConstant(nbsimu, 0., String(), ELoc::SIMU);
+  if (flag_tempere) (void) dbout->addFieldsByConstant(1, TEST, String(), ELoc::Z);
 
   /* Processing the non-conditional simulation over the iso-values */
 
@@ -3599,7 +3599,7 @@ int potential_xvalid(Db *dbiso,
 
   nvar = 2;
   if (flag_dist_conv) nvar = 4;
-  (void) dbiso->addFields(nvar, TEST, String(), ELoc::Z);
+  (void) dbiso->addFieldsByConstant(nvar, TEST, String(), ELoc::Z);
 
   // Core allocation
 

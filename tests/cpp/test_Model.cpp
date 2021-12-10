@@ -37,13 +37,18 @@ int main(int /*argc*/, char */*argv*/[])
   cova.setRanges({10,45});
   model.addCova(&cova);
 
-
   model.display(1);
 
-  VectorDouble result(81);
+  int nech = workingDbc.getActiveSampleNumber();
+  int nvar = model.getVariableNumber();
+  int nval = nech * nech * nvar * nvar;
+  VectorDouble result(nval);
 
-  model_covmat(&model,&workingDbc,nullptr,0,0,0,1,result.data());
-  //model.covMatrix(&workingDbc,nullptr,0,0,0,1,result);
+  model.covMatrix(&workingDbc, nullptr, 0, 0, 0, 1, result);
+
+  // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
+
+  ut_vector_display_stats("Statistis on Covariance Matrix",result);
   return 0;
 }
 

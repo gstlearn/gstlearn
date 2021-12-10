@@ -2146,7 +2146,7 @@ int multilayers_kriging(Db *dbin,
 
   nvar = nlayers;
   if (flag_std) nvar += nlayers;
-  iptr = dbout->addFields(nvar, TEST, String(), ELoc::Z);
+  iptr = dbout->addFieldsByConstant(nvar, TEST, String(), ELoc::Z);
 
   /* Fill the Multi-Layers internal structure */
 

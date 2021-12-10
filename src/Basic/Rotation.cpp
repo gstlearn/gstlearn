@@ -208,7 +208,7 @@ bool Rotation::isSame(const Rotation& rot) const
   if (_flagRot)
   {
     for (int idim = 0; idim < ndim; idim++)
-      if (_angles[idim] != getAngles(idim)) return 0;
+      if (_angles[idim] != getAngle(idim)) return 0;
   }
   return 1;
 }

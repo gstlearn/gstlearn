@@ -84,7 +84,7 @@ public:
 
   const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
   const VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }
-  double getRotAngles(int idim) const { return _rotation.getAngles(idim); }
+  double getRotAngles(int idim) const { return _rotation.getAngle(idim); }
   const VectorInt       getNX() const { return _nx; }
   const VectorDouble    getX0() const { return _x0; }
   const VectorDouble    getDX() const { return _dx; }

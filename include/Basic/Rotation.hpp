@@ -28,7 +28,7 @@ public:
   const MatrixSquareGeneral& getMatrixDirect() const { return _rotMat; }
   const MatrixSquareGeneral& getMatrixInverse() const { return _rotInv; }
   const VectorDouble& getAngles() const { return _angles; }
-  double getAngles(int idim) const { return _angles[idim]; }
+  double getAngle(int idim) const { return _angles[idim]; }
 
   void init(unsigned int ndim);
   virtual String toString(int level = 0) const override;

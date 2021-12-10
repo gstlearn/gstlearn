@@ -662,7 +662,7 @@ Db* Database::toGeoslib() const
     if (_isGrid)
     {
       int new_att;
-      new_att = res->addFields(1, 0);
+      new_att = res->addFieldsByConstant(1, 0);
       res->setFieldByAttribute(_vars[ivar]->getValues(),new_att);
     }
     db_name_set(res, iatt, _vars[ivar]->getName().c_str());
@@ -733,7 +733,7 @@ void Database::fromGeoslib(Db* db)
       int k = 0;
       while (k < db->getFromLocatorNumber(*it))
       {
-        String name = lst_names[db->getAttribute(*it,k)];
+        String name = lst_names[db->getAttributeByLocator(*it,k)];
         names_role.push_back(name);
         k++;
       }

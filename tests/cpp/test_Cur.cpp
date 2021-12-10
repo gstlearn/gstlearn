@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   auto nx = { 101, 101 };
   Db workingDbc(nx);
   VectorDouble angle;
-  for(auto &e : workingDbc.getCoordinates())
+  for(auto &e : workingDbc.getAllCoordinates())
   {
     angle.push_back(spirale(e));
   }

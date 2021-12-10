@@ -2993,9 +2993,9 @@ static int st_vmap_general(Db *db,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFields(nv2, 0.);
+  IPTV = dbmap->addFieldsByConstant(nv2, 0.);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFields(nv2, 0.);
+  IPTW = dbmap->addFieldsByConstant(nv2, 0.);
   if (IPTW < 0) goto label_end;
 
   /* Calculate a neighborhood (if radius > 0) */
@@ -3169,9 +3169,9 @@ static int st_vmap_grid(Db *dbgrid,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFields(nv2, 0.);
+  IPTV = dbmap->addFieldsByConstant(nv2, 0.);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFields(nv2, 0.);
+  IPTW = dbmap->addFieldsByConstant(nv2, 0.);
   if (IPTW < 0) goto label_end;
 
   /* Loop on the first data */
@@ -3409,7 +3409,7 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
   if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
   {
     iatt_old = db_attribute_identify(db, ELoc::W, 0);
-    iadd_new = db->addFields(1, 0.);
+    iadd_new = db->addFieldsByConstant(1, 0.);
     if (iadd_new < 0) goto label_end;
     db->setLocatorByAttribute(iadd_new, ELoc::W);
     maille = db_grid_maille(db);
@@ -3633,7 +3633,7 @@ int correlation_f(Db *db1,
   *correl = 0.;
   *nindice = 0;
   *indices = ind = nullptr;
-  iptr = dbgrid->addFields(1, 0.);
+  iptr = dbgrid->addFieldsByConstant(1, 0.);
   if (iptr < 0) return (1);
   m1 = m2 = v1 = v2 = v12 = nb = 0.;
 
@@ -4170,7 +4170,7 @@ int variogram_cloud(const Db *db,
   /* Allocate new variables */
 
   int ndir = varioparam->getDirectionNumber();
-  iptr = dbgrid->addFields(ndir, 0.);
+  iptr = dbgrid->addFieldsByConstant(ndir, 0.);
   if (iptr < 0) return (1);
 
   /* Loop on the directions to evaluate */
@@ -4364,7 +4364,7 @@ int regression_f(Db *db1,
 
   /* Pointer allocation */
 
-  iptr = db1->addFields(1, TEST);
+  iptr = db1->addFieldsByConstant(1, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -5216,9 +5216,9 @@ static int st_vmap_grid_fft(Db *dbgrid,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFields(nvs2, TEST);
+  IPTV = dbmap->addFieldsByConstant(nvs2, TEST);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFields(nvs2, TEST);
+  IPTW = dbmap->addFieldsByConstant(nvs2, TEST);
   if (IPTW < 0) goto label_end;
 
   /* Core allocation */
@@ -5942,7 +5942,7 @@ int maf_compute(Db *db,
 
   /* Allocate new variables */
 
-  iptr = db->addFields(nvar, TEST);
+  iptr = db->addFieldsByConstant(nvar, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -6108,7 +6108,7 @@ int pca_z2f(Db *db, PCA *pca, int flag_norm_in, int verbose)
 
   /* Allocate new variables */
 
-  iptr = db->addFields(nvar, TEST);
+  iptr = db->addFieldsByConstant(nvar, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -6181,7 +6181,7 @@ int pca_f2z(Db *db, PCA *pca, int flag_norm_out, int verbose)
 
   /* Allocate new variables */
 
-  iptr = db->addFields(nvar, TEST);
+  iptr = db->addFieldsByConstant(nvar, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */

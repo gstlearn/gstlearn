@@ -146,7 +146,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   VectorString names;
   if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
   {
-    names = dbin->getNames(locatorInType);
+    names = dbin->getNamesByLocator(locatorInType);
     if (nvar <= 0) nvar = static_cast<int>(names.size());
   }
   else
@@ -262,7 +262,7 @@ void NamingConvention::_setNames(Db *dbout,
     {
       String locnum = (nitems <= 1) ? String() : std::to_string(item+1);
       String name = concatenateStrings(_delim,_radix, local, suffix, locnum);
-      dbout->setName(iattout_start + ecr, name);
+      dbout->setNameByAttribute(iattout_start + ecr, name);
       ecr++;
     }
   }

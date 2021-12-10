@@ -1582,7 +1582,7 @@ int seismic_z2t_convert(Db *db_z, int iatt_v, Db *db_t)
 
   /* Create the output variables */
 
-  iatt_t = db_t->addFields(natt, 0.);
+  iatt_t = db_t->addFieldsByConstant(natt, 0.);
   if (iatt_t < 0) goto label_end;
   iatt_z = db_attribute_identify(db_z, ELoc::Z, 0);
 
@@ -1653,7 +1653,7 @@ int seismic_t2z_convert(Db *db_t, int iatt_v, Db *db_z)
 
   /* Create the output variables */
 
-  iatt_z = db_z->addFields(natt, 0.);
+  iatt_z = db_z->addFieldsByConstant(natt, 0.);
   if (iatt_z < 0) goto label_end;
   iatt_t = db_attribute_identify(db_t, ELoc::Z, 0);
 
@@ -1714,7 +1714,7 @@ int seismic_operate(Db *db, int oper)
 
   iatt_in = db_attribute_identify(db, ELoc::Z, 0);
   if (iatt_in < 0) return (1);
-  iatt_out = db->addFields(natt, 0.);
+  iatt_out = db->addFieldsByConstant(natt, 0.);
   if (iatt_out < 0) return (1);
 
   if (st_seismic_operate(db, oper, natt, nt, iatt_in, iatt_out, dt)) return (1);
@@ -1887,7 +1887,7 @@ int seismic_convolve(Db *db,
   error = 1;
   iatt_in = db_attribute_identify(db, ELoc::Z, 0);
   if (iatt_in < 0) return (1);
-  iatt_out = db->addFields(natt, 0.);
+  iatt_out = db->addFieldsByConstant(natt, 0.);
   if (iatt_out < 0) return (1);
 
   /* Core allocation */
@@ -3166,12 +3166,12 @@ int seismic_estimate_XZ(Db *db,
 
   for (i = 0; i < 2; i++)
   {
-    iatt_est[i] = db->addFields(1, TEST);
+    iatt_est[i] = db->addFieldsByConstant(1, TEST);
     if (iatt_est[i] < 0) goto label_end;
   }
   if (flag_std) for (i = 0; i < 2; i++)
   {
-    iatt_std[i] = db->addFields(1, TEST);
+    iatt_std[i] = db->addFieldsByConstant(1, TEST);
     if (iatt_std[i] < 0) goto label_end;
   }
 
@@ -3427,7 +3427,7 @@ int seismic_simulate_XZ(Db *db,
 
   for (i = 0; i < NVAR; i++)
   {
-    iatt_sim[i] = db->addFields(nbsimu, TEST);
+    iatt_sim[i] = db->addFieldsByConstant(nbsimu, TEST);
     if (iatt_sim[i] < 0) goto label_end;
   }
 

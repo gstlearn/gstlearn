@@ -4610,6 +4610,8 @@ cs* model_covmat_by_ranks_cs(Model *model,
  **                    nactive: Number of samples active
  **                    nvar   : Number of selected variables (1 or nvar)
  **
+ ** \remarks: If db2 is not provided, it is set to db1
+ **
  *****************************************************************************/
 void model_covmat(Model *model,
                   Db *db1,
@@ -4629,6 +4631,7 @@ void model_covmat(Model *model,
   covtab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
+  if (db2 == nullptr) db2 = db1;
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db1)) goto label_end;
   if (st_check_environ(model, db2)) goto label_end;

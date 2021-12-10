@@ -982,17 +982,17 @@ int fluid_propagation(Db *dbgrid,
 
   if (niter > 1)
   {
-    IPTR_STAT_FLUID = DB->addFields(NFLUIDS, 0.);
+    IPTR_STAT_FLUID = DB->addFieldsByConstant(NFLUIDS, 0.);
     if (IPTR_STAT_FLUID < 0) goto label_end;
-    IPTR_STAT_CORK = DB->addFields(1, 0.);
+    IPTR_STAT_CORK = DB->addFieldsByConstant(1, 0.);
     if (IPTR_STAT_CORK < 0) goto label_end;
   }
 
   /* Add the attributes for storing the Fluid and Data informations */
 
-  IPTR_FLUID = DB->addFields(1, 0.);
+  IPTR_FLUID = DB->addFieldsByConstant(1, 0.);
   if (IPTR_FLUID < 0) goto label_end;
-  IPTR_DATE = DB->addFields(1, TEST);
+  IPTR_DATE = DB->addFieldsByConstant(1, TEST);
   if (IPTR_DATE < 0) goto label_end;
 
   /* Loop on the iterations */

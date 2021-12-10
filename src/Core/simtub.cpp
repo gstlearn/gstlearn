@@ -4626,11 +4626,11 @@ int db_simulations_to_ce(Db *db,
 
   // Allocate the new attributes:
 
-  iptr_ce = db->addFields(nvar, 0.);
+  iptr_ce = db->addFieldsByConstant(nvar, 0.);
   if (iptr_ce < 0) goto label_end;
-  iptr_cstd = db->addFields(nvar, 0.);
+  iptr_cstd = db->addFieldsByConstant(nvar, 0.);
   if (iptr_cstd < 0) goto label_end;
-  iptr_nb = db->addFields(nvar, 0.);
+  iptr_nb = db->addFieldsByConstant(nvar, 0.);
   if (iptr_nb < 0) goto label_end;
 
   // Loop on the simulations
@@ -5208,9 +5208,9 @@ int simmaxstable(Db *dbout,
 
   /* Add the attributes for storing the results */
 
-  iptrv = dbout->addFields(1, 0.);
+  iptrv = dbout->addFieldsByConstant(1, 0.);
   if (iptrv < 0) goto label_end;
-  iptrr = dbout->addFields(1, 0.);
+  iptrr = dbout->addFieldsByConstant(1, 0.);
   if (iptrr < 0) goto label_end;
   if (db_locator_attribute_add(dbout, ELoc::SEL, 1, 0, 0., &iptrs))
     goto label_end;
