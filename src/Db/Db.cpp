@@ -1412,11 +1412,24 @@ void Db::setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel)
   setFieldByAttribute(tab.data(), iatt, useSel);
 }
 
+/**
+ * Set the values for an already existing field.
+ * Note that, if the field does not exist, this field is added beforehand
+ * @param tab    Array of values to be stored in the target Field
+ * @param name   Name of the Field
+ * @param useSel Should an already existing Selection be taken into account
+ */
 void Db::setField(const VectorDouble& tab, const String& name, bool useSel)
 {
   VectorInt iatts = _ids(name, true);
-  if (iatts.empty()) return;
-  setFieldByAttribute(tab.data(), iatts[0], useSel);
+  if (iatts.empty())
+  {
+    (void) addFields(tab, name, ELoc::UNKNOWN, 0, useSel);
+  }
+  else
+  {
+    setFieldByAttribute(tab.data(), iatts[0], useSel);
+  }
 }
 
 void Db::duplicateColumnByAttribute(int iatt_in, int iatt_out)

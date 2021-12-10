@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
   Option_VarioFit options;
   Constraints constraints;
   int       nbsimu,nbtuba,seed,flag_norm_sill,flag_goulard_used;
+  double    gof;
   static int verbose = 0;
 
   /* Initializations */
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
   model = (Model *) NULL;
   flag_norm_sill = 0;
   flag_goulard_used = 1;
+  double gofThresh = 2.;
 
   /* Standard output redirection to file */
 
@@ -128,7 +130,12 @@ int main(int argc, char *argv[])
   
   // produce the Goodness-of-fit score
 
-  message("Goodness of Fit =%5.2lf percent of the Sill\n",model->gofToVario(vario));
+  gof = model->gofToVario(vario);
+
+  if (gof > gofThresh)
+    message("Goodness-of-Fit (as a percentage of the Sill) may demonstrate an issue: %5.2lf\n",gof);
+  else
+    message("Goodness-of-Fit (<%5.2lf percent of the Sill): AutoFit is a success\n",gofThresh);
 
 /* Core deallocation */
 
