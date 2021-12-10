@@ -72,18 +72,18 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
   return 0;
 }
 
-int Rotation::setMatrixDirect(const VectorDouble& rotmat)
+int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
 {
   if (! rotmat.empty())
   {
     if ((int) rotmat.size() != _rotMat.getNTotal())
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
-    setMatrixDirect(rotmat.data());
+    setMatrixDirectOldStyle(rotmat.data());
   }
   return 0;
 }
 
-int Rotation::setMatrixDirect(const double* rotmat)
+int Rotation::setMatrixDirectOldStyle(const double* rotmat)
 {
   if (rotmat != nullptr)
   {

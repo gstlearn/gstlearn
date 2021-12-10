@@ -674,7 +674,7 @@ static void st_grid_from_3refpt(RefPt refpt[3],
   def_grid.setDX(0, dx);
   def_grid.setDX(1, dy);
   def_grid.setDX(2, dz);
-  def_grid.setRotationFromAngles(theta);
+  def_grid.setRotationByAngle(theta);
 
   // Check that reference traces are well honored
 
@@ -753,7 +753,7 @@ static void st_grid_from_2refpt(RefPt refpt[3],
   def_grid.setDX(0, MAX(dy / 2., dx));
   def_grid.setDX(1, MAX(dx / 2., dy));
   def_grid.setDX(2, dz);
-  def_grid.setRotationFromAngles(theta);
+  def_grid.setRotationByAngle(theta);
 
   // Check that reference traces are well honored
 

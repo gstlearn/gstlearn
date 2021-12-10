@@ -375,7 +375,7 @@ int Model::getRankFext(int il) const
 {
   return _driftList->getRankFex(il);
 }
-const VectorDouble& Model::getCoefDrift() const
+const VectorDouble& Model::getCoefDrifts() const
 {
   return _driftList->getCoefDrift();
 }
@@ -396,9 +396,9 @@ void Model::setCoefDrift(int ivar, int il, int ib, double coeff)
 {
   _driftList->setCoefDrift(ivar, il, ib, coeff);
 }
-void Model::setCoefDrift(int rank, double coeff)
+void Model::setCoefDriftByRank(int rank, double coeff)
 {
-  _driftList->setCoefDrift(rank, coeff);
+  _driftList->setCoefDriftByRank(rank, coeff);
 }
 void Model::setDriftFiltered(int il, bool filtered)
 {
@@ -815,25 +815,26 @@ Model* Model::duplicate() const
 /**
  * Calculate the covariance matrix between active samples of Db1
  * and active samples of Db2
+ * @param covmat Returned matrix (returned as a vector).
  * @param db1 First Data Base
  * @param db2 Second Data Base (if not provided, the first Db is provided instead)
  * @param ivar0 Rank of the first variable (all variables if not defined)
  * @param jvar0 Rank of the second variable (all variables if not defined)
  * @param flag_norm 1 if the Model must be normalized beforehand
  * @param flag_cov 1 if the Model must be expressed in covariance
- * @param covmat Returned matrix (resturned as a vector).
+
  *
  * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
  * @remark -nvar stands for the number of (active) variables
  * @remark -nechA stands for the number of active samples
  */
-void Model::covMatrix(Db *db1,
+void Model::covMatrix(VectorDouble& covmat,
+                      Db *db1,
                       Db *db2,
                       int ivar0,
                       int jvar0,
                       int flag_norm,
-                      int flag_cov,
-                      VectorDouble& covmat)
+                      int flag_cov)
 {
   model_covmat(this, db1, db2, ivar0, jvar0, flag_norm, flag_cov, covmat.data());
 }

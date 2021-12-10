@@ -1347,7 +1347,7 @@ int Db::addFields(const VectorDouble& tab,
 
   const double* local = tab.data();
   for (int ivar = 0; ivar < nvar; ivar++)
-    setFieldByAttribute(&local[ivar * nech], iatt + ivar, useSel);
+    setFieldByAttributeOldStyle(&local[ivar * nech], iatt + ivar, useSel);
 
   return iatt;
 }
@@ -1382,7 +1382,7 @@ void Db::setColumnByRank(const VectorDouble& tab, int icol, bool useSel)
   setColumnByRankOldStyle(tab.data(), icol, useSel);
 }
 
-void Db::setFieldByAttribute(const double* tab, int iatt, bool useSel)
+void Db::setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel)
 {
   if (!isAttributeIndexValid(iatt)) return;
   VectorDouble sel;
@@ -1409,7 +1409,7 @@ void Db::setFieldByAttribute(const double* tab, int iatt, bool useSel)
 
 void Db::setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel)
 {
-  setFieldByAttribute(tab.data(), iatt, useSel);
+  setFieldByAttributeOldStyle(tab.data(), iatt, useSel);
 }
 
 /**
@@ -1428,7 +1428,7 @@ void Db::setField(const VectorDouble& tab, const String& name, bool useSel)
   }
   else
   {
-    setFieldByAttribute(tab.data(), iatts[0], useSel);
+    setFieldByAttributeOldStyle(tab.data(), iatts[0], useSel);
   }
 }
 
@@ -2984,7 +2984,7 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
   return sstr.str();
 }
 
-void Db::displayMore(unsigned char params,
+void Db::displayMoreByAttributes(unsigned char params,
                      const VectorInt& cols,
                      bool flagSel,
                      int mode) const
@@ -2992,7 +2992,7 @@ void Db::displayMore(unsigned char params,
   messageFlush(_display(params, cols, flagSel, mode));
 }
 
-void Db::displayMore(unsigned char params,
+void Db::displayMoreByAttributes(unsigned char params,
                      const VectorString& names,
                      bool flagSel,
                      int mode) const

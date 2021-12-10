@@ -110,7 +110,7 @@ void GridC::init(GridC* grid)
 
   if (grid->isRotated())
   {
-    setRotationFromAngles(grid->getRotAngles());
+    setRotationByAngles(grid->getRotAngles());
   }
 }
 
@@ -137,20 +137,20 @@ void GridC::setNX(int idim,
   _nx[idim] = value;
 }
 
-void GridC::setRotationFromMatrix(const MatrixSquareGeneral& rotmat)
+void GridC::setRotationByMatrix(const MatrixSquareGeneral& rotmat)
 {
   _rotation.init(_nDim);
   _rotation.setMatrixDirect(rotmat);
 }
 
-void GridC::setRotationFromMatrix(const VectorDouble& rotmat)
+void GridC::setRotationByVector(const VectorDouble& rotmat)
 {
   if (rotmat.empty()) return;
   _rotation.init(_nDim);
-  _rotation.setMatrixDirect(rotmat);
+  _rotation.setMatrixDirectByVector(rotmat);
 }
 
-void GridC::setRotationFromAngles(const VectorDouble angles)
+void GridC::setRotationByAngles(const VectorDouble angles)
 {
   if (angles.empty()) return;
   _rotation.init(_nDim);
@@ -161,7 +161,7 @@ void GridC::setRotationFromAngles(const VectorDouble angles)
  * Define the rotation by the value of its first angle
  * @param angle Value of the first rotation angle
  */
-void GridC::setRotationFromAngles(double angle)
+void GridC::setRotationByAngle(double angle)
 {
   _rotation.init(_nDim);
   VectorDouble angles(_nDim,0.);
@@ -255,7 +255,7 @@ double GridC::getCoordinate(int rank, int idim0, bool flag_rotate) const
   return (work2[idim0] + _x0[idim0]);
 }
 
-VectorDouble GridC::getCoordinate(const VectorInt& indice, bool flag_rotate) const
+VectorDouble GridC::getCoordinates(const VectorInt& indice, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorDouble work1(ndim);
@@ -284,12 +284,12 @@ VectorDouble GridC::getCoordinate(const VectorInt& indice, bool flag_rotate) con
  * @param icorner Vector specifying the corner (o: minimum; 1: maximum). (Dimension: ndim)
  * @return The coordinates of a corner
  */
-VectorDouble GridC::getCoordinateFromCorner(const VectorInt& icorner) const
+VectorDouble GridC::getCoordinatesByCorner(const VectorInt& icorner) const
 {
   VectorInt indice(_nDim,0);
   for (int idim = 0; idim < _nDim; idim++)
     if (icorner[idim] > 0) indice[idim] = _nx[idim]-1;
-  return getCoordinate(indice);
+  return getCoordinates(indice);
 }
 
 /**
@@ -298,7 +298,7 @@ VectorDouble GridC::getCoordinateFromCorner(const VectorInt& icorner) const
  * @param flag_rotate TRUE: perform the roataion; FALSE: skip rotation
  * @return Vector of coordinates
  */
-VectorDouble GridC::getCoordinate(int rank, bool flag_rotate) const
+VectorDouble GridC::getCoordinates(int rank, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorInt    iwork(ndim);
@@ -356,11 +356,11 @@ VectorDouble GridC::indiceToCoordinate(const VectorInt& indice,
                                        const VectorDouble& percent) const
 {
   VectorDouble vect(_nDim);
-  indiceToCoordinate(indice, vect, percent);
+  indiceToCoordinateToPlace(indice, vect, percent);
   return vect;
 }
 
-void GridC::indiceToCoordinate(const VectorInt& indice,
+void GridC::indiceToCoordinateToPlace(const VectorInt& indice,
                                VectorDouble& coor,
                                const VectorDouble& percent) const
 {
@@ -400,11 +400,11 @@ VectorDouble GridC::rankToCoordinate(int rank, const VectorDouble& percent) cons
   return indiceToCoordinate(indice,percent);
 }
 
-void GridC::rankToCoordinate(int rank, VectorDouble& coor, const VectorDouble& percent) const
+void GridC::rankToCoordinateInPlace(int rank, VectorDouble& coor, const VectorDouble& percent) const
 {
   VectorInt indice(_nDim);
   rankToIndice(rank, indice);
-  return indiceToCoordinate(indice, coor, percent);
+  return indiceToCoordinateToPlace(indice, coor, percent);
 }
 
 int GridC::indiceToRank(const VectorInt& indice) const
@@ -555,19 +555,19 @@ void GridC::copyParams(int mode, const GridC& gridaux)
   switch (mode)
   {
     case 1: /* Copy NX */
-      _nx = gridaux.getNX();
+      _nx = gridaux.getNXs();
       break;
 
     case 2: /* Copy X0 */
-      _x0 = gridaux.getX0();
+      _x0 = gridaux.getX0s();
       break;
 
     case 3: /* Copy DX */
-      _dx = gridaux.getDX();
+      _dx = gridaux.getDXs();
       break;
 
     case 4: /* Rotation matrices */
-      setRotationFromAngles(gridaux.getRotAngles());
+      setRotationByAngles(gridaux.getRotAngles());
   }
 }
 
@@ -794,10 +794,10 @@ void GridC::multiple(const VectorInt& nmult,
     indg[idim] = 0;
   for (int idim = 0; idim < ndim; idim++)
     perc[idim] = -0.5;
-  indiceToCoordinate(indg, coor1, perc);
+  indiceToCoordinateToPlace(indg, coor1, perc);
   for (int idim = 0; idim < ndim; idim++)
     perc[idim] = 0.5;
-  indiceToCoordinate(indg, coor2, perc);
+  indiceToCoordinateToPlace(indg, coor2, perc);
 
   /* Calculate the center of the lower left cell */
 
@@ -856,10 +856,10 @@ void GridC::divider(const VectorInt& nmult,
     indg[idim] = 0;
   for (int idim = 0; idim < ndim; idim++)
     perc[idim] = -0.5;
-  indiceToCoordinate(indg, coor1, perc);
+  indiceToCoordinateToPlace(indg, coor1, perc);
   for (int idim = 0; idim < ndim; idim++)
     perc[idim] = 0.5;
-  indiceToCoordinate(indg, coor2, perc);
+  indiceToCoordinateToPlace(indg, coor2, perc);
 
   /* Calculate the center of the lower left cell */
 

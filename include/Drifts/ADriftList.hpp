@@ -85,7 +85,7 @@ public:
    */
   double getCoefDrift(int ivar, int il, int ib) const { return _coefDrift[_getAddress(ivar,il,ib)]; }
   void setCoefDrift(int ivar, int il, int ib, double value) { _coefDrift[_getAddress(ivar,il,ib)] = value; }
-  void setCoefDrift(int rank, double coeff) { _coefDrift[rank] = coeff; }
+  void setCoefDriftByRank(int rank, double coeff) { _coefDrift[rank] = coeff; }
 
   VectorDouble getDrift(const Db* db, int ib, bool useSel = true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true);

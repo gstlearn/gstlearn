@@ -56,7 +56,7 @@ MeshETurbo::MeshETurbo(const Db& db, int verbose)
       _maskGrid(nullptr)
 {
   if (!db.isGrid()) return;
-  (void) initFromGrid(db.getNX(), db.getDX(), db.getX0(), db.getRotMat(), true,
+  (void) initFromGrid(db.getNXs(), db.getDXs(), db.getX0s(), db.getRotMat(), true,
                       verbose);
 }
 
@@ -208,7 +208,7 @@ int MeshETurbo::initFromGrid(const VectorInt& nx,
   /* Create the internal (rotated) grid */
 
   if (_grid.init(nx, dx, x0)) return 1;
-  _grid.setRotationFromMatrix(rotmat);
+  _grid.setRotationByVector(rotmat);
 
   // Get grid extension
   // TODO: the grid extension should be calculated in GridC and take
@@ -263,7 +263,7 @@ int MeshETurbo::initFromExtend(const VectorDouble& extendmin,
   /* Create the internal (rotated) grid */
 
   if (_defineGrid(cellsize)) return(1);
-  _grid.setRotationFromMatrix(rotmat);
+  _grid.setRotationByVector(rotmat);
 
   // Define the number of Elements per Cell 
 

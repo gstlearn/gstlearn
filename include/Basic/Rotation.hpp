@@ -33,8 +33,8 @@ public:
   void init(unsigned int ndim);
   virtual String toString(int level = 0) const override;
   int setMatrixDirect(const MatrixSquareGeneral& rotmat);
-  int setMatrixDirect(const VectorDouble& rotmat);
-  int setMatrixDirect(const double* rotmat);
+  int setMatrixDirectByVector(const VectorDouble& rotmat);
+  int setMatrixDirectOldStyle(const double* rotmat);
   int setAngles(const VectorDouble& angles);
   void setIdentity();
   void rotateDirect(const VectorDouble& in, VectorDouble& out) const;

@@ -1061,7 +1061,7 @@ void db_print(Db *db,
   if (flag_extend) params |= FLAG_EXTEND;
   if (flag_stats) params |= FLAG_STATS;
   if (flag_array) params |= FLAG_ARRAY;
-  db->displayMore(params, cols, false, mode);
+  db->displayMoreByAttributes(params, cols, false, mode);
 
   return;
 }
@@ -3960,7 +3960,7 @@ Db* db_grid_reduce(Db *db_grid,
   x0.assign(coor, coor + ndim);
   ss_grid = db_create_grid(db_grid->isGridRotated(), db_grid->getNDim(), 0,
                            ELoadBy::COLUMN, flag_add_rank, nx, x0,
-                           db_grid->getDX(), db_grid->getAngles());
+                           db_grid->getDXs(), db_grid->getAngles());
 
   // Create the selection (optional)
 

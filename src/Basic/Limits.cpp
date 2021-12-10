@@ -151,7 +151,7 @@ bool Limits::isInside(double value) const
   return true;
 }
 
-int Limits::toCategory(Db* db, int iatt, const NamingConvention& namconv)
+int Limits::toCategoryByAttribute(Db* db, int iatt, const NamingConvention& namconv)
 {
   return _db_category(db, iatt, getLowerBounds(), getUpperBounds(),
                       getLowerIncluded(), getUpperIncluded(), namconv);
@@ -162,7 +162,7 @@ int Limits::toCategory(Db* db, const String& name,
 {
   int iatt = db->getAttribute(name);
   if (iatt < 0) return 1;
-  return toCategory(db, iatt, namconv);
+  return toCategoryByAttribute(db, iatt, namconv);
 }
 
 int Limits::toIndicator(Db* db,
@@ -172,10 +172,10 @@ int Limits::toIndicator(Db* db,
 {
   int iatt = db->getAttribute(name);
   if (iatt < 0) return 1;
-  return toIndicator(db, iatt, OptionIndicator, namconv);
+  return toIndicatorByAttribute(db, iatt, OptionIndicator, namconv);
 }
 
-int Limits::toIndicator(Db* db,
+int Limits::toIndicatorByAttribute(Db* db,
                         int iatt,
                         int OptionIndicator,
                         const NamingConvention& namconv)

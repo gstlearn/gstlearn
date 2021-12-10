@@ -355,10 +355,10 @@ public:
   double getBorderDown(int iech) const;
   void   setBorderDown(int iech, double value);
 
-  int getDateNumber() const;
-  bool hasDate() const;
+  int    getDateNumber() const;
+  bool   hasDate() const;
   double getDate(int iech) const;
-  void setDate(int iech, double value);
+  void   setDate(int iech, double value);
 
   int getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
   double getSimvar(const ELoc& locatorType,
@@ -388,8 +388,8 @@ public:
 
   bool isActive(int iech) const;
   bool isActiveAndDefined(int iech, int item) const;
-  int getActiveAndDefinedNumber(int item) const;
-  int getActiveAndDefinedNumber(const String& name) const;
+  int  getActiveAndDefinedNumber(int item) const;
+  int  getActiveAndDefinedNumber(const String& name) const;
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
 
@@ -398,11 +398,10 @@ public:
   VectorDouble getFieldByLocator(const ELoc& locatorType,
                                  int locatorIndex=0,
                                  bool useSel = false) const;
-  void setFieldByAttribute(const double* tab, int iatt, bool useSel = false);
+
+  void setField(const VectorDouble& tab, const String& name, bool useSel = false);
+  void setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel = false);
   void setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel = false);
-  void setField(const VectorDouble& tab,
-                const String& name,
-                bool useSel = false);
 
   VectorDouble getFields(const VectorString& names = VectorString(),
                          bool useSel = false) const;
@@ -465,16 +464,17 @@ public:
   bool isSameGridRotation(const Db& dbaux) const;
   bool isGridRotated() const;
   int  getNDim() const; /// TODO : rename to getDimensionNumber etc...
-  int  getNX(int idim) const;
   int  getNTotal() const { return _grid.getNTotal(); }
   double getCellSize() const { return _grid.getCellSize(); }
   bool hasSameDimension(const Db* dbaux) const;
   bool hasLargerDimension(const Db* dbaux) const;
-  VectorInt getNX() const { return _grid.getNX(); }
+
+  int  getNX(int idim) const;
+  VectorInt getNXs() const { return _grid.getNXs(); }
   double getDX(int idim) const;
-  VectorDouble getDX() const { return _grid.getDX(); }
+  VectorDouble getDXs() const { return _grid.getDXs(); }
   double getX0(int idim) const;
-  VectorDouble getX0() const { return _grid.getX0(); }
+  VectorDouble getX0s() const { return _grid.getX0s(); }
   double getAngle(int idim) const;
   VectorDouble getAngles() const { return _grid.getRotAngles(); }
   VectorDouble getRotMat() const { return _grid.getRotMat(); }
@@ -484,7 +484,7 @@ public:
   VectorDouble getGridAxis(int idim) const { return _grid.getAxis(idim); }
   VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const
   {
-    return _grid.getCoordinateFromCorner(icorner);
+    return _grid.getCoordinatesByCorner(icorner);
   }
   int coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const
   {
@@ -494,7 +494,7 @@ public:
                         VectorDouble& coor,
                         const VectorDouble& percent = VectorDouble()) const
   {
-    _grid.rankToCoordinate(rank, coor, percent);
+    _grid.rankToCoordinateInPlace(rank, coor, percent);
   }
 
   // Functions for checking validity of parameters
@@ -522,11 +522,11 @@ public:
    * @remark For flags, FLAG_STATS and FLAG_ARRAY, you can use the 'cols' argument
    * @remark to restrain the variables of interest
    */
-  void displayMore(unsigned char params,
-                   const VectorInt& cols = VectorInt(),
-                   bool flagSel = true,
-                   int mode = 1) const;
-  void displayMore(unsigned char params,
+  void displayMoreByAttributes(unsigned char params,
+                               const VectorInt& cols = VectorInt(),
+                               bool flagSel = true,
+                               int mode = 1) const;
+  void displayMoreByAttributes(unsigned char params,
                    const VectorString& names,
                    bool flagSel = true,
                    int mode = 1) const;

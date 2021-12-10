@@ -216,7 +216,7 @@ void CovAniso::setAnisoRotation(const VectorDouble& rot)
   if ((int) rot.size() != ndim * ndim)
     my_throw("Error in dimension of 'rot'");
   Rotation r(ndim);
-  r.setMatrixDirect(rot);
+  r.setMatrixDirectByVector(rot);
   _aniso.setRotation(r);
 }
 

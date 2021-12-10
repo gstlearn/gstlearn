@@ -2699,7 +2699,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
       int nval = new_nvar * new_model->getDriftEquationNumber()
                  * new_model->getDriftNumber();
       for (int i = 0; i < nval; i++)
-        new_model->setCoefDrift(i, 0.);
+        new_model->setCoefDriftByRank(i, 0.);
       st_drift_derivative(0, MODEL_DERIVATIVE_NONE, model, new_model);
       st_drift_derivative(1, MODEL_DERIVATIVE_X, model, new_model);
       st_drift_derivative(2, MODEL_DERIVATIVE_Y, model, new_model);

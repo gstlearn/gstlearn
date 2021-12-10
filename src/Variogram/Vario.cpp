@@ -353,7 +353,7 @@ int Vario::computeIndic(const String& calcul_name,
   // Translate the 'Facies' into 'categories'   VectorDouble props =
   Limits limits = Limits(nclass);
   int iatt = _db->getAttributeByLocator(ELoc::Z, 0);
-  if (limits.toIndicator(_db, iatt))
+  if (limits.toIndicatorByAttribute(_db, iatt))
   {
     messerr("Problem when translating Facies into Categories");
     return 1;

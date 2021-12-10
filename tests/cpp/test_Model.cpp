@@ -44,7 +44,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nval = nech * nech * nvar * nvar;
   VectorDouble result(nval);
 
-  model.covMatrix(&workingDbc, nullptr, 0, 0, 0, 1, result);
+  model.covMatrix(result, &workingDbc, nullptr, 0, 0, 0, 1);
 
   // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
 
