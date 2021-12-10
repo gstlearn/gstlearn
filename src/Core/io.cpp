@@ -226,7 +226,6 @@ static void st_format(int mode)
  *****************************************************************************/
 void redefine_message(void (*write_func)(const char*))
 {
-  std::cout << "Write function is redefined" << std::endl;
   if (write_func != NULL) WRITE_FUNC = write_func;
   return;
 }
