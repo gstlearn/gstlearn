@@ -7,10 +7,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+#include "geoslib_enum.h"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
