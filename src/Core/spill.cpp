@@ -755,7 +755,7 @@ int spill_point(Db *dbgrid,
 
   /* Add the attribute */
 
-  iptr_spill = dbgrid->addFields(1, 0.);
+  iptr_spill = dbgrid->addFieldsByConstant(1, 0.);
   if (iptr_spill < 0) goto label_end;
 
   /* Core allocation */

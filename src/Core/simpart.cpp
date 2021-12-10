@@ -262,7 +262,7 @@ int tessellation_poisson(Db *dbgrid,
 
   /* Add the attributes for storing the results */
 
-  iatts = dbgrid->addFields(1, TEST);
+  iatts = dbgrid->addFieldsByConstant(1, TEST);
   if (iatts < 0) goto label_end;
   indg = db_indg_alloc(dbgrid);
 
@@ -426,7 +426,7 @@ int tessellation_voronoi(Db *dbgrid,
 
   /* Add the attributes for storing the results */
 
-  iatts = dbgrid->addFields(1, TEST);
+  iatts = dbgrid->addFieldsByConstant(1, TEST);
   if (iatts < 0) goto label_end;
   simgrid.resize(dbgrid->getSampleNumber());
 

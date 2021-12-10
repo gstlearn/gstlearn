@@ -13,6 +13,7 @@
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
+#include <cmath>
 
 /*! \cond */
 #define TRI(i)        (((i) * ((i) + 1)) / 2)

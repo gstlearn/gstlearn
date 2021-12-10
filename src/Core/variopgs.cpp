@@ -744,7 +744,7 @@ static int st_vario_pgs_variable(int mode,
       is_prop_defined = false;
       if (flag_prop && db->getProportionNumber() != nfacies)
       {
-        iptr = db->addFields(nfacies, 0., String(), ELoc::P);
+        iptr = db->addFieldsByConstant(nfacies, 0., String(), ELoc::P);
         if (iptr < 0) return (1);
         is_prop_defined = true;
       }
@@ -753,18 +753,18 @@ static int st_vario_pgs_variable(int mode,
 
       if (!TEST_DISCRET)
       {
-        iptr = db->addFields(number, 0., "Lower", ELoc::L);
+        iptr = db->addFieldsByConstant(number, 0., "Lower", ELoc::L);
         if (iptr < 0) return (1);
 
-        iptr = db->addFields(number, 0., "Upper", ELoc::U);
+        iptr = db->addFieldsByConstant(number, 0., "Upper", ELoc::U);
         if (iptr < 0) return (1);
       }
       else
       {
-        iptr = db->addFields(number, 0., "Lower Rank", ELoc::RKLOW);
+        iptr = db->addFieldsByConstant(number, 0., "Lower Rank", ELoc::RKLOW);
         if (iptr < 0) return (1);
 
-        iptr = db->addFields(number, 0., "Upper Rank", ELoc::RKUP);
+        iptr = db->addFieldsByConstant(number, 0., "Upper Rank", ELoc::RKUP);
         if (iptr < 0) return (1);
       }
       break;

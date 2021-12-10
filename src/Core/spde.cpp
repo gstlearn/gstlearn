@@ -8607,7 +8607,7 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 
   // Add an attribute
 
-  iptr = dbc->addFields(1, TEST);
+  iptr = dbc->addFieldsByConstant(1, TEST);
   if (iptr < 0) goto label_end;
 
   // Core allocation
@@ -8670,7 +8670,7 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
 
     /* Identify the drift at the constraining samples */
 
-    m2denv->iatt_fd = dbc->addFields(nlayer, TEST);
+    m2denv->iatt_fd = dbc->addFieldsByConstant(nlayer, TEST);
     if (m2denv->iatt_fd < 0) return (1);
 
     /* If pinch-out is defined, interpolate it at well data */
@@ -8694,7 +8694,7 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
 
     /* Identify the drift at the target grid nodes */
 
-    m2denv->iatt_fg = dbout->addFields(nlayer, TEST);
+    m2denv->iatt_fg = dbout->addFieldsByConstant(nlayer, TEST);
     if (m2denv->iatt_fg < 0) return (1);
     st_m2d_set_M(m2denv, nlayer, icol_pinch, dbout, m2denv->iatt_fg);
   }
@@ -10725,7 +10725,7 @@ int m2d_gibbs_spde(Db *dbin,
 
   nfois = (flag_drift) ? 1 :
                          nbsimu;
-  iatt_out = dbout->addFields(nlayer * nfois, TEST);
+  iatt_out = dbout->addFieldsByConstant(nlayer * nfois, TEST);
   if (iatt_out < 0) goto label_end;
 
   /* Core allocation */

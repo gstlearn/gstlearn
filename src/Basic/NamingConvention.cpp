@@ -146,7 +146,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   VectorString names;
   if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
   {
-    names = dbin->getNames(locatorInType);
+    names = dbin->getNamesByLocator(locatorInType);
     if (nvar <= 0) nvar = static_cast<int>(names.size());
   }
   else
@@ -183,7 +183,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
 
   VectorString names;
   for (int ivar = 0; ivar < nvar; ivar++)
-    names.push_back(dbin->getName(iatts[ivar]));
+    names.push_back(dbin->getNameByAttribute(iatts[ivar]));
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
  }
@@ -210,7 +210,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   if (dbin == nullptr) return;
 
   VectorString names;
-  names.push_back(dbin->getName(iatt));
+  names.push_back(dbin->getNameByAttribute(iatt));
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, 1, nitems, flagLocate);
  }
@@ -262,7 +262,7 @@ void NamingConvention::_setNames(Db *dbout,
     {
       String locnum = (nitems <= 1) ? String() : std::to_string(item+1);
       String name = concatenateStrings(_delim,_radix, local, suffix, locnum);
-      dbout->setName(iattout_start + ecr, name);
+      dbout->setNameByAttribute(iattout_start + ecr, name);
       ecr++;
     }
   }

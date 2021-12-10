@@ -1634,7 +1634,7 @@ int db_segy(const char *filesegy,
 
   // Allocate the new vector in the output file
 
-  iatt = grid3D->addFields(1, TEST);
+  iatt = grid3D->addFieldsByConstant(1, TEST);
   if (iatt < 0) return 1;
 
   // Working arrays

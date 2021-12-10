@@ -1201,7 +1201,7 @@ int simfft_f(Db *db,
 
   /* Add the attributes for storing the results in the data base */
 
-  iptr = db->addFields(nbsimu, 0.);
+  iptr = db->addFieldsByConstant(nbsimu, 0.);
 
   /* Construction of the Simu_FFT structure and core allocation */
 

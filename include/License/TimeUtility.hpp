@@ -3,7 +3,6 @@
 #include "gstlearn_export.hpp"
 
 // - Standard includes --------------------------------
-//#include <time.h>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>

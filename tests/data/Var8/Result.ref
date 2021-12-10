@@ -1,15 +1,1 @@
-
-Model characteristics
-=====================
-Space dimension              = 3
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-Spherical
-- Sill         =      4.123
-- Range        =   1018.983
-Total Sill     =      4.123
+Goodness-of-Fit (< 2.00 percent of the Sill): AutoFit is a success

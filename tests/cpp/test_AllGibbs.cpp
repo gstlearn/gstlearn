@@ -68,13 +68,13 @@ int main(int /*argc*/, char * /*argv*/[])
   Db* db = new Db({nx,nx},dx);
   if (! FFFF(bound))
   {
-    db->addFields(1, -bound, "Bounds", ELoc::L);
-    db->addFields(1, +bound, "Bounds", ELoc::U);
+    db->addFieldsByConstant(1, -bound, "Bounds", ELoc::L);
+    db->addFieldsByConstant(1, +bound, "Bounds", ELoc::U);
   }
   else
   {
-    db->addFields(1, TEST, "Bounds", ELoc::L);
-    db->addFields(1, TEST, "Bounds", ELoc::U);
+    db->addFieldsByConstant(1, TEST, "Bounds", ELoc::L);
+    db->addFieldsByConstant(1, TEST, "Bounds", ELoc::U);
   }
 
   // Model

@@ -13,8 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
-#include "H5Cpp.h"
-#include "typeinfo"
+
+#include <H5Cpp.h>
+#include <typeinfo>
 
 #if H5_VERSION_GE(1,8,20)
 #define EXCEPTION_PRINT_ERROR(e) e.printErrorStack();

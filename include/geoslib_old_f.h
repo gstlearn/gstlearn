@@ -2111,7 +2111,6 @@ GSTLEARN_EXPORT int bayes_simulate(Model *model,
                                    double *rmean,
                                    double *rcov,
                                    double *smean);
-GSTLEARN_EXPORT int krimage_func(Db *dbgrid, Model *model, Neigh *neigh);
 GSTLEARN_EXPORT int image_smoother(Db *dbgrid,
                                    Neigh *neigh,
                                    int type,
