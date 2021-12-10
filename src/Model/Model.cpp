@@ -823,10 +823,9 @@ Model* Model::duplicate() const
  * @param flag_cov 1 if the Model must be expressed in covariance
  * @param covmat Returned matrix (resturned as a vector).
  *
- * @remark The returned argument must have been dimensioned beforehand to
- * @remark (nvar * nechA)^2 where:
- * @remark nvar stands for the number of (active) variables
- * @remark nechA stands for the number of active samples
+ * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
+ * @remark -nvar stands for the number of (active) variables
+ * @remark -nechA stands for the number of active samples
  */
 void Model::covMatrix(Db *db1,
                       Db *db2,
