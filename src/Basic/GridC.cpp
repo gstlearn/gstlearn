@@ -57,9 +57,9 @@ void GridC::resetFromSpaceDimension(int ndim)
 }
 
 int GridC::resetFromVector(const VectorInt& nx,
-                            const VectorDouble& dx,
-                            const VectorDouble& x0,
-                            const VectorDouble& angles)
+                           const VectorDouble& dx,
+                           const VectorDouble& x0,
+                           const VectorDouble& angles)
 {
   _nDim = static_cast<int> (nx.size());
   _allocate();

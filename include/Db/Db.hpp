@@ -455,9 +455,9 @@ public:
    * @param angles Array of rotation angles
    */
   int gridDefine(const VectorInt& nx,
-                  const VectorDouble& dx = VectorDouble(),
-                  const VectorDouble& x0 = VectorDouble(),
-                  const VectorDouble& angles = VectorDouble());
+                 const VectorDouble& dx = VectorDouble(),
+                 const VectorDouble& x0 = VectorDouble(),
+                 const VectorDouble& angles = VectorDouble());
   void gridCopyParams(int mode, const GridC& gridaux);
   bool isSameGrid(const GridC& grid) const;
   bool isSameGridMesh(const Db& dbaux) const;
