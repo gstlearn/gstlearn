@@ -73,7 +73,7 @@ AMesh* MeshFactory::createMesh(int variety,
         ndim = dbout->getNDim();
       }
       MeshEStandard* mesh = new MeshEStandard();
-      if (!mesh->create(dbin, dbout, dilate, triswitch, verbose))
+      if (!mesh->resetFromDb(dbin, dbout, dilate, triswitch, verbose))
         return ((AMesh *) mesh);
     }
     else if (! extendmin.empty() &&
@@ -99,7 +99,7 @@ AMesh* MeshFactory::createMesh(int variety,
       }
 
       MeshEStandard* mesh = new MeshEStandard();
-      if (! mesh->create(apices, meshes, verbose))
+      if (! mesh->reset(apices, meshes, verbose))
         return ((AMesh *) mesh);
     }
   }
@@ -110,7 +110,7 @@ AMesh* MeshFactory::createMesh(int variety,
       mestitle(0,"Spherical Meshing");
     }
     MeshSpherical* mesh = new MeshSpherical();
-    if (!mesh->create(verbose, dbin, dbout, triswitch))
+    if (!mesh->reset(dbin, dbout, triswitch, verbose))
       return ((AMesh *) mesh);
   }
   else

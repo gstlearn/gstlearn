@@ -31,12 +31,12 @@ public:
 	virtual ~GridC();
 
 public:
-  void    init(int ndim);
-  void    init(GridC* grid);
-  int     init(const VectorInt&    nx = VectorInt(),
-               const VectorDouble& dx = VectorDouble(),
-               const VectorDouble& x0 = VectorDouble(),
-               const VectorDouble& angles = VectorDouble());
+  void resetFromSpaceDimension(int ndim);
+  void resetFromGrid(GridC* grid);
+  int resetFromVector(const VectorInt& nx = VectorInt(),
+                      const VectorDouble& dx = VectorDouble(),
+                      const VectorDouble& x0 = VectorDouble(),
+                      const VectorDouble& angles = VectorDouble());
   void    setX0(int idim,double value);
   void    setDX(int idim,double value);
   void    setNX(int idim,int    value);
@@ -56,25 +56,25 @@ public:
 
   void    copyParams(int mode, const GridC& gridaux);
   double  getCoordinate(int rank, int idim, bool flag_rotate=true) const;
-  VectorDouble getCoordinates(int rank, bool flag_rotate=true) const;
-  VectorDouble getCoordinates(const VectorInt& indice, bool flag_rotate=true) const;
+  VectorDouble getCoordinatesByRank(int rank, bool flag_rotate=true) const;
+  VectorDouble getCoordinatesByIndice(const VectorInt& indice, bool flag_rotate=true) const;
   VectorDouble getCoordinatesByCorner(const VectorInt& icorner) const;
   double indiceToCoordinate(int idim0,
                             const VectorInt& indice,
                             const VectorDouble& percent = VectorDouble()) const;
-  void indiceToCoordinateToPlace(const VectorInt& indice,
-                                 VectorDouble& coor,
-                                 const VectorDouble& percent) const;
-  VectorDouble indiceToCoordinate(const VectorInt& indice,
-                                  const VectorDouble& percent = VectorDouble()) const;
+  VectorDouble indicesToCoordinate(const VectorInt& indice,
+                                   const VectorDouble& percent = VectorDouble()) const;
+  void indicesToCoordinateInPlace(const VectorInt& indice,
+                                  VectorDouble& coor,
+                                  const VectorDouble& percent) const;
   double rankToCoordinate(int idim0,
                           int rank,
                           const VectorDouble& percent = VectorDouble()) const;
-  VectorDouble rankToCoordinate(int rank,
+  VectorDouble rankToCoordinates(int rank,
+                                 const VectorDouble& percent = VectorDouble()) const;
+  void rankToCoordinatesInPlace(int rank,
+                                VectorDouble& coor,
                                 const VectorDouble& percent = VectorDouble()) const;
-  void rankToCoordinateInPlace(int rank,
-                               VectorDouble& coor,
-                               const VectorDouble& percent = VectorDouble()) const;
   int     indiceToRank(const VectorInt& indice) const;
   void    rankToIndice(int node,VectorInt& indice, bool minusOne = false) const;
   int     coordinateToIndice(const VectorDouble& coor,
@@ -84,7 +84,7 @@ public:
 
   const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
   const VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }
-  double getRotAngles(int idim) const { return _rotation.getAngle(idim); }
+  double getRotAngle(int idim) const { return _rotation.getAngle(idim); }
   const VectorInt       getNXs() const { return _nx; }
   const VectorDouble    getX0s() const { return _x0; }
   const VectorDouble    getDXs() const { return _dx; }

@@ -325,7 +325,7 @@ double neigh_continuous_variance(Neigh *neigh,
     /* Rotated anisotropy ellipsoid */
 
     if (neigh->getFlagRotation())
-      matrix_product_safe(1, ndim, ndim, dd, neigh->getAnisoRotMat().data(),
+      matrix_product_safe(1, ndim, ndim, dd, neigh->getAnisoRotMats().data(),
                           dd);
     for (int idim = 0; idim < ndim; idim++)
       dd[idim] /= neigh->getAnisoCoeff(idim);
@@ -391,7 +391,7 @@ static double st_moving_dist(Db *dbin,
 
     if (neigh->getFlagRotation())
     {
-      matrix_product(1, ndim, ndim, NBGH_x1, neigh->getAnisoRotMat().data(),
+      matrix_product(1, ndim, ndim, NBGH_x1, neigh->getAnisoRotMats().data(),
                      NBGH_x2);
       (void) memcpy((void*) NBGH_x1, (void*) NBGH_x2, sizeof(double) * ndim);
     }
@@ -756,7 +756,7 @@ static Neigh* st_neigh_alloc(void)
    neigh->setNSect(1);
    neigh->setNSMax(0);
    neigh->setWidth(0);
-   neigh->setRadius(0);
+   neigh->setRadius(0.);
    neigh->setDistCont(0);
    neigh->setSkip(0);
    neigh->setFlagXvalid(0);
@@ -785,7 +785,7 @@ static void st_get_neigh_anisotropy(Neigh *neigh, VectorDouble &nbgh_radius)
   int ndim = neigh->getNDim();
   nbgh_radius.resize(ndim);
 
-  if (!neigh->getAnisoCoeff().empty())
+  if (!neigh->getAnisoCoeffs().empty())
     for (int i = 0; i < ndim; i++)
       nbgh_radius[i] = neigh->getRadius() * neigh->getAnisoCoeff(i);
   else
@@ -891,7 +891,7 @@ Neigh* neigh_init(int ndim,
     neigh->setRadius(0.);
     for (int i = 0; i < neigh->getNDim(); i++)
       neigh->setRadius(MAX(neigh->getRadius(), nbgh_radius[i]));
-    neigh->setAnisoCoeff(nbgh_radius);
+    neigh->setAnisoCoeffs(nbgh_radius);
     neigh->anisoRescale();
   }
   if (neigh->getFlagRotation() && !nbgh_rotmat.empty())
@@ -978,7 +978,7 @@ void neigh_print(const Neigh *neigh)
         if (neigh->getFlagRotation())
         {
           print_matrix("Anisotropy Rotation :", 0, 1, ndim, ndim, nullptr,
-                       neigh->getAnisoRotMat().data());
+                       neigh->getAnisoRotMats().data());
         }
       }
       break;
@@ -987,7 +987,7 @@ void neigh_print(const Neigh *neigh)
       message("Image neighborhood option\n");
       message("Skipping factor = %d\n", neigh->getSkip());
       print_imatrix("Image radius :", 0, 1, ndim, 1, nullptr,
-                    neigh->getImageRadius().data());
+                    neigh->getAllImageRadius().data());
       break;
   }
 
@@ -1293,8 +1293,8 @@ int neigh_extract(Neigh *neigh,
   *radius = neigh->getRadius();
   *dist_cont = neigh->getDistCont();
 
-  if (!neigh->getAnisoRotMat().empty())
-    nbgh_rotmat = neigh->getAnisoRotMat();
+  if (!neigh->getAnisoRotMats().empty())
+    nbgh_rotmat = neigh->getAnisoRotMats();
   else
     for (i = ecr = 0; i < ndim; i++)
       for (j = 0; j < ndim; j++, ecr++)
@@ -1302,8 +1302,8 @@ int neigh_extract(Neigh *neigh,
 
   st_get_neigh_anisotropy(neigh, nbgh_radius);
 
-  if (!neigh->getImageRadius().empty())
-    nbgh_image = neigh->getImageRadius();
+  if (!neigh->getAllImageRadius().empty())
+    nbgh_image = neigh->getAllImageRadius();
   else
     nbgh_image.resize(ndim);
 

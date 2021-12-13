@@ -144,8 +144,8 @@ void SPDE::init(Model& model,
       }
     }
   }
-  _precisionsKriging.setVarianceData(varianceData);
-  _precisionsSimu.setVarianceData(varianceData);
+  _precisionsKriging.setVarianceDataVector(varianceData);
+  _precisionsSimu.setVarianceDataVector(varianceData);
 }
 
 void SPDE::computeKriging(const VectorDouble& datVect) const

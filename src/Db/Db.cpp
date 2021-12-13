@@ -1707,7 +1707,7 @@ int Db::gridDefine(const VectorInt& nx,
                    const VectorDouble& angles)
 {
   _isGrid = 1;
-  return (_grid.init(nx, dx, x0, angles));
+  return (_grid.resetFromVector(nx, dx, x0, angles));
 }
 
 void Db::gridCopyParams(int mode, const GridC& gridaux)
@@ -1820,7 +1820,7 @@ double Db::getAngle(int idim) const
 {
   if (!isGrid()) return (-1);
   if (!isDimensionIndexValid(idim)) return (0.);
-  return _grid.getRotAngles(idim);
+  return _grid.getRotAngle(idim);
 }
 
 void Db::_columnInit(int ncol, int icol0, double valinit)
@@ -2751,7 +2751,7 @@ VectorString Db::getNames(const String& name) const
   return expandNameList(name);
 }
 
-VectorString Db::getNamesByAttribute(const VectorString& names) const
+VectorString Db::getNames(const VectorString& names) const
 {
   return expandNameList(names);
 }
@@ -3377,7 +3377,7 @@ void Db::_createGridCoordinates(int shift)
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     VectorInt indices = _grid.iteratorNext();
-    VectorDouble coors = _grid.indiceToCoordinate(indices);
+    VectorDouble coors = _grid.indicesToCoordinate(indices);
     for (int idim = 0; idim < getNDim(); idim++)
       setCoordinate(iech, shift + idim, coors[idim]);
   }

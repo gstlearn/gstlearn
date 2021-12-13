@@ -82,8 +82,8 @@ typedef struct
 #define MEMINT(ipair)   (local_pgs->memint[ipair])
 #define STAT_PROBA(i,j) (M_R(local_pgs->stat_proba,local_pgs->nfacies,i,j))
 #define STAT_THRESH(ifac,igrf,rank) (local_pgs->stat_thresh[2*(nfacies * (igrf) + (ifac))+(rank)])
-#define LAG_USED(idir,ipas) (vario->getSw(idir,vario->getLagNumber(idir) + ipas + 1) > 0 && \
-                         vario->getUtilize(idir,vario->getLagNumber(idir) + ipas + 1))
+#define LAG_USED(idir,ipas) (vario->getSwByRank(idir,vario->getLagNumber(idir) + ipas + 1) > 0 && \
+                         vario->getUtilizeByRank(idir,vario->getLagNumber(idir) + ipas + 1))
 #define TABOUT(i,j)      tabout[(j)*neq+(i)]
 #define EIGVEC(i,j)      eigvec[(i)*neq+(j)]
 #define RULES(ir,i)     (rules[(ir)  * NRULE  + (i)])
@@ -460,9 +460,9 @@ static void st_variogram_define_vars(Vario *vario, const Rule *rule, int ngrf)
     for (jgrf = 0; jgrf < ngrf; jgrf++)
     {
       if (igrf == jgrf)
-        vario->setVars(igrf, jgrf, 1.);
+        vario->setVarBivar(igrf, jgrf, 1.);
       else
-        vario->setVars(igrf, jgrf, rule->getRho());
+        vario->setVarBivar(igrf, jgrf, rule->getRho());
     }
 }
 
@@ -987,10 +987,10 @@ static double st_func_search_stat(double correl, void *user_data)
       double logp = (proba <= 0.) ? -1.e30 :
                                     log(proba);
       int iad = vario->getDirAddress(idir, ifac1, ifac2, ipas, false, 1);
-      double sw = vario->getSw(idir, iad);
-      double gg = vario->getGg(idir, iad);
+      double sw = vario->getSwByRank(idir, iad);
+      double gg = vario->getGgByRank(idir, iad);
       iad = vario->getDirAddress(idir, ifac1, ifac2, ipas, false, -1);
-      gg += vario->getGg(idir, iad);
+      gg += vario->getGgByRank(idir, iad);
       sum -= logp * gg * sw / 2.;
     }
 
@@ -1169,9 +1169,9 @@ static int st_varcalc_from_vario_stat(Vario *vario,
           varloc = (igrf == jgrf) ? result :
                                     0.;
           iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
-          vario->setGg(idir, iad, varloc);
+          vario->setGgByRank(idir, iad, varloc);
           iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
-          vario->setGg(idir, iad, varloc);
+          vario->setGgByRank(idir, iad, varloc);
 
           if (debug_query("converge"))
             message("Lag:%d - Grf:%d - Variogram(%d) = %lf\n", ipas, igrf, iad,
@@ -1270,9 +1270,9 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
         varloc = (igrf == jgrf) ? result :
                                   0.;
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
-        vario->setGg(idir, iad, varloc);
+        vario->setGgByRank(idir, iad, varloc);
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
-        vario->setGg(idir, iad, varloc);
+        vario->setGgByRank(idir, iad, varloc);
 
         if (debug_query("converge"))
           message("Lag:%d - Grf:%d - Variogram(%d) = %lf\n", ipas, igrf, iad,
@@ -3453,15 +3453,15 @@ static void st_variogram_geometry_pgs_correct(Local_Pgs *local_pgs,
       for (jgrf = 0; jgrf <= igrf; jgrf++)
       {
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
-        vario->setGg(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
-        if (vario->getSw(idir, iad) > 0.)
-          vario->setHh(idir, iad,
-                       vario->getHh(idir, iad) / vario->getSw(idir, iad));
+        vario->setGgByRank(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
+        if (vario->getSwByRank(idir, iad) > 0.)
+          vario->setHhByRank(idir, iad,
+                       vario->getHhByRank(idir, iad) / vario->getSwByRank(idir, iad));
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
-        vario->setGg(idir, iad, st_param_expand(local_pgs, igrf, jgrf, -1));
-        if (vario->getSw(idir, iad) > 0.)
-          vario->setHh(idir, iad,
-                       vario->getHh(idir, iad) / vario->getSw(idir, iad));
+        vario->setGgByRank(idir, iad, st_param_expand(local_pgs, igrf, jgrf, -1));
+        if (vario->getSwByRank(idir, iad) > 0.)
+          vario->setHhByRank(idir, iad,
+                       vario->getHhByRank(idir, iad) / vario->getSwByRank(idir, iad));
       }
 }
 
@@ -3553,20 +3553,20 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
           if (vario->getFlagAsym())
           {
             iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-            vario->setGg(idir, iad, 0.);
-            vario->setHh(idir, iad, vario->getHh(idir, iad) - dist);
-            vario->setSw(idir, iad, vario->getSw(idir, iad) + 1);
+            vario->setGgByRank(idir, iad, 0.);
+            vario->setHhByRank(idir, iad, vario->getHhByRank(idir, iad) - dist);
+            vario->setSwByRank(idir, iad, vario->getSwByRank(idir, iad) + 1);
             iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, -1);
-            vario->setGg(idir, iad, 0.);
-            vario->setHh(idir, iad, vario->getHh(idir, iad) + dist);
-            vario->setSw(idir, iad, vario->getSw(idir, iad) + 1);
+            vario->setGgByRank(idir, iad, 0.);
+            vario->setHhByRank(idir, iad, vario->getHhByRank(idir, iad) + dist);
+            vario->setSwByRank(idir, iad, vario->getSwByRank(idir, iad) + 1);
           }
           else
           {
             iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
-            vario->setGg(idir, iad, 0.);
-            vario->setHh(idir, iad, vario->getHh(idir, iad) + dist);
-            vario->setSw(idir, iad, vario->getSw(idir, iad) + 1);
+            vario->setGgByRank(idir, iad, 0.);
+            vario->setHhByRank(idir, iad, vario->getHhByRank(idir, iad) + dist);
+            vario->setSwByRank(idir, iad, vario->getSwByRank(idir, iad) + 1);
           }
         }
     }
@@ -3659,16 +3659,16 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
 
     st_optim_onelag_pgs(local_pgs, 1e-3, 1);
     st_set_opt_correl(opt_temp, &local_pgs->corpgs);
-    value += (vario->getUtilize(idir, vario->getLagNumber(idir) + ipas)
+    value += (vario->getUtilizeByRank(idir, vario->getLagNumber(idir) + ipas)
         * st_optim_onelag_pgs(local_pgs, 1e-3, 0));
 
     for (igrf = 0; igrf < local_pgs->ngrf; igrf++)
       for (jgrf = 0; jgrf <= igrf; jgrf++)
       {
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
-        vario->setGg(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
+        vario->setGgByRank(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
-        vario->setGg(idir, iad, st_param_expand(local_pgs, igrf, jgrf, -1));
+        vario->setGgByRank(idir, iad, st_param_expand(local_pgs, igrf, jgrf, -1));
       }
   }
   return (value);
@@ -3889,7 +3889,7 @@ static void st_make_some_lags_inactive(Vario *vario)
 {
   for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
     for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
-      vario->setUtilize(idir, vario->getLagNumber(idir) + ipas, 1.);
+      vario->setUtilizeByRank(idir, vario->getLagNumber(idir) + ipas, 1.);
 }
 
 /****************************************************************************/
@@ -3903,7 +3903,7 @@ static void st_make_all_lags_active(Vario *vario)
 {
   for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
     for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
-      vario->setUtilize(idir, vario->getLagNumber(idir) + ipas, 1.);
+      vario->setUtilizeByRank(idir, vario->getLagNumber(idir) + ipas, 1.);
 }
 
 /****************************************************************************/
@@ -4580,27 +4580,27 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
             if (local_pgs->vario->getFlagAsym())
             {
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
-              vario->setGg(
+              vario->setGgByRank(
                   idir,
                   i,
-                  vario->getGg(idir, i) + st_get_value(local_pgs, flag_ind,
+                  vario->getGgByRank(idir, i) + st_get_value(local_pgs, flag_ind,
                                                        iech, jech, ifac, jfac,
                                                        iconf, cov));
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
-              vario->setGg(
+              vario->setGgByRank(
                   idir,
                   i,
-                  vario->getGg(idir, i) + st_get_value(local_pgs, flag_ind,
+                  vario->getGgByRank(idir, i) + st_get_value(local_pgs, flag_ind,
                                                        jech, iech, ifac, jfac,
                                                        iconf, cov));
             }
             else
             {
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
-              vario->setGg(
+              vario->setGgByRank(
                   idir,
                   i,
-                  vario->getGg(idir, i) + st_get_value(local_pgs, flag_ind,
+                  vario->getGgByRank(idir, i) + st_get_value(local_pgs, flag_ind,
                                                        iech, jech, ifac, jfac,
                                                        iconf, cov));
             }
@@ -4658,9 +4658,9 @@ static int st_copy_swhh(const Vario *vario1,
         for (int jvar = 0; jvar < nvar; jvar++)
         {
           int iad2 = vario2->getDirAddress(idir, ivar, jvar, ipas, true, 0);
-          if (flagSw) vario2->setSw(idir, iad2, vario1->getSw(idir, iad1));
-          if (flagHh) vario2->setHh(idir, iad2, vario1->getHh(idir, iad1));
-          if (flagGg) vario2->setGg(idir, iad2, vario1->getGg(idir, iad1));
+          if (flagSw) vario2->setSwByRank(idir, iad2, vario1->getSwByRank(idir, iad1));
+          if (flagHh) vario2->setHhByRank(idir, iad2, vario1->getHhByRank(idir, iad1));
+          if (flagGg) vario2->setGgByRank(idir, iad2, vario1->getGgByRank(idir, iad1));
         }
     }
   }
@@ -4709,7 +4709,7 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
       for (int i = 0; i < vario->getDimensionNumber(); i++)
       {
         int jpas = vario->getDirAddress(idir, 0, 0, ipas, false, 1);
-        local_pgs->d1[i] = vario->getHh(idir, jpas) * vario->getCodir(idir, i);
+        local_pgs->d1[i] = vario->getHhByRank(idir, jpas) * vario->getCodir(idir, i);
       }
       st_calcul_covmatrix(local_pgs, &flag_ind, iconf, cov);
 
@@ -4721,13 +4721,13 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
           if (local_pgs->vario->getFlagAsym())
           {
             ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
-            vario->setGg(
+            vario->setGgByRank(
                 idir,
                 ii,
                 st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf,
                              cov));
             ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
-            vario->setGg(
+            vario->setGgByRank(
                 idir,
                 ii,
                 st_get_value(local_pgs, flag_ind, 0, 0, jfac, ifac, iconf,
@@ -4736,7 +4736,7 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
           else
           {
             ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
-            vario->setGg(
+            vario->setGgByRank(
                 idir,
                 ii,
                 st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf,
@@ -4776,16 +4776,16 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
       pivar = local_pgs->propdef->propfix[ivar];
       pjvar = local_pgs->propdef->propfix[jvar];
       if (ivar == jvar)
-        vario->setVars(ivar, jvar, pivar * (1. - pivar));
+        vario->setVarBivar(ivar, jvar, pivar * (1. - pivar));
       else
-        vario->setVars(ivar, jvar, -pivar * pjvar);
+        vario->setVarBivar(ivar, jvar, -pivar * pjvar);
       if (!vario->getFlagAsym()) continue;
 
       for (idir = 0; idir < vario->getDirectionNumber(); idir++)
       {
         iad = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
-        vario->setSw(idir, iad, 1);
-        vario->setHh(idir, iad, 0);
+        vario->setSwByRank(idir, iad, 1);
+        vario->setHhByRank(idir, iad, 0);
 
         switch (local_pgs->calcul_type.toEnum())
         {
@@ -4793,11 +4793,11 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
             break;
 
           case ECalcVario::E_COVARIANCE:
-            vario->setGg(idir, iad, vario->getVars(ivar, jvar));
+            vario->setGgByRank(idir, iad, vario->getVarBivar(ivar, jvar));
             break;
 
           case ECalcVario::E_COVARIANCE_NC:
-            vario->setGg(idir, iad, (ivar == jvar) ? pivar :
+            vario->setGgByRank(idir, iad, (ivar == jvar) ? pivar :
                                                      0.);
             break;
           default:
@@ -4879,7 +4879,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
   for (int ivar = 0; ivar < nfacies; ivar++)
     for (int jvar = 0; jvar < nfacies; jvar++)
     {
-      vario->setVars(ivar, jvar, COVS(ivar, jvar));
+      vario->setVarBivar(ivar, jvar, COVS(ivar, jvar));
 
       if (!vario->getFlagAsym()) continue;
 
@@ -4887,8 +4887,8 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
       for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
       {
         int iad = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
-        vario->setSw(idir, iad, dbin->getSampleNumber());
-        vario->setHh(idir, iad, 0);
+        vario->setSwByRank(idir, iad, dbin->getSampleNumber());
+        vario->setHhByRank(idir, iad, 0);
 
         switch (local_pgs->calcul_type.toEnum())
         {
@@ -4896,11 +4896,11 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
             break;
 
           case ECalcVario::E_COVARIANCE:
-            vario->setGg(idir, iad, vario->getVars(ivar, jvar));
+            vario->setGgByRank(idir, iad, vario->getVarBivar(ivar, jvar));
             break;
 
           case ECalcVario::E_COVARIANCE_NC:
-            vario->setGg(idir, iad, (ivar == jvar) ? mean[ivar] :
+            vario->setGgByRank(idir, iad, (ivar == jvar) ? mean[ivar] :
                                                      0.);
             break;
           default:

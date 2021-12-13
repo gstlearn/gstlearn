@@ -167,7 +167,7 @@ double MeshETurbo::getApexCoor(int i, int idim) const
   return _grid.indiceToCoordinate(idim, indg, VectorDouble());
 }
 
-void MeshETurbo::setMaskArray(double *array)
+void MeshETurbo::setMaskArrayFromDouble(double *array)
 {
   int ntotal  = _grid.getNTotal();
   int nactive = 0;
@@ -181,7 +181,7 @@ void MeshETurbo::setMaskArray(double *array)
   _isMaskDefined = (nactive > 0);
 }
 
-void MeshETurbo::setMaskArray(int *array)
+void MeshETurbo::setMaskArrayFromInt(int *array)
 {
   int ntotal  = _grid.getNTotal();
   int nactive = 0;
@@ -207,7 +207,7 @@ int MeshETurbo::initFromGrid(const VectorInt& nx,
 
   /* Create the internal (rotated) grid */
 
-  if (_grid.init(nx, dx, x0)) return 1;
+  if (_grid.resetFromVector(nx, dx, x0)) return 1;
   _grid.setRotationByVector(rotmat);
 
   // Get grid extension
@@ -546,7 +546,7 @@ int MeshETurbo::_defineGrid(const VectorDouble& cellsize)
   
   // Create the grid internal structure
 
-  _grid.init(ndim);
+  _grid.resetFromSpaceDimension(ndim);
 
   // Copy the grid main characteristics
 

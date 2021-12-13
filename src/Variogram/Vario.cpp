@@ -149,7 +149,7 @@ Vario::Vario(const Vario& vario_in,
     {
       _means.resize(_nVar);
       for (int ivar = 0; ivar < _nVar; ivar++)
-        setMeans(ivar, vario_in.getMeans(selvars[ivar]));
+        setMean(ivar, vario_in.getMean(selvars[ivar]));
     }
 
     if (! vario_in.getVars().empty())
@@ -157,7 +157,7 @@ Vario::Vario(const Vario& vario_in,
       _vars.resize(_nVar * _nVar);
       for (int ivar = 0; ivar < _nVar; ivar++)
         for (int jvar = 0; jvar < _nVar; jvar++)
-          setVars(ivar, jvar, vario_in.getVars(selvars[ivar], selvars[jvar]));
+          setVarBivar(ivar, jvar, vario_in.getVarBivar(selvars[ivar], selvars[jvar]));
     }
   }
   else
@@ -186,26 +186,26 @@ Vario::Vario(const Vario& vario_in,
           if (! flagMakeSym)
           {
             int iadfrom = vario_in.getDirAddress(idir,ivar,jvar,ipas,false,0);
-            _sw[idir][iadto] = vario_in.getSw(idir0,iadfrom);
-            _gg[idir][iadto] = vario_in.getGg(idir0,iadfrom);
-            _hh[idir][iadto] = vario_in.getHh(idir0,iadfrom);
-            _utilize[idir][iadto] = vario_in.getUtilize(idir0,iadfrom);
+            _sw[idir][iadto] = vario_in.getSwByRank(idir0,iadfrom);
+            _gg[idir][iadto] = vario_in.getGgByRank(idir0,iadfrom);
+            _hh[idir][iadto] = vario_in.getHhByRank(idir0,iadfrom);
+            _utilize[idir][iadto] = vario_in.getUtilizeByRank(idir0,iadfrom);
           }
           else
           {
             int iadf1 = vario_in.getDirAddress(idir,ivar,jvar,ipas,false,-1);
             int iadf2 = vario_in.getDirAddress(idir,ivar,jvar,ipas,false,1);
-            _sw[idir][iadto] = (vario_in.getSw(idir0, iadf1)
-                + vario_in.getSw(idir0, iadf2)) / 2.;
-            _gg[idir][iadto] = (vario_in.getGg(idir0, iadf1)
-                + vario_in.getGg(idir0, iadf2)) / 2.;
-            _hh[idir][iadto] = (ABS(vario_in.getHh(idir0, iadf1))
-                + ABS(vario_in.getHh(idir0, iadf2))) / 2.;
-            _utilize[idir][iadto] = (vario_in.getUtilize(idir0, iadf1)
-                + vario_in.getUtilize(idir0, iadf2)) / 2.;
+            _sw[idir][iadto] = (vario_in.getSwByRank(idir0, iadf1)
+                + vario_in.getSwByRank(idir0, iadf2)) / 2.;
+            _gg[idir][iadto] = (vario_in.getGgByRank(idir0, iadf1)
+                + vario_in.getGgByRank(idir0, iadf2)) / 2.;
+            _hh[idir][iadto] = (ABS(vario_in.getHhByRank(idir0, iadf1))
+                + ABS(vario_in.getHhByRank(idir0, iadf2))) / 2.;
+            _utilize[idir][iadto] = (vario_in.getUtilizeByRank(idir0, iadf1)
+                + vario_in.getUtilizeByRank(idir0, iadf2)) / 2.;
             if (flagMakeSym)
             {
-              double c0 = vario_in.getVars(ivar,jvar);
+              double c0 = vario_in.getVarBivar(ivar,jvar);
               _gg[idir][iadto] = c0 - _gg[idir][iadto];
             }
           }
@@ -474,7 +474,7 @@ double Vario::getHmax(int ivar, int jvar, int idir) const
     for (int iv = ivb[0]; iv < ivb[1]; iv++)
       for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
-        VectorDouble hh = getHhVec(id, iv, jv);
+        VectorDouble hh = getHhVecBivar(id, iv, jv);
         double hhloc = ut_vector_max(hh);
         if (hhloc > hmax) hmax = hhloc;
       }
@@ -501,7 +501,7 @@ VectorDouble Vario::getHRange(int ivar, int jvar, int idir) const
     for (int iv = ivb[0]; iv < ivb[1]; iv++)
       for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
-        VectorDouble hh = getHhVec(id, iv, jv);
+        VectorDouble hh = getHhVecBivar(id, iv, jv);
         double hhmin = ut_vector_min(hh);
         double hhmax = ut_vector_max(hh);
         if (hhmin < vec[0]) vec[0] = hhmin;
@@ -526,12 +526,12 @@ double Vario::getGmax(int ivar,
     for (int iv = ivb[0]; iv < ivb[1]; iv++)
       for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
-        VectorDouble gg = getGgVec(id, iv, jv);
+        VectorDouble gg = getGgVecBivar(id, iv, jv);
         double ggloc = ut_vector_max(gg, flagAbs);
         if (ggloc > gmax) gmax = ggloc;
         if (flagSill)
         {
-          double sill = ABS(getVars(iv, jv));
+          double sill = ABS(getVarBivar(iv, jv));
           if (gmax < sill) gmax = sill;
         }
       }
@@ -555,14 +555,14 @@ VectorDouble Vario::getGRange(int ivar,
     for (int iv = ivb[0]; iv < ivb[1]; iv++)
       for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
-        VectorDouble gg = getGgVec(id, iv, jv);
+        VectorDouble gg = getGgVecBivar(id, iv, jv);
         double ggmin = ut_vector_min(gg);
         double ggmax = ut_vector_max(gg);
         if (ggmin < vec[0]) vec[0] = ggmin;
         if (ggmax > vec[1]) vec[1] = ggmax;
         if (flagSill)
         {
-          double sill = getVars(iv, jv);
+          double sill = getVarBivar(iv, jv);
           if (sill < vec[0]) vec[0] = sill;
           if (sill > vec[1]) vec[1] = sill;
         }
@@ -770,20 +770,20 @@ ECalcVario Vario::getCalculType() const
   return calcul_type;
 }
 
-double Vario::getMeans(int ivar) const
+double Vario::getMean(int ivar) const
 {
   if (! _isVariableValid(ivar)) return TEST;
   return _means[ivar];
 }
 
-double Vario::getVars(int ivar, int jvar) const
+double Vario::getVarBivar(int ivar, int jvar) const
 {
   int iad = getVarAddress(ivar, jvar);
   if (IFFFF(iad)) return TEST;
   return _vars[iad];
 }
 
-double Vario::getVars(int ijvar) const
+double Vario::getVarIJ(int ijvar) const
 {
   if (! _isBivariableValid(ijvar)) return TEST;
   return _vars[ijvar];
@@ -803,7 +803,7 @@ void Vario::setMeans(const VectorDouble& means)
     _means = means;
 }
 
-void Vario::setMeans(int ivar, double mean)
+void Vario::setMean(int ivar, double mean)
 {
   if (_means.empty()) _initMeans();
   if (! _isVariableValid(ivar)) return;
@@ -826,14 +826,14 @@ void Vario::setVars(const VectorDouble& vars)
     _vars = vars;
 }
 
-void Vario::setVars(int ijvar, double value)
+void Vario::setVarIJ(int ijvar, double value)
 {
   if (_vars.empty()) _initVars();
   if (! _isBivariableValid(ijvar)) return;
   _vars[ijvar] = value;
 }
 
-void Vario::setVars(int ivar, int jvar, double value)
+void Vario::setVarBivar(int ivar, int jvar, double value)
 {
   if (_vars.empty()) _initVars();
   int iad = getVarAddress(ivar, jvar);
@@ -841,49 +841,49 @@ void Vario::setVars(int ivar, int jvar, double value)
   _vars[iad] = value;
 }
 
-double Vario::getGg(int idir, int i) const
+double Vario::getGgByRank(int idir, int i) const
 {
   if (! _isAddressValid(idir, i)) return(TEST);
   return _gg[idir][i];
 }
 
-double Vario::getHh(int idir, int i) const
+double Vario::getHhByRank(int idir, int i) const
 {
   if (! _isAddressValid(idir, i)) return(TEST);
   return _hh[idir][i];
 }
 
-double Vario::getSw(int idir, int i) const
+double Vario::getSwByRank(int idir, int i) const
 {
   if (! _isAddressValid(idir, i)) return(TEST);
   return _sw[idir][i];
 }
 
-double Vario::getUtilize(int idir, int i) const
+double Vario::getUtilizeByRank(int idir, int i) const
 {
   if (! _isAddressValid(idir, i)) return(TEST);
   return _utilize[idir][i];
 }
 
-void Vario::setGg(int idir, int i, double gg)
+void Vario::setGgByRank(int idir, int i, double gg)
 {
   if (! _isAddressValid(idir, i)) return;
   _gg[idir][i] = gg;
 }
 
-void Vario::setHh(int idir, int i, double hh)
+void Vario::setHhByRank(int idir, int i, double hh)
 {
   if (! _isAddressValid(idir, i)) return;
   _hh[idir][i] = hh;
 }
 
-void Vario::setSw(int idir, int i, double sw)
+void Vario::setSwByRank(int idir, int i, double sw)
 {
   if (! _isAddressValid(idir, i)) return;
   _sw[idir][i] = sw;
 }
 
-void Vario::setUtilize(int idir, int i, double utilize)
+void Vario::setUtilizeByRank(int idir, int i, double utilize)
 {
   if (! _isAddressValid(idir, i)) return;
   _utilize[idir][i] = utilize;
@@ -925,19 +925,19 @@ void Vario::setUtilize(int idir, int ivar, int jvar, int ipas, double utilize)
   _utilize[idir][iad] = utilize;
 }
 
-void Vario::updSw(int idir, int i, double sw)
+void Vario::updSwByRank(int idir, int i, double sw)
 {
   if (! _isAddressValid(idir, i)) return;
   _sw[idir][i] += sw;
 }
 
-void Vario::updHh(int idir, int i, double hh)
+void Vario::updHhByRank(int idir, int i, double hh)
 {
   if (! _isAddressValid(idir, i)) return;
   _hh[idir][i] += hh;
 }
 
-void Vario::updGg(int idir, int i, double gg)
+void Vario::updGgByRank(int idir, int i, double gg)
 {
   if (! _isAddressValid(idir, i)) return;
   _gg[idir][i] += gg;
@@ -957,7 +957,7 @@ double Vario::getGg(int idir,
   double val = _gg[idir][iad];
   if (flagCov || flagNorm)
   {
-    double c0 = getVars(ivar, jvar);
+    double c0 = getVarBivar(ivar, jvar);
     if (flagCov && ! getFlagAsym())  val = c0 - val;
     if (flagNorm) val /= c0;
   }
@@ -991,7 +991,7 @@ double Vario::getUtilize(int idir, int ivar, int jvar, int ipas) const
   return _utilize[idir][iad];
 }
 
-VectorDouble Vario::getGgVec(int idir,
+VectorDouble Vario::getGgVecBivar(int idir,
                              int ivar,
                              int jvar,
                              bool asCov,
@@ -1004,7 +1004,7 @@ VectorDouble Vario::getGgVec(int idir,
 
   VectorDouble gg;
   double c0 = 0.;
-  if (asCov || flagNorm) c0 = getVars(ivar, jvar);
+  if (asCov || flagNorm) c0 = getVarBivar(ivar, jvar);
   int npas = dirparam.getLagNumber();
 
   for (int ipas = 0 ; ipas < npas; ipas++)
@@ -1020,7 +1020,7 @@ VectorDouble Vario::getGgVec(int idir,
   return gg;
 }
 
-VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
+VectorDouble Vario::getHhVecBivar(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
@@ -1038,7 +1038,7 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
   return hh;
 }
 
-VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
+VectorDouble Vario::getSwVecBivar(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
@@ -1056,7 +1056,7 @@ VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
   return sw;
 }
 
-VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar) const
+VectorDouble Vario::getUtilizeVecBivar(int idir, int ivar, int jvar) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
@@ -1285,11 +1285,11 @@ int Vario::deSerialize(const String& filename, bool verbose)
       {
         double sw, hh, gg;
         if (_recordRead("Experimental Variogram Weight", "%lf", &sw)) goto label_end;
-        setSw(idir, i, sw);
+        setSwByRank(idir, i, sw);
         if (_recordRead("Experimental Variogram Distance", "%lf", &hh)) goto label_end;
-        setHh(idir, i, hh);
+        setHhByRank(idir, i, hh);
         if (_recordRead("Experimental Variogram Value", "%lf", &gg)) goto label_end;
-        setGg(idir, i, gg);
+        setGgByRank(idir, i, gg);
       }
     }
   }
@@ -1329,7 +1329,7 @@ int Vario::serialize(const String& filename, bool verbose) const
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
     {
       for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-        _recordWrite("%lf", getVars(ivar,jvar));
+        _recordWrite("%lf", getVarBivar(ivar,jvar));
       _recordWrite("\n");
     }
   }
@@ -1366,11 +1366,11 @@ int Vario::serialize(const String& filename, bool verbose) const
     _recordWrite("#", "Variogram results (Weight, Distance, Variogram)");
     for (int i = 0; i < getDirSize(idir); i++)
     {
-      value = FFFF(getSw(idir, i)) ? 0. : getSw(idir, i);
+      value = FFFF(getSwByRank(idir, i)) ? 0. : getSwByRank(idir, i);
       _recordWrite("%lf", value);
-      value = FFFF(getHh(idir, i)) ? 0. : getHh(idir, i);
+      value = FFFF(getHhByRank(idir, i)) ? 0. : getHhByRank(idir, i);
       _recordWrite("%lf", value);
-      value = FFFF(getGg(idir, i)) ? 0. : getGg(idir, i);
+      value = FFFF(getGgByRank(idir, i)) ? 0. : getGgByRank(idir, i);
       _recordWrite("%lf", value);
       _recordWrite("\n");
     }
@@ -1392,12 +1392,12 @@ void Vario::patchCenter(int idir, int nech, double rho)
       // Get the central address
       int iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
       if (IFFFF(iad)) continue;
-      setSw(idir, iad, (double) nech);
-      setHh(idir, iad, 0.);
+      setSwByRank(idir, iad, (double) nech);
+      setHhByRank(idir, iad, 0.);
       if (ivar == jvar)
-        setGg(idir, iad, 1.);
+        setGgByRank(idir, iad, 1.);
       else
-        setGg(idir, iad, rho);
+        setGgByRank(idir, iad, rho);
     }
 }
 
@@ -1417,9 +1417,9 @@ int Vario::fill(int idir,
   }
   for (int i=0; i<size; i++)
   {
-    setSw(idir, i, sw[i]);
-    setHh(idir, i, hh[i]);
-    setGg(idir, i, gg[i]);
+    setSwByRank(idir, i, sw[i]);
+    setHhByRank(idir, i, hh[i]);
+    setGgByRank(idir, i, gg[i]);
   }
   return 0;
 }

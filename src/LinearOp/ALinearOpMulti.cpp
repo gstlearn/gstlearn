@@ -51,7 +51,7 @@ void ALinearOpMulti::_init() const
   }
   _initialized = true;
   int n;
-  int ns = size();
+  int ns = sizes();
   _r.resize(ns);
   _p.resize(ns);
   _temp.resize(ns);
@@ -104,7 +104,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
                                  VectorVectorDouble& out) const
 {
   _init();
-  int n = size();
+  int n = sizes();
   if (n <= 0) my_throw("ALinearOpMulti size not defined. Call setSize before");
 
   double rsnew;
@@ -281,7 +281,7 @@ double ALinearOpMulti::_prod(const VectorVectorDouble& x,
                              const VectorVectorDouble& y) const
 {
   double prod = 0.;
-  int n = size();
+  int n = sizes();
   for (int is=0; is<n; is++)
   {
     for(int i=0; i<size(is);i++)
@@ -297,7 +297,7 @@ void ALinearOpMulti::_diff(const VectorVectorDouble& in1,
                            const VectorVectorDouble& in2,
                            VectorVectorDouble& out) const
 {
-  for(int is = 0;is<size();is++)
+  for(int is = 0;is<sizes();is++)
   {
     for(int i = 0;i<size(is);i++)
     {
@@ -316,7 +316,7 @@ void ALinearOpMulti::_linearComb(double val1,
                                  const VectorVectorDouble& in2,
                                  VectorVectorDouble& out) const
 {
-  for (int is = 0; is < size(); is++)
+  for (int is = 0; is < sizes(); is++)
   {
     for (int i = 0; i < size(is); i++)
     {
@@ -327,7 +327,7 @@ void ALinearOpMulti::_linearComb(double val1,
 
 void ALinearOpMulti::_fillVal(VectorVectorDouble& vect, double val) const
 {
-  for (int is = 0; is < size(); is++)
+  for (int is = 0; is < sizes(); is++)
   {
     for (int i = 0; i < size(is); i++)
     {
@@ -344,7 +344,7 @@ void ALinearOpMulti::_updated()const
 void ALinearOpMulti::_copyVals(const VectorVectorDouble& in,
                                VectorVectorDouble& out) const
 {
-  for (int is = 0; is < size(); is++)
+  for (int is = 0; is < sizes(); is++)
   {
     for (int i = 0; i < size(is); i++)
     {

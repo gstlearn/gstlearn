@@ -33,7 +33,7 @@ ProjMatrix::ProjMatrix(const Db* db, AMesh *a_mesh, int verbose)
   , _nApices(0)
   , _Aproj(nullptr)
 {
-  if (init(db,a_mesh,verbose))
+  if (resetFromDb(db,a_mesh,verbose))
   {
     messerr("Problem in Constructor of ProjMatrix");
     return;
@@ -46,7 +46,7 @@ ProjMatrix::ProjMatrix(int npoint, int napices, const cs *aproj)
   , _nApices(0)
   , _Aproj(nullptr)
 {
-  if (init(npoint, napices, aproj))
+  if (resetFromPoints(npoint, napices, aproj))
   {
     messerr("Problem in Constructor of ProjMatrix");
     return;
@@ -80,7 +80,7 @@ ProjMatrix::~ProjMatrix()
   _Aproj = cs_spfree(_Aproj);
 }
 
-int ProjMatrix::init(const Db* db, AMesh *a_mesh, int verbose)
+int ProjMatrix::resetFromDb(const Db* db, AMesh *a_mesh, int verbose)
 {
   if (db!= nullptr)
   {
@@ -98,7 +98,7 @@ int ProjMatrix::init(const Db* db, AMesh *a_mesh, int verbose)
   return 0;
 }
 
-int ProjMatrix::init(int npoint, int napices, const cs *aproj)
+int ProjMatrix::resetFromPoints(int npoint, int napices, const cs *aproj)
 {
   _Aproj   = cs_duplicate(aproj);
   if (_Aproj == nullptr) return 1;
@@ -107,7 +107,7 @@ int ProjMatrix::init(int npoint, int napices, const cs *aproj)
   return 0;
 }
 
-int ProjMatrix::init(Db* db, SPDE_Mesh* s_mesh, int verbose)
+int ProjMatrix::resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose)
 {
   MeshEStandard amesh;
   amesh.convertFromOldMesh(s_mesh, 0);
@@ -118,11 +118,30 @@ int ProjMatrix::init(Db* db, SPDE_Mesh* s_mesh, int verbose)
   return 0;
 }
 
-int ProjMatrix::init(const Db* db,
-                     SPDE_Mesh* s_mesh,
-                     double radius,
-                     int flag_exact,
-                     int verbose)
+/**
+ * Returns the projection matrix of a set of points (contained in a Db) onto a meshing
+ * @param db Db structure
+ * @param s_mesh Meshing structure
+ * @param radius Neighborhood radius
+ * @param flag_exact Type of test
+ * @param verbose Verbose flag
+ *
+ * @remarks When flag_exact is TRUE, for each active sample of Db, a vertex
+ * @remarks of the mesh is active as soon as it lies within the vicinity
+ * @remarks of the sample.
+ * @remarks If flag_exact is FALSE, all vertices of a mesh are considered as
+ * @remarks active as soon as the mesh intersects the ball around a sample.
+ * @remarks The vicinity is defined as any point located at a distance
+ * @remarks from the sample smaller than 'radius'. The distance is calculated
+ * @remarks as the Euclidean distance over the space whose dimension is
+ * @remarks if the smallest value between the Db et Mesh space dimensions.
+ * @return
+ */
+int ProjMatrix::resetFromDbByNeighOldStyle(const Db* db,
+                                            SPDE_Mesh* s_mesh,
+                                            double radius,
+                                            int flag_exact,
+                                            int verbose)
 {
   int nactive;
   int *ranks;

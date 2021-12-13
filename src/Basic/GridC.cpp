@@ -50,16 +50,16 @@ GridC::~GridC()
 {
 }
 
-void GridC::init(int ndim)
+void GridC::resetFromSpaceDimension(int ndim)
 {
   _nDim = ndim;
   _allocate();
 }
 
-int GridC::init(const VectorInt& nx,
-                const VectorDouble& dx,
-                const VectorDouble& x0,
-                const VectorDouble& angles)
+int GridC::resetFromVector(const VectorInt& nx,
+                            const VectorDouble& dx,
+                            const VectorDouble& x0,
+                            const VectorDouble& angles)
 {
   _nDim = static_cast<int> (nx.size());
   _allocate();
@@ -97,7 +97,7 @@ int GridC::init(const VectorInt& nx,
   return 0;
 }
 
-void GridC::init(GridC* grid)
+void GridC::resetFromGrid(GridC* grid)
 {
   _nDim = grid->getNDim();
   _allocate();
@@ -139,21 +139,21 @@ void GridC::setNX(int idim,
 
 void GridC::setRotationByMatrix(const MatrixSquareGeneral& rotmat)
 {
-  _rotation.init(_nDim);
+  _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setMatrixDirect(rotmat);
 }
 
 void GridC::setRotationByVector(const VectorDouble& rotmat)
 {
   if (rotmat.empty()) return;
-  _rotation.init(_nDim);
+  _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setMatrixDirectByVector(rotmat);
 }
 
 void GridC::setRotationByAngles(const VectorDouble angles)
 {
   if (angles.empty()) return;
-  _rotation.init(_nDim);
+  _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setAngles(angles);
 }
 
@@ -163,7 +163,7 @@ void GridC::setRotationByAngles(const VectorDouble angles)
  */
 void GridC::setRotationByAngle(double angle)
 {
-  _rotation.init(_nDim);
+  _rotation.resetFromSpaceDimension(_nDim);
   VectorDouble angles(_nDim,0.);
   angles[0] = angle;
   _rotation.setAngles(angles);
@@ -255,7 +255,7 @@ double GridC::getCoordinate(int rank, int idim0, bool flag_rotate) const
   return (work2[idim0] + _x0[idim0]);
 }
 
-VectorDouble GridC::getCoordinates(const VectorInt& indice, bool flag_rotate) const
+VectorDouble GridC::getCoordinatesByIndice(const VectorInt& indice, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorDouble work1(ndim);
@@ -289,7 +289,7 @@ VectorDouble GridC::getCoordinatesByCorner(const VectorInt& icorner) const
   VectorInt indice(_nDim,0);
   for (int idim = 0; idim < _nDim; idim++)
     if (icorner[idim] > 0) indice[idim] = _nx[idim]-1;
-  return getCoordinates(indice);
+  return getCoordinatesByIndice(indice);
 }
 
 /**
@@ -298,7 +298,7 @@ VectorDouble GridC::getCoordinatesByCorner(const VectorInt& icorner) const
  * @param flag_rotate TRUE: perform the roataion; FALSE: skip rotation
  * @return Vector of coordinates
  */
-VectorDouble GridC::getCoordinates(int rank, bool flag_rotate) const
+VectorDouble GridC::getCoordinatesByRank(int rank, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorInt    iwork(ndim);
@@ -352,15 +352,15 @@ double GridC::indiceToCoordinate(int idim0,
   return (work2[idim0] + _x0[idim0]);
 }
 
-VectorDouble GridC::indiceToCoordinate(const VectorInt& indice,
+VectorDouble GridC::indicesToCoordinate(const VectorInt& indice,
                                        const VectorDouble& percent) const
 {
   VectorDouble vect(_nDim);
-  indiceToCoordinateToPlace(indice, vect, percent);
+  indicesToCoordinateInPlace(indice, vect, percent);
   return vect;
 }
 
-void GridC::indiceToCoordinateToPlace(const VectorInt& indice,
+void GridC::indicesToCoordinateInPlace(const VectorInt& indice,
                                VectorDouble& coor,
                                const VectorDouble& percent) const
 {
@@ -393,18 +393,18 @@ double GridC::rankToCoordinate(int idim0, int rank, const VectorDouble& percent)
   return indiceToCoordinate(idim0, indice, percent);
 }
 
-VectorDouble GridC::rankToCoordinate(int rank, const VectorDouble& percent) const
+VectorDouble GridC::rankToCoordinates(int rank, const VectorDouble& percent) const
 {
   VectorInt indice;
   rankToIndice(rank, indice);
-  return indiceToCoordinate(indice,percent);
+  return indicesToCoordinate(indice,percent);
 }
 
-void GridC::rankToCoordinateInPlace(int rank, VectorDouble& coor, const VectorDouble& percent) const
+void GridC::rankToCoordinatesInPlace(int rank, VectorDouble& coor, const VectorDouble& percent) const
 {
   VectorInt indice(_nDim);
   rankToIndice(rank, indice);
-  return indiceToCoordinateToPlace(indice, coor, percent);
+  return indicesToCoordinateInPlace(indice, coor, percent);
 }
 
 int GridC::indiceToRank(const VectorInt& indice) const
@@ -514,7 +514,7 @@ void GridC::_allocate(void)
   _dx.resize(_nDim);
   for (int i=0; i<_nDim; i++) _dx[i] = 0.;
 
-  _rotation.init(_nDim);
+  _rotation.resetFromSpaceDimension(_nDim);
 }
 
 void GridC::_recopy(const GridC &r)
@@ -590,7 +590,7 @@ bool GridC::isSame(const GridC& grid) const
   if (isRotated())
   {
     for (int idim = 0; idim < ndim; idim++)
-      if (getRotAngles(idim) != grid.getRotAngles(idim)) return 0;
+      if (getRotAngle(idim) != grid.getRotAngle(idim)) return 0;
   }
   return 1;
 }
@@ -740,7 +740,7 @@ void GridC::dilate(int mode,
 
   for (int idim = 0; idim < ndim; idim++)
     indg[idim] = -mode * nshift[idim];
-  indiceToCoordinate(indg, coor);
+  indicesToCoordinate(indg, coor);
 
   /* Calculate the center of the lower left cell */
 
@@ -794,10 +794,10 @@ void GridC::multiple(const VectorInt& nmult,
     indg[idim] = 0;
   for (int idim = 0; idim < ndim; idim++)
     perc[idim] = -0.5;
-  indiceToCoordinateToPlace(indg, coor1, perc);
+  indicesToCoordinateInPlace(indg, coor1, perc);
   for (int idim = 0; idim < ndim; idim++)
     perc[idim] = 0.5;
-  indiceToCoordinateToPlace(indg, coor2, perc);
+  indicesToCoordinateInPlace(indg, coor2, perc);
 
   /* Calculate the center of the lower left cell */
 
@@ -856,10 +856,10 @@ void GridC::divider(const VectorInt& nmult,
     indg[idim] = 0;
   for (int idim = 0; idim < ndim; idim++)
     perc[idim] = -0.5;
-  indiceToCoordinateToPlace(indg, coor1, perc);
+  indicesToCoordinateInPlace(indg, coor1, perc);
   for (int idim = 0; idim < ndim; idim++)
     perc[idim] = 0.5;
-  indiceToCoordinateToPlace(indg, coor2, perc);
+  indicesToCoordinateInPlace(indg, coor2, perc);
 
   /* Calculate the center of the lower left cell */
 

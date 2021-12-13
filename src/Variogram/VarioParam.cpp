@@ -78,7 +78,7 @@ void VarioParam::addDirs(const DirParam& dirparam)
   _dirparams.push_back(dirparam);
 }
 
-void VarioParam::addDirs(const std::vector<DirParam>& dirparams)
+void VarioParam::addMultiDirs(const std::vector<DirParam>& dirparams)
 {
   for (int i = 0; i < (int) dirparams.size(); i++)
     _dirparams.push_back(dirparams[i]);
@@ -133,7 +133,7 @@ String VarioParam::toStringMain(int /*level*/) const
   return sstr.str();
 }
 
-double VarioParam::getDates(int idate, int icas) const
+double VarioParam::getDate(int idate, int icas) const
 {
   if (!_isDateValid(idate)) return 0.;
   return _dates[2 * idate + icas];

@@ -24,7 +24,7 @@ Rotation::Rotation(unsigned int ndim)
   , _rotMat()
   , _rotInv()
 {
-  init(ndim);
+  resetFromSpaceDimension(ndim);
 }
 
 Rotation::Rotation(const Rotation& r)
@@ -45,7 +45,7 @@ Rotation::~Rotation()
 {
 }
 
-void Rotation::init(unsigned int ndim)
+void Rotation::resetFromSpaceDimension(unsigned int ndim)
 {
   _nDim = ndim;
   _flagRot = false;

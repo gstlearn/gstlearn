@@ -49,8 +49,8 @@ public:
   double getApexCoor(int i, int idim) const override;
   double getMeshSize(int imesh) const override;
   void   setPolarized(bool flag) { _isPolarized = flag; }
-  void setMaskArray(int* array);
-  void setMaskArray(double* array);
+  void   setMaskArrayFromInt(int* array);
+  void   setMaskArrayFromDouble(double* array);
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
                      const VectorDouble& cellsize,

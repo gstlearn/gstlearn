@@ -3456,7 +3456,7 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
 
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
   for (i = 0; i < nvar * nvar; i++)
-    vario->setVars(i, covtab[i]);
+    vario->setVarIJ(i, covtab[i]);
 
   /* Loop on the directions */
 
@@ -3475,12 +3475,12 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
         for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
-          vario->setSw(idir, i, 1.);
-          vario->setHh(idir, i, ipas * vario->getDPas(idir));
+          vario->setSwByRank(idir, i, 1.);
+          vario->setHhByRank(idir, i, ipas * vario->getDPas(idir));
           for (idim = 0; idim < ndim; idim++)
-            d1[idim] = vario->getHh(idir, i) * vario->getCodir(idir, idim);
+            d1[idim] = vario->getHhByRank(idir, i) * vario->getCodir(idir, idim);
           model_calcul_cov(model, mode, 1, 1., d1, covtab);
-          vario->setGg(idir, i, COVTAB(ivar, jvar));
+          vario->setGgByRank(idir, i, COVTAB(ivar, jvar));
         }
     }
   }
@@ -4020,7 +4020,7 @@ int model_regularize(Model *model,
 
   for (ivar = 0; ivar < nvar; ivar++)
     for (jvar = 0; jvar < nvar; jvar++)
-      vario->setVars(ivar, jvar, C00TAB(ivar, jvar));
+      vario->setVarBivar(ivar, jvar, C00TAB(ivar, jvar));
 
   /* Loop on the directions */
 
@@ -4052,9 +4052,9 @@ int model_regularize(Model *model,
         for (jvar = 0; jvar <= ivar; jvar++)
         {
           iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
-          vario->setGg(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
-          vario->setHh(idir, iad, dist);
-          vario->setSw(idir, iad, 1);
+          vario->setGgByRank(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
+          vario->setHhByRank(idir, iad, dist);
+          vario->setSwByRank(idir, iad, 1);
         }
     }
   }

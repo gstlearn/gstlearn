@@ -20,15 +20,15 @@ public:
 
   void push_back(PrecisionOp*  pmatElem,
                  IProjMatrix* projDataElem = nullptr);
-  VectorDouble getVarianceData() const {return _varianceData;}
+  VectorDouble getAllVarianceData() const {return _varianceData;}
   double getVarianceData(int iech)const {return  _varianceData[iech];}
   void setVarianceData(double nugg){ _varianceData = VectorDouble(_ndat,nugg);}
-  void setVarianceData(const VectorDouble& nugg){_varianceData = nugg;}
+  void setVarianceDataVector(const VectorDouble& nugg){_varianceData = nugg;}
   /*!  Returns the dimension of the matrix */
-  int  size() const override { return static_cast<int> (_multiPrecisionOp.size()); }
+  int  sizes() const override { return static_cast<int> (_multiPrecisionOp.size()); }
   int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
   VectorVectorDouble computeRhs(const VectorDouble& datVal) const;
-  void computeRhs(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
+  void computeRhsInPlace(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
   void simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result) const;
   void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,VectorDouble& result) const;
   void evalInvCov(const VectorDouble& in, VectorDouble& result) const;

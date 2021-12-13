@@ -105,7 +105,7 @@ void ParamGrid::fromGeoslib(GridC grid)
     _X0.push_back(grid.getX0(i));
     _Dx.push_back(grid.getDX(i));
     if (grid.isRotated())
-      _Rotation.push_back(grid.getRotAngles(i));
+      _Rotation.push_back(grid.getRotAngle(i));
     i++;
   }
 }

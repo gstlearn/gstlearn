@@ -869,8 +869,8 @@ double Model::gofToVario(const Vario* vario)
         // Read information from Experimental Variogram
 
         VectorDouble codir = vario->getCodir(idir);
-        VectorDouble hh = vario->getHhVec(idir, ivar, jvar);
-        VectorDouble gexp = vario->getGgVec(idir, ivar, jvar);
+        VectorDouble hh = vario->getHhVecBivar(idir, ivar, jvar);
+        VectorDouble gexp = vario->getGgVecBivar(idir, ivar, jvar);
 
         // Evaluate the Model
 

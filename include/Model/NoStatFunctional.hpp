@@ -41,7 +41,7 @@ public:
 
   double getValue(int igrf, int icov, const EConsElem& type, int iv1, int iv2,
                   int icas, int rank) const override;
-  double getValue(int ipar, int icas, int rank) const override;
+  double getValueByParam(int ipar, int icas, int rank) const override;
 
 private:
   const AFunctional* _func;

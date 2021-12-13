@@ -45,18 +45,18 @@ public:
                        int *nbdupl,
                        int **dupl1,
                        int **dupl2) const;
-  int create(Db *dbin,
-             Db *dbout,
-             const VectorDouble& dilate = VectorDouble(),
-             const String& triswitch = "Q",
-             bool verbose = false);
-  int create(const MatrixRectangular& apices,
-             const VectorInt& meshes,
-             bool verbose = false);
-  int create(int ndim,
-             const VectorDouble& apices,
-             const VectorInt& meshes,
-             bool verbose = false);
+  int resetFromDb(Db *dbin,
+                  Db *dbout,
+                  const VectorDouble& dilate = VectorDouble(),
+                  const String& triswitch = "Q",
+                  bool verbose = false);
+  int reset(const MatrixRectangular& apices,
+            const VectorInt& meshes,
+            bool verbose = false);
+  int resetOldStyle(int ndim,
+                    const VectorDouble& apices,
+                    const VectorInt& meshes,
+                    bool verbose = false);
   cs*        getMeshToDb(const Db *db, int verbose = 0) const override;
   double*    interpolateMeshToDb(Db *db, double* mtab) const override;
   int        convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose);
@@ -104,6 +104,6 @@ private:
 
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
-  VectorInt          _meshes; // TODO MatrixRectangular of Int. Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
-  VectorDouble       _units;
+  VectorInt         _meshes; // TODO MatrixRectangular of Int. Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
+  VectorDouble      _units;
 };

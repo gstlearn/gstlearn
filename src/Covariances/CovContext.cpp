@@ -23,7 +23,7 @@
  *
  * @param nvar         Number of variables
  * @param space        Space definition
- * @param irfMAxDegree Maximum IRF degree authorized for future added covariances
+ * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
  * @param field        Maximum field distance (used for covariances having no sill)
  */
 CovContext::CovContext(int nvar,
@@ -47,7 +47,7 @@ CovContext::CovContext(int nvar,
  *
  * @param nvar         Number of variables
  * @param ndim         Number of dimension of the euclidean space (RN)
- * @param irfMAxDegree Maximum IRF degree authorized for future added covariances
+ * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
  * @param field        Maximum field distance (used for covariances having no sill)
  */
 CovContext::CovContext(int nvar,

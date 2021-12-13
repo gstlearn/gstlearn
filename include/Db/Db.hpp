@@ -106,7 +106,7 @@ public:
   String getNameByAttribute(int iatt) const;
 
   VectorString getNames(const String& name) const;
-  VectorString getNamesByAttribute(const VectorString& names) const;
+  VectorString getNames(const VectorString& names) const;
   VectorString getNamesByLocator(const ELoc& locatorType) const;
   VectorString getNamesByAttribute(const VectorInt& iatts) const;
   VectorString getAllNames() const;
@@ -187,7 +187,7 @@ public:
   VectorInt getColumns(const VectorString& names) const;
   VectorInt getColumnsByAttribute(const ELoc& locatorType) const;
   VectorDouble getColumnsByRanks(const VectorInt& icols = VectorInt(),
-                                bool useSel = false) const;
+                                 bool useSel = false) const;
   VectorDouble getColumnsByRankInterval(int icol_beg,
                                         int icol_end,
                                         bool useSel = false) const;
@@ -494,7 +494,7 @@ public:
                         VectorDouble& coor,
                         const VectorDouble& percent = VectorDouble()) const
   {
-    _grid.rankToCoordinateInPlace(rank, coor, percent);
+    _grid.rankToCoordinatesInPlace(rank, coor, percent);
   }
 
   // Functions for checking validity of parameters
