@@ -45,7 +45,8 @@ static: cmake
 shared: cmake
 	@cmake --build $(BUILD_DIR) --target shared -- --no-print-directory $(N_PROC_OPT)
 
-build_test: shared
+#build_test: shared (automatic dependency (link))
+build_test:
 	@cmake --build $(BUILD_DIR) --target build_test -- --no-print-directory $(N_PROC_OPT)
 
 test: build_test

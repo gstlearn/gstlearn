@@ -48,8 +48,8 @@ foreach(FLAVOR ${FLAVORS})
   target_include_directories(${FLAVOR} PUBLIC ${HDF5_INCLUDE_DIRS})
   target_link_libraries(${FLAVOR} PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
 
-  # Link to specific libraries (only for MinGW)
-  if (MINGW)
+  # Link to specific libraries (only for Windows)
+  if (WIN32)
     target_link_libraries(${FLAVOR} PUBLIC -liphlpapi -lrpcrt4)
   endif()
 
