@@ -53,7 +53,7 @@ class IClonable{};
 %include Basic/ASerializable.hpp
 %include Basic/Rotation.hpp
 %include Basic/Tensor.hpp
-%include Basic/GridC.hpp
+%include Basic/Grid.hpp
 %include Basic/String.hpp
 %include Basic/Interval.hpp
 %include Basic/Limits.hpp

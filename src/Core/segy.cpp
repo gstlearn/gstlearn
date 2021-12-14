@@ -597,7 +597,7 @@ static void st_verify_refpt(RefPt refpt[3],
  ** \param[in]  refstats  Structure for Statistics
  ** \param[in]  dz        Vertical mesh
  **
- ** \param[out] def_grid  GridC output structure
+ ** \param[out] def_grid  Grid output structure
  **
  *****************************************************************************/
 static void st_grid_from_3refpt(RefPt refpt[3],
@@ -662,7 +662,7 @@ static void st_grid_from_3refpt(RefPt refpt[3],
   y0 = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
   nz = static_cast<int>((refstats.zmaxl - refstats.zminl) / dz);
 
-  // Fill the GridC structure
+  // Fill the Grid structure
 
   def_grid = Grid(3);
   def_grid.setNX(0, refstats.ilmaxg - refstats.ilming + 1);
@@ -689,7 +689,7 @@ static void st_grid_from_3refpt(RefPt refpt[3],
  ** \param[in]  refstats  Structure for Statistics
  ** \param[in]  dz        Vertical mesh
  **
- ** \param[out] def_grid  GridC output structure
+ ** \param[out] def_grid  Grid output structure
  **
  *****************************************************************************/
 static void st_grid_from_2refpt(RefPt refpt[3],
@@ -741,7 +741,7 @@ static void st_grid_from_2refpt(RefPt refpt[3],
   y0 = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
   nz = static_cast<int>((refstats.zmaxl - refstats.zminl) / dz);
 
-  // Fill the GridC structure
+  // Fill the Grid structure
 
   def_grid = Grid(3);
   def_grid.setNX(0, refstats.ilmaxg - refstats.ilming + 1);
@@ -815,7 +815,7 @@ static int st_store_refpt(int nbrefpt,
 /*!
  ** Print the characteristics of the resulting grid
  **
- ** \param[in]  def_grid  Pointer to the GridC structure
+ ** \param[in]  def_grid  Pointer to the Grid structure
  **
  *****************************************************************************/
 static void st_print_grid(const Grid &def_grid)

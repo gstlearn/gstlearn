@@ -211,7 +211,7 @@ int MeshETurbo::initFromGrid(const VectorInt& nx,
   _grid.setRotationByVector(rotmat);
 
   // Get grid extension
-  // TODO: the grid extension should be calculated in GridC and take
+  // TODO: the grid extension should be calculated in Grid and take
   // case of a possible rotation
   VectorDouble extendmin(ndim);
   VectorDouble extendmax(ndim);

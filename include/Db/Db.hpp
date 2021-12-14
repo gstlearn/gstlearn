@@ -446,7 +446,7 @@ public:
                                bool flagPrint = false,
                                const String& title = "");
 
-  // Pipe to the GridC class
+  // Pipe to the Grid class
 
   /**
    * Definition of the grid. Function to access the class Grid
