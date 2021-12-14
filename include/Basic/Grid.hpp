@@ -18,21 +18,21 @@
 
 class GridOld;
 
-class GSTLEARN_EXPORT GridC : public AStringable
+class GSTLEARN_EXPORT Grid : public AStringable
 {
 
 public:
-  GridC(int ndim = 0,
+  Grid(int ndim = 0,
         const VectorInt& nx    = VectorInt(),
         const VectorDouble& x0 = VectorDouble(),
         const VectorDouble& dx = VectorDouble());
-  GridC(const GridC &r);
-  GridC& operator= (const GridC &r);
-	virtual ~GridC();
+  Grid(const Grid &r);
+  Grid& operator= (const Grid &r);
+	virtual ~Grid();
 
 public:
   void resetFromSpaceDimension(int ndim);
-  void resetFromGrid(GridC* grid);
+  void resetFromGrid(Grid* grid);
   int resetFromVector(const VectorInt& nx = VectorInt(),
                       const VectorDouble& dx = VectorDouble(),
                       const VectorDouble& x0 = VectorDouble(),
@@ -54,7 +54,7 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  void    copyParams(int mode, const GridC& gridaux);
+  void    copyParams(int mode, const Grid& gridaux);
   double  getCoordinate(int rank, int idim, bool flag_rotate=true) const;
   VectorDouble getCoordinatesByRank(int rank, bool flag_rotate=true) const;
   VectorDouble getCoordinatesByIndice(const VectorInt& indice, bool flag_rotate=true) const;
@@ -89,10 +89,10 @@ public:
   const VectorDouble    getX0s() const { return _x0; }
   const VectorDouble    getDXs() const { return _dx; }
   const Rotation&       getRotation() const { return _rotation; }
-  bool  isSame(const GridC& grid) const;
-  bool  isSameMesh(const GridC& grid) const;
+  bool  isSame(const Grid& grid) const;
+  bool  isSameMesh(const Grid& grid) const;
   bool  isRotated() const { return _rotation.isRotated(); }
-  bool  isSameRotation(const GridC& grid) const { return _rotation.isSame(grid.getRotation()); }
+  bool  isSameRotation(const Grid& grid) const { return _rotation.isSame(grid.getRotation()); }
   VectorDouble getAxis(int idim) const;
 
   void iteratorInit(const VectorInt& order = VectorInt());
@@ -119,7 +119,7 @@ private:
   const MatrixSquareGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }
   const MatrixSquareGeneral _getRotInv() const { return _rotation.getMatrixInverse(); }
   void _allocate();
-  void _recopy(const GridC &r);
+  void _recopy(const Grid &r);
   bool _isValid(int idim) const;
 
 private:

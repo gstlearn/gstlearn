@@ -17,8 +17,9 @@
 #include "Db/ELoadBy.hpp"
 
 #include "Db/PtrGeos.hpp"
+
+#include "../Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
-#include "Basic/GridC.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 
@@ -116,7 +117,7 @@ public:
   void setNameByAttribute(int iatt, const String& name);
   void setNameByLocator(const ELoc& locatorType, const String& name);
 
-  inline const GridC& getGrid() const { return _grid; }
+  inline const Grid& getGrid() const { return _grid; }
   inline int getAttributeMaxNumber() const { return static_cast<int>(_attcol.size()); }
   inline int getFieldNumber() const { return _ncol; }
   double getFieldSize(bool useSel = false) const;
@@ -458,8 +459,8 @@ public:
                  const VectorDouble& dx = VectorDouble(),
                  const VectorDouble& x0 = VectorDouble(),
                  const VectorDouble& angles = VectorDouble());
-  void gridCopyParams(int mode, const GridC& gridaux);
-  bool isSameGrid(const GridC& grid) const;
+  void gridCopyParams(int mode, const Grid& gridaux);
+  bool isSameGrid(const Grid& grid) const;
   bool isSameGridMesh(const Db& dbaux) const;
   bool isSameGridRotation(const Db& dbaux) const;
   bool isGridRotated() const;
@@ -610,5 +611,5 @@ private:
   VectorInt _attcol;         //!< Attribute to Column
   VectorString _colNames;    //!< Names of the variables
   std::map<ELoc,PtrGeos> _p; //!< Locator characteristics
-  GridC _grid;               //!< Grid characteristics
+  Grid _grid;               //!< Grid characteristics
 };

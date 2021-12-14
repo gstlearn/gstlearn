@@ -15,7 +15,8 @@
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Basic/GridC.hpp"
+
+#include "../Basic/Grid.hpp"
 
 class MatrixRectangular;
 class Db;
@@ -67,7 +68,7 @@ public:
   cs*  getMeshToDb(const Db *db, int verbose = 0) const override;
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
-  const GridC& getGrid() const
+  const Grid& getGrid() const
   {
     return _grid;
   }
@@ -90,7 +91,7 @@ private:
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
 
 private:
-  GridC _grid;
+  Grid _grid;
   int   _nPerCell;
   bool  _isPolarized;
   bool  _isMaskDefined;

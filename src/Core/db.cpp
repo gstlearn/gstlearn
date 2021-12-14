@@ -4458,7 +4458,7 @@ VectorInt db_identify_variables_by_name(Db *db, const String &pattern)
  **  Initialize the Grid iterator
  **
  ****************************************************************************/
-void grid_iterator_init(GridC *grid, const VectorInt &order)
+void grid_iterator_init(Grid *grid, const VectorInt &order)
 {
   grid->iteratorInit(order);
 }
@@ -4470,7 +4470,7 @@ void grid_iterator_init(GridC *grid, const VectorInt &order)
  **  Increment the Grid iterator
  **
  ****************************************************************************/
-VectorInt grid_iterator_next(GridC *grid)
+VectorInt grid_iterator_next(Grid *grid)
 {
   VectorInt indices = grid->iteratorNext();
   return (indices);

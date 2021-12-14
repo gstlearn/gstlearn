@@ -10,15 +10,15 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "Basic/GridC.hpp"
 #include "Basic/Rotation.hpp"
-#include "Basic/GridC.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
+#include "../../include/Basic/Grid.hpp"
+#include "../../include/Basic/Grid.hpp"
 
-GridC::GridC(int ndim,
+Grid::Grid(int ndim,
              const VectorInt& nx,
              const VectorDouble& x0,
              const VectorDouble& dx)
@@ -35,28 +35,28 @@ GridC::GridC(int ndim,
 {
 }
 
-GridC::GridC(const GridC &r)
+Grid::Grid(const Grid &r)
 {
   _recopy(r);
 }
 
-GridC& GridC::operator= (const GridC &r)
+Grid& Grid::operator= (const Grid &r)
 {
   _recopy(r);
   return *this;
 }
 
-GridC::~GridC()
+Grid::~Grid()
 {
 }
 
-void GridC::resetFromSpaceDimension(int ndim)
+void Grid::resetFromSpaceDimension(int ndim)
 {
   _nDim = ndim;
   _allocate();
 }
 
-int GridC::resetFromVector(const VectorInt& nx,
+int Grid::resetFromVector(const VectorInt& nx,
                            const VectorDouble& dx,
                            const VectorDouble& x0,
                            const VectorDouble& angles)
@@ -97,7 +97,7 @@ int GridC::resetFromVector(const VectorInt& nx,
   return 0;
 }
 
-void GridC::resetFromGrid(GridC* grid)
+void Grid::resetFromGrid(Grid* grid)
 {
   _nDim = grid->getNDim();
   _allocate();
@@ -114,14 +114,14 @@ void GridC::resetFromGrid(GridC* grid)
   }
 }
 
-void GridC::setX0(int idim,
+void Grid::setX0(int idim,
                   double value)
 {
   if (! _isValid(idim)) return;
   _x0[idim] = value;
 }
 
-void GridC::setDX(int idim,
+void Grid::setDX(int idim,
                   double value)
 {
   if (! _isValid(idim)) return;
@@ -129,7 +129,7 @@ void GridC::setDX(int idim,
   _dx[idim] = value;
 }
 
-void GridC::setNX(int idim,
+void Grid::setNX(int idim,
                   int value)
 {
   if (! _isValid(idim)) return;
@@ -137,20 +137,20 @@ void GridC::setNX(int idim,
   _nx[idim] = value;
 }
 
-void GridC::setRotationByMatrix(const MatrixSquareGeneral& rotmat)
+void Grid::setRotationByMatrix(const MatrixSquareGeneral& rotmat)
 {
   _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setMatrixDirect(rotmat);
 }
 
-void GridC::setRotationByVector(const VectorDouble& rotmat)
+void Grid::setRotationByVector(const VectorDouble& rotmat)
 {
   if (rotmat.empty()) return;
   _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setMatrixDirectByVector(rotmat);
 }
 
-void GridC::setRotationByAngles(const VectorDouble angles)
+void Grid::setRotationByAngles(const VectorDouble angles)
 {
   if (angles.empty()) return;
   _rotation.resetFromSpaceDimension(_nDim);
@@ -161,7 +161,7 @@ void GridC::setRotationByAngles(const VectorDouble angles)
  * Define the rotation by the value of its first angle
  * @param angle Value of the first rotation angle
  */
-void GridC::setRotationByAngle(double angle)
+void Grid::setRotationByAngle(double angle)
 {
   _rotation.resetFromSpaceDimension(_nDim);
   VectorDouble angles(_nDim,0.);
@@ -169,25 +169,25 @@ void GridC::setRotationByAngle(double angle)
   _rotation.setAngles(angles);
 }
 
-double GridC::getX0(int idim) const
+double Grid::getX0(int idim) const
 {
   if (! _isValid(idim)) return TEST;
   return _x0[idim];
 }
 
-double GridC::getDX(int idim) const
+double Grid::getDX(int idim) const
 {
   if (! _isValid(idim)) return TEST;
   return _dx[idim];
 }
 
-int GridC::getNX(int idim) const
+int Grid::getNX(int idim) const
 {
   if (! _isValid(idim)) return ITEST;
   return _nx[idim];
 }
 
-int GridC::getNTotal() const
+int Grid::getNTotal() const
 {
   int ntotal = 1;
   for (int idim=0; idim<_nDim; idim++) 
@@ -195,7 +195,7 @@ int GridC::getNTotal() const
   return ntotal;
 }
 
-double GridC::getCellSize() const
+double Grid::getCellSize() const
 {
   double size = 1.;
   for (int idim=0; idim<_nDim; idim++)
@@ -203,7 +203,7 @@ double GridC::getCellSize() const
   return size;
 }
 
-String GridC::toString(int level) const
+String Grid::toString(int level) const
 {
   std::stringstream sstr;
   int ndim = _nDim;
@@ -229,7 +229,7 @@ String GridC::toString(int level) const
   return sstr.str();
 }
 
-double GridC::getCoordinate(int rank, int idim0, bool flag_rotate) const
+double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorInt   iwork(ndim);
@@ -255,7 +255,7 @@ double GridC::getCoordinate(int rank, int idim0, bool flag_rotate) const
   return (work2[idim0] + _x0[idim0]);
 }
 
-VectorDouble GridC::getCoordinatesByIndice(const VectorInt& indice, bool flag_rotate) const
+VectorDouble Grid::getCoordinatesByIndice(const VectorInt& indice, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorDouble work1(ndim);
@@ -284,7 +284,7 @@ VectorDouble GridC::getCoordinatesByIndice(const VectorInt& indice, bool flag_ro
  * @param icorner Vector specifying the corner (o: minimum; 1: maximum). (Dimension: ndim)
  * @return The coordinates of a corner
  */
-VectorDouble GridC::getCoordinatesByCorner(const VectorInt& icorner) const
+VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const
 {
   VectorInt indice(_nDim,0);
   for (int idim = 0; idim < _nDim; idim++)
@@ -298,7 +298,7 @@ VectorDouble GridC::getCoordinatesByCorner(const VectorInt& icorner) const
  * @param flag_rotate TRUE: perform the roataion; FALSE: skip rotation
  * @return Vector of coordinates
  */
-VectorDouble GridC::getCoordinatesByRank(int rank, bool flag_rotate) const
+VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 {
   int ndim = getNDim();
   VectorInt    iwork(ndim);
@@ -327,7 +327,7 @@ VectorDouble GridC::getCoordinatesByRank(int rank, bool flag_rotate) const
   return work2;
 }
 
-double GridC::indiceToCoordinate(int idim0,
+double Grid::indiceToCoordinate(int idim0,
                                  const VectorInt& indice,
                                  const VectorDouble& percent) const
 {
@@ -352,7 +352,7 @@ double GridC::indiceToCoordinate(int idim0,
   return (work2[idim0] + _x0[idim0]);
 }
 
-VectorDouble GridC::indicesToCoordinate(const VectorInt& indice,
+VectorDouble Grid::indicesToCoordinate(const VectorInt& indice,
                                        const VectorDouble& percent) const
 {
   VectorDouble vect(_nDim);
@@ -360,7 +360,7 @@ VectorDouble GridC::indicesToCoordinate(const VectorInt& indice,
   return vect;
 }
 
-void GridC::indicesToCoordinateInPlace(const VectorInt& indice,
+void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
                                VectorDouble& coor,
                                const VectorDouble& percent) const
 {
@@ -386,28 +386,28 @@ void GridC::indicesToCoordinateInPlace(const VectorInt& indice,
     coor[idim] = work2[idim] + _x0[idim];
 }
 
-double GridC::rankToCoordinate(int idim0, int rank, const VectorDouble& percent) const
+double Grid::rankToCoordinate(int idim0, int rank, const VectorDouble& percent) const
 {
   VectorInt indice;
   rankToIndice(rank, indice);
   return indiceToCoordinate(idim0, indice, percent);
 }
 
-VectorDouble GridC::rankToCoordinates(int rank, const VectorDouble& percent) const
+VectorDouble Grid::rankToCoordinates(int rank, const VectorDouble& percent) const
 {
   VectorInt indice;
   rankToIndice(rank, indice);
   return indicesToCoordinate(indice,percent);
 }
 
-void GridC::rankToCoordinatesInPlace(int rank, VectorDouble& coor, const VectorDouble& percent) const
+void Grid::rankToCoordinatesInPlace(int rank, VectorDouble& coor, const VectorDouble& percent) const
 {
   VectorInt indice(_nDim);
   rankToIndice(rank, indice);
   return indicesToCoordinateInPlace(indice, coor, percent);
 }
 
-int GridC::indiceToRank(const VectorInt& indice) const
+int Grid::indiceToRank(const VectorInt& indice) const
 {
   int ndim = _nDim;
   int ival = indice[ndim-1];
@@ -430,7 +430,7 @@ int GridC::indiceToRank(const VectorInt& indice) const
  * \remarks: The number of nodes in the grid per direction
  * \remarks: must be adapted (subtracting 1) due to interval.
  */
-void GridC::rankToIndice(int  rank,
+void Grid::rankToIndice(int  rank,
                          VectorInt& indice,
                          bool minusOne) const
 {
@@ -454,7 +454,7 @@ void GridC::rankToIndice(int  rank,
  * @param eps    Epsilon to overpass roundoff problem
  * @return
  */
-int GridC::coordinateToIndice(const VectorDouble& coor,
+int Grid::coordinateToIndice(const VectorDouble& coor,
                               VectorInt& indice,
                               double eps) const
 {
@@ -487,7 +487,7 @@ int GridC::coordinateToIndice(const VectorDouble& coor,
   return 0;
 }
 
-int GridC::coordinateToRank(const VectorDouble& coor, double eps) const
+int Grid::coordinateToRank(const VectorDouble& coor, double eps) const
 {
   int ndim = _nDim;
   VectorInt indice(ndim);
@@ -495,7 +495,7 @@ int GridC::coordinateToRank(const VectorDouble& coor, double eps) const
   return indiceToRank(indice);
 }
 
-bool GridC::_isValid(int idim) const
+bool Grid::_isValid(int idim) const
 {
   if (idim < 0 || idim >= _nDim)
   {
@@ -505,7 +505,7 @@ bool GridC::_isValid(int idim) const
   return true;
 }
 
-void GridC::_allocate(void)
+void Grid::_allocate(void)
 {
   _nx.resize(_nDim);
   for (int i=0; i<_nDim; i++) _nx[i] = 1;
@@ -517,7 +517,7 @@ void GridC::_allocate(void)
   _rotation.resetFromSpaceDimension(_nDim);
 }
 
-void GridC::_recopy(const GridC &r)
+void Grid::_recopy(const Grid &r)
 {
   _nDim = r._nDim;
   _allocate();
@@ -546,7 +546,7 @@ void GridC::_recopy(const GridC &r)
  *                 4 : Rotation
  * @param gridaux  Source Grid structure
  */
-void GridC::copyParams(int mode, const GridC& gridaux)
+void Grid::copyParams(int mode, const Grid& gridaux)
 {
   if (gridaux.getNDim() != _nDim)  return;
 
@@ -571,7 +571,7 @@ void GridC::copyParams(int mode, const GridC& gridaux)
   }
 }
 
-bool GridC::isSame(const GridC& grid) const
+bool Grid::isSame(const Grid& grid) const
 {
   int ndim = MIN(_nDim, grid.getNDim());
 
@@ -595,7 +595,7 @@ bool GridC::isSame(const GridC& grid) const
   return 1;
 }
 
-bool GridC::isSameMesh(const GridC& grid) const
+bool Grid::isSameMesh(const Grid& grid) const
 {
   int ndim = MIN(_nDim, grid.getNDim());
 
@@ -616,7 +616,7 @@ bool GridC::isSameMesh(const GridC& grid) const
  * @param idim Index of the Space Dimension
  * @return
  */
-VectorDouble GridC::getAxis(int idim) const
+VectorDouble Grid::getAxis(int idim) const
 {
   VectorDouble vect;
   if (idim < 0 || idim >= getNDim()) return (vect);
@@ -631,7 +631,7 @@ VectorDouble GridC::getAxis(int idim) const
   return vect;
 }
 
-void GridC::iteratorInit(const VectorInt& order)
+void Grid::iteratorInit(const VectorInt& order)
 {
   int ndim = _nDim;
 
@@ -671,7 +671,7 @@ void GridC::iteratorInit(const VectorInt& order)
     _nprod *= _counts[idim];
 }
 
-VectorInt GridC::iteratorNext(void)
+VectorInt Grid::iteratorNext(void)
 {
   int idim;
   int iech = _iter;
@@ -695,7 +695,7 @@ VectorInt GridC::iteratorNext(void)
   return indices;
 }
 
-bool GridC::empty() const
+bool Grid::empty() const
 {
   bool empty = _nDim <= 0 || _nx.empty();
   return empty;
@@ -713,7 +713,7 @@ bool GridC::empty() const
  ** \param[out] x0    Array of grid origins
  **
  *****************************************************************************/
-void GridC::dilate(int mode,
+void Grid::dilate(int mode,
                   const VectorInt& nshift,
                   VectorInt& nx,
                   VectorDouble& dx,
@@ -760,7 +760,7 @@ void GridC::dilate(int mode,
  ** \param[out] x0    Array of grid origins
  **
  *****************************************************************************/
-void GridC::multiple(const VectorInt& nmult,
+void Grid::multiple(const VectorInt& nmult,
                      int flag_cell,
                      VectorInt& nx,
                      VectorDouble& dx,
@@ -823,7 +823,7 @@ void GridC::multiple(const VectorInt& nmult,
  ** \param[out] x0    Array of grid origins
  **
  *****************************************************************************/
-void GridC::divider(const VectorInt& nmult,
+void Grid::divider(const VectorInt& nmult,
                     int flag_cell,
                     VectorInt& nx,
                     VectorDouble& dx,

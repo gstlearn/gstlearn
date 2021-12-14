@@ -603,7 +603,7 @@ static void st_verify_refpt(RefPt refpt[3],
 static void st_grid_from_3refpt(RefPt refpt[3],
                                 RefStats &refstats,
                                 double dz,
-                                GridC &def_grid)
+                                Grid &def_grid)
 {
   double dx12, dy12, di12, dj12, dx13, dy13, di13, dj13, mat[4], a[2], di10,
       dj10;
@@ -664,7 +664,7 @@ static void st_grid_from_3refpt(RefPt refpt[3],
 
   // Fill the GridC structure
 
-  def_grid = GridC(3);
+  def_grid = Grid(3);
   def_grid.setNX(0, refstats.ilmaxg - refstats.ilming + 1);
   def_grid.setNX(1, refstats.xlmaxg - refstats.xlming + 1);
   def_grid.setNX(2, nz);
@@ -695,7 +695,7 @@ static void st_grid_from_3refpt(RefPt refpt[3],
 static void st_grid_from_2refpt(RefPt refpt[3],
                                 RefStats &refstats,
                                 double dz,
-                                GridC &def_grid)
+                                Grid &def_grid)
 {
   double dx12, dy12, di12, dj12, di10, dj10;
   double dx, dy, theta, x0, y0, sint, cost;
@@ -743,7 +743,7 @@ static void st_grid_from_2refpt(RefPt refpt[3],
 
   // Fill the GridC structure
 
-  def_grid = GridC(3);
+  def_grid = Grid(3);
   def_grid.setNX(0, refstats.ilmaxg - refstats.ilming + 1);
   def_grid.setNX(1, refstats.xlmaxg - refstats.xlming + 1);
   def_grid.setNX(2, nz);
@@ -818,7 +818,7 @@ static int st_store_refpt(int nbrefpt,
  ** \param[in]  def_grid  Pointer to the GridC structure
  **
  *****************************************************************************/
-static void st_print_grid(const GridC &def_grid)
+static void st_print_grid(const Grid &def_grid)
 {
   message("\n");
   message("- Resulting Grid of SEGY traces\n");
@@ -1401,7 +1401,7 @@ SegYArg segy_array(const char *filesegy,
  ** \details: by the output grid (if flag_store == 1)
  **
  *****************************************************************************/
-GridC segy_summary(const char *filesegy,
+Grid segy_summary(const char *filesegy,
                                    Db *surf2D,
                                    const String &name_top,
                                    const String &name_bot,
@@ -1424,7 +1424,7 @@ GridC segy_summary(const char *filesegy,
   int      nPerTrace,code,nz,flag_surf,flag_top,flag_bot,iatt_top,iatt_bot,nbrefpt;
   RefPt    refpt[3];
   RefStats refstats;
-  GridC def_grid;
+  Grid def_grid;
   VectorDouble values, cotes, writes;
 
   // Initializations

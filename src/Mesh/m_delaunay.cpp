@@ -1417,7 +1417,7 @@ static int st_load_tetra(Db *dbgrid,
  **
  *****************************************************************************/
 static int st_manage_regular_grid(int mode,
-                                  const GridC &grid,
+                                  const Grid &grid,
                                   int **order_loc,
                                   int **ranks_loc,
                                   int **indg_loc)

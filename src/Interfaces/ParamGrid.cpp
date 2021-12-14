@@ -94,7 +94,7 @@ void ParamGrid::reset()
 **  fill a p_grid from a geoslib Grid object
 **
 *****************************************************************************/
-void ParamGrid::fromGeoslib(GridC grid)
+void ParamGrid::fromGeoslib(Grid grid)
 {
   int i = 0;
   reset();

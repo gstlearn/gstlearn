@@ -1710,12 +1710,12 @@ int Db::gridDefine(const VectorInt& nx,
   return (_grid.resetFromVector(nx, dx, x0, angles));
 }
 
-void Db::gridCopyParams(int mode, const GridC& gridaux)
+void Db::gridCopyParams(int mode, const Grid& gridaux)
 {
   _grid.copyParams(mode, gridaux);
 }
 
-bool Db::isSameGrid(const GridC& grid) const
+bool Db::isSameGrid(const Grid& grid) const
 {
   if (! isGrid() || grid.empty())
   {

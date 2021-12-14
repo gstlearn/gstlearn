@@ -14,12 +14,12 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Db/Db.hpp"
-#include "Basic/GridC.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "csparse_f.h"
 
 #include <math.h>
+#include "../../include/Basic/Grid.hpp"
 
 MeshETurbo::MeshETurbo()
     : AMesh(),
