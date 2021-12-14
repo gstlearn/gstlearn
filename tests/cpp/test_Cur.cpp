@@ -155,5 +155,6 @@ int main(int argc, char *argv[])
 
   SPDE spde(model,workingDbc,&dat,ESPDECalcMode::KRIGING);
   spde.compute();
+  spde.query(&workingDbc);
   return 0;
 }
