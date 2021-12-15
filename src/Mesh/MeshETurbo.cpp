@@ -354,7 +354,8 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
     if (_grid.coordinateToIndice(coor,indg0) != 0) 
     {
       messerr("Sample #%d does not belong to the meshing",jech+1);
-      goto label_end;
+      continue;
+      //goto label_end;
     }
 
     /* Optional printout */
@@ -381,7 +382,8 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
     if (found < 0)
     {
       messerr("Sample #%d does not belong to the meshing",jech+1);
-      goto label_end;
+      continue;
+      //goto label_end;
     }
     iech++;
   }
@@ -727,6 +729,6 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   VectorDouble x0(ndim);
   rot.rotateInverse(extendMinNoRot, x0);
 
-  MeshETurbo(nx,dx,x0,rot.getMatrixDirectByVector(),true,verbose);
+  initFromGrid(nx,dx,x0,rot.getMatrixDirectByVector(),true,verbose);
   return 0;
 }
