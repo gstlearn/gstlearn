@@ -49,11 +49,11 @@ CSVformat::~CSVformat()
 {
 }
 
-CSVformat *create(int flagHeader = true,
-                 int nSkip = 0,
-                 char charSep = ',',
-                 char charDec = '.',
-                 const String& naString = "NA")
+CSVformat * CSVformat::create(int flagHeader,
+                 int nSkip ,
+                 char charSep ,
+                 char charDec  ,
+                 const String& naString)
 {
   return new CSVformat(flagHeader, nSkip, charSep, charDec, naString);
 }
