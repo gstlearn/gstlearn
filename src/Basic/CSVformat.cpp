@@ -49,19 +49,11 @@ CSVformat::~CSVformat()
 {
 }
 
-<<<<<<< HEAD
 CSVformat* CSVformat::create(int flagHeader,
                              int nSkip,
                              char charSep,
                              char charDec,
                              const String& naString)
-=======
-CSVformat * CSVformat::create(int flagHeader,
-                 int nSkip ,
-                 char charSep ,
-                 char charDec  ,
-                 const String& naString)
->>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
 {
   return new CSVformat(flagHeader, nSkip, charSep, charDec, naString);
 }
