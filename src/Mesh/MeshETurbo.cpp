@@ -13,8 +13,10 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshETurbo.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/Rotation.hpp"
 #include "Basic/AException.hpp"
 #include "csparse_f.h"
 
@@ -195,7 +197,7 @@ void MeshETurbo::setMaskArrayFromInt(int *array)
   _isMaskDefined = (nactive > 0);
 }
 
-int MeshETurbo::initFromGrid(const VectorInt& nx,
+int MeshETurbo::initFromGrid(const VectorInt&    nx,
                              const VectorDouble& dx,
                              const VectorDouble& x0,
                              const VectorDouble& rotmat,
@@ -656,4 +658,75 @@ void MeshETurbo::_fromMeshToIndex(int imesh,
   *icas    = imesh - rank * ncas;
   _grid.rankToIndice(rank,indg,true);
   *node = _grid.indiceToRank(indg);
+}
+
+int MeshETurbo::initFromCova(const CovAniso& cova,
+                             const Db& field,
+                             double ratio,
+                             int nbExt,
+                             bool useSel,
+                             int verbose)
+{
+  // Preliminary checks
+  if (! field.isGrid())
+  {
+    messerr("This function is limited to 'field' defined as a Grid");
+    return 1;
+  }
+
+  // Initializations
+  int ndim = cova.getNDim();
+  int nval = (int) pow(2., ndim);
+
+  // Get the rotation linked to the covariance
+  const Rotation& rot = cova.getAnisoRotation();
+
+  // Project the corners of the grid
+  VectorDouble extendMinNoRot(ndim, TEST);
+  VectorDouble extendMaxNoRot(ndim, TEST);
+  VectorDouble cornerRot(ndim);
+  VectorInt ic(ndim);
+  for (int icorner = 0; icorner < nval; icorner++)
+  {
+
+    // Get one corner
+    int jcorner = icorner;
+    for (int idim = 0 ; idim < ndim; idim++)
+    {
+      ic[idim] = jcorner % 2;
+      jcorner /= 2;
+    }
+    VectorDouble corner1 = field.getGrid().getCoordinatesByCorner(ic);
+
+    // Rotate this corner in the Covariance Rotation system
+    rot.rotateDirect(corner1, cornerRot);
+
+    // Calculate the minimum and maximum in the Covariance rotated system
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      if (FFFF(extendMinNoRot[idim]) || cornerRot[idim] < extendMinNoRot[idim])
+        extendMinNoRot[idim] = cornerRot[idim];
+      if (FFFF(extendMaxNoRot[idim]) || cornerRot[idim] > extendMaxNoRot[idim])
+        extendMaxNoRot[idim] = cornerRot[idim];
+    }
+  }
+
+  // Calculating the Mesh of the Grid
+  VectorInt    nx(ndim);
+  VectorDouble dx(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double delta = extendMaxNoRot[idim] - extendMinNoRot[idim];
+    dx[idim] = cova.getRange(idim) / ratio;
+    nx[idim] = (int) ceil(delta / dx[idim]) + 2 * nbExt;
+    extendMinNoRot[idim] -= nbExt * dx[idim];
+    extendMaxNoRot[idim] += nbExt * dx[idim];
+  }
+
+  // Get the rotated Bounding Box in the initial system
+  VectorDouble x0(ndim);
+  rot.rotateInverse(extendMinNoRot, x0);
+
+  MeshETurbo(nx,dx,x0,rot.getMatrixDirectByVector(),true,verbose);
+  return 0;
 }

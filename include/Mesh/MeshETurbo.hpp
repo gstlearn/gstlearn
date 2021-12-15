@@ -20,6 +20,7 @@
 
 class MatrixRectangular;
 class Db;
+class CovAniso;
 
 /**
  * Meshing defined as a Turbo based on a Regular Grid
@@ -63,6 +64,12 @@ public:
                    const VectorDouble& x0 = VectorDouble(),
                    const VectorDouble& rotmat = VectorDouble(),
                    bool flag_polarized = true,
+                   int verbose = 0);
+  int initFromCova(const CovAniso& cova,
+                   const Db& field,
+                   double ratio,
+                   int nbExt = 0,
+                   bool useSel = true,
                    int verbose = 0);
   bool isNodeMasked(int iabs) const;
   cs*  getMeshToDb(const Db *db, int verbose = 0) const override;

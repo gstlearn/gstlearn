@@ -479,7 +479,7 @@ VectorDouble Model::sample(double hmax,
  *
  * @return 0 if no error, 1 otherwise
  */
-int Model::fit(Vario *vario,
+int Model::fitFromCovIndices(Vario *vario,
                const VectorInt &types,
                bool verbose,
                Option_AutoFit mauto,

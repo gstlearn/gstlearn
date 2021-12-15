@@ -35,7 +35,13 @@ public:
   void  setCharDec(char charDec)            { _charDec    = charDec;    }
   void  setCharSep(char charSep)            { _charSep    = charSep;    }
   void  setNaString(const String& naString) { _naString   = naString;   }
-  void  setNSkip(int nskip)                 { _nSkip      = nskip;       }
+  void  setNSkip(int nskip)                 { _nSkip      = nskip;      }
+
+  static CSVformat *create(int flagHeader = true,
+                          int nSkip = 0,
+                          char charSep = ',',
+                          char charDec = '.',
+                          const String& naString = "NA");
 
 private:
   int _flagHeader;

@@ -158,13 +158,13 @@ int ProjMatrix::point2mesh(const VectorDouble& in, VectorDouble& out) const
 {
   if ((int) in.size() != _nPoint)
   {
-    messerr("Error in the dimension of argument 'in'(%d). It should be (%d)",
+    messerr("Point2mesh: Error in the dimension of argument 'in'(%d). It should be (%d)",
             in.size(),_nPoint);
     return 1;
   }
   if ((int) out.size() != _nApices)
   {
-    messerr("Error in the dimension of argument 'out'(%d). It should be (%d)",
+    messerr("Point2mesh: Error in the dimension of argument 'out'(%d). It should be (%d)",
             out.size(),_nApices);
     return 1;
   }
@@ -177,13 +177,13 @@ int ProjMatrix::mesh2point(const VectorDouble& in, VectorDouble& out) const
 {
   if ((int) in.size() != _nApices)
   {
-    messerr("Error in the dimension of argument 'in'(%d). It should be (%d)",
+    messerr("Mesh2Point: Error in the dimension of argument 'in'(%d). It should be (%d)",
             in.size(),_nApices);
     return 1;
   }
   if ((int) out.size() != _nPoint)
   {
-    messerr("Error in the dimension of argument 'out'(%d). It should be (%d)",
+    messerr("Mesh2Point: Error in the dimension of argument 'out'(%d). It should be (%d)",
             out.size(),_nPoint);
     return 1;
   }

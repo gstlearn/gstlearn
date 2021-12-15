@@ -46,6 +46,9 @@ public:
                             const VectorDouble& angles = VectorDouble(),
                             double radius = 1.) const;
 
+  VectorDouble getMatrixDirectByVector() const;
+  VectorDouble getMatrixInverseByVector() const;
+
 private:
   void _recopy(const Rotation& r);
   void _checkRot();

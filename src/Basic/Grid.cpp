@@ -281,7 +281,7 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt& indice, bool flag_rot
 
 /**
  * Returns the coordinates of a Grid corner
- * @param icorner Vector specifying the corner (o: minimum; 1: maximum). (Dimension: ndim)
+ * @param icorner Vector specifying the corner (0: minimum; 1: maximum). (Dimension: ndim)
  * @return The coordinates of a corner
  */
 VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const

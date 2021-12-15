@@ -169,12 +169,12 @@ public:
                       int norder = 0);
 
   // TODO : Remove Model::fit duplicate declaration
-  int fit(Vario *vario,
-          const VectorInt& types,
-          bool verbose = false,
-          Option_AutoFit mauto = Option_AutoFit(),
-          const Constraints& constraints = Constraints(),
-          Option_VarioFit optvar = Option_VarioFit());
+  int fitFromCovIndices(Vario *vario,
+                        const VectorInt& types,
+                        bool verbose = false,
+                        Option_AutoFit mauto = Option_AutoFit(),
+                        const Constraints& constraints = Constraints(),
+                        Option_VarioFit optvar = Option_VarioFit());
   int fit(Vario *vario,
           const std::vector<ECov>& types,
           bool verbose = false,

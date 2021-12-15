@@ -83,6 +83,16 @@ int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
   return 0;
 }
 
+VectorDouble Rotation::getMatrixDirectByVector() const
+{
+  return _rotMat.getValues();
+}
+
+VectorDouble Rotation::getMatrixInverseByVector() const
+{
+  return _rotMat.getValues();
+}
+
 int Rotation::setMatrixDirectOldStyle(const double* rotmat)
 {
   if (rotmat != nullptr)

@@ -48,7 +48,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
 
-  ut_vector_display_stats("Statistis on Covariance Matrix",result);
+  ut_vector_display_stats("Statistics on Covariance Matrix",result);
   return 0;
 }
 
