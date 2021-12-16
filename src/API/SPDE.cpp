@@ -60,13 +60,6 @@ SPDE::~SPDE()
 void SPDE::_purge()
 {
 
-  std::vector<ShiftOpCs*> _pileShiftOp;
-   std::vector<PrecisionOpCs*> _pilePrecisions;
-   std::vector<ProjMatrix*> _pileProjMatrix;
-   std::vector<MeshETurbo*> _simuMeshing;
-   std::vector<MeshETurbo*> _krigingMeshing;
-   Model *_model;
-   std::vector<ProjMatrix*> _projOnDbOut;
   for(auto &e : _pilePrecisions)
   {
     delete e;
