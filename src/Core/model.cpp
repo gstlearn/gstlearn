@@ -851,12 +851,8 @@ double model_calcul_cov_ij(Model *model,
 
   // TODO Correct this which has something to do with pure virtual eval although implemented in Acov
   // compared to eval0 which is not implemented with such arguments.
-  double value;
-  if (d1.empty())
-    value = model->getCovAnisoList()->eval0(ivar, jvar, mode);
-  else
-    value = model->getCovAnisoList()->ACov::eval(ivar, jvar, 1., d1,
-                                                 VectorDouble(), mode);
+  double value = model->getCovAnisoList()->ACov::eval(ivar, jvar, 1., d1,
+                                                      VectorDouble(), mode);
 
   return value;
 }

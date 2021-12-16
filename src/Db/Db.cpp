@@ -2985,14 +2985,14 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
 }
 
 void Db::displayMoreByAttributes(unsigned char params,
-                     const VectorInt& cols,
-                     bool flagSel,
-                     int mode) const
+                                 const VectorInt& cols,
+                                 bool flagSel,
+                                 int mode) const
 {
   messageFlush(_display(params, cols, flagSel, mode));
 }
 
-void Db::displayMoreByAttributes(unsigned char params,
+void Db::displayMore(unsigned char params,
                      const VectorString& names,
                      bool flagSel,
                      int mode) const

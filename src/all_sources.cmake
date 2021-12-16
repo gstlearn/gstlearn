@@ -33,6 +33,7 @@ set(SOURCES
   LithoRule/Node.cpp
   Enum/Enums.cpp
   Model/ConsItem.cpp
+  Model/CovParamId.cpp
   Model/NoStatArray.cpp
   Model/ANoStat.cpp
   Model/Constraints.cpp

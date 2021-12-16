@@ -98,6 +98,7 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
+#include "Model/CovParamId.hpp"
 #include "Model/EModelProperty.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/EConsType.hpp"

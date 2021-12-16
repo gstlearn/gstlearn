@@ -527,7 +527,7 @@ public:
                                const VectorInt& cols = VectorInt(),
                                bool flagSel = true,
                                int mode = 1) const;
-  void displayMoreByAttributes(unsigned char params,
+  void displayMore(unsigned char params,
                    const VectorString& names,
                    bool flagSel = true,
                    int mode = 1) const;

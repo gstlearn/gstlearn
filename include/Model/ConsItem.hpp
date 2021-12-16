@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/IClonable.hpp"
+#include "Model/CovParamId.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/EConsType.hpp"
 
@@ -24,55 +25,41 @@
 class GSTLEARN_EXPORT ConsItem : public AStringable, public IClonable
 {
 public:
-  ConsItem(bool authAssign = false,
+  ConsItem(const CovParamId& paramid,
            const EConsType& type = EConsType::DEFAULT,
-           int igrf = 0,
-           int icov = 0,
-           const EConsElem& elem = EConsElem::UNKNOWN,
-           int iv1 = 0,
-           int iv2 = 0,
            double value = 0.);
   ConsItem(const ConsItem &m);
   ConsItem& operator= (const ConsItem &m);
   virtual ~ConsItem();
 
-  int init(const EConsType& icase,
-           int igrf,
-           int icov,
-           const EConsElem& type,
-           int iv1,
-           int iv2,
+  int init(const CovParamId& paramid,
+           const EConsType& type,
            double value = TEST);
 
   virtual String toString(int level = 0) const override;
   virtual IClonable* clone() const override;
 
-  const EConsElem& getType() const { return _elemType; }
-  int getIGrf()  const { return _igrf; }
-  int getICov()  const { return _icov; }
-  const EConsType& getIcase() const { return _icase; }
-  int getIV1()   const { return _iv1; }
-  int getIV2()   const { return _iv2; }
-  double getValue() const { return (_authAssign) ? _value : TEST; }
-  bool isAuthAssign() const { return _authAssign; }
-  void setAuthAssign(bool authAssign ) { _authAssign = authAssign; }
+  // Pipe to the CovParamId class
+  const EConsElem& getType() const { return _paramId.getType(); }
+  int getIGrf()  const { return _paramId.getIGrf(); }
+  int getICov()  const { return _paramId.getICov(); }
+  int getIV1()   const { return _paramId.getIV1(); }
+  int getIV2()   const { return _paramId.getIV2(); }
 
   void setValue(double value)         { _value = value; }
-  void setType(const EConsElem& type) { _elemType = type; }
+  const EConsType& getIcase() const { return _type; }
+  double getValue() const { return _value; }
 
-  bool matchIGrf(int igrf0)              const { return (igrf0 < 0 || _igrf == igrf0); }
-  bool matchICov(int icov0)              const { return (icov0 < 0 || _icov == icov0); }
-  bool matchType(const EConsElem& type0) const { return (type0 == EConsElem::UNKNOWN || _elemType == type0); }
-  bool matchIV1(int iv10)                const { return (iv10 < 0 || _iv1 == iv10); }
-  bool matchIV2(int iv20)                const { return (iv20 < 0 || _iv2 == iv20); }
+  bool matchIGrf(int igrf0)              const { return _paramId.matchIGrf(igrf0); }
+  bool matchICov(int icov0)              const { return _paramId.matchICov(icov0); }
+  bool matchType(const EConsElem& type0) const { return _paramId.matchType(type0); }
+  bool matchIV1(int iv10)                const { return _paramId.matchIV1(iv10); }
+  bool matchIV2(int iv20)                const { return _paramId.matchIV2(iv20); }
+
+  const CovParamId& getParamId() const { return _paramId; }
 
 private:
-  EConsType _icase;      /* 0: Parameter; -1: Lower; 1: Upper; 2: Equal */
-  int       _igrf;       /* Rank of the Gaussian Random Function */
-  int       _icov;       /* Structure rank */
-  EConsElem _elemType;   /* Type of element */
-  int       _iv1;        /* Rank of the first variable */
-  int       _iv2;        /* Rank of the second variable */
-  double    _value;      /* Assigned value */
-  bool      _authAssign; /* Authorize the assignment of a value */
+  CovParamId _paramId;
+  EConsType  _type;       /* 0: Parameter; -1: Lower; 1: Upper; 2: Equal */
+  double     _value;      /* Assigned value */
 };

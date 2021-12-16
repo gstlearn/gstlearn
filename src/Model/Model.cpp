@@ -116,7 +116,7 @@ Model::~Model()
 String Model::toString(int /*level*/) const
 {
   std::stringstream sstr;
-  int ncov = _covaList->getCovNumber();
+  int ncov   = _covaList->getCovNumber();
   int ndrift = _driftList->getDriftNumber();
 
   sstr << toTitle(0, "Model characteristics");
@@ -330,7 +330,7 @@ int Model::addNoStatElems(const VectorString &codes)
   return _noStat->addNoStatElems(codes);
 }
 
-ConsItem Model::getConsItem(int ipar) const
+CovParamId Model::getCovParamId(int ipar) const
 {
   if (!isNoStat())
   my_throw("Nostat is not defined and cannot be returned");

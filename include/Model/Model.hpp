@@ -24,6 +24,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
+#include "Model/CovParamId.hpp"
 #include "Covariances/CovContext.hpp"
 
 #include "Basic/AStringable.hpp"
@@ -134,7 +135,7 @@ public:
   int  addNoStatElems(const VectorString& codes);
   int  getNoStatElemIcov(int ipar);
   const EConsElem& getNoStatElemType(int ipar);
-  ConsItem getConsItem(int ipar) const;
+  CovParamId getCovParamId(int ipar) const;
   ////////////////////////////////////////////////
 
   double getField() const                       { return _ctxt.getField(); }

@@ -67,8 +67,8 @@ VectorDouble ACov::eval(int ivar,
 }
 
 MatrixSquareGeneral ACov::eval(const SpacePoint& p1,
-                           const SpacePoint& p2,
-                           const CovCalcMode& mode) const
+                               const SpacePoint& p2,
+                               const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -88,9 +88,12 @@ double ACov::eval(int ivar,
   // Define the point in the ACov space (center will be checked)
   SpacePoint p1(center,getSpace());
   SpacePoint p2(center,getSpace());
-  VectorDouble vec(dir);
-  ut_vector_multiply_inplace(vec, step);
-  p2.move(vec);
+  if (! dir.empty())
+  {
+    VectorDouble vec(dir);
+    ut_vector_multiply_inplace(vec, step);
+    p2.move(vec);
+  }
   return eval(ivar, jvar, p1, p2, mode); // pure virtual method
 }
 
@@ -108,9 +111,9 @@ VectorDouble ACov::eval(int ivar,
 }
 
 MatrixSquareGeneral ACov::eval(double step,
-                           const VectorDouble& dir,
-                           const VectorDouble& center,
-                           const CovCalcMode& mode) const
+                               const VectorDouble& dir,
+                               const VectorDouble& center,
+                               const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
