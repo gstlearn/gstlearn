@@ -1,6 +1,4 @@
 
-// %nodefaultctor IClonable;
-
 %{
 #define SWIG_FILE_WITH_INIT
 
@@ -15,7 +13,6 @@
 #include "csparse_d.h"
 #include "csparse_f.h"
 
-#include "Basic/IClonable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/ArgumentTest.hpp"
 #include "Basic/AStringable.hpp"
