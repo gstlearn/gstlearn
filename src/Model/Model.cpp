@@ -81,7 +81,8 @@ Model::Model(const String &neutralFileName, bool verbose)
 }
 
 Model::Model(const Model &m)
-    :
+    : AStringable(m),
+      ASerializable(m),
     _flagGradient(m._flagGradient),
     _flagLinked(m._flagLinked),
     _covaList(dynamic_cast<ACovAnisoList*>(m._covaList->clone())),

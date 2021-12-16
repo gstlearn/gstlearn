@@ -20,7 +20,9 @@ class GSTLEARN_EXPORT ASerializable
 {
 public:
   ASerializable();
-  virtual ~ASerializable() {};
+  ASerializable(const ASerializable& r);
+  ASerializable& operator=(const ASerializable& r);
+  virtual ~ASerializable();
 
   virtual int deSerialize(const String& filename, bool verbose = false) = 0;
   virtual int serialize(const String& filename, bool verbose = false) const = 0;

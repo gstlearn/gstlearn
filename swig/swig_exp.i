@@ -1,6 +1,8 @@
 %ignore *::operator=;
 
+// TODO: really important ?
 class IClonable{};
+%nodefaultctor IClonable;
 
 %include stl.i
 %include std_vector.i
@@ -44,10 +46,13 @@ class IClonable{};
 %include geoslib_enum.h
 %include geoslib_d.h
 %include geoslib_f.h
+
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
+
 %include Enum/AEnum.hpp
 %include Enum/EKrigOpt.hpp
+
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
 %include Basic/ASerializable.hpp
@@ -64,6 +69,7 @@ class IClonable{};
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 %include Basic/Table.hpp
+
 %include Space/Space.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp

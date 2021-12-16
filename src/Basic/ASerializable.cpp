@@ -46,6 +46,28 @@ ASerializable::ASerializable()
   , _currentRecord()
 {
 }
+/**
+ * Copy constructor: don't copy temporary file info
+ */
+ASerializable::ASerializable(const ASerializable& /*r*/)
+: _fileName()
+, _fileType()
+, _file(nullptr)
+, _currentRecord()
+{
+}
+/**
+ * Assignment operator: don't copy temporary file info
+ */
+ASerializable& ASerializable::operator=(const ASerializable& /*r*/)
+{
+  return *this;
+}
+
+ASerializable::~ASerializable()
+{
+  _fileClose();
+}
 
 /****************************************************************************/
 /*!
@@ -138,19 +160,18 @@ int ASerializable::_fileOpen(const String& filename,
 
 int ASerializable::_fileClose(bool verbose) const
 {
-  if (_file == nullptr)
-  {
-    messerr("Error: Attempt to close a Neutral File which is not opened");
-    return 1;
-  }
-  fclose(_file);
+  // Close the file
+
+  if (_file != nullptr)
+    fclose(_file);
 
   // Optional printout
 
   if (verbose)
-  {
     message("File %s is successfully closed\n",_fileName.c_str());
-  }
+
+  // Reset
+
   _fileName = String();
   _fileType = String();
   _currentRecord = String();

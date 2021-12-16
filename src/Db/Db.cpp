@@ -565,7 +565,9 @@ Db::Db(const VectorDouble& tab, int flag_add_rank)
 }
 
 Db::Db(const Db& r)
-    : _ncol(r._ncol),
+    : AStringable(r),
+      ASerializable(r),
+      _ncol(r._ncol),
       _nech(r._nech),
       _isGrid(r._isGrid),
       _array(r._array),

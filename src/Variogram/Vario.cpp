@@ -239,7 +239,9 @@ Vario::Vario(const String& neutralFileName, bool verbose)
 }
 
 Vario::Vario(const Vario& r)
-    : _nVar(r._nVar),
+    : AStringable(r),
+      ASerializable(r),
+      _nVar(r._nVar),
       _varioparam(r._varioparam),
       _means(r._means),
       _vars(r._vars),
