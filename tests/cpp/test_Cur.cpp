@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   /* Identify the covariance */
 
   SpaceRN space = SpaceRN(ndim);
-  CovContext ctxt = CovContext(1, order, 0., &space);
+  CovContext ctxt = CovContext(1, ndim);
   ECov type = CovFactory::identifyCovariance(cov_name, ctxt);
   if (type == ECov::UNKNOWN)
     return 1;
@@ -98,18 +98,16 @@ int main(int argc, char *argv[])
 
 
 
-  int seed = 10355;
+  int seed = 432432;
   law_set_random_seed(seed);
+  std::mt19937 gen;
+  gen.seed(seed);
 
   std::normal_distribution<double> d{0,1};
-  std::mt19937 gen{seed};
-
   double val = d(gen);
-  std::cout << "Gaussian std " << val <<std::endl;
+
+  std::cout << "Gaussian std " << val << std::endl;
   std::cout << "Gaussian Didier" << law_gaussian() <<std::endl;
-
-
-
 
   return 0;
   ///////////////////////
@@ -117,7 +115,7 @@ int main(int argc, char *argv[])
   auto nx = { 101, 101 };
   Db workingDbc(nx);
   VectorDouble angle;
-  for(auto &e : workingDbc.getCoordinates())
+  for(auto &e : workingDbc.getAllCoordinates())
   {
     angle.push_back(spirale(e));
   }
@@ -157,5 +155,6 @@ int main(int argc, char *argv[])
 
   SPDE spde(model,workingDbc,&dat,ESPDECalcMode::KRIGING);
   spde.compute();
+  spde.query(&workingDbc);
   return 0;
 }

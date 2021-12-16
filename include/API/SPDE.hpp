@@ -70,5 +70,6 @@ private:
   mutable VectorVectorDouble _workKriging;
   mutable VectorVectorDouble _workingSimu;
   std::vector<ProjMatrix*> _projOnDbOut;
+  std::vector<int>         _adressesICov;
   // query sur aproj ou // TODO ??
 };

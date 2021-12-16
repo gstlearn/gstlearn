@@ -32,10 +32,10 @@ public:
   PrecisionOp& operator=(const PrecisionOp &pmat);
   virtual ~PrecisionOp();
 
-  int init(const ShiftOpCs* shiftop,
-           const CovAniso* cova = nullptr,
-           const EPowerPT& power = EPowerPT::UNDEFINED,
-           bool verbose = false);
+  int reset(const ShiftOpCs* shiftop,
+            const CovAniso* cova = nullptr,
+            const EPowerPT& power = EPowerPT::UNDEFINED,
+            bool verbose = false);
 
   void   eval(const VectorDouble& in, VectorDouble& out);
   virtual void gradYQX(const VectorDouble& /*X*/,

@@ -54,7 +54,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
   for(int i = 0; i < ngrf;i++)
   {
    int iptr = _spdeTab[i].query(db,NamingConvention("simGauss"));
-   db->setName(iptr,names[i]);
+   db->setNameByAttribute(iptr,names[i]);
   }
 
   db->setLocator(names,ELoc::Z);

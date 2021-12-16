@@ -14,6 +14,7 @@
 #include "Drifts/ADriftList.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/AException.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -23,6 +24,8 @@
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
+
+#include <math.h>
 
 Model::Model(const CovContext &ctxt, bool flagGradient, bool flagLinked)
     :
@@ -372,7 +375,7 @@ int Model::getRankFext(int il) const
 {
   return _driftList->getRankFex(il);
 }
-const VectorDouble& Model::getCoefDrift() const
+const VectorDouble& Model::getCoefDrifts() const
 {
   return _driftList->getCoefDrift();
 }
@@ -393,9 +396,9 @@ void Model::setCoefDrift(int ivar, int il, int ib, double coeff)
 {
   _driftList->setCoefDrift(ivar, il, ib, coeff);
 }
-void Model::setCoefDrift(int rank, double coeff)
+void Model::setCoefDriftByRank(int rank, double coeff)
 {
-  _driftList->setCoefDrift(rank, coeff);
+  _driftList->setCoefDriftByRank(rank, coeff);
 }
 void Model::setDriftFiltered(int il, bool filtered)
 {
@@ -476,7 +479,7 @@ VectorDouble Model::sample(double hmax,
  *
  * @return 0 if no error, 1 otherwise
  */
-int Model::fit(Vario *vario,
+int Model::fitFromCovIndices(Vario *vario,
                const VectorInt &types,
                bool verbose,
                Option_AutoFit mauto,
@@ -562,7 +565,7 @@ int Model::deSerialize(const String &filename, bool verbose)
 
   /// TODO : Force SpaceRN creation (deSerialization doesn't know yet how to manage other space types)
   SpaceRN space(ndim);
-  _ctxt = CovContext(nvar, 2, field, &space);
+  _ctxt = CovContext(nvar, &space, 2, field);
   _ctxt.setBallRadius(radius);
   _create(false, false);
 
@@ -807,4 +810,90 @@ Model* Model::duplicate() const
     model->addCova(getCova(i));
 
   return model;
+}
+
+/**
+ * Calculate the covariance matrix between active samples of Db1
+ * and active samples of Db2
+ * @param covmat Returned matrix (returned as a vector).
+ * @param db1 First Data Base
+ * @param db2 Second Data Base (if not provided, the first Db is provided instead)
+ * @param ivar0 Rank of the first variable (all variables if not defined)
+ * @param jvar0 Rank of the second variable (all variables if not defined)
+ * @param flag_norm 1 if the Model must be normalized beforehand
+ * @param flag_cov 1 if the Model must be expressed in covariance
+
+ *
+ * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
+ * @remark -nvar stands for the number of (active) variables
+ * @remark -nechA stands for the number of active samples
+ */
+void Model::covMatrix(VectorDouble& covmat,
+                      Db *db1,
+                      Db *db2,
+                      int ivar0,
+                      int jvar0,
+                      int flag_norm,
+                      int flag_cov)
+{
+  model_covmat(this, db1, db2, ivar0, jvar0, flag_norm, flag_cov, covmat.data());
+}
+
+/**
+ * Evaluate the Goodness-of_fit of the Model on the Experimental Variogram
+ * It is expressed as the average departure between Model and Variogram
+ * scaled to the sill
+ * @param vario Experimental variogram
+ * @return Value for the Goodness-of_fit (as percentage of the total sill)
+ */
+double Model::gofToVario(const Vario* vario)
+{
+  int nvar = getVariableNumber();
+  int ndir = vario->getDirectionNumber();
+
+  double total = 0.;
+
+  // Loop on the pair of variables
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double sill = getTotalSill(ivar, jvar);
+
+      // Loop on the variogram directions
+
+      double totdir = 0.;
+      for (int idir = 0; idir < ndir; idir++)
+      {
+
+        // Read information from Experimental Variogram
+
+        VectorDouble codir = vario->getCodir(idir);
+        VectorDouble hh = vario->getHhVecBivar(idir, ivar, jvar);
+        VectorDouble gexp = vario->getGgVecBivar(idir, ivar, jvar);
+
+        // Evaluate the Model
+
+        int npas = gexp.size();
+        VectorDouble gmod(npas);
+        model_evaluate(this, ivar, jvar, -1, 0, 0, 0, 0, 0, ECalcMember::LHS,
+                       npas, codir, hh.data(), gmod.data());
+
+        // Evaluate the score
+
+        double totpas = 0;
+        for (int ipas = 0; ipas < npas; ipas++)
+        {
+          double ecart = gexp[ipas] - gmod[ipas];
+          totpas += ecart * ecart;
+        }
+        totpas  = sqrt(totpas) / (double) npas;
+        totdir += totpas;
+      }
+      totdir /= (double) ndir;
+      totdir /= sill;
+      total  += ABS(totdir);
+    }
+  total = 100. * total / (double) (nvar * nvar);
+  return total;
 }

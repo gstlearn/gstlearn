@@ -15,10 +15,12 @@
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Basic/GridC.hpp"
+
+#include "../Basic/Grid.hpp"
 
 class MatrixRectangular;
 class Db;
+class CovAniso;
 
 /**
  * Meshing defined as a Turbo based on a Regular Grid
@@ -49,8 +51,8 @@ public:
   double getApexCoor(int i, int idim) const override;
   double getMeshSize(int imesh) const override;
   void   setPolarized(bool flag) { _isPolarized = flag; }
-  void setMaskArray(int* array);
-  void setMaskArray(double* array);
+  void   setMaskArrayFromInt(int* array);
+  void   setMaskArrayFromDouble(double* array);
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
                      const VectorDouble& cellsize,
@@ -63,11 +65,17 @@ public:
                    const VectorDouble& rotmat = VectorDouble(),
                    bool flag_polarized = true,
                    int verbose = 0);
+  int initFromCova(const CovAniso& cova,
+                   const Db& field,
+                   double ratio,
+                   int nbExt = 0,
+                   bool useSel = true,
+                   int verbose = 0);
   bool isNodeMasked(int iabs) const;
   cs*  getMeshToDb(const Db *db, int verbose = 0) const override;
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
-  const GridC& getGrid() const
+  const Grid& getGrid() const
   {
     return _grid;
   }
@@ -90,7 +98,7 @@ private:
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
 
 private:
-  GridC _grid;
+  Grid _grid;
   int   _nPerCell;
   bool  _isPolarized;
   bool  _isMaskDefined;

@@ -60,6 +60,29 @@ SPDE::~SPDE()
 void SPDE::_purge()
 {
 
+  for(auto &e : _pilePrecisions)
+  {
+    delete e;
+  }
+  for(auto &e : _pileProjMatrix)
+  {
+    delete e;
+  }
+
+  for(auto &e : _pileShiftOp)
+  {
+    delete e;
+  }
+
+  for(auto &e : _simuMeshing)
+  {
+    delete e;
+  }
+
+  for(auto &e : _krigingMeshing)
+  {
+    delete e;
+  }
 }
 
 void SPDE::init(Model& model,
@@ -92,7 +115,8 @@ void SPDE::init(Model& model,
       totalSill += cova->getSill(0, 0);
       if(_calculSimu())
       {
-        mesh = _createMeshing(*cova, field, 14., 0.2);
+        mesh = new MeshETurbo();
+        mesh->initFromCova(*cova,field,14,5,false,1);
         _simuMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, &model, &field);
         precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::MINUSHALF);
@@ -105,7 +129,8 @@ void SPDE::init(Model& model,
       }
       if(_calculKriging())
       {
-        mesh = _createMeshing(*cova, field, 11., 0.2);
+        mesh = new MeshETurbo();
+        mesh->initFromCova(*cova,field,11,5,false,1);
         _krigingMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, &model, &field);
         precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::ONE);
@@ -144,8 +169,8 @@ void SPDE::init(Model& model,
       }
     }
   }
-  _precisionsKriging.setVarianceData(varianceData);
-  _precisionsSimu.setVarianceData(varianceData);
+  _precisionsKriging.setVarianceDataVector(varianceData);
+  _precisionsSimu.setVarianceDataVector(varianceData);
 }
 
 void SPDE::computeKriging(const VectorDouble& datVect) const

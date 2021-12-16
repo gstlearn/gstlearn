@@ -54,23 +54,23 @@ public:
 
   int    getVariableNumber() const { return _nVar; }
   const  VectorDouble& getMeans() const { return _means; }
-  double getMeans(int ivar) const;
+  double getMean(int ivar) const;
   const  VectorDouble& getVars()  const { return _vars; }
-  double getVars(int ivar, int jvar) const;
-  double getVars(int ijvar) const;
+  double getVarBivar(int ivar, int jvar) const;
+  double getVarIJ(int ijvar) const;
 
   void setMeans(const VectorDouble& means);
-  void setMeans(int ivar, double mean);
+  void setMean(int ivar, double mean);
   void setVars(const VectorDouble& vars);
-  void setVars(int ijvar, double value);
-  void setVars(int ivar, int jvar, double value);
+  void setVarIJ(int ijvar, double value);
+  void setVarBivar(int ivar, int jvar, double value);
 
   int getDirSize(int idir) const;
 
-  double getGg(int idir, int i) const;
-  double getHh(int idir, int i) const;
-  double getSw(int idir, int i) const;
-  double getUtilize(int idir, int i) const;
+  double getGgByRank(int idir, int i) const;
+  double getHhByRank(int idir, int i) const;
+  double getSwByRank(int idir, int i) const;
+  double getUtilizeByRank(int idir, int i) const;
 
   double getGg(int idir,
                int ivar,
@@ -82,33 +82,33 @@ public:
   double getSw(int idir, int ivar, int jvar, int ipas) const;
   double getUtilize(int idir, int ivar, int jvar, int ipas) const;
 
-  VectorDouble getGgVec(int idir,
-                        int ivar,
-                        int jvar,
-                        bool asCov = false,
-                        bool flagNormalized = false) const;
-  VectorDouble getHhVec(int idir, int ivar, int jvar) const;
-  VectorDouble getSwVec(int idir, int ivar, int jvar) const;
-  VectorDouble getUtilizeVec(int idir, int ivar, int jvar) const;
+  VectorDouble getGgVecBivar(int idir,
+                             int ivar,
+                             int jvar,
+                             bool asCov = false,
+                             bool flagNormalized = false) const;
+  VectorDouble getHhVecBivar(int idir, int ivar, int jvar) const;
+  VectorDouble getSwVecBivar(int idir, int ivar, int jvar) const;
+  VectorDouble getUtilizeVecBivar(int idir, int ivar, int jvar) const;
 
   const VectorDouble& getGgVec(int idir) const;
   const VectorDouble& getHhVec(int idir) const;
   const VectorDouble& getSwVec(int idir) const;
   const VectorDouble& getUtilizeVec(int idir) const;
 
-  void setGg(int idir, int i, double gg);
-  void setHh(int idir, int i, double hh);
-  void setSw(int idir, int i, double sw);
-  void setUtilize(int idir, int i, double utilize);
+  void setGgByRank(int idir, int i, double gg);
+  void setHhByRank(int idir, int i, double hh);
+  void setSwByRank(int idir, int i, double sw);
+  void setUtilizeByRank(int idir, int i, double utilize);
 
   void setSw(int idir, int ivar, int jvar, int ipas, double sw);
   void setHh(int idir, int ivar, int jvar, int ipas, double hh);
   void setGg(int idir, int ivar, int jvar, int ipas, double gg);
   void setUtilize(int idir, int ivar, int jvar, int ipas, double utilize);
 
-  void updSw(int idir, int i, double sw);
-  void updHh(int idir, int i, double hh);
-  void updGg(int idir, int i, double gg);
+  void updSwByRank(int idir, int i, double sw);
+  void updHhByRank(int idir, int i, double hh);
+  void updGgByRank(int idir, int i, double gg);
 
   int getCenter(int ivar = 0, int jvar = 0, int idir = 0) const;
 
@@ -168,7 +168,7 @@ public:
   int getDirectionNumber() const { return _varioparam.getDirectionNumber(); }
   const VectorDouble& getDates() const { return _varioparam.getDates(); }
   bool hasDate() const { return _varioparam.hasDate(); }
-  double getDates(int idate, int icas) const { return _varioparam.getDates(idate, icas); }
+  double getDates(int idate, int icas) const { return _varioparam.getDate(idate, icas); }
   int getDateNumber() const { return _varioparam.getDateNumber(); }
   double getScale() const { return _varioparam.getScale(); }
   int getDimensionNumber() const { return getDirParam(0).getDimensionNumber(); }

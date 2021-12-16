@@ -44,9 +44,9 @@ public:
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
 
-  const VectorDouble& getAnisoCoeff() const { return _anisoCoeffs; }
+  const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
-  const VectorDouble& getAnisoRotMat() const { return _anisoRotMat; }
+  const VectorDouble& getAnisoRotMats() const { return _anisoRotMat; }
   double getAnisoRotMat(int i) const { return _anisoRotMat[i]; }
   double getDistCont() const { return _distCont; }
   int getFlagAniso() const { return _flagAniso; }
@@ -54,7 +54,7 @@ public:
   int getFlagRotation() const { return _flagRotation; }
   int getFlagSector() const { return _flagSector; }
   int getFlagXvalid() const { return _flagXvalid; }
-  const VectorInt& getImageRadius() const { return _imageRadius; }
+  const VectorInt& getAllImageRadius() const { return _imageRadius; }
   int getImageRadius(int idim) const { return _imageRadius[idim]; }
   int getNDim() const { return _nDim; }
   int getNMaxi() const { return _nMaxi; }
@@ -66,7 +66,7 @@ public:
   ENeigh getType() const { return _type; }
   double getWidth() const { return _width; }
 
-  void setAnisoCoeff(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
+  void setAnisoCoeffs(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
   void setAnisoCoeff(int idim, double value);
   void anisoRescale();
   void setAnisoRotMat(const VectorDouble& anisoRotMat) { _anisoRotMat = anisoRotMat; }

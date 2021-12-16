@@ -49,7 +49,7 @@ public:
   double getValue(int irow, int icol) const;
   void setValue(int irow, int icol, double value);
   VectorDouble getRange(int icol) const;
-  VectorDouble getRange() const;
+  VectorDouble getAllRange() const;
   void display(int isimu) const;
   void plot(int isimu) const;
 

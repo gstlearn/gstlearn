@@ -77,13 +77,13 @@ int main(int /*argc*/, char */*argv*/[])
   Db* db = new Db({nx,nx},{1.,1.});
   if (! FFFF(bound))
   {
-    db->addFields(1, -bound, "Lower", ELoc::L);
-    db->addFields(1, +bound, "Upper", ELoc::U);
+    db->addFieldsByConstant(1, -bound, "Lower", ELoc::L);
+    db->addFieldsByConstant(1, +bound, "Upper", ELoc::U);
   }
   else
   {
-    db->addFields(1, TEST, "Lower", ELoc::L);
-    db->addFields(1, TEST, "Upper", ELoc::U);
+    db->addFieldsByConstant(1, TEST, "Lower", ELoc::L);
+    db->addFieldsByConstant(1, TEST, "Upper", ELoc::U);
   }
   if (db_locator_attribute_add(db,ELoc::GAUSFAC,nbsimu*nvar,0,0.,&iptr)) return 1;
 
@@ -126,7 +126,7 @@ int main(int /*argc*/, char */*argv*/[])
   {
     VarioParam varioparam;
     std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
-    varioparam.addDirs(dirparams);
+    varioparam.addMultiDirs(dirparams);
     VectorString names = db->getNames("gausfac*");
     for (int isimu = 0; isimu < (int) names.size(); isimu++)
     {

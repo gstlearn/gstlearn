@@ -95,9 +95,9 @@ public:
   cs* getS() const { return _S; }
   cs* getSGrad(int iapex, int igparam) const;
   const VectorDouble& getTildeC() const { return _TildeC; }
-  const VectorDouble& getLambda() const { return _Lambda; }
+  const VectorDouble& getLambdas() const { return _Lambda; }
   double getLambda(int iapex) const { return _Lambda[iapex]; }
-  const VectorDouble& getLambdaGrad(int idim) const { return _LambdaGrad[idim]; }
+  const VectorDouble& getLambdaGrads(int idim) const { return _LambdaGrad[idim]; }
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
 

@@ -2,7 +2,8 @@
 
 #include "gstlearn_export.hpp"
 #include "Interfaces/interface_d.hpp"
-#include "Basic/GridC.hpp"
+
+#include "../Basic/Grid.hpp"
 #include "Db/ELoadBy.hpp"
 
 class GSTLEARN_EXPORT ParamGrid {
@@ -21,7 +22,7 @@ public:
   VectorDouble   getRotation() const;
   const ELoadBy& getCellOrder() const;
   VectorDouble   getValues(int i) const;
-  void           fromGeoslib(GridC grid);
+  void           fromGeoslib(Grid grid);
   void           reset();
 
 private:

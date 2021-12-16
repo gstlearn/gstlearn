@@ -53,9 +53,9 @@ int main(int /*argc*/, char */*argv*/[])
     }
 
   Db* data = new Db(nech,ELoadBy::COLUMN,tab);
-  data->setName(1,"xcoor1");
-  data->setName(2,"xcoor2");
-  data->setName(3,"var");
+  data->setNameByAttribute(1,"xcoor1");
+  data->setNameByAttribute(2,"xcoor2");
+  data->setNameByAttribute(3,"var");
   data->setLocatorByAttribute(1,ELoc::X,0);
   data->setLocatorByAttribute(2,ELoc::X,1);
   data->setLocatorByAttribute(3,ELoc::Z);

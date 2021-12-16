@@ -104,16 +104,16 @@ String MeshSpherical::toString(int level) const
 /*!
 ** Create the meshing
 **
-** \param[in]  verbose         Verbose flag
 ** \param[in]  dbin            Pointer to the input Db (optional)
 ** \param[in]  dbout           Pointer to the output Db (optional)
 ** \param[in]  triswitch       Construction switch
+** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshSpherical::create(int verbose,
-                          Db* dbin,
-                          Db *dbout,
-                          const String& triswitch)
+int MeshSpherical::reset(Db* dbin,
+                         Db *dbout,
+                         const String& triswitch,
+                         int verbose)
 {
   int *meshes, ndim, ncorner, napices, nmeshes, error;
   double *apices;

@@ -272,9 +272,9 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
   for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
   {
-    vario->setMeans(ivar, 0.);
+    vario->setMean(ivar, 0.);
     for (int jvar = 0; jvar < db->getVariableNumber(); jvar++)
-      vario->setVars(ivar, jvar, 0.);
+      vario->setVarBivar(ivar, jvar, 0.);
   }
 
   /* Loop on the variables */
@@ -294,7 +294,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
     }
 
     if (s1w <= 0.) continue;
-    vario->setMeans(ivar, s1z / s1w);
+    vario->setMean(ivar, s1z / s1w);
   }
 
   for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
@@ -327,14 +327,14 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
       if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
       {
-        vario->setVars(ivar, jvar, s12wzz);
-        vario->setVars(jvar, ivar, s12wzz);
+        vario->setVarBivar(ivar, jvar, s12wzz);
+        vario->setVarBivar(jvar, ivar, s12wzz);
       }
       else
       {
-        vario->setVars(ivar, jvar,
+        vario->setVarBivar(ivar, jvar,
                        s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w));
-        vario->setVars(jvar, ivar,
+        vario->setVarBivar(jvar, ivar,
                        s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w));
       }
     }
@@ -346,9 +346,9 @@ static void st_variogram_stats(Db *db, Vario *vario)
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
-        double value = -vario->getVars(ivar, jvar) / vario->getVars(jvar, jvar);
-        vario->setVars(ivar, jvar, value);
-        vario->setVars(jvar, ivar, value);
+        double value = -vario->getVarBivar(ivar, jvar) / vario->getVarBivar(jvar, jvar);
+        vario->setVarBivar(ivar, jvar, value);
+        vario->setVarBivar(jvar, ivar, value);
       }
   }
   else if (vario->getCalculType() == ECalcVario::TRANS2)
@@ -356,9 +356,9 @@ static void st_variogram_stats(Db *db, Vario *vario)
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
-        double value = -vario->getVars(ivar, jvar) / vario->getVars(ivar, ivar);
-        vario->setVars(ivar, jvar, value);
-        vario->setVars(jvar, ivar, value);
+        double value = -vario->getVarBivar(ivar, jvar) / vario->getVarBivar(ivar, ivar);
+        vario->setVarBivar(ivar, jvar, value);
+        vario->setVarBivar(jvar, ivar, value);
       }
   }
   else if (vario->getCalculType() == ECalcVario::BINORMAL)
@@ -366,11 +366,11 @@ static void st_variogram_stats(Db *db, Vario *vario)
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < db->getVariableNumber(); jvar++)
         if (ivar != jvar)
-          vario->setVars(
+          vario->setVarBivar(
               ivar,
               jvar,
-              vario->getVars(ivar, jvar) / sqrt(
-                  vario->getVars(ivar, ivar) * vario->getVars(jvar, jvar)));
+              vario->getVarBivar(ivar, jvar) / sqrt(
+                  vario->getVarBivar(ivar, ivar) * vario->getVarBivar(jvar, jvar)));
   }
   return;
 }
@@ -438,9 +438,9 @@ static void st_variovect_stats(Db *db, Vario *vario, int ncomp)
         s12wzz += ww * ww * vij;
       }
 
-      vario->setVars(ivar, jvar, (s12ww > 0) ? s12wzz / s12ww :
+      vario->setVarBivar(ivar, jvar, (s12ww > 0) ? s12wzz / s12ww :
                                                0.);
-      vario->setVars(jvar, ivar, (s12ww > 0) ? s12wzz / s12ww :
+      vario->setVarBivar(jvar, ivar, (s12ww > 0) ? s12wzz / s12ww :
                                                0.);
     }
 
@@ -579,11 +579,11 @@ static void st_variogram_set(const ECalcVario &calcul_type,
 {
   int i = VARIO->getDirAddress(IDIRLOC, ivar, jvar, ipas, false, orient);
 
-  VARIO->updGg(IDIRLOC, i, ww * value);
+  VARIO->updGgByRank(IDIRLOC, i, ww * value);
   if (calcul_type == ECalcVario::POISSON)
-    VARIO->updGg(IDIRLOC, i, -VARIO->getMeans(ivar) / 2.);
-  VARIO->updHh(IDIRLOC, i, ww * dist);
-  VARIO->updSw(IDIRLOC, i, ww);
+    VARIO->updGgByRank(IDIRLOC, i, -VARIO->getMean(ivar) / 2.);
+  VARIO->updHhByRank(IDIRLOC, i, ww * dist);
+  VARIO->updSwByRank(IDIRLOC, i, ww);
   if (debug_query("variogram"))
     st_print_debug(IECH1, IECH2, ivar, jvar, i, ww, value);
   return;
@@ -847,19 +847,19 @@ void variogram_scale(Vario *vario, int idir)
       for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
       {
         int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
-        if (vario->getSw(idir, j) <= 0)
+        if (vario->getSwByRank(idir, j) <= 0)
         {
-          vario->setHh(idir, j, TEST);
-          vario->setGg(idir, j, TEST);
+          vario->setHhByRank(idir, j, TEST);
+          vario->setGgByRank(idir, j, TEST);
         }
         else
         {
-          vario->setHh(idir, j, vario->getHh(idir, j) / vario->getSw(idir, j));
+          vario->setHhByRank(idir, j, vario->getHhByRank(idir, j) / vario->getSwByRank(idir, j));
           if (vario->getFlagAsym() && i < vario->getLagNumber(idir))
-            vario->setHh(idir, j, -ABS(vario->getHh(idir, j)));
+            vario->setHhByRank(idir, j, -ABS(vario->getHhByRank(idir, j)));
           if (vario->getCalculType() != ECalcVario::COVARIOGRAM)
-            vario->setGg(idir, j,
-                         vario->getGg(idir, j) / vario->getSw(idir, j));
+            vario->setGgByRank(idir, j,
+                         vario->getGgByRank(idir, j) / vario->getSwByRank(idir, j));
         }
       }
     }
@@ -875,8 +875,8 @@ void variogram_scale(Vario *vario, int idir)
         {
           int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
           int j0 = vario->getDirAddress(idir, jvar, jvar, i, true, 0);
-          vario->setGg(idir, j,
-                       -vario->getGg(idir, j) / vario->getGg(idir, j0));
+          vario->setGgByRank(idir, j,
+                       -vario->getGgByRank(idir, j) / vario->getGgByRank(idir, j0));
         }
       }
   }
@@ -889,8 +889,8 @@ void variogram_scale(Vario *vario, int idir)
         {
           int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
           int j0 = vario->getDirAddress(idir, ivar, ivar, i, true, 0);
-          vario->setGg(idir, j,
-                       -vario->getGg(idir, j) / vario->getGg(idir, j0));
+          vario->setGgByRank(idir, j,
+                       -vario->getGgByRank(idir, j) / vario->getGgByRank(idir, j0));
         }
       }
   }
@@ -904,11 +904,11 @@ void variogram_scale(Vario *vario, int idir)
           int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
           int j1 = vario->getDirAddress(idir, ivar, ivar, i, true, 0);
           int j2 = vario->getDirAddress(idir, jvar, jvar, i, true, 0);
-          vario->setGg(
+          vario->setGgByRank(
               idir,
               j,
-              vario->getGg(idir, j) / sqrt(
-                  vario->getGg(idir, j1) * vario->getGg(idir, j2)));
+              vario->getGgByRank(idir, j) / sqrt(
+                  vario->getGgByRank(idir, j1) * vario->getGgByRank(idir, j2)));
         }
       }
   }
@@ -966,8 +966,8 @@ static void st_covariance_center(Db *db, Vario *vario, int idir)
         for (i = 0; i < vario->getLagTotalNumber(idir); i++)
         {
           j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
-          if (vario->getSw(idir, j) > 0)
-            vario->setGg(idir, j, vario->getGg(idir, j) - m1 * m2);
+          if (vario->getSwByRank(idir, j) > 0)
+            vario->setGgByRank(idir, j, vario->getGgByRank(idir, j) - m1 * m2);
         }
     }
   return;
@@ -997,7 +997,7 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
     for (jvar = 0; jvar <= ivar; jvar++)
     {
       i = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
-      vario->setHh(idir, i, 0.);
+      vario->setHhByRank(idir, i, 0.);
 
       scale = 1.;
       m1 = m2 = s12w = s12wzz = sumw = 0.;
@@ -1039,13 +1039,13 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
 
       /* Final centering and normation */
 
-      vario->setSw(idir, i, sumw);
+      vario->setSwByRank(idir, i, sumw);
       if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
-        vario->setGg(idir, i, s12wzz);
+        vario->setGgByRank(idir, i, s12wzz);
       else if (vario->getCalculType() == ECalcVario::COVARIANCE_NC)
-        vario->setGg(idir, i, s12wzz / s12w);
+        vario->setGgByRank(idir, i, s12wzz / s12w);
       else
-        vario->setGg(idir, i, s12wzz / s12w - m1 * m2);
+        vario->setGgByRank(idir, i, s12wzz / s12w - m1 * m2);
     }
   return;
 }
@@ -1155,8 +1155,8 @@ static int st_date_comparable(const VarioParam *varioparam,
   if (FFFF(date1) || FFFF(date2)) return (0);
 
   delta = date2 - date1;
-  if (delta < varioparam->getDates(idate, 0)) return (1);
-  if (delta >= varioparam->getDates(idate, 1)) return (1);
+  if (delta < varioparam->getDate(idate, 0)) return (1);
+  if (delta >= varioparam->getDate(idate, 1)) return (1);
   return (0);
 }
 
@@ -1294,7 +1294,7 @@ static int st_update_variogram_verr(Db *db,
             vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
             sval = st_s(db, iech, jech);
             gval = st_g(db, iech, jech);
-            value = sval + vario->getGg(idir, ipas);
+            value = sval + vario->getGgByRank(idir, ipas);
             wgt = vario->getGg(idir, 0, 0, ipas) / value;
             sumt += wgt * gval;
             sumb += 1.;
@@ -1913,10 +1913,10 @@ static int st_variogram_calcul2(Db *db, Vario *vario, int idir, int *rindex)
 
     for (i = 0; i < size; i++)
     {
-      if (vario->getSw(idir, i) <= 0) continue;
+      if (vario->getSwByRank(idir, i) <= 0) continue;
       sw_sum[i] += w1;
-      gg_sum[i] += w1 * vario->getGg(idir, i) / vario->getSw(idir, i);
-      hh_sum[i] += w1 * vario->getHh(idir, i) / vario->getSw(idir, i);
+      gg_sum[i] += w1 * vario->getGgByRank(idir, i) / vario->getSwByRank(idir, i);
+      hh_sum[i] += w1 * vario->getHhByRank(idir, i) / vario->getSwByRank(idir, i);
     }
   }
 
@@ -1924,9 +1924,9 @@ static int st_variogram_calcul2(Db *db, Vario *vario, int idir, int *rindex)
 
   for (i = 0; i < size; i++)
   {
-    vario->setGg(idir, i, gg_sum[i]);
-    vario->setHh(idir, i, hh_sum[i]);
-    vario->setSw(idir, i, sw_sum[i]);
+    vario->setGgByRank(idir, i, gg_sum[i]);
+    vario->setHhByRank(idir, i, hh_sum[i]);
+    vario->setSwByRank(idir, i, sw_sum[i]);
   }
 
   /* Scale the variogram calculations */
@@ -2050,14 +2050,14 @@ static int st_variovect_calcul(Db *db,
           v21 = ABS(v21) / (di2 * dj1);
 
           i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-          vario->setGg(idir, i, vario->getGg(idir, i) + w1 * w2 * v12);
-          vario->setHh(idir, i, vario->getHh(idir, i) + w1 * w2 * dist);
-          vario->setSw(idir, i, vario->getSw(idir, i) + w1 * w2);
+          vario->setGgByRank(idir, i, vario->getGgByRank(idir, i) + w1 * w2 * v12);
+          vario->setHhByRank(idir, i, vario->getHhByRank(idir, i) + w1 * w2 * dist);
+          vario->setSwByRank(idir, i, vario->getSwByRank(idir, i) + w1 * w2);
 
           i = vario->getDirAddress(idir, ivar, jvar, ipas, false, -1);
-          vario->setGg(idir, i, vario->getGg(idir, i) + w1 * w2 * v21);
-          vario->setHh(idir, i, vario->getHh(idir, i) + w1 * w2 * dist);
-          vario->setSw(idir, i, vario->getSw(idir, i) + w1 * w2);
+          vario->setGgByRank(idir, i, vario->getGgByRank(idir, i) + w1 * w2 * v21);
+          vario->setHhByRank(idir, i, vario->getHhByRank(idir, i) + w1 * w2 * dist);
+          vario->setSwByRank(idir, i, vario->getSwByRank(idir, i) + w1 * w2);
         }
     }
   }
@@ -2993,9 +2993,9 @@ static int st_vmap_general(Db *db,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFields(nv2, 0.);
+  IPTV = dbmap->addFieldsByConstant(nv2, 0.);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFields(nv2, 0.);
+  IPTW = dbmap->addFieldsByConstant(nv2, 0.);
   if (IPTW < 0) goto label_end;
 
   /* Calculate a neighborhood (if radius > 0) */
@@ -3169,9 +3169,9 @@ static int st_vmap_grid(Db *dbgrid,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFields(nv2, 0.);
+  IPTV = dbmap->addFieldsByConstant(nv2, 0.);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFields(nv2, 0.);
+  IPTW = dbmap->addFieldsByConstant(nv2, 0.);
   if (IPTW < 0) goto label_end;
 
   /* Loop on the first data */
@@ -3277,11 +3277,11 @@ void variogram_extension(const Vario *vario,
   (*gmax) = -1.e30;
   if (vario->getFlagAsym())
   {
-    *c0 = vario->getGg(0, vario->getDirAddress(0, ivar, jvar, 0, false, 0));
+    *c0 = vario->getGgByRank(0, vario->getDirAddress(0, ivar, jvar, 0, false, 0));
   }
   else
   {
-    *c0 = vario->getVars(ivar, jvar);
+    *c0 = vario->getVarBivar(ivar, jvar);
   }
   if (st_get_generalized_variogram_order(vario) > 0) (*c0) = TEST;
   if (FFFF(*c0) && flag_norm)
@@ -3304,9 +3304,9 @@ void variogram_extension(const Vario *vario,
     for (i = 0; i < vario->getLagTotalNumber(idir); i++)
     {
       j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
-      if (vario->getSw(idir, j) <= 0) continue;
-      hh = vario->getHh(idir, j);
-      gg = vario->getGg(idir, j);
+      if (vario->getSwByRank(idir, j) <= 0) continue;
+      hh = vario->getHhByRank(idir, j);
+      gg = vario->getGgByRank(idir, j);
       if (FFFF(hh) || FFFF(gg)) continue;
       if (flag_norm) gg /= (*c0);
       if (!FFFF(distmin) && hh < distmin) continue;
@@ -3409,7 +3409,7 @@ static int st_variogrid_calcul(Db *db, Vario *vario)
   if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
   {
     iatt_old = db_attribute_identify(db, ELoc::W, 0);
-    iadd_new = db->addFields(1, 0.);
+    iadd_new = db->addFieldsByConstant(1, 0.);
     if (iadd_new < 0) goto label_end;
     db->setLocatorByAttribute(iadd_new, ELoc::W);
     maille = db_grid_maille(db);
@@ -3633,7 +3633,7 @@ int correlation_f(Db *db1,
   *correl = 0.;
   *nindice = 0;
   *indices = ind = nullptr;
-  iptr = dbgrid->addFields(1, 0.);
+  iptr = dbgrid->addFieldsByConstant(1, 0.);
   if (iptr < 0) return (1);
   m1 = m2 = v1 = v2 = v12 = nb = 0.;
 
@@ -4170,7 +4170,7 @@ int variogram_cloud(const Db *db,
   /* Allocate new variables */
 
   int ndir = varioparam->getDirectionNumber();
-  iptr = dbgrid->addFields(ndir, 0.);
+  iptr = dbgrid->addFieldsByConstant(ndir, 0.);
   if (iptr < 0) return (1);
 
   /* Loop on the directions to evaluate */
@@ -4364,7 +4364,7 @@ int regression_f(Db *db1,
 
   /* Pointer allocation */
 
-  iptr = db1->addFields(1, TEST);
+  iptr = db1->addFieldsByConstant(1, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -5216,9 +5216,9 @@ static int st_vmap_grid_fft(Db *dbgrid,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFields(nvs2, TEST);
+  IPTV = dbmap->addFieldsByConstant(nvs2, TEST);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFields(nvs2, TEST);
+  IPTW = dbmap->addFieldsByConstant(nvs2, TEST);
   if (IPTW < 0) goto label_end;
 
   /* Core allocation */
@@ -5942,7 +5942,7 @@ int maf_compute(Db *db,
 
   /* Allocate new variables */
 
-  iptr = db->addFields(nvar, TEST);
+  iptr = db->addFieldsByConstant(nvar, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -6108,7 +6108,7 @@ int pca_z2f(Db *db, PCA *pca, int flag_norm_in, int verbose)
 
   /* Allocate new variables */
 
-  iptr = db->addFields(nvar, TEST);
+  iptr = db->addFieldsByConstant(nvar, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -6181,7 +6181,7 @@ int pca_f2z(Db *db, PCA *pca, int flag_norm_out, int verbose)
 
   /* Allocate new variables */
 
-  iptr = db->addFields(nvar, TEST);
+  iptr = db->addFieldsByConstant(nvar, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -6416,7 +6416,7 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
 
   /* Set the variance */
 
-  vario->setVars(0, 0, 1.);
+  vario->setVarBivar(0, 0, 1.);
 }
 
 /****************************************************************************/

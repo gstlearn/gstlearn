@@ -131,7 +131,7 @@ VectorDouble Table::getRange(int icol) const
   return limits;
 }
 
-VectorDouble Table::getRange() const
+VectorDouble Table::getAllRange() const
 {
   int ncols = getColNumber();
   VectorDouble limits(2);

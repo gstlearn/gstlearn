@@ -51,7 +51,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
-    dbprop.addFields(1,props[ifac],names[ifac],ELoc::P,ifac);
+    dbprop.addFieldsByConstant(1,props[ifac],names[ifac],ELoc::P,ifac);
   dbprop.display();
 
   // Creating the Model(s) of the Underlying GRF(s)

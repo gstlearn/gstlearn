@@ -68,13 +68,13 @@ int main(int /*argc*/, char * /*argv*/[])
   Db* db = new Db({nx,nx},dx);
   if (! FFFF(bound))
   {
-    db->addFields(1, -bound, "Bounds", ELoc::L);
-    db->addFields(1, +bound, "Bounds", ELoc::U);
+    db->addFieldsByConstant(1, -bound, "Bounds", ELoc::L);
+    db->addFieldsByConstant(1, +bound, "Bounds", ELoc::U);
   }
   else
   {
-    db->addFields(1, TEST, "Bounds", ELoc::L);
-    db->addFields(1, TEST, "Bounds", ELoc::U);
+    db->addFieldsByConstant(1, TEST, "Bounds", ELoc::L);
+    db->addFieldsByConstant(1, TEST, "Bounds", ELoc::U);
   }
 
   // Model
@@ -109,7 +109,7 @@ int main(int /*argc*/, char * /*argv*/[])
 
   VarioParam varioparam;
   std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
-  varioparam.addDirs(dirparams);
+  varioparam.addMultiDirs(dirparams);
   Vario vario(&varioparam,db);
   VectorString names = db->getNames("Gibbs*");
   for (int isimu=0; isimu<nbsimu; isimu++)

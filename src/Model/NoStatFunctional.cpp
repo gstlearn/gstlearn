@@ -101,7 +101,7 @@ double NoStatFunctional::getValue(int igrf,
                                   int rank) const
 {
   int ipar = getRank(igrf, icov, type, iv1, iv2);
-  return getValue(ipar, icas, rank);
+  return getValueByParam(ipar, icas, rank);
 }
 
 /**
@@ -111,7 +111,7 @@ double NoStatFunctional::getValue(int igrf,
  * @param rank  Rank of the target
  * @return
  */
-double NoStatFunctional::getValue(int ipar, int icas, int rank) const
+double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 {
   if (ipar != 0)
     my_throw("Invalid rank when searching for Non-stationary parameter");

@@ -181,7 +181,7 @@ int db_vector_get_att_sel(Db *db, int iatt, double *tab)
 static int st_vector_put_col(Db *db, int icol, const double *tab)
 {
   if (!db->isColumnIndexValid(icol)) return (1);
-  db->setColumnByRank(tab, icol);
+  db->setColumnByRankOldStyle(tab, icol);
   return (0);
 }
 
@@ -200,7 +200,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  *****************************************************************************/
 int db_vector_get(Db *db, const ELoc &locatorType, int item, double *tab)
 {
-  int iatt = db->getAttribute(locatorType, item);
+  int iatt = db->getAttributeByLocator(locatorType, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
   return (0);
 }
@@ -219,7 +219,7 @@ int db_vector_get(Db *db, const ELoc &locatorType, int item, double *tab)
  *****************************************************************************/
 int db_selection_get(const Db *db, int item, double *tab)
 {
-  int iatt = db->getAttribute(ELoc::SEL, item);
+  int iatt = db->getAttributeByLocator(ELoc::SEL, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
   return (0);
 }
@@ -559,7 +559,7 @@ int db_coorvec_put(Db *db, int idim, double *tab)
  *****************************************************************************/
 int db_attribute_identify(const Db *db, const ELoc &locatorType, int item)
 {
-  int iatt = db->getAttribute(locatorType, item);
+  int iatt = db->getAttributeByLocator(locatorType, item);
   return (iatt);
 }
 
@@ -1061,7 +1061,7 @@ void db_print(Db *db,
   if (flag_extend) params |= FLAG_EXTEND;
   if (flag_stats) params |= FLAG_STATS;
   if (flag_array) params |= FLAG_ARRAY;
-  db->displayMore(params, cols, false, mode);
+  db->displayMoreByAttributes(params, cols, false, mode);
 
   return;
 }
@@ -1099,7 +1099,7 @@ int db_extension(Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
 
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
-    VectorDouble coor = db->getCoordinate(idim, true);
+    VectorDouble coor = db->getCoordinates(idim, true);
     ut_statistics(static_cast<int>(coor.size()), coor.data(), NULL, NULL, &nval,
                   &vmin, &vmax, &diff, &mean, &stdv);
     mini[idim] = vmin;
@@ -1725,7 +1725,7 @@ Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
 
   /* Add the coordinates */
 
-  (void) db->addFields(2, 0.);
+  (void) db->addFieldsByConstant(2, 0.);
 
   /* Create the locators */
 
@@ -1788,7 +1788,7 @@ String db_name_get_by_col(Db *db, int icol)
 int db_name_set(Db *db, int iatt, const String &name)
 {
   if (!db->isAttributeIndexValid(iatt)) return 1;
-  db->setName(iatt, name);
+  db->setNameByAttribute(iatt, name);
   return (0);
 }
 
@@ -2108,7 +2108,7 @@ int db_locator_attribute_add(Db *db,
                              double valinit,
                              int *iptr)
 {
-  (*iptr) = db->addFields(number, valinit);
+  (*iptr) = db->addFieldsByConstant(number, valinit);
   if ((*iptr) < 0) return (1);
   db->setLocatorsByAttribute(number, (*iptr), locatorType, r_tem);
 
@@ -2168,7 +2168,7 @@ int db_grid_copy(Db *db1, Db *db2, int *ind1, int *ind2, int ncol, int *cols)
 
   /* Add the variables */
 
-  int iptr = db2->addFields(ncol, TEST);
+  int iptr = db2->addFieldsByConstant(ncol, TEST);
 
   /* Loop on the output grid Db */
 
@@ -2679,7 +2679,7 @@ void db_polygon(Db *db,
 {
   // Adding a new variable
 
-  int iatt = db->addFields(1);
+  int iatt = db->addFieldsByConstant(1);
 
   /* Loop on the samples */
 
@@ -2788,7 +2788,7 @@ int db_proportion(Db *db, Db *dbgrid, int nfac1max, int nfac2max, int *nclout)
   nclass = 1;
   for (ivar = 0; ivar < nvar; ivar++)
     nclass *= nmax[ivar];
-  iptr = dbgrid->addFields(nclass, 0.);
+  iptr = dbgrid->addFieldsByConstant(nclass, 0.);
   if (iptr < 0) goto label_end;
   dbgrid->setLocatorsByAttribute(nclass, iptr, ELoc::P);
 
@@ -2883,7 +2883,7 @@ int db_merge(Db *db, int ncol, int *cols)
 
   /* Add the new variable */
 
-  iptr = db->addFields(1, TEST);
+  iptr = db->addFieldsByConstant(1, TEST);
 
   /* Loop on the samples */
 
@@ -3960,13 +3960,13 @@ Db* db_grid_reduce(Db *db_grid,
   x0.assign(coor, coor + ndim);
   ss_grid = db_create_grid(db_grid->isGridRotated(), db_grid->getNDim(), 0,
                            ELoadBy::COLUMN, flag_add_rank, nx, x0,
-                           db_grid->getDX(), db_grid->getAngles());
+                           db_grid->getDXs(), db_grid->getAngles());
 
   // Create the selection (optional)
 
   if (flag_sel)
   {
-    isel = ss_grid->addFields(1, 0., String(), ELoc::SEL);
+    isel = ss_grid->addFieldsByConstant(1, 0., String(), ELoc::SEL);
     for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
       db_index_sample_to_grid(ss_grid, i, indcur);
@@ -3983,7 +3983,7 @@ Db* db_grid_reduce(Db *db_grid,
 
   if (flag_copy)
   {
-    icopy = ss_grid->addFields(1, 0., String(), ELoc::SEL);
+    icopy = ss_grid->addFieldsByConstant(1, 0., String(), ELoc::SEL);
     for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
       db_index_sample_to_grid(ss_grid, i, indcur);
@@ -4458,7 +4458,7 @@ VectorInt db_identify_variables_by_name(Db *db, const String &pattern)
  **  Initialize the Grid iterator
  **
  ****************************************************************************/
-void grid_iterator_init(GridC *grid, const VectorInt &order)
+void grid_iterator_init(Grid *grid, const VectorInt &order)
 {
   grid->iteratorInit(order);
 }
@@ -4470,7 +4470,7 @@ void grid_iterator_init(GridC *grid, const VectorInt &order)
  **  Increment the Grid iterator
  **
  ****************************************************************************/
-VectorInt grid_iterator_next(GridC *grid)
+VectorInt grid_iterator_next(Grid *grid)
 {
   VectorInt indices = grid->iteratorNext();
   return (indices);

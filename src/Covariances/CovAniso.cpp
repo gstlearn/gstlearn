@@ -189,7 +189,7 @@ void CovAniso::setScales(const VectorDouble& scale)
   for (unsigned int i = 0; i < scale.size(); i++)
     if (scale[i] <= EPSILON20)
     my_throw("A scale should not be too small");
-  _aniso.setRadius(scale);
+  _aniso.setRadiusVec(scale);
   double scadef = _cova->getScadef();
   _cova->setField(scadef * ut_vector_max(scale));
 }
@@ -198,7 +198,7 @@ void CovAniso::setScale(int idim, double scale)
 {
   if (scale <= EPSILON20)
   my_throw("A scale should not be too small");
-  _aniso.setRadius(idim, scale);
+  _aniso.setRadiusDir(idim, scale);
   double scadef = _cova->getScadef();
   _cova->setField(scadef * ut_vector_max(_aniso.getRadius()));
 }
@@ -216,7 +216,7 @@ void CovAniso::setAnisoRotation(const VectorDouble& rot)
   if ((int) rot.size() != ndim * ndim)
     my_throw("Error in dimension of 'rot'");
   Rotation r(ndim);
-  r.setMatrixDirect(rot);
+  r.setMatrixDirectByVector(rot);
   _aniso.setRotation(r);
 }
 

@@ -2146,7 +2146,7 @@ int multilayers_kriging(Db *dbin,
 
   nvar = nlayers;
   if (flag_std) nvar += nlayers;
-  iptr = dbout->addFields(nvar, TEST, String(), ELoc::Z);
+  iptr = dbout->addFieldsByConstant(nvar, TEST, String(), ELoc::Z);
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2490,13 +2490,13 @@ static int st_varioexp_chh(LMlayers *lmlayers,
       for (jlayer = 0; jlayer <= ilayer; jlayer++, ijl++)
       {
         iadlag = vario->getDirAddress(idir, ilayer, jlayer, ipas, false, 1);
-        vario->setGg(idir, iadlag, sill[ijl]);
-        vario->setHh(idir, iadlag, distsum);
-        vario->setSw(idir, iadlag, nval);
+        vario->setGgByRank(idir, iadlag, sill[ijl]);
+        vario->setHhByRank(idir, iadlag, distsum);
+        vario->setSwByRank(idir, iadlag, nval);
         iadlag = vario->getDirAddress(idir, ilayer, jlayer, ipas, false, -1);
-        vario->setGg(idir, iadlag, sill[ijl]);
-        vario->setHh(idir, iadlag, -distsum);
-        vario->setSw(idir, iadlag, nval);
+        vario->setGgByRank(idir, iadlag, sill[ijl]);
+        vario->setHhByRank(idir, iadlag, -distsum);
+        vario->setSwByRank(idir, iadlag, nval);
       }
   }
 

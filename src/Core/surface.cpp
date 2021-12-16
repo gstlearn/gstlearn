@@ -725,10 +725,10 @@ int db_trisurf(Db *db,
   for (int idim = 0; idim < ndim; idim++)
   {
     iptr_init[idim] = db->getColumnByLocator(ELoc::X, idim);
-    iptr_proj[idim] = db->addFields(1, TEST);
+    iptr_proj[idim] = db->addFieldsByConstant(1, TEST);
     if (iptr_proj[idim] < 0) goto label_end;
   }
-  iptr_sel = db->addFields(1, 1.);
+  iptr_sel = db->addFieldsByConstant(1, 1.);
   if (iptr_sel < 0) goto label_end;
   db->setLocatorByAttribute(iptr_sel, ELoc::SEL);
 

@@ -63,9 +63,9 @@
 #define AIC(icov,ijvar)          aic[(icov)*nvs2 + (ijvar)]
 #define ALPHAK(icov,ijvar)       alphak[(icov)*nvs2 + (ijvar)]
 
-#define CORRECT(idir,k)         (vario->getHh(idir,k) != 0. && ! FFFF(vario->getHh(idir,k)) && \
-                                 vario->getSw(idir,k) != 0. && ! FFFF(vario->getSw(idir,k)) && \
-                                 ! FFFF(vario->getGg(idir,k)))
+#define CORRECT(idir,k)         (vario->getHhByRank(idir,k) != 0. && ! FFFF(vario->getHhByRank(idir,k)) && \
+                                 vario->getSwByRank(idir,k) != 0. && ! FFFF(vario->getSwByRank(idir,k)) && \
+                                 ! FFFF(vario->getGgByRank(idir,k)))
 #define VALPRO(ivar)             valpro[(ivar)]
 #define MATCOR(icov,ivar,jvar)   matcor[(icov)*nvar*nvar  + AD(ivar,jvar)]
 #define MATCORU(icov,ivar,jvar)  matcoru[(icov)*nvar*nvar  + AD(ivar,jvar)]
@@ -787,19 +787,19 @@ static double st_get_c00(const Vario *vario, int idir, int ivar, int jvar)
   int ipas, iad, iad0;
 
   iad = iad0 = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
-  if (vario->getGg(idir, iad) != 0. || vario->getSw(idir, iad) > 0)
+  if (vario->getGgByRank(idir, iad) != 0. || vario->getSwByRank(idir, iad) > 0)
     goto label_end;
 
   for (ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
   {
     iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-    if (vario->getGg(idir, iad) != 0) goto label_end;
+    if (vario->getGgByRank(idir, iad) != 0) goto label_end;
     iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, -1);
-    if (vario->getGg(idir, iad) != 0) goto label_end;
+    if (vario->getGgByRank(idir, iad) != 0) goto label_end;
   }
   iad = iad0;
 
-  label_end: return (vario->getGg(idir, iad));
+  label_end: return (vario->getGgByRank(idir, iad));
 }
 
 /****************************************************************************/
@@ -843,21 +843,21 @@ static void st_load_gg(const Vario *vario,
             iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
             jad = vario->getDirAddress(idir,ivar,jvar,ipas,false,-1);
             c00 = st_get_c00(vario,idir,ivar,jvar);
-            n1 = vario->getSw(idir,iad);
-            n2 = vario->getSw(idir,jad);
+            n1 = vario->getSwByRank(idir,iad);
+            n2 = vario->getSwByRank(idir,jad);
             if (n1 + n2 <= 0) continue;
-            g1 = vario->getGg(idir,iad);
-            g2 = vario->getGg(idir,jad);
+            g1 = vario->getGgByRank(idir,iad);
+            g2 = vario->getGgByRank(idir,jad);
             if (! CORRECT(idir,iad) || ! CORRECT(idir,jad)) continue;
             GG(ijvar,ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
-            dist = (ABS(vario->getHh(idir,iad)) + ABS(vario->getHh(idir,jad))) / 2.;
+            dist = (ABS(vario->getHhByRank(idir,iad)) + ABS(vario->getHhByRank(idir,jad))) / 2.;
           }
           else
           {
             iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
             if (! CORRECT(idir,iad)) continue;
-            GG(ijvar,ipadir) = vario->getGg(idir,iad);
-            dist = ABS(vario->getHh(idir,iad));
+            GG(ijvar,ipadir) = vario->getGgByRank(idir,iad);
+            dist = ABS(vario->getHhByRank(idir,iad));
           }
 
           /* Define the item of the StrExp array (if defined) */
@@ -997,14 +997,14 @@ static void st_load_ge(const Vario *vario,
               int iad = shift + vario->getLagNumber(idir) + ipas + 1;
               int jad = shift + vario->getLagNumber(idir) - ipas - 1;
               if (!CORRECT(idir, iad) || !CORRECT(idir, jad)) continue;
-              dist = (ABS(vario->getHh(idir,iad)) + ABS(vario->getHh(idir, jad)))
+              dist = (ABS(vario->getHhByRank(idir,iad)) + ABS(vario->getHhByRank(idir, jad)))
                   / 2.;
             }
             else
             {
               int iad = shift + ipas;
               if (!CORRECT(idir, iad)) continue;
-              dist = ABS(vario->getHh(idir, iad));
+              dist = ABS(vario->getHhByRank(idir, iad));
             }
             for (int idim = 0; idim < ndim; idim++)
               d1[idim] = dist * vario->getCodir(idir, idim);
@@ -1060,15 +1060,15 @@ static void st_load_wt(const Vario *vario,
         {
           iad = shift + vario->getLagNumber(idir) + ipas + 1;
           jad = shift + vario->getLagNumber(idir) - ipas - 1;
-          n1 = vario->getSw(idir, iad);
-          n2 = vario->getSw(idir, jad);
+          n1 = vario->getSwByRank(idir, iad);
+          n2 = vario->getSwByRank(idir, jad);
           if (CORRECT(idir, iad)) flag[idir] += n1;
           if (CORRECT(idir, jad)) flag[idir] += n2;
         }
         else
         {
           iad = shift + ipas;
-          nn = vario->getSw(idir, iad);
+          nn = vario->getSwByRank(idir, iad);
           if (CORRECT(idir, iad)) flag[idir] += nn;
         }
       }
@@ -1117,10 +1117,10 @@ static void st_load_wt(const Vario *vario,
               iad = shift + vario->getLagNumber(idir) + ipas + 1;
               jad = shift + vario->getLagNumber(idir) - ipas - 1;
               if (! (CORRECT(idir,iad) && CORRECT(idir,jad))) continue;
-              n1 = vario->getSw(idir,iad);
-              n2 = vario->getSw(idir,jad);
-              d1 = ABS(vario->getHh(idir,iad));
-              d2 = ABS(vario->getHh(idir,jad));
+              n1 = vario->getSwByRank(idir,iad);
+              n2 = vario->getSwByRank(idir,jad);
+              d1 = ABS(vario->getHhByRank(idir,iad));
+              d2 = ABS(vario->getHhByRank(idir,jad));
               if (d1 > 0 && d2 > 0)
               WT(ijvar,ipadir) = sqrt((n1+n2) * (n1+n2) / (n1*d1+n2*d2) / 2.);
             }
@@ -1128,8 +1128,8 @@ static void st_load_wt(const Vario *vario,
             {
               iad = shift + ipas;
               if (! CORRECT(idir,iad)) continue;
-              nn = vario->getSw(idir,iad);
-              dd = ABS(vario->getHh(idir,iad));
+              nn = vario->getSwByRank(idir,iad);
+              dd = ABS(vario->getHhByRank(idir,iad));
               if (dd > 0)
               WT(ijvar,ipadir) = nn / dd;
             }
@@ -1223,11 +1223,11 @@ static void st_load_wt(const Vario *vario,
     for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
     {
       ratio =
-          (vario->getVars(ivar, jvar) > 0 && vario->getVars(jvar, ivar) > 0) ? sqrt(
-                                                                                   vario->getVars(
+          (vario->getVarBivar(ivar, jvar) > 0 && vario->getVarBivar(jvar, ivar) > 0) ? sqrt(
+                                                                                   vario->getVarBivar(
                                                                                        ivar,
                                                                                        jvar)
-                                                                                   * vario->getVars(
+                                                                                   * vario->getVarBivar(
                                                                                        jvar,
                                                                                        ivar)) :
                                                                                1.;
@@ -4368,12 +4368,12 @@ static void st_vario_varchol_manage(const Vario *vario,
                                  model->getVariableNumber());
     model_calcul_cov(model, mode, 1, 1., VectorDouble(), aux.data());
     for (i = 0; i < nvar2; i++)
-      aux[i] = vario->getVars(i) / aux[i];
+      aux[i] = vario->getVarIJ(i) / aux[i];
   }
   else
   {
     for (i = 0; i < nvar2; i++)
-      aux[i] = vario->getVars(i);
+      aux[i] = vario->getVarIJ(i);
   }
 
   if (matrix_cholesky_decompose(aux.data(), varchol.data(), nvar))

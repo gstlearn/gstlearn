@@ -31,8 +31,8 @@ public:
   void setTensorInverse(const MatrixSquareGeneral& tensor) { _tensorInverse = tensor; }
 
   void setRadius(double radius); // Make it isotropic
-  void setRadius(const VectorDouble& radius);
-  void setRadius(unsigned int idim, double radius);
+  void setRadiusVec(const VectorDouble& radius);
+  void setRadiusDir(unsigned int idim, double radius);
 
   void setRotation(const Rotation& rot);
   void setRotationAngles(const VectorDouble& angles);

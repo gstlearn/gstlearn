@@ -474,7 +474,7 @@ int simsph_f(Db *db,
 
   /* Create the new variable in the Data base */
 
-  iptr = db->addFields(1, 0., String(), ELoc::SIMU);
+  iptr = db->addFieldsByConstant(1, 0., String(), ELoc::SIMU);
 
   /* Core allocation */
 

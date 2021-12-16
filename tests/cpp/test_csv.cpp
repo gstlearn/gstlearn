@@ -38,7 +38,7 @@ int main()
   mydb->setLocator("X",ELoc::X,0);
   mydb->setLocator("Y",ELoc::X,1);
   mydb->setLocator("Zn",ELoc::Z);
-  mydb->displayMore(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
+  mydb->displayMoreByAttributes(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
 
   // Looking for duplicates
   VectorDouble dist = {0.3, 0.3};

@@ -1142,8 +1142,8 @@ Model* model_init(int ndim,
   Model *model = nullptr;
 
   /// TODO : Force SpaceRN creation (modèle poubelle)
-  SpaceRN space(ndim);
-  CovContext ctxt = CovContext(nvar, 2, field, &space);
+  CovContext ctxt = CovContext(nvar, ndim);
+  ctxt.setField(field);
   ctxt.setBallRadius(ball_radius);
   if (static_cast<int>(mean.size()) > 0) ctxt.setMean(mean);
   if (static_cast<int>(covar0.size()) > 0) ctxt.setCovar0(covar0);
@@ -1564,8 +1564,7 @@ int model_add_tapering(Model *model, int tape_type, double tape_range)
  *****************************************************************************/
 double cova_get_scale_factor(const ECov &type, double param)
 {
-  SpaceRN space(1); // Retrieve all covariances
-  CovContext ctxt = CovContext(1, 1000, 0., &space);
+  CovContext ctxt = CovContext(1, 1);
   ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   return cova->getScadef();
@@ -2700,7 +2699,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
       int nval = new_nvar * new_model->getDriftEquationNumber()
                  * new_model->getDriftNumber();
       for (int i = 0; i < nval; i++)
-        new_model->setCoefDrift(i, 0.);
+        new_model->setCoefDriftByRank(i, 0.);
       st_drift_derivative(0, MODEL_DERIVATIVE_NONE, model, new_model);
       st_drift_derivative(1, MODEL_DERIVATIVE_X, model, new_model);
       st_drift_derivative(2, MODEL_DERIVATIVE_Y, model, new_model);
@@ -3399,7 +3398,7 @@ void model_cova_characteristics(const ECov &type,
                                 double *parmax)
 {
   SpaceRN space(1); // Retrieve all covariances
-  CovContext ctxt = CovContext(1, 2, 0., &space);
+  CovContext ctxt = CovContext(1, 1);
   ACovFunc *cov = CovFactory::createCovFunc(type, ctxt);
   (void) gslStrcpy((char*) cov_name, cov->getCovName().c_str());
   *flag_range = cov->hasRange();
@@ -3457,7 +3456,7 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
 
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
   for (i = 0; i < nvar * nvar; i++)
-    vario->setVars(i, covtab[i]);
+    vario->setVarIJ(i, covtab[i]);
 
   /* Loop on the directions */
 
@@ -3476,12 +3475,12 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
         for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
-          vario->setSw(idir, i, 1.);
-          vario->setHh(idir, i, ipas * vario->getDPas(idir));
+          vario->setSwByRank(idir, i, 1.);
+          vario->setHhByRank(idir, i, ipas * vario->getDPas(idir));
           for (idim = 0; idim < ndim; idim++)
-            d1[idim] = vario->getHh(idir, i) * vario->getCodir(idir, idim);
+            d1[idim] = vario->getHhByRank(idir, i) * vario->getCodir(idir, idim);
           model_calcul_cov(model, mode, 1, 1., d1, covtab);
-          vario->setGg(idir, i, COVTAB(ivar, jvar));
+          vario->setGgByRank(idir, i, COVTAB(ivar, jvar));
         }
     }
   }
@@ -4021,7 +4020,7 @@ int model_regularize(Model *model,
 
   for (ivar = 0; ivar < nvar; ivar++)
     for (jvar = 0; jvar < nvar; jvar++)
-      vario->setVars(ivar, jvar, C00TAB(ivar, jvar));
+      vario->setVarBivar(ivar, jvar, C00TAB(ivar, jvar));
 
   /* Loop on the directions */
 
@@ -4053,9 +4052,9 @@ int model_regularize(Model *model,
         for (jvar = 0; jvar <= ivar; jvar++)
         {
           iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
-          vario->setGg(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
-          vario->setHh(idir, iad, dist);
-          vario->setSw(idir, iad, 1);
+          vario->setGgByRank(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
+          vario->setHhByRank(idir, iad, dist);
+          vario->setSwByRank(idir, iad, 1);
         }
     }
   }
@@ -4611,6 +4610,8 @@ cs* model_covmat_by_ranks_cs(Model *model,
  **                    nactive: Number of samples active
  **                    nvar   : Number of selected variables (1 or nvar)
  **
+ ** \remarks: If db2 is not provided, it is set to db1
+ **
  *****************************************************************************/
 void model_covmat(Model *model,
                   Db *db1,
@@ -4630,6 +4631,7 @@ void model_covmat(Model *model,
   covtab = nullptr;
   CovCalcMode mode;
   mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
+  if (db2 == nullptr) db2 = db1;
   if (st_check_model(model)) goto label_end;
   if (st_check_environ(model, db1)) goto label_end;
   if (st_check_environ(model, db2)) goto label_end;

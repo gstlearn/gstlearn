@@ -49,7 +49,7 @@ class VarioParam;
 class Neigh;
 class Polygons;
 class PCA;
-class GridC;
+class Grid;
 
 class cs;
 class QChol;
@@ -1503,9 +1503,9 @@ GSTLEARN_EXPORT int ce_f(Db *db,
 /* Prototyping the functions in db.c */
 /*************************************/
 
-GSTLEARN_EXPORT void grid_iterator_init(GridC *grid,
+GSTLEARN_EXPORT void grid_iterator_init(Grid *grid,
                                         const VectorInt &order = VectorInt());
-GSTLEARN_EXPORT VectorInt grid_iterator_next(GridC *grid);
+GSTLEARN_EXPORT VectorInt grid_iterator_next(Grid *grid);
 
 GSTLEARN_EXPORT int* db_indg_alloc(const Db *db);
 GSTLEARN_EXPORT int* db_indg_free(int *indice);

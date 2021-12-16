@@ -36,7 +36,7 @@ public:
   virtual IClonable* clone() const override;
 
   void addDirs(const DirParam& dirparam);
-  void addDirs(const std::vector<DirParam>& dirparams);
+  void addMultiDirs(const std::vector<DirParam>& dirparams);
   void delDir(int rank);
   void delAllDirs();
 
@@ -46,7 +46,7 @@ public:
   int    getDirectionNumber() const { return (int) _dirparams.size(); }
 
   const VectorDouble& getDates() const { return _dates; }
-  double getDates(int idate, int icas) const;
+  double getDate(int idate, int icas) const;
 
   int hasDate() const { return (getDateNumber() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }
 
@@ -57,7 +57,7 @@ public:
 
   void setDates(VectorDouble dates) { _dates = dates; }
 
-  const std::vector<DirParam>& getDirParam() const { return _dirparams; }
+  const std::vector<DirParam>& getDirParams() const { return _dirparams; }
   const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
 
   void setDPas(int idir,const Db* db);

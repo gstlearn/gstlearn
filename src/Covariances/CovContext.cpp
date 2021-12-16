@@ -14,13 +14,23 @@
 #include "Space/ASpace.hpp"
 #include "Basic/Vector.hpp"
 #include "Variogram/Vario.hpp"
+#include "Space/SpaceRN.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_f.h"
 
+/**
+ * Create a covariances context giving the number dimensions of a predefined space RN
+ *
+ * @param nvar         Number of variables
+ * @param space        Space definition
+ * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
+ * @param field        Maximum field distance (used for covariances having no sill)
+ */
 CovContext::CovContext(int nvar,
+                       const ASpace* space,
                        int irfMaxDegree,
-                       double field,
-                       const ASpace* space)
+                       double field)
+
 : ASpaceObject(space)
 ,  _nVar(nvar)
 ,  _irfMaxDegree(irfMaxDegree)
@@ -31,6 +41,30 @@ CovContext::CovContext(int nvar,
 {
   _update();
 }
+
+/**
+ * Create a covariances context giving the number dimensions of a predefined space RN
+ *
+ * @param nvar         Number of variables
+ * @param ndim         Number of dimension of the euclidean space (RN)
+ * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
+ * @param field        Maximum field distance (used for covariances having no sill)
+ */
+CovContext::CovContext(int nvar,
+                       int ndim,
+                       int irfMaxDegree,
+                       double field)
+: ASpaceObject(SpaceRN(ndim))
+,  _nVar(nvar)
+,  _irfMaxDegree(irfMaxDegree)
+,  _field(field)
+,  _ballRadius(0.)
+,  _mean()
+,  _covar0()
+{
+  _update();
+}
+
 
 CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
 : ASpaceObject(space)

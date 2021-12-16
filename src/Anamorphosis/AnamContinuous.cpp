@@ -125,11 +125,11 @@ int AnamContinuous::RawToGaussian(Db *db,
                                   const NamingConvention &namconv)
 {
   if (db == nullptr) return 1;
-  VectorString exp_names = expandList(db->getNames(), name);
+  VectorString exp_names = expandList(db->getAllNames(), name);
   if (exp_names.empty()) return 1;
 
   int nadd = static_cast<int>(exp_names.size());
-  int iatt = db->addFields(nadd);
+  int iatt = db->addFieldsByConstant(nadd);
   if (iatt < 0) return 1;
 
   for (int i = 0; i < nadd; i++)
@@ -153,7 +153,7 @@ int AnamContinuous::RawToGaussian(Db *db,
   int number = db->getLocatorNumber(locatorType);
   if (number <= 0) return 1;
 
-  int iatt = db->addFields(number);
+  int iatt = db->addFieldsByConstant(number);
 
   for (int item = 0; item < number; item++)
   {
@@ -171,11 +171,11 @@ int AnamContinuous::GaussianToRaw(Db *db,
                                   const NamingConvention &namconv)
 {
   if (db == nullptr) return 1;
-  VectorString exp_names = expandList(db->getNames(), name);
+  VectorString exp_names = expandList(db->getAllNames(), name);
   if (exp_names.empty()) return 1;
 
   int nadd = static_cast<int>(exp_names.size());
-  int iatt = db->addFields(nadd);
+  int iatt = db->addFieldsByConstant(nadd);
   if (iatt < 0) return 1;
 
   for (int i = 0; i < nadd; i++)
@@ -199,7 +199,7 @@ int AnamContinuous::GaussianToRaw(Db *db,
   int number = db->getLocatorNumber(locatorType);
   if (number <= 0) return 1;
 
-  int iatt = db->addFields(number);
+  int iatt = db->addFieldsByConstant(number);
 
   for (int item = 0; item < number; item++)
   {

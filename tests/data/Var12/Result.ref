@@ -1,26 +1,3 @@
 
 Convergence not reached after 1000 iterations (6 parameters)
-
-Model characteristics
-=====================
-Space dimension              = 3
-Number of variable(s)        = 1
-Number of basic structure(s) = 4
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-Nugget Effect
-- Sill         =      0.098
-Cubic
-- Sill         =      0.186
-- Ranges       =     13.953    13.953     4.024
-Exponential
-- Sill         =      0.214
-- Ranges       =    184.467   184.467   138.649
-- Theo. Ranges =     61.577    61.577    46.282
-Spherical
-- Sill         =      0.461
-- Ranges       =     71.781    71.781     3.135
-Total Sill     =      0.960
+Goodness-of-Fit (< 2.00 percent of the Sill): AutoFit is a success

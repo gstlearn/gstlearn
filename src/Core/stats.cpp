@@ -623,9 +623,9 @@ int db_stats_grid(Db *db,
   /* Create the attributes */
 
   if (!strcmp(oper, "mean") || !strcmp(oper, "var") || !strcmp(oper, "stdv"))
-    iptn = dbgrid->addFields(1, 0.);
+    iptn = dbgrid->addFieldsByConstant(1, 0.);
   if (!strcmp(oper, "var") || !strcmp(oper, "stdv"))
-    iptm = dbgrid->addFields(1, 0.);
+    iptm = dbgrid->addFieldsByConstant(1, 0.);
 
   /* Core allocation */
 
@@ -649,7 +649,7 @@ int db_stats_grid(Db *db,
     /* Create the output attribute */
 
     jcol = cols[icol];
-    iptr = dbgrid->addFields(1, valdef);
+    iptr = dbgrid->addFieldsByConstant(1, valdef);
     if (iptn > 0) db_attribute_init(dbgrid, 1, iptn, 0.);
     if (iptm > 0) db_attribute_init(dbgrid, 1, iptm, 0.);
 
@@ -1272,7 +1272,7 @@ int stats_proportion(Db *dbin,
 
   /* Create the new variables in the output file */
 
-  iptr = dbout->addFields(nfacies, TEST);
+  iptr = dbout->addFieldsByConstant(nfacies, TEST);
   if (iptr < 0) goto label_end;
 
   /* Loop on the elements of the output grid */
@@ -1391,7 +1391,7 @@ int stats_transition(Db *dbin,
 
   /* Create the new variables in the output file */
 
-  iptr = dbout->addFields(nfacies * nfacies, TEST);
+  iptr = dbout->addFieldsByConstant(nfacies * nfacies, TEST);
   if (iptr < 0) goto label_end;
 
   /* Loop on the elements of the output grid */
@@ -2114,7 +2114,7 @@ int db_upscale(Db *dbgrid1,
   /* Create the new variable in the output file */
 
   ncol = 3;
-  iptr = dbgrid2->addFields(ncol, TEST);
+  iptr = dbgrid2->addFieldsByConstant(ncol, TEST);
   if (iptr < 0) goto label_end;
   dbgrid2->setLocatorsByAttribute(ncol, iptr, ELoc::Z);
 
@@ -2750,7 +2750,7 @@ int db_diffusion(Db *dbgrid1,
 
   /* Create the new variable in the output file */
 
-  iptr = dbgrid2->addFields(1, TEST);
+  iptr = dbgrid2->addFieldsByConstant(1, TEST);
   if (iptr < 0) goto label_end;
 
   /* Loop on the cells of the Output Grid */
@@ -2880,7 +2880,7 @@ void db_stats_print(const Db *db,
   data = mean = mini = maxi = var = cov = num = nullptr;
   noper = static_cast<int>(opers.size());
   VectorInt iatts = iatts_arg;
-  if (iatts.empty()) iatts = db->getAttributes();
+  if (iatts.empty()) iatts = db->getAllAttributes();
   ncol = static_cast<int>(iatts.size());
 
   /* Preliminary checks */

@@ -28,12 +28,12 @@ public:
   OptimCostColored& operator = (const OptimCostColored &m);
 	virtual ~OptimCostColored();
 
-  void    init(int                 nprop,
-               PrecisionOp*  	     pmat,
-               const ProjMatrix*   projdata,
-               const ProjMatrix*   projseis = nullptr,
-               const VectorDouble&  propseis = VectorDouble(),
-               const VectorDouble&  varseis  = VectorDouble());
+  void reset(int nprop,
+             PrecisionOp* pmat,
+             const ProjMatrix* projdata,
+             const ProjMatrix* projseis = nullptr,
+             const VectorDouble& propseis = VectorDouble(),
+             const VectorDouble& varseis = VectorDouble());
 
   VectorVectorDouble minimize(const VectorDouble& facies,
                               const VectorVectorInt& splits = VectorVectorInt(),
@@ -42,7 +42,7 @@ public:
                               int maxiter = 100,
                               double eps = 5.e-4);
 
-  VectorVectorInt createSplit(int nfacies, bool verbose = false) const;
+  VectorVectorInt initSplit(int nfacies, bool verbose = false) const;
   void   printSplits(const VectorVectorInt& splits = VectorVectorInt()) const;
 
   void setMeanProps(const VectorDouble& meanProps) { _meanProps = meanProps; }

@@ -226,7 +226,7 @@ double NoStatArray::getValue(int igrf,
                              int rank) const
 {
   int ipar = getRank(igrf, icov, type, iv1, iv2);
-  return getValue(ipar, icas, rank);
+  return getValueByParam(ipar, icas, rank);
 }
 
 /**
@@ -261,7 +261,7 @@ bool NoStatArray::isEmpty(int icas) const
  * @param rank  Rank of the target
  * @return
  */
-double NoStatArray::getValue(int ipar, int icas, int rank) const
+double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 {
   if (ipar < 0)
     my_throw("Invalid rank when searching for Non-stationary parameter");
@@ -309,8 +309,8 @@ double NoStatArray::_interpolate(int ipar,
                                  int icas2,
                                  int iech2) const
 {
-  double val1 = getValue(ipar, icas1, iech1);
-  double val2 = getValue(ipar, icas2, iech2);
+  double val1 = getValueByParam(ipar, icas1, iech1);
+  double val2 = getValueByParam(ipar, icas2, iech2);
 
   if (! FFFF(val1) && ! FFFF(val2))
     return sqrt(val1 * val2);

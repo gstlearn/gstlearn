@@ -58,7 +58,7 @@ Tensor::~Tensor()
 void Tensor::init(int ndim)
 {
   _radius.resize(_nDim, 1.);
-  _rotation.init(_nDim);
+  _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setIdentity();
   _tensorDirect  = _rotation.getMatrixDirect();
   _tensorInverse = _rotation.getMatrixDirect();
@@ -83,7 +83,7 @@ void Tensor::setRadius(double radius)
   _fillTensors();
 }
 
-void Tensor::setRadius(const VectorDouble& radius)
+void Tensor::setRadiusVec(const VectorDouble& radius)
 {
   if (radius.size() != _nDim || radius.size() == 0)
     my_throw ("Wrong dimension number for argument 'radius'");
@@ -97,7 +97,7 @@ void Tensor::setRadius(const VectorDouble& radius)
   _fillTensors();
 }
 
-void Tensor::setRadius(unsigned int idim, double radius)
+void Tensor::setRadiusDir(unsigned int idim, double radius)
 {
   if (idim >= _nDim)
     my_throw ("Wrong index of dimension");

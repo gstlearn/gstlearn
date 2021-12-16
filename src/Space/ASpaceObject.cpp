@@ -11,14 +11,20 @@
 ASpace* ASpaceObject::_defaultSpace = nullptr;
 
 ASpaceObject::ASpaceObject(const ASpace* space)
-: _space(space)
+: _space(nullptr)
 {
-  if (nullptr == _space)
+  if (nullptr == space)
     // If the object is created without space, clone the global default space
     _space = cloneDefaultSpace();
   else
     // else duplicate the provided pointer
     _space = dynamic_cast<const ASpace*>(space->clone());
+}
+
+ASpaceObject::ASpaceObject(const ASpace& space)
+: _space(nullptr)
+{
+  _space = dynamic_cast<const ASpace*>(space.clone());
 }
 
 ASpaceObject::ASpaceObject(const ASpaceObject& r)

@@ -17,8 +17,9 @@
 #include "Db/ELoadBy.hpp"
 
 #include "Db/PtrGeos.hpp"
+
+#include "../Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
-#include "Basic/GridC.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 
@@ -100,19 +101,23 @@ public:
   int serialize(const String& filename, bool verbose = false) const override;
 
   const VectorDouble& getArrays() const { return _array; }
-  String getNameByColumn(int icol) const { return _colNames[icol]; }
-  String getName(int iatt) const;
+
   String getName(const ELoc& locatorType, int locatorIndex=0) const;
-  VectorString getNames(const VectorString& names) const;
+  String getNameByColumn(int icol) const { return _colNames[icol]; }
+  String getNameByAttribute(int iatt) const;
+
   VectorString getNames(const String& name) const;
-  VectorString getNames(const ELoc& locatorType) const;
-  VectorString getNames(const VectorInt& iatts) const;
-  VectorString getNames() const;
+  VectorString getNames(const VectorString& names) const;
+  VectorString getNamesByLocator(const ELoc& locatorType) const;
+  VectorString getNamesByAttribute(const VectorInt& iatts) const;
+  VectorString getAllNames() const;
+
   void setName(const String& old_name, const String& name);
   void setName(const VectorString list, const String& name);
-  void setName(int iatt, const String& name);
-  void setName(const ELoc& locatorType, const String& name);
-  inline const GridC& getGrid() const { return _grid; }
+  void setNameByAttribute(int iatt, const String& name);
+  void setNameByLocator(const ELoc& locatorType, const String& name);
+
+  inline const Grid& getGrid() const { return _grid; }
   inline int getAttributeMaxNumber() const { return static_cast<int>(_attcol.size()); }
   inline int getFieldNumber() const { return _ncol; }
   double getFieldSize(bool useSel = false) const;
@@ -122,14 +127,10 @@ public:
    */
   inline int getSampleNumber() const { return _nech; }
   int getActiveSampleNumber() const;
-  int isGrid() const { return _isGrid; }
+  inline int isGrid() const { return _isGrid; }
 
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
-  VectorInt ids(const String& name, bool flagOne) const;
-  VectorInt ids(const VectorString& names, bool flagOne) const;
-  VectorInt ids(const ELoc& locatorType, bool flagOne) const;
-  VectorInt ids(const VectorInt& iatts, bool flagOne) const;
 
   void reset(int ncol, int nech);
 
@@ -156,17 +157,17 @@ public:
                 bool useSel = false,
                 double valinit = 0.,
                 int nvar = 1);
-  int addFields(int nadd,
-                double valinit = 0.,
-                const String& radix = "New",
-                const ELoc& locatorType = ELoc::UNKNOWN,
-                int locatorIndex = 0,
-                int nechInit = 0);
+  int addFieldsByConstant(int nadd,
+                          double valinit = 0.,
+                          const String& radix = "New",
+                          const ELoc& locatorType = ELoc::UNKNOWN,
+                          int locatorIndex = 0,
+                          int nechInit = 0);
   int addSelection(const VectorDouble& tab,
                    const String& name = "NewSel");
-  int addSelection(const String& testvar,
-                   const Limits& limits = Limits(),
-                   const String& name = "NewSel");
+  int addSelectionByLimit(const String& testvar,
+                          const Limits& limits = Limits(),
+                          const String& name = "NewSel");
   int addSamples(int nadd, double valinit);
   void deleteSample(int e_del);
   void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);
@@ -181,53 +182,54 @@ public:
   int getColumnByLocator(const ELoc& locatorType, int locatorIndex=0) const;
   VectorDouble getColumnByRank(int icol, bool useSel = false) const;
   void setColumnByRank(const VectorDouble& tab, int icol, bool useSel = false);
-  void setColumnByRank(const double* tab, int icol, bool useSel = false);
+  void setColumnByRankOldStyle(const double* tab, int icol, bool useSel = false);
   void duplicateColumnByAttribute(int iatt_in, int iatt_out);
 
   VectorInt getColumns(const VectorString& names) const;
   VectorInt getColumnsByAttribute(const ELoc& locatorType) const;
-  VectorDouble getColumnsByRank(const VectorInt& icols = VectorInt(),
-                                bool useSel = false) const;
-  VectorDouble getColumnsByRank(int icol_beg,
-                                int icol_end,
-                                bool useSel = false) const;
+  VectorDouble getColumnsByRanks(const VectorInt& icols = VectorInt(),
+                                 bool useSel = false) const;
+  VectorDouble getColumnsByRankInterval(int icol_beg,
+                                        int icol_end,
+                                        bool useSel = false) const;
 
-  int getLocatorByColumn(int icol,
-                         ELoc* ret_locatorType,
-                         int* ret_locatorIndex) const;
-  int getLocator(int iatt,
-                 ELoc* ret_locatorType,
-                 int* ret_locatorIndex) const;
   int getLocator(const String& name,
                  ELoc* ret_locatorType,
                  int* ret_locatorIndex) const;
+  int getLocatorByColumn(int icol,
+                         ELoc* ret_locatorType,
+                         int* ret_locatorIndex) const;
+  int getLocatorByAttribute(int iatt,
+                            ELoc* ret_locatorType,
+                            int* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator = true,
                            const ELoc& locatorType = ELoc::UNKNOWN) const;
   int getLocatorNumber(const ELoc& locatorType) const;
   bool isAttributeDefined(int iatt) const;
 
-  int getAttribute(const ELoc& locatorType, int locatorIndex=0) const;
   int getAttribute(const String &name) const;
+  int getAttributeByLocator(const ELoc& locatorType, int locatorIndex=0) const;
+
   VectorInt getAttributes(const VectorString& names) const;
-  VectorInt getAttributes(const ELoc& locatorType) const;
-  VectorInt getAttributes() const;
-  VectorInt getAttributesBasic(const VectorString& names) const;
+  VectorInt getAttributesByLocator(const ELoc& locatorType) const;
+  VectorInt getAllAttributes() const;
+
   int getFaciesNumber(void) const;
 
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
-  void   getSampleCoordinates(int iech, VectorDouble& coor) const;
+  void getSampleCoordinates(int iech, VectorDouble& coor) const;
   VectorDouble getSampleAttributes(const ELoc& locatorType, int iech) const;
 
   double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
-  void   getCoordinate(int iech, VectorDouble& coor, bool flag_rotate=true) const;
+  void   getCoordinatesInPlace(int iech, VectorDouble& coor, bool flag_rotate=true) const;
+  VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
+  VectorVectorDouble getAllCoordinates(bool useSel = false) const;
   void   setCoordinate(int iech, int idim, double value);
-  VectorDouble getCoordinate(int idim, bool useSel = false, bool flag_rotate = true) const;
+
   double getDistance1D(int iech, int jech, int idim, bool flagAbs = false) const;
   double getDistance(int iech, int jech) const;
-
-  VectorVectorDouble getCoordinates(bool useSel = false) const;
 
   double getValue(const String& name, int iech) const;
   void   setValue(const String& name, int iech, double value);
@@ -320,44 +322,44 @@ public:
   void   setCode(int iech, double value);
   VectorDouble getCodeList(void);
 
-  int getVarianceErrorNumber() const;
-  bool hasVarianceError() const;
+  int    getVarianceErrorNumber() const;
+  bool   hasVarianceError() const;
   double getVarianceError(int iech, int item) const;
-  void setVarianceError(int iech, int item, double value);
+  void   setVarianceError(int iech, int item, double value);
 
-  bool hasDomain() const;
-  int getDomain(int iech) const;
-  void setDomain(int iech, int value);
+  bool   hasDomain() const;
+  int    getDomain(int iech) const;
+  void   setDomain(int iech, int value);
 
-  int getDipDirectionNumber() const;
-  bool hasDipDirection() const;
+  int    getDipDirectionNumber() const;
+  bool   hasDipDirection() const;
   double getDipDirection(int iech) const;
-  void setDipDirection(int iech, double value);
+  void   setDipDirection(int iech, double value);
 
-  int getDipAngleNumber() const;
-  bool hasDipAngle() const;
+  int    getDipAngleNumber() const;
+  bool   hasDipAngle() const;
   double getDipAngle(int iech) const;
-  void setDipAngle(int iech, double value);
+  void   setDipAngle(int iech, double value);
 
-  int getObjectSizeNumber() const;
-  bool hasObjectSize() const;
+  int    getObjectSizeNumber() const;
+  bool   hasObjectSize() const;
   double getObjectSize(int iech) const;
-  void setObjectSize(int iech, double value);
+  void   setObjectSize(int iech, double value);
 
-  int getBorderUpNumber() const;
-  bool hasBorderUp() const;
+  int    getBorderUpNumber() const;
+  bool   hasBorderUp() const;
   double getBorderUp(int iech) const;
-  void setBorderUp(int iech, double value);
+  void   setBorderUp(int iech, double value);
 
-  int getBorderDownNumber() const;
-  bool hasBorderDown() const;
+  int    getBorderDownNumber() const;
+  bool   hasBorderDown() const;
   double getBorderDown(int iech) const;
-  void setBorderDown(int iech, double value);
+  void   setBorderDown(int iech, double value);
 
-  int getDateNumber() const;
-  bool hasDate() const;
+  int    getDateNumber() const;
+  bool   hasDate() const;
   double getDate(int iech) const;
-  void setDate(int iech, double value);
+  void   setDate(int iech, double value);
 
   int getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
   double getSimvar(const ELoc& locatorType,
@@ -387,8 +389,8 @@ public:
 
   bool isActive(int iech) const;
   bool isActiveAndDefined(int iech, int item) const;
-  int getActiveAndDefinedNumber(int item) const;
-  int getActiveAndDefinedNumber(const String& name) const;
+  int  getActiveAndDefinedNumber(int item) const;
+  int  getActiveAndDefinedNumber(const String& name) const;
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
 
@@ -397,11 +399,10 @@ public:
   VectorDouble getFieldByLocator(const ELoc& locatorType,
                                  int locatorIndex=0,
                                  bool useSel = false) const;
-  void setFieldByAttribute(const double* tab, int iatt, bool useSel = false);
+
+  void setField(const VectorDouble& tab, const String& name, bool useSel = false);
+  void setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel = false);
   void setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel = false);
-  void setField(const VectorDouble& tab,
-                const String& name,
-                bool useSel = false);
 
   VectorDouble getFields(const VectorString& names = VectorString(),
                          bool useSel = false) const;
@@ -445,7 +446,7 @@ public:
                                bool flagPrint = false,
                                const String& title = "");
 
-  // Pipe to the GridC class
+  // Pipe to the Grid class
 
   /**
    * Definition of the grid. Function to access the class Grid
@@ -455,26 +456,27 @@ public:
    * @param angles Array of rotation angles
    */
   int gridDefine(const VectorInt& nx,
-                  const VectorDouble& dx = VectorDouble(),
-                  const VectorDouble& x0 = VectorDouble(),
-                  const VectorDouble& angles = VectorDouble());
-  void gridCopyParams(int mode, const GridC& gridaux);
-  bool isSameGrid(const GridC& grid) const;
+                 const VectorDouble& dx = VectorDouble(),
+                 const VectorDouble& x0 = VectorDouble(),
+                 const VectorDouble& angles = VectorDouble());
+  void gridCopyParams(int mode, const Grid& gridaux);
+  bool isSameGrid(const Grid& grid) const;
   bool isSameGridMesh(const Db& dbaux) const;
   bool isSameGridRotation(const Db& dbaux) const;
   bool isGridRotated() const;
   int  getNDim() const; /// TODO : rename to getDimensionNumber etc...
-  int  getNX(int idim) const;
   int  getNTotal() const { return _grid.getNTotal(); }
   double getCellSize() const { return _grid.getCellSize(); }
   bool hasSameDimension(const Db* dbaux) const;
   bool hasLargerDimension(const Db* dbaux) const;
-  VectorInt getNX() const { return _grid.getNX(); }
+
+  int  getNX(int idim) const;
+  VectorInt getNXs() const { return _grid.getNXs(); }
   double getDX(int idim) const;
-  VectorDouble getDX() const { return _grid.getDX(); }
+  VectorDouble getDXs() const { return _grid.getDXs(); }
   double getX0(int idim) const;
-  VectorDouble getX0() const { return _grid.getX0(); }
-  double getAngles(int idim) const;
+  VectorDouble getX0s() const { return _grid.getX0s(); }
+  double getAngle(int idim) const;
   VectorDouble getAngles() const { return _grid.getRotAngles(); }
   VectorDouble getRotMat() const { return _grid.getRotMat(); }
   void setNX(int idim, int value) { _grid.setNX(idim, value); }
@@ -483,7 +485,7 @@ public:
   VectorDouble getGridAxis(int idim) const { return _grid.getAxis(idim); }
   VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const
   {
-    return _grid.getCoordinateFromCorner(icorner);
+    return _grid.getCoordinatesByCorner(icorner);
   }
   int coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const
   {
@@ -493,7 +495,7 @@ public:
                         VectorDouble& coor,
                         const VectorDouble& percent = VectorDouble()) const
   {
-    _grid.rankToCoordinate(rank, coor, percent);
+    _grid.rankToCoordinatesInPlace(rank, coor, percent);
   }
 
   // Functions for checking validity of parameters
@@ -521,11 +523,11 @@ public:
    * @remark For flags, FLAG_STATS and FLAG_ARRAY, you can use the 'cols' argument
    * @remark to restrain the variables of interest
    */
-  void displayMore(unsigned char params,
-                   const VectorInt& cols = VectorInt(),
-                   bool flagSel = true,
-                   int mode = 1) const;
-  void displayMore(unsigned char params,
+  void displayMoreByAttributes(unsigned char params,
+                               const VectorInt& cols = VectorInt(),
+                               bool flagSel = true,
+                               int mode = 1) const;
+  void displayMoreByAttributes(unsigned char params,
                    const VectorString& names,
                    bool flagSel = true,
                    int mode = 1) const;
@@ -560,6 +562,7 @@ private:
   void _defineDefaultLocators(int shift, const VectorString& locatorNames);
   void _defineDefaultLocatorsByNames(int shift, const VectorString& names);
   int  _getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
+  VectorInt _getAttributesBasic(const VectorString& names) const;
 
   // Column dependent indexing
   void _setNameByColumn(int icol, const String& name);
@@ -568,6 +571,10 @@ private:
   int _findColumnInLocator(const ELoc& locatorType, int icol) const;
   int _findAttributeInLocator(const ELoc& locatorType, int iatt) const;
   String _getLocatorNameByColumn(int icol) const;
+  VectorInt _ids(const String& name, bool flagOne, bool verbose = true) const;
+  VectorInt _ids(const VectorString& names, bool flagOne, bool verbose = true) const;
+  VectorInt _ids(const ELoc& locatorType, bool flagOne, bool verbose = true) const;
+  VectorInt _ids(const VectorInt& iatts, bool flagOne, bool verbose = true) const;
 
   // Higher level methods
   VectorDouble _statistics(const VectorInt& iatts,
@@ -594,7 +601,7 @@ private:
                      VectorString& tabnam,
                      VectorDouble& tab);
   void _loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab);
-  bool _isCountValid(const VectorInt iatts, bool flagOne) const;
+  bool _isCountValid(const VectorInt iatts, bool flagOne, bool verbose = true) const;
 
 private:
   int _ncol;                 //!< Number of Columns of data
@@ -604,5 +611,5 @@ private:
   VectorInt _attcol;         //!< Attribute to Column
   VectorString _colNames;    //!< Names of the variables
   std::map<ELoc,PtrGeos> _p; //!< Locator characteristics
-  GridC _grid;               //!< Grid characteristics
+  Grid _grid;               //!< Grid characteristics
 };
