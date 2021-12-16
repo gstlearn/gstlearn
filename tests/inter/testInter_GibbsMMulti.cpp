@@ -126,7 +126,7 @@ int main(int /*argc*/, char */*argv*/[])
   {
     VarioParam varioparam;
     std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
-    varioparam.addDirs(dirparams);
+    varioparam.addMultiDirs(dirparams);
     VectorString names = db->getNames("gausfac*");
     for (int isimu = 0; isimu < (int) names.size(); isimu++)
     {

@@ -32,14 +32,14 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  int init(const Db* db, AMesh *a_mesh, int verbose = 0);
-  int init(int npoint, int napices, const cs *aproj);
-  int init(Db* db, SPDE_Mesh* s_mesh, int verbose = 0);
-  int init(const Db* db,
-           SPDE_Mesh* s_mesh,
-           double radius,
-           int flag_exact = 0,
-           int verbose = 0);
+  int resetFromDb(const Db* db, AMesh *a_mesh, int verbose = 0);
+  int resetFromPoints(int npoint, int napices, const cs *aproj);
+  int resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose = 0);
+  int resetFromDbByNeighOldStyle(const Db* db,
+                                 SPDE_Mesh* s_mesh,
+                                 double radius,
+                                 int flag_exact = 0,
+                                 int verbose = 0);
 
   int point2mesh(const VectorDouble& in, VectorDouble& out) const override;
   int mesh2point(const VectorDouble& in, VectorDouble& out) const override;

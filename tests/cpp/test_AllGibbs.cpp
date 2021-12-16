@@ -109,7 +109,7 @@ int main(int /*argc*/, char * /*argv*/[])
 
   VarioParam varioparam;
   std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
-  varioparam.addDirs(dirparams);
+  varioparam.addMultiDirs(dirparams);
   Vario vario(&varioparam,db);
   VectorString names = db->getNames("Gibbs*");
   for (int isimu=0; isimu<nbsimu; isimu++)

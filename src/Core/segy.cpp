@@ -598,13 +598,13 @@ static void st_verify_refpt(RefPt refpt[3],
  ** \param[in]  refstats  Structure for Statistics
  ** \param[in]  dz        Vertical mesh
  **
- ** \param[out] def_grid  GridC output structure
+ ** \param[out] def_grid  Grid output structure
  **
  *****************************************************************************/
 static void st_grid_from_3refpt(RefPt refpt[3],
                                 RefStats &refstats,
                                 double dz,
-                                GridC &def_grid)
+                                Grid &def_grid)
 {
   double dx12, dy12, di12, dj12, dx13, dy13, di13, dj13, mat[4], a[2], di10,
       dj10;
@@ -663,9 +663,9 @@ static void st_grid_from_3refpt(RefPt refpt[3],
   y0 = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
   nz = static_cast<int>((refstats.zmaxl - refstats.zminl) / dz);
 
-  // Fill the GridC structure
+  // Fill the Grid structure
 
-  def_grid = GridC(3);
+  def_grid = Grid(3);
   def_grid.setNX(0, refstats.ilmaxg - refstats.ilming + 1);
   def_grid.setNX(1, refstats.xlmaxg - refstats.xlming + 1);
   def_grid.setNX(2, nz);
@@ -675,7 +675,7 @@ static void st_grid_from_3refpt(RefPt refpt[3],
   def_grid.setDX(0, dx);
   def_grid.setDX(1, dy);
   def_grid.setDX(2, dz);
-  def_grid.setRotationFromAngles(theta);
+  def_grid.setRotationByAngle(theta);
 
   // Check that reference traces are well honored
 
@@ -690,13 +690,13 @@ static void st_grid_from_3refpt(RefPt refpt[3],
  ** \param[in]  refstats  Structure for Statistics
  ** \param[in]  dz        Vertical mesh
  **
- ** \param[out] def_grid  GridC output structure
+ ** \param[out] def_grid  Grid output structure
  **
  *****************************************************************************/
 static void st_grid_from_2refpt(RefPt refpt[3],
                                 RefStats &refstats,
                                 double dz,
-                                GridC &def_grid)
+                                Grid &def_grid)
 {
   double dx12, dy12, di12, dj12, di10, dj10;
   double dx, dy, theta, x0, y0, sint, cost;
@@ -742,9 +742,9 @@ static void st_grid_from_2refpt(RefPt refpt[3],
   y0 = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
   nz = static_cast<int>((refstats.zmaxl - refstats.zminl) / dz);
 
-  // Fill the GridC structure
+  // Fill the Grid structure
 
-  def_grid = GridC(3);
+  def_grid = Grid(3);
   def_grid.setNX(0, refstats.ilmaxg - refstats.ilming + 1);
   def_grid.setNX(1, refstats.xlmaxg - refstats.xlming + 1);
   def_grid.setNX(2, nz);
@@ -754,7 +754,7 @@ static void st_grid_from_2refpt(RefPt refpt[3],
   def_grid.setDX(0, MAX(dy / 2., dx));
   def_grid.setDX(1, MAX(dx / 2., dy));
   def_grid.setDX(2, dz);
-  def_grid.setRotationFromAngles(theta);
+  def_grid.setRotationByAngle(theta);
 
   // Check that reference traces are well honored
 
@@ -816,10 +816,10 @@ static int st_store_refpt(int nbrefpt,
 /*!
  ** Print the characteristics of the resulting grid
  **
- ** \param[in]  def_grid  Pointer to the GridC structure
+ ** \param[in]  def_grid  Pointer to the Grid structure
  **
  *****************************************************************************/
-static void st_print_grid(const GridC &def_grid)
+static void st_print_grid(const Grid &def_grid)
 {
   message("\n");
   message("- Resulting Grid of SEGY traces\n");
@@ -1402,7 +1402,7 @@ SegYArg segy_array(const char *filesegy,
  ** \details: by the output grid (if flag_store == 1)
  **
  *****************************************************************************/
-GridC segy_summary(const char *filesegy,
+Grid segy_summary(const char *filesegy,
                                    Db *surf2D,
                                    const String &name_top,
                                    const String &name_bot,
@@ -1425,7 +1425,7 @@ GridC segy_summary(const char *filesegy,
   int      nPerTrace,code,nz,flag_surf,flag_top,flag_bot,iatt_top,iatt_bot,nbrefpt;
   RefPt    refpt[3];
   RefStats refstats;
-  GridC def_grid;
+  Grid def_grid;
   VectorDouble values, cotes, writes;
 
   // Initializations

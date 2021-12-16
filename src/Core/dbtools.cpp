@@ -2342,8 +2342,7 @@ static void st_shift(int rank,
     rank = rank - ndiv * ival;
     ndiv /= 2;
     indg2[idim] = indg1[idim] + ival;
-    wgt *= (ival > 0) ? prop[idim] :
-                        (1. - prop[idim]);
+    wgt *= (ival > 0) ? prop[idim] : (1. - prop[idim]);
   }
   *weight = wgt;
 }

@@ -1061,7 +1061,7 @@ void db_print(Db *db,
   if (flag_extend) params |= FLAG_EXTEND;
   if (flag_stats) params |= FLAG_STATS;
   if (flag_array) params |= FLAG_ARRAY;
-  db->displayMore(params, cols, false, mode);
+  db->displayMoreByAttributes(params, cols, false, mode);
 
   return;
 }
@@ -3960,7 +3960,7 @@ Db* db_grid_reduce(Db *db_grid,
   x0.assign(coor, coor + ndim);
   ss_grid = db_create_grid(db_grid->isGridRotated(), db_grid->getNDim(), 0,
                            ELoadBy::COLUMN, flag_add_rank, nx, x0,
-                           db_grid->getDX(), db_grid->getAngles());
+                           db_grid->getDXs(), db_grid->getAngles());
 
   // Create the selection (optional)
 
@@ -4458,7 +4458,7 @@ VectorInt db_identify_variables_by_name(Db *db, const String &pattern)
  **  Initialize the Grid iterator
  **
  ****************************************************************************/
-void grid_iterator_init(GridC *grid, const VectorInt &order)
+void grid_iterator_init(Grid *grid, const VectorInt &order)
 {
   grid->iteratorInit(order);
 }
@@ -4470,7 +4470,7 @@ void grid_iterator_init(GridC *grid, const VectorInt &order)
  **  Increment the Grid iterator
  **
  ****************************************************************************/
-VectorInt grid_iterator_next(GridC *grid)
+VectorInt grid_iterator_next(Grid *grid)
 {
   VectorInt indices = grid->iteratorNext();
   return (indices);

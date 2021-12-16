@@ -37,7 +37,7 @@ OptimCostColored::OptimCostColored(int nprop,
       _splits(),
       _meanProps()
 {
-  init(nprop,pmat,projdata,projseis,propseis,varseis);
+  reset(nprop,pmat,projdata,projseis,propseis,varseis);
 }
 
 OptimCostColored::OptimCostColored(const OptimCostColored &m)
@@ -76,7 +76,7 @@ OptimCostColored::~OptimCostColored()
 ** \param[in]  varseis  Array of variance attached to the seismic
 **
 *****************************************************************************/
-void OptimCostColored::init(int                 nprop,
+void OptimCostColored::reset(int                 nprop,
                             PrecisionOp*  		  pmat,
                             const ProjMatrix*   projdata,
                             const ProjMatrix*   projseis,
@@ -86,11 +86,11 @@ void OptimCostColored::init(int                 nprop,
   // Assignment of pointers
   _nprop  = nprop;
   ut_vector_fill(_meanProps, 1./_nprop, _nprop);
-  _splits = createSplit(_nprop);
+  _splits = initSplit(_nprop);
   
   // Pass arguments to the OptimCostBinary class
   
-  OptimCostBinary::init(pmat, projdata, projseis, propseis, varseis);
+  OptimCostBinary::reset(pmat, projdata, projseis, propseis, varseis);
 }
 
 /*****************************************************************************/
@@ -462,7 +462,7 @@ void OptimCostColored::_copyMultProportions(int level,
   }                                       
 }
 
-VectorVectorInt OptimCostColored::createSplit(int nfacies, bool verbose) const
+VectorVectorInt OptimCostColored::initSplit(int nfacies, bool verbose) const
 {
   int nlevel = nfacies - 1;
 

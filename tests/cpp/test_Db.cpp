@@ -6,6 +6,7 @@
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
@@ -15,40 +16,33 @@
 /*!
  ** Main Program
  **
+ ** This program is meant to check the manipulation of the Db
+ **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 
 {
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("SPDEAPI-");
+  ASerializable::setPrefixName("TestDb-");
   int seed = 10355;
   law_set_random_seed(seed);
 
-  ///////////////////////
-  // Creating the Db
-  auto nx={ 3,3 };
-  Db workingDbc(nx);
+  // Creating the Grid Rotated Db
+  Db grid({6,4}, {1.,2.}, {10.,20.}, {10.,0.});
+  grid.display();
 
-
-  ///////////////////////
   // Creating the Model
-  Model model = Model(&workingDbc);
+  Model model = Model(&grid);
   CovAniso cova = CovAniso(ECov::CUBIC,model.getContext());
   cova.setRanges({10,45});
+  cova.setAnisoAngles({30.,0.});
   model.addCova(&cova);
-
   model.display(1);
 
-  int nech = workingDbc.getActiveSampleNumber();
-  int nvar = model.getVariableNumber();
-  int nval = nech * nech * nvar * nvar;
-  VectorDouble result(nval);
+  // Creating the MeshTurbo which contains the Db
+  MeshETurbo mesh;
+  mesh.initFromCova(cova,grid,10,2,true,1);
 
-  model.covMatrix(result, &workingDbc, nullptr, 0, 0, 0, 1);
-
-  // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
-
-  ut_vector_display_stats("Statistics on Covariance Matrix",result);
   return 0;
 }
 

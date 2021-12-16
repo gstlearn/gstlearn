@@ -34,7 +34,7 @@ public:
 
   virtual IClonable* clone() const override = 0;
 
-  bool isDefined() const { return ! _items.empty(); }
+  bool isNotEmpty() const { return ! _items.empty(); }
   bool isDefinedByCov(int igrf, int icov) const;
   bool isDefinedByType(int igrf, const EConsElem& type) const;
   bool isDefinedByCovType(int igrf, int icov, const EConsElem& type) const;
@@ -49,7 +49,7 @@ public:
                           int iv2,
                           int icas,
                           int rank) const = 0;
-  virtual double getValue(int ipar, int icas, int iech) const = 0;
+  virtual double getValueByParam(int ipar, int icas, int iech) const = 0;
 
   virtual int  attachToMesh(const AMesh* mesh, bool verbose = false) const;
   virtual void detachFromMesh() const;
@@ -57,10 +57,10 @@ public:
   virtual void detachFromDb(Db* db, int icas) const;
 
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
+  int  addNoStatElemByItem(const ConsItem& item);
   int  addNoStatElems(const VectorString& codes);
-  int  addNoStatElem(const ConsItem& item);
   void deleteNoStatElem(int ipar);
-  void deleteNoStatElem();
+  void deleteAllNoStatElem();
 
   int getRank(int igrf, int icov, const EConsElem& type, int iv1, int iv2) const;
   int getIGrf(int ipar) const { return _items[ipar].getIGrf(); }
@@ -69,7 +69,7 @@ public:
   int getIV1 (int ipar) const { return _items[ipar].getIV1(); }
   int getIV2 (int ipar) const { return _items[ipar].getIV2(); }
   int getNoStatElemNumber() const { return static_cast<int>(_items.size()); }
-  const std::vector<ConsItem>& getNoStat() const { return _items; }
+  const std::vector<ConsItem>& getNoStats() const { return _items; }
   const ConsItem getNoStat(int ipar) const { return _items[ipar]; }
 
   int attachModel(const Model* model);
@@ -80,7 +80,7 @@ public:
   bool matchIV1(int ipar, int iv10) const { return _items[ipar].matchIV1(iv10); }
   bool matchIV2(int ipar, int iv20) const { return _items[ipar].matchIV2(iv20); }
 
-  const std::vector<ConsItem>& getItems() const { return _items; }
+  const std::vector<ConsItem>& getAllItems() const { return _items; }
   const ConsItem getItems(int ipar) const { return _items[ipar]; }
 
   void updateModel(Model* model,
@@ -88,7 +88,7 @@ public:
                    int iech1,
                    int icas2,
                    int iech2) const;
-  void updateModel(Model* model, int vertex) const;
+  void updateModelByVertex(Model* model, int vertex) const;
 
 protected:
   void setAmesh(const AMesh* amesh) const { _amesh = amesh; }

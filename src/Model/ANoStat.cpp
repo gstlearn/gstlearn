@@ -225,7 +225,7 @@ int ANoStat::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, i
   return 0;
 }
 
-int ANoStat::addNoStatElem(const ConsItem& item)
+int ANoStat::addNoStatElemByItem(const ConsItem& item)
 {
   return addNoStatElem(item.getIGrf(), item.getICov(), item.getType(),
                        item.getIV1(), item.getIV2());
@@ -250,7 +250,7 @@ void ANoStat::deleteNoStatElem(int ipar)
   _items.erase(_items.begin() + ipar);
 }
 
-void ANoStat::deleteNoStatElem()
+void ANoStat::deleteAllNoStatElem()
 {
   _items.clear();
 }
@@ -440,7 +440,7 @@ void ANoStat::_updateFromModel(const Model* model)
   for (int ipar = 0; ipar < nelemFromModel; ipar++)
   {
     ConsItem item = model->getConsItem(ipar);
-    (void) addNoStatElem(item);
+    (void) addNoStatElemByItem(item);
   }
 }
 
@@ -584,7 +584,7 @@ void ANoStat::updateModel(Model* model,
  * @param model Model to be patched
  * @param vertex Rank of the target vertex
  */
-void ANoStat::updateModel(Model* model, int vertex) const
+void ANoStat::updateModelByVertex(Model* model, int vertex) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (! model->isNoStat()) return;
@@ -598,7 +598,7 @@ void ANoStat::updateModel(Model* model, int vertex) const
 
     if (type == EConsElem::SILL)
     {
-      double sill = getValue(ipar, 0, vertex);
+      double sill = getValueByParam(ipar, 0, vertex);
       int iv1  = getIV1(ipar);
       int iv2  = getIV2(ipar);
       model->setSill(icov, iv1, iv2, sill);
@@ -627,7 +627,7 @@ void ANoStat::updateModel(Model* model, int vertex) const
         {
           int ipar = getRank(-1, icov, EConsElem::ANGLE, idim, -1);
           if (ipar < 0) continue;
-          angle[idim] = getValue(ipar, 0, vertex);
+          angle[idim] = getValueByParam(ipar, 0, vertex);
         }
       }
     }
@@ -644,7 +644,7 @@ void ANoStat::updateModel(Model* model, int vertex) const
         {
           int ipar = getRank(-1, icov, EConsElem::SCALE, idim, -1);
           if (ipar < 0) continue;
-          scale[idim] = getValue(ipar, 0, vertex);
+          scale[idim] = getValueByParam(ipar, 0, vertex);
         }
       }
     }
@@ -661,7 +661,7 @@ void ANoStat::updateModel(Model* model, int vertex) const
         {
           int ipar = getRank(-1, icov, EConsElem::RANGE, idim, -1);
           if (ipar < 0) continue;
-          range[idim] = getValue(ipar, 0, vertex);
+          range[idim] = getValueByParam(ipar, 0, vertex);
         }
       }
     }
@@ -691,8 +691,8 @@ void ANoStat::_getInfoFromDb(int ipar,
                              double *val1,
                              double *val2) const
 {
-  *val1 = getValue(ipar, icas1, iech1);
-  *val2 = getValue(ipar, icas2, iech2);
+  *val1 = getValueByParam(ipar, icas1, iech1);
+  *val2 = getValueByParam(ipar, icas2, iech2);
 
   if (FFFF(*val1) && FFFF(*val2)) return;
 

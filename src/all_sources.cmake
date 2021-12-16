@@ -197,7 +197,7 @@ set(SOURCES
   Basic/AException.cpp
   Basic/ASerializable.cpp
   Basic/String.cpp
-  Basic/GridC.cpp
+  Basic/Grid.cpp
   Basic/AFunctional.cpp
   Basic/CSVformat.cpp
   Basic/NamingConvention.cpp

@@ -98,13 +98,13 @@ public:
   int getDriftNumber()                             const;
   const EDrift& getDriftType(int il)               const;
   int getRankFext(int il)                          const;
-  const VectorDouble& getCoefDrift()               const;
+  const VectorDouble& getCoefDrifts()              const;
   double getCoefDrift(int ivar, int il, int ib)    const;
   int getDriftEquationNumber()                     const;
   bool isDriftFiltered(unsigned int il)            const;
 
   void setCoefDrift(int ivar, int il, int ib, double coeff)    ;
-  void setCoefDrift(int rank, double coeff)                    ;
+  void setCoefDriftByRank(int rank, double coeff)              ;
   void setDriftFiltered(int il, bool filtered)                 ;
   VectorDouble getDrift(const Db* db, int ib, bool useSel=true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel=true) ;
@@ -115,13 +115,13 @@ public:
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
-  const VectorDouble& getMean() const { return _ctxt.getMean(); }
+  const VectorDouble& getMeans() const { return _ctxt.getMean(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
-  const VectorDouble& getCovar0() const { return _ctxt.getCovar0(); }
+  const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }
   double getCovar0(int ivar, int jvar) const { return _ctxt.getCovar0(ivar,jvar); }
-  void setMean(const VectorDouble& mean) { _ctxt.setMean(mean); }
+  void setMeans(const VectorDouble& mean) { _ctxt.setMean(mean); }
   void setMean(int ivar, double mean) { _ctxt.setMean(ivar, mean); }
-  void setCovar0(const VectorDouble& covar0) { _ctxt.setCovar0(covar0); }
+  void setCovar0s(const VectorDouble& covar0) { _ctxt.setCovar0(covar0); }
   void setCovar0(int ivar, int jvar, double covar0) { _ctxt.setCovar0(ivar,jvar,covar0); }
   /////////////////////////////////////////////////
 
@@ -154,13 +154,13 @@ public:
 
   int hasExternalCov() const;
 
-  void covMatrix(Db *db1,
-                 Db *db2,
-                 int ivar0,
-                 int jvar0,
-                 int flag_norm,
-                 int flag_cov,
-                 VectorDouble& covmat);
+  void covMatrix(VectorDouble& covmat,
+                 Db *db1,
+                 Db *db2 = nullptr,
+                 int ivar0 = 0,
+                 int jvar0 = 0,
+                 int flag_norm = 0,
+                 int flag_cov = 1);
   VectorDouble sample(double hmax,
                       int nh = 100,
                       int ivar = 0,
@@ -169,12 +169,12 @@ public:
                       int norder = 0);
 
   // TODO : Remove Model::fit duplicate declaration
-  int fit(Vario *vario,
-          const VectorInt& types,
-          bool verbose = false,
-          Option_AutoFit mauto = Option_AutoFit(),
-          const Constraints& constraints = Constraints(),
-          Option_VarioFit optvar = Option_VarioFit());
+  int fitFromCovIndices(Vario *vario,
+                        const VectorInt& types,
+                        bool verbose = false,
+                        Option_AutoFit mauto = Option_AutoFit(),
+                        const Constraints& constraints = Constraints(),
+                        Option_VarioFit optvar = Option_VarioFit());
   int fit(Vario *vario,
           const std::vector<ECov>& types,
           bool verbose = false,

@@ -2907,7 +2907,7 @@ static void st_calcul_update_nostat(MeshEStandard *amesh, int imesh0)
     VectorDouble hhtot(ndim * ndim, 0.);
     for (int ic = 0; ic < ncorner; ic++)
     {
-      nostat->updateModel(model, amesh->getApex(imesh0, ic));
+      nostat->updateModelByVertex(model, amesh->getApex(imesh0, ic));
       st_compute_hh();
       ut_vector_cumul(hhtot, Calcul.hh, 1.);
     }
@@ -2927,7 +2927,7 @@ static void st_calcul_update_nostat(MeshEStandard *amesh, int imesh0)
       if (ipar < 0) continue;
       double total = 0.;
       for (int ic = 0; ic < ncorner; ic++)
-        total += nostat->getValue(ipar, 0, amesh->getApex(imesh0, ic));
+        total += nostat->getValueByParam(ipar, 0, amesh->getApex(imesh0, ic));
       Calcul.srot[i] = total / (double) ncorner;
     }
   }
@@ -2943,7 +2943,7 @@ static void st_calcul_update_nostat(MeshEStandard *amesh, int imesh0)
       if (ipar < 0) continue;
       double total = 0.;
       for (int ic = 0; ic < ncorner; ic++)
-        total += nostat->getValue(ipar, 0, amesh->getApex(imesh0, ic));
+        total += nostat->getValueByParam(ipar, 0, amesh->getApex(imesh0, ic));
       Calcul.vv[idim] = total / (double) ncorner;
     }
   }
@@ -3787,7 +3787,7 @@ VectorDouble _spde_fill_Lambda(Model *model,
   {
     for (int ip = 0; ip < nvertex; ip++)
     {
-      nostat->updateModel(model, ip);
+      nostat->updateModelByVertex(model, ip);
       st_compute_hh();
       double sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
       Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
@@ -8622,7 +8622,7 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 
   // Store the resulting array in the file
 
-  dbc->setFieldByAttribute(tab, iptr);
+  dbc->setFieldByAttributeOldStyle(tab, iptr);
 
   // Set the error returned code
 
@@ -10791,7 +10791,7 @@ int m2d_gibbs_spde(Db *dbin,
     st_m2d_drift_save(m2denv, dbout, nlayer, gwork);
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      dbout->setFieldByAttribute(&GWORK(ilayer, 0), iatt_out + ilayer);
+      dbout->setFieldByAttributeOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
       (void) gslSPrintf(string_encode, "Drift%d", ilayer + 1);
       db_name_set(dbout, iatt_out + ilayer, string_encode);
     }
@@ -10950,7 +10950,7 @@ int m2d_gibbs_spde(Db *dbin,
       st_m2d_stats_gaus("Depth on grid", nlayer, ngrid, gwork);
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        dbout->setFieldByAttribute(&GWORK(ilayer, 0),
+        dbout->setFieldByAttributeOldStyle(&GWORK(ilayer, 0),
                                    iatt_out + isimu * nlayer + ilayer);
       }
     }

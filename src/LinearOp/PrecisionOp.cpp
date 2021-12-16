@@ -167,7 +167,7 @@ double PrecisionOp::computeLogDet(int nsimus,int seed)
 
   double val2 = 0.;
 
-  for (auto &e : _shiftOp->getLambda())
+  for (auto &e : _shiftOp->getLambdas())
   {
     val2 += log(e);
   }
@@ -177,10 +177,10 @@ double PrecisionOp::computeLogDet(int nsimus,int seed)
   return val1;
 }
 
-int PrecisionOp::init(const ShiftOpCs* shiftop,
-                      const CovAniso*  cova,
-                      const EPowerPT&  power,
-                      bool             verbose)
+int PrecisionOp::reset(const ShiftOpCs* shiftop,
+                       const CovAniso* cova,
+                       const EPowerPT& power,
+                       bool verbose)
 {
   // Initializations
 

@@ -20,7 +20,7 @@
 #include <cmath>
 #include <iostream>
 
-class GridC;
+class Grid;
 
 struct binaryFileHeader
 {
@@ -162,7 +162,7 @@ struct SegYArg
 /* Prototyping the functions in segy.c */
 /***************************************/
 
-GSTLEARN_EXPORT GridC segy_summary(const char *filesegy,
+GSTLEARN_EXPORT Grid segy_summary(const char *filesegy,
                                    Db *surf2D = nullptr,
                                    const String &name_top = String(),
                                    const String &name_bot = String(),

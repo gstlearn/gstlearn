@@ -49,11 +49,11 @@ public:
                   int OptionIndicator = 1,
                   const NamingConvention& namconv = NamingConvention("Indicator"));
 
-  int toCategory(Db* db, int iatt, const NamingConvention& namconv);
-  int toIndicator(Db* db,
-                  int iatt,
-                  int OptionIndicator = 1,
-                  const NamingConvention& namconv = NamingConvention("Indicator"));
+  int toCategoryByAttribute(Db* db, int iatt, const NamingConvention& namconv);
+  int toIndicatorByAttribute(Db* db,
+                             int iatt,
+                             int OptionIndicator = 1,
+                             const NamingConvention& namconv = NamingConvention("Indicator"));
 
 private:
   std::vector<Interval> _bounds;

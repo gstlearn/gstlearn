@@ -18,32 +18,32 @@
 
 class GridOld;
 
-class GSTLEARN_EXPORT GridC : public AStringable
+class GSTLEARN_EXPORT Grid : public AStringable
 {
 
 public:
-  GridC(int ndim = 0,
+  Grid(int ndim = 0,
         const VectorInt& nx    = VectorInt(),
         const VectorDouble& x0 = VectorDouble(),
         const VectorDouble& dx = VectorDouble());
-  GridC(const GridC &r);
-  GridC& operator= (const GridC &r);
-	virtual ~GridC();
+  Grid(const Grid &r);
+  Grid& operator= (const Grid &r);
+	virtual ~Grid();
 
 public:
-  void    init(int ndim);
-  void    init(GridC* grid);
-  int     init(const VectorInt&    nx = VectorInt(),
-               const VectorDouble& dx = VectorDouble(),
-               const VectorDouble& x0 = VectorDouble(),
-               const VectorDouble& angles = VectorDouble());
+  void resetFromSpaceDimension(int ndim);
+  void resetFromGrid(Grid* grid);
+  int resetFromVector(const VectorInt& nx = VectorInt(),
+                      const VectorDouble& dx = VectorDouble(),
+                      const VectorDouble& x0 = VectorDouble(),
+                      const VectorDouble& angles = VectorDouble());
   void    setX0(int idim,double value);
   void    setDX(int idim,double value);
   void    setNX(int idim,int    value);
-  void    setRotationFromMatrix(const MatrixSquareGeneral& rotmat);
-  void    setRotationFromMatrix(const VectorDouble& rotmat);
-  void    setRotationFromAngles(VectorDouble angles);
-  void    setRotationFromAngles(double angle);
+  void    setRotationByMatrix(const MatrixSquareGeneral& rotmat);
+  void    setRotationByVector(const VectorDouble& rotmat);
+  void    setRotationByAngles(VectorDouble angles);
+  void    setRotationByAngle(double angle);
 
   int     getNDim() const { return _nDim; }
   double  getX0(int idim) const;
@@ -54,27 +54,27 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  void    copyParams(int mode, const GridC& gridaux);
+  void    copyParams(int mode, const Grid& gridaux);
   double  getCoordinate(int rank, int idim, bool flag_rotate=true) const;
-  VectorDouble getCoordinate(int rank, bool flag_rotate=true) const;
-  VectorDouble getCoordinate(const VectorInt& indice, bool flag_rotate=true) const;
-  VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const;
+  VectorDouble getCoordinatesByRank(int rank, bool flag_rotate=true) const;
+  VectorDouble getCoordinatesByIndice(const VectorInt& indice, bool flag_rotate=true) const;
+  VectorDouble getCoordinatesByCorner(const VectorInt& icorner) const;
   double indiceToCoordinate(int idim0,
                             const VectorInt& indice,
                             const VectorDouble& percent = VectorDouble()) const;
-  void indiceToCoordinate(const VectorInt& indice,
-                          VectorDouble& coor,
-                          const VectorDouble& percent) const;
-  VectorDouble indiceToCoordinate(const VectorInt& indice,
-                                  const VectorDouble& percent = VectorDouble()) const;
+  VectorDouble indicesToCoordinate(const VectorInt& indice,
+                                   const VectorDouble& percent = VectorDouble()) const;
+  void indicesToCoordinateInPlace(const VectorInt& indice,
+                                  VectorDouble& coor,
+                                  const VectorDouble& percent) const;
   double rankToCoordinate(int idim0,
                           int rank,
                           const VectorDouble& percent = VectorDouble()) const;
-  VectorDouble rankToCoordinate(int rank,
+  VectorDouble rankToCoordinates(int rank,
+                                 const VectorDouble& percent = VectorDouble()) const;
+  void rankToCoordinatesInPlace(int rank,
+                                VectorDouble& coor,
                                 const VectorDouble& percent = VectorDouble()) const;
-  void rankToCoordinate(int rank,
-                        VectorDouble& coor,
-                        const VectorDouble& percent = VectorDouble()) const;
   int     indiceToRank(const VectorInt& indice) const;
   void    rankToIndice(int node,VectorInt& indice, bool minusOne = false) const;
   int     coordinateToIndice(const VectorDouble& coor,
@@ -84,15 +84,15 @@ public:
 
   const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
   const VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }
-  double getRotAngles(int idim) const { return _rotation.getAngle(idim); }
-  const VectorInt       getNX() const { return _nx; }
-  const VectorDouble    getX0() const { return _x0; }
-  const VectorDouble    getDX() const { return _dx; }
+  double getRotAngle(int idim) const { return _rotation.getAngle(idim); }
+  const VectorInt       getNXs() const { return _nx; }
+  const VectorDouble    getX0s() const { return _x0; }
+  const VectorDouble    getDXs() const { return _dx; }
   const Rotation&       getRotation() const { return _rotation; }
-  bool  isSame(const GridC& grid) const;
-  bool  isSameMesh(const GridC& grid) const;
+  bool  isSame(const Grid& grid) const;
+  bool  isSameMesh(const Grid& grid) const;
   bool  isRotated() const { return _rotation.isRotated(); }
-  bool  isSameRotation(const GridC& grid) const { return _rotation.isSame(grid.getRotation()); }
+  bool  isSameRotation(const Grid& grid) const { return _rotation.isSame(grid.getRotation()); }
   VectorDouble getAxis(int idim) const;
 
   void iteratorInit(const VectorInt& order = VectorInt());
@@ -119,8 +119,8 @@ private:
   const MatrixSquareGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }
   const MatrixSquareGeneral _getRotInv() const { return _rotation.getMatrixInverse(); }
   void _allocate();
-  void _recopy(const GridC &r);
-  bool _isValid(int idim) const;
+  void _recopy(const Grid &r);
+  bool _isSpaceDimensionValid(int idim) const;
 
 private:
   int          _nDim;

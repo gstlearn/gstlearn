@@ -211,9 +211,10 @@ SPDE_Mesh* AMesh::_convertToOldMesh(AMesh* a_mesh) const
 
 VectorDouble AMesh::getCoordinates(int idim) const
 {
+  if (! _isSpaceDimensionValid(idim)) return VectorDouble();
   int np = getNApices();
   VectorDouble coor(np);
-  for (int ip =0; ip < np; ip++)
+  for (int ip = 0; ip < np; ip++)
     coor[ip] = getApexCoor(ip, idim);
   return coor;
 }
@@ -276,3 +277,37 @@ void AMesh::getElements(MatrixRectangular& apices, VectorInt& meshes) const
     for (int icorner= 0; icorner < ncorner; icorner++)
       meshes.push_back(getApex(imesh, icorner));
  }
+
+bool AMesh::_isSpaceDimensionValid(int idim) const
+{
+  if (idim < 0 || idim >= _nDim)
+  {
+    mesArg("SPace Dimension Index",idim,_nDim);
+    return false;
+  }
+  return true;
+}
+
+VectorDouble AMesh::getExtrema(int idim) const
+{
+  VectorDouble vec(2);
+  vec[0] = getExtendMin(idim);
+  vec[1] = getExtendMax(idim);
+  return vec;
+}
+
+VectorDouble AMesh::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) const
+{
+  VectorDouble vec;
+  int ncorner = getNApexPerMesh();
+  if (flagClose)
+    vec.resize(ncorner+1);
+  else
+    vec.resize(ncorner);
+
+  for (int ic = 0; ic < ncorner; ic++)
+    vec[ic] = getCoor(imesh, ic, idim);
+  if (flagClose) vec[ncorner] = getCoor(imesh, 0, idim);
+
+  return vec;
+}

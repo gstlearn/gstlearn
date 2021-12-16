@@ -28,7 +28,7 @@ public:
                   VectorVectorDouble& out) const;
   virtual void evalInverse(const VectorVectorDouble& in,
                            VectorVectorDouble& out) const;
-  virtual int size() const = 0;
+  virtual int sizes() const = 0;
   virtual int size(int) const = 0;
 
   void setNIterMax(int nitermax) { _nIterMax = nitermax; }

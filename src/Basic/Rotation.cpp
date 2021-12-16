@@ -24,7 +24,7 @@ Rotation::Rotation(unsigned int ndim)
   , _rotMat()
   , _rotInv()
 {
-  init(ndim);
+  resetFromSpaceDimension(ndim);
 }
 
 Rotation::Rotation(const Rotation& r)
@@ -45,7 +45,7 @@ Rotation::~Rotation()
 {
 }
 
-void Rotation::init(unsigned int ndim)
+void Rotation::resetFromSpaceDimension(unsigned int ndim)
 {
   _nDim = ndim;
   _flagRot = false;
@@ -72,18 +72,28 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
   return 0;
 }
 
-int Rotation::setMatrixDirect(const VectorDouble& rotmat)
+int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
 {
   if (! rotmat.empty())
   {
     if ((int) rotmat.size() != _rotMat.getNTotal())
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
-    setMatrixDirect(rotmat.data());
+    setMatrixDirectOldStyle(rotmat.data());
   }
   return 0;
 }
 
-int Rotation::setMatrixDirect(const double* rotmat)
+VectorDouble Rotation::getMatrixDirectByVector() const
+{
+  return _rotMat.getValues();
+}
+
+VectorDouble Rotation::getMatrixInverseByVector() const
+{
+  return _rotMat.getValues();
+}
+
+int Rotation::setMatrixDirectOldStyle(const double* rotmat)
 {
   if (rotmat != nullptr)
   {

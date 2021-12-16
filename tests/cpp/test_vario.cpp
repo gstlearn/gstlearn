@@ -65,7 +65,7 @@ int main(int /*argc*/, char */*argv*/[])
   VarioParam varioparamP;
   int nlag = 20;
   std::vector<DirParam> dirparamP = generateMultipleDirs(ndim, 2, nlag, 0.5 / nlag);
-  varioparamP.addDirs(dirparamP);
+  varioparamP.addMultiDirs(dirparamP);
   Vario variop = Vario(&varioparamP,&db);
   variop.compute("vg");
   variop.display(1);
@@ -84,7 +84,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Determination of the experimental variogram
   VarioParam varioparamG;
   std::vector<DirParam> dirparamG = generateMultipleGridDirs(ndim, nlag);
-  varioparamG.addDirs(dirparamG);
+  varioparamG.addMultiDirs(dirparamG);
   Vario variog = Vario(&varioparamG, &grid);
   variog.compute("vg",true);
   variog.display(1);

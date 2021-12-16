@@ -75,6 +75,24 @@ Db::Db(int nech,
 
 }
 
+/**
+ * Creating a Db regular grid of any dimension
+ *
+ * @param nx            A vector of the number of grid meshes.
+ *                      The number of items in this argument gives the dimension of the space.
+ *                      (size = ndim)
+ * @param dx            Vector cell meshes size in each direction (size = ndim)
+ * @param x0            Vecor of origin coordinates (size = ndim)
+ * @param angles        Array giving the rotation angles (only for dimension 2 or 3).
+ *                      The first angle corresponds to the rotation around OZ axis,
+ *                      the second to a rotation around OY'and the third one around Ox.
+ *                      The dimension of this array cannot exceed the space dimension.
+ * @param order         Flag for values order in 'tab' (defined ELoadBy.hpp)
+ * @param tab           Variable values array (size = nvar * nsamples)
+ * @param names         Variable names (size = nvar)
+ * @param locatorNames  Locators for each variable (size = nvar)
+ * @param flag_add_rank If 1, add an automatic rank variable
+ */
 Db::Db(const VectorInt& nx,
        const VectorDouble& dx,
        const VectorDouble& x0,
@@ -110,7 +128,7 @@ Db::Db(const VectorInt& nx,
 
   if (gridDefine(nx, dx, x0, angles)) return;
 
-  /// Load the data
+  // Load the data
 
   if (flag_add_rank) _createRank(0);
   _createGridCoordinates(flag_add_rank);
@@ -1347,7 +1365,7 @@ int Db::addFields(const VectorDouble& tab,
 
   const double* local = tab.data();
   for (int ivar = 0; ivar < nvar; ivar++)
-    setFieldByAttribute(&local[ivar * nech], iatt + ivar, useSel);
+    setFieldByAttributeOldStyle(&local[ivar * nech], iatt + ivar, useSel);
 
   return iatt;
 }
@@ -1382,7 +1400,7 @@ void Db::setColumnByRank(const VectorDouble& tab, int icol, bool useSel)
   setColumnByRankOldStyle(tab.data(), icol, useSel);
 }
 
-void Db::setFieldByAttribute(const double* tab, int iatt, bool useSel)
+void Db::setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel)
 {
   if (!isAttributeIndexValid(iatt)) return;
   VectorDouble sel;
@@ -1409,7 +1427,7 @@ void Db::setFieldByAttribute(const double* tab, int iatt, bool useSel)
 
 void Db::setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel)
 {
-  setFieldByAttribute(tab.data(), iatt, useSel);
+  setFieldByAttributeOldStyle(tab.data(), iatt, useSel);
 }
 
 /**
@@ -1428,7 +1446,7 @@ void Db::setField(const VectorDouble& tab, const String& name, bool useSel)
   }
   else
   {
-    setFieldByAttribute(tab.data(), iatts[0], useSel);
+    setFieldByAttributeOldStyle(tab.data(), iatts[0], useSel);
   }
 }
 
@@ -1707,15 +1725,15 @@ int Db::gridDefine(const VectorInt& nx,
                    const VectorDouble& angles)
 {
   _isGrid = 1;
-  return (_grid.init(nx, dx, x0, angles));
+  return (_grid.resetFromVector(nx, dx, x0, angles));
 }
 
-void Db::gridCopyParams(int mode, const GridC& gridaux)
+void Db::gridCopyParams(int mode, const Grid& gridaux)
 {
   _grid.copyParams(mode, gridaux);
 }
 
-bool Db::isSameGrid(const GridC& grid) const
+bool Db::isSameGrid(const Grid& grid) const
 {
   if (! isGrid() || grid.empty())
   {
@@ -1820,7 +1838,7 @@ double Db::getAngle(int idim) const
 {
   if (!isGrid()) return (-1);
   if (!isDimensionIndexValid(idim)) return (0.);
-  return _grid.getRotAngles(idim);
+  return _grid.getRotAngle(idim);
 }
 
 void Db::_columnInit(int ncol, int icol0, double valinit)
@@ -2751,7 +2769,7 @@ VectorString Db::getNames(const String& name) const
   return expandNameList(name);
 }
 
-VectorString Db::getNamesByAttribute(const VectorString& names) const
+VectorString Db::getNames(const VectorString& names) const
 {
   return expandNameList(names);
 }
@@ -2984,7 +3002,7 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
   return sstr.str();
 }
 
-void Db::displayMore(unsigned char params,
+void Db::displayMoreByAttributes(unsigned char params,
                      const VectorInt& cols,
                      bool flagSel,
                      int mode) const
@@ -2992,7 +3010,7 @@ void Db::displayMore(unsigned char params,
   messageFlush(_display(params, cols, flagSel, mode));
 }
 
-void Db::displayMore(unsigned char params,
+void Db::displayMoreByAttributes(unsigned char params,
                      const VectorString& names,
                      bool flagSel,
                      int mode) const
@@ -3377,7 +3395,7 @@ void Db::_createGridCoordinates(int shift)
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     VectorInt indices = _grid.iteratorNext();
-    VectorDouble coors = _grid.indiceToCoordinate(indices);
+    VectorDouble coors = _grid.indicesToCoordinate(indices);
     for (int idim = 0; idim < getNDim(); idim++)
       setCoordinate(iech, shift + idim, coors[idim]);
   }

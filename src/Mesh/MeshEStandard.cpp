@@ -109,7 +109,7 @@ double MeshEStandard::getMeshSize(int imesh) const
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshEStandard::create(Db*                 dbin,
+int MeshEStandard::resetFromDb(Db*                 dbin,
                           Db*                 dbout,
                           const VectorDouble& dilate,
                           const String&       triswitch,
@@ -179,7 +179,7 @@ int MeshEStandard::create(Db*                 dbin,
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshEStandard::create(const MatrixRectangular& apices,
+int MeshEStandard::reset(const MatrixRectangular& apices,
                           const VectorInt&          meshes,
                           bool                      verbose)
 {
@@ -220,7 +220,7 @@ int MeshEStandard::create(const MatrixRectangular& apices,
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshEStandard::create(int                 ndim,
+int MeshEStandard::resetOldStyle(int                 ndim,
                           const VectorDouble& apices,
                           const VectorInt&    meshes,
                           bool                verbose)
@@ -1218,6 +1218,6 @@ int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
       meshes[lec] = s_mesh->meshes[lec] - shift_min;
     }
 
-  int error = create(points, meshes, verbose);
+  int error = reset(points, meshes, verbose);
   return error;
 }

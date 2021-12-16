@@ -109,11 +109,11 @@ OptimCostBinary::~OptimCostBinary()
 ** \param[in]  varseis  Array of variance attached to the seismic
 **
 *****************************************************************************/
-void OptimCostBinary::init(PrecisionOp* pmat,
-                           const ProjMatrix*   projdata,
-                           const ProjMatrix*   projseis,
-                           const VectorDouble& propseis,
-                           const VectorDouble& varseis)
+void OptimCostBinary::reset(PrecisionOp* pmat,
+                            const ProjMatrix* projdata,
+                            const ProjMatrix* projseis,
+                            const VectorDouble& propseis,
+                            const VectorDouble& varseis)
 {
   // Assignment of pointers
   _pMat     = pmat;

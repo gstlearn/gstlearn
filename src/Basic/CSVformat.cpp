@@ -48,3 +48,12 @@ CSVformat& CSVformat::operator= (const CSVformat &r)
 CSVformat::~CSVformat()
 {
 }
+
+CSVformat* CSVformat::create(int flagHeader,
+                             int nSkip,
+                             char charSep,
+                             char charDec,
+                             const String& naString)
+{
+  return new CSVformat(flagHeader, nSkip, charSep, charDec, naString);
+}

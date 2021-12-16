@@ -26,11 +26,11 @@ public:
   OptimCostBinary& operator = (const OptimCostBinary &m);
   virtual ~OptimCostBinary();
 
-  void init(PrecisionOp* pmat,
-            const ProjMatrix* projdata,
-            const ProjMatrix* projseis = nullptr,
-            const VectorDouble& propseis = VectorDouble(),
-            const VectorDouble& varseis = VectorDouble());
+  void reset(PrecisionOp* pmat,
+             const ProjMatrix* projdata,
+             const ProjMatrix* projseis = nullptr,
+             const VectorDouble& propseis = VectorDouble(),
+             const VectorDouble& varseis = VectorDouble());
   VectorDouble minimize(VectorDouble& indic,
                         bool verbose = false,
                         int maxiter = 100,
