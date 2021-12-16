@@ -1,8 +1,8 @@
 %ignore *::operator=;
 
-// TODO: really important ?
+// TODO: How to mask IClonable and clone method?
 class IClonable{};
-%nodefaultctor IClonable;
+//%ignore *::clone;
 
 %include stl.i
 %include std_vector.i
