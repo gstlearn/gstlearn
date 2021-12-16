@@ -120,7 +120,7 @@ private:
   const MatrixSquareGeneral _getRotInv() const { return _rotation.getMatrixInverse(); }
   void _allocate();
   void _recopy(const Grid &r);
-  bool _isValid(int idim) const;
+  bool _isSpaceDimensionValid(int idim) const;
 
 private:
   int          _nDim;

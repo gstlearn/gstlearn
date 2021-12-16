@@ -39,9 +39,11 @@ public:
   /*! Set the Space dimension */
   void setNDim(int ndim) { _nDim = ndim; }
   /*! Returns the minimum of the Bounding box for a given space dimension */
-  double getExtendMin(int idim) { return _extendMin[idim]; }
+  double getExtendMin(int idim) const { return _extendMin[idim]; }
   /*! Returns the maximum of the Bounding box for a given space dimension */
-  double getExtendMax(int idim) { return _extendMax[idim]; }
+  double getExtendMax(int idim) const { return _extendMax[idim]; }
+  /*! Returns the Vector of Extrema of the Bounding Box */
+  VectorDouble getExtrema(int idim) const;
   /*! Returns the set of apexes and meshes */
   void getElements(MatrixRectangular& apices, VectorInt& meshes) const;
 
@@ -78,12 +80,15 @@ public:
   VectorDouble getCoordinates(int idim) const;
   /*! Returns the list of indices of Meshes sharing the same Apex */
   VectorInt getMeshByApexPair(int apex1, int apex2) const;
+  /*! Returns the vector of coordinates for an apex */
+  VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
 
 protected:
   String _display(int level = 0) const;
 
 private:
   void _recopy(const AMesh &m);
+  bool _isSpaceDimensionValid(int idim) const;
 
 private:
   int          _variety;

@@ -117,14 +117,14 @@ void Grid::resetFromGrid(Grid* grid)
 void Grid::setX0(int idim,
                   double value)
 {
-  if (! _isValid(idim)) return;
+  if (! _isSpaceDimensionValid(idim)) return;
   _x0[idim] = value;
 }
 
 void Grid::setDX(int idim,
                   double value)
 {
-  if (! _isValid(idim)) return;
+  if (! _isSpaceDimensionValid(idim)) return;
   if (value < 0) messageAbort("Argument 'dx' may not be negative");
   _dx[idim] = value;
 }
@@ -132,7 +132,7 @@ void Grid::setDX(int idim,
 void Grid::setNX(int idim,
                   int value)
 {
-  if (! _isValid(idim)) return;
+  if (! _isSpaceDimensionValid(idim)) return;
   if (value < 0) messageAbort("Argument 'nx' may not be negative");
   _nx[idim] = value;
 }
@@ -171,19 +171,19 @@ void Grid::setRotationByAngle(double angle)
 
 double Grid::getX0(int idim) const
 {
-  if (! _isValid(idim)) return TEST;
+  if (! _isSpaceDimensionValid(idim)) return TEST;
   return _x0[idim];
 }
 
 double Grid::getDX(int idim) const
 {
-  if (! _isValid(idim)) return TEST;
+  if (! _isSpaceDimensionValid(idim)) return TEST;
   return _dx[idim];
 }
 
 int Grid::getNX(int idim) const
 {
-  if (! _isValid(idim)) return ITEST;
+  if (! _isSpaceDimensionValid(idim)) return ITEST;
   return _nx[idim];
 }
 
@@ -495,7 +495,7 @@ int Grid::coordinateToRank(const VectorDouble& coor, double eps) const
   return indiceToRank(indice);
 }
 
-bool Grid::_isValid(int idim) const
+bool Grid::_isSpaceDimensionValid(int idim) const
 {
   if (idim < 0 || idim >= _nDim)
   {
