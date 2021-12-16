@@ -50,7 +50,7 @@ foreach(FLAVOR ${FLAVORS})
 
   # Link to specific libraries (only for Windows)
   if (WIN32)
-    target_link_libraries(${FLAVOR} PUBLIC -liphlpapi -lrpcrt4)
+    target_link_libraries(${FLAVOR} PUBLIC iphlpapi rpcrt4)
   endif()
 
 endforeach(FLAVOR ${FLAVORS})
