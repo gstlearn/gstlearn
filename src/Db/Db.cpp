@@ -128,7 +128,7 @@ Db::Db(const VectorInt& nx,
 
   if (gridDefine(nx, dx, x0, angles)) return;
 
-  /// Load the data
+  // Load the data
 
   if (flag_add_rank) _createRank(0);
   _createGridCoordinates(flag_add_rank);
