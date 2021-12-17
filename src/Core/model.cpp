@@ -192,7 +192,7 @@ double model_calcul_basic(Model *model,
   if (member != ECalcMember::LHS && model->isCovaFiltered(icov))
     return (0.);
   else
-    return cova->eval(0, 0, 1., d1);
+    return cova->evalIvarIpas(0, 0, 1., d1);
 }
 
 /*****************************************************************************/
@@ -226,11 +226,7 @@ void model_calcul_cov_direct(CovInternal *covint,
 
   // Evaluate the Model
 
-  MatrixSquareGeneral mat;
-  if (d1.empty())
-    mat = model->getCovAnisoList()->ACov::eval0(mode);
-  else
-    mat = model->getCovAnisoList()->ACov::eval(1., d1, VectorDouble(), mode);
+  MatrixSquareGeneral mat = model->getCovAnisoList()->evalNvarIpas(1., d1, VectorDouble(), mode);
 
   int nvar = model->getVariableNumber();
   if (mat.getNTotal() != nvar * nvar)
@@ -851,8 +847,7 @@ double model_calcul_cov_ij(Model *model,
 
   // TODO Correct this which has something to do with pure virtual eval although implemented in Acov
   // compared to eval0 which is not implemented with such arguments.
-  double value = model->getCovAnisoList()->ACov::eval(ivar, jvar, 1., d1,
-                                                      VectorDouble(), mode);
+  double value = model->getCovAnisoList()->evalIvarIpas(ivar, jvar, 1., d1,VectorDouble(), mode);
 
   return value;
 }

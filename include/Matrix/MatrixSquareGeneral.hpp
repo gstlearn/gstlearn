@@ -29,7 +29,7 @@ public:
 	virtual ~MatrixSquareGeneral();
 
   /*! Clonable interface */
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new MatrixSquareGeneral(*this); };
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }

@@ -238,6 +238,6 @@ set(SOURCES
   Drifts/DriftZ2.cpp
   Drifts/ADriftElem.cpp
   Drifts/DriftYZ.cpp
-  Drifts/ADriftList.cpp
+  Drifts/DriftList.cpp
   Neigh/Neigh.cpp
 )

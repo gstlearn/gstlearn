@@ -31,7 +31,7 @@ public:
 	virtual ~MatrixSquareSymmetric();
 
   /// Clonable interface
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new MatrixSquareSymmetric(*this); };
 
   virtual String toString(int level = 0) const override;
 

@@ -68,11 +68,6 @@ VarioParam::~VarioParam()
 {
 }
 
-IClonable* VarioParam::clone() const
-{
-  return new VarioParam(*this);
-}
-
 void VarioParam::addDirs(const DirParam& dirparam)
 {
   _dirparams.push_back(dirparam);

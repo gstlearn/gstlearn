@@ -46,7 +46,7 @@ public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new Vario(*this); };
 
   const String& getCalculName() const { return _calculName; }
   ECalcVario    getCalculType() const;

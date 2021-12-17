@@ -37,7 +37,7 @@ public:
            double value = TEST);
 
   virtual String toString(int level = 0) const override;
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new ConsItem(*this); };
 
   // Pipe to the CovParamId class
   const EConsElem& getType() const { return _paramId.getType(); }

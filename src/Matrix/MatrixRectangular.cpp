@@ -44,11 +44,6 @@ MatrixRectangular::~MatrixRectangular()
   _deallocate();
 }
 
-IClonable* MatrixRectangular::clone() const
-{
-  return new MatrixRectangular(*this);
-}
-
 double MatrixRectangular::_getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);

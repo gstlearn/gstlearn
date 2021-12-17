@@ -11,7 +11,6 @@
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
-#include "Drifts/ADriftList.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
@@ -26,6 +25,7 @@
 #include "geoslib_old_f.h"
 
 #include <math.h>
+#include "../../include/Drifts/DriftList.hpp"
 
 Model::Model(const CovContext &ctxt, bool flagGradient, bool flagLinked)
     :
@@ -85,9 +85,9 @@ Model::Model(const Model &m)
     _flagGradient(m._flagGradient),
     _flagLinked(m._flagLinked),
     _covaList(dynamic_cast<ACovAnisoList*>(m._covaList->clone())),
-    _driftList(dynamic_cast<ADriftList*>(m._driftList->clone())),
+    _driftList(dynamic_cast<DriftList*>(m._driftList->clone())),
     _modTrans(m._modTrans),
-    _noStat(m._noStat),
+    _noStat(dynamic_cast<ANoStat*>(m._noStat->clone())),
     _ctxt(m._ctxt),
     generic_cov_function(m.generic_cov_function)
 {
@@ -100,9 +100,9 @@ Model& Model::operator=(const Model &m)
     _flagGradient = m._flagGradient;
     _flagLinked = m._flagLinked;
     _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
-    _driftList = dynamic_cast<ADriftList*>(m._driftList->clone());
+    _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
     _modTrans = m._modTrans;
-    _noStat = m._noStat;
+    _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
     _ctxt = m._ctxt;
   }
   return (*this);
@@ -351,7 +351,7 @@ const EConsElem& Model::getNoStatElemType(int ipar)
   return _noStat->getType(ipar);
 }
 
-const ADriftList* Model::getDriftList() const
+const DriftList* Model::getDriftList() const
 {
   return _driftList;
 }
@@ -777,7 +777,7 @@ void Model::_create(bool flagGradient, bool flagLinked)
   else
     _covaList = new CovLMC(_ctxt.getSpace());
 
-  _driftList = new ADriftList(flagLinked);
+  _driftList = new DriftList(flagLinked);
 
   // Default function used for calculations
   generic_cov_function = model_calcul_cov_direct;

@@ -169,7 +169,7 @@ class IClonable{};
 
 %include Drifts/ADrift.hpp
 %include Drifts/ADriftElem.hpp
-%include Drifts/ADriftList.hpp
+%include Drifts/DriftList.hpp
 %include Drifts/Drift1.hpp
 %include Drifts/DriftF.hpp
 %include Drifts/DriftFactory.hpp

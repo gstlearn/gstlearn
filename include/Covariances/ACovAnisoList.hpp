@@ -35,7 +35,7 @@ public:
   virtual ~ACovAnisoList();
 
   /*! Clonable interface */
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override = 0;
 
   // Add an elementary covariance structure
   virtual void addCov(const CovAniso* cov);

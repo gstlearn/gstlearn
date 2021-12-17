@@ -103,7 +103,3 @@ String ConsItem::toString(int level) const
   return sstr.str();
 }
 
-IClonable* ConsItem::clone() const
-{
-  return new ConsItem(*this);
-}

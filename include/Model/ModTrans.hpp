@@ -17,14 +17,18 @@
 #include "Anamorphosis/Anam.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/IClonable.hpp"
 
-class GSTLEARN_EXPORT ModTrans : public AStringable
+class GSTLEARN_EXPORT ModTrans : public AStringable, public IClonable
 {
 public:
   ModTrans();
   ModTrans(const ModTrans &m);
   ModTrans& operator= (const ModTrans &m);
   virtual ~ModTrans();
+
+  virtual String toString(int level = 0) const override;
+  virtual IClonable* clone() const override { return new ModTrans(*this); };
 
   void cancelProperty();
   int addConvolution(int conv_type,
@@ -40,8 +44,6 @@ public:
                       VectorDouble& anam_strcnt,
                       VectorDouble& anam_stats);
   int addTapering(int tape_type,double tape_range);
-
-  virtual String toString(int level = 0) const override;
 
   const EModelProperty& getModTransMode() const { return _modTransMode; }
   int getAnamIClass() const                     { return _anamIClass; }

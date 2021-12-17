@@ -43,11 +43,6 @@ CovGradientFunctional::~CovGradientFunctional()
 {
 }
 
-IClonable* CovGradientFunctional::clone() const
-{
-  return new CovGradientFunctional(*this);
-}
-
 /**
  * Calculate the square of the transformation matrix which transforms
  * a vector into its isotropic equivalent

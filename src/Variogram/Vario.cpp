@@ -458,11 +458,6 @@ void Vario::_directionResize(int idir)
   _utilize[idir].resize(size,1.); // By default, all lags are usable
 }
 
-IClonable* Vario::clone() const
-{
-  return new Vario(*this);
-}
-
 double Vario::getHmax(int ivar, int jvar, int idir) const
 {
   VectorInt ivb = _getVariableInterval(ivar);

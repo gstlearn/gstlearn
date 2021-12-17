@@ -34,7 +34,7 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new NoStatFunctional(*this); };
 
   int  attachToMesh(const AMesh* mesh, bool verbose = false) const override;
   int  attachToDb(Db* db, int icas, bool verbose = false) const override;

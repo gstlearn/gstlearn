@@ -33,11 +33,6 @@ SpaceRN::~SpaceRN()
 {
 }
 
-IClonable* SpaceRN::clone() const
-{
-  return new SpaceRN(*this);
-}
-
 void SpaceRN::move(SpacePoint& p1,
                    const VectorDouble& vec) const
 {

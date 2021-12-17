@@ -4062,8 +4062,8 @@ int db_grid_patch(Db *ss_grid,
   /* Check that the two grids are compatible */
 
   if (!db_grid->hasSameDimension(ss_grid)) goto label_end;
-  if (!db_grid->isSameGridMesh(ss_grid)) goto label_end;
-  if (!db_grid->isSameGridRotation(ss_grid)) goto label_end;
+  if (!db_grid->isSameGridMeshOldStyle(ss_grid)) goto label_end;
+  if (!db_grid->isSameGridRotationOldStyle(ss_grid)) goto label_end;
 
   /* Core allocation */
 

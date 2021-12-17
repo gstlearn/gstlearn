@@ -76,11 +76,6 @@ MatrixSquareSymmetric::~MatrixSquareSymmetric()
   _deallocate();
 }
 
-IClonable* MatrixSquareSymmetric::clone() const
-{
-  return new MatrixSquareSymmetric(*this);
-}
-
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);

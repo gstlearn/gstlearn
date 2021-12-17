@@ -88,11 +88,6 @@ CovAniso::~CovAniso()
   delete _cova;
 }
 
-IClonable* CovAniso::clone() const
-{
-  return new CovAniso(*this);
-}
-
 void CovAniso::setContext(const CovContext& ctxt)
 {
   _ctxt = ctxt;

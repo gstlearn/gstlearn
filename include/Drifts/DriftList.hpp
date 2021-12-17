@@ -21,17 +21,17 @@ class ASpace;
 class SpacePoint;
 class Db;
 
-class GSTLEARN_EXPORT ADriftList : public ADrift, public IClonable
+class GSTLEARN_EXPORT DriftList : public ADrift, public IClonable
 {
 public:
-  ADriftList(bool flagLinked = false, const ASpace* space = nullptr);
-  ADriftList(const ADriftList &r);
-  ADriftList& operator= (const ADriftList &r);
-  virtual ~ADriftList();
+  DriftList(bool flagLinked = false, const ASpace* space = nullptr);
+  DriftList(const DriftList &r);
+  DriftList& operator= (const DriftList &r);
+  virtual ~DriftList();
 
   ///////////////////////////////////////////////////
   /// IClonable interface */
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new DriftList(*this); };
   ///////////////////////////////////////////////////
 
   ///////////////////////////////////////////////////

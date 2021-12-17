@@ -33,7 +33,7 @@ public:
 
 public:
   virtual String toString(int level = 0) const override;
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new VarioParam(*this); };
 
   void addDirs(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);

@@ -35,7 +35,7 @@ public:
   CovAniso& operator=(const CovAniso& r);
   virtual ~CovAniso();
 
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new CovAniso(*this); };
 
   void setContext(const CovContext& ctxt);
   void setParam(double param);

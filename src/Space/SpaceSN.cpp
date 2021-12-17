@@ -33,11 +33,6 @@ SpaceSN::~SpaceSN()
 {
 }
 
-IClonable* SpaceSN::clone() const
-{
-  return new SpaceSN(*this);
-}
-
 bool SpaceSN::isEqual(const ASpace* space) const
 {
   if (!ASpace::isEqual(space)) return false;

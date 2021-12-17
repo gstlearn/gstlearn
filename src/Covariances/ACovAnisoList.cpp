@@ -57,11 +57,6 @@ ACovAnisoList::~ACovAnisoList()
   delAllCov();
 }
 
-IClonable* ACovAnisoList::clone() const
-{
-  return new ACovAnisoList(*this);
-}
-
 void ACovAnisoList::addCov(const CovAniso* cov)
 {
   if (getCovNumber() > 0)

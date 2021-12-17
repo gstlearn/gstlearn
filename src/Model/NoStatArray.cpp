@@ -369,11 +369,6 @@ String NoStatArray::toString(int level) const
   return sstr.str();
 }
 
-IClonable* NoStatArray::clone() const
-{
-  return new NoStatArray(*this);
-}
-
 int NoStatArray::_informField(int ipar,
                               int nech,
                               double* coor[3],

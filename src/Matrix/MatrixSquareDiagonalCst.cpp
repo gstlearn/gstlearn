@@ -42,11 +42,6 @@ MatrixSquareDiagonalCst::~MatrixSquareDiagonalCst()
 {
 }
 
-IClonable* MatrixSquareDiagonalCst::clone() const
-{
-  return new MatrixSquareDiagonalCst(*this);
-}
-
 double MatrixSquareDiagonalCst::_getValue(int irow, int icol) const
 {
   if (irow == icol)
