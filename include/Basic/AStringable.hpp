@@ -23,6 +23,8 @@ class GSTLEARN_EXPORT AStringable
 {
 public:
   AStringable();
+  AStringable(const AStringable& r);
+  AStringable& operator=(const AStringable& r);
   virtual ~AStringable();
 
   virtual String toString(int level = ITEST) const;

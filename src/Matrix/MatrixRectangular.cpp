@@ -23,18 +23,17 @@ MatrixRectangular::MatrixRectangular(int nrows, int ncols, bool sparse)
 }
 
 MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
-  : AMatrix(r)
+  : AMatrix(r),
+    _rectMatrix(r._rectMatrix)
 {
-  _recopy(r);
 }
 
 MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
 {
   if (this != &r)
   {
-    _deallocate();
     AMatrix::operator=(r);
-    _recopy(r);
+    _rectMatrix = r._rectMatrix;
   }
   return *this;
 }
@@ -126,11 +125,6 @@ double& MatrixRectangular::_getValueRef(int irow, int icol)
 void MatrixRectangular::_deallocate()
 {
 
-}
-
-void MatrixRectangular::_recopy(const MatrixRectangular &r)
-{
-  _rectMatrix = r._rectMatrix;
 }
 
 void MatrixRectangular::_allocate()

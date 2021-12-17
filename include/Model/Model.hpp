@@ -169,7 +169,8 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
-                      int norder = 0);
+                      int norder = 0,
+                      bool addZero = false);
 
   // TODO : Remove Model::fit duplicate declaration
   int fitFromCovIndices(Vario *vario,

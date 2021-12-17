@@ -56,7 +56,7 @@ Model::Model(const Db *db, bool flagGradient, bool flagLinked)
     _ctxt(),
     generic_cov_function(nullptr)
 {
-  _ctxt = CovContext(db); /// TODO : What to do with that ?
+  _ctxt = CovContext(db);
   _create(flagGradient, flagLinked);
 }
 
@@ -98,6 +98,8 @@ Model& Model::operator=(const Model &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
+    ASerializable::operator=(m);
     _flagGradient = m._flagGradient;
     _flagLinked = m._flagLinked;
     _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
@@ -437,15 +439,18 @@ double Model::evaluateDrift(const Db *db,
  * @param jvar   Rank of the second variable
  * @param codir  Vector of direction coefficients
  * @param nostd  0 standard; +-1 corr. envelop; ITEST normalized
+ * @param addZero Add the zero distance location
  *
- * @return
+ * @return The array of variogram evaluated at discretized positions
+ * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
  */
 VectorDouble Model::sample(double hmax,
                            int nh,
                            int ivar,
                            int jvar,
                            VectorDouble codir,
-                           int nostd)
+                           int nostd,
+                           bool addZero)
 {
   VectorDouble hh, gg;
 
@@ -457,13 +462,20 @@ VectorDouble Model::sample(double hmax,
     codir.resize(ndim);
     (void) ut_angles_to_codir(ndim, 1, VectorDouble(), codir);
   }
-  hh.resize(nh);
-  gg.resize(nh);
+  int nhloc = (addZero) ? nh + 1: nh;
+  hh.resize(nhloc);
+  gg.resize(nhloc);
 
+  int ecr = 0;
+  if (addZero)
+  {
+    hh[ecr] = 0.;
+    gg[ecr] = 0.;
+  }
   for (int i = 0; i < nh; i++)
-    hh[i] = hmax * i / nh;
+    hh[ecr++] = hmax * (i+1) / nh;
 
-  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS, nh,
+  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS, nhloc,
                  codir, hh.data(), gg.data());
   return gg;
 }

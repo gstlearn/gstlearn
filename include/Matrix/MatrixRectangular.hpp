@@ -56,7 +56,6 @@ private:
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
   double _determinant() const override;
 
-  void   _recopy(const MatrixRectangular &r);
   int    _getIndexToRank(int irow,int icol) const;
 
 private:
