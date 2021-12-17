@@ -111,6 +111,9 @@ set(HELP_MESSAGE
   - install    Install libraries, headers and documentation   \r\n\
   - uninstall  Uninstall libraries, headers and documentation \r\n\
                                                               \r\n\
+ Generator:                                                   \r\n\
+  ${CMAKE_GENERATOR}                                          \r\n\
+                                                              \r\n\
  Installation directory:                                      \r\n\
   ${CMAKE_INSTALL_PREFIX}                                     \r\n\
                                                               \r\n"

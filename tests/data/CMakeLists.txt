@@ -42,12 +42,13 @@ foreach(TARGET_EXE ${TARGETS_EXE})
         # Drop absolute directory path
         get_filename_component(DIR_NAME "${TEST_DIR}" NAME)
         # Run the test (The executable will generate Result.out in ${DIR_NAME})
+        # TODO : Generate Result.out "out of the source"
         add_test(NAME ${DIR_NAME}
                  COMMAND ${TARGET_EXE} ${TEST_DIR}
                  WORKING_DIRECTORY ${TEST_DIR})
-        # Compare the output result
+        # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
         add_test(NAME ${DIR_NAME}_cmp
-                 COMMAND ${CMAKE_COMMAND} -E compare_files ${TEST_DIR}/Result.ref ${TEST_DIR}/Result.out
+                 COMMAND diff ${TEST_DIR}/Result.ref ${TEST_DIR}/Result.out
                  WORKING_DIRECTORY ${TEST_DIR})
     endforeach(TEST_DIR ${TEST_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})

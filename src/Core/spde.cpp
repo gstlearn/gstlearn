@@ -8,9 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
+#include "geoslib_enum.h"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/NoStatArray.hpp"

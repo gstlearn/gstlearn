@@ -43,6 +43,14 @@ static int    _maxNRows = 7;
 static int    _nBatch = 7;
 static double _dblThresh = 0.0005; // because default _nDec is 3
 
+AStringable::AStringable()
+{
+}
+
+AStringable::~AStringable()
+{
+}
+
 String AStringable::toString(int /*level*/) const
 {
   std::stringstream sstr;

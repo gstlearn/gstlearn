@@ -22,8 +22,8 @@ class cs;
 class GSTLEARN_EXPORT AStringable
 {
 public:
-  AStringable() {};
-  virtual ~AStringable() {};
+  AStringable();
+  virtual ~AStringable();
 
   virtual String toString(int level = ITEST) const;
 

@@ -164,8 +164,8 @@ Neigh::Neigh(const String& neutralFileName, bool verbose)
 }
 
 Neigh::Neigh(const Neigh& r)
-    : AStringable(),
-      ASerializable(),
+    : AStringable(r),
+      ASerializable(r),
       _nDim(r._nDim),
       _type(r._type),
       _flagXvalid(r._flagXvalid),

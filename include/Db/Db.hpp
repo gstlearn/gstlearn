@@ -18,7 +18,7 @@
 
 #include "Db/PtrGeos.hpp"
 
-#include "../Basic/Grid.hpp"
+#include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"

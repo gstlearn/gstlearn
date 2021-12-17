@@ -1,4 +1,4 @@
-
+// Keep it here
 %nodefaultctor IClonable;
 
 %{
