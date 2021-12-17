@@ -24,10 +24,12 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
+#include "Model/CovParamId.hpp"
 #include "Covariances/CovContext.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/IClonable.hpp"
 
 class Model;
 class Db;
@@ -39,10 +41,10 @@ class ACovAnisoList;
 class Vario;
 class CovAniso;
 class ANoStat;
-class ADriftList;
+class DriftList;
 class ADriftElem;
 
-class GSTLEARN_EXPORT Model : public AStringable, public ASerializable
+class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public IClonable
 {
 public:
   Model(const CovContext& ctxt, bool flagGradient = false, bool flagLinked = false);
@@ -56,6 +58,7 @@ public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
+  virtual IClonable* clone() const override { return new Model(*this); }
 
   /// TODO : to be converted as internal member
   const CovContext& getContext() const { return _ctxt; }
@@ -91,8 +94,8 @@ public:
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
-  /// TODO : to be removed (encapsulation of ADriftList)
-  const ADriftList* getDriftList()                 const;
+  /// TODO : to be removed (encapsulation of DriftList)
+  const DriftList* getDriftList()                  const;
   const ADriftElem* getDrift(int il)               const;
   ADriftElem* getDrift(int il)                          ;
   int getDriftNumber()                             const;
@@ -134,7 +137,7 @@ public:
   int  addNoStatElems(const VectorString& codes);
   int  getNoStatElemIcov(int ipar);
   const EConsElem& getNoStatElemType(int ipar);
-  ConsItem getConsItem(int ipar) const;
+  CovParamId getCovParamId(int ipar) const;
   ////////////////////////////////////////////////
 
   double getField() const                       { return _ctxt.getField(); }
@@ -166,7 +169,8 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
-                      int norder = 0);
+                      int norder = 0,
+                      bool addZero = false);
 
   // TODO : Remove Model::fit duplicate declaration
   int fitFromCovIndices(Vario *vario,
@@ -192,7 +196,7 @@ private:
   bool           _flagGradient;
   bool           _flagLinked;
   ACovAnisoList* _covaList;     /* Series of Covariance structures */
-  ADriftList*    _driftList;    /* Series of Drift functions */
+  DriftList*     _driftList;    /* Series of Drift functions */
   ModTrans       _modTrans;     /* Covariance Transformation */
   ANoStat*       _noStat;       /* Description of Non-stationary Model */
   CovContext     _ctxt;         /* Context */

@@ -162,7 +162,9 @@ Rule::Rule(const String& neutralFileName, bool verbose)
 }
 
 Rule::Rule(const Rule& m)
-    : _modeRule(m._modeRule),
+    : AStringable(m),
+      ASerializable(m),
+      _modeRule(m._modeRule),
       _flagProp(m._flagProp),
       _rho(m._rho),
       _mainNode(new Node(*m._mainNode))
@@ -173,6 +175,8 @@ Rule& Rule::operator=(const Rule& m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
+    ASerializable::operator=(m);
     _modeRule = m._modeRule;
     _flagProp = m._flagProp;
     _rho = m._rho;

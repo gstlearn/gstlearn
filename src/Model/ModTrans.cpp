@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "Basic/Utilities.hpp"
 #include "Model/ModTrans.hpp"
+#include "Model/EModelProperty.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"

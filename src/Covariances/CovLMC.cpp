@@ -40,7 +40,3 @@ CovLMC::~CovLMC()
   /// TODO : Delete pointers ?
 }
 
-IClonable* CovLMC::clone() const
-{
-  return new CovLMC(*this);
-}

@@ -33,10 +33,6 @@ public:
         Db* db,
         const VectorDouble& means = VectorDouble(),
         const VectorDouble& vars = VectorDouble());
-  Vario(const Vario& Vario,
-        const VectorInt& varcols,
-        const VectorInt& dircols,
-        bool asSymmetric = false);
   Vario(const String& neutralFileName, bool verbose = false);
   Vario(const Vario& r);
   Vario& operator=(const Vario& r);
@@ -46,7 +42,12 @@ public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new Vario(*this); };
+
+  void varioReduce(const Vario& Vario,
+                   const VectorInt& varcols,
+                   const VectorInt& dircols,
+                   bool asSymmetric = false);
 
   const String& getCalculName() const { return _calculName; }
   ECalcVario    getCalculType() const;

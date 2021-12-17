@@ -207,95 +207,6 @@ Db::Db(const String& filename,
   _defineDefaultLocatorsByNames(flag_add_rank, names);
 }
 
-/**
- * Creating a grid Db which covers the extension of the input 'Db'
- *
- * @param db       Input Db from which the newly created Db is constructed
- * @param nodes    Vector of the expected number of grid nodes (default = 10)
- * @param dcell    Vector of the expected sizes for the grid meshes
- * @param origin   Vector of the expected origin of the grid
- * @param margin   Vector of the expected margins of the grid
- * @param flag_add_rank 1 if the sample rank must be generated
- */
-Db::Db(Db* db,
-       const VectorInt&    nodes,
-       const VectorDouble& dcell,
-       const VectorDouble& origin,
-       const VectorDouble& margin,
-       int flag_add_rank)
-    : AStringable(),
-      ASerializable(),
-      _ncol(0),
-      _nech(0),
-      _isGrid(false),
-      _array(),
-      _attcol(),
-      _colNames(),
-      _p(),
-      _grid(0)
-{
-  _initP();
-  int ndim = db->getNDim();
-
-  // Derive the Grid parameters
-
-  VectorInt nx_tab;
-  VectorDouble x0_tab;
-  VectorDouble dx_tab;
-  int nech = 1;
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    VectorDouble coor = db->getExtrema(idim);
-
-    double x0 = coor[0];
-    double ext = coor[1] - coor[0];
-    double marge = 0.;
-
-    if (ndim == (int) margin.size()) marge = margin[idim];
-    if (ndim == (int) origin.size()) x0 = origin[idim];
-    x0 -= marge;
-    ext += 2. * marge;
-
-    int nx = 10;
-    double dx = ext / (double) nx;
-    if (ndim == (int) nodes.size())
-    {
-      nx = nodes[idim];
-      dx = ext / (double) nx;
-    }
-    if (ndim == (int) dcell.size())
-    {
-      dx = dcell[idim];
-      nx = static_cast<int> (ext / dx) + 1;
-      dx = ext / nx; // recompute dx to keep the extent
-      ++nx; // one more node than intervals
-    }
-
-    nx_tab.push_back(nx);
-    x0_tab.push_back(x0);
-    dx_tab.push_back(dx);
-    nech *= nx;
-  }
-
-  _nech = nech;
-  _ncol = ndim + flag_add_rank;
-  reset(_ncol, _nech);
-
-  // Create the grid
-
-  if (gridDefine(nx_tab, dx_tab, x0_tab)) return;
-
-  /// Load the data
-
-  if (flag_add_rank) _createRank(0);
-  _createGridCoordinates(flag_add_rank);
-
-  // Create the locators
-
-  int jcol = 0;
-  if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, ELoc::X);
-}
 
 /**
  * Create a Db by loading the contents of a Neutral File
@@ -402,73 +313,6 @@ Db::Db(Polygons* polygon,
   setLocatorsByAttribute(ndim, jcol, ELoc::X);
 }
 
-/**
- * Sampling an input Db to create the output Db by selecting a subset of samples
- *
- * @param dbin       Pointer to the input Db
- * @param proportion Proportion of samples to be retained
- * @param names      Vector of Names to be copied (empty: all names)
- * @param seed       Seed used for the random number generator
- * @param verbose    Verbose flag
- *
- * @remark A possible selection in 'dbin' will not be taken into account
- */
-Db::Db(const Db* dbin,
-       double proportion,
-       const VectorString& names,
-       int seed,
-       bool verbose)
-    : AStringable(),
-      ASerializable(),
-      _ncol(0),
-      _nech(0),
-      _isGrid(false),
-      _array(),
-      _attcol(),
-      _colNames(),
-      _p(),
-      _grid(0)
-{
-  _initP();
-
-  // Creating the vector of selected samples
-
-  int nfrom = dbin->getSampleNumber();
-  VectorInt ranks = ut_vector_sample(nfrom, proportion, seed);
-  _nech = static_cast<int> (ranks.size());
-  if (verbose)
-    message("From %d samples, the extraction concerns %d samples\n", nfrom,_nech);
-
-  // Create the new data base
-
-  VectorString namloc = names;
-  if (namloc.empty())
-    namloc = dbin->getAllNames();
-  _ncol = static_cast<int> (namloc.size());
-  reset(_ncol, _nech);
-
-  // Create Variables and Locators
-
-  ELoc locatorType;
-  int locatorIndex;
-  for (int icol = 0; icol < _ncol; icol++)
-  {
-    setNameByAttribute(icol, namloc[icol]);
-    if (dbin->getLocator(namloc[icol],&locatorType,&locatorIndex))
-      setLocator(namloc[icol],locatorType,locatorIndex);
-  }
-
-  // Load samples
-
-  VectorDouble values(_nech);
-  for (int icol = 0; icol < _ncol; icol++)
-  {
-    int jcol = dbin->getColumn(namloc[icol]);
-    for (int iech = 0; iech < _nech; iech++)
-      values[iech] = dbin->getByColumn(ranks[iech],jcol);
-    setColumnByRank(values, icol);
-  }
-}
 
 /**
  * Create a Db generating samples randomly
@@ -571,10 +415,10 @@ Db::Db(const Db& r)
       _nech(r._nech),
       _isGrid(r._isGrid),
       _array(r._array),
+      _attcol(r._attcol),
       _colNames(r._colNames),
       _p(r._p),
       _grid(r._grid)
-
 {
 }
 
@@ -586,6 +430,7 @@ Db& Db::operator=(const Db& r)
     _nech = r._nech;
     _isGrid = r._isGrid;
     _array = r._array;
+    _attcol = r._attcol;
     _colNames = r._colNames;
     _p = r._p;
     _grid = r._grid;
@@ -1495,8 +1340,8 @@ int Db::addSelection(const VectorDouble& tab, const String& name)
  * @return
  */
 int Db::addSelectionByLimit(const String& testvar,
-                     const Limits& limits,
-                     const String& name)
+                            const Limits& limits,
+                            const String& name)
 {
   int iatt = addFieldsByConstant(1,0.,name,ELoc::SEL);
   if (iatt < 0) return 1;
@@ -1755,6 +1600,17 @@ bool Db::isSameGridMesh(const Db& dbaux) const
   return _grid.isSameMesh(dbaux.getGrid());
 }
 
+bool Db::isSameGridMeshOldStyle(const Db* dbaux) const
+{
+  if (! isGrid() || ! dbaux->isGrid())
+  {
+    messerr("Both files should be organized as grids");
+    return false;
+  }
+  return _grid.isSameMesh(dbaux->getGrid());
+}
+
+
 bool Db::isSameGridRotation(const Db& dbaux) const
 {
   if (! isGrid() || ! dbaux.isGrid())
@@ -1764,6 +1620,17 @@ bool Db::isSameGridRotation(const Db& dbaux) const
   }
   if (! isGridRotated() && ! dbaux.isGridRotated()) return true;
   return _grid.isSameRotation(dbaux.getGrid());
+}
+
+bool Db::isSameGridRotationOldStyle(const Db* dbaux) const
+{
+  if (! isGrid() || ! dbaux->isGrid())
+  {
+    messerr("Both files should be organized as grids");
+    return false;
+  }
+  if (! isGridRotated() && ! dbaux->isGridRotated()) return true;
+  return _grid.isSameRotation(dbaux->getGrid());
 }
 
 bool Db::isGridRotated() const
@@ -3005,14 +2872,14 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
 }
 
 void Db::displayMoreByAttributes(unsigned char params,
-                     const VectorInt& cols,
-                     bool flagSel,
-                     int mode) const
+                                 const VectorInt& cols,
+                                 bool flagSel,
+                                 int mode) const
 {
   messageFlush(_display(params, cols, flagSel, mode));
 }
 
-void Db::displayMoreByAttributes(unsigned char params,
+void Db::displayMore(unsigned char params,
                      const VectorString& names,
                      bool flagSel,
                      int mode) const
@@ -4010,3 +3877,142 @@ double Db::getCosineToDirection(int iech1,
   return (cosdir / sqrt(prod));
 }
 
+/**
+ * Creating a Grid Db which covers the extension of the input 'Db'
+ *
+ * @param db       Input Db from which the newly created Db is constructed
+ * @param nodes    Vector of the expected number of grid nodes (default = 10)
+ * @param dcell    Vector of the expected sizes for the grid meshes
+ * @param origin   Vector of the expected origin of the grid
+ * @param margin   Vector of the expected margins of the grid
+ *
+ * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
+ */
+void Db::resetCoveringDb(Db* db,
+                         const VectorInt& nodes,
+                         const VectorDouble& dcell,
+                         const VectorDouble& origin,
+                         const VectorDouble& margin)
+
+{
+  _initP();
+  int ndim = db->getNDim();
+
+  // Derive the Grid parameters
+
+  VectorInt    nx(ndim);
+  VectorDouble x0(ndim);
+  VectorDouble dx(ndim);
+  int nech = 1;
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    VectorDouble coor = db->getExtrema(idim);
+
+    double marge = 0.;
+    if (ndim == (int) margin.size()) marge = margin[idim];
+
+    double x0loc = coor[0];
+    if (ndim == (int) origin.size()) x0loc = origin[idim];
+    x0loc -= marge;
+
+    double ext = coor[1] - x0loc + 2. * marge;
+
+    int nxloc = 10;
+    double dxloc = ext / (double) nxloc;
+
+    // Constraints specified by the number of nodes
+    if (ndim == (int) nodes.size())
+    {
+      nxloc = nodes[idim];
+      dxloc = ext / (double) nxloc;
+    }
+
+    // Constraints specified by the cell sizes
+    if (ndim == (int) dcell.size())
+    {
+      dxloc = dcell[idim];
+      nxloc = static_cast<int> (ext / dxloc) + 1;
+      ++nxloc; // one more node than intervals
+    }
+
+    nx[idim] = nxloc;
+    dx[idim] = dxloc;
+    x0[idim] = x0loc;
+    nech *= nxloc;
+  }
+
+  _nech = nech;
+  _ncol = ndim;
+  reset(_ncol, _nech);
+
+  // Create the grid
+
+  if (gridDefine(nx, dx, x0)) return;
+
+  /// Load the data
+
+  _createGridCoordinates(0);
+
+  // Create the locators
+
+  int jcol = 0;
+  setLocatorsByAttribute(ndim, jcol, ELoc::X);
+}
+
+/**
+ * Sampling an input Db to create the output Db by selecting a subset of samples
+ *
+ * @param dbin       Pointer to the input Db
+ * @param proportion Proportion of samples to be retained
+ * @param names      Vector of Names to be copied (empty: all names)
+ * @param seed       Seed used for the random number generator
+ * @param verbose    Verbose flag
+ *
+ * @remark A possible selection in 'dbin' will not be taken into account
+ */
+void Db::resetSamplingDb(const Db* dbin,
+                         double proportion,
+                         const VectorString& names,
+                         int seed,
+                         bool verbose)
+{
+  _initP();
+
+  // Creating the vector of selected samples
+
+  int nfrom = dbin->getSampleNumber();
+  VectorInt ranks = ut_vector_sample(nfrom, proportion, seed);
+  _nech = static_cast<int> (ranks.size());
+  if (verbose)
+    message("From %d samples, the extraction concerns %d samples\n", nfrom,_nech);
+
+  // Create the new data base
+
+  VectorString namloc = names;
+  if (namloc.empty())
+    namloc = dbin->getAllNames();
+  _ncol = static_cast<int> (namloc.size());
+  reset(_ncol, _nech);
+
+  // Create Variables and Locators
+
+  ELoc locatorType;
+  int locatorIndex;
+  for (int icol = 0; icol < _ncol; icol++)
+  {
+    setNameByAttribute(icol, namloc[icol]);
+    if (dbin->getLocator(namloc[icol],&locatorType,&locatorIndex))
+      setLocator(namloc[icol],locatorType,locatorIndex);
+  }
+
+  // Load samples
+
+  VectorDouble values(_nech);
+  for (int icol = 0; icol < _ncol; icol++)
+  {
+    int jcol = dbin->getColumn(namloc[icol]);
+    for (int iech = 0; iech < _nech; iech++)
+      values[iech] = dbin->getByColumn(ranks[iech],jcol);
+    setColumnByRank(values, icol);
+  }
+}

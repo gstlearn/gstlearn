@@ -18,8 +18,11 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/IClonable.hpp"
 
-class GSTLEARN_EXPORT Neigh: public AStringable , public ASerializable // TODO : inherits from ASpaceObject (see _init)
+// TODO : inherits from ASpaceObject (see _init)
+
+class GSTLEARN_EXPORT Neigh: public AStringable , public ASerializable, public IClonable
 {
 public:
   Neigh();
@@ -43,6 +46,7 @@ public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
+  virtual IClonable* clone() const override { return new Neigh(*this); };
 
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }

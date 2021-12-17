@@ -42,11 +42,6 @@ MatrixSquareDiagonal::~MatrixSquareDiagonal()
   _deallocate();
 }
 
-IClonable* MatrixSquareDiagonal::clone() const
-{
-  return new MatrixSquareDiagonal(*this);
-}
-
 double MatrixSquareDiagonal::_getValue(int irow, int icol) const
 {
   if (irow == icol)

@@ -11,11 +11,11 @@
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Drifts/ADriftList.hpp"
+#include "Drifts/DriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Db/Db.hpp"
 
-ADriftList::ADriftList(bool flagLinked, const ASpace* space)
+DriftList::DriftList(bool flagLinked, const ASpace* space)
     : ADrift(space),
       _flagLinked(flagLinked),
       _driftEquationNumber(0),
@@ -26,7 +26,7 @@ ADriftList::ADriftList(bool flagLinked, const ASpace* space)
   _setDriftEquationNumber();
 }
 
-ADriftList::ADriftList(const ADriftList &r)
+DriftList::DriftList(const DriftList &r)
     : ADrift(r),
       _flagLinked(r._flagLinked),
       _driftEquationNumber(r._driftEquationNumber),
@@ -41,7 +41,7 @@ ADriftList::ADriftList(const ADriftList &r)
   }
 }
 
-ADriftList& ADriftList::operator=(const ADriftList &r)
+DriftList& DriftList::operator=(const DriftList &r)
 {
   if (this != &r)
   {
@@ -58,22 +58,17 @@ ADriftList& ADriftList::operator=(const ADriftList &r)
   return *this;
 }
 
-ADriftList::~ADriftList()
+DriftList::~DriftList()
 {
   delAllDrift();
 }
 
-IClonable* ADriftList::clone() const
-{
-  return new ADriftList(*this);
-}
-
-bool ADriftList::isConsistent(const ASpace* /*space*/) const
+bool DriftList::isConsistent(const ASpace* /*space*/) const
 {
   return true;
 }
 
-String ADriftList::toString(int /*level*/) const
+String DriftList::toString(int /*level*/) const
 {
   std::stringstream sstr;
   for (int i = 0; i < (int) getDriftNumber(); i++)
@@ -86,20 +81,20 @@ String ADriftList::toString(int /*level*/) const
   return sstr.str();
 }
 
-double ADriftList::eval(const Db* /*db*/, int /*iech1*/) const
+double DriftList::eval(const Db* /*db*/, int /*iech1*/) const
 {
   double drift = 0;
   return drift;
 }
 
-void ADriftList::addDrift(const ADriftElem* drift)
+void DriftList::addDrift(const ADriftElem* drift)
 {
   _drifts.push_back(dynamic_cast<ADriftElem*>(drift->clone()));
   _filtered.push_back(false);
   _updateCoefDrift();
 }
 
-void ADriftList::delDrift(unsigned int i)
+void DriftList::delDrift(unsigned int i)
 {
   if (! _isDriftIndexValid(i)) return;
   _drifts.erase(_drifts.begin() + i);
@@ -107,7 +102,7 @@ void ADriftList::delDrift(unsigned int i)
   _updateCoefDrift();
 }
 
-void ADriftList::delAllDrift()
+void DriftList::delAllDrift()
 {
   for (auto e: _drifts)
   {
@@ -118,68 +113,68 @@ void ADriftList::delAllDrift()
   _coefDrift.clear();
 }
 
-bool ADriftList::isFiltered(int i) const
+bool DriftList::isFiltered(int i) const
 {
   if (! _isDriftIndexValid(i)) return false;
   return _filtered[i];
 }
 
-void ADriftList::setFiltered(int i, bool filter)
+void DriftList::setFiltered(int i, bool filter)
 {
   if (! _isDriftIndexValid(i)) return;
   _filtered[i] = filter;
 }
 
-const ADriftElem* ADriftList::getDrift(int il) const
+const ADriftElem* DriftList::getDrift(int il) const
 {
   if (! _isDriftIndexValid(il)) return nullptr;
   return _drifts[il];
 }
 
-ADriftElem* ADriftList::getDrift(int il)
+ADriftElem* DriftList::getDrift(int il)
 {
   if (! _isDriftIndexValid(il)) return nullptr;
   return _drifts[il];
 }
 
-const EDrift& ADriftList::getType(int il) const
+const EDrift& DriftList::getType(int il) const
 {
   if (! _isDriftIndexValid(il)) return EDrift::UNKNOWN;
   return _drifts[il]->getType();
 }
 
-int ADriftList::getRankFex(int il) const
+int DriftList::getRankFex(int il) const
 {
   if (! _isDriftIndexValid(il)) return 0;
   return _drifts[il]->getRankFex();
 }
 
-String ADriftList::getDriftName(int il) const
+String DriftList::getDriftName(int il) const
 {
   if (! _isDriftIndexValid(il)) return String();
   return _drifts[il]->getDriftName();
 }
 
-void ADriftList::setType(int il, const EDrift& type)
+void DriftList::setType(int il, const EDrift& type)
 {
   if (! _isDriftIndexValid(il)) return;
   _drifts[il]->setType(type);
 }
 
-void ADriftList::_setDriftEquationNumber()
+void DriftList::_setDriftEquationNumber()
 {
   int ndrift = getDriftNumber();
   _driftEquationNumber = (_flagLinked) ? ndrift : ndrift * getNVariables();
 }
 
-int ADriftList::getNVariables() const
+int DriftList::getNVariables() const
 {
   if (getDriftNumber() > 0)
     return _drifts[0]->getNVariables();
   return 0;
 }
 
-bool ADriftList::_isDriftIndexValid(int i) const
+bool DriftList::_isDriftIndexValid(int i) const
 {
   if (i < 0 || i > getDriftNumber())
   {
@@ -189,7 +184,7 @@ bool ADriftList::_isDriftIndexValid(int i) const
   return true;
 }
 
-bool ADriftList::_isDriftEquationValid(int ib) const
+bool DriftList::_isDriftEquationValid(int ib) const
 {
   if (ib < 0 || ib > getDriftEquationNumber())
   {
@@ -199,7 +194,7 @@ bool ADriftList::_isDriftEquationValid(int ib) const
   return true;
 }
 
-void ADriftList::_updateCoefDrift()
+void DriftList::_updateCoefDrift()
 {
   _setDriftEquationNumber();
   int nvar = getNVariables();
@@ -231,7 +226,7 @@ void ADriftList::_updateCoefDrift()
   }
 }
 
-VectorDouble ADriftList::getDrift(const Db* db, int ib, bool useSel)
+VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel)
 {
   if (! _isDriftIndexValid(ib)) return VectorDouble();
 
@@ -247,7 +242,7 @@ VectorDouble ADriftList::getDrift(const Db* db, int ib, bool useSel)
   return vec;
 }
 
-VectorVectorDouble ADriftList::getDrifts(const Db* db, bool useSel)
+VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel)
 {
   int ndrift = static_cast<int>(_drifts.size());
 

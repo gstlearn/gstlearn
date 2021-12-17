@@ -42,11 +42,6 @@ CovLMGradient::~CovLMGradient()
   /// TODO : Delete pointers ?
 }
 
-IClonable* CovLMGradient::clone() const
-{
-  return new CovLMGradient(*this);
-}
-
 void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
                                       const SpacePoint& p2,
                                       double* covVal,

@@ -11,7 +11,6 @@
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
-#include "Drifts/ADriftList.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
@@ -26,6 +25,7 @@
 #include "geoslib_old_f.h"
 
 #include <math.h>
+#include "../../include/Drifts/DriftList.hpp"
 
 Model::Model(const CovContext &ctxt, bool flagGradient, bool flagLinked)
     :
@@ -56,7 +56,7 @@ Model::Model(const Db *db, bool flagGradient, bool flagLinked)
     _ctxt(),
     generic_cov_function(nullptr)
 {
-  _ctxt = CovContext(db); /// TODO : What to do with that ?
+  _ctxt = CovContext(db);
   _create(flagGradient, flagLinked);
 }
 
@@ -86,9 +86,9 @@ Model::Model(const Model &m)
     _flagGradient(m._flagGradient),
     _flagLinked(m._flagLinked),
     _covaList(dynamic_cast<ACovAnisoList*>(m._covaList->clone())),
-    _driftList(dynamic_cast<ADriftList*>(m._driftList->clone())),
+    _driftList(dynamic_cast<DriftList*>(m._driftList->clone())),
     _modTrans(m._modTrans),
-    _noStat(m._noStat),
+    _noStat(dynamic_cast<ANoStat*>(m._noStat->clone())),
     _ctxt(m._ctxt),
     generic_cov_function(m.generic_cov_function)
 {
@@ -98,12 +98,14 @@ Model& Model::operator=(const Model &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
+    ASerializable::operator=(m);
     _flagGradient = m._flagGradient;
     _flagLinked = m._flagLinked;
     _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
-    _driftList = dynamic_cast<ADriftList*>(m._driftList->clone());
+    _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
     _modTrans = m._modTrans;
-    _noStat = m._noStat;
+    _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
     _ctxt = m._ctxt;
   }
   return (*this);
@@ -117,7 +119,7 @@ Model::~Model()
 String Model::toString(int /*level*/) const
 {
   std::stringstream sstr;
-  int ncov = _covaList->getCovNumber();
+  int ncov   = _covaList->getCovNumber();
   int ndrift = _driftList->getDriftNumber();
 
   sstr << toTitle(0, "Model characteristics");
@@ -331,7 +333,7 @@ int Model::addNoStatElems(const VectorString &codes)
   return _noStat->addNoStatElems(codes);
 }
 
-ConsItem Model::getConsItem(int ipar) const
+CovParamId Model::getCovParamId(int ipar) const
 {
   if (!isNoStat())
   my_throw("Nostat is not defined and cannot be returned");
@@ -352,7 +354,7 @@ const EConsElem& Model::getNoStatElemType(int ipar)
   return _noStat->getType(ipar);
 }
 
-const ADriftList* Model::getDriftList() const
+const DriftList* Model::getDriftList() const
 {
   return _driftList;
 }
@@ -437,15 +439,18 @@ double Model::evaluateDrift(const Db *db,
  * @param jvar   Rank of the second variable
  * @param codir  Vector of direction coefficients
  * @param nostd  0 standard; +-1 corr. envelop; ITEST normalized
+ * @param addZero Add the zero distance location
  *
- * @return
+ * @return The array of variogram evaluated at discretized positions
+ * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
  */
 VectorDouble Model::sample(double hmax,
                            int nh,
                            int ivar,
                            int jvar,
                            VectorDouble codir,
-                           int nostd)
+                           int nostd,
+                           bool addZero)
 {
   VectorDouble hh, gg;
 
@@ -457,13 +462,20 @@ VectorDouble Model::sample(double hmax,
     codir.resize(ndim);
     (void) ut_angles_to_codir(ndim, 1, VectorDouble(), codir);
   }
-  hh.resize(nh);
-  gg.resize(nh);
+  int nhloc = (addZero) ? nh + 1: nh;
+  hh.resize(nhloc);
+  gg.resize(nhloc);
 
+  int ecr = 0;
+  if (addZero)
+  {
+    hh[ecr] = 0.;
+    gg[ecr] = 0.;
+  }
   for (int i = 0; i < nh; i++)
-    hh[i] = hmax * i / nh;
+    hh[ecr++] = hmax * (i+1) / nh;
 
-  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS, nh,
+  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS, nhloc,
                  codir, hh.data(), gg.data());
   return gg;
 }
@@ -778,7 +790,7 @@ void Model::_create(bool flagGradient, bool flagLinked)
   else
     _covaList = new CovLMC(_ctxt.getSpace());
 
-  _driftList = new ADriftList(flagLinked);
+  _driftList = new DriftList(flagLinked);
 
   // Default function used for calculations
   generic_cov_function = model_calcul_cov_direct;

@@ -25,6 +25,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/IClonable.hpp"
 
 class Polygons;
 
@@ -38,12 +39,11 @@ typedef enum
   FLAG_ARRAY = 16,    //!< Print the variable contents
 } DISPLAY_PARAMS;
 
-
 /**
  * Class containing the Data Set.
  * It can be organized as a set of Isolated Points or as a regular Grid
  */
-class GSTLEARN_EXPORT Db: public AStringable, public ASerializable
+class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public IClonable
 {
 public:
   Db();
@@ -68,22 +68,11 @@ public:
      int ncol_max = -1,
      int nrow_max = -1,
      int flag_add_rank = 1);
-  Db(Db* db,
-     const VectorInt&    nodes  = VectorInt(),
-     const VectorDouble& dcell  = VectorDouble(),
-     const VectorDouble& origin = VectorDouble(),
-     const VectorDouble& margin = VectorDouble(),
-     int flag_add_rank = 1);
   Db(const String& neutralFileName, bool verbose = false);
   Db(Polygons* polygon,
      const VectorInt& nodes,
      const VectorDouble& dcell,
      int flag_add_rank = 1);
-  Db(const Db* dbin,
-     double proportion,
-     const VectorString& names = VectorString(),
-     int seed = 23241,
-     bool verbose = false);
   Db(int nech,
      const VectorDouble& coormin,
      const VectorDouble& coormax,
@@ -99,8 +88,20 @@ public:
   virtual String toString(int level = 0) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
+  virtual IClonable* clone() const override { return new Db(*this); };
 
   const VectorDouble& getArrays() const { return _array; }
+
+  void resetCoveringDb(Db* db,
+                       const VectorInt& nodes = VectorInt(),
+                       const VectorDouble& dcell = VectorDouble(),
+                       const VectorDouble& origin = VectorDouble(),
+                       const VectorDouble& margin = VectorDouble());
+  void resetSamplingDb(const Db* dbin,
+                       double proportion,
+                       const VectorString& names = VectorString(),
+                       int seed = 23241,
+                       bool verbose = false);
 
   String getName(const ELoc& locatorType, int locatorIndex=0) const;
   String getNameByColumn(int icol) const { return _colNames[icol]; }
@@ -462,7 +463,9 @@ public:
   void gridCopyParams(int mode, const Grid& gridaux);
   bool isSameGrid(const Grid& grid) const;
   bool isSameGridMesh(const Db& dbaux) const;
+  bool isSameGridMeshOldStyle(const Db* dbaux) const;
   bool isSameGridRotation(const Db& dbaux) const;
+  bool isSameGridRotationOldStyle(const Db* dbaux) const;
   bool isGridRotated() const;
   int  getNDim() const; /// TODO : rename to getDimensionNumber etc...
   int  getNTotal() const { return _grid.getNTotal(); }
@@ -527,7 +530,7 @@ public:
                                const VectorInt& cols = VectorInt(),
                                bool flagSel = true,
                                int mode = 1) const;
-  void displayMoreByAttributes(unsigned char params,
+  void displayMore(unsigned char params,
                    const VectorString& names,
                    bool flagSel = true,
                    int mode = 1) const;
@@ -611,5 +614,5 @@ private:
   VectorInt _attcol;         //!< Attribute to Column
   VectorString _colNames;    //!< Names of the variables
   std::map<ELoc,PtrGeos> _p; //!< Locator characteristics
-  Grid _grid;               //!< Grid characteristics
+  Grid _grid;                //!< Grid characteristics
 };

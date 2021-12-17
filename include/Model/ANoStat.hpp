@@ -11,7 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Model/ConsItem.hpp"
+#include "Model/CovParamId.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
@@ -57,7 +57,7 @@ public:
   virtual void detachFromDb(Db* db, int icas) const;
 
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
-  int  addNoStatElemByItem(const ConsItem& item);
+  int  addNoStatElemByItem(const CovParamId& item);
   int  addNoStatElems(const VectorString& codes);
   void deleteNoStatElem(int ipar);
   void deleteAllNoStatElem();
@@ -69,8 +69,8 @@ public:
   int getIV1 (int ipar) const { return _items[ipar].getIV1(); }
   int getIV2 (int ipar) const { return _items[ipar].getIV2(); }
   int getNoStatElemNumber() const { return static_cast<int>(_items.size()); }
-  const std::vector<ConsItem>& getNoStats() const { return _items; }
-  const ConsItem getNoStat(int ipar) const { return _items[ipar]; }
+  const std::vector<CovParamId>& getNoStats() const { return _items; }
+  const CovParamId getNoStat(int ipar) const { return _items[ipar]; }
 
   int attachModel(const Model* model);
 
@@ -80,8 +80,8 @@ public:
   bool matchIV1(int ipar, int iv10) const { return _items[ipar].matchIV1(iv10); }
   bool matchIV2(int ipar, int iv20) const { return _items[ipar].matchIV2(iv20); }
 
-  const std::vector<ConsItem>& getAllItems() const { return _items; }
-  const ConsItem getItems(int ipar) const { return _items[ipar]; }
+  const std::vector<CovParamId>& getAllItems() const { return _items; }
+  const CovParamId getItems(int ipar) const { return _items[ipar]; }
 
   void updateModel(Model* model,
                    int icas1,
@@ -113,7 +113,7 @@ private:
   bool _checkConsistency() const;
 
 private:
-  std::vector<ConsItem> _items;
+  std::vector<CovParamId> _items;
 
 protected:
   // The following arguments are stored as pointer to ease communication

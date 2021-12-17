@@ -132,7 +132,3 @@ String CovParamId::toString(int /*level*/) const
   return sstr.str();
 }
 
-IClonable* CovParamId::clone() const
-{
-  return new CovParamId(*this);
-}

@@ -46,11 +46,6 @@ CovGradientNumerical::~CovGradientNumerical()
 {
 }
 
-IClonable* CovGradientNumerical::clone() const
-{
-  return new CovGradientNumerical(*this);
-}
-
 double CovGradientNumerical::_evalZZ(int ivar,
                                      int jvar,
                                      const SpacePoint& p1,

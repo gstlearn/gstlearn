@@ -67,11 +67,6 @@ MatrixSquareGeneral::~MatrixSquareGeneral()
   _deallocate();
 }
 
-IClonable* MatrixSquareGeneral::clone() const
-{
-  return new MatrixSquareGeneral(*this);
-}
-
 double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);

@@ -216,7 +216,7 @@ int ANoStat::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, i
 {
   int nelem = static_cast<int> (_items.size());
   _items.resize(nelem+1);
-  _items[nelem].init(EConsType::DEFAULT, igrf, icov, type, iv1, iv2, TEST);
+  _items[nelem].init(igrf, icov, type, iv1, iv2);
   if (! _checkConsistency())
   {
     deleteNoStatElem(nelem);
@@ -225,7 +225,7 @@ int ANoStat::addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, i
   return 0;
 }
 
-int ANoStat::addNoStatElemByItem(const ConsItem& item)
+int ANoStat::addNoStatElemByItem(const CovParamId& item)
 {
   return addNoStatElem(item.getIGrf(), item.getICov(), item.getType(),
                        item.getIV1(), item.getIV2());
@@ -439,7 +439,7 @@ void ANoStat::_updateFromModel(const Model* model)
 
   for (int ipar = 0; ipar < nelemFromModel; ipar++)
   {
-    ConsItem item = model->getConsItem(ipar);
+    CovParamId item = model->getCovParamId(ipar);
     (void) addNoStatElemByItem(item);
   }
 }

@@ -532,3 +532,4 @@ void Neigh::anisoRescale()
   for (int idim = 0; idim < _nDim; idim++)
     _anisoCoeffs[idim] /= _radius;
 }
+

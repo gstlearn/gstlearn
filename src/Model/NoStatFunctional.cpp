@@ -164,7 +164,3 @@ String NoStatFunctional::toString(int level) const
   return sstr.str();
 }
 
-IClonable* NoStatFunctional::clone() const
-{
-  return new NoStatFunctional(*this);
-}

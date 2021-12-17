@@ -102,7 +102,9 @@ Polygons::Polygons(const String& neutralFileName, bool verbose)
 }
 
 Polygons::Polygons(const Polygons& r)
-    : _polysets(r._polysets)
+    : AStringable(r),
+      ASerializable(r),
+      _polysets(r._polysets)
 {
 }
 

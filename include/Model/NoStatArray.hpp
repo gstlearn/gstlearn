@@ -28,7 +28,7 @@ public:
 
   virtual String toString(int level = 0) const override;
 
-  virtual IClonable* clone() const override;
+  virtual IClonable* clone() const override { return new NoStatArray(*this); };
 
   double getValue(int igrf, int icov, const EConsElem& type, int iv1, int iv2,
                   int icas, int rank) const override;
