@@ -2536,7 +2536,7 @@ void krige_dual_print(int nech, int neq, int nred, int *flag, double *dual)
  ** \remarks Otherwise nvar designates model->getNVar()
  **
  *****************************************************************************/
-static void st_estimate(Model *model,
+static void st_estimate(Model  *model,
                         double *rmean,
                         int status,
                         int flag_xvalid,
@@ -2567,7 +2567,7 @@ static void st_estimate(Model *model,
         for (i = 0; i < nred; i++)
           estim += RHS_C(i,ivar) * ZAM1(i);
 
-        if (FLAG_EST > 0)
+        if (flag_xvalid && FLAG_EST > 0)
         {
           valdat = DBIN->getVariable(IECH_OUT, ivar);
           estim = (FFFF(valdat)) ? TEST : estim - valdat;
@@ -2595,11 +2595,10 @@ static void st_estimate(Model *model,
 
         stdv = sqrt(stdv);
 
-        if (FLAG_STD > 0)
+        if (flag_xvalid && FLAG_STD > 0)
         {
           estim = DBOUT->getArray(IECH_OUT, IPTR_EST + ivar);
-          stdv = (FFFF(estim) || stdv <= 0.) ? TEST :
-                                               estim / stdv;
+          stdv = (FFFF(estim) || stdv <= 0.) ? TEST : estim / stdv;
         }
       }
       else
