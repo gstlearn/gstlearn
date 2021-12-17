@@ -54,21 +54,19 @@ Vario::Vario(const VarioParam* varioparam,
 }
 
 /**
- * Constructing a Variogram by extracting a subset of variables and/or directions
- * from an Input variogram
+ * Reduce this current variogram by keeping a subset of variables and/or directions
  *
- * @param vario_in The input variogram
  * @param varcols Vector of variable ranks (starting from 0)
  * @param dircols Vector of direction ranks (starting from 0)
  * @param asSymmetric Turn the result into as Symmetrical function (i.e. variogram)
  */
-void Vario::varioReduce(const Vario& vario_in,
-                        const VectorInt& varcols,
+void Vario::varioReduce(const VectorInt& varcols,
                         const VectorInt& dircols,
                         bool asSymmetric)
 {
   VectorInt selvars;
   VectorInt seldirs;
+  Vario vario_in(*this); // Copy this as input variogram
   int nvar_in = vario_in.getVariableNumber();
   int ndir_in = vario_in._varioparam.getDirectionNumber();
 

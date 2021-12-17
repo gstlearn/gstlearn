@@ -44,8 +44,7 @@ public:
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Vario(*this); };
 
-  void varioReduce(const Vario& Vario,
-                   const VectorInt& varcols,
+  void varioReduce(const VectorInt& varcols,
                    const VectorInt& dircols,
                    bool asSymmetric = false);
 

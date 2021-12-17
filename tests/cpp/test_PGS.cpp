@@ -102,8 +102,10 @@ int main(int /*argc*/, char */*argv*/[])
   // Determination of the variogram of the Underlying GRF
   Vario* vario = variogram_pgs(&db,&varioparam1,&ruleprop);
   vario->display(1);
-  Vario vario1 = Vario(*vario,{0},VectorInt(),true);
-  Vario vario2 = Vario(*vario,{1},VectorInt(),true);
+  Vario vario1 = Vario(*vario);
+  vario1.varioReduce({0},VectorInt(),true);
+  Vario vario2 = Vario(*vario);
+  vario2.varioReduce({1},VectorInt(),true);
   vario1.display(1);
   vario2.display(1);
 
