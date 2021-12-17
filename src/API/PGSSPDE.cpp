@@ -19,7 +19,7 @@ PGSSPDE::PGSSPDE(std::vector<Model*> models,
   _calcul = (dat == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
   for(auto &e : models)
   {
-    _spdeTab.push_back(SPDE(*e,field,dat,_calcul));
+    _spdeTab.push_back(new SPDE(*e,field,dat,_calcul));
   }
   _ruleProp = ruleprop;
 }
@@ -41,7 +41,7 @@ void PGSSPDE::simulateNonCond(int seed) const
   for(int i = 0; i < (int)_spdeTab.size();i++)
   {
     int curseed = i==0? seed:0;
-    _spdeTab[i].compute(1,curseed);
+    _spdeTab[i]->compute(1,curseed);
   }
 }
 
@@ -53,7 +53,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
 
   for(int i = 0; i < ngrf;i++)
   {
-   int iptr = _spdeTab[i].query(db,NamingConvention("simGauss"));
+   int iptr = _spdeTab[i]->query(db,NamingConvention("simGauss"));
    db->setNameByAttribute(iptr,names[i]);
   }
 
@@ -74,6 +74,9 @@ void PGSSPDE::gibbs(int /*niter*/) const
 
 PGSSPDE::~PGSSPDE()
 {
-  // TODO Auto-generated destructor stub
+  for(auto &e:_spdeTab)
+  {
+    delete e;
+  }
 }
 

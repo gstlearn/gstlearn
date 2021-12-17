@@ -23,7 +23,8 @@ public:
        const Db &field,
        const Db *dat = nullptr,
        const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
-  // TODO : copy constructor and assignment operator
+  SPDE(const SPDE& r) = delete;
+  SPDE& operator=(const SPDE& r) = delete;
   virtual ~SPDE();
 
   void init(Model &model,
@@ -71,5 +72,6 @@ private:
   mutable VectorVectorDouble _workingSimu;
   std::vector<ProjMatrix*> _projOnDbOut;
   std::vector<int>         _adressesICov;
+  double _nugget;
   // query sur aproj ou // TODO ??
 };

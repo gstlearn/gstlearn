@@ -20,14 +20,17 @@ public:
           const Db& field,
           RuleProp ruleprop,
           const Db* dat=nullptr);
+  PGSSPDE(const PGSSPDE& r) = delete;
+  PGSSPDE& operator=(const PGSSPDE& r) = delete;
+  virtual ~PGSSPDE();
   void simulate(int seed= 32145,int nitergibbs = 0) const;
   void simulateNonCond(int seed = 32145) const;
   void gibbs(int niter) const;
   void query(Db* db,bool keepGauss=false) const;
-  virtual ~PGSSPDE();
+
 private:
   Db*               _data;
-  std::vector<SPDE> _spdeTab;
+  std::vector<SPDE*> _spdeTab;
   RuleProp          _ruleProp;
   ESPDECalcMode     _calcul;
 };

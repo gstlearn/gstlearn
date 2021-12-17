@@ -12,6 +12,7 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include <iostream>
+#include <math.h>
 
 SPDE::SPDE()
 : _data(nullptr)
@@ -54,7 +55,7 @@ SPDE::SPDE(Model& model,
 
 SPDE::~SPDE()
 {
-  _purge();
+  //_purge();
 }
 
 void SPDE::_purge()
@@ -83,6 +84,10 @@ void SPDE::_purge()
   {
     delete e;
   }
+  for(auto &e : _projOnDbOut)
+  {
+    delete e;
+  }
 }
 
 void SPDE::init(Model& model,
@@ -96,7 +101,6 @@ void SPDE::init(Model& model,
   _data =  dat;
   VectorDouble varianceData;
   double totalSill = 0.;
-  double nugget = 0.;
   ShiftOpCs* shiftOp;
   PrecisionOpCs* precision;
   MeshETurbo* mesh;
@@ -108,7 +112,7 @@ void SPDE::init(Model& model,
 
     if (cova->getType() == ECov::NUGGET)
     {
-      nugget = cova->getSill(0,0);
+      _nugget = cova->getSill(0,0);
     }
     else if (cova->getType() == ECov::BESSEL_K)
     {
@@ -157,7 +161,7 @@ void SPDE::init(Model& model,
       for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
       {
         double *temp = &varianceData[iech];
-        *temp = MAX(*temp+nugget,0.01 * totalSill);
+        *temp = MAX(*temp+_nugget,0.01 * totalSill);
       }
     }
     else
@@ -165,7 +169,7 @@ void SPDE::init(Model& model,
       varianceData.resize(dat->getActiveSampleNumber());
       for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
       {
-        varianceData[iech] = MAX(nugget, 0.01 * totalSill);
+        varianceData[iech] = MAX(_nugget, 0.01 * totalSill);
       }
     }
   }
@@ -274,8 +278,11 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
     {
       ProjMatrix proj(db,_simuMeshing[i]);
       proj.mesh2point(_workingSimu[i],temp);
-      // TODO add nugget
       ut_vector_add_inplace(result,temp);
+    }
+    for(int iech = 0 ; iech< (int)result.size(); iech++)
+    {
+      result[iech]+= law_gaussian(0.,sqrt(_nugget));
     }
     suffix = "simu";
   }

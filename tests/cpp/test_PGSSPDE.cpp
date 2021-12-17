@@ -86,9 +86,9 @@ int main(int /*argc*/, char */*argv*/[])
   PGSSPDE sCond(models,workingDbc,ruleProp,&dat);
   PGSSPDE sNonCond(models,workingDbc,ruleProp);
 
-  PGSSPDE spgs = sNonCond;
-  spgs.simulate();
-  spgs.query(&workingDbc);
+  PGSSPDE* spgs = &sNonCond;
+  spgs->simulate();
+  spgs->query(&workingDbc);
   workingDbc.display();
   workingDbc.serialize("pgs.ascii");
 

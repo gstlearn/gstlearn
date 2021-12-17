@@ -721,6 +721,11 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
     double delta = extendMaxNoRot[idim] - extendMinNoRot[idim];
     dx[idim] = cova.getRange(idim) / ratio;
     nx[idim] = (int) ceil(delta / dx[idim]) + 2 * nbExt;
+    if( nx[idim] > 400 )
+    {
+      nx[idim] = 400;
+      dx[idim] = delta / (nx[idim] - 2 * nbExt);
+    }
     extendMinNoRot[idim] -= nbExt * dx[idim];
     extendMaxNoRot[idim] += nbExt * dx[idim];
   }
