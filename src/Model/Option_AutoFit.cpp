@@ -14,7 +14,8 @@
 #include "geoslib_f.h"
 
 Option_AutoFit::Option_AutoFit()
-    : _verbose(0),
+    : AStringable(),
+      _verbose(0),
       _wmode(2),
       _maxiter(1000),
       _flag_intrinsic(0),
@@ -29,7 +30,8 @@ Option_AutoFit::Option_AutoFit()
 }
 
 Option_AutoFit::Option_AutoFit(const Option_AutoFit &m)
-    : _verbose(m._verbose),
+    : AStringable(m),
+      _verbose(m._verbose),
       _wmode(m._wmode),
       _maxiter(m._maxiter),
       _flag_intrinsic(m._flag_intrinsic),
@@ -48,6 +50,7 @@ Option_AutoFit& Option_AutoFit::operator=(const Option_AutoFit &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _verbose = m._verbose;
     _wmode = m._wmode;
     _maxiter = m._maxiter;

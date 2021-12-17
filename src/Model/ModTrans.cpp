@@ -17,7 +17,8 @@
 #include "Anamorphosis/AnamHermite.hpp"
 
 ModTrans::ModTrans()
-  : _modTransMode(EModelProperty::NONE)
+  : AStringable(),
+    _modTransMode(EModelProperty::NONE)
   , _conv(nullptr)
   , _tape(nullptr)
   , _anam(nullptr)
@@ -30,7 +31,8 @@ ModTrans::ModTrans()
 }
 
 ModTrans::ModTrans(const ModTrans &m)
-    : _modTransMode(m._modTransMode),
+    : AStringable(m),
+      _modTransMode(m._modTransMode),
       _conv(m._conv),
       _tape(m._tape),
       _anam(m._anam),
@@ -46,6 +48,7 @@ ModTrans& ModTrans::operator=(const ModTrans &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _modTransMode = m._modTransMode;
     _conv = m._conv;
     _tape = m._tape;

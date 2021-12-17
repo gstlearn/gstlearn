@@ -19,7 +19,8 @@ Anam::Anam(const EAnam& type)
 }
 
 Anam::Anam(const Anam &m)
-    : _type(m._type)
+    : AStringable(m),
+      _type(m._type)
 {
 
 }
@@ -28,6 +29,7 @@ Anam& Anam::operator=(const Anam &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _type = m._type;
   }
   return *this;

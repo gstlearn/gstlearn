@@ -16,7 +16,8 @@
 #include "Basic/AException.hpp"
 
 ACovFunc::ACovFunc(const ECov& type, const CovContext& ctxt)
-: _type(type),
+: AStringable(),
+  _type(type),
   _ctxt(ctxt),
   _param(TEST)
 {
@@ -25,7 +26,8 @@ ACovFunc::ACovFunc(const ECov& type, const CovContext& ctxt)
 }
 
 ACovFunc::ACovFunc(const ACovFunc &r)
-: _type(r._type),
+: AStringable(r),
+  _type(r._type),
   _ctxt(r._ctxt),
   _param(r._param)
 {
@@ -35,6 +37,7 @@ ACovFunc& ACovFunc::operator=(const ACovFunc &r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _type = r._type;
     _ctxt = r._ctxt;
     _param = r._param;

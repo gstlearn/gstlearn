@@ -20,9 +20,32 @@
 #include <iterator>
 #include <iostream>
 
+APolynomial::APolynomial()
+    : AStringable()
+{
+}
+
+APolynomial::APolynomial(VectorDouble coeffs)
+  : AStringable()
+{
+  init(coeffs);
+}
+
+APolynomial::APolynomial(const APolynomial &m)
+    : AStringable(m),
+      _coeffs(m._coeffs)
+{
+}
+
+APolynomial::~APolynomial()
+{
+
+}
+
 APolynomial & APolynomial::operator=(const APolynomial& p)
 {
   if(this!=&p)
+    AStringable::operator=(p);
     _coeffs=p._coeffs;
 
   return *this;
@@ -33,11 +56,6 @@ VectorDouble APolynomial::evalOp(cs* Op, const VectorDouble& in) const
   VectorDouble result(in.size());
   evalOp(Op,in,result);
   return result;
-}
-
-APolynomial::APolynomial(VectorDouble coeffs)
-{
-  init(coeffs);
 }
 
 String APolynomial::toString(int /*level*/) const

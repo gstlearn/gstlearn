@@ -70,7 +70,8 @@ AGibbs::AGibbs(Db* db,
 }
 
 AGibbs::AGibbs(const AGibbs &r)
-    : _npgs(r._npgs),
+    : AStringable(r),
+      _npgs(r._npgs),
       _nvar(r._nvar),
       _nburn(r._nburn),
       _niter(r._niter),
@@ -87,6 +88,7 @@ AGibbs& AGibbs::operator=(const AGibbs &r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _npgs = r._npgs;
     _nvar = r._nvar;
     _nburn = r._nburn;

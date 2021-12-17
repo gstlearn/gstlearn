@@ -47,7 +47,8 @@ VarioParam::VarioParam(const VarioParam& VarioParam, const VectorInt& dircols)
 }
 
 VarioParam::VarioParam(const VarioParam& r)
-    : _scale(r._scale),
+    : AStringable(r),
+      _scale(r._scale),
       _dates(r._dates),
       _dirparams(r._dirparams)
 {
@@ -57,6 +58,7 @@ VarioParam& VarioParam::operator=(const VarioParam& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _scale = r._scale;
     _dates = r._dates;
     _dirparams  = r._dirparams;

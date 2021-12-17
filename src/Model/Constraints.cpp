@@ -15,12 +15,14 @@
 #include <math.h>
 
 Constraints::Constraints()
-    : _consItems()
+    : AStringable(),
+      _consItems()
 {
 }
 
 Constraints::Constraints(const Constraints &m)
-    : _consItems()
+    : AStringable(m),
+      _consItems()
 {
   for (auto e: m._consItems)
   {
@@ -32,6 +34,7 @@ Constraints& Constraints::operator=(const Constraints &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     for (auto e: m._consItems)
     {
       _consItems.push_back(dynamic_cast<ConsItem*>(e->clone()));

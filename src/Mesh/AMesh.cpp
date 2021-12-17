@@ -14,7 +14,8 @@
 #include "Db/Db.hpp"
 
 AMesh::AMesh()
-  : _variety(0)
+  : AStringable(),
+    _variety(0)
   , _nDim(0)
   , _extendMin()
   , _extendMax()
@@ -22,13 +23,18 @@ AMesh::AMesh()
 }
 
 AMesh::AMesh(const AMesh &m)
+  : AStringable(m)
 {
   _recopy(m);
 }
 
 AMesh& AMesh::operator= (const AMesh &m)
 {
-  _recopy(m);
+  if (this != &m)
+  {
+    AStringable::operator=(m);
+    _recopy(m);
+  }
   return *this;
 }
 

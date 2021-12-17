@@ -22,12 +22,13 @@
 class GSTLEARN_EXPORT APolynomial: public AStringable, public IClonable
 {
 public:
-  APolynomial() {};
+  APolynomial();
   APolynomial(VectorDouble coeffs);
-  APolynomial(const APolynomial& p): _coeffs(p._coeffs){}
+  APolynomial(const APolynomial& p);
   APolynomial & operator=(const APolynomial& p);
+  virtual ~APolynomial();
+
   void init(VectorDouble coeffs);
-  virtual ~APolynomial() {};
   String toString(int level = 0) const override;
   virtual double eval(double x) const = 0;
 

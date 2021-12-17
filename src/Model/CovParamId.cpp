@@ -18,7 +18,8 @@ CovParamId::CovParamId(int igrf,
                        const EConsElem& elem,
                        int iv1,
                        int iv2)
-    : _igrf(igrf),
+    : AStringable(),
+      _igrf(igrf),
       _icov(icov),
       _elemType(elem),
       _iv1(iv1),
@@ -27,7 +28,8 @@ CovParamId::CovParamId(int igrf,
 }
 
 CovParamId::CovParamId(const CovParamId &m)
-    : _igrf(m._igrf),
+    : AStringable(m),
+      _igrf(m._igrf),
       _icov(m._icov),
       _elemType(m._elemType),
       _iv1(m._iv1),
@@ -40,6 +42,7 @@ CovParamId& CovParamId::operator=(const CovParamId &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _igrf = m._igrf;
     _icov = m._icov;
     _elemType = m._elemType;

@@ -16,7 +16,8 @@
 #include "geoslib_f_private.h"
 
 RuleProp::RuleProp()
-    : _flagStat(true),
+    : AStringable(),
+      _flagStat(true),
       _propcst(),
       _dbprop(nullptr),
       _rules(),
@@ -31,7 +32,8 @@ RuleProp::RuleProp()
  * @param propcst Vector of constant proportions
  */
 RuleProp::RuleProp(const Db* dbprop, const VectorDouble& propcst)
-    : _flagStat(true),
+    : AStringable(),
+      _flagStat(true),
       _propcst(propcst),
       _dbprop(dbprop),
       _rules(),
@@ -47,7 +49,8 @@ RuleProp::RuleProp(const Db* dbprop, const VectorDouble& propcst)
 }
 
 RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)
-    : _flagStat(true),
+    : AStringable(),
+      _flagStat(true),
       _propcst(propcst),
       _dbprop(nullptr),
       _rules(),
@@ -59,7 +62,8 @@ RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)
 }
 
 RuleProp::RuleProp(const Rule* rule, const Db* dbprop)
-    : _flagStat(true),
+    : AStringable(),
+      _flagStat(true),
       _propcst(),
       _dbprop(dbprop),
       _rules(),
@@ -73,7 +77,8 @@ RuleProp::RuleProp(const Rule* rule, const Db* dbprop)
 RuleProp::RuleProp(const Rule* rule1,
                    const Rule* rule2,
                    const VectorDouble& propcst)
-    : _flagStat(true),
+    : AStringable(),
+      _flagStat(true),
       _propcst(propcst),
       _dbprop(nullptr),
       _rules(),
@@ -86,7 +91,8 @@ RuleProp::RuleProp(const Rule* rule1,
 }
 
 RuleProp::RuleProp(const Rule* rule1, const Rule* rule2, const Db* dbprop)
-    : _flagStat(true),
+    : AStringable(),
+      _flagStat(true),
       _propcst(),
       _dbprop(dbprop),
       _rules(),
@@ -99,7 +105,8 @@ RuleProp::RuleProp(const Rule* rule1, const Rule* rule2, const Db* dbprop)
 }
 
 RuleProp::RuleProp(const RuleProp& m)
-  : _flagStat(m._flagStat),
+  : AStringable(m),
+    _flagStat(m._flagStat),
     _propcst(m._propcst),
     _dbprop(m._dbprop),
     _rules(m._rules),
@@ -111,6 +118,7 @@ RuleProp& RuleProp::operator=(const RuleProp& m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _flagStat = m._flagStat;
     _propcst = m._propcst;
     _dbprop = m._dbprop;

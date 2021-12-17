@@ -18,7 +18,8 @@
 #include <math.h>
 
 ANoStat::ANoStat()
-    : _items(),
+    : AStringable(),
+      _items(),
       _amesh(nullptr),
       _dbin(nullptr),
       _dbout(nullptr)
@@ -26,7 +27,8 @@ ANoStat::ANoStat()
 }
 
 ANoStat::ANoStat(const VectorString& codes)
-  : _items(),
+  : AStringable(),
+    _items(),
     _amesh(nullptr),
     _dbin(nullptr),
     _dbout(nullptr)
@@ -35,7 +37,8 @@ ANoStat::ANoStat(const VectorString& codes)
 }
 
 ANoStat::ANoStat(const ANoStat &m)
-  : _items(m._items),
+  : AStringable(m),
+    _items(m._items),
     _amesh(m._amesh),
     _dbin(m._dbin),
     _dbout(m._dbout)
@@ -44,11 +47,14 @@ ANoStat::ANoStat(const ANoStat &m)
 
 ANoStat& ANoStat::operator= (const ANoStat &m)
 {
-  _items = m._items;
-  _amesh = m._amesh;
-  _dbin  = m._dbin;
-  _dbout = m._dbout;
-
+  if (this != &m)
+  {
+    AStringable::operator=(m);
+    _items = m._items;
+    _amesh = m._amesh;
+    _dbin  = m._dbin;
+    _dbout = m._dbout;
+  }
   return *this;
 }
 

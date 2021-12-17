@@ -12,7 +12,8 @@
 #include "Basic/AStringable.hpp"
 
 Option_VarioFit::Option_VarioFit()
-    : _flag_noreduce(0),
+    : AStringable(),
+      _flag_noreduce(0),
       _flag_check_bounds(0),
       _flag_goulard_used(1),
       _auth_aniso(1),
@@ -26,7 +27,8 @@ Option_VarioFit::Option_VarioFit()
 }
 
 Option_VarioFit::Option_VarioFit(const Option_VarioFit &m)
-    : _flag_noreduce(m._flag_noreduce),
+    : AStringable(m),
+      _flag_noreduce(m._flag_noreduce),
       _flag_check_bounds(m._flag_check_bounds),
       _flag_goulard_used(m._flag_goulard_used),
       _auth_aniso(m._auth_aniso),
@@ -44,6 +46,7 @@ Option_VarioFit& Option_VarioFit::operator=(const Option_VarioFit &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _flag_noreduce = m._flag_noreduce;
     _flag_check_bounds = m._flag_check_bounds;
     _flag_goulard_used = m._flag_goulard_used;

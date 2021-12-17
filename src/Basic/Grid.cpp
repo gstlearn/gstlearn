@@ -22,7 +22,8 @@ Grid::Grid(int ndim,
              const VectorInt& nx,
              const VectorDouble& x0,
              const VectorDouble& dx)
-  : _nDim(ndim)
+  : AStringable(),
+    _nDim(ndim)
   , _nx(nx)
   , _x0(x0)
   , _dx(dx)
@@ -36,12 +37,14 @@ Grid::Grid(int ndim,
 }
 
 Grid::Grid(const Grid &r)
+  : AStringable(r)
 {
   _recopy(r);
 }
 
 Grid& Grid::operator= (const Grid &r)
 {
+
   _recopy(r);
   return *this;
 }

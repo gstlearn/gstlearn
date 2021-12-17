@@ -15,7 +15,8 @@
 #include <math.h>
 
 Convolution::Convolution()
-  : _type(0)
+  : AStringable()
+  , _type(0)
   , _dir(0)
   , _discNumber(0)
   , _count(0)
@@ -29,7 +30,8 @@ Convolution::Convolution()
 }
 
 Convolution::Convolution(const Convolution &m)
-    : _type(m._type),
+    : AStringable(m),
+      _type(m._type),
       _dir(m._dir),
       _discNumber(m._discNumber),
       _count(m._count),
@@ -46,6 +48,7 @@ Convolution& Convolution::operator=(const Convolution &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _type = m._type;
     _dir = m._dir,
     _discNumber = m._discNumber,

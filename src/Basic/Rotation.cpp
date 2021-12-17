@@ -18,7 +18,8 @@
 #include "geoslib_old_f.h"
 
 Rotation::Rotation(unsigned int ndim)
-  : _nDim(ndim)
+  : AStringable(),
+    _nDim(ndim)
   , _flagRot(false)
   , _angles()
   , _rotMat()
@@ -28,6 +29,7 @@ Rotation::Rotation(unsigned int ndim)
 }
 
 Rotation::Rotation(const Rotation& r)
+  : AStringable(r)
 {
   _recopy(r);
 }
@@ -36,6 +38,7 @@ Rotation& Rotation::operator= (const Rotation& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _recopy(r);
   }
   return *this;

@@ -6,14 +6,16 @@
 #include <iostream>
 
 ASpace::ASpace(unsigned int ndim)
-: _nDim(ndim),
-  _origin(VectorDouble(ndim, 0.))
+    : AStringable(),
+      _nDim(ndim),
+      _origin(VectorDouble(ndim, 0.))
 {
 }
 
 ASpace::ASpace(const ASpace& r)
-: _nDim(r._nDim),
-  _origin(r._origin)
+    : AStringable(r),
+      _nDim(r._nDim),
+      _origin(r._origin)
 {
 }
 
@@ -21,6 +23,7 @@ ASpace& ASpace::operator=(const ASpace& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _nDim = r._nDim;
     _origin = r._origin;
   }

@@ -19,7 +19,7 @@
 #include "csparse_f.h"
 
 ProjMatrix::ProjMatrix() 
-  : IProjMatrix()
+  : AStringable()
   , _nPoint(0)
   , _nApices(0)
   , _Aproj(nullptr)
@@ -27,8 +27,7 @@ ProjMatrix::ProjMatrix()
 }
 
 ProjMatrix::ProjMatrix(const Db* db, AMesh *a_mesh, int verbose)
-
-  : IProjMatrix()
+  : AStringable()
   , _nPoint(0)
   , _nApices(0)
   , _Aproj(nullptr)
@@ -41,7 +40,7 @@ ProjMatrix::ProjMatrix(const Db* db, AMesh *a_mesh, int verbose)
 }
 
 ProjMatrix::ProjMatrix(int npoint, int napices, const cs *aproj)
-  : IProjMatrix()
+  : AStringable()
   , _nPoint(0)
   , _nApices(0)
   , _Aproj(nullptr)
@@ -54,7 +53,7 @@ ProjMatrix::ProjMatrix(int npoint, int napices, const cs *aproj)
 }
 
 ProjMatrix::ProjMatrix(const ProjMatrix &m)
-    : IProjMatrix(m),
+    : AStringable(m),
       _nPoint(m._nPoint),
       _nApices(m._nApices),
       _Aproj(nullptr)
@@ -67,7 +66,7 @@ ProjMatrix& ProjMatrix::operator= (const ProjMatrix &m)
 {
   if (this != &m)
    {
-     IProjMatrix::operator =(m);
+     AStringable::operator =(m);
      _nPoint = m._nPoint;
      _nApices = m._nApices;
      _Aproj = cs_duplicate(m._Aproj);

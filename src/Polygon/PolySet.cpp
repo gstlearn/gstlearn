@@ -14,7 +14,8 @@
 #include "geoslib_f.h"
 
 PolySet::PolySet()
-  : _x(0)
+  : AStringable(),
+    _x(0)
   , _y(0)
   , _zmin(TEST)
   , _zmax(TEST)
@@ -25,7 +26,8 @@ PolySet::PolySet(const VectorDouble& x,
                  const VectorDouble& y,
                  double zmin,
                  double zmax)
-  : _x(0)
+  : AStringable(),
+    _x(0)
   , _y(0)
   , _zmin(TEST)
   , _zmax(TEST)
@@ -34,7 +36,8 @@ PolySet::PolySet(const VectorDouble& x,
 }
 
 PolySet::PolySet(const PolySet& r)
-    : _x(r._x),
+    : AStringable(r),
+      _x(r._x),
       _y(r._y),
       _zmin(r._zmin),
       _zmax(r._zmax)
@@ -45,6 +48,7 @@ PolySet& PolySet::operator=(const PolySet& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _x = r._x;
     _y = r._y;
     _zmin = r._zmin;

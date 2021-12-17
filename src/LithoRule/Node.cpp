@@ -34,7 +34,8 @@
 static const VectorString symbol = {"F","S","T"};
 
 Node::Node(const String& nodnam, int orient, int facies)
-    : _nodnam(nodnam),
+    : AStringable(),
+      _nodnam(nodnam),
       _r1(nullptr),
       _r2(nullptr),
       _orient(orient),
@@ -57,7 +58,8 @@ Node::Node(const String& nodnam, int orient, int facies)
 
 Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_facs,
            int *ipos, int *n_fac, int *n_y1, int *n_y2)
-    : _nodnam(nodnam),
+    : AStringable(),
+      _nodnam(nodnam),
       _r1(nullptr),
       _r2(nullptr),
       _orient(0),
@@ -125,7 +127,8 @@ Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_fac
 }
 
 Node::Node(bool /*flagShadow*/)
-    : _nodnam("S1"),
+    : AStringable(),
+      _nodnam("S1"),
       _r1(nullptr),
       _r2(nullptr),
       _orient(THRESH_Y1),
@@ -150,7 +153,8 @@ Node::Node(bool /*flagShadow*/)
 }
 
 Node::Node(const Node& m)
-    : _nodnam(m._nodnam),
+    : AStringable(m),
+      _nodnam(m._nodnam),
       _r1(nullptr),
       _r2(nullptr),
       _orient(m._orient),
@@ -178,6 +182,7 @@ Node& Node::operator=(const Node& m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _nodnam = m._nodnam;
     if (m._r1 != nullptr)
       _r1 = new Node(*m._r1);

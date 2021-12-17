@@ -17,7 +17,8 @@
 #include "Basic/Vector.hpp"
 
 Tensor::Tensor(unsigned int ndim)
-:  _nDim(ndim),
+:  AStringable(),
+   _nDim(ndim),
    _tensorDirect(),
    _tensorInverse(),
    _radius(),
@@ -28,7 +29,8 @@ Tensor::Tensor(unsigned int ndim)
 }
 
 Tensor::Tensor(const Tensor& r)
-:  _nDim(r._nDim),
+:  AStringable(r),
+   _nDim(r._nDim),
    _tensorDirect(r._tensorDirect),
    _tensorInverse(r._tensorInverse),
    _radius(r._radius),
@@ -41,6 +43,7 @@ Tensor& Tensor::operator=(const Tensor &r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _nDim = r._nDim;
     _tensorDirect = r._tensorDirect;
     _tensorInverse = r._tensorInverse;

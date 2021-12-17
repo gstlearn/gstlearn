@@ -14,7 +14,8 @@
 #include "geoslib_f.h"
 
 ElemNostat::ElemNostat()
-    : _locType(EConsElem::UNKNOWN),
+    : AStringable(),
+      _locType(EConsElem::UNKNOWN),
       _rankGRF(0),
       _rankStr(0),
       _rankV1(0),
@@ -26,7 +27,8 @@ ElemNostat::ElemNostat()
 }
 
 ElemNostat::ElemNostat(const ElemNostat &m)
-    : _locType(m._locType),
+    : AStringable(m),
+      _locType(m._locType),
       _rankGRF(m._rankGRF),
       _rankStr(m._rankStr),
       _rankV1(m._rankV1),
@@ -41,6 +43,7 @@ ElemNostat& ElemNostat::operator=(const ElemNostat &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _locType = m._locType;
     _rankGRF = m._rankGRF;
     _rankStr = m._rankStr;

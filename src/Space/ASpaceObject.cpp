@@ -11,7 +11,8 @@
 ASpace* ASpaceObject::_defaultSpace = nullptr;
 
 ASpaceObject::ASpaceObject(const ASpace* space)
-: _space(nullptr)
+  : AStringable(),
+    _space(nullptr)
 {
   if (nullptr == space)
     // If the object is created without space, clone the global default space
@@ -22,13 +23,15 @@ ASpaceObject::ASpaceObject(const ASpace* space)
 }
 
 ASpaceObject::ASpaceObject(const ASpace& space)
-: _space(nullptr)
+  : AStringable(),
+    _space(nullptr)
 {
   _space = dynamic_cast<const ASpace*>(space.clone());
 }
 
 ASpaceObject::ASpaceObject(const ASpaceObject& r)
-: _space(nullptr)
+  : AStringable(r),
+    _space(nullptr)
 {
   // Always duplicate!
   _space = dynamic_cast<const ASpace*>(r._space->clone());
@@ -38,6 +41,7 @@ ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     // Delete the previous space
     if (nullptr != _space)
       delete _space;

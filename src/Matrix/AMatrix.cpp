@@ -19,7 +19,8 @@
 #include <iomanip>
 
 AMatrix::AMatrix(int nrow, int ncol, bool sparse)
-    : _nRows(nrow),
+    : AStringable(),
+      _nRows(nrow),
       _nCols(ncol),
       _sparse(sparse),
       _csMatrix(nullptr)
@@ -29,7 +30,8 @@ AMatrix::AMatrix(int nrow, int ncol, bool sparse)
 }
 
 AMatrix::AMatrix(const cs* A)
-    : _nRows(0),
+    : AStringable(),
+      _nRows(0),
       _nCols(0),
       _sparse(true),
       _csMatrix(nullptr)
@@ -38,7 +40,8 @@ AMatrix::AMatrix(const cs* A)
 }
 
 AMatrix::AMatrix(const AMatrix &m)
-    : _nRows(m._nRows),
+    : AStringable(m),
+      _nRows(m._nRows),
       _nCols(m._nCols),
       _sparse(m._sparse),
       _csMatrix(nullptr)
@@ -51,6 +54,7 @@ AMatrix::AMatrix(const AMatrix &m)
 
 AMatrix& AMatrix::operator=(const AMatrix &m)
 {
+  AStringable::operator=(m);
   _nRows = m._nRows;
   _nCols = m._nCols;
   _sparse = m._sparse;

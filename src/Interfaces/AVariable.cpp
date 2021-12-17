@@ -5,17 +5,20 @@
 #include "Interfaces/VariableString.hpp"
 
 AVariable::AVariable()
-    : _name(UNDEF_STRING)
+    : AStringable(),
+      _name(UNDEF_STRING)
 {
 }
 
 AVariable::AVariable(const String &name)
-    : _name(name)
+    : AStringable(),
+      _name(name)
 {
 }
 
 AVariable::AVariable(const AVariable &ref)
-    : _name(ref._name)
+    : AStringable(ref),
+      _name(ref._name)
 {
 }
 
@@ -27,6 +30,7 @@ AVariable& AVariable::operator=(const AVariable &ref)
 {
   if (this != &ref)
   {
+    AStringable::operator=(ref);
     _name = ref._name;
   }
   return (*this);

@@ -22,7 +22,8 @@ CovCalcMode::CovCalcMode(const ECalcMember& member,
                          bool unitary,
                          int envelop,
                          int orderVario)
-: _member(member),
+: AStringable(),
+  _member(member),
   _asVario(asVario),
   _normalized(normalized),
   _filterNugget(filterNugget),
@@ -34,7 +35,8 @@ CovCalcMode::CovCalcMode(const ECalcMember& member,
 }
 
 CovCalcMode::CovCalcMode(const CovCalcMode &r)
-: _member(r._member),
+: AStringable(r),
+  _member(r._member),
   _asVario(r._asVario),
   _normalized(r._normalized),
   _filterNugget(r._filterNugget),
@@ -50,6 +52,7 @@ CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _member = r._member;
     _asVario = r._asVario;
     _normalized = r._normalized;

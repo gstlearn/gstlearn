@@ -16,12 +16,14 @@
 #include "Basic/NamingConvention.hpp"
 
 Limits::Limits()
-    : _bounds()
+    : AStringable(),
+      _bounds()
 {
 }
 
 Limits::Limits(const Limits &m)
-    : _bounds(m._bounds)
+    : AStringable(m),
+      _bounds(m._bounds)
 {
 
 }
@@ -86,6 +88,7 @@ Limits& Limits::operator=(const Limits &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _bounds = m._bounds;
   }
   return *this;

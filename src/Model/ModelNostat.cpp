@@ -16,7 +16,8 @@
 #include "geoslib_old_f.h"
 
 ModelNostat::ModelNostat()
-    : _nDim(0),
+    : AStringable(),
+      _nDim(0),
       _elems(),
       _sill1(0),
       _sill2(0),
@@ -33,7 +34,8 @@ ModelNostat::ModelNostat()
 }
 
 ModelNostat::ModelNostat(const ModelNostat &m)
-    : _nDim(m._nDim),
+    : AStringable(m),
+      _nDim(m._nDim),
       _elems(),
       _sill1(m._sill1),
       _sill2(m._sill2),
@@ -54,6 +56,7 @@ ModelNostat& ModelNostat::operator=(const ModelNostat &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _nDim = m._nDim;
     _sill1 = m._sill1;
     _sill2 = m._sill2;

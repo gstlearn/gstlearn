@@ -13,7 +13,8 @@
 #include "geoslib_f.h"
 
 Interval::Interval(double vmin, double vmax, bool mininc, bool maxinc)
-    : _vmin(vmin),
+    : AStringable(),
+      _vmin(vmin),
       _vmax(vmax),
       _minIncluded(mininc),
       _maxIncluded(maxinc)
@@ -23,7 +24,8 @@ Interval::Interval(double vmin, double vmax, bool mininc, bool maxinc)
 }
 
 Interval::Interval(const Interval &m)
-    : _vmin(m._vmin),
+    : AStringable(m),
+      _vmin(m._vmin),
       _vmax(m._vmax),
       _minIncluded(m._minIncluded),
       _maxIncluded(m._maxIncluded)
@@ -35,6 +37,7 @@ Interval& Interval::operator=(const Interval &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _vmin = m._vmin;
     _vmax = m._vmax;
     _minIncluded = m._minIncluded;

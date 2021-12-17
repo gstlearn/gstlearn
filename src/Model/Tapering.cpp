@@ -17,14 +17,16 @@
 #include <math.h>
 
 Tapering::Tapering()
-  : _type(0)
+  : AStringable(),
+    _type(0)
   , _maxNDim(0)
   , _range(0)
 {
 }
 
 Tapering::Tapering(const Tapering &m)
-    : _type(m._type),
+    : AStringable(m),
+      _type(m._type),
       _maxNDim(m._maxNDim),
       _range(m._range)
 {
@@ -34,6 +36,7 @@ Tapering& Tapering::operator=(const Tapering &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _type = m._type;
     _maxNDim = m._maxNDim;
     _range = m._range;

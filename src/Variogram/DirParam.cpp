@@ -30,7 +30,8 @@ DirParam::DirParam(int ndim,
                    VectorDouble breaks,
                    VectorDouble codir,
                    VectorInt grincr)
-    : _ndim(ndim),
+    : AStringable(),
+      _ndim(ndim),
       _nPas(npas),
       _optionCode(opt_code),
       _idate(idate),
@@ -48,7 +49,8 @@ DirParam::DirParam(int ndim,
 }
 
 DirParam::DirParam(int ndim, int npas, const VectorInt& grincr)
-    : _ndim(ndim),
+    : AStringable(),
+      _ndim(ndim),
       _nPas(npas),
       _optionCode(0),
       _idate(0),
@@ -66,7 +68,8 @@ DirParam::DirParam(int ndim, int npas, const VectorInt& grincr)
 }
 
 DirParam::DirParam(const DirParam& r)
-    : _ndim(r._ndim),
+    : AStringable(r),
+      _ndim(r._ndim),
       _nPas(r._nPas),
       _optionCode(r._optionCode),
       _idate(r._idate),
@@ -87,6 +90,7 @@ DirParam& DirParam::operator=(const DirParam& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     _ndim = r._ndim;
     _nPas = r._nPas;
     _optionCode = r._optionCode;

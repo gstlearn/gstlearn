@@ -16,14 +16,16 @@
 ConsItem::ConsItem(const CovParamId& paramid,
                    const EConsType& type,
                    double value)
-    : _paramId(paramid),
+    : AStringable(),
+      _paramId(paramid),
       _type(type),
       _value(value)
 {
 }
 
 ConsItem::ConsItem(const ConsItem &m)
-    : _paramId(m._paramId),
+    : AStringable(m),
+      _paramId(m._paramId),
       _type(m._type),
       _value(m._value)
 {
@@ -34,6 +36,7 @@ ConsItem& ConsItem::operator=(const ConsItem &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _paramId = m._paramId;
     _type = m._type;
     _value = m._value;
