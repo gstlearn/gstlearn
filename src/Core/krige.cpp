@@ -1730,8 +1730,7 @@ static double st_varestimate(int ivar, int jvar, int nfeq, int nred)
   var = 0.;
   for (i = 0; i < nred; i++)
   {
-    signe = (i < cumflag) ? 1. :
-                            -1.;
+    signe = (i < cumflag) ? 1. : -1.;
     var += signe * RHS_C(i, jvar) * WGT(i, ivar);
   }
   return (var);
@@ -2562,8 +2561,7 @@ static void st_estimate(Model  *model,
       if (status == 0 && (nred > 0 || nfeq <= 0 || FLAG_BAYES))
       {
         if (FLAG_BAYES)
-          estim = model_drift_evaluate(0, model, DBOUT, IECH_OUT, ivar, rmean,
-                                       drftab);
+          estim = model_drift_evaluate(0, model, DBOUT, IECH_OUT, ivar, rmean, drftab);
         for (i = 0; i < nred; i++)
           estim += RHS_C(i,ivar) * ZAM1(i);
 
@@ -3497,13 +3495,13 @@ int kriging(Db *dbin,
   error = 0;
   namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, IPTR_VARZ, "varz", 1,
                               false);
-  if (ABS(neigh->getFlagXvalid()) == 1)
+  if (ABS(neigh->getFlagXvalid()) == 1 && flag_est > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stderr", 1,
                                 false);
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stdev", 1,
                                 false);
-  if (ABS(neigh->getFlagXvalid()) == 1)
+  if (ABS(neigh->getFlagXvalid()) == 1 && flag_std > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "esterr");
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "estim");
@@ -3577,6 +3575,11 @@ static int st_xvalid_unique(Db *dbin,
   {
     messerr("The algorithm for Cross-Validation in Unique Neighborhood");
     messerr("does not allow the Colocated CoKriging Option");
+    goto label_end;
+  }
+  if (FLAG_VARZ)
+  {
+    messerr("The variance of the estimator is not calculated in Unique Neighborhood");
     goto label_end;
   }
   if (nvar > 1)
@@ -3664,11 +3667,11 @@ static int st_xvalid_unique(Db *dbin,
         value -= LHS_C(iiech,jjech) * variance * dbin->getVariable(jech, 0);
       jjech++;
     }
-
     if (FLAG_EST != 0) dbin->setArray(iech, IPTR_EST, value);
 
     if (ABS(neigh->getFlagXvalid()) == 1) stdv = value / stdv;
     if (FLAG_STD != 0) dbin->setArray(iech, IPTR_STD, stdv);
+
     if (debug_query("results"))
       st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
     iiech++;
@@ -3677,11 +3680,13 @@ static int st_xvalid_unique(Db *dbin,
   /* Set the error return flag */
 
   error = 0;
-  if (ABS(neigh->getFlagXvalid()) == 1)
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbin, IPTR_VARZ, "varz", 1,
+                              false);
+  if (ABS(neigh->getFlagXvalid()) == 1 && flag_est > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_STD, "stderr", 1,false);
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_STD, "stdev", 1,false);
-  if (ABS(neigh->getFlagXvalid()) == 1)
+  if (ABS(neigh->getFlagXvalid()) == 1 && flag_std > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_EST, "esterr");
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_EST, "estim");
@@ -3744,8 +3749,9 @@ int xvalid(Db *db,
     ret_code = st_xvalid_unique(db, model, neigh, flag_est, flag_std, flag_varz,
                                 rank_colcok, namconv);
   else
-    ret_code = kriging(db, db, model, neigh, EKrigOpt::PONCTUAL, flag_est,
-                       flag_std, flag_varz, VectorInt(), rank_colcok, VectorDouble(),
+    ret_code = kriging(db, db, model, neigh, EKrigOpt::PONCTUAL,
+                       flag_est, flag_std, flag_varz,
+                       VectorInt(), rank_colcok, VectorDouble(),
                        namconv);
   neigh->setFlagXvalid(0);
   return ret_code;
