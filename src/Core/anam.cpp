@@ -2595,10 +2595,10 @@ int anam_vario_z2y(Anam *anam, double cvv, Vario *vario)
     /* Loop on the lags */
 
     for (i = 0; i < vario->getLagNumber(idir); i++)
-      vario->setGgByRank(
+      vario->setGgByIndex(
           idir,
           i,
-          1. - st_anam_get_r(anam, cvv - vario->getGgByRank(idir, i), 1.,
+          1. - st_anam_get_r(anam, cvv - vario->getGgByIndex(idir, i), 1.,
                              st_anam_hermitian_block_variance));
   }
 

@@ -3466,12 +3466,12 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
         for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
-          vario->setSwByRank(idir, i, 1.);
-          vario->setHhByRank(idir, i, ipas * vario->getDPas(idir));
+          vario->setSwByIndex(idir, i, 1.);
+          vario->setHhByIndex(idir, i, ipas * vario->getDPas(idir));
           for (idim = 0; idim < ndim; idim++)
-            d1[idim] = vario->getHhByRank(idir, i) * vario->getCodir(idir, idim);
+            d1[idim] = vario->getHhByIndex(idir, i) * vario->getCodir(idir, idim);
           model_calcul_cov(model, mode, 1, 1., d1, covtab);
-          vario->setGgByRank(idir, i, COVTAB(ivar, jvar));
+          vario->setGgByIndex(idir, i, COVTAB(ivar, jvar));
         }
     }
   }
@@ -4043,9 +4043,9 @@ int model_regularize(Model *model,
         for (jvar = 0; jvar <= ivar; jvar++)
         {
           iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
-          vario->setGgByRank(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
-          vario->setHhByRank(idir, iad, dist);
-          vario->setSwByRank(idir, iad, 1);
+          vario->setGgByIndex(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
+          vario->setHhByIndex(idir, iad, dist);
+          vario->setSwByIndex(idir, iad, 1);
         }
     }
   }

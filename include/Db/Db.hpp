@@ -183,18 +183,18 @@ public:
   int getColumnByAttribute(int iatt) const;
   VectorInt getColumnByAttribute(const VectorInt iatts) const;
   int getColumnByLocator(const ELoc& locatorType, int locatorIndex=0) const;
-  VectorDouble getColumnByRank(int icol, bool useSel = false) const;
-  void setColumnByRank(const VectorDouble& tab, int icol, bool useSel = false);
-  void setColumnByRankOldStyle(const double* tab, int icol, bool useSel = false);
+  VectorDouble getColumnByIndex(int icol, bool useSel = false) const;
+  void setColumnByIndex(const VectorDouble& tab, int icol, bool useSel = false);
+  void setColumnByIndexOldStyle(const double* tab, int icol, bool useSel = false);
   void duplicateColumnByAttribute(int iatt_in, int iatt_out);
 
   VectorInt getColumns(const VectorString& names) const;
   VectorInt getColumnsByAttribute(const ELoc& locatorType) const;
-  VectorDouble getColumnsByRanks(const VectorInt& icols = VectorInt(),
-                                 bool useSel = false) const;
-  VectorDouble getColumnsByRankInterval(int icol_beg,
-                                        int icol_end,
-                                        bool useSel = false) const;
+  VectorDouble getColumnsByIndices(const VectorInt& icols = VectorInt(),
+                                   bool useSel = false) const;
+  VectorDouble getColumnsByIndexInterval(int icol_beg,
+                                         int icol_end,
+                                         bool useSel = false) const;
 
   int getLocator(const String& name,
                  ELoc* ret_locatorType,
@@ -421,7 +421,7 @@ public:
   void deleteField(const VectorString& names);
   void deleteFieldByAttribute(int iatt_del);
   void deleteFieldByLocator(const ELoc& locatorType);
-  void deleteFieldByRank(int rank_del);
+  void deleteFieldByIndex(int icol_del);
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;

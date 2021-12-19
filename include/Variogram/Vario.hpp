@@ -67,10 +67,10 @@ public:
 
   int getDirSize(int idir) const;
 
-  double getGgByRank(int idir, int i) const;
-  double getHhByRank(int idir, int i) const;
-  double getSwByRank(int idir, int i) const;
-  double getUtilizeByRank(int idir, int i) const;
+  double getGgByIndex(int idir, int i) const;
+  double getHhByIndex(int idir, int i) const;
+  double getSwByIndex(int idir, int i) const;
+  double getUtilizeByIndex(int idir, int i) const;
 
   double getGg(int idir,
                int ivar,
@@ -82,33 +82,33 @@ public:
   double getSw(int idir, int ivar, int jvar, int ipas) const;
   double getUtilize(int idir, int ivar, int jvar, int ipas) const;
 
-  VectorDouble getGgVecBivar(int idir,
-                             int ivar,
-                             int jvar,
-                             bool asCov = false,
-                             bool flagNormalized = false) const;
-  VectorDouble getHhVecBivar(int idir, int ivar, int jvar) const;
-  VectorDouble getSwVecBivar(int idir, int ivar, int jvar) const;
-  VectorDouble getUtilizeVecBivar(int idir, int ivar, int jvar) const;
+  VectorDouble getGgVec(int idir,
+                        int ivar,
+                        int jvar,
+                        bool asCov = false,
+                        bool flagNormalized = false) const;
+  VectorDouble getHhVec(int idir, int ivar, int jvar) const;
+  VectorDouble getSwVec(int idir, int ivar, int jvar) const;
+  VectorDouble getUtilizeVec(int idir, int ivar, int jvar) const;
 
-  const VectorDouble& getGgVec(int idir) const;
-  const VectorDouble& getHhVec(int idir) const;
-  const VectorDouble& getSwVec(int idir) const;
-  const VectorDouble& getUtilizeVec(int idir) const;
+  const VectorDouble& getAllGg(int idir) const;
+  const VectorDouble& getAllHh(int idir) const;
+  const VectorDouble& getAllSw(int idir) const;
+  const VectorDouble& getAllUtilize(int idir) const;
 
-  void setGgByRank(int idir, int i, double gg);
-  void setHhByRank(int idir, int i, double hh);
-  void setSwByRank(int idir, int i, double sw);
-  void setUtilizeByRank(int idir, int i, double utilize);
+  void setGgByIndex(int idir, int i, double gg);
+  void setHhByIndex(int idir, int i, double hh);
+  void setSwByIndex(int idir, int i, double sw);
+  void setUtilizeByIndex(int idir, int i, double utilize);
 
   void setSw(int idir, int ivar, int jvar, int ipas, double sw);
   void setHh(int idir, int ivar, int jvar, int ipas, double hh);
   void setGg(int idir, int ivar, int jvar, int ipas, double gg);
   void setUtilize(int idir, int ivar, int jvar, int ipas, double utilize);
 
-  void updSwByRank(int idir, int i, double sw);
-  void updHhByRank(int idir, int i, double hh);
-  void updGgByRank(int idir, int i, double gg);
+  void updateSwByIndex(int idir, int i, double sw);
+  void updateHhByIndex(int idir, int i, double hh);
+  void updateGgByIndex(int idir, int i, double gg);
 
   int getCenter(int ivar = 0, int jvar = 0, int idir = 0) const;
 

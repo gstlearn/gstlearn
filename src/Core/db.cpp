@@ -71,7 +71,7 @@ void db_grid_print(Db *db)
 static int st_vector_get_col(Db *db, int icol, double *tab)
 {
   if (!db->isColumnIndexValid(icol)) return (1);
-  VectorDouble local = db->getColumnByRank(icol);
+  VectorDouble local = db->getColumnByIndex(icol);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
   return (0);
@@ -181,7 +181,7 @@ int db_vector_get_att_sel(Db *db, int iatt, double *tab)
 static int st_vector_put_col(Db *db, int icol, const double *tab)
 {
   if (!db->isColumnIndexValid(icol)) return (1);
-  db->setColumnByRankOldStyle(tab, icol);
+  db->setColumnByIndexOldStyle(tab, icol);
   return (0);
 }
 

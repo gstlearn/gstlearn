@@ -1217,7 +1217,7 @@ int Db::addFields(const VectorDouble& tab,
   return iatt;
 }
 
-void Db::setColumnByRankOldStyle(const double* tab, int icol, bool useSel)
+void Db::setColumnByIndexOldStyle(const double* tab, int icol, bool useSel)
 {
   if (!isColumnIndexValid(icol)) return;
   VectorDouble sel;
@@ -1242,9 +1242,9 @@ void Db::setColumnByRankOldStyle(const double* tab, int icol, bool useSel)
   }
 }
 
-void Db::setColumnByRank(const VectorDouble& tab, int icol, bool useSel)
+void Db::setColumnByIndex(const VectorDouble& tab, int icol, bool useSel)
 {
-  setColumnByRankOldStyle(tab.data(), icol, useSel);
+  setColumnByIndexOldStyle(tab.data(), icol, useSel);
 }
 
 void Db::setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel)
@@ -1451,9 +1451,9 @@ void Db::deleteSample(int e_del)
   _nech = nnew;
 }
 
-void Db::deleteFieldByRank(int rank_del)
+void Db::deleteFieldByIndex(int icol_del)
 {
-  deleteFieldByAttribute(rank_del - 1);
+  deleteFieldByAttribute(icol_del - 1);
 }
 
 /**
@@ -2824,7 +2824,7 @@ String Db::_summaryVariableStat(VectorInt cols, int mode, int maxNClass) const
                                 cols[jcol];
     if (!isColumnIndexValid(icol)) continue;
 
-    tab = getColumnByRank(icol, true);
+    tab = getColumnByIndex(icol, true);
     wgt = getWeight(true);
 
     ut_statistics(static_cast<int> (tab.size()), tab.data(), NULL,
@@ -2890,10 +2890,9 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
   VectorString colnames;
   for (int jcol = 0; jcol < ncol; jcol++)
   {
-    int icol = (cols.empty()) ? jcol :
-                                cols[jcol];
+    int icol = (cols.empty()) ? jcol : cols[jcol];
     if (!isColumnIndexValid(icol)) continue;
-    VectorDouble local = getColumnByRank(icol, flagSel);
+    VectorDouble local = getColumnByIndex(icol, flagSel);
     tab.insert(tab.end(), local.begin(), local.end());
     colnames.push_back(getNameByColumn(icol));
   }
@@ -2985,7 +2984,13 @@ VectorDouble Db::getSelection(void) const
   return tab;
 }
 
-VectorDouble Db::getColumnByRank(int icol, bool useSel) const
+/**
+ * Returns the contents of a Column of the Db refered by its column index
+ * @param icol Column index (from [0,n[)
+ * @param useSel Is the selection taken into account
+ * @return The vector of values
+ */
+VectorDouble Db::getColumnByIndex(int icol, bool useSel) const
 {
   int nech = getSampleNumber();
   VectorDouble tab, sel;
@@ -3010,7 +3015,7 @@ VectorDouble Db::getColumnByRank(int icol, bool useSel) const
 VectorDouble Db::getFieldByAttribute(int iatt, bool useSel) const
 {
   int icol = getColumnByAttribute(iatt);
-  return getColumnByRank(icol, useSel);
+  return getColumnByIndex(icol, useSel);
 }
 
 VectorDouble Db::getFieldByLocator(const ELoc& locatorType,
@@ -3019,7 +3024,7 @@ VectorDouble Db::getFieldByLocator(const ELoc& locatorType,
 {
   int icol = getColumnByLocator(locatorType, locatorIndex);
   if (icol < 0) return VectorDouble();
-  return getColumnByRank(icol, useSel);
+  return getColumnByIndex(icol, useSel);
 }
 
 VectorDouble Db::getField(const String& name, bool useSel) const
@@ -3028,7 +3033,7 @@ VectorDouble Db::getField(const String& name, bool useSel) const
   if (iatts.empty()) return VectorDouble();
   int icol = getColumnByAttribute(iatts[0]);
   if (icol < 0) return VectorDouble();
-  return getColumnByRank(icol, useSel);
+  return getColumnByIndex(icol, useSel);
 }
 
 VectorDouble Db::getFieldsByLocator(const ELoc& locatorType, bool useSel) const
@@ -3056,7 +3061,7 @@ VectorDouble Db::getFieldsByAttribute(const VectorInt& iatts, bool useSel) const
   return retval;
 }
 
-VectorDouble Db::getColumnsByRanks(const VectorInt& icols, bool useSel) const
+VectorDouble Db::getColumnsByIndices(const VectorInt& icols, bool useSel) const
 {
   int nech = getSampleNumber();
   int nvar = static_cast<int> (icols.size());
@@ -3067,19 +3072,19 @@ VectorDouble Db::getColumnsByRanks(const VectorInt& icols, bool useSel) const
   int ecr = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble local = getColumnByRank(icols[ivar], useSel);
+    VectorDouble local = getColumnByIndex(icols[ivar], useSel);
     for (int iech = 0; iech < nech; iech++)
       retval[ecr++] = local[iech];
   }
   return retval;
 }
 
-VectorDouble Db::getColumnsByRankInterval(int icol_beg, int icol_end, bool useSel) const
+VectorDouble Db::getColumnsByIndexInterval(int icol_beg, int icol_end, bool useSel) const
 {
   VectorInt icols;
   for (int icol = icol_beg; icol < icol_end; icol++)
     icols.push_back(icol);
-  return getColumnsByRanks(icols, useSel);
+  return getColumnsByIndices(icols, useSel);
 }
 
 VectorDouble Db::getFieldsByAttribute(int iatt_beg,
@@ -4045,7 +4050,7 @@ void Db::resetSamplingDb(const Db* dbin,
     int jcol = dbin->getColumn(namloc[icol]);
     for (int iech = 0; iech < _nech; iech++)
       values[iech] = dbin->getByColumn(ranks[iech],jcol);
-    setColumnByRank(values, icol);
+    setColumnByIndex(values, icol);
   }
 }
 
