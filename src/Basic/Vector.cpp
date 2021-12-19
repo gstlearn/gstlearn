@@ -334,6 +334,20 @@ VectorDouble ut_vector_simulate_uniform(int n, double mini, double maxi)
     vec[i] = law_uniform(mini, maxi);
   return vec;
 }
+
+VectorDouble ut_vector_simulate_bernoulli(int n, double proba, double vone, double velse)
+{
+  VectorDouble vec(n);
+  for (int i = 0; i < n; i++)
+  {
+    double rand = law_uniform(0., 1.);
+    if (rand < proba)
+      vec[i] = vone;
+    else
+      vec[i] = velse;
+  }
+  return vec;
+}
 /**
  * Performs: vec1 -= vec2
  * @param vec1 Input/Output vector

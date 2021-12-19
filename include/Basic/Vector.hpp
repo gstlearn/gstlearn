@@ -82,6 +82,10 @@ GSTLEARN_EXPORT VectorDouble ut_vector_simulate_uniform(int n,
 GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n,
                                                          double mean = 0.,
                                                          double sigma = 1.);
+GSTLEARN_EXPORT VectorDouble ut_vector_simulate_bernoulli(int n,
+                                                          double proba,
+                                                          double vone = 1.,
+                                                          double velse = 0.);
 
 GSTLEARN_EXPORT int ut_ivector_prod(const VectorInt nx);
 GSTLEARN_EXPORT VectorInt ut_ivector_sequence(int number, int ideb = 0);

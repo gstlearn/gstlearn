@@ -1326,9 +1326,36 @@ void Db::deleteField(const VectorString& names)
     deleteFieldByAttribute(iatts[i]);
 }
 
-int Db::addSelection(const VectorDouble& tab, const String& name)
+/**
+ * Add the contents of the 'tab' as a Selection
+ * @param tab Input array
+ * @param name Name given to the newly created Selection variable
+ * @return Rank of the newly created field within the Data Base
+ * @param combine How to combine with an already existing selection (see combineSelection() for details)
+ *
+ * @remark The Selection is set to True if tab is not zero and to False otherwise.
+ * @remark If the dimension of 'tab' does not match the number of samples in the Db
+ * @remark the action is cancelled (a message is issued)
+ */
+int Db::addSelection(const VectorDouble& tab, const String& name, const String& combine)
 {
-  int iatt = addFields(tab, name, ELoc::SEL);
+  int nech = getSampleNumber();
+  if (nech != (int) tab.size())
+  {
+    messerr("Dimension of 'tab' (%d) does not match the number of samples (%d)",
+            (int) tab.size(),nech);
+    messerr("Action is cancelled");
+    return -1;
+  }
+  VectorDouble sel(nech);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    sel[iech] = (tab[iech] != 0.) ? 1. : 0.;
+  }
+  // Convert the input array into a selection (0 or 1)
+
+  combineSelection(sel, combine);
+  int iatt = addFields(sel, name, ELoc::SEL);
   return iatt;
 }
 
@@ -1337,14 +1364,16 @@ int Db::addSelection(const VectorDouble& tab, const String& name)
  * @param testvar Name of the target variable
  * @param limits  Limits defining the Definition Domain to be tested (optional)
  * @param name    Name of the newly created selection
- * @return
+ * @param combine How to combine with an already existing selection (see combineSelection() for details)
+ * @return The rank of the newly created selection variable within the Db
  */
 int Db::addSelectionByLimit(const String& testvar,
                             const Limits& limits,
-                            const String& name)
+                            const String& name,
+                            const String& combine)
 {
-  int iatt = addFieldsByConstant(1,0.,name,ELoc::SEL);
-  if (iatt < 0) return 1;
+  int nech = getSampleNumber();
+  VectorDouble sel(nech);
 
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
@@ -1358,9 +1387,12 @@ int Db::addSelectionByLimit(const String& testvar,
     {
       if (! limits.isInside(value)) answer = 0;
     }
-    setArray(iech, iatt, answer);
+    sel[iech] = answer;
   }
-  return 0;
+  combineSelection(sel, combine);
+  int iatt = addFields(sel, name, ELoc::SEL);
+
+  return iatt;
 }
 
 int Db::addSamples(int nadd, double valinit)
@@ -4015,4 +4047,62 @@ void Db::resetSamplingDb(const Db* dbin,
       values[iech] = dbin->getByColumn(ranks[iech],jcol);
     setColumnByRank(values, icol);
   }
+}
+
+/**
+ * Combine 'sel' input argument with an already existing selection (if any)
+ * @param sel Input selection (only 0 and 1)
+ * @param combine Type of combination: "set", "not", "or", "and", "xor"
+ * @remark Argument 'sel' may be modified by this procedure
+ */
+void Db::combineSelection(VectorDouble& sel, const String& combine) const
+{
+  int nech = (int) sel.size();
+  if (nech <= 0) return;
+
+  if (combine == "set")
+    return;
+
+  else if (combine == "not")
+  {
+    for (int iech = 0; iech < nech; iech++)
+      sel[iech] = 1. - sel[iech];
+    return;
+  }
+
+  else
+  {
+    // Read an already existing selection
+    VectorDouble oldsel = getFieldByLocator(ELoc::SEL, 0);
+    if (oldsel.empty()) return;
+
+    if (combine == "or")
+    {
+      for (int iech = 0; iech < nech; iech++)
+        sel[iech] = sel[iech] || oldsel[iech];
+      return;
+    }
+    else if (combine == "and")
+    {
+      for (int iech = 0; iech < nech; iech++)
+        sel[iech] = sel[iech] && oldsel[iech];
+      return;
+    }
+    else if (combine == "xor")
+    {
+      for (int iech = 0; iech < nech; iech++)
+        sel[iech] = sel[iech] != oldsel[iech];
+      return;
+    }
+  }
+
+  // The 'combine' argument is not valid
+
+  messerr("Error in 'combine' argument. It should be one of the following ones:");
+  messerr("('sel' is the current selection and 'oldsel' the already existing one)");
+  messerr("'set': Do not combine with previous selection");
+  messerr("'not': sel = 1 - sel");
+  messerr("'or' : sel = sel || oldsel");
+  messerr("'and': sel = sel && oldsel");
+  messerr("'xor': sel = sel != oldsel");
 }

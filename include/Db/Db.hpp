@@ -165,10 +165,12 @@ public:
                           int locatorIndex = 0,
                           int nechInit = 0);
   int addSelection(const VectorDouble& tab,
-                   const String& name = "NewSel");
+                   const String& name = "NewSel",
+                   const String& combine = "set");
   int addSelectionByLimit(const String& testvar,
                           const Limits& limits = Limits(),
-                          const String& name = "NewSel");
+                          const String& name = "NewSel",
+                          const String& combine = "set");
   int addSamples(int nadd, double valinit);
   void deleteSample(int e_del);
   void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);
@@ -534,6 +536,9 @@ public:
                    const VectorString& names,
                    bool flagSel = true,
                    int mode = 1) const;
+
+  void combineSelection(VectorDouble& sel,
+                        const String& combine = "set") const;
 
 private:
   void  _initP();
