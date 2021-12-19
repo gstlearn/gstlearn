@@ -976,6 +976,8 @@ double Vario::getUtilize(int idir, int ivar, int jvar, int ipas) const
  * @param idir Direction
  * @param ivar First variable
  * @param jvar Second variable
+ * @param asCov True if result should be provided as Covariance, False for Variogram
+ * @param flagNorm If the result should be provided as a Normalized covariance / Variogram
  * @return The vector of 'gg' (not calculated lags are suppressed)
  */
 VectorDouble Vario::getGgVec(int idir,
