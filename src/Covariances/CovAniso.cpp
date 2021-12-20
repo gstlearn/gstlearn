@@ -139,7 +139,10 @@ void CovAniso::setRange(double range)
 {
   if (!hasRange()) return;
   if (range <= EPSILON20)
-  my_throw("The range should not be too small");
+  {
+    messerr("Range is too small (%lf). It has been replaced by 1.",range);
+    range = 1;
+  }
   double scadef = _cova->getScadef();
   setScale(range / scadef);
 }
@@ -388,6 +391,7 @@ VectorDouble CovAniso::getRanges() const
 {
   VectorDouble range = getScales();
   double scadef = _cova->getScadef();
+  if (!hasRange()) scadef = 0.;
   ut_vector_multiply_inplace(range, scadef);
   return range;
 }

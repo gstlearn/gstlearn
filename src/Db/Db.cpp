@@ -1308,9 +1308,9 @@ void Db::duplicateColumnByAttribute(int iatt_in, int iatt_out)
   }
 }
 
-void Db::deleteField(const String& names)
+void Db::deleteField(const String& name)
 {
-  VectorInt iatts = _ids(names, false);
+  VectorInt iatts = _ids(name, false);
   if (iatts.empty()) return;
 
   for (unsigned int i = 0; i < iatts.size(); i++)
@@ -1453,7 +1453,10 @@ void Db::deleteSample(int e_del)
 
 void Db::deleteFieldByIndex(int icol_del)
 {
-  deleteFieldByAttribute(icol_del - 1);
+  if (! isColumnIndexValid(icol_del)) return;
+  VectorInt iatt = _ids(_colNames[icol_del],true);
+  if (iatt.empty()) return;
+  deleteFieldByAttribute(iatt[0]);
 }
 
 /**

@@ -417,7 +417,7 @@ public:
                                     int iatt_end,
                                     bool useSel = false) const;
 
-  void deleteField(const String& names);
+  void deleteField(const String& name);
   void deleteField(const VectorString& names);
   void deleteFieldByAttribute(int iatt_del);
   void deleteFieldByLocator(const ELoc& locatorType);
