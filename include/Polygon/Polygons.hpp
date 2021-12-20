@@ -45,6 +45,9 @@ public:
   const PolySet& getPolySet(int ipol) const { return _polysets[ipol]; }
   const VectorDouble& getX(int ipol) const { return _polysets[ipol].getX(); }
   const VectorDouble& getY(int ipol) const { return _polysets[ipol].getY(); }
+  void setX(int ipol, const VectorDouble& x) { _polysets[ipol].setX(x); }
+  void setY(int ipol, const VectorDouble& y) { _polysets[ipol].setY(y); }
+
   void getExtension(double *xmin,
                     double *xmax,
                     double *ymin,
