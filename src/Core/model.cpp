@@ -3447,7 +3447,7 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
 
   model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
   for (i = 0; i < nvar * nvar; i++)
-    vario->setVarIJ(i, covtab[i]);
+    vario->setVarIndex(i, covtab[i]);
 
   /* Loop on the directions */
 
@@ -4011,7 +4011,7 @@ int model_regularize(Model *model,
 
   for (ivar = 0; ivar < nvar; ivar++)
     for (jvar = 0; jvar < nvar; jvar++)
-      vario->setVarBivar(ivar, jvar, C00TAB(ivar, jvar));
+      vario->setVar(ivar, jvar, C00TAB(ivar, jvar));
 
   /* Loop on the directions */
 

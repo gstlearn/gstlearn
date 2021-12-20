@@ -55,15 +55,15 @@ public:
   int    getVariableNumber() const { return _nVar; }
   const  VectorDouble& getMeans() const { return _means; }
   double getMean(int ivar) const;
-  const  VectorDouble& getVars()  const { return _vars; }
-  double getVarBivar(int ivar, int jvar) const;
-  double getVarIJ(int ijvar) const;
 
+  double getVar(int ivar, int jvar) const;
+  double getVarIndex(int ijvar) const;
+  const  VectorDouble& getVars()  const { return _vars; }
   void setMeans(const VectorDouble& means);
   void setMean(int ivar, double mean);
+  void setVar(int ivar, int jvar, double value);
   void setVars(const VectorDouble& vars);
-  void setVarIJ(int ijvar, double value);
-  void setVarBivar(int ivar, int jvar, double value);
+  void setVarIndex(int ijvar, double value);
 
   int getDirSize(int idir) const;
 

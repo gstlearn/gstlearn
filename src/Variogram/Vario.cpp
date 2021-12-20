@@ -140,7 +140,7 @@ void Vario::varioReduce(const VectorInt& varcols,
       _vars.resize(_nVar * _nVar);
       for (int ivar = 0; ivar < _nVar; ivar++)
         for (int jvar = 0; jvar < _nVar; jvar++)
-          setVarBivar(ivar, jvar, vario_in.getVarBivar(selvars[ivar], selvars[jvar]));
+          setVar(ivar, jvar, vario_in.getVar(selvars[ivar], selvars[jvar]));
     }
   }
   else
@@ -188,7 +188,7 @@ void Vario::varioReduce(const VectorInt& varcols,
                 + vario_in.getUtilizeByIndex(idir0, iadf2)) / 2.;
             if (flagMakeSym)
             {
-              double c0 = vario_in.getVarBivar(ivar,jvar);
+              double c0 = vario_in.getVar(ivar,jvar);
               _gg[idir][iadto] = c0 - _gg[idir][iadto];
             }
           }
@@ -511,7 +511,7 @@ double Vario::getGmax(int ivar,
         if (ggloc > gmax) gmax = ggloc;
         if (flagSill)
         {
-          double sill = ABS(getVarBivar(iv, jv));
+          double sill = ABS(getVar(iv, jv));
           if (gmax < sill) gmax = sill;
         }
       }
@@ -542,7 +542,7 @@ VectorDouble Vario::getGRange(int ivar,
         if (ggmax > vec[1]) vec[1] = ggmax;
         if (flagSill)
         {
-          double sill = getVarBivar(iv, jv);
+          double sill = getVar(iv, jv);
           if (sill < vec[0]) vec[0] = sill;
           if (sill > vec[1]) vec[1] = sill;
         }
@@ -756,14 +756,14 @@ double Vario::getMean(int ivar) const
   return _means[ivar];
 }
 
-double Vario::getVarBivar(int ivar, int jvar) const
+double Vario::getVar(int ivar, int jvar) const
 {
   int iad = getVarAddress(ivar, jvar);
   if (IFFFF(iad)) return TEST;
   return _vars[iad];
 }
 
-double Vario::getVarIJ(int ijvar) const
+double Vario::getVarIndex(int ijvar) const
 {
   if (! _isBivariableValid(ijvar)) return TEST;
   return _vars[ijvar];
@@ -806,14 +806,14 @@ void Vario::setVars(const VectorDouble& vars)
     _vars = vars;
 }
 
-void Vario::setVarIJ(int ijvar, double value)
+void Vario::setVarIndex(int ijvar, double value)
 {
   if (_vars.empty()) _initVars();
   if (! _isBivariableValid(ijvar)) return;
   _vars[ijvar] = value;
 }
 
-void Vario::setVarBivar(int ivar, int jvar, double value)
+void Vario::setVar(int ivar, int jvar, double value)
 {
   if (_vars.empty()) _initVars();
   int iad = getVarAddress(ivar, jvar);
@@ -937,7 +937,7 @@ double Vario::getGg(int idir,
   double val = _gg[idir][iad];
   if (flagCov || flagNorm)
   {
-    double c0 = getVarBivar(ivar, jvar);
+    double c0 = getVar(ivar, jvar);
     if (flagCov && ! getFlagAsym())  val = c0 - val;
     if (flagNorm) val /= c0;
   }
@@ -993,7 +993,7 @@ VectorDouble Vario::getGgVec(int idir,
 
   VectorDouble gg;
   double c0 = 0.;
-  if (asCov || flagNorm) c0 = getVarBivar(ivar, jvar);
+  if (asCov || flagNorm) c0 = getVar(ivar, jvar);
   int npas = dirparam.getLagNumber();
 
   for (int ipas = 0 ; ipas < npas; ipas++)
@@ -1339,7 +1339,7 @@ int Vario::serialize(const String& filename, bool verbose) const
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
     {
       for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-        _recordWrite("%lf", getVarBivar(ivar,jvar));
+        _recordWrite("%lf", getVar(ivar,jvar));
       _recordWrite("\n");
     }
   }

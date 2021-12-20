@@ -274,7 +274,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
   {
     vario->setMean(ivar, 0.);
     for (int jvar = 0; jvar < db->getVariableNumber(); jvar++)
-      vario->setVarBivar(ivar, jvar, 0.);
+      vario->setVar(ivar, jvar, 0.);
   }
 
   /* Loop on the variables */
@@ -327,14 +327,14 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
       if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
       {
-        vario->setVarBivar(ivar, jvar, s12wzz);
-        vario->setVarBivar(jvar, ivar, s12wzz);
+        vario->setVar(ivar, jvar, s12wzz);
+        vario->setVar(jvar, ivar, s12wzz);
       }
       else
       {
-        vario->setVarBivar(ivar, jvar,
+        vario->setVar(ivar, jvar,
                        s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w));
-        vario->setVarBivar(jvar, ivar,
+        vario->setVar(jvar, ivar,
                        s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w));
       }
     }
@@ -346,9 +346,9 @@ static void st_variogram_stats(Db *db, Vario *vario)
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
-        double value = -vario->getVarBivar(ivar, jvar) / vario->getVarBivar(jvar, jvar);
-        vario->setVarBivar(ivar, jvar, value);
-        vario->setVarBivar(jvar, ivar, value);
+        double value = -vario->getVar(ivar, jvar) / vario->getVar(jvar, jvar);
+        vario->setVar(ivar, jvar, value);
+        vario->setVar(jvar, ivar, value);
       }
   }
   else if (vario->getCalculType() == ECalcVario::TRANS2)
@@ -356,9 +356,9 @@ static void st_variogram_stats(Db *db, Vario *vario)
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
-        double value = -vario->getVarBivar(ivar, jvar) / vario->getVarBivar(ivar, ivar);
-        vario->setVarBivar(ivar, jvar, value);
-        vario->setVarBivar(jvar, ivar, value);
+        double value = -vario->getVar(ivar, jvar) / vario->getVar(ivar, ivar);
+        vario->setVar(ivar, jvar, value);
+        vario->setVar(jvar, ivar, value);
       }
   }
   else if (vario->getCalculType() == ECalcVario::BINORMAL)
@@ -366,11 +366,11 @@ static void st_variogram_stats(Db *db, Vario *vario)
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < db->getVariableNumber(); jvar++)
         if (ivar != jvar)
-          vario->setVarBivar(
+          vario->setVar(
               ivar,
               jvar,
-              vario->getVarBivar(ivar, jvar) / sqrt(
-                  vario->getVarBivar(ivar, ivar) * vario->getVarBivar(jvar, jvar)));
+              vario->getVar(ivar, jvar) / sqrt(
+                  vario->getVar(ivar, ivar) * vario->getVar(jvar, jvar)));
   }
   return;
 }
@@ -438,9 +438,9 @@ static void st_variovect_stats(Db *db, Vario *vario, int ncomp)
         s12wzz += ww * ww * vij;
       }
 
-      vario->setVarBivar(ivar, jvar, (s12ww > 0) ? s12wzz / s12ww :
+      vario->setVar(ivar, jvar, (s12ww > 0) ? s12wzz / s12ww :
                                                0.);
-      vario->setVarBivar(jvar, ivar, (s12ww > 0) ? s12wzz / s12ww :
+      vario->setVar(jvar, ivar, (s12ww > 0) ? s12wzz / s12ww :
                                                0.);
     }
 
@@ -3281,7 +3281,7 @@ void variogram_extension(const Vario *vario,
   }
   else
   {
-    *c0 = vario->getVarBivar(ivar, jvar);
+    *c0 = vario->getVar(ivar, jvar);
   }
   if (st_get_generalized_variogram_order(vario) > 0) (*c0) = TEST;
   if (FFFF(*c0) && flag_norm)
@@ -6416,7 +6416,7 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
 
   /* Set the variance */
 
-  vario->setVarBivar(0, 0, 1.);
+  vario->setVar(0, 0, 1.);
 }
 
 /****************************************************************************/

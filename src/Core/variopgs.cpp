@@ -461,9 +461,9 @@ static void st_variogram_define_vars(Vario *vario, const Rule *rule, int ngrf)
     for (jgrf = 0; jgrf < ngrf; jgrf++)
     {
       if (igrf == jgrf)
-        vario->setVarBivar(igrf, jgrf, 1.);
+        vario->setVar(igrf, jgrf, 1.);
       else
-        vario->setVarBivar(igrf, jgrf, rule->getRho());
+        vario->setVar(igrf, jgrf, rule->getRho());
     }
 }
 
@@ -4777,9 +4777,9 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
       pivar = local_pgs->propdef->propfix[ivar];
       pjvar = local_pgs->propdef->propfix[jvar];
       if (ivar == jvar)
-        vario->setVarBivar(ivar, jvar, pivar * (1. - pivar));
+        vario->setVar(ivar, jvar, pivar * (1. - pivar));
       else
-        vario->setVarBivar(ivar, jvar, -pivar * pjvar);
+        vario->setVar(ivar, jvar, -pivar * pjvar);
       if (!vario->getFlagAsym()) continue;
 
       for (idir = 0; idir < vario->getDirectionNumber(); idir++)
@@ -4794,7 +4794,7 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
             break;
 
           case ECalcVario::E_COVARIANCE:
-            vario->setGgByIndex(idir, iad, vario->getVarBivar(ivar, jvar));
+            vario->setGgByIndex(idir, iad, vario->getVar(ivar, jvar));
             break;
 
           case ECalcVario::E_COVARIANCE_NC:
@@ -4880,7 +4880,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
   for (int ivar = 0; ivar < nfacies; ivar++)
     for (int jvar = 0; jvar < nfacies; jvar++)
     {
-      vario->setVarBivar(ivar, jvar, COVS(ivar, jvar));
+      vario->setVar(ivar, jvar, COVS(ivar, jvar));
 
       if (!vario->getFlagAsym()) continue;
 
@@ -4897,7 +4897,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
             break;
 
           case ECalcVario::E_COVARIANCE:
-            vario->setGgByIndex(idir, iad, vario->getVarBivar(ivar, jvar));
+            vario->setGgByIndex(idir, iad, vario->getVar(ivar, jvar));
             break;
 
           case ECalcVario::E_COVARIANCE_NC:

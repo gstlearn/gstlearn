@@ -1224,11 +1224,11 @@ static void st_load_wt(const Vario *vario,
     for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
     {
       ratio =
-          (vario->getVarBivar(ivar, jvar) > 0 && vario->getVarBivar(jvar, ivar) > 0) ? sqrt(
-                                                                                   vario->getVarBivar(
+          (vario->getVar(ivar, jvar) > 0 && vario->getVar(jvar, ivar) > 0) ? sqrt(
+                                                                                   vario->getVar(
                                                                                        ivar,
                                                                                        jvar)
-                                                                                   * vario->getVarBivar(
+                                                                                   * vario->getVar(
                                                                                        jvar,
                                                                                        ivar)) :
                                                                                1.;
@@ -4369,12 +4369,12 @@ static void st_vario_varchol_manage(const Vario *vario,
                                  model->getVariableNumber());
     model_calcul_cov(model, mode, 1, 1., VectorDouble(), aux.data());
     for (i = 0; i < nvar2; i++)
-      aux[i] = vario->getVarIJ(i) / aux[i];
+      aux[i] = vario->getVarIndex(i) / aux[i];
   }
   else
   {
     for (i = 0; i < nvar2; i++)
-      aux[i] = vario->getVarIJ(i);
+      aux[i] = vario->getVarIndex(i);
   }
 
   if (matrix_cholesky_decompose(aux.data(), varchol.data(), nvar))
