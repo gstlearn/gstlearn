@@ -1,6 +1,8 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
+#include "Covariances/CovLMCTapering.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
@@ -22,33 +24,66 @@ int main(int /*argc*/, char */*argv*/[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SPDEAPI-");
   int seed = 10355;
+  int ndim = 2;
+  int nvar = 1;
   law_set_random_seed(seed);
 
   ///////////////////////
   // Creating the Db
   auto nx={ 3,3 };
   Db workingDbc(nx);
-
+  int nech = workingDbc.getActiveSampleNumber();
 
   ///////////////////////
   // Creating the Model
-  Model model = Model(&workingDbc);
-  CovAniso cova = CovAniso(ECov::CUBIC,model.getContext());
-  cova.setRanges({10,45});
-  model.addCova(&cova);
 
-  model.display(1);
+  // Building the Covariance Context
+  CovContext ctxt(nvar, ndim);
+  // Build the List of Covariances
+  CovLMC covlmc = CovLMC(ctxt.getSpace());
+  // Build the Elementary Covariances
+  CovAniso cov1 = CovAniso(ECov::CUBIC,ctxt);
+  cov1.setRanges({1.2,2.1});
+  cov1.setSill(1.5);
+  covlmc.addCov(&cov1);
+  CovAniso cov2 = CovAniso(ECov::NUGGET,ctxt);
+  cov2.setSill(0.5);
+  covlmc.addCov(&cov2);
+  // Building the Model
+  Model modellmc = Model(ctxt);
+  modellmc.addCovList(&covlmc);
+  modellmc.display(1);
 
-  int nech = workingDbc.getActiveSampleNumber();
-  int nvar = model.getVariableNumber();
+  ///////////////////////
+  // Building the Covariance Matrix
   int nval = nech * nech * nvar * nvar;
   VectorDouble result(nval);
-
-  model.covMatrix(result, &workingDbc, nullptr, 0, 0, 0, 1);
+  modellmc.covMatrix(result, &workingDbc, nullptr, 0, 0, 0, 1);
 
   // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
+  ut_vector_display_stats("\nStatistics on Covariance Matrix",result);
 
-  ut_vector_display_stats("Statistics on Covariance Matrix",result);
+  // Sample the Model at regular steps
+  VectorDouble vec1 = modellmc.sample(3., 50);
+  ut_vector_display("\nModel sampled",vec1);
+
+  /////////////////////////////
+  // Creating the Tapered Model
+
+  // Build the List of Covariances
+  CovLMCTapering covtape = CovLMCTapering(5, 4., ctxt.getSpace());
+  // Build the Covariance list
+  covtape.addCov(&cov1);
+  covtape.addCov(&cov2);
+  // Building the Model
+  Model modeltape = Model(ctxt);
+  modeltape.addCovList(&covtape);
+  modeltape.display(1);
+
+  // Sample the Tapered Model at regular steps
+  VectorDouble vec2 = modeltape.sample(3., 50);
+  ut_vector_display("\nModel Tapered",vec2);
+
   return 0;
 }
 

@@ -1089,9 +1089,6 @@ GSTLEARN_EXPORT int model_add_anamorphosis(Model *model,
                                            VectorDouble &anam_strcnt,
                                            VectorDouble &anam_stats);
 GSTLEARN_EXPORT int model_anamorphosis_set_factor(Model *model, int iclass);
-GSTLEARN_EXPORT int model_add_tapering(Model *model,
-                                       int tape_type,
-                                       double tape_range);
 GSTLEARN_EXPORT int model_sample(Vario *vario,
                                  Model *model,
                                  int flag_norm,

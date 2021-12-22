@@ -20,7 +20,6 @@ ModTrans::ModTrans()
   : AStringable(),
     _modTransMode(EModelProperty::NONE)
   , _conv(nullptr)
-  , _tape(nullptr)
   , _anam(nullptr)
   , _anamIClass(0)
   , _anamNClass(0)
@@ -34,7 +33,6 @@ ModTrans::ModTrans(const ModTrans &m)
     : AStringable(m),
       _modTransMode(m._modTransMode),
       _conv(m._conv),
-      _tape(m._tape),
       _anam(m._anam),
       _anamIClass(m._anamIClass),
       _anamNClass(m._anamNClass),
@@ -51,7 +49,6 @@ ModTrans& ModTrans::operator=(const ModTrans &m)
     AStringable::operator=(m);
     _modTransMode = m._modTransMode;
     _conv = m._conv;
-    _tape = m._tape;
     _anam = m._anam;
     _anamIClass = m._anamIClass;
     _anamNClass = m._anamNClass;
@@ -65,7 +62,6 @@ ModTrans& ModTrans::operator=(const ModTrans &m)
 ModTrans::~ModTrans()
 {
   if (_conv != nullptr) delete _conv;
-  if (_tape != nullptr) delete _tape;
   if (_anam != nullptr) delete _anam;
 }
 
@@ -155,15 +151,6 @@ int ModTrans::addAnamorphosis(const EAnam& anam_type,
   return 0;
 }
 
-int ModTrans::addTapering(int tape_type,double tape_range)
-{
-  _tape = new Tapering();
-  if (_tape->init(tape_type, tape_range)) return 1;
-  _modTransMode = EModelProperty::TAPE;
-
-  return 0;
-}
-
 String ModTrans::toString(int level) const
 {
   std::stringstream sstr;
@@ -175,10 +162,6 @@ String ModTrans::toString(int level) const
   {
     case EModelProperty::E_CONV:
       sstr << _conv->toString(level);
-      break;
-
-    case EModelProperty::E_TAPE:
-      sstr << _tape->toString(level);
       break;
 
     case EModelProperty::E_ANAM:

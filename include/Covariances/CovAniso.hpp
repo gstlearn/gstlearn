@@ -26,6 +26,7 @@ class GSTLEARN_EXPORT CovAniso: public ACov, public IClonable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);
+  CovAniso(const String& symbol, const CovContext& ctxt);
   CovAniso(const ECov& type,
            double range,
            double param,

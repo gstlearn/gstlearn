@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Drifts/ADriftElem.hpp"
+#include "Drifts/DriftFactory.hpp"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"

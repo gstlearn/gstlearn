@@ -17,12 +17,12 @@
 #include "geoslib_f.h"
 
 CovLMC::CovLMC(const ASpace* space)
-: ACovAnisoList(space)
+    : ACovAnisoList(space)
 {
 }
 
 CovLMC::CovLMC(const CovLMC &r)
-: ACovAnisoList(r)
+    : ACovAnisoList(r)
 {
 }
 

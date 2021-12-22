@@ -15,6 +15,7 @@
 #include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMCTapering.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Model.hpp"
 #include "Model/ConsItem.hpp"
@@ -2082,7 +2083,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
   Model *model;
   CovAniso *cova;
   CovAniso *cova1;
-  Tapering *tape;
+  CovLMCTapering *covtape;
   Option_VarioFit optvar;
   EConsElem icons;
 
@@ -2161,8 +2162,8 @@ static void st_model_auto_strmod_define(StrMod *strmod,
         break;
 
       case EConsElem::E_T_RANGE:
-        tape = model->getModTrans().getTape();
-        tape->setRange(param[ntot]);
+        covtape = dynamic_cast<CovLMCTapering*>(model->getCovAnisoList());
+        if (covtape != nullptr) covtape->setTapeRange(param[ntot]);
         break;
 
       default:

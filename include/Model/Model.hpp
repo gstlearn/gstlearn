@@ -63,9 +63,11 @@ public:
   /// TODO : to be converted as internal member
   const CovContext& getContext() const { return _ctxt; }
 
+  void   addCovList(ACovAnisoList* covalist) { _covaList = covalist; }
   void   addCova(const CovAniso* cov);
   void   delCova(int rank);
   void   delAllCovas();
+  void   addDriftList(DriftList* driftlist) { _driftList = driftlist; }
   void   addDrift(const ADriftElem* drift);
   void   addDrift(const VectorString& driftSymbols);
   void   delDrift(int rank);
@@ -76,7 +78,8 @@ public:
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
-  const ACovAnisoList* getCovAnisoList() const;
+  const ACovAnisoList* getCovAnisoList() const { return _covaList; }
+  ACovAnisoList* getCovAnisoList() { return _covaList; } // Needed for dynamic cast
   const CovAniso* getCova(unsigned int icov) const;
   CovAniso* getCova(unsigned int icov);
   int getCovaNumber() const;

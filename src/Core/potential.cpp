@@ -14,6 +14,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Db/Db.hpp"
@@ -2778,7 +2779,7 @@ static int st_model_invalid(Model *model)
 static int st_extdrift_create_model(Pot_Ext *pot_ext)
 {
   int error;
-  VectorDouble sill = { 1 };
+  double sill = 1.;
 
   /* Initialization */
 
@@ -2787,9 +2788,13 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
   /* Creating the model */
 
   pot_ext->model = model_init(pot_ext->ndim, 1, 1., 1, 0., true);
-  if (pot_ext->model == nullptr) goto label_end;
-  if (model_add_cova(pot_ext->model, ECov::CUBIC, 0, 0, pot_ext->range, 0.,
-                     VectorDouble(), VectorDouble(), sill)) goto label_end;
+  if (pot_ext->model == nullptr) return 1;
+
+  CovContext ctxt(1, pot_ext->ndim);
+  CovLMGradient covs(ctxt.getSpace());
+  CovAniso cov(ECov::CUBIC, pot_ext->range, 0., sill, ctxt);
+  covs.addCov(&cov);
+  pot_ext->model->addCovList(&covs);
 
   /* Set the error return code */
 

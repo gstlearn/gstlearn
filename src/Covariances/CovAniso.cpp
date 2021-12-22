@@ -36,6 +36,18 @@ CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
   _updateFromContext();
 }
 
+CovAniso::CovAniso(const String& symbol, const CovContext& ctxt)
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+      _ctxt(ctxt),
+      _cova(),
+      _sill(),
+      _aniso(ctxt.getSpace()->getNDim())
+{
+  ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
+  _cova = CovFactory::createCovFunc(covtype, ctxt);
+  _updateFromContext();
+}
+
 CovAniso::CovAniso(const ECov& type,
                    double range,
                    double param,

@@ -109,6 +109,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/ACovGradient.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovCalcMode.hpp"

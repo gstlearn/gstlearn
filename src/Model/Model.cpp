@@ -202,10 +202,6 @@ void Model::delAllDrifts()
   _driftList->delAllDrift();
 }
 
-const ACovAnisoList* Model::getCovAnisoList() const
-{
-  return _covaList;
-}
 const CovAniso* Model::getCova(unsigned int icov) const
 {
   return _covaList->getCova(icov);
@@ -493,11 +489,11 @@ VectorDouble Model::sample(double hmax,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromCovIndices(Vario *vario,
-               const VectorInt &types,
-               bool verbose,
-               Option_AutoFit mauto,
-               const Constraints &constraints,
-               Option_VarioFit optvar)
+                             const VectorInt &types,
+                             bool verbose,
+                             Option_AutoFit mauto,
+                             const Constraints &constraints,
+                             Option_VarioFit optvar)
 {
   if (vario == nullptr) return 1;
 

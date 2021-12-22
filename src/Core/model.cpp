@@ -18,6 +18,8 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
+#include "Covariances/CovLMC.hpp"
+#include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -766,18 +768,7 @@ static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
   model_calcul_cov_direct(NULL, model, mode, flag_init, weight, d1, covtab);
 
   /* Calculate the tapering effect */
-
-  ModTrans &modtrs = model->getModTrans();
-  h = 0.;
-  if (!d1.empty())
-    h = sqrt(matrix_norm(d1.data(), model->getDimensionNumber())) / modtrs.getTape()->getRange();
-  double cov_tape = modtrs.getTape()->evaluate(h);
-
-  /* Update all covariance values */
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      COVTAB(ivar,jvar)*= cov_tape;
+  /* This is now included in the CovLMCTapering function */
 
   return;
 }
@@ -1132,7 +1123,6 @@ Model* model_init(int ndim,
 {
   Model *model = nullptr;
 
-  /// TODO : Force SpaceRN creation (modèle poubelle)
   CovContext ctxt = CovContext(nvar, ndim);
   ctxt.setField(field);
   ctxt.setBallRadius(ball_radius);
@@ -1175,9 +1165,11 @@ Model* model_default(int ndim, int nvar)
 
   /* Add the nugget effect variogram model */
 
-  sill = 1.;
-  if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
-                     VectorDouble(), VectorDouble(1, sill))) goto label_end;
+  CovContext ctxt(nvar, ndim);
+  CovLMC covs(ctxt.getSpace());
+  CovAniso cov(ECov::NUGGET, ctxt);
+  covs.addCov(&cov);
+  model->addCovList(&covs);
 
   /* Set the error return flag */
 
@@ -1484,52 +1476,6 @@ int model_add_anamorphosis(Model *model,
   if (modtrs.addAnamorphosis(anam_type, anam_nclass, anam_iclass, anam_var,
                              anam_coefr, anam_coefs, anam_strcnt, anam_stats))
     goto label_end;
-
-  /* Set the calling function */
-
-  model_setup(model);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Add the Model Tapering parameters
- **
- ** \return  Error return code
- **
- ** \param[in]  model      Pointer to the Model structure
- ** \param[in]  tape_type  Type of the tapering function (starting from 1)
- ** \param[in]  tape_range Range of the tapering function
- **
- *****************************************************************************/
-int model_add_tapering(Model *model, int tape_type, double tape_range)
-{
-  int error;
-
-  /* Initializations */
-
-  error = 1;
-  ModTrans &modtrs = model->getModTrans();
-  if (st_check_model(model)) goto label_end;
-
-  /* Preliminary check */
-
-  if (model->getDimensionNumber() > modtrs.getTape()->getMaxNDim())
-  {
-    messerr("The selected tapering function is not compatible with");
-    messerr("the space dimension used for the Model (%d)",
-            model->getDimensionNumber());
-    goto label_end;
-  }
-
-  /* Load the tapering parameters */
-
-  if (modtrs.addTapering(tape_type, tape_range)) goto label_end;
 
   /* Set the calling function */
 
@@ -3349,9 +3295,13 @@ int model_extract_cova(Model *model,
  *****************************************************************************/
 void model_extract_properties(Model *model, double *tape_range)
 {
-  ModTrans &modtrs = model->getModTrans();
 
-  *tape_range = modtrs.getTape()->getRange();
+  const CovLMCTapering *covtape = dynamic_cast<const CovLMCTapering*>(model->getCovAnisoList());
+  *tape_range = TEST;
+  if (covtape != nullptr)
+  {
+    *tape_range = covtape->getTapeRange();
+  }
 }
 
 /****************************************************************************/

@@ -31,13 +31,13 @@ CovContext::CovContext(int nvar,
                        int irfMaxDegree,
                        double field)
 
-: ASpaceObject(space)
-,  _nVar(nvar)
-,  _irfMaxDegree(irfMaxDegree)
-,  _field(field)
-,  _ballRadius(0.)
-,  _mean()
-,  _covar0()
+    : ASpaceObject(space),
+      _nVar(nvar),
+      _irfMaxDegree(irfMaxDegree),
+      _field(field),
+      _ballRadius(0.),
+      _mean(),
+      _covar0()
 {
   _update();
 }
@@ -50,30 +50,27 @@ CovContext::CovContext(int nvar,
  * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
  * @param field        Maximum field distance (used for covariances having no sill)
  */
-CovContext::CovContext(int nvar,
-                       int ndim,
-                       int irfMaxDegree,
-                       double field)
-: ASpaceObject(SpaceRN(ndim))
-,  _nVar(nvar)
-,  _irfMaxDegree(irfMaxDegree)
-,  _field(field)
-,  _ballRadius(0.)
-,  _mean()
-,  _covar0()
+CovContext::CovContext(int nvar, int ndim, int irfMaxDegree, double field)
+    : ASpaceObject(SpaceRN(ndim)),
+      _nVar(nvar),
+      _irfMaxDegree(irfMaxDegree),
+      _field(field),
+      _ballRadius(0.),
+      _mean(),
+      _covar0()
 {
   _update();
 }
 
 
 CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
-: ASpaceObject(space)
-, _nVar(0)
-, _irfMaxDegree(irfMaxDegree)
-, _field(0.)
-, _ballRadius(0.)
-, _mean()
-, _covar0()
+    : ASpaceObject(space),
+      _nVar(0),
+      _irfMaxDegree(irfMaxDegree),
+      _field(0.),
+      _ballRadius(0.),
+      _mean(),
+      _covar0()
 {
   /// TODO : check Db dimension vs provided space
   _nVar = db->getVariableNumber();
@@ -83,14 +80,16 @@ CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
   _update();
 }
 
-CovContext::CovContext(const Vario* vario, int irfMaxDegree, const ASpace* space)
-: ASpaceObject(space)
-, _nVar(0)
-, _irfMaxDegree(irfMaxDegree)
-, _field(0.)
-, _ballRadius(0.)
-, _mean()
-, _covar0()
+CovContext::CovContext(const Vario* vario,
+                       int irfMaxDegree,
+                       const ASpace* space)
+    : ASpaceObject(space),
+      _nVar(0),
+      _irfMaxDegree(irfMaxDegree),
+      _field(0.),
+      _ballRadius(0.),
+      _mean(),
+      _covar0()
 {
   /// TODO : check vario dimension vs provided space
   _nVar = vario->getVariableNumber();
@@ -99,13 +98,13 @@ CovContext::CovContext(const Vario* vario, int irfMaxDegree, const ASpace* space
 }
 
 CovContext::CovContext(const CovContext &r)
-: ASpaceObject(r)
-, _nVar(r._nVar)
-, _irfMaxDegree(r._irfMaxDegree)
-, _field(r._field)
-, _ballRadius(r._ballRadius)
-, _mean(r._mean)
-, _covar0(r._covar0)
+    : ASpaceObject(r),
+      _nVar(r._nVar),
+      _irfMaxDegree(r._irfMaxDegree),
+      _field(r._field),
+      _ballRadius(r._ballRadius),
+      _mean(r._mean),
+      _covar0(r._covar0)
 {
 }
 

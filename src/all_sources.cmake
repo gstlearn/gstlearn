@@ -40,7 +40,6 @@ set(SOURCES
   Model/ElemNoStat.cpp
   Model/CovInternal.cpp
   Model/Option_AutoFit.cpp
-  Model/Tapering.cpp
   Model/ModelNostat.cpp
   Model/Option_VarioFit.cpp
   Model/ModTrans.cpp
@@ -64,6 +63,7 @@ set(SOURCES
   Covariances/ACov.cpp
   Covariances/CovSincard.cpp
   Covariances/CovLMC.cpp
+  Covariances/CovLMCTapering.cpp
   Covariances/ACovGradient.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp

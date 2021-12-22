@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "Model/Convolution.hpp"
-#include "Model/Tapering.hpp"
 #include "Model/EModelProperty.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Basic/Vector.hpp"
@@ -43,7 +42,6 @@ public:
                       double anam_coefs,
                       VectorDouble& anam_strcnt,
                       VectorDouble& anam_stats);
-  int addTapering(int tape_type,double tape_range);
 
   const EModelProperty& getModTransMode() const { return _modTransMode; }
   int getAnamIClass() const                     { return _anamIClass; }
@@ -57,12 +55,10 @@ public:
 
   Anam* getAnam()        const { return _anam; }
   Convolution* getConv() const { return _conv; }
-  Tapering* getTape()    const { return _tape; }
 
 private:
   EModelProperty _modTransMode;
   Convolution* _conv;
-  Tapering*    _tape;
   Anam*        _anam;
   int    _anamIClass;         /* Target factor (-1: discretized grade) */
   int    _anamNClass;         /* Number of indicator classes */
