@@ -74,7 +74,7 @@ double getTEST()
   return TEST;
 }
 
-int    getITEST()
+int getITEST()
 {
   return ITEST;
 }

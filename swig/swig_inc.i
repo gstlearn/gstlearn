@@ -30,6 +30,7 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/Table.hpp"
+#include "Basic/Utilities.hpp"
 
 #include "Enum/EKrigOpt.hpp"
 
