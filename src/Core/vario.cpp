@@ -2721,13 +2721,15 @@ static int st_variogram_general(Db *db,
 
   /* Auxiliary check for Drift removal */
 
-  if (model != nullptr && (model->getDriftNumber() > 1
-      || model->getDriftType(0) != EDrift::UC))
+  if (model != nullptr && model->getDriftNumber() > 1)
   {
-    if (vorder == (Vario_Order*) NULL)
-      vorder = vario_order_manage(1, 1, 0, vorder);
-    flag_ku = 1;
-    st_manage_drift_removal(1, db, model);
+    if (model->getDriftType(0) != EDrift::UC)
+    {
+      if (vorder == (Vario_Order*) NULL)
+        vorder = vario_order_manage(1, 1, 0, vorder);
+      flag_ku = 1;
+      st_manage_drift_removal(1, db, model);
+    }
   }
 
   /* Complementary checks */

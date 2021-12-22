@@ -30,11 +30,11 @@ public:
 
   double getMean() const { return _mean; }
   int getNCut() const { return _nCut; }
+  int getNClass() const { return _nCut + 1; }
   int getNElem() const { return _nElem; }
   const VectorDouble& getZCut() const { return _zCut; }
   double getZCut(int i) const { return _zCut[i]; }
   double getVariance() const { return _variance; }
-  int getNClass() const { return _stats.getNRows(); }
 
   void setMean(double mean) { _mean = mean; }
   void setVariance(double variance) { _variance = variance; }

@@ -64,5 +64,4 @@ private:
   double _sCoef;
   PCA    _maf;
   VectorDouble _i2Chi;
-
 };

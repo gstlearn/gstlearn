@@ -15,14 +15,6 @@
 
 class GSTLEARN_EXPORT PCA
 {
-private:
-  int          _nVar;
-  VectorDouble _mean;
-  VectorDouble _sigma;
-  VectorDouble _eigen;
-  VectorDouble _Z2F;
-  VectorDouble _F2Z;
-
 public:
   PCA();
   PCA(const PCA &m);
@@ -145,4 +137,12 @@ private:
   {
     _sigma = sigma;
   }
+
+private:
+  int          _nVar;
+  VectorDouble _mean;
+  VectorDouble _sigma;
+  VectorDouble _eigen;
+  VectorDouble _Z2F;
+  VectorDouble _F2Z;
 };
