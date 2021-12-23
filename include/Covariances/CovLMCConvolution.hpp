@@ -12,6 +12,8 @@
 
 #include "gstlearn_export.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Covariances/EConvType.hpp"
+#include "Covariances/EConvDir.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 class ASpace;
@@ -37,10 +39,10 @@ GSTLEARN_EXPORT Def_Convolution& D_CONV(int rank);
 class GSTLEARN_EXPORT CovLMCConvolution : public CovLMC
 {
 public:
-  CovLMCConvolution(int conv_type,
-                    int conv_dir,
+  CovLMCConvolution(const EConvType& conv_type,
+                    const EConvDir& conv_dir,
                     double conv_range,
-                    int conv_ndisc = 10,
+                    int conv_ndisc,
                     const ASpace* space = nullptr);
   CovLMCConvolution(const CovLMCConvolution &r);
   CovLMCConvolution& operator= (const CovLMCConvolution &r);
@@ -58,12 +60,9 @@ public:
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  int init(int conv_type, int conv_idir, double conv_range, int conv_ndisc);
+  int init(const EConvType& conv_type, const EConvDir& conv_idir, double conv_range, int conv_ndisc);
 
-  int getConvDir() const { return _convDir; }
-  int getConvDiscNumber() const { return _convDiscNumber; }
   double getConvRange() const { return _convRange; }
-  int getConvType() const { return _convType; }
   const VectorDouble& getConvWeight() const { return _convWeight; }
   const MatrixRectangular& getConvIncr() const { return _convIncr; }
   VectorDouble getConvIncr(int rank) const { return _convIncr.getColumn(rank); }
@@ -73,8 +72,8 @@ private:
   int _getConvNumber();
 
 private:
-  int _convType; /* Convolution type */
-  int _convDir; /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */
+  EConvType _convType; /* Convolution type */
+  EConvDir  _convDir;  /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */
   int _convDiscNumber; /* Number of discretization per direction */
   double _convRange; /* Convolution Range */
   int _convNumber;

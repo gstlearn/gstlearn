@@ -27,4 +27,3 @@ public:
 
   virtual IClonable* clone() const override { return new CovLMC(*this); };
 };
-

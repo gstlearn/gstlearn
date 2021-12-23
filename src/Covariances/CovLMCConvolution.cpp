@@ -15,13 +15,15 @@
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
+#include "Covariances/EConvType.hpp"
+#include "Covariances/EConvDir.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "geoslib_f.h"
 
 #include <math.h>
 
-CovLMCConvolution::CovLMCConvolution(int conv_type,
-                                     int conv_dir,
+CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
+                                     const EConvDir&  conv_dir,
                                      double conv_range,
                                      int conv_ndisc,
                                      const ASpace* space)
@@ -71,22 +73,11 @@ CovLMCConvolution::~CovLMCConvolution()
 {
 }
 
-int CovLMCConvolution::init(int conv_type,
-                            int conv_idir,
+int CovLMCConvolution::init(const EConvType& conv_type,
+                            const EConvDir&  conv_idir,
                             double conv_range,
                             int conv_ndisc)
 {
-  if (conv_type < 0 || conv_type >= _getConvNumber())
-  {
-    mesArg("CovLMCConvolution Type", conv_type, _getConvNumber());
-    return 1;
-  }
-  if (conv_idir < 0 || conv_idir >= 4)
-  {
-    mesArg("CovLMCConvolution Direction Index", conv_idir, 4);
-    messerr("The argument 'conv_idir' should lie between 0 and 4");
-    return 1;
-  }
   if (conv_ndisc < 1)
   {
     messerr("The number of discretization points must be larger than 1");
@@ -105,13 +96,13 @@ int CovLMCConvolution::init(int conv_type,
   _convDir  = conv_idir;
   _convDiscNumber = conv_ndisc;
   _convRange = conv_range;
-  double diameter = _convRange * D_CONV(conv_type).convScale;
+  double diameter = _convRange * D_CONV(_convType.getValue()).convScale;
 
   /* Calculate the discretization points */
 
   int navail[3];
   for (int i = 0; i < 3; i++) navail[i] = 0;
-  switch (conv_idir)
+  switch (_convDir.getValue())
   {
     case 0:
       navail[0] = (ndim >= 1) ? _convDiscNumber : 0;
@@ -161,21 +152,21 @@ int CovLMCConvolution::init(int conv_type,
         if (ndim >= 1)
         {
           delta  = diameter * ix / (2 * conv_ndisc + 1);
-          weight = D_CONV(conv_type).convFunc(delta);
+          weight = D_CONV(_convType.getValue()).convFunc(delta);
           _convIncr.setValue(0, ecr, delta);
           local *= weight;
         }
         if (ndim >= 2)
         {
           delta = diameter * iy / (2 * conv_ndisc + 1);
-          weight = D_CONV(conv_type).convFunc(delta);
+          weight = D_CONV(_convType.getValue()).convFunc(delta);
           _convIncr.setValue(1, ecr, delta);
           local *= weight;
         }
         if (ndim >= 3)
         {
           delta = diameter * iz / (2 * conv_ndisc + 1);
-          weight = D_CONV(conv_type).convFunc(delta);
+          weight = D_CONV(_convType.getValue()).convFunc(delta);
           _convIncr.setValue(2, ecr, delta);
           local *= weight;
         }
@@ -245,8 +236,8 @@ String CovLMCConvolution::toString(int level) const
 
   sstr << ACovAnisoList::toString(level);
 
-  sstr << "Convolution type      = " << D_CONV(_convType).convName  << std::endl;
-  sstr << "Convolution direction = " << _convDir   << std::endl;
+  sstr << "Convolution type      = " << _convType.getDescr() << std::endl;
+  sstr << "Convolution direction = " << _convDir.getDescr()   << std::endl;
   sstr << "Nb. discretization    = " << _convDiscNumber << std::endl;
   sstr << "Convolution Scale     = " << _convRange << std::endl;
 

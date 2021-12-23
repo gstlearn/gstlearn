@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Covariances/ETape.hpp"
 
 class ASpace;
 class SpacePoint;
@@ -20,7 +21,7 @@ class Model;
 
 typedef struct
 {
-  std::string name;
+  std::string name; // Useless but allows checking the correct match
   int maxNDim;  /* Maximum dimension for validity */
   double (*tapeFunc)(double);
 } Def_Tapering;
@@ -39,8 +40,8 @@ GSTLEARN_EXPORT Def_Tapering& D_TAPE(int rank);
 class GSTLEARN_EXPORT CovLMCTapering : public CovLMC
 {
 public:
-  CovLMCTapering(int tapetype = 0,
-                 double taperange = 0.,
+  CovLMCTapering(const ETape& tapetype,
+                 double taperange,
                  const ASpace* space = nullptr);
   CovLMCTapering(const CovLMCTapering &r);
   CovLMCTapering& operator= (const CovLMCTapering &r);
@@ -58,19 +59,13 @@ public:
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  int init(int tapetype, double taperange);
+  int init(const ETape& tapetype, double taperange);
 
-  int getMaxNDim() const { return _maxNDim; }
-  const String& getName() const { return _tapeName; }
+  const String& getName() const;
   double getTapeRange() const { return _tapeRange; }
   void setTapeRange(double range) { _tapeRange = range; }
 
 private:
-  int _getTapeNumber();
-
-private:
-  int    _tapeType;
+  ETape  _tapeType;
   double _tapeRange;
-  int    _maxNDim;
-  String _tapeName;
 };

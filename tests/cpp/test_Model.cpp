@@ -70,7 +70,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   /////////////////////////////
   // Creating the Tapered Model
-  CovLMCTapering covtape = CovLMCTapering(5, 4., ctxt.getSpace());
+  CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt.getSpace());
   // Build the Covariance list
   covtape.addCov(&cov1);
   covtape.addCov(&cov2);
@@ -81,11 +81,11 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Sample the Tapered Model at regular steps
   VectorDouble vec2 = modeltape.sample(3., 50);
-  ut_vector_display("\nModel Tapered",vec2);
+  ut_vector_display("\nTapered Model",vec2);
 
   /////////////////////////////
   // Creating the Convoluted Model
-  CovLMCConvolution covconv = CovLMCConvolution(0, 0, 1., 10, ctxt.getSpace());
+  CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt.getSpace());
   // Build the Covariance list
   covconv.addCov(&cov1);
   covconv.addCov(&cov2);
@@ -93,6 +93,10 @@ int main(int /*argc*/, char */*argv*/[])
   Model modelconv = Model(ctxt);
   modelconv.addCovList(&covconv);
   modelconv.display(1);
+
+  // Sample the Tapered Model at regular steps
+  VectorDouble vec3 = modelconv.sample(3., 50);
+  ut_vector_display("\nConvoluted Model",vec3);
 
   return 0;
 }

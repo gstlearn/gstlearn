@@ -143,6 +143,9 @@
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
 #include "Covariances/ECov.hpp"
+#include "Covariances/ETape.hpp"
+#include "Covariances/EConvType.hpp"
+#include "Covariances/EConvDir.hpp"
 
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"

@@ -15,18 +15,17 @@
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
+#include "Covariances/ETape.hpp"
 #include "geoslib_f.h"
 
 #include <math.h>
 
-CovLMCTapering::CovLMCTapering(int tapetype,
+CovLMCTapering::CovLMCTapering(const ETape& tapetype,
                                double taperange,
                                const ASpace* space)
     : CovLMC(space),
-      _tapeType(0),
-      _tapeRange(0),
-      _maxNDim(0),
-      _tapeName()
+      _tapeType(),
+      _tapeRange(0)
 {
   init(tapetype, taperange);
 }
@@ -34,9 +33,7 @@ CovLMCTapering::CovLMCTapering(int tapetype,
 CovLMCTapering::CovLMCTapering(const CovLMCTapering &r)
     : CovLMC(r),
       _tapeType(r._tapeType),
-      _tapeRange(r._tapeRange),
-      _maxNDim(r._maxNDim),
-      _tapeName(r._tapeName)
+      _tapeRange(r._tapeRange)
 {
 }
 
@@ -47,8 +44,6 @@ CovLMCTapering& CovLMCTapering::operator=(const CovLMCTapering &r)
     CovLMC::operator=(r);
     _tapeType = r._tapeType;
     _tapeRange = r._tapeRange;
-    _maxNDim = r._maxNDim;
-    _tapeName = r._tapeName;
   }
   return *this;
 }
@@ -57,16 +52,11 @@ CovLMCTapering::~CovLMCTapering()
 {
 }
 
-int CovLMCTapering::init(int tapetype, double taperange)
+int CovLMCTapering::init(const ETape& tapetype, double taperange)
 {
 
   /* Preliminary check */
 
-  if (tapetype < 0 || tapetype >= _getTapeNumber())
-  {
-    mesArg("Tapering Index",tapetype,_getTapeNumber());
-    return 1;
-  }
   if (taperange <= 0)
   {
     messerr("The argument 'tape_range' must be strictly positive");
@@ -75,18 +65,10 @@ int CovLMCTapering::init(int tapetype, double taperange)
 
   /* Load the tapering parameters */
 
-  _tapeType    = tapetype - 1;
+  _tapeType    = tapetype;
   _tapeRange   = taperange;
-  _tapeName    = D_TAPE(_tapeType).name;
-  _maxNDim     = D_TAPE(_tapeType).maxNDim;
 
   return 0;
-}
-
-int CovLMCTapering::_getTapeNumber()
-{
-  int N_DEF_TAPERING = 7;
-  return N_DEF_TAPERING;
 }
 
 Def_Tapering& D_TAPE(int rank)
@@ -192,7 +174,7 @@ String CovLMCTapering::toString(int level) const
 
   sstr << ACovAnisoList::toString(level);
 
-  sstr << "Tapering Function     = " << _tapeName << std::endl;
+  sstr << "Tapering Function     = " << getName() << std::endl;
   sstr << "Tapering Scale        = " << _tapeRange << std::endl;
   return sstr.str();
 }
@@ -219,7 +201,7 @@ double CovLMCTapering::eval(int ivar,
 
   double cov = CovLMC::eval(ivar, jvar, p1, p2, modeloc);
   double h = getSpace()->getDistance(p1, p2) / _tapeRange;
-  cov *= D_TAPE(_tapeType).tapeFunc(h);
+  cov *= D_TAPE(_tapeType.getValue()).tapeFunc(h);
 
   if (asVario)
   {
@@ -227,4 +209,9 @@ double CovLMCTapering::eval(int ivar,
     cov = cov0 - cov;
   }
   return cov;
+}
+
+const String& CovLMCTapering::getName() const
+{
+  return _tapeType.getDescr();
 }
