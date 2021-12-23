@@ -1074,11 +1074,6 @@ GSTLEARN_EXPORT int model_add_drift(Model *model,
                                     const EDrift &type,
                                     int rank_fex);
 GSTLEARN_EXPORT int model_add_no_property(Model *model);
-GSTLEARN_EXPORT int model_add_convolution(Model *model,
-                                          int type,
-                                          int idir,
-                                          int count,
-                                          double parameter);
 GSTLEARN_EXPORT int model_add_anamorphosis(Model *model,
                                            const EAnam &anam_type,
                                            int anam_nclass,

@@ -64,7 +64,6 @@ public:
   const String& getName() const { return _tapeName; }
   double getTapeRange() const { return _tapeRange; }
   void setTapeRange(double range) { _tapeRange = range; }
-  void setTapeType(int type) { _tapeType = type; }
 
 private:
   int _getTapeNumber();

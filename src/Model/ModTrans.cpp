@@ -19,7 +19,6 @@
 ModTrans::ModTrans()
   : AStringable(),
     _modTransMode(EModelProperty::NONE)
-  , _conv(nullptr)
   , _anam(nullptr)
   , _anamIClass(0)
   , _anamNClass(0)
@@ -32,7 +31,6 @@ ModTrans::ModTrans()
 ModTrans::ModTrans(const ModTrans &m)
     : AStringable(m),
       _modTransMode(m._modTransMode),
-      _conv(m._conv),
       _anam(m._anam),
       _anamIClass(m._anamIClass),
       _anamNClass(m._anamNClass),
@@ -48,7 +46,6 @@ ModTrans& ModTrans::operator=(const ModTrans &m)
   {
     AStringable::operator=(m);
     _modTransMode = m._modTransMode;
-    _conv = m._conv;
     _anam = m._anam;
     _anamIClass = m._anamIClass;
     _anamNClass = m._anamNClass;
@@ -61,7 +58,6 @@ ModTrans& ModTrans::operator=(const ModTrans &m)
 
 ModTrans::~ModTrans()
 {
-  if (_conv != nullptr) delete _conv;
   if (_anam != nullptr) delete _anam;
 }
 
@@ -69,19 +65,6 @@ void ModTrans::cancelProperty()
 {
   _modTransMode = EModelProperty::NONE;
 }
-
-int ModTrans::addConvolution(int conv_type,
-                             int conv_idir,
-                             int conv_ndisc,
-                             double conv_range)
-{
-  _conv = new Convolution;
-  if (_conv->init(conv_type, conv_idir, conv_ndisc,conv_range)) return 1;
-  _modTransMode = EModelProperty::CONV;
-
-  return 0;
- }
-
 
 int ModTrans::addAnamorphosis(const EAnam& anam_type,
                               int anam_nclass,
@@ -160,10 +143,6 @@ String ModTrans::toString(int level) const
 
   switch (_modTransMode.toEnum())
   {
-    case EModelProperty::E_CONV:
-      sstr << _conv->toString(level);
-      break;
-
     case EModelProperty::E_ANAM:
       sstr << _anam->toString(level);
       break;

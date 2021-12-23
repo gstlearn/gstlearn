@@ -164,6 +164,9 @@ public:
 
   /*! Sets the value at row 'irow' and column 'icol' */
   virtual void setValue(int irow, int icol, double value);
+  /*! Sets the value at rank 'rank' */
+  virtual void setValue(int rank, double value);
+
   /*! Sets the matrix as Identity */
   void setIdentity(double value = 1.);
   /*! Set all the values of the Matrix at once */

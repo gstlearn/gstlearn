@@ -143,6 +143,7 @@ class IClonable{};
 %include Covariances/ACovGradient.hpp
 %include Covariances/CovLMC.hpp
 %include Covariances/CovLMCTapering.hpp
+%include Covariances/CovLMCConvolution.hpp
 %include Covariances/CovLMGradient.hpp
 %include Covariances/CovContext.hpp
 %include Covariances/CovCalcMode.hpp

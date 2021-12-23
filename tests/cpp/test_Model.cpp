@@ -3,6 +3,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMCTapering.hpp"
+#include "Covariances/CovLMCConvolution.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
@@ -69,8 +70,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   /////////////////////////////
   // Creating the Tapered Model
-
-  // Build the List of Covariances
   CovLMCTapering covtape = CovLMCTapering(5, 4., ctxt.getSpace());
   // Build the Covariance list
   covtape.addCov(&cov1);
@@ -83,6 +82,17 @@ int main(int /*argc*/, char */*argv*/[])
   // Sample the Tapered Model at regular steps
   VectorDouble vec2 = modeltape.sample(3., 50);
   ut_vector_display("\nModel Tapered",vec2);
+
+  /////////////////////////////
+  // Creating the Convoluted Model
+  CovLMCConvolution covconv = CovLMCConvolution(0, 0, 1., 10, ctxt.getSpace());
+  // Build the Covariance list
+  covconv.addCov(&cov1);
+  covconv.addCov(&cov2);
+  // Building the Model
+  Model modelconv = Model(ctxt);
+  modelconv.addCovList(&covconv);
+  modelconv.display(1);
 
   return 0;
 }

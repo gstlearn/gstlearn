@@ -415,24 +415,10 @@ void AMatrix::toSparseInPlace()
   setValues(irows, icols, values);
 }
 
-/*! Sets the value at row 'irow' and column 'icol' */
-void AMatrix::setValue(int irow, int icol, double value)
-{
-  if (_sparse)
-  {
-    _isIndexValid(irow, icol);
-    cs_set_value(_csMatrix, irow, icol, value);
-  }
-  else
-  {
-    _setValue(irow, icol, value);
-  }
-}
-
 /*! Gets the value at row 'irow' and column 'icol' */
 double AMatrix::getValue(int irow, int icol) const
 {
-  _isIndexValid(irow, icol);
+  if (! _isIndexValid(irow, icol)) return TEST;
   if (_sparse)
   {
     return cs_get_value(_csMatrix, irow, icol);
@@ -443,9 +429,24 @@ double AMatrix::getValue(int irow, int icol) const
   }
 }
 
+/*! Sets the value at row 'irow' and column 'icol' */
+void AMatrix::setValue(int irow, int icol, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  if (_sparse)
+  {
+    cs_set_value(_csMatrix, irow, icol, value);
+  }
+  else
+  {
+    return _setValue(irow, icol, value);
+  }
+}
+
 /*! Gets the value at rank 'rank' */
 double AMatrix::getValue(int rank) const
 {
+  if (! _isRankValid(rank)) return TEST;
   if (_sparse)
   {
     _forbiddenForSparse("getValue");
@@ -455,6 +456,20 @@ double AMatrix::getValue(int rank) const
     return _getValue(rank);
   }
   return 0.;
+}
+
+/*! Sets the value at rank 'rank' */
+void AMatrix::setValue(int rank, double value)
+{
+  if (! _isRankValid(rank)) return;
+  if (_sparse)
+  {
+    _forbiddenForSparse("getValue");
+  }
+  else
+  {
+    _setValue(rank, value);
+  }
 }
 
 /*! Gets a reference to the value at row 'irow' and column 'icol' */

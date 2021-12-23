@@ -20,6 +20,7 @@
 #include "Basic/File.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMCTapering.hpp"
+#include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -242,38 +243,6 @@ void model_calcul_cov_direct(CovInternal *covint,
         else
         COVTAB(ivar,jvar) += value;
       }
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the covariances for an increment
- **  This is the function for convolution case
- **
- ** \param[in]  cov_nostat   Internal structure (should be NULL)
- ** \param[in]  model        Model structure
- ** \param[in]  mode         CovCalcMode structure
- ** \param[in]  flag_init    Initialize the array beforehand
- ** \param[in]  weight       Weight attached to this calculation
- **
- ** \param[out] d1          Working array (dimension = ndim) or NULL
- ** \param[out] covtab      output covariance (dimension = nvar * nvar)
- **
- *****************************************************************************/
-static void st_model_calcul_cov_convolution(CovInternal *cov_nostat,
-                                            Model *model,
-                                            const CovCalcMode &mode,
-                                            int flag_init,
-                                            double weight,
-                                            VectorDouble d1,
-                                            double *covtab)
-{
-
-  /* This function is not programmed yet */
-
-  messerr("The convolution covariance calculation function");
-  messerr("is not programmed yet");
-
   return;
 }
 
@@ -733,42 +702,6 @@ static void st_model_calcul_cov_anam_IR(CovInternal *cov_nostat,
     covtab[0] = covfin * weight;
   else
     covtab[0] += covfin * weight;
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the covariances for an increment
- **  This is the function for tapering case
- **
- ** \param[in]  cov_nostat   Internal structure (should be NULL)
- ** \param[in]  model        Model structure
- ** \param[in]  mode         CovCalcMode structure
- ** \param[in]  flag_init    Initialize the array beforehand
- ** \param[in]  weight       Weight attached to this calculation
- **
- ** \param[out] d1          Working array (dimension = ndim) or NULL
- ** \param[out] covtab      output covariance (dimension = nvar * nvar)
- **
- *****************************************************************************/
-static void st_model_calcul_cov_tapering(CovInternal *cov_nostat,
-                                         Model *model,
-                                         const CovCalcMode &mode,
-                                         int flag_init,
-                                         double weight,
-                                         VectorDouble d1,
-                                         double *covtab)
-{
-  double h;
-  int nvar = model->getVariableNumber();
-
-  /* Calculate the generic covariance value */
-
-  model_calcul_cov_direct(NULL, model, mode, flag_init, weight, d1, covtab);
-
-  /* Calculate the tapering effect */
-  /* This is now included in the CovLMCTapering function */
 
   return;
 }
@@ -1308,14 +1241,8 @@ int model_add_drift(Model *model, const EDrift &type, int rank_fex)
 int model_add_no_property(Model *model)
 
 {
-  int error;
-
-  /* Initializations */
-
-  error = 1;
-
   ModTrans &modtrs = model->getModTrans();
-  if (st_check_model(model)) goto label_end;
+  if (st_check_model(model)) return 1;
 
   // Cancel the property
 
@@ -1327,52 +1254,7 @@ int model_add_no_property(Model *model)
 
   /* Set the error return code */
 
-  error = 0;
-
-  label_end: return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Add the Model convolution parameters
- **
- ** \return  Error return code
- **
- ** \param[in]  model      Pointer to the Model structure
- ** \param[in]  conv_type  Type of the convolution function (starting from 1)
- ** \param[in]  conv_idir  Orientation of the convolution (starting from 1)
- ** \param[in]  conv_ndisc Number of discretization points per direction
- ** \param[in]  conv_range Convolution parameter
- **
- *****************************************************************************/
-int model_add_convolution(Model *model,
-                          int conv_type,
-                          int conv_idir,
-                          int conv_ndisc,
-                          double conv_range)
-{
-  int error;
-
-  /* Initializations */
-
-  error = 1;
-  ModTrans &modtrs = model->getModTrans();
-  if (st_check_model(model)) goto label_end;
-
-  /* Load the Convolution parameters */
-
-  if (modtrs.addConvolution(conv_type, conv_idir, conv_ndisc, conv_range))
-    goto label_end;
-
-  /* Set the calling function */
-
-  model_setup(model);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1532,7 +1414,7 @@ void model_setup(Model *model)
       break;
 
     case EModelProperty::E_CONV:
-      model->generic_cov_function = st_model_calcul_cov_convolution;
+      model->generic_cov_function = model_calcul_cov_direct;
       break;
 
     case EModelProperty::E_ANAM:
@@ -1559,7 +1441,7 @@ void model_setup(Model *model)
       break;
 
     case EModelProperty::E_TAPE:
-      model->generic_cov_function = st_model_calcul_cov_tapering;
+      model->generic_cov_function = model_calcul_cov_direct;
       break;
 
     default:
@@ -3298,10 +3180,7 @@ void model_extract_properties(Model *model, double *tape_range)
 
   const CovLMCTapering *covtape = dynamic_cast<const CovLMCTapering*>(model->getCovAnisoList());
   *tape_range = TEST;
-  if (covtape != nullptr)
-  {
-    *tape_range = covtape->getTapeRange();
-  }
+  if (covtape != nullptr) *tape_range = covtape->getTapeRange();
 }
 
 /****************************************************************************/
@@ -3338,7 +3217,7 @@ void model_cova_characteristics(const ECov &type,
                                 double *scale,
                                 double *parmax)
 {
-  SpaceRN space(1); // Retrieve all covariances
+  SpaceRN space(1); // Use 1-D in order to retrieve all covariances
   CovContext ctxt = CovContext(1, 1);
   ACovFunc *cov = CovFactory::createCovFunc(type, ctxt);
   (void) gslStrcpy((char*) cov_name, cov->getCovName().c_str());
@@ -3388,7 +3267,7 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
   if (covtab == nullptr) goto label_end;
   vario->setNVar(nvar);
 
-  // Internal redimensioning
+  // Internal dimensioning
 
   vario->internalVariableResize();
   vario->internalDirectionResize();

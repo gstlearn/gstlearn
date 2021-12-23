@@ -45,7 +45,6 @@ set(SOURCES
   Model/ModTrans.cpp
   Model/Model.cpp
   Model/NoStatFunctional.cpp
-  Model/Convolution.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland2.cpp
@@ -64,6 +63,7 @@ set(SOURCES
   Covariances/CovSincard.cpp
   Covariances/CovLMC.cpp
   Covariances/CovLMCTapering.cpp
+  Covariances/CovLMCConvolution.cpp
   Covariances/ACovGradient.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp

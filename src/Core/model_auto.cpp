@@ -16,6 +16,7 @@
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
+#include "Covariances/CovLMCConvolution.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Model.hpp"
 #include "Model/ConsItem.hpp"

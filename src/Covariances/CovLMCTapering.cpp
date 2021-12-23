@@ -202,7 +202,6 @@ double CovLMCTapering::eval0(int ivar,
                              const CovCalcMode& mode) const
 {
   double cov0 = CovLMC::eval0(ivar, jvar, mode);
-  cov0 *= D_TAPE(_tapeType).tapeFunc(0.);
   return cov0;
 }
 
@@ -213,7 +212,7 @@ double CovLMCTapering::eval(int ivar,
                             const CovCalcMode& mode) const
 {
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
-  // performed internally in 'eval' function
+  // performed in generic 'eval' method
   CovCalcMode modeloc(mode);
   bool asVario = mode.getAsVario();
   modeloc.setAsVario(false);
@@ -224,8 +223,7 @@ double CovLMCTapering::eval(int ivar,
 
   if (asVario)
   {
-    double cov0 = CovLMC::eval0(ivar, jvar, mode);
-    cov0 *= D_TAPE(_tapeType).tapeFunc(0.);
+    double cov0 = eval0(ivar,jvar, modeloc);
     cov = cov0 - cov;
   }
   return cov;

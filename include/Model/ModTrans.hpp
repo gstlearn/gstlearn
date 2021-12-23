@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Model/Convolution.hpp"
 #include "Model/EModelProperty.hpp"
 #include "Anamorphosis/Anam.hpp"
 #include "Basic/Vector.hpp"
@@ -30,10 +29,6 @@ public:
   virtual IClonable* clone() const override { return new ModTrans(*this); };
 
   void cancelProperty();
-  int addConvolution(int conv_type,
-                     int conv_idir,
-                     int conv_ndisc,
-                     double conv_range);
   int addAnamorphosis(const EAnam& anam_type,
                       int anam_nclass,
                       int anam_iclass,
@@ -54,11 +49,9 @@ public:
   double getAnamMeans(int iclass) const         { return _anamMeans[iclass]; }
 
   Anam* getAnam()        const { return _anam; }
-  Convolution* getConv() const { return _conv; }
 
 private:
   EModelProperty _modTransMode;
-  Convolution* _conv;
   Anam*        _anam;
   int    _anamIClass;         /* Target factor (-1: discretized grade) */
   int    _anamNClass;         /* Number of indicator classes */
