@@ -63,11 +63,11 @@ public:
   /// TODO : to be converted as internal member
   const CovContext& getContext() const { return _ctxt; }
 
-  void   addCovList(ACovAnisoList* covalist) { _covaList = covalist; }
+  void   addCovList(ACovAnisoList* covalist);
   void   addCova(const CovAniso* cov);
   void   delCova(int rank);
   void   delAllCovas();
-  void   addDriftList(DriftList* driftlist) { _driftList = driftlist; }
+  void   addDriftList(DriftList* driftlist);
   void   addDrift(const ADriftElem* drift);
   void   addDrift(const VectorString& driftSymbols);
   void   delDrift(int rank);

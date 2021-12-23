@@ -29,33 +29,9 @@ public:
   virtual IClonable* clone() const override { return new ModTrans(*this); };
 
   void cancelProperty();
-  int addAnamorphosis(const EAnam& anam_type,
-                      int anam_nclass,
-                      int anam_iclass,
-                      int anam_var,
-                      double anam_coefr,
-                      double anam_coefs,
-                      VectorDouble& anam_strcnt,
-                      VectorDouble& anam_stats);
 
   const EModelProperty& getModTransMode() const { return _modTransMode; }
-  int getAnamIClass() const                     { return _anamIClass; }
-  int getAnamNClass() const                     { return _anamNClass; }
-  int getAnamPointBlock() const                 { return _anamPointBlock;  }
-  void setAnamIClass(int iclass)                { _anamIClass = iclass; }
-  void setAnamVar(int var)                      { _anamPointBlock = var; }
-  const VectorDouble& getAnamStrCount() const   { return _anamStrCount; }
-  const VectorDouble& getAnamMeans() const      { return _anamMeans; }
-  double getAnamMeans(int iclass) const         { return _anamMeans[iclass]; }
-
-  Anam* getAnam()        const { return _anam; }
 
 private:
   EModelProperty _modTransMode;
-  Anam*        _anam;
-  int    _anamIClass;         /* Target factor (-1: discretized grade) */
-  int    _anamNClass;         /* Number of indicator classes */
-  int    _anamPointBlock;     /* Type of point / block covariance */
-  VectorDouble _anamStrCount; /* Array of structure count per model (IR)  */
-  VectorDouble _anamMeans;    /* Array of statistics per class */
 };

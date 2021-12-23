@@ -69,9 +69,6 @@ public:
   int getConvNumber() const { return _convNumber; }
 
 private:
-  int _getConvNumber();
-
-private:
   EConvType _convType; /* Convolution type */
   EConvDir  _convDir;  /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */
   int _convDiscNumber; /* Number of discretization per direction */

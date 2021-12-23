@@ -53,6 +53,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Building the Model
   Model modellmc = Model(ctxt);
   modellmc.addCovList(&covlmc);
+  return(0);
   modellmc.display(1);
 
   ///////////////////////
@@ -96,7 +97,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Sample the Tapered Model at regular steps
   VectorDouble vec3 = modelconv.sample(3., 50);
-  ut_vector_display("\nConvoluted Model",vec3);
+  ut_vector_display("\nConvoluted Model", vec3);
 
   return 0;
 }

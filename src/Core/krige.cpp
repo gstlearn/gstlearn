@@ -24,6 +24,7 @@
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/String.hpp"
+#include "Covariances/CovLMCAnamorphosis.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -8427,6 +8428,7 @@ int dk_f(Db *dbin,
   int iptr_est_bck, iptr_std_bck, ivar, i;
   int *varloc, flag_block, flag_panel, flag_continue, neqmax;
   double *rhs_cum, ldum;
+  CovLMCAnamorphosis* covanam;
   static double perturb = 1.e-8;
 
   /* Preliminary checks */
@@ -8458,9 +8460,15 @@ int dk_f(Db *dbin,
     messerr("For that sake, use 'model.properties'");
     goto label_end;
   }
+  covanam = dynamic_cast<CovLMCAnamorphosis*>(model->getCovAnisoList());
+  if (covanam == nullptr)
+  {
+    messerr("The Covariance does not seem to be a CovLMCAnamorphosis");
+    goto label_end;
+  }
 
-  if (IFFFF(nfactor)) nfactor = modtrs.getAnamNClass();
-  if (modtrs.getAnam()->getType() == EAnam::HERMITIAN)
+  if (IFFFF(nfactor)) nfactor = covanam->getAnamNClass();
+  if (covanam->getAnamType() == EAnam::HERMITIAN)
   {
     /* In the gaussian case, calculate the 'nfactor-1' factors */
 
@@ -8480,19 +8488,19 @@ int dk_f(Db *dbin,
     goto label_end;
   }
   flag_block = 0;
-  if (modtrs.getAnam()->getType() == EAnam::HERMITIAN)
+  if (covanam->getAnamType() == EAnam::HERMITIAN)
   {
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(modtrs.getAnam());
+    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(covanam->getAnam());
     if (anam_hermite->getRCoef() < 1.) flag_block = 1;
   }
-  else if (modtrs.getAnam()->getType() == EAnam::DISCRETE_DD)
+  else if (covanam->getAnamType() == EAnam::DISCRETE_DD)
   {
-    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(modtrs.getAnam());
+    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(covanam->getAnam());
     if (anam_discrete_DD->getSCoef() > 0.) flag_block = 1;
   }
   else
   {
-    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(modtrs.getAnam());
+    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(covanam->getAnam());
     if (anam_discrete_IR->getRCoef() < 1.) flag_block = 1;
   }
   flag_panel = (flag_block && !nmult.empty());

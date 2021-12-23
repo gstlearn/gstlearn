@@ -299,9 +299,3 @@ double CovLMCConvolution::eval(int ivar,
   }
   return cov;
 }
-
-int CovLMCConvolution::_getConvNumber()
-{
-  int N_DEF_CONV = 4;
-  return N_DEF_CONV;
-}

@@ -17,8 +17,9 @@
 #include "Anamorphosis/EAnam.hpp"
 
 #include "Basic/AStringable.hpp"
+#include "Basic/IClonable.hpp"
 
-class GSTLEARN_EXPORT Anam : public AStringable
+class GSTLEARN_EXPORT Anam : public AStringable, public IClonable
 {
 public:
   Anam(const EAnam& type = EAnam::UNDEFINED);
@@ -27,6 +28,7 @@ public:
   virtual ~Anam();
 
   virtual String toString(int level = 0) const override;
+  virtual IClonable* clone() const override { return new Anam(*this); }
 
   const EAnam&  getType() const { return _type; }
 

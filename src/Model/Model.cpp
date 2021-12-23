@@ -36,7 +36,7 @@ Model::Model(const CovContext &ctxt, bool flagGradient, bool flagLinked)
     _covaList(nullptr),
     _driftList(nullptr),
     _modTrans(),
-    _noStat(),
+    _noStat(nullptr),
     _ctxt(ctxt),
     generic_cov_function(nullptr)
 {
@@ -52,7 +52,7 @@ Model::Model(const Db *db, bool flagGradient, bool flagLinked)
     _covaList(nullptr),
     _driftList(nullptr),
     _modTrans(),
-    _noStat(),
+    _noStat(nullptr),
     _ctxt(),
     generic_cov_function(nullptr)
 {
@@ -69,7 +69,7 @@ Model::Model(const String &neutralFileName, bool verbose)
     _covaList(nullptr),
     _driftList(nullptr),
     _modTrans(),
-    _noStat(),
+    _noStat(nullptr),
     _ctxt(),
     generic_cov_function(nullptr)
 {
@@ -169,10 +169,38 @@ void Model::delAllCovas()
   _covaList->delAllCov();
 }
 
+/**
+ * Add a list of Covariances. This operation cleans any previously stored covariance
+ * @param covalist List of Covariances to be added
+ */
+void Model::addCovList(ACovAnisoList* covalist)
+{
+  if (covalist == nullptr) return;
+  if (_covaList != nullptr) delAllCovas();
+
+  int ncov = covalist->getCovNumber();
+  for (int icov = 0; icov < ncov; icov++)
+    addCova(covalist->getCova(icov));
+}
+
 void Model::addCova(const CovAniso *cov)
 {
   _covaList->addCov(cov);
   model_setup(this);
+}
+
+/**
+ * Add a list of Drifts. This operation cleans any previously stored drift function
+ * @param driftlist List of Drifts to be added
+ */
+void Model::addDriftList(DriftList* driftlist)
+{
+  if (driftlist == nullptr) return;
+  if (_driftList != nullptr) delAllDrifts();
+
+  int ndrift = driftlist->getDriftNumber();
+  for (int idrift = 0; idrift < ndrift; idrift++)
+    addDrift(driftlist->getDrift(idrift));
 }
 
 void Model::addDrift(const ADriftElem *drift)

@@ -17,6 +17,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
+#include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Model.hpp"
 #include "Model/ConsItem.hpp"
@@ -24,6 +25,7 @@
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
 #include "Variogram/Vario.hpp"
+#include "Anamorphosis/EAnam.hpp"
 
 #include <math.h>
 
@@ -129,6 +131,22 @@ static int *INDG2;
 static const Db *DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
 static Recint RECINT;
+
+static void st_modify_optvar_for_anam(Model* model, Option_VarioFit &optvar)
+{
+  CovLMCAnamorphosis* covanam = dynamic_cast<CovLMCAnamorphosis*>(model->getCovAnisoList());
+  if (covanam != nullptr)
+  {
+    const EAnam anamtype = covanam->getAnamType();
+    if (anamtype != EAnam::HERMITIAN && optvar.getFlagGoulardUsed())
+    {
+      message("Goulard option is switched OFF");
+      message(
+          "due to presence of ANAM Properties (type != EAnam::HERMITIAN)\n");
+      optvar.setFlagGoulardUsed(0);
+    }
+  }
+}
 
 /****************************************************************************/
 /*!
@@ -3960,14 +3978,7 @@ static int st_alter_model_optvar(const Vario *vario,
 
   /* Case when properties are defined: Goulard is switch off */
 
-  if (model->getModTransMode() == EModelProperty::ANAM && model->getModTrans().getAnam()->getType()
-      != EAnam::HERMITIAN
-      && optvar.getFlagGoulardUsed())
-  {
-    message("Goulard option is switched OFF");
-    message("due to presence of ANAM Properties (type != EAnam::HERMITIAN)\n");
-    optvar.setFlagGoulardUsed(0);
-  }
+  st_modify_optvar_for_anam(model,optvar);
 
   /* Case when constraints involve sill(s) */
 
@@ -4014,14 +4025,7 @@ static int st_alter_vmap_optvar(const Db *dbmap,
 
   /* Case when properties are defined: Goulard is switch off */
 
-  if (model->getModTransMode() == EModelProperty::ANAM && model->getModTrans().getAnam()->getType()
-      != EAnam::HERMITIAN
-      && optvar.getFlagGoulardUsed())
-  {
-    message("Goulard option is switched OFF");
-    message("due to presence of ANAM Properties (type != EAnam::HERMITIAN)\n");
-    optvar.setFlagGoulardUsed(0);
-  }
+  st_modify_optvar_for_anam(model,optvar);
 
   /* Case when constraints involve sill(s) */
 

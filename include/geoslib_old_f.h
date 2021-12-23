@@ -1074,15 +1074,6 @@ GSTLEARN_EXPORT int model_add_drift(Model *model,
                                     const EDrift &type,
                                     int rank_fex);
 GSTLEARN_EXPORT int model_add_no_property(Model *model);
-GSTLEARN_EXPORT int model_add_anamorphosis(Model *model,
-                                           const EAnam &anam_type,
-                                           int anam_nclass,
-                                           int anam_iclass,
-                                           int anam_var,
-                                           double anam_coefr,
-                                           double anam_coefs,
-                                           VectorDouble &anam_strcnt,
-                                           VectorDouble &anam_stats);
 GSTLEARN_EXPORT int model_anamorphosis_set_factor(Model *model, int iclass);
 GSTLEARN_EXPORT int model_sample(Vario *vario,
                                  Model *model,

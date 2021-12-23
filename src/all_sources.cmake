@@ -64,6 +64,7 @@ set(SOURCES
   Covariances/CovLMC.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
+  Covariances/CovLMCAnamorphosis.cpp
   Covariances/ACovGradient.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp

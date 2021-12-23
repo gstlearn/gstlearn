@@ -19,24 +19,12 @@
 ModTrans::ModTrans()
   : AStringable(),
     _modTransMode(EModelProperty::NONE)
-  , _anam(nullptr)
-  , _anamIClass(0)
-  , _anamNClass(0)
-  , _anamPointBlock(0)
-  , _anamStrCount()
-  , _anamMeans()
 {
 }
 
 ModTrans::ModTrans(const ModTrans &m)
     : AStringable(m),
-      _modTransMode(m._modTransMode),
-      _anam(m._anam),
-      _anamIClass(m._anamIClass),
-      _anamNClass(m._anamNClass),
-      _anamPointBlock(m._anamPointBlock),
-      _anamStrCount(m._anamStrCount),
-      _anamMeans(m._anamMeans)
+      _modTransMode(m._modTransMode)
 {
 }
 
@@ -46,92 +34,17 @@ ModTrans& ModTrans::operator=(const ModTrans &m)
   {
     AStringable::operator=(m);
     _modTransMode = m._modTransMode;
-    _anam = m._anam;
-    _anamIClass = m._anamIClass;
-    _anamNClass = m._anamNClass;
-    _anamPointBlock = m._anamPointBlock;
-    _anamStrCount = m._anamStrCount;
-    _anamMeans = m._anamMeans;
   }
   return (*this);
 }
 
 ModTrans::~ModTrans()
 {
-  if (_anam != nullptr) delete _anam;
 }
 
 void ModTrans::cancelProperty()
 {
   _modTransMode = EModelProperty::NONE;
-}
-
-int ModTrans::addAnamorphosis(const EAnam& anam_type,
-                              int anam_nclass,
-                              int anam_iclass,
-                              int anam_var,
-                              double anam_coefr,
-                              double anam_coefs,
-                              VectorDouble& anam_strcnt,
-                              VectorDouble& anam_stats)
-{
-  /* Preliminary checks */
-
-  if (! (anam_iclass == 0 || anam_iclass < anam_nclass))
-  {
-    messerr("The rank of the active factor (%d) is incorrect",anam_iclass);
-    messerr("It should lie between 1 and the number of factors (%d)",
-            anam_nclass-1);
-    messerr("or be set to 0 to estimate the whole discretized grade");
-    return 1;
-  }
-
-  /* Load the parameters */
-
-  if (anam_type == EAnam::HERMITIAN)
-  {
-    _anam = new AnamHermite();
-    AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
-    anam_hermite->setRCoef(anam_coefr);
-  }
-  else if (anam_type == EAnam::DISCRETE_IR)
-  {
-    _anam = new AnamDiscreteIR();
-    AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
-    anam_discrete_IR->setNCut(anam_nclass);
-    anam_discrete_IR->setRCoef(anam_coefr);
-    anam_discrete_IR->setStats(anam_stats);
-  }
-  else if (anam_type == EAnam::DISCRETE_DD)
-  {
-    _anam = new AnamDiscreteDD();
-    AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
-    anam_discrete_DD->setNCut(anam_nclass);
-    anam_discrete_DD->setSCoef(anam_coefs);
-    anam_discrete_DD->setStats(anam_stats);
-  }
-  else
-  {
-    messerr("Unknown Anamorphosis type int Definition of Model Transformation");
-    return 1;
-  }
-
-  _anamIClass = anam_iclass;
-  _anamNClass = anam_nclass;
-  _anamPointBlock = FFFF(anam_var) ? 0 : anam_var - 1;
-
-  if (!anam_strcnt.empty())
-  {
-    _anamStrCount.resize(anam_nclass - 1);
-    for (int i = 0; i < anam_nclass - 1; i++)
-      _anamStrCount[i] = anam_strcnt[i];
-  }
-
-  // Define the Property
-
-  _modTransMode = EModelProperty::ANAM;
-
-  return 0;
 }
 
 String ModTrans::toString(int level) const
@@ -141,14 +54,5 @@ String ModTrans::toString(int level) const
   if (_modTransMode == EModelProperty::NONE) return sstr.str();
   mestitle(1,"Additional Properties");
 
-  switch (_modTransMode.toEnum())
-  {
-    case EModelProperty::E_ANAM:
-      sstr << _anam->toString(level);
-      break;
-
-    default:
-      break;
-  }
   return sstr.str();
 }
