@@ -463,7 +463,7 @@ static void st_covariance_c00(LMlayers *lmlayers,
   CovCalcMode mode;
 
   nlayers = lmlayers->nlayers;
-  model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
+  model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), covtab);
 
   if (lmlayers->flag_cumul)
   {
@@ -536,7 +536,7 @@ static double st_cij(LMlayers *lmlayers,
                             0.;
   d1[1] = (dd != nullptr) ? dd[1] :
                             0.;
-  model_calcul_cov(model, mode, 1, 1., d1, covtab);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
 
   /* Evaluate the covariance term */
 
@@ -595,7 +595,7 @@ static double st_ci0(LMlayers *lmlayers,
                             0.;
   d1[1] = (dd != nullptr) ? dd[1] :
                             0.;
-  model_calcul_cov(model, mode, 1, 1., d1, covtab);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
 
   /* Evaluate the covariance term */
 

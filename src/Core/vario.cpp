@@ -1444,7 +1444,7 @@ static void st_calculate_bias_global(Db *db, VectorDouble d1)
 
   for (idim = 0; idim < ndim; idim++)
     d1[idim] = 0.;
-  model_calcul_cov(MODEL, mode, 1, 1., d1, &c00);
+  model_calcul_cov(NULL,MODEL, mode, 1, 1., d1, &c00);
 
   /* Calculate the term: G %*% X */
 
@@ -1459,7 +1459,7 @@ static void st_calculate_bias_global(Db *db, VectorDouble d1)
         if (!db->isActiveAndDefined(jech, 0)) continue;
         for (idim = 0; idim < ndim; idim++)
           d1[idim] = db->getDistance1D(iech, jech, idim);
-        model_calcul_cov(MODEL, mode, 1, 1., d1, &covtab);
+        model_calcul_cov(NULL,MODEL, mode, 1, 1., d1, &covtab);
         value += (c00 - covtab) * X_DRFTAB(il, jjech);
         jjech++;
       }
@@ -4360,7 +4360,6 @@ int regression_f(Db *db1,
       break;
 
     case 2:
-      model_setup(model);
       break;
   }
 
@@ -6580,7 +6579,7 @@ int variogram_y2z(Vario *vario, Anam *anam, Model *model)
         d1[idim] = (ipas + 1) * vario->getDPas(idir)
                    * vario->getCodir(idir, idim);
 
-      model_calcul_cov(model, mode, 1, 1., d1, &chh);
+      model_calcul_cov(NULL,model, mode, 1, 1., d1, &chh);
       if (chh < 0.)
       {
         messerr("Gaussian covariance is negative in direction %d for lag %d",

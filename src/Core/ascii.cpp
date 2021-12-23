@@ -521,7 +521,6 @@ Model* ascii_model_read(const char *file_name, int verbose)
 {
   if (!st_file_exists(file_name)) return nullptr;
   Model *model = new Model(file_name, verbose);
-  model_setup(model);
   return (model);
 }
 

@@ -203,13 +203,4 @@ private:
   ModTrans       _modTrans;     /* Covariance Transformation */
   ANoStat*       _noStat;       /* Description of Non-stationary Model */
   CovContext     _ctxt;         /* Context */
-
-public:
-  void (*generic_cov_function)(CovInternal *cov_nostat,
-                               Model *model,
-                               const CovCalcMode& mode,
-                               int flag_init,
-                               double weight,
-                               VectorDouble d1,
-                               double *covtab);
 };

@@ -335,7 +335,7 @@ static int st_kriging_solve(int type, int rank, int nb, Model *model)
       d1[0] = XN[type][i] - XN[type][j];
       d1[1] = YN[type][i] - YN[type][j];
       d1[2] = ZN[type][i] - ZN[type][j];
-      model_calcul_cov(model, mode, 1, 1., d1, &LHS(i, j));
+      model_calcul_cov(NULL,model, mode, 1, 1., d1, &LHS(i, j));
     }
 
   /* Establish the kriging R.H.S. */
@@ -346,7 +346,7 @@ static int st_kriging_solve(int type, int rank, int nb, Model *model)
     d1[0] = XN[type][i];
     d1[1] = YN[type][i];
     d1[2] = ZN[type][i];
-    model_calcul_cov(model, mode, 1, 1., d1, &RHS(i));
+    model_calcul_cov(NULL,model, mode, 1, 1., d1, &RHS(i));
   }
 
   /* Add the Universality condition (optional) */
@@ -374,7 +374,7 @@ static int st_kriging_solve(int type, int rank, int nb, Model *model)
   mode.setMember(ECalcMember::VAR);
   for (i = 0; i < 3; i++)
     d1[i] = 0.;
-  model_calcul_cov(model, mode, 1, 1., d1, &var[0]);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, &var[0]);
   matrix_product(1, neq, 1, rhs, WGT[type][rank], &var[1]);
   variance = var[0] - var[1];
   STDV[type][rank] = (variance > 0) ? sqrt(variance) :

@@ -2509,7 +2509,7 @@ static void st_estimate_var0(Model *model, double *var0)
 
   VectorDouble d1(model->getDimensionNumber());
   mode.setMember(ECalcMember::VAR);
-  model_calcul_cov(model, mode, 1, 1., d1, covtab);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
 
   for (int ivar = 0; ivar < NVAR; ivar++)
     var0[ivar] = COVTAB(ivar, ivar);
@@ -2531,7 +2531,7 @@ static void st_estimate_c00(Model *model, double *c00)
   CovCalcMode mode;
   VectorDouble d1(model->getDimensionNumber());
   mode.setMember(ECalcMember::VAR);
-  model_calcul_cov(model, mode, 1, 1., d1, covtab);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
 
   for (int ivar = 0; ivar < NVAR; ivar++)
     for (int jvar = 0; jvar < NVAR; jvar++)
@@ -2582,7 +2582,7 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
     {
       d1[0] = DX * (ngh->ix_ngh[iech] - ngh->ix_ngh[jech]);
       d1[2] = DZ * (ngh->iz_ngh[iech] - ngh->iz_ngh[jech]);
-      model_calcul_cov(model, mode, 1, 1., d1, covtab);
+      model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
 
       for (ivar = 0; ivar < NVAR; ivar++)
         for (jvar = 0; jvar < NVAR; jvar++)
@@ -2656,7 +2656,7 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
   {
     d1[0] = DX * ngh->ix_ngh[iech];
     d1[2] = DZ * ngh->iz_ngh[iech];
-    model_calcul_cov(model, mode, 1, 1., d1, covtab);
+    model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
 
     for (ivar = 0; ivar < NVAR; ivar++)
       for (jvar = 0; jvar < NVAR; jvar++)

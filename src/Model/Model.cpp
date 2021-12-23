@@ -37,8 +37,7 @@ Model::Model(const CovContext &ctxt, bool flagGradient, bool flagLinked)
     _driftList(nullptr),
     _modTrans(),
     _noStat(nullptr),
-    _ctxt(ctxt),
-    generic_cov_function(nullptr)
+    _ctxt(ctxt)
 {
   _create(flagGradient, flagLinked);
 }
@@ -53,8 +52,7 @@ Model::Model(const Db *db, bool flagGradient, bool flagLinked)
     _driftList(nullptr),
     _modTrans(),
     _noStat(nullptr),
-    _ctxt(),
-    generic_cov_function(nullptr)
+    _ctxt()
 {
   _ctxt = CovContext(db);
   _create(flagGradient, flagLinked);
@@ -70,8 +68,7 @@ Model::Model(const String &neutralFileName, bool verbose)
     _driftList(nullptr),
     _modTrans(),
     _noStat(nullptr),
-    _ctxt(),
-    generic_cov_function(nullptr)
+    _ctxt()
 {
   if (deSerialize(neutralFileName, verbose))
   {
@@ -89,8 +86,7 @@ Model::Model(const Model &m)
     _driftList(dynamic_cast<DriftList*>(m._driftList->clone())),
     _modTrans(m._modTrans),
     _noStat(dynamic_cast<ANoStat*>(m._noStat->clone())),
-    _ctxt(m._ctxt),
-    generic_cov_function(m.generic_cov_function)
+    _ctxt(m._ctxt)
 {
 }
 
@@ -186,7 +182,6 @@ void Model::addCovList(ACovAnisoList* covalist)
 void Model::addCova(const CovAniso *cov)
 {
   _covaList->addCov(cov);
-  model_setup(this);
 }
 
 /**
@@ -711,9 +706,6 @@ int Model::deSerialize(const String &filename, bool verbose)
       setCovar0(ivar, jvar, value);
     }
 
-  // Set the default function for calculations
-  generic_cov_function = model_calcul_cov_direct;
-
   // Close the file
   _fileClose(verbose);
 
@@ -815,9 +807,6 @@ void Model::_create(bool flagGradient, bool flagLinked)
     _covaList = new CovLMC(_ctxt.getSpace());
 
   _driftList = new DriftList(flagLinked);
-
-  // Default function used for calculations
-  generic_cov_function = model_calcul_cov_direct;
 }
 
 void Model::_destroy()

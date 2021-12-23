@@ -2237,11 +2237,6 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       }
     }
   }
-
-  // Update the internal function (which may have changed during the fit 
-
-  for (imod = 0; imod < strmod->nmodel; imod++)
-    model_setup(strmod->models[imod]);
   return;
 }
 
@@ -2275,7 +2270,7 @@ static int st_structure_reduce(StrMod *strmod,
 
   mode.update(0, 0, ECalcMember::LHS, icov, 0, 0);
   mode.setOrderVario(STRMOD->norder);
-  model_calcul_cov(model, mode, 1, 1., d1, tab.data());
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, tab.data());
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
@@ -4277,7 +4272,7 @@ static void st_prepar_goulard_vmap(int imod)
       db_index_sample_to_grid(DBMAP, ipadir, INDG2);
       for (int idim = 0; idim < ndim; idim++)
         d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
-      model_calcul_cov(model, mode, 1, 1., d0, tab.data());
+      model_calcul_cov(NULL,model, mode, 1, 1., d0, tab.data());
 
       /* Loop on the variables */
 
@@ -4373,7 +4368,7 @@ static void st_vario_varchol_manage(const Vario *vario,
   {
     model_nugget = model_default(model->getDimensionNumber(),
                                  model->getVariableNumber());
-    model_calcul_cov(model, mode, 1, 1., VectorDouble(), aux.data());
+    model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), aux.data());
     for (i = 0; i < nvar2; i++)
       aux[i] = vario->getVarIndex(i) / aux[i];
   }

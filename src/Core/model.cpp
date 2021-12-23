@@ -216,13 +216,13 @@ double model_calcul_basic(Model *model,
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
  **
  *****************************************************************************/
-void model_calcul_cov_direct(CovInternal *covint,
-                             Model *model,
-                             const CovCalcMode &mode,
-                             int flag_init,
-                             double weight,
-                             VectorDouble d1,
-                             double *covtab)
+void model_calcul_cov(CovInternal *covint,
+                      Model *model,
+                      const CovCalcMode &mode,
+                      int flag_init,
+                      double weight,
+                      VectorDouble d1,
+                      double *covtab)
 {
   // Load the non-stationary parameters if needed
 
@@ -244,33 +244,6 @@ void model_calcul_cov_direct(CovInternal *covint,
         else
         COVTAB(ivar,jvar) += value;
       }
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the covariances for an increment
- **
- ** \param[in]  model       Structure containing the model
- ** \param[in]  mode        CovCalcMode structure
- ** \param[in]  flag_init   initialize the array beforehand
- ** \param[in]  weight      Weight attached to this calculation
- ** \param[in]  d1          vector of increment (or NULL)
- **
- ** \param[out] covtab      output covariance (dimension = nvar * nvar)
- **
- *****************************************************************************/
-void model_calcul_cov(Model *model,
-                      CovCalcMode &mode,
-                      int flag_init,
-                      double weight,
-                      const VectorDouble &d1,
-                      double *covtab)
-{
-  /* Call the generic model calculation module */
-
-  model->generic_cov_function(NULL, model, mode, flag_init, weight, d1, covtab);
-
   return;
 }
 
@@ -317,38 +290,6 @@ double model_calcul_cov_ij(Model *model,
 const CovInternal* get_external_covariance()
 {
   return COVINT;
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the covariances for an increment
- **  The increment is calculated between two samples of two Dbs
- **  This function is available in the non-stationary case
- **
- ** \param[in]  model       Structure containing the model
- ** \param[in]  mode        CovCalcMode structure
- ** \param[in]  covint      Pointer to the Internal Covariance structure
- ** \param[in]  flag_init   initialize the array beforehand
- ** \param[in]  weight      Weight attached to this calculation
- **
- ** \param[out] d1          Working array (dimension = ndim) or NULL
- ** \param[out] covtab      output covariance (dimension = nvar * nvar)
- **
- *****************************************************************************/
-void model_calcul_cov_nostat(Model *model,
-                             CovCalcMode &mode,
-                             CovInternal *covint,
-                             int flag_init,
-                             double weight,
-                             VectorDouble &d1,
-                             double *covtab)
-{
-  /* Call the generic model calculation module */
-
-  model->generic_cov_function(covint, model, mode, flag_init, weight, d1,
-                              covtab);
-
-  return;
 }
 
 /****************************************************************************/
@@ -405,7 +346,7 @@ void model_variance0(Model *model,
   {
     case EKrigOpt::E_PONCTUAL:
       nscale = 1;
-      model_calcul_cov(model, mode, 1, 1., d1, covtab);
+      model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
       break;
 
     case EKrigOpt::E_BLOCK:
@@ -416,7 +357,7 @@ void model_variance0(Model *model,
         {
           for (idim = 0; idim < model->getDimensionNumber(); idim++)
             d1[idim] = DISC1(i,idim) - DISC2(j, idim);
-          model_calcul_cov(model, mode, 0, 1., d1, covtab);
+          model_calcul_cov(NULL,model, mode, 0, 1., d1, covtab);
         }
       nscale = nscale * nscale;
       break;
@@ -476,7 +417,7 @@ void model_variance0_nostat(Model *model,
   {
     case EKrigOpt::E_PONCTUAL:
       nscale = 1;
-      model_calcul_cov_nostat(model, mode, covint, 1, 1., d1, covtab);
+      model_calcul_cov(covint, model, mode, 1, 1., d1, covtab);
       break;
 
     case EKrigOpt::E_BLOCK:
@@ -487,7 +428,7 @@ void model_variance0_nostat(Model *model,
         {
           for (idim = 0; idim < model->getDimensionNumber(); idim++)
             d1[idim] = DISC1(i,idim) - DISC2(j, idim);
-          model_calcul_cov_nostat(model, mode, covint, 0, 1., d1, covtab);
+          model_calcul_cov(covint, model, mode, 0, 1., d1, covtab);
         }
       nscale = nscale * nscale;
       break;
@@ -581,10 +522,6 @@ Model* model_init(int ndim,
 
   model = new Model(ctxt, flag_gradient, flag_linked);
 
-  /* Set the error return flag */
-
-  model_setup(model);
-
   return (model);
 }
 
@@ -623,7 +560,6 @@ Model* model_default(int ndim, int nvar)
 
   /* Set the error return flag */
 
-  model_setup(model);
   error = 0;
 
   label_end: if (error) model = model_free(model);
@@ -699,10 +635,6 @@ int model_add_cova(Model *model,
     model->addCova(&cova);
   }
 
-  /* Set the error return code */
-
-  model_setup(model);
-
   return 0;
 }
 
@@ -740,7 +672,6 @@ int model_add_drift(Model *model, const EDrift &type, int rank_fex)
 
   /* Set the error return code */
 
-  model_setup(model);
   error = 0;
 
   label_end: return (error);
@@ -764,10 +695,6 @@ int model_add_no_property(Model *model)
   // Cancel the property
 
   modtrs.cancelProperty();
-
-  /* Set the calling function */
-
-  model_setup(model);
 
   /* Set the error return code */
 
@@ -822,20 +749,6 @@ double cova_get_scale_factor(const ECov &type, double param)
   ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   return cova->getScadef();
-}
-
-/****************************************************************************/
-/*!
- **  Sets the functions for covariance and drift
- **
- ** \param[in,out]  model Model structure
- **
- *****************************************************************************/
-void model_setup(Model *model)
-
-{
-  if (model == nullptr) return;
-  model->generic_cov_function = model_calcul_cov_direct;
 }
 
 /*****************************************************************************/
@@ -974,7 +887,7 @@ int model_evaluate(Model *model,
   {
     for (int idim = 0; idim < ndim; idim++)
       d1[idim] = h[ih] * codir[idim];
-    model_calcul_cov(model, mode, 1, 1., d1, covtab);
+    model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
     g[ih] = COVTAB(ivar, jvar);
   }
 
@@ -1072,7 +985,7 @@ int model_evaluate_nostat(Model *model,
   c00 = model->getContext().getCovar0(ivar, jvar);
   d1.resize(ndim, 0.);
 
-  model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
+  model_calcul_cov(&covint, model, mode, 1, 1., d1, covtab);
   var0 = COVTAB(ivar, jvar);
   if (c00 <= 0. || FFFF(c00)) c00 = var0;
 
@@ -1082,7 +995,7 @@ int model_evaluate_nostat(Model *model,
   {
     for (int idim = 0; idim < ndim; idim++)
       d1[idim] = h[ih] * codir[idim];
-    model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
+    model_calcul_cov(&covint, model, mode, 1, 1., d1, covtab);
     g[ih] = COVTAB(ivar, jvar);
   }
 
@@ -1151,7 +1064,7 @@ int model_grid(Model *model,
   {
     if (!db->isActive(iech)) continue;
     db_sample_load(db, ELoc::X, iech, d1.data());
-    model_calcul_cov(model, mode, 1, 1., d1, covtab);
+    model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
     g[iech] = COVTAB(ivar, jvar);
   }
 
@@ -1285,7 +1198,7 @@ double model_cxx(Model *model,
       }
       if (skip) continue;
 
-      model_calcul_cov(model, mode, 0, w1 * w2, d1, covtab);
+      model_calcul_cov(NULL,model, mode, 0, w1 * w2, d1, covtab);
       norme += w1 * w2;
     }
   }
@@ -1418,7 +1331,7 @@ double* model_covmat_by_ranks(Model *model,
           }
           if (!skip)
           {
-            model_calcul_cov(model, mode, 1, 1., d1, covtab);
+            model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
             value = COVTAB(ivar, jvar);
           }
           covmat[ecr++] = value;
@@ -1601,7 +1514,7 @@ static void st_matrix_c00(Model *model,
     for (ivar2 = 0; ivar2 < nvar; ivar2++)
     {
       c00 = model->getContext().getCovar0(ivar1, ivar2);
-      model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
+      model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), covtab);
       var0 = COVTAB(ivar1, ivar2);
       if (c00 <= 0. || FFFF(c00)) c00 = var0;
       C00TAB(ivar1,ivar2)= c00;
@@ -1914,10 +1827,6 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     }
   }
 
-  // Set the error return code
-
-  model_setup(new_model);
-
   return (new_model);
 }
 
@@ -2059,7 +1968,6 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
 //
 //  /* Set the error return code */
 //
-//  if (model_setup(new_model)) goto label_end;
 //  error = 0;
 //
 //label_end:
@@ -2663,7 +2571,7 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
 
   /* Calculate the C(0) constant term */
 
-  model_calcul_cov(model, mode, 1, 1., VectorDouble(), covtab);
+  model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), covtab);
   for (i = 0; i < nvar * nvar; i++)
     vario->setVarIndex(i, covtab[i]);
 
@@ -2688,7 +2596,7 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
           vario->setHhByIndex(idir, i, ipas * vario->getDPas(idir));
           for (idim = 0; idim < ndim; idim++)
             d1[idim] = vario->getHhByIndex(idir, i) * vario->getCodir(idir, idim);
-          model_calcul_cov(model, mode, 1, 1., d1, covtab);
+          model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
           vario->setGgByIndex(idir, i, COVTAB(ivar, jvar));
         }
     }
@@ -2771,7 +2679,7 @@ void model_vector_multivar(Model *model,
       }
       if (skip) continue;
 
-      model_calcul_cov(model, mode, 1, 1., d1, covtab);
+      model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
       vector[ecr++] = COVTAB(ivar, jvar);
     }
 
@@ -2855,7 +2763,7 @@ void model_vector(Model *model,
     }
     if (skip) continue;
 
-    model_calcul_cov(model, mode, 1, 1., d1, covtab);
+    model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
     vector[iech] = COVTAB(ivar, jvar);
   }
 
@@ -2929,7 +2837,7 @@ void model_vector_nostat(Model *model,
     if (skip) continue;
 
     CovInternal covint(1, iech, 1, jech, ndim, db, db);
-    model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
+    model_calcul_cov(&covint, model, mode, 1, 1., d1, covtab);
     value = COVTAB(ivar, jvar);
     vector[jech] = value;
   }
@@ -3221,7 +3129,7 @@ int model_regularize(Model *model,
       {
         dd[idim] = db->getDistance1D(iech, jech, idim);
       }
-      model_calcul_cov(model, mode, 0, 1, dd, c00tab);
+      model_calcul_cov(NULL,model, mode, 0, 1, dd, c00tab);
     }
   st_covtab_rescale(nvar, norme, c00tab);
 
@@ -3253,7 +3161,7 @@ int model_regularize(Model *model,
                 + dist * vario->getCodir(idir, idim);
             dd[idim] = v1 - v2;
           }
-          model_calcul_cov(model, mode, 0, 1, dd, covtab);
+          model_calcul_cov(NULL,model, mode, 0, 1, dd, covtab);
         }
       st_covtab_rescale(nvar, norme, covtab);
 
@@ -3347,7 +3255,7 @@ int model_covmat_inchol(int verbose,
   if (crit == nullptr) goto label_end;
   pvec = (int*) mem_alloc(sizeof(int) * nech, 0);
   if (pvec == nullptr) goto label_end;
-  model_calcul_cov(model, mode, 1, 1., VectorDouble(), &c00);
+  model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), &c00);
   for (i = 0; i < nech; i++)
     pvec[i] = i;
 
@@ -3360,7 +3268,7 @@ int model_covmat_inchol(int verbose,
 
       for (int idim = 0; idim < 3; idim++)
         d1[idim] = db->getCoordinate(pvec[i], idim) - center[idim];
-      model_calcul_cov(model, mode, 1, 1., d1, &covar2);
+      model_calcul_cov(NULL,model, mode, 1, 1., d1, &covar2);
       diag[i] = 2. * (c00 - covar2);
     }
     else
@@ -3431,15 +3339,15 @@ int model_covmat_inchol(int verbose,
         double covar1, covar2, covar3;
 
         (void) distance_intra(db, pvec[i], pvec[npivot], d1.data());
-        model_calcul_cov(model, mode, 1, 1., d1, &covar1);
+        model_calcul_cov(NULL,model, mode, 1, 1., d1, &covar1);
 
         for (int idim = 0; idim < 3; idim++)
           d1[idim] = db->getCoordinate(pvec[npivot], idim) - center[idim];
-        model_calcul_cov(model, mode, 1, 1., d1, &covar2);
+        model_calcul_cov(NULL,model, mode, 1, 1., d1, &covar2);
 
         for (int idim = 0; idim < 3; idim++)
           d1[idim] = db->getCoordinate(pvec[i], idim) - center[idim];
-        model_calcul_cov(model, mode, 1, 1., d1, &covar3);
+        model_calcul_cov(NULL,model, mode, 1, 1., d1, &covar3);
 
         G(npivot,i) = covar1 - covar2 - covar3 + c00;
       }
@@ -3447,7 +3355,7 @@ int model_covmat_inchol(int verbose,
       {
         // Calculate the covariance column C(:, npivot)
         (void) distance_intra(db, pvec[i], pvec[npivot], d1.data());
-        model_calcul_cov(model, mode, 1, 1., d1, &G(npivot, i));
+        model_calcul_cov(NULL,model, mode, 1, 1., d1, &G(npivot, i));
       }
     }
     if (npivot != 0)
@@ -3468,7 +3376,7 @@ int model_covmat_inchol(int verbose,
 
         for (int idim = 0; idim < 3; idim++)
           d1[idim] = db->getCoordinate(pvec[i], idim) - center[idim];
-        model_calcul_cov(model, mode, 1, 1., d1, &covar2);
+        model_calcul_cov(NULL,model, mode, 1, 1., d1, &covar2);
 
         b = 2. * (c00 - covar2);
       }
@@ -3625,13 +3533,13 @@ double model_calcul_stdev(Model *model,
   /* Covariance at origin */
 
   VectorDouble d1(ndim, 0.);
-  model_calcul_cov(model, mode, 1, 1., d1, &c00);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, &c00);
 
   /* Covariance at increment */
 
   for (int idim = 0; idim < ndim; idim++)
     d1[idim] = db1->getDistance1D(iech1, iech2, idim);
-  model_calcul_cov(model, mode, 1, 1., d1, &cov);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, &cov);
 
   stdev = factor * sqrt(c00 - cov);
 
@@ -3775,7 +3683,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
           }
           if (skip) continue;
 
-          model_calcul_cov(model, mode, 1, 1., d1, covtab);
+          model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
           value = COVTAB(ivar, jvar);
           if (ABS(value) < EPSILON10) continue;
           if (! cs_entry(T, ecr1, ecr2, value)) goto label_end;
@@ -3906,11 +3814,11 @@ void model_covmat(Model *model,
             if (model->isNoStat())
             {
               CovInternal covint(1, iech1, 2, iech2, ndim, db1, db2);
-              model_calcul_cov_nostat(model, mode, &covint, 1, 1., d1, covtab);
+              model_calcul_cov(&covint, model, mode, 1, 1., d1, covtab);
             }
             else
             {
-              model_calcul_cov(model, mode, 1, 1., d1, covtab);
+              model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
             }
             value = COVTAB(ivar, jvar);
           }

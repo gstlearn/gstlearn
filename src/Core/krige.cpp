@@ -370,7 +370,7 @@ static void st_cov(Model *model,
 
   CovCalcMode mode(ECalcMember::LHS);
   mode.update(nugget_opt, nostd, member, icov_r, 0, 1);
-  model_calcul_cov_nostat(model, mode, &COVINT, flag_init, weight, d1, covtab);
+  model_calcul_cov(&COVINT, model, mode, flag_init, weight, d1, covtab);
 }
 
 /****************************************************************************/
@@ -5314,7 +5314,7 @@ int global_transitive(Db *dbgrid,
 
   for (idim = 0; idim < ndim; idim++)
     d1[idim] = 0.;
-  model_calcul_cov(model, mode, 1, 1., d1, &c00);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, &c00);
 
   /* Abundance estimation */
 
@@ -5351,7 +5351,7 @@ int global_transitive(Db *dbgrid,
         {
           d1[0] = dx * ix;
           d1[1] = dy * iy;
-          model_calcul_cov(model, mode, 0, 1., d1, &dsse);
+          model_calcul_cov(NULL,model, mode, 0, 1., d1, &dsse);
         }
       dsse *= dx * dy;
       // TODO : appeler model_integral
@@ -5370,7 +5370,7 @@ int global_transitive(Db *dbgrid,
             {
               d1[0] = dx * (ix2 - ix1) / ndisc;
               d1[1] = dy * (iy2 - iy1) / ndisc;
-              model_calcul_cov(model, mode, 0, 1., d1, &cvv);
+              model_calcul_cov(NULL,model, mode, 0, 1., d1, &cvv);
               wtot += 1.;
             }
       cvv /= wtot;
@@ -5394,7 +5394,7 @@ int global_transitive(Db *dbgrid,
       for (ix = -nx + 1; ix <= nx; ix++)
       {
         d1[0] = dx * ix;
-        model_calcul_cov(model, mode, 0, 1., d1, &dsse);
+        model_calcul_cov(NULL,model, mode, 0, 1., d1, &dsse);
       }
       dsse *= dx;
       // TODO: appeler model_integral
@@ -5410,7 +5410,7 @@ int global_transitive(Db *dbgrid,
         for (ix2 = 0; ix2 < ndisc; ix2++)
         {
           d1[0] = dx * (ix2 - ix1) / ndisc;
-          model_calcul_cov(model, mode, 0, 1., d1, &cvv);
+          model_calcul_cov(NULL,model, mode, 0, 1., d1, &cvv);
           wtot += 1.;
         }
       cvv /= wtot;
@@ -6162,7 +6162,7 @@ static void st_calculate_covres(Db *db,
   covtot = COV_REF(0);
   for (i = 0; i < 3; i++)
     d1[i] = 0.;
-  model_calcul_cov(model, mode, 1, 1., d1, &c00);
+  model_calcul_cov(NULL,model, mode, 1, 1., d1, &c00);
 
   /* Evaluate the array of experimental covariance of the residual variable */
 
@@ -6176,7 +6176,7 @@ static void st_calculate_covres(Db *db,
           covver = (COV_REF(iz) + COV_REF(-iz)) / 2.;
         d1[0] = dx * ix;
         d1[1] = dy * iy;
-        model_calcul_cov(model, mode, 1, 1., d1, &covtab);
+        model_calcul_cov(NULL,model, mode, 1, 1., d1, &covtab);
         COV_RES(ix,iy,iz)= covver * (covtab + covtot - c00) / covtot;
       }
 
@@ -10195,7 +10195,7 @@ static double* st_calcul_covmat(const char *title,
       for (int idim = 0; idim < db1->getNDim(); idim++)
         d1[idim] = db1->getDistance1D(ii1, ii2, idim);
 
-      model_calcul_cov(model, mode, 1, 1., d1, &COVGEN(i1, i2));
+      model_calcul_cov(NULL,model, mode, 1, 1., d1, &COVGEN(i1, i2));
       i2++;
     }
     i1++;
@@ -10555,7 +10555,7 @@ static double* st_inhomogeneous_covgg(Db *dbsrc,
 
   /* Calculate the variance term (for a zero-distance) */
 
-  model_calcul_cov(model_dat, mode, 1, 1., VectorDouble(), &c00);
+  model_calcul_cov(NULL,model_dat, mode, 1, 1., VectorDouble(), &c00);
 
   /* Calculate the variance vector */
 

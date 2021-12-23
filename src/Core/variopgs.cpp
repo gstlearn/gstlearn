@@ -4255,10 +4255,10 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   /* Calculate the covariance for the zero distance */
   for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
     local_pgs->d0[i] = 0.;
-  model_calcul_cov(local_pgs->model, mode, 1, 1., local_pgs->d0, cov0);
+  model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d0, cov0);
 
   /* Calculate the covariance for the given shift */
-  model_calcul_cov(local_pgs->model, mode, 1, 1., local_pgs->d1, covh);
+  model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d1, covh);
 
   if (rule->getModeRule() == ERule::STD)
   {
@@ -4282,7 +4282,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = ruleshift->getShift(i);
 
-    model_calcul_cov(local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
+    model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
     cov[1] = (nvar == 1) ? covh[0] :
                            covh[1]; /* C21(s)  */
     cov[4] = (nvar == 1) ? covh[0] :
@@ -4290,13 +4290,13 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
 
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] - ruleshift->getShift(i);
-    model_calcul_cov(local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
+    model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
     cov[2] = (nvar == 1) ? covh[0] :
                            covh[1]; /* C21(h-s) */
 
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] + ruleshift->getShift(i);
-    model_calcul_cov(local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
+    model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
     cov[3] = (nvar == 1) ? covh[0] :
                            covh[1]; /* C21(h+s)  */
   }
