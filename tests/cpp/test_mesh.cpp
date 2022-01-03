@@ -109,7 +109,7 @@ int main(int /*argc*/, char */*argv*/[])
   if (model == nullptr)
     return (1);
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
-                     VectorDouble(),VectorDouble(),sill))
+                     VectorDouble(),VectorDouble(),sill,0.))
     messageAbort("Definition of the Model");
 
   /* Define the Grid Db */

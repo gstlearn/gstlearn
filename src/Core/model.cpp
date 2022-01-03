@@ -494,7 +494,6 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
  ** \param[in]  ndim          Space dimension
  ** \param[in]  nvar          Number of variables
  ** \param[in]  field         Field extension
- ** \param[in]  ball_radius   Radius for Gradient calculation
  ** \param[in]  mean          Array for the mean (only used for KS)
  **                           (dimension: nvar)
  ** \param[in]  covar0        Array of variance-covariance at origin
@@ -505,11 +504,10 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
 Model* model_init(int ndim,
                   int nvar,
                   double field,
-                  double ball_radius,
                   const VectorDouble &mean,
                   const VectorDouble &covar0)
 {
-  CovContext ctxt = CovContext(nvar, ndim, 1000, field, ball_radius, mean, covar0);
+  CovContext ctxt = CovContext(nvar, ndim, 1000, field, mean, covar0);
 
   Model* model = new Model(ctxt);
 
@@ -578,6 +576,7 @@ Model* model_default(int ndim, int nvar)
  **                             (Dimension = ndim  * ndim)
  ** \param[in]  sill            Sill matrix (optional)
  **                             (Dimension = nvar * nvar)
+ ** \param[in]  ball_radius     Radius for Numerical Gradient calculation
  **
  *****************************************************************************/
 int model_add_cova(Model *model,
@@ -588,7 +587,8 @@ int model_add_cova(Model *model,
                    double param,
                    const VectorDouble &aniso_ranges,
                    const VectorDouble &aniso_rotmat,
-                   const VectorDouble &sill)
+                   const VectorDouble &sill,
+                   double ball_radius)
 {
   ACovAnisoList *covs;
   if (st_check_model(model)) return 1;
@@ -597,8 +597,8 @@ int model_add_cova(Model *model,
 
   if (model->isFlagGradient())
   {
-    CovGradientNumerical covgrad(type, model->getContext());
-//    if (! covgrad.isGradientCompatible()) return 1; TODO incorporte this type of selection
+    CovGradientNumerical covgrad(type, ball_radius, model->getContext());
+//    if (! covgrad.isGradientCompatible()) return 1; TODO incorporate this type of selection
     covgrad.setParam(param);
     if (flag_aniso)
     {
@@ -1696,9 +1696,9 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
   new_model = new Model(ctxt);
   if (new_model == nullptr) return new_model;
 
-  // ****************************************
+  // **************************************
   // Create the basic covariance structures
-  // ****************************************
+  // **************************************
 
   ACovAnisoList* covs = nullptr;
   if (flag_gradient)
@@ -1715,7 +1715,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     {
       CovAniso* covnew = nullptr;
       if (flag_gradient)
-        covnew = new CovGradientNumerical(cova->getType(),ctxt);
+        covnew = new CovGradientNumerical(cova->getType(),ball_radius,ctxt);
       else
         covnew = new CovAniso(cova->getType(), ctxt);
       covnew->setParam(cova->getParam());
@@ -2075,7 +2075,7 @@ int model_stabilize(Model *model, int flag_verbose, double percent)
   /* Add a NUGGET EFFECT component */
 
   if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
-                     VectorDouble(), VectorDouble(1, total))) goto label_end;
+                     VectorDouble(), VectorDouble(1, total), 0.)) goto label_end;
 
   /* Printout */
 
@@ -2329,7 +2329,7 @@ Model* input_model(int ndim,
 //
 //  /* Core allocation */
 //
-//  model = model_init(ndim,nvar,0.,0.,VectorDouble(),VectorDouble());
+//  model = model_init(ndim,nvar,0.,VectorDouble(),VectorDouble());
 //  if (model == nullptr) goto label_end;
 //
 //  /* Number of Basic structures */
@@ -2975,9 +2975,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[1] = r;
   cova0[2] = r;
   cova0[3] = 1.;
-  double radius = MAX(model1->getContext().getBallRadius(),
-                      model2->getContext().getBallRadius());
-  model = model_init(model1->getDimensionNumber(), 2, field, radius, mean, cova0);
+  model = model_init(model1->getDimensionNumber(), 2, field, mean, cova0);
   if (model == nullptr) return model;
 
   ncov = 0;
@@ -2993,7 +2991,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     if (model_add_cova(model, cova->getType(), cova->getFlagAniso(),
                        cova->getFlagRotation(), cova->getRange(),
                        cova->getParam(), cova->getRanges(),
-                       cova->getAnisoRotMatVec(), sill)) goto label_end;
+                       cova->getAnisoRotMatVec(), sill,0.)) goto label_end;
     ncov++;
   }
 
@@ -3008,7 +3006,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     if (model_add_cova(model, cova->getType(), cova->getFlagAniso(),
                        cova->getFlagRotation(), cova->getRange(),
                        cova->getParam(), cova->getRanges(),
-                       cova->getAnisoRotMatVec(), sill)) goto label_end;
+                       cova->getAnisoRotMatVec(), sill,0.)) goto label_end;
     ncov++;
   }
 

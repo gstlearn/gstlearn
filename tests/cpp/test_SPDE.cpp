@@ -73,7 +73,7 @@ int main(int /*argc*/, char */*argv*/[])
   model = model_init(ndim,1,diag);
   if (model == nullptr) goto label_end;
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
-                     VectorDouble(),VectorDouble(),sill)) goto label_end;
+                     VectorDouble(),VectorDouble(),sill,0.)) goto label_end;
 
   // Perform the non-conditional simulation
 

@@ -35,6 +35,7 @@ static Model *st_modify(Model *model,
                         Db    *db)
 {
   Model *new_model;
+  double ball_radius = 0.01;
 
   /* Initializations */
 
@@ -49,7 +50,7 @@ static Model *st_modify(Model *model,
     if (db_gradient_update(db)) return(new_model);
 
     /* Create the new Model */
-    new_model = model_duplicate(model,model->getContext().getBallRadius(),1);
+    new_model = model_duplicate(model,ball_radius,1);
   }
   else
   {

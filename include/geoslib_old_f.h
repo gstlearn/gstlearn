@@ -1056,7 +1056,8 @@ GSTLEARN_EXPORT int model_add_cova(Model *model,
                                    double param,
                                    const VectorDouble &aniso_ranges,
                                    const VectorDouble &aniso_rotmat,
-                                   const VectorDouble &coreg);
+                                   const VectorDouble &coreg,
+                                   double ball_radius);
 GSTLEARN_EXPORT int model_add_drift(Model *model,
                                     const EDrift &type,
                                     int rank_fex);

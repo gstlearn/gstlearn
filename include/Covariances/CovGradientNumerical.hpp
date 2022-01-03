@@ -27,7 +27,7 @@ class Rotation;
 class GSTLEARN_EXPORT CovGradientNumerical: public ACovGradient
 {
 public:
-  CovGradientNumerical(const ECov& type, const CovContext& ctxt);
+  CovGradientNumerical(const ECov& type, double ballRadius, const CovContext& ctxt);
   CovGradientNumerical(const CovGradientNumerical& r);
   CovGradientNumerical& operator=(const CovGradientNumerical& r);
   virtual ~CovGradientNumerical();
@@ -51,6 +51,8 @@ public:
                          const CovCalcMode& mode = CovCalcMode(),
                          bool flagGrad = false) const override;
 
+  double getBallRadius() const { return _ballRadius; }
+
 private:
   double _evalZZ(int ivar,
                  int jvar,
@@ -70,5 +72,8 @@ private:
                        const SpacePoint& p1,
                        const SpacePoint& p2,
                        const CovCalcMode& mode = CovCalcMode()) const;
+
+private:
+  double _ballRadius;   /*! Radius of the Ball for Numerical Gradient calculation */
 };
 

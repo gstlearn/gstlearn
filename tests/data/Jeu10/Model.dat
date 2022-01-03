@@ -1,5 +1,5 @@
 Model 
-2 1 2500.000000 0.000000 # General parameters
+2 1 2500.000000 # General parameters
 1 # Number of basic covariance terms
 2 # Number of drift terms
 2 1000.000000 0.000000 # Covariance characteristics

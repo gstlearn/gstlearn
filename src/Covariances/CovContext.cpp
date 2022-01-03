@@ -35,7 +35,6 @@ CovContext::CovContext(int nvar,
       _nVar(nvar),
       _irfMaxDegree(irfMaxDegree),
       _field(field),
-      _ballRadius(0.),
       _mean(),
       _covar0()
 {
@@ -49,7 +48,6 @@ CovContext::CovContext(int nvar,
  * @param ndim         Number of dimension of the euclidean space (RN)
  * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
  * @param field        Maximum field distance (used for covariances having no sill)
- * @param ballRadius   Size of Ball for Numerical Gradient
  * @param mean         Vector of Means
  * @param covar0       Vector of variance-covariance
  */
@@ -57,14 +55,12 @@ CovContext::CovContext(int nvar,
                        int ndim,
                        int irfMaxDegree,
                        double field,
-                       double ballRadius,
                        const VectorDouble& mean,
                        const VectorDouble& covar0)
     : ASpaceObject(SpaceRN(ndim)),
       _nVar(nvar),
       _irfMaxDegree(irfMaxDegree),
       _field(field),
-      _ballRadius(ballRadius),
       _mean(mean),
       _covar0(covar0)
 {
@@ -76,7 +72,6 @@ CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
       _nVar(0),
       _irfMaxDegree(irfMaxDegree),
       _field(0.),
-      _ballRadius(0.),
       _mean(),
       _covar0()
 {
@@ -95,7 +90,6 @@ CovContext::CovContext(const Vario* vario,
       _nVar(0),
       _irfMaxDegree(irfMaxDegree),
       _field(0.),
-      _ballRadius(0.),
       _mean(),
       _covar0()
 {
@@ -110,7 +104,6 @@ CovContext::CovContext(const CovContext &r)
       _nVar(r._nVar),
       _irfMaxDegree(r._irfMaxDegree),
       _field(r._field),
-      _ballRadius(r._ballRadius),
       _mean(r._mean),
       _covar0(r._covar0)
 {
@@ -124,7 +117,6 @@ CovContext& CovContext::operator=(const CovContext &r)
     _nVar = r._nVar;
     _irfMaxDegree = r._irfMaxDegree;
     _field = r._field;
-    _ballRadius = r._ballRadius;
     _mean = r._mean;
     _covar0 = r._covar0;
   }
@@ -142,7 +134,6 @@ String CovContext::toString(int level) const
   sstr << "Nb Variables       = "       << _nVar << std::endl;
   sstr << "Maximum IRF Degree = "       << _irfMaxDegree << std::endl;
   sstr << "Field Size         = "       << _field << std::endl;
-  sstr << "Ball Radius for Gradient = " << _ballRadius << std::endl;
   sstr << "Mean(s)            = "       << ut_vector_string(_mean);
   sstr << "Covariance (0)     = "       << ut_vector_string(_covar0);
   return sstr.str();
@@ -162,7 +153,6 @@ bool CovContext::isEqual(const CovContext &r) const
           _irfMaxDegree == r.getIrfMaxDegree() &&
           _field == r.getField()               &&
           _space->isEqual(r.getSpace())        &&
-          _ballRadius == r._ballRadius         &&
           ut_vector_same(_mean, r._mean)       &&
           ut_vector_same(_covar0, r._covar0)
           );

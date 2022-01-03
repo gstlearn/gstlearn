@@ -100,7 +100,7 @@ void mes_error(ES error)
 //
 //  //info : 0 flag_linked - field,
 //  //      NULL means
-//  res = model_init(vario.getNDim(), vario.getNVar(), 0, 0., VectorDouble(), vars);
+//  res = model_init(vario.getNDim(), vario.getNVar(), 0, VectorDouble(), vars);
 //
 //  if (uc != -1)
 //    model_add_drift(res,EDrift::UC,0) ;

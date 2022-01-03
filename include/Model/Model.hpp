@@ -90,6 +90,7 @@ public:
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
+  double getBallRadius() const;
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);

@@ -29,7 +29,6 @@ public:
              int ndim,
              int irfMaxDegree = 1000,
              double field = 1,
-             double ballRadius = 0.,
              const VectorDouble& mean = VectorDouble(),
              const VectorDouble& covar0 = VectorDouble());
   CovContext(const Db *db,
@@ -54,7 +53,6 @@ public:
   int                 getNVar()         const { return _nVar; }
   int                 getIrfMaxDegree() const { return _irfMaxDegree; }
   double              getField()        const { return _field; }
-  double              getBallRadius()   const { return _ballRadius; }
   const VectorDouble& getMean()         const { return _mean; }
   const VectorDouble& getCovar0()       const { return _covar0; }
 
@@ -64,7 +62,6 @@ public:
   void setNVar(int nvar)                 { _nVar = nvar; _update(); }
   void setIrfMaxDegree(int irfMaxDegree) { _irfMaxDegree = irfMaxDegree; }
   void setField(double field)            { _field = field; }
-  void setBallRadius(double ballRadius)  { _ballRadius = ballRadius; }
 
   void setMean(const VectorDouble& mean);
   void setMean(int ivar, const double mean);
@@ -76,7 +73,6 @@ private:
   int           _nVar;         /*! Number of variables */
   int           _irfMaxDegree; /*! Current maximum admissible IRF degree */
   double        _field;        /*! Field maximum size */
-  double        _ballRadius;   /*! Radius of the Ball for Numerical Gradient calculation */
   VectorDouble  _mean;         /*! Array of Variable Mean */
   VectorDouble  _covar0;       /*! Variance-Covariance matrix (used for covariances) */
 

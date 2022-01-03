@@ -619,7 +619,7 @@ int Model::fit(Vario *vario,
 
 int Model::deSerialize(const String &filename, bool verbose)
 {
-  double field, range, value, param, radius;
+  double field, range, value, param;
   int ndim, nvar, ncova, nbfl, type, flag_aniso, flag_rotation;
   VectorDouble aniso_ranges, aniso_rotmat;
 
@@ -635,12 +635,11 @@ int Model::deSerialize(const String &filename, bool verbose)
   if (_recordRead("Space Dimension", "%d", &ndim)) return 1;
   if (_recordRead("Number of Variables", "%d", &nvar)) return 1;
   if (_recordRead("Field dimension", "%lf", &field)) return 1;
-  if (_recordRead("Radius for Model", "%lf", &radius)) return 1;
   if (_recordRead("Number of Basic Structures", "%d", &ncova)) return 1;
   if (_recordRead("Number of Basic Drift Functions", "%d", &nbfl)) return 1;
 
   /// TODO : Force SpaceRN creation (deSerialization doesn't know yet how to manage other space types)
-  _ctxt = CovContext(nvar, ndim, 100, field, radius);
+  _ctxt = CovContext(nvar, ndim, 100, field);
   _create();
 
   /* Reading the covariance part */
@@ -751,7 +750,6 @@ int Model::serialize(const String &filename, bool verbose) const
   _recordWrite("%d", getDimensionNumber());
   _recordWrite("%d", getVariableNumber());
   _recordWrite("%lf", getField());
-  _recordWrite("%lf", getContext().getBallRadius());
   _recordWrite("#", "General parameters");
   _recordWrite("%d", getCovaNumber());
   _recordWrite("#", "Number of basic covariance terms");
@@ -850,6 +848,17 @@ double Model::getTotalSill(int ivar, int jvar) const
   for (int icov=0; icov<getCovaNumber(); icov++)
     var += getSill(icov,ivar,jvar);
   return var;
+}
+
+double Model::getBallRadius() const
+{
+  for (int icov=0; icov < (int) getCovaNumber(); icov++)
+  {
+    CovAniso* cova = _covaList->getCova(icov);
+    CovGradientNumerical* covgrad = dynamic_cast<CovGradientNumerical*>(cova);
+    if (covgrad != nullptr) return covgrad->getBallRadius();
+  }
+  return 0.;
 }
 
 Model* Model::duplicate() const
