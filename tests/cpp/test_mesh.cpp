@@ -11,6 +11,7 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "Model/Model.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshSpherical.hpp"
@@ -21,6 +22,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Basic/String.hpp"
 #include "Covariances/ECov.hpp"
+#include "Covariances/CovContext.hpp"
 #include "csparse_f.h"
 
 #include <math.h>
@@ -35,6 +37,7 @@ int main(int /*argc*/, char */*argv*/[])
   AMesh *mesh,*meshb;
   Db    *dbin,*dbgrid;
   Model *model;
+  CovContext ctxt;
   double  angle[3];
   double  range,param;
   MatrixRectangular apices;
@@ -105,9 +108,8 @@ int main(int /*argc*/, char */*argv*/[])
   range        = 5.;
   param        = 1.;
   VectorDouble sill = { 2. };
-  model        = model_init(ndim,1);
-  if (model == nullptr)
-    return (1);
+  ctxt = CovContext(1, ndim);
+  model = new Model(ctxt);
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
                      VectorDouble(),VectorDouble(),sill,0.))
     messageAbort("Definition of the Model");

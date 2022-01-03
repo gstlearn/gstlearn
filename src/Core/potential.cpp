@@ -2788,11 +2788,9 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
 
   /* Creating the model */
 
-  pot_ext->model = model_init(pot_ext->ndim, 1, 1.);
+  CovContext ctxt = CovContext(1, pot_ext->ndim, 1000, 1.);
+  pot_ext->model = new Model(ctxt);
   if (pot_ext->model == nullptr) return 1;
-
-  // CovContext part
-  CovContext ctxt(1, pot_ext->ndim);
 
   // Covariance part
   CovLMGradient covs(ctxt.getSpace());

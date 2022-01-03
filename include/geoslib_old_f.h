@@ -1221,12 +1221,6 @@ GSTLEARN_EXPORT double model_drift_evaluate(int verbose,
                                             double *coef,
                                             double *drftab);
 GSTLEARN_EXPORT int model_is_drift_defined(Model *model, const EDrift &type0);
-GSTLEARN_EXPORT Model* input_model(int ndim,
-                                   int nvar,
-                                   int order,
-                                   int flag_sill,
-                                   int flag_norm,
-                                   Model *model_in);
 GSTLEARN_EXPORT int model_dimension(Model *model);
 GSTLEARN_EXPORT double model_get_field(Model *model);
 GSTLEARN_EXPORT int model_extract_cova(Model *model,

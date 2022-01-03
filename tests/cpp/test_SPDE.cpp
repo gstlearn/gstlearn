@@ -13,6 +13,8 @@
 #include "geoslib_old_f.h"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Model/Model.hpp"
+#include "Covariances/CovContext.hpp"
 
 #define VERBOSE 0
 
@@ -25,8 +27,9 @@ int main(int /*argc*/, char */*argv*/[])
 
 {
   Db          *dbgrid;
-  Model       *model;
+  Model       *model = nullptr;
   SPDE_Option  s_option;
+  CovContext   ctxt;
   const char triswitch[] = "nqQ";
   int verbose, seed, ndim, iptr, nsimu;
   double diag,range,param;
@@ -70,7 +73,8 @@ int main(int /*argc*/, char */*argv*/[])
     
   // Model 
 
-  model = model_init(ndim,1,diag);
+  ctxt = CovContext(1, ndim, 1000, diag);
+  model = new Model(ctxt);
   if (model == nullptr) goto label_end;
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
                      VectorDouble(),VectorDouble(),sill,0.)) goto label_end;

@@ -487,35 +487,6 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
 
 /****************************************************************************/
 /*!
- **  Allocate the Model structure
- **
- ** \return  Pointer to the Model structure newly allocated
- **
- ** \param[in]  ndim          Space dimension
- ** \param[in]  nvar          Number of variables
- ** \param[in]  field         Field extension
- ** \param[in]  mean          Array for the mean (only used for KS)
- **                           (dimension: nvar)
- ** \param[in]  covar0        Array of variance-covariance at origin
- **                           (only used for covariance or covariogram)
- **                           (dimension: nvar*nvar)
- **
- *****************************************************************************/
-Model* model_init(int ndim,
-                  int nvar,
-                  double field,
-                  const VectorDouble &mean,
-                  const VectorDouble &covar0)
-{
-  CovContext ctxt = CovContext(nvar, ndim, 1000, field, mean, covar0);
-
-  Model* model = new Model(ctxt);
-
-  return (model);
-}
-
-/****************************************************************************/
-/*!
  **  Create a generic Model with nugget effect only
  **
  ** \return  Pointer to the Model structure newly allocated
@@ -526,33 +497,18 @@ Model* model_init(int ndim,
  *****************************************************************************/
 Model* model_default(int ndim, int nvar)
 {
-  Model *model;
-  double sill;
-  int error;
-
-  /* Initializations */
-
-  error = 1;
-
   /* Create the empty Model */
 
-  model = model_init(ndim, nvar, 1.);
-  if (model == nullptr) return model;
+  CovContext ctxt = CovContext(nvar, ndim, 1000, 1.);
+  Model* model = new Model(ctxt);
 
   /* Add the nugget effect variogram model */
 
-  CovContext ctxt(nvar, ndim);
   CovLMC covs(ctxt.getSpace());
   CovAniso cov(ECov::NUGGET, ctxt);
   covs.addCov(&cov);
   model->setCovList(&covs);
-
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: if (error) model = model_free(model);
-  return (model);
+  return model;
 }
 
 /****************************************************************************/
@@ -591,41 +547,32 @@ int model_add_cova(Model *model,
                    double ball_radius)
 {
   ACovAnisoList *covs;
+  CovAniso* cova = nullptr;
   if (st_check_model(model)) return 1;
 
   // Add a new element in the structure
 
   if (model->isFlagGradient())
   {
-    CovGradientNumerical covgrad(type, ball_radius, model->getContext());
-//    if (! covgrad.isGradientCompatible()) return 1; TODO incorporate this type of selection
-    covgrad.setParam(param);
-    if (flag_aniso)
-    {
-      covgrad.setRanges(aniso_ranges);
-      if (flag_rotation) covgrad.setAnisoRotation(aniso_rotmat);
-    }
-    else
-      covgrad.setRange(range);
-
-    if (static_cast<int>(sill.size()) > 0) covgrad.setSill(sill);
-    model->addCova(&covgrad);
+    cova = new CovGradientNumerical(type, ball_radius, model->getContext());
+//    if (! cova->isGradientCompatible()) return 1; TODO incorporate this type of selection
   }
   else
   {
-    CovAniso cova(type, model->getContext());
-    cova.setParam(param);
-    if (flag_aniso)
-    {
-      cova.setRanges(aniso_ranges);
-      if (flag_rotation) cova.setAnisoRotation(aniso_rotmat);
-    }
-    else
-      cova.setRange(range);
-
-    if (static_cast<int>(sill.size()) > 0) cova.setSill(sill);
-    model->addCova(&cova);
+    cova = new CovAniso(type, model->getContext());
   }
+
+  cova->setParam(param);
+  if (flag_aniso)
+  {
+    cova->setRanges(aniso_ranges);
+    if (flag_rotation) cova->setAnisoRotation(aniso_rotmat);
+  }
+  else
+    cova->setRange(range);
+
+  if (static_cast<int>(sill.size()) > 0) cova->setSill(sill);
+  model->addCova(cova);
 
   return 0;
 }
@@ -1813,151 +1760,6 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
   return (new_model);
 }
 
-///****************************************************************************/
-///*!
-// **  Modifies a monovariate Model into a multivariate Model
-// **
-// ** \return  The modified Model structure
-// **
-// ** \param[in]  model       Input Model
-// ** \param[in]  new_nvar    New number of variables
-// ** \param[in]  mean        Array for means (optional)
-// ** \param[in]  vars        Array for variances (optional)
-// ** \param[in]  corr        Array for correlations (optional)
-// **
-// *****************************************************************************/
-//Model *model_modify(Model  *model,
-//                                int     new_nvar,
-//                                double *mean,
-//                                double *vars,
-//                                double *corr)
-//{
-/// TODO [Cova] : to be restored ?
-//  Model  *new_model;
-//  int     ivar,jvar,nvar,icov,ncova,il,nbfl,error,ndim;
-//  double  sill;
-//  Cova   *cova,*cova_new;
-//  Drift   *drft;
-//  VectorDouble ranges;
-//
-//  /* Initializations */
-//
-//  new_model = nullptr;
-//  error  = 1;
-//  nvar   = model->getNVar();
-//  ndim   = model->getNDim();
-//  ncova  = model->getNCova();
-//  nbfl   = model->getNDrift();
-//  ranges.resize(ndim);
-//
-//  /* Preliminary checks */
-//
-//  if (nvar != 1)
-//  {
-//    messerr("This procedure is limited to a monovariate input model");
-//    goto label_end;
-//  }
-//  if (new_nvar <= 1)
-//  {
-//    messerr("This procedure must only be used when new_nvar(%d) is larger than 1",new_nvar);
-//    goto label_end;
-//  }
-//  if (vars != nullptr && ! is_matrix_non_negative(1,new_nvar,vars,0))
-//  {
-//    messerr("You provided vars[]. It must be non negative");
-//    goto label_end;
-//  }
-//  if (vars != nullptr && vars[0] == 0.)
-//  {
-//    messerr("You provided vars[]. It must have vars[0] != 0");
-//    goto label_end;
-//  }
-//  if (corr != nullptr && ! is_matrix_correlation(new_nvar,corr))
-//  {
-//    messerr("You provided corr[]. It must be a correlation matrix");
-//    goto label_end;
-//  }
-//
-//  /* Create the new model */
-//
-//  new_model = model_init(model->getNDim(),new_nvar,
-//                         model->getField(),VectorDouble(),VectorDouble());
-//
-//  /* Set the mean (if provided) */
-//
-//  for (ivar = 1; ivar < new_nvar; ivar++)
-//    new_model->setMean(ivar, (mean != nullptr) ? mean[ivar] :
-//                                                         model->getMean(0));
-//
-//  /* Set the variance-covariance at the origin (if provided) */
-//
-//  new_model->setCovar0(0,0,model->getCovar0(0,0));
-//  for (ivar=0; ivar<new_nvar; ivar++)
-//    for (jvar=0; jvar<new_nvar; jvar++)
-//    {
-//      if (vars != nullptr)
-//        new_model->setCovar0(ivar,jvar,vars[AD(ivar,jvar)]);
-//      else
-//        new_model->setCovar0(ivar,jvar,(ivar == 0 && jvar == 0) ?
-//          model->getCovar0(0,0) : 0.);
-//    }
-//
-//  /******************************************/
-//  /* Create the basic covariance structures */
-//  /******************************************/
-//
-//  for (icov=0; icov<ncova; icov++)
-//  {
-//    cova = model->getCova(icov);
-//    sill = model->getSill(icov,0,0);
-//    model_convert_cova_to_ranges(ndim,cova,ranges);
-//
-//    /* Copy the basic structure */
-//
-//    if (model_add_cova(new_model,
-//                       cova->getType(),cova->getFlagAniso(),
-//                       cova->getFlagRotation(),cova->getRange(),
-//                       cova->getParam(),
-//                       ranges,cova->getAnisoRotMat(),
-//                       VectorDouble())) goto label_end;
-//    cova_new = new_model->getCova(icov);
-//    cova_new->setFlagFilter(cova->getFlagFilter());
-//
-//    /* Scale the sills */
-//
-//    for (ivar=0; ivar<new_nvar; ivar++)
-//      for (jvar=0; jvar<new_nvar; jvar++)
-//      {
-//        double value =
-//            (vars == nullptr) ?
-//            sill : (sill * sqrt(vars[ivar] * vars[jvar]) *
-//                    corr[ivar * new_nvar + jvar] / vars[0]);
-//        new_model->getCova(icov)->setSill(ivar,jvar,value);
-//      }
-//  }
-//
-//  /*************************************/
-//  /* Create the basic drift structures */
-//  /*************************************/
-//
-//  for (il=0; il<nbfl; il++)
-//  {
-//    drft = model->getDrift(il);
-//    if (model_add_drift(new_model,
-//                        drft->getDriftType(),
-//                        drft->getRankFex())) goto label_end;
-//    new_model->getDrift(il)->setFlagFilter(drft->getFlagFilter());
-//  }
-//
-//  /* Set the error return code */
-//
-//  error = 0;
-//
-//label_end:
-//  if (error) new_model = model_free(new_model);
-//
-//  return(new_model);
-//}
 /****************************************************************************/
 /*!
  **  Normalize the model
@@ -2291,86 +2093,6 @@ double model_drift_evaluate(int verbose,
     drift += value * coef[ib];
   }
   label_end: return (drift);
-}
-
-/****************************************************************************/
-/*!
- **  Ask the characteristics of the Model structure
- **
- ** \return  Pointer to the newly allocated model
- ** \return  or NULL if a problem occured
- **
- ** \param[in]  ndim      Space dimension
- ** \param[in]  nvar      Number of variables
- ** \param[in]  order     Order of the IRF
- ** \param[in]  flag_sill 1 if the sill must be defined; 0 otherwise
- ** \param[in]  flag_norm 1 if the total sill must be normalize to 1
- **                       (only valid in the monovariate case)
- ** \param[in]  model_in  Input Model structure
- **
- *****************************************************************************/
-Model* input_model(int ndim,
-                   int nvar,
-                   int order,
-                   int flag_sill,
-                   int flag_norm,
-                   Model *model_in)
-{
-  /// TODO [Cova] : to be restored ?
-//  int    i,flag_def,error,ncova;
-//  Model *model;
-//  Cova  *cova,*cova_in;
-//
-//  /* Initializations */
-//
-//  error    = 1;
-//  flag_def = (model_in != nullptr);
-//  model    = nullptr;
-//
-//  /* Core allocation */
-//
-//  model = model_init(ndim,nvar,0.,VectorDouble(),VectorDouble());
-//  if (model == nullptr) goto label_end;
-//
-//  /* Number of Basic structures */
-//
-//  ncova = _lire_int("Count of Basic structures",flag_def,
-//                    (flag_def) ? model_in->getNCova() : ITEST,
-//                    1,ITEST);
-//
-//  /* Loop on the basic structures */
-//
-//  for (i=0; i<ncova; i++)
-//  {
-//    // Add the new covariance to the Model
-//
-//
-//    /* Ask for the parameters of the basic structure */
-//
-//    cova_in = nullptr;
-//    if (flag_def && i < model_in->getNCova())
-//      cova_in = model_in->getCova(i);
-//
-//    // Define the covariance interactively
-//
-//    cova->input(order,flag_sill,cova_in);
-//  }
-//
-//  /* Normalization */
-//
-//  if (flag_norm && nvar == 1)
-//  {
-//    if (model_normalize(model,1)) goto label_end;
-//  }
-//
-//  /* Set the error returned code */
-//
-//  error = 0;
-//
-//label_end:
-//  if (error) model = model_free(model);
-//  return(model);
-  return nullptr;
 }
 
 /****************************************************************************/
@@ -2975,7 +2697,8 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[1] = r;
   cova0[2] = r;
   cova0[3] = 1.;
-  model = model_init(model1->getDimensionNumber(), 2, field, mean, cova0);
+  CovContext ctxt = CovContext(2, model1->getDimensionNumber(), 1000, field, mean, cova0);
+  model = new Model(ctxt);
   if (model == nullptr) return model;
 
   ncov = 0;
