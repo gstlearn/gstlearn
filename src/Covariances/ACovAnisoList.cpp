@@ -57,6 +57,13 @@ ACovAnisoList::~ACovAnisoList()
   delAllCov();
 }
 
+void ACovAnisoList::addCovList(const ACovAnisoList* covs)
+{
+  int ncov = covs->getCovNumber();
+  for (int icov = 0; icov < ncov; icov++)
+    addCov(covs->getCova(icov));
+}
+
 void ACovAnisoList::addCov(const CovAniso* cov)
 {
   if (getCovNumber() > 0)

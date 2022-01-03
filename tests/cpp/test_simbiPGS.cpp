@@ -16,6 +16,7 @@
 #include "Db/Db.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 #include "Variogram/Vario.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
@@ -23,7 +24,6 @@
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/RuleProp.hpp"
-
 
 /****************************************************************************/
 /*!
@@ -52,30 +52,38 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
+  CovLMC covs1(ctxt.getSpace());
   double range1 = 0.2;
   CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
-  model1.addCova(&cova1);
+  covs1.addCov(&cova1);
+  model1.setCovList(&covs1);
   model1.display();
   model1.serialize("PGSmodel1.ascii");
 
   Model model2(ctxt);
+  CovLMC covs2(ctxt.getSpace());
   double range2 = 0.3;
   CovAniso cova2(ECov::EXPONENTIAL,range2,1.,1.,ctxt);
-  model2.addCova(&cova2);
+  covs2.addCov(&cova2);
+  model2.setCovList(&covs2);
   model2.display();
   model2.serialize("PGSmodel2.ascii");
 
   Model model3(ctxt);
+  CovLMC covs3(ctxt.getSpace());
   double range3 = 0.2;
   CovAniso cova3(ECov::BESSEL_K,range3,1.,1.,ctxt);
-  model3.addCova(&cova3);
+  covs3.addCov(&cova3);
+  model3.setCovList(&covs3);
   model3.display();
   model3.serialize("PGSmodel3.ascii");
 
   Model model4(ctxt);
+  CovLMC covs4(ctxt.getSpace());
   double range4 = 0.1;
   CovAniso cova4(ECov::SPHERICAL,range4,1.,1.,ctxt);
-  model4.addCova(&cova4);
+  covs4.addCov(&cova4);
+  model4.setCovList(&covs4);
   model4.display();
   model4.serialize("PGSmodel4.ascii");
 

@@ -401,7 +401,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
     if (exts2 <= 0. || dsize <= 0.)
     {
 
-      /* Ponctual support */
+      /* Punctual support */
 
       d1_1[idim] = 0.;
       st_data_discretize_dd(idim, jdim, it);
@@ -507,7 +507,7 @@ static void st_cov_dd(Model *model,
   if (!KOPTION->flag_data_disc)
   {
 
-    // Data is considered as ponctual
+    // Data is considered as punctual
 
     st_cov(model, 0, nugget_opt, nostd, ECalcMember::LHS, icov_r, weight, rank1,
            rank2, d1, covtab);
@@ -569,7 +569,7 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
     if (exts2 <= 0. || dsize <= 0.)
     {
 
-      /* Ponctual support */
+      /* Punctual support */
 
       d1_1[idim] = 0.;
       st_data_discretize_dg(idim, it);
@@ -2426,7 +2426,7 @@ void krige_rhs_print(int nvar,
     switch (KOPTION->calcul.toEnum())
     {
       case EKrigOpt::E_PONCTUAL:
-        message("Ponctual Estimation\n");
+        message("Punctual Estimation\n");
         break;
 
       case EKrigOpt::E_BLOCK:
@@ -3915,7 +3915,7 @@ int krigdgm_f(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Ponctual Kriging based on profiles
+ **  Punctual Kriging based on profiles
  **
  ** \return  Error return code
  **
@@ -7100,7 +7100,7 @@ int image_smoother(Db *dbgrid, Neigh *neigh, int type, double range)
 
 /****************************************************************************/
 /*!
- **  Ponctual Multivariate Kriging under a constraint
+ **  Punctual Multivariate Kriging under a constraint
  **
  ** \return  Error return code
  **
@@ -8049,7 +8049,7 @@ static void st_transform_gaussian_to_raw(Anam *anam)
 
 /****************************************************************************/
 /*!
- **  Ponctual Kriging in the Anamorphosed Gaussian Model
+ **  Punctual Kriging in the Anamorphosed Gaussian Model
  **
  ** \return  Error return code
  **
@@ -8392,7 +8392,7 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
  ** \param[in]  flag_est  Option for the storing the estimation
  ** \param[in]  flag_std  Option for the storing the standard deviation
  **
- ** \remark In case the Model handles a Ponctual Anamophossis, the
+ ** \remark In case the Model handles a Punctual Anamophossis, the
  ** \remark estimation of block average quantities is performed. This initiates
  ** \remark a block estimation kriging and therefore requires the definition of
  ** \remark the block discretization ('ndisc')
@@ -8442,7 +8442,6 @@ int dk_f(Db *dbin,
   FLAG_EST = flag_est;
   FLAG_STD = flag_std;
   FLAG_WGT = flag_std;
-  const ModTrans &modtrs = model->getModTrans();
 
   // The model is not checked against the Data, as the number of variables
   // is not consistent: Model (1) whereas Data (nfactor-1)
@@ -8453,7 +8452,7 @@ int dk_f(Db *dbin,
     messerr("This application is limited to the monovariate Model case");
     goto label_end;
   }
-  if (model->getModTransMode() != EModelProperty::ANAM)
+  if (model->getCovMode() != EModelProperty::ANAM)
   {
     messerr("When using Disjunctive Kriging, the Model be incremented");
     messerr("with Properties beforehad");

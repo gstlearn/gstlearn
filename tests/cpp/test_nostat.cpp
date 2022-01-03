@@ -3,6 +3,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
@@ -43,10 +44,13 @@ int main(int /*argc*/, char */*argv*/[])
   Db workingDbc(nx);
 
   // Creating the Non-stationary Model
-  Model model = Model(&workingDbc);
-  CovAniso cova = CovAniso(ECov::BESSEL_K,model.getContext());
+  Model model(&workingDbc);
+  CovContext ctxt = model.getContext();
+  CovLMC covs(ctxt.getSpace());
+  CovAniso cova(ECov::BESSEL_K,ctxt);
   cova.setRanges({45,10});
-  model.addCova(&cova);
+  covs.addCov(&cova);
+  model.setCovList(&covs);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(&workingDbc);

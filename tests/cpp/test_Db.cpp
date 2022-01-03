@@ -1,6 +1,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
@@ -33,10 +34,13 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Model
   Model model = Model(&grid);
-  CovAniso cova = CovAniso(ECov::CUBIC,model.getContext());
+  CovContext ctxt = model.getContext();
+  CovLMC covs(ctxt.getSpace());
+  CovAniso cova = CovAniso(ECov::CUBIC,ctxt);
   cova.setRanges({10,45});
   cova.setAnisoAngles({30.,0.});
-  model.addCova(&cova);
+  covs.addCov(&cova);
+  model.setCovList(&covs);
   model.display(1);
 
   // Creating the MeshTurbo which contains the Db

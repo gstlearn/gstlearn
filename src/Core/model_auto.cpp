@@ -38,7 +38,7 @@
 #define DEFINE_ANICOEF (flag_range != 0 && optvar.getAuthAniso())
 #define DEFINE_ANIROT  (flag_range != 0 && optvar.getAuthAniso() &&  \
                         optvar.getAuthRotation())
-#define DEFINE_T_RANGE (model->getModTransMode() == EModelProperty::TAPE)
+#define DEFINE_T_RANGE (model->getCovMode() == EModelProperty::TAPE)
 #define FLAG_COMPRESS(imod,icov) (flag_compress[(imod) * ncova + (icov)])
 
 #define COMP_INDEX(i,j)          ((i) * ((i)+1) / 2 + (j))
@@ -1533,7 +1533,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
       for (ipadir = 0; ipadir < npadir; ipadir++)
       {
         if (FFFF(WT(ijvar, ipadir))) continue;
-        temp = GG(ijvar,ipadir)- MP(ijvar,ipadir);
+        temp = GG(ijvar,ipadir) - MP(ijvar,ipadir);
         value = (ivar != jvar) ? 2. :
                                  1.;
         crit += value * WT(ijvar, ipadir) * temp * temp;
@@ -4364,7 +4364,7 @@ static void st_vario_varchol_manage(const Vario *vario,
 
   /* Particular case of Properties attached to the Model */
 
-  if (model->getModTransMode() != EModelProperty::NONE)
+  if (model->getCovMode() != EModelProperty::NONE)
   {
     model_nugget = model_default(model->getDimensionNumber(),
                                  model->getVariableNumber());

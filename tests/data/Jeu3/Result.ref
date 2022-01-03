@@ -200,7 +200,7 @@ Number of active samples    = 5
 Total number of equations   = 12
 Reduced number of equations = 12
 Number of right-hand sides  = 2
-Ponctual Estimation
+Punctual Estimation
 
       Rank      Flag         1         2
          1         1     0.000     0.000
@@ -319,7 +319,7 @@ Number of active samples    = 6
 Total number of equations   = 14
 Reduced number of equations = 14
 Number of right-hand sides  = 2
-Ponctual Estimation
+Punctual Estimation
 
       Rank      Flag         1         2
          1         1     0.000     0.000
@@ -435,7 +435,7 @@ Number of active samples    = 5
 Total number of equations   = 12
 Reduced number of equations = 12
 Number of right-hand sides  = 2
-Ponctual Estimation
+Punctual Estimation
 
       Rank      Flag         1         2
          1         1     0.000     0.000
@@ -554,7 +554,7 @@ Number of active samples    = 6
 Total number of equations   = 14
 Reduced number of equations = 14
 Number of right-hand sides  = 2
-Ponctual Estimation
+Punctual Estimation
 
       Rank      Flag         1         2
          1         1     0.000     0.000

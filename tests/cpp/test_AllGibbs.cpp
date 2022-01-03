@@ -16,6 +16,7 @@
 #include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Model/Model.hpp"
@@ -79,12 +80,14 @@ int main(int /*argc*/, char * /*argv*/[])
 
   // Model
 
-  CovContext ctxt(nvar,2,1.); // use default space
+  CovContext ctxt(nvar,2,1.);
   Model* model = new Model(ctxt);
+  CovLMC covs(ctxt.getSpace());
   CovAniso cova(ECov::EXPONENTIAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill({sill});
-  model->addCova(&cova);
+  covs.addCov(&cova);
+  model->setCovList(&covs);
   model->display();
 
   // Neighborhood

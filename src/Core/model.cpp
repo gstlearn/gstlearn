@@ -12,6 +12,7 @@
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 #include "Drifts/DriftFactory.hpp"
+#include "Drifts/DriftList.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
@@ -19,6 +20,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
@@ -30,7 +32,6 @@
 #include "Model/CovInternal.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
-#include "Model/ModTrans.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
@@ -267,7 +268,7 @@ double model_calcul_cov_ij(Model *model,
 
   /* Modify the member in case of properties */
 
-  if (model->getModTransMode() != EModelProperty::NONE)
+  if (model->getCovMode() != EModelProperty::NONE)
   my_throw("Model transformation is not programmed for this entry");
 
   /* Call the generic model calculation module */
@@ -493,8 +494,6 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
  ** \param[in]  ndim          Space dimension
  ** \param[in]  nvar          Number of variables
  ** \param[in]  field         Field extension
- ** \param[in]  flag_linked   1 if the variables are linked; 0 otherwise
- ** \param[in]  flag_gradient 1 if the model is used for Gradient calculation
  ** \param[in]  ball_radius   Radius for Gradient calculation
  ** \param[in]  mean          Array for the mean (only used for KS)
  **                           (dimension: nvar)
@@ -506,21 +505,13 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
 Model* model_init(int ndim,
                   int nvar,
                   double field,
-                  int flag_linked,
                   double ball_radius,
-                  bool flag_gradient,
                   const VectorDouble &mean,
                   const VectorDouble &covar0)
 {
-  Model *model = nullptr;
+  CovContext ctxt = CovContext(nvar, ndim, 1000, field, ball_radius, mean, covar0);
 
-  CovContext ctxt = CovContext(nvar, ndim);
-  ctxt.setField(field);
-  ctxt.setBallRadius(ball_radius);
-  if (static_cast<int>(mean.size()) > 0) ctxt.setMean(mean);
-  if (static_cast<int>(covar0.size()) > 0) ctxt.setCovar0(covar0);
-
-  model = new Model(ctxt, flag_gradient, flag_linked);
+  Model* model = new Model(ctxt);
 
   return (model);
 }
@@ -556,7 +547,7 @@ Model* model_default(int ndim, int nvar)
   CovLMC covs(ctxt.getSpace());
   CovAniso cov(ECov::NUGGET, ctxt);
   covs.addCov(&cov);
-  model->addCovList(&covs);
+  model->setCovList(&covs);
 
   /* Set the error return flag */
 
@@ -599,6 +590,7 @@ int model_add_cova(Model *model,
                    const VectorDouble &aniso_rotmat,
                    const VectorDouble &sill)
 {
+  ACovAnisoList *covs;
   if (st_check_model(model)) return 1;
 
   // Add a new element in the structure
@@ -675,30 +667,6 @@ int model_add_drift(Model *model, const EDrift &type, int rank_fex)
   error = 0;
 
   label_end: return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Cancel any property
- **
- ** \return  Error return code
- **
- ** \param[in]  model      Pointer to the Model structure
- **
- *****************************************************************************/
-int model_add_no_property(Model *model)
-
-{
-  ModTrans &modtrs = model->getModTrans();
-  if (st_check_model(model)) return 1;
-
-  // Cancel the property
-
-  modtrs.cancelProperty();
-
-  /* Set the error return code */
-
-  return 0;
 }
 
 /****************************************************************************/
@@ -1684,9 +1652,9 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
   Model *new_model;
   const CovAniso *cova;
   const ADriftElem *drft;
-  int flag_linked, new_nvar, nfact;
+  int new_nvar, nfact;
   double sill;
-  bool flag_gradient;
+  bool flag_linked, flag_gradient;
 
   // Preliminary checks
 
@@ -1695,7 +1663,8 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
   int ndim = model->getDimensionNumber();
   int ncova = model->getCovaNumber();
   int nbfl = model->getDriftNumber();
-  flag_linked = nfact = new_nvar = 0;
+  nfact = new_nvar = 0;
+  flag_linked = false;
   flag_gradient = false;
 
   // Create the new model (linked drift functions)
@@ -1706,7 +1675,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     case 0:                     // Data
       new_nvar = nvar;
       nfact = 1;
-      flag_linked = 0;
+      flag_linked = false;
       flag_gradient = false;
       break;
 
@@ -1718,19 +1687,24 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
       }
       new_nvar = 3;
       nfact = 6;
-      flag_linked = 1;
+      flag_linked = true;
       flag_gradient = true;
       break;
   }
-  new_model = model_init(ndim, new_nvar, model->getField(), flag_linked,
-                         ball_radius, flag_gradient,
-                         model->getContext().getMean(),
-                         model->getContext().getCovar0());
+  CovContext ctxt(model->getContext());
+  ctxt.setNVar(new_nvar);
+  new_model = new Model(ctxt);
   if (new_model == nullptr) return new_model;
 
   // ****************************************
   // Create the basic covariance structures
   // ****************************************
+
+  ACovAnisoList* covs = nullptr;
+  if (flag_gradient)
+    covs = new CovLMGradient();
+  else
+    covs = new CovLMC();
 
   int lec = 0;
   for (int icov = 0; icov < ncova; icov++)
@@ -1739,13 +1713,22 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     sill = model->getSill(icov, 0, 0);
     for (int ifact = 0; ifact < nfact; ifact++, lec++)
     {
-      if (model_add_cova(new_model, cova->getType(), cova->getFlagAniso(),
-                         cova->getFlagRotation(), cova->getRange(),
-                         cova->getParam(), cova->getRanges(),
-                         cova->getAnisoRotMatVec(), VectorDouble()))
-        return new_model;
+      CovAniso* covnew = nullptr;
+      if (flag_gradient)
+        covnew = new CovGradientNumerical(cova->getType(),ctxt);
+      else
+        covnew = new CovAniso(cova->getType(), ctxt);
+      covnew->setParam(cova->getParam());
+      if (cova->getFlagAniso())
+      {
+        covnew->setRanges(cova->getRanges());
+        if (cova->getFlagRotation())
+          covnew->setAnisoRotation(cova->getAnisoRotation());
+      }
+      else
+        covnew->setRange(cova->getRange());
 
-      /* Modify the Covariance calculation type */;
+      /* Modify the Sill */;
 
       switch (mode)
       {
@@ -1753,40 +1736,37 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
         case -1:
           for (int ivar = 0; ivar < new_nvar; ivar++)
             for (int jvar = 0; jvar < new_nvar; jvar++)
-              new_model->setSill(lec, ivar, jvar,
-                                 model->getSill(icov, ivar, jvar));
+              covnew->setSill(ivar, jvar, cova->getSill(ivar,jvar));
           break;
 
         case 1:                   // Data - Gradient
-          for (int ivar = 0; ivar < new_nvar; ivar++)
-            for (int jvar = 0; jvar < new_nvar; jvar++)
-              new_model->setSill(lec, ivar, jvar, 0.);
+          covnew->initSill(0.);
           if (ifact == 0)
           {
-            new_model->setSill(lec, 0, 0, sill);
+            covnew->setSill(0, 0,  sill);
           }
           else if (ifact == 1)
           {
-            new_model->setSill(lec, 0, 1, -sill);
-            new_model->setSill(lec, 1, 0, sill);
+            covnew->setSill(0, 1, -sill);
+            covnew->setSill(1, 0,  sill);
           }
           else if (ifact == 2)
           {
-            new_model->setSill(lec, 1, 1, sill);
+            covnew->setSill(1, 1,  sill);
           }
           else if (ifact == 3)
           {
-            new_model->setSill(lec, 0, 2, -sill);
-            new_model->setSill(lec, 2, 0, sill);
+            covnew->setSill(0, 2, -sill);
+            covnew->setSill(2, 0,  sill);
           }
           else if (ifact == 4)
           {
-            new_model->setSill(lec, 1, 2, -sill);
-            new_model->setSill(lec, 2, 1, -sill);
+            covnew->setSill(1, 2, -sill);
+            covnew->setSill(2, 1, -sill);
           }
           else if (ifact == 5)
           {
-            new_model->setSill(lec, 2, 2, sill);
+            covnew->setSill(2, 2, sill);
           }
           else
           {
@@ -1794,8 +1774,10 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
           }
           break;
       }
+      covs->addCov(covnew);
     }
   }
+  new_model->setCovList(covs);
 
   // *********************************
   // Create the basic drift structures
@@ -1803,15 +1785,16 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
 
   if (mode >= 0)
   {
+    DriftList drifts = DriftList(flag_linked, ctxt.getSpace());
     for (int il = 0; il < nbfl; il++)
     {
       drft = model->getDrift(il);
-      ADriftElem *newdrft = DriftFactory::createDriftFunc(
-          drft->getType(), new_model->getContext());
+      ADriftElem *newdrft = DriftFactory::createDriftFunc(drft->getType(), ctxt);
       newdrft->setRankFex(drft->getRankFex());
-      new_model->addDrift(newdrft);
-      new_model->setDriftFiltered(il, model->isDriftFiltered(il));
+      drifts.addDrift(newdrft);
+      drifts.setFiltered(il, model->isDriftFiltered(il));
     }
+    new_model->setDriftList(&drifts);
 
     // Update the drift for the derivatives
 
@@ -1897,8 +1880,8 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
 //
 //  /* Create the new model */
 //
-//  new_model = model_init(model->getNDim(),new_nvar,model->getFlagLinked(),
-//                         model->getField(),0.,VectorDouble(),VectorDouble());
+//  new_model = model_init(model->getNDim(),new_nvar,
+//                         model->getField(),VectorDouble(),VectorDouble());
 //
 //  /* Set the mean (if provided) */
 //
@@ -2346,7 +2329,7 @@ Model* input_model(int ndim,
 //
 //  /* Core allocation */
 //
-//  model = model_init(ndim,nvar,0,0.,0.,VectorDouble(),VectorDouble());
+//  model = model_init(ndim,nvar,0.,0.,VectorDouble(),VectorDouble());
 //  if (model == nullptr) goto label_end;
 //
 //  /* Number of Basic structures */
@@ -2361,7 +2344,6 @@ Model* input_model(int ndim,
 //  {
 //    // Add the new covariance to the Model
 //
-//    cova = model->addCova();
 //
 //    /* Ask for the parameters of the basic structure */
 //
@@ -2930,7 +2912,7 @@ double model_get_field(Model *model)
  ** \param[in]  r           Correlation coefficient
  **
  ** \remarks: The drift is not copied into the new model
- ** \remarks: It has been exptended to the case where only one model is defined
+ ** \remarks: It has been extended to the case where only one model is defined
  **
  *****************************************************************************/
 Model* model_combine(const Model *model1, const Model *model2, double r)
@@ -2995,8 +2977,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[3] = 1.;
   double radius = MAX(model1->getContext().getBallRadius(),
                       model2->getContext().getBallRadius());
-  model = model_init(model1->getDimensionNumber(), 2, field, 0, radius, false,
-                     mean, cova0);
+  model = model_init(model1->getDimensionNumber(), 2, field, radius, mean, cova0);
   if (model == nullptr) return model;
 
   ncov = 0;

@@ -219,9 +219,7 @@ GSTLEARN_EXPORT Db* db_vmap_compute(Db *db, const ECalcVario &calcul_type, // = 
 GSTLEARN_EXPORT Model* model_init(int ndim = 2,
                                   int nvar = 1,
                                   double field = 0,
-                                  int flag_linked = 0,
                                   double ball_radius = 0.,
-                                  bool flag_gradient = false,
                                   const VectorDouble &mean = VectorDouble(),
                                   const VectorDouble &covar0 = VectorDouble());
 GSTLEARN_EXPORT int model_auto_fit(const Vario *vario,

@@ -3,6 +3,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
@@ -43,9 +44,12 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Non-stationary Model
   Model model = Model(&workingDbc);
-  CovAniso cova = CovAniso(ECov::BESSEL_K,model.getContext());
+  CovContext ctxt = model.getContext();
+  CovLMC covs(ctxt.getSpace());
+  CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
   cova.setRanges({10,45});
-  model.addCova(&cova);
+  covs.addCov(&cova);
+  model.setCovList(&covs);
 
   NoStatFunctional NoStat(&spirale);
   model.addNoStat(&NoStat);

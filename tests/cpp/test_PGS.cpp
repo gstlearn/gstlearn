@@ -20,6 +20,7 @@
 #include "Basic/String.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 
 /****************************************************************************/
 /*!
@@ -56,16 +57,20 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
+  CovLMC covs1(ctxt.getSpace());
   double range1 = 0.2;
   CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
-  model1.addCova(&cova1);
+  covs1.addCov(&cova1);
+  model1.setCovList(&covs1);
   model1.display();
   model1.serialize("truemodel1.ascii");
 
   Model model2(ctxt);
+  CovLMC covs2(ctxt.getSpace());
   double range2 = 0.3;
   CovAniso cova2(ECov::EXPONENTIAL,range2,1.,1.,ctxt);
-  model2.addCova(&cova2);
+  covs2.addCov(&cova2);
+  model2.setCovList(&covs2);
   model2.display();
   model2.serialize("truemodel2.ascii");
 

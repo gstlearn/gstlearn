@@ -147,6 +147,11 @@ void CovAniso::setSill(int ivar, int jvar, double sill)
   _sill.setValue(ivar, jvar, sill);
 }
 
+void CovAniso::initSill(double value)
+{
+  _sill.fill(value);
+}
+
 void CovAniso::setRange(double range)
 {
   if (!hasRange()) return;

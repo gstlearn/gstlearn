@@ -52,7 +52,7 @@ int main(int /*argc*/, char */*argv*/[])
   covlmc.addCov(&cov2);
   // Building the Model
   Model modellmc = Model(ctxt);
-  modellmc.addCovList(&covlmc);
+  modellmc.setCovList(&covlmc);
   return(0);
   modellmc.display(1);
 
@@ -77,7 +77,7 @@ int main(int /*argc*/, char */*argv*/[])
   covtape.addCov(&cov2);
   // Building the Model
   Model modeltape = Model(ctxt);
-  modeltape.addCovList(&covtape);
+  modeltape.setCovList(&covtape);
   modeltape.display(1);
 
   // Sample the Tapered Model at regular steps
@@ -92,7 +92,7 @@ int main(int /*argc*/, char */*argv*/[])
   covconv.addCov(&cov2);
   // Building the Model
   Model modelconv = Model(ctxt);
-  modelconv.addCovList(&covconv);
+  modelconv.setCovList(&covconv);
   modelconv.display(1);
 
   // Sample the Tapered Model at regular steps

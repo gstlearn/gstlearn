@@ -9,6 +9,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
+#include "Covariances/CovLMC.hpp"
 #include "Covariances/ECov.hpp"
 #include "Db/Db.hpp"
 
@@ -124,9 +125,11 @@ int main(int argc, char *argv[])
   ///////////////////////
   // Creating the Model
   Model model = Model(&workingDbc);
+  CovLMC covs(ctxt.getSpace());
   CovAniso cova = CovAniso(ECov::BESSEL_K,model.getContext());
   cova.setRanges({4,45});
-  model.addCova(&cova);
+  covs.addCov(&cova);
+  model.setCovList(&covs);
 
   // Non-stationary part
   NoStatArray nostat({"A"}, &workingDbc);

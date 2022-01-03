@@ -20,7 +20,6 @@
 #include "Model/EConsElem.hpp"
 #include "Drifts/EDrift.hpp"
 
-#include "Model/ModTrans.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
@@ -47,8 +46,8 @@ class ADriftElem;
 class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public IClonable
 {
 public:
-  Model(const CovContext& ctxt, bool flagGradient = false, bool flagLinked = false);
-  Model(const Db *db, bool flagGradient = false, bool flagLinked = false);
+  Model(const CovContext& ctxt);
+  Model(const Db *db);
   Model(const String& neutralFileName, bool verbose = false);
   Model(const Model &m);
   Model& operator= (const Model &m);
@@ -63,18 +62,18 @@ public:
   /// TODO : to be converted as internal member
   const CovContext& getContext() const { return _ctxt; }
 
-  void   addCovList(ACovAnisoList* covalist);
+  void   setCovList(const ACovAnisoList* covalist);
   void   addCova(const CovAniso* cov);
   void   delCova(int rank);
   void   delAllCovas();
-  void   addDriftList(DriftList* driftlist);
+  void   setDriftList(const DriftList* driftlist);
   void   addDrift(const ADriftElem* drift);
   void   addDrift(const VectorString& driftSymbols);
   void   delDrift(int rank);
   void   delAllDrifts();
   int    addNoStat(const ANoStat* anostat);
-  bool   isFlagGradient() const { return _flagGradient; }
-  bool   isFlagLinked() const { return _flagLinked; }
+  bool   isFlagGradient() const;
+  bool   isFlagLinked() const;
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
@@ -144,10 +143,9 @@ public:
   ////////////////////////////////////////////////
 
   double getField() const                       { return _ctxt.getField(); }
-  ModTrans& getModTrans()                       { return _modTrans; }
   int getDimensionNumber() const                { return _ctxt.getNDim(); }
   void setField(double field)                   { _ctxt.setField(field); }
-  const EModelProperty& getModTransMode() const { return _modTrans.getModTransMode(); }
+  EModelProperty getCovMode() const;
   Model* duplicate() const;
 
   int getVariableNumber() const
@@ -192,15 +190,12 @@ public:
   double gofToVario(const Vario* vario);
 
 private:
-  void _create(bool flagGradient, bool flagLinked);
   void _destroy();
+  void _create();
 
 private:
-  bool           _flagGradient;
-  bool           _flagLinked;
   ACovAnisoList* _covaList;     /* Series of Covariance structures */
   DriftList*     _driftList;    /* Series of Drift functions */
-  ModTrans       _modTrans;     /* Covariance Transformation */
   ANoStat*       _noStat;       /* Description of Non-stationary Model */
   CovContext     _ctxt;         /* Context */
 };

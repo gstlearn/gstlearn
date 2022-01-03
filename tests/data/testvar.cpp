@@ -92,6 +92,10 @@ int main(int argc, char *argv[])
   model = ascii_model_read(filename,verbose);
   if (model == (Model *) NULL) goto label_end;
   
+  // Define and store the Space
+
+  ASpaceObject::defineDefaultSpace(SPACE_RN,model->getDimensionNumber());
+
   /* Perform the non-conditional Simulation */
   
   if (dbout != (Db *) NULL)

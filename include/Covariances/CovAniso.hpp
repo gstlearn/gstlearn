@@ -45,6 +45,7 @@ public:
   void setSill(const MatrixSquareGeneral& sill);
   void setSill(const VectorDouble& sill);
   void setSill(int ivar, int jvar, double sill);
+  void initSill(double value = 0.);
 
   /// Practical range
   void setRange(double range); /// Make the covariance isotropic
@@ -157,7 +158,7 @@ private:
 private:
   CovContext      _ctxt;   /// Context (space, irfDegree, field, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function
-  MatrixSquareSymmetric     _sill;   /// Sill matrix (nvar x nvar)
+  MatrixSquareSymmetric    _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
 };
 

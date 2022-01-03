@@ -28,7 +28,10 @@ public:
   CovContext(int nvar,
              int ndim,
              int irfMaxDegree = 1000,
-             double field = 1.);
+             double field = 1,
+             double ballRadius = 0.,
+             const VectorDouble& mean = VectorDouble(),
+             const VectorDouble& covar0 = VectorDouble());
   CovContext(const Db *db,
              int irfMaxDegree = 1000,
              const ASpace* space = nullptr);

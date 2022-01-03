@@ -19,6 +19,7 @@
 #include "Db/Db.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 #include <stdlib.h>
 
 /****************************************************************************/
@@ -46,9 +47,11 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model models(ctxt);
+  CovLMC covs(ctxt.getSpace());
   double range1 = 0.2;
   CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
-  models.addCova(&cova1);
+  covs.addCov(&cova1);
+  models.setCovList(&covs);
   models.display();
 
   // Perform a non-conditional simulation on the Db and on the Grid
@@ -71,10 +74,10 @@ int main(int /*argc*/, char */*argv*/[])
   variop.display(1);
   message("Maximum Variogram Value = %lf\n",variop.getGmax());
 
-  // Fitting the experimental variogram o Underlying GRF (with constraint that total sill is 1)
+  // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
-  std::vector<ECov> covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
-  model.fit(&variop,covs,true);
+  std::vector<ECov> covas {ECov::BESSEL_K, ECov::EXPONENTIAL};
+  model.fit(&variop,covas,true);
   model.display();
 
   // ===============

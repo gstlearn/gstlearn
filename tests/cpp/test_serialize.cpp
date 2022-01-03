@@ -18,6 +18,7 @@
 #include "Basic/Table.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"
 
 
@@ -96,8 +97,11 @@ int main(int /*argc*/, char */*argv*/[])
   // ===== Compute a Model
   db1.display(1);
   Model model1(&db1);
-  CovAniso cova(ECov::EXPONENTIAL, 0.3, 1., 0.2, model1.getContext());
-  model1.addCova(&cova);
+  CovContext ctxt = model1.getContext();
+  CovLMC covs(ctxt.getSpace());
+  CovAniso cova(ECov::EXPONENTIAL, 0.3, 1., 0.2, ctxt);
+  covs.addCov(&cova);
+  model1.setCovList(&covs);
   model1.display();
 
   // Serialize model1

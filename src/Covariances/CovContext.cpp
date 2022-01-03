@@ -49,19 +49,27 @@ CovContext::CovContext(int nvar,
  * @param ndim         Number of dimension of the euclidean space (RN)
  * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
  * @param field        Maximum field distance (used for covariances having no sill)
+ * @param ballRadius   Size of Ball for Numerical Gradient
+ * @param mean         Vector of Means
+ * @param covar0       Vector of variance-covariance
  */
-CovContext::CovContext(int nvar, int ndim, int irfMaxDegree, double field)
+CovContext::CovContext(int nvar,
+                       int ndim,
+                       int irfMaxDegree,
+                       double field,
+                       double ballRadius,
+                       const VectorDouble& mean,
+                       const VectorDouble& covar0)
     : ASpaceObject(SpaceRN(ndim)),
       _nVar(nvar),
       _irfMaxDegree(irfMaxDegree),
       _field(field),
-      _ballRadius(0.),
-      _mean(),
-      _covar0()
+      _ballRadius(ballRadius),
+      _mean(mean),
+      _covar0(covar0)
 {
   _update();
 }
-
 
 CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
     : ASpaceObject(space),
@@ -218,8 +226,12 @@ int CovContext::_getIndex(int ivar, int jvar) const
 
 void CovContext::_update()
 {
-  _mean.resize(_nVar, 0.);
-  MatrixSquareSymmetric Id(_nVar);
-  Id.setIdentity();
-  _covar0 = Id.getValues();
+  if (_mean.empty())
+    _mean.resize(_nVar, 0.);
+  if (_covar0.empty())
+  {
+    MatrixSquareSymmetric Id(_nVar);
+    Id.setIdentity();
+    _covar0 = Id.getValues();
+  }
 }

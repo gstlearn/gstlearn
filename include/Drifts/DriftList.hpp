@@ -50,6 +50,7 @@ public:
   int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
 
   // Add an elementary drift structure
+  void addDriftList(const DriftList* drifts);
   void addDrift(const ADriftElem* drift);
   // Remove an elementary drift structure
   void delDrift(unsigned int i);
@@ -62,7 +63,7 @@ public:
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
   bool isFiltered(int i) const;
   void setFiltered(int i, bool filter);
-  int  getDriftEquationNumber() const { return _driftEquationNumber; }
+  int  getDriftEquationNumber() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -89,6 +90,7 @@ public:
 
   VectorDouble getDrift(const Db* db, int ib, bool useSel = true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true);
+  bool isFlagLinked() const { return _flagLinked; }
 
 private:
   bool _isDriftIndexValid(int i) const;
@@ -98,12 +100,10 @@ private:
     return (ib + getDriftEquationNumber() * (il + getDriftNumber() * ivar));
   }
   void _updateCoefDrift();
-  void _setDriftEquationNumber();
 
 #ifndef SWIG
 protected:
   bool _flagLinked;
-  int  _driftEquationNumber;
   VectorDouble             _coefDrift; /* Array of Drift Coefficients */
   std::vector<ADriftElem*> _drifts;    /* Vector of elementary drift functions */
   VectorBool               _filtered;  /* Vector of filtered flags */

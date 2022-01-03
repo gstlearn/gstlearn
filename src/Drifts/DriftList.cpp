@@ -18,23 +18,19 @@
 DriftList::DriftList(bool flagLinked, const ASpace* space)
     : ADrift(space),
       _flagLinked(flagLinked),
-      _driftEquationNumber(0),
       _coefDrift(),
       _drifts(),
       _filtered()
 {
-  _setDriftEquationNumber();
 }
 
 DriftList::DriftList(const DriftList &r)
     : ADrift(r),
       _flagLinked(r._flagLinked),
-      _driftEquationNumber(r._driftEquationNumber),
       _coefDrift(r._coefDrift),
       _drifts(),
       _filtered(r._filtered)
 {
-  _setDriftEquationNumber();
   for (auto e: r._drifts)
   {
     _drifts.push_back(dynamic_cast<ADriftElem*>(e->clone()));
@@ -47,7 +43,6 @@ DriftList& DriftList::operator=(const DriftList &r)
   {
     ADrift::operator=(r);
     _flagLinked = r._flagLinked;
-    _driftEquationNumber = r._driftEquationNumber;
     _coefDrift  = r._coefDrift;
     for (auto e: r._drifts)
     {
@@ -87,6 +82,13 @@ double DriftList::eval(const Db* /*db*/, int /*iech1*/) const
   return drift;
 }
 
+void DriftList::addDriftList(const DriftList* drifts)
+{
+  int ndrift = drifts->getDriftNumber();
+  _flagLinked = drifts->isFlagLinked();
+  for (int idrift = 0; idrift < ndrift; idrift++)
+    addDrift(drifts->getDrift(idrift));
+}
 void DriftList::addDrift(const ADriftElem* drift)
 {
   _drifts.push_back(dynamic_cast<ADriftElem*>(drift->clone()));
@@ -161,10 +163,11 @@ void DriftList::setType(int il, const EDrift& type)
   _drifts[il]->setType(type);
 }
 
-void DriftList::_setDriftEquationNumber()
+int DriftList::getDriftEquationNumber() const
 {
   int ndrift = getDriftNumber();
-  _driftEquationNumber = (_flagLinked) ? ndrift : ndrift * getNVariables();
+  int ndriftEquationNumber = (_flagLinked) ? ndrift : ndrift * getNVariables();
+  return ndriftEquationNumber;
 }
 
 int DriftList::getNVariables() const
@@ -196,7 +199,6 @@ bool DriftList::_isDriftEquationValid(int ib) const
 
 void DriftList::_updateCoefDrift()
 {
-  _setDriftEquationNumber();
   int nvar = getNVariables();
   int nfeq = getDriftEquationNumber();
   int nbfl = getDriftNumber();

@@ -17,6 +17,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Drifts/EDrift.hpp"
+#include "Drifts/DriftList.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/Neigh.hpp"
@@ -2787,14 +2788,21 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
 
   /* Creating the model */
 
-  pot_ext->model = model_init(pot_ext->ndim, 1, 1., 1, 0., true);
+  pot_ext->model = model_init(pot_ext->ndim, 1, 1.);
   if (pot_ext->model == nullptr) return 1;
 
+  // CovContext part
   CovContext ctxt(1, pot_ext->ndim);
+
+  // Covariance part
   CovLMGradient covs(ctxt.getSpace());
   CovAniso cov(ECov::CUBIC, pot_ext->range, 0., sill, ctxt);
   covs.addCov(&cov);
-  pot_ext->model->addCovList(&covs);
+  pot_ext->model->setCovList(&covs);
+
+  // Drift part
+  DriftList drifts(true, ctxt.getSpace());
+  pot_ext->model->setDriftList(&drifts);
 
   /* Set the error return code */
 

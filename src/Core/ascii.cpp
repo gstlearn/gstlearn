@@ -231,10 +231,7 @@ void ascii_external_filename(const char *filein,
  ** \param[out] filename  Output filename
  **
  *****************************************************************************/
-void ascii_filename(const char *type,
-                                    int rank,
-                                    int mode,
-                                    char *filename)
+void ascii_filename(const char *type, int rank, int mode, char *filename)
 {
   if (!strcmp(type, "Environ"))
     st_filename_patch(Fichier_environ, rank, mode, filename);

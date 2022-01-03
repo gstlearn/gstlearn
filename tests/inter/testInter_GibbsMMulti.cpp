@@ -16,6 +16,7 @@
 #include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovLMC.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Model/Model.hpp"
@@ -90,16 +91,18 @@ int main(int /*argc*/, char */*argv*/[])
   // Model
 
   CovContext ctxt(nvar,2,1.); // use default space
-  Model* model = new Model(ctxt);
+  Model model(ctxt);
+  CovLMC covs(ctxt.getSpace());
   CovAniso cova(ECov::SPHERICAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill({sill});
-  model->addCova(&cova);
-  model->display();
+  covs.addCov(&cova);
+  model.setCovList(&covs);
+  model.display();
 
   // Initialize Gibbs
 
-  GibbsMMulti gibbs(db, model);
+  GibbsMMulti gibbs(db, &model);
   gibbs.setOptionStats(2);
   gibbs.setEps(eps);
   gibbs.setFlagStoreInternal(storeInternal);
@@ -142,6 +145,5 @@ int main(int /*argc*/, char */*argv*/[])
 
   gibbs.cleanup();
   db    = db_delete(db);
-  model = model_free(model);
   return(0);
 }

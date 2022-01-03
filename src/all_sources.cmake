@@ -42,7 +42,6 @@ set(SOURCES
   Model/Option_AutoFit.cpp
   Model/ModelNostat.cpp
   Model/Option_VarioFit.cpp
-  Model/ModTrans.cpp
   Model/Model.cpp
   Model/NoStatFunctional.cpp
   Covariances/CovGaussian.cpp

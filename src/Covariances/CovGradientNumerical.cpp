@@ -70,11 +70,11 @@ double CovGradientNumerical::_evalZGrad(int ivar,
   vec[idim] = radius / 2.;
   paux = p2;
   paux.move(vec);
-  double covp0 = eval(ivar, jvar, p1, paux, mode);
+  double covp0 = ACovGradient::eval(ivar, jvar, p1, paux, mode);
   vec[idim] = -radius / 2.;
   paux = p2;
   paux.move(vec);
-  double covm0 = eval(ivar, jvar, p1, paux, mode);
+  double covm0 = ACovGradient::eval(ivar, jvar, p1, paux, mode);
 
   double cov = (covm0 - covp0) / radius;
   return (cov);
@@ -100,22 +100,22 @@ double CovGradientNumerical::_evalGradGrad(int ivar,
     vec[jdim] = radius / 2.;
     paux = p2;
     paux.move(vec);
-    double covmp = eval(ivar, jvar, p1, paux, mode);
+    double covmp = ACovGradient::eval(ivar, jvar, p1, paux, mode);
     vec[idim] = -radius / 2.;
     vec[jdim] = -radius / 2.;
     paux = p2;
     paux.move(vec);
-    double covmm = eval(ivar, jvar, p1, paux, mode);
+    double covmm = ACovGradient::eval(ivar, jvar, p1, paux, mode);
     vec[idim] = radius / 2.;
     vec[jdim] = -radius / 2.;
     paux = p2;
     paux.move(vec);
-    double covpm = eval(ivar, jvar, p1, paux, mode);
+    double covpm = ACovGradient::eval(ivar, jvar, p1, paux, mode);
     vec[idim] = radius / 2.;
     vec[jdim] = radius / 2.;
     paux = p2;
     paux.move(vec);
-    double covpp = eval(ivar, jvar, p1, paux, mode);
+    double covpp = ACovGradient::eval(ivar, jvar, p1, paux, mode);
 
     cov = (covmm + covpp - covmp - covpm) / (radius * radius);
   }
@@ -124,15 +124,15 @@ double CovGradientNumerical::_evalGradGrad(int ivar,
     vec[idim] = radius;
     paux = p2;
     paux.move(vec);
-    double cov2m = eval(ivar, jvar, p1, paux, mode);
+    double cov2m = ACovGradient::eval(ivar, jvar, p1, paux, mode);
     vec[idim] = -radius;
     paux = p2;
     paux.move(vec);
-    double cov2p = eval(ivar, jvar, p1, paux, mode);
+    double cov2p = ACovGradient::eval(ivar, jvar, p1, paux, mode);
     vec[idim] = 0;
     paux = p2;
     paux.move(vec);
-    double cov00 = eval(ivar, jvar, p1, paux, mode);
+    double cov00 = ACovGradient::eval(ivar, jvar, p1, paux, mode);
 
     cov = -2. * (cov2p - 2.*cov00 + cov2m) / (radius*radius);
   }
@@ -215,7 +215,7 @@ double CovGradientNumerical::eval(int ivar,
   double cov = 0.;
 
   if (ivar == 0 && jvar == 0)
-    cov = _evalZZ(0, 0, p1, p2, mode);
+    cov = _evalZZ(ivar, jvar, p1, p2, mode);
   else
   {
     int idim = ivar - 1;
@@ -232,6 +232,5 @@ double CovGradientNumerical::eval(int ivar,
         cov = - _evalGradGrad(0, 0, idim, jdim, p1, p2, mode);
     }
   }
-  cov *= getSill(0, 0);
   return cov;
 }

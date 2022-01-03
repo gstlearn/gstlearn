@@ -16,6 +16,10 @@
 #include "Db/Db.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Covariances/CovLMC.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Covariances/CovContext.hpp"
+#include "Model/Model.hpp"
 #include "csparse_f.h"
 
 /*****************************************************************************/
@@ -247,6 +251,7 @@ int main(int /*argc*/, char */*argv*/[])
   Model    *model1,*model2;
   SPDE_Option    s_option;
   cs            *Q,**Qcols;
+
   double range_spde =   30.;
   double param_spde =    1.;
   double sill_spde  =    1.;
@@ -262,7 +267,7 @@ int main(int /*argc*/, char */*argv*/[])
   int    flag_print =     0;
   int    flag_save  =     1;
   const char triswitch[] = "nqQ";
-  int     verbose, seed, ndim, iptr, nvertex, ncolor;
+  int     verbose, seed, ndim, nvar, iptr, nvertex, ncolor;
   int    *colors, *ind, rank;
   double *z, *krig, *zred, *consmin, *consmax, *sigma, diag;
   
@@ -286,8 +291,8 @@ int main(int /*argc*/, char */*argv*/[])
   verbose  = ncolor = 0;
   seed     = 31415;
   ndim     = 2;
+  nvar     = 1;
 
-  if (setup_license("Demonstration")) goto label_end;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Gibbs-");
@@ -303,18 +308,26 @@ int main(int /*argc*/, char */*argv*/[])
   // 2-D grid output file
 
   dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,x0,dx);
-  if (dbgrid == (Db *) NULL) goto label_end;
-  if (db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,
-                               &iptr)) goto label_end;
-  if (db_grid_define_coordinates(dbgrid)) goto label_end;
-  if (db_extension_diag(dbgrid,&diag)) goto label_end;
+  db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,&iptr);
+  db_grid_define_coordinates(dbgrid);
+  db_extension_diag(dbgrid,&diag);
+  CovContext ctxt(nvar,ndim,1000,diag);
     
   // Model for SPDE
 
-  model1 = model_init(ndim,1,diag);
-  if (model1 == nullptr) goto label_end;
-  if (model_add_cova(model1,ECov::BESSEL_K,0,0,range_spde,param_spde,
-                     VectorDouble(),VectorDouble(),VectorDouble(sill_spde))) goto label_end;
+  model1 = new Model(ctxt);
+  CovLMC covs1(ctxt.getSpace());
+  CovAniso cova1(ECov::BESSEL_K,range_spde,param_spde,sill_spde,ctxt);
+  covs1.addCov(&cova1);
+  model1->setCovList(&covs1);
+
+  // Model for constraints
+
+  model2 = new Model(ctxt);
+  CovLMC covs2(ctxt.getSpace());
+  CovAniso cova2(ECov::BESSEL_K,range_cons,param_cons,sill_cons,ctxt);
+  covs2.addCov(&cova2);
+  model2->setCovList(&covs2);
 
   // Creating the meshing for extracting Q
 
@@ -349,13 +362,6 @@ int main(int /*argc*/, char */*argv*/[])
   if (consmin == (double *) NULL) goto label_end;
   consmax = (double *) mem_alloc(sizeof(double) * nvertex,0);
   if (consmax == (double *) NULL) goto label_end;
-
-  // Model for constraints
-
-  model2 = model_init(ndim,1,diag);
-  if (model2 == nullptr) goto label_end;
-  if (model_add_cova(model2,ECov::BESSEL_K,0,0,range_cons,param_cons,
-                     VectorDouble(),VectorDouble(),VectorDouble(sill_cons))) goto label_end;
 
   // Creating the constraints
 

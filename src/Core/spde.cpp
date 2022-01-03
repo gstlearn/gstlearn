@@ -1983,8 +1983,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        sill[ecr++] = (ivar == jvar) ? nugval :
-                                       0.;
+        sill[ecr++] = (ivar == jvar) ? nugval : 0.;
     if (model_add_cova(model, ECov::NUGGET, 0, 0, 0., 0., VectorDouble(),
                        VectorDouble(), sill)) return (1);
   }
