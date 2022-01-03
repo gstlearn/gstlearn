@@ -9,10 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovFactory.hpp"
+#include "Covariances/CovGradientNumerical.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
-#include "Covariances/CovFactory.hpp"
+
 #include "Space/ASpace.hpp"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
@@ -550,3 +552,4 @@ int CovAniso::getGradParamNumber() const
   }
   return number;
 }
+

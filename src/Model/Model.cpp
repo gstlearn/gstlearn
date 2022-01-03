@@ -855,8 +855,8 @@ double Model::getBallRadius() const
   for (int icov=0; icov < (int) getCovaNumber(); icov++)
   {
     CovAniso* cova = _covaList->getCova(icov);
-    CovGradientNumerical* covgrad = dynamic_cast<CovGradientNumerical*>(cova);
-    if (covgrad != nullptr) return covgrad->getBallRadius();
+    double ball_radius = cova->getBallRadius();
+    if (! FFFF(ball_radius)) return ball_radius;
   }
   return 0.;
 }

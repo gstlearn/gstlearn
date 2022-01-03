@@ -147,6 +147,7 @@ public:
   void setAniso(const Tensor& aniso) { _aniso = aniso; }
   const ACovFunc* getCova() const { return _cova; }
   int getGradParamNumber() const;
+  virtual double getBallRadius() const { return TEST; }
 
 protected:
   /// Update internal parameters consistency with the context

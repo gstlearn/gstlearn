@@ -43,6 +43,8 @@ public:
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
+  virtual double getBallRadius() const override { return _ballRadius; }
+
   void evalZAndGradients(const SpacePoint& p1,
                          const SpacePoint& p2,
                          double& covVal,
@@ -50,8 +52,6 @@ public:
                          VectorDouble& covGg,
                          const CovCalcMode& mode = CovCalcMode(),
                          bool flagGrad = false) const override;
-
-  double getBallRadius() const { return _ballRadius; }
 
 private:
   double _evalZZ(int ivar,
