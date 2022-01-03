@@ -1,0 +1,85 @@
+---
+title: "Test_Vario"
+author: "D. Renard"
+date: "3 janvier 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(RGeostats)
+rm(list=ls())
+```
+
+## Introduction
+
+This test is meant to enable visualizing the OLD and NEW versions of the non-regression tests for variogram fitting.
+As, in the latest version of non-regression tests for Variogram Fitting, no output is performed, in order to avoid generating spurious differences, the only solution is to run this graphic test a-posteriori.
+
+The idea is to provide the Extension name of the test (e.g. Var1) and this script will produce the resulting figure, displaying the experimental variogram as well as the OLD and the NEW fitting solutions.
+
+## Defining variables
+
+You must define the extension of the non-regression test to be performed.
+
+```{r}
+target = "Var12"
+```
+
+Next lines are built to reference the absolute path of the target files.
+
+```{r}
+dirhome = Sys.getenv('HOME')
+dirloc  = paste(dirhome,"project_gstlearn","gstlearn","tests","data",target,sep="/")
+```
+
+THe next chunk is there in order to test if the experimental variogram calculation is part of the test or not
+
+```{r}
+vario.calculated = file.exists(paste(dirloc,"Vario.ref",sep="/"))
+vario.calculated
+```
+
+Reading the INITIAL experimental variogram
+
+```{r}
+if (! vario.calculated)
+  vario.ref = vario.read(paste(dirloc,"Vario.dat",sep="/"))
+```
+
+Reading the REFERENCE experimental variogram
+
+```{r}
+if (vario.calculated)
+  vario.ref = vario.read(paste(dirloc,"Vario.ref",sep="/"))
+```
+
+Reading the OLD Model
+
+```{r}
+model.ref = model.read(paste(dirloc,"Model.ref",sep="/"))
+```
+
+Reading the NEW experimental variogram
+
+```{r}
+if (vario.calculated)
+  vario.new = vario.read(paste(dirloc,"Vario.out",sep="/"))
+```
+
+Reading the NEW model
+
+```{r}
+model.new = model.read(paste(dirloc,"Model.out",sep="/"))
+```
+
+## Representing all information
+
+```{r}
+plot(vario.ref, col="blue")
+if (vario.calculated)
+  plot(vario.new,add=TRUE, col = "black")
+plot(model.ref, vario=vario.ref, add=TRUE, col = "blue")
+plot(model.new, vario=vario.ref, add=TRUE, col = "black")
+```
+
