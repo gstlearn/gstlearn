@@ -169,7 +169,6 @@ void Model::setCovList(const ACovAnisoList* covalist)
 void Model::addCova(const CovAniso *cov)
 {
   if (cov == nullptr) return;
-  // TODO: next line is compulsory as long as model::addCova() exists
   // TODO: the type of CovAnisoList is defaulted to CovLMC
   if (_covaList == nullptr) _covaList = new CovLMC();
   _covaList->addCov(cov);
