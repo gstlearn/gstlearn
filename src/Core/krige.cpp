@@ -3659,7 +3659,7 @@ static int st_xvalid_unique(Db *dbin,
 
     /* Perform the estimation */
 
-    value = (ABS(neigh->getFlagXvalid()) == 1) ? -valref : 0.;
+    value = (FLAG_EST > 0) ? -valref : 0.;
     for (jech = jjech = 0; jech < dbin->getSampleNumber(); jech++)
     {
       if (!dbin->isActive(jech)) continue;
@@ -3670,7 +3670,7 @@ static int st_xvalid_unique(Db *dbin,
     }
     if (FLAG_EST != 0) dbin->setArray(iech, IPTR_EST, value);
 
-    if (ABS(neigh->getFlagXvalid()) == 1) stdv = value / stdv;
+    if (FLAG_STD > 0) stdv = value / stdv;
     if (FLAG_STD != 0) dbin->setArray(iech, IPTR_STD, stdv);
 
     if (debug_query("results"))

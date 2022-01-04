@@ -2144,7 +2144,7 @@ int model_extract_cova(Model *model,
   /* Returning arguments */
 
   *cov_type = cova->getType();
-  *flag_aniso = !cova->isIsotropic();
+  *flag_aniso = (cova->isIsotropic()) ? 0 : 1;
   *param = cova->getParam();
   sill = cova->getSill().getValues();
 
