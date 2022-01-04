@@ -968,7 +968,7 @@ double Model::gofToVario(const Vario* vario)
   return total;
 }
 
-EModelProperty Model::getCovMode() const
+const EModelProperty& Model::getCovMode() const
 {
   ACovAnisoList* covs;
   if (_covaList == nullptr) return EModelProperty::NONE;

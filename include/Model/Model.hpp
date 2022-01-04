@@ -146,7 +146,7 @@ public:
   double getField() const                       { return _ctxt.getField(); }
   int getDimensionNumber() const                { return _ctxt.getNDim(); }
   void setField(double field)                   { _ctxt.setField(field); }
-  EModelProperty getCovMode() const;
+  const EModelProperty& getCovMode() const;
   Model* duplicate() const;
 
   int getVariableNumber() const
