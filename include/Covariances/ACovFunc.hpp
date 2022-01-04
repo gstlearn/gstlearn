@@ -28,25 +28,15 @@ public:
   ACovFunc& operator= (const ACovFunc &r);
   virtual ~ACovFunc();
 
-  /// Set the third parameter value
-  void setParam(double param);
-  /// Scale the context field (used for updating to normalized field)
-  void setField(double field);
-
-  double evalCov(double h) const;
-  double evalCovDerivative(int degree, double h) const;
-  VectorDouble evalCovVec(const VectorDouble& vech) const;
-  VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
-
+  ///////////////////////////////////////////////////
+  /// AStringable Interface
   virtual String toString(int level = 0) const override;
+  ///////////////////////////////////////////////////
 
-  virtual String getFormula()   const { return String("Equation not yet implemented"); }
-  virtual bool   isConsistent() const;
-
-  const ECov&          getType()    const { return _type; }
-  const CovContext&    getContext() const { return _ctxt; }
-  double               getParam()   const { return _param; }
-
+  ///////////////////////////////////////////////////
+  /// ACovFunc Interface
+  virtual String       getFormula()   const { return String("Equation not yet implemented"); }
+  virtual bool         isConsistent() const;
   virtual double       getScadef()    const { return 1; }
   virtual double       getParMax()    const { return 0; }
   virtual unsigned int getMaxNDim()   const { return MAX_INT; } // No Space Dimension limit
@@ -56,6 +46,18 @@ public:
   virtual int          hasRange()     const { return 1 ; } // 0:No; 1:Yes; -1:from Sill
   virtual bool         hasParam()     const { return false; }
   virtual String       getCovName()   const = 0;
+  virtual bool         hasCovDerivative() const { return false; }
+  ///////////////////////////////////////////////////
+
+  void setParam(double param);
+  void setField(double field);
+  double evalCov(double h) const;
+  double evalCovDerivative(int degree, double h) const;
+  VectorDouble evalCovVec(const VectorDouble& vech) const;
+  VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
+  const ECov&          getType()    const { return _type; }
+  const CovContext&    getContext() const { return _ctxt; }
+  double               getParam()   const { return _param; }
 
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :

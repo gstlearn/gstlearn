@@ -39,13 +39,6 @@ public:
 
   // Add an elementary covariance structure
   virtual void addCov(const CovAniso* cov);
-  void addCovList(const ACovAnisoList* covs);
-  // Remove an elementary covariance structure
-  void delCov(unsigned int i);
-  // Remove all elementary covariance structures
-  void delAllCov();
-  // Filter a covariance
-  void setFiltered(unsigned int i, bool filtered);
 
   ///////////////////////////////////////////////////
   /// ASpaceObject Interface
@@ -65,7 +58,17 @@ public:
                       const CovCalcMode& mode = CovCalcMode()) const override;
   //////////////////////////////////////////////////
 
+  ///////////////////////////////////////////////////
+  /// AStringable Interface
   virtual String toString(int level = 0) const override;
+
+  void addCovList(const ACovAnisoList* covs);
+  // Remove an elementary covariance structure
+  void delCov(unsigned int i);
+  // Remove all elementary covariance structures
+  void delAllCov();
+  // Filter a covariance
+  void setFiltered(unsigned int i, bool filtered);
 
   int             getCovNumber() const;
   bool            isFiltered(unsigned int i) const;

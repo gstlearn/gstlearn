@@ -23,7 +23,7 @@ Tensor::Tensor(unsigned int ndim)
    _tensorInverse(),
    _radius(),
    _rotation(),
-   _isotrop(true)
+   _isotropic(true)
 {
   init(ndim);
 }
@@ -35,7 +35,7 @@ Tensor::Tensor(const Tensor& r)
    _tensorInverse(r._tensorInverse),
    _radius(r._radius),
    _rotation(r._rotation),
-   _isotrop(r._isotrop)
+   _isotropic(r._isotropic)
 {
 }
 
@@ -49,7 +49,7 @@ Tensor& Tensor::operator=(const Tensor &r)
     _tensorInverse = r._tensorInverse;
     _radius = r._radius;
     _rotation = r._rotation;
-    _isotrop = r._isotrop;
+    _isotropic = r._isotropic;
   }
   return *this;
 }
@@ -65,7 +65,7 @@ void Tensor::init(int ndim)
   _rotation.setIdentity();
   _tensorDirect  = _rotation.getMatrixDirect();
   _tensorInverse = _rotation.getMatrixDirect();
-  _isotrop = true;
+  _isotropic = true;
 }
 
 String Tensor::toString(int /*level*/) const
@@ -82,7 +82,7 @@ void Tensor::setRadius(double radius)
   if (ABS(radius) < EPSILON10)
     my_throw ("Ellipsoid radius cannot be null");
   ut_vector_fill(_radius, radius, static_cast<int> (_radius.size()));
-  _isotrop = true;
+  _isotropic = true;
   _fillTensors();
 }
 
@@ -161,11 +161,11 @@ void Tensor::_updateIsotrop()
   {
     if (ABS(r - rad0) > EPSILON10 * (ABS(r) + ABS(rad0)))
     {
-      _isotrop = false;
+      _isotropic = false;
       return;
     }
   }
-  _isotrop = true;
+  _isotropic = true;
 }
 
 void Tensor::_fillTensors()

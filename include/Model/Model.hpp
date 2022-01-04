@@ -73,6 +73,8 @@ public:
   void   delAllDrifts();
   int    addNoStat(const ANoStat* anostat);
   bool   isFlagGradient() const;
+  bool   isFlagGradientNumerical() const;
+  bool   isFlagGradientFunctional() const;
   bool   isFlagLinked() const;
 
   ////////////////////////////////////////////////

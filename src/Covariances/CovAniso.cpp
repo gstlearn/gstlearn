@@ -371,7 +371,7 @@ String CovAniso::toString(int /*level*/) const
   // Range / Scale information
   if (_cova->hasRange())
   {
-    if (_aniso.isIsotrop())
+    if (_aniso.isIsotropic())
     {
       if (_cova->hasRange() > 0)
         sstr << "- Range        = " << toDouble(getRange(0)) << std::endl;
@@ -429,7 +429,7 @@ void CovAniso::setType(const ECov& type)
 double CovAniso::getRange() const
 {
   if (!hasRange()) return 0.;
-  if (isIsotrop())
+  if (isIsotropic())
     return getRange(0);
   else
     return ut_vector_max(getRanges());
@@ -438,7 +438,7 @@ double CovAniso::getRange() const
 double CovAniso::getTheoretical() const
 {
   if (!hasRange()) return 0.;
-  if (isIsotrop())
+  if (isIsotropic())
     return getScale(0);
   else
     return ut_vector_max(getScales());

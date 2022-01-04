@@ -4453,7 +4453,7 @@ static void st_model_post_update(StrMod *strmod, const Option_VarioFit &optvar)
 
       if (!optvar.getAuthAniso())
       {
-        if (!cova->isIsotrop())
+        if (!cova->isIsotropic())
         my_throw("Posterior Check: The covariance should be isotropic");
       }
     }

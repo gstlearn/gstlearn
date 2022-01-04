@@ -45,7 +45,7 @@ public:
   const Rotation&        getRotation()      const { return  _rotation; }
   const MatrixSquareGeneral& getMatrixDirect()  const { return  _rotation.getMatrixDirect(); }
   const MatrixSquareGeneral& getMatrixInverse() const { return  _rotation.getMatrixInverse(); }
-  bool                   isIsotrop()        const { return  _isotrop; }
+  bool                   isIsotropic()        const { return  _isotropic; }
   bool                   hasRotation()      const { return !_rotation.isIdentity(); }
 
   VectorDouble applyDirect (const VectorDouble& vec) const;
@@ -61,6 +61,6 @@ private:
   MatrixSquareGeneral _tensorInverse; /// Inverse Tensor matrix (definite positive)
   VectorDouble    _radius;   /// Ellipsoid radius
   Rotation        _rotation; /// Ellipsoid rotation
-  bool            _isotrop;  /// True if the tensor is isotropic
+  bool            _isotropic;  /// True if the tensor is isotropic
 };
 

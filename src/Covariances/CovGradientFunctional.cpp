@@ -168,7 +168,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
     {
       double d2cov = getSill(0,0) * getCova()->evalCovDerivative(2,h);
       double a = (dcovsr - d2cov) / (h * h);
-      if (getAniso().isIsotrop())
+      if (getAniso().isIsotropic())
       {
 
         //  Isotropic case
@@ -199,3 +199,4 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
     }
   }
 }
+

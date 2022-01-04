@@ -23,6 +23,7 @@
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
+#include "Covariances/CovGradientFunctional.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/EModelProperty.hpp"
@@ -850,14 +851,19 @@ double Model::getTotalSill(int ivar, int jvar) const
   return var;
 }
 
+/**
+ * Returns the Ball radius (from the first covariance of _covaList)
+ * @return Value of the Ball Radius (if defined, i.e. for Numerical Gradient calculation)
+ */
 double Model::getBallRadius() const
 {
-  for (int icov=0; icov < (int) getCovaNumber(); icov++)
-  {
-    CovAniso* cova = _covaList->getCova(icov);
-    double ball_radius = cova->getBallRadius();
-    if (! FFFF(ball_radius)) return ball_radius;
-  }
+  if (_covaList == nullptr) return TEST;
+
+  // Check is performed on the first covariance
+
+  CovAniso* cova = _covaList->getCova(0);
+  double ball_radius = cova->getBallRadius();
+  if (! FFFF(ball_radius)) return ball_radius;
   return 0.;
 }
 
@@ -998,4 +1004,24 @@ bool Model::isFlagGradient() const
 {
   if (_covaList == nullptr) return false;
   return getCovMode() == EModelProperty::GRAD;
+}
+
+bool Model::isFlagGradientNumerical() const
+{
+  if (! isFlagGradient()) return false;
+
+  // Check is performed on the first covariance
+  CovGradientNumerical* cova = dynamic_cast<CovGradientNumerical*>(_covaList->getCova(0));
+  if (cova != nullptr) return true;
+  return false;
+}
+
+bool Model::isFlagGradientFunctional() const
+{
+  if (! isFlagGradient()) return false;
+
+  // Check is performed on the first covariance
+  CovGradientFunctional* cova = dynamic_cast<CovGradientFunctional*>(_covaList->getCova(0));
+  if (cova != nullptr) return true;
+  return false;
 }

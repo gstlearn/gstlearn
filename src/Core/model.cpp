@@ -552,14 +552,11 @@ int model_add_cova(Model *model,
 
   // Add a new element in the structure
 
-  if (model->isFlagGradient())
+  cova = new CovAniso(type, model->getContext());
+  if (model->isFlagGradientFunctional() && ! cova->hasCovDerivative())
   {
-    cova = new CovGradientNumerical(type, ball_radius, model->getContext());
-//    if (! cova->isGradientCompatible()) return 1; TODO incorporate this type of selection
-  }
-  else
-  {
-    cova = new CovAniso(type, model->getContext());
+    messerr("This covariance is not compatible with Functional Gradient Calculation");
+    return 1;
   }
 
   cova->setParam(param);
@@ -2147,7 +2144,7 @@ int model_extract_cova(Model *model,
   /* Returning arguments */
 
   *cov_type = cova->getType();
-  *flag_aniso = !cova->isIsotrop();
+  *flag_aniso = !cova->isIsotropic();
   *param = cova->getParam();
   sill = cova->getSill().getValues();
 

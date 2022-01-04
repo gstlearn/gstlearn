@@ -36,30 +36,15 @@ public:
   CovAniso& operator=(const CovAniso& r);
   virtual ~CovAniso();
 
+  ///////////////////////////////////////////////////
+  /// IClonable Interface
   virtual IClonable* clone() const override { return new CovAniso(*this); };
+  ///////////////////////////////////////////////////
 
-  void setContext(const CovContext& ctxt);
-  void setParam(double param);
-
-  void setSill(double sill); /// Only valid when there is only one variable (in the context)
-  void setSill(const MatrixSquareGeneral& sill);
-  void setSill(const VectorDouble& sill);
-  void setSill(int ivar, int jvar, double sill);
-  void initSill(double value = 0.);
-
-  /// Practical range
-  void setRange(double range); /// Make the covariance isotropic
-  void setRange(int idim, double range);
-  void setRanges(const VectorDouble& range);
-
-  void setScale(double scale); /// Make the covariance isotropic
-  void setScale(int idim, double scale);
-  void setScales(const VectorDouble& scale);
-
-  void setAnisoRotation(const Rotation& rot);
-  void setAnisoRotation(const VectorDouble& rot);
-  void setAnisoAngles(const VectorDouble& angles);
-  void setAnisoAngle(int idim, double angle);
+  ///////////////////////////////////////////////////
+  /// AStringable Interface
+  virtual String toString(int level = 0) const override;
+  ///////////////////////////////////////////////////
 
   ///////////////////////////////////////////////////
   /// ASpaceObject Interface
@@ -71,6 +56,8 @@ public:
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
   ///////////////////////////////////////////////////
 
+  ///////////////////////////////////////////////////
+  /// ACov Interface
   /**
    * Evaluate the covariance for a pair of variables and a zero distance
    * @param ivar Rank of the first variable
@@ -96,12 +83,35 @@ public:
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
-
-  virtual String toString(int level = 0) const override;
+  ///////////////////////////////////////////////////
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
-
   virtual String getFormula() const { return _cova->getFormula(); }
+  virtual double getBallRadius() const { return TEST; }
+
+  void setContext(const CovContext& ctxt);
+  void setParam(double param);
+
+  void setSill(double sill); /// Only valid when there is only one variable (in the context)
+  void setSill(const MatrixSquareGeneral& sill);
+  void setSill(const VectorDouble& sill);
+  void setSill(int ivar, int jvar, double sill);
+  void initSill(double value = 0.);
+
+  /// Practical range
+  void setRange(double range); /// Make the covariance isotropic
+  void setRange(int idim, double range);
+  void setRanges(const VectorDouble& range);
+
+  void setScale(double scale); /// Make the covariance isotropic
+  void setScale(int idim, double scale);
+  void setScales(const VectorDouble& scale);
+
+  void setAnisoRotation(const Rotation& rot);
+  void setAnisoRotation(const VectorDouble& rot);
+  void setAnisoAngles(const VectorDouble& angles);
+  void setAnisoAngle(int idim, double angle);
+
   const MatrixSquareSymmetric& getSill() const { return _sill; }
   double getSill(int ivar, int jvar) const;
   VectorDouble getRanges() const;
@@ -112,7 +122,7 @@ public:
   void   setType(const ECov& type);
   double getRange() const;
   double getTheoretical() const;
-  bool   getFlagAniso() const { return !isIsotrop(); }
+  bool   getFlagAniso() const { return !isIsotropic(); }
   bool   getFlagRotation() const { return hasRotation(); }
   double getRange(int idim) const { return getRanges()[idim]; }
   double getScale(int idim) const { return getScales()[idim]; }
@@ -123,10 +133,7 @@ public:
   const VectorDouble getAnisoInvMatVec() const { return getAnisoInvMat().getValues(); }
   const VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
-  double getAnisoRotMat(int idim, int jdim) const
-  {
-    return _aniso.getMatrixDirect().getValue(idim, jdim);
-  }
+  double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim,jdim); }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
   const CovContext& getContext() const { return _ctxt; }
   const ECov& getType() const { return _cova->getType(); }
@@ -135,19 +142,19 @@ public:
   double getParMax() const { return _cova->getParMax(); }
   int    getMaxNDim() const { return _cova->getMaxNDim(); }
   int    getMinOrder() const { return _cova->getMinOrder(); }
-  bool hasInt1D() const { return _cova->hasInt1D(); }
-  bool hasInt2D() const { return _cova->hasInt2D(); }
-  bool hasRange() const { return _cova->hasRange(); }
-  int hasParam() const  { return _cova->hasParam(); }
+  bool   hasInt1D() const { return _cova->hasInt1D(); }
+  bool   hasInt2D() const { return _cova->hasInt2D(); }
+  bool   hasRange() const { return _cova->hasRange(); }
+  int    hasParam() const  { return _cova->hasParam(); }
   String getCovName() const { return _cova->getCovName(); }
-  bool isIsotrop() const { return _aniso.isIsotrop(); }
-  bool isAsymptotic() const { return getScadef() != 1.; }
-  bool hasRotation() const { return _aniso.hasRotation(); }
+  bool   isIsotropic() const { return _aniso.isIsotropic(); }
+  bool   isAsymptotic() const { return getScadef() != 1.; }
+  bool   hasRotation() const { return _aniso.hasRotation(); }
   const Tensor& getAniso() const { return _aniso; }
-  void setAniso(const Tensor& aniso) { _aniso = aniso; }
+  void   setAniso(const Tensor& aniso) { _aniso = aniso; }
   const ACovFunc* getCova() const { return _cova; }
-  int getGradParamNumber() const;
-  virtual double getBallRadius() const { return TEST; }
+  int    getGradParamNumber() const;
+  bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
 
 protected:
   /// Update internal parameters consistency with the context
@@ -162,4 +169,3 @@ private:
   MatrixSquareSymmetric    _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
 };
-
