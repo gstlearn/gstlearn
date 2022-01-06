@@ -63,9 +63,9 @@ GSTLEARN_EXPORT VectorDouble hermiteCondExp(VectorDouble krigest,
 GSTLEARN_EXPORT double hermiteCondExpElement(double krigest,
                                              double krigstd,
                                              const VectorDouble &phi);
-VectorDouble hermiteCondStd(VectorDouble krigest,
-                            VectorDouble krigstd,
-                            const VectorDouble &phi);
+GSTLEARN_EXPORT VectorDouble hermiteCondStd(VectorDouble krigest,
+                                            VectorDouble krigstd,
+                                            const VectorDouble &phi);
 GSTLEARN_EXPORT double hermiteCondStdElement(double krigest,
                                              double krigstd,
                                              const VectorDouble &phi);

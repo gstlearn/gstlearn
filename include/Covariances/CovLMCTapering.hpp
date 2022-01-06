@@ -27,13 +27,13 @@ typedef struct
 } Def_Tapering;
 
 /* Prototyping the internal covariance functions */
-double _tape_spherical(double);
-double _tape_cubic(double);
-double _tape_triangle(double);
-double _tape_penta(double);
-double _tape_storkey(double);
-double _tape_wendland1(double);
-double _tape_wendland2(double);
+GSTLEARN_EXPORT double _tape_spherical(double);
+GSTLEARN_EXPORT double _tape_cubic(double);
+GSTLEARN_EXPORT double _tape_triangle(double);
+GSTLEARN_EXPORT double _tape_penta(double);
+GSTLEARN_EXPORT double _tape_storkey(double);
+GSTLEARN_EXPORT double _tape_wendland1(double);
+GSTLEARN_EXPORT double _tape_wendland2(double);
 
 GSTLEARN_EXPORT Def_Tapering& D_TAPE(int rank);
 

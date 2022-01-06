@@ -29,10 +29,10 @@ typedef struct
 } Def_Convolution;
 
 /* Prototyping the internal covariance functions */
-double _conv_uniform(double v);
-double _conv_exponential(double v);
-double _conv_gaussian(double v);
-double _conv_sincard(double v);
+GSTLEARN_EXPORT double _conv_uniform(double v);
+GSTLEARN_EXPORT double _conv_exponential(double v);
+GSTLEARN_EXPORT double _conv_gaussian(double v);
+GSTLEARN_EXPORT double _conv_sincard(double v);
 
 GSTLEARN_EXPORT Def_Convolution& D_CONV(int rank);
 
