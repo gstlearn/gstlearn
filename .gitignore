@@ -9,4 +9,5 @@ tests/data/*/*.out
 .cproject
 .settings
 core
-
+nano.save
+.*~
