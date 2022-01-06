@@ -230,6 +230,6 @@ private:
 };
 
 /* Shortcut functions for C style aficionados */
-AMatrix* createIdentity(int nrow, bool sparse);
-AMatrix* transpose(const AMatrix* mat);
-AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);
+GSTLEARN_EXPORT AMatrix* createIdentity(int nrow, bool sparse);
+GSTLEARN_EXPORT AMatrix* transpose(const AMatrix* mat);
+GSTLEARN_EXPORT AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);

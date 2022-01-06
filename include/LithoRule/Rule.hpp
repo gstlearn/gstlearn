@@ -131,6 +131,6 @@ private:
   Node*          _mainNode;
 };
 
-void   set_rule_mode(int rule_mode);
-int    get_rule_mode(void);
-double get_rule_extreme(int mode);
+GSTLEARN_EXPORT void   set_rule_mode(int rule_mode);
+GSTLEARN_EXPORT int    get_rule_mode(void);
+GSTLEARN_EXPORT double get_rule_extreme(int mode);
