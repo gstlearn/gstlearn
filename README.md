@@ -28,7 +28,7 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
     * Linux/MacOS:
       * [GCC](https://gcc.gnu.org) compiler 5.4 or higher
     * Windows:
-      * [Microsoft Visual C++ Compiler](https://visualstudio.microsoft.com/visual-cpp-build-tools) 14 or higher
+      * [Microsoft Visual Studio C++](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/) 14 or higher
       * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher (not tested)
   * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
   * [Boost](https://www.boost.org/users/download) header files
@@ -78,8 +78,8 @@ Notes:
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
   * The *static* version of the library is mandatory for creating [pygstlearn package](https://github.com/gstlearn/pygstlearn)
   * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
-    * `-DBoost_ROOT=<path/to/boost/install/dir>`
-    * `-DHDF5_ROOT=<path/to/hdf5/install/dir>`
+    * `-DBoost_ROOT=<path/to/boost>`
+    * `-DHDF5_ROOT=<path/to/hdf5>`
 
 ## Usage
 TODO: Instructions will come soon
