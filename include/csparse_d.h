@@ -1,8 +1,10 @@
 #ifndef _CS_D_H
 #define _CS_D_H
 
+#include "gstlearn_export.hpp"
+
 /* --- primary CSparse routines and data structures ------------------------- */
-class cs // cs_sparse    /* matrix in compressed-column or triplet form */
+class GSTLEARN_EXPORT cs // cs_sparse    /* matrix in compressed-column or triplet form */
 {
 public:
     int nzmax ;             /* maximum number of entries */
@@ -15,7 +17,7 @@ public:
 };
 
 /* --- secondary CSparse routines and data structures ----------------------- */
-class css // cs_symbolic  /* symbolic Cholesky, LU, or QR analysis */
+class GSTLEARN_EXPORT css // cs_symbolic  /* symbolic Cholesky, LU, or QR analysis */
 {
 public:
     int *Pinv ;            /* inverse row perm. for QR, fill red. perm for Chol */
@@ -27,7 +29,7 @@ public:
     int unz ;              /* # entries in U for LU; in R for QR */
 };
 
-class csn // cs_numeric   /* numeric Cholesky, LU, or QR factorization */
+class GSTLEARN_EXPORT csn // cs_numeric   /* numeric Cholesky, LU, or QR factorization */
 {
 public:
     cs *L ;                /* L for LU and Cholesky, V for QR */
@@ -36,7 +38,7 @@ public:
     double *B ;            /* beta [0..n-1] for QR */
 };
 
-class csd // cs_dmperm_results    /* cs_dmperm or cs_scc output */
+class GSTLEARN_EXPORT csd // cs_dmperm_results    /* cs_dmperm or cs_scc output */
 {
 public:
     int *P ;            /* size m, row permutation */
@@ -48,7 +50,7 @@ public:
     int cc [5] ;        /* coarse column decomposition */
 };
 
-class QChol
+class GSTLEARN_EXPORT QChol
 {
 public:
     cs  *Q;
@@ -56,7 +58,7 @@ public:
     csn *N;
 };
 
-class cs_MG
+class GSTLEARN_EXPORT cs_MG
 {
 public:
     int      nh;
@@ -66,7 +68,7 @@ public:
     QChol   *A;
 };
 
-class cs_MGS
+class GSTLEARN_EXPORT cs_MGS
 {
 public:
     int       flag_cg;            /* Apply Conjugate-gradient */
@@ -84,7 +86,7 @@ public:
     cs_MG   **mg;                 /* Array of cs_MG structures */
 };
 
-class Triplet
+class GSTLEARN_EXPORT Triplet
 {
 public:
     bool flagFromOne;
