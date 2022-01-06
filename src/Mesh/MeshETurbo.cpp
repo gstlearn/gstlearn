@@ -18,10 +18,10 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Rotation.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Grid.hpp"
 #include "csparse_f.h"
 
 #include <math.h>
-#include "../../include/Basic/Grid.hpp"
 
 MeshETurbo::MeshETurbo()
     : AMesh(),
@@ -514,16 +514,16 @@ label_end:
 /*!
 ** Print the contents of the meshing
 **
-** \param[in] level    Level of description
+** \param[in] strfmt    Format for printout
 **
 *****************************************************************************/
-String MeshETurbo::toString(int level) const
+String MeshETurbo::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   sstr << toTitle(1,"Turbo Meshing");
   if (_isPolarized) sstr << "Diamond construction is activated" << std::endl;
   _grid.display();
-  sstr << AMesh::toString(level);
+  sstr << AMesh::toString(strfmt);
   return sstr.str();
 }
 

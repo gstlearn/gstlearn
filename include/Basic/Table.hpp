@@ -14,6 +14,7 @@
 #include "geoslib_define.h"
 
 #include "Basic/ASerializable.hpp"
+#include "Basic/AStringable.hpp"
 
 /**
  * Stores the multivariate statistics
@@ -22,7 +23,7 @@
  * The organization stands as a vector (variables) or samples.
  * This allows adding the statistics for all variables for a new sample
  */
-class GSTLEARN_EXPORT Table: public ASerializable
+class GSTLEARN_EXPORT Table: public ASerializable ,public AStringable
 {
 public:
   Table(int nrows = 0, int ncols = 0);
@@ -35,6 +36,7 @@ public:
 public:
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(int nrows, int ncols, bool zero = false) { resize(nrows, ncols, zero); }
   bool isEmpty() const { return _stats.empty(); }
@@ -50,7 +52,6 @@ public:
   void setValue(int irow, int icol, double value);
   VectorDouble getRange(int icol) const;
   VectorDouble getAllRange() const;
-  void display(int isimu) const;
   void plot(int isimu) const;
 
 private:

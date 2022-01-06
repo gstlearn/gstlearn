@@ -33,7 +33,7 @@ public:
   /// Clonable interface
   virtual IClonable* clone() const override { return new MatrixSquareSymmetric(*this); };
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return true; }

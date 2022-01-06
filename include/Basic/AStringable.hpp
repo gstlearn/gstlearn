@@ -11,8 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Basic/AStringFormat.hpp"
 
-// WARNING: Make this include list as small as possible!
 #include "geoslib_define.h"
 // Put it in the header because inherited objects will need it
 #include <sstream>
@@ -27,9 +27,10 @@ public:
   AStringable& operator=(const AStringable& r);
   virtual ~AStringable();
 
-  virtual String toString(int level = ITEST) const;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const;
 
-  virtual void display(int level = ITEST) const final;
+  virtual void display(const AStringFormat* strfmt = nullptr) const final;
+  virtual void display(int level) const final;
 };
 
 // Set of functions regarding the printout

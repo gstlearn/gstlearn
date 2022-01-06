@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Db/DbStringFormat.hpp"
 #include "geoslib_f.h"
 #include "geoslib_define.h"
 #include "Basic/String.hpp"
@@ -38,7 +39,9 @@ int main()
   mydb->setLocator("X",ELoc::X,0);
   mydb->setLocator("Y",ELoc::X,1);
   mydb->setLocator("Zn",ELoc::Z);
-  mydb->displayMoreByAttributes(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
+  DbStringFormat dbfmt;
+  dbfmt.setParams(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
+  mydb->display(&dbfmt);
 
   // Looking for duplicates
   VectorDouble dist = {0.3, 0.3};

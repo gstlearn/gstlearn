@@ -24,7 +24,7 @@ public:
   AnamHermite& operator= (const AnamHermite &m);
   virtual ~AnamHermite();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int    getNbPoly() const { return _nbPoly; }
   const  VectorDouble& getPsiHn() const { return _psiHn; }

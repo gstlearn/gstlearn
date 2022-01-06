@@ -39,7 +39,7 @@ public:
   virtual ~Vario();
 
 public:
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Vario(*this); };
@@ -200,7 +200,7 @@ private:
   int  _getNVar(const Db* db);
   VectorInt _getVariableInterval(int ivar) const;
   VectorInt _getDirectionInterval(int idir) const;
-  String _toStringByDirection(int level, int idir) const;
+  String _toStringByDirection(const AStringFormat* strfmt, int idir) const;
   void _directionResize(int idir);
   void _setDPasFromGrid(bool flag_grid);
   void _setFlagAsym();

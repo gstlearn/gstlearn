@@ -28,7 +28,7 @@ public:
   virtual ~Constraints();
 
   void addItem(const ConsItem* item);
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int isDefined() const { return _consItems.size() > 0; }
   int isDefinedForSill() const;

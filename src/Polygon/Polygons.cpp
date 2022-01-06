@@ -112,6 +112,8 @@ Polygons& Polygons::operator=(const Polygons& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
+    ASerializable::operator=(r);
     _polysets = r._polysets;
   }
   return *this;
@@ -126,7 +128,7 @@ void Polygons::addPolySet(const PolySet& polyset)
   _polysets.push_back(polyset);
 }
 
-String Polygons::toString(int level) const
+String Polygons::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -138,7 +140,7 @@ String Polygons::toString(int level) const
   for (int i=0; i<npol; i++)
   {
     sstr << toTitle(2, "Polyset #%d", i+1);
-    sstr << _polysets[i].toString(level);
+    sstr << _polysets[i].toString(strfmt);
   }
   return sstr.str();
 }

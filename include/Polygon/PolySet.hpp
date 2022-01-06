@@ -26,7 +26,7 @@ public:
   PolySet& operator=(const PolySet& r);
   virtual ~PolySet();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getNVertices() const { return static_cast<int>(_x.size()); }
   const VectorDouble& getX() const { return _x; }

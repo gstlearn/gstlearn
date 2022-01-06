@@ -160,7 +160,7 @@ public:
   /*! Dump a specific range of samples from the internal storage */
   void dumpElements(const String& title, int ifrom, int ito) const;
   /*! Conversion to a string */
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Sets the value at row 'irow' and column 'icol' */
   virtual void setValue(int irow, int icol, double value);

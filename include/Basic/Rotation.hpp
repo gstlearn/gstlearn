@@ -31,7 +31,7 @@ public:
   double getAngle(int idim) const { return _angles[idim]; }
 
   void resetFromSpaceDimension(unsigned int ndim);
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   int setMatrixDirect(const MatrixSquareGeneral& rotmat);
   int setMatrixDirectByVector(const VectorDouble& rotmat);
   int setMatrixDirectOldStyle(const double* rotmat);

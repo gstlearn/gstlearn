@@ -96,14 +96,16 @@ void PolySet::init(const VectorDouble& x,
   _zmax  = zmax;
 }
 
-String PolySet::toString(int level) const
+String PolySet::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
   int nvert = static_cast<int> (_x.size());
   sstr << "Number of vertices = " << nvert << std::endl;
 
-  if (! IFFFF(level) && level > 0)
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
+  if (sf.getLevel() > 0)
   {
     VectorDouble tab = VectorDouble(2 * nvert);
     for (int i = 0; i < nvert; i++)

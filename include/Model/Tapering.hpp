@@ -41,7 +41,7 @@ public:
   Tapering& operator= (const Tapering &m);
   virtual ~Tapering();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getTapeNumber();
 
@@ -51,10 +51,7 @@ public:
   void setRange(double taperange) { _range = taperange; }
   void setType(int tapetype)      { _type = tapetype; }
 
-  double evaluate(double h) const
-  {
-    return D_TAPE(_type).tapeFunc(h);
-  }
+  double evaluate(double h) const { return D_TAPE(_type).tapeFunc(h); }
 
   int init(int tape_type,double tape_range);
 

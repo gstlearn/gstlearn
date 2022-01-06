@@ -13,6 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
+#include "RuleStringFormat.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -33,7 +35,7 @@ public:
 
   int deSerializeSpecific() override;
   void serializeSpecific() const override;
-  String displaySpecific(int flagProp, int flagThresh) const override;
+  String displaySpecific() const override;
 
   int particularities(Db *db,
                       const Db *dbprop,

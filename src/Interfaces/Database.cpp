@@ -164,9 +164,9 @@ bool Database::isConsistent(const ASpace* space) const
   return (getNVarRole(ERoles::COORD) == space->getNDim());
 }
 
-String Database::toString(int level) const
+String Database::toString(const AStringFormat* strfmt) const
 {
-  return toGeoslib()->toString(level);
+  return toGeoslib()->toString(strfmt);
 }
 
 /**

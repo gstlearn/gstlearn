@@ -28,7 +28,7 @@ public:
   MeshEStandard& operator=(const MeshEStandard &m);
   virtual ~MeshEStandard();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int    getNApices() const override;
   int    getNMeshes() const override;

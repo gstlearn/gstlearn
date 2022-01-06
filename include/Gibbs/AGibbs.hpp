@@ -34,7 +34,7 @@ public:
   AGibbs& operator=(const AGibbs &r);
   virtual ~AGibbs();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual int calculInitialize(VectorVectorDouble& y,
                                int isimu,
                                int ipgs) = 0;
@@ -128,5 +128,5 @@ private:
   // Pointer to the reference Db (only stored for efficiency)
   Db*       _db;
   // Optional Table used to store performance statistics (see _optionStats)
-  Table     _stats;
+  Table _stats;
 };

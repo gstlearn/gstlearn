@@ -37,7 +37,7 @@ public:
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return true; }
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Transpose the matrix */
   void transposeInPlace() override;

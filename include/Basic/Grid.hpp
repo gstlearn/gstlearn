@@ -52,7 +52,7 @@ public:
   int     getNTotal() const;
   double  getCellSize() const;
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void    copyParams(int mode, const Grid& gridaux);
   double  getCoordinate(int rank, int idim, bool flag_rotate=true) const;

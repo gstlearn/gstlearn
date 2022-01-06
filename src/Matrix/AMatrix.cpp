@@ -902,7 +902,7 @@ double AMatrix::determinant() const
   return deter;
 }
 
-String AMatrix::toString(int /*level*/) const
+String AMatrix::toString(const AStringFormat* /* strfmt*/) const
 {
   std::stringstream sstr;
 

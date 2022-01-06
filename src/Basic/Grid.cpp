@@ -13,10 +13,10 @@
 #include "Basic/Rotation.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Grid.hpp"
+#include "Basic/Grid.hpp"
 
 #include <math.h>
-#include "../../include/Basic/Grid.hpp"
-#include "../../include/Basic/Grid.hpp"
 
 Grid::Grid(int ndim,
              const VectorInt& nx,
@@ -44,7 +44,7 @@ Grid::Grid(const Grid &r)
 
 Grid& Grid::operator= (const Grid &r)
 {
-
+  AStringable::operator=(r);
   _recopy(r);
   return *this;
 }
@@ -206,7 +206,7 @@ double Grid::getCellSize() const
   return size;
 }
 
-String Grid::toString(int level) const
+String Grid::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   int ndim = _nDim;
@@ -227,7 +227,7 @@ String Grid::toString(int level) const
     sstr << toInt(_nx[idim]);
   sstr << std::endl;
 
-  sstr << _rotation.toString(level);
+  sstr << _rotation.toString(strfmt);
 
   return sstr.str();
 }

@@ -45,7 +45,7 @@ int main(int /*argc*/, char */*argv*/[])
   NoStatArray NoStat({"A"},&workingDbc);
   model.addNoStat(&NoStat);
 
-  model.display(1);
+  model.display();
 
   ///////////////////////
   // Creating Data
@@ -58,7 +58,7 @@ int main(int /*argc*/, char */*argv*/[])
   ut_vector_addval(z,10);
   dat.addFields(z,"variable",ELoc::Z);
   dat.addFields(drift,"Drift",ELoc::F);
-  dat.display(1);
+  dat.display();
 
   ///////////////////////
   // Running SPDE

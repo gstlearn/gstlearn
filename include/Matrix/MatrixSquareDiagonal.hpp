@@ -30,7 +30,7 @@ public:
   /*! Clonable interface */
   virtual IClonable* clone() const override { return new MatrixSquareDiagonal(*this); };
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Transpose the matrix */
   void transposeInPlace() override;

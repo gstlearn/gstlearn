@@ -9,11 +9,14 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Stats/PCA.hpp"
+
+#include "Stats/PCAStringFormat.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 PCA::PCA()
-  : _nVar(0),
+  : AStringable(),
+    _nVar(0),
     _mean(),
     _sigma(),
     _eigen(),
@@ -23,7 +26,8 @@ PCA::PCA()
 }
 
 PCA::PCA(const PCA &m)
-    : _nVar(m._nVar),
+    : AStringable(m),
+      _nVar(m._nVar),
       _mean(m._mean),
       _sigma(m._sigma),
       _eigen(m._eigen),
@@ -37,6 +41,7 @@ PCA& PCA::operator=(const PCA &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _nVar = m._nVar;
     _mean = m._mean;
     _sigma = m._sigma;
@@ -94,26 +99,35 @@ int PCA::calculateEigen(int nvar, VectorDouble& c0)
   return(0);
 }
 
-void PCA::display(int flag_center, int flag_stats)
-
+String PCA::toString(const AStringFormat* strfmt) const
 {
-  mestitle(1, "PCA Transform");
-  if (flag_center)
+  std::stringstream sstr;
+
+  const PCAStringFormat* pcafmt = dynamic_cast<const PCAStringFormat*>(strfmt);
+  PCAStringFormat dsf;
+  if (pcafmt != nullptr) dsf = *pcafmt;
+
+  sstr << toTitle(1, "PCA Transform");
+
+  if (dsf.getflagCenter())
   {
-    print_matrix("Means", 0, 1, 1, _nVar, NULL, _mean.data());
-    print_matrix("Standard deviations", 0, 1, 1, _nVar, NULL, _sigma.data());
+    sstr << toMatrix("Means", VectorString(), VectorString(), true, 1, _nVar,
+                    _mean);
+    sstr << toMatrix("Standard deviations", VectorString(), VectorString(), true,
+                    1, _nVar, _sigma);
   }
-  if (flag_stats)
-    print_matrix("Eigen Values", 0, 1, 1, _nVar, NULL, _eigen.data());
+  if (dsf.getflagStats())
+    sstr << toMatrix("Eigen Values", VectorString(), VectorString(), true, 1,
+                    _nVar, _eigen);
 
-  message("\n");
-  print_matrix("Matrix M to transform standardized Variables Z into Factors Y",
-               0, 1, _nVar, _nVar, NULL, _Z2F.data());
-  message("Y = Z * M (columns  = eigen vectors)\n");
-  message("\n");
-  print_matrix(
-      "Matrix t(M) to back-transform Factors Y into standardized Variables Z",
-      0, 1, _nVar, _nVar, NULL, _F2Z.data());
-  message("Z = Y * t(M) (rows  = eigen vectors)\n");
+  sstr << toMatrix("Matrix M to transform standardized Variables Z into Factors Y",
+                   VectorString(), VectorString(), true,
+                   _nVar, _nVar, _Z2F);
+  sstr << "Y = Z * M (columns  = eigen vectors)" << std::endl;
+  sstr << toMatrix("Matrix t(M) to back-transform Factors Y into standardized Variables Z",
+                   VectorString(), VectorString(), true,
+                   _nVar, _nVar, _F2Z);
+  sstr << "Z = Y * t(M) (rows  = eigen vectors)" << std::endl;
+
+  return sstr.str();
 }
-

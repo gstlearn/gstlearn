@@ -42,7 +42,7 @@ public:
   virtual ~CovContext();
 
   /// AStringable interface
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Indicate if I am consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;

@@ -15,6 +15,7 @@
 #include "Basic/Limits.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Variogram/Vario.hpp"
@@ -36,6 +37,7 @@ int main(int argc, char *argv[])
   Neigh     *neigh;
   Rule      *rule[2];
   Option_VarioFit options;
+  RuleStringFormat rulefmt;
   double  total;
   int     i,j,lec,nbsimu,seed,nbtuba,npgs,ntot,nfac[2];
   int     flag_vario,flag_grid,iatt_z,iatt_ind,ifac,nclass;
@@ -120,7 +122,7 @@ int main(int argc, char *argv[])
     if (rule[i] == nullptr) continue;
 
     npgs++;
-    rule[i]->display(false, false);
+    rule[i]->display();
     nfac[i] = rule[i]->getFaciesNumber();
 
     /* Define the models */

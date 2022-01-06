@@ -57,14 +57,14 @@ int main(int /*argc*/, char */*argv*/[])
   vec2[2] = TEST;
   vec2[5] = TEST;
   dbg1.addFields(vec2,"myvar2",ELoc::Z, 1);
-  dbg1.display(1);
+  dbg1.display();
 
   // Serialize dbg1
   dbg1.serialize("Neutral.Dbg.ascii",verbose);
 
   // Deserialize dbg2
   Db dbg2("Neutral.Dbg.ascii",verbose);
-  dbg2.display(1);
+  dbg2.display();
 
   // ===== Create the Polygon poly1
   Polygons poly1(&db1);
@@ -95,7 +95,7 @@ int main(int /*argc*/, char */*argv*/[])
   vario2.display();
 
   // ===== Compute a Model
-  db1.display(1);
+  db1.display();
   Model model1(&db1);
   CovContext ctxt = model1.getContext();
   CovLMC covs(ctxt.getSpace());
@@ -119,14 +119,14 @@ int main(int /*argc*/, char */*argv*/[])
   for (int icol = 0; icol < ncols; icol++)
     table[icol] = ut_vector_simulate_uniform(nrows);
   Table table1(table);
-  table1.display(1);
+  table1.display();
 
   // Serialize table
   table1.serialize("Neutral.Table.ascii",verbose);
 
   // Deserialize table1
   Table table2("Neutral.Table.ascii",verbose);
-  table2.display(1);
+  table2.display();
 
   return(0);
 }

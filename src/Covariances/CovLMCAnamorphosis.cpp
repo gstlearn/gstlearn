@@ -144,13 +144,13 @@ int CovLMCAnamorphosis::init(const EAnam& anam_type,
   return 0;
 }
 
-String CovLMCAnamorphosis::toString(int level) const
+String CovLMCAnamorphosis::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << ACovAnisoList::toString(level);
+  sstr << ACovAnisoList::toString(strfmt);
 
-  sstr << _anam->toString(level);
+  sstr << _anam->toString(strfmt);
 
   return sstr.str();
 }

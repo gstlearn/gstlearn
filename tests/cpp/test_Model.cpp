@@ -54,7 +54,7 @@ int main(int /*argc*/, char */*argv*/[])
   Model modellmc = Model(ctxt);
   modellmc.setCovList(&covlmc);
   return(0);
-  modellmc.display(1);
+  modellmc.display();
 
   ///////////////////////
   // Building the Covariance Matrix
@@ -78,7 +78,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Building the Model
   Model modeltape = Model(ctxt);
   modeltape.setCovList(&covtape);
-  modeltape.display(1);
+  modeltape.display();
 
   // Sample the Tapered Model at regular steps
   VectorDouble vec2 = modeltape.sample(3., 50);
@@ -93,7 +93,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Building the Model
   Model modelconv = Model(ctxt);
   modelconv.setCovList(&covconv);
-  modelconv.display(1);
+  modelconv.display();
 
   // Sample the Tapered Model at regular steps
   VectorDouble vec3 = modelconv.sample(3., 50);

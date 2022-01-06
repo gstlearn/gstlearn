@@ -123,7 +123,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble shift = {0.2, 0.3};
   VectorDouble propshift = { 0.1, 0.2, 0.3, 0.4 };
   RuleShift ruleshift({"S","S","S","F1","F2","F3","F4"},shift);
-  ruleshift.display(1);
+  ruleshift.display();
   ruleshift.serialize("PGSruleshift.ascii");
 
   RuleProp rulepropshift = RuleProp(&ruleshift, propshift);
@@ -139,7 +139,7 @@ int main(int /*argc*/, char */*argv*/[])
   double shdown = -0.2;
   double shdsup = +0.5;
   RuleShadow ruleshadow = RuleShadow(slope,shdsup,shdown,shift);
-  ruleshadow.display(1);
+  ruleshadow.display();
   ruleshadow.serialize("PGSruleshadow.ascii");
 
   VectorDouble propshadow = { 0.4, 0.2, 0.3 };

@@ -68,7 +68,7 @@ void Tensor::init(int ndim)
   _isotropic = true;
 }
 
-String Tensor::toString(int /*level*/) const
+String Tensor::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << "Radius     = " << ut_vector_string(_radius) << std::endl;

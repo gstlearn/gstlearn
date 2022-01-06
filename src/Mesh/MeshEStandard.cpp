@@ -291,16 +291,16 @@ double MeshEStandard::getCoor(int imesh,
 /*!
 ** Print the contents of the meshing
 **
-** \param[in] level    Level of description
+** \param[in] strfmt    Format for printout
 **
 *****************************************************************************/
-String MeshEStandard::toString(int level) const
+String MeshEStandard::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   sstr << toTitle(0,"Standard Meshing characteristics");
 
   sstr << toTitle(1,"Standard Meshing");
-  sstr << AMesh::toString(level);
+  sstr << AMesh::toString(strfmt);
   return sstr.str();
 }
 

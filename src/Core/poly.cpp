@@ -99,7 +99,8 @@ void polygon_print(Polygons *polygon, int flag_print)
 
 {
   if (polygon == nullptr) return;
-  polygon->display(flag_print);
+  AStringFormat strfmt(flag_print);
+  polygon->display(&strfmt);
 }
 
 /****************************************************************************/

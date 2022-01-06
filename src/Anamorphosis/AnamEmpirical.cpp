@@ -56,10 +56,10 @@ AnamEmpirical::~AnamEmpirical()
 
 }
 
-String AnamEmpirical::toString(int level) const
+String AnamEmpirical::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << Anam::toString(level);
+  sstr << Anam::toString(strfmt);
 
   sstr << "Empirical Anamorphosis" << std::endl;
   sstr << "Number of discretization lags = " << _nDisc << std::endl;

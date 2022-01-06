@@ -60,7 +60,7 @@ public:
 
   ///////////////////////////////////////////////////
   /// AStringable Interface
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void addCovList(const ACovAnisoList* covs);
   // Remove an elementary covariance structure

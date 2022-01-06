@@ -27,7 +27,7 @@ public:
   Anam& operator= (const Anam &m);
   virtual ~Anam();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual IClonable* clone() const override { return new Anam(*this); }
 
   const EAnam&  getType() const { return _type; }

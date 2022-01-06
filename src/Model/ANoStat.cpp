@@ -62,14 +62,14 @@ ANoStat::~ANoStat()
 {
 }
 
-String ANoStat::toString(int level) const
+String ANoStat::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   if (getNoStatElemNumber() <= 0) return sstr.str();
 
   sstr << toTitle(1, "Non-Stationary Parameters");
   for (int i = 0; i < (int) getNoStatElemNumber(); i++)
-    sstr << _items[i].toString(level);
+    sstr << _items[i].toString(strfmt);
   return sstr.str();
 }
 

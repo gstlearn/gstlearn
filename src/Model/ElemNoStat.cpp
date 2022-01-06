@@ -75,7 +75,7 @@ void ElemNostat::init(const EConsElem& loctype,
   _val2 = TEST;
 }
 
-String ElemNostat::toString(int /*level*/) const
+String ElemNostat::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   switch (getLocType().toEnum())

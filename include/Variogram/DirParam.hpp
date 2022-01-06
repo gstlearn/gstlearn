@@ -39,7 +39,7 @@ public:
   virtual ~DirParam();
 
 public:
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(int ndim,
             int npas,

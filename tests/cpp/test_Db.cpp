@@ -3,6 +3,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
@@ -41,7 +42,7 @@ int main(int /*argc*/, char */*argv*/[])
   cova.setAnisoAngles({30.,0.});
   covs.addCov(&cova);
   model.setCovList(&covs);
-  model.display(1);
+  model.display();
 
   // Creating the MeshTurbo which contains the Db
   MeshETurbo mesh;
@@ -66,6 +67,12 @@ int main(int /*argc*/, char */*argv*/[])
   // Retrieve resulting selection for check
   VectorDouble sel3 = grid.getSelection();
   ut_vector_display("sel1 && sel2",sel3);
+
+  // Testing Filters on Db printout (only Statistics on the variables "Sel*")
+  DbStringFormat dbfmt;
+  dbfmt.setParams(FLAG_STATS);
+  dbfmt.setNames({"Sel*"});
+  grid.display(&dbfmt);
 
   return 0;
 }

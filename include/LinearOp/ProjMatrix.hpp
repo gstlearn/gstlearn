@@ -30,7 +30,7 @@ public:
   ProjMatrix& operator= (const ProjMatrix &m);
   virtual ~ProjMatrix();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int resetFromDb(const Db* db, AMesh *a_mesh, int verbose = 0);
   int resetFromPoints(int npoint, int napices, const cs *aproj);

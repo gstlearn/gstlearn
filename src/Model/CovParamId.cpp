@@ -81,7 +81,7 @@ int CovParamId::init(int igrf,
   return 0;
 }
 
-String CovParamId::toString(int /*level*/) const
+String CovParamId::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 

@@ -79,14 +79,7 @@ void AMesh::getDuplicates(int   /*verbose*/,
   *dupl2 = nullptr;
 }
 
-String AMesh::toString(int level) const
-{
-  std::stringstream sstr;
-  sstr << _display(level);
-  return sstr.str();
-}
-
-String AMesh::_display(int level) const
+String AMesh::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -108,18 +101,20 @@ String AMesh::_display(int level) const
               _extendMax[idim] << std::endl;
   }
 
-  if (level <= 0) return sstr.str();
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
+  if (sf.getLevel() > 0)
+  {
+    MatrixRectangular apices;
+    VectorInt meshes;
+    getElements(apices, meshes);
 
-  MatrixRectangular apices;
-  VectorInt meshes;
-  getElements(apices, meshes);
+    sstr << "List of Apices" << std::endl;
+    sstr << apices.toString(strfmt);
 
-  sstr << "List of Apices" << std::endl;
-  sstr << apices.toString(level);
-
-  sstr << toMatrix("List of Meshes", VectorString(), VectorString(), false,
-                  getNApexPerMesh(), getNMeshes(), meshes);
-
+    sstr << toMatrix("List of Meshes", VectorString(), VectorString(), false,
+                    getNApexPerMesh(), getNMeshes(), meshes);
+  }
   return sstr.str();
 }
 

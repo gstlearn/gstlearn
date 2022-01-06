@@ -44,10 +44,11 @@ APolynomial::~APolynomial()
 
 APolynomial & APolynomial::operator=(const APolynomial& p)
 {
-  if(this!=&p)
+  if (this !=& p)
+  {
     AStringable::operator=(p);
     _coeffs=p._coeffs;
-
+  }
   return *this;
 }
 
@@ -58,7 +59,7 @@ VectorDouble APolynomial::evalOp(cs* Op, const VectorDouble& in) const
   return result;
 }
 
-String APolynomial::toString(int /*level*/) const
+String APolynomial::toString(const AStringFormat* /*strfmt*/) const
 {
   String str;
   std::ostringstream oss;

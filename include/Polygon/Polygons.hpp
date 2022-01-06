@@ -36,7 +36,7 @@ public:
 
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }
   void addPolySet(const PolySet& polyset);

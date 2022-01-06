@@ -151,14 +151,12 @@ void RuleShift::serializeSpecific() const
   _recordWrite("#", "Parameters for Shift option");
 }
 
-String RuleShift::displaySpecific(int flagProp, int flagThresh) const
+String RuleShift::displaySpecific() const
 {
   std::stringstream sstr;
   sstr << toTitle(2,"Shift Option");
   sstr << toVector("Translation Vector",_shift);
   sstr << "(With the 'Shift' option, only the first GRF is used)" << std::endl;
-  sstr << std::endl;
-  sstr << getMainNode()->nodePrint(flagProp, flagThresh);
   return sstr.str();
 }
 

@@ -36,7 +36,7 @@ public:
            const EConsType& type,
            double value = TEST);
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual IClonable* clone() const override { return new ConsItem(*this); };
 
   // Pipe to the CovParamId class

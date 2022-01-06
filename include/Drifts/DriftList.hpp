@@ -41,7 +41,7 @@ public:
 
   ///////////////////////////////////////////////////
   /// AStringable Interface
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   ///////////////////////////////////////////////////
 
   virtual double eval(const Db* db, int iech) const override;

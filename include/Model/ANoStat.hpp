@@ -30,7 +30,7 @@ public:
   ANoStat& operator= (const ANoStat &m);
   virtual ~ANoStat();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   virtual IClonable* clone() const override = 0;
 

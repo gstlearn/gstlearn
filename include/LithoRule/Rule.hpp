@@ -13,6 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "LithoRule/Node.hpp"
 #include "LithoRule/ERule.hpp"
+#include "RuleStringFormat.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -36,12 +38,13 @@ public:
   Rule& operator=(const Rule& r);
   virtual ~Rule();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual int deSerialize(const String& filename, bool verbose = false) override;
   virtual int serialize(const String& filename, bool verbose = false) const override;
+
   virtual int deSerializeSpecific() { return 0; }
   virtual void serializeSpecific() const { return; }
-  virtual String displaySpecific(int flagProp, int flagThresh) const;
+  virtual String displaySpecific() const;
 
   virtual int particularities(Db *db,
                               const Db *dbprop,
@@ -89,9 +92,6 @@ public:
                  int *ny2_tot,
                  double *prop_tot) const;
 
-  using AStringable::display; // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-  void display(bool flagProp, bool flagThresh = false) const;
-
   int  getFaciesNumber() const;
   int  getGRFNumber() const;
   int  getY1Number() const;
@@ -114,7 +114,6 @@ protected:
   VectorString buildNodNames(int nfacies);
 
 private:
-  String _display(bool flagProp, bool flagThresh) const;
   void _ruleDefine(const Node *node,
                    int from_type,
                    int from_rank,

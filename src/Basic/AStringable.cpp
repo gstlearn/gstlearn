@@ -66,7 +66,7 @@ AStringable::~AStringable()
 {
 }
 
-String AStringable::toString(int /*level*/) const
+String AStringable::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;
@@ -465,9 +465,15 @@ void messageAbort(const char *format, ...)
 /**
  * Send the String to the display function
  */
+void AStringable::display(const AStringFormat* strfmt) const
+{
+  message_extern(toString(strfmt).c_str());
+}
+
 void AStringable::display(int level) const
 {
-  message_extern(toString(level).c_str());
+  AStringFormat sf(level);
+  display(&sf);
 }
 
 /**

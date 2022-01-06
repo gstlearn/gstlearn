@@ -51,7 +51,7 @@ Interval::~Interval()
 
 }
 
-String Interval::toString(int /*level*/) const
+String Interval::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   if (FFFF(_vmin))

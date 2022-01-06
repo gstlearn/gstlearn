@@ -54,7 +54,7 @@ void Constraints::addItem(const ConsItem* item)
   _consItems.push_back(dynamic_cast<ConsItem*>(item->clone()));
 }
 
-String Constraints::toString(int level) const
+String Constraints::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   int nitem = static_cast<int> (_consItems.size());
@@ -65,7 +65,7 @@ String Constraints::toString(int level) const
   for (int i = 0; i < nitem; i++)
   {
     sstr << "Constraint #" << i + 1 << std::endl;
-    sstr << _consItems[i]->toString(level);
+    sstr << _consItems[i]->toString(strfmt);
   }
   return sstr.str();
 }

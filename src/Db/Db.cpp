@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
@@ -426,6 +427,8 @@ Db& Db::operator=(const Db& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
+    ASerializable::operator=(r);
     _ncol = r._ncol;
     _nech = r._nech;
     _isGrid = r._isGrid;
@@ -2753,7 +2756,7 @@ String Db::_summaryString(void) const
     sstr << "Number of active samples     = " << getActiveSampleNumber()
          << std::endl;
 
-  if (isGrid()) sstr << _grid.toString(0);
+  if (isGrid()) sstr << _grid.toString();
 
   return sstr.str();
 }
@@ -2905,70 +2908,48 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
   return sstr.str();
 }
 
-void Db::displayMoreByAttributes(unsigned char params,
-                                 const VectorInt& cols,
-                                 bool flagSel,
-                                 int mode) const
+String Db::toString(const AStringFormat* strfmt) const
 {
-  messageFlush(_display(params, cols, flagSel, mode));
-}
-
-void Db::displayMore(unsigned char params,
-                     const VectorString& names,
-                     bool flagSel,
-                     int mode) const
-{
-  VectorInt iatts = _ids(names, false);
-  if (iatts.empty()) return;
-  VectorInt cols = getColumnByAttribute(iatts);
-  messageFlush(_display(params, cols, flagSel, mode));
-}
-
-/**
- * Print the characteristics of the Db structure
- * @param params      Mask specifying the printing options
- * @param cols        Optional list of selected variables
- * @param flagSel     Take the selection into account
- * @param mode        1 for basic statistics; 2 for class statistics
- * @return
- */
-String Db::_display(unsigned char params,
-                    const VectorInt& cols,
-                    bool flagSel,
-                    int mode) const
-{
-  static int MAX_NCLASS = 50;
   std::stringstream sstr;
+  static int MAX_NCLASS = 50;
+
+  const DbStringFormat* dbfmt = dynamic_cast<const DbStringFormat*>(strfmt);
+  DbStringFormat dsf;
+  if (dbfmt != nullptr) dsf = *dbfmt;
 
   sstr << toTitle(0, "Data Base Characteristics");
 
+  // Possibly convert 'names' into 'cols'
+
+  VectorInt cols = dsf.getCols();
+  if (cols.empty())
+  {
+    VectorInt iatts = _ids(dsf.getNames(), false);
+    if (! iatts.empty()) cols = getColumnByAttribute(iatts);
+  }
+
   /* Print the Summary of the Db */
 
-  if (params & FLAG_RESUME) sstr << _summaryString();
+  if (dsf.matchResume()) sstr << _summaryString();
 
   /* Print the Extension */
 
-  if (params & FLAG_EXTEND) sstr << _summaryExtensionString();
+  if (dsf.matchExtend()) sstr << _summaryExtensionString();
 
   /* Print the statistics */
 
-  if (params & FLAG_STATS) sstr << _summaryVariableStat(cols, mode, MAX_NCLASS);
+  if (dsf.matchStats())
+    sstr << _summaryVariableStat(cols, dsf.getMode(), MAX_NCLASS);
 
   /* Print the contents of the Data Base */
 
-  if (params & FLAG_ARRAY) sstr << _summaryArrayString(cols, flagSel);
+  if (dsf.matchArray())
+    sstr << _summaryArrayString(cols, dsf.getFlagSel());
 
   /* Print the list of variables */
 
-  if (params & FLAG_VARS) sstr << _summaryVariableString();
+  if (dsf.matchVars()) sstr << _summaryVariableString();
 
-  return sstr.str();
-}
-
-String Db::toString(int /*level*/) const
-{
-  std::stringstream sstr;
-  sstr << _display(FLAG_RESUME | FLAG_VARS);
   return sstr.str();
 }
 

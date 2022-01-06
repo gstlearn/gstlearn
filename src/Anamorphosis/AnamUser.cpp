@@ -44,10 +44,10 @@ AnamUser::~AnamUser()
 
 }
 
-String AnamUser::toString(int level) const
+String AnamUser::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << Anam::toString(level);
+  sstr << Anam::toString(strfmt);
   sstr << "User defined anamorphosis" << std::endl;
   return sstr.str();
 }

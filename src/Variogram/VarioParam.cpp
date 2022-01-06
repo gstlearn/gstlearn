@@ -92,26 +92,26 @@ void VarioParam::delAllDirs()
   _dirparams.clear();
 }
 
-String VarioParam::toString(int level) const
+String VarioParam::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
   // Print the Main part
 
-  sstr << toStringMain(level);
+  sstr << toStringMain(strfmt);
 
   /* Loop on the directions */
 
   for (int idir=0; idir<getDirectionNumber(); idir++)
   {
     sstr << toTitle(1,"Direction #%d",idir+1);
-    sstr << _dirparams[idir].toString(level);
+    sstr << _dirparams[idir].toString(strfmt);
   }
 
   return sstr.str();
 }
 
-String VarioParam::toStringMain(int /*level*/) const
+String VarioParam::toStringMain(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   int ndir = getDirectionNumber();

@@ -60,10 +60,10 @@ AnamHermite::~AnamHermite()
 
 }
 
-String AnamHermite::toString(int level) const
+String AnamHermite::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << AnamContinuous::toString(level);
+  sstr << AnamContinuous::toString(strfmt);
 
   sstr << std::endl;
   sstr << "Hermitian anamorphosis" << std::endl;

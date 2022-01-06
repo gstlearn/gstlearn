@@ -429,7 +429,7 @@ void Node::scaleProp(double scale)
   return;
 }
 
-String Node::toString(int /*level*/) const
+String Node::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << nodePrint(false, false);

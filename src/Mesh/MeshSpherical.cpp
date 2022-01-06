@@ -89,14 +89,14 @@ double MeshSpherical::getMeshSize(int imesh) const
 /*!
 ** Print the contents of the meshing
 **
-** \param[in] level    Level of description
+** \param[in] strfmt    Format for printout
 **
 *****************************************************************************/
-String MeshSpherical::toString(int level) const
+String MeshSpherical::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   sstr << toTitle(0,"Spherical Meshing characteristics");
-  AMesh::toString(level);
+  AMesh::toString(strfmt);
   return sstr.str();
 }
 

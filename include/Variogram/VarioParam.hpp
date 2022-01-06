@@ -32,7 +32,7 @@ public:
   virtual ~VarioParam();
 
 public:
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual IClonable* clone() const override { return new VarioParam(*this); };
 
   void addDirs(const DirParam& dirparam);
@@ -64,7 +64,7 @@ public:
   void setGrincr(int idir, const VectorInt& grincr);
 
   int getDimensionNumber() const { return _dirparams[0].getDimensionNumber(); }
-  String toStringMain(int level) const;
+  String toStringMain(const AStringFormat* strfmt) const;
 
 private:
   int  _getAddress(int ivar, int jvar) const;

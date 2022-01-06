@@ -28,6 +28,7 @@ set(SOURCES
   Gibbs/GibbsUMulti.cpp
   LithoRule/RuleProp.cpp
   LithoRule/Rule.cpp
+  LithoRule/RuleStringFormat.cpp
   LithoRule/RuleShadow.cpp
   LithoRule/RuleShift.cpp
   LithoRule/Node.cpp
@@ -156,6 +157,7 @@ set(SOURCES
   Interfaces/AVariable.cpp
   Interfaces/VariableDouble.cpp
   Db/Db.cpp
+  Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   LinearOp/PrecisionOp.cpp
   LinearOp/TurboOptimizer.cpp
@@ -180,6 +182,7 @@ set(SOURCES
   Variogram/DirParam.cpp
   Basic/Limits.cpp
   Basic/AStringable.cpp
+  Basic/AStringFormat.cpp
   Basic/GlobalEnvironment.cpp
   Basic/MathFunc.cpp
   Basic/Utilities.cpp
@@ -220,6 +223,7 @@ set(SOURCES
   Morpho/Morpho.cpp
   Stats/Classical.cpp
   Stats/PCA.cpp
+  Stats/PCAStringFormat.cpp
   Drifts/DriftX.cpp
   Drifts/DriftY.cpp
   Drifts/DriftX2Y.cpp

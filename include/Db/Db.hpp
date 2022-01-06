@@ -29,16 +29,6 @@
 
 class Polygons;
 
-// Do not convert to AEnum (mask combination is not used as enum)
-typedef enum
-{
-  FLAG_RESUME = 1,    //!< Print the Db summary
-  FLAG_VARS = 2,      //!< Print the Field names
-  FLAG_EXTEND = 4,    //!< Print the Db extension
-  FLAG_STATS = 8,     //!< Print the variable statistics
-  FLAG_ARRAY = 16,    //!< Print the variable contents
-} DISPLAY_PARAMS;
-
 /**
  * Class containing the Data Set.
  * It can be organized as a set of Isolated Points or as a regular Grid
@@ -85,7 +75,7 @@ public:
   virtual ~Db();
 
 public:
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Db(*this); };
@@ -511,32 +501,6 @@ public:
   bool isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const;
   bool isDimensionIndexValid(int idim) const;
 
-  using AStringable::display; // https://stackoverflow.com/questions/18515183/c-overloaded-virtual-function-warning-by-clang
-  /**
-   * Display the contents of the Db
-   * @param params  Mask defining the printout (see remarks)
-   * @param cols    Vector of Column indices on which Stats or Array is applied (optional)
-   * @param flagSel Take the selection into account
-   * @param mode    Way to consider the variable for Stats (1: Real; 2: Categorical)
-   *
-   * @remark The Mask is a combination of DISPLAY_PARAMS, i.e.:
-   * @remark - FLAG_RESUME: for a Summary of the contents
-   * @remark - FLAG_VARS:   for the Field Names and Locators
-   * @remark - FLAG_EXTEND: for the area covered by the Db
-   * @remark - FLAG_STATS:  for Basic Statistics on the variables
-   * @remark - FLAG_ARRAY:  for the extensive printout of the variables
-   * @remark For flags, FLAG_STATS and FLAG_ARRAY, you can use the 'cols' argument
-   * @remark to restrain the variables of interest
-   */
-  void displayMoreByAttributes(unsigned char params,
-                               const VectorInt& cols = VectorInt(),
-                               bool flagSel = true,
-                               int mode = 1) const;
-  void displayMore(unsigned char params,
-                   const VectorString& names,
-                   bool flagSel = true,
-                   int mode = 1) const;
-
   void combineSelection(VectorDouble& sel,
                         const String& combine = "set") const;
 
@@ -555,10 +519,6 @@ private:
                               int mode = 1,
                               int maxNClass = 50) const;
   String _summaryArrayString(VectorInt cols, bool flagSel = true) const;
-  String _display(unsigned char params,
-                  const VectorInt& cols = VectorInt(),
-                  bool flagSel = true,
-                  int mode = 1) const;
   void _loadData(const VectorDouble& tab,
                  const VectorString& names,
                  const VectorString& locatorNames,

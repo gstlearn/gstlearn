@@ -30,7 +30,7 @@ public:
   virtual ~AnamEmpirical();
 
   void    calculateMeanAndVariance() override;
-  virtual String toString(int level) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int    getNDisc() const { return _nDisc; }
   double getSigma2e() const { return _sigma2e; }

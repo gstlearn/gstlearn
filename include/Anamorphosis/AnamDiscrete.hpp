@@ -24,7 +24,7 @@ public:
   AnamDiscrete& operator= (const AnamDiscrete &m);
   virtual ~AnamDiscrete();
 
-  virtual String toString(int level) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const = 0;
   virtual void calculateMeanAndVariance();
 

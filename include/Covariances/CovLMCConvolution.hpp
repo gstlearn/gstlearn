@@ -49,7 +49,7 @@ public:
   virtual ~CovLMCConvolution();
 
   virtual IClonable* clone() const override { return new CovLMCConvolution(*this); };
-  virtual String toString(int /*level*/) const;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   virtual double eval0(int ivar,
                        int jvar,

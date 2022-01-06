@@ -204,13 +204,13 @@ void MatrixSquareDiagonalCst::setDiagonal(const VectorDouble& /*tab*/)
   my_throw("This function does not make sense for Diagonal Constant Matrix");
 }
 
-String MatrixSquareDiagonalCst::toString(int level) const
+String MatrixSquareDiagonalCst::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
   if (isSparse())
   {
-    sstr << AMatrix::toString(level);
+    sstr << AMatrix::toString(strfmt);
   }
   else
   {

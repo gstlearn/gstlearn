@@ -25,6 +25,7 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Stats/PCA.hpp"
+#include "Stats/PCAStringFormat.hpp"
 
 #include <string.h>
 #include <math.h>
@@ -2552,7 +2553,8 @@ void vardir_print(Vario *vario, int idir, int verbose)
 {
   if (vario == nullptr) return;
   if (idir < 0 || idir >= vario->getDirectionNumber()) return;
-  message(vario->getDirParam(idir).toString(verbose).c_str());
+  if (verbose)
+    message(vario->getDirParam(idir).toString().c_str());
   return;
 }
 
@@ -2566,7 +2568,8 @@ void vardir_print(Vario *vario, int idir, int verbose)
  *****************************************************************************/
 void variogram_print(const Vario *vario, int verbose)
 {
-  if (vario != nullptr) messageFlush(vario->toString(verbose));
+  if (vario != nullptr && verbose)
+    messageFlush(vario->toString());
 }
 
 /****************************************************************************/
@@ -5870,7 +5873,11 @@ static int st_pca_calculate(int flag_norm,
   // Processing
 
   if (pca->calculateEigen(nvar, c0)) goto label_end;
-  if (verbose) pca->display(1, 1);
+  if (verbose)
+  {
+    PCAStringFormat pcafmt(1);
+    pca->display(&pcafmt);
+  }
 
   // Set the error return code
 
@@ -5973,7 +5980,12 @@ int maf_compute(Db *db,
   ch = st_pca_covarianceh(verbose, db, opt_code, tolcode, codir, tolang, bench,
                           cylrad, h0, dh, data1, data2);
   if (pca2->calculateEigen(nvar, ch)) goto label_end;
-  if (verbose) pca2->display(0, 1);
+  if (verbose)
+   {
+     PCAStringFormat pcafmt;
+     pcafmt.setflagStats(true);
+     pca2->display(&pcafmt);
+   }
 
   /* Rotate the initial data in the second PCA system */
 
@@ -5997,7 +6009,11 @@ int maf_compute(Db *db,
   if (matrix_invert_copy(pca->getZ2F().data(), nvar, pcaf2z.data()))
     goto label_end;
   pca->setPcaF2Z(pcaf2z);
-  if (verbose) pca->display(1, 1);
+  if (verbose)
+   {
+     PCAStringFormat pcafmt(1);
+     pca->display(&pcafmt);
+   }
 
   /* Set the error return code */
 

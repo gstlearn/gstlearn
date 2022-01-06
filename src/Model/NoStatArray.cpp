@@ -360,11 +360,14 @@ String NoStatArray::_displayStats(int icas) const
   return sstr.str();
 }
 
-String NoStatArray::toString(int level) const
+String NoStatArray::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << ANoStat::toString(level);
-  if (level > 0)
+  sstr << ANoStat::toString(strfmt);
+
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
+  if (sf.getLevel() > 0)
     sstr << _displayStats(0);
   return sstr.str();
 }

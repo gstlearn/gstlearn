@@ -75,10 +75,10 @@ void AnamContinuous::setPBounds(double pzmin,
   _py.init(pymin, pymax);
 }
 
-String AnamContinuous::toString(int level) const
+String AnamContinuous::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << Anam::toString(level);
+  sstr << Anam::toString(strfmt);
 
   sstr << "Minimum absolute value for Y  = " << _ay.getVmin() << std::endl;
   sstr << "Maximum absolute value for Y  = " << _ay.getVmax() << std::endl;

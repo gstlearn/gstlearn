@@ -69,7 +69,7 @@ int ConsItem::init(const CovParamId& paramid,
   return 0;
 }
 
-String ConsItem::toString(int level) const
+String ConsItem::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -96,7 +96,7 @@ String ConsItem::toString(int level) const
       break;
   }
 
-  sstr << _paramId.toString(level);
+  sstr << _paramId.toString(strfmt);
 
   if (FFFF(_value))
     sstr << " Value=NA" << std::endl;

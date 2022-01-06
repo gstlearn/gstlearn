@@ -202,13 +202,13 @@ int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
                       static_cast<int> (b.size()),1,&pivot);
 }
 
-String MatrixSquareSymmetric::toString(int level) const
+String MatrixSquareSymmetric::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
    if (isSparse())
    {
-     sstr << AMatrix::toString(level);
+     sstr << AMatrix::toString(strfmt);
    }
    else
    {

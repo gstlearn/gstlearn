@@ -58,7 +58,7 @@ bool ADriftElem::isConsistent(const ASpace* /*space*/) const
   return true;
 }
 
-String ADriftElem::toString(int /*level*/) const
+String ADriftElem::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << getDriftName();

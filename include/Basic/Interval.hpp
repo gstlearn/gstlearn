@@ -32,7 +32,7 @@ public:
   Interval& operator=(const Interval &m);
   virtual ~Interval();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(double vmin = TEST,
             double vmax = TEST,

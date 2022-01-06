@@ -329,7 +329,7 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
   if (_optionStats == 0)
     return;
   else if (_optionStats == 1)
-    _stats.display(isimu);
+    _stats.display();
   else if (_optionStats == 2)
     _stats.plot(isimu);
 }
@@ -550,7 +550,7 @@ int AGibbs::run(VectorVectorDouble& y, int ipgs, int isimu, bool verbose, bool f
   return 0;
 }
 
-String AGibbs::toString(int /*level*/) const
+String AGibbs::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 

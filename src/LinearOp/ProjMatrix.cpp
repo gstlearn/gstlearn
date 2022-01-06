@@ -190,13 +190,18 @@ int ProjMatrix::mesh2point(const VectorDouble& in, VectorDouble& out) const
   return 0;
 }
 
-String ProjMatrix::toString(int level) const
+String ProjMatrix::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
   sstr << toStringDim("Projection Matrix",_Aproj);
-  if (level < 1) return sstr.str();
-  sstr << toStringRange(String(),_Aproj);
-  sstr << toMatrix(String(), _Aproj);
+
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
+  if (sf.getLevel() > 0)
+  {
+    sstr << toStringRange(String(),_Aproj);
+    sstr << toMatrix(String(), _Aproj);
+  }
   return sstr.str();
 }

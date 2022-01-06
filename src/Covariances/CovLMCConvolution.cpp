@@ -230,11 +230,11 @@ double _conv_sincard(double v)
   return(dp);
 }
 
-String CovLMCConvolution::toString(int level) const
+String CovLMCConvolution::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << ACovAnisoList::toString(level);
+  sstr << ACovAnisoList::toString(strfmt);
 
   sstr << "Convolution type      = " << _convType.getDescr() << std::endl;
   sstr << "Convolution direction = " << _convDir.getDescr()   << std::endl;

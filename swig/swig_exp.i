@@ -55,6 +55,7 @@ class IClonable{};
 
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
+%include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
 %include Basic/Rotation.hpp
 %include Basic/Tensor.hpp
@@ -215,6 +216,7 @@ class IClonable{};
 %include API/ESPDECalcMode.hpp
 
 %include Db/Db.hpp
+%include Db/DbStringFormat.hpp
 %include Db/ELoadBy.hpp
 %include Db/ELoc.hpp
 
@@ -237,7 +239,10 @@ class IClonable{};
 %include Polygon/Polygons.hpp
 %include Polygon/PolySet.hpp
 %include Stats/Classical.hpp
+%include Stats/PCA.hpp
+%include Stats/PCAStringFormat.hpp
 %include LithoRule/Rule.hpp
+%include LithoRule/RuleStringFormat.hpp
 %include LithoRule/RuleProp.hpp
 %include LithoRule/ERule.hpp
 %include segy.h

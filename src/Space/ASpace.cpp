@@ -34,7 +34,7 @@ ASpace::~ASpace()
 {
 }
 
-String ASpace::toString(int /*level*/) const
+String ASpace::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << "Space Type      = " << getType() << std::endl;

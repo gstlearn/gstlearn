@@ -217,13 +217,13 @@ void MatrixSquareDiagonal::setRow(int /*irow*/, const VectorDouble& /*tab*/)
   my_throw("This function does not make sense for Diagonal Matrix");
 }
 
-String MatrixSquareDiagonal::toString(int level) const
+String MatrixSquareDiagonal::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
    if (isSparse())
    {
-     sstr << AMatrix::toString(level);
+     sstr << AMatrix::toString(strfmt);
    }
    else
    {

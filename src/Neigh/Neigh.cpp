@@ -191,6 +191,8 @@ Neigh& Neigh::operator=(const Neigh& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
+    ASerializable::operator=(r);
     _nDim = r._nDim;
     _type = r._type;
     _flagXvalid = r._flagXvalid;
@@ -217,7 +219,7 @@ Neigh::~Neigh()
 {
 }
 
-String Neigh::toString(int /*level*/) const
+String Neigh::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 

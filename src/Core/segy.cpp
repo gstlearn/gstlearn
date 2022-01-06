@@ -823,7 +823,7 @@ static void st_print_grid(const Grid &def_grid)
 {
   message("\n");
   message("- Resulting Grid of SEGY traces\n");
-  def_grid.display(0);
+  def_grid.display();
 }
 
 /****************************************************************************/

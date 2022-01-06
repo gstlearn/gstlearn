@@ -63,7 +63,7 @@ bool DriftList::isConsistent(const ASpace* /*space*/) const
   return true;
 }
 
-String DriftList::toString(int /*level*/) const
+String DriftList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   for (int i = 0; i < (int) getDriftNumber(); i++)

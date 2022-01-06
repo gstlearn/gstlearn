@@ -118,7 +118,7 @@ void RuleShadow::serializeSpecific() const
   _recordWrite("#", "Parameters for Shift option");
 }
 
-String RuleShadow::displaySpecific(int flagProp, int flagThresh) const
+String RuleShadow::displaySpecific() const
 {
   std::stringstream sstr;
   sstr << toTitle(2, "Shadow Option");
@@ -133,8 +133,7 @@ String RuleShadow::displaySpecific(int flagProp, int flagThresh) const
   sstr << "- P2 gives the value of Upwards shift" << std::endl;
   sstr << "- P3 gives the value of Downwards shift" << std::endl;
   sstr << "(With the 'Shadow' option, only the first GRF is used)" << std::endl;
-  sstr << std::endl;
-  sstr << getMainNode()->nodePrintShadow(flagProp, flagThresh);
+
   return sstr.str();
 }
 

@@ -347,7 +347,7 @@ double CovAniso::eval(int ivar,
   return (cov);
 }
 
-String CovAniso::toString(int /*level*/) const
+String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   // Covariance Name

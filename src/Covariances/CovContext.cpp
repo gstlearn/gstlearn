@@ -127,10 +127,10 @@ CovContext::~CovContext()
 {
 }
 
-String CovContext::toString(int level) const
+String CovContext::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << ASpaceObject::toString(level);
+  sstr << ASpaceObject::toString(strfmt);
   sstr << "Nb Variables       = "       << _nVar << std::endl;
   sstr << "Maximum IRF Degree = "       << _irfMaxDegree << std::endl;
   sstr << "Field Size         = "       << _field << std::endl;

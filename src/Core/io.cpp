@@ -1386,12 +1386,12 @@ void tab_print_rc(const char *title,
  **
  *****************************************************************************/
 void print_matrix(const char *title,
-                                  int flag_limit,
-                                  int bycol,
-                                  int nx,
-                                  int ny,
-                                  const double *sel,
-                                  const double *tab)
+                  int flag_limit,
+                  int bycol,
+                  int nx,
+                  int ny,
+                  const double *sel,
+                  const double *tab)
 {
   int ix, iy, nx_util, ny_util, ny_done, multi_row, iad;
 

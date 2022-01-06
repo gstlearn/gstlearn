@@ -37,13 +37,13 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
   Db db(nech,VectorDouble(2,0.),VectorDouble(2,1.));
-  db.display(1);
+  db.display();
 
   // Creating a grid covering the same space
   VectorInt nx = { 100, 100 };
   VectorDouble dx = { 0.01, 0.01 };
   Db grid(nx, dx);
-  grid.display(1);
+  grid.display();
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model models(ctxt);
@@ -56,7 +56,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Perform a non-conditional simulation on the Db and on the Grid
   error = simtub(nullptr,&db,&models);
-  db.display(1);
+  db.display();
   error = simtub(nullptr,&grid,&models);
   grid.display();
 
@@ -71,7 +71,7 @@ int main(int /*argc*/, char */*argv*/[])
   varioparamP.addMultiDirs(dirparamP);
   Vario variop = Vario(&varioparamP,&db);
   variop.compute("vg");
-  variop.display(1);
+  variop.display();
   message("Maximum Variogram Value = %lf\n",variop.getGmax());
 
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
@@ -90,21 +90,21 @@ int main(int /*argc*/, char */*argv*/[])
   varioparamG.addMultiDirs(dirparamG);
   Vario variog = Vario(&varioparamG, &grid);
   variog.compute("vg",true);
-  variog.display(1);
+  variog.display();
 
   // ==========================================
   // Calculating Variogram Map on Isolated Data
   // ==========================================
 
   Db* vmapP = db_vmap_compute(&db, ECalcVario::VARIOGRAM);
-  vmapP->display(1);
+  vmapP->display();
 
   // =================================
   // Calculating Variogram Map on Grid
   // =================================
 
   Db* vmapG = db_vmap_compute(&grid, ECalcVario::VARIOGRAM);
-  vmapG->display(1);
+  vmapG->display();
 
   return (error);
 }

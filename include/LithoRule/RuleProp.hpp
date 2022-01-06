@@ -33,7 +33,7 @@ public:
   RuleProp& operator=(const RuleProp &m);
   virtual ~RuleProp();
 
-  virtual String toString(int level = ITEST) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   const Db* getDbprop() const { return _dbprop; }
   void setDbprop(const Db* dbprop) { _dbprop = dbprop; }

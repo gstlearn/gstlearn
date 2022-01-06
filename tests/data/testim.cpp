@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   {
     vario->attachDb(dbin);
     vario->compute("vg");
-    vario->display(1);
+    vario->display();
     ascii_filename("Vario",0,1,filename);
     if (vario->serialize(filename,verbose))
       messageAbort("ascii_vario_write");

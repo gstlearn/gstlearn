@@ -42,7 +42,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 10;
   Db db(nech,{0.,0.},{1.,1.});
-  db.display(FLAG_STATS);
+  db.display(); // TODO : please use FLAG_STATS only when available
 
   auto nx={ 101,101 };
   Db workingDbc(nx);

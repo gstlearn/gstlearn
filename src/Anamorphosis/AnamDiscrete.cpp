@@ -65,7 +65,7 @@ void AnamDiscrete::_resize()
   _stats.reset(nclass,nelem,0.);
 }
 
-String AnamDiscrete::toString(int /*level*/) const
+String AnamDiscrete::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << "Number of cutoffs = " << _nCut << std::endl;

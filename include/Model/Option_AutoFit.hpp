@@ -36,7 +36,7 @@ private:
   Option_AutoFit& operator= (const Option_AutoFit &m);
   virtual ~Option_AutoFit();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double getConstantSillValue() const { return _constantSillValue; }
   double getEpsdelta() const { return _epsdelta; }

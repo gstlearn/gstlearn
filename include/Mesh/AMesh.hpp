@@ -28,7 +28,7 @@ public:
   AMesh& operator= (const AMesh &m);
 	virtual ~AMesh();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Returns the space variety */
   int getVariety() const { return _variety; }
@@ -82,9 +82,6 @@ public:
   VectorInt getMeshByApexPair(int apex1, int apex2) const;
   /*! Returns the vector of coordinates for an apex */
   VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
-
-protected:
-  String _display(int level = 0) const;
 
 private:
   void _recopy(const AMesh &m);

@@ -34,7 +34,7 @@ public:
 
   int init(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual IClonable* clone() const override { return new CovParamId(*this); };
 
   const EConsElem& getType() const { return _elemType; }

@@ -66,7 +66,7 @@ Option_VarioFit::~Option_VarioFit()
 
 }
 
-String Option_VarioFit::toString(int /*level*/) const
+String Option_VarioFit::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   static const char *NOK[] = {"OFF" , "ON"};

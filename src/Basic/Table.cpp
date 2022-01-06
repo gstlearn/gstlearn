@@ -14,9 +14,11 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/AStringable.hpp"
 
 Table::Table(int nrows, int ncols)
   : ASerializable(),
+    AStringable(),
     _stats()
 {
   init(nrows, ncols,true);
@@ -24,6 +26,7 @@ Table::Table(int nrows, int ncols)
 
 Table::Table(const VectorVectorDouble& table)
   : ASerializable(),
+    AStringable(),
     _stats(table)
 {
 }
@@ -31,6 +34,7 @@ Table::Table(const VectorVectorDouble& table)
 
 Table::Table(const String& neutralFileName, bool verbose)
     : ASerializable(),
+      AStringable(),
       _stats()
 {
   if (deSerialize(neutralFileName, verbose))
@@ -40,6 +44,7 @@ Table::Table(const String& neutralFileName, bool verbose)
 
 Table::Table(const Table &m)
     : ASerializable(m),
+      AStringable(m),
       _stats(m._stats)
 {
 
@@ -49,6 +54,8 @@ Table& Table::operator=(const Table &m)
 {
   if (this != &m)
   {
+    ASerializable::operator=(m);
+    AStringable::operator=(m);
     _stats = m._stats;
   }
   return *this;
@@ -217,21 +224,24 @@ int Table::deSerialize(const String& filename, bool verbose)
 /**
  * Print the contents of the statistics
  */
-void Table::display(int isimu) const
+String Table::toString(const AStringFormat* /*strfmt*/) const
 {
-  if (_stats.empty()) return;
+  std::stringstream sstr;
+  if (_stats.empty()) return sstr.str();
 
-  mestitle(1,"Statistics printout for Simulation %d",isimu);
-
-  int ncols = getColNumber();
-  int nrows = getRowNumber();
-
-  for (int irow = 0; irow < nrows; irow++)
+  if (!_stats.empty())
   {
-    for (int icol = 0; icol < ncols; icol++)
-      message(" %10.3lf",_stats[icol][irow]);
-    message("\n");
+    int ncols = getColNumber();
+    int nrows = getRowNumber();
+
+    for (int irow = 0; irow < nrows; irow++)
+    {
+      for (int icol = 0; icol < ncols; icol++)
+        sstr << _stats[icol][irow];
+      sstr << std::endl;
+    }
   }
+  return sstr.str();
 }
 
 /**

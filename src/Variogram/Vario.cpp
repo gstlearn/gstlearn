@@ -243,6 +243,8 @@ Vario& Vario::operator=(const Vario& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
+    ASerializable::operator=(r);
     _nVar = r._nVar;
     _varioparam = r._varioparam;
     _means = r._means;
@@ -550,7 +552,7 @@ VectorDouble Vario::getGRange(int ivar,
   return vec;
 }
 
-String Vario::toString(int level) const
+String Vario::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -626,7 +628,7 @@ String Vario::toString(int level) const
 
   // Print the environment
 
-  sstr << _varioparam.toStringMain(level);
+  sstr << _varioparam.toStringMain(strfmt);
 
   // Print the variance matrix
 
@@ -642,14 +644,14 @@ String Vario::toString(int level) const
     for (int idir = 0; idir < getDirectionNumber(); idir++)
     {
       sstr << toTitle(1,"Direction #%d",idir+1);
-      sstr << getDirParam(idir).toString(level);
-      sstr << _toStringByDirection(level,idir);
+      sstr << getDirParam(idir).toString(strfmt);
+      sstr << _toStringByDirection(strfmt,idir);
     }
   }
   return sstr.str();
 }
 
-String Vario::_toStringByDirection(int /*level*/, int idir) const
+String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, int idir) const
 {
   std::stringstream sstr;
 

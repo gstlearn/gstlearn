@@ -28,7 +28,7 @@ public:
   virtual ~AnamUser();
 
   void calculateMeanAndVariance() override;
-  virtual String toString(int level) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double GaussianToRawValue(double h) const override
   {

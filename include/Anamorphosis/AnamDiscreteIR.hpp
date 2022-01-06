@@ -26,7 +26,7 @@ public:
   int fit(const VectorDouble& tab, int verbose=0);
   void calculateMeanAndVariance() override;
   VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const override;
-  virtual String toString(int level) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double getRCoef() const { return _rCoef; }
   void   setRCoef(double rcoef) { _rCoef = rcoef; }

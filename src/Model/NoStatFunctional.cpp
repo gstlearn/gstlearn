@@ -155,11 +155,14 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
   return _func->getFunctionValue(vec);
 }
 
-String NoStatFunctional::toString(int level) const
+String NoStatFunctional::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << ANoStat::toString(level);
-  if (level > 0)
+  sstr << ANoStat::toString(strfmt);
+
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
+  if (sf.getLevel() > 0)
     sstr << "Functional" << std::endl;
   return sstr.str();
 }

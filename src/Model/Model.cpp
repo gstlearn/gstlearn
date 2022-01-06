@@ -32,7 +32,6 @@
 #include "geoslib_old_f.h"
 
 #include <math.h>
-#include "../../include/Drifts/DriftList.hpp"
 
 Model::Model(const CovContext &ctxt)
     :
@@ -104,7 +103,7 @@ Model::~Model()
   _destroy();
 }
 
-String Model::toString(int /*level*/) const
+String Model::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   int ncov   = getCovaNumber();

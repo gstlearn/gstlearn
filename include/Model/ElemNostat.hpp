@@ -23,7 +23,7 @@ public:
   ElemNostat& operator= (const ElemNostat &m);
   virtual ~ElemNostat();
 
-  virtual String toString(int level) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(const EConsElem& loctype, int rank_grf, int rank_str, int rank_v1, int rank_v2);
   const EConsElem& getLocType() const

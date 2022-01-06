@@ -36,8 +36,7 @@ private:
   Option_VarioFit& operator= (const Option_VarioFit &m);
   virtual ~Option_VarioFit();
 
-  virtual String toString(int level = 0) const override;
-
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   int getAuthAniso() const { return _auth_aniso; }
   void setAuthAniso(int authAniso) { _auth_aniso = authAniso; }
   int getAuthRotation() const { return _auth_rotation; }

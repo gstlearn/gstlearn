@@ -25,8 +25,7 @@ public:
   virtual ~Tensor();
 
   void init(int ndim);
-  virtual String toString(int level = 0) const override;
-
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   void setTensorDirect (const MatrixSquareGeneral& tensor) { _tensorDirect  = tensor; }
   void setTensorInverse(const MatrixSquareGeneral& tensor) { _tensorInverse = tensor; }
 

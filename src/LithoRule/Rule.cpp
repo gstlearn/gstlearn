@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleStringFormat.hpp"
 #include "LithoRule/Node.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_f.h"
@@ -307,48 +308,46 @@ int Rule::setMainNodeFromNodNames(const VectorInt& nodes)
   return 0;
 }
 
-String Rule::toString(int /*level*/) const
-{
-  std::stringstream sstr;
-  sstr << _display(false, false);
-  return sstr.str();
-}
-
-void Rule::display(bool flagProp, bool flagThresh) const
-{
-  messageFlush(_display(flagProp, flagThresh));
-}
-
-String Rule::displaySpecific(int flagProp, int flagThresh) const
-{
-  std::stringstream sstr;
-  if (ABS(_rho) > 0.)
-    sstr << "Correlation between the two GRFs = " << _rho << std::endl;
-  if (_rho == 1.)
-    sstr << "(As the correlation is set to 1, only the first GRF is used)" << std::endl;
-  sstr << _mainNode->nodePrint(flagProp, flagThresh);
-  return sstr.str();
-}
-
-String Rule::_display(bool flagProp, bool flagThresh) const
+String Rule::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   int node_tot,nfac_tot,nmax_tot,ny1_tot,ny2_tot;
   double prop_tot;
 
+  const RuleStringFormat* rulefmt = dynamic_cast<const RuleStringFormat*>(strfmt);
+  RuleStringFormat dsf;
+  if (rulefmt != nullptr) dsf = *rulefmt;
+
   sstr << toTitle(0,"Lithotype Rule");
 
   if (statistics(0, &node_tot, &nfac_tot, &nmax_tot, &ny1_tot, &ny2_tot,
                  &prop_tot)) return sstr.str();
-  if (prop_tot <= 0.) flagProp = flagThresh = false;
+  if (prop_tot <= 0.)
+  {
+    dsf.setFlagProp(0);
+    dsf.setFlagThresh(0);
+  }
 
   sstr << "- Number of nodes               = " << node_tot << std::endl;
   sstr << "- Number of facies              = " << nfac_tot << std::endl;
   sstr << "- Number of thresholds along G1 = " << ny1_tot  << std::endl;
   sstr << "- Number of thresholds along G2 = " << ny2_tot  << std::endl;
 
-  sstr << displaySpecific(flagProp, flagThresh);
+  sstr << displaySpecific();
 
+  sstr << std::endl;
+  sstr << _mainNode->nodePrint(dsf.getFlagProp(), dsf.getFlagThresh());
+
+  return sstr.str();
+}
+
+String Rule::displaySpecific() const
+{
+  std::stringstream sstr;
+  if (ABS(_rho) > 0.)
+    sstr << "Correlation between the two GRFs = " << _rho << std::endl;
+  if (_rho == 1.)
+    sstr << "(As the correlation is set to 1, only the first GRF is used)" << std::endl;
   return sstr.str();
 }
 
@@ -665,7 +664,11 @@ int Rule::setProportions(const VectorDouble& proportions) const
 
   /* Debug printout (optional) */
 
-  if (debug_query("props")) display(true,true);
+  if (debug_query("props"))
+  {
+    RuleStringFormat rulefmt(1);
+    display(&rulefmt);
+  }
 
   return(0);
 }

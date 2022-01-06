@@ -140,13 +140,15 @@ void Rotation::setIdentity()
   _checkRot();
 }
 
-String Rotation::toString(int level) const
+String Rotation::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   if (!_flagRot) return sstr.str();
   sstr << toVector("Rotation Angles        = ",_angles);
 
-  if (! IFFFF(level) && level > 0)
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
+  if (sf.getLevel() > 0)
   {
     sstr << toMatrix("Direct Rotation Matrix", VectorString(), VectorString(),
                      false, _nDim, _nDim, _rotMat.getValues());

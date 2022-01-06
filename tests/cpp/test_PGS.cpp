@@ -17,6 +17,7 @@
 #include "Model/Model.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Basic/String.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -44,7 +45,9 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
   Db db(nech,{0.,0.},{1.,1.});
-  db.display(FLAG_STATS);
+  DbStringFormat dbfmt;
+  dbfmt.setParams(FLAG_STATS);
+  db.display(&dbfmt);
 
   Db dbprop= Db({100,100},{0.01,0.01},{0.,0.});
 
@@ -106,13 +109,13 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Determination of the variogram of the Underlying GRF
   Vario* vario = variogram_pgs(&db,&varioparam1,&ruleprop);
-  vario->display(1);
+  vario->display();
   Vario vario1 = Vario(*vario);
   vario1.varioReduce({0},VectorInt(),true);
   Vario vario2 = Vario(*vario);
   vario2.varioReduce({1},VectorInt(),true);
-  vario1.display(1);
-  vario2.display(1);
+  vario1.display();
+  vario2.display();
 
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model modelPGS1(ctxt);
@@ -139,14 +142,14 @@ int main(int /*argc*/, char */*argv*/[])
   else
     ruleprop2 = RuleProp(&dbprop, VectorDouble());
   error = ruleprop2.fit(&db, &varioparam2, 2, true);
-  ruleprop2.getRule()->display(1);
+  ruleprop2.getRule()->display();
   ruleprop2.getRule()->serialize("ruleFit.ascii");
 
   modelPGS1.display();
   Vario* varioDerived = model_pgs(&db, &varioparam1, &ruleprop2, &modelPGS1, &modelPGS2);
   modelPGS1.display();
   varioDerived->serialize("modelpgs.ascii");
-  varioDerived->display(1);
+  varioDerived->display();
 
   Vario varioIndic = Vario(&varioparam1, &db);
   varioIndic.computeIndic("vg");

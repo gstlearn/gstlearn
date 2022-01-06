@@ -29,7 +29,7 @@ public:
   Limits& operator=(const Limits &m);
   virtual ~Limits();
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getLimitNumber() const { return static_cast<int>(_bounds.size()); }
   std::vector<Interval>& getBounds() { return _bounds; }

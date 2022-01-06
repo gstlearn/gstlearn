@@ -90,7 +90,7 @@ VectorDouble ACovFunc::evalCovDerivativeVec(int degree,
     vec.push_back(evalCovDerivative(degree, i));
   return vec;
 }
-String ACovFunc::toString(int /*level*/) const
+String ACovFunc::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << getCovName();

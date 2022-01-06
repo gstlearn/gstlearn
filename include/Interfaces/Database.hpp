@@ -41,7 +41,7 @@ public:
 
   virtual bool isConsistent(const ASpace* space) const override;
 
-  virtual String toString(int level = 0) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   unsigned int         getNSamples() const;
   unsigned int         getNVars() const;

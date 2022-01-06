@@ -41,7 +41,7 @@ public:
   AnamContinuous& operator=(const AnamContinuous &m);
   virtual ~AnamContinuous();
 
-  virtual String toString(int level) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void setABounds(double azmin = TEST,
                   double azmax = TEST,

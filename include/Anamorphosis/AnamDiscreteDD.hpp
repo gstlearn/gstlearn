@@ -30,7 +30,7 @@ public:
 
   int  fit(const VectorDouble& tab, int verbose=0);
   void calculateMeanAndVariance() override;
-  virtual String toString(int level) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const override;
   VectorDouble factors_exp(int verbose);
   VectorDouble factors_maf(int verbose);

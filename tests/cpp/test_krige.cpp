@@ -35,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Generate the output grid
   VectorInt nx = {100,100};
   Db* grid = new Db(nx);
-  grid->display(0);
+  grid->display();
 
   // Generate the data base
   int nech = 100;
@@ -60,7 +60,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->setLocatorByAttribute(1,ELoc::X,0);
   data->setLocatorByAttribute(2,ELoc::X,1);
   data->setLocatorByAttribute(3,ELoc::Z);
-  data->display(0);
+  data->display();
 
   // Create the Model
   CovContext ctxt(nvar); // use default space

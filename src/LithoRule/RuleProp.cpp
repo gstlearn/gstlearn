@@ -137,7 +137,7 @@ RuleProp::~RuleProp()
   }
 }
 
-String RuleProp::toString(int level) const
+String RuleProp::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -153,13 +153,13 @@ String RuleProp::toString(int level) const
 
   // Db file (Non-Stationary case)
   if (! _flagStat)
-    sstr << _dbprop->toString(level);
+    sstr << _dbprop->toString(strfmt);
 
   // Rules
   for (int ir = 0; ir < getRuleNumber(); ir++)
   {
     const Rule* rule = _rules[ir];
-    sstr << rule->toString(level);
+    sstr << rule->toString(strfmt);
   }
 
   return sstr.str();

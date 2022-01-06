@@ -73,6 +73,7 @@ Lithotype Rule
 - Number of facies              = 3
 - Number of thresholds along G1 = 1
 - Number of thresholds along G2 = 1
+
 Node F1 - Facies 1
 Node F2 - Facies 2
 Node F3 - Facies 3
@@ -83,6 +84,7 @@ Lithotype Rule
 - Number of facies              = 3
 - Number of thresholds along G1 = 1
 - Number of thresholds along G2 = 1
+
 Node F1 - Facies 1
 Node F2 - Facies 2
 Node F3 - Facies 3

@@ -168,11 +168,11 @@ double _tape_wendland2(double h)
   return (cov);
 }
 
-String CovLMCTapering::toString(int level) const
+String CovLMCTapering::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << ACovAnisoList::toString(level);
+  sstr << ACovAnisoList::toString(strfmt);
 
   sstr << "Tapering Function     = " << getName() << std::endl;
   sstr << "Tapering Scale        = " << _tapeRange << std::endl;

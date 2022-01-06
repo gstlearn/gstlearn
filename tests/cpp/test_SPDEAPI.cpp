@@ -43,8 +43,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   NoStatArray NoStat({"A"},&workingDbc);
   model.addNoStat(&NoStat);
-
-  model.display(1);
+  model.display();
 
   ///////////////////////
   // Creating Data

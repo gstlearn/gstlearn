@@ -72,10 +72,10 @@ void AnamDiscreteDD::setZCut(const VectorDouble& zcut)
   _maf.init(ncut);
 }
 
-String AnamDiscreteDD::toString(int level) const
+String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << Anam::toString(level);
+  sstr << Anam::toString(strfmt);
   sstr << "Discrete Diffusion Anamorphosis" << std::endl;
   if (_sCoef != 0.)
   {

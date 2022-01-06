@@ -43,7 +43,7 @@ public:
   void init(int ndim);
   void init(const CovAniso* cova);
   void define(int icov, const CovAniso* cova);
-  virtual String toString(int level) const override;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   ElemNostat* addElemNostat();
 
   int getFlagNoStat() const { return getNElems() > 0; }

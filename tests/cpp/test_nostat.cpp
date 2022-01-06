@@ -83,7 +83,7 @@ int main(int /*argc*/, char */*argv*/[])
   workingDbc.addFields(h11,"H1-1",ELoc::NOSTAT,0);
   workingDbc.addFields(h12,"H1-2",ELoc::NOSTAT,1);
   workingDbc.addFields(h22,"H2-2",ELoc::NOSTAT,2);
-  workingDbc.display(1);
+  workingDbc.display();
 
   // Inquiry the value of the Non-stationary parameters at a given sample
   int target = 1000;
@@ -92,7 +92,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   NoStatArray NoStat({"H1-1","H1-2","H2-2"},&workingDbc);
   model.addNoStat(&NoStat);
-  model.display(1);
+  model.display();
 
   message("Test performed successfully\n");
 

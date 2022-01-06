@@ -197,7 +197,7 @@ void ModelNostat::define(int icov, const CovAniso* cova)
   }
 }
 
-String ModelNostat::toString(int level) const
+String ModelNostat::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   if (_elems.size() <= 0) return sstr.str();
@@ -208,7 +208,7 @@ String ModelNostat::toString(int level) const
   {
     ElemNostat* elem = _elems[ipar];
     sstr << "Parameter #" << ipar+1 << std::endl;
-    sstr << elem->toString(level);
+    sstr << elem->toString(strfmt);
     sstr << std::endl;
   }
   return sstr.str();

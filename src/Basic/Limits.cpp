@@ -99,7 +99,7 @@ Limits::~Limits()
 
 }
 
-String Limits::toString(int /*level*/) const
+String Limits::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 

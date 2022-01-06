@@ -42,10 +42,10 @@ AnamDiscreteIR::~AnamDiscreteIR()
 
 }
 
-String AnamDiscreteIR::toString(int level) const
+String AnamDiscreteIR::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << Anam::toString(level);
+  sstr << Anam::toString(strfmt);
   sstr << "Discrete Indicator Residuals Anamorphosis" << std::endl;
   if (_rCoef != 1.)
   {

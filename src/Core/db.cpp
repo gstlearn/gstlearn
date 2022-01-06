@@ -15,6 +15,7 @@
 #include "Basic/String.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 
 #include <math.h>
 
@@ -1057,11 +1058,13 @@ void db_print(Db *db,
   int mode = flag_stats;
   unsigned char params = 0;
   if (flag_resume) params |= FLAG_RESUME;
-  if (flag_vars) params |= FLAG_VARS;
+  if (flag_vars)   params |= FLAG_VARS;
   if (flag_extend) params |= FLAG_EXTEND;
-  if (flag_stats) params |= FLAG_STATS;
-  if (flag_array) params |= FLAG_ARRAY;
-  db->displayMoreByAttributes(params, cols, false, mode);
+  if (flag_stats)  params |= FLAG_STATS;
+  if (flag_array)  params |= FLAG_ARRAY;
+  DbStringFormat dbfmt;
+  dbfmt.setParams(params);
+  db->display(&dbfmt);
 
   return;
 }
