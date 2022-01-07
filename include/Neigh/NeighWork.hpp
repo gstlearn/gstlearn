@@ -20,21 +20,21 @@ class Db;
 class GSTLEARN_EXPORT NeighWork
 {
 public:
-  NeighWork(const Neigh* neigh,
-            const Db* dbin,
+  NeighWork(const Db* dbin,
+            const Neigh* neigh,
             bool flag_var_nocheck = false,
             bool flag_simu = false);
   NeighWork(const NeighWork& r);
   NeighWork& operator=(const NeighWork& r);
   virtual ~NeighWork();
 
-  void initialize(const Neigh* neigh,
-                  const Db* dbin,
+  void initialize(const Db* dbin,
+                  const Neigh* neigh,
                   bool flag_var_nocheck = false,
                   bool flag_simu = false);
   void clear();
   VectorInt select(Db *dbout, int iech_out);
-  bool isInitialized() const { return _flagInitialized; }
+  bool isUnchanged() const { return _flagIsUnchanged; }
 
 private:
   void _unique(Db *dbout, int iech_out, VectorInt& ranks);
@@ -47,14 +47,17 @@ private:
   void _movingSelect(int nsel, VectorInt& ranks);
   void _display(const VectorInt& ranks);
   double _movingDist(Db *dbout, int iech_in, int iech_out);
+  void _checkUnchanged(const VectorInt& ranks);
 
 private:
-  const Neigh* _neigh;
   const Db* _dbin;
+  const Neigh* _neigh;
   bool _flagInitialized;
+  bool _flagIsUnchanged;
   mutable VectorInt _nbghInd;
   mutable VectorInt _nbghIsect;
   mutable VectorInt _nbghNsect;
+  mutable VectorInt _nbghMemo;
   mutable VectorDouble _nbghX1;
   mutable VectorDouble _nbghX2;
   mutable VectorDouble _nbghDst;

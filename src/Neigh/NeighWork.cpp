@@ -17,33 +17,38 @@
 #include "geoslib_old_f.h"
 
 #include <math.h>
+#include <set>
 
-NeighWork::NeighWork(const Neigh* neigh,
-                     const Db* dbin,
+NeighWork::NeighWork(const Db* dbin,
+                     const Neigh* neigh,
                      bool flag_var_nocheck,
                      bool flag_simu)
-    : _neigh(),
-      _dbin(),
+    : _dbin(),
+      _neigh(),
       _flagInitialized(false),
+      _flagIsUnchanged(false),
       _nbghInd(),
       _nbghIsect(),
       _nbghNsect(),
+      _nbghMemo(),
       _nbghX1(),
       _nbghX2(),
       _nbghDst(),
       _flagVariableNoCheck(false),
       _flagSimu(false)
 {
-  initialize(neigh, dbin, flag_var_nocheck, flag_simu);
+  initialize(dbin, neigh, flag_var_nocheck, flag_simu);
 }
 
 NeighWork::NeighWork(const NeighWork& r)
-    : _neigh(r._neigh),
-      _dbin(r._dbin),
+    : _dbin(r._dbin),
+      _neigh(r._neigh),
       _flagInitialized(r._flagInitialized),
+      _flagIsUnchanged(r._flagIsUnchanged),
       _nbghInd(r._nbghInd),
       _nbghIsect(r._nbghIsect),
       _nbghNsect(r._nbghNsect),
+      _nbghMemo(r._nbghMemo),
       _nbghX1(r._nbghX1),
       _nbghX2(r._nbghX2),
       _nbghDst(r._nbghDst),
@@ -56,12 +61,14 @@ NeighWork& NeighWork::operator=(const NeighWork& r)
 {
   if (this != &r)
   {
-    _neigh = r._neigh;
     _dbin = r._dbin;
+    _neigh = r._neigh;
     _flagInitialized = r._flagInitialized;
+    _flagIsUnchanged = r._flagIsUnchanged;
     _nbghInd = r._nbghInd;
     _nbghIsect = r._nbghIsect;
     _nbghNsect = r._nbghNsect;
+    _nbghMemo = r._nbghMemo;
     _nbghX1 = r._nbghX1;
     _nbghX2 = r._nbghX2;
     _nbghDst = r._nbghDst;
@@ -77,10 +84,10 @@ NeighWork::~NeighWork()
 
 /****************************************************************************/
 /*!
- **  Initialilze the neighborhood search
+ **  Initialize the neighborhood search
  **
- ** \param[in]  neigh         Description of the Neigh parameters
  ** \param[in]  dbin          input Db structure
+ ** \param[in]  neigh         Description of the Neigh parameters
  ** \param[in]  flag_simu     1 if used for Simulation
  ** \param[in]  flag_var_nocheck 1 if no check on variable definition
  **
@@ -89,7 +96,7 @@ NeighWork::~NeighWork()
  ** \remarks on ELoc::SIMU rather than on ELoc::Z
  **
  *****************************************************************************/
-void NeighWork::initialize(const Neigh* neigh, const Db* dbin,
+void NeighWork::initialize(const Db* dbin, const Neigh* neigh,
                            bool flag_var_nocheck, bool flag_simu)
 {
   if (neigh == nullptr || dbin == nullptr) return;
@@ -109,6 +116,8 @@ void NeighWork::initialize(const Neigh* neigh, const Db* dbin,
   _nbghX1 = VectorDouble(ndim);
   _nbghX2 = VectorDouble(ndim);
 
+  _nbghMemo = VectorInt();
+
   _flagInitialized = true;
 }
 
@@ -116,9 +125,9 @@ void NeighWork::clear()
 {
   /* Initialization */
 
-  if (! isInitialized()) return;
+  if (! _flagInitialized) return;
 
-  // Unset the pointers
+  // Clear the pointers
 
   _neigh = nullptr;
   _dbin  = nullptr;
@@ -131,6 +140,8 @@ void NeighWork::clear()
   _nbghNsect.clear();
   _nbghX1.clear();
   _nbghX2.clear();
+
+  _nbghMemo.clear();
 
   _flagInitialized = false;
 }
@@ -149,32 +160,32 @@ VectorInt NeighWork::select(Db *dbout,
                             int iech_out)
 {
   VectorInt ranks;
-  if (! isInitialized()) return ranks;
+  if (! _flagInitialized) return ranks;
   int nech = _dbin->getSampleNumber();
 
   ranks.resize(nech, -1);
 
   /* Select the active data points */
 
-  switch (_neigh->getType().toEnum())
+  if (dbout->isSampleIndexValid(iech_out))
   {
-    case ENeigh::E_IMAGE:
-    case ENeigh::E_UNIQUE:
-      _unique(dbout, iech_out, ranks);
-      break;
+    switch (_neigh->getType().toEnum())
+    {
+      case ENeigh::E_IMAGE:
+      case ENeigh::E_UNIQUE:
+        _unique(dbout, iech_out, ranks);
+        break;
 
-    case ENeigh::E_BENCH:
-      _bench(dbout, iech_out, ranks);
-      break;
+      case ENeigh::E_BENCH:
+        _bench(dbout, iech_out, ranks);
+        break;
 
-    case ENeigh::E_MOVING:
-      if (_moving(dbout, iech_out, ranks)) return VectorInt();
-      break;
+      case ENeigh::E_MOVING:
+        if (_moving(dbout, iech_out, ranks)) return VectorInt();
+        break;
+    }
+    if (debug_query("nbgh")) _display(ranks);
   }
-
-  /* Print the Neighborhood search result */
-
-  if (debug_query("nbgh")) _display(ranks);
 
   /* Compress the vector of returned sample ranks */
 
@@ -182,6 +193,11 @@ VectorInt NeighWork::select(Db *dbout,
   for (int iech = 0; iech < nech; iech++)
     if (ranks[iech] >= 0) ranks[necr++] = iech;
   ranks.resize(necr);
+
+  // Set the flag telling if neighborhood has changed or not
+  // and memorize the new set of ranks
+
+  _checkUnchanged(ranks);
 
   return ranks;
 }
@@ -675,4 +691,28 @@ void NeighWork::_display(const VectorInt& ranks)
     nsel++;
   }
   return;
+}
+
+void NeighWork::_checkUnchanged(const VectorInt& ranks)
+{
+  // Check if Neighborhood has changed
+
+  if (_nbghMemo.size() != ranks.size())
+    _flagIsUnchanged = false;
+  else
+  {
+    // Two series have the same size: check if they are equal to different
+    // Order should not matter
+
+    std::set<int> s1;
+    s1.insert(_nbghMemo.begin(), _nbghMemo.end());
+    std::set<int> s2;
+    s2.insert(ranks.begin(), ranks.end());
+
+    _flagIsUnchanged = (s1 == s2);
+  }
+
+  // Store the vector of sample ranks for the current neighborhood search
+
+  _nbghMemo = ranks;
 }
