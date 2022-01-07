@@ -228,7 +228,7 @@ void DriftList::_updateCoefDrift()
   }
 }
 
-VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel)
+VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel) const
 {
   if (! _isDriftIndexValid(ib)) return VectorDouble();
 
@@ -244,14 +244,46 @@ VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel)
   return vec;
 }
 
-VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel)
+double DriftList::getDrift(const Db* db, int ib, int iech) const
 {
-  int ndrift = static_cast<int>(_drifts.size());
+  if (! _isDriftIndexValid(ib)) return TEST;
+  return _drifts[ib]->eval(db, iech);
+}
 
+VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
+{
   VectorVectorDouble vec;
+  int ndrift = getDriftNumber();
   for (int ib=0; ib<ndrift; ib++)
   {
     vec.push_back(getDrift(db, ib, useSel));
+  }
+  return vec;
+}
+
+VectorDouble DriftList::evalDrifts(const Db* db,
+                                   const VectorDouble& coeffs,
+                                   bool useSel) const
+{
+  VectorDouble vec;
+  int ndrift = getDriftNumber();
+  int ncoeff = coeffs.size();
+  int nech   = db->getSampleNumber();
+  if (ncoeff != ndrift)
+  {
+    messerr("'coeffs' dimension (%d) should match number of drift functions (%d)",
+        ncoeff, ndrift);
+    return vec;
+  }
+
+  for (int iech=0; iech<nech; iech++)
+  {
+    if (useSel && ! db->isActive(iech)) continue;
+
+    double value = 0.;
+    for (int ib=0; ib<ndrift; ib++)
+      value += coeffs[ib] * getDrift(db, ib, iech);
+    vec.push_back(value);
   }
   return vec;
 }

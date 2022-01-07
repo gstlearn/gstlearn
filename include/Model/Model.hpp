@@ -59,9 +59,6 @@ public:
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Model(*this); }
 
-  /// TODO : to be converted as internal member
-  const CovContext& getContext() const { return _ctxt; }
-
   void   setCovList(const ACovAnisoList* covalist);
   void   addCova(const CovAniso* cov);
   void   delCova(int rank);
@@ -76,6 +73,10 @@ public:
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
   bool   isFlagLinked() const;
+
+  ////////////////////////////////////////////////
+  /// TODO : to be converted as internal member
+  const CovContext& getContext() const { return _ctxt; }
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
@@ -93,7 +94,6 @@ public:
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
   double getBallRadius() const;
-
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   /////////////////////////////////////////////////
@@ -117,8 +117,13 @@ public:
   VectorDouble getDrift(const Db* db, int ib, bool useSel=true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel=true) ;
 
-  double evaluateDrift(const Db* db, int iech, int il,
-                       const ECalcMember& member = ECalcMember::LHS) const;
+  double evalDrift(const Db* db,
+                   int iech,
+                   int il,
+                   const ECalcMember& member = ECalcMember::LHS) const;
+  VectorDouble evalDrifts(const Db* db,
+                          const VectorDouble& coeffs,
+                          bool useSel = false) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////

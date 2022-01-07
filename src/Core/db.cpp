@@ -710,7 +710,11 @@ void db_sample_put_att(Db *db, int iech, int number, int iatt, double *tab)
  ** \remark: The returned array 'vect' must be dimension to that value
  **
  *****************************************************************************/
-double distance_inter(Db *db1, Db *db2, int iech1, int iech2, double *dist_vect)
+double distance_inter(const Db *db1,
+                      const Db *db2,
+                      int iech1,
+                      int iech2,
+                      double *dist_vect)
 {
   double v1, v2, *tab1, *tab2;
   int idim, ndim;

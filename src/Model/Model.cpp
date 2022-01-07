@@ -27,6 +27,7 @@
 #include "Drifts/DriftList.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/EModelProperty.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -476,21 +477,54 @@ VectorVectorDouble Model::getDrifts(const Db *db, bool useSel)
   return _driftList->getDrifts(db, useSel);
 }
 
-double Model::evaluateDrift(const Db *db,
-                            int iech,
-                            int il,
-                            const ECalcMember &member) const
+/**
+ * Evaluate a given drift function for a given sample
+ * @param db     Db structure
+ * @param iech   Rank of the target sample
+ * @param il     Rank of the drift function
+ * @param member Member type (used to check filtering)
+ * @return
+ */
+double Model::evalDrift(const Db *db,
+                        int iech,
+                        int il,
+                        const ECalcMember &member) const
 {
   if (member != ECalcMember::LHS && isDriftFiltered(il))
     return 0.;
   else
   {
     if (_driftList == nullptr)
-      my_throw("Dirft List if empty");
+      my_throw("Drift List if empty");
     ADriftElem *drift = _driftList->getDrift(il);
     if (drift != nullptr) return drift->eval(db, iech);
   }
   return TEST;
+}
+
+/**
+ * A vector of the drift evaluation
+ * @param db     Db structure
+ * @param coeffs Vector of drift coefficients
+ * @param useSel When TRUE, only non masked samples are returned
+ * @return The vector of values
+ * @remark When no drift is defined, a vector filled to 0 is returned
+ */
+VectorDouble Model::evalDrifts(const Db* db,
+                               const VectorDouble& coeffs,
+                               bool useSel) const
+{
+  VectorDouble vec;
+  if (_driftList == nullptr)
+  {
+    int nech = (useSel) ? db->getActiveSampleNumber() : db->getSampleNumber();
+    vec = VectorDouble(nech,0.);
+  }
+  else
+  {
+    vec = _driftList->evalDrifts(db, coeffs, useSel);
+  }
+  return vec;
 }
 
 /**

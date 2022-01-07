@@ -57,7 +57,7 @@ public:
   // Remove all elementary drift structures
   void delAllDrift();
 
-  const std::vector<ADriftElem*>& getDrifts() const { return _drifts; }
+  const std::vector<ADriftElem*>& getDriftList() const { return _drifts; }
   void setDrifts(const std::vector<ADriftElem*>& drifts) { _drifts = drifts; }
   const VectorBool& getFiltered() const { return _filtered; }
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
@@ -88,9 +88,13 @@ public:
   void setCoefDrift(int ivar, int il, int ib, double value) { _coefDrift[_getAddress(ivar,il,ib)] = value; }
   void setCoefDriftByRank(int rank, double coeff) { _coefDrift[rank] = coeff; }
 
-  VectorDouble getDrift(const Db* db, int ib, bool useSel = true);
-  VectorVectorDouble getDrifts(const Db* db, bool useSel = true);
+  VectorDouble getDrift(const Db* db, int ib, bool useSel = true) const;
+  double getDrift(const Db* db, int ib, int iech) const;
+  VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
   bool isFlagLinked() const { return _flagLinked; }
+  VectorDouble evalDrifts(const Db* db,
+                          const VectorDouble& coeffs,
+                          bool useSel = false) const;
 
 private:
   bool _isDriftIndexValid(int i) const;

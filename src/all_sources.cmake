@@ -245,4 +245,5 @@ set(SOURCES
   Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
   Neigh/Neigh.cpp
+  Neigh/NeighWork.cpp
 )

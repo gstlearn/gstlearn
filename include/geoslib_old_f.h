@@ -1620,8 +1620,8 @@ GSTLEARN_EXPORT Db* db_grid_reduce(Db *db_grid,
                                    int verbose,
                                    double vmin,
                                    double vmax);
-GSTLEARN_EXPORT double distance_inter(Db *db1,
-                                      Db *db2,
+GSTLEARN_EXPORT double distance_inter(const Db *db1,
+                                      const Db *db2,
                                       int iech1,
                                       int iech2,
                                       double *dist_vect);

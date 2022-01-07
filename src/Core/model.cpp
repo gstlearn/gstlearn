@@ -312,7 +312,7 @@ void model_calcul_drift(Model *model,
                         double *drftab)
 {
   for (int il = 0; il < model->getDriftNumber(); il++)
-    drftab[il] = model->evaluateDrift(db, iech, il, member);
+    drftab[il] = model->evalDrift(db, iech, il, member);
   return;
 }
 
