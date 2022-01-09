@@ -165,6 +165,7 @@ void NeighWork::clear()
  **
  ** \param[in]  dbout         output Db structure
  ** \param[in]  iech_out      Valid Rank of the sample in the output Db
+ ** \param[in]  rankColCok    Vector of Colcok information (optional)
  ** \param[in]  verbose       Verbose option
  **
  *****************************************************************************/
