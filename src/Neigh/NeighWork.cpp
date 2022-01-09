@@ -30,12 +30,15 @@ NeighWork::NeighWork(const Db* dbin,
       _nbghInd(),
       _nbghIsect(),
       _nbghNsect(),
-      _nbghMemo(),
       _nbghX1(),
       _nbghX2(),
       _nbghDst(),
       _flagVariableNoCheck(false),
-      _flagSimu(false)
+      _flagSimu(false),
+      _dbout(nullptr),
+      _iechOut(-1),
+      _nbghMemo()
+
 {
   initialize(dbin, neigh, flag_var_nocheck, flag_simu);
 }
@@ -48,12 +51,14 @@ NeighWork::NeighWork(const NeighWork& r)
       _nbghInd(r._nbghInd),
       _nbghIsect(r._nbghIsect),
       _nbghNsect(r._nbghNsect),
-      _nbghMemo(r._nbghMemo),
       _nbghX1(r._nbghX1),
       _nbghX2(r._nbghX2),
       _nbghDst(r._nbghDst),
       _flagVariableNoCheck(r._flagVariableNoCheck),
-      _flagSimu(r._flagSimu)
+      _flagSimu(r._flagSimu),
+      _dbout(r._dbout),
+      _iechOut(r._iechOut),
+      _nbghMemo(r._nbghMemo)
 {
 }
 
@@ -68,12 +73,14 @@ NeighWork& NeighWork::operator=(const NeighWork& r)
     _nbghInd = r._nbghInd;
     _nbghIsect = r._nbghIsect;
     _nbghNsect = r._nbghNsect;
-    _nbghMemo = r._nbghMemo;
     _nbghX1 = r._nbghX1;
     _nbghX2 = r._nbghX2;
     _nbghDst = r._nbghDst;
     _flagVariableNoCheck = r._flagVariableNoCheck;
     _flagSimu = r._flagSimu;
+    _dbout = r._dbout;
+    _iechOut = r._iechOut;
+    _nbghMemo = r._nbghMemo;
    }
   return *this;
 }
@@ -116,11 +123,15 @@ void NeighWork::initialize(const Db* dbin, const Neigh* neigh,
   _nbghX1 = VectorDouble(ndim);
   _nbghX2 = VectorDouble(ndim);
 
-  _nbghMemo = VectorInt();
+  // Clear out the Memorization parameters
+  _clearMemory();
 
   _flagInitialized = true;
 }
 
+/**
+ * Clear all the local storage in the NeighWork structure
+ */
 void NeighWork::clear()
 {
   /* Initialization */
@@ -153,39 +164,53 @@ void NeighWork::clear()
  ** \return  Vector of sample ranks in neighborhood (empty when error)
  **
  ** \param[in]  dbout         output Db structure
- ** \param[in]  iech_out      rank of the sample in the output Db
+ ** \param[in]  iech_out      Valid Rank of the sample in the output Db
+ ** \param[in]  verbose       Verbose option
  **
  *****************************************************************************/
 VectorInt NeighWork::select(Db *dbout,
-                            int iech_out)
+                            int iech_out,
+                            const VectorInt& rankColCok,
+                            bool verbose)
 {
   VectorInt ranks;
   if (! _flagInitialized) return ranks;
-  int nech = _dbin->getSampleNumber();
+  if (! dbout->isSampleIndexValid(iech_out)) return ranks;
 
+  int nech = _dbin->getSampleNumber();
   ranks.resize(nech, -1);
 
-  /* Select the active data points */
+  // Optional title (only in verbose case)
 
-  if (dbout->isSampleIndexValid(iech_out))
+  if (verbose)
+    message(">>> Neighborhood search:\n");
+
+  // Check if the current target coincides with the previous one
+  // Then do not do anything (even in presence of colocation
+  if (_isSameTarget(dbout, iech_out, ranks, verbose)) return ranks;
+
+  // Select the neighborhood samples as the target sample has changed
+  switch (_neigh->getType().toEnum())
   {
-    switch (_neigh->getType().toEnum())
-    {
-      case ENeigh::E_IMAGE:
-      case ENeigh::E_UNIQUE:
+    case ENeigh::E_IMAGE:
+    case ENeigh::E_UNIQUE:
+      if (! _isSameTargetUnique(dbout, iech_out, ranks, verbose))
         _unique(dbout, iech_out, ranks);
-        break;
+      break;
 
-      case ENeigh::E_BENCH:
+    case ENeigh::E_BENCH:
+      if (! _isSameTargetBench(dbout, iech_out, ranks, verbose))
         _bench(dbout, iech_out, ranks);
-        break;
+      break;
 
-      case ENeigh::E_MOVING:
-        if (_moving(dbout, iech_out, ranks)) return VectorInt();
-        break;
-    }
-    if (debug_query("nbgh")) _display(ranks);
+    case ENeigh::E_MOVING:
+      if (_moving(dbout, iech_out, ranks)) return VectorInt();
+      break;
   }
+
+  // In case of debug option, dump out neighborhood characteristics
+
+  if (debug_query("nbgh")) _display(ranks);
 
   /* Compress the vector of returned sample ranks */
 
@@ -197,20 +222,22 @@ VectorInt NeighWork::select(Db *dbout,
   // Set the flag telling if neighborhood has changed or not
   // and memorize the new set of ranks
 
-  _checkUnchanged(ranks);
+  _checkUnchanged(dbout, iech_out, ranks);
 
+  // Update in case of colocated option
+
+  _updateColCok(rankColCok, ranks);
   return ranks;
 }
 
 /****************************************************************************/
 /*!
  **  Select the unique neighborhood (or Image Neighborhood)
- **  Pay attention to the cross-validation flag
  **
  ** \param[in]  dbout     output Db structure
  ** \param[in]  iech_out  rank of the output sample
  **
- ** \param[out]  ranks    Neighborhood selection array
+ ** \param[out]  ranks   Vector of samples elected in the Neighborhood
  **
  *****************************************************************************/
 void NeighWork::_unique(Db *dbout, int iech_out, VectorInt& ranks)
@@ -247,7 +274,7 @@ void NeighWork::_unique(Db *dbout, int iech_out, VectorInt& ranks)
  ** \param[in]  dbout     output Db structure
  ** \param[in]  iech_out  rank of the output sample
  **
- ** \param[out]  ranks     Neighborhood selection array
+ ** \param[out]  ranks    Vector of samples elected in the Neighborhood
  **
  *****************************************************************************/
 void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
@@ -295,7 +322,7 @@ void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
  ** \param[in]  iech_out  Rank of the target in the output Db structure
  ** \param[in]  eps       Tolerance
  **
- ** \param[out]  ranks    Array of active data point ranks
+ ** \param[out]  ranks    Vector of samples elected in the Neighborhood
  **
  *****************************************************************************/
 int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
@@ -308,7 +335,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
   double distmax = 0.;
   int nsel = 0;
-  for (int iech = nsel = 0; iech < nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
 
     /* Discard the masked input sample */
@@ -640,7 +667,7 @@ void NeighWork::_display(const VectorInt& ranks)
   String string;
   int ndim = _dbin->getNDim();
   int nech = _dbin->getSampleNumber();
-  bool flag_ext = is_flag_data_disc_defined();
+  bool flag_ext = _dbin->getBlockExtensionNumber() > 0;
 
   /* Neighborhood data */
 
@@ -693,7 +720,7 @@ void NeighWork::_display(const VectorInt& ranks)
   return;
 }
 
-void NeighWork::_checkUnchanged(const VectorInt& ranks)
+void NeighWork::_checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks)
 {
   // Check if Neighborhood has changed
 
@@ -714,5 +741,139 @@ void NeighWork::_checkUnchanged(const VectorInt& ranks)
 
   // Store the vector of sample ranks for the current neighborhood search
 
+  _dbout = dbout;
+  _iechOut = iech_out;
   _nbghMemo = ranks;
+}
+
+void NeighWork::_clearMemory()
+{
+  _dbout = nullptr;
+  _iechOut = -1;
+  _nbghMemo = VectorInt();
+}
+
+/**
+ * Checks if the current target matches the target previously treated
+ * in the same procedure. If match is reached, then there is no need
+ * to compute a new neighborhood: use the previous Vector of sample ranks.
+ * Store the references of the new 'dbout' and 'iech_out' for next optimizations
+ * @param dbout    Current 'Db' structure for output
+ * @param iech_out Rank of the current target sample
+ * @param ranks    Vector of selected samples
+ * @param verbose  Verbose option
+ * @return
+ */
+bool NeighWork::_isSameTarget(const Db* dbout,
+                              int iech_out,
+                              VectorInt& ranks,
+                              bool verbose)
+{
+  // Check if the target remained unchanged
+  bool flagSame = true;
+  if (_dbout == nullptr || _iechOut < 0) flagSame = false;
+  if (dbout != _dbout) flagSame = false;
+  if (iech_out != _iechOut) flagSame = false;
+
+  _resetFromMemory(flagSame, ranks, verbose);
+  return flagSame;
+}
+
+bool NeighWork::_isSameTargetBench(const Db* dbout,
+                                   int iech_out,
+                                   VectorInt& ranks,
+                                   bool verbose)
+{
+  // If no memorization is available, the match is false
+  if (_dbout == nullptr || _iechOut < 0) return false;
+
+  // Check if current target and previous target belong to the same bench
+
+  bool flagSame = true;
+  int ndim = dbout->getNDim();
+  if (is_grid(dbout))
+  {
+    int nval = 1;
+    for (int idim = 0; idim < ndim - 1; idim++)
+      nval *= dbout->getNX(idim);
+    if ((iech_out / nval) != (_iechOut / nval)) flagSame = false;
+  }
+  else
+  {
+    if (dbout->getCoordinate(iech_out, ndim - 1) != _dbout->getCoordinate(
+        _iechOut, ndim - 1)) flagSame = false;
+  }
+
+  _resetFromMemory(flagSame, ranks, verbose);
+  return flagSame;
+}
+
+bool NeighWork::_isSameTargetUnique(const Db* dbout,
+                                    int iech_out,
+                                    VectorInt& ranks,
+                                    bool verbose)
+{
+  // If no memorization is available, the match is false
+  if (_dbout == nullptr || _iechOut < 0) return false;
+  bool flagSame = true;
+  _resetFromMemory(flagSame, ranks, verbose);
+  return flagSame;
+}
+
+void NeighWork::_resetFromMemory(bool flagSame, VectorInt& ranks, bool verbose)
+{
+  if (flagSame)
+  {
+    // If target is unchanged, upload the previously stored vector of Sample ranks
+
+    ranks = _nbghMemo;
+    _flagIsUnchanged = true;
+    if (verbose)
+      message(">>> Search is bypassed as already calculated\n");
+  }
+  else
+  {
+    if (verbose)
+      message(">>> Search must probably be performed\n");
+  }
+}
+
+/**
+ * Update the set of selected samples in case of colocated option
+ * This is done only if:
+ * - the colocation option is ON (vector of colocated variable is defined)
+ * - at least one of the colocated variables at the target is valid
+ * - the target does not coincide with a sample already selected
+ * If the colocation option is validated, an additional member is added to 'ranks':
+ * it value is conventionally set to -1.
+ * @param rankColCok Vector of Colocated Variables
+ * @param ranks      Vector of samples already selected
+ * @return
+ */
+void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
+{
+  if (rankColCok.empty()) return;
+  int nvarin = (int) rankColCok.size();
+
+  /* Do not add the target if no variable is defined */
+  bool found = false;
+  for (int ivar = 0; ivar < nvarin && !found; ivar++)
+  {
+    int jvar = rankColCok[ivar];
+    if (jvar < 0) continue;
+    if (!FFFF(_dbout->getArray(_iechOut, jvar))) found = true;
+  }
+  if (! found) return;
+
+  /* Do not add the target if it coincides with an already selected sample */
+  int nsel = (int) ranks.size();
+  for (int iech = 0; iech < nsel; iech++)
+  {
+    if (distance_inter(_dbin, _dbout, ranks[iech], _iechOut, NULL) <= 0.) return;
+  }
+
+  /* Add the target */
+
+  ranks.push_back(-1);
+  return;
 }

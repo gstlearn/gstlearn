@@ -26,6 +26,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Global parameters
   int ndim = 2;
   int nvar = 1;
+  bool verbose = true;
 
   // Generate the data base
   int nech = 20;
@@ -53,11 +54,11 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Getting the Neighborhood for various target point
   ut_ivector_display("For Target Point #0",
-                     nbghw.select(&target, 0));
+                     nbghw.select(&target, 0, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
   ut_ivector_display("For Target Point #1",
-                     nbghw.select(&target, 1));
+                     nbghw.select(&target, 1, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
 
@@ -73,22 +74,21 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Getting the Neighborhood for various target point
   ut_ivector_display("For Target Point #0",
-                     nbghw.select(&target, 0));
+                     nbghw.select(&target, 0, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
   ut_ivector_display("For Target Point #1",
-                     nbghw.select(&target, 1));
+                     nbghw.select(&target, 1, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
   ut_ivector_display("For Target Point #2",
-                     nbghw.select(&target, 2));
+                     nbghw.select(&target, 2, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
   ut_ivector_display("For Target Point #3",
-                     nbghw.select(&target, 3));
+                     nbghw.select(&target, 3, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
-
 
   return (0);
 }

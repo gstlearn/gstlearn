@@ -20,6 +20,7 @@
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Neigh/Neigh.hpp"
+#include "Neigh/NeighWork.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"

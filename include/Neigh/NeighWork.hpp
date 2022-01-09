@@ -33,7 +33,10 @@ public:
                   bool flag_var_nocheck = false,
                   bool flag_simu = false);
   void clear();
-  VectorInt select(Db *dbout, int iech_out);
+  VectorInt select(Db *dbout,
+                   int iech_out,
+                   const VectorInt& rankColCok = VectorInt(),
+                   bool verbose = false);
   bool isUnchanged() const { return _flagIsUnchanged; }
 
 private:
@@ -47,7 +50,22 @@ private:
   void _movingSelect(int nsel, VectorInt& ranks);
   void _display(const VectorInt& ranks);
   double _movingDist(Db *dbout, int iech_in, int iech_out);
-  void _checkUnchanged(const VectorInt& ranks);
+  void _checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks);
+  void _clearMemory();
+  void _resetFromMemory(bool flagSame, VectorInt& ranks, bool verbose);
+  bool _isSameTarget(const Db* dbout,
+                     int iech_out,
+                     VectorInt& ranks,
+                     bool verbose = false);
+  bool _isSameTargetBench(const Db* dbout,
+                          int iech_out,
+                          VectorInt& ranks,
+                          bool verbose = false);
+  bool _isSameTargetUnique(const Db* dbout,
+                           int iech_out,
+                           VectorInt& ranks,
+                           bool verbose = false);
+  void _updateColCok(const VectorInt& rankColCok, VectorInt& ranks);
 
 private:
   const Db* _dbin;
@@ -57,10 +75,14 @@ private:
   mutable VectorInt _nbghInd;
   mutable VectorInt _nbghIsect;
   mutable VectorInt _nbghNsect;
-  mutable VectorInt _nbghMemo;
   mutable VectorDouble _nbghX1;
   mutable VectorDouble _nbghX2;
   mutable VectorDouble _nbghDst;
   bool _flagVariableNoCheck;
   bool _flagSimu;
+
+  // Following parameters are only kept for optimization
+  const Db* _dbout;
+  int _iechOut;
+  mutable VectorInt _nbghMemo;
 };
