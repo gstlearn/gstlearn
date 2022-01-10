@@ -2075,7 +2075,7 @@ static void st_dist_convert(Pot_Env *pot_env,
  ** \remarks Arguments from 'zval' are only used to convert into distance
  **
  *****************************************************************************/
-static void st_xvalid(Pot_Env *pot_env,
+static void st_xvalid_potential(Pot_Env *pot_env,
                       Pot_Ext *pot_ext,
                       Db *dbiso,
                       Db *dbgrd,
@@ -3658,7 +3658,7 @@ int potential_xvalid(Db *dbiso,
 
   /* Process the estimate at masked-off isovalues */
 
-  st_xvalid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, model, lhs, flag_dist_conv,
+  st_xvalid_potential(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, model, lhs, flag_dist_conv,
             zval, lhs_orig, lhs_aux, rhs, zdualk);
 
   // Set the error return code

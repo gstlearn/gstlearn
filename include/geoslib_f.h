@@ -440,11 +440,6 @@ GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            int niter = 100,
                                            bool verbose = false,
                                            const NamingConvention& namconv = NamingConvention("Prop", ELoc::P));
-GSTLEARN_EXPORT int defineGeneralNeigh(int mode,
-                                       Db *db,
-                                       Model *model,
-                                       Neigh *neigh);
-GSTLEARN_EXPORT VectorInt getGeneralNeigh(Db *db, Neigh *neigh, int iech);
 GSTLEARN_EXPORT int gibbs_sampler(Db *db,
                                   Model *model,
                                   Neigh *neigh,

@@ -20,9 +20,8 @@ class Db;
 class GSTLEARN_EXPORT NeighWork
 {
 public:
-  NeighWork(const Db* dbin,
-            const Neigh* neigh,
-            bool flag_var_nocheck = false,
+  NeighWork(const Db* dbin = nullptr,
+            const Neigh* neigh = nullptr,
             bool flag_simu = false);
   NeighWork(const NeighWork& r);
   NeighWork& operator=(const NeighWork& r);
@@ -30,7 +29,6 @@ public:
 
   void initialize(const Db* dbin,
                   const Neigh* neigh,
-                  bool flag_var_nocheck = false,
                   bool flag_simu = false);
   void clear();
   VectorInt select(Db *dbout,
@@ -38,6 +36,9 @@ public:
                    const VectorInt& rankColCok = VectorInt(),
                    bool verbose = false);
   bool isUnchanged() const { return _flagIsUnchanged; }
+  VectorDouble summary(Db *dbout,
+                       int iech_out,
+                       const VectorInt& rankColCok = VectorInt());
 
 private:
   void _unique(Db *dbout, int iech_out, VectorInt& ranks);
@@ -78,7 +79,6 @@ private:
   mutable VectorDouble _nbghX1;
   mutable VectorDouble _nbghX2;
   mutable VectorDouble _nbghDst;
-  bool _flagVariableNoCheck;
   bool _flagSimu;
 
   // Following parameters are only kept for optimization

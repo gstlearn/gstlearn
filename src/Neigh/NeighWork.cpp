@@ -21,7 +21,6 @@
 
 NeighWork::NeighWork(const Db* dbin,
                      const Neigh* neigh,
-                     bool flag_var_nocheck,
                      bool flag_simu)
     : _dbin(),
       _neigh(),
@@ -33,14 +32,13 @@ NeighWork::NeighWork(const Db* dbin,
       _nbghX1(),
       _nbghX2(),
       _nbghDst(),
-      _flagVariableNoCheck(false),
       _flagSimu(false),
       _dbout(nullptr),
       _iechOut(-1),
       _nbghMemo()
 
 {
-  initialize(dbin, neigh, flag_var_nocheck, flag_simu);
+  initialize(dbin, neigh, flag_simu);
 }
 
 NeighWork::NeighWork(const NeighWork& r)
@@ -54,7 +52,6 @@ NeighWork::NeighWork(const NeighWork& r)
       _nbghX1(r._nbghX1),
       _nbghX2(r._nbghX2),
       _nbghDst(r._nbghDst),
-      _flagVariableNoCheck(r._flagVariableNoCheck),
       _flagSimu(r._flagSimu),
       _dbout(r._dbout),
       _iechOut(r._iechOut),
@@ -76,7 +73,6 @@ NeighWork& NeighWork::operator=(const NeighWork& r)
     _nbghX1 = r._nbghX1;
     _nbghX2 = r._nbghX2;
     _nbghDst = r._nbghDst;
-    _flagVariableNoCheck = r._flagVariableNoCheck;
     _flagSimu = r._flagSimu;
     _dbout = r._dbout;
     _iechOut = r._iechOut;
@@ -96,20 +92,17 @@ NeighWork::~NeighWork()
  ** \param[in]  dbin          input Db structure
  ** \param[in]  neigh         Description of the Neigh parameters
  ** \param[in]  flag_simu     1 if used for Simulation
- ** \param[in]  flag_var_nocheck 1 if no check on variable definition
  **
  ** \remarks When the Neighborhood is performed in the case of Simulations
  ** \remarks checking for all variables being undefined is performed
  ** \remarks on ELoc::SIMU rather than on ELoc::Z
  **
  *****************************************************************************/
-void NeighWork::initialize(const Db* dbin, const Neigh* neigh,
-                           bool flag_var_nocheck, bool flag_simu)
+void NeighWork::initialize(const Db* dbin, const Neigh* neigh, bool flag_simu)
 {
   if (neigh == nullptr || dbin == nullptr) return;
   _neigh = neigh;
   _dbin = dbin;
-  _flagVariableNoCheck = flag_var_nocheck;
   _flagSimu = flag_simu;
 
   int nech  = _dbin->getSampleNumber();
@@ -416,16 +409,13 @@ bool NeighWork::_discardUndefined(int iech)
 {
   int nvar = _dbin->getVariableNumber();
 
-  if (_flagVariableNoCheck)
+  if (_dbin->getVariableNumber() <= 0)
+    return 0;
+  else
   {
-    if (_dbin->getVariableNumber() <= 0)
-      return 0;
-    else
-    {
-      for (int ivar = 0; ivar < nvar; ivar++)
-        if (! FFFF(_dbin->getVariable(iech, ivar))) return 0;
-      return 1;
-    }
+    for (int ivar = 0; ivar < nvar; ivar++)
+      if (! FFFF(_dbin->getVariable(iech, ivar))) return 0;
+    return 1;
   }
 
   if (! _flagSimu)
@@ -877,4 +867,81 @@ void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
 
   ranks.push_back(-1);
   return;
+}
+
+/****************************************************************************/
+/*!
+ **  Returns the main Neighborhood Parameters for a given target as a vector:
+ ** \li                    0 : Number of active samples
+ ** \li                    1 : Minimum distance
+ ** \li                    2 : Maximum distance
+ ** \li                    3 : Number of non-empty sectors
+ ** \li                    4 : Number of consecutive empty sectors
+ **
+ ** \param[in]  dbout         output Db structure
+ ** \param[in]  iech_out      Valid Rank of the sample in the output Db
+ ** \param[in]  rankColCok    Vector of Colcok information (optional)
+ **
+ *****************************************************************************/
+VectorDouble NeighWork::summary(Db *dbout,
+                                int iech_out,
+                                const VectorInt& rankColCok)
+{
+  VectorDouble tab(5,0.);
+
+  // Get the neighbors
+
+  VectorInt nbgh_ranks = select(dbout, iech_out, rankColCok);
+
+  /* Number of selected samples */
+
+  int nsel = (int) nbgh_ranks.size();
+  tab[0] = (double) nsel;
+
+  /* Maximum distance */
+
+  double dmax = TEST;
+  for (int iech = 0; iech < nsel; iech++)
+  {
+    double dist = _nbghDst[iech];
+    if (FFFF(dmax) || dist > dmax) dmax = dist;
+  }
+  tab[1] = dmax;
+
+  /* Minimum distance */
+
+  double dmin = TEST;
+  for (int iech = 0; iech < nsel; iech++)
+  {
+    double dist = _nbghDst[iech];
+    if (FFFF(dmin) || dist < dmin) dmin = dist;
+  }
+  tab[2] = dmin;
+
+  /* Number of sectors containing neighborhood information */
+
+  int number = 0;
+  for (int isect = 0; isect < _neigh->getNSect(); isect++)
+  {
+    if (_nbghNsect[isect] > 0) number++;
+  }
+  tab[3] = (double) number;
+
+  /* Number of consecutive empty sectors */
+
+  number = 0;
+  int n_empty = 0;
+  for (int isect = 0; isect < 2 * _neigh->getNSect(); isect++)
+  {
+    if (_nbghNsect[isect] > 0)
+      n_empty = 0;
+    else
+    {
+      n_empty++;
+      if (n_empty > number) number = n_empty;
+    }
+  }
+  tab[4] = (double) number;
+
+  return tab;
 }

@@ -25,6 +25,7 @@
 #include "Anamorphosis/EAnam.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Neigh/ENeigh.hpp"
+#include "Neigh/NeighWork.hpp"
 #include "Variogram/ECalcVario.hpp"
 
 // References
@@ -1277,16 +1278,6 @@ GSTLEARN_EXPORT const CovInternal* get_external_covariance();
 /* Prototyping the functions in neigh.c */
 /****************************************/
 
-GSTLEARN_EXPORT int neigh_start(Db *dbin, Neigh *neigh);
-GSTLEARN_EXPORT void neigh_stop(void);
-GSTLEARN_EXPORT int neigh_select(Db *dbin,
-                                 Db *dbout,
-                                 int iech_out,
-                                 Neigh *neigh,
-                                 int flag_simu,
-                                 int flag_no_var_check,
-                                 int *nech,
-                                 int *rank);
 GSTLEARN_EXPORT Neigh* neigh_free(Neigh *neigh);
 GSTLEARN_EXPORT Neigh* neigh_init_bench(int ndim,
                                         int flag_xvalid,
@@ -1315,11 +1306,6 @@ GSTLEARN_EXPORT Neigh* neigh_init(int ndim,
                                   const VectorDouble &nbgh_rotmat = VectorDouble(),
                                   const VectorInt &nbgh_image = VectorInt());
 GSTLEARN_EXPORT void neigh_print(const Neigh *neigh);
-GSTLEARN_EXPORT void neigh_echo(Db *dbin,
-                                Neigh *neigh,
-                                int *rank,
-                                int nsel,
-                                double *tab);
 GSTLEARN_EXPORT int neigh_extract(Neigh *neigh,
                                   ENeigh *type,
                                   int *nmini,

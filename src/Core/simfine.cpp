@@ -243,7 +243,7 @@ static void st_truncate_result(Db *db2, int iatt2, Db *db1, int iatt1)
  ** \param[in]  idz    Shift along Z
  **
  *****************************************************************************/
-static void st_neigh(int type, int rank, int idx, int idy, int idz)
+static void st_neigh_simfine(int type, int rank, int idx, int idy, int idz)
 {
   IX[type][rank] = idx;
   IY[type][rank] = idy;
@@ -409,22 +409,22 @@ static int st_kriging_define(Model *model)
 {
   /* Define the kriging system for the cell centers */
 
-  st_neigh(0, 0, -1, -1, 0);
-  st_neigh(0, 1, 1, -1, 0);
-  st_neigh(0, 2, 1, 1, 0);
-  st_neigh(0, 3, -1, 1, 0);
-  st_neigh(0, 4, 0, 0, -1);
+  st_neigh_simfine(0, 0, -1, -1, 0);
+  st_neigh_simfine(0, 1, 1, -1, 0);
+  st_neigh_simfine(0, 2, 1, 1, 0);
+  st_neigh_simfine(0, 3, -1, 1, 0);
+  st_neigh_simfine(0, 4, 0, 0, -1);
 
   if (st_kriging_solve(0, 0, 4, model)) return (1);
   if (st_kriging_solve(0, 1, 5, model)) return (1);
 
   /* Define the kriging system for the mid-vertices */
 
-  st_neigh(1, 0, -1, 0, 0);
-  st_neigh(1, 1, 0, -1, 0);
-  st_neigh(1, 2, 1, 0, 0);
-  st_neigh(1, 3, 0, 1, 0);
-  st_neigh(1, 4, 0, 0, -1);
+  st_neigh_simfine(1, 0, -1, 0, 0);
+  st_neigh_simfine(1, 1, 0, -1, 0);
+  st_neigh_simfine(1, 2, 1, 0, 0);
+  st_neigh_simfine(1, 3, 0, 1, 0);
+  st_neigh_simfine(1, 4, 0, 0, -1);
 
   if (st_kriging_solve(1, 0, 4, model)) return (1);
   if (st_kriging_solve(1, 1, 5, model)) return (1);
