@@ -96,10 +96,10 @@
 static double *covtab, *covaux, *drftab, *fs, *fsf, *d1_1, *d1_2, *var0;
 static VectorDouble d1, d1_t;
 static double *lhs, *lhs_b, *rhs, *wgt, *zext, *zam1, *ff0, *varb;
-static int *rank, *flag;
+static int *flag;
 static int KRIGE_INIT = 0;
 static int MODEL_INIT = 0;
-static int IECH_OUT = -1;
+static int IECH_OUT   = -1;
 static int RAND_INDEX = -1;
 static int FLAG_EST, FLAG_STD, FLAG_WGT, FLAG_COLK, FLAG_SIMU, FLAG_LTERM;
 static int FLAG_BAYES, FLAG_PROF, FLAG_VARZ, FLAG_DGM;
@@ -137,11 +137,11 @@ static int st_neighwork(const NeighWork& nbghw,
 
   // Recopy ranks (from VectorInt 'nbgh_ranks' to the global internal variable 'rank'
 
-  if (*nech > 0)
-  {
-    for (int i = 0; i < *nech; i++)
-      rank[i] = nbgh_ranks[i];
-  }
+//  if (*nech > 0)
+//  {
+//    for (int i = 0; i < *nech; i++)
+//      rank[i] = nbgh_ranks[i];
+//  }
   return ! nbghw.isUnchanged();
 }
 
@@ -1079,8 +1079,6 @@ static int st_krige_manage_basic(int mode,
     /* Allocation */
 
     if (KRIGE_INIT) return (1);
-    rank = st_icore(nech, 1);
-    if (rank == nullptr) return (1);
     flag = st_icore(neqmax, 1);
     if (flag == nullptr) return (1);
     lhs = st_core(neqmax, neqmax);
@@ -1119,7 +1117,6 @@ static int st_krige_manage_basic(int mode,
     /* Deallocation */
 
     if (!KRIGE_INIT) return (1);
-    rank = (int*) mem_free((char* ) rank);
     flag = (int*) mem_free((char* ) flag);
     lhs = (double*) mem_free((char* ) lhs);
     lhs = (double*) mem_free((char* ) lhs);
@@ -1137,7 +1134,6 @@ static int st_krige_manage_basic(int mode,
     }
     KRIGE_INIT = 0;
   }
-
   return (0);
 }
 
@@ -2552,7 +2548,7 @@ static void st_estimate(Model  *model,
  ** \param[in]  status    Kriging error status
  ** \param[in]  icase     Rank of the PGS and GRF (or -1)
  ** \param[in]  nbsimu    Number of simulations
- ** \param[in]  nech      Number of active samples
+ ** \param[in]  nbgh_ranks Vector of selected samples
  ** \param[in]  nred      Reduced number of equations
  **
  ** \remark  KS and BAYES are incompatible: we can use mean in both cases
@@ -2563,14 +2559,15 @@ static void st_simulate(Model *model,
                         int status,
                         int icase,
                         int nbsimu,
-                        int nech,
+                        const VectorInt& nbgh_ranks,
                         int nred)
 {
-  int isimu, iech, jech, ivar, jvar, lec, ecr, nvar, nfeq;
+  int isimu, iech, jech, ivar, jvar, lec, ecr, nvar, nfeq, nech;
   double simu, mean, data, value;
 
   /* Initializations */
 
+  nech = (int) nbgh_ranks.size();
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
 
@@ -2593,7 +2590,7 @@ static void st_simulate(Model *model,
           for (iech = 0; iech < nech; iech++)
           {
             if (!FLAG(iech, jvar)) continue;
-            jech = rank[iech];
+            jech = nbgh_ranks[iech];
 
             mean = 0.;
             if (nfeq <= 0) mean = model->getMean(jvar);
@@ -2635,7 +2632,7 @@ static void st_simulate(Model *model,
  ** \param[in]  nvar    Number of variables (output)
  ** \param[in]  nvar_m  Number of variables in the Model
  ** \param[in]  nfeq    Number of drift equations
- ** \param[in]  nech    Number of active points
+ ** \param[in]  nbgh_ranks Vector of selected samples
  ** \param[in]  nred    Reduced number of equations
  ** \param[in]  icase   Rank of the PGS or GRF
  ** \param[in]  flag    Flag array
@@ -2649,7 +2646,7 @@ static void krige_wgt_print(int status,
                             int nvar,
                             int nvar_m,
                             int nfeq,
-                            int nech,
+                            const VectorInt& nbgh_ranks,
                             int nred,
                             int icase,
                             int *flag,
@@ -2657,10 +2654,11 @@ static void krige_wgt_print(int status,
 {
   double *sum, value;
   int iwgt, ivar, jvar_m, ivar_m, iech, lec, cumflag, idim, ndim, ib, number,
-      flag_value;
+      flag_value, nech;
 
   /* Initializations */
 
+  nech = (int) nbgh_ranks.size();
   ndim = DBIN->getNDim();
   sum = (double*) st_core(nvar_m, 1);
   if (sum == nullptr) return;
@@ -2709,29 +2707,27 @@ static void krige_wgt_print(int status,
                                        1;
       tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
       for (idim = 0; idim < ndim; idim++)
-        tab_printg(NULL, 1, EJustify::RIGHT, st_get_idim(rank[iech], idim));
+        tab_printg(NULL, 1, EJustify::RIGHT, st_get_idim(nbgh_ranks[iech], idim));
       if (DBIN->hasCode())
-        tab_printg(NULL, 1, EJustify::RIGHT, DBIN->getCode(rank[iech]));
+        tab_printg(NULL, 1, EJustify::RIGHT, DBIN->getCode(nbgh_ranks[iech]));
       if (DBIN->getVarianceErrorNumber() > 0)
         tab_printg(NULL, 1, EJustify::RIGHT,
-                   st_get_verr(rank[iech], (FLAG_PROF) ? 0 :
-                                                         jvar_m));
+                   st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION->flag_data_disc)
       {
         for (idim = 0; idim < ndim; idim++)
           tab_printg(NULL, 1, EJustify::RIGHT,
-                     DBIN->getBlockExtension(rank[iech], idim));
+                     DBIN->getBlockExtension(nbgh_ranks[iech], idim));
       }
       if (icase < 0)
-        tab_printg(NULL, 1, EJustify::RIGHT, st_get_ivar(rank[iech], jvar_m));
+        tab_printg(NULL, 1, EJustify::RIGHT, st_get_ivar(nbgh_ranks[iech], jvar_m));
       else
         tab_prints(NULL, 1, EJustify::RIGHT, "   ");
 
       for (ivar = 0; ivar < nvar; ivar++)
       {
         iwgt = nred * ivar + cumflag;
-        value = (wgt != nullptr && status == 0 && flag_value) ? wgt[iwgt] :
-                                                                TEST;
+        value = (wgt != nullptr && status == 0 && flag_value) ? wgt[iwgt] : TEST;
         if (!FFFF(value)) sum[ivar] += value;
         tab_printg(NULL, 1, EJustify::RIGHT, value);
       }
@@ -2745,8 +2741,7 @@ static void krige_wgt_print(int status,
     tab_prints(NULL, number, EJustify::LEFT, "Sum of weights");
     for (ivar = 0; ivar < nvar; ivar++)
     {
-      value = (status == 0) ? sum[ivar] :
-                              TEST;
+      value = (status == 0) ? sum[ivar] : TEST;
       tab_printg(NULL, 1, EJustify::RIGHT, value);
     }
     message("\n");
@@ -3124,7 +3119,7 @@ static int st_image_kriging(Model *model,
 
   matrix_product(nred, nred, nvar, lhs, rhs, wgt);
   if (debug_query("kriging"))
-    krige_wgt_print(status, nvar, nvar, nfeq, nech, nred, -1, flag, wgt);
+    krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
 
   /* Calculate the kriging variance */
 
@@ -3395,7 +3390,7 @@ int kriging(Db *dbin,
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
       if (debug_query("kriging"))
-        krige_wgt_print(status, nvar, model->getVariableNumber(), nfeq, nech,
+        krige_wgt_print(status, nvar, model->getVariableNumber(), nfeq, nbgh_ranks,
                         nred, -1, flag, wgt);
     }
 
@@ -3435,7 +3430,6 @@ int kriging(Db *dbin,
   (void) krige_koption_manage(-1, 1, calcul, 1, ndisc);
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -3623,7 +3617,6 @@ static int st_xvalid_unique(Db *dbin,
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -3809,7 +3802,7 @@ int krigdgm_f(Db *dbin,
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
       if (debug_query("kriging"))
-        krige_wgt_print(status, nvar, model->getVariableNumber(), nfeq, nech,
+        krige_wgt_print(status, nvar, model->getVariableNumber(), nfeq, nbgh_ranks,
                         nred, -1, flag, wgt);
     }
 
@@ -3837,7 +3830,6 @@ int krigdgm_f(Db *dbin,
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -3968,7 +3960,7 @@ int krigprof_f(Db *dbin,
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
       if (debug_query("kriging"))
-        krige_wgt_print(status, nvar, nvar, nfeq, nech, nred, -1, flag, wgt);
+        krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
     }
 
     /* Perform the estimation */
@@ -3991,7 +3983,6 @@ int krigprof_f(Db *dbin,
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
   if (iptr_dat >= 0) for (icode = 0; icode < ncode; icode++)
     dbin->deleteFieldByAttribute(iptr_dat + icode);
-  nbghw.clear();
   return (error);
 }
 
@@ -4137,7 +4128,7 @@ static int bayes_precalc(Model *model,
     if (!DBIN->isActive(iech)) continue;
     for (int ivar = 0; ivar < DBIN->getVariableNumber(); ivar++)
     {
-      double value = DBIN->getVariable(rank[iech], ivar);
+      double value = DBIN->getVariable(nbgh_ranks[iech], ivar);
       if (FFFF(value)) continue;
       vars[ib++] = value;
     }
@@ -4399,7 +4390,7 @@ int kribayes_f(Db *dbin,
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
       if (debug_query("kriging"))
-        krige_wgt_print(status, nvar, nvar, 0, nech, nred, -1, flag, wgt);
+        krige_wgt_print(status, nvar, nvar, 0, nbgh_ranks, nred, -1, flag, wgt);
     }
 
     /* Perform the estimation */
@@ -4423,7 +4414,6 @@ int kribayes_f(Db *dbin,
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -4529,7 +4519,6 @@ int test_neigh(Db *dbin,
   (void) st_krige_manage(-1, model->getVariableNumber(), model, neigh);
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -4685,12 +4674,12 @@ int _krigsim(const char *strloc,
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
       if (debug_query("kriging"))
-        krige_wgt_print(status, nvar, nvar, nfeq, nech, nred, icase, flag, wgt);
+        krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, icase, flag, wgt);
     }
 
     /* Perform the simulation */
 
-    label_store: st_simulate(model, smean, status, icase, nbsimu, nech, nred);
+    label_store: st_simulate(model, smean, status, icase, nbsimu, nbgh_ranks, nred);
     if (debug_query("results")) st_result_simulate_print(nbsimu, nvar, status);
   }
 
@@ -4709,7 +4698,6 @@ int _krigsim(const char *strloc,
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -4842,7 +4830,6 @@ int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
   indnl = db_indg_free(indnl);
   indg0 = db_indg_free(indg0);
   indgl = db_indg_free(indgl);
-  nbghw.clear();
   return (error);
 }
 
@@ -5119,7 +5106,7 @@ int global_kriging(Db *dbin,
 
     matrix_product(nred, nred, nvar, lhs, rhs, wgt);
     if (debug_query("kriging"))
-      krige_wgt_print(status, nvar, nvar, nfeq, nech, nred, -1, flag, wgt);
+      krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
 
     /* Perform the estimation */
 
@@ -5136,8 +5123,7 @@ int global_kriging(Db *dbin,
   *zest = estim;
   *sse = (stdv > 0) ? sqrt(stdv) :
                       0.;
-  *cvgeo = (estim == 0. || FFFF(estim)) ? TEST :
-                                          (*sse) / estim;
+  *cvgeo = (estim == 0. || FFFF(estim)) ? TEST : (*sse) / estim;
 
   /* Store the weights */
 
@@ -5145,8 +5131,8 @@ int global_kriging(Db *dbin,
     weights[i] = TEST;
   for (jvar = lec = 0; jvar < nvar; jvar++)
     for (i = 0; i < np; i++)
-      if (flag[jvar * ntot + i] && rank[i] >= 0)
-        weights[ntot * jvar + rank[i]] = wgt[lec++];
+      if (flag[jvar * ntot + i] && nbgh_ranks[i] >= 0)
+        weights[ntot * jvar + nbgh_ranks[i]] = wgt[lec++];
 
   /* Printout */
 
@@ -5190,7 +5176,6 @@ int global_kriging(Db *dbin,
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, calcul, 1, VectorInt());
-  nbghw.clear();
   rhs_tot = (double*) mem_free((char* ) rhs_tot);
   neigh = neigh_free(neigh);
   return (error);
@@ -5933,6 +5918,7 @@ int anakexp_f(Db *db,
   int i, ndim, nvarin, nech, size, error, ideb, ifin, neq, status;
   int nbefore, nafter, nbefore_mem, nafter_mem;
   double result;
+  VectorInt ranks;
 
   /* Initializations */
 
@@ -5987,9 +5973,10 @@ int anakexp_f(Db *db,
 
   size = 2 * neigh_radius + 1;
   st_krige_manage_basic(1, size, size, 1, nfeq);
+  ranks.resize(nech);
   for (i = 0; i < nech; i++)
   {
-    rank[i] = i;
+    ranks[i] = i;
     flag[i] = 1;
   }
 
@@ -6290,19 +6277,18 @@ static void st_calculate_covtot(Db *db,
  ** \param[in]  nei_nn        Array of radius of the Neighborhood
  **
  ** \param[out] nei_cur       Array containing the neighborhood
- ** \param[out] nech          Number of samples in the neighborhood
  **
  *****************************************************************************/
-static void st_neigh_find(Db *db,
-                          int ix0,
-                          int iy0,
-                          int iz0,
-                          int nei_ss[3],
-                          int nei_nn[3],
-                          int *nech,
-                          int *nei_cur)
+static VectorInt st_neigh_find(Db *db,
+                               int ix0,
+                               int iy0,
+                               int iz0,
+                               int nei_ss[3],
+                               int nei_nn[3],
+                               int *nei_cur)
 {
   int ix, iy, iz, jx, jy, jz, indg[3], number, locrank;
+  VectorInt nbgh_ranks;
 
   /* Loop on the pixels of the neighborhood */
 
@@ -6323,16 +6309,15 @@ static void st_neigh_find(Db *db,
         indg[2] = jz;
         locrank = db_index_grid_to_sample(db,indg);
         if (FFFF(db->getVariable(locrank,0))) continue;
-        NEI_CUR(ix,iy,iz) = rank[number] = locrank;
+        NEI_CUR(ix,iy,iz) = locrank;
+        nbgh_ranks.push_back(locrank);
         flag[number] = 1;
         number++;
       }
 
       /* Define the returned argument */
 
-  *nech = number;
-
-  return;
+  return nbgh_ranks;
 }
 
 /****************************************************************************/
@@ -6617,6 +6602,7 @@ int anakexp_3D(Db *db,
   int *num_tot, *nei_cur, *nei_ref;
   double *cov_tot, *cov_res, result;
   FILE *fildmp;
+  VectorInt nbgh_ranks;
 
   /* Initializations */
 
@@ -6757,10 +6743,10 @@ int anakexp_3D(Db *db,
 
         /* Look for the neighborhood */
 
-        st_neigh_find(db, ix, iy, iz, nei_ss, nei_nn, &nech, nei_cur);
+        nbgh_ranks = st_neigh_find(db, ix, iy, iz, nei_ss, nei_nn, nei_cur);
+        nech = (int) nbgh_ranks.size();
         if (nech <= 0) continue;
-        neq = (nfeq == 0) ? nech :
-                            nech + 1;
+        neq = (nfeq == 0) ? nech : nech + 1;
 
         /* Check if the neighborhood has changed */
 
@@ -6789,16 +6775,13 @@ int anakexp_3D(Db *db,
 
           /* Establish the R.H.S. of the kriging system */
 
-          st_rhs_exp_3D(nech, nfeq, nei_ss, nei_nn, cov_ss, cov_nn, nei_cur,
-                        cov_res);
+          st_rhs_exp_3D(nech, nfeq, nei_ss, nei_nn, cov_ss, cov_nn, nei_cur, cov_res);
           if (debug_query("kriging"))
             krige_rhs_print(nvarin, nech, neq, neq, flag, rhs);
 
           /* Derive the kriging weights */
 
           matrix_product(neq, neq, 1, lhs, rhs, wgt);
-          if (debug_query("kriging"))
-            krige_wgt_print(status, 1, 1, nfeq, nech, nech, -1, flag, wgt);
         }
 
         /* Calculate the estimation */
@@ -7043,7 +7026,6 @@ int image_smoother(Db *dbgrid, Neigh *neigh, int type, double range)
   indnl = db_indg_free(indnl);
   indg0 = db_indg_free(indg0);
   indgl = db_indg_free(indgl);
-  nbghw.clear();
   return (error);
 }
 
@@ -7250,7 +7232,6 @@ int krigsum_f(Db *dbin,
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvarin, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
-  nbghw.clear();
   icols = (int*) mem_free((char* ) icols);
   active = (int*) mem_free((char* ) active);
   lterm = (double*) mem_free((char* ) lterm);
@@ -7548,7 +7529,7 @@ int krigmvp_f(Db *dbin,
           {
             matrix_product(nred, nred, nvarmod, lhs, rhs, wgt);
             if (debug_query("kriging"))
-              krige_wgt_print(status, nvarmod, nvarmod, nfeq, nech, nred, -1,
+              krige_wgt_print(status, nvarmod, nvarmod, nfeq, nbgh_ranks, nred, -1,
                               flag, wgt);
           }
 
@@ -7701,7 +7682,6 @@ int krigmvp_f(Db *dbin,
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvarmod, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
-  nbghw.clear();
   icols = (int*) mem_free((char* ) icols);
   lback = (double*) mem_free((char* ) lback);
   lterm = (double*) mem_free((char* ) lterm);
@@ -7802,7 +7782,6 @@ int krigtest_dimension(Db *dbin,
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -7921,7 +7900,7 @@ int krigtest_f(Db *dbin,
   {
     matrix_product(nred, nred, nvar, lhs, rhs, wgt);
     if (debug_query("kriging"))
-      krige_wgt_print(status, nvar, nvar, nfeq, nech, nred, -1, flag, wgt);
+      krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
   }
 
   /* Perform the estimation */
@@ -7947,7 +7926,7 @@ int krigtest_f(Db *dbin,
 
   for (idim = ecr = 0; idim < ndim; idim++)
     for (iech = 0; iech < nech; iech++, ecr++)
-      xyz_out[ecr] = st_get_idim(rank[iech], idim);
+      xyz_out[ecr] = st_get_idim(nbgh_ranks[iech], idim);
   (void) memcpy(data_out, zext, sizeof(double) * nred);
   (void) memcpy(zam_out, zam1, sizeof(double) * nred);
   (void) memcpy(lhs_out, lhs_b, sizeof(double) * nred * nred);
@@ -7966,7 +7945,6 @@ int krigtest_f(Db *dbin,
   (void) krige_koption_manage(-1, 1, calcul, 1, ndisc);
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -8110,7 +8088,7 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
       if (debug_query("kriging"))
-        krige_wgt_print(status, nvar, nvar, nfeq, nech, nred, -1, flag, wgt);
+        krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
     }
 
     /* Perform the estimation */
@@ -8134,7 +8112,6 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
-  nbghw.clear();
   return (error);
 }
 
@@ -8262,7 +8239,7 @@ int krigcell_f(Db *dbin,
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
       if (debug_query("kriging"))
-        krige_wgt_print(status, nvar, nvar, nfeq, nech, nred, -1, flag, wgt);
+        krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
     }
 
     /* Perform the estimation */
@@ -8283,7 +8260,6 @@ int krigcell_f(Db *dbin,
   (void) krige_koption_manage(-1, 0, EKrigOpt::BLOCK, 1, ndisc);
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  nbghw.clear();
   return (error);
 }
 
@@ -8627,7 +8603,7 @@ int dk_f(Db *dbin,
       {
         matrix_product(nred, nred, nvar, lhs, rhs, wgt);
         if (debug_query("kriging"))
-          krige_wgt_print(status, nvar, nvar, nfeq, nech, nred, -1, flag, wgt);
+          krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
       }
 
       /* Perform the estimation */
@@ -8649,7 +8625,6 @@ int dk_f(Db *dbin,
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, model->getVariableNumber(), model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, ndisc);
-  nbghw.clear();
   return (error);
 }
 
@@ -8744,7 +8719,6 @@ int* neigh_calc(Db *dbin,
   dbout = db_delete(dbout);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, model->getVariableNumber(), model, neigh);
-  nbghw.clear();
   return (neigh_tab);
 }
 
@@ -9873,7 +9847,7 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
   /* Derive the kriging weights */
   matrix_product(nred, nred, 1, lhs, rhs, wgt);
   if (debug_query("kriging"))
-    krige_wgt_print(status, 1, 1, model->getDriftEquationNumber(), nech, nred,
+    krige_wgt_print(status, 1, 1, model->getDriftEquationNumber(), nbgh_ranks, nred,
                     -1, flag, wgt);
 
   /* Store the weights */
@@ -9883,7 +9857,7 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
   {
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getVariable(iech, 0))) continue;
-    db->setArray(rank[ecr], iptr, wgt[ecr]);
+    db->setArray(nbgh_ranks[ecr], iptr, wgt[ecr]);
     ecr++;
   }
 
@@ -9899,7 +9873,6 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::DRIFT, 1, VectorInt());
-  nbghw.clear();
   neigh = neigh_free(neigh);
   return (error);
 }
@@ -9991,7 +9964,7 @@ static int st_declustering_3(Db *db,
     {
       if (!db->isActive(iech)) continue;
       if (FFFF(db->getVariable(iech, 0))) continue;
-      db->updArray(rank[ecr], iptr, 0, wgt[ecr]);
+      db->updArray(nbgh_ranks[ecr], iptr, 0, wgt[ecr]);
       ecr++;
     }
   }
@@ -10008,7 +9981,6 @@ static int st_declustering_3(Db *db,
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::BLOCK, 1, ndisc);
-  nbghw.clear();
   return (error);
 }
 
@@ -10710,11 +10682,13 @@ int inhomogeneous_kriging(Db *dbdat,
                           Model *model_dat,
                           Model *model_src)
 {
-  int error, np, ip, ns, ng, nvar, neq, nred, nfeq, nbfl;
+  int error, np, ip, ns, ng, nvar, neq, nred, nfeq, nbfl, status, nech;
   double *covss, *distps, *distgs, *covpp, *covgp, *covgg, *prodps, *prodgs;
   double *data, *lambda, *driftp, *driftg, *ymat, *zmat, *mu, *maux, *rhs;
   double estim, stdev, auxval;
   Neigh *neigh;
+  NeighWork nbghw;
+  VectorInt nbgh_ranks;
 
   /* Preliminary checks */
 
@@ -10773,6 +10747,7 @@ int inhomogeneous_kriging(Db *dbdat,
   if (st_krige_manage(1, nvar, model_dat, neigh)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
+  nbghw.initialize(dbdat, neigh);
 
   /* Constitute the Data vector */
 
@@ -10780,7 +10755,6 @@ int inhomogeneous_kriging(Db *dbdat,
   {
     if (!dbdat->isActiveAndDefined(iip, 0)) continue;
     data[ip] = dbdat->getVariable(iip, 0);
-    rank[ip] = iip;
     ip++;
   }
 
@@ -10875,6 +10849,11 @@ int inhomogeneous_kriging(Db *dbdat,
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
     }
+
+    // Neighborhood search
+
+    nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
+    (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
     rhs = &COVGP(IECH_OUT, 0);
 
     /* Optional printout of the R.H.S */
@@ -10890,7 +10869,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
     matrix_product(np, np, 1, covpp, rhs, lambda);
     if (debug_force())
-      krige_wgt_print(0, nvar, nvar, nfeq, np, nred, -1, NULL, lambda);
+      krige_wgt_print(0, nvar, nvar, nfeq, nbgh_ranks, nred, -1, NULL, lambda);
 
     /* Update vector of weights in presence of drift */
 
