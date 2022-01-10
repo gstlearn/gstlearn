@@ -192,33 +192,12 @@ Neigh* neigh_init_unique(int ndim)
  **
  *****************************************************************************/
 static Neigh* st_neigh_alloc(void)
-
 {
   Neigh *neigh;
 
   /* Core allocation */
 
   neigh = new Neigh();
-  /*
-   neigh->setNDim(0);
-   neigh->setType(0);
-   neigh->setNMini(0); // 1 in default constructor
-   neigh->setNMaxi(0);
-   neigh->setNSect(1);
-   neigh->setNSMax(0);
-   neigh->setWidth(0);
-   neigh->setRadius(0.);
-   neigh->setDistCont(0);
-   neigh->setSkip(0);
-   neigh->setFlagXvalid(0);
-   neigh->setFlagSector(0);
-   neigh->setFlagAniso(0);
-   neigh->setFlagRotation(0);
-   neigh->setFlagContinuous(0);
-   neigh->setAnisoCoeff(VectorDouble());
-   neigh->setAnisoRotMat(VectorDouble());
-   neigh->setImageRadius(VectorInt());
-   */
   return (neigh);
 }
 
@@ -321,8 +300,7 @@ Neigh* neigh_init(int ndim,
   neigh->setType(type);
   neigh->setNMini(nmini);
   neigh->setNMaxi(nmaxi);
-  neigh->setNSect((flag_sector) ? MAX(nsect, 1) :
-                                  1);
+  neigh->setNSect((flag_sector) ? MAX(nsect, 1) : 1);
   neigh->setNSMax(nsmax);
   neigh->setWidth(width);
   neigh->setRadius(radius);
