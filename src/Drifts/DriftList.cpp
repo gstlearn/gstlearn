@@ -279,11 +279,31 @@ VectorDouble DriftList::evalDrifts(const Db* db,
   for (int iech=0; iech<nech; iech++)
   {
     if (useSel && ! db->isActive(iech)) continue;
-
     double value = 0.;
     for (int ib=0; ib<ndrift; ib++)
       value += coeffs[ib] * getDrift(db, ib, iech);
     vec.push_back(value);
   }
   return vec;
+}
+
+int DriftList::getMaximumOrder(void) const
+{
+  int max_order = 0;
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    const ADriftElem* drft = _drifts[il];
+    int order = drft->getOrderIRF();
+    if (order > max_order) max_order = order;
+  }
+  return (max_order);
+}
+
+bool DriftList::isDriftDefined(const EDrift &type0)
+{
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    if (_drifts[il]->getType() == type0) return 1;
+  }
+  return 0;
 }

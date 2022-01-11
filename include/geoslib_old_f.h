@@ -1128,7 +1128,7 @@ GSTLEARN_EXPORT double model_cxx(Model *model,
                                  int jvar,
                                  int seed,
                                  double epsdist);
-GSTLEARN_EXPORT void model_covmat(Model *model,
+GSTLEARN_EXPORT int model_covmat(Model *model,
                                   Db *db1,
                                   Db *db2,
                                   int ivar,
@@ -1170,37 +1170,15 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
                                         int *npivots,
                                         int **Pret,
                                         double **Gret);
-GSTLEARN_EXPORT void model_drift_mat(Model *model,
+GSTLEARN_EXPORT int model_drift_mat(Model *model,
                                      const ECalcMember &member,
                                      Db *db,
                                      double *drfmat);
-GSTLEARN_EXPORT void model_drift_vector(Model *model,
+GSTLEARN_EXPORT int model_drift_vector(Model *model,
                                         const ECalcMember &member,
                                         Db *db,
                                         int iech,
                                         double *vector);
-GSTLEARN_EXPORT void model_vector(Model *model,
-                                  Db *db1,
-                                  Db *db2,
-                                  int ivar,
-                                  int jvar,
-                                  int iech,
-                                  int flag_norm,
-                                  int flag_cov,
-                                  double *vector);
-GSTLEARN_EXPORT void model_vector_nostat(Model *model,
-                                         Db *db,
-                                         int ivar,
-                                         int jvar,
-                                         int iech,
-                                         double *vector);
-GSTLEARN_EXPORT void model_vector_multivar(Model *model,
-                                           Db *db,
-                                           int ivar,
-                                           int iech,
-                                           int flag_norm,
-                                           int flag_cov,
-                                           double *vector);
 GSTLEARN_EXPORT void model_drift_filter(Model *model, int rank, int filter);
 GSTLEARN_EXPORT Model* model_duplicate(const Model *model,
                                        double ball_radius,
@@ -1221,18 +1199,6 @@ GSTLEARN_EXPORT double model_drift_evaluate(int verbose,
                                             int ivar,
                                             double *coef,
                                             double *drftab);
-GSTLEARN_EXPORT int model_is_drift_defined(Model *model, const EDrift &type0);
-GSTLEARN_EXPORT int model_dimension(Model *model);
-GSTLEARN_EXPORT double model_get_field(Model *model);
-GSTLEARN_EXPORT int model_extract_cova(Model *model,
-                                       int icov,
-                                       ECov *cov_type,
-                                       int *flag_aniso,
-                                       double *param,
-                                       VectorDouble &sill,
-                                       VectorDouble &aniso_rotmat,
-                                       VectorDouble &aniso_ranges);
-GSTLEARN_EXPORT void model_extract_properties(Model *model, double *tape_range);
 GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
                                                 char cov_name[STRING_LENGTH],
                                                 int *flag_range,
@@ -1245,14 +1211,6 @@ GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
                                                 int *flag_rotation,
                                                 double *scale,
                                                 double *parmax);
-GSTLEARN_EXPORT double model_maximum_distance(Model *model);
-GSTLEARN_EXPORT int model_maximum_order(Model *model);
-GSTLEARN_EXPORT double model_scale2range(const ECov &type,
-                                         double scale,
-                                         double param);
-GSTLEARN_EXPORT double model_range2scale(const ECov &type,
-                                         double range,
-                                         double param);
 GSTLEARN_EXPORT double cova_get_scale_factor(const ECov &type, double param);
 GSTLEARN_EXPORT Model* model_combine(const Model *model1,
                                      const Model *model2,

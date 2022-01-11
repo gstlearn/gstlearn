@@ -17,6 +17,7 @@
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovFactory.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
@@ -1762,10 +1763,10 @@ static void st_convert_exponential2bessel(CovAniso *cova)
   if (cova->getType() != ECov::EXPONENTIAL) return;
 
   range_exp = cova->getRange();
-  scale_exp = model_range2scale(ECov::EXPONENTIAL, range_exp, 0.);
+  scale_exp = CovFactory::range2scale(ECov::EXPONENTIAL, range_exp, 0.);
 
   scale_bes = scale_exp;
-  range_bes = model_scale2range(ECov::BESSEL_K, scale_bes, 0.5);
+  range_bes = CovFactory::scale2range(ECov::BESSEL_K, scale_bes, 0.5);
 
   cova->setType(ECov::BESSEL_K);
   cova->setParam(0.5);
