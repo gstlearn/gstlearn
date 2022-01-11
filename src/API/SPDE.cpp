@@ -309,6 +309,5 @@ VectorDouble SPDE::computeCoeffs() const
 {
   // Loading the Vector of Drift values
   VectorVectorDouble drifttab = _model->getDrifts(_data, true);
-
   return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),drifttab);
 }
