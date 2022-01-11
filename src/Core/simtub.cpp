@@ -5829,7 +5829,7 @@ int simcond(Db *dbin,
 
   /* Preliminary checks */
 
-  neigh = neigh_init_unique(ndim);
+  neigh = new Neigh(ndim);
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;

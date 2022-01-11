@@ -1279,14 +1279,6 @@ GSTLEARN_EXPORT const CovInternal* get_external_covariance();
 /****************************************/
 
 GSTLEARN_EXPORT Neigh* neigh_free(Neigh *neigh);
-GSTLEARN_EXPORT Neigh* neigh_init_bench(int ndim,
-                                        int flag_xvalid,
-                                        double width);
-GSTLEARN_EXPORT Neigh* neigh_init_unique(int ndim);
-GSTLEARN_EXPORT Neigh* neigh_init_image(int ndim,
-                                        int flag_xvalid,
-                                        int skip,
-                                        const VectorInt &nbgh_image = VectorInt());
 GSTLEARN_EXPORT Neigh* neigh_init(int ndim,
                                   const ENeigh& type,
                                   int flag_xvalid,
@@ -1305,34 +1297,11 @@ GSTLEARN_EXPORT Neigh* neigh_init(int ndim,
                                   const VectorDouble &nbgh_radius = VectorDouble(),
                                   const VectorDouble &nbgh_rotmat = VectorDouble(),
                                   const VectorInt &nbgh_image = VectorInt());
-GSTLEARN_EXPORT void neigh_print(const Neigh *neigh);
-GSTLEARN_EXPORT int neigh_extract(Neigh *neigh,
-                                  ENeigh *type,
-                                  int *nmini,
-                                  int *nmaxi,
-                                  int *nsect,
-                                  int *nsmax,
-                                  int *skip,
-                                  int *flag_sector,
-                                  int *flag_aniso,
-                                  int *flag_rotation,
-                                  int *flag_continuous,
-                                  double *width,
-                                  double *radius,
-                                  double *dist_cont,
-                                  VectorDouble &nbgh_rotmat,
-                                  VectorDouble &nbgh_radius,
-                                  VectorInt &nbgh_image);
 GSTLEARN_EXPORT int* neigh_calc(Db *dbin,
                                 Model *model,
                                 Neigh *neigh,
                                 double *target,
                                 int *nech_out);
-GSTLEARN_EXPORT double neigh_continuous_variance(Neigh *neigh,
-                                                 Db *db1,
-                                                 int rank1,
-                                                 Db *db2,
-                                                 int rankZ);
 
 /***************************************/
 /* Prototyping the functions in anam.c */

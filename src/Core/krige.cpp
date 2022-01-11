@@ -127,24 +127,6 @@ typedef struct
   double weight;
 } Disc_Structure;
 
-static int st_neighwork(const NeighWork& nbghw,
-                        const VectorInt& nbgh_ranks,
-                        int *status,
-                        int *nech)
-{
-  *nech = nbgh_ranks.size();
-  *status = nbgh_ranks.empty();
-
-  // Recopy ranks (from VectorInt 'nbgh_ranks' to the global internal variable 'rank'
-
-//  if (*nech > 0)
-//  {
-//    for (int i = 0; i < *nech; i++)
-//      rank[i] = nbgh_ranks[i];
-//  }
-  return ! nbghw.isUnchanged();
-}
-
 /****************************************************************************/
 /*!
  **  Management of internal array (double)
@@ -1738,6 +1720,81 @@ static double st_varestimate(int ivar, int jvar, int nfeq, int nred)
 
 /****************************************************************************/
 /*!
+ **  Returns the additional variance for continuous moving neighborhood
+ **
+ ** \return  Additional variance or 0
+ **
+ ** \param[in]  neigh    Neigh structure
+ ** \param[in]  db1      First Db
+ ** \param[in]  rank1    Rank of the sample in the first Db
+ ** \param[in]  db2      Second Db
+ ** \param[in]  rank2    Rank of the sample in the second Db
+ **
+ ** \remarks In the case of a neighborhood which is not MOVING (or undefined),
+ ** \remarks this function systematically returns 0.
+ **
+ *****************************************************************************/
+static double st_continuous_variance(Neigh *neigh,
+                                     Db *db1,
+                                     int rank1,
+                                     Db *db2,
+                                     int rank2)
+{
+  double *dd, dist, var;
+  int ndim;
+  static double eps_dist = 1.e-4;
+
+  /* Initializations */
+
+  dd = nullptr;
+  if (neigh == nullptr) return (0.);
+  if (neigh->getType() != ENeigh::MOVING) return (0.);
+  ndim = neigh->getNDim();
+
+  /* Core allocation */
+
+  dd = (double*) mem_alloc(sizeof(double) * ndim, 1);
+
+  /* Calculate the distance increment */
+
+  for (int idim = 0; idim < ndim; idim++)
+    dd[idim] = db1->getCoordinate(rank1, idim)
+        - db2->getCoordinate(rank2, idim);
+
+  /* Anisotropic neighborhood */
+
+  if (neigh->getFlagAniso())
+  {
+
+    /* Rotated anisotropy ellipsoid */
+
+    if (neigh->getFlagRotation())
+      matrix_product_safe(1, ndim, ndim, dd, neigh->getAnisoRotMats().data(),
+                          dd);
+    for (int idim = 0; idim < ndim; idim++)
+      dd[idim] /= neigh->getAnisoCoeff(idim);
+  }
+
+  /* Calculate the distance */
+
+  matrix_product(1, ndim, 1, dd, dd, &dist);
+  dist = sqrt(dist) / neigh->getRadius();
+  var = 0.;
+  if (dist > neigh->getDistCont())
+  {
+    if (ABS(1. - dist) < eps_dist) dist = 1. - eps_dist;
+    var = (dist - neigh->getDistCont()) / (1. - dist);
+    var = var * var;
+  }
+
+  /* Core deallocation */
+
+  dd = (double*) mem_free((char* ) dd);
+
+  return (var);
+}
+
+/*!
  **  Establish the kriging L.H.S.
  **
  ** \param[in]  model  Model structure
@@ -1802,8 +1859,8 @@ static void st_lhs(Model *model,
 
                 cref = LHS(iech, ivar, jech, jvar);
                 verr = cref
-                    * neigh_continuous_variance(neigh, DBIN, nbgh_ranks[iech], DBOUT,
-                                                IECH_OUT);
+                    * st_continuous_variance(neigh, DBIN, nbgh_ranks[iech], DBOUT,
+                                             IECH_OUT);
               }
             }
           }
@@ -3099,7 +3156,8 @@ static int st_image_kriging(Model *model,
 
   neigh->setType(ENeigh::UNIQUE);
   nbgh_ranks = nbghw.select(DBOUT, 0);
-  (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+  nech = (int) nbgh_ranks.size();
+  status = nbgh_ranks.empty();
   neigh->setType(ENeigh::IMAGE);
   IECH_OUT = nech / 2;
 
@@ -3289,8 +3347,7 @@ int kriging(Db *dbin,
             VectorDouble matCL,
             const NamingConvention& namconv)
 {
-  int iext, error, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq;
-  int save_keypair;
+  int iext, error, status, nech, neq, nred, nvar, nfeq, save_keypair;
   double ldum;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
@@ -3365,11 +3422,12 @@ int kriging(Db *dbin,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT, rank_colcok);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -3459,8 +3517,7 @@ static int st_xvalid_unique(Db *dbin,
                             VectorInt rank_colcok,
                             const NamingConvention& namconv)
 {
-  int iext, error, status, nech, neq, nred, nvar, flag_xvalid_memo,
-      flag_new_nbgh;
+  int iext, error, status, nech, neq, nred, nvar, flag_xvalid_memo;
   int iech, iiech, jech, jjech;
   double variance, value, stdv, valref;
   NeighWork nbghw;
@@ -3560,12 +3617,13 @@ static int st_xvalid_unique(Db *dbin,
     flag_xvalid_memo = neigh->getFlagXvalid();
     neigh->setFlagXvalid(0);
     nbgh_ranks = nbghw.select(dbin, IECH_OUT, rank_colcok);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     neigh->setFlagXvalid(flag_xvalid_memo);
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_end;
@@ -3701,8 +3759,7 @@ int krigdgm_f(Db *dbin,
               int flag_varz,
               double rval)
 {
-  int iext, error, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq;
-  int save_keypair;
+  int iext, error, status, nech, neq, nred, nvar, nfeq, save_keypair;
   double ldum;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
@@ -3776,12 +3833,13 @@ int krigdgm_f(Db *dbin,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     if (status) goto label_store;
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -3856,8 +3914,7 @@ int krigprof_f(Db *dbin,
                int flag_est,
                int flag_std)
 {
-  int iext, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq, iptr_dat, icode;
-  int error;
+  int iext, status, nech, neq, nred, nvar, nfeq, iptr_dat, icode, error;
   double ldum;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
@@ -3934,12 +3991,13 @@ int krigprof_f(Db *dbin,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     if (status) goto label_store;
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -4102,7 +4160,9 @@ static int bayes_precalc(Model *model,
   /* Prepare the Kriging matrix (without correction) */
 
   nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-  (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+  nech = (int) nbgh_ranks.size();
+  status = nbgh_ranks.empty();
+
   FLAG_BAYES = 0;
   st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
   FLAG_BAYES = 1;
@@ -4283,7 +4343,7 @@ int kribayes_f(Db *dbin,
                int flag_est,
                int flag_std)
 {
-  int iext, error, status, nech, neq, nred, nvar, flag_new_nbgh;
+  int iext, error, status, nech, neq, nred, nvar;
   double *rmean, *rcov, *smean, ldum;
   Model *model_sk;
   NeighWork nbghw;
@@ -4358,12 +4418,13 @@ int kribayes_f(Db *dbin,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     if (status) goto label_store;
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model_sk, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -4487,7 +4548,8 @@ int test_neigh(Db *dbin,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
 
     /* Retrieve the neighborhood parameters */
 
@@ -4554,7 +4616,7 @@ int _krigsim(const char *strloc,
              int flag_dgm,
              double rval)
 {
-  int error, status, nech, neq, nred, nvar, flag_new_nbgh, iext, nfeq;
+  int error, status, nech, neq, nred, nvar, iext, nfeq;
   double *rmean, *rcov, *smean;
   Model *model_sk;
   NeighWork nbghw;
@@ -4641,12 +4703,13 @@ int _krigsim(const char *strloc,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     if (status) goto label_store;
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model_sk, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -4993,7 +5056,7 @@ int global_kriging(Db *dbin,
 {
   double *rhs_tot, estim, stdv, cvv, ldum;
   int error, i, np, ng, size, nbfl, status, nech, nred, neq, nfeq, nvar;
-  int flag_new_nbgh, ntot, lec, jvar;
+  int ntot, lec, jvar;
   Neigh *neigh;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
@@ -5004,7 +5067,7 @@ int global_kriging(Db *dbin,
   nvar = nech = 0;
   rhs_tot = nullptr;
   st_global_init(dbin, dbout);
-  neigh = neigh_init_unique(dbin->getNDim());
+  neigh = new Neigh(dbin->getNDim());
   if (st_check_environment(1, 1, model, neigh)) goto label_end;
   if (ivar < 0 || ivar >= dbin->getVariableNumber())
   {
@@ -5065,11 +5128,12 @@ int global_kriging(Db *dbin,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(dbout,  IECH_OUT);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -5244,8 +5308,7 @@ int global_transitive(Db *dbgrid,
 
   /* Core allocation */
 
-  for (idim = 0; idim < ndim; idim++)
-    d1[idim] = 0.;
+  for (idim = 0; idim < ndim; idim++) d1[idim] = 0.;
   model_calcul_cov(NULL,model, mode, 1, 1., d1, &c00);
 
   /* Abundance estimation */
@@ -7055,7 +7118,7 @@ int krigsum_f(Db *dbin,
 {
   double *lterm, seisloc, seistot, estim;
   int *icols, *active, error, iptr_mem, correct;
-  int nvarmod, nvarin, status, flag_new_nbgh, nech, ivar, nred, neq;
+  int nvarmod, nvarin, status, nech, ivar, nred, neq;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
 
@@ -7150,12 +7213,13 @@ int krigsum_f(Db *dbin,
       /* Select the Neighborhood */
 
       nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-      flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+      nech = (int) nbgh_ranks.size();
+      status = nbgh_ranks.empty();
       if (status) goto label_store;
 
       /* Establish the kriging L.H.S. */
 
-      if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+      if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
       {
         st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
         if (status) goto label_store;
@@ -7366,9 +7430,9 @@ int krigmvp_f(Db *dbin,
               Neigh *neigh)
 {
   int *icols, indg[3], nloc, error;
-  int status, nech, neq, nred, nvarin, nvarmod, flag_new_nbgh, nfeq, nz, pivot;
-  int ix, iy, iz, ivar, i, iech, jech, iptr_prop, n_wrong, iter, nsize,
-      flag_correc;
+  int status, nech, neq, nred, nvarin, nvarmod, nfeq, nz, pivot;
+  int ix, iy, iz, ivar, i, iech, jech, iptr_prop, n_wrong, iter, nsize;
+  int flag_correc;
   double *lterm, *lback, *proptab, *cc, *xx, *bb;
   double seisval, correc, proploc, lsum;
   NeighWork nbghw;
@@ -7503,12 +7567,13 @@ int krigmvp_f(Db *dbin,
           /* Select the Neighborhood */
 
           nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-          flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+          nech = (int) nbgh_ranks.size();
+          status = nbgh_ranks.empty();
           if (status) goto label_store;
 
           /* Establish the kriging L.H.S. */
 
-          if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+          if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
           {
             st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
             if (status) goto label_store;
@@ -7758,7 +7823,8 @@ int krigtest_dimension(Db *dbin,
   /* Select the Neighborhood */
 
   nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-  (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+  nech = (int) nbgh_ranks.size();
+  status = nbgh_ranks.empty();
   if (status)
   {
     messerr("No valid neighborhood can be found for this target");
@@ -7879,7 +7945,8 @@ int krigtest_f(Db *dbin,
   /* Select the Neighborhood */
 
   nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-  (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+  nech = (int) nbgh_ranks.size();
+  status = nbgh_ranks.empty();
   if (status) goto label_store;
 
   /* Establish the kriging L.H.S. */
@@ -7999,7 +8066,7 @@ static void st_transform_gaussian_to_raw(Anam *anam)
  *****************************************************************************/
 int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
 {
-  int error, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq;
+  int error, status, nech, neq, nred, nvar, nfeq;
   double ldum;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
@@ -8062,12 +8129,13 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     if (status) goto label_store;
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -8140,7 +8208,7 @@ int krigcell_f(Db *dbin,
                int flag_std,
                VectorInt rank_colcok)
 {
-  int iext, error, status, nech, neq, nred, nvar, flag_new_nbgh, nfeq, ndim;
+  int iext, error, status, nech, neq, nred, nvar, nfeq, ndim;
   double ldum;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
@@ -8213,12 +8281,13 @@ int krigcell_f(Db *dbin,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT, rank_colcok);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     if (status) goto label_store;
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -8536,7 +8605,8 @@ int dk_f(Db *dbin,
     DBIN->clearLocators(ELoc::Z);
     DBIN->setLocatorByAttribute(varloc[0], ELoc::Z);
     nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-    (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     if (status) continue;
 
     /* Loop on the effective factors */
@@ -8697,7 +8767,8 @@ int* neigh_calc(Db *dbin,
 
   IECH_OUT = 0;
   nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-  (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+  nech = (int) nbgh_ranks.size();
+  status = nbgh_ranks.empty();
   if (status != 0)
   {
     messerr("Neighborhood search failed");
@@ -9807,7 +9878,7 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
 
   error = 1;
   ndim = db->getNDim();
-  neigh = neigh_init_unique(ndim);
+  neigh = new Neigh(ndim);
   nvar = model->getVariableNumber();
   st_global_init(db, db);
   FLAG_EST = 0;
@@ -9827,7 +9898,8 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
   /* Prepare the Neighborhood */
 
   nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-  (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+  nech = (int) nbgh_ranks.size();
+  status = nbgh_ranks.empty();
   if (status) goto label_end;
 
   /* Establish the L.H.S. */
@@ -9901,7 +9973,7 @@ static int st_declustering_3(Db *db,
                              VectorInt ndisc,
                              int verbose)
 {
-  int error, status, nech, nred, neq, nvar, flag_new_nbgh, ecr;
+  int error, status, nech, nred, neq, nvar, ecr;
   double ldum;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
@@ -9935,12 +10007,13 @@ static int st_declustering_3(Db *db,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-    flag_new_nbgh = st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     if (status) continue;
 
     /* Establish the kriging L.H.S. */
 
-    if (flag_new_nbgh || neigh->getFlagContinuous() || debug_force())
+    if (!nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) continue;
@@ -10693,7 +10766,7 @@ int inhomogeneous_kriging(Db *dbdat,
   /* Preliminary checks */
 
   error = nvar = 1;
-  neigh = neigh_init_unique(dbdat->getNDim());
+  neigh = new Neigh(dbdat->getNDim());
   st_global_init(dbdat, dbout);
   FLAG_EST = 1;
   FLAG_STD = 1;
@@ -10853,7 +10926,8 @@ int inhomogeneous_kriging(Db *dbdat,
     // Neighborhood search
 
     nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    (void) st_neighwork(nbghw, nbgh_ranks, &status, &nech);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
     rhs = &COVGP(IECH_OUT, 0);
 
     /* Optional printout of the R.H.S */
