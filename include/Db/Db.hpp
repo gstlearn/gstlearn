@@ -82,6 +82,8 @@ public:
 
   const VectorDouble& getArrays() const { return _array; }
 
+  Db reduce(const VectorInt& ranks) const;
+
   void resetCoveringDb(Db* db,
                        const VectorInt& nodes = VectorInt(),
                        const VectorDouble& dcell = VectorDouble(),

@@ -20,21 +20,25 @@ class Db;
 class GSTLEARN_EXPORT NeighWork
 {
 public:
-  NeighWork(const Neigh* neigh,
-            const Db* dbin,
-            bool flag_var_nocheck = false,
+  NeighWork(const Db* dbin = nullptr,
+            const Neigh* neigh = nullptr,
             bool flag_simu = false);
   NeighWork(const NeighWork& r);
   NeighWork& operator=(const NeighWork& r);
   virtual ~NeighWork();
 
-  void initialize(const Neigh* neigh,
-                  const Db* dbin,
-                  bool flag_var_nocheck = false,
+  void initialize(const Db* dbin,
+                  const Neigh* neigh,
                   bool flag_simu = false);
   void clear();
-  VectorInt select(Db *dbout, int iech_out);
-  bool isInitialized() const { return _flagInitialized; }
+  VectorInt select(Db *dbout,
+                   int iech_out,
+                   const VectorInt& rankColCok = VectorInt(),
+                   bool verbose = false);
+  bool isUnchanged() const { return _flagIsUnchanged; }
+  VectorDouble summary(Db *dbout,
+                       int iech_out,
+                       const VectorInt& rankColCok = VectorInt());
 
 private:
   void _unique(Db *dbout, int iech_out, VectorInt& ranks);
@@ -47,17 +51,38 @@ private:
   void _movingSelect(int nsel, VectorInt& ranks);
   void _display(const VectorInt& ranks);
   double _movingDist(Db *dbout, int iech_in, int iech_out);
+  void _checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks);
+  void _clearMemory();
+  void _resetFromMemory(bool flagSame, VectorInt& ranks, bool verbose);
+  bool _isSameTarget(const Db* dbout,
+                     int iech_out,
+                     VectorInt& ranks,
+                     bool verbose = false);
+  bool _isSameTargetBench(const Db* dbout,
+                          int iech_out,
+                          VectorInt& ranks,
+                          bool verbose = false);
+  bool _isSameTargetUnique(const Db* dbout,
+                           int iech_out,
+                           VectorInt& ranks,
+                           bool verbose = false);
+  void _updateColCok(const VectorInt& rankColCok, VectorInt& ranks);
 
 private:
-  const Neigh* _neigh;
   const Db* _dbin;
+  const Neigh* _neigh;
   bool _flagInitialized;
+  bool _flagIsUnchanged;
   mutable VectorInt _nbghInd;
   mutable VectorInt _nbghIsect;
   mutable VectorInt _nbghNsect;
   mutable VectorDouble _nbghX1;
   mutable VectorDouble _nbghX2;
   mutable VectorDouble _nbghDst;
-  bool _flagVariableNoCheck;
   bool _flagSimu;
+
+  // Following parameters are only kept for optimization
+  const Db* _dbout;
+  int _iechOut;
+  mutable VectorInt _nbghMemo;
 };

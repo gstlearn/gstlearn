@@ -3898,6 +3898,12 @@ double Db::getCosineToDirection(int iech1,
   return (cosdir / sqrt(prod));
 }
 
+Db Db::reduce(const VectorInt& ranks) const
+{
+  Db dbout;
+  return dbout;
+}
+
 /**
  * Creating a Grid Db which covers the extension of the input 'Db'
  *
