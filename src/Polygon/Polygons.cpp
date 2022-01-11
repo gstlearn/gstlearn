@@ -23,53 +23,6 @@ Polygons::Polygons()
 {
 }
 
-Polygons::Polygons(const String& filename,
-                   const CSVformat& csv,
-                   int verbose,
-                   int ncol_max,
-                   int nrow_max)
-    : AStringable(),
-      ASerializable(),
-      _polysets()
-{
-  VectorString names;
-  VectorDouble tab;
-  int ncol, nrow;
-
-  /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
-
-  if (csv_table_read(filename, verbose, csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep(), csv.getCharDec(), csv.getNaString(),
-                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
-  {
-    messerr("Problem when reading CSV file");
-    return;
-  }
-
-  if (ncol < 2)
-  {
-    messerr("The CSV file must contain at least 2 columns");
-    return;
-  }
-
-  // Loop on the contents of the first column to look for Polysets
-  int ideb = 0;
-  int ifin = nrow;
-  for (int i = 0; i < nrow; i++)
-  {
-    if (FFFF(tab[ncol * i]))
-    {
-      PolySet polyset = _extractFromTab(ideb, i, ncol, tab);
-      addPolySet(polyset);
-      ideb = i + 1;
-    }
-  }
-  if (ideb < ifin)
-  {
-    PolySet polyset = _extractFromTab(ideb, nrow, ncol, tab);
-    addPolySet(polyset);
-  }
- }
 
 /**
  * Constructor as the convex Hull of the points contained in the Db
@@ -86,19 +39,6 @@ Polygons::Polygons(const Db* db)
 
   PolySet polyset = PolySet(x, y, TEST, TEST);
   addPolySet(polyset);
-}
-
-Polygons::Polygons(const String& neutralFileName, bool verbose)
-    : AStringable(),
-      ASerializable(),
-      _polysets()
-{
-  if (deSerialize(neutralFileName, verbose))
-  {
-    messerr("Problem reading the Neutral File.");
-    messerr("The Polygon is not entirely created");
-    _polysets.clear();
-  }
 }
 
 Polygons::Polygons(const Polygons& r)
@@ -121,7 +61,57 @@ Polygons& Polygons::operator=(const Polygons& r)
 
 Polygons::~Polygons()
 {
+  _polysets.clear();
 }
+
+int Polygons::resetFromCSV(const String& filename,
+                            const CSVformat& csv,
+                            int verbose,
+                            int ncol_max,
+                            int nrow_max)
+{
+  VectorString names;
+  VectorDouble tab;
+  int ncol, nrow;
+
+  // Free the previous contents
+
+  _polysets.clear();
+
+  /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
+
+  if (csv_table_read(filename, verbose, csv.getFlagHeader(), csv.getNSkip(),
+                     csv.getCharSep(), csv.getCharDec(), csv.getNaString(),
+                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  {
+    messerr("Problem when reading CSV file");
+    return 1;
+  }
+  if (ncol < 2)
+  {
+    messerr("The CSV file must contain at least 2 columns");
+    return 1;
+  }
+
+  // Loop on the contents of the first column to look for Polysets
+  int ideb = 0;
+  int ifin = nrow;
+  for (int i = 0; i < nrow; i++)
+  {
+    if (FFFF(tab[ncol * i]))
+    {
+      PolySet polyset = _extractFromTab(ideb, i, ncol, tab);
+      addPolySet(polyset);
+      ideb = i + 1;
+    }
+  }
+  if (ideb < ifin)
+  {
+    PolySet polyset = _extractFromTab(ideb, nrow, ncol, tab);
+    addPolySet(polyset);
+  }
+  return 0;
+ }
 
 void Polygons::addPolySet(const PolySet& polyset)
 {
@@ -196,6 +186,10 @@ int Polygons::deSerialize(const String& filename, bool verbose)
   double zmin = TEST;
   double zmax = TEST;
 
+  // Clear previous contents
+
+  _polysets.clear();
+
   /* Opening the Data file */
 
   if (_fileOpen(filename, "Polygon", "r", verbose)) return 1;
@@ -260,4 +254,17 @@ int Polygons::serialize(const String& filename, bool verbose) const
   _fileClose(verbose);
 
   return 0;
+}
+
+/**
+ * Create a Polygon by loading the contents of a Neutral File
+ * @param neutralFilename Name of the Neutral File
+ * @param verbose         Verbose flag
+ * @return
+ */
+Polygons* Polygons::deserialize(const String& neutralFilename, bool verbose)
+{
+  Polygons* polygons = new Polygons();
+  polygons->deSerialize(neutralFilename, verbose);
+  return polygons;
 }

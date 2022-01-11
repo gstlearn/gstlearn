@@ -459,6 +459,12 @@ bool Model::isDriftDefined(const EDrift& type0) const
     my_throw("Drift List if empty");
   return _driftList->isDriftDefined(type0);
 }
+bool Model::isDriftDifferentDefined(const EDrift& type0) const
+{
+  if (_driftList == nullptr)
+    my_throw("Drift List if empty");
+  return _driftList->isDriftDifferentDefined(type0);
+}
 void Model::setCoefDrift(int ivar, int il, int ib, double coeff)
 {
   if (_driftList == nullptr)

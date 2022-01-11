@@ -21,7 +21,6 @@
 #include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"
 
-
 /****************************************************************************/
 /*!
 ** Main Program for testing the sparse matrix algebra
@@ -76,8 +75,11 @@ int main(int /*argc*/, char */*argv*/[])
   poly1.serialize("Neutral.Polygon.ascii",verbose);
 
   // Deserialize poly2
-  Polygons poly2("Neutral.Polygon.ascii",verbose);
-  poly2.display();
+  Polygons* poly2 = Polygons::deserialize("Neutral.Polygon.ascii",verbose);
+  poly2->display();
+  Polygons poly3;
+  poly3.deSerialize("Neutral.Polygon.ascii", verbose);
+  poly3.display();
 
   // ===== Compute an experimental variogram
   VarioParam varioparam1;
@@ -94,7 +96,7 @@ int main(int /*argc*/, char */*argv*/[])
   Vario vario2("Neutral.Vario.ascii",verbose);
   vario2.display();
 
-  // ===== Compute a Model
+  // ===== Create a Model
   db1.display();
   Model model1(&db1);
   CovContext ctxt = model1.getContext();
@@ -111,7 +113,7 @@ int main(int /*argc*/, char */*argv*/[])
   Model model2("Neutral.Model.ascii",verbose);
   model2.display();
 
-  // Create a Table1
+  // ===== Create a Table
   VectorVectorDouble table;
   int ncols = 3;
   int nrows = 10;

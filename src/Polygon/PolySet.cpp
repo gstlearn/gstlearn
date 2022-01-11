@@ -10,11 +10,13 @@
 /******************************************************************************/
 #include "Polygon/PolySet.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
 
 PolySet::PolySet()
   : AStringable(),
+    ASerializable(),
     _x(0)
   , _y(0)
   , _zmin(TEST)
@@ -27,6 +29,7 @@ PolySet::PolySet(const VectorDouble& x,
                  double zmin,
                  double zmax)
   : AStringable(),
+    ASerializable(),
     _x(0)
   , _y(0)
   , _zmin(TEST)
@@ -37,6 +40,7 @@ PolySet::PolySet(const VectorDouble& x,
 
 PolySet::PolySet(const PolySet& r)
     : AStringable(r),
+      ASerializable(r),
       _x(r._x),
       _y(r._y),
       _zmin(r._zmin),
@@ -49,6 +53,7 @@ PolySet& PolySet::operator=(const PolySet& r)
   if (this != &r)
   {
     AStringable::operator=(r);
+    ASerializable::operator=(r);
     _x = r._x;
     _y = r._y;
     _zmin = r._zmin;
@@ -151,3 +156,52 @@ double PolySet::getSurface() const
   return(surface);
 }
 
+int PolySet::serialize(const String& filename, bool verbose) const
+{
+  if (_fileOpen(filename, "Polyset", "w", verbose)) return (1);
+
+  _recordWrite("%d", getNVertices());
+  _recordWrite("#", "Number of Vertices");
+
+  for (int i = 0; i < getNVertices(); i++)
+  {
+    _recordWrite("%lf", getX(i));
+    _recordWrite("%lf", getY(i));
+    _recordWrite("\n");
+  }
+
+  // Close the Neutral File
+  _fileClose(verbose);
+
+  return 0;
+}
+
+int PolySet::deSerialize(const String& filename, bool verbose)
+{
+  int npol, nvert;
+  double zmin = TEST;
+  double zmax = TEST;
+
+  /* Opening the Data file */
+
+  if (_fileOpen(filename, "PolySet", "r", verbose)) return 1;
+
+  if (_recordRead("Number of Vertices", "%d", &nvert)) return 1;
+  VectorDouble x(nvert);
+  VectorDouble y(nvert);
+
+  /* Loop on the Vertices */
+
+  for (int i = 0; i < nvert; i++)
+  {
+    if (_recordRead("X-Coordinate of a Polyset", "%lf", &x[i])) return 1;
+    if (_recordRead("Y-Coordinate of a Polyset", "%lf", &y[i])) return 1;
+  }
+
+  /* Add the polyset */
+
+  init(x,y,zmin,zmax);
+
+  _fileClose(verbose);
+  return 0;
+}

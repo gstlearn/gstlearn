@@ -23,11 +23,6 @@ class GSTLEARN_EXPORT Polygons: public AStringable, public ASerializable
 {
 public:
   Polygons();
-  Polygons(const String& filename,
-           const CSVformat& csv,
-           int verbose = false,
-           int ncol_max = -1,
-           int nrow_max = -1);
   Polygons(const String& neutralFilename, bool verbose = false);
   Polygons(const Db* db);
   Polygons(const Polygons& r);
@@ -37,6 +32,14 @@ public:
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  int resetFromCSV(const String& filename,
+                   const CSVformat& csv,
+                   int verbose = false,
+                   int ncol_max = -1,
+                   int nrow_max = -1);
+
+  static Polygons* deserialize(const String& neutralFilename, bool verbose = false);
 
   int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }
   void addPolySet(const PolySet& polyset);

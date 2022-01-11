@@ -58,6 +58,17 @@ public:
 
   const CovParamId& getParamId() const { return _paramId; }
 
+  /**
+   * This function creates a constraints on a parameter
+   * This constraint will be used subsequently during the variogram fitting
+   * @param elem The type of item on which the constraints applies (EConsElem.hpp)
+   * @param icov The rank of the covariance
+   * @param iv1  The rank of the first variable
+   * @param iv2  The rank of the second variable
+   * @param type The type of constraints (EConsType.hpp)
+   * @param value The value assigned to the constraint
+   * @return
+   */
   static ConsItem create(const EConsElem& elem = EConsElem::UNKNOWN,
                          int icov = 0,
                          int iv1 = 0,

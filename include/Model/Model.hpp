@@ -109,6 +109,7 @@ public:
   int getDriftEquationNumber()                     const;
   bool isDriftFiltered(unsigned int il)            const;
   bool isDriftDefined(const EDrift& type0)         const;
+  bool isDriftDifferentDefined(const EDrift& type0) const;
   int getMaximumOrder(void) const { return _driftList->getMaximumOrder(); }
 
   void setCoefDrift(int ivar, int il, int ib, double coeff)    ;

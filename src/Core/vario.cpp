@@ -2722,19 +2722,15 @@ static int st_variogram_general(Db *db,
     flag_verr = 1;
   }
 
-  /* Auxiliary check for Drift removal */
+  // Auxiliary check for Drift removal. This is triggered only if the drift
+  // contains at least one drift function different from Universality condition
 
-  // TODO remplacer par:
-  // il faut qu'il y ait des derives et pas seulement la UC
-  if (model != nullptr && model->getDriftNumber() > 1)
+  if (model != nullptr && model->isDriftDifferentDefined(EDrift::UC))
   {
-    if (model->getDriftType(0) != EDrift::UC)
-    {
-      if (vorder == (Vario_Order*) NULL)
-        vorder = vario_order_manage(1, 1, 0, vorder);
-      flag_ku = 1;
-      st_manage_drift_removal(1, db, model);
-    }
+    if (vorder == (Vario_Order*) NULL)
+      vorder = vario_order_manage(1, 1, 0, vorder);
+    flag_ku = 1;
+    st_manage_drift_removal(1, db, model);
   }
 
   /* Complementary checks */

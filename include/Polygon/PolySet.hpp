@@ -12,9 +12,10 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class GSTLEARN_EXPORT PolySet: public AStringable
+class GSTLEARN_EXPORT PolySet: public AStringable, public ASerializable
 {
 public:
   PolySet();
@@ -27,6 +28,8 @@ public:
   virtual ~PolySet();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  int deSerialize(const String& filename, bool verbose = false) override;
+  int serialize(const String& filename, bool verbose = false) const override;
 
   int getNVertices() const { return static_cast<int>(_x.size()); }
   const VectorDouble& getX() const { return _x; }
