@@ -58,6 +58,13 @@ public:
 
   const CovParamId& getParamId() const { return _paramId; }
 
+  static ConsItem create(const EConsElem& elem = EConsElem::UNKNOWN,
+                         int icov = 0,
+                         int iv1 = 0,
+                         int iv2 = 0,
+                         const EConsType& type = EConsType::DEFAULT,
+                         double value = 0.);
+
 private:
   CovParamId _paramId;
   EConsType  _type;       /* 0: Parameter; -1: Lower; 1: Upper; 2: Equal */

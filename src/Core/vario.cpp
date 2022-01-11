@@ -2724,6 +2724,8 @@ static int st_variogram_general(Db *db,
 
   /* Auxiliary check for Drift removal */
 
+  // TODO remplacer par:
+  // il faut qu'il y ait des derives et pas seulement la UC
   if (model != nullptr && model->getDriftNumber() > 1)
   {
     if (model->getDriftType(0) != EDrift::UC)

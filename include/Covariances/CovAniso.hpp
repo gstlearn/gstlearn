@@ -156,6 +156,9 @@ public:
   int    getGradParamNumber() const;
   bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
 
+  static double scale2range(const ECov& type, double scale, double param = 1.);
+  static double range2scale(const ECov& type, double range, double param = 1.);
+
 protected:
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();

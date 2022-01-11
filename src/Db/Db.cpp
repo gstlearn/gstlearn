@@ -3920,7 +3920,6 @@ void Db::resetCoveringDb(Db* db,
                          const VectorDouble& dcell,
                          const VectorDouble& origin,
                          const VectorDouble& margin)
-
 {
   _initP();
   int ndim = db->getNDim();

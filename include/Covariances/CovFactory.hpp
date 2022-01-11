@@ -27,7 +27,5 @@ public:
   static VectorString getCovList(const CovContext& ctxt);
   static ECov         identifyCovariance(const String& cov_name,
                                          const CovContext& ctxt);
-  static double scale2range(const ECov& type, double scale, double param = 1.);
-  static double range2scale(const ECov& type, double range, double param = 1.);
 };
 

@@ -106,3 +106,13 @@ String ConsItem::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
+ConsItem ConsItem::create(const EConsElem& elem,
+                          int icov,
+                          int iv1,
+                          int iv2,
+                          const EConsType& type,
+                          double value)
+{
+  CovParamId parid(0, icov, elem, iv1, iv2);
+  return ConsItem(parid, type, value);
+}
