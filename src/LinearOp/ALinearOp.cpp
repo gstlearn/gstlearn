@@ -17,7 +17,7 @@
 
 ALinearOp::ALinearOp()
   : _nIterMax(100)
-  , _eps(1.e-06)
+  , _eps(1.e-10)
   , _x0()
   , _precondStatus(0)
   , _precond(nullptr)
