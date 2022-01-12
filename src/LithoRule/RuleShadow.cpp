@@ -25,6 +25,22 @@
 #include <sstream>
 #include <math.h>
 
+RuleShadow::RuleShadow()
+    : Rule(),
+      _shDsup(0.),
+      _shDown(0.),
+      _slope(0.),
+      _shift(0.),
+      _dMax(TEST),
+      _tgte(TEST),
+      _incr(TEST),
+      _xyz(),
+      _ind1(),
+      _ind2()
+{
+  setModeRule(ERule::SHADOW);
+}
+
 /**
  * Defining the Lithotype Rule in the case of Shadow
  * @param slope   Slope definition

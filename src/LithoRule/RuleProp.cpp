@@ -25,84 +25,6 @@ RuleProp::RuleProp()
 {
 }
 
-/**
- * This constructor is used in the exceptional case where the Rule is not yet defined
- * (typically when inferring the Rule)
- * @param dbprop  Db containing the Proportion information (ELoc::P fields)
- * @param propcst Vector of constant proportions
- */
-RuleProp::RuleProp(const Db* dbprop, const VectorDouble& propcst)
-    : AStringable(),
-      _flagStat(true),
-      _propcst(propcst),
-      _dbprop(dbprop),
-      _rules(),
-      _ruleInternal(true)
-{
-  if (! _checkConsistency())
-    my_throw("Inconsistent arguments");
-
-  // A generic rule is created on the fly
-  int nfacies = _getNFacies();
-  _rules.push_back(Rule::createFromFaciesCount(nfacies));
-}
-
-RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)
-    : AStringable(),
-      _flagStat(true),
-      _propcst(propcst),
-      _dbprop(nullptr),
-      _rules(),
-      _ruleInternal(false)
-{
-  if (rule != nullptr) _rules.push_back(rule);
-  if (! _checkConsistency())
-    my_throw("Inconsistent arguments");
-}
-
-RuleProp::RuleProp(const Rule* rule, const Db* dbprop)
-    : AStringable(),
-      _flagStat(true),
-      _propcst(),
-      _dbprop(dbprop),
-      _rules(),
-      _ruleInternal(false)
-{
-  _rules.push_back(rule);
-  if (! _checkConsistency())
-    my_throw("Inconsistent arguments");
-}
-
-RuleProp::RuleProp(const Rule* rule1,
-                   const Rule* rule2,
-                   const VectorDouble& propcst)
-    : AStringable(),
-      _flagStat(true),
-      _propcst(propcst),
-      _dbprop(nullptr),
-      _rules(),
-      _ruleInternal(false)
-{
-  _rules.push_back(rule1);
-  _rules.push_back(rule2);
-  if (! _checkConsistency())
-    my_throw("Inconsistent arguments");
-}
-
-RuleProp::RuleProp(const Rule* rule1, const Rule* rule2, const Db* dbprop)
-    : AStringable(),
-      _flagStat(true),
-      _propcst(),
-      _dbprop(dbprop),
-      _rules(),
-      _ruleInternal(false)
-{
-  _rules.push_back(rule1);
-  _rules.push_back(rule2);
-  if (!_checkConsistency())
-  my_throw("Inconsistent arguments");
-}
-
 RuleProp::RuleProp(const RuleProp& m)
   : AStringable(m),
     _flagStat(m._flagStat),
@@ -129,6 +51,92 @@ RuleProp& RuleProp::operator=(const RuleProp& m)
 
 RuleProp::~RuleProp()
 {
+  _clear();
+}
+
+/**
+ * This constructor is used in the exceptional case where the Rule is not yet defined
+ * (typically when inferring the Rule)
+ * @param dbprop  Db containing the Proportion information (ELoc::P fields)
+ * @param propcst Vector of constant proportions
+ */
+int RuleProp::resetFromDb(const Db* dbprop, const VectorDouble& propcst)
+{
+  _clear();
+
+  _flagStat = true;
+  _dbprop = dbprop;
+  _propcst = propcst;
+  _ruleInternal = true;
+
+  if (! _checkConsistency()) return 1;
+
+  // A generic rule is created on the fly
+  int nfacies = _getNFacies();
+  _rules.push_back(Rule::createFromFaciesCount(nfacies));
+
+  return 0;
+}
+
+int RuleProp::resetFromRule(const Rule* rule, const VectorDouble& propcst)
+{
+  _clear();
+
+  _flagStat = true;
+  _propcst = propcst;
+  _ruleInternal = false;
+
+  if (rule != nullptr) _rules.push_back(rule);
+  if (! _checkConsistency()) return 1;
+  return 0;
+}
+
+int RuleProp::resetFromRuleAndDb(const Rule* rule, const Db* dbprop)
+{
+  _clear();
+
+  _flagStat = true;
+  _dbprop = dbprop;
+  _ruleInternal = false;
+
+  _rules.push_back(rule);
+  if (! _checkConsistency()) return 1;
+  return 0;
+}
+
+int RuleProp::resetFromRules(const Rule* rule1,
+                                           const Rule* rule2,
+                                           const VectorDouble& propcst)
+{
+  _clear();
+
+  _flagStat = true;
+  _propcst = propcst;
+  _ruleInternal = false;
+
+  _rules.push_back(rule1);
+  _rules.push_back(rule2);
+  if (! _checkConsistency()) return 1;
+  return 0;
+}
+
+int RuleProp::resetFromRulesAndDb(const Rule* rule1, const Rule* rule2, const Db* dbprop)
+{
+  _clear();
+
+  _flagStat = true;
+  _dbprop = dbprop;
+  _ruleInternal = false;
+
+  _rules.push_back(rule1);
+  _rules.push_back(rule2);
+  if (!_checkConsistency()) return 1;
+  return 0;
+}
+
+void RuleProp::_clear()
+{
+  _dbprop = nullptr;
   if (_ruleInternal)
   {
     for (int ir = 0; ir < getRuleNumber(); ir++)
@@ -335,4 +343,60 @@ int RuleProp::computeAllThreshes(Db *db, const NamingConvention& namconv) const
     return 1;
   }
   return _db_threshold(db, this, nullptr, namconv);
+}
+
+RuleProp* RuleProp::createFromDb(const Db* dbprop, const VectorDouble& propcst)
+{
+  RuleProp* ruleprop = new RuleProp;
+  if (ruleprop->resetFromDb(dbprop, propcst))
+  {
+    messerr("Problem when creating from Db");
+    delete ruleprop;
+  }
+  return ruleprop;
+}
+RuleProp* RuleProp::createFromRule(const Rule* rule,
+                                                 const VectorDouble& propcst)
+{
+  RuleProp* ruleprop = new RuleProp;
+  if (ruleprop->resetFromRule(rule, propcst))
+  {
+    messerr("Problem when creating from Rule & Proportions");
+    delete ruleprop;
+  }
+  return ruleprop;
+}
+RuleProp* RuleProp::createFromRuleAndDb(const Rule* rule, const Db* dbprop)
+{
+  RuleProp* ruleprop = new RuleProp;
+  if (ruleprop->resetFromRuleAndDb(rule, dbprop))
+  {
+    messerr("Problem when creating from Rule & Db");
+    delete ruleprop;
+  }
+  return ruleprop;
+}
+RuleProp* RuleProp::createFromRules(const Rule* rule1,
+                                                  const Rule* rule2,
+                                                  const VectorDouble& propcst)
+{
+  RuleProp* ruleprop = new RuleProp;
+  if (ruleprop->resetFromRules(rule1, rule2, propcst))
+  {
+    messerr("Problem when creating from Rules & Proportions");
+    delete ruleprop;
+  }
+  return ruleprop;
+}
+RuleProp* RuleProp::createFromRulesAndDb(const Rule* rule1,
+                                         const Rule* rule2,
+                                         const Db* dbprop)
+{
+  RuleProp* ruleprop = new RuleProp;
+  if (ruleprop->resetFromRulesAndDb(rule1, rule2, dbprop))
+  {
+    messerr("Problem when creating from Rules & Proportions");
+    delete ruleprop;
+  }
+  return ruleprop;
 }

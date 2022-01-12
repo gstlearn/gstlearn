@@ -44,9 +44,9 @@ public:
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Vario(*this); };
 
-  void varioReduce(const VectorInt& varcols,
-                   const VectorInt& dircols,
-                   bool asSymmetric = false);
+  void reduce(const VectorInt& varcols,
+              const VectorInt& dircols,
+              bool asSymmetric = false);
 
   const String& getCalculName() const { return _calculName; }
   ECalcVario    getCalculType() const;

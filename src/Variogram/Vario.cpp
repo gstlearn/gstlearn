@@ -60,7 +60,7 @@ Vario::Vario(const VarioParam* varioparam,
  * @param dircols Vector of direction ranks (starting from 0)
  * @param asSymmetric Turn the result into as Symmetrical function (i.e. variogram)
  */
-void Vario::varioReduce(const VectorInt& varcols,
+void Vario::reduce(const VectorInt& varcols,
                         const VectorInt& dircols,
                         bool asSymmetric)
 {

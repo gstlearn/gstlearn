@@ -81,15 +81,15 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
-  RuleProp ruleProp = RuleProp(rule, props);
+  RuleProp* ruleprop = RuleProp::createFromRule(rule, props);
 
   auto ndata = 100;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
   dat.addFields(z,"variable",ELoc::Z);
 
-  PGSSPDE sCond(models,workingDbc,ruleProp,&dat);
-  PGSSPDE sNonCond(models,workingDbc,ruleProp);
+  PGSSPDE sCond(models,workingDbc,ruleprop,&dat);
+  PGSSPDE sNonCond(models,workingDbc,ruleprop);
 
   PGSSPDE* spgs = &sNonCond;
   spgs->simulate();
@@ -98,5 +98,6 @@ int main(int /*argc*/, char */*argv*/[])
   workingDbc.serialize("pgs.ascii");
 
   delete rule;
+  delete ruleprop;
   return(error);
 }

@@ -85,14 +85,14 @@ int main(int /*argc*/, char */*argv*/[])
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
   rule->display();
   rule->serialize("truerule.ascii");
-  RuleProp ruleprop;
+  RuleProp* ruleprop;
   if (flagStationary)
-    ruleprop = RuleProp(rule, props);
+    ruleprop = RuleProp::createFromRule(rule, props);
   else
-    ruleprop = RuleProp(rule, &dbprop);
+    ruleprop = RuleProp::createFromRuleAndDb(rule, &dbprop);
 
   // Perform a non-conditional simulation on the Db
-  error = simpgs(nullptr,&db,&ruleprop,&model1,&model2,&neigh);
+  error = simpgs(nullptr,&db,ruleprop,&model1,&model2,&neigh);
   db.setLocator(db.getLastName(),ELoc::Z);
   db.serialize("simupgs.ascii");
 
@@ -108,12 +108,12 @@ int main(int /*argc*/, char */*argv*/[])
   varioparam2.addDirs(dirparam2);
 
   // Determination of the variogram of the Underlying GRF
-  Vario* vario = variogram_pgs(&db,&varioparam1,&ruleprop);
+  Vario* vario = variogram_pgs(&db,&varioparam1,ruleprop);
   vario->display();
   Vario vario1 = Vario(*vario);
-  vario1.varioReduce({0},VectorInt(),true);
+  vario1.reduce({0},VectorInt(),true);
   Vario vario2 = Vario(*vario);
-  vario2.varioReduce({1},VectorInt(),true);
+  vario2.reduce({1},VectorInt(),true);
   vario1.display();
   vario2.display();
 
@@ -136,17 +136,17 @@ int main(int /*argc*/, char */*argv*/[])
   vario2.serialize("variopgs2.ascii");
   modelPGS2.serialize("modelfitpgs2.ascii");
 
-  RuleProp ruleprop2;
+  RuleProp* ruleprop2;
   if (flagStationary)
-    ruleprop2 = RuleProp((Rule*) NULL, props);
+    ruleprop2 = RuleProp::createFromRule((Rule*) NULL, props);
   else
-    ruleprop2 = RuleProp(&dbprop, VectorDouble());
-  error = ruleprop2.fit(&db, &varioparam2, 2, true);
-  ruleprop2.getRule()->display();
-  ruleprop2.getRule()->serialize("ruleFit.ascii");
+    ruleprop2 = RuleProp::createFromDb(&dbprop, VectorDouble());
+  error = ruleprop2->fit(&db, &varioparam2, 2, true);
+  ruleprop2->getRule()->display();
+  ruleprop2->getRule()->serialize("ruleFit.ascii");
 
   modelPGS1.display();
-  Vario* varioDerived = model_pgs(&db, &varioparam1, &ruleprop2, &modelPGS1, &modelPGS2);
+  Vario* varioDerived = model_pgs(&db, &varioparam1, ruleprop2, &modelPGS1, &modelPGS2);
   modelPGS1.display();
   varioDerived->serialize("modelpgs.ascii");
   varioDerived->display();
@@ -158,5 +158,7 @@ int main(int /*argc*/, char */*argv*/[])
   modelPGS1.display();
 
   delete rule;
+  delete ruleprop;
+  delete ruleprop2;
   return(error);
 }
