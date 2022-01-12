@@ -23,7 +23,7 @@ class GSTLEARN_EXPORT Polygons: public AStringable, public ASerializable
 {
 public:
   Polygons();
-  Polygons(const String& neutralFilename, bool verbose = false);
+//  Polygons(const String& neutralFilename, bool verbose = false);
   Polygons(const Db* db);
   Polygons(const Polygons& r);
   Polygons& operator=(const Polygons& r);
@@ -39,7 +39,7 @@ public:
                    int ncol_max = -1,
                    int nrow_max = -1);
 
-  static Polygons* deserialize(const String& neutralFilename, bool verbose = false);
+//  static Polygons* deserializeF(const String& neutralFilename, bool verbose = false);
 
   int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }
   void addPolySet(const PolySet& polyset);

@@ -74,9 +74,11 @@ int main(int /*argc*/, char */*argv*/[])
   // Serialize poly1
   poly1.serialize("Neutral.Polygon.ascii",verbose);
 
-  // Deserialize poly2
-  Polygons* poly2 = Polygons::deserialize("Neutral.Polygon.ascii",verbose);
-  poly2->display();
+//  // Deserialize poly2
+//  Polygons* poly2 = Polygons::deserializeF("Neutral.Polygon.ascii",verbose);
+//  poly2->display();
+//  delete poly2;
+
   Polygons poly3;
   poly3.deSerialize("Neutral.Polygon.ascii", verbose);
   poly3.display();

@@ -67,9 +67,11 @@ public:
    * @param iv2  The rank of the second variable
    * @param type The type of constraints (EConsType.hpp)
    * @param value The value assigned to the constraint
+   *
+   * @remark Do not forget to delete object after usage
    * @return
    */
-  static ConsItem create(const EConsElem& elem = EConsElem::UNKNOWN,
+  static ConsItem define(const EConsElem& elem = EConsElem::UNKNOWN,
                          int icov = 0,
                          int iv1 = 0,
                          int iv2 = 0,

@@ -48,6 +48,32 @@ public:
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Neigh(*this); };
 
+//  int initUnique(int ndim);
+//  int initMoving(int ndim,
+//                 int nmaxi,
+//                 double radius,
+//                 int nmini = 1,
+//                 int nsect = 1,
+//                 int nsmax = ITEST,
+//                 double width = 0,
+//                 double distcont = 0,
+//                 VectorDouble coeffs = VectorDouble(),
+//                 VectorDouble angles = VectorDouble());
+//  int initImage(int ndim, int skip, const VectorInt& image);
+//
+//  static Neigh* createUnique(int ndim);
+//  static Neigh* createMoving(int ndim,
+//                             int nmaxi,
+//                             double radius,
+//                             int nmini = 1,
+//                             int nsect = 1,
+//                             int nsmax = ITEST,
+//                             double width = 0,
+//                             double distcont = 0,
+//                             VectorDouble coeffs = VectorDouble(),
+//                             VectorDouble angles = VectorDouble());
+//  static Neigh* createImage(int ndim, int skip, const VectorInt& image);
+
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
   const VectorDouble& getAnisoRotMats() const { return _anisoRotMat; }

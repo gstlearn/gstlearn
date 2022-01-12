@@ -106,7 +106,7 @@ String ConsItem::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-ConsItem ConsItem::create(const EConsElem& elem,
+ConsItem ConsItem::define(const EConsElem& elem,
                           int icov,
                           int iv1,
                           int iv2,
