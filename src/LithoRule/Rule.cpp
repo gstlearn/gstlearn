@@ -1038,7 +1038,7 @@ Rule* Rule::createFromNF(const String& neutralFileName, bool verbose)
   {
     if (verbose) messerr("Problem reading the Neutral File.");
     delete rule;
-    rule = nullptr;
+    return nullptr;
   }
   return rule;
 }

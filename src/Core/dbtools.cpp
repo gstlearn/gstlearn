@@ -6527,7 +6527,7 @@ int db_proportion_estimate(Db *dbin,
 
   // Define the environment
 
-  MeshETurbo mesh = MeshETurbo(*dbout);
+  MeshETurbo mesh = MeshETurbo(dbout);
   ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0), EPowerPT::ONE);
   ProjMatrix Aproj = ProjMatrix(dbin, &mesh);

@@ -105,7 +105,7 @@ Vario* Vario::createFromNF(const String& neutralFileName, bool verbose)
   {
     if (verbose) messerr("Problem reading the Neutral File");
     delete vario;
-    vario = nullptr;
+    return nullptr;
   }
   return vario;
 }

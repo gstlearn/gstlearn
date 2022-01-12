@@ -800,9 +800,6 @@ GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
 GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
                                      Frac_Environ *frac,
                                      int verbose);
-GSTLEARN_EXPORT Db* ascii_db_read(const char *file_name,
-                                  int must_grid,
-                                  int verbose);
 GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
                                      int verbose,
                                      int *nbsimu,

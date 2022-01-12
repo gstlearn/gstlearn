@@ -41,20 +41,20 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 10;
-  Db db(nech,{0.,0.},{1.,1.});
-  db.display(); // TODO : please use FLAG_STATS only when available
+  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.});
+  db->display(); // TODO : please use FLAG_STATS only when available
 
   auto nx={ 101,101 };
-  Db workingDbc(nx);
+  Db* workingDbc = Db::createFromGrid(nx);
 
-  Db dbprop= Db({100,100},{0.01,0.01},{0.,0.});
+  Db* dbprop = Db::createFromGrid({100,100},{0.01,0.01});
 
   VectorDouble props({0.2, 0.5, 0.3});
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
-    dbprop.addFieldsByConstant(1,props[ifac],names[ifac]);
-  dbprop.setLocator(names,ELoc::P);
+    dbprop->addFieldsByConstant(1,props[ifac],names[ifac]);
+  dbprop->setLocator(names,ELoc::P);
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
@@ -84,19 +84,23 @@ int main(int /*argc*/, char */*argv*/[])
   RuleProp* ruleprop = RuleProp::createFromRule(rule, props);
 
   auto ndata = 100;
-  Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
+  Db* dat = Db::createFromBox(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
-  dat.addFields(z,"variable",ELoc::Z);
+  dat->addFields(z,"variable",ELoc::Z);
 
-  PGSSPDE sCond(models,workingDbc,ruleprop,&dat);
+  PGSSPDE sCond(models,workingDbc,ruleprop,dat);
   PGSSPDE sNonCond(models,workingDbc,ruleprop);
 
   PGSSPDE* spgs = &sNonCond;
   spgs->simulate();
-  spgs->query(&workingDbc);
-  workingDbc.display();
-  workingDbc.serialize("pgs.ascii");
+  spgs->query(workingDbc);
+  workingDbc->display();
+  workingDbc->serialize("pgs.ascii");
 
+  delete db;
+  delete workingDbc;
+  delete dbprop;
+  delete dat;
   delete rule;
   delete ruleprop;
   return(error);

@@ -46,19 +46,6 @@ Model::Model(const CovContext &ctxt)
   _create();
 }
 
-Model::Model(const Db *db)
-    :
-    AStringable(),
-    ASerializable(),
-    _covaList(nullptr),
-    _driftList(nullptr),
-    _noStat(nullptr),
-    _ctxt()
-{
-  _ctxt = CovContext(db);
-  _create();
-}
-
 Model::Model(const Model &m)
     : AStringable(m),
       ASerializable(m),
@@ -88,6 +75,23 @@ Model::~Model()
   _clear();
 }
 
+int Model::resetFromDb(const Db *db)
+{
+  _ctxt = CovContext(db);
+  _create();
+  return 0;
+}
+
+Model* Model::createFromDb(const Db* db)
+{
+  Model* model = new Model();
+  if (model->resetFromDb(db))
+  {
+    messerr("Problem when creating Model from Db");
+    delete model;
+  }
+  return model;
+}
 Model* Model::createFromNF(const String &neutralFileName, bool verbose)
 {
   Model* model = new Model();
@@ -95,7 +99,7 @@ Model* Model::createFromNF(const String &neutralFileName, bool verbose)
   {
     if (verbose) messerr("Problem when reading the Neutral File");
     delete model;
-    model = nullptr;
+    return nullptr;
   }
   return model;
 }

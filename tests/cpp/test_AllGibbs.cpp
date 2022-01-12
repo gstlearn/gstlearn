@@ -66,7 +66,7 @@ int main(int /*argc*/, char * /*argv*/[])
   // Data file
 
   VectorDouble dx = {1., 1.};
-  Db* db = new Db({nx,nx},dx);
+  Db* db = Db::createFromGrid({nx,nx},dx);
   if (! FFFF(bound))
   {
     db->addFieldsByConstant(1, -bound, "Bounds", ELoc::L);

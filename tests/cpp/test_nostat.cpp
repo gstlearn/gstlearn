@@ -41,10 +41,10 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the 2-D Db
   auto nx = { 101, 101 };
-  Db workingDbc(nx);
+  Db* workingDbc = Db::createFromGrid(nx);
 
   // Creating the Non-stationary Model
-  Model model(&workingDbc);
+  Model model(workingDbc);
   CovContext ctxt = model.getContext();
   CovLMC covs(ctxt.getSpace());
   CovAniso cova(ECov::BESSEL_K,ctxt);
@@ -53,16 +53,16 @@ int main(int /*argc*/, char */*argv*/[])
   model.setCovList(&covs);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  VectorDouble angle = spirale.getFunctionValues(&workingDbc);
+  VectorDouble angle = spirale.getFunctionValues(workingDbc);
   MatrixSquareGeneral hh(2);
 
-  int nech = workingDbc.getSampleNumber();
+  int nech = workingDbc->getSampleNumber();
   VectorDouble h11(nech);
   VectorDouble h12(nech);
   VectorDouble h22(nech);
   for (int i = 0; i < nech; i++)
   {
-    VectorDouble coor = workingDbc.getSampleCoordinates(i);
+    VectorDouble coor = workingDbc->getSampleCoordinates(i);
     VectorVectorDouble dirs = spirale.getFunctionVectors(coor);
 
     MatrixSquareGeneral rotmat(2);
@@ -80,24 +80,24 @@ int main(int /*argc*/, char */*argv*/[])
     h12[i] = hh.getValue(0,1);
     h22[i] = hh.getValue(1,1);
   }
-  workingDbc.addFields(h11,"H1-1",ELoc::NOSTAT,0);
-  workingDbc.addFields(h12,"H1-2",ELoc::NOSTAT,1);
-  workingDbc.addFields(h22,"H2-2",ELoc::NOSTAT,2);
-  workingDbc.display();
+  workingDbc->addFields(h11,"H1-1",ELoc::NOSTAT,0);
+  workingDbc->addFields(h12,"H1-2",ELoc::NOSTAT,1);
+  workingDbc->addFields(h22,"H2-2",ELoc::NOSTAT,2);
+  workingDbc->display();
 
   // Inquiry the value of the Non-stationary parameters at a given sample
   int target = 1000;
-  VectorDouble vect = workingDbc.getSampleAttributes(ELoc::NOSTAT,target);
+  VectorDouble vect = workingDbc->getSampleAttributes(ELoc::NOSTAT,target);
   ut_vector_display("Non-stationary parameters at sample", vect);
 
-  NoStatArray NoStat({"H1-1","H1-2","H2-2"},&workingDbc);
+  NoStatArray NoStat({"H1-1","H1-2","H2-2"},workingDbc);
   model.addNoStat(&NoStat);
   model.display();
 
   message("Test performed successfully\n");
 
   MeshETurbo mesh(workingDbc);
-  ShiftOpCs S(&mesh, &model, &workingDbc);
+  ShiftOpCs S(&mesh, &model, workingDbc);
   PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF, false);
 
   int nvertex = Qsimu.getSize();
@@ -105,9 +105,10 @@ int main(int /*argc*/, char */*argv*/[])
 
   VectorDouble result(Qsimu.getSize());
   Qsimu.eval(vectnew,result);
-  workingDbc.addFields(result,"Simu",ELoc::Z);
+  workingDbc->addFields(result,"Simu",ELoc::Z);
 
-  workingDbc.serialize("spirale.ascii");
+  workingDbc->serialize("spirale.ascii");
 
+  delete workingDbc;
   return 0;
 }

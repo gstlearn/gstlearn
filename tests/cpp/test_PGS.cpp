@@ -44,19 +44,19 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
-  Db db(nech,{0.,0.},{1.,1.});
+  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.});
   DbStringFormat dbfmt;
   dbfmt.setParams(FLAG_STATS);
-  db.display(&dbfmt);
+  db->display(&dbfmt);
 
-  Db dbprop= Db({100,100},{0.01,0.01},{0.,0.});
+  Db* dbprop = Db::createFromGrid({100,100},{0.01,0.01});
 
   VectorDouble props({0.2, 0.5, 0.3});
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
-    dbprop.addFieldsByConstant(1,props[ifac],names[ifac],ELoc::P,ifac);
-  dbprop.display();
+    dbprop->addFieldsByConstant(1,props[ifac],names[ifac],ELoc::P,ifac);
+  dbprop->display();
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
@@ -89,12 +89,12 @@ int main(int /*argc*/, char */*argv*/[])
   if (flagStationary)
     ruleprop = RuleProp::createFromRule(rule, props);
   else
-    ruleprop = RuleProp::createFromRuleAndDb(rule, &dbprop);
+    ruleprop = RuleProp::createFromRuleAndDb(rule, dbprop);
 
   // Perform a non-conditional simulation on the Db
-  error = simpgs(nullptr,&db,ruleprop,&model1,&model2,neigh);
-  db.setLocator(db.getLastName(),ELoc::Z);
-  db.serialize("simupgs.ascii");
+  error = simpgs(nullptr,db,ruleprop,&model1,&model2,neigh);
+  db->setLocator(db->getLastName(),ELoc::Z);
+  db->serialize("simupgs.ascii");
 
   // Design of several VarioParams
   int nlag1 = 19;
@@ -108,7 +108,7 @@ int main(int /*argc*/, char */*argv*/[])
   varioparam2.addDirs(dirparam2);
 
   // Determination of the variogram of the Underlying GRF
-  Vario* vario = variogram_pgs(&db,&varioparam1,ruleprop);
+  Vario* vario = variogram_pgs(db,&varioparam1,ruleprop);
   vario->display();
   Vario vario1 = Vario(*vario);
   vario1.reduce({0},VectorInt(),true);
@@ -140,23 +140,25 @@ int main(int /*argc*/, char */*argv*/[])
   if (flagStationary)
     ruleprop2 = RuleProp::createFromRule((Rule*) NULL, props);
   else
-    ruleprop2 = RuleProp::createFromDb(&dbprop, VectorDouble());
-  error = ruleprop2->fit(&db, &varioparam2, 2, true);
+    ruleprop2 = RuleProp::createFromDb(dbprop, VectorDouble());
+  error = ruleprop2->fit(db, &varioparam2, 2, true);
   ruleprop2->getRule()->display();
   ruleprop2->getRule()->serialize("ruleFit.ascii");
 
   modelPGS1.display();
-  Vario* varioDerived = model_pgs(&db, &varioparam1, ruleprop2, &modelPGS1, &modelPGS2);
+  Vario* varioDerived = model_pgs(db, &varioparam1, ruleprop2, &modelPGS1, &modelPGS2);
   modelPGS1.display();
   varioDerived->serialize("modelpgs.ascii");
   varioDerived->display();
 
-  Vario varioIndic = Vario(&varioparam1, &db);
+  Vario varioIndic = Vario(&varioparam1, db);
   varioIndic.computeIndic("vg");
   varioIndic.serialize("varioindic.ascii");
 
   modelPGS1.display();
 
+  delete db;
+  delete dbprop;
   delete neigh;
   delete rule;
   delete ruleprop;

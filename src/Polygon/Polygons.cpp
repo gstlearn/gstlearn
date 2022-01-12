@@ -281,7 +281,7 @@ Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
   {
     if (verbose) messerr("Problem reading the Neutral File.");
     delete polygons;
-    polygons = nullptr;
+    return nullptr;
   }
   return polygons;
 }

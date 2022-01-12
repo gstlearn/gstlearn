@@ -520,7 +520,7 @@ Neigh* Neigh::createFromNF(const String& neutralFilename, bool verbose)
   {
     if (verbose) messerr("Problem reading the Neutral File.");
     delete neigh;
-    neigh = nullptr;
+    return nullptr;
   }
   return neigh;
 }

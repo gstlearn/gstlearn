@@ -9,7 +9,7 @@
 #include "Basic/String.hpp"
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
-                 const Db& field,
+                 const Db* field,
                  const RuleProp* ruleprop,
                  const Db* dat)
     : _data(),
@@ -21,7 +21,7 @@ PGSSPDE::PGSSPDE(std::vector<Model*> models,
                                ESPDECalcMode::SIMUCOND;
   for(auto &e : models)
   {
-    _spdeTab.push_back(new SPDE(*e,field,dat,_calcul));
+    _spdeTab.push_back(new SPDE(e,field,dat,_calcul));
   }
 }
 

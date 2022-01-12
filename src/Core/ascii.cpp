@@ -459,33 +459,6 @@ void ascii_environ_read(char *file_name, int verbose)
 
 /****************************************************************************/
 /*!
- **   Read a Db
- **
- ** \return  Pointer to the Db descriptor
- **
- ** \param[in]  file_name  Name of the ASCII file
- ** \param[in]  must_grid  Desired grid type
- ** \li                     0 : Set of isolated points
- ** \li                     1 : Regular grid
- ** \li                    -1 : Any organization
- ** \param[in]  verbose    Verbose option if the file cannot be opened
- **
- *****************************************************************************/
-Db* ascii_db_read(const char *file_name, int must_grid, int verbose)
-{
-  if (!st_file_exists(file_name)) return nullptr;
-  Db *db = new Db(String(file_name), verbose);
-  if (must_grid && !db->isGrid())
-  {
-    messerr("The file (%s) does not correspond to a Grid file", file_name);
-    delete db;
-    db = nullptr;
-  }
-  return (db);
-}
-
-/****************************************************************************/
-/*!
  **   Read the Simulation Characteristics
  **
  ** \param[in]  file_name  Name of the ASCII file

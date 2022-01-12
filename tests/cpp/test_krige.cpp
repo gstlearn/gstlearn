@@ -34,7 +34,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Generate the output grid
   VectorInt nx = {100,100};
-  Db* grid = new Db(nx);
+  Db* grid = Db::createFromGrid(nx);
   grid->display();
 
   // Generate the data base
@@ -53,7 +53,7 @@ int main(int /*argc*/, char */*argv*/[])
       tab.push_back(10 * law_gaussian());
     }
 
-  Db* data = new Db(nech,ELoadBy::COLUMN,tab);
+  Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
   data->setNameByAttribute(1,"xcoor1");
   data->setNameByAttribute(2,"xcoor2");
   data->setNameByAttribute(3,"var");

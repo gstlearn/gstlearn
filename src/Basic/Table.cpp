@@ -60,7 +60,7 @@ Table* Table::createFromNF(const String& neutralFileName, bool verbose)
   {
     messerr("Problem reading the Neutral File");
     delete table;
-    table = nullptr;
+    return nullptr;
   }
   return table;
 }

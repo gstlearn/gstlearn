@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
   /* Define the data */
 
   ascii_filename("Data",0,0,filename);
-  dbin = ascii_db_read(filename,0,verbose);
+  dbin = Db::createFromNF(filename,false,verbose);
   if (dbin == nullptr) goto label_end;
   iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
   db_print(dbin,1,0,1,1,1);
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = ascii_db_read(filename,1,verbose);
+  dbout = Db::createFromNF(filename,true,verbose);
   flag_grid = (dbout != nullptr);
 
   /* Define the rules */

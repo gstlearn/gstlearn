@@ -47,7 +47,6 @@ class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public I
 {
 public:
   Model(const CovContext& ctxt = CovContext());
-  Model(const Db *db);
   Model(const Model &m);
   Model& operator= (const Model &m);
   virtual ~Model();
@@ -58,6 +57,8 @@ public:
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Model(*this); }
 
+  int resetFromDb(const Db* db);
+  static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFileName, bool verbose = false);
 
   void   setCovList(const ACovAnisoList* covalist);

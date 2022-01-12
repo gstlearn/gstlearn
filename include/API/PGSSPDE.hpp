@@ -17,7 +17,7 @@ class GSTLEARN_EXPORT PGSSPDE
 {
 public:
   PGSSPDE(std::vector<Model*> models,
-          const Db& field,
+          const Db* field,
           const RuleProp* ruleprop,
           const Db* dat=nullptr);
   PGSSPDE(const PGSSPDE& r) = delete;

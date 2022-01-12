@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = ascii_db_read(filename,1,verbose);
+  dbout = Db::createFromNF(filename,false,verbose);
 
   /* Look for simulations */
 
