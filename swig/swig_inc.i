@@ -32,6 +32,7 @@
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/Table.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/NamingConvention.hpp"
 
 #include "Enum/EKrigOpt.hpp"
 
@@ -104,6 +105,7 @@
 #include "Model/EModelProperty.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/EConsType.hpp"
+#include "Model/CovParamId.hpp"
 
 #include "Covariances/ACov.hpp"
 #include "Covariances/ACovFunc.hpp"

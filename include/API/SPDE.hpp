@@ -32,7 +32,7 @@ public:
             const Db *dat = nullptr,
             const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
   void compute(int nbsimus = 1, int seed = 131323) const; // TODO What this seed ?
-  void computeKriging(const VectorDouble &vect) const;
+  void computeKriging() const;
   void computeSimuNonCond(int nbsimus = 1, int seed = 131323) const;
   void computeSimuCond(int nbsimus = 1, int seed = 131323) const;
   VectorDouble computeCoeffs() const;
@@ -67,11 +67,12 @@ private:
   std::vector<ProjMatrix*> _pileProjMatrix;
   std::vector<MeshETurbo*> _simuMeshing;
   std::vector<MeshETurbo*> _krigingMeshing;
+  mutable VectorDouble     _driftCoeffs;
   Model *_model;
   mutable VectorVectorDouble _workKriging;
   mutable VectorVectorDouble _workingSimu;
+  mutable VectorDouble       _workingData;
   std::vector<ProjMatrix*> _projOnDbOut;
-  std::vector<int>         _adressesICov;
   double _nugget;
   // query sur aproj ou // TODO ??
 };
