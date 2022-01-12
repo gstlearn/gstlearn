@@ -371,7 +371,7 @@ int Model::addNoStatElems(const VectorString &codes)
 CovParamId Model::getCovParamId(int ipar) const
 {
   if (!isNoStat())
-  my_throw("Nostat is not defined and cannot be returned");
+    my_throw("Nostat is not defined and cannot be returned");
   return _noStat->getItems(ipar);
 }
 
@@ -381,14 +381,12 @@ int Model::getNoStatElemIcov(int ipar)
     my_throw("Nostat is not defined");
   return _noStat->getICov(ipar);
 }
-
 const EConsElem& Model::getNoStatElemType(int ipar)
 {
   if (!isNoStat())
     my_throw("Nostat is not defined");
   return _noStat->getType(ipar);
 }
-
 const DriftList* Model::getDriftList() const
 {
   return _driftList;
@@ -396,13 +394,13 @@ const DriftList* Model::getDriftList() const
 const ADriftElem* Model::getDrift(int il) const
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   return _driftList->getDrift(il);
 }
 ADriftElem* Model::getDrift(int il)
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   return _driftList->getDrift(il);
 }
 int Model::getDriftNumber() const
@@ -410,22 +408,32 @@ int Model::getDriftNumber() const
   if (_driftList == nullptr) return 0;
   return _driftList->getDriftNumber();
 }
+int Model::getExternalDriftNumber() const
+{
+  if (_driftList == nullptr) return 0;
+  int nfex = 0;
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    if (getDrift(il)->getType() == EDrift::F) nfex++;
+  }
+  return nfex;
+}
 const EDrift& Model::getDriftType(int il) const
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   return _driftList->getType(il);
 }
 int Model::getRankFext(int il) const
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   return _driftList->getRankFex(il);
 }
 const VectorDouble& Model::getCoefDrifts() const
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   return _driftList->getCoefDrift();
 }
 double Model::getCoefDrift(int ivar, int il, int ib) const
@@ -442,38 +450,49 @@ int Model::getDriftEquationNumber() const
 bool Model::isDriftFiltered(unsigned int il) const
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   return _driftList->isFiltered(il);
 }
-
+bool Model::isDriftDefined(const EDrift& type0) const
+{
+  if (_driftList == nullptr)
+    my_throw("Drift List if empty");
+  return _driftList->isDriftDefined(type0);
+}
+bool Model::isDriftDifferentDefined(const EDrift& type0) const
+{
+  if (_driftList == nullptr)
+    my_throw("Drift List if empty");
+  return _driftList->isDriftDifferentDefined(type0);
+}
 void Model::setCoefDrift(int ivar, int il, int ib, double coeff)
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   _driftList->setCoefDrift(ivar, il, ib, coeff);
 }
 void Model::setCoefDriftByRank(int rank, double coeff)
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   _driftList->setCoefDriftByRank(rank, coeff);
 }
 void Model::setDriftFiltered(int il, bool filtered)
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   _driftList->setFiltered(il, filtered);
 }
 VectorDouble Model::getDrift(const Db *db, int ib, bool useSel)
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   return _driftList->getDrift(db, ib, useSel);
 }
 VectorVectorDouble Model::getDrifts(const Db *db, bool useSel)
 {
   if (_driftList == nullptr)
-    my_throw("Dirft List if empty");
+    my_throw("Drift List if empty");
   return _driftList->getDrifts(db, useSel);
 }
 
@@ -500,6 +519,27 @@ double Model::evalDrift(const Db *db,
     if (drift != nullptr) return drift->eval(db, iech);
   }
   return TEST;
+}
+
+VectorDouble Model::evalDriftVec(const Db* db,
+                                 int iech,
+                                 const ECalcMember& member) const
+{
+  int ndrift = getDriftNumber();
+  VectorDouble drftab(ndrift);
+  for (int il = 0; il < ndrift; il++)
+     drftab[il] = evalDrift(db, iech, il, member);
+  return drftab;
+}
+
+void Model::evalDriftVecInPlace(const Db* db,
+                                int iech,
+                                const ECalcMember& member,
+                                VectorDouble& drftab) const
+{
+  int ndrift = getDriftNumber();
+  for (int il = 0; il < ndrift; il++)
+     drftab[il] = evalDrift(db, iech, il, member);
 }
 
 /**

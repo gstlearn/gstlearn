@@ -85,8 +85,8 @@ public:
   Db reduce(const VectorInt& ranks) const;
 
   void resetCoveringDb(Db* db,
-                       const VectorInt& nodes = VectorInt(),
-                       const VectorDouble& dcell = VectorDouble(),
+                       const VectorInt& nodes     = VectorInt(),
+                       const VectorDouble& dcell  = VectorDouble(),
                        const VectorDouble& origin = VectorDouble(),
                        const VectorDouble& margin = VectorDouble());
   void resetSamplingDb(const Db* dbin,

@@ -436,8 +436,8 @@ static int st_update_model(Model *model, Pot_Env *pot_env)
   int nbfl;
 
   nbfl = model->getDriftNumber();
-  if (model_is_drift_defined(model, EDrift::UC)) nbfl--;
-  pot_env->order = model_maximum_order(model);
+  if (model->isDriftDefined(EDrift::UC)) nbfl--;
+  pot_env->order =  model->getMaximumOrder();
   pot_env->size_drf = nbfl;
   pot_env->next = pot_env->size_ext = model_nfex(model);
 
@@ -487,15 +487,15 @@ static int st_update_final(Model *model, Pot_Env *pot_env)
   for (int i = 0; i < 9; i++)
     TAB_DRF[i] = -1;
 
-  if (model_is_drift_defined(model, EDrift::X)) TAB_DRF[0] = pos++;
-  if (model_is_drift_defined(model, EDrift::Y)) TAB_DRF[1] = pos++;
-  if (model_is_drift_defined(model, EDrift::Z)) TAB_DRF[2] = pos++;
-  if (model_is_drift_defined(model, EDrift::X2)) TAB_DRF[3] = pos++;
-  if (model_is_drift_defined(model, EDrift::Y2)) TAB_DRF[4] = pos++;
-  if (model_is_drift_defined(model, EDrift::Z2)) TAB_DRF[5] = pos++;
-  if (model_is_drift_defined(model, EDrift::XY)) TAB_DRF[6] = pos++;
-  if (model_is_drift_defined(model, EDrift::XZ)) TAB_DRF[7] = pos++;
-  if (model_is_drift_defined(model, EDrift::YZ)) TAB_DRF[8] = pos++;
+  if (model->isDriftDefined(EDrift::X)) TAB_DRF[0] = pos++;
+  if (model->isDriftDefined(EDrift::Y)) TAB_DRF[1] = pos++;
+  if (model->isDriftDefined(EDrift::Z)) TAB_DRF[2] = pos++;
+  if (model->isDriftDefined(EDrift::X2)) TAB_DRF[3] = pos++;
+  if (model->isDriftDefined(EDrift::Y2)) TAB_DRF[4] = pos++;
+  if (model->isDriftDefined(EDrift::Z2)) TAB_DRF[5] = pos++;
+  if (model->isDriftDefined(EDrift::XY)) TAB_DRF[6] = pos++;
+  if (model->isDriftDefined(EDrift::XZ)) TAB_DRF[7] = pos++;
+  if (model->isDriftDefined(EDrift::YZ)) TAB_DRF[8] = pos++;
 
   /* Optional output */
 
@@ -2758,7 +2758,7 @@ static int st_model_invalid(Model *model)
       messerr("An additional nugget effect can also be considered");
       return (1);
     }
-    if (type == ECov::SPLINE2_GC && model_maximum_order(model) < 2)
+    if (type == ECov::SPLINE2_GC && model->getMaximumOrder() < 2)
     {
       messerr("The Model includes Second Order Spline Generalized Covariance");
       messerr("This requires a second order drift");

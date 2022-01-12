@@ -229,17 +229,18 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   if (_stats.empty()) return sstr.str();
 
-  if (!_stats.empty())
-  {
-    int ncols = getColNumber();
-    int nrows = getRowNumber();
+  sstr << toTitle(1, "Table contents");
+  int ncols = getColNumber();
+  int nrows = getRowNumber();
+  sstr << "- Number of Rows    = " << nrows << std::endl;
+  sstr << "- Number of Columns = " << ncols << std::endl;
+  sstr << std::endl;
 
-    for (int irow = 0; irow < nrows; irow++)
-    {
-      for (int icol = 0; icol < ncols; icol++)
-        sstr << _stats[icol][irow];
-      sstr << std::endl;
-    }
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    for (int icol = 0; icol < ncols; icol++)
+      sstr << " " << toDouble(_stats[icol][irow]);
+    sstr << std::endl;
   }
   return sstr.str();
 }

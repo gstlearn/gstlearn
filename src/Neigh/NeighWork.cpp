@@ -446,8 +446,7 @@ bool NeighWork::_discardUndefined(int iech)
  *****************************************************************************/
 int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
 {
-  if (_neigh->getFlagXvalid() == 0)
-    return 0;
+  if (_neigh->getFlagXvalid() == 0) return 0;
   else if (_neigh->getFlagXvalid() > 0)
   {
     if (distance_inter(_dbin, dbout, iech_in, iech_out, NULL) < eps) return 1;
