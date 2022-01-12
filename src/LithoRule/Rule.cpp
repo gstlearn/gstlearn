@@ -146,6 +146,7 @@ void Rule::_clear()
  */
 int Rule::resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_facs, double rho)
 {
+  _clear();
   _modeRule = ERule::STD;
   _rho = rho;
   setMainNodeFromNodNames(n_type, n_facs);
@@ -154,6 +155,7 @@ int Rule::resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_f
 
 int Rule::resetFromFaciesCount(int nfacies, double rho)
 {
+  _clear();
   _modeRule = ERule::STD;
   _rho = rho;
   VectorString nodnames = buildNodNames(nfacies);
@@ -163,6 +165,7 @@ int Rule::resetFromFaciesCount(int nfacies, double rho)
 
 int Rule::resetFromNames(const VectorString& nodnames, double rho)
 {
+  _clear();
   _modeRule = ERule::STD;
   _rho = rho;
   setMainNodeFromNodNames(nodnames);
@@ -171,6 +174,7 @@ int Rule::resetFromNames(const VectorString& nodnames, double rho)
 
 int Rule::resetFromCodes(const VectorInt& nodes, double rho)
 {
+  _clear();
   _modeRule = ERule::STD;
   _rho = rho;
   setMainNodeFromNodNames(nodes);

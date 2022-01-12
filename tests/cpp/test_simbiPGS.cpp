@@ -122,11 +122,11 @@ int main(int /*argc*/, char */*argv*/[])
   // Performing a PGS simulation using Shift
   VectorDouble shift = {0.2, 0.3};
   VectorDouble propshift = { 0.1, 0.2, 0.3, 0.4 };
-  RuleShift ruleshift({"S","S","S","F1","F2","F3","F4"},shift);
-  ruleshift.display();
-  ruleshift.serialize("PGSruleshift.ascii");
+  RuleShift* ruleshift = RuleShift::createFromNames({"S","S","S","F1","F2","F3","F4"},shift);
+  ruleshift->display();
+  ruleshift->serialize("PGSruleshift.ascii");
 
-  RuleProp rulepropshift = RuleProp(&ruleshift, propshift);
+  RuleProp rulepropshift = RuleProp(ruleshift, propshift);
 
   // Perform a non-conditional PGS Shift simulation on a grid
   error = simpgs(nullptr,&dbgrid,&rulepropshift,&model1,nullptr,&neigh,nbsimu);
@@ -153,5 +153,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   delete rule1;
   delete rule2;
+  delete ruleshift;
   return(error);
 }

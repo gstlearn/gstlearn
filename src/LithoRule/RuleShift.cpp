@@ -23,77 +23,18 @@
 #include <sstream>
 #include <math.h>
 
-/**
- * Definition of the Lithotype RuleShift
- * @param nodes List of "integer" nodes (should only include "S", no "T")
- * @param shift Vector defining the Shift
- */
-RuleShift::RuleShift(const VectorInt& nodes, const VectorDouble& shift)
+RuleShift::RuleShift()
     : Rule(),
       _shDsup(0.),
       _shDown(0.),
       _slope(0.),
-      _shift(shift),
+      _shift(0.),
       _incr(TEST),
       _xyz(),
       _ind1(),
       _ind2()
 {
   setModeRule(ERule::SHIFT);
-  setMainNodeFromNodNames(nodes);
-}
-
-RuleShift::RuleShift(const VectorString& nodnames, const VectorDouble& shift)
-    : Rule(),
-      _shDsup(0.),
-      _shDown(0.),
-      _slope(0.),
-      _shift(shift),
-      _incr(TEST),
-      _xyz(),
-      _ind1(),
-      _ind2()
-{
-  setModeRule(ERule::SHIFT);
-  setMainNodeFromNodNames(nodnames);
-}
-
-/**
- * Definition of the Lithotype RuleShift
- * @param nfacies Number of facies
- * @param shift Vector defining the shift
- */
-RuleShift::RuleShift(int nfacies, const VectorDouble& shift)
-    : Rule(),
-      _shDsup(0.),
-      _shDown(0.),
-      _slope(0.),
-      _shift(shift),
-      _incr(TEST),
-      _xyz(),
-      _ind1(),
-      _ind2()
-{
-  setModeRule(ERule::SHIFT);
-  VectorString nodnames = buildNodNames(nfacies);
-  setMainNodeFromNodNames(nodnames);
-}
-
-RuleShift::RuleShift(const VectorInt& n_type,
-                     const VectorInt& n_facs,
-                     const VectorDouble& shift)
-    : Rule(),
-      _shDsup(0.),
-      _shDown(0.),
-      _slope(0.),
-      _shift(shift),
-      _incr(TEST),
-      _xyz(),
-      _ind1(),
-      _ind2()
-{
-  setModeRule(ERule::SHIFT);
-  setMainNodeFromNodNames(n_type, n_facs);
 }
 
 RuleShift::RuleShift(const RuleShift& m)
@@ -122,6 +63,52 @@ RuleShift& RuleShift::operator=(const RuleShift& m)
 
 RuleShift::~RuleShift()
 {
+}
+
+/**
+ * Definition of the Lithotype RuleShift
+ * @param nodes List of "integer" nodes (should only include "S", no "T")
+ * @param shift Vector defining the Shift
+ */
+int RuleShift::resetFromNodes(const VectorInt& nodes, const VectorDouble& shift)
+{
+  _shift = shift;
+
+  setModeRule(ERule::SHIFT);
+  setMainNodeFromNodNames(nodes);
+  return 0;
+}
+
+int RuleShift::resetFromNames(const VectorString& nodnames, const VectorDouble& shift)
+{
+  _shift = shift;
+  setModeRule(ERule::SHIFT);
+  setMainNodeFromNodNames(nodnames);
+  return 0;
+}
+
+/**
+ * Definition of the Lithotype RuleShift
+ * @param nfacies Number of facies
+ * @param shift Vector defining the shift
+ */
+int RuleShift::resetFromFaciesCount(int nfacies, const VectorDouble& shift)
+{
+  _shift = shift;
+  setModeRule(ERule::SHIFT);
+  VectorString nodnames = buildNodNames(nfacies);
+  setMainNodeFromNodNames(nodnames);
+  return 0;
+}
+
+int RuleShift::resetFromNumericalCoding(const VectorInt& n_type,
+                                        const VectorInt& n_facs,
+                                        const VectorDouble& shift)
+{
+  _shift = shift;
+  setModeRule(ERule::SHIFT);
+  setMainNodeFromNodNames(n_type, n_facs);
+  return 0;
 }
 
 int RuleShift::deSerializeSpecific()
@@ -417,4 +404,50 @@ int RuleShift::evaluateBounds(PropDef *propdef,
     message("Number of replicates  = %d\n", nadd);
   }
   return (0);
+}
+
+RuleShift* RuleShift::createFromNodes(const VectorInt& nodes,
+                                      const VectorDouble& shift)
+{
+  RuleShift* ruleshift = new RuleShift();
+  if (ruleshift->resetFromNodes(nodes, shift))
+  {
+    messerr("Problem when creating RuleShift from Nodes");
+    delete ruleshift;
+  }
+  return ruleshift;
+}
+RuleShift* RuleShift::createFromNames(const VectorString& nodnames,
+                                      const VectorDouble& shift)
+{
+  RuleShift* ruleshift = new RuleShift();
+  if (ruleshift->resetFromNames(nodnames, shift))
+  {
+    messerr("Problem when creating RuleShift from Node Names");
+    delete ruleshift;
+  }
+  return ruleshift;
+}
+RuleShift* RuleShift::createFromFaciesCount(int nfacies,
+                                            const VectorDouble& shift)
+{
+  RuleShift* ruleshift = new RuleShift();
+  if (ruleshift->resetFromFaciesCount(nfacies, shift))
+  {
+    messerr("Problem when creating RuleShift from Count of Facies");
+    delete ruleshift;
+  }
+  return ruleshift;
+}
+RuleShift* RuleShift::createFromNumericalCoding(const VectorInt& n_type,
+                                                const VectorInt& n_facs,
+                                                const VectorDouble& shift)
+{
+  RuleShift* ruleshift = new RuleShift();
+  if (ruleshift->resetFromNumericalCoding(n_type, n_facs, shift))
+  {
+    messerr("Problem when creating RuleShift from Numerical Coding");
+    delete ruleshift;
+  }
+  return ruleshift;
 }
