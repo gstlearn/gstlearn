@@ -30,10 +30,9 @@ class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public I
 {
 public:
   Vario(const VarioParam* varioparam,
-        Db* db,
+        Db* db = nullptr,
         const VectorDouble& means = VectorDouble(),
         const VectorDouble& vars = VectorDouble());
-  Vario(const String& neutralFileName, bool verbose = false);
   Vario(const Vario& r);
   Vario& operator=(const Vario& r);
   virtual ~Vario();
@@ -43,6 +42,8 @@ public:
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Vario(*this); };
+
+  static Vario* createFromNF(const String& neutralFileName, bool verbose = false);
 
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
@@ -163,7 +164,6 @@ public:
                    int nfacmax = -1);
 
   // Pipe to the DirParam
-
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }
   int getDirectionNumber() const { return _varioparam.getDirectionNumber(); }
   const VectorDouble& getDates() const { return _varioparam.getDates(); }

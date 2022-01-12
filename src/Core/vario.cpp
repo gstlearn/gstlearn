@@ -1725,7 +1725,7 @@ static int st_variogram_calcul1(Db *db,
       vario->getDirParam(idir).getTolAngle());
   nech = db->getSampleNumber();
   maxdist = vario->getMaximumDistance(idir);
-  const VarioParam &varioparam = vario->getVarioParam();
+  const VarioParam& varioparam = vario->getVarioParam();
 
   /* Loop on the first point */
 

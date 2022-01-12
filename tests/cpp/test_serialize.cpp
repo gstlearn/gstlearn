@@ -97,8 +97,8 @@ int main(int /*argc*/, char */*argv*/[])
   vario1.serialize("Neutral.Vario.ascii",verbose);
 
   // Deserialize vario2
-  Vario vario2("Neutral.Vario.ascii",verbose);
-  vario2.display();
+  Vario* vario2 = Vario::createFromNF("Neutral.Vario.ascii",verbose);
+  vario2->display();
 
   // ===== Create a Model
   db1.display();
@@ -114,8 +114,8 @@ int main(int /*argc*/, char */*argv*/[])
   model1.serialize("Neutral.Model.ascii",verbose);
 
   // Deserialize model2
-  Model model2("Neutral.Model.ascii",verbose);
-  model2.display();
+  Model* model2 = Model::createFromNF("Neutral.Model.ascii",verbose);
+  model2->display();
 
   // ===== Create a Table
   VectorVectorDouble table;
@@ -124,15 +124,19 @@ int main(int /*argc*/, char */*argv*/[])
   table.resize(ncols);
   for (int icol = 0; icol < ncols; icol++)
     table[icol] = ut_vector_simulate_uniform(nrows);
-  Table table1(table);
-  table1.display();
+  Table* table1 = Table::createFromArray(table);
+  table1->display();
 
   // Serialize table
-  table1.serialize("Neutral.Table.ascii",verbose);
+  table1->serialize("Neutral.Table.ascii",verbose);
 
   // Deserialize table1
-  Table table2("Neutral.Table.ascii",verbose);
-  table2.display();
+  Table* table2 = Table::createFromNF("Neutral.Table.ascii",verbose);
+  table2->display();
 
+  delete vario2;
+  delete model2;
+  delete table1;
+  delete table2;
   return(0);
 }

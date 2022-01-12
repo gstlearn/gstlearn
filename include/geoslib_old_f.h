@@ -803,15 +803,11 @@ GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
 GSTLEARN_EXPORT Db* ascii_db_read(const char *file_name,
                                   int must_grid,
                                   int verbose);
-GSTLEARN_EXPORT Vario* ascii_vario_read(const char *file_name, bool verbose);
-GSTLEARN_EXPORT Neigh* ascii_neigh_read(const char *file_name, int verbose);
-GSTLEARN_EXPORT Model* ascii_model_read(const char *file_name, int verbose);
 GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
                                      int verbose,
                                      int *nbsimu,
                                      int *nbtuba,
                                      int *seed);
-GSTLEARN_EXPORT Rule* ascii_rule_read(const char *file_name, int verbose);
 GSTLEARN_EXPORT Anam* ascii_anam_read(const char *file_name, int verbose);
 GSTLEARN_EXPORT Frac_Environ* ascii_frac_read(const char *file_name,
                                               int verbose);

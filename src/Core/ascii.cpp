@@ -471,9 +471,7 @@ void ascii_environ_read(char *file_name, int verbose)
  ** \param[in]  verbose    Verbose option if the file cannot be opened
  **
  *****************************************************************************/
-Db* ascii_db_read(const char *file_name,
-                                  int must_grid,
-                                  int verbose)
+Db* ascii_db_read(const char *file_name, int must_grid, int verbose)
 {
   if (!st_file_exists(file_name)) return nullptr;
   Db *db = new Db(String(file_name), verbose);
@@ -484,76 +482,6 @@ Db* ascii_db_read(const char *file_name,
     db = nullptr;
   }
   return (db);
-}
-
-/****************************************************************************/
-/*!
- **   Read the variogram definition file
- **
- ** \return  Pointer to the Vario structure
- **
- ** \param[in]  file_name  Name of the ASCII file
- ** \param[in]  verbose    Verbose option if the file cannot be opened
- **
- *****************************************************************************/
-Vario* ascii_vario_read(const char *file_name, bool verbose)
-{
-  if (!st_file_exists(file_name)) return nullptr;
-  Vario *vario = new Vario(file_name, verbose);
-  return (vario);
-}
-
-/****************************************************************************/
-/*!
- **   Read the model definition file from an ASCII file
- **
- ** \return  Pointer to the Model structure
- **
- ** \param[in]  file_name  Name of the ASCII file
- ** \param[in]  verbose    Verbose option if the file cannot be opened
- **
- *****************************************************************************/
-Model* ascii_model_read(const char *file_name, int verbose)
-
-{
-  if (!st_file_exists(file_name)) return nullptr;
-  Model *model = new Model(file_name, verbose);
-  return (model);
-}
-
-/****************************************************************************/
-/*!
- **   Read the neighborhood definition file
- **
- ** \return  Pointer to the Neigh structure
- **
- ** \param[in]  file_name  Name of the ASCII file
- ** \param[in]  verbose    Verbose option if the file cannot be opened
- **
- ** \remark  For MOVING neighborhood, only isotropic case is considered
- **
- *****************************************************************************/
-Neigh* ascii_neigh_read(const char *file_name, int verbose)
-{
-  if (!st_file_exists(file_name)) return nullptr;
-  return (Neigh::createFromNF(file_name, verbose));
-}
-
-/****************************************************************************/
-/*!
- **   Read the Rule definition file
- **
- ** \return  Pointer to the Rule structure
- **
- ** \param[in]  file_name  Name of the ASCII file
- ** \param[in]  verbose    Verbose option if the file cannot be opened
- **
- *****************************************************************************/
-Rule* ascii_rule_read(const char *file_name, int verbose)
-{
-  if (!st_file_exists(file_name)) return nullptr;
-  Rule *rule = Rule::createFromNF(file_name, verbose);
-  return (rule);
 }
 
 /****************************************************************************/
@@ -569,10 +497,10 @@ Rule* ascii_rule_read(const char *file_name, int verbose)
  **
  *****************************************************************************/
 void ascii_simu_read(char *file_name,
-                                     int verbose,
-                                     int *nbsimu,
-                                     int *nbtuba,
-                                     int *seed)
+                     int verbose,
+                     int *nbsimu,
+                     int *nbtuba,
+                     int *seed)
 {
   FILE *file;
 
@@ -610,9 +538,9 @@ void ascii_simu_read(char *file_name,
  **
  *****************************************************************************/
 int ascii_anam_write(const char *file_name,
-                                     const Anam *anam,
-                                     int verbose,
-                                     int flag_calcul)
+                     const Anam *anam,
+                     int verbose,
+                     int flag_calcul)
 {
   FILE *file;
   int error;

@@ -279,8 +279,9 @@ Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
   Polygons* polygons = new Polygons();
   if (polygons->deSerialize(neutralFilename, verbose))
   {
-    messerr("Problem reading the Neutral File.");
+    if (verbose) messerr("Problem reading the Neutral File.");
     delete polygons;
+    polygons = nullptr;
   }
   return polygons;
 }

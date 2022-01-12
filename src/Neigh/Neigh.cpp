@@ -518,8 +518,9 @@ Neigh* Neigh::createFromNF(const String& neutralFilename, bool verbose)
   Neigh* neigh = new Neigh();
   if (neigh->deSerialize(neutralFilename, verbose))
   {
-    messerr("Problem reading the Neutral File.");
+    if (verbose) messerr("Problem reading the Neutral File.");
     delete neigh;
+    neigh = nullptr;
   }
   return neigh;
 }

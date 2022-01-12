@@ -4928,10 +4928,10 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
  **
  *****************************************************************************/
 Vario* model_pgs(Db *db,
-                                 const VarioParam *varioparam,
-                                 const RuleProp *ruleprop,
-                                 const Model *model1,
-                                 const Model *model2)
+                 const VarioParam *varioparam,
+                 const RuleProp *ruleprop,
+                 const Model *model1,
+                 const Model *model2)
 {
   Vario *vario = nullptr;
   Vario *varioind = nullptr;

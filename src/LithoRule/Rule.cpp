@@ -1036,8 +1036,9 @@ Rule* Rule::createFromNF(const String& neutralFileName, bool verbose)
   rule->setModeRule(ERule::STD);
   if (rule->deSerialize(neutralFileName, verbose))
   {
-    messerr("Problem reading the Neutral File.");
+    if (verbose) messerr("Problem reading the Neutral File.");
     delete rule;
+    rule = nullptr;
   }
   return rule;
 }

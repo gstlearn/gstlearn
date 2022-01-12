@@ -59,22 +59,6 @@ Model::Model(const Db *db)
   _create();
 }
 
-Model::Model(const String &neutralFileName, bool verbose)
-    :
-    AStringable(),
-    ASerializable(),
-    _covaList(nullptr),
-    _driftList(nullptr),
-    _noStat(nullptr),
-    _ctxt()
-{
-  if (deSerialize(neutralFileName, verbose))
-  {
-    messerr("Problem when reading the Neutral File");
-    messerr("The Model is not entirely completed");
-  }
-}
-
 Model::Model(const Model &m)
     : AStringable(m),
       ASerializable(m),
@@ -101,7 +85,19 @@ Model& Model::operator=(const Model &m)
 
 Model::~Model()
 {
-  _destroy();
+  _clear();
+}
+
+Model* Model::createFromNF(const String &neutralFileName, bool verbose)
+{
+  Model* model = new Model();
+  if (model->deSerialize(neutralFileName, verbose))
+  {
+    if (verbose) messerr("Problem when reading the Neutral File");
+    delete model;
+    model = nullptr;
+  }
+  return model;
 }
 
 String Model::toString(const AStringFormat* /*strfmt*/) const
@@ -701,7 +697,7 @@ int Model::deSerialize(const String &filename, bool verbose)
   if (_fileOpen(filename, "Model", "r", verbose)) return 1;
 
   // Delete previous Model contents (if any)
-  _destroy();
+  _clear();
 
   /* Create the Model structure */
 
@@ -900,7 +896,7 @@ int Model::serialize(const String &filename, bool verbose) const
   return 0;
 }
 
-void Model::_destroy()
+void Model::_clear()
 {
   delete _covaList;
   delete _driftList;
