@@ -66,8 +66,10 @@ int main(int /*argc*/, char */*argv*/[])
   dbg2.display();
 
   // ===== Create the Polygon poly1
-  Polygons poly1(&db1);
-  Polygons polyb(&dbg1);
+  Polygons poly1;
+  poly1.resetFromDb(&db1);
+  Polygons polyb;
+  polyb.resetFromDb(&dbg1);
   poly1.addPolySet(polyb.getPolySet(0));
   poly1.display();
 
@@ -75,7 +77,7 @@ int main(int /*argc*/, char */*argv*/[])
   poly1.serialize("Neutral.Polygon.ascii",verbose);
 
   // Deserialize poly2
-  Polygons* poly2 = Polygons::deserializeF("Neutral.Polygon.ascii",verbose);
+  Polygons* poly2 = Polygons::createFromNF("Neutral.Polygon.ascii",verbose);
   poly2->display();
   delete poly2;
 

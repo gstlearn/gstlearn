@@ -80,8 +80,8 @@ int main(int /*argc*/, char */*argv*/[])
   models.push_back(&model2);
 
   // Creating the Rule
-  Rule rule({"S","T","F1","F2","F3"});
-  RuleProp ruleProp = RuleProp(&rule, props);
+  Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
+  RuleProp ruleProp = RuleProp(rule, props);
 
   auto ndata = 100;
   Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
@@ -97,5 +97,6 @@ int main(int /*argc*/, char */*argv*/[])
   workingDbc.display();
   workingDbc.serialize("pgs.ascii");
 
+  delete rule;
   return(error);
 }

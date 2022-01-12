@@ -92,12 +92,12 @@ int main(int /*argc*/, char */*argv*/[])
   neigh.display();
 
   // Creating the Rules
-  Rule rule1({"S","S","F1","F2","F3"});
-  rule1.display();
-  rule1.serialize("PGSrule1.ascii");
+  Rule* rule1 = Rule::createFromNames({"S","S","F1","F2","F3"});
+  rule1->display();
+  rule1->serialize("PGSrule1.ascii");
 
   // Creating the RuleProp structure for simPGS
-  RuleProp ruleprop1 = RuleProp(&rule1, props1);
+  RuleProp ruleprop1 = RuleProp(rule1, props1);
 
   // Perform a non-conditional PGS simulation on a grid
   error = simpgs(nullptr,&dbgrid,&ruleprop1,&model1,&model2,&neigh,nbsimu);
@@ -107,10 +107,10 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the RuleProp for simBiPGS
   VectorDouble props2({0.1, 0.2, 0.1, 0.3, 0.1, 0.2});
-  Rule rule2({"S","F1","F2"});
-  rule2.display();
-  rule2.serialize("PGSrule2.ascii");
-  RuleProp rulepropbi = RuleProp(&rule1, &rule2, props2);
+  Rule* rule2 = Rule::createFromNames({"S","F1","F2"});
+  rule2->display();
+  rule2->serialize("PGSrule2.ascii");
+  RuleProp rulepropbi = RuleProp(rule1, rule2, props2);
 
   // Perform a non-conditional BiPGS simulation on a grid
   error = simbipgs(nullptr,&dbgrid,&rulepropbi,
@@ -151,5 +151,7 @@ int main(int /*argc*/, char */*argv*/[])
   dbgrid.display();
   dbgrid.serialize("simushadowpgs.ascii");
 
+  delete rule1;
+  delete rule2;
   return(error);
 }

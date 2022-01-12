@@ -835,9 +835,6 @@ static int st_vario_pgs_variable(int mode,
  *****************************************************************************/
 static Rule* st_rule_encode(int *string)
 {
-  Rule *rule;
-
-  rule = nullptr;
   VectorInt n_type = VectorInt(NRULE);
   VectorInt n_facs = VectorInt(NRULE);
 
@@ -861,9 +858,7 @@ static Rule* st_rule_encode(int *string)
     else
       messageAbort("Unexpected rule number");
   }
-
-  rule = new Rule(n_type, n_facs);
-  return (rule);
+  return Rule::createFromNumericalCoding(n_type, n_facs);
 }
 
 /****************************************************************************/

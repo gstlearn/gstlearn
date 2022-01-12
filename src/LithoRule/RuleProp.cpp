@@ -44,8 +44,7 @@ RuleProp::RuleProp(const Db* dbprop, const VectorDouble& propcst)
 
   // A generic rule is created on the fly
   int nfacies = _getNFacies();
-  Rule rule = Rule(nfacies);
-  _rules.push_back(new Rule(rule));
+  _rules.push_back(Rule::createFromFaciesCount(nfacies));
 }
 
 RuleProp::RuleProp(const Rule* rule, const VectorDouble& propcst)

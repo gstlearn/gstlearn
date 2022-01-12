@@ -102,66 +102,6 @@ Rule::Rule(double rho)
 {
 }
 
-Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
-    : AStringable(),
-      ASerializable(),
-      _modeRule(ERule::STD),
-      _flagProp(0),
-      _rho(rho),
-      _mainNode(nullptr)
-{
-  setMainNodeFromNodNames(n_type, n_facs);
-}
-
-Rule::Rule(int nfacies, double rho)
-    : AStringable(),
-      ASerializable(),
-      _modeRule(ERule::STD),
-      _flagProp(0),
-      _rho(rho),
-      _mainNode(nullptr)
-{
-  VectorString nodnames = buildNodNames(nfacies);
-  setMainNodeFromNodNames(nodnames);
-}
-
-Rule::Rule(const VectorString& nodnames, double rho)
-    : AStringable(),
-      ASerializable(),
-      _modeRule(ERule::STD),
-      _flagProp(0),
-      _rho(rho),
-      _mainNode(nullptr)
-{
-  setMainNodeFromNodNames(nodnames);
-}
-
-Rule::Rule(const VectorInt& nodes, double rho)
-    : AStringable(),
-      ASerializable(),
-      _modeRule(ERule::STD),
-      _flagProp(0),
-      _rho(rho),
-      _mainNode(nullptr)
-{
-  setMainNodeFromNodNames(nodes);
-}
-
-Rule::Rule(const String& neutralFileName, bool verbose)
-    : AStringable(),
-      ASerializable(),
-      _modeRule(ERule::STD),
-      _flagProp(0),
-      _rho(0.),
-      _mainNode(nullptr)
-{
-  if (deSerialize(neutralFileName, verbose))
-  {
-    messerr("Problem reading the Neutral File.");
-    messerr("The Rule is not entirely created");
-  }
-}
-
 Rule::Rule(const Rule& m)
     : AStringable(m),
       ASerializable(m),
@@ -188,8 +128,53 @@ Rule& Rule::operator=(const Rule& m)
 
 Rule::~Rule()
 {
+  _clear();
+}
+
+void Rule::_clear()
+{
   if (_mainNode != nullptr)
     delete _mainNode;
+}
+
+/**
+ * This entry is specific for the Rule inference procedure
+ * @param n_type Vector of items: 0 for Facies, 1 for G1 threshold; 2 for G2 threshold
+ * @param n_facs Vector of facies: XXX for Facies, 0 for thresholds
+ * @param rho GRFs correlation coefficient
+ * @return
+ */
+int Rule::resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_facs, double rho)
+{
+  _modeRule = ERule::STD;
+  _rho = rho;
+  setMainNodeFromNodNames(n_type, n_facs);
+  return 0;
+}
+
+int Rule::resetFromFaciesCount(int nfacies, double rho)
+{
+  _modeRule = ERule::STD;
+  _rho = rho;
+  VectorString nodnames = buildNodNames(nfacies);
+  setMainNodeFromNodNames(nodnames);
+  return 0;
+}
+
+int Rule::resetFromNames(const VectorString& nodnames, double rho)
+{
+  _modeRule = ERule::STD;
+  _rho = rho;
+  setMainNodeFromNodNames(nodnames);
+  return 0;
+}
+
+int Rule::resetFromCodes(const VectorInt& nodes, double rho)
+{
+  _modeRule = ERule::STD;
+  _rho = rho;
+  setMainNodeFromNodNames(nodes);
+  return 0;
 }
 
 /**
@@ -809,6 +794,7 @@ void Rule::setMainNodeFromNodNames(const VectorInt& n_type,
   int n_y2 = 0;
   _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
 }
+
 void Rule::setMainNodeFromNodNames(const VectorString& nodnames)
 {
   VectorInt n_type;
@@ -1037,4 +1023,59 @@ int Rule::evaluateBounds(PropDef* propdef,
     message("Number of replicates  = %d\n",nadd);
   }
   return(0);
+}
+
+
+Rule* Rule::createFromNF(const String& neutralFileName, bool verbose)
+{
+  Rule* rule = new Rule();
+  rule->setModeRule(ERule::STD);
+  if (rule->deSerialize(neutralFileName, verbose))
+  {
+    messerr("Problem reading the Neutral File.");
+    delete rule;
+  }
+  return rule;
+}
+Rule* Rule::createFromNames(const VectorString& nodnames,double rho)
+{
+  Rule* rule = new Rule();
+  if (rule->resetFromNames(nodnames, rho))
+  {
+    messerr("Problem when creating Rule from a vector of Names");
+    delete rule;
+  }
+  return rule;
+}
+Rule* Rule::createFromCodes(const VectorInt& nodes,double rho)
+{
+  Rule* rule = new Rule();
+  if (rule->resetFromCodes(nodes, rho))
+  {
+    messerr("Problem when creating Rule from a vector of Codes");
+    delete rule;
+  }
+  return rule;
+}
+Rule* Rule::createFromNumericalCoding(const VectorInt& n_type,
+                                      const VectorInt& n_facs,
+                                      double rho)
+{
+  Rule* rule = new Rule();
+  if (rule->resetFromNumericalCoding(n_type, n_facs, rho))
+  {
+    messerr("Problem when creating Rule from Numerical Coding");
+    delete rule;
+  }
+  return rule;
+}
+Rule* Rule::createFromFaciesCount(int nfacies, double rho)
+{
+  Rule* rule = new Rule();
+  if (rule->resetFromFaciesCount(nfacies, rho))
+  {
+    messerr("Problem when creating Rule from a number of Facies");
+    delete rule;
+  }
+  return rule;
 }

@@ -233,7 +233,6 @@ int Polygons::deSerialize(const String& filename, bool verbose)
     polyset.init(x,y,zmin,zmax);
     addPolySet(polyset);
   }
-
   _fileClose(verbose);
   return 0;
 }
@@ -278,7 +277,11 @@ int Polygons::serialize(const String& filename, bool verbose) const
 Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
 {
   Polygons* polygons = new Polygons();
-  polygons->deSerialize(neutralFilename, verbose);
+  if (polygons->deSerialize(neutralFilename, verbose))
+  {
+    messerr("Problem reading the Neutral File.");
+    delete polygons;
+  }
   return polygons;
 }
 

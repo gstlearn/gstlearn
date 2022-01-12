@@ -82,14 +82,14 @@ int main(int /*argc*/, char */*argv*/[])
   neigh.display();
 
   // Creating the Rule
-  Rule rule({"S","T","F1","F2","F3"});
-  rule.display();
-  rule.serialize("truerule.ascii");
+  Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
+  rule->display();
+  rule->serialize("truerule.ascii");
   RuleProp ruleprop;
   if (flagStationary)
-    ruleprop = RuleProp(&rule, props);
+    ruleprop = RuleProp(rule, props);
   else
-    ruleprop = RuleProp(&rule, &dbprop);
+    ruleprop = RuleProp(rule, &dbprop);
 
   // Perform a non-conditional simulation on the Db
   error = simpgs(nullptr,&db,&ruleprop,&model1,&model2,&neigh);
@@ -156,5 +156,7 @@ int main(int /*argc*/, char */*argv*/[])
   varioIndic.serialize("varioindic.ascii");
 
   modelPGS1.display();
+
+  delete rule;
   return(error);
 }

@@ -553,7 +553,7 @@ Neigh* ascii_neigh_read(const char *file_name, int verbose)
 Rule* ascii_rule_read(const char *file_name, int verbose)
 {
   if (!st_file_exists(file_name)) return nullptr;
-  Rule *rule = new Rule(file_name, verbose);
+  Rule *rule = Rule::createFromNF(file_name, verbose);
   return (rule);
 }
 
