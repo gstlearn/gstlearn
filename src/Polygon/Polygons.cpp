@@ -65,10 +65,10 @@ Polygons::~Polygons()
 }
 
 int Polygons::resetFromCSV(const String& filename,
-                            const CSVformat& csv,
-                            int verbose,
-                            int ncol_max,
-                            int nrow_max)
+                           const CSVformat& csv,
+                           int verbose,
+                           int ncol_max,
+                           int nrow_max)
 {
   VectorString names;
   VectorDouble tab;
@@ -262,9 +262,9 @@ int Polygons::serialize(const String& filename, bool verbose) const
  * @param verbose         Verbose flag
  * @return
  */
-Polygons* Polygons::deserialize(const String& neutralFilename, bool verbose)
-{
-  Polygons* polygons = new Polygons();
-  polygons->deSerialize(neutralFilename, verbose);
-  return polygons;
-}
+//Polygons* Polygons::deserializeF(const String& neutralFilename, bool verbose)
+//{
+//  Polygons* polygons = new Polygons();
+//  polygons->deSerialize(neutralFilename, verbose);
+//  return polygons;
+//}
