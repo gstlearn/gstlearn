@@ -72,14 +72,15 @@ int main(int /*argc*/, char */*argv*/[])
   model.display();
 
   // Creating a Neighborhood
-  Neigh neigh(ndim);
-  neigh.display();
+  Neigh* neigh = Neigh::createUnique(ndim);
+  neigh->display();
 
   // Launch kriging
-  kriging(data, grid, &model, &neigh);
+  kriging(data, grid, &model, neigh);
 
   delete data;
   delete grid;
+  delete neigh;
 
   return (0);
 }

@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 
   /* Define the neighborhood */
 
-  neigh = new Neigh(dbout->getNDim());
+  neigh = Neigh::createUnique(dbout->getNDim());
 
   /* Perform the Pluri-Gaussian Simulations */
 

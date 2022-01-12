@@ -536,8 +536,7 @@ Model* ascii_model_read(const char *file_name, int verbose)
 Neigh* ascii_neigh_read(const char *file_name, int verbose)
 {
   if (!st_file_exists(file_name)) return nullptr;
-  Neigh *neigh = new Neigh(file_name, verbose);
-  return (neigh);
+  return (Neigh::createFromNF(file_name, verbose));
 }
 
 /****************************************************************************/

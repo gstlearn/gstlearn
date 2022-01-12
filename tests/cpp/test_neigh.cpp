@@ -45,12 +45,12 @@ int main(int /*argc*/, char */*argv*/[])
   target.display();
 
   // Creating a Unique Neighborhood
-  Neigh neigh(ndim);
-  neigh.display();
+  Neigh* neigh = Neigh::createUnique(ndim);
+  neigh->display();
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Unique Neighborhood");
-  NeighWork nbghw(&db,&neigh);
+  NeighWork nbghw(&db,neigh);
 
   // Getting the Neighborhood for various target point
   ut_ivector_display("For Target Point #0",
@@ -61,16 +61,17 @@ int main(int /*argc*/, char */*argv*/[])
                      nbghw.select(&target, 1, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
+  delete neigh;
 
   // Creating a Moving Neighborhood
   int nmaxi = 5;
   double radius = 30.;
-  neigh = Neigh(ndim, nmaxi, radius);
-  neigh.display();
+  neigh = Neigh::createMoving(ndim, nmaxi, radius);
+  neigh->display();
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Moving Neighborhood");
-  nbghw = NeighWork(&db,&neigh);
+  nbghw = NeighWork(&db,neigh);
 
   // Getting the Neighborhood for various target point
   ut_ivector_display("For Target Point #0",
@@ -89,6 +90,7 @@ int main(int /*argc*/, char */*argv*/[])
                      nbghw.select(&target, 3, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
+  delete neigh;
 
   return (0);
 }

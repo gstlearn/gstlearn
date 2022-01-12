@@ -78,8 +78,8 @@ int main(int /*argc*/, char */*argv*/[])
   model2.serialize("truemodel2.ascii");
 
   // Creating the Neighborhood
-  Neigh neigh = Neigh(ndim);
-  neigh.display();
+  Neigh* neigh = Neigh::createUnique(ndim);
+  neigh->display();
 
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
@@ -92,7 +92,7 @@ int main(int /*argc*/, char */*argv*/[])
     ruleprop = RuleProp::createFromRuleAndDb(rule, &dbprop);
 
   // Perform a non-conditional simulation on the Db
-  error = simpgs(nullptr,&db,ruleprop,&model1,&model2,&neigh);
+  error = simpgs(nullptr,&db,ruleprop,&model1,&model2,neigh);
   db.setLocator(db.getLastName(),ELoc::Z);
   db.serialize("simupgs.ascii");
 
@@ -157,6 +157,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   modelPGS1.display();
 
+  delete neigh;
   delete rule;
   delete ruleprop;
   delete ruleprop2;

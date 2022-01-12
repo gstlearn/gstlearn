@@ -88,8 +88,8 @@ int main(int /*argc*/, char */*argv*/[])
   model4.serialize("PGSmodel4.ascii");
 
   // Creating the Neighborhood
-  Neigh neigh = Neigh(ndim);
-  neigh.display();
+  Neigh* neigh = Neigh::createUnique(ndim);
+  neigh->display();
 
   // Creating the Rules
   Rule* rule1 = Rule::createFromNames({"S","S","F1","F2","F3"});
@@ -100,7 +100,7 @@ int main(int /*argc*/, char */*argv*/[])
   RuleProp* ruleprop1 = RuleProp::createFromRule(rule1, props1);
 
   // Perform a non-conditional PGS simulation on a grid
-  error = simpgs(nullptr,&dbgrid,ruleprop1,&model1,&model2,&neigh,nbsimu);
+  error = simpgs(nullptr,&dbgrid,ruleprop1,&model1,&model2,neigh,nbsimu);
   dbgrid.setNameByLocator(ELoc::FACIES,"PGS-Facies");
   dbgrid.display();
   dbgrid.serialize("simupgs.ascii");
@@ -114,7 +114,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Perform a non-conditional BiPGS simulation on a grid
   error = simbipgs(nullptr,&dbgrid,rulepropbi,
-                   &model1,&model2,&model3,&model4,&neigh,nbsimu);
+                   &model1,&model2,&model3,&model4,neigh,nbsimu);
   dbgrid.setNameByLocator(ELoc::FACIES,"BiPGS-Facies");
   dbgrid.display();
   dbgrid.serialize("simubipgs.ascii");
@@ -129,7 +129,7 @@ int main(int /*argc*/, char */*argv*/[])
   RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
 
   // Perform a non-conditional PGS Shift simulation on a grid
-  error = simpgs(nullptr,&dbgrid,rulepropshift,&model1,nullptr,&neigh,nbsimu);
+  error = simpgs(nullptr,&dbgrid,rulepropshift,&model1,nullptr,neigh,nbsimu);
   dbgrid.setNameByLocator(ELoc::FACIES,"PGS-Shift-Facies");
   dbgrid.display();
   dbgrid.serialize("simushiftpgs.ascii");
@@ -146,7 +146,7 @@ int main(int /*argc*/, char */*argv*/[])
   RuleProp* rulepropshadow = RuleProp::createFromRule(ruleshadow, propshadow);
 
   // Perform a non-conditional PGS Shadow simulation on a grid
-  error = simpgs(nullptr,&dbgrid,rulepropshadow,&model1,nullptr,&neigh,nbsimu);
+  error = simpgs(nullptr,&dbgrid,rulepropshadow,&model1,nullptr,neigh,nbsimu);
   dbgrid.setNameByLocator(ELoc::FACIES,"PGS-Shadow-Facies");
   dbgrid.display();
   dbgrid.serialize("simushadowpgs.ascii");
@@ -159,5 +159,6 @@ int main(int /*argc*/, char */*argv*/[])
   delete rulepropbi;
   delete rulepropshift;
   delete rulepropshadow;
+  delete neigh;
   return(error);
 }

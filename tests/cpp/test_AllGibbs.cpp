@@ -95,7 +95,7 @@ int main(int /*argc*/, char * /*argv*/[])
   Neigh* neigh = nullptr;
   if (flag_moving)
   {
-    neigh = new Neigh(ndim, nmaxi, nbgh_radius);
+    neigh = Neigh::createMoving(ndim, nmaxi, nbgh_radius);
     neigh->display();
   }
 

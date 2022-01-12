@@ -61,13 +61,14 @@ int main(int /*argc*/, char */*argv*/[])
   dat.addFields(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
-  Neigh neigh(2);
+  Neigh* neigh = Neigh::createUnique(2);
 
   // Testing Kriging
-  kriging(&dat,&workingDbc,&model,&neigh);
+  kriging(&dat,&workingDbc,&model,neigh);
   workingDbc.serialize("franckyFunctional.ascii");
 
   message("Test performed successfully\n");
 
+  delete neigh;
   return 0;
 }
