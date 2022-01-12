@@ -13,18 +13,20 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-//Enums
 #include "Covariances/ECov.hpp"
-#include "Model/EModelProperty.hpp"
 #include "Covariances/ECalcMember.hpp"
-#include "Model/EConsElem.hpp"
-#include "Drifts/EDrift.hpp"
+#include "Covariances/CovContext.hpp"
+#include "Covariances/ACovAnisoList.hpp"
 
+#include "Drifts/EDrift.hpp"
+#include "Drifts/DriftList.hpp"
+
+#include "Model/EModelProperty.hpp"
+#include "Model/EConsElem.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/CovParamId.hpp"
-#include "Covariances/CovContext.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -36,11 +38,9 @@ class Drift;
 class CovInternal;
 class MatrixSquareSymmetric;
 class CovCalcMode;
-class ACovAnisoList;
 class Vario;
 class CovAniso;
 class ANoStat;
-class DriftList;
 class ADriftElem;
 
 class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public IClonable
@@ -75,10 +75,6 @@ public:
   bool   isFlagLinked() const;
 
   ////////////////////////////////////////////////
-  /// TODO : to be converted as internal member
-  const CovContext& getContext() const { return _ctxt; }
-
-  ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
   const ACovAnisoList* getCovAnisoList() const { return _covaList; }
   ACovAnisoList* getCovAnisoList() { return _covaList; } // Needed for dynamic cast
@@ -96,6 +92,7 @@ public:
   double getBallRadius() const;
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
+  double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -104,12 +101,16 @@ public:
   const ADriftElem* getDrift(int il)               const;
   ADriftElem* getDrift(int il)                          ;
   int getDriftNumber()                             const;
+  int getExternalDriftNumber()                     const;
   const EDrift& getDriftType(int il)               const;
   int getRankFext(int il)                          const;
   const VectorDouble& getCoefDrifts()              const;
   double getCoefDrift(int ivar, int il, int ib)    const;
   int getDriftEquationNumber()                     const;
   bool isDriftFiltered(unsigned int il)            const;
+  bool isDriftDefined(const EDrift& type0)         const;
+  bool isDriftDifferentDefined(const EDrift& type0) const;
+  int getMaximumOrder(void) const { return _driftList->getMaximumOrder(); }
 
   void setCoefDrift(int ivar, int il, int ib, double coeff)    ;
   void setCoefDriftByRank(int rank, double coeff)              ;
@@ -121,13 +122,21 @@ public:
                    int iech,
                    int il,
                    const ECalcMember& member = ECalcMember::LHS) const;
+  VectorDouble evalDriftVec(const Db* db,
+                            int iech,
+                            const ECalcMember& member = ECalcMember::LHS) const;
   VectorDouble evalDrifts(const Db* db,
                           const VectorDouble& coeffs,
                           bool useSel = false) const;
+  void evalDriftVecInPlace(const Db* db,
+                           int iech,
+                           const ECalcMember& member,
+                           VectorDouble& drftab) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
+  const CovContext& getContext() const { return _ctxt; }
   const VectorDouble& getMeans() const { return _ctxt.getMean(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }
