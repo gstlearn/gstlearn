@@ -37,39 +37,6 @@ class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public IClon
 {
 public:
   Db();
-  Db(int nech,
-     const ELoadBy& order = ELoadBy::SAMPLE,
-     const VectorDouble& tab = VectorDouble(),
-     const VectorString& names = VectorString(),
-     const VectorString& locatorNames = VectorString(),
-     int flag_add_rank = 1);
-  Db(const VectorInt& nx,
-     const VectorDouble& dx = VectorDouble(),
-     const VectorDouble& x0 = VectorDouble(),
-     const VectorDouble& angles = VectorDouble(),
-     const ELoadBy& order = ELoadBy::SAMPLE,
-     const VectorDouble& tab = VectorDouble(),
-     const VectorString& names = VectorString(),
-     const VectorString& locatorNames = VectorString(),
-     int flag_add_rank = 1);
-  Db(const String& filename,
-     bool verbose,
-     const CSVformat& csv,
-     int ncol_max = -1,
-     int nrow_max = -1,
-     int flag_add_rank = 1);
-  Db(const String& neutralFileName, bool verbose = false);
-  Db(Polygons* polygon,
-     const VectorInt& nodes,
-     const VectorDouble& dcell,
-     int flag_add_rank = 1);
-  Db(int nech,
-     const VectorDouble& coormin,
-     const VectorDouble& coormax,
-     int ndim = 2,
-     int seed = 321415,
-     int flag_add_rank = 1);
-  Db(const VectorDouble& tab, int flag_add_rank = 1);
   Db(const Db& r);
   Db& operator=(const Db& r);
   virtual ~Db();
@@ -80,20 +47,96 @@ public:
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Db(*this); };
 
-  const VectorDouble& getArrays() const { return _array; }
-
-  Db reduce(const VectorInt& ranks) const;
-
-  void resetCoveringDb(Db* db,
-                       const VectorInt& nodes     = VectorInt(),
-                       const VectorDouble& dcell  = VectorDouble(),
-                       const VectorDouble& origin = VectorDouble(),
-                       const VectorDouble& margin = VectorDouble());
-  void resetSamplingDb(const Db* dbin,
-                       double proportion,
+  int resetFromSamples(int nech,
+                       const ELoadBy& order = ELoadBy::SAMPLE,
+                       const VectorDouble& tab = VectorDouble(),
                        const VectorString& names = VectorString(),
-                       int seed = 23241,
-                       bool verbose = false);
+                       const VectorString& locatorNames = VectorString(),
+                       int flag_add_rank = 1);
+  int resetFromGrid(const VectorInt& nx,
+                    const VectorDouble& dx = VectorDouble(),
+                    const VectorDouble& x0 = VectorDouble(),
+                    const VectorDouble& angles = VectorDouble(),
+                    const ELoadBy& order = ELoadBy::SAMPLE,
+                    const VectorDouble& tab = VectorDouble(),
+                    const VectorString& names = VectorString(),
+                    const VectorString& locatorNames = VectorString(),
+                    int flag_add_rank = 1);
+  int resetFromCSV(const String& filename,
+                   bool verbose,
+                   const CSVformat& csv,
+                   int ncol_max = -1,
+                   int nrow_max = -1,
+                   int flag_add_rank = 1);
+  int resetFromPolygon(Polygons* polygon,
+                       const VectorInt& nodes,
+                       const VectorDouble& dcell,
+                       int flag_add_rank = 1);
+  int resetFromBox(int nech,
+                   const VectorDouble& coormin,
+                   const VectorDouble& coormax,
+                   int ndim = 2,
+                   int seed = 321415,
+                   int flag_add_rank = 1);
+  int resetFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
+  int resetCoveringDb(Db* db,
+                      const VectorInt& nodes = VectorInt(),
+                      const VectorDouble& dcell = VectorDouble(),
+                      const VectorDouble& origin = VectorDouble(),
+                      const VectorDouble& margin = VectorDouble());
+  int resetSamplingDb(const Db* dbin,
+                      double proportion,
+                      const VectorString& names = VectorString(),
+                      int seed = 23241,
+                      bool verbose = false);
+
+  static Db* createFromSamples(int nech,
+                               const ELoadBy& order = ELoadBy::SAMPLE,
+                               const VectorDouble& tab = VectorDouble(),
+                               const VectorString& names = VectorString(),
+                               const VectorString& locatorNames = VectorString(),
+                               int flag_add_rank = 1);
+  static Db* createFromGrid(const VectorInt& nx,
+                            const VectorDouble& dx = VectorDouble(),
+                            const VectorDouble& x0 = VectorDouble(),
+                            const VectorDouble& angles = VectorDouble(),
+                            const ELoadBy& order = ELoadBy::SAMPLE,
+                            const VectorDouble& tab = VectorDouble(),
+                            const VectorString& names = VectorString(),
+                            const VectorString& locatorNames = VectorString(),
+                            int flag_add_rank = 1);
+  static Db* createFromCSV(const String& filename,
+                           bool verbose,
+                           const CSVformat& csv,
+                           int ncol_max = -1,
+                           int nrow_max = -1,
+                           int flag_add_rank = 1);
+  static Db* createFromPolygon(Polygons* polygon,
+                               const VectorInt& nodes,
+                               const VectorDouble& dcell,
+                               int flag_add_rank = 1);
+  static Db* createFromBox(int nech,
+                           const VectorDouble& coormin,
+                           const VectorDouble& coormax,
+                           int ndim = 2,
+                           int seed = 321415,
+                           int flag_add_rank = 1);
+  static Db* createFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
+  static Db* createCoveringDb(Db* dbin,
+                              const VectorInt& nodes = VectorInt(),
+                              const VectorDouble& dcell = VectorDouble(),
+                              const VectorDouble& origin = VectorDouble(),
+                              const VectorDouble& margin = VectorDouble());
+  static Db* createSamplingDb(const Db* dbin,
+                              double proportion,
+                              const VectorString& names = VectorString(),
+                              int seed = 23241,
+                              bool verbose = false);
+  static Db* createFromNF(const String& neutralFileName,
+                          bool mustGrid = false,
+                          bool verbose = false);
+
+  const VectorDouble& getArrays() const { return _array; }
 
   String getName(const ELoc& locatorType, int locatorIndex=0) const;
   String getNameByColumn(int icol) const { return _colNames[icol]; }
@@ -507,7 +550,7 @@ public:
                         const String& combine = "set") const;
 
 private:
-  void  _initP();
+  void  _clear();
   const VectorInt& _getAttcol() const { return _attcol; }
   const VectorString _getNames() const { return _colNames; }
   double _getAttcol(int icol) const { return _attcol[icol]; }

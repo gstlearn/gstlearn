@@ -38,12 +38,12 @@ int main(int /*argc*/, char */*argv*/[])
   ASerializable::setPrefixName("Francky-");
   // Creating the 2-D Db
   auto nx = { 101, 101 };
-  Db workingDbc(nx);
+  Db* workingDbc = Db::createFromGrid(nx);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
 
   // Creating the Non-stationary Model
-  Model model = Model(&workingDbc);
+  Model model = Model(workingDbc);
   CovContext ctxt = model.getContext();
   CovLMC covs(ctxt.getSpace());
   CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
@@ -56,18 +56,21 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the 2-D Data Db with a Normal Variable
   auto ndata = 100;
-  Db dat = Db(ndata, {0.,0.}, {100.,100.});
+  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.});
   VectorDouble Z = ut_vector_simulate_gaussian(ndata);
-  dat.addFields(Z, "Z",ELoc::Z);
+  dat->addFields(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
-  Neigh neigh(2);
+  Neigh* neigh = Neigh::createUnique(2);
 
   // Testing Kriging
-  kriging(&dat,&workingDbc,&model,&neigh);
-  workingDbc.serialize("franckyFunctional.ascii");
+  kriging(dat,workingDbc,&model,neigh);
+  workingDbc->serialize("franckyFunctional.ascii");
 
   message("Test performed successfully\n");
 
+  delete dat;
+  delete workingDbc;
+  delete neigh;
   return 0;
 }

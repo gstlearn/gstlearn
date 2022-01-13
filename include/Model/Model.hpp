@@ -46,9 +46,7 @@ class ADriftElem;
 class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public IClonable
 {
 public:
-  Model(const CovContext& ctxt);
-  Model(const Db *db);
-  Model(const String& neutralFileName, bool verbose = false);
+  Model(const CovContext& ctxt = CovContext());
   Model(const Model &m);
   Model& operator= (const Model &m);
   virtual ~Model();
@@ -58,6 +56,10 @@ public:
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Model(*this); }
+
+  int resetFromDb(const Db* db);
+  static Model* createFromDb(const Db* db);
+  static Model* createFromNF(const String& neutralFileName, bool verbose = false);
 
   void   setCovList(const ACovAnisoList* covalist);
   void   addCova(const CovAniso* cov);
@@ -207,7 +209,7 @@ public:
   double gofToVario(const Vario* vario);
 
 private:
-  void _destroy();
+  void _clear();
   void _create();
 
 private:

@@ -24,24 +24,6 @@ Table::Table(int nrows, int ncols)
   init(nrows, ncols,true);
 }
 
-Table::Table(const VectorVectorDouble& table)
-  : ASerializable(),
-    AStringable(),
-    _stats(table)
-{
-}
-
-
-Table::Table(const String& neutralFileName, bool verbose)
-    : ASerializable(),
-      AStringable(),
-      _stats()
-{
-  if (deSerialize(neutralFileName, verbose))
-    my_throw("Problem reading the Neutral File");
-}
-
-
 Table::Table(const Table &m)
     : ASerializable(m),
       AStringable(m),
@@ -63,7 +45,36 @@ Table& Table::operator=(const Table &m)
 
 Table::~Table()
 {
+}
 
+int Table::resetFromArray(const VectorVectorDouble& table)
+{
+  _stats = table;
+  return 0;
+}
+
+Table* Table::createFromNF(const String& neutralFileName, bool verbose)
+{
+  Table* table = new Table();
+  if (table->deSerialize(neutralFileName, verbose))
+  {
+    messerr("Problem reading the Neutral File");
+    delete table;
+    return nullptr;
+  }
+  return table;
+}
+
+Table* Table::createFromArray(const VectorVectorDouble& tabin)
+{
+  Table* table = new Table();
+  if (table->resetFromArray(tabin))
+  {
+    messerr("Problem when loading a Table from Array");
+    delete table;
+    table = nullptr;
+  }
+  return table;
 }
 
 int Table::getRowNumber() const

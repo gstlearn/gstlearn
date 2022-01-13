@@ -32,8 +32,8 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////
   // Creating the Db
   auto nx={ 3,3 };
-  Db workingDbc(nx);
-  int nech = workingDbc.getActiveSampleNumber();
+  Db* workingDbc = Db::createFromGrid(nx);
+  int nech = workingDbc->getActiveSampleNumber();
 
   ///////////////////////
   // Creating the Model
@@ -60,7 +60,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Building the Covariance Matrix
   int nval = nech * nech * nvar * nvar;
   VectorDouble result(nval);
-  modellmc.covMatrix(result, &workingDbc, nullptr, 0, 0, 0, 1);
+  modellmc.covMatrix(result, workingDbc, nullptr, 0, 0, 0, 1);
 
   // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
   ut_vector_display_stats("\nStatistics on Covariance Matrix",result);
@@ -99,6 +99,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble vec3 = modelconv.sample(3., 50);
   ut_vector_display("\nConvoluted Model", vec3);
 
+  delete workingDbc;
   return 0;
 }
 

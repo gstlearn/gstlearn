@@ -123,7 +123,8 @@ int ASerializable::_fileOpen(const String& filename,
   _file = gslFopen(fileComplete, mode);
   if (_file == nullptr)
   {
-    messerr("Error when opening the Neutral File %s", fileComplete.c_str());
+    if (verbose)
+      messerr("Error when opening the Neutral File %s", fileComplete.c_str());
     return 1;
   }
 

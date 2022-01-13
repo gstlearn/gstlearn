@@ -835,9 +835,6 @@ static int st_vario_pgs_variable(int mode,
  *****************************************************************************/
 static Rule* st_rule_encode(int *string)
 {
-  Rule *rule;
-
-  rule = nullptr;
   VectorInt n_type = VectorInt(NRULE);
   VectorInt n_facs = VectorInt(NRULE);
 
@@ -861,9 +858,7 @@ static Rule* st_rule_encode(int *string)
     else
       messageAbort("Unexpected rule number");
   }
-
-  rule = new Rule(n_type, n_facs);
-  return (rule);
+  return Rule::createFromNumericalCoding(n_type, n_facs);
 }
 
 /****************************************************************************/
@@ -4933,10 +4928,10 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
  **
  *****************************************************************************/
 Vario* model_pgs(Db *db,
-                                 const VarioParam *varioparam,
-                                 const RuleProp *ruleprop,
-                                 const Model *model1,
-                                 const Model *model2)
+                 const VarioParam *varioparam,
+                 const RuleProp *ruleprop,
+                 const Model *model1,
+                 const Model *model2)
 {
   Vario *vario = nullptr;
   Vario *varioind = nullptr;

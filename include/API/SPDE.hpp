@@ -19,17 +19,17 @@ class GSTLEARN_EXPORT SPDE
 {
 public:
   SPDE();
-  SPDE(Model &model,
-       const Db &field,
-       const Db *dat = nullptr,
+  SPDE(Model *model,
+       const Db* field,
+       const Db* dat = nullptr,
        const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
   SPDE(const SPDE& r) = delete;
   SPDE& operator=(const SPDE& r) = delete;
   virtual ~SPDE();
 
-  void init(Model &model,
-            const Db &field,
-            const Db *dat = nullptr,
+  void init(Model* model,
+            const Db* field,
+            const Db* dat = nullptr,
             const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
   void compute(int nbsimus = 1, int seed = 131323) const; // TODO What this seed ?
   void computeKriging() const;
@@ -58,7 +58,7 @@ private:
   }
 
 private:
-  const Db *_data;
+  const Db*_data;
   ESPDECalcMode _calcul;
   PrecisionOpMultiConditional _precisionsKriging;
   PrecisionOpMultiConditional _precisionsSimu;
@@ -73,6 +73,8 @@ private:
   mutable VectorVectorDouble _workingSimu;
   mutable VectorDouble       _workingData;
   std::vector<ProjMatrix*> _projOnDbOut;
+  std::vector<int>           _adressesICov;
+
   double _nugget;
   // query sur aproj ou // TODO ??
 };

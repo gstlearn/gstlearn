@@ -30,19 +30,20 @@ int main(int /*argc*/, char */*argv*/[])
   law_set_random_seed(seed);
 
   // Creating the Grid Rotated Db
-  Db grid({6,4}, {1.,2.}, {10.,20.}, {10.,0.});
-  grid.display();
+  Db* grid = Db::createFromGrid({6,4}, {1.,2.}, {10.,20.}, {10.,0.});
+  grid->display();
 
   // Creating the Model
-  Model model = Model(&grid);
-  CovContext ctxt = model.getContext();
+  Model* model = Model::createFromDb(grid);
+  model->display();
+  CovContext ctxt = model->getContext();
   CovLMC covs(ctxt.getSpace());
   CovAniso cova = CovAniso(ECov::CUBIC,ctxt);
   cova.setRanges({10,45});
   cova.setAnisoAngles({30.,0.});
   covs.addCov(&cova);
-  model.setCovList(&covs);
-  model.display();
+  model->setCovList(&covs);
+  model->display();
 
   // Creating the MeshTurbo which contains the Db
   MeshETurbo mesh;
@@ -52,28 +53,30 @@ int main(int /*argc*/, char */*argv*/[])
   // Testing the selections
   /////////////////////////
 
-  int nech = grid.getSampleNumber();
+  int nech = grid->getSampleNumber();
 
   // First selection generated with Bernoulli (proba=0.6)
   VectorDouble sel1 = ut_vector_simulate_bernoulli(nech, 0.6);
   ut_vector_display("sel1", sel1);
-  grid.addSelection(sel1, "Sel1");
+  grid->addSelection(sel1, "Sel1");
 
   // Second selection generated with Bernoulli (proba=0.4) combined with previous one
   VectorDouble sel2 = ut_vector_simulate_bernoulli(nech, 0.4);
   ut_vector_display("sel2", sel2);
-  grid.addSelection(sel2, "Sel2","and");
+  grid->addSelection(sel2, "Sel2","and");
 
   // Retrieve resulting selection for check
-  VectorDouble sel3 = grid.getSelection();
+  VectorDouble sel3 = grid->getSelection();
   ut_vector_display("sel1 && sel2",sel3);
 
   // Testing Filters on Db printout (only Statistics on the variables "Sel*")
   DbStringFormat dbfmt;
   dbfmt.setParams(FLAG_STATS);
   dbfmt.setNames({"Sel*"});
-  grid.display(&dbfmt);
+  grid->display(&dbfmt);
 
+  delete grid;
+  delete model;
   return 0;
 }
 

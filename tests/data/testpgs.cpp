@@ -19,6 +19,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Variogram/Vario.hpp"
+#include "Model/Model.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -42,18 +43,19 @@ int main(int argc, char *argv[])
   int     i,j,lec,nbsimu,seed,nbtuba,npgs,ntot,nfac[2];
   int     flag_vario,flag_grid,iatt_z,iatt_ind,ifac,nclass;
   VectorDouble props;
-  RuleProp ruleprop;
+  RuleProp* ruleprop;
   static int    niter   = 100;
   static int    nboot   = 10;
   static int    verbose = 0;
 
   /* Initializations */
 
-  npgs    = ntot = 0;
-  dbin    = nullptr;
-  dbout   = nullptr;
-  vario   = nullptr;
-  neigh   = nullptr;
+  npgs     = ntot = 0;
+  dbin     = nullptr;
+  dbout    = nullptr;
+  vario    = nullptr;
+  neigh    = nullptr;
+  ruleprop = nullptr;
   for (i=0; i<2; i++)
   {
     rule[i] = nullptr;
@@ -89,7 +91,7 @@ int main(int argc, char *argv[])
   /* Define the data */
 
   ascii_filename("Data",0,0,filename);
-  dbin = ascii_db_read(filename,0,verbose);
+  dbin = Db::createFromNF(filename,false,verbose);
   if (dbin == nullptr) goto label_end;
   iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
   db_print(dbin,1,0,1,1,1);
@@ -101,13 +103,13 @@ int main(int argc, char *argv[])
   /* Define the variogram (optional) */
   
   ascii_filename("Vario",0,0,filename);
-  vario = ascii_vario_read(filename,verbose);
+  vario = Vario::createFromNF(filename,verbose);
   flag_vario = (vario != nullptr);
 
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = ascii_db_read(filename,1,verbose);
+  dbout = Db::createFromNF(filename,true,verbose);
   flag_grid = (dbout != nullptr);
 
   /* Define the rules */
@@ -118,7 +120,7 @@ int main(int argc, char *argv[])
     /* Read the rule */
 
     ascii_filename("Rule",i,0,filename);
-    rule[i] = ascii_rule_read(filename,verbose);
+    rule[i] = Rule::createFromNF(filename,verbose);
     if (rule[i] == nullptr) continue;
 
     npgs++;
@@ -131,7 +133,7 @@ int main(int argc, char *argv[])
     {
       if (! rule[i]->isYUsed(j)) continue;
       ascii_filename("Model",lec,0,filename);
-      model[i][j] = ascii_model_read(filename,verbose);
+      model[i][j] = Model::createFromNF(filename,verbose);
       if (model[i][j] == nullptr) goto label_end;
     }
 
@@ -185,7 +187,7 @@ int main(int argc, char *argv[])
 
   /* Define the neighborhood */
 
-  neigh = new Neigh(dbout->getNDim());
+  neigh = Neigh::createUnique(dbout->getNDim());
 
   /* Perform the Pluri-Gaussian Simulations */
 
@@ -193,14 +195,14 @@ int main(int argc, char *argv[])
   {
     if (npgs == 1)
     {
-      ruleprop = RuleProp(rule[0],props);
-      if (simpgs(dbin,dbout,&ruleprop,model[0][0],model[0][1],
+      ruleprop = RuleProp::createFromRule(rule[0],props);
+      if (simpgs(dbin,dbout,ruleprop,model[0][0],model[0][1],
                  neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
     else
     {
-      ruleprop = RuleProp(rule[0],rule[1],props);
-      if (simbipgs(dbin,dbout,&ruleprop,
+      ruleprop = RuleProp::createFromRules(rule[0],rule[1],props);
+      if (simbipgs(dbin,dbout,ruleprop,
                    model[0][0],model[0][1],model[1][0],model[1][1],
                    neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
@@ -226,5 +228,6 @@ label_end:
       model[i][j] = model_free(model[i][j]);
   }
   neigh = neigh_free(neigh);
+  delete ruleprop;
   return(0);
 }

@@ -34,7 +34,7 @@ String getTestData(const String& filename)
 int main()
 {
   String filepath = getTestData("Pollution.dat");
-  Db* mydb = new Db(filepath,true,CSVformat());
+  Db* mydb = Db::createFromCSV(filepath,true,CSVformat());
 
   mydb->setLocator("X",ELoc::X,0);
   mydb->setLocator("Y",ELoc::X,1);

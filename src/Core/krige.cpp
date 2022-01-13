@@ -5067,7 +5067,7 @@ int global_kriging(Db *dbin,
   nvar = nech = 0;
   rhs_tot = nullptr;
   st_global_init(dbin, dbout);
-  neigh = new Neigh(dbin->getNDim());
+  neigh = Neigh::createUnique(dbin->getNDim());
   if (st_check_environment(1, 1, model, neigh)) goto label_end;
   if (ivar < 0 || ivar >= dbin->getVariableNumber())
   {
@@ -9878,7 +9878,7 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
 
   error = 1;
   ndim = db->getNDim();
-  neigh = new Neigh(ndim);
+  neigh = Neigh::createUnique(ndim);
   nvar = model->getVariableNumber();
   st_global_init(db, db);
   FLAG_EST = 0;
@@ -10766,7 +10766,7 @@ int inhomogeneous_kriging(Db *dbdat,
   /* Preliminary checks */
 
   error = nvar = 1;
-  neigh = new Neigh(dbdat->getNDim());
+  neigh = Neigh::createUnique(dbdat->getNDim());
   st_global_init(dbdat, dbout);
   FLAG_EST = 1;
   FLAG_STD = 1;

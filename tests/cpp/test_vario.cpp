@@ -36,14 +36,14 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
-  Db db(nech,VectorDouble(2,0.),VectorDouble(2,1.));
-  db.display();
+  Db* db = Db::createFromBox(nech,VectorDouble(2,0.),VectorDouble(2,1.));
+  db->display();
 
   // Creating a grid covering the same space
   VectorInt nx = { 100, 100 };
   VectorDouble dx = { 0.01, 0.01 };
-  Db grid(nx, dx);
-  grid.display();
+  Db* grid = Db::createFromGrid(nx, dx);
+  grid->display();
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model models(ctxt);
@@ -55,10 +55,10 @@ int main(int /*argc*/, char */*argv*/[])
   models.display();
 
   // Perform a non-conditional simulation on the Db and on the Grid
-  error = simtub(nullptr,&db,&models);
-  db.display();
-  error = simtub(nullptr,&grid,&models);
-  grid.display();
+  error = simtub(nullptr,db,&models);
+  db->display();
+  error = simtub(nullptr,grid,&models);
+  grid->display();
 
   // ===============
   // On Data samples
@@ -69,7 +69,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nlag = 20;
   std::vector<DirParam> dirparamP = generateMultipleDirs(ndim, 2, nlag, 0.5 / nlag);
   varioparamP.addMultiDirs(dirparamP);
-  Vario variop = Vario(&varioparamP,&db);
+  Vario variop = Vario(&varioparamP,db);
   variop.compute("vg");
   variop.display();
   message("Maximum Variogram Value = %lf\n",variop.getGmax());
@@ -88,7 +88,7 @@ int main(int /*argc*/, char */*argv*/[])
   VarioParam varioparamG;
   std::vector<DirParam> dirparamG = generateMultipleGridDirs(ndim, nlag);
   varioparamG.addMultiDirs(dirparamG);
-  Vario variog = Vario(&varioparamG, &grid);
+  Vario variog = Vario(&varioparamG, grid);
   variog.compute("vg",true);
   variog.display();
 
@@ -96,15 +96,17 @@ int main(int /*argc*/, char */*argv*/[])
   // Calculating Variogram Map on Isolated Data
   // ==========================================
 
-  Db* vmapP = db_vmap_compute(&db, ECalcVario::VARIOGRAM);
+  Db* vmapP = db_vmap_compute(db, ECalcVario::VARIOGRAM);
   vmapP->display();
 
   // =================================
   // Calculating Variogram Map on Grid
   // =================================
 
-  Db* vmapG = db_vmap_compute(&grid, ECalcVario::VARIOGRAM);
+  Db* vmapG = db_vmap_compute(grid, ECalcVario::VARIOGRAM);
   vmapG->display();
 
+  delete db;
+  delete grid;
   return (error);
 }

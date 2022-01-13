@@ -23,24 +23,6 @@ Polygons::Polygons()
 {
 }
 
-
-/**
- * Constructor as the convex Hull of the points contained in the Db
- * @param db
- */
-Polygons::Polygons(const Db* db)
-    : AStringable(),
-      ASerializable(),
-      _polysets()
-{
-  VectorDouble x;
-  VectorDouble y;
-  (void) polygon_hull(db, x, y);
-
-  PolySet polyset = PolySet(x, y, TEST, TEST);
-  addPolySet(polyset);
-}
-
 Polygons::Polygons(const Polygons& r)
     : AStringable(r),
       ASerializable(r),
@@ -64,6 +46,37 @@ Polygons::~Polygons()
   _polysets.clear();
 }
 
+/**
+ * Calculate the Polygon as the convex hull of the active samples of a Db
+ * @param db
+ */
+int Polygons::resetFromDb(const Db* db)
+{
+  if (db == nullptr) return 1;
+
+  // Clear previous contents
+  _polysets.clear();
+
+  // Calculate the hull
+  VectorDouble x;
+  VectorDouble y;
+  if (polygon_hull(db, x, y)) return 1;
+
+  PolySet polyset = PolySet(x, y, TEST, TEST);
+  addPolySet(polyset);
+
+  return 0;
+}
+
+/**
+ * Reset the Polygon from a CSV file
+ * @param filename Filename
+ * @param csv      CSV characteristics
+ * @param verbose  Verbose flag
+ * @param ncol_max Maximum number of columns
+ * @param nrow_max Maximum number of rows
+ * @return
+ */
 int Polygons::resetFromCSV(const String& filename,
                            const CSVformat& csv,
                            int verbose,
@@ -220,7 +233,6 @@ int Polygons::deSerialize(const String& filename, bool verbose)
     polyset.init(x,y,zmin,zmax);
     addPolySet(polyset);
   }
-
   _fileClose(verbose);
   return 0;
 }
@@ -262,9 +274,41 @@ int Polygons::serialize(const String& filename, bool verbose) const
  * @param verbose         Verbose flag
  * @return
  */
-//Polygons* Polygons::deserializeF(const String& neutralFilename, bool verbose)
-//{
-//  Polygons* polygons = new Polygons();
-//  polygons->deSerialize(neutralFilename, verbose);
-//  return polygons;
-//}
+Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
+{
+  Polygons* polygons = new Polygons();
+  if (polygons->deSerialize(neutralFilename, verbose))
+  {
+    if (verbose) messerr("Problem reading the Neutral File.");
+    delete polygons;
+    return nullptr;
+  }
+  return polygons;
+}
+
+Polygons* Polygons::createFromCSV(const String& filename,
+                                  const CSVformat& csv,
+                                  int verbose,
+                                  int ncol_max,
+                                  int nrow_max)
+{
+  Polygons* polygons = new Polygons();
+  if (polygons->resetFromCSV(filename, csv, verbose, ncol_max, nrow_max))
+  {
+    if (verbose) messerr("Problem reading the CSV File.");
+    delete polygons;
+    return nullptr;
+  }
+  return polygons;
+}
+Polygons* Polygons::createFromDb(const Db* db)
+{
+  Polygons* polygons = new Polygons();
+  if (polygons->resetFromDb(db))
+  {
+    messerr("Problem building Polygons from DB.");
+    delete polygons;
+    return nullptr;
+  }
+  return polygons;
+}

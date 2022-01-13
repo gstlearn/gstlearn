@@ -49,7 +49,7 @@ MeshETurbo::MeshETurbo(const VectorInt& nx,
   (void) initFromGrid(nx, dx, x0, rotmat, flag_polarized, verbose);
 }
 
-MeshETurbo::MeshETurbo(const Db& db, int verbose)
+MeshETurbo::MeshETurbo(const Db* db, int verbose)
     : AMesh(),
       _grid(),
       _nPerCell(0),
@@ -57,8 +57,8 @@ MeshETurbo::MeshETurbo(const Db& db, int verbose)
       _isMaskDefined(false),
       _maskGrid(nullptr)
 {
-  if (!db.isGrid()) return;
-  (void) initFromGrid(db.getNXs(), db.getDXs(), db.getX0s(), db.getRotMat(), true,
+  if (!db->isGrid()) return;
+  (void) initFromGrid(db->getNXs(), db->getDXs(), db->getX0s(), db->getRotMat(), true,
                       verbose);
 }
 
@@ -664,14 +664,14 @@ void MeshETurbo::_fromMeshToIndex(int imesh,
 }
 
 int MeshETurbo::initFromCova(const CovAniso& cova,
-                             const Db& field,
+                             const Db* field,
                              double ratio,
                              int nbExt,
                              bool useSel,
                              int verbose)
 {
   // Preliminary checks
-  if (! field.isGrid())
+  if (! field->isGrid())
   {
     messerr("This function is limited to 'field' defined as a Grid");
     return 1;
@@ -699,7 +699,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
       ic[idim] = jcorner % 2;
       jcorner /= 2;
     }
-    VectorDouble corner1 = field.getGrid().getCoordinatesByCorner(ic);
+    VectorDouble corner1 = field->getGrid().getCoordinatesByCorner(ic);
 
     // Rotate this corner in the Covariance Rotation system
     rot.rotateDirect(corner1, cornerRot);

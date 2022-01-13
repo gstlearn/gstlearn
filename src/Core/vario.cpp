@@ -1725,7 +1725,7 @@ static int st_variogram_calcul1(Db *db,
       vario->getDirParam(idir).getTolAngle());
   nech = db->getSampleNumber();
   maxdist = vario->getMaximumDistance(idir);
-  const VarioParam &varioparam = vario->getVarioParam();
+  const VarioParam& varioparam = vario->getVarioParam();
 
   /* Loop on the first point */
 
@@ -6858,7 +6858,7 @@ Db* db_variogram_cloud(Db *db,
   VectorDouble x0(2);
   x0[0] = 0.;
   x0[1] = 0.;
-  Db *dbgrid = new Db(nx, dx, x0);
+  Db *dbgrid = Db::createFromGrid(nx, dx, x0);
 
   // Calling the variogram cloud calculation function
 
@@ -6966,7 +6966,7 @@ Db* db_vmap_compute(Db *db,
   x0[0] = -nxx * dx[0];
   x0[1] = -nyy * dx[1];
 
-  Db *dbmap = new Db(nx, dx, x0);
+  Db *dbmap = Db::createFromGrid(nx, dx, x0);
 
   // Calculating the variogram map in different ways
 

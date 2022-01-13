@@ -101,8 +101,7 @@ void kriging2(const Database &dbin,
 
 Neigh* neigh_unique(int ndim)
 {
-  Neigh* neigh = new Neigh(ndim);
-  return (neigh);
+  return (Neigh::createUnique(ndim));
 }
 
 Neigh* neigh_moving(int ndim,

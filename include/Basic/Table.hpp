@@ -27,8 +27,6 @@ class GSTLEARN_EXPORT Table: public ASerializable ,public AStringable
 {
 public:
   Table(int nrows = 0, int ncols = 0);
-  Table(const VectorVectorDouble& table);
-  Table(const String& neutralFileName, bool verbose = false);
   Table(const Table &m);
   Table& operator= (const Table &m);
   virtual ~Table();
@@ -37,6 +35,11 @@ public:
   int deSerialize(const String& filename, bool verbose = false) override;
   int serialize(const String& filename, bool verbose = false) const override;
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  int resetFromArray(const VectorVectorDouble& table);
+
+  static Table* createFromNF(const String& neutralFileName, bool verbose = false);
+  static Table* createFromArray(const VectorVectorDouble& tabin);
 
   void init(int nrows, int ncols, bool zero = false) { resize(nrows, ncols, zero); }
   bool isEmpty() const { return _stats.empty(); }

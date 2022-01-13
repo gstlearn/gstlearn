@@ -20,6 +20,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"
+#include "LithoRule/Rule.hpp"
 
 /****************************************************************************/
 /*!
@@ -32,62 +33,80 @@ int main(int /*argc*/, char */*argv*/[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("TS-");
 
+  // =======================
+  // Checking Db
+  // =======================
+
   // ===== Create the Db db1
   int nech = 20;
   int ndim = 2;
   bool verbose = false;
 
-  Db db1(nech,VectorDouble(),VectorDouble(),ndim);
+  Db* db1 = Db::createFromBox(nech,VectorDouble(),VectorDouble(),ndim);
   VectorDouble vec1 = ut_vector_simulate_gaussian(nech);
-  db1.addFields(vec1,"myvar1",ELoc::Z, 0);
-  db1.display();
+  db1->addFields(vec1,"myvar1",ELoc::Z, 0);
+  db1->display();
   
   // Serialize db1
-  db1.serialize("Neutral.Db.ascii",verbose);
+  db1->serialize("Neutral.Db.ascii",verbose);
 
   // Deserialize db2
-  Db db2("Neutral.Db.ascii",verbose);
+  Db* db2 = Db::createFromNF("Neutral.Db.ascii",verbose);
+
+  // =======================
+  // Checking Db (grid)
+  // =======================
 
   // ===== Create the Grid Db
-  Db dbg1({12,10},{0.1,0.3},{0.2,0.4});
-  vec1 = ut_vector_simulate_gaussian(dbg1.getSampleNumber());
-  dbg1.addFields(vec1,"myvar1",ELoc::Z, 0);
-  VectorDouble vec2 = ut_vector_simulate_gaussian(dbg1.getSampleNumber());
+  Db* dbg1 = Db::createFromGrid({12,10},{0.1,0.3},{0.2,0.4});
+  vec1 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
+  dbg1->addFields(vec1,"myvar1",ELoc::Z, 0);
+  VectorDouble vec2 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
   vec2[2] = TEST;
   vec2[5] = TEST;
-  dbg1.addFields(vec2,"myvar2",ELoc::Z, 1);
-  dbg1.display();
+  dbg1->addFields(vec2,"myvar2",ELoc::Z, 1);
+  dbg1->display();
 
   // Serialize dbg1
-  dbg1.serialize("Neutral.Dbg.ascii",verbose);
+  dbg1->serialize("Neutral.Dbg.ascii",verbose);
 
   // Deserialize dbg2
-  Db dbg2("Neutral.Dbg.ascii",verbose);
-  dbg2.display();
+  Db* dbg2 = Db::createFromNF("Neutral.Dbg.ascii",verbose);
+  dbg2->display();
+
+  // =======================
+  // Checking Polygons
+  // =======================
 
   // ===== Create the Polygon poly1
-  Polygons poly1(&db1);
-  Polygons polyb(&dbg1);
+  Polygons poly1;
+  poly1.resetFromDb(db1);
+  Polygons polyb;
+  polyb.resetFromDb(dbg1);
   poly1.addPolySet(polyb.getPolySet(0));
   poly1.display();
 
   // Serialize poly1
   poly1.serialize("Neutral.Polygon.ascii",verbose);
 
-//  // Deserialize poly2
-//  Polygons* poly2 = Polygons::deserializeF("Neutral.Polygon.ascii",verbose);
-//  poly2->display();
-//  delete poly2;
+  // Deserialize poly2
+  Polygons* poly2 = Polygons::createFromNF("Neutral.Polygon.ascii",verbose);
+  poly2->display();
+  delete poly2;
 
   Polygons poly3;
   poly3.deSerialize("Neutral.Polygon.ascii", verbose);
   poly3.display();
 
+  // =======================
+  // Checking Vario
+  // =======================
+
   // ===== Compute an experimental variogram
   VarioParam varioparam1;
   DirParam dirparam(2, 10, 0.02);
   varioparam1.addDirs(dirparam);
-  Vario vario1 = Vario(&varioparam1,&db1);
+  Vario vario1 = Vario(&varioparam1,db1);
   vario1.compute("vg");
   vario1.display();
 
@@ -95,12 +114,16 @@ int main(int /*argc*/, char */*argv*/[])
   vario1.serialize("Neutral.Vario.ascii",verbose);
 
   // Deserialize vario2
-  Vario vario2("Neutral.Vario.ascii",verbose);
-  vario2.display();
+  Vario* vario2 = Vario::createFromNF("Neutral.Vario.ascii",verbose);
+  vario2->display();
+
+  // =======================
+  // Checking Model
+  // =======================
 
   // ===== Create a Model
-  db1.display();
-  Model model1(&db1);
+  db1->display();
+  Model model1(db1);
   CovContext ctxt = model1.getContext();
   CovLMC covs(ctxt.getSpace());
   CovAniso cova(ECov::EXPONENTIAL, 0.3, 1., 0.2, ctxt);
@@ -112,8 +135,12 @@ int main(int /*argc*/, char */*argv*/[])
   model1.serialize("Neutral.Model.ascii",verbose);
 
   // Deserialize model2
-  Model model2("Neutral.Model.ascii",verbose);
-  model2.display();
+  Model* model2 = Model::createFromNF("Neutral.Model.ascii",verbose);
+  model2->display();
+
+  // =======================
+  // Checking Table
+  // =======================
 
   // ===== Create a Table
   VectorVectorDouble table;
@@ -122,15 +149,39 @@ int main(int /*argc*/, char */*argv*/[])
   table.resize(ncols);
   for (int icol = 0; icol < ncols; icol++)
     table[icol] = ut_vector_simulate_uniform(nrows);
-  Table table1(table);
-  table1.display();
+  Table* table1 = Table::createFromArray(table);
+  table1->display();
 
   // Serialize table
-  table1.serialize("Neutral.Table.ascii",verbose);
+  table1->serialize("Neutral.Table.ascii",verbose);
 
   // Deserialize table1
-  Table table2("Neutral.Table.ascii",verbose);
-  table2.display();
+  Table* table2 = Table::createFromNF("Neutral.Table.ascii",verbose);
+  table2->display();
 
+  // =======================
+  // Checking Rule
+  // =======================
+
+  Rule* rule = Rule::createFromNames({"S","F1","T","F2","S","F3","F4"});
+  rule->display();
+
+  // Serialize
+  rule->serialize("Neutral.Rule.ascii",verbose);
+
+  // Deserialize
+  Rule* rule2 = Rule::createFromNF("Neutral.Rule.ascii",verbose);
+  rule2->display();
+
+  delete db1;
+  delete db2;
+  delete dbg1;
+  delete dbg2;
+  delete vario2;
+  delete model2;
+  delete table1;
+  delete table2;
+  delete rule;
+  delete rule2;
   return(0);
 }

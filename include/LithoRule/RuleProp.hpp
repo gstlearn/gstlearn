@@ -24,16 +24,35 @@ class GSTLEARN_EXPORT RuleProp : public AStringable
 {
 public:
   RuleProp();
-  RuleProp(const Db* dbprop, const VectorDouble& propcst = VectorDouble());
-  RuleProp(const Rule* rule, const VectorDouble& propcst = VectorDouble());
-  RuleProp(const Rule* rule, const Db* dbprop);
-  RuleProp(const Rule* rule1, const Rule* rule2, const VectorDouble& propcst = VectorDouble());
-  RuleProp(const Rule* rule1, const Rule* rule2, const Db* dbprop);
   RuleProp(const RuleProp& m);
   RuleProp& operator=(const RuleProp &m);
   virtual ~RuleProp();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  int resetFromDb(const Db* dbprop,
+                  const VectorDouble& propcst = VectorDouble());
+  int resetFromRule(const Rule* rule,
+                    const VectorDouble& propcst = VectorDouble());
+  int resetFromRuleAndDb(const Rule* rule, const Db* dbprop);
+  int resetFromRules(const Rule* rule1,
+                     const Rule* rule2,
+                     const VectorDouble& propcst = VectorDouble());
+  int resetFromRulesAndDb(const Rule* rule1,
+                          const Rule* rule2,
+                          const Db* dbprop);
+
+  static RuleProp* createFromDb(const Db* dbprop,
+                                const VectorDouble& propcst = VectorDouble());
+  static RuleProp* createFromRule(const Rule* rule,
+                                  const VectorDouble& propcst = VectorDouble());
+  static RuleProp* createFromRuleAndDb(const Rule* rule, const Db* dbprop);
+  static RuleProp* createFromRules(const Rule* rule1,
+                                   const Rule* rule2,
+                                   const VectorDouble& propcst = VectorDouble());
+  static RuleProp* createFromRulesAndDb(const Rule* rule1,
+                                        const Rule* rule2,
+                                        const Db* dbprop);
 
   const Db* getDbprop() const { return _dbprop; }
   void setDbprop(const Db* dbprop) { _dbprop = dbprop; }
@@ -55,6 +74,7 @@ public:
   int computeAllThreshes(Db *db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
 
 private:
+  void _clear();
   bool _checkConsistency();
   bool _checkRuleRank(int rank) const;
   int _getNFacies();

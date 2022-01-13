@@ -26,19 +26,6 @@ class GSTLEARN_EXPORT Neigh: public AStringable , public ASerializable, public I
 {
 public:
   Neigh();
-  Neigh(int ndim);
-  Neigh(int ndim,
-        int nmaxi,
-        double radius,
-        int nmini = 1,
-        int nsect = 1,
-        int nsmax = ITEST,
-        double width = 0,
-        double distcont = 0,
-        VectorDouble coeffs = VectorDouble(),
-        VectorDouble angles = VectorDouble());
-  Neigh(int ndim, int skip, const VectorInt& image);
-  Neigh(const String& neutralFileName, bool verbose);
   Neigh(const Neigh& r);
   Neigh& operator=(const Neigh& r);
   virtual ~Neigh();
@@ -48,31 +35,32 @@ public:
   int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Neigh(*this); };
 
-//  int initUnique(int ndim);
-//  int initMoving(int ndim,
-//                 int nmaxi,
-//                 double radius,
-//                 int nmini = 1,
-//                 int nsect = 1,
-//                 int nsmax = ITEST,
-//                 double width = 0,
-//                 double distcont = 0,
-//                 VectorDouble coeffs = VectorDouble(),
-//                 VectorDouble angles = VectorDouble());
-//  int initImage(int ndim, int skip, const VectorInt& image);
-//
-//  static Neigh* createUnique(int ndim);
-//  static Neigh* createMoving(int ndim,
-//                             int nmaxi,
-//                             double radius,
-//                             int nmini = 1,
-//                             int nsect = 1,
-//                             int nsmax = ITEST,
-//                             double width = 0,
-//                             double distcont = 0,
-//                             VectorDouble coeffs = VectorDouble(),
-//                             VectorDouble angles = VectorDouble());
-//  static Neigh* createImage(int ndim, int skip, const VectorInt& image);
+  int resetUnique(int ndim);
+  int resetMoving(int ndim,
+                  int nmaxi,
+                  double radius,
+                  int nmini = 1,
+                  int nsect = 1,
+                  int nsmax = ITEST,
+                  double width = 0,
+                  double distcont = 0,
+                  VectorDouble coeffs = VectorDouble(),
+                  VectorDouble angles = VectorDouble());
+  int resetImage(int ndim, int skip, const VectorInt& image);
+
+  static Neigh* createFromNF(const String& neutralFileName, bool verbose);
+  static Neigh* createUnique(int ndim);
+  static Neigh* createMoving(int ndim,
+                             int nmaxi,
+                             double radius,
+                             int nmini = 1,
+                             int nsect = 1,
+                             int nsmax = ITEST,
+                             double width = 0,
+                             double distcont = 0,
+                             VectorDouble coeffs = VectorDouble(),
+                             VectorDouble angles = VectorDouble());
+  static Neigh* createImage(int ndim, int skip, const VectorInt& image);
 
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
@@ -143,7 +131,26 @@ private:
   ENeigh _type;                  /* Neighborhood type: ENeigh */
   int _flagXvalid;               /* 1 to suppress the target */
   int _flagSector;               /* 1 if MOVING neigh. used sector search */
-  int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */
+  int _flagAniso;                /* 1 if the MOVI    : AStringable(),
+      ASerializable(),
+      _nDim(ndim),
+      _type(ENeigh::IMAGE),
+      _flagXvalid(0),
+      _flagSector(0),
+      _flagAniso(0),
+      _flagRotation(0),
+      _flagContinuous(0),
+      _nMini(0),
+      _nMaxi(0),
+      _nSect(0),
+      _nSMax(0),
+      _skip(skip),
+      _width(0.),
+      _radius(0.),
+      _distCont(0.),
+      _anisoCoeffs(),
+      _anisoRotMat(),
+      _imageRadius(image)NG neigh. is anisotropic */
   int _flagRotation;             /* 1 if the anisotropy is rotated */
   int _flagContinuous;           /* 1 for continuous moving neighborhood */
   int _nMini;                    /* Minimum number of points in neigh. */
