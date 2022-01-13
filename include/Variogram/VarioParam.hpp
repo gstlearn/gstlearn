@@ -26,7 +26,7 @@ public:
   VarioParam(double scale = 0.,
              VectorDouble dates = VectorDouble());
   VarioParam(const VarioParam& VarioParam,
-             const VectorInt& dircols);
+             const VectorInt& rankdirs);
   VarioParam(const VarioParam& r);
   VarioParam& operator=(const VarioParam& r);
   virtual ~VarioParam();

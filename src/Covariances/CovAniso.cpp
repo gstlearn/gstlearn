@@ -553,3 +553,20 @@ int CovAniso::getGradParamNumber() const
   return number;
 }
 
+double CovAniso::scale2range(const ECov &type, double scale, double param)
+{
+  CovContext ctxt = CovContext(1, 1);
+  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
+  cova->setParam(param);
+  double factor = cova->getScadef();
+  return scale * factor;
+}
+
+double CovAniso::range2scale(const ECov &type, double range, double param)
+{
+  CovContext ctxt = CovContext(1, 1);
+  ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
+  cova->setParam(param);
+  double factor = cova->getScadef();
+  return range / factor;
+}

@@ -32,8 +32,8 @@ SPDE::SPDE()
 
 }
 
-SPDE::SPDE(Model& model,
-           const Db& field,
+SPDE::SPDE(Model* model,
+           const Db* field,
            const Db* dat,
            const ESPDECalcMode& calc)
 : _data(nullptr)
@@ -90,13 +90,13 @@ void SPDE::_purge()
   }
 }
 
-void SPDE::init(Model& model,
-                const Db& field,
+void SPDE::init(Model* model,
+                const Db* field,
                 const Db* dat,
                 const ESPDECalcMode& calc)
 {
   _purge();
-  _model = &model;
+  _model = model;
   _calcul = calc;
   _data =  dat;
   VectorDouble varianceData;
@@ -106,9 +106,9 @@ void SPDE::init(Model& model,
   MeshETurbo* mesh;
   ProjMatrix* proj;
 
-  for(int icov = 0 ; icov < model.getCovaNumber();icov++)
+  for(int icov = 0 ; icov < model->getCovaNumber();icov++)
   {
-    const auto cova = model.getCova(icov);
+    const auto cova = model->getCova(icov);
 
     if (cova->getType() == ECov::NUGGET)
     {
@@ -122,7 +122,7 @@ void SPDE::init(Model& model,
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,14,5,false,1);
         _simuMeshing.push_back(mesh);
-        shiftOp = new ShiftOpCs(mesh, &model, &field);
+        shiftOp = new ShiftOpCs(mesh, model, field);
         precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::MINUSHALF);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
@@ -136,7 +136,7 @@ void SPDE::init(Model& model,
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,11,5,false,1);
         _krigingMeshing.push_back(mesh);
-        shiftOp = new ShiftOpCs(mesh, &model, &field);
+        shiftOp = new ShiftOpCs(mesh, model, field);
         precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::ONE);
         proj = new ProjMatrix(_data,mesh);
         _pileShiftOp.push_back(shiftOp);

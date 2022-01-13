@@ -114,50 +114,48 @@ int main(int argc, char *argv[])
   ///////////////////////
   // Creating the Grid Db
   auto nx = { 101, 101 };
-  Db workingDbc(nx);
+  Db* workingDbc = Db::createFromGrid(nx);
   VectorDouble angle;
-  for(auto &e : workingDbc.getAllCoordinates())
+  for(auto &e : workingDbc->getAllCoordinates())
   {
     angle.push_back(spirale(e));
   }
-  workingDbc.addFields(angle,"angle",ELoc::NOSTAT);
+  workingDbc->addFields(angle,"angle",ELoc::NOSTAT);
 
   ///////////////////////
   // Creating the Model
-  Model model = Model(&workingDbc);
+  Model* model = Model::createFromDb(workingDbc);
   CovLMC covs(ctxt.getSpace());
-  CovAniso cova = CovAniso(ECov::BESSEL_K,model.getContext());
+  CovAniso cova = CovAniso(ECov::BESSEL_K,model->getContext());
   cova.setRanges({4,45});
   covs.addCov(&cova);
-  model.setCovList(&covs);
+  model->setCovList(&covs);
 
   // Non-stationary part
-  NoStatArray nostat({"A"}, &workingDbc);
-  model.addNoStat(&nostat);
+  NoStatArray nostat({"A"}, workingDbc);
+  model->addNoStat(&nostat);
 
   ///////////////////////////////////////////////////
   // Simulation (Chebyshev)
 
   // Creating the Data
   int ndata = 1000;
-  VectorDouble coormin(2);
-  coormin[0] = 0.;
-  coormin[1] = 0.;
-  VectorDouble coormax(2);
-  coormax[0] = 100.;
-  coormax[1] = 100.;
-  Db dat = Db(ndata, coormin, coormax);
+  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.});
   VectorDouble tab;
 
-  for (int iech = 0; iech < dat.getSampleNumber(); iech++)
+  for (int iech = 0; iech < dat->getSampleNumber(); iech++)
   {
     tab.push_back(law_gaussian());
   }
 
-  dat.addFields(tab, "Simu", ELoc::Z);
+  dat->addFields(tab, "Simu", ELoc::Z);
 
-  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::KRIGING);
+  SPDE spde(model,workingDbc,dat,ESPDECalcMode::KRIGING);
   spde.compute();
-  spde.query(&workingDbc);
+  spde.query(workingDbc);
+
+  delete dat;
+  delete workingDbc;
+  delete model;
   return 0;
 }

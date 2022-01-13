@@ -23,84 +23,6 @@ Polygons::Polygons()
 {
 }
 
-Polygons::Polygons(const String& filename,
-                   const CSVformat& csv,
-                   int verbose,
-                   int ncol_max,
-                   int nrow_max)
-    : AStringable(),
-      ASerializable(),
-      _polysets()
-{
-  VectorString names;
-  VectorDouble tab;
-  int ncol, nrow;
-
-  /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
-
-  if (csv_table_read(filename, verbose, csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep(), csv.getCharDec(), csv.getNaString(),
-                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
-  {
-    messerr("Problem when reading CSV file");
-    return;
-  }
-
-  if (ncol < 2)
-  {
-    messerr("The CSV file must contain at least 2 columns");
-    return;
-  }
-
-  // Loop on the contents of the first column to look for Polysets
-  int ideb = 0;
-  int ifin = nrow;
-  for (int i = 0; i < nrow; i++)
-  {
-    if (FFFF(tab[ncol * i]))
-    {
-      PolySet polyset = _extractFromTab(ideb, i, ncol, tab);
-      addPolySet(polyset);
-      ideb = i + 1;
-    }
-  }
-  if (ideb < ifin)
-  {
-    PolySet polyset = _extractFromTab(ideb, nrow, ncol, tab);
-    addPolySet(polyset);
-  }
- }
-
-/**
- * Constructor as the convex Hull of the points contained in the Db
- * @param db
- */
-Polygons::Polygons(const Db* db)
-    : AStringable(),
-      ASerializable(),
-      _polysets()
-{
-  VectorDouble x;
-  VectorDouble y;
-  (void) polygon_hull(db, x, y);
-
-  PolySet polyset = PolySet(x, y, TEST, TEST);
-  addPolySet(polyset);
-}
-
-Polygons::Polygons(const String& neutralFileName, bool verbose)
-    : AStringable(),
-      ASerializable(),
-      _polysets()
-{
-  if (deSerialize(neutralFileName, verbose))
-  {
-    messerr("Problem reading the Neutral File.");
-    messerr("The Polygon is not entirely created");
-    _polysets.clear();
-  }
-}
-
 Polygons::Polygons(const Polygons& r)
     : AStringable(r),
       ASerializable(r),
@@ -121,7 +43,88 @@ Polygons& Polygons::operator=(const Polygons& r)
 
 Polygons::~Polygons()
 {
+  _polysets.clear();
 }
+
+/**
+ * Calculate the Polygon as the convex hull of the active samples of a Db
+ * @param db
+ */
+int Polygons::resetFromDb(const Db* db)
+{
+  if (db == nullptr) return 1;
+
+  // Clear previous contents
+  _polysets.clear();
+
+  // Calculate the hull
+  VectorDouble x;
+  VectorDouble y;
+  if (polygon_hull(db, x, y)) return 1;
+
+  PolySet polyset = PolySet(x, y, TEST, TEST);
+  addPolySet(polyset);
+
+  return 0;
+}
+
+/**
+ * Reset the Polygon from a CSV file
+ * @param filename Filename
+ * @param csv      CSV characteristics
+ * @param verbose  Verbose flag
+ * @param ncol_max Maximum number of columns
+ * @param nrow_max Maximum number of rows
+ * @return
+ */
+int Polygons::resetFromCSV(const String& filename,
+                           const CSVformat& csv,
+                           int verbose,
+                           int ncol_max,
+                           int nrow_max)
+{
+  VectorString names;
+  VectorDouble tab;
+  int ncol, nrow;
+
+  // Free the previous contents
+
+  _polysets.clear();
+
+  /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
+
+  if (csv_table_read(filename, verbose, csv.getFlagHeader(), csv.getNSkip(),
+                     csv.getCharSep(), csv.getCharDec(), csv.getNaString(),
+                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  {
+    messerr("Problem when reading CSV file");
+    return 1;
+  }
+  if (ncol < 2)
+  {
+    messerr("The CSV file must contain at least 2 columns");
+    return 1;
+  }
+
+  // Loop on the contents of the first column to look for Polysets
+  int ideb = 0;
+  int ifin = nrow;
+  for (int i = 0; i < nrow; i++)
+  {
+    if (FFFF(tab[ncol * i]))
+    {
+      PolySet polyset = _extractFromTab(ideb, i, ncol, tab);
+      addPolySet(polyset);
+      ideb = i + 1;
+    }
+  }
+  if (ideb < ifin)
+  {
+    PolySet polyset = _extractFromTab(ideb, nrow, ncol, tab);
+    addPolySet(polyset);
+  }
+  return 0;
+ }
 
 void Polygons::addPolySet(const PolySet& polyset)
 {
@@ -196,6 +199,10 @@ int Polygons::deSerialize(const String& filename, bool verbose)
   double zmin = TEST;
   double zmax = TEST;
 
+  // Clear previous contents
+
+  _polysets.clear();
+
   /* Opening the Data file */
 
   if (_fileOpen(filename, "Polygon", "r", verbose)) return 1;
@@ -226,7 +233,6 @@ int Polygons::deSerialize(const String& filename, bool verbose)
     polyset.init(x,y,zmin,zmax);
     addPolySet(polyset);
   }
-
   _fileClose(verbose);
   return 0;
 }
@@ -260,4 +266,49 @@ int Polygons::serialize(const String& filename, bool verbose) const
   _fileClose(verbose);
 
   return 0;
+}
+
+/**
+ * Create a Polygon by loading the contents of a Neutral File
+ * @param neutralFilename Name of the Neutral File
+ * @param verbose         Verbose flag
+ * @return
+ */
+Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
+{
+  Polygons* polygons = new Polygons();
+  if (polygons->deSerialize(neutralFilename, verbose))
+  {
+    if (verbose) messerr("Problem reading the Neutral File.");
+    delete polygons;
+    return nullptr;
+  }
+  return polygons;
+}
+
+Polygons* Polygons::createFromCSV(const String& filename,
+                                  const CSVformat& csv,
+                                  int verbose,
+                                  int ncol_max,
+                                  int nrow_max)
+{
+  Polygons* polygons = new Polygons();
+  if (polygons->resetFromCSV(filename, csv, verbose, ncol_max, nrow_max))
+  {
+    if (verbose) messerr("Problem reading the CSV File.");
+    delete polygons;
+    return nullptr;
+  }
+  return polygons;
+}
+Polygons* Polygons::createFromDb(const Db* db)
+{
+  Polygons* polygons = new Polygons();
+  if (polygons->resetFromDb(db))
+  {
+    messerr("Problem building Polygons from DB.");
+    delete polygons;
+    return nullptr;
+  }
+  return polygons;
 }

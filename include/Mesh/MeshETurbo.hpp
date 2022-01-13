@@ -37,7 +37,7 @@ public:
              const VectorDouble& rotmat = VectorDouble(),
              bool flag_polarized = true,
              int verbose = 0);
-  MeshETurbo(const Db& db, int verbose = 0);
+  MeshETurbo(const Db* db, int verbose = 0);
   MeshETurbo(const MeshETurbo &m);
   MeshETurbo& operator=(const MeshETurbo &r);
   virtual ~MeshETurbo();
@@ -66,7 +66,7 @@ public:
                    bool flag_polarized = true,
                    int verbose = 0);
   int initFromCova(const CovAniso& cova,
-                   const Db& field,
+                   const Db* field,
                    double ratio,
                    int nbExt = 0,
                    bool useSel = true,

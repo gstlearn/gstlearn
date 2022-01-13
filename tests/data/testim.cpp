@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   /* Define the data */
 
   ascii_filename("Data",0,0,filename);
-  dbin = ascii_db_read(filename,0,verbose);
+  dbin = Db::createFromNF(filename,false,verbose);
   if (dbin == nullptr) goto label_end;
   db_print(dbin,1,0,1,1,1);
 
@@ -124,12 +124,12 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = ascii_db_read(filename,1,verbose);
+  dbout = Db::createFromNF(filename,true,verbose);
 
   /* Define the variogram */
 
   ascii_filename("Vario",0,0,filename);
-  vario = ascii_vario_read(filename,verbose);
+  vario = Vario::createFromNF(filename,verbose);
   if (vario != nullptr)
   {
     vario->attachDb(dbin);
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   /* Define the model */
 
   ascii_filename("Model",0,0,filename);
-  model = ascii_model_read(filename,verbose);
+  model = Model::createFromNF(filename,verbose);
   if (model == nullptr) goto label_end;
   if (vario != nullptr) 
   {
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
   /* Define the neighborhood */
 
   ascii_filename("Neigh",0,0,filename);
-  neigh = ascii_neigh_read(filename,verbose);
+  neigh = Neigh::createFromNF(filename,verbose);
 
   /* Look for simulations */
 

@@ -101,20 +101,18 @@ void kriging2(const Database &dbin,
 
 Neigh* neigh_unique(int ndim)
 {
-  return (neigh_init(ndim, ENeigh::UNIQUE, false, false, false, false, false, 1,
-                     1, 1, 1, 1, 1, 1, 0.5, VectorDouble(), VectorDouble(),
-                     VectorInt()));
+  return (Neigh::createUnique(ndim));
 }
 
 Neigh* neigh_moving(int ndim,
-                                    int flag_sector,
-                                    int flag_rotation,
-                                    int nmini,
-                                    int nmaxi,
-                                    int nsect,
-                                    int nsmax,
-                                    int radius,
-                                    VectorDouble Rotation)
+                    int flag_sector,
+                    int flag_rotation,
+                    int nmini,
+                    int nmaxi,
+                    int nsect,
+                    int nsmax,
+                    int radius,
+                    VectorDouble Rotation)
 {
   return (neigh_init(ndim, ENeigh::MOVING, false, flag_sector, false,
                      flag_rotation, false, nmini, nmaxi, nsect, nsmax, 1, 1,
@@ -122,23 +120,23 @@ Neigh* neigh_moving(int ndim,
 }
 
 Neigh* my_neigh_init(int ndim,
-                                     ENeigh type,
-                                     int flag_xvalid,
-                                     int flag_sector,
-                                     int flag_aniso,
-                                     int flag_rotation,
-                                     int flag_continuous,
-                                     int nmini,
-                                     int nmaxi,
-                                     int nsect,
-                                     int nsmax,
-                                     int skip,
-                                     double width,
-                                     double radius,
-                                     double dist_count,
-                                     VectorDouble nbgh_radius,
-                                     VectorDouble nbgh_rotmat,
-                                     VectorInt nbgh_image)
+                     ENeigh type,
+                     int flag_xvalid,
+                     int flag_sector,
+                     int flag_aniso,
+                     int flag_rotation,
+                     int flag_continuous,
+                     int nmini,
+                     int nmaxi,
+                     int nsect,
+                     int nsmax,
+                     int skip,
+                     double width,
+                     double radius,
+                     double dist_count,
+                     VectorDouble nbgh_radius,
+                     VectorDouble nbgh_rotmat,
+                     VectorInt nbgh_image)
 {
   return (neigh_init(ndim, type, flag_xvalid, flag_sector, flag_aniso,
                      flag_rotation, flag_continuous, nmini, nmaxi, nsect, nsmax,

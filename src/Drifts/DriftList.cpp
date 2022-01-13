@@ -279,11 +279,51 @@ VectorDouble DriftList::evalDrifts(const Db* db,
   for (int iech=0; iech<nech; iech++)
   {
     if (useSel && ! db->isActive(iech)) continue;
-
     double value = 0.;
     for (int ib=0; ib<ndrift; ib++)
       value += coeffs[ib] * getDrift(db, ib, iech);
     vec.push_back(value);
   }
   return vec;
+}
+
+int DriftList::getMaximumOrder(void) const
+{
+  int max_order = 0;
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    const ADriftElem* drft = _drifts[il];
+    int order = drft->getOrderIRF();
+    if (order > max_order) max_order = order;
+  }
+  return (max_order);
+}
+
+/**
+ * Check if a given drift type is defined among the drift functions
+ * @param type0 Target drift type (EDrift.hpp)
+ * @return
+ */
+bool DriftList::isDriftDefined(const EDrift &type0) const
+{
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    if (_drifts[il]->getType() == type0) return 1;
+  }
+  return 0;
+}
+
+/**
+ * Check if at least one drift function exists whose type is different
+ * from the target type
+ * @param type0 Target drift type (EDrift.hpp)
+ * @return
+ */
+bool DriftList::isDriftDifferentDefined(const EDrift &type0) const
+{
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    if (_drifts[il]->getType() != type0) return 1;
+  }
+  return 0;
 }

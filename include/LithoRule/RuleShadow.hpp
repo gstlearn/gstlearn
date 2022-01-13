@@ -25,6 +25,7 @@ class PropDef;
 class GSTLEARN_EXPORT RuleShadow: public Rule
 {
 public:
+  RuleShadow();
   RuleShadow(double slope,
              double sh_dsup,
              double sh_down,

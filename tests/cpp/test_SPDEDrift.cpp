@@ -24,47 +24,51 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////
   // Creating the Db Grid
   auto nx={ 101,101 };
-  Db workingDbc(nx);
+  Db* workingDbc = Db::createFromGrid(nx);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  VectorDouble angle = spirale.getFunctionValues(&workingDbc);
-  workingDbc.addFields(angle,"angle",ELoc::NOSTAT);
+  VectorDouble angle = spirale.getFunctionValues(workingDbc);
+  workingDbc->addFields(angle,"angle",ELoc::NOSTAT);
 
   ///////////////////////
   // Creating the Model
-  Model model = Model(&workingDbc);
-  CovContext ctxt(model.getContext());
+  Model* model = Model::createFromDb(workingDbc);
+  CovContext ctxt(model->getContext());
   CovLMC covs(ctxt.getSpace());
   CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
   cova.setRanges({20,20});
   covs.addCov(&cova);
-  model.setCovList(&covs);
+  model->setCovList(&covs);
 
-  model.addDrift({"1","f1"});
+  model->addDrift({"1","f1"});
 
-  NoStatArray NoStat({"A"},&workingDbc);
-  model.addNoStat(&NoStat);
+  NoStatArray NoStat({"A"},workingDbc);
+  model->addNoStat(&NoStat);
 
-  model.display();
+  model->display();
 
   ///////////////////////
   // Creating Data
   auto ndata = 500;
-  Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
+  Db* dat = Db::createFromBox(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
-  VectorDouble drift = dat.getField("x.1");
+  VectorDouble drift = dat->getField("x.1");
   ut_vector_multiply_inplace(drift,0.1);
   ut_vector_add_inplace(z,drift);
   ut_vector_addval(z,10);
-  dat.addFields(z,"variable",ELoc::Z);
-  dat.addFields(drift,"Drift",ELoc::F);
-  dat.display();
+  dat->addFields(z,"variable",ELoc::Z);
+  dat->addFields(drift,"Drift",ELoc::F);
+  dat->display();
 
   ///////////////////////
   // Running SPDE
-  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::KRIGING);
+  SPDE spde(model,workingDbc,dat,ESPDECalcMode::KRIGING);
   VectorDouble result = spde.computeCoeffs();
   ut_vector_display("Drift Coefficients:",result);
+
+  delete dat;
+  delete workingDbc;
+  delete model;
   return 0;
 }
 

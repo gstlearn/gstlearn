@@ -39,154 +39,6 @@ Neigh::Neigh()
 {
 }
 
-/**
- * Constructor of a Unique Neighborhood
- */
-Neigh::Neigh(int ndim)
-    : AStringable(),
-      ASerializable(),
-      _nDim(ndim),
-      _type(ENeigh::UNIQUE),
-      _flagXvalid(0),
-      _flagSector(0),
-      _flagAniso(0),
-      _flagRotation(0),
-      _flagContinuous(0),
-      _nMini(1), // Put 1 for consistency with default construtor
-      _nMaxi(0),
-      _nSect(1),
-      _nSMax(0),
-      _skip(0),
-      _width(0.),
-      _radius(0.),
-      _distCont(0.),
-      _anisoCoeffs(),
-      _anisoRotMat(),
-      _imageRadius()
-{
-}
-
-Neigh::Neigh(int ndim, int nmaxi, double radius, int nmini, int nsect,
-             int nsmax, double width, double distcont, VectorDouble coeffs,
-             VectorDouble angles)
-    : AStringable(),
-      ASerializable(),
-      _nDim(ndim),
-      _type(ENeigh::MOVING),
-      _flagXvalid(0),
-      _flagSector(0),
-      _flagAniso(0),
-      _flagRotation(0),
-      _flagContinuous(0),
-      _nMini(nmini),
-      _nMaxi(nmaxi),
-      _nSect(nsect),
-      _nSMax(nsmax),
-      _skip(0),
-      _width(width),
-      _radius(radius),
-      _distCont(distcont),
-      _anisoCoeffs(),
-      _anisoRotMat(),
-      _imageRadius()
-{
-  VectorDouble nbgh_radius;
-  VectorDouble nbgh_rotmat;
-
-  nbgh_rotmat.resize(ndim * ndim);
-
-  if (! coeffs.empty())
-  {
-    _flagAniso = 1;
-    _anisoCoeffs = coeffs;
-
-    if (! angles.empty())
-    {
-      _flagRotation = 1;
-      _anisoRotMat.resize(ndim * ndim);
-      ut_rotation_matrix(ndim, angles.data(), _anisoRotMat.data());
-    }
-  }
-}
-
-Neigh::Neigh(int ndim, int skip, const VectorInt& image)
-    : AStringable(),
-      ASerializable(),
-      _nDim(ndim),
-      _type(ENeigh::IMAGE),
-      _flagXvalid(0),
-      _flagSector(0),
-      _flagAniso(0),
-      _flagRotation(0),
-      _flagContinuous(0),
-      _nMini(0),
-      _nMaxi(0),
-      _nSect(0),
-      _nSMax(0),
-      _skip(skip),
-      _width(0.),
-      _radius(0.),
-      _distCont(0.),
-      _anisoCoeffs(),
-      _anisoRotMat(),
-      _imageRadius(image)
-{
-
-}
-
-Neigh::Neigh(const String& neutralFileName, bool verbose)
-    : AStringable(),
-      ASerializable(),
-      _nDim(0),
-      _type(ENeigh::MOVING),
-      _flagXvalid(0),
-      _flagSector(0),
-      _flagAniso(0),
-      _flagRotation(0),
-      _flagContinuous(0),
-      _nMini(0),
-      _nMaxi(0),
-      _nSect(0),
-      _nSMax(0),
-      _skip(0),
-      _width(0.),
-      _radius(0.),
-      _distCont(0.),
-      _anisoCoeffs(),
-      _anisoRotMat(),
-      _imageRadius()
-{
-  if (deSerialize(neutralFileName, verbose))
-  {
-    messerr("Error when reading a Neutral File");
-    messerr("The Neigh is not entirely defined");
-  }
-}
-
-Neigh::Neigh(const Neigh& r)
-    : AStringable(r),
-      ASerializable(r),
-      _nDim(r._nDim),
-      _type(r._type),
-      _flagXvalid(r._flagXvalid),
-      _flagSector(r._flagSector),
-      _flagAniso(r._flagAniso),
-      _flagRotation(r._flagRotation),
-      _flagContinuous(r._flagContinuous),
-      _nMini(r._nMini),
-      _nMaxi(r._nMaxi),
-      _nSect(r._nSect),
-      _nSMax(r._nSMax),
-      _skip(r._skip),
-      _width(r._width),
-      _radius(r._radius),
-      _distCont(r._distCont),
-      _anisoCoeffs(r._anisoCoeffs),
-      _anisoRotMat(r._anisoRotMat),
-      _imageRadius(r._imageRadius)
-{
-}
-
 Neigh& Neigh::operator=(const Neigh& r)
 {
   if (this != &r)
@@ -216,6 +68,84 @@ Neigh& Neigh::operator=(const Neigh& r)
 }
 
 Neigh::~Neigh()
+{
+}
+
+/**
+ * Constructor of a Unique Neighborhood
+ */
+int Neigh::resetUnique(int ndim)
+{
+  _nDim = ndim;
+  _type = ENeigh::UNIQUE;
+  return 0;
+}
+
+int Neigh::resetMoving(int ndim,
+                       int nmaxi,
+                       double radius,
+                       int nmini,
+                       int nsect,
+                       int nsmax,
+                       double width,
+                       double distcont,
+                       VectorDouble coeffs,
+                       VectorDouble angles)
+{
+  _nDim = ndim;
+  _type = ENeigh::MOVING;
+  _nMini = nmini;
+  _nMaxi = nmaxi;
+  _nSect = nsect;
+  _nSMax = nsmax;
+  _width = width;
+  _radius = radius;
+  _distCont = distcont;
+
+  if (! coeffs.empty())
+  {
+    _flagAniso = 1;
+    _anisoCoeffs = coeffs;
+
+    if (! angles.empty())
+    {
+      _flagRotation = 1;
+      _anisoRotMat.resize(ndim * ndim);
+      ut_rotation_matrix(ndim, angles.data(), _anisoRotMat.data());
+    }
+  }
+  return 0;
+}
+
+int Neigh::resetImage(int ndim, int skip, const VectorInt& image)
+{
+  _nDim = ndim;
+  _type = ENeigh::IMAGE;
+  _skip = skip;
+  _imageRadius = image;
+}
+
+Neigh::Neigh(const Neigh& r)
+    : AStringable(r),
+      ASerializable(r),
+      _nDim(r._nDim),
+      _type(r._type),
+      _flagXvalid(r._flagXvalid),
+      _flagSector(r._flagSector),
+      _flagAniso(r._flagAniso),
+      _flagRotation(r._flagRotation),
+      _flagContinuous(r._flagContinuous),
+      _nMini(r._nMini),
+      _nMaxi(r._nMaxi),
+      _nSect(r._nSect),
+      _nSMax(r._nSMax),
+      _skip(r._skip),
+      _width(r._width),
+      _radius(r._radius),
+      _distCont(r._distCont),
+      _anisoCoeffs(r._anisoCoeffs),
+      _anisoRotMat(r._anisoRotMat),
+      _imageRadius(r._imageRadius)
 {
 }
 
@@ -535,3 +465,65 @@ void Neigh::anisoRescale()
     _anisoCoeffs[idim] /= _radius;
 }
 
+Neigh* Neigh::createUnique(int ndim)
+{
+  Neigh* neigh = new Neigh;
+  if (neigh->resetUnique(ndim))
+  {
+    messerr("Problem when creating Unique Neighborhood");
+    delete neigh;
+    return nullptr;
+  }
+  return neigh;
+}
+Neigh* Neigh::createMoving(int ndim,
+                           int nmaxi,
+                           double radius,
+                           int nmini,
+                           int nsect,
+                           int nsmax,
+                           double width,
+                           double distcont,
+                           VectorDouble coeffs,
+                           VectorDouble angles)
+{
+  Neigh* neigh = new Neigh;
+  if (neigh->resetMoving(ndim, nmaxi, radius, nmini, nsect, nsmax, width,
+                         distcont, coeffs, angles))
+  {
+    messerr("Problem when creating Moving Neighborhood");
+    delete neigh;
+    return nullptr;
+  }
+  return neigh;
+}
+
+Neigh* Neigh::createImage(int ndim, int skip, const VectorInt& image)
+{
+  Neigh* neigh = new Neigh;
+  if (neigh->resetImage(ndim, skip, image))
+  {
+    messerr("Problem when creating Image Neighborhood");
+    delete neigh;
+    return nullptr;
+  }
+  return neigh;
+}
+
+/**
+ * Create a Neighborhood by loading the contents of a Neutral File
+ * @param neutralFilename Name of the Neutral File
+ * @param verbose         Verbose flag
+ * @return
+ */
+Neigh* Neigh::createFromNF(const String& neutralFilename, bool verbose)
+{
+  Neigh* neigh = new Neigh();
+  if (neigh->deSerialize(neutralFilename, verbose))
+  {
+    if (verbose) messerr("Problem reading the Neutral File.");
+    delete neigh;
+    return nullptr;
+  }
+  return neigh;
+}

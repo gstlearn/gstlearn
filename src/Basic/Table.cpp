@@ -24,24 +24,6 @@ Table::Table(int nrows, int ncols)
   init(nrows, ncols,true);
 }
 
-Table::Table(const VectorVectorDouble& table)
-  : ASerializable(),
-    AStringable(),
-    _stats(table)
-{
-}
-
-
-Table::Table(const String& neutralFileName, bool verbose)
-    : ASerializable(),
-      AStringable(),
-      _stats()
-{
-  if (deSerialize(neutralFileName, verbose))
-    my_throw("Problem reading the Neutral File");
-}
-
-
 Table::Table(const Table &m)
     : ASerializable(m),
       AStringable(m),
@@ -63,7 +45,36 @@ Table& Table::operator=(const Table &m)
 
 Table::~Table()
 {
+}
 
+int Table::resetFromArray(const VectorVectorDouble& table)
+{
+  _stats = table;
+  return 0;
+}
+
+Table* Table::createFromNF(const String& neutralFileName, bool verbose)
+{
+  Table* table = new Table();
+  if (table->deSerialize(neutralFileName, verbose))
+  {
+    messerr("Problem reading the Neutral File");
+    delete table;
+    return nullptr;
+  }
+  return table;
+}
+
+Table* Table::createFromArray(const VectorVectorDouble& tabin)
+{
+  Table* table = new Table();
+  if (table->resetFromArray(tabin))
+  {
+    messerr("Problem when loading a Table from Array");
+    delete table;
+    table = nullptr;
+  }
+  return table;
 }
 
 int Table::getRowNumber() const
@@ -229,17 +240,18 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   if (_stats.empty()) return sstr.str();
 
-  if (!_stats.empty())
-  {
-    int ncols = getColNumber();
-    int nrows = getRowNumber();
+  sstr << toTitle(1, "Table contents");
+  int ncols = getColNumber();
+  int nrows = getRowNumber();
+  sstr << "- Number of Rows    = " << nrows << std::endl;
+  sstr << "- Number of Columns = " << ncols << std::endl;
+  sstr << std::endl;
 
-    for (int irow = 0; irow < nrows; irow++)
-    {
-      for (int icol = 0; icol < ncols; icol++)
-        sstr << _stats[icol][irow];
-      sstr << std::endl;
-    }
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    for (int icol = 0; icol < ncols; icol++)
+      sstr << " " << toDouble(_stats[icol][irow]);
+    sstr << std::endl;
   }
   return sstr.str();
 }

@@ -70,4 +70,3 @@ private:
   static String myContainerName;
   static String myPrefixName;
 };
-

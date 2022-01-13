@@ -75,7 +75,7 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Data file
 
-  Db* db = new Db({nx,nx},{1.,1.});
+  Db* db = Db::createFromGrid({nx,nx},{1.,1.});
   if (! FFFF(bound))
   {
     db->addFieldsByConstant(1, -bound, "Lower", ELoc::L);

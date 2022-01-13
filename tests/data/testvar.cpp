@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = ascii_db_read(filename,1,verbose);
+  dbout = Db::createFromNF(filename,false,verbose);
 
   /* Look for simulations */
 
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   /* Define the model */
 
   ascii_filename("Model",0,0,filename);
-  model = ascii_model_read(filename,verbose);
+  model = Model::createFromNF(filename,verbose);
   if (model == (Model *) NULL) goto label_end;
   
   // Define and store the Space
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
   /* Define the variogram */
   
   ascii_filename("Vario",0,0,filename);
-  vario = ascii_vario_read(filename,verbose);
+  vario = Vario::createFromNF(filename,verbose);
   if (vario == (Vario *) NULL) goto label_end;
   if (dbout != (Db *) NULL)
   {

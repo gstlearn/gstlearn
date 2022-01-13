@@ -9,20 +9,20 @@
 #include "Basic/String.hpp"
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
-                 const Db& field,
-                 RuleProp ruleprop,
+                 const Db* field,
+                 const RuleProp* ruleprop,
                  const Db* dat)
-: _data()
-, _spdeTab()
-, _ruleProp()
-, _calcul()
+    : _data(),
+      _spdeTab(),
+      _ruleProp(ruleprop),
+      _calcul()
 {
-  _calcul = (dat == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
+  _calcul = (dat == nullptr) ? ESPDECalcMode::SIMUNONCOND :
+                               ESPDECalcMode::SIMUCOND;
   for(auto &e : models)
   {
-    _spdeTab.push_back(new SPDE(*e,field,dat,_calcul));
+    _spdeTab.push_back(new SPDE(e,field,dat,_calcul));
   }
-  _ruleProp = ruleprop;
 }
 
 void PGSSPDE::simulate(int seed,int /*nitergibbs*/) const
@@ -60,7 +60,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
 
   db->setLocator(names,ELoc::Z);
   db->display();
-  _ruleProp.gaussToCategory(db,NamingConvention("categories"));
+  _ruleProp->gaussToCategory(db,NamingConvention("categories"));
 
   if(!keepGauss)
   {
@@ -70,7 +70,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
 
 void PGSSPDE::gibbs(int /*niter*/) const
 {
-   _ruleProp.categoryToThresh(_data);
+   _ruleProp->categoryToThresh(_data);
 }
 
 PGSSPDE::~PGSSPDE()
@@ -80,4 +80,3 @@ PGSSPDE::~PGSSPDE()
     delete e;
   }
 }
-

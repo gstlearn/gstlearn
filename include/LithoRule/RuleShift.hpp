@@ -23,12 +23,7 @@
 class GSTLEARN_EXPORT RuleShift: public Rule
 {
 public:
-  RuleShift(const VectorInt& nodes, const VectorDouble& shift);
-  RuleShift(const VectorString& nodnames,const VectorDouble& shift);
-  RuleShift(int nfacies, const VectorDouble& shift);
-  RuleShift(const VectorInt& n_type,
-            const VectorInt& n_facs,
-            const VectorDouble& shift);
+  RuleShift();
   RuleShift(const RuleShift& r);
   RuleShift& operator=(const RuleShift& r);
   virtual ~RuleShift();
@@ -36,6 +31,23 @@ public:
   int deSerializeSpecific() override;
   void serializeSpecific() const override;
   String displaySpecific() const override;
+
+  int resetFromNodes(const VectorInt& nodes, const VectorDouble& shift);
+  int resetFromNames(const VectorString& nodnames,const VectorDouble& shift);
+  int resetFromFaciesCount(int nfacies, const VectorDouble& shift);
+  int resetFromNumericalCoding(const VectorInt& n_type,
+                               const VectorInt& n_facs,
+                               const VectorDouble& shift);
+
+  static RuleShift* createFromNodes(const VectorInt& nodes,
+                                    const VectorDouble& shift);
+  static RuleShift* createFromNames(const VectorString& nodnames,
+                                    const VectorDouble& shift);
+  static RuleShift* createFromFaciesCount(int nfacies,
+                                          const VectorDouble& shift);
+  static RuleShift* createFromNumericalCoding(const VectorInt& n_type,
+                                              const VectorInt& n_facs,
+                                              const VectorDouble& shift);
 
   int particularities(Db *db,
                       const Db *dbprop,

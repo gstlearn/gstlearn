@@ -28,12 +28,6 @@ class GSTLEARN_EXPORT Rule: public AStringable, public ASerializable
 {
 public:
   Rule(double rho = 0.);
-  Rule(const VectorString& nodnames,double rho = 0.);
-  Rule(const VectorInt& nodes,double rho = 0.);
-  Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho = 0.);
-  Rule(int nfacies, double rho = 0.);
-  Rule(const String& neutralFileName, bool verbose = false);
-
   Rule(const Rule& r);
   Rule& operator=(const Rule& r);
   virtual ~Rule();
@@ -41,6 +35,19 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual int deSerialize(const String& filename, bool verbose = false) override;
   virtual int serialize(const String& filename, bool verbose = false) const override;
+
+  int resetFromNames(const VectorString& nodnames,double rho = 0.);
+  int resetFromCodes(const VectorInt& nodes,double rho = 0.);
+  int resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_facs, double rho = 0.);
+  int resetFromFaciesCount(int nfacies, double rho = 0.);
+
+  static Rule* createFromNF(const String& neutralFileName, bool verbose = false);
+  static Rule* createFromNames(const VectorString& nodnames,double rho = 0.);
+  static Rule* createFromCodes(const VectorInt& nodes,double rho = 0.);
+  static Rule* createFromNumericalCoding(const VectorInt& n_type,
+                                         const VectorInt& n_facs,
+                                         double rho = 0.);
+  static Rule* createFromFaciesCount(int nfacies, double rho = 0.);
 
   virtual int deSerializeSpecific() { return 0; }
   virtual void serializeSpecific() const { return; }
@@ -122,6 +129,7 @@ private:
   void _nodNamesToIds(const VectorString& nodes,
                       VectorInt &n_type,
                       VectorInt& n_facs);
+  void _clear();
 
 private:
   ERule          _modeRule;  /* Type of usage (ERule) */

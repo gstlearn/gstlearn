@@ -1725,7 +1725,7 @@ static int st_variogram_calcul1(Db *db,
       vario->getDirParam(idir).getTolAngle());
   nech = db->getSampleNumber();
   maxdist = vario->getMaximumDistance(idir);
-  const VarioParam &varioparam = vario->getVarioParam();
+  const VarioParam& varioparam = vario->getVarioParam();
 
   /* Loop on the first point */
 
@@ -2722,17 +2722,15 @@ static int st_variogram_general(Db *db,
     flag_verr = 1;
   }
 
-  /* Auxiliary check for Drift removal */
+  // Auxiliary check for Drift removal. This is triggered only if the drift
+  // contains at least one drift function different from Universality condition
 
-  if (model != nullptr && model->getDriftNumber() > 1)
+  if (model != nullptr && model->isDriftDifferentDefined(EDrift::UC))
   {
-    if (model->getDriftType(0) != EDrift::UC)
-    {
-      if (vorder == (Vario_Order*) NULL)
-        vorder = vario_order_manage(1, 1, 0, vorder);
-      flag_ku = 1;
-      st_manage_drift_removal(1, db, model);
-    }
+    if (vorder == (Vario_Order*) NULL)
+      vorder = vario_order_manage(1, 1, 0, vorder);
+    flag_ku = 1;
+    st_manage_drift_removal(1, db, model);
   }
 
   /* Complementary checks */
@@ -6860,7 +6858,7 @@ Db* db_variogram_cloud(Db *db,
   VectorDouble x0(2);
   x0[0] = 0.;
   x0[1] = 0.;
-  Db *dbgrid = new Db(nx, dx, x0);
+  Db *dbgrid = Db::createFromGrid(nx, dx, x0);
 
   // Calling the variogram cloud calculation function
 
@@ -6968,7 +6966,7 @@ Db* db_vmap_compute(Db *db,
   x0[0] = -nxx * dx[0];
   x0[1] = -nyy * dx[1];
 
-  Db *dbmap = new Db(nx, dx, x0);
+  Db *dbmap = Db::createFromGrid(nx, dx, x0);
 
   // Calculating the variogram map in different ways
 

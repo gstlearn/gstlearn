@@ -45,7 +45,7 @@ int main(int /*argc*/, char */*argv*/[])
   set_test_discrete(false);
 
   // Creating an output Grid Db
-  Db dbgrid= Db({100,100},{0.01,0.01},{0.,0.});
+  Db* dbgrid = Db::createFromGrid({100,100},{0.01,0.01},{0.,0.});
 
   // Creating the proportions for simPGS
   VectorDouble props1({0.2, 0.5, 0.3});
@@ -88,68 +88,78 @@ int main(int /*argc*/, char */*argv*/[])
   model4.serialize("PGSmodel4.ascii");
 
   // Creating the Neighborhood
-  Neigh neigh = Neigh(ndim);
-  neigh.display();
+  Neigh* neigh = Neigh::createUnique(ndim);
+  neigh->display();
 
   // Creating the Rules
-  Rule rule1({"S","S","F1","F2","F3"});
-  rule1.display();
-  rule1.serialize("PGSrule1.ascii");
+  Rule* rule1 = Rule::createFromNames({"S","S","F1","F2","F3"});
+  rule1->display();
+  rule1->serialize("PGSrule1.ascii");
 
   // Creating the RuleProp structure for simPGS
-  RuleProp ruleprop1 = RuleProp(&rule1, props1);
+  RuleProp* ruleprop1 = RuleProp::createFromRule(rule1, props1);
 
   // Perform a non-conditional PGS simulation on a grid
-  error = simpgs(nullptr,&dbgrid,&ruleprop1,&model1,&model2,&neigh,nbsimu);
-  dbgrid.setNameByLocator(ELoc::FACIES,"PGS-Facies");
-  dbgrid.display();
-  dbgrid.serialize("simupgs.ascii");
+  error = simpgs(nullptr,dbgrid,ruleprop1,&model1,&model2,neigh,nbsimu);
+  dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Facies");
+  dbgrid->display();
+  dbgrid->serialize("simupgs.ascii");
 
   // Creating the RuleProp for simBiPGS
   VectorDouble props2({0.1, 0.2, 0.1, 0.3, 0.1, 0.2});
-  Rule rule2({"S","F1","F2"});
-  rule2.display();
-  rule2.serialize("PGSrule2.ascii");
-  RuleProp rulepropbi = RuleProp(&rule1, &rule2, props2);
+  Rule* rule2 = Rule::createFromNames({"S","F1","F2"});
+  rule2->display();
+  rule2->serialize("PGSrule2.ascii");
+  RuleProp* rulepropbi = RuleProp::createFromRules(rule1, rule2, props2);
 
   // Perform a non-conditional BiPGS simulation on a grid
-  error = simbipgs(nullptr,&dbgrid,&rulepropbi,
-                   &model1,&model2,&model3,&model4,&neigh,nbsimu);
-  dbgrid.setNameByLocator(ELoc::FACIES,"BiPGS-Facies");
-  dbgrid.display();
-  dbgrid.serialize("simubipgs.ascii");
+  error = simbipgs(nullptr,dbgrid,rulepropbi,
+                   &model1,&model2,&model3,&model4,neigh,nbsimu);
+  dbgrid->setNameByLocator(ELoc::FACIES,"BiPGS-Facies");
+  dbgrid->display();
+  dbgrid->serialize("simubipgs.ascii");
 
   // Performing a PGS simulation using Shift
   VectorDouble shift = {0.2, 0.3};
   VectorDouble propshift = { 0.1, 0.2, 0.3, 0.4 };
-  RuleShift ruleshift({"S","S","S","F1","F2","F3","F4"},shift);
-  ruleshift.display();
-  ruleshift.serialize("PGSruleshift.ascii");
+  RuleShift* ruleshift = RuleShift::createFromNames({"S","S","S","F1","F2","F3","F4"},shift);
+  ruleshift->display();
+  ruleshift->serialize("PGSruleshift.ascii");
 
-  RuleProp rulepropshift = RuleProp(&ruleshift, propshift);
+  RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
 
   // Perform a non-conditional PGS Shift simulation on a grid
-  error = simpgs(nullptr,&dbgrid,&rulepropshift,&model1,nullptr,&neigh,nbsimu);
-  dbgrid.setNameByLocator(ELoc::FACIES,"PGS-Shift-Facies");
-  dbgrid.display();
-  dbgrid.serialize("simushiftpgs.ascii");
+  error = simpgs(nullptr,dbgrid,rulepropshift,&model1,nullptr,neigh,nbsimu);
+  dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shift-Facies");
+  dbgrid->display();
+  dbgrid->serialize("simushiftpgs.ascii");
 
   // Performing a PGS simulation using Shadow
   double slope = 0.5;
   double shdown = -0.2;
   double shdsup = +0.5;
-  RuleShadow ruleshadow = RuleShadow(slope,shdsup,shdown,shift);
-  ruleshadow.display();
-  ruleshadow.serialize("PGSruleshadow.ascii");
+  RuleShadow* ruleshadow = new RuleShadow(slope,shdsup,shdown,shift);
+  ruleshadow->display();
+  ruleshadow->serialize("PGSruleshadow.ascii");
 
   VectorDouble propshadow = { 0.4, 0.2, 0.3 };
-  RuleProp rulepropshadow = RuleProp(&ruleshadow, propshadow);
+  RuleProp* rulepropshadow = RuleProp::createFromRule(ruleshadow, propshadow);
 
   // Perform a non-conditional PGS Shadow simulation on a grid
-  error = simpgs(nullptr,&dbgrid,&rulepropshadow,&model1,nullptr,&neigh,nbsimu);
-  dbgrid.setNameByLocator(ELoc::FACIES,"PGS-Shadow-Facies");
-  dbgrid.display();
-  dbgrid.serialize("simushadowpgs.ascii");
+  error = simpgs(nullptr,dbgrid,rulepropshadow,&model1,nullptr,neigh,nbsimu);
+  dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shadow-Facies");
+  dbgrid->display();
+  dbgrid->serialize("simushadowpgs.ascii");
 
+  delete dbgrid;
+  delete rule1;
+  delete rule2;
+  delete ruleshift;
+  delete ruleshadow;
+  delete ruleprop1;
+  delete rulepropbi;
+  delete rulepropshift;
+  delete rulepropshadow;
+  delete neigh;
   return(error);
 }

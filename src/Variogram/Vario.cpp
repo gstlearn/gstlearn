@@ -53,6 +53,99 @@ Vario::Vario(const VarioParam* varioparam,
   attachDb(db,vars,means);
 }
 
+Vario::Vario(const Vario& r)
+    : AStringable(r),
+      ASerializable(r),
+      _nVar(r._nVar),
+      _varioparam(r._varioparam),
+      _means(r._means),
+      _vars(r._vars),
+      _calculName(r._calculName),
+      _flagSample(r._flagSample),
+      _db(r._db),
+      _sw(r._sw),
+      _gg(r._gg),
+      _hh(r._hh),
+      _utilize(r._utilize),
+      _flagAsym(r._flagAsym)
+{
+}
+
+Vario& Vario::operator=(const Vario& r)
+{
+  if (this != &r)
+  {
+    AStringable::operator=(r);
+    ASerializable::operator=(r);
+    _nVar = r._nVar;
+    _varioparam = r._varioparam;
+    _means = r._means;
+    _vars  = r._vars;
+    _calculName = r._calculName;
+    _flagSample = r._flagSample;
+    _db = r._db;
+    _sw = r._sw;
+    _gg = r._gg;
+    _hh = r._hh;
+    _utilize = r._utilize;
+    _flagAsym = r._flagAsym;
+  }
+  return *this;
+}
+
+Vario::~Vario()
+{
+}
+
+Vario* Vario::createFromNF(const String& neutralFileName, bool verbose)
+{
+  VarioParam* varioparam = new VarioParam();
+  Vario* vario = new Vario(varioparam);
+  if (vario->deSerialize(neutralFileName, verbose))
+  {
+    if (verbose) messerr("Problem reading the Neutral File");
+    delete vario;
+    return nullptr;
+  }
+  return vario;
+}
+
+int Vario::compute(const String& calcul_name,
+                   bool flag_grid,
+                   bool flag_gen,
+                   bool flag_sample,
+                   bool verr_mode,
+                   Model *model,
+                   bool verbose)
+{
+  if (_db == nullptr)
+  {
+    messerr("The 'Db' must have been attached beforehand");
+    return 1;
+  }
+  _nVar = _db->getVariableNumber();
+  if (_nVar <= 0)
+  {
+    messerr("The 'db' must contain at least one variable defined");
+    return 1;
+  }
+
+  // Preparation
+
+  setCalculName(calcul_name);
+  _setDPasFromGrid(flag_grid);
+  if (internalVariableResize()) return 1;
+  internalDirectionResize();
+
+  if (_variogram_compute(_db, this, flag_grid, flag_gen,
+                         flag_sample, verr_mode, model, verbose))
+  {
+    messerr("Error when calculating the Variogram");
+    return 1;
+  }
+  return 0;
+}
+
 /**
  * Reduce this current variogram by keeping a subset of variables and/or directions
  *
@@ -60,7 +153,7 @@ Vario::Vario(const VarioParam* varioparam,
  * @param dircols Vector of direction ranks (starting from 0)
  * @param asSymmetric Turn the result into as Symmetrical function (i.e. variogram)
  */
-void Vario::varioReduce(const VectorInt& varcols,
+void Vario::reduce(const VectorInt& varcols,
                         const VectorInt& dircols,
                         bool asSymmetric)
 {
@@ -195,110 +288,6 @@ void Vario::varioReduce(const VectorInt& varcols,
         }
     }
   }
-}
-
-Vario::Vario(const String& neutralFileName, bool verbose)
-    : AStringable(),
-      ASerializable(),
-      IClonable(),
-      _nVar(0),
-      _varioparam(),
-      _means(),
-      _vars(),
-      _calculName("undefined"),
-      _flagSample(false),
-      _db(nullptr),
-      _sw(),
-      _gg(),
-      _hh(),
-      _utilize(),
-      _flagAsym(false)
-{
-  if (deSerialize(neutralFileName, verbose))
-  {
-    messerr("Problem reading the Neutral File");
-    messerr("The Variogram is not entirely defined");
-  }
-}
-
-Vario::Vario(const Vario& r)
-    : AStringable(r),
-      ASerializable(r),
-      _nVar(r._nVar),
-      _varioparam(r._varioparam),
-      _means(r._means),
-      _vars(r._vars),
-      _calculName(r._calculName),
-      _flagSample(r._flagSample),
-      _db(r._db),
-      _sw(r._sw),
-      _gg(r._gg),
-      _hh(r._hh),
-      _utilize(r._utilize),
-      _flagAsym(r._flagAsym)
-{
-}
-
-Vario& Vario::operator=(const Vario& r)
-{
-  if (this != &r)
-  {
-    AStringable::operator=(r);
-    ASerializable::operator=(r);
-    _nVar = r._nVar;
-    _varioparam = r._varioparam;
-    _means = r._means;
-    _vars  = r._vars;
-    _calculName = r._calculName;
-    _flagSample = r._flagSample;
-    _db = r._db;
-    _sw = r._sw;
-    _gg = r._gg;
-    _hh = r._hh;
-    _utilize = r._utilize;
-    _flagAsym = r._flagAsym;
-  }
-  return *this;
-}
-
-Vario::~Vario()
-{
-}
-
-int Vario::compute(const String& calcul_name,
-                   bool flag_grid,
-                   bool flag_gen,
-                   bool flag_sample,
-                   bool verr_mode,
-                   Model *model,
-                   bool verbose)
-{
-  if (_db == nullptr)
-  {
-    messerr("The 'Db' must have been attached beforehand");
-    return 1;
-  }
-  _nVar = _db->getVariableNumber();
-  if (_nVar <= 0)
-  {
-    messerr("The 'db' must contain at least one variable defined");
-    return 1;
-  }
-
-  // Preparation
-
-  setCalculName(calcul_name);
-  _setDPasFromGrid(flag_grid);
-  if (internalVariableResize()) return 1;
-  internalDirectionResize();
-
-  if (_variogram_compute(_db, this, flag_grid, flag_gen,
-                         flag_sample, verr_mode, model, verbose))
-  {
-    messerr("Error when calculating the Variogram");
-    return 1;
-  }
-  return 0;
 }
 
 int Vario::computeIndic(const String& calcul_name,

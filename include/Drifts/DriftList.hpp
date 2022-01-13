@@ -95,6 +95,9 @@ public:
   VectorDouble evalDrifts(const Db* db,
                           const VectorDouble& coeffs,
                           bool useSel = false) const;
+  int getMaximumOrder(void) const;
+  bool isDriftDefined(const EDrift &type0) const;
+  bool isDriftDifferentDefined(const EDrift &type0) const;
 
 private:
   bool _isDriftIndexValid(int i) const;

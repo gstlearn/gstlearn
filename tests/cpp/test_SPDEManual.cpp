@@ -43,11 +43,11 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////
   // Creating the Db Grid
   auto nx={ 101,101 };
-  Db workingDbc(nx);
+  Db* workingDbc = Db::createFromGrid(nx);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  VectorDouble angle = spirale.getFunctionValues(&workingDbc);
-  workingDbc.addFields(angle,"angle",ELoc::NOSTAT);
+  VectorDouble angle = spirale.getFunctionValues(workingDbc);
+  workingDbc->addFields(angle,"angle",ELoc::NOSTAT);
 
   //////////////////////
   //Creating the Mesh
@@ -55,21 +55,21 @@ int main(int /*argc*/, char */*argv*/[])
 
   ///////////////////////
   // Creating the Model
-  Model model = Model(&workingDbc);
-  CovContext ctxt(model.getContext());
+  Model* model = Model::createFromDb(workingDbc);
+  CovContext ctxt(model->getContext());
   CovLMC covs(ctxt.getSpace());
   CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
   cova.setRanges({10,45});
   covs.addCov(&cova);
-  model.setCovList(&covs);
+  model->setCovList(&covs);
 
   /////////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
-  NoStatArray NoStat({"A"},&workingDbc);
-  model.addNoStat(&NoStat);
+  NoStatArray NoStat({"A"},workingDbc);
+  model->addNoStat(&NoStat);
   SPDE spde(model,workingDbc);
 
-  ShiftOpCs S(&mesh, &model, &workingDbc);
+  ShiftOpCs S(&mesh, model, workingDbc);
   PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF);
 
   ///////////////////////////
@@ -79,25 +79,25 @@ int main(int /*argc*/, char */*argv*/[])
 
   resultSimu.resize(tab.size());
   Qsimu.eval(tab,resultSimu);
-  workingDbc.addFields(resultSimu,"Simu",ELoc::Z);
+  workingDbc->addFields(resultSimu,"Simu",ELoc::Z);
 
   ///////////////////////////
   // Creating Data
   auto ndata = 1000;
-  Db dat = Db(ndata, { 0., 0. }, { 100., 100. });
+  Db* dat = Db::createFromBox(ndata, { 0., 0. }, { 100., 100. });
 
   ///////////////////////////
   // Simulating Data points
-  ProjMatrix B(&dat, &mesh);
+  ProjMatrix B(dat, &mesh);
   VectorDouble datval(ndata);
   B.mesh2point(resultSimu, datval);
-  dat.addFields(datval, "Simu", ELoc::Z);
+  dat->addFields(datval, "Simu", ELoc::Z);
 
   ///////////////////////////
   // Kriging
   double nug = 0.1;
   VectorDouble rhs(S.getSize());
-  B.point2mesh(dat.getField("Simu"), rhs);
+  B.point2mesh(dat->getField("Simu"), rhs);
   for (auto &e : rhs)
   {
     e /= nug;
@@ -115,7 +115,11 @@ int main(int /*argc*/, char */*argv*/[])
   Rhs.push_back(VectorDouble(rhs));
 
   A.evalInverse(Rhs, resultvc);
-  workingDbc.addFields(resultvc[0], "Kriging");
-  workingDbc.serialize("spde.ascii");
+  workingDbc->addFields(resultvc[0], "Kriging");
+  workingDbc->serialize("spde.ascii");
+
+  delete dat;
+  delete workingDbc;
+  delete model;
   return 0;
 }

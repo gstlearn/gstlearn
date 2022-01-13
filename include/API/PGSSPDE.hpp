@@ -17,8 +17,8 @@ class GSTLEARN_EXPORT PGSSPDE
 {
 public:
   PGSSPDE(std::vector<Model*> models,
-          const Db& field,
-          RuleProp ruleprop,
+          const Db* field,
+          const RuleProp* ruleprop,
           const Db* dat=nullptr);
   PGSSPDE(const PGSSPDE& r) = delete;
   PGSSPDE& operator=(const PGSSPDE& r) = delete;
@@ -29,8 +29,8 @@ public:
   void query(Db* db,bool keepGauss=false) const;
 
 private:
-  Db*               _data;
+  Db*                _data;
   std::vector<SPDE*> _spdeTab;
-  RuleProp          _ruleProp;
-  ESPDECalcMode     _calcul;
+  const RuleProp*    _ruleProp;
+  ESPDECalcMode      _calcul;
 };

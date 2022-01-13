@@ -209,3 +209,4 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
   displayList(ctxt);
   return ECov::UNKNOWN;
 }
+
