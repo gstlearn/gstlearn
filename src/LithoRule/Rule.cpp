@@ -1049,6 +1049,7 @@ Rule* Rule::createFromNames(const VectorString& nodnames,double rho)
   {
     messerr("Problem when creating Rule from a vector of Names");
     delete rule;
+    return nullptr;
   }
   return rule;
 }
@@ -1059,6 +1060,7 @@ Rule* Rule::createFromCodes(const VectorInt& nodes,double rho)
   {
     messerr("Problem when creating Rule from a vector of Codes");
     delete rule;
+    return nullptr;
   }
   return rule;
 }
@@ -1071,6 +1073,7 @@ Rule* Rule::createFromNumericalCoding(const VectorInt& n_type,
   {
     messerr("Problem when creating Rule from Numerical Coding");
     delete rule;
+    return nullptr;
   }
   return rule;
 }
@@ -1081,6 +1084,7 @@ Rule* Rule::createFromFaciesCount(int nfacies, double rho)
   {
     messerr("Problem when creating Rule from a number of Facies");
     delete rule;
+    return nullptr;
   }
   return rule;
 }

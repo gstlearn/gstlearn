@@ -293,12 +293,22 @@ Polygons* Polygons::createFromCSV(const String& filename,
                                   int nrow_max)
 {
   Polygons* polygons = new Polygons();
-  polygons->resetFromCSV(filename, csv, verbose, ncol_max, nrow_max);
+  if (polygons->resetFromCSV(filename, csv, verbose, ncol_max, nrow_max))
+  {
+    if (verbose) messerr("Problem reading the CSV File.");
+    delete polygons;
+    return nullptr;
+  }
   return polygons;
 }
 Polygons* Polygons::createFromDb(const Db* db)
 {
   Polygons* polygons = new Polygons();
-  polygons->resetFromDb(db);
+  if (polygons->resetFromDb(db))
+  {
+    messerr("Problem building Polygons from DB.");
+    delete polygons;
+    return nullptr;
+  }
   return polygons;
 }

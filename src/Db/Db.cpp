@@ -4036,7 +4036,7 @@ Db* Db::createFromSamples(int nech,
   {
     messerr("Error when creating Db from Samples");
     delete db;
-    db = nullptr;
+    return nullptr;
   }
   return db;
 }
@@ -4056,7 +4056,7 @@ Db* Db::createFromGrid(const VectorInt& nx,
   {
     messerr("Error when creating Db from Grid");
     delete db;
-    db = nullptr;
+    return nullptr;
   }
   return db;
 }
@@ -4073,7 +4073,7 @@ Db* Db::createFromCSV(const String& filename,
   {
     messerr("Error when creating Db from Grid");
     delete db;
-    db = nullptr;
+    return nullptr;
   }
   return db;
 }
@@ -4087,7 +4087,7 @@ Db* Db::createFromPolygon(Polygons* polygon,
   {
     messerr("Error when creating Db from Polygon");
     delete db;
-    db = nullptr;
+    return nullptr;
   }
   return db;
 }
@@ -4103,7 +4103,7 @@ Db* Db::createFromBox(int nech,
   {
     messerr("Error when creating Db from Box");
     delete db;
-    db = nullptr;
+    return nullptr;
   }
   return db;
 }
@@ -4114,7 +4114,7 @@ Db* Db::createFromOnePoint(const VectorDouble& tab, int flag_add_rank)
   {
     messerr("Error when creating Db from One Point");
     delete db;
-    db = nullptr;
+    return nullptr;
   }
   return db;
 }
@@ -4129,7 +4129,7 @@ Db* Db::createCoveringDb(Db* dbin,
   {
     messerr("Error when creating Db from Covering another Db");
     delete db;
-    db = nullptr;
+    return nullptr;
   }
   return db;
 }
@@ -4144,7 +4144,7 @@ Db* Db::createSamplingDb(const Db* dbin,
   {
     messerr("Error when clearing Db by Sampling another Db");
     delete db;
-    db = nullptr;
+    return nullptr;
   }
   return db;
 }

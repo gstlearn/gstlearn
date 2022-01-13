@@ -89,6 +89,7 @@ Model* Model::createFromDb(const Db* db)
   {
     messerr("Problem when creating Model from Db");
     delete model;
+    return nullptr;
   }
   return model;
 }

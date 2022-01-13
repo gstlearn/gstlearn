@@ -472,6 +472,7 @@ Neigh* Neigh::createUnique(int ndim)
   {
     messerr("Problem when creating Unique Neighborhood");
     delete neigh;
+    return nullptr;
   }
   return neigh;
 }
@@ -492,6 +493,7 @@ Neigh* Neigh::createMoving(int ndim,
   {
     messerr("Problem when creating Moving Neighborhood");
     delete neigh;
+    return nullptr;
   }
   return neigh;
 }
@@ -503,6 +505,7 @@ Neigh* Neigh::createImage(int ndim, int skip, const VectorInt& image)
   {
     messerr("Problem when creating Image Neighborhood");
     delete neigh;
+    return nullptr;
   }
   return neigh;
 }

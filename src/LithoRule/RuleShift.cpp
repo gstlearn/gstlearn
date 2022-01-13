@@ -414,6 +414,7 @@ RuleShift* RuleShift::createFromNodes(const VectorInt& nodes,
   {
     messerr("Problem when creating RuleShift from Nodes");
     delete ruleshift;
+    return nullptr;
   }
   return ruleshift;
 }
@@ -425,6 +426,7 @@ RuleShift* RuleShift::createFromNames(const VectorString& nodnames,
   {
     messerr("Problem when creating RuleShift from Node Names");
     delete ruleshift;
+    return nullptr;
   }
   return ruleshift;
 }
@@ -436,6 +438,7 @@ RuleShift* RuleShift::createFromFaciesCount(int nfacies,
   {
     messerr("Problem when creating RuleShift from Count of Facies");
     delete ruleshift;
+    return nullptr;
   }
   return ruleshift;
 }
@@ -448,6 +451,7 @@ RuleShift* RuleShift::createFromNumericalCoding(const VectorInt& n_type,
   {
     messerr("Problem when creating RuleShift from Numerical Coding");
     delete ruleshift;
+    return nullptr;
   }
   return ruleshift;
 }

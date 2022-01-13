@@ -20,6 +20,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"
+#include "LithoRule/Rule.hpp"
 
 /****************************************************************************/
 /*!
@@ -31,6 +32,10 @@ int main(int /*argc*/, char */*argv*/[])
 {
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("TS-");
+
+  // =======================
+  // Checking Db
+  // =======================
 
   // ===== Create the Db db1
   int nech = 20;
@@ -48,6 +53,10 @@ int main(int /*argc*/, char */*argv*/[])
   // Deserialize db2
   Db* db2 = Db::createFromNF("Neutral.Db.ascii",verbose);
 
+  // =======================
+  // Checking Db (grid)
+  // =======================
+
   // ===== Create the Grid Db
   Db* dbg1 = Db::createFromGrid({12,10},{0.1,0.3},{0.2,0.4});
   vec1 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
@@ -64,6 +73,10 @@ int main(int /*argc*/, char */*argv*/[])
   // Deserialize dbg2
   Db* dbg2 = Db::createFromNF("Neutral.Dbg.ascii",verbose);
   dbg2->display();
+
+  // =======================
+  // Checking Polygons
+  // =======================
 
   // ===== Create the Polygon poly1
   Polygons poly1;
@@ -85,6 +98,10 @@ int main(int /*argc*/, char */*argv*/[])
   poly3.deSerialize("Neutral.Polygon.ascii", verbose);
   poly3.display();
 
+  // =======================
+  // Checking Vario
+  // =======================
+
   // ===== Compute an experimental variogram
   VarioParam varioparam1;
   DirParam dirparam(2, 10, 0.02);
@@ -99,6 +116,10 @@ int main(int /*argc*/, char */*argv*/[])
   // Deserialize vario2
   Vario* vario2 = Vario::createFromNF("Neutral.Vario.ascii",verbose);
   vario2->display();
+
+  // =======================
+  // Checking Model
+  // =======================
 
   // ===== Create a Model
   db1->display();
@@ -117,6 +138,10 @@ int main(int /*argc*/, char */*argv*/[])
   Model* model2 = Model::createFromNF("Neutral.Model.ascii",verbose);
   model2->display();
 
+  // =======================
+  // Checking Table
+  // =======================
+
   // ===== Create a Table
   VectorVectorDouble table;
   int ncols = 3;
@@ -134,6 +159,20 @@ int main(int /*argc*/, char */*argv*/[])
   Table* table2 = Table::createFromNF("Neutral.Table.ascii",verbose);
   table2->display();
 
+  // =======================
+  // Checking Rule
+  // =======================
+
+  Rule* rule = Rule::createFromNames({"S","F1","T","F2","S","F3","F4"});
+  rule->display();
+
+  // Serialize
+  rule->serialize("Neutral.Rule.ascii",verbose);
+
+  // Deserialize
+  Rule* rule2 = Rule::createFromNF("Neutral.Rule.ascii",verbose);
+  rule2->display();
+
   delete db1;
   delete db2;
   delete dbg1;
@@ -142,5 +181,7 @@ int main(int /*argc*/, char */*argv*/[])
   delete model2;
   delete table1;
   delete table2;
+  delete rule;
+  delete rule2;
   return(0);
 }

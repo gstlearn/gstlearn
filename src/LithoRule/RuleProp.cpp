@@ -352,6 +352,7 @@ RuleProp* RuleProp::createFromDb(const Db* dbprop, const VectorDouble& propcst)
   {
     messerr("Problem when creating from Db");
     delete ruleprop;
+    return nullptr;
   }
   return ruleprop;
 }
@@ -363,6 +364,7 @@ RuleProp* RuleProp::createFromRule(const Rule* rule,
   {
     messerr("Problem when creating from Rule & Proportions");
     delete ruleprop;
+    return nullptr;
   }
   return ruleprop;
 }
@@ -373,6 +375,7 @@ RuleProp* RuleProp::createFromRuleAndDb(const Rule* rule, const Db* dbprop)
   {
     messerr("Problem when creating from Rule & Db");
     delete ruleprop;
+    return nullptr;
   }
   return ruleprop;
 }
@@ -385,6 +388,7 @@ RuleProp* RuleProp::createFromRules(const Rule* rule1,
   {
     messerr("Problem when creating from Rules & Proportions");
     delete ruleprop;
+    return nullptr;
   }
   return ruleprop;
 }
@@ -397,6 +401,7 @@ RuleProp* RuleProp::createFromRulesAndDb(const Rule* rule1,
   {
     messerr("Problem when creating from Rules & Proportions");
     delete ruleprop;
+    return nullptr;
   }
   return ruleprop;
 }
