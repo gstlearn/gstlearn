@@ -16,7 +16,7 @@
 #include "Basic/Vector.hpp"
 #include "Mesh/AMesh.hpp"
 
-#include "../Basic/Grid.hpp"
+#include "Basic/Grid.hpp"
 
 class MatrixRectangular;
 class Db;

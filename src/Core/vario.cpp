@@ -5466,7 +5466,7 @@ static void st_center(int nvar,
  *****************************************************************************/
 static void st_calculate_normalization(int flag_normalize,
                                        int verbose,
-                                       Db *db,
+                                       const Db *db,
                                        double *data,
                                        VectorDouble &mean,
                                        VectorDouble &sigma)
@@ -5553,7 +5553,7 @@ static void st_calculate_normalization(int flag_normalize,
  **
  *****************************************************************************/
 static VectorDouble st_pca_covariance0(int verbose,
-                                       Db *db,
+                                       const Db *db,
                                        VectorDouble &mean,
                                        VectorDouble &sigma,
                                        double *data1)
@@ -5846,7 +5846,7 @@ static void st_pca_z2f(int flag_norm_out,
  **
  *****************************************************************************/
 static int st_pca_calculate(int flag_norm,
-                            Db *db,
+                            const Db *db,
                             double *data1,
                             PCA *pca,
                             int verbose)
@@ -6039,7 +6039,7 @@ int maf_compute(Db *db,
  ** \param[out] pca        Output PCA structure
  **
  *****************************************************************************/
-int pca_compute(Db *db, int verbose, PCA *pca)
+int pca_compute(const Db *db, int verbose, PCA *pca)
 {
   int error, nvar;
   double *c0, *data1;

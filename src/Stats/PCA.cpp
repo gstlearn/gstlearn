@@ -99,6 +99,11 @@ int PCA::calculateEigen(int nvar, VectorDouble& c0)
   return(0);
 }
 
+int PCA::compute(const Db* db, int verbose)
+{
+  return pca_compute(db, verbose, this);
+}
+
 String PCA::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;

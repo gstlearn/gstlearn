@@ -14,6 +14,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 
+class Db;
+
 class GSTLEARN_EXPORT PCA: public AStringable
 {
 public:
@@ -47,6 +49,8 @@ public:
   void setEigen(int ivar, double eigen) { _eigen[ivar] = eigen; }
   void setMean(VectorDouble& mean) { _mean = mean; }
   void setSigma(VectorDouble& sigma) { _sigma = sigma; }
+
+  int compute(const Db *db, int verbose);
 
 private:
   int _getAddress(int ivar, int jvar) const
