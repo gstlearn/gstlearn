@@ -24,6 +24,8 @@
 #include <regex>
 //#include <boost/filesystem.hpp>
 
+// TODO Compare
+
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h> // for CreateDirectory
 #else
