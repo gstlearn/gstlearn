@@ -217,7 +217,7 @@ void SPDE::compute(int nbsimus, int seed) const
   VectorDouble dataVect = _data->getFieldByLocator(ELoc::Z,0,true);
   for(int iech = 0; iech<(int)_workingData.size();iech++)
   {
-    _workingData[iech] = dataVect[iech] + _workingData[iech];
+    _workingData[iech] = dataVect[iech] - _workingData[iech];
   }
 
 
@@ -316,6 +316,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
 
   temp = _model->evalDrifts(db,_driftCoeffs,true);
   ut_vector_add_inplace(result,temp);
+  message("taille = %d\n",(int)result.size());
   int iptr = db->addFields(result,"SPDE",ELoc::Z,0,true,TEST);
   namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
