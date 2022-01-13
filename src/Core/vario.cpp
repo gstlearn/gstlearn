@@ -5488,7 +5488,7 @@ static void st_calculate_normalization(int flag_normalize,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      if (! db_is_isotropic(db, iech, data)) continue;
+      if (!db_is_isotropic(db, iech, data)) continue;
       niso++;
       for (int ivar = 0; ivar < nvar; ivar++)
       {

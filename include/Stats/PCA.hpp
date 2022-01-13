@@ -17,6 +17,8 @@
 
 class Db;
 
+class Db;
+
 class GSTLEARN_EXPORT PCA: public AStringable
 {
 public:
@@ -51,6 +53,7 @@ public:
   void setMean(VectorDouble& mean) { _mean = mean; }
   void setSigma(VectorDouble& sigma) { _sigma = sigma; }
 
+<<<<<<< HEAD
   int compute(const Db *db, bool verbose = false);
   int dbZ2F(Db* db,
             bool flag_norm = true,
@@ -60,6 +63,9 @@ public:
             bool flag_norm = true,
             bool verbose = false,
             const NamingConvention& namconv = NamingConvention("F2Z"));
+=======
+  int compute(const Db *db, int verbose);
+>>>>>>> 68652b002123b4372c14ff427ef398f93ab98997
 
 private:
   int _getAddress(int ivar, int jvar) const { return (ivar * _nVar + jvar); }

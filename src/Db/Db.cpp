@@ -109,8 +109,8 @@ int Db::resetFromSamples(int nech,
  * @param nx            A vector of the number of grid meshes.
  *                      The number of items in this argument gives the dimension of the space.
  *                      (size = ndim)
- * @param dx            Vector cell meshes size in each direction (size = ndim)
- * @param x0            Vecor of origin coordinates (size = ndim)
+ * @param dx            Vector cell meshes size in each direction (size = ndim) (by default, use 1)
+ * @param x0            Vector of origin coordinates (size = ndim) (by default, use 0)
  * @param angles        Array giving the rotation angles (only for dimension 2 or 3).
  *                      The first angle corresponds to the rotation around OZ axis,
  *                      the second to a rotation around OY'and the third one around Ox.
