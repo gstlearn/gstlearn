@@ -32,6 +32,7 @@ class Neigh;
 class Polygons;
 class RuleProp;
 class ECalcVario;
+class PCA;
 
 /*************************/
 /* Functions for License */
@@ -211,6 +212,10 @@ GSTLEARN_EXPORT Db* db_vmap_compute(Db *db, const ECalcVario &calcul_type, // = 
                                     int radius = 0.,
                                     bool flag_FFT = true,
                                     const NamingConvention& namconv = NamingConvention("VMAP"));
+GSTLEARN_EXPORT int pca_z2f(Db *db, const PCA *pca, bool flag_norm, bool flag_verbose,
+                            const NamingConvention& namconv = NamingConvention("Z2F"));
+GSTLEARN_EXPORT int pca_f2z(Db *db, const PCA *pca, bool flag_norm, bool flag_verbose,
+                            const NamingConvention& namconv = NamingConvention("F2Z"));
 
 /***********************/
 /* Functions for Model */
@@ -461,6 +466,7 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *db,
 /*****************/
 /* Various Tools */
 /*****************/
+
 GSTLEARN_EXPORT int db_tool_duplicate(Db *db1,
                                       Db *db2,
                                       bool flag_same,

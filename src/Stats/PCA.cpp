@@ -14,7 +14,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-PCA::PCA()
+PCA::PCA(int nvar)
   : AStringable(),
     _nVar(0),
     _mean(),
@@ -23,6 +23,7 @@ PCA::PCA()
     _Z2F(),
     _F2Z()
 {
+  init(nvar);
 }
 
 PCA::PCA(const PCA &m)
@@ -130,4 +131,24 @@ String PCA::toString(const AStringFormat* strfmt) const
   sstr << "Z = Y * t(M) (rows  = eigen vectors)" << std::endl;
 
   return sstr.str();
+}
+
+int PCA::compute(const Db *db, bool verbose)
+{
+  return pca_compute(db, verbose, this);
+}
+int PCA::dbZ2F(Db* db,
+               bool flag_norm,
+               bool verbose,
+               const NamingConvention& namconv)
+{
+  return pca_z2f(db, this, flag_norm, verbose, namconv);
+}
+
+int PCA::dbF2Z(Db* db,
+               bool flag_norm,
+               bool verbose,
+               const NamingConvention& namconv)
+{
+  return pca_f2z(db, this, flag_norm, verbose, namconv);
 }

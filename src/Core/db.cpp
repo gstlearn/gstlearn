@@ -3359,7 +3359,7 @@ double* db_distances_general(Db *db1,
  ** \remark  If the sample is masked off, the function returns 0
  **
  *****************************************************************************/
-int db_is_isotropic(Db *db, int iech, double *data)
+int db_is_isotropic(const Db *db, int iech, double *data)
 {
   int ivar;
   double value;

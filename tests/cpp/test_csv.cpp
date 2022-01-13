@@ -26,8 +26,6 @@ String getTestData(const String& filename)
   return filepath;
 }
 
-
-
 /**
  * This test is meant to check the CSV loading procedure
  */

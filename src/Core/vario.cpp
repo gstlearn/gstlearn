@@ -5464,7 +5464,7 @@ static void st_center(int nvar,
  *****************************************************************************/
 static void st_calculate_normalization(int flag_normalize,
                                        int verbose,
-                                       Db *db,
+                                       const Db *db,
                                        double *data,
                                        VectorDouble &mean,
                                        VectorDouble &sigma)
@@ -5488,7 +5488,7 @@ static void st_calculate_normalization(int flag_normalize,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      if (!db_is_isotropic(db, iech, data)) continue;
+      if (! db_is_isotropic(db, iech, data)) continue;
       niso++;
       for (int ivar = 0; ivar < nvar; ivar++)
       {
@@ -5551,7 +5551,7 @@ static void st_calculate_normalization(int flag_normalize,
  **
  *****************************************************************************/
 static VectorDouble st_pca_covariance0(int verbose,
-                                       Db *db,
+                                       const Db *db,
                                        VectorDouble &mean,
                                        VectorDouble &sigma,
                                        double *data1)
@@ -5732,7 +5732,7 @@ static VectorDouble st_pca_covarianceh(int verbose,
 static void st_pca_f2z(int flag_norm_out,
                        int iptr,
                        Db *db,
-                       PCA *pca,
+                       const PCA *pca,
                        double *data1)
 {
   int nvar, nech, flag_anisotropy;
@@ -5788,7 +5788,7 @@ static void st_pca_f2z(int flag_norm_out,
 static void st_pca_z2f(int flag_norm_out,
                        int iptr,
                        Db *db,
-                       PCA *pca,
+                       const PCA *pca,
                        double *data1,
                        const VectorDouble &mean,
                        const VectorDouble &sigma)
@@ -5844,7 +5844,7 @@ static void st_pca_z2f(int flag_norm_out,
  **
  *****************************************************************************/
 static int st_pca_calculate(int flag_norm,
-                            Db *db,
+                            const Db *db,
                             double *data1,
                             PCA *pca,
                             int verbose)
@@ -6037,49 +6037,34 @@ int maf_compute(Db *db,
  ** \param[out] pca        Output PCA structure
  **
  *****************************************************************************/
-int pca_compute(Db *db, int verbose, PCA *pca)
+int pca_compute(const Db *db, bool verbose, PCA *pca)
 {
-  int error, nvar;
-  double *c0, *data1;
   static int flag_normalize = 1;
 
   /* Initializations */
 
-  error = 0;
-  if (db == nullptr) return (1);
-  c0 = data1 = nullptr;
+  if (db == nullptr) return 1;
 
   /* Preliminary checks */
 
-  nvar = pca->getNVar();
+  int nvar = pca->getNVar();
   if (nvar != db->getVariableNumber())
   {
     messerr(
         "Number of variables in the PCA (%d) and in the Db (%d) are inconsistent",
         nvar, db->getVariableNumber());
-    goto label_end;
+    return 1;
   }
 
   /* Core allocation */
 
-  c0 = (double*) mem_alloc(sizeof(double) * nvar * nvar, 0);
-  if (c0 == nullptr) goto label_end;
-  data1 = (double*) mem_alloc(sizeof(double) * nvar, 0);
-  if (data1 == nullptr) goto label_end;
+  VectorDouble data1(nvar);
 
   /* Calculate the PCA */
 
-  /* Calculate the first PCA (centered and normalized) */
+  if (st_pca_calculate(flag_normalize, db, data1.data(), pca, verbose)) return 1;
 
-  if (st_pca_calculate(flag_normalize, db, data1, pca, verbose)) goto label_end;
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: c0 = (double*) mem_free((char* ) c0);
-  data1 = (double*) mem_free((char* ) data1);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -6092,70 +6077,62 @@ int pca_compute(Db *db, int verbose, PCA *pca)
  ** \param[in]  pca          PCA descriptor
  ** \param[in]  flag_norm_in 1 if the variable must be normalized
  ** \param[in]  verbose      1 for a verbose output
+ ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-int pca_z2f(Db *db, PCA *pca, int flag_norm_in, int verbose)
+int pca_z2f(Db *db,
+            const PCA *pca,
+            bool flag_norm_in,
+            bool verbose,
+            const NamingConvention& namconv)
 {
-  int iptr, nvar, error, ivar;
-  double *data;
-  VectorDouble mean, sigma;
-  VectorInt cols;
-
-  /* Preliminary checks */
-
-  error = 1;
-  nvar = db->getVariableNumber();
-  data = nullptr;
+  int nvar = db->getVariableNumber();
   if (nvar <= 0)
   {
     messerr("The Transformation requires Z located variables");
-    goto label_end;
+    return 1;
   }
   if (nvar != pca->getNVar())
   {
     messerr(
         "The number of variables in PCA (%d) does not match the number of Z-variables in the Db (%d)",
         pca->getNVar(), nvar);
-    goto label_end;
+    return 1;
   }
-  mean.resize(nvar);
-  sigma.resize(nvar * nvar);
+  VectorDouble mean(nvar);
+  VectorDouble sigma(nvar * nvar);
 
   /* Allocate new variables */
 
-  iptr = db->addFieldsByConstant(nvar, TEST);
-  if (iptr < 0) goto label_end;
+  int iptr = db->addFieldsByConstant(nvar, TEST);
+  if (iptr < 0) return 1;
 
   /* Core allocation */
 
-  data = (double*) mem_alloc(sizeof(double) * nvar, 0);
-  if (data == nullptr) goto label_end;
+  VectorDouble data(nvar);
 
   /* Normalization (optional) */
 
-  st_calculate_normalization(flag_norm_in, verbose, db, data, mean, sigma);
+  st_calculate_normalization(flag_norm_in, verbose, db, data.data(), mean, sigma);
 
   /* Perform the normalization */
 
-  st_pca_z2f(0, iptr, db, pca, data, mean, sigma);
+  st_pca_z2f(0, iptr, db, pca, data.data(), mean, sigma);
 
   /* Optional printout */
 
   if (verbose)
   {
-    cols.resize(nvar);
-    for (ivar = 0; ivar < nvar; ivar++)
+    VectorInt cols(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++)
       cols[ivar] = iptr + ivar;
-    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Factors",
-                   "Factor");
+    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Factors","Factor");
   }
 
   /* Set the error return code */
 
-  error = 0;
-
-  label_end: data = (double*) mem_free((char* ) data);
-  return (error);
+  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  return 0;
 }
 
 /****************************************************************************/
@@ -6164,67 +6141,61 @@ int pca_z2f(Db *db, PCA *pca, int flag_norm_in, int verbose)
  **
  ** \return  Error return code
  **
- ** \param[in]  db           Db descriptor
- ** \param[in]  pca          PCA descriptor
+ ** \param[in]  db            Db descriptor
+ ** \param[in]  pca           PCA descriptor
  ** \param[in]  flag_norm_out 1 if the output variable must be denormalized
- ** \param[in]  verbose      1 for a verbose output
+ ** \param[in]  verbose       1 for a verbose output
+ ** \param[in]  namconv       Naming convention
  **
  *****************************************************************************/
-int pca_f2z(Db *db, PCA *pca, int flag_norm_out, int verbose)
+int pca_f2z(Db *db,
+            const PCA *pca,
+            bool flag_norm_out,
+            bool verbose,
+            const NamingConvention& namconv)
 {
-  int iptr, nvar, error;
-  double *data;
-  VectorInt cols;
-
-  /* Preliminary checks */
-
-  error = 1;
-  nvar = db->getVariableNumber();
-  data = nullptr;
+  int nvar = db->getVariableNumber();
   if (nvar <= 0)
   {
     messerr("The Transformation requires Z located variables");
-    goto label_end;
+    return 1;
   }
   if (nvar != pca->getNVar())
   {
     messerr(
         "The number of variables in PCA (%d) does not match the number of Z-variables in the Db (%d)",
         pca->getNVar(), nvar);
-    goto label_end;
+    return 1;
   }
 
   /* Allocate new variables */
 
-  iptr = db->addFieldsByConstant(nvar, TEST);
-  if (iptr < 0) goto label_end;
+  int iptr = db->addFieldsByConstant(nvar, TEST);
+  if (iptr < 0) return 1;
 
   /* Core allocation */
 
-  data = (double*) mem_alloc(sizeof(double) * nvar, 0);
-  if (data == nullptr) goto label_end;
+  VectorDouble data(nvar);
 
   /* Rotate the factors into data in the PCA system */
 
-  st_pca_f2z(flag_norm_out, iptr, db, pca, data);
+  st_pca_f2z(flag_norm_out, iptr, db, pca, data.data());
 
   /* Optional printout */
 
   if (verbose)
   {
-    cols.resize(nvar);
+    VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++)
       cols[ivar] = iptr + ivar;
-    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Variables",
-                   "Variable");
+    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Variables", "Variable");
   }
 
   /* Set the error return code */
 
-  error = 0;
+  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
 
-  label_end: data = (double*) mem_free((char* ) data);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
