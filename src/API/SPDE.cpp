@@ -214,19 +214,28 @@ void SPDE::computeSimuCond(int nbsimus, int seed) const
 
 void SPDE::compute(int nbsimus, int seed) const
 {
+  VectorDouble dataVect;
+
+  if(_data!=nullptr)
+  {
+    dataVect = _data->getFieldByLocator(ELoc::Z,0,true);
+  }
   if(_computeCoeffs)
   {
     _driftCoeffs = computeCoeffs();
+    _workingData = _model->evalDrifts(_data,_driftCoeffs,true);
   }
+  else if(_data!=nullptr)
+  {
+    ut_vector_fill(_workingData,0.,_data->getActiveSampleNumber());
+  }
+
   if(_data!=nullptr)
   {
-    _workingData = _model->evalDrifts(_data,_driftCoeffs,true);
-    VectorDouble dataVect = _data->getFieldByLocator(ELoc::Z,0,true);
     for(int iech = 0; iech<(int)_workingData.size();iech++)
     {
       _workingData[iech] = dataVect[iech] - _workingData[iech];
     }
-
   }
 
   if(_calcul == ESPDECalcMode::KRIGING)

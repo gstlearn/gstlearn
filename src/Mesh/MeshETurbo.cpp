@@ -400,7 +400,7 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
   /* Convert the triplet into a sparse matrix */
   
   A = cs_triplet(Atriplet);
-  cs_print_dim("Aproj",A);
+
   // Set the error return code
 
   error = 0;
