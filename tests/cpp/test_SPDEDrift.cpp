@@ -3,72 +3,51 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
-#include "Model/NoStatArray.hpp"
-#include "Basic/FunctionalSpirale.hpp"
 
-/****************************************************************************/
-/*!
- ** Main Program
- **
- *****************************************************************************/
+
+String getTestData(const String& filename)
+{
+  String exec_dir = ASerializable::getExecDirectory();
+  // This path is compatible with CMake generation
+  String filepath(exec_dir + "../../doc/data/Scotland/" + filename);
+
+  return filepath;
+}
+
 int main(int /*argc*/, char */*argv*/[])
 
 {
-  ASerializable::setPrefixName("SPDEDrift-");
-  int seed = 10355;
-  law_set_random_seed(seed);
+  bool verbose = true;
+  String filepath = getTestData("temperatures.ascii");
+  std::cout << filepath <<std::endl;
+  Db* temperatures = Db::createFromNF(filepath,false,verbose);
 
-  ///////////////////////
-  // Creating the Db Grid
-  auto nx={ 101,101 };
-  Db* workingDbc = Db::createFromGrid(nx);
+  filepath = getTestData("grid.ascii");
+  std::cout << filepath <<std::endl;
+  Db* grid = Db::createFromNF(filepath,true,verbose);
 
-  FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  VectorDouble angle = spirale.getFunctionValues(workingDbc);
-  workingDbc->addFields(angle,"angle",ELoc::NOSTAT);
+  filepath = getTestData("model.ascii");
+  std::cout << filepath <<std::endl;
+  Model* model = Model::createFromNF(filepath,verbose);
 
-  ///////////////////////
-  // Creating the Model
-  Model* model = Model::createFromDb(workingDbc);
-  CovContext ctxt(model->getContext());
-  CovLMC covs(ctxt.getSpace());
-  CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
-  cova.setRanges({20,20});
-  covs.addCov(&cova);
-  model->setCovList(&covs);
 
-  model->addDrift({"1","f1"});
-
-  NoStatArray NoStat({"A"},workingDbc);
-  model->addNoStat(&NoStat);
-
+  grid->display();
+  temperatures->display();
   model->display();
+  SPDE spde(model,grid,temperatures,ESPDECalcMode::KRIGING);
 
-  ///////////////////////
-  // Creating Data
-  auto ndata = 500;
-  Db* dat = Db::createFromBox(ndata, { 0., 0. }, { 100., 100. });
-  VectorDouble z = ut_vector_simulate_gaussian(ndata);
-  VectorDouble drift = dat->getField("x.1");
-  ut_vector_multiply_inplace(drift,0.1);
-  ut_vector_add_inplace(z,drift);
-  ut_vector_addval(z,10);
-  dat->addFields(z,"variable",ELoc::Z);
-  dat->addFields(drift,"Drift",ELoc::F);
-  dat->display();
+  spde.compute();
+  spde.query(grid);
 
-  ///////////////////////
-  // Running SPDE
-  SPDE spde(model,workingDbc,dat,ESPDECalcMode::KRIGING);
-  VectorDouble result = spde.computeCoeffs();
-  ut_vector_display("Drift Coefficients:",result);
+  filepath = getTestData("result.ascii");
+  grid->serialize(filepath,verbose);
 
-  delete dat;
-  delete workingDbc;
+  delete temperatures;
+  delete grid;
   delete model;
+
   return 0;
 }
 

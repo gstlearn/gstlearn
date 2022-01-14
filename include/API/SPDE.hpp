@@ -74,7 +74,8 @@ private:
   mutable VectorDouble       _workingData;
   std::vector<ProjMatrix*> _projOnDbOut;
   std::vector<int>           _adressesICov;
-
   double _nugget;
+  VectorVectorDouble _driftTab;
+  bool _computeCoeffs;
   // query sur aproj ou // TODO ??
 };

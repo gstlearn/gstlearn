@@ -30,6 +30,7 @@ SPDE::SPDE()
 , _workingSimu()
 , _projOnDbOut()
 , _nugget(0.)
+, _computeCoeffs(false)
 {
 
 }
@@ -107,7 +108,8 @@ void SPDE::init(Model* model,
   PrecisionOpCs* precision;
   MeshETurbo* mesh;
   ProjMatrix* proj;
-
+  _driftTab = _model->getDrifts(_data, true);
+  _computeCoeffs = _driftTab.size()>0 && _data != nullptr;
   for(int icov = 0 ; icov < model->getCovaNumber();icov++)
   {
     const auto cova = model->getCova(icov);
@@ -133,7 +135,7 @@ void SPDE::init(Model* model,
         _precisionsSimu.push_back(precision,proj);
         _workingSimu.push_back(VectorDouble(shiftOp->getSize()));
       }
-      if(_calculKriging())
+      if(_calculKriging() || _computeCoeffs)
       {
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,11,5,false,1);
@@ -212,14 +214,20 @@ void SPDE::computeSimuCond(int nbsimus, int seed) const
 
 void SPDE::compute(int nbsimus, int seed) const
 {
-  _driftCoeffs = computeCoeffs();
-  _workingData = _model->evalDrifts(_data,_driftCoeffs,true);
-  VectorDouble dataVect = _data->getFieldByLocator(ELoc::Z,0,true);
-  for(int iech = 0; iech<(int)_workingData.size();iech++)
+  if(_computeCoeffs)
   {
-    _workingData[iech] = dataVect[iech] - _workingData[iech];
+    _driftCoeffs = computeCoeffs();
   }
+  if(_data!=nullptr)
+  {
+    _workingData = _model->evalDrifts(_data,_driftCoeffs,true);
+    VectorDouble dataVect = _data->getFieldByLocator(ELoc::Z,0,true);
+    for(int iech = 0; iech<(int)_workingData.size();iech++)
+    {
+      _workingData[iech] = dataVect[iech] - _workingData[iech];
+    }
 
+  }
 
   if(_calcul == ESPDECalcMode::KRIGING)
   {
@@ -316,7 +324,6 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
 
   temp = _model->evalDrifts(db,_driftCoeffs,true);
   ut_vector_add_inplace(result,temp);
-  message("taille = %d\n",(int)result.size());
   int iptr = db->addFields(result,"SPDE",ELoc::Z,0,true,TEST);
   namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
@@ -325,6 +332,6 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
 VectorDouble SPDE::computeCoeffs() const
 {
   // Loading the Vector of Drift values
-  VectorVectorDouble drifttab = _model->getDrifts(_data, true);
-  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),drifttab);
+
+  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),_driftTab);
 }

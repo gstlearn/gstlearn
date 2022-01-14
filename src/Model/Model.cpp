@@ -556,7 +556,7 @@ VectorDouble Model::evalDrifts(const Db* db,
                                bool useSel) const
 {
   VectorDouble vec;
-  if (_driftList == nullptr)
+  if (_driftList == nullptr && db!=nullptr)
   {
     int nech = (useSel) ? db->getActiveSampleNumber() : db->getSampleNumber();
     vec = VectorDouble(nech,0.);
