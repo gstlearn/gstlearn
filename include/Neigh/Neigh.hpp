@@ -131,26 +131,7 @@ private:
   ENeigh _type;                  /* Neighborhood type: ENeigh */
   int _flagXvalid;               /* 1 to suppress the target */
   int _flagSector;               /* 1 if MOVING neigh. used sector search */
-  int _flagAniso;                /* 1 if the MOVI    : AStringable(),
-      ASerializable(),
-      _nDim(ndim),
-      _type(ENeigh::IMAGE),
-      _flagXvalid(0),
-      _flagSector(0),
-      _flagAniso(0),
-      _flagRotation(0),
-      _flagContinuous(0),
-      _nMini(0),
-      _nMaxi(0),
-      _nSect(0),
-      _nSMax(0),
-      _skip(skip),
-      _width(0.),
-      _radius(0.),
-      _distCont(0.),
-      _anisoCoeffs(),
-      _anisoRotMat(),
-      _imageRadius(image)NG neigh. is anisotropic */
+  int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */
   int _flagRotation;             /* 1 if the anisotropy is rotated */
   int _flagContinuous;           /* 1 for continuous moving neighborhood */
   int _nMini;                    /* Minimum number of points in neigh. */

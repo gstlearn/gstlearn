@@ -997,11 +997,7 @@ GSTLEARN_EXPORT int maf_compute(Db *db,
                                 double dh,
                                 int verbose,
                                 PCA *pca);
-<<<<<<< HEAD
 GSTLEARN_EXPORT int pca_compute(const Db *db, bool verbose, PCA *pca);
-=======
-GSTLEARN_EXPORT int pca_compute(const Db *db, int verbose, PCA *pca);
->>>>>>> 68652b002123b4372c14ff427ef398f93ab98997
 GSTLEARN_EXPORT int variogram_y2z(Vario *vario, Anam *anam, Model *model);
 
 /****************************************/

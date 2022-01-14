@@ -293,6 +293,8 @@ public:
   void   setVariable(int iech, int item, double value);
   void   updVariable(int iech, int item, int oper, double value);
   bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
+  bool   isIsotopic(int iech, int nvar_max = -1) const;
+  bool   isAllUndefined(int iech) const;
 
   int    getLowerIntervalNumber() const;
   bool   hasLowerInterval() const;
