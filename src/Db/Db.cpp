@@ -109,8 +109,8 @@ int Db::resetFromSamples(int nech,
  * @param nx            A vector of the number of grid meshes.
  *                      The number of items in this argument gives the dimension of the space.
  *                      (size = ndim)
- * @param dx            Vector cell meshes size in each direction (size = ndim)
- * @param x0            Vecor of origin coordinates (size = ndim)
+ * @param dx            Vector cell meshes size in each direction (size = ndim) (by default, use 1)
+ * @param x0            Vector of origin coordinates (size = ndim) (by default, use 0)
  * @param angles        Array giving the rotation angles (only for dimension 2 or 3).
  *                      The first angle corresponds to the rotation around OZ axis,
  *                      the second to a rotation around OY'and the third one around Ox.
@@ -1764,6 +1764,41 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
     }
   }
   return true;
+}
+
+/**
+ * Check if the information (ELOC.Z) for a sample is isotopic or not
+ * Isotopic means that all variables (for this sample) are defined
+ * @param iech Rank of the sample
+ * @param nvar_max Maximum number of variables to be checked (or -1)
+ * @return
+ *
+ * @remark The returned answer is false is there is no variable defined
+ * @remark or if the sample rank is not valid.
+ * @remark If 'nvar-max' is defined, the test is performed on the 'nvar_max'
+ * @remark first variables. Otherwise, it is performed on all ELOC.Z variables
+ */
+bool Db::isIsotopic(int iech, int nvar_max) const
+{
+  int nvar = getVariableNumber();
+  if (nvar_max > 0) nvar = MIN(nvar, nvar_max);
+  if (nvar <= 0) return false;
+  if (!isSampleIndexValid(iech)) return false;
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    if (FFFF(getVariable(iech, ivar))) return false;
+  return true;
+}
+
+bool Db::isAllUndefined(int iech) const
+{
+  int nvar = getVariableNumber();
+  if (nvar <= 0) return false;
+  if (!isSampleIndexValid(iech)) return false;
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    if (! FFFF(getVariable(iech, ivar))) return true;
+  return false;
 }
 
 bool Db::hasVariable() const

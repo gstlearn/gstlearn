@@ -409,19 +409,11 @@ bool NeighWork::_discardUndefined(int iech)
 {
   int nvar = _dbin->getVariableNumber();
 
-  if (_dbin->getVariableNumber() <= 0)
-    return 0;
-  else
-  {
-    for (int ivar = 0; ivar < nvar; ivar++)
-      if (! FFFF(_dbin->getVariable(iech, ivar))) return 0;
-    return 1;
-  }
+  if (_dbin->getVariableNumber() <= 0) return 0;
 
   if (! _flagSimu)
   {
-    for (int ivar = 0; ivar < nvar; ivar++)
-      if (!FFFF(_dbin->getVariable(iech, ivar))) return 0;
+    if (_dbin->isAllUndefined(iech)) return 0;
   }
   else
   {

@@ -3189,28 +3189,6 @@ int db_prop_write(Db *db, int ix, int iy, double *props)
   return (0);
 }
 
-//****************************************************************************/
-/*!
- **  Check if the 'niso' Z-variables are defined for the current sample
- **  in the current Data Base
- **
- ** \return 1 if some heterotopy has been foundl 0 otherwise
- **
- ** \param[in]  db      Db descriptor
- ** \param[in]  iech    Rank of the sample
- ** \param[in]  niso    Number of Z-variables to be checkd
- **
- ** \return If 'niso'<=0, the function always returns 0
- **
- *****************************************************************************/
-static int st_is_isotopic(Db *db, int iech, int niso)
-{
-  if (niso <= 0) return (0);
-  for (int ivar = 0; ivar < niso; ivar++)
-    if (FFFF(db->getVariable(iech, ivar))) return (1);
-  return (0);
-}
-
 /****************************************************************************/
 /*!
  **  Evaluate the array of distances between samples of two data sets
@@ -3287,8 +3265,8 @@ double* db_distances_general(Db *db1,
   ecr = nvalid = 0;
   for (iech2 = 0; iech2 < nech2; iech2++)
   {
-    if (!db2->isActive(iech2)) continue;
-    if (st_is_isotopic(db2, iech2, niso)) continue;
+    if (! db2->isActive(iech2)) continue;
+    if (! db2->isIsotopic(iech2, niso)) continue;
     nvalid++;
     dlocmin = 1.e30;
 
@@ -3297,8 +3275,8 @@ double* db_distances_general(Db *db1,
     for (iech1 = 0; iech1 < nech1; iech1++)
     {
       if (mode != 2 && flag_same && iech1 == iech2) continue;
-      if (!db1->isActive(iech1)) continue;
-      if (st_is_isotopic(db1, iech1, niso)) continue;
+      if (! db1->isActive(iech1)) continue;
+      if (! db1->isIsotopic(iech1, niso)) continue;
 
       /* Calculate distance */
 
@@ -3359,7 +3337,7 @@ double* db_distances_general(Db *db1,
  ** \remark  If the sample is masked off, the function returns 0
  **
  *****************************************************************************/
-int db_is_isotropic(Db *db, int iech, double *data)
+int db_is_isotropic(const Db *db, int iech, double *data)
 {
   int ivar;
   double value;

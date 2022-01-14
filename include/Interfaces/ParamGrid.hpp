@@ -3,7 +3,7 @@
 #include "gstlearn_export.hpp"
 #include "Interfaces/interface_d.hpp"
 
-#include "../Basic/Grid.hpp"
+#include "Basic/Grid.hpp"
 #include "Db/ELoadBy.hpp"
 
 class GSTLEARN_EXPORT ParamGrid {

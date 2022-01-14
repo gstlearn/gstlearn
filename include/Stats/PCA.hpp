@@ -13,11 +13,16 @@
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/NamingConvention.hpp"
+
+class Db;
+
+class Db;
 
 class GSTLEARN_EXPORT PCA: public AStringable
 {
 public:
-  PCA();
+  PCA(int nvar = 1);
   PCA(const PCA &m);
   PCA& operator= (const PCA &m);
   virtual ~PCA();
@@ -48,11 +53,18 @@ public:
   void setMean(VectorDouble& mean) { _mean = mean; }
   void setSigma(VectorDouble& sigma) { _sigma = sigma; }
 
+  int compute(const Db *db, bool verbose = false);
+  int dbZ2F(Db* db,
+            bool flag_norm = true,
+            bool verbose = false,
+            const NamingConvention& namconv = NamingConvention("Z2F"));
+  int dbF2Z(Db* db,
+            bool flag_norm = true,
+            bool verbose = false,
+            const NamingConvention& namconv = NamingConvention("F2Z"));
+
 private:
-  int _getAddress(int ivar, int jvar) const
-  {
-    return (ivar * _nVar + jvar);
-  }
+  int _getAddress(int ivar, int jvar) const { return (ivar * _nVar + jvar); }
 
 private:
   int          _nVar;

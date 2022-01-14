@@ -866,8 +866,6 @@ GSTLEARN_EXPORT int spill_point(Db *dbgrid,
 GSTLEARN_EXPORT void vario_fix_codir(int ndim, VectorDouble &codir);
 GSTLEARN_EXPORT PCA* pca_free(PCA *pca);
 GSTLEARN_EXPORT PCA* pca_alloc(int nvar);
-GSTLEARN_EXPORT int pca_z2f(Db *db, PCA *pca, int flag_norm, int flag_verbose);
-GSTLEARN_EXPORT int pca_f2z(Db *db, PCA *pca, int flag_norm, int flag_verbose);
 
 GSTLEARN_EXPORT Vario* variogram_delete(Vario *vario);
 GSTLEARN_EXPORT int variogram_maximum_dist1D_reached(Db *db,
@@ -999,7 +997,7 @@ GSTLEARN_EXPORT int maf_compute(Db *db,
                                 double dh,
                                 int verbose,
                                 PCA *pca);
-GSTLEARN_EXPORT int pca_compute(Db *db, int verbose, PCA *pca);
+GSTLEARN_EXPORT int pca_compute(const Db *db, bool verbose, PCA *pca);
 GSTLEARN_EXPORT int variogram_y2z(Vario *vario, Anam *anam, Model *model);
 
 /****************************************/
@@ -1437,7 +1435,7 @@ GSTLEARN_EXPORT int db_coorvec_put(Db *db, int idim, double *tab);
 GSTLEARN_EXPORT int db_coorvec_get(const Db *db, int idim, double *tab);
 GSTLEARN_EXPORT Db* db_delete(Db *db);
 GSTLEARN_EXPORT int db_grid_match(Db *db1, Db *db2);
-GSTLEARN_EXPORT int db_is_isotropic(Db *db, int iech, double *data);
+GSTLEARN_EXPORT int db_is_isotropic(const Db *db, int iech, double *data);
 GSTLEARN_EXPORT void db_grid_print(Db *db);
 
 GSTLEARN_EXPORT Db* db_create_grid_multiple(Db *dbin,
