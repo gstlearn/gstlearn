@@ -375,6 +375,7 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
         {
           if (! cs_entry(Atriplet,iech,indices[icorner],lambda[icorner])) 
             goto label_end;
+          if (indices[icorner] > ip_max) ip_max = indices[icorner];
         }
         found = icas;
       }
@@ -390,7 +391,7 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
 
   /* Add the extreme value to force dimension */
 
-  if (ip_max < getNApices() - 1)
+  if (ip_max < getNApices() - 1 || iech < db->getActiveSampleNumber() - 1)
   {
     if (!cs_entry(Atriplet, db->getActiveSampleNumber() - 1,
                   getNApices() - 1, 0.)) goto label_end;
@@ -399,7 +400,7 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
   /* Convert the triplet into a sparse matrix */
   
   A = cs_triplet(Atriplet);
-  
+
   // Set the error return code
 
   error = 0;

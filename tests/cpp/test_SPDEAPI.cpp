@@ -60,6 +60,14 @@ int main(int /*argc*/, char */*argv*/[])
   spde.query(workingDbc);
   (void) workingDbc->dumpToNF("spde_simunc.ascii");
 
+  SPDE spde2(model,workingDbc,dat,ESPDECalcMode::SIMUCOND);
+  spde2.compute();
+  spde2.query(workingDbc);
+
+  SPDE spde3(model,workingDbc,dat,ESPDECalcMode::KRIGING);
+  spde3.compute();
+  spde3.query(workingDbc);
+
   delete dat;
   delete workingDbc;
   delete model;

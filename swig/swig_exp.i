@@ -57,6 +57,7 @@ class IClonable{};
 %include Basic/AStringable.hpp
 %include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
+%include Basic/NamingConvention.hpp
 %include Basic/Rotation.hpp
 %include Basic/Tensor.hpp
 %include Basic/Grid.hpp
@@ -136,6 +137,7 @@ class IClonable{};
 %include Model/EModelProperty.hpp
 %include Model/EConsElem.hpp
 %include Model/EConsType.hpp
+%include Model/CovParamId.hpp
 
 %include Covariances/ACov.hpp
 %include Covariances/ACovFunc.hpp
