@@ -17,7 +17,6 @@ String getTestData(const String& filename)
 }
 
 int main(int /*argc*/, char */*argv*/[])
-
 {
   bool verbose = true;
   String filepath = getTestData("temperatures.ascii");
@@ -32,7 +31,6 @@ int main(int /*argc*/, char */*argv*/[])
   std::cout << filepath <<std::endl;
   Model* model = Model::createFromNF(filepath,verbose);
 
-
   grid->display();
   temperatures->display();
   model->display();
@@ -42,7 +40,7 @@ int main(int /*argc*/, char */*argv*/[])
   spde.query(grid);
 
   filepath = getTestData("result.ascii");
-  grid->serialize(filepath,verbose);
+  grid->dumpToNF(filepath,verbose);
 
   delete temperatures;
   delete grid;
