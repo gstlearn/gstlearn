@@ -39,11 +39,10 @@ public:
 
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Vario(*this); };
 
-  static Vario* createFromNF(const String& neutralFileName, bool verbose = false);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Vario* createFromNF(const String& neutralFilename, bool verbose = false);
 
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
@@ -189,6 +188,10 @@ public:
   void setCalculName(const String calcul_name);
 
   const VarioParam& getVarioParam() const { return _varioparam; }
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
   bool _isVariableValid(int ivar) const;

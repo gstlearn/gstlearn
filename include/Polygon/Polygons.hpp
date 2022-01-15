@@ -27,8 +27,6 @@ public:
   Polygons& operator=(const Polygons& r);
   virtual ~Polygons();
 
-  int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) const override;
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int resetFromDb(const Db* db);
@@ -38,6 +36,7 @@ public:
                    int ncol_max = -1,
                    int nrow_max = -1);
 
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Polygons* createFromNF(const String& neutralFilename, bool verbose = false);
   static Polygons* createFromCSV(const String& filename,
                                  const CSVformat& csv,
@@ -61,6 +60,10 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
   PolySet _extractFromTab(int ideb,

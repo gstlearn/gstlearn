@@ -107,7 +107,7 @@ int main(int /*argc*/, char */*argv*/[])
   Qsimu.eval(vectnew,result);
   workingDbc->addFields(result,"Simu",ELoc::Z);
 
-  workingDbc->serialize("spirale.ascii");
+  (void) workingDbc->dumpToNF("spirale.ascii");
 
   delete workingDbc;
   return 0;

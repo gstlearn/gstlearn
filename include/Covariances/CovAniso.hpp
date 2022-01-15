@@ -114,6 +114,7 @@ public:
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
   double getSill(int ivar, int jvar) const;
+  double getSlope(int ivar, int jvar) const;
   VectorDouble getRanges() const;
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
   const VectorDouble& getScales() const { return _aniso.getRadius(); }
@@ -144,7 +145,7 @@ public:
   int    getMinOrder() const { return _cova->getMinOrder(); }
   bool   hasInt1D() const { return _cova->hasInt1D(); }
   bool   hasInt2D() const { return _cova->hasInt2D(); }
-  bool   hasRange() const { return _cova->hasRange(); }
+  int    hasRange() const { return _cova->hasRange(); }
   int    hasParam() const  { return _cova->hasParam(); }
   String getCovName() const { return _cova->getCovName(); }
   bool   isIsotropic() const { return _aniso.isIsotropic(); }

@@ -353,10 +353,12 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
   // Covariance Name
   sstr << _cova->toString();
 
-  // Sill - Factor information
-  // Warning: Sill is not produced if Slope has already been produced
-  if (_cova->hasRange() >= 0)
+  // Sill - Factor / Slope information
+  if (_cova->hasRange())
   {
+
+    // A sill is defined
+
     if (getNVariables() > 1)
     {
       sstr << toMatrix("- Sill matrix:",VectorString(),VectorString(),0,
@@ -366,18 +368,12 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
     {
       sstr << "- Sill         = " << toDouble(getSill(0, 0)) << std::endl;
     }
-  }
 
-  // Range / Scale information
-  if (_cova->hasRange())
-  {
+    // Isotropy vs anisotropy
+
     if (_aniso.isIsotropic())
     {
-      if (_cova->hasRange() > 0)
-        sstr << "- Range        = " << toDouble(getRange(0)) << std::endl;
-      else
-        sstr << "- Slope        = "
-             << toDouble(getSill(0, 0) / getRange(0)) << std::endl;
+      sstr << "- Range        = " << toDouble(getRange(0)) << std::endl;
       if (isAsymptotic())
         sstr << "- Theo. Range  = " << toDouble(getScale(0)) << std::endl;
     }
@@ -394,6 +390,37 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       }
     }
   }
+  else if (_cova->hasRange() < 0)
+  {
+    // The sill is not defined: use slope instead
+
+    if (getNVariables() > 1)
+    {
+      MatrixSquareSymmetric slopes = _sill;
+      double range = getRange(0);
+      for (int ivar = 0; ivar < getNVariables(); ivar++)
+        for (int jvar = 0; jvar < getNVariables(); jvar++)
+          slopes.setValue(ivar, jvar, _sill.getValue(ivar,jvar) / range);
+      sstr << toMatrix("- Slope matrix:",VectorString(),VectorString(),0,
+                       getNVariables(),getNVariables(),slopes.getValues());
+    }
+    else
+    {
+      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
+    }
+
+    if (! _aniso.isIsotropic())
+    {
+      sstr << toVector("- Aniso, Coeff = ", _aniso.getRadius());
+      if (!_aniso.getRotation().isIdentity())
+      {
+        sstr << toVector("- Angles       = ", getAnisoAngles());
+        sstr << toMatrix("- Rotation Matrix",VectorString(),VectorString(),true,
+                         getNDim(),getNDim(),getAnisoRotMatVec());
+      }
+    }
+  }
+
   return sstr.str();
 }
 
@@ -404,6 +431,23 @@ double CovAniso::getSill(int ivar, int jvar) const
   if (!_sill.isValid(ivar, jvar))
   my_throw("Wrong variable index while getting the sill");
   return _sill.getValue(ivar, jvar);
+}
+
+/**
+ * Return the Slope calculated as the sill / range(idim=0)
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @return
+ */
+double CovAniso::getSlope(int ivar, int jvar) const
+{
+  if (! _isVariableValid(ivar)) return TEST;
+  if (! _isVariableValid(jvar)) return TEST;
+  if (!_sill.isValid(ivar, jvar))
+    my_throw("Wrong variable index while getting the sill");
+  if (hasRange() == 0) return TEST;
+  double range = getRange(0);
+  return _sill.getValue(ivar, jvar) / range;
 }
 
 VectorDouble CovAniso::getRanges() const

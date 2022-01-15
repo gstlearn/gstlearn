@@ -3413,7 +3413,7 @@ int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
   return (isimu + nbsimu * (ivar + nvar * icase));
 }
 
-int Db::deSerialize(const String& filename, bool verbose)
+int Db::_deserialize(FILE* file, bool verbose)
 {
   int ndim, ndim2, ntot, natt, nech, i, flag_grid;
   VectorInt tabnum;
@@ -3430,13 +3430,9 @@ int Db::deSerialize(const String& filename, bool verbose)
 
   natt = ndim = nech = ntot = 0;
 
-  /* Opening the Data file */
-
-  if (_fileOpen(filename, "Db", "r", verbose)) return 1;
-
   /* Check the grid organization */
 
-  if (_recordRead("Grid Flag", "%d", &flag_grid)) goto label_end;
+  if (_recordRead(file, "Grid Flag", "%d", &flag_grid)) goto label_end;
 
   /* Grid case; read the grid header */
 
@@ -3445,7 +3441,7 @@ int Db::deSerialize(const String& filename, bool verbose)
 
     /* Decoding the header */
 
-    if (_recordRead("Space Dimension", "%d", &ndim)) goto label_end;
+    if (_recordRead(file, "Space Dimension", "%d", &ndim)) goto label_end;
 
     /* Core allocation */
 
@@ -3458,17 +3454,17 @@ int Db::deSerialize(const String& filename, bool verbose)
 
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (_recordRead("Grid Number of Nodes", "%d", &nx[idim])) goto label_end;
-      if (_recordRead("Grid Origin", "%lf", &x0[idim])) goto label_end;
-      if (_recordRead("Grid Mesh", "%lf", &dx[idim])) goto label_end;
-      if (_recordRead("Grid Angles", "%lf", &angles[idim])) goto label_end;
+      if (_recordRead(file, "Grid Number of Nodes", "%d", &nx[idim])) goto label_end;
+      if (_recordRead(file, "Grid Origin", "%lf", &x0[idim])) goto label_end;
+      if (_recordRead(file, "Grid Mesh", "%lf", &dx[idim])) goto label_end;
+      if (_recordRead(file, "Grid Angles", "%lf", &angles[idim])) goto label_end;
     }
     ntot = ut_ivector_prod(nx);
   }
 
   /* Reading the tail of the file */
 
-  _variableRead(&natt, &ndim2, &nech, tabatt, tabnum, tabnam, tab);
+  _variableRead(file, &natt, &ndim2, &nech, tabatt, tabnum, tabnam, tab);
 
   /* Creating the Db */
 
@@ -3505,58 +3501,49 @@ int Db::deSerialize(const String& filename, bool verbose)
   /* Core deallocation */
 
   label_end:
-  _fileClose(verbose);
   return 0;
 }
 
-int Db::serialize(const String& filename, bool verbose) const
+int Db::_serialize(FILE* file, bool verbose) const
 {
   bool onlyLocator = false;
   bool writeCoorForGrid = true;
   bool flag_grid = isGrid();
 
-  /* Opening the Data file */
-
-  if (_fileOpen(filename, "Db", "w", verbose)) return 1;
-
   /* Writing the file organization */
 
-  _recordWrite("%d", flag_grid);
-  _recordWrite("#", "File organization (0:Points; 1:Grid)");
+  _recordWrite(file, "%d", flag_grid);
+  _recordWrite(file, "#", "File organization (0:Points; 1:Grid)");
 
   if (flag_grid)
   {
 
     /* Writing the header */
 
-    _recordWrite("%d", getNDim());
-    _recordWrite("#", "Space Dimension");
+    _recordWrite(file, "%d", getNDim());
+    _recordWrite(file, "#", "Space Dimension");
 
     /* Writing the grid characteristics */
 
-    _recordWrite("#", "Grid characteristics (NX,X0,DX,ANGLE)");
+    _recordWrite(file, "#", "Grid characteristics (NX,X0,DX,ANGLE)");
     for (int idim = 0; idim < getNDim(); idim++)
     {
-      _recordWrite("%d",  getNX(idim));
-      _recordWrite("%lf", getX0(idim));
-      _recordWrite("%lf", getDX(idim));
-      _recordWrite("%lf", getAngle(idim));
-      _recordWrite("\n");
+      _recordWrite(file, "%d",  getNX(idim));
+      _recordWrite(file, "%lf", getX0(idim));
+      _recordWrite(file, "%lf", getDX(idim));
+      _recordWrite(file, "%lf", getAngle(idim));
+      _recordWrite(file, "\n");
     }
   }
 
   /* Writing the tail of the file */
 
-  if (_variableWrite(flag_grid, onlyLocator, writeCoorForGrid)) return 1;
-
-  // Close the Neutral file
-
-  _fileClose(verbose);
+  if (_variableWrite(file, flag_grid, onlyLocator, writeCoorForGrid)) return 1;
 
   return 0;
 }
 
-int Db::_variableWrite(bool flag_grid, bool onlyLocator, bool writeCoorForGrid) const
+int Db::_variableWrite(FILE* file,bool flag_grid, bool onlyLocator, bool writeCoorForGrid) const
 {
   int ecr, item, rankZ;
   ELoc locatorType = ELoc::UNKNOWN;
@@ -3578,12 +3565,12 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator, bool writeCoorForGrid) 
     if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
     ncol++;
   }
-  _recordWrite("%d", ncol);
-  _recordWrite("#", "Number of variables");
+  _recordWrite(file, "%d", ncol);
+  _recordWrite(file, "#", "Number of variables");
 
   /* Print the locators */
 
-  _recordWrite("#", "Locators");
+  _recordWrite(file, "#", "Locators");
   rankZ = getLocatorNumber(ELoc::Z);
   ecr = 0;
   for (int icol =  0; icol < getFieldNumber(); icol++)
@@ -3597,14 +3584,14 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator, bool writeCoorForGrid) 
     if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
     if (ecr >= ncol) break;
     String string = getLocatorName(locatorType, item);
-    _recordWrite("%s", string.c_str());
+    _recordWrite(file, "%s", string.c_str());
     ecr++;
   }
-  _recordWrite("\n");
+  _recordWrite(file, "\n");
 
   /* Print the variable names */
 
-  _recordWrite("#", "Names");
+  _recordWrite(file, "#", "Names");
   VectorInt iatts;
   ecr = 0;
   for (int icol = 0; icol < getFieldNumber(); icol++)
@@ -3616,26 +3603,27 @@ int Db::_variableWrite(bool flag_grid, bool onlyLocator, bool writeCoorForGrid) 
     }
     if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
     if (ecr >= ncol) break;
-    _recordWrite("%s", getNameByColumn(icol).c_str());
+    _recordWrite(file, "%s", getNameByColumn(icol).c_str());
     iatts.push_back(getAttribute(getNameByColumn(icol)));
     ecr++;
   }
-  _recordWrite("\n");
+  _recordWrite(file, "\n");
 
   /* Print the array of values */
 
-  _recordWrite("#", "Array of values");
+  _recordWrite(file, "#", "Array of values");
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     if (!flag_grid && !getSelection(iech)) continue;
     for (int icol = 0; icol < ncol; icol++)
-      _recordWrite("%lf", getArray(iech, iatts[icol]));
-    _recordWrite("\n");
+      _recordWrite(file, "%lf", getArray(iech, iatts[icol]));
+    _recordWrite(file, "\n");
   }
   return (0);
 }
 
-void Db::_variableRead(int *natt_r,
+void Db::_variableRead(FILE* file,
+                       int *natt_r,
                        int *ndim_r,
                        int *nech_r,
                        std::vector<ELoc>& tabatt,
@@ -3654,7 +3642,7 @@ void Db::_variableRead(int *natt_r,
 
   /* Read the number of variables */
 
-  if (_recordRead("Number of Variables", "%d", &natt)) goto label_end;
+  if (_recordRead(file, "Number of Variables", "%d", &natt)) goto label_end;
 
   /* Decoding the locators */
 
@@ -3662,7 +3650,7 @@ void Db::_variableRead(int *natt_r,
   while (1)
   {
     if (ecr >= natt) break;
-    if (_recordRead("Locator Name", "%s", line)) goto label_end;
+    if (_recordRead(file, "Locator Name", "%s", line)) goto label_end;
     if (locatorIdentify(line, &iatt, &inum, &mult)) break;
     tabatt.push_back(iatt);
     tabnum.push_back(inum);
@@ -3676,7 +3664,7 @@ void Db::_variableRead(int *natt_r,
   while (1)
   {
     if (ecr >= natt) break;
-    if (_recordRead("Variable Name", "%s", line)) goto label_end;
+    if (_recordRead(file, "Variable Name", "%s", line)) goto label_end;
     tabnam.push_back(line);
     ecr++;
   }
@@ -3685,7 +3673,7 @@ void Db::_variableRead(int *natt_r,
 
   while (1)
   {
-    if (_recordRead("Numerical value", "%lf", &value)) goto label_end;
+    if (_recordRead(file, "Numerical value", "%lf", &value)) goto label_end;
     tab.push_back(value);
     nval++;
   }
@@ -4184,21 +4172,40 @@ Db* Db::createSamplingDb(const Db* dbin,
   return db;
 }
 
+int Db::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  FILE* file = _fileOpen(neutralFilename, "Db", "w", verbose);
+  if (file == nullptr) return 1;
+
+  if (_serialize(file, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    _fileClose(file, verbose);
+    return 1;
+  }
+  _fileClose(file, verbose);
+  return 0;
+}
+
+
 /**
  * Create a Db by loading the contents of a Neutral File
  *
- * @param neutralFileName Name of the Neutral File (Db format)
+ * @param neutralFilename Name of the Neutral File (Db format)
  * @param mustGrid        True if the Db MUST be organized as a Grid
- * @param verbose         Verbosity flag
+ * @param verbose         Verbose
  */
-Db* Db::createFromNF(const String& neutralFileName, bool mustGrid, bool verbose)
+Db* Db::createFromNF(const String& neutralFilename, bool mustGrid, bool verbose)
 {
+  FILE* file = _fileOpen(neutralFilename, "Db", "r", verbose);
+  if (file == nullptr) return nullptr;
+
   Db* db = new Db;
-  if (db->deSerialize(neutralFileName, verbose))
+  if (db->_deserialize(file, verbose))
   {
     if (verbose) messerr("Problem reading the Neutral File.");
     delete db;
-    return nullptr;
+    db = nullptr;
   }
   if (mustGrid && ! db->isGrid())
   {
@@ -4206,5 +4213,6 @@ Db* Db::createFromNF(const String& neutralFileName, bool mustGrid, bool verbose)
     delete db;
     return nullptr;
   }
+  _fileClose(file, verbose);
   return db;
 }

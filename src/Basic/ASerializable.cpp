@@ -40,20 +40,12 @@ String ASerializable::myContainerName = String();
 String ASerializable::myPrefixName    = String();
 
 ASerializable::ASerializable()
-  : _fileName()
-  , _fileType()
-  , _file(nullptr)
-  , _currentRecord()
 {
 }
 /**
  * Copy constructor: don't copy temporary file info
  */
 ASerializable::ASerializable(const ASerializable& /*r*/)
-: _fileName()
-, _fileType()
-, _file(nullptr)
-, _currentRecord()
 {
 }
 /**
@@ -66,7 +58,6 @@ ASerializable& ASerializable::operator=(const ASerializable& /*r*/)
 
 ASerializable::~ASerializable()
 {
-  _fileClose();
 }
 
 /****************************************************************************/
@@ -80,138 +71,112 @@ ASerializable::~ASerializable()
  ** \param[in]  mode     "r" or "w"
  ** \param[in]  verbose  Verbose flag
  **
- ** \remarks This input filename will be combined with the containerName
- ** \remarks and the prefixName (if available)
- **
  *****************************************************************************/
-int ASerializable::_fileOpen(const String& filename,
-                             const String& filetype,
-                             const String& mode,
-                             bool verbose) const
+FILE* ASerializable::_fileOpen(const String& filename,
+                               const String& filetype,
+                               const String& mode,
+                               bool verbose)
 {
-  // Preliminary check
-  if (filename.empty())
-  {
-    messerr("The Neutral File Name cannot be left empty");
-    return 1;
-  }
+  FILE* file = nullptr;
 
-  // Optional printout
-  if (verbose)
+  if (filename.empty() || filetype.empty())
   {
-    message("Attempt to Open the File (%s) in mode (%s)\n",
-            filename.c_str(), mode.c_str());
-  }
-
-  // Check that the file is not already opened (in 'w' mode)
-  if (mode == "w")
-  {
-    if (_file != nullptr)
-    {
-      // If file is already opened... Do nothing
-      // This enables Serialization of different nested objects
-      return 0;
-    }
-  }
-
-  // Open the File
-  _fileName = filename;
-  _fileType = filetype;
-
-  // Build the multi-platform filename and open it
-  String fileComplete = buildFileName(filename, true);
-  _file = gslFopen(fileComplete, mode);
-  if (_file == nullptr)
-  {
-    if (verbose)
-      messerr("Error when opening the Neutral File %s", fileComplete.c_str());
-    return 1;
-  }
-
-  // Preliminary action
-  if (mode == "r")
-  {
-    char idtype[LONG_SIZE];
-    if (_recordRead("File Type", "%s", idtype))
-    {
-      _fileClose(false);
-      return 1;
-    }
-    if (strcmp(idtype,filetype.c_str()))
-    {
-      messerr(
-          "Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
-          _fileName.c_str(), idtype, filetype.c_str());
-      _fileClose(false);
-      return 1;
-    }
+    messerr("Arguments 'filename' or 'filetype' are not defined");
+    return nullptr;
   }
   else
   {
-    // Write the File ID
-    if (!filetype.empty())
+    // Optional printout
+    if (verbose)
     {
-      _recordWrite("%s", filetype.c_str());
-      _recordWrite("\n");
+      message("Attempt to Open the File (%s) in mode (%s)\n",
+              filename.c_str(), mode.c_str());
+    }
+
+    // Build the multi-platform filename and open it
+    String fileComplete = buildFileName(filename, true);
+    file = gslFopen(fileComplete, mode);
+    if (file == nullptr)
+    {
+      if (verbose)
+        messerr("Error when opening the Neutral File %s", fileComplete.c_str());
+      return nullptr;
+    }
+
+    // Preliminary action
+    if (mode == "r")
+    {
+      char idtype[LONG_SIZE];
+      if (_recordRead(file, "File Type", "%s", idtype))
+      {
+        _fileClose(file, false);
+        return nullptr;
+      }
+      if (strcmp(idtype,filetype.c_str()))
+      {
+        messerr(
+            "Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
+            filename.c_str(), idtype, filetype.c_str());
+        _fileClose(file, false);
+        return nullptr;
+      }
+    }
+    else
+    {
+      // Write the File ID
+      if (!filetype.empty())
+      {
+        _recordWrite(file, "%s", filetype.c_str());
+        _recordWrite(file, "\n");
+      }
     }
   }
-
-  return 0;
+  return file;
 }
 
-int ASerializable::_fileClose(bool verbose) const
+int ASerializable::_fileClose(FILE *file, bool verbose)
 {
-  // Close the file
-
-  if (_file != nullptr)
-    fclose(_file);
+  if (file != nullptr)
+    fclose(file);
 
   // Optional printout
 
   if (verbose)
-    message("File %s is successfully closed\n",_fileName.c_str());
+    message("File is successfully closed\n");
 
-  // Reset
-
-  _fileName = String();
-  _fileType = String();
-  _currentRecord = String();
-  _file = nullptr;
   return 0;
 }
 
 /**
  *
- * @param title
+ * @param file  FILE structure
+ * @param title Title to be printed
  * @param format String to be completed
  * @return
  *
  * @remarks: Format is not a reference here:
  * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
  * => roll back to const char* to prevent warning C4840 (MSVC)
- *
- * TODO: replace this method by a template one?
  */
-int ASerializable::_recordRead(const char* title, const char* format, ...) const
+int ASerializable::_recordRead(FILE* file, const char* title, const char* format, ...)
 {
   va_list ap;
   int error;
 
   error = 0;
   va_start(ap, format);
-  error = _fileRead(format, ap);
+  error = _fileRead(file, format, ap);
 
   if (error > 0)
-  {
-    messerr("Error when reading '%s' from %s", title, _fileName.c_str());
-    messerr("Current Line: %s", _currentRecord.c_str());
-  }
+    messerr("Error when reading '%s'", title);
+
   va_end(ap);
   return (error);
 }
 
 /**
  * Record a String in the Serialized file
+ * @param file FILE structure
  * @param format String to be completed
  * @param ... Variable list of arguments
  * @return
@@ -222,11 +187,11 @@ int ASerializable::_recordRead(const char* title, const char* format, ...) const
  *
  * TODO : Impose that va_list arguments are stringable ? (For example, we can serialize ECov objects !)
  */
-void ASerializable::_recordWrite(const char* format, ...) const
+void ASerializable::_recordWrite(FILE* file, const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
-  _fileWrite(format, ap);
+  _fileWrite(file, format, ap);
   va_end(ap);
 }
 
@@ -238,13 +203,14 @@ void ASerializable::_recordWrite(const char* format, ...) const
  ** \return   1 for a decoding error
  ** \return   0 otherwise
  **
+ ** \param[in]  file       FILE structure
  ** \param[in]  format     format
  ** \param[in]  ap         Value to be read
  **
  ** TODO : template function
  **
  *****************************************************************************/
-int ASerializable::_fileRead(const String& format, va_list ap) const
+int ASerializable::_fileRead(FILE* file, const String& format, va_list ap)
 {
   char DEL_COM = '#';
   char DEL_SEP = ' ';
@@ -276,7 +242,7 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
 
       /* Read the next line */
 
-      if (fgets(LINE, LONG_SIZE, _file) == NULL) return (-1);
+      if (fgets(LINE, LONG_SIZE, file) == NULL) return (-1);
       size_t wsize = strcspn(LINE, "\r\n");
       if (wsize > 0)
         LINE[wsize] = 0;
@@ -362,13 +328,14 @@ int ASerializable::_fileRead(const String& format, va_list ap) const
 /*!
  **  Write the next token from the file
  **
+ ** \param[in]  file       FILE structure
  ** \param[in]  format     Encoding format
  ** \param[in]  ap         Value to be written
  **
  ** TODO : template function
  **
  *****************************************************************************/
-void ASerializable::_fileWrite(const String& format, va_list ap) const
+void ASerializable::_fileWrite(FILE* file, const String& format, va_list ap)
 {
   double ret_d;
   char *ret_s;
@@ -379,49 +346,49 @@ void ASerializable::_fileWrite(const String& format, va_list ap) const
   if (format == "%s")
   {
     ret_s = va_arg(ap, char *);
-    fprintf(_file, "%s", ret_s);
+    fprintf(file, "%s", ret_s);
   }
   else if (format == "%d")
   {
     int ret_i = va_arg(ap, int);
     if (FFFF(ret_i))
-      fprintf(_file, "%5.1lf", ASCII_TEST);
+      fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(_file, "%d", ret_i);
+      fprintf(file, "%d", ret_i);
   }
   else if (format == "%f")
   {
     ret_d = va_arg(ap, double);
     if (FFFF(ret_d))
-      fprintf(_file, "%5.1lf", ASCII_TEST);
+      fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(_file, "%f", ret_d);
+      fprintf(file, "%f", ret_d);
   }
   else if (format == "%lf")
   {
     ret_d = va_arg(ap, double);
     if (FFFF(ret_d))
-      fprintf(_file, "%5.1lf", ASCII_TEST);
+      fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(_file, "%lf", ret_d);
+      fprintf(file, "%lf", ret_d);
   }
   else if (format == "%lg")
   {
     ret_d = va_arg(ap, double);
     if (FFFF(ret_d))
-      fprintf(_file, "%5.1lf", ASCII_TEST);
+      fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(_file, "%lg", ret_d);
+      fprintf(file, "%lg", ret_d);
   }
   else if (format == "\n")
   {
-    fprintf(_file, "\n");
+    fprintf(file, "\n");
     no_blank = true;
   }
   else if (format == "#")
   {
     ret_s = va_arg(ap, char *);
-    fprintf(_file, "# %s\n", ret_s);
+    fprintf(file, "# %s\n", ret_s);
     no_blank = true;
   }
   else
@@ -429,11 +396,11 @@ void ASerializable::_fileWrite(const String& format, va_list ap) const
     messerr("Wrong format %s", format.c_str());
     return;
   }
-  if (!no_blank) fprintf(_file, " ");
+  if (!no_blank) fprintf(file, " ");
   return;
 }
 
-bool ASerializable::_onlyBlanks(char *string) const
+bool ASerializable::_onlyBlanks(char *string)
 {
   int number = static_cast<int>(strlen(string));
   for (int i = 0; i < number; i++)
@@ -443,7 +410,7 @@ bool ASerializable::_onlyBlanks(char *string) const
   return true;
 }
 
-String ASerializable::buildFileName(const String& filename, bool ensureDirExist) const
+String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
 {
 // TODO: to be restored when boost is usable for pygstlearn
 //  boost::filesystem::path final;

@@ -28,8 +28,6 @@ public:
   RuleShift& operator=(const RuleShift& r);
   virtual ~RuleShift();
 
-  int deSerializeSpecific() override;
-  void serializeSpecific() const override;
   String displaySpecific() const override;
 
   int resetFromNodes(const VectorInt& nodes, const VectorDouble& shift);
@@ -78,6 +76,8 @@ public:
   double getShift(int idim) const { return _shift[idim]; }
 
 private:
+  int _deserializeSpecific(FILE* file) override;
+  void _serializeSpecific(FILE* file) const override;
   int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const;
 
 private:

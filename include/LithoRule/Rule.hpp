@@ -33,15 +33,14 @@ public:
   virtual ~Rule();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual int deSerialize(const String& filename, bool verbose = false) override;
-  virtual int serialize(const String& filename, bool verbose = false) const override;
 
   int resetFromNames(const VectorString& nodnames,double rho = 0.);
   int resetFromCodes(const VectorInt& nodes,double rho = 0.);
   int resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_facs, double rho = 0.);
   int resetFromFaciesCount(int nfacies, double rho = 0.);
 
-  static Rule* createFromNF(const String& neutralFileName, bool verbose = false);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Rule* createFromNF(const String& neutralFilename, bool verbose = false);
   static Rule* createFromNames(const VectorString& nodnames,double rho = 0.);
   static Rule* createFromCodes(const VectorInt& nodes,double rho = 0.);
   static Rule* createFromNumericalCoding(const VectorInt& n_type,
@@ -49,8 +48,6 @@ public:
                                          double rho = 0.);
   static Rule* createFromFaciesCount(int nfacies, double rho = 0.);
 
-  virtual int deSerializeSpecific() { return 0; }
-  virtual void serializeSpecific() const { return; }
   virtual String displaySpecific() const;
 
   virtual int particularities(Db *db,
@@ -119,9 +116,14 @@ protected:
   int  setMainNodeFromNodNames(const VectorInt& nodes);
   int replicateInvalid(Db *dbin, Db *dbout, int jech) const;
   VectorString buildNodNames(int nfacies);
+  virtual int _deserializeSpecific(FILE* file) { return 0; }
+  virtual void _serializeSpecific(FILE* file) const { return; }
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
-  void _ruleDefine(const Node *node,
+  void _ruleDefine(FILE* file,
+                   const Node *node,
                    int from_type,
                    int from_rank,
                    int from_vers,

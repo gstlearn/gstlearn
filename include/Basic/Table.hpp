@@ -32,13 +32,12 @@ public:
   virtual ~Table();
 
 public:
-  int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) const override;
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int resetFromArray(const VectorVectorDouble& table);
 
-  static Table* createFromNF(const String& neutralFileName, bool verbose = false);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Table* createFromNF(const String& neutralFilename, bool verbose = false);
   static Table* createFromArray(const VectorVectorDouble& tabin);
 
   void init(int nrows, int ncols, bool zero = false) { resize(nrows, ncols, zero); }
@@ -56,6 +55,10 @@ public:
   VectorDouble getRange(int icol) const;
   VectorDouble getAllRange() const;
   void plot(int isimu) const;
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
   bool _isColValid(int icol) const;

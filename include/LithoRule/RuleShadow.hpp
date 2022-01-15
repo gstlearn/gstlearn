@@ -34,8 +34,6 @@ public:
   RuleShadow& operator=(const RuleShadow& r);
   virtual ~RuleShadow();
 
-  int deSerializeSpecific() override;
-  void serializeSpecific() const override;
   String displaySpecific() const override;
 
   int particularities(Db *db,
@@ -75,6 +73,8 @@ public:
   double getShift(int idim) const { return _shift[idim]; }
 
 private:
+  int _deserializeSpecific(FILE* file) override;
+  void _serializeSpecific(FILE* file) const override;
   void _st_shadow_max(const Db *dbprop,
                       int flag_stat,
                       double *sh_dsup_max,

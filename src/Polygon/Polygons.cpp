@@ -8,15 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Polygon/Polygons.hpp"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
+
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
-#include "Polygon/Polygons.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AException.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 Polygons::Polygons()
   : _polysets()
@@ -43,7 +44,6 @@ Polygons& Polygons::operator=(const Polygons& r)
 
 Polygons::~Polygons()
 {
-  _polysets.clear();
 }
 
 /**
@@ -193,7 +193,7 @@ PolySet Polygons::_extractFromTab(int ideb,
   return polyset;
 }
 
-int Polygons::deSerialize(const String& filename, bool verbose)
+int Polygons::_deserialize(FILE* file, bool verbose)
 {
   int npol, nvert;
   double zmin = TEST;
@@ -203,67 +203,36 @@ int Polygons::deSerialize(const String& filename, bool verbose)
 
   _polysets.clear();
 
-  /* Opening the Data file */
-
-  if (_fileOpen(filename, "Polygon", "r", verbose)) return 1;
-
   /* Create the Model structure */
 
-  if (_recordRead("Number of Polygons", "%d", &npol)) return 1;
+  if (_recordRead(file, "Number of Polygons", "%d", &npol)) return 1;
 
   /* Loop on the PolySets */
 
   for (int ipol = 0; ipol < npol; ipol++)
   {
-    if (_recordRead("Number of Vertices", "%d", &nvert)) return 1;
-    VectorDouble x(nvert);
-    VectorDouble y(nvert);
-
-    /* Loop on the Vertices */
-
-    for (int i = 0; i < nvert; i++)
-    {
-      if (_recordRead("X-Coordinate of a Polyset", "%lf", &x[i])) return 1;
-      if (_recordRead("Y-Coordinate of a Polyset", "%lf", &y[i])) return 1;
-    }
-
-    /* Add the polyset */
-
-    PolySet polyset = PolySet();
-    polyset.init(x,y,zmin,zmax);
+    PolySet polyset;
+    polyset._deserialize(file, verbose);
     addPolySet(polyset);
   }
-  _fileClose(verbose);
   return 0;
 }
 
-int Polygons::serialize(const String& filename, bool verbose) const
+int Polygons::_serialize(FILE* file, bool verbose) const
 {
-  if (_fileOpen(filename, "Polygon", "w", verbose)) return (1);
 
   /* Create the Model structure */
 
-  _recordWrite("%d", getPolySetNumber());
-  _recordWrite("#", "Number of Polygons");
+  _recordWrite(file, "%d", getPolySetNumber());
+  _recordWrite(file, "#", "Number of Polygons");
 
   /* Writing the covariance part */
 
   for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
   {
     const PolySet& polyset = getPolySet(ipol);
-    _recordWrite("%d", polyset.getNVertices());
-    _recordWrite("#", "Number of Vertices");
-
-    for (int i = 0; i < polyset.getNVertices(); i++)
-    {
-      _recordWrite("%lf", polyset.getX(i));
-      _recordWrite("%lf", polyset.getY(i));
-      _recordWrite("\n");
-    }
+    polyset._serialize(file, verbose);
   }
-
-  // Close the Neutral File
-  _fileClose(verbose);
 
   return 0;
 }
@@ -276,14 +245,33 @@ int Polygons::serialize(const String& filename, bool verbose) const
  */
 Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
 {
+  FILE* file = _fileOpen(neutralFilename, "Polygon", "r", verbose);
+  if (file == nullptr) return nullptr;
+
   Polygons* polygons = new Polygons();
-  if (polygons->deSerialize(neutralFilename, verbose))
+  if (polygons->_deserialize(file, verbose))
   {
     if (verbose) messerr("Problem reading the Neutral File.");
     delete polygons;
-    return nullptr;
+    polygons = nullptr;
   }
+  _fileClose(file, verbose);
   return polygons;
+}
+
+int Polygons::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  FILE* file = _fileOpen(neutralFilename, "Polygon", "w", verbose);
+  if (file == nullptr) return 1;
+
+  if (_serialize(file, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    _fileClose(file, verbose);
+    return 1;
+  }
+  _fileClose(file, verbose);
+  return 0;
 }
 
 Polygons* Polygons::createFromCSV(const String& filename,

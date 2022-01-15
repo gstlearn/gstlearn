@@ -24,30 +24,9 @@ public:
   ASerializable& operator=(const ASerializable& r);
   virtual ~ASerializable();
 
-  virtual int deSerialize(const String& filename, bool verbose = false) = 0;
-  virtual int serialize(const String& filename, bool verbose = false) const = 0;
-
-  const String& getCurrentRecord() const { return _currentRecord; }
-  const FILE*   getFile() const { return _file; }
-  const String& getFileName() const { return _fileName; }
-  const String& getFileType() const { return _fileType; }
-  String buildFileName(const String& filename, bool ensureDirExist = false) const;
+  static String buildFileName(const String& filename, bool ensureDirExist = false);
 
   static String getHomeDirectory(const std::string& sub = "");
-
-protected:
-  int _fileOpen(const String& filename,
-                const String& filetype,
-                const String& mode,
-                bool verbose = false) const;
-  int  _fileClose(bool verbose = false) const;
-  int  _recordRead(const char* title, const char* format, ...) const;
-  void _recordWrite(const char* format, ...) const;
-  int  _fileRead(const String& format, va_list ap) const;
-  void _fileWrite(const String& format, va_list ap) const;
-  bool _onlyBlanks(char *string) const;
-
-public:
   static String getFileIdentify(const String& filename);
   static void setContainerName(bool useDefault,
                                const String& containerName = String(),
@@ -61,12 +40,24 @@ public:
   static String getExecDirectory();
   static String getDirectory(const String& path);
 
-private:
-  mutable String _fileName;
-  mutable String _fileType;
-  mutable FILE*  _file;
-  mutable String _currentRecord;
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) = 0;
+  virtual int _serialize(FILE* file, bool verbose = false) const = 0;
 
+  static FILE* _fileOpen(const String& filename,
+                         const String& filetype,
+                         const String& mode,
+                         bool verbose = false);
+  static int _fileClose(FILE* file, bool verbose = false);
+  static int _recordRead(FILE* file,
+                         const char* title,
+                         const char* format, ...);
+  static void _recordWrite(FILE* file, const char* format, ...);
+  static int _fileRead(FILE* file, const String& format, va_list ap);
+  static void _fileWrite(FILE* file, const String& format, va_list ap);
+  static bool _onlyBlanks(char *string);
+
+private:
   static String myContainerName;
   static String myPrefixName;
 };

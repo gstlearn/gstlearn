@@ -55,10 +55,10 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////
   // Running SPDE
   SPDE spde(model,workingDbc,dat,ESPDECalcMode::SIMUNONCOND);
-//  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
+  //  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
   spde.compute();
   spde.query(workingDbc);
-  workingDbc->serialize("spde_simunc.ascii");
+  (void) workingDbc->dumpToNF("spde_simunc.ascii");
 
   delete dat;
   delete workingDbc;

@@ -97,16 +97,35 @@ Vario::~Vario()
 {
 }
 
-Vario* Vario::createFromNF(const String& neutralFileName, bool verbose)
+int Vario::dumpToNF(const String& neutralFilename, bool verbose) const
 {
+  FILE* file = _fileOpen(neutralFilename, "Vario", "w", verbose);
+  if (file == nullptr) return 1;
+
+  if (_serialize(file, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    _fileClose(file, verbose);
+    return 1;
+  }
+  _fileClose(file, verbose);
+  return 0;
+}
+
+Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
+{
+  FILE* file = _fileOpen(neutralFilename, "Vario", "r", verbose);
+  if (file == nullptr) return nullptr;
+
   VarioParam* varioparam = new VarioParam();
   Vario* vario = new Vario(varioparam);
-  if (vario->deSerialize(neutralFileName, verbose))
+  if (vario->_deserialize(file, verbose))
   {
     if (verbose) messerr("Problem reading the Neutral File");
     delete vario;
-    return nullptr;
+    vario = nullptr;
   }
+  _fileClose(file, verbose);
   return vario;
 }
 
@@ -1210,34 +1229,30 @@ bool Vario::_isAddressValid(int idir, int i) const
   return true;
 }
 
-int Vario::deSerialize(const String& filename, bool verbose)
+int Vario::_deserialize(FILE* file, bool verbose)
 {
   int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
   double dpas, tolang, scale, tolcode, toldis;
   VectorDouble codir, grloc, vars;
   VectorInt grincr;
 
-  // Open the Neutral File
-
-  if (_fileOpen(filename, "Vario", "r", verbose)) return 1;
-
   /* Create the Vario structure */
 
-  if (_recordRead("Space Dimension", "%d", &ndim)) goto label_end;
-  if (_recordRead("Number of Variables", "%d", &nvar)) goto label_end;
-  if (_recordRead("Number of Variogram Directions", "%d", &ndir)) goto label_end;
-  if (_recordRead("Scale", "%lf", &scale)) goto label_end;
+  if (_recordRead(file, "Space Dimension", "%d", &ndim)) goto label_end;
+  if (_recordRead(file, "Number of Variables", "%d", &nvar)) goto label_end;
+  if (_recordRead(file, "Number of Variogram Directions", "%d", &ndir)) goto label_end;
+  if (_recordRead(file, "Scale", "%lf", &scale)) goto label_end;
 
   /* Read the variances (optional) */
 
-  if (_recordRead("Variogram calculation Option", "%d", &flag_calcul))  goto label_end;
+  if (_recordRead(file, "Variogram calculation Option", "%d", &flag_calcul))  goto label_end;
   vars.resize(nvar * nvar);
   if (flag_calcul)
   {
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++, ecr++)
-        if (_recordRead("Experimental Variance term", "%lf", &vars[ecr]))
+        if (_recordRead(file, "Experimental Variance term", "%lf", &vars[ecr]))
           goto label_end;
   }
 
@@ -1253,21 +1268,21 @@ int Vario::deSerialize(const String& filename, bool verbose)
 
   for (int idir = 0; idir < ndir; idir++)
   {
-    if (_recordRead("Regular Variogram Calculation", "%d", &flag_regular)) goto label_end;
-    if (_recordRead("Number of Variogram Lags", "%d", &npas)) goto label_end;
-    if (_recordRead("Variogram Code Option", "%d", &opt_code)) goto label_end;
-    if (_recordRead("Tolerance on Code", "%lf", &tolcode)) goto label_end;
-    if (_recordRead("Lag Value", "%lf", &dpas)) goto label_end;
-    if (_recordRead("Tolerance on Distance", "%lf", &toldis)) goto label_end;
-    if (_recordRead("Tolerance on Direction", "%lf", &tolang)) goto label_end;
+    if (_recordRead(file, "Regular Variogram Calculation", "%d", &flag_regular)) goto label_end;
+    if (_recordRead(file, "Number of Variogram Lags", "%d", &npas)) goto label_end;
+    if (_recordRead(file, "Variogram Code Option", "%d", &opt_code)) goto label_end;
+    if (_recordRead(file, "Tolerance on Code", "%lf", &tolcode)) goto label_end;
+    if (_recordRead(file, "Lag Value", "%lf", &dpas)) goto label_end;
+    if (_recordRead(file, "Tolerance on Distance", "%lf", &toldis)) goto label_end;
+    if (_recordRead(file, "Tolerance on Direction", "%lf", &tolang)) goto label_end;
     codir.resize(ndim);
     grincr.resize(ndim);
     grloc.resize(ndim);
     for (int idim = 0; idim < ndim; idim++)
-      if (_recordRead("Direction vector", "%lf", &codir[idim]))
+      if (_recordRead(file, "Direction vector", "%lf", &codir[idim]))
         goto label_end;
     for (int idim = 0; idim < ndim; idim++)
-      if (_recordRead("Grid Increment", "%lf", &grloc[idim]))
+      if (_recordRead(file, "Grid Increment", "%lf", &grloc[idim]))
         goto label_end;
 
     DirParam dirparam = DirParam(ndim);
@@ -1285,11 +1300,11 @@ int Vario::deSerialize(const String& filename, bool verbose)
       for (int i = 0; i < getDirSize(idir); i++)
       {
         double sw, hh, gg;
-        if (_recordRead("Experimental Variogram Weight", "%lf", &sw)) goto label_end;
+        if (_recordRead(file, "Experimental Variogram Weight", "%lf", &sw)) goto label_end;
         setSwByIndex(idir, i, sw);
-        if (_recordRead("Experimental Variogram Distance", "%lf", &hh)) goto label_end;
+        if (_recordRead(file, "Experimental Variogram Distance", "%lf", &hh)) goto label_end;
         setHhByIndex(idir, i, hh);
-        if (_recordRead("Experimental Variogram Value", "%lf", &gg)) goto label_end;
+        if (_recordRead(file, "Experimental Variogram Value", "%lf", &gg)) goto label_end;
         setGgByIndex(idir, i, gg);
       }
     }
@@ -1297,41 +1312,37 @@ int Vario::deSerialize(const String& filename, bool verbose)
 
   label_end:
 
-  _fileClose(verbose);
-
   return 0;
 }
 
-int Vario::serialize(const String& filename, bool verbose) const
+int Vario::_serialize(FILE* file, bool verbose) const
 {
   double value;
   static int flag_calcul = 1;
 
-  if (_fileOpen(filename, "Vario", "w", verbose)) return 1;
-
   /* Write the Vario structure */
 
-  _recordWrite("%d", _varioparam.getDimensionNumber());
-  _recordWrite("#", "Space Dimension");
-  _recordWrite("%d", getVariableNumber());
-  _recordWrite("#", "Number of variables");
-  _recordWrite("%d", getDirectionNumber());
-  _recordWrite("#", "Number of directions");
-  _recordWrite("%lf", _varioparam.getScale());
-  _recordWrite("#", "Scale");
-  _recordWrite("%d", flag_calcul);
-  _recordWrite("#", "Calculation Flag");
+  _recordWrite(file, "%d", _varioparam.getDimensionNumber());
+  _recordWrite(file, "#", "Space Dimension");
+  _recordWrite(file, "%d", getVariableNumber());
+  _recordWrite(file, "#", "Number of variables");
+  _recordWrite(file, "%d", getDirectionNumber());
+  _recordWrite(file, "#", "Number of directions");
+  _recordWrite(file, "%lf", _varioparam.getScale());
+  _recordWrite(file, "#", "Scale");
+  _recordWrite(file, "%d", flag_calcul);
+  _recordWrite(file, "#", "Calculation Flag");
 
   /* Dumping the Variances */
 
   if (flag_calcul)
   {
-    _recordWrite("#", "Variance");
+    _recordWrite(file, "#", "Variance");
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
     {
       for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-        _recordWrite("%lf", getVar(ivar,jvar));
-      _recordWrite("\n");
+        _recordWrite(file, "%lf", getVar(ivar,jvar));
+      _recordWrite(file, "\n");
     }
   }
 
@@ -1340,47 +1351,42 @@ int Vario::serialize(const String& filename, bool verbose) const
   for (int idir = 0; idir < getDirectionNumber(); idir++)
   {
     const DirParam dirparam = _varioparam.getDirParam(idir);
-    _recordWrite("#", "Direction characteristics");
-    _recordWrite("%d", dirparam.getFlagRegular());
-    _recordWrite("#", "Regular lags");
-    _recordWrite("%d", dirparam.getLagNumber());
-    _recordWrite("#", "Number of lags");
-    _recordWrite("%d", dirparam.getOptionCode());
-    _recordWrite("%lf", dirparam.getTolCode());
-    _recordWrite("#", "Code selection: Option - Tolerance");
-    _recordWrite("%lf", dirparam.getDPas());
-    _recordWrite("#", "Lag value");
-    _recordWrite("%lf", dirparam.getTolDist());
-    _recordWrite("#", "Tolerance on distance");
-    _recordWrite("%lf", dirparam.getTolAngle());
-    _recordWrite("#", "Tolerance on angle");
+    _recordWrite(file, "#", "Direction characteristics");
+    _recordWrite(file, "%d", dirparam.getFlagRegular());
+    _recordWrite(file, "#", "Regular lags");
+    _recordWrite(file, "%d", dirparam.getLagNumber());
+    _recordWrite(file, "#", "Number of lags");
+    _recordWrite(file, "%d", dirparam.getOptionCode());
+    _recordWrite(file, "%lf", dirparam.getTolCode());
+    _recordWrite(file, "#", "Code selection: Option - Tolerance");
+    _recordWrite(file, "%lf", dirparam.getDPas());
+    _recordWrite(file, "#", "Lag value");
+    _recordWrite(file, "%lf", dirparam.getTolDist());
+    _recordWrite(file, "#", "Tolerance on distance");
+    _recordWrite(file, "%lf", dirparam.getTolAngle());
+    _recordWrite(file, "#", "Tolerance on angle");
 
     for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      _recordWrite("%lf", dirparam.getCodir(idim));
-    _recordWrite("#", "Direction coefficients");
+      _recordWrite(file, "%lf", dirparam.getCodir(idim));
+    _recordWrite(file, "#", "Direction coefficients");
 
     for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      _recordWrite("%lf", (double) dirparam.getGrincr(idim));
-    _recordWrite("#", "Direction increments on grid");
+      _recordWrite(file, "%lf", (double) dirparam.getGrincr(idim));
+    _recordWrite(file, "#", "Direction increments on grid");
 
     if (!flag_calcul) continue;
-    _recordWrite("#", "Variogram results (Weight, Distance, Variogram)");
+    _recordWrite(file, "#", "Variogram results (Weight, Distance, Variogram)");
     for (int i = 0; i < getDirSize(idir); i++)
     {
       value = FFFF(getSwByIndex(idir, i)) ? 0. : getSwByIndex(idir, i);
-      _recordWrite("%lf", value);
+      _recordWrite(file, "%lf", value);
       value = FFFF(getHhByIndex(idir, i)) ? 0. : getHhByIndex(idir, i);
-      _recordWrite("%lf", value);
+      _recordWrite(file, "%lf", value);
       value = FFFF(getGgByIndex(idir, i)) ? 0. : getGgByIndex(idir, i);
-      _recordWrite("%lf", value);
-      _recordWrite("\n");
+      _recordWrite(file, "%lf", value);
+      _recordWrite(file, "\n");
     }
   }
-
-  /* Close the file */
-
-  _fileClose(verbose);
-
   return 0;
 }
 

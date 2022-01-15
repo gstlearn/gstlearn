@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     vario->compute("vg");
     vario->display();
     ascii_filename("Vario",0,1,filename);
-    if (vario->serialize(filename,verbose))
+    if (vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");
   }
 
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
   {
     if (model_fitting_sills(vario,model,mauto)) goto label_end;
     ascii_filename("Model",0,1,filename);
-    if (model->serialize(filename,verbose))
+    if (model->dumpToNF(filename,verbose))
       messageAbort("ascii_model_write");
   }
   new_model = st_modify(model,dbin);
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
   /* Core deallocation */
 
 label_end:
-  std::cout.rdbuf(coutbuf); //reset to standard output again
+  std::cout.rdbuf(coutbuf);
   dbin  = db_delete(dbin);
   dbout = db_delete(dbout);
   vario = variogram_delete(vario);

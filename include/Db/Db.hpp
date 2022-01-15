@@ -43,8 +43,6 @@ public:
 
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Db(*this); };
 
   int resetFromSamples(int nech,
@@ -90,6 +88,7 @@ public:
                       int seed = 23241,
                       bool verbose = false);
 
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Db* createFromSamples(int nech,
                                const ELoadBy& order = ELoadBy::SAMPLE,
                                const VectorDouble& tab = VectorDouble(),
@@ -132,9 +131,7 @@ public:
                               const VectorString& names = VectorString(),
                               int seed = 23241,
                               bool verbose = false);
-  static Db* createFromNF(const String& neutralFileName,
-                          bool mustGrid = false,
-                          bool verbose = false);
+  static Db* createFromNF(const String& neutralFilename,bool mustGrid = false,bool verbose = false);
 
   const VectorDouble& getArrays() const { return _array; }
 
@@ -551,6 +548,10 @@ public:
   void combineSelection(VectorDouble& sel,
                         const String& combine = "set") const;
 
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
+
 private:
   void  _clear();
   const VectorInt& _getAttcol() const { return _attcol; }
@@ -606,9 +607,10 @@ private:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
-  int  _variableWrite(bool flag_grid, bool onlyLocator=false,
+  int  _variableWrite(FILE* file, bool flag_grid, bool onlyLocator=false,
                       bool writeCoorForGrid=false) const;
-  void _variableRead(int *natt_r,
+  void _variableRead(FILE* file,
+                     int *natt_r,
                      int *ndim_r,
                      int *nech_r,
                      std::vector<ELoc>& tabatt,

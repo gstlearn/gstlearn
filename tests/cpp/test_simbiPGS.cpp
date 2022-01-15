@@ -58,7 +58,7 @@ int main(int /*argc*/, char */*argv*/[])
   covs1.addCov(&cova1);
   model1.setCovList(&covs1);
   model1.display();
-  model1.serialize("PGSmodel1.ascii");
+  (void) model1.dumpToNF("PGSmodel1.ascii");
 
   Model model2(ctxt);
   CovLMC covs2(ctxt.getSpace());
@@ -67,7 +67,7 @@ int main(int /*argc*/, char */*argv*/[])
   covs2.addCov(&cova2);
   model2.setCovList(&covs2);
   model2.display();
-  model2.serialize("PGSmodel2.ascii");
+  (void) model2.dumpToNF("PGSmodel2.ascii");
 
   Model model3(ctxt);
   CovLMC covs3(ctxt.getSpace());
@@ -76,7 +76,7 @@ int main(int /*argc*/, char */*argv*/[])
   covs3.addCov(&cova3);
   model3.setCovList(&covs3);
   model3.display();
-  model3.serialize("PGSmodel3.ascii");
+  (void) model3.dumpToNF("PGSmodel3.ascii");
 
   Model model4(ctxt);
   CovLMC covs4(ctxt.getSpace());
@@ -85,7 +85,7 @@ int main(int /*argc*/, char */*argv*/[])
   covs4.addCov(&cova4);
   model4.setCovList(&covs4);
   model4.display();
-  model4.serialize("PGSmodel4.ascii");
+  (void) model4.dumpToNF("PGSmodel4.ascii");
 
   // Creating the Neighborhood
   Neigh* neigh = Neigh::createUnique(ndim);
@@ -94,7 +94,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Rules
   Rule* rule1 = Rule::createFromNames({"S","S","F1","F2","F3"});
   rule1->display();
-  rule1->serialize("PGSrule1.ascii");
+  (void) rule1->dumpToNF("PGSrule1.ascii");
 
   // Creating the RuleProp structure for simPGS
   RuleProp* ruleprop1 = RuleProp::createFromRule(rule1, props1);
@@ -103,13 +103,13 @@ int main(int /*argc*/, char */*argv*/[])
   error = simpgs(nullptr,dbgrid,ruleprop1,&model1,&model2,neigh,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Facies");
   dbgrid->display();
-  dbgrid->serialize("simupgs.ascii");
+  (void) dbgrid->dumpToNF("simupgs.ascii");
 
   // Creating the RuleProp for simBiPGS
   VectorDouble props2({0.1, 0.2, 0.1, 0.3, 0.1, 0.2});
   Rule* rule2 = Rule::createFromNames({"S","F1","F2"});
   rule2->display();
-  rule2->serialize("PGSrule2.ascii");
+  (void) rule2->dumpToNF("PGSrule2.ascii");
   RuleProp* rulepropbi = RuleProp::createFromRules(rule1, rule2, props2);
 
   // Perform a non-conditional BiPGS simulation on a grid
@@ -117,14 +117,14 @@ int main(int /*argc*/, char */*argv*/[])
                    &model1,&model2,&model3,&model4,neigh,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"BiPGS-Facies");
   dbgrid->display();
-  dbgrid->serialize("simubipgs.ascii");
+  (void) dbgrid->dumpToNF("simubipgs.ascii");
 
   // Performing a PGS simulation using Shift
   VectorDouble shift = {0.2, 0.3};
   VectorDouble propshift = { 0.1, 0.2, 0.3, 0.4 };
   RuleShift* ruleshift = RuleShift::createFromNames({"S","S","S","F1","F2","F3","F4"},shift);
   ruleshift->display();
-  ruleshift->serialize("PGSruleshift.ascii");
+  (void) ruleshift->dumpToNF("PGSruleshift.ascii");
 
   RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
 
@@ -132,7 +132,7 @@ int main(int /*argc*/, char */*argv*/[])
   error = simpgs(nullptr,dbgrid,rulepropshift,&model1,nullptr,neigh,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shift-Facies");
   dbgrid->display();
-  dbgrid->serialize("simushiftpgs.ascii");
+  (void) dbgrid->dumpToNF("simushiftpgs.ascii");
 
   // Performing a PGS simulation using Shadow
   double slope = 0.5;
@@ -140,7 +140,7 @@ int main(int /*argc*/, char */*argv*/[])
   double shdsup = +0.5;
   RuleShadow* ruleshadow = new RuleShadow(slope,shdsup,shdown,shift);
   ruleshadow->display();
-  ruleshadow->serialize("PGSruleshadow.ascii");
+  (void) ruleshadow->dumpToNF("PGSruleshadow.ascii");
 
   VectorDouble propshadow = { 0.4, 0.2, 0.3 };
   RuleProp* rulepropshadow = RuleProp::createFromRule(ruleshadow, propshadow);
@@ -149,7 +149,7 @@ int main(int /*argc*/, char */*argv*/[])
   error = simpgs(nullptr,dbgrid,rulepropshadow,&model1,nullptr,neigh,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shadow-Facies");
   dbgrid->display();
-  dbgrid->serialize("simushadowpgs.ascii");
+  (void) dbgrid->dumpToNF("simushadowpgs.ascii");
 
   delete dbgrid;
   delete rule1;

@@ -111,31 +111,31 @@ int RuleShift::resetFromNumericalCoding(const VectorInt& n_type,
   return 0;
 }
 
-int RuleShift::deSerializeSpecific()
+int RuleShift::_deserializeSpecific(FILE* file)
 {
   _shift.resize(3);
-  if (_recordRead("Slope for Shadow Rule", "%lf", &_slope)) return 1;
-  if (_recordRead("Lower Threshold for Shadow Rule", "%lf", &_shDown)) return 1;
-  if (_recordRead("Upper Threshold for Shadow Rule", "%lf", &_shDsup)) return 1;
-  if (_recordRead("Shift along first direction", "%lf", &_shift[0]))  return 1;
-  if (_recordRead("Shift along second direction", "%lf", &_shift[1])) return 1;
-  if (_recordRead("Shift along third direction", "%lf", &_shift[2]))  return 1;
+  if (_recordRead(file, "Slope for Shadow Rule", "%lf", &_slope)) return 1;
+  if (_recordRead(file, "Lower Threshold for Shadow Rule", "%lf", &_shDown)) return 1;
+  if (_recordRead(file, "Upper Threshold for Shadow Rule", "%lf", &_shDsup)) return 1;
+  if (_recordRead(file, "Shift along first direction", "%lf", &_shift[0]))  return 1;
+  if (_recordRead(file, "Shift along second direction", "%lf", &_shift[1])) return 1;
+  if (_recordRead(file, "Shift along third direction", "%lf", &_shift[2]))  return 1;
   return 0;
 }
 
-void RuleShift::serializeSpecific() const
+void RuleShift::_serializeSpecific(FILE* file) const
 {
   double slope = (FFFF(_slope)) ? 0. : _slope;
-  _recordWrite("%lf", slope);
+  _recordWrite(file, "%lf", slope);
   double shdown = (FFFF(_shDown)) ? 0. : _shDown;
-  _recordWrite("%lf", shdown);
+  _recordWrite(file, "%lf", shdown);
   double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
-  _recordWrite("%lf", shdsup);
-  _recordWrite("#", "Parameters for Shadow option");
-  _recordWrite("%lf", _shift[0]);
-  _recordWrite("%lf", _shift[1]);
-  _recordWrite("%lf", _shift[2]);
-  _recordWrite("#", "Parameters for Shift option");
+  _recordWrite(file, "%lf", shdsup);
+  _recordWrite(file, "#", "Parameters for Shadow option");
+  _recordWrite(file, "%lf", _shift[0]);
+  _recordWrite(file, "%lf", _shift[1]);
+  _recordWrite(file, "%lf", _shift[2]);
+  _recordWrite(file, "#", "Parameters for Shift option");
 }
 
 String RuleShift::displaySpecific() const

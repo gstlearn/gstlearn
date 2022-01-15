@@ -235,7 +235,7 @@ bool Neigh::_isDimensionValid(int idim) const
   return true;
 }
 
-int Neigh::deSerialize(const String& filename, bool verbose)
+int Neigh::_deserialize(FILE* file, bool verbose)
 {
   int type, idim, ndim, flag_sector, flag_xvalid, nmini, nmaxi, nsect, nsmax, skip;
   int flag_aniso, flag_rotation, lec, jdim;
@@ -244,14 +244,10 @@ int Neigh::deSerialize(const String& filename, bool verbose)
   VectorDouble nbgh_coeffs;
   VectorDouble nbgh_rotmat;
 
-  /* Opening the Data file */
-
-  if (_fileOpen(filename, "Neigh", "r", verbose)) return 1;
-
   /* Create the Model structure */
 
-  if (_recordRead("Space Dimension", "%d", &ndim)) return 1;
-  if (_recordRead("Neighborhood type", "%d", &type)) return 1;
+  if (_recordRead(file, "Space Dimension", "%d", &ndim)) return 1;
+  if (_recordRead(file, "Neighborhood type", "%d", &type)) return 1;
 
   /* Core allocation */
 
@@ -267,33 +263,33 @@ int Neigh::deSerialize(const String& filename, bool verbose)
       break;
 
     case ENeigh::E_BENCH:
-      if (_recordRead("Flag for Cross-validation", "%d", &flag_xvalid)) return 1;
-      if (_recordRead("Bench Width", "%lf", &width)) return 1;
+      if (_recordRead(file, "Flag for Cross-validation", "%d", &flag_xvalid)) return 1;
+      if (_recordRead(file, "Bench Width", "%lf", &width)) return 1;
       _init(ndim, ENeigh::BENCH, flag_xvalid, 0, 0, 0, 0, 0, 0, 0, 0, 0, width,
             0., 0., VectorDouble(), VectorDouble(), VectorInt());
       break;
 
     case ENeigh::E_MOVING:
       flag_aniso = flag_rotation = 0;
-      if (_recordRead("Flag for Cross-validaiton", "%d", &flag_xvalid)) return 1;
-      if (_recordRead("Neighborhood sector search", "%d", &flag_sector)) return 1;
-      if (_recordRead("Neighborhood Width", "%lf", &width)) return 1;
-      if (_recordRead("Minimum Number of samples", "%d", &nmini)) return 1;
-      if (_recordRead("Maximum Number of samples", "%d", &nmaxi)) return 1;
-      if (_recordRead("Optimum Number of samples per sector", "%d", &nsect)) return 1;
-      if (_recordRead("Maximum Number of samples per sector", "%d", &nsmax)) return 1;
-      if (_recordRead("Maximum Isotropic Radius", "%lf", &dmax)) return 1;
-      if (_recordRead("Flag for Anisotropy", "%d", &flag_aniso)) return 1;
+      if (_recordRead(file, "Flag for Cross-validaiton", "%d", &flag_xvalid)) return 1;
+      if (_recordRead(file, "Neighborhood sector search", "%d", &flag_sector)) return 1;
+      if (_recordRead(file, "Neighborhood Width", "%lf", &width)) return 1;
+      if (_recordRead(file, "Minimum Number of samples", "%d", &nmini)) return 1;
+      if (_recordRead(file, "Maximum Number of samples", "%d", &nmaxi)) return 1;
+      if (_recordRead(file, "Optimum Number of samples per sector", "%d", &nsect)) return 1;
+      if (_recordRead(file, "Maximum Number of samples per sector", "%d", &nsmax)) return 1;
+      if (_recordRead(file, "Maximum Isotropic Radius", "%lf", &dmax)) return 1;
+      if (_recordRead(file, "Flag for Anisotropy", "%d", &flag_aniso)) return 1;
       if (flag_aniso)
       {
         for (idim = 0; idim < ndim; idim++)
-          if (_recordRead("Anisotropy Coefficient", "%lf", &nbgh_coeffs[idim])) return 1;
-        if (_recordRead("Flag for Anisotropy Rotation", "%d", &flag_rotation)) return 1;
+          if (_recordRead(file, "Anisotropy Coefficient", "%lf", &nbgh_coeffs[idim])) return 1;
+        if (_recordRead(file, "Flag for Anisotropy Rotation", "%d", &flag_rotation)) return 1;
         if (flag_rotation)
         {
           for (idim = lec = 0; idim < ndim; idim++)
             for (jdim = 0; jdim < ndim; jdim++, lec++)
-              if (_recordRead("Anisotropy Rotation Matrix", "%lf", &nbgh_rotmat[lec])) return 1;
+              if (_recordRead(file, "Anisotropy Rotation Matrix", "%lf", &nbgh_rotmat[lec])) return 1;
         }
       }
       if (!nbgh_coeffs.empty()) for (idim = 0; idim < ndim; idim++) nbgh_coeffs[idim] *= dmax;
@@ -304,19 +300,17 @@ int Neigh::deSerialize(const String& filename, bool verbose)
       break;
 
     case ENeigh::E_IMAGE:
-      if (_recordRead("Flag for Cross-Validation", "%d", &flag_xvalid)) return 1;
-      if (_recordRead("Skipping factor", "%d", &skip)) return 1;
+      if (_recordRead(file, "Flag for Cross-Validation", "%d", &flag_xvalid)) return 1;
+      if (_recordRead(file, "Skipping factor", "%d", &skip)) return 1;
       for (idim = 0; idim < ndim; idim++)
       {
         double loc_radius;
-        if (_recordRead("Image Neighborhood Radius", "%lf", &loc_radius)) return 1;
+        if (_recordRead(file, "Image Neighborhood Radius", "%lf", &loc_radius)) return 1;
         radius[idim] = static_cast<int> (loc_radius);
       }
       _init(ndim, ENeigh::IMAGE, flag_xvalid, 0, 0, 0, 0, 0, 0, 0, 0, skip, 0.,
             0., 0., VectorDouble(), VectorDouble(), radius);
   }
-
-  _fileClose(verbose);
 
   return 0;
 }
@@ -340,7 +334,7 @@ void Neigh::_init(int ndim,
                   const VectorDouble& nbgh_rotmat,
                   const VectorInt& nbgh_image)
 {
-  /// TODO : Force SpaceRN creation (deSerialization do not know yet how to manage other space types)
+  /// TODO : Force SpaceRN creation (deserialization do not know yet how to manage other space types)
   //SpaceRN space(ndim);
   // To be used when Neigh object will manage space context (and not only ndim)
 
@@ -381,17 +375,16 @@ void Neigh::_init(int ndim,
   }
 }
 
-int Neigh::serialize(const String& filename, bool verbose) const
+int Neigh::_serialize(FILE* file, bool verbose) const
 {
   int ecr;
-  if (_fileOpen(filename, "Neigh", "w", verbose)) return 1;
 
   /* Create the Model structure */
 
-  _recordWrite("%d", getNDim());
-  _recordWrite("#", "Space Dimension");
-  _recordWrite("%d", getType().getValue());
-  _recordWrite("#", "Neighborhood type");
+  _recordWrite(file, "%d", getNDim());
+  _recordWrite(file, "#", "Space Dimension");
+  _recordWrite(file, "%d", getType().getValue());
+  _recordWrite(file, "#", "Neighborhood type");
 
   switch (getType().toEnum())
   {
@@ -399,55 +392,53 @@ int Neigh::serialize(const String& filename, bool verbose) const
       break;
 
     case ENeigh::E_BENCH:
-      _recordWrite("%d", getFlagXvalid());
-      _recordWrite("#", "Cross-Validation flag");
-      _recordWrite("%lf", getWidth());
-      _recordWrite("#", "Bench Width");
+      _recordWrite(file, "%d", getFlagXvalid());
+      _recordWrite(file, "#", "Cross-Validation flag");
+      _recordWrite(file, "%lf", getWidth());
+      _recordWrite(file, "#", "Bench Width");
       break;
 
     case ENeigh::E_MOVING:
-      _recordWrite("%d", getFlagXvalid());
-      _recordWrite("#", "Cross-Validation flag");
-      _recordWrite("%d", getFlagSector());
-      _recordWrite("#", "Use angular sectors");
-      _recordWrite("%lf", getWidth());
-      _recordWrite("#", "Bench Width");
-      _recordWrite("%d", getNMini());
-      _recordWrite("%d", getNMaxi());
-      _recordWrite("%d", getNSect());
-      _recordWrite("%d", getNSMax());
-      _recordWrite("#", "Parameters (nmini,nmaxi,nsect,nsmax)");
-      _recordWrite("%lf", getRadius());
-      _recordWrite("#", "Maximum distance radius");
-      _recordWrite("%d", getFlagAniso());
-      _recordWrite("#", "Anisotropy Flag");
+      _recordWrite(file, "%d", getFlagXvalid());
+      _recordWrite(file, "#", "Cross-Validation flag");
+      _recordWrite(file, "%d", getFlagSector());
+      _recordWrite(file, "#", "Use angular sectors");
+      _recordWrite(file, "%lf", getWidth());
+      _recordWrite(file, "#", "Bench Width");
+      _recordWrite(file, "%d", getNMini());
+      _recordWrite(file, "%d", getNMaxi());
+      _recordWrite(file, "%d", getNSect());
+      _recordWrite(file, "%d", getNSMax());
+      _recordWrite(file, "#", "Parameters (nmini,nmaxi,nsect,nsmax)");
+      _recordWrite(file, "%lf", getRadius());
+      _recordWrite(file, "#", "Maximum distance radius");
+      _recordWrite(file, "%d", getFlagAniso());
+      _recordWrite(file, "#", "Anisotropy Flag");
       if (!getFlagAniso()) break;
 
       for (int idim = 0; idim < getNDim(); idim++)
-        _recordWrite("%lf", getAnisoCoeff(idim));
-      _recordWrite("#", "Anisotropy Coefficients");
-      _recordWrite("%d", getFlagRotation());
-      _recordWrite("#", "Anisotropy Rotation Flag");
+        _recordWrite(file, "%lf", getAnisoCoeff(idim));
+      _recordWrite(file, "#", "Anisotropy Coefficients");
+      _recordWrite(file, "%d", getFlagRotation());
+      _recordWrite(file, "#", "Anisotropy Rotation Flag");
       if (!getFlagRotation()) break;
 
       ecr = 0;
       for (int idim = 0; idim < getNDim(); idim++)
         for (int jdim = 0; jdim < getNDim(); jdim++)
-          _recordWrite("%lf", getAnisoRotMat(ecr++));
-      _recordWrite("#", "Anisotropy Rotation Matrix");
+          _recordWrite(file, "%lf", getAnisoRotMat(ecr++));
+      _recordWrite(file, "#", "Anisotropy Rotation Matrix");
       break;
 
     case ENeigh::E_IMAGE:
-      _recordWrite("%d", getFlagXvalid());
-      _recordWrite("#", "Cross-Validation flag");
-      _recordWrite("%d", getSkip());
+      _recordWrite(file, "%d", getFlagXvalid());
+      _recordWrite(file, "#", "Cross-Validation flag");
+      _recordWrite(file, "%d", getSkip());
       for (int idim = 0; idim < getNDim(); idim++)
-        _recordWrite("%lf", (double) getImageRadius(idim));
-      _recordWrite("#", "Image neighborhood parameters");
+        _recordWrite(file, "%lf", (double) getImageRadius(idim));
+      _recordWrite(file, "#", "Image neighborhood parameters");
       break;
   }
-
-  _fileClose(verbose);
 
   return 0;
 }
@@ -510,6 +501,21 @@ Neigh* Neigh::createImage(int ndim, int skip, const VectorInt& image)
   return neigh;
 }
 
+int Neigh::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  FILE* file = _fileOpen(neutralFilename, "Neigh", "w", verbose);
+  if (file == nullptr) return 1;
+
+  if (_serialize(file, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    _fileClose(file, verbose);
+    return 1;
+  }
+  _fileClose(file, verbose);
+  return 0;
+}
+
 /**
  * Create a Neighborhood by loading the contents of a Neutral File
  * @param neutralFilename Name of the Neutral File
@@ -518,12 +524,16 @@ Neigh* Neigh::createImage(int ndim, int skip, const VectorInt& image)
  */
 Neigh* Neigh::createFromNF(const String& neutralFilename, bool verbose)
 {
+  FILE* file = _fileOpen(neutralFilename, "Neigh", "r", verbose);
+  if (file == nullptr) return nullptr;
+
   Neigh* neigh = new Neigh();
-  if (neigh->deSerialize(neutralFilename, verbose))
+  if (neigh->_deserialize(file, verbose))
   {
     if (verbose) messerr("Problem reading the Neutral File.");
     delete neigh;
-    return nullptr;
+    neigh = nullptr;
   }
+  _fileClose(file, verbose);
   return neigh;
 }

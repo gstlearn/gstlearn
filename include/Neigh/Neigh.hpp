@@ -31,8 +31,6 @@ public:
   virtual ~Neigh();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Neigh(*this); };
 
   int resetUnique(int ndim);
@@ -48,7 +46,8 @@ public:
                   VectorDouble angles = VectorDouble());
   int resetImage(int ndim, int skip, const VectorInt& image);
 
-  static Neigh* createFromNF(const String& neutralFileName, bool verbose);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Neigh* createFromNF(const String& neutralFilename, bool verbose = false);
   static Neigh* createUnique(int ndim);
   static Neigh* createMoving(int ndim,
                              int nmaxi,
@@ -104,6 +103,10 @@ public:
   void setSkip(int skip) { _skip = skip; }
   void setType(ENeigh type) { _type = type; }
   void setWidth(double width) { _width = width; }
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
   bool _isDimensionValid(int idim) const;

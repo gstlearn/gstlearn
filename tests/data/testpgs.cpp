@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
       vario->compute("vg");
       variogram_print(vario,1);
       ascii_filename("Vario",0,1,filename);
-      if (vario->serialize(filename,verbose))
+      if (vario->dumpToNF(filename,verbose))
         messageAbort("ascii_vario_write");
       
       /* Delete the indicator variables */
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("testPGS-");
-  dbout->serialize("Result");
+  (void) dbout->dumpToNF("Result");
 
   /* Core deallocation */
 

@@ -156,37 +156,28 @@ double PolySet::getSurface() const
   return(surface);
 }
 
-int PolySet::serialize(const String& filename, bool verbose) const
+int PolySet::_serialize(FILE* file, bool verbose) const
 {
-  if (_fileOpen(filename, "Polyset", "w", verbose)) return (1);
-
-  _recordWrite("%d", getNVertices());
-  _recordWrite("#", "Number of Vertices");
+  // Store information
+  _recordWrite(file, "%d", getNVertices());
+  _recordWrite(file, "#", "Number of Vertices");
 
   for (int i = 0; i < getNVertices(); i++)
   {
-    _recordWrite("%lf", getX(i));
-    _recordWrite("%lf", getY(i));
-    _recordWrite("\n");
+    _recordWrite(file, "%lf", getX(i));
+    _recordWrite(file, "%lf", getY(i));
+    _recordWrite(file, "\n");
   }
-
-  // Close the Neutral File
-  _fileClose(verbose);
-
   return 0;
 }
 
-int PolySet::deSerialize(const String& filename, bool verbose)
+int PolySet::_deserialize(FILE* file, bool verbose)
 {
   int npol, nvert;
   double zmin = TEST;
   double zmax = TEST;
 
-  /* Opening the Data file */
-
-  if (_fileOpen(filename, "PolySet", "r", verbose)) return 1;
-
-  if (_recordRead("Number of Vertices", "%d", &nvert)) return 1;
+  if (_recordRead(file, "Number of Vertices", "%d", &nvert)) return 1;
   VectorDouble x(nvert);
   VectorDouble y(nvert);
 
@@ -194,14 +185,44 @@ int PolySet::deSerialize(const String& filename, bool verbose)
 
   for (int i = 0; i < nvert; i++)
   {
-    if (_recordRead("X-Coordinate of a Polyset", "%lf", &x[i])) return 1;
-    if (_recordRead("Y-Coordinate of a Polyset", "%lf", &y[i])) return 1;
+    if (_recordRead(file, "X-Coordinate of a Polyset", "%lf", &x[i])) return 1;
+    if (_recordRead(file, "Y-Coordinate of a Polyset", "%lf", &y[i])) return 1;
   }
 
   /* Add the polyset */
 
   init(x,y,zmin,zmax);
 
-  _fileClose(verbose);
   return 0;
+}
+
+int PolySet::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  FILE* file = _fileOpen(neutralFilename, "PolySet", "w", verbose);
+  if (file == nullptr) return 1;
+
+  if (_serialize(file, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    _fileClose(file, verbose);
+    return 1;
+  }
+  _fileClose(file, verbose);
+  return 0;
+}
+
+PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
+{
+  FILE* file = _fileOpen(neutralFilename, "PolySet", "r", verbose);
+  if (file == nullptr) return nullptr;
+
+  PolySet* polyset = new PolySet();
+  if (polyset->_deserialize(file, verbose))
+  {
+    if (verbose) messerr("Problem reading the Neutral File.");
+    delete polyset;
+    polyset = nullptr;
+  }
+  _fileClose(file, verbose);
+  return polyset;
 }

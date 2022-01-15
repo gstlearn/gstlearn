@@ -53,13 +53,13 @@ public:
 
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  int deSerialize(const String& filename, bool verbose = false) override;
-  int serialize(const String& filename, bool verbose = false) const override;
   virtual IClonable* clone() const override { return new Model(*this); }
 
   int resetFromDb(const Db* db);
+
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Model* createFromDb(const Db* db);
-  static Model* createFromNF(const String& neutralFileName, bool verbose = false);
+  static Model* createFromNF(const String& neutralFilename, bool verbose = false);
 
   void   setCovList(const ACovAnisoList* covalist);
   void   addCova(const CovAniso* cov);
@@ -207,6 +207,10 @@ public:
           Option_VarioFit optvar = Option_VarioFit());
 
   double gofToVario(const Vario* vario);
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
   void _clear();

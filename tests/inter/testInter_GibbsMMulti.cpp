@@ -121,7 +121,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
     if (gibbs.run(y, 0, isimu, verbose, false)) return 1;
-  db->serialize("Result");
+  (void) db->dumpToNF("Result");
 
   // Calculate a variogram on the samples
 
@@ -137,7 +137,7 @@ int main(int /*argc*/, char */*argv*/[])
       db->setLocator(names[isimu], ELoc::Z);
       Vario vario(&varioparam, db);
       vario.compute("vg", true);
-      vario.serialize(incrementStringVersion("Vario", isimu + 1));
+      (void) vario.dumpToNF(incrementStringVersion("Vario", isimu + 1));
     }
   }
 
