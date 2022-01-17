@@ -572,19 +572,22 @@ void Model::evalDriftVecInPlace(const Db* db,
  * A vector of the drift evaluation
  * @param db     Db structure
  * @param coeffs Vector of drift coefficients
+ * @param ivar   Variable rank (used for constant drift value)
  * @param useSel When TRUE, only non masked samples are returned
  * @return The vector of values
- * @remark When no drift is defined, a vector filled to 0 is returned
+ * @remark When no drift is defined, a vector is returned filled to mean
  */
 VectorDouble Model::evalDrifts(const Db* db,
                                const VectorDouble& coeffs,
+                               int ivar,
                                bool useSel) const
 {
   VectorDouble vec;
-  if (_driftList == nullptr && db!=nullptr)
+  if (_driftList == nullptr && db != nullptr)
   {
     int nech = (useSel) ? db->getActiveSampleNumber() : db->getSampleNumber();
-    vec = VectorDouble(nech,0.);
+    double mean = getMean(ivar);
+    vec = VectorDouble(nech,mean);
   }
   else
   {

@@ -95,13 +95,9 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
     for (int jmod = 0; jmod < sizes(); jmod++)
     {
       _multiProjData[jmod]->mesh2point(in[jmod], _work1);
-      for (int idat = 0; idat < _ndat; idat++)
-      {
-         _work1[idat] /= _varianceData[idat];
-      }
+      ut_vector_divide_vec(_work1, _varianceData);
       _multiProjData[imod]->point2mesh(_work1, _work2[imod]);
       _linearComb(1., _work2, 1., out, out);
-
     }
   }
 }

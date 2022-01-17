@@ -102,17 +102,19 @@ void SPDE::init(Model* model,
   _model = model;
   _calcul = calc;
   _data =  dat;
+  bool verbose = false;
+  bool useSel = true;
   VectorDouble varianceData;
   double totalSill = 0.;
   ShiftOpCs* shiftOp;
   PrecisionOpCs* precision;
   MeshETurbo* mesh;
   ProjMatrix* proj;
-  _driftTab = _model->getDrifts(_data, true);
+  _driftTab = _model->getDrifts(_data, useSel);
   _computeCoeffs = _driftTab.size()>0 && _data != nullptr;
-  for(int icov = 0 ; icov < model->getCovaNumber();icov++)
+  for(int icov = 0 ; icov < model->getCovaNumber(); icov++)
   {
-    const auto cova = model->getCova(icov);
+    const CovAniso* cova = model->getCova(icov);
 
     if (cova->getType() == ECov::NUGGET)
     {
@@ -124,9 +126,9 @@ void SPDE::init(Model* model,
       if(_calculSimu())
       {
         mesh = new MeshETurbo();
-        mesh->initFromCova(*cova,field,14,5,false,1);
+        mesh->initFromCova(*cova,field,14,5,useSel,verbose);
         _simuMeshing.push_back(mesh);
-        shiftOp = new ShiftOpCs(mesh, model, field);
+        shiftOp = new ShiftOpCs(mesh, model, field, 0, icov);
         precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::MINUSHALF);
         _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
@@ -138,9 +140,9 @@ void SPDE::init(Model* model,
       if(_calculKriging() || _computeCoeffs)
       {
         mesh = new MeshETurbo();
-        mesh->initFromCova(*cova,field,11,5,false,1);
+        mesh->initFromCova(*cova,field,11,5,useSel,verbose);
         _krigingMeshing.push_back(mesh);
-        shiftOp = new ShiftOpCs(mesh, model, field);
+        shiftOp = new ShiftOpCs(mesh, model, field, 0, icov);
         precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::ONE);
         proj = new ProjMatrix(_data,mesh);
         _pileShiftOp.push_back(shiftOp);
@@ -159,9 +161,9 @@ void SPDE::init(Model* model,
   // Evaluation of the variance at data point (nugget + measurement error or minimum proportion of total sill)
   if (_calculKriging())
   {
-    if(dat->getVarianceErrorNumber()>0)
+    if(dat->getVarianceErrorNumber() > 0)
     {
-      varianceData = dat->getFieldByLocator(ELoc::V,0,true);
+      varianceData = dat->getFieldByLocator(ELoc::V,0,useSel);
       for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
       {
         double *temp = &varianceData[iech];
@@ -170,11 +172,8 @@ void SPDE::init(Model* model,
     }
     else
     {
-      varianceData.resize(dat->getActiveSampleNumber());
-      for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
-      {
-        varianceData[iech] = MAX(_nugget, 0.01 * totalSill);
-      }
+      ut_vector_fill(varianceData, MAX(_nugget, 0.01 * totalSill),
+                     dat->getActiveSampleNumber());
     }
   }
   _precisionsKriging.setVarianceDataVector(varianceData);
@@ -215,23 +214,16 @@ void SPDE::computeSimuCond(int nbsimus, int seed) const
 void SPDE::compute(int nbsimus, int seed) const
 {
   VectorDouble dataVect;
+  bool useSel = true;
+  int ivar = 0;
 
-  if(_data!=nullptr)
+  if(_data != nullptr)
   {
-    dataVect = _data->getFieldByLocator(ELoc::Z,0,true);
-  }
-  if(_computeCoeffs)
-  {
+    dataVect = _data->getFieldByLocator(ELoc::Z,ivar,useSel);
+
+    if(_computeCoeffs)
     _driftCoeffs = computeCoeffs();
-    _workingData = _model->evalDrifts(_data,_driftCoeffs,true);
-  }
-  else if(_data!=nullptr)
-  {
-    ut_vector_fill(_workingData,0.,_data->getActiveSampleNumber());
-  }
-
-  if(_data!=nullptr)
-  {
+    _workingData = _model->evalDrifts(_data,_driftCoeffs,ivar,useSel);
     for(int iech = 0; iech<(int)_workingData.size();iech++)
     {
       _workingData[iech] = dataVect[iech] - _workingData[iech];
@@ -251,11 +243,7 @@ void SPDE::compute(int nbsimus, int seed) const
   if(_calcul == ESPDECalcMode::SIMUCOND)
   {
     computeSimuCond(nbsimus,seed);
-
   }
-
-
-
 }
 
 MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
@@ -264,10 +252,11 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
                                 double ext)
 {
   VectorDouble extendMin,extendMax;
+  bool useSel = true;
   int dim = cova.getNDim();
   for(int idim = 0;idim<(int)dim;idim++)
   {
-      auto limits = field.getExtrema(idim,true);
+      auto limits = field.getExtrema(idim,useSel);
       extendMin.push_back(limits[0]);
       extendMax.push_back(limits[1]);
   }
@@ -289,6 +278,7 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
 
 int SPDE::query(Db* db, const NamingConvention& namconv) const
 {
+  bool useSel = true;
   VectorDouble temp(db->getActiveSampleNumber());
   VectorDouble result(db->getActiveSampleNumber(),0.);
   String suffix;
@@ -331,9 +321,9 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
       suffix = "condSimu";
   }
 
-  temp = _model->evalDrifts(db,_driftCoeffs,true);
+  temp = _model->evalDrifts(db,_driftCoeffs,useSel);
   ut_vector_add_inplace(result,temp);
-  int iptr = db->addFields(result,"SPDE",ELoc::Z,0,true,TEST);
+  int iptr = db->addFields(result,"SPDE",ELoc::Z,0,useSel,TEST);
   namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
 }

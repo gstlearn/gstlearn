@@ -51,6 +51,7 @@ int main(int /*argc*/, char */*argv*/[])
   Db* dat = Db::createFromBox(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
   dat->addFields(z,"variable",ELoc::Z);
+  dat->display();
 
   ///////////////////////
   // Running SPDE

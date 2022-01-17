@@ -47,7 +47,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the MeshTurbo which contains the Db
   MeshETurbo mesh;
-  mesh.initFromCova(cova,grid,10,2,true,1);
+  mesh.initFromCova(cova,grid,10,2,true,true);
 
   /////////////////////////
   // Testing the selections

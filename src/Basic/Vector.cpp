@@ -465,7 +465,7 @@ void ut_vector_divide_vec(VectorDouble &vec, const VectorDouble &v)
   for (unsigned int i = 0; i < vec.size(); i++)
   {
     if (ABS(v[i]) < EPSILON20)
-    my_throw("division by 0");
+      my_throw("division by 0");
     vec[i] /= v[i];
   }
 }

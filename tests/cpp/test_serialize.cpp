@@ -45,6 +45,8 @@ int main(int /*argc*/, char */*argv*/[])
   Db* db1 = Db::createFromBox(nech,VectorDouble(),VectorDouble(),ndim);
   VectorDouble vec1 = ut_vector_simulate_gaussian(nech);
   db1->addFields(vec1,"myvar1",ELoc::Z, 0);
+  VectorDouble vec2 = ut_vector_simulate_gaussian(nech);
+  db1->addFields(vec2,"myvar2");
   db1->display();
   
   // Serialize db1
@@ -52,6 +54,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Deserialize db2
   Db* db2 = Db::createFromNF("Neutral.Db.ascii",verbose);
+  db2->display();
 
   // =======================
   // Checking Db (grid)
@@ -61,7 +64,7 @@ int main(int /*argc*/, char */*argv*/[])
   Db* dbg1 = Db::createFromGrid({12,10},{0.1,0.3},{0.2,0.4});
   vec1 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
   dbg1->addFields(vec1,"myvar1",ELoc::Z, 0);
-  VectorDouble vec2 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
+  vec2 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
   vec2[2] = TEST;
   vec2[5] = TEST;
   dbg1->addFields(vec2,"myvar2",ELoc::Z, 1);

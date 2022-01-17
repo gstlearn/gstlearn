@@ -139,11 +139,16 @@ String Polygons::toString(const AStringFormat* strfmt) const
 
   sstr << toTitle(1, "Polygons");
   sstr << "Number of Polygon Sets = " << npol << std::endl;
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
 
-  for (int i=0; i<npol; i++)
+  if (sf.getLevel() > 1)
   {
-    sstr << toTitle(2, "Polyset #%d", i+1);
-    sstr << _polysets[i].toString(strfmt);
+    for (int i=0; i<npol; i++)
+    {
+      sstr << toTitle(2, "Polyset #%d", i+1);
+      sstr << _polysets[i].toString(strfmt);
+    }
   }
   return sstr.str();
 }

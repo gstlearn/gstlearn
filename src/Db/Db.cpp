@@ -3424,7 +3424,7 @@ int Db::_deserialize(FILE* file, bool verbose)
   VectorDouble dx;
   VectorDouble angles;
   VectorDouble tab;
-  static int flag_add_rank = 1;
+  static int flag_add_rank = 0;
 
   /* Initializations */
 
@@ -3495,8 +3495,9 @@ int Db::_deserialize(FILE* file, bool verbose)
 
   /* Create the locators */
 
-  if (natt > 0) for (i = 0; i < natt; i++)
-    setLocatorByAttribute(i + flag_add_rank, tabatt[i], tabnum[i]);
+  if (natt > 0)
+    for (i = 0; i < natt; i++)
+      setLocatorByAttribute(i + flag_add_rank, tabatt[i], tabnum[i]);
 
   /* Core deallocation */
 
@@ -3560,7 +3561,7 @@ int Db::_variableWrite(FILE* file,bool flag_grid, bool onlyLocator, bool writeCo
     if (!getLocatorByColumn(icol, &locatorType, &item))
     {
       if (onlyLocator) continue;
-      locatorType = ELoc::Z;
+      locatorType = ELoc::UNKNOWN;
     }
     if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
     ncol++;
@@ -3578,7 +3579,7 @@ int Db::_variableWrite(FILE* file,bool flag_grid, bool onlyLocator, bool writeCo
     if (! getLocatorByColumn(icol, &locatorType, &item))
     {
       if (onlyLocator) continue;
-      locatorType = ELoc::Z;
+      locatorType = ELoc::UNKNOWN;
       item = rankZ++;
     }
     if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;

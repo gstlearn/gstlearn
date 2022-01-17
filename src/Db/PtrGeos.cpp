@@ -174,12 +174,22 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* re
     }
     it.toNext();
   }
-  if (found < 0) return 1;
+  if (found < 0)
+  {
+    // The locator has not been matched. It is returned as UNKNOWN
+    *ret_locatorType = ELoc::UNKNOWN;
+    *ret_item   = 0;
+    *ret_mult   = 0;
+    return 0;
+  }
+
+  // Decode the remaining characteristics
   unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[found].SREF));
   if (string.size() > lng) inum = atoi(&string[lng]);
   mult = (DEF_LOCATOR[found].IREF == 0);
   if (! mult && inum > 1)
   {
+    // The locator has an index larger than 1 but the Locator should be Unique. Error
     string = "NA";
     return 1;
   }

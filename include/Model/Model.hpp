@@ -130,6 +130,7 @@ public:
                             const ECalcMember& member = ECalcMember::LHS) const;
   VectorDouble evalDrifts(const Db* db,
                           const VectorDouble& coeffs,
+                          int ivar = 0,
                           bool useSel = false) const;
   void evalDriftVecInPlace(const Db* db,
                            int iech,

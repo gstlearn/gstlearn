@@ -174,7 +174,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
     }
 
     //critnew = _prod(_r, _z);
-   // std::cout<<"niter " << niter <<" critnew "<<rsnew/nb<<std::endl;
+    //std::cout<<"niter " << niter <<" crit "<< crit << " eps" << _eps << std::endl;
 
     rsold = rsnew;
 

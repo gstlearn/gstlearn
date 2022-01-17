@@ -516,7 +516,7 @@ int Neigh::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
-static Neigh* create()
+Neigh* Neigh::create()
 {
   return new Neigh();
 }

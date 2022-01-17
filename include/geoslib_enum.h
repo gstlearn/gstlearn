@@ -12,17 +12,6 @@
 
 /* Different ENUM lists */
 
-/**
- Different ways to load samples from input argument into Db
- **/
-/*
-typedef enum
-{
-  LOAD_BY_COLUMN,     //!< Values are provided sorted by columns
-  LOAD_BY_SAMPLE,     //!< Values are provided sorted by sample
-} ENUM_LOAD_DATA; // Now see ELoadBy.hpp
-*/
-
 #ifndef SWIG
 // Internal enums (currently not exported via SWIG)
 typedef enum
