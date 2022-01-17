@@ -58,6 +58,7 @@ public:
   int resetFromDb(const Db* db);
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Model* create(const CovContext& ctxt = CovContext());
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename, bool verbose = false);
 

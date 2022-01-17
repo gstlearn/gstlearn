@@ -30,6 +30,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static PolySet* create();
   static PolySet* createFromNF(const String& neutralFilename, bool verbose = false);
 
   int getNVertices() const { return static_cast<int>(_x.size()); }

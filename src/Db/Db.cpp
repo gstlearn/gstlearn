@@ -4046,6 +4046,11 @@ void Db::combineSelection(VectorDouble& sel, const String& combine) const
   messerr("'xor': sel = sel != oldsel");
 }
 
+Db* Db::create()
+{
+  return new Db();
+}
+
 Db* Db::createFromSamples(int nech,
                           const ELoadBy& order,
                           const VectorDouble& tab,
@@ -4194,6 +4199,9 @@ int Db::dumpToNF(const String& neutralFilename, bool verbose) const
  * @param neutralFilename Name of the Neutral File (Db format)
  * @param mustGrid        True if the Db MUST be organized as a Grid
  * @param verbose         Verbose
+ *
+ * @remarks The name does not need to be completed in particular when defined by absolute path
+ * @remarks or read from the Data Directory (in the gstlearn distribution)
  */
 Db* Db::createFromNF(const String& neutralFilename, bool mustGrid, bool verbose)
 {

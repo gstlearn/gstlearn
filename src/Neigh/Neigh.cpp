@@ -516,6 +516,11 @@ int Neigh::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+static Neigh* create()
+{
+  return new Neigh();
+}
+
 /**
  * Create a Neighborhood by loading the contents of a Neutral File
  * @param neutralFilename Name of the Neutral File

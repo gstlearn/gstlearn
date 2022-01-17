@@ -1037,6 +1037,11 @@ int Rule::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+Rule* Rule::create(double rho)
+{
+  return new Rule(rho);
+}
+
 Rule* Rule::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "Rule", "r", verbose);

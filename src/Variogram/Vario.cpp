@@ -112,6 +112,14 @@ int Vario::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+Vario* Vario::create(const VarioParam* varioparam,
+                     Db* db,
+                     const VectorDouble& means,
+                     const VectorDouble& vars)
+{
+  return new Vario(varioparam, db, means, vars);
+}
+
 Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "Vario", "r", verbose);

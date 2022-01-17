@@ -15,24 +15,13 @@
 #include "Db/Db.hpp"
 #include "Basic/CSVformat.hpp"
 
-
-  // TODO : Cross-platform way to build file path (use boost ?)
-String getTestData(const String& filename)
-{
-  String exec_dir = ASerializable::getExecDirectory();
-  // This path is compatible with CMake generation
-  String filepath(exec_dir + "../../doc/data/" + filename);
-
-  return filepath;
-}
-
 /**
  * This test is meant to check the CSV loading procedure
  */
 int main()
 {
-  String filepath = getTestData("Pollution.dat");
-  Db* mydb = Db::createFromCSV(filepath,true,CSVformat());
+  String filename = ASerializable::getTestData("Pollution","Pollution.dat");
+  Db* mydb = Db::createFromCSV(filename,true,CSVformat());
 
   mydb->setLocator("X",ELoc::X,0);
   mydb->setLocator("Y",ELoc::X,1);

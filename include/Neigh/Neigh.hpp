@@ -47,6 +47,7 @@ public:
   int resetImage(int ndim, int skip, const VectorInt& image);
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Neigh* create();
   static Neigh* createFromNF(const String& neutralFilename, bool verbose = false);
   static Neigh* createUnique(int ndim);
   static Neigh* createMoving(int ndim,

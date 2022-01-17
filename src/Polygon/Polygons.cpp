@@ -237,6 +237,11 @@ int Polygons::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
+Polygons* Polygons::create()
+{
+  return new Polygons();
+}
+
 /**
  * Create a Polygon by loading the contents of a Neutral File
  * @param neutralFilename Name of the Neutral File

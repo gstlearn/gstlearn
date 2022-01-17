@@ -40,6 +40,7 @@ public:
   int resetFromFaciesCount(int nfacies, double rho = 0.);
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Rule* create(double rho = 0.);
   static Rule* createFromNF(const String& neutralFilename, bool verbose = false);
   static Rule* createFromNames(const VectorString& nodnames,double rho = 0.);
   static Rule* createFromCodes(const VectorInt& nodes,double rho = 0.);

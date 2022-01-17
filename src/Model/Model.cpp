@@ -82,6 +82,11 @@ int Model::resetFromDb(const Db *db)
   return 0;
 }
 
+Model* Model::create(const CovContext& ctxt)
+{
+  return new Model(ctxt);
+}
+
 Model* Model::createFromDb(const Db* db)
 {
   Model* model = new Model();

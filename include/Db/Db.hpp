@@ -89,6 +89,7 @@ public:
                       bool verbose = false);
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Db* create();
   static Db* createFromSamples(int nech,
                                const ELoadBy& order = ELoadBy::SAMPLE,
                                const VectorDouble& tab = VectorDouble(),
@@ -131,7 +132,9 @@ public:
                               const VectorString& names = VectorString(),
                               int seed = 23241,
                               bool verbose = false);
-  static Db* createFromNF(const String& neutralFilename,bool mustGrid = false,bool verbose = false);
+  static Db* createFromNF(const String& neutralFilename,
+                          bool mustGrid = false,
+                          bool verbose = false);
 
   const VectorDouble& getArrays() const { return _array; }
 

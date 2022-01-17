@@ -5,42 +5,37 @@
 #include "Db/Db.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
-
-
-String getTestData(const String& filename)
-{
-  String exec_dir = ASerializable::getExecDirectory();
-  // This path is compatible with CMake generation
-  String filepath(exec_dir + "../../doc/data/Scotland/" + filename);
-
-  return filepath;
-}
+#include "Basic/ASerializable.hpp"
 
 int main(int /*argc*/, char */*argv*/[])
 {
   bool verbose = true;
-  String filepath = getTestData("temperatures.ascii");
-  std::cout << filepath <<std::endl;
-  Db* temperatures = Db::createFromNF(filepath,false,verbose);
+  String filename;
 
-  filepath = getTestData("grid.ascii");
-  std::cout << filepath <<std::endl;
-  Db* grid = Db::createFromNF(filepath,true,verbose);
+  filename = ASerializable::getTestData("Scotland","temperatures.ascii");
+  std::cout << filename << std::endl;
+  Db* temperatures = Db::createFromNF(filename,false,verbose);
 
-  filepath = getTestData("model.ascii");
-  std::cout << filepath <<std::endl;
-  Model* model = Model::createFromNF(filepath,verbose);
+  filename = ASerializable::getTestData("Scotland","grid.ascii");
+  std::cout << filename <<std::endl;
+  Db* grid = Db::createFromNF(filename,true,verbose);
+
+  filename = ASerializable::getTestData("Scotland","model.ascii");
+  std::cout << filename <<std::endl;
+  Model* model = Model::createFromNF(filename,verbose);
 
   grid->display();
   temperatures->display();
   model->display();
+
   SPDE spde(model,grid,temperatures,ESPDECalcMode::KRIGING);
 
   spde.compute();
   spde.query(grid);
 
-  filepath = getTestData("result.ascii");
-  grid->dumpToNF(filepath,verbose);
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("Drift-");
+  grid->dumpToNF("result.ascii",verbose);
 
   delete temperatures;
   delete grid;

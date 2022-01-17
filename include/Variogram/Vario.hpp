@@ -42,6 +42,10 @@ public:
   virtual IClonable* clone() const override { return new Vario(*this); };
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Vario* create(const VarioParam* varioparam,
+                       Db* db = nullptr,
+                       const VectorDouble& means = VectorDouble(),
+                       const VectorDouble& vars = VectorDouble());
   static Vario* createFromNF(const String& neutralFilename, bool verbose = false);
 
   void reduce(const VectorInt& varcols,

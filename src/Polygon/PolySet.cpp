@@ -211,6 +211,11 @@ int PolySet::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+PolySet* PolySet::create()
+{
+  return new PolySet();
+}
+
 PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "PolySet", "r", verbose);

@@ -68,6 +68,11 @@ int Table::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+Table* Table::create(int nrows, int ncols)
+{
+  return new Table(nrows, ncols);
+}
+
 Table* Table::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "Table", "r", verbose);

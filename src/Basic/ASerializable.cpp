@@ -86,21 +86,27 @@ FILE* ASerializable::_fileOpen(const String& filename,
   }
   else
   {
+    // Build the multi-platform filename and open it
+    String fileComplete = buildFileName(filename, true);
+
     // Optional printout
     if (verbose)
     {
       message("Attempt to Open the File (%s) in mode (%s)\n",
-              filename.c_str(), mode.c_str());
+              fileComplete.c_str(), mode.c_str());
     }
 
-    // Build the multi-platform filename and open it
-    String fileComplete = buildFileName(filename, true);
     file = gslFopen(fileComplete, mode);
     if (file == nullptr)
     {
       if (verbose)
         messerr("Error when opening the Neutral File %s", fileComplete.c_str());
       return nullptr;
+    }
+    else
+    {
+      if (verbose)
+        message("File successfully opened\n");
     }
 
     // Preliminary action
@@ -446,7 +452,7 @@ String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
   return fileLocal;
 }
 
-String ASerializable::getHomeDirectory(const std::string& sub)
+String ASerializable::getHomeDirectory(const String& sub)
 {
   // https://stackoverflow.com/a/2552458
 #if defined(_WIN32) || defined(_WIN64)
@@ -463,6 +469,40 @@ String ASerializable::getHomeDirectory(const std::string& sub)
   sstr << String(HomeDirectory);
   if (!sub.empty())
     sstr << "/" << sub;
+  return sstr.str();
+}
+
+/**
+ * This method returns the absolute path to a Test Data
+ * @return
+ */
+String ASerializable::getTestData(const String& subdir, const String& filename)
+{
+  String dirname = getExecDirectory();
+#if defined(_WIN32) || defined(_WIN64)
+  dirname += "\\";
+  dirname += "..";
+  dirname += "\\";
+  dirname += "..";
+  dirname += "\\";
+  dirname += "doc";
+  dirname += "\\";
+  dirname += "data";
+  dirname += "\\";
+#else
+  dirname += "../../doc/data/";
+#endif
+  std::stringstream sstr;
+  // TODO : Cross-platform way to build file path (use boost ?)
+
+  // Concatenate with the Sub-Directory (if defined)
+
+  sstr << String(dirname);
+  sstr << subdir << "/";
+
+  // Concatenate with the Filename
+  sstr << filename;
+
   return sstr.str();
 }
 
