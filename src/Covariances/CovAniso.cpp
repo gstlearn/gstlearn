@@ -354,7 +354,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
   sstr << _cova->toString();
 
   // Sill - Factor / Slope information
-  if (_cova->hasRange())
+  if (_cova->hasRange() > 0)
   {
 
     // A sill is defined
@@ -419,6 +419,20 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
                          getNDim(),getNDim(),getAnisoRotMatVec());
       }
     }
+  }
+  else
+  {
+    // Only sill is defined
+
+    if (getNVariables() > 1)
+     {
+       sstr << toMatrix("- Sill matrix:",VectorString(),VectorString(),0,
+                        getNVariables(),getNVariables(),_sill.getValues());
+     }
+     else
+     {
+       sstr << "- Sill         = " << toDouble(getSill(0, 0)) << std::endl;
+     }
   }
 
   return sstr.str();
