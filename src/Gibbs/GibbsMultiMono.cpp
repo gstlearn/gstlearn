@@ -16,6 +16,7 @@
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "geoslib_define.h"
 #include "geoslib_enum.h"
 

@@ -11,6 +11,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
 #include "LinearOp/OptimCostBinary.hpp"
 #include "LinearOp/HessianOp.hpp"
 #include "LinearOp/IOptimCost.hpp"

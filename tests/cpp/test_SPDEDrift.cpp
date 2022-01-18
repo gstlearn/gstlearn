@@ -2,7 +2,10 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Model/ConsItem.hpp"
+#include "Model/Constraints.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
@@ -28,21 +31,31 @@ int main(int /*argc*/, char */*argv*/[])
   filename = ASerializable::getTestData("Scotland","model.ascii");
   Model* model = Model::createFromNF(filename,verbose);
 
-//  CovContext ctxt(1,ndim);
-//  Model* model = Model::create(ctxt);
-//  CovLMC covs(ctxt.getSpace());
-//  double range = 161.;
-//  double param = 1.;
-//  double sill = 1.119260;
-//  CovAniso cova = CovAniso(ECov::BESSEL_K,range,param,sill,ctxt);
-//  covs.addCov(&cova);
-//  double sill_nug = 0.131347;
-//  cova = CovAniso(ECov::NUGGET,0.,0.,sill_nug,ctxt);
-//  covs.addCov(&cova);
-//
-//  model->setCovList(&covs);
-
   model->display();
+
+  filename = ASerializable::getTestData("Scotland","vario.ascii");
+  Vario* vario = Vario::createFromNF(filename,verbose);
+
+  vario->display();
+
+  auto structs = {ECov::NUGGET,ECov::BESSEL_K};
+
+
+  ConsItem consNug = ConsItem::define(EConsElem::SILL,0,0,0, EConsType::UPPER,0.1);
+
+
+
+  Constraints constraints;
+  constraints.addItem(&consNug);
+
+  Option_AutoFit opt;
+  debug_define("converge",1);
+  int err = model->fit(vario,structs,true,opt,constraints);
+
+  filename = ASerializable::getTestData("Scotland","model.ascii");
+  model = Model::createFromNF(filename,verbose);
+
+
 
   Neigh* neigh = Neigh::createUnique(ndim);
   neigh->display();
