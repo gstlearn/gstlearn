@@ -127,6 +127,6 @@ int main(int /*argc*/, char * /*argv*/[])
 
   db    = db_delete(db);
   model = model_free(model);
-  neigh = neigh_free(neigh);
+  delete neigh;
   return(0);
 }

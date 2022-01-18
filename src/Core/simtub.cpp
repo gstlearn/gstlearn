@@ -5931,7 +5931,8 @@ int simcond(Db *dbin,
 
   error = 0;
 
-  label_end: neigh = neigh_free(neigh);
+  label_end:
+  delete neigh;
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
   situba = st_dealloc(situba);

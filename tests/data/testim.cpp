@@ -225,7 +225,6 @@ label_end:
   vario = variogram_delete(vario);
   model = model_free(model);
   new_model = model_free(new_model);
-  neigh = neigh_free(neigh);
-
+  delete neigh;
   return(0);
 }

@@ -12,6 +12,7 @@
 #include "Basic/Law.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Neigh/NeighWork.hpp"
+#include "Basic/Vector.hpp"
 
 /****************************************************************************/
 /*!

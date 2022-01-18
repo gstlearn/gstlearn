@@ -2047,20 +2047,24 @@ void Db::setProportion(int iech, int item, double value)
   setFromLocator(ELoc::P, iech, item, value);
 }
 
+/**
+ * Return the Selection value at Sample 'iech'
+ * @param iech Sample number
+ * @return
+ * @remark If the selection value if TEST, the sample is considered as masked off.
+ */
 int Db::getSelection(int iech) const
 {
   if (!hasSelection()) return 1;
   double value = getFromLocator(ELoc::SEL, iech, 0);
-  if (FFFF(value)) return 1;
-  int sel = (value != 0) ? 1 :
-                           0;
+  if (FFFF(value)) return 0;
+  int sel = (value != 0) ? 1 :  0;
   return (sel);
 }
 
 void Db::setSelection(int iech, int value)
 {
-  setFromLocator(ELoc::SEL, iech, 0, (value == 0) ? 0. :
-                                                  1.);
+  setFromLocator(ELoc::SEL, iech, 0, (value == 0) ? 0. : 1.);
 }
 
 bool Db::hasSelection() const
@@ -2958,6 +2962,7 @@ VectorDouble Db::getColumnByIndex(int icol, bool useSel) const
 VectorDouble Db::getFieldByAttribute(int iatt, bool useSel) const
 {
   int icol = getColumnByAttribute(iatt);
+  if (icol < 0) return VectorDouble();
   return getColumnByIndex(icol, useSel);
 }
 

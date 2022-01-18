@@ -227,7 +227,7 @@ label_end:
     for (j=0; j<2; j++)
       model[i][j] = model_free(model[i][j]);
   }
-  neigh = neigh_free(neigh);
   delete ruleprop;
+  delete neigh;
   return(0);
 }

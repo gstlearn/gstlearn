@@ -1227,7 +1227,6 @@ GSTLEARN_EXPORT const CovInternal* get_external_covariance();
 /* Prototyping the functions in neigh.c */
 /****************************************/
 
-GSTLEARN_EXPORT Neigh* neigh_free(Neigh *neigh);
 GSTLEARN_EXPORT Neigh* neigh_init(int ndim,
                                   const ENeigh& type,
                                   int flag_xvalid,

@@ -5241,7 +5241,7 @@ int global_kriging(Db *dbin,
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, calcul, 1, VectorInt());
   rhs_tot = (double*) mem_free((char* ) rhs_tot);
-  neigh = neigh_free(neigh);
+  delete neigh;
   return (error);
 }
 
@@ -9945,7 +9945,7 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::DRIFT, 1, VectorInt());
-  neigh = neigh_free(neigh);
+  delete neigh;
   return (error);
 }
 
@@ -11016,6 +11016,6 @@ int inhomogeneous_kriging(Db *dbdat,
   (void) st_model_manage(-1, model_dat);
   (void) st_krige_manage(-1, 1, model_dat, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
-  neigh = neigh_free(neigh);
+  delete neigh;
   return (error);
 }

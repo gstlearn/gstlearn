@@ -21,23 +21,6 @@
 
 /****************************************************************************/
 /*!
- **  Frees the Neigh structure
- **
- ** \return  Pointer on the freed Neigh structure
- **
- ** \param[in]  neigh Neigh structure to be freed
- **
- *****************************************************************************/
-Neigh* neigh_free(Neigh *neigh)
-
-{
-  delete neigh;
-  neigh = NULL;
-  return (neigh);
-}
-
-/****************************************************************************/
-/*!
  **  Allocate the Neigh structure
  **
  ** \return  Pointer on the Neigh structure allocated
