@@ -278,6 +278,7 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
 
 int SPDE::query(Db* db, const NamingConvention& namconv) const
 {
+  int ivar = 0;
   bool useSel = true;
   VectorDouble temp(db->getActiveSampleNumber());
   VectorDouble result(db->getActiveSampleNumber(),0.);
@@ -321,7 +322,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
       suffix = "condSimu";
   }
 
-  temp = _model->evalDrifts(db,_driftCoeffs,useSel);
+  temp = _model->evalDrifts(db,_driftCoeffs,ivar,useSel);
   ut_vector_add_inplace(result,temp);
   int iptr = db->addFields(result,"SPDE",ELoc::Z,0,useSel,TEST);
   namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
