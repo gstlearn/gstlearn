@@ -6,7 +6,7 @@ Db
 137 535.000000 4.963504 0.000000 
 4 # Number of variables
 # Locators
-x1 x2 z2 z1 
+x1 x2 f1 sel 
 # Names
 x1 x2 Elevation inshore 
 # Array of values

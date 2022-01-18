@@ -4,9 +4,9 @@ Model
 1 # Number of drift terms
 0 0.000000 0.000000 # Covariance characteristics
 0 # Anisotropy Flag
-7 160.814314 1.000000 # Covariance characteristics
+7 400.000000 1.000000 # Covariance characteristics
 0 # Anisotropy Flag
 0 # Drift characteristics
-0.131347 # Matrix of sills
-1.119260 # Matrix of sills
+0.130342 # Matrix of sills
+0.487977 # Matrix of sills
 1.000000 # Var-Covar at origin
