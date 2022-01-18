@@ -281,7 +281,16 @@ VectorDouble DriftList::evalDrifts(const Db* db,
     if (useSel && ! db->isActive(iech)) continue;
     double value = 0.;
     for (int ib=0; ib<ndrift; ib++)
+    {
+      double drift = getDrift(db, ib, iech);
+      if (FFFF(drift))
+      {
+        value = TEST;
+        break;
+      }
       value += coeffs[ib] * getDrift(db, ib, iech);
+    }
+
     vec.push_back(value);
   }
   return vec;

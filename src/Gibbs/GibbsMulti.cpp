@@ -17,6 +17,8 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
+#include "geoslib_f.h"
+
 #include <math.h>
 
 #define COVMAT(i,j)              (covmat[(i) * neq + (j)])
