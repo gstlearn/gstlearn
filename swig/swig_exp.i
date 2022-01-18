@@ -121,6 +121,7 @@ class IClonable{};
 
 %include Neigh/Neigh.hpp
 %include Neigh/ENeigh.hpp
+%include Neigh/NeighWork.hpp
 
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
