@@ -628,3 +628,93 @@ double CovAniso::range2scale(const ECov &type, double range, double param)
   double factor = cova->getScadef();
   return range / factor;
 }
+
+CovAniso* CovAniso::createIsotropic(const CovContext& ctxt,
+                                    const ECov& type,
+                                    double range,
+                                    double sill,
+                                    double param)
+{
+  if (ctxt.getNVar() != 1)
+  {
+    messerr("This function is dedicated to the Monovariate case");
+    return nullptr;
+  }
+  return new CovAniso(type, range, param, sill, ctxt);
+}
+
+CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
+                                      const ECov& type,
+                                      const VectorDouble& ranges,
+                                      double sill,
+                                      double param)
+{
+  if (ctxt.getNVar() != 1)
+  {
+    messerr("This function is dedicated to the Monovariate case");
+    return nullptr;
+  }
+  int ndim = ranges.size();
+  if ((int) ctxt.getNDim() != ndim)
+  {
+    messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
+            ndim, ctxt.getNDim());
+    return nullptr;
+  }
+
+  CovAniso* cov = new CovAniso(type, ctxt);
+  cov->setRanges(ranges);
+  cov->setSill(sill);
+  cov->setParam(param);
+  return cov;
+}
+
+CovAniso* CovAniso::createIsotropicMulti(const CovContext& ctxt,
+                                         const ECov& type,
+                                         double range,
+                                         const MatrixSquareGeneral& sills,
+                                         double param)
+{
+  CovAniso* cov = new CovAniso(type, ctxt);
+  int nvar = sills.getNSize();
+  if (ctxt.getNVar() != nvar)
+  {
+    messerr("Mismatch in the number of variables between 'sills'(%d) and 'ctxt'(%d)",
+            nvar,ctxt.getNVar());
+    return nullptr;
+  }
+  cov->setRange(range);
+  cov->setSill(sills);
+  cov->setParam(param);
+  return cov;
+}
+
+CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
+                                           const ECov& type,
+                                           const VectorDouble& ranges,
+                                           const MatrixSquareGeneral& sills,
+                                           double param)
+{
+
+  int nvar = sills.getNSize();
+  if (ctxt.getNVar() != nvar)
+  {
+    messerr(
+        "Mismatch in the number of variables between 'sills'(%d) and 'ctxt'(%d)",
+        nvar, ctxt.getNVar());
+    return nullptr;
+  }
+  int ndim = ranges.size();
+  if ((int) ctxt.getNDim() != ndim)
+  {
+    messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
+            ndim, ctxt.getNDim());
+    return nullptr;
+  }
+
+  CovAniso* cov = new CovAniso(type, ctxt);
+  cov->setRanges(ranges);
+  cov->setSill(sills);
+  cov->setParam(param);
+  return cov;
+}

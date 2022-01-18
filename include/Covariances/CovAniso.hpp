@@ -89,6 +89,27 @@ public:
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
+  static CovAniso* createIsotropic(const CovContext& ctxt,
+                                   const ECov& type,
+                                   double range,
+                                   double sill = 1.,
+                                   double param = 1.);
+  static CovAniso* createAnisotropic(const CovContext& ctxt,
+                                     const ECov& type,
+                                     const VectorDouble& ranges,
+                                     double sill = 1.,
+                                     double param = 1.);
+  static CovAniso* createIsotropicMulti(const CovContext& ctxt,
+                                        const ECov& type,
+                                        double range,
+                                        const MatrixSquareGeneral& sills,
+                                        double param = 1.);
+  static CovAniso* createAnisotropicMulti(const CovContext& ctxt,
+                                          const ECov& type,
+                                          const VectorDouble& ranges,
+                                          const MatrixSquareGeneral& sills,
+                                          double param = 1.);
+
   void setContext(const CovContext& ctxt);
   void setParam(double param);
 
