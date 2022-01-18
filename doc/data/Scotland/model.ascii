@@ -1,12 +1,13 @@
 Model 
 2 1 426.095194 # General parameters
 2 # Number of basic covariance terms
-1 # Number of drift terms
+2 # Number of drift terms
 0 0.000000 0.000000 # Covariance characteristics
 0 # Anisotropy Flag
 7 400.000000 1.000000 # Covariance characteristics
 0 # Anisotropy Flag
 0 # Drift characteristics
+15 # Drift characteristics
 0.130342 # Matrix of sills
 0.487977 # Matrix of sills
 1.000000 # Var-Covar at origin
