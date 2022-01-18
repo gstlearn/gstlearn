@@ -102,10 +102,8 @@ static void st_gradient(VectorDouble &param,
     for (idat = 0; idat < NDAT; idat++)
     {
       top = tabmod1[idat] - tabmod2[idat];
-      weight = (!tabwgt.empty()) ? tabwgt[idat] :
-                                   1.;
-      JR(idat,ipar) = (bot != 0.) ? weight * top / bot :
-                                     0.;
+      weight = (!tabwgt.empty()) ? tabwgt[idat] : 1.;
+      JR(idat,ipar) = (bot != 0.) ? weight * top / bot : 0.;
     }
   }
   return;

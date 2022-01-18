@@ -1671,13 +1671,19 @@ static void st_affect(int rank,
   else if (!FFFF(upper_val)) upper[rank] = MIN(upper_val, upper[rank]);
 
   /* Initial parameter */
-  if (FFFF(param[rank])) param[rank] = (!FFFF(def_val)) ? def_val :
-                                                          0.;
+  if (FFFF(param[rank])) param[rank] = (!FFFF(def_val)) ? def_val : 0.;
 
   if (!FFFF(lower[rank]) && !FFFF(upper[rank]))
   {
     if (param[rank] < lower[rank] || param[rank] > upper[rank])
-      param[rank] = (lower[rank] + upper[rank]) / 2.;
+    {
+      if (lower[rank] > 0)
+        param[rank] = (lower[rank] + upper[rank]) / 2.;
+      else
+        // This only happens in the case of lower bound on AIC. This avoids the mid-interval
+        // which will cause a zero-gradient in model_auto.
+        param[rank] = (upper[rank]) / 2.;
+    }
   }
   else if (!FFFF(lower[rank]))
   {

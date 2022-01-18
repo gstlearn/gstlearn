@@ -39,12 +39,7 @@ int main(int /*argc*/, char */*argv*/[])
   vario->display();
 
   auto structs = {ECov::NUGGET,ECov::BESSEL_K};
-
-
   ConsItem consNug = ConsItem::define(EConsElem::SILL,0,0,0, EConsType::UPPER,0.1);
-
-
-
   Constraints constraints;
   constraints.addItem(&consNug);
 
