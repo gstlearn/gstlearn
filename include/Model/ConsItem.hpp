@@ -46,7 +46,8 @@ public:
   int getIV1()   const { return _paramId.getIV1(); }
   int getIV2()   const { return _paramId.getIV2(); }
 
-  void setValue(double value)         { _value = value; }
+  void setValue(double value)          { _value = value; }
+  void setIcase(const EConsType& type) { _type = type;   }
   const EConsType& getIcase() const { return _type; }
   double getValue() const { return _value; }
 
@@ -77,6 +78,7 @@ public:
                          int iv2 = 0,
                          const EConsType& type = EConsType::DEFAULT,
                          double value = 0.);
+
 
 private:
   CovParamId _paramId;

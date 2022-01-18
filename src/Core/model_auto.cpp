@@ -5234,12 +5234,25 @@ void constraints_print(const Constraints &constraints)
 int modify_constraints_on_sill(Constraints &constraints)
 
 {
-  for (int i = 0; i < (int) constraints.getConsItemNumber(); i++)
+  int ncons = (int) constraints.getConsItemNumber();
+  for (int i = 0; i < ncons; i++)
   {
     const ConsItem *consitem = constraints.getConsItems(i);
     if (consitem->getType() != EConsElem::SILL) continue;
     if (consitem->getValue() < 0) return (1);
     constraints.setValue(i, sqrt(consitem->getValue()));
+
+    // For constraints on the Sill in monovariate case,
+    // Add a constraints on AIC for lower bound
+    if (consitem->getIV1() == 0 &&
+        consitem->getIV2() == 0 &&
+        consitem->getIcase() == EConsType::UPPER)
+    {
+      ConsItem* consjtem = new ConsItem(*consitem);
+      consjtem->setValue(-consjtem->getValue());
+      consjtem->setIcase(EConsType::LOWER);
+      constraints.addItem(consjtem);
+    }
   }
   return (0);
 }
