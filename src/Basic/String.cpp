@@ -91,8 +91,8 @@ charTypeT _charType(char c)
 }
 
 String incrementStringVersion(const String &string,
-                                              int rank,
-                                              const String &delim)
+                              int rank,
+                              const String &delim)
 {
   std::stringstream ss;
   ss << string << delim << rank;
@@ -133,14 +133,13 @@ String concatenateStrings(const String &delim,
   return ss.str();
 }
 
-VectorString generateMultipleNames(const String &radix,
-                                                   int number)
+VectorString generateMultipleNames(const String &radix, int number)
 {
   VectorString list;
 
   for (int i = 0; i < number; i++)
   {
-    list.push_back(incrementStringVersion(radix, i + 1));
+    list.push_back(incrementStringVersion(radix, i + 1, "-"));
   }
   return list;
 }

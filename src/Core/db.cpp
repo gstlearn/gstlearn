@@ -1043,21 +1043,7 @@ void db_print(Db *db,
 
   if (db == nullptr) return;
 
-  VectorInt cols;
-  if (nrank > 0)
-  {
-    cols.resize(nrank);
-    for (int i = 0; i < nrank; i++)
-      cols[i] = ranks[i];
-  }
-
   /* Print the Pointer descriptors */
-
-  if (debug_query("db"))
-  {
-    db->printLocators();
-    db->printAttributes();
-  }
 
   int mode = flag_stats;
   unsigned char params = 0;

@@ -878,11 +878,13 @@ int Db::_getAddress(int iech, int icol) const
   return ((iech) + _nech * icol);
 }
 
-void Db::printLocators(void) const
+String Db::_summaryLocators(void) const
 {
+  std::stringstream sstr;
+
   /* Loop on the pointers */
 
-  mestitle(1, "List of locators");
+  sstr << toTitle(1, "List of locators");
   int rank = 0;
   auto it = ELoc::getIterator();
   while (it.hasNext())
@@ -892,32 +894,36 @@ void Db::printLocators(void) const
       const PtrGeos& p = _p.at(*it);
       if (p.getLocatorNumber() > 0)
       {
-        p.print(rank, *it);
-        message("- Columns    = ");
+        sstr << p.dumpLocator(rank, *it);
+        sstr << "- Columns    = ";
         for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
-          message("%2d ", getColumnByAttribute(p.getLocatorByIndex(locatorIndex)));
-        message("\n");
+          sstr << getColumnByAttribute(p.getLocatorByIndex(locatorIndex)) << " ";
+        sstr << std::endl;
         rank++;
       }
     }
     it.toNext();
   }
+  return sstr.str();
 }
 
-void Db::printAttributes(void) const
+String Db::_summaryAttributes(void) const
 {
-  mestitle(1, "List of attributes");
-  message("Maximum number of positions = %d\n", getAttributeMaxNumber());
-  message("Number of Columns           = %d\n", getFieldNumber());
+  std::stringstream sstr;
+
+  sstr << toTitle(1, "List of unsorted attributes");
+  sstr << "Maximum number of positions = " << getAttributeMaxNumber() << std::endl;
+  sstr << "Number of Columns           = " << getFieldNumber() << std::endl;
 
   /* Loop on the attributes */
 
-  if (getAttributeMaxNumber() <= 0) return;
-  message("Attribute = ");
+  if (getAttributeMaxNumber() <= 0) return sstr.str();
+
+  sstr << "Attribute = ";
   for (int iatt = 0; iatt < getAttributeMaxNumber(); iatt++)
-    message("%2d ", _attcol[iatt]);
-  message("\n");
-  return;
+    sstr << _attcol[iatt] << " ";
+  sstr << std::endl;
+  return sstr.str();
 }
 
 void Db::clearLocators(const ELoc& locatorType)
@@ -2893,11 +2899,13 @@ String Db::toString(const AStringFormat* strfmt) const
 
   /* Print the Summary of the Db */
 
-  if (dsf.matchResume()) sstr << _summaryString();
+  if (dsf.matchResume())
+    sstr << _summaryString();
 
   /* Print the Extension */
 
-  if (dsf.matchExtend()) sstr << _summaryExtensionString();
+  if (dsf.matchExtend())
+    sstr << _summaryExtensionString();
 
   /* Print the statistics */
 
@@ -2911,7 +2919,16 @@ String Db::toString(const AStringFormat* strfmt) const
 
   /* Print the list of variables */
 
-  if (dsf.matchVars()) sstr << _summaryVariableString();
+  if (dsf.matchVars())
+    sstr << _summaryVariableString();
+
+  /* Print the locators */
+
+  if (dsf.matchLocator())
+  {
+    sstr << _summaryAttributes() << std::endl;
+    sstr << _summaryLocators() << std::endl;
+  }
 
   return sstr.str();
 }
@@ -2972,6 +2989,12 @@ VectorDouble Db::getFieldByLocator(const ELoc& locatorType,
 {
   int icol = getColumnByLocator(locatorType, locatorIndex);
   if (icol < 0) return VectorDouble();
+  return getColumnByIndex(icol, useSel);
+}
+
+VectorDouble Db::getFieldByIndex(int icol, bool useSel) const
+{
+  if (! isColumnIndexValid(icol)) return VectorDouble();
   return getColumnByIndex(icol, useSel);
 }
 

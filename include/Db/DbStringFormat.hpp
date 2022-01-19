@@ -24,6 +24,7 @@ typedef enum
   FLAG_EXTEND = 4,    //!< Print the Db extension
   FLAG_STATS = 8,     //!< Print the variable statistics
   FLAG_ARRAY = 16,    //!< Print the variable contents
+  FLAG_LOCATOR = 32,  //!< Print the locators
 } DISPLAY_PARAMS;
 
 class GSTLEARN_EXPORT DbStringFormat: public AStringFormat
@@ -74,11 +75,12 @@ public:
    */
   void setParams(unsigned char params) { _params = params; }
 
-  bool matchResume() const { return _matchFlag(FLAG_RESUME); }
-  bool matchVars()   const { return _matchFlag(FLAG_VARS); }
-  bool matchExtend() const { return _matchFlag(FLAG_EXTEND); }
-  bool matchStats()  const { return _matchFlag(FLAG_STATS); }
-  bool matchArray()  const { return _matchFlag(FLAG_ARRAY); }
+  bool matchResume()  const { return _matchFlag(FLAG_RESUME); }
+  bool matchVars()    const { return _matchFlag(FLAG_VARS); }
+  bool matchExtend()  const { return _matchFlag(FLAG_EXTEND); }
+  bool matchStats()   const { return _matchFlag(FLAG_STATS); }
+  bool matchArray()   const { return _matchFlag(FLAG_ARRAY); }
+  bool matchLocator() const { return _matchFlag(FLAG_LOCATOR); }
 
 private:
   bool _matchFlag(int flag) const;

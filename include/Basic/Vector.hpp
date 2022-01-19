@@ -18,6 +18,8 @@ GSTLEARN_EXPORT VectorInt ut_vector_int(int nval, int value = 0.);
 GSTLEARN_EXPORT VectorDouble ut_vector_double(int nval, double value = 0.);
 GSTLEARN_EXPORT VectorVectorDouble ut_vector_vector_double(int nval1, int nval2, double value = 0.);
 GSTLEARN_EXPORT VectorVectorInt ut_vector_vector_int(int nval1, int nval2, int value = 0);
+GSTLEARN_EXPORT VectorInt ut_ivector_set(int* values, int number);
+GSTLEARN_EXPORT VectorDouble ut_vector_set(double* values, int number);
 GSTLEARN_EXPORT void ut_vector_display(const String &title,
                                        const VectorDouble &vect);
 GSTLEARN_EXPORT void ut_vector_display(const String &title,

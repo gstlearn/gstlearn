@@ -63,14 +63,18 @@ void PtrGeos::erase(int locatorIndex)
   _r.erase(_r.begin() + locatorIndex);
 }
 
-void PtrGeos::print(int rank, const ELoc& locatorType) const
+String PtrGeos::dumpLocator(int rank, const ELoc& locatorType) const
 {
+  std::stringstream sstr;
+
   int i = locatorType.getValue();
-  message("%d - Locator: %s\n", rank + 1, DEF_LOCATOR[i].SREF);
-  message("- Attributes = ");
+  sstr << rank+1 << " - Locator: " << DEF_LOCATOR[i].SREF << std::endl;
+  sstr << "- Attributes = ";
   for (int locatorIndex = 0; locatorIndex < getLocatorNumber(); locatorIndex++)
-    message("%2d ", _r[locatorIndex]);
-  message("\n");
+    sstr << _r[locatorIndex] << " ";
+  sstr << std::endl;
+
+  return sstr.str();
 }
 
 bool PtrGeos::isLocatorIndexValid(int locatorIndex) const

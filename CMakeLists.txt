@@ -58,7 +58,12 @@ else()
 endif()
 
 # Impose 'd' suffix in debug (global property)
-set(CMAKE_DEBUG_POSTFIX d)
+#
+#=================
+# The name of the library is not cooked according to DEBUG or RELEASE.
+# As a consequence, the last compiled library will be installed and used by pygstlearn (swig)
+#=================
+#set(CMAKE_DEBUG_POSTFIX d)
 
 # Process sub directories
 add_subdirectory(src)

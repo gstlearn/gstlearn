@@ -903,15 +903,15 @@ static int st_complete_squeeze_and_stretch(int ntab, VectorDouble &tab)
  * @return True if the target elevation belongs to the layer
  */
 static bool st_within_layer(double z0,
-                               double delta,
-                               double cztop,
-                               double czbot,
-                               double cote,
-                               int option,
-                               int nz,
-                               int* iz1_ret,
-                               int* iz2_ret,
-                               double* cote_ret)
+                            double delta,
+                            double cztop,
+                            double czbot,
+                            double cote,
+                            int option,
+                            int nz,
+                            int* iz1_ret,
+                            int* iz2_ret,
+                            double* cote_ret)
 {
   int iz1, iz2;
 
@@ -924,13 +924,13 @@ static bool st_within_layer(double z0,
       break;
 
     case -1: // Flattening from Bottom surface
-      if (FFFF(czbot)) return true;
+      if (FFFF(czbot)) return false;
       iz1 = iz2 = static_cast<int>((cote - czbot) / delta);
       *cote_ret = czbot + delta * iz1;
       break;
 
     case 1: // Flattening from Top surface
-      if (FFFF(cztop)) return true;
+      if (FFFF(cztop)) return false;
       iz1 = iz2 = static_cast<int>((nz - 1) - (cztop - cote) / delta);
       *cote_ret = cztop - delta * (nz - iz1 -1);
       break;
@@ -941,8 +941,8 @@ static bool st_within_layer(double z0,
       break;
 
     case -2: // Squeeze and stretch
-      if (FFFF(czbot)) return true;
-      if (FFFF(cztop)) return true;
+      if (FFFF(czbot)) return false;
+      if (FFFF(cztop)) return false;
       double dz = (cztop - czbot) / (double) (nz - 1);
       iz1 = static_cast<int>(floor((cote - czbot) / dz));
       iz2 = static_cast<int>(ceil((cote - czbot + delta) / dz));
@@ -1112,7 +1112,7 @@ static int st_load_trace(int nPerTrace,
 
     // Dispatch
 
-    if (!st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1, &iz2, &cote_ret))
+    if (! st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1, &iz2, &cote_ret))
       continue;
 
     // Update statistics
@@ -1405,7 +1405,7 @@ SegYArg segy_array(const char *filesegy,
 
   if ((file = gslFopen(filesegy, "r")) == NULL)
   {
-    messerr("ERROR:  cannot find input file %s", filesegy);
+    messerr("ERROR: Cannot find input file %s", filesegy);
     return segyarg;
   }
 

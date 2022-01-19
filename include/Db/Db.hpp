@@ -199,6 +199,7 @@ public:
                           const ELoc& locatorType = ELoc::UNKNOWN,
                           int locatorIndex = 0,
                           int nechInit = 0);
+
   int addSelection(const VectorDouble& tab,
                    const String& name = "NewSel",
                    const String& combine = "set");
@@ -209,8 +210,6 @@ public:
   int addSamples(int nadd, double valinit);
   void deleteSample(int e_del);
   void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);
-  void printLocators(void) const;
-  void printAttributes(void) const;
   int  getLastAttribute(int number = 0) const;
   String getLastName(int number = 0) const;
 
@@ -439,6 +438,7 @@ public:
   VectorDouble getFieldByLocator(const ELoc& locatorType,
                                  int locatorIndex=0,
                                  bool useSel = false) const;
+  VectorDouble getFieldByIndex(int icol, bool useSel = false) const;
 
   void setField(const VectorDouble& tab, const String& name, bool useSel = false);
   void setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel = false);
@@ -569,6 +569,8 @@ private:
   String _summaryVariableStat(VectorInt cols,
                               int mode = 1,
                               int maxNClass = 50) const;
+  String _summaryLocators(void) const;
+  String _summaryAttributes(void) const;
   String _summaryArrayString(VectorInt cols, bool flagSel = true) const;
   void _loadData(const VectorDouble& tab,
                  const VectorString& names,

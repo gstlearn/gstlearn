@@ -553,3 +553,17 @@ int ut_vector_size(const VectorVectorDouble &vec)
     size += sizeof(std::vector<double>) + (sizeof(double) * vec[i].size());
   return size;
 }
+
+VectorInt ut_ivector_set(int* values, int number)
+{
+  VectorInt vec(number);
+  for (int i = 0; i < number; i++) vec[i] = values[i];
+  return vec;
+}
+
+VectorDouble ut_vector_set(double* values, int number)
+{
+  VectorDouble vec;
+  for (int i = 0; i < number; i++) vec[i] = values[i];
+  return vec;
+}
