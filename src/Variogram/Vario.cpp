@@ -381,7 +381,7 @@ int Vario::computeIndic(const String& calcul_name,
   }
 
   // Delete the Indicators (created locally)
-  _db->deleteFieldByLocator(ELoc::Z);
+  _db->deleteFieldsByLocator(ELoc::Z);
   _db->setLocatorByAttribute(iatt, ELoc::Z);
 
   return 0;

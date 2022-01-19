@@ -64,7 +64,7 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
 
   if(!keepGauss)
   {
-    db->deleteField(names);
+    db->deleteFields(names);
   }
 }
 

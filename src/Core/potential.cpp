@@ -3493,7 +3493,7 @@ int potential_simulate(Db *dbiso,
 
   error = 0;
 
-  label_end: if (flag_tempere) dbout->deleteFieldByLocator(ELoc::Z);
+  label_end: if (flag_tempere) dbout->deleteFieldsByLocator(ELoc::Z);
   st_pot_env_manage(-1, verbose, &pot_env);
   st_pot_ext_manage(-1, &pot_ext, 0, 0., NULL);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());

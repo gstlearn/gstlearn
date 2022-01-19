@@ -203,7 +203,7 @@ void NoStatArray::detachFromDb(Db* db, int icas) const
   if (db == nullptr) return;
   if (db == _dbnostat) return;
   ANoStat::detachFromDb(db,icas);
-  db->deleteFieldByLocator(ELoc::NOSTAT);
+  db->deleteFieldsByLocator(ELoc::NOSTAT);
 }
 
 /**

@@ -567,3 +567,25 @@ VectorDouble ut_vector_set(double* values, int number)
   for (int i = 0; i < number; i++) vec[i] = values[i];
   return vec;
 }
+
+VectorInt ut_ivector_sort(const VectorInt& vecin, bool ascending)
+{
+  if (vecin.empty()) return VectorInt();
+
+  VectorInt vecout = vecin;
+  std::sort(vecout.begin(), vecout.end());
+  if (! ascending)
+    std::reverse(vecout.begin(), vecout.end());
+  return vecout;
+}
+
+VectorDouble ut_vector_sort(const VectorDouble& vecin, bool ascending)
+{
+  if (vecin.empty()) return VectorDouble();
+
+  VectorDouble vecout = vecin;
+  std::sort(vecout.begin(), vecout.end());
+  if (! ascending)
+    std::reverse(vecout.begin(), vecout.end());
+  return vecout;
+}

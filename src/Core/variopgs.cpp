@@ -808,17 +808,17 @@ static int st_vario_pgs_variable(int mode,
 
       if (flag_prop && is_prop_defined)
       {
-        db->deleteFieldByLocator(ELoc::P);
+        db->deleteFieldsByLocator(ELoc::P);
       }
       if (!TEST_DISCRET)
       {
-        db->deleteFieldByLocator(ELoc::L);
-        db->deleteFieldByLocator(ELoc::U);
+        db->deleteFieldsByLocator(ELoc::L);
+        db->deleteFieldsByLocator(ELoc::U);
       }
       else
       {
-        db->deleteFieldByLocator(ELoc::RKLOW);
-        db->deleteFieldByLocator(ELoc::RKUP);
+        db->deleteFieldsByLocator(ELoc::RKLOW);
+        db->deleteFieldsByLocator(ELoc::RKUP);
       }
       break;
   }

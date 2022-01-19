@@ -455,10 +455,12 @@ public:
                                     bool useSel = false) const;
 
   void deleteField(const String& name);
-  void deleteField(const VectorString& names);
   void deleteFieldByAttribute(int iatt_del);
-  void deleteFieldByLocator(const ELoc& locatorType);
   void deleteFieldByIndex(int icol_del);
+
+  void deleteFields(const VectorString& names);
+  void deleteFieldsByLocator(const ELoc& locatorType);
+  void deleteFields(const VectorInt& icols);
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;

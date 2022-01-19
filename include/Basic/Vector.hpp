@@ -99,3 +99,6 @@ GSTLEARN_EXPORT int ut_vector_size(const VectorInt &vec);
 GSTLEARN_EXPORT int ut_vector_size(const VectorDouble &vec);
 GSTLEARN_EXPORT int ut_vector_size(const VectorVectorInt &vec);
 GSTLEARN_EXPORT int ut_vector_size(const VectorVectorDouble &vec);
+
+GSTLEARN_EXPORT VectorInt ut_ivector_sort(const VectorInt& vecin, bool ascending = true);
+GSTLEARN_EXPORT VectorDouble ut_vector_sort(const VectorDouble& vecin, bool ascending = true);

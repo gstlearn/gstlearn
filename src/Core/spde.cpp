@@ -8075,7 +8075,7 @@ int spde_f(Db *dbin,
 
   error = 0;
 
-  label_end: if (S_DECIDE.flag_modif) dbout->deleteFieldByLocator(ELoc::SIMU);
+  label_end: if (S_DECIDE.flag_modif) dbout->deleteFieldsByLocator(ELoc::SIMU);
   return (error);
 }
 
@@ -10992,7 +10992,7 @@ int m2d_gibbs_spde(Db *dbin,
         (void) db_attribute_del_mult(dbout, iptr_cstd, nlayer);
         iptr_cstd = -1;
       }
-      dbout->deleteFieldByLocator(ELoc::GAUSFAC);
+      dbout->deleteFieldsByLocator(ELoc::GAUSFAC);
 
       // Renaming the resulting variables
 

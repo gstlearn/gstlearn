@@ -586,7 +586,7 @@ int simsph_f(Db *db,
 
   label_short: error = 0;
 
-  label_end: if (error) db->deleteFieldByLocator(ELoc::SIMU);
+  label_end: if (error) db->deleteFieldsByLocator(ELoc::SIMU);
   degree = (int*) mem_free((char* ) degree);
   order = (int*) mem_free((char* ) order);
   freqs = (double*) mem_free((char* ) freqs);

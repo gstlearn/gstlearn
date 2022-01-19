@@ -1250,13 +1250,22 @@ void Db::deleteField(const String& name)
     deleteFieldByAttribute(iatts[i]);
 }
 
-void Db::deleteField(const VectorString& names)
+void Db::deleteFields(const VectorString& names)
 {
   VectorInt iatts = _ids(names, false);
   if (iatts.empty()) return;
 
   for (unsigned int i = 0; i < iatts.size(); i++)
     deleteFieldByAttribute(iatts[i]);
+}
+
+void Db::deleteFields(const VectorInt& icols)
+{
+  if (icols.empty()) return;
+
+  VectorInt v = ut_ivector_sort(icols, false);
+  for (unsigned int i = 0; i < v.size(); i++)
+    deleteFieldByIndex(v[i]);
 }
 
 /**
@@ -1445,7 +1454,7 @@ void Db::deleteFieldByAttribute(int iatt_del)
   _ncol = nnew;
 }
 
-void Db::deleteFieldByLocator(const ELoc& locatorType)
+void Db::deleteFieldsByLocator(const ELoc& locatorType)
 {
   if (!isLocatorTypeValid(locatorType)) return;
   PtrGeos& p = _p[locatorType];
