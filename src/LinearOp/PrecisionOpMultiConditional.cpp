@@ -92,18 +92,27 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
 {
   _init();
 
+  for(auto &e : _workdata)
+  {
+    e = 0.;
+  }
+
+  for (int imod = 0; imod < sizes(); imod++)
+  {
+    _multiProjData[imod]->mesh2point(in[imod], _work1);
+    ut_vector_add_inplace(_workdata,_work1);
+  }
+
+  ut_vector_divide_vec(_workdata, _varianceData);
+
   for (int imod = 0; imod < sizes(); imod++)
   {
     _multiPrecisionOp[imod]->eval(in[imod], out[imod]);
+     _multiProjData[imod]->point2mesh(_workdata, _work2[imod]);
+   }
 
-    for (int jmod = 0; jmod < sizes(); jmod++)
-    {
-      _multiProjData[jmod]->mesh2point(in[jmod], _work1);
-      ut_vector_divide_vec(_work1, _varianceData);
-      _multiProjData[imod]->point2mesh(_work1, _work2[imod]);
-      _linearComb(1., _work2, 1., out, out);
-    }
-  }
+  _linearComb(1., _work2, 1., out, out);
+
 }
 
 void PrecisionOpMultiConditional::simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result) const
