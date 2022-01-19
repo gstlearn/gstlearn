@@ -30,7 +30,8 @@ SPDE::SPDE()
 , _workingSimu()
 , _projOnDbOut()
 , _nugget(0.)
-, _computeCoeffs(false)
+, _requireCoeffs(false)
+, _isCoeffsComputed(false)
 {
 
 }
@@ -52,6 +53,7 @@ SPDE::SPDE(Model* model,
 , _workKriging()
 , _workingSimu()
 , _projOnDbOut()
+, _isCoeffsComputed(false)
 {
   init(model,field,dat,calc);
 }
@@ -111,7 +113,7 @@ void SPDE::init(Model* model,
   MeshETurbo* mesh;
   ProjMatrix* proj;
   _driftTab = _model->getDrifts(_data, useSel);
-  _computeCoeffs = _driftTab.size()>0 && _data != nullptr;
+  _requireCoeffs = _driftTab.size()>0 && _data != nullptr;
   for(int icov = 0 ; icov < model->getCovaNumber(); icov++)
   {
     const CovAniso* cova = model->getCova(icov);
@@ -137,7 +139,7 @@ void SPDE::init(Model* model,
         _precisionsSimu.push_back(precision,proj);
         _workingSimu.push_back(VectorDouble(shiftOp->getSize()));
       }
-      if(_calculKriging() || _computeCoeffs)
+      if(_calculKriging() || _requireCoeffs)
       {
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,11,5,useSel,verbose);
@@ -211,7 +213,7 @@ void SPDE::computeSimuCond(int nbsimus, int seed) const
   computeKriging();
 }
 
-void SPDE::compute(int nbsimus, int seed) const
+void SPDE::compute(int nbsimus, int seed)
 {
   VectorDouble dataVect;
   bool useSel = true;
@@ -221,9 +223,10 @@ void SPDE::compute(int nbsimus, int seed) const
   {
     dataVect = _data->getFieldByLocator(ELoc::Z,ivar,useSel);
 
-    if(_computeCoeffs)
-    _driftCoeffs = computeCoeffs();
+    _computeCoeffs();
+
     _workingData = _model->evalDrifts(_data,_driftCoeffs,ivar,useSel);
+
     for(int iech = 0; iech<(int)_workingData.size();iech++)
     {
       _workingData[iech] = dataVect[iech] - _workingData[iech];
@@ -329,9 +332,21 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
   return iptr;
 }
 
-VectorDouble SPDE::computeCoeffs() const
+void SPDE::_computeCoeffs()
 {
-  // Loading the Vector of Drift values
 
-  return _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),_driftTab);
+  if(!_isCoeffsComputed)
+   {
+    _isCoeffsComputed = true;
+    if(_requireCoeffs)
+    {
+      _driftCoeffs = _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),_driftTab);
+    }
+  }
+}
+
+VectorDouble SPDE::getCoeffs()
+{
+  _computeCoeffs();
+  return _driftCoeffs;
 }

@@ -24,6 +24,8 @@ PrecisionOpMultiConditional::PrecisionOpMultiConditional()
   ,_ncova(0)
   ,_work1(VectorDouble())
   ,_work1bis(VectorDouble())
+  ,_work1ter(VectorDouble())
+  ,_workdata(VectorDouble())
   ,_work2(VectorVectorDouble())
   ,_work3(VectorVectorDouble())
 {
@@ -64,6 +66,7 @@ void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
   {
     _ndat = projDataElem->getPointNumber(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
     _work1.resize(_ndat);
+    _workdata.resize(_ndat);
   }
   _multiPrecisionOp.push_back(pmatElem);
   _work2.push_back(VectorDouble(pmatElem->getSize()));
@@ -88,6 +91,7 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
                                               VectorVectorDouble& out) const
 {
   _init();
+
   for (int imod = 0; imod < sizes(); imod++)
   {
     _multiPrecisionOp[imod]->eval(in[imod], out[imod]);
@@ -135,6 +139,11 @@ void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDoubl
     _work3.resize(sizes());
   }
 
+  if(static_cast<int>(_work1ter.size()) <= 0)
+  {
+      _work1ter.resize(_ndat);
+  }
+
   for(int i = 0; i<sizes();i++)
   {
     if(_work3[i].empty())
@@ -148,58 +157,57 @@ void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDoubl
     _work1bis.resize(_ndat);
   }
 
+  for(int idat = 0; idat < _ndat; idat++)
+  {
+    result[idat] = in[idat]/_varianceData[idat];
+  }
 
   for(int icov = 0; icov < sizes(); icov++)
   {
-    _multiProjData[icov]->point2mesh(in,_work2[icov]);
+    _multiProjData[icov]->point2mesh(result,_work2[icov]);
   }
 
   evalInverse(_work2,_work3);
 
-  ut_vector_fill(result,0.);
-
   for(int icov = 0; icov < sizes(); icov ++)
   {
      _multiProjData[icov]->mesh2point(_work3[icov],_work1bis);
-     ut_vector_add(result,_work1bis);
-  }
 
-  for(int idat = 0; idat < _ndat; idat++)
-  {
-    result[idat] = 1./_varianceData[idat] * in[idat]
-                 - 1./(_varianceData[idat] * _varianceData[idat]) * result[idat];
+     for(int idat = 0; idat < _ndat; idat++)
+     {
+        result[idat] -=  1./_varianceData[idat] * _work1bis[idat];
+     }
   }
 }
 
 VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const
 {
 
-  VectorDouble XtInvSigmaZ(static_cast<int>(X.size()));
-
-  evalInvCov(Y,_work1);
   int xsize = static_cast<int>(X.size());
-
-  for(int i = 0; i< xsize;i++)
-  {
-    XtInvSigmaZ[i] = ut_vector_inner_product(X[i],_work1);
-  }
-
+  VectorDouble XtInvSigmaZ(static_cast<int>(xsize));
   MatrixSquareSymmetric XtInvSigmaX(xsize,false);
+  VectorDouble result(xsize);
 
   for(int i = 0; i< xsize; i++)
   {
-    evalInvCov(X[i],_work1);
+    evalInvCov(X[i],_work1ter);
+    XtInvSigmaZ[i] = ut_vector_inner_product(Y,_work1ter);
+
     for(int j = i; j < xsize;j++)
     {
-      XtInvSigmaX.setValue(i,j,ut_vector_inner_product(X[j],_work1));
+      XtInvSigmaX.setValue(i,j,ut_vector_inner_product(X[j],_work1ter));
     }
   }
-  // XtInvSigmaX.display();
-  VectorDouble result(xsize);
-  //std::cout<< XtInvSigmaX.getValue(0,0)<< "  "<< XtInvSigmaX.getValue(0,1) <<std::endl;
-  //std::cout<< XtInvSigmaX.getValue(1,0)<< "  "<< XtInvSigmaX.getValue(1,1) <<std::endl;
+
+//  std::cout<< XtInvSigmaX.getValue(0,0)<< "  "<< XtInvSigmaX.getValue(0,1) <<std::endl;
+//  std::cout<< XtInvSigmaX.getValue(1,0)<< "  "<< XtInvSigmaX.getValue(1,1) <<std::endl;
+//  std::cout <<" ---------------------" <<std::endl;
+//  std::cout<< XtInvSigmaZ[0] << "  "<< XtInvSigmaZ[1] <<std::endl;
+
 
   XtInvSigmaX.solve(XtInvSigmaZ,result);
+
+
 
   return result;
 }

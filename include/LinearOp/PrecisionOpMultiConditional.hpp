@@ -46,6 +46,8 @@ private:
   int                        _ncova;
   mutable VectorDouble       _work1;
   mutable VectorDouble       _work1bis;
+  mutable VectorDouble       _work1ter;
+  mutable VectorDouble       _workdata;
   mutable VectorVectorDouble _work2;
   mutable VectorVectorDouble _work3;
 };

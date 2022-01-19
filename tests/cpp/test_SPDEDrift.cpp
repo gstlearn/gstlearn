@@ -62,6 +62,7 @@ int main(int /*argc*/, char */*argv*/[])
   if (flagSPDE)
   {
     spde.init(model,grid,temperatures,ESPDECalcMode::KRIGING);
+    VectorDouble coeffs= spde.getCoeffs();
     spde.compute();
     spde.query(grid);
     grid->dumpToNF("SPDE-result.ascii",verbose);

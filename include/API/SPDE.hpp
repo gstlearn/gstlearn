@@ -31,15 +31,16 @@ public:
             const Db* field,
             const Db* dat = nullptr,
             const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
-  void compute(int nbsimus = 1, int seed = 131323) const; // TODO What this seed ?
+  void compute(int nbsimus = 1, int seed = 131323); // TODO What this seed ?
   void computeKriging() const;
   void computeSimuNonCond(int nbsimus = 1, int seed = 131323) const;
   void computeSimuCond(int nbsimus = 1, int seed = 131323) const;
-  VectorDouble computeCoeffs() const;
+  VectorDouble getCoeffs();
   int query(Db *db,
             const NamingConvention &namconv = NamingConvention("spde")) const;
 
 private:
+  void _computeCoeffs();
   void _purge();
   MeshETurbo* _createMeshing(const CovAniso &cova,
                              const Db &field,
@@ -76,6 +77,7 @@ private:
   std::vector<int>           _adressesICov;
   double _nugget;
   VectorVectorDouble _driftTab;
-  bool _computeCoeffs;
+  bool _requireCoeffs;
+  bool _isCoeffsComputed;
   // query sur aproj ou // TODO ??
 };
