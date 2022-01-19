@@ -389,7 +389,9 @@ typedef enum
   SEGY_VMAX   = 8,
   SEGY_THICK  = 9,
   SEGY_NB     = 10,
-  SEGY_COUNT  = 11,
+  SEGY_AUXTOP = 11,
+  SEGY_AUXBOT = 12,
+  SEGY_COUNT  = 13,
 } ENUM_SEGY;
 typedef enum
 {

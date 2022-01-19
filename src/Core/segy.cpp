@@ -37,6 +37,9 @@ struct RefStats
   double vmaxl;
   double thicl;
 
+  double auxtop;
+  double auxbot;
+
   int ilming;
   int ilmaxg;
   int xlming;
@@ -424,19 +427,27 @@ static int st_read_trace(FILE *file,
  ** \param[in]  flag_bot  Flag for defining a Bottom surface
  ** \param[in]  name_top  Name of variable containing the Top Surface (or empty)
  ** \param[in]  flag_top  Flag for defining a Top surface
+ ** \param[in]  aux_top   Name of the Auxiliary Top variable (optional)
+ ** \param[in]  aux_bot   Name of the Auxiliary Bottom variable (optional)
  **
- ** \param[out] iatt_top  Attribute index for the top surface
- ** \param[out] iatt_bot  Attribute index for the Bottom surface
+ ** \param[out] iatt_top  Attribute index for the Top surface (or -1)
+ ** \param[out] iatt_bot  Attribute index for the Bottom surface (or -1)
+ ** \param[out] iaux_top  Attribute index for the Top Auxiliary variable (or -1)
+ ** \param[out] iaux_bot  Attribute index for the Bottom Auxiliary variable (or -1)
  **
  *****************************************************************************/
 static int st_surface_identify(int verbOption,
-                               Db *surfaces,
-                               const String &name_bot,
-                               int flag_bot,
-                               int *iatt_bot,
-                               const String &name_top,
-                               int flag_top,
-                               int *iatt_top)
+                               Db* surfaces,
+                               const String& name_bot,
+                               bool flag_bot,
+                               int* iatt_bot,
+                               const String& name_top,
+                               bool flag_top,
+                               int* iatt_top,
+                               const String& aux_top,
+                               int* iaux_top,
+                               const String& aux_bot,
+                               int* iaux_bot)
 {
   *iatt_bot = -1;
 
@@ -465,6 +476,20 @@ static int st_surface_identify(int verbOption,
     if (*iatt_top < 0) return 1;
   }
 
+  *iaux_top = -1;
+  if (! aux_top.empty())
+  {
+    *iaux_top = surfaces->getAttribute(aux_top);
+    if (*iaux_top < 0) return 1;
+  }
+
+  *iaux_bot = -1;
+  if (! aux_bot.empty())
+  {
+    *iaux_bot = surfaces->getAttribute(aux_bot);
+    if (*iaux_bot < 0) return 1;
+  }
+
   if (verbOption && (flag_bot || flag_top))
   {
     mestitle(2, "Horizontalization:");
@@ -482,6 +507,7 @@ static int st_surface_identify(int verbOption,
  **
  ** \param[in]  surfaces  Db containing the top, Bottom and Reference surfaces
  **                       This file is optional
+ ** \param[in]  rank      Rank of the trace within 'surfaces'
  ** \param[in]  iatt_top  Rank of attribute containing the Top Surface (or 0)
  ** \param[in]  iatt_bot  Arnk of the attribute containing the Bottom Surface (or 0)
  ** \param[in]  xtrace    Coordinate of the trace along X
@@ -493,6 +519,7 @@ static int st_surface_identify(int verbOption,
  **
  *****************************************************************************/
 static int st_get_cuts(Db *surfaces,
+                       int rank,
                        int iatt_top,
                        int iatt_bot,
                        double xtrace,
@@ -501,7 +528,6 @@ static int st_get_cuts(Db *surfaces,
                        double *cztop,
                        double *czbot)
 {
-  int rank;
 
   // Initializations
 
@@ -511,16 +537,6 @@ static int st_get_cuts(Db *surfaces,
 
   if (surfaces == nullptr) return (0);
   if (iatt_bot < 0 && iatt_top < 0) return (0);
-
-  // The surface is valid, return the vertical bounds along trace
-
-  VectorDouble coor(2);
-  coor[0] = xtrace;
-  coor[1] = ytrace;
-
-  // Find the index of grid node
-
-  rank = surfaces->coordinateToRank(coor);
   if (rank < 0) return (1);
 
   // Check if the top has been defined
@@ -871,15 +887,31 @@ static int st_complete_squeeze_and_stretch(int ntab, VectorDouble &tab)
  ** Get the vertical limits in indices
  **
  *****************************************************************************/
-static bool st_vertical_limits(double z0,
+/**
+ * Check if the target elevation 'cote' belongs to the layer
+ * If True, returns the starting and ending index
+ * @param z0      Origin of the Elevations
+ * @param delta   Elevation increment
+ * @param cztop   Top bound
+ * @param czbot   Bottom bound
+ * @param cote    Target elevation
+ * @param option  Stretching option
+ * @param nz      Number of meshes of the layer
+ * @param iz1_ret Returned starting index
+ * @param iz2_ret Returned ending index
+ * @param cote_ret Returelevation (expressed in the layer system (possibly stretched)
+ * @return True if the target elevation belongs to the layer
+ */
+static bool st_within_layer(double z0,
                                double delta,
                                double cztop,
                                double czbot,
                                double cote,
                                int option,
                                int nz,
-                               int *iz1_ret,
-                               int *iz2_ret)
+                               int* iz1_ret,
+                               int* iz2_ret,
+                               double* cote_ret)
 {
   int iz1, iz2;
 
@@ -888,20 +920,24 @@ static bool st_vertical_limits(double z0,
   {
     case 0: // No flattening
       iz1 = iz2 = static_cast<int>((cote - z0) / delta);
+      *cote_ret = z0 + delta * iz1;
       break;
 
     case -1: // Flattening from Bottom surface
       if (FFFF(czbot)) return true;
       iz1 = iz2 = static_cast<int>((cote - czbot) / delta);
+      *cote_ret = czbot + delta * iz1;
       break;
 
     case 1: // Flattening from Top surface
       if (FFFF(cztop)) return true;
       iz1 = iz2 = static_cast<int>((nz - 1) - (cztop - cote) / delta);
+      *cote_ret = cztop - delta * (nz - iz1 -1);
       break;
 
     case 2: // Vertical averaging (iz1 & iz2 are not used)
       iz1 = iz2 = 0;
+      *cote_ret = cote;
       break;
 
     case -2: // Squeeze and stretch
@@ -910,6 +946,7 @@ static bool st_vertical_limits(double z0,
       double dz = (cztop - czbot) / (double) (nz - 1);
       iz1 = static_cast<int>(floor((cote - czbot) / dz));
       iz2 = static_cast<int>(ceil((cote - czbot + delta) / dz));
+      *cote_ret = czbot + dz * iz1;
       break;
   }
 
@@ -922,7 +959,7 @@ static bool st_vertical_limits(double z0,
 
   *iz1_ret = iz1;
   *iz2_ret = iz2;
-  return (iz1 > iz2);
+  return (iz2 >= iz1);
 }
 
 /****************************************************************************/
@@ -945,6 +982,85 @@ static double st_get_average(int nz, const VectorDouble &writes)
   return dmean;
 }
 
+/**
+ * Identify the rank of the trace within the 'Db'
+ * @param surfaces Pointer to the 'Db' containing the surfaces
+ * @param xtrace X-coordinate of the trace
+ * @param ytrace Y-coordinate of the trace
+ * @return
+ *
+ * @remarks The rank is returned as -1 if not defined
+ */
+static int st_identify_trace_rank(Db* surfaces,
+                                  double xtrace,
+                                  double ytrace)
+{
+    // Check if the surface file has been defined
+
+    if (surfaces == nullptr) return -1;
+
+    // The surface is valid, return the vertical bounds along trace
+
+    VectorDouble coor(2);
+    coor[0] = xtrace;
+    coor[1] = ytrace;
+
+    // Find the index of grid node
+
+    return surfaces->coordinateToRank(coor);
+}
+
+/**
+ * Project the auxiliary surfaces on the system defined by the unit
+ * and store the result in the structure 'refstats'
+ * @param surfaces Pointer to the Db containing the surfaces
+ * @param rank     Rank of the trace within 'db'
+ * @param nz       Number of meshes in the layer
+ * @param option   Stretching option
+ * @param z0       Elevation origin
+ * @param delta    Vertical mesh
+ * @param cztop    Top bound
+ * @param czbot    Bottom bound
+ * @param iaux_top Attribute index of the Auxiliary Top variable (or -1)
+ * @param iaux_bot Attribute index of the Auxiliary Bottom variable (or -1)
+ * @param refstats RefStats structure
+ * @return
+ */
+static void st_auxiliary(Db* surfaces,
+                         int rank,
+                         int nz,
+                         int option,
+                         double z0,
+                         double delta,
+                         double cztop,
+                         double czbot,
+                         int iaux_top,
+                         int iaux_bot,
+                         RefStats& refstats)
+{
+  int iz1, iz2;
+  refstats.auxtop = TEST;
+  refstats.auxbot = TEST;
+
+  // Project optional Auxiliary Top surface
+
+  if (iaux_top >= 0)
+  {
+    double cote = surfaces->getArray(rank, iaux_top);
+    (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
+                           &iz2, &refstats.auxtop);
+    }
+
+  // Project optional Auxiliary Bottom surface
+
+  if (iaux_bot >= 0)
+  {
+    double cote = surfaces->getArray(rank, iaux_bot);
+    (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
+                           &iz2, &refstats.auxbot);
+  }
+}
+
 /****************************************************************************/
 /*!
  ** Processing a Trace
@@ -957,13 +1073,15 @@ static int st_load_trace(int nPerTrace,
                          double delta,
                          double czbot,
                          double cztop,
-                         const VectorDouble &cotes,
-                         const VectorDouble &values,
-                         VectorDouble &writes,
-                         int *nbvalues,
-                         RefStats &refstats)
+                         const VectorDouble& cotes,
+                         const VectorDouble& values,
+                         VectorDouble& writes,
+                         int* nbvalues,
+                         RefStats& refstats)
 {
   int iz1, iz2;
+  double cote_ret;
+
   *nbvalues = 0;
   for (int i = 0; i < nPerTrace; i++)
     writes[i] = TEST;
@@ -994,8 +1112,8 @@ static int st_load_trace(int nPerTrace,
 
     // Dispatch
 
-    if (st_vertical_limits(z0, delta, cztop, czbot, cote, option, nz, &iz1,
-                           &iz2)) continue;
+    if (!st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1, &iz2, &cote_ret))
+      continue;
 
     // Update statistics
 
@@ -1036,7 +1154,7 @@ static int st_load_trace(int nPerTrace,
  **
  *****************************************************************************/
 static void st_print_results(int nPerTrace,
-                             int flag_surf,
+                             bool flag_surf,
                              double delta,
                              RefStats &refstats)
 {
@@ -1149,10 +1267,10 @@ static void st_refstats_init(RefStats &refstats,
                              double modif_low,
                              double modif_scale)
 {
-  refstats.nbtrace = 0;
-  refstats.nbtrace_in = 0;
+  refstats.nbtrace     = 0;
+  refstats.nbtrace_in  = 0;
   refstats.nbtrace_def = 0;
-  refstats.nbvalue_in = 0;
+  refstats.nbvalue_in  = 0;
 
   refstats.ilming = ITEST;
   refstats.ilmaxg = ITEST;
@@ -1164,6 +1282,9 @@ static void st_refstats_init(RefStats &refstats,
   refstats.vminl = TEST;
   refstats.vmaxl = TEST;
   refstats.thicl = TEST;
+
+  refstats.auxtop = TEST;
+  refstats.auxbot = TEST;
 
   refstats.xming = TEST;
   refstats.xmaxg = TEST;
@@ -1188,22 +1309,29 @@ static void st_refstats_init(RefStats &refstats,
  ** \returns A RetArg structure which contains:
  ** \returns - a vector of trace vectors
  ** \returns - a vector of trace descriptors
+ ** \returns
  ** \returns The Descriptor for each trace contains:
- ** \returns 0: Absolute rank for the trace number
- ** \returns 1: Cross-Line number
- ** \returns 2: In-Line number
- ** \returns 3: Coordinate along X
- ** \returns 4: Coordinate along Y
- ** \returns 5: Minimum Elevation
- ** \returns 6: Maximum Elevation
- ** \returns 7: Minimum Value
- ** \returns 8: Maximum value
+ ** \returns  0: Absolute rank for the trace number
+ ** \returns  1: Cross-Line number
+ ** \returns  2: In-Line number
+ ** \returns  3: Coordinate along X
+ ** \returns  4: Coordinate along Y
+ ** \returns  5: Minimum Elevation
+ ** \returns  6: Maximum Elevation
+ ** \returns  7: Minimum Value
+ ** \returns  8: Maximum value
+ ** \returns  9: Thickness
+ ** \returns 10: Number of values
+ ** \returns 11: Minimum Elevation of Auxiliary surface
+ ** \returns 12: Maximum Elevation of Auxiliary surface
  **
  ** \param[in]  filesegy    Name of the SEGY file
  ** \param[in]  surf2D      Db containing the top, Bottom and Reference surfaces
  **                         This file is optional
- ** \param[in]  name_top    Rank of variable containing the Top Surface (or 0)
- ** \param[in]  name_bot    Rank of variable containing the Bottom Surface (or 0)
+ ** \param[in]  top_name    Name of variable containing the Top Surface (or "")
+ ** \param[in]  bot_name    Name of variable containing the Bottom Surface (or "")
+ ** \param[in]  top_aux     Name of auxiliary variable containing a Top (or "")
+ ** \param[in]  bot_aux     Name of auxiliary variable containing a Top (or "")
  ** \param[in]  thickmin    Minimum thickness (or 0)
  ** \param[in]  option      Flattening option:
  **                          0 no flattening;
@@ -1226,26 +1354,27 @@ static void st_refstats_init(RefStats &refstats,
  **
  *****************************************************************************/
 SegYArg segy_array(const char *filesegy,
-                                   Db *surf2D,
-                                   const String &name_top,
-                                   const String &name_bot,
-                                   double thickmin,
-                                   int option,
-                                   int verbOption,
-                                   int iline_min,
-                                   int iline_max,
-                                   int xline_min,
-                                   int xline_max,
-                                   int nz_ss,
-                                   double modif_high,
-                                   double modif_low,
-                                   double modif_scale)
+                   Db *surf2D,
+                   const String& top_name,
+                   const String& bot_name,
+                   const String& top_aux,
+                   const String& bot_aux,
+                   double thickmin,
+                   int option,
+                   int verbOption,
+                   int iline_min,
+                   int iline_max,
+                   int xline_min,
+                   int xline_max,
+                   int nz_ss,
+                   double modif_high,
+                   double modif_low,
+                   double modif_scale)
 {
   traceHead traceHead_;
-  FILE *file;
-  double xtrace, ytrace, z0, cztop, czbot, delta;
-  int nPerTrace, code, nz, flag_surf, flag_top, flag_bot, iatt_bot, iatt_top;
-  int nbrefpt, iline, xline, nbvalues;
+  double xtrace, ytrace, cztop, czbot;
+  int nPerTrace, iatt_bot, iatt_top, iaux_top, iaux_bot;
+  int iline, xline, nbvalues;
   RefPt refpt[3];
   RefStats refstats;
   VectorDouble values, cotes, writes;
@@ -1253,19 +1382,24 @@ SegYArg segy_array(const char *filesegy,
 
   // Initializations
 
-  code = 1;
-  file = nullptr;
-  nbrefpt = nz = 0;
-  delta = z0 = 0.;
+  FILE* file = nullptr;
+  int code = 1;
+  int nbrefpt = 0;
+  int nz = 0;
+  double delta = 0.;
+  double z0 = 0.;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
 
   // Preliminary checks
 
-  flag_surf = (surf2D != nullptr);
-  flag_top = flag_surf && (option == 1 || option == -2);
-  flag_bot = flag_surf && (option == -1 || option == -2);
-  if (st_surface_identify(verbOption, surf2D, name_bot, flag_bot, &iatt_bot,
-                          name_top, flag_top, &iatt_top)) return segyarg;
+  bool flag_surf = (surf2D != nullptr);
+  bool flag_top = flag_surf && (option ==  1 || option == -2);
+  bool flag_bot = flag_surf && (option == -1 || option == -2);
+  if (st_surface_identify(verbOption, surf2D,
+                          bot_name, flag_bot, &iatt_bot,
+                          top_name, flag_top, &iatt_top,
+                          top_aux, &iaux_top,
+                          bot_aux, &iaux_bot)) return segyarg;
 
   // Open Input SEGY file
 
@@ -1311,10 +1445,13 @@ SegYArg segy_array(const char *filesegy,
 
     nbrefpt = st_store_refpt(nbrefpt, refpt, iline, xline, xtrace, ytrace);
 
-    // Compare to the 2-D Surface information
-    // If 'surfaces' are not provided, bounds are set to TEST.
+    // Locate the trace
+    int rank = st_identify_trace_rank(surf2D, xtrace, ytrace);
 
-    if (st_get_cuts(surf2D, iatt_top, iatt_bot, xtrace, ytrace, thickmin,
+    // Compare to the 2-D Surface information
+    // If 'surfaces' is not provided, bounds are set to TEST.
+
+    if (st_get_cuts(surf2D, rank, iatt_top, iatt_bot, xtrace, ytrace, thickmin,
                     &cztop, &czbot)) continue;
 
     // Update statistics
@@ -1325,6 +1462,11 @@ SegYArg segy_array(const char *filesegy,
 
     if (st_load_trace(nPerTrace, nz, option, z0, delta, czbot, cztop, cotes,
                       values, writes, &nbvalues, refstats)) continue;
+
+    // Project the auxiliary surface variables (optional)
+
+    st_auxiliary(surf2D, rank, nz, option, z0, delta, czbot, cztop, iaux_top,
+                 iaux_bot, refstats);
 
     // Particular case of squeeze and stretch
 
@@ -1337,17 +1479,19 @@ SegYArg segy_array(const char *filesegy,
 
     segyarg.ndescr = SEGY_COUNT;
     VectorDouble descr(SEGY_COUNT);
-    descr[SEGY_NUM] = refstats.nbtrace;
-    descr[SEGY_ILINE] = iline;
-    descr[SEGY_XLINE] = xline;
+    descr[SEGY_NUM]    = refstats.nbtrace;
+    descr[SEGY_ILINE]  = iline;
+    descr[SEGY_XLINE]  = xline;
     descr[SEGY_XTRACE] = xtrace;
     descr[SEGY_YTRACE] = ytrace;
-    descr[SEGY_ZMIN] = refstats.zminl;
-    descr[SEGY_ZMAX] = refstats.zmaxl;
-    descr[SEGY_VMIN] = refstats.vminl;
-    descr[SEGY_VMAX] = refstats.vmaxl;
-    descr[SEGY_THICK] = refstats.thicl;
-    descr[SEGY_NB] = nbvalues;
+    descr[SEGY_ZMIN]   = refstats.zminl;
+    descr[SEGY_ZMAX]   = refstats.zmaxl;
+    descr[SEGY_VMIN]   = refstats.vminl;
+    descr[SEGY_VMAX]   = refstats.vmaxl;
+    descr[SEGY_THICK]  = refstats.thicl;
+    descr[SEGY_NB]     = nbvalues;
+    descr[SEGY_AUXTOP] = refstats.auxtop;
+    descr[SEGY_AUXBOT] = refstats.auxbot;
 
     segyarg.descr.push_back(descr);
 
@@ -1403,26 +1547,26 @@ SegYArg segy_array(const char *filesegy,
  **
  *****************************************************************************/
 Grid segy_summary(const char *filesegy,
-                                   Db *surf2D,
-                                   const String &name_top,
-                                   const String &name_bot,
-                                   double thickmin,
-                                   int option,
-                                   int verbOption,
-                                   int iline_min,
-                                   int iline_max,
-                                   int xline_min,
-                                   int xline_max,
-                                   int nz_ss,
-                                   double modif_high,
-                                   double modif_low,
-                                   double modif_scale)
+                  Db *surf2D,
+                  const String &name_top,
+                  const String &name_bot,
+                  double thickmin,
+                  int option,
+                  int verbOption,
+                  int iline_min,
+                  int iline_max,
+                  int xline_min,
+                  int xline_max,
+                  int nz_ss,
+                  double modif_high,
+                  double modif_low,
+                  double modif_scale)
 {
   traceHead traceHead_;
   FILE    *file;
   double   xtrace,ytrace,z0,cztop,czbot,delta;
   int      iline,xline,nbvalues;
-  int      nPerTrace,code,nz,flag_surf,flag_top,flag_bot,iatt_top,iatt_bot,nbrefpt;
+  int      nPerTrace,code,nz,iatt_top,iatt_bot,iaux_top,iaux_bot,nbrefpt;
   RefPt    refpt[3];
   RefStats refstats;
   Grid def_grid;
@@ -1438,11 +1582,14 @@ Grid segy_summary(const char *filesegy,
 
   // Preliminary checks
 
-  flag_surf = (surf2D != nullptr);
-  flag_top = flag_surf && (option == 1 || option == -2);
-  flag_bot = flag_surf && (option == -1 || option == -2);
-  if (st_surface_identify(verbOption, surf2D, name_bot, flag_bot, &iatt_bot,
-                          name_top, flag_top, &iatt_top)) return def_grid;
+  bool flag_surf = (surf2D != nullptr);
+  bool flag_top = flag_surf && (option == 1 || option == -2);
+  bool flag_bot = flag_surf && (option == -1 || option == -2);
+  if (st_surface_identify(verbOption, surf2D,
+                          name_bot, flag_bot, &iatt_bot,
+                          name_top, flag_top, &iatt_top,
+                          String(), &iaux_top,
+                          String(), &iaux_bot)) return def_grid;
 
   // Open Input SEGY file
 
@@ -1491,10 +1638,13 @@ Grid segy_summary(const char *filesegy,
 
     nbrefpt = st_store_refpt(nbrefpt, refpt, iline, xline, xtrace, ytrace);
 
+    // Locate the trace
+    int rank = st_identify_trace_rank(surf2D, xtrace, ytrace);
+
     // Compare to the 2-D Surface information
     // If 'surfaces' is not provided, bounds are set to TEST.
 
-    if (st_get_cuts(surf2D, iatt_top, iatt_bot, xtrace, ytrace, thickmin,
+    if (st_get_cuts(surf2D, rank, iatt_top, iatt_bot, xtrace, ytrace, thickmin,
                     &cztop, &czbot)) continue;
 
     // Update statistics
@@ -1593,7 +1743,7 @@ int db_segy(const char *filesegy,
   double xtrace, ytrace, z0, coor[3], cztop, czbot, delta;
   int iline, xline, nbvalues, iatt;
   int indg[3], nPerTrace, code, nz, rank;
-  int flag_surf, flag_top, flag_bot, iatt_top, iatt_bot;
+  int iatt_top, iatt_bot, iaux_top, iaux_bot;
   int nbrefpt;
   RefPt refpt[3];
   RefStats refstats;
@@ -1612,11 +1762,14 @@ int db_segy(const char *filesegy,
 
   // Preliminary checks
 
-  flag_surf = (surf2D != nullptr);
-  flag_top = flag_surf && (option == 1 || option == -2);
-  flag_bot = flag_surf && (option == -1 || option == -2);
-  if (st_surface_identify(verbOption, surf2D, name_bot, flag_bot, &iatt_bot,
-                          name_top, flag_top, &iatt_top)) return 1;
+  bool flag_surf = (surf2D != nullptr);
+  bool flag_top = flag_surf && (option == 1 || option == -2);
+  bool flag_bot = flag_surf && (option == -1 || option == -2);
+  if (st_surface_identify(verbOption, surf2D,
+                          name_bot, flag_bot, &iatt_bot,
+                          name_top, flag_top, &iatt_top,
+                          String(), &iaux_top,
+                          String(), &iaux_bot)) return 1;
   z0 = grid3D->getX0(2);
   nz = grid3D->getNX(2);
 
@@ -1678,10 +1831,13 @@ int db_segy(const char *filesegy,
     if (option == 2) coor[2] = 0.;
     if (point_to_grid(grid3D, coor, 0, indg) != 0) continue;
 
+    // Locate the trace
+    int rank = st_identify_trace_rank(surf2D, xtrace, ytrace);
+
     // Compare to the 2-D Surface information
     // If 'surfaces' is not provided, bounds are set to TEST.
 
-    if (st_get_cuts(surf2D, iatt_top, iatt_bot, xtrace, ytrace, thickmin,
+    if (st_get_cuts(surf2D, rank, iatt_top, iatt_bot, xtrace, ytrace, thickmin,
                     &cztop, &czbot)) continue;
 
     // Update statistics
