@@ -916,22 +916,30 @@ static bool st_within_layer(double z0,
   int iz1, iz2;
 
   iz1 = iz2 = -1;
+  *cote_ret = TEST;
+  if (FFFF(cote)) return false;
+
   switch (option)
   {
     case 0: // No flattening
+      if (cote > z0 + delta * nz) return false;
       iz1 = iz2 = static_cast<int>((cote - z0) / delta);
       *cote_ret = z0 + delta * iz1;
       break;
 
     case -1: // Flattening from Bottom surface
       if (FFFF(czbot)) return false;
+      if (cote < czbot) return false;
       iz1 = iz2 = static_cast<int>((cote - czbot) / delta);
+      if (ABS(iz1) < nz) return false;
       *cote_ret = czbot + delta * iz1;
       break;
 
     case 1: // Flattening from Top surface
       if (FFFF(cztop)) return false;
+      if (cote > cztop) return false;
       iz1 = iz2 = static_cast<int>((nz - 1) - (cztop - cote) / delta);
+      if (ABS(iz1) > nz) return false;
       *cote_ret = cztop - delta * (nz - iz1 -1);
       break;
 
@@ -943,6 +951,8 @@ static bool st_within_layer(double z0,
     case -2: // Squeeze and stretch
       if (FFFF(czbot)) return false;
       if (FFFF(cztop)) return false;
+      if (cztop < czbot) return false;
+      if (cote < czbot || cote > cztop) return false;
       double dz = (cztop - czbot) / (double) (nz - 1);
       iz1 = static_cast<int>(floor((cote - czbot) / dz));
       iz2 = static_cast<int>(ceil((cote - czbot + delta) / dz));
@@ -1047,23 +1057,19 @@ static void st_auxiliary(Db* surfaces,
   if (iaux_top >= 0)
   {
     double cote = surfaces->getArray(rank, iaux_top);
-    if (FFFF(cote))
-      refstats.auxtop = TEST;
-    else
-      (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
-                             &iz2, &refstats.auxtop);
-    }
+    refstats.auxtop = TEST;
+    (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
+                           &iz2, &refstats.auxtop);
+  }
 
   // Project optional Auxiliary Bottom surface
 
   if (iaux_bot >= 0)
   {
     double cote = surfaces->getArray(rank, iaux_bot);
-    if (FFFF(cote))
-      refstats.auxbot = TEST;
-    else
-      (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
-                             &iz2, &refstats.auxbot);
+    refstats.auxbot = TEST;
+    (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
+                           &iz2, &refstats.auxbot);
   }
 }
 
@@ -1378,7 +1384,7 @@ SegYArg segy_array(const char *filesegy,
                    double modif_scale)
 {
   traceHead traceHead_;
-  double xtrace, ytrace, cztop, czbot;
+  double xtrace, ytrace;
   int nPerTrace, iatt_bot, iatt_top, iaux_top, iaux_bot;
   int iline, xline, nbvalues;
   RefPt refpt[3];
@@ -1394,6 +1400,8 @@ SegYArg segy_array(const char *filesegy,
   int nz = 0;
   double delta = 0.;
   double z0 = 0.;
+  double cztop = 0.;
+  double czbot = 0.;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
 
   // Preliminary checks
@@ -1569,10 +1577,9 @@ Grid segy_summary(const char *filesegy,
                   double modif_scale)
 {
   traceHead traceHead_;
-  FILE    *file;
-  double   xtrace,ytrace,z0,cztop,czbot,delta;
+  double   xtrace,ytrace;
   int      iline,xline,nbvalues;
-  int      nPerTrace,code,nz,iatt_top,iatt_bot,iaux_top,iaux_bot,nbrefpt;
+  int      nPerTrace,iatt_top,iatt_bot,iaux_top,iaux_bot;
   RefPt    refpt[3];
   RefStats refstats;
   Grid def_grid;
@@ -1580,10 +1587,14 @@ Grid segy_summary(const char *filesegy,
 
   // Initializations
 
-  code = 1;
-  file = nullptr;
-  nbrefpt = nz = 0;
-  delta = z0 = 0.;
+  int code = 1;
+  FILE* file = nullptr;
+  int nbrefpt = 0;
+  int nz = 0;
+  double delta = 0.;
+  double z0 = 0.;
+  double czbot = 0.;
+  double cztop = 0.;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
 
   // Preliminary checks
@@ -1745,22 +1756,24 @@ int db_segy(const char *filesegy,
                             const NamingConvention& namconv)
 {
   traceHead traceHead_;
-  FILE *file;
-  double xtrace, ytrace, z0, coor[3], cztop, czbot, delta;
+  double xtrace, ytrace, coor[3];
   int iline, xline, nbvalues, iatt;
-  int indg[3], nPerTrace, code, nz, rank;
-  int iatt_top, iatt_bot, iaux_top, iaux_bot;
-  int nbrefpt;
+  int indg[3], rank, iatt_top, iatt_bot, iaux_top, iaux_bot;
   RefPt refpt[3];
   RefStats refstats;
   VectorDouble values, cotes, writes;
 
   // Initializations
 
-  code = 1;
-  file = nullptr;
-  nbrefpt = nz = 0;
-  delta = z0 = 0.;
+  int nPerTrace;
+  int code = 1;
+  FILE* file = nullptr;
+  int nbrefpt = 0;
+  int nz = 0;
+  double delta = 0.;
+  double z0 = 0.;
+  double czbot = 0.;
+  double cztop = 0.;
   for (int i = 0; i < 3; i++)
     indg[i] = 0;
   iatt = -1;
