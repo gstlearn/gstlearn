@@ -3023,6 +3023,29 @@ VectorDouble Db::getFieldsByLocator(const ELoc& locatorType, bool useSel) const
   return getFields(names, useSel);
 }
 
+VectorDouble Db::getFieldSubGrid(const String& name, int idim0, int rank)
+{
+  VectorDouble vec;
+  if (! isGrid())
+  {
+    messerr("This method is only available for Grid Db");
+    return vec;
+  }
+
+  // Loop on the samples
+
+  _grid.iteratorInit();
+  for (int iech = 0; iech < getSampleNumber(); iech++)
+  {
+    VectorInt indices = _grid.iteratorNext();
+    if (indices[idim0] != rank) continue;
+    int iabs = _grid.indiceToRank(indices);
+    double value = getValue(name, iabs);
+    vec.push_back(value);
+  }
+  return vec;
+}
+
 VectorDouble Db::getFieldsByAttribute(const VectorInt& iatts, bool useSel) const
 {
   int nech = (useSel) ? getActiveSampleNumber() :

@@ -634,6 +634,10 @@ VectorDouble Grid::getAxis(int idim) const
   return vect;
 }
 
+/**
+ * Initialize an iterator on the grid
+ * @param order Array giving the order of the Space Dimensions when iterating
+ */
 void Grid::iteratorInit(const VectorInt& order)
 {
   int ndim = _nDim;
@@ -674,6 +678,10 @@ void Grid::iteratorInit(const VectorInt& order)
     _nprod *= _counts[idim];
 }
 
+/**
+ * Return the vector of grid indices for each iteration
+ * @return
+ */
 VectorInt Grid::iteratorNext(void)
 {
   int idim;
