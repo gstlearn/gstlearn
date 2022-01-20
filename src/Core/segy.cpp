@@ -929,7 +929,6 @@ static bool st_within_layer(double z0,
 
     case -1: // Flattening from Bottom surface
       if (FFFF(czbot)) return false;
-      if (cote < czbot) return false;
       iz1 = iz2 = static_cast<int>((cote - czbot) / delta);
       if (ABS(iz1) < nz) return false;
       *cote_ret = czbot + delta * iz1;
@@ -937,7 +936,6 @@ static bool st_within_layer(double z0,
 
     case 1: // Flattening from Top surface
       if (FFFF(cztop)) return false;
-      if (cote > cztop) return false;
       iz1 = iz2 = static_cast<int>((nz - 1) - (cztop - cote) / delta);
       if (ABS(iz1) > nz) return false;
       *cote_ret = cztop - delta * (nz - iz1 -1);
@@ -952,7 +950,6 @@ static bool st_within_layer(double z0,
       if (FFFF(czbot)) return false;
       if (FFFF(cztop)) return false;
       if (cztop < czbot) return false;
-      if (cote < czbot || cote > cztop) return false;
       double dz = (cztop - czbot) / (double) (nz - 1);
       iz1 = static_cast<int>(floor((cote - czbot) / dz));
       iz2 = static_cast<int>(ceil((cote - czbot + delta) / dz));
