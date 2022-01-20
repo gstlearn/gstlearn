@@ -1026,10 +1026,10 @@ static int st_identify_trace_rank(Db* surfaces,
  * @param option   Stretching option
  * @param z0       Elevation origin
  * @param delta    Vertical mesh
- * @param cztop    Top bound
  * @param czbot    Bottom bound
- * @param iaux_top Attribute index of the Auxiliary Top variable (or -1)
+ * @param cztop    Top bound
  * @param iaux_bot Attribute index of the Auxiliary Bottom variable (or -1)
+ * @param iaux_top Attribute index of the Auxiliary Top variable (or -1)
  * @param refstats RefStats structure
  * @return
  */
@@ -1039,10 +1039,10 @@ static void st_auxiliary(Db* surfaces,
                          int option,
                          double z0,
                          double delta,
-                         double cztop,
                          double czbot,
-                         int iaux_top,
+                         double cztop,
                          int iaux_bot,
+                         int iaux_top,
                          RefStats& refstats)
 {
   int iz1, iz2;
@@ -1476,8 +1476,8 @@ SegYArg segy_array(const char *filesegy,
 
     // Project the auxiliary surface variables (optional)
 
-    st_auxiliary(surf2D, rank, nz, option, z0, delta, czbot, cztop, iaux_top,
-                 iaux_bot, refstats);
+    st_auxiliary(surf2D, rank, nz, option, z0, delta, czbot, cztop, iaux_bot,
+                 iaux_top, refstats);
 
     // Particular case of squeeze and stretch
 
