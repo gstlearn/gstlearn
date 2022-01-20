@@ -1047,8 +1047,11 @@ static void st_auxiliary(Db* surfaces,
   if (iaux_top >= 0)
   {
     double cote = surfaces->getArray(rank, iaux_top);
-    (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
-                           &iz2, &refstats.auxtop);
+    if (FFFF(cote))
+      refstats.auxtop = TEST;
+    else
+      (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
+                             &iz2, &refstats.auxtop);
     }
 
   // Project optional Auxiliary Bottom surface
@@ -1056,8 +1059,11 @@ static void st_auxiliary(Db* surfaces,
   if (iaux_bot >= 0)
   {
     double cote = surfaces->getArray(rank, iaux_bot);
-    (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
-                           &iz2, &refstats.auxbot);
+    if (FFFF(cote))
+      refstats.auxbot = TEST;
+    else
+      (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
+                             &iz2, &refstats.auxbot);
   }
 }
 
