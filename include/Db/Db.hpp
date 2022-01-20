@@ -553,6 +553,9 @@ public:
   void combineSelection(VectorDouble& sel,
                         const String& combine = "set") const;
 
+  void generateRank(const String& radix = "rank");
+  void generateCoordinates(const String& radix = "x");
+
 protected:
   virtual int _deserialize(FILE* file, bool verbose = false) override;
   virtual int _serialize(FILE* file, bool verbose = false) const override;
@@ -579,8 +582,8 @@ private:
                  const VectorString& locatorNames,
                  const ELoadBy& order,
                  int shift);
-  void _createRank(int shift = 0);
-  void _createGridCoordinates(int shift);
+  void _createRank(int icol = 0);
+  void _createCoordinatesGrid(int icol0 = 0);
   void _defineDefaultNames(int shift, const VectorString& names);
   void _defineDefaultLocators(int shift, const VectorString& locatorNames);
   void _defineDefaultLocatorsByNames(int shift, const VectorString& names);

@@ -150,7 +150,7 @@ int Db::resetFromGrid(const VectorInt& nx,
   // Load the data
 
   if (flag_add_rank) _createRank(0);
-  _createGridCoordinates(flag_add_rank);
+  _createCoordinatesGrid(flag_add_rank);
   _loadData(tab, names, locatorNames, order, flag_add_rank);
 
   // Create the coordinate names (for the remaining variables)
@@ -280,7 +280,7 @@ int Db::resetFromPolygon(Polygons* polygon,
   /// Load the data
 
   if (flag_add_rank) _createRank(0);
-  _createGridCoordinates(flag_add_rank);
+  _createCoordinatesGrid(flag_add_rank);
 
   // Create the locators
 
@@ -829,7 +829,7 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
 void Db::setCoordinate(int iech, int idim, double value)
 {
   if (!isSampleIndexValid(iech)) return;
-  int icol = getColumnByAttribute(idim);
+  int icol = getColumnByLocator(ELoc::X, idim);
   if (!isColumnIndexValid(icol)) return;
   _array[_getAddress(iech, icol)] = value;
 }
@@ -1264,6 +1264,7 @@ void Db::deleteFields(const VectorInt& icols)
   if (icols.empty()) return;
 
   VectorInt v = ut_ivector_sort(icols, false);
+
   for (unsigned int i = 0; i < v.size(); i++)
     deleteFieldByIndex(v[i]);
 }
@@ -3251,29 +3252,66 @@ void Db::_loadData(const VectorDouble& tab,
   return;
 }
 
-void Db::_createRank(int shift)
+void Db::generateRank(const String& radix)
+{
+  int nech = getSampleNumber();
+  VectorDouble vec(nech);
+  for (int iech = 0; iech < nech; iech++)
+    vec[iech] = iech + 1;
+
+  (void) addFields(vec, radix);
+}
+
+/**
+ * Paint the column 'icol' with sample rank
+ * @param icol Rank of the column to be painted
+ */
+void Db::_createRank(int icol)
 {
   int nech = getSampleNumber();
   for (int iech = 0; iech < nech; iech++)
-    setArray(iech, shift, iech + 1);
+    setArray(iech, icol, iech + 1);
 
   // Set the name
 
-  _setNameByColumn(shift, "rank");
+  _setNameByColumn(icol, "rank");
 
   // Set the locators (No particular action for the Rank)
 }
 
-void Db::_createGridCoordinates(int shift)
+void Db::generateCoordinates(const String& radix)
+{
+  if (! isGrid())
+  {
+    messerr("This method is only available in the case of Grid. Nothing done");
+    return;
+  }
+  int ndim = getNDim();
+  VectorDouble coors(ndim);
+  (void) addFieldsByConstant(ndim, 0., radix, ELoc::X);
+  display();
+  for (int iech = 0; iech < getSampleNumber(); iech++)
+  {
+    _grid.rankToCoordinatesInPlace(iech, coors);
+    for (int idim = 0; idim < ndim; idim++)
+      setCoordinate(iech, idim, coors[idim]);
+  }
+}
+
+/**
+ * Paint the ndim columns starting from 'icol0' with grid coordinates
+ * @param icol0 Starting column
+ */
+void Db::_createCoordinatesGrid(int icol0)
 {
   // Set the Names
 
   for (int idim = 0; idim < getNDim(); idim++)
-    _setNameByColumn(shift + idim, getLocatorName(ELoc::X, idim));
+    _setNameByColumn(icol0 + idim, getLocatorName(ELoc::X, idim));
 
   // Set the locators
 
-  setLocatorsByAttribute(getNDim(), shift, ELoc::X);
+  setLocatorsByAttribute(getNDim(), icol0, ELoc::X);
 
   // Generate the vector of coordinates
 
@@ -3283,7 +3321,7 @@ void Db::_createGridCoordinates(int shift)
     VectorInt indices = _grid.iteratorNext();
     VectorDouble coors = _grid.indicesToCoordinate(indices);
     for (int idim = 0; idim < getNDim(); idim++)
-      setCoordinate(iech, shift + idim, coors[idim]);
+      setArray(iech, icol0 + idim, coors[idim]);
   }
 }
 
@@ -3956,7 +3994,7 @@ int Db::resetCoveringDb(Db* db,
 
   /// Load the data
 
-  _createGridCoordinates(0);
+  _createCoordinatesGrid(0);
 
   // Create the locators
 
