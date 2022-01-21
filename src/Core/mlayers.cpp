@@ -12,6 +12,7 @@
 #include "geoslib_old_f.h"
 #include "Variogram/Vario.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Db/Db.hpp"
@@ -1152,7 +1153,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
       /* Print the residuals (optional) */
 
-      if (debug_query("variogram"))
+      if (DbgOpt::query(EDbg::VARIOGRAM))
         message("Sample %d (Layer %d) - Coor = %lf %lf - Residual = %lf\n",
                 iech + 1, ilayer, coor[0], coor[1], zval[iiech]);
     }
@@ -1503,11 +1504,11 @@ static void st_estimate(LMlayers *lmlayers,
 
   for (iechout = 0; iechout < dbout->getSampleNumber(); iechout++)
   {
-    debug_index(iechout + 1);
+    DbgOpt::setIndex(iechout + 1);
     if (!dbout->isActive(iechout)) continue;
     coor[0] = dbout->getCoordinate(iechout, 0);
     coor[1] = dbout->getCoordinate(iechout, 1);
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, iechout, 1, 0, 0);
@@ -1531,7 +1532,7 @@ static void st_estimate(LMlayers *lmlayers,
 
     for (ilayer = 0; ilayer < nlayers; ilayer++)
     {
-      if (debug_query("kriging") || debug_query("nbgh"))
+      if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH))
         mestitle(2, "Layer #%d", ilayer + 1);
 
       /* Find the proportions for the target if flag_cumul=TRUE */
@@ -1551,7 +1552,7 @@ static void st_estimate(LMlayers *lmlayers,
 
       if (st_rhs(lmlayers, dbin, dbout, model, coor, seltab, iechout,
                  ilayer + 1, prop1, prop2, covtab, b)) continue;
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_rhs_print(1, lmlayers->nech, neq, neq, NULL, b);
 
       /* Perform estimation */
@@ -1577,7 +1578,7 @@ static void st_estimate(LMlayers *lmlayers,
 
       dbout->setVariable(iechout, ilayer, estim);
       if (flag_std) dbout->setVariable(iechout, nlayers + ilayer, stdv);
-      if (debug_query("results"))
+      if (DbgOpt::query(EDbg::RESULTS))
       {
         message("Estimate = %lf", ilayer + 1, estim);
         if (flag_std) message(" - Variance = %lf", stdv * stdv);
@@ -1585,7 +1586,7 @@ static void st_estimate(LMlayers *lmlayers,
       }
     }
   }
-  debug_index(0);
+  DbgOpt::setIndex(0);
 }
 
 /****************************************************************************/
@@ -2209,13 +2210,13 @@ int multilayers_kriging(Db *dbin,
 
   st_lhs(lmlayers, dbin, dbout, model, seltab, prop1, prop2, covtab, atot,
          acov);
-  if (is_debug_reference_defined() || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     krige_lhs_print(nech, neq, neq, NULL, atot);
 
   /* Establish the data vector */
 
   st_data_vector(lmlayers, dbin, dbout, seltab, zval);
-  if (is_debug_reference_defined() || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
   {
     mestitle(0, "Data Vector");
     message("Number of active samples  = %d\n", nech);
@@ -2452,7 +2453,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
                         zval, &nval, &distsum, stat, phia, phib, atab, btab))
       goto label_end;
 
-    if (debug_query("variogram"))
+    if (DbgOpt::query(EDbg::VARIOGRAM))
     {
       message("Lag %d\n", ipas + 1);
       print_matrix("L.H.S.", 0, 1, nhalf, nhalf, NULL, atab);
@@ -2482,7 +2483,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 
     /* Optional printout */
 
-    if (debug_query("variogram")) print_trimat("C(h)", 2, nlayers, sill);
+    if (DbgOpt::query(EDbg::VARIOGRAM)) print_trimat("C(h)", 2, nlayers, sill);
 
     /* Store the covariance values */
 

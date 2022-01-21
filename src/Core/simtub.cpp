@@ -16,14 +16,15 @@
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/GibbsFactory.hpp"
 #include "Morpho/Morpho.hpp"
-#include "Basic/NamingConvention.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/ECov.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
@@ -1832,7 +1833,7 @@ static void st_difference(Db *dbin,
   /* Optional general title */
 
   nbsimu = situba->nbsimu;
-  if (debug_query("simulate"))
+  if (DbgOpt::query(EDbg::SIMULATE))
   {
     mestitle(1, "Difference between Data and NC Simulation");
     tab_prints(NULL, 1, EJustify::RIGHT, "Sample");
@@ -1848,7 +1849,7 @@ static void st_difference(Db *dbin,
 
     /* Optional Header */
 
-    if (debug_query("simulate"))
+    if (DbgOpt::query(EDbg::SIMULATE))
     {
       for (ivar = 0; ivar < nvar; ivar++)
       {
@@ -1869,7 +1870,7 @@ static void st_difference(Db *dbin,
     for (iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
-      if (debug_query("simulate"))
+      if (DbgOpt::query(EDbg::SIMULATE))
         tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
       for (ivar = 0; ivar < nvar; ivar++)
       {
@@ -1877,7 +1878,7 @@ static void st_difference(Db *dbin,
         if (!flag_gibbs)
         {
           zvar = dbin->getVariable(iech, ivar);
-          if (debug_query("simulate"))
+          if (DbgOpt::query(EDbg::SIMULATE))
             tab_printg(NULL, 1, EJustify::RIGHT, zvar);
         }
         for (isimu = 0; isimu < nbsimu; isimu++)
@@ -1886,7 +1887,7 @@ static void st_difference(Db *dbin,
           {
             zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu,
                                    nvar);
-            if (debug_query("simulate"))
+            if (DbgOpt::query(EDbg::SIMULATE))
               tab_printg(NULL, 1, EJustify::RIGHT, zvar);
           }
           simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
@@ -1896,7 +1897,7 @@ static void st_difference(Db *dbin,
             simval = R_COEFF * simval
                 + sqrt(1. - R_COEFF * R_COEFF) * law_gaussian();
           }
-          if (debug_query("simulate") && !FFFF(zvar))
+          if (DbgOpt::query(EDbg::SIMULATE) && !FFFF(zvar))
           {
             tab_printg(NULL, 1, EJustify::RIGHT, simval);
           }
@@ -1906,7 +1907,7 @@ static void st_difference(Db *dbin,
                           simunc);
         }
       }
-      if (debug_query("simulate")) message("\n");
+      if (DbgOpt::query(EDbg::SIMULATE)) message("\n");
     }
   }
   else
@@ -1918,7 +1919,7 @@ static void st_difference(Db *dbin,
 
     /* Optional Header */
 
-    if (debug_query("simulate"))
+    if (DbgOpt::query(EDbg::SIMULATE))
     {
       for (isimu = 0; isimu < nbsimu; isimu++)
       {
@@ -1936,12 +1937,12 @@ static void st_difference(Db *dbin,
     for (iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
-      if (debug_query("simulate"))
+      if (DbgOpt::query(EDbg::SIMULATE))
         tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
       for (isimu = 0; isimu < nbsimu; isimu++)
       {
         zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1);
-        if (debug_query("simulate"))
+        if (DbgOpt::query(EDbg::SIMULATE))
         {
           tab_printg(NULL, 1, EJustify::RIGHT, zvar);
           if (!FFFF(zvar))
@@ -1955,7 +1956,7 @@ static void st_difference(Db *dbin,
           dbin->updSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1, 0,
                           -zvar);
       }
-      if (debug_query("simulate")) message("\n");
+      if (DbgOpt::query(EDbg::SIMULATE)) message("\n");
     }
   }
 
@@ -5053,7 +5054,7 @@ int simtub_constraints(Db *dbin,
 
     /* Optional printout */
 
-    if (debug_query("converge"))
+    if (DbgOpt::query(EDbg::CONVERGE))
       message("Iteration #%2d - Simulations %3d tested, %2d valid\n", iter,
               nbtest, nvalid);
 

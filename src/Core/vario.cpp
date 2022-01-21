@@ -22,6 +22,7 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Stats/PCA.hpp"
@@ -585,7 +586,7 @@ static void st_variogram_set(const ECalcVario &calcul_type,
     VARIO->updateGgByIndex(IDIRLOC, i, -VARIO->getMean(ivar) / 2.);
   VARIO->updateHhByIndex(IDIRLOC, i, ww * dist);
   VARIO->updateSwByIndex(IDIRLOC, i, ww);
-  if (debug_query("variogram"))
+  if (DbgOpt::query(EDbg::VARIOGRAM))
     st_print_debug(IECH1, IECH2, ivar, jvar, i, ww, value);
   return;
 }
@@ -619,7 +620,7 @@ static void st_vmap_set(const ECalcVario& /*calcul_type*/,
   DBMAP->updArray(ipas, IPTV + ijvar, 0, ww * value);
   DBMAP->updArray(ipas, IPTW + ijvar, 0, ww);
 
-  if (debug_query("variogram"))
+  if (DbgOpt::query(EDbg::VARIOGRAM))
     st_print_debug(IECH1, IECH2, ivar, jvar, ipas, ww, value);
   return;
 }
@@ -1027,7 +1028,7 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
           s12w += scale;
         }
         s12wzz += scale * value;
-        if (debug_query("variogram"))
+        if (DbgOpt::query(EDbg::VARIOGRAM))
           st_print_debug(iech, iech, ivar, jvar, i, scale, value);
       }
 
@@ -1279,7 +1280,7 @@ static int st_update_variogram_verr(Db *db,
           diff = ABS(vario->getGg(idir, 0, 0, ipas) - g_old);
         }
         vario->setGg(idir, 0, 0, ipas, MAX(0, vario->getGg(idir, 0, 0, ipas)));
-        if (nfois == maxiter && debug_query("converge"))
+        if (nfois == maxiter && DbgOpt::query(EDbg::CONVERGE))
           message("Convergence not reached for lag %d\n", ipas + 1);
         break;
 
@@ -1303,7 +1304,7 @@ static int st_update_variogram_verr(Db *db,
           vario->setGg(idir, 0, 0, ipas, sumt / sumb);
           diff = ABS(vario->getGg(idir, 0, 0, ipas) - g_old);
         }
-        if (nfois == maxiter && debug_query("converge"))
+        if (nfois == maxiter && DbgOpt::query(EDbg::CONVERGE))
           message("Convergence not reached for lag %d\n", ipas + 1);
         break;
 

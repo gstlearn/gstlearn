@@ -72,6 +72,8 @@ class IClonable{};
 %include Basic/RepeatMacroSwig.hpp
 %include Basic/Table.hpp
 %include Basic/Utilities.hpp
+%include Basic/DbgOpt.hpp
+%include Basic/EDbgOpt.hpp
 
 %include Space/Space.hpp
 %include Space/ASpace.hpp

@@ -12,6 +12,10 @@
 #include "geoslib_d.h"
 #include "Basic/Utilities.hpp"
 
+#include "../../include/Basic/EDbgOpt.hpp"
+
+static EDbg _debugOptions = EDbg::DB;
+
 bool isInteger(double value, double eps)
 {
   int iclose = getClosestInteger(value);

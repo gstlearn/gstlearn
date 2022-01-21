@@ -11,6 +11,8 @@
 #include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/Identity.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/DbgOpt.hpp"
+
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include <iostream>
@@ -115,7 +117,7 @@ void ALinearOp::evalInverse(const VectorDouble& in,
 		critold = critnew;
 	}
 
-  if (debug_query("converge"))
+  if (DbgOpt::query(EDbg::CONVERGE))
   {
     message("-- Conjugate Gradient (precond=%d) : %d iterations (max=%d) (eps=%lg)\n",
             _precondStatus,niter,_nIterMax,_eps);

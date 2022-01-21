@@ -12,6 +12,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
 #include "Db/ELoadBy.hpp"
@@ -299,7 +300,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Setup constants
 
-  debug_reset();
+  DbgOpt::reset();
   constant_reset();
   law_set_random_seed(seed);
   constant_define("NTCAR",10);

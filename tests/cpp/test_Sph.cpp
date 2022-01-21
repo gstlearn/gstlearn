@@ -12,6 +12,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 
 #include <math.h>
 
@@ -165,7 +166,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* 1.c - Setup constants */
 
-  debug_reset();
+  DbgOpt::reset();
   constant_reset();
   constant_define("NTCAR",8);
   constant_define("NTDEC",5);

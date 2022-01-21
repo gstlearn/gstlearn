@@ -11,10 +11,6 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Polynomials/Hermite.hpp"
-#include "Basic/NamingConvention.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/File.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
@@ -25,6 +21,12 @@
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/File.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 
 #include <math.h>
@@ -1168,7 +1170,7 @@ static int st_bench_nmax(Neigh *neigh)
     if (nloc > nmax) nmax = nloc;
   }
 
-  if (debug_query("db"))
+  if (DbgOpt::query(EDbg::DB))
   {
     message("Statistics on Bench neighborhood search:\n");
     message("- Vertical Tolerance = %lf\n", neigh->getWidth());
@@ -2108,7 +2110,7 @@ static void st_prepar(Model *model,
   st_lhs(model, neigh, nbgh_ranks, neq);
   st_lhs_iso2hetero(neq);
 
-  if (debug_query("kriging")) krige_lhs_print(nech, neq, nred, flag, lhs);
+  if (DbgOpt::query(EDbg::KRIGING)) krige_lhs_print(nech, neq, nred, flag, lhs);
 
   /* Backup the Kriging matrix before inversion */
 
@@ -2658,7 +2660,7 @@ static void st_simulate(Model *model,
             simu -= wgt[lec++] * (data + mean);
           }
 
-        if (debug_query("kriging"))
+        if (DbgOpt::query(EDbg::KRIGING))
         {
           value = DBOUT->getArray(IECH_OUT, IPTR_EST + ecr);
           message("Non-conditional simulation #%d = %lf\n", isimu + 1, value);
@@ -3171,12 +3173,12 @@ static int st_image_kriging(Model *model,
   st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
   if (status) return (1);
   st_rhs_iso2hetero(neq, nvar);
-  if (debug_query("kriging")) krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
+  if (DbgOpt::query(EDbg::KRIGING)) krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
   /* Derive the kriging weights */
 
   matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-  if (debug_query("kriging"))
+  if (DbgOpt::query(EDbg::KRIGING))
     krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
 
   /* Calculate the kriging variance */
@@ -3411,9 +3413,9 @@ int kriging(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -3427,7 +3429,7 @@ int kriging(Db *dbin,
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -3439,7 +3441,7 @@ int kriging(Db *dbin,
     st_rhs(model, nbgh_ranks, neq, nvar, matCL.data(), &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
     /* Derive the kriging weights */
@@ -3447,7 +3449,7 @@ int kriging(Db *dbin,
     if (FLAG_WGT)
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_wgt_print(status, nvar, model->getVariableNumber(), nfeq, nbgh_ranks,
                         nred, -1, flag, wgt);
     }
@@ -3462,7 +3464,7 @@ int kriging(Db *dbin,
 
     label_store:
     st_estimate(model, NULL, status, neigh->getFlagXvalid(), nvar, nred);
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
       st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
   }
 
@@ -3482,7 +3484,8 @@ int kriging(Db *dbin,
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "estim");
 
-  label_end: debug_index(0);
+  label_end:
+  DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, calcul, 1, ndisc);
@@ -3598,14 +3601,14 @@ static int st_xvalid_unique(Db *dbin,
   {
     IECH_OUT = iech;
     mes_process("Cross-Validation sample", dbin->getSampleNumber(), iech);
-    debug_index(iech + 1);
+    DbgOpt::setIndex(iech + 1);
     if (FLAG_EST  != 0) dbin->setArray(iech, IPTR_EST,  TEST);
     if (FLAG_STD  != 0) dbin->setArray(iech, IPTR_STD,  TEST);
     if (FLAG_VARZ != 0) dbin->setArray(iech, IPTR_VARZ, TEST);
     if (!dbin->isActive(iech)) continue;
     valref = dbin->getVariable(iech, 0);
     if (FFFF(valref)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbin, iech, 1, 0, 0);
@@ -3623,7 +3626,7 @@ static int st_xvalid_unique(Db *dbin,
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_end;
@@ -3650,7 +3653,7 @@ static int st_xvalid_unique(Db *dbin,
     if (FLAG_STD > 0) stdv = value / stdv;
     if (FLAG_STD != 0) dbin->setArray(iech, IPTR_STD, stdv);
 
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
       st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
     iiech++;
   }
@@ -3669,7 +3672,7 @@ static int st_xvalid_unique(Db *dbin,
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_EST, "estim");
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
@@ -3822,9 +3825,9 @@ int krigdgm_f(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -3839,7 +3842,7 @@ int krigdgm_f(Db *dbin,
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -3851,7 +3854,7 @@ int krigdgm_f(Db *dbin,
     st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
     /* Derive the kriging weights */
@@ -3859,7 +3862,7 @@ int krigdgm_f(Db *dbin,
     if (FLAG_WGT)
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_wgt_print(status, nvar, model->getVariableNumber(), nfeq, nbgh_ranks,
                         nred, -1, flag, wgt);
     }
@@ -3874,7 +3877,7 @@ int krigdgm_f(Db *dbin,
 
     label_store: st_estimate(model, NULL, status, neigh->getFlagXvalid(), nvar,
                              nred);
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
       st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
   }
 
@@ -3882,7 +3885,7 @@ int krigdgm_f(Db *dbin,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
@@ -3980,9 +3983,9 @@ int krigprof_f(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -3997,7 +4000,7 @@ int krigprof_f(Db *dbin,
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -4009,7 +4012,7 @@ int krigprof_f(Db *dbin,
     st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
     /* Derive the kriging weights */
@@ -4017,7 +4020,7 @@ int krigprof_f(Db *dbin,
     if (FLAG_WGT)
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
     }
 
@@ -4025,7 +4028,7 @@ int krigprof_f(Db *dbin,
 
     label_store: st_estimate(model, NULL, status, neigh->getFlagXvalid(), nvar,
                              nred);
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
       st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
   }
 
@@ -4033,7 +4036,7 @@ int krigprof_f(Db *dbin,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
@@ -4252,7 +4255,7 @@ static int bayes_precalc(Model *model,
   if (matrix_invert(rcov, nfeq, -1)) goto label_end;
   matrix_product(nfeq, nfeq, 1, rcov, smu, rmean);
 
-  label_print: if (debug_query("bayes"))
+  label_print: if (DbgOpt::query(EDbg::BAYES))
   {
     mestitle(0, "Bayesian Drift coefficients");
     print_matrix("Prior Mean", 0, 1, nfeq, 1, NULL, dmean);
@@ -4407,9 +4410,9 @@ int kribayes_f(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Bayesian estimation", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -4424,7 +4427,7 @@ int kribayes_f(Db *dbin,
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model_sk, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -4442,7 +4445,7 @@ int kribayes_f(Db *dbin,
 
     st_bayes_correct(model, rcov, &status);
     if (status) goto label_store;
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
     /* Derive the kriging weights */
@@ -4450,7 +4453,7 @@ int kribayes_f(Db *dbin,
     if (FLAG_WGT)
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_wgt_print(status, nvar, nvar, 0, nbgh_ranks, nred, -1, flag, wgt);
     }
 
@@ -4459,7 +4462,7 @@ int kribayes_f(Db *dbin,
     label_store:
     // We must use the drift initial assumption, hence model (not model_sk)
     st_estimate(model, rmean, status, neigh->getFlagXvalid(), nvar, nred);
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
       st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
   }
 
@@ -4467,7 +4470,7 @@ int kribayes_f(Db *dbin,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   model_sk = model_free(model_sk);
   (void) bayes_manage(-1, 0, model, &rmean, &rcov, &smean);
   (void) st_model_manage(-1, model);
@@ -4537,9 +4540,9 @@ int test_neigh(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Neighborhood Test", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -4558,7 +4561,7 @@ int test_neigh(Db *dbin,
     /* Store the neighborhood parameters */
 
     st_store_nbgh(status, ntab, tab.data());
-    if (debug_query("nbgh")) st_res_nbgh_print(status, tab.data());
+    if (DbgOpt::query(EDbg::NBGH)) st_res_nbgh_print(status, tab.data());
   }
 
   /* Set the error return flag */
@@ -4576,7 +4579,7 @@ int test_neigh(Db *dbin,
                               "NbCESect");
   namconv.setLocators(dbout, IPTR_NBGH, ntab);
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, model->getVariableNumber(), model, neigh);
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
@@ -4692,9 +4695,9 @@ int _krigsim(const char *strloc,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process(strloc, DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -4709,7 +4712,7 @@ int _krigsim(const char *strloc,
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model_sk, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -4728,7 +4731,7 @@ int _krigsim(const char *strloc,
       st_bayes_correct(model, dcov, &status);
       if (status) goto label_store;
     }
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
     /* Derive the kriging weights */
@@ -4736,21 +4739,21 @@ int _krigsim(const char *strloc,
     if (FLAG_WGT)
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, icase, flag, wgt);
     }
 
     /* Perform the simulation */
 
     label_store: st_simulate(model, smean, status, icase, nbsimu, nbgh_ranks, nred);
-    if (debug_query("results")) st_result_simulate_print(nbsimu, nvar, status);
+    if (DbgOpt::query(EDbg::RESULTS)) st_result_simulate_print(nbsimu, nvar, status);
   }
 
   /* Set the error return flag */
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   if (FLAG_BAYES)
   {
     model_sk = model_free(model_sk);
@@ -4836,7 +4839,7 @@ int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
   for (IECH_OUT = 0; IECH_OUT < dbgrid->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Image filtering", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!DBOUT->isActive(IECH_OUT)) continue;
     db_index_sample_to_grid(DBOUT, IECH_OUT, indg0);
 
@@ -4885,7 +4888,7 @@ int krimage_func(Db *dbgrid, Model *model, Neigh *neigh)
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   dbaux = db_delete(dbaux);
@@ -5117,9 +5120,9 @@ int global_kriging(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Global estimation", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -5133,7 +5136,7 @@ int global_kriging(Db *dbin,
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -5163,13 +5166,13 @@ int global_kriging(Db *dbin,
     for (i = 0; i < size; i++)
       rhs[i] = rhs_tot[i] / (double) ng;
     st_rhs_iso2hetero(neq, nvar);
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
     /* Derive the kriging weights */
 
     matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
 
     /* Perform the estimation */
@@ -5236,7 +5239,7 @@ int global_kriging(Db *dbin,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, calcul, 1, VectorInt());
@@ -5501,7 +5504,7 @@ static void st_grid_invdist(int exponent,
     mes_process("Estimation by Inverse distance", DBOUT->getSampleNumber(),
                 IECH_OUT);
     if (!DBOUT->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(DBOUT, IECH_OUT, 1, 0, 0);
@@ -5623,7 +5626,7 @@ static void st_point_invdist(int exponent,
     mes_process("Estimation by Inverse distance", DBOUT->getSampleNumber(),
                 IECH_OUT);
     if (!DBOUT->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(DBOUT, IECH_OUT, 1, 0, 0);
@@ -6053,9 +6056,9 @@ int anakexp_f(Db *db,
   for (IECH_OUT = 0; IECH_OUT < nech; IECH_OUT++)
   {
     mes_process("Factorial Kriging Analysis", nech, IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!db->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(db, IECH_OUT, 1, 0, 0);
@@ -6074,7 +6077,7 @@ int anakexp_f(Db *db,
 
     neq = nafter + nbefore + 1;
     if (nfeq == 1) neq++;
-    if (nbefore_mem != nbefore || nafter_mem != nafter || debug_force())
+    if (nbefore_mem != nbefore || nafter_mem != nafter || DbgOpt::force())
     {
       nbefore_mem = nbefore;
       nafter_mem = nafter;
@@ -6082,7 +6085,7 @@ int anakexp_f(Db *db,
       /* Establish the L.H.S. of the kriging system */
 
       st_lhs_exp(covdd, cov_radius, flag_sym, nfeq, nbefore, nafter, neq);
-      if (debug_query("kriging")) krige_lhs_print(nech, neq, neq, flag, lhs);
+      if (DbgOpt::query(EDbg::KRIGING)) krige_lhs_print(nech, neq, neq, flag, lhs);
 
       /* Invert the kriging system */
 
@@ -6095,7 +6098,7 @@ int anakexp_f(Db *db,
       /* Establish the R.H.S. of the kriging system */
 
       st_rhs_exp(covd0, cov_radius, flag_sym, nfeq, nbefore, nafter, neq);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_rhs_print(nvarin, nech, neq, neq, flag, rhs);
 
       /* Derive the kriging weights */
@@ -6107,14 +6110,14 @@ int anakexp_f(Db *db,
 
     result = st_estim_exp(db, wgt, nbefore, nafter);
     DBOUT->setArray(IECH_OUT, IPTR_EST, result);
-    if (debug_query("results")) st_result_kriging_print(0, nvarin, status);
+    if (DbgOpt::query(EDbg::RESULTS)) st_result_kriging_print(0, nvarin, status);
   }
 
   /* Set the error return flag */
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   st_krige_manage_basic(-1, size, size, 1, nfeq);
   return (error);
@@ -6789,7 +6792,7 @@ int anakexp_3D(Db *db,
         indg[1] = iy;
         indg[2] = iz;
         IECH_OUT = db_index_grid_to_sample(DBOUT, indg);
-        debug_index(IECH_OUT + 1);
+        DbgOpt::setIndex(IECH_OUT + 1);
 
         /* Initialize the result to TEST */
 
@@ -6797,8 +6800,8 @@ int anakexp_3D(Db *db,
 
         if (FFFF(db->getVariable(IECH_OUT, 0)) || !db->isActive(IECH_OUT))
           continue;
-        if (debug_query("kriging") || debug_query("nbgh")
-            || debug_query("results"))
+        if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH)
+            || DbgOpt::query(EDbg::RESULTS))
         {
           mestitle(1, "Target location");
           db_sample_print(db, IECH_OUT, 1, 0, 0);
@@ -6818,14 +6821,14 @@ int anakexp_3D(Db *db,
         /* If the neighborhood has changed, establish the kriging system */
 
         flag_col = 0;
-        if (flag_new || debug_force())
+        if (flag_new || DbgOpt::force())
         {
 
           /* Establish the L.H.S. of the kriging system */
 
           st_lhs_exp_3D(nech, nfeq, nei_ss, nei_nn, cov_ss, cov_nn, nei_cur,
                         cov_tot, nugget);
-          if (debug_query("kriging"))
+          if (DbgOpt::query(EDbg::KRIGING))
             krige_lhs_print(nech, neq, neq, flag, lhs);
 
           /* Invert the kriging system */
@@ -6839,7 +6842,7 @@ int anakexp_3D(Db *db,
           /* Establish the R.H.S. of the kriging system */
 
           st_rhs_exp_3D(nech, nfeq, nei_ss, nei_nn, cov_ss, cov_nn, nei_cur, cov_res);
-          if (debug_query("kriging"))
+          if (DbgOpt::query(EDbg::KRIGING))
             krige_rhs_print(nvarin, nech, neq, neq, flag, rhs);
 
           /* Derive the kriging weights */
@@ -6851,7 +6854,7 @@ int anakexp_3D(Db *db,
 
         result = st_estim_exp_3D(db, nei_ss, nei_nn, nei_cur, wgt);
         DBOUT->setArray(IECH_OUT, IPTR_EST, result);
-        if (debug_query("results")) st_result_kriging_print(0, nvarin, status);
+        if (DbgOpt::query(EDbg::RESULTS)) st_result_kriging_print(0, nvarin, status);
       }
     }
 
@@ -6860,7 +6863,7 @@ int anakexp_3D(Db *db,
   error = 0;
   if (fildmp != nullptr) fclose(fildmp);
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   st_krige_manage_basic(-1, size_nei, size_nei, 1, nfeq);
   num_tot = (int*) mem_free((char* ) num_tot);
@@ -6949,7 +6952,7 @@ int bayes_simulate(Model *model,
 
   /* If DEBUG option is switched ON, the values are printed out */
 
-  label_suite: if (debug_query("bayes"))
+  label_suite: if (DbgOpt::query(EDbg::BAYES))
   {
     mestitle(1, "Simulation of Drift Coefficients (for Bayesian Simulation)");
     message("Rank     Drift Coefficients\n");
@@ -7044,7 +7047,7 @@ int image_smoother(Db *dbgrid, Neigh *neigh, int type, double range)
   for (IECH_OUT = 0; IECH_OUT < dbgrid->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Image smoother", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!DBOUT->isActive(IECH_OUT)) continue;
     db_index_sample_to_grid(DBOUT, IECH_OUT, indg0);
 
@@ -7083,7 +7086,7 @@ int image_smoother(Db *dbgrid, Neigh *neigh, int type, double range)
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   dbaux = db_delete(dbaux);
   indn0 = db_indg_free(indn0);
   indnl = db_indg_free(indnl);
@@ -7201,10 +7204,10 @@ int krigsum_f(Db *dbin,
     for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
     {
       mes_process(string, DBOUT->getSampleNumber(), IECH_OUT);
-      debug_index(IECH_OUT + 1);
+      DbgOpt::setIndex(IECH_OUT + 1);
       if (!dbout->isActive(IECH_OUT)) continue;
-      if (debug_query("kriging") || debug_query("nbgh")
-          || debug_query("results"))
+      if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH)
+          || DbgOpt::query(EDbg::RESULTS))
       {
         mestitle(1, "Target location");
         db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -7219,7 +7222,7 @@ int krigsum_f(Db *dbin,
 
       /* Establish the kriging L.H.S. */
 
-      if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+      if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
       {
         st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
         if (status) goto label_store;
@@ -7231,13 +7234,13 @@ int krigsum_f(Db *dbin,
       st_rhs(model, nbgh_ranks, neq, nvarmod, NULL, &status);
       if (status) goto label_store;
       st_rhs_iso2hetero(neq, nvarmod);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_rhs_print(nvarmod, nech, neq, nred, flag, rhs);
 
       /* Perform the estimation */
 
       label_store: st_estimate(model, NULL, status, 0, nvarmod, nred);
-      if (debug_query("results"))
+      if (DbgOpt::query(EDbg::RESULTS))
         st_result_kriging_print(neigh->getFlagXvalid(), nvarmod, status);
     }
   }
@@ -7292,7 +7295,7 @@ int krigsum_f(Db *dbin,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvarin, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
@@ -7555,10 +7558,10 @@ int krigmvp_f(Db *dbin,
         for (ix = 0; ix < db3grid->getNX(0); ix++, IECH_OUT++)
         {
           mes_process(string, DBOUT->getSampleNumber(), IECH_OUT);
-          debug_index(IECH_OUT + 1);
+          DbgOpt::setIndex(IECH_OUT + 1);
           if (!db3grid->isActive(IECH_OUT)) continue;
-          if (debug_query("kriging") || debug_query("nbgh")
-              || debug_query("results"))
+          if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH)
+              || DbgOpt::query(EDbg::RESULTS))
           {
             mestitle(1, "Target location");
             db_sample_print(db3grid, IECH_OUT, 1, 0, 0);
@@ -7573,7 +7576,7 @@ int krigmvp_f(Db *dbin,
 
           /* Establish the kriging L.H.S. */
 
-          if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+          if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
           {
             st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
             if (status) goto label_store;
@@ -7585,7 +7588,7 @@ int krigmvp_f(Db *dbin,
           st_rhs(model, nbgh_ranks, neq, nvarmod, NULL, &status);
           if (status) goto label_store;
           st_rhs_iso2hetero(neq, nvarmod);
-          if (debug_query("kriging"))
+          if (DbgOpt::query(EDbg::KRIGING))
             krige_rhs_print(nvarmod, nech, neq, nred, flag, rhs);
 
           /* Derive the kriging weights */
@@ -7593,7 +7596,7 @@ int krigmvp_f(Db *dbin,
           if (FLAG_WGT)
           {
             matrix_product(nred, nred, nvarmod, lhs, rhs, wgt);
-            if (debug_query("kriging"))
+            if (DbgOpt::query(EDbg::KRIGING))
               krige_wgt_print(status, nvarmod, nvarmod, nfeq, nbgh_ranks, nred, -1,
                               flag, wgt);
           }
@@ -7601,7 +7604,7 @@ int krigmvp_f(Db *dbin,
           /* Perform the estimation */
 
           label_store: st_estimate(model, NULL, status, 0, nvarmod, nred);
-          if (debug_query("results"))
+          if (DbgOpt::query(EDbg::RESULTS))
             st_result_kriging_print(neigh->getFlagXvalid(), nvarmod, status);
         }
     }
@@ -7743,7 +7746,7 @@ int krigmvp_f(Db *dbin,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvarmod, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
@@ -7966,7 +7969,7 @@ int krigtest_f(Db *dbin,
   if (FLAG_WGT)
   {
     matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
   }
 
@@ -7974,7 +7977,7 @@ int krigtest_f(Db *dbin,
 
   label_store: st_estimate(model, NULL, status, neigh->getFlagXvalid(), nvar,
                            nred);
-  if (debug_query("results"))
+  if (DbgOpt::query(EDbg::RESULTS))
     st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
 
   /* Store the output arrays */
@@ -8118,9 +8121,9 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -8135,7 +8138,7 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -8147,7 +8150,7 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
     st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
     /* Derive the kriging weights */
@@ -8155,7 +8158,7 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
     if (FLAG_WGT)
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
     }
 
@@ -8168,7 +8171,7 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
 
     st_transform_gaussian_to_raw(anam);
 
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
       st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
   }
 
@@ -8176,7 +8179,7 @@ int kriggam_f(Db *dbin, Db *dbout, Anam *anam, Model *model, Neigh *neigh)
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
@@ -8266,9 +8269,9 @@ int krigcell_f(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -8287,7 +8290,7 @@ int krigcell_f(Db *dbin,
 
     /* Establish the kriging L.H.S. */
 
-    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (! nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) goto label_store;
@@ -8299,7 +8302,7 @@ int krigcell_f(Db *dbin,
     st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
     /* Derive the kriging weights */
@@ -8307,7 +8310,7 @@ int krigcell_f(Db *dbin,
     if (FLAG_WGT)
     {
       matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
     }
 
@@ -8315,7 +8318,7 @@ int krigcell_f(Db *dbin,
 
     label_store: st_estimate(model, NULL, status, neigh->getFlagXvalid(), nvar,
                              nred);
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
       st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
   }
 
@@ -8323,7 +8326,7 @@ int krigcell_f(Db *dbin,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 0, EKrigOpt::BLOCK, 1, ndisc);
@@ -8592,9 +8595,9 @@ int dk_f(Db *dbin,
   {
     mes_process("Disjunctive Kriging for cell", DBOUT->getSampleNumber(),
                 IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!DBOUT->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(DBOUT, IECH_OUT, 1, 0, 0);
@@ -8664,7 +8667,7 @@ int dk_f(Db *dbin,
 
       if (flag_panel) for (i = 0; i < neqmax; i++)
         rhs[i] = rhs_cum[i] / (double) nb_mult;
-      if (debug_query("kriging"))
+      if (DbgOpt::query(EDbg::KRIGING))
         krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
 
       /* Derive the kriging weights */
@@ -8672,7 +8675,7 @@ int dk_f(Db *dbin,
       if (FLAG_WGT)
       {
         matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-        if (debug_query("kriging"))
+        if (DbgOpt::query(EDbg::KRIGING))
           krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
       }
 
@@ -8680,7 +8683,7 @@ int dk_f(Db *dbin,
 
       label_store: st_estimate(model, NULL, status, neigh->getFlagXvalid(),
                                nvar, nred);
-      if (debug_query("results"))
+      if (DbgOpt::query(EDbg::RESULTS))
         st_result_kriging_print(neigh->getFlagXvalid(), nvar, status);
     }
   }
@@ -8689,7 +8692,7 @@ int dk_f(Db *dbin,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   rhs_cum = (double*) mem_free((char* ) rhs_cum);
   varloc = (int*) mem_free((char* ) varloc);
   (void) st_model_manage(-1, model);
@@ -9599,9 +9602,9 @@ int krigsampling_f(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -9634,7 +9637,7 @@ int krigsampling_f(Db *dbin,
 
     /* Optional printout */
 
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
     {
       tab_printg(" - Estimate  = ", 1, EJustify::RIGHT, estim);
       message("\n");
@@ -9914,11 +9917,11 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
   st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
   if (status) goto label_end;
   st_rhs_iso2hetero(neq, 1);
-  if (debug_query("kriging")) krige_rhs_print(1, nech, neq, nred, flag, rhs);
+  if (DbgOpt::query(EDbg::KRIGING)) krige_rhs_print(1, nech, neq, nred, flag, rhs);
 
   /* Derive the kriging weights */
   matrix_product(nred, nred, 1, lhs, rhs, wgt);
-  if (debug_query("kriging"))
+  if (DbgOpt::query(EDbg::KRIGING))
     krige_wgt_print(status, 1, 1, model->getDriftEquationNumber(), nbgh_ranks, nred,
                     -1, flag, wgt);
 
@@ -9941,7 +9944,7 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::DRIFT, 1, VectorInt());
@@ -10013,7 +10016,7 @@ static int st_declustering_3(Db *db,
 
     /* Establish the kriging L.H.S. */
 
-    if (!nbghw.isUnchanged() || neigh->getFlagContinuous() || debug_force())
+    if (!nbghw.isUnchanged() || neigh->getFlagContinuous() || DbgOpt::force())
     {
       st_prepar(model, neigh, nbgh_ranks, &status, &nred, &neq);
       if (status) continue;
@@ -10050,7 +10053,7 @@ static int st_declustering_3(Db *db,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, nvar, model, neigh);
   (void) krige_koption_manage(-1, 1, EKrigOpt::BLOCK, 1, ndisc);
@@ -10858,7 +10861,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
   covpp = st_inhomogeneous_covpp(dbdat, dbsrc, model_dat, distps, prodps);
   if (covpp == nullptr) goto label_end;
-  if (debug_query("kriging") || is_debug_reference_defined())
+  if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::isReferenceDefined())
     krige_lhs_print(np, neq, nred, NULL, covpp);
 
   /* Invert the Kriging Matrix */
@@ -10915,9 +10918,9 @@ int inhomogeneous_kriging(Db *dbdat,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    debug_index(IECH_OUT + 1);
+    DbgOpt::setIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH) || DbgOpt::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
@@ -10932,7 +10935,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
     /* Optional printout of the R.H.S */
 
-    if (debug_force()) krige_rhs_print(nvar, np, neq, nred, NULL, rhs);
+    if (DbgOpt::force()) krige_rhs_print(nvar, np, neq, nred, NULL, rhs);
 
     /* Fill the drift at Target point (optional) */
 
@@ -10942,7 +10945,7 @@ int inhomogeneous_kriging(Db *dbdat,
     /* Calculate the Kriging weights */
 
     matrix_product(np, np, 1, covpp, rhs, lambda);
-    if (debug_force())
+    if (DbgOpt::force())
       krige_wgt_print(0, nvar, nvar, nfeq, nbgh_ranks, nred, -1, NULL, lambda);
 
     /* Update vector of weights in presence of drift */
@@ -10986,7 +10989,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
     /* Optional printout */
 
-    if (debug_query("kriging") || debug_force())
+    if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::force())
       st_result_kriging_print(0, nvar, 0);
   }
 
@@ -10994,7 +10997,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   covss = (double*) mem_free((char* ) covss);
   distps = (double*) mem_free((char* ) distps);
   distgs = (double*) mem_free((char* ) distgs);

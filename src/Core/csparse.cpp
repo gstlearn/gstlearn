@@ -14,6 +14,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "csparse_d.h"
 #include "csparse_f.h"
 
@@ -4687,7 +4688,7 @@ int qchol_cholesky(int verbose, QChol *QC)
 
   /* Optional printout */
 
-  if (debug_query("kriging") || debug_force())
+  if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::force())
   {
     message("Q Sparse Matrix\n");
     cs_print(QC->Q, 1);

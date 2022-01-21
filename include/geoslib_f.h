@@ -486,14 +486,3 @@ GSTLEARN_EXPORT int polygon_inside(double xx,
                                    int flag_nested,
                                    Polygons *polygon);
 
-
-GSTLEARN_EXPORT void debug_reset(void);
-GSTLEARN_EXPORT void debug_print(void);
-GSTLEARN_EXPORT void debug_index(int rank);
-GSTLEARN_EXPORT void debug_reference(int rank);
-GSTLEARN_EXPORT int is_debug_reference_defined(void);
-GSTLEARN_EXPORT void debug_define(const char *name, int status);
-GSTLEARN_EXPORT int debug_query(const char *name);
-GSTLEARN_EXPORT int debug_force(void);
-
-

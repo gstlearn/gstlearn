@@ -15,6 +15,7 @@
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "Neigh/Neigh.hpp"
+#include "Basic/DbgOpt.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -97,7 +98,7 @@ int main(int argc, char *argv[])
 
   /* Setup constants */
 
-  debug_reset();
+  DbgOpt::reset();
   constant_reset();
 
   /* Getting the Study name */

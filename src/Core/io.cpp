@@ -16,6 +16,7 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 
 #include <string.h>
 #include <stdarg.h>
@@ -526,7 +527,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (fgets(LINE, LONG_SIZE, file) == NULL) return (-1);
       LINE[strlen(LINE) - 1] = '\0';
       (void) gslStrcpy(LINE_MEM, LINE);
-      if (debug_query("interface")) message("Lecture ASCII = %s\n", LINE);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
 
       /* Eliminate the comments */
 
@@ -551,7 +552,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
     LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
-    if (debug_query("interface"))
+    if (DbgOpt::query(EDbg::INTERFACE))
       message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
@@ -564,7 +565,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
         if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       }
       ideb += 2;
-      if (debug_query("interface")) message("Decoded String = %s\n", ret_s);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
     }
     else if (!strcmp(fmt, "%d"))
     {
@@ -572,7 +573,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-      if (debug_query("interface")) message("Decoded Integer = %i\n", *ret_i);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
     }
     else if (!strcmp(fmt, "%f"))
     {
@@ -580,7 +581,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
-      if (debug_query("interface")) message("Decoded Float = %s\n", *ret_f);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
     }
     else if (!strcmp(fmt, "%lf"))
     {
@@ -588,7 +589,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface")) message("Decoded Double = %lf\n", *ret_d);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
     }
     else if (!strcmp(fmt, "%lg"))
     {
@@ -596,7 +597,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface")) message("Decoded Double = %lg\n", *ret_d);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
     }
     else
     {
@@ -632,7 +633,7 @@ int _file_get_ncol(FILE *file)
 
   if (fgets(LINE, LONG_SIZE, file) == NULL) return (ncol);
   LINE[strlen(LINE) - 1] = '\0';
-  if (debug_query("interface")) message("Lecture ASCII = %s\n", LINE);
+  if (DbgOpt::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
 
   /* Eliminate the comments */
 
@@ -659,7 +660,7 @@ int _file_get_ncol(FILE *file)
       ncol++;
   }
 
-  if (debug_query("interface")) message("Number of columns = %d\n", ncol);
+  if (DbgOpt::query(EDbg::INTERFACE)) message("Number of columns = %d\n", ncol);
   return (ncol);
 }
 
@@ -725,7 +726,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       LINEB = strsep(buffer, "\n");
       if (LINEB == NULL) return (-1);
       (void) gslStrcpy(LINE_MEM, LINEB);
-      if (debug_query("interface")) message("Lecture ASCII = %s\n", LINEB);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINEB);
 
       /* Eliminate the comments */
 
@@ -750,7 +751,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
     LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
-    if (debug_query("interface"))
+    if (DbgOpt::query(EDbg::INTERFACE))
       message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
@@ -760,7 +761,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       ret_s = va_arg(ap, char*);
       if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       ideb += 2;
-      if (debug_query("interface")) message("Decoded String = %s\n", ret_s);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
     }
     else if (!strcmp(fmt, "%d"))
     {
@@ -768,7 +769,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-      if (debug_query("interface")) message("Decoded Integer = %i\n", *ret_i);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
     }
     else if (!strcmp(fmt, "%f"))
     {
@@ -776,7 +777,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
-      if (debug_query("interface")) message("Decoded Float = %s\n", *ret_f);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
     }
     else if (!strcmp(fmt, "%lf"))
     {
@@ -784,7 +785,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface")) message("Decoded Double = %lf\n", *ret_d);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
     }
     else if (!strcmp(fmt, "%lg"))
     {
@@ -792,7 +793,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface")) message("Decoded Double = %lg\n", *ret_d);
+      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
     }
     else
     {
@@ -831,7 +832,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
   {
     ret_s = va_arg(ap, char*);
     fprintf(file, "%s", ret_s);
-    if (debug_query("interface")) message("Encoded String = %s\n", ret_s);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
   }
   else if (!strcmp(format, "%d"))
   {
@@ -840,7 +841,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%d", ret_i);
-    if (debug_query("interface")) message("Encoded Integer = %i\n", ret_i);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
   }
   else if (!strcmp(format, "%f"))
   {
@@ -849,7 +850,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%f", ret_d);
-    if (debug_query("interface")) message("Encoded Float = %s\n", ret_d);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Float = %s\n", ret_d);
   }
   else if (!strcmp(format, "%lf"))
   {
@@ -858,7 +859,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%lf", ret_d);
-    if (debug_query("interface")) message("Encoded Double = %lf\n", ret_d);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Double = %lf\n", ret_d);
   }
   else if (!strcmp(format, "%lg"))
   {
@@ -867,7 +868,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%lg", ret_d);
-    if (debug_query("interface")) message("Encoded Double = %lg\n", ret_d);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Double = %lg\n", ret_d);
   }
   else if (!strcmp(format, "\n"))
   {
@@ -879,7 +880,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
     ret_s = va_arg(ap, char*);
     fprintf(file, "# %s\n", ret_s);
     no_blank = 1;
-    if (debug_query("interface")) message("Encoded Comment = %s\n", ret_s);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Comment = %s\n", ret_s);
   }
   else
   {
@@ -917,7 +918,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
   {
     ret_s = va_arg(ap, char*);
     (void) gslSPrintf(buffer, "%s", ret_s);
-    if (debug_query("interface")) message("Encoded String = %s\n", ret_s);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
   }
   else if (!strcmp(format, "%d"))
   {
@@ -926,7 +927,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%d", ret_i);
-    if (debug_query("interface")) message("Encoded Integer = %i\n", ret_i);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
   }
   else if (!strcmp(format, "%f"))
   {
@@ -935,7 +936,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%f", ret_d);
-    if (debug_query("interface")) message("Encoded Float = %s\n", ret_d);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Float = %s\n", ret_d);
   }
   else if (!strcmp(format, "%lf"))
   {
@@ -944,7 +945,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%lf", ret_d);
-    if (debug_query("interface")) message("Encoded Double = %lf\n", ret_d);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Double = %lf\n", ret_d);
   }
   else if (!strcmp(format, "%lg"))
   {
@@ -953,7 +954,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%lg", ret_d);
-    if (debug_query("interface")) message("Encoded Double = %lg\n", ret_d);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Double = %lg\n", ret_d);
   }
   else if (!strcmp(format, "\n"))
   {
@@ -965,7 +966,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
     ret_s = va_arg(ap, char*);
     (void) gslSPrintf(buffer, "# %s\n", ret_s);
     no_blank = 1;
-    if (debug_query("interface")) message("Encoded Comment = %s\n", ret_s);
+    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Comment = %s\n", ret_s);
   }
   else
   {

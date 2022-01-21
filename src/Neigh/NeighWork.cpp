@@ -13,6 +13,8 @@
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/DbgOpt.hpp"
+
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -204,7 +206,7 @@ VectorInt NeighWork::select(Db *dbout,
 
   // In case of debug option, dump out neighborhood characteristics
 
-  if (debug_query("nbgh")) _display(ranks);
+  if (DbgOpt::query(EDbg::NBGH)) _display(ranks);
 
   /* Compress the vector of returned sample ranks */
 

@@ -225,14 +225,6 @@ GSTLEARN_EXPORT double ut_merge_extension(int ndim,
                                           double *maxi_in,
                                           double *mini_out,
                                           double *maxi_out);
-//GSTLEARN_EXPORT void debug_reset(void);
-//GSTLEARN_EXPORT void debug_print(void);
-//GSTLEARN_EXPORT void debug_index(int rank);
-//GSTLEARN_EXPORT void debug_reference(int rank);
-//GSTLEARN_EXPORT int is_debug_reference_defined(void);
-//GSTLEARN_EXPORT void debug_define(const char *name, int status);
-//GSTLEARN_EXPORT int debug_query(const char *name);
-//GSTLEARN_EXPORT int debug_force(void);
 GSTLEARN_EXPORT void string_to_uppercase(char *string);
 GSTLEARN_EXPORT void string_to_lowercase(char *string);
 GSTLEARN_EXPORT int string_compare(int flag_case,

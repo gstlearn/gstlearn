@@ -11,6 +11,7 @@
 #include "Model/Model.hpp"
 #include "Neigh/Neigh.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/DbgOpt.hpp"
 
 int main(int /*argc*/, char */*argv*/[])
 {
@@ -44,7 +45,7 @@ int main(int /*argc*/, char */*argv*/[])
   constraints.addItem(&consNug);
 
   Option_AutoFit opt;
-  debug_define("converge",1);
+  DbgOpt::define(EDbg::CONVERGE,1);
   int err = model->fit(vario,structs,true,opt,constraints);
 
   filename = ASerializable::getTestData("Scotland","model.ascii");

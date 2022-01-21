@@ -15,6 +15,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Basic/DbgOpt.hpp"
 
 #define VERBOSE 0
 
@@ -59,7 +60,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* 1.c - Setup constants */
 
-  debug_reset();
+  DbgOpt::reset();
   constant_reset();
   
   // Create the 2-D grid output file

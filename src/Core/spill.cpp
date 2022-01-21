@@ -13,6 +13,7 @@
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 
 #include <string.h>
 
@@ -512,7 +513,7 @@ static void st_get_coordinates(double *pt_out, SPIMG *out, int *ix0, int *iy0)
   *ix0 = static_cast<int>((pt_out - out->bitmap) / TY - BORD + 1);
   *iy0 = static_cast<int>((pt_out - out->bitmap) % TY - BORD + 1);
 
-  if (debug_query("morpho"))
+  if (DbgOpt::query(EDbg::MORPHO))
     message("Processed grid node : IX=%d IY=%d - Status=%d\n", (*ix0), (*iy0),
             (*pt_out));
   return;

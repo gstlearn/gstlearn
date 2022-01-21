@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "Variogram/Vario.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
 
   /* Setup constants */
 
-  debug_reset();
+  DbgOpt::reset();
   constant_reset();
 
   /* Getting the Study name */

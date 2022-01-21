@@ -33,6 +33,8 @@
 #include "Basic/Table.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/DbgOpt.hpp"
+#include "Basic/EDbgOpt.hpp"
 
 #include "Enum/EKrigOpt.hpp"
 

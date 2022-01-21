@@ -11,11 +11,13 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Model/Model.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleStringFormat.hpp"
 #include "LithoRule/Node.hpp"
 #include "Db/Db.hpp"
+
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
@@ -653,7 +655,7 @@ int Rule::setProportions(const VectorDouble& proportions) const
 
   /* Debug printout (optional) */
 
-  if (debug_query("props"))
+  if (DbgOpt::query(EDbg::PROPS))
   {
     RuleStringFormat rulefmt(1);
     display(&rulefmt);

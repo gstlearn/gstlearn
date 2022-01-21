@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 #include "Basic/Limits.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleStringFormat.hpp"
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
 
   /* Setup constants */
 
-  debug_reset();
+  DbgOpt::reset();
   constant_reset();
 
   /* Getting the Study name */

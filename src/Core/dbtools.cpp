@@ -17,18 +17,19 @@
 #include "LinearOp/OptimCostColored.hpp"
 #include "Stats/Classical.hpp"
 #include "Morpho/Morpho.hpp"
-#include "Basic/NamingConvention.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/String.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Db/Db.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Basic/Utilities.hpp"
+#include "Basic/String.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Polygon/Polygons.hpp"
 
 #include <math.h>
@@ -415,7 +416,7 @@ static int st_migrate_point_to_grid(Db *db_point,
                                      jech;
     }
   }
-  if (debug_query("db"))
+  if (DbgOpt::query(EDbg::DB))
     message("Number of nodes directly assigned = %d/%d\n", nb_assign,
             db_grid->getSampleNumber());
 

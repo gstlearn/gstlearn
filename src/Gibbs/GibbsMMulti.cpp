@@ -14,6 +14,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/HDF5format.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -230,7 +231,7 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 
   /* Print the title */
 
-  if (debug_query("converge"))
+  if (DbgOpt::query(EDbg::CONVERGE))
     mestitle(1, "Gibbs Sampler (Simu:%d - GS:%d)", isimu + 1, ipgs + 1);
 
   /* Loop on the target */

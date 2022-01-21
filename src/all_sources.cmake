@@ -206,6 +206,7 @@ set(SOURCES
   Basic/CSVformat.cpp
   Basic/NamingConvention.cpp
   Basic/Utilities.cpp
+  Basic/DbgOpt.cpp
   Polynomials/Chebychev.cpp
   Polynomials/APolynomial.cpp
   Polynomials/Hermite.cpp

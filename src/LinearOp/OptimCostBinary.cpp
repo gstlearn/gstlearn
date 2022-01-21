@@ -20,6 +20,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/DbgOpt.hpp"
 
 #include <math.h>
 
@@ -222,7 +223,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
       iter++;
       _evaluateGrad(indic,propfac,&normgrad);
 
-      if (debug_query("converge"))
+      if (DbgOpt::query(EDbg::CONVERGE))
         message("Iteration #%d (max=%d) - Cost=%lf - NormGrad=%lf (eps=%lg)\n",
                 iter,maxiter,costv,normgrad,eps);
 

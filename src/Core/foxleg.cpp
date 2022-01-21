@@ -14,6 +14,7 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 
 #include <math.h>
 
@@ -880,7 +881,7 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
   nactive = st_define_constraints(0, bords_red, ai_red, hgnadm, consts,
                                   flag_active, temp);
   min_adm_best = st_essai(hgnadm, grad_red, gauss_red);
-  if (VERBOSE_GQO && debug_query("converge"))
+  if (VERBOSE_GQO && DbgOpt::query(EDbg::CONVERGE))
     message("GQO(  0) : Gain for initial solution  = %lg\n", -min_adm_best);
 
   sortie = SOUSITER = 0;
@@ -912,7 +913,7 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
       nactive = st_define_constraints(1, bords_red, ai_red, hgnadm, consts,
                                       flag_active, temp);
       min_adm_cur = st_essai(hgnadm, grad_red, gauss_red);
-      if (VERBOSE_GQO && debug_query("converge"))
+      if (VERBOSE_GQO && DbgOpt::query(EDbg::CONVERGE))
         message("GQO(%3d) : Gain for infeasible case   = %lg\n", SOUSITER,
                 -min_adm_cur);
       if (min_adm_cur >= min_adm_best) break;
@@ -926,7 +927,7 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
       {
         flag_active[lambda_neg] = 0;
         nactive--;
-        if (VERBOSE_GQO && debug_query("converge"))
+        if (VERBOSE_GQO && DbgOpt::query(EDbg::CONVERGE))
           message("GQO(%3d) : Gain for feasible case     = %lg\n", SOUSITER,
                   -st_essai(hgnadm, grad_red, gauss_red));
       }
@@ -1026,7 +1027,7 @@ static void st_foxleg_debug_title(void)
   int ipar;
   static char string[10];
 
-  if (!debug_query("converge")) return;
+  if (!DbgOpt::query(EDbg::CONVERGE)) return;
   mestitle(1, "Trajectory of parameters in Foxleg Algorithm");
   tab_prints(NULL, 1, EJustify::RIGHT, "Iteration");
   tab_prints(NULL, 1, EJustify::RIGHT, "Score");
@@ -1050,7 +1051,7 @@ static void st_foxleg_debug_current(double mscur,
 {
   int ipar;
 
-  if (!debug_query("converge")) return;
+  if (!DbgOpt::query(EDbg::CONVERGE)) return;
   tab_printi(NULL, 1, EJustify::RIGHT, ITERATION);
   tab_printd(NULL, 1, EJustify::RIGHT, mscur);
   tab_printd(NULL, 1, EJustify::RIGHT, delta);
@@ -1363,7 +1364,7 @@ int foxleg_f(int ndat,
                                           flag_active, flag_actaux, a, b1, b2,
                                           b3, temp, acont))
     {
-      if (debug_query("converge"))
+      if (DbgOpt::query(EDbg::CONVERGE))
       {
         messerr("Convergence not reached in minimization under constraints");
         messerr("The process is resumed in the final minimization status");
@@ -1424,7 +1425,7 @@ int foxleg_f(int ndat,
   label_ok: if (ITERATION >= mauto.getMaxiter())
   {
     error = -1;
-    if (debug_query("converge")) messerr("Convergence has not been reached");
+    if (DbgOpt::query(EDbg::CONVERGE)) messerr("Convergence has not been reached");
   }
   else
   {

@@ -21,6 +21,7 @@
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "csparse_f.h"
@@ -129,7 +130,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* Setup constants */
 
-  debug_reset();
+  DbgOpt::reset();
   constant_reset();
 
   /* Instantiate the Meshing */

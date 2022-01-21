@@ -13,6 +13,7 @@
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Db/Db.hpp"
 
 #include <string.h>
@@ -2253,7 +2254,7 @@ int simbool_f(Db *dbin,
 
     /* Debugging statement */
 
-    if (debug_query("converge"))
+    if (DbgOpt::query(EDbg::CONVERGE))
       message("Initial grain iteration %d: Number of non covered grains = %d\n",
               ITER, draw_more);
 
@@ -2348,7 +2349,7 @@ int simbool_f(Db *dbin,
       if (st_delete_object(1, nbgrain, cdgrain)) continue;
     }
 
-    if (debug_query("converge"))
+    if (DbgOpt::query(EDbg::CONVERGE))
       message("At time=%lf (< tmax=%lf), %d objects have been simulated\n",
               tabtime, tmax, Nb_object);
   }

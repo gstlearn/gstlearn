@@ -14,6 +14,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Drifts/EDrift.hpp"
@@ -1301,7 +1302,7 @@ static int st_build_lhs(Pot_Env *pot_env,
 
   // Printout (optional) 
 
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     krige_lhs_print(0, nequa, nequa, NULL, lhs);
   return (0);
 }
@@ -1709,7 +1710,7 @@ static void st_build_rhs(Pot_Env *pot_env,
 
   // Printout (optional) 
 
-  if (debug_query("kriging")) krige_rhs_print(nsol, 0, nequa, nequa, NULL, rhs);
+  if (DbgOpt::query(EDbg::KRIGING)) krige_rhs_print(nsol, 0, nequa, nequa, NULL, rhs);
 
   return;
 }
@@ -1771,7 +1772,7 @@ static void st_calc_point(Pot_Env *pot_env,
 
   /* Optional printout */
 
-  if (debug_query("kriging") || debug_query("nbgh"))
+  if (DbgOpt::query(EDbg::KRIGING) || DbgOpt::query(EDbg::NBGH))
   {
     mestitle(1, "Target location");
     db_sample_print(db_target, iech0, 1, 0, 0);
@@ -1790,7 +1791,7 @@ static void st_calc_point(Pot_Env *pot_env,
 
   // Printout (optional) 
 
-  if (debug_query("kriging"))
+  if (DbgOpt::query(EDbg::KRIGING))
   {
     print_matrix("Results", 0, 1, 1, nsol, NULL, result);
     message("\n");
@@ -1884,7 +1885,7 @@ static void st_estimate(Pot_Env *pot_env,
   {
     mes_process("Potential Estimation on 3-D Grid", dbout->getSampleNumber(),
                 iech);
-    debug_index(iech + 1);
+    DbgOpt::setIndex(iech + 1);
     if (!dbout->isActive(iech)) continue;
 
     // Perform the estimation
@@ -1898,7 +1899,7 @@ static void st_estimate(Pot_Env *pot_env,
 
     // Printout (optional) 
 
-    if (debug_query("kriging"))
+    if (DbgOpt::query(EDbg::KRIGING))
       message("Centered estimation = %lf\n", result[0]);
 
     // Translate from potential into layer
@@ -1911,7 +1912,7 @@ static void st_estimate(Pot_Env *pot_env,
     if (flag_grad) for (int idim = 0; idim < pot_env->ndim; idim++)
       dbout->setGradient(iech, idim, result[idim + 1]);
   }
-  debug_index(-1);
+  DbgOpt::setIndex(-1);
   return;
 }
 
@@ -1998,7 +1999,7 @@ static void st_dist_convert(Pot_Env *pot_env,
                rhs);
   matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
   matrix_product(1, neqm1, nsol, zdualk, rhs, result);
-  if (debug_query("converge"))
+  if (DbgOpt::query(EDbg::CONVERGE))
   {
     message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, 0,
             result[0]);
@@ -2023,7 +2024,7 @@ static void st_dist_convert(Pot_Env *pot_env,
                  coor, rhs);
     matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
     matrix_product(1, neqm1, nsol, zdualk, rhs, result);
-    if (debug_query("converge"))
+    if (DbgOpt::query(EDbg::CONVERGE))
     {
       message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, iter,
               result[0]);
@@ -2111,7 +2112,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
       iech0 = IAD_ISO(ic, j);
       mes_process("Potential Estimation on Iso-Potential %d of %d", j + 1,
                   ic + 1);
-      debug_index(iech0 + 1);
+      DbgOpt::setIndex(iech0 + 1);
 
       // Get the variance and the weights from the inverted L.H.S.
 
@@ -2140,7 +2141,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
 
       // Debugging option
 
-      if (debug_query("results"))
+      if (DbgOpt::query(EDbg::RESULTS))
       {
         message("Sample %d/%d (%d): Error=%lf - Variance=%lf", j + 1, ic + 1,
                 iech0 + 1, result[0], variance);
@@ -2205,7 +2206,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
       }
     }
   }
-  debug_index(-1);
+  DbgOpt::setIndex(-1);
   return;
 }
 
@@ -2307,7 +2308,7 @@ static void st_simcond(Pot_Env *pot_env,
   {
     mes_process("Potential Simulation on 3-D Grid", dbout->getSampleNumber(),
                 iech);
-    debug_index(iech + 1);
+    DbgOpt::setIndex(iech + 1);
     if (!dbout->isActive(iech)) continue;
 
     if (!FFFF(dist_tempere))
@@ -2359,7 +2360,7 @@ static void st_simcond(Pot_Env *pot_env,
       dbout->setSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1, result[0]);
     }
   }
-  debug_index(-1);
+  DbgOpt::setIndex(-1);
   return;
 }
 
@@ -2495,7 +2496,7 @@ static void st_check_data(Pot_Env *pot_env,
 
     for (int iech = 0; iech < dbiso->getSampleNumber(); iech++)
     {
-      debug_index(iech + 1);
+      DbgOpt::setIndex(iech + 1);
       if (!dbiso->isActive(iech)) continue;
       st_calc_point(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbiso, iech, result);
@@ -2526,7 +2527,7 @@ static void st_check_data(Pot_Env *pot_env,
       }
     }
     if (flag_save) st_save_manage(-1, "Isopotential", dbiso, 0, NULL);
-    debug_index(-1);
+    DbgOpt::setIndex(-1);
   }
 
   /* For the Gradient file */
@@ -2538,7 +2539,7 @@ static void st_check_data(Pot_Env *pot_env,
 
     for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
     {
-      debug_index(iech + 1);
+      DbgOpt::setIndex(iech + 1);
       if (!dbgrd->isActive(iech)) continue;
       st_calc_point(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbgrd, iech, result);
@@ -2567,7 +2568,7 @@ static void st_check_data(Pot_Env *pot_env,
       }
     }
     if (flag_save) st_save_manage(-1, "Gradient", dbgrd, 0, NULL);
-    debug_index(-1);
+    DbgOpt::setIndex(-1);
   }
 
   /* For the Tangent file */
@@ -2579,7 +2580,7 @@ static void st_check_data(Pot_Env *pot_env,
 
     for (int iech = 0; iech < dbtgt->getSampleNumber(); iech++)
     {
-      debug_index(iech + 1);
+      DbgOpt::setIndex(iech + 1);
       if (!dbtgt->isActive(iech)) continue;
       st_calc_point(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbtgt, iech, result);
@@ -2602,7 +2603,7 @@ static void st_check_data(Pot_Env *pot_env,
       }
     }
     if (flag_save) st_save_manage(-1, "Tangent", dbtgt, 0, NULL);
-    debug_index(-1);
+    DbgOpt::setIndex(-1);
   }
 
   return;
@@ -3156,16 +3157,16 @@ int potential_kriging(Db *dbiso,
   // Invert the matrix
 
   if (matrix_invert(lhs, nequa, -1)) goto label_end;
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("Inverted LHS", 0, 1, nequa, nequa, NULL, lhs);
 
   // Establish the data vector and get the dual form
 
   st_fill_dual(&pot_env, dbgrd, zval);
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
   matrix_product(nequa, nequa, 1, lhs, zval, zdualk);
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdualk);
 
   // Evaluate Potential at Reference point
@@ -3421,7 +3422,7 @@ int potential_simulate(Db *dbiso,
   // Invert the matrix
 
   if (matrix_invert(lhs, nequa, -1)) goto label_end;
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("Inverted LHS", 0, 1, nequa, nequa, NULL, lhs);
 
   if (flag_tempere)
@@ -3430,10 +3431,10 @@ int potential_simulate(Db *dbiso,
     // Establish the data vector and get the dual form
 
     st_fill_dual(&pot_env, dbgrd, zval);
-    if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+    if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
       print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
     matrix_product(nequa, nequa, 1, lhs, zval, zdualk);
-    if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+    if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
       print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdualk);
 
     // Evaluate Potential at Reference point
@@ -3456,10 +3457,10 @@ int potential_simulate(Db *dbiso,
   // Establish the simulated error vector and get the dual form
 
   st_fill_dual_simulation(&pot_env, dbiso, dbgrd, dbtgt, nbsimu, zval);
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("\n[Simu-Err]", 0, 1, nbsimu, nequa, NULL, zval);
   matrix_product(nequa, nequa, nbsimu, lhs, zval, zduals);
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("\n[Simu-Err] *%* [A]-1", 0, 1, nbsimu, nequa, NULL, zduals);
 
   // Get the Simulated Potential value at the iso-potential samples
@@ -3644,16 +3645,16 @@ int potential_xvalid(Db *dbiso,
   // Invert the matrix
 
   if (matrix_invert(lhs, nequa, -1)) goto label_end;
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("Inverted LHS", 0, 1, nequa, nequa, NULL, lhs);
 
   // Establish the data vector and get the dual form
 
   st_fill_dual(&pot_env, dbgrd, zval);
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
   matrix_product(nequa, nequa, 1, lhs, zval, zdualk);
-  if (is_debug_reference_defined() > 0 || debug_query("kriging"))
+  if (DbgOpt::isReferenceDefined() || DbgOpt::query(EDbg::KRIGING))
     print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdualk);
 
   /* Process the estimate at masked-off isovalues */

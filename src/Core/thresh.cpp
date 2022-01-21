@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
@@ -214,7 +215,7 @@ static int st_proportion_changed(PropDef *propdef)
 
   /* Print the proportions (optional) */
 
-  if (debug_query("props")) proportion_print(propdef);
+  if (DbgOpt::query(EDbg::PROPS)) proportion_print(propdef);
 
   for (int ifac = 0; ifac < propdef->nfaccur; ifac++)
     propdef->propmem[ifac] = propdef->proploc[ifac];
@@ -344,7 +345,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
 
   /* Set the debugging information */
 
-  debug_index(iech + 1);
+  DbgOpt::setIndex(iech + 1);
 
   /* Processing an "unknown" facies */
 
@@ -439,7 +440,7 @@ int rule_thresh_define(PropDef *propdef,
 
   /* Set the debugging information */
 
-  debug_index(iech + 1);
+  DbgOpt::setIndex(iech + 1);
 
   /* Processing an "unknown" facies */
 

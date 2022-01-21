@@ -11,17 +11,30 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "geoslib_define.h"
 
-GSTLEARN_EXPORT bool   isInteger(double value, double eps = EPSILON10);
-GSTLEARN_EXPORT int    getClosestInteger(double value);
-GSTLEARN_EXPORT bool   isMultiple(int nbig, int nsmall);
-GSTLEARN_EXPORT bool   isOdd(int number);
-GSTLEARN_EXPORT bool   isEven(int number);
-GSTLEARN_EXPORT int    FFFF(double value);
-GSTLEARN_EXPORT int    IFFFF(int value);
-GSTLEARN_EXPORT double getTEST();
-GSTLEARN_EXPORT int    getITEST();
-GSTLEARN_EXPORT double getMin(double val1, double val2);
-GSTLEARN_EXPORT double getMax(double val1, double val2);
+#include "EDbgOpt.hpp"
 
+/**
+ * Operate the list of active Debug options
+ */
+class GSTLEARN_EXPORT DbgOpt
+{
+public:
+  static void reset();
+  static bool query(const EDbg& option);
+  static bool queryByKey(const String& name);
+  static void define(const EDbg& option, bool status);
+  static void defineByKey(const String& name, bool status);
+  static void defineAll(bool status);
+  static void display(void);
+
+  static void setIndex(int cur_index) { _currentIndex = cur_index; }
+  static bool isReferenceDefined() { return _reference >= 0; }
+  static void setReference(int index) { _reference = index; }
+  static bool force();
+
+private:
+  static std::vector<EDbg> _dbg;
+  static int _currentIndex;
+  static int _reference;
+};

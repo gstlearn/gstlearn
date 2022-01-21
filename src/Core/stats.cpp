@@ -17,6 +17,7 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Db/Db.hpp"
 
 #include <math.h>
@@ -1892,7 +1893,7 @@ static void st_upscale(int orient,
 
   /* Initializations */
 
-  flag_debug = debug_query("upscale");
+  flag_debug = DbgOpt::query(EDbg::UPSCALE);
 
   /**************************************/
   /* Getting the minimum upscaled value */
@@ -2139,7 +2140,7 @@ int db_upscale(Db *dbgrid1,
   for (iech = 0; iech < dbgrid2->getSampleNumber(); iech++)
   {
     result1 = result2 = result = TEST;
-    debug_index(iech + 1);
+    DbgOpt::setIndex(iech + 1);
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
@@ -2177,7 +2178,7 @@ int db_upscale(Db *dbgrid1,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   numtab0 = (double*) mem_free((char* ) numtab0);
   numtab1 = (double*) mem_free((char* ) numtab1);
   numtab2 = (double*) mem_free((char* ) numtab2);
@@ -2759,7 +2760,7 @@ int db_diffusion(Db *dbgrid1,
   for (iech = 0; iech < nech; iech++)
   {
     diff_coeff = TEST;
-    debug_index(iech + 1);
+    DbgOpt::setIndex(iech + 1);
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
@@ -2810,7 +2811,7 @@ int db_diffusion(Db *dbgrid1,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   tabini = (int*) mem_free((char* ) tabini);
   tabcur = (int*) mem_free((char* ) tabcur);
   tabwrk = (int*) mem_free((char* ) tabwrk);

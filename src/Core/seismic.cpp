@@ -11,13 +11,14 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
-#include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/EJustify.hpp"
-#include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Basic/EJustify.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 
 #include <math.h>
 
@@ -2227,7 +2228,7 @@ static int st_estimate_neigh_unchanged(ST_Seismic_Neigh *ngh_old,
 
   /* Optional printout */
 
-  if (debug_query("nbgh") && !debug_force() && flag_unchanged)
+  if (DbgOpt::query(EDbg::NBGH) && !DbgOpt::force() && flag_unchanged)
     message("The neighborhood is unchanged\n");
 
   return (flag_unchanged);
@@ -2418,7 +2419,7 @@ static int st_estimate_neigh_create(Db *db,
 
   /* Optional printout */
 
-  if (debug_query("nbgh")) st_estimate_neigh_print(ngh, ix0, iz0);
+  if (DbgOpt::query(EDbg::NBGH)) st_estimate_neigh_print(ngh, ix0, iz0);
 
   /* Check the validity of the neighborhood */
 
@@ -2609,7 +2610,7 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
     for (j = 0; j < neqmax; j++, lec++)
       if (flag[i] && flag[j]) lhs[ecr++] = lhs[lec];
 
-  if (debug_query("kriging")) krige_lhs_print(nech, neqmax, nred, flag, lhs);
+  if (DbgOpt::query(EDbg::KRIGING)) krige_lhs_print(nech, neqmax, nred, flag, lhs);
 
   return;
 }
@@ -2679,7 +2680,7 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
     for (i = 0; i < neqmax; i++, lec++)
       if (flag[i]) rhs[ecr++] = rhs[lec];
 
-  if (debug_query("kriging"))
+  if (DbgOpt::query(EDbg::KRIGING))
     krige_rhs_print(NVAR, nech, neqmax, nred, flag, rhs);
 
   return;
@@ -2801,7 +2802,7 @@ static int st_estimate_wgt(ST_Seismic_Neigh *ngh,
   if (matrix_invert(lhs, nred, IECH_OUT)) return (1);
   matrix_product(nred, nred, 2, lhs, rhs, wgt);
 
-  if (debug_query("kriging")) st_wgt_print(ngh, NVAR, nech, nred, flag, wgt);
+  if (DbgOpt::query(EDbg::KRIGING)) st_wgt_print(ngh, NVAR, nech, nred, flag, wgt);
 
   return (0);
 }
@@ -2840,7 +2841,7 @@ static void st_estimate_result(Db     *db,
   /* Initializations */
 
   nech = ngh->nactive;
-  if (debug_query("results")) mestitle(0, "(Co-) Kriging results");
+  if (DbgOpt::query(EDbg::RESULTS)) mestitle(0, "(Co-) Kriging results");
 
   /* Loop on the variables */
 
@@ -2874,7 +2875,7 @@ static void st_estimate_result(Db     *db,
       db->setArray(IECH_OUT, iatt_std[ivar], stdev);
     }
 
-    if (debug_query("results"))
+    if (DbgOpt::query(EDbg::RESULTS))
     {
       tab_printi(NULL, 1, EJustify::RIGHT, ivar + 1);
       tab_printg(" - Estimate  = ", 1, EJustify::RIGHT, result);
@@ -2921,7 +2922,7 @@ static void st_simulate_result(Db     *db,
   /* Initializations */
 
   nech = ngh->nactive;
-  if (debug_query("results")) mestitle(0, "(Co-) Simulation results");
+  if (DbgOpt::query(EDbg::RESULTS)) mestitle(0, "(Co-) Simulation results");
 
   /* Pre-calculations */
 
@@ -2983,7 +2984,7 @@ static void st_simulate_result(Db     *db,
     {
       db->setArray(IECH_OUT, iatt_sim[ivar] + isimu, result[ivar]);
 
-      if (debug_query("results"))
+      if (DbgOpt::query(EDbg::RESULTS))
       {
         message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
         tab_printg(" = ", 1, EJustify::RIGHT, result[ivar]);
@@ -3194,7 +3195,7 @@ int seismic_estimate_XZ(Db *db,
     {
       nb_total++;
       IECH_OUT = st_absolute_index(db, ix0, iz0);
-      debug_index(IECH_OUT + 1);
+      DbgOpt::setIndex(IECH_OUT + 1);
       if (!db->isActive(IECH_OUT)) continue;
 
       /* Look for the neighborhood */
@@ -3204,7 +3205,7 @@ int seismic_estimate_XZ(Db *db,
 
       /* Check if the neighborhood is unchanged */
 
-      if (!st_estimate_neigh_unchanged(ngh_old, ngh_cur) || debug_force())
+      if (!st_estimate_neigh_unchanged(ngh_old, ngh_cur) || DbgOpt::force())
       {
         nb_calcul++;
 
@@ -3242,7 +3243,7 @@ int seismic_estimate_XZ(Db *db,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   if (flag_stat)
   {
     message("Statistics on the number of nodes:\n");
@@ -3454,7 +3455,7 @@ int seismic_simulate_XZ(Db *db,
     {
       nb_total++;
       IECH_OUT = st_absolute_index(db, ix0, iz0);
-      debug_index(IECH_OUT + 1);
+      DbgOpt::setIndex(IECH_OUT + 1);
       if (!db->isActive(IECH_OUT)) continue;
 
       /* Look for the neighborhood */
@@ -3465,7 +3466,7 @@ int seismic_simulate_XZ(Db *db,
 
       /* Check if the neighborhood is unchanged */
 
-      if (!st_estimate_neigh_unchanged(ngh_old, ngh_cur) || debug_force())
+      if (!st_estimate_neigh_unchanged(ngh_old, ngh_cur) || DbgOpt::force())
       {
         nb_calcul++;
 
@@ -3504,7 +3505,7 @@ int seismic_simulate_XZ(Db *db,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: DbgOpt::setIndex(0);
   if (flag_stat)
   {
     message("Statistics on the number of nodes:\n");

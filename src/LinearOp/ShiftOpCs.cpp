@@ -20,6 +20,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/ANoStat.hpp"
@@ -900,7 +901,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    debug_index(imesh + 1);
+    DbgOpt::setIndex(imesh + 1);
     double meshSize = amesh->getMeshSize(imesh);
 
     // Calculate geometry
@@ -1001,7 +1002,7 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    debug_index(imesh + 1);
+    DbgOpt::setIndex(imesh + 1);
     double meshSize = amesh->getMeshSize(imesh);
 
     // Case of Euclidean geometry
@@ -1076,7 +1077,7 @@ int ShiftOpCs::_buildSVel(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    debug_index(imesh + 1);
+    DbgOpt::setIndex(imesh + 1);
     double meshSize = amesh->getMeshSize(imesh);
 
     // Non stationary case
@@ -1159,7 +1160,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    debug_index(imesh + 1);
+    DbgOpt::setIndex(imesh + 1);
 
     // Non stationary case
 

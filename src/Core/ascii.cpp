@@ -20,6 +20,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/DbgOpt.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "LithoRule/Rule.hpp"
@@ -27,6 +28,7 @@
 #include "Model/Model.hpp"
 
 #include <string.h>
+#include <algorithm>
 
 /*! \cond */
 #define OLD 0
@@ -320,7 +322,7 @@ static FILE* st_file_open(const char *filename,
     return (file);
   }
 
-  if (debug_query("interface")) message("Opening the File = %s\n", filename);
+  if (DbgOpt::query(EDbg::INTERFACE)) message("Opening the File = %s\n", filename);
 
   /* Check against the file type */
 
@@ -450,7 +452,8 @@ void ascii_environ_read(char *file_name, int verbose)
   {
     if (st_record_read("Debug Keyword", "%s", name)) goto label_end;
     if (st_record_read("Debug Value", "%d", &debug)) goto label_end;
-    debug_define(name, debug);
+    String s = toUpper(String(name));
+    DbgOpt::defineByKey(s, debug);
   }
 
   label_end: st_file_close(file);
@@ -718,7 +721,7 @@ Anam* ascii_anam_read(const char *file_name, int verbose)
 
     anam_update_hermitian(anam_hermite, pymin, pzmin, pymax, pzmax, aymin,
                           azmin, aymax, azmax, r, hermite);
-    if (debug_query("interface")) anam_hermite->display();
+    if (DbgOpt::query(EDbg::INTERFACE)) anam_hermite->display();
     st_file_close(file);
     return (anam_hermite);
   }
@@ -755,7 +758,7 @@ Anam* ascii_anam_read(const char *file_name, int verbose)
     }
     anam_update_empirical(anam_empirical, ndisc, pymin, pzmin, pymax, pzmax,
                           aymin, azmin, aymax, azmax, sigma2e, tdisc);
-    if (debug_query("interface")) anam_empirical->display();
+    if (DbgOpt::query(EDbg::INTERFACE)) anam_empirical->display();
     st_file_close(file);
     return (anam_empirical);
   }
@@ -786,7 +789,7 @@ Anam* ascii_anam_read(const char *file_name, int verbose)
     }
     anam_update_discrete_DD(anam_discrete_DD, nCut, s, mu, zCut, pcaz2f, pcaf2z,
                             stats);
-    if (debug_query("interface")) anam_discrete_DD->display();
+    if (DbgOpt::query(EDbg::INTERFACE)) anam_discrete_DD->display();
     st_file_close(file);
     return (anam_discrete_DD);
   }
@@ -810,7 +813,7 @@ Anam* ascii_anam_read(const char *file_name, int verbose)
       if (st_table_read(nClass * nElem, stats.data())) goto label_end;
     }
     anam_update_discrete_IR(anam_discrete_IR, nCut, r, zCut, stats);
-    if (debug_query("interface")) anam_discrete_IR->display();
+    if (DbgOpt::query(EDbg::INTERFACE)) anam_discrete_IR->display();
     st_file_close(file);
     return (anam_discrete_IR);
   }
@@ -1083,7 +1086,7 @@ Frac_Environ* ascii_frac_read(const char *file_name,
     }
   }
 
-  label_end: if (debug_query("interface")) fracture_print(frac);
+  label_end: if (DbgOpt::query(EDbg::INTERFACE)) fracture_print(frac);
   st_file_close(file);
   return (frac);
 }
