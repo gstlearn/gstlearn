@@ -3023,7 +3023,10 @@ VectorDouble Db::getFieldsByLocator(const ELoc& locatorType, bool useSel) const
   return getFields(names, useSel);
 }
 
-VectorDouble Db::getFieldSubGrid(const String& name, int idim0, int rank)
+VectorDouble Db::getFieldSubGrid(const String& name,
+                                 int idim0,
+                                 int rank,
+                                 bool useSel)
 {
   VectorDouble vec;
   if (! isGrid())
@@ -3031,6 +3034,11 @@ VectorDouble Db::getFieldSubGrid(const String& name, int idim0, int rank)
     messerr("This method is only available for Grid Db");
     return vec;
   }
+
+  // Define optional selection
+
+  VectorDouble sel;
+  if (useSel) sel = getSelection();
 
   // Loop on the samples
 
@@ -3040,7 +3048,9 @@ VectorDouble Db::getFieldSubGrid(const String& name, int idim0, int rank)
     VectorInt indices = _grid.iteratorNext();
     if (indices[idim0] != rank) continue;
     int iabs = _grid.indiceToRank(indices);
+
     double value = getValue(name, iabs);
+    if (useSel && !sel.empty() && sel[iech] == 0) value = TEST;
     vec.push_back(value);
   }
   return vec;
@@ -3048,8 +3058,7 @@ VectorDouble Db::getFieldSubGrid(const String& name, int idim0, int rank)
 
 VectorDouble Db::getFieldsByAttribute(const VectorInt& iatts, bool useSel) const
 {
-  int nech = (useSel) ? getActiveSampleNumber() :
-                        getSampleNumber();
+  int nech = (useSel) ? getActiveSampleNumber() : getSampleNumber();
   int nvar = static_cast<int> (iatts.size());
   VectorDouble retval(nvar * nech);
 

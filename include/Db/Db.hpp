@@ -439,7 +439,10 @@ public:
                                  int locatorIndex=0,
                                  bool useSel = false) const;
   VectorDouble getFieldByIndex(int icol, bool useSel = false) const;
-  VectorDouble getFieldSubGrid(const String& name, int idim0, int rank);
+  VectorDouble getFieldSubGrid(const String& name,
+                               int idim0,
+                               int rank,
+                               bool useSel = false);
 
   void setField(const VectorDouble& tab, const String& name, bool useSel = false);
   void setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel = false);
