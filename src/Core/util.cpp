@@ -32,7 +32,6 @@
 #define COORD(i,ip)  (coord[3 * (ip) + (i)])
 #define RCOORD(i,ip) (R_coor->coor[3 * (ip) + (i)])
 #define MATTAB(ip,i) (mattab[(ip) * ncolor + (i)])
-#define DBG_NUMBER  15
 #define MINI        10
 #define LSTACK    1000
 /*! \endcond */
@@ -48,46 +47,8 @@ typedef struct
 
 typedef struct
 {
-  int status;
-  char keyword[20];
-  char comment[STRING_LENGTH];
-} Debug;
-
-static Debug DBG[DBG_NUMBER] = { { 0,
-                                   "interface",
-                                   "Communication with interface" },
-                                 { 0, "db", "Data Base Management" }, { 0,
-                                                                        "nbgh",
-                                                                        "Neighborhood Management" },
-                                 { 0, "model", "Model Management" }, { 0,
-                                                                       "kriging",
-                                                                       "Kriging Operations" },
-                                 { 0, "simulate", "Simulations" }, { 0,
-                                                                     "results",
-                                                                     "Kriging Results" },
-                                 { 0, "variogram", "Variogram calculations" }, { 0,
-                                                                                 "converge",
-                                                                                 "Convergence test" },
-                                 { 0, "condexp", "Conditional Expectation" }, { 0,
-                                                                                "bayes",
-                                                                                "Bayesian Estimation" },
-                                 { 0, "morpho", "Morphological Operations" }, { 0,
-                                                                                "props",
-                                                                                "Proportions or Intensities" },
-                                 { 0, "upscale", "Upscaling" }, { 0,
-                                                                  "spde",
-                                                                  "S.P.D.E" } };
-
-typedef struct
-{
   int actif;
 } Projec_Environ;
-
-typedef struct
-{
-  int index;
-  int reference;
-} Debug_Environ;
 
 typedef struct
 {
@@ -115,7 +76,6 @@ static double (*LEGENDRE_SPHPLM)(int, int, double) = NULL;
 static double (*LEGENDRE_PL)(int, double) = NULL;
 
 static Projec_Environ PROJEC = { 0 };
-static Debug_Environ DBGENV = { 0, 0 };
 static Variety_Environ VARIETY = { 0, 0. };
 static int KEYPAIR_NTAB = 0;
 static Keypair *KEYPAIR_TABS = NULL;

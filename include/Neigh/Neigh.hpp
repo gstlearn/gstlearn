@@ -20,8 +20,9 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/IClonable.hpp"
 
-// TODO : inherits from ASpaceObject (see _init)
+class Db;
 
+// TODO : inherits from ASpaceObject (see _init)
 class GSTLEARN_EXPORT Neigh: public AStringable , public ASerializable, public IClonable
 {
 public:
@@ -83,6 +84,7 @@ public:
   int getSkip() const { return _skip; }
   ENeigh getType() const { return _type; }
   double getWidth() const { return _width; }
+  int getMaxSampleNumber(const Db* db) const;
 
   void setAnisoCoeffs(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
   void setAnisoCoeff(int idim, double value);
@@ -129,6 +131,7 @@ private:
              const VectorDouble& nbgh_radius,
              const VectorDouble& nbgh_rotmat,
              const VectorInt& nbgh_image);
+  int _getMaxSampleNumberBench(const Db* db) const;
 
 private:
   int _nDim;                     /* Space dimension */

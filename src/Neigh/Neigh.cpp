@@ -12,6 +12,8 @@
 #include "Morpho/Morpho.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Vector.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -541,4 +543,62 @@ Neigh* Neigh::createFromNF(const String& neutralFilename, bool verbose)
   }
   _fileClose(file, verbose);
   return neigh;
+}
+
+/**
+ * Given a Db, returns the maximum number of samples per neighborhood
+ * @param db Pointer to the taregt Db
+ * @return
+ */
+int Neigh::getMaxSampleNumber(const Db* db) const
+{
+  int nmax;
+
+  nmax = db->getSampleNumber();
+  if (_type == ENeigh::MOVING)
+    nmax = (_flagSector) ? _nSect * _nSMax : _nMaxi;
+  else if (_type == ENeigh::BENCH)
+    nmax = _getMaxSampleNumberBench(db);
+  else if (_type == ENeigh::UNIQUE)
+    nmax = db->getActiveSampleNumber();
+  else if (_type == ENeigh::IMAGE)
+  {
+    nmax = 1;
+    for (int idim = 0; idim < _nDim; idim++)
+      nmax *= (2. * _imageRadius[idim] + 1);
+  }
+  return nmax;
+}
+
+int Neigh::_getMaxSampleNumberBench(const Db* db) const
+{
+  bool useSel = false;
+  int nech = db->getSampleNumber();
+  int nmax = nech;
+  int ndim = db->getNDim();
+  if (db->getNDim() <= 2) return nech;
+
+  /* Read the vector of the last coordinates */
+  VectorDouble vec = db->getCoordinates(ndim-1, useSel);
+
+  /* Sort the third coordinate vector */
+  VectorDouble tab = ut_vector_sort(vec, true);
+
+  /* Loop on the first point */
+  nmax = 0;
+  for (int iech = 0; iech < nech - 1; iech++)
+  {
+
+    /* Loop on the second point */
+    int nloc = 1;
+    for (int jech = iech + 1; jech < nech; jech++)
+    {
+      if (ABS(tab[jech] - tab[iech]) > 2. * _width) break;
+      nloc++;
+    }
+
+    /* Store the maximum number of samples */
+    if (nloc > nmax) nmax = nloc;
+  }
+  return (nmax);
 }

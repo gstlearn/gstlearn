@@ -1123,66 +1123,6 @@ static int st_krige_manage_basic(int mode,
 
 /****************************************************************************/
 /*!
- **  Calculate the maximum number of samples for Bench Neighborhood
- **
- ** \return  Maximum number of samples per neighborhood
- **
- ** \param[in]  neigh  Neigh structure
- **
- *****************************************************************************/
-static int st_bench_nmax(Neigh *neigh)
-
-{
-  int nech, nmax, iech, jech, nloc;
-  double *tab;
-
-  /* Initializations */
-
-  tab = nullptr;
-  nech = DBIN->getSampleNumber();
-  nmax = nech;
-  if (DBIN->getNDim() <= 2) return (nmax);
-
-  /* Core allocation */
-  tab = db_vector_alloc(DBIN);
-  if (tab == nullptr) goto label_end;
-
-  /* Read the vector of the third coordinates */
-  if (db_coorvec_get(DBIN, DBIN->getNDim() - 1, tab)) goto label_end;
-
-  /* Sort the third coordinate vector */
-  ut_sort_double(0, nech, NULL, tab);
-
-  /* Loop on the first point */
-  nmax = 0;
-  for (iech = 0; iech < nech - 1; iech++)
-  {
-
-    /* Loop on the second point */
-    nloc = 1;
-    for (jech = iech + 1; jech < nech; jech++)
-    {
-      if (ABS(tab[jech] - tab[iech]) > 2. * neigh->getWidth()) break;
-      nloc++;
-    }
-
-    /* Store the maximum number of samples */
-    if (nloc > nmax) nmax = nloc;
-  }
-
-  if (DbgOpt::query(EDbg::DB))
-  {
-    message("Statistics on Bench neighborhood search:\n");
-    message("- Vertical Tolerance = %lf\n", neigh->getWidth());
-    message("- Maximum number of samples = %d\n", nmax);
-  }
-
-  label_end: tab = db_vector_free(tab);
-  return (nmax);
-}
-
-/****************************************************************************/
-/*!
  **  Returns the maximum number of points per neighborhood
  **
  ** \return  Maximum number of points per neighborhood
@@ -1193,23 +1133,7 @@ static int st_bench_nmax(Neigh *neigh)
 static int st_get_nmax(Neigh *neigh)
 
 {
-  int nmax;
-
-  nmax = DBIN->getSampleNumber();
-  if (neigh->getType() == ENeigh::MOVING)
-    nmax = (neigh->getFlagSector()) ? neigh->getNSect() * neigh->getNSMax() :
-                                      neigh->getNMaxi();
-  else if (neigh->getType() == ENeigh::BENCH)
-    nmax = st_bench_nmax(neigh);
-  else if (neigh->getType() == ENeigh::UNIQUE)
-    nmax = DBIN->getActiveSampleNumber();
-  else if (neigh->getType() == ENeigh::IMAGE)
-  {
-    nmax = 1;
-    for (int idim = 0; idim < neigh->getNDim(); idim++)
-      nmax *= (2. * neigh->getImageRadius(idim) + 1);
-  }
-  return nmax;
+  return neigh->getMaxSampleNumber(DBIN);
 }
 
 /****************************************************************************/
