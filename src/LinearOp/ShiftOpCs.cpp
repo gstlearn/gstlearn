@@ -13,6 +13,8 @@
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
+#include "csparse_f.h"
+
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -20,13 +22,12 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/Model.hpp"
-#include "csparse_f.h"
 
 #include <math.h>
 
@@ -901,7 +902,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    DbgOpt::setIndex(imesh + 1);
+    OptDbg::setIndex(imesh + 1);
     double meshSize = amesh->getMeshSize(imesh);
 
     // Calculate geometry
@@ -1002,7 +1003,7 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    DbgOpt::setIndex(imesh + 1);
+    OptDbg::setIndex(imesh + 1);
     double meshSize = amesh->getMeshSize(imesh);
 
     // Case of Euclidean geometry
@@ -1077,7 +1078,7 @@ int ShiftOpCs::_buildSVel(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    DbgOpt::setIndex(imesh + 1);
+    OptDbg::setIndex(imesh + 1);
     double meshSize = amesh->getMeshSize(imesh);
 
     // Non stationary case
@@ -1160,7 +1161,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    DbgOpt::setIndex(imesh + 1);
+    OptDbg::setIndex(imesh + 1);
 
     // Non stationary case
 

@@ -1,4 +1,5 @@
 #include "API/PGSSPDE.hpp"
+#include "API/SPDE.hpp"
 
 #include "Drifts/DriftList.hpp"
 #include "Db/Db.hpp"
@@ -7,6 +8,7 @@
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/String.hpp"
+#include "LithoRule/RuleProp.hpp"
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
                  const Db* field,

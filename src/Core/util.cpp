@@ -17,8 +17,8 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Basic/DbgOpt.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Neigh/ANeighParam.hpp"
 
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
@@ -4379,7 +4379,7 @@ int is_in_spherical_triangle(double *coor,
  *****************************************************************************/
 VectorDouble util_set_array_double(int ntab, const double *rtab)
 {
-  if (DbgOpt::query(EDbg::INTERFACE)) message("util_set_array_double\n");
+  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_double\n");
   if (ntab <= 0 || rtab == nullptr) return VectorDouble();
   VectorDouble rettab(ntab);
   if (rettab.empty()) return rettab;
@@ -4402,7 +4402,7 @@ VectorDouble util_set_array_double(int ntab, const double *rtab)
  *****************************************************************************/
 VectorInt util_set_array_integer(int ntab, const int *itab)
 {
-  if (DbgOpt::query(EDbg::INTERFACE)) message("util_set_array_integer\n");
+  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_integer\n");
   VectorInt rettab(ntab);
   if (ntab <= 0 || itab == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
@@ -4422,7 +4422,7 @@ VectorInt util_set_array_integer(int ntab, const int *itab)
  *****************************************************************************/
 VectorString util_set_array_char(int ntab, char **names)
 {
-  if (DbgOpt::query(EDbg::INTERFACE)) message("util_set_array_char\n");
+  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_char\n");
   VectorString rettab(ntab);
   if (names == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)

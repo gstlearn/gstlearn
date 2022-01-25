@@ -12,7 +12,7 @@
 #include "geoslib_d.h"
 #include "Basic/Utilities.hpp"
 
-#include "../../include/Basic/EDbgOpt.hpp"
+#include "Basic/EOptDbg.hpp"
 
 static EDbg _debugOptions = EDbg::DB;
 

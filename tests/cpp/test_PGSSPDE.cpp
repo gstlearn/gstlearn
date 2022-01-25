@@ -20,6 +20,8 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Basic/String.hpp"
+#include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleProp.hpp"
 
 /****************************************************************************/
 /*!

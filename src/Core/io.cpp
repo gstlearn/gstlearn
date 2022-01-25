@@ -16,7 +16,8 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
 
 #include <string.h>
 #include <stdarg.h>
@@ -527,7 +528,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (fgets(LINE, LONG_SIZE, file) == NULL) return (-1);
       LINE[strlen(LINE) - 1] = '\0';
       (void) gslStrcpy(LINE_MEM, LINE);
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
 
       /* Eliminate the comments */
 
@@ -552,7 +553,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
     LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
-    if (DbgOpt::query(EDbg::INTERFACE))
+    if (OptDbg::query(EDbg::INTERFACE))
       message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
@@ -565,7 +566,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
         if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       }
       ideb += 2;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
     }
     else if (!strcmp(fmt, "%d"))
     {
@@ -573,7 +574,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
     }
     else if (!strcmp(fmt, "%f"))
     {
@@ -581,7 +582,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
     }
     else if (!strcmp(fmt, "%lf"))
     {
@@ -589,7 +590,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
     }
     else if (!strcmp(fmt, "%lg"))
     {
@@ -597,7 +598,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
     }
     else
     {
@@ -633,7 +634,7 @@ int _file_get_ncol(FILE *file)
 
   if (fgets(LINE, LONG_SIZE, file) == NULL) return (ncol);
   LINE[strlen(LINE) - 1] = '\0';
-  if (DbgOpt::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
+  if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
 
   /* Eliminate the comments */
 
@@ -660,7 +661,7 @@ int _file_get_ncol(FILE *file)
       ncol++;
   }
 
-  if (DbgOpt::query(EDbg::INTERFACE)) message("Number of columns = %d\n", ncol);
+  if (OptDbg::query(EDbg::INTERFACE)) message("Number of columns = %d\n", ncol);
   return (ncol);
 }
 
@@ -726,7 +727,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       LINEB = strsep(buffer, "\n");
       if (LINEB == NULL) return (-1);
       (void) gslStrcpy(LINE_MEM, LINEB);
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINEB);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINEB);
 
       /* Eliminate the comments */
 
@@ -751,7 +752,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
     LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
-    if (DbgOpt::query(EDbg::INTERFACE))
+    if (OptDbg::query(EDbg::INTERFACE))
       message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
@@ -761,7 +762,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       ret_s = va_arg(ap, char*);
       if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       ideb += 2;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
     }
     else if (!strcmp(fmt, "%d"))
     {
@@ -769,7 +770,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
     }
     else if (!strcmp(fmt, "%f"))
     {
@@ -777,7 +778,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
     }
     else if (!strcmp(fmt, "%lf"))
     {
@@ -785,7 +786,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
     }
     else if (!strcmp(fmt, "%lg"))
     {
@@ -793,7 +794,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (DbgOpt::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
     }
     else
     {
@@ -832,7 +833,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
   {
     ret_s = va_arg(ap, char*);
     fprintf(file, "%s", ret_s);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
   }
   else if (!strcmp(format, "%d"))
   {
@@ -841,7 +842,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%d", ret_i);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
   }
   else if (!strcmp(format, "%f"))
   {
@@ -850,7 +851,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%f", ret_d);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Float = %s\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Float = %s\n", ret_d);
   }
   else if (!strcmp(format, "%lf"))
   {
@@ -859,7 +860,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%lf", ret_d);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Double = %lf\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Double = %lf\n", ret_d);
   }
   else if (!strcmp(format, "%lg"))
   {
@@ -868,7 +869,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%lg", ret_d);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Double = %lg\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Double = %lg\n", ret_d);
   }
   else if (!strcmp(format, "\n"))
   {
@@ -880,7 +881,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
     ret_s = va_arg(ap, char*);
     fprintf(file, "# %s\n", ret_s);
     no_blank = 1;
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Comment = %s\n", ret_s);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Comment = %s\n", ret_s);
   }
   else
   {
@@ -918,7 +919,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
   {
     ret_s = va_arg(ap, char*);
     (void) gslSPrintf(buffer, "%s", ret_s);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
   }
   else if (!strcmp(format, "%d"))
   {
@@ -927,7 +928,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%d", ret_i);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
   }
   else if (!strcmp(format, "%f"))
   {
@@ -936,7 +937,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%f", ret_d);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Float = %s\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Float = %s\n", ret_d);
   }
   else if (!strcmp(format, "%lf"))
   {
@@ -945,7 +946,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%lf", ret_d);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Double = %lf\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Double = %lf\n", ret_d);
   }
   else if (!strcmp(format, "%lg"))
   {
@@ -954,7 +955,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%lg", ret_d);
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Double = %lg\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Double = %lg\n", ret_d);
   }
   else if (!strcmp(format, "\n"))
   {
@@ -966,7 +967,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
     ret_s = va_arg(ap, char*);
     (void) gslSPrintf(buffer, "# %s\n", ret_s);
     no_blank = 1;
-    if (DbgOpt::query(EDbg::INTERFACE)) message("Encoded Comment = %s\n", ret_s);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Comment = %s\n", ret_s);
   }
   else
   {
@@ -1033,7 +1034,7 @@ static void st_constant_list(void)
  ** \li                LOCMOD : Option for updating locator of new variable
  ** \li                LOCNEW : When defining new locator, option for old ones
  ** \li                RGL    : Using 'rgl' for graphic rendition
- ** \li                ASP    : Default y/x aspcet ratio for graphics
+ ** \li                ASP    : Default y/x aspect ratio for graphics
  ** \li                TOLINV : Tolerance for matrix inversion
  ** \li                TOLGEN : Tolerance for matrix generalized inversion
  ** \li                EPSMAT : Tolerance value for Matrix calculations
@@ -1061,24 +1062,24 @@ void constant_define(const char *name, double value)
 
     if (CST[found].mode == 1)
     {
-      CST[found].ival = (flag_defined) ? (int) value :
-                                         -1;
-      if (found == CST_NTCAR) setFormatColumnSize(static_cast<int>(value));
-      if (found == CST_NTDEC) setFormatDecimalNumber(static_cast<int>(value));
-      if (found == CST_NTCOL) setFormatMaxNCols(static_cast<int>(value));
-      if (found == CST_NTROW) setFormatMaxNRows(static_cast<int>(value));
+      CST[found].ival = (flag_defined) ? (int) value : -1;
+      if (found == CST_NTCAR)
+        OptCst::define(ECst::NTCAR,static_cast<int>(value));
+      if (found == CST_NTDEC)
+        OptCst::define(ECst::NTDEC, static_cast<int>(value));
+      if (found == CST_NTCOL)
+        OptCst::define(ECst::NTCOL, static_cast<int>(value));
+      if (found == CST_NTROW)
+        OptCst::define(ECst::NTROW, static_cast<int>(value));
 
       // Recalculate the threshold
       if (found == CST_NTDEC)
         DBL_THRESH = (0.5 * pow(10, -CST[CST_NTDEC].ival));
-
     }
     else
     {
-      CST[found].rval = (flag_defined) ? value :
-                                         -1;
+      CST[found].rval = (flag_defined) ? value : -1;
     }
-
     if (found == CST_TOLINV || found == CST_TOLGEN || found == CST_EPSMAT
         || found == CST_EPSSVD) matrix_constant_define(found, value);
   }
@@ -1170,9 +1171,9 @@ void constant_print(void)
  **
  *****************************************************************************/
 void tab_prints(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                const char *string)
+                int ncol,
+                const EJustify &justify,
+                const char *string)
 {
   int i, size, neff, nrst, n1, n2, taille;
 
@@ -1263,9 +1264,9 @@ void tab_print_rowname(const char *string, int taille)
  **
  *****************************************************************************/
 void tab_printg(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                double value)
+                int ncol,
+                const EJustify &justify,
+                double value)
 {
   st_format(CASE_REAL);
 
@@ -1274,8 +1275,7 @@ void tab_printg(const char *title,
   else
   {
     // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-    value = (ABS(value) < DBL_THRESH) ? 0. :
-                                        value;
+    value = (ABS(value) < DBL_THRESH) ? 0. : value;
     (void) gslSPrintf(DECODE, FORMAT, value);
   }
 
@@ -1323,10 +1323,7 @@ void tab_printd(const char *title,
  ** \param[in]  value    Value to be written
  **
  *****************************************************************************/
-void tab_printi(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                int value)
+void tab_printi(const char *title, int ncol, const EJustify &justify, int value)
 {
   st_format(CASE_INT);
 
@@ -1353,10 +1350,10 @@ void tab_printi(const char *title,
  **
  *****************************************************************************/
 void tab_print_rc(const char *title,
-                                  int ncol,
-                                  const EJustify &justify,
-                                  int mode,
-                                  int value)
+                  int ncol,
+                  const EJustify &justify,
+                  int mode,
+                  int value)
 {
   st_format(mode);
 
@@ -1544,12 +1541,12 @@ void print_trimat(const char *title,
  **
  *****************************************************************************/
 void print_imatrix(const char *title,
-                                   int flag_limit,
-                                   int bycol,
-                                   int nx,
-                                   int ny,
-                                   const double *sel,
-                                   const int *tab)
+                   int flag_limit,
+                   int bycol,
+                   int nx,
+                   int ny,
+                   const double *sel,
+                   const int *tab)
 {
   int ix, iy, nx_util, ny_util, ny_done, multi_row, iad;
 
@@ -1632,9 +1629,9 @@ void print_imatrix(const char *title,
  **
  *****************************************************************************/
 void print_vector(const char *title,
-                                  int flag_limit,
-                                  int ntab,
-                                  const double *tab)
+                  int flag_limit,
+                  int ntab,
+                  const double *tab)
 {
   int i, j, lec, nby, flag_many;
   static int nby_def = 5;
@@ -1666,9 +1663,9 @@ void print_vector(const char *title,
 }
 
 void print_vector(const char *title,
-                                  int flag_limit,
-                                  int ntab,
-                                  const VectorDouble &tab)
+                  int flag_limit,
+                  int ntab,
+                  const VectorDouble &tab)
 {
   print_vector(title, flag_limit, ntab, tab.data());
 }
@@ -1683,10 +1680,7 @@ void print_vector(const char *title,
  ** \param[in]  itab       Array to be printed
  **
  *****************************************************************************/
-void print_ivector(const char *title,
-                                   int flag_limit,
-                                   int ntab,
-                                   const int *itab)
+void print_ivector(const char *title, int flag_limit, int ntab, const int *itab)
 {
   int i, j, lec, nby, flag_many;
   static int nby_def = 5;
@@ -1718,9 +1712,9 @@ void print_ivector(const char *title,
 }
 
 void print_ivector(const char *title,
-                                   int flag_limit,
-                                   int ntab,
-                                   const VectorInt &itab)
+                   int flag_limit,
+                   int ntab,
+                   const VectorInt &itab)
 {
   print_ivector(title, flag_limit, ntab, itab.data());
 }
@@ -2167,10 +2161,7 @@ int _record_read(FILE *file, const char *format, ...)
  ** \param[in]  sel      (optional) selection
  **
  *****************************************************************************/
-void print_range(const char *title,
-                                 int ntab,
-                                 double *tab,
-                                 double *sel)
+void print_range(const char *title, int ntab, double *tab, double *sel)
 {
   double mini, maxi;
   int nvalid;
@@ -2211,10 +2202,7 @@ void print_range(const char *title,
  ** \param[in]  value    Value to be written
  **
  *****************************************************************************/
-void encode_printg(char *string,
-                                   int ntcar,
-                                   int ntdec,
-                                   double value)
+void encode_printg(char *string, int ntcar, int ntdec, double value)
 {
   (void) gslSPrintf(FORMAT, "%%%d.%dlg", ntcar, ntdec);
 

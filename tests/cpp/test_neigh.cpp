@@ -10,7 +10,9 @@
 /******************************************************************************/
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighWork.hpp"
 #include "Basic/Vector.hpp"
 
@@ -18,7 +20,7 @@
 /*!
  ** Main Program
  **
- ** This program demsontrates the capabilities of Neigh and NeighWork classes
+ ** This program demonstrates the capabilities of Neigh and NeighWork classes
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
@@ -46,12 +48,12 @@ int main(int /*argc*/, char */*argv*/[])
   target->display();
 
   // Creating a Unique Neighborhood
-  Neigh* neigh = Neigh::createUnique(ndim);
-  neigh->display();
+  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  neighU->display();
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Unique Neighborhood");
-  NeighWork nbghw(db,neigh);
+  NeighWork nbghw(db,neighU);
 
   // Getting the Neighborhood for various target point
   ut_ivector_display("For Target Point #0",
@@ -62,17 +64,17 @@ int main(int /*argc*/, char */*argv*/[])
                      nbghw.select(target, 1, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
-  delete neigh;
+  delete neighU;
 
   // Creating a Moving Neighborhood
   int nmaxi = 5;
   double radius = 30.;
-  neigh = Neigh::createMoving(ndim, nmaxi, radius);
-  neigh->display();
+  NeighMoving* neighM = NeighMoving::create(ndim, false, nmaxi, radius);
+  neighM->display();
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Moving Neighborhood");
-  nbghw = NeighWork(db,neigh);
+  nbghw = NeighWork(db,neighM);
 
   // Getting the Neighborhood for various target point
   ut_ivector_display("For Target Point #0",
@@ -92,7 +94,7 @@ int main(int /*argc*/, char */*argv*/[])
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
 
-  delete neigh;
+  delete neighM;
   delete db;
   delete target;
   return (0);

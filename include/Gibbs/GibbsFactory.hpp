@@ -16,7 +16,7 @@
 
 class Db;
 class Model;
-class Neigh;
+class Neightobedeleted;
 
 class GSTLEARN_EXPORT GibbsFactory
 {

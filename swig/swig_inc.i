@@ -33,7 +33,8 @@
 #include "Basic/Table.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
 #include "Basic/EDbgOpt.hpp"
 
 #include "Enum/EKrigOpt.hpp"
@@ -87,7 +88,11 @@
 #include "LinearOp/OptimCostColored.hpp"
 #include "LinearOp/EPowerPT.hpp"
 
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighBench.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Neigh/NeighWork.hpp"
 

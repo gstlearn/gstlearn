@@ -12,6 +12,7 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
+
 #include "LinearOp/OptimCostBinary.hpp"
 #include "LinearOp/HessianOp.hpp"
 #include "LinearOp/IOptimCost.hpp"
@@ -20,7 +21,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 
 #include <math.h>
 
@@ -223,7 +224,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
       iter++;
       _evaluateGrad(indic,propfac,&normgrad);
 
-      if (DbgOpt::query(EDbg::CONVERGE))
+      if (OptDbg::query(EDbg::CONVERGE))
         message("Iteration #%d (max=%d) - Cost=%lf - NormGrad=%lf (eps=%lg)\n",
                 iter,maxiter,costv,normgrad,eps);
 

@@ -16,7 +16,7 @@
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Table.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"

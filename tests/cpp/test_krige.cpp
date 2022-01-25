@@ -15,7 +15,8 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Basic/Law.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 /****************************************************************************/
 /*!
@@ -72,15 +73,15 @@ int main(int /*argc*/, char */*argv*/[])
   model.display();
 
   // Creating a Neighborhood
-  Neigh* neigh = Neigh::createUnique(ndim);
-  neigh->display();
+  NeighUnique* neighU = NeighUnique::create(ndim,false);
+  neighU->display();
 
   // Launch kriging
-  kriging(data, grid, &model, neigh);
+  kriging(data, grid, &model, neighU);
 
   delete data;
   delete grid;
-  delete neigh;
+  delete neighU;
 
   return (0);
 }

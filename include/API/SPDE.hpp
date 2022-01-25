@@ -3,9 +3,7 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-// Enums
 #include "API/ESPDECalcMode.hpp"
-
 #include "Basic/NamingConvention.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 
@@ -63,18 +61,18 @@ private:
   ESPDECalcMode _calcul;
   PrecisionOpMultiConditional _precisionsKriging;
   PrecisionOpMultiConditional _precisionsSimu;
-  std::vector<ShiftOpCs*> _pileShiftOp;
+  std::vector<ShiftOpCs*>     _pileShiftOp;
   std::vector<PrecisionOpCs*> _pilePrecisions;
-  std::vector<ProjMatrix*> _pileProjMatrix;
-  std::vector<MeshETurbo*> _simuMeshing;
-  std::vector<MeshETurbo*> _krigingMeshing;
-  mutable VectorDouble     _driftCoeffs;
-  Model *_model;
-  mutable VectorVectorDouble _workKriging;
-  mutable VectorVectorDouble _workingSimu;
-  mutable VectorDouble       _workingData;
-  std::vector<ProjMatrix*> _projOnDbOut;
-  std::vector<int>           _adressesICov;
+  std::vector<ProjMatrix*>    _pileProjMatrix;
+  std::vector<MeshETurbo*>    _simuMeshing;
+  std::vector<MeshETurbo*>    _krigingMeshing;
+  mutable VectorDouble        _driftCoeffs;
+  Model*                      _model;
+  mutable VectorVectorDouble  _workKriging;
+  mutable VectorVectorDouble  _workingSimu;
+  mutable VectorDouble        _workingData;
+  std::vector<ProjMatrix*>    _projOnDbOut;
+  std::vector<int>            _adressesICov;
   double _nugget;
   VectorVectorDouble _driftTab;
   bool _requireCoeffs;

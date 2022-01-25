@@ -13,7 +13,8 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "Variogram/Vario.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
 #include "Model/Model.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "Db/Db.hpp"
@@ -78,8 +79,8 @@ int main(int /*argc*/, char */*argv*/[])
   (void) model2.dumpToNF("truemodel2.ascii");
 
   // Creating the Neighborhood
-  Neigh* neigh = Neigh::createUnique(ndim);
-  neigh->display();
+  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  neighU->display();
 
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
@@ -92,7 +93,7 @@ int main(int /*argc*/, char */*argv*/[])
     ruleprop = RuleProp::createFromRuleAndDb(rule, dbprop);
 
   // Perform a non-conditional simulation on the Db
-  error = simpgs(nullptr,db,ruleprop,&model1,&model2,neigh);
+  error = simpgs(nullptr,db,ruleprop,&model1,&model2,neighU);
   db->setLocator(db->getLastName(),ELoc::Z);
   (void) db->dumpToNF("simupgs.ascii");
 
@@ -159,7 +160,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   delete db;
   delete dbprop;
-  delete neigh;
+  delete neighU;
   delete rule;
   delete ruleprop;
   delete ruleprop2;

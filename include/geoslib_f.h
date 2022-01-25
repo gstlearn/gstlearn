@@ -17,18 +17,18 @@
 // Enums
 #include "Db/ELoadBy.hpp"
 #include "Model/EConsElem.hpp"
-
 #include "Model/Constraints.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
+
+#include "Basic/NamingConvention.hpp"
 
 class Db;
 class Vario;
 class VarioParam;
 class Model;
 class Anam;
-class Neigh;
+class ANeighParam;
 class Polygons;
 class RuleProp;
 class ECalcVario;
@@ -262,7 +262,7 @@ GSTLEARN_EXPORT VectorDouble anam_selectivity(Anam *anam,
 GSTLEARN_EXPORT int test_neigh(Db *dbin,
                                Db *dbout,
                                Model *model,
-                               Neigh *neigh,
+                               ANeighParam *neighparam,
                                const NamingConvention& namconv = NamingConvention("Neigh"));
 
 /**********************/
@@ -338,7 +338,7 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
 GSTLEARN_EXPORT int kriging(Db *dbin,
                             Db *dbout,
                             Model *model,
-                            Neigh *neigh,
+                            ANeighParam *neighparam,
                             const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
                             int flag_est = 1,
                             int flag_std = 1,
@@ -349,18 +349,20 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
-                           Neigh *neigh,
+                           ANeighParam *neighparam,
                            int flag_code = 0,
                            int flag_est = 1,
                            int flag_std = 1,
                            int flag_varz = 0,
                            VectorInt rank_colcok = VectorInt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
-GSTLEARN_EXPORT int krimage_func(Db *dbgrid, Model *model, Neigh *neigh); // TODO : NamingConvention?
+GSTLEARN_EXPORT int krimage_func(Db *dbgrid,
+                                 Model *model,
+                                 ANeighParam *neighparam); // TODO : NamingConvention?
 GSTLEARN_EXPORT int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,
-                           Neigh *neigh = nullptr,
+                           ANeighParam *neighparam = nullptr,
                            int nbsimu = 1,
                            int seed = 43431,
                            int nbtuba = 100,
@@ -371,7 +373,7 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
                            RuleProp *ruleprop,
                            Model *model1,
                            Model *model2,
-                           Neigh *neigh,
+                           ANeighParam *neighparam = nullptr,
                            int nbsimu = 1,
                            int seed = 1321421,
                            int flag_gaus = false,
@@ -390,7 +392,7 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              Model *model12,
                              Model *model21,
                              Model *model22,
-                             Neigh *neigh,
+                             ANeighParam *neighparam = nullptr,
                              int nbsimu = 1,
                              int seed = 43243,
                              int flag_gaus = false,
@@ -447,7 +449,7 @@ GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            const NamingConvention& namconv = NamingConvention("Prop", ELoc::P));
 GSTLEARN_EXPORT int gibbs_sampler(Db *db,
                                   Model *model,
-                                  Neigh *neigh,
+                                  ANeighParam *neighparam,
                                   int nbsimu,
                                   int seed,
                                   int nboot,

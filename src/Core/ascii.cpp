@@ -20,11 +20,11 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "LithoRule/Rule.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
 #include "Model/Model.hpp"
 
 #include <string.h>
@@ -322,7 +322,7 @@ static FILE* st_file_open(const char *filename,
     return (file);
   }
 
-  if (DbgOpt::query(EDbg::INTERFACE)) message("Opening the File = %s\n", filename);
+  if (OptDbg::query(EDbg::INTERFACE)) message("Opening the File = %s\n", filename);
 
   /* Check against the file type */
 
@@ -453,7 +453,7 @@ void ascii_environ_read(char *file_name, int verbose)
     if (st_record_read("Debug Keyword", "%s", name)) goto label_end;
     if (st_record_read("Debug Value", "%d", &debug)) goto label_end;
     String s = toUpper(String(name));
-    DbgOpt::defineByKey(s, debug);
+    OptDbg::defineByKey(s, debug);
   }
 
   label_end: st_file_close(file);
@@ -721,7 +721,7 @@ Anam* ascii_anam_read(const char *file_name, int verbose)
 
     anam_update_hermitian(anam_hermite, pymin, pzmin, pymax, pzmax, aymin,
                           azmin, aymax, azmax, r, hermite);
-    if (DbgOpt::query(EDbg::INTERFACE)) anam_hermite->display();
+    if (OptDbg::query(EDbg::INTERFACE)) anam_hermite->display();
     st_file_close(file);
     return (anam_hermite);
   }
@@ -758,7 +758,7 @@ Anam* ascii_anam_read(const char *file_name, int verbose)
     }
     anam_update_empirical(anam_empirical, ndisc, pymin, pzmin, pymax, pzmax,
                           aymin, azmin, aymax, azmax, sigma2e, tdisc);
-    if (DbgOpt::query(EDbg::INTERFACE)) anam_empirical->display();
+    if (OptDbg::query(EDbg::INTERFACE)) anam_empirical->display();
     st_file_close(file);
     return (anam_empirical);
   }
@@ -789,7 +789,7 @@ Anam* ascii_anam_read(const char *file_name, int verbose)
     }
     anam_update_discrete_DD(anam_discrete_DD, nCut, s, mu, zCut, pcaz2f, pcaf2z,
                             stats);
-    if (DbgOpt::query(EDbg::INTERFACE)) anam_discrete_DD->display();
+    if (OptDbg::query(EDbg::INTERFACE)) anam_discrete_DD->display();
     st_file_close(file);
     return (anam_discrete_DD);
   }
@@ -813,7 +813,7 @@ Anam* ascii_anam_read(const char *file_name, int verbose)
       if (st_table_read(nClass * nElem, stats.data())) goto label_end;
     }
     anam_update_discrete_IR(anam_discrete_IR, nCut, r, zCut, stats);
-    if (DbgOpt::query(EDbg::INTERFACE)) anam_discrete_IR->display();
+    if (OptDbg::query(EDbg::INTERFACE)) anam_discrete_IR->display();
     st_file_close(file);
     return (anam_discrete_IR);
   }
@@ -1086,7 +1086,7 @@ Frac_Environ* ascii_frac_read(const char *file_name,
     }
   }
 
-  label_end: if (DbgOpt::query(EDbg::INTERFACE)) fracture_print(frac);
+  label_end: if (OptDbg::query(EDbg::INTERFACE)) fracture_print(frac);
   st_file_close(file);
   return (frac);
 }

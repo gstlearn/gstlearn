@@ -11,7 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 
@@ -383,7 +383,7 @@ static int st_kriging_solve(int type, int rank, int nb, Model *model)
 
   /* Printout of the weights */
 
-  if (DbgOpt::query(EDbg::KRIGING))
+  if (OptDbg::query(EDbg::KRIGING))
   {
     message("\nDisplay of the Kriging weights\n");
     for (i = 0; i < nb; i++)

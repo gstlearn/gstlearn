@@ -6,6 +6,8 @@
 #include "Interfaces/geoslib_f_swig.h"
 #include "Interfaces/VariableDouble.hpp"
 #include "Db/Db.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include <numeric>
 #include <iostream>
@@ -90,58 +92,13 @@ void mes_error(ES error)
 void kriging2(const Database &dbin,
                               Database &dbout,
                               Model *model,
-                              Neigh *neigh)
+                              ANeighParam *neighparam)
 {
   Db *dbin2 = dbin.toGeoslib();
   Db *dbout2 = dbout.toGeoslib();
-  kriging(dbin2, dbout2, model, neigh, EKrigOpt::PONCTUAL, 1, 1, 0);
+  kriging(dbin2, dbout2, model, neighparam, EKrigOpt::PONCTUAL, 1, 1, 0);
   dbout.fromGeoslib(dbout2);
   dbout.display();
-}
-
-Neigh* neigh_unique(int ndim)
-{
-  return (Neigh::createUnique(ndim));
-}
-
-Neigh* neigh_moving(int ndim,
-                    int flag_sector,
-                    int flag_rotation,
-                    int nmini,
-                    int nmaxi,
-                    int nsect,
-                    int nsmax,
-                    int radius,
-                    VectorDouble Rotation)
-{
-  return (neigh_init(ndim, ENeigh::MOVING, false, flag_sector, false,
-                     flag_rotation, false, nmini, nmaxi, nsect, nsmax, 1, 1,
-                     radius, 0.5, VectorDouble(), Rotation, VectorInt()));
-}
-
-Neigh* my_neigh_init(int ndim,
-                     ENeigh type,
-                     int flag_xvalid,
-                     int flag_sector,
-                     int flag_aniso,
-                     int flag_rotation,
-                     int flag_continuous,
-                     int nmini,
-                     int nmaxi,
-                     int nsect,
-                     int nsmax,
-                     int skip,
-                     double width,
-                     double radius,
-                     double dist_count,
-                     VectorDouble nbgh_radius,
-                     VectorDouble nbgh_rotmat,
-                     VectorInt nbgh_image)
-{
-  return (neigh_init(ndim, type, flag_xvalid, flag_sector, flag_aniso,
-                     flag_rotation, flag_continuous, nmini, nmaxi, nsect, nsmax,
-                     skip, width, radius, dist_count, nbgh_radius, nbgh_rotmat,
-                     nbgh_image));
 }
 
 VectorDouble affiche(Db *db)

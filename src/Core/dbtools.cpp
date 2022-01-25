@@ -29,7 +29,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
 
 #include <math.h>
@@ -416,7 +416,7 @@ static int st_migrate_point_to_grid(Db *db_point,
                                      jech;
     }
   }
-  if (DbgOpt::query(EDbg::DB))
+  if (OptDbg::query(EDbg::DB))
     message("Number of nodes directly assigned = %d/%d\n", nb_assign,
             db_grid->getSampleNumber());
 

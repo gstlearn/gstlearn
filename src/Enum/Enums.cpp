@@ -8,7 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Basic/EDbgOpt.hpp"
+#include "Basic/EOptDbg.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
@@ -22,6 +22,8 @@
 #include "Enum/EKrigOpt.hpp"
 #include "Anamorphosis/EAnam.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/EOptDbg.hpp"
+#include "Basic/EOptCst.hpp"
 #include "LithoRule/EProcessOper.hpp"
 #include "LinearOp/EPowerPT.hpp"
 #include "API/ESPDECalcMode.hpp"
@@ -46,6 +48,7 @@ ENUM_DEFINE(ENUM_CONS_ELEM)
 ENUM_DEFINE(ENUM_CONS_TYPE)
 ENUM_DEFINE(ENUM_JUSTIFY)
 ENUM_DEFINE(ENUM_DEBUG)
+ENUM_DEFINE(ENUM_CST)
 ENUM_DEFINE(ENUM_PROCESS_OPER)
 ENUM_DEFINE(ENUM_POWER_PT)
 ENUM_DEFINE(ENUM_SPDE_CALC_MODE)

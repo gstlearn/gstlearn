@@ -8,8 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Basic/DbgOpt.hpp"
-
+#include "Basic/OptDbg.hpp"
 #include "Basic/AStringable.hpp"
 
 #include <algorithm>
@@ -17,16 +16,16 @@
 #include <sstream>
 #include <iomanip>
 
-std::vector<EDbg> DbgOpt::_dbg = std::vector<EDbg>();
-int DbgOpt::_currentIndex = -1;
-int DbgOpt::_reference = -1;
+std::vector<EDbg> OptDbg::_dbg = std::vector<EDbg>();
+int OptDbg::_currentIndex = -1;
+int OptDbg::_reference = -1;
 
-void DbgOpt::reset()
+void OptDbg::reset()
 {
   _dbg.clear();
 }
 
-bool DbgOpt::query(const EDbg& option)
+bool OptDbg::query(const EDbg& option)
 {
   for (auto e: _dbg)
   {
@@ -35,7 +34,7 @@ bool DbgOpt::query(const EDbg& option)
   return false;
 }
 
-bool DbgOpt::queryByKey(const String& name)
+bool OptDbg::queryByKey(const String& name)
 {
   auto it = EDbg::getIterator();
   while (it.hasNext())
@@ -46,7 +45,7 @@ bool DbgOpt::queryByKey(const String& name)
   }
 }
 
-void DbgOpt::define(const EDbg& option, bool status)
+void OptDbg::define(const EDbg& option, bool status)
 {
   if (status)
   {
@@ -68,7 +67,7 @@ void DbgOpt::define(const EDbg& option, bool status)
   }
 }
 
-void DbgOpt::defineByKey(const String& name, bool status)
+void OptDbg::defineByKey(const String& name, bool status)
 {
   auto it = EDbg::getIterator();
   while (it.hasNext())
@@ -79,7 +78,7 @@ void DbgOpt::defineByKey(const String& name, bool status)
   }
 }
 
-void DbgOpt::defineAll(bool status)
+void OptDbg::defineAll(bool status)
 {
   auto it = EDbg::getIterator();
   while (it.hasNext())
@@ -90,7 +89,7 @@ void DbgOpt::defineAll(bool status)
   }
 }
 
-void DbgOpt::display()
+void OptDbg::display()
 {
   std::stringstream sstr;
 
@@ -99,7 +98,9 @@ void DbgOpt::display()
   while (it.hasNext())
   {
     EDbg e = *it;
-    sstr << std::setw(30) << e.getDescr() << " : " << query(e) << std::endl;
+    sstr << std::setw(30) << e.getDescr() <<
+        "[ " << std::setw(9) << e.getKey() << "]" <<
+        " : " << query(e) << std::endl;
     it.toNext();
   }
 
@@ -111,7 +112,7 @@ void DbgOpt::display()
   messageFlush(sstr.str());
 }
 
-bool DbgOpt::force(void)
+bool OptDbg::force(void)
 {
   if (_reference <= 0) return false;
   if (_currentIndex != _reference) return false;

@@ -14,7 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
@@ -79,7 +79,7 @@ int GibbsMultiMono::calculInitialize(VectorVectorDouble& y,
 
   /* Print the title */
 
-  if (DbgOpt::query(EDbg::CONVERGE))
+  if (OptDbg::query(EDbg::CONVERGE))
     mestitle(1,"Initial Values for Gibbs Sampler (Simu:%d - GS:%d)",
              isimu+1,ipgs+1);
 

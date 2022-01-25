@@ -126,7 +126,6 @@ set(SOURCES
   Core/segy.cpp
   Core/mlayers.cpp
   Core/thresh.cpp
-  Core/neigh.cpp
   Core/fft.cpp
   Core/convert.cpp
   Core/memory.cpp
@@ -206,7 +205,8 @@ set(SOURCES
   Basic/CSVformat.cpp
   Basic/NamingConvention.cpp
   Basic/Utilities.cpp
-  Basic/DbgOpt.cpp
+  Basic/OptDbg.cpp
+  Basic/OptCst.cpp
   Polynomials/Chebychev.cpp
   Polynomials/APolynomial.cpp
   Polynomials/Hermite.cpp
@@ -245,6 +245,10 @@ set(SOURCES
   Drifts/ADriftElem.cpp
   Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
-  Neigh/Neigh.cpp
+  Neigh/ANeighParam.cpp
+  Neigh/NeighUnique.cpp
+  Neigh/NeighImage.cpp
+  Neigh/NeighMoving.cpp
+  Neigh/NeighBench.cpp
   Neigh/NeighWork.cpp
 )

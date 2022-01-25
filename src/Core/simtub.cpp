@@ -20,11 +20,11 @@
 #include "Covariances/ECov.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/String.hpp"
-#include "Basic/DbgOpt.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptDbg.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
@@ -34,7 +34,8 @@
 #include "LithoRule/EProcessOper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -349,16 +350,16 @@ static int st_keep(int flag_gaus, int flag_modif, int file, int type)
  **
  ** \return  Error return code
  **
- ** \param[in]  dbin   input Db structure (optional if non conditional)
- ** \param[in]  dbout  output Db structure
- ** \param[in]  model  Model structure
- ** \param[in]  neigh  Neigh structure (optional if non conditional)
+ ** \param[in]  dbin       input Db structure (optional if non conditional)
+ ** \param[in]  dbout      output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure (optional if non conditional)
  **
  *****************************************************************************/
 static int st_check_simtub_environment(Db *dbin,
                                        Db *dbout,
                                        Model *model,
-                                       Neigh *neigh)
+                                       ANeighParam *neighparam)
 {
   double *dbin_mini, *dbin_maxi, *dbout_mini, *dbout_maxi;
   int error, ndim, nvar, nfex, flag_cond;
@@ -481,16 +482,16 @@ static int st_check_simtub_environment(Db *dbin,
   /* Checking the Neighborhood */
   /*****************************/
 
-  if (flag_cond && neigh != nullptr)
+  if (flag_cond && neighparam != nullptr)
   {
-    if (neigh->getNDim() != ndim)
+    if (neighparam->getNDim() != ndim)
     {
-      messerr("The Space Dimension of the Neighborhood (%d)", neigh->getNDim());
+      messerr("The Space Dimension of the Neighborhood (%d)", neighparam->getNDim());
       messerr("does not correspond to the Space Dimension of the first Db (%d)",
               ndim);
       goto label_end;
     }
-    if (neigh->getFlagXvalid() && neigh->getType() != ENeigh::MOVING)
+    if (neighparam->getFlagXvalid() && neighparam->getType() != ENeigh::MOVING)
     {
       messerr(
           "The Cross-Validation can only be processed with Moving neighborhood");
@@ -1833,7 +1834,7 @@ static void st_difference(Db *dbin,
   /* Optional general title */
 
   nbsimu = situba->nbsimu;
-  if (DbgOpt::query(EDbg::SIMULATE))
+  if (OptDbg::query(EDbg::SIMULATE))
   {
     mestitle(1, "Difference between Data and NC Simulation");
     tab_prints(NULL, 1, EJustify::RIGHT, "Sample");
@@ -1849,7 +1850,7 @@ static void st_difference(Db *dbin,
 
     /* Optional Header */
 
-    if (DbgOpt::query(EDbg::SIMULATE))
+    if (OptDbg::query(EDbg::SIMULATE))
     {
       for (ivar = 0; ivar < nvar; ivar++)
       {
@@ -1870,7 +1871,7 @@ static void st_difference(Db *dbin,
     for (iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
-      if (DbgOpt::query(EDbg::SIMULATE))
+      if (OptDbg::query(EDbg::SIMULATE))
         tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
       for (ivar = 0; ivar < nvar; ivar++)
       {
@@ -1878,7 +1879,7 @@ static void st_difference(Db *dbin,
         if (!flag_gibbs)
         {
           zvar = dbin->getVariable(iech, ivar);
-          if (DbgOpt::query(EDbg::SIMULATE))
+          if (OptDbg::query(EDbg::SIMULATE))
             tab_printg(NULL, 1, EJustify::RIGHT, zvar);
         }
         for (isimu = 0; isimu < nbsimu; isimu++)
@@ -1887,7 +1888,7 @@ static void st_difference(Db *dbin,
           {
             zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu,
                                    nvar);
-            if (DbgOpt::query(EDbg::SIMULATE))
+            if (OptDbg::query(EDbg::SIMULATE))
               tab_printg(NULL, 1, EJustify::RIGHT, zvar);
           }
           simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
@@ -1897,7 +1898,7 @@ static void st_difference(Db *dbin,
             simval = R_COEFF * simval
                 + sqrt(1. - R_COEFF * R_COEFF) * law_gaussian();
           }
-          if (DbgOpt::query(EDbg::SIMULATE) && !FFFF(zvar))
+          if (OptDbg::query(EDbg::SIMULATE) && !FFFF(zvar))
           {
             tab_printg(NULL, 1, EJustify::RIGHT, simval);
           }
@@ -1907,7 +1908,7 @@ static void st_difference(Db *dbin,
                           simunc);
         }
       }
-      if (DbgOpt::query(EDbg::SIMULATE)) message("\n");
+      if (OptDbg::query(EDbg::SIMULATE)) message("\n");
     }
   }
   else
@@ -1919,7 +1920,7 @@ static void st_difference(Db *dbin,
 
     /* Optional Header */
 
-    if (DbgOpt::query(EDbg::SIMULATE))
+    if (OptDbg::query(EDbg::SIMULATE))
     {
       for (isimu = 0; isimu < nbsimu; isimu++)
       {
@@ -1937,12 +1938,12 @@ static void st_difference(Db *dbin,
     for (iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
-      if (DbgOpt::query(EDbg::SIMULATE))
+      if (OptDbg::query(EDbg::SIMULATE))
         tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
       for (isimu = 0; isimu < nbsimu; isimu++)
       {
         zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1);
-        if (DbgOpt::query(EDbg::SIMULATE))
+        if (OptDbg::query(EDbg::SIMULATE))
         {
           tab_printg(NULL, 1, EJustify::RIGHT, zvar);
           if (!FFFF(zvar))
@@ -1956,7 +1957,7 @@ static void st_difference(Db *dbin,
           dbin->updSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1, 0,
                           -zvar);
       }
-      if (DbgOpt::query(EDbg::SIMULATE)) message("\n");
+      if (OptDbg::query(EDbg::SIMULATE)) message("\n");
     }
   }
 
@@ -3215,7 +3216,7 @@ static void st_check_gaussian_data2grid(Db *dbin,
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neigh      Neigh structure
+ ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  situba     Situba structure
  ** \param[in]  dmean      Array giving the prior means for the drift terms
  ** \param[in]  dcov       Array containing the prior covariance matrix
@@ -3230,7 +3231,7 @@ static void st_check_gaussian_data2grid(Db *dbin,
 static int st_simtub_process(Db *dbin,
                              Db *dbout,
                              Model *model,
-                             Neigh *neigh,
+                             ANeighParam *neighparam,
                              Situba *situba,
                              double *dmean,
                              double *dcov,
@@ -3295,7 +3296,7 @@ static int st_simtub_process(Db *dbin,
   if (flag_cond)
   {
     st_title_process(string, "Conditioning by Kriging");
-    if (_krigsim(string, dbin, dbout, model, neigh, dmean, dcov, icase, nbsimu,
+    if (_krigsim(string, dbin, dbout, model, neighparam, dmean, dcov, icase, nbsimu,
                  FLAG_DGM, R_COEFF)) goto label_end;
   }
   else
@@ -3441,7 +3442,7 @@ int simtub_potential(Db *dbiso,
  ** \param[in]  dbin       Input Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neigh      Neigh structure (optional)
+ ** \param[in]  neighparam ANeighParam structure (optional)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  seed       Seed for random number generator
  ** \param[in]  nbtuba     Number of turning bands
@@ -3455,7 +3456,7 @@ int simtub_potential(Db *dbiso,
 int simtub(Db *dbin,
            Db *dbout,
            Model *model,
-           Neigh *neigh,
+           ANeighParam *neighparam,
            int nbsimu,
            int seed,
            int nbtuba,
@@ -3473,7 +3474,7 @@ int simtub(Db *dbin,
   flag_cond = (dbin != nullptr);
   situba = nullptr;
   law_set_random_seed(seed);
-  if (st_check_simtub_environment(dbin, dbout, model, neigh)) goto label_end;
+  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
   if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat))
     goto label_end;
@@ -3497,7 +3498,7 @@ int simtub(Db *dbin,
 
   situba = st_alloc(model, nbsimu, nbtuba);
   if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neigh, situba, nullptr, nullptr,
+  if (st_simtub_process(dbin, dbout, model, neighparam, situba, nullptr, nullptr,
                         nbsimu, 0, 0, 0, flag_check)) goto label_end;
 
   /* Free the temporary variables */
@@ -3526,7 +3527,7 @@ int simtub(Db *dbin,
  ** \param[in]  dbin       Input Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neigh      Neigh structure (optional)
+ ** \param[in]  neighparam ANeighParam structure (optional)
  ** \param[in]  rval       Change of support coefficient
  ** \param[in]  seed       Seed for random number generator
  ** \param[in]  nbsimu     Number of simulations
@@ -3540,7 +3541,7 @@ int simtub(Db *dbin,
 int simdgm(Db *dbin,
            Db *dbout,
            Model *model,
-           Neigh *neigh,
+           ANeighParam *neighparam,
            double rval,
            int seed,
            int nbsimu,
@@ -3558,7 +3559,7 @@ int simdgm(Db *dbin,
   flag_cond = (dbin != nullptr);
   situba = nullptr;
   law_set_random_seed(seed);
-  if (st_check_simtub_environment(dbin, dbout, model, neigh)) goto label_end;
+  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
   if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat))
     goto label_end;
@@ -3584,7 +3585,7 @@ int simdgm(Db *dbin,
 
   situba = st_alloc(model, nbsimu, nbtuba);
   if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neigh, situba, nullptr, nullptr,
+  if (st_simtub_process(dbin, dbout, model, neighparam, situba, nullptr, nullptr,
                         nbsimu, 0, 0, 0, flag_check)) goto label_end;
 
   /* Free the temporary variables */
@@ -3611,7 +3612,7 @@ int simdgm(Db *dbin,
  ** \param[in]  dbin       Input Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neigh      Neigh structure (optional)
+ ** \param[in]  neighparam ANeighParam structure (optional)
  ** \param[in]  dmean      Array giving the prior means for the drift terms
  ** \param[in]  dcov       Array containing the prior covariance matrix
  **                        for the drift terms
@@ -3627,7 +3628,7 @@ int simdgm(Db *dbin,
 int simbayes(Db *dbin,
              Db *dbout,
              Model *model,
-             Neigh *neigh,
+             ANeighParam *neighparam,
              double *dmean,
              double *dcov,
              int seed,
@@ -3646,7 +3647,7 @@ int simbayes(Db *dbin,
   flag_cond = (dbin != nullptr);
   situba = nullptr;
   law_set_random_seed(seed);
-  if (st_check_simtub_environment(dbin, dbout, model, neigh)) goto label_end;
+  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
 
   /* Define the environment variables for printout */
 
@@ -3667,7 +3668,7 @@ int simbayes(Db *dbin,
 
   situba = st_alloc(model, nbsimu, nbtuba);
   if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neigh, situba, dmean, dcov, nbsimu,
+  if (st_simtub_process(dbin, dbout, model, neighparam, situba, dmean, dcov, nbsimu,
                         0, 0, 0, flag_check)) goto label_end;
 
   /* Free the temporary variables */
@@ -3829,7 +3830,7 @@ static void st_init_gibbs_params(double rho)
  ** \param[in]  ruleprop    RuleProp structure
  ** \param[in]  model1      First Model structure
  ** \param[in]  model2      Second Model structure (optional)
- ** \param[in]  neigh       Neighborhood structure
+ ** \param[in]  neighparam  Neighborhood structure
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  flag_gaus   1 if results must be gaussian; otherwise facies
@@ -3857,7 +3858,7 @@ int simpgs(Db *dbin,
            RuleProp *ruleprop,
            Model *model1,
            Model *model2,
-           Neigh *neigh,
+           ANeighParam *neighparam,
            int nbsimu,
            int seed,
            int flag_gaus,
@@ -3905,7 +3906,7 @@ int simpgs(Db *dbin,
   ngrf = rule->getGRFNumber();
   if (rule->particularities(dbout, dbprop, model1, 1, flag_stat))
     goto label_end;
-  if (st_check_simtub_environment(dbin, dbout, model1, neigh)) goto label_end;
+  if (st_check_simtub_environment(dbin, dbout, model1, neighparam)) goto label_end;
 
   /**********************/
   /* Preliminary checks */
@@ -3951,7 +3952,8 @@ int simpgs(Db *dbin,
   /* Neighborhood */
   if (flag_cond)
   {
-    if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
+    if (neighparam->getType() != ENeigh::UNIQUE && neighparam->getType()
+        != ENeigh::BENCH)
     {
       messerr("The only authorized Neighborhoods are UNIQUE or BENCH");
       goto label_end;
@@ -4038,8 +4040,7 @@ int simpgs(Db *dbin,
 
     // Create the Gibbs sampler (multi-mono case)
 
-    AGibbs *gibbs = GibbsFactory::createGibbs(dbin, modvec, rule->getRho(),
-                                              false);
+    AGibbs *gibbs = GibbsFactory::createGibbs(dbin, modvec, rule->getRho(), false);
     gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true);
 
     /* Allocate the covariance matrix inverted */
@@ -4072,7 +4073,7 @@ int simpgs(Db *dbin,
     icase = get_rank_from_propdef(propdef, 0, MES_IGRF);
     situba = st_alloc(models[MES_IGRF], nbsimu, nbtuba);
     if (situba == nullptr) goto label_end;
-    if (st_simtub_process(dbin, dbout, models[MES_IGRF], neigh, situba, nullptr,
+    if (st_simtub_process(dbin, dbout, models[MES_IGRF], neighparam, situba, nullptr,
                           nullptr, nbsimu, icase, 1, 0, flag_check))
       goto label_end;
     situba = st_dealloc(situba);
@@ -4171,7 +4172,7 @@ int simpgs(Db *dbin,
  ** \param[in]  model12     Second Model structure for First Lithotype Rule
  ** \param[in]  model21     First Model structure for Second Lithotype Rule
  ** \param[in]  model22     Second Model structure for Second Lithotype Rule
- ** \param[in]  neigh       Neighborhood structure
+ ** \param[in]  neighparam  Neighborhood structure
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  flag_gaus   1 gaussian results; otherwise facies
@@ -4203,7 +4204,7 @@ int simbipgs(Db *dbin,
              Model *model12,
              Model *model21,
              Model *model22,
-             Neigh *neigh,
+             ANeighParam *neighparam,
              int nbsimu,
              int seed,
              int flag_gaus,
@@ -4332,7 +4333,7 @@ int simbipgs(Db *dbin,
   }
 
   /* Neighborhood */
-  if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
+  if (neighparam->getType() != ENeigh::UNIQUE && neighparam->getType() != ENeigh::BENCH)
   {
     messerr("The only authorized Neighborhoods are UNIQUE or BENCH");
     goto label_end;
@@ -4358,7 +4359,7 @@ int simbipgs(Db *dbin,
       dbin->clearLocators(ELoc::Z);
       dbin->setLocatorByAttribute(iatt_z[ipgs], ELoc::Z);
     }
-    if (st_check_simtub_environment(dbin, dbout, models[ipgs][0], neigh))
+    if (st_check_simtub_environment(dbin, dbout, models[ipgs][0], neighparam))
       goto label_end;
   }
 
@@ -4507,7 +4508,7 @@ int simbipgs(Db *dbin,
       icase = get_rank_from_propdef(propdef, ipgs, MES_IGRF);
       situba = st_alloc(models[ipgs][MES_IGRF], nbsimu, nbtuba);
       if (situba == nullptr) goto label_end;
-      if (st_simtub_process(dbin, dbout, models[ipgs][MES_IGRF], neigh, situba,
+      if (st_simtub_process(dbin, dbout, models[ipgs][MES_IGRF], neighparam, situba,
                             nullptr, nullptr, nbsimu, icase, 1, 0, flag_check))
         goto label_end;
       situba = st_dealloc(situba);
@@ -4713,7 +4714,7 @@ int db_simulations_to_ce(Db *db,
  **
  ** \param[in]  dbin        Db structure
  ** \param[in]  model       Model structure
- ** \param[in]  neigh       Neigh structure (optional)
+ ** \param[in]  neighparam  Neigh structure (optional)
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
@@ -4734,7 +4735,7 @@ int db_simulations_to_ce(Db *db,
  *****************************************************************************/
 int gibbs_sampler(Db *dbin,
                   Model *model,
-                  Neigh *neigh,
+                  ANeighParam *neighparam,
                   int nbsimu,
                   int seed,
                   int gibbs_nburn,
@@ -4816,7 +4817,7 @@ int gibbs_sampler(Db *dbin,
   {
     AGibbs *gibbs;
     if (!flag_multi_mono)
-      gibbs = GibbsFactory::createGibbs(dbin, model, neigh);
+      gibbs = GibbsFactory::createGibbs(dbin, model, neighparam);
     else
     {
       std::vector<Model*> modvec;
@@ -4885,7 +4886,7 @@ int gibbs_sampler(Db *dbin,
  ** \param[in]  dbin         Input Db structure (optional)
  ** \param[in]  dbout        Output Db structure
  ** \param[in]  model        Model structure
- ** \param[in]  neigh        Neigh structure (optional)
+ ** \param[in]  neighparam   ANeighParam structure (optional)
  ** \param[in]  seed         Seed for random number generator
  ** \param[in]  nbtuba       Number of turning bands
  ** \param[in]  nbsimu_min   Minimum number of simulations
@@ -4939,7 +4940,7 @@ int gibbs_sampler(Db *dbin,
 int simtub_constraints(Db *dbin,
                        Db *dbout,
                        Model *model,
-                       Neigh *neigh,
+                       ANeighParam *neighparam,
                        int seed,
                        int nbtuba,
                        int nbsimu_min,
@@ -5004,7 +5005,7 @@ int simtub_constraints(Db *dbin,
 
     iter++;
     nbtest += nbsimu;
-    if (simtub(dbin, dbout, model, neigh, nbsimu, 0, nbtuba, 0)) goto label_end;
+    if (simtub(dbin, dbout, model, neighparam, nbsimu, 0, nbtuba, 0)) goto label_end;
 
     /* Check if the simulated outcomes are valid */
 
@@ -5018,8 +5019,7 @@ int simtub_constraints(Db *dbin,
       /* Check if the simulation is valid */
 
       percent = 100. * nvalid / nbsimu_min;
-      retval = func_valid(flag_grid, ndim, nech, nx, dx, x0, TEST, percent,
-                          tab);
+      retval = func_valid(flag_grid, ndim, nech, nx, dx, x0, TEST, percent, tab);
       if (retval == 0)
       {
 
@@ -5054,7 +5054,7 @@ int simtub_constraints(Db *dbin,
 
     /* Optional printout */
 
-    if (DbgOpt::query(EDbg::CONVERGE))
+    if (OptDbg::query(EDbg::CONVERGE))
       message("Iteration #%2d - Simulations %3d tested, %2d valid\n", iter,
               nbtest, nvalid);
 
@@ -5813,15 +5813,14 @@ int simcond(Db *dbin,
             int flag_cstd,
             int verbose)
 {
-  Neigh *neigh;
   Situba *situba;
   PropDef *propdef;
+  ANeighParam *neighparam = nullptr;
   int nvar, error, iext, inostat, iptr, iptr_ce, iptr_cstd, ndim;
 
   /* Initializations */
 
   error = 1;
-  neigh = nullptr;
   nvar = model->getVariableNumber();
   ndim = model->getDimensionNumber();
   iptr = -1;
@@ -5830,7 +5829,7 @@ int simcond(Db *dbin,
 
   /* Preliminary checks */
 
-  neigh = Neigh::createUnique(ndim);
+  neighparam = NeighUnique::create(ndim,false);
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
@@ -5898,7 +5897,7 @@ int simcond(Db *dbin,
 
   situba = st_alloc(model, nbsimu, nbtuba);
   if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neigh, situba, nullptr, nullptr,
+  if (st_simtub_process(dbin, dbout, model, neighparam, situba, nullptr, nullptr,
                         nbsimu, 0, 0, 1, flag_check)) goto label_end;
 
   /* Free the temporary variables not used anymore */
@@ -5933,7 +5932,7 @@ int simcond(Db *dbin,
   error = 0;
 
   label_end:
-  delete neigh;
+  delete neighparam;
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
   situba = st_dealloc(situba);

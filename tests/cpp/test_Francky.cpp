@@ -10,7 +10,8 @@
 #include "Model/NoStatFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include <algorithm>
 #include <math.h>
@@ -61,16 +62,16 @@ int main(int /*argc*/, char */*argv*/[])
   dat->addFields(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
-  Neigh* neigh = Neigh::createUnique(2);
+  NeighUnique* neighU = NeighUnique::create(2,false);
 
   // Testing Kriging
-  kriging(dat,workingDbc,&model,neigh);
+  kriging(dat,workingDbc,&model,neighU);
   (void) workingDbc->dumpToNF("franckyFunctional.ascii");
 
   message("Test performed successfully\n");
 
   delete dat;
   delete workingDbc;
-  delete neigh;
+  delete neighU;
   return 0;
 }

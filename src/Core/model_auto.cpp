@@ -23,7 +23,7 @@
 #include "Model/ConsItem.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/String.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/EAnam.hpp"
@@ -722,13 +722,13 @@ static void st_goulard_verbose(int mode, Option_AutoFit &mauto)
   {
     verbose = mauto.getVerbose();
     mauto.setVerbose(0);
-    flag_converge = DbgOpt::query(EDbg::CONVERGE);
-    DbgOpt::define(EDbg::CONVERGE, 0);
+    flag_converge = OptDbg::query(EDbg::CONVERGE);
+    OptDbg::define(EDbg::CONVERGE, 0);
   }
   else
   {
     mauto.setVerbose(verbose);
-    DbgOpt::define(EDbg::CONVERGE, flag_converge);
+    OptDbg::define(EDbg::CONVERGE, flag_converge);
   }
 }
 
@@ -1307,7 +1307,7 @@ static void st_goulard_debug_title(int nvar, int ncova)
   int icov, ivar, jvar;
   static char loc_string[20];
 
-  if (!DbgOpt::query(EDbg::CONVERGE)) return;
+  if (!OptDbg::query(EDbg::CONVERGE)) return;
   mestitle(1, "Trajectory of parameters in Goulard Algorithm");
   message("(Sti(V1-V2) : Sill for structure 'i' for variables 'V1' and 'V2'\n");
   tab_prints(NULL, 1, EJustify::RIGHT, "Iteration");
@@ -1342,7 +1342,7 @@ static void st_goulard_debug_current(int nvar,
 {
   int icov, ivar, jvar, ijvar, nvs2;
 
-  if (!DbgOpt::query(EDbg::CONVERGE)) return;
+  if (!OptDbg::query(EDbg::CONVERGE)) return;
   nvs2 = nvar * (nvar + 1) / 2;
   tab_printi(NULL, 1, EJustify::RIGHT, iter + 1);
   if (FFFF(crit))
@@ -1813,7 +1813,7 @@ static void st_model_auto_strmod_print(int flag_title,
 
   /* Initializations */
 
-  if (!(mauto.getVerbose() > 0 || DbgOpt::query(EDbg::CONVERGE))) return;
+  if (!(mauto.getVerbose() > 0 || OptDbg::query(EDbg::CONVERGE))) return;
   optvar = strmod->optvar;
   ndim = strmod->models[0]->getDimensionNumber();
   nvar = strmod->models[0]->getVariableNumber();
@@ -3722,7 +3722,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
       {
 
         flag_modified++;
-        if (mauto.getVerbose() > 0 || DbgOpt::query(EDbg::CONVERGE))
+        if (mauto.getVerbose() > 0 || OptDbg::query(EDbg::CONVERGE))
         {
           if (flag_modified == 1)
             mestitle(0, "Suppressing the unnecessary basic structures");
@@ -3742,7 +3742,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
             lost_rank = rank;
             st_parid_decode(strmod->parid[lost_rank], &lost_imod, &lost_icov,
                             &icons, &ivar, &jvar);
-            if (mauto.getVerbose() > 0 || DbgOpt::query(EDbg::CONVERGE))
+            if (mauto.getVerbose() > 0 || OptDbg::query(EDbg::CONVERGE))
             {
               message("Note: This structure contains rotation parameters.\n");
               message("As the fitting method considers a shared rotation\n");
@@ -3795,7 +3795,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
         /* This non-masked component can be assigned the lost rotation */
 
-        if (mauto.getVerbose() > 0 || DbgOpt::query(EDbg::CONVERGE))
+        if (mauto.getVerbose() > 0 || OptDbg::query(EDbg::CONVERGE))
         {
           message("The Rotation is swapped to Structure '%s' in model #%d\n",
                   model->getCovName(icov).c_str(), imod + 1);

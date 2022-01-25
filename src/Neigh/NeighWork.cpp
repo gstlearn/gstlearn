@@ -8,52 +8,54 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
+
 #include "Neigh/NeighWork.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighBench.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/DbgOpt.hpp"
-
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+#include "Basic/OptDbg.hpp"
 
 #include <math.h>
 #include <set>
 
 NeighWork::NeighWork(const Db* dbin,
-                     const Neigh* neigh,
+                     const ANeighParam* neighparam,
                      bool flag_simu)
     : _dbin(),
-      _neigh(),
+      _neighParam(),
       _flagInitialized(false),
       _flagIsUnchanged(false),
-      _nbghInd(),
-      _nbghIsect(),
-      _nbghNsect(),
-      _nbghX1(),
-      _nbghX2(),
-      _nbghDst(),
+      _movingInd(),
+      _movingIsect(),
+      _movingNsect(),
+      _movingX1(),
+      _movingX2(),
+      _movingDst(),
       _flagSimu(false),
       _dbout(nullptr),
       _iechOut(-1),
       _nbghMemo()
 
 {
-  initialize(dbin, neigh, flag_simu);
+  initialize(dbin, neighparam, flag_simu);
 }
 
 NeighWork::NeighWork(const NeighWork& r)
     : _dbin(r._dbin),
-      _neigh(r._neigh),
+      _neighParam(r._neighParam),
       _flagInitialized(r._flagInitialized),
       _flagIsUnchanged(r._flagIsUnchanged),
-      _nbghInd(r._nbghInd),
-      _nbghIsect(r._nbghIsect),
-      _nbghNsect(r._nbghNsect),
-      _nbghX1(r._nbghX1),
-      _nbghX2(r._nbghX2),
-      _nbghDst(r._nbghDst),
+      _movingInd(r._movingInd),
+      _movingIsect(r._movingIsect),
+      _movingNsect(r._movingNsect),
+      _movingX1(r._movingX1),
+      _movingX2(r._movingX2),
+      _movingDst(r._movingDst),
       _flagSimu(r._flagSimu),
       _dbout(r._dbout),
       _iechOut(r._iechOut),
@@ -66,15 +68,15 @@ NeighWork& NeighWork::operator=(const NeighWork& r)
   if (this != &r)
   {
     _dbin = r._dbin;
-    _neigh = r._neigh;
+    _neighParam = r._neighParam;
     _flagInitialized = r._flagInitialized;
     _flagIsUnchanged = r._flagIsUnchanged;
-    _nbghInd = r._nbghInd;
-    _nbghIsect = r._nbghIsect;
-    _nbghNsect = r._nbghNsect;
-    _nbghX1 = r._nbghX1;
-    _nbghX2 = r._nbghX2;
-    _nbghDst = r._nbghDst;
+    _movingInd = r._movingInd;
+    _movingIsect = r._movingIsect;
+    _movingNsect = r._movingNsect;
+    _movingX1 = r._movingX1;
+    _movingX2 = r._movingX2;
+    _movingDst = r._movingDst;
     _flagSimu = r._flagSimu;
     _dbout = r._dbout;
     _iechOut = r._iechOut;
@@ -92,7 +94,7 @@ NeighWork::~NeighWork()
  **  Initialize the neighborhood search
  **
  ** \param[in]  dbin          input Db structure
- ** \param[in]  neigh         Description of the Neigh parameters
+ ** \param[in]  neighparam    Description of the ANeighParam parameters
  ** \param[in]  flag_simu     1 if used for Simulation
  **
  ** \remarks When the Neighborhood is performed in the case of Simulations
@@ -100,25 +102,31 @@ NeighWork::~NeighWork()
  ** \remarks on ELoc::SIMU rather than on ELoc::Z
  **
  *****************************************************************************/
-void NeighWork::initialize(const Db* dbin, const Neigh* neigh, bool flag_simu)
+void NeighWork::initialize(const Db* dbin,
+                           const ANeighParam* neighparam,
+                           bool flag_simu)
 {
-  if (neigh == nullptr || dbin == nullptr) return;
-  _neigh = neigh;
+  if (neighparam == nullptr || dbin == nullptr) return;
+  _neighParam = neighparam;
   _dbin = dbin;
   _flagSimu = flag_simu;
 
   int nech  = _dbin->getSampleNumber();
   int ndim  = _dbin->getNDim();
-  int nsect = _neigh->getNSect();
-
-  _nbghInd = VectorInt(nech);
-  _nbghDst = VectorDouble(nech);
-  _nbghIsect = VectorInt(nsect);
-  _nbghNsect = VectorInt(nsect);
-  _nbghX1 = VectorDouble(ndim);
-  _nbghX2 = VectorDouble(ndim);
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
+  if (neighM != nullptr)
+  {
+    int nsect = neighM->getNSect();
+    _movingInd = VectorInt(nech);
+    _movingDst = VectorDouble(nech);
+    _movingIsect = VectorInt(nsect);
+    _movingNsect = VectorInt(nsect);
+    _movingX1 = VectorDouble(ndim);
+    _movingX2 = VectorDouble(ndim);
+  }
 
   // Clear out the Memorization parameters
+
   _clearMemory();
 
   _flagInitialized = true;
@@ -135,17 +143,17 @@ void NeighWork::clear()
 
   // Clear the pointers
 
-  _neigh = nullptr;
+  _neighParam = nullptr;
   _dbin  = nullptr;
 
   /* Core deallocation */
 
-  _nbghInd.clear();
-  _nbghDst.clear();
-  _nbghIsect.clear();
-  _nbghNsect.clear();
-  _nbghX1.clear();
-  _nbghX2.clear();
+  _movingInd.clear();
+  _movingDst.clear();
+  _movingIsect.clear();
+  _movingNsect.clear();
+  _movingX1.clear();
+  _movingX2.clear();
 
   _nbghMemo.clear();
 
@@ -186,7 +194,7 @@ VectorInt NeighWork::select(Db *dbout,
   if (_isSameTarget(dbout, iech_out, ranks, verbose)) return ranks;
 
   // Select the neighborhood samples as the target sample has changed
-  switch (_neigh->getType().toEnum())
+  switch (_neighParam->getType().toEnum())
   {
     case ENeigh::E_IMAGE:
     case ENeigh::E_UNIQUE:
@@ -206,7 +214,7 @@ VectorInt NeighWork::select(Db *dbout,
 
   // In case of debug option, dump out neighborhood characteristics
 
-  if (DbgOpt::query(EDbg::NBGH)) _display(ranks);
+  if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
   /* Compress the vector of returned sample ranks */
 
@@ -254,7 +262,7 @@ void NeighWork::_unique(Db *dbout, int iech_out, VectorInt& ranks)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neigh->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid() != 0)
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
@@ -278,6 +286,7 @@ void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
   int nech = _dbin->getSampleNumber();
   int idim_bench = _dbin->getNDim() - 1;
   double z0 = dbout->getCoordinate(iech_out, idim_bench);
+  const NeighBench* neighB = dynamic_cast<const NeighBench*>(_neighParam);
 
   /* Loop on samples */
 
@@ -293,14 +302,14 @@ void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neigh->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid() != 0)
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
 
     /* Discard sample located outside the bench */
 
-    if (ABS(_dbin->getCoordinate(iech,idim_bench) - z0) <= _neigh->getWidth())
+    if (ABS(_dbin->getCoordinate(iech,idim_bench) - z0) <= neighB->getWidth())
       ranks[iech] = 0;
   }
 }
@@ -323,9 +332,10 @@ void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
  *****************************************************************************/
 int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 {
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   int nech = _dbin->getSampleNumber();
   int isect = 0;
-  if (nech < _neigh->getNMini()) return 1;
+  if (nech < neighM->getNMini()) return 1;
 
   /* Loop on the data points */
 
@@ -344,7 +354,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neigh->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid() != 0)
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
@@ -352,39 +362,39 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
     /* Calculate the distance between data and target */
 
     double dist = _movingDist(dbout, iech, iech_out);
-    if (! FFFF(_neigh->getRadius()) && dist > _neigh->getRadius()) continue;
+    if (! FFFF(neighM->getRadius()) && dist > neighM->getRadius()) continue;
     if (dist > distmax) distmax = dist;
 
     /* Calculate the angular sector to which the sample belongs */
 
-    if (_neigh->getFlagSector())
-      isect = _movingSectorDefine(_nbghX1[0], _nbghX1[1]);
+    if (neighM->getFlagSector())
+      isect = _movingSectorDefine(_movingX1[0], _movingX1[1]);
 
     /* The sample may be selected */
 
-    _nbghInd[nsel] = iech;
-    _nbghDst[nsel] = dist;
+    _movingInd[nsel] = iech;
+    _movingDst[nsel] = dist;
     ranks[iech] = isect;
     nsel++;
   }
-  if (nsel < _neigh->getNMini()) return 1;
+  if (nsel < neighM->getNMini()) return 1;
 
   /* Slightly modify the distances in order to ensure the sorting results */
   /* In the case of equal distances                                       */
 
   for (int isel = 0; isel < nsel; isel++)
-    _nbghDst[isel] += distmax * isel * eps;
+    _movingDst[isel] += distmax * isel * eps;
 
   /* Sort the selected samples according to the distance */
 
-  ut_sort_double(0, nsel, _nbghInd.data(), _nbghDst.data());
+  ut_sort_double(0, nsel, _movingInd.data(), _movingDst.data());
 
   /* For each angular sector, select the first sample up to the maximum */
 
-  if (_neigh->getFlagSector() && _neigh->getNSMax() > 0)
+  if (neighM->getFlagSector() && neighM->getNSMax() > 0)
   {
     _movingSectorNsmax(nsel, ranks);
-    if (nsel < _neigh->getNMini()) return 1;
+    if (nsel < neighM->getNMini()) return 1;
   }
 
   /* Select the first data samples */
@@ -440,8 +450,9 @@ bool NeighWork::_discardUndefined(int iech)
  *****************************************************************************/
 int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
 {
-  if (_neigh->getFlagXvalid() == 0) return 0;
-  else if (_neigh->getFlagXvalid() > 0)
+  if (_neighParam->getFlagXvalid() == 0)
+    return 0;
+  else if (_neighParam->getFlagXvalid() > 0)
   {
     if (distance_inter(_dbin, dbout, iech_in, iech_out, NULL) < eps) return 1;
   }
@@ -466,35 +477,36 @@ int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
  *****************************************************************************/
 double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
 {
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   int ndim = _dbin->getNDim();
 
   /* Calculate the distance to the target */
 
   for (int idim = 0; idim < ndim; idim++)
-    _nbghX1[idim] = dbout->getCoordinate(iech_out, idim)
+    _movingX1[idim] = dbout->getCoordinate(iech_out, idim)
         - _dbin->getCoordinate(iech_in, idim);
 
   /* Anisotropic neighborhood */
 
-  if (_neigh->getFlagAniso())
+  if (neighM->getFlagAniso())
   {
 
     /* Rotated anisotropy ellipsoid */
 
-    if (_neigh->getFlagRotation())
+    if (neighM->getFlagRotation())
     {
-      matrix_product(1, ndim, ndim, _nbghX1.data(),
-                     _neigh->getAnisoRotMats().data(), _nbghX2.data());
-      _nbghX1 = _nbghX2;
+      matrix_product(1, ndim, ndim, _movingX1.data(),
+                     neighM->getAnisoRotMats().data(), _movingX2.data());
+      _movingX1 = _movingX2;
     }
     for (int idim = 0; idim < ndim; idim++)
-      _nbghX1[idim] /= _neigh->getAnisoCoeff(idim);
+      _movingX1[idim] /= neighM->getAnisoCoeff(idim);
   }
 
   /* Calculate the distance */
 
   double dist;
-  matrix_product(1, ndim, 1, _nbghX1.data(), _nbghX1.data(), &dist);
+  matrix_product(1, ndim, 1, _movingX1.data(), _movingX1.data(), &dist);
   dist = sqrt(dist);
   return dist;
 }
@@ -511,10 +523,11 @@ double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
  *****************************************************************************/
 int NeighWork::_movingSectorDefine(double dx, double dy)
 {
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   double angle;
 
   int isect = 0;
-  if (_neigh->getNSect() > 1)
+  if (neighM->getNSect() > 1)
   {
     if (dx == 0.)
     {
@@ -537,7 +550,7 @@ int NeighWork::_movingSectorDefine(double dx, double dy)
       else
         angle = GV_PI + atan(dy / dx);
     }
-    isect = (int) (_neigh->getNSect() * angle / (2. * GV_PI));
+    isect = (int) (neighM->getNSect() * angle / (2. * GV_PI));
   }
   return (isect);
 }
@@ -554,15 +567,16 @@ int NeighWork::_movingSectorDefine(double dx, double dy)
  *****************************************************************************/
 void NeighWork::_movingSectorNsmax(int nsel, VectorInt& ranks)
 {
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   int n_end = 0;
-  for (int isect = 0; isect < _neigh->getNSect(); isect++)
+  for (int isect = 0; isect < neighM->getNSect(); isect++)
   {
     int n_ang = 0;
     for (int i = 0; i < nsel; i++)
     {
-      int j = _nbghInd[i];
+      int j = _movingInd[i];
       if (ranks[j] != isect) continue;
-      if (n_ang < _neigh->getNSMax())
+      if (n_ang < neighM->getNSMax())
         n_ang++;
       else
         ranks[j] = -1;
@@ -586,53 +600,54 @@ void NeighWork::_movingSectorNsmax(int nsel, VectorInt& ranks)
  *****************************************************************************/
 void NeighWork::_movingSelect(int nsel, VectorInt& ranks)
 {
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   int number;
 
-  if (_neigh->getNMaxi() <= 0) return;
-  for (int isect = 0; isect < _neigh->getNSect(); isect++)
-    _nbghNsect[isect] = _nbghIsect[isect] = 0;
+  if (neighM->getNMaxi() <= 0) return;
+  for (int isect = 0; isect < neighM->getNSect(); isect++)
+    _movingNsect[isect] = _movingIsect[isect] = 0;
 
   /* Count the number of samples per sector */
 
   number = 0;
   for (int i = 0; i < nsel; i++)
   {
-    int j = _nbghInd[i];
+    int j = _movingInd[i];
     int isect = ranks[j];
     if (isect < 0) continue;
-    _nbghNsect[isect]++;
+    _movingNsect[isect]++;
     number++;
   }
-  if (number < _neigh->getNMaxi()) return;
+  if (number < neighM->getNMaxi()) return;
 
   /* Find the rank of the admissible data per sector */
 
   number = 0;
-  while (number < _neigh->getNMaxi())
+  while (number < neighM->getNMaxi())
   {
-    for (int isect = 0; isect < _neigh->getNSect(); isect++)
+    for (int isect = 0; isect < neighM->getNSect(); isect++)
     {
-      if (_nbghIsect[isect] >= _nbghNsect[isect]) continue;
-      _nbghIsect[isect]++;
+      if (_movingIsect[isect] >= _movingNsect[isect]) continue;
+      _movingIsect[isect]++;
       number++;
-      if (number >= _neigh->getNMaxi()) break;
+      if (number >= neighM->getNMaxi()) break;
     }
   }
 
   /* Discard the data beyond the admissible rank per sector */
 
-  for (int isect = 0; isect < _neigh->getNSect(); isect++)
+  for (int isect = 0; isect < neighM->getNSect(); isect++)
   {
-    if (_nbghIsect[isect] >= _nbghNsect[isect]) continue;
+    if (_movingIsect[isect] >= _movingNsect[isect]) continue;
     number = 0;
     for (int i = 0; i < nsel; i++)
     {
-      int j = _nbghInd[i];
+      int j = _movingInd[i];
       int jsect = ranks[j];
       if (jsect < 0) continue;
       if (isect != jsect) continue;
       number++;
-      if (number > _nbghIsect[isect]) ranks[j] = -1;
+      if (number > _movingIsect[isect]) ranks[j] = -1;
     }
   }
 }
@@ -672,7 +687,7 @@ void NeighWork::_display(const VectorInt& ranks)
       tab_prints(NULL, 1, EJustify::RIGHT, string.c_str());
     }
   }
-  if (_neigh->getType() == ENeigh::MOVING)
+  if (_neighParam->getType() == ENeigh::MOVING)
     tab_prints(NULL, 1, EJustify::RIGHT, "Sector");
   message("\n");
 
@@ -696,7 +711,7 @@ void NeighWork::_display(const VectorInt& ranks)
         tab_printg(NULL, 1, EJustify::RIGHT,
                    _dbin->getBlockExtension(iech, idim));
     }
-    if (_neigh->getType() == ENeigh::MOVING)
+    if (_neighParam->getType() == ENeigh::MOVING)
       tab_printi(NULL, 1, EJustify::RIGHT, ranks[iech] + 1);
     message("\n");
     nsel++;
@@ -882,12 +897,12 @@ VectorDouble NeighWork::summary(Db *dbout,
 {
   VectorDouble tab(5,0.);
 
-  // Get the neighbors
-
-  VectorInt nbgh_ranks = select(dbout, iech_out, rankColCok);
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
+  if (neighM == nullptr) return tab;
 
   /* Number of selected samples */
 
+  VectorInt nbgh_ranks = select(dbout, iech_out, rankColCok);
   int nsel = (int) nbgh_ranks.size();
   tab[0] = (double) nsel;
 
@@ -896,7 +911,7 @@ VectorDouble NeighWork::summary(Db *dbout,
   double dmax = TEST;
   for (int iech = 0; iech < nsel; iech++)
   {
-    double dist = _nbghDst[iech];
+    double dist = _movingDst[iech];
     if (FFFF(dmax) || dist > dmax) dmax = dist;
   }
   tab[1] = dmax;
@@ -906,7 +921,7 @@ VectorDouble NeighWork::summary(Db *dbout,
   double dmin = TEST;
   for (int iech = 0; iech < nsel; iech++)
   {
-    double dist = _nbghDst[iech];
+    double dist = _movingDst[iech];
     if (FFFF(dmin) || dist < dmin) dmin = dist;
   }
   tab[2] = dmin;
@@ -914,9 +929,9 @@ VectorDouble NeighWork::summary(Db *dbout,
   /* Number of sectors containing neighborhood information */
 
   int number = 0;
-  for (int isect = 0; isect < _neigh->getNSect(); isect++)
+  for (int isect = 0; isect < neighM->getNSect(); isect++)
   {
-    if (_nbghNsect[isect] > 0) number++;
+    if (_movingNsect[isect] > 0) number++;
   }
   tab[3] = (double) number;
 
@@ -924,9 +939,9 @@ VectorDouble NeighWork::summary(Db *dbout,
 
   number = 0;
   int n_empty = 0;
-  for (int isect = 0; isect < 2 * _neigh->getNSect(); isect++)
+  for (int isect = 0; isect < 2 * neighM->getNSect(); isect++)
   {
-    if (_nbghNsect[isect] > 0)
+    if (_movingNsect[isect] > 0)
       n_empty = 0;
     else
     {

@@ -13,7 +13,6 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "Variogram/Vario.hpp"
-#include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"

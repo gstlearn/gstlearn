@@ -23,7 +23,8 @@
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighMoving.hpp"
 
 /****************************************************************************/
 /*!
@@ -92,16 +93,15 @@ int main(int /*argc*/, char * /*argv*/[])
 
   // Neighborhood
 
-  Neigh* neigh = nullptr;
+  ANeighParam* neighparam = nullptr;
   if (flag_moving)
   {
-    neigh = Neigh::createMoving(ndim, nmaxi, nbgh_radius);
-    neigh->display();
+    neighparam = NeighMoving::create(ndim, false, nmaxi, nbgh_radius);
   }
 
   // Gibbs
 
-  error = gibbs_sampler(db, model, neigh, nbsimu, seed, nburn, niter, false,
+  error = gibbs_sampler(db, model, neighparam, nbsimu, seed, nburn, niter, false,
                         flag_multi_mono, flag_propagation,
                         flag_sym_neigh, 2,
                         5., false, false, verbose);
@@ -127,6 +127,6 @@ int main(int /*argc*/, char * /*argv*/[])
 
   db    = db_delete(db);
   model = model_free(model);
-  delete neigh;
+  delete neighparam;
   return(0);
 }

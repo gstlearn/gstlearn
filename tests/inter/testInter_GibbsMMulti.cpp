@@ -24,7 +24,6 @@
 #include "Variogram/Vario.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Db/Db.hpp"
-#include "Neigh/Neigh.hpp"
 
 /****************************************************************************/
 /*!

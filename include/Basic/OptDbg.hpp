@@ -12,12 +12,12 @@
 
 #include "gstlearn_export.hpp"
 
-#include "EDbgOpt.hpp"
+#include "EOptDbg.hpp"
 
 /**
  * Operate the list of active Debug options
  */
-class GSTLEARN_EXPORT DbgOpt
+class GSTLEARN_EXPORT OptDbg
 {
 public:
   static void reset();

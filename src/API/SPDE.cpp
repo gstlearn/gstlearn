@@ -5,57 +5,67 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
+
 #include <iostream>
 #include <math.h>
 
 SPDE::SPDE()
-: _data(nullptr)
-, _calcul()
-, _precisionsKriging()
-, _precisionsSimu()
-, _pileShiftOp()
-, _pilePrecisions()
-, _pileProjMatrix()
-, _simuMeshing()
-, _krigingMeshing()
-, _driftCoeffs()
-, _model(nullptr)
-, _workKriging()
-, _workingSimu()
-, _projOnDbOut()
-, _nugget(0.)
-, _requireCoeffs(false)
-, _isCoeffsComputed(false)
+    : _data(nullptr),
+      _calcul(),
+      _precisionsKriging(),
+      _precisionsSimu(),
+      _pileShiftOp(),
+      _pilePrecisions(),
+      _pileProjMatrix(),
+      _simuMeshing(),
+      _krigingMeshing(),
+      _driftCoeffs(),
+      _model(nullptr),
+      _workKriging(),
+      _workingSimu(),
+      _workingData(),
+      _projOnDbOut(),
+      _adressesICov(),
+      _nugget(0.),
+      _driftTab(),
+      _requireCoeffs(false),
+      _isCoeffsComputed(false)
 {
-
 }
 
 SPDE::SPDE(Model* model,
            const Db* field,
            const Db* dat,
            const ESPDECalcMode& calc)
-: _data(nullptr)
-, _calcul()
-, _precisionsKriging()
-, _precisionsSimu()
-, _pileShiftOp()
-, _pilePrecisions()
-, _pileProjMatrix()
-, _simuMeshing()
-, _krigingMeshing()
-, _model(nullptr)
-, _workKriging()
-, _workingSimu()
-, _projOnDbOut()
-, _isCoeffsComputed(false)
+    : _data(nullptr),
+      _calcul(),
+      _precisionsKriging(),
+      _precisionsSimu(),
+      _pileShiftOp(),
+      _pilePrecisions(),
+      _pileProjMatrix(),
+      _simuMeshing(),
+      _krigingMeshing(),
+      _driftCoeffs(),
+      _model(nullptr),
+      _workKriging(),
+      _workingSimu(),
+      _workingData(),
+      _projOnDbOut(),
+      _adressesICov(),
+      _nugget(0.),
+      _driftTab(),
+      _requireCoeffs(false),
+      _isCoeffsComputed(false)
 {
-  init(model,field,dat,calc);
+  init(model, field, dat, calc);
 }
 
 SPDE::~SPDE()
@@ -74,17 +84,14 @@ void SPDE::_purge()
   {
     delete e;
   }
-
   for(auto &e : _pileShiftOp)
   {
     delete e;
   }
-
   for(auto &e : _simuMeshing)
   {
     delete e;
   }
-
   for(auto &e : _krigingMeshing)
   {
     delete e;
@@ -125,7 +132,7 @@ void SPDE::init(Model* model,
     else if (cova->getType() == ECov::BESSEL_K)
     {
       totalSill += cova->getSill(0, 0);
-      if(_calculSimu())
+      if (_calculSimu())
       {
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,14,5,useSel,verbose);
@@ -139,7 +146,7 @@ void SPDE::init(Model* model,
         _precisionsSimu.push_back(precision,proj);
         _workingSimu.push_back(VectorDouble(shiftOp->getSize()));
       }
-      if(_calculKriging() || _requireCoeffs)
+      if (_calculKriging() || _requireCoeffs)
       {
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,11,5,useSel,verbose);
@@ -219,7 +226,7 @@ void SPDE::compute(int nbsimus, int seed)
   bool useSel = true;
   int ivar = 0;
 
-  if(_data != nullptr)
+  if (_data != nullptr)
   {
     dataVect = _data->getFieldByLocator(ELoc::Z,ivar,useSel);
 
@@ -233,17 +240,17 @@ void SPDE::compute(int nbsimus, int seed)
     }
   }
 
-  if(_calcul == ESPDECalcMode::KRIGING)
+  if (_calcul == ESPDECalcMode::KRIGING)
   {
     computeKriging();
   }
 
-  if(_calcul == ESPDECalcMode::SIMUNONCOND)
+  if (_calcul == ESPDECalcMode::SIMUNONCOND)
   {
     computeSimuNonCond(nbsimus,seed);
 
   }
-  if(_calcul == ESPDECalcMode::SIMUCOND)
+  if (_calcul == ESPDECalcMode::SIMUCOND)
   {
     computeSimuCond(nbsimus,seed);
   }

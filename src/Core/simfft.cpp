@@ -12,7 +12,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 
@@ -352,7 +352,7 @@ static void st_simfft_prepar(Db *db,
 
     /* Printout statistics */
 
-    if (DbgOpt::query(EDbg::SIMULATE))
+    if (OptDbg::query(EDbg::SIMULATE))
     {
       message("Statistics on the Discrete Periodic Covariance\n");
       if (FLAG_ALIASING)
@@ -687,7 +687,7 @@ static void st_grid_dilate(Db *db, Model *model, ST_FFT *simu, double percent)
 
   /* Optional printout */
 
-  if (DbgOpt::query(EDbg::SIMULATE))
+  if (OptDbg::query(EDbg::SIMULATE))
   {
     message("Grid Dilation parameters :\n");
     if (ndim >= 1) message("- Number of Nodes along X = %d\n", ndx);
@@ -759,7 +759,7 @@ static int st_simfft_alloc(Db *db, Model *model, double percent, ST_FFT *simu)
     }
   }
   simu->sizes_alloc = st_total_count(ndim, simu->dims);
-  if (DbgOpt::query(EDbg::SIMULATE))
+  if (OptDbg::query(EDbg::SIMULATE))
   {
     message("Grid parameters after Optimal Dilation :\n");
     if (ndim >= 1) message("- Number of Nodes along X = %d\n", simu->dims[0]);

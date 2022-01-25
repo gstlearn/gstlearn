@@ -11,8 +11,10 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "csparse_f.h"
+
 #include "Basic/Law.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
 #include "Db/ELoadBy.hpp"
@@ -21,7 +23,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
-#include "csparse_f.h"
 
 /*****************************************************************************/
 /*!
@@ -300,7 +301,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Setup constants
 
-  DbgOpt::reset();
+  OptDbg::reset();
   constant_reset();
   law_set_random_seed(seed);
   constant_define("NTCAR",10);

@@ -15,6 +15,7 @@
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptCst.hpp"
 #include "csparse_d.h"
 
 #include <string>
@@ -33,15 +34,41 @@
 #define CASE_COL 0
 #define CASE_ROW 1
 
-// TODO : move this as AStringable static members
-static int    _columnSize = 10;
-static int    _colnameSize = 12;
-static int    _nDec = 3;
-static int    _nRC = 3;
-static int    _maxNCols = 7;
-static int    _maxNRows = 7;
-static int    _nBatch = 7;
-static double _dblThresh = 0.0005; // because default _nDec is 3
+static int _getColumnRank()
+{
+  return OptCst::query(ECst::NTRANK);
+}
+static int _getColumnName()
+{
+  return OptCst::query(ECst::NTNAME);
+}
+static int _getColumnSize()
+{
+  return OptCst::query(ECst::NTCAR);
+}
+static int _getDecimalNumber()
+{
+  return OptCst::query(ECst::NTDEC);
+}
+static double _getThresh()
+{
+  int ndec = OptCst::query(ECst::NTDEC);
+  // Recalculate threshold under which any small value must be displayed has 0.0
+  double thresh = (0.5 * pow(10, - ndec));
+  return thresh;
+}
+static int _getMaxNCols()
+{
+  return OptCst::query(ECst::NTCOL);
+}
+static int _getMaxNRows()
+{
+  return OptCst::query(ECst::NTROW);
+}
+static int _getNBatch()
+{
+  return OptCst::query(ECst::NTBATCH);
+}
 
 AStringable::AStringable()
 {
@@ -76,8 +103,8 @@ String AStringable::toString(const AStringFormat* strfmt) const
 std::stringstream _formatColumn(int justify, int localSize = 0)
 {
   std::stringstream sstr;
-  int size = (localSize > 0) ? localSize : _columnSize;
-  sstr << std::fixed << std::setw(size) << std::setprecision(_nDec);
+  int size = (localSize > 0) ? localSize : _getColumnSize();
+  sstr << std::fixed << std::setw(size) << std::setprecision(_getDecimalNumber());
   if (justify == JUSTIFY_LEFT)
     sstr << std::left;
   else
@@ -89,7 +116,7 @@ String _tabPrintString(const String& string, int justify, int localSize = 0)
 {
   std::stringstream sstr = _formatColumn(justify, localSize);
   int size = static_cast<int> (string.size());
-  int truncSize = (localSize > 0) ? localSize : _columnSize;
+  int truncSize = (localSize > 0) ? localSize : _getColumnSize();
   if (size > truncSize)
   {
     // String must be truncated
@@ -114,7 +141,7 @@ String _tabPrintDouble(double value, int justify, int localSize = 0)
   else
   {
     // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-    value = (ABS(value) < _dblThresh) ? 0. : value;
+    value = (ABS(value) < _getThresh()) ? 0. : value;
     sstr << value;
   }
 
@@ -135,20 +162,20 @@ String _tabPrintInt(int value, int justify, int localSize = 0)
 String _tabPrintRowColumn(int icase, int value, int flagAdd)
 {
   std::stringstream sstr;
-  sstr << std::setw(_columnSize - _nRC - 1) << std::right;
+  sstr << std::setw(_getColumnSize() - _getColumnRank() - 1) << std::right;
   if (icase == CASE_ROW)
   {
     if (!flagAdd)
-      sstr << "[" << std::setw(_nRC) << value << ",]";
+      sstr << "[" << std::setw(_getColumnRank()) << value << ",]";
     else
-      sstr << "[" << std::setw(_nRC) << value << "+]";
+      sstr << "[" << std::setw(_getColumnRank()) << value << "+]";
   }
   else
   {
     if (!flagAdd)
-      sstr << "[," << std::setw(_nRC) << value << "]";
+      sstr << "[," << std::setw(_getColumnRank()) << value << "]";
     else
-      sstr << "[ " << std::setw(_nRC) << value << "]";
+      sstr << "[ " << std::setw(_getColumnRank()) << value << "]";
   }
   return sstr.str();
 }
@@ -156,7 +183,7 @@ String _tabPrintRowColumn(int icase, int value, int flagAdd)
 String _printColumnHeader(const VectorString& colnames,
                           int colfrom,
                           int colto,
-                          int colSize = _columnSize)
+                          int colSize = _getColumnSize())
 {
   std::stringstream sstr;
   if (!colnames.empty())
@@ -178,7 +205,7 @@ String _printColumnHeader(const VectorString& colnames,
   return sstr.str();
 }
 
-String _printRowHeader(const VectorString& rownames, int iy, int rowSize = _columnSize)
+String _printRowHeader(const VectorString& rownames, int iy, int rowSize = _getColumnSize())
 {
   std::stringstream sstr;
   if (!rownames.empty())
@@ -205,69 +232,6 @@ String _printTrailer(int ncols, int nrows, int ncols_util, int nrows_util)
     sstr << std::endl;
   }
   return sstr.str();
-}
-
-/**
- * Setting the number of decimals for printing real value
- * @param number Number of decimals
- */
-void setFormatDecimalNumber(int number)
-{
-  _nDec = number;
-  // Recalculate threshold under which any small value must be displayed has 0.0
-  _dblThresh = (0.5 * pow(10, - _nDec));
-}
-
-/**
- * Setting the number of characters per Column for printing an element
- * @param column Number of characters
- */
-void setFormatColumnSize(int column)
-{
-  _columnSize = column;
-}
-
-/**
- * Setting the maximum number of characters for printing column name
- * @param column Number of characters
- */
-void setFormatColnameSize(int column)
-{
-  _colnameSize = column;
-}
-
-/**
- * Define the number of columns for encoding the Row/Column rank
- * @param column Number of columns
- */
-void setFormatRCSize(int column)
-{
-  _nRC = column;
-}
-
-/**
- * Set the maximum number of Rows in matrix printout
- * @param maxnrows Maximum number of -1
- */
-void setFormatMaxNRows(int maxnrows)
-{
-  _maxNRows = maxnrows;
-}
-/**
- * Set the maximum number of Columns in matrix printout
- * @param maxncols Maximum number or -1
- */
-void setFormatMaxNCols(int maxncols)
-{
-  _maxNCols = maxncols;
-}
-/**
- * Set the number of columns per Batch
- * @param nbatch Number of columns per batch
- */
-void setFormatBatchNumber(int nbatch)
-{
-  _nBatch = nbatch;
 }
 
 /**
@@ -503,24 +467,24 @@ String toMatrix(const String& title,
 
   int ncutil = ncols;
   int nrutil = nrows;
-  if (_maxNCols > 0 && ncutil > _maxNCols && !flagOverride) ncutil = _maxNCols;
-  if (_maxNRows > 0 && nrutil > _maxNRows && !flagOverride) nrutil = _maxNRows;
-  int npass = (int) ceil((double) ncutil / (double) _nBatch);
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
+  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
   bool multi_row = nrutil > 1 || npass > 1;
 
   int colSize = 0;
   if (colnames.empty())
-    colSize = _columnSize;
+    colSize = _getColumnSize();
   else
   {
-    colSize = MIN(_colnameSize, getMaxStringSize(colnames) + 1);
-    colSize = MAX(colSize, _columnSize);
+    colSize = MIN(_getColumnName(), getMaxStringSize(colnames) + 1);
+    colSize = MAX(colSize, _getColumnSize());
   }
   int rowSize = 0;
   if (rownames.empty())
-    rowSize = _columnSize;
+    rowSize = _getColumnSize();
   else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _columnSize);
+    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
 
   /* Print the title (optional) */
 
@@ -534,8 +498,8 @@ String toMatrix(const String& title,
 
   for (int ipass = 0; ipass < npass; ipass++)
   {
-    int jdeb = ipass * _nBatch;
-    int jfin = MIN(jdeb + _nBatch, ncutil);
+    int jdeb = ipass * _getNBatch();
+    int jfin = MIN(jdeb + _getNBatch(), ncutil);
 
     /* Print the names of the columns and the column numbers */
 
@@ -592,24 +556,24 @@ String toMatrixSymmetric(const String& title,
 
   int ncutil = ncols;
   int nrutil = nrows;
-  if (_maxNCols > 0 && ncutil > _maxNCols && !flagOverride) ncutil = _maxNCols;
-  if (_maxNRows > 0 && nrutil > _maxNRows && !flagOverride) nrutil = _maxNRows;
-  int npass = (int) ceil((double) ncutil / (double) _nBatch);
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
+  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
   bool multi_row = nrutil > 1 || npass > 1;
 
   int colSize = 0;
   if (colnames.empty())
-    colSize = _columnSize;
+    colSize = _getColumnSize();
   else
   {
-    colSize = MIN(_colnameSize, getMaxStringSize(colnames) + 1);
-    colSize = MAX(colSize, _columnSize);
+    colSize = MIN(_getColumnName(), getMaxStringSize(colnames) + 1);
+    colSize = MAX(colSize, _getColumnSize());
   }
   int rowSize = 0;
   if (rownames.empty())
-    rowSize = _columnSize;
+    rowSize = _getColumnSize();
   else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _columnSize);
+    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
 
   /* Print the title (optional) */
 
@@ -623,8 +587,8 @@ String toMatrixSymmetric(const String& title,
 
   for (int ipass = 0; ipass < npass; ipass++)
   {
-    int jdeb = ipass * _nBatch;
-    int jfin = MIN(jdeb + _nBatch, ncutil);
+    int jdeb = ipass * _getNBatch();
+    int jfin = MIN(jdeb + _getNBatch(), ncutil);
 
     /* Print the names of the columns and the column numbers */
 
@@ -685,24 +649,24 @@ String toMatrixDiagonal(const String& title,
 
   int ncutil = ncols;
   int nrutil = nrows;
-  if (_maxNCols > 0 && ncutil > _maxNCols && !flagOverride) ncutil = _maxNCols;
-  if (_maxNRows > 0 && nrutil > _maxNRows && !flagOverride) nrutil = _maxNRows;
-  int npass = (int) ceil((double) ncutil / (double) _nBatch);
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
+  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
   bool multi_row = nrutil > 1 || npass > 1;
 
   int colSize = 0;
   if (colnames.empty())
-    colSize = _columnSize;
+    colSize = _getColumnSize();
   else
   {
-    colSize = MIN(_colnameSize, getMaxStringSize(colnames) + 1);
-    colSize = MAX(colSize, _columnSize);
+    colSize = MIN(_getColumnName(), getMaxStringSize(colnames) + 1);
+    colSize = MAX(colSize, _getColumnSize());
   }
   int rowSize = 0;
   if (rownames.empty())
-    rowSize = _columnSize;
+    rowSize = _getColumnSize();
   else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _columnSize);
+    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
 
   /* Print the title (optional) */
 
@@ -716,8 +680,8 @@ String toMatrixDiagonal(const String& title,
 
   for (int ipass = 0; ipass < npass; ipass++)
   {
-    int jdeb = ipass * _nBatch;
-    int jfin = MIN(jdeb + _nBatch, ncutil);
+    int jdeb = ipass * _getNBatch();
+    int jfin = MIN(jdeb + _getNBatch(), ncutil);
 
     /* Print the names of the columns and the column numbers */
 
@@ -777,24 +741,24 @@ String toMatrixDiagCst(const String& title,
 
   int ncutil = ncols;
   int nrutil = nrows;
-  if (_maxNCols > 0 && ncutil > _maxNCols && !flagOverride) ncutil = _maxNCols;
-  if (_maxNRows > 0 && nrutil > _maxNRows && !flagOverride) nrutil = _maxNRows;
-  int npass = (int) ceil((double) ncutil / (double) _nBatch);
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
+  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
   bool multi_row = nrutil > 1 || npass > 1;
 
   int colSize = 0;
   if (colnames.empty())
-    colSize = _columnSize;
+    colSize = _getColumnSize();
   else
   {
-    colSize = MIN(_colnameSize, getMaxStringSize(colnames) + 1);
-    colSize = MAX(colSize, _columnSize);
+    colSize = MIN(_getColumnName(), getMaxStringSize(colnames) + 1);
+    colSize = MAX(colSize, _getColumnSize());
   }
   int rowSize = 0;
   if (rownames.empty())
-    rowSize = _columnSize;
+    rowSize = _getColumnSize();
   else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _columnSize);
+    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
 
   /* Print the title (optional) */
 
@@ -808,8 +772,8 @@ String toMatrixDiagCst(const String& title,
 
   for (int ipass = 0; ipass < npass; ipass++)
   {
-    int jdeb = ipass * _nBatch;
-    int jfin = MIN(jdeb + _nBatch, ncutil);
+    int jdeb = ipass * _getNBatch();
+    int jfin = MIN(jdeb + _getNBatch(), ncutil);
 
     /* Print the names of the columns and the column numbers */
 
@@ -871,24 +835,24 @@ String toMatrix(const String& title,
 
   int ncutil = ncols;
   int nrutil = nrows;
-  if (_maxNCols > 0 && ncutil > _maxNCols && !flagOverride) ncutil = _maxNCols;
-  if (_maxNRows > 0 && nrutil > _maxNRows && !flagOverride) nrutil = _maxNRows;
-  int npass = (int) ceil((double) ncutil / (double) _nBatch);
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
+  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
   bool multi_row = nrutil > 1 || npass > 1;
 
   int colSize = 0;
   if (colnames.empty())
-    colSize = _columnSize;
+    colSize = _getColumnSize();
   else
   {
-    colSize = MIN(_colnameSize, getMaxStringSize(colnames) + 1);
-    colSize = MAX(colSize, _columnSize);
+    colSize = MIN(_getColumnName(), getMaxStringSize(colnames) + 1);
+    colSize = MAX(colSize, _getColumnSize());
   }
   int rowSize = 0;
   if (rownames.empty())
-    rowSize = _columnSize;
+    rowSize = _getColumnSize();
   else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _columnSize);
+    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
 
   /* Print the title (optional) */
 
@@ -902,8 +866,8 @@ String toMatrix(const String& title,
 
   for (int ipass = 0; ipass < npass; ipass++)
   {
-    int jdeb = ipass * _nBatch;
-    int jfin = MIN(jdeb + _nBatch, ncutil);
+    int jdeb = ipass * _getNBatch();
+    int jfin = MIN(jdeb + _getNBatch(), ncutil);
 
     /* Print the names of the columns and the column numbers */
 
@@ -943,9 +907,9 @@ String toMatrix(const String& title, const cs* A, bool flagOverride)
 
   int nrutil = nrows = A->m;
   int ncutil = ncols = A->n;
-  if (_maxNCols > 0 && ncutil > _maxNCols && !flagOverride) ncutil = _maxNCols;
-  if (_maxNRows > 0 && nrutil > _maxNRows && !flagOverride) nrutil = _maxNRows;
-  int npass = (int) ceil((double) ncutil / (double) _nBatch);
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
+  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
   bool multi_row = nrutil > 1 || npass > 1;
 
   int* Ap = A->p;
@@ -964,8 +928,8 @@ String toMatrix(const String& title, const cs* A, bool flagOverride)
 
   for (int ipass = 0; ipass < npass; ipass++)
   {
-    int jdeb = ipass * _nBatch;
-    int jfin = MIN(jdeb + _nBatch, ncutil);
+    int jdeb = ipass * _getNBatch();
+    int jfin = MIN(jdeb + _getNBatch(), ncutil);
 
     /* Title of the columns */
 
@@ -991,9 +955,9 @@ String toMatrix(const String& title, const cs* A, bool flagOverride)
         }
 
         if (found < 0)
-          sstr << _tabPrintString(".", JUSTIFY_RIGHT, _columnSize);
+          sstr << _tabPrintString(".", JUSTIFY_RIGHT, _getColumnSize());
         else
-          sstr << _tabPrintDouble(Ax[found], JUSTIFY_RIGHT, _columnSize);
+          sstr << _tabPrintDouble(Ax[found], JUSTIFY_RIGHT, _getColumnSize());
       }
       sstr << std::endl;
     }
@@ -1017,7 +981,7 @@ String toVector(const String& title, const VectorDouble& tab)
   if (tab.empty()) return sstr.str();
 
   int ncutil = static_cast<int> (tab.size());
-  bool multi_row = ncutil > _nBatch;
+  bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
 
@@ -1028,13 +992,13 @@ String toVector(const String& title, const VectorDouble& tab)
   }
 
   int lec = 0;
-  if (multi_row) sstr << _printColumnHeader(VectorString(), 0, _nBatch);
+  if (multi_row) sstr << _printColumnHeader(VectorString(), 0, _getNBatch());
 
-  for (int i = 0; i < ncutil; i += _nBatch)
+  for (int i = 0; i < ncutil; i += _getNBatch())
   {
     if (multi_row) sstr << _printRowHeader(VectorString(), i);
 
-    for (int j = 0; j < _nBatch; j++)
+    for (int j = 0; j < _getNBatch(); j++)
     {
       if (lec >= ncutil) continue;
       sstr << toDouble(tab[lec]);
@@ -1077,7 +1041,7 @@ String toVector(const String& title, const VectorInt& tab)
   if (tab.empty()) return sstr.str();
 
   int ncutil = static_cast<int> (tab.size());
-  bool multi_row = ncutil > _nBatch;
+  bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
 
@@ -1088,13 +1052,13 @@ String toVector(const String& title, const VectorInt& tab)
   }
 
   int lec = 0;
-  if (multi_row) sstr << _printColumnHeader(VectorString(), 0, _nBatch);
+  if (multi_row) sstr << _printColumnHeader(VectorString(), 0, _getNBatch());
 
-  for (int i = 0; i < ncutil; i += _nBatch)
+  for (int i = 0; i < ncutil; i += _getNBatch())
   {
     if (multi_row) sstr << _printRowHeader(VectorString(), i);
 
-    for (int j = 0; j < _nBatch; j++)
+    for (int j = 0; j < _getNBatch(); j++)
     {
       if (lec >= ncutil) continue;
       sstr << toInt(tab[lec]);

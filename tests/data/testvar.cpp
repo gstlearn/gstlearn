@@ -11,9 +11,11 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
+
 #include "Variogram/Vario.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 
@@ -58,7 +60,7 @@ int main(int argc, char *argv[])
 
   /* Setup constants */
 
-  DbgOpt::reset();
+  OptDbg::reset();
   constant_reset();
 
   /* Getting the Study name */
@@ -101,7 +103,7 @@ int main(int argc, char *argv[])
   
   if (dbout != (Db *) NULL)
   {
-    if (simtub((Db *) NULL,dbout,model,(Neigh *) NULL,nbsimu,seed,nbtuba,0))
+    if (simtub(nullptr,dbout,model,nullptr,nbsimu,seed,nbtuba,0))
       messageAbort("Simulations");
     /* Set the current variable to the conditional expectation */
     dbout->setLocatorByAttribute(dbout->getFieldNumber()-1,ELoc::Z);

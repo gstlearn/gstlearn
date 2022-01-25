@@ -120,7 +120,8 @@ FILE* ASerializable::_fileOpen(const String& filename,
       }
       if (strcmp(idtype,filetype.c_str()))
       {
-        messerr(
+        if (verbose)
+          messerr(
             "Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
             filename.c_str(), idtype, filetype.c_str());
         _fileClose(file, false);

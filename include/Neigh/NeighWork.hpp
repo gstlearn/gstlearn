@@ -11,24 +11,24 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
 #include "geoslib_define.h"
 
-class Neigh;
+class Neightobedeleted;
 class Db;
 
 class GSTLEARN_EXPORT NeighWork
 {
 public:
   NeighWork(const Db* dbin = nullptr,
-            const Neigh* neigh = nullptr,
+            const ANeighParam* neighparam = nullptr,
             bool flag_simu = false);
   NeighWork(const NeighWork& r);
   NeighWork& operator=(const NeighWork& r);
   virtual ~NeighWork();
 
   void initialize(const Db* dbin,
-                  const Neigh* neigh,
+                  const ANeighParam* neighparam,
                   bool flag_simu = false);
   void clear();
   VectorInt select(Db *dbout,
@@ -70,15 +70,15 @@ private:
 
 private:
   const Db* _dbin;
-  const Neigh* _neigh;
+  const ANeighParam* _neighParam;
   bool _flagInitialized;
   bool _flagIsUnchanged;
-  mutable VectorInt _nbghInd;
-  mutable VectorInt _nbghIsect;
-  mutable VectorInt _nbghNsect;
-  mutable VectorDouble _nbghX1;
-  mutable VectorDouble _nbghX2;
-  mutable VectorDouble _nbghDst;
+  mutable VectorInt    _movingInd;
+  mutable VectorInt    _movingIsect;
+  mutable VectorInt    _movingNsect;
+  mutable VectorDouble _movingX1;
+  mutable VectorDouble _movingX2;
+  mutable VectorDouble _movingDst;
   bool _flagSimu;
 
   // Following parameters are only kept for optimization

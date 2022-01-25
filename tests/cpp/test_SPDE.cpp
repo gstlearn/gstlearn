@@ -11,11 +11,12 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Basic/OptDbg.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Basic/DbgOpt.hpp"
 
 #define VERBOSE 0
 
@@ -60,7 +61,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* 1.c - Setup constants */
 
-  DbgOpt::reset();
+  OptDbg::reset();
   constant_reset();
   
   // Create the 2-D grid output file

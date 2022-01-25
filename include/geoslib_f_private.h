@@ -16,7 +16,7 @@
 
 class Model;
 class Vario;
-class Neigh;
+class ANeighParam;
 class MeshEStandard;
 class RuleProp;
 class cs;
@@ -75,7 +75,7 @@ int _krigsim(const char *string,
              Db *dbin,
              Db *dbout,
              Model *model,
-             Neigh *neigh,
+             ANeighParam *neighparam,
              double *dmean,
              double *dcov,
              int icase,

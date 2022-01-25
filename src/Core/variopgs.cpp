@@ -18,7 +18,7 @@
 #include "Basic/MathFunc.hpp"
 #include "Stats/Classical.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleProp.hpp"
@@ -1170,7 +1170,7 @@ static int st_varcalc_from_vario_stat(Vario *vario,
           iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
           vario->setGgByIndex(idir, iad, varloc);
 
-          if (DbgOpt::query(EDbg::CONVERGE))
+          if (OptDbg::query(EDbg::CONVERGE))
             message("Lag:%d - Grf:%d - Variogram(%d) = %lf\n", ipas, igrf, iad,
                     varloc);
         }
@@ -1271,7 +1271,7 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
         vario->setGgByIndex(idir, iad, varloc);
 
-        if (DbgOpt::query(EDbg::CONVERGE))
+        if (OptDbg::query(EDbg::CONVERGE))
           message("Lag:%d - Grf:%d - Variogram(%d) = %lf\n", ipas, igrf, iad,
                   varloc);
       }
@@ -3338,7 +3338,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
 
   /* Returning arguments */
 
-  if (DbgOpt::query(EDbg::CONVERGE))
+  if (OptDbg::query(EDbg::CONVERGE))
   {
     message("Lag %d - S = %lf Parameters =", local_pgs->ipascur, Sr);
     for (i = 0; i < corpgs->npar; i++)
@@ -3932,7 +3932,7 @@ static double st_rho_search(double rho, void *user_data)
   for (idir = 0; idir < ndir; idir++)
     sum += st_varcalc_correlated_grf(local_pgs, idir);
 
-  if (DbgOpt::query(EDbg::CONVERGE))
+  if (OptDbg::query(EDbg::CONVERGE))
     message("Value of the evaluating function = %lf - rho value %lf\n", sum,
             rho);
 
@@ -5441,7 +5441,7 @@ Rule* _rule_auto(Db *db,
   Pile_Relem = st_relem_alloc(NULL);
   st_relem_define(Pile_Relem, NCOLOR, facies, ITEST, NULL);
   st_relem_subdivide(Pile_Relem, 1, 1);
-  st_relem_explore(Pile_Relem, verbose && DbgOpt::query(EDbg::CONVERGE));
+  st_relem_explore(Pile_Relem, verbose && OptDbg::query(EDbg::CONVERGE));
 
   // Evaluate all possibilities
 

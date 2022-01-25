@@ -67,7 +67,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Precision Operator for simulation
   NoStatArray NoStat({"A"},workingDbc);
   model->addNoStat(&NoStat);
-  SPDE spde(model,workingDbc);
 
   ShiftOpCs S(&mesh, model, workingDbc);
   PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF);

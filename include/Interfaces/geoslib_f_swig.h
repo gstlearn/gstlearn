@@ -7,7 +7,7 @@
 #include "Basic/Vector.hpp"
 #include "geoslib_enum.h"
 
-class Neigh;
+class Neightobedeleted;
 class Db;
 class Model;
 
@@ -32,40 +32,10 @@ GSTLEARN_EXPORT void migrate_grid_to_grid2(const Database &db_grid_in,
 //Model* model_auto2(const VarioExp& vario,const VectorInt& lst_model, int uc, int idir, int ivar);
 //VectorDouble model_evaluate2(Model* model, const VarioExp& vario, int idir, int ivar);
 //
-GSTLEARN_EXPORT Neigh* neigh_unique(int ndim);
-GSTLEARN_EXPORT Neigh* neigh_moving(int ndim,
-                                    int flag_sector,
-                                    int flag_rotation,
-                                    int nmini,
-                                    int nmaxi,
-                                    int nsect,
-                                    int nsmax,
-                                    int radius,
-                                    VectorDouble Rotation);
-
-GSTLEARN_EXPORT Neigh* my_neigh_init(int ndim,
-                                     ENeigh type,
-                                     int flag_xvalid,
-                                     int flag_sector,
-                                     int flag_aniso,
-                                     int flag_rotation,
-                                     int flag_continuous,
-                                     int nmini,
-                                     int nmaxi,
-                                     int nsect,
-                                     int nsmax,
-                                     int skip,
-                                     double width,
-                                     double radius,
-                                     double dist_count,
-                                     VectorDouble nbgh_radius,
-                                     VectorDouble nbgh_rotmat,
-                                     VectorInt nbgh_image);
-
 GSTLEARN_EXPORT void kriging2(const Database &dbin,
                               Database &dbout,
                               Model *model,
-                              Neigh *neigh);
+                              ANeighParam *neighparam);
 
 GSTLEARN_EXPORT void mes_error(ES error);
 GSTLEARN_EXPORT VectorDouble affiche(Db *db);

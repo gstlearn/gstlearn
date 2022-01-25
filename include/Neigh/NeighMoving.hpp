@@ -13,8 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-// Enums
 #include "Neigh/ENeigh.hpp"
+#include "Neigh/ANeighParam.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -22,134 +22,80 @@
 
 class Db;
 
-// TODO : inherits from ASpaceObject (see _init)
-class GSTLEARN_EXPORT Neigh: public AStringable , public ASerializable, public IClonable
+class GSTLEARN_EXPORT NeighMoving: public ANeighParam
 {
 public:
-  Neigh();
-  Neigh(const Neigh& r);
-  Neigh& operator=(const Neigh& r);
-  virtual ~Neigh();
+  NeighMoving(int ndim = 2, bool flag_xvalid = false);
+  NeighMoving(const NeighMoving& r);
+  NeighMoving& operator=(const NeighMoving& r);
+  virtual ~NeighMoving();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual IClonable* clone() const override { return new Neigh(*this); };
 
-  int resetUnique(int ndim);
-  int resetMoving(int ndim,
-                  int nmaxi,
-                  double radius,
-                  int nmini = 1,
-                  int nsect = 1,
-                  int nsmax = ITEST,
-                  double width = 0,
-                  double distcont = 0,
-                  VectorDouble coeffs = VectorDouble(),
-                  VectorDouble angles = VectorDouble());
-  int resetImage(int ndim, int skip, const VectorInt& image);
+  virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual ENeigh getType() const override { return ENeigh::MOVING; }
+
+  int reset(int ndim,
+            bool flag_xvalid,
+            int nmaxi,
+            double radius,
+            int nmini = 1,
+            int nsect = 1,
+            int nsmax = ITEST,
+            VectorDouble coeffs = VectorDouble(),
+            VectorDouble angles = VectorDouble());
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
-  static Neigh* create();
-  static Neigh* createFromNF(const String& neutralFilename, bool verbose = false);
-  static Neigh* createUnique(int ndim);
-  static Neigh* createMoving(int ndim,
+  static NeighMoving* create(int ndim,
+                             bool flag_xvalid,
                              int nmaxi,
                              double radius,
                              int nmini = 1,
                              int nsect = 1,
                              int nsmax = ITEST,
-                             double width = 0,
-                             double distcont = 0,
                              VectorDouble coeffs = VectorDouble(),
                              VectorDouble angles = VectorDouble());
-  static Neigh* createImage(int ndim, int skip, const VectorInt& image);
+  static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = false);
 
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
   const VectorDouble& getAnisoRotMats() const { return _anisoRotMat; }
   double getAnisoRotMat(int i) const { return _anisoRotMat[i]; }
-  double getDistCont() const { return _distCont; }
   int getFlagAniso() const { return _flagAniso; }
-  int getFlagContinuous() const { return _flagContinuous; }
   int getFlagRotation() const { return _flagRotation; }
   int getFlagSector() const { return _flagSector; }
-  int getFlagXvalid() const { return _flagXvalid; }
-  const VectorInt& getAllImageRadius() const { return _imageRadius; }
-  int getImageRadius(int idim) const { return _imageRadius[idim]; }
-  int getNDim() const { return _nDim; }
   int getNMaxi() const { return _nMaxi; }
   int getNMini() const { return _nMini; }
   int getNSect() const { return _nSect; }
   int getNSMax() const { return _nSMax; }
   double getRadius() const { return _radius; }
-  int getSkip() const { return _skip; }
-  ENeigh getType() const { return _type; }
-  double getWidth() const { return _width; }
-  int getMaxSampleNumber(const Db* db) const;
 
   void setAnisoCoeffs(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
   void setAnisoCoeff(int idim, double value);
   void anisoRescale();
   void setAnisoRotMat(const VectorDouble& anisoRotMat) { _anisoRotMat = anisoRotMat; }
-  void setDistCont(double distCont) { _distCont = distCont; }
   void setFlagAniso(int flagAniso) { _flagAniso = flagAniso; }
-  void setFlagContinuous(int flagContinuous) { _flagContinuous = flagContinuous; }
   void setFlagRotation(int flagRotation) { _flagRotation = flagRotation; }
   void setFlagSector(int flagSector) { _flagSector = flagSector; }
-  void setFlagXvalid(int flagXvalid) { _flagXvalid = flagXvalid; }
-  void setImageRadius(const VectorInt& imageRadius) { _imageRadius = imageRadius; }
-  void setNDim(int ndim)   { _nDim = ndim; }
   void setNMaxi(int nmaxi) { _nMaxi = nmaxi; }
   void setNMini(int nmini) { _nMini = nmini; }
   void setNSect(int nsect) { _nSect = nsect; }
   void setNSMax(int nsmax) { _nSMax = nsmax; }
   void setRadius(double radius) { _radius = radius; }
-  void setSkip(int skip) { _skip = skip; }
-  void setType(ENeigh type) { _type = type; }
-  void setWidth(double width) { _width = width; }
 
 protected:
   virtual int _deserialize(FILE* file, bool verbose = false) override;
   virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
-  bool _isDimensionValid(int idim) const;
-  void _init(int ndim,
-             ENeigh type,
-             int flag_xvalid,
-             int flag_sector,
-             int flag_aniso,
-             int flag_rotation,
-             int flag_continuous,
-             int nmini,
-             int nmaxi,
-             int nsect,
-             int nsmax,
-             int skip,
-             double width,
-             double radius,
-             double dist_cont,
-             const VectorDouble& nbgh_radius,
-             const VectorDouble& nbgh_rotmat,
-             const VectorInt& nbgh_image);
-  int _getMaxSampleNumberBench(const Db* db) const;
-
-private:
-  int _nDim;                     /* Space dimension */
-  ENeigh _type;                  /* Neighborhood type: ENeigh */
-  int _flagXvalid;               /* 1 to suppress the target */
   int _flagSector;               /* 1 if MOVING neigh. used sector search */
   int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */
   int _flagRotation;             /* 1 if the anisotropy is rotated */
-  int _flagContinuous;           /* 1 for continuous moving neighborhood */
   int _nMini;                    /* Minimum number of points in neigh. */
   int _nMaxi;                    /* Maximum number of points in neigh. */
   int _nSect;                    /* Number of 2-D angular sectors */
   int _nSMax;                    /* Maximum number of points per 2-D sector */
-  int _skip;                     /* Skipping factor */
-  double _width;                 /* Width of the slice - bench */
   double _radius;                /* Maximum isotropic distance */
-  double _distCont;              /* Distance for continuous neighborhood */
   VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
-  VectorInt    _imageRadius;     /* Vector of image neighborhood radius */
 };

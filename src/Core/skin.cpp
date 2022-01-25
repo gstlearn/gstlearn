@@ -11,7 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
-#include "Basic/DbgOpt.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 
 #include <math.h>
@@ -425,7 +425,7 @@ int skin_remains(Skin *skin)
 
 {
   skin->date++;
-  if (DbgOpt::query(EDbg::MORPHO))
+  if (OptDbg::query(EDbg::MORPHO))
     message("Skin iteration:%5d - Length:%4d - Energy:%lf\n", skin->date,
             skin->nval, skin->total);
   return ((int) skin->total);
