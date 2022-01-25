@@ -79,8 +79,11 @@ foreach(FLAVOR ${FLAVORS})
   target_link_libraries(${FLAVOR} PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
 
   # Link to specific libraries (only for Windows)
-  if (WIN32)
+  if (MSVC)
     target_link_libraries(${FLAVOR} PUBLIC iphlpapi rpcrt4)
+  endif()
+  if (MINGW)
+    target_link_libraries(${FLAVOR} PUBLIC -liphlpapi -lrpcrt4)
   endif()
 
 endforeach(FLAVOR ${FLAVORS})
