@@ -1,6 +1,6 @@
 # Why is cmake file GLOB evil?
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
-set(SOURCES
+set(SRC
   License/MD5Utility.cpp
   License/RegistryUtility.cpp
   License/MACAddressUtility.cpp

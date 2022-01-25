@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 
 // WARNING: Make this include list as small as possible!
 #include "Db/ELoc.hpp"

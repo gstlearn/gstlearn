@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
+#include "Basic/WarningMacro.hpp"
 
 // WARNING: Make this include list as small as possible!
 #include <vector>
@@ -57,19 +57,13 @@
 #define THRESH_INF      -10
 #define THRESH_SUP       10
 
-template class GSTLEARN_EXPORT std::vector<double>;
-template class GSTLEARN_EXPORT std::vector<int>;
-template class GSTLEARN_EXPORT std::vector<bool>;
-template class GSTLEARN_EXPORT std::vector<float>;
-template class GSTLEARN_EXPORT std::vector<unsigned char>;
-template class GSTLEARN_EXPORT std::vector<std::string>;
-template class GSTLEARN_EXPORT std::vector<std::vector<double>>;
-template class GSTLEARN_EXPORT std::vector<std::vector<int>>;
-template class GSTLEARN_EXPORT std::vector<std::vector<float>>;
+// Hide warnings C4251 under windows: https://stackoverflow.com/a/22054743
+#ifndef SWIG
+DISABLE_WARNING_NOT_EXPORTED_FROM_DLL
+DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
+#endif
 
 typedef std::string                String;
-
-// To prevent (a part of) the warnings C4251 under windows: https://stackoverflow.com/a/22054743
 typedef std::vector<double>        VectorDouble; /// TODO : Create a class (fill, sum, mean...)
 typedef std::vector<int>           VectorInt;
 typedef std::vector<bool>          VectorBool;

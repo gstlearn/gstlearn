@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 #include "License/MD5Utility.hpp"
 
 #include <map>

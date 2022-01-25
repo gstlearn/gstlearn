@@ -3,6 +3,11 @@ doxygen/latex
 doxygen/html
 doxygen/xml
 doxygen/*.tmp
+python/doc/documentation.i
+python/.ipynb_checkpoints
+python/__pycache__
+python/*/.ipynb_checkpoints
+python/*/__pycache__
 tests/data/*/*.out
 ./*.ascii
 .project
