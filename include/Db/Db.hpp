@@ -448,6 +448,7 @@ public:
   void setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel = false);
   void setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel = false);
 
+  VectorDouble getAllFields(bool useSel = false) const;
   VectorDouble getFields(const VectorString& names = VectorString(),
                          bool useSel = false) const;
   VectorDouble getFieldsByLocator(const ELoc& locatorType,

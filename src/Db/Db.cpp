@@ -3058,6 +3058,7 @@ VectorDouble Db::getFieldSubGrid(const String& name,
 
 VectorDouble Db::getFieldsByAttribute(const VectorInt& iatts, bool useSel) const
 {
+  if (iatts.empty()) return VectorDouble();
   int nech = (useSel) ? getActiveSampleNumber() : getSampleNumber();
   int nvar = static_cast<int> (iatts.size());
   VectorDouble retval(nvar * nech);
@@ -3110,13 +3111,16 @@ VectorDouble Db::getFieldsByAttribute(int iatt_beg,
   return getFieldsByAttribute(iatts, useSel);
 }
 
+VectorDouble Db::getAllFields(bool useSel) const
+{
+  VectorInt iatts = getAllAttributes();
+  return getFieldsByAttribute(iatts, useSel);
+}
+
 VectorDouble Db::getFields(const VectorString& names, bool useSel) const
 {
-  VectorInt iatts;
-  if (names.empty())
-    iatts = getAllAttributes();
-  else
-    iatts = _ids(names, false);
+  if (names.empty()) return VectorDouble();
+  VectorInt iatts =  _ids(names, false);
   return getFieldsByAttribute(iatts, useSel);
 }
 

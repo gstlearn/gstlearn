@@ -510,8 +510,6 @@ static int st_surface_identify(int verbOption,
  ** \param[in]  rank      Rank of the trace within 'surfaces'
  ** \param[in]  iatt_top  Rank of attribute containing the Top Surface (or 0)
  ** \param[in]  iatt_bot  Arnk of the attribute containing the Bottom Surface (or 0)
- ** \param[in]  xtrace    Coordinate of the trace along X
- ** \param[in]  ytrace    Coordinate of the trace along Y
  ** \param[in]  thickmin  Minimum thickness (if defined)
  **
  ** \param[out] cztop     Coordinate for the Top along Z (or TEST)
@@ -1719,7 +1717,6 @@ Grid segy_summary(const char *filesegy,
  ** \param[in]  iline_max   Maximum Inline number included (if defined)
  ** \param[in]  xline_min   Minimum Xline number included (if defined)
  ** \param[in]  xline_max   Maximum Xline number included (if defined)
- ** \param[in]  nz_ss       Number of layers for different options (see details)
  ** \param[in]  modif_high  Upper truncation (when defined)
  ** \param[in]  modif_low   Lower truncation (when defined)
  ** \param[in]  modif_scale Scaling value (when defined)

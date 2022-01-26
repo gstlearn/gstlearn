@@ -213,7 +213,6 @@ double model_calcul_basic(Model *model,
  ** \param[in]  model        Model structure
  ** \param[in]  mode         CovCalcMode structure
  ** \param[in]  flag_init    Initialize the array beforehand
- ** \param[in]  weight       Weight attached to this calculation
  **
  ** \param[out] d1          Working array (dimension = ndim) or NULL
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
@@ -537,7 +536,6 @@ Model* model_default(int ndim, int nvar)
  **                             (Dimension = ndim  * ndim)
  ** \param[in]  sill            Sill matrix (optional)
  **                             (Dimension = nvar * nvar)
- ** \param[in]  ball_radius     Radius for Numerical Gradient calculation
  **
  *****************************************************************************/
 int model_add_cova(Model *model,
@@ -1848,7 +1846,6 @@ void model_covupdt(Model *model,
 /*!
  **  Evaluate the drift with a given set of coefficients
  **
- ** \param[in]  verbose Verbose option
  ** \param[in]  model   Model structure
  ** \param[in]  db      Db structure
  ** \param[in]  iech    Rank of the sample
@@ -2153,8 +2150,6 @@ int model_get_nonugget_cova(Model *model)
  ** \param[in]  model     Model structure
  ** \param[in]  vario     Vario structure
  ** \param[in]  db        Db discretization grid structure
- ** \param[in]  opt_norm  Option for normalization
- ** \param[in]  nug_ratio Ratio of the nugget effect
  **
  *****************************************************************************/
 int model_regularize(Model *model,
@@ -2521,7 +2516,6 @@ int model_covmat_inchol(int verbose,
  ** \param[in]  model       Structure containing the model
  ** \param[in]  db1         First Db
  ** \param[in]  iech1       Rank in the first Db
- ** \param[in]  db2         Second Db
  ** \param[in]  iech2       Rank in the second Db
  ** \param[in]  verbose     Verbose flag
  ** \param[in]  factor      Multiplicative factor for st. deviation
