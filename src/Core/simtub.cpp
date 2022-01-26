@@ -1837,7 +1837,7 @@ static void st_difference(Db *dbin,
   if (OptDbg::query(EDbg::SIMULATE))
   {
     mestitle(1, "Difference between Data and NC Simulation");
-    tab_prints(NULL, 1, EJustify::RIGHT, "Sample");
+    tab_prints(NULL, "Sample");
   }
 
   /* Transform the non conditional simulation into simulation error */
@@ -1855,12 +1855,12 @@ static void st_difference(Db *dbin,
       for (ivar = 0; ivar < nvar; ivar++)
       {
         (void) gslSPrintf(string, "Data%d", ivar + 1);
-        tab_prints(NULL, 1, EJustify::RIGHT, string);
+        tab_prints(NULL, string);
 
         for (isimu = 0; isimu < nbsimu; isimu++)
         {
           (void) gslSPrintf(string, "Simu%d", isimu + 1);
-          tab_prints(NULL, 1, EJustify::RIGHT, string);
+          tab_prints(NULL, string);
         }
       }
       message("\n");
@@ -1872,7 +1872,7 @@ static void st_difference(Db *dbin,
     {
       if (!dbin->isActive(iech)) continue;
       if (OptDbg::query(EDbg::SIMULATE))
-        tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
+        tab_printi(NULL, iech + 1);
       for (ivar = 0; ivar < nvar; ivar++)
       {
         zvar = TEST;
@@ -1880,7 +1880,7 @@ static void st_difference(Db *dbin,
         {
           zvar = dbin->getVariable(iech, ivar);
           if (OptDbg::query(EDbg::SIMULATE))
-            tab_printg(NULL, 1, EJustify::RIGHT, zvar);
+            tab_printg(NULL, zvar);
         }
         for (isimu = 0; isimu < nbsimu; isimu++)
         {
@@ -1889,7 +1889,7 @@ static void st_difference(Db *dbin,
             zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu,
                                    nvar);
             if (OptDbg::query(EDbg::SIMULATE))
-              tab_printg(NULL, 1, EJustify::RIGHT, zvar);
+              tab_printg(NULL, zvar);
           }
           simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
                                    nvar);
@@ -1900,7 +1900,7 @@ static void st_difference(Db *dbin,
           }
           if (OptDbg::query(EDbg::SIMULATE) && !FFFF(zvar))
           {
-            tab_printg(NULL, 1, EJustify::RIGHT, simval);
+            tab_printg(NULL, simval);
           }
           simunc = (!FFFF(zvar) && !FFFF(simval)) ? simval - zvar :
                                                     TEST;
@@ -1925,10 +1925,10 @@ static void st_difference(Db *dbin,
       for (isimu = 0; isimu < nbsimu; isimu++)
       {
         (void) gslSPrintf(string, "Data%d", isimu + 1);
-        tab_prints(NULL, 1, EJustify::RIGHT, string);
+        tab_prints(NULL, string);
 
         (void) gslSPrintf(string, "Simulation%d", isimu + 1);
-        tab_prints(NULL, 1, EJustify::RIGHT, string);
+        tab_prints(NULL, string);
       }
       message("\n");
     }
@@ -1939,18 +1939,18 @@ static void st_difference(Db *dbin,
     {
       if (!dbin->isActive(iech)) continue;
       if (OptDbg::query(EDbg::SIMULATE))
-        tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
+        tab_printi(NULL, iech + 1);
       for (isimu = 0; isimu < nbsimu; isimu++)
       {
         zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1);
         if (OptDbg::query(EDbg::SIMULATE))
         {
-          tab_printg(NULL, 1, EJustify::RIGHT, zvar);
+          tab_printg(NULL, zvar);
           if (!FFFF(zvar))
           {
             simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu,
                                      1);
-            tab_printg(NULL, 1, EJustify::RIGHT, simval);
+            tab_printg(NULL, simval);
           }
         }
         if (!FFFF(zvar))

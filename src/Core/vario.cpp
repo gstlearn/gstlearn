@@ -2523,14 +2523,14 @@ static void st_vario_params_print(int ndim,
 
   message("Direction coefficients      = (");
   for (int idim = 0; idim < ndim; idim++)
-    tab_printg(NULL, 1, EJustify::LEFT, codir[idim]);
+    tab_printg(NULL, codir[idim], 1, EJustify::LEFT);
   message(")\n");
   if (ndim > 1)
   {
     (void) ut_angles_from_codir(ndim, 1, codir, angles);
     message("Direction angles (degrees)  = (");
     for (int idim = 0; idim < ndim; idim++)
-      tab_printg(NULL, 1, EJustify::LEFT, angles[idim]);
+      tab_printg(NULL, angles[idim], 1, EJustify::LEFT);
     message(")\n");
   }
   if (!FFFF(tolang))
@@ -4487,14 +4487,14 @@ int regression_f(Db *db1,
   if (flag_verbose == 2)
   {
     message("\n");
-    tab_prints(NULL, 1, EJustify::RIGHT, "Rank");
-    tab_prints(NULL, 1, EJustify::RIGHT, "Target");
+    tab_prints(NULL, "Rank");
+    tab_prints(NULL, "Target");
     for (i = 0; i < size; i++)
     {
       (void) gslSPrintf(string, "Aux.#%d", i + 1);
-      tab_prints(NULL, 1, EJustify::RIGHT, string);
+      tab_prints(NULL, string);
     }
-    tab_prints(NULL, 1, EJustify::RIGHT, "Residuals");
+    tab_prints(NULL, "Residuals");
     message("\n");
   }
 
@@ -4534,10 +4534,10 @@ int regression_f(Db *db1,
 
       if (flag_verbose == 2)
       {
-        tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
-        tab_printg(NULL, 1, EJustify::RIGHT, value);
+        tab_printi(NULL, iech + 1);
+        tab_printg(NULL, value);
         for (i = 0; i < size; i++)
-          tab_printg(NULL, 1, EJustify::RIGHT, x[i]);
+          tab_printg(NULL, x[i]);
       }
 
       if (FFFF(value) || flag_test)
@@ -4560,7 +4560,7 @@ int regression_f(Db *db1,
 
       if (flag_verbose == 2)
       {
-        tab_printg(NULL, 1, EJustify::RIGHT, value);
+        tab_printg(NULL, value);
         message("\n");
       }
     }

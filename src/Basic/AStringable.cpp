@@ -16,6 +16,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
+#include "Basic/EJustify.hpp"
 #include "csparse_d.h"
 
 #include <string>
@@ -28,11 +29,15 @@
 #include <math.h>
 #include <string.h>
 
-#define JUSTIFY_LEFT  0
-#define JUSTIFY_RIGHT 1
+#define CASE_DOUBLE 0
+#define CASE_REAL   1
+#define CASE_INT    2
+#define CASE_COL    3
+#define CASE_ROW    4
 
-#define CASE_COL 0
-#define CASE_ROW 1
+static char FORMAT[100];
+static char DECODE[100];
+static char TABSTR[100];
 
 static int _getColumnRank()
 {
@@ -53,7 +58,6 @@ static int _getDecimalNumber()
 static double _getThresh()
 {
   int ndec = (int) OptCst::query(ECst::NTDEC);
-  // Recalculate threshold under which any small value must be displayed has 0.0
   double thresh = (0.5 * pow(10, - ndec));
   return thresh;
 }
@@ -68,6 +72,33 @@ static int _getMaxNRows()
 static int _getNBatch()
 {
   return (int) OptCst::query(ECst::NTBATCH);
+}
+static void _buildFormat(int mode)
+{
+  switch (mode)
+  {
+    case CASE_INT:
+      (void) gslSPrintf(FORMAT, "%%%dd", (int) OptCst::query(ECst::NTCAR));
+      break;
+
+    case CASE_REAL:
+      (void) gslSPrintf(FORMAT, "%%%d.%dlf", (int) OptCst::query(ECst::NTCAR),
+                        (int) OptCst::query(ECst::NTDEC));
+      break;
+
+    case CASE_DOUBLE:
+      (void) gslSPrintf(FORMAT, "%%%d.%dlg", (int) OptCst::query(ECst::NTCAR),
+                        (int) OptCst::query(ECst::NTDEC));
+      break;
+
+    case CASE_COL:
+      (void) gslSPrintf(FORMAT, "[,%%%dd]", (int) OptCst::query(ECst::NTCAR) - 3);
+      break;
+
+    case CASE_ROW:
+      (void) gslSPrintf(FORMAT, "[%%%dd,]", (int) OptCst::query(ECst::NTCAR) - 3);
+      break;
+  }
 }
 
 AStringable::AStringable()
@@ -100,19 +131,21 @@ String AStringable::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-std::stringstream _formatColumn(int justify, int localSize = 0)
+std::stringstream _formatColumn(const EJustify& justify, int localSize = 0)
 {
   std::stringstream sstr;
   int size = (localSize > 0) ? localSize : _getColumnSize();
   sstr << std::fixed << std::setw(size) << std::setprecision(_getDecimalNumber());
-  if (justify == JUSTIFY_LEFT)
+  if (justify == EJustify::LEFT)
     sstr << std::left;
   else
     sstr << std::right;
   return sstr;
 }
 
-String _tabPrintString(const String& string, int justify, int localSize = 0)
+String _tabPrintString(const String& string,
+                       const EJustify& justify,
+                       int localSize = 0)
 {
   std::stringstream sstr = _formatColumn(justify, localSize);
   int size = static_cast<int> (string.size());
@@ -133,7 +166,7 @@ String _tabPrintString(const String& string, int justify, int localSize = 0)
   return sstr.str();
 }
 
-String _tabPrintDouble(double value, int justify, int localSize = 0)
+String _tabPrintDouble(double value, const EJustify& justify, int localSize = 0)
 {
   std::stringstream sstr = _formatColumn(justify, localSize);
   if (FFFF(value))
@@ -148,7 +181,7 @@ String _tabPrintDouble(double value, int justify, int localSize = 0)
   return sstr.str();
 }
 
-String _tabPrintInt(int value, int justify, int localSize = 0)
+String _tabPrintInt(int value, const EJustify& justify, int localSize = 0)
 {
   std::stringstream sstr = _formatColumn(justify, localSize);
   if (IFFFF(value))
@@ -189,15 +222,15 @@ String _printColumnHeader(const VectorString& colnames,
   if (!colnames.empty())
   {
     // By Names
-    sstr << _tabPrintString(" ", JUSTIFY_RIGHT) << " ";
+    sstr << _tabPrintString(" ", EJustify::RIGHT) << " ";
     for (int ix = colfrom; ix < colto; ix++)
-      sstr << _tabPrintString(colnames[ix], JUSTIFY_RIGHT, colSize);
+      sstr << _tabPrintString(colnames[ix], EJustify::RIGHT, colSize);
     sstr << std::endl;
   }
   else
   {
     // By Numbers
-    sstr << _tabPrintString(" ", JUSTIFY_RIGHT) << " ";
+    sstr << _tabPrintString(" ", EJustify::RIGHT) << " ";
     for (int ix = colfrom; ix < colto; ix++)
       sstr << _tabPrintRowColumn(CASE_COL, ix + 1, false);
     sstr << std::endl;
@@ -209,7 +242,7 @@ String _printRowHeader(const VectorString& rownames, int iy, int rowSize = _getC
 {
   std::stringstream sstr;
   if (!rownames.empty())
-    sstr << _tabPrintString(rownames[iy], JUSTIFY_LEFT, rowSize);
+    sstr << _tabPrintString(rownames[iy], EJustify::LEFT, rowSize);
   else
     sstr << _tabPrintRowColumn(CASE_ROW, iy + 1, false);
   return sstr.str();
@@ -546,7 +579,7 @@ String toMatrix(const String& title,
       for (int ix = jdeb; ix < jfin; ix++)
       {
         int iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
-        sstr << _tabPrintDouble(tab[iad], JUSTIFY_RIGHT, colSize);
+        sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
       }
       sstr << std::endl;
     }
@@ -637,11 +670,11 @@ String toMatrixSymmetric(const String& title,
         if (ix <= iy)
          {
            int iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
-           sstr << _tabPrintDouble(tab[iad], JUSTIFY_RIGHT, colSize);
+           sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
          }
          else
          {
-           sstr << _tabPrintString(" ", JUSTIFY_RIGHT);
+           sstr << _tabPrintString(" ", EJustify::RIGHT);
          }
       }
       sstr << std::endl;
@@ -729,11 +762,11 @@ String toMatrixDiagonal(const String& title,
       {
         if (ix == iy)
          {
-           sstr << _tabPrintDouble(tab[ix], JUSTIFY_RIGHT, colSize);
+           sstr << _tabPrintDouble(tab[ix], EJustify::RIGHT, colSize);
          }
          else
          {
-           sstr << _tabPrintString(" ", JUSTIFY_RIGHT);
+           sstr << _tabPrintString(" ", EJustify::RIGHT);
          }
       }
       sstr << std::endl;
@@ -821,11 +854,11 @@ String toMatrixDiagCst(const String& title,
       {
         if (ix == iy)
          {
-           sstr << _tabPrintDouble(tab[0], JUSTIFY_RIGHT, colSize);
+           sstr << _tabPrintDouble(tab[0], EJustify::RIGHT, colSize);
          }
          else
          {
-           sstr << _tabPrintString(" ", JUSTIFY_RIGHT);
+           sstr << _tabPrintString(" ", EJustify::RIGHT);
          }
       }
       sstr << std::endl;
@@ -915,7 +948,7 @@ String toMatrix(const String& title,
       for (int ix = jdeb; ix < jfin; ix++)
       {
         int iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
-        sstr << _tabPrintInt(tab[iad], JUSTIFY_RIGHT, colSize);
+        sstr << _tabPrintInt(tab[iad], EJustify::RIGHT, colSize);
       }
       sstr << std::endl;
     }
@@ -985,9 +1018,9 @@ String toMatrix(const String& title, const cs* A, bool flagOverride)
         }
 
         if (found < 0)
-          sstr << _tabPrintString(".", JUSTIFY_RIGHT, _getColumnSize());
+          sstr << _tabPrintString(".", EJustify::RIGHT, _getColumnSize());
         else
-          sstr << _tabPrintDouble(Ax[found], JUSTIFY_RIGHT, _getColumnSize());
+          sstr << _tabPrintDouble(Ax[found], EJustify::RIGHT, _getColumnSize());
       }
       sstr << std::endl;
     }
@@ -1099,21 +1132,21 @@ String toVector(const String& title, const VectorInt& tab)
   return sstr.str();
 }
 
-String toStr(const String& string, int justify)
+String toStr(const String& string, const EJustify& justify)
 {
   std::stringstream sstr;
   sstr << _tabPrintString(string, justify);
   return sstr.str();
 }
 
-String toDouble(double value, int justify)
+String toDouble(double value, const EJustify& justify)
 {
   std::stringstream sstr;
   sstr << _tabPrintDouble(value, justify);
   return sstr.str();
 }
 
-String toInt(int value, int justify)
+String toInt(int value, const EJustify& justify)
 {
   std::stringstream sstr;
   sstr << _tabPrintInt(value, justify);
@@ -1137,4 +1170,522 @@ String toInterval(double zmin, double zmax)
   sstr << "]" << std::endl;
 
   return sstr.str();
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a string
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  string   String to be written
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ **
+ *****************************************************************************/
+void tab_prints(const char *title,
+                const char *string,
+                int ncol,
+                const EJustify &justify)
+{
+  int taille = (int) OptCst::query(ECst::NTCAR) * ncol;
+  int size = static_cast<int>(strlen(string));
+  int neff = MIN(taille, size);
+  int nrst = taille - neff;
+  int n1 = nrst / 2;
+  int n2 = taille - size - n1;
+
+  /* Encode the title (if defined) */
+
+  if (title != NULL) message("%s", title);
+
+  /* Blank the string out */
+
+  (void) gslStrcpy(TABSTR, "");
+
+  /* Switch according to the justification */
+
+  switch (justify.toEnum())
+  {
+    case EJustify::E_LEFT:
+      (void) gslStrncpy(TABSTR, string, neff);
+      TABSTR[neff] = '\0';
+      for (int i = 0; i < nrst; i++)
+        (void) gslStrcat(TABSTR, " ");
+      break;
+
+    case EJustify::E_CENTER:
+      for (int i = 0; i < n1; i++)
+        (void) gslStrcat(TABSTR, " ");
+      (void) gslStrncpy(&TABSTR[n1], string, neff);
+      TABSTR[n1 + neff] = '\0';
+      for (int i = 0; i < n2; i++)
+        (void) gslStrcat(TABSTR, " ");
+      break;
+
+    case EJustify::E_RIGHT:
+      for (int i = 0; i < nrst; i++)
+        (void) gslStrcat(TABSTR, " ");
+      (void) gslStrncpy(&TABSTR[nrst], string, neff);
+      TABSTR[nrst + neff] = '\0';
+      break;
+  }
+  message(TABSTR);
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a real value
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  value    Value to be written
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ **
+ *****************************************************************************/
+void tab_printg(const char *title,
+                double value,
+                int ncol,
+                const EJustify &justify)
+{
+  _buildFormat(CASE_REAL);
+
+  if (FFFF(value))
+    (void) gslStrcpy(DECODE, "N/A");
+  else
+  {
+    // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
+    value = (ABS(value) < _getThresh()) ? 0. : value;
+    (void) gslSPrintf(DECODE, FORMAT, value);
+  }
+  tab_prints(title, DECODE, ncol, justify);
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a double value
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  value    Value to be written
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ **
+ *****************************************************************************/
+void tab_printd(const char *title,
+                double value,
+                int ncol,
+                const EJustify &justify)
+{
+  _buildFormat(CASE_DOUBLE);
+
+  if (FFFF(value))
+    (void) gslStrcpy(DECODE, "N/A");
+  else
+    (void) gslSPrintf(DECODE, FORMAT, value);
+
+  tab_prints(title, DECODE, ncol, justify);
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of an integer value
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  value    Value to be written
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ **
+ *****************************************************************************/
+void tab_printi(const char *title, int value, int ncol, const EJustify &justify)
+{
+  _buildFormat(CASE_INT);
+
+  if (IFFFF(value))
+    (void) gslStrcpy(DECODE, "N/A");
+  else
+    (void) gslSPrintf(DECODE, FORMAT, value);
+
+  tab_prints(title, DECODE, ncol, justify);
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a row or column value
+ **
+ ** \param[in]  title    optional title (NULL if not defined)
+ ** \param[in]  mode     CASE_ROW or CASE_COL
+ ** \param[in]  value    Value to be written
+ ** \param[in]  ncol     number of columns for the printout
+ ** \param[in]  justify  justification flag
+ **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
+ **
+ *****************************************************************************/
+void tab_print_rc(const char *title,
+                  int mode,
+                  int value,
+                  int ncol,
+                  const EJustify &justify)
+{
+  _buildFormat(mode);
+
+  (void) gslSPrintf(DECODE, FORMAT, value);
+  string_strip_blanks(DECODE, 0);
+  tab_prints(title, DECODE, ncol, justify);
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a string (character size provided)
+ **
+ ** \param[in]  string   String to be written
+ ** \param[in]  taille   Number of characters
+ **
+ ** \remarks The string is printed (left-adjusted) on 'taille' characters
+ **
+ *****************************************************************************/
+void tab_print_rowname(const char *string, int taille)
+{
+  int size = static_cast<int>(strlen(string));
+  int neff = MIN(taille, size);
+  int nrst = taille - neff;
+
+  /* Blank the string out */
+
+  (void) gslStrcpy(TABSTR, "");
+  (void) gslStrncpy(TABSTR, string, neff);
+  TABSTR[neff] = '\0';
+  for (int i = 0; i < nrst; i++)
+    (void) gslStrcat(TABSTR, " ");
+  message(TABSTR);
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a matrix
+ **
+ ** \param[in]  title  Title (Optional)
+ ** \param[in]  flag_limit  option for the limits
+ ** \li                      1 if limits must be applied
+ ** \li                      0 if the whole matrix is printed
+ ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
+ ** \param[in]  nx     number of columns in the matrix
+ ** \param[in]  ny     number of rows in the matrix
+ ** \param[in]  sel    array of selection or NULL
+ ** \param[in]  tab    array containing the matrix
+ **
+ ** \remarks The order of the dimension (nx,ny) is opposite
+ ** \remarks of the one used in R-packages where dim[1]=nrow and dim[2]=ncol
+ **
+ *****************************************************************************/
+void print_matrix(const char *title,
+                  int flag_limit,
+                  int bycol,
+                  int nx,
+                  int ny,
+                  const double *sel,
+                  const double *tab)
+{
+  if (tab == nullptr || nx <= 0 || ny <= 0) return;
+  int nx_util = (flag_limit && (int) OptCst::query(ECst::NTCOL) > 0) ?
+      MIN((int) OptCst::query(ECst::NTCOL), nx) : nx;
+  int ny_util = (flag_limit && (int) OptCst::query(ECst::NTROW) > 0) ?
+      MIN((int) OptCst::query(ECst::NTROW), ny) : ny;
+  int multi_row = (ny > 1 || title == NULL);
+
+  /* Print the title (optional) */
+
+  if (title != NULL)
+  {
+    if (multi_row)
+      message("%s\n", title);
+    else
+      message("%s ", title);
+  }
+
+  /* Print the header */
+
+  if (multi_row)
+  {
+    tab_prints(NULL, " ");
+    for (int ix = 0; ix < nx_util; ix++)
+      tab_print_rc(NULL, CASE_COL, ix + 1);
+    message("\n");
+  }
+
+  /* Print the contents of the array */
+
+  int ny_done = 0;
+  for (int iy = 0; iy < ny; iy++)
+  {
+    if (sel != nullptr && !sel[iy]) continue;
+    ny_done++;
+    if (ny_done > ny_util) break;
+    if (multi_row) tab_print_rc(NULL, CASE_ROW, iy + 1);
+    for (int ix = 0; ix < nx_util; ix++)
+    {
+      int iad = (bycol) ? iy + ny * ix : ix + nx * iy;
+      tab_printg(NULL, tab[iad]);
+    }
+    message("\n");
+  }
+
+  /* Print the trailor */
+
+  if (nx != nx_util || ny != ny_util)
+  {
+    if (nx == nx_util)
+      message("(Ncol=%d", nx);
+    else
+      message("(Ncol=%d[from %d]", nx_util, nx);
+
+    if (ny == ny_util)
+      message(",Nrow=%d)", ny);
+    else
+      message(",Nrow=%d[from %d])", ny_util, ny);
+    message("\n");
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a upper triangular matrix
+ **
+ ** \param[in]  title  Title (Optional)
+ ** \param[in]  mode   1 if the matrix is stored linewise
+ **                    2 if the matrix is stored columnwise
+ ** \param[in]  neq    size of the matrix
+ ** \param[in]  tl     array containing the upper triangular matrix
+ **
+ ** \remarks The ordering (compatible with matrix_solve is mode==2)
+ **
+ *****************************************************************************/
+void print_trimat(const char *title, int mode, int neq, const double *tl)
+{
+#define TRI(i)        (((i) * ((i) + 1)) / 2)
+#define TL1(i,j)      (tl[(j)*neq+(i)-TRI(j)])  /* only for i >= j */
+#define TL2(i,j)      (tl[TRI(i)+(j)])          /* only for i >= j */
+
+  /* Initializations */
+
+  if (tl == nullptr || neq <= 0) return;
+
+  /* Print the title (optional) */
+
+  if (title != NULL) message("%s\n", title);
+
+  /* Print the header */
+
+  tab_prints(NULL, " ");
+  for (int ix = 0; ix < neq; ix++)
+    tab_print_rc(NULL, CASE_COL, ix + 1);
+  message("\n");
+
+  /* Print the contents of the array */
+
+  for (int iy = 0; iy < neq; iy++)
+  {
+    tab_print_rc(NULL, CASE_ROW, iy + 1);
+    for (int ix = 0; ix < neq; ix++)
+    {
+      if (ix >= iy)
+      {
+        if (mode == 1)
+          tab_printg(NULL, TL1(ix, iy));
+        else
+          tab_printg(NULL, TL2(ix, iy));
+      }
+      else
+        tab_prints(NULL, " ");
+    }
+    message("\n");
+  }
+#undef TRI
+#undef TL1
+#undef TL2
+}
+
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a matrix (integer version)
+ **
+ ** \param[in]  title  Title (Optional)
+ ** \param[in]  flag_limit  option for the limits
+ ** \li                      1 if limits must be applied
+ ** \li                      0 if the whole matrix is printed
+ ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
+ ** \param[in]  nx     number of columns in the matrix
+ ** \param[in]  ny     number of rows in the matrix
+ ** \param[in]  sel    array of selection or NULL
+ ** \param[in]  tab    array containing the matrix
+ **
+ *****************************************************************************/
+void print_imatrix(const char *title,
+                   int flag_limit,
+                   int bycol,
+                   int nx,
+                   int ny,
+                   const double *sel,
+                   const int *tab)
+{
+  if (tab == nullptr || nx <= 0 || ny <= 0) return;
+  int nx_util = (flag_limit && (int) OptCst::query(ECst::NTCOL) > 0) ?
+      MIN((int) OptCst::query(ECst::NTCOL), nx) : nx;
+  int ny_util = (flag_limit && (int) OptCst::query(ECst::NTROW) > 0) ?
+      MIN((int) OptCst::query(ECst::NTROW), ny) : ny;
+  int multi_row = (ny > 1 || title == NULL);
+
+  /* Print the title (optional) */
+
+  if (title != NULL)
+  {
+    if (multi_row)
+      message("%s\n", title);
+    else
+      message("%s ", title);
+  }
+
+  /* Print the header */
+
+  if (multi_row)
+  {
+    tab_prints(NULL, " ");
+    for (int ix = 0; ix < nx_util; ix++)
+      tab_print_rc(NULL, CASE_COL, ix + 1);
+    message("\n");
+  }
+
+  /* Print the contents of the array */
+
+  int ny_done = 0;
+  for (int iy = 0; iy < ny; iy++)
+  {
+    if (sel != nullptr && !sel[iy]) continue;
+    ny_done++;
+    if (ny_done > ny_util) break;
+    if (multi_row) tab_print_rc(NULL, CASE_ROW, iy + 1);
+    for (int ix = 0; ix < nx_util; ix++)
+    {
+      int iad = (bycol) ? iy + ny * ix : ix + nx * iy;
+      tab_printi(NULL, tab[iad]);
+    }
+    message("\n");
+  }
+
+  /* Print the trailor */
+
+  if (nx != nx_util || ny != ny_util)
+  {
+    if (nx == nx_util)
+      message("(Ncol=%d", nx);
+    else
+      message("(Ncol=%d[from %d]", nx_util, nx);
+
+    if (ny == ny_util)
+      message(",Nrow=%d)", ny);
+    else
+      message(",Nrow=%d[from %d])", ny_util, ny);
+    message("\n");
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Print a vector of real values in a matrix form
+ **
+ ** \param[in]  title      Title (Optional)
+ ** \param[in]  flag_limit 1 if NTCOL is used; 0 otherwise
+ ** \param[in]  ntab       Number of elements in the array
+ ** \param[in]  tab        Array to be printed
+ **
+ *****************************************************************************/
+void print_vector(const char *title,
+                  int flag_limit,
+                  int ntab,
+                  const double *tab)
+{
+  static int nby_def = 5;
+
+  /* Initializations */
+
+  if (ntab <= 0) return;
+  int nby = (flag_limit && (int) OptCst::query(ECst::NTCOL) >= 0) ?
+      (int) OptCst::query(ECst::NTCOL) : nby_def;
+  bool flag_many = (ntab > nby);
+
+  if (title != NULL)
+  {
+    message("%s", title);
+    if (flag_many) message("\n");
+  }
+  int lec = 0;
+  for (int i = 0; i < ntab; i += nby)
+  {
+    if (flag_many) message(" %2d+  ", i);
+    for (int j = 0; j < nby; j++)
+    {
+      if (lec >= ntab) continue;
+      message(" %10f", tab[lec]);
+      lec++;
+    }
+    message("\n");
+  }
+}
+
+void print_vector(const char *title,
+                  int flag_limit,
+                  int ntab,
+                  const VectorDouble &tab)
+{
+  print_vector(title, flag_limit, ntab, tab.data());
+}
+
+/****************************************************************************/
+/*!
+ **  Print a vector of integer values in a matrix form
+ **
+ ** \param[in]  title      Title (Optional)
+ ** \param[in]  flag_limit 1 if NTCOL is used; 0 otherwise
+ ** \param[in]  ntab       Number of elements in the array
+ ** \param[in]  itab       Array to be printed
+ **
+ *****************************************************************************/
+void print_ivector(const char *title, int flag_limit, int ntab, const int *itab)
+{
+  static int nby_def = 5;
+
+  /* Initializations */
+
+  if (ntab <= 0) return;
+  int nby = (flag_limit && (int) OptCst::query(ECst::NTCOL) >= 0) ?
+      (int) OptCst::query(ECst::NTCOL) : nby_def;
+  bool flag_many = (ntab > nby);
+
+  if (title != NULL)
+  {
+    message("%s", title);
+    if (flag_many) message("\n");
+  }
+  int lec = 0;
+  for (int i = 0; i < ntab; i += nby)
+  {
+    if (flag_many) message(" %2d+  ", i);
+    for (int j = 0; j < nby; j++)
+    {
+      if (lec >= ntab) continue;
+      message(" %10d", itab[lec]);
+      lec++;
+    }
+    message("\n");
+  }
+}
+
+void print_ivector(const char *title,
+                   int flag_limit,
+                   int ntab,
+                   const VectorInt &itab)
+{
+  print_ivector(title, flag_limit, ntab, itab.data());
 }

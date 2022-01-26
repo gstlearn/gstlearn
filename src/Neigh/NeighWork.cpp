@@ -669,24 +669,24 @@ void NeighWork::_display(const VectorInt& ranks)
   /* Neighborhood data */
 
   mestitle(1, "Data selected in neighborhood");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Rank");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Sample");
-  if (_dbin->hasCode()) tab_prints(NULL, 1, EJustify::RIGHT, "Code");
+  tab_prints(NULL, "Rank");
+  tab_prints(NULL, "Sample");
+  if (_dbin->hasCode()) tab_prints(NULL, "Code");
   for (int idim = 0; idim < ndim; idim++)
   {
     string = getLocatorName(ELoc::X, idim);
-    tab_prints(NULL, 1, EJustify::RIGHT, string.c_str());
+    tab_prints(NULL, string.c_str());
   }
   if (flag_ext)
   {
     for (int idim = 0; idim < ndim; idim++)
     {
       string = getLocatorName(ELoc::BLEX, idim);
-      tab_prints(NULL, 1, EJustify::RIGHT, string.c_str());
+      tab_prints(NULL, string.c_str());
     }
   }
   if (_neighParam->getType() == ENeigh::MOVING)
-    tab_prints(NULL, 1, EJustify::RIGHT, "Sector");
+    tab_prints(NULL, "Sector");
   message("\n");
 
   /* Loop on the sample points */
@@ -696,21 +696,19 @@ void NeighWork::_display(const VectorInt& ranks)
   {
     if (ranks[iech] < 0) continue;
 
-    tab_printi(NULL, 1, EJustify::RIGHT, nsel + 1);
-    tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
+    tab_printi(NULL, nsel + 1);
+    tab_printi(NULL, iech + 1);
     if (_dbin->hasCode())
-      tab_printi(NULL, 1, EJustify::RIGHT,
-                 static_cast<int>(_dbin->getCode(iech)));
+      tab_printi(NULL, static_cast<int>(_dbin->getCode(iech)));
     for (int idim = 0; idim < ndim; idim++)
-      tab_printg(NULL, 1, EJustify::RIGHT, _dbin->getCoordinate(iech, idim));
+      tab_printg(NULL, _dbin->getCoordinate(iech, idim));
     if (flag_ext)
     {
       for (int idim = 0; idim < ndim; idim++)
-        tab_printg(NULL, 1, EJustify::RIGHT,
-                   _dbin->getBlockExtension(iech, idim));
+        tab_printg(NULL, _dbin->getBlockExtension(iech, idim));
     }
     if (_neighParam->getType() == ENeigh::MOVING)
-      tab_printi(NULL, 1, EJustify::RIGHT, ranks[iech] + 1);
+      tab_printi(NULL, ranks[iech] + 1);
     message("\n");
     nsel++;
   }

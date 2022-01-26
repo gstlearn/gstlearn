@@ -1889,20 +1889,20 @@ void krige_lhs_print(int nech,
 
     /* Header line */
 
-    tab_prints(NULL, 1, EJustify::RIGHT, "Rank");
-    tab_prints(NULL, 1, EJustify::RIGHT, "    ");
+    tab_prints(NULL, "Rank");
+    tab_prints(NULL, "    ");
     for (j = ideb; j < ifin; j++)
-      tab_printi(NULL, 1, EJustify::RIGHT, j + 1);
+      tab_printi(NULL, j + 1);
     message("\n");
 
     /* Flag line */
 
     if (flagloc != NULL)
     {
-      tab_prints(NULL, 1, EJustify::RIGHT, "    ");
-      tab_prints(NULL, 1, EJustify::RIGHT, "Flag");
+      tab_prints(NULL, "    ");
+      tab_prints(NULL, "Flag");
       for (j = ideb; j < ifin; j++)
-        tab_printi(NULL, 1, EJustify::RIGHT, rel[j]);
+        tab_printi(NULL, rel[j]);
       message("\n");
     }
 
@@ -1910,10 +1910,10 @@ void krige_lhs_print(int nech,
 
     for (i = 0; i < nred; i++)
     {
-      tab_printi(NULL, 1, EJustify::RIGHT, i + 1);
-      tab_printi(NULL, 1, EJustify::RIGHT, rel[i]);
+      tab_printi(NULL, i + 1);
+      tab_printi(NULL, rel[i]);
       for (j = ideb; j < ifin; j++)
-        tab_printg(NULL, 1, EJustify::RIGHT, LHS_C(i, j));
+        tab_printg(NULL, LHS_C(i, j));
       message("\n");
     }
   }
@@ -2342,20 +2342,20 @@ void krige_rhs_print(int nvar,
 
   /* Header line */
 
-  tab_prints(NULL, 1, EJustify::RIGHT, "Rank");
-  if (flag != nullptr) tab_prints(NULL, 1, EJustify::RIGHT, "Flag");
+  tab_prints(NULL, "Rank");
+  if (flag != nullptr) tab_prints(NULL, "Flag");
   for (ivar = 0; ivar < nvar; ivar++)
-    tab_printi(NULL, 1, EJustify::RIGHT, ivar + 1);
+    tab_printi(NULL, ivar + 1);
   message("\n");
 
   /* Matrix lines */
 
   for (i = 0; i < nred; i++)
   {
-    tab_printi(NULL, 1, EJustify::RIGHT, i + 1);
-    if (flag != nullptr) tab_printi(NULL, 1, EJustify::RIGHT, rel[i]);
+    tab_printi(NULL, i + 1);
+    if (flag != nullptr) tab_printi(NULL, rel[i]);
     for (ivar = 0; ivar < nvar; ivar++)
-      tab_printg(NULL, 1, EJustify::RIGHT, RHS_C(i, ivar));
+      tab_printg(NULL, RHS_C(i, ivar));
     message("\n");
   }
 
@@ -2392,17 +2392,17 @@ void krige_dual_print(int nech, int neq, int nred, int *flag, double *dual)
 
   /* Header line */
 
-  tab_prints(NULL, 1, EJustify::RIGHT, "Rank");
-  if (flag != nullptr) tab_prints(NULL, 1, EJustify::RIGHT, "Flag");
+  tab_prints(NULL, "Rank");
+  if (flag != nullptr) tab_prints(NULL, "Flag");
   message("\n");
 
   /* Matrix lines */
 
   for (i = 0; i < nred; i++)
   {
-    tab_printi(NULL, 1, EJustify::RIGHT, i + 1);
-    if (flag != nullptr) tab_printi(NULL, 1, EJustify::RIGHT, rel[i]);
-    tab_printg(NULL, 1, EJustify::RIGHT, dual[i]);
+    tab_printi(NULL, i + 1);
+    if (flag != nullptr) tab_printi(NULL, rel[i]);
+    tab_printg(NULL, dual[i]);
     message("\n");
   }
 
@@ -2649,25 +2649,25 @@ static void krige_wgt_print(int status,
 
   /* First line */
 
-  tab_prints(NULL, 1, EJustify::RIGHT, "Rank");
+  tab_prints(NULL, "Rank");
   for (idim = 0; idim < ndim; idim++)
   {
     String strloc = getLocatorName(ELoc::X, idim);
-    tab_prints(NULL, 1, EJustify::RIGHT, strloc.c_str());
+    tab_prints(NULL, strloc.c_str());
   }
-  if (DBIN->hasCode()) tab_prints(NULL, 1, EJustify::RIGHT, "Code");
+  if (DBIN->hasCode()) tab_prints(NULL, "Code");
   if (DBIN->getVarianceErrorNumber() > 0)
-    tab_prints(NULL, 1, EJustify::RIGHT, "Err.");
+    tab_prints(NULL, "Err.");
   if (KOPTION->flag_data_disc) for (idim = 0; idim < ndim; idim++)
   {
     (void) gslSPrintf(string, "Size%d", idim + 1);
-    tab_prints(NULL, 1, EJustify::RIGHT, string);
+    tab_prints(NULL, string);
   }
-  tab_prints(NULL, 1, EJustify::RIGHT, "Data");
+  tab_prints(NULL, "Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
     (void) gslSPrintf(string, "Z%d*", ivar + 1);
-    tab_prints(NULL, 1, EJustify::RIGHT, string);
+    tab_prints(NULL, string);
   }
   message("\n");
 
@@ -2685,31 +2685,29 @@ static void krige_wgt_print(int status,
     {
       flag_value = (flag != nullptr) ? flag[lec] :
                                        1;
-      tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
+      tab_printi(NULL, iech + 1);
       for (idim = 0; idim < ndim; idim++)
-        tab_printg(NULL, 1, EJustify::RIGHT, st_get_idim(nbgh_ranks[iech], idim));
+        tab_printg(NULL, st_get_idim(nbgh_ranks[iech], idim));
       if (DBIN->hasCode())
-        tab_printg(NULL, 1, EJustify::RIGHT, DBIN->getCode(nbgh_ranks[iech]));
+        tab_printg(NULL, DBIN->getCode(nbgh_ranks[iech]));
       if (DBIN->getVarianceErrorNumber() > 0)
-        tab_printg(NULL, 1, EJustify::RIGHT,
-                   st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
+        tab_printg(NULL, st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION->flag_data_disc)
       {
         for (idim = 0; idim < ndim; idim++)
-          tab_printg(NULL, 1, EJustify::RIGHT,
-                     DBIN->getBlockExtension(nbgh_ranks[iech], idim));
+          tab_printg(NULL, DBIN->getBlockExtension(nbgh_ranks[iech], idim));
       }
       if (icase < 0)
-        tab_printg(NULL, 1, EJustify::RIGHT, st_get_ivar(nbgh_ranks[iech], jvar_m));
+        tab_printg(NULL, st_get_ivar(nbgh_ranks[iech], jvar_m));
       else
-        tab_prints(NULL, 1, EJustify::RIGHT, "   ");
+        tab_prints(NULL, "   ");
 
       for (ivar = 0; ivar < nvar; ivar++)
       {
         iwgt = nred * ivar + cumflag;
         value = (wgt != nullptr && status == 0 && flag_value) ? wgt[iwgt] : TEST;
         if (!FFFF(value)) sum[ivar] += value;
-        tab_printg(NULL, 1, EJustify::RIGHT, value);
+        tab_printg(NULL, value);
       }
       if (flag_value) cumflag++;
       message("\n");
@@ -2718,11 +2716,11 @@ static void krige_wgt_print(int status,
     number = 1 + ndim + 1;
     if (DBIN->getVarianceErrorNumber() > 0) number++;
     if (KOPTION->flag_data_disc) number += ndim;
-    tab_prints(NULL, number, EJustify::LEFT, "Sum of weights");
+    tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
     for (ivar = 0; ivar < nvar; ivar++)
     {
       value = (status == 0) ? sum[ivar] : TEST;
-      tab_printg(NULL, 1, EJustify::RIGHT, value);
+      tab_printg(NULL, value);
     }
     message("\n");
   }
@@ -2736,8 +2734,8 @@ static void krige_wgt_print(int status,
 
   /* First line */
 
-  tab_prints(NULL, 1, EJustify::RIGHT, "Rank");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Coeff");
+  tab_prints(NULL, "Rank");
+  tab_prints(NULL, "Coeff");
   message("\n");
 
   /* Loop on the drift coefficients */
@@ -2746,10 +2744,9 @@ static void krige_wgt_print(int status,
   for (ib = 0; ib < nfeq; ib++)
   {
     iwgt = ib + cumflag;
-    tab_printi(NULL, 1, EJustify::RIGHT, ib + 1);
-    value = (status == 0) ? zam1[iwgt] :
-                            TEST;
-    tab_printg(NULL, 1, EJustify::RIGHT, value);
+    tab_printi(NULL, ib + 1);
+    value = (status == 0) ? zam1[iwgt] : TEST;
+    tab_printg(NULL, value);
     message("\n");
   }
 
@@ -2833,11 +2830,11 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
           esterr = (status == 0) ? estim - trueval : TEST;
         }
 
-        tab_printg(" - True value        = ", 1, EJustify::RIGHT, trueval);
+        tab_printg(" - True value        = ", trueval);
         message("\n");
-        tab_printg(" - Estimated value   = ", 1, EJustify::RIGHT, estval);
+        tab_printg(" - Estimated value   = ", estval);
         message("\n");
-        tab_printg(" - Estimation Error  = ", 1, EJustify::RIGHT, esterr);
+        tab_printg(" - Estimation Error  = ", esterr);
         message("\n");
 
         if (FLAG_STD != 0)
@@ -2855,9 +2852,9 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
             sterr = (status == 0) ? esterr / stdev : TEST;
           }
 
-          tab_printg(" - Std. deviation    = ", 1, EJustify::RIGHT, sigma);
+          tab_printg(" - Std. deviation    = ", sigma);
           message("\n");
-          tab_printg(" - Normalized Error  = ", 1, EJustify::RIGHT, sterr);
+          tab_printg(" - Normalized Error  = ", sterr);
           message("\n");
         }
       }
@@ -2868,22 +2865,22 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
       if (FLAG_EST != 0)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_EST + ivar) : TEST;
-        tab_printg(" - Estimate  = ", 1, EJustify::RIGHT, value);
+        tab_printg(" - Estimate  = ", value);
         message("\n");
       }
       if (FLAG_STD != 0)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_STD + ivar) : TEST;
-        tab_printg(" - Std. Dev. = ", 1, EJustify::RIGHT, value);
+        tab_printg(" - Std. Dev. = ", value);
         value = (status == 0) ? VAR0(ivar, ivar) : TEST;
         message("\n");
-        tab_printg(" - Cov(h=0)  = ", 1, EJustify::RIGHT, value);
+        tab_printg(" - Cov(h=0)  = ", value);
         message("\n");
       }
       if (FLAG_VARZ != 0)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_VARZ + ivar) : TEST;
-        tab_printg(" - Var(Z*)   = ", 1, EJustify::RIGHT, value);
+        tab_printg(" - Var(Z*)   = ", value);
         message("\n");
       }
     }
@@ -2917,7 +2914,7 @@ static void st_result_simulate_print(int nbsimu, int nvar, int status)
       message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
       value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_EST + ecr) :
                               TEST;
-      tab_printg(" = ", 1, EJustify::RIGHT, value);
+      tab_printg(" = ", value);
       message("\n");
     }
   return;
@@ -9563,11 +9560,11 @@ int krigsampling_f(Db *dbin,
 
     if (OptDbg::query(EDbg::RESULTS))
     {
-      tab_printg(" - Estimate  = ", 1, EJustify::RIGHT, estim);
+      tab_printg(" - Estimate  = ", estim);
       message("\n");
       if (FLAG_STD != 0)
       {
-        tab_printg(" - Std. Dev. = ", 1, EJustify::RIGHT, sigma);
+        tab_printg(" - Std. Dev. = ", sigma);
         message("\n");
       }
     }

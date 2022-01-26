@@ -470,56 +470,7 @@ GSTLEARN_EXPORT void string_strip_quotes(char *string);
 #if defined(_WIN32) || defined(_WIN64)
 GSTLEARN_EXPORT char * strsep(char **stringp, const char* delim);
 #endif
-GSTLEARN_EXPORT void tab_prints(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                const char *string);
-GSTLEARN_EXPORT void tab_printg(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                double value);
-GSTLEARN_EXPORT void tab_printd(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                double value);
-GSTLEARN_EXPORT void tab_printi(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                int value);
-GSTLEARN_EXPORT void tab_print_rowname(const char *string, int taille);
-GSTLEARN_EXPORT void tab_print_rc(const char *title,
-                                  int ncol,
-                                  const EJustify &justify,
-                                  int mode,
-                                  int value);
-GSTLEARN_EXPORT void encode_printg(char *string,
-                                   int ntcar,
-                                   int ntdec,
-                                   double value);
 GSTLEARN_EXPORT void print_current_line(void);
-GSTLEARN_EXPORT void print_matrix(const char *title,
-                                  int flag_limit,
-                                  int byrow,
-                                  int nx,
-                                  int ny,
-                                  const double *sel,
-                                  const double *tab);
-GSTLEARN_EXPORT void print_trimat(const char *title,
-                                  int mode,
-                                  int neq,
-                                  const double *tl);
-GSTLEARN_EXPORT void print_imatrix(const char *title,
-                                   int flag_limit,
-                                   int bycol,
-                                   int nx,
-                                   int ny,
-                                   const double *sel,
-                                   const int *tab);
-GSTLEARN_EXPORT void print_vector(const char *title,
-                                  int flag_limit,
-                                  int ntab,
-                                  const double *tab);
-GSTLEARN_EXPORT void print_names(int nx, int *ranks, VectorString names);
 GSTLEARN_EXPORT void file_dump(int ntab, double *tab);
 
 /*****************************************/

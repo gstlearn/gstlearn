@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringFormat.hpp"
+#include "Basic/EJustify.hpp"
 
 #include "geoslib_define.h"
 // Put it in the header because inherited objects will need it
@@ -87,7 +88,68 @@ GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorVectorDouble& tab);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorInt& tab);
-GSTLEARN_EXPORT String toStr(const String& string, int justify = 1);
-GSTLEARN_EXPORT String toDouble(double value, int justify = 1);
-GSTLEARN_EXPORT String toInt(int value, int justify = 1);
+GSTLEARN_EXPORT String toStr(const String& string,
+                             const EJustify& justify = EJustify::RIGHT);
+GSTLEARN_EXPORT String toDouble(double value,
+                                const EJustify& justify = EJustify::RIGHT);
+GSTLEARN_EXPORT String toInt(int value,
+                             const EJustify& justify = EJustify::RIGHT);
 GSTLEARN_EXPORT String toInterval(double zmin, double zmax);
+
+// Old-fashion printing formats
+GSTLEARN_EXPORT void tab_prints(const char* title,
+                                const char* string,
+                                int ncol = 1,
+                                const EJustify &justify = EJustify::RIGHT);
+GSTLEARN_EXPORT void tab_printg(const char *title,
+                                double value,
+                                int ncol = 1,
+                                const EJustify &justify = EJustify::RIGHT);
+GSTLEARN_EXPORT void tab_printd(const char *title,
+                                double value,
+                                int ncol = 1,
+                                const EJustify &justify = EJustify::RIGHT);
+GSTLEARN_EXPORT void tab_printi(const char *title,
+                                int value,
+                                int ncol = 1,
+                                const EJustify &justify = EJustify::RIGHT);
+GSTLEARN_EXPORT void tab_print_rc(const char *title,
+                                  int mode,
+                                  int value,
+                                  int ncol = 1,
+                                  const EJustify &justify = EJustify::RIGHT);
+GSTLEARN_EXPORT void tab_print_rowname(const char *string, int taille);
+GSTLEARN_EXPORT void print_matrix(const char *title,
+                                  int flag_limit,
+                                  int byrow,
+                                  int nx,
+                                  int ny,
+                                  const double *sel,
+                                  const double *tab);
+GSTLEARN_EXPORT void print_trimat(const char *title,
+                                  int mode,
+                                  int neq,
+                                  const double *tl);
+GSTLEARN_EXPORT void print_imatrix(const char *title,
+                                   int flag_limit,
+                                   int bycol,
+                                   int nx,
+                                   int ny,
+                                   const double *sel,
+                                   const int *tab);
+GSTLEARN_EXPORT void print_vector(const char *title,
+                                  int flag_limit,
+                                  int ntab,
+                                  const double *tab);
+GSTLEARN_EXPORT void print_vector(const char *title,
+                                  int flag_limit,
+                                  int ntab,
+                                  const VectorDouble &tab);
+GSTLEARN_EXPORT void print_ivector(const char *title,
+                                   int flag_limit,
+                                   int ntab,
+                                   const int *itab);
+GSTLEARN_EXPORT void print_ivector(const char *title,
+                                   int flag_limit,
+                                   int ntab,
+                                   const VectorInt &itab);

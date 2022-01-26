@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/OptDbg.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -40,7 +41,7 @@ bool OptDbg::queryByKey(const String& name)
   while (it.hasNext())
   {
     EDbg e = *it;
-    if (e.getKey() == name) return query(e);
+    if (e.getKey() == toUpper(name)) return query(e);
     it.toNext();
   }
   return false;
@@ -74,7 +75,7 @@ void OptDbg::defineByKey(const String& name, bool status)
   while (it.hasNext())
   {
     EDbg e = *it;
-    if (e.getKey() == name) define(e, status);
+    if (e.getKey() == toUpper(name)) define(e, status);
     it.toNext();
   }
 }

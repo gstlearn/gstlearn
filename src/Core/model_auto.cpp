@@ -1310,15 +1310,15 @@ static void st_goulard_debug_title(int nvar, int ncova)
   if (!OptDbg::query(EDbg::CONVERGE)) return;
   mestitle(1, "Trajectory of parameters in Goulard Algorithm");
   message("(Sti(V1-V2) : Sill for structure 'i' for variables 'V1' and 'V2'\n");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Iteration");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Score");
+  tab_prints(NULL, "Iteration");
+  tab_prints(NULL, "Score");
   for (icov = 0; icov < ncova; icov++)
     for (ivar = 0; ivar < nvar; ivar++)
       for (jvar = 0; jvar <= ivar; jvar++)
       {
         (void) gslSPrintf(loc_string, "St%d(%d-%d)", icov + 1, ivar + 1,
                           jvar + 1);
-        tab_prints(NULL, 1, EJustify::RIGHT, loc_string);
+        tab_prints(NULL, loc_string);
       }
   message("\n");
 }
@@ -1344,16 +1344,16 @@ static void st_goulard_debug_current(int nvar,
 
   if (!OptDbg::query(EDbg::CONVERGE)) return;
   nvs2 = nvar * (nvar + 1) / 2;
-  tab_printi(NULL, 1, EJustify::RIGHT, iter + 1);
+  tab_printi(NULL, iter + 1);
   if (FFFF(crit))
-    tab_prints(NULL, 1, EJustify::RIGHT, "     ");
+    tab_prints(NULL, "     ");
   else
-    tab_printd(NULL, 1, EJustify::RIGHT, crit);
+    tab_printd(NULL, crit);
 
   for (icov = 0; icov < ncova; icov++)
     for (ivar = ijvar = 0; ivar < nvar; ivar++)
       for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        tab_printg(NULL, 1, EJustify::RIGHT, SILL(icov, ijvar));
+        tab_printg(NULL, SILL(icov, ijvar));
   message("\n");
 }
 

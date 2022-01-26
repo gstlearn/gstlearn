@@ -44,18 +44,6 @@ GSTLEARN_EXPORT int setup_license(const char *target_name);
 /* Functions for Basic */
 /***********************/
 
-GSTLEARN_EXPORT void print_ivector(const char *title,
-                                   int flag_limit,
-                                   int ntab,
-                                   const int *itab);
-GSTLEARN_EXPORT void print_ivector(const char *title,
-                                   int flag_limit,
-                                   int ntab,
-                                   const VectorInt &itab);
-GSTLEARN_EXPORT void print_vector(const char *title,
-                                  int flag_limit,
-                                  int ntab,
-                                  const VectorDouble &tab);
 GSTLEARN_EXPORT VectorInt util_string_search(const VectorString &list_strings,
                                              const String &string,
                                              int verbose);

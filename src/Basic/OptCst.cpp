@@ -11,6 +11,7 @@
 #include "Basic/EOptCst.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -27,7 +28,7 @@ std::map<const ECst, double> OptCst::_cst = std::map<const ECst, double>({
                                        { ECst::NTNAME, 12. },
                                        { ECst::NTRANK,  3. },
                                        { ECst::NPROC,   0. },
-                                       { ECst::LOCMOD,  0. },
+                                       { ECst::LOCMOD,  1. },
                                        { ECst::LOCNEW,  0. },
                                        { ECst::TOLINV,  1.e-20 },
                                        { ECst::TOLGEN,  1.e-20 },
@@ -48,7 +49,8 @@ double OptCst::queryByKey(const String& name)
 {
   for (auto e: _cst)
   {
-    if (e.first.getKey() == name) return e.second;
+    if (e.first.getKey() == toUpper(name))
+      return e.second;
   }
   return TEST;
 }
@@ -70,7 +72,7 @@ void OptCst::defineByKey(const String& name, double value)
 {
   for (auto &e: _cst)
   {
-    if (e.first.getKey() == name)
+    if (e.first.getKey() == toUpper(name))
     {
       e.second = value;
       return;

@@ -1029,13 +1029,13 @@ static void st_foxleg_debug_title(void)
 
   if (!OptDbg::query(EDbg::CONVERGE)) return;
   mestitle(1, "Trajectory of parameters in Foxleg Algorithm");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Iteration");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Score");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Delta");
+  tab_prints(NULL, "Iteration");
+  tab_prints(NULL, "Score");
+  tab_prints(NULL, "Delta");
   for (ipar = 0; ipar < NPAR; ipar++)
   {
     (void) gslSPrintf(string, "Par-%d", ipar + 1);
-    tab_prints(NULL, 1, EJustify::RIGHT, string);
+    tab_prints(NULL, string);
   }
   message("\n");
 }
@@ -1052,11 +1052,11 @@ static void st_foxleg_debug_current(double mscur,
   int ipar;
 
   if (!OptDbg::query(EDbg::CONVERGE)) return;
-  tab_printi(NULL, 1, EJustify::RIGHT, ITERATION);
-  tab_printd(NULL, 1, EJustify::RIGHT, mscur);
-  tab_printd(NULL, 1, EJustify::RIGHT, delta);
+  tab_printi(NULL, ITERATION);
+  tab_printd(NULL, mscur);
+  tab_printd(NULL, delta);
   for (ipar = 0; ipar < NPAR; ipar++)
-    tab_printg(NULL, 1, EJustify::RIGHT, param[ipar]);
+    tab_printg(NULL, param[ipar]);
   message("\n");
 }
 

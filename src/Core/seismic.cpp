@@ -2286,19 +2286,19 @@ static void st_estimate_neigh_print(ST_Seismic_Neigh *ngh, int ix0, int iz0)
           ngh->nactive);
 
   if (ngh->nactive <= 0) return;
-  tab_prints(NULL, 1, EJustify::RIGHT, "Sample");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Delta-X");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Delta-Z");
-  tab_prints(NULL, 1, EJustify::RIGHT, "V1");
-  tab_prints(NULL, 1, EJustify::RIGHT, "V2");
+  tab_prints(NULL, "Sample");
+  tab_prints(NULL, "Delta-X");
+  tab_prints(NULL, "Delta-Z");
+  tab_prints(NULL, "V1");
+  tab_prints(NULL, "V2");
   message("\n");
   for (i = 0; i < ngh->nactive; i++)
   {
-    tab_printi(NULL, 1, EJustify::RIGHT, i + 1);
-    tab_printi(NULL, 1, EJustify::RIGHT, ngh->ix_ngh[i]);
-    tab_printi(NULL, 1, EJustify::RIGHT, ngh->iz_ngh[i]);
-    tab_printg(NULL, 1, EJustify::RIGHT, ngh->v1_ngh[i]);
-    tab_printg(NULL, 1, EJustify::RIGHT, ngh->v2_ngh[i]);
+    tab_printi(NULL, i + 1);
+    tab_printi(NULL, ngh->ix_ngh[i]);
+    tab_printi(NULL, ngh->iz_ngh[i]);
+    tab_printg(NULL, ngh->v1_ngh[i]);
+    tab_printg(NULL, ngh->v2_ngh[i]);
     message("\n");
   }
 }
@@ -2715,14 +2715,14 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
 
   /* First line */
 
-  tab_prints(NULL, 1, EJustify::RIGHT, "Rank");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Delta-X");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Delta-Z");
-  tab_prints(NULL, 1, EJustify::RIGHT, "Data");
+  tab_prints(NULL, "Rank");
+  tab_prints(NULL, "Delta-X");
+  tab_prints(NULL, "Delta-Z");
+  tab_prints(NULL, "Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
     (void) gslSPrintf(string, "Z%d*", ivar + 1);
-    tab_prints(NULL, 1, EJustify::RIGHT, string);
+    tab_prints(NULL, string);
   }
   message("\n");
 
@@ -2738,13 +2738,13 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
       sum[ivar] = 0.;
     for (iech = 0; iech < nech; iech++, lec++)
     {
-      tab_printi(NULL, 1, EJustify::RIGHT, iech + 1);
-      tab_printi(NULL, 1, EJustify::RIGHT, ngh->ix_ngh[iech]);
-      tab_printi(NULL, 1, EJustify::RIGHT, ngh->iz_ngh[iech]);
+      tab_printi(NULL, iech + 1);
+      tab_printi(NULL, ngh->ix_ngh[iech]);
+      tab_printi(NULL, ngh->iz_ngh[iech]);
       if (jvar == 0)
-        tab_printg(NULL, 1, EJustify::RIGHT, ngh->v1_ngh[iech]);
+        tab_printg(NULL, ngh->v1_ngh[iech]);
       else
-        tab_printg(NULL, 1, EJustify::RIGHT, ngh->v2_ngh[iech]);
+        tab_printg(NULL, ngh->v2_ngh[iech]);
 
       for (ivar = 0; ivar < nvar; ivar++)
       {
@@ -2752,15 +2752,15 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
         value = (flag[lec]) ? wgt[iwgt] :
                               TEST;
         if (!FFFF(value)) sum[ivar] += value;
-        tab_printg(NULL, 1, EJustify::RIGHT, value);
+        tab_printg(NULL, value);
       }
       if (flag[lec]) cumflag++;
       message("\n");
     }
 
-    tab_prints(NULL, 4, EJustify::LEFT, "Sum of weights");
+    tab_prints(NULL, "Sum of weights", 4, EJustify::LEFT);
     for (ivar = 0; ivar < nvar; ivar++)
-      tab_printg(NULL, 1, EJustify::RIGHT, sum[ivar]);
+      tab_printg(NULL, sum[ivar]);
     message("\n");
   }
 
@@ -2877,9 +2877,9 @@ static void st_estimate_result(Db     *db,
 
     if (OptDbg::query(EDbg::RESULTS))
     {
-      tab_printi(NULL, 1, EJustify::RIGHT, ivar + 1);
-      tab_printg(" - Estimate  = ", 1, EJustify::RIGHT, result);
-      if (flag_std) tab_printg(" - St. Dev.  = ", 1, EJustify::RIGHT, stdev);
+      tab_printi(NULL, ivar + 1);
+      tab_printg(" - Estimate  = ", result);
+      if (flag_std) tab_printg(" - St. Dev.  = ", stdev);
       message("\n");
     }
   }
@@ -2987,7 +2987,7 @@ static void st_simulate_result(Db     *db,
       if (OptDbg::query(EDbg::RESULTS))
       {
         message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
-        tab_printg(" = ", 1, EJustify::RIGHT, result[ivar]);
+        tab_printg(" = ", result[ivar]);
         message("\n");
       }
     }

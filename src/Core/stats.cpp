@@ -3003,17 +3003,17 @@ void db_stats_print(const Db *db,
 
   tab_print_rowname(" ", taille);
   if (st_oper_exists(opers, "num"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Number");
+    tab_prints(NULL, "Number");
   if (st_oper_exists(opers, "mini"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Minimum");
+    tab_prints(NULL, "Minimum");
   if (st_oper_exists(opers, "maxi"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Maximum");
+    tab_prints(NULL, "Maximum");
   if (st_oper_exists(opers, "mean"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Mean");
+    tab_prints(NULL, "Mean");
   if (st_oper_exists(opers, "stdv"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "St. Dev.");
+    tab_prints(NULL, "St. Dev.");
   if (st_oper_exists(opers, "var"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Variance");
+    tab_prints(NULL, "Variance");
   message("\n");
 
   /* Print the monovariate statistics */
@@ -3025,32 +3025,32 @@ void db_stats_print(const Db *db,
     tab_print_rowname(string, taille);
 
     if (st_oper_exists(opers, "num"))
-      tab_printi(NULL, 1, EJustify::RIGHT, (int) num[icol]);
+      tab_printi(NULL, (int) num[icol]);
     if (num[icol] > 0)
     {
       if (st_oper_exists(opers, "mini"))
-        tab_printg(NULL, 1, EJustify::RIGHT, mini[icol]);
+        tab_printg(NULL, mini[icol]);
       if (st_oper_exists(opers, "maxi"))
-        tab_printg(NULL, 1, EJustify::RIGHT, maxi[icol]);
+        tab_printg(NULL, maxi[icol]);
       if (st_oper_exists(opers, "mean"))
-        tab_printg(NULL, 1, EJustify::RIGHT, mean[icol]);
+        tab_printg(NULL, mean[icol]);
       if (st_oper_exists(opers, "stdv"))
-        tab_printg(NULL, 1, EJustify::RIGHT, sqrt(var[icol]));
+        tab_printg(NULL, sqrt(var[icol]));
       if (st_oper_exists(opers, "var"))
-        tab_printg(NULL, 1, EJustify::RIGHT, var[icol]);
+        tab_printg(NULL, var[icol]);
     }
     else
     {
       if (st_oper_exists(opers, "mini"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
       if (st_oper_exists(opers, "maxi"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
       if (st_oper_exists(opers, "mean"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
       if (st_oper_exists(opers, "stdv"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
       if (st_oper_exists(opers, "var"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
     }
     message("\n");
   }
