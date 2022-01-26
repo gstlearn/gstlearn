@@ -341,7 +341,7 @@ NeighMoving* NeighMoving::createFromNF(const String& neutralFilename, bool verbo
  * @param db Pointer to the taregt Db
  * @return
  */
-int NeighMoving::getMaxSampleNumber(const Db* db) const
+int NeighMoving::getMaxSampleNumber(const Db* /*db*/) const
 {
   return (_flagSector) ? _nSect * _nSMax : _nMaxi;
 }

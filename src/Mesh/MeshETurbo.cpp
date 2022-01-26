@@ -667,7 +667,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
                              const Db* field,
                              double ratio,
                              int nbExt,
-                             bool useSel,
+                             bool /*useSel*/,
                              int verbose)
 {
   // Preliminary checks

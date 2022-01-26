@@ -419,8 +419,6 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
  *****************************************************************************/
 bool NeighWork::_discardUndefined(int iech)
 {
-  int nvar = _dbin->getVariableNumber();
-
   if (_dbin->getVariableNumber() <= 0) return 0;
 
   if (! _flagSimu)
@@ -807,8 +805,8 @@ bool NeighWork::_isSameTargetBench(const Db* dbout,
   return flagSame;
 }
 
-bool NeighWork::_isSameTargetUnique(const Db* dbout,
-                                    int iech_out,
+bool NeighWork::_isSameTargetUnique(const Db* /*dbout*/,
+                                    int /*iech_out*/,
                                     VectorInt& ranks,
                                     bool verbose)
 {

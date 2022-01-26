@@ -51,24 +51,19 @@ static char FILE_NAME_MEM[BUFFER_LENGTH];
 /*! \endcond */
 
 static char STUDY[BUFFER_LENGTH] = "./";
-static char EXT_DAT[] = "dat";
-static char EXT_OUT[] = "out";
+static char EXT_DAT[]         = "dat";
+static char EXT_OUT[]         = "out";
 static char Fichier_environ[] = "Environ";
 static char Fichier_donnees[] = "Data";
-static char Fichier_grid[] = "Grid";
-static char Fichier_vario[] = "Vario";
-static char Fichier_model[] = "Model";
-static char Fichier_neigh[] = "Neigh";
+static char Fichier_grid[]    = "Grid";
+static char Fichier_vario[]   = "Vario";
+static char Fichier_model[]   = "Model";
+static char Fichier_neigh[]   = "Neigh";
 static char Fichier_polygon[] = "Polygon";
-static char Fichier_option[] = "Option";
-static char Fichier_rule[] = "Rule";
-static char Fichier_simu[] = "Simu";
-static char Fichier_frac[] = "Frac";
-
-static bool st_file_exists(const char *file_name)
-{
-  return gslFileExist(file_name, "r");
-}
+static char Fichier_option[]  = "Option";
+static char Fichier_rule[]    = "Rule";
+static char Fichier_simu[]    = "Simu";
+static char Fichier_frac[]    = "Frac";
 
 /****************************************************************************/
 /*!

@@ -161,10 +161,10 @@ NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose
  * @param db Pointer to the taregt Db
  * @return
  */
-int NeighImage::getMaxSampleNumber(const Db* db) const
+int NeighImage::getMaxSampleNumber(const Db* /*db*/) const
 {
   int nmax = 1;
   for (int idim = 0; idim < getNDim(); idim++)
-    nmax *= (2. * _imageRadius[idim] + 1);
+    nmax *= (2 * _imageRadius[idim] + 1);
   return nmax;
 }

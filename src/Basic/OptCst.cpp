@@ -29,9 +29,9 @@ std::map<const ECst, double> OptCst::_cst = std::map<const ECst, double>({
                                        { ECst::NPROC,   0. },
                                        { ECst::LOCMOD,  0. },
                                        { ECst::LOCNEW,  0. },
-                                       { ECst::TOLINV,  0. },
-                                       { ECst::TOLGEN,  0. },
-                                       { ECst::EPSMAT,  0. },
+                                       { ECst::TOLINV,  1.e-20 },
+                                       { ECst::TOLGEN,  1.e-20 },
+                                       { ECst::EPSMAT,  2.3e-16 },
                                        { ECst::EPSSVD,  1.e-5 }
 });
 
@@ -44,11 +44,33 @@ double OptCst::query(const ECst& option)
   return TEST;
 }
 
+double OptCst::queryByKey(const String& name)
+{
+  for (auto e: _cst)
+  {
+    if (e.first.getKey() == name) return e.second;
+  }
+  return TEST;
+}
+
+
 void OptCst::define(const ECst& option, double value)
 {
   for (auto &e: _cst)
   {
     if (e.first == option)
+    {
+      e.second = value;
+      return;
+    }
+  }
+}
+
+void OptCst::defineByKey(const String& name, double value)
+{
+  for (auto &e: _cst)
+  {
+    if (e.first.getKey() == name)
     {
       e.second = value;
       return;

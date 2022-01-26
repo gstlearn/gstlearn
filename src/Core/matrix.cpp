@@ -12,6 +12,8 @@
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/EOptCst.hpp"
 
 #include <math.h>
 #include <cmath>
@@ -51,63 +53,28 @@
 #define V(i,j)         v[SQ(j,i,neq)]
 /*! \endcond */
 
-static double TolInvert = 1.0e-20;
-static double TolInvgen = 1.0e-20;
-static double EpsMatrix = 2.3e-16;
 static double Epsilon = 1.0e-06;
-static double EpsSvd = 1.0e-15;
 
 static int LNG_LHS = 0;
 static int LNG_RHS = 0;
 static double *LHS_TAB = NULL;
 static double *RHS_TAB = NULL;
 
-/*****************************************************************************/
-/*!
- **  Define the constants for matrix inversion
- **
- ** \param[in]  keywrd  Number of the keyword to be defined
- ** \param[in]  value   Value of the parameter
- **
- *****************************************************************************/
-void matrix_constant_define(int keywrd, double value)
+static double _getTolInvert()
 {
-  if (keywrd == CST_TOLINV)
-    TolInvert = value;
-  else if (keywrd == CST_TOLGEN)
-    TolInvgen = value;
-  else if (keywrd == CST_EPSMAT)
-    EpsMatrix = value;
-  else if (keywrd == CST_EPSSVD)
-    EpsSvd = value;
-  else
-    return;
-
-  return;
+  return OptCst::query(ECst::TOLINV);
 }
-
-/*****************************************************************************/
-/*!
- **  Query the value of the constants for matrix inversion
- **
- ** \return  Returned value
- **
- ** \param[in]  keywrd  Number of the keyword to be defined
- **
- *****************************************************************************/
-double matrix_constant_query(int keywrd)
-
+static double _getTolInvGen()
 {
-  if (keywrd == CST_TOLINV)
-    return (TolInvert);
-  else if (keywrd == CST_TOLGEN)
-    return (TolInvgen);
-  else if (keywrd == CST_EPSMAT)
-    return (EpsMatrix);
-  else if (keywrd == CST_EPSSVD)
-    return (EpsSvd);
-  else
-    return (0.);
+  return OptCst::query(ECst::TOLGEN);
+}
+static double _getEpsMatrix()
+{
+  return OptCst::query(ECst::EPSMAT);
+}
+static double _getEpsSVD()
+{
+  return OptCst::query(ECst::EPSSVD);
 }
 
 /*****************************************************************************/
@@ -153,7 +120,7 @@ static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
   for (k = 0; k < neq - 1; k++)
   {
     pivot = AT(k, k);
-    if (ABS(pivot) < TolInvert) return (k + 1);
+    if (ABS(pivot) < _getTolInvert()) return (k + 1);
     for (i = k + 1; i < neq; i++)
     {
       ratio = AT(k,i)/ pivot;
@@ -163,7 +130,7 @@ static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
   }
 
   pivot = AT(neq - 1, neq - 1);
-  if (ABS(pivot) < TolInvert) return (neq);
+  if (ABS(pivot) < _getTolInvert()) return (neq);
 
   for (l = 0; l < nrhs; l++)
     XS(neq-1,l)= BS(neq-1,l) / pivot;
@@ -304,7 +271,7 @@ int matrix_eigen(const double *a_in,
     {
       n1 = 0;
       for (i1 = i2; i1 > 0 && n1 == 0; i1--)
-        if (ABS(work[2][i1]) <= EpsMatrix * neq
+        if (ABS(work[2][i1]) <= _getEpsMatrix() * neq
                                 * (ABS(work[3][i1-1]) + ABS(work[3][i1])))
           n1 = i1;
       if (n1 != i2) n2 = i2;
@@ -372,7 +339,7 @@ int matrix_eigen(const double *a_in,
 
       n1 = 0;
       for (i1 = n2; i1 > 0 && n1 == 0; i1--)
-        if (ABS(work[2][i1]) <= EpsMatrix * neq
+        if (ABS(work[2][i1]) <= _getEpsMatrix() * neq
                                 * (ABS(value[i1-1]) + ABS(value[i1]))) n1 = i1;
       if (n2 == n1) break;
 
@@ -753,7 +720,7 @@ int matrix_invert(double *a, int neq, int rank)
   for (k = 0; k < neq; k++)
   {
     biga = A(k, k);
-    if (ABS(biga) < TolInvert)
+    if (ABS(biga) < _getTolInvert())
     {
       if (rank >= 0)
         messerr("Error in matrix inversion (rank=%d) : Pivot #%d is null",
@@ -914,7 +881,7 @@ int is_matrix_symmetric(int neq, const double *a, int verbose)
     for (j = 0; j < neq; j++)
     {
       ratio = ABS(A(i,j) + A(j,i));
-      if (ratio <= EpsMatrix) ratio = 1.;
+      if (ratio <= _getEpsMatrix()) ratio = 1.;
       if (ABS(A(i,j) - A(j,i)) / ratio > Epsilon)
       {
         if (verbose)
@@ -1494,7 +1461,7 @@ int matrix_cholesky_solve(int neq,
     for (j = 0; j < i; j++)
       sum -= r[j] * TL(i, j);
     pivot = TL(i, i);
-    if (ABS(pivot) < TolInvert) goto label_end;
+    if (ABS(pivot) < _getTolInvert()) goto label_end;
     r[i] = sum / pivot;
   }
 
@@ -1628,7 +1595,7 @@ int matrix_cholesky_to_invert(int neq, double *tl, double *xl)
   for (i = 0; i < neq; i++)
   {
     pivot = TL(i, i);
-    if (ABS(pivot) < TolInvert) return (-2);
+    if (ABS(pivot) < _getTolInvert()) return (-2);
   }
 
   /* Core allocation */
@@ -1784,7 +1751,7 @@ int matrix_invgen(double *a,
       value = 0.;
       for (k = 0; k < neq; k++)
       {
-        if (ABS(eigval[k]) > valcond * TolInvgen) value += EIGVEC(k,i)* EIGVEC(k,j) / eigval[k];
+        if (ABS(eigval[k]) > valcond * _getTolInvGen()) value += EIGVEC(k,i)* EIGVEC(k,j) / eigval[k];
       }
       TABOUT(i,j)= value;
     }
@@ -2021,7 +1988,7 @@ int matrix_invsym(double *a, int neq)
   for (i = 0; i < neq; i++)
   {
     ratio = A(indx[neq - 1], neq - 1);
-    if (ABS(ratio) < TolInvert) return (neq);
+    if (ABS(ratio) < _getTolInvert()) return (neq);
     X(neq-1,i)= B(indx[neq-1],i) / ratio;
     for (j = neq - 2; j >= 0; j = j - 1)
     {
@@ -2029,7 +1996,7 @@ int matrix_invsym(double *a, int neq)
       for (k = j+1; k < neq; k++)
       X(j,i) = X(j,i) - A(indx[j],k) * X(k,i);
       ratio = A(indx[j],j);
-      if (ABS(ratio) < TolInvert) return(indx[j]+1);
+      if (ABS(ratio) < _getTolInvert()) return(indx[j]+1);
       X(j,i) /= ratio;
     }
   }
@@ -2269,8 +2236,8 @@ static int st_svd(double *a2, double *s, int neq)
   RotCount = neq;
   slimit = (neq < 120) ? 30 :
                          neq / 4;
-  e2 = 10.0 * neq * EpsSvd * EpsSvd;
-  tol = 0.10 * EpsSvd;
+  e2 = 10.0 * neq * _getEpsSVD() * _getEpsSVD();
+  tol = 0.10 * _getEpsSVD();
 
   /* Processing */
 
@@ -2379,7 +2346,7 @@ void matrix_svd_inverse(int neq,
   maxval = 0.;
   for (i = 0; i < neq; i++)
     if (s[i] > maxval) maxval = s[i];
-  thresh = EpsSvd * neq * maxval;
+  thresh = _getEpsSVD() * neq * maxval;
   thresh = 1.e-06;
   for (i = 0; i < neq; i++)
     if (s[i] < thresh) number++;
@@ -3546,7 +3513,7 @@ int matrix_invreal(double *mat, int neq)
   /* Calculate the determinant */
 
   det = matrix_determinant(neq, mat);
-  if (ABS(det) < EpsSvd) return (1);
+  if (ABS(det) < _getEpsSVD()) return (1);
   if (std::isnan(det))
   {
     print_matrix("Mat", 0, 1, neq, neq, NULL, mat);

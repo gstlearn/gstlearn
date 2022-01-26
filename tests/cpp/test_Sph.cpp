@@ -14,6 +14,8 @@
 
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/EOptCst.hpp"
 
 #include <math.h>
 
@@ -168,9 +170,8 @@ int main(int /*argc*/, char */*argv*/[])
   /* 1.c - Setup constants */
 
   OptDbg::reset();
-  constant_reset();
-  constant_define("NTCAR",8);
-  constant_define("NTDEC",5);
+  OptCst::define(ECst::NTCAR,8.);
+  OptCst::define(ECst::NTDEC,5.);
   
   if (flag_1) st_test_1();
 

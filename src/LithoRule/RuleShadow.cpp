@@ -30,7 +30,7 @@ RuleShadow::RuleShadow()
       _shDsup(0.),
       _shDown(0.),
       _slope(0.),
-      _shift(0.),
+      _shift(),
       _dMax(TEST),
       _tgte(TEST),
       _incr(TEST),

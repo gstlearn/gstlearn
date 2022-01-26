@@ -223,7 +223,7 @@ void model_calcul_cov(CovInternal *covint,
                       Model *model,
                       const CovCalcMode &mode,
                       int flag_init,
-                      double weight,
+                      double /*weight*/,
                       VectorDouble d1,
                       double *covtab)
 {
@@ -404,12 +404,11 @@ void model_variance0_nostat(Model *model,
                             double *covtab,
                             double *var0)
 {
-  int i, j, ecr, ivar, jvar, idim, nscale;
   CovCalcMode mode;
 
   /* Initializations */
 
-  nscale = 1;
+  int nscale = 1;
   int nvar = model->getVariableNumber();
   int ndim = model->getDimensionNumber();
   VectorDouble d1(ndim, 0.);
@@ -425,10 +424,10 @@ void model_variance0_nostat(Model *model,
     case EKrigOpt::E_BLOCK:
       nscale = koption->ntot;
       model_covtab_init(1, model, covtab);
-      for (i = 0; i < nscale; i++)
-        for (j = 0; j < nscale; j++)
+      for (int i = 0; i < nscale; i++)
+        for (int j = 0; j < nscale; j++)
         {
-          for (idim = 0; idim < model->getDimensionNumber(); idim++)
+          for (int idim = 0; idim < model->getDimensionNumber(); idim++)
             d1[idim] = DISC1(i,idim) - DISC2(j, idim);
           model_calcul_cov(covint, model, mode, 0, 1., d1, covtab);
         }
@@ -442,6 +441,13 @@ void model_variance0_nostat(Model *model,
   }
 
   st_covtab_rescale(nvar, (double) nscale, covtab);
+
+  /* Returning arguments */
+
+  int ecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+      var0[ecr++] = COVTAB(ivar, jvar);
 
   return;
 }
@@ -543,9 +549,8 @@ int model_add_cova(Model *model,
                    const VectorDouble &aniso_ranges,
                    const VectorDouble &aniso_rotmat,
                    const VectorDouble &sill,
-                   double ball_radius)
+                   double /*ball_radius*/)
 {
-  ACovAnisoList *covs;
   CovAniso* cova = nullptr;
   if (st_check_model(model)) return 1;
 
@@ -1269,53 +1274,23 @@ int model_drift_vector(Model *model,
   return 0;
 }
 
-/****************************************************************************/
+/*****************************************************************************/
 /*!
- **  Returns the matrix of covariance at the origin
+ **  Patches the value of the drift coefficient in the model for the
+ **  rank of variable 'iv' and of the equation 'ib'. The rank of the
+ **  drift function is found by matching the type in the basis of the
+ **  drift functions available.
+ **  Note : this function is only used when the model has linked
+ **  drift functions
  **
  ** \param[in]  model Model structure
- ** \param[in]  mode  CovCalcMode structure
- **
- ** \param[out] covtab Working array (Dimension: nvar * nvar)
- ** \param[out] d1     Working array (Dimension: ndim)
- ** \param[out] c00tab The covariance matrix (Dimension = nvar * nvar)
+ ** \param[in]  iv    rank of the variable
+ ** \param[in]  ib    rank of the equation
+ ** \param[in]  type  type of the drift function (EDrift)
+ ** \param[in]  rank  rank of the external drift
+ ** \param[in]  value value to be added to the drift coefficient
  **
  *****************************************************************************/
-static void st_matrix_c00(Model *model,
-                          CovCalcMode &mode,
-                          double *covtab,
-                          VectorDouble d1,
-                          double *c00tab)
-{
-  int nvar = model->getVariableNumber();
-  for (int ivar1 = 0; ivar1 < nvar; ivar1++)
-    for (int ivar2 = 0; ivar2 < nvar; ivar2++)
-    {
-      double c00 = model->getContext().getCovar0(ivar1, ivar2);
-      model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), covtab);
-      double var0 = COVTAB(ivar1, ivar2);
-      if (c00 <= 0. || FFFF(c00)) c00 = var0;
-      C00TAB(ivar1,ivar2)= c00;
-    }
-  }
-
-  /*****************************************************************************/
-  /*!
-   **  Patches the value of the drift coefficient in the model for the
-   **  rank of variable 'iv' and of the equation 'ib'. The rank of the
-   **  drift function is found by matching the type in the basis of the
-   **  drift functions available.
-   **  Note : this function is only used when the model has linked
-   **  drift functions
-   **
-   ** \param[in]  model Model structure
-   ** \param[in]  iv    rank of the variable
-   ** \param[in]  ib    rank of the equation
-   ** \param[in]  type  type of the drift function (EDrift)
-   ** \param[in]  rank  rank of the external drift
-   ** \param[in]  value value to be added to the drift coefficient
-   **
-   *****************************************************************************/
 static void st_drift_modify(Model *model,
                             int iv,
                             int ib,
@@ -1883,7 +1858,7 @@ void model_covupdt(Model *model,
  ** \param[out] drftab  Working array
  **
  *****************************************************************************/
-double model_drift_evaluate(int verbose,
+double model_drift_evaluate(int /*verbose*/,
                             Model *model,
                             const Db *db,
                             int iech,
@@ -2185,8 +2160,8 @@ int model_get_nonugget_cova(Model *model)
 int model_regularize(Model *model,
                      Vario *vario,
                      Db *db,
-                     int opt_norm,
-                     double nug_ratio)
+                     int /*opt_norm*/,
+                     double /*nug_ratio*/)
 {
   CovCalcMode mode;
   if (st_check_model(model)) return 1;
@@ -2552,10 +2527,10 @@ int model_covmat_inchol(int verbose,
  ** \param[in]  factor      Multiplicative factor for st. deviation
  **
  *****************************************************************************/
-double model_calcul_stdev(Model *model,
-                          Db *db1,
+double model_calcul_stdev(Model* model,
+                          Db* db1,
                           int iech1,
-                          Db *db2,
+                          Db* /*db2*/,
                           int iech2,
                           int verbose,
                           double factor)

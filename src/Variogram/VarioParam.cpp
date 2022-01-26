@@ -111,7 +111,7 @@ String VarioParam::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-String VarioParam::toStringMain(const AStringFormat* strfmt) const
+String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   int ndir = getDirectionNumber();

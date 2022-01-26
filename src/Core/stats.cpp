@@ -2866,12 +2866,12 @@ static void st_get_rowname(const String &radix,
  **
  *****************************************************************************/
 void db_stats_print(const Db *db,
-                                    const VectorInt &iatts_arg,
-                                    const VectorString &opers,
-                                    int flag_iso,
-                                    int flag_correl,
-                                    const String &title,
-                                    const String &radix)
+                    const VectorInt &iatts_arg,
+                    const VectorString &opers,
+                    int flag_iso,
+                    int flag_correl,
+                    const String &title,
+                    const String &radix)
 {
   double *data, *mean, *var, *mini, *maxi, *cov, *num;
   int iech, icol, jcol, numiso, ijcol, nundef, taille, noper, ncol;

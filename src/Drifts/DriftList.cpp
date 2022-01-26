@@ -267,7 +267,7 @@ VectorDouble DriftList::evalDrifts(const Db* db,
 {
   VectorDouble vec;
   int ndrift = getDriftNumber();
-  int ncoeff = coeffs.size();
+  int ncoeff = (int) coeffs.size();
   int nech   = db->getSampleNumber();
   if (ncoeff != ndrift)
   {

@@ -522,8 +522,8 @@ static int st_get_cuts(Db *surfaces,
                        int rank,
                        int iatt_top,
                        int iatt_bot,
-                       double xtrace,
-                       double ytrace,
+                       double /*xtrace*/,
+                       double /*ytrace*/,
                        double thickmin,
                        double *cztop,
                        double *czbot)
@@ -1746,7 +1746,7 @@ int db_segy(const char *filesegy,
                             int iline_max,
                             int xline_min,
                             int xline_max,
-                            int nz_ss,
+                            int /*nz_ss*/,
                             double modif_high,
                             double modif_low,
                             double modif_scale,
@@ -1848,7 +1848,7 @@ int db_segy(const char *filesegy,
     if (point_to_grid(grid3D, coor, 0, indg) != 0) continue;
 
     // Locate the trace
-    int rank = st_identify_trace_rank(surf2D, xtrace, ytrace);
+    rank = st_identify_trace_rank(surf2D, xtrace, ytrace);
 
     // Compare to the 2-D Surface information
     // If 'surfaces' is not provided, bounds are set to TEST.

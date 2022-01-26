@@ -41,6 +41,7 @@ GSTLEARN_EXPORT void   message(const char *format,...);
 GSTLEARN_EXPORT void   mesArg(const char *title, int current, int nmax, bool flagStartOne = false);
 GSTLEARN_EXPORT void   messageAbort(const char *format,...);
 GSTLEARN_EXPORT void   mestitle(int level,const char *format,...);
+GSTLEARN_EXPORT void   mes_process(const char *string, int ntot, int iech);
 GSTLEARN_EXPORT String toTitle(int level, const char* format, ...);
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const VectorString& colnames,

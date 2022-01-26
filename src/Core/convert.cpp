@@ -583,7 +583,7 @@ static unsigned char st_in(FILE *file)
 {
   unsigned char c;
 
-  c = fgetc(file);
+  c = (unsigned char) fgetc(file);
   if (! feof(file)) return c;
 
   if (feof(file)) message(" End-of-file reached\n");
@@ -1880,8 +1880,7 @@ int db_write_vtk(const char *filename,
         if (idim == 1) fact = facty;
         if (idim == 2) fact = factz;
         points[ecr++] =
-            (idim < ndim) ? fact * (float) db->getCoordinate(iech, idim) :
-                            0.;
+            (idim < ndim) ? (float) (fact * db->getCoordinate(iech, idim)) : 0.;
       }
     }
   }

@@ -149,7 +149,7 @@ double DirParam::getBreak(int i) const
 {
   if (i < 0 || i >= (int)_breaks.size())
   {
-    mesArg("Break Index",i,_breaks.size());
+    mesArg("Break Index",i,(int) _breaks.size());
     return TEST;
   }
   return _breaks[i];
@@ -159,7 +159,7 @@ double DirParam::getCodir(int i) const
 {
   if (i < 0 || i >= (int)_codir.size())
   {
-    mesArg("Codir Index",i,_codir.size());
+    mesArg("Codir Index",i,(int) _codir.size());
     return TEST;
   }
   return _codir[i];

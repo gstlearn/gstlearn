@@ -9314,8 +9314,7 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
       mean /= numb;
       ffmean /= numb;
       stdv = stdv / numb - mean * mean;
-      stdv = (stdv > 0) ? sqrt(stdv) :
-                          0.;
+      stdv = (stdv > 0) ? sqrt(stdv) : 0.;
     }
 
     /* Print statistics (optional) */

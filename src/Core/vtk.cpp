@@ -811,7 +811,6 @@ static int num_points_for_cell(int celltype)
 //  Creation:   September 2, 2004
 //
 // ***************************************************************************/
- 
 void write_unstructured_mesh(const char *filename, int ub, int npts,
                              float *pts, int ncells, int *celltypes, int *conn,
                              int nvars, int *vardim, int *centering,
@@ -837,16 +836,16 @@ void write_unstructured_mesh(const char *filename, int ub, int npts,
   new_section();
   for (i = 0 ; i < ncells ; i++)
   {
-    npts = num_points_for_cell(celltypes[i]);
-    conn_size += npts+1;
+    int npts_loc = num_points_for_cell(celltypes[i]);
+    conn_size += npts_loc + 1;
   }
   gslSPrintf(str, "CELLS %d %d\n", ncells, conn_size);
   write_string(str);
   for (i = 0 ; i < ncells ; i++)
   {
-    int npts = num_points_for_cell(celltypes[i]);
-    write_int(npts);
-    for (j = 0 ; j < npts ; j++)
+    int npts_per_cell = num_points_for_cell(celltypes[i]);
+    write_int(npts_per_cell);
+    for (j = 0 ; j < npts_per_cell ; j++)
       write_int(*curr_conn++);
     end_line();
   }

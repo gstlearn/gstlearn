@@ -1366,10 +1366,7 @@ void get_matrix(const char *title,
  ** \param[in,out] rot    Input/Output rotation matrix (if flag_def=1)
  **
  *****************************************************************************/
-void get_rotation(const char *title,
-                                  int flag_def,
-                                  int ndim,
-                                  double *rot)
+void get_rotation(const char *title, int flag_def, int ndim, double *rot)
 {
   double dir[2], angles2D[2], angles3D[3], alpha, beta, gamma;
   int mode;
@@ -5050,9 +5047,9 @@ std::vector<char*> util_vs_to_vs(VectorString vs)
  **
  *****************************************************************************/
 void ut_angles_to_codir(int ndim,
-                                        int ndir,
-                                        const VectorDouble &angles,
-                                        VectorDouble &codir)
+                        int ndir,
+                        const VectorDouble &angles,
+                        VectorDouble &codir)
 {
   if (ndim <= 1) return;
 

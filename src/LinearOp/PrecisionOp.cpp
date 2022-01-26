@@ -142,14 +142,13 @@ double PrecisionOp::computeLogDet(int nsimus,int seed)
 {
   law_set_random_seed(seed);
 
-  double val1 = 0.;
-
   VectorDouble gauss;
   VectorDouble result;
   gauss.resize(getSize());
   result.resize(getSize());
 
-  for (int i = 0; i < nsimus; i++)
+  double val1 = 0.;
+  for (int isimu = 0; isimu < nsimus; isimu++)
   {
     for (auto &e : gauss)
     {

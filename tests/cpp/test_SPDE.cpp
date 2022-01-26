@@ -62,7 +62,6 @@ int main(int /*argc*/, char */*argv*/[])
   /* 1.c - Setup constants */
 
   OptDbg::reset();
-  constant_reset();
   
   // Create the 2-D grid output file
 

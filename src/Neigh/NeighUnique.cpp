@@ -61,8 +61,6 @@ String NeighUnique::toString(const AStringFormat* strfmt) const
 
 int NeighUnique::_deserialize(FILE* file, bool verbose)
 {
-  int ndim, type;
-
   if (ANeighParam::_deserialize(file, verbose))
   {
     if (verbose)

@@ -36,38 +36,38 @@
 
 static int _getColumnRank()
 {
-  return OptCst::query(ECst::NTRANK);
+  return (int) OptCst::query(ECst::NTRANK);
 }
 static int _getColumnName()
 {
-  return OptCst::query(ECst::NTNAME);
+  return (int) OptCst::query(ECst::NTNAME);
 }
 static int _getColumnSize()
 {
-  return OptCst::query(ECst::NTCAR);
+  return (int) OptCst::query(ECst::NTCAR);
 }
 static int _getDecimalNumber()
 {
-  return OptCst::query(ECst::NTDEC);
+  return (int) OptCst::query(ECst::NTDEC);
 }
 static double _getThresh()
 {
-  int ndec = OptCst::query(ECst::NTDEC);
+  int ndec = (int) OptCst::query(ECst::NTDEC);
   // Recalculate threshold under which any small value must be displayed has 0.0
   double thresh = (0.5 * pow(10, - ndec));
   return thresh;
 }
 static int _getMaxNCols()
 {
-  return OptCst::query(ECst::NTCOL);
+  return (int) OptCst::query(ECst::NTCOL);
 }
 static int _getMaxNRows()
 {
-  return OptCst::query(ECst::NTROW);
+  return (int) OptCst::query(ECst::NTROW);
 }
 static int _getNBatch()
 {
-  return OptCst::query(ECst::NTBATCH);
+  return (int) OptCst::query(ECst::NTBATCH);
 }
 
 AStringable::AStringable()
@@ -362,6 +362,36 @@ void mestitle(int level, const char *format, ...)
 
   return;
 }
+
+/**
+ * Conditionally print the progress of a procedure
+ * @param string String to be printed
+ * @param ntot   Total number of samples
+ * @param iech   Rank of the current sample
+ */
+void mes_process(const char *string, int ntot, int iech)
+{
+  static int memo = 0;
+  double ratio;
+  int nproc, jech, percent;
+
+  nproc = (int) OptCst::query(ECst::NPROC);
+  if (nproc <= 0) return;
+  jech = iech + 1;
+
+  /* Calculate the current percentage */
+
+  ratio = 100. * (double) jech / (double) ntot;
+  percent = (int) (ratio / (double) nproc) * nproc;
+
+  /* Conditional printout */
+
+  if (percent != memo) message("%s : %d (percent)\n", string, percent);
+  memo = percent;
+
+  return;
+}
+
 
 /**
  * Print a message and underlines it with various formats

@@ -15,6 +15,8 @@
 
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/EOptCst.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
 #include "Db/ELoadBy.hpp"
@@ -302,10 +304,9 @@ int main(int /*argc*/, char */*argv*/[])
   // Setup constants
 
   OptDbg::reset();
-  constant_reset();
   law_set_random_seed(seed);
-  constant_define("NTCAR",10);
-  constant_define("NTDEC",6);
+  OptCst::define(ECst::NTCAR,10.);
+  OptCst::define(ECst::NTDEC,6.);
   
   // 2-D grid output file
 

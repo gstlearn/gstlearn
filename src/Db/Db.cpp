@@ -3520,7 +3520,7 @@ int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
   return (isimu + nbsimu * (ivar + nvar * icase));
 }
 
-int Db::_deserialize(FILE* file, bool verbose)
+int Db::_deserialize(FILE* file, bool /*verbose*/)
 {
   int ndim, ndim2, ntot, natt, nech, i, flag_grid;
   VectorInt tabnum;
@@ -3612,7 +3612,7 @@ int Db::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
-int Db::_serialize(FILE* file, bool verbose) const
+int Db::_serialize(FILE* file, bool /*verbose*/) const
 {
   bool onlyLocator = false;
   bool writeCoorForGrid = true;

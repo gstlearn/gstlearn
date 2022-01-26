@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
   /* Setup constants */
 
   OptDbg::reset();
-  constant_reset();
 
   /* Getting the Study name */
 

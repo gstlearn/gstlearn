@@ -664,7 +664,7 @@ int Rule::setProportions(const VectorDouble& proportions) const
   return(0);
 }
 
-int Rule::_deserialize(FILE* file, bool verbose)
+int Rule::_deserialize(FILE* file, bool /*verbose*/)
 {
   int nb_node;
 
@@ -700,7 +700,7 @@ int Rule::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
-int Rule::_serialize(FILE* file, bool verbose) const
+int Rule::_serialize(FILE* file, bool /*verbose*/) const
 {
   int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
   double prop_tot;

@@ -35,7 +35,6 @@ int _record_read(FILE *file, const char *format, ...);
 int _buffer_read(char **buffer, const char *format, va_list ap);
 void _file_write(FILE *file, const char *format, va_list ap);
 void _buffer_write(char *buffer, const char *format, va_list ap);
-int _lire_key(const char *question, int nkeys, const char **keys);
 void _lire_string(const char *question,
                   int flag_def,
                   const char *valdef,

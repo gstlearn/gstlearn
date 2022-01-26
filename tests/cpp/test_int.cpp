@@ -10,10 +10,12 @@
 #include "Interfaces/Dictionary.hpp" 
 #include "Interfaces/Param.hpp"
 #include "Interfaces/ParamCSV.hpp"
+#include "Interfaces/geoslib_f_swig.h"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Db/ELoadBy.hpp"
-#include "Interfaces/geoslib_f_swig.h"
+#include "Basic/OptCst.hpp"
+#include "Basic/EOptCst.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -236,7 +238,7 @@ void vario(const std::string& file)
 int main(int argc,char **argv)
 {
   setup_license("Demonstration");
-  constant_define("NTROW",-1);
+  OptCst::define(ECst::NTROW,-1.);
   if (argc >= 2)
   {
     if (!strcmp(argv[1],"ptg"))

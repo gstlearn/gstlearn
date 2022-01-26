@@ -23,7 +23,9 @@ class GSTLEARN_EXPORT OptCst
 {
 public:
   static double query(const ECst& option);
+  static double queryByKey(const String& name);
   static void define(const ECst& option, double value);
+  static void defineByKey(const String& name, double value);
   static void display(void);
 
 private:

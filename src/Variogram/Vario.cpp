@@ -1237,7 +1237,7 @@ bool Vario::_isAddressValid(int idir, int i) const
   return true;
 }
 
-int Vario::_deserialize(FILE* file, bool verbose)
+int Vario::_deserialize(FILE* file, bool /*verbose*/)
 {
   int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
   double dpas, tolang, scale, tolcode, toldis;
@@ -1323,7 +1323,7 @@ int Vario::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
-int Vario::_serialize(FILE* file, bool verbose) const
+int Vario::_serialize(FILE* file, bool /*verbose*/) const
 {
   double value;
   static int flag_calcul = 1;

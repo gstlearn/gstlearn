@@ -58,7 +58,6 @@ const ELoadBy& ParamGrid::getCellOrder() const
 **  desired dimension
 **  
 **  \param[in] i    dimension desired.
-**    
 **
 *****************************************************************************/
 VectorDouble ParamGrid::getValues(int i) const

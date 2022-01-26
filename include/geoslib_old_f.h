@@ -459,16 +459,11 @@ GSTLEARN_EXPORT void redefine_error(void (*warn_func)(const char*));
 GSTLEARN_EXPORT void redefine_read(void (*read_func)(const char*, char*));
 GSTLEARN_EXPORT void redefine_exit(void (*exit_func)(void));
 #endif
-GSTLEARN_EXPORT void constant_reset(void);
-GSTLEARN_EXPORT void constant_define(const char *name, double value);
-GSTLEARN_EXPORT void constant_print(void);
-GSTLEARN_EXPORT double constant_query(const char *name);
 GSTLEARN_EXPORT void mem_error(int nbyte);
 
 GSTLEARN_EXPORT void message_extern(const char *string);
 GSTLEARN_EXPORT void exit_extern();
 
-GSTLEARN_EXPORT void mes_process(const char *string, int ntot, int rank);
 GSTLEARN_EXPORT void string_strip_blanks(char *string, int flag_lead);
 GSTLEARN_EXPORT void string_strip_quotes(char *string);
 
@@ -577,8 +572,6 @@ GSTLEARN_EXPORT void time_report(void);
 /* Prototyping the functions in matrix.c */
 /*****************************************/
 
-GSTLEARN_EXPORT void matrix_constant_define(int keywrd, double value);
-GSTLEARN_EXPORT double matrix_constant_query(int keywrd);
 GSTLEARN_EXPORT int matrix_get_extreme(int mode, int ntab, double *tab);
 GSTLEARN_EXPORT void matrix_invsign(int ndim, double *a);
 GSTLEARN_EXPORT int matrix_invert(double *a, int neq, int rank);

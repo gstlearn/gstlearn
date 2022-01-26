@@ -28,7 +28,7 @@ RuleShift::RuleShift()
       _shDsup(0.),
       _shDown(0.),
       _slope(0.),
-      _shift(0.),
+      _shift(),
       _incr(TEST),
       _xyz(),
       _ind1(),

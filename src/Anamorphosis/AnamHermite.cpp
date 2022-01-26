@@ -305,7 +305,7 @@ int AnamHermite::fit(Db *db, const ELoc& locatorType)
   if (number != 1)
   {
     messerr("The number of items for locator(%d) is %d. It should be 1",
-            locatorType,number);
+            locatorType.getValue(),number);
     return 1;
   }
   VectorDouble tab = db->getFieldByLocator(locatorType,0,true);

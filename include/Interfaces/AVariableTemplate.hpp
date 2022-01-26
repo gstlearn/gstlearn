@@ -61,7 +61,7 @@ class GSTLEARN_EXPORT AVariableTemplate : public AVariable
       VectorDouble vals = getValues();
       std::cout << "Variable " << _name << " :" << std::endl;
 
-      for (int i=0, n=_values.size(); i<n; i++)
+      for (int i=0, n=(int) _values.size(); i<n; i++)
       {
         std::stringstream sstr;
         sstr << "  var[" << i << "]=" << _values[i] << " (" << vals[i] << ")";

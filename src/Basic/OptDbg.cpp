@@ -43,6 +43,7 @@ bool OptDbg::queryByKey(const String& name)
     if (e.getKey() == name) return query(e);
     it.toNext();
   }
+  return false;
 }
 
 void OptDbg::define(const EDbg& option, bool status)

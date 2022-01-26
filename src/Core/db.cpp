@@ -1037,7 +1037,7 @@ void db_print(Db *db,
               int flag_stats,
               int flag_array,
               int nrank,
-              int *ranks)
+              int* ranks)
 {
   /* Preliminary check */
 
@@ -1045,7 +1045,6 @@ void db_print(Db *db,
 
   /* Print the Pointer descriptors */
 
-  int mode = flag_stats;
   unsigned char params = 0;
   if (flag_resume) params |= FLAG_RESUME;
   if (flag_vars)   params |= FLAG_VARS;
@@ -1054,6 +1053,7 @@ void db_print(Db *db,
   if (flag_array)  params |= FLAG_ARRAY;
   DbStringFormat dbfmt;
   dbfmt.setParams(params);
+  dbfmt.setCols(ut_ivector_set(ranks, nrank));
   db->display(&dbfmt);
 
   return;
@@ -2950,7 +2950,7 @@ void db_locators_correct(VectorString &strings,
   VectorInt rank(number);
   VectorInt ind(number);
 
-  if (constant_query("locnew") || flag_locnew)
+  if (flag_locnew)
   {
 
     /* Undefine all the variables with the newly fixed locators */

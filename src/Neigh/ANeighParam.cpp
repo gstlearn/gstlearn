@@ -55,7 +55,7 @@ ANeighParam::ANeighParam(const ANeighParam& r)
 {
 }
 
-String ANeighParam::toString(const AStringFormat* strfmt) const
+String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
@@ -70,7 +70,7 @@ String ANeighParam::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int ANeighParam::_deserialize(FILE* file, bool verbose)
+int ANeighParam::_deserialize(FILE* file, bool /*verbose*/)
 {
   int ndim, flag_xvalid;
 
@@ -83,7 +83,7 @@ int ANeighParam::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
-int ANeighParam::_serialize(FILE* file, bool verbose) const
+int ANeighParam::_serialize(FILE* file, bool /*verbose*/) const
 {
   _recordWrite(file, "%d", getNDim());
   _recordWrite(file, "#", "Space Dimension");

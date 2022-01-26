@@ -311,8 +311,8 @@ static double st_get_idim(int loc_rank, int idim)
  ** \param[in]  rank1        Rank of the first sample
  ** \param[in]  rank2        Rank of the second sample
  **
- ** \param[out] d1           Working array
- ** \param[out] covtab       Output covariance array
+ ** \param[out] d1loc        Working array
+ ** \param[out] covtab_loc   Output covariance array
  **
  *****************************************************************************/
 static void st_cov(Model *model,
@@ -324,8 +324,8 @@ static void st_cov(Model *model,
                    double weight,
                    int rank1,
                    int rank2,
-                   VectorDouble d1,
-                   double *covtab)
+                   VectorDouble d1loc,
+                   double *covtab_loc)
 {
 
   /* Initializations */
@@ -358,7 +358,7 @@ static void st_cov(Model *model,
 
   CovCalcMode mode(ECalcMember::LHS);
   mode.update(nugget_opt, nostd, member, icov_r, 0, 1);
-  model_calcul_cov(&COVINT, model, mode, flag_init, weight, d1, covtab);
+  model_calcul_cov(&COVINT, model, mode, flag_init, weight, d1loc, covtab_loc);
 }
 
 /****************************************************************************/
@@ -1851,17 +1851,17 @@ static void st_lhs_iso2hetero(int neq)
 /*!
  **  Print the L.H.S. matrix
  **
- ** \param[in]  nech  Number of active points (optional)
- ** \param[in]  neq   Number of equations
- ** \param[in]  nred  Reduced number of equations
- ** \param[in]  flag  Flag array (optional)
- ** \param[in]  lhs   Kriging L.H.S
+ ** \param[in]  nech    Number of active points (optional)
+ ** \param[in]  neq     Number of equations
+ ** \param[in]  nred    Reduced number of equations
+ ** \param[in]  flagloc Flag array (optional)
+ ** \param[in]  lhs     Kriging L.H.S
  **
  *****************************************************************************/
 void krige_lhs_print(int nech,
                      int neq,
                      int nred,
-                     int *flag,
+                     int *flagloc,
                      double *lhs)
 {
   int *rel, i, j, ipass, npass, ideb, ifin;
@@ -1897,7 +1897,7 @@ void krige_lhs_print(int nech,
 
     /* Flag line */
 
-    if (flag != NULL)
+    if (flagloc != NULL)
     {
       tab_prints(NULL, 1, EJustify::RIGHT, "    ");
       tab_prints(NULL, 1, EJustify::RIGHT, "Flag");
@@ -1947,7 +1947,7 @@ static void st_data_dual(Model *model,
 
   /* Initializations */
 
-  nech = nbgh_ranks.size();
+  nech = (int) nbgh_ranks.size();
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
 
@@ -3455,7 +3455,7 @@ static int st_xvalid_unique(Db *dbin,
 
   error = 1;
   iext = -1;
-  nvar = 0;
+  nvar = nred = 0;
   st_global_init(dbin, dbin);
   FLAG_EST  = flag_est;
   FLAG_STD  = flag_std;
@@ -3863,6 +3863,7 @@ int krigprof_f(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
+  neq = nred = 0;
   iext = iptr_dat = -1;
   st_global_init(dbin, dbout);
   FLAG_EST = flag_est;
@@ -4281,7 +4282,7 @@ int kribayes_f(Db *dbin,
 
   error = 1;
   iext = -1;
-  nvar = 0;
+  nvar = neq = nred = 0;
   model_sk = nullptr;
   rmean = smean = rcov = nullptr;
   st_global_init(dbin, dbout);
@@ -4554,7 +4555,7 @@ int _krigsim(const char *strloc,
 
   error = 1;
   iext = -1;
-  nvar = 0;
+  nvar = neq = nred = 0;
   model_sk = nullptr;
   rmean = smean = rcov = nullptr;
   st_global_init(dbin, dbout);
@@ -4992,7 +4993,7 @@ int global_kriging(Db *dbin,
   /* Initializations */
 
   error = 1;
-  nvar = nech = 0;
+  nvar = nech = nred = neq = 0;
   rhs_tot = nullptr;
   st_global_init(dbin, dbout);
   NeighUnique* neighparam = NeighUnique::create(dbin->getNDim(), false);
@@ -7048,6 +7049,7 @@ int krigsum_f(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
+  neq = nred = 0;
   st_global_init(dbin, dbout);
   icols = active = nullptr;
   lterm = nullptr;
@@ -7359,6 +7361,7 @@ int krigmvp_f(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
+  neq = nred = 0;
   st_global_init(dbin, db3grid);
   icols = nullptr;
   lterm = lback = proptab = cc = xx = bb = nullptr;
@@ -7822,7 +7825,7 @@ int krigtest_f(Db *dbin,
 
   error = 1;
   iext = -1;
-  nvar = nred = 0;
+  nvar = neq = nred = 0;
   st_global_init(dbin, dbout);
   FLAG_EST = 1;
   FLAG_STD = 1;
@@ -7997,7 +8000,7 @@ int kriggam_f(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
-  nvar = 0;
+  nvar = nred = neq = 0;
   st_global_init(dbin, dbout);
   FLAG_EST = 1;
   FLAG_STD = 1;
@@ -8140,7 +8143,7 @@ int krigcell_f(Db *dbin,
 
   error = 1;
   iext = -1;
-  nvar = 0;
+  nvar = nred = neq = 0;
   st_global_init(dbin, dbout);
   FLAG_EST = flag_est;
   FLAG_STD = flag_std;
@@ -9434,6 +9437,7 @@ int krigsampling_f(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
+  sigma = 0.;
   rutil = rother = nullptr;
   tutil = invsig = data = datm = s = c00 = nullptr;
   aux1 = aux2 = aux3 = aux4 = nullptr;
@@ -9903,7 +9907,7 @@ static int st_declustering_3(Db *db,
   /* Initializations */
 
   error = 1;
-  nvar = 0;
+  nvar = nred = neq = 0;
   st_global_init(db, dbgrid);
   FLAG_EST = 0;
   FLAG_STD = 0;

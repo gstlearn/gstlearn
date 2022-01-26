@@ -35,83 +35,6 @@
 
 /*! \endcond */
 
-typedef struct
-{
-  int mode;                  // 1 for integer; 2 for real
-  int ival;
-  double rval;
-  char keyword[20];
-  char comment[STRING_LENGTH];
-} Constant;
-
-static Constant CST[CST_NUMBER] = { { 1,
-                                      10,
-                                      0.,
-                                      "NTCAR",
-                                      "Number of characters in printout" },
-                                    { 1,
-                                      3,
-                                      0.,
-                                      "NTDEC",
-                                      "Number of decimal digits in printout" },
-                                    { 1,
-                                      7,
-                                      0.,
-                                      "NTROW",
-                                      "Maximum number of rows in table printout" },
-                                    { 1,
-                                      7,
-                                      0.,
-                                      "NTCOL",
-                                      "Maximum number of columns in table printout" },
-                                    { 1,
-                                      0,
-                                      0.,
-                                      "NPROC",
-                                      "Display the Progress Bar" },
-                                    { 1,
-                                      0,
-                                      0.,
-                                      "LOCMOD",
-                                      "Option for updating locator of new variable" },
-                                    { 1,
-                                      1,
-                                      0.,
-                                      "LOCNEW",
-                                      "When defining new locator, option for old ones" },
-                                    { 2,
-                                      0,
-                                      0.,
-                                      "RGL",
-                                      "Use 'rgl' for graphic rendition" },
-                                    { 2,
-                                      0,
-                                      0.,
-                                      "ASP",
-                                      "Defaulted y/x aspect ratio for graphics" },
-                                    { 2,
-                                      0,
-                                      1.0e-20,
-                                      "TOLINV",
-                                      "Tolerance for matrix inversion" },
-                                    { 2,
-                                      0,
-                                      1.0e-20,
-                                      "TOLGEN",
-                                      "Tolerance for matrix generalized inversion" },
-                                    { 2,
-                                      0,
-                                      2.3e-16,
-                                      "EPSMAT",
-                                      "Tolerance value for Matrix calculations" },
-                                    { 2,
-                                      0,
-                                      1.0e-15,
-                                      "EPSSVD",
-                                      "Tolerance value for SVD Matrix calculations" } };
-
-static double DBL_THRESH = 0.0005; // Because default NTDEC is 3
-
 static char TABSTR[BUFFER_LENGTH];
 static char FORMAT[STRING_LENGTH];
 static char DECODE[STRING_LENGTH];
@@ -134,6 +57,14 @@ st_exit;
 
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR, *LINEB;
 static char *cur = NULL;
+
+static double _getThresh()
+{
+  int ndec = (int) OptCst::query(ECst::NTDEC);
+  // Recalculate threshold under which any small value must be displayed has 0.0
+  double thresh = (0.5 * pow(10, - ndec));
+  return thresh;
+}
 
 /****************************************************************************/
 /*!
@@ -173,8 +104,7 @@ static void st_read(const char *prompt, char *buffer)
 {
   message("%s :", prompt);
 
-  while (fgets(LINE, LONG_SIZE, stdin) == NULL)
-    ;
+  while (fgets(LINE, LONG_SIZE, stdin) == NULL);
 
   (void) gslStrcpy(buffer, LINE);
   buffer[strlen(buffer) - 1] = '\0';
@@ -195,25 +125,25 @@ static void st_format(int mode)
   switch (mode)
   {
     case CASE_INT:
-      (void) gslSPrintf(FORMAT, "%%%dd", CST[CST_NTCAR].ival);
+      (void) gslSPrintf(FORMAT, "%%%dd", (int) OptCst::query(ECst::NTCAR));
       break;
 
     case CASE_REAL:
-      (void) gslSPrintf(FORMAT, "%%%d.%dlf", CST[CST_NTCAR].ival,
-                        CST[CST_NTDEC].ival);
+      (void) gslSPrintf(FORMAT, "%%%d.%dlf", (int) OptCst::query(ECst::NTCAR),
+                        (int) OptCst::query(ECst::NTDEC));
       break;
 
     case CASE_DOUBLE:
-      (void) gslSPrintf(FORMAT, "%%%d.%dlg", CST[CST_NTCAR].ival,
-                        CST[CST_NTDEC].ival);
+      (void) gslSPrintf(FORMAT, "%%%d.%dlg", (int) OptCst::query(ECst::NTCAR),
+                        (int) OptCst::query(ECst::NTDEC));
       break;
 
     case CASE_COL:
-      (void) gslSPrintf(FORMAT, "[,%%%dd]", CST[CST_NTCAR].ival - 3);
+      (void) gslSPrintf(FORMAT, "[,%%%dd]", (int) OptCst::query(ECst::NTCAR) - 3);
       break;
 
     case CASE_ROW:
-      (void) gslSPrintf(FORMAT, "[%%%dd,]", CST[CST_NTCAR].ival - 3);
+      (void) gslSPrintf(FORMAT, "[%%%dd,]", (int) OptCst::query(ECst::NTCAR) - 3);
       break;
   }
 
@@ -980,187 +910,6 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
 
 /****************************************************************************/
 /*!
- **  Reset the IO parameters
- **
- *****************************************************************************/
-void constant_reset(void)
-
-{
-  CST[CST_NTCAR].ival = 10;
-  CST[CST_NTDEC].ival = 3;
-  CST[CST_NTROW].ival = 7;
-  CST[CST_NTCOL].ival = 7;
-  CST[CST_NPROC].ival = 0;
-  CST[CST_LOCMOD].ival = 1;
-  CST[CST_LOCNEW].ival = 0;
-  CST[CST_RGL].ival = 0;
-  CST[CST_ASP].ival = 0;
-  CST[CST_TOLINV].rval = matrix_constant_query(CST_TOLINV);
-  CST[CST_TOLGEN].rval = matrix_constant_query(CST_TOLGEN);
-  CST[CST_EPSMAT].rval = matrix_constant_query(CST_EPSMAT);
-  CST[CST_EPSSVD].rval = matrix_constant_query(CST_EPSSVD);
-
-  DBL_THRESH = 0.0005; // because default NTDEC is 3;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Print the authorized keywords
- **
- *****************************************************************************/
-static void st_constant_list(void)
-{
-  int i;
-
-  message("The keywords for IO parameter definition are:\n");
-  for (i = 0; i < CST_NUMBER; i++)
-    message("%6s : %s\n", CST[i].keyword, CST[i].comment);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Define one IO parameter
- **
- ** \param[in]  name   Name of the parameter to be defined
- ** \li                NTCAR  : Number of characters in printout
- ** \li                NTDEC  : Number of decimal digits in printout
- ** \li                NTROW  : Maximum number of rows in table printout
- ** \li                NTCOL  : Maximum number of columns in table printout
- ** \li                NPROC  : Display the Progress Bar
- ** \li                LOCMOD : Option for updating locator of new variable
- ** \li                LOCNEW : When defining new locator, option for old ones
- ** \li                RGL    : Using 'rgl' for graphic rendition
- ** \li                ASP    : Default y/x aspect ratio for graphics
- ** \li                TOLINV : Tolerance for matrix inversion
- ** \li                TOLGEN : Tolerance for matrix generalized inversion
- ** \li                EPSMAT : Tolerance value for Matrix calculations
- ** \li                EPSSVD : Tolerance value for SVD Matrix calculations
- ** \param[in]  value  New value for the IO parameter
- **
- *****************************************************************************/
-void constant_define(const char *name, double value)
-{
-  int i, found, flag_defined;
-
-  /* Look for an authorized keyword */
-
-  for (i = 0, found = -1; i < CST_NUMBER; i++)
-    if (!strcasecmp(name, CST[i].keyword)) found = i;
-
-  if (found < 0)
-  {
-    st_constant_list();
-    message("The keyword '%s' is unknown\n", name);
-  }
-  else
-  {
-    flag_defined = !FFFF(value);
-
-    if (CST[found].mode == 1)
-    {
-      CST[found].ival = (flag_defined) ? (int) value : -1;
-      if (found == CST_NTCAR)
-        OptCst::define(ECst::NTCAR,static_cast<int>(value));
-      if (found == CST_NTDEC)
-        OptCst::define(ECst::NTDEC, static_cast<int>(value));
-      if (found == CST_NTCOL)
-        OptCst::define(ECst::NTCOL, static_cast<int>(value));
-      if (found == CST_NTROW)
-        OptCst::define(ECst::NTROW, static_cast<int>(value));
-
-      // Recalculate the threshold
-      if (found == CST_NTDEC)
-        DBL_THRESH = (0.5 * pow(10, -CST[CST_NTDEC].ival));
-    }
-    else
-    {
-      CST[found].rval = (flag_defined) ? value : -1;
-    }
-    if (found == CST_TOLINV || found == CST_TOLGEN || found == CST_EPSMAT
-        || found == CST_EPSSVD) matrix_constant_define(found, value);
-  }
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Query one IO parameter
- **
- ** \return  Value of the IO parameter
- **
- ** \param[in]  name  Name of the IO parameter to be asked
- **
- *****************************************************************************/
-double constant_query(const char *name)
-
-{
-  int i, found;
-  double value;
-
-  /* Look for an authorized keyword */
-
-  for (i = 0, found = -1; i < CST_NUMBER; i++)
-    if (!strcasecmp(name, CST[i].keyword)) found = i;
-
-  if (found < 0)
-  {
-    st_constant_list();
-    message("The keyword '%s' is unknown\n", name);
-    value = 0;
-  }
-  else
-  {
-    if (CST[found].mode == 1)
-      value = (double) CST[found].ival;
-    else
-      value = CST[found].rval;
-  }
-
-  return (value);
-}
-
-/****************************************************************************/
-/*!
- **  Print the constants for IO
- **
- *****************************************************************************/
-void constant_print(void)
-
-{
-  int i, ival;
-  double rval;
-
-  mestitle(1, "Parameters for printout");
-  for (i = 0; i < CST_NUMBER; i++)
-  {
-    message(". %-50s [%6s] = ", CST[i].comment, CST[i].keyword);
-    if (CST[i].mode == 1)
-    {
-      ival = CST[i].ival;
-      if (ival > 0)
-        message("%d\n", ival);
-      else
-        message("NA\n");
-    }
-    else
-    {
-      rval = CST[i].rval;
-      if (rval > 0)
-        message("%lg\n", rval);
-      else
-        message("NA\n");
-    }
-  }
-  message("Use 'constant.define' to modify previous values\n");
-}
-
-/****************************************************************************/
-/*!
  **  Tabulated printout of a string
  **
  ** \param[in]  title    optional title (NULL if not defined)
@@ -1177,7 +926,7 @@ void tab_prints(const char *title,
 {
   int i, size, neff, nrst, n1, n2, taille;
 
-  taille = CST[CST_NTCAR].ival * ncol;
+  taille = (int) OptCst::query(ECst::NTCAR) * ncol;
   size = static_cast<int>(strlen(string));
   neff = MIN(taille, size);
   nrst = taille - neff;
@@ -1275,7 +1024,7 @@ void tab_printg(const char *title,
   else
   {
     // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-    value = (ABS(value) < DBL_THRESH) ? 0. : value;
+    value = (ABS(value) < _getThresh()) ? 0. : value;
     (void) gslSPrintf(DECODE, FORMAT, value);
   }
 
@@ -1296,9 +1045,9 @@ void tab_printg(const char *title,
  **
  *****************************************************************************/
 void tab_printd(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                double value)
+                int ncol,
+                const EJustify &justify,
+                double value)
 {
   st_format(CASE_DOUBLE);
 
@@ -1396,12 +1145,10 @@ void print_matrix(const char *title,
   /* Initializations */
 
   if (tab == nullptr || nx <= 0 || ny <= 0) return;
-  nx_util =
-      (flag_limit && CST[CST_NTCOL].ival > 0) ? MIN(CST[CST_NTCOL].ival, nx) :
-                                                nx;
-  ny_util =
-      (flag_limit && CST[CST_NTROW].ival > 0) ? MIN(CST[CST_NTROW].ival, ny) :
-                                                ny;
+  nx_util = (flag_limit && (int) OptCst::query(ECst::NTCOL) > 0) ?
+      MIN((int) OptCst::query(ECst::NTCOL), nx) : nx;
+  ny_util = (flag_limit && (int) OptCst::query(ECst::NTROW) > 0) ?
+      MIN((int) OptCst::query(ECst::NTROW), ny) : ny;
   multi_row = (ny > 1 || title == NULL);
 
   /* Print the title (optional) */
@@ -1474,10 +1221,7 @@ void print_matrix(const char *title,
  ** \remarks The ordering (compatible with matrix_solve is mode==2)
  **
  *****************************************************************************/
-void print_trimat(const char *title,
-                                  int mode,
-                                  int neq,
-                                  const double *tl)
+void print_trimat(const char *title, int mode, int neq, const double *tl)
 {
 #define TRI(i)        (((i) * ((i) + 1)) / 2)
 #define TL1(i,j)      (tl[(j)*neq+(i)-TRI(j)])  /* only for i >= j */
@@ -1553,12 +1297,10 @@ void print_imatrix(const char *title,
   /* Initializations */
 
   if (tab == nullptr || nx <= 0 || ny <= 0) return;
-  nx_util =
-      (flag_limit && CST[CST_NTCOL].ival > 0) ? MIN(CST[CST_NTCOL].ival, nx) :
-                                                nx;
-  ny_util =
-      (flag_limit && CST[CST_NTROW].ival > 0) ? MIN(CST[CST_NTROW].ival, ny) :
-                                                ny;
+  nx_util = (flag_limit && (int) OptCst::query(ECst::NTCOL) > 0) ?
+      MIN((int) OptCst::query(ECst::NTCOL), nx) : nx;
+  ny_util = (flag_limit && (int) OptCst::query(ECst::NTROW) > 0) ?
+      MIN((int) OptCst::query(ECst::NTROW), ny) : ny;
   multi_row = (ny > 1 || title == NULL);
 
   /* Print the title (optional) */
@@ -1623,7 +1365,7 @@ void print_imatrix(const char *title,
  **  Print a vector of real values in a matrix form
  **
  ** \param[in]  title      Title (Optional)
- ** \param[in]  flag_limit 1 if CST[CST_NTCOL] is used; 0 otherwise
+ ** \param[in]  flag_limit 1 if NTCOL is used; 0 otherwise
  ** \param[in]  ntab       Number of elements in the array
  ** \param[in]  tab        Array to be printed
  **
@@ -1639,8 +1381,8 @@ void print_vector(const char *title,
   /* Initializations */
 
   if (ntab <= 0) return;
-  nby = (flag_limit && CST[CST_NTCOL].ival >= 0) ? CST[CST_NTCOL].ival :
-                                                   nby_def;
+  nby = (flag_limit && (int) OptCst::query(ECst::NTCOL) >= 0) ?
+      (int) OptCst::query(ECst::NTCOL) : nby_def;
   flag_many = (ntab > nby);
 
   if (title != NULL)
@@ -1675,7 +1417,7 @@ void print_vector(const char *title,
  **  Print a vector of integer values in a matrix form
  **
  ** \param[in]  title      Title (Optional)
- ** \param[in]  flag_limit 1 if CST[CST_NTCOL] is used; 0 otherwise
+ ** \param[in]  flag_limit 1 if NTCOL is used; 0 otherwise
  ** \param[in]  ntab       Number of elements in the array
  ** \param[in]  itab       Array to be printed
  **
@@ -1688,8 +1430,8 @@ void print_ivector(const char *title, int flag_limit, int ntab, const int *itab)
   /* Initializations */
 
   if (ntab <= 0) return;
-  nby = (flag_limit && CST[CST_NTCOL].ival >= 0) ? CST[CST_NTCOL].ival :
-                                                   nby_def;
+  nby = (flag_limit && (int) OptCst::query(ECst::NTCOL) >= 0) ?
+      (int) OptCst::query(ECst::NTCOL) : nby_def;
   flag_many = (ntab > nby);
 
   if (title != NULL)
@@ -1734,72 +1476,19 @@ void print_names(int nx, int *ranks, VectorString names)
 
   /* Initializations */
 
-  nx_util = (CST[CST_NTCOL].ival < 0) ? nx :
-                                        MIN(CST[CST_NTCOL].ival, nx);
+  nx_util = ((int) OptCst::query(ECst::NTCOL) < 0) ?
+      nx : MIN((int) OptCst::query(ECst::NTCOL), nx);
 
   /* Loop on the columns */
 
   tab_prints(NULL, 1, EJustify::RIGHT, " ");
   for (iix = 0; iix < nx_util; iix++)
   {
-    ix = (ranks == nullptr) ? iix :
-                              ranks[iix];
+    ix = (ranks == nullptr) ? iix : ranks[iix];
     tab_prints(NULL, 1, EJustify::RIGHT, names[ix].c_str());
   }
   message("\n");
   return;
-}
-
-/****************************************************************************/
-/*! 
- **  Read a keyword
- **
- ** \return  Rank of the keyword (starting from 0) or -1 if not recognized
- **
- ** \param[in]  question Question to be asked
- ** \param[in]  nkeys    Number of authorized keys
- ** \param[in]  keys     List of the keywords
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-int _lire_key(const char *question, int nkeys, const char **keys)
-{
-  int i;
-
-  label_ques:
-
-  /* Compose the question */
-
-  (void) gslSPrintf(LINE, "%s ", question);
-  (void) gslStrcat(LINE, "[");
-  for (i = 0; i < nkeys; i++)
-  {
-    if (i > 0) gslStrcat(LINE, ",");
-    (void) gslSPrintf(&LINE[strlen(LINE)], "%s", keys[i]);
-  }
-  (void) gslStrcat(LINE, "] : ");
-
-  /* Read the answer */
-
-  READ_FUNC(LINE, BUFFER);
-
-  /* Interruption */
-
-  if (!strcasecmp(BUFFER, "STOP")) return (-1);
-
-  /* Check that the answer if authorized */
-
-  string_strip_blanks(BUFFER, 0);
-  for (i = 0; i < nkeys; i++)
-    if (!strcasecmp(BUFFER, keys[i])) return (i);
-  message("Error: the keyword '%s' is unknown\n", BUFFER);
-  message("The only keywords authorized are : ");
-  for (i = 0; i < nkeys; i++)
-    message(" %s", keys[i]);
-  message("\n");
-  goto label_ques;
-  return -1; // Just to prevent from an eclispe warning
 }
 
 /****************************************************************************/
@@ -2070,45 +1759,13 @@ int _lire_logical(const char *question, int flag_def, int valdef)
   else
   {
 
-    /* Check the aurhotized values */
+    /* Check the authorized values */
 
     if (!strcasecmp(BUFFER, "Y")) return (1);
     if (!strcasecmp(BUFFER, "N")) return (0);
     message("The only authorized answers are 'y' or 'n'\n");
     goto loop;
   }
-}
-
-/****************************************************************************/
-/*!
- **  Conditionally print the progress of a procedure
- **
- ** \param[in]  string   String to be printed
- ** \param[in]  ntot     Total number of samples
- ** \param[in]  iech     Rank of the current sample
- **
- *****************************************************************************/
-void mes_process(const char *string, int ntot, int iech)
-{
-  static int memo = 0;
-  double ratio;
-  int nproc, jech, percent;
-
-  nproc = CST[CST_NPROC].ival;
-  if (nproc <= 0) return;
-  jech = iech + 1;
-
-  /* Calculate the current percentage */
-
-  ratio = 100. * (double) jech / (double) ntot;
-  percent = (int) (ratio / (double) nproc) * nproc;
-
-  /* Conditional printout */
-
-  if (percent != memo) message("%s : %d (percent)\n", string, percent);
-  memo = percent;
-
-  return;
 }
 
 /****************************************************************************/

@@ -74,7 +74,7 @@ static void st_time_chunk_close(void)
   tchunk = TimeStat[TIME_FOCUS];
   hrc::time_point newtime = hrc::now();
   ms difftime = std::chrono::duration_cast<ms>(newtime - TIME_CURRENT);
-  tchunk->msec += difftime.count();
+  tchunk->msec += (int) difftime.count();
 
   TIME_CURRENT = newtime;
   TIME_FOCUS = -1;

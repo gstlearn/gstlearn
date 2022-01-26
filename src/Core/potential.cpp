@@ -2780,12 +2780,7 @@ static int st_model_invalid(Model *model)
  *****************************************************************************/
 static int st_extdrift_create_model(Pot_Ext *pot_ext)
 {
-  int error;
   double sill = 1.;
-
-  /* Initialization */
-
-  error = 1;
 
   /* Creating the model */
 
@@ -2803,12 +2798,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
   DriftList drifts(true, ctxt.getSpace());
   pot_ext->model->setDriftList(&drifts);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: if (error) pot_ext->model = model_free(pot_ext->model);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

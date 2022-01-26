@@ -43,7 +43,7 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const EAnam& anam_type,
       _anamMeans(),
       _anam(nullptr)
 {
- init(anam_type,anam_nclass,anam_iclass,anam_var,anam_coefs,anam_coefs,anam_strcnt,anam_stats);
+ init(anam_type,anam_nclass,anam_iclass,anam_var,anam_coefr,anam_coefs,anam_strcnt,anam_stats);
 }
 
 CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis &r)
@@ -155,9 +155,9 @@ String CovLMCAnamorphosis::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-double CovLMCAnamorphosis::eval0(int ivar,
-                                int jvar,
-                                const CovCalcMode& mode) const
+double CovLMCAnamorphosis::eval0(int /*ivar*/,
+                                 int /*jvar*/,
+                                 const CovCalcMode& /*mode*/) const
 {
   double cov0 = 0.;
   return cov0;
@@ -174,7 +174,7 @@ double CovLMCAnamorphosis::eval(int ivar,
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
   // performed internally in 'eval' function
   CovCalcMode modeloc(mode);
-  bool asVario = mode.getAsVario();
+  bool asVario = mode.getAsVario(); // TODO: Pourquoi faire (voir ligne suivante)
   modeloc.setAsVario(false);
 
   int anam_var = getAnamPointBlock();
@@ -453,8 +453,6 @@ double CovLMCAnamorphosis::_evalDiscreteIR(AnamDiscreteIR* anam,
                                            const SpacePoint& p2,
                                            const CovCalcMode& mode) const
 {
-  double cov, bi, cov1, cov2, dcov;
-  int icut, icut0;
   CovCalcMode modeloc(mode);
 
   /* Initializations */
@@ -465,27 +463,26 @@ double CovLMCAnamorphosis::_evalDiscreteIR(AnamDiscreteIR* anam,
 
   /* Calculate the generic variogram value */
 
+  double cov = 0.;
   double dist2 = getDistance(p1, p2);
   if (dist2 > 0)
-    double cov = CovLMC::eval(ivar, jvar, p1, p2, mode);
+    cov = CovLMC::eval(ivar, jvar, p1, p2, mode);
 
   /* Modification of the covariance */
 
-  cov = 0.;
-  icut0 = getAnamIClass() - 1;
+  int icut0 = getAnamIClass() - 1;
   if (icut0 < 0)
   {
 
     /* Structure for the whole discretized grade */
 
-    cov2 = 1.;
-    for (icut = 0; icut < ncut; icut++)
+    double cov2 = 1.;
+    for (int icut = 0; icut < ncut; icut++)
     {
-      cov1 = cov2;
-      bi = anam->getIRStatB(icut);
+      double cov1 = cov2;
+      double bi = anam->getIRStatB(icut);
       cov2 = pow(_st_covsum_residual(anam, modeloc, icut, ivar, jvar, p1, p2), r);
-      dcov = cov2 - cov1;
-      cov += bi * bi * dcov;
+      cov += bi * bi * (cov2 - cov1);
     }
   }
   else
@@ -501,8 +498,10 @@ double CovLMCAnamorphosis::_evalDiscreteIR(AnamDiscreteIR* anam,
     }
     else
     {
-      cov1 = pow(_st_covsum_residual(anam, modeloc, icut0 - 1, ivar, jvar, p1, p2), r);
-      cov2 = pow(_st_covsum_residual(anam, modeloc, icut0, ivar, jvar, p1, p2), r);
+      double cov1 = pow(
+          _st_covsum_residual(anam, modeloc, icut0 - 1, ivar, jvar, p1, p2), r);
+      double cov2 = pow(
+          _st_covsum_residual(anam, modeloc, icut0, ivar, jvar, p1, p2), r);
       cov = cov2 - cov1;
     }
   }
@@ -562,4 +561,5 @@ int CovLMCAnamorphosis::setAnamIClass(int anam_iclass)
     messerr("or be set to 0 to estimate the whole discretized grade");
     return 1;
   }
+  return 0;
 }
