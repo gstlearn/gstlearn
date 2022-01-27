@@ -11,7 +11,7 @@ class GSTLEARN_EXPORT Dictionary
 {
   public:
     Dictionary();
-    Dictionary(const std::string&name);
+    Dictionary(const String&name);
     virtual ~Dictionary();
     
     const String& getName() const;

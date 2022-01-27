@@ -27,9 +27,9 @@ private:
   std::string _msg;
 };
 
-void throw_exp(const std::string& msg = "",
-               const std::string& file = "",
-               int line = 0);
+GSTLEARN_EXPORT void throw_exp(const std::string& msg = "",
+                               const std::string& file = "",
+                               int line = 0);
 
 #define my_throw(msg) throw_exp(msg, __FILE__, __LINE__)
 

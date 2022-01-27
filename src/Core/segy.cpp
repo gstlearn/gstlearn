@@ -1576,7 +1576,7 @@ Grid segy_summary(const char *filesegy,
   traceHead traceHead_;
   double   xtrace,ytrace;
   int      iline,xline,nbvalues;
-  int      nPerTrace,iatt_top,iatt_bot,iaux_top,iaux_bot;
+  int      nPerTrace,iatt_top = 0,iatt_bot = 0,iaux_top = 0,iaux_bot = 0;
   RefPt    refpt[3];
   RefStats refstats;
   Grid def_grid;
@@ -1755,7 +1755,7 @@ int db_segy(const char *filesegy,
   traceHead traceHead_;
   double xtrace, ytrace, coor[3];
   int iline, xline, nbvalues, iatt;
-  int indg[3], rank, iatt_top, iatt_bot, iaux_top, iaux_bot;
+  int indg[3], rank, iatt_top = 0, iatt_bot = 0, iaux_top = 0, iaux_bot = 0;
   RefPt refpt[3];
   RefStats refstats;
   VectorDouble values, cotes, writes;

@@ -1,10 +1,8 @@
-# Only shared library and doxygen documentation is installed
+# Default GNU installed directory names
+include(GNUInstallDirs)
 
 ####################################################
 ## INSTALLATION
-
-# Default GNU installed directory names
-include(GNUInstallDirs)
 
 # Setup the installation directory
 # https://stackoverflow.com/questions/39481958/setting-cmake-install-prefix-from-cmakelists-txt-file/39485990#39485990
@@ -21,51 +19,49 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   endif()
 endif()
 
-if(BUILD_SHARED)
-  # Install the shared library in DESTINATION/lib folder
-  install(TARGETS shared
-    EXPORT ${PROJECT_NAME}_corelibs
-    LIBRARY DESTINATION lib
-  )
-  
-  # Include directories
-  target_include_directories(shared PUBLIC
-    # Installed includes are made PUBLIC for client who links the shared library
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
-  )
-  
-  # Install the includes
-  install(
-    DIRECTORY   ${PROJECT_SOURCE_DIR}/include/ # Install library headers
-    DESTINATION include/${PROJECT_NAME}        # in DESTINATION/include/${PROJECT_NAME}
-  )
-  
-  # Install the version file
-  install(
-    FILES ${PROJECT_BINARY_DIR}/version.h
-    DESTINATION include/${PROJECT_NAME}
-  )
-  
-  # Export the shared library cmake configuration (See above for corelibs definition)
-  install(
-    EXPORT ${PROJECT_NAME}_corelibs
-    FILE ${PROJECT_NAME}Config.cmake
-    NAMESPACE ${PROJECT_NAME}::
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
-  )
-endif()
+# Install the shared library in DESTINATION/lib folder
+install(TARGETS shared
+  EXPORT ${PROJECT_NAME}_corelibs
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib
+)
 
-if(BUILD_DOXYGEN)
-  # Install doxygen html and xml directories (optional)
-  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doxygen/html/                   # HTML files from build folder
-          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/doxygen/html # in DESTINATION/share
-          OPTIONAL
-  )
-  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doxygen/xml/                    # XML files from build folder
-          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/doxygen/xml  # in DESTINATION/share
-          OPTIONAL
-  )
-endif()
+# Include directories
+target_include_directories(shared PUBLIC
+  # Installed includes are made PUBLIC for client who links the shared library
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+
+# Install the includes
+install(
+  DIRECTORY   ${PROJECT_SOURCE_DIR}/include/ # Install library headers
+  DESTINATION include/${PROJECT_NAME}        # in DESTINATION/include/${PROJECT_NAME}
+)
+
+# Install the export file
+install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}_export.hpp
+        DESTINATION include/${PROJECT_NAME}
+)
+
+# Install the version file
+install(
+  FILES ${PROJECT_BINARY_DIR}/version.h
+  DESTINATION include/${PROJECT_NAME}
+)
+
+# Export the shared library cmake configuration (See above for corelibs definition)
+install(
+  EXPORT ${PROJECT_NAME}_corelibs
+  FILE ${PROJECT_NAME}Config.cmake
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake
+)
+
+# Install doxygen html directories (optional)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doxygen/html/                   # HTML files from build folder
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/doxygen/html # in DESTINATION/share
+        OPTIONAL
+)
 
 ####################################################
 ## UNINSTALLATION

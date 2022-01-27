@@ -1,26 +1,22 @@
-if(NOT BUILD_PYTHON)
-  return()
-endif()
+# Python package name
+set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
+# Beware : the real package name is the PROJECT_NAME (for better import)
+
+# Create the global target for building python package
+add_custom_target(python_build_package)
+
+###################################
+# DEPENDENCIES
 
 # Look for Python3
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
 
 # Look for SWIG 4
 find_package(SWIG 4.0 REQUIRED)
+# TODO : If SWIG not found, fetch it from the web
 include(${SWIG_USE_FILE})
 
-# Activate verbose mode
-#set(CMAKE_VERBOSE_MAKEFILE ON)
-
-# Display debug info for find_package
-#set(CMAKE_FIND_DEBUG_MODE TRUE)
-
-# Look for Boost dependencies
-#find_package(Boost REQUIRED)
-
-# Look for HDF5
-# https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
-#find_package(HDF5 REQUIRED COMPONENTS C CXX)
+# TODO : Look for matplotlib or fetch it from the web
 
 # Look for pybind11
 find_package(pybind11 QUIET) # try locally
@@ -35,27 +31,34 @@ if(NOT pybind11_FOUND) # else fetch it from github
   FetchContent_MakeAvailable(pybind11)
 endif()
 
-# Create empty documentation
+######################################  
+# DOCUMENTATION
+
+# Generate python documentation (before wrapper)
 # TODO : put documentation.i out of the source
-execute_process(
-  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
-  COMMAND_ECHO STDOUT
+# TODO : Do not regenerate python documentation if doxygen output is up to date
+add_custom_target(python_doc
+  COMMAND ${PYTHON_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2swig.py -q
+    ${PROJECT_BINARY_DIR}/doxygen/xml/index.xml
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
+  COMMENT "Generate python documentation from doxygen output"
 )
 
-  # Update documentation from gstlearn's XML
-  # TODO : make this step optional (if XML doc exists only) and cross-platform
-if (INCLUDE_DOXYGEN)
-  execute_process(
-    COMMAND ${PYTHON_EXECUTABLE}
-                         ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2swig.py
-                         ${PROJECT_BINARY_DIR}/doxygen/xml/index.xml
-                         ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
-    COMMAND_ECHO STDOUT
-  )
-endif()
+# Tell that we need to generate doxymentation before building python package
+add_dependencies(python_doc doxygen)
 
-# Keep sync with interface file content (*.i)
-set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
+# Add python documentation generation target to python build package dependency
+#add_dependencies(python_build_package python_doc)
+
+######################################
+# WRAPPER GENERATION & BUILD
+
+# Python package target
+set(PYTGT python_build)
+
+# Python package interface file
+set(SRC py${PROJECT_NAME}.i)
 
 # Generation folders
 if (MSVC) # TODO: Prefer using GENERATOR_IS_MULTI_CONFIG
@@ -63,15 +66,14 @@ if (MSVC) # TODO: Prefer using GENERATOR_IS_MULTI_CONFIG
 else()
   set(PYTHON_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 endif()
-set(PYTHON_PACKAGE_DESTINATION_FOLDER ${PYTHON_PACKAGE_ROOT_FOLDER}/${PYTHON_PACKAGE_NAME})
+set(PYTHON_PACKAGE_DESTINATION_FOLDER ${PYTHON_PACKAGE_ROOT_FOLDER}/${PYTHON_PACKAGE_NAME}) # used for python import
 # Location for SWIG target language code
 set(CMAKE_SWIG_OUTDIR                 ${PYTHON_PACKAGE_DESTINATION_FOLDER})
 # Location for SWIG wrapper library
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY    ${PYTHON_PACKAGE_DESTINATION_FOLDER}) # Use LIBRARY (gcc)!
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY    ${PYTHON_PACKAGE_DESTINATION_FOLDER}) # Use RUNTIME (msvc)!
 
-# Create pygstlearn target
-set(SRC pygstlearn.i)
+# SWIG interface source file properties
 set_source_files_properties(${SRC} PROPERTIES
   CPLUSPLUS ON
   # Swig wrapper will be regenerated if C++ headers are changed
@@ -79,7 +81,7 @@ set_source_files_properties(${SRC} PROPERTIES
   #USE_SWIG_DEPENDENCIES TRUE   # Incompatible with CMAKE_SWIG_OUTDIR under cmake 3.22 (MSVC)
   # myfibo C++ headers will be found by %import directive
   USE_TARGET_INCLUDE_DIRECTORIES TRUE
-  # Python package name will be the name of the installed folder (no module)
+  # Python package name will be the name of the destination folder (see above)
   SWIG_MODULE_NAME __init__
 )
 
@@ -91,36 +93,55 @@ set_property(SOURCE ${SRC} PROPERTY
     ${PROJECT_SOURCE_DIR}/swig/swig_inc.i
 )
 
-# Customize swig telling required Python 3+ version and keyword feature
-# (WARNING: keep this BEFORE swig_add_library)
+# SWIG flags
 set(CMAKE_SWIG_FLAGS -py3 -keyword)
 # Note: Cannot use -doxygen feature because all documentation is in C++ body files
-# Note: Use -E option for seeing preprocessor output
+# Note: Use -E option for seeing SWIG preprocessor output
 
-# Add the swig target
+# SWIG target (generate wrapper & python script then build [so,pyd] library)
 swig_add_library(
-  ${PYTHON_PACKAGE_NAME}
-  TYPE SHARED
-  LANGUAGE python
-  SOURCES ${SRC}
+  ${PYTGT}
+  LANGUAGE   python
+  TYPE       SHARED
+  SOURCES    ${SRC}
 )
 
-# Link to static ${PROJECT_NAME} library
-target_link_libraries(${PYTHON_PACKAGE_NAME} PUBLIC ${PROJECT_NAME}::static)
+# Link to static library
+target_link_libraries(${PYTGT} PUBLIC ${PROJECT_NAME}::static)
+
+# Transmit the fact that we are linking to static ${PROJECT_NAME} library
+if (MSVC)
+  # Wrapper source is too big for MSVC !
+  set(COMP_FLAGS "/bigobj -D${PROJECT_NAME_UP}_STATIC_DEFINE") # 
+else()
+  set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
+endif()
+# Set some properties on SWIG target
+set_target_properties(${PYTGT} PROPERTIES
+  # Do not build python package by default
+  EXCLUDE_FROM_ALL ON
+  # Modify the generated library name
+  OUTPUT_NAME ${PROJECT_NAME}
+  # Compiler flags for the SWIG library
+  COMPILE_FLAGS ${COMP_FLAGS}
+)
 
 # Find appropriate Python.h
-target_include_directories(${PYTHON_PACKAGE_NAME} PRIVATE ${Python3_INCLUDE_DIRS})
+target_include_directories(${PYTGT} PRIVATE ${Python3_INCLUDE_DIRS})
 
 # Link to python's libraries (only for MSVC - Release)
 if(MSVC)
-  target_link_libraries(${PYTHON_PACKAGE_NAME} PRIVATE ${Python3_LIBRARIES})
+  target_link_libraries(${PYTGT} PRIVATE ${Python3_LIBRARIES})
 endif()
 
 # Link to pybind11 
-target_link_libraries(${PYTHON_PACKAGE_NAME} PRIVATE pybind11::module) # TODO: use swig_link_library
+target_link_libraries(${PYTGT} PRIVATE pybind11::module) # TODO: use swig_link_library
 
-# Rename the python module (without 'py' prefix)
-#set_target_properties(${PYTHON_PACKAGE_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+# Add SWIG target to global python build package dependency
+add_dependencies(python_build_package ${PYTGT})
+
+########################################
+# PACKAGING (target independent)
 
 # Generate setup.py automatically for each configuration
 # First step: replace variables (@VAR@)
@@ -141,16 +162,27 @@ file(GENERATE
   INPUT  ${CMAKE_CURRENT_SOURCE_DIR}/README.md
 )
 
-# Copy each modules to destination folder
-file(GLOB MODULES modules/*.py)
+# Copy each modules to package *destination* folder for each configuration
+file(GLOB MODULES ${CMAKE_CURRENT_SOURCE_DIR}/modules/*.py)
 foreach(MODULE ${MODULES})
-  file(COPY ${MODULE} DESTINATION ${PYTHON_PACKAGE_DESTINATION_FOLDER}/)
+  cmake_path(GET MODULE FILENAME MODULE_NAME)
+  set(MODULE_NAME ${PYTHON_PACKAGE_NAME}/${MODULE_NAME})
+  file(GENERATE
+    OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/${MODULE_NAME}
+    INPUT ${MODULE}
+  )
 endforeach()
 
-# Install python package (if SWIG target has run)
+######################################
+# INSTALLATION
+
+# Add a custom target for python package installation
 # TODO: Do also installation each time setup.py.in or README.md is modified
-add_custom_command(TARGET ${PYTHON_PACKAGE_NAME}
+add_custom_target(python_install
   COMMAND ${Python3_EXECUTABLE} -m pip install ${PYTHON_PACKAGE_ROOT_FOLDER}
   COMMENT "Installing python package"
   VERBATIM
 )
+
+# Tell cmake that python package must be built before installation
+add_dependencies(python_install python_build_package)

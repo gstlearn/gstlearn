@@ -480,7 +480,10 @@ String ASerializable::getHomeDirectory(const String& sub)
 String ASerializable::getTestData(const String& subdir, const String& filename)
 {
   String dirname = getExecDirectory();
+  // TODO : Find a proper way to register global folders (data, docs etc...)
 #if defined(_WIN32) || defined(_WIN64)
+  dirname += "\\";
+  dirname += "..";
   dirname += "\\";
   dirname += "..";
   dirname += "\\";
@@ -491,7 +494,7 @@ String ASerializable::getTestData(const String& subdir, const String& filename)
   dirname += "data";
   dirname += "\\";
 #else
-  dirname += "../../doc/data/";
+  dirname += "../../../doc/data/";
 #endif
   std::stringstream sstr;
   // TODO : Cross-platform way to build file path (use boost ?)

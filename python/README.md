@@ -1,41 +1,31 @@
 ## Overview
-The *pygstlearn* package is a cross-platform Python Package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to Python users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
+The Python *gstlearn* package is a cross-platform Python Package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to Python users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
 Copyright (c) MINES Paristech / PSL University
 
-If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module which is based on *matplotlib*.
+If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module which is based on *matplotlib* (see [modules](https://github.com/gstlearn/gstlearn/python/modules) directory).
 
-Some tutorials (jupyter notebooks) are provided in the *demo* directory.
+Some tutorials (jupyter notebooks) are provided in the [demo](https://github.com/gstlearn/gstlearn/python/demo) directory.
 
-Some tests (Python scripts) are available in the *tests* directory.
+Some tests (Python scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/python/tests) directory.
   
 ## References
-The *pygstlearn* package is the wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn).
+The Python *gstlearn* package is a Python wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn).
 
-This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig) python script (see LICENSE.doxy2swig in *swig* folder).
+This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig) python script (see LICENSE.doxy2swig in *doc* folder).
 
 ## Requirements
-For using this package, the *gstlearn C++ library* must be installed:
+For using this package, the requirements for building *gstlearn C++ library* must be installed:
   * See [instructions here](https://github.com/gstlearn/gstlearn)
   
 The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
-  * [Python](https://www.python.org/downloads) 3 or higher with *pip*, *pybind11*, *matplotlib* and *scikit-build* modules installed
+  * [Python](https://www.python.org/downloads) 3 or higher with *pip*, *numpy*, *pybind11* and *matplotlib* modules installed
   * [SWIG](http://www.swig.org/download.html) 4 or higher
 
 Note:
   * In all commands below, users must use the correct `python` command (python command prompt) (can be `python3`, `python` or something else depending on your configuration)
   
-## Package installation from PyPi
-TODO: Not yet available
-
-## Package installation from sources
-Cloning both repositories in the same folder and compiling/installing the Python package (this last command takes few minutes). Be sure not to forget the dot (at the end of the `pip install` command)
-```sh
-git clone https://github.com/gstlearn/pygstlearn.git
-cd pygstlearn
-python3 -m pip install .
-```
-Note:
-  * The last command takes a while. You can add `-v` at the end to activate verbose mode.
+## Installation
+Please refer to the global [gstlearn readme](https://github.com/gstlearn/gstlearn)
 
 ## Usage
 Simply import the package and its plot module, then enjoy:
@@ -56,7 +46,7 @@ gp.grid(mygrid, title="Gaussian random field", end_plot = True)
 ```
 
 ## Changelog
-Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CHANGES) under gstlearn repository.
+Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CHANGES).
 
 ## Required tools installation
 This package has been successfully tested with Ubuntu 18.04 LTS and Windows 10
@@ -68,7 +58,7 @@ sudo apt install python3
 sudo apt install python3-pip
 sudo apt install swig
 python3 -m ensurepip --upgrade
-python3 -m pip install pybind11 numpy matplotlib scikit-build
+python3 -m pip install pybind11 numpy matplotlib
 ```
 Notes:
 * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
@@ -79,7 +69,7 @@ Execute the following commands (Not tested):
 brew install python3
 brew install swig
 python3 -m ensurepip --upgrade
-python3 -m pip install pybind11 numpy matplotlib scikit-build
+python3 -m pip install pybind11 numpy matplotlib
 ```
 Notes:
 * If your MacOS distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
@@ -90,7 +80,7 @@ Download and install the following tools:
   * SWIG 4+ [from here](http://www.swig.org/download.html) (extract the archive in a directory of yours, let's say *C:\\swigwin-4.0.2*, see Notes below)
   * Pybind11, numpy, matplolib and scikit-build python modules by running following instructions in a command prompt:
 ```
-python -m pip install pybind11[global] numpy matplotlib scikit-build
+python -m pip install pybind11[global] numpy matplotlib
 ```
   
 Notes:
@@ -108,7 +98,7 @@ Note : You may need to directly modify your site-packages folder by:
 * Removing all directories starting with *'~stlearn* from the site-packages folder
 
 ## Documentation
-The classes and functions documentation is provided with the gstlearn package as html files generated by doxygen. Please refer to gstlearn [README file](https://github.com/gstlearn/gstlearn) for more details. This documentation is also available using the `help` python command in the case that the documentation has been built (see above).
+The classes and functions documentation is provided with the gstlearn package as html files generated by doxygen. Please refer to gstlearn [README file](https://github.com/gstlearn/gstlearn) for more details. This documentation is also available using the `help` python command.
 ***
 
 ## License

@@ -11,6 +11,7 @@ python/*/__pycache__
 tests/data/*/*.out
 ./*.ascii
 .project
+.pydevproject
 .cproject
 .settings
 core

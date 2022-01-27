@@ -72,7 +72,7 @@ void VariableCategorical::setValue(int i, int value)
   }
 }
 
-void VariableCategorical::setValue(int i, const std::string& label)
+void VariableCategorical::setValue(int i, const String& label)
 {
   if (_dico.hasCategory(label))
   {

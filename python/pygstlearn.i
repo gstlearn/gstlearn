@@ -1,11 +1,12 @@
 // https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
-%module(directors="1") pygstlearn
+// No need of %module keyword when building using cmake UseSWIG
+// TODO: restore directors feature
+%module(directors="1") gstlearn
 
 // https://stackoverflow.com/a/26035360/3952924
-
 %import "doc/documentation.i"
 
-// gstlearn C++ library must be installed (Keep Order !!!!)
+// Include C++ library SWIG interface (Keep Order !!!!)
 %include ../swig/swig_inc.i
 %include ../swig/swig_exp.i
 
@@ -140,10 +141,6 @@ void exit_f(void)
 import gstlearn as gl
 import numpy as np
 
-
-# In[2]:
-
-
 def getitem(self,name):
     """
     Use Db[name]. Returns the arrays of the fields corresponding to input 'name'.
@@ -243,7 +240,4 @@ setattr(gl.Db,"__getitem__",getitem)
 
 setattr(gl.Db,"__setitem__",setitem)
 
-		   
-
-		   
 %}

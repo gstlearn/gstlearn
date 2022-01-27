@@ -1,7 +1,4 @@
-if(NOT BUILD_DOXYGEN)
-  return()
-endif()
-
+# TODO : Do not regenerate doxymentation if nothing has changed in the source code
 find_package(Doxygen REQUIRED)
 
 # Configure doxyfile
@@ -29,6 +26,6 @@ set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or
 #set(DOXYGEN_TEMPLATE_RELATIONS YES)
 
 # Add target for generating the doxymentation
-doxygen_add_docs(doxygen ALL
+doxygen_add_docs(doxygen
                  ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
-                 COMMENT "Generate man pages")
+                 COMMENT "Generate doxygen documentation")
