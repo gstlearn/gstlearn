@@ -14,7 +14,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/EConvType.hpp"
 #include "Covariances/EConvDir.hpp"
-#include "Anamorphosis/Anam.hpp"
+#include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
@@ -71,7 +71,7 @@ public:
 
   int setAnamIClass(int anamIClass);
   void setAnamPointBlock(int anamPointBlock) { _anamPointBlock = anamPointBlock; }
-  Anam* getAnam() const { return _anam; }
+  AAnam* getAnam() const { return _anam; }
 
 private:
   double _evalHermite(AnamHermite *anam,
@@ -114,5 +114,5 @@ private:
   int    _anamPointBlock;     /* Type of point / block covariance */
   VectorDouble _anamStrCount; /* Array of structure count per model (IR)  */
   VectorDouble _anamMeans;    /* Array of statistics per class */
-  Anam*        _anam;
+  AAnam*        _anam;
 };

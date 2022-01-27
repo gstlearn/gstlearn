@@ -14,8 +14,8 @@
 
 #define ANAM_KD_NELEM 6
 
-AnamDiscrete::AnamDiscrete(const EAnam& type)
-    : Anam(type),
+AnamDiscrete::AnamDiscrete()
+    : AAnam(),
       _nCut(0),
       _nElem(ANAM_KD_NELEM),
       _mean(TEST),
@@ -26,7 +26,7 @@ AnamDiscrete::AnamDiscrete(const EAnam& type)
 }
 
 AnamDiscrete::AnamDiscrete(const AnamDiscrete &m)
-    : Anam(m),
+    : AAnam(m),
       _nCut(m._nCut),
       _nElem(m._nElem),
       _mean(m._mean),
@@ -57,9 +57,9 @@ AnamDiscrete::~AnamDiscrete()
 
 void AnamDiscrete::_resize()
 {
-  int ncut = getNCut();
+  int ncut   = getNCut();
   int nclass = getNClass();
-  int nelem = getNElem();
+  int nelem  = getNElem();
 
   _zCut.resize(ncut,0.);
   _stats.reset(nclass,nelem,0.);
@@ -72,22 +72,14 @@ String AnamDiscrete::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Number of classes = " << getNClass() << std::endl;
   sstr << "Mean              = " << _mean << std::endl;
   sstr << "Variance          = " << _variance << std::endl;
+
   sstr << std::endl;
   sstr << toMatrix("Cutoffs", VectorString(), VectorString(), true, 1, _nCut, _zCut);
+
+  sstr << toMatrix(String(),VectorString(),VectorString(),true,getNElem(),getNClass(),
+                   getStats().getValues());
+
   return sstr.str();
-}
-
-void AnamDiscrete::setNCut(int ncut)
-{
-  _nCut = ncut;
-  _resize();
-}
-
-void AnamDiscrete::setZCut(const VectorDouble& zcut)
-{
-  _zCut = zcut;
-  _nCut = static_cast<int> (_zCut.size());
-  _resize();
 }
 
 void AnamDiscrete::setStats(const VectorDouble& stats)
@@ -240,4 +232,47 @@ bool AnamDiscrete::_isClassValid(int iclass) const
     return false;
   }
   return true;
+}
+
+int AnamDiscrete::_serialize(FILE* file, bool verbose) const
+{
+  _recordWrite(file, "%d", getNCut());
+  _recordWrite(file, "#", "Number of cutoffs");
+  _recordWrite(file, "%d", getNClass());
+  _recordWrite(file, "#", "Number of classes");
+  _recordWrite(file, "%d", getNElem());
+  _recordWrite(file, "#", "Number of elements");
+  _tableWrite(file, "Cutoff value", getNCut(), getZCut().data());
+  _tableWrite(file, "DD Stats", getNClass() * getNElem(), getStats().getValues().data());
+
+  return 0;
+}
+
+int AnamDiscrete::_deserialize(FILE* file, bool verbose)
+{
+  VectorDouble zCut, stats;
+  int nCut = 0;
+  int nClass = 0;
+  int nElem = 0;
+
+  if (_recordRead(file, "Number of Cutoffs", "%d", &nCut))
+    goto label_end;
+  if (_recordRead(file, "Number of Classes", "%d", &nClass))
+    goto label_end;
+  if (_recordRead(file, "Number of Statistic Columns", "%d", &nElem))
+    goto label_end;
+
+  zCut.resize(nCut);
+  if (_tableRead(file, nCut, zCut.data())) goto label_end;
+
+  stats.resize(nClass * nElem);
+  if (_tableRead(file, nClass * nElem, stats.data())) goto label_end;
+
+  setNCut(nCut);
+  setNElem(nElem);
+  setZCut(zCut);
+  setStats(stats);
+
+  label_end:
+  return 0;
 }

@@ -27,7 +27,7 @@ class Db;
 class Vario;
 class VarioParam;
 class Model;
-class Anam;
+class AAnam;
 class ANeighParam;
 class Polygons;
 class RuleProp;
@@ -237,7 +237,7 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /* Functions for Anamorphosis */
 /******************************/
 
-GSTLEARN_EXPORT VectorDouble anam_selectivity(Anam *anam,
+GSTLEARN_EXPORT VectorDouble anam_selectivity(AAnam *anam,
                                               int nclass,
                                               VectorDouble zcut,
                                               int flag_correct = 0,

@@ -12,7 +12,7 @@
 #include "geoslib_old_f.h"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Anamorphosis/Anam.hpp"
+#include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Morpho/Morpho.hpp"
@@ -6500,7 +6500,7 @@ int variogram_mlayers(Db *db, int *seltab, Vario *vario, Vario_Order *vorder)
  ** \remark  the calculation parameters
  **
  *****************************************************************************/
-int variogram_y2z(Vario *vario, Anam *anam, Model *model)
+int variogram_y2z(Vario *vario, AAnam *anam, Model *model)
 {
   int error, idir, ndim;
   double chh, varz, cov_value;
@@ -6511,7 +6511,7 @@ int variogram_y2z(Vario *vario, Anam *anam, Model *model)
 
   error = 1;
   if (vario == nullptr) return (error);
-  if (anam == (Anam*) NULL) return (error);
+  if (anam == (AAnam*) NULL) return (error);
   if (model == nullptr) return (error);
   if (anam->getType() != EAnam::HERMITIAN)
   {

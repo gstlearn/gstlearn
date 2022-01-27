@@ -24,10 +24,10 @@
 #define Q_S(i,j)         q_s[(i)*nclass+(j)]
 #define MATI(i,j)        mati[(i)*nclass+(j)]
 
-AnamDiscreteDD::AnamDiscreteDD()
-    : AnamDiscrete(EAnam::DISCRETE_DD),
-      _mu(1.),
-      _sCoef(0.),
+AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
+    : AnamDiscrete(),
+      _mu(mu),
+      _sCoef(scoef),
       _maf(),
       _i2Chi()
 {
@@ -59,24 +59,51 @@ AnamDiscreteDD::~AnamDiscreteDD()
 
 }
 
-void AnamDiscreteDD::setNCut(int ncut)
+int AnamDiscreteDD::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  AnamDiscrete::setNCut(ncut);
-  _maf.init(ncut);
+  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteDD", "w", verbose);
+  if (file == nullptr) return 1;
+
+  if (_serialize(file, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    _fileClose(file, verbose);
+    return 1;
+  }
+  _fileClose(file, verbose);
+  return 0;
 }
 
-void AnamDiscreteDD::setZCut(const VectorDouble& zcut)
+AnamDiscreteDD* AnamDiscreteDD::createFromNF(const String& neutralFilename, bool verbose)
 {
-  AnamDiscrete::setZCut(zcut);
-  int ncut = static_cast<int> (zcut.size());
-  _maf.init(ncut);
+  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteDD", "r", verbose);
+  if (file == nullptr) return nullptr;
+
+  AnamDiscreteDD* anam = new AnamDiscreteDD();
+  if (anam->_deserialize(file, verbose))
+  {
+    if (verbose) messerr("Problem reading the Neutral File");
+    delete anam;
+    anam = nullptr;
+  }
+  _fileClose(file, verbose);
+  return anam;
 }
+
+AnamDiscreteDD* AnamDiscreteDD::create(double mu, double scoef)
+{
+  return new AnamDiscreteDD(mu, scoef);
+}
+
 
 String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << Anam::toString(strfmt);
+
   sstr << "Discrete Diffusion Anamorphosis" << std::endl;
+
+  sstr << AnamDiscrete::toString(strfmt);
+
   if (_sCoef != 0.)
   {
     sstr << "Mu Coefficient    = " << _mu << std::endl;
@@ -92,8 +119,6 @@ String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
   sstr << "[,5] : Spectral Weight 'U'" << std::endl;
   sstr << "[,6] : Terms pow(mu/(mu+li),s/2)" << std::endl;
   sstr << std::endl;
-  sstr << toMatrix(String(),VectorString(),VectorString(),true,getNElem(),getNClass(),
-                   getStats().getValues());
 
   return sstr.str();
 }
@@ -575,4 +600,45 @@ VectorDouble AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
     }
 
   return chi2i;
+}
+
+int AnamDiscreteDD::_serialize(FILE* file, bool verbose) const
+{
+
+  AnamDiscrete::_serialize(file, verbose);
+
+  _recordWrite(file, "%lf", getSCoef());
+  _recordWrite(file, "#", "Change of support coefficient");
+  _recordWrite(file, "%lf", getMu());
+  _recordWrite(file, "#", "Additional Mu coefficient");
+  _tableWrite(file, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2F().data());
+  _tableWrite(file, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Z().data());
+
+  return 0;
+}
+
+int AnamDiscreteDD::_deserialize(FILE* file, bool verbose)
+{
+  VectorDouble pcaf2z, pcaz2f;
+  double s = TEST;
+  double mu = TEST;
+
+  if (AnamDiscrete::_deserialize(file, verbose)) goto label_end;
+
+  if (_recordRead(file, "Anamorphosis 's' coefficient", "%lf", &s))
+    goto label_end;
+  if (_recordRead(file, "Anamorphosis 'mu' coefficient", "%lf", &mu))
+    goto label_end;
+  pcaz2f.resize(getNCut() * getNCut());
+  pcaf2z.resize(getNCut() * getNCut());
+  if (_tableRead(file, getNCut() * getNCut(), pcaz2f.data())) goto label_end;
+  if (_tableRead(file, getNCut() * getNCut(), pcaf2z.data())) goto label_end;
+
+  setSCoef(s);
+  setMu(mu);
+  setPcaF2Z(pcaf2z);
+  setPcaZ2F(pcaz2f);
+
+  label_end:
+  return 0;
 }

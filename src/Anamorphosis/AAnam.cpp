@@ -8,41 +8,32 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Anamorphosis/Anam.hpp"
+#include "Anamorphosis/AAnam.hpp"
 #include "Basic/AException.hpp"
-#include "geoslib_f.h"
 
-Anam::Anam(const EAnam& type)
+AAnam::AAnam()
     : AStringable(),
-      _type(type)
+      ASerializable()
 {
 }
 
-Anam::Anam(const Anam &m)
+AAnam::AAnam(const AAnam &m)
     : AStringable(m),
-      _type(m._type)
+      ASerializable(m)
 {
-
 }
 
-Anam& Anam::operator=(const Anam &m)
+AAnam& AAnam::operator=(const AAnam &m)
 {
   if (this != &m)
   {
     AStringable::operator=(m);
-    _type = m._type;
+    ASerializable::operator=(m);
   }
   return *this;
 }
 
-Anam::~Anam()
+AAnam::~AAnam()
 {
-
 }
 
-String Anam::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-  sstr << toTitle(1, "Anamorphosis characteristics");
-  return sstr.str();
-}

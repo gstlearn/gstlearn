@@ -70,7 +70,6 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
     _anamStrCount = r._anamStrCount;
     _anamMeans = r._anamMeans;
     _anam = r._anam;
-    _anam = dynamic_cast<Anam*>(r._anam->clone());
   }
   return *this;
 }

@@ -14,28 +14,41 @@
 #include "geoslib_define.h"
 
 #include "Anamorphosis/AnamDiscrete.hpp"
+#include "Anamorphosis/EAnam.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 
 #include "Stats/PCA.hpp"
 
 class GSTLEARN_EXPORT AnamDiscreteDD: public AnamDiscrete
 {
 public:
-  AnamDiscreteDD();
+  AnamDiscreteDD(double mu = 1., double scoef = 0.);
   AnamDiscreteDD(const AnamDiscreteDD &m);
   AnamDiscreteDD& operator= (const AnamDiscreteDD &m);
   virtual ~AnamDiscreteDD();
 
-  void setNCut(int ncut) override;
-  void setZCut(const VectorDouble& zcut) override;
+  /// ASerializable Interface
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = false);
 
-  int  fit(const VectorDouble& tab, int verbose=0);
+  /// AAnam Interface
+  const EAnam&  getType() const override { return EAnam:: DISCRETE_DD; }
+
+  /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const override;
+
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   VectorDouble factors_exp(int verbose);
   VectorDouble factors_maf(int verbose);
   VectorDouble factors_mod();
   VectorDouble chi2I(const VectorDouble& chi, int mode);
+
+  AnamDiscreteDD* create(double mu = 1., double scoef = 0.);
+  int  fit(const VectorDouble& tab, int verbose=0);
 
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }
@@ -49,6 +62,10 @@ public:
   void setPcaZ2F(VectorDouble pcaz2f) { _maf.setPcaZ2F(pcaz2f); }
   void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
   int _stats(int nech, const VectorDouble& tab);

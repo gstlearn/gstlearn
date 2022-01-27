@@ -7938,14 +7938,14 @@ int krigtest_f(Db *dbin,
 /*!
  **  Transform the Kriging results from gaussian to raw
  **
- ** \param[in]  anam      Anam structure
+ ** \param[in]  anam      AAnam structure
  **
  ** \remark  This procedure is designed for the monovariate case
  ** \remark  It assumes that the kriging estimate and variance are already
  ** \remark  calculated
  **
  *****************************************************************************/
-static void st_transform_gaussian_to_raw(Anam *anam)
+static void st_transform_gaussian_to_raw(AAnam *anam)
 {
   if (anam == nullptr) return;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
@@ -7978,14 +7978,14 @@ static void st_transform_gaussian_to_raw(Anam *anam)
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
- ** \param[in]  anam       Anam structure
+ ** \param[in]  anam       AAnam structure
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
  **
  *****************************************************************************/
 int kriggam_f(Db *dbin,
               Db *dbout,
-              Anam *anam,
+              AAnam *anam,
               Model *model,
               ANeighParam *neighparam)
 {

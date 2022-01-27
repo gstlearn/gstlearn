@@ -15,9 +15,9 @@
 
 #define RESIDUALS(icut,iech) (residuals[iech * ncut + icut])
 
-AnamDiscreteIR::AnamDiscreteIR()
-    : AnamDiscrete(EAnam::DISCRETE_IR),
-      _rCoef(0.)
+AnamDiscreteIR::AnamDiscreteIR(double rcoef)
+    : AnamDiscrete(),
+      _rCoef(rcoef)
 {
 }
 
@@ -42,17 +42,55 @@ AnamDiscreteIR::~AnamDiscreteIR()
 
 }
 
+int AnamDiscreteIR::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteIR", "w", verbose);
+  if (file == nullptr) return 1;
+
+  if (_serialize(file, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    _fileClose(file, verbose);
+    return 1;
+  }
+  _fileClose(file, verbose);
+  return 0;
+}
+
+AnamDiscreteIR* AnamDiscreteIR::createFromNF(const String& neutralFilename, bool verbose)
+{
+  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteIR", "r", verbose);
+  if (file == nullptr) return nullptr;
+
+  AnamDiscreteIR* anam = new AnamDiscreteIR();
+  if (anam->_deserialize(file, verbose))
+  {
+    if (verbose) messerr("Problem reading the Neutral File");
+    delete anam;
+    anam = nullptr;
+  }
+  _fileClose(file, verbose);
+  return anam;
+}
+
+AnamDiscreteIR* AnamDiscreteIR::create(double rcoef)
+{
+  return new AnamDiscreteIR(rcoef);
+}
+
 String AnamDiscreteIR::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << Anam::toString(strfmt);
-  sstr << "Discrete Indicator Residuals Anamorphosis" << std::endl;
+
+  sstr << "Indicator Residuals Anamorphosis" << std::endl;
+
+  sstr << AnamDiscrete::toString(strfmt);
+
   if (_rCoef != 1.)
   {
     sstr << "Change of Support = " << _rCoef << std::endl;
   }
 
-  sstr << std::endl;
   sstr << "In the following printout:" << std::endl;
   sstr << "[,1] : Tonnage          'T'" << std::endl;
   sstr << "[,2] : Metal Quantity   'Q'" << std::endl;
@@ -61,8 +99,6 @@ String AnamDiscreteIR::toString(const AStringFormat* strfmt) const
   sstr << "[,5] : Residual Point   'R'" << std::endl;
   sstr << "[,5] : Residual Block   'Rv'" << std::endl;
   sstr << std::endl;
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, getNElem(),
-                  getNClass(), getStats().getValues());
 
   return sstr.str();
 }
@@ -286,12 +322,34 @@ VectorDouble AnamDiscreteIR::z2f(int nfact,
  */
 double AnamDiscreteIR::_getResidual(int iclass, double z) const
 {
-  double seuil = (iclass < 0) ? 0. :
-                                getZCut(iclass);
-  double retval = (z >= seuil) ? 1. :
-                                 0.;
+  double seuil = (iclass < 0) ? 0. : getZCut(iclass);
+  double retval = (z >= seuil) ? 1. : 0.;
   retval /= getIRStatT(iclass + 1);
 
   return (retval);
 }
 
+int AnamDiscreteIR::_serialize(FILE* file, bool verbose) const
+{
+  AnamDiscrete::_serialize(file, verbose);
+
+  _recordWrite(file, "%lf", getRCoef());
+  _recordWrite(file, "#", "Change of support coefficient");
+
+  return 0;
+}
+
+int AnamDiscreteIR::_deserialize(FILE* file, bool verbose)
+{
+  double r = TEST;
+
+  if (AnamDiscrete::_deserialize(file, verbose)) goto label_end;
+
+  if (_recordRead(file, "Anamorphosis 'r' coefficient", "%lf", &r))
+    goto label_end;
+
+  setRCoef(r);
+
+  label_end:
+  return 0;
+}

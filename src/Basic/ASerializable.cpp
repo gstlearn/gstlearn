@@ -202,6 +202,32 @@ void ASerializable::_recordWrite(FILE* file, const char* format, ...)
   va_end(ap);
 }
 
+void ASerializable::_tableWrite(FILE *file, const String& string, int ntab, const double *tab)
+{
+  char local[10000];
+
+  for (int i = 0; i < ntab; i++)
+  {
+    _recordWrite(file, "%lf", tab[i]);
+    if (! string.empty())
+    {
+      (void) gslSPrintf(local, "%s (%d)", string, i + 1);
+      _recordWrite(file, "#", local);
+    }
+    else
+    {
+      _recordWrite(file, "\n");
+    }
+  }
+}
+
+int ASerializable::_tableRead(FILE* file, int ntab, double *tab)
+{
+  for (int i = 0; i < ntab; i++)
+    if (_recordRead(file, "Reading Table", "%lf", &tab[i])) return (1);
+  return (0);
+}
+
 /****************************************************************************/
 /*!
  **  Read the next token from the file

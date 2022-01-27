@@ -13,33 +13,37 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Anamorphosis/Anam.hpp"
+#include "Anamorphosis/AAnam.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
-class GSTLEARN_EXPORT AnamDiscrete: public Anam
+class GSTLEARN_EXPORT AnamDiscrete: public AAnam
 {
 public:
-  AnamDiscrete(const EAnam& type = EAnam::UNDEFINED);
+  AnamDiscrete();
   AnamDiscrete(const AnamDiscrete &m);
   AnamDiscrete& operator= (const AnamDiscrete &m);
   virtual ~AnamDiscrete();
 
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// Interface for AnamDiscrete
   virtual VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const = 0;
   virtual void calculateMeanAndVariance();
 
-  double getMean() const { return _mean; }
   int getNCut() const { return _nCut; }
   int getNClass() const { return _nCut + 1; }
   int getNElem() const { return _nElem; }
   const VectorDouble& getZCut() const { return _zCut; }
   double getZCut(int i) const { return _zCut[i]; }
+  double getMean() const { return _mean; }
   double getVariance() const { return _variance; }
 
   void setMean(double mean) { _mean = mean; }
   void setVariance(double variance) { _variance = variance; }
-  virtual void setNCut(int ncut);
-  virtual void setZCut(const VectorDouble& zcut);
+  void setNCut(int ncut) { _nCut = ncut; }
+  void setZCut(const VectorDouble& zcut) { _zCut = zcut; };
+  void setNElem(int nelem) { _nElem = nelem; }
   void setStats(const VectorDouble& stats);
 
   // Function for using Stats in DD anamorphosis
@@ -71,6 +75,10 @@ public:
   void setIRStatRV(int iclass, double value);
 
   const MatrixRectangular& getStats() const { return _stats; }
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
   bool _isClassValid(int iclass) const;

@@ -15,7 +15,7 @@
 #include "Basic/AException.hpp"
 
 AnamUser::AnamUser()
-    : AnamContinuous(EAnam::EXTERNAL),
+    : AnamContinuous(),
       _y2z_function(nullptr),
       _z2y_function(nullptr)
 {
@@ -47,12 +47,39 @@ AnamUser::~AnamUser()
 String AnamUser::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << Anam::toString(strfmt);
-  sstr << "User defined anamorphosis" << std::endl;
+
+  sstr << "User defined Anamorphosis" << std::endl;
+
+  sstr << AAnam::toString(strfmt);
+
   return sstr.str();
 }
 
 void AnamUser::calculateMeanAndVariance()
 {
-  my_throw("This function is not available for User-defined Anamorphosis");
+  messerr("AnamUser: This funtion does not make sense");
+}
+
+int AnamUser::_deserialize(FILE* /*file*/, bool /*verbose*/)
+{
+  messerr("AnamUser: Cannot be deserialized");
+  return 1;
+}
+
+int AnamUser::_serialize(FILE* /*file*/, bool /*verbose*/) const
+{
+  messerr("AnamUser: Cannot be serialized");
+  return 1;
+}
+
+double AnamUser::GaussianToRawValue(double h) const
+{
+  if (_y2z_function == nullptr) return TEST;
+  return _y2z_function(h);
+}
+
+double AnamUser::RawToGaussianValue(double h) const
+{
+  if (_z2y_function == nullptr) return TEST;
+  return _z2y_function(h);
 }

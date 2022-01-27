@@ -33,7 +33,7 @@
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 
-class Anam;
+class AAnam;
 class AnamDiscreteDD;
 class AnamDiscreteIR;
 class AnamEmpirical;
@@ -731,10 +731,6 @@ GSTLEARN_EXPORT void ascii_filename(const char *type,
                                     int rank,
                                     int mode,
                                     char *filename);
-GSTLEARN_EXPORT int ascii_anam_write(const char *file_name,
-                                     const Anam *anam,
-                                     int verbose,
-                                     int flag_calcul);
 GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
                                      Frac_Environ *frac,
                                      int verbose);
@@ -743,7 +739,6 @@ GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
                                      int *nbsimu,
                                      int *nbtuba,
                                      int *seed);
-GSTLEARN_EXPORT Anam* ascii_anam_read(const char *file_name, int verbose);
 GSTLEARN_EXPORT Frac_Environ* ascii_frac_read(const char *file_name,
                                               int verbose);
 GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
@@ -936,7 +931,7 @@ GSTLEARN_EXPORT int maf_compute(Db *db,
                                 int verbose,
                                 PCA *pca);
 GSTLEARN_EXPORT int pca_compute(const Db *db, bool verbose, PCA *pca);
-GSTLEARN_EXPORT int variogram_y2z(Vario *vario, Anam *anam, Model *model);
+GSTLEARN_EXPORT int variogram_y2z(Vario *vario, AAnam *anam, Model *model);
 
 /****************************************/
 /* Prototyping the functions in model.c */
@@ -1175,7 +1170,7 @@ GSTLEARN_EXPORT int* neigh_calc(Db *dbin,
 /* Prototyping the functions in anam.c */
 /***************************************/
 
-GSTLEARN_EXPORT double anam_y2z(Anam *anam, double y, int flag_bound);
+GSTLEARN_EXPORT double anam_y2z(AAnam *anam, double y, int flag_bound);
 GSTLEARN_EXPORT void anam_update_hermitian(AnamHermite *anam_hermite,
                                            double pymin,
                                            double pzmin,
@@ -1212,21 +1207,21 @@ GSTLEARN_EXPORT void anam_update_discrete_IR(AnamDiscreteIR *anam_discrste_IR,
                                              double s,
                                              const VectorDouble &zcut,
                                              const VectorDouble &stats);
-GSTLEARN_EXPORT int anam_discrete_DD_z2factor(Anam *anam,
+GSTLEARN_EXPORT int anam_discrete_DD_z2factor(AAnam *anam,
                                               Db *db,
                                               int iptr,
                                               int nfact,
                                               VectorInt ifacs);
-GSTLEARN_EXPORT int anam_discrete_IR_z2factor(Anam *anam,
+GSTLEARN_EXPORT int anam_discrete_IR_z2factor(AAnam *anam,
                                               Db *db,
                                               int iptr,
                                               int nfact,
                                               VectorInt ifacs);
-GSTLEARN_EXPORT int anam_discrete_z2factor(Anam *anam,
+GSTLEARN_EXPORT int anam_discrete_z2factor(AAnam *anam,
                                            Db *db,
                                            int nfact,
                                            const VectorInt &ifacs);
-GSTLEARN_EXPORT int anam_point_to_block(Anam *anam,
+GSTLEARN_EXPORT int anam_point_to_block(AAnam *anam,
                                         int verbose,
                                         double cvv,
                                         double coeff,
@@ -1235,7 +1230,7 @@ GSTLEARN_EXPORT double ce_compute_Z2(double krigest,
                                      double krigstd,
                                      const VectorDouble &phis);
 GSTLEARN_EXPORT int anam_factor2qt(Db *db,
-                                   Anam *anam,
+                                   AAnam *anam,
                                    int ncutmine,
                                    double *cutmine,
                                    double z_max,
@@ -1254,11 +1249,11 @@ GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
                                              double *calest,
                                              int ncut,
                                              double *calcut);
-GSTLEARN_EXPORT int anam_get_r(Anam *anam, double cvv, double mu, double *r);
-GSTLEARN_EXPORT int anam_vario_z2y(Anam *anam, double cvv, Vario *vario);
+GSTLEARN_EXPORT int anam_get_r(AAnam *anam, double cvv, double mu, double *r);
+GSTLEARN_EXPORT int anam_vario_z2y(AAnam *anam, double cvv, Vario *vario);
 
 GSTLEARN_EXPORT int uc_f(Db *db,
-                         Anam *anam,
+                         AAnam *anam,
                          int att_est,
                          int att_var,
                          int ncutmine,
@@ -1270,7 +1265,7 @@ GSTLEARN_EXPORT int uc_f(Db *db,
                          int verbose,
                          int *qt_vars);
 GSTLEARN_EXPORT int ce_f(Db *db,
-                         Anam *anam,
+                         AAnam *anam,
                          int att_est,
                          int att_std,
                          int flag_est,
@@ -1919,7 +1914,7 @@ GSTLEARN_EXPORT int krigcell_f(Db *dbin,
                                VectorInt rank_colcok);
 GSTLEARN_EXPORT int kriggam_f(Db *dbin,
                               Db *dbout,
-                              Anam *anam,
+                              AAnam *anam,
                               Model *model,
                               ANeighParam *neighparam);
 GSTLEARN_EXPORT int krigprof_f(Db *dbin,

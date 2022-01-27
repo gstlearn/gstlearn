@@ -14,6 +14,7 @@
 #include "geoslib_define.h"
 
 #include "Anamorphosis/AnamContinuous.hpp"
+#include "Basic/ASerializable.hpp"
 
 class GSTLEARN_EXPORT AnamUser: public AnamContinuous
 {
@@ -27,28 +28,21 @@ public:
   AnamUser& operator= (const AnamUser &m);
   virtual ~AnamUser();
 
-  void calculateMeanAndVariance() override;
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  double GaussianToRawValue(double h) const override
-  {
-    if (_y2z_function == nullptr) return TEST;
-    return _y2z_function(h);
-  }
+  /// AAnam Interface
+  const EAnam& getType() const override { return EAnam::EXTERNAL; }
 
-  double RawToGaussianValue(double h) const override
-  {
-    if (_z2y_function == nullptr) return TEST;
-    return _z2y_function(h);
-  }
+  /// AnamContinuous Interface
+  void   calculateMeanAndVariance() override;
+  double GaussianToRawValue(double h) const override;
+  double RawToGaussianValue(double h) const override;
 
-  void setY2zFunction(double (*y2z_function)(double))
-  {
-    _y2z_function = y2z_function;
-  }
-  void setZ2yFunction(double (*z2y_function)(double))
-  {
-    _z2y_function = z2y_function;
-  }
+  void setY2zFunction(double (*y2z_function)(double)) { _y2z_function = y2z_function; }
+  void setZ2yFunction(double (*z2y_function)(double)) { _z2y_function = z2y_function; }
 
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 };

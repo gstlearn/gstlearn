@@ -139,7 +139,7 @@ set(SOURCES
   Anamorphosis/AnamDiscrete.cpp
   Anamorphosis/AnamDiscreteDD.cpp
   Anamorphosis/AnamUser.cpp
-  Anamorphosis/Anam.cpp
+  Anamorphosis/AAnam.cpp
   Anamorphosis/AnamHermite.cpp
   Anamorphosis/AnamDiscreteIR.cpp
   Anamorphosis/AnamEmpirical.cpp

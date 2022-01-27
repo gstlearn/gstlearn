@@ -199,7 +199,7 @@
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
 
-#include "Anamorphosis/Anam.hpp"
+#include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/AnamUser.hpp"
