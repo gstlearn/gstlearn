@@ -71,7 +71,7 @@ CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
     : ASpaceObject(space),
       _nVar(0),
       _irfMaxDegree(irfMaxDegree),
-      _field(0.),
+      _field(1.),
       _mean(),
       _covar0()
 {
@@ -89,7 +89,7 @@ CovContext::CovContext(const Vario* vario,
     : ASpaceObject(space),
       _nVar(0),
       _irfMaxDegree(irfMaxDegree),
-      _field(0.),
+      _field(1.),
       _mean(),
       _covar0()
 {

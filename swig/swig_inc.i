@@ -35,7 +35,8 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/EDbgOpt.hpp"
+#include "Basic/EOptDbg.hpp"
+#include "Basic/EOptCst.hpp"
 
 #include "Enum/EKrigOpt.hpp"
 
