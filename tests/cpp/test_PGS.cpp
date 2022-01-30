@@ -50,7 +50,7 @@ int main(int /*argc*/, char */*argv*/[])
   dbfmt.setParams(FLAG_STATS);
   db->display(&dbfmt);
 
-  Db* dbprop = Db::createFromGrid({100,100},{0.01,0.01});
+  Dbgrid* dbprop = Dbgrid::create({100,100},{0.01,0.01});
 
   VectorDouble props({0.2, 0.5, 0.3});
   int nfac = props.size();

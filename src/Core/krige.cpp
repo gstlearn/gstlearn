@@ -1276,6 +1276,7 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
   ntot = KOPTION->ntot;
   ndim = KOPTION->ndim;
   law_set_random_seed(1234546);
+  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(DBOUT);
 
   /* Loop on the discretization points */
 
@@ -1285,8 +1286,7 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
     nval = ntot;
     for (idim = ndim - 1; idim >= 0; idim--)
     {
-      taille = (mode == 0) ? DBOUT->getDX(idim) :
-                             DBOUT->getBlockExtension(iech, idim);
+      taille = (mode == 0) ? dbgrid->getDX(idim) : DBOUT->getBlockExtension(iech, idim);
       nd = KOPTION->ndisc[idim];
       nval /= nd;
       j = jech / nval;
@@ -2956,12 +2956,12 @@ static void st_res_nbgh_print(int status, double *tab)
 ** \param[in]  nvar       Number of variables
 **
 *****************************************************************************/
-static Db *st_image_build(ANeighParam *neighparam,
-                          int    nvar)
+static Dbgrid *st_image_build(ANeighParam *neighparam, int nvar)
 {
   int    *indg,error,ndim,nech,natt;
   double *coor,seuil,value;
-  Db     *dbaux;
+  Dbgrid *dbaux;
+  Dbgrid* dbgrid;
   VectorInt nx;
   VectorDouble tab;
 
@@ -2976,7 +2976,8 @@ static Db *st_image_build(ANeighParam *neighparam,
   /* Preliminary checks */
 
   if (!is_grid(DBOUT)) goto label_end;
-  ndim = DBOUT->getNDim();
+  dbgrid = dynamic_cast<Dbgrid*>(DBOUT);
+  ndim = dbgrid->getNDim();
   natt = ndim + nvar;
   seuil = 1. / neighI->getSkip();
 
@@ -3006,8 +3007,8 @@ static Db *st_image_build(ANeighParam *neighparam,
 
   /* Copy the grid characteristics */
 
-  if (db_grid_copy_params(DBOUT, 3, dbaux)) goto label_end;
-  if (db_grid_copy_params(DBOUT, 4, dbaux)) goto label_end;
+  if (db_grid_copy_params(dbgrid, 3, dbaux)) goto label_end;
+  if (db_grid_copy_params(dbgrid, 4, dbaux)) goto label_end;
 
   /* Set the locators */
 
@@ -4702,12 +4703,12 @@ int _krigsim(const char *strloc,
  ** \param[in]  neighparam ANeighParam structure
  **
  *****************************************************************************/
-int krimage_func(Db *dbgrid, Model *model, ANeighParam *neighparam)
+int krimage_func(Dbgrid *dbgrid, Model *model, ANeighParam *neighparam)
 {
   int i, iech, jech, error, nvar, nfeq, nb_neigh, ecr, ndim, nred, neq;
   int *indn0, *indnl, *indg0, *indgl;
   double data, estim;
-  Db *dbaux;
+  Dbgrid* dbaux;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
 
@@ -4762,10 +4763,10 @@ int krimage_func(Db *dbgrid, Model *model, ANeighParam *neighparam)
   DBOUT = dbgrid;
   for (IECH_OUT = 0; IECH_OUT < dbgrid->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Image filtering", DBOUT->getSampleNumber(), IECH_OUT);
+    mes_process("Image filtering", dbgrid->getSampleNumber(), IECH_OUT);
     OptDbg::setIndex(IECH_OUT + 1);
-    if (!DBOUT->isActive(IECH_OUT)) continue;
-    db_index_sample_to_grid(DBOUT, IECH_OUT, indg0);
+    if (!dbgrid->isActive(IECH_OUT)) continue;
+    db_index_sample_to_grid(dbgrid, IECH_OUT, indg0);
 
     /* Loop on the target variables */
 
@@ -4785,14 +4786,14 @@ int krimage_func(Db *dbgrid, Model *model, ANeighParam *neighparam)
         for (iech = 0; iech < nb_neigh; iech++)
         {
           if (FFFF(DBIN->getVariable(iech, 0))) continue;
-          db_index_sample_to_grid(DBIN, iech, indnl);
+          db_index_sample_to_grid(dbaux, iech, indnl);
           for (i = 0; i < ndim; i++)
           {
             indgl[i] = indg0[i] - indn0[i] + indnl[i];
-            indgl[i] = get_mirror_sample(DBOUT->getNX(i), indgl[i]);
+            indgl[i] = get_mirror_sample(dbgrid->getNX(i), indgl[i]);
           }
-          jech = db_index_grid_to_sample(DBOUT, indgl);
-          data = DBOUT->getVariable(jech, jvar);
+          jech = db_index_grid_to_sample(dbgrid, indgl);
+          data = dbgrid->getVariable(jech, jvar);
           if (FFFF(data))
           {
             estim = TEST;
@@ -4804,7 +4805,7 @@ int krimage_func(Db *dbgrid, Model *model, ANeighParam *neighparam)
         }
       }
 
-      label_store: DBOUT->setArray(IECH_OUT, IPTR_EST + ivar, estim);
+      label_store: dbgrid->setArray(IECH_OUT, IPTR_EST + ivar, estim);
     }
   }
 
@@ -4844,7 +4845,7 @@ int krimage_func(Db *dbgrid, Model *model, ANeighParam *neighparam)
  **
  *****************************************************************************/
 int global_arithmetic(Db *dbin,
-                      Db *dbgrid,
+                      Dbgrid *dbgrid,
                       Model *model,
                       int ivar,
                       int flag_verbose,
@@ -5188,7 +5189,7 @@ int global_kriging(Db *dbin,
  ** \param[out]  cvtrans     CV transitive
  **
  *****************************************************************************/
-int global_transitive(Db *dbgrid,
+int global_transitive(Dbgrid *dbgrid,
                       Model *model,
                       int flag_verbose,
                       int flag_regular,
@@ -5394,6 +5395,8 @@ int global_transitive(Db *dbgrid,
 /*!
  **  Inverse distance estimation when Input DB is a grid
  **
+ ** \param[in]  dbin        Input Db
+ ** \param[in]  dbout       Output Db
  ** \param[in]  exponent    exponent of the inverse distance
  ** \param[in]  flag_expand 1 for expansion option
  **
@@ -5403,7 +5406,9 @@ int global_transitive(Db *dbgrid,
  ** \param[out] cooref      Working array
  **
  *****************************************************************************/
-static void st_grid_invdist(int exponent,
+static void st_grid_invdist(Dbgrid* dbin,
+                            Db* dbout,
+                            int exponent,
                             int flag_expand,
                             int *indg,
                             int *indref,
@@ -5415,29 +5420,31 @@ static void st_grid_invdist(int exponent,
 
   /* Initializations */
 
-  ndim = DBIN->getNDim();
+  DBIN = dbin;
+  DBOUT = dbout;
+  ndim = dbin->getNDim();
   maxneigh = (int) pow(2., (double) ndim);
-  (void) db_extension_diag(DBOUT, &dmin);
+  (void) db_extension_diag(dbout, &dmin);
   dmin /= 1.e5;
 
   /* Loop on the targets to be processed */
 
-  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
+  for (IECH_OUT = 0; IECH_OUT < dbout->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Estimation by Inverse distance", DBOUT->getSampleNumber(),
+    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
                 IECH_OUT);
-    if (!DBOUT->isActive(IECH_OUT)) continue;
+    if (!dbout->isActive(IECH_OUT)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(DBOUT, IECH_OUT, 1, 0, 0);
+      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
     }
 
     /* Find the grid index corresponding to the target */
 
     for (idim = 0; idim < ndim; idim++)
-      cooref[idim] = DBOUT->getCoordinate(IECH_OUT, idim);
-    point_to_grid(DBIN, cooref, flag_expand, indref);
+      cooref[idim] = dbout->getCoordinate(IECH_OUT, idim);
+    point_to_grid(dbin, cooref, flag_expand, indref);
 
     /* Loop on the neighbors */
 
@@ -5462,7 +5469,7 @@ static void st_grid_invdist(int exponent,
 
       for (idim = incorrect = 0; idim < ndim && incorrect == 0; idim++)
       {
-        if (indg[idim] >= DBIN->getNX(idim))
+        if (indg[idim] >= dbin->getNX(idim))
         {
           if (flag_expand)
             indg[idim]--;
@@ -5483,8 +5490,8 @@ static void st_grid_invdist(int exponent,
 
         /* Check the value */
 
-        iech_neigh = db_index_grid_to_sample(DBIN, indg);
-        val_neigh = DBIN->getVariable(iech_neigh, 0);
+        iech_neigh = db_index_grid_to_sample(dbin, indg);
+        val_neigh = dbin->getVariable(iech_neigh, 0);
         if (FFFF(val_neigh))
         {
           result = TEST;
@@ -5496,7 +5503,7 @@ static void st_grid_invdist(int exponent,
           /* Calculate the distance from neighborhood to target */
 
           dist = 0.;
-          grid_to_point(DBIN, indg, NULL, coor);
+          grid_to_point(dbin, indg, NULL, coor);
           dist = ut_distance(ndim, cooref, coor);
           if (dist < dmin)
           {
@@ -5511,7 +5518,7 @@ static void st_grid_invdist(int exponent,
       }
     }
     if (!FFFF(result)) result /= total;
-    DBOUT->setArray(IECH_OUT, IPTR_EST, result);
+    dbout->setArray(IECH_OUT, IPTR_EST, result);
   }
 
   return;
@@ -5521,6 +5528,8 @@ static void st_grid_invdist(int exponent,
 /*!
  **  Inverse distance estimation when Input DB is a point file
  **
+ ** \param[in]  dbin        Input Db
+ ** \param[in]  dbout       Output Db
  ** \param[in]  exponent    exponent of the inverse distance
  ** \param[in]  dmax        Maximum search radius (only used for Point Db)
  **
@@ -5528,7 +5537,9 @@ static void st_grid_invdist(int exponent,
  ** \param[out] cooref      Working array
  **
  *****************************************************************************/
-static void st_point_invdist(int exponent,
+static void st_point_invdist(Db* dbin,
+                             Db* dbout,
+                             int exponent,
                              double dmax,
                              double *coor,
                              double *cooref)
@@ -5538,34 +5549,36 @@ static void st_point_invdist(int exponent,
 
   /* Initializations */
 
-  ndim = DBIN->getNDim();
-  (void) db_extension_diag(DBOUT, &dmin);
+  DBIN = dbin;
+  DBOUT = dbout;
+  ndim = dbin->getNDim();
+  (void) db_extension_diag(dbout, &dmin);
   dmin /= 1.e5;
 
   /* Loop on the targets to be processed */
 
-  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
+  for (IECH_OUT = 0; IECH_OUT < dbout->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Estimation by Inverse distance", DBOUT->getSampleNumber(),
+    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
                 IECH_OUT);
-    if (!DBOUT->isActive(IECH_OUT)) continue;
+    if (!dbout->isActive(IECH_OUT)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(DBOUT, IECH_OUT, 1, 0, 0);
+      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
     }
     for (idim = 0; idim < ndim; idim++)
-      cooref[idim] = DBOUT->getCoordinate(IECH_OUT, idim);
+      cooref[idim] = dbout->getCoordinate(IECH_OUT, idim);
 
     /* Loop on the data points */
 
     result = total = 0.;
-    for (iech_in = 0; iech_in < DBIN->getSampleNumber(); iech_in++)
+    for (iech_in = 0; iech_in < dbin->getSampleNumber(); iech_in++)
     {
-      if (!DBIN->isActive(iech_in)) continue;
+      if (!dbin->isActive(iech_in)) continue;
       for (idim = 0; idim < ndim; idim++)
-        coor[idim] = DBIN->getCoordinate(iech_in, idim);
-      val_neigh = DBIN->getVariable(iech_in, 0);
+        coor[idim] = dbin->getCoordinate(iech_in, idim);
+      val_neigh = dbin->getVariable(iech_in, 0);
       if (FFFF(val_neigh)) continue;
 
       /* Check that the data point is a valid neighbor */
@@ -5586,7 +5599,7 @@ static void st_point_invdist(int exponent,
       total += wgt;
     }
     if (!FFFF(result)) result /= total;
-    DBOUT->setArray(IECH_OUT, IPTR_EST, result);
+    dbout->setArray(IECH_OUT, IPTR_EST, result);
   }
 
   return;
@@ -5609,6 +5622,7 @@ int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
 {
   int *indg, *indref, error;
   double *coor, *cooref;
+  Dbgrid* dbgrid;
 
   /* Initializations */
 
@@ -5627,17 +5641,18 @@ int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
   cooref = db_sample_alloc(dbout, ELoc::X);
   if (cooref == nullptr) goto label_end;
 
-  if (!is_grid(DBIN))
+  if (!is_grid(dbin))
   {
-    st_point_invdist(exponent, dmax, coor, cooref);
+    st_point_invdist(dbin, dbout, exponent, dmax, coor, cooref);
   }
   else
   {
-    indg = db_indg_alloc(dbin);
+    dbgrid = dynamic_cast<Dbgrid*>(dbin);
+    indg = db_indg_alloc(dbgrid);
     if (indg == nullptr) goto label_end;
-    indref = db_indg_alloc(dbin);
+    indref = db_indg_alloc(dbgrid);
     if (indref == nullptr) goto label_end;
-    st_grid_invdist(exponent, flag_expand, indg, indref, coor, cooref);
+    st_grid_invdist(dbgrid, dbout, exponent, flag_expand, indg, indref, coor, cooref);
   }
 
   /* Set the error return code */
@@ -5668,7 +5683,7 @@ int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
  ** \param[out] ifin    Index of the ending sample
  **
  *****************************************************************************/
-static int st_get_limits(Db *db, double top, double bot, int *ideb, int *ifin)
+static int st_get_limits(Dbgrid* db, double top, double bot, int *ideb, int *ifin)
 {
   int ndim, nz, iad;
   double z0, dz;
@@ -5894,7 +5909,7 @@ static double st_estim_exp(Db *db, double *wgt, int nbefore, int nafter)
  ** \param[in]  nfeq          0 or 1 drift function(s)
  **
  *****************************************************************************/
-int anakexp_f(Db *db,
+int anakexp_f(Dbgrid *db,
               double *covdd,
               double *covd0,
               double top,
@@ -6063,7 +6078,7 @@ int anakexp_f(Db *db,
  **                           variable
  **
  *****************************************************************************/
-static void st_calculate_covres(Db *db,
+static void st_calculate_covres(Dbgrid *db,
                                 Model *model,
                                 double *cov_ref,
                                 int cov_radius,
@@ -6123,7 +6138,7 @@ static void st_calculate_covres(Db *db,
  **                           variable
  **
  *****************************************************************************/
-static void st_calculate_covtot(Db *db,
+static void st_calculate_covtot(Dbgrid *db,
                                 int ix0,
                                 int iy0,
                                 int flag_sym,
@@ -6268,7 +6283,7 @@ static void st_calculate_covtot(Db *db,
  ** \param[out] nei_cur       Array containing the neighborhood
  **
  *****************************************************************************/
-static VectorInt st_neigh_find(Db *db,
+static VectorInt st_neigh_find(Dbgrid *db,
                                int ix0,
                                int iy0,
                                int iz0,
@@ -6573,7 +6588,7 @@ static void st_vario_dump(FILE *file,
  ** \remark  If dbg_ix < -1 || dbg_iy < -1, no variogram debug file is created
  **
  *****************************************************************************/
-int anakexp_3D(Db *db,
+int anakexp_3D(Dbgrid *db,
                double *cov_ref,
                int cov_radius,
                int neigh_ver,
@@ -6714,7 +6729,7 @@ int anakexp_3D(Db *db,
         indg[0] = ix;
         indg[1] = iy;
         indg[2] = iz;
-        IECH_OUT = db_index_grid_to_sample(DBOUT, indg);
+        IECH_OUT = db_index_grid_to_sample(db, indg);
         OptDbg::setIndex(IECH_OUT + 1);
 
         /* Initialize the result to TEST */
@@ -6910,12 +6925,12 @@ int bayes_simulate(Model *model,
  ** \param[in]  range     Range (used for Gaussian only)
  **
  *****************************************************************************/
-int image_smoother(Db *dbgrid, NeighImage *neighI, int type, double range)
+int image_smoother(Dbgrid *dbgrid, NeighImage *neighI, int type, double range)
 {
   int i, iech, jech, error, nvarin, nb_neigh, ndim, idelta;
   int *indn0, *indnl, *indg0, *indgl;
   double data, estim, total, delta, weight, d2, r2;
-  Db *dbaux;
+  Dbgrid *dbaux;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
 
@@ -6964,29 +6979,29 @@ int image_smoother(Db *dbgrid, NeighImage *neighI, int type, double range)
   DBOUT = dbgrid;
   for (IECH_OUT = 0; IECH_OUT < dbgrid->getSampleNumber(); IECH_OUT++)
   {
-    mes_process("Image smoother", DBOUT->getSampleNumber(), IECH_OUT);
+    mes_process("Image smoother", dbgrid->getSampleNumber(), IECH_OUT);
     OptDbg::setIndex(IECH_OUT + 1);
-    if (!DBOUT->isActive(IECH_OUT)) continue;
-    db_index_sample_to_grid(DBOUT, IECH_OUT, indg0);
+    if (!dbgrid->isActive(IECH_OUT)) continue;
+    db_index_sample_to_grid(dbgrid, IECH_OUT, indg0);
 
     /* Loop on the neighboring points */
 
     estim = total = 0.;
     for (iech = 0; iech < nb_neigh; iech++)
     {
-      if (FFFF(DBIN->getVariable(iech, 0))) continue;
-      db_index_sample_to_grid(DBIN, iech, indnl);
+      if (FFFF(dbaux->getVariable(iech, 0))) continue;
+      db_index_sample_to_grid(dbaux, iech, indnl);
       d2 = 0.;
       for (i = 0; i < ndim; i++)
       {
         idelta = (indnl[i] - indn0[i]);
-        delta = idelta * DBOUT->getDX(i);
+        delta = idelta * dbgrid->getDX(i);
         d2 += delta * delta;
         indgl[i] = indg0[i] + idelta;
-        indgl[i] = get_mirror_sample(DBOUT->getNX(i), indgl[i]);
+        indgl[i] = get_mirror_sample(dbgrid->getNX(i), indgl[i]);
       }
-      jech = db_index_grid_to_sample(DBOUT, indgl);
-      data = DBOUT->getVariable(jech, 0);
+      jech = db_index_grid_to_sample(dbgrid, indgl);
+      data = dbgrid->getVariable(jech, 0);
       if (!FFFF(data))
       {
         weight = (type == 1) ? 1. :
@@ -6995,9 +7010,8 @@ int image_smoother(Db *dbgrid, NeighImage *neighI, int type, double range)
         total += weight;
       }
     }
-    estim = (total <= 0.) ? TEST :
-                            estim / total;
-    DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
+    estim = (total <= 0.) ? TEST : estim / total;
+    dbgrid->setArray(IECH_OUT, IPTR_EST, estim);
   }
 
   /* Set the error return flag */
@@ -7238,7 +7252,7 @@ int krigsum_f(Db *dbin,
  ** \remark  and the corresponding LTERM is set to 0
  **
  *****************************************************************************/
-static int st_check_positivity(Db *db3grid,
+static int st_check_positivity(Dbgrid *db3grid,
                                int ix,
                                int iy,
                                int nvarin,
@@ -7340,8 +7354,8 @@ static int st_check_constraint_seismic(int ix,
  **
  *****************************************************************************/
 int krigmvp_f(Db *dbin,
-              Db *db3grid,
-              Db *db2grid,
+              Dbgrid *db3grid,
+              Dbgrid *db2grid,
               int fsum,
               Model *model,
               ANeighParam *neighparam)
@@ -8347,7 +8361,7 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
  **
  *****************************************************************************/
 int dk_f(Db *dbin,
-         Db *dbgrid,
+         Dbgrid *dbgrid,
          Model *model,
          ANeighParam *neighparam,
          int nfactor,
@@ -8356,7 +8370,7 @@ int dk_f(Db *dbin,
          int flag_est,
          int flag_std)
 {
-  Db *dbsmu;
+  Dbgrid *dbsmu;
   int error, status, nech, neq, nred, nvar, nvarz, nfeq, iclass, imult, nb_mult;
   int iptr_est_bck, iptr_std_bck, ivar, i;
   int *varloc, flag_block, flag_panel, flag_continue, neqmax;
@@ -10000,7 +10014,7 @@ static int st_declustering_3(Db *db,
 int declustering_f(Db *dbin,
                    Model *model,
                    ANeighParam *neighparam,
-                   Db *dbgrid,
+                   Dbgrid *dbgrid,
                    int method,
                    double *radius,
                    VectorInt ndisc,

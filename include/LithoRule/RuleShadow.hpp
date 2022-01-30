@@ -21,6 +21,7 @@
 #include "Basic/IClonable.hpp"
 
 class PropDef;
+class Dbgrid;
 
 class GSTLEARN_EXPORT RuleShadow: public Rule
 {
@@ -79,7 +80,7 @@ private:
                       int flag_stat,
                       double *sh_dsup_max,
                       double *sh_down_max) const;
-  double _st_grid_eval(Db *dbgrid,
+  double _st_grid_eval(Dbgrid *dbgrid,
                        int isimu,
                        int icase,
                        int nbsimu,

@@ -11,6 +11,7 @@
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
+#include "Db/Dbgrid.hpp"
 #include "API/SPDE.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -23,12 +24,12 @@ int main(int /*argc*/, char */*argv*/[])
   String filename;
 
   filename = ASerializable::getTestData("Scotland","temperatures.ascii");
-  Db* temperatures = Db::createFromNF(filename,false,verbose);
+  Db* temperatures = Db::createFromNF(filename,verbose);
   temperatures->setLocator("January_temp", ELoc::Z);
   temperatures->display();
 
   filename = ASerializable::getTestData("Scotland","grid.ascii");
-  Db* grid = Db::createFromNF(filename,true,verbose);
+  Dbgrid* grid = Dbgrid::createFromNF(filename,verbose);
   grid->display();
 
   filename = ASerializable::getTestData("Scotland","model.ascii");

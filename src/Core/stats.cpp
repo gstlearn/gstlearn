@@ -19,6 +19,7 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
+#include "Db/Dbgrid.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -572,11 +573,11 @@ static void st_get_neighboring_cell(int ndim,
  **
  *****************************************************************************/
 int db_stats_grid(Db *db,
-                                  Db *dbgrid,
-                                  const char *oper,
-                                  int ncol,
-                                  int *cols,
-                                  int radius)
+                  Dbgrid *dbgrid,
+                  const char *oper,
+                  int ncol,
+                  int *cols,
+                  int radius)
 {
   int icol, jcol, iptr, iptn, iptm, ndim, count;
   int *indg, *indg0, nxyz, error, i, iad, iech, nmed;
@@ -591,14 +592,6 @@ int db_stats_grid(Db *db,
   nxyz = dbgrid->getSampleNumber();
   ndim = dbgrid->getNDim();
   count = (int) pow(2. * radius + 1., (double) ndim);
-
-  /* Preliminary check */
-
-  if (!is_grid(dbgrid))
-  {
-    messerr("The Output Db must be a Grid");
-    return (1);
-  }
 
   /* Check that all variables are defined */
 
@@ -836,14 +829,14 @@ int db_stats_grid(Db *db,
  ** \param[out]  tab       Output array (Dimension: 1 or ncut)
  **
  *****************************************************************************/
-int stats_point_to_grid(Db *dbgrid,
-                                        Db *db,
-                                        const char *oper,
-                                        int iatt,
-                                        int jatt,
-                                        int ncut,
-                                        double *cuts,
-                                        double *tab)
+int stats_point_to_grid(Dbgrid *dbgrid,
+                        Db *db,
+                        const char *oper,
+                        int iatt,
+                        int jatt,
+                        int ncut,
+                        double *cuts,
+                        double *tab)
 {
   int flag_s1, flag_v1, flag_s2, flag_v2, flag_v12, flag_mini, flag_maxi;
   int *indg, nxyz, error, iad, flag1, flag2, flag_denorm, flag_q, flag_t;
@@ -1138,7 +1131,7 @@ int stats_point_to_grid(Db *dbgrid,
  ** \param[out] prop       Array of proportions
  **
  *****************************************************************************/
-static void st_update_prop(Db *dbin, int *indg, int nfacies, double *prop)
+static void st_update_prop(Dbgrid *dbin, int *indg, int nfacies, double *prop)
 {
   int ifac;
 
@@ -1151,7 +1144,7 @@ static void st_update_prop(Db *dbin, int *indg, int nfacies, double *prop)
 /*!
  **  Update the transitions
  **
- ** \param[in]  dbin       Db for the input grid
+ ** \param[in]  dbin       Dbgrid for the input grid
  ** \param[in]  pos        Rank of the montee axis
  ** \param[in]  indg       Array of grid indices
  ** \param[in]  nfacies    Number of facies
@@ -1160,7 +1153,7 @@ static void st_update_prop(Db *dbin, int *indg, int nfacies, double *prop)
  ** \param[out] trans      Array of transitions
  **
  *****************************************************************************/
-static void st_update_trans(Db *dbin,
+static void st_update_trans(Dbgrid *dbin,
                             int pos,
                             int *indg,
                             int nfacies,
@@ -1228,11 +1221,11 @@ static void st_scale_and_affect(Db *dbout,
  ** \param[in]  radius     Radius of the neighborhood
  **
  *****************************************************************************/
-int stats_proportion(Db *dbin,
-                                     Db *dbout,
-                                     int pos,
-                                     int nfacies,
-                                     int radius)
+int stats_proportion(Dbgrid *dbin,
+                     Dbgrid *dbout,
+                     int pos,
+                     int nfacies,
+                     int radius)
 {
   double *prop;
   int *indg, ndim, ngrid, error, iptr, iech, ifac, aux1, aux2, bux1, bux2,
@@ -1344,12 +1337,12 @@ int stats_proportion(Db *dbin,
  ** \param[in]  orient     Orientation (+1 or -1)
  **
  *****************************************************************************/
-int stats_transition(Db *dbin,
-                                     Db *dbout,
-                                     int pos,
-                                     int nfacies,
-                                     int radius,
-                                     int orient)
+int stats_transition(Dbgrid *dbin,
+                     Dbgrid *dbout,
+                     int pos,
+                     int nfacies,
+                     int radius,
+                     int orient)
 {
   double *trans;
   int *indg;
@@ -1478,7 +1471,7 @@ static double st_extract_subgrid(int verbose,
                                  int iech0,
                                  int nech0,
                                  int ntot,
-                                 Db *dbgrid,
+                                 Dbgrid *dbgrid,
                                  int *ind0,
                                  int *ixyz,
                                  int *nxyz,
@@ -2002,8 +1995,8 @@ static void st_upscale(int orient,
  *****************************************************************************/
 static int st_is_subgrid(int verbose,
                          const char *title,
-                         Db *dbgrid1,
-                         Db *dbgrid2,
+                         Dbgrid *dbgrid1,
+                         Dbgrid *dbgrid2,
                          int *ind0,
                          int *nxyz,
                          int *ntot)
@@ -2074,10 +2067,7 @@ static int st_is_subgrid(int verbose,
  ** \param[in]  verbose    Verbose flag
  **
  *****************************************************************************/
-int db_upscale(Db *dbgrid1,
-                               Db *dbgrid2,
-                               int orient,
-                               int verbose)
+int db_upscale(Dbgrid *dbgrid1, Dbgrid *dbgrid2, int orient, int verbose)
 {
   double *valtab0, *valtab1, *valtab2, *numtab0, *numtab1, *numtab2;
   double result1, result2, result, probtot;
@@ -2664,13 +2654,13 @@ static double st_get_diff_coeff(int niter,
  ** \remarks      set.keypair("Diffusion.Trajectory.XX")
  **
  *****************************************************************************/
-int db_diffusion(Db *dbgrid1,
-                                 Db *dbgrid2,
-                                 int orient,
-                                 int niter,
-                                 int nseed,
-                                 int seed,
-                                 int verbose)
+int db_diffusion(Dbgrid *dbgrid1,
+                 Dbgrid *dbgrid2,
+                 int orient,
+                 int niter,
+                 int nseed,
+                 int seed,
+                 int verbose)
 {
   double *valtab0, *numtab0, *valwrk, *cvdist2, *cvsave, *trsave;
   double diff_coeff, pmid, probtot;

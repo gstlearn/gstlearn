@@ -253,6 +253,8 @@ static int st_proportion_define(PropDef *propdef,
                                 int *jech)
 {
   int ifac, ifac_ref;
+  const Dbgrid* dbgrid = dynamic_cast<const Dbgrid*>(db);
+  if (dbgrid == nullptr) return 1;
 
   /* Non-stationary case : Load the proportions in propcst */
 
@@ -264,7 +266,7 @@ static int st_proportion_define(PropDef *propdef,
 
       /* Case where the proportions must be interpolated */
 
-      (*jech) = index_point_to_grid(db, iech, 1, propdef->dbprop,
+      (*jech) = index_point_to_grid(dbgrid, iech, 1, propdef->dbprop,
                                     propdef->coor.data());
       if ((*jech) < 0)
       {
@@ -284,7 +286,7 @@ static int st_proportion_define(PropDef *propdef,
       /* The proportions are already available from the dbin */
 
       for (ifac = 0; ifac < propdef->nfacprod; ifac++)
-        propdef->propfix[ifac] = db->getProportion(iech, ifac);
+        propdef->propfix[ifac] = dbgrid->getProportion(iech, ifac);
     }
 
     /* Transform proportions (from CST to WRK) */
@@ -297,7 +299,7 @@ static int st_proportion_define(PropDef *propdef,
   ifac_ref = -1;
   if (propdef->mode == EProcessOper::CONDITIONAL)
   {
-    ifac_ref = (int) db->getSimvar(ELoc::FACIES, iech, isimu, 0, 0, nbsimu, 1);
+    ifac_ref = (int) dbgrid->getSimvar(ELoc::FACIES, iech, isimu, 0, 0, nbsimu, 1);
     if (ifac_ref < 1 || ifac_ref > propdef->nfac[0]) return (1);
   }
   st_proportion_locate(propdef, ifac_ref);
@@ -346,6 +348,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
   /* Set the debugging information */
 
   OptDbg::setIndex(iech + 1);
+  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
 
   /* Processing an "unknown" facies */
 
@@ -358,7 +361,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
 
   /* Define the proportions */
 
-  if (st_proportion_define(propdef, db, iech, isimu, nbsimu, &jech))
+  if (st_proportion_define(propdef, dbgrid, iech, isimu, nbsimu, &jech))
   {
     *t1min = *t2min = get_rule_extreme(-1);
     *t1max = *t2max = get_rule_extreme(+1);
@@ -390,8 +393,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
 
   /* Convert the proportions into thresholds */
 
-  facloc = (IFFFF(facies)) ? 1 :
-                             facies;
+  facloc = (IFFFF(facies)) ? 1 : facies;
   VectorDouble bounds = rule->getThresh(facloc);
   *t1min = bounds[0];
   *t1max = bounds[1];
@@ -996,14 +998,19 @@ PropDef* proportion_manage(int mode,
       {
         // Non-stationary case
 
-        db_loc = (propdef->case_prop_interp) ? dbprop :
-                                               db;
+        db_loc = (propdef->case_prop_interp) ? dbprop : db;
         if (db_loc == nullptr)
         {
           messerr("You have requested Non-stationary proportions");
           messerr("No file is provided containing Proportion variables");
           messerr("Please provide variables with 'proportion' locators");
           messerr("either in the input 'Db' or in 'dbprop'");
+          goto label_end;
+        }
+        const Dbgrid* db_loc_grid = dynamic_cast<const Dbgrid*>(db_loc);
+        if (db_loc_grid == nullptr)
+        {
+          messerr("The 'Db' used for Proportions must be a Grid");
           goto label_end;
         }
         if (db_loc->getProportionNumber() != nfacprod)
@@ -1016,7 +1023,7 @@ PropDef* proportion_manage(int mode,
               nfacprod);
           goto label_end;
         }
-        propdef->dbprop = db_loc;
+        propdef->dbprop = db_loc_grid;
         propdef->coor.resize(db_loc->getNDim());
       }
       else

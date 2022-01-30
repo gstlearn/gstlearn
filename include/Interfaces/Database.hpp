@@ -21,6 +21,7 @@
 #include <string>
 
 class Db;
+class Dbgrid;
 class AVariable;
 class ASpace;
 class ParamCSV;
@@ -67,7 +68,7 @@ public:
   void printRoles();
   virtual void display_old() const;
   Db* toGeoslib() const;
-  void fromGeoslib(Db* db);
+  void fromGeoslib(Dbgrid* db);
   int nameIdentify(const String& name) const;
   int getGridSize() const;
   void reset();

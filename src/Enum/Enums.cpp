@@ -8,7 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/EOptDbg.hpp"
+#include "../../include/Basic/ECst.hpp"
+#include "../../include/Basic/EDbg.hpp"
+#include "../../include/Basic/EDbg.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
@@ -22,8 +24,6 @@
 #include "Enum/EKrigOpt.hpp"
 #include "Anamorphosis/EAnam.hpp"
 #include "Basic/EJustify.hpp"
-#include "Basic/EOptDbg.hpp"
-#include "Basic/EOptCst.hpp"
 #include "LithoRule/EProcessOper.hpp"
 #include "LinearOp/EPowerPT.hpp"
 #include "API/ESPDECalcMode.hpp"

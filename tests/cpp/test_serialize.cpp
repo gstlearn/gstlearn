@@ -61,7 +61,7 @@ int main(int /*argc*/, char */*argv*/[])
   // =======================
 
   // ===== Create the Grid Db
-  Db* dbg1 = Db::createFromGrid({12,10},{0.1,0.3},{0.2,0.4});
+  Dbgrid* dbg1 = Dbgrid::create({12,10},{0.1,0.3},{0.2,0.4});
   vec1 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
   dbg1->addFields(vec1,"myvar1",ELoc::Z, 0);
   vec2 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
@@ -74,7 +74,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) dbg1->dumpToNF("Neutral.Dbg.ascii",verbose);
 
   // Deserialize dbg2
-  Db* dbg2 = Db::createFromNF("Neutral.Dbg.ascii",verbose);
+  Db* dbg2 = Dbgrid::createFromNF("Neutral.Dbg.ascii",verbose);
   dbg2->display();
 
   // =======================

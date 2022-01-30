@@ -30,7 +30,7 @@ int main(int /*argc*/, char */*argv*/[])
   law_set_random_seed(seed);
 
   // Creating the Grid Rotated Db
-  Db* grid = Db::createFromGrid({6,4}, {1.,2.}, {10.,20.}, {10.,0.});
+  Dbgrid* grid = Dbgrid::create({6,4}, {1.,2.}, {10.,20.}, {10.,0.});
   grid->display();
 
   // Creating the Model

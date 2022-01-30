@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Basic/ECst.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
@@ -16,9 +17,9 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/EOptCst.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
+#include "Db/Dbgrid.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -251,7 +252,7 @@ static int st_gibbs(int  niter,
 int main(int /*argc*/, char */*argv*/[])
 
 {
-  Db       *dbgrid;
+  Dbgrid   *dbgrid;
   Model    *model1,*model2;
   SPDE_Option    s_option;
   cs            *Q,**Qcols;
@@ -279,7 +280,7 @@ int main(int /*argc*/, char */*argv*/[])
   /* 1 - Initializations */
   /***********************/
 
-  dbgrid   = (Db          *) NULL;
+  dbgrid   = (Dbgrid      *) NULL;
   model1   = (Model       *) NULL;
   model2   = (Model       *) NULL;
   colors   = (int         *) NULL;

@@ -16,6 +16,7 @@
 #include "geoslib_define.h"
 
 class Db;
+class Dbgrid;
 
 class GSTLEARN_EXPORT DirParam : public AStringable // TODO : Should inherit from ASpaceObject
 {
@@ -83,7 +84,7 @@ public:
   void setIdate(int idate) {_idate = idate; }
   void setDPas(double dpas) {_dPas = dpas; }
   void setDLag(double dlag) {_dPas = dlag; }
-  void setDPas(const Db* db);
+  void setDPas(const Dbgrid* db);
   void setBench(double bench) {_bench = bench; }
   void setCylRad(double cylrad) {_cylRad = cylrad; }
   void setTolDist(double toldist) {_tolDist = toldist; }

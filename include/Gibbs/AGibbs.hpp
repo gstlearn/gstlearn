@@ -126,7 +126,7 @@ private:
 
   VectorInt _ranks; // Internal array use to store indices of active samples
   // Pointer to the reference Db (only stored for efficiency)
-  Db*       _db;
+  Db*   _db;
   // Optional Table used to store performance statistics (see _optionStats)
   Table _stats;
 };

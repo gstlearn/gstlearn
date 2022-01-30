@@ -278,7 +278,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
   // Getting maximum distance for covariance calculation
 
   double distmax = 1.5 * model->getCova(0)->getRange();
-  double dx = db->getDX(0);
+  double dx = db->getUnit();
   int npas = (int) ceil(distmax / dx);
   Table tabmod(npas,3);
 

@@ -12,6 +12,7 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
+#include "Db/Dbgrid.hpp"
 
 #include <iostream>
 #include <math.h>
@@ -41,7 +42,7 @@ SPDE::SPDE()
 }
 
 SPDE::SPDE(Model* model,
-           const Db* field,
+           const Dbgrid* field,
            const Db* dat,
            const ESPDECalcMode& calc)
     : _data(nullptr),
@@ -103,7 +104,7 @@ void SPDE::_purge()
 }
 
 void SPDE::init(Model* model,
-                const Db* field,
+                const Dbgrid* field,
                 const Db* dat,
                 const ESPDECalcMode& calc)
 {
@@ -257,7 +258,7 @@ void SPDE::compute(int nbsimus, int seed)
 }
 
 MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
-                                const Db& field,
+                                const Dbgrid& field,
                                 double discr,
                                 double ext)
 {

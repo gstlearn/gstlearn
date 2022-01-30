@@ -15,6 +15,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
+#include "Db/Dbgrid.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Rotation.hpp"
 #include "Basic/AException.hpp"
@@ -49,7 +50,7 @@ MeshETurbo::MeshETurbo(const VectorInt& nx,
   (void) initFromGrid(nx, dx, x0, rotmat, flag_polarized, verbose);
 }
 
-MeshETurbo::MeshETurbo(const Db* db, int verbose)
+MeshETurbo::MeshETurbo(const Dbgrid* db, int verbose)
     : AMesh(),
       _grid(),
       _nPerCell(0),
@@ -664,7 +665,7 @@ void MeshETurbo::_fromMeshToIndex(int imesh,
 }
 
 int MeshETurbo::initFromCova(const CovAniso& cova,
-                             const Db* field,
+                             const Dbgrid* field,
                              double ratio,
                              int nbExt,
                              bool /*useSel*/,

@@ -48,7 +48,7 @@ static int TY; /* Allocated size of BITMAP along Y */
 static double **Heap, HMAX, HTOP;
 static int Hsize, Offset_mark_out, Offset_out_in;
 static int SIGNE, FLAG_VERBOSE, FLAG_CROSS;
-static Db *DB;
+static Dbgrid *DB;
 
 /*****************************************************************************/
 /*!
@@ -698,18 +698,18 @@ static int st_spill(SPIMG *in,
  ** \remark  must start with 1
  **
  *****************************************************************************/
-int spill_point(Db *dbgrid,
-                                int ind_depth,
-                                int ind_data,
-                                int flag_up,
-                                int flag_cross,
-                                int flag_unknown,
-                                int flag_verbose,
-                                double hmax,
-                                double *h,
-                                double *th,
-                                int *ix0,
-                                int *iy0)
+int spill_point(Dbgrid *dbgrid,
+                int ind_depth,
+                int ind_data,
+                int flag_up,
+                int flag_cross,
+                int flag_unknown,
+                int flag_verbose,
+                double hmax,
+                double *h,
+                double *th,
+                int *ix0,
+                int *iy0)
 {
   SPIMG *in, *out, *mark;
   double hspill, thick;

@@ -949,7 +949,7 @@ int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech) const
     {
       double delta = ABS(dbin->getCoordinate(iech, idim) -
                          dbin->getCoordinate(jech, idim));
-      if (delta >= dbout->getDX(idim)) similar = true;
+      if (delta >= dbout->getUnit(idim)) similar = true;
     }
     if (similar)
     {

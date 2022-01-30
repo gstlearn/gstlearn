@@ -32,7 +32,7 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////
   // Creating the Db
   auto nx={ 3,3 };
-  Db* workingDbc = Db::createFromGrid(nx);
+  Dbgrid* workingDbc = Dbgrid::create(nx);
   int nech = workingDbc->getActiveSampleNumber();
 
   ///////////////////////

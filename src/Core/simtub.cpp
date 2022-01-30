@@ -1579,7 +1579,7 @@ static double st_project_point(Db *db, Situba *situba, int ibs, int iech)
  ** \param[in]  iz      grid index along Z
  **
  *****************************************************************************/
-static double st_project_grid(Db *db,
+static double st_project_grid(Dbgrid *db,
                               Situba *situba,
                               int ibs,
                               int ix,
@@ -1718,13 +1718,13 @@ static void st_gendir(Db *dbout, Model *model, Situba *situba)
 
         if (is_grid(dbout))
         {
-          situba->codir[ibs]->t00 = t00 = st_project_grid(dbout, situba, ibs, 0,
-                                                          0, 0);
-          situba->codir[ibs]->dxp = st_project_grid(dbout, situba, ibs, 1, 0, 0)
+          Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+          situba->codir[ibs]->t00 = t00 = st_project_grid(dbgrid, situba, ibs, 0, 0, 0);
+          situba->codir[ibs]->dxp = st_project_grid(dbgrid, situba, ibs, 1, 0, 0)
               - t00;
-          situba->codir[ibs]->dyp = st_project_grid(dbout, situba, ibs, 0, 1, 0)
+          situba->codir[ibs]->dyp = st_project_grid(dbgrid, situba, ibs, 0, 1, 0)
               - t00;
-          situba->codir[ibs]->dzp = st_project_grid(dbout, situba, ibs, 0, 0, 1)
+          situba->codir[ibs]->dzp = st_project_grid(dbgrid, situba, ibs, 0, 0, 1)
               - t00;
           if (cova->getType() == ECov::SPHERICAL || cova->getType()
               == ECov::CUBIC)
@@ -1758,12 +1758,10 @@ static void st_minmax(Db *db, Situba *situba)
 
   if (is_grid(db))
   {
-    nx = (db->getNDim() >= 1) ? db->getNX(0) :
-                                1;
-    ny = (db->getNDim() >= 2) ? db->getNX(1) :
-                                1;
-    nz = (db->getNDim() >= 3) ? db->getNX(2) :
-                                1;
+    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
+    nx = (dbgrid->getNDim() >= 1) ? dbgrid->getNX(0) : 1;
+    ny = (dbgrid->getNDim() >= 2) ? dbgrid->getNX(1) : 1;
+    nz = (dbgrid->getNDim() >= 3) ? dbgrid->getNX(2) : 1;
 
     /* Case when the data obeys to a grid organization */
     /* This test is programmed for 3-D (maximum) grid  */
@@ -1775,7 +1773,7 @@ static void st_minmax(Db *db, Situba *situba)
         for (iy = 0; iy < 2; iy++)
           for (ix = 0; ix < 2; ix++)
           {
-            tt = st_project_grid(db, situba, ibs, ix * (nx - 1), iy * (ny - 1),
+            tt = st_project_grid(dbgrid, situba, ibs, ix * (nx - 1), iy * (ny - 1),
                                  iz * (nz - 1));
             if (tt < situba->codir[ibs]->tmin) situba->codir[ibs]->tmin = tt;
             if (tt > situba->codir[ibs]->tmax) situba->codir[ibs]->tmax = tt;
@@ -2001,7 +1999,7 @@ static void st_title_process(char *string, const char *title)
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-static int st_simulate_grid(Db *db,
+static int st_simulate_grid(Dbgrid *db,
                             Model *model,
                             Situba *situba,
                             double *aic,
@@ -2825,6 +2823,7 @@ static void st_update_data2target(Db *dbin,
 
   if (is_grid(dbout))
   {
+    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
 
     /*********************************************/
     /* Case where the output file is a grid file */
@@ -2834,10 +2833,10 @@ static void st_update_data2target(Db *dbin,
     {
       if (!dbin->isActive(ip)) continue;
       db_sample_load(dbin, ELoc::X, ip, coor2);
-      if (point_to_grid(dbout, coor2, 1, indg)) continue;
-      ik = db_index_grid_to_sample(dbout, indg);
-      if (!dbout->isActive(ik)) continue;
-      grid_to_point(dbout, indg, nullptr, coor1);
+      if (point_to_grid(dbgrid, coor2, 1, indg)) continue;
+      ik = db_index_grid_to_sample(dbgrid, indg);
+      if (!dbgrid->isActive(ik)) continue;
+      grid_to_point(dbgrid, indg, nullptr, coor1);
 
       /* Get the distance to the target point */
 
@@ -2860,7 +2859,7 @@ static void st_update_data2target(Db *dbin,
             valdat = dbin->getSimvar(ELoc::GAUSFAC, ip, isimu, 0, icase, nbsimu,
                                      1);
           if (FFFF(valdat)) continue;
-          dbout->setSimvar(ELoc::SIMU, ik, isimu, ivar, icase, nbsimu, nvar,
+          dbgrid->setSimvar(ELoc::SIMU, ik, isimu, ivar, icase, nbsimu, nvar,
                            valdat);
         }
     }
@@ -3146,6 +3145,7 @@ static void st_check_gaussian_data2grid(Db *dbin,
   /* Initializations */
 
   if (dbin == nullptr) return;
+  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
   number = 0;
   check_mandatory_attribute("st_check_gaussian_data2grid", dbout, ELoc::SIMU);
   mestitle(1, "Checking Gaussian of data against closest grid node");
@@ -3161,9 +3161,9 @@ static void st_check_gaussian_data2grid(Db *dbin,
     if (!dbin->isActive(iech)) continue;
 
     // Find the index of the closest grid node and derive tolerance
-    jech = index_point_to_grid(dbin, iech, 0, dbout, coor.data());
+    jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
     if (jech < 0) continue;
-    eps = model_calcul_stdev(model, dbin, iech, dbout, jech, 0, 2.);
+    eps = model_calcul_stdev(model, dbin, iech, dbgrid, jech, 0, 2.);
     if (eps < 1.e-6) eps = 1.e-6;
 
     for (isimu = 0; isimu < nbsimu; isimu++)
@@ -3180,7 +3180,7 @@ static void st_check_gaussian_data2grid(Db *dbin,
         valdat = dbin->getSimvar(ELoc::GAUSFAC, iech, 0, 0, 0, nbsimu, 1);
       }
 
-      valres = dbout->getSimvar(ELoc::SIMU, jech, isimu, 0, 0, nbsimu, 1);
+      valres = dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, 0, nbsimu, 1);
       if (ABS(valdat - valres) < eps) continue;
       number++;
 
@@ -3195,8 +3195,8 @@ static void st_check_gaussian_data2grid(Db *dbin,
 
       message("- Value (%lf) at Grid (#%d) ", valres, jech + 1);
       message("at (");
-      for (int idim = 0; idim < dbout->getNDim(); idim++)
-        message(" %lf", dbout->getCoordinate(jech, idim));
+      for (int idim = 0; idim < dbgrid->getNDim(); idim++)
+        message(" %lf", dbgrid->getCoordinate(jech, idim));
       message(")\n");
 
       message("- Tolerance = %lf\n", eps);
@@ -3280,7 +3280,8 @@ static int st_simtub_process(Db *dbin,
 
   if (is_grid(dbout))
   {
-    if (st_simulate_grid(dbout, model, situba, aic, icase, 0)) goto label_end;
+    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+    if (st_simulate_grid(dbgrid, model, situba, aic, icase, 0)) goto label_end;
   }
   else
   {
@@ -3411,7 +3412,8 @@ int simtub_potential(Db *dbiso,
 
   if (is_grid(dbout))
   {
-    if (st_simulate_grid(dbout, model, situba, aic, icase, 0)) goto label_end;
+    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+    if (st_simulate_grid(dbgrid, model, situba, aic, icase, 0)) goto label_end;
   }
   else
   {
@@ -3751,7 +3753,9 @@ static void st_check_facies_data2grid(Db *dbin,
 
   /* Initializations */
 
-  check_mandatory_attribute("st_check_facies_data2grid", dbout, ELoc::FACIES);
+  if (! dbout->isGrid()) return;
+  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+  check_mandatory_attribute("st_check_facies_data2grid", dbgrid, ELoc::FACIES);
   number = 0;
   coor = nullptr;
   if (flag_check)
@@ -3770,20 +3774,20 @@ static void st_check_facies_data2grid(Db *dbin,
     if (!dbin->isActive(iech)) continue;
     facdat = (int) dbin->getVariable(iech, 0);
     if (facdat < 1 || facdat > nfacies) continue;
-    jech = index_point_to_grid(dbin, iech, 0, dbout, coor);
+    jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor);
     if (jech < 0) continue;
 
     for (isimu = 0; isimu < nbsimu; isimu++)
     {
-      facres = (int) dbout->getSimvar(ELoc::FACIES, jech, isimu, 0, ipgs,
+      facres = (int) dbgrid->getSimvar(ELoc::FACIES, jech, isimu, 0, ipgs,
                                       nbsimu, 1);
       if (flag_show)
       {
         if (facdat == facres)
-          dbout->setSimvar(ELoc::FACIES, jech, isimu, 0, ipgs, nbsimu, 1,
+          dbgrid->setSimvar(ELoc::FACIES, jech, isimu, 0, ipgs, nbsimu, 1,
                            -facdat);
         else
-          dbout->setSimvar(ELoc::FACIES, jech, isimu, 0, ipgs, nbsimu, 1, 0.);
+          dbgrid->setSimvar(ELoc::FACIES, jech, isimu, 0, ipgs, nbsimu, 1, 0.);
       }
 
       if (facdat == facres) continue;
@@ -4978,6 +4982,7 @@ int simtub_constraints(Db *dbin,
   tab.resize(dbout->getSampleNumber());
   if (flag_grid)
   {
+    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
     nx = (int*) mem_alloc(sizeof(int) * ndim, 0);
     if (nx == nullptr) goto label_end;
     dx = (double*) mem_alloc(sizeof(double) * ndim, 0);
@@ -4987,9 +4992,9 @@ int simtub_constraints(Db *dbin,
 
     for (i = 0; i < ndim; i++)
     {
-      nx[i] = dbout->getNX(i);
-      dx[i] = dbout->getDX(i);
-      x0[i] = dbout->getX0(i);
+      nx[i] = dbgrid->getNX(i);
+      dx[i] = dbgrid->getDX(i);
+      x0[i] = dbgrid->getX0(i);
     }
   }
 

@@ -20,6 +20,7 @@
 #include "Drifts/EDrift.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Db/Db.hpp"
+#include "Db/Dbgrid.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 
@@ -83,7 +84,7 @@ typedef struct
   int nring;
   int nfull;
   double range;
-  Db *db;
+  Dbgrid *db;
   Model *model;
   int *indg;
   int *indg0;
@@ -684,7 +685,7 @@ static void st_cov(Model* /*model*/,
  ** \param[in]  pot_ext    Pot_Ext structure
  **
  *****************************************************************************/
-static int st_extdrift_neigh(Db *dbgrid, Pot_Ext *pot_ext)
+static int st_extdrift_neigh(Dbgrid *dbgrid, Pot_Ext *pot_ext)
 {
   int ecr, iech;
   double drift;
@@ -794,7 +795,7 @@ static int st_extdrift_eval(const char *target,
                             double x0,
                             double y0,
                             double z0,
-                            Db *dbgrid,
+                            Dbgrid *dbgrid,
                             Pot_Ext *pot_ext,
                             double *extval,
                             double *extgrd)
@@ -803,6 +804,7 @@ static int st_extdrift_eval(const char *target,
   int error;
 
   error = 1;
+  if (dbgrid == nullptr) return 1;
   coor[0] = x0;
   coor[1] = y0;
   coor[2] = z0;
@@ -895,7 +897,7 @@ static int st_build_lhs(Pot_Env *pot_env,
                         Db *dbiso,
                         Db *dbgrd,
                         Db *dbtgt,
-                        Db *dbout,
+                        Dbgrid *dbout,
                         Model *model,
                         double nugget_grd,
                         double nugget_tgt,
@@ -1525,7 +1527,7 @@ static void st_build_rhs(Pot_Env *pot_env,
                          Db *dbiso,
                          Db *dbgrd,
                          Db *dbtgt,
-                         Db *dbgrid,
+                         Dbgrid *dbgrid,
                          Model *model,
                          double *coor,
                          double *rhs)
@@ -1749,7 +1751,7 @@ static void st_calc_point(Pot_Env *pot_env,
                           Db *dbiso,
                           Db *dbgrd,
                           Db *dbtgt,
-                          Db *dbgrid,
+                          Dbgrid *dbgrid,
                           Model *model,
                           double *zdual,
                           double *rhs,
@@ -1872,7 +1874,7 @@ static void st_estimate(Pot_Env *pot_env,
                         Db *dbiso,
                         Db *dbgrd,
                         Db *dbtgt,
-                        Db *dbout,
+                        Dbgrid *dbout,
                         Model *model,
                         double refpot,
                         double *zdualk,
@@ -1986,8 +1988,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = ISO_COO(ic0, 0, idim);
-  st_build_rhs(pot_env, pot_ext, 0, 0, dbiso, dbgrd, dbtgt, dbiso, model, coor0,
-               rhs);
+  st_build_rhs(pot_env, pot_ext, 0, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
   matrix_manage(nequa, 1, -1, 0, &icol0, NULL, rhs, rhs);
   matrix_product(1, neqm1, 1, zdualk, rhs, &potval);
 
@@ -1995,8 +1996,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
-  st_build_rhs(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbiso, model, coor0,
-               rhs);
+  st_build_rhs(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
   matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
   matrix_product(1, neqm1, nsol, zdualk, rhs, result);
   if (OptDbg::query(EDbg::CONVERGE))
@@ -2020,8 +2020,7 @@ static void st_dist_convert(Pot_Env *pot_env,
       coor[idim] -= delta;
       dgeo[idim] += delta * delta;
     }
-    st_build_rhs(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbiso, model,
-                 coor, rhs);
+    st_build_rhs(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor, rhs);
     matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
     matrix_product(1, neqm1, nsol, zdualk, rhs, result);
     if (OptDbg::query(EDbg::CONVERGE))
@@ -2077,18 +2076,18 @@ static void st_dist_convert(Pot_Env *pot_env,
  **
  *****************************************************************************/
 static void st_xvalid_potential(Pot_Env *pot_env,
-                      Pot_Ext *pot_ext,
-                      Db *dbiso,
-                      Db *dbgrd,
-                      Db *dbtgt,
-                      Model *model,
-                      double *lhs,
-                      int flag_dist_conv,
-                      double *zval,
-                      double *lhs_orig,
-                      double *lhs_aux,
-                      double *rhs,
-                      double *zdualk)
+                                Pot_Ext *pot_ext,
+                                Db *dbiso,
+                                Db *dbgrd,
+                                Db *dbtgt,
+                                Model *model,
+                                double *lhs,
+                                int flag_dist_conv,
+                                double *zval,
+                                double *lhs_orig,
+                                double *lhs_aux,
+                                double *rhs,
+                                double *zdualk)
 {
   double result[4], variance, value, stats[4][2], stdev, dist_euc, dist_geo;
   int nequa, icol0, iech0, number, nitem;
@@ -2291,7 +2290,7 @@ static void st_simcond(Pot_Env *pot_env,
                        Db *dbiso,
                        Db *dbgrd,
                        Db *dbtgt,
-                       Db *dbout,
+                       Dbgrid *dbout,
                        Model *model,
                        double refpot,
                        double *potsim,
@@ -2470,7 +2469,7 @@ static void st_check_data(Pot_Env *pot_env,
                           Db *dbiso,
                           Db *dbgrd,
                           Db *dbtgt,
-                          Db *dbgrid,
+                          Dbgrid *dbgrid,
                           Model *model,
                           int isimu,
                           int nbsimu,
@@ -2631,7 +2630,7 @@ static double st_evaluate_refpot(Pot_Env *pot_env,
                                  Db *dbiso,
                                  Db *dbgrd,
                                  Db *dbtgt,
-                                 Db *dbgrid,
+                                 Dbgrid *dbgrid,
                                  Model *model,
                                  double *zdual,
                                  double *rhs)
@@ -2681,7 +2680,7 @@ static void st_evaluate_potval(Pot_Env *pot_env,
                                Db *dbiso,
                                Db *dbgrd,
                                Db *dbtgt,
-                               Db *dbgrid,
+                               Dbgrid *dbgrid,
                                Model *model,
                                double refpot,
                                int isimu,
@@ -2812,7 +2811,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
  ** \param[out] pot_ext     Pot_Ext structure
  **
  *****************************************************************************/
-static int st_extdrift_create_db(Db *dbout, Pot_Ext *pot_ext)
+static int st_extdrift_create_db(Dbgrid *dbout, Pot_Ext *pot_ext)
 {
   int error, nech;
   VectorInt nx;
@@ -2887,7 +2886,7 @@ static int st_extdrift_create_db(Db *dbout, Pot_Ext *pot_ext)
  ** \param[out] pot_ext    Pot_Ext structure
  **
  *****************************************************************************/
-static int st_extdrift_calc_init(Db *dbout, Pot_Ext *pot_ext)
+static int st_extdrift_calc_init(Dbgrid *dbout, Pot_Ext *pot_ext)
 {
   int number, error;
   double *a, *b;
@@ -2945,7 +2944,7 @@ static int st_pot_ext_manage(int mode,
                              Pot_Ext *pot_ext,
                              int nring,
                              double range,
-                             Db *dbout)
+                             Dbgrid *dbout)
 {
   /* Dispatch */
 
@@ -3017,7 +3016,7 @@ static int st_pot_ext_manage(int mode,
 int potential_kriging(Db *dbiso,
                       Db *dbgrd,
                       Db *dbtgt,
-                      Db *dbout,
+                      Dbgrid *dbout,
                       Model *model,
                       ANeighParam *neighparam,
                       double nugget_grd,
@@ -3205,7 +3204,7 @@ int potential_kriging(Db *dbiso,
  ** \param[in]  dbout        Output Db structure
  **
  *****************************************************************************/
-static int st_distance_to_isoline(Db *dbout)
+static int st_distance_to_isoline(Dbgrid *dbout)
 
 {
   int radius, seed, memo;
@@ -3259,7 +3258,7 @@ static int st_distance_to_isoline(Db *dbout)
 int potential_simulate(Db *dbiso,
                        Db *dbgrd,
                        Db *dbtgt,
-                       Db *dbout,
+                       Dbgrid *dbout,
                        Model *model,
                        ANeighParam *neighparam,
                        double nugget_grd,
@@ -3626,7 +3625,7 @@ int potential_xvalid(Db *dbiso,
 
   // Establish the cokriging system
 
-  if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbiso, model,
+  if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, nullptr, model,
                    nugget_grd, nugget_tgt, lhs)) goto label_end;
 
   // Save the matrix (used for converting into distance)
@@ -3651,8 +3650,8 @@ int potential_xvalid(Db *dbiso,
 
   /* Process the estimate at masked-off isovalues */
 
-  st_xvalid_potential(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, model, lhs, flag_dist_conv,
-            zval, lhs_orig, lhs_aux, rhs, zdualk);
+  st_xvalid_potential(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, model, lhs,
+                      flag_dist_conv, zval, lhs_orig, lhs_aux, rhs, zdualk);
 
   // Set the error return code
 

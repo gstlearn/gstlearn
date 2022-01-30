@@ -41,7 +41,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating a grid covering the same space
   VectorInt nx = { 100, 100 };
   VectorDouble dx = { 0.01, 0.01 };
-  Db* grid = Db::createFromGrid(nx, dx);
+  Dbgrid* grid = Dbgrid::create(nx, dx);
   grid->display();
 
   // Creating the Model(s) of the Underlying GRF(s)

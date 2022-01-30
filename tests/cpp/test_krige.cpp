@@ -35,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Generate the output grid
   VectorInt nx = {100,100};
-  Db* grid = Db::createFromGrid(nx);
+  Dbgrid* grid = Dbgrid::create(nx);
   grid->display();
 
   // Generate the data base

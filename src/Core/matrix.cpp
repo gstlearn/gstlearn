@@ -13,8 +13,7 @@
 #include "geoslib_enum.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/EOptCst.hpp"
-
+#include "Basic/ECst.hpp"
 #include <math.h>
 #include <cmath>
 
@@ -2488,13 +2487,13 @@ static int st_match_index(int index, int nitem, int *items)
  **
  *****************************************************************************/
 void matrix_manage(int nrows,
-                                   int ncols,
-                                   int nr,
-                                   int nc,
-                                   int *rowsel,
-                                   int *colsel,
-                                   double *v1,
-                                   double *v2)
+                   int ncols,
+                   int nr,
+                   int nc,
+                   int *rowsel,
+                   int *colsel,
+                   double *v1,
+                   double *v2)
 {
   int irow, icol, ecr, lec, flag_col, flag_row;
 

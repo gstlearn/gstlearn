@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-// Enums
 #include "Db/ELoc.hpp"
 
 #include "Anamorphosis/AAnam.hpp"

@@ -74,8 +74,8 @@ class IClonable{};
 %include Basic/Utilities.hpp
 %include Basic/OptDbg.hpp
 %include Basic/OptCst.hpp
-%include Basic/EOptDbg.hpp
-%include Basic/EOptCst.hpp
+%include Basic/EDbg.hpp
+%include Basic/ECst.hpp
 
 %include Space/Space.hpp
 %include Space/ASpace.hpp

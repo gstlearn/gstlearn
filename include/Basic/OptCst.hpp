@@ -12,9 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "EOptCst.hpp"
-
 #include <map>
+#include "ECst.hpp"
 
 /**
  * Operate the list of Constant options

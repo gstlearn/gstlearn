@@ -155,7 +155,7 @@ static int st_get_optimal_even_number(int number)
  ** \param[out] simu  Initialized structure
  **
  *****************************************************************************/
-static void st_simfft_init(Db *db, ST_FFT *simu)
+static void st_simfft_init(Dbgrid *db, ST_FFT *simu)
 {
   int i;
 
@@ -196,7 +196,7 @@ static void st_simfft_init(Db *db, ST_FFT *simu)
  ** \param[in]  flag_amplitude  1 to convert into amplitude
  **
  *****************************************************************************/
-static void st_simfft_prepar(Db *db,
+static void st_simfft_prepar(Dbgrid *db,
                              Model *model,
                              ST_FFT *simu,
                              int flag_amplitude)
@@ -565,7 +565,7 @@ static int st_total_count(int ndim, int *nxyz)
  **                      covariance is considered as small enough for dilation
  **
  *****************************************************************************/
-static void st_grid_dilate(Db *db, Model *model, ST_FFT *simu, double percent)
+static void st_grid_dilate(Dbgrid *db, Model *model, ST_FFT *simu, double percent)
 {
   double xyz0[3], xyz[3][3];
   int i, j, idx, idy, idz, ndx, ndy, ndz, correct, not_ok, not_ok_dir, ndim,
@@ -729,7 +729,7 @@ static void st_simfft_free(ST_FFT *simu)
  ** \param[out]  simu   ST_FFT structure
  **
  *****************************************************************************/
-static int st_simfft_alloc(Db *db, Model *model, double percent, ST_FFT *simu)
+static int st_simfft_alloc(Dbgrid *db, Model *model, double percent, ST_FFT *simu)
 {
   int i, error, ndim, nval;
 
@@ -1145,7 +1145,7 @@ static void st_simfft_symmetry(ST_FFT *simu)
  ** \param[in]  iad   address for writing the simulation
  **
  *****************************************************************************/
-static void st_simfft_final(Db *db, ST_FFT *simu, int iad)
+static void st_simfft_final(Dbgrid *db, ST_FFT *simu, int iad)
 {
   int ix, iy, iz, jx, jy, jz, ecr;
 
@@ -1183,12 +1183,12 @@ static void st_simfft_final(Db *db, ST_FFT *simu, int iad)
  ** \param[in]  flag_aliasing  1 for anti-aliasing procedure; 0 otherwise
  **
  *****************************************************************************/
-int simfft_f(Db *db,
-                             Model *model,
-                             int seed,
-                             int nbsimu,
-                             double percent,
-                             int flag_aliasing)
+int simfft_f(Dbgrid *db,
+             Model *model,
+             int seed,
+             int nbsimu,
+             double percent,
+             int flag_aliasing)
 {
   ST_FFT simu;
   int isimu, iptr, error;
@@ -1415,14 +1415,14 @@ static double st_support(ST_FFT *simu, double sigma)
  ** \param[out] coeffs  r^2 coefficients for given logarithmic variances
  **
  *****************************************************************************/
-int simfft_support(Db *db,
-                                   Model *model,
-                                   double percent,
-                                   int flag_aliasing,
-                                   int nval,
-                                   double *sigma,
-                                   double *r2val,
-                                   double *coeffs)
+int simfft_support(Dbgrid *db,
+                   Model *model,
+                   double percent,
+                   int flag_aliasing,
+                   int nval,
+                   double *sigma,
+                   double *r2val,
+                   double *coeffs)
 {
   ST_FFT simu;
   int error, ival;

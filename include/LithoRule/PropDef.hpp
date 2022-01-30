@@ -14,6 +14,7 @@
 #include "LithoRule/EProcessOper.hpp"
 
 class Db;
+class Dbgrid;
 
 class GSTLEARN_EXPORT PropDef
 {
@@ -33,5 +34,5 @@ public:
   VectorDouble propwrk;
   VectorDouble proploc;
   VectorDouble coor;
-  const Db *dbprop; /* Pointer to the Proportion file */
+  const Dbgrid *dbprop; /* Pointer to the Proportion file */
 };

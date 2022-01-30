@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/EOptCst.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
@@ -18,6 +17,7 @@
 #include <sstream>
 #include <iomanip>
 #include <map>
+#include "../../include/Basic/ECst.hpp"
 
 std::map<const ECst, double> OptCst::_cst = std::map<const ECst, double>({
                                        { ECst::NTCAR,  10. },

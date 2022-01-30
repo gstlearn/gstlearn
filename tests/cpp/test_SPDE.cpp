@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 
 #include "Basic/OptDbg.hpp"
+#include "Db/Dbgrid.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
@@ -28,7 +29,7 @@
 int main(int /*argc*/, char */*argv*/[])
 
 {
-  Db          *dbgrid;
+  Dbgrid      *dbgrid;
   Model       *model = nullptr;
   SPDE_Option  s_option;
   CovContext   ctxt;

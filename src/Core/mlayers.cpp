@@ -16,6 +16,7 @@
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Db/Db.hpp"
+#include "Db/Dbgrid.hpp"
 
 #include <math.h>
 
@@ -227,7 +228,7 @@ static void lmlayers_print(LMlayers *lmlayers)
  *****************************************************************************/
 static int st_locate_sample_in_output(LMlayers *lmlayers,
                                       Db *dbin,
-                                      Db *dbout,
+                                      Dbgrid *dbout,
                                       int iech,
                                       int *igrid)
 {
@@ -354,7 +355,7 @@ static int st_get_props_result(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_get_props_data(LMlayers *lmlayers,
                              Db *dbin,
-                             Db *dbout,
+                             Dbgrid *dbout,
                              int iech,
                              int ilayer0,
                              double *props)
@@ -420,7 +421,7 @@ static double st_get_drift_result(LMlayers *lmlayers,
  *****************************************************************************/
 static double st_get_drift_data(LMlayers *lmlayers,
                                 Db *dbin,
-                                Db *dbout,
+                                Dbgrid *dbout,
                                 int iech,
                                 int ilayer0)
 {
@@ -690,7 +691,7 @@ static int st_drift(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_lhs_one(LMlayers *lmlayers,
                       Db *dbin,
-                      Db *dbout,
+                      Dbgrid *dbout,
                       Model *model,
                       int *seltab,
                       int iech0,
@@ -769,7 +770,7 @@ static int st_lhs_one(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_rhs(LMlayers *lmlayers,
                   Db *dbin,
-                  Db *dbout,
+                  Dbgrid *dbout,
                   Model *model,
                   double *coor,
                   int *seltab,
@@ -861,7 +862,7 @@ static int st_rhs(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_lhs(LMlayers *lmlayers,
                   Db *dbin,
-                  Db *dbout,
+                  Dbgrid *dbout,
                   Model *model,
                   int *seltab,
                   double *prop1,
@@ -937,7 +938,7 @@ static int st_lhs(LMlayers *lmlayers,
  *****************************************************************************/
 static void st_data_vector(LMlayers *lmlayers,
                            Db *dbin,
-                           Db *dbout,
+                           Dbgrid *dbout,
                            int *seltab,
                            double *zval)
 {
@@ -1026,7 +1027,7 @@ static void st_data_vector(LMlayers *lmlayers,
 static int st_subtract_optimal_drift(LMlayers *lmlayers,
                                      int verbose,
                                      Db *dbin,
-                                     Db *dbout,
+                                     Dbgrid *dbout,
                                      int *seltab,
                                      double *zval)
 {
@@ -1248,7 +1249,7 @@ static int st_collocated_prepare(LMlayers *lmlayers,
                                  int iechout,
                                  double *coor,
                                  Db *dbin,
-                                 Db *dbout,
+                                 Dbgrid *dbout,
                                  Model *model,
                                  int *seltab,
                                  double *a,
@@ -1467,7 +1468,7 @@ static void st_estimate_bayes(LMlayers *lmlayers,
 *****************************************************************************/
 static void st_estimate(LMlayers *lmlayers,
                         Db *dbin,
-                        Db *dbout,
+                        Dbgrid *dbout,
                         Model *model,
                         int *seltab,
                         int flag_bayes,
@@ -1604,7 +1605,7 @@ static void st_estimate(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_check_auxiliary_variables(LMlayers *lmlayers,
                                         Db *dbin,
-                                        Db *dbout,
+                                        Dbgrid *dbout,
                                         int *seltab)
 {
   int iech, ilayer, igrid, newval, nechtot;
@@ -1786,7 +1787,7 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
  *****************************************************************************/
 static int st_drift_data(LMlayers *lmlayers,
                          Db *dbin,
-                         Db *dbout,
+                         Dbgrid *dbout,
                          int *seltab,
                          double *prop1,
                          double *fftab)
@@ -2028,7 +2029,7 @@ static int st_drift_bayes(LMlayers *lmlayers,
  **
  *****************************************************************************/
 int multilayers_kriging(Db *dbin,
-                        Db *dbout,
+                        Dbgrid *dbout,
                         Model *model,
                         ANeighParam *neighparam,
                         int flag_same,
@@ -2309,7 +2310,7 @@ int multilayers_kriging(Db *dbin,
  *****************************************************************************/
 static int st_evaluate_lag(LMlayers *lmlayers,
                            Db *dbin,
-                           Db *dbout,
+                           Dbgrid *dbout,
                            Vario_Order *vorder,
                            int nlayers,
                            int ifirst,
@@ -2402,7 +2403,7 @@ static int st_evaluate_lag(LMlayers *lmlayers,
 static int st_varioexp_chh(LMlayers *lmlayers,
                            int verbose,
                            Db *dbin,
-                           Db *dbout,
+                           Dbgrid *dbout,
                            Vario_Order *vorder,
                            double *zval,
                            int idir,
@@ -2532,16 +2533,16 @@ static int st_varioexp_chh(LMlayers *lmlayers,
  **
  *****************************************************************************/
 int multilayers_vario(Db *dbin,
-                                      Db *dbout,
-                                      Vario *vario,
-                                      int nlayers,
-                                      int flag_vel,
-                                      int flag_ext,
-                                      int irf_rank,
-                                      int match_time,
-                                      int colrefd,
-                                      int colreft,
-                                      int verbose)
+                      Dbgrid *dbout,
+                      Vario *vario,
+                      int nlayers,
+                      int flag_vel,
+                      int flag_ext,
+                      int irf_rank,
+                      int match_time,
+                      int colrefd,
+                      int colreft,
+                      int verbose)
 {
   int *seltab, error, ilayer, nechmax, nech, iech, idir, iptr;
   double *prop1, *zval;
@@ -2806,20 +2807,20 @@ static int st_get_prior(int nech,
  **
  *****************************************************************************/
 int multilayers_get_prior(Db *dbin,
-                                          Db *dbout,
-                                          Model *model,
-                                          int flag_same,
-                                          int flag_vel,
-                                          int flag_ext,
-                                          int irf_rank,
-                                          int match_time,
-                                          int colrefd,
-                                          int colreft,
-                                          int colrefb,
-                                          int verbose,
-                                          int *npar_arg,
-                                          double **mean,
-                                          double **vars)
+                          Dbgrid *dbout,
+                          Model *model,
+                          int flag_same,
+                          int flag_vel,
+                          int flag_ext,
+                          int irf_rank,
+                          int match_time,
+                          int colrefd,
+                          int colreft,
+                          int colrefb,
+                          int verbose,
+                          int *npar_arg,
+                          double **mean,
+                          double **vars)
 {
   int nlayers, ilayer, nechmax, nech, iech, npar, error, iptr, neq;
   int *seltab;

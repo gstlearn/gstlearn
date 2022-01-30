@@ -9,6 +9,7 @@
 
 class ShiftOpCs;
 class Db;
+class Dbgrid;
 class PrecisionOpCs;
 class Model;
 class MeshETurbo;
@@ -18,7 +19,7 @@ class GSTLEARN_EXPORT SPDE
 public:
   SPDE();
   SPDE(Model *model,
-       const Db* field,
+       const Dbgrid* field,
        const Db* dat = nullptr,
        const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
   SPDE(const SPDE& r) = delete;
@@ -26,7 +27,7 @@ public:
   virtual ~SPDE();
 
   void init(Model* model,
-            const Db* field,
+            const Dbgrid* field,
             const Db* dat = nullptr,
             const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
   void compute(int nbsimus = 1, int seed = 131323); // TODO What this seed ?
@@ -41,7 +42,7 @@ private:
   void _computeCoeffs();
   void _purge();
   MeshETurbo* _createMeshing(const CovAniso &cova,
-                             const Db &field,
+                             const Dbgrid &field,
                              double discr,
                              double ext = 0.);
   bool _calculSimu() const

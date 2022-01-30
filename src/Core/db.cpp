@@ -783,7 +783,7 @@ double distance_intra(const Db *db, int iech1, int iech2, double *dist_vect)
  **                         Returns the distance as a vector
  **
  *****************************************************************************/
-double distance_grid(Db *db,
+double distance_grid(Dbgrid *db,
                      int flag_moins1,
                      int iech1,
                      int iech2,
@@ -888,7 +888,7 @@ double cylinder_radius(const Db *db,
  ** \remark  If one grid index does not lie within the grid, -1 is returned
  **
  *****************************************************************************/
-int db_index_grid_to_sample(const Db *db, const int *indg)
+int db_index_grid_to_sample(const Dbgrid *db, const int *indg)
 {
   int ndim = db->getNDim();
   VectorInt local(ndim);
@@ -907,7 +907,7 @@ int db_index_grid_to_sample(const Db *db, const int *indg)
  ** \param[out]  indg Grid indices
  **
  *****************************************************************************/
-void db_index_sample_to_grid(const Db *db, int iech, int *indg)
+void db_index_sample_to_grid(const Dbgrid *db, int iech, int *indg)
 {
   int ndim = db->getNDim();
   int nval = 1;
@@ -938,7 +938,7 @@ void db_index_sample_to_grid(const Db *db, int iech, int *indg)
  ** \remark which minimizes the distance between any pair of successive indices
  **
  *****************************************************************************/
-int db_index_sorted_in_grid(const Db *db, int iech, int *indg)
+int db_index_sorted_in_grid(const Dbgrid *db, int iech, int *indg)
 {
   int jech, idim, ndim, indref;
 
@@ -1248,9 +1248,10 @@ double db_epsilon_distance(Db *db)
 
   if (db->isGrid())
   {
+    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
     diag = 1.e30;
-    for (idim = 0; idim < db->getNDim(); idim++)
-      if (db->getDX(idim) < diag) diag = db->getDX(idim);
+    for (idim = 0; idim < dbgrid->getNDim(); idim++)
+      if (dbgrid->getDX(idim) < diag) diag = dbgrid->getDX(idim);
   }
   else
   {
@@ -1333,16 +1334,17 @@ int db_attribute_range(const Db *db,
 Db* db_delete(Db *db)
 
 {
-  /* Initializations */
-
   if (db == nullptr) return (db);
-
-  /* Free the structure */
-
   delete db;
-  db = nullptr;
+  return nullptr;
+}
 
-  return (db);
+Dbgrid* db_delete(Dbgrid *db)
+
+{
+  if (db == nullptr) return (db);
+  delete db;
+  return nullptr;
 }
 
 /****************************************************************************/
@@ -1359,11 +1361,10 @@ Db* db_delete(Db *db)
  ** \remark characteristics have changed
  **
  *****************************************************************************/
-int db_grid_define_coordinates(Db *db)
+int db_grid_define_coordinates(Dbgrid *db)
 
 {
   if (db == nullptr) return (0);
-  if (!is_grid(db)) return (1);
   int ndim = db->getNDim();
   int nech = db->getSampleNumber();
   VectorInt ntab(ndim, 0);
@@ -1428,18 +1429,18 @@ int db_grid_define_coordinates(Db *db)
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-Db* db_create_grid(int flag_rot,
-                   int /*ndim*/,
-                   int natt,
-                   const ELoadBy &order,
-                   int flag_add_rank,
-                   const VectorInt &nx,
-                   const VectorDouble &x0,
-                   const VectorDouble &dx,
-                   const VectorDouble &angles,
-                   const VectorDouble &tab)
+Dbgrid* db_create_grid(int flag_rot,
+                       int /*ndim*/,
+                       int natt,
+                       const ELoadBy &order,
+                       int flag_add_rank,
+                       const VectorInt &nx,
+                       const VectorDouble &x0,
+                       const VectorDouble &dx,
+                       const VectorDouble &angles,
+                       const VectorDouble &tab)
 {
-  Db *db = new Db;
+  Dbgrid *db = new Dbgrid;
   int error;
 
   /* Initializations */
@@ -1448,7 +1449,7 @@ Db* db_create_grid(int flag_rot,
 
   /* Allocate the main structure */
 
-  db->reset(natt + flag_add_rank, ut_ivector_prod(nx));
+  db->resetDims(natt + flag_add_rank, ut_ivector_prod(nx));
 
   /* Dimension the data arrays */
 
@@ -1463,7 +1464,11 @@ Db* db_create_grid(int flag_rot,
 
   /* Remove the newly created Db if problem occurred */
 
-  if (error) db = db_delete(db);
+  if (error)
+  {
+    delete db;
+    db = nullptr;
+  }
   return (db);
 }
 
@@ -1482,12 +1487,12 @@ Db* db_create_grid(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-Db* db_create_grid_generic(int ndim,
-                           int natt,
-                           const ELoadBy &order,
-                           int flag_add_rank,
-                           const VectorInt &nx,
-                           const VectorDouble &tab)
+Dbgrid* db_create_grid_generic(int ndim,
+                               int natt,
+                               const ELoadBy &order,
+                               int flag_add_rank,
+                               const VectorInt &nx,
+                               const VectorDouble &tab)
 {
   // Initializations
 
@@ -1501,8 +1506,8 @@ Db* db_create_grid_generic(int ndim,
 
   /* Allocate the main structure */
 
-  Db *db = new (Db);
-  db->reset(natt, nech);
+  Dbgrid *db = new Dbgrid;
+  db->resetDims(natt, nech);
 
   /* Dimension the data arrays */
 
@@ -1514,8 +1519,11 @@ Db* db_create_grid_generic(int ndim,
 
   /* Remove the newly created Db if problem occurred */
 
-  if (error) db = db_delete(db);
-
+  if (error)
+  {
+    delete db;
+    db = nullptr;
+  }
   return (db);
 }
 
@@ -1541,20 +1549,20 @@ Db* db_create_grid_generic(int ndim,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-Db* db_create_grid_2D(int flag_rot,
-                      int natt,
-                      const ELoadBy &order,
-                      int flag_add_rank,
-                      int nx,
-                      int ny,
-                      double x0,
-                      double y0,
-                      double dx,
-                      double dy,
-                      double angle,
-                      const VectorDouble &tab)
+Dbgrid* db_create_grid_2D(int flag_rot,
+                          int natt,
+                          const ELoadBy &order,
+                          int flag_add_rank,
+                          int nx,
+                          int ny,
+                          double x0,
+                          double y0,
+                          double dx,
+                          double dy,
+                          double angle,
+                          const VectorDouble &tab)
 {
-  Db *db;
+  Dbgrid *db;
   VectorInt nn;
   VectorDouble xx, dd, angles;
 
@@ -1579,7 +1587,7 @@ Db* db_create_grid_2D(int flag_rot,
   db = db_create_grid(flag_rot, 2, natt, order, flag_add_rank, nn, xx, dd,
                       angles, tab);
 
-  return (db);
+  return db;
 }
 
 /****************************************************************************/
@@ -1608,25 +1616,25 @@ Db* db_create_grid_2D(int flag_rot,
  ** \param[in]  tab       Array containing the data
  **
  *****************************************************************************/
-Db* db_create_grid_3D(int flag_rot,
-                      int natt,
-                      const ELoadBy &order,
-                      int flag_add_rank,
-                      int nx,
-                      int ny,
-                      int nz,
-                      double x0,
-                      double y0,
-                      double z0,
-                      double dx,
-                      double dy,
-                      double dz,
-                      double angle_z,
-                      double angle_y,
-                      double angle_x,
-                      const VectorDouble &tab)
+Dbgrid* db_create_grid_3D(int flag_rot,
+                          int natt,
+                          const ELoadBy &order,
+                          int flag_add_rank,
+                          int nx,
+                          int ny,
+                          int nz,
+                          double x0,
+                          double y0,
+                          double z0,
+                          double dx,
+                          double dy,
+                          double dz,
+                          double angle_z,
+                          double angle_y,
+                          double angle_x,
+                          const VectorDouble &tab)
 {
-  Db *db;
+  Dbgrid *db;
   VectorInt nn;
   VectorDouble xx, dd, angles;
 
@@ -1655,7 +1663,7 @@ Db* db_create_grid_3D(int flag_rot,
   db = db_create_grid(flag_rot, 3, natt, order, flag_add_rank, nn, xx, dd,
                       angles, tab);
 
-  return (db);
+  return db;
 }
 
 /****************************************************************************/
@@ -1681,7 +1689,7 @@ Db* db_create_point(int nech,
 
   Db *db = new (Db);
 
-  db->reset(natt + flag_add_rank, nech);
+  db->resetDims(natt + flag_add_rank, nech);
 
   /* Load the data */
 
@@ -1867,10 +1875,8 @@ void db_attribute_del_mult(Db *db, int i_del, int n_del)
  ** \param[out]  dbout  Output Grid Db structure
  **
  *****************************************************************************/
-int db_grid_copy_params(Db *dbin, int mode, Db *dbout)
+int db_grid_copy_params(Dbgrid *dbin, int mode, Dbgrid *dbout)
 {
-  if (!dbin->isGrid()) return (1);
-  if (!dbout->isGrid()) return (1);
   if (dbin->getNDim() != dbout->getNDim()) return (1);
   dbout->gridCopyParams(mode, dbin->getGrid());
   return (0);
@@ -1889,7 +1895,8 @@ double db_grid_maille(Db *db)
 
 {
   if (!db->isGrid()) return (TEST);
-  return (db->getCellSize());
+  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
+  return (dbgrid->getCellSize());
 }
 
 /****************************************************************************/
@@ -2037,7 +2044,7 @@ int db_selref(int ndim, int *nx, int *ref, double *tabin, double *tabout)
  ** \param[in]  coor     Array containing the coordinates of the sample
  **
  *****************************************************************************/
-int db_locate_in_grid(Db *db_grid, double *coor)
+int db_locate_in_grid(Dbgrid *db_grid, double *coor)
 {
   int *indg, indabs;
 
@@ -2073,7 +2080,7 @@ int db_locate_in_grid(Db *db_grid, double *coor)
  ** \remark  The test returns 0 if one of the two file is not a grid
  **
  *****************************************************************************/
-int db_grid_match(Db *db1, Db *db2)
+int db_grid_match(Dbgrid *db1, Dbgrid *db2)
 
 {
   return ((int) db1->isSameGrid(db2->getGrid()));
@@ -2129,14 +2136,13 @@ int db_locator_attribute_add(Db *db,
  ** \param[in]  cols    Array of input variable columns
  **
  *****************************************************************************/
-int db_grid_copy(Db *db1, Db *db2, int *ind1, int *ind2, int ncol, int *cols)
+int db_grid_copy(Dbgrid *db1,
+                 Dbgrid *db2,
+                 int *ind1,
+                 int *ind2,
+                 int ncol,
+                 int *cols)
 {
-  if (!(db1->isGrid() && db2->isGrid()))
-  {
-    messerr("This command requires two Dbs organized as regular grids");
-    return (1);
-  }
-
   /* Set the constant indices in the input Grid Db */
 
   int ndim1 = db1->getNDim();
@@ -2218,9 +2224,9 @@ int db_grid_copy(Db *db1, Db *db2, int *ind1, int *ind2, int ncol, int *cols)
  **                     along each space direction
  **
  *****************************************************************************/
-int db_grid_copy_dilate(Db *db1,
+int db_grid_copy_dilate(Dbgrid *db1,
                         int iatt1,
-                        Db *db2,
+                        Dbgrid *db2,
                         int iatt2,
                         int mode,
                         int *nshift)
@@ -2285,7 +2291,7 @@ int db_grid_copy_dilate(Db *db1,
  ** \param[out] coor     coordinates of the point
  **
  *****************************************************************************/
-void grid_to_point(const Db *db, int *indg, double *percent, double *coor)
+void grid_to_point(const Dbgrid *db, int *indg, double *percent, double *coor)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2375,7 +2381,7 @@ int point_to_point(Db *db, double *coor)
  ** \param[out] indg          indices of the closest grid node
  **
  *****************************************************************************/
-int point_to_grid(const Db *db, double *coor, int flag_outside, int *indg)
+int point_to_grid(const Dbgrid *db, double *coor, int flag_outside, int *indg)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2441,7 +2447,7 @@ int point_to_grid(const Db *db, double *coor, int flag_outside, int *indg)
  ** \remarks as reference
  **
  *****************************************************************************/
-int point_to_bench(const Db *db, double *coor, int flag_outside, int *indb)
+int point_to_bench(const Dbgrid *db, double *coor, int flag_outside, int *indb)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2523,7 +2529,7 @@ int point_to_bench(const Db *db, double *coor, int flag_outside, int *indb)
 int index_point_to_grid(const Db *dbin,
                         int iech,
                         int flag_outside,
-                        const Db *dbout,
+                        const Dbgrid *dbout,
                         double *coor)
 {
   int ndim = dbin->getNDim();
@@ -2558,7 +2564,7 @@ int index_point_to_grid(const Db *dbin,
  ** \param[in]  dbgrid  Grid Db structure
  **
  *****************************************************************************/
-int point_inside_grid(Db *db, int iech, Db *dbgrid)
+int point_inside_grid(Db *db, int iech, const Dbgrid *dbgrid)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);
@@ -2724,7 +2730,7 @@ void db_polygon(Db *db,
  ** \remark  variables
  **
  *****************************************************************************/
-int db_proportion(Db *db, Db *dbgrid, int nfac1max, int nfac2max, int *nclout)
+int db_proportion(Db *db, Dbgrid *dbgrid, int nfac1max, int nfac2max, int *nclout)
 {
   int error, iptr, ivar, nech, nval, mini, nvar, invalid, iclass, nclass;
   int ifac[2], nmax[2], iech, jech;
@@ -3079,7 +3085,7 @@ void db_locators_correct(VectorString &strings,
  ** \remark  This procedure is meant for a 3-D grid file
  **
  *****************************************************************************/
-int db_prop_read(Db *db, int ix, int iy, double *props)
+int db_prop_read(Dbgrid *db, int ix, int iy, double *props)
 {
   int iz, nz, nprop, iprop, ecr, indices[3], i, iech, flag_no;
   double value, total;
@@ -3093,7 +3099,7 @@ int db_prop_read(Db *db, int ix, int iy, double *props)
 
   /* Preliminary checks */
 
-  if (!db->isGrid() || db->getNDim() != 3) return (1);
+  if (db->getNDim() != 3) return (1);
   if (ix < 0 || ix >= db->getNX(0)) return (1);
   if (iy < 0 || iy >= db->getNX(1)) return (1);
 
@@ -3143,7 +3149,7 @@ int db_prop_read(Db *db, int ix, int iy, double *props)
  ** \remark  This procedure is meant for a 3-D grid file
  **
  *****************************************************************************/
-int db_prop_write(Db *db, int ix, int iy, double *props)
+int db_prop_write(Dbgrid *db, int ix, int iy, double *props)
 {
   int iz, nz, nprop, iprop, ecr, indices[3], iech;
 
@@ -3154,7 +3160,7 @@ int db_prop_write(Db *db, int ix, int iy, double *props)
 
   /* Preliminary checks */
 
-  if (!db->isGrid() || db->getNDim() != 3) return (1);
+  if (db->getNDim() != 3) return (1);
   if (ix < 0 || ix >= db->getNX(0)) return (1);
   if (iy < 0 || iy >= db->getNX(1)) return (1);
 
@@ -3348,7 +3354,7 @@ int db_is_isotropic(const Db *db, int iech, double *data)
  ** \param[in]  db2   Db1 coarse grid structure
  **
  *****************************************************************************/
-int is_grid_multiple(Db *db1, Db *db2)
+int is_grid_multiple(Dbgrid *db1, Dbgrid *db2)
 {
   int *indg, idim, ndim, error;
   double *coor1, *coor2, *perc, ratio, delta;
@@ -3419,9 +3425,11 @@ int is_grid_multiple(Db *db1, Db *db2)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **  **
  *****************************************************************************/
-Db* db_create_grid_multiple(Db *dbin, const VectorInt &nmult, int flag_add_rank)
+Dbgrid* db_create_grid_multiple(Dbgrid *dbin,
+                                const VectorInt &nmult,
+                                int flag_add_rank)
 {
-  Db *dbout = nullptr;
+  Dbgrid *dbout = nullptr;
   if (dbin == nullptr) return (dbin);
   int ndim = dbin->getNDim();
 
@@ -3440,7 +3448,7 @@ Db* db_create_grid_multiple(Db *dbin, const VectorInt &nmult, int flag_add_rank)
   dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN,
                          flag_add_rank, nx, x0, dx, dbin->getAngles());
 
-  return (dbout);
+  return dbout;
 }
 
 /****************************************************************************/
@@ -3454,11 +3462,12 @@ Db* db_create_grid_multiple(Db *dbin, const VectorInt &nmult, int flag_add_rank)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-Db* db_create_grid_divider(Db *dbin, const VectorInt &nmult, int flag_add_rank)
+Dbgrid* db_create_grid_divider(Dbgrid *dbin,
+                               const VectorInt &nmult,
+                               int flag_add_rank)
 {
-  Db *dbout = nullptr;
+  Dbgrid *dbout = nullptr;
   if (dbin == nullptr) return dbin;
-  if (!dbin->isGrid()) return dbin;
 
   int ndim = dbin->getNDim();
   VectorInt nx(ndim);
@@ -3474,7 +3483,7 @@ Db* db_create_grid_divider(Db *dbin, const VectorInt &nmult, int flag_add_rank)
   dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN,
                          flag_add_rank, nx, x0, dx, dbin->getAngles());
 
-  return (dbout);
+  return dbout;
 }
 
 /****************************************************************************/
@@ -3489,14 +3498,13 @@ Db* db_create_grid_divider(Db *dbin, const VectorInt &nmult, int flag_add_rank)
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-Db* db_create_grid_dilate(Db *dbin,
-                          int mode,
-                          const VectorInt &nshift,
-                          int flag_add_rank)
+Dbgrid* db_create_grid_dilate(Dbgrid *dbin,
+                              int mode,
+                              const VectorInt &nshift,
+                              int flag_add_rank)
 {
-  Db *dbout = nullptr;
+  Dbgrid *dbout = nullptr;
   if (dbin == nullptr) return dbin;
-  if (!dbin->isGrid()) return dbin;
 
   /* Get the new grid characteristics */
 
@@ -3754,7 +3762,7 @@ int db_get_rank_relative_to_absolute(Db *db, int iech0)
  ** \param[in]  iz       Rank of the node along third dimension
  **
  *****************************************************************************/
-double get_grid_value(Db *dbgrid, int iptr, int *indg, int ix, int iy, int iz)
+double get_grid_value(Dbgrid *dbgrid, int iptr, int *indg, int ix, int iy, int iz)
 {
   int ndim, iad;
   double value;
@@ -3782,7 +3790,7 @@ double get_grid_value(Db *dbgrid, int iptr, int *indg, int ix, int iy, int iz)
  ** \param[in]  value    Assigned value
  **
  *****************************************************************************/
-void set_grid_value(Db *dbgrid,
+void set_grid_value(Dbgrid *dbgrid,
                     int iptr,
                     int *indg,
                     int ix,
@@ -3818,7 +3826,7 @@ void set_grid_value(Db *dbgrid,
  ** \param[in]  vmax          Upper bound (excluded)
  **
  *****************************************************************************/
-Db* db_grid_reduce(Db *db_grid,
+Db* db_grid_reduce(Dbgrid *db_grid,
                    int iptr,
                    int *margin,
                    int *limmin,
@@ -3828,9 +3836,8 @@ Db* db_grid_reduce(Db *db_grid,
                    double vmin,
                    double vmax)
 {
-  Db *ss_grid;
-  int *indcur, *indmin, *indmax, error, ndim, nech, flag_refuse, isel, icopy,
-      iech;
+  Dbgrid *ss_grid;
+  int *indcur, *indmin, *indmax, error, ndim, nech, flag_refuse, isel, icopy, iech;
   int mini, maxi, ecart, size;
   double *coor, value, retval;
   VectorInt nx;
@@ -3977,7 +3984,12 @@ Db* db_grid_reduce(Db *db_grid,
 
   error = 0;
 
-  label_end: if (error) ss_grid = db_delete(ss_grid);
+  label_end:
+  if (error)
+  {
+    delete ss_grid;
+    ss_grid = nullptr;
+  }
   indcur = db_indg_free(indcur);
   indmin = db_indg_free(indmin);
   indmax = db_indg_free(indmax);
@@ -4010,8 +4022,8 @@ Db* db_grid_reduce(Db *db_grid,
  ** \remarks useless
  **
  *****************************************************************************/
-int db_grid_patch(Db *ss_grid,
-                  Db *db_grid,
+int db_grid_patch(Dbgrid *ss_grid,
+                  Dbgrid *db_grid,
                   int iptr_ss,
                   int iptr_db,
                   int iptr_rank,
@@ -4364,7 +4376,7 @@ int db_extension_rotated(Db *db,
  ** \param[in]   idim      Rank of the space dimension
  **
  ****************************************************************************/
-VectorDouble db_get_grid_axis(Db *dbgrid, int idim)
+VectorDouble db_get_grid_axis(Dbgrid *dbgrid, int idim)
 {
   VectorDouble vect;
 

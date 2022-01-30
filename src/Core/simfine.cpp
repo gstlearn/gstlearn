@@ -34,7 +34,7 @@ static VectorDouble DX1(3), DX2(3), X01(3), X02(3);
  ** \param[in]  db  Staring grid Db structure
  **
  *****************************************************************************/
-static void st_dim_1_to_2(Db *db)
+static void st_dim_1_to_2(Dbgrid *db)
 
 {
 
@@ -79,7 +79,7 @@ static void st_dim_1_to_2(Db *db)
  ** \param[in]  db  Starting grid Db structure
  **
  *****************************************************************************/
-static void st_dim_2_to_1(Db *db)
+static void st_dim_2_to_1(Dbgrid *db)
 
 {
 
@@ -133,7 +133,7 @@ static void st_dim_2_to_1(Db *db)
  ** \param[in]  idz    Shift along Z
  **
  *****************************************************************************/
-static double st_read(Db *db,
+static double st_read(Dbgrid *db,
                       int iatt,
                       int ix0,
                       int iy0,
@@ -171,7 +171,7 @@ static double st_read(Db *db,
  ** \param[in]  value  Value to be written
  **
  *****************************************************************************/
-static void st_write(Db *db, int iatt, int ix0, int iy0, int iz0, double value)
+static void st_write(Dbgrid *db, int iatt, int ix0, int iy0, int iz0, double value)
 {
   int iad, ind[3];
 
@@ -192,7 +192,7 @@ static void st_write(Db *db, int iatt, int ix0, int iy0, int iz0, double value)
  ** \param[in]  iatt2   Rank of the attribute to be written into db2
  **
  *****************************************************************************/
-static void st_merge_data(Db *db1, int iatt1, Db *db2, int iatt2)
+static void st_merge_data(Dbgrid *db1, int iatt1, Dbgrid *db2, int iatt2)
 {
   int ix1, iy1, iz1, ix2, iy2, iz2;
   double value;
@@ -219,7 +219,7 @@ static void st_merge_data(Db *db1, int iatt1, Db *db2, int iatt2)
  ** \param[in]  iatt1   Rank of the attribute to be written into db1
  **
  *****************************************************************************/
-static void st_truncate_result(Db *db2, int iatt2, Db *db1, int iatt1)
+static void st_truncate_result(Dbgrid *db2, int iatt2, Dbgrid *db1, int iatt1)
 {
   int ix, iy, iz;
   double value;
@@ -266,7 +266,7 @@ static void st_neigh_simfine(int type, int rank, int idx, int idy, int idz)
  ** \param[in]  iz0    Index of the target along Z
  **
  *****************************************************************************/
-static void st_simulate_target(Db *db,
+static void st_simulate_target(Dbgrid *db,
                                int type,
                                int iatt,
                                int ix0,
@@ -284,8 +284,7 @@ static void st_simulate_target(Db *db,
 
     for (i = 0; i < 4; i++)
       value += (WGT[type][0][i]
-          * st_read(db, iatt, ix0, iy0, iz0, IX[type][i], IY[type][i],
-                    IZ[type][i]));
+          * st_read(db, iatt, ix0, iy0, iz0, IX[type][i], IY[type][i], IZ[type][i]));
     value += STDV[type][0] * law_gaussian();
   }
   else
@@ -441,7 +440,7 @@ static int st_kriging_define(Model *model)
  ** \param[in]  iatt   Rank of the column
  **
  *****************************************************************************/
-static void st_simulate_nodes(Db *db, int iatt)
+static void st_simulate_nodes(Dbgrid *db, int iatt)
 {
   int ix, iy, iz;
 
@@ -477,16 +476,16 @@ static void st_simulate_nodes(Db *db, int iatt)
  ** \param[out] tab        Output array
  **
  *****************************************************************************/
-int simfine_f(Db *dbin,
-                              Model *model,
-                              int flag_ks,
-                              int nmult,
-                              int seed,
-                              VectorDouble &tab)
+int simfine_f(Dbgrid *dbin,
+              Model *model,
+              int flag_ks,
+              int nmult,
+              int seed,
+              VectorDouble &tab)
 {
   int error, imult, iatt1, iatt2, idim;
   double diag;
-  Db *db1, *db2;
+  Dbgrid *db1, *db2;
 
   /* Initializations */
 
@@ -500,11 +499,6 @@ int simfine_f(Db *dbin,
 
   /* Preliminary check */
 
-  if (!is_grid(dbin))
-  {
-    messerr("This simulation refinement is dedicated to Grid File");
-    goto label_end;
-  }
   if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Patch the model with maximum dimension for OK */
@@ -546,7 +540,8 @@ int simfine_f(Db *dbin,
 
     /* Create the new input file (for next step) */
 
-    if (db1 != dbin) db1 = db_delete(db1);
+    if (db1 != dbin)
+      db1 = db_delete(db1);
     st_dim_2_to_1(db2);
     db1 = db_create_grid(0, NDIM, 1, ELoadBy::SAMPLE, 1, NX1, X01, DX1,
                          dbin->getGrid().getRotAngles());
@@ -590,22 +585,17 @@ int simfine_f(Db *dbin,
  ** \param[out] dx         Array of grid mesh dimensions
  **
  *****************************************************************************/
-int simfine_dim(Db *dbin,
-                                int nmult,
-                                int *ndim,
-                                int *ntot,
-                                int *nx,
-                                double *x0,
-                                double *dx)
+int simfine_dim(Dbgrid *dbin,
+                int nmult,
+                int *ndim,
+                int *ntot,
+                int *nx,
+                double *x0,
+                double *dx)
 {
   double rmult;
   int i;
 
-  if (!is_grid(dbin))
-  {
-    messerr("This simulation refinement is dedicated to Grid File");
-    return (1);
-  }
   rmult = pow(2., (double) nmult);
   NDIM = *ndim = dbin->getNDim();
   *ntot = 1;

@@ -15,7 +15,7 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/EOptCst.hpp"
+#include "Basic/ECst.hpp"
 
 #include <math.h>
 

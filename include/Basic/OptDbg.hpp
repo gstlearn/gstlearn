@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "EOptDbg.hpp"
+#include "EDbg.hpp"
 
 /**
  * Operate the list of active Debug options

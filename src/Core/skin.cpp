@@ -127,10 +127,10 @@ int skin_grid_shift(Skin *skin, int lec, int dir, int *iad)
  ** \remark  If func_get_weight is not defined, the weight is set to 1
  **
  *****************************************************************************/
-Skin* skin_define(Db *db,
-                                  int (*func_already_done)(int ipos),
-                                  int (*func_to_be_done)(int ipos),
-                                  double (*func_get_weight)(int ipos, int dir))
+Skin* skin_define(Dbgrid *db,
+                  int (*func_already_done)(int ipos),
+                  int (*func_to_be_done)(int ipos),
+                  double (*func_get_weight)(int ipos, int dir))
 {
   Skin *skin;
   int error;

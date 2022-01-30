@@ -996,7 +996,7 @@ static double st_get_average(int nz, const VectorDouble &writes)
  *
  * @remarks The rank is returned as -1 if not defined
  */
-static int st_identify_trace_rank(Db* surfaces,
+static int st_identify_trace_rank(Dbgrid* surfaces,
                                   double xtrace,
                                   double ytrace)
 {
@@ -1361,7 +1361,7 @@ static void st_refstats_init(RefStats &refstats,
  **
  *****************************************************************************/
 SegYArg segy_array(const char *filesegy,
-                   Db *surf2D,
+                   Dbgrid *surf2D,
                    const String& top_name,
                    const String& bot_name,
                    const String& top_aux,
@@ -1556,7 +1556,7 @@ SegYArg segy_array(const char *filesegy,
  **
  *****************************************************************************/
 Grid segy_summary(const char *filesegy,
-                  Db *surf2D,
+                  Dbgrid *surf2D,
                   const String &name_top,
                   const String &name_bot,
                   double thickmin,
@@ -1732,22 +1732,22 @@ Grid segy_summary(const char *filesegy,
  **
  *****************************************************************************/
 int db_segy(const char *filesegy,
-                            Db *grid3D,
-                            Db *surf2D,
-                            const String &name_top,
-                            const String &name_bot,
-                            double thickmin,
-                            int option,
-                            int verbOption,
-                            int iline_min,
-                            int iline_max,
-                            int xline_min,
-                            int xline_max,
-                            int /*nz_ss*/,
-                            double modif_high,
-                            double modif_low,
-                            double modif_scale,
-                            const NamingConvention& namconv)
+            Dbgrid *grid3D,
+            Dbgrid *surf2D,
+            const String &name_top,
+            const String &name_bot,
+            double thickmin,
+            int option,
+            int verbOption,
+            int iline_min,
+            int iline_max,
+            int xline_min,
+            int xline_max,
+            int /*nz_ss*/,
+            double modif_high,
+            double modif_low,
+            double modif_scale,
+            const NamingConvention& namconv)
 {
   traceHead traceHead_;
   double xtrace, ytrace, coor[3];

@@ -185,7 +185,7 @@ VectorDouble VarioParam::_getDirectionInterval(int idir) const
   return bounds;
 }
 
-void VarioParam::setDPas(int idir,const Db* db)
+void VarioParam::setDPas(int idir,const Dbgrid* db)
 {
   if (! _isDirectionValid(idir)) return;
   _dirparams[idir].setDPas(db);

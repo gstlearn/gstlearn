@@ -540,11 +540,11 @@ static void st_seismic_debug(int rankz,
  **
  *****************************************************************************/
 int seismic_z2t_grid(int verbose,
-                                     Db *db_z,
-                                     int iatt_v,
-                                     int *nx,
-                                     double *x0,
-                                     double *dx)
+                     Dbgrid *db_z,
+                     int iatt_v,
+                     int *nx,
+                     double *x0,
+                     double *dx)
 {
   double *vv, z0, t0, v0, v1, dz, dt, vmin, vmax;
   int ndim, nech, nt, nz, error, i;
@@ -619,11 +619,11 @@ int seismic_z2t_grid(int verbose,
  **
  *****************************************************************************/
 int seismic_t2z_grid(int verbose,
-                                     Db *db_t,
-                                     int iatt_v,
-                                     int *nx,
-                                     double *x0,
-                                     double *dx)
+                     Dbgrid *db_t,
+                     int iatt_v,
+                     int *nx,
+                     double *x0,
+                     double *dx)
 {
   double *vv, z0, t0, v0, v1, dz, dt, vmin, vmax;
   int ndim, nech, nt, nz, error, i;
@@ -695,7 +695,7 @@ int seismic_t2z_grid(int verbose,
  ** \param[in]  tab   Array containing the column of values
  **
  *****************************************************************************/
-static void st_copy(int mode, Db *db, int iatt, int ival, double *tab)
+static void st_copy(int mode, Dbgrid *db, int iatt, int ival, double *tab)
 {
   int ndim = db->getNDim();
   int nech = db->getSampleNumber();
@@ -731,7 +731,7 @@ static void st_copy(int mode, Db *db, int iatt, int ival, double *tab)
  ** \remark  In case of error, a message is displayed
  **
  *****************************************************************************/
-static int st_match(Db *db_z, Db *db_t)
+static int st_match(Dbgrid *db_z, Dbgrid *db_t)
 {
   int idim, ndim, nech, nz, error;
 
@@ -803,19 +803,19 @@ static int st_match(Db *db_z, Db *db_t)
 ** \remark determine interval velocities at times not specified.
 **
 *****************************************************************************/
-static void st_seismic_z2t_convert(Db    *db_z,
+static void st_seismic_z2t_convert(Dbgrid *db_z,
                                    int    iatt_z,
                                    int    nz,
                                    double z0,
                                    double /*z1*/,
                                    double dz,
-                                   Db *db_t,
+                                   Dbgrid *db_t,
                                    int iatt_t,
                                    int nt,
                                    double t0,
                                    double t1,
                                    double dt,
-                                   Db *db_v,
+                                   Dbgrid *db_v,
                                    int iatt_v,
                                    int natt,
                                    double *tz,
@@ -897,19 +897,19 @@ static void st_seismic_z2t_convert(Db    *db_z,
  ** \remark determine interval velocities at times not specified.
  **
  *****************************************************************************/
-static void st_seismic_t2z_convert(Db *db_t,
+static void st_seismic_t2z_convert(Dbgrid *db_t,
                                    int iatt_t,
                                    int nt,
                                    double t0,
                                    double t1,
                                    double dt,
-                                   Db *db_z,
+                                   Dbgrid *db_z,
                                    int iatt_z,
                                    int nz,
                                    double z0,
                                    double z1,
                                    double dz,
-                                   Db *db_v,
+                                   Dbgrid *db_v,
                                    int iatt_v,
                                    int natt,
                                    double *tz,
@@ -1559,9 +1559,9 @@ static void st_seismic_convolve(int nx,
  ** \remark determine interval velocities at times not specified.
  **
  *****************************************************************************/
-int seismic_z2t_convert(Db *db_z, int iatt_v, Db *db_t)
+int seismic_z2t_convert(Dbgrid *db_z, int iatt_v, Dbgrid *db_t)
 {
-  Db *db_v;
+  Dbgrid *db_v;
   double *tz, *zt, *az, *at, z0, z1, t0, t1, dz, dt;
   int nz, nt, ndim, natt, iatt_t, iatt_z, error;
 
@@ -1630,9 +1630,9 @@ int seismic_z2t_convert(Db *db_z, int iatt_v, Db *db_t)
  ** \remark determine interval velocities at times not specified.
  **
  *****************************************************************************/
-int seismic_t2z_convert(Db *db_t, int iatt_v, Db *db_z)
+int seismic_t2z_convert(Dbgrid *db_t, int iatt_v, Dbgrid *db_z)
 {
-  Db *db_v;
+  Dbgrid *db_v;
   double *zt, *tz, *az, *at, z0, z1, t0, t1, dz, dt;
   int nz, nt, ndim, natt, iatt_z, iatt_t, error;
 
@@ -1699,7 +1699,7 @@ int seismic_t2z_convert(Db *db_t, int iatt_v, Db *db_z)
  ** \remark the input contains 0 values, 0 values are returned.
  **
  *****************************************************************************/
-int seismic_operate(Db *db, int oper)
+int seismic_operate(Dbgrid *db, int oper)
 {
   int ndim, natt, nt, iatt_in, iatt_out;
   double dt;
@@ -1845,21 +1845,21 @@ static void st_seismic_contrast(int nz, double *tab)
  ** \param[in]  wavelet     Wavelet defined as input (Dimension: 2*ntw+1)
  **
  *****************************************************************************/
-int seismic_convolve(Db *db,
-                                     int flag_operate,
-                                     int flag_contrast,
-                                     int type,
-                                     int ntw,
-                                     int option,
-                                     int tindex,
-                                     double fpeak,
-                                     double period,
-                                     double amplitude,
-                                     double distort,
-                                     double val_before,
-                                     double val_middle,
-                                     double val_after,
-                                     double *wavelet)
+int seismic_convolve(Dbgrid *db,
+                     int flag_operate,
+                     int flag_contrast,
+                     int type,
+                     int ntw,
+                     int option,
+                     int tindex,
+                     double fpeak,
+                     double period,
+                     double amplitude,
+                     double distort,
+                     double val_before,
+                     double val_middle,
+                     double val_after,
+                     double *wavelet)
 {
   int ndim, iatt, natt, itrace, iz, nz, iatt_in, iatt_out, error, size, shift;
   double *tab0, *tab1, *tab2, dz;
@@ -1972,7 +1972,7 @@ int seismic_convolve(Db *db,
  ** \param[in]  iz        Rank of the target sample within the target trace
  **
  *****************************************************************************/
-static int st_absolute_index(Db *db, int ix, int iz)
+static int st_absolute_index(Dbgrid *db, int ix, int iz)
 {
   int indg[3];
 
@@ -2027,7 +2027,7 @@ static void st_sample_remove_central(ST_Seismic_Neigh *ngh)
  ** \param[in,out] ngh     ST_Seismic_Neigh structure
  **
  *****************************************************************************/
-static void st_sample_add(Db *db,
+static void st_sample_add(Dbgrid *db,
                           int iatt_z1,
                           int iatt_z2,
                           int flag_test,
@@ -2083,7 +2083,7 @@ static void st_sample_add(Db *db,
  ** \param[out] presence  Array giving the number of valid samples per trace
  **
  *****************************************************************************/
-static void st_estimate_check_presence(Db *db,
+static void st_estimate_check_presence(Dbgrid *db,
                                        int ivar,
                                        int *npres,
                                        int *presence)
@@ -2324,7 +2324,7 @@ static void st_estimate_neigh_print(ST_Seismic_Neigh *ngh, int ix0, int iz0)
  ** \param[out]  ngh      Current ST_Seismic_Neigh structure
  **
  *****************************************************************************/
-static int st_estimate_neigh_create(Db *db,
+static int st_estimate_neigh_create(Dbgrid *db,
                                     int flag_exc,
                                     int iatt_z1,
                                     int iatt_z2,
@@ -2903,7 +2903,7 @@ static void st_estimate_result(Db     *db,
 ** \param[in]  iatt_sim  Array of pointers to the simulated results
 **
 *****************************************************************************/
-static void st_simulate_result(Db     *db,
+static void st_simulate_result(Dbgrid *db,
                                int     ix0,
                                int     iz0,
                                ST_Seismic_Neigh *ngh,
@@ -3061,14 +3061,14 @@ static int st_estimate_sort(int *presence, int *rank)
  ** \param[in]  flag_stat  1 for producing final statistics
  **
  *****************************************************************************/
-int seismic_estimate_XZ(Db *db,
-                                        Model *model,
-                                        int nbench,
-                                        int nv2max,
-                                        int flag_ks,
-                                        int flag_std,
-                                        int flag_sort,
-                                        int flag_stat)
+int seismic_estimate_XZ(Dbgrid *db,
+                        Model *model,
+                        int nbench,
+                        int nv2max,
+                        int flag_ks,
+                        int flag_std,
+                        int flag_sort,
+                        int flag_stat)
 {
   int *flag, *rank, *presence[2], npres[2], iatt_est[2], iatt_std[2];
   int i, ix0, jx0, iz0, nvois, size, error, nred, nfeq, iatt_z1, iatt_z2;
@@ -3328,15 +3328,15 @@ static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
  ** \param[in]  flag_stat  1 for producing final statistics
  **
  *****************************************************************************/
-int seismic_simulate_XZ(Db *db,
-                                        Model *model,
-                                        int nbench,
-                                        int nv2max,
-                                        int nbsimu,
-                                        int seed,
-                                        int flag_ks,
-                                        int flag_sort,
-                                        int flag_stat)
+int seismic_simulate_XZ(Dbgrid *db,
+                        Model *model,
+                        int nbench,
+                        int nv2max,
+                        int nbsimu,
+                        int seed,
+                        int flag_ks,
+                        int flag_sort,
+                        int flag_stat)
 {
   int *flag, *rank, *presence[2], npres[2], iatt_sim[2];
   int i, isimu, ix0, iz0, nvois, size, error, nred, nfeq, jx0;

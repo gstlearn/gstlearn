@@ -41,7 +41,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the 2-D Db
   auto nx = { 101, 101 };
-  Db* workingDbc = Db::createFromGrid(nx);
+  Dbgrid* workingDbc = Dbgrid::create(nx);
 
   // Creating the Non-stationary Model
   Model model(workingDbc);

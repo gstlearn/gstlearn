@@ -14,7 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Db/Db.hpp"
+#include "Db/Dbgrid.hpp"
 
 #include <string.h>
 #include <math.h>
@@ -23,7 +23,7 @@ static Bool_Object *Start_object_init, *Start_object;
 static Token_Def *Def;
 static double Origin[3], Field[3], Coor[3], Angle_Z, Theta_cste;
 static int Nb_object_init, Nb_object, Flag_stat;
-static Db *Dbout;
+static Dbgrid *Dbout;
 static int PHASE, NDIM;
 static int ITER = 0;
 
@@ -2056,7 +2056,7 @@ static void st_print_grain(Bool_Cond *cdgrain)
  ** \return  Error return code
  **
  ** \param[in]  dbin          Db structure containing the data (optional)
- ** \param[in]  dbout         Db structure containing the simulated grid
+ ** \param[in]  dbout         Dbgrid structure containing the simulated grid
  ** \param[in]  tokens        Tokens structure
  ** \param[in]  seed          Seed for the random number generator
  ** \param[in]  nb_average    Average number of boolean objects
@@ -2072,19 +2072,19 @@ static void st_print_grain(Bool_Cond *cdgrain)
  **
  *****************************************************************************/
 int simbool_f(Db *dbin,
-                              Db *dbout,
-                              Tokens *tokens,
-                              int seed,
-                              int nb_average,
-                              int flag_stat,
-                              int flag_simu,
-                              int flag_rank,
-                              double background,
-                              double facies,
-                              double *dilate,
-                              double theta_cste,
-                              double tmax,
-                              int verbose)
+              Dbgrid *dbout,
+              Tokens *tokens,
+              int seed,
+              int nb_average,
+              int flag_stat,
+              int flag_simu,
+              int flag_rank,
+              double background,
+              double facies,
+              double *dilate,
+              double theta_cste,
+              double tmax,
+              int verbose)
 {
   Bool_Object object;
   Bool_Cond **cdgrain, **cdpore;

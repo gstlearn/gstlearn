@@ -156,6 +156,7 @@ set(SOURCES
   Interfaces/AVariable.cpp
   Interfaces/VariableDouble.cpp
   Db/Db.cpp
+  Db/Dbgrid.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   LinearOp/PrecisionOp.cpp
