@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 {
   char       filename[BUFFER_LENGTH];
   Db        *dbin;
-  Dbgrid    *dbout;
+  DbGrid    *dbout;
   Vario     *vario;
   Model     *model,*new_model;
   ANeighParam *neighparam;
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = Dbgrid::createFromNF(filename,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
 
   /* Define the variogram */
 

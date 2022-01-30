@@ -1579,7 +1579,7 @@ static double st_project_point(Db *db, Situba *situba, int ibs, int iech)
  ** \param[in]  iz      grid index along Z
  **
  *****************************************************************************/
-static double st_project_grid(Dbgrid *db,
+static double st_project_grid(DbGrid *db,
                               Situba *situba,
                               int ibs,
                               int ix,
@@ -1718,7 +1718,7 @@ static void st_gendir(Db *dbout, Model *model, Situba *situba)
 
         if (is_grid(dbout))
         {
-          Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+          DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
           situba->codir[ibs]->t00 = t00 = st_project_grid(dbgrid, situba, ibs, 0, 0, 0);
           situba->codir[ibs]->dxp = st_project_grid(dbgrid, situba, ibs, 1, 0, 0)
               - t00;
@@ -1758,7 +1758,7 @@ static void st_minmax(Db *db, Situba *situba)
 
   if (is_grid(db))
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
     nx = (dbgrid->getNDim() >= 1) ? dbgrid->getNX(0) : 1;
     ny = (dbgrid->getNDim() >= 2) ? dbgrid->getNX(1) : 1;
     nz = (dbgrid->getNDim() >= 3) ? dbgrid->getNX(2) : 1;
@@ -1999,7 +1999,7 @@ static void st_title_process(char *string, const char *title)
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-static int st_simulate_grid(Dbgrid *db,
+static int st_simulate_grid(DbGrid *db,
                             Model *model,
                             Situba *situba,
                             double *aic,
@@ -2823,7 +2823,7 @@ static void st_update_data2target(Db *dbin,
 
   if (is_grid(dbout))
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
 
     /*********************************************/
     /* Case where the output file is a grid file */
@@ -3145,7 +3145,7 @@ static void st_check_gaussian_data2grid(Db *dbin,
   /* Initializations */
 
   if (dbin == nullptr) return;
-  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   number = 0;
   check_mandatory_attribute("st_check_gaussian_data2grid", dbout, ELoc::SIMU);
   mestitle(1, "Checking Gaussian of data against closest grid node");
@@ -3280,7 +3280,7 @@ static int st_simtub_process(Db *dbin,
 
   if (is_grid(dbout))
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (st_simulate_grid(dbgrid, model, situba, aic, icase, 0)) goto label_end;
   }
   else
@@ -3412,7 +3412,7 @@ int simtub_potential(Db *dbiso,
 
   if (is_grid(dbout))
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (st_simulate_grid(dbgrid, model, situba, aic, icase, 0)) goto label_end;
   }
   else
@@ -3754,7 +3754,7 @@ static void st_check_facies_data2grid(Db *dbin,
   /* Initializations */
 
   if (! dbout->isGrid()) return;
-  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   check_mandatory_attribute("st_check_facies_data2grid", dbgrid, ELoc::FACIES);
   number = 0;
   coor = nullptr;
@@ -4982,7 +4982,7 @@ int simtub_constraints(Db *dbin,
   tab.resize(dbout->getSampleNumber());
   if (flag_grid)
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     nx = (int*) mem_alloc(sizeof(int) * ndim, 0);
     if (nx == nullptr) goto label_end;
     dx = (double*) mem_alloc(sizeof(double) * ndim, 0);

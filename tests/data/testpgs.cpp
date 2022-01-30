@@ -20,7 +20,7 @@
 #include "LithoRule/RuleStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 {
   char   filename[BUFFER_LENGTH];
   Db        *dbin;
-  Dbgrid    *dbout;
+  DbGrid    *dbout;
   Vario     *vario;
   Model     *model[2][2];
   NeighUnique *neighU;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = Dbgrid::createFromNF(filename,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
   flag_grid = (dbout != nullptr);
 
   /* Define the rules */

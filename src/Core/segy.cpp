@@ -996,7 +996,7 @@ static double st_get_average(int nz, const VectorDouble &writes)
  *
  * @remarks The rank is returned as -1 if not defined
  */
-static int st_identify_trace_rank(Dbgrid* surfaces,
+static int st_identify_trace_rank(DbGrid* surfaces,
                                   double xtrace,
                                   double ytrace)
 {
@@ -1361,7 +1361,7 @@ static void st_refstats_init(RefStats &refstats,
  **
  *****************************************************************************/
 SegYArg segy_array(const char *filesegy,
-                   Dbgrid *surf2D,
+                   DbGrid *surf2D,
                    const String& top_name,
                    const String& bot_name,
                    const String& top_aux,
@@ -1556,7 +1556,7 @@ SegYArg segy_array(const char *filesegy,
  **
  *****************************************************************************/
 Grid segy_summary(const char *filesegy,
-                  Dbgrid *surf2D,
+                  DbGrid *surf2D,
                   const String &name_top,
                   const String &name_bot,
                   double thickmin,
@@ -1732,8 +1732,8 @@ Grid segy_summary(const char *filesegy,
  **
  *****************************************************************************/
 int db_segy(const char *filesegy,
-            Dbgrid *grid3D,
-            Dbgrid *surf2D,
+            DbGrid *grid3D,
+            DbGrid *surf2D,
             const String &name_top,
             const String &name_bot,
             double thickmin,

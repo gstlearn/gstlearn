@@ -8,7 +8,7 @@
 #include <vector>
 
 class Db;
-class Dbgrid;
+class DbGrid;
 class Model;
 class SPDE;
 class RuleProp;
@@ -17,7 +17,7 @@ class GSTLEARN_EXPORT PGSSPDE
 {
 public:
   PGSSPDE(std::vector<Model*> models,
-          const Dbgrid* field,
+          const DbGrid* field,
           const RuleProp* ruleprop,
           const Db* dat = nullptr);
   PGSSPDE(const PGSSPDE& r) = delete;

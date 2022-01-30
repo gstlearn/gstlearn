@@ -253,8 +253,6 @@ static int st_proportion_define(PropDef *propdef,
                                 int *jech)
 {
   int ifac, ifac_ref;
-  const Dbgrid* dbgrid = dynamic_cast<const Dbgrid*>(db);
-  if (dbgrid == nullptr) return 1;
 
   /* Non-stationary case : Load the proportions in propcst */
 
@@ -266,7 +264,7 @@ static int st_proportion_define(PropDef *propdef,
 
       /* Case where the proportions must be interpolated */
 
-      (*jech) = index_point_to_grid(dbgrid, iech, 1, propdef->dbprop,
+      (*jech) = index_point_to_grid(db, iech, 1, propdef->dbprop,
                                     propdef->coor.data());
       if ((*jech) < 0)
       {
@@ -286,7 +284,7 @@ static int st_proportion_define(PropDef *propdef,
       /* The proportions are already available from the dbin */
 
       for (ifac = 0; ifac < propdef->nfacprod; ifac++)
-        propdef->propfix[ifac] = dbgrid->getProportion(iech, ifac);
+        propdef->propfix[ifac] = db->getProportion(iech, ifac);
     }
 
     /* Transform proportions (from CST to WRK) */
@@ -299,7 +297,7 @@ static int st_proportion_define(PropDef *propdef,
   ifac_ref = -1;
   if (propdef->mode == EProcessOper::CONDITIONAL)
   {
-    ifac_ref = (int) dbgrid->getSimvar(ELoc::FACIES, iech, isimu, 0, 0, nbsimu, 1);
+    ifac_ref = (int) db->getSimvar(ELoc::FACIES, iech, isimu, 0, 0, nbsimu, 1);
     if (ifac_ref < 1 || ifac_ref > propdef->nfac[0]) return (1);
   }
   st_proportion_locate(propdef, ifac_ref);
@@ -348,7 +346,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
   /* Set the debugging information */
 
   OptDbg::setIndex(iech + 1);
-  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
 
   /* Processing an "unknown" facies */
 
@@ -1007,7 +1005,7 @@ PropDef* proportion_manage(int mode,
           messerr("either in the input 'Db' or in 'dbprop'");
           goto label_end;
         }
-        const Dbgrid* db_loc_grid = dynamic_cast<const Dbgrid*>(db_loc);
+        const DbGrid* db_loc_grid = dynamic_cast<const DbGrid*>(db_loc);
         if (db_loc_grid == nullptr)
         {
           messerr("The 'Db' used for Proportions must be a Grid");

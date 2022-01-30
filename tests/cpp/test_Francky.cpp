@@ -39,7 +39,7 @@ int main(int /*argc*/, char */*argv*/[])
   ASerializable::setPrefixName("Francky-");
   // Creating the 2-D Db
   auto nx = { 101, 101 };
-  Dbgrid* workingDbc = Dbgrid::create(nx);
+  DbGrid* workingDbc = DbGrid::create(nx);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
 

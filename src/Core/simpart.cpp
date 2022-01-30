@@ -13,7 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 
 #include <math.h>
@@ -46,7 +46,7 @@ typedef struct
  ** \remarks  The valuation of each line is assigned a uniform value [0,1]
  **
  *****************************************************************************/
-int poisson_generate_planes(Dbgrid *dbgrid, SubPlanes *splanes)
+int poisson_generate_planes(DbGrid *dbgrid, SubPlanes *splanes)
 {
   double ap[3], mini[3], maxi[3], diagonal, d0, u;
   int ip, idim;
@@ -222,7 +222,7 @@ static int st_stack_search(Stack *stack, double valref, double *valsim)
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-int tessellation_poisson(Dbgrid *dbgrid,
+int tessellation_poisson(DbGrid *dbgrid,
                          Model *model,
                          int seed,
                          double intensity,
@@ -389,7 +389,7 @@ int tessellation_poisson(Dbgrid *dbgrid,
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-int tessellation_voronoi(Dbgrid *dbgrid,
+int tessellation_voronoi(DbGrid *dbgrid,
                          Model *model,
                          double *dilate,
                          int seed,

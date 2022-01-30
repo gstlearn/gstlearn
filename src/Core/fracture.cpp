@@ -14,7 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <math.h>
 
@@ -1963,7 +1963,7 @@ double* fracture_extract_dist(Frac_List *frac_list,
  ** \param[in]  y2        Second coordinate of the second point
  **
  *****************************************************************************/
-static void st_plunge_segment(Dbgrid *dbgrid,
+static void st_plunge_segment(DbGrid *dbgrid,
                               int iptr,
                               int *indg,
                               double delta,
@@ -2009,7 +2009,7 @@ static void st_plunge_segment(Dbgrid *dbgrid,
  ** \param[in]  range     Range of the permeability change
  **
  *****************************************************************************/
-static void st_plunge_segment_gradual(Dbgrid *dbgrid,
+static void st_plunge_segment_gradual(DbGrid *dbgrid,
                                       int iptr,
                                       int *indg,
                                       double delta,
@@ -2084,7 +2084,7 @@ static void st_plunge_segment_gradual(Dbgrid *dbgrid,
  ** \param[in]  ndisc        Number of discretization steps
  **
  *****************************************************************************/
-int fracture_to_block(Dbgrid *dbgrid,
+int fracture_to_block(DbGrid *dbgrid,
                       Frac_List *frac_list,
                       double *locinfo,
                       int n_layers,
@@ -2344,7 +2344,7 @@ static void st_traj_add(double *traj, double x, double y, int *ntraj)
  ** \param[in]  verbose      Verbose flag
  **
  *****************************************************************************/
-int fracture_well_to_block(Dbgrid *dbgrid,
+int fracture_well_to_block(DbGrid *dbgrid,
                            Frac_List *frac_list,
                            int col_perm,
                            int col_fluid,

@@ -32,13 +32,13 @@ class Polygons;
  * Class containing the Data Set.
  * It can be organized as a set of Isolated Points or as a regular Grid
  */
-class GSTLEARN_EXPORT Dbgrid: public Db
+class GSTLEARN_EXPORT DbGrid: public Db
 {
 public:
-  Dbgrid();
-  Dbgrid(const Dbgrid& r);
-  Dbgrid& operator=(const Dbgrid& r);
-  virtual ~Dbgrid();
+  DbGrid();
+  DbGrid(const DbGrid& r);
+  DbGrid& operator=(const DbGrid& r);
+  virtual ~DbGrid();
 
 public:
 
@@ -46,7 +46,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// IClonable Interface
-  virtual IClonable* clone() const override { return new Dbgrid(*this); };
+  virtual IClonable* clone() const override { return new DbGrid(*this); };
 
   /// Db Interface
   inline bool isGrid() const override { return true; }
@@ -55,7 +55,7 @@ public:
   int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   int getNDim() const override;
 
-  static Dbgrid* createFromNF(const String& neutralFilename,
+  static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = false);
 
   int reset(const VectorInt& nx,
@@ -77,7 +77,7 @@ public:
                        const VectorDouble& dcell,
                        int flag_add_rank);
 
-  static Dbgrid* create(const VectorInt& nx,
+  static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
                         const VectorDouble& angles = VectorDouble(),
@@ -86,12 +86,12 @@ public:
                         const VectorString& names = VectorString(),
                         const VectorString& locatorNames = VectorString(),
                         int flag_add_rank = 1);
-  static Dbgrid* createCoveringDb(Db* dbin,
+  static DbGrid* createCoveringDb(Db* dbin,
                                   const VectorInt& nodes = VectorInt(),
                                   const VectorDouble& dcell = VectorDouble(),
                                   const VectorDouble& origin = VectorDouble(),
                                   const VectorDouble& margin = VectorDouble());
-  static Dbgrid* createFromPolygon(Polygons* polygon,
+  static DbGrid* createFromPolygon(Polygons* polygon,
                                    const VectorInt& nodes,
                                    const VectorDouble& dcell,
                                    int flag_add_rank = 1);
@@ -110,10 +110,10 @@ public:
                  const VectorDouble& angles = VectorDouble());
   void gridCopyParams(int mode, const Grid& gridaux);
   bool isSameGrid(const Grid& grid) const;
-  bool isSameGridMesh(const Dbgrid& dbaux) const;
-  bool isSameGridMeshOldStyle(const Dbgrid* dbaux) const;
-  bool isSameGridRotation(const Dbgrid& dbaux) const;
-  bool isSameGridRotationOldStyle(const Dbgrid* dbaux) const;
+  bool isSameGridMesh(const DbGrid& dbaux) const;
+  bool isSameGridMeshOldStyle(const DbGrid* dbaux) const;
+  bool isSameGridRotation(const DbGrid& dbaux) const;
+  bool isSameGridRotationOldStyle(const DbGrid* dbaux) const;
   bool isGridRotated() const;
 
   int  getNTotal() const { return _grid.getNTotal(); }

@@ -901,7 +901,7 @@ int db_grid_read_bmp2(const char *filename,
  ** \param[in]  icol      Rank of the attribute
  **
  *****************************************************************************/
-int db_grid_write_zycor(const char *filename, Dbgrid *db, int icol)
+int db_grid_write_zycor(const char *filename, DbGrid *db, int icol)
 {
   FILE *file;
   int i, nx[2], jj, ii, kk, yy, ind, loop;
@@ -1087,7 +1087,7 @@ static void st_out(FILE *file, int mode, unsigned int ival)
  **
  *****************************************************************************/
 int db_grid_write_bmp(const char *filename,
-                                      Dbgrid *db,
+                                      DbGrid *db,
                                       int icol,
                                       int nsamplex,
                                       int nsampley,
@@ -1263,7 +1263,7 @@ int db_grid_write_bmp(const char *filename,
  **
  *****************************************************************************/
 int db_grid_write_irap(const char *filename,
-                                       Dbgrid *db,
+                                       DbGrid *db,
                                        int icol,
                                        int nsamplex,
                                        int nsampley)
@@ -1354,7 +1354,7 @@ int db_grid_write_irap(const char *filename,
  **
  *****************************************************************************/
 int db_grid_write_prop(const char *filename,
-                                       Dbgrid *db,
+                                       DbGrid *db,
                                        int ncol,
                                        int *icols)
 {
@@ -1448,7 +1448,7 @@ int db_grid_write_prop(const char *filename,
  **
  *****************************************************************************/
 int db_grid_write_eclipse(const char *filename,
-                                          Dbgrid *db,
+                                          DbGrid *db,
                                           int icol)
 {
   FILE *file;
@@ -1756,7 +1756,7 @@ int db_grid_read_prop2(const char *filename,
  **
  *****************************************************************************/
 int db_write_vtk(const char *filename,
-                 Dbgrid *db,
+                 DbGrid *db,
                  const VectorInt &cols,
                  const VectorString &names)
 {
@@ -2558,7 +2558,7 @@ int csv_table_read(const String &filename,
  ** \param[in]  icol      Rank of the attribute
  **
  *****************************************************************************/
-int db_grid_write_XYZ(const char *filename, Dbgrid *db, int icol)
+int db_grid_write_XYZ(const char *filename, DbGrid *db, int icol)
 {
   FILE *file;
   int lec;

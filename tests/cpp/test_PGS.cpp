@@ -50,7 +50,7 @@ int main(int /*argc*/, char */*argv*/[])
   dbfmt.setParams(FLAG_STATS);
   db->display(&dbfmt);
 
-  Dbgrid* dbprop = Dbgrid::create({100,100},{0.01,0.01});
+  DbGrid* dbprop = DbGrid::create({100,100},{0.01,0.01});
 
   VectorDouble props({0.2, 0.5, 0.3});
   int nfac = props.size();
@@ -96,6 +96,7 @@ int main(int /*argc*/, char */*argv*/[])
   error = simpgs(nullptr,db,ruleprop,&model1,&model2,neighU);
   db->setLocator(db->getLastName(),ELoc::Z);
   (void) db->dumpToNF("simupgs.ascii");
+  db->display(&dbfmt);
 
   // Design of several VarioParams
   int nlag1 = 19;

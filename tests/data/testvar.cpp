@@ -18,7 +18,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -30,7 +30,7 @@
 int main(int argc, char *argv[])
 {
   char      *filename = new char[BUFFER_LENGTH];
-  Dbgrid    *dbout;
+  DbGrid    *dbout;
   Vario     *vario;
   Model     *model;
   Option_AutoFit mauto;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
   /* Initializations */
 
-  dbout = (Dbgrid *) NULL;
+  dbout = (DbGrid *) NULL;
   vario = (Vario *) NULL;
   model = (Model *) NULL;
   flag_norm_sill = 0;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = Dbgrid::createFromNF(filename,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
 
   /* Look for simulations */
 

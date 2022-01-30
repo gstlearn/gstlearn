@@ -298,7 +298,7 @@ static void st_calcul_value(SubPlan &plan, double factor, double *vector)
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-int substitution(Dbgrid *dbgrid,
+int substitution(DbGrid *dbgrid,
                  int seed,
                  int nfacies,
                  int nstates,

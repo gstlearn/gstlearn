@@ -46,7 +46,7 @@ int main(int /*argc*/, char */*argv*/[])
   set_test_discrete(false);
 
   // Creating an output Grid Db
-  Dbgrid* dbgrid = Dbgrid::create({100,100},{0.01,0.01},{0.,0.});
+  DbGrid* dbgrid = DbGrid::create({100,100},{0.01,0.01},{0.,0.});
 
   // Creating the proportions for simPGS
   VectorDouble props1({0.2, 0.5, 0.3});

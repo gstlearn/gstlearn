@@ -16,7 +16,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
@@ -789,7 +789,7 @@ bool NeighWork::_isSameTargetBench(const Db* dbout,
   int ndim = dbout->getNDim();
   if (is_grid(dbout))
   {
-    const Dbgrid* dbgrid = dynamic_cast<const Dbgrid*>(dbout);
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbout);
     int nval = 1;
     for (int idim = 0; idim < ndim - 1; idim++)
       nval *= dbgrid->getNX(idim);

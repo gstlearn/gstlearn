@@ -1276,7 +1276,7 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
   ntot = KOPTION->ntot;
   ndim = KOPTION->ndim;
   law_set_random_seed(1234546);
-  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(DBOUT);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(DBOUT);
 
   /* Loop on the discretization points */
 
@@ -2956,12 +2956,12 @@ static void st_res_nbgh_print(int status, double *tab)
 ** \param[in]  nvar       Number of variables
 **
 *****************************************************************************/
-static Dbgrid *st_image_build(ANeighParam *neighparam, int nvar)
+static DbGrid *st_image_build(ANeighParam *neighparam, int nvar)
 {
   int    *indg,error,ndim,nech,natt;
   double *coor,seuil,value;
-  Dbgrid *dbaux;
-  Dbgrid* dbgrid;
+  DbGrid *dbaux;
+  DbGrid* dbgrid;
   VectorInt nx;
   VectorDouble tab;
 
@@ -2976,7 +2976,7 @@ static Dbgrid *st_image_build(ANeighParam *neighparam, int nvar)
   /* Preliminary checks */
 
   if (!is_grid(DBOUT)) goto label_end;
-  dbgrid = dynamic_cast<Dbgrid*>(DBOUT);
+  dbgrid = dynamic_cast<DbGrid*>(DBOUT);
   ndim = dbgrid->getNDim();
   natt = ndim + nvar;
   seuil = 1. / neighI->getSkip();
@@ -4703,12 +4703,12 @@ int _krigsim(const char *strloc,
  ** \param[in]  neighparam ANeighParam structure
  **
  *****************************************************************************/
-int krimage_func(Dbgrid *dbgrid, Model *model, ANeighParam *neighparam)
+int krimage_func(DbGrid *dbgrid, Model *model, ANeighParam *neighparam)
 {
   int i, iech, jech, error, nvar, nfeq, nb_neigh, ecr, ndim, nred, neq;
   int *indn0, *indnl, *indg0, *indgl;
   double data, estim;
-  Dbgrid* dbaux;
+  DbGrid* dbaux;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
 
@@ -4845,7 +4845,7 @@ int krimage_func(Dbgrid *dbgrid, Model *model, ANeighParam *neighparam)
  **
  *****************************************************************************/
 int global_arithmetic(Db *dbin,
-                      Dbgrid *dbgrid,
+                      DbGrid *dbgrid,
                       Model *model,
                       int ivar,
                       int flag_verbose,
@@ -5189,7 +5189,7 @@ int global_kriging(Db *dbin,
  ** \param[out]  cvtrans     CV transitive
  **
  *****************************************************************************/
-int global_transitive(Dbgrid *dbgrid,
+int global_transitive(DbGrid *dbgrid,
                       Model *model,
                       int flag_verbose,
                       int flag_regular,
@@ -5406,7 +5406,7 @@ int global_transitive(Dbgrid *dbgrid,
  ** \param[out] cooref      Working array
  **
  *****************************************************************************/
-static void st_grid_invdist(Dbgrid* dbin,
+static void st_grid_invdist(DbGrid* dbin,
                             Db* dbout,
                             int exponent,
                             int flag_expand,
@@ -5622,7 +5622,7 @@ int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
 {
   int *indg, *indref, error;
   double *coor, *cooref;
-  Dbgrid* dbgrid;
+  DbGrid* dbgrid;
 
   /* Initializations */
 
@@ -5647,7 +5647,7 @@ int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
   }
   else
   {
-    dbgrid = dynamic_cast<Dbgrid*>(dbin);
+    dbgrid = dynamic_cast<DbGrid*>(dbin);
     indg = db_indg_alloc(dbgrid);
     if (indg == nullptr) goto label_end;
     indref = db_indg_alloc(dbgrid);
@@ -5683,7 +5683,7 @@ int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
  ** \param[out] ifin    Index of the ending sample
  **
  *****************************************************************************/
-static int st_get_limits(Dbgrid* db, double top, double bot, int *ideb, int *ifin)
+static int st_get_limits(DbGrid* db, double top, double bot, int *ideb, int *ifin)
 {
   int ndim, nz, iad;
   double z0, dz;
@@ -5909,7 +5909,7 @@ static double st_estim_exp(Db *db, double *wgt, int nbefore, int nafter)
  ** \param[in]  nfeq          0 or 1 drift function(s)
  **
  *****************************************************************************/
-int anakexp_f(Dbgrid *db,
+int anakexp_f(DbGrid *db,
               double *covdd,
               double *covd0,
               double top,
@@ -6078,7 +6078,7 @@ int anakexp_f(Dbgrid *db,
  **                           variable
  **
  *****************************************************************************/
-static void st_calculate_covres(Dbgrid *db,
+static void st_calculate_covres(DbGrid *db,
                                 Model *model,
                                 double *cov_ref,
                                 int cov_radius,
@@ -6138,7 +6138,7 @@ static void st_calculate_covres(Dbgrid *db,
  **                           variable
  **
  *****************************************************************************/
-static void st_calculate_covtot(Dbgrid *db,
+static void st_calculate_covtot(DbGrid *db,
                                 int ix0,
                                 int iy0,
                                 int flag_sym,
@@ -6283,7 +6283,7 @@ static void st_calculate_covtot(Dbgrid *db,
  ** \param[out] nei_cur       Array containing the neighborhood
  **
  *****************************************************************************/
-static VectorInt st_neigh_find(Dbgrid *db,
+static VectorInt st_neigh_find(DbGrid *db,
                                int ix0,
                                int iy0,
                                int iz0,
@@ -6588,7 +6588,7 @@ static void st_vario_dump(FILE *file,
  ** \remark  If dbg_ix < -1 || dbg_iy < -1, no variogram debug file is created
  **
  *****************************************************************************/
-int anakexp_3D(Dbgrid *db,
+int anakexp_3D(DbGrid *db,
                double *cov_ref,
                int cov_radius,
                int neigh_ver,
@@ -6925,12 +6925,12 @@ int bayes_simulate(Model *model,
  ** \param[in]  range     Range (used for Gaussian only)
  **
  *****************************************************************************/
-int image_smoother(Dbgrid *dbgrid, NeighImage *neighI, int type, double range)
+int image_smoother(DbGrid *dbgrid, NeighImage *neighI, int type, double range)
 {
   int i, iech, jech, error, nvarin, nb_neigh, ndim, idelta;
   int *indn0, *indnl, *indg0, *indgl;
   double data, estim, total, delta, weight, d2, r2;
-  Dbgrid *dbaux;
+  DbGrid *dbaux;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
 
@@ -7252,7 +7252,7 @@ int krigsum_f(Db *dbin,
  ** \remark  and the corresponding LTERM is set to 0
  **
  *****************************************************************************/
-static int st_check_positivity(Dbgrid *db3grid,
+static int st_check_positivity(DbGrid *db3grid,
                                int ix,
                                int iy,
                                int nvarin,
@@ -7354,8 +7354,8 @@ static int st_check_constraint_seismic(int ix,
  **
  *****************************************************************************/
 int krigmvp_f(Db *dbin,
-              Dbgrid *db3grid,
-              Dbgrid *db2grid,
+              DbGrid *db3grid,
+              DbGrid *db2grid,
               int fsum,
               Model *model,
               ANeighParam *neighparam)
@@ -8361,7 +8361,7 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
  **
  *****************************************************************************/
 int dk_f(Db *dbin,
-         Dbgrid *dbgrid,
+         DbGrid *dbgrid,
          Model *model,
          ANeighParam *neighparam,
          int nfactor,
@@ -8370,7 +8370,7 @@ int dk_f(Db *dbin,
          int flag_est,
          int flag_std)
 {
-  Dbgrid *dbsmu;
+  DbGrid *dbsmu;
   int error, status, nech, neq, nred, nvar, nvarz, nfeq, iclass, imult, nb_mult;
   int iptr_est_bck, iptr_std_bck, ivar, i;
   int *varloc, flag_block, flag_panel, flag_continue, neqmax;
@@ -10014,7 +10014,7 @@ static int st_declustering_3(Db *db,
 int declustering_f(Db *dbin,
                    Model *model,
                    ANeighParam *neighparam,
-                   Dbgrid *dbgrid,
+                   DbGrid *dbgrid,
                    int method,
                    double *radius,
                    VectorInt ndisc,

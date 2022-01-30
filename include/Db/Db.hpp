@@ -90,15 +90,6 @@ public:
                                const VectorString& names = VectorString(),
                                const VectorString& locatorNames = VectorString(),
                                int flag_add_rank = 1);
-  static Db* createFromGrid(const VectorInt& nx,
-                            const VectorDouble& dx = VectorDouble(),
-                            const VectorDouble& x0 = VectorDouble(),
-                            const VectorDouble& angles = VectorDouble(),
-                            const ELoadBy& order = ELoadBy::SAMPLE,
-                            const VectorDouble& tab = VectorDouble(),
-                            const VectorString& names = VectorString(),
-                            const VectorString& locatorNames = VectorString(),
-                            int flag_add_rank = 1);
   static Db* createFromCSV(const String& filename,
                            bool verbose,
                            const CSVformat& csv,

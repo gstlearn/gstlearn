@@ -11,7 +11,7 @@
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "API/SPDE.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -29,7 +29,7 @@ int main(int /*argc*/, char */*argv*/[])
   temperatures->display();
 
   filename = ASerializable::getTestData("Scotland","grid.ascii");
-  Dbgrid* grid = Dbgrid::createFromNF(filename,verbose);
+  DbGrid* grid = DbGrid::createFromNF(filename,verbose);
   grid->display();
 
   filename = ASerializable::getTestData("Scotland","model.ascii");

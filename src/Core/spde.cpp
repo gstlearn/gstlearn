@@ -6344,7 +6344,7 @@ static int st_load_all_meshes(Db *dbin,
 {
   int *is_dupl, ndim_loc, flag_sphere, nb_dupl, flag_force;
   Db *dbloc;
-  Dbgrid* dbgrid;
+  DbGrid* dbgrid;
 
   flag_force = (int) get_keypone("Force_Regular_Meshing", 0);
   if (VERBOSE)
@@ -6400,7 +6400,7 @@ static int st_load_all_meshes(Db *dbin,
       if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) && is_grid(dbin)))
         dbloc = dbin;
     }
-    dbgrid = dynamic_cast<Dbgrid*>(dbloc);
+    dbgrid = dynamic_cast<DbGrid*>(dbloc);
 
     if (dbloc != NULL)
     {

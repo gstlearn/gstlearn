@@ -2090,7 +2090,7 @@ static int st_variovect_calcul(Db *db,
  ** \param[in]  idir  Rank of the Direction
  **
  *****************************************************************************/
-static int st_variogram_grid(Dbgrid *db, Vario *vario, int idir)
+static int st_variogram_grid(DbGrid *db, Vario *vario, int idir)
 {
   int *indg1, *indg2, iech, jech, nech, ipas, idim, error, npas;
   double dist;
@@ -2273,7 +2273,7 @@ static void st_variogen_line(Db *db, Vario *vario, int idir, int norder)
  ** \param[in]  norder  Order of the generalized variogram
  **
  *****************************************************************************/
-static int st_variogen_grid(Dbgrid *db, Vario *vario, int idir, int norder)
+static int st_variogen_grid(DbGrid *db, Vario *vario, int idir, int norder)
 {
   int *indg1, *indg2;
   int iwgt, iech, jech, nech, ipas, idim, error, npas, keep, nvar;
@@ -2382,7 +2382,7 @@ static int st_variogen_grid(Dbgrid *db, Vario *vario, int idir, int norder)
  ** \param[in]  vario      Vario structure
  **
  *****************************************************************************/
-static int st_variogen_grid_calcul(Dbgrid *db, Vario *vario)
+static int st_variogen_grid_calcul(DbGrid *db, Vario *vario)
 {
   int idir, error, norder;
 
@@ -2900,7 +2900,7 @@ static void st_vmap_scale(Db *dbmap, int nv2)
  ** \param[out] indg1     Working array for grid indices
  **
  *****************************************************************************/
-static int st_find_neigh_cell(Dbgrid *dbmap,
+static int st_find_neigh_cell(DbGrid *dbmap,
                               int *indg0,
                               int *neigh,
                               int rank,
@@ -2934,7 +2934,7 @@ static int st_find_neigh_cell(Dbgrid *dbmap,
  **
  *****************************************************************************/
 static int st_vmap_general(Db *db,
-                           Dbgrid *dbmap,
+                           DbGrid *dbmap,
                            const ECalcVario &calcul_type,
                            int radius,
                            const NamingConvention& namconv)
@@ -3104,8 +3104,8 @@ static int st_vmap_general(Db *db,
  ** \param[in]  namconv      Naming Convention
  **
  *****************************************************************************/
-static int st_vmap_grid(Dbgrid *dbgrid,
-                        Dbgrid *dbmap,
+static int st_vmap_grid(DbGrid *dbgrid,
+                        DbGrid *dbmap,
                         const ECalcVario &calcul_type,
                         const NamingConvention& namconv)
 {
@@ -3372,7 +3372,7 @@ void variogram_extension(const Vario *vario,
  ** \param[in]  vario        Vario structure
  **
  *****************************************************************************/
-static int st_variogrid_calcul(Dbgrid *db, Vario *vario)
+static int st_variogrid_calcul(DbGrid *db, Vario *vario)
 {
   int idir, error, iadd_new, iatt_old, iech;
   double maille;
@@ -3546,7 +3546,7 @@ static void st_final_discretization_grid(Db *db, int iptr)
  ** \param[in]  y     Coordinate along the first axis
  **
  *****************************************************************************/
-static int st_update_discretization_grid(Dbgrid *db, double x, double y)
+static int st_update_discretization_grid(DbGrid *db, double x, double y)
 {
   int iech, ix, iy, indg[2];
 
@@ -3606,7 +3606,7 @@ static int st_update_discretization_grid(Dbgrid *db, double x, double y)
  *****************************************************************************/
 int correlation_f(Db *db1,
                   Db *db2,
-                  Dbgrid *dbgrid,
+                  DbGrid *dbgrid,
                   int flag_same,
                   int icol1,
                   int icol2,
@@ -3879,7 +3879,7 @@ int correlation_ident(Db *db1, Db *db2, int icol1, int icol2, Polygons *polygon)
  **
  *****************************************************************************/
 static void st_variogram_cloud(const Db *db,
-                               Dbgrid *dbgrid,
+                               DbGrid *dbgrid,
                                int iptr,
                                const VarioParam *varioparam,
                                int idir)
@@ -3949,7 +3949,7 @@ static void st_variogram_cloud(const Db *db,
  ** \param[in]  polygon Polygons structure
  **
  *****************************************************************************/
-void variogram_cloud_ident(Db *db, Dbgrid *dbgrid, Vario *vario, Polygons *polygon)
+void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polygon)
 {
   double *ids, *coor, ps, psmin, dist, w1, w2, z1, z2, value, zcoor;
   int *indg, *rank, nech, iech, jech, igrid, idir, ideb;
@@ -4143,7 +4143,7 @@ static void st_variogram_cloud_dim(Db *db,
  *****************************************************************************/
 int variogram_cloud(const Db *db,
                     const VarioParam *varioparam,
-                    Dbgrid *dbgrid,
+                    DbGrid *dbgrid,
                     const NamingConvention& namconv)
 {
   int idir, iptr;
@@ -4710,7 +4710,7 @@ static void st_product_conj(int size,
  ** \param[in]  iptr      Pointer for storage
  **
  *****************************************************************************/
-static void st_vmap_store(Dbgrid *dbmap, double *tab, int iptr)
+static void st_vmap_store(DbGrid *dbmap, double *tab, int iptr)
 {
   int ix, iy, iz, ecr, iech, indice[3];
   VectorDouble dims(3);
@@ -4828,7 +4828,7 @@ static void st_vmap_shift(int size, double *tab, double *tabm1, double *tabm2)
  ** \remark The arrays are evaluated only if the input pointer is defined
  **
  *****************************************************************************/
-static int st_vmap_load(Dbgrid *dbgrid,
+static int st_vmap_load(DbGrid *dbgrid,
                         int ndim,
                         int sizetot,
                         int *dims,
@@ -5094,8 +5094,8 @@ static void st_vmap_extract(int *nxmap,
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-static int st_vmap_grid_fft(Dbgrid *dbgrid,
-                            Dbgrid *dbmap,
+static int st_vmap_grid_fft(DbGrid *dbgrid,
+                            DbGrid *dbmap,
                             const ECalcVario &calcul_type,
                             const NamingConvention& namconv)
 {
@@ -6705,7 +6705,7 @@ int _variogram_compute(Db *db,
 
   if (flag_grid)
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
     if (flag_gen)
       error = st_variogen_grid_calcul(dbgrid, vario);
     else
@@ -6829,7 +6829,7 @@ Db* db_variogram_cloud(Db *db,
   VectorDouble x0(2);
   x0[0] = 0.;
   x0[1] = 0.;
-  Dbgrid *dbgrid = Dbgrid::create(nx, dx, x0);
+  DbGrid *dbgrid = DbGrid::create(nx, dx, x0);
 
   // Calling the variogram cloud calculation function
 
@@ -6861,7 +6861,7 @@ Db* db_variogram_cloud(Db *db,
  **
  *****************************************************************************/
 int vmap_compute(Db *db,
-                 Dbgrid *dbmap,
+                 DbGrid *dbmap,
                  const ECalcVario &calcul_type,
                  int radius,
                  bool flag_FFT,
@@ -6873,7 +6873,7 @@ int vmap_compute(Db *db,
 
   if (db->isGrid())
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
 
     // Case where Data are on a regular grid
 
@@ -6929,7 +6929,7 @@ Db* db_vmap_compute(Db *db,
   VectorDouble dx(2);
   if (db->isGrid())
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
     dx[0] = dbgrid->getDX(0);
     dx[1] = dbgrid->getDX(1);
   }
@@ -6942,7 +6942,7 @@ Db* db_vmap_compute(Db *db,
   x0[0] = -nxx * dx[0];
   x0[1] = -nyy * dx[1];
 
-  Dbgrid *dbmap = Dbgrid::create(nx, dx, x0);
+  DbGrid *dbmap = DbGrid::create(nx, dx, x0);
 
   // Calculating the variogram map in different ways
 

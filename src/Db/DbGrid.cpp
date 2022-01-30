@@ -12,7 +12,7 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
@@ -31,34 +31,34 @@
 #include <functional>
 #include <math.h>
 
-Dbgrid::Dbgrid()
+DbGrid::DbGrid()
     : Db(),
       _grid(0)
 {
   _clear();
 }
 
-Dbgrid::Dbgrid(const Dbgrid& r)
+DbGrid::DbGrid(const DbGrid& r)
     : Db(r),
       _grid(r._grid)
 {
 }
 
-Dbgrid& Dbgrid::operator=(const Dbgrid& r)
+DbGrid& DbGrid::operator=(const DbGrid& r)
 {
   if (this != &r)
   {
-    Dbgrid::operator=(r);
+    DbGrid::operator=(r);
     _grid = r._grid;
   }
   return *this;
 }
 
-Dbgrid::~Dbgrid()
+DbGrid::~DbGrid()
 {
 }
 
-String Dbgrid::toString(const AStringFormat* strfmt) const
+String DbGrid::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -97,7 +97,7 @@ String Dbgrid::toString(const AStringFormat* strfmt) const
  * @param locatorNames  Locators for each variable (size = nvar)
  * @param flag_add_rank If 1, add an automatic rank variable
  */
-int Dbgrid::reset(const VectorInt& nx,
+int DbGrid::reset(const VectorInt& nx,
                   const VectorDouble& dx,
                   const VectorDouble& x0,
                   const VectorDouble& angles,
@@ -152,7 +152,7 @@ int Dbgrid::reset(const VectorInt& nx,
  *
  * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
  */
-int Dbgrid::resetCoveringDb(Db* db,
+int DbGrid::resetCoveringDb(Db* db,
                             const VectorInt& nodes,
                             const VectorDouble& dcell,
                             const VectorDouble& origin,
@@ -230,7 +230,7 @@ int Dbgrid::resetCoveringDb(Db* db,
  * @param dcell      Vector of the expected dimensions for the grid cells
  * @param flag_add_rank 1 if the sample rank must be generated
  */
-int Dbgrid::resetFromPolygon(Polygons* polygon,
+int DbGrid::resetFromPolygon(Polygons* polygon,
                              const VectorInt& nodes,
                              const VectorDouble& dcell,
                              int flag_add_rank)
@@ -292,7 +292,7 @@ int Dbgrid::resetFromPolygon(Polygons* polygon,
   return 0;
 }
 
-Dbgrid* Dbgrid::create(const VectorInt& nx,
+DbGrid* DbGrid::create(const VectorInt& nx,
                        const VectorDouble& dx,
                        const VectorDouble& x0,
                        const VectorDouble& angles,
@@ -302,42 +302,42 @@ Dbgrid* Dbgrid::create(const VectorInt& nx,
                        const VectorString& locatorNames,
                        int flag_add_rank)
 {
-  Dbgrid* dbgrid = new Dbgrid;
+  DbGrid* dbgrid = new DbGrid;
   if (dbgrid->reset(nx, dx, x0, angles, order, tab, names, locatorNames,
                     flag_add_rank))
   {
-    messerr("Error when creating Dbgrid from Grid");
+    messerr("Error when creating DbGrid from Grid");
     delete dbgrid;
     return nullptr;
   }
   return dbgrid;
 }
 
-Dbgrid* Dbgrid::createCoveringDb(Db* db,
+DbGrid* DbGrid::createCoveringDb(Db* db,
                                  const VectorInt& nodes,
                                  const VectorDouble& dcell,
                                  const VectorDouble& origin,
                                  const VectorDouble& margin)
 {
-  Dbgrid* dbgrid = new Dbgrid;
+  DbGrid* dbgrid = new DbGrid;
   if (dbgrid->resetCoveringDb(db, nodes, dcell, origin, margin))
   {
-    messerr("Error when creating Dbgrid covaring another Db");
+    messerr("Error when creating DbGrid covaring another Db");
     delete dbgrid;
     return nullptr;
   }
   return dbgrid;
 
 }
-Dbgrid* Dbgrid::createFromPolygon(Polygons* polygon,
+DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
                                   const VectorInt& nodes,
                                   const VectorDouble& dcell,
                                   int flag_add_rank)
 {
-  Dbgrid* dbgrid = new Dbgrid;
+  DbGrid* dbgrid = new DbGrid;
   if (dbgrid->resetFromPolygon(polygon, nodes, dcell, flag_add_rank))
   {
-    messerr("Error when creating Dbgrid from Polygon");
+    messerr("Error when creating DbGrid from Polygon");
     delete dbgrid;
     return nullptr;
   }
@@ -348,7 +348,7 @@ Dbgrid* Dbgrid::createFromPolygon(Polygons* polygon,
  * Paint the ndim columns starting from 'icol0' with grid coordinates
  * @param icol0 Starting column
  */
-void Dbgrid::_createCoordinatesGrid(int icol0)
+void DbGrid::_createCoordinatesGrid(int icol0)
 {
   // Set the Names
 
@@ -371,7 +371,7 @@ void Dbgrid::_createCoordinatesGrid(int icol0)
   }
 }
 
-bool Dbgrid::isSameGrid(const Grid& grid) const
+bool DbGrid::isSameGrid(const Grid& grid) const
 {
   if (grid.empty())
   {
@@ -381,12 +381,12 @@ bool Dbgrid::isSameGrid(const Grid& grid) const
   return _grid.isSame(grid);
 }
 
-void Dbgrid::gridCopyParams(int mode, const Grid& gridaux)
+void DbGrid::gridCopyParams(int mode, const Grid& gridaux)
 {
   _grid.copyParams(mode, gridaux);
 }
 
-bool Dbgrid::isSameGridMesh(const Dbgrid& dbaux) const
+bool DbGrid::isSameGridMesh(const DbGrid& dbaux) const
 {
   if (! dbaux.isGrid())
   {
@@ -396,7 +396,7 @@ bool Dbgrid::isSameGridMesh(const Dbgrid& dbaux) const
   return _grid.isSameMesh(dbaux.getGrid());
 }
 
-bool Dbgrid::isSameGridMeshOldStyle(const Dbgrid* dbaux) const
+bool DbGrid::isSameGridMeshOldStyle(const DbGrid* dbaux) const
 {
   if (! dbaux->isGrid())
   {
@@ -407,7 +407,7 @@ bool Dbgrid::isSameGridMeshOldStyle(const Dbgrid* dbaux) const
 }
 
 
-bool Dbgrid::isSameGridRotation(const Dbgrid& dbaux) const
+bool DbGrid::isSameGridRotation(const DbGrid& dbaux) const
 {
   if (! dbaux.isGrid())
   {
@@ -418,7 +418,7 @@ bool Dbgrid::isSameGridRotation(const Dbgrid& dbaux) const
   return _grid.isSameRotation(dbaux.getGrid());
 }
 
-bool Dbgrid::isSameGridRotationOldStyle(const Dbgrid* dbaux) const
+bool DbGrid::isSameGridRotationOldStyle(const DbGrid* dbaux) const
 {
   if (! dbaux->isGrid())
   {
@@ -429,7 +429,7 @@ bool Dbgrid::isSameGridRotationOldStyle(const Dbgrid* dbaux) const
   return _grid.isSameRotation(dbaux->getGrid());
 }
 
-bool Dbgrid::isGridRotated() const
+bool DbGrid::isGridRotated() const
 {
   return (_grid.isRotated());
 }
@@ -441,18 +441,18 @@ bool Dbgrid::isGridRotated() const
  * @param flag_rotate Use the rotation (only for Grid)
  * @return
  */
-double Dbgrid::getCoordinate(int iech, int idim, bool flag_rotate) const
+double DbGrid::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
   if (idim >= getNDim()) return TEST;
   return _grid.getCoordinate(iech, idim, flag_rotate);
 }
 
-int Dbgrid::getNDim() const
+int DbGrid::getNDim() const
 {
   return (_grid.getNDim());
 }
 
-int Dbgrid::_deserialize(FILE* file, bool /*verbose*/)
+int DbGrid::_deserialize(FILE* file, bool /*verbose*/)
 {
   int ndim, ndim2, ntot, natt, nech, i, flag_grid;
   VectorInt tabnum;
@@ -524,7 +524,7 @@ int Dbgrid::_deserialize(FILE* file, bool /*verbose*/)
   label_end: return 0;
 }
 
-int Dbgrid::_serialize(FILE* file, bool /*verbose*/) const
+int DbGrid::_serialize(FILE* file, bool /*verbose*/) const
 {
   bool onlyLocator = false;
   bool writeCoorForGrid = true;
@@ -553,12 +553,12 @@ int Dbgrid::_serialize(FILE* file, bool /*verbose*/) const
   return 0;
 }
 
-double Dbgrid::getUnit(int idim) const
+double DbGrid::getUnit(int idim) const
 {
   return _grid.getDX(idim);
 }
 
-int Dbgrid::gridDefine(const VectorInt& nx,
+int DbGrid::gridDefine(const VectorInt& nx,
                        const VectorDouble& dx,
                        const VectorDouble& x0,
                        const VectorDouble& angles)
@@ -566,9 +566,9 @@ int Dbgrid::gridDefine(const VectorInt& nx,
   return (_grid.resetFromVector(nx, dx, x0, angles));
 }
 
-int Dbgrid::dumpToNF(const String& neutralFilename, bool verbose) const
+int DbGrid::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "Dbgrid", "w", verbose);
+  FILE* file = _fileOpen(neutralFilename, "DbGrid", "w", verbose);
   if (file == nullptr) return 1;
 
   if (_serialize(file, verbose))
@@ -590,12 +590,12 @@ int Dbgrid::dumpToNF(const String& neutralFilename, bool verbose) const
  * @remarks The name does not need to be completed in particular when defined by absolute path
  * @remarks or read from the Data Directory (in the gstlearn distribution)
  */
-Dbgrid* Dbgrid::createFromNF(const String& neutralFilename, bool verbose)
+DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "Dbgrid", "r", verbose);
+  FILE* file = _fileOpen(neutralFilename, "DbGrid", "r", verbose);
   if (file == nullptr) return nullptr;
 
-  Dbgrid* db = new Dbgrid;
+  DbGrid* db = new DbGrid;
   if (db->_deserialize(file, verbose))
   {
     if (verbose) messerr("Problem reading the Neutral File.");
@@ -606,7 +606,7 @@ Dbgrid* Dbgrid::createFromNF(const String& neutralFilename, bool verbose)
   return db;
 }
 
-VectorDouble Dbgrid::getFieldSubGrid(const String& name,
+VectorDouble DbGrid::getFieldSubGrid(const String& name,
                                      int idim0,
                                      int rank,
                                      bool useSel)
@@ -639,7 +639,7 @@ VectorDouble Dbgrid::getFieldSubGrid(const String& name,
   return vec;
 }
 
-void Dbgrid::generateCoordinates(const String& radix)
+void DbGrid::generateCoordinates(const String& radix)
 {
   if (! isGrid())
   {

@@ -11,7 +11,7 @@
 #include "LithoRule/RuleProp.hpp"
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
-                 const Dbgrid* field,
+                 const DbGrid* field,
                  const RuleProp* ruleprop,
                  const Db* dat)
     : _data(),

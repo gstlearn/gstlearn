@@ -24,7 +24,7 @@
 #include "Variogram/Vario.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 
 /****************************************************************************/
 /*!
@@ -75,7 +75,7 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Data file
 
-  Dbgrid* db = Dbgrid::create({nx,nx},{1.,1.});
+  DbGrid* db = DbGrid::create({nx,nx},{1.,1.});
   if (! FFFF(bound))
   {
     db->addFieldsByConstant(1, -bound, "Lower", ELoc::L);

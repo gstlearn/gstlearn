@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   ///////////////////////
   // Creating the Grid Db
   auto nx = { 101, 101 };
-  Dbgrid* workingDbc = Dbgrid::create(nx);
+  DbGrid* workingDbc = DbGrid::create(nx);
   VectorDouble angle;
   for(auto &e : workingDbc->getAllCoordinates())
   {

@@ -18,7 +18,7 @@
 #include "Model/Model.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
@@ -234,7 +234,7 @@ void RuleShadow::_st_shadow_max(const Db *dbprop,
  ** \param[out]  xyz0  Working array
  **
  *****************************************************************************/
-double RuleShadow::_st_grid_eval(Dbgrid *dbgrid,
+double RuleShadow::_st_grid_eval(DbGrid *dbgrid,
                                  int isimu,
                                  int icase,
                                  int nbsimu,
@@ -418,7 +418,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
 
   check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::FACIES);
   check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::SIMU);
-  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return 1;
 
   error = 1;
@@ -528,7 +528,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
   int iech, jech, nadd, nech, idim, facies, nstep, istep, valid;
   double dist, t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
   double dinc, seuil, alea, sh_dsup, sh_down, yc_down, dval;
-  const Dbgrid* dbgrid;
+  const DbGrid* dbgrid;
 
   /* Initializations */
 
@@ -539,7 +539,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
   dinc = getIncr();
   nstep = (int) floor(getDMax() / dinc);
   seuil = s1min = s1max = s2min = s2max = TEST;
-  dbgrid = dynamic_cast<const Dbgrid*>(dbout);
+  dbgrid = dynamic_cast<const DbGrid*>(dbout);
 
   /* Case of the shadow */
 

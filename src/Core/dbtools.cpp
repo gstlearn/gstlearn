@@ -66,7 +66,7 @@ static Edit_Item EDIT[] = { { "P", "Define the Properties", 0, 0 },
                             { "FU", "Find Next value in Interval", 0, 1 },
                             { "D", "Current Display", 0, 0 } };
 
-static Dbgrid *DB_GRID_FILL;
+static DbGrid *DB_GRID_FILL;
 /*! \endcond */
 
 /*****************************************************************************/
@@ -86,7 +86,7 @@ static Dbgrid *DB_GRID_FILL;
  **
  *****************************************************************************/
 static int st_locate_point_on_grid(const Db *db_point,
-                                   const Dbgrid *db_grid,
+                                   const DbGrid *db_grid,
                                    VectorDouble &coor,
                                    VectorDouble &tab)
 {
@@ -133,7 +133,7 @@ static int st_locate_coor_on_grid(int np,
                                   double *xp,
                                   double *yp,
                                   double *zp,
-                                  const Dbgrid *db_grid,
+                                  const DbGrid *db_grid,
                                   double *tab)
 {
   int iech, iad, number;
@@ -235,7 +235,7 @@ static int st_larger_than_dmax(int ndim,
  ** \param[out]  tab      Output array (Dimension: number of samples in db_point)
  **
  *****************************************************************************/
-static int st_migrate_grid_to_point(Dbgrid *db_grid,
+static int st_migrate_grid_to_point(DbGrid *db_grid,
                                     Db *db_point,
                                     int iatt,
                                     int ldmax,
@@ -309,7 +309,7 @@ static int st_get_ndim(double *xp, double *yp, double *zp)
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
-int migrate_grid_to_coor(const Dbgrid *db_grid,
+int migrate_grid_to_coor(const DbGrid *db_grid,
                          int iatt,
                          int np,
                          double *xp,
@@ -358,7 +358,7 @@ int migrate_grid_to_coor(const Dbgrid *db_grid,
  **
  *****************************************************************************/
 static int st_migrate_point_to_grid(Db *db_point,
-                                    Dbgrid *db_grid,
+                                    DbGrid *db_grid,
                                     int iatt,
                                     int ldmax,
                                     const VectorDouble &dmax,
@@ -454,8 +454,8 @@ static int st_migrate_point_to_grid(Db *db_point,
  ** \param[out]  tab      Output array
  **
  *****************************************************************************/
-static int st_migrate_grid_to_grid(Dbgrid *db_gridin,
-                                   Dbgrid *db_gridout,
+static int st_migrate_grid_to_grid(DbGrid *db_gridin,
+                                   DbGrid *db_gridout,
                                    int iatt,
                                    int ldmax,
                                    const VectorDouble &dmax,
@@ -680,8 +680,8 @@ int expand_point_to_coor(const Db *db1,
  ** \param[out]  tab      Output array
  **
  *****************************************************************************/
-static int st_expand_grid_to_grid(Dbgrid *db_gridin,
-                                  Dbgrid *db_gridout,
+static int st_expand_grid_to_grid(DbGrid *db_gridin,
+                                  DbGrid *db_gridout,
                                   int iatt,
                                   int ldmax,
                                   const VectorDouble &dmax,
@@ -887,7 +887,7 @@ int db_duplicate(Db *db,
  **
  *****************************************************************************/
 int surface(Db *db_point,
-            Dbgrid *db_grid,
+            DbGrid *db_grid,
             int /*icol*/,
             double dlim,
             double *dtab,
@@ -1754,7 +1754,7 @@ static int st_grid_fill_calculate(int ipos,
  ** \param[in]  namconv Naming convention
  **
  *****************************************************************************/
-int db_grid_fill(Dbgrid *dbgrid,
+int db_grid_fill(DbGrid *dbgrid,
                  int mode,
                  int seed,
                  int radius,
@@ -2297,7 +2297,7 @@ int db_selhull(Db *db1, Db *db2, bool verbose, const NamingConvention &namconv)
  ** \param[out]  value    Output value
  **
  *****************************************************************************/
-static int st_multilinear(Dbgrid *db_grid,
+static int st_multilinear(DbGrid *db_grid,
                           const VectorInt &indg,
                           int iatt,
                           double *value)
@@ -2362,7 +2362,7 @@ static void st_shift(int rank,
  ** \param[in]  coor      Coordinates of the target point
  **
  *****************************************************************************/
-static double st_multilinear_interpolation(Dbgrid *dbgrid,
+static double st_multilinear_interpolation(DbGrid *dbgrid,
                                            int iatt,
                                            int ldmax,
                                            const VectorDouble &dmax,
@@ -2454,7 +2454,7 @@ static double st_multilinear_interpolation(Dbgrid *dbgrid,
  ** \remark (in all space dimensions) is always set to FFFF
  **
  *****************************************************************************/
-static int st_interpolate_grid_to_point(Dbgrid *db_grid,
+static int st_interpolate_grid_to_point(DbGrid *db_grid,
                                         Db *db_point,
                                         int iatt,
                                         int ldmax,
@@ -2517,7 +2517,7 @@ static int st_interpolate_grid_to_point(Dbgrid *db_grid,
  ** \remark (in all space dimensions) is always set to FFFF
  **
  *****************************************************************************/
-int interpolate_variable_to_point(Dbgrid *db_grid,
+int interpolate_variable_to_point(DbGrid *db_grid,
                                   int iatt,
                                   int np,
                                   double *xp,
@@ -2825,7 +2825,7 @@ int manage_external_info(int mode,
 {
   int info, jstart, iatt, jatt, nechin, ninfo;
   VectorDouble tab;
-  Dbgrid* dbgrid;
+  DbGrid* dbgrid;
 
   if (dbin == nullptr) return (0);
   nechin = dbin->getSampleNumber();
@@ -2841,7 +2841,7 @@ int manage_external_info(int mode,
     messerr("The Input Db does not contain the %d External Drifts");
     return (1);
   }
-  dbgrid = dynamic_cast<Dbgrid*>(dbout);
+  dbgrid = dynamic_cast<DbGrid*>(dbout);
 
   /* Dispatch */
 
@@ -2961,7 +2961,7 @@ int manage_nostat_info(int mode, Model *model, Db *dbin, Db *dbout)
  ** \remark The perturbation is calculated as DX(i) * eps
  **
  *****************************************************************************/
-int db_center_point_to_grid(Db *db_point, Dbgrid *db_grid, double eps_random)
+int db_center_point_to_grid(Db *db_point, DbGrid *db_grid, double eps_random)
 {
   int *indg, iech, error, idim, ndim;
   double *coor;
@@ -3035,9 +3035,9 @@ int db_center_point_to_grid(Db *db_point, Dbgrid *db_grid, double eps_random)
  ** \param[in]  nmult Array of multiplicity coefficients
  **
  *****************************************************************************/
-Dbgrid* db_grid_sample(Dbgrid *dbin, const VectorInt &nmult)
+DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult)
 {
-  Dbgrid *dbout;
+  DbGrid *dbout;
   VectorDouble coor;
   int ncol, icol, iech, iad, item, rank, ndim;
   ELoc locatorType;
@@ -3266,7 +3266,7 @@ static int st_get_closest_sample(Db *dbgrid,
  **
  *****************************************************************************/
 int expand_point_to_grid(Db *db_point,
-                         Dbgrid *db_grid,
+                         DbGrid *db_grid,
                          int iatt,
                          int iatt_time,
                          int iatt_angle,
@@ -3833,7 +3833,7 @@ int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
  ** \param[in]  yl      Array of Y-coordinates of the polyline
 
  *****************************************************************************/
-int db_fold_polyline(Dbgrid *dbin,
+int db_fold_polyline(DbGrid *dbin,
                      Db *dbout,
                      int ncol,
                      int *cols,
@@ -3936,7 +3936,7 @@ int db_fold_polyline(Dbgrid *dbin,
  **
  *****************************************************************************/
 static void st_expand(int flag_size,
-                      Dbgrid *dbgrid,
+                      DbGrid *dbgrid,
                       VectorDouble &tab1,
                       int *indg0,
                       int *indg,
@@ -4000,7 +4000,7 @@ static void st_expand(int flag_size,
  **
  *****************************************************************************/
 int points_to_block(Db *dbpoint,
-                    Dbgrid *dbgrid,
+                    DbGrid *dbgrid,
                     int option,
                     int flag_size,
                     int iatt_time,
@@ -4265,7 +4265,7 @@ static VectorDouble st_point_init_poisson(int verbose,
  *****************************************************************************/
 static VectorDouble st_point_init_poisreg(int verbose,
                                           int seed,
-                                          Dbgrid *dbgrid,
+                                          DbGrid *dbgrid,
                                           int *count)
 {
   int *indg, ndim, number, nbloc, ind;
@@ -4625,7 +4625,7 @@ static void st_gradient_normalize(Db *dbgrid)
  ** \param[in]  dbgrid  Db structure (grid organized)
  **
  *****************************************************************************/
-int db_gradient_components(Dbgrid *dbgrid)
+int db_gradient_components(DbGrid *dbgrid)
 
 {
   int *indg, iptrz, iptr, nx, ny, nz, nmax, error, ndim, j1, j2, number;
@@ -4795,7 +4795,7 @@ static int st_is_zero(Db *dbgrid, int iptr_grad, int iech)
  ** \param[out] surf      Local value of the surface
  **
  *****************************************************************************/
-static int st_get_next(Dbgrid *dbgrid,
+static int st_get_next(DbGrid *dbgrid,
                        int iptr_grad,
                        VectorDouble &coor,
                        int *knd,
@@ -4839,7 +4839,7 @@ static int st_get_next(Dbgrid *dbgrid,
  ** \remarks Use get_keypone("Streamline_Skip",1) to define the skipping ratio
  **
  *****************************************************************************/
-int db_streamline(Dbgrid *dbgrid,
+int db_streamline(DbGrid *dbgrid,
                   Db *dbpoint,
                   int niter,
                   double step,
@@ -5095,7 +5095,7 @@ int db_model_nostat(Db *db,
  ** \remarks Work is performed IN PLACE
  **
  *****************************************************************************/
-int db_smooth_vpc(Dbgrid *db, int width, double range)
+int db_smooth_vpc(DbGrid *db, int width, double range)
 {
   int iz, nz, nprop, ecr, nkern, jz, error;
   double *prop1, *prop2, *kernel, total, propval, dz, quant, quant0;
@@ -5290,7 +5290,7 @@ Db* db_extract(Db *db, int *ranks)
  ** \remarks This function takes a sample into account only if isotopic
  **
  *****************************************************************************/
-Db* db_regularize(Db *db, Dbgrid *dbgrid, int flag_center)
+Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 {
   int ncode, nvar, nz, ndim, not_defined, ecr, nech, size, ntot, iz, icode;
   double *wcnt, *wtab, *wcor, *coor, code, ratio;
@@ -5490,7 +5490,7 @@ Db* db_regularize(Db *db, Dbgrid *dbgrid, int flag_center)
  ** \remarks The program returns the list of all these intersection coordinates
  **
  *****************************************************************************/
-double* db_grid_sampling(Dbgrid *dbgrid,
+double* db_grid_sampling(DbGrid *dbgrid,
                          double *x1,
                          double *x2,
                          int ndisc,
@@ -5598,7 +5598,7 @@ double* db_grid_sampling(Dbgrid *dbgrid,
  ** \remarks the calling function
  **
  *****************************************************************************/
-int db_grid2point_sampling(Dbgrid *dbgrid,
+int db_grid2point_sampling(DbGrid *dbgrid,
                            int nvar,
                            int *vars,
                            int *npacks,
@@ -5954,7 +5954,7 @@ Db* db_point_init(int mode,
                   double density,
                   double range,
                   double beta,
-                  Dbgrid *dbgrid,
+                  DbGrid *dbgrid,
                   const VectorDouble &origin,
                   const VectorDouble &extend)
 {
@@ -6156,7 +6156,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
  ** \param[in]  namconv Naming convention
  **
  *****************************************************************************/
-int db_grid1D_fill(Dbgrid *dbgrid,
+int db_grid1D_fill(DbGrid *dbgrid,
                    int mode,
                    int seed,
                    const NamingConvention &namconv)
@@ -6266,19 +6266,19 @@ static int st_migrate(Db *db1,
                       int flag_fill,
                       int flag_inter)
 {
-  Dbgrid* db1grid;
-  Dbgrid* db2grid;
+  DbGrid* db1grid;
+  DbGrid* db2grid;
   int size = db2->getSampleNumber();
   VectorDouble tab(size, TEST);
 
   if (db2->isGrid())
   {
-    db2grid = dynamic_cast<Dbgrid*>(db2);
+    db2grid = dynamic_cast<DbGrid*>(db2);
 
     // To Grid
     if (db1->isGrid())
     {
-      db1grid = dynamic_cast<Dbgrid*>(db1);
+      db1grid = dynamic_cast<DbGrid*>(db1);
 
       // Grid to Grid
       if (flag_fill)
@@ -6312,7 +6312,7 @@ static int st_migrate(Db *db1,
   }
   else if (db1->isGrid())
   {
-    db1grid = dynamic_cast<Dbgrid*>(db1);
+    db1grid = dynamic_cast<DbGrid*>(db1);
 
     // Grid to Point
     if (flag_inter)
@@ -6505,7 +6505,7 @@ int migrateByLocator(Db *db1,
  **
  *****************************************************************************/
 int db_proportion_estimate(Db *dbin,
-                           Dbgrid *dbout,
+                           DbGrid *dbout,
                            Model *model,
                            int niter,
                            bool verbose,

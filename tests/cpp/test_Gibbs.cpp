@@ -19,7 +19,7 @@
 #include "Basic/OptCst.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -252,7 +252,7 @@ static int st_gibbs(int  niter,
 int main(int /*argc*/, char */*argv*/[])
 
 {
-  Dbgrid   *dbgrid;
+  DbGrid   *dbgrid;
   Model    *model1,*model2;
   SPDE_Option    s_option;
   cs            *Q,**Qcols;
@@ -280,7 +280,7 @@ int main(int /*argc*/, char */*argv*/[])
   /* 1 - Initializations */
   /***********************/
 
-  dbgrid   = (Dbgrid      *) NULL;
+  dbgrid   = (DbGrid      *) NULL;
   model1   = (Model       *) NULL;
   model2   = (Model       *) NULL;
   colors   = (int         *) NULL;

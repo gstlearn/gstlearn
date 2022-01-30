@@ -16,7 +16,7 @@
 #include "LithoRule/Node.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
@@ -206,7 +206,7 @@ int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const
   _xyz.resize(ndim);
   _ind1.resize(ndim);
 
-  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(db);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
   if (dbgrid == nullptr)
   {
     if (! flag_grid_check) return(0);
@@ -280,7 +280,7 @@ int RuleShift::gaus2facResult(PropDef* propdef,
 
   check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::FACIES);
   check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::SIMU);
-  Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(dbout);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return 1;
   ndim   = dbgrid->getNDim();
   _xyz.resize(ndim);

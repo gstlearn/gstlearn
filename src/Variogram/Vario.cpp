@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Basic/Limits.hpp"
@@ -1559,7 +1559,7 @@ void Vario::_setDPasFromGrid(bool flag_grid)
 {
   if (_db->isGrid() && flag_grid)
   {
-    Dbgrid* dbgrid = dynamic_cast<Dbgrid*>(_db);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(_db);
     for (int idir = 0; idir < getDirectionNumber(); idir++)
     {
       _varioparam.setDPas(idir, dbgrid);

@@ -20,7 +20,7 @@
 #include "Drifts/EDrift.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Db/Db.hpp"
-#include "Db/Dbgrid.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 
@@ -84,7 +84,7 @@ typedef struct
   int nring;
   int nfull;
   double range;
-  Dbgrid *db;
+  DbGrid *db;
   Model *model;
   int *indg;
   int *indg0;
@@ -685,7 +685,7 @@ static void st_cov(Model* /*model*/,
  ** \param[in]  pot_ext    Pot_Ext structure
  **
  *****************************************************************************/
-static int st_extdrift_neigh(Dbgrid *dbgrid, Pot_Ext *pot_ext)
+static int st_extdrift_neigh(DbGrid *dbgrid, Pot_Ext *pot_ext)
 {
   int ecr, iech;
   double drift;
@@ -795,7 +795,7 @@ static int st_extdrift_eval(const char *target,
                             double x0,
                             double y0,
                             double z0,
-                            Dbgrid *dbgrid,
+                            DbGrid *dbgrid,
                             Pot_Ext *pot_ext,
                             double *extval,
                             double *extgrd)
@@ -897,7 +897,7 @@ static int st_build_lhs(Pot_Env *pot_env,
                         Db *dbiso,
                         Db *dbgrd,
                         Db *dbtgt,
-                        Dbgrid *dbout,
+                        DbGrid *dbout,
                         Model *model,
                         double nugget_grd,
                         double nugget_tgt,
@@ -1527,7 +1527,7 @@ static void st_build_rhs(Pot_Env *pot_env,
                          Db *dbiso,
                          Db *dbgrd,
                          Db *dbtgt,
-                         Dbgrid *dbgrid,
+                         DbGrid *dbgrid,
                          Model *model,
                          double *coor,
                          double *rhs)
@@ -1751,7 +1751,7 @@ static void st_calc_point(Pot_Env *pot_env,
                           Db *dbiso,
                           Db *dbgrd,
                           Db *dbtgt,
-                          Dbgrid *dbgrid,
+                          DbGrid *dbgrid,
                           Model *model,
                           double *zdual,
                           double *rhs,
@@ -1874,7 +1874,7 @@ static void st_estimate(Pot_Env *pot_env,
                         Db *dbiso,
                         Db *dbgrd,
                         Db *dbtgt,
-                        Dbgrid *dbout,
+                        DbGrid *dbout,
                         Model *model,
                         double refpot,
                         double *zdualk,
@@ -2290,7 +2290,7 @@ static void st_simcond(Pot_Env *pot_env,
                        Db *dbiso,
                        Db *dbgrd,
                        Db *dbtgt,
-                       Dbgrid *dbout,
+                       DbGrid *dbout,
                        Model *model,
                        double refpot,
                        double *potsim,
@@ -2469,7 +2469,7 @@ static void st_check_data(Pot_Env *pot_env,
                           Db *dbiso,
                           Db *dbgrd,
                           Db *dbtgt,
-                          Dbgrid *dbgrid,
+                          DbGrid *dbgrid,
                           Model *model,
                           int isimu,
                           int nbsimu,
@@ -2630,7 +2630,7 @@ static double st_evaluate_refpot(Pot_Env *pot_env,
                                  Db *dbiso,
                                  Db *dbgrd,
                                  Db *dbtgt,
-                                 Dbgrid *dbgrid,
+                                 DbGrid *dbgrid,
                                  Model *model,
                                  double *zdual,
                                  double *rhs)
@@ -2680,7 +2680,7 @@ static void st_evaluate_potval(Pot_Env *pot_env,
                                Db *dbiso,
                                Db *dbgrd,
                                Db *dbtgt,
-                               Dbgrid *dbgrid,
+                               DbGrid *dbgrid,
                                Model *model,
                                double refpot,
                                int isimu,
@@ -2811,7 +2811,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
  ** \param[out] pot_ext     Pot_Ext structure
  **
  *****************************************************************************/
-static int st_extdrift_create_db(Dbgrid *dbout, Pot_Ext *pot_ext)
+static int st_extdrift_create_db(DbGrid *dbout, Pot_Ext *pot_ext)
 {
   int error, nech;
   VectorInt nx;
@@ -2886,7 +2886,7 @@ static int st_extdrift_create_db(Dbgrid *dbout, Pot_Ext *pot_ext)
  ** \param[out] pot_ext    Pot_Ext structure
  **
  *****************************************************************************/
-static int st_extdrift_calc_init(Dbgrid *dbout, Pot_Ext *pot_ext)
+static int st_extdrift_calc_init(DbGrid *dbout, Pot_Ext *pot_ext)
 {
   int number, error;
   double *a, *b;
@@ -2944,7 +2944,7 @@ static int st_pot_ext_manage(int mode,
                              Pot_Ext *pot_ext,
                              int nring,
                              double range,
-                             Dbgrid *dbout)
+                             DbGrid *dbout)
 {
   /* Dispatch */
 
@@ -3016,7 +3016,7 @@ static int st_pot_ext_manage(int mode,
 int potential_kriging(Db *dbiso,
                       Db *dbgrd,
                       Db *dbtgt,
-                      Dbgrid *dbout,
+                      DbGrid *dbout,
                       Model *model,
                       ANeighParam *neighparam,
                       double nugget_grd,
@@ -3204,7 +3204,7 @@ int potential_kriging(Db *dbiso,
  ** \param[in]  dbout        Output Db structure
  **
  *****************************************************************************/
-static int st_distance_to_isoline(Dbgrid *dbout)
+static int st_distance_to_isoline(DbGrid *dbout)
 
 {
   int radius, seed, memo;
@@ -3258,7 +3258,7 @@ static int st_distance_to_isoline(Dbgrid *dbout)
 int potential_simulate(Db *dbiso,
                        Db *dbgrd,
                        Db *dbtgt,
-                       Dbgrid *dbout,
+                       DbGrid *dbout,
                        Model *model,
                        ANeighParam *neighparam,
                        double nugget_grd,

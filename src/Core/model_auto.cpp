@@ -129,7 +129,7 @@ static StrMod *STRMOD = nullptr;
 static Option_AutoFit MAUTO;
 static int *INDG1;
 static int *INDG2;
-static const Dbgrid *DBMAP;
+static const DbGrid *DBMAP;
 static void (*ST_PREPAR_GOULARD)(int imod);
 static Recint RECINT;
 
@@ -5046,7 +5046,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
  ** \param[in]  optvar_arg  Opt_Vario structure
  **
  *****************************************************************************/
-int vmap_auto_fit(const Dbgrid *dbmap,
+int vmap_auto_fit(const DbGrid *dbmap,
                   Model *model,
                   bool verbose,
                   const Option_AutoFit &mauto_arg,

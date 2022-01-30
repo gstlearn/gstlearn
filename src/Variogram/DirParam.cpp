@@ -207,7 +207,7 @@ bool DirParam::isLagValid(int ilag) const
  * Set the value of the lag as computed from the Db (Grid organized)
  * @param db Db structure
  */
-void DirParam::setDPas(const Dbgrid* db)
+void DirParam::setDPas(const DbGrid* db)
 {
   if (_grincr.empty()) return;
   double dpas = 0;

@@ -47,8 +47,8 @@ int main(int /*argc*/, char */*argv*/[])
   db->display(); // TODO : please use FLAG_STATS only when available
 
   auto nx={ 101,101 };
-  Dbgrid* workingDbc = Dbgrid::create(nx);
-  Dbgrid* dbprop = Dbgrid::create({100,100},{0.01,0.01});
+  DbGrid* workingDbc = DbGrid::create(nx);
+  DbGrid* dbprop = DbGrid::create({100,100},{0.01,0.01});
 
   VectorDouble props({0.2, 0.5, 0.3});
   int nfac = props.size();

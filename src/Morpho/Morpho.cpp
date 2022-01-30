@@ -1201,7 +1201,7 @@ VectorInt gridcell_neigh(int ndim,
                          int *nvois)
 {
   int *indg0, *indg1, ecr, flag_count, nech;
-  Dbgrid *grid;
+  DbGrid *grid;
   VectorInt nx, indret;
   VectorDouble x0;
   VectorDouble dx;

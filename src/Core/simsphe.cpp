@@ -418,7 +418,7 @@ static double* st_spectrum_any(Model *model,
  ** \remarks: Simsph_Fixed_Degree: to define the Maximum Degree
  **
  *****************************************************************************/
-int simsph_f(Dbgrid *db,
+int simsph_f(DbGrid *db,
              Model *model,
              int seed,
              int special,
