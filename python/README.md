@@ -54,7 +54,7 @@ import gstlearn.plot as gp
 # Grid size
 nx = 60
 ny = 30
-mygrid = gl.Db.createFromGrid([nx,ny],[1,1])
+mygrid = gl.DbGrid.create([nx,ny],[1,1])
 # Add a gaussian random field
 var = np.random.randn(nx * ny)
 mygrid.addFields(var, "var1")

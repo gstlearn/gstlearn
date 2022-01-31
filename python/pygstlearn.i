@@ -1,14 +1,13 @@
 // https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
-// No need of %module keyword when building using cmake UseSWIG
-// TODO: restore directors feature
-%module(directors="1") gstlearn
+%module(directors="1") pygstlearn
 
 // https://stackoverflow.com/a/26035360/3952924
-%import "doc/documentation.i"
 
-// Include C++ library SWIG interface (Keep Order !!!!)
-%include ../swig/swig_inc.i
-%include ../swig/swig_exp.i
+%import "documentation.i"
+
+// gstlearn C++ library must be installed (Keep Order !!!!)
+%include swig_inc.i
+%include swig_exp.i
 
 // For suppressing SWIG warning due to -keyword option
 #pragma SWIG nowarn=511
@@ -93,16 +92,7 @@ void exit_f(void)
 %extend Model {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend NeighUnique {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend NeighBench {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend NeighMoving {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend NeighImage {
+%extend Neigh {
   std::string __repr__() {  return $self->toString();  }
 }
 %extend AnamHermite {
@@ -141,6 +131,22 @@ void exit_f(void)
 import gstlearn as gl
 import numpy as np
 
+
+# In[2]:
+
+
+def is_tuple_str(mytuple):
+    """Check is a tuple (or iterable) contains only strings"""
+    all_str = True
+    if not(isinstance(mytuple,(tuple, list, np.ndarray))):
+        all_str = False
+    i = 0
+    while all_str and i<len(mytuple):
+        if not(isinstance(mytuple[i], (str, np.str_))):
+               all_str = False
+        i += 1
+    return all_str
+
 def getitem(self,name):
     """
     Use Db[name]. Returns the arrays of the fields corresponding to input 'name'.
@@ -155,33 +161,44 @@ def getitem(self,name):
     Returns
     -------
     numpy.ndarray
-        Array of shape (nsamples, nvar) of the extracted data. Array is squeezed to 1D if nvar=1.
+        Array of shape (nsamples, nvar) of the extracted data.
 
     """
+    
     if self.useSel:
         nrows = self.getActiveSampleNumber()
     else:
         nrows = self.getSampleNumber()
+    
+    if isinstance(name, tuple) and isinstance(name[0], (int,slice)): # 2D (rows, columns)
+        rows = name[0]
+        columns = name[1]
+    else:
+        rows = slice(None,None,None) # extract all rows
+        columns = name
+    
+    # extract columns
+    if isinstance(columns, str) or is_tuple_str(columns): #get variable(s) by name
+        names = np.atleast_1d(columns)
+        nbvar = len(self.getNames(columns))
+        temp = np.array(self.getFields(names, self.useSel))
+    
+    elif isinstance(columns, gl.ELoc): #get variable(s) by locator
+        temp = np.array(self.getFieldsByLocator(columns, self.useSel))
+        nbvar = self.getLocatorNumber(columns)
         
-    if isinstance(name, gl.ELoc):
-        temp = np.array(self.getFieldsByLocator(name, self.useSel))
-        nbvar = self.getLocatorNumber(name)
-        if nbvar == 0:
-            temp = np.array([])
-
-    elif isinstance(np.atleast_1d(name)[0], (str,np.str_)):
-        name = np.atleast_1d(name)
-        nbvar = len(self.getNames(name))
-        temp = np.array(self.getFields(name, self.useSel))
-        
-    else: # indices of arrays
-        array = np.array(self.getFields(useSel=self.useSel))
-        nbvar = self.getFieldNumber()
-        array = np.reshape(array, (nbvar,nrows))
-        temp = array[name]
-        return temp.T
+    else: #indices or slice (column indices)
+        array = np.array(self.getAllFields(useSel=self.useSel))
+        nbvar_tot = self.getFieldNumber()
+        array = np.reshape(array, (nbvar_tot,nrows))
+        temp = np.atleast_2d(array[columns])
+        nbvar = temp.shape[0]
         
     temp = temp.reshape([nbvar,nrows]).T
+            
+    # extract rows
+    temp = temp[rows]
+        
     temp[temp == gl.TEST] = None
     return temp
 
@@ -240,4 +257,7 @@ setattr(gl.Db,"__getitem__",getitem)
 
 setattr(gl.Db,"__setitem__",setitem)
 
+		   
+
+		   
 %}
