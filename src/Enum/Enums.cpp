@@ -8,13 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Basic/ECst.hpp"
-#include "../../include/Basic/EDbg.hpp"
-#include "../../include/Basic/EDbg.hpp"
+#include "Basic/ECst.hpp"
+#include "Basic/EDbg.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
-
 #include "Drifts/EDrift.hpp"
 #include "Model/EModelProperty.hpp"
 #include "Model/EConsElem.hpp"

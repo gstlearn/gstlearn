@@ -399,7 +399,10 @@ void ascii_environ_read(char *file_name, int verbose)
     if (st_record_read("Debug Keyword", "%s", name)) goto label_end;
     if (st_record_read("Debug Value", "%d", &debug)) goto label_end;
     String s = toUpper(String(name));
-    OptDbg::defineByKey(s, debug);
+    if (debug == 1)
+      OptDbg::defineByKey(s);
+    else
+      OptDbg::undefineByKey(s);
   }
 
   label_end: st_file_close(file);

@@ -11,13 +11,13 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/ECst.hpp"
 
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <map>
-#include "../../include/Basic/ECst.hpp"
 
 std::map<const ECst, double> OptCst::_cst = std::map<const ECst, double>({
                                        { ECst::NTCAR,  10. },

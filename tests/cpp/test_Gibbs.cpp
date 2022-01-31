@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Basic/ECst.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
@@ -17,6 +16,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
+#include "Basic/ECst.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"

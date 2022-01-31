@@ -723,12 +723,15 @@ static void st_goulard_verbose(int mode, Option_AutoFit &mauto)
     verbose = mauto.getVerbose();
     mauto.setVerbose(0);
     flag_converge = OptDbg::query(EDbg::CONVERGE);
-    OptDbg::define(EDbg::CONVERGE, 0);
+    OptDbg::undefine(EDbg::CONVERGE);
   }
   else
   {
     mauto.setVerbose(verbose);
-    OptDbg::define(EDbg::CONVERGE, flag_converge);
+    if (flag_converge)
+      OptDbg::define(EDbg::CONVERGE);
+    else
+      OptDbg::undefine(EDbg::CONVERGE);
   }
 }
 

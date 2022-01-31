@@ -6807,7 +6807,7 @@ ECalcVario vario_identify_calcul_type(const String &calcul_name)
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-Db* db_variogram_cloud(Db *db,
+DbGrid* db_variogram_cloud(Db *db,
                        const VarioParam *varioparam,
                        double lagmax,
                        double varmax,
@@ -6842,7 +6842,6 @@ Db* db_variogram_cloud(Db *db,
     delete dbgrid;
     dbgrid = nullptr;
   }
-
   return dbgrid;
 }
 
@@ -6909,15 +6908,15 @@ int vmap_compute(Db *db,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-Db* db_vmap_compute(Db *db,
-                    const ECalcVario &calcul_type,
-                    int nxx,
-                    int nyy,
-                    double dxx,
-                    double dyy,
-                    int radius,
-                    bool flag_FFT,
-                    const NamingConvention& namconv)
+DbGrid* db_vmap_compute(Db *db,
+                        const ECalcVario &calcul_type,
+                        int nxx,
+                        int nyy,
+                        double dxx,
+                        double dyy,
+                        int radius,
+                        bool flag_FFT,
+                        const NamingConvention& namconv)
 {
   int error = 0;
 

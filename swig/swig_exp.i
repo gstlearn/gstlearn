@@ -74,6 +74,7 @@ class IClonable{};
 %include Basic/Utilities.hpp
 %include Basic/OptDbg.hpp
 %include Basic/OptCst.hpp
+%include Basic/OptCustom.hpp
 %include Basic/EDbg.hpp
 %include Basic/ECst.hpp
 
@@ -227,6 +228,7 @@ class IClonable{};
 %include API/ESPDECalcMode.hpp
 
 %include Db/Db.hpp
+%include Db/DbGrid.hpp
 %include Db/DbStringFormat.hpp
 %include Db/ELoadBy.hpp
 %include Db/ELoc.hpp

@@ -22,7 +22,9 @@
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
+#include "Gibbs/AGibbs.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
+#include "Gibbs/GibbsMulti.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -86,7 +88,8 @@ int main(int /*argc*/, char */*argv*/[])
     db->addFieldsByConstant(1, TEST, "Lower", ELoc::L);
     db->addFieldsByConstant(1, TEST, "Upper", ELoc::U);
   }
-  if (db_locator_attribute_add(db,ELoc::GAUSFAC,nbsimu*nvar,0,0.,&iptr)) return 1;
+  if (db_locator_attribute_add(db, ELoc::GAUSFAC, nbsimu * nvar, 0, 0.,
+                               &iptr)) return 1;
 
   // Model
 

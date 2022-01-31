@@ -12,32 +12,20 @@
 
 #include "gstlearn_export.hpp"
 
-#include "EDbg.hpp"
+#include "Basic/String.hpp"
+#include <map>
 
 /**
- * Operate the list of active Debug options
+ * Operate the list of Constant options
  */
-class GSTLEARN_EXPORT OptDbg
+class GSTLEARN_EXPORT OptCustom
 {
 public:
-  static void reset();
-  static bool query(const EDbg& option);
-  static bool queryByKey(const String& name);
-  static void define(const EDbg& option);
-  static void undefine(const EDbg& option);
-  static void defineByKey(const String& name);
-  static void undefineByKey(const String& name);
-  static void defineAll();
-  static void undefineAll();
-  static void display();
-
-  static void setIndex(int cur_index) { _currentIndex = cur_index; }
-  static bool isReferenceDefined() { return _reference >= 0; }
-  static void setReference(int index) { _reference = index; }
-  static bool force();
+  static double query(const String& name);
+  static void define(const String& name, double value);
+  static void undefine(const String& name);
+  static void display(void);
 
 private:
-  static std::vector<EDbg> _dbg;
-  static int _currentIndex;
-  static int _reference;
+  static std::map<const String, double> _cst;
 };

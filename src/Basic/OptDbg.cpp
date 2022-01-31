@@ -47,46 +47,78 @@ bool OptDbg::queryByKey(const String& name)
   return false;
 }
 
-void OptDbg::define(const EDbg& option, bool status)
+/**
+ * Switching ON a option
+ * @param option Description of the option (Keyword)
+ */
+void OptDbg::define(const EDbg& option)
 {
-  if (status)
+  if (!query(option))
   {
-    // Switching ON an option
-
-    if (! query(option))
-    {
-      _dbg.push_back(option);
-    }
-  }
-  else
-  {
-    // Switching OFF an option
-
-    if (query(option))
-    {
-      _dbg.erase(std::remove(_dbg.begin(), _dbg.end(), option), _dbg.end());
-    }
+    _dbg.push_back(option);
   }
 }
 
-void OptDbg::defineByKey(const String& name, bool status)
+/**
+ * Switching OFF an option
+ * @param option Description of the Option (Keyword)
+ */
+void OptDbg::undefine(const EDbg& option)
+{
+  if (query(option))
+  {
+    _dbg.erase(std::remove(_dbg.begin(), _dbg.end(), option), _dbg.end());
+  }
+}
+
+/**
+ * Switching ON a option
+ * @param name Description of the option (Name)
+ */
+void OptDbg::defineByKey(const String& name)
 {
   auto it = EDbg::getIterator();
   while (it.hasNext())
   {
     EDbg e = *it;
-    if (e.getKey() == toUpper(name)) define(e, status);
+    if (e.getKey() == toUpper(name)) define(e);
     it.toNext();
   }
 }
 
-void OptDbg::defineAll(bool status)
+/**
+ * Switching OFF a option
+ * @param name Description of the option (Name)
+ */
+void OptDbg::undefineByKey(const String& name)
 {
   auto it = EDbg::getIterator();
   while (it.hasNext())
   {
     EDbg e = *it;
-    define(e, status);
+    if (e.getKey() == toUpper(name)) undefine(e);
+    it.toNext();
+  }
+}
+
+void OptDbg::defineAll(void)
+{
+  auto it = EDbg::getIterator();
+  while (it.hasNext())
+  {
+    EDbg e = *it;
+    define(e);
+    it.toNext();
+  }
+}
+
+void OptDbg::undefineAll(void)
+{
+  auto it = EDbg::getIterator();
+  while (it.hasNext())
+  {
+    EDbg e = *it;
+    undefine(e);
     it.toNext();
   }
 }

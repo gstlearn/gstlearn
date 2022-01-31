@@ -4,6 +4,7 @@
 
 #include "Basic/OptCst.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 
@@ -11,7 +12,7 @@ int main(int argc,char **argv)
 {
   // Management of OptDbg
   mestitle(0,"Checking 'OptDbg' functionalities");
-  OptDbg::define(EDbg::NBGH, true);
+  OptDbg::define(EDbg::NBGH);
   OptDbg::display();
   message("Current value of Neighborhood Debug = %d\n",
           OptDbg::query(EDbg::NBGH));
@@ -30,4 +31,13 @@ int main(int argc,char **argv)
   OptCst::display();
   message("\n");
   ut_vector_display("Vector Display (modified)",vect);
+
+  // Management of OptCustom
+  mestitle(0,"Checking 'OptCustom' functionalities");
+  OptCustom::define("My first Trial1", 12.);
+  OptCustom::define("My second Trial2", 21.);
+  OptCustom::define("My third Trial3", 21.);
+  OptCustom::undefine("Bidon");
+  OptCustom::undefine("My second Trial2");
+  OptCustom::display();
 }

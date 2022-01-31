@@ -69,9 +69,9 @@ public:
             int flag_add_rank = 1);
   int resetCoveringDb(Db* db,
                       const VectorInt& nodes,
-                      const VectorDouble& dcell,
-                      const VectorDouble& origin,
-                      const VectorDouble& margin);
+                      const VectorDouble& dcell = VectorDouble(),
+                      const VectorDouble& origin = VectorDouble(),
+                      const VectorDouble& margin = VectorDouble());
   int resetFromPolygon(Polygons* polygon,
                        const VectorInt& nodes,
                        const VectorDouble& dcell,

@@ -48,7 +48,7 @@ int main(int /*argc*/, char */*argv*/[])
   constraints.addItem(&consNug);
 
   Option_AutoFit opt;
-  OptDbg::define(EDbg::CONVERGE,1);
+  OptDbg::define(EDbg::CONVERGE);
   int err = model->fit(vario,structs,true,opt,constraints);
 
   filename = ASerializable::getTestData("Scotland","model.ascii");

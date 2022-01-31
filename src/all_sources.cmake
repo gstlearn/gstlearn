@@ -208,6 +208,7 @@ set(SOURCES
   Basic/Utilities.cpp
   Basic/OptDbg.cpp
   Basic/OptCst.cpp
+  Basic/OptCustom.cpp
   Polynomials/Chebychev.cpp
   Polynomials/APolynomial.cpp
   Polynomials/Hermite.cpp
