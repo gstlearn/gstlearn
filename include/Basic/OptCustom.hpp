@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT OptCustom
 {
 public:
-  static double query(const String& name);
+  static double query(const String& name, double valdef = 0.);
   static void define(const String& name, double value);
   static void undefine(const String& name);
   static void display(void);

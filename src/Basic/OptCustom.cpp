@@ -20,13 +20,13 @@
 
 std::map<const String, double> OptCustom::_cst = std::map<const String, double>();
 
-double OptCustom::query(const String& name)
+double OptCustom::query(const String& name, double valdef)
 {
   for (auto e: _cst)
   {
     if (e.first == name) return e.second;
   }
-  return TEST;
+  return valdef;
 }
 
 void OptCustom::define(const String& name, double value)

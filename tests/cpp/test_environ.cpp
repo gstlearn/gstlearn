@@ -34,10 +34,13 @@ int main(int argc,char **argv)
 
   // Management of OptCustom
   mestitle(0,"Checking 'OptCustom' functionalities");
-  OptCustom::define("My first Trial1", 12.);
-  OptCustom::define("My second Trial2", 21.);
-  OptCustom::define("My third Trial3", 21.);
-  OptCustom::undefine("Bidon");
-  OptCustom::undefine("My second Trial2");
+  OptCustom::define("My first Trial",  12.);
+  OptCustom::define("My second Trial", 21.);
+  OptCustom::define("My third Trial",  32.);
+  message("Questioning known keyword = %lf\n",OptCustom::query("My first Trial"));
+  message("Questioning unknown keyword (with default) = %lf\n",OptCustom::query("bidon",123.));
+  message("Questioning unknown keyword (without default) = %lf\n",OptCustom::query("bidon"));
+  OptCustom::undefine("Bidon"); // Does not do anything as keyword is not registered
+  OptCustom::undefine("My second Trial");
   OptCustom::display();
 }
