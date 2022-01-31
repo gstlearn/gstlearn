@@ -156,6 +156,7 @@ struct SegYArg
   int ntraces;
   VectorVectorDouble tab;
   VectorVectorDouble descr;
+  VectorVectorDouble cotes;
 };
 
 /***************************************/
